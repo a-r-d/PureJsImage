@@ -1853,6 +1853,10 @@ to own only generic descriptors, definitions, providers, and registries.
       cancellation and independent read/output/chunk/filter limits, verify exact local and
       HTTP-range budgets plus real Chromium execution, and defer a public container export until
       two independent Milestone E dialect readers prove the substrate.
+- [x] Harden the shared HDF5 substrate for public dialect use: gate dialect probes behind exact
+      eight-byte signature reads, make pending page/dataset/header/link loads cancellation-neutral
+      with per-caller abortable waits, prevent post-close cache admission, count concurrent graph
+      loads once, and batch rank-2 strided reads under an independent input-span limit.
 - [x] Start NCEM EMD E1 with bounded compact HDF5 attribute messages and a package-private 0.2
       structural inspector that discovers consistent numeric `data`/`dimN` groups without reading
       image samples; decode openNCEM fixed strings, preserve labels and units, retain exact linear or
@@ -1878,6 +1882,9 @@ to own only generic descriptors, definitions, providers, and registries.
       JSON metadata, separate detector datasets and frame axes, exact scalar/DPC/FFT samples,
       preserved positive-half uncentered FFT evidence, specific pruned-file errors, generated
       hostile coverage, and three pinned real application fixtures.
+- [x] Make the Velox E2 metadata contract explicitly per-frame: read and retain every JSON column
+      under per-column and total budgets, require calibration-critical fields to remain invariant
+      before publishing global physical axes, and report conflicts with index axes and warnings.
 - [ ] Add Velox EMD E3 sparse spectra only after Lab Viewer has a scientific spectrum surface and
       the event binning, detector/frame selection, summing, overflow, and point/ROI memory contracts
       are approved. The adjacent app currently exposes analysis-series export, not this surface.
@@ -1913,6 +1920,12 @@ to own only generic descriptors, definitions, providers, and registries.
       generated capabilities, bundle ceilings, and a real-Chromium workflow.
 - [x] Record JPK force/curve archives and the unreleased OZX profile as explicit F5 deferrals rather
       than claiming image-container compatibility from ZIP structure alone.
+- [x] Add an authoritative machine-readable provenance record for every committed surface binary,
+      including exact revision/path/URL, SPDX license and link, attribution, redistribution status,
+      SHA-256, and per-file expected oracle.
+- [x] Correct NIfTI zero-slope scaling and affine geometry, and enforce the incomplete-calibration
+      invariant across DM, TIA SER, Velox, and NIfTI by preserving raw values while omitting
+      physical units/evidence and recording structured warnings for index-coordinate fallbacks.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -2190,3 +2203,15 @@ to own only generic descriptors, definitions, providers, and registries.
     passes all 126 files and 1,499 tests. EDAX SPC/SPD/IPR and Bruker BCF remain the roadmap's
     intentional later work, while registration and a representative Lab Viewer scenario remain a
     separate integration-repository task.
+  - Scientific-format review hardening: HDF5 dialect probes now stop after exact signature reads on
+    unrelated sparse sources; shared metadata work is cancellation-neutral, close-safe, and counted
+    once; rank-two strided reads batch under a separate input-span budget. Velox retains every frame
+    metadata column, assembles both row- and column-chunked real files, and only publishes global
+    calibration when critical values agree. NIfTI zero-slope scaling and sform/qform affine mapping,
+    incomplete DM/TIA/Velox/NIfTI calibration, and exact surface-corpus provenance all have focused
+    regressions. All six pinned Velox corpus files pass, the complete Chromium compatibility file
+    passes 76 tests, and `npm run check` passes all 127 files and 1,515 tests. The 1,848,317-byte
+    browser bundle, 44.1 KiB NIfTI reader, 169.6 KiB Velox reader, 175.2 KiB NCEM reader, and 834.3
+    KiB aggregate scientific-reader entry remain within their recorded ceilings. Lab Viewer
+    registration, public Velox sparse spectra, NanoScope, JPK/OZX, EDAX, and BCF remain explicit
+    follow-up work rather than claims of this branch.

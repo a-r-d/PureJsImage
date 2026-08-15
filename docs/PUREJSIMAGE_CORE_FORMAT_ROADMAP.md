@@ -455,8 +455,11 @@ offsets, parses superblock versions 0 through 3 with all HDF5-supported 2/4/8/16
 length widths, applies the specified base-address relocation rule, and retains on-disk addresses as
 `bigint` until declared EOF and `ImageSource.size` bounds permit conversion. Modern superblocks
 verify the HDF5 lookup3 checksum. A caller-owned metadata page cache is byte/read bounded, true-LRU,
-source-identity checked, cancellation aware, and safe for weakest-lifetime source buffers. Legacy
-family, multi-file, and unknown driver blocks are rejected explicitly; D1 also rejects modern
+source-identity checked, cancellation aware, and safe for weakest-lifetime source buffers.
+Shared page and dataset-metadata loads are cancellation-neutral with per-caller abortable waits;
+pending graph loads account once, and cache generations prevent post-close repopulation. Dialect
+probes first use exact eight-byte reads with a strict legal-offset ceiling before opening HDF5.
+Legacy family, multi-file, and unknown driver blocks are rejected explicitly; D1 also rejects modern
 superblock extensions until D2 can parse their object-header driver messages rather than guessing.
 Exact independently generated h5py 3.14.0 / HDF5 1.14.6 byte fixtures cover clean superblock v2,
 clean superblock v3, and a 512-byte user block in addition to generated hostile geometry.
@@ -660,7 +663,9 @@ Conformance gates:
 D6 is complete for the package-private substrate. A small internal file facade now classifies graph
 objects, lists links, caches bounded dataset metadata, and streams exact row-major rectangular
 selection blocks from compact, contiguous, and chunked storage. Linear reads coalesce the largest
-contiguous suffix instead of reading element by element; chunked reads retain D4/D5's targeted index
+contiguous suffix, and rank-2 strided selections batch many complete source rows under separate
+input-span, output, and read-operation caps instead of reading element by element; chunked reads
+retain D4/D5's targeted index
 lookup and one-decoded-chunk working set, copy only each selected intersection into the yielded
 block, and materialize exact fill bytes without allocating a logical dataset. Selection rank,
 extent, output bytes, read operations, selected chunks, metadata, encoded data, decoded data, and
@@ -718,6 +723,9 @@ E2 is complete for the initial Velox image subset. The separate public
 hierarchy, parses bounded per-frame JSON, exposes every rank-3 numeric image group as its own
 detector dataset with an explicit frame axis, preserves native scalar, DPC complex, and FFT compound
 samples, and records positive-half and uncentered FFT storage without reconstructing or shifting it.
+Every frame metadata column is read and retained under per-column and aggregate JSON caps. Global
+calibration is emitted only when detector, pixel size/unit/offset, and frame-time fields are
+invariant across columns; conflicts produce index axes and a structured warning.
 Generated fixtures cover hostile JSON, output limits, frame non-summing, FFT storage, and pruned
 files. Three revision- and SHA-256-pinned RosettaSciIO files independently verify a TEM stack, DPC
 complex data, and positive-half FFT data without committing their GPL binaries.
@@ -931,6 +939,9 @@ bounded fixture coverage, package/browser validation, capability-manifest entry,
 ceiling. Pinned real RosettaSciIO files verify RPL/RAW, ISO EMSA, BLO, and processed Merlin MIB.
 EDAX and Bruker BCF remain intentionally deferred as the table originally specified. Registration
 and a representative scenario in the separate Lab Viewer repository remain integration work.
+Committed surface-format binaries use
+`tests/fixtures/scientific-surface/corpus.json` as the authoritative per-file source revision, URL,
+license, attribution, redistribution, hash, and oracle record.
 
 | Status | Format | Priority | Reason and initial contract |
 | --- | --- | --- | --- |
@@ -938,7 +949,7 @@ and a representative scenario in the separate Lab Viewer repository remain integ
 | Complete | MSA/EMSA | High after series reads | Text spectrum interchange and the cheapest honest entry into spectra. |
 | Complete | NRRD | Medium | Common volume interchange. Supports raw and bounded gzip payloads, type/endian, sizes, space directions, origin, and one detached data file. |
 | Complete | MHD/MHA plus RAW | Medium | Simple medical/engineering volume exchange, useful for CT without adopting DICOM. |
-| Complete | NIfTI-1/2 `.nii` | Medium-low | Useful generic volumes. Uncompressed data stays range-readable; `.nii.gz` is an explicit bounded full-decompression path. |
+| Complete | NIfTI-1/2 `.nii` | Medium-low | Useful generic volumes. Uncompressed data stays range-readable; `.nii.gz` is an explicit bounded full-decompression path; zero-slope scaling is native, axis-aligned qform/sform permutations and flips are exact, and non-separable affines remain full metadata with voxel-local axes. |
 | Complete | NPY | Medium-low | Cheap arbitrary numeric interchange with intentionally generic axes because calibration is normally absent. NPZ remains outside the initial contract. |
 | Complete | BLO | Medium for 4D-STEM | Uint8 diffraction blockfiles with frame validation, navigator, and limited metadata. |
 | Complete for processed data | MIB | Medium for 4D-STEM | U08/U16/U32 detector frames and optional HDR metadata; packed raw R64 words reject explicitly. |

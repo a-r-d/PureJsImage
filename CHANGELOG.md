@@ -23,18 +23,21 @@ All notable changes to PureJsImage are documented in this file.
   RosettaSciIO application files join generated hostile and independent h5py coverage without
   redistributing their GPL binaries; Direct Electron `.de5` remains explicitly unsupported.
 - Added the separate public `purejsimage/scientific/readers/velox-emd` E2 image reader with
-  hierarchy-based probing, bounded per-frame JSON, separate detector datasets and frame axes,
-  native scalar and complex data, preserved positive-half uncentered FFT storage, and explicit
-  pruned-spectrum-image errors. Generated hostile fixtures and pinned TEM stack, DPC, and FFT files
-  verify the reader without committing the GPL fixture binaries. Sparse Velox spectra remain gated
-  on the Lab Viewer spectrum surface and explicit event-decoding contracts.
+  hierarchy-based probing, bounded per-frame JSON under an aggregate budget, separate detector
+  datasets and frame axes, native scalar and complex data, preserved positive-half uncentered FFT
+  storage, and explicit
+  pruned-spectrum-image errors. Every metadata column is preserved, while calibration-critical
+  conflicts fall back to index axes with a structured warning. Generated hostile fixtures and
+  pinned TEM stack, DPC, and FFT files verify the reader without committing the GPL fixture
+  binaries. Sparse Velox spectra remain gated on the Lab Viewer spectrum surface and explicit
+  event-decoding contracts.
 - Added structured calibration provenance to scientific axes, including validated embedded,
   sidecar, derived, and format-default evidence. GSF, FITS, MRC/CCP4, OME-TIFF, and Aperio SVS
   readers now identify the exact source resource and stable metadata locator behind each available
   physical axis.
 - Added the public `createImageCodecScientificReader()` fallback adapter and individually
-  importable PNG and JPEG scientific readers. They preserve codec pixels, uint8 component
-  semantics, source identity, cancellation, block release ownership, and explicit reader
+  importable PNG, JPEG, WebP, BMP, and JP2 scientific readers. They preserve codec pixels and
+  component semantics, source identity, cancellation, block release ownership, and explicit reader
   registration without linking codecs into the base scientific entry.
 - Added `purejsimage/scientific/readers/tiff`, a native-precision ordinary TIFF reader with labeled
   page axes, incompatible-series separation, SubIFD resolution levels, bounded normalized optional
@@ -68,6 +71,10 @@ All notable changes to PureJsImage are documented in this file.
   counts without eager payload reads, preserves incomplete elements as bounded document metadata,
   provides direct canonical sample reads, and is verified against pinned real RosettaSciIO files
   without redistributing their GPL-licensed binaries.
+- Added the public `purejsimage/scientific/readers/tia-emi` companion reader for portable embedded
+  `ObjectInfo` XML, numbered SER resource composition, acquisition metadata, stable identities,
+  and evidence-preserving reciprocal-space reinterpretation. Contradictory SER coordinates remain
+  authoritative and are reported rather than overwritten.
 - Added a package-private HDF5 file and address layer with legal user-block signature discovery,
   superblock versions 0 through 3, 2/4/8/16-byte integers, relocation-aware bigint addresses,
   lookup3 superblock checksum verification, and a bounded source-identity-aware metadata page
@@ -83,11 +90,28 @@ All notable changes to PureJsImage are documented in this file.
   internal nodes for modern dense groups. Generated hostile fixtures cover hard, soft, ASCII, UTF-8,
   creation-order, bounds, cycles, ordering, and corruption behavior. A second pinned HDF Group file
   verifies a real 40-record dense index and the explicit external-link boundary. Huge and tiny heap
-  objects, filtered heaps, graph-wide traversal, attributes, datasets, filters, and public HDF5
-  reader claims remain intentionally pending.
+  objects, filtered heaps, and the secondary creation-order index remain explicit deferred
+  variants; bounded graph traversal, attributes, dataset layouts, chunk indexes, required filters,
+  and exact selected reads are implemented by the later package-private D2-D6 layers. General
+  public HDF5 reader claims remain intentionally absent.
+- Completed the fixture-proven package-private HDF5 D3-D6 substrate: bounded datatypes,
+  dataspaces, attributes, compact/contiguous/chunked layouts, every required classic and modern
+  chunk index, raw/Deflate/Shuffle/Fletcher32 filters, exact fill handling, local/HTTP parity, and
+  cancellable selected dataset blocks. Contiguous rank-2 strided selections now batch many rows
+  under independent input-span, output, and read-operation caps.
+- Added public Nanonis SXM, Igor Binary Wave v5, Digital Surf SUR/PRO, and ISO 5436-2 X3P surface
+  readers plus a bounded ZIP/ZIP64 container. Committed test-only surface binaries now have a
+  machine-readable per-file manifest with exact source revision/path/URL, license, attribution,
+  redistribution rationale, SHA-256, and oracle.
 
 ### Changed
 
+- Hardened scientific probing and metadata semantics after review: HDF5 dialect probes use exact
+  eight-byte signature reads before opening a dialect; shared HDF5 loads isolate caller
+  cancellation, coalesce graph accounting, and cannot repopulate after close; NIfTI ignores
+  `scl_inter` when `scl_slope` is zero and reports only separable affine axes; and DM, TIA SER,
+  Velox, and NIfTI omit physical units/evidence when numeric calibration is incomplete while
+  retaining raw values and structured warnings.
 - Run the codec test library against hostile one-byte buffered image sources by default, preserving
   the strict source-buffer lifetime coverage while removing the duplicate full-suite test pass from
   `npm run check`.

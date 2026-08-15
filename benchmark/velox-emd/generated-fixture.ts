@@ -18,6 +18,8 @@ export interface GeneratedVeloxEmdFixtureOptions {
   readonly variant?: 'image' | 'fft' | 'pruned'
   readonly metadataBytes?: number
   readonly invalidJson?: boolean
+  readonly conflictingFrameCalibration?: boolean
+  readonly zeroPixelWidth?: boolean
 }
 
 export interface GeneratedVeloxEmdFixture {
@@ -76,23 +78,35 @@ const complexFloat32Bytes = (): Uint8Array<ArrayBuffer> => {
   return bytes
 }
 
-const jsonColumns = (storedBytes: number, invalidJson: boolean): Uint8Array<ArrayBuffer> => {
+const jsonColumns = (
+  storedBytes: number,
+  invalidJson: boolean,
+  conflictingFrameCalibration: boolean,
+  zeroPixelWidth: boolean,
+): Uint8Array<ArrayBuffer> => {
   const metadata = invalidJson
     ? '{invalid'
     : JSON.stringify({
         BinaryResult: {
           Detector: 'Generated detector',
-          PixelSize: { width: '0.5', height: '0.25' },
+          PixelSize: { width: zeroPixelWidth ? '0' : '0.5', height: '0.25' },
           PixelUnitX: 'm',
           PixelUnitY: 'm',
           Offset: { x: '-1', y: '2' },
         },
         Scan: { FrameTime: '0.125' },
       })
-  const encoded = new TextEncoder().encode(metadata)
-  if (encoded.byteLength >= storedBytes) throw new Error('Generated Velox metadata is too small')
+  const conflictingMetadata = conflictingFrameCalibration
+    ? metadata.replace('"width":"0.5"', '"width":"0.75"')
+    : metadata
+  const columns = [metadata, conflictingMetadata].map((value) => new TextEncoder().encode(value))
+  if (columns.some((encoded) => encoded.byteLength >= storedBytes)) {
+    throw new Error('Generated Velox metadata is too small')
+  }
   const bytes = new Uint8Array(storedBytes * 2)
-  for (let column = 0; column < 2; column += 1) {
+  for (let column = 0; column < columns.length; column += 1) {
+    const encoded = columns[column]
+    if (encoded === undefined) continue
     for (let index = 0; index < encoded.byteLength; index += 1) {
       bytes[index * 2 + column] = encoded[index] ?? 0
     }
@@ -104,7 +118,11 @@ export const createGeneratedVeloxEmdFixture = (
   options: Readonly<GeneratedVeloxEmdFixtureOptions> = {},
 ): GeneratedVeloxEmdFixture => {
   const variant = options.variant ?? 'image'
-  const fixture = createGeneratedHdf5Fixture({ version: 2, fileBytes: 32_768 })
+  const storedMetadataBytes = options.metadataBytes ?? 512
+  const fixture = createGeneratedHdf5Fixture({
+    version: 2,
+    fileBytes: Math.max(32_768, rawMetadataAddress + storedMetadataBytes * 2),
+  })
   if (fixture.rootObjectOffset === undefined) throw new Error('Generated Velox root is unavailable')
   const version = new TextEncoder().encode('{"format":"Velox","version":"11"}')
   fixture.bytes.set(
@@ -136,8 +154,12 @@ export const createGeneratedVeloxEmdFixture = (
     return Object.freeze({ bytes: fixture.bytes })
   }
 
-  const storedMetadataBytes = options.metadataBytes ?? 512
-  const rawMetadata = jsonColumns(storedMetadataBytes, options.invalidJson ?? false)
+  const rawMetadata = jsonColumns(
+    storedMetadataBytes,
+    options.invalidJson ?? false,
+    options.conflictingFrameCalibration ?? false,
+    options.zeroPixelWidth ?? false,
+  )
   const rawData =
     variant === 'fft'
       ? complexFloat32Bytes()

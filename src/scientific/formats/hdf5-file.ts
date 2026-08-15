@@ -1,5 +1,5 @@
 import type { AbortOptions } from '../../abort.ts'
-import { throwIfAborted } from '../../abort.ts'
+import { throwIfAborted, waitForPromise } from '../../abort.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import type { ImageSource } from '../../source.ts'
 import {
@@ -59,6 +59,8 @@ export type Hdf5Object = Hdf5GroupObject | Hdf5DatasetObject | Hdf5OtherObject
 
 export interface Hdf5DatasetReadLimits extends Hdf5ChunkReadLimits {
   readonly maxReadOperations?: number
+  /** Maximum contiguous source span used to batch a strided linear selection. */
+  readonly maxInputBlockBytes?: number
 }
 
 export interface Hdf5ScalarStringReadOptions extends AbortOptions, Hdf5GlobalHeapLimits {
@@ -95,10 +97,12 @@ export interface Hdf5File {
 
 interface ResolvedReadLimits extends Hdf5ChunkReadLimits {
   readonly maxReadOperations: number
+  readonly maxInputBlockBytes: number
   readonly maxOutputBlockBytes: number
 }
 
 const defaultReadOperations = 65_536
+const defaultInputBlockBytes = 16_777_216
 const defaultOutputBlockBytes = 268_435_456
 const defaultStringBytes = 1_048_576
 
@@ -115,6 +119,10 @@ const resolveReadLimits = (options: Readonly<Hdf5DatasetReadLimits>): ResolvedRe
     maxReadOperations: positiveSafeInteger(
       'HDF5 dataset maxReadOperations',
       options.maxReadOperations ?? defaultReadOperations,
+    ),
+    maxInputBlockBytes: positiveSafeInteger(
+      'HDF5 dataset maxInputBlockBytes',
+      options.maxInputBlockBytes ?? defaultInputBlockBytes,
     ),
     maxOutputBlockBytes: positiveSafeInteger(
       'HDF5 dataset maxOutputBlockBytes',
@@ -461,17 +469,27 @@ class Hdf5FileImplementation implements Hdf5File {
     return Object.freeze({ ...object, kind: 'other' })
   }
 
-  #dataset(object: Hdf5GraphObject, signal: AbortSignal | undefined): Promise<Hdf5DatasetMetadata> {
+  async #dataset(
+    object: Hdf5GraphObject,
+    signal: AbortSignal | undefined,
+  ): Promise<Hdf5DatasetMetadata> {
     const cached = this.#datasets.get(object.address)
-    if (cached !== undefined) return cached
+    if (cached !== undefined) {
+      const metadata = await waitForPromise(cached, signal)
+      this.#assertOpen()
+      return metadata
+    }
     const pending = readHdf5DatasetMetadata(this.#layer, object.header, {
       ...this.#datasetLimits,
       objectPath: object.path,
-      ...(signal === undefined ? {} : { signal }),
     })
     this.#datasets.set(object.address, pending)
-    pending.catch(() => this.#datasets.delete(object.address))
-    return pending
+    pending.catch(() => {
+      if (this.#datasets.get(object.address) === pending) this.#datasets.delete(object.address)
+    })
+    const metadata = await waitForPromise(pending, signal)
+    this.#assertOpen()
+    return metadata
   }
 
   async *#readLinear(
@@ -496,6 +514,10 @@ class Hdf5FileImplementation implements Hdf5File {
       return
     }
     const dimensions = metadata.dataspace.dimensions
+    if (rank === 2) {
+      yield* this.#readRankTwoLinear(object, selection, signal)
+      return
+    }
     let contiguousAxis = rank - 1
     while (
       contiguousAxis > 0 &&
@@ -533,6 +555,80 @@ class Hdf5FileImplementation implements Hdf5File {
       )
       yield Object.freeze({ start: Object.freeze(start), shape: Object.freeze(blockShape), data })
       incrementCoordinates(prefixCoordinates, prefixShape)
+    }
+  }
+
+  async *#readRankTwoLinear(
+    object: Hdf5DatasetObject,
+    selection: Hdf5Selection,
+    signal: AbortSignal | undefined,
+  ): AsyncIterable<Hdf5Block> {
+    const { metadata } = object
+    const columns = metadata.dataspace.dimensions[1]
+    const selectedRows = selection.shape[0]
+    const selectedColumns = selection.shape[1]
+    const startRow = selection.start[0]
+    const startColumn = selection.start[1]
+    if (
+      columns === undefined ||
+      selectedRows === undefined ||
+      selectedColumns === undefined ||
+      startRow === undefined ||
+      startColumn === undefined
+    ) {
+      throw invalidInput('HDF5 rank-2 selection is incomplete')
+    }
+    const elementBytes = metadata.datatype.byteLength
+    const maximumInputElements = Math.floor(this.#readLimits.maxInputBlockBytes / elementBytes)
+    const maximumOutputRows = Math.floor(
+      this.#readLimits.maxOutputBlockBytes / (selectedColumns * elementBytes),
+    )
+    const maximumInputRows = Math.floor((maximumInputElements - selectedColumns) / columns) + 1
+    const rowsPerRead = Math.min(selectedRows, maximumInputRows, maximumOutputRows)
+    if (rowsPerRead < 1) {
+      throw limitExceeded(
+        'HDF5 strided selection cannot fit one row within the input and output block limits',
+      )
+    }
+    const operations = Math.ceil(selectedRows / rowsPerRead)
+    if (operations > this.#readLimits.maxReadOperations) {
+      throw limitExceeded(
+        `HDF5 dataset read operations require ${operations}; limit is ${this.#readLimits.maxReadOperations}`,
+      )
+    }
+    for (let rowOffset = 0; rowOffset < selectedRows; rowOffset += rowsPerRead) {
+      throwIfAborted(signal)
+      const rows = Math.min(rowsPerRead, selectedRows - rowOffset)
+      const elementOffset = rowMajorOffset(
+        [startRow + rowOffset, startColumn],
+        [selectedRows + startRow, columns],
+      )
+      const inputElements = (rows - 1) * columns + selectedColumns
+      const stored = await readHdf5DatasetElementRange(
+        this.#layer,
+        metadata,
+        { offset: elementOffset, count: inputElements },
+        {
+          maxReadBytes: this.#readLimits.maxInputBlockBytes,
+          objectPath: object.path,
+          ...(signal === undefined ? {} : { signal }),
+        },
+      )
+      const rowBytes = selectedColumns * elementBytes
+      const sourceRowBytes = columns * elementBytes
+      const data =
+        selectedColumns === columns ? stored : new Uint8Array(rows * selectedColumns * elementBytes)
+      if (data !== stored) {
+        for (let row = 0; row < rows; row += 1) {
+          const sourceOffset = row * sourceRowBytes
+          data.set(stored.subarray(sourceOffset, sourceOffset + rowBytes), row * rowBytes)
+        }
+      }
+      yield Object.freeze({
+        start: Object.freeze([startRow + rowOffset, startColumn]),
+        shape: Object.freeze([rows, selectedColumns]),
+        data,
+      })
     }
   }
 

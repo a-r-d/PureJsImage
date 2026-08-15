@@ -10,6 +10,7 @@ import {
   type NormalizedScientificDatasetDescriptor,
   type ScientificDataset,
   type ScientificPlaneReadRequest,
+  type ScientificMetadataObject,
   type ScientificSeriesBlock,
   type ScientificSeriesReadRequest,
 } from '../dataset.ts'
@@ -24,11 +25,14 @@ import {
 } from '../reader.ts'
 import type { Hdf5CompoundDatatype, Hdf5Datatype } from '../formats/hdf5-dataset.ts'
 import { openHdf5File, type Hdf5File, type Hdf5OpenOptions } from '../formats/hdf5-file.ts'
-import { readVeloxJsonColumn } from '../formats/velox-emd.ts'
+import { probeHdf5Signature } from '../formats/hdf5.ts'
+import { readVeloxJsonColumns } from '../formats/velox-emd.ts'
+import { resourceHasHint } from './shared.ts'
 
 export interface VeloxEmdReaderLimits {
   readonly maxDatasets: number
   readonly maxJsonBytes: number
+  readonly maxTotalJsonBytes: number
   readonly maxOutputBytes: number
 }
 
@@ -62,6 +66,7 @@ interface VeloxDatasetEntry {
 const defaults: ResolvedLimits = Object.freeze({
   maxDatasets: 4_096,
   maxJsonBytes: 1_048_576,
+  maxTotalJsonBytes: 67_108_864,
   maxOutputBytes: 268_435_456,
 })
 
@@ -81,6 +86,10 @@ const resolveLimits = (input: Readonly<Partial<VeloxEmdReaderLimits>> = {}): Res
     maxJsonBytes: positiveSafeInteger(
       'Velox EMD maxJsonBytes',
       input.maxJsonBytes ?? defaults.maxJsonBytes,
+    ),
+    maxTotalJsonBytes: positiveSafeInteger(
+      'Velox EMD maxTotalJsonBytes',
+      input.maxTotalJsonBytes ?? defaults.maxTotalJsonBytes,
     ),
     maxOutputBytes: positiveSafeInteger(
       'Velox EMD maxOutputBytes',
@@ -408,12 +417,12 @@ const imageEntry = async (
     )
   }
   const layout = sampleLayout(data.metadata.datatype)
-  const metadata = await readVeloxJsonColumn(
+  const frameMetadata = await readVeloxJsonColumns(
     file,
     metadataObject,
     metadataPath,
-    0,
     limits.maxJsonBytes,
+    limits.maxTotalJsonBytes,
     context.signal,
   )
   const width = dimensions[0]
@@ -422,6 +431,30 @@ const imageEntry = async (
   if (width === undefined || height === undefined || frames === undefined) {
     throw invalidInput(`Velox EMD image ${JSON.stringify(id)} has incomplete dimensions`)
   }
+  if (frameMetadata.length !== frames) {
+    throw invalidInput(
+      `Velox EMD image ${JSON.stringify(id)} has ${frames} frames but ${frameMetadata.length} metadata columns`,
+    )
+  }
+  const metadata = frameMetadata[0]
+  if (metadata === undefined) {
+    throw invalidInput(`Velox EMD image ${JSON.stringify(id)} has no frame metadata`)
+  }
+  const calibrationFingerprint = (value: ScientificMetadataObject): string =>
+    JSON.stringify([
+      nestedValue(value, ['BinaryResult', 'Detector']),
+      nestedValue(value, ['BinaryResult', 'PixelSize', 'width']),
+      nestedValue(value, ['BinaryResult', 'PixelSize', 'height']),
+      nestedValue(value, ['BinaryResult', 'PixelUnitX']),
+      nestedValue(value, ['BinaryResult', 'PixelUnitY']),
+      nestedValue(value, ['BinaryResult', 'Offset', 'x']),
+      nestedValue(value, ['BinaryResult', 'Offset', 'y']),
+      nestedValue(value, ['Scan', 'FrameTime']),
+    ])
+  const firstCalibration = calibrationFingerprint(metadata)
+  const calibrationInvariant = frameMetadata.every(
+    (value) => calibrationFingerprint(value) === firstCalibration,
+  )
   const pixelWidth = optionalFiniteNumber(
     nestedValue(metadata, ['BinaryResult', 'PixelSize', 'width']),
   )
@@ -433,6 +466,53 @@ const imageEntry = async (
   const unitX = optionalString(nestedValue(metadata, ['BinaryResult', 'PixelUnitX']))
   const unitY = optionalString(nestedValue(metadata, ['BinaryResult', 'PixelUnitY']))
   const frameTime = optionalFiniteNumber(nestedValue(metadata, ['Scan', 'FrameTime']))
+  const validXCalibration = pixelWidth !== undefined && pixelWidth !== 0
+  const validYCalibration = pixelHeight !== undefined && pixelHeight !== 0
+  const validFrameCalibration = frameTime !== undefined && frameTime > 0
+  const calibratedX = calibrationInvariant && validXCalibration
+  const calibratedY = calibrationInvariant && validYCalibration
+  const calibratedFrame = calibrationInvariant && validFrameCalibration
+  const calibrationWarnings = [
+    ...(calibrationInvariant
+      ? []
+      : [
+          {
+            code: 'frame-calibration-conflict',
+            message:
+              'Calibration-critical metadata differs between frames; global axes use index coordinates.',
+          },
+        ]),
+    ...(!validXCalibration && (pixelWidth !== undefined || unitX !== undefined)
+      ? [
+          {
+            code: 'incomplete-axis-calibration',
+            axisId: 'x',
+            message:
+              'Raw Velox calibration is preserved, but physical unit and evidence were omitted because the step is missing or zero.',
+          },
+        ]
+      : []),
+    ...(!validYCalibration && (pixelHeight !== undefined || unitY !== undefined)
+      ? [
+          {
+            code: 'incomplete-axis-calibration',
+            axisId: 'y',
+            message:
+              'Raw Velox calibration is preserved, but physical unit and evidence were omitted because the step is missing or zero.',
+          },
+        ]
+      : []),
+    ...(!validFrameCalibration && frameTime !== undefined
+      ? [
+          {
+            code: 'incomplete-axis-calibration',
+            axisId: 'frame',
+            message:
+              'Raw Velox frame timing is preserved, but physical unit and evidence were omitted because the step is missing or zero.',
+          },
+        ]
+      : []),
+  ]
   const evidence = (locator: string) =>
     Object.freeze({ kind: 'embedded' as const, resourceId: context.primary.id, locator })
   const axes = [
@@ -441,42 +521,37 @@ const imageEntry = async (
       name: 'X',
       kind: unitX === '1/m' ? ('reciprocal-space' as const) : ('space' as const),
       length: width,
-      ...(unitX === undefined ? {} : { unit: unitX }),
-      coordinates:
-        pixelWidth !== undefined && pixelWidth !== 0
-          ? Object.freeze({ type: 'linear' as const, origin: offsetX ?? 0, step: pixelWidth })
-          : Object.freeze({ type: 'index' as const }),
-      ...(pixelWidth === undefined || pixelWidth === 0
-        ? {}
-        : { calibration: evidence(`${metadataPath} BinaryResult.PixelSize.width`) }),
+      ...(calibratedX && unitX !== undefined ? { unit: unitX } : {}),
+      coordinates: calibratedX
+        ? Object.freeze({ type: 'linear' as const, origin: offsetX ?? 0, step: pixelWidth })
+        : Object.freeze({ type: 'index' as const }),
+      ...(calibratedX
+        ? { calibration: evidence(`${metadataPath}[*] BinaryResult.PixelSize.width`) }
+        : {}),
     }),
     Object.freeze({
       id: 'y',
       name: 'Y',
       kind: unitY === '1/m' ? ('reciprocal-space' as const) : ('space' as const),
       length: height,
-      ...(unitY === undefined ? {} : { unit: unitY }),
-      coordinates:
-        pixelHeight !== undefined && pixelHeight !== 0
-          ? Object.freeze({ type: 'linear' as const, origin: offsetY ?? 0, step: pixelHeight })
-          : Object.freeze({ type: 'index' as const }),
-      ...(pixelHeight === undefined || pixelHeight === 0
-        ? {}
-        : { calibration: evidence(`${metadataPath} BinaryResult.PixelSize.height`) }),
+      ...(calibratedY && unitY !== undefined ? { unit: unitY } : {}),
+      coordinates: calibratedY
+        ? Object.freeze({ type: 'linear' as const, origin: offsetY ?? 0, step: pixelHeight })
+        : Object.freeze({ type: 'index' as const }),
+      ...(calibratedY
+        ? { calibration: evidence(`${metadataPath}[*] BinaryResult.PixelSize.height`) }
+        : {}),
     }),
     Object.freeze({
       id: 'frame',
       name: 'Frame',
-      kind: frameTime !== undefined && frameTime > 0 ? ('time' as const) : ('other' as const),
+      kind: calibratedFrame ? ('time' as const) : ('other' as const),
       length: frames,
-      ...(frameTime !== undefined && frameTime > 0 ? { unit: 's' } : {}),
-      coordinates:
-        frameTime !== undefined && frameTime > 0
-          ? Object.freeze({ type: 'linear' as const, origin: 0, step: frameTime })
-          : Object.freeze({ type: 'index' as const }),
-      ...(frameTime !== undefined && frameTime > 0
-        ? { calibration: evidence(`${metadataPath} Scan.FrameTime`) }
-        : {}),
+      ...(calibratedFrame ? { unit: 's' } : {}),
+      coordinates: calibratedFrame
+        ? Object.freeze({ type: 'linear' as const, origin: 0, step: frameTime })
+        : Object.freeze({ type: 'index' as const }),
+      ...(calibratedFrame ? { calibration: evidence(`${metadataPath}[*] Scan.FrameTime`) } : {}),
     }),
   ]
   const descriptor = normalizeScientificDatasetDescriptor({
@@ -493,7 +568,10 @@ const imageEntry = async (
     metadata: {
       veloxEmd: {
         imageId: id,
-        firstFrame: metadata,
+        metadataScope: 'per-frame',
+        frameMetadata,
+        calibrationInvariant,
+        ...(calibrationWarnings.length === 0 ? {} : { warnings: calibrationWarnings }),
         ...(layout.frequencyDomain === undefined
           ? {}
           : { frequencyDomain: layout.frequencyDomain }),
@@ -603,6 +681,18 @@ export const createVeloxEmdReader = (
   return Object.freeze({
     descriptor: veloxEmdReaderDescriptor,
     async probe(context: Readonly<ScientificOpenContext>) {
+      const hinted = resourceHasHint(
+        context.primary,
+        veloxEmdReaderDescriptor.extensions,
+        veloxEmdReaderDescriptor.mediaTypes,
+      )
+      const signatureOffset = await probeHdf5Signature(context.primary.source, {
+        maxOffsets: hinted ? 8 : 1,
+        ...(context.signal === undefined ? {} : { signal: context.signal }),
+      })
+      if (signatureOffset === undefined) {
+        return Object.freeze({ confidence: 0, reason: 'HDF5 signature is absent' })
+      }
       let file: Hdf5File | undefined
       try {
         file = await openHdf5File(context.primary.source, {

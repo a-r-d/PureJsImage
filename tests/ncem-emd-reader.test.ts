@@ -136,8 +136,7 @@ describe('NCEM EMD E1 scientific dataset adapter', () => {
       })
     }
     expect(transposed).toEqual([
-      { x: 0, y: 1, width: 1, height: 2, data: [0, 2, 0, 3] },
-      { x: 1, y: 1, width: 1, height: 2, data: [0, 6, 0, 7] },
+      { x: 0, y: 1, width: 2, height: 2, data: [0, 2, 0, 6, 0, 3, 0, 7] },
     ])
 
     const series: ScientificSeriesBlock[] = []

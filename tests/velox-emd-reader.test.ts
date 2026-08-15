@@ -1,7 +1,29 @@
 import { describe, expect, it } from 'vitest'
 import { createGeneratedVeloxEmdFixture } from '../benchmark/velox-emd/generated-fixture.ts'
 import { createVeloxEmdReader } from '../src/scientific/readers/velox-emd.ts'
+import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
+
+class CountingSource implements ImageSource {
+  readonly size: number
+  readonly #bytes: Uint8Array
+  reads = 0
+
+  constructor(bytes: Uint8Array) {
+    this.#bytes = bytes
+    this.size = bytes.byteLength
+  }
+
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    options.signal?.throwIfAborted()
+    this.reads += 1
+    return this.#bytes.slice(offset, offset + length)
+  }
+}
 
 const collectBytes = async (
   blocks: AsyncIterable<Readonly<{ readonly data: Uint8Array }>>,
@@ -52,6 +74,13 @@ describe('Velox EMD scientific reader', () => {
             coordinates: { type: 'linear', origin: 0, step: 0.125 },
           },
         ],
+      },
+    })
+    expect(document.datasets[0]?.descriptor.metadata).toMatchObject({
+      veloxEmd: {
+        metadataScope: 'per-frame',
+        calibrationInvariant: true,
+        frameMetadata: expect.any(Array),
       },
     })
     const dataset = await document.openDataset(fixture.datasetId ?? '')
@@ -120,6 +149,12 @@ describe('Velox EMD scientific reader', () => {
       }),
     ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
 
+    await expect(
+      createVeloxEmdReader({ limits: { maxTotalJsonBytes: 1_000 } }).open({
+        primary: { id: 'total-json-limit', source: new MemorySource(fixture.bytes) },
+      }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+
     const document = await createVeloxEmdReader({ limits: { maxOutputBytes: 4 } }).open({
       primary: { id: 'output-limit', source: new MemorySource(fixture.bytes) },
     })
@@ -142,6 +177,56 @@ describe('Velox EMD scientific reader', () => {
         primary: { id: 'invalid-json', source: new MemorySource(invalid.bytes) },
       }),
     ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('batches large metadata columns and exposes frame calibration conflicts honestly', async () => {
+    const large = createGeneratedVeloxEmdFixture({ metadataBytes: 100_000 })
+    const source = new CountingSource(large.bytes)
+    const document = await createVeloxEmdReader().open({
+      primary: { id: 'large-metadata', source },
+    })
+    expect(source.reads).toBeLessThan(40)
+    expect(document.datasets[0]?.descriptor.metadata).toMatchObject({
+      veloxEmd: { metadataScope: 'per-frame', frameMetadata: expect.any(Array) },
+    })
+    document.close?.()
+
+    const conflicting = createGeneratedVeloxEmdFixture({ conflictingFrameCalibration: true })
+    const conflictDocument = await createVeloxEmdReader().open({
+      primary: { id: 'conflicting-metadata', source: new MemorySource(conflicting.bytes) },
+    })
+    expect(conflictDocument.datasets[0]?.descriptor.axes).toMatchObject([
+      { id: 'x', coordinates: { type: 'index' } },
+      { id: 'y', coordinates: { type: 'index' } },
+      { id: 'frame', coordinates: { type: 'index' } },
+    ])
+    expect(conflictDocument.datasets[0]?.descriptor.metadata).toMatchObject({
+      veloxEmd: {
+        calibrationInvariant: false,
+        warnings: expect.arrayContaining([
+          expect.objectContaining({ code: 'frame-calibration-conflict' }),
+        ]),
+      },
+    })
+    conflictDocument.close?.()
+
+    const incomplete = createGeneratedVeloxEmdFixture({ zeroPixelWidth: true })
+    const incompleteDocument = await createVeloxEmdReader().open({
+      primary: { id: 'incomplete-metadata', source: new MemorySource(incomplete.bytes) },
+    })
+    const xAxis = incompleteDocument.datasets[0]?.descriptor.axes[0]
+    expect(xAxis).toMatchObject({ id: 'x', coordinates: { type: 'index' } })
+    expect(xAxis).not.toHaveProperty('unit')
+    expect(xAxis).not.toHaveProperty('calibration')
+    expect(incompleteDocument.datasets[0]?.descriptor.metadata).toMatchObject({
+      veloxEmd: {
+        frameMetadata: expect.any(Array),
+        warnings: expect.arrayContaining([
+          expect.objectContaining({ code: 'incomplete-axis-calibration', axisId: 'x' }),
+        ]),
+      },
+    })
+    incompleteDocument.close?.()
   })
 
   it('reports pruned spectrum images as a specific unsupported variant', async () => {

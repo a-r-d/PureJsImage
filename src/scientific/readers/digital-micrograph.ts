@@ -125,6 +125,11 @@ interface DigitalMicrographImageLayout {
   readonly displayAxes: readonly [horizontal: string, vertical: string]
   readonly axisSemantics: DigitalMicrographAxisSemantics
   readonly metadata: readonly DigitalMicrographMetadataEntry[]
+  readonly calibrationWarnings: readonly Readonly<{
+    readonly code: 'incomplete-axis-calibration'
+    readonly axisId: string
+    readonly message: string
+  }>[]
 }
 
 type DigitalMicrographAxisSemanticKind =
@@ -487,7 +492,7 @@ const calibrationAxis = (
     coordinates: calibrated
       ? Object.freeze({ type: 'linear' as const, origin: -sourceOrigin * scale, step: scale })
       : Object.freeze({ type: 'index' as const }),
-    ...(unit === undefined ? {} : { unit }),
+    ...(calibrated && unit !== undefined ? { unit } : {}),
     ...(calibrated
       ? {
           calibration: {
@@ -651,6 +656,34 @@ const imageLayouts = (
     const title = dmText(metadataValue(values, valueChild(image, 'Name'))) ?? `Image ${imageIndex}`
     const horizontalRole = requiredAxisRole(mapping.storageRoles, 0)
     const verticalRole = requiredAxisRole(mapping.storageRoles, 1)
+    const axes = mapping.descriptorRoles.map((role) =>
+      calibrationAxis(
+        calibrationDimensions,
+        imageIndex,
+        role,
+        requiredDimensionLength(resolvedDimensions, role.dimension),
+        values,
+        resourceId,
+      ),
+    )
+    const calibrationGroups =
+      calibrationDimensions?.children.filter(
+        (node): node is DigitalMicrographGroupNode => node.kind === 'group',
+      ) ?? []
+    const calibrationWarnings = mapping.descriptorRoles.flatMap((role, axisIndex) => {
+      const axis = axes[axisIndex]
+      if (axis?.coordinates.type !== 'index' || calibrationGroups[role.dimension] === undefined) {
+        return []
+      }
+      return [
+        Object.freeze({
+          code: 'incomplete-axis-calibration' as const,
+          axisId: axis.id,
+          message:
+            'Raw DigitalMicrograph calibration tags are preserved, but unit and calibration evidence were omitted because origin or non-zero scale is incomplete.',
+        }),
+      ]
+    })
     layouts.push(
       Object.freeze({
         index: imageIndex,
@@ -660,24 +693,14 @@ const imageLayouts = (
         sampleType: storage.sampleType,
         components,
         data,
-        axes: Object.freeze(
-          mapping.descriptorRoles.map((role) =>
-            calibrationAxis(
-              calibrationDimensions,
-              imageIndex,
-              role,
-              requiredDimensionLength(resolvedDimensions, role.dimension),
-              values,
-              resourceId,
-            ),
-          ),
-        ),
+        axes: Object.freeze(axes),
         storageAxisIds: Object.freeze(mapping.storageRoles.map(({ id }) => id)),
         displayAxes: axisPair(horizontalRole.id, verticalRole.id),
         axisSemantics: mapping.semantics,
         metadata: Object.freeze(
           index.metadata.filter((entry) => startsWithPath(entry.path, image.path)),
         ),
+        calibrationWarnings: Object.freeze(calibrationWarnings),
       }),
     )
   }
@@ -745,6 +768,7 @@ class DigitalMicrographScientificDataset implements ScientificDataset {
               value: entry.value,
             }))
           })(),
+          warnings: layout.calibrationWarnings,
         },
       }),
       capabilities: {

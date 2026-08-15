@@ -1,5 +1,5 @@
 import type { AbortOptions } from '../../abort.ts'
-import { throwIfAborted } from '../../abort.ts'
+import { throwIfAborted, waitForPromise } from '../../abort.ts'
 import { invalidInput, limitExceeded } from '../../errors.ts'
 import { readHdf5DenseGroup, type Hdf5DenseGroupLimits } from './hdf5-dense-group.ts'
 import { readHdf5LegacyGroup, type Hdf5LegacyGroupLimits } from './hdf5-legacy-group.ts'
@@ -145,6 +145,8 @@ class Hdf5ObjectGraphImplementation implements Hdf5ObjectGraph {
   readonly #denseGroupLimits: Readonly<Hdf5DenseGroupLimits>
   readonly #headers = new Map<bigint, Hdf5ObjectHeader>()
   readonly #groupLinks = new Map<bigint, readonly Hdf5Link[]>()
+  readonly #pendingHeaders = new Map<bigint, Promise<Hdf5ObjectHeader>>()
+  readonly #pendingGroupLinks = new Map<bigint, Promise<readonly Hdf5Link[]>>()
   #metadataBytes = 0
   #links = 0
 
@@ -252,17 +254,29 @@ class Hdf5ObjectGraphImplementation implements Hdf5ObjectGraph {
   ): Promise<Hdf5ObjectHeader> {
     const cached = this.#headers.get(address)
     if (cached !== undefined) return cached
-    if (this.#headers.size >= this.#limits.maxObjects) {
-      throw limitExceeded(`HDF5 object graph exceeds ${this.#limits.maxObjects} objects`)
+    const active = this.#pendingHeaders.get(address)
+    if (active !== undefined) return waitForPromise(active, signal)
+    const pending = (async (): Promise<Hdf5ObjectHeader> => {
+      if (this.#headers.size >= this.#limits.maxObjects) {
+        throw limitExceeded(`HDF5 object graph exceeds ${this.#limits.maxObjects} objects`)
+      }
+      const header = await readHdf5ObjectHeader(this.#file, address, {
+        ...this.#objectHeaderLimits,
+        objectPath: path,
+      })
+      if (this.#headers.size >= this.#limits.maxObjects) {
+        throw limitExceeded(`HDF5 object graph exceeds ${this.#limits.maxObjects} objects`)
+      }
+      this.#admitMetadata(header.metadataBytes)
+      this.#headers.set(address, header)
+      return header
+    })()
+    this.#pendingHeaders.set(address, pending)
+    const cleanup = (): void => {
+      if (this.#pendingHeaders.get(address) === pending) this.#pendingHeaders.delete(address)
     }
-    const header = await readHdf5ObjectHeader(this.#file, address, {
-      ...this.#objectHeaderLimits,
-      objectPath: path,
-      ...(signal === undefined ? {} : { signal }),
-    })
-    this.#admitMetadata(header.metadataBytes)
-    this.#headers.set(address, header)
-    return header
+    pending.then(cleanup, cleanup)
+    return waitForPromise(pending, signal)
   }
 
   async #linksFor(
@@ -272,46 +286,56 @@ class Hdf5ObjectGraphImplementation implements Hdf5ObjectGraph {
   ): Promise<readonly Hdf5Link[]> {
     const cached = this.#groupLinks.get(address)
     if (cached !== undefined) return cached
-    const header = await this.#header(address, path, signal)
-    let links: readonly Hdf5Link[]
-    let metadataBytes = 0
-    if (header.linkStorage?.kind === 'legacy') {
-      if (header.links.length !== 0) {
-        throw invalidInput(`HDF5 object ${JSON.stringify(path)} mixes compact and legacy links`)
+    const active = this.#pendingGroupLinks.get(address)
+    if (active !== undefined) return waitForPromise(active, signal)
+    const pending = (async (): Promise<readonly Hdf5Link[]> => {
+      const header = await this.#header(address, path, undefined)
+      let links: readonly Hdf5Link[]
+      let metadataBytes = 0
+      if (header.linkStorage?.kind === 'legacy') {
+        if (header.links.length !== 0) {
+          throw invalidInput(`HDF5 object ${JSON.stringify(path)} mixes compact and legacy links`)
+        }
+        const group = await readHdf5LegacyGroup(this.#file, header.linkStorage, {
+          ...this.#legacyGroupLimits,
+          objectPath: path,
+        })
+        links = group.links
+        metadataBytes = group.metadataBytes
+      } else if (header.linkStorage?.kind === 'dense') {
+        if (header.links.length !== 0) {
+          throw invalidInput(`HDF5 object ${JSON.stringify(path)} mixes compact and dense links`)
+        }
+        const group = await readHdf5DenseGroup(this.#file, header.linkStorage, {
+          ...this.#denseGroupLimits,
+          objectPath: path,
+        })
+        links = group.links
+        metadataBytes = group.metadataBytes
+      } else {
+        links = header.links
       }
-      const group = await readHdf5LegacyGroup(this.#file, header.linkStorage, {
-        ...this.#legacyGroupLimits,
-        objectPath: path,
-        ...(signal === undefined ? {} : { signal }),
-      })
-      links = group.links
-      metadataBytes = group.metadataBytes
-    } else if (header.linkStorage?.kind === 'dense') {
-      if (header.links.length !== 0) {
-        throw invalidInput(`HDF5 object ${JSON.stringify(path)} mixes compact and dense links`)
+      if (metadataBytes > this.#limits.maxMetadataBytes - this.#metadataBytes) {
+        throw limitExceeded(
+          `HDF5 object graph exceeds ${this.#limits.maxMetadataBytes} metadata bytes`,
+        )
       }
-      const group = await readHdf5DenseGroup(this.#file, header.linkStorage, {
-        ...this.#denseGroupLimits,
-        objectPath: path,
-        ...(signal === undefined ? {} : { signal }),
-      })
-      links = group.links
-      metadataBytes = group.metadataBytes
-    } else {
-      links = header.links
+      if (links.length > this.#limits.maxLinks - this.#links) {
+        throw limitExceeded(`HDF5 object graph exceeds ${this.#limits.maxLinks} links`)
+      }
+      this.#metadataBytes += metadataBytes
+      this.#links += links.length
+      this.#groupLinks.set(address, links)
+      return links
+    })()
+    this.#pendingGroupLinks.set(address, pending)
+    const cleanup = (): void => {
+      if (this.#pendingGroupLinks.get(address) === pending) {
+        this.#pendingGroupLinks.delete(address)
+      }
     }
-    if (metadataBytes > this.#limits.maxMetadataBytes - this.#metadataBytes) {
-      throw limitExceeded(
-        `HDF5 object graph exceeds ${this.#limits.maxMetadataBytes} metadata bytes`,
-      )
-    }
-    if (links.length > this.#limits.maxLinks - this.#links) {
-      throw limitExceeded(`HDF5 object graph exceeds ${this.#limits.maxLinks} links`)
-    }
-    this.#metadataBytes += metadataBytes
-    this.#links += links.length
-    this.#groupLinks.set(address, links)
-    return links
+    pending.then(cleanup, cleanup)
+    return waitForPromise(pending, signal)
   }
 
   #admitMetadata(bytes: number): void {

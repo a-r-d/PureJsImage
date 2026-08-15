@@ -70,6 +70,8 @@ interface ParsedNifti {
   readonly shape: readonly number[]
   readonly sampleType: RasterSampleType
   readonly dataOffset: number
+  readonly rawSlope: number
+  readonly rawIntercept: number
   readonly slope: number
   readonly intercept: number
   readonly pixdim: readonly number[]
@@ -186,10 +188,11 @@ const parseNifti = (
   if (!Number.isSafeInteger(dataOffset) || dataOffset < headerBytes)
     throw invalidInput('NIfTI vox_offset is invalid')
   const rawSlope = detected.version === 1 ? view.getFloat32(112, le) : view.getFloat64(176, le)
-  const intercept = detected.version === 1 ? view.getFloat32(116, le) : view.getFloat64(184, le)
-  if (!Number.isFinite(rawSlope) || !Number.isFinite(intercept))
+  const rawIntercept = detected.version === 1 ? view.getFloat32(116, le) : view.getFloat64(184, le)
+  if (!Number.isFinite(rawSlope) || !Number.isFinite(rawIntercept))
     throw invalidInput('NIfTI scaling is not finite')
   const slope = rawSlope === 0 ? 1 : rawSlope
+  const intercept = rawSlope === 0 ? 0 : rawIntercept
   if (type === 'uint64' && (slope !== 1 || intercept !== 0))
     throw unsupportedOperation('Scaled uint64 NIfTI data is unsupported')
   const xyztUnits = detected.version === 1 ? view.getUint8(123) : view.getInt32(500, le)
@@ -215,6 +218,8 @@ const parseNifti = (
     shape: Object.freeze(shape),
     sampleType: type,
     dataOffset,
+    rawSlope,
+    rawIntercept,
     slope,
     intercept,
     pixdim,
@@ -252,47 +257,210 @@ const axisDetails = (
   return { id: `axis${index}`, name: `Axis ${index}`, kind: 'index' }
 }
 
-const axesFor = (parsed: ParsedNifti, resourceId: string): readonly ScientificAxisDescriptor[] =>
-  Object.freeze(
-    parsed.shape.map((length, index) => {
-      const details = axisDetails(index)
-      const rawStep = parsed.pixdim[index + 1]
-      const step =
-        rawStep === undefined || !Number.isFinite(rawStep) || rawStep === 0
-          ? undefined
-          : Math.abs(rawStep)
-      const unit =
-        details.kind === 'space'
-          ? spaceUnit(parsed.xyztUnits)
-          : details.kind === 'time'
-            ? timeUnit(parsed.xyztUnits)
-            : undefined
-      const sformOrigin =
-        index < 3 && parsed.sformCode > 0 ? parsed.sform[index * 4 + 3] : undefined
+type NiftiAffineSource = 'sform' | 'qform' | 'pixdim'
+
+interface NiftiAffine {
+  readonly source: NiftiAffineSource
+  readonly matrix: readonly number[]
+}
+
+interface NiftiAxes {
+  readonly axes: readonly ScientificAxisDescriptor[]
+  readonly affine: NiftiAffine
+  readonly spatiallySeparable: boolean
+  readonly warning?: Readonly<{
+    readonly code: 'incomplete-axis-calibration' | 'non-separable-affine'
+    readonly message: string
+  }>
+}
+
+const qformAffine = (parsed: ParsedNifti): readonly number[] => {
+  let [b = 0, c = 0, d = 0] = parsed.quaternion
+  let squared = b * b + c * c + d * d
+  let a: number
+  if (squared > 1) {
+    const scale = 1 / Math.sqrt(squared)
+    b *= scale
+    c *= scale
+    d *= scale
+    squared = 1
+    a = 0
+  } else {
+    a = Math.sqrt(1 - squared)
+  }
+  const dx = Math.abs(parsed.pixdim[1] ?? 0)
+  const dy = Math.abs(parsed.pixdim[2] ?? 0)
+  const dz = Math.abs(parsed.pixdim[3] ?? 0) * ((parsed.pixdim[0] ?? 1) < 0 ? -1 : 1)
+  const [qx = 0, qy = 0, qz = 0] = parsed.qoffset
+  return Object.freeze([
+    (a * a + b * b - c * c - d * d) * dx,
+    2 * (b * c - a * d) * dy,
+    2 * (b * d + a * c) * dz,
+    qx,
+    2 * (b * c + a * d) * dx,
+    (a * a + c * c - b * b - d * d) * dy,
+    2 * (c * d - a * b) * dz,
+    qy,
+    2 * (b * d - a * c) * dx,
+    2 * (c * d + a * b) * dy,
+    (a * a + d * d - c * c - b * b) * dz,
+    qz,
+  ])
+}
+
+const affineFor = (parsed: ParsedNifti): NiftiAffine => {
+  if (parsed.sformCode > 0) return Object.freeze({ source: 'sform', matrix: parsed.sform })
+  if (parsed.qformCode > 0) {
+    return Object.freeze({ source: 'qform', matrix: qformAffine(parsed) })
+  }
+  return Object.freeze({
+    source: 'pixdim',
+    matrix: Object.freeze([
+      Math.abs(parsed.pixdim[1] ?? 0),
+      0,
+      0,
+      0,
+      0,
+      Math.abs(parsed.pixdim[2] ?? 0),
+      0,
+      0,
+      0,
+      0,
+      Math.abs(parsed.pixdim[3] ?? 0),
+      0,
+    ]),
+  })
+}
+
+const axesFor = (parsed: ParsedNifti, resourceId: string): NiftiAxes => {
+  const affine = affineFor(parsed)
+  const spatialDimensions = Math.min(3, parsed.shape.length)
+  const linearValues = [
+    affine.matrix[0] ?? 0,
+    affine.matrix[1] ?? 0,
+    affine.matrix[2] ?? 0,
+    affine.matrix[4] ?? 0,
+    affine.matrix[5] ?? 0,
+    affine.matrix[6] ?? 0,
+    affine.matrix[8] ?? 0,
+    affine.matrix[9] ?? 0,
+    affine.matrix[10] ?? 0,
+  ]
+  const maximumMagnitude = Math.max(1, ...linearValues.map((value) => Math.abs(value)))
+  const tolerance = maximumMagnitude * 1e-6
+  const mappings: Array<Readonly<{ readonly worldAxis: number; readonly step: number }>> = []
+  const usedWorldAxes = new Set<number>()
+  let calibrationIssue: NiftiAxes['warning'] = affine.matrix.every(Number.isFinite)
+    ? undefined
+    : Object.freeze({
+        code: 'incomplete-axis-calibration',
+        message:
+          'The spatial affine contains non-finite values, so spatial units and calibration evidence were omitted.',
+      })
+  for (let storageAxis = 0; storageAxis < spatialDimensions; storageAxis += 1) {
+    const vector = [
+      affine.matrix[storageAxis] ?? 0,
+      affine.matrix[4 + storageAxis] ?? 0,
+      affine.matrix[8 + storageAxis] ?? 0,
+    ]
+    const nonzero = vector
+      .map((value, worldAxis) => ({ value, worldAxis }))
+      .filter(({ value }) => Math.abs(value) > tolerance)
+    const component = nonzero[0]
+    if (nonzero.length === 0 || component === undefined) {
+      calibrationIssue = Object.freeze({
+        code: 'incomplete-axis-calibration',
+        message:
+          'The spatial affine does not define every spatial axis, so spatial units and calibration evidence were omitted.',
+      })
+      break
+    }
+    if (nonzero.length > 1 || usedWorldAxes.has(component.worldAxis)) {
+      calibrationIssue = Object.freeze({
+        code: 'non-separable-affine',
+        message:
+          'The spatial affine contains rotation or shear, so spatial axes use voxel-local index coordinates.',
+      })
+      break
+    }
+    usedWorldAxes.add(component.worldAxis)
+    mappings.push(Object.freeze({ worldAxis: component.worldAxis, step: component.value }))
+  }
+  const spatialUnit = spaceUnit(parsed.xyztUnits)
+  if (calibrationIssue === undefined && spatialDimensions > 0 && spatialUnit === undefined) {
+    calibrationIssue = Object.freeze({
+      code: 'incomplete-axis-calibration',
+      message:
+        'The NIfTI header does not declare a supported spatial unit, so spatial units and calibration evidence were omitted.',
+    })
+  }
+  const spatiallySeparable = calibrationIssue?.code !== 'non-separable-affine'
+  const axes = parsed.shape.map((length, index): ScientificAxisDescriptor => {
+    if (index < spatialDimensions) {
+      const mapping = mappings[index]
+      if (calibrationIssue !== undefined || mapping === undefined || spatialUnit === undefined) {
+        const details = axisDetails(index)
+        return Object.freeze({
+          id: spatiallySeparable ? details.id : `voxel-${details.id}`,
+          name: spatiallySeparable ? details.name : `Voxel ${details.name}`,
+          kind: spatiallySeparable ? details.kind : 'index',
+          length,
+          coordinates: Object.freeze({ type: 'index' as const }),
+        })
+      }
+      const details = axisDetails(mapping.worldAxis)
+      const origin = affine.matrix[mapping.worldAxis * 4 + 3]
+      if (origin === undefined || !Number.isFinite(origin)) {
+        return Object.freeze({
+          id: details.id,
+          name: details.name,
+          kind: details.kind,
+          length,
+          coordinates: Object.freeze({ type: 'index' as const }),
+        })
+      }
       return Object.freeze({
         ...details,
         length,
-        ...(unit === undefined ? {} : { unit }),
-        coordinates:
-          step === undefined
-            ? Object.freeze({ type: 'index' as const })
-            : Object.freeze({ type: 'linear' as const, origin: sformOrigin ?? 0, step }),
-        ...(step === undefined
-          ? {}
-          : {
-              calibration: Object.freeze({
-                kind: 'embedded' as const,
-                resourceId,
-                locator: `nifti:pixdim[${index + 1}]${parsed.sformCode > 0 ? ',sform' : ''}`,
-                note:
-                  parsed.sformCode > 0
-                    ? 'The complete potentially rotated affine is preserved in metadata.'
-                    : 'Voxel spacing is embedded; no world-space origin transform is declared.',
-              }),
-            }),
+        unit: spatialUnit,
+        coordinates: Object.freeze({ type: 'linear' as const, origin, step: mapping.step }),
+        calibration: Object.freeze({
+          kind: 'embedded' as const,
+          resourceId,
+          locator: `nifti:${affine.source}-affine,column[${index}]`,
+        }),
       })
-    }),
-  )
+    }
+    const details = axisDetails(index)
+    const rawStep = parsed.pixdim[index + 1]
+    const unit = details.kind === 'time' ? timeUnit(parsed.xyztUnits) : undefined
+    const calibrated =
+      rawStep !== undefined && Number.isFinite(rawStep) && rawStep !== 0 && unit !== undefined
+    return Object.freeze({
+      ...details,
+      length,
+      ...(calibrated ? { unit } : {}),
+      coordinates: calibrated
+        ? Object.freeze({ type: 'linear' as const, origin: 0, step: rawStep })
+        : Object.freeze({ type: 'index' as const }),
+      ...(calibrated
+        ? {
+            calibration: Object.freeze({
+              kind: 'embedded' as const,
+              resourceId,
+              locator: `nifti:pixdim[${index + 1}]`,
+            }),
+          }
+        : {}),
+    })
+  })
+  return Object.freeze({
+    axes: Object.freeze(axes),
+    affine,
+    spatiallySeparable,
+    ...(calibrationIssue === undefined ? {} : { warning: calibrationIssue }),
+  })
+}
 
 const partialGunzipHeader = async (
   input: Uint8Array,
@@ -400,11 +568,14 @@ export const createNiftiReader = (options: Readonly<NiftiReaderOptions> = {}): S
       )
       const parsed = parseNifti(bytes, source.size, limits)
       const scaled = parsed.slope !== 1 || parsed.intercept !== 0
+      const axes = axesFor(parsed, context.primary.id)
       const metadata: ScientificMetadataObject = normalizeScientificMetadataObject({
         version: parsed.version,
         compressed,
         slope: parsed.slope,
         intercept: parsed.intercept,
+        rawSlope: parsed.rawSlope,
+        rawIntercept: parsed.rawIntercept,
         pixdim: parsed.pixdim,
         xyztUnits: parsed.xyztUnits,
         qformCode: parsed.qformCode,
@@ -412,6 +583,8 @@ export const createNiftiReader = (options: Readonly<NiftiReaderOptions> = {}): S
         quaternion: parsed.quaternion,
         qoffset: parsed.qoffset,
         sform: parsed.sform,
+        affine: { source: axes.affine.source, matrix: axes.affine.matrix },
+        ...(axes.warning === undefined ? {} : { warnings: [axes.warning] }),
         description: parsed.description,
       })
       const dataset = createContiguousArrayDataset({
@@ -419,7 +592,7 @@ export const createNiftiReader = (options: Readonly<NiftiReaderOptions> = {}): S
         dataOffset: parsed.dataOffset,
         sourceSampleType: parsed.sampleType,
         sourceLittleEndian: parsed.littleEndian,
-        axes: axesFor(parsed, context.primary.id),
+        axes: axes.axes,
         components: [Object.freeze({ id: 'value', name: 'Value', kind: 'scalar' })],
         metadata,
         ...(scaled ? { transform: { scale: parsed.slope, offset: parsed.intercept } } : {}),

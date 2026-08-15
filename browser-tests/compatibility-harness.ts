@@ -246,7 +246,7 @@ const hdf5NcemEmd = async (): Promise<BrowserWorkflowResult> => {
 }
 
 const hdf5VeloxEmd = async (): Promise<BrowserWorkflowResult> => {
-  const fixture = createGeneratedVeloxEmdFixture({ variant: 'fft' })
+  const fixture = createGeneratedVeloxEmdFixture({ variant: 'fft', metadataBytes: 131_072 })
   const document = await createVeloxEmdReader().open({
     primary: { id: 'browser-velox-emd', source: new MemorySource(fixture.bytes) },
   })
@@ -273,7 +273,8 @@ const hdf5VeloxEmd = async (): Promise<BrowserWorkflowResult> => {
     throw new Error('Browser Velox EMD scientific dataset did not match the fixture')
   }
   return {
-    detail: 'public Velox EMD complex FFT dataset and bounded native samples passed in-browser',
+    detail:
+      'public Velox EMD complex FFT dataset, 128 KiB per-frame metadata, and bounded native samples passed in-browser',
     outputBytes: samples.length,
   }
 }

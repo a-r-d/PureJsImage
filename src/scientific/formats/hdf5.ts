@@ -1,5 +1,5 @@
 import type { AbortOptions } from '../../abort.ts'
-import { throwIfAborted } from '../../abort.ts'
+import { throwIfAborted, waitForPromise } from '../../abort.ts'
 import {
   invalidInput,
   limitExceeded,
@@ -61,6 +61,11 @@ interface ResolvedCacheOptions {
 
 export interface Hdf5FileLayerOptions extends AbortOptions, Hdf5MetadataPageCacheOptions {}
 
+export interface Hdf5SignatureProbeOptions extends AbortOptions {
+  /** Maximum legal offsets to inspect, beginning with byte zero. */
+  readonly maxOffsets?: number
+}
+
 const hdf5Signature = Uint8Array.of(0x89, 0x48, 0x44, 0x46, 0x0d, 0x0a, 0x1a, 0x0a)
 const defaultCacheOptions: ResolvedCacheOptions = Object.freeze({
   pageBytes: 4_096,
@@ -68,6 +73,7 @@ const defaultCacheOptions: ResolvedCacheOptions = Object.freeze({
   maxReadBytes: 1_048_576,
 })
 const validIntegerWidths: ReadonlySet<number> = new Set([2, 4, 8, 16])
+const defaultSignatureProbeOffsets = 1
 
 const positiveSafeInteger = (name: string, value: number): number => {
   if (!Number.isSafeInteger(value) || value < 1) {
@@ -95,6 +101,40 @@ const resolveCacheOptions = (
     throw invalidInput('HDF5 metadata pageBytes cannot exceed maxBytes')
   }
   return Object.freeze({ pageBytes, maxBytes, maxReadBytes })
+}
+
+/**
+ * Inspect the HDF5 signature without constructing the metadata page cache.
+ *
+ * Legal user-block offsets are 0, 512, 1024, 2048, and successive powers of two. Callers may
+ * permit a deeper search when an extension or media-type hint justifies spending more of a shared
+ * detection budget, but bytes remain authoritative.
+ */
+export const probeHdf5Signature = async (
+  source: ImageSource,
+  options: Readonly<Hdf5SignatureProbeOptions> = {},
+): Promise<number | undefined> => {
+  validateSourceSize(source)
+  throwIfAborted(options.signal)
+  const maxOffsets = positiveSafeInteger(
+    'HDF5 signature probe maxOffsets',
+    options.maxOffsets ?? defaultSignatureProbeOffsets,
+  )
+  let offset = 0
+  for (let inspected = 0; inspected < maxOffsets; inspected += 1) {
+    throwIfAborted(options.signal)
+    if (offset + hdf5Signature.byteLength > source.size) return undefined
+    const bytes = await source.read(offset, hdf5Signature.byteLength, {
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
+    })
+    throwIfAborted(options.signal)
+    if (bytes.byteLength !== hdf5Signature.byteLength) {
+      throw truncatedInput(`HDF5 signature probe returned ${bytes.byteLength} of 8 bytes`)
+    }
+    if (bytesEqual(bytes, hdf5Signature)) return offset
+    offset = offset === 0 ? 512 : offset * 2
+  }
+  return undefined
 }
 
 const sourceIdentitiesEqual = (left: SourceIdentity, right: SourceIdentity): boolean => {
@@ -134,6 +174,7 @@ export class Hdf5MetadataPageCache {
   #residentBytes = 0
   #sourceReadCount = 0
   #sourceBytesRead = 0
+  #generation = 0
 
   private constructor(
     source: ImageSource,
@@ -175,7 +216,9 @@ export class Hdf5MetadataPageCache {
   }
 
   clear(): void {
+    this.#generation += 1
     this.#pages.clear()
+    this.#pendingPages.clear()
     this.#residentBytes = 0
   }
 
@@ -196,6 +239,11 @@ export class Hdf5MetadataPageCache {
   }
 
   #store(page: MetadataPage): MetadataPage {
+    const replaced = this.#pages.get(page.start)
+    if (replaced !== undefined) {
+      this.#pages.delete(page.start)
+      this.#residentBytes -= replaced.data.byteLength
+    }
     while (this.#residentBytes + page.data.byteLength > this.maxBytes) {
       const oldest = this.#pages.entries().next().value
       if (oldest === undefined) break
@@ -208,11 +256,7 @@ export class Hdf5MetadataPageCache {
     return page
   }
 
-  async #readPageFromSource(
-    start: number,
-    length: number,
-    options: Readonly<ImageSourceReadOptions>,
-  ): Promise<MetadataPage> {
+  async #readPageFromSource(start: number, length: number): Promise<MetadataPage> {
     let releaseRead: (() => void) | undefined
     const previousRead = this.#sourceReadTail
     this.#sourceReadTail = new Promise<void>((resolve) => {
@@ -220,9 +264,7 @@ export class Hdf5MetadataPageCache {
     })
     await previousRead
     try {
-      throwIfAborted(options.signal)
-      const sourceBytes = await this.#source.read(start, length, options)
-      throwIfAborted(options.signal)
+      const sourceBytes = await this.#source.read(start, length)
       if (sourceBytes.byteLength !== length) {
         throw truncatedInput(
           `Expected ${length} HDF5 metadata bytes at offset ${start}, received ${sourceBytes.byteLength}`,
@@ -241,15 +283,21 @@ export class Hdf5MetadataPageCache {
     const cached = this.#pages.get(start)
     if (cached !== undefined) return this.#touch(cached)
     const pending = this.#pendingPages.get(start)
-    if (pending !== undefined) return pending
+    if (pending !== undefined) return waitForPromise(pending, options.signal)
 
     const length = Math.min(this.pageBytes, this.#source.size - start)
-    const load = this.#readPageFromSource(start, length, options).then((page) => this.#store(page))
+    const generation = this.#generation
+    const load = this.#readPageFromSource(start, length).then((page) => {
+      if (generation !== this.#generation) {
+        throw invalidInput('HDF5 metadata page load was invalidated')
+      }
+      return this.#store(page)
+    })
     this.#pendingPages.set(start, load)
     try {
-      return await load
+      return await waitForPromise(load, options.signal)
     } finally {
-      this.#pendingPages.delete(start)
+      if (this.#pendingPages.get(start) === load) this.#pendingPages.delete(start)
     }
   }
 
@@ -258,6 +306,7 @@ export class Hdf5MetadataPageCache {
     length: number,
     options: Readonly<ImageSourceReadOptions> = {},
   ): Promise<Uint8Array<ArrayBuffer>> {
+    const generation = this.#generation
     throwIfAborted(options.signal)
     if (!Number.isSafeInteger(offset) || offset < 0) {
       throw invalidInput('HDF5 metadata read offset must be a non-negative safe integer')
@@ -276,6 +325,9 @@ export class Hdf5MetadataPageCache {
     if (length === 0) return new Uint8Array()
 
     await this.#assertSourceIdentity(options)
+    if (generation !== this.#generation) {
+      throw invalidInput('HDF5 metadata read was invalidated')
+    }
     const output = new Uint8Array(length)
     const end = offset + length
     let position = offset
@@ -343,7 +395,9 @@ class Hdf5FileLayerImplementation implements Hdf5FileLayer {
       throw invalidInput('HDF5 metadata read length must be a non-negative safe integer')
     }
     const offset = this.resolveAddress(address, BigInt(length), 'metadata address')
-    return this.metadataCache.read(offset, length, options)
+    const bytes = await this.metadataCache.read(offset, length, options)
+    this.#assertOpen()
+    return bytes
   }
 
   async readRaw(
@@ -365,6 +419,7 @@ class Hdf5FileLayerImplementation implements Hdf5FileLayer {
     }
     const bytes = await this.#source.read(offset, length, options)
     throwIfAborted(options.signal)
+    this.#assertOpen()
     if (bytes.byteLength !== length) {
       throw truncatedInput(
         `Expected ${length} HDF5 raw bytes at offset ${offset}, received ${bytes.byteLength}`,

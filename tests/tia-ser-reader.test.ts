@@ -153,6 +153,35 @@ describe('TIA SER scientific reader', () => {
     ).toEqual([0, 0, 0, 1, 255, 255, 255, 254, 0, 0, 0, 3, 0, 0, 0, 4])
   })
 
+  it('preserves incomplete SER calibration without attaching unit or evidence', async () => {
+    const bytes = generateTiaSerFixture({
+      version: 528,
+      dataKind: 'spectrum',
+      tagKind: 'time',
+      dimensions: [{ size: 1, offset: 0, delta: 1, element: 0, description: 'Number', unit: '' }],
+      elements: [
+        {
+          calibrations: [{ offset: 100, delta: 0, element: 1 }],
+          dataType: 2,
+          shape: [2],
+          payload: Uint8Array.of(1, 0, 2, 0),
+          tag: { time: 1 },
+        },
+      ],
+    })
+    const document = await tiaSerReader.open(context(bytes, 'incomplete.ser'))
+    const energy = document.datasets[0]?.descriptor.axes[0]
+    expect(energy).toMatchObject({ id: 'energy', coordinates: { type: 'index' } })
+    expect(energy).not.toHaveProperty('unit')
+    expect(energy).not.toHaveProperty('calibration')
+    expect(document.datasets[0]?.descriptor.metadata).toMatchObject({
+      'purejsimage:tiaSer': {
+        firstElementCalibrations: [{ offset: 100, delta: 0, element: 1 }],
+        warnings: [{ code: 'incomplete-axis-calibration', axisId: 'energy' }],
+      },
+    })
+  })
+
   it('reads v544 spectrum-image native series and arbitrary calibrated planes', async () => {
     const document = await tiaSerReader.open(context(generatedTiaSerSpectrumImage(), 'si.ser'))
     expect(document.datasets[0]).toMatchObject({

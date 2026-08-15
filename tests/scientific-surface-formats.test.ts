@@ -14,6 +14,7 @@ import { createX3pReader } from '../src/scientific/readers/x3p.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
+import surfaceCorpus from './fixtures/scientific-surface/corpus.json' with { type: 'json' }
 
 const fixture = (name: string): Uint8Array<ArrayBuffer> =>
   Uint8Array.from(readFileSync(`tests/fixtures/scientific-surface/${name}`))
@@ -298,25 +299,17 @@ const firstValues = async (
 }
 
 describe('independent surface fixture provenance', () => {
-  it.each([
-    [
-      'nanonis-afm-generic4.sxm',
-      'f00657fc956b9ca9bf415f5513e58d225ef3a63f2f12269a2379475a483c20a4',
-    ],
-    [
-      'nanonis-stm-generic5.sxm',
-      'fb0d522e71e21a0fe7bf165e8598118a7b5f752f8b7d4d26ce23d8d6e5dbfec6',
-    ],
-    ['asylum-afm-v5.ibw', '84a7fad6032cc735fef6db2781c1d74d385f25b9ead4c3561f50560943233985'],
-    ['igor-win-v5-rank1.ibw', '981383c28a78e5064711bb2aa534775fe2c4242b3ef9aaca27b540178446ec4f'],
-    [
-      'digital-surf-compressed.sur',
-      '6ed59a9a235c0b6dc7e15f155d0e738c5841cfc0fe78f1861b7e145f9dcaadf4',
-    ],
-    ['iso5436-sample1.x3p', 'aebfd9f689781867b3069b5f6c2f61568c68a4a8a1999bf4c31920c278be9339'],
-    ['iso5436-sample4.x3p', '96d3e4cf618b0cf075937a64f3b1fcc7be63dc1fa8b619b245be459ed703b3f2'],
-  ] as const)('pins %s by SHA-256', (name, expected) => {
-    expect(createHash('sha256').update(fixture(name)).digest('hex')).toBe(expected)
+  it.each(surfaceCorpus.files)('pins $localFile with complete provenance', (entry) => {
+    expect(createHash('sha256').update(fixture(entry.localFile)).digest('hex')).toBe(entry.sha256)
+    expect(entry.source.url).toContain(entry.source.revision)
+    expect(entry.source.url).toContain(entry.source.path)
+    expect(entry.license.spdx).toMatch(/^[A-Za-z0-9.+-]+$/u)
+    expect(entry.license.url).toContain(entry.source.revision)
+    expect(entry.attribution.length).toBeGreaterThan(0)
+    expect(entry.redistribution.status).toBe('included-test-only')
+    expect(entry.redistribution.justification.length).toBeGreaterThan(0)
+    expect(entry.oracle.test).toBe('tests/scientific-surface-formats.test.ts')
+    expect(entry.oracle.assertions.length).toBeGreaterThan(0)
   })
 })
 

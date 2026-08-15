@@ -31,12 +31,14 @@ import {
   type Hdf5File,
   type Hdf5OpenOptions,
 } from './hdf5-file.ts'
+import { probeHdf5Signature } from './hdf5.ts'
 import {
   inspectNcemEmd,
   ncemEmdVersionPart,
   type NcemEmdInspectionLimits,
   type NcemEmdNumericGroup,
 } from './ncem-emd.ts'
+import { resourceHasHint } from '../readers/shared.ts'
 
 export interface NcemEmdReaderOptions {
   readonly hdf5?: Readonly<Hdf5OpenOptions>
@@ -462,6 +464,18 @@ export const createNcemEmdReader = (
     descriptor: ncemEmdReaderDescriptor,
     async probe(context: Readonly<ScientificOpenContext>) {
       throwIfAborted(context.signal)
+      const hinted = resourceHasHint(
+        context.primary,
+        ncemEmdReaderDescriptor.extensions,
+        ncemEmdReaderDescriptor.mediaTypes,
+      )
+      const signatureOffset = await probeHdf5Signature(context.primary.source, {
+        maxOffsets: hinted ? 8 : 1,
+        ...(context.signal === undefined ? {} : { signal: context.signal }),
+      })
+      if (signatureOffset === undefined) {
+        return Object.freeze({ confidence: 0, reason: 'HDF5 signature is absent' })
+      }
       let file: Hdf5File | undefined
       try {
         file = await openHdf5File(context.primary.source, {

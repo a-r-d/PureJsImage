@@ -12,6 +12,7 @@ import {
 import { createGeneratedHdf5Fixture } from '../benchmark/hdf5/generated-fixture.ts'
 import { independentHdf5D6Fixture } from '../benchmark/hdf5/independent-d6-fixture.ts'
 import {
+  createGeneratedSharedMessageLocator,
   createGeneratedVersion2ObjectHeader,
   type GeneratedHdf5ObjectMessage,
 } from '../benchmark/hdf5/generated-object-fixture.ts'
@@ -137,6 +138,50 @@ class CountingSource implements ImageSource {
   }
 }
 
+class PausableSource implements ImageSource {
+  readonly size: number
+  readonly #bytes: Uint8Array
+  #gate: Promise<void> = Promise.resolve()
+  #release: (() => void) | undefined
+  #started: Promise<void> = Promise.resolve()
+  #markStarted: (() => void) | undefined
+  #paused = false
+  reads = 0
+
+  constructor(bytes: Uint8Array) {
+    this.#bytes = bytes
+    this.size = bytes.byteLength
+  }
+
+  pause(): void {
+    this.#paused = true
+    this.#gate = new Promise<void>((resolve) => {
+      this.#release = resolve
+    })
+    this.#started = new Promise<void>((resolve) => {
+      this.#markStarted = resolve
+    })
+  }
+
+  waitForRead(): Promise<void> {
+    return this.#started
+  }
+
+  resume(): void {
+    this.#paused = false
+    this.#release?.()
+    this.#release = undefined
+  }
+
+  async read(offset: number, length: number): Promise<Uint8Array> {
+    this.reads += 1
+    this.#markStarted?.()
+    this.#markStarted = undefined
+    if (this.#paused) await this.#gate
+    return this.#bytes.slice(offset, offset + length)
+  }
+}
+
 const largeImplicitFixture = (): Uint8Array<ArrayBuffer> => {
   const chunk = new Uint8Array(16 * 16 * 4)
   const view = new DataView(chunk.buffer)
@@ -184,6 +229,63 @@ describe('HDF5 D6 low-level file API', () => {
     await expect(file.list('/missing')).resolves.toEqual([])
     file.close()
     await expect(file.get('/')).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('isolates cancellation between callers sharing one dataset-metadata load', async () => {
+    const sharedAddress = 8_192n
+    const datatype = createGeneratedIntegerDatatypeMessage({ byteLength: 1 })
+    const bytes = rootDataset(
+      [
+        {
+          type: 0x0001,
+          data: createGeneratedDataspaceMessage({
+            version: 2,
+            lengthSize: 8,
+            dimensions: [2n, 2n],
+          }),
+        },
+        {
+          type: 0x0003,
+          flags: 2,
+          data: createGeneratedSharedMessageLocator({
+            version: 3,
+            offsetSize: 8,
+            lengthSize: 8,
+            address: sharedAddress,
+          }),
+        },
+        {
+          type: 0x0008,
+          data: createGeneratedCompactLayoutMessage({
+            version: 4,
+            dimensions: [],
+            data: Uint8Array.of(1, 2, 3, 4),
+          }),
+        },
+      ],
+      undefined,
+      16_384,
+    )
+    bytes.set(
+      createGeneratedVersion2ObjectHeader([{ type: 0x0003, data: datatype }]),
+      Number(sharedAddress),
+    )
+    const source = new PausableSource(bytes)
+    const file = await openHdf5File(source)
+    source.pause()
+    const readsBefore = source.reads
+    const controller = new AbortController()
+    const cancelled = file.get('/', { signal: controller.signal })
+    const successful = file.get('/')
+    await source.waitForRead()
+    controller.abort(new Error('cancel only this dataset metadata waiter'))
+    await expect(cancelled).rejects.toThrow('cancel only this dataset metadata waiter')
+    source.resume()
+    await expect(successful).resolves.toMatchObject({
+      kind: 'dataset',
+      metadata: { datatype: { kind: 'integer', byteLength: 1 } },
+    })
+    expect(source.reads - readsBefore).toBe(1)
   })
 
   it('reads bounded fixed and global-heap scalar strings for dialect metadata', async () => {
@@ -256,12 +358,10 @@ describe('HDF5 D6 low-level file API', () => {
       const file = await openHdf5File(new MemorySource(bytes))
       const blocks = await collect(file.readDataset('/', { start: [1, 1], shape: [2, 2] }))
       expect(blocks.map(({ start, shape }) => ({ start, shape }))).toEqual([
-        { start: [1, 1], shape: [1, 2] },
-        { start: [2, 1], shape: [1, 2] },
+        { start: [1, 1], shape: [2, 2] },
       ])
       expect(blocks.map(({ data }) => Array.from(data))).toEqual([
-        Array.from(uint16Bytes([5, 6])),
-        Array.from(uint16Bytes([9, 10])),
+        Array.from(uint16Bytes([5, 6, 9, 10])),
       ])
       file.close()
     }
@@ -384,6 +484,44 @@ describe('HDF5 D6 low-level file API', () => {
         ),
       ),
     ).rejects.toThrow('stop HDF5 dataset blocks')
+  })
+
+  it('batches a large strided column behind an explicit input-span cap', async () => {
+    const rows = 100_000
+    const raw = new Uint8Array(rows * 2)
+    for (let row = 0; row < rows; row += 1) {
+      raw[row * 2] = row & 0xff
+      raw[row * 2 + 1] = (row + 17) & 0xff
+    }
+    const bytes = rootDataset(
+      datasetMessages(
+        [BigInt(rows), 2n],
+        createGeneratedContiguousLayoutMessage({
+          version: 4,
+          offsetSize: 8,
+          lengthSize: 8,
+          dimensions: [],
+          address: 4_096n,
+          storageBytes: BigInt(raw.byteLength),
+        }),
+        1,
+      ),
+      { address: 4_096, data: raw },
+      4_096 + raw.byteLength,
+    )
+    const source = new CountingSource(bytes)
+    const file = await openHdf5File(source, {
+      reads: { maxInputBlockBytes: raw.byteLength, maxReadOperations: 1 },
+    })
+    const readsBeforeSelection = source.reads.length
+    const blocks = await collect(file.readDataset('/', { start: [0, 1], shape: [rows, 1] }))
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({ start: [0, 1], shape: [rows, 1] })
+    expect(blocks[0]?.data[0]).toBe(17)
+    expect(blocks[0]?.data[rows - 1]).toBe((rows - 1 + 17) & 0xff)
+    expect(source.reads.slice(readsBeforeSelection)).toEqual([
+      { offset: 4_097, length: raw.byteLength - 1 },
+    ])
   })
 
   it('keeps a small region in a huge declared dataset within exact local and HTTP budgets', async () => {

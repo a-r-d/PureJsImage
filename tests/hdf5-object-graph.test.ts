@@ -124,4 +124,25 @@ describe('HDF5 bounded object graph', () => {
       'stop HDF5 graph',
     )
   })
+
+  it('coalesces concurrent graph loads without double-counting limits', async () => {
+    const baseline = await openGraph()
+    await baseline.graph.get('/compact/item')
+    const expected = baseline.graph.stats()
+
+    const concurrent = await openGraph({
+      maxObjects: expected.objects,
+      maxLinks: expected.links,
+      maxMetadataBytes: expected.metadataBytes,
+    })
+    const controller = new AbortController()
+    const cancelled = concurrent.graph.get('/compact/item', { signal: controller.signal })
+    const successful = concurrent.graph.get('/compact/item')
+    controller.abort(new Error('cancel only this graph waiter'))
+    await expect(cancelled).rejects.toThrow('cancel only this graph waiter')
+    await expect(successful).resolves.toMatchObject({
+      address: concurrent.fixture.addresses.compactLeaf,
+    })
+    expect(concurrent.graph.stats()).toEqual(expected)
+  })
 })

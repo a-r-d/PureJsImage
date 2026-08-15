@@ -78,6 +78,39 @@ class MutableIdentitySource implements ImageSource {
   }
 }
 
+class DeferredSource implements ImageSource {
+  readonly size: number
+  readonly #bytes: Uint8Array
+  #blocked = false
+  #release: (() => void) | undefined
+  #gate: Promise<void> = Promise.resolve()
+  reads = 0
+
+  constructor(bytes: Uint8Array) {
+    this.#bytes = bytes
+    this.size = bytes.byteLength
+  }
+
+  pause(): void {
+    this.#blocked = true
+    this.#gate = new Promise<void>((resolve) => {
+      this.#release = resolve
+    })
+  }
+
+  resume(): void {
+    this.#blocked = false
+    this.#release?.()
+    this.#release = undefined
+  }
+
+  async read(offset: number, length: number): Promise<Uint8Array> {
+    this.reads += 1
+    if (this.#blocked) await this.#gate
+    return this.#bytes.slice(offset, offset + length)
+  }
+}
+
 describe('HDF5 file and address layer', () => {
   it.each(independentHdf5FileFixtures)('parses independently generated $name', async (fixture) => {
     const bytes = fixture.bytes()
@@ -293,6 +326,41 @@ describe('HDF5 file and address layer', () => {
     const controller = new AbortController()
     controller.abort(new Error('stop HDF5'))
     await expect(cache.read(0, 1, { signal: controller.signal })).rejects.toThrow('stop HDF5')
+  })
+
+  it('isolates caller cancellation while coalescing a shared metadata page load', async () => {
+    const bytes = Uint8Array.from({ length: 32 }, (_value, index) => index)
+    const source = new DeferredSource(bytes)
+    const cache = await Hdf5MetadataPageCache.create(source, {
+      pageBytes: 16,
+      maxBytes: 32,
+    })
+    source.pause()
+    const controller = new AbortController()
+    const cancelled = cache.read(0, 8, { signal: controller.signal })
+    const successful = cache.read(0, 8)
+    await Promise.resolve()
+    controller.abort(new Error('cancel only this metadata waiter'))
+    await expect(cancelled).rejects.toThrow('cancel only this metadata waiter')
+    expect(source.reads).toBe(1)
+    source.resume()
+    await expect(successful).resolves.toEqual(bytes.subarray(0, 8))
+    expect(source.reads).toBe(1)
+  })
+
+  it('does not repopulate a cleared cache or return data after close during a pending read', async () => {
+    const fixture = createGeneratedHdf5Fixture({ version: 2 })
+    const source = new DeferredSource(fixture.bytes)
+    const file = await openHdf5FileLayer(source, { pageBytes: 64, maxBytes: 256 })
+    file.metadataCache.clear()
+    source.pause()
+    const pending = file.readMetadata(file.superblock.rootObjectAddress, 4)
+    await Promise.resolve()
+    file.close()
+    source.resume()
+    await expect(pending).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    expect(file.metadataCache.entryCount).toBe(0)
+    expect(file.metadataCache.residentBytes).toBe(0)
   })
 
   it('rejects unsupported versions and invalid address widths precisely', async () => {

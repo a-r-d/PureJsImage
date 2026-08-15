@@ -411,7 +411,10 @@ const fixtureTree = (
   ]
 }
 
-const readerFixtureTree = (semantic: 'volume' | 'eels' = 'volume'): readonly FixtureNode[] => {
+const readerFixtureTree = (
+  semantic: 'volume' | 'eels' = 'volume',
+  incompleteFirstCalibration = false,
+): readonly FixtureNode[] => {
   const byteOrder = 'little-endian' as const
   const text = (value: string): Uint8Array =>
     uint16ArrayPayload(
@@ -468,7 +471,7 @@ const readerFixtureTree = (semantic: 'volume' | 'eels' = 'volume'): readonly Fix
               kind: 'group',
               name: 'Dimension',
               children: [
-                dimensionCalibration(2, 0.5, 'nm'),
+                dimensionCalibration(2, incompleteFirstCalibration ? 0 : 0.5, 'nm'),
                 dimensionCalibration(4, 0.25, 'nm'),
                 dimensionCalibration(1, 2, semantic === 'eels' ? 'eV' : 'nm'),
               ],
@@ -1012,6 +1015,33 @@ describe('DigitalMicrograph scientific reader', () => {
       'dimension-1',
       'dimension-2',
     ])
+  })
+
+  it('preserves incomplete DM calibration tags without claiming a physical axis unit', async () => {
+    const document = await digitalMicrographReader.open({
+      primary: {
+        id: 'incomplete-calibration',
+        name: 'incomplete.dm4',
+        source: new MemorySource(
+          encodedFile(4, 'little-endian', readerFixtureTree('volume', true)),
+        ),
+      },
+    })
+    expect(document.datasets[0]?.descriptor.axes[0]).toMatchObject({
+      id: 'x',
+      coordinates: { type: 'index' },
+    })
+    expect(document.datasets[0]?.descriptor.axes[0]).not.toHaveProperty('unit')
+    expect(document.datasets[0]?.descriptor.axes[0]).not.toHaveProperty('calibration')
+    expect(document.datasets[0]?.descriptor.metadata).toMatchObject({
+      'purejsimage:gatan': {
+        tags: expect.arrayContaining([expect.objectContaining({ value: 0 })]),
+        warnings: expect.arrayContaining([
+          expect.objectContaining({ code: 'incomplete-axis-calibration', axisId: 'x' }),
+        ]),
+      },
+    })
+    expect(JSON.stringify(document.datasets[0]?.descriptor.metadata)).toContain('Units')
   })
 
   it('preserves every supported scalar sample type in canonical big-endian blocks', async () => {

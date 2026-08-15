@@ -207,6 +207,9 @@ const coordinatesFromValues = (values: readonly number[]): ScientificAxisCoordin
   return Object.freeze({ type: 'lookup', values: Object.freeze([...values]) })
 }
 
+const hasCalibrationCoordinates = (coordinates: ScientificAxisCoordinates): boolean =>
+  coordinates.type === 'linear' || coordinates.type === 'lookup'
+
 interface NavigationAxisLayout {
   readonly axis: ScientificAxisDescriptor
   readonly dimension: number
@@ -296,9 +299,21 @@ const positionAxes = (
           name,
           kind: 'space',
           length: dimension.size,
-          unit: 'm',
-          coordinates: coordinatesFromValues(values),
-          calibration: calibrationEvidence(resourceId, 'tia-ser:element-tags:PositionX,PositionY'),
+          ...(() => {
+            const coordinates = coordinatesFromValues(values)
+            return {
+              coordinates,
+              ...(hasCalibrationCoordinates(coordinates)
+                ? {
+                    unit: 'm',
+                    calibration: calibrationEvidence(
+                      resourceId,
+                      'tia-ser:element-tags:PositionX,PositionY',
+                    ),
+                  }
+                : {}),
+            }
+          })(),
         }),
       }),
     ])
@@ -327,6 +342,8 @@ const positionAxes = (
     )
   })
   if (!separable) return undefined
+  const xCoordinates = coordinatesFromValues(xValues)
+  const yCoordinates = coordinatesFromValues(yValues)
   return Object.freeze([
     Object.freeze({
       dimension: 0,
@@ -336,9 +353,13 @@ const positionAxes = (
         name: dataKind === 'image' ? 'Scan X' : 'X',
         kind: 'space',
         length: firstDimension.size,
-        unit: 'm',
-        coordinates: coordinatesFromValues(xValues),
-        calibration: calibrationEvidence(resourceId, 'tia-ser:element-tags:PositionX'),
+        coordinates: xCoordinates,
+        ...(hasCalibrationCoordinates(xCoordinates)
+          ? {
+              unit: 'm',
+              calibration: calibrationEvidence(resourceId, 'tia-ser:element-tags:PositionX'),
+            }
+          : {}),
       }),
     }),
     Object.freeze({
@@ -349,9 +370,13 @@ const positionAxes = (
         name: dataKind === 'image' ? 'Scan Y' : 'Y',
         kind: 'space',
         length: secondDimension.size,
-        unit: 'm',
-        coordinates: coordinatesFromValues(yValues),
-        calibration: calibrationEvidence(resourceId, 'tia-ser:element-tags:PositionY'),
+        coordinates: yCoordinates,
+        ...(hasCalibrationCoordinates(yCoordinates)
+          ? {
+              unit: 'm',
+              calibration: calibrationEvidence(resourceId, 'tia-ser:element-tags:PositionY'),
+            }
+          : {}),
       }),
     }),
   ])
@@ -371,6 +396,8 @@ const dimensionAxes = (
       const isPosition = dimension.description?.toLowerCase() === 'position'
       const prefix = dataKind === 'image' ? 'scan-' : ''
       const unit = normalizedUnit(dimension.unit)
+      const coordinates = coordinatesFromCalibration(dimension)
+      const calibrated = coordinates.type === 'linear'
       const id =
         dimensions.length === 1
           ? isPosition
@@ -384,12 +411,16 @@ const dimensionAxes = (
         name: dimension.description ?? `Dimension ${dimensionIndex}`,
         kind: isPosition ? 'space' : 'other',
         length: dimension.size,
-        ...(unit === undefined ? {} : { unit }),
-        coordinates: coordinatesFromCalibration(dimension),
-        calibration: calibrationEvidence(
-          resourceId,
-          `tia-ser:header:Dimensions[${dimensionIndex}]`,
-        ),
+        ...(calibrated && unit !== undefined ? { unit } : {}),
+        coordinates,
+        ...(calibrated
+          ? {
+              calibration: calibrationEvidence(
+                resourceId,
+                `tia-ser:header:Dimensions[${dimensionIndex}]`,
+              ),
+            }
+          : {}),
       })
       axes.push(Object.freeze({ dimension: dimensionIndex, stride, axis }))
     }
@@ -398,7 +429,7 @@ const dimensionAxes = (
   return Object.freeze(axes)
 }
 
-const fallbackElementAxis = (length: number, resourceId: string): readonly NavigationAxisLayout[] =>
+const fallbackElementAxis = (length: number): readonly NavigationAxisLayout[] =>
   Object.freeze([
     Object.freeze({
       dimension: -1,
@@ -409,11 +440,6 @@ const fallbackElementAxis = (length: number, resourceId: string): readonly Navig
         kind: 'other',
         length,
         coordinates: Object.freeze({ type: 'index' }),
-        calibration: calibrationEvidence(
-          resourceId,
-          'tia-ser:header:ValidNumberElements',
-          'Declared navigation dimensions did not exactly match the indexed valid elements.',
-        ),
       }),
     }),
   ])
@@ -436,15 +462,19 @@ const descriptorForLayout = (
     if (length === undefined || calibration === undefined) {
       throw invalidInput('TIA SER spectrum layout is incomplete')
     }
+    const coordinates = coordinatesFromCalibration(calibration)
+    const calibrated = coordinates.type === 'linear'
     axes.push(
       Object.freeze({
         id: 'energy',
         name: 'Energy',
         kind: 'spectral',
         length,
-        unit: 'eV',
-        coordinates: coordinatesFromCalibration(calibration),
-        calibration: calibrationEvidence(resourceId, 'tia-ser:element:Calibration[0]'),
+        ...(calibrated ? { unit: 'eV' } : {}),
+        coordinates,
+        ...(calibrated
+          ? { calibration: calibrationEvidence(resourceId, 'tia-ser:element:Calibration[0]') }
+          : {}),
       }),
     )
   } else {
@@ -460,24 +490,30 @@ const descriptorForLayout = (
     ) {
       throw invalidInput('TIA SER image layout is incomplete')
     }
+    const xCoordinates = coordinatesFromCalibration(xCalibration)
+    const yCoordinates = coordinatesFromCalibration(yCalibration)
     axes.push(
       Object.freeze({
         id: 'x',
         name: 'X',
         kind: 'space',
         length: width,
-        unit: 'm',
-        coordinates: coordinatesFromCalibration(xCalibration),
-        calibration: calibrationEvidence(resourceId, 'tia-ser:element:Calibration[0]'),
+        ...(xCoordinates.type === 'linear' ? { unit: 'm' } : {}),
+        coordinates: xCoordinates,
+        ...(xCoordinates.type === 'linear'
+          ? { calibration: calibrationEvidence(resourceId, 'tia-ser:element:Calibration[0]') }
+          : {}),
       }),
       Object.freeze({
         id: 'y',
         name: 'Y',
         kind: 'space',
         length: height,
-        unit: 'm',
-        coordinates: coordinatesFromCalibration(yCalibration),
-        calibration: calibrationEvidence(resourceId, 'tia-ser:element:Calibration[1]'),
+        ...(yCoordinates.type === 'linear' ? { unit: 'm' } : {}),
+        coordinates: yCoordinates,
+        ...(yCoordinates.type === 'linear'
+          ? { calibration: calibrationEvidence(resourceId, 'tia-ser:element:Calibration[1]') }
+          : {}),
       }),
     )
   }
@@ -504,6 +540,30 @@ const descriptorForLayout = (
         seriesVersion: index.version,
         dataKind: index.dataKind,
         firstElement: first.index,
+        firstElementCalibrations: first.calibrations.map((calibration) => ({
+          offset: finiteMetadataNumber(calibration.offset),
+          delta: finiteMetadataNumber(calibration.delta),
+          element: calibration.element,
+        })),
+        warnings: [
+          ...navigationAxes
+            .filter(({ axis }) => axis.coordinates.type === 'index')
+            .map(({ axis }) => ({
+              code: 'incomplete-axis-calibration',
+              axisId: axis.id,
+              message:
+                'Raw TIA SER calibration is preserved, but physical unit and evidence were omitted because origin or non-zero delta is incomplete.',
+            })),
+          ...axes
+            .slice(navigationAxes.length)
+            .filter(({ coordinates }) => coordinates.type === 'index')
+            .map(({ id: axisId }) => ({
+              code: 'incomplete-axis-calibration',
+              axisId,
+              message:
+                'Raw TIA SER calibration is preserved, but physical unit and evidence were omitted because origin or non-zero delta is incomplete.',
+            })),
+        ],
         elementCount: elements.length,
         declaredDimensions: index.dimensions.map((dimension) => ({
           size: dimension.size,
@@ -540,7 +600,7 @@ const buildLayouts = (
         : declaredProduct === index.elements.length
           ? (positionAxes(index, index.elements, resourceId, index.dataKind) ??
             dimensionAxes(index.dimensions, resourceId, index.dataKind))
-          : fallbackElementAxis(index.elements.length, resourceId)
+          : fallbackElementAxis(index.elements.length)
     const id = index.dataKind === 'spectrum' ? 'spectra' : 'images'
     const name = index.dataKind === 'spectrum' ? 'TIA spectra' : 'TIA images'
     return Object.freeze([

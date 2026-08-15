@@ -187,6 +187,12 @@ const nifti2 = (): Uint8Array<ArrayBuffer> => {
   return output
 }
 
+const modifiedNifti1 = (modify: (view: DataView) => void): Uint8Array<ArrayBuffer> => {
+  const bytes = nifti1()
+  modify(new DataView(bytes.buffer))
+  return bytes
+}
+
 const blockfile = (): Uint8Array<ArrayBuffer> => {
   const output = new Uint8Array(284)
   const view = new DataView(output.buffer)
@@ -374,6 +380,126 @@ ElementDataFile = image.raw
     await expect(
       planeValues(await openDataset(niftiReader, context('volume-v2.nii', nifti2()))),
     ).resolves.toEqual([1, 2, 3, 4])
+  })
+
+  it('ignores scl_inter when scl_slope is zero in NIfTI-1 and NIfTI-2', async () => {
+    const bytes = modifiedNifti1((view) => {
+      view.setFloat32(112, 0, true)
+      view.setFloat32(116, 9, true)
+    })
+    const dataset = await openDataset(niftiReader, context('unscaled.nii', bytes))
+    await expect(planeValues(dataset)).resolves.toEqual([3, 7])
+    expect(dataset.descriptor.metadata).toMatchObject({
+      rawSlope: 0,
+      rawIntercept: 9,
+      slope: 1,
+      intercept: 0,
+    })
+
+    const version2 = nifti2()
+    const version2View = new DataView(version2.buffer)
+    version2View.setFloat64(176, 0, true)
+    version2View.setFloat64(184, 11, true)
+    const version2Dataset = await openDataset(niftiReader, context('unscaled-v2.nii', version2))
+    await expect(planeValues(version2Dataset)).resolves.toEqual([1, 2, 3, 4])
+    expect(version2Dataset.descriptor.metadata).toMatchObject({
+      rawSlope: 0,
+      rawIntercept: 11,
+      slope: 1,
+      intercept: 0,
+    })
+  })
+
+  it('maps axis-aligned NIfTI sform flips and permutations to signed world axes', async () => {
+    const flipped = modifiedNifti1((view) => {
+      view.setInt16(254, 1, true)
+      const matrix = [-2, 0, 0, 1_000_000_000, 0, 3, 0, 20, 0, 0, 4, 30]
+      matrix.forEach((value, index) => {
+        view.setFloat32(280 + index * 4, value, true)
+      })
+    })
+    const flippedDataset = await openDataset(niftiReader, context('flipped.nii', flipped))
+    expect(flippedDataset.descriptor.axes.slice(0, 2)).toMatchObject([
+      {
+        id: 'x',
+        unit: 'mm',
+        coordinates: { type: 'linear', origin: 1_000_000_000, step: -2 },
+      },
+      { id: 'y', unit: 'mm', coordinates: { type: 'linear', origin: 20, step: 3 } },
+    ])
+
+    const permuted = modifiedNifti1((view) => {
+      view.setInt16(254, 1, true)
+      const matrix = [0, -3, 0, 10, 2, 0, 0, 20, 0, 0, 4, 30]
+      matrix.forEach((value, index) => {
+        view.setFloat32(280 + index * 4, value, true)
+      })
+    })
+    const permutedDataset = await openDataset(niftiReader, context('permuted.nii', permuted))
+    expect(permutedDataset.descriptor.axes.slice(0, 2)).toMatchObject([
+      { id: 'y', coordinates: { type: 'linear', origin: 20, step: 2 } },
+      { id: 'x', coordinates: { type: 'linear', origin: 10, step: -3 } },
+    ])
+  })
+
+  it('uses qform when sform is absent and avoids separable claims for rotation or shear', async () => {
+    const qform = modifiedNifti1((view) => {
+      view.setInt16(252, 1, true)
+      view.setFloat32(264, Math.SQRT1_2, true)
+      view.setFloat32(268, 11, true)
+      view.setFloat32(272, 12, true)
+    })
+    const qformDataset = await openDataset(niftiReader, context('qform.nii', qform))
+    expect(qformDataset.descriptor.axes.slice(0, 2)).toMatchObject([
+      { id: 'y', coordinates: { type: 'linear', origin: 12 } },
+      { id: 'x', coordinates: { type: 'linear', origin: 11 } },
+    ])
+    const qformY = qformDataset.descriptor.axes[0]
+    const qformX = qformDataset.descriptor.axes[1]
+    expect(qformY?.coordinates.type === 'linear' ? qformY.coordinates.step : undefined).toBeCloseTo(
+      0.5,
+    )
+    expect(qformX?.coordinates.type === 'linear' ? qformX.coordinates.step : undefined).toBeCloseTo(
+      -2,
+    )
+    expect(qformDataset.descriptor.metadata).toMatchObject({ affine: { source: 'qform' } })
+
+    const nonseparableCases: readonly (readonly [string, readonly number[]])[] = [
+      ['rotated', [1, -1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0]],
+      ['sheared', [1, 0.25, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]],
+    ]
+    for (const [name, matrix] of nonseparableCases) {
+      const bytes = modifiedNifti1((view) => {
+        view.setInt16(254, 1, true)
+        matrix.forEach((value, index) => {
+          view.setFloat32(280 + index * 4, value, true)
+        })
+      })
+      const dataset = await openDataset(niftiReader, context(`${name}.nii`, bytes))
+      expect(dataset.descriptor.axes.slice(0, 2)).toMatchObject([
+        { id: 'voxel-x', kind: 'index', coordinates: { type: 'index' } },
+        { id: 'voxel-y', kind: 'index', coordinates: { type: 'index' } },
+      ])
+      expect(dataset.descriptor.metadata).toMatchObject({
+        affine: { source: 'sform', matrix },
+        warnings: [{ code: 'non-separable-affine' }],
+      })
+    }
+  })
+
+  it('keeps incomplete NIfTI spatial calibration as raw metadata and index axes', async () => {
+    const bytes = modifiedNifti1((view) => view.setFloat32(80, 0, true))
+    const dataset = await openDataset(niftiReader, context('incomplete.nii', bytes))
+    const xAxis = dataset.descriptor.axes[0]
+    expect(xAxis).toMatchObject({ id: 'x', coordinates: { type: 'index' } })
+    expect(xAxis).not.toHaveProperty('unit')
+    expect(xAxis).not.toHaveProperty('calibration')
+    expect(dataset.descriptor.metadata).toMatchObject({
+      pixdim: expect.arrayContaining([0]),
+      warnings: expect.arrayContaining([
+        expect.objectContaining({ code: 'incomplete-axis-calibration' }),
+      ]),
+    })
   })
 
   it('exposes BLO navigator and vertically normalized diffraction frames', async () => {

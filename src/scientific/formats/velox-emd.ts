@@ -256,6 +256,97 @@ export const readVeloxJsonColumn = async (
   return normalizeScientificMetadataObject(parsed)
 }
 
+export const readVeloxJsonColumns = async (
+  file: Hdf5File,
+  object: Hdf5DatasetObject,
+  path: string,
+  maximumColumnBytes: number,
+  maximumTotalBytes: number,
+  signal: AbortSignal | undefined,
+): Promise<readonly ScientificMetadataObject[]> => {
+  const dimensions = object.metadata.dataspace.dimensions
+  const storedBytes = metadataStoredBytes(object, path)
+  const columns = dimensions[1]
+  if (columns === undefined || columns < 1) {
+    throw invalidInput(`Velox EMD JSON dataset ${JSON.stringify(path)} has no columns`)
+  }
+  if (storedBytes > maximumColumnBytes) {
+    throw limitExceeded(
+      `Velox EMD JSON dataset ${JSON.stringify(path)} has ${storedBytes} bytes per column; limit is ${maximumColumnBytes}`,
+    )
+  }
+  const totalBytes = BigInt(storedBytes) * BigInt(columns)
+  if (totalBytes > BigInt(maximumTotalBytes)) {
+    throw limitExceeded(
+      `Velox EMD JSON dataset ${JSON.stringify(path)} requires ${totalBytes} bytes; limit is ${maximumTotalBytes}`,
+    )
+  }
+  const stored = new Uint8Array(Number(totalBytes))
+  let coveredBytes = 0
+  for await (const block of file.readDataset(
+    path,
+    { start: [0, 0], shape: [storedBytes, columns] },
+    signal === undefined ? {} : { signal },
+  )) {
+    const startRow = block.start[0]
+    const startColumn = block.start[1]
+    const rows = block.shape[0]
+    const blockColumns = block.shape[1]
+    if (
+      startRow === undefined ||
+      startColumn === undefined ||
+      rows === undefined ||
+      blockColumns === undefined ||
+      startRow < 0 ||
+      startColumn < 0 ||
+      startRow + rows > storedBytes ||
+      startColumn + blockColumns > columns ||
+      block.data.byteLength !== rows * blockColumns
+    ) {
+      throw invalidInput(`Velox EMD JSON dataset ${JSON.stringify(path)} is incomplete`)
+    }
+    for (let row = 0; row < rows; row += 1) {
+      const sourceOffset = row * blockColumns
+      const targetOffset = (startRow + row) * columns + startColumn
+      stored.set(block.data.subarray(sourceOffset, sourceOffset + blockColumns), targetOffset)
+    }
+    coveredBytes += block.data.byteLength
+  }
+  if (coveredBytes !== Number(totalBytes)) {
+    throw invalidInput(`Velox EMD JSON dataset ${JSON.stringify(path)} is incomplete`)
+  }
+  const metadata: ScientificMetadataObject[] = []
+  for (let column = 0; column < columns; column += 1) {
+    const bytes = new Uint8Array(storedBytes)
+    for (let row = 0; row < storedBytes; row += 1) {
+      bytes[row] = stored[row * columns + column] ?? 0
+    }
+    let end = bytes.indexOf(0)
+    if (end < 0) end = bytes.byteLength
+    if (end === 0) {
+      throw invalidInput(`Velox EMD JSON dataset ${JSON.stringify(path)} column ${column} is empty`)
+    }
+    let text: string
+    try {
+      text = new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(0, end))
+    } catch {
+      throw invalidInput(
+        `Velox EMD JSON dataset ${JSON.stringify(path)} column ${column} is not UTF-8`,
+      )
+    }
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      throw invalidInput(
+        `Velox EMD JSON dataset ${JSON.stringify(path)} column ${column} is invalid JSON`,
+      )
+    }
+    metadata.push(normalizeScientificMetadataObject(parsed))
+  }
+  return Object.freeze(metadata)
+}
+
 const metadataFor = async (
   file: Hdf5File,
   path: string,
