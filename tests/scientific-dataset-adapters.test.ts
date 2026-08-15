@@ -193,6 +193,26 @@ describe('fixed-axis to labeled-axis adapter', () => {
     })
   })
 
+  it('preserves synthetic sidecar calibration evidence without inventing missing provenance', () => {
+    const source = new FixedAxisFixture(
+      'uint16',
+      Object.freeze([{ samplesPerPixel: 1 }]),
+      blockFixture('uint16', 1, false, [1, 2]),
+    )
+    const calibration = {
+      kind: 'sidecar' as const,
+      resourceId: 'calibration.txt',
+      locator: 'companion:calibration.txt/PixelSizeX',
+    }
+    const adapted = toScientificDataset(source, {
+      calibrationEvidence: { x: calibration },
+    })
+
+    expect(adapted.descriptor.axes.find(({ id }) => id === 'x')?.calibration).toEqual(calibration)
+    expect(adapted.descriptor.axes.find(({ id }) => id === 'y')?.calibration).toBeUndefined()
+    expect(Object.isFrozen(adapted.descriptor.axes[0]?.calibration)).toBe(true)
+  })
+
   it('preserves release callbacks without wrapping blocks', async () => {
     let releases = 0
     const block = blockFixture('uint8', 1, false, [1, 2], () => {

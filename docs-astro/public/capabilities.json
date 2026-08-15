@@ -1610,10 +1610,10 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, lightweight tag metadata, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide and explicit Aperio ScientificDocument access with configurable WSI limits, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads and payload-free tag metadata, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, an explicitly registered configurable Aperio scientific-document reader, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
-      "memory": "Selected-frame, GeoTIFF, OME plane, whole-slide region, and Aperio scientific-dataset reads remain strip- or tile-bounded; IFD traversal, profile detection, and scientific document construction do not read unselected pixel segments or complete ICC payloads merely to enumerate metadata. TIFF document options independently bound physical segment count, the raw-plus-converted segment-table construction peak, and each encoded segment before the corresponding payload read. Aperio readers use explicit source, dimension, directory, region-pixel, decoded-byte, and associated-image limits while allowing large lazy sources, and tiled regions decode sequential native-tile intersections. Direct TIFF display and raster reads preflight the aggregate live decoded segments, largest intersecting encoded segment, largest output block, and predictor scratch before segment payload reads. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or admitted segment set and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
-      "recommendation": "Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, explicit Aperio scientific documents, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, lightweight tag metadata, native scientific-raster, explicit calibrated ordinary TIFF ScientificDocument, GeoTIFF, OME-TIFF, deterministic profile, whole-slide and explicit Aperio ScientificDocument access with configurable WSI limits, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit Z/time interpretation of ordinary pages without ImageJ or DigitalMicrograph evidence, inferred FEI field-of-view calibration without fixture proof, implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads and payload-free tag metadata, native-precision N-channel rasters, an explicitly registered ordinary TIFF scientific reader with compatible-page axes, incompatible series, SubIFD levels, bounded selected metadata, and standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, or Zeiss SEM calibration evidence, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, an explicitly registered configurable Aperio scientific-document reader, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
+      "memory": "Selected-frame, ordinary TIFF scientific-dataset, GeoTIFF, OME plane, whole-slide region, and Aperio scientific-dataset reads remain strip- or tile-bounded; IFD traversal, profile detection, and scientific document construction do not read unselected pixel segments or complete ICC payloads merely to enumerate metadata. The ordinary reader admits selected optional tag values under aggregate and per-tag byte limits and records oversized or unreadable optional metadata without blocking pixels. TIFF document options independently bound physical segment count, the raw-plus-converted segment-table construction peak, and each encoded segment before the corresponding payload read. Aperio readers use explicit source, dimension, directory, region-pixel, decoded-byte, and associated-image limits while allowing large lazy sources, and tiled regions decode sequential native-tile intersections. Direct TIFF display and raster reads preflight the aggregate live decoded segments, largest intersecting encoded segment, largest output block, and predictor scratch before segment payload reads. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or admitted segment set and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
+      "recommendation": "Broad display-image input compatibility, native ordinary scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, explicit Aperio scientific documents, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
       "evidence": [
         "tests/tiff.test.ts",
         "tests/tiff-lerc.test.ts",
@@ -1625,6 +1625,7 @@
         "tests/imazen-corpus-harness.test.ts",
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
+        "tests/scientific-tiff-reader.test.ts",
         "tests/scientific-aperio-reader.test.ts",
         "tests/scientific-whole-slide-bridge.test.ts"
       ],
@@ -1713,6 +1714,10 @@
         },
         {
           "status": "supported",
+          "text": "Explicit ordinary TIFF `ScientificDocument` reader with native precision/components, contiguous compatible-page series, labeled page axes, SubIFD resolution levels, bounded selected metadata, identities, cancellation, and region reads"
+        },
+        {
+          "status": "supported",
           "text": "Explicit `rasterToPixels()` display conversion with declared per-channel ranges"
         },
         {
@@ -1734,6 +1739,10 @@
         {
           "status": "supported",
           "text": "Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection"
+        },
+        {
+          "status": "supported",
+          "text": "First-party standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, and Zeiss SEM calibration profiles with normalized origins and steps, per-axis evidence, structured spatial/intensity status, format-default resolution evidence, bounded raw metadata, normalized acquisition fields, strict private-tag detection, and non-fatal validation warnings"
         },
         {
           "status": "supported",
@@ -6469,6 +6478,510 @@
           "text": "Checksum-pinned optional historical compatibility downloads kept outside the repository"
         }
       ]
+    }
+  ],
+  "scientificReaders": [
+    {
+      "id": "purejsimage/gsf",
+      "version": "1.0.0",
+      "format": "Gwyddion Simple Field",
+      "packageExport": "purejsimage/scientific/readers/gsf",
+      "extensions": ["gsf"],
+      "mediaTypes": ["application/x-gwyddion-spm"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "boundary": "One scalar 2D field with exact X/Y calibration and bounded metadata.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/nanonis-sxm",
+      "version": "1.0.0",
+      "format": "Nanonis SXM",
+      "packageExport": "purejsimage/scientific/readers/nanonis-sxm",
+      "extensions": ["sxm"],
+      "mediaTypes": ["application/x-nanonis-sxm"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "boundary": "Nanonis SXM v2 FLOAT MSBFIRST images; every recorded channel and direction is separate, binary values retain declared channel units, and Y remains in top-to-bottom file order with a negative calibrated step.",
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/nanonis-afm-generic4.sxm",
+        "tests/fixtures/scientific-surface/nanonis-stm-generic5.sxm"
+      ]
+    },
+    {
+      "id": "purejsimage/igor-binary-wave",
+      "version": "1.0.0",
+      "format": "Igor Binary Wave v5",
+      "packageExport": "purejsimage/scientific/readers/igor-binary-wave",
+      "extensions": ["ibw"],
+      "mediaTypes": ["application/x-igor-binary-wave"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Numeric IBW v5 waves with two through four contiguous dimensions, endian and checksum validation, linear axes, units, notes, labels, and selected XY regions; complex, text, formula-dependent, and private-option waves are rejected.",
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/asylum-afm-v5.ibw",
+        "tests/fixtures/scientific-surface/igor-win-v5-rank1.ibw"
+      ]
+    },
+    {
+      "id": "purejsimage/digital-surf",
+      "version": "1.0.0",
+      "format": "Digital Surf SUR/PRO",
+      "packageExport": "purejsimage/scientific/readers/digital-surf",
+      "extensions": ["sur", "pro"],
+      "mediaTypes": ["application/x-digitalsurf-sur"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": false,
+      "boundary": "Digital Surf integer surface, multilayer, and profile records with bounded stored or zlib-stream payloads, exact scale/offset conversion, special-point masks, physical axes, units, object enumeration, comments, and private-zone bounds; spectral maps are rejected.",
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": ["tests/fixtures/scientific-surface/digital-surf-compressed.sur"]
+    },
+    {
+      "id": "purejsimage/x3p",
+      "version": "1.0.0",
+      "format": "X3P surface exchange",
+      "packageExport": "purejsimage/scientific/readers/x3p",
+      "extensions": ["x3p"],
+      "mediaTypes": ["application/x-x3p"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "boundary": "ISO 5436-2 SUR matrices with incremental X/Y axes, one Z layer, numeric binary point data, optional validity masks, exact Z increment/offset conversion, bounded ZIP/ZIP64 indexing, and stored-member range views.",
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/iso5436-sample1.x3p",
+        "tests/fixtures/scientific-surface/iso5436-sample4.x3p"
+      ]
+    },
+    {
+      "id": "purejsimage/envi",
+      "version": "1.0.0",
+      "format": "ENVI",
+      "packageExport": "purejsimage/scientific/readers/envi",
+      "extensions": ["hdr", "img", "dat", "raw"],
+      "mediaTypes": ["application/x-envi"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "Header-plus-binary scalar cubes with BSQ, BIL, or BIP layout and exact selected-region reads.",
+      "evidence": ["tests/envi.test.ts"],
+      "fixtures": ["tests/envi.test.ts"]
+    },
+    {
+      "id": "purejsimage/fits",
+      "version": "1.0.0",
+      "format": "FITS",
+      "packageExport": "purejsimage/scientific/readers/fits",
+      "extensions": ["fits", "fit", "fts"],
+      "mediaTypes": ["application/fits", "image/fits"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Supported image HDUs with ranked axes, native numeric samples, and linear physical coordinates.",
+      "evidence": ["tests/fits.test.ts"],
+      "fixtures": ["tests/fits.test.ts"]
+    },
+    {
+      "id": "purejsimage/mrc",
+      "version": "1.0.0",
+      "format": "MRC/CCP4",
+      "packageExport": "purejsimage/scientific/readers/mrc",
+      "extensions": ["mrc", "map", "ccp4"],
+      "mediaTypes": ["application/x-mrc", "application/x-ccp4"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "One scalar image or volume for the documented MRC/CCP4 modes and axis mappings.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/cbf",
+      "version": "1.0.0",
+      "format": "CBF/imgCIF",
+      "packageExport": "purejsimage/scientific/readers/cbf",
+      "extensions": ["cbf"],
+      "mediaTypes": ["application/x-cbf"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "One 2D detector image using the documented byte-offset encoding subset.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/png",
+      "version": "1.0.0",
+      "format": "PNG",
+      "packageExport": "purejsimage/scientific/readers/png",
+      "extensions": ["png"],
+      "mediaTypes": ["image/png"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets.",
+      "evidence": ["tests/scientific-image-codec-reader.test.ts"],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jpeg",
+      "version": "1.0.0",
+      "format": "JPEG",
+      "packageExport": "purejsimage/scientific/readers/jpeg",
+      "extensions": ["jpg", "jpeg", "jpe"],
+      "mediaTypes": ["image/jpeg"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets.",
+      "evidence": ["tests/scientific-image-codec-reader.test.ts"],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/webp",
+      "version": "1.0.0",
+      "format": "WebP",
+      "packageExport": "purejsimage/scientific/readers/webp",
+      "extensions": ["webp"],
+      "mediaTypes": ["image/webp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets; animated WebP remains outside the codec boundary.",
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/bmp",
+      "version": "1.0.0",
+      "format": "BMP",
+      "packageExport": "purejsimage/scientific/readers/bmp",
+      "extensions": ["bmp", "dib"],
+      "mediaTypes": ["image/bmp", "image/x-ms-bmp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets.",
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jp2",
+      "version": "1.0.0",
+      "format": "JPEG 2000 / JP2",
+      "packageExport": "purejsimage/scientific/readers/jp2",
+      "extensions": ["jp2"],
+      "mediaTypes": ["image/jp2"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets within the first-party JP2 decoder subset.",
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2"]
+    },
+    {
+      "id": "purejsimage/tiff",
+      "version": "1.0.0",
+      "format": "TIFF",
+      "packageExport": "purejsimage/scientific/readers/tiff",
+      "extensions": ["tif", "tiff"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "pyramid"],
+      "directRangeReads": true,
+      "boundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels without invented axis semantics.",
+      "evidence": ["tests/scientific-tiff-reader.test.ts"],
+      "fixtures": ["tests/scientific-tiff-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/ome-tiff",
+      "version": "1.0.0",
+      "format": "OME-TIFF",
+      "packageExport": "purejsimage/scientific/readers/ome-tiff",
+      "extensions": ["tif", "tiff"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "OME-XML-backed X/Y/Z/C/T datasets on supported TIFF sample and compression layouts; detection follows the first TIFF IFD and bounded tag-270 ranges instead of scanning a fixed file prefix.",
+      "evidence": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ],
+      "fixtures": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/aperio-svs",
+      "version": "1.0.0",
+      "format": "Aperio SVS",
+      "packageExport": "purejsimage/scientific/readers/aperio-svs",
+      "extensions": ["svs"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["pyramid", "image"],
+      "directRangeReads": true,
+      "boundary": "One bounded calibrated whole-slide pyramid plus separate supported associated images.",
+      "evidence": ["tests/scientific-aperio-reader.test.ts"],
+      "fixtures": ["tests/scientific-aperio-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/digital-micrograph",
+      "version": "1.0.0",
+      "format": "Gatan DigitalMicrograph",
+      "packageExport": "purejsimage/scientific/readers/digital-micrograph",
+      "extensions": ["dm3", "dm4"],
+      "mediaTypes": [
+        "application/x-gatan-dm3",
+        "application/x-gatan-dm4",
+        "application/x-digital-micrograph"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "Rank-2 images, rank-3 X/Y/Z volumes, evidence-gated X/Y/energy EELS spectrum images, evidence-gated C-ordered 4D-STEM diffraction planes, and otherwise neutral rank-4 axes, plus fixture-proven little-endian packed BGRA; no rank-1, complex, encrypted, external, big-endian packed color, or undocumented packed content.",
+      "evidence": ["tests/digital-micrograph-index.test.ts"],
+      "fixtures": [
+        "benchmark/digital-micrograph/corpus.json",
+        "benchmark/digital-micrograph/semantic-corpus.json",
+        "benchmark/digital-micrograph/generated-fixture.ts",
+        "benchmark/digital-micrograph/verify-semantic-corpus.ts",
+        "tests/digital-micrograph-index.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/tia-ser",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA SER",
+      "packageExport": "purejsimage/scientific/readers/tia-ser",
+      "extensions": ["ser"],
+      "mediaTypes": [
+        "application/x-fei-ser",
+        "application/x-thermo-tia-ser",
+        "application/x-tia-ser"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "boundary": "TIA SER versions 0x0210 and 0x0220 with scalar element types 1 through 8, request-bounded batched metadata indexing, lazy payload reads, compatible image or spectrum collections, native calibrated series reads, and explicit valid or invalid element metadata; no complex elements or companion EMI metadata.",
+      "evidence": ["tests/tia-ser-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/corpus.json",
+        "benchmark/tia-ser/generated-fixture.ts",
+        "benchmark/tia-ser/verify-corpus.ts",
+        "tests/tia-ser-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/tia-emi",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA EMI",
+      "packageExport": "purejsimage/scientific/readers/tia-emi",
+      "extensions": ["emi"],
+      "mediaTypes": [
+        "application/x-fei-emi",
+        "application/x-thermo-tia-emi",
+        "application/x-tia-emi"
+      ],
+      "resourceModel": "companion-set",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "boundary": "Bounded ObjectInfo XML from the TIA EMI binary envelope plus consecutively numbered sibling SER resources resolved through ScientificCompanionResolver; EMI acquisition metadata enriches SER-backed datasets, strongly corroborated diffraction calibration is interpreted as reciprocal space, contradictory mode hints preserve SER facts, and every dataset identity includes its EMI and contributing SER resource.",
+      "evidence": ["tests/tia-emi-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/emi-corpus.json",
+        "benchmark/tia-ser/generated-emi-fixture.ts",
+        "benchmark/tia-ser/verify-emi-corpus.ts",
+        "tests/tia-emi-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/ncem-emd",
+      "version": "1.0.0",
+      "format": "NCEM EMD 0.2",
+      "packageExport": "purejsimage/scientific/readers/ncem-emd",
+      "extensions": ["emd"],
+      "mediaTypes": ["application/x-hdf5"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "boundary": "Berkeley/openNCEM EMD 0.2 numeric groups below /data or /signals with scalar integer or decimal-string version attributes, exact labeled coordinates, bounded scalar or array acquisition attributes, and selected HDF5 hyperslab reads; Direct Electron .de5 and later EMD revisions remain unsupported.",
+      "evidence": ["tests/ncem-emd-reader.test.ts", "tests/ncem-emd.test.ts"],
+      "fixtures": [
+        "benchmark/ncem-emd/corpus.json",
+        "benchmark/ncem-emd/generated-fixture.ts",
+        "tests/ncem-emd-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/velox-emd",
+      "version": "1.0.0",
+      "format": "FEI/Thermo Velox EMD",
+      "packageExport": "purejsimage/scientific/readers/velox-emd",
+      "extensions": ["emd"],
+      "mediaTypes": ["application/x-hdf5"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Velox HDF5 image hierarchy with rank-3 numeric image, diffraction, dense-map, DPC complex, or positive-half FFT arrays; bounded per-frame JSON metadata, explicit detector datasets and frame axes, exact native samples, and specific pruned-spectrum-image errors. Sparse SpectrumStream data and dense Spectrum entries remain outside this E2 boundary.",
+      "evidence": ["tests/velox-emd-reader.test.ts"],
+      "fixtures": ["benchmark/velox-emd/generated-fixture.ts", "tests/velox-emd-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/rpl",
+      "version": "1.0.0",
+      "format": "Lispix RPL/RAW",
+      "packageExport": "purejsimage/scientific/readers/rpl",
+      "extensions": ["rpl", "raw"],
+      "mediaTypes": ["application/x-rpl", "application/x-lispix-raw"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "One numeric header-plus-RAW array in image, vector, or depth-one order with exact declared endian, offset, dimensions, axis calibration, and selected plane or series reads.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/emsa",
+      "version": "1.0.0",
+      "format": "EMSA/MAS spectrum",
+      "packageExport": "purejsimage/scientific/readers/emsa",
+      "extensions": ["msa", "emsa"],
+      "mediaTypes": ["application/x-emsa-mas"],
+      "resourceModel": "single",
+      "datasetKinds": ["spectrum"],
+      "directRangeReads": false,
+      "boundary": "Bounded EMSA/MAS text spectra using Y or XY data, with exact point counts, native float64 series values, calibrated or lookup spectral coordinates, units, and preserved header fields.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/nrrd",
+      "version": "1.0.0",
+      "format": "NRRD",
+      "packageExport": "purejsimage/scientific/readers/nrrd",
+      "extensions": ["nrrd", "nhdr"],
+      "mediaTypes": ["application/x-nrrd"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "boundary": "NRRD0001 through NRRD0005 scalar numeric arrays with attached or one-file detached raw data, bounded gzip data, endian conversion, linear spacing or direction-vector calibration, origin, units, labels, kinds, and key/value metadata; ASCII, bzip2, and multi-file sequences are rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/meta-image",
+      "version": "1.0.0",
+      "format": "MetaImage MHD/MHA",
+      "packageExport": "purejsimage/scientific/readers/meta-image",
+      "extensions": ["mhd", "mha"],
+      "mediaTypes": ["application/x-metaimage"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Binary numeric MHA LOCAL or MHD plus one raw companion, with scalar or bounded interleaved components, endian conversion, spacing, origin, and preserved direction; compressed, ASCII, HeaderSize -1, and multi-file series are rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/nifti",
+      "version": "1.0.0",
+      "format": "NIfTI-1/2",
+      "packageExport": "purejsimage/scientific/readers/nifti",
+      "extensions": ["nii", "gz"],
+      "mediaTypes": ["application/x-nifti"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "boundary": "Single-file NIfTI-1 and NIfTI-2 scalar numeric arrays, optionally bounded whole-file gzip, with endian conversion, scl_slope/inter transformation, voxel spacing and units, and preserved qform/sform metadata; paired hdr/img and complex, RGB, binary, and extension payloads are outside this subset.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/npy",
+      "version": "1.0.0",
+      "format": "NumPy NPY",
+      "packageExport": "purejsimage/scientific/readers/npy",
+      "extensions": ["npy"],
+      "mediaTypes": ["application/x-npy"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Exactly one NPY v1, v2, or v3 C- or Fortran-contiguous scalar boolean, integer, float16, float32, or float64 array with generic index axes and selected plane or series reads; scalar, structured, object, complex, datetime, Unicode, and NPZ arrays are rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/blockfile",
+      "version": "1.0.0",
+      "format": "NanoMegas ASTAR blockfile",
+      "packageExport": "purejsimage/scientific/readers/blockfile",
+      "extensions": ["blo"],
+      "mediaTypes": ["application/x-nanomegas-blo"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "NanoMegas ASTAR blockfiles with bounded square uint8 diffraction frames, per-frame ID validation, a virtual-bright-field navigator, scan calibration, diffraction scale, and acquisition metadata.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/mib",
+      "version": "1.0.0",
+      "format": "Quantum Detectors Merlin MIB",
+      "packageExport": "purejsimage/scientific/readers/mib",
+      "extensions": ["mib"],
+      "mediaTypes": ["application/x-merlin-mib"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "Processed Merlin U08, U16, or U32 frame sequences with 384- or 768-byte per-frame headers, vertical normalization, optional acquisition HDR metadata, and optional rectangular scan navigation; raw packed R64 detector words are explicitly rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/ebsd-text",
+      "version": "1.0.0",
+      "format": "ANG/CTF orientation map",
+      "packageExport": "purejsimage/scientific/readers/ebsd-text",
+      "extensions": ["ang", "ctf"],
+      "mediaTypes": ["application/x-ebsd-ang", "application/x-ebsd-ctf"],
+      "resourceModel": "single",
+      "datasetKinds": ["orientation-map"],
+      "directRangeReads": false,
+      "boundary": "Bounded UTF-8 ANG square-grid and CTF rectangular orientation maps with validated row-major positions, physical scan axes, Euler angles, phase, and quality columns; staggered and hexagonal grids are rejected instead of silently reshaped.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
     }
   ]
 }

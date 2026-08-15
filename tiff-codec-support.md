@@ -28,12 +28,14 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Bounded typed `getTag()` reads, payload-free `getTagInfo()` metadata, plus per-directory display and native raster decoders
 - [x] Configurable physical-segment count, segment-table construction-peak, and per-segment encoded-byte limits rejected before oversized payload reads
 - [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion
+- [x] Explicit ordinary TIFF `ScientificDocument` reader with native precision/components, contiguous compatible-page series, labeled page axes, SubIFD resolution levels, bounded selected metadata, identities, cancellation, and region reads
 - [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges
 - [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers
 - [x] OME-TIFF Z/C/T datasets with validated dimension orders, channel metadata, physical pixel sizes, and explicit or implicit `TiffData` mappings
 - [x] OME reduced-resolution SubIFD plane selection and separate-channel plane assembly
 - [x] Explicit bounded scientific plane display mapping with declared or sampled ranges, scales, palettes, and optional scalar-surface relief
 - [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
+- [x] First-party standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, and Zeiss SEM calibration profiles with normalized origins and steps, per-axis evidence, structured spatial/intensity status, format-default resolution evidence, bounded raw metadata, normalized acquisition fields, strict private-tag detection, and non-fatal validation warnings
 - [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
 - [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration
 - [x] Explicit Aperio ScientificDocument reader with configurable large-source WSI limits, calibrated format-consistent pyramid levels, lightweight ICC presence/length metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads

@@ -39,6 +39,17 @@ Browser companion files use `createScientificFileContext()` from
 `createScientificPathContext()` from `purejsimage/scientific/node`. Remote range inputs use the
 separate browser-portable `purejsimage/sources/http-range` entry.
 
+Ordinary PNG, JPEG, WebP, BMP, and JP2 inputs can join the same explicit registry through
+`pngReader`, `jpegReader`, `webpReader`, `bmpReader`, and `jp2Reader` from their individual
+`purejsimage/scientific/readers/*` entries. These are lower-confidence uint8 codec fallbacks;
+specialized scientific readers retain precedence. Experimental HEIC remains excluded.
+
+Ordinary TIFF uses `tiffReader` from `purejsimage/scientific/readers/tiff`. It is a separate
+native-precision path: compatible top-level pages become an explicit labeled `page` axis,
+incompatible contiguous series become separate datasets, and SubIFDs become resolution levels.
+It preserves signed, floating-point, planar, and N-channel raster blocks without inferring Z/time
+semantics or RGB display mappings for arbitrary bands. Its probe remains below OME-TIFF and Aperio.
+
 ## Read any labeled-axis plane
 
 A plane selects one ordered display-axis pair declared by
@@ -70,6 +81,15 @@ for await (const tile of tiles) {
   }
 }
 ```
+
+## Read a native one-dimensional series
+
+A spectrum or profile with only one real dimension keeps one labeled axis. Its descriptor declares
+`planeReads: { kind: 'none' }` and the exact `seriesReads` axes. `readSeries()` yields tightly
+packed canonical big-endian `ScientificSeriesBlock` segments; the request fixes every other
+non-singleton axis and may select a bounded `start` and `length`. Use
+`readScientificSeriesFromPlane()` only when an existing plane reader natively supplies the desired
+row or column; the adapter compacts source blocks independently and releases each source block.
 
 Use one application-owned `TileRuntime` for repeated reads. Its byte budget, concurrency,
 cancellation, invalidation, and source/derived cache metrics are explicit; it never materializes a

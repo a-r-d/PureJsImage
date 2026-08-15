@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { rasterSampleBytes } from '../src/raster.ts'
 import {
   renderScientificPlane,
+  normalizeScientificDatasetDescriptor,
   ScientificReaderRegistry,
   sliceScientificVolume,
   type ScientificDataset,
@@ -10,6 +11,7 @@ import {
 import { cbfReader } from '../src/scientific/readers/cbf.ts'
 import { encodeGsf, gsfReader } from '../src/scientific/readers/gsf.ts'
 import { mrcReader } from '../src/scientific/readers/mrc.ts'
+import { descriptorWithFormatMetadata } from '../src/scientific/readers/shared.ts'
 import { openGsf } from '../src/scientific/formats/gsf.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource, type ImageSource } from '../src/source.ts'
@@ -223,6 +225,35 @@ describe('first-party scientific reader adapters', () => {
     })
     const dataset = await document.openDataset('volume')
     expect(dataset.descriptor.axes.map(({ id }) => id)).toEqual(['x', 'y', 'z'])
+    expect(dataset.descriptor.axes.map(({ id, calibration }) => ({ id, calibration }))).toEqual([
+      {
+        id: 'x',
+        calibration: {
+          kind: 'derived',
+          resourceId: 'mrc-volume',
+          locator: 'mrc:header:cellDimensions.x,MX,origin.x',
+          formula: 'mrc-cell-dimension-per-sample-v1',
+        },
+      },
+      {
+        id: 'y',
+        calibration: {
+          kind: 'derived',
+          resourceId: 'mrc-volume',
+          locator: 'mrc:header:cellDimensions.y,MY,origin.y',
+          formula: 'mrc-cell-dimension-per-sample-v1',
+        },
+      },
+      {
+        id: 'z',
+        calibration: {
+          kind: 'derived',
+          resourceId: 'mrc-volume',
+          locator: 'mrc:header:cellDimensions.z,MZ,origin.z',
+          formula: 'mrc-cell-dimension-per-sample-v1',
+        },
+      },
+    ])
     expect(dataset.descriptor.capabilities.planeReads).toEqual({
       kind: 'ordered-axis-pairs',
       pairs: [
@@ -274,6 +305,12 @@ describe('first-party scientific reader adapters', () => {
     expect(gsfDataset.descriptor.axes.find(({ id }) => id === 'x')).toMatchObject({
       coordinates: { type: 'linear', step: 2 },
       unit: 'm',
+      calibration: {
+        kind: 'derived',
+        resourceId: 'gsf',
+        locator: 'gsf:header:XReal,XRes,XOffset,XYUnits',
+        formula: 'gsf-extent-per-sample-v1',
+      },
     })
     expect(directBlocks).toHaveLength(1)
 
@@ -306,6 +343,56 @@ describe('first-party scientific reader adapters', () => {
         readerVersion: '1.0.0',
       }),
     ).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+  })
+
+  it('preserves native series reads when a format wrapper adds descriptor metadata', async () => {
+    const dataset: ScientificDataset = {
+      descriptor: normalizeScientificDatasetDescriptor({
+        schemaVersion: 1,
+        axes: [
+          {
+            id: 'energy',
+            name: 'Energy',
+            kind: 'spectral',
+            length: 2,
+            unit: 'eV',
+            coordinates: { type: 'linear', origin: 0, step: 1 },
+          },
+        ],
+        sampleType: 'uint8',
+        components: [{ id: 'intensity', kind: 'intensity' }],
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: { kind: 'none' },
+          seriesReads: { kind: 'axes', axes: ['energy'] },
+        },
+      }),
+      readPlane() {
+        throw new Error('Rank-one fixture does not expose planes')
+      },
+      async *readSeries() {
+        yield Object.freeze({
+          start: 0,
+          length: 2,
+          format: Object.freeze({ sampleType: 'uint8' as const, channels: 1, planar: false }),
+          data: Uint8Array.of(7, 9),
+        })
+      },
+    }
+    const wrapped = descriptorWithFormatMetadata(dataset, 'test:format', { source: 'fixture' })
+    expect(wrapped.descriptor.metadata).toMatchObject({ 'test:format': { source: 'fixture' } })
+    expect(wrapped.readSeries).toBeDefined()
+    const output: number[] = []
+    if (wrapped.readSeries === undefined)
+      throw new Error('Wrapped dataset lost native series reads')
+    for await (const block of wrapped.readSeries({
+      axisId: 'energy',
+      fixedIndices: [],
+    })) {
+      output.push(...block.data)
+    }
+    expect(output).toEqual([7, 9])
   })
 
   it('propagates a scientific plane AbortSignal into an in-flight format source read', async () => {

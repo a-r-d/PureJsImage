@@ -107,6 +107,18 @@ export const createAperioSvsReader = (
         reader: aperioSvsReaderDescriptor,
         slide,
         metadata: { aperio: slide.properties },
+        calibrationEvidence: {
+          x: {
+            kind: 'embedded',
+            resourceId: context.primary.id,
+            locator: 'tiff:ifd:0/tag:270/aperio.MPP',
+          },
+          y: {
+            kind: 'embedded',
+            resourceId: context.primary.id,
+            locator: 'tiff:ifd:0/tag:270/aperio.MPP',
+          },
+        },
       })
     },
   })

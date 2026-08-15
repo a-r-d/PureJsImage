@@ -320,6 +320,12 @@ describe('FITS scientific image arrays', () => {
         unit: 'Hz',
         length: 2,
         coordinates: { type: 'linear', origin: 100, step: 5 },
+        calibration: {
+          kind: 'derived',
+          resourceId: 'ranked',
+          locator: 'fits:hdu:0/header:CRVAL3,CRPIX3,CDELT3,CUNIT3',
+          formula: 'fits-linear-wcs-v1',
+        },
       },
       { id: 'axis-4', name: 'TIME', kind: 'time', length: 2 },
     ])

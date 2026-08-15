@@ -143,6 +143,82 @@ if (first === undefined) throw new Error('OME-TIFF contains no datasets')
 const dataset = await document.openDataset(first.id)
 ```
 
+Ordinary PNG, JPEG, WebP, BMP, and JP2 files can use the same registry through explicit fallback readers without
+linking codecs into the base scientific entry:
+
+```ts
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { jpegReader } from 'purejsimage/scientific/readers/jpeg'
+import { pngReader } from 'purejsimage/scientific/readers/png'
+import { webpReader } from 'purejsimage/scientific/readers/webp'
+import { bmpReader } from 'purejsimage/scientific/readers/bmp'
+import { jp2Reader } from 'purejsimage/scientific/readers/jp2'
+
+const science = createScientificLibrary({
+  readers: [pngReader, jpegReader, webpReader, bmpReader, jp2Reader],
+})
+```
+
+These readers expose exact codec-produced uint8 blocks and remain lower-confidence than specialized
+scientific readers.
+Experimental HEIC remains excluded from ordinary scientific fallback registration.
+
+AFM and surface applications can explicitly compose Nanonis SXM, Igor Binary Wave v5, Digital Surf
+SUR/PRO, and X3P readers from `purejsimage/scientific/readers/{nanonis-sxm,igor-binary-wave,digital-surf,x3p}`.
+Their numeric, calibration, archive, and unsupported-profile boundaries are listed in the
+[AFM and surface format guide](docs/scientific-surface-formats.md).
+
+Ordinary scientific TIFF uses its own native-precision reader rather than that uint8 adapter:
+
+```ts
+import { tiffReader } from 'purejsimage/scientific/readers/tiff'
+
+const science = createScientificLibrary({ readers: [tiffReader, omeTiffReader] })
+```
+
+`tiffReader` preserves signed, floating-point, planar, and N-channel samples. Compatible top-level
+pages become a labeled `page` axis, incompatible contiguous series remain separate datasets, and
+SubIFDs remain resolution levels. Its fallback probe stays below OME-TIFF and Aperio SVS.
+
+FEI/Thermo TIA SER files use an explicit native-precision reader:
+
+```ts
+import { tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
+
+const science = createScientificLibrary({ readers: [tiaSerReader] })
+```
+
+The reader opens v528 and v544 scalar spectra, spectrum images, and image series lazily. Direct SER
+opening exposes only facts present in the SER file; companion EMI metadata is not inferred.
+
+Open a TIA EMI document through its own reader when the numbered SER companions are available:
+
+```ts
+import { tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'
+import { createScientificPathContext } from 'purejsimage/scientific/node'
+
+const document = await tiaEmiReader.open(await createScientificPathContext('capture.emi'))
+```
+
+The EMI path exposes every consecutive `capture_1.ser`, `capture_2.ser`, and later companion as
+datasets, adds bounded acquisition metadata, and includes the EMI plus the contributing SER in each
+dataset identity. SER coordinates remain authoritative; strongly corroborated diffraction axes gain
+reciprocal-space units, while contradictory mode hints are retained as metadata conflicts.
+
+NCEM and FEI/Thermo Velox EMD files share an extension but use separate, hierarchy-probed readers:
+
+```ts
+import { ncemEmdReader } from 'purejsimage/scientific/readers/ncem-emd'
+import { veloxEmdReader } from 'purejsimage/scientific/readers/velox-emd'
+
+const science = createScientificLibrary({ readers: [ncemEmdReader, veloxEmdReader] })
+```
+
+The NCEM reader covers fixture-proven openNCEM 0.2 numeric groups. The Velox reader covers numeric
+image, diffraction, dense-map, DPC, and complex FFT arrays with explicit frames and bounded JSON
+metadata. It preserves positive-half, uncentered FFT storage instead of modifying samples. Sparse
+Velox spectrum streams remain outside the current capability boundary.
+
 ### Scientific rasters and explicit display mapping
 
 Scientific readers are separate from photographic codecs. The dataset remains numeric until an
@@ -247,6 +323,13 @@ const energyDisplay = await renderScientificPlane(synthetic, {
 
 The synthetic reader allocates only the requested region. Real readers should stream smaller blocks
 when needed and propagate each block's optional `release()` callback.
+
+One-dimensional spectra and profiles use a single true axis rather than a synthetic height axis.
+Their descriptors advertise `planeReads: { kind: 'none' }` and `seriesReads`, while
+`readSeries()` yields bounded `ScientificSeriesBlock` segments. Use
+`normalizeScientificSeriesReadRequest()` before native reads. The explicit
+`readScientificSeriesFromPlane()` fallback can compact one requested row or column from an existing
+plane reader without materializing the complete series.
 
 Applications that need format detection can construct an explicit, local scientific library without
 changing the ordinary image codec pipeline:

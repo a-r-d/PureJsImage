@@ -9,6 +9,26 @@ export type {
   TiffTagValue,
 } from '../tiff/types.ts'
 export { createTiffProfileRegistry, TiffProfileRegistry } from '../tiff/profiles.ts'
+export {
+  defaultTiffCalibrationProfiles,
+  digitalMicrographTiffCalibrationProfile,
+  feiSemTiffCalibrationProfile,
+  imageJTiffCalibrationProfile,
+  standardTiffCalibrationProfile,
+  zeissSemTiffCalibrationProfile,
+} from '../tiff/calibration-profiles.ts'
+export type {
+  TiffAcquisitionMetadata,
+  TiffAxisCalibration,
+  TiffCalibratedAxisId,
+  TiffCalibrationEvidence,
+  TiffCalibrationMetadataObject,
+  TiffCalibrationMetadataValue,
+  TiffCalibrationProfileValue,
+  TiffDirectoryCalibration,
+  TiffIntensityCalibration,
+  TiffPageAxisCalibration,
+} from '../tiff/calibration-profiles.ts'
 export type {
   TiffProfile,
   TiffProfileContext,

@@ -3867,6 +3867,17 @@ describe('OME-TIFF scientific semantics', () => {
     expect(blocks[0]?.format).toEqual({ sampleType: 'uint8', channels: 2, planar: true })
     expect(Array.from(blocks[0]?.data ?? [])).toEqual([30, 60, 10, 40])
 
+    const scientificDocument = await new ScientificReaderRegistry([omeTiffReader]).open({
+      primary: { id: 'ome-calibrated', source: new MemorySource(input) },
+    })
+    const scientific = await scientificDocument.openDataset('image-0')
+    expect(scientific.descriptor.axes.find(({ id }) => id === 'x')?.calibration).toEqual({
+      kind: 'embedded',
+      resourceId: 'ome-calibrated',
+      locator: 'ome:Image/0/Pixels@PhysicalSizeX',
+    })
+    expect(scientific.descriptor.axes.find(({ id }) => id === 'y')?.calibration).toBeUndefined()
+
     const rendered = await renderScientificPlane(dataset, {
       plane: { z: 0, c: 2, t: 0 },
       range: { mode: 'explicit', min: 0, max: 60 },

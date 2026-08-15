@@ -17,6 +17,38 @@ import { tiffCodec } from '../src/codecs/tiff.ts'
 import { tgaCodec } from '../src/codecs/tga.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import type { ImageCodec } from '../src/codec.ts'
+import { aperioSvsReaderDescriptor } from '../src/scientific/readers/aperio-svs.ts'
+import { blockfileReaderDescriptor } from '../src/scientific/readers/blockfile.ts'
+import { bmpReaderDescriptor } from '../src/scientific/readers/bmp.ts'
+import { cbfReaderDescriptor } from '../src/scientific/readers/cbf.ts'
+import { digitalMicrographReaderDescriptor } from '../src/scientific/readers/digital-micrograph.ts'
+import { digitalSurfReaderDescriptor } from '../src/scientific/readers/digital-surf.ts'
+import { ebsdTextReaderDescriptor } from '../src/scientific/readers/ebsd-text.ts'
+import { emsaReaderDescriptor } from '../src/scientific/readers/emsa.ts'
+import { enviReaderDescriptor } from '../src/scientific/readers/envi.ts'
+import { fitsReaderDescriptor } from '../src/scientific/readers/fits.ts'
+import { gsfReaderDescriptor } from '../src/scientific/readers/gsf.ts'
+import { igorBinaryWaveReaderDescriptor } from '../src/scientific/readers/igor-binary-wave.ts'
+import { jpegReaderDescriptor } from '../src/scientific/readers/jpeg.ts'
+import { jp2ReaderDescriptor } from '../src/scientific/readers/jp2.ts'
+import { mrcReaderDescriptor } from '../src/scientific/readers/mrc.ts'
+import { metaImageReaderDescriptor } from '../src/scientific/readers/meta-image.ts'
+import { mibReaderDescriptor } from '../src/scientific/readers/mib.ts'
+import { nanonisSxmReaderDescriptor } from '../src/scientific/readers/nanonis-sxm.ts'
+import { ncemEmdReaderDescriptor } from '../src/scientific/readers/ncem-emd.ts'
+import { niftiReaderDescriptor } from '../src/scientific/readers/nifti.ts'
+import { npyReaderDescriptor } from '../src/scientific/readers/npy.ts'
+import { nrrdReaderDescriptor } from '../src/scientific/readers/nrrd.ts'
+import { omeTiffReaderDescriptor } from '../src/scientific/readers/ome-tiff.ts'
+import { pngReaderDescriptor } from '../src/scientific/readers/png.ts'
+import { rplReaderDescriptor } from '../src/scientific/readers/rpl.ts'
+import { tiffReaderDescriptor } from '../src/scientific/readers/tiff.ts'
+import { tiaEmiReaderDescriptor } from '../src/scientific/readers/tia-emi.ts'
+import { tiaSerReaderDescriptor } from '../src/scientific/readers/tia-ser.ts'
+import { veloxEmdReaderDescriptor } from '../src/scientific/readers/velox-emd.ts'
+import { webpReaderDescriptor } from '../src/scientific/readers/webp.ts'
+import { x3pReaderDescriptor } from '../src/scientific/readers/x3p.ts'
+import type { ScientificReaderDescriptor } from '../src/scientific/reader.ts'
 import codecCapabilityExpectations from './generated/capability-expectations.json' with {
   type: 'json',
 }
@@ -37,6 +69,40 @@ const runtimeCodecs: readonly ImageCodec[] = [
   qoiCodec,
   tgaCodec,
   heifCodec,
+]
+
+const runtimeScientificReaders: readonly ScientificReaderDescriptor[] = [
+  gsfReaderDescriptor,
+  enviReaderDescriptor,
+  fitsReaderDescriptor,
+  mrcReaderDescriptor,
+  cbfReaderDescriptor,
+  pngReaderDescriptor,
+  jpegReaderDescriptor,
+  webpReaderDescriptor,
+  bmpReaderDescriptor,
+  jp2ReaderDescriptor,
+  tiffReaderDescriptor,
+  omeTiffReaderDescriptor,
+  aperioSvsReaderDescriptor,
+  digitalMicrographReaderDescriptor,
+  tiaEmiReaderDescriptor,
+  tiaSerReaderDescriptor,
+  ncemEmdReaderDescriptor,
+  veloxEmdReaderDescriptor,
+  nanonisSxmReaderDescriptor,
+  igorBinaryWaveReaderDescriptor,
+  digitalSurfReaderDescriptor,
+  x3pReaderDescriptor,
+  rplReaderDescriptor,
+  emsaReaderDescriptor,
+  nrrdReaderDescriptor,
+  metaImageReaderDescriptor,
+  niftiReaderDescriptor,
+  npyReaderDescriptor,
+  blockfileReaderDescriptor,
+  mibReaderDescriptor,
+  ebsdTextReaderDescriptor,
 ]
 
 describe('generated codec capability contract', () => {
@@ -137,5 +203,57 @@ describe('generated codec capability contract', () => {
       '- [x] Cross-color and packed color-indexing transform selection',
     )
     expect(webp.document).toContain('- [x] Near-lossless preprocessing')
+  })
+})
+
+describe('generated scientific reader capability contract', () => {
+  it('matches every published reader descriptor and package export', async () => {
+    const manifest = await readCapabilityManifest()
+    const descriptors = new Map(
+      runtimeScientificReaders.map((descriptor) => [descriptor.id, descriptor]),
+    )
+    expect([...descriptors.keys()].sort()).toEqual(
+      manifest.scientificReaders.map(({ id }) => id).sort(),
+    )
+    const packageValue: unknown = JSON.parse(readFileSync('package.json', 'utf8'))
+    if (
+      typeof packageValue !== 'object' ||
+      packageValue === null ||
+      !('exports' in packageValue) ||
+      typeof packageValue.exports !== 'object' ||
+      packageValue.exports === null
+    ) {
+      throw new Error('package.json exports are missing')
+    }
+    for (const reader of manifest.scientificReaders) {
+      const descriptor = descriptors.get(reader.id)
+      if (descriptor === undefined) throw new Error(`Missing runtime reader ${reader.id}`)
+      expect(descriptor).toMatchObject({
+        id: reader.id,
+        version: reader.version,
+        format: reader.format,
+        extensions: reader.extensions,
+        mediaTypes: reader.mediaTypes,
+      })
+      const packageKey = `.${reader.packageExport.slice('purejsimage'.length)}`
+      expect(packageKey in packageValue.exports, reader.packageExport).toBe(true)
+    }
+  })
+
+  it('backs reader claims with repository evidence and fixture provenance', async () => {
+    const manifest = await readCapabilityManifest()
+    for (const reader of manifest.scientificReaders) {
+      for (const path of reader.evidence) {
+        expect(readFileSync(path, 'utf8'), `${reader.id} evidence in ${path}`).toMatch(
+          /\b(?:it|test)(?:\.each)?\(/,
+        )
+      }
+      for (const path of reader.fixtures) {
+        expect(
+          readFileSync(path).byteLength,
+          `${reader.id} fixture evidence in ${path}`,
+        ).toBeGreaterThan(0)
+      }
+    }
   })
 })

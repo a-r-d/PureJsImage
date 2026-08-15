@@ -46,6 +46,11 @@ export interface BrowserCompatibilityHarness {
   avifYuv444(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>
   heifPqDisplay(): Promise<BrowserWorkflowResult>
+  hdf5DatasetBlocks(): Promise<BrowserWorkflowResult>
+  hdf5Filters(): Promise<BrowserWorkflowResult>
+  hdf5NcemEmd(): Promise<BrowserWorkflowResult>
+  hdf5VeloxEmd(): Promise<BrowserWorkflowResult>
+  hdf5VeloxSpectrum(): Promise<BrowserWorkflowResult>
   httpRangeCancellation(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   optionalApiEntries(): Promise<BrowserWorkflowResult>
@@ -65,6 +70,13 @@ export interface BrowserCompatibilityHarness {
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
   scientificTiffDocument(): Promise<BrowserWorkflowResult>
+  scientificDigitalMicrograph(): Promise<BrowserWorkflowResult>
+  scientificInterchangeFormats(): Promise<BrowserWorkflowResult>
+  scientificSurfaceFormats(): Promise<BrowserWorkflowResult>
+  scientificTiaEmi(): Promise<BrowserWorkflowResult>
+  scientificTiaSer(): Promise<BrowserWorkflowResult>
+  scientificOneDimensionalSeries(): Promise<BrowserWorkflowResult>
+  scientificOrdinaryCodecFallbacks(): Promise<BrowserWorkflowResult>
   tiffEncodePipeline(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
   webpLossyDecode(): Promise<BrowserWorkflowResult>

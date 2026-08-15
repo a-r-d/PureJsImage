@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import {
   capabilityClaims,
+  type CapabilityManifest,
   type CapabilityLevel,
   type CodecCapability,
   readCapabilityManifest,
@@ -177,8 +178,8 @@ const llmsBlock = (codecs: readonly CodecCapability[]): string => {
   ].join('\n')
 }
 
-const generatedExpectations = (codecs: readonly CodecCapability[]): string => {
-  const expectations = codecs.map((codec) => ({
+const generatedExpectations = (manifest: CapabilityManifest): string => {
+  const expectations = publicCodecs(manifest.codecs).map((codec) => ({
     id: codec.id,
     format: codec.packageFormat,
     decoder: codec.read.status === 'supported' || codec.read.status === 'limited',
@@ -186,11 +187,24 @@ const generatedExpectations = (codecs: readonly CodecCapability[]): string => {
     evidence: codec.evidence,
     lossyPixelValidation: codec.lossyPixelValidation,
   }))
-  return `${JSON.stringify({ schemaVersion: 1, codecs: expectations }, null, 2)}\n`
+  const scientificReaders = manifest.scientificReaders.map((reader) => ({
+    id: reader.id,
+    version: reader.version,
+    format: reader.format,
+    packageExport: reader.packageExport,
+    extensions: reader.extensions,
+    mediaTypes: reader.mediaTypes,
+    resourceModel: reader.resourceModel,
+    datasetKinds: reader.datasetKinds,
+    directRangeReads: reader.directRangeReads,
+    evidence: reader.evidence,
+    fixtures: reader.fixtures,
+  }))
+  return `${JSON.stringify({ schemaVersion: 1, codecs: expectations, scientificReaders }, null, 2)}\n`
 }
 
-const publicJson = (manifestCodecs: readonly CodecCapability[]): string => {
-  const codecs = manifestCodecs.map((codec) => ({
+const publicJson = (manifest: CapabilityManifest): string => {
+  const codecs = manifest.codecs.map((codec) => ({
     id: codec.id,
     name: codec.name,
     ...(codec.packageFormat ? { packageFormat: codec.packageFormat } : {}),
@@ -204,7 +218,7 @@ const publicJson = (manifestCodecs: readonly CodecCapability[]): string => {
     lossyPixelValidation: codec.lossyPixelValidation,
     claims: capabilityClaims(codec.document),
   }))
-  return `${JSON.stringify({ schemaVersion: 1, codecs }, null, 2)}\n`
+  return `${JSON.stringify({ schemaVersion: 1, codecs, scientificReaders: manifest.scientificReaders }, null, 2)}\n`
 }
 
 const manifest = await readCapabilityManifest()
@@ -241,8 +255,8 @@ outputs.set('docs-astro/src/pages/codecs.astro', codecPage)
 for (const codec of manifest.codecs) {
   outputs.set(codec.supportFile, `${generatedMarkdownNotice}\n${codec.document.trimEnd()}\n`)
 }
-outputs.set('docs-astro/public/capabilities.json', publicJson(manifest.codecs))
-outputs.set('tests/generated/capability-expectations.json', generatedExpectations(codecs))
+outputs.set('docs-astro/public/capabilities.json', publicJson(manifest))
+outputs.set('tests/generated/capability-expectations.json', generatedExpectations(manifest))
 
 const jsonEquivalent = (actual: string, expected: string): boolean => {
   try {

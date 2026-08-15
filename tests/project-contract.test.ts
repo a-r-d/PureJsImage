@@ -13,17 +13,18 @@ import {
   competitorBundleTargets,
   pureJsImageEntryTargets,
 } from '../scripts/bundle-size-config.ts'
-import { allCodecs } from '../src/codec-entries/all.ts'
 import * as analysisApi from '../src/analysis/index.ts'
 import * as analysisProjectApi from '../src/analysis/project-entry.ts'
 import * as analysisResultsApi from '../src/analysis/results.ts'
 import * as analysisRoiApi from '../src/analysis/roi-entry.ts'
 import * as analysisRuntimeApi from '../src/analysis/runtime.ts'
+import * as browserPublicApi from '../src/browser.ts'
+import { allCodecs } from '../src/codec-entries/all.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
-import * as browserPublicApi from '../src/browser.ts'
+import * as publicApi from '../src/index.ts'
 import * as pathologyApi from '../src/pathology/index.ts'
 import * as scientificApi from '../src/scientific/index.ts'
 import * as allScientificReaders from '../src/scientific/readers/all.ts'
@@ -32,7 +33,6 @@ import * as gsfReaderApi from '../src/scientific/readers/gsf.ts'
 import * as omeTiffReaderApi from '../src/scientific/readers/ome-tiff.ts'
 import * as httpRangeApi from '../src/sources/http-range.ts'
 import * as tiffApi from '../src/tiff/index.ts'
-import * as publicApi from '../src/index.ts'
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import rootTsconfig from '../tsconfig.json' with { type: 'json' }
 
@@ -127,9 +127,33 @@ describe('package contract', () => {
       ['scientific-reader-fits', 60_000],
       ['scientific-reader-mrc', 51_000],
       ['scientific-reader-cbf', 55_000],
+      ['scientific-reader-digital-micrograph', 100_000],
+      ['scientific-reader-nanonis-sxm', 100_000],
+      ['scientific-reader-igor-binary-wave', 110_000],
+      ['scientific-reader-digital-surf', 110_000],
+      ['scientific-reader-x3p', 120_000],
+      ['scientific-reader-tia-ser', 100_000],
+      ['scientific-reader-tia-emi', 150_000],
+      ['scientific-reader-ncem-emd', 180_000],
+      ['scientific-reader-velox-emd', 180_000],
+      ['scientific-reader-tiff', 341_825],
       ['scientific-reader-ome-tiff', 350_000],
       ['scientific-reader-aperio-svs', 338_000],
-      ['scientific-readers-all', 456_000],
+      ['scientific-reader-png', 87_601],
+      ['scientific-reader-jpeg', 136_260],
+      ['scientific-reader-webp', 138_213],
+      ['scientific-reader-bmp', 57_356],
+      ['scientific-reader-jp2', 121_805],
+      ['scientific-reader-rpl', 53_500],
+      ['scientific-reader-emsa', 50_800],
+      ['scientific-reader-nrrd', 56_800],
+      ['scientific-reader-meta-image', 53_200],
+      ['scientific-reader-nifti', 55_200],
+      ['scientific-reader-npy', 50_700],
+      ['scientific-reader-blockfile', 51_500],
+      ['scientific-reader-mib', 42_400],
+      ['scientific-reader-ebsd-text', 54_200],
+      ['scientific-readers-all', 1_008_000],
     ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
       baselineMinifiedBytes: 44_252,
@@ -455,11 +479,31 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/all',
       'purejsimage/scientific/readers/aperio-svs',
       'purejsimage/scientific/readers/cbf',
+      'purejsimage/scientific/readers/digital-micrograph',
+      'purejsimage/scientific/readers/tia-emi',
+      'purejsimage/scientific/readers/tia-ser',
+      'purejsimage/scientific/readers/ncem-emd',
+      'purejsimage/scientific/readers/velox-emd',
       'purejsimage/scientific/readers/envi',
       'purejsimage/scientific/readers/fits',
       'purejsimage/scientific/readers/gsf',
+      'purejsimage/scientific/readers/rpl',
+      'purejsimage/scientific/readers/emsa',
+      'purejsimage/scientific/readers/nrrd',
+      'purejsimage/scientific/readers/meta-image',
+      'purejsimage/scientific/readers/nifti',
+      'purejsimage/scientific/readers/npy',
+      'purejsimage/scientific/readers/blockfile',
+      'purejsimage/scientific/readers/mib',
+      'purejsimage/scientific/readers/ebsd-text',
       'purejsimage/scientific/readers/mrc',
+      'purejsimage/scientific/readers/tiff',
       'purejsimage/scientific/readers/ome-tiff',
+      'purejsimage/scientific/readers/png',
+      'purejsimage/scientific/readers/jpeg',
+      'purejsimage/scientific/readers/webp',
+      'purejsimage/scientific/readers/bmp',
+      'purejsimage/scientific/readers/jp2',
       'purejsimage/operations',
       'purejsimage/analysis',
       'purejsimage/extensions',
@@ -485,6 +529,22 @@ describe('package contract', () => {
     expect(enviReaderApi).toHaveProperty('renderEnviClassification')
     expect(allScientificReaders).toHaveProperty('fitsReader')
     expect(allScientificReaders).toHaveProperty('enviReader')
+    expect(allScientificReaders).toHaveProperty('digitalMicrographReader')
+    expect(allScientificReaders).toHaveProperty('createDigitalMicrographReader')
+    expect(allScientificReaders).toHaveProperty('tiaEmiReader')
+    expect(allScientificReaders).toHaveProperty('createTiaEmiReader')
+    expect(allScientificReaders).toHaveProperty('tiaSerReader')
+    expect(allScientificReaders).toHaveProperty('createTiaSerReader')
+    expect(allScientificReaders).toHaveProperty('tiffReader')
+    expect(allScientificReaders).toHaveProperty('rplReader')
+    expect(allScientificReaders).toHaveProperty('emsaReader')
+    expect(allScientificReaders).toHaveProperty('nrrdReader')
+    expect(allScientificReaders).toHaveProperty('metaImageReader')
+    expect(allScientificReaders).toHaveProperty('niftiReader')
+    expect(allScientificReaders).toHaveProperty('npyReader')
+    expect(allScientificReaders).toHaveProperty('blockfileReader')
+    expect(allScientificReaders).toHaveProperty('mibReader')
+    expect(allScientificReaders).toHaveProperty('ebsdTextReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
@@ -587,8 +647,32 @@ describe('package contract', () => {
       './scientific/readers/fits',
       './scientific/readers/mrc',
       './scientific/readers/cbf',
+      './scientific/readers/digital-micrograph',
+      './scientific/readers/digital-surf',
+      './scientific/readers/igor-binary-wave',
+      './scientific/readers/nanonis-sxm',
+      './scientific/readers/x3p',
+      './scientific/readers/rpl',
+      './scientific/readers/emsa',
+      './scientific/readers/nrrd',
+      './scientific/readers/meta-image',
+      './scientific/readers/nifti',
+      './scientific/readers/npy',
+      './scientific/readers/blockfile',
+      './scientific/readers/mib',
+      './scientific/readers/ebsd-text',
+      './scientific/readers/tia-ser',
+      './scientific/readers/tia-emi',
+      './scientific/readers/ncem-emd',
+      './scientific/readers/velox-emd',
+      './scientific/readers/tiff',
       './scientific/readers/ome-tiff',
       './scientific/readers/aperio-svs',
+      './scientific/readers/png',
+      './scientific/readers/jpeg',
+      './scientific/readers/webp',
+      './scientific/readers/bmp',
+      './scientific/readers/jp2',
       './scientific/readers/all',
       './operations',
       './analysis',
@@ -674,6 +758,14 @@ describe('package contract', () => {
     expect(typeof scientificApi.rasterToPixels).toBe('function')
     expect(typeof httpRangeApi.HttpRangeSource.open).toBe('function')
     expect(tiffApi.geoTiffProfile.id).toBe('geotiff')
+    expect(tiffApi.standardTiffCalibrationProfile.id).toBe('standard-tiff-calibration')
+    expect(tiffApi.imageJTiffCalibrationProfile.id).toBe('imagej-tiff-calibration')
+    expect(tiffApi.digitalMicrographTiffCalibrationProfile.id).toBe(
+      'digital-micrograph-tiff-calibration',
+    )
+    expect(tiffApi.feiSemTiffCalibrationProfile.id).toBe('fei-sem-tiff-calibration')
+    expect(tiffApi.zeissSemTiffCalibrationProfile.id).toBe('zeiss-sem-tiff-calibration')
+    expect(tiffApi.defaultTiffCalibrationProfiles).toHaveLength(5)
   })
 
   it('keeps experimental HEIC out of the default codec set', () => {

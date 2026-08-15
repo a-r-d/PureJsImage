@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "RosettaSciIO",
+    "revision": "bc254db14cd7d4d23169b11aeb622a0a7eac1fbe",
+    "baseUrl": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/digitalmicrograph/",
+    "license": "GPL-3.0",
+    "licenseUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/COPYING.txt",
+    "attribution": "RosettaSciIO contributors; generated test images were written by Gatan DigitalMicrograph as documented by rsciio/tests/generate_dm_testing_files.py",
+    "oracleUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/test_digitalmicrograph.py"
+  },
+  "fixtures": [
+    {
+      "file": "test-1.dm3",
+      "path": "2D/test-1.dm3",
+      "sha256": "19832d1fc253c0d4b48f3fbbf5761c1057244d79f621e9d7bd91b819c0df5115",
+      "version": 3,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "int16",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "0001000200030004"
+      }
+    },
+    {
+      "file": "test-2.dm4",
+      "path": "2D/test-2.dm4",
+      "sha256": "db23e0fa74d1c50ea1ef3c4df847e952aa15cc97eb25ea96deede46ba1e0edcd",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "float32",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "3f800000400000004040000040800000"
+      }
+    },
+    {
+      "file": "test-6.dm3",
+      "path": "2D/test-6.dm3",
+      "sha256": "a93e145838a912a46352ea8c695b832516a1d95e8c09ef20c083d1b4583e8f00",
+      "version": 3,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint8",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "01020304"
+      }
+    },
+    {
+      "file": "test-7.dm3",
+      "path": "2D/test-7.dm3",
+      "sha256": "ae59c7a95df6d02a9e3b46f58a887f34ca88d1f215f76b31172ca474d2a99828",
+      "version": 3,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "int32",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "00000001000000020000000300000004"
+      }
+    },
+    {
+      "file": "test-8.dm4",
+      "path": "2D/test-8.dm4",
+      "sha256": "289d58cb13b6deb0932b9aaf256aa04d13d5e017fa92c09aa7b01a59ecdd7132",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint8",
+        "components": 4,
+        "dimensions": [2, 2],
+        "expectedHex": "01010100020202000303030004040400"
+      }
+    },
+    {
+      "file": "test-9.dm3",
+      "path": "2D/test-9.dm3",
+      "sha256": "c5c62146c004cf47806d0e650b9ce33e3ce3d429a42f15e2de33273b8515aeab",
+      "version": 3,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "int8",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "01020304"
+      }
+    },
+    {
+      "file": "test-10.dm4",
+      "path": "2D/test-10.dm4",
+      "sha256": "6b699af5e227db37cbfe90da6c4f1e64654e7dda21161428410449db5b89b3ee",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint16",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "0001000200030004"
+      }
+    },
+    {
+      "file": "test-11.dm3",
+      "path": "2D/test-11.dm3",
+      "sha256": "6a7f82f6ab1167cbf84312e5160e8a3f25acb329304ceacb750292eb956d8daa",
+      "version": 3,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint32",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "00000001000000020000000300000004"
+      }
+    },
+    {
+      "file": "test-12.dm4",
+      "path": "2D/test-12.dm4",
+      "sha256": "73f4c17b2d49a433f49cedc3263a172310e0481b6304becc5a3fc86283c31d42",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "float64",
+        "components": 1,
+        "dimensions": [2, 2],
+        "expectedHex": "3ff0000000000000400000000000000040080000000000004010000000000000"
+      }
+    },
+    {
+      "file": "test-23.dm4",
+      "path": "2D/test-23.dm4",
+      "sha256": "dd1ab701c314d9d543af26347d53b3c8d1e3b331a961c5b24f4ba28593a81015",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint8",
+        "components": 4,
+        "dimensions": [2, 2],
+        "expectedHex": "01010100020202000303030004040400"
+      }
+    },
+    {
+      "file": "test_STEM_image.dm3",
+      "path": "2D/test_STEM_image.dm3",
+      "sha256": "fcba806af75bc3c2e50e7d7b0626cba545c1464f39e99c8922b225b0b0b0224c",
+      "version": 3,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test_STEM_image",
+        "sampleType": "uint32",
+        "components": 1,
+        "dimensions": [68, 68],
+        "width": 2,
+        "height": 1,
+        "expectedHex": "00008161000082d1",
+        "axes": [
+          { "id": "x", "unit": "nm", "origin": 51.44736957550049, "step": 0.24853801727294922 },
+          { "id": "y", "unit": "nm", "origin": 42.500000953674316, "step": 0.24853801727294922 }
+        ]
+      }
+    },
+    {
+      "file": "multi_signal.dm3",
+      "path": "2D/multi_signal.dm3",
+      "sha256": "cd025111a163cad9ef6fb0331b740ddefa2f7024c3f691723bd5235a313aa12e",
+      "version": 3,
+      "datasetCount": 2,
+      "unsupportedDatasetCount": 1,
+      "dataset": {
+        "id": "image-1",
+        "name": "HAADF",
+        "sampleType": "uint16",
+        "components": 1,
+        "dimensions": [512, 512],
+        "width": 2,
+        "height": 1,
+        "expectedHex": "00c30019",
+        "axes": [
+          { "id": "x", "unit": "nm", "origin": 0, "step": 0.017751578241586685 },
+          { "id": "y", "unit": "nm", "origin": 0, "step": 0.017751578241586685 }
+        ]
+      }
+    },
+    {
+      "file": "test-10-3d.dm4",
+      "path": "3D/test-10.dm4",
+      "sha256": "977fdf87ab3ff220708e1a9381b8822317e21b04ffa0a6f9f2dc733276628782",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint16",
+        "components": 1,
+        "dimensions": [2, 2, 2],
+        "fixedIndices": [{ "axisId": "z", "index": 0 }],
+        "expectedHex": "0001000200030004",
+        "axes": [
+          { "id": "x", "origin": 0, "step": 1 },
+          { "id": "y", "origin": 0, "step": 1 },
+          { "id": "z", "origin": 0, "step": 1 }
+        ]
+      }
+    },
+    {
+      "file": "EELS_SI.dm4",
+      "path": "3D/EELS_SI.dm4",
+      "sha256": "f9b8203f384cc355437594b649d4ea3a12cddeb231ebb65508a841a379fa171a",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "EELS_SI",
+        "sampleType": "float32",
+        "components": 1,
+        "dimensions": [2, 2, 2048],
+        "width": 2,
+        "height": 1,
+        "fixedIndices": [{ "axisId": "energy", "index": 0 }],
+        "expectedHex": "4604640645f6980c",
+        "axes": [
+          { "id": "x", "unit": "µm", "origin": 0, "step": 0.0019920736085623503 },
+          { "id": "y", "unit": "µm", "origin": 0, "step": 0.0019920736085623503 },
+          { "id": "energy", "unit": "eV", "origin": 300, "step": 1 }
+        ]
+      }
+    }
+  ]
+}

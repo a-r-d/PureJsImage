@@ -24,9 +24,10 @@ The useful seams already present in the codebase are:
 - `src/raster.ts` defines `RasterBlock` as canonical big-endian bytes with explicit shape, stride,
   planar layout, sample type, and an optional `release()` callback. Scientific readers already
   converge on that boundary.
-- `src/scientific/dataset.ts` defines the sole public `ScientificDataset` model: labeled axes and
-  lazy bounded `RasterBlock` plane reads. Explicitly registered FITS, MRC, CBF, GSF, ENVI, and
-  OME-TIFF readers expose it through `ScientificDocument`.
+- `src/scientific/dataset.ts` defines the sole public `ScientificDataset` model: labeled axes,
+  lazy bounded `RasterBlock` plane reads, and explicit one-axis `ScientificSeriesBlock` reads.
+  Explicitly registered FITS, MRC, CBF, GSF, ENVI, and OME-TIFF readers expose it through
+  `ScientificDocument`.
 - The format readers validate dimensions and source extents, keep sample data lazy, generally bound
   blocks with `maxDecodedBytes`, and propagate read cancellation through both dataset generations.
 - Scientific rendering, measurement, spectral math, volume reduction, and classification now
@@ -123,12 +124,25 @@ suffixes do not become part of consumer type names.
 
 The descriptor describes dimensions as labeled axes instead of assuming every dataset is exactly `X/Y/Z/C/T`.
 An axis has a stable ID, semantic kind, length, and optional unit, regular origin/spacing, or an
-explicit coordinate vector. Channel descriptions remain first-class metadata rather than being
+explicit coordinate vector. Optional structured calibration evidence records whether those
+coordinates came from embedded metadata, a sidecar, a derivation, or a format default, together
+with each contributing resource and a stable format-specific locator. A combined interpretation
+may retain multiple ordered contributors. Coordinates and units remain
+authoritative; the evidence explains their provenance without requiring applications to parse raw
+metadata. Channel descriptions remain first-class metadata rather than being
 forced into numeric coordinates. `capabilities.planeReads` declares either arbitrary pairs or the
 exact supported ordered pairs; `[x, y]` and `[y, x]` are not assumed equivalent. A read selection
 names one supported pair and fixes, ranges, or indexes all other axes; it yields two-dimensional
 `RasterBlock`s. That keeps the existing portable
 block boundary usable without pretending `RasterBlock` is an arbitrary N-dimensional tensor.
+
+Native one-dimensional spectra and profiles remain in the same `ScientificDataset` model. Their
+descriptor contains only the true axis, advertises `planeReads: { kind: 'none' }`, and declares the
+exact native `seriesReads` axes. A series selection varies one axis, fixes every other non-singleton
+axis, and emits bounded tightly packed canonical big-endian `ScientificSeriesBlock` segments. It
+does not invent a singleton display axis or claim plane support. The explicit
+`readScientificSeriesFromPlane()` fallback compacts one requested row or column from a compatible
+plane reader one emitted source block at a time and preserves source release ownership.
 
 The scientific read contract must include `AbortSignal` and a byte budget in its options. Cancellation must
 be threaded through `readExactly()` and `ImageSource.read()` as each reader migrates, rather than
@@ -154,10 +168,11 @@ all public application and reader examples use labeled axes.
 
 ## Portable bytes and native numeric tiles
 
-`RasterBlock` remains the canonical portable byte boundary. Its big-endian representation is stable
-across Node.js, browsers, workers, machines, stored fixtures, and future backends. Readers should
-continue to emit bounded blocks and should not be rewritten to produce platform-endian arrays merely
-for local speed.
+`RasterBlock` remains the canonical portable two-dimensional byte boundary.
+`ScientificSeriesBlock` is its tightly packed one-dimensional sibling; both use the same canonical
+big-endian sample representation and `RasterFormat`. Their representation is stable across Node.js,
+browsers, workers, machines, stored fixtures, and future backends. Readers should continue to emit
+bounded blocks and should not be rewritten to produce platform-endian arrays merely for local speed.
 
 Repeated computation uses a separate `NumericTile`. Conversion validates a `RasterBlock` once and
 produces a native-endian typed array plus immutable layout metadata: spatial origin, shape, channel
@@ -389,7 +404,7 @@ The public module graph should develop as follows:
   analysis module is imported from either root.
 - `purejsimage/scientific` owns portable `ScientificDataset` descriptors, documents, registries,
   algorithms, and numeric tile contracts/conversion. Concrete readers live in
-  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff,aperio-svs}`; the explicit
+  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,tiff,ome-tiff,aperio-svs,png,jpeg}`; the explicit
   `purejsimage/scientific/readers/all` entry is available when an application deliberately wants
   every reader. `purejsimage/scientific/node` remains the place for path-based helpers.
 - `purejsimage/operations` exports JSON-safe descriptors and schemas, provider contracts,
@@ -1685,3 +1700,522 @@ to own only generic descriptors, definitions, providers, and registries.
     19-page documentation build, packed-package types, browser dependency checks, bundle ceilings,
     lint, and formatting are current. `npm run check` passes both standard and hostile-source suites
     at 103 files and 1,250 tests, with the same three documented macOS-only AVIF skips.
+
+### Core format roadmap follow-up
+
+- [x] Add optional structured calibration evidence to `ScientificAxisDescriptor`; validate,
+      normalize, freeze, and serialize it without changing uncalibrated datasets.
+- [x] Populate exact embedded or derived evidence for GSF, FITS, MRC/CCP4, OME-TIFF, and Aperio SVS
+      physical axes, and prove a synthetic sidecar source through the fixed-axis migration adapter.
+- [x] Document the application-facing source, derived, and uncalibrated states and pass focused,
+      browser, package, formatting, and complete repository gates.
+- [x] Add a public codec-to-scientific adapter with one dataset per selectable frame, codec-declared
+      levels within each dataset, canonical uint8 component semantics, and zero-copy block wrapping.
+- [x] Add individually importable low-confidence PNG, JPEG, WebP, BMP, and JP2 scientific readers
+      while keeping the base scientific entry codec-free and experimental HEIC out of the
+      all-readers bundle.
+- [x] Pass exact-pixel, identity, cancellation, release, package, browser, size, documentation, and
+      complete repository gates for the A2 adapter.
+- [x] Add the explicit `purejsimage/scientific/readers/tiff` entry on the native raster decoder,
+      preserving signed, floating-point, planar, interleaved, RGB, and arbitrary N-channel samples.
+- [x] Group only contiguous top-level pages with identical native format and pyramid geometry,
+      label those coordinates as pages, keep incompatible series separate, and expose SubIFDs as
+      resolution levels without inferring Z/time or arbitrary-band RGB semantics.
+- [x] Normalize selected standard, DigitalMicrograph, FEI, and Zeiss metadata under aggregate and
+      per-tag byte ceilings while keeping malformed or oversized optional metadata non-fatal.
+- [x] Add native precision, multipage, tiled-region, SubIFD, metadata-limit, identity, specialized
+      OME precedence, package, generated capability, and real-browser coverage for the A3 reader.
+- [x] Add public first-party standard TIFF, ImageJ, and DigitalMicrograph calibration profiles
+      selected through `TiffProfileRegistry`, with bounded namespaced raw metadata and acquisition
+      fields only when present.
+- [x] Apply exact calibrated X/Y/Z coordinates and evidence in the ordinary TIFF scientific reader,
+      including simple ImageJ Z stacks, DigitalMicrograph intensity metadata, and calibration-aware
+      compatible-page grouping.
+- [x] Pin TIFF 6.0, ImageJ/tifffile, and RosettaSciIO oracle expectations; reject the ASCII-only
+      EPICS private-tag collision and keep malformed private calibration non-fatal to pixel reads.
+- [x] Regenerate TIFF capability surfaces and pass focused, browser, package, formatting, and
+      complete repository gates for A4.
+- [x] Add bounded FEI SFEG 34680 and Helios 34682 INI profiles that prefer exact
+      `Scan.PixelWidth`/`Scan.PixelHeight` meter values and do not infer field-of-view calibration.
+- [x] Add a bounded Zeiss `CZ_SEM` 34118 profile that parses unnamed and named `AP_*`, `DP_*`, and
+      `SV_*` values, preferring the fixture-proven unnamed calibration formula when present.
+- [x] Normalize FEI and Zeiss manufacturer, model, software, acquisition date, accelerating
+      voltage, working distance, dwell time, and detector fields only when unambiguous.
+- [x] Pin two independently produced FEI and two independently produced Zeiss metadata families,
+      regenerate TIFF capability surfaces, and pass focused, browser, package, formatting, and
+      complete repository gates for A5.
+- [x] Add a package-private DM3/DM4 random-access tag-tree indexer with separate structural and
+      payload byte order, checked 32-bit and 64-bit lengths, deterministic duplicate-name paths,
+      and bounded group, tag, name, descriptor, and metadata limits.
+- [x] Index scalar, string, array, struct, and array-of-struct payload spans without reading image
+      sample arrays, and keep dataset discovery, pixel reads, calibration mapping, and public
+      scientific-reader capability claims in B2.
+- [x] Cover DM3 big- and little-endian payloads, DM4 64-bit structure and metadata, hostile source
+      buffer lifetimes, cancellation, truncation, malformed descriptors, unsafe extents, and every
+      declared B1 limit with generated structural fixtures.
+- [x] Add the generated `scientificReaders` capability collection and keep every public descriptor,
+      package export, input hint, resource model, dataset kind, direct-range boundary, evidence, and
+      fixture source synchronized with runtime readers.
+- [x] Add the public DigitalMicrograph reader with separate supported ImageList datasets, exact
+      rank-2 through rank-4 ordering, every B2 scalar sample type, fixture-proven packed BGRA,
+      calibrated dimensions and intensity units, neutral higher axes, and bounded Gatan metadata.
+- [x] Read selected X/Y rows directly from indexed image spans and reject rank-1, complex,
+      undocumented packed, encrypted, external, malformed, and unsupported-rank image entries with
+      explicit diagnostics while retaining supported entries in mixed documents.
+- [x] Pin a license-aware 13-file RosettaSciIO DM3/DM4 corpus by revision and SHA-256, verify exact
+      oracle sample windows and calibration, and cover the public package, browser graph, bundle
+      ceiling, and real-Chromium selected-region workflow.
+- [x] Map ordinary DM images and volumes to X/Y and X/Y/Z, map EELS to X/Y/energy only from exact
+      signal, format, and calibrated-unit evidence, and keep incomplete spectrum-image evidence
+      neutral.
+- [x] Map verified C-ordered 4D-STEM storage to logical scanX/scanY/kx/ky only when diffraction
+      format, data-order, application-mode, and scan-shape tags agree; preserve dimension-0 names
+      for every ambiguous rank-4 array.
+- [x] Pin a small Gatan-produced DM4 volume and the CC-BY-4.0 Zenodo 4D-STEM dataset used by
+      LiberTEM, verify the latter through bounded HTTP ranges, and pass B3 focused, browser,
+      package, capability, size, formatting, and complete repository gates.
+- [x] Allow one-axis scientific descriptors only with explicit no-plane and native-series
+      capabilities, and validate their axes, fixed indices, ranges, levels, cancellation, and
+      region boundaries before I/O.
+- [x] Add bounded canonical `ScientificSeriesBlock` reads plus a row/column adapter over existing
+      plane readers without synthetic dimensions, complete-series materialization, or lost source
+      release ownership.
+- [x] Prove the public series contract through focused, packed-package, browser dependency, real
+      Chromium, documentation, size, formatting, and complete repository gates before C1.
+- [x] Add the public bounded TIA SER reader for versions 0x0210 and 0x0220 with byte-signature
+      probing, lazy 32-bit or 64-bit element offsets, calibrated scalar spectra and images, native
+      series reads, compatible collections, canonical sample bytes, and explicit unsupported or
+      invalid element metadata without invented EMI facts.
+- [x] Cover generated v528/v544 spectra, spectrum images, and image series plus cancellation,
+      weakest-lifetime sources, hostile counts and truncation, read budgets, partial valid series,
+      row orientation, package exports, generated capabilities, and a real Chromium workflow.
+- [x] Pin five real RosettaSciIO TIA SER fixtures by revision and SHA-256 without committing their
+      GPL binaries, and verify exact descriptors, calibration, sample windows, and direct payload
+      read shapes across both versions before marking C1 complete.
+- [x] Add the public bounded TIA EMI reader with byte-signature probing, portable embedded
+      `ObjectInfo` XML parsing, consecutive numbered SER companion resolution, multi-dataset
+      composition, complete resource identity, and direct SER compatibility.
+- [x] Merge EMI acquisition metadata and strongly corroborated reciprocal-space interpretation
+      without replacing contradictory SER coordinates or units, and report preserved conflicts as
+      explicit dataset metadata.
+- [x] Pin four real RosettaSciIO EMI groups plus seven SER companions by revision and SHA-256, cover
+      old and new output, fewer and extra XML records, exact UUIDs and sample windows, and pass the
+      package, browser graph, real Chromium, documentation, capability, size, formatting, and full
+      repository gates before marking C2 complete.
+- [x] Add the package-private HDF5 D1 file/address layer with legal user-block discovery, superblock
+      versions 0 through 3, 2/4/8/16-byte integers, relocation-aware bigint addresses, lookup3
+      checksums, bounded source-identity-aware metadata pages, and explicit legacy family/multi and
+      modern extension rejection before starting the object graph.
+- [x] Pin exact independently generated h5py 3.14.0 / HDF5 1.14.6 byte fixtures for clean
+      superblock versions 2 and 3 plus a 512-byte user block, with SHA-256 verification.
+- [x] Add the first package-private HDF5 D2 slice for object header versions 1 and 2, checksummed
+      continuation chunks, compact hard and soft links, link-info storage descriptors, mandatory
+      unknown-message rejection, and bounded hostile metadata without exposing an HDF5 reader or
+      claiming the then-pending indexed group graph.
+- [x] Continue HDF5 D2 with bounded old-style symbol-table groups: local heap and free-list
+      validation, group B-tree v1 traversal, `SNOD` hard and soft links, cached subgroup metadata,
+      inherited K values, cycle detection, and aggregate heap/tree/link limits.
+- [x] Pin and verify the HDF Group's real `tgroup.h5` legacy-group fixture by immutable source
+      revision and SHA-256 while leaving the licensed binary out of the repository and package.
+- [x] Continue HDF5 D2 with bounded modern dense groups: checksummed fractal heaps, root direct and
+      recursive indirect managed blocks, managed heap IDs, type-5 B-tree v2 leaf and internal
+      traversal, record ordering and name-hash validation, cycles, and aggregate admission limits.
+- [x] Pin and verify the HDF Group's real `h5repack_objs.h5` dense-group fixture by immutable source
+      revision and SHA-256, validate its declared 40-record index through the explicit external-link
+      boundary, and leave the licensed binary out of the repository and package.
+- [x] Continue HDF5 D2 with a package-private bounded object graph that resolves absolute paths
+      across compact, legacy, and dense groups; follows absolute and containing-group-relative soft
+      links; preserves dangling links as unresolved; detects soft-link cycles; and enforces
+      aggregate object, link, metadata, path-byte, hard-link-depth, and soft-link-traversal limits.
+- [x] Start HDF5 D3 with package-private bounded dataspace versions 1 and 2 plus datatype versions 1
+      through 3 for fixed integers, exact IEEE binary16/32/64 floats, and fixed strings; preserve
+      finite extents, unlimited maxima, byte order, precision, offset, and padding while rejecting
+      malformed, shared, null, permuted, VAX, and unsupported datatype forms explicitly.
+- [x] Continue HDF5 D3 with bounded compact, contiguous, and chunked layout versions 1 through 4,
+      preserve all classic and modern chunk-index descriptors for D4, parse old and version 1
+      through 3 fill semantics, reject external raw storage, and pin the HDF Group's real version 3
+      `h5repack_layout.h5` and version 4 `bounds_latest_latest.h5` fixtures by immutable revision and
+      SHA-256 without shipping their binaries.
+- [x] Finish HDF5 D3 for the initial corpus with bounded integer-backed enums, flat scalar
+      compounds, committed shared-message locator versions 1 through 3, and element-aligned compact
+      or contiguous raw reads; pin the HDF Group's real `tenum.h5` and `tcompound.h5` fixtures with
+      exact datatype and raw-sample verification while preserving D4 chunk traversal and explicit
+      unsupported shared-message-heap, nested-compound, and compound-array boundaries.
+- [x] Complete HDF5 D4 with bounded hyperslab planning, targeted classic and modern chunk-index
+      lookup, exact partial-edge geometry, per-chunk filter masks, one-encoded-chunk-at-a-time reads,
+      cancellation, hostile index coverage, and pinned independent classic and modern fixtures.
+- [x] Complete the required HDF5 D5 filter subset with bounded version 1 and 2 pipeline metadata,
+      raw, Deflate, Shuffle, verified Fletcher32, reverse-order decoding, per-chunk masks, explicit
+      unsupported-filter errors, a pinned HDF Group composition fixture, and a real Chromium path,
+      while keeping optional filters and all public HDF5 capability claims deferred.
+- [x] Complete HDF5 D6 with a package-private file facade for graph lookup, link listing, and exact
+      rectangular compact, contiguous, fill-backed, and filtered chunked dataset blocks; enforce
+      cancellation and independent read/output/chunk/filter limits, verify exact local and
+      HTTP-range budgets plus real Chromium execution, and defer a public container export until
+      two independent Milestone E dialect readers prove the substrate.
+- [x] Harden the shared HDF5 substrate for public dialect use: gate dialect probes behind exact
+      eight-byte signature reads, make pending page/dataset/header/link loads cancellation-neutral
+      with per-caller abortable waits, pass verified signature offsets into dialect openers, preserve
+      late-waiter page coalescing, prevent post-close cache admission, count concurrent graph loads
+      once, and batch rank-2 strided reads under an independent input-span limit.
+- [x] Start NCEM EMD E1 with bounded compact HDF5 attribute messages and a package-private 0.2
+      structural inspector that discovers consistent numeric `data`/`dimN` groups without reading
+      image samples; decode openNCEM fixed strings, preserve labels and units, retain exact linear or
+      lookup calibration under per-axis and total coordinate budgets, and verify an independently
+      generated h5py file in Node.js plus the generated path in Chromium.
+- [x] Continue NCEM EMD E1 with bounded scalar variable-length strings backed by HDF5 global heaps
+      and finite scalar acquisition metadata from `/microscope`, `/sample`, `/user`, and `/comments`;
+      enforce heap collection/object/value/read-operation plus projected entry/byte limits, verify a
+      second SHA-256-pinned h5py 3.12.1 file, and run the metadata path in Chromium. Keep non-scalar
+      metadata, public scientific dataset exposure, application NCEM files, and every public
+      capability claim pending.
+- [x] Add the package-private NCEM EMD scientific dataset adapter with labeled axes, exact numeric
+      sample types, units, coordinate evidence, stable identities, finite acquisition metadata,
+      canonical plane and series blocks, either plane-axis order, and an independent output-byte
+      limit. Verify an exact four-byte contiguous region read, a chunk-bounded filtered h5py region,
+      and the full adapter path in Chromium. Keep public exports, registration, and capability claims
+      pending until application NCEM files and remaining metadata shapes complete E1.
+- [x] Complete and publish NCEM EMD E1 for the fixture-proven openNCEM 0.2 subset: accept integer or
+      decimal-string versions and `/data` or `/signals`, preserve bounded scalar and array
+      acquisition metadata, pin three real RosettaSciIO application files, and align package,
+      capability, browser, documentation, size, and full repository gates. Keep `.de5` deferred.
+- [x] Complete and publish Velox EMD E2 as a separate reader ID with path-based probing, bounded
+      JSON metadata, separate detector datasets and frame axes, exact scalar/DPC/FFT samples,
+      preserved positive-half uncentered FFT evidence, specific pruned-file errors, generated
+      hostile coverage, and three pinned real application fixtures.
+- [x] Make the Velox E2 metadata contract explicitly per-frame: read and retain every JSON column
+      under per-column and total budgets, require calibration-critical fields to remain invariant
+      before publishing global physical axes, and report conflicts with index axes and warnings.
+- [ ] Add Velox EMD E3 sparse spectra only after Lab Viewer has a scientific spectrum surface and
+      the event binning, detector/frame selection, summing, overflow, and point/ROI memory contracts
+      are approved. The adjacent app currently exposes analysis-series export, not this surface.
+- [x] Fix the E3 sparse-stream contract from pinned producer files: native `uint16` channel events
+      and `65535` pixel gates, separate detector datasets, explicit frames bounded by the monotonic
+      frame table, cropped scan geometry, no implicit rebinning or summing, checked uint32 counts,
+      and point `readSeries()` using one native-bin accumulator without a spectrum-image cube.
+- [x] Add bounded package-private scalar HDF5 string-dataset reads for fixed strings and
+      global-heap variable strings, with hostile padding, missing-object, string-byte, heap-byte,
+      and cancellation boundaries; verify Velox `AcquisitionSettings` from the pinned v11 stream.
+- [x] Complete the dormant E3 core substrate without publishing the gated capability: index dense
+      spectra and separate sparse detector streams without touching event payloads, validate cropped
+      geometry and frame tables, decode one point in bounded event blocks with checked `uint32`
+      counts, cover hostile limits and missing gates, and pin version-11, EELS/EDS, and empty-selection
+      producer archives with exact point-spectrum hashes.
+- [ ] Publish Bruker NanoScope SPM only after three acquisition/software families independently
+      reproduce dimensions, scan direction, physical X/Y coordinates, and the complete Z scaling
+      chain. Keep the existing capability planned while only one full image family is available.
+- [x] Publish Nanonis SXM v2 images with bounded headers, all channel/direction datasets, exact
+      X/Y calibration, scan metadata, explicit top-to-bottom file-row Y semantics, and selected-row
+      reads verified against independent AFM and STM files.
+- [x] Publish numeric Igor Binary Wave v5 two- through four-dimensional waves with endian,
+      checksum, type, dimension, unit, note, label, calibration, selected-region, and complex-wave
+      rejection coverage against an independent Asylum AFM file.
+- [x] Publish bounded Digital Surf SUR/PRO surface, multilayer, and profile records with stored and
+      compressed payloads, exact integer scaling, special-point masks, physical units, object
+      enumeration, metadata bounds, and spectral-map rejection.
+- [x] Add one browser-portable range-aware ZIP/ZIP64 container with safe normalized paths, stored
+      member views, Deflate decoding, CRC verification for decoded members, archive/member/ratio
+      limits, duplicate and local-name checks, and explicit encryption/unsupported-method rejection.
+- [x] Publish one-layer ISO 5436-2 X3P surfaces on that ZIP layer with incremental calibrated X/Y,
+      numeric Z scaling, validity masks, selected-region reads, official fixtures, package exports,
+      generated capabilities, bundle ceilings, and a real-Chromium workflow.
+- [x] Record JPK force/curve archives and the unreleased OZX profile as explicit F5 deferrals rather
+      than claiming image-container compatibility from ZIP structure alone.
+- [x] Add an authoritative machine-readable provenance record for every committed surface binary,
+      including exact revision/path/URL, SPDX license and link, attribution, redistribution status,
+      SHA-256, and per-file expected oracle.
+- [x] Correct NIfTI zero-slope scaling and affine geometry, and enforce the incomplete-calibration
+      invariant across DM, TIA SER, Velox, and NIfTI by preserving raw values while omitting
+      physical units/evidence and recording structured warnings for index-coordinate fallbacks. Use
+      per-column relative affine tolerances so tiny physical steps and anisotropic volumes remain
+      representable; reject non-finite NIfTI header values explicitly.
+
+  - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
+    low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
+    and release tests pass for the adapter and PNG/JPEG readers. The base scientific entry is
+    151,216 minified bytes without concrete codecs; the individually importable PNG and JPEG
+    readers are 67,385 and 104,815 bytes, and the explicit all-readers entry is 391,662 bytes with
+    experimental HEIC excluded. Capability, package (404 files), browser, documentation, type,
+    lint, formatting, and size gates pass. The complete suite passes 104 files and 1,269 tests; one
+    WebP ICC test transiently exceeded its five-second timeout in the first combined run, then
+    passed alone in 1.6 seconds and again in the complete rerun.
+
+  - A3 validation: 114 focused ordinary TIFF, core TIFF, Aperio, and package-contract tests pass,
+    including native uint16/int16/float32, RGB versus arbitrary-band semantics, compatible page
+    axes, incompatible series, tiled regions, SubIFD levels, metadata limits, cancellation,
+    identity, and OME/Aperio precedence. The native reader is 262,942 minified bytes and the
+    all-readers entry is 402,802 bytes, each with 30% ceiling headroom. Generated TIFF capability
+    surfaces, the 406-file packed consumer, browser graph, 19-page documentation build, lint,
+    formatting, and the focused real-Chromium TIFF workflow pass. The final `npm run check` passes
+    all 105 files and 1,274 tests. Earlier combined attempts hit only existing five-second
+    AVIF/JPEG/WebP load timeouts; each case passed in isolation before the complete rerun passed.
+
+  - A4 validation: 120 focused TIFF reader, core TIFF, capability-manifest, and package-contract
+    tests pass, including exact standard TIFF, ImageJ, and DigitalMicrograph calibration,
+    calibration-aware grouping, private-tag collision rejection, and non-fatal malformed metadata.
+    The focused public scientific TIFF workflow passes in real Chromium. All 23 generated
+    capability outputs, the 408-file packed consumer, 19-page documentation build, browser graph,
+    type, lint, formatting, and size gates pass; the TIFF reader is 272.2 KiB minified and the
+    all-readers entry is 408.8 KiB, both below their recorded ceilings. The final `npm run check`
+    passes all 105 files and 1,277 tests.
+
+  - A5 validation: 122 focused TIFF reader, core TIFF, capability-manifest, and package-contract
+    tests pass, including two independently produced FEI and two independently produced Zeiss
+    metadata families, exact and named-fallback calibration, normalized acquisition fields, and
+    explicit deferral of unproven FEI field-of-view inference. The focused public scientific TIFF
+    workflow passes in real Chromium. All 23 generated capability outputs, the 408-file packed
+    consumer, 19-page documentation build, browser graph, type, lint, formatting, and size gates
+    pass; the TIFF reader is 278.8 KiB minified and the all-readers entry is 415.3 KiB, both below
+    their recorded ceilings. The final `npm run check` passes all 105 files and 1,279 tests. Earlier
+    combined attempts hit only existing five-second AVIF/JPEG/WebP load-sensitive timeouts; all
+    three passed together in isolation before the complete rerun passed.
+
+  - B1 validation: 9 focused DM3/DM4 indexer tests pass, including payload-span-only image indexing,
+    bounded metadata projection, duplicate tag names, recursive descriptors, weakest-lifetime
+    sources, and hostile count, length, depth, type, and truncation cases. The internal-only module
+    intentionally adds no package export or generated capability claim; real independently
+    produced files and oracle-backed dataset/pixel validation remain the B2 gate. Generated
+    capability outputs, the 410-file packed consumer, 19-page documentation build, browser graph,
+    type, lint, formatting, and size gates pass. Public entry sizes are unchanged because the B1
+    module is not reachable from a package export. The final `npm run check` passes all 106 files
+    and 1,288 tests.
+
+  - B2 validation: 57 focused DigitalMicrograph, capability-manifest, and package-contract tests
+    pass, including every scalar type, both fixture-proven packed color codes, exact 3D and neutral
+    4D ordering, calibration and bounded metadata, weakest-lifetime and HTTP-range sources,
+    cancellation, configurable admission limits, direct selected-row reads, and explicit
+    unsupported boundaries. The pinned 13-file RosettaSciIO corpus passes exact hashes, descriptor,
+    calibration, oracle sample-window, and range-read checks without committing its GPL binaries.
+    Generated reader and codec capability outputs, the 412-file packed consumer, 19-page docs build,
+    browser dependency graph, lint, formatting, and every size ceiling pass; the DigitalMicrograph
+    entry is 45.1 KiB minified and all readers are 437.1 KiB under a 511.4 KiB ceiling. The public
+    selected-region workflow passes in real Chromium, and `npm run check` passes all 106 files and
+    1,302 tests.
+
+  - B3 validation: 59 focused DigitalMicrograph, capability-manifest, and project-contract tests
+    pass, including exact X/Y/Z volume mapping, evidence-gated EELS energy and 4D-STEM roles,
+    logical-versus-storage axis order, direct diffraction-plane reads, and neutral partial-evidence
+    fallbacks. The local 14-file RosettaSciIO corpus verifies the added Gatan-produced DM4 volume;
+    the separate CC-BY-4.0 Zenodo 4D-STEM verifier confirms scanX:342, scanY:213, kx:128, ky:128
+    and a pinned raw sample window while fetching 188,459 bytes of the 1.19 GB source. The focused
+    public workflow passes in real Chromium. Generated capability surfaces, the 412-file packed
+    consumer, browser graph, docs, lint, formatting, and size checks pass; DigitalMicrograph is
+    48.1 KiB minified and all readers are 440.1 KiB under the 511.4 KiB ceiling. The final
+    `npm run check` passes all 106 files and 1,304 tests.
+
+  - Milestone C prerequisite validation: 96 focused scientific-dataset, scientific-format-reader,
+    reader-registry, and project-contract tests pass, including exact rank-1 capabilities,
+    normalization, cancellation, release ownership, and padded interleaved and planar row/column
+    adaptation. The public workflow passes in real Chromium. The 412-file packed consumer, browser
+    graph, 19-page docs build, lint, formatting, and size checks pass; the scientific platform is
+    154.0 KiB and all readers are 441.5 KiB under their 182.6 KiB and 511.4 KiB ceilings. The final
+    `npm run check` passes all 106 files and 1,314 tests.
+
+  - C1 validation: 54 focused TIA SER, shared scientific-reader, capability-manifest, and
+    project-contract tests pass, including 32-bit and 64-bit offsets, native rank-1 series, spectrum
+    images, image collections, direct canonical reads, bottom-up image storage, partial and invalid
+    elements, cancellation, weak source buffers, and configurable byte and read budgets. The pinned
+    five-file RosettaSciIO corpus passes hashes, exact descriptors and calibration, independent raw
+    sample windows, and direct-read shape checks without committing its GPL binaries. The focused
+    public workflow passes in real Chromium. Generated capability surfaces, the 416-file packed
+    consumer, browser graph, docs, lint, formatting, and size checks pass; the TIA SER reader is
+    46.6 KiB minified and all readers are 463.3 KiB under the existing 511.4 KiB ceiling. The final
+    `npm run check` passes all 107 files and 1,323 tests.
+
+  - C2 validation: 51 focused TIA EMI, TIA SER, capability-manifest, and project-contract tests pass,
+    including bounded embedded XML, multiple numbered companions, full two-resource identities,
+    acquisition metadata, reciprocal-space corroboration, preserved conflicts, missing metadata,
+    cancellation, and every configurable admission limit. Four pinned real RosettaSciIO EMI groups
+    with seven SER companions pass exact hashes, UUID mapping, dataset composition, calibration
+    interpretation, and selected sample windows without committing their GPL binaries. The focused
+    public `File` companion workflow passes in real Chromium. Generated capability surfaces, the
+    420-file packed consumer, browser graph, 19-page docs build, lint, formatting, and size checks
+    pass; the TIA EMI reader is 60.2 KiB minified and all readers are 473.6 KiB under the existing
+    511.4 KiB ceiling. The final `npm run check` passes all 108 files and 1,330 tests.
+
+  - HDF5 D1 validation: focused file/address tests cover generated and independently produced
+    superblock versions 0 through 3, 2/4/8/16-byte fields, user blocks, relocation, the lookup3 reference vector and checksum
+    corruption, hostile bigint and EOF declarations, legacy family/multi/custom drivers, modern
+    extensions, true-LRU byte bounds, weakest-lifetime and changing-identity sources, cancellation,
+    and read limits. Generated capabilities, the 422-file packed consumer, 19-page documentation
+    build, browser dependency graph, lint, formatting, and every size ceiling pass; public entry
+    sizes are unchanged because the module is unreachable from package exports. The final
+    `npm run check` passes all 109 files and 1,345 tests. No HDF5 or EMD reader capability is
+    published while D2-D6 are incomplete.
+
+  - HDF5 D2 validation: 43 focused D1/D2 tests cover aligned v1 and packed v2 object headers,
+    optional prefix fields, compact hard and soft links, nested continuations, old symbol-table
+    groups, local heaps, B-tree v1, fractal-heap root direct and indirect managed blocks, type-5
+    B-tree v2 leaf and internal nodes, checksums, record ordering, name hashes, bounded geometry,
+    hostile limits and cycles, unsupported heap and link classes, duplicate names, weakest-lifetime
+    sources, cancellation, mixed-storage path traversal, bounded hard and soft links, dangling
+    links, and graph-wide admission limits. Two separately prepared, SHA-256-pinned HDF Group
+    fixtures verify the legacy root links `g1`, `g2`, and `g3` through the graph API, plus a real
+    declared 40-record dense index through the explicit `ext_link` rejection. HDF5 remains
+    package-private; huge and tiny heap objects, filtered heaps, the creation-order index,
+    attributes, datasets, filters, and dialect readers remain pending. Capability generation, the
+    436-file packed consumer,
+    19-page documentation build, browser graph, every size ceiling, lint, and formatting pass. The
+    final `npm run check` passes all 113 files and 1,383 tests.
+
+  - HDF5 D3 initial validation: 8 focused dataset-metadata tests cover scalar and simple v1/v2
+    dataspaces, zero current extents, finite and unlimited maxima, rank/dimension/element limits,
+    fixed signed and unsigned integers, exact little- and big-endian IEEE binary16/32/64 floats,
+    fixed ASCII and UTF-8 strings, malformed versus unsupported layouts, bounded object-message
+    reads, shared-message rejection, duplicates, and cancellation. Layout, fill-value,
+    enum/compound, shared-message resolution, raw-data, and independent-corpus coverage remain
+    pending before D3 can be complete. All 51 HDF5 tests pass with the earlier D1/D2 coverage. The
+    438-file packed consumer, 19-page documentation build, browser dependency graph, size ceilings,
+    lint, formatting, and the complete 114-file / 1,391-test repository gate pass; no HDF5 module
+    is reachable from a package export.
+
+  - HDF5 D3 layout/fill validation: 8 focused storage tests cover compact, contiguous, and chunked
+    layouts across versions 1 through 4; classic B-tree v1 plus single, implicit, fixed-array,
+    extensible-array, and B-tree v2 descriptors; owned compact and fill bytes; default, undefined,
+    and defined fill semantics; external storage; cancellation; contradictory messages; geometry;
+    address; and byte limits. All 59 HDF5 tests pass. The pinned `h5repack_layout.h5` fixture verifies
+    real version 3 compact, contiguous, and chunked 40 by 20 signed-int datasets with exact logical
+    size and chunk geometry. The pinned `bounds_latest_latest.h5` fixture independently verifies a modern
+    superblock-v3/object-header-v2 float32 dataset with a version 4 fixed-array chunk descriptor.
+    Enums/compounds, shared-message resolution, raw reads, index traversal, and filters remain
+    pending. The 440-file packed consumer, 19-page documentation build, browser dependency graph,
+    every size ceiling, typecheck, lint, and formatting pass; the complete repository gate passes all
+    115 files and 1,399 tests. The package size surfaces are unaffected because HDF5 remains
+    unreachable from public exports.
+
+  - HDF5 D3 completion validation: 64 focused HDF5 tests cover bounded enum and flat compound
+    datatypes, signed and unsigned exact enum values, committed shared-message locator versions 1
+    through 3, shared-reference depth and cycle rejection, legacy contiguous element-size geometry,
+    owned compact and contiguous element ranges, unallocated fill materialization, raw-read limits,
+    and the explicit D4 chunk-index boundary. The revision- and SHA-256-pinned HDF Group
+    `tenum.h5` fixture verifies a committed enum datatype with five exact members, legacy contiguous
+    storage, and raw samples; `tcompound.h5` independently verifies a version 1 compound with
+    big-endian integer, binary32, and binary64 members plus raw samples. All six pinned corpus files
+    pass without shipping their licensed binaries. The 440-file packed consumer, 19-page
+    documentation build, browser dependency graph, every size ceiling, typecheck, lint, and
+    formatting pass; the complete repository gate passes all 115 files and 1,404 tests. D3 is
+    complete for the initial corpus. Chunk-index traversal and filter execution remain D4 and D5,
+    and no HDF5 module is reachable from a public package export.
+
+  - HDF5 D4 validation: the package-private chunk layer now plans bounded rectangular hyperslabs and
+    targets classic B-tree v1, single, implicit, fixed-array, extensible-array, and B-tree v2 indexes
+    without enumerating unrelated chunk records. It preserves dimension and partial-edge geometry,
+    bounds selected chunks, index metadata, traversal nodes/depth, encoded bytes, decoded bytes,
+    filter scratch, and output blocks, and exposes a cancellable one-encoded-chunk-at-a-time stream
+    for D5. Generated hostile coverage exercises checksums, limits, internal B-tree branch isolation,
+    extensible-array super/data blocks, and cancellation. A committed SHA-256-pinned h5py 3.14.0 /
+    HDF5 1.14.6 fixture verifies all modern index families; the revision-pinned HDF Group corpus
+    independently verifies classic B-tree v1 and fixed-array raw chunk prefixes. D4 is complete for
+    the initial corpus. All 73 focused HDF5 tests and all six pinned corpus files pass. The 442-file
+    packed consumer, 19-page documentation build, browser graph, typecheck, lint, formatting, and
+    every size ceiling pass; a complete repository test run passes all 116 files and 1,413 tests.
+    Filter decoding, decoded block assembly, and dialect readers remain D5/D6; HDF5 remains
+    unreachable from public exports.
+
+  - HDF5 D5 validation: the package-private filter layer parses both filter-pipeline message
+    versions and decodes raw, Deflate, Shuffle, and Fletcher32 chunks in reverse pipeline order with
+    exact output, scratch, mask, and cancellation checks. Active N-bit, Scale-Offset, SZIP, and
+    unknown filters reject explicitly. The revision-pinned HDF Group `h5repack_filters.h5` corpus
+    file verifies all four required paths, the real three-filter composition, and N-bit rejection;
+    the existing h5py fixture independently verifies version 2 Shuffle metadata and chunk output.
+    All 82 focused HDF5 tests, all seven pinned corpus files, and the focused real-Chromium workflow
+    pass. The 446-file packed consumer, 19-page documentation build, browser graph, typecheck, lint,
+    formatting, and every size ceiling pass without exposing an HDF5 entry point or capability
+    claim. The final permission-correct single-worker rerun passes all 117 files and 1,422 tests;
+    parallel full-suite attempts hit only existing timeout pressure across unrelated codecs, whose
+    focused cases passed alone. Optional filters and D6 selection-aware scientific block assembly
+    remain deferred.
+
+  - HDF5 D6 validation: the package-private file facade classifies graph objects, lists links, and
+    streams exact row-major selection blocks across compact, contiguous, unallocated, raw chunked,
+    and filtered chunked storage. Focused tests cover multi-block linear reads, multi-chunk filtered
+    intersections against the independent h5py 3.14.0 / HDF5 1.14.6 fixture, fill materialization,
+    missing and non-dataset paths, close behavior, cancellation, and pre-read operation and output
+    limits. A pinned h5py 3.12.1 / HDF5 1.14.4 filtered fixture supplies the second independent
+    library-version oracle alongside the existing h5py 3.14.0 / HDF5 1.14.6 files. A one-element
+    selection in a generated dataset declaring one trillion elements uses exactly two local source
+    reads and 5,120 bytes; an HTTP-range source returns identical bytes
+    within its exact three-request cache budget. The internal facade also passes in real Chromium.
+    The 448-file packed consumer, 19-page documentation build, browser graph, typecheck, lint,
+    formatting, and every size ceiling pass; the full repository gate passes all 118 files and
+    1,429 tests. HDF5 remains unreachable from package exports, and a public container API remains
+    deferred until two independent Milestone E dialect readers use this substrate successfully.
+  - NCEM EMD E1 initial validation: compact attribute messages version 1 through 3 pass exact signed
+    scalar and fixed ASCII/UTF-8 string decoding, name selection, padding, duplicate,
+    dense/shared-storage, count, metadata, value, operation, and cancellation cases. The generated
+    0.2 hierarchy verifies bounded root-version recognition, numeric-group and dimension-shape
+    discovery, exact regular and lookup coordinates, unsupported-version and invalid-group
+    separation, traversal and per-axis/total coordinate limits, and no read at the separately
+    located image payload. A SHA-256-pinned h5py 3.12.1 / HDF5 1.14.4 fixture independently verifies
+    fixed labels and units, full dimension vectors, a chunked Shuffle/Deflate image, and selected
+    samples. The enriched generated path passes in real Chromium. No scientific reader export,
+    manifest entry, or compatibility claim is added by this prerequisite slice.
+  - NCEM EMD E1 metadata validation: datatype class 9 scalar strings resolve exact ASCII or UTF-8
+    bytes through bounded version 1 global-heap collections while preserving the on-disk descriptor.
+    A SHA-256-pinned h5py 3.12.1 / HDF5 1.14.4 file verifies one shared heap containing microscope,
+    sample, and comments strings plus a finite float attribute; inspection requires at most four
+    source reads including both coordinate vectors. Focused hostile cases reject corrupt heap
+    signatures and collection, object, aggregate metadata, projected entry/byte, and logical
+    operation limit overruns. The generated equivalent preserves all four standard metadata groups
+    in real Chromium. The package-private boundary and lack of public HDF5/EMD capability claims are
+    unchanged.
+  - NCEM EMD E1 scientific-adapter validation: a package-private reader probes the 0.2 root plus
+    `/data`, exposes one identified dataset per numeric group, maps stored integer/IEEE types to
+    canonical scientific sample types, and preserves dimension labels, units, exact coordinates,
+    and acquisition metadata. Focused tests cover both display-axis orders, canonical big-endian
+    conversion, series reads, output limits, unknown formats, an exact four-byte contiguous source
+    read, and a filtered h5py selection whose payload reads remain below one metadata page. The same
+    dataset open and selected-plane path passes in real Chromium. No entry point, default reader,
+    manifest record, or compatibility claim is added.
+  - Milestone E1/E2 public validation: the NCEM EMD reader accepts integer and decimal-string 0.2
+    versions plus `/data` and `/signals`, preserves bounded scalar and array acquisition metadata,
+    and passes three pinned real RosettaSciIO files. The separate Velox EMD reader passes pinned TEM
+    stack, DPC complex, and positive-half FFT files plus generated frame, JSON-limit, output-limit,
+    malformed-metadata, and pruned-variant coverage. Both public workflows pass in real Chromium.
+    The 462-file packed consumer, browser graph, 19-page docs build, capability generation,
+    typecheck, lint, formatting, and size gates pass; NCEM is 172.3 KiB, Velox is 164.7 KiB, and all
+    readers are 719.8 KiB below the 731.6 KiB ceiling. The full repository gate passes all 124 files
+    and 1,461 tests. E3 remains unclaimed because the adjacent Lab Viewer lacks the roadmap-required
+    scientific spectrum surface.
+  - Milestone E3 dormant-core validation: generated Velox dense and sparse hierarchies prove
+    pretty-printed JSON, global-heap acquisition settings, detector calibration, cropped scan shape,
+    frame-table bounds, payload-free indexing, native-channel point binning, canonical `uint32`
+    output, bounded event reads, overflow, cancellation, corrupt channels, and the last-pixel-only
+    missing-gate exception. Three pinned RosettaSciIO ZIP archives reproduce a two-frame version-11
+    spectrum image, combined EELS/EDS data, and an empty selection; exact topology, calibration,
+    frame offsets, and point-spectrum hashes pass. The generated bounded point workflow also passes
+    in real Chromium. Public reader, package, manifest, and browser claims remain intentionally
+    absent until the required Lab Viewer spectrum surface is available.
+  - Milestone F validation: 62 focused surface-reader, capability, and project-contract tests pass,
+    including two real Nanonis acquisition families, a real 512 by 512 by 8 Asylum IBW, a compressed
+    Digital Surf surface, two official ISO 5436 X3P archives, generated big-endian 4D IBW and
+    multilayer/profile/mask SUR cases, and bounded stored, Deflate, and ZIP64 archive paths. The
+    public selected-region workflow passes for SXM, IBW, SUR, and X3P in real Chromium. Generated
+    capabilities, the 472-file packed consumer, 19-page docs build, browser graph, typecheck, lint,
+    formatting, and size gates pass; the four readers are 32.1, 33.3, 37.8, and 42.9 KiB minified,
+    and all readers are 758.5 KiB below the evidence-reset 984.4 KiB ceiling. The full repository
+    gate passes all 125 files and 1,487 tests. NanoScope remains planned at its three-family gate;
+    JPK force archives and the unreleased OZX profile remain explicitly unclaimed.
+  - Milestone H validation: nine explicit portable readers cover RPL/RAW, EMSA/MAS, NRRD,
+    MetaImage MHD/MHA, NIfTI-1/2, NPY, NanoMegas BLO, processed Merlin MIB, and rectangular
+    ANG/CTF. Twelve focused format and hostile-source tests pass alongside pinned real RosettaSciIO
+    RPL/RAW, ISO EMSA, BLO, and processed Merlin MIB oracles. The public workflows pass in real
+    Chromium; generated capabilities, the 492-file packed consumer, 19-page docs build, browser
+    graph, typecheck, lint, formatting, and size gates pass. Individual readers are 31.8 to 42.9
+    KiB minified and all readers are 825.6 KiB below the 984.4 KiB ceiling. The full repository gate
+    passes all 126 files and 1,499 tests. EDAX SPC/SPD/IPR and Bruker BCF remain the roadmap's
+    intentional later work, while registration and a representative Lab Viewer scenario remain a
+    separate integration-repository task.
+  - Scientific-format review hardening: HDF5 dialect probes now stop after exact signature reads on
+    unrelated sparse sources; shared metadata work is cancellation-neutral, close-safe, and counted
+    once; rank-two strided reads batch under a separate input-span budget. Velox retains every frame
+    metadata column, assembles both row- and column-chunked real files, and only publishes global
+    calibration when critical values agree under a document-wide JSON budget. NIfTI zero-slope
+    scaling, scale-relative sform/qform affine mapping, explicit non-finite-header rejection,
+    incomplete DM/TIA/Velox/NIfTI calibration, and exact surface-corpus provenance all have focused
+    regressions. All six pinned Velox corpus files pass, the complete Chromium compatibility file
+    passes 76 tests, and `npm run check` passes all 127 files and 1,523 tests. The 1,848,317-byte
+    browser bundle, 44.1 KiB NIfTI reader, 170.3 KiB Velox reader, 175.8 KiB NCEM reader, and 835.0
+    KiB aggregate scientific-reader entry remain within their recorded ceilings. Lab Viewer
+    registration, public Velox sparse spectra, NanoScope, JPK/OZX, EDAX, and BCF remain explicit
+    follow-up work rather than claims of this branch.

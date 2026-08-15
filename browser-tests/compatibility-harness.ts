@@ -1,3 +1,25 @@
+import {
+  generatedDigitalMicrographEelsFixture,
+  generatedDigitalMicrographFixture,
+} from '../benchmark/digital-micrograph/generated-fixture.ts'
+import {
+  createGeneratedCompactLayoutMessage,
+  createGeneratedDataspaceMessage,
+  createGeneratedIntegerDatatypeMessage,
+} from '../benchmark/hdf5/generated-dataset-fixture.ts'
+import { createGeneratedHdf5Fixture } from '../benchmark/hdf5/generated-fixture.ts'
+import { createGeneratedVersion2ObjectHeader } from '../benchmark/hdf5/generated-object-fixture.ts'
+import { createGeneratedNcemEmdFixture } from '../benchmark/ncem-emd/generated-fixture.ts'
+import {
+  generatedTiaEmiObject,
+  generateTiaEmiFixture,
+} from '../benchmark/tia-ser/generated-emi-fixture.ts'
+import {
+  generatedTiaSerPointSpectrum,
+  generatedTiaSerSpectrumImage,
+} from '../benchmark/tia-ser/generated-fixture.ts'
+import { createGeneratedVeloxEmdFixture } from '../benchmark/velox-emd/generated-fixture.ts'
+import { createGeneratedVeloxSpectrumFixture } from '../benchmark/velox-emd/generated-spectrum-fixture.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
@@ -10,17 +32,60 @@ import { bmpCodec } from '../src/codec-entries/bmp.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
-import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
+import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
-import type { PixelBlock } from '../src/pixel.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
-import { createScientificLibrary, rasterToPixels } from '../src/scientific/index.ts'
+import type { PixelBlock } from '../src/pixel.ts'
+import { createScientificFileContext } from '../src/scientific/browser.ts'
+import { openHdf5File } from '../src/scientific/formats/hdf5-file.ts'
+import type { Hdf5FilterPipeline } from '../src/scientific/formats/hdf5-filter-message.ts'
+import { decodeHdf5ChunkFilters, hdf5Fletcher32 } from '../src/scientific/formats/hdf5-filters.ts'
+import {
+  inspectVeloxEmdSpectra,
+  readVeloxPointSpectrum,
+} from '../src/scientific/formats/velox-emd.ts'
+import type {
+  ScientificDataset,
+  ScientificPlaneReadRequest,
+  ScientificReader,
+  ScientificResource,
+  ScientificSeriesReadRequest,
+} from '../src/scientific/index.ts'
+import {
+  createScientificLibrary,
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificSeriesReadRequest,
+  rasterToPixels,
+  ScientificReaderRegistry,
+} from '../src/scientific/index.ts'
+import { bmpReader } from '../src/scientific/readers/bmp.ts'
+import { blockfileReader } from '../src/scientific/readers/blockfile.ts'
+import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
+import { digitalSurfReader } from '../src/scientific/readers/digital-surf.ts'
+import { ebsdTextReader } from '../src/scientific/readers/ebsd-text.ts'
+import { emsaReader } from '../src/scientific/readers/emsa.ts'
+import { igorBinaryWaveReader } from '../src/scientific/readers/igor-binary-wave.ts'
+import { jp2Reader } from '../src/scientific/readers/jp2.ts'
+import { metaImageReader } from '../src/scientific/readers/meta-image.ts'
+import { mibReader } from '../src/scientific/readers/mib.ts'
+import { createNcemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
+import { nanonisSxmReader } from '../src/scientific/readers/nanonis-sxm.ts'
+import { niftiReader } from '../src/scientific/readers/nifti.ts'
+import { npyReader } from '../src/scientific/readers/npy.ts'
+import { nrrdReader } from '../src/scientific/readers/nrrd.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { rplReader } from '../src/scientific/readers/rpl.ts'
+import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
+import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
+import { tiffReader } from '../src/scientific/readers/tiff.ts'
+import { createVeloxEmdReader } from '../src/scientific/readers/velox-emd.ts'
+import { webpReader } from '../src/scientific/readers/webp.ts'
+import { x3pReader } from '../src/scientific/readers/x3p.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -55,6 +120,196 @@ const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
   if (!response.ok) throw new Error(`Fixture request failed: ${response.status} ${path}`)
   return new Uint8Array(await response.arrayBuffer())
+}
+
+const hdf5Filters = async (): Promise<BrowserWorkflowResult> => {
+  const raw = new Uint8Array(64)
+  const view = new DataView(raw.buffer)
+  for (let index = 0; index < 16; index += 1) view.setInt32(index * 4, index * 7 - 20, true)
+  const shuffled = new Uint8Array(raw.byteLength)
+  for (let byte = 0; byte < 4; byte += 1) {
+    for (let element = 0; element < 16; element += 1) {
+      shuffled[byte * 16 + element] = raw[element * 4 + byte] ?? 0
+    }
+  }
+  const compressed = new Uint8Array(
+    await new Response(
+      new Blob([shuffled]).stream().pipeThrough(new CompressionStream('deflate')),
+    ).arrayBuffer(),
+  )
+  const encoded = new Uint8Array(compressed.byteLength + 4)
+  encoded.set(compressed)
+  new DataView(encoded.buffer).setUint32(compressed.byteLength, hdf5Fletcher32(compressed), true)
+  const pipeline: Hdf5FilterPipeline = Object.freeze({
+    version: 2,
+    filters: Object.freeze([
+      Object.freeze({ id: 2, optional: false, name: undefined, clientData: Object.freeze([4]) }),
+      Object.freeze({ id: 1, optional: false, name: undefined, clientData: Object.freeze([6]) }),
+      Object.freeze({ id: 3, optional: false, name: undefined, clientData: Object.freeze([]) }),
+    ]),
+  })
+  const decoded = await decodeHdf5ChunkFilters(encoded, raw.byteLength, 4, pipeline, 0, {
+    objectPath: '/browser-filter-test',
+    maxDecodedChunkBytes: raw.byteLength,
+    maxFilterScratchBytes: raw.byteLength,
+  })
+  if (decoded.some((value, index) => value !== raw[index])) {
+    throw new Error('Browser HDF5 filter output did not match the input')
+  }
+  return {
+    detail: 'portable HDF5 Fletcher32, Deflate, and Shuffle filters decoded in reverse order',
+    outputBytes: decoded.byteLength,
+  }
+}
+
+const hdf5DatasetBlocks = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedHdf5Fixture({ version: 2, fileBytes: 1_024 })
+  if (fixture.rootObjectOffset === undefined) throw new Error('Browser HDF5 root is unavailable')
+  const raw = new Uint8Array(12)
+  const rawView = new DataView(raw.buffer)
+  for (let index = 0; index < 6; index += 1) rawView.setUint16(index * 2, index, true)
+  fixture.bytes.set(
+    createGeneratedVersion2ObjectHeader([
+      {
+        type: 0x0001,
+        data: createGeneratedDataspaceMessage({
+          version: 2,
+          lengthSize: 8,
+          dimensions: [2n, 3n],
+        }),
+      },
+      { type: 0x0003, data: createGeneratedIntegerDatatypeMessage({ byteLength: 2 }) },
+      {
+        type: 0x0008,
+        data: createGeneratedCompactLayoutMessage({ version: 4, dimensions: [], data: raw }),
+      },
+    ]),
+    fixture.rootObjectOffset,
+  )
+  const file = await openHdf5File(new MemorySource(fixture.bytes))
+  const values: number[] = []
+  let outputBytes = 0
+  for await (const block of file.readDataset('/', { start: [0, 1], shape: [2, 2] })) {
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let offset = 0; offset < block.data.byteLength; offset += 2) {
+      values.push(view.getUint16(offset, true))
+    }
+    outputBytes += block.data.byteLength
+  }
+  file.close()
+  if (values.join(',') !== '1,2,4,5') {
+    throw new Error(`Browser HDF5 selection returned ${values.join(',')}`)
+  }
+  return {
+    detail: 'package-private HDF5 file API returned exact compact selection blocks',
+    outputBytes,
+  }
+}
+
+const hdf5NcemEmd = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedNcemEmdFixture({ acquisitionMetadata: true })
+  const document = await createNcemEmdReader().open({
+    primary: { id: 'browser-ncem-emd', source: new MemorySource(fixture.bytes) },
+  })
+  const summary = document.datasets[0]
+  const firstDimension = summary?.descriptor.axes[0]
+  const dataset = await document.openDataset('/data/image')
+  const samples: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['dim2', 'dim1'],
+    fixedIndices: [],
+    x: 1,
+    y: 1,
+    width: 2,
+    height: 1,
+  })) {
+    samples.push(...block.data)
+  }
+  document.close?.()
+  if (
+    summary?.id !== '/data/image' ||
+    summary.descriptor.axes.map(({ length }) => length).join(',') !== '3,4' ||
+    firstDimension?.name !== 'Position Y' ||
+    firstDimension.unit !== '[n_m]' ||
+    firstDimension.coordinates.type !== 'linear' ||
+    firstDimension.coordinates.step !== 0.5 ||
+    document.metadata.acquisition === undefined ||
+    samples.join(',') !== '0,6,0,7'
+  ) {
+    throw new Error('Browser NCEM EMD scientific dataset did not match the fixture')
+  }
+  return {
+    detail:
+      'public NCEM EMD 0.2 scientific dataset, calibration, acquisition metadata, and bounded region reads passed in-browser',
+    outputBytes: samples.length,
+  }
+}
+
+const hdf5VeloxEmd = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedVeloxEmdFixture({ variant: 'fft', metadataBytes: 131_072 })
+  const document = await createVeloxEmdReader().open({
+    primary: { id: 'browser-velox-emd', source: new MemorySource(fixture.bytes) },
+  })
+  const summary = document.datasets[0]
+  const dataset = await document.openDataset(fixture.datasetId ?? '')
+  const samples: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [{ axisId: 'frame', index: 0 }],
+    width: 1,
+    height: 1,
+  })) {
+    samples.push(...block.data)
+  }
+  document.close?.()
+  const frequencyDomain = summary?.descriptor.metadata?.veloxEmd
+  if (
+    summary?.name !== 'Generated detector' ||
+    summary.descriptor.sampleType !== 'float32' ||
+    summary.descriptor.components.length !== 2 ||
+    !frequencyDomain ||
+    samples.join(',') !== '62,128,0,0,191,0,0,0'
+  ) {
+    throw new Error('Browser Velox EMD scientific dataset did not match the fixture')
+  }
+  return {
+    detail:
+      'public Velox EMD complex FFT dataset, 128 KiB per-frame metadata, and bounded native samples passed in-browser',
+    outputBytes: samples.length,
+  }
+}
+
+const hdf5VeloxSpectrum = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedVeloxSpectrumFixture()
+  const file = await openHdf5File(new MemorySource(fixture.bytes))
+  const inspection = await inspectVeloxEmdSpectra(file)
+  const stream = inspection.spectrumStreams[0]
+  if (stream === undefined) throw new Error('Browser Velox EMD spectrum stream is missing')
+  const point = await readVeloxPointSpectrum(file, stream, {
+    frame: 0,
+    x: 0,
+    y: 0,
+    start: 1,
+    length: 3,
+    maxEventBlockEvents: 2,
+  })
+  file.close()
+  if (
+    inspection.denseSpectra.length !== 1 ||
+    stream.energyBins !== 8 ||
+    stream.width !== 2 ||
+    stream.height !== 2 ||
+    stream.frameOffsets.join(',') !== '0,10' ||
+    point.scannedEvents !== 4 ||
+    point.eventReadOperations !== 2 ||
+    point.data.join(',') !== '0,0,0,2,0,0,0,0,0,0,0,1'
+  ) {
+    throw new Error('Browser Velox EMD point spectrum did not match the fixture')
+  }
+  return {
+    detail: 'package-private Velox EMD sparse point spectrum stayed bounded in-browser',
+    outputBytes: point.data.byteLength,
+  }
 }
 
 const jpegXlLocalTreeRgb = Uint8Array.from(
@@ -103,6 +358,105 @@ const optionalApiEntries = async (): Promise<BrowserWorkflowResult> => {
   return {
     outputBytes: 0,
     detail: 'optional scientific, pathology, TIFF, and HTTP entries are explicit',
+  }
+}
+
+const scientificOneDimensionalSeries = async (): Promise<BrowserWorkflowResult> => {
+  const descriptor = normalizeScientificDatasetDescriptor({
+    schemaVersion: 1,
+    axes: [
+      {
+        id: 'energy',
+        kind: 'spectral',
+        length: 5,
+        unit: 'eV',
+        coordinates: { type: 'linear', origin: 100, step: 0.5 },
+      },
+    ],
+    sampleType: 'uint16',
+    components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'none' },
+      seriesReads: { kind: 'axes', axes: ['energy'] },
+    },
+  })
+  const dataset: ScientificDataset = {
+    descriptor,
+    readPlane(_request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<never> {
+      throw new Error('One-dimensional browser fixture does not support plane reads')
+    },
+    async *readSeries(request: Readonly<ScientificSeriesReadRequest>) {
+      const normalized = normalizeScientificSeriesReadRequest(descriptor, request)
+      const data = new Uint8Array(normalized.length * 2)
+      const view = new DataView(data.buffer)
+      for (let index = 0; index < normalized.length; index += 1) {
+        view.setUint16(index * 2, normalized.start + index + 1, false)
+      }
+      yield {
+        start: normalized.start,
+        length: normalized.length,
+        format: { sampleType: 'uint16', channels: 1, planar: false },
+        data,
+      }
+    },
+  }
+  if (dataset.readSeries === undefined) throw new Error('Browser series reader is unavailable')
+  let output: Uint8Array | undefined
+  for await (const block of dataset.readSeries({
+    axisId: 'energy',
+    fixedIndices: [],
+    start: 1,
+    length: 3,
+  })) {
+    if (block.start !== 1 || block.length !== 3) {
+      throw new Error('Browser series reader returned an invalid one-dimensional block')
+    }
+    output = block.data
+  }
+  if (output === undefined || output.join(',') !== '0,2,0,3,0,4') {
+    throw new Error('Browser series reader returned unexpected uint16 values')
+  }
+  return {
+    detail: 'one-dimensional energy series used one true axis and a bounded series block',
+    outputBytes: output.byteLength,
+  }
+}
+
+const scientificOrdinaryCodecFallbacks = async (): Promise<BrowserWorkflowResult> => {
+  const png = await fetchBytes('/fixtures/webp-graphic.png')
+  const [webp, bmp, jp2] = await Promise.all([
+    (await images.open(png)).webp({ lossless: true }).toUint8Array(),
+    (await images.open(png)).bmp().toUint8Array(),
+    fetchBytes('/fixtures/openjpeg-lossless-rgb16.jp2'),
+  ])
+  const cases = [
+    { reader: webpReader, bytes: webp, name: 'ordinary.webp', width: 192, height: 128 },
+    { reader: bmpReader, bytes: bmp, name: 'ordinary.bmp', width: 192, height: 128 },
+    { reader: jp2Reader, bytes: jp2, name: 'ordinary.jp2', width: 17, height: 13 },
+  ] as const
+  let outputBytes = 0
+  for (const fixture of cases) {
+    const document = await createScientificLibrary({ readers: [fixture.reader] }).open({
+      primary: { id: fixture.name, name: fixture.name, source: new MemorySource(fixture.bytes) },
+    })
+    const summary = document.datasets[0]
+    if (
+      summary?.descriptor.axes[0]?.length !== fixture.width ||
+      summary.descriptor.axes[1]?.length !== fixture.height
+    ) {
+      throw new Error(`${fixture.name} scientific fallback dimensions are incorrect`)
+    }
+    const dataset = await document.openDataset(summary.id)
+    for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
+      outputBytes += block.data.byteLength
+      block.release?.()
+    }
+  }
+  return {
+    detail: 'portable WebP, BMP, and JP2 low-confidence scientific fallbacks decoded in-browser',
+    outputBytes,
   }
 }
 const inputTypes = async (): Promise<readonly BrowserWorkflowResult[]> => {
@@ -926,7 +1280,7 @@ const sha256 = async (bytes: Uint8Array | Uint8ClampedArray): Promise<string> =>
 
 interface BrowserTiffEntry {
   readonly tag: number
-  readonly type: 2 | 3 | 4 | 7
+  readonly type: 2 | 3 | 4 | 5 | 7
   readonly values: readonly number[]
 }
 
@@ -935,8 +1289,10 @@ const browserTiffFixture = (
   strips: readonly Uint8Array[],
 ): Uint8Array => {
   const placeholder = entriesFor(strips.map(() => 0)).sort((left, right) => left.tag - right.tag)
+  const entryCount = (entry: BrowserTiffEntry): number =>
+    entry.type === 5 ? entry.values.length / 2 : entry.values.length
   const entryBytes = (entry: BrowserTiffEntry): number =>
-    entry.values.length * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1)
+    entryCount(entry) * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : entry.type === 5 ? 8 : 1)
   const ifdBytes = 2 + placeholder.length * 12 + 4
   const externalBytes = placeholder.reduce((total, entry) => {
     const bytes = entryBytes(entry)
@@ -964,18 +1320,26 @@ const browserTiffFixture = (
     const valuesOffset = valueBytes > 4 ? externalOffset : entryOffset + 8
     view.setUint16(entryOffset, entry.tag, true)
     view.setUint16(entryOffset + 2, entry.type, true)
-    view.setUint32(entryOffset + 4, entry.values.length, true)
+    view.setUint32(entryOffset + 4, entryCount(entry), true)
     if (valueBytes > 4) {
       view.setUint32(entryOffset + 8, externalOffset, true)
       externalOffset += valueBytes
     }
-    for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
-      const elementBytes = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1
-      const offset = valuesOffset + valueIndex * elementBytes
-      const value = entry.values[valueIndex] ?? 0
-      if (entry.type === 3) view.setUint16(offset, value, true)
-      else if (entry.type === 4) view.setUint32(offset, value, true)
-      else output[offset] = value
+    if (entry.type === 5) {
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 2) {
+        const offset = valuesOffset + (valueIndex / 2) * 8
+        view.setUint32(offset, entry.values[valueIndex] ?? 0, true)
+        view.setUint32(offset + 4, entry.values[valueIndex + 1] ?? 1, true)
+      }
+    } else {
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
+        const elementBytes: number = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1
+        const offset = valuesOffset + valueIndex * elementBytes
+        const value = entry.values[valueIndex] ?? 0
+        if (entry.type === 3) view.setUint16(offset, value, true)
+        else if (entry.type === 4) view.setUint32(offset, value, true)
+        else output[offset] = value
+      }
     }
   }
   for (let index = 0; index < strips.length; index += 1) {
@@ -989,6 +1353,12 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     '<?xml version="1.0"?><OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06"><Image ID="Image:0"><Pixels ID="Pixels:0" DimensionOrder="XYZCT" Type="uint16" SizeX="2" SizeY="1" SizeZ="1" SizeC="3" SizeT="1" PhysicalSizeX="0.5" PhysicalSizeXUnit="µm"><Channel ID="Channel:0" Name="RGB" SamplesPerPixel="3"/><TiffData IFD="0" PlaneCount="1"/></Pixels></Image></OME>',
   )
   const description = Uint8Array.from([...xml, 0])
+  const feiMetadata = Uint8Array.from([
+    ...new TextEncoder().encode(
+      '[Scan]\nPixelWidth=3.10059e-10\nPixelHeight=3.10059e-10\n[System]\nSystemType=Helios NanoLab\n',
+    ),
+    0,
+  ])
   const strip = Uint8Array.of(0, 0, 0, 128, 255, 255, 255, 255, 0, 128, 0, 0)
   const input = browserTiffFixture(
     (offsets) => [
@@ -1003,7 +1373,11 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
       { tag: 278, type: 4, values: [1] },
       { tag: 279, type: 4, values: [strip.byteLength] },
       { tag: 284, type: 3, values: [1] },
+      { tag: 282, type: 5, values: [20_000, 1] },
+      { tag: 283, type: 5, values: [10_000, 1] },
+      { tag: 296, type: 3, values: [3] },
       { tag: 339, type: 3, values: [1, 1, 1] },
+      { tag: 34_682, type: 2, values: [...feiMetadata] },
     ],
     [strip],
   )
@@ -1028,6 +1402,48 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   }
   if ((await directory.getTag(270, { maxBytes: 4096 })) !== tag) {
     throw new Error('Browser TIFF document did not reuse an immutable parsed tag')
+  }
+  const detected = await new ScientificReaderRegistry([tiffReader, omeTiffReader]).detect({
+    primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.ome.tiff' },
+  })
+  if (detected.reader.id !== omeTiffReader.descriptor.id || detected.confidence !== 1) {
+    throw new Error('Browser generic TIFF reader outranked the specialized OME-TIFF reader')
+  }
+  const ordinaryDocument = await createScientificLibrary({ readers: [tiffReader] }).open({
+    primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.tiff' },
+  })
+  const ordinarySummary = ordinaryDocument.datasets[0]
+  if (ordinarySummary === undefined)
+    throw new Error('Browser ordinary TIFF reader exposed no dataset')
+  const ordinaryDataset = await ordinaryDocument.openDataset(ordinarySummary.id)
+  const ordinaryBlocks = ordinaryDataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+    x: 1,
+    y: 0,
+    width: 1,
+    height: 1,
+  })
+  const ordinarySamples: number[] = []
+  for await (const block of ordinaryBlocks) {
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let offset = 0; offset < block.data.byteLength; offset += 2) {
+      ordinarySamples.push(view.getUint16(offset, false))
+    }
+  }
+  if (
+    ordinaryDataset.descriptor.sampleType !== 'uint16' ||
+    ordinaryDataset.descriptor.components.map(({ kind }) => kind).join(',') !== 'red,green,blue' ||
+    ordinaryDataset.descriptor.axes[0]?.coordinates.type !== 'linear' ||
+    Math.abs(ordinaryDataset.descriptor.axes[0].coordinates.step - 0.310059) > 1e-12 ||
+    ordinaryDataset.descriptor.axes[1]?.coordinates.type !== 'linear' ||
+    Math.abs(ordinaryDataset.descriptor.axes[1].coordinates.step - 0.310059) > 1e-12 ||
+    !(JSON.stringify(ordinaryDataset.descriptor.metadata?.['purejsimage:tiff']) ?? '').includes(
+      'fei-sem-tiff-calibration',
+    ) ||
+    ordinarySamples.join(',') !== '65535,32768,0'
+  ) {
+    throw new Error(`Browser ordinary TIFF native samples were ${ordinarySamples.join(',')}`)
   }
   const scientificDocument = await createScientificLibrary({ readers: [omeTiffReader] }).open({
     primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.ome.tiff' },
@@ -1136,8 +1552,390 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail:
-      'bounded TIFF extension APIs, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
+      'bounded TIFF extension APIs, calibrated native-precision ordinary TIFF opening, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
     outputBytes: input.byteLength + aperioInput.byteLength,
+  }
+}
+
+const scientificDigitalMicrograph = async (): Promise<BrowserWorkflowResult> => {
+  const document = await createScientificLibrary({ readers: [digitalMicrographReader] }).open({
+    primary: {
+      id: 'browser-dm3',
+      name: 'browser-fixture.dm3',
+      source: new MemorySource(generatedDigitalMicrographFixture()),
+    },
+  })
+  const summary = document.datasets[0]
+  if (
+    summary?.descriptor.sampleType !== 'uint16' ||
+    summary.descriptor.axes[0]?.length !== 2 ||
+    summary.descriptor.axes[1]?.length !== 2
+  ) {
+    throw new Error('Browser DigitalMicrograph descriptor did not preserve the 2x2 uint16 image')
+  }
+  const dataset = await document.openDataset(summary.id)
+  const output: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+    x: 1,
+    y: 0,
+    width: 1,
+    height: 2,
+  })) {
+    output.push(...block.data)
+  }
+  if (output.join(',') !== '0,2,0,4') {
+    throw new Error(`Browser DigitalMicrograph selected-region pixels were ${output.join(',')}`)
+  }
+  const eelsDocument = await createScientificLibrary({ readers: [digitalMicrographReader] }).open({
+    primary: {
+      id: 'browser-eels-dm3',
+      name: 'browser-eels.dm3',
+      source: new MemorySource(generatedDigitalMicrographEelsFixture()),
+    },
+  })
+  const eels = eelsDocument.datasets[0]
+  if (
+    eels?.descriptor.axes[2]?.id !== 'energy' ||
+    eels.descriptor.axes[2].kind !== 'spectral' ||
+    eels.descriptor.axes[2].unit !== 'eV'
+  ) {
+    throw new Error('Browser DigitalMicrograph EELS evidence did not produce an energy axis')
+  }
+  return {
+    detail:
+      'portable DM3 reader preserved uint16 pixels, direct selected-region reads, and evidence-gated EELS energy semantics',
+    outputBytes: output.length,
+  }
+}
+
+const scientificInterchangeFormats = async (): Promise<BrowserWorkflowResult> => {
+  const encode = (value: string): Uint8Array<ArrayBuffer> => new TextEncoder().encode(value)
+  const primary = (name: string, bytes: Uint8Array): ScientificResource => ({
+    id: name,
+    name,
+    source: new MemorySource(bytes),
+  })
+  const readFirst = async (
+    reader: ScientificReader,
+    name: string,
+    bytes: Uint8Array,
+    companions: Readonly<Record<string, ScientificResource>> = {},
+    datasetId?: string,
+  ): Promise<number> => {
+    const document = await createScientificLibrary({ readers: [reader] }).open({
+      primary: primary(name, bytes),
+      companions: {
+        async resolve(request) {
+          const requested = request.kind === 'relative-name' ? request.name : request.relativeName
+          return requested === undefined ? undefined : companions[requested]
+        },
+      },
+    })
+    const dataset = await document.openDataset(datasetId ?? document.datasets[0]?.id ?? '')
+    if (dataset.descriptor.axes.length === 1) {
+      const readSeries = dataset.readSeries
+      if (readSeries === undefined) throw new Error(`${name} did not expose a series reader`)
+      let bytesRead = 0
+      for await (const block of readSeries.call(dataset, {
+        axisId: dataset.descriptor.axes[0]?.id ?? '',
+        fixedIndices: [],
+      })) {
+        bytesRead += block.data.byteLength
+      }
+      return bytesRead
+    }
+    const displayAxes = [
+      dataset.descriptor.axes[0]?.id ?? '',
+      dataset.descriptor.axes[1]?.id ?? '',
+    ] as const
+    const fixedIndices = dataset.descriptor.axes
+      .slice(2)
+      .map(({ id }) => ({ axisId: id, index: 0 }))
+    let bytesRead = 0
+    for await (const block of dataset.readPlane({ displayAxes, fixedIndices })) {
+      bytesRead += block.data.byteLength
+    }
+    return bytesRead
+  }
+
+  const gzip = async (input: Uint8Array): Promise<Uint8Array<ArrayBuffer>> => {
+    const stream = new Blob([Uint8Array.from(input)])
+      .stream()
+      .pipeThrough(new CompressionStream('gzip'))
+    return new Uint8Array(await new Response(stream).arrayBuffer())
+  }
+
+  const rplHeader = encode(`key\tvalue
+width\t2
+height\t2
+depth\t1
+data-type\tunsigned
+data-length\t1
+byte-order\tdont-care
+record-by\tdont-care
+`)
+  const rplRaw = primary('map.raw', Uint8Array.from([1, 2, 3, 4]))
+
+  const emsa = encode(`#FORMAT: EMSA/MAS Spectral Data File
+#NPOINTS: 3
+#DATATYPE: Y
+#OFFSET: 0
+#XPERCHAN: 1
+#SPECTRUM:
+1,2,3
+#ENDOFDATA:
+`)
+
+  const nrrdHeader = encode(`NRRD0005
+type: uchar
+dimension: 2
+sizes: 2 2
+encoding: gzip
+
+`)
+  const nrrdPayload = await gzip(Uint8Array.from([1, 2, 3, 4]))
+  const nrrd = new Uint8Array(nrrdHeader.byteLength + nrrdPayload.byteLength)
+  nrrd.set(nrrdHeader)
+  nrrd.set(nrrdPayload, nrrdHeader.byteLength)
+
+  const mhaHeader = encode(`ObjectType = Image
+NDims = 2
+DimSize = 2 2
+ElementType = MET_UCHAR
+ElementDataFile = LOCAL
+`)
+  const mha = new Uint8Array(mhaHeader.byteLength + 4)
+  mha.set(mhaHeader)
+  mha.set([1, 2, 3, 4], mhaHeader.byteLength)
+
+  const nifti = new Uint8Array(356)
+  const niftiView = new DataView(nifti.buffer)
+  niftiView.setInt32(0, 348, true)
+  niftiView.setInt16(40, 2, true)
+  niftiView.setInt16(42, 2, true)
+  niftiView.setInt16(44, 2, true)
+  niftiView.setInt16(70, 2, true)
+  niftiView.setInt16(72, 8, true)
+  niftiView.setFloat32(80, 1, true)
+  niftiView.setFloat32(84, 1, true)
+  niftiView.setFloat32(108, 352, true)
+  niftiView.setFloat32(112, 1, true)
+  nifti.set(encode('n+1\0'), 344)
+  nifti.set([1, 2, 3, 4], 352)
+
+  const npyDictionary = "{'descr': '|u1', 'fortran_order': False, 'shape': (2, 2), }"
+  const npyPadding = (64 - ((10 + npyDictionary.length + 1) % 64)) % 64
+  const npyHeader = encode(`${npyDictionary}${' '.repeat(npyPadding)}\n`)
+  const npy = new Uint8Array(10 + npyHeader.byteLength + 4)
+  npy.set([0x93, 0x4e, 0x55, 0x4d, 0x50, 0x59, 1, 0])
+  new DataView(npy.buffer).setUint16(8, npyHeader.byteLength, true)
+  npy.set(npyHeader, 10)
+  npy.set([1, 2, 3, 4], 10 + npyHeader.byteLength)
+
+  const blo = new Uint8Array(251)
+  const bloView = new DataView(blo.buffer)
+  blo.set(encode('IMGBLO'))
+  bloView.setUint16(6, 0x0102, true)
+  bloView.setUint32(8, 240, true)
+  bloView.setUint32(12, 241, true)
+  bloView.setUint16(20, 2, true)
+  bloView.setUint16(24, 1, true)
+  bloView.setUint16(26, 1, true)
+  bloView.setFloat64(30, 1, true)
+  bloView.setFloat64(38, 1, true)
+  blo[240] = 9
+  bloView.setUint16(241, 0x55aa, true)
+  bloView.setUint32(243, 0, true)
+  blo.set([1, 2, 3, 4], 247)
+
+  const mibHeader = encode('MQ1,1,384,1,2,2,U08,1x1,2024-01-01,100ns,0,0')
+  const mib = new Uint8Array(388)
+  mib.fill(0x20, 0, 384)
+  mib.set(mibHeader)
+  mib.set([1, 2, 3, 4], 384)
+
+  const ang = encode(`# GRID: SqrGrid
+# XSTEP: 1
+# YSTEP: 1
+# NCOLS_ODD: 1
+# NCOLS_EVEN: 1
+# NROWS: 1
+0.1 0.2 0.3 0 0 10 0.9 1
+`)
+
+  let outputBytes = 0
+  outputBytes += await readFirst(rplReader, 'map.rpl', rplHeader, { 'map.raw': rplRaw })
+  outputBytes += await readFirst(emsaReader, 'spectrum.msa', emsa)
+  outputBytes += await readFirst(nrrdReader, 'volume.nrrd', nrrd)
+  outputBytes += await readFirst(metaImageReader, 'volume.mha', mha)
+  outputBytes += await readFirst(niftiReader, 'volume.nii', nifti)
+  outputBytes += await readFirst(npyReader, 'array.npy', npy)
+  outputBytes += await readFirst(blockfileReader, 'scan.blo', blo, {}, 'navigator')
+  outputBytes += await readFirst(mibReader, 'detector.mib', mib)
+  outputBytes += await readFirst(ebsdTextReader, 'map.ang', ang)
+  return {
+    detail: 'nine portable Milestone H readers passed selected data paths including browser gzip',
+    outputBytes,
+  }
+}
+
+const scientificSurfaceFormats = async (): Promise<BrowserWorkflowResult> => {
+  const cases = [
+    {
+      path: '/fixtures/nanonis-afm-generic4.sxm',
+      name: 'surface.sxm',
+      reader: nanonisSxmReader,
+      datasets: 18,
+      sampleType: 'float32',
+    },
+    {
+      path: '/fixtures/asylum-afm-v5.ibw',
+      name: 'surface.ibw',
+      reader: igorBinaryWaveReader,
+      datasets: 1,
+      sampleType: 'float32',
+    },
+    {
+      path: '/fixtures/digital-surf-compressed.sur',
+      name: 'surface.sur',
+      reader: digitalSurfReader,
+      datasets: 1,
+      sampleType: 'float64',
+    },
+    {
+      path: '/fixtures/iso5436-sample4.x3p',
+      name: 'surface.x3p',
+      reader: x3pReader,
+      datasets: 1,
+      sampleType: 'float64',
+    },
+  ] as const
+  let outputBytes = 0
+  for (const expected of cases) {
+    const input = await fetchBytes(expected.path)
+    const document = await createScientificLibrary({ readers: [expected.reader] }).open({
+      primary: { id: expected.name, name: expected.name, source: new MemorySource(input) },
+    })
+    if (document.datasets.length !== expected.datasets) {
+      throw new Error(`${expected.name} exposed ${document.datasets.length} datasets`)
+    }
+    const summary = document.datasets[0]
+    if (summary?.descriptor.sampleType !== expected.sampleType) {
+      throw new Error(`${expected.name} exposed the wrong sample type`)
+    }
+    const dataset = await document.openDataset(summary.id)
+    const fixedIndices = dataset.descriptor.axes
+      .slice(2)
+      .map(({ id }) => ({ axisId: id, index: 0 }))
+    let blocks = 0
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices,
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+    })) {
+      outputBytes += block.data.byteLength
+      blocks += 1
+    }
+    if (blocks !== 1) throw new Error(`${expected.name} did not return one selected block`)
+  }
+  return {
+    detail:
+      'Nanonis SXM, IBW v5, Digital Surf, and bounded ZIP-backed X3P selected regions passed in-browser',
+    outputBytes,
+  }
+}
+
+const scientificTiaSer = async (): Promise<BrowserWorkflowResult> => {
+  const input = generatedTiaSerSpectrumImage()
+  const document = await createScientificLibrary({ readers: [tiaSerReader] }).open({
+    primary: {
+      id: 'browser-tia-ser',
+      name: 'browser-fixture.ser',
+      source: new MemorySource(input),
+    },
+  })
+  const summary = document.datasets[0]
+  if (
+    summary?.descriptor.sampleType !== 'uint16' ||
+    summary.descriptor.axes.map(({ id }) => id).join(',') !== 'x,y,energy'
+  ) {
+    throw new Error('Browser TIA SER descriptor did not preserve the spectrum-image axes')
+  }
+  const dataset = await document.openDataset(summary.id)
+  if (dataset.readSeries === undefined) throw new Error('Browser TIA SER lacks native series reads')
+  const output: number[] = []
+  for await (const block of dataset.readSeries({
+    axisId: 'energy',
+    fixedIndices: [
+      { axisId: 'x', index: 1 },
+      { axisId: 'y', index: 1 },
+    ],
+    start: 0,
+    length: 3,
+  })) {
+    output.push(...block.data)
+  }
+  if (output.join(',') !== '0,31,0,32,0,33') {
+    throw new Error(`Browser TIA SER spectrum pixels were ${output.join(',')}`)
+  }
+  return {
+    detail: 'portable v544 TIA SER reader preserved calibrated spectrum-image native series reads',
+    outputBytes: output.length,
+  }
+}
+
+const scientificTiaEmi = async (): Promise<BrowserWorkflowResult> => {
+  const emi = generateTiaEmiFixture([
+    generatedTiaEmiObject({
+      uuid: 'browser-emi-object',
+      mode: 'TEM EELS',
+      microscope: 'Browser microscope',
+      acceleratingVoltageVolts: 200_000,
+    }),
+  ])
+  const primary = new File([Uint8Array.from(emi)], 'browser-capture.emi', {
+    type: 'application/x-tia-emi',
+  })
+  const companion = new File(
+    [Uint8Array.from(generatedTiaSerPointSpectrum())],
+    'browser-capture_1.ser',
+    {
+      type: 'application/x-tia-ser',
+    },
+  )
+  const document = await createScientificLibrary({ readers: [tiaEmiReader] }).open(
+    createScientificFileContext(primary, { companions: [companion] }),
+  )
+  const summary = document.datasets[0]
+  if (
+    summary?.id !== 'ser-1/spectra' ||
+    summary.identity.resources.length !== 2 ||
+    summary.descriptor.metadata?.['purejsimage:tiaEmi'] === undefined
+  ) {
+    throw new Error('Browser TIA EMI did not preserve companion identity and metadata')
+  }
+  const dataset = await document.openDataset(summary.id)
+  if (dataset.readSeries === undefined) throw new Error('Browser TIA EMI lacks native series reads')
+  const output: number[] = []
+  for await (const block of dataset.readSeries({
+    axisId: 'energy',
+    fixedIndices: [],
+    start: 0,
+    length: 4,
+  })) {
+    output.push(...block.data)
+  }
+  if (output.join(',') !== '0,0,0,1,255,255,255,254,0,0,0,3,0,0,0,4') {
+    throw new Error(`Browser TIA EMI spectrum pixels were ${output.join(',')}`)
+  }
+  return {
+    detail: 'portable TIA EMI reader resolved a browser File companion with metadata and identity',
+    outputBytes: output.length,
   }
 }
 
@@ -3300,6 +4098,11 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifYuv444,
   failureCleanup,
   heifPqDisplay,
+  hdf5DatasetBlocks,
+  hdf5Filters,
+  hdf5NcemEmd,
+  hdf5VeloxEmd,
+  hdf5VeloxSpectrum,
   httpRangeCancellation,
   inputTypes,
   optionalApiEntries,
@@ -3313,6 +4116,13 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   tolerantJpegRestartRecovery,
   orientation,
   scientificTiffDocument,
+  scientificDigitalMicrograph,
+  scientificInterchangeFormats,
+  scientificSurfaceFormats,
+  scientificTiaEmi,
+  scientificTiaSer,
+  scientificOneDimensionalSeries,
+  scientificOrdinaryCodecFallbacks,
   pngAlphaPipeline,
   progressiveJpeg,
   resizeDefaultKernel,

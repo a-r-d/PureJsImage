@@ -1,6 +1,7 @@
 import type { AbortOptions } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
-import type { RasterBlock, RasterSampleType } from '../raster.ts'
+import { rasterSampleBytes } from '../raster.ts'
+import type { RasterBlock, RasterFormat, RasterSampleType } from '../raster.ts'
 
 export type ScientificAxisKind =
   | 'space'
@@ -17,6 +18,26 @@ export type ScientificAxisCoordinates =
   | { readonly type: 'linear'; readonly origin: number; readonly step: number }
   | { readonly type: 'lookup'; readonly values: readonly number[] }
   | { readonly type: 'labels'; readonly values: readonly string[] }
+
+export type ScientificCalibrationEvidenceKind =
+  | 'embedded'
+  | 'sidecar'
+  | 'derived'
+  | 'format-default'
+
+/** Machine-readable provenance for one axis's normalized coordinates and unit. */
+export interface ScientificCalibrationEvidence {
+  readonly kind: ScientificCalibrationEvidenceKind
+  readonly resourceId: string
+  readonly locator: string
+  readonly formula?: string
+  readonly note?: string
+}
+
+/** One or more contributors to an axis's normalized calibration interpretation. */
+export type ScientificCalibrationEvidenceSet =
+  | ScientificCalibrationEvidence
+  | readonly ScientificCalibrationEvidence[]
 
 /** Optional metadata for one independently selectable coordinate on an axis. */
 export interface ScientificAxisEntryDescriptor {
@@ -38,6 +59,7 @@ export interface ScientificAxisDescriptor {
   readonly length: number
   readonly unit?: string
   readonly coordinates: ScientificAxisCoordinates
+  readonly calibration?: ScientificCalibrationEvidenceSet
   readonly entries?: readonly ScientificAxisEntryDescriptor[]
 }
 
@@ -91,19 +113,25 @@ export interface ScientificMetadataObject {
 }
 
 export type ScientificPlaneReadCapability =
+  | { readonly kind: 'none' }
   | { readonly kind: 'any-axis-pair' }
   | {
       readonly kind: 'ordered-axis-pairs'
       readonly pairs: readonly (readonly [horizontal: string, vertical: string])[]
     }
 
+export type ScientificSeriesReadCapability =
+  | { readonly kind: 'any-axis' }
+  | { readonly kind: 'axes'; readonly axes: readonly string[] }
+
 export interface ScientificDatasetCapabilities {
   readonly regionReads: boolean
   readonly resolutionLevels: boolean
   readonly planeReads: ScientificPlaneReadCapability
+  readonly seriesReads?: ScientificSeriesReadCapability
 }
 
-/** Portable, JSON-safe description of a labeled-axis scientific raster. */
+/** Portable, JSON-safe description of labeled-axis scientific data. */
 export interface ScientificDatasetDescriptor {
   readonly schemaVersion: 1
   readonly axes: readonly ScientificAxisDescriptor[]
@@ -146,10 +174,37 @@ export interface NormalizedScientificPlaneReadRequest extends ScientificPlaneRea
   readonly height: number
 }
 
-/** A lazy labeled-axis raster whose plane reads remain at the portable RasterBlock boundary. */
+export interface ScientificSeriesReadRequest extends AbortOptions {
+  /** The one varying axis returned in increasing index order. */
+  readonly axisId: string
+  readonly fixedIndices: readonly ScientificAxisIndex[]
+  readonly resolutionLevel?: number
+  readonly start?: number
+  readonly length?: number
+}
+
+export interface NormalizedScientificSeriesReadRequest extends ScientificSeriesReadRequest {
+  readonly fixedIndices: readonly ScientificAxisIndex[]
+  readonly resolutionLevel: number
+  readonly start: number
+  readonly length: number
+}
+
+/** One tightly packed, canonical big-endian segment from a one-dimensional scientific series. */
+export interface ScientificSeriesBlock {
+  readonly start: number
+  readonly length: number
+  readonly format: RasterFormat
+  readonly data: Uint8Array
+  readonly release?: () => void
+}
+
+/** A lazy labeled-axis dataset whose bounded reads remain at portable canonical-byte boundaries. */
 export interface ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock>
+  /** Optional one-axis reads, advertised exactly by descriptor.capabilities.seriesReads. */
+  readSeries?(request: Readonly<ScientificSeriesReadRequest>): AsyncIterable<ScientificSeriesBlock>
 }
 
 type UnknownRecord = { readonly [key: string]: unknown }
@@ -157,6 +212,7 @@ type ParseMode = 'validate' | 'normalize'
 
 const maximumMetadataDepth = 64
 const maximumMetadataValues = 1_000_000
+const maximumCalibrationEvidenceContributors = 16
 
 const axisKinds: readonly ScientificAxisKind[] = [
   'space',
@@ -167,6 +223,13 @@ const axisKinds: readonly ScientificAxisKind[] = [
   'angle',
   'index',
   'other',
+]
+
+const calibrationEvidenceKinds: readonly ScientificCalibrationEvidenceKind[] = [
+  'embedded',
+  'sidecar',
+  'derived',
+  'format-default',
 ]
 
 const componentKinds: readonly ScientificComponentKind[] = [
@@ -417,6 +480,44 @@ const normalizeAxisEntries = (
   return Object.freeze(output)
 }
 
+const normalizeCalibrationEvidence = (
+  value: unknown,
+  label: string,
+): ScientificCalibrationEvidence => {
+  const input = recordValue(value, label)
+  onlyKeys(input, ['kind', 'resourceId', 'locator', 'formula', 'note'], label)
+  const kind = enumValue(input.kind, calibrationEvidenceKinds, `${label}.kind`)
+  const resourceId = requiredString(input.resourceId, `${label}.resourceId`)
+  const locator = requiredString(input.locator, `${label}.locator`)
+  const formula = optionalString(input.formula, `${label}.formula`)
+  const note = optionalString(input.note, `${label}.note`)
+  return Object.freeze({
+    kind,
+    resourceId,
+    locator,
+    ...(formula === undefined ? {} : { formula }),
+    ...(note === undefined ? {} : { note }),
+  })
+}
+
+const normalizeCalibrationEvidenceSet = (
+  value: unknown,
+  label: string,
+): ScientificCalibrationEvidenceSet => {
+  if (!isUnknownArray(value)) return normalizeCalibrationEvidence(value, label)
+  if (value.length < 1 || value.length > maximumCalibrationEvidenceContributors) {
+    throw invalidInput(
+      `${label} must contain 1 through ${maximumCalibrationEvidenceContributors} contributors`,
+    )
+  }
+  const contributors: ScientificCalibrationEvidence[] = []
+  for (let index = 0; index < value.length; index += 1) {
+    if (!(index in value)) throw invalidInput(`${label} must not contain holes`)
+    contributors.push(normalizeCalibrationEvidence(value[index], `${label}[${index}]`))
+  }
+  return Object.freeze(contributors)
+}
+
 const normalizeAxis = (
   value: unknown,
   index: number,
@@ -424,13 +525,21 @@ const normalizeAxis = (
 ): ScientificAxisDescriptor => {
   const label = `Scientific dataset axis ${index}`
   const input = recordValue(value, label)
-  onlyKeys(input, ['id', 'name', 'kind', 'length', 'unit', 'coordinates', 'entries'], label)
+  onlyKeys(
+    input,
+    ['id', 'name', 'kind', 'length', 'unit', 'coordinates', 'calibration', 'entries'],
+    label,
+  )
   const id = requiredString(input.id, `${label}.id`)
   const name = optionalString(input.name, `${label}.name`)
   const kind = enumValue(input.kind, axisKinds, `${label}.kind`)
   const length = positiveInteger(input.length, `${label}.length`)
   const unit = optionalString(input.unit, `${label}.unit`)
   const coordinates = normalizeCoordinates(input.coordinates, length, mode, `${label}.coordinates`)
+  const calibration =
+    input.calibration === undefined
+      ? undefined
+      : normalizeCalibrationEvidenceSet(input.calibration, `${label}.calibration`)
   const entries =
     input.entries === undefined
       ? undefined
@@ -442,6 +551,7 @@ const normalizeAxis = (
     coordinates,
     ...(name === undefined ? {} : { name }),
     ...(unit === undefined ? {} : { unit }),
+    ...(calibration === undefined ? {} : { calibration }),
     ...(entries === undefined ? {} : { entries }),
   })
 }
@@ -694,7 +804,7 @@ const parseDescriptor = (
   if (input.schemaVersion !== 1) throw invalidInput('Scientific dataset schemaVersion must be 1')
 
   const axisInputs = arrayValue(input.axes, 'Scientific dataset axes')
-  if (axisInputs.length < 2) throw invalidInput('Scientific dataset must contain at least two axes')
+  if (axisInputs.length < 1) throw invalidInput('Scientific dataset must contain at least one axis')
   const axes = Object.freeze(axisInputs.map((axis, index) => normalizeAxis(axis, index, mode)))
   const axisIds = new Set<string>()
   for (const axis of axes) {
@@ -722,7 +832,7 @@ const parseDescriptor = (
   const capabilitiesInput = recordValue(input.capabilities, 'Scientific dataset capabilities')
   onlyKeys(
     capabilitiesInput,
-    ['regionReads', 'resolutionLevels', 'planeReads'],
+    ['regionReads', 'resolutionLevels', 'planeReads', 'seriesReads'],
     'Scientific dataset capabilities',
   )
   const planeReadsInput = recordValue(
@@ -731,11 +841,11 @@ const parseDescriptor = (
   )
   const planeReadKind = enumValue(
     planeReadsInput.kind,
-    ['any-axis-pair', 'ordered-axis-pairs'] as const,
+    ['none', 'any-axis-pair', 'ordered-axis-pairs'] as const,
     'Scientific dataset capabilities.planeReads.kind',
   )
   let planeReads: ScientificPlaneReadCapability
-  if (planeReadKind === 'any-axis-pair') {
+  if (planeReadKind === 'none' || planeReadKind === 'any-axis-pair') {
     onlyKeys(planeReadsInput, ['kind'], 'Scientific dataset capabilities.planeReads')
     planeReads = Object.freeze({ kind: planeReadKind })
   } else {
@@ -770,6 +880,67 @@ const parseDescriptor = (
     })
     planeReads = Object.freeze({ kind: planeReadKind, pairs: Object.freeze(pairs) })
   }
+  let seriesReads: ScientificSeriesReadCapability | undefined
+  if (capabilitiesInput.seriesReads !== undefined) {
+    const seriesReadsInput = recordValue(
+      capabilitiesInput.seriesReads,
+      'Scientific dataset capabilities.seriesReads',
+    )
+    const seriesReadKind = enumValue(
+      seriesReadsInput.kind,
+      ['any-axis', 'axes'] as const,
+      'Scientific dataset capabilities.seriesReads.kind',
+    )
+    if (seriesReadKind === 'any-axis') {
+      onlyKeys(seriesReadsInput, ['kind'], 'Scientific dataset capabilities.seriesReads')
+      seriesReads = Object.freeze({ kind: seriesReadKind })
+    } else {
+      onlyKeys(seriesReadsInput, ['kind', 'axes'], 'Scientific dataset capabilities.seriesReads')
+      const seriesAxisInputs = arrayValue(
+        seriesReadsInput.axes,
+        'Scientific dataset capabilities.seriesReads.axes',
+      )
+      if (seriesAxisInputs.length === 0) {
+        throw invalidInput('Scientific dataset seriesReads.axes must not be empty')
+      }
+      const seenSeriesAxes = new Set<string>()
+      const seriesAxes: string[] = []
+      for (let index = 0; index < seriesAxisInputs.length; index += 1) {
+        const axisId = requiredString(
+          seriesAxisInputs[index],
+          `Scientific dataset capabilities.seriesReads.axes[${index}]`,
+        )
+        if (!axisIds.has(axisId)) {
+          throw invalidInput(`Scientific dataset seriesReads names unknown axis ${axisId}`)
+        }
+        if (seenSeriesAxes.has(axisId)) {
+          throw invalidInput(`Scientific dataset seriesReads repeats axis ${axisId}`)
+        }
+        seenSeriesAxes.add(axisId)
+        seriesAxes.push(axisId)
+      }
+      seriesReads = Object.freeze({ kind: seriesReadKind, axes: Object.freeze(seriesAxes) })
+    }
+  }
+  if (planeReads.kind === 'any-axis-pair' && axes.length < 2) {
+    throw invalidInput('Scientific dataset any-axis-pair capability requires at least two axes')
+  }
+  if (planeReads.kind === 'none' && seriesReads === undefined) {
+    throw invalidInput('Scientific dataset must support plane reads or series reads')
+  }
+  if (axes.length === 1) {
+    const onlyAxis = axes[0]
+    if (planeReads.kind !== 'none') {
+      throw invalidInput('One-dimensional scientific datasets cannot advertise plane reads')
+    }
+    if (
+      onlyAxis === undefined ||
+      seriesReads === undefined ||
+      (seriesReads.kind === 'axes' && !seriesReads.axes.includes(onlyAxis.id))
+    ) {
+      throw invalidInput('One-dimensional scientific datasets must support their sole series axis')
+    }
+  }
   const capabilities = Object.freeze({
     regionReads: booleanValue(
       capabilitiesInput.regionReads,
@@ -780,6 +951,7 @@ const parseDescriptor = (
       'Scientific dataset capabilities.resolutionLevels',
     ),
     planeReads,
+    ...(seriesReads === undefined ? {} : { seriesReads }),
   })
   if (capabilities.resolutionLevels !== levels.length > 1) {
     throw invalidInput(
@@ -839,10 +1011,23 @@ export const supportsScientificPlaneRead = (
   if (!horizontalKnown || !verticalKnown) return false
   const planeReads = descriptor.capabilities.planeReads
   if (planeReads.kind === 'any-axis-pair') return true
+  if (planeReads.kind === 'none') return false
   for (const pair of planeReads.pairs) {
     if (pair[0] === horizontal && pair[1] === vertical) return true
   }
   return false
+}
+
+/** Report whether the descriptor can read a bounded series along one selected axis. */
+export const supportsScientificSeriesRead = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  axisId: string,
+): boolean => {
+  if (!descriptor.axes.some((axis) => axis.id === axisId)) return false
+  const seriesReads = descriptor.capabilities.seriesReads
+  if (seriesReads === undefined) return false
+  if (seriesReads.kind === 'any-axis') return true
+  return seriesReads.axes.includes(axisId)
 }
 
 const getResolutionLevel = (
@@ -1021,4 +1206,241 @@ export const normalizeScientificPlaneReadRequest = (
     height,
     ...(input.signal === undefined ? {} : { signal: input.signal }),
   })
+}
+
+/** Resolve fixed selections, level dimensions, and one bounded series range before I/O. */
+const normalizeSeriesReadRequest = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  request: unknown,
+  requireCapability: boolean,
+): NormalizedScientificSeriesReadRequest => {
+  const input = recordValue(request, 'Scientific series request')
+  onlyKeys(
+    input,
+    ['axisId', 'fixedIndices', 'resolutionLevel', 'start', 'length', 'signal'],
+    'Scientific series request',
+  )
+  const axisId = requiredString(input.axisId, 'Scientific series request.axisId')
+  const axisById = new Map(descriptor.axes.map((axis) => [axis.id, axis]))
+  if (!axisById.has(axisId)) throw invalidInput(`Unknown scientific series axis ${axisId}`)
+  if (requireCapability && !supportsScientificSeriesRead(descriptor, axisId)) {
+    throw invalidInput(`Scientific dataset does not support series axis ${axisId}`)
+  }
+
+  const resolutionLevel = nonNegativeInteger(
+    input.resolutionLevel ?? 0,
+    'Scientific series resolutionLevel',
+  )
+  const levelDescriptor = getResolutionLevel(descriptor, resolutionLevel)
+  const lengths = new Map(levelDescriptor.axisLengths.map((axis) => [axis.axisId, axis.length]))
+  const selections = new Map<string, number>()
+  const fixedInputs = arrayValue(input.fixedIndices, 'Scientific series request.fixedIndices')
+  for (let index = 0; index < fixedInputs.length; index += 1) {
+    const label = `Scientific series request.fixedIndices[${index}]`
+    const selection = recordValue(fixedInputs[index], label)
+    onlyKeys(selection, ['axisId', 'index'], label)
+    const fixedAxisId = requiredString(selection.axisId, `${label}.axisId`)
+    if (!axisById.has(fixedAxisId)) {
+      throw invalidInput(`Scientific fixed index names unknown axis ${fixedAxisId}`)
+    }
+    if (fixedAxisId === axisId) {
+      throw invalidInput(`Scientific series axis ${fixedAxisId} must not also be fixed`)
+    }
+    if (selections.has(fixedAxisId)) {
+      throw invalidInput(`Scientific fixed index repeats axis ${fixedAxisId}`)
+    }
+    const fixedAxisLength = lengths.get(fixedAxisId)
+    if (fixedAxisLength === undefined) {
+      throw invalidInput(`Resolution level is missing axis ${fixedAxisId}`)
+    }
+    const selectedIndex = nonNegativeInteger(
+      selection.index,
+      `Scientific fixed index for ${fixedAxisId}`,
+    )
+    if (selectedIndex >= fixedAxisLength) {
+      throw invalidInput(`Scientific fixed index for ${fixedAxisId} is outside the selected level`)
+    }
+    selections.set(fixedAxisId, selectedIndex)
+  }
+
+  const fixedIndices: ScientificAxisIndex[] = []
+  for (const axis of descriptor.axes) {
+    if (axis.id === axisId) continue
+    const fixedAxisLength = lengths.get(axis.id)
+    if (fixedAxisLength === undefined) {
+      throw invalidInput(`Resolution level is missing axis ${axis.id}`)
+    }
+    const index = selections.get(axis.id)
+    if (index === undefined && fixedAxisLength !== 1) {
+      throw invalidInput(`Scientific series request must fix non-singleton axis ${axis.id}`)
+    }
+    fixedIndices.push(Object.freeze({ axisId: axis.id, index: index ?? 0 }))
+  }
+
+  const axisLength = lengths.get(axisId)
+  if (axisLength === undefined) throw invalidInput(`Resolution level is missing axis ${axisId}`)
+  const start = nonNegativeInteger(input.start ?? 0, 'Scientific series start')
+  const length = positiveInteger(input.length ?? axisLength - start, 'Scientific series length')
+  if (start > axisLength || length > axisLength - start) {
+    throw invalidInput('Scientific series range is outside the selected resolution level')
+  }
+  if (!descriptor.capabilities.regionReads && (start !== 0 || length !== axisLength)) {
+    throw invalidInput('Scientific dataset does not support region reads')
+  }
+  if (input.signal !== undefined && !(input.signal instanceof AbortSignal)) {
+    throw invalidInput('Scientific series request.signal must be an AbortSignal')
+  }
+
+  return Object.freeze({
+    axisId,
+    fixedIndices: Object.freeze(fixedIndices),
+    resolutionLevel,
+    start,
+    length,
+    ...(input.signal === undefined ? {} : { signal: input.signal }),
+  })
+}
+
+export const normalizeScientificSeriesReadRequest = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  request: unknown,
+): NormalizedScientificSeriesReadRequest => normalizeSeriesReadRequest(descriptor, request, true)
+
+const compactPlaneBlockToSeries = (
+  block: RasterBlock,
+  horizontal: boolean,
+): ScientificSeriesBlock => {
+  if (
+    !Number.isSafeInteger(block.x) ||
+    block.x < 0 ||
+    !Number.isSafeInteger(block.y) ||
+    block.y < 0 ||
+    !Number.isSafeInteger(block.width) ||
+    !Number.isSafeInteger(block.height)
+  ) {
+    throw invalidInput('Scientific plane-series adapter received invalid block dimensions')
+  }
+  const length = horizontal ? block.width : block.height
+  const crossLength = horizontal ? block.height : block.width
+  if (length < 1 || crossLength !== 1) {
+    throw invalidInput('Scientific plane-series adapter requires one-pixel-wide source blocks')
+  }
+  const bytesPerSample = rasterSampleBytes(block.format.sampleType)
+  const channels = block.format.channels
+  if (!Number.isSafeInteger(channels) || channels < 1) {
+    throw invalidInput('Scientific plane-series adapter received an invalid channel count')
+  }
+  const rowBytes = block.width * bytesPerSample * (block.format.planar ? 1 : channels)
+  if (
+    !Number.isSafeInteger(rowBytes) ||
+    !Number.isSafeInteger(block.stride) ||
+    block.stride < rowBytes
+  ) {
+    throw invalidInput('Scientific plane-series adapter received an invalid row stride')
+  }
+  const occupiedPlaneBytes = block.stride * (block.height - 1) + rowBytes
+  const planeStride = block.format.planar ? block.planeStride : occupiedPlaneBytes
+  if (
+    !Number.isSafeInteger(occupiedPlaneBytes) ||
+    planeStride === undefined ||
+    !Number.isSafeInteger(planeStride) ||
+    planeStride < occupiedPlaneBytes
+  ) {
+    throw invalidInput('Scientific plane-series adapter received an invalid plane stride')
+  }
+  const requiredBytes = block.format.planar
+    ? planeStride * (channels - 1) + occupiedPlaneBytes
+    : occupiedPlaneBytes
+  if (!Number.isSafeInteger(requiredBytes) || block.data.byteLength < requiredBytes) {
+    throw invalidInput('Scientific plane-series adapter received truncated sample data')
+  }
+  const outputBytes = length * channels * bytesPerSample
+  if (!Number.isSafeInteger(outputBytes)) {
+    throw invalidInput('Scientific plane-series adapter output is too large')
+  }
+  const data = new Uint8Array(outputBytes)
+  for (let point = 0; point < length; point += 1) {
+    const x = horizontal ? point : 0
+    const y = horizontal ? 0 : point
+    for (let channel = 0; channel < channels; channel += 1) {
+      const sourceOffset = block.format.planar
+        ? channel * planeStride + y * block.stride + x * bytesPerSample
+        : y * block.stride + (x * channels + channel) * bytesPerSample
+      const outputOffset = block.format.planar
+        ? channel * length * bytesPerSample + point * bytesPerSample
+        : (point * channels + channel) * bytesPerSample
+      data.set(block.data.subarray(sourceOffset, sourceOffset + bytesPerSample), outputOffset)
+    }
+  }
+  return Object.freeze({
+    start: horizontal ? block.x : block.y,
+    length,
+    format: Object.freeze({ ...block.format }),
+    data,
+  })
+}
+
+/**
+ * Bounded fallback that extracts one row or column from an existing native plane reader.
+ * The adapter compacts each emitted source block independently and never materializes the series.
+ */
+export const readScientificSeriesFromPlane = async function* (
+  dataset: ScientificDataset,
+  displayAxes: readonly [horizontal: string, vertical: string],
+  request: Readonly<ScientificSeriesReadRequest>,
+): AsyncGenerator<ScientificSeriesBlock> {
+  const normalized = normalizeSeriesReadRequest(dataset.descriptor, request, false)
+  if (!supportsScientificPlaneRead(dataset.descriptor, displayAxes)) {
+    throw invalidInput(
+      `Scientific dataset does not support plane axes ${displayAxes[0]}/${displayAxes[1]}`,
+    )
+  }
+  const horizontal = displayAxes[0] === normalized.axisId
+  const vertical = displayAxes[1] === normalized.axisId
+  if (horizontal === vertical) {
+    throw invalidInput(
+      `Scientific plane-series adapter display axes must contain series axis ${normalized.axisId} exactly once`,
+    )
+  }
+  const crossAxisId = horizontal ? displayAxes[1] : displayAxes[0]
+  const crossIndex = normalized.fixedIndices.find((entry) => entry.axisId === crossAxisId)
+  if (crossIndex === undefined) {
+    throw invalidInput(`Scientific series request must fix plane cross-axis ${crossAxisId}`)
+  }
+  const fixedIndices = normalized.fixedIndices.filter((entry) => entry.axisId !== crossAxisId)
+  const planeRequest: ScientificPlaneReadRequest = {
+    displayAxes,
+    fixedIndices,
+    resolutionLevel: normalized.resolutionLevel,
+    x: horizontal ? normalized.start : crossIndex.index,
+    y: horizontal ? crossIndex.index : normalized.start,
+    width: horizontal ? normalized.length : 1,
+    height: horizontal ? 1 : normalized.length,
+    ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
+  }
+  let nextStart = normalized.start
+  for await (const block of dataset.readPlane(planeRequest)) {
+    try {
+      normalized.signal?.throwIfAborted()
+      const blockStart = horizontal ? block.x : block.y
+      const blockLength = horizontal ? block.width : block.height
+      const blockCrossIndex = horizontal ? block.y : block.x
+      if (
+        blockStart !== nextStart ||
+        blockCrossIndex !== crossIndex.index ||
+        blockLength > normalized.start + normalized.length - nextStart ||
+        block.format.sampleType !== dataset.descriptor.sampleType ||
+        block.format.channels !== dataset.descriptor.components.length
+      ) {
+        throw invalidInput('Scientific plane-series adapter received incompatible source blocks')
+      }
+      yield compactPlaneBlockToSeries(block, horizontal)
+      nextStart += blockLength
+    } finally {
+      block.release?.()
+    }
+  }
+  if (nextStart !== normalized.start + normalized.length) {
+    throw invalidInput('Scientific plane-series adapter received incomplete source blocks')
+  }
 }

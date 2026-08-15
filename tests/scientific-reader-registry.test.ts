@@ -23,6 +23,7 @@ import {
   normalizeScientificRelativeName,
   ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
+import { singleDatasetDocument } from '../src/scientific/readers/shared.ts'
 
 const descriptor = normalizeScientificDatasetDescriptor({
   schemaVersion: 1,
@@ -482,6 +483,82 @@ describe('scientific reader lifecycle', () => {
     await expect(document.openDataset('image-0')).resolves.toBe(dataset)
     expect(dataset.reads).toBe(0)
     expect(opens).toBe(1)
+  })
+
+  it('preserves exact sidecar calibration evidence and contributing resource identity', async () => {
+    const calibratedDescriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 1,
+      axes: [
+        {
+          id: 'x',
+          kind: 'space',
+          length: 2,
+          unit: 'nm',
+          coordinates: { type: 'linear', origin: 0, step: 0.5 },
+          calibration: {
+            kind: 'sidecar',
+            resourceId: 'calibration',
+            locator: 'companion:calibration.txt/PixelSizeX',
+          },
+        },
+        { id: 'y', kind: 'space', length: 1, coordinates: { type: 'index' } },
+      ],
+      sampleType: 'uint8',
+      components: [{ id: 'value', kind: 'scalar' }],
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'any-axis-pair' },
+      },
+    })
+    const reader = mockReader({
+      id: 'test/sidecar-calibration',
+      confidence: 1,
+      async open(openContext) {
+        const calibration = await openContext.companions?.resolve({
+          kind: 'role',
+          role: 'calibration',
+          relativeName: 'calibration.txt',
+        })
+        if (calibration === undefined) throw new Error('Synthetic calibration sidecar is missing')
+        return singleDatasetDocument({
+          context: openContext,
+          reader: reader.descriptor,
+          metadata: {},
+          dataset: new LazyDataset(calibratedDescriptor),
+          datasetId: 'image-0',
+          resources: Object.freeze([
+            Object.freeze({ id: openContext.primary.id, source: openContext.primary.source }),
+            Object.freeze({ id: calibration.id, source: calibration.source }),
+          ]),
+        })
+      },
+    })
+    const document = await new ScientificReaderRegistry([reader]).open(
+      context(undefined, {
+        readerId: reader.descriptor.id,
+        companions: {
+          async resolve() {
+            return {
+              id: 'calibration',
+              name: 'calibration.txt',
+              source: new MemorySource(Uint8Array.of(5, 0)),
+            }
+          },
+        },
+      }),
+    )
+    const dataset = await document.openDataset('image-0')
+
+    expect(dataset.descriptor.axes[0]?.calibration).toEqual({
+      kind: 'sidecar',
+      resourceId: 'calibration',
+      locator: 'companion:calibration.txt/PixelSizeX',
+    })
+    expect(document.datasets[0]?.identity.resources.map(({ id }) => id)).toEqual([
+      'calibration',
+      'primary',
+    ])
   })
 
   it('rejects path traversal and absolute companion names in portable code', () => {

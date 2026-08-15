@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "RosettaSciIO",
+    "revision": "bc254db14cd7d4d23169b11aeb622a0a7eac1fbe",
+    "license": "GPL-3.0-or-later",
+    "licenseUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/LICENSE",
+    "attribution": "RosettaSciIO test corpus contributors",
+    "oracleUrl": "https://github.com/hyperspy/rosettasciio/tree/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests"
+  },
+  "downloads": [
+    {
+      "file": "sample.rpl",
+      "url": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/ripple/test_ripple_sdim-2_ndim-1_uint8.rpl",
+      "sha256": "79c9cfe49a9e3d852cfa7b37832cb40087c8ce435deeac76e82d587ea31318f6"
+    },
+    {
+      "file": "sample.raw",
+      "url": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/ripple/test_ripple_sdim-2_ndim-1_uint8.raw",
+      "sha256": "1d64add2a6388367c9bc2d1f1b384b069a6ef382cdaaa89771dd103e28613a25"
+    },
+    {
+      "file": "compliance.msa",
+      "url": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/msa/ISO_22029_2022_compliance.msa",
+      "sha256": "2fd59d7f080b5aa4ae2143fed2f58a567f7e5861f4db43257ae6bcee9a0ecf04"
+    },
+    {
+      "file": "test2.blo",
+      "url": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/blockfile/test2.blo",
+      "sha256": "96099a906d02e16938a70402d64d8a5365717455fb8f5a4ccfd6e8c0c676fa20"
+    },
+    {
+      "file": "merlin.zip",
+      "url": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/quantumdetector/Merlin_navigation4x2_signalNx256_ROI.zip",
+      "sha256": "77f2faccadf9b1b4f0f80262b993bc06cabf8d70357460f8b3d92a5c554dd526"
+    }
+  ],
+  "oracles": {
+    "rpl": {
+      "shape": [4, 3, 2],
+      "fixedDepth": 1,
+      "expectedHex": "0c0d0e0f1011121314151617"
+    },
+    "emsa": {
+      "length": 21,
+      "firstX": 520.13,
+      "expectedHex": "40afc4000000000040af38000000000040aeb80000000000"
+    },
+    "blockfile": {
+      "shape": [3, 2, 5, 5],
+      "expectedHex": "1315000e"
+    },
+    "mib": {
+      "mibMember": "002_merlin_test_roi_sig256x128_nav4x2_hot_pixel_52x_39y.mib",
+      "hdrMember": "002_merlin_test_roi_sig256x128_nav4x2_hot_pixel_52x_39y.hdr",
+      "mibSha256": "0e6950bacc71763d86355e78b45f13ccb7d9ab5c4b9f1d35285fd7e6aa2bcf79",
+      "hdrSha256": "b9cc117cc1ba47b328164e0984b11564f385dc3bf664dde6168fc1d28f335f76",
+      "shape": [4, 2, 256, 128],
+      "expectedHex": "0000000000000000"
+    }
+  }
+}

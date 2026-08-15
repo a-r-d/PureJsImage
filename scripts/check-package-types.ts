@@ -136,12 +136,36 @@ try {
     'dist/scientific/node.js',
     'dist/scientific/readers/all.js',
     'dist/scientific/readers/aperio-svs.js',
+    'dist/scientific/readers/blockfile.js',
     'dist/scientific/readers/cbf.js',
+    'dist/scientific/readers/digital-micrograph.js',
+    'dist/scientific/readers/digital-surf.js',
+    'dist/scientific/readers/ebsd-text.js',
+    'dist/scientific/readers/emsa.js',
+    'dist/scientific/readers/igor-binary-wave.js',
+    'dist/scientific/readers/nanonis-sxm.js',
+    'dist/scientific/readers/x3p.js',
+    'dist/scientific/readers/tia-emi.js',
+    'dist/scientific/readers/tia-ser.js',
+    'dist/scientific/readers/ncem-emd.js',
+    'dist/scientific/readers/velox-emd.js',
     'dist/scientific/readers/envi.js',
     'dist/scientific/readers/fits.js',
     'dist/scientific/readers/gsf.js',
     'dist/scientific/readers/mrc.js',
+    'dist/scientific/readers/meta-image.js',
+    'dist/scientific/readers/mib.js',
+    'dist/scientific/readers/nifti.js',
+    'dist/scientific/readers/npy.js',
+    'dist/scientific/readers/nrrd.js',
     'dist/scientific/readers/ome-tiff.js',
+    'dist/scientific/readers/png.js',
+    'dist/scientific/readers/rpl.js',
+    'dist/scientific/readers/tiff.js',
+    'dist/scientific/readers/jpeg.js',
+    'dist/scientific/readers/webp.js',
+    'dist/scientific/readers/bmp.js',
+    'dist/scientific/readers/jp2.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
     'dist/analysis/project-entry.js',
@@ -205,16 +229,53 @@ try {
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
-export { geoTiffProfile } from 'purejsimage/tiff'
-import { createScientificLibrary, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
-import type { ScientificReader } from 'purejsimage/scientific'
+export { defaultTiffCalibrationProfiles, digitalMicrographTiffCalibrationProfile, geoTiffProfile, imageJTiffCalibrationProfile, standardTiffCalibrationProfile } from 'purejsimage/tiff'
+export type { TiffCalibrationProfileValue } from 'purejsimage/tiff'
+import { createScientificLibrary, normalizeScientificDatasetDescriptor, normalizeScientificSeriesReadRequest, rasterBlockToNumericTile } from 'purejsimage/scientific'
+import type { ScientificReader, ScientificSeriesBlock, ScientificSeriesReadRequest } from 'purejsimage/scientific'
+export { createImageCodecScientificReader, readScientificSeriesFromPlane } from 'purejsimage/scientific'
+export type { ScientificSeriesBlock }
 import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 export { aperioSvsReader, createAperioSvsReader } from 'purejsimage/scientific/readers/aperio-svs'
 export type { AperioSvsLimits, AperioSvsReaderOptions } from 'purejsimage/scientific/readers/aperio-svs'
 export { cbfReader } from 'purejsimage/scientific/readers/cbf'
+export { createDigitalMicrographReader, digitalMicrographReader } from 'purejsimage/scientific/readers/digital-micrograph'
+export type { DigitalMicrographReaderLimits, DigitalMicrographReaderOptions } from 'purejsimage/scientific/readers/digital-micrograph'
+export { createDigitalSurfReader, digitalSurfReader } from 'purejsimage/scientific/readers/digital-surf'
+export { createIgorBinaryWaveReader, igorBinaryWaveReader } from 'purejsimage/scientific/readers/igor-binary-wave'
+export { createNanonisSxmReader, nanonisSxmReader } from 'purejsimage/scientific/readers/nanonis-sxm'
+export { createX3pReader, x3pReader } from 'purejsimage/scientific/readers/x3p'
+export { createRplReader, rplReader } from 'purejsimage/scientific/readers/rpl'
+export { createEmsaReader, emsaReader } from 'purejsimage/scientific/readers/emsa'
+export { createNrrdReader, nrrdReader } from 'purejsimage/scientific/readers/nrrd'
+export { createMetaImageReader, metaImageReader } from 'purejsimage/scientific/readers/meta-image'
+export { createNiftiReader, niftiReader } from 'purejsimage/scientific/readers/nifti'
+export { createNpyReader, npyReader } from 'purejsimage/scientific/readers/npy'
+export { blockfileReader, createBlockfileReader } from 'purejsimage/scientific/readers/blockfile'
+export { createMibReader, mibReader } from 'purejsimage/scientific/readers/mib'
+export { createEbsdTextReader, ebsdTextReader } from 'purejsimage/scientific/readers/ebsd-text'
+export { createTiaSerReader, tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
+export type { TiaSerReaderLimits, TiaSerReaderOptions } from 'purejsimage/scientific/readers/tia-ser'
+export { createTiaEmiReader, tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'
+export type { TiaEmiReaderLimits, TiaEmiReaderOptions } from 'purejsimage/scientific/readers/tia-emi'
+export { createNcemEmdReader, ncemEmdReader } from 'purejsimage/scientific/readers/ncem-emd'
+export type { NcemEmdReaderOptions } from 'purejsimage/scientific/readers/ncem-emd'
+export { createVeloxEmdReader, veloxEmdReader } from 'purejsimage/scientific/readers/velox-emd'
+export type { VeloxEmdReaderLimits, VeloxEmdReaderOptions } from 'purejsimage/scientific/readers/velox-emd'
 export { enviReader } from 'purejsimage/scientific/readers/envi'
 export { fitsReader } from 'purejsimage/scientific/readers/fits'
 export { mrcReader } from 'purejsimage/scientific/readers/mrc'
+export { jpegReader } from 'purejsimage/scientific/readers/jpeg'
+export { pngReader } from 'purejsimage/scientific/readers/png'
+export { webpReader } from 'purejsimage/scientific/readers/webp'
+export { bmpReader } from 'purejsimage/scientific/readers/bmp'
+export { jp2Reader } from 'purejsimage/scientific/readers/jp2'
+export { createTiffReader, tiffReader } from 'purejsimage/scientific/readers/tiff'
+export {
+  feiSemTiffCalibrationProfile,
+  zeissSemTiffCalibrationProfile,
+} from 'purejsimage/tiff'
+export type { TiffReaderOptions } from 'purejsimage/scientific/readers/tiff'
 export * as allScientificReaders from 'purejsimage/scientific/readers/all'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
@@ -331,6 +392,26 @@ const roiDatasetDescriptor = {
   },
 }
 const normalizedRoiDataset = normalizeScientificDatasetDescriptor(roiDatasetDescriptor)
+const spectrumDescriptor = normalizeScientificDatasetDescriptor({
+  schemaVersion: 1,
+  axes: [{
+    id: 'energy', kind: 'spectral', length: 4,
+    unit: 'eV', coordinates: { type: 'linear', origin: 100, step: 0.5 },
+  }],
+  sampleType: 'uint16',
+  components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+  capabilities: {
+    regionReads: true, resolutionLevels: false, planeReads: { kind: 'none' },
+    seriesReads: { kind: 'axes', axes: ['energy'] },
+  },
+})
+const spectrumRequest = {
+  axisId: 'energy', fixedIndices: [], start: 1, length: 2,
+} satisfies ScientificSeriesReadRequest
+export const normalizedSpectrumRequest = normalizeScientificSeriesReadRequest(
+  spectrumDescriptor,
+  spectrumRequest,
+)
 export const builtInAnalysis = createBuiltInAnalysisBundle({
   descriptor: normalizedRoiDataset, runtime: tileRuntime, tileWidth: 2, tileHeight: 2,
 })

@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "files": [
+    {
+      "localFile": "nanonis-afm-generic4.sxm",
+      "sha256": "f00657fc956b9ca9bf415f5513e58d225ef3a63f2f12269a2379475a483c20a4",
+      "source": {
+        "repository": "https://github.com/FAIRmat-NFDI/pynxtools-spm",
+        "revision": "7fbd50b1c0572800f04d3a47d49ca729c90437fd",
+        "path": "tests/data/nanonis/afm/version_gen_4_default_config/A151216.123306-02602.sxm",
+        "url": "https://raw.githubusercontent.com/FAIRmat-NFDI/pynxtools-spm/7fbd50b1c0572800f04d3a47d49ca729c90437fd/tests/data/nanonis/afm/version_gen_4_default_config/A151216.123306-02602.sxm"
+      },
+      "license": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/FAIRmat-NFDI/pynxtools-spm/blob/7fbd50b1c0572800f04d3a47d49ca729c90437fd/LICENSE"
+      },
+      "attribution": "FAIRmat-NFDI pynxtools-spm contributors; Nanonis Generic 4 AFM acquisition A151216.123306-02602.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "Apache-2.0 permits redistribution with attribution; the unchanged binary is excluded from the npm package."
+      },
+      "oracle": {
+        "source": "pynxtools-spm afm_4_default_config.nxs conversion plus pinned native-file assertions",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "18 datasets",
+          "128x128 first channel",
+          "x step 1.5748031496062993e-11 m",
+          "first sample -2.1861611188001007e-8"
+        ]
+      }
+    },
+    {
+      "localFile": "nanonis-stm-generic5.sxm",
+      "sha256": "fb0d522e71e21a0fe7bf165e8598118a7b5f752f8b7d4d26ce23d8d6e5dbfec6",
+      "source": {
+        "repository": "https://github.com/FAIRmat-NFDI/pynxtools-spm",
+        "revision": "28268e77894fdcd3c6a2c2fbed99d01ed37dc28e",
+        "path": "tests/data/nanonis/stm/version_gen_5_with_default_config/Au_mica_2023_Y_A_diPAMY_195.sxm",
+        "url": "https://raw.githubusercontent.com/FAIRmat-NFDI/pynxtools-spm/28268e77894fdcd3c6a2c2fbed99d01ed37dc28e/tests/data/nanonis/stm/version_gen_5_with_default_config/Au_mica_2023_Y_A_diPAMY_195.sxm"
+      },
+      "license": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/FAIRmat-NFDI/pynxtools-spm/blob/28268e77894fdcd3c6a2c2fbed99d01ed37dc28e/LICENSE"
+      },
+      "attribution": "FAIRmat-NFDI pynxtools-spm contributors; Nanonis Generic 5 STM acquisition Au_mica_2023_Y_A_diPAMY_195.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "Apache-2.0 permits redistribution with attribution; the unchanged binary is excluded from the npm package."
+      },
+      "oracle": {
+        "source": "pynxtools-spm stm_5_with_default_config.nxs conversion plus pinned native-file assertions",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "4 datasets",
+          "256x256 first channel",
+          "x step 1.5686274509803923e-11 m",
+          "first sample 1.7243860853111137e-11"
+        ]
+      }
+    },
+    {
+      "localFile": "asylum-afm-v5.ibw",
+      "sha256": "84a7fad6032cc735fef6db2781c1d74d385f25b9ead4c3561f50560943233985",
+      "source": {
+        "repository": "https://github.com/AFM-SPM/AFMReader",
+        "revision": "df11c6e540d9f39e7b8f9781963fdd862370a576",
+        "path": "tests/resources/sample_0.ibw",
+        "url": "https://raw.githubusercontent.com/AFM-SPM/AFMReader/df11c6e540d9f39e7b8f9781963fdd862370a576/tests/resources/sample_0.ibw"
+      },
+      "license": {
+        "spdx": "GPL-3.0-only",
+        "url": "https://github.com/AFM-SPM/AFMReader/blob/df11c6e540d9f39e7b8f9781963fdd862370a576/COPYING",
+        "note": "The pinned revision's COPYING file is GPL-3.0; its package classifier says LGPLv3. This manifest follows the repository license text rather than the conflicting classifier."
+      },
+      "attribution": "AFMReader and TopoStats contributors; Asylum Research AFM sample wave sample_0.ibw.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "The unchanged GPL-covered test input remains separately identified, attributed, source-linked, and excluded from the npm package."
+      },
+      "oracle": {
+        "source": "AFMReader conversion and pinned native-wave assertions",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "dimensions 512x512x8",
+          "8 channel labels",
+          "x/y step 1.5655577299412918e-9 m",
+          "first samples -8.26381835850043e-7 and -8.263509698736016e-7"
+        ]
+      }
+    },
+    {
+      "localFile": "igor-win-v5-rank1.ibw",
+      "sha256": "981383c28a78e5064711bb2aa534775fe2c4242b3ef9aaca27b540178446ec4f",
+      "source": {
+        "repository": "https://github.com/wking/igor",
+        "revision": "c9344ceb607d7b9bb3fde6f5a64943507454b9e7",
+        "path": "test/data/win-version5.ibw",
+        "url": "https://raw.githubusercontent.com/wking/igor/c9344ceb607d7b9bb3fde6f5a64943507454b9e7/test/data/win-version5.ibw"
+      },
+      "license": {
+        "spdx": "LGPL-3.0-or-later",
+        "url": "https://github.com/wking/igor/blob/c9344ceb607d7b9bb3fde6f5a64943507454b9e7/COPYING.LESSER"
+      },
+      "attribution": "W. Trevor King and Paul Kienzle, igor reference test corpus.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "LGPL-3.0-or-later permits unchanged redistribution with license and source identification; the binary is excluded from the npm package."
+      },
+      "oracle": {
+        "source": "upstream igor v5 reference corpus",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "valid little-endian v5 checksum",
+          "rank-1 wave rejected by the supported 2D-through-4D reader boundary"
+        ]
+      }
+    },
+    {
+      "localFile": "digital-surf-compressed.sur",
+      "sha256": "6ed59a9a235c0b6dc7e15f155d0e738c5841cfc0fe78f1861b7e145f9dcaadf4",
+      "source": {
+        "repository": "https://github.com/hyperspy/rosettasciio",
+        "revision": "b008922cdb8a5e0659b82c5ee1a2f87af286a04f",
+        "path": "rsciio/tests/data/digitalsurf/test_surface.sur",
+        "url": "https://raw.githubusercontent.com/hyperspy/rosettasciio/b008922cdb8a5e0659b82c5ee1a2f87af286a04f/rsciio/tests/data/digitalsurf/test_surface.sur"
+      },
+      "license": {
+        "spdx": "GPL-3.0-or-later",
+        "url": "https://github.com/hyperspy/rosettasciio/blob/b008922cdb8a5e0659b82c5ee1a2f87af286a04f/COPYING.txt"
+      },
+      "attribution": "RosettaSciIO contributors, Digital Surf test_surface.sur corpus fixture.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "The unchanged GPL-covered test input remains separately identified, attributed, source-linked, and excluded from the npm package."
+      },
+      "oracle": {
+        "source": "RosettaSciIO Digital Surf test oracle",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "128x128 compressed surface",
+          "x/y step 0.00008252197585534304 mm",
+          "CL Intensity in a.u.",
+          "first samples 418.8810366748985 and 451.24627585728376"
+        ]
+      }
+    },
+    {
+      "localFile": "iso5436-sample1.x3p",
+      "sha256": "aebfd9f689781867b3069b5f6c2f61568c68a4a8a1999bf4c31920c278be9339",
+      "source": {
+        "repository": "https://github.com/OpenFMC/x3p",
+        "revision": "7c0c99210bba08504d15926064727d77207c5635",
+        "path": "src/ISO5436_2_XML_Demo/samplefiles/ISO5436-sample1_bin.x3p",
+        "url": "https://raw.githubusercontent.com/OpenFMC/x3p/7c0c99210bba08504d15926064727d77207c5635/src/ISO5436_2_XML_Demo/samplefiles/ISO5436-sample1_bin.x3p"
+      },
+      "license": {
+        "spdx": "LGPL-3.0-or-later",
+        "url": "https://github.com/OpenFMC/x3p/blob/7c0c99210bba08504d15926064727d77207c5635/Licence/openGPS_Licence.txt"
+      },
+      "attribution": "OpenFMC and the openGPS contributors, including Georg Wiora and NanoFocus AG; ISO5436 sample 1 binary archive.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "The OpenFMC repository distributes the sample with its openGPS LGPL notice; this unchanged test input is source-linked and excluded from the npm package."
+      },
+      "oracle": {
+        "source": "OpenFMC ISO5436 sample archive",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "4x4 grid",
+          "x/y step 0.016016 m",
+          "first samples 0.486219120804151 and 0.00346341436648013"
+        ]
+      }
+    },
+    {
+      "localFile": "iso5436-sample4.x3p",
+      "sha256": "96d3e4cf618b0cf075937a64f3b1fcc7be63dc1fa8b619b245be459ed703b3f2",
+      "source": {
+        "repository": "https://github.com/OpenFMC/x3p",
+        "revision": "7c0c99210bba08504d15926064727d77207c5635",
+        "path": "src/ISO5436_2_XML_Demo/samplefiles/ISO5436-sample4_bin.x3p",
+        "url": "https://raw.githubusercontent.com/OpenFMC/x3p/7c0c99210bba08504d15926064727d77207c5635/src/ISO5436_2_XML_Demo/samplefiles/ISO5436-sample4_bin.x3p"
+      },
+      "license": {
+        "spdx": "LGPL-3.0-or-later",
+        "url": "https://github.com/OpenFMC/x3p/blob/7c0c99210bba08504d15926064727d77207c5635/Licence/openGPS_Licence.txt"
+      },
+      "attribution": "OpenFMC and the openGPS contributors, including Georg Wiora and NanoFocus AG; ISO5436 sample 4 binary archive.",
+      "redistribution": {
+        "status": "included-test-only",
+        "justification": "The OpenFMC repository distributes the sample with its openGPS LGPL notice; this unchanged test input is source-linked and excluded from the npm package."
+      },
+      "oracle": {
+        "source": "OpenFMC ISO5436 sample archive",
+        "test": "tests/scientific-surface-formats.test.ts",
+        "assertions": [
+          "4x4 grid",
+          "x/y step 0.016016 m",
+          "first samples 0.486 and 0.0030000000000000027"
+        ]
+      }
+    }
+  ]
+}

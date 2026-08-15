@@ -11,6 +11,7 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
   ScientificAxisEntryDescriptor,
+  ScientificCalibrationEvidence,
   ScientificComponentDescriptor,
   ScientificDataset,
   ScientificMetadataObject,
@@ -37,6 +38,10 @@ export interface MultidimensionalRasterAdapterOptions {
   readonly regionReads?: boolean
   /** Singleton legacy dimensions that still carry format-level meaning. */
   readonly semanticSingletonAxes?: readonly ('z' | 'channel' | 'time')[]
+  /** Format-specific provenance for calibrated spatial axes. */
+  readonly calibrationEvidence?: Readonly<
+    Partial<Record<'x' | 'y' | 'z', ScientificCalibrationEvidence>>
+  >
 }
 
 type ScientificDatasetInput = MultidimensionalRasterDataset | ScientificDataset
@@ -98,6 +103,7 @@ const calibratedAxis = (
   length: number,
   physicalSize: PhysicalPixelSize | undefined,
   origin: PhysicalPixelSize | undefined,
+  calibration: ScientificCalibrationEvidence | undefined,
 ): ScientificAxisDescriptor => {
   const unitsMatch =
     physicalSize?.unit === undefined ||
@@ -125,6 +131,7 @@ const calibratedAxis = (
         })
       : Object.freeze({ type: 'index' }),
     ...(unit === undefined ? {} : { unit }),
+    ...(canUseLinear && calibration !== undefined ? { calibration } : {}),
   })
 }
 
@@ -271,11 +278,34 @@ class FixedAxisScientificDataset implements ScientificDataset {
     this.#samplesPerPixel = model.samplesPerPixel
     const semanticSingletonAxes = new Set(options.semanticSingletonAxes)
     const axes: ScientificAxisDescriptor[] = [
-      calibratedAxis(xAxisId, 'X', sizeX, source.physicalSizeX, source.originX),
-      calibratedAxis(yAxisId, 'Y', sizeY, source.physicalSizeY, source.originY),
+      calibratedAxis(
+        xAxisId,
+        'X',
+        sizeX,
+        source.physicalSizeX,
+        source.originX,
+        options.calibrationEvidence?.x,
+      ),
+      calibratedAxis(
+        yAxisId,
+        'Y',
+        sizeY,
+        source.physicalSizeY,
+        source.originY,
+        options.calibrationEvidence?.y,
+      ),
     ]
     if (sizeZ > 1 || semanticSingletonAxes.has(zAxisId)) {
-      axes.push(calibratedAxis(zAxisId, 'Z', sizeZ, source.physicalSizeZ, source.originZ))
+      axes.push(
+        calibratedAxis(
+          zAxisId,
+          'Z',
+          sizeZ,
+          source.physicalSizeZ,
+          source.originZ,
+          options.calibrationEvidence?.z,
+        ),
+      )
     }
     if (model.logicalChannels > 1 || semanticSingletonAxes.has(channelAxisId)) {
       axes.push(channelAxis(source, model.logicalChannels))

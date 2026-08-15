@@ -123,6 +123,101 @@
       "import": "./dist/scientific/readers/cbf.js",
       "default": "./dist/scientific/readers/cbf.js"
     },
+    "./scientific/readers/digital-micrograph": {
+      "types": "./dist/scientific/readers/digital-micrograph.d.ts",
+      "import": "./dist/scientific/readers/digital-micrograph.js",
+      "default": "./dist/scientific/readers/digital-micrograph.js"
+    },
+    "./scientific/readers/digital-surf": {
+      "types": "./dist/scientific/readers/digital-surf.d.ts",
+      "import": "./dist/scientific/readers/digital-surf.js",
+      "default": "./dist/scientific/readers/digital-surf.js"
+    },
+    "./scientific/readers/igor-binary-wave": {
+      "types": "./dist/scientific/readers/igor-binary-wave.d.ts",
+      "import": "./dist/scientific/readers/igor-binary-wave.js",
+      "default": "./dist/scientific/readers/igor-binary-wave.js"
+    },
+    "./scientific/readers/nanonis-sxm": {
+      "types": "./dist/scientific/readers/nanonis-sxm.d.ts",
+      "import": "./dist/scientific/readers/nanonis-sxm.js",
+      "default": "./dist/scientific/readers/nanonis-sxm.js"
+    },
+    "./scientific/readers/x3p": {
+      "types": "./dist/scientific/readers/x3p.d.ts",
+      "import": "./dist/scientific/readers/x3p.js",
+      "default": "./dist/scientific/readers/x3p.js"
+    },
+    "./scientific/readers/rpl": {
+      "types": "./dist/scientific/readers/rpl.d.ts",
+      "import": "./dist/scientific/readers/rpl.js",
+      "default": "./dist/scientific/readers/rpl.js"
+    },
+    "./scientific/readers/emsa": {
+      "types": "./dist/scientific/readers/emsa.d.ts",
+      "import": "./dist/scientific/readers/emsa.js",
+      "default": "./dist/scientific/readers/emsa.js"
+    },
+    "./scientific/readers/nrrd": {
+      "types": "./dist/scientific/readers/nrrd.d.ts",
+      "import": "./dist/scientific/readers/nrrd.js",
+      "default": "./dist/scientific/readers/nrrd.js"
+    },
+    "./scientific/readers/meta-image": {
+      "types": "./dist/scientific/readers/meta-image.d.ts",
+      "import": "./dist/scientific/readers/meta-image.js",
+      "default": "./dist/scientific/readers/meta-image.js"
+    },
+    "./scientific/readers/nifti": {
+      "types": "./dist/scientific/readers/nifti.d.ts",
+      "import": "./dist/scientific/readers/nifti.js",
+      "default": "./dist/scientific/readers/nifti.js"
+    },
+    "./scientific/readers/npy": {
+      "types": "./dist/scientific/readers/npy.d.ts",
+      "import": "./dist/scientific/readers/npy.js",
+      "default": "./dist/scientific/readers/npy.js"
+    },
+    "./scientific/readers/blockfile": {
+      "types": "./dist/scientific/readers/blockfile.d.ts",
+      "import": "./dist/scientific/readers/blockfile.js",
+      "default": "./dist/scientific/readers/blockfile.js"
+    },
+    "./scientific/readers/mib": {
+      "types": "./dist/scientific/readers/mib.d.ts",
+      "import": "./dist/scientific/readers/mib.js",
+      "default": "./dist/scientific/readers/mib.js"
+    },
+    "./scientific/readers/ebsd-text": {
+      "types": "./dist/scientific/readers/ebsd-text.d.ts",
+      "import": "./dist/scientific/readers/ebsd-text.js",
+      "default": "./dist/scientific/readers/ebsd-text.js"
+    },
+    "./scientific/readers/tia-ser": {
+      "types": "./dist/scientific/readers/tia-ser.d.ts",
+      "import": "./dist/scientific/readers/tia-ser.js",
+      "default": "./dist/scientific/readers/tia-ser.js"
+    },
+    "./scientific/readers/tia-emi": {
+      "types": "./dist/scientific/readers/tia-emi.d.ts",
+      "import": "./dist/scientific/readers/tia-emi.js",
+      "default": "./dist/scientific/readers/tia-emi.js"
+    },
+    "./scientific/readers/ncem-emd": {
+      "types": "./dist/scientific/readers/ncem-emd.d.ts",
+      "import": "./dist/scientific/readers/ncem-emd.js",
+      "default": "./dist/scientific/readers/ncem-emd.js"
+    },
+    "./scientific/readers/velox-emd": {
+      "types": "./dist/scientific/readers/velox-emd.d.ts",
+      "import": "./dist/scientific/readers/velox-emd.js",
+      "default": "./dist/scientific/readers/velox-emd.js"
+    },
+    "./scientific/readers/tiff": {
+      "types": "./dist/scientific/readers/tiff.d.ts",
+      "import": "./dist/scientific/readers/tiff.js",
+      "default": "./dist/scientific/readers/tiff.js"
+    },
     "./scientific/readers/ome-tiff": {
       "types": "./dist/scientific/readers/ome-tiff.d.ts",
       "import": "./dist/scientific/readers/ome-tiff.js",
@@ -132,6 +227,31 @@
       "types": "./dist/scientific/readers/aperio-svs.d.ts",
       "import": "./dist/scientific/readers/aperio-svs.js",
       "default": "./dist/scientific/readers/aperio-svs.js"
+    },
+    "./scientific/readers/png": {
+      "types": "./dist/scientific/readers/png.d.ts",
+      "import": "./dist/scientific/readers/png.js",
+      "default": "./dist/scientific/readers/png.js"
+    },
+    "./scientific/readers/jpeg": {
+      "types": "./dist/scientific/readers/jpeg.d.ts",
+      "import": "./dist/scientific/readers/jpeg.js",
+      "default": "./dist/scientific/readers/jpeg.js"
+    },
+    "./scientific/readers/webp": {
+      "types": "./dist/scientific/readers/webp.d.ts",
+      "import": "./dist/scientific/readers/webp.js",
+      "default": "./dist/scientific/readers/webp.js"
+    },
+    "./scientific/readers/bmp": {
+      "types": "./dist/scientific/readers/bmp.d.ts",
+      "import": "./dist/scientific/readers/bmp.js",
+      "default": "./dist/scientific/readers/bmp.js"
+    },
+    "./scientific/readers/jp2": {
+      "types": "./dist/scientific/readers/jp2.d.ts",
+      "import": "./dist/scientific/readers/jp2.js",
+      "default": "./dist/scientific/readers/jp2.js"
     },
     "./scientific/readers/all": {
       "types": "./dist/scientific/readers/all.d.ts",
@@ -320,6 +440,21 @@
     "prepack": "npm run check",
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
+    "fixtures:digital-micrograph": "node benchmark/digital-micrograph/verify-corpus.ts",
+    "fixtures:digital-micrograph:prepare": "node benchmark/digital-micrograph/prepare-corpus.ts",
+    "fixtures:digital-micrograph:remote": "node benchmark/digital-micrograph/verify-semantic-corpus.ts",
+    "fixtures:tia-ser": "node benchmark/tia-ser/verify-corpus.ts",
+    "fixtures:scientific-interchange": "node benchmark/scientific-interchange/verify-corpus.ts",
+    "fixtures:scientific-interchange:prepare": "node benchmark/scientific-interchange/prepare-corpus.ts",
+    "fixtures:tia-ser:prepare": "node benchmark/tia-ser/prepare-corpus.ts",
+    "fixtures:tia-emi": "node benchmark/tia-ser/verify-emi-corpus.ts",
+    "fixtures:tia-emi:prepare": "node benchmark/tia-ser/prepare-emi-corpus.ts",
+    "fixtures:hdf5": "node benchmark/hdf5/verify-corpus.ts",
+    "fixtures:hdf5:prepare": "node benchmark/hdf5/prepare-corpus.ts",
+    "fixtures:ncem-emd": "node benchmark/ncem-emd/verify-corpus.ts",
+    "fixtures:ncem-emd:prepare": "node benchmark/ncem-emd/prepare-corpus.ts",
+    "fixtures:velox-emd": "node benchmark/velox-emd/verify-corpus.ts",
+    "fixtures:velox-emd:prepare": "node benchmark/velox-emd/prepare-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha": "node benchmark/avif/verify-auxiliary-fixtures.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",

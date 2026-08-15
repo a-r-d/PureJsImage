@@ -10,13 +10,18 @@ import type {
   ScientificDataset,
   ScientificDatasetDescriptor,
   ScientificPlaneReadRequest,
+  ScientificSeriesBlock,
+  ScientificSeriesReadRequest,
 } from '../src/scientific/index.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
+  normalizeScientificSeriesReadRequest,
+  readScientificSeriesFromPlane,
   resolveScientificAxisAtResolutionLevel,
   resolveScientificDescriptorAtResolutionLevel,
   supportsScientificPlaneRead,
+  supportsScientificSeriesRead,
   validateScientificDatasetDescriptor,
 } from '../src/scientific/index.ts'
 
@@ -85,12 +90,139 @@ class SyntheticScientificDataset implements ScientificDataset {
   }
 }
 
+class SyntheticScientificSeriesDataset implements ScientificDataset {
+  readonly descriptor: NormalizedScientificDatasetDescriptor
+  reads = 0
+  releases = 0
+
+  constructor() {
+    this.descriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 1,
+      axes: [axis('energy', 'spectral', 5, { type: 'linear', origin: 100, step: 0.5 })],
+      sampleType: 'uint16',
+      components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'none' },
+        seriesReads: { kind: 'axes', axes: ['energy'] },
+      },
+    })
+  }
+
+  readPlane(_request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock> {
+    throw new Error('Synthetic one-dimensional dataset does not support plane reads')
+  }
+
+  async *readSeries(
+    request: Readonly<ScientificSeriesReadRequest>,
+  ): AsyncGenerator<ScientificSeriesBlock> {
+    const normalized = normalizeScientificSeriesReadRequest(this.descriptor, request)
+    normalized.signal?.throwIfAborted()
+    this.reads += 1
+    const data = new Uint8Array(normalized.length * 2)
+    const view = new DataView(data.buffer)
+    for (let index = 0; index < normalized.length; index += 1) {
+      view.setUint16(index * 2, normalized.start + index + 1, false)
+    }
+    yield {
+      start: normalized.start,
+      length: normalized.length,
+      format: { sampleType: 'uint16', channels: 1, planar: false },
+      data,
+      release: () => {
+        this.releases += 1
+      },
+    }
+  }
+}
+
+class SyntheticPlaneSeriesSource implements ScientificDataset {
+  readonly descriptor = normalizeScientificDatasetDescriptor(
+    descriptorInput([axis('x', 'space', 4), axis('y', 'space', 3)], {
+      sampleType: 'uint16',
+    }),
+  )
+  releases = 0
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    normalized.signal?.throwIfAborted()
+    const stride = normalized.width * 2 + 2
+    const data = new Uint8Array(stride * normalized.height)
+    const view = new DataView(data.buffer)
+    for (let y = 0; y < normalized.height; y += 1) {
+      for (let x = 0; x < normalized.width; x += 1) {
+        view.setUint16(y * stride + x * 2, (normalized.y + y) * 10 + normalized.x + x, false)
+      }
+    }
+    yield {
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
+      stride,
+      format: { sampleType: 'uint16', channels: 1, planar: false },
+      data,
+      release: () => {
+        this.releases += 1
+      },
+    }
+  }
+}
+
+class SyntheticPlanarSeriesSource implements ScientificDataset {
+  readonly descriptor = normalizeScientificDatasetDescriptor(
+    descriptorInput([axis('x', 'space', 2), axis('y', 'space', 2)], {
+      components: [
+        { id: 'a', kind: 'scalar' },
+        { id: 'b', kind: 'scalar' },
+      ],
+    }),
+  )
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    const stride = normalized.width + 1
+    const occupiedPlaneBytes = stride * (normalized.height - 1) + normalized.width
+    const planeStride = occupiedPlaneBytes + 1
+    const data = new Uint8Array(planeStride + occupiedPlaneBytes)
+    for (let channel = 0; channel < 2; channel += 1) {
+      for (let y = 0; y < normalized.height; y += 1) {
+        for (let x = 0; x < normalized.width; x += 1) {
+          data[channel * planeStride + y * stride + x] =
+            channel * 100 + (normalized.y + y) * 10 + normalized.x + x
+        }
+      }
+    }
+    yield {
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
+      stride,
+      planeStride,
+      format: { sampleType: 'uint8', channels: 2, planar: true },
+      data,
+    }
+  }
+}
+
 const firstBlock = async (
   dataset: ScientificDataset,
   request: Readonly<ScientificPlaneReadRequest>,
 ): Promise<RasterBlock> => {
   for await (const block of dataset.readPlane(request)) return block
   throw new Error('Synthetic scientific dataset returned no block')
+}
+
+const firstSeriesBlock = async (
+  dataset: ScientificDataset,
+  request: Readonly<ScientificSeriesReadRequest>,
+): Promise<ScientificSeriesBlock> => {
+  if (dataset.readSeries === undefined) throw new Error('Dataset does not implement series reads')
+  for await (const block of dataset.readSeries(request)) return block
+  throw new Error('Synthetic scientific dataset returned no series block')
 }
 
 describe('ScientificDataset descriptors', () => {
@@ -115,6 +247,76 @@ describe('ScientificDataset descriptors', () => {
     expect(Number.isNaN(descriptor.noDataValue)).toBe(true)
     expect(Object.isFrozen(descriptor)).toBe(true)
     expect(Object.isFrozen(descriptor.metadata?.acquisition)).toBe(true)
+  })
+
+  it('normalizes an honest one-dimensional spectral dataset without a synthetic axis', () => {
+    const descriptor = new SyntheticScientificSeriesDataset().descriptor
+    const lookup = normalizeScientificDatasetDescriptor({
+      ...descriptor,
+      axes: [axis('energy', 'spectral', 3, { type: 'lookup', values: [100, 100.6, 102.1] })],
+      levels: undefined,
+    })
+
+    expect(descriptor.axes).toEqual([
+      {
+        id: 'energy',
+        kind: 'spectral',
+        length: 5,
+        coordinates: { type: 'linear', origin: 100, step: 0.5 },
+      },
+    ])
+    expect(descriptor.capabilities).toEqual({
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'none' },
+      seriesReads: { kind: 'axes', axes: ['energy'] },
+    })
+    expect(supportsScientificPlaneRead(descriptor, ['energy', 'energy'])).toBe(false)
+    expect(supportsScientificSeriesRead(descriptor, 'energy')).toBe(true)
+    expect(supportsScientificSeriesRead(descriptor, 'unknown')).toBe(false)
+    expect(lookup.axes[0]?.coordinates).toEqual({ type: 'lookup', values: [100, 100.6, 102.1] })
+  })
+
+  it('rejects unusable or contradictory one-dimensional capabilities', () => {
+    const base = {
+      schemaVersion: 1,
+      axes: [axis('energy', 'spectral', 5)],
+      sampleType: 'uint16',
+      components: [{ id: 'intensity', kind: 'intensity' }],
+    }
+
+    expect(() =>
+      normalizeScientificDatasetDescriptor({
+        ...base,
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: { kind: 'none' },
+        },
+      }),
+    ).toThrow('must support plane reads or series reads')
+    expect(() =>
+      normalizeScientificDatasetDescriptor({
+        ...base,
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: { kind: 'any-axis-pair' },
+          seriesReads: { kind: 'any-axis' },
+        },
+      }),
+    ).toThrow('any-axis-pair capability requires at least two axes')
+    expect(() =>
+      normalizeScientificDatasetDescriptor({
+        ...base,
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: { kind: 'none' },
+          seriesReads: { kind: 'axes', axes: ['unknown'] },
+        },
+      }),
+    ).toThrow('seriesReads names unknown axis unknown')
   })
 
   it('copies nonlinear and label coordinates once during normalization', () => {
@@ -143,6 +345,89 @@ describe('ScientificDataset descriptors', () => {
     labels[0] = 'changed'
     expect(energy.values[0]).toBe(10)
     expect(state.values[0]).toBe('before')
+  })
+
+  it('normalizes, freezes, and serializes calibration evidence', () => {
+    const calibration = {
+      kind: 'derived' as const,
+      resourceId: 'volume-1',
+      locator: 'mrc:header:cellDimensions.x,MX,origin.x',
+      formula: 'mrc-cell-dimension-per-sample-v1',
+      note: 'Spacing is derived from the declared grid sampling.',
+    }
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([
+        {
+          ...axis('x', 'space', 2, { type: 'linear', origin: 1, step: 0.5 }),
+          unit: 'Å',
+          calibration,
+        },
+        axis('y', 'space', 2),
+      ]),
+    )
+    const normalized = descriptor.axes[0]?.calibration
+
+    expect(normalized).toEqual(calibration)
+    expect(normalized).not.toBe(calibration)
+    expect(Object.isFrozen(normalized)).toBe(true)
+    expect(JSON.parse(JSON.stringify(descriptor))).toEqual(descriptor)
+  })
+
+  it('preserves and freezes multiple calibration evidence contributors', () => {
+    const calibration = [
+      { kind: 'embedded' as const, resourceId: 'image', locator: 'ser:Calibration[0]' },
+      { kind: 'sidecar' as const, resourceId: 'metadata', locator: 'emi:Mode' },
+    ]
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([
+        {
+          ...axis('x', 'reciprocal-space', 2, { type: 'linear', origin: 0, step: 1 }),
+          unit: '1/m',
+          calibration,
+        },
+        axis('y', 'space', 2),
+      ]),
+    )
+
+    expect(descriptor.axes[0]?.calibration).toEqual(calibration)
+    expect(descriptor.axes[0]?.calibration).not.toBe(calibration)
+    expect(Object.isFrozen(descriptor.axes[0]?.calibration)).toBe(true)
+  })
+
+  it.each([
+    [{ kind: 'unknown', resourceId: 'source', locator: 'format:field' }, 'kind'],
+    [{ kind: 'embedded', resourceId: '', locator: 'format:field' }, 'resourceId'],
+    [{ kind: 'embedded', resourceId: 'source', locator: '' }, 'locator'],
+    [{ kind: 'embedded', resourceId: 'source', locator: 'format:field', extra: true }, 'extra'],
+  ])('rejects malformed calibration evidence %#', (calibration, message) => {
+    expect(() =>
+      normalizeScientificDatasetDescriptor(
+        descriptorInput([
+          {
+            ...axis('x', 'space', 2, { type: 'linear', origin: 0, step: 1 }),
+            calibration: calibration as never,
+          },
+          axis('y', 'space', 2),
+        ]),
+      ),
+    ).toThrow(message)
+  })
+
+  it.each([
+    [[]],
+    [new Array(17).fill({ kind: 'embedded', resourceId: 'source', locator: 'field' })],
+  ])('rejects an invalid calibration contributor count %#', (calibration) => {
+    expect(() =>
+      normalizeScientificDatasetDescriptor(
+        descriptorInput([
+          {
+            ...axis('x', 'space', 2, { type: 'linear', origin: 0, step: 1 }),
+            calibration,
+          },
+          axis('y', 'space', 2),
+        ]),
+      ),
+    ).toThrow('contributors')
   })
 
   it('describes components independently from selectable channel axes', () => {
@@ -726,6 +1011,252 @@ describe('ScientificDataset plane requests', () => {
     await expect(firstBlock(dataset, { ...request, signal: controller.signal })).rejects.toThrow(
       'cancel scientific read',
     )
+    expect(iterable).toBeDefined()
+  })
+})
+
+describe('ScientificDataset series requests', () => {
+  it('rejects an unsupported plane pair before adapter I/O', async () => {
+    let reads = 0
+    const dataset: ScientificDataset = {
+      descriptor: normalizeScientificDatasetDescriptor(
+        descriptorInput([axis('x', 'space', 4), axis('y', 'space', 3)], {
+          capabilities: {
+            regionReads: true,
+            resolutionLevels: false,
+            planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+          },
+        }),
+      ),
+      readPlane() {
+        reads += 1
+        return {
+          async *[Symbol.asyncIterator]() {},
+        }
+      },
+    }
+
+    const read = async (): Promise<void> => {
+      for await (const _block of readScientificSeriesFromPlane(dataset, ['y', 'x'], {
+        axisId: 'y',
+        fixedIndices: [{ axisId: 'x', index: 0 }],
+      })) {
+        // The unsupported pair must be rejected before the source is called.
+      }
+    }
+
+    await expect(read()).rejects.toThrow('does not support plane axes y/x')
+    expect(reads).toBe(0)
+  })
+
+  it('adapts bounded rows and columns from existing plane readers', async () => {
+    const dataset = new SyntheticPlaneSeriesSource()
+    const row: ScientificSeriesBlock[] = []
+    for await (const block of readScientificSeriesFromPlane(dataset, ['x', 'y'], {
+      axisId: 'x',
+      fixedIndices: [{ axisId: 'y', index: 2 }],
+      start: 1,
+      length: 3,
+    })) {
+      row.push(block)
+    }
+    const column: ScientificSeriesBlock[] = []
+    for await (const block of readScientificSeriesFromPlane(dataset, ['x', 'y'], {
+      axisId: 'y',
+      fixedIndices: [{ axisId: 'x', index: 2 }],
+    })) {
+      column.push(block)
+    }
+
+    expect(row.map(({ start, length, data }) => ({ start, length, data: [...data] }))).toEqual([
+      { start: 1, length: 3, data: [0, 21, 0, 22, 0, 23] },
+    ])
+    expect(column.map(({ start, length, data }) => ({ start, length, data: [...data] }))).toEqual([
+      { start: 0, length: 3, data: [0, 2, 0, 12, 0, 22] },
+    ])
+    expect(dataset.releases).toBe(2)
+  })
+
+  it('compacts padded planar components without changing canonical sample order', async () => {
+    const blocks: ScientificSeriesBlock[] = []
+    for await (const block of readScientificSeriesFromPlane(
+      new SyntheticPlanarSeriesSource(),
+      ['x', 'y'],
+      {
+        axisId: 'y',
+        fixedIndices: [{ axisId: 'x', index: 1 }],
+      },
+    )) {
+      blocks.push(block)
+    }
+
+    expect(
+      blocks.map(({ start, length, format, data }) => ({
+        start,
+        length,
+        format,
+        data: [...data],
+      })),
+    ).toEqual([
+      {
+        start: 0,
+        length: 2,
+        format: { sampleType: 'uint8', channels: 2, planar: true },
+        data: [1, 11, 101, 111],
+      },
+    ])
+  })
+
+  it('normalizes bounded one-dimensional reads without adding a fake display axis', () => {
+    const descriptor = new SyntheticScientificSeriesDataset().descriptor
+
+    expect(
+      normalizeScientificSeriesReadRequest(descriptor, {
+        axisId: 'energy',
+        fixedIndices: [],
+        start: 1,
+        length: 3,
+      }),
+    ).toEqual({
+      axisId: 'energy',
+      fixedIndices: [],
+      resolutionLevel: 0,
+      start: 1,
+      length: 3,
+    })
+  })
+
+  it('uses the selected resolution-level length for one-dimensional reads', () => {
+    const descriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 1,
+      axes: [axis('energy', 'spectral', 4, { type: 'linear', origin: 100, step: 0.5 })],
+      sampleType: 'uint16',
+      components: [{ id: 'intensity', kind: 'intensity' }],
+      levels: [
+        { level: 0, axisLengths: [{ axisId: 'energy', length: 4 }] },
+        { level: 1, axisLengths: [{ axisId: 'energy', length: 2 }] },
+      ],
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: true,
+        planeReads: { kind: 'none' },
+        seriesReads: { kind: 'axes', axes: ['energy'] },
+      },
+    })
+
+    expect(
+      normalizeScientificSeriesReadRequest(descriptor, {
+        axisId: 'energy',
+        fixedIndices: [],
+        resolutionLevel: 1,
+      }),
+    ).toMatchObject({ resolutionLevel: 1, start: 0, length: 2 })
+  })
+
+  it('fixes every other non-singleton axis for a selected series', () => {
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput(
+        [axis('scan', 'space', 3), axis('energy', 'spectral', 5), axis('detector', 'channel', 1)],
+        {
+          capabilities: {
+            regionReads: true,
+            resolutionLevels: false,
+            planeReads: { kind: 'ordered-axis-pairs', pairs: [['scan', 'energy']] },
+            seriesReads: { kind: 'axes', axes: ['energy'] },
+          },
+        },
+      ),
+    )
+
+    expect(
+      normalizeScientificSeriesReadRequest(descriptor, {
+        axisId: 'energy',
+        fixedIndices: [{ axisId: 'scan', index: 2 }],
+      }),
+    ).toEqual({
+      axisId: 'energy',
+      fixedIndices: [
+        { axisId: 'scan', index: 2 },
+        { axisId: 'detector', index: 0 },
+      ],
+      resolutionLevel: 0,
+      start: 0,
+      length: 5,
+    })
+    expect(() =>
+      normalizeScientificSeriesReadRequest(descriptor, {
+        axisId: 'scan',
+        fixedIndices: [{ axisId: 'energy', index: 0 }],
+      }),
+    ).toThrow('does not support series axis scan')
+    expect(() =>
+      normalizeScientificSeriesReadRequest(descriptor, {
+        axisId: 'energy',
+        fixedIndices: [],
+      }),
+    ).toThrow('must fix non-singleton axis scan')
+  })
+
+  it('rejects malformed, outside, and unsupported partial series requests', () => {
+    const series = new SyntheticScientificSeriesDataset().descriptor
+    const wholeOnly = normalizeScientificDatasetDescriptor({
+      ...series,
+      capabilities: { ...series.capabilities, regionReads: false },
+    })
+
+    expect(() =>
+      normalizeScientificSeriesReadRequest(series, {
+        axisId: 'energy',
+        fixedIndices: [],
+        start: 4,
+        length: 2,
+      }),
+    ).toThrow('outside the selected resolution level')
+    expect(() =>
+      normalizeScientificSeriesReadRequest(series, {
+        axisId: 'energy',
+        fixedIndices: [{ axisId: 'energy', index: 0 }],
+      }),
+    ).toThrow('must not also be fixed')
+    expect(() =>
+      normalizeScientificSeriesReadRequest(wholeOnly, {
+        axisId: 'energy',
+        fixedIndices: [],
+        length: 2,
+      }),
+    ).toThrow('does not support region reads')
+    expect(() =>
+      normalizeScientificSeriesReadRequest(series, {
+        axisId: 'energy',
+        fixedIndices: [],
+        signal: {},
+      }),
+    ).toThrow('must be an AbortSignal')
+  })
+
+  it('keeps one-dimensional reads lazy and preserves abort and release ownership', async () => {
+    const dataset = new SyntheticScientificSeriesDataset()
+    const request = {
+      axisId: 'energy',
+      fixedIndices: [],
+      start: 1,
+      length: 3,
+    } satisfies ScientificSeriesReadRequest
+    const iterable = dataset.readSeries(request)
+    expect(dataset.reads).toBe(0)
+
+    const block = await firstSeriesBlock(dataset, request)
+    expect(dataset.reads).toBe(1)
+    expect([block.start, block.length]).toEqual([1, 3])
+    expect([...block.data]).toEqual([0, 2, 0, 3, 0, 4])
+    block.release?.()
+    expect(dataset.releases).toBe(1)
+
+    const controller = new AbortController()
+    controller.abort(new Error('cancel scientific series read'))
+    await expect(
+      firstSeriesBlock(dataset, { ...request, signal: controller.signal }),
+    ).rejects.toThrow('cancel scientific series read')
     expect(iterable).toBeDefined()
   })
 })

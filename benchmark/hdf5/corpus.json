@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 5,
+  "source": {
+    "project": "HDF5",
+    "revision": "18de4b4a1b83f5286a53fd0117364c1a068ce1e1",
+    "baseUrl": "https://raw.githubusercontent.com/HDFGroup/hdf5/18de4b4a1b83f5286a53fd0117364c1a068ce1e1/tools/test/testfiles/",
+    "license": "HDF5 License",
+    "licenseUrl": "https://github.com/HDFGroup/hdf5/blob/18de4b4a1b83f5286a53fd0117364c1a068ce1e1/LICENSE",
+    "attribution": "The HDF Group HDF5 test corpus"
+  },
+  "fixtures": [
+    {
+      "file": "tgroup.h5",
+      "path": "tgroup.h5",
+      "bytes": 11096,
+      "sha256": "c36b08d9efedf54f04bee5657f0bb20954b0975a69319cd118aef7b72a94edc9",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "legacy",
+      "rootLinks": ["g1", "g2", "g3"]
+    },
+    {
+      "file": "h5repack_objs.h5",
+      "path": "h5repack_objs.h5",
+      "bytes": 19738,
+      "sha256": "62dadfb94a3931f5e011735edc8abb216251c3b662e85eddb3ea0cdcb417ad4b",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "dense",
+      "unsupportedLink": "ext_link"
+    },
+    {
+      "file": "h5repack_layout.h5",
+      "path": "h5repack_layout.h5",
+      "bytes": 29480,
+      "sha256": "2114a75be3ae9f1128de614f3eac74537e6ab8420fba52b71112c94206b7097d",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/dset_chunk",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero"
+        },
+        {
+          "path": "/dset_compact",
+          "layout": "compact",
+          "dimensions": [40, 20],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 397,
+            "rawHex": "8d0100008e0100008f0100009001000091010000"
+          }
+        },
+        {
+          "path": "/dset_contiguous",
+          "layout": "contiguous",
+          "dimensions": [40, 20],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 397,
+            "rawHex": "8d0100008e0100008f0100009001000091010000"
+          }
+        }
+      ]
+    },
+    {
+      "file": "bounds_latest_latest.h5",
+      "path": "bounds_latest_latest.h5",
+      "bytes": 82048,
+      "sha256": "74e56722c58930d31674f27e2f16baf6ea551f8e643d049a5b8a98ee35ef899e",
+      "superblockVersion": 3,
+      "objectHeaderVersion": 2,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/DS_chunked_layout_4",
+          "layout": "chunked",
+          "dimensions": [100, 200],
+          "chunkDimensions": [50, 50],
+          "datatype": { "kind": "float" },
+          "elementBytes": 4,
+          "logicalBytes": 80000,
+          "fillStatus": "default-zero"
+        }
+      ]
+    },
+    {
+      "file": "tenum.h5",
+      "path": "xml/tenum.h5",
+      "bytes": 2128,
+      "sha256": "46cbc11c7a24fbe02151796e6cf21a8fc33c9f2de85d5aa40f61f77c2f671610",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/table",
+          "layout": "contiguous",
+          "dimensions": [20],
+          "datatype": {
+            "kind": "enum",
+            "members": [
+              { "name": "RED", "value": "0" },
+              { "name": "GREEN\ngreen", "value": "1" },
+              { "name": "BLUE blue", "value": "2" },
+              { "name": "WHITE \"white\"", "value": "3" },
+              { "name": "BLACK 'black'", "value": "4" }
+            ]
+          },
+          "elementBytes": 4,
+          "logicalBytes": 80,
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 0,
+            "rawHex": "00000000010000000200000001000000030000000300000004000000010000000200000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "file": "tcompound.h5",
+      "path": "tcompound.h5",
+      "bytes": 8192,
+      "sha256": "c42774d41ab90a9415f10ef5b95d448e013f5fa8698d3c56d2c32d52256b4990",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/dset1",
+          "layout": "contiguous",
+          "dimensions": [5],
+          "datatype": {
+            "kind": "compound",
+            "members": [
+              { "name": "a_name", "offset": 0, "kind": "integer", "elementBytes": 4 },
+              { "name": "b_name", "offset": 4, "kind": "float", "elementBytes": 4 },
+              { "name": "c_name", "offset": 8, "kind": "float", "elementBytes": 8 }
+            ]
+          },
+          "elementBytes": 16,
+          "logicalBytes": 80,
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 0,
+            "rawHex": "00000000000000003ff0000000000000000000013f8000003fe0000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "file": "h5repack_filters.h5",
+      "path": "h5repack_filters.h5",
+      "bytes": 27604,
+      "sha256": "acc2f7865d9a79dd2ea5c48c83e0421bb44b4ae4c25a5c91713681f94e028edf",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/dset_all",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [2, 3, 1]
+        },
+        {
+          "path": "/dset_deflate",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [1]
+        },
+        {
+          "path": "/dset_fletcher32",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [3]
+        },
+        {
+          "path": "/dset_nbit",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [5]
+        },
+        {
+          "path": "/dset_shuffle",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [2]
+        }
+      ]
+    }
+  ]
+}

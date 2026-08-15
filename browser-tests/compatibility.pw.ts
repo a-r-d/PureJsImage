@@ -25,6 +25,43 @@ test('uses Lanczos3 as the default resize kernel in a real browser', async ({ pa
   expect(result.detail).toContain('matched explicit Lanczos3')
 })
 
+test('decodes the required HDF5 filters in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5Filters())
+  expect(result.outputBytes).toBe(64)
+  expect(result.detail).toContain('decoded in reverse order')
+})
+
+test('reads exact HDF5 dataset blocks in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5DatasetBlocks())
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('exact compact selection blocks')
+})
+
+test('reads an NCEM EMD scientific dataset in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5NcemEmd())
+  expect(result.outputBytes).toBe(4)
+  expect(result.detail).toContain('NCEM EMD 0.2 scientific dataset')
+  expect(result.detail).toContain('calibration')
+  expect(result.detail).toContain('acquisition metadata')
+})
+
+test('reads a Velox EMD FFT dataset in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5VeloxEmd())
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('Velox EMD complex FFT dataset')
+})
+
+test('reads a bounded Velox EMD point spectrum in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5VeloxSpectrum())
+  expect(result.outputBytes).toBe(12)
+  expect(result.detail).toContain('sparse point spectrum stayed bounded')
+})
+
 test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding', async ({
   page,
 }) => {
@@ -137,9 +174,79 @@ test('uses public scientific TIFF APIs in a real browser', async ({ page }) => {
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiffDocument())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('bounded TIFF extension APIs')
+  expect(result.detail).toContain('native-precision ordinary TIFF opening')
+  expect(result.detail).toContain('specialized OME-TIFF precedence')
   expect(result.detail).toContain('labeled OME-TIFF document opening')
   expect(result.detail).toContain('explicit display conversion')
   expect(result.detail).toContain('native-tile Aperio stripe streaming')
+})
+
+test('opens a DM3 selected region through the public scientific reader in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificDigitalMicrograph(),
+  )
+  expect(result.outputBytes).toBe(4)
+  expect(result.detail).toContain('direct selected-region reads')
+})
+
+test('opens AFM and surface formats through their public readers in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificSurfaceFormats(),
+  )
+  expect(result.outputBytes).toBe(24)
+  expect(result.detail).toContain('bounded ZIP-backed X3P')
+})
+
+test('opens Milestone H interchange and detector formats in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificInterchangeFormats(),
+  )
+  expect(result.outputBytes).toBe(113)
+  expect(result.detail).toContain('nine portable Milestone H readers')
+  expect(result.detail).toContain('browser gzip')
+})
+
+test('reads a calibrated TIA SER spectrum image in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaSer())
+  expect(result.outputBytes).toBe(6)
+  expect(result.detail).toContain('native series reads')
+})
+
+test('opens TIA EMI with its SER companion in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaEmi())
+  expect(result.outputBytes).toBe(16)
+  expect(result.detail).toContain('File companion')
+})
+
+test('reads a one-dimensional scientific series without a synthetic display axis', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificOneDimensionalSeries(),
+  )
+  expect(result.outputBytes).toBe(6)
+  expect(result.detail).toContain('one true axis')
+})
+
+test('opens ordinary WebP, BMP, and JP2 scientific fallbacks in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificOrdinaryCodecFallbacks(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(0)
+  expect(result.detail).toContain('WebP, BMP, and JP2')
 })
 
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {

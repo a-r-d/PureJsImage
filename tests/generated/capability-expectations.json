@@ -90,6 +90,7 @@
         "tests/imazen-corpus-harness.test.ts",
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
+        "tests/scientific-tiff-reader.test.ts",
         "tests/scientific-aperio-reader.test.ts",
         "tests/scientific-whole-slide-bridge.test.ts"
       ],
@@ -269,6 +270,479 @@
         "status": "not-applicable",
         "rationale": "Supported TGA paths are uncompressed or losslessly run-length encoded"
       }
+    }
+  ],
+  "scientificReaders": [
+    {
+      "id": "purejsimage/gsf",
+      "version": "1.0.0",
+      "format": "Gwyddion Simple Field",
+      "packageExport": "purejsimage/scientific/readers/gsf",
+      "extensions": ["gsf"],
+      "mediaTypes": ["application/x-gwyddion-spm"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/nanonis-sxm",
+      "version": "1.0.0",
+      "format": "Nanonis SXM",
+      "packageExport": "purejsimage/scientific/readers/nanonis-sxm",
+      "extensions": ["sxm"],
+      "mediaTypes": ["application/x-nanonis-sxm"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/nanonis-afm-generic4.sxm",
+        "tests/fixtures/scientific-surface/nanonis-stm-generic5.sxm"
+      ]
+    },
+    {
+      "id": "purejsimage/igor-binary-wave",
+      "version": "1.0.0",
+      "format": "Igor Binary Wave v5",
+      "packageExport": "purejsimage/scientific/readers/igor-binary-wave",
+      "extensions": ["ibw"],
+      "mediaTypes": ["application/x-igor-binary-wave"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/asylum-afm-v5.ibw",
+        "tests/fixtures/scientific-surface/igor-win-v5-rank1.ibw"
+      ]
+    },
+    {
+      "id": "purejsimage/digital-surf",
+      "version": "1.0.0",
+      "format": "Digital Surf SUR/PRO",
+      "packageExport": "purejsimage/scientific/readers/digital-surf",
+      "extensions": ["sur", "pro"],
+      "mediaTypes": ["application/x-digitalsurf-sur"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": ["tests/fixtures/scientific-surface/digital-surf-compressed.sur"]
+    },
+    {
+      "id": "purejsimage/x3p",
+      "version": "1.0.0",
+      "format": "X3P surface exchange",
+      "packageExport": "purejsimage/scientific/readers/x3p",
+      "extensions": ["x3p"],
+      "mediaTypes": ["application/x-x3p"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/iso5436-sample1.x3p",
+        "tests/fixtures/scientific-surface/iso5436-sample4.x3p"
+      ]
+    },
+    {
+      "id": "purejsimage/envi",
+      "version": "1.0.0",
+      "format": "ENVI",
+      "packageExport": "purejsimage/scientific/readers/envi",
+      "extensions": ["hdr", "img", "dat", "raw"],
+      "mediaTypes": ["application/x-envi"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/envi.test.ts"],
+      "fixtures": ["tests/envi.test.ts"]
+    },
+    {
+      "id": "purejsimage/fits",
+      "version": "1.0.0",
+      "format": "FITS",
+      "packageExport": "purejsimage/scientific/readers/fits",
+      "extensions": ["fits", "fit", "fts"],
+      "mediaTypes": ["application/fits", "image/fits"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/fits.test.ts"],
+      "fixtures": ["tests/fits.test.ts"]
+    },
+    {
+      "id": "purejsimage/mrc",
+      "version": "1.0.0",
+      "format": "MRC/CCP4",
+      "packageExport": "purejsimage/scientific/readers/mrc",
+      "extensions": ["mrc", "map", "ccp4"],
+      "mediaTypes": ["application/x-mrc", "application/x-ccp4"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/cbf",
+      "version": "1.0.0",
+      "format": "CBF/imgCIF",
+      "packageExport": "purejsimage/scientific/readers/cbf",
+      "extensions": ["cbf"],
+      "mediaTypes": ["application/x-cbf"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/png",
+      "version": "1.0.0",
+      "format": "PNG",
+      "packageExport": "purejsimage/scientific/readers/png",
+      "extensions": ["png"],
+      "mediaTypes": ["image/png"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-image-codec-reader.test.ts"],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jpeg",
+      "version": "1.0.0",
+      "format": "JPEG",
+      "packageExport": "purejsimage/scientific/readers/jpeg",
+      "extensions": ["jpg", "jpeg", "jpe"],
+      "mediaTypes": ["image/jpeg"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-image-codec-reader.test.ts"],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/webp",
+      "version": "1.0.0",
+      "format": "WebP",
+      "packageExport": "purejsimage/scientific/readers/webp",
+      "extensions": ["webp"],
+      "mediaTypes": ["image/webp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/bmp",
+      "version": "1.0.0",
+      "format": "BMP",
+      "packageExport": "purejsimage/scientific/readers/bmp",
+      "extensions": ["bmp", "dib"],
+      "mediaTypes": ["image/bmp", "image/x-ms-bmp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jp2",
+      "version": "1.0.0",
+      "format": "JPEG 2000 / JP2",
+      "packageExport": "purejsimage/scientific/readers/jp2",
+      "extensions": ["jp2"],
+      "mediaTypes": ["image/jp2"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2"]
+    },
+    {
+      "id": "purejsimage/tiff",
+      "version": "1.0.0",
+      "format": "TIFF",
+      "packageExport": "purejsimage/scientific/readers/tiff",
+      "extensions": ["tif", "tiff"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "pyramid"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-tiff-reader.test.ts"],
+      "fixtures": ["tests/scientific-tiff-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/ome-tiff",
+      "version": "1.0.0",
+      "format": "OME-TIFF",
+      "packageExport": "purejsimage/scientific/readers/ome-tiff",
+      "extensions": ["tif", "tiff"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ],
+      "fixtures": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/aperio-svs",
+      "version": "1.0.0",
+      "format": "Aperio SVS",
+      "packageExport": "purejsimage/scientific/readers/aperio-svs",
+      "extensions": ["svs"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["pyramid", "image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-aperio-reader.test.ts"],
+      "fixtures": ["tests/scientific-aperio-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/digital-micrograph",
+      "version": "1.0.0",
+      "format": "Gatan DigitalMicrograph",
+      "packageExport": "purejsimage/scientific/readers/digital-micrograph",
+      "extensions": ["dm3", "dm4"],
+      "mediaTypes": [
+        "application/x-gatan-dm3",
+        "application/x-gatan-dm4",
+        "application/x-digital-micrograph"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/digital-micrograph-index.test.ts"],
+      "fixtures": [
+        "benchmark/digital-micrograph/corpus.json",
+        "benchmark/digital-micrograph/semantic-corpus.json",
+        "benchmark/digital-micrograph/generated-fixture.ts",
+        "benchmark/digital-micrograph/verify-semantic-corpus.ts",
+        "tests/digital-micrograph-index.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/tia-ser",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA SER",
+      "packageExport": "purejsimage/scientific/readers/tia-ser",
+      "extensions": ["ser"],
+      "mediaTypes": [
+        "application/x-fei-ser",
+        "application/x-thermo-tia-ser",
+        "application/x-tia-ser"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "evidence": ["tests/tia-ser-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/corpus.json",
+        "benchmark/tia-ser/generated-fixture.ts",
+        "benchmark/tia-ser/verify-corpus.ts",
+        "tests/tia-ser-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/tia-emi",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA EMI",
+      "packageExport": "purejsimage/scientific/readers/tia-emi",
+      "extensions": ["emi"],
+      "mediaTypes": [
+        "application/x-fei-emi",
+        "application/x-thermo-tia-emi",
+        "application/x-tia-emi"
+      ],
+      "resourceModel": "companion-set",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "evidence": ["tests/tia-emi-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/emi-corpus.json",
+        "benchmark/tia-ser/generated-emi-fixture.ts",
+        "benchmark/tia-ser/verify-emi-corpus.ts",
+        "tests/tia-emi-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/ncem-emd",
+      "version": "1.0.0",
+      "format": "NCEM EMD 0.2",
+      "packageExport": "purejsimage/scientific/readers/ncem-emd",
+      "extensions": ["emd"],
+      "mediaTypes": ["application/x-hdf5"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "evidence": ["tests/ncem-emd-reader.test.ts", "tests/ncem-emd.test.ts"],
+      "fixtures": [
+        "benchmark/ncem-emd/corpus.json",
+        "benchmark/ncem-emd/generated-fixture.ts",
+        "tests/ncem-emd-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/velox-emd",
+      "version": "1.0.0",
+      "format": "FEI/Thermo Velox EMD",
+      "packageExport": "purejsimage/scientific/readers/velox-emd",
+      "extensions": ["emd"],
+      "mediaTypes": ["application/x-hdf5"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/velox-emd-reader.test.ts"],
+      "fixtures": ["benchmark/velox-emd/generated-fixture.ts", "tests/velox-emd-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/rpl",
+      "version": "1.0.0",
+      "format": "Lispix RPL/RAW",
+      "packageExport": "purejsimage/scientific/readers/rpl",
+      "extensions": ["rpl", "raw"],
+      "mediaTypes": ["application/x-rpl", "application/x-lispix-raw"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/emsa",
+      "version": "1.0.0",
+      "format": "EMSA/MAS spectrum",
+      "packageExport": "purejsimage/scientific/readers/emsa",
+      "extensions": ["msa", "emsa"],
+      "mediaTypes": ["application/x-emsa-mas"],
+      "resourceModel": "single",
+      "datasetKinds": ["spectrum"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/nrrd",
+      "version": "1.0.0",
+      "format": "NRRD",
+      "packageExport": "purejsimage/scientific/readers/nrrd",
+      "extensions": ["nrrd", "nhdr"],
+      "mediaTypes": ["application/x-nrrd"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/meta-image",
+      "version": "1.0.0",
+      "format": "MetaImage MHD/MHA",
+      "packageExport": "purejsimage/scientific/readers/meta-image",
+      "extensions": ["mhd", "mha"],
+      "mediaTypes": ["application/x-metaimage"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/nifti",
+      "version": "1.0.0",
+      "format": "NIfTI-1/2",
+      "packageExport": "purejsimage/scientific/readers/nifti",
+      "extensions": ["nii", "gz"],
+      "mediaTypes": ["application/x-nifti"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/npy",
+      "version": "1.0.0",
+      "format": "NumPy NPY",
+      "packageExport": "purejsimage/scientific/readers/npy",
+      "extensions": ["npy"],
+      "mediaTypes": ["application/x-npy"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/blockfile",
+      "version": "1.0.0",
+      "format": "NanoMegas ASTAR blockfile",
+      "packageExport": "purejsimage/scientific/readers/blockfile",
+      "extensions": ["blo"],
+      "mediaTypes": ["application/x-nanomegas-blo"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/mib",
+      "version": "1.0.0",
+      "format": "Quantum Detectors Merlin MIB",
+      "packageExport": "purejsimage/scientific/readers/mib",
+      "extensions": ["mib"],
+      "mediaTypes": ["application/x-merlin-mib"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/ebsd-text",
+      "version": "1.0.0",
+      "format": "ANG/CTF orientation map",
+      "packageExport": "purejsimage/scientific/readers/ebsd-text",
+      "extensions": ["ang", "ctf"],
+      "mediaTypes": ["application/x-ebsd-ang", "application/x-ebsd-ctf"],
+      "resourceModel": "single",
+      "datasetKinds": ["orientation-map"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
     }
   ]
 }

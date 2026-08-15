@@ -1,7 +1,10 @@
 export type {
   NormalizedScientificDatasetDescriptor,
   NormalizedScientificPlaneReadRequest,
+  NormalizedScientificSeriesReadRequest,
   ScientificAxisCoordinates,
+  ScientificCalibrationEvidence,
+  ScientificCalibrationEvidenceKind,
   ScientificAxisDescriptor,
   ScientificAxisEntryDescriptor,
   ScientificAxisIndex,
@@ -15,6 +18,9 @@ export type {
   ScientificMetadataObject,
   ScientificMetadataValue,
   ScientificPlaneReadRequest,
+  ScientificSeriesReadCapability,
+  ScientificSeriesBlock,
+  ScientificSeriesReadRequest,
   ScientificResolutionAxisLength,
   ScientificResolutionAxisCoordinates,
   ScientificResolutionLevel,
@@ -43,6 +49,7 @@ export type {
   ScientificReaderDetection,
   ScientificResource,
 } from './reader.ts'
+export type { ImageCodecScientificReaderOptions } from './image-codec-reader.ts'
 export type {
   DirectNumericTileDataset,
   NumericArray,
@@ -64,9 +71,12 @@ export {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
+  normalizeScientificSeriesReadRequest,
+  readScientificSeriesFromPlane,
   resolveScientificAxisAtResolutionLevel,
   resolveScientificDescriptorAtResolutionLevel,
   supportsScientificPlaneRead,
+  supportsScientificSeriesRead,
   validateScientificDatasetDescriptor,
 } from './dataset.ts'
 export {
@@ -78,6 +88,7 @@ export {
   ScientificReaderRegistry,
   getScientificDatasetIdentity,
 } from './reader.ts'
+export { createImageCodecScientificReader } from './image-codec-reader.ts'
 export type {
   ContentSourceIdentity,
   HashImageSourceOptions,

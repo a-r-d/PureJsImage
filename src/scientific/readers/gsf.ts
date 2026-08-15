@@ -55,7 +55,30 @@ export const gsfReader: ScientificReader = Object.freeze({
       fields: legacy.metadata,
     })
     const dataset = descriptorWithFormatMetadata(
-      toScientificDataset(legacy),
+      toScientificDataset(legacy, {
+        calibrationEvidence: {
+          ...(legacy.physicalSizeX === undefined
+            ? {}
+            : {
+                x: {
+                  kind: 'derived' as const,
+                  resourceId: context.primary.id,
+                  locator: 'gsf:header:XReal,XRes,XOffset,XYUnits',
+                  formula: 'gsf-extent-per-sample-v1',
+                },
+              }),
+          ...(legacy.physicalSizeY === undefined
+            ? {}
+            : {
+                y: {
+                  kind: 'derived' as const,
+                  resourceId: context.primary.id,
+                  locator: 'gsf:header:YReal,YRes,YOffset,XYUnits',
+                  formula: 'gsf-extent-per-sample-v1',
+                },
+              }),
+        },
+      }),
       'purejsimage:gsf',
       formatMetadata,
     )

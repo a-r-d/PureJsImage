@@ -35,10 +35,41 @@ export interface CodecCapability {
   readonly document: string
 }
 
+export type ScientificResourceModel =
+  | 'single'
+  | 'companion-pair'
+  | 'companion-set'
+  | 'directory-like'
+
+export type ScientificDatasetKind =
+  | 'image'
+  | 'volume'
+  | 'spectrum-image'
+  | 'spectrum'
+  | 'surface'
+  | 'pyramid'
+  | 'orientation-map'
+
+export interface ScientificReaderCapability {
+  readonly id: string
+  readonly version: string
+  readonly format: string
+  readonly packageExport: string
+  readonly extensions: readonly string[]
+  readonly mediaTypes: readonly string[]
+  readonly resourceModel: ScientificResourceModel
+  readonly datasetKinds: readonly ScientificDatasetKind[]
+  readonly directRangeReads: boolean
+  readonly boundary: string
+  readonly evidence: readonly string[]
+  readonly fixtures: readonly string[]
+}
+
 export interface CapabilityManifest {
   readonly schemaVersion: 1
   readonly generatedNotice: string
   readonly codecs: readonly CodecCapability[]
+  readonly scientificReaders: readonly ScientificReaderCapability[]
 }
 
 export interface CapabilityClaim {
@@ -150,16 +181,96 @@ const codecCapability = (value: unknown): CodecCapability => {
   }
 }
 
+const resourceModels: ReadonlySet<string> = new Set([
+  'single',
+  'companion-pair',
+  'companion-set',
+  'directory-like',
+])
+const datasetKinds: ReadonlySet<string> = new Set([
+  'image',
+  'volume',
+  'spectrum-image',
+  'spectrum',
+  'surface',
+  'pyramid',
+  'orientation-map',
+])
+const isScientificResourceModel = (value: string): value is ScientificResourceModel =>
+  value === 'single' ||
+  value === 'companion-pair' ||
+  value === 'companion-set' ||
+  value === 'directory-like'
+const isScientificDatasetKind = (value: string): value is ScientificDatasetKind =>
+  value === 'image' ||
+  value === 'volume' ||
+  value === 'spectrum-image' ||
+  value === 'spectrum' ||
+  value === 'surface' ||
+  value === 'pyramid' ||
+  value === 'orientation-map'
+
+const scientificReaderCapability = (value: unknown): ScientificReaderCapability => {
+  if (!isRecord(value)) throw new Error('Scientific reader capability entries must be objects')
+  const resourceModel = requiredString(value, 'resourceModel')
+  if (!resourceModels.has(resourceModel) || !isScientificResourceModel(resourceModel)) {
+    throw new Error(`Scientific reader capability has unknown resource model ${resourceModel}`)
+  }
+  const kinds = stringArray(value, 'datasetKinds')
+  if (
+    kinds.length === 0 ||
+    kinds.some((kind) => !datasetKinds.has(kind) || !isScientificDatasetKind(kind))
+  ) {
+    throw new Error('Scientific reader capability has invalid dataset kinds')
+  }
+  const directRangeReads = value.directRangeReads
+  if (typeof directRangeReads !== 'boolean') {
+    throw new Error('Scientific reader capability directRangeReads must be boolean')
+  }
+  const normalizedKinds = kinds.filter(isScientificDatasetKind)
+  return {
+    id: requiredString(value, 'id'),
+    version: requiredString(value, 'version'),
+    format: requiredString(value, 'format'),
+    packageExport: requiredString(value, 'packageExport'),
+    extensions: stringArray(value, 'extensions'),
+    mediaTypes: stringArray(value, 'mediaTypes'),
+    resourceModel,
+    datasetKinds: normalizedKinds,
+    directRangeReads,
+    boundary: requiredString(value, 'boundary'),
+    evidence: stringArray(value, 'evidence'),
+    fixtures: stringArray(value, 'fixtures'),
+  }
+}
+
 export const parseCapabilityManifest = (value: unknown): CapabilityManifest => {
   if (!isRecord(value)) throw new Error('Capability manifest must be an object')
   if (value.schemaVersion !== 1) throw new Error('Capability manifest schemaVersion must be 1')
   if (!Array.isArray(value.codecs)) throw new Error('Capability manifest codecs must be an array')
+  if (!Array.isArray(value.scientificReaders)) {
+    throw new Error('Capability manifest scientificReaders must be an array')
+  }
   const codecs = value.codecs.map(codecCapability)
+  const scientificReaders = value.scientificReaders.map(scientificReaderCapability)
   const ids = new Set(codecs.map(({ id }) => id))
   const files = new Set(codecs.map(({ supportFile }) => supportFile))
   if (ids.size !== codecs.length) throw new Error('Capability manifest codec IDs must be unique')
   if (files.size !== codecs.length)
     throw new Error('Capability manifest support files must be unique')
+  const readerIds = new Set(scientificReaders.map(({ id }) => id))
+  const readerExports = new Set(scientificReaders.map(({ packageExport }) => packageExport))
+  if (readerIds.size !== scientificReaders.length) {
+    throw new Error('Scientific reader capability IDs must be unique')
+  }
+  if (readerExports.size !== scientificReaders.length) {
+    throw new Error('Scientific reader package exports must be unique')
+  }
+  for (const reader of scientificReaders) {
+    if (reader.evidence.length === 0 || reader.fixtures.length === 0) {
+      throw new Error(`${reader.id} publishes support without evidence and fixtures`)
+    }
+  }
   for (const codec of codecs) {
     if (!codec.document.startsWith(`# ${codec.name.split(' / ')[0]}`)) {
       throw new Error(`${codec.id} support document title does not match its codec name`)
@@ -176,6 +287,7 @@ export const parseCapabilityManifest = (value: unknown): CapabilityManifest => {
     schemaVersion: 1,
     generatedNotice: requiredString(value, 'generatedNotice'),
     codecs,
+    scientificReaders,
   }
 }
 

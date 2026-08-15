@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "RosettaSciIO",
+    "revision": "bc254db14cd7d4d23169b11aeb622a0a7eac1fbe",
+    "baseUrl": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/emd/",
+    "license": "GPL-3.0-or-later",
+    "licenseUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/LICENSE",
+    "attribution": "RosettaSciIO EMD test corpus contributors",
+    "oracleUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/emd/_emd_velox.py"
+  },
+  "fixtures": [
+    {
+      "file": "fei_example_tem_stack.emd",
+      "sha256": "397d5076b0133db608abd985985fad275bf6594823393f72a069020e47c21a1e",
+      "datasetId": "26f60320a61d4f66a73efd8cde34ffa9",
+      "name": "BM-Ceta",
+      "sampleType": "int16",
+      "components": 1,
+      "axisLengths": [3, 3, 2],
+      "expectedHex": "0000000600020008"
+    },
+    {
+      "file": "fei_example_complex_fft.emd",
+      "sha256": "eec20bd422428dc498334143e2a721aa793e79f399bfe16c21cb8b0313ff0c07",
+      "datasetId": "127c4de271cd4bbe93cf30a3ba2a9989",
+      "name": "BM-Ceta",
+      "sampleType": "float32",
+      "components": 2,
+      "axisLengths": [3, 4, 1],
+      "expectedHex": "4e804415c00000004a86cbbe4a99e77acac44c26ca56ed324a6a9dc04ac0cad4",
+      "frequencyStorage": "half-even"
+    },
+    {
+      "file": "fei_example_dpc_titles.emd",
+      "sha256": "c06422c623e7a7b18ed8864c99d34590488b98fef85423ac33e1ea10bef66b2f",
+      "datasetId": "48ec9761367a4318866a522029cbac29",
+      "name": "DF4",
+      "sampleType": "float32",
+      "components": 2,
+      "axisLengths": [2, 2, 1],
+      "expectedHex": "c20362fcc356cbf243814494c4a0dbb0c4b67d4bc4b9fda74426bc58c48f2fcc"
+    }
+  ],
+  "spectrumFixtures": [
+    {
+      "archive": "velox_emd_version11.zip",
+      "archiveSha256": "125f0f6b1517e6bb2a1c44f2157b874fe244bb7716f37a9efbda853f16e395c1",
+      "entry": "Test SI 16x16 215 kx.emd",
+      "file": "velox-v11-spectrum-image.emd",
+      "sha256": "511e2983038542776603ca8bfc7ec8fb95994ab3e723cab7095d4f97d0168f58",
+      "denseSpectra": 4,
+      "spectrumStreams": 4,
+      "streamId": "1a00ffb292da4f7a9f81f2a4d6f99aa5",
+      "detector": "SuperXG23",
+      "energyBins": 4096,
+      "width": 16,
+      "height": 16,
+      "frames": 2,
+      "eventCount": 12050,
+      "frameOffsets": [0, 6137],
+      "energyOrigin": -250,
+      "energyStep": 10,
+      "pointSha256": "14aea906861659acd7163e80f900983bb4e4e896260a42f8ab8cfa5f381d0e23",
+      "pointScannedEvents": 25
+    },
+    {
+      "archive": "velox_EELS_EDS.zip",
+      "archiveSha256": "11a15991d706c962ba304cca1227941dde8a946261ece8263a53e99c85d548f7",
+      "entry": "example_velox_EELS_EDS.emd",
+      "file": "velox-eels-eds.emd",
+      "sha256": "11e5c0f8e69582c442b3db54466cf12c3ef107ca68ec84d9daaa53894d7a5169",
+      "denseSpectra": 6,
+      "spectrumStreams": 6,
+      "streamId": "4705390e52d444428a79cbab418b3747",
+      "detector": "UltraX2",
+      "energyBins": 4096,
+      "width": 20,
+      "height": 16,
+      "frames": 1,
+      "eventCount": 1993,
+      "frameOffsets": [0],
+      "energyOrigin": -200,
+      "energyStep": 10,
+      "pointSha256": "197bbe07cc5c8e0882bc3005fbcef07c7bd12f64ef1e3676a5eefcfd492b5bfb",
+      "pointScannedEvents": 5
+    },
+    {
+      "archive": "velox_emd_v11_elementSelection.zip",
+      "archiveSha256": "b88ba4093d053da04a7d9ada51055c5936da6c5ca4bb0cd924b6d0fe67f702cd",
+      "entry": "SI_empty selection.emd",
+      "file": "velox-empty-selection.emd",
+      "sha256": "11299d32c986c3300980c93ab1e9d39974aecf3a66956cc171aa53eee167700b",
+      "denseSpectra": 4,
+      "spectrumStreams": 4,
+      "streamId": "0d58ad11f9e948e9a0904906f57611c6",
+      "detector": "SuperXG22",
+      "energyBins": 4096,
+      "width": 20,
+      "height": 16,
+      "frames": 1,
+      "eventCount": 340,
+      "frameOffsets": [0],
+      "energyOrigin": -250,
+      "energyStep": 5,
+      "pointSha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+      "pointScannedEvents": 1
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../src/source.ts'
 import { createScientificLibrary, type ScientificDataset } from '../src/scientific/index.ts'
 import { aperioSvsReader, createAperioSvsReader } from '../src/scientific/readers/aperio-svs.ts'
+import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 
 const fixturePath = 'tests/fixtures/aperio-cmu-1-small-region.svs'
@@ -66,7 +67,7 @@ describe('Aperio scientific reader bridge', () => {
   it('detects and lazily reads a virtual slide larger than ordinary image limits', async () => {
     const bytes = new Uint8Array(await readFile(fixturePath))
     const source = new SparseVirtualSource(bytes, defaultImageLimits.maxInputBytes + 1)
-    const library = createScientificLibrary({ readers: [aperioSvsReader] })
+    const library = createScientificLibrary({ readers: [tiffReader, aperioSvsReader] })
     const document = await library.open({
       primary: { id: 'large-slide', name: 'large.svs', source },
       probeLimits: {
@@ -75,6 +76,7 @@ describe('Aperio scientific reader bridge', () => {
         maxReadBytes: 1_048_576,
       },
     })
+    expect(document.reader.id).toBe(aperioSvsReader.descriptor.id)
     const pyramid = await document.openDataset('pyramid')
     expect(await firstRegionHash(pyramid)).toBe(
       await firstRegionHash(
@@ -164,7 +166,6 @@ describe('Aperio scientific reader bridge', () => {
       const remoteSummary = remote.datasets[index]
       expect(remoteSummary?.id).toBe(localSummary?.id)
       expect(remoteSummary?.descriptor).toMatchObject({
-        axes: localSummary?.descriptor.axes,
         sampleType: localSummary?.descriptor.sampleType,
         components: localSummary?.descriptor.components,
         levels: localSummary?.descriptor.levels,
@@ -184,6 +185,30 @@ describe('Aperio scientific reader bridge', () => {
       ],
       capabilities: { resolutionLevels: false },
     })
+    expect(summary?.descriptor.axes.map(({ id, calibration }) => ({ id, calibration }))).toEqual([
+      {
+        id: 'x',
+        calibration: {
+          kind: 'embedded',
+          resourceId: 'local-slide',
+          locator: 'tiff:ifd:0/tag:270/aperio.MPP',
+        },
+      },
+      {
+        id: 'y',
+        calibration: {
+          kind: 'embedded',
+          resourceId: 'local-slide',
+          locator: 'tiff:ifd:0/tag:270/aperio.MPP',
+        },
+      },
+    ])
+    const remoteCalibration = remote.datasets[0]?.descriptor.axes[0]?.calibration
+    expect(
+      remoteCalibration !== undefined && 'kind' in remoteCalibration
+        ? remoteCalibration.resourceId
+        : undefined,
+    ).toBe('remote-slide')
     const [localPyramid, remotePyramid] = await Promise.all([
       local.openDataset('pyramid'),
       remote.openDataset('pyramid'),
