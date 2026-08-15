@@ -2180,3 +2180,13 @@ to own only generic descriptors, definitions, providers, and registries.
     and all readers are 758.5 KiB below the evidence-reset 984.4 KiB ceiling. The full repository
     gate passes all 125 files and 1,487 tests. NanoScope remains planned at its three-family gate;
     JPK force archives and the unreleased OZX profile remain explicitly unclaimed.
+  - Milestone H validation: nine explicit portable readers cover RPL/RAW, EMSA/MAS, NRRD,
+    MetaImage MHD/MHA, NIfTI-1/2, NPY, NanoMegas BLO, processed Merlin MIB, and rectangular
+    ANG/CTF. Twelve focused format and hostile-source tests pass alongside pinned real RosettaSciIO
+    RPL/RAW, ISO EMSA, BLO, and processed Merlin MIB oracles. The public workflows pass in real
+    Chromium; generated capabilities, the 492-file packed consumer, 19-page docs build, browser
+    graph, typecheck, lint, formatting, and size gates pass. Individual readers are 31.8 to 42.9
+    KiB minified and all readers are 825.6 KiB below the 984.4 KiB ceiling. The full repository gate
+    passes all 126 files and 1,499 tests. EDAX SPC/SPD/IPR and Bruker BCF remain the roadmap's
+    intentional later work, while registration and a representative Lab Viewer scenario remain a
+    separate integration-repository task.

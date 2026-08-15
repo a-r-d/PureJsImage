@@ -148,6 +148,51 @@
       "import": "./dist/scientific/readers/x3p.js",
       "default": "./dist/scientific/readers/x3p.js"
     },
+    "./scientific/readers/rpl": {
+      "types": "./dist/scientific/readers/rpl.d.ts",
+      "import": "./dist/scientific/readers/rpl.js",
+      "default": "./dist/scientific/readers/rpl.js"
+    },
+    "./scientific/readers/emsa": {
+      "types": "./dist/scientific/readers/emsa.d.ts",
+      "import": "./dist/scientific/readers/emsa.js",
+      "default": "./dist/scientific/readers/emsa.js"
+    },
+    "./scientific/readers/nrrd": {
+      "types": "./dist/scientific/readers/nrrd.d.ts",
+      "import": "./dist/scientific/readers/nrrd.js",
+      "default": "./dist/scientific/readers/nrrd.js"
+    },
+    "./scientific/readers/meta-image": {
+      "types": "./dist/scientific/readers/meta-image.d.ts",
+      "import": "./dist/scientific/readers/meta-image.js",
+      "default": "./dist/scientific/readers/meta-image.js"
+    },
+    "./scientific/readers/nifti": {
+      "types": "./dist/scientific/readers/nifti.d.ts",
+      "import": "./dist/scientific/readers/nifti.js",
+      "default": "./dist/scientific/readers/nifti.js"
+    },
+    "./scientific/readers/npy": {
+      "types": "./dist/scientific/readers/npy.d.ts",
+      "import": "./dist/scientific/readers/npy.js",
+      "default": "./dist/scientific/readers/npy.js"
+    },
+    "./scientific/readers/blockfile": {
+      "types": "./dist/scientific/readers/blockfile.d.ts",
+      "import": "./dist/scientific/readers/blockfile.js",
+      "default": "./dist/scientific/readers/blockfile.js"
+    },
+    "./scientific/readers/mib": {
+      "types": "./dist/scientific/readers/mib.d.ts",
+      "import": "./dist/scientific/readers/mib.js",
+      "default": "./dist/scientific/readers/mib.js"
+    },
+    "./scientific/readers/ebsd-text": {
+      "types": "./dist/scientific/readers/ebsd-text.d.ts",
+      "import": "./dist/scientific/readers/ebsd-text.js",
+      "default": "./dist/scientific/readers/ebsd-text.js"
+    },
     "./scientific/readers/tia-ser": {
       "types": "./dist/scientific/readers/tia-ser.d.ts",
       "import": "./dist/scientific/readers/tia-ser.js",
@@ -399,6 +444,8 @@
     "fixtures:digital-micrograph:prepare": "node benchmark/digital-micrograph/prepare-corpus.ts",
     "fixtures:digital-micrograph:remote": "node benchmark/digital-micrograph/verify-semantic-corpus.ts",
     "fixtures:tia-ser": "node benchmark/tia-ser/verify-corpus.ts",
+    "fixtures:scientific-interchange": "node benchmark/scientific-interchange/verify-corpus.ts",
+    "fixtures:scientific-interchange:prepare": "node benchmark/scientific-interchange/prepare-corpus.ts",
     "fixtures:tia-ser:prepare": "node benchmark/tia-ser/prepare-corpus.ts",
     "fixtures:tia-emi": "node benchmark/tia-ser/verify-emi-corpus.ts",
     "fixtures:tia-emi:prepare": "node benchmark/tia-ser/prepare-emi-corpus.ts",

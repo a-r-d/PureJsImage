@@ -614,6 +614,135 @@
       "directRangeReads": true,
       "evidence": ["tests/velox-emd-reader.test.ts"],
       "fixtures": ["benchmark/velox-emd/generated-fixture.ts", "tests/velox-emd-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/rpl",
+      "version": "1.0.0",
+      "format": "Lispix RPL/RAW",
+      "packageExport": "purejsimage/scientific/readers/rpl",
+      "extensions": ["rpl", "raw"],
+      "mediaTypes": ["application/x-rpl", "application/x-lispix-raw"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/emsa",
+      "version": "1.0.0",
+      "format": "EMSA/MAS spectrum",
+      "packageExport": "purejsimage/scientific/readers/emsa",
+      "extensions": ["msa", "emsa"],
+      "mediaTypes": ["application/x-emsa-mas"],
+      "resourceModel": "single",
+      "datasetKinds": ["spectrum"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/nrrd",
+      "version": "1.0.0",
+      "format": "NRRD",
+      "packageExport": "purejsimage/scientific/readers/nrrd",
+      "extensions": ["nrrd", "nhdr"],
+      "mediaTypes": ["application/x-nrrd"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/meta-image",
+      "version": "1.0.0",
+      "format": "MetaImage MHD/MHA",
+      "packageExport": "purejsimage/scientific/readers/meta-image",
+      "extensions": ["mhd", "mha"],
+      "mediaTypes": ["application/x-metaimage"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/nifti",
+      "version": "1.0.0",
+      "format": "NIfTI-1/2",
+      "packageExport": "purejsimage/scientific/readers/nifti",
+      "extensions": ["nii", "gz"],
+      "mediaTypes": ["application/x-nifti"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/npy",
+      "version": "1.0.0",
+      "format": "NumPy NPY",
+      "packageExport": "purejsimage/scientific/readers/npy",
+      "extensions": ["npy"],
+      "mediaTypes": ["application/x-npy"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/blockfile",
+      "version": "1.0.0",
+      "format": "NanoMegas ASTAR blockfile",
+      "packageExport": "purejsimage/scientific/readers/blockfile",
+      "extensions": ["blo"],
+      "mediaTypes": ["application/x-nanomegas-blo"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/mib",
+      "version": "1.0.0",
+      "format": "Quantum Detectors Merlin MIB",
+      "packageExport": "purejsimage/scientific/readers/mib",
+      "extensions": ["mib"],
+      "mediaTypes": ["application/x-merlin-mib"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/ebsd-text",
+      "version": "1.0.0",
+      "format": "ANG/CTF orientation map",
+      "packageExport": "purejsimage/scientific/readers/ebsd-text",
+      "extensions": ["ang", "ctf"],
+      "mediaTypes": ["application/x-ebsd-ang", "application/x-ebsd-ctf"],
+      "resourceModel": "single",
+      "datasetKinds": ["orientation-map"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
     }
   ]
 }

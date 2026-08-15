@@ -52,6 +52,8 @@ import {
 import type {
   ScientificDataset,
   ScientificPlaneReadRequest,
+  ScientificReader,
+  ScientificResource,
   ScientificSeriesReadRequest,
 } from '../src/scientific/index.ts'
 import {
@@ -62,13 +64,22 @@ import {
   ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
 import { bmpReader } from '../src/scientific/readers/bmp.ts'
+import { blockfileReader } from '../src/scientific/readers/blockfile.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { digitalSurfReader } from '../src/scientific/readers/digital-surf.ts'
+import { ebsdTextReader } from '../src/scientific/readers/ebsd-text.ts'
+import { emsaReader } from '../src/scientific/readers/emsa.ts'
 import { igorBinaryWaveReader } from '../src/scientific/readers/igor-binary-wave.ts'
 import { jp2Reader } from '../src/scientific/readers/jp2.ts'
+import { metaImageReader } from '../src/scientific/readers/meta-image.ts'
+import { mibReader } from '../src/scientific/readers/mib.ts'
 import { createNcemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
 import { nanonisSxmReader } from '../src/scientific/readers/nanonis-sxm.ts'
+import { niftiReader } from '../src/scientific/readers/nifti.ts'
+import { npyReader } from '../src/scientific/readers/npy.ts'
+import { nrrdReader } from '../src/scientific/readers/nrrd.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { rplReader } from '../src/scientific/readers/rpl.ts'
 import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
 import { tiffReader } from '../src/scientific/readers/tiff.ts'
@@ -1595,6 +1606,177 @@ const scientificDigitalMicrograph = async (): Promise<BrowserWorkflowResult> => 
     detail:
       'portable DM3 reader preserved uint16 pixels, direct selected-region reads, and evidence-gated EELS energy semantics',
     outputBytes: output.length,
+  }
+}
+
+const scientificInterchangeFormats = async (): Promise<BrowserWorkflowResult> => {
+  const encode = (value: string): Uint8Array<ArrayBuffer> => new TextEncoder().encode(value)
+  const primary = (name: string, bytes: Uint8Array): ScientificResource => ({
+    id: name,
+    name,
+    source: new MemorySource(bytes),
+  })
+  const readFirst = async (
+    reader: ScientificReader,
+    name: string,
+    bytes: Uint8Array,
+    companions: Readonly<Record<string, ScientificResource>> = {},
+    datasetId?: string,
+  ): Promise<number> => {
+    const document = await createScientificLibrary({ readers: [reader] }).open({
+      primary: primary(name, bytes),
+      companions: {
+        async resolve(request) {
+          const requested = request.kind === 'relative-name' ? request.name : request.relativeName
+          return requested === undefined ? undefined : companions[requested]
+        },
+      },
+    })
+    const dataset = await document.openDataset(datasetId ?? document.datasets[0]?.id ?? '')
+    if (dataset.descriptor.axes.length === 1) {
+      const readSeries = dataset.readSeries
+      if (readSeries === undefined) throw new Error(`${name} did not expose a series reader`)
+      let bytesRead = 0
+      for await (const block of readSeries.call(dataset, {
+        axisId: dataset.descriptor.axes[0]?.id ?? '',
+        fixedIndices: [],
+      })) {
+        bytesRead += block.data.byteLength
+      }
+      return bytesRead
+    }
+    const displayAxes = [
+      dataset.descriptor.axes[0]?.id ?? '',
+      dataset.descriptor.axes[1]?.id ?? '',
+    ] as const
+    const fixedIndices = dataset.descriptor.axes
+      .slice(2)
+      .map(({ id }) => ({ axisId: id, index: 0 }))
+    let bytesRead = 0
+    for await (const block of dataset.readPlane({ displayAxes, fixedIndices })) {
+      bytesRead += block.data.byteLength
+    }
+    return bytesRead
+  }
+
+  const gzip = async (input: Uint8Array): Promise<Uint8Array<ArrayBuffer>> => {
+    const stream = new Blob([Uint8Array.from(input)])
+      .stream()
+      .pipeThrough(new CompressionStream('gzip'))
+    return new Uint8Array(await new Response(stream).arrayBuffer())
+  }
+
+  const rplHeader = encode(`key\tvalue
+width\t2
+height\t2
+depth\t1
+data-type\tunsigned
+data-length\t1
+byte-order\tdont-care
+record-by\tdont-care
+`)
+  const rplRaw = primary('map.raw', Uint8Array.from([1, 2, 3, 4]))
+
+  const emsa = encode(`#FORMAT: EMSA/MAS Spectral Data File
+#NPOINTS: 3
+#DATATYPE: Y
+#OFFSET: 0
+#XPERCHAN: 1
+#SPECTRUM:
+1,2,3
+#ENDOFDATA:
+`)
+
+  const nrrdHeader = encode(`NRRD0005
+type: uchar
+dimension: 2
+sizes: 2 2
+encoding: gzip
+
+`)
+  const nrrdPayload = await gzip(Uint8Array.from([1, 2, 3, 4]))
+  const nrrd = new Uint8Array(nrrdHeader.byteLength + nrrdPayload.byteLength)
+  nrrd.set(nrrdHeader)
+  nrrd.set(nrrdPayload, nrrdHeader.byteLength)
+
+  const mhaHeader = encode(`ObjectType = Image
+NDims = 2
+DimSize = 2 2
+ElementType = MET_UCHAR
+ElementDataFile = LOCAL
+`)
+  const mha = new Uint8Array(mhaHeader.byteLength + 4)
+  mha.set(mhaHeader)
+  mha.set([1, 2, 3, 4], mhaHeader.byteLength)
+
+  const nifti = new Uint8Array(356)
+  const niftiView = new DataView(nifti.buffer)
+  niftiView.setInt32(0, 348, true)
+  niftiView.setInt16(40, 2, true)
+  niftiView.setInt16(42, 2, true)
+  niftiView.setInt16(44, 2, true)
+  niftiView.setInt16(70, 2, true)
+  niftiView.setInt16(72, 8, true)
+  niftiView.setFloat32(80, 1, true)
+  niftiView.setFloat32(84, 1, true)
+  niftiView.setFloat32(108, 352, true)
+  niftiView.setFloat32(112, 1, true)
+  nifti.set(encode('n+1\0'), 344)
+  nifti.set([1, 2, 3, 4], 352)
+
+  const npyDictionary = "{'descr': '|u1', 'fortran_order': False, 'shape': (2, 2), }"
+  const npyPadding = (64 - ((10 + npyDictionary.length + 1) % 64)) % 64
+  const npyHeader = encode(`${npyDictionary}${' '.repeat(npyPadding)}\n`)
+  const npy = new Uint8Array(10 + npyHeader.byteLength + 4)
+  npy.set([0x93, 0x4e, 0x55, 0x4d, 0x50, 0x59, 1, 0])
+  new DataView(npy.buffer).setUint16(8, npyHeader.byteLength, true)
+  npy.set(npyHeader, 10)
+  npy.set([1, 2, 3, 4], 10 + npyHeader.byteLength)
+
+  const blo = new Uint8Array(251)
+  const bloView = new DataView(blo.buffer)
+  blo.set(encode('IMGBLO'))
+  bloView.setUint16(6, 0x0102, true)
+  bloView.setUint32(8, 240, true)
+  bloView.setUint32(12, 241, true)
+  bloView.setUint16(20, 2, true)
+  bloView.setUint16(24, 1, true)
+  bloView.setUint16(26, 1, true)
+  bloView.setFloat64(30, 1, true)
+  bloView.setFloat64(38, 1, true)
+  blo[240] = 9
+  bloView.setUint16(241, 0x55aa, true)
+  bloView.setUint32(243, 0, true)
+  blo.set([1, 2, 3, 4], 247)
+
+  const mibHeader = encode('MQ1,1,384,1,2,2,U08,1x1,2024-01-01,100ns,0,0')
+  const mib = new Uint8Array(388)
+  mib.fill(0x20, 0, 384)
+  mib.set(mibHeader)
+  mib.set([1, 2, 3, 4], 384)
+
+  const ang = encode(`# GRID: SqrGrid
+# XSTEP: 1
+# YSTEP: 1
+# NCOLS_ODD: 1
+# NCOLS_EVEN: 1
+# NROWS: 1
+0.1 0.2 0.3 0 0 10 0.9 1
+`)
+
+  let outputBytes = 0
+  outputBytes += await readFirst(rplReader, 'map.rpl', rplHeader, { 'map.raw': rplRaw })
+  outputBytes += await readFirst(emsaReader, 'spectrum.msa', emsa)
+  outputBytes += await readFirst(nrrdReader, 'volume.nrrd', nrrd)
+  outputBytes += await readFirst(metaImageReader, 'volume.mha', mha)
+  outputBytes += await readFirst(niftiReader, 'volume.nii', nifti)
+  outputBytes += await readFirst(npyReader, 'array.npy', npy)
+  outputBytes += await readFirst(blockfileReader, 'scan.blo', blo, {}, 'navigator')
+  outputBytes += await readFirst(mibReader, 'detector.mib', mib)
+  outputBytes += await readFirst(ebsdTextReader, 'map.ang', ang)
+  return {
+    detail: 'nine portable Milestone H readers passed selected data paths including browser gzip',
+    outputBytes,
   }
 }
 
@@ -3934,6 +4116,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   scientificTiffDocument,
   scientificDigitalMicrograph,
+  scientificInterchangeFormats,
   scientificSurfaceFormats,
   scientificTiaEmi,
   scientificTiaSer,

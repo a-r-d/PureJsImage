@@ -136,9 +136,12 @@ try {
     'dist/scientific/node.js',
     'dist/scientific/readers/all.js',
     'dist/scientific/readers/aperio-svs.js',
+    'dist/scientific/readers/blockfile.js',
     'dist/scientific/readers/cbf.js',
     'dist/scientific/readers/digital-micrograph.js',
     'dist/scientific/readers/digital-surf.js',
+    'dist/scientific/readers/ebsd-text.js',
+    'dist/scientific/readers/emsa.js',
     'dist/scientific/readers/igor-binary-wave.js',
     'dist/scientific/readers/nanonis-sxm.js',
     'dist/scientific/readers/x3p.js',
@@ -150,8 +153,14 @@ try {
     'dist/scientific/readers/fits.js',
     'dist/scientific/readers/gsf.js',
     'dist/scientific/readers/mrc.js',
+    'dist/scientific/readers/meta-image.js',
+    'dist/scientific/readers/mib.js',
+    'dist/scientific/readers/nifti.js',
+    'dist/scientific/readers/npy.js',
+    'dist/scientific/readers/nrrd.js',
     'dist/scientific/readers/ome-tiff.js',
     'dist/scientific/readers/png.js',
+    'dist/scientific/readers/rpl.js',
     'dist/scientific/readers/tiff.js',
     'dist/scientific/readers/jpeg.js',
     'dist/scientific/readers/webp.js',
@@ -236,6 +245,15 @@ export { createDigitalSurfReader, digitalSurfReader } from 'purejsimage/scientif
 export { createIgorBinaryWaveReader, igorBinaryWaveReader } from 'purejsimage/scientific/readers/igor-binary-wave'
 export { createNanonisSxmReader, nanonisSxmReader } from 'purejsimage/scientific/readers/nanonis-sxm'
 export { createX3pReader, x3pReader } from 'purejsimage/scientific/readers/x3p'
+export { createRplReader, rplReader } from 'purejsimage/scientific/readers/rpl'
+export { createEmsaReader, emsaReader } from 'purejsimage/scientific/readers/emsa'
+export { createNrrdReader, nrrdReader } from 'purejsimage/scientific/readers/nrrd'
+export { createMetaImageReader, metaImageReader } from 'purejsimage/scientific/readers/meta-image'
+export { createNiftiReader, niftiReader } from 'purejsimage/scientific/readers/nifti'
+export { createNpyReader, npyReader } from 'purejsimage/scientific/readers/npy'
+export { blockfileReader, createBlockfileReader } from 'purejsimage/scientific/readers/blockfile'
+export { createMibReader, mibReader } from 'purejsimage/scientific/readers/mib'
+export { createEbsdTextReader, ebsdTextReader } from 'purejsimage/scientific/readers/ebsd-text'
 export { createTiaSerReader, tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
 export type { TiaSerReaderLimits, TiaSerReaderOptions } from 'purejsimage/scientific/readers/tia-ser'
 export { createTiaEmiReader, tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'

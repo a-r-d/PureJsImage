@@ -365,6 +365,144 @@
       "boundary": "Velox HDF5 image hierarchy with rank-3 numeric image, diffraction, dense-map, DPC complex, or positive-half FFT arrays; bounded per-frame JSON metadata, explicit detector datasets and frame axes, exact native samples, and specific pruned-spectrum-image errors. Sparse SpectrumStream data and dense Spectrum entries remain outside this E2 boundary.",
       "evidence": ["tests/velox-emd-reader.test.ts"],
       "fixtures": ["benchmark/velox-emd/generated-fixture.ts", "tests/velox-emd-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/rpl",
+      "version": "1.0.0",
+      "format": "Lispix RPL/RAW",
+      "packageExport": "purejsimage/scientific/readers/rpl",
+      "extensions": ["rpl", "raw"],
+      "mediaTypes": ["application/x-rpl", "application/x-lispix-raw"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "One numeric header-plus-RAW array in image, vector, or depth-one order with exact declared endian, offset, dimensions, axis calibration, and selected plane or series reads.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/emsa",
+      "version": "1.0.0",
+      "format": "EMSA/MAS spectrum",
+      "packageExport": "purejsimage/scientific/readers/emsa",
+      "extensions": ["msa", "emsa"],
+      "mediaTypes": ["application/x-emsa-mas"],
+      "resourceModel": "single",
+      "datasetKinds": ["spectrum"],
+      "directRangeReads": false,
+      "boundary": "Bounded EMSA/MAS text spectra using Y or XY data, with exact point counts, native float64 series values, calibrated or lookup spectral coordinates, units, and preserved header fields.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/nrrd",
+      "version": "1.0.0",
+      "format": "NRRD",
+      "packageExport": "purejsimage/scientific/readers/nrrd",
+      "extensions": ["nrrd", "nhdr"],
+      "mediaTypes": ["application/x-nrrd"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "boundary": "NRRD0001 through NRRD0005 scalar numeric arrays with attached or one-file detached raw data, bounded gzip data, endian conversion, linear spacing or direction-vector calibration, origin, units, labels, kinds, and key/value metadata; ASCII, bzip2, and multi-file sequences are rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/meta-image",
+      "version": "1.0.0",
+      "format": "MetaImage MHD/MHA",
+      "packageExport": "purejsimage/scientific/readers/meta-image",
+      "extensions": ["mhd", "mha"],
+      "mediaTypes": ["application/x-metaimage"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Binary numeric MHA LOCAL or MHD plus one raw companion, with scalar or bounded interleaved components, endian conversion, spacing, origin, and preserved direction; compressed, ASCII, HeaderSize -1, and multi-file series are rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/nifti",
+      "version": "1.0.0",
+      "format": "NIfTI-1/2",
+      "packageExport": "purejsimage/scientific/readers/nifti",
+      "extensions": ["nii", "gz"],
+      "mediaTypes": ["application/x-nifti"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "boundary": "Single-file NIfTI-1 and NIfTI-2 scalar numeric arrays, optionally bounded whole-file gzip, with endian conversion, scl_slope/inter transformation, voxel spacing and units, and preserved qform/sform metadata; paired hdr/img and complex, RGB, binary, and extension payloads are outside this subset.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/npy",
+      "version": "1.0.0",
+      "format": "NumPy NPY",
+      "packageExport": "purejsimage/scientific/readers/npy",
+      "extensions": ["npy"],
+      "mediaTypes": ["application/x-npy"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Exactly one NPY v1, v2, or v3 C- or Fortran-contiguous scalar boolean, integer, float16, float32, or float64 array with generic index axes and selected plane or series reads; scalar, structured, object, complex, datetime, Unicode, and NPZ arrays are rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
+    },
+    {
+      "id": "purejsimage/blockfile",
+      "version": "1.0.0",
+      "format": "NanoMegas ASTAR blockfile",
+      "packageExport": "purejsimage/scientific/readers/blockfile",
+      "extensions": ["blo"],
+      "mediaTypes": ["application/x-nanomegas-blo"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "NanoMegas ASTAR blockfiles with bounded square uint8 diffraction frames, per-frame ID validation, a virtual-bright-field navigator, scan calibration, diffraction scale, and acquisition metadata.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/mib",
+      "version": "1.0.0",
+      "format": "Quantum Detectors Merlin MIB",
+      "packageExport": "purejsimage/scientific/readers/mib",
+      "extensions": ["mib"],
+      "mediaTypes": ["application/x-merlin-mib"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "Processed Merlin U08, U16, or U32 frame sequences with 384- or 768-byte per-frame headers, vertical normalization, optional acquisition HDR metadata, and optional rectangular scan navigation; raw packed R64 detector words are explicitly rejected.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": [
+        "benchmark/scientific-interchange/corpus.json",
+        "tests/scientific-interchange-formats.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/ebsd-text",
+      "version": "1.0.0",
+      "format": "ANG/CTF orientation map",
+      "packageExport": "purejsimage/scientific/readers/ebsd-text",
+      "extensions": ["ang", "ctf"],
+      "mediaTypes": ["application/x-ebsd-ang", "application/x-ebsd-ctf"],
+      "resourceModel": "single",
+      "datasetKinds": ["orientation-map"],
+      "directRangeReads": false,
+      "boundary": "Bounded UTF-8 ANG square-grid and CTF rectangular orientation maps with validated row-major positions, physical scan axes, Euler angles, phase, and quality columns; staggered and hexagonal grids are rejected instead of silently reshaped.",
+      "evidence": ["tests/scientific-interchange-formats.test.ts"],
+      "fixtures": ["tests/scientific-interchange-formats.test.ts"]
     }
   ],
   "codecs": [

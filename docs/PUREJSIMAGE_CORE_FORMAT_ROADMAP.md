@@ -926,19 +926,25 @@ Do not build an OME-Zarr writer in the first reader milestone.
 
 These should be small independent readers after the foundational contracts are stable.
 
-| Format | Priority | Reason and initial contract |
-| --- | --- | --- |
-| RPL/RAW | High after series reads | Simple companion pair, widely used for EDS and multidimensional interchange, exact dimensions/type/endian/calibration. |
-| MSA/EMSA | High after series reads | Text spectrum interchange and the cheapest honest entry into spectra. |
-| NRRD | Medium | Common volume interchange. Support raw and gzip payloads, type/endian, sizes, space directions, origin, and detached data. |
-| MHD/MHA plus RAW | Medium | Simple medical/engineering volume exchange, useful for CT without adopting DICOM. |
-| NIfTI-1/2 `.nii` | Medium-low | Useful generic volumes. Start uncompressed; `.nii.gz` is a bounded full-decompression path and cannot offer arbitrary range access. |
-| NPY | Medium-low | Very cheap arbitrary numeric interchange, but normally lacks calibration. NPZ waits for ZIP. |
-| BLO | Medium for 4D-STEM | Straightforward uint8 diffraction blockfile with limited metadata. |
-| MIB | Medium for 4D-STEM | High-value detector data, but requires per-frame headers and generic packed-sample kernels. |
-| ANG / CTF | Medium-low | Easy ASCII orientation maps. Expose raw Euler/phase/confidence components; IPF colors and grain math belong outside the reader. |
-| EDAX SPC/SPD/IPR | Later | Valuable EDS compatibility, but needs rank-1 plots, companion calibration, and spectrum-image workflows. |
-| Bruker BCF | Later | Hybrid virtual filesystem, XML, compressed binary, images, and hyperspectral EDS. It is not a cheap single reader. |
+Status: **initial milestone complete**. Every non-deferred row below has a public explicit reader,
+bounded fixture coverage, package/browser validation, capability-manifest entry, and measured size
+ceiling. Pinned real RosettaSciIO files verify RPL/RAW, ISO EMSA, BLO, and processed Merlin MIB.
+EDAX and Bruker BCF remain intentionally deferred as the table originally specified. Registration
+and a representative scenario in the separate Lab Viewer repository remain integration work.
+
+| Status | Format | Priority | Reason and initial contract |
+| --- | --- | --- | --- |
+| Complete | RPL/RAW | High after series reads | Simple companion pair, widely used for EDS and multidimensional interchange, exact dimensions/type/endian/calibration. |
+| Complete | MSA/EMSA | High after series reads | Text spectrum interchange and the cheapest honest entry into spectra. |
+| Complete | NRRD | Medium | Common volume interchange. Supports raw and bounded gzip payloads, type/endian, sizes, space directions, origin, and one detached data file. |
+| Complete | MHD/MHA plus RAW | Medium | Simple medical/engineering volume exchange, useful for CT without adopting DICOM. |
+| Complete | NIfTI-1/2 `.nii` | Medium-low | Useful generic volumes. Uncompressed data stays range-readable; `.nii.gz` is an explicit bounded full-decompression path. |
+| Complete | NPY | Medium-low | Cheap arbitrary numeric interchange with intentionally generic axes because calibration is normally absent. NPZ remains outside the initial contract. |
+| Complete | BLO | Medium for 4D-STEM | Uint8 diffraction blockfiles with frame validation, navigator, and limited metadata. |
+| Complete for processed data | MIB | Medium for 4D-STEM | U08/U16/U32 detector frames and optional HDR metadata; packed raw R64 words reject explicitly. |
+| Complete for rectangular grids | ANG / CTF | Medium-low | Raw Euler/phase/confidence components; IPF colors and grain math remain outside the reader. |
+| Deferred as planned | EDAX SPC/SPD/IPR | Later | Valuable EDS compatibility, but needs rank-1 plots, companion calibration, and spectrum-image workflows. |
+| Deferred as planned | Bruker BCF | Later | Hybrid virtual filesystem, XML, compressed binary, images, and hyperspectral EDS. It is not a cheap single reader. |
 
 ## Codec and byte-encoding backlog
 

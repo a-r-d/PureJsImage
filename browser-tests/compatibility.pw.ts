@@ -203,6 +203,16 @@ test('opens AFM and surface formats through their public readers in a real brows
   expect(result.detail).toContain('bounded ZIP-backed X3P')
 })
 
+test('opens Milestone H interchange and detector formats in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificInterchangeFormats(),
+  )
+  expect(result.outputBytes).toBe(113)
+  expect(result.detail).toContain('nine portable Milestone H readers')
+  expect(result.detail).toContain('browser gzip')
+})
+
 test('reads a calibrated TIA SER spectrum image in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaSer())

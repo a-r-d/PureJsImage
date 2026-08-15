@@ -87,6 +87,8 @@ const images = createImageLibrary(allCodecs)
 
 ## Scientific application platform (alpha in 0.10.0)
 
+Interchange and detector readers are individually importable from `purejsimage/scientific/readers/rpl`, `purejsimage/scientific/readers/emsa`, `purejsimage/scientific/readers/nrrd`, `purejsimage/scientific/readers/meta-image`, `purejsimage/scientific/readers/nifti`, `purejsimage/scientific/readers/npy`, `purejsimage/scientific/readers/blockfile`, `purejsimage/scientific/readers/mib`, and `purejsimage/scientific/readers/ebsd-text`.
+
 PureJsImage 0.10.0 introduces these alpha application entrypoints. Provider and extension APIs are experimental and may change in later releases through explicit versioning. The ordinary codec pipeline remains the established npm path: the application entries do not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
 
 Alpha package entrypoints:

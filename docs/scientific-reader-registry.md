@@ -75,6 +75,14 @@ float64 with the declared scale and offset. X3P accepts one-layer ISO 5436-2 sur
 the shared bounded ZIP/ZIP64 layer. The exact exclusions are documented in
 [`scientific-surface-formats.md`](scientific-surface-formats.md).
 
+## Interchange and detector formats
+
+Milestone H adds explicit entries for RPL/RAW, EMSA/MAS, NRRD, MetaImage, NIfTI, NPY, NanoMegas
+BLO, Merlin MIB, and ANG/CTF orientation maps. They are re-exported only by the optional
+`purejsimage/scientific/readers/all` entry. The exact numeric, compression, companion, grid, and
+unsupported-variant boundaries are documented in
+[`scientific-interchange-formats.md`](scientific-interchange-formats.md).
+
 Codec adapters probe at fallback confidence so a specialized scientific reader with the same file
 signature wins. They preserve source identity, `AbortSignal`, and caller-owned block release.
 Importing the PNG or JPEG reader is explicit; neither is linked by `purejsimage/scientific`, and

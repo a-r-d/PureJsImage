@@ -144,6 +144,15 @@ describe('package contract', () => {
       ['scientific-reader-webp', 138_213],
       ['scientific-reader-bmp', 57_356],
       ['scientific-reader-jp2', 121_805],
+      ['scientific-reader-rpl', 53_500],
+      ['scientific-reader-emsa', 50_800],
+      ['scientific-reader-nrrd', 56_800],
+      ['scientific-reader-meta-image', 53_200],
+      ['scientific-reader-nifti', 55_200],
+      ['scientific-reader-npy', 50_700],
+      ['scientific-reader-blockfile', 51_500],
+      ['scientific-reader-mib', 42_400],
+      ['scientific-reader-ebsd-text', 54_200],
       ['scientific-readers-all', 1_008_000],
     ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
@@ -478,6 +487,15 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/envi',
       'purejsimage/scientific/readers/fits',
       'purejsimage/scientific/readers/gsf',
+      'purejsimage/scientific/readers/rpl',
+      'purejsimage/scientific/readers/emsa',
+      'purejsimage/scientific/readers/nrrd',
+      'purejsimage/scientific/readers/meta-image',
+      'purejsimage/scientific/readers/nifti',
+      'purejsimage/scientific/readers/npy',
+      'purejsimage/scientific/readers/blockfile',
+      'purejsimage/scientific/readers/mib',
+      'purejsimage/scientific/readers/ebsd-text',
       'purejsimage/scientific/readers/mrc',
       'purejsimage/scientific/readers/tiff',
       'purejsimage/scientific/readers/ome-tiff',
@@ -518,6 +536,15 @@ describe('package contract', () => {
     expect(allScientificReaders).toHaveProperty('tiaSerReader')
     expect(allScientificReaders).toHaveProperty('createTiaSerReader')
     expect(allScientificReaders).toHaveProperty('tiffReader')
+    expect(allScientificReaders).toHaveProperty('rplReader')
+    expect(allScientificReaders).toHaveProperty('emsaReader')
+    expect(allScientificReaders).toHaveProperty('nrrdReader')
+    expect(allScientificReaders).toHaveProperty('metaImageReader')
+    expect(allScientificReaders).toHaveProperty('niftiReader')
+    expect(allScientificReaders).toHaveProperty('npyReader')
+    expect(allScientificReaders).toHaveProperty('blockfileReader')
+    expect(allScientificReaders).toHaveProperty('mibReader')
+    expect(allScientificReaders).toHaveProperty('ebsdTextReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
@@ -625,6 +652,15 @@ describe('package contract', () => {
       './scientific/readers/igor-binary-wave',
       './scientific/readers/nanonis-sxm',
       './scientific/readers/x3p',
+      './scientific/readers/rpl',
+      './scientific/readers/emsa',
+      './scientific/readers/nrrd',
+      './scientific/readers/meta-image',
+      './scientific/readers/nifti',
+      './scientific/readers/npy',
+      './scientific/readers/blockfile',
+      './scientific/readers/mib',
+      './scientific/readers/ebsd-text',
       './scientific/readers/tia-ser',
       './scientific/readers/tia-emi',
       './scientific/readers/ncem-emd',

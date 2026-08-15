@@ -6,6 +6,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Completed the initial Milestone H interchange and detector set with explicit portable readers
+  for RPL/RAW, EMSA/MAS, NRRD, MetaImage MHD/MHA, NIfTI-1/2 including bounded `.nii.gz`, NPY,
+  NanoMegas BLO, processed Merlin MIB, and rectangular ANG/CTF orientation maps. The readers
+  preserve native numeric samples and calibration evidence, provide bounded selected reads where
+  their storage permits, reject recognized unsupported variants, ship as individual package
+  entries, and pass generated structural, hostile-limit, packed-consumer, size, and real-Chromium
+  coverage. Pinned RosettaSciIO files independently exercise RPL/RAW, ISO EMSA, BLO, and processed
+  Merlin MIB without redistributing their GPL binaries. EDAX and Bruker BCF remain the roadmap's
+  explicit later items.
+
 - Added the public `purejsimage/scientific/readers/ncem-emd` reader for the fixture-proven
   Berkeley/openNCEM 0.2 subset. It accepts integer or decimal-string versions, discovers numeric
   groups below `/data` or `/signals`, preserves exact labeled coordinates and bounded scalar or
