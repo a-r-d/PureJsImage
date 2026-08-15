@@ -2215,7 +2215,7 @@ to own only generic descriptors, definitions, providers, and registries.
     incomplete DM/TIA/Velox/NIfTI calibration, and exact surface-corpus provenance all have focused
     regressions. All six pinned Velox corpus files pass, the complete Chromium compatibility file
     passes 76 tests, and `npm run check` passes all 127 files and 1,523 tests. The 1,848,317-byte
-    browser bundle, 44.1 KiB NIfTI reader, 170.2 KiB Velox reader, 175.8 KiB NCEM reader, and 834.9
+    browser bundle, 44.1 KiB NIfTI reader, 170.3 KiB Velox reader, 175.8 KiB NCEM reader, and 835.0
     KiB aggregate scientific-reader entry remain within their recorded ceilings. Lab Viewer
     registration, public Velox sparse spectra, NanoScope, JPK/OZX, EDAX, and BCF remain explicit
     follow-up work rather than claims of this branch.

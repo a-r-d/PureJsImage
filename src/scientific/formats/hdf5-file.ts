@@ -687,12 +687,11 @@ class Hdf5FileImplementation implements Hdf5File {
 export const openHdf5File = async (
   source: ImageSource,
   options: Readonly<Hdf5OpenOptions> = {},
-  knownSignatureOffset?: number,
 ): Promise<Hdf5File> => {
   throwIfAborted(options.signal)
-  const signatureOffset = knownSignatureOffset ?? options.knownSignatureOffset
+  const { knownSignatureOffset } = options
   const layer = await openHdf5FileLayer(source, {
-    ...(signatureOffset === undefined ? {} : { knownSignatureOffset: signatureOffset }),
+    ...(knownSignatureOffset === undefined ? {} : { knownSignatureOffset }),
     ...(options.metadataCache ?? {}),
     ...(options.signal === undefined ? {} : { signal: options.signal }),
   })
