@@ -27,11 +27,13 @@ import { gsfReaderDescriptor } from '../src/scientific/readers/gsf.ts'
 import { jpegReaderDescriptor } from '../src/scientific/readers/jpeg.ts'
 import { jp2ReaderDescriptor } from '../src/scientific/readers/jp2.ts'
 import { mrcReaderDescriptor } from '../src/scientific/readers/mrc.ts'
+import { ncemEmdReaderDescriptor } from '../src/scientific/readers/ncem-emd.ts'
 import { omeTiffReaderDescriptor } from '../src/scientific/readers/ome-tiff.ts'
 import { pngReaderDescriptor } from '../src/scientific/readers/png.ts'
 import { tiffReaderDescriptor } from '../src/scientific/readers/tiff.ts'
 import { tiaEmiReaderDescriptor } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReaderDescriptor } from '../src/scientific/readers/tia-ser.ts'
+import { veloxEmdReaderDescriptor } from '../src/scientific/readers/velox-emd.ts'
 import { webpReaderDescriptor } from '../src/scientific/readers/webp.ts'
 import type { ScientificReaderDescriptor } from '../src/scientific/reader.ts'
 import codecCapabilityExpectations from './generated/capability-expectations.json' with {
@@ -73,6 +75,8 @@ const runtimeScientificReaders: readonly ScientificReaderDescriptor[] = [
   digitalMicrographReaderDescriptor,
   tiaEmiReaderDescriptor,
   tiaSerReaderDescriptor,
+  ncemEmdReaderDescriptor,
+  veloxEmdReaderDescriptor,
 ]
 
 describe('generated codec capability contract', () => {

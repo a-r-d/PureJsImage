@@ -138,6 +138,16 @@
       "import": "./dist/scientific/readers/tia-emi.js",
       "default": "./dist/scientific/readers/tia-emi.js"
     },
+    "./scientific/readers/ncem-emd": {
+      "types": "./dist/scientific/readers/ncem-emd.d.ts",
+      "import": "./dist/scientific/readers/ncem-emd.js",
+      "default": "./dist/scientific/readers/ncem-emd.js"
+    },
+    "./scientific/readers/velox-emd": {
+      "types": "./dist/scientific/readers/velox-emd.d.ts",
+      "import": "./dist/scientific/readers/velox-emd.js",
+      "default": "./dist/scientific/readers/velox-emd.js"
+    },
     "./scientific/readers/tiff": {
       "types": "./dist/scientific/readers/tiff.d.ts",
       "import": "./dist/scientific/readers/tiff.js",
@@ -374,6 +384,10 @@
     "fixtures:tia-emi:prepare": "node benchmark/tia-ser/prepare-emi-corpus.ts",
     "fixtures:hdf5": "node benchmark/hdf5/verify-corpus.ts",
     "fixtures:hdf5:prepare": "node benchmark/hdf5/prepare-corpus.ts",
+    "fixtures:ncem-emd": "node benchmark/ncem-emd/verify-corpus.ts",
+    "fixtures:ncem-emd:prepare": "node benchmark/ncem-emd/prepare-corpus.ts",
+    "fixtures:velox-emd": "node benchmark/velox-emd/verify-corpus.ts",
+    "fixtures:velox-emd:prepare": "node benchmark/velox-emd/prepare-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha": "node benchmark/avif/verify-auxiliary-fixtures.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",

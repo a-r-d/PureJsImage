@@ -80,6 +80,13 @@ export interface Hdf5FixedStringDatatype extends Hdf5DatatypeBase {
   readonly characterSet: 'ascii' | 'utf-8'
 }
 
+export interface Hdf5VariableStringDatatype extends Hdf5DatatypeBase {
+  readonly kind: 'variable-string'
+  readonly padding: 'null-terminated' | 'null-padded' | 'space-padded'
+  readonly characterSet: 'ascii' | 'utf-8'
+  readonly base: Hdf5IntegerDatatype
+}
+
 export interface Hdf5EnumMember {
   readonly name: string
   readonly value: bigint
@@ -112,6 +119,7 @@ export type Hdf5Datatype =
   | Hdf5IntegerDatatype
   | Hdf5FloatDatatype
   | Hdf5FixedStringDatatype
+  | Hdf5VariableStringDatatype
   | Hdf5EnumDatatype
   | Hdf5CompoundDatatype
 
@@ -672,6 +680,58 @@ function parseDatatypeAt(
       end: offset + 8,
     })
   }
+  if (header.datatypeClass === 9) {
+    if ((header.classBits & 0xfff000) !== 0) {
+      throw invalidInput('HDF5 variable-length datatype has reserved class bits set')
+    }
+    const type = header.classBits & 0x0f
+    if (type === 0) {
+      throw unsupportedOperation('HDF5 variable-length sequences are not supported')
+    }
+    if (type !== 1) throw invalidInput(`HDF5 variable-length type ${type} is invalid`)
+    const paddingValue = (header.classBits >>> 4) & 0x0f
+    const characterSetValue = (header.classBits >>> 8) & 0x0f
+    const padding =
+      paddingValue === 0
+        ? 'null-terminated'
+        : paddingValue === 1
+          ? 'null-padded'
+          : paddingValue === 2
+            ? 'space-padded'
+            : undefined
+    if (padding === undefined) {
+      throw invalidInput(`HDF5 variable-length string padding ${paddingValue} is invalid`)
+    }
+    if (characterSetValue > 1) {
+      throw invalidInput(
+        `HDF5 variable-length string character set ${characterSetValue} is invalid`,
+      )
+    }
+    const parsedBase = parseDatatypeAt(bytes, offset + 8, limits, depth + 1)
+    if (
+      parsedBase.datatype.kind !== 'integer' ||
+      parsedBase.datatype.byteLength !== 1 ||
+      parsedBase.datatype.bitOffset !== 0 ||
+      parsedBase.datatype.bitPrecision !== 8 ||
+      parsedBase.datatype.lowPadding !== 0 ||
+      parsedBase.datatype.highPadding !== 0
+    ) {
+      throw unsupportedOperation(
+        'HDF5 variable-length strings require a complete one-byte character base datatype',
+      )
+    }
+    return Object.freeze({
+      datatype: Object.freeze({
+        kind: 'variable-string',
+        version: header.version,
+        byteLength: header.byteLength,
+        padding,
+        characterSet: characterSetValue === 0 ? 'ascii' : 'utf-8',
+        base: parsedBase.datatype,
+      }),
+      end: parsedBase.end,
+    })
+  }
   if (header.datatypeClass === 8) {
     if ((header.classBits & 0xff0000) !== 0) {
       throw invalidInput('HDF5 enum datatype has reserved class bits set')
@@ -789,8 +849,13 @@ function parseDatatypeAt(
         position += 28
       }
       const parsedMember = parseDatatypeAt(bytes, position, limits, depth + 1)
-      if (parsedMember.datatype.kind === 'compound') {
-        throw unsupportedOperation('Nested HDF5 compound datatypes are not supported')
+      if (
+        parsedMember.datatype.kind === 'compound' ||
+        parsedMember.datatype.kind === 'variable-string'
+      ) {
+        throw unsupportedOperation(
+          'Nested HDF5 compound and variable-length member datatypes are not supported',
+        )
       }
       if (memberOffset + parsedMember.datatype.byteLength > header.byteLength) {
         throw invalidInput(`HDF5 compound member ${index} exceeds its element storage`)

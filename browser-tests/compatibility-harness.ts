@@ -1,7 +1,3 @@
-import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
-import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
-import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
-import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
 import {
   generatedDigitalMicrographEelsFixture,
   generatedDigitalMicrographFixture,
@@ -13,14 +9,21 @@ import {
 } from '../benchmark/hdf5/generated-dataset-fixture.ts'
 import { createGeneratedHdf5Fixture } from '../benchmark/hdf5/generated-fixture.ts'
 import { createGeneratedVersion2ObjectHeader } from '../benchmark/hdf5/generated-object-fixture.ts'
+import { createGeneratedNcemEmdFixture } from '../benchmark/ncem-emd/generated-fixture.ts'
 import {
-  generateTiaEmiFixture,
   generatedTiaEmiObject,
+  generateTiaEmiFixture,
 } from '../benchmark/tia-ser/generated-emi-fixture.ts'
 import {
   generatedTiaSerPointSpectrum,
   generatedTiaSerSpectrumImage,
 } from '../benchmark/tia-ser/generated-fixture.ts'
+import { createGeneratedVeloxEmdFixture } from '../benchmark/velox-emd/generated-fixture.ts'
+import { createGeneratedVeloxSpectrumFixture } from '../benchmark/velox-emd/generated-spectrum-fixture.ts'
+import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
+import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
+import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
+import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
@@ -29,15 +32,28 @@ import { bmpCodec } from '../src/codec-entries/bmp.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
-import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
+import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
-import type { PixelBlock } from '../src/pixel.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
+import type { PixelBlock } from '../src/pixel.ts'
+import { createScientificFileContext } from '../src/scientific/browser.ts'
+import { openHdf5File } from '../src/scientific/formats/hdf5-file.ts'
+import type { Hdf5FilterPipeline } from '../src/scientific/formats/hdf5-filter-message.ts'
+import { decodeHdf5ChunkFilters, hdf5Fletcher32 } from '../src/scientific/formats/hdf5-filters.ts'
+import {
+  inspectVeloxEmdSpectra,
+  readVeloxPointSpectrum,
+} from '../src/scientific/formats/velox-emd.ts'
+import type {
+  ScientificDataset,
+  ScientificPlaneReadRequest,
+  ScientificSeriesReadRequest,
+} from '../src/scientific/index.ts'
 import {
   createScientificLibrary,
   normalizeScientificDatasetDescriptor,
@@ -45,23 +61,16 @@ import {
   rasterToPixels,
   ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
-import { createScientificFileContext } from '../src/scientific/browser.ts'
-import type {
-  ScientificDataset,
-  ScientificPlaneReadRequest,
-  ScientificSeriesReadRequest,
-} from '../src/scientific/index.ts'
-import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import { bmpReader } from '../src/scientific/readers/bmp.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { jp2Reader } from '../src/scientific/readers/jp2.ts'
-import { tiffReader } from '../src/scientific/readers/tiff.ts'
+import { createNcemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
+import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
+import { tiffReader } from '../src/scientific/readers/tiff.ts'
+import { createVeloxEmdReader } from '../src/scientific/readers/velox-emd.ts'
 import { webpReader } from '../src/scientific/readers/webp.ts'
-import { decodeHdf5ChunkFilters, hdf5Fletcher32 } from '../src/scientific/formats/hdf5-filters.ts'
-import { openHdf5File } from '../src/scientific/formats/hdf5-file.ts'
-import type { Hdf5FilterPipeline } from '../src/scientific/formats/hdf5-filter-message.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -179,6 +188,111 @@ const hdf5DatasetBlocks = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'package-private HDF5 file API returned exact compact selection blocks',
     outputBytes,
+  }
+}
+
+const hdf5NcemEmd = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedNcemEmdFixture({ acquisitionMetadata: true })
+  const document = await createNcemEmdReader().open({
+    primary: { id: 'browser-ncem-emd', source: new MemorySource(fixture.bytes) },
+  })
+  const summary = document.datasets[0]
+  const firstDimension = summary?.descriptor.axes[0]
+  const dataset = await document.openDataset('/data/image')
+  const samples: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['dim2', 'dim1'],
+    fixedIndices: [],
+    x: 1,
+    y: 1,
+    width: 2,
+    height: 1,
+  })) {
+    samples.push(...block.data)
+  }
+  document.close?.()
+  if (
+    summary?.id !== '/data/image' ||
+    summary.descriptor.axes.map(({ length }) => length).join(',') !== '3,4' ||
+    firstDimension?.name !== 'Position Y' ||
+    firstDimension.unit !== '[n_m]' ||
+    firstDimension.coordinates.type !== 'linear' ||
+    firstDimension.coordinates.step !== 0.5 ||
+    document.metadata.acquisition === undefined ||
+    samples.join(',') !== '0,6,0,7'
+  ) {
+    throw new Error('Browser NCEM EMD scientific dataset did not match the fixture')
+  }
+  return {
+    detail:
+      'public NCEM EMD 0.2 scientific dataset, calibration, acquisition metadata, and bounded region reads passed in-browser',
+    outputBytes: samples.length,
+  }
+}
+
+const hdf5VeloxEmd = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedVeloxEmdFixture({ variant: 'fft' })
+  const document = await createVeloxEmdReader().open({
+    primary: { id: 'browser-velox-emd', source: new MemorySource(fixture.bytes) },
+  })
+  const summary = document.datasets[0]
+  const dataset = await document.openDataset(fixture.datasetId ?? '')
+  const samples: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [{ axisId: 'frame', index: 0 }],
+    width: 1,
+    height: 1,
+  })) {
+    samples.push(...block.data)
+  }
+  document.close?.()
+  const frequencyDomain = summary?.descriptor.metadata?.veloxEmd
+  if (
+    summary?.name !== 'Generated detector' ||
+    summary.descriptor.sampleType !== 'float32' ||
+    summary.descriptor.components.length !== 2 ||
+    !frequencyDomain ||
+    samples.join(',') !== '62,128,0,0,191,0,0,0'
+  ) {
+    throw new Error('Browser Velox EMD scientific dataset did not match the fixture')
+  }
+  return {
+    detail: 'public Velox EMD complex FFT dataset and bounded native samples passed in-browser',
+    outputBytes: samples.length,
+  }
+}
+
+const hdf5VeloxSpectrum = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedVeloxSpectrumFixture()
+  const file = await openHdf5File(new MemorySource(fixture.bytes))
+  const inspection = await inspectVeloxEmdSpectra(file)
+  const stream = inspection.spectrumStreams[0]
+  if (stream === undefined) throw new Error('Browser Velox EMD spectrum stream is missing')
+  const point = await readVeloxPointSpectrum(file, stream, {
+    frame: 0,
+    x: 0,
+    y: 0,
+    start: 1,
+    length: 3,
+    maxEventBlockEvents: 2,
+  })
+  file.close()
+  if (
+    inspection.denseSpectra.length !== 1 ||
+    stream.energyBins !== 8 ||
+    stream.width !== 2 ||
+    stream.height !== 2 ||
+    stream.frameOffsets.join(',') !== '0,10' ||
+    point.scannedEvents !== 4 ||
+    point.eventReadOperations !== 2 ||
+    point.data.join(',') !== '0,0,0,2,0,0,0,0,0,0,0,1'
+  ) {
+    throw new Error('Browser Velox EMD point spectrum did not match the fixture')
+  }
+  return {
+    detail: 'package-private Velox EMD sparse point spectrum stayed bounded in-browser',
+    outputBytes: point.data.byteLength,
   }
 }
 
@@ -3730,6 +3844,9 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   heifPqDisplay,
   hdf5DatasetBlocks,
   hdf5Filters,
+  hdf5NcemEmd,
+  hdf5VeloxEmd,
+  hdf5VeloxSpectrum,
   httpRangeCancellation,
   inputTypes,
   optionalApiEntries,

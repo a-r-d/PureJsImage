@@ -48,6 +48,9 @@ export interface BrowserCompatibilityHarness {
   heifPqDisplay(): Promise<BrowserWorkflowResult>
   hdf5DatasetBlocks(): Promise<BrowserWorkflowResult>
   hdf5Filters(): Promise<BrowserWorkflowResult>
+  hdf5NcemEmd(): Promise<BrowserWorkflowResult>
+  hdf5VeloxEmd(): Promise<BrowserWorkflowResult>
+  hdf5VeloxSpectrum(): Promise<BrowserWorkflowResult>
   httpRangeCancellation(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   optionalApiEntries(): Promise<BrowserWorkflowResult>

@@ -6747,6 +6747,38 @@
         "benchmark/tia-ser/verify-emi-corpus.ts",
         "tests/tia-emi-reader.test.ts"
       ]
+    },
+    {
+      "id": "purejsimage/ncem-emd",
+      "version": "1.0.0",
+      "format": "NCEM EMD 0.2",
+      "packageExport": "purejsimage/scientific/readers/ncem-emd",
+      "extensions": ["emd"],
+      "mediaTypes": ["application/x-hdf5"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "boundary": "Berkeley/openNCEM EMD 0.2 numeric groups below /data or /signals with scalar integer or decimal-string version attributes, exact labeled coordinates, bounded scalar or array acquisition attributes, and selected HDF5 hyperslab reads; Direct Electron .de5 and later EMD revisions remain unsupported.",
+      "evidence": ["tests/ncem-emd-reader.test.ts", "tests/ncem-emd.test.ts"],
+      "fixtures": [
+        "benchmark/ncem-emd/corpus.json",
+        "benchmark/ncem-emd/generated-fixture.ts",
+        "tests/ncem-emd-reader.test.ts"
+      ]
+    },
+    {
+      "id": "purejsimage/velox-emd",
+      "version": "1.0.0",
+      "format": "FEI/Thermo Velox EMD",
+      "packageExport": "purejsimage/scientific/readers/velox-emd",
+      "extensions": ["emd"],
+      "mediaTypes": ["application/x-hdf5"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Velox HDF5 image hierarchy with rank-3 numeric image, diffraction, dense-map, DPC complex, or positive-half FFT arrays; bounded per-frame JSON metadata, explicit detector datasets and frame axes, exact native samples, and specific pruned-spectrum-image errors. Sparse SpectrumStream data and dense Spectrum entries remain outside this E2 boundary.",
+      "evidence": ["tests/velox-emd-reader.test.ts"],
+      "fixtures": ["benchmark/velox-emd/generated-fixture.ts", "tests/velox-emd-reader.test.ts"]
     }
   ]
 }

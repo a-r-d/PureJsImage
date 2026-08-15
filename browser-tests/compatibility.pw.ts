@@ -39,6 +39,29 @@ test('reads exact HDF5 dataset blocks in a real browser', async ({ page }) => {
   expect(result.detail).toContain('exact compact selection blocks')
 })
 
+test('reads an NCEM EMD scientific dataset in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5NcemEmd())
+  expect(result.outputBytes).toBe(4)
+  expect(result.detail).toContain('NCEM EMD 0.2 scientific dataset')
+  expect(result.detail).toContain('calibration')
+  expect(result.detail).toContain('acquisition metadata')
+})
+
+test('reads a Velox EMD FFT dataset in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5VeloxEmd())
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('Velox EMD complex FFT dataset')
+})
+
+test('reads a bounded Velox EMD point spectrum in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5VeloxSpectrum())
+  expect(result.outputBytes).toBe(12)
+  expect(result.detail).toContain('sparse point spectrum stayed bounded')
+})
+
 test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding', async ({
   page,
 }) => {

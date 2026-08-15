@@ -32,6 +32,13 @@ export interface GeneratedStringDatatypeOptions {
   readonly characterSet?: 'ascii' | 'utf-8'
 }
 
+export interface GeneratedVariableStringDatatypeOptions {
+  readonly version?: 1 | 2 | 3
+  readonly descriptorBytes: number
+  readonly padding?: 'null-terminated' | 'null-padded' | 'space-padded'
+  readonly characterSet?: 'ascii' | 'utf-8'
+}
+
 export interface GeneratedEnumDatatypeOptions {
   readonly version: 1 | 2 | 3
   readonly base: Uint8Array
@@ -323,6 +330,23 @@ export const createGeneratedStringDatatypeMessage = (
     options.byteLength,
     8,
   )
+}
+
+export const createGeneratedVariableStringDatatypeMessage = (
+  options: Readonly<GeneratedVariableStringDatatypeOptions>,
+): Uint8Array<ArrayBuffer> => {
+  const padding = options.padding === 'null-padded' ? 1 : options.padding === 'space-padded' ? 2 : 0
+  const characterSet = options.characterSet === 'utf-8' ? 1 : 0
+  const base = createGeneratedIntegerDatatypeMessage({ byteLength: 1 })
+  const output = createDatatypeHeader(
+    options.version ?? 1,
+    9,
+    1 | (padding << 4) | (characterSet << 8),
+    options.descriptorBytes,
+    8 + base.byteLength,
+  )
+  output.set(base, 8)
+  return output
 }
 
 const encodedDatatypeName = (name: string, padded: boolean): Uint8Array<ArrayBuffer> => {

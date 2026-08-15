@@ -6,6 +6,8 @@ import {
   createGeneratedContiguousLayoutMessage,
   createGeneratedDataspaceMessage,
   createGeneratedIntegerDatatypeMessage,
+  createGeneratedStringDatatypeMessage,
+  createGeneratedVariableStringDatatypeMessage,
 } from '../benchmark/hdf5/generated-dataset-fixture.ts'
 import { createGeneratedHdf5Fixture } from '../benchmark/hdf5/generated-fixture.ts'
 import { independentHdf5D6Fixture } from '../benchmark/hdf5/independent-d6-fixture.ts'
@@ -62,6 +64,56 @@ const uint16Bytes = (values: readonly number[]): Uint8Array<ArrayBuffer> => {
     view.setUint16(index * 2, values[index] ?? 0, true)
   }
   return output
+}
+
+const writeUint64 = (bytes: Uint8Array, offset: number, value: bigint): void => {
+  new DataView(bytes.buffer).setBigUint64(offset, value, true)
+}
+
+const scalarStringDataset = (
+  datatype: Uint8Array,
+  data: Uint8Array,
+): readonly GeneratedHdf5ObjectMessage[] =>
+  Object.freeze([
+    {
+      type: 0x0001,
+      data: createGeneratedDataspaceMessage({ version: 2, lengthSize: 8, dimensions: [1n] }),
+    },
+    { type: 0x0003, data: datatype },
+    {
+      type: 0x0008,
+      data: createGeneratedCompactLayoutMessage({ version: 4, dimensions: [], data }),
+    },
+  ])
+
+const variableStringFixture = (value: string, heapIndex = 1): Uint8Array<ArrayBuffer> => {
+  const heapAddress = 4_096n
+  const encoded = new TextEncoder().encode(value)
+  const descriptor = new Uint8Array(16)
+  const descriptorView = new DataView(descriptor.buffer)
+  descriptorView.setUint32(0, encoded.byteLength, true)
+  descriptorView.setBigUint64(4, heapAddress, true)
+  descriptorView.setUint32(12, heapIndex, true)
+  const bytes = rootDataset(
+    scalarStringDataset(
+      createGeneratedVariableStringDatatypeMessage({
+        descriptorBytes: 16,
+        characterSet: 'utf-8',
+      }),
+      descriptor,
+    ),
+  )
+  const heap = new Uint8Array(512)
+  heap.set([0x47, 0x43, 0x4f, 0x4c, 1])
+  writeUint64(heap, 8, BigInt(heap.byteLength))
+  const view = new DataView(heap.buffer)
+  view.setUint16(16, 1, true)
+  writeUint64(heap, 24, BigInt(encoded.byteLength))
+  heap.set(encoded, 32)
+  const next = 32 + Math.ceil(encoded.byteLength / 8) * 8
+  writeUint64(heap, next + 8, BigInt(heap.byteLength - next))
+  bytes.set(heap, Number(heapAddress))
+  return bytes
 }
 
 class CountingSource implements ImageSource {
@@ -132,6 +184,47 @@ describe('HDF5 D6 low-level file API', () => {
     await expect(file.list('/missing')).resolves.toEqual([])
     file.close()
     await expect(file.get('/')).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('reads bounded fixed and global-heap scalar strings for dialect metadata', async () => {
+    const fixedValue = new TextEncoder().encode('Velox   ')
+    const fixed = await openHdf5File(
+      new MemorySource(
+        rootDataset(
+          scalarStringDataset(
+            createGeneratedStringDatatypeMessage({
+              byteLength: fixedValue.byteLength,
+              padding: 'space-padded',
+            }),
+            fixedValue,
+          ),
+        ),
+      ),
+    )
+    await expect(fixed.readScalarString('/')).resolves.toBe('Velox')
+    fixed.close()
+
+    const variableBytes = variableStringFixture('{"bincount":"4096"}\n')
+    const variable = await openHdf5File(new MemorySource(variableBytes))
+    await expect(variable.readScalarString('/')).resolves.toBe('{"bincount":"4096"}\n')
+    await expect(variable.readScalarString('/', { maxStringBytes: 8 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    await expect(
+      variable.readScalarString('/', { maxGlobalHeapCollectionBytes: 128 }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    const controller = new AbortController()
+    controller.abort(new Error('stop HDF5 scalar string'))
+    await expect(variable.readScalarString('/', { signal: controller.signal })).rejects.toThrow(
+      'stop HDF5 scalar string',
+    )
+    variable.close()
+
+    const missing = await openHdf5File(
+      new MemorySource(variableStringFixture('{"bincount":"4096"}', 2)),
+    )
+    await expect(missing.readScalarString('/')).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    missing.close()
   })
 
   it('reads exact rectangular blocks from compact and contiguous datasets', async () => {

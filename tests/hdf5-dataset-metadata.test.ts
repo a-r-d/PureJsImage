@@ -6,6 +6,7 @@ import {
   createGeneratedFloatDatatypeMessage,
   createGeneratedIntegerDatatypeMessage,
   createGeneratedStringDatatypeMessage,
+  createGeneratedVariableStringDatatypeMessage,
 } from '../benchmark/hdf5/generated-dataset-fixture.ts'
 import { createGeneratedHdf5Fixture } from '../benchmark/hdf5/generated-fixture.ts'
 import {
@@ -289,6 +290,33 @@ describe('HDF5 D3 primitive datatypes', () => {
     const oversized = createGeneratedStringDatatypeMessage({ byteLength: 1_024 })
     expect(() => parseHdf5DatatypeMessage(oversized, { maxElementBytes: 32 })).toThrowError(
       expect.objectContaining({ code: 'LIMIT_EXCEEDED' }),
+    )
+  })
+
+  it('parses variable-length string descriptors and rejects unsupported sequences and bases', () => {
+    const string = createGeneratedVariableStringDatatypeMessage({
+      version: 1,
+      descriptorBytes: 16,
+      characterSet: 'utf-8',
+    })
+    expect(parseHdf5DatatypeMessage(string)).toMatchObject({
+      kind: 'variable-string',
+      version: 1,
+      byteLength: 16,
+      characterSet: 'utf-8',
+      base: { kind: 'integer', byteLength: 1, bitPrecision: 8 },
+    })
+
+    const sequence = Uint8Array.from(string)
+    sequence[1] = 0
+    expect(() => parseHdf5DatatypeMessage(sequence)).toThrowError(
+      expect.objectContaining({ code: 'UNSUPPORTED_OPERATION' }),
+    )
+
+    const invalidBase = Uint8Array.from(string)
+    new DataView(invalidBase.buffer).setUint32(12, 2, true)
+    expect(() => parseHdf5DatatypeMessage(invalidBase)).toThrowError(
+      expect.objectContaining({ code: 'UNSUPPORTED_OPERATION' }),
     )
   })
 })

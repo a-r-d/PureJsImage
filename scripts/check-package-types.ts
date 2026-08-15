@@ -140,6 +140,8 @@ try {
     'dist/scientific/readers/digital-micrograph.js',
     'dist/scientific/readers/tia-emi.js',
     'dist/scientific/readers/tia-ser.js',
+    'dist/scientific/readers/ncem-emd.js',
+    'dist/scientific/readers/velox-emd.js',
     'dist/scientific/readers/envi.js',
     'dist/scientific/readers/fits.js',
     'dist/scientific/readers/gsf.js',
@@ -230,6 +232,10 @@ export { createTiaSerReader, tiaSerReader } from 'purejsimage/scientific/readers
 export type { TiaSerReaderLimits, TiaSerReaderOptions } from 'purejsimage/scientific/readers/tia-ser'
 export { createTiaEmiReader, tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'
 export type { TiaEmiReaderLimits, TiaEmiReaderOptions } from 'purejsimage/scientific/readers/tia-emi'
+export { createNcemEmdReader, ncemEmdReader } from 'purejsimage/scientific/readers/ncem-emd'
+export type { NcemEmdReaderOptions } from 'purejsimage/scientific/readers/ncem-emd'
+export { createVeloxEmdReader, veloxEmdReader } from 'purejsimage/scientific/readers/velox-emd'
+export type { VeloxEmdReaderLimits, VeloxEmdReaderOptions } from 'purejsimage/scientific/readers/velox-emd'
 export { enviReader } from 'purejsimage/scientific/readers/envi'
 export { fitsReader } from 'purejsimage/scientific/readers/fits'
 export { mrcReader } from 'purejsimage/scientific/readers/mrc'

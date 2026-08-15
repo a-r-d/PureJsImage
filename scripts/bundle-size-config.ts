@@ -104,6 +104,18 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 150_000,
   },
   {
+    id: 'scientific-reader-ncem-emd',
+    name: 'Scientific reader: NCEM EMD',
+    contents: exportsFrom(['./src/scientific/readers/ncem-emd.ts']),
+    maxMinifiedBytes: 180_000,
+  },
+  {
+    id: 'scientific-reader-velox-emd',
+    name: 'Scientific reader: Velox EMD',
+    contents: exportsFrom(['./src/scientific/readers/velox-emd.ts']),
+    maxMinifiedBytes: 180_000,
+  },
+  {
     id: 'scientific-reader-tiff',
     name: 'Scientific reader: TIFF',
     contents: exportsFrom(['./src/scientific/readers/tiff.ts']),

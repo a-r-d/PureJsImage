@@ -1853,6 +1853,46 @@ to own only generic descriptors, definitions, providers, and registries.
       cancellation and independent read/output/chunk/filter limits, verify exact local and
       HTTP-range budgets plus real Chromium execution, and defer a public container export until
       two independent Milestone E dialect readers prove the substrate.
+- [x] Start NCEM EMD E1 with bounded compact HDF5 attribute messages and a package-private 0.2
+      structural inspector that discovers consistent numeric `data`/`dimN` groups without reading
+      image samples; decode openNCEM fixed strings, preserve labels and units, retain exact linear or
+      lookup calibration under per-axis and total coordinate budgets, and verify an independently
+      generated h5py file in Node.js plus the generated path in Chromium.
+- [x] Continue NCEM EMD E1 with bounded scalar variable-length strings backed by HDF5 global heaps
+      and finite scalar acquisition metadata from `/microscope`, `/sample`, `/user`, and `/comments`;
+      enforce heap collection/object/value/read-operation plus projected entry/byte limits, verify a
+      second SHA-256-pinned h5py 3.12.1 file, and run the metadata path in Chromium. Keep non-scalar
+      metadata, public scientific dataset exposure, application NCEM files, and every public
+      capability claim pending.
+- [x] Add the package-private NCEM EMD scientific dataset adapter with labeled axes, exact numeric
+      sample types, units, coordinate evidence, stable identities, finite acquisition metadata,
+      canonical plane and series blocks, either plane-axis order, and an independent output-byte
+      limit. Verify an exact four-byte contiguous region read, a chunk-bounded filtered h5py region,
+      and the full adapter path in Chromium. Keep public exports, registration, and capability claims
+      pending until application NCEM files and remaining metadata shapes complete E1.
+- [x] Complete and publish NCEM EMD E1 for the fixture-proven openNCEM 0.2 subset: accept integer or
+      decimal-string versions and `/data` or `/signals`, preserve bounded scalar and array
+      acquisition metadata, pin three real RosettaSciIO application files, and align package,
+      capability, browser, documentation, size, and full repository gates. Keep `.de5` deferred.
+- [x] Complete and publish Velox EMD E2 as a separate reader ID with path-based probing, bounded
+      JSON metadata, separate detector datasets and frame axes, exact scalar/DPC/FFT samples,
+      preserved positive-half uncentered FFT evidence, specific pruned-file errors, generated
+      hostile coverage, and three pinned real application fixtures.
+- [ ] Add Velox EMD E3 sparse spectra only after Lab Viewer has a scientific spectrum surface and
+      the event binning, detector/frame selection, summing, overflow, and point/ROI memory contracts
+      are approved. The adjacent app currently exposes analysis-series export, not this surface.
+- [x] Fix the E3 sparse-stream contract from pinned producer files: native `uint16` channel events
+      and `65535` pixel gates, separate detector datasets, explicit frames bounded by the monotonic
+      frame table, cropped scan geometry, no implicit rebinning or summing, checked uint32 counts,
+      and point `readSeries()` using one native-bin accumulator without a spectrum-image cube.
+- [x] Add bounded package-private scalar HDF5 string-dataset reads for fixed strings and
+      global-heap variable strings, with hostile padding, missing-object, string-byte, heap-byte,
+      and cancellation boundaries; verify Velox `AcquisitionSettings` from the pinned v11 stream.
+- [x] Complete the dormant E3 core substrate without publishing the gated capability: index dense
+      spectra and separate sparse detector streams without touching event payloads, validate cropped
+      geometry and frame tables, decode one point in bounded event blocks with checked `uint32`
+      counts, cover hostile limits and missing gates, and pin version-11, EELS/EDS, and empty-selection
+      producer archives with exact point-spectrum hashes.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -2064,3 +2104,49 @@ to own only generic descriptors, definitions, providers, and registries.
     formatting, and every size ceiling pass; the full repository gate passes all 118 files and
     1,429 tests. HDF5 remains unreachable from package exports, and a public container API remains
     deferred until two independent Milestone E dialect readers use this substrate successfully.
+  - NCEM EMD E1 initial validation: compact attribute messages version 1 through 3 pass exact signed
+    scalar and fixed ASCII/UTF-8 string decoding, name selection, padding, duplicate,
+    dense/shared-storage, count, metadata, value, operation, and cancellation cases. The generated
+    0.2 hierarchy verifies bounded root-version recognition, numeric-group and dimension-shape
+    discovery, exact regular and lookup coordinates, unsupported-version and invalid-group
+    separation, traversal and per-axis/total coordinate limits, and no read at the separately
+    located image payload. A SHA-256-pinned h5py 3.12.1 / HDF5 1.14.4 fixture independently verifies
+    fixed labels and units, full dimension vectors, a chunked Shuffle/Deflate image, and selected
+    samples. The enriched generated path passes in real Chromium. No scientific reader export,
+    manifest entry, or compatibility claim is added by this prerequisite slice.
+  - NCEM EMD E1 metadata validation: datatype class 9 scalar strings resolve exact ASCII or UTF-8
+    bytes through bounded version 1 global-heap collections while preserving the on-disk descriptor.
+    A SHA-256-pinned h5py 3.12.1 / HDF5 1.14.4 file verifies one shared heap containing microscope,
+    sample, and comments strings plus a finite float attribute; inspection requires at most four
+    source reads including both coordinate vectors. Focused hostile cases reject corrupt heap
+    signatures and collection, object, aggregate metadata, projected entry/byte, and logical
+    operation limit overruns. The generated equivalent preserves all four standard metadata groups
+    in real Chromium. The package-private boundary and lack of public HDF5/EMD capability claims are
+    unchanged.
+  - NCEM EMD E1 scientific-adapter validation: a package-private reader probes the 0.2 root plus
+    `/data`, exposes one identified dataset per numeric group, maps stored integer/IEEE types to
+    canonical scientific sample types, and preserves dimension labels, units, exact coordinates,
+    and acquisition metadata. Focused tests cover both display-axis orders, canonical big-endian
+    conversion, series reads, output limits, unknown formats, an exact four-byte contiguous source
+    read, and a filtered h5py selection whose payload reads remain below one metadata page. The same
+    dataset open and selected-plane path passes in real Chromium. No entry point, default reader,
+    manifest record, or compatibility claim is added.
+  - Milestone E1/E2 public validation: the NCEM EMD reader accepts integer and decimal-string 0.2
+    versions plus `/data` and `/signals`, preserves bounded scalar and array acquisition metadata,
+    and passes three pinned real RosettaSciIO files. The separate Velox EMD reader passes pinned TEM
+    stack, DPC complex, and positive-half FFT files plus generated frame, JSON-limit, output-limit,
+    malformed-metadata, and pruned-variant coverage. Both public workflows pass in real Chromium.
+    The 462-file packed consumer, browser graph, 19-page docs build, capability generation,
+    typecheck, lint, formatting, and size gates pass; NCEM is 172.3 KiB, Velox is 164.7 KiB, and all
+    readers are 719.8 KiB below the 731.6 KiB ceiling. The full repository gate passes all 124 files
+    and 1,461 tests. E3 remains unclaimed because the adjacent Lab Viewer lacks the roadmap-required
+    scientific spectrum surface.
+  - Milestone E3 dormant-core validation: generated Velox dense and sparse hierarchies prove
+    pretty-printed JSON, global-heap acquisition settings, detector calibration, cropped scan shape,
+    frame-table bounds, payload-free indexing, native-channel point binning, canonical `uint32`
+    output, bounded event reads, overflow, cancellation, corrupt channels, and the last-pixel-only
+    missing-gate exception. Three pinned RosettaSciIO ZIP archives reproduce a two-frame version-11
+    spectrum image, combined EELS/EDS data, and an empty selection; exact topology, calibration,
+    frame offsets, and point-spectrum hashes pass. The generated bounded point workflow also passes
+    in real Chromium. Public reader, package, manifest, and browser claims remain intentionally
+    absent until the required Lab Viewer spectrum surface is available.

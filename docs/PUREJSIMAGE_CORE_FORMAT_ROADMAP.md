@@ -639,6 +639,7 @@ Internal surface should be small:
 interface Hdf5File {
   get(path: string): Promise<Hdf5Object | undefined>
   list(path: string): Promise<readonly Hdf5Link[]>
+  attributes(path: string, names?: readonly string[]): Promise<readonly Hdf5Attribute[] | undefined>
   readDataset(path: string, selection: Hdf5Selection): AsyncIterable<Hdf5Block>
   close(): void | Promise<void>
 }
@@ -691,6 +692,16 @@ Implement first because its hierarchy is cleaner and gives the HDF5 substrate a 
 - selected-plane and selected-region reads remain chunk-bounded;
 - Direct Electron `.de5` only after a fixture proves the same contract.
 
+E1 is complete for the initial Berkeley/openNCEM 0.2 subset. The public
+`purejsimage/scientific/readers/ncem-emd` entry recognizes integer or decimal-string version
+attributes and numeric groups below `/data` or `/signals`; exposes every valid numeric group as a
+separate labeled-axis dataset; preserves exact linear or lookup coordinates, units, calibration
+evidence, and bounded scalar or array acquisition metadata; and keeps selected plane, region, and
+series reads on the HDF5 hyperslab path. Generated hostile fixtures, two independently generated
+h5py files, and three revision- and SHA-256-pinned RosettaSciIO application files verify metadata,
+sample values, chunk-bounded reads, package generation, and real Chromium execution. Direct Electron
+`.de5` remains outside the claim because no fixture has yet proved the same contract.
+
 ### E2. Velox EMD images
 
 Keep this a separate reader ID even though the extension is also `.emd`.
@@ -702,6 +713,15 @@ Keep this a separate reader ID even though the extension is also `.emd`.
 - report pruned files with a specific unsupported-variant error;
 - preserve positive-frequency-only or uncentered FFT metadata rather than silently modifying samples.
 
+E2 is complete for the initial Velox image subset. The separate public
+`purejsimage/scientific/readers/velox-emd` entry probes `/Version` plus the internal `/Data`
+hierarchy, parses bounded per-frame JSON, exposes every rank-3 numeric image group as its own
+detector dataset with an explicit frame axis, preserves native scalar, DPC complex, and FFT compound
+samples, and records positive-half and uncentered FFT storage without reconstructing or shifting it.
+Generated fixtures cover hostile JSON, output limits, frame non-summing, FFT storage, and pruned
+files. Three revision- and SHA-256-pinned RosettaSciIO files independently verify a TEM stack, DPC
+complex data, and positive-half FFT data without committing their GPL binaries.
+
 ### E3. Velox spectra
 
 Do not include sparse EDS event streams in E2.
@@ -712,6 +732,56 @@ Add them only after:
 - Lab Viewer has a spectrum surface;
 - event binning, detector selection, frame selection, summing, overflow, and memory contracts are specified;
 - a sparse read can avoid materializing the complete spectrum image when a point or ROI spectrum is requested.
+
+E3 remains blocked by its first external product prerequisite: the current Lab Viewer has analysis
+series export but no scientific spectrum viewing surface. Sparse `SpectrumStream` support is not
+registered or claimed ahead of that UI and data-model gate.
+
+The implementation contract is nevertheless fixed from the pinned version-11 and EELS/EDS files:
+
+- each `/Data/SpectrumStream/<uuid>` is a separate detector dataset; the reader never adds streams;
+- the stored `uint16` value `65535` advances one spatial pixel and every other value is one count in
+  that native energy channel; E3 performs no implicit energy rebinning;
+- the energy axis uses the bounded `AcquisitionSettings.bincount`, and detector `Dispersion` plus
+  `OffsetEnergy` provide embedded eV calibration only when the stream's `BinaryResult.Detector`
+  identifies that detector metadata unambiguously;
+- X/Y lengths come from the exact integer product of `Scan.ScanSize` and the normalized
+  `Scan.ScanArea`, not the full raster size in `RasterScanDefinition`; the marker count for every
+  selected frame must agree with that cropped area;
+- `FrameLocationTable` entries are monotonic event indices and bound the selected frame. The final
+  frame ends at the event dataset extent. `SpectrumImageSettings` frame positions must agree when
+  present, and a caller fixes one frame explicitly; E3 does not sum frames;
+- a point spectrum is `readSeries({ axisId: 'energy', fixedIndices: [frame, y, x], ... })`. The
+  decoder scans only the selected frame up to the requested pixel and keeps one bounded native-bin
+  `Uint32Array`; it never materializes an X/Y/energy cube. A missing final gate pulse is accepted only
+  for the last pixel of the selected frame;
+- counts increment with an explicit `0xffffffff` overflow check. Event bytes, native bins, frame
+  table entries, JSON bytes, selected-frame events, source reads, and output bytes all have separate
+  positive safe-integer limits; cancellation is checked between bounded event blocks;
+- ROI aggregation and detector/frame summing remain higher-level operations over explicit source
+  selections. They are not hidden reader defaults.
+
+The package-private HDF5 facade now also resolves one fixed or global-heap variable-length scalar
+string under explicit string, heap-collection, heap-object, dataset-read, and cancellation limits.
+Generated hostile coverage verifies padding, missing heap objects, and both string and heap limits;
+the exact method reads `AcquisitionSettings` from the pinned version-11 stream. This removes the last
+container-level metadata gap without registering sparse spectra ahead of the Lab Viewer gate.
+
+The dormant E3 core substrate is also complete behind that gate. It indexes dense spectra and every
+separate `SpectrumStream` detector, reads pretty-printed metadata plus bounded acquisition settings,
+derives exact cropped X/Y dimensions and native eV calibration, validates monotonic frame tables,
+and deliberately leaves the sparse event payload unread during discovery. Its point decoder reads
+bounded event blocks only through the selected frame and requested pixel, returns canonical
+big-endian `uint32` counts for a native energy interval, and enforces independent frame-event,
+event-block, event-read, output-byte, channel, count-overflow, and cancellation boundaries. Generated
+hostile fixtures cover malformed geometry, encoding, frame tables, channels, missing gates, and every
+limit. Three revision- and SHA-256-pinned RosettaSciIO archives independently verify version-11,
+combined EELS/EDS, and empty-selection producer files, including detector counts, cropped shapes,
+frame offsets, energy calibration, point-spectrum hashes, and the zero-count case. The GPL fixtures
+remain downloaded test oracles and are not included in the package or repository. The generated
+metadata and bounded point path also pass in real Chromium. No E3 reader,
+manifest capability, browser registration, or package export is added until the required spectrum
+surface exists.
 
 ### Later HDF5 dialect priority
 

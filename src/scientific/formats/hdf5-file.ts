@@ -1,7 +1,12 @@
 import type { AbortOptions } from '../../abort.ts'
 import { throwIfAborted } from '../../abort.ts'
-import { invalidInput, limitExceeded } from '../../errors.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import type { ImageSource } from '../../source.ts'
+import {
+  readHdf5Attributes,
+  type Hdf5Attribute,
+  type Hdf5AttributeLimits,
+} from './hdf5-attributes.ts'
 import {
   materializeHdf5FillBytes,
   readHdf5DatasetElementRange,
@@ -11,6 +16,7 @@ import {
 } from './hdf5-dataset.ts'
 import type { Hdf5ChunkReadLimits, Hdf5HyperslabSelection } from './hdf5-chunks.ts'
 import { readHdf5DecodedChunkBlocks } from './hdf5-filters.ts'
+import { readHdf5GlobalHeapCollection, type Hdf5GlobalHeapLimits } from './hdf5-global-heap.ts'
 import {
   openHdf5ObjectGraph,
   type Hdf5GraphObject,
@@ -55,16 +61,30 @@ export interface Hdf5DatasetReadLimits extends Hdf5ChunkReadLimits {
   readonly maxReadOperations?: number
 }
 
+export interface Hdf5ScalarStringReadOptions extends AbortOptions, Hdf5GlobalHeapLimits {
+  readonly maxStringBytes?: number
+}
+
 export interface Hdf5OpenOptions extends AbortOptions {
   readonly metadataCache?: Readonly<Hdf5MetadataPageCacheOptions>
   readonly graph?: Readonly<Hdf5ObjectGraphLimits>
   readonly dataset?: Readonly<Hdf5DatasetMetadataLimits>
+  readonly attributes?: Readonly<Hdf5AttributeLimits>
   readonly reads?: Readonly<Hdf5DatasetReadLimits>
 }
 
 export interface Hdf5File {
   get(path: string, options?: Readonly<AbortOptions>): Promise<Hdf5Object | undefined>
   list(path: string, options?: Readonly<AbortOptions>): Promise<readonly Hdf5Link[]>
+  attributes(
+    path: string,
+    names?: readonly string[],
+    options?: Readonly<AbortOptions>,
+  ): Promise<readonly Hdf5Attribute[] | undefined>
+  readScalarString(
+    path: string,
+    options?: Readonly<Hdf5ScalarStringReadOptions>,
+  ): Promise<string | undefined>
   readDataset(
     path: string,
     selection: Readonly<Hdf5Selection>,
@@ -80,6 +100,7 @@ interface ResolvedReadLimits extends Hdf5ChunkReadLimits {
 
 const defaultReadOperations = 65_536
 const defaultOutputBlockBytes = 268_435_456
+const defaultStringBytes = 1_048_576
 
 const positiveSafeInteger = (label: string, value: number): number => {
   if (!Number.isSafeInteger(value) || value < 1) {
@@ -100,6 +121,53 @@ const resolveReadLimits = (options: Readonly<Hdf5DatasetReadLimits>): ResolvedRe
       options.maxOutputBlockBytes ?? defaultOutputBlockBytes,
     ),
   })
+
+const littleEndianUnsigned = (bytes: Uint8Array, offset: number, width: number): bigint => {
+  let value = 0n
+  for (let index = width - 1; index >= 0; index -= 1) {
+    value = (value << 8n) | BigInt(bytes[offset + index] ?? 0)
+  }
+  return value
+}
+
+const littleEndianUint32 = (bytes: Uint8Array, offset: number): number =>
+  ((bytes[offset] ?? 0) |
+    ((bytes[offset + 1] ?? 0) << 8) |
+    ((bytes[offset + 2] ?? 0) << 16) |
+    ((bytes[offset + 3] ?? 0) << 24)) >>>
+  0
+
+const decodeStringBytes = (
+  bytes: Uint8Array,
+  characterSet: 'ascii' | 'utf-8',
+  padding: 'null-terminated' | 'null-padded' | 'space-padded',
+  label: string,
+): string => {
+  let end = bytes.byteLength
+  if (padding === 'space-padded') {
+    while (end > 0 && bytes[end - 1] === 0x20) end -= 1
+  } else {
+    const terminator = bytes.indexOf(0)
+    if (terminator >= 0) {
+      end = terminator
+      for (let index = terminator; index < bytes.byteLength; index += 1) {
+        if (bytes[index] !== 0) throw invalidInput(`${label} has invalid NUL padding`)
+      }
+    }
+  }
+  const content = bytes.subarray(0, end)
+  if (content.includes(0)) throw invalidInput(`${label} contains an embedded NUL`)
+  if (characterSet === 'ascii' && content.some((value) => value > 0x7f)) {
+    throw invalidInput(`${label} is not ASCII`)
+  }
+  try {
+    return new TextDecoder(characterSet === 'ascii' ? 'ascii' : 'utf-8', { fatal: true }).decode(
+      content,
+    )
+  } catch {
+    throw invalidInput(`${label} is not valid ${characterSet.toUpperCase()}`)
+  }
+}
 
 const safeProduct = (values: readonly number[], maximum: number, label: string): number => {
   let product = 1n
@@ -212,6 +280,7 @@ class Hdf5FileImplementation implements Hdf5File {
   readonly #layer: Hdf5FileLayer
   readonly #graph: Hdf5ObjectGraph
   readonly #datasetLimits: Readonly<Hdf5DatasetMetadataLimits>
+  readonly #attributeLimits: Readonly<Hdf5AttributeLimits>
   readonly #readLimits: ResolvedReadLimits
   readonly #datasets = new Map<bigint, Promise<Hdf5DatasetMetadata>>()
   #closed = false
@@ -220,11 +289,13 @@ class Hdf5FileImplementation implements Hdf5File {
     layer: Hdf5FileLayer,
     graph: Hdf5ObjectGraph,
     datasetLimits: Readonly<Hdf5DatasetMetadataLimits>,
+    attributeLimits: Readonly<Hdf5AttributeLimits>,
     readLimits: ResolvedReadLimits,
   ) {
     this.#layer = layer
     this.#graph = graph
     this.#datasetLimits = datasetLimits
+    this.#attributeLimits = attributeLimits
     this.#readLimits = readLimits
   }
 
@@ -240,6 +311,108 @@ class Hdf5FileImplementation implements Hdf5File {
     this.#assertOpen()
     throwIfAborted(options.signal)
     return (await this.#graph.list(path, options)) ?? Object.freeze([])
+  }
+
+  async attributes(
+    path: string,
+    names?: readonly string[],
+    options: Readonly<AbortOptions> = {},
+  ): Promise<readonly Hdf5Attribute[] | undefined> {
+    this.#assertOpen()
+    throwIfAborted(options.signal)
+    const object = await this.#graph.get(path, options)
+    if (object === undefined) return undefined
+    return readHdf5Attributes(this.#layer, object.header, {
+      ...this.#attributeLimits,
+      ...(names === undefined ? {} : { names }),
+      objectPath: object.path,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
+    })
+  }
+
+  async readScalarString(
+    path: string,
+    options: Readonly<Hdf5ScalarStringReadOptions> = {},
+  ): Promise<string | undefined> {
+    this.#assertOpen()
+    throwIfAborted(options.signal)
+    const object = await this.get(path, options)
+    if (object === undefined) return undefined
+    if (object.kind !== 'dataset') {
+      throw invalidInput(`HDF5 object ${JSON.stringify(path)} is not a scalar string dataset`)
+    }
+    const { dataspace, datatype } = object.metadata
+    if (dataspace.elementCount !== 1) {
+      throw unsupportedOperation(
+        `HDF5 string dataset ${JSON.stringify(path)} contains ${dataspace.elementCount} elements`,
+      )
+    }
+    if (datatype.kind !== 'fixed-string' && datatype.kind !== 'variable-string') {
+      throw invalidInput(`HDF5 dataset ${JSON.stringify(path)} is not a string`)
+    }
+    const maxStringBytes = positiveSafeInteger(
+      'HDF5 scalar string maxStringBytes',
+      options.maxStringBytes ?? defaultStringBytes,
+    )
+    if (datatype.kind === 'fixed-string' && datatype.byteLength > maxStringBytes) {
+      throw limitExceeded(
+        `HDF5 string dataset ${JSON.stringify(path)} exceeds ${maxStringBytes} bytes`,
+      )
+    }
+    let stored: Uint8Array<ArrayBuffer> | undefined
+    const selection = Object.freeze({
+      start: Object.freeze(new Array<number>(dataspace.rank).fill(0)),
+      shape: dataspace.dimensions,
+    })
+    for await (const block of this.readDataset(path, selection, options)) {
+      if (stored !== undefined) {
+        throw invalidInput(`HDF5 scalar string dataset ${JSON.stringify(path)} is fragmented`)
+      }
+      stored = block.data
+    }
+    if (stored === undefined || stored.byteLength !== datatype.byteLength) {
+      throw invalidInput(`HDF5 scalar string dataset ${JSON.stringify(path)} is incomplete`)
+    }
+    const label = `HDF5 string dataset ${JSON.stringify(path)}`
+    if (datatype.kind === 'fixed-string') {
+      return decodeStringBytes(stored, datatype.characterSet, datatype.padding, label)
+    }
+    const descriptorBytes = 8 + this.#layer.superblock.offsetSize
+    if (datatype.byteLength !== descriptorBytes) {
+      throw invalidInput(`${label} has an invalid variable-length descriptor size`)
+    }
+    const declaredBytes = littleEndianUint32(stored, 0)
+    if (declaredBytes > maxStringBytes) {
+      throw limitExceeded(`${label} exceeds ${maxStringBytes} bytes`)
+    }
+    if (declaredBytes === 0) return ''
+    const heapAddress = littleEndianUnsigned(stored, 4, this.#layer.superblock.offsetSize)
+    const heapIndex = littleEndianUint32(stored, 4 + this.#layer.superblock.offsetSize)
+    const undefinedAddress =
+      heapAddress === (1n << BigInt(this.#layer.superblock.offsetSize * 8)) - 1n
+    if (undefinedAddress || heapIndex === 0) {
+      throw invalidInput(`${label} references an undefined global heap object`)
+    }
+    const heap = await readHdf5GlobalHeapCollection(this.#layer, heapAddress, {
+      ...(options.maxGlobalHeapCollectionBytes === undefined
+        ? {}
+        : { maxGlobalHeapCollectionBytes: options.maxGlobalHeapCollectionBytes }),
+      ...(options.maxGlobalHeapObjects === undefined
+        ? {}
+        : { maxGlobalHeapObjects: options.maxGlobalHeapObjects }),
+      maxGlobalHeapObjectBytes: Math.min(
+        options.maxGlobalHeapObjectBytes ?? maxStringBytes,
+        maxStringBytes,
+      ),
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
+    })
+    const value = heap.objects.get(heapIndex)
+    if (value === undefined)
+      throw invalidInput(`${label} references missing heap object ${heapIndex}`)
+    if (value.byteLength !== declaredBytes) {
+      throw invalidInput(`${label} heap length does not match its descriptor`)
+    }
+    return decodeStringBytes(value, datatype.characterSet, datatype.padding, label)
   }
 
   async *readDataset(
@@ -432,6 +605,7 @@ export const openHdf5File = async (
       layer,
       graph,
       Object.freeze({ ...(options.dataset ?? {}) }),
+      Object.freeze({ ...(options.attributes ?? {}) }),
       resolveReadLimits(options.reads ?? {}),
     )
   } catch (error) {

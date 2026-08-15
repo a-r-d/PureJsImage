@@ -33,6 +33,8 @@
       ],
       "purejsimage/scientific/readers/tia-ser": ["./src/scientific/readers/tia-ser.ts"],
       "purejsimage/scientific/readers/tia-emi": ["./src/scientific/readers/tia-emi.ts"],
+      "purejsimage/scientific/readers/ncem-emd": ["./src/scientific/readers/ncem-emd.ts"],
+      "purejsimage/scientific/readers/velox-emd": ["./src/scientific/readers/velox-emd.ts"],
       "purejsimage/scientific/readers/envi": ["./src/scientific/readers/envi.ts"],
       "purejsimage/scientific/readers/fits": ["./src/scientific/readers/fits.ts"],
       "purejsimage/scientific/readers/gsf": ["./src/scientific/readers/gsf.ts"],

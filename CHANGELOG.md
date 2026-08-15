@@ -6,6 +6,18 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the public `purejsimage/scientific/readers/ncem-emd` reader for the fixture-proven
+  Berkeley/openNCEM 0.2 subset. It accepts integer or decimal-string versions, discovers numeric
+  groups below `/data` or `/signals`, preserves exact labeled coordinates and bounded scalar or
+  array acquisition metadata, and performs selected HDF5 hyperslab reads. Three pinned real
+  RosettaSciIO application files join generated hostile and independent h5py coverage without
+  redistributing their GPL binaries; Direct Electron `.de5` remains explicitly unsupported.
+- Added the separate public `purejsimage/scientific/readers/velox-emd` E2 image reader with
+  hierarchy-based probing, bounded per-frame JSON, separate detector datasets and frame axes,
+  native scalar and complex data, preserved positive-half uncentered FFT storage, and explicit
+  pruned-spectrum-image errors. Generated hostile fixtures and pinned TEM stack, DPC, and FFT files
+  verify the reader without committing the GPL fixture binaries. Sparse Velox spectra remain gated
+  on the Lab Viewer spectrum surface and explicit event-decoding contracts.
 - Added structured calibration provenance to scientific axes, including validated embedded,
   sidecar, derived, and format-default evidence. GSF, FITS, MRC/CCP4, OME-TIFF, and Aperio SVS
   readers now identify the exact source resource and stable metadata locator behind each available

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "RosettaSciIO",
+    "revision": "bc254db14cd7d4d23169b11aeb622a0a7eac1fbe",
+    "baseUrl": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/emd/",
+    "license": "GPL-3.0-or-later",
+    "licenseUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/LICENSE",
+    "attribution": "RosettaSciIO EMD test corpus contributors",
+    "oracleUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/test_emd.py"
+  },
+  "fixtures": [
+    {
+      "file": "example_image.emd",
+      "sha256": "ab32bb274c4e159dbf2e39bf18119b1476e1eec04349ab5fcc77e9701773f9cb",
+      "datasetId": "/signals/__unnamed__",
+      "sampleType": "int32",
+      "axisLengths": [3, 3],
+      "expectedHex": "000000000000000300000006"
+    },
+    {
+      "file": "example_metadata.emd",
+      "sha256": "52d3bec53aebd51af42ac83f96b1c700319d4f3e715af2fa5daf2e26c17ca7d6",
+      "datasetId": "/signals/This is a test!",
+      "sampleType": "int32",
+      "axisLengths": [3, 3],
+      "expectedHex": "000000000000000300000006"
+    },
+    {
+      "file": "example_spectrum.emd",
+      "sha256": "14d30ab9f2b124c1208b36c99729a7c6f73e00d6babd84da1b1a4e14273c32f6",
+      "datasetId": "/signals/__unnamed__",
+      "sampleType": "int32",
+      "axisLengths": [3],
+      "expectedHex": "000000000000000100000002"
+    }
+  ]
+}

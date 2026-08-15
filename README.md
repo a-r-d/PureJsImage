@@ -200,6 +200,20 @@ datasets, adds bounded acquisition metadata, and includes the EMI plus the contr
 dataset identity. SER coordinates remain authoritative; strongly corroborated diffraction axes gain
 reciprocal-space units, while contradictory mode hints are retained as metadata conflicts.
 
+NCEM and FEI/Thermo Velox EMD files share an extension but use separate, hierarchy-probed readers:
+
+```ts
+import { ncemEmdReader } from 'purejsimage/scientific/readers/ncem-emd'
+import { veloxEmdReader } from 'purejsimage/scientific/readers/velox-emd'
+
+const science = createScientificLibrary({ readers: [ncemEmdReader, veloxEmdReader] })
+```
+
+The NCEM reader covers fixture-proven openNCEM 0.2 numeric groups. The Velox reader covers numeric
+image, diffraction, dense-map, DPC, and complex FFT arrays with explicit frames and bounded JSON
+metadata. It preserves positive-half, uncentered FFT storage instead of modifying samples. Sparse
+Velox spectrum streams remain outside the current capability boundary.
+
 ### Scientific rasters and explicit display mapping
 
 Scientific readers are separate from photographic codecs. The dataset remains numeric until an
