@@ -96,6 +96,12 @@ const zeroTerminated = (bytes: Uint8Array): string => {
   return new TextDecoder('latin1').decode(end < 0 ? bytes : bytes.subarray(0, end)).trim()
 }
 
+const requireFiniteArray = (values: readonly number[], label: string): readonly number[] => {
+  if (!values.every(Number.isFinite))
+    throw invalidInput(`NIfTI ${label} contains non-finite values`)
+  return values
+}
+
 const mapDatatype = (code: number, bitpix: number): RasterSampleType => {
   const mapping: Readonly<Record<number, readonly [RasterSampleType, number]>> = Object.freeze({
     2: ['uint8', 8],
@@ -183,6 +189,7 @@ const parseNifti = (
         : view.getFloat64(104 + index * 8, le),
     ),
   )
+  requireFiniteArray(pixdim, 'pixdim')
   const dataOffset =
     detected.version === 1 ? view.getFloat32(108, le) : int64(view, 168, le, 'vox_offset')
   if (!Number.isSafeInteger(dataOffset) || dataOffset < headerBytes)
@@ -205,6 +212,9 @@ const parseNifti = (
   const sform = Object.freeze(
     Array.from({ length: 12 }, (_, index) => float(280 + index * 4, 400 + index * 8)),
   )
+  requireFiniteArray(quaternion, 'quaternion')
+  requireFiniteArray(qoffset, 'qoffset')
+  requireFiniteArray(sform, 'sform')
   const description = zeroTerminated(
     bytes.subarray(detected.version === 1 ? 148 : 240, detected.version === 1 ? 228 : 320),
   )
@@ -334,35 +344,21 @@ const affineFor = (parsed: ParsedNifti): NiftiAffine => {
 
 const axesFor = (parsed: ParsedNifti, resourceId: string): NiftiAxes => {
   const affine = affineFor(parsed)
+  if (!affine.matrix.every(Number.isFinite)) {
+    throw invalidInput('NIfTI selected affine contains non-finite values')
+  }
   const spatialDimensions = Math.min(3, parsed.shape.length)
-  const linearValues = [
-    affine.matrix[0] ?? 0,
-    affine.matrix[1] ?? 0,
-    affine.matrix[2] ?? 0,
-    affine.matrix[4] ?? 0,
-    affine.matrix[5] ?? 0,
-    affine.matrix[6] ?? 0,
-    affine.matrix[8] ?? 0,
-    affine.matrix[9] ?? 0,
-    affine.matrix[10] ?? 0,
-  ]
-  const maximumMagnitude = Math.max(1, ...linearValues.map((value) => Math.abs(value)))
-  const tolerance = maximumMagnitude * 1e-6
   const mappings: Array<Readonly<{ readonly worldAxis: number; readonly step: number }>> = []
   const usedWorldAxes = new Set<number>()
-  let calibrationIssue: NiftiAxes['warning'] = affine.matrix.every(Number.isFinite)
-    ? undefined
-    : Object.freeze({
-        code: 'incomplete-axis-calibration',
-        message:
-          'The spatial affine contains non-finite values, so spatial units and calibration evidence were omitted.',
-      })
+  let calibrationIssue: NiftiAxes['warning']
   for (let storageAxis = 0; storageAxis < spatialDimensions; storageAxis += 1) {
     const vector = [
       affine.matrix[storageAxis] ?? 0,
       affine.matrix[4 + storageAxis] ?? 0,
       affine.matrix[8 + storageAxis] ?? 0,
     ]
+    const dominantMagnitude = Math.max(...vector.map((value) => Math.abs(value)))
+    const tolerance = dominantMagnitude * 1e-6
     const nonzero = vector
       .map((value, worldAxis) => ({ value, worldAxis }))
       .filter(({ value }) => Math.abs(value) > tolerance)
@@ -410,15 +406,8 @@ const axesFor = (parsed: ParsedNifti, resourceId: string): NiftiAxes => {
       }
       const details = axisDetails(mapping.worldAxis)
       const origin = affine.matrix[mapping.worldAxis * 4 + 3]
-      if (origin === undefined || !Number.isFinite(origin)) {
-        return Object.freeze({
-          id: details.id,
-          name: details.name,
-          kind: details.kind,
-          length,
-          coordinates: Object.freeze({ type: 'index' as const }),
-        })
-      }
+      if (origin === undefined || !Number.isFinite(origin))
+        throw invalidInput('NIfTI selected affine origin is not finite')
       return Object.freeze({
         ...details,
         length,
@@ -512,11 +501,20 @@ export const createNiftiReader = (options: Readonly<NiftiReaderOptions> = {}): S
     async probe(context: Readonly<ScientificOpenContext>) {
       const bytes = await context.primary.source.read(
         0,
-        Math.min(context.primary.source.size, 16_384),
+        Math.min(context.primary.source.size, 540),
         context.signal === undefined ? {} : { signal: context.signal },
       )
       const compressed = bytes[0] === gzipMagic[0] && bytes[1] === gzipMagic[1]
-      const header = compressed ? await partialGunzipHeader(bytes, context.signal) : bytes
+      const headerBytes = compressed
+        ? await context.primary.source.read(
+            0,
+            Math.min(context.primary.source.size, 16_384),
+            context.signal === undefined ? {} : { signal: context.signal },
+          )
+        : bytes
+      const header = compressed
+        ? await partialGunzipHeader(headerBytes, context.signal)
+        : headerBytes
       const detected = header === undefined ? undefined : detectHeader(header)
       if (detected === undefined)
         return Object.freeze({ confidence: 0, reason: 'NIfTI header is absent' })

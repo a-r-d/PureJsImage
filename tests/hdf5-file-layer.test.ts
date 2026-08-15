@@ -36,6 +36,7 @@ class CountingHostileSource implements ImageSource {
   readonly size: number
   readonly #source: HostileSource
   reads = 0
+  readonly offsets: number[] = []
 
   constructor(bytes: Uint8Array) {
     this.#source = new HostileSource(bytes)
@@ -49,6 +50,7 @@ class CountingHostileSource implements ImageSource {
   ): Promise<Uint8Array> {
     if (options.signal?.aborted === true) throw options.signal.reason
     this.reads += 1
+    this.offsets.push(offset)
     return this.#source.read(offset, length)
   }
 }
@@ -173,6 +175,19 @@ describe('HDF5 file and address layer', () => {
       expect(() => file.resolveAddress(0n)).toThrow(/closed/u)
     },
   )
+
+  it('uses a verified known signature offset without rescanning earlier user-block offsets', async () => {
+    const fixture = createGeneratedHdf5Fixture({ version: 2, userBlockBytes: 2_048 })
+    const source = new CountingHostileSource(fixture.bytes)
+    const file = await openHdf5FileLayer(source, {
+      knownSignatureOffset: 2_048,
+      pageBytes: 8,
+      maxBytes: 256,
+    })
+    expect(source.offsets[0]).toBe(2_048)
+    expect(file.superblock.signatureOffset).toBe(2_048n)
+    file.close()
+  })
 
   it('retains non-default legacy group B-tree K values for D2 traversal', async () => {
     const fixture = createGeneratedHdf5Fixture({
@@ -345,6 +360,28 @@ describe('HDF5 file and address layer', () => {
     expect(source.reads).toBe(1)
     source.resume()
     await expect(successful).resolves.toEqual(bytes.subarray(0, 8))
+    expect(source.reads).toBe(1)
+  })
+
+  it('keeps a pending page coalesced for a waiter that arrives after an abort', async () => {
+    const bytes = Uint8Array.from({ length: 32 }, (_value, index) => index)
+    const source = new DeferredSource(bytes)
+    const cache = await Hdf5MetadataPageCache.create(source, {
+      pageBytes: 16,
+      maxBytes: 32,
+    })
+    source.pause()
+    const controller = new AbortController()
+    const cancelled = cache.read(0, 8, { signal: controller.signal })
+    for (let attempt = 0; attempt < 10 && source.reads === 0; attempt += 1) {
+      await Promise.resolve()
+    }
+    controller.abort(new Error('cancel the first metadata waiter'))
+    await expect(cancelled).rejects.toThrow('cancel the first metadata waiter')
+    const late = cache.read(0, 8)
+    expect(source.reads).toBe(1)
+    source.resume()
+    await expect(late).resolves.toEqual(bytes.subarray(0, 8))
     expect(source.reads).toBe(1)
   })
 

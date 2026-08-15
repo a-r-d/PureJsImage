@@ -478,10 +478,14 @@ export const createNcemEmdReader = (
       }
       let file: Hdf5File | undefined
       try {
-        file = await openHdf5File(context.primary.source, {
-          ...(options.hdf5 ?? {}),
-          ...(context.signal === undefined ? {} : { signal: context.signal }),
-        })
+        file = await openHdf5File(
+          context.primary.source,
+          {
+            ...(options.hdf5 ?? {}),
+            ...(context.signal === undefined ? {} : { signal: context.signal }),
+          },
+          signatureOffset,
+        )
         const attributes = await file.attributes(
           '/',
           ['version_major', 'version_minor'],

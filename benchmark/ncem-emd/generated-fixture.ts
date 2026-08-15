@@ -19,6 +19,7 @@ import {
 } from '../hdf5/generated-object-fixture.ts'
 
 export interface GeneratedNcemEmdFixtureOptions {
+  readonly userBlockBytes?: number
   readonly versionMajor?: bigint
   readonly versionMinor?: bigint
   readonly versionStrings?: boolean
@@ -246,9 +247,15 @@ const dimensionDataset = (
 export const createGeneratedNcemEmdFixture = (
   options: Readonly<GeneratedNcemEmdFixtureOptions> = {},
 ): GeneratedNcemEmdFixture => {
-  const fixture = createGeneratedHdf5Fixture({ version: 2, fileBytes: 12_288 })
+  const userBlockBytes = options.userBlockBytes ?? 0
+  const fixture = createGeneratedHdf5Fixture({
+    version: 2,
+    userBlockBytes,
+    fileBytes: userBlockBytes + 12_288,
+  })
   if (fixture.rootObjectOffset === undefined)
     throw new Error('Generated NCEM EMD root is unavailable')
+  const physical = (address: number | bigint): number => userBlockBytes + Number(address)
   const expectedData = Object.freeze(Array.from({ length: 12 }, (_value, index) => index + 1))
   const raw = uint16Bytes(expectedData)
   fixture.bytes.set(
@@ -276,7 +283,7 @@ export const createGeneratedNcemEmdFixture = (
   )
   fixture.bytes.set(
     createGeneratedVersion2ObjectHeader([hardLink('image', imageGroupAddress)]),
-    Number(dataGroupAddress),
+    physical(dataGroupAddress),
   )
   fixture.bytes.set(
     createGeneratedVersion2ObjectHeader([
@@ -285,7 +292,7 @@ export const createGeneratedNcemEmdFixture = (
       hardLink('dim1', dim1Address),
       hardLink('dim2', dim2Address),
     ]),
-    Number(imageGroupAddress),
+    physical(imageGroupAddress),
   )
   fixture.bytes.set(
     createGeneratedVersion2ObjectHeader([
@@ -310,15 +317,15 @@ export const createGeneratedNcemEmdFixture = (
         }),
       },
     ]),
-    Number(imageDataAddress),
+    physical(imageDataAddress),
   )
   fixture.bytes.set(
     dimensionDataset(options.dim1Values ?? [0, 0.5, 1], 'Position Y', '[n_m]'),
-    Number(dim1Address),
+    physical(dim1Address),
   )
   fixture.bytes.set(
     dimensionDataset(options.dim2Values ?? [-1, 0.25], 'Position X', '[n_m]'),
-    Number(dim2Address),
+    physical(dim2Address),
   )
   if (options.acquisitionMetadata === true) {
     fixture.bytes.set(
@@ -332,19 +339,19 @@ export const createGeneratedNcemEmdFixture = (
             ]
           : []),
       ]),
-      Number(microscopeAddress),
+      physical(microscopeAddress),
     )
     fixture.bytes.set(
       metadataGroup([variableStringAttribute('material', 'Si3N4', 2)]),
-      Number(sampleAddress),
+      physical(sampleAddress),
     )
     fixture.bytes.set(
       metadataGroup([variableStringAttribute('name', 'Microscopist', 3)]),
-      Number(userAddress),
+      physical(userAddress),
     )
     fixture.bytes.set(
       metadataGroup([variableStringAttribute('note', 'generated fixture', 4)]),
-      Number(commentsAddress),
+      physical(commentsAddress),
     )
     fixture.bytes.set(
       globalHeap([
@@ -355,7 +362,7 @@ export const createGeneratedNcemEmdFixture = (
         String(options.versionMajor ?? 0n),
         String(options.versionMinor ?? 2n),
       ]),
-      Number(globalHeapAddress),
+      physical(globalHeapAddress),
     )
   } else if (options.versionStrings === true) {
     fixture.bytes.set(
@@ -367,9 +374,13 @@ export const createGeneratedNcemEmdFixture = (
         String(options.versionMajor ?? 0n),
         String(options.versionMinor ?? 2n),
       ]),
-      Number(globalHeapAddress),
+      physical(globalHeapAddress),
     )
   }
-  fixture.bytes.set(raw, rawDataAddress)
-  return Object.freeze({ bytes: fixture.bytes, rawDataAddress, expectedData })
+  fixture.bytes.set(raw, physical(rawDataAddress))
+  return Object.freeze({
+    bytes: fixture.bytes,
+    rawDataAddress: physical(rawDataAddress),
+    expectedData,
+  })
 }

@@ -68,6 +68,7 @@ export interface Hdf5ScalarStringReadOptions extends AbortOptions, Hdf5GlobalHea
 }
 
 export interface Hdf5OpenOptions extends AbortOptions {
+  readonly knownSignatureOffset?: number
   readonly metadataCache?: Readonly<Hdf5MetadataPageCacheOptions>
   readonly graph?: Readonly<Hdf5ObjectGraphLimits>
   readonly dataset?: Readonly<Hdf5DatasetMetadataLimits>
@@ -686,9 +687,12 @@ class Hdf5FileImplementation implements Hdf5File {
 export const openHdf5File = async (
   source: ImageSource,
   options: Readonly<Hdf5OpenOptions> = {},
+  knownSignatureOffset?: number,
 ): Promise<Hdf5File> => {
   throwIfAborted(options.signal)
+  const signatureOffset = knownSignatureOffset ?? options.knownSignatureOffset
   const layer = await openHdf5FileLayer(source, {
+    ...(signatureOffset === undefined ? {} : { knownSignatureOffset: signatureOffset }),
     ...(options.metadataCache ?? {}),
     ...(options.signal === undefined ? {} : { signal: options.signal }),
   })

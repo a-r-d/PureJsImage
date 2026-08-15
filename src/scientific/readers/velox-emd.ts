@@ -26,7 +26,7 @@ import {
 import type { Hdf5CompoundDatatype, Hdf5Datatype } from '../formats/hdf5-dataset.ts'
 import { openHdf5File, type Hdf5File, type Hdf5OpenOptions } from '../formats/hdf5-file.ts'
 import { probeHdf5Signature } from '../formats/hdf5.ts'
-import { readVeloxJsonColumns } from '../formats/velox-emd.ts'
+import { readVeloxJsonColumns, type VeloxJsonByteBudget } from '../formats/velox-emd.ts'
 import { resourceHasHint } from './shared.ts'
 
 export interface VeloxEmdReaderLimits {
@@ -395,6 +395,7 @@ const imageEntry = async (
   context: Readonly<ScientificOpenContext>,
   id: string,
   limits: ResolvedLimits,
+  jsonBudget: VeloxJsonByteBudget,
 ): Promise<VeloxDatasetEntry> => {
   const groupPath = `/Data/Image/${id}`
   const dataPath = `${groupPath}/Data`
@@ -423,6 +424,7 @@ const imageEntry = async (
     metadataPath,
     limits.maxJsonBytes,
     limits.maxTotalJsonBytes,
+    jsonBudget,
     context.signal,
   )
   const width = dimensions[0]
@@ -634,9 +636,10 @@ const openDocument = async (
       throw limitExceeded(`Velox EMD has ${imageIds.length} images; limit is ${limits.maxDatasets}`)
     }
     const entries: VeloxDatasetEntry[] = []
+    const jsonBudget: VeloxJsonByteBudget = { bytes: 0 }
     for (const id of imageIds.sort()) {
       throwIfAborted(context.signal)
-      entries.push(await imageEntry(file, context, id, limits))
+      entries.push(await imageEntry(file, context, id, limits, jsonBudget))
     }
     return Object.freeze({
       reader: Object.freeze({
@@ -695,10 +698,14 @@ export const createVeloxEmdReader = (
       }
       let file: Hdf5File | undefined
       try {
-        file = await openHdf5File(context.primary.source, {
-          ...(options.hdf5 ?? {}),
-          ...(context.signal === undefined ? {} : { signal: context.signal }),
-        })
+        file = await openHdf5File(
+          context.primary.source,
+          {
+            ...(options.hdf5 ?? {}),
+            ...(context.signal === undefined ? {} : { signal: context.signal }),
+          },
+          signatureOffset,
+        )
         const version = await file.get(
           '/Version',
           context.signal === undefined ? {} : { signal: context.signal },

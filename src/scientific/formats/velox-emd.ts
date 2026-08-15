@@ -99,6 +99,10 @@ interface JsonBudget {
   bytes: number
 }
 
+export interface VeloxJsonByteBudget {
+  bytes: number
+}
+
 const positiveSafeInteger = (label: string, value: number): number => {
   if (!Number.isSafeInteger(value) || value < 1) {
     throw invalidInput(`${label} must be a positive safe integer`)
@@ -262,6 +266,7 @@ export const readVeloxJsonColumns = async (
   path: string,
   maximumColumnBytes: number,
   maximumTotalBytes: number,
+  budget: VeloxJsonByteBudget,
   signal: AbortSignal | undefined,
 ): Promise<readonly ScientificMetadataObject[]> => {
   const dimensions = object.metadata.dataspace.dimensions
@@ -281,7 +286,12 @@ export const readVeloxJsonColumns = async (
       `Velox EMD JSON dataset ${JSON.stringify(path)} requires ${totalBytes} bytes; limit is ${maximumTotalBytes}`,
     )
   }
-  const stored = new Uint8Array(Number(totalBytes))
+  const matrixBytes = Number(totalBytes)
+  if (budget.bytes > maximumTotalBytes - matrixBytes) {
+    throw limitExceeded(`Velox EMD aggregate JSON metadata exceeds ${maximumTotalBytes} bytes`)
+  }
+  budget.bytes += matrixBytes
+  const stored = new Uint8Array(matrixBytes)
   let coveredBytes = 0
   for await (const block of file.readDataset(
     path,

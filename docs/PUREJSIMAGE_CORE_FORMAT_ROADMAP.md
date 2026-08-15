@@ -723,7 +723,8 @@ E2 is complete for the initial Velox image subset. The separate public
 hierarchy, parses bounded per-frame JSON, exposes every rank-3 numeric image group as its own
 detector dataset with an explicit frame axis, preserves native scalar, DPC complex, and FFT compound
 samples, and records positive-half and uncentered FFT storage without reconstructing or shifting it.
-Every frame metadata column is read and retained under per-column and aggregate JSON caps. Global
+Every frame metadata column is read and retained under per-column and document-wide aggregate JSON
+caps. Global
 calibration is emitted only when detector, pixel size/unit/offset, and frame-time fields are
 invariant across columns; conflicts produce index axes and a structured warning.
 Generated fixtures cover hostile JSON, output limits, frame non-summing, FFT storage, and pruned

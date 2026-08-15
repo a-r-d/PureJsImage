@@ -8,6 +8,7 @@ class CountingSource implements ImageSource {
   readonly size: number
   readonly #bytes: Uint8Array
   reads = 0
+  readonly requests: Array<Readonly<{ readonly offset: number; readonly length: number }>> = []
 
   constructor(bytes: Uint8Array) {
     this.#bytes = bytes
@@ -21,6 +22,7 @@ class CountingSource implements ImageSource {
   ): Promise<Uint8Array> {
     options.signal?.throwIfAborted()
     this.reads += 1
+    this.requests.push(Object.freeze({ offset, length }))
     return this.#bytes.slice(offset, offset + length)
   }
 }
@@ -177,6 +179,18 @@ describe('Velox EMD scientific reader', () => {
         primary: { id: 'invalid-json', source: new MemorySource(invalid.bytes) },
       }),
     ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('applies the total JSON budget across every image in one document', async () => {
+    const fixture = createGeneratedVeloxEmdFixture({ imageCount: 2, metadataBytes: 400 })
+    const source = new CountingSource(fixture.bytes)
+    const reader = createVeloxEmdReader({ limits: { maxTotalJsonBytes: 1_000 } })
+    await expect(
+      reader.open({
+        primary: { id: 'aggregate-json-limit', source },
+      }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(source.requests.every(({ offset }) => offset < 24_576)).toBe(true)
   })
 
   it('batches large metadata columns and exposes frame calibration conflicts honestly', async () => {

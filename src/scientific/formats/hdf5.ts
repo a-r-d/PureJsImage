@@ -59,7 +59,10 @@ interface ResolvedCacheOptions {
   readonly maxReadBytes: number
 }
 
-export interface Hdf5FileLayerOptions extends AbortOptions, Hdf5MetadataPageCacheOptions {}
+export interface Hdf5FileLayerOptions extends AbortOptions, Hdf5MetadataPageCacheOptions {
+  /** A previously verified legal HDF5 signature offset, avoiding a second scan. */
+  readonly knownSignatureOffset?: number
+}
 
 export interface Hdf5SignatureProbeOptions extends AbortOptions {
   /** Maximum legal offsets to inspect, beginning with byte zero. */
@@ -294,11 +297,11 @@ export class Hdf5MetadataPageCache {
       return this.#store(page)
     })
     this.#pendingPages.set(start, load)
-    try {
-      return await waitForPromise(load, options.signal)
-    } finally {
+    const cleanup = (): void => {
       if (this.#pendingPages.get(start) === load) this.#pendingPages.delete(start)
     }
+    load.then(cleanup, cleanup)
+    return waitForPromise(load, options.signal)
   }
 
   async read(
@@ -465,6 +468,28 @@ const locateSignature = async (
     offset = offset === 0n ? 512n : offset * 2n
   }
   throw unsupportedFormat('HDF5 signature was not found at a legal user-block offset')
+}
+
+const verifyKnownSignature = async (
+  cache: Hdf5MetadataPageCache,
+  offset: number,
+  options: Readonly<ImageSourceReadOptions>,
+): Promise<bigint> => {
+  const offsetBig = Number.isSafeInteger(offset) ? BigInt(offset) : -1n
+  if (
+    offsetBig < 0n ||
+    (offsetBig !== 0n && (offsetBig < 512n || (offsetBig & (offsetBig - 1n)) !== 0n))
+  ) {
+    throw invalidInput('HDF5 known signature offset is not a legal user-block offset')
+  }
+  if (offset > cache.sourceIdentity.size - hdf5Signature.byteLength) {
+    throw truncatedInput('HDF5 known signature offset exceeds the source')
+  }
+  const bytes = await cache.read(offset, hdf5Signature.byteLength, options)
+  if (!bytesEqual(bytes, hdf5Signature)) {
+    throw unsupportedFormat('HDF5 signature is absent at the known offset')
+  }
+  return BigInt(offset)
 }
 
 const integerWidth = (value: number, field: string): Hdf5IntegerWidth => {
@@ -871,7 +896,10 @@ export const openHdf5FileLayer = async (
   const readOptions: Readonly<ImageSourceReadOptions> =
     options.signal === undefined ? {} : { signal: options.signal }
   try {
-    const signatureOffset = await locateSignature(cache, readOptions)
+    const signatureOffset =
+      options.knownSignatureOffset === undefined
+        ? await locateSignature(cache, readOptions)
+        : await verifyKnownSignature(cache, options.knownSignatureOffset, readOptions)
     const versionBytes = await cache.read(
       Number(signatureOffset) + hdf5Signature.byteLength,
       1,

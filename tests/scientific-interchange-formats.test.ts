@@ -502,6 +502,81 @@ ElementDataFile = image.raw
     })
   })
 
+  it('classifies NIfTI affine columns relative to their own scale', async () => {
+    const tinySteps = modifiedNifti1((view) => {
+      view.setFloat32(80, 5e-7, true)
+      view.setFloat32(84, 2e-6, true)
+      view.setUint8(123, 1)
+    })
+    const tinyDataset = await openDataset(niftiReader, context('tiny-steps.nii', tinySteps))
+    const tinyX = tinyDataset.descriptor.axes[0]
+    const tinyY = tinyDataset.descriptor.axes[1]
+    expect(tinyX).toMatchObject({ unit: 'm', coordinates: { type: 'linear' } })
+    expect(tinyY).toMatchObject({ unit: 'm', coordinates: { type: 'linear' } })
+    expect(tinyX?.coordinates.type === 'linear' ? tinyX.coordinates.step : undefined).toBeCloseTo(
+      5e-7,
+    )
+    expect(tinyY?.coordinates.type === 'linear' ? tinyY.coordinates.step : undefined).toBeCloseTo(
+      2e-6,
+    )
+
+    const anisotropic = modifiedNifti1((view) => {
+      view.setInt16(254, 1, true)
+      view.setUint8(123, 1)
+      const matrix = [100, 1e-12, 0, 0, 0, 5e-5, 0, 0, 0, 0, 1, 0]
+      matrix.forEach((value, index) => {
+        view.setFloat32(280 + index * 4, value, true)
+      })
+    })
+    const anisotropicDataset = await openDataset(
+      niftiReader,
+      context('anisotropic.nii', anisotropic),
+    )
+    expect(anisotropicDataset.descriptor.axes.slice(0, 2)).toMatchObject([
+      { id: 'x', coordinates: { type: 'linear' } },
+      { id: 'y', coordinates: { type: 'linear' } },
+    ])
+    const anisotropicX = anisotropicDataset.descriptor.axes[0]
+    const anisotropicY = anisotropicDataset.descriptor.axes[1]
+    expect(
+      anisotropicX?.coordinates.type === 'linear' ? anisotropicX.coordinates.step : undefined,
+    ).toBeCloseTo(100)
+    expect(
+      anisotropicY?.coordinates.type === 'linear' ? anisotropicY.coordinates.step : undefined,
+    ).toBeCloseTo(5e-5)
+
+    const smallShear = modifiedNifti1((view) => {
+      view.setInt16(254, 1, true)
+      const matrix = [100, 1e-3, 0, 0, 0, 5e-5, 0, 0, 0, 0, 1, 0]
+      matrix.forEach((value, index) => {
+        view.setFloat32(280 + index * 4, value, true)
+      })
+    })
+    const smallShearDataset = await openDataset(niftiReader, context('small-shear.nii', smallShear))
+    expect(smallShearDataset.descriptor.metadata).toMatchObject({
+      warnings: [{ code: 'non-separable-affine' }],
+    })
+  })
+
+  it('rejects non-finite NIfTI header fields explicitly', async () => {
+    const cases = [
+      ['unused-qform', (view: DataView) => view.setFloat32(256, Number.NaN, true)],
+      [
+        'selected-sform',
+        (view: DataView) => {
+          view.setInt16(254, 1, true)
+          view.setFloat32(280, Number.NaN, true)
+        },
+      ],
+      ['unused-pixdim', (view: DataView) => view.setFloat32(88, Number.NaN, true)],
+    ] as const
+    for (const [name, modify] of cases) {
+      await expect(
+        openDataset(niftiReader, context(`${name}.nii`, modifiedNifti1(modify))),
+      ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    }
+  })
+
   it('exposes BLO navigator and vertically normalized diffraction frames', async () => {
     const document = await blockfileReader.open(context('scan.blo', blockfile()))
     expect(document.datasets.map(({ id }) => id)).toEqual(['diffraction', 'navigator'])

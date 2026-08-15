@@ -107,11 +107,13 @@ All notable changes to PureJsImage are documented in this file.
 ### Changed
 
 - Hardened scientific probing and metadata semantics after review: HDF5 dialect probes use exact
-  eight-byte signature reads before opening a dialect; shared HDF5 loads isolate caller
-  cancellation, coalesce graph accounting, and cannot repopulate after close; NIfTI ignores
-  `scl_inter` when `scl_slope` is zero and reports only separable affine axes; and DM, TIA SER,
-  Velox, and NIfTI omit physical units/evidence when numeric calibration is incomplete while
-  retaining raw values and structured warnings.
+  eight-byte signature reads and pass the verified user-block offset into dialect opening; shared
+  HDF5 loads isolate caller cancellation, preserve late-waiter coalescing, coalesce graph accounting,
+  and cannot repopulate after close; Velox enforces its JSON budget across the complete document;
+  NIfTI ignores `scl_inter` when `scl_slope` is zero, classifies affine columns relative to their
+  own scale, and rejects non-finite header fields explicitly; and DM, TIA SER, Velox, and NIfTI
+  omit physical units/evidence when numeric calibration is incomplete while retaining raw values
+  and structured warnings.
 - Run the codec test library against hostile one-byte buffered image sources by default, preserving
   the strict source-buffer lifetime coverage while removing the duplicate full-suite test pass from
   `npm run check`.

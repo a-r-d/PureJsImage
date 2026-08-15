@@ -1855,8 +1855,9 @@ to own only generic descriptors, definitions, providers, and registries.
       two independent Milestone E dialect readers prove the substrate.
 - [x] Harden the shared HDF5 substrate for public dialect use: gate dialect probes behind exact
       eight-byte signature reads, make pending page/dataset/header/link loads cancellation-neutral
-      with per-caller abortable waits, prevent post-close cache admission, count concurrent graph
-      loads once, and batch rank-2 strided reads under an independent input-span limit.
+      with per-caller abortable waits, pass verified signature offsets into dialect openers, preserve
+      late-waiter page coalescing, prevent post-close cache admission, count concurrent graph loads
+      once, and batch rank-2 strided reads under an independent input-span limit.
 - [x] Start NCEM EMD E1 with bounded compact HDF5 attribute messages and a package-private 0.2
       structural inspector that discovers consistent numeric `data`/`dimN` groups without reading
       image samples; decode openNCEM fixed strings, preserve labels and units, retain exact linear or
@@ -1925,7 +1926,9 @@ to own only generic descriptors, definitions, providers, and registries.
       SHA-256, and per-file expected oracle.
 - [x] Correct NIfTI zero-slope scaling and affine geometry, and enforce the incomplete-calibration
       invariant across DM, TIA SER, Velox, and NIfTI by preserving raw values while omitting
-      physical units/evidence and recording structured warnings for index-coordinate fallbacks.
+      physical units/evidence and recording structured warnings for index-coordinate fallbacks. Use
+      per-column relative affine tolerances so tiny physical steps and anisotropic volumes remain
+      representable; reject non-finite NIfTI header values explicitly.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -2207,11 +2210,12 @@ to own only generic descriptors, definitions, providers, and registries.
     unrelated sparse sources; shared metadata work is cancellation-neutral, close-safe, and counted
     once; rank-two strided reads batch under a separate input-span budget. Velox retains every frame
     metadata column, assembles both row- and column-chunked real files, and only publishes global
-    calibration when critical values agree. NIfTI zero-slope scaling and sform/qform affine mapping,
+    calibration when critical values agree under a document-wide JSON budget. NIfTI zero-slope
+    scaling, scale-relative sform/qform affine mapping, explicit non-finite-header rejection,
     incomplete DM/TIA/Velox/NIfTI calibration, and exact surface-corpus provenance all have focused
     regressions. All six pinned Velox corpus files pass, the complete Chromium compatibility file
-    passes 76 tests, and `npm run check` passes all 127 files and 1,515 tests. The 1,848,317-byte
-    browser bundle, 44.1 KiB NIfTI reader, 169.6 KiB Velox reader, 175.2 KiB NCEM reader, and 834.3
+    passes 76 tests, and `npm run check` passes all 127 files and 1,523 tests. The 1,848,317-byte
+    browser bundle, 44.1 KiB NIfTI reader, 170.2 KiB Velox reader, 175.8 KiB NCEM reader, and 834.9
     KiB aggregate scientific-reader entry remain within their recorded ceilings. Lab Viewer
     registration, public Velox sparse spectra, NanoScope, JPK/OZX, EDAX, and BCF remain explicit
     follow-up work rather than claims of this branch.
