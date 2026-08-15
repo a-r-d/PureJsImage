@@ -192,6 +192,17 @@ test('opens a DM3 selected region through the public scientific reader in a real
   expect(result.detail).toContain('direct selected-region reads')
 })
 
+test('opens AFM and surface formats through their public readers in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificSurfaceFormats(),
+  )
+  expect(result.outputBytes).toBe(24)
+  expect(result.detail).toContain('bounded ZIP-backed X3P')
+})
+
 test('reads a calibrated TIA SER spectrum image in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaSer())

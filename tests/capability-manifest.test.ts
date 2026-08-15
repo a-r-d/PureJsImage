@@ -21,12 +21,15 @@ import { aperioSvsReaderDescriptor } from '../src/scientific/readers/aperio-svs.
 import { bmpReaderDescriptor } from '../src/scientific/readers/bmp.ts'
 import { cbfReaderDescriptor } from '../src/scientific/readers/cbf.ts'
 import { digitalMicrographReaderDescriptor } from '../src/scientific/readers/digital-micrograph.ts'
+import { digitalSurfReaderDescriptor } from '../src/scientific/readers/digital-surf.ts'
 import { enviReaderDescriptor } from '../src/scientific/readers/envi.ts'
 import { fitsReaderDescriptor } from '../src/scientific/readers/fits.ts'
 import { gsfReaderDescriptor } from '../src/scientific/readers/gsf.ts'
+import { igorBinaryWaveReaderDescriptor } from '../src/scientific/readers/igor-binary-wave.ts'
 import { jpegReaderDescriptor } from '../src/scientific/readers/jpeg.ts'
 import { jp2ReaderDescriptor } from '../src/scientific/readers/jp2.ts'
 import { mrcReaderDescriptor } from '../src/scientific/readers/mrc.ts'
+import { nanonisSxmReaderDescriptor } from '../src/scientific/readers/nanonis-sxm.ts'
 import { ncemEmdReaderDescriptor } from '../src/scientific/readers/ncem-emd.ts'
 import { omeTiffReaderDescriptor } from '../src/scientific/readers/ome-tiff.ts'
 import { pngReaderDescriptor } from '../src/scientific/readers/png.ts'
@@ -35,6 +38,7 @@ import { tiaEmiReaderDescriptor } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReaderDescriptor } from '../src/scientific/readers/tia-ser.ts'
 import { veloxEmdReaderDescriptor } from '../src/scientific/readers/velox-emd.ts'
 import { webpReaderDescriptor } from '../src/scientific/readers/webp.ts'
+import { x3pReaderDescriptor } from '../src/scientific/readers/x3p.ts'
 import type { ScientificReaderDescriptor } from '../src/scientific/reader.ts'
 import codecCapabilityExpectations from './generated/capability-expectations.json' with {
   type: 'json',
@@ -77,6 +81,10 @@ const runtimeScientificReaders: readonly ScientificReaderDescriptor[] = [
   tiaSerReaderDescriptor,
   ncemEmdReaderDescriptor,
   veloxEmdReaderDescriptor,
+  nanonisSxmReaderDescriptor,
+  igorBinaryWaveReaderDescriptor,
+  digitalSurfReaderDescriptor,
+  x3pReaderDescriptor,
 ]
 
 describe('generated codec capability contract', () => {

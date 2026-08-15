@@ -128,6 +128,26 @@
       "import": "./dist/scientific/readers/digital-micrograph.js",
       "default": "./dist/scientific/readers/digital-micrograph.js"
     },
+    "./scientific/readers/digital-surf": {
+      "types": "./dist/scientific/readers/digital-surf.d.ts",
+      "import": "./dist/scientific/readers/digital-surf.js",
+      "default": "./dist/scientific/readers/digital-surf.js"
+    },
+    "./scientific/readers/igor-binary-wave": {
+      "types": "./dist/scientific/readers/igor-binary-wave.d.ts",
+      "import": "./dist/scientific/readers/igor-binary-wave.js",
+      "default": "./dist/scientific/readers/igor-binary-wave.js"
+    },
+    "./scientific/readers/nanonis-sxm": {
+      "types": "./dist/scientific/readers/nanonis-sxm.d.ts",
+      "import": "./dist/scientific/readers/nanonis-sxm.js",
+      "default": "./dist/scientific/readers/nanonis-sxm.js"
+    },
+    "./scientific/readers/x3p": {
+      "types": "./dist/scientific/readers/x3p.d.ts",
+      "import": "./dist/scientific/readers/x3p.js",
+      "default": "./dist/scientific/readers/x3p.js"
+    },
     "./scientific/readers/tia-ser": {
       "types": "./dist/scientific/readers/tia-ser.d.ts",
       "import": "./dist/scientific/readers/tia-ser.js",

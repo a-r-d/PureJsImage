@@ -71,6 +71,7 @@ export interface BrowserCompatibilityHarness {
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
   scientificTiffDocument(): Promise<BrowserWorkflowResult>
   scientificDigitalMicrograph(): Promise<BrowserWorkflowResult>
+  scientificSurfaceFormats(): Promise<BrowserWorkflowResult>
   scientificTiaEmi(): Promise<BrowserWorkflowResult>
   scientificTiaSer(): Promise<BrowserWorkflowResult>
   scientificOneDimensionalSeries(): Promise<BrowserWorkflowResult>

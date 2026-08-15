@@ -163,6 +163,11 @@ These readers expose exact codec-produced uint8 blocks and remain lower-confiden
 scientific readers.
 Experimental HEIC remains excluded from ordinary scientific fallback registration.
 
+AFM and surface applications can explicitly compose Nanonis SXM, Igor Binary Wave v5, Digital Surf
+SUR/PRO, and X3P readers from `purejsimage/scientific/readers/{nanonis-sxm,igor-binary-wave,digital-surf,x3p}`.
+Their numeric, calibration, archive, and unsupported-profile boundaries are listed in the
+[AFM and surface format guide](docs/scientific-surface-formats.md).
+
 Ordinary scientific TIFF uses its own native-precision reader rather than that uint8 adapter:
 
 ```ts

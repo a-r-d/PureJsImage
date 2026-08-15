@@ -650,6 +650,22 @@ await copyFile(
   'tests/fixtures/aperio-cmu-1-small-region.svs',
   resolve(fixtureDirectory, 'aperio-cmu-1-small-region.svs'),
 )
+await copyFile(
+  'tests/fixtures/scientific-surface/nanonis-afm-generic4.sxm',
+  resolve(fixtureDirectory, 'nanonis-afm-generic4.sxm'),
+)
+await copyFile(
+  'tests/fixtures/scientific-surface/asylum-afm-v5.ibw',
+  resolve(fixtureDirectory, 'asylum-afm-v5.ibw'),
+)
+await copyFile(
+  'tests/fixtures/scientific-surface/digital-surf-compressed.sur',
+  resolve(fixtureDirectory, 'digital-surf-compressed.sur'),
+)
+await copyFile(
+  'tests/fixtures/scientific-surface/iso5436-sample4.x3p',
+  resolve(fixtureDirectory, 'iso5436-sample4.x3p'),
+)
 await copyFile(resolve(outputDirectory, 'index.html'), resolve(outputDirectory, 'homepage.html'))
 await writeFile(
   resolve(outputDirectory, 'index.html'),

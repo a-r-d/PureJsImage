@@ -798,6 +798,13 @@ surface exists.
 
 This can proceed as a separate track after Milestone A. It should not block on HDF5 except for DATX.
 
+Status (2026-08-15): F2, F3, F4, and the reusable ZIP/X3P portion of F5 are implemented and
+published as explicit scientific-reader entries. F1 remains deliberately planned: one fully
+sampled NanoScope family plus header-only variants do not satisfy the three-family scaling gate
+below. ZIP-backed JPK force/curve archives are outside the image subset, and OZX still has no
+released stable profile; neither is claimed. See `docs/scientific-surface-formats.md` for the exact
+supported boundaries and fixture evidence.
+
 ### F1. Bruker Nanoscope SPM images
 
 PureJsImage already contains a good investigation document and a deliberately planned capability. Follow it rather than starting from Claude's short description.

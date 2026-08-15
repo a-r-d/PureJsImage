@@ -138,6 +138,10 @@ try {
     'dist/scientific/readers/aperio-svs.js',
     'dist/scientific/readers/cbf.js',
     'dist/scientific/readers/digital-micrograph.js',
+    'dist/scientific/readers/digital-surf.js',
+    'dist/scientific/readers/igor-binary-wave.js',
+    'dist/scientific/readers/nanonis-sxm.js',
+    'dist/scientific/readers/x3p.js',
     'dist/scientific/readers/tia-emi.js',
     'dist/scientific/readers/tia-ser.js',
     'dist/scientific/readers/ncem-emd.js',
@@ -228,6 +232,10 @@ export type { AperioSvsLimits, AperioSvsReaderOptions } from 'purejsimage/scient
 export { cbfReader } from 'purejsimage/scientific/readers/cbf'
 export { createDigitalMicrographReader, digitalMicrographReader } from 'purejsimage/scientific/readers/digital-micrograph'
 export type { DigitalMicrographReaderLimits, DigitalMicrographReaderOptions } from 'purejsimage/scientific/readers/digital-micrograph'
+export { createDigitalSurfReader, digitalSurfReader } from 'purejsimage/scientific/readers/digital-surf'
+export { createIgorBinaryWaveReader, igorBinaryWaveReader } from 'purejsimage/scientific/readers/igor-binary-wave'
+export { createNanonisSxmReader, nanonisSxmReader } from 'purejsimage/scientific/readers/nanonis-sxm'
+export { createX3pReader, x3pReader } from 'purejsimage/scientific/readers/x3p'
 export { createTiaSerReader, tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
 export type { TiaSerReaderLimits, TiaSerReaderOptions } from 'purejsimage/scientific/readers/tia-ser'
 export { createTiaEmiReader, tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'

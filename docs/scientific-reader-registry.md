@@ -52,6 +52,29 @@ levels within each frame dataset. A codec's metadata-only frame count and decode
 shortcuts do not create selectable scientific coordinates.
 Experimental HEIC is intentionally not exposed through this fallback set.
 
+## AFM and surface formats
+
+The Milestone F readers are explicit imports and are also re-exported by the optional all-readers
+entry:
+
+```ts
+import { digitalSurfReader } from 'purejsimage/scientific/readers/digital-surf'
+import { igorBinaryWaveReader } from 'purejsimage/scientific/readers/igor-binary-wave'
+import { nanonisSxmReader } from 'purejsimage/scientific/readers/nanonis-sxm'
+import { x3pReader } from 'purejsimage/scientific/readers/x3p'
+
+const science = createScientificLibrary({
+  readers: [nanonisSxmReader, igorBinaryWaveReader, digitalSurfReader, x3pReader],
+})
+```
+
+SXM exposes each recorded channel and direction separately and preserves top-to-bottom file-row
+order with a negative Y coordinate step. IBW accepts numeric version-5 waves with two through four
+dimensions. Digital Surf accepts the bounded integer surface/profile subset and converts values to
+float64 with the declared scale and offset. X3P accepts one-layer ISO 5436-2 surface matrices through
+the shared bounded ZIP/ZIP64 layer. The exact exclusions are documented in
+[`scientific-surface-formats.md`](scientific-surface-formats.md).
+
 Codec adapters probe at fallback confidence so a specialized scientific reader with the same file
 signature wins. They preserve source identity, `AbortSignal`, and caller-owned block release.
 Importing the PNG or JPEG reader is explicit; neither is linked by `purejsimage/scientific`, and

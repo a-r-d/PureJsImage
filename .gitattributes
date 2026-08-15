@@ -1,0 +1,4 @@
+tests/fixtures/scientific-surface/*.ibw binary
+tests/fixtures/scientific-surface/*.sur binary
+tests/fixtures/scientific-surface/*.sxm binary
+tests/fixtures/scientific-surface/*.x3p binary

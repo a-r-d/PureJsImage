@@ -63,14 +63,18 @@ import {
 } from '../src/scientific/index.ts'
 import { bmpReader } from '../src/scientific/readers/bmp.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
+import { digitalSurfReader } from '../src/scientific/readers/digital-surf.ts'
+import { igorBinaryWaveReader } from '../src/scientific/readers/igor-binary-wave.ts'
 import { jp2Reader } from '../src/scientific/readers/jp2.ts'
 import { createNcemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
+import { nanonisSxmReader } from '../src/scientific/readers/nanonis-sxm.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
 import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import { createVeloxEmdReader } from '../src/scientific/readers/velox-emd.ts'
 import { webpReader } from '../src/scientific/readers/webp.ts'
+import { x3pReader } from '../src/scientific/readers/x3p.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -1591,6 +1595,75 @@ const scientificDigitalMicrograph = async (): Promise<BrowserWorkflowResult> => 
     detail:
       'portable DM3 reader preserved uint16 pixels, direct selected-region reads, and evidence-gated EELS energy semantics',
     outputBytes: output.length,
+  }
+}
+
+const scientificSurfaceFormats = async (): Promise<BrowserWorkflowResult> => {
+  const cases = [
+    {
+      path: '/fixtures/nanonis-afm-generic4.sxm',
+      name: 'surface.sxm',
+      reader: nanonisSxmReader,
+      datasets: 18,
+      sampleType: 'float32',
+    },
+    {
+      path: '/fixtures/asylum-afm-v5.ibw',
+      name: 'surface.ibw',
+      reader: igorBinaryWaveReader,
+      datasets: 1,
+      sampleType: 'float32',
+    },
+    {
+      path: '/fixtures/digital-surf-compressed.sur',
+      name: 'surface.sur',
+      reader: digitalSurfReader,
+      datasets: 1,
+      sampleType: 'float64',
+    },
+    {
+      path: '/fixtures/iso5436-sample4.x3p',
+      name: 'surface.x3p',
+      reader: x3pReader,
+      datasets: 1,
+      sampleType: 'float64',
+    },
+  ] as const
+  let outputBytes = 0
+  for (const expected of cases) {
+    const input = await fetchBytes(expected.path)
+    const document = await createScientificLibrary({ readers: [expected.reader] }).open({
+      primary: { id: expected.name, name: expected.name, source: new MemorySource(input) },
+    })
+    if (document.datasets.length !== expected.datasets) {
+      throw new Error(`${expected.name} exposed ${document.datasets.length} datasets`)
+    }
+    const summary = document.datasets[0]
+    if (summary?.descriptor.sampleType !== expected.sampleType) {
+      throw new Error(`${expected.name} exposed the wrong sample type`)
+    }
+    const dataset = await document.openDataset(summary.id)
+    const fixedIndices = dataset.descriptor.axes
+      .slice(2)
+      .map(({ id }) => ({ axisId: id, index: 0 }))
+    let blocks = 0
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices,
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+    })) {
+      outputBytes += block.data.byteLength
+      blocks += 1
+    }
+    if (blocks !== 1) throw new Error(`${expected.name} did not return one selected block`)
+  }
+  return {
+    detail:
+      'Nanonis SXM, IBW v5, Digital Surf, and bounded ZIP-backed X3P selected regions passed in-browser',
+    outputBytes,
   }
 }
 
@@ -3861,6 +3934,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   scientificTiffDocument,
   scientificDigitalMicrograph,
+  scientificSurfaceFormats,
   scientificTiaEmi,
   scientificTiaSer,
   scientificOneDimensionalSeries,

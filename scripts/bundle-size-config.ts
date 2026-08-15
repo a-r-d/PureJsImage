@@ -92,6 +92,30 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 100_000,
   },
   {
+    id: 'scientific-reader-nanonis-sxm',
+    name: 'Scientific reader: Nanonis SXM',
+    contents: exportsFrom(['./src/scientific/readers/nanonis-sxm.ts']),
+    maxMinifiedBytes: 100_000,
+  },
+  {
+    id: 'scientific-reader-igor-binary-wave',
+    name: 'Scientific reader: Igor Binary Wave',
+    contents: exportsFrom(['./src/scientific/readers/igor-binary-wave.ts']),
+    maxMinifiedBytes: 110_000,
+  },
+  {
+    id: 'scientific-reader-digital-surf',
+    name: 'Scientific reader: Digital Surf',
+    contents: exportsFrom(['./src/scientific/readers/digital-surf.ts']),
+    maxMinifiedBytes: 110_000,
+  },
+  {
+    id: 'scientific-reader-x3p',
+    name: 'Scientific reader: X3P',
+    contents: exportsFrom(['./src/scientific/readers/x3p.ts']),
+    maxMinifiedBytes: 120_000,
+  },
+  {
     id: 'scientific-reader-tia-ser',
     name: 'Scientific reader: TIA SER',
     contents: exportsFrom(['./src/scientific/readers/tia-ser.ts']),
@@ -175,8 +199,8 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'scientific-readers-all',
     name: 'Scientific readers: all',
     contents: exportsFrom(['./src/scientific/readers/all.ts']),
-    baselineMinifiedBytes: 576_306,
-    maxMinifiedBytes: 749_198,
+    baselineMinifiedBytes: 775_027,
+    maxMinifiedBytes: 1_008_000,
   },
   {
     id: 'operations',

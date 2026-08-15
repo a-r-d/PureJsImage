@@ -287,6 +287,67 @@
       "fixtures": ["tests/scientific-format-readers.test.ts"]
     },
     {
+      "id": "purejsimage/nanonis-sxm",
+      "version": "1.0.0",
+      "format": "Nanonis SXM",
+      "packageExport": "purejsimage/scientific/readers/nanonis-sxm",
+      "extensions": ["sxm"],
+      "mediaTypes": ["application/x-nanonis-sxm"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/nanonis-afm-generic4.sxm",
+        "tests/fixtures/scientific-surface/nanonis-stm-generic5.sxm"
+      ]
+    },
+    {
+      "id": "purejsimage/igor-binary-wave",
+      "version": "1.0.0",
+      "format": "Igor Binary Wave v5",
+      "packageExport": "purejsimage/scientific/readers/igor-binary-wave",
+      "extensions": ["ibw"],
+      "mediaTypes": ["application/x-igor-binary-wave"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/asylum-afm-v5.ibw",
+        "tests/fixtures/scientific-surface/igor-win-v5-rank1.ibw"
+      ]
+    },
+    {
+      "id": "purejsimage/digital-surf",
+      "version": "1.0.0",
+      "format": "Digital Surf SUR/PRO",
+      "packageExport": "purejsimage/scientific/readers/digital-surf",
+      "extensions": ["sur", "pro"],
+      "mediaTypes": ["application/x-digitalsurf-sur"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": false,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": ["tests/fixtures/scientific-surface/digital-surf-compressed.sur"]
+    },
+    {
+      "id": "purejsimage/x3p",
+      "version": "1.0.0",
+      "format": "X3P surface exchange",
+      "packageExport": "purejsimage/scientific/readers/x3p",
+      "extensions": ["x3p"],
+      "mediaTypes": ["application/x-x3p"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "evidence": ["tests/scientific-surface-formats.test.ts"],
+      "fixtures": [
+        "tests/fixtures/scientific-surface/iso5436-sample1.x3p",
+        "tests/fixtures/scientific-surface/iso5436-sample4.x3p"
+      ]
+    },
+    {
       "id": "purejsimage/envi",
       "version": "1.0.0",
       "format": "ENVI",

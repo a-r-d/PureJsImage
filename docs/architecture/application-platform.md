@@ -1893,6 +1893,26 @@ to own only generic descriptors, definitions, providers, and registries.
       geometry and frame tables, decode one point in bounded event blocks with checked `uint32`
       counts, cover hostile limits and missing gates, and pin version-11, EELS/EDS, and empty-selection
       producer archives with exact point-spectrum hashes.
+- [ ] Publish Bruker NanoScope SPM only after three acquisition/software families independently
+      reproduce dimensions, scan direction, physical X/Y coordinates, and the complete Z scaling
+      chain. Keep the existing capability planned while only one full image family is available.
+- [x] Publish Nanonis SXM v2 images with bounded headers, all channel/direction datasets, exact
+      X/Y calibration, scan metadata, explicit top-to-bottom file-row Y semantics, and selected-row
+      reads verified against independent AFM and STM files.
+- [x] Publish numeric Igor Binary Wave v5 two- through four-dimensional waves with endian,
+      checksum, type, dimension, unit, note, label, calibration, selected-region, and complex-wave
+      rejection coverage against an independent Asylum AFM file.
+- [x] Publish bounded Digital Surf SUR/PRO surface, multilayer, and profile records with stored and
+      compressed payloads, exact integer scaling, special-point masks, physical units, object
+      enumeration, metadata bounds, and spectral-map rejection.
+- [x] Add one browser-portable range-aware ZIP/ZIP64 container with safe normalized paths, stored
+      member views, Deflate decoding, CRC verification for decoded members, archive/member/ratio
+      limits, duplicate and local-name checks, and explicit encryption/unsupported-method rejection.
+- [x] Publish one-layer ISO 5436-2 X3P surfaces on that ZIP layer with incremental calibrated X/Y,
+      numeric Z scaling, validity masks, selected-region reads, official fixtures, package exports,
+      generated capabilities, bundle ceilings, and a real-Chromium workflow.
+- [x] Record JPK force/curve archives and the unreleased OZX profile as explicit F5 deferrals rather
+      than claiming image-container compatibility from ZIP structure alone.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -2150,3 +2170,13 @@ to own only generic descriptors, definitions, providers, and registries.
     frame offsets, and point-spectrum hashes pass. The generated bounded point workflow also passes
     in real Chromium. Public reader, package, manifest, and browser claims remain intentionally
     absent until the required Lab Viewer spectrum surface is available.
+  - Milestone F validation: 62 focused surface-reader, capability, and project-contract tests pass,
+    including two real Nanonis acquisition families, a real 512 by 512 by 8 Asylum IBW, a compressed
+    Digital Surf surface, two official ISO 5436 X3P archives, generated big-endian 4D IBW and
+    multilayer/profile/mask SUR cases, and bounded stored, Deflate, and ZIP64 archive paths. The
+    public selected-region workflow passes for SXM, IBW, SUR, and X3P in real Chromium. Generated
+    capabilities, the 472-file packed consumer, 19-page docs build, browser graph, typecheck, lint,
+    formatting, and size gates pass; the four readers are 32.1, 33.3, 37.8, and 42.9 KiB minified,
+    and all readers are 758.5 KiB below the evidence-reset 984.4 KiB ceiling. The full repository
+    gate passes all 125 files and 1,487 tests. NanoScope remains planned at its three-family gate;
+    JPK force archives and the unreleased OZX profile remain explicitly unclaimed.

@@ -31,6 +31,12 @@
       "purejsimage/scientific/readers/digital-micrograph": [
         "./src/scientific/readers/digital-micrograph.ts"
       ],
+      "purejsimage/scientific/readers/digital-surf": ["./src/scientific/readers/digital-surf.ts"],
+      "purejsimage/scientific/readers/igor-binary-wave": [
+        "./src/scientific/readers/igor-binary-wave.ts"
+      ],
+      "purejsimage/scientific/readers/nanonis-sxm": ["./src/scientific/readers/nanonis-sxm.ts"],
+      "purejsimage/scientific/readers/x3p": ["./src/scientific/readers/x3p.ts"],
       "purejsimage/scientific/readers/tia-ser": ["./src/scientific/readers/tia-ser.ts"],
       "purejsimage/scientific/readers/tia-emi": ["./src/scientific/readers/tia-emi.ts"],
       "purejsimage/scientific/readers/ncem-emd": ["./src/scientific/readers/ncem-emd.ts"],
