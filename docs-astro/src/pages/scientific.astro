@@ -1,5 +1,15 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
+import packageMetrics from '../data/package-metrics.json'
+
+const scientificReadersById = new Map(
+  packageMetrics.scientificReaders.map((reader) => [reader.id, reader]),
+)
+const readerLabel = (id: string): string => {
+  const reader = scientificReadersById.get(id)
+  if (reader === undefined) throw new Error(`Missing scientific reader metric: ${id}`)
+  return `${reader.format} (${reader.packageExport})`
+}
 ---
 
 <SiteLayout
@@ -125,6 +135,19 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <p class="scientific-quant-note">The PNG is the current display rendering, not a converted scientific dataset.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="scientific-sources" aria-labelledby="scientific-reader-surface-title">
+      <div class="container">
+        <div class="scientific-sources-heading">
+          <div><p class="eyebrow">Package reader surface</p><h2 id="scientific-reader-surface-title">{packageMetrics.scientificReaders.length} explicit scientific reader exports</h2></div>
+          <p>The package surface is broader than the interactive explorer above. The explorer currently wires only {packageMetrics.liveDemoReaderIds.length} readers; it does not claim to open every newly supported format. Applications can register any explicit reader export listed below.</p>
+        </div>
+        <div class="scientific-source-grid">
+          {packageMetrics.scientificReaderGroups.map((group) => <article><span>{group.label}</span><h3>{group.readerIds.length} package readers</h3><p>{group.readerIds.map(readerLabel).join(' · ')}</p></article>)}
+        </div>
+        <p class="scientific-quant-note"><strong>Live browser demo:</strong> {packageMetrics.liveDemoReaderIds.map(readerLabel).join(' · ')}. The remaining package readers are available through their explicit imports and the package reader aggregate, subject to their documented source and runtime boundaries.</p>
       </div>
     </section>
 

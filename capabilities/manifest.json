@@ -2944,6 +2944,7 @@
       "name": "HEIF / HEIC (experimental)",
       "supportFile": "heif-codec-support.md",
       "packageFormat": "heif",
+      "experimental": true,
       "read": {
         "status": "limited",
         "label": "Experimental"

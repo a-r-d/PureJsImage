@@ -3,6 +3,7 @@ import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
+import capabilityManifestJson from '../capabilities/manifest.json' with { type: 'json' }
 import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpus.ts'
 import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
@@ -10,9 +11,11 @@ import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
 import {
   commonCompetitorCodecs,
-  competitorBundleTargets,
-  pureJsImageEntryTargets,
+  createCompetitorBundleTargets,
+  createPureJsImageEntryTargets,
 } from '../scripts/bundle-size-config.ts'
+import { bundleSizeBudgets } from '../scripts/bundle-size-budgets.ts'
+import { parseCapabilityManifest } from '../scripts/capability-manifest.ts'
 import * as analysisApi from '../src/analysis/index.ts'
 import * as analysisProjectApi from '../src/analysis/project-entry.ts'
 import * as analysisResultsApi from '../src/analysis/results.ts'
@@ -35,6 +38,10 @@ import * as httpRangeApi from '../src/sources/http-range.ts'
 import * as tiffApi from '../src/tiff/index.ts'
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import rootTsconfig from '../tsconfig.json' with { type: 'json' }
+
+const capabilityManifest = parseCapabilityManifest(capabilityManifestJson)
+const pureJsImageEntryTargets = createPureJsImageEntryTargets(capabilityManifest)
+const competitorBundleTargets = createCompetitorBundleTargets(capabilityManifest)
 
 describe('package contract', () => {
   it('does not publish unusable source maps without source files', () => {
@@ -106,7 +113,8 @@ describe('package contract', () => {
   })
 
   it('keeps bundle and deployment size reporting in the full check gate', () => {
-    expect(packageJson.scripts.check).toContain('npm run size')
+    expect(packageJson.scripts.check).toContain('npm run size:check')
+    expect(packageJson.scripts.check).toContain('npm run package-metrics:check')
     expect(packageJson.scripts.size).toContain('npm run build')
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
       60 * 1024,
@@ -117,44 +125,23 @@ describe('package contract', () => {
       baselineMinifiedBytes: 143_546,
       maxMinifiedBytes: 187_000,
     })
+    const expectedReaderTargetIds = [
+      ...capabilityManifest.scientificReaders.map(
+        ({ packageExport }) =>
+          `scientific-reader-${packageExport.slice(packageExport.lastIndexOf('/') + 1)}`,
+      ),
+      'scientific-readers-all',
+    ]
+    expect(
+      pureJsImageEntryTargets
+        .filter(({ id }) => id.startsWith('scientific-reader'))
+        .map(({ id }) => id),
+    ).toEqual(expectedReaderTargetIds)
     expect(
       pureJsImageEntryTargets
         .filter(({ id }) => id.startsWith('scientific-reader'))
         .map(({ id, maxMinifiedBytes }) => [id, maxMinifiedBytes]),
-    ).toEqual([
-      ['scientific-reader-gsf', 50_000],
-      ['scientific-reader-envi', 75_000],
-      ['scientific-reader-fits', 60_000],
-      ['scientific-reader-mrc', 51_000],
-      ['scientific-reader-cbf', 55_000],
-      ['scientific-reader-digital-micrograph', 100_000],
-      ['scientific-reader-nanonis-sxm', 100_000],
-      ['scientific-reader-igor-binary-wave', 110_000],
-      ['scientific-reader-digital-surf', 110_000],
-      ['scientific-reader-x3p', 120_000],
-      ['scientific-reader-tia-ser', 100_000],
-      ['scientific-reader-tia-emi', 150_000],
-      ['scientific-reader-ncem-emd', 180_000],
-      ['scientific-reader-velox-emd', 180_000],
-      ['scientific-reader-tiff', 341_825],
-      ['scientific-reader-ome-tiff', 350_000],
-      ['scientific-reader-aperio-svs', 338_000],
-      ['scientific-reader-png', 87_601],
-      ['scientific-reader-jpeg', 136_260],
-      ['scientific-reader-webp', 138_213],
-      ['scientific-reader-bmp', 57_356],
-      ['scientific-reader-jp2', 121_805],
-      ['scientific-reader-rpl', 53_500],
-      ['scientific-reader-emsa', 50_800],
-      ['scientific-reader-nrrd', 56_800],
-      ['scientific-reader-meta-image', 53_200],
-      ['scientific-reader-nifti', 55_200],
-      ['scientific-reader-npy', 50_700],
-      ['scientific-reader-blockfile', 51_500],
-      ['scientific-reader-mib', 42_400],
-      ['scientific-reader-ebsd-text', 54_200],
-      ['scientific-readers-all', 1_008_000],
-    ])
+    ).toEqual(expectedReaderTargetIds.map((id) => [id, bundleSizeBudgets[id]?.maxMinifiedBytes]))
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
       baselineMinifiedBytes: 44_252,
       maxMinifiedBytes: 58_000,
@@ -230,22 +217,23 @@ describe('package contract', () => {
     const readme = readFileSync('README.md', 'utf8')
     const performancePage = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
     for (const label of [
-      'PureJsImage matched',
+      'PureJsImage (matched)',
+      'PureJsImage (all stable codecs)',
       'Jimp',
       'image-js',
       'jSquash',
       'Sharp JS wrapper',
     ]) {
       expect(readme).toContain(label)
-      expect(performancePage).toContain(label)
     }
     expect(readme).toContain(packageJson.version)
-    expect(performancePage).toContain(packageJson.version)
+    expect(performancePage).toContain('packageMetrics.targets')
+    expect(performancePage).toContain('packageMetrics.wasmAssets')
     for (const version of ['1.6.0', '1.7.0', '0.35.3']) {
       expect(readme).toContain(version)
       expect(performancePage).toContain(version)
     }
-    expect(readme).toContain('Sharp, including native libvips')
+    expect(readme).toContain('native-wrapper')
     expect(performancePage).toContain('Native payload.')
   })
 

@@ -1,471 +1,386 @@
-export type BundleCodec =
-  | 'AVIF'
-  | 'BMP'
-  | 'GIF'
-  | 'HDR'
-  | 'HEIF / HEIC'
-  | 'ICO'
-  | 'JPEG'
-  | 'JPEG 2000'
-  | 'PNG'
-  | 'Netpbm'
-  | 'TIFF'
-  | 'QOI'
-  | 'WebP'
-  | 'TGA'
+import type { CapabilityManifest, CodecCapability } from './capability-manifest.ts'
+import { bundleSizeBudgets, type BundleSizeBudget } from './bundle-size-budgets.ts'
+
+export type BundleCodec = string
+
+export type BundleImplementation =
+  | 'native-wrapper'
+  | 'package-core'
+  | 'pure-javascript'
+  | 'webassembly'
+
+export type BundleTargetCategory = 'competitor' | 'purejsimage-entry'
 
 export interface BundleTarget {
   /** Recorded minified byte count when this gate was introduced. */
   readonly baselineMinifiedBytes?: number
+  readonly category: BundleTargetCategory
+  readonly codecs?: readonly BundleCodec[]
   readonly contents: string
   readonly id: string
-  readonly name: string
-  /** Fails the size gate when the minified entry exceeds this byte count. */
+  readonly implementation: BundleImplementation
   readonly maxMinifiedBytes?: number
+  readonly name: string
+  readonly packageExport?: string
+  readonly packageExports?: readonly string[]
+  readonly packageName: string
+  readonly packageNames?: readonly string[]
+  readonly sourceEntries?: readonly string[]
 }
 
 export interface CompetitorBundleTarget extends BundleTarget {
+  readonly category: 'competitor'
   readonly codecs: readonly BundleCodec[]
-  readonly implementation: 'native-wrapper' | 'pure-javascript' | 'webassembly'
+  readonly implementation: Exclude<BundleImplementation, 'package-core'>
   readonly packageName: '@jsquash/jpeg' | 'image-js' | 'jimp' | 'purejsimage' | 'sharp'
   readonly packageNames?: readonly string[]
 }
 
-const exportsFrom = (entries: readonly string[]): string =>
-  entries.map((entry) => `export * from '${entry}'`).join('\n')
+export interface WasmAssetTarget {
+  readonly id: string
+  readonly name: string
+  readonly sourceEntry: string
+}
 
 export const commonCompetitorCodecs = ['JPEG', 'PNG'] as const satisfies readonly BundleCodec[]
 
-export const pureJsImageEntryTargets: readonly BundleTarget[] = [
+export const wasmAssetTargets: readonly WasmAssetTarget[] = [
   {
-    id: 'core',
-    name: 'Core API',
-    contents: exportsFrom(['./src/index.ts']),
-    maxMinifiedBytes: 60 * 1024,
+    id: 'jpeg-decoder',
+    name: 'JPEG decoder WASM',
+    sourceEntry: 'src/accelerator-entries/jpeg-decoder.wasm',
   },
   {
-    id: 'scientific',
-    name: 'Core + scientific platform',
-    contents: exportsFrom(['./src/index.ts', './src/scientific/index.ts']),
-    baselineMinifiedBytes: 143_546,
-    maxMinifiedBytes: 187_000,
+    id: 'jpeg-decoder-simd',
+    name: 'JPEG decoder SIMD WASM',
+    sourceEntry: 'src/accelerator-entries/jpeg-decoder-simd.wasm',
   },
   {
-    id: 'scientific-reader-gsf',
-    name: 'Scientific reader: GSF',
-    contents: exportsFrom(['./src/scientific/readers/gsf.ts']),
-    baselineMinifiedBytes: 37_864,
-    maxMinifiedBytes: 50_000,
+    id: 'jpeg-encoder',
+    name: 'JPEG encoder WASM',
+    sourceEntry: 'src/accelerator-entries/jpeg-encoder.wasm',
   },
   {
-    id: 'scientific-reader-envi',
-    name: 'Scientific reader: ENVI',
-    contents: exportsFrom(['./src/scientific/readers/envi.ts']),
-    baselineMinifiedBytes: 56_958,
-    maxMinifiedBytes: 75_000,
+    id: 'jpeg-encoder-simd',
+    name: 'JPEG encoder SIMD WASM',
+    sourceEntry: 'src/accelerator-entries/jpeg-encoder-simd.wasm',
   },
   {
-    id: 'scientific-reader-fits',
-    name: 'Scientific reader: FITS',
-    contents: exportsFrom(['./src/scientific/readers/fits.ts']),
-    baselineMinifiedBytes: 44_278,
-    maxMinifiedBytes: 60_000,
+    id: 'png-codec',
+    name: 'PNG codec WASM',
+    sourceEntry: 'src/accelerator-entries/png-codec.wasm',
   },
   {
-    id: 'scientific-reader-mrc',
-    name: 'Scientific reader: MRC',
-    contents: exportsFrom(['./src/scientific/readers/mrc.ts']),
-    baselineMinifiedBytes: 38_787,
-    maxMinifiedBytes: 51_000,
-  },
-  {
-    id: 'scientific-reader-cbf',
-    name: 'Scientific reader: CBF',
-    contents: exportsFrom(['./src/scientific/readers/cbf.ts']),
-    baselineMinifiedBytes: 41_686,
-    maxMinifiedBytes: 55_000,
-  },
-  {
-    id: 'scientific-reader-digital-micrograph',
-    name: 'Scientific reader: DigitalMicrograph',
-    contents: exportsFrom(['./src/scientific/readers/digital-micrograph.ts']),
-    maxMinifiedBytes: 100_000,
-  },
-  {
-    id: 'scientific-reader-nanonis-sxm',
-    name: 'Scientific reader: Nanonis SXM',
-    contents: exportsFrom(['./src/scientific/readers/nanonis-sxm.ts']),
-    maxMinifiedBytes: 100_000,
-  },
-  {
-    id: 'scientific-reader-igor-binary-wave',
-    name: 'Scientific reader: Igor Binary Wave',
-    contents: exportsFrom(['./src/scientific/readers/igor-binary-wave.ts']),
-    maxMinifiedBytes: 110_000,
-  },
-  {
-    id: 'scientific-reader-digital-surf',
-    name: 'Scientific reader: Digital Surf',
-    contents: exportsFrom(['./src/scientific/readers/digital-surf.ts']),
-    maxMinifiedBytes: 110_000,
-  },
-  {
-    id: 'scientific-reader-x3p',
-    name: 'Scientific reader: X3P',
-    contents: exportsFrom(['./src/scientific/readers/x3p.ts']),
-    maxMinifiedBytes: 120_000,
-  },
-  {
-    id: 'scientific-reader-tia-ser',
-    name: 'Scientific reader: TIA SER',
-    contents: exportsFrom(['./src/scientific/readers/tia-ser.ts']),
-    maxMinifiedBytes: 100_000,
-  },
-  {
-    id: 'scientific-reader-tia-emi',
-    name: 'Scientific reader: TIA EMI',
-    contents: exportsFrom(['./src/scientific/readers/tia-emi.ts']),
-    maxMinifiedBytes: 150_000,
-  },
-  {
-    id: 'scientific-reader-ncem-emd',
-    name: 'Scientific reader: NCEM EMD',
-    contents: exportsFrom(['./src/scientific/readers/ncem-emd.ts']),
-    maxMinifiedBytes: 180_000,
-  },
-  {
-    id: 'scientific-reader-velox-emd',
-    name: 'Scientific reader: Velox EMD',
-    contents: exportsFrom(['./src/scientific/readers/velox-emd.ts']),
-    maxMinifiedBytes: 180_000,
-  },
-  {
-    id: 'scientific-reader-tiff',
-    name: 'Scientific reader: TIFF',
-    contents: exportsFrom(['./src/scientific/readers/tiff.ts']),
-    baselineMinifiedBytes: 262_942,
-    maxMinifiedBytes: 341_825,
-  },
-  {
-    id: 'scientific-reader-ome-tiff',
-    name: 'Scientific reader: OME-TIFF',
-    contents: exportsFrom(['./src/scientific/readers/ome-tiff.ts']),
-    baselineMinifiedBytes: 267_489,
-    maxMinifiedBytes: 350_000,
-  },
-  {
-    id: 'scientific-reader-aperio-svs',
-    name: 'Scientific reader: Aperio SVS',
-    contents: exportsFrom(['./src/scientific/readers/aperio-svs.ts']),
-    baselineMinifiedBytes: 259_477,
-    maxMinifiedBytes: 338_000,
-  },
-  {
-    id: 'scientific-reader-png',
-    name: 'Scientific reader: PNG',
-    contents: exportsFrom(['./src/scientific/readers/png.ts']),
-    baselineMinifiedBytes: 67_385,
-    maxMinifiedBytes: 87_601,
-  },
-  {
-    id: 'scientific-reader-jpeg',
-    name: 'Scientific reader: JPEG',
-    contents: exportsFrom(['./src/scientific/readers/jpeg.ts']),
-    baselineMinifiedBytes: 104_815,
-    maxMinifiedBytes: 136_260,
-  },
-  {
-    id: 'scientific-reader-webp',
-    name: 'Scientific reader: WebP',
-    contents: exportsFrom(['./src/scientific/readers/webp.ts']),
-    baselineMinifiedBytes: 106_317,
-    maxMinifiedBytes: 138_213,
-  },
-  {
-    id: 'scientific-reader-bmp',
-    name: 'Scientific reader: BMP',
-    contents: exportsFrom(['./src/scientific/readers/bmp.ts']),
-    baselineMinifiedBytes: 44_120,
-    maxMinifiedBytes: 57_356,
-  },
-  {
-    id: 'scientific-reader-jp2',
-    name: 'Scientific reader: JP2',
-    contents: exportsFrom(['./src/scientific/readers/jp2.ts']),
-    baselineMinifiedBytes: 93_696,
-    maxMinifiedBytes: 121_805,
-  },
-  {
-    id: 'scientific-reader-rpl',
-    name: 'Scientific reader: RPL/RAW',
-    contents: exportsFrom(['./src/scientific/readers/rpl.ts']),
-    baselineMinifiedBytes: 41_135,
-    maxMinifiedBytes: 53_500,
-  },
-  {
-    id: 'scientific-reader-emsa',
-    name: 'Scientific reader: EMSA/MAS',
-    contents: exportsFrom(['./src/scientific/readers/emsa.ts']),
-    baselineMinifiedBytes: 39_050,
-    maxMinifiedBytes: 50_800,
-  },
-  {
-    id: 'scientific-reader-nrrd',
-    name: 'Scientific reader: NRRD',
-    contents: exportsFrom(['./src/scientific/readers/nrrd.ts']),
-    baselineMinifiedBytes: 43_686,
-    maxMinifiedBytes: 56_800,
-  },
-  {
-    id: 'scientific-reader-meta-image',
-    name: 'Scientific reader: MetaImage',
-    contents: exportsFrom(['./src/scientific/readers/meta-image.ts']),
-    baselineMinifiedBytes: 40_913,
-    maxMinifiedBytes: 53_200,
-  },
-  {
-    id: 'scientific-reader-nifti',
-    name: 'Scientific reader: NIfTI',
-    contents: exportsFrom(['./src/scientific/readers/nifti.ts']),
-    baselineMinifiedBytes: 42_422,
-    maxMinifiedBytes: 55_200,
-  },
-  {
-    id: 'scientific-reader-npy',
-    name: 'Scientific reader: NPY',
-    contents: exportsFrom(['./src/scientific/readers/npy.ts']),
-    baselineMinifiedBytes: 38_965,
-    maxMinifiedBytes: 50_700,
-  },
-  {
-    id: 'scientific-reader-blockfile',
-    name: 'Scientific reader: BLO',
-    contents: exportsFrom(['./src/scientific/readers/blockfile.ts']),
-    baselineMinifiedBytes: 39_615,
-    maxMinifiedBytes: 51_500,
-  },
-  {
-    id: 'scientific-reader-mib',
-    name: 'Scientific reader: MIB',
-    contents: exportsFrom(['./src/scientific/readers/mib.ts']),
-    baselineMinifiedBytes: 32_612,
-    maxMinifiedBytes: 42_400,
-  },
-  {
-    id: 'scientific-reader-ebsd-text',
-    name: 'Scientific reader: ANG/CTF',
-    contents: exportsFrom(['./src/scientific/readers/ebsd-text.ts']),
-    baselineMinifiedBytes: 41_681,
-    maxMinifiedBytes: 54_200,
-  },
-  {
-    id: 'scientific-readers-all',
-    name: 'Scientific readers: all',
-    contents: exportsFrom(['./src/scientific/readers/all.ts']),
-    baselineMinifiedBytes: 844_813,
-    maxMinifiedBytes: 1_008_000,
-  },
-  {
-    id: 'operations',
-    name: 'Operation descriptors and runtime',
-    contents: exportsFrom(['./src/operations/index.ts']),
-    baselineMinifiedBytes: 44_252,
-    maxMinifiedBytes: 58_000,
-  },
-  {
-    id: 'analysis',
-    name: 'Analysis application API',
-    contents: exportsFrom(['./src/analysis/index.ts']),
-    baselineMinifiedBytes: 270_789,
-    maxMinifiedBytes: 353_000,
-  },
-  {
-    id: 'analysis-results',
-    name: 'Analysis result schemas',
-    contents: exportsFrom(['./src/analysis/results.ts']),
-    baselineMinifiedBytes: 55_713,
-    maxMinifiedBytes: 72_427,
-  },
-  {
-    id: 'analysis-roi',
-    name: 'Analysis ROI utilities',
-    contents: exportsFrom(['./src/analysis/roi-entry.ts']),
-    baselineMinifiedBytes: 32_622,
-    maxMinifiedBytes: 42_409,
-  },
-  {
-    id: 'analysis-runtime',
-    name: 'Analysis tile runtime',
-    contents: exportsFrom(['./src/analysis/runtime.ts']),
-    baselineMinifiedBytes: 57_784,
-    maxMinifiedBytes: 75_120,
-  },
-  {
-    id: 'analysis-project',
-    name: 'Analysis project and migrations',
-    contents: exportsFrom(['./src/analysis/project-entry.ts']),
-    baselineMinifiedBytes: 51_214,
-    maxMinifiedBytes: 66_578,
-  },
-  {
-    id: 'extensions',
-    name: 'Trusted extension host',
-    contents: exportsFrom(['./src/extensions/index.ts']),
-    baselineMinifiedBytes: 46_564,
-    maxMinifiedBytes: 61_000,
-  },
-  {
-    id: 'png',
-    name: 'Core + PNG',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/png.ts']),
-  },
-  {
-    id: 'jpeg',
-    name: 'Core + JPEG',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/jpeg.ts']),
-  },
-  {
-    id: 'jpeg2000',
-    name: 'Core + JPEG 2000',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/jpeg2000.ts']),
-  },
-  {
-    id: 'jpegxl',
-    name: 'Core + JPEG XL limited decoder',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/jpegxl.ts']),
-  },
-  {
-    id: 'webp',
-    name: 'Core + WebP',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/webp.ts']),
-  },
-  {
-    id: 'hdr',
-    name: 'Core + HDR',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/hdr.ts']),
-  },
-  {
-    id: 'qoi',
-    name: 'Core + QOI',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/qoi.ts']),
-  },
-  {
-    id: 'netpbm',
-    name: 'Core + Netpbm',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/netpbm.ts']),
-  },
-  {
-    id: 'tga',
-    name: 'Core + TGA',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/tga.ts']),
-  },
-  {
-    id: 'gif',
-    name: 'Core + GIF',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/gif.ts']),
-  },
-  {
-    id: 'bmp',
-    name: 'Core + BMP',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/bmp.ts']),
-  },
-  {
-    id: 'ico',
-    name: 'Core + ICO',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/ico.ts']),
-  },
-  {
-    id: 'tiff',
-    name: 'Core + TIFF',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/tiff.ts']),
-  },
-  {
-    id: 'avif',
-    name: 'Core + AVIF',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/avif.ts']),
-  },
-  {
-    id: 'experimental-heic',
-    name: 'Core + experimental HEIF / HEIC',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/experimental/heic.ts']),
-  },
-  {
-    id: 'all',
-    name: 'Core + all codecs',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/all.ts']),
+    id: 'png-codec-simd',
+    name: 'PNG codec SIMD WASM',
+    sourceEntry: 'src/accelerator-entries/png-codec-simd.wasm',
   },
 ]
 
-export const competitorBundleTargets: readonly CompetitorBundleTarget[] = [
-  {
-    id: 'purejsimage-matched',
-    name: 'PureJsImage (matched)',
-    packageName: 'purejsimage',
-    implementation: 'pure-javascript',
-    codecs: commonCompetitorCodecs,
-    contents: exportsFrom([
-      './src/index.ts',
-      './src/codec-entries/jpeg.ts',
-      './src/codec-entries/png.ts',
-    ]),
-  },
-  {
-    id: 'purejsimage-all',
-    name: 'PureJsImage (all codecs)',
-    packageName: 'purejsimage',
-    implementation: 'pure-javascript',
-    codecs: [
-      'JPEG',
-      'PNG',
-      'WebP',
-      'BMP',
-      'TIFF',
-      'GIF',
-      'ICO',
-      'JPEG 2000',
-      'AVIF',
-      'HDR',
-      'QOI',
-      'Netpbm',
-      'TGA',
-    ],
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/all.ts']),
-  },
-  {
-    id: 'jimp',
-    name: 'Jimp',
-    packageName: 'jimp',
-    implementation: 'pure-javascript',
-    codecs: ['JPEG', 'PNG', 'TIFF', 'BMP', 'GIF'],
-    contents: "export * from 'jimp'",
-  },
-  {
-    id: 'image-js',
-    name: 'image-js',
-    packageName: 'image-js',
-    implementation: 'pure-javascript',
-    codecs: ['JPEG', 'PNG', 'TIFF', 'BMP'],
-    contents: "export * from 'image-js'",
-  },
-  {
-    id: 'jsquash',
-    name: 'jSquash',
-    packageName: '@jsquash/jpeg',
-    packageNames: ['@jsquash/jpeg', '@jsquash/png', '@jsquash/resize'],
-    implementation: 'webassembly',
-    codecs: commonCompetitorCodecs,
-    contents: [
-      "export { decode as decodeJpeg, encode as encodeJpeg } from '@jsquash/jpeg'",
-      "export { decode as decodePng, encode as encodePng } from '@jsquash/png'",
-      "export { default as resize } from '@jsquash/resize'",
-    ].join('\n'),
-  },
-  {
-    id: 'sharp',
-    name: 'Sharp JS wrapper',
-    packageName: 'sharp',
-    implementation: 'native-wrapper',
-    codecs: ['JPEG', 'PNG', 'TIFF', 'WebP', 'GIF', 'AVIF'],
-    contents: "export { default } from 'sharp'",
-  },
+const exportsFrom = (entries: readonly string[]): string =>
+  entries.map((entry) => `export * from '${entry}'`).join('\n')
+
+const budgeted = (
+  target: Omit<BundleTarget, 'baselineMinifiedBytes' | 'maxMinifiedBytes'>,
+): BundleTarget => {
+  const budget: BundleSizeBudget | undefined = bundleSizeBudgets[target.id]
+  return {
+    ...target,
+    ...(budget?.baselineMinifiedBytes === undefined
+      ? {}
+      : { baselineMinifiedBytes: budget.baselineMinifiedBytes }),
+    ...(budget?.maxMinifiedBytes === undefined
+      ? {}
+      : { maxMinifiedBytes: budget.maxMinifiedBytes }),
+  }
+}
+
+const sourceTarget = ({
+  category = 'purejsimage-entry',
+  codecs,
+  id,
+  implementation,
+  name,
+  packageExport,
+  packageName = 'purejsimage',
+  sourceEntries,
+}: {
+  readonly category?: BundleTargetCategory
+  readonly codecs?: readonly BundleCodec[]
+  readonly id: string
+  readonly implementation: BundleImplementation
+  readonly name: string
+  readonly packageExport?: string
+  readonly packageName?: string
+  readonly sourceEntries: readonly string[]
+}): BundleTarget =>
+  budgeted({
+    category,
+    ...(codecs === undefined ? {} : { codecs }),
+    contents: exportsFrom(sourceEntries),
+    id,
+    implementation,
+    name,
+    ...(packageExport === undefined ? {} : { packageExport }),
+    packageName,
+    sourceEntries,
+  })
+
+const packageTarget = ({
+  codecs,
+  contents,
+  id,
+  implementation,
+  name,
+  packageExport,
+  packageExports,
+  packageName,
+  packageNames,
+}: {
+  readonly codecs: readonly BundleCodec[]
+  readonly contents: string
+  readonly id: string
+  readonly implementation: Exclude<BundleImplementation, 'package-core'>
+  readonly name: string
+  readonly packageExport?: string
+  readonly packageExports?: readonly string[]
+  readonly packageName: CompetitorBundleTarget['packageName']
+  readonly packageNames?: readonly string[]
+}): CompetitorBundleTarget => ({
+  category: 'competitor',
+  codecs,
+  contents,
+  id,
+  implementation,
+  name,
+  ...(packageExport === undefined ? {} : { packageExport }),
+  ...(packageNames === undefined ? {} : { packageNames }),
+  packageName,
+  packageExports:
+    packageExports ??
+    (packageExport === undefined ? (packageNames ?? [packageName]) : [packageExport]),
+})
+
+const scientificReaderSlug = (packageExport: string): string => {
+  const slash = packageExport.lastIndexOf('/')
+  if (slash < 0 || slash === packageExport.length - 1) {
+    throw new Error(`Scientific reader package export has no reader name: ${packageExport}`)
+  }
+  return packageExport.slice(slash + 1)
+}
+
+export const scientificReaderTargetId = (packageExport: string): string =>
+  `scientific-reader-${scientificReaderSlug(packageExport)}`
+
+export const scientificReaderSourceEntry = (packageExport: string): string =>
+  `./src/scientific/readers/${scientificReaderSlug(packageExport)}.ts`
+
+const codecSourceEntry = (codec: CodecCapability): string =>
+  codec.id === 'heif'
+    ? './src/codec-entries/experimental/heic.ts'
+    : `./src/codec-entries/${codec.id}.ts`
+
+export const codecPackageExport = (codec: CodecCapability): string =>
+  codec.id === 'heif' ? 'purejsimage/codecs/experimental/heic' : `purejsimage/codecs/${codec.id}`
+
+export const codecTargetId = (codec: CodecCapability): string => `codec-${codec.id}`
+
+const publicCodecTargets = (manifest: CapabilityManifest): readonly BundleTarget[] =>
+  manifest.codecs
+    .filter((codec) => codec.packageFormat !== undefined)
+    .map((codec) =>
+      sourceTarget({
+        id: codecTargetId(codec),
+        implementation: 'pure-javascript',
+        name: `Core + ${codec.name}`,
+        packageExport: codecPackageExport(codec),
+        sourceEntries: ['./src/index.ts', codecSourceEntry(codec)],
+      }),
+    )
+
+const publicCodecNames = (manifest: CapabilityManifest): readonly BundleCodec[] =>
+  manifest.codecs
+    .filter((codec) => codec.packageFormat !== undefined && !codec.experimental)
+    .map((codec) => codec.name)
+
+const staticPureJsImageTargets = (): readonly BundleTarget[] => [
+  sourceTarget({
+    id: 'core',
+    implementation: 'package-core',
+    name: 'Core API',
+    packageExport: 'purejsimage',
+    sourceEntries: ['./src/index.ts'],
+  }),
+  sourceTarget({
+    id: 'scientific',
+    implementation: 'package-core',
+    name: 'Core + scientific platform',
+    packageExport: 'purejsimage/scientific',
+    sourceEntries: ['./src/index.ts', './src/scientific/index.ts'],
+  }),
+  sourceTarget({
+    id: 'operations',
+    implementation: 'package-core',
+    name: 'Operation descriptors and runtime',
+    packageExport: 'purejsimage/operations',
+    sourceEntries: ['./src/operations/index.ts'],
+  }),
+  sourceTarget({
+    id: 'analysis',
+    implementation: 'package-core',
+    name: 'Analysis application API',
+    packageExport: 'purejsimage/analysis',
+    sourceEntries: ['./src/analysis/index.ts'],
+  }),
+  sourceTarget({
+    id: 'analysis-results',
+    implementation: 'package-core',
+    name: 'Analysis result schemas',
+    packageExport: 'purejsimage/analysis/results',
+    sourceEntries: ['./src/analysis/results.ts'],
+  }),
+  sourceTarget({
+    id: 'analysis-roi',
+    implementation: 'package-core',
+    name: 'Analysis ROI utilities',
+    packageExport: 'purejsimage/analysis/roi',
+    sourceEntries: ['./src/analysis/roi-entry.ts'],
+  }),
+  sourceTarget({
+    id: 'analysis-runtime',
+    implementation: 'package-core',
+    name: 'Analysis tile runtime',
+    packageExport: 'purejsimage/analysis/runtime',
+    sourceEntries: ['./src/analysis/runtime.ts'],
+  }),
+  sourceTarget({
+    id: 'analysis-project',
+    implementation: 'package-core',
+    name: 'Analysis project and migrations',
+    packageExport: 'purejsimage/analysis/project',
+    sourceEntries: ['./src/analysis/project-entry.ts'],
+  }),
+  sourceTarget({
+    id: 'extensions',
+    implementation: 'package-core',
+    name: 'Trusted extension host',
+    packageExport: 'purejsimage/extensions',
+    sourceEntries: ['./src/extensions/index.ts'],
+  }),
 ]
+
+export const createPureJsImageEntryTargets = (
+  manifest: CapabilityManifest,
+): readonly BundleTarget[] => {
+  const readers = manifest.scientificReaders.map((reader) =>
+    sourceTarget({
+      id: scientificReaderTargetId(reader.packageExport),
+      implementation: 'package-core',
+      name: `Scientific reader: ${reader.format}`,
+      packageExport: reader.packageExport,
+      sourceEntries: [scientificReaderSourceEntry(reader.packageExport)],
+    }),
+  )
+  const allReaders = sourceTarget({
+    id: 'scientific-readers-all',
+    implementation: 'package-core',
+    name: 'Scientific readers: all',
+    packageExport: 'purejsimage/scientific/readers/all',
+    sourceEntries: ['./src/scientific/readers/all.ts'],
+  })
+  const codecTargets = publicCodecTargets(manifest)
+  const allCodecs = sourceTarget({
+    codecs: publicCodecNames(manifest),
+    id: 'codecs-all',
+    implementation: 'pure-javascript',
+    name: 'Core + all stable codecs',
+    packageExport: 'purejsimage/codecs/all',
+    sourceEntries: ['./src/index.ts', './src/codec-entries/all.ts'],
+  })
+  const targets = [
+    ...staticPureJsImageTargets(),
+    ...readers,
+    allReaders,
+    ...codecTargets,
+    allCodecs,
+  ]
+  const targetIds = new Set(targets.map(({ id }) => id))
+  const staleBudgets = Object.keys(bundleSizeBudgets).filter((id) => !targetIds.has(id))
+  if (staleBudgets.length > 0) {
+    throw new Error(`Bundle size budgets reference stale targets: ${staleBudgets.join(', ')}`)
+  }
+  return targets
+}
+
+export const createCompetitorBundleTargets = (
+  manifest: CapabilityManifest,
+): readonly CompetitorBundleTarget[] => {
+  const allCodecs = publicCodecNames(manifest)
+  return [
+    packageTarget({
+      codecs: commonCompetitorCodecs,
+      contents: exportsFrom([
+        './src/index.ts',
+        './src/codec-entries/jpeg.ts',
+        './src/codec-entries/png.ts',
+      ]),
+      id: 'purejsimage-matched',
+      implementation: 'pure-javascript',
+      name: 'PureJsImage (matched)',
+      packageName: 'purejsimage',
+      packageExport: 'purejsimage',
+      packageNames: ['purejsimage'],
+    }),
+    packageTarget({
+      codecs: allCodecs,
+      contents: exportsFrom(['./src/index.ts', './src/codec-entries/all.ts']),
+      id: 'purejsimage-all',
+      implementation: 'pure-javascript',
+      name: 'PureJsImage (all stable codecs)',
+      packageName: 'purejsimage',
+      packageExport: 'purejsimage/codecs/all',
+      packageNames: ['purejsimage'],
+    }),
+    packageTarget({
+      codecs: ['JPEG', 'PNG', 'TIFF', 'BMP', 'GIF'],
+      contents: "export * from 'jimp'",
+      id: 'jimp',
+      implementation: 'pure-javascript',
+      name: 'Jimp',
+      packageName: 'jimp',
+      packageExport: 'jimp',
+    }),
+    packageTarget({
+      codecs: ['JPEG', 'PNG', 'TIFF', 'BMP'],
+      contents: "export * from 'image-js'",
+      id: 'image-js',
+      implementation: 'pure-javascript',
+      name: 'image-js',
+      packageName: 'image-js',
+      packageExport: 'image-js',
+    }),
+    packageTarget({
+      codecs: commonCompetitorCodecs,
+      contents: [
+        "export { decode as decodeJpeg, encode as encodeJpeg } from '@jsquash/jpeg'",
+        "export { decode as decodePng, encode as encodePng } from '@jsquash/png'",
+        "export { default as resize } from '@jsquash/resize'",
+      ].join('\n'),
+      id: 'jsquash',
+      implementation: 'webassembly',
+      name: 'jSquash',
+      packageName: '@jsquash/jpeg',
+      packageExports: ['@jsquash/jpeg', '@jsquash/png', '@jsquash/resize'],
+      packageNames: ['@jsquash/jpeg', '@jsquash/png', '@jsquash/resize'],
+    }),
+    packageTarget({
+      codecs: ['JPEG', 'PNG', 'TIFF', 'WebP', 'GIF', 'AVIF'],
+      contents: "export { default } from 'sharp'",
+      id: 'sharp',
+      implementation: 'native-wrapper',
+      name: 'Sharp JS wrapper',
+      packageName: 'sharp',
+      packageExport: 'sharp',
+    }),
+  ]
+}

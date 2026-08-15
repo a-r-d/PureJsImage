@@ -8,6 +8,35 @@ The profile treats the default pure-JavaScript implementation and the explicitly
 first-party JPEG/PNG WASM accelerators as separate PureJsImage engines. HEIF/HEIC measurements use
 another explicit `purejsimage-experimental-heic` engine; the default engine never registers it.
 
+## Authoritative inventories and generated metrics
+
+The repository keeps current support, package entry, and measurement claims in separate sources:
+
+* `capabilities/manifest.json` is the authoritative codec capability contract. Stable ordinary
+  codec tables, experimental HEIF/HEIC documentation, public capability JSON, and generated
+  compatibility expectations come from `npm run capabilities:generate`.
+* The manifest's `scientificReaders` inventory, matching `package.json` exports, and
+  `src/scientific/readers/all.ts` define the complete scientific reader package surface. A reader
+  is not counted by documentation until those surfaces agree and its generated bundle target is
+  measured.
+* `scripts/bundle-size-budgets.ts` stores the recorded baselines and minified-JavaScript ceilings.
+  `scripts/bundle-size-config.ts` builds the target list from the manifest and package surface;
+  it is not a second reader or codec inventory.
+* `benchmark/generated/package-metrics.json` is the deterministic current measurement artifact.
+  `docs-astro/src/data/package-metrics.json` is its checked-in site copy. Both include minified,
+  gzip, Brotli, raw WASM where applicable, npm package (unpacked) bytes after extraction,
+  production package count, package and dependency versions, and implementation class. The npm
+  package (unpacked) value is not the compressed `.tgz` download size; run `npm pack --dry-run
+  --json` to see both values. They intentionally contain no timestamps or absolute paths.
+* Dated files under `benchmark/results/` remain historical benchmark snapshots. They are not
+  rewritten by package-metrics generation; rerun the relevant benchmark before changing a dated
+  timing, quality, or memory claim.
+
+Run `npm run size` to rebuild the package, refresh the current metrics, and regenerate the README
+size and reader blocks. `npm run size:check` measures the current targets without writing, while
+`npm run package-metrics:check` checks the committed JSON and README surfaces without running the
+performance benchmark suite.
+
 ## Principles
 
 * Benchmark complete decode-transform-encode workloads, not isolated pixel
@@ -501,7 +530,7 @@ Every report contains a compatibility table, a performance table limited to
 workflows that passed equivalently for every selected engine, and a separate
 startup/package table. Startup uses one fresh process per engine and records
 module import time, RSS immediately after import, first JPEG metadata and resize
-latency, installed package footprint, and installed production package count.
+latency, npm package (unpacked) size, and installed production package count.
 The package count includes the engine package itself and every installed
 production dependency instance required on the current platform.
 

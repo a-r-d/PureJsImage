@@ -20,6 +20,7 @@ export type LossyPixelValidation =
     }
 
 export interface CodecCapability {
+  readonly experimental: boolean
   readonly id: string
   readonly name: string
   readonly supportFile: string
@@ -100,6 +101,15 @@ const optionalString = (
   return value
 }
 
+const optionalBoolean = (record: Readonly<Record<string, unknown>>, key: string): boolean => {
+  const value = record[key]
+  if (value === undefined) return false
+  if (typeof value !== 'boolean') {
+    throw new Error(`Capability manifest field ${key} must be boolean when present`)
+  }
+  return value
+}
+
 const stringArray = (record: Readonly<Record<string, unknown>>, key: string): readonly string[] => {
   const value = record[key]
   if (
@@ -165,6 +175,7 @@ const codecCapability = (value: unknown): CodecCapability => {
   const id = requiredString(value, 'id')
   const packageFormat = optionalString(value, 'packageFormat')
   return {
+    experimental: optionalBoolean(value, 'experimental'),
     id,
     name: requiredString(value, 'name'),
     supportFile: requiredString(value, 'supportFile'),

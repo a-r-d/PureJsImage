@@ -4,6 +4,7 @@
     {
       "id": "jpeg",
       "name": "JPEG",
+      "experimental": false,
       "packageFormat": "jpeg",
       "read": {
         "status": "supported",
@@ -389,6 +390,7 @@
     {
       "id": "png",
       "name": "PNG",
+      "experimental": false,
       "packageFormat": "png",
       "read": {
         "status": "supported",
@@ -754,6 +756,7 @@
     {
       "id": "webp",
       "name": "WebP",
+      "experimental": false,
       "packageFormat": "webp",
       "read": {
         "status": "supported",
@@ -1213,6 +1216,7 @@
     {
       "id": "bmp",
       "name": "BMP",
+      "experimental": false,
       "packageFormat": "bmp",
       "read": {
         "status": "supported",
@@ -1601,6 +1605,7 @@
     {
       "id": "tiff",
       "name": "TIFF",
+      "experimental": false,
       "packageFormat": "tiff",
       "read": {
         "status": "supported",
@@ -2081,6 +2086,7 @@
     {
       "id": "gif",
       "name": "GIF",
+      "experimental": false,
       "packageFormat": "gif",
       "read": {
         "status": "limited",
@@ -2437,6 +2443,7 @@
     {
       "id": "ico",
       "name": "ICO",
+      "experimental": false,
       "packageFormat": "ico",
       "read": {
         "status": "supported",
@@ -2773,6 +2780,7 @@
     {
       "id": "jpeg2000",
       "name": "JPEG 2000 / JP2",
+      "experimental": false,
       "packageFormat": "jp2",
       "read": {
         "status": "supported",
@@ -3415,6 +3423,7 @@
     {
       "id": "avif",
       "name": "AVIF",
+      "experimental": false,
       "packageFormat": "avif",
       "read": {
         "status": "supported",
@@ -4626,6 +4635,7 @@
     {
       "id": "heif",
       "name": "HEIF / HEIC (experimental)",
+      "experimental": true,
       "packageFormat": "heif",
       "read": {
         "status": "limited",
@@ -5140,6 +5150,7 @@
     {
       "id": "gsf",
       "name": "Gwyddion Simple Field",
+      "experimental": false,
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -5227,6 +5238,7 @@
     {
       "id": "envi",
       "name": "ENVI Standard",
+      "experimental": false,
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -5326,6 +5338,7 @@
     {
       "id": "nanoscope-spm",
       "name": "Bruker Nanoscope SPM investigation",
+      "experimental": false,
       "read": {
         "status": "planned",
         "label": "Investigation only"
@@ -5385,6 +5398,7 @@
     {
       "id": "jpegxl",
       "name": "JPEG XL",
+      "experimental": false,
       "packageFormat": "jpegxl",
       "read": {
         "status": "limited",
@@ -6054,6 +6068,7 @@
     {
       "id": "hdr",
       "name": "Radiance HDR / RGBE",
+      "experimental": false,
       "packageFormat": "hdr",
       "read": {
         "status": "supported",
@@ -6158,6 +6173,7 @@
     {
       "id": "qoi",
       "name": "QOI",
+      "experimental": false,
       "packageFormat": "qoi",
       "read": {
         "status": "supported",
@@ -6254,6 +6270,7 @@
     {
       "id": "netpbm",
       "name": "Netpbm and PFM",
+      "experimental": false,
       "packageFormat": "netpbm",
       "read": {
         "status": "supported",
@@ -6378,6 +6395,7 @@
     {
       "id": "tga",
       "name": "TGA / TARGA",
+      "experimental": false,
       "packageFormat": "tga",
       "read": {
         "status": "supported",

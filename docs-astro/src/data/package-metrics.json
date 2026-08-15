@@ -1,0 +1,2507 @@
+{
+  "codecs": [
+    {
+      "experimental": false,
+      "id": "jpeg",
+      "name": "JPEG",
+      "packageExport": "purejsimage/codecs/jpeg",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-jpeg",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "png",
+      "name": "PNG",
+      "packageExport": "purejsimage/codecs/png",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-png",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "webp",
+      "name": "WebP",
+      "packageExport": "purejsimage/codecs/webp",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-webp",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "bmp",
+      "name": "BMP",
+      "packageExport": "purejsimage/codecs/bmp",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-bmp",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "tiff",
+      "name": "TIFF",
+      "packageExport": "purejsimage/codecs/tiff",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-tiff",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "gif",
+      "name": "GIF",
+      "packageExport": "purejsimage/codecs/gif",
+      "readLabel": "Static / explicit frame 0",
+      "readStatus": "limited",
+      "targetId": "codec-gif",
+      "writeLabel": "No",
+      "writeStatus": "unsupported"
+    },
+    {
+      "experimental": false,
+      "id": "ico",
+      "name": "ICO",
+      "packageExport": "purejsimage/codecs/ico",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-ico",
+      "writeLabel": "No",
+      "writeStatus": "unsupported"
+    },
+    {
+      "experimental": false,
+      "id": "jpeg2000",
+      "name": "JPEG 2000 / JP2",
+      "packageExport": "purejsimage/codecs/jpeg2000",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-jpeg2000",
+      "writeLabel": "No",
+      "writeStatus": "unsupported"
+    },
+    {
+      "experimental": false,
+      "id": "avif",
+      "name": "AVIF",
+      "packageExport": "purejsimage/codecs/avif",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-avif",
+      "writeLabel": "Limited",
+      "writeStatus": "limited"
+    },
+    {
+      "experimental": true,
+      "id": "heif",
+      "name": "HEIF / HEIC (experimental)",
+      "packageExport": "purejsimage/codecs/experimental/heic",
+      "readLabel": "Experimental",
+      "readStatus": "limited",
+      "targetId": "codec-heif",
+      "writeLabel": "No",
+      "writeStatus": "unsupported"
+    },
+    {
+      "experimental": false,
+      "id": "jpegxl",
+      "name": "JPEG XL",
+      "packageExport": "purejsimage/codecs/jpegxl",
+      "readLabel": "Limited",
+      "readStatus": "limited",
+      "targetId": "codec-jpegxl",
+      "writeLabel": "No",
+      "writeStatus": "unsupported"
+    },
+    {
+      "experimental": false,
+      "id": "hdr",
+      "name": "Radiance HDR / RGBE",
+      "packageExport": "purejsimage/codecs/hdr",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-hdr",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "qoi",
+      "name": "QOI",
+      "packageExport": "purejsimage/codecs/qoi",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-qoi",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "netpbm",
+      "name": "Netpbm and PFM",
+      "packageExport": "purejsimage/codecs/netpbm",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-netpbm",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    },
+    {
+      "experimental": false,
+      "id": "tga",
+      "name": "TGA / TARGA",
+      "packageExport": "purejsimage/codecs/tga",
+      "readLabel": "Yes",
+      "readStatus": "supported",
+      "targetId": "codec-tga",
+      "writeLabel": "Yes",
+      "writeStatus": "supported"
+    }
+  ],
+  "liveDemoReaderIds": [
+    "purejsimage/gsf",
+    "purejsimage/envi",
+    "purejsimage/fits",
+    "purejsimage/mrc",
+    "purejsimage/cbf"
+  ],
+  "package": {
+    "name": "purejsimage",
+    "version": "0.10.0"
+  },
+  "schemaVersion": 2,
+  "scientificReaderGroups": [
+    {
+      "id": "surface-and-metrology",
+      "label": "Surface and metrology",
+      "readerIds": [
+        "purejsimage/gsf",
+        "purejsimage/nanonis-sxm",
+        "purejsimage/digital-surf",
+        "purejsimage/x3p"
+      ]
+    },
+    {
+      "id": "spectroscopy-and-instrument-data",
+      "label": "Spectroscopy and instrument data",
+      "readerIds": [
+        "purejsimage/envi",
+        "purejsimage/digital-micrograph",
+        "purejsimage/tia-ser",
+        "purejsimage/tia-emi",
+        "purejsimage/ncem-emd",
+        "purejsimage/rpl",
+        "purejsimage/emsa",
+        "purejsimage/blockfile",
+        "purejsimage/mib",
+        "purejsimage/ebsd-text"
+      ]
+    },
+    {
+      "id": "microscopy-and-whole-slide-data",
+      "label": "Microscopy and whole-slide data",
+      "readerIds": ["purejsimage/tiff", "purejsimage/aperio-svs"]
+    },
+    {
+      "id": "scientific-images-and-volumes",
+      "label": "Scientific images and volumes",
+      "readerIds": [
+        "purejsimage/igor-binary-wave",
+        "purejsimage/fits",
+        "purejsimage/mrc",
+        "purejsimage/cbf",
+        "purejsimage/ome-tiff",
+        "purejsimage/velox-emd",
+        "purejsimage/nrrd",
+        "purejsimage/meta-image",
+        "purejsimage/nifti",
+        "purejsimage/npy"
+      ]
+    },
+    {
+      "id": "ordinary-image-adapters",
+      "label": "Ordinary image adapters",
+      "readerIds": [
+        "purejsimage/png",
+        "purejsimage/jpeg",
+        "purejsimage/webp",
+        "purejsimage/bmp",
+        "purejsimage/jp2"
+      ]
+    }
+  ],
+  "scientificReaders": [
+    {
+      "demoWired": true,
+      "family": "Surface and metrology",
+      "format": "Gwyddion Simple Field",
+      "id": "purejsimage/gsf",
+      "packageExport": "purejsimage/scientific/readers/gsf",
+      "targetId": "scientific-reader-gsf"
+    },
+    {
+      "demoWired": false,
+      "family": "Surface and metrology",
+      "format": "Nanonis SXM",
+      "id": "purejsimage/nanonis-sxm",
+      "packageExport": "purejsimage/scientific/readers/nanonis-sxm",
+      "targetId": "scientific-reader-nanonis-sxm"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "Igor Binary Wave v5",
+      "id": "purejsimage/igor-binary-wave",
+      "packageExport": "purejsimage/scientific/readers/igor-binary-wave",
+      "targetId": "scientific-reader-igor-binary-wave"
+    },
+    {
+      "demoWired": false,
+      "family": "Surface and metrology",
+      "format": "Digital Surf SUR/PRO",
+      "id": "purejsimage/digital-surf",
+      "packageExport": "purejsimage/scientific/readers/digital-surf",
+      "targetId": "scientific-reader-digital-surf"
+    },
+    {
+      "demoWired": false,
+      "family": "Surface and metrology",
+      "format": "X3P surface exchange",
+      "id": "purejsimage/x3p",
+      "packageExport": "purejsimage/scientific/readers/x3p",
+      "targetId": "scientific-reader-x3p"
+    },
+    {
+      "demoWired": true,
+      "family": "Spectroscopy and instrument data",
+      "format": "ENVI",
+      "id": "purejsimage/envi",
+      "packageExport": "purejsimage/scientific/readers/envi",
+      "targetId": "scientific-reader-envi"
+    },
+    {
+      "demoWired": true,
+      "family": "Scientific images and volumes",
+      "format": "FITS",
+      "id": "purejsimage/fits",
+      "packageExport": "purejsimage/scientific/readers/fits",
+      "targetId": "scientific-reader-fits"
+    },
+    {
+      "demoWired": true,
+      "family": "Scientific images and volumes",
+      "format": "MRC/CCP4",
+      "id": "purejsimage/mrc",
+      "packageExport": "purejsimage/scientific/readers/mrc",
+      "targetId": "scientific-reader-mrc"
+    },
+    {
+      "demoWired": true,
+      "family": "Scientific images and volumes",
+      "format": "CBF/imgCIF",
+      "id": "purejsimage/cbf",
+      "packageExport": "purejsimage/scientific/readers/cbf",
+      "targetId": "scientific-reader-cbf"
+    },
+    {
+      "demoWired": false,
+      "family": "Ordinary image adapters",
+      "format": "PNG",
+      "id": "purejsimage/png",
+      "packageExport": "purejsimage/scientific/readers/png",
+      "targetId": "scientific-reader-png"
+    },
+    {
+      "demoWired": false,
+      "family": "Ordinary image adapters",
+      "format": "JPEG",
+      "id": "purejsimage/jpeg",
+      "packageExport": "purejsimage/scientific/readers/jpeg",
+      "targetId": "scientific-reader-jpeg"
+    },
+    {
+      "demoWired": false,
+      "family": "Ordinary image adapters",
+      "format": "WebP",
+      "id": "purejsimage/webp",
+      "packageExport": "purejsimage/scientific/readers/webp",
+      "targetId": "scientific-reader-webp"
+    },
+    {
+      "demoWired": false,
+      "family": "Ordinary image adapters",
+      "format": "BMP",
+      "id": "purejsimage/bmp",
+      "packageExport": "purejsimage/scientific/readers/bmp",
+      "targetId": "scientific-reader-bmp"
+    },
+    {
+      "demoWired": false,
+      "family": "Ordinary image adapters",
+      "format": "JPEG 2000 / JP2",
+      "id": "purejsimage/jp2",
+      "packageExport": "purejsimage/scientific/readers/jp2",
+      "targetId": "scientific-reader-jp2"
+    },
+    {
+      "demoWired": false,
+      "family": "Microscopy and whole-slide data",
+      "format": "TIFF",
+      "id": "purejsimage/tiff",
+      "packageExport": "purejsimage/scientific/readers/tiff",
+      "targetId": "scientific-reader-tiff"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "OME-TIFF",
+      "id": "purejsimage/ome-tiff",
+      "packageExport": "purejsimage/scientific/readers/ome-tiff",
+      "targetId": "scientific-reader-ome-tiff"
+    },
+    {
+      "demoWired": false,
+      "family": "Microscopy and whole-slide data",
+      "format": "Aperio SVS",
+      "id": "purejsimage/aperio-svs",
+      "packageExport": "purejsimage/scientific/readers/aperio-svs",
+      "targetId": "scientific-reader-aperio-svs"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "Gatan DigitalMicrograph",
+      "id": "purejsimage/digital-micrograph",
+      "packageExport": "purejsimage/scientific/readers/digital-micrograph",
+      "targetId": "scientific-reader-digital-micrograph"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "FEI/Thermo TIA SER",
+      "id": "purejsimage/tia-ser",
+      "packageExport": "purejsimage/scientific/readers/tia-ser",
+      "targetId": "scientific-reader-tia-ser"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "FEI/Thermo TIA EMI",
+      "id": "purejsimage/tia-emi",
+      "packageExport": "purejsimage/scientific/readers/tia-emi",
+      "targetId": "scientific-reader-tia-emi"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "NCEM EMD 0.2",
+      "id": "purejsimage/ncem-emd",
+      "packageExport": "purejsimage/scientific/readers/ncem-emd",
+      "targetId": "scientific-reader-ncem-emd"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "FEI/Thermo Velox EMD",
+      "id": "purejsimage/velox-emd",
+      "packageExport": "purejsimage/scientific/readers/velox-emd",
+      "targetId": "scientific-reader-velox-emd"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "Lispix RPL/RAW",
+      "id": "purejsimage/rpl",
+      "packageExport": "purejsimage/scientific/readers/rpl",
+      "targetId": "scientific-reader-rpl"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "EMSA/MAS spectrum",
+      "id": "purejsimage/emsa",
+      "packageExport": "purejsimage/scientific/readers/emsa",
+      "targetId": "scientific-reader-emsa"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "NRRD",
+      "id": "purejsimage/nrrd",
+      "packageExport": "purejsimage/scientific/readers/nrrd",
+      "targetId": "scientific-reader-nrrd"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "MetaImage MHD/MHA",
+      "id": "purejsimage/meta-image",
+      "packageExport": "purejsimage/scientific/readers/meta-image",
+      "targetId": "scientific-reader-meta-image"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "NIfTI-1/2",
+      "id": "purejsimage/nifti",
+      "packageExport": "purejsimage/scientific/readers/nifti",
+      "targetId": "scientific-reader-nifti"
+    },
+    {
+      "demoWired": false,
+      "family": "Scientific images and volumes",
+      "format": "NumPy NPY",
+      "id": "purejsimage/npy",
+      "packageExport": "purejsimage/scientific/readers/npy",
+      "targetId": "scientific-reader-npy"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "NanoMegas ASTAR blockfile",
+      "id": "purejsimage/blockfile",
+      "packageExport": "purejsimage/scientific/readers/blockfile",
+      "targetId": "scientific-reader-blockfile"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "Quantum Detectors Merlin MIB",
+      "id": "purejsimage/mib",
+      "packageExport": "purejsimage/scientific/readers/mib",
+      "targetId": "scientific-reader-mib"
+    },
+    {
+      "demoWired": false,
+      "family": "Spectroscopy and instrument data",
+      "format": "ANG/CTF orientation map",
+      "id": "purejsimage/ebsd-text",
+      "packageExport": "purejsimage/scientific/readers/ebsd-text",
+      "targetId": "scientific-reader-ebsd-text"
+    }
+  ],
+  "targets": [
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 61440,
+      "entry": {
+        "packageExports": ["purejsimage"],
+        "sourceEntries": ["./src/index.ts"]
+      },
+      "gzipBytes": 19388,
+      "id": "core",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 61385,
+      "name": "Core API",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 17171
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 187000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific"],
+        "sourceEntries": ["./src/index.ts", "./src/scientific/index.ts"]
+      },
+      "gzipBytes": 45816,
+      "id": "scientific",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 157982,
+      "name": "Core + scientific platform",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 143546,
+      "brotliBytes": 39132
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 58000,
+      "entry": {
+        "packageExports": ["purejsimage/operations"],
+        "sourceEntries": ["./src/operations/index.ts"]
+      },
+      "gzipBytes": 11954,
+      "id": "operations",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 44300,
+      "name": "Operation descriptors and runtime",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 44252,
+      "brotliBytes": 10719
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 353000,
+      "entry": {
+        "packageExports": ["purejsimage/analysis"],
+        "sourceEntries": ["./src/analysis/index.ts"]
+      },
+      "gzipBytes": 75520,
+      "id": "analysis",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 275639,
+      "name": "Analysis application API",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 270789,
+      "brotliBytes": 61816
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 72427,
+      "entry": {
+        "packageExports": ["purejsimage/analysis/results"],
+        "sourceEntries": ["./src/analysis/results.ts"]
+      },
+      "gzipBytes": 15374,
+      "id": "analysis-results",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 55753,
+      "name": "Analysis result schemas",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 55713,
+      "brotliBytes": 13788
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 42409,
+      "entry": {
+        "packageExports": ["purejsimage/analysis/roi"],
+        "sourceEntries": ["./src/analysis/roi-entry.ts"]
+      },
+      "gzipBytes": 9869,
+      "id": "analysis-roi",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 32622,
+      "name": "Analysis ROI utilities",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 32622,
+      "brotliBytes": 8901
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 75120,
+      "entry": {
+        "packageExports": ["purejsimage/analysis/runtime"],
+        "sourceEntries": ["./src/analysis/runtime.ts"]
+      },
+      "gzipBytes": 16981,
+      "id": "analysis-runtime",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 58810,
+      "name": "Analysis tile runtime",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 57784,
+      "brotliBytes": 14922
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 66578,
+      "entry": {
+        "packageExports": ["purejsimage/analysis/project"],
+        "sourceEntries": ["./src/analysis/project-entry.ts"]
+      },
+      "gzipBytes": 14882,
+      "id": "analysis-project",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 51214,
+      "name": "Analysis project and migrations",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 51214,
+      "brotliBytes": 13139
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 61000,
+      "entry": {
+        "packageExports": ["purejsimage/extensions"],
+        "sourceEntries": ["./src/extensions/index.ts"]
+      },
+      "gzipBytes": 12778,
+      "id": "extensions",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 46612,
+      "name": "Trusted extension host",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 46564,
+      "brotliBytes": 11481
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 50000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/gsf"],
+        "sourceEntries": ["./src/scientific/readers/gsf.ts"]
+      },
+      "gzipBytes": 13216,
+      "id": "scientific-reader-gsf",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 41815,
+      "name": "Scientific reader: Gwyddion Simple Field",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 37864,
+      "brotliBytes": 11603
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 100000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/nanonis-sxm"],
+        "sourceEntries": ["./src/scientific/readers/nanonis-sxm.ts"]
+      },
+      "gzipBytes": 10936,
+      "id": "scientific-reader-nanonis-sxm",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 32921,
+      "name": "Scientific reader: Nanonis SXM",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 9540
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 110000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/igor-binary-wave"],
+        "sourceEntries": ["./src/scientific/readers/igor-binary-wave.ts"]
+      },
+      "gzipBytes": 11328,
+      "id": "scientific-reader-igor-binary-wave",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 34132,
+      "name": "Scientific reader: Igor Binary Wave v5",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 9955
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 110000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/digital-surf"],
+        "sourceEntries": ["./src/scientific/readers/digital-surf.ts"]
+      },
+      "gzipBytes": 12191,
+      "id": "scientific-reader-digital-surf",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 38727,
+      "name": "Scientific reader: Digital Surf SUR/PRO",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 10629
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 120000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/x3p"],
+        "sourceEntries": ["./src/scientific/readers/x3p.ts"]
+      },
+      "gzipBytes": 14619,
+      "id": "scientific-reader-x3p",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 43951,
+      "name": "Scientific reader: X3P surface exchange",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 12810
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 75000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/envi"],
+        "sourceEntries": ["./src/scientific/readers/envi.ts"]
+      },
+      "gzipBytes": 18149,
+      "id": "scientific-reader-envi",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 60564,
+      "name": "Scientific reader: ENVI",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 56958,
+      "brotliBytes": 15953
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 60000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/fits"],
+        "sourceEntries": ["./src/scientific/readers/fits.ts"]
+      },
+      "gzipBytes": 15455,
+      "id": "scientific-reader-fits",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 48013,
+      "name": "Scientific reader: FITS",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 44278,
+      "brotliBytes": 13571
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 51000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/mrc"],
+        "sourceEntries": ["./src/scientific/readers/mrc.ts"]
+      },
+      "gzipBytes": 13724,
+      "id": "scientific-reader-mrc",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 42915,
+      "name": "Scientific reader: MRC/CCP4",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 38787,
+      "brotliBytes": 12035
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 55000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/cbf"],
+        "sourceEntries": ["./src/scientific/readers/cbf.ts"]
+      },
+      "gzipBytes": 14540,
+      "id": "scientific-reader-cbf",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 45294,
+      "name": "Scientific reader: CBF/imgCIF",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 41686,
+      "brotliBytes": 12866
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 87601,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/png"],
+        "sourceEntries": ["./src/scientific/readers/png.ts"]
+      },
+      "gzipBytes": 23221,
+      "id": "scientific-reader-png",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 69100,
+      "name": "Scientific reader: PNG",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 67385,
+      "brotliBytes": 20291
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 136260,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/jpeg"],
+        "sourceEntries": ["./src/scientific/readers/jpeg.ts"]
+      },
+      "gzipBytes": 34451,
+      "id": "scientific-reader-jpeg",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 106533,
+      "name": "Scientific reader: JPEG",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 104815,
+      "brotliBytes": 29509
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 138213,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/webp"],
+        "sourceEntries": ["./src/scientific/readers/webp.ts"]
+      },
+      "gzipBytes": 37187,
+      "id": "scientific-reader-webp",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 106317,
+      "name": "Scientific reader: WebP",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 106317,
+      "brotliBytes": 31990
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 57356,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/bmp"],
+        "sourceEntries": ["./src/scientific/readers/bmp.ts"]
+      },
+      "gzipBytes": 14615,
+      "id": "scientific-reader-bmp",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 44120,
+      "name": "Scientific reader: BMP",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 44120,
+      "brotliBytes": 12853
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 121805,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/jp2"],
+        "sourceEntries": ["./src/scientific/readers/jp2.ts"]
+      },
+      "gzipBytes": 30003,
+      "id": "scientific-reader-jp2",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 93696,
+      "name": "Scientific reader: JPEG 2000 / JP2",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 93696,
+      "brotliBytes": 26169
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 341825,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/tiff"],
+        "sourceEntries": ["./src/scientific/readers/tiff.ts"]
+      },
+      "gzipBytes": 90164,
+      "id": "scientific-reader-tiff",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 287430,
+      "name": "Scientific reader: TIFF",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 262942,
+      "brotliBytes": 75722
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 350000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/ome-tiff"],
+        "sourceEntries": ["./src/scientific/readers/ome-tiff.ts"]
+      },
+      "gzipBytes": 87224,
+      "id": "scientific-reader-ome-tiff",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 276085,
+      "name": "Scientific reader: OME-TIFF",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 267489,
+      "brotliBytes": 72968
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 338000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/aperio-svs"],
+        "sourceEntries": ["./src/scientific/readers/aperio-svs.ts"]
+      },
+      "gzipBytes": 84382,
+      "id": "scientific-reader-aperio-svs",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 268980,
+      "name": "Scientific reader: Aperio SVS",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 259477,
+      "brotliBytes": 70679
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 100000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/digital-micrograph"],
+        "sourceEntries": ["./src/scientific/readers/digital-micrograph.ts"]
+      },
+      "gzipBytes": 15890,
+      "id": "scientific-reader-digital-micrograph",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 51444,
+      "name": "Scientific reader: Gatan DigitalMicrograph",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 13890
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 100000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/tia-ser"],
+        "sourceEntries": ["./src/scientific/readers/tia-ser.ts"]
+      },
+      "gzipBytes": 15460,
+      "id": "scientific-reader-tia-ser",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 50667,
+      "name": "Scientific reader: FEI/Thermo TIA SER",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 13575
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 150000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/tia-emi"],
+        "sourceEntries": ["./src/scientific/readers/tia-emi.ts"]
+      },
+      "gzipBytes": 19532,
+      "id": "scientific-reader-tia-emi",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 64631,
+      "name": "Scientific reader: FEI/Thermo TIA EMI",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 17121
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 180000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/ncem-emd"],
+        "sourceEntries": ["./src/scientific/readers/ncem-emd.ts"]
+      },
+      "gzipBytes": 47968,
+      "id": "scientific-reader-ncem-emd",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 179991,
+      "name": "Scientific reader: NCEM EMD 0.2",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 40831
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 180000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/velox-emd"],
+        "sourceEntries": ["./src/scientific/readers/velox-emd.ts"]
+      },
+      "gzipBytes": 46549,
+      "id": "scientific-reader-velox-emd",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 174337,
+      "name": "Scientific reader: FEI/Thermo Velox EMD",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 39776
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 53500,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/rpl"],
+        "sourceEntries": ["./src/scientific/readers/rpl.ts"]
+      },
+      "gzipBytes": 12643,
+      "id": "scientific-reader-rpl",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 41205,
+      "name": "Scientific reader: Lispix RPL/RAW",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 41135,
+      "brotliBytes": 11074
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 50800,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/emsa"],
+        "sourceEntries": ["./src/scientific/readers/emsa.ts"]
+      },
+      "gzipBytes": 12221,
+      "id": "scientific-reader-emsa",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 39071,
+      "name": "Scientific reader: EMSA/MAS spectrum",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 39050,
+      "brotliBytes": 10679
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 56800,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/nrrd"],
+        "sourceEntries": ["./src/scientific/readers/nrrd.ts"]
+      },
+      "gzipBytes": 13825,
+      "id": "scientific-reader-nrrd",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 43912,
+      "name": "Scientific reader: NRRD",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 43686,
+      "brotliBytes": 12145
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 53200,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/meta-image"],
+        "sourceEntries": ["./src/scientific/readers/meta-image.ts"]
+      },
+      "gzipBytes": 12685,
+      "id": "scientific-reader-meta-image",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 40913,
+      "name": "Scientific reader: MetaImage MHD/MHA",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 40913,
+      "brotliBytes": 11120
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 55200,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/nifti"],
+        "sourceEntries": ["./src/scientific/readers/nifti.ts"]
+      },
+      "gzipBytes": 14154,
+      "id": "scientific-reader-nifti",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 45181,
+      "name": "Scientific reader: NIfTI-1/2",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 42422,
+      "brotliBytes": 12438
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 50700,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/npy"],
+        "sourceEntries": ["./src/scientific/readers/npy.ts"]
+      },
+      "gzipBytes": 12170,
+      "id": "scientific-reader-npy",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 38965,
+      "name": "Scientific reader: NumPy NPY",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 38965,
+      "brotliBytes": 10656
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 51500,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/blockfile"],
+        "sourceEntries": ["./src/scientific/readers/blockfile.ts"]
+      },
+      "gzipBytes": 12054,
+      "id": "scientific-reader-blockfile",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 39757,
+      "name": "Scientific reader: NanoMegas ASTAR blockfile",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 39615,
+      "brotliBytes": 10529
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 42400,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/mib"],
+        "sourceEntries": ["./src/scientific/readers/mib.ts"]
+      },
+      "gzipBytes": 10655,
+      "id": "scientific-reader-mib",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 32597,
+      "name": "Scientific reader: Quantum Detectors Merlin MIB",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 32612,
+      "brotliBytes": 9303
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 54200,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/ebsd-text"],
+        "sourceEntries": ["./src/scientific/readers/ebsd-text.ts"]
+      },
+      "gzipBytes": 12848,
+      "id": "scientific-reader-ebsd-text",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 41803,
+      "name": "Scientific reader: ANG/CTF orientation map",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 41681,
+      "brotliBytes": 11243
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 1008000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/all"],
+        "sourceEntries": ["./src/scientific/readers/all.ts"]
+      },
+      "gzipBytes": 253458,
+      "id": "scientific-readers-all",
+      "implementation": "package-core",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 855022,
+      "name": "Scientific readers: all",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": 844813,
+      "brotliBytes": 202565
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/jpeg"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/jpeg.ts"]
+      },
+      "gzipBytes": 42690,
+      "id": "codec-jpeg",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 133543,
+      "name": "Core + JPEG",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 36182
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/png"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/png.ts"]
+      },
+      "gzipBytes": 31586,
+      "id": "codec-png",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 96160,
+      "name": "Core + PNG",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 27259
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/webp"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/webp.ts"]
+      },
+      "gzipBytes": 45430,
+      "id": "codec-webp",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 133366,
+      "name": "Core + WebP",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 38876
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/bmp"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/bmp.ts"]
+      },
+      "gzipBytes": 23013,
+      "id": "codec-bmp",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 71242,
+      "name": "Core + BMP",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 20174
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/tiff"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/tiff.ts"]
+      },
+      "gzipBytes": 96357,
+      "id": "codec-tiff",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 307334,
+      "name": "Core + TIFF",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 80454
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/gif"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/gif.ts"]
+      },
+      "gzipBytes": 22216,
+      "id": "codec-gif",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 69460,
+      "name": "Core + GIF",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 19528
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/ico"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/ico.ts"]
+      },
+      "gzipBytes": 34678,
+      "id": "codec-ico",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 105531,
+      "name": "Core + ICO",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 29911
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/jpeg2000"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/jpeg2000.ts"]
+      },
+      "gzipBytes": 38551,
+      "id": "codec-jpeg2000",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 121583,
+      "name": "Core + JPEG 2000 / JP2",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 33442
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/avif"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/avif.ts"]
+      },
+      "gzipBytes": 173332,
+      "id": "codec-avif",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 455601,
+      "name": "Core + AVIF",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 148768
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/experimental/heic"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/experimental/heic.ts"]
+      },
+      "gzipBytes": 52186,
+      "id": "codec-heif",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 161995,
+      "name": "Core + HEIF / HEIC (experimental)",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 44903
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/jpegxl"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/jpegxl.ts"]
+      },
+      "gzipBytes": 32435,
+      "id": "codec-jpegxl",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 101974,
+      "name": "Core + JPEG XL",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 28353
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/hdr"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/hdr.ts"]
+      },
+      "gzipBytes": 22737,
+      "id": "codec-hdr",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 71489,
+      "name": "Core + Radiance HDR / RGBE",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 19947
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/qoi"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/qoi.ts"]
+      },
+      "gzipBytes": 21720,
+      "id": "codec-qoi",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 67990,
+      "name": "Core + QOI",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 19108
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/netpbm"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/netpbm.ts"]
+      },
+      "gzipBytes": 24259,
+      "id": "codec-netpbm",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 76402,
+      "name": "Core + Netpbm and PFM",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 21189
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/tga"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/tga.ts"]
+      },
+      "gzipBytes": 23048,
+      "id": "codec-tga",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 71858,
+      "name": "Core + TGA / TARGA",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 20188
+    },
+    {
+      "category": "purejsimage-entry",
+      "codecs": [
+        "JPEG",
+        "PNG",
+        "WebP",
+        "BMP",
+        "TIFF",
+        "GIF",
+        "ICO",
+        "JPEG 2000 / JP2",
+        "AVIF",
+        "JPEG XL",
+        "Radiance HDR / RGBE",
+        "QOI",
+        "Netpbm and PFM",
+        "TGA / TARGA"
+      ],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/all"],
+        "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
+      },
+      "gzipBytes": 303749,
+      "id": "codecs-all",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 864347,
+      "name": "Core + all stable codecs",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 251188
+    },
+    {
+      "category": "competitor",
+      "codecs": ["JPEG", "PNG"],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage"]
+      },
+      "gzipBytes": 51129,
+      "id": "purejsimage-matched",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 159301,
+      "name": "PureJsImage (matched)",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 42866
+    },
+    {
+      "category": "competitor",
+      "codecs": [
+        "JPEG",
+        "PNG",
+        "WebP",
+        "BMP",
+        "TIFF",
+        "GIF",
+        "ICO",
+        "JPEG 2000 / JP2",
+        "AVIF",
+        "JPEG XL",
+        "Radiance HDR / RGBE",
+        "QOI",
+        "Netpbm and PFM",
+        "TGA / TARGA"
+      ],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["purejsimage/codecs/all"]
+      },
+      "gzipBytes": 303749,
+      "id": "purejsimage-all",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 5004507,
+      "minifiedJsBytes": 864347,
+      "name": "PureJsImage (all stable codecs)",
+      "packageVersions": [
+        {
+          "name": "purejsimage",
+          "version": "0.10.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 251188
+    },
+    {
+      "category": "competitor",
+      "codecs": ["JPEG", "PNG", "TIFF", "BMP", "GIF"],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["jimp"]
+      },
+      "gzipBytes": 178811,
+      "id": "jimp",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 30740660,
+      "minifiedJsBytes": 591236,
+      "name": "Jimp",
+      "packageVersions": [
+        {
+          "name": "@jimp/core",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/diff",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/file-ops",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/js-bmp",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/js-gif",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/js-jpeg",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/js-png",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/js-tiff",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-blit",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-blur",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-circle",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-color",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-contain",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-cover",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-crop",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-displace",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-dither",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-fisheye",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-flip",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-hash",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-mask",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-print",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-quantize",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-resize",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-rotate",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/plugin-threshold",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/types",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jimp/utils",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@tokenizer/token",
+          "version": "0.3.0"
+        },
+        {
+          "name": "@types/node",
+          "version": "16.9.1"
+        },
+        {
+          "name": "abort-controller",
+          "version": "3.0.0"
+        },
+        {
+          "name": "any-base",
+          "version": "1.1.0"
+        },
+        {
+          "name": "await-to-js",
+          "version": "3.0.0"
+        },
+        {
+          "name": "base64-js",
+          "version": "1.5.1"
+        },
+        {
+          "name": "bmp-ts",
+          "version": "1.0.9"
+        },
+        {
+          "name": "buffer",
+          "version": "6.0.3"
+        },
+        {
+          "name": "event-target-shim",
+          "version": "5.0.1"
+        },
+        {
+          "name": "events",
+          "version": "3.3.0"
+        },
+        {
+          "name": "exif-parser",
+          "version": "0.1.12"
+        },
+        {
+          "name": "file-type",
+          "version": "16.5.4"
+        },
+        {
+          "name": "gifwrap",
+          "version": "0.10.1"
+        },
+        {
+          "name": "ieee754",
+          "version": "1.2.1"
+        },
+        {
+          "name": "image-q",
+          "version": "4.0.0"
+        },
+        {
+          "name": "jimp",
+          "version": "1.6.0"
+        },
+        {
+          "name": "jpeg-js",
+          "version": "0.4.4"
+        },
+        {
+          "name": "mime",
+          "version": "3.0.0"
+        },
+        {
+          "name": "omggif",
+          "version": "1.0.10"
+        },
+        {
+          "name": "pako",
+          "version": "1.0.11"
+        },
+        {
+          "name": "parse-bmfont-ascii",
+          "version": "1.0.6"
+        },
+        {
+          "name": "parse-bmfont-binary",
+          "version": "1.0.6"
+        },
+        {
+          "name": "parse-bmfont-xml",
+          "version": "1.1.6"
+        },
+        {
+          "name": "peek-readable",
+          "version": "4.1.0"
+        },
+        {
+          "name": "pixelmatch",
+          "version": "5.3.0"
+        },
+        {
+          "name": "pngjs",
+          "version": "6.0.0"
+        },
+        {
+          "name": "pngjs",
+          "version": "7.0.0"
+        },
+        {
+          "name": "process",
+          "version": "0.11.10"
+        },
+        {
+          "name": "readable-stream",
+          "version": "4.7.0"
+        },
+        {
+          "name": "readable-web-to-node-stream",
+          "version": "3.0.4"
+        },
+        {
+          "name": "safe-buffer",
+          "version": "5.2.1"
+        },
+        {
+          "name": "sax",
+          "version": "1.6.1"
+        },
+        {
+          "name": "simple-xml-to-json",
+          "version": "1.2.7"
+        },
+        {
+          "name": "string_decoder",
+          "version": "1.3.0"
+        },
+        {
+          "name": "strtok3",
+          "version": "6.3.0"
+        },
+        {
+          "name": "tinycolor2",
+          "version": "1.6.0"
+        },
+        {
+          "name": "token-types",
+          "version": "4.2.1"
+        },
+        {
+          "name": "utif2",
+          "version": "4.1.0"
+        },
+        {
+          "name": "xml-parse-from-string",
+          "version": "1.0.1"
+        },
+        {
+          "name": "xml2js",
+          "version": "0.5.0"
+        },
+        {
+          "name": "xmlbuilder",
+          "version": "11.0.1"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76"
+        }
+      ],
+      "productionPackageCount": 70,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 142831
+    },
+    {
+      "category": "competitor",
+      "codecs": ["JPEG", "PNG", "TIFF", "BMP"],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["image-js"]
+      },
+      "gzipBytes": 113863,
+      "id": "image-js",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 17779845,
+      "minifiedJsBytes": 370128,
+      "name": "image-js",
+      "packageVersions": [
+        {
+          "name": "binary-search",
+          "version": "1.3.6"
+        },
+        {
+          "name": "bresenham-zingl",
+          "version": "0.2.5"
+        },
+        {
+          "name": "cheminfo-types",
+          "version": "1.15.0"
+        },
+        {
+          "name": "colord",
+          "version": "2.9.3"
+        },
+        {
+          "name": "fast-bmp",
+          "version": "4.0.1"
+        },
+        {
+          "name": "fast-jpeg",
+          "version": "3.0.1"
+        },
+        {
+          "name": "fast-png",
+          "version": "8.0.0"
+        },
+        {
+          "name": "fflate",
+          "version": "0.8.3"
+        },
+        {
+          "name": "fft.js",
+          "version": "4.0.4"
+        },
+        {
+          "name": "file-type",
+          "version": "10.11.0"
+        },
+        {
+          "name": "image-js",
+          "version": "1.7.0"
+        },
+        {
+          "name": "image-type",
+          "version": "4.1.0"
+        },
+        {
+          "name": "iobuffer",
+          "version": "6.0.1"
+        },
+        {
+          "name": "is-any-array",
+          "version": "2.0.1"
+        },
+        {
+          "name": "is-any-array",
+          "version": "2.0.1"
+        },
+        {
+          "name": "is-any-array",
+          "version": "3.0.0"
+        },
+        {
+          "name": "jpeg-js",
+          "version": "0.4.4"
+        },
+        {
+          "name": "js-priority-queue",
+          "version": "0.1.5"
+        },
+        {
+          "name": "median-quickselect",
+          "version": "1.0.1"
+        },
+        {
+          "name": "ml-affine-transform",
+          "version": "1.0.3"
+        },
+        {
+          "name": "ml-array-max",
+          "version": "2.0.0"
+        },
+        {
+          "name": "ml-array-median",
+          "version": "1.1.6"
+        },
+        {
+          "name": "ml-array-min",
+          "version": "2.0.0"
+        },
+        {
+          "name": "ml-array-rescale",
+          "version": "2.0.0"
+        },
+        {
+          "name": "ml-convolution",
+          "version": "2.0.0"
+        },
+        {
+          "name": "ml-matrix",
+          "version": "6.15.0"
+        },
+        {
+          "name": "ml-random",
+          "version": "0.5.0"
+        },
+        {
+          "name": "ml-ransac",
+          "version": "1.0.0"
+        },
+        {
+          "name": "ml-regression-base",
+          "version": "4.0.1"
+        },
+        {
+          "name": "ml-regression-multivariate-linear",
+          "version": "2.0.4"
+        },
+        {
+          "name": "ml-regression-polynomial-2d",
+          "version": "1.0.0"
+        },
+        {
+          "name": "ml-spectra-processing",
+          "version": "14.33.0"
+        },
+        {
+          "name": "ml-xsadd",
+          "version": "2.0.0"
+        },
+        {
+          "name": "ml-xsadd",
+          "version": "3.0.1"
+        },
+        {
+          "name": "next-power-of-two",
+          "version": "1.0.0"
+        },
+        {
+          "name": "robust-orientation",
+          "version": "1.2.1"
+        },
+        {
+          "name": "robust-point-in-polygon",
+          "version": "1.0.3"
+        },
+        {
+          "name": "robust-scale",
+          "version": "1.0.2"
+        },
+        {
+          "name": "robust-subtract",
+          "version": "1.0.0"
+        },
+        {
+          "name": "robust-sum",
+          "version": "1.0.0"
+        },
+        {
+          "name": "ssim.js",
+          "version": "3.5.0"
+        },
+        {
+          "name": "tiff",
+          "version": "7.1.3"
+        },
+        {
+          "name": "ts-pattern",
+          "version": "5.9.0"
+        },
+        {
+          "name": "two-product",
+          "version": "1.0.2"
+        },
+        {
+          "name": "two-sum",
+          "version": "1.0.0"
+        },
+        {
+          "name": "uint8-base64",
+          "version": "1.0.0"
+        }
+      ],
+      "productionPackageCount": 46,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 96572
+    },
+    {
+      "category": "competitor",
+      "codecs": ["JPEG", "PNG"],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["@jsquash/jpeg", "@jsquash/png", "@jsquash/resize"]
+      },
+      "gzipBytes": 16415,
+      "id": "jsquash",
+      "implementation": "webassembly",
+      "unpackedPackageBytes": 1004102,
+      "minifiedJsBytes": 53629,
+      "name": "jSquash",
+      "packageVersions": [
+        {
+          "name": "@jsquash/jpeg",
+          "version": "1.6.0"
+        },
+        {
+          "name": "@jsquash/png",
+          "version": "3.1.1"
+        },
+        {
+          "name": "@jsquash/resize",
+          "version": "2.1.1"
+        }
+      ],
+      "productionPackageCount": 3,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 13479
+    },
+    {
+      "category": "competitor",
+      "codecs": ["JPEG", "PNG", "TIFF", "WebP", "GIF", "AVIF"],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["sharp"]
+      },
+      "gzipBytes": 39223,
+      "id": "sharp",
+      "implementation": "native-wrapper",
+      "unpackedPackageBytes": 19793828,
+      "minifiedJsBytes": 131502,
+      "name": "Sharp JS wrapper",
+      "packageVersions": [
+        {
+          "name": "@img/colour",
+          "version": "1.1.0"
+        },
+        {
+          "name": "@img/sharp-libvips-linux-x64",
+          "version": "1.3.2"
+        },
+        {
+          "name": "@img/sharp-linux-x64",
+          "version": "0.35.3"
+        },
+        {
+          "name": "detect-libc",
+          "version": "2.1.2"
+        },
+        {
+          "name": "semver",
+          "version": "7.8.5"
+        },
+        {
+          "name": "sharp",
+          "version": "0.35.3"
+        }
+      ],
+      "productionPackageCount": 6,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 34311
+    }
+  ],
+  "wasmAssets": [
+    {
+      "brotliBytes": 6497,
+      "gzipBytes": 7639,
+      "id": "jpeg-decoder",
+      "name": "JPEG decoder WASM",
+      "rawBytes": 31104,
+      "sourceEntry": "src/accelerator-entries/jpeg-decoder.wasm"
+    },
+    {
+      "brotliBytes": 6661,
+      "gzipBytes": 7794,
+      "id": "jpeg-decoder-simd",
+      "name": "JPEG decoder SIMD WASM",
+      "rawBytes": 30947,
+      "sourceEntry": "src/accelerator-entries/jpeg-decoder-simd.wasm"
+    },
+    {
+      "brotliBytes": 5618,
+      "gzipBytes": 7037,
+      "id": "jpeg-encoder",
+      "name": "JPEG encoder WASM",
+      "rawBytes": 39105,
+      "sourceEntry": "src/accelerator-entries/jpeg-encoder.wasm"
+    },
+    {
+      "brotliBytes": 7283,
+      "gzipBytes": 9035,
+      "id": "jpeg-encoder-simd",
+      "name": "JPEG encoder SIMD WASM",
+      "rawBytes": 48877,
+      "sourceEntry": "src/accelerator-entries/jpeg-encoder-simd.wasm"
+    },
+    {
+      "brotliBytes": 1451,
+      "gzipBytes": 1664,
+      "id": "png-codec",
+      "name": "PNG codec WASM",
+      "rawBytes": 3884,
+      "sourceEntry": "src/accelerator-entries/png-codec.wasm"
+    },
+    {
+      "brotliBytes": 2577,
+      "gzipBytes": 3025,
+      "id": "png-codec-simd",
+      "name": "PNG codec SIMD WASM",
+      "rawBytes": 7293,
+      "sourceEntry": "src/accelerator-entries/png-codec-simd.wasm"
+    }
+  ]
+}

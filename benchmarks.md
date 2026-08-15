@@ -52,7 +52,7 @@ Each engine/workflow pair is reported as pass, unsupported, invalid output, or
 error. Only a pass has timing data. The Markdown report's performance table is
 limited to workflows supported equivalently by every selected engine. Its
 separate startup table records fresh-process import time, RSS after import,
-first JPEG metadata and resize latency, installed footprint, and the installed
+first JPEG metadata and resize latency, npm package (unpacked) size, and the
 production package count, including Sharp's required platform packages.
 
 Dimensions and pinned pixels validate crop coordinates, resize geometry,
@@ -70,7 +70,7 @@ semantics:
 - [readable competitor report](benchmark/results/competitors-2026-08-08.md)
 - [machine-readable competitor report](benchmark/results/competitors-2026-08-08.json)
 
-## Bundle and deployment comparison
+## Bundle and npm package size comparison
 
 Run the reproducible size comparison with:
 
@@ -79,7 +79,9 @@ npm run size
 ```
 
 It bundles each public import with the same esbuild settings and also measures
-the installed production dependency tree. JPEG and PNG are the matched codec
+the npm package (unpacked) contents and production dependency tree. The npm
+package (unpacked) value is not the compressed `.tgz` download size; run
+`npm pack --dry-run --json` to see both `size` and `unpackedSize`. JPEG and PNG are the matched codec
 set because all five libraries support them. PureJsImage and jSquash can
 assemble exactly that set; the normal Jimp, image-js, and Sharp imports bring
 the additional codecs reported in the output. The report records exact
@@ -90,7 +92,7 @@ Sharp's minified JavaScript is only its wrapper. Its deployment footprint also
 includes the native addon and platform-specific libvips package. Both values are
 reported so the wrapper is never presented as the complete Sharp deployment.
 jSquash is treated the same way: its minified JavaScript is codec/resize glue,
-while its installed footprint includes the three required WebAssembly packages.
+while its npm package (unpacked) contents include the three required WebAssembly packages.
 
 ## Headline results
 

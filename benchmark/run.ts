@@ -360,7 +360,7 @@ for (const engine of options.engines) {
 
 const startup: StartupResult[] = []
 for (const engine of options.engines) {
-  process.stdout.write(`[${engine}] startup and package footprint\n`)
+  process.stdout.write(`[${engine}] startup and npm package (unpacked) size\n`)
   const measured = await runStartup(engine)
   const footprint = await measurePackageFootprint({
     engine: measured.engine,
@@ -501,16 +501,16 @@ const markdown = [
         '| - | No workflow passed for every selected engine | - | - | - | - | - | - | - | - | - | - | - |',
       ]),
   '',
-  '## Startup and installed package footprint',
+  '## Startup and npm package size',
   '',
-  '| Engine | Import | RSS after import | First JPEG metadata | First JPEG resize | Installed footprint | Production packages |',
+  '| Engine | Import | RSS after import | First JPEG metadata | First JPEG resize | npm package (unpacked) | Production packages |',
   '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
   ...startup.map(
     ({ engine, importMilliseconds, rssAfterImportBytes, firstMetadata, firstResize, footprint }) =>
       `| ${engine.id} | ${formatMilliseconds(importMilliseconds)} ms | ${formatMegabytes(rssAfterImportBytes)} MiB | ${formatMilliseconds(firstMetadata.wallMilliseconds)} ms (${firstMetadata.status}) | ${formatMilliseconds(firstResize.wallMilliseconds)} ms (${firstResize.status}) | ${formatMegabytes(footprint.bytes)} MiB | ${footprint.productionPackageCount} |`,
   ),
   '',
-  'Installed footprint includes every package required by an engine and the production dependencies present for this platform, including jSquash codec/resize packages and Sharp platform packages. Exact package lists are recorded in JSON.',
+  'The `npm package (unpacked)` value is the byte size after npm extracts what it publishes, not the compressed `.tgz` download size. It includes every package required by an engine and the production dependencies present for this platform, including jSquash codec/resize packages and Sharp platform packages. Exact package lists are recorded in JSON; run `npm pack --dry-run --json` for tarball size.',
   '',
   'A timing only counts when output validation passes. Input file reads, worker startup, warmups, output validation, and quality measurement are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.',
   '',

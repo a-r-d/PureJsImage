@@ -347,6 +347,7 @@ export interface StartupOperationResult {
 }
 
 export interface PackageFootprint {
+  /** Bytes occupied after the package and its production dependencies are extracted. */
   bytes: number
   packages: string[]
   productionPackageCount: number

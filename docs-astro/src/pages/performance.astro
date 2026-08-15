@@ -1,15 +1,67 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
+import packageMetrics from '../data/package-metrics.json'
+
+const formatKibibytes = (bytes: number): string => `${(bytes / 1024).toFixed(1)} KiB`
+const formatMebibytes = (bytes: number): string => `${(bytes / (1024 * 1024)).toFixed(1)} MiB`
+const metricById = (id: string) => {
+  const target = packageMetrics.targets.find((candidate) => candidate.id === id)
+  if (target === undefined) throw new Error(`Missing package metric target: ${id}`)
+  return target
+}
+const versionNames: Readonly<Record<string, readonly string[]>> = {
+  'purejsimage-matched': ['purejsimage'],
+  'purejsimage-all': ['purejsimage'],
+  jimp: ['jimp'],
+  'image-js': ['image-js'],
+  jsquash: ['@jsquash/jpeg', '@jsquash/png', '@jsquash/resize'],
+  sharp: ['sharp'],
+}
+const versionSummary = (target: (typeof packageMetrics.targets)[number]): string => {
+  const names = versionNames[target.id] ?? ['purejsimage']
+  const direct = target.packageVersions.filter(({ name }) => names.includes(name))
+  const dependencyCount = target.packageVersions.length - direct.length
+  const values = direct.map(({ name, version }) => `${name} ${version}`)
+  if (dependencyCount > 0) values.push(`+ ${dependencyCount} dependencies`)
+  return values.join('; ')
+}
+const entryLabel = (target: (typeof packageMetrics.targets)[number]): string =>
+  target.entry.packageExports?.join('; ') ?? target.entry.sourceEntries?.join(' + ') ?? '—'
+const competitors = packageMetrics.targets.filter(({ category }) => category === 'competitor')
+const pureEntries = packageMetrics.targets.filter(
+  ({ category }) => category === 'purejsimage-entry',
+)
+const majorEntryIds = [
+  'core',
+  'scientific',
+  'scientific-readers-all',
+  'operations',
+  'analysis',
+  'analysis-results',
+  'analysis-roi',
+  'analysis-runtime',
+  'analysis-project',
+  'extensions',
+] as const
+const majorEntries = majorEntryIds.map(metricById)
+const readerEntries = pureEntries.filter(({ id }) => id.startsWith('scientific-reader-'))
+const codecEntries = packageMetrics.codecs.map((codec) => ({
+  codec,
+  target: metricById(codec.targetId),
+}))
+const allCodecs = metricById('codecs-all')
+const jpegWasm = packageMetrics.wasmAssets.find(({ id }) => id === 'jpeg-decoder')
+if (jpegWasm === undefined) throw new Error('Missing JPEG decoder WASM metric')
 ---
 
-<SiteLayout title="Performance | PureJsImage" description="Reproducible PureJsImage benchmarks from real AWS Lambda and isolated local processes: cold starts, memory use, validated wall time, package footprint, and competitor comparisons." canonical="https://purejsimage.com/performance/" current="performance/">
+<SiteLayout title="Performance | PureJsImage" description="Reproducible PureJsImage benchmarks from real AWS Lambda and isolated local processes: cold starts, memory use, validated wall time, npm package (unpacked) size, and competitor comparisons." canonical="https://purejsimage.com/performance/" current="performance/">
 <main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured on real AWS Lambda and in isolated local processes, with pinned inputs, absolute memory, and independently validated output.</p><div class="page-meta"><span class="pill">Real AWS Lambda</span><span class="pill">Seven-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
     <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
       <div class="container">
         <div class="proof-heading">
           <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed, quality, and memory across seven isolated engines.</h2></div>
-          <p>Default PureJsImage and its explicitly registered JPEG/PNG WASM accelerators are measured as separate engines. Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript. In the August 10 profile, default PureJsImage retained 86.7% lower northstar RSS than Jimp and 87.6% lower than image-js.<br><br><strong>When Sharp is the better choice:</strong> if native libvips is deployable and throughput or latency is the primary constraint, use Sharp. It was 1.9×–12.2× faster than the default PureJsImage TypeScript path across these five common-workflow medians. PureJsImage trades that ceiling for browser and edge portability, no required native addon or WASM, and a measured 2.3 MiB single-package install instead of Sharp’s 18.9 MiB and six production packages.</p>
+          <p>Default PureJsImage and its explicitly registered JPEG/PNG WASM accelerators are measured as separate engines. Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript. In the August 10 profile, default PureJsImage retained 86.7% lower northstar RSS than Jimp and 87.6% lower than image-js.<br><br><strong>When Sharp is the better choice:</strong> if native libvips is deployable and throughput or latency is the primary constraint, use Sharp. It was 1.9×–12.2× faster than the default PureJsImage TypeScript path across these five common-workflow medians. PureJsImage trades that ceiling for browser and edge portability, no required native addon or WASM, and a measured {formatMebibytes(metricById('purejsimage-matched').unpackedPackageBytes)} npm package (unpacked) instead of Sharp’s {formatMebibytes(metricById('sharp').unpackedPackageBytes)} npm package (unpacked) and {metricById('sharp').productionPackageCount} production packages.</p>
         </div>
         <div class="benchmark-facts">
           <div><strong>53.0%</strong><span>faster JPEG → PNG · WASM vs default</span></div>
@@ -177,47 +229,35 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         </section>
 
         <section id="bundle">
-          <h2>Bundle and deployment size</h2>
-          <p>JPEG and PNG form the matched codec set because all five libraries support them. PureJsImage and jSquash can assemble exactly those entries. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.</p>
+          <h2>Bundle and npm package size</h2>
+          <p>These current package metrics are generated from the manifest, package exports, bundle targets, and installed dependency trees. They are separate from the dated benchmark charts and headline timings above; those historical results remain unchanged until their benchmark is rerun.</p>
           <h3>Competitor comparison</h3>
-          <div class="table-wrap"><table><thead><tr><th>Import</th><th>Version</th><th>Codecs included</th><th>Minified JS</th><th>gzip</th><th>Brotli</th><th>Installed</th><th>Packages</th></tr></thead><tbody>
-            <tr><td><strong>PureJsImage matched</strong></td><td>0.10.0</td><td>JPEG, PNG</td><td>155.6 KiB</td><td>49.9 KiB</td><td>41.9 KiB</td><td>3.9 MiB</td><td>1</td></tr>
-            <tr><td><strong>PureJsImage all</strong></td><td>0.10.0</td><td>13 codecs</td><td>844.1 KiB</td><td>296.6 KiB</td><td>245.3 KiB</td><td>3.9 MiB</td><td>1</td></tr>
-            <tr><td><strong>Jimp</strong></td><td>1.6.0</td><td>JPEG, PNG, TIFF, BMP, GIF</td><td>577.4 KiB</td><td>174.6 KiB</td><td>139.5 KiB</td><td>29.3 MiB</td><td>70</td></tr>
-            <tr><td><strong>image-js</strong></td><td>1.7.0</td><td>JPEG, PNG, TIFF, BMP</td><td>361.5 KiB</td><td>111.2 KiB</td><td>94.3 KiB</td><td>17.0 MiB</td><td>46</td></tr>
-            <tr><td><strong>jSquash</strong></td><td>JPEG 1.6.0; PNG 3.1.1; resize 2.1.1</td><td>JPEG, PNG</td><td><strong>52.4 KiB</strong></td><td><strong>16.0 KiB</strong></td><td><strong>13.2 KiB</strong></td><td><strong>1.0 MiB</strong></td><td><strong>3</strong></td></tr>
-            <tr><td><strong>Sharp JS wrapper</strong></td><td>0.35.3</td><td>JPEG, PNG, TIFF, WebP, GIF, AVIF</td><td>128.4 KiB</td><td>38.3 KiB</td><td>33.5 KiB</td><td>18.9 MiB</td><td>6</td></tr>
+          <div class="table-wrap"><table><thead><tr><th>Import</th><th>Implementation</th><th>Version(s)</th><th>Codecs included</th><th>Minified JS</th><th>gzip</th><th>Brotli</th><th>npm package (unpacked)</th><th>Packages</th></tr></thead><tbody>
+            {competitors.map((target) => <tr><td><strong>{target.name}</strong></td><td>{target.implementation}</td><td>{versionSummary(target)}</td><td>{target.codecs?.join(', ')}</td><td>{formatKibibytes(target.minifiedJsBytes)}</td><td>{formatKibibytes(target.gzipBytes)}</td><td>{formatKibibytes(target.brotliBytes)}</td><td>{formatMebibytes(target.unpackedPackageBytes)}</td><td>{target.productionPackageCount}</td></tr>)}
           </tbody></table></div>
-          <div class="callout warning"><strong>Native payload.</strong> Sharp's JavaScript bundle is only the wrapper. Its installed footprint includes the native addon and the required Linux x64 libvips package, so 128.4 KiB is not its deployment size. Installed footprints vary by operating system and architecture.</div>
-          <div class="callout"><strong>WebAssembly payload.</strong> jSquash's 52.4 KiB JavaScript bundle is codec and resize glue. Its 1.0 MiB installed footprint includes the selected JPEG, PNG, and resize WebAssembly packages.</div>
-          <p>All JavaScript rows use the same esbuild settings: Node 22 target, ESM output, tree shaking, minification, no source map, gzip level 9, and Brotli quality 11. Installed size includes each engine's production dependency tree and required platform packages.</p>
+          <div class="callout warning"><strong>Native payload.</strong> Sharp's JavaScript bundle is only the wrapper. Its npm package (unpacked) includes the native addon and the required platform libvips package, so the wrapper size is not its deployment size. npm package sizes vary by operating system and architecture.</div>
+          <div class="callout"><strong>WebAssembly payload.</strong> jSquash's JavaScript bundle is codec and resize glue. Its npm package (unpacked) includes the selected JPEG, PNG, and resize WebAssembly packages.</div>
+          <p>All JavaScript rows use the same esbuild settings: Node 22 target, ESM output, tree shaking, minification, no source map, gzip level 9, and Brotli quality 11. “npm package (unpacked)” is the size after npm extracts what it publishes, not the compressed npm <code>.tgz</code> download. Run <code>npm pack --dry-run --json</code> to see both the compressed tarball <code>size</code> and extracted <code>unpackedSize</code>. It includes each engine's production dependency tree and required platform packages.</p>
           <h3>PureJsImage entry points</h3>
-          <p>Applications can import only the codec or application entries they use. The root API itself pulls no codec, scientific, operation, analysis, or extension implementation into the module graph. Application entries have hard minified-size ceilings with roughly 30% headroom over their recorded baselines, including 182.6 KiB for the base scientific platform, 445.3 KiB for all scientific readers, 56.6 KiB for operations, 344.7 KiB for analysis, and 59.6 KiB for extensions.</p>
-          <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Minified</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
-            <tr><td><strong>Core API</strong></td><td>59.9 KiB</td><td>18.9 KiB</td><td>16.8 KiB</td></tr>
-            <tr><td><strong>Core + scientific platform</strong></td><td>140.2 KiB</td><td>40.8 KiB</td><td>35.2 KiB</td></tr>
-            <tr><td><strong>All scientific readers</strong></td><td>348.7 KiB</td><td>107.0 KiB</td><td>89.1 KiB</td></tr>
-            <tr><td><strong>Operations</strong></td><td>43.3 KiB</td><td>11.7 KiB</td><td>10.5 KiB</td></tr>
-            <tr><td><strong>Analysis</strong></td><td>267.0 KiB</td><td>73.0 KiB</td><td>59.8 KiB</td></tr>
-            <tr><td><strong>Trusted extension host</strong></td><td>45.5 KiB</td><td>12.5 KiB</td><td>11.2 KiB</td></tr>
-            <tr><td><strong>Core + PNG</strong></td><td>93.9 KiB</td><td>30.8 KiB</td><td>26.6 KiB</td></tr>
-            <tr><td><strong>Core + JPEG</strong></td><td>130.4 KiB</td><td>41.7 KiB</td><td>35.3 KiB</td></tr>
-            <tr><td><strong>Core + JPEG 2000</strong></td><td>118.7 KiB</td><td>37.6 KiB</td><td>32.7 KiB</td></tr>
-            <tr><td><strong>Core + JPEG XL limited decoder</strong></td><td>99.6 KiB</td><td>31.7 KiB</td><td>27.7 KiB</td></tr>
-            <tr><td><strong>Core + WebP</strong></td><td>130.2 KiB</td><td>44.4 KiB</td><td>38.0 KiB</td></tr>
-            <tr><td><strong>Core + HDR</strong></td><td>69.8 KiB</td><td>22.2 KiB</td><td>19.5 KiB</td></tr>
-            <tr><td><strong>Core + QOI</strong></td><td>66.4 KiB</td><td>21.2 KiB</td><td>18.6 KiB</td></tr>
-            <tr><td><strong>Core + Netpbm</strong></td><td>74.6 KiB</td><td>23.7 KiB</td><td>20.7 KiB</td></tr>
-            <tr><td><strong>Core + TGA</strong></td><td>70.2 KiB</td><td>22.5 KiB</td><td>19.7 KiB</td></tr>
-            <tr><td><strong>Core + GIF</strong></td><td>67.8 KiB</td><td>21.7 KiB</td><td>19.1 KiB</td></tr>
-            <tr><td><strong>Core + BMP</strong></td><td>69.6 KiB</td><td>22.5 KiB</td><td>19.7 KiB</td></tr>
-            <tr><td><strong>Core + ICO</strong></td><td>103.1 KiB</td><td>33.9 KiB</td><td>29.2 KiB</td></tr>
-            <tr><td><strong>Core + TIFF</strong></td><td>282.6 KiB</td><td>89.1 KiB</td><td>74.2 KiB</td></tr>
-            <tr><td><strong>Core + AVIF</strong></td><td>444.9 KiB</td><td>169.3 KiB</td><td>145.3 KiB</td></tr>
-            <tr><td><strong>Core + experimental HEIF / HEIC</strong></td><td>158.2 KiB</td><td>51.0 KiB</td><td>43.9 KiB</td></tr>
-            <tr><td><strong>Core + all codecs</strong></td><td>844.1 KiB</td><td>296.6 KiB</td><td>245.3 KiB</td></tr>
+          <p>Applications can import only the codec or application entries they use. The root API itself pulls no codec, scientific, operation, analysis, or extension implementation into the module graph. Every current entry and reader is measured against its recorded baseline and minified-size ceiling.</p>
+          <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Package export/source</th><th>Implementation</th><th>Minified</th><th>Baseline</th><th>Ceiling</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
+            {majorEntries.map((target) => <tr><td><strong>{target.name}</strong></td><td><code>{entryLabel(target)}</code></td><td>{target.implementation}</td><td>{formatKibibytes(target.minifiedJsBytes)}</td><td>{target.recordedBaselineMinifiedBytes === null ? '—' : formatKibibytes(target.recordedBaselineMinifiedBytes)}</td><td>{target.configuredCeilingMinifiedBytes === null ? '—' : formatKibibytes(target.configuredCeilingMinifiedBytes)}</td><td>{formatKibibytes(target.gzipBytes)}</td><td>{formatKibibytes(target.brotliBytes)}</td></tr>)}
           </tbody></table></div>
-          <p>Run <code>npm run size</code> to rebuild PureJsImage and reproduce both tables on the current platform.</p>
+          <h3>Scientific per-reader imports</h3>
+          <div class="table-wrap"><table><thead><tr><th>Reader</th><th>Package export</th><th>Minified</th><th>gzip</th><th>Brotli</th><th>Ceiling</th></tr></thead><tbody>
+            {readerEntries.map((target) => <tr><td>{target.name}</td><td><code>{entryLabel(target)}</code></td><td>{formatKibibytes(target.minifiedJsBytes)}</td><td>{formatKibibytes(target.gzipBytes)}</td><td>{formatKibibytes(target.brotliBytes)}</td><td>{target.configuredCeilingMinifiedBytes === null ? '—' : formatKibibytes(target.configuredCeilingMinifiedBytes)}</td></tr>)}
+          </tbody></table></div>
+          <h3>Codec entry sizes</h3>
+          <div class="table-wrap"><table><thead><tr><th>Surface</th><th>Codec</th><th>Package export</th><th>Minified</th><th>gzip</th><th>Brotli</th><th>Implementation</th></tr></thead><tbody>
+            {codecEntries.map(({ codec, target }) => <tr><td>{codec.experimental ? 'Experimental' : 'Stable'}</td><td>{codec.name}</td><td><code>{codec.packageExport}</code></td><td>{formatKibibytes(target.minifiedJsBytes)}</td><td>{formatKibibytes(target.gzipBytes)}</td><td>{formatKibibytes(target.brotliBytes)}</td><td>{target.implementation}</td></tr>)}
+            <tr><td>Stable aggregate</td><td>All stable codecs</td><td><code>purejsimage/codecs/all</code></td><td>{formatKibibytes(allCodecs.minifiedJsBytes)}</td><td>{formatKibibytes(allCodecs.gzipBytes)}</td><td>{formatKibibytes(allCodecs.brotliBytes)}</td><td>{allCodecs.implementation}</td></tr>
+          </tbody></table></div>
+          <p>Experimental HEIF/HEIC is a separate direct import and is not included in the stable <code>allCodecs</code> aggregate.</p>
+          <h3>Current WASM assets</h3>
+          <div class="table-wrap"><table><thead><tr><th>Asset</th><th>Source entry</th><th>Raw</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
+            {packageMetrics.wasmAssets.map((asset) => <tr><td>{asset.name}</td><td><code>{asset.sourceEntry}</code></td><td>{asset.rawBytes} bytes</td><td>{asset.gzipBytes} bytes</td><td>{asset.brotliBytes} bytes</td></tr>)}
+          </tbody></table></div>
+          <p>Run <code>npm run size</code> to rebuild PureJsImage and regenerate the current metrics and documentation surfaces.</p>
         </section>
 
         <section id="reproduce">

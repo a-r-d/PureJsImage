@@ -36,8 +36,17 @@ const replaceRegion = (source: string, name: string, replacement: string): strin
 const publicCodecs = (codecs: readonly CodecCapability[]): readonly CodecCapability[] =>
   codecs.filter(({ packageFormat }) => packageFormat !== undefined)
 
-const readmeBlock = (codecs: readonly CodecCapability[]): string => {
-  const rows = codecs.map(({ name, read, write }) => `| ${name} | ${read.label} | ${write.label} |`)
+const codecTable = (codecs: readonly CodecCapability[]): readonly string[] => [
+  '| Format | Read | Write |',
+  '| --- | --- | --- |',
+  ...codecs.map(({ name, read, write }) => `| ${name} | ${read.label} | ${write.label} |`),
+]
+
+const readmeBlock = (
+  stableCodecs: readonly CodecCapability[],
+  experimentalCodecs: readonly CodecCapability[],
+): string => {
+  const codecs = [...stableCodecs, ...experimentalCodecs]
   const links = codecs.map(
     ({ name, supportFile }) =>
       `[${name}](https://github.com/a-r-d/PureJsImage/blob/main/${supportFile})`,
@@ -49,9 +58,13 @@ const readmeBlock = (codecs: readonly CodecCapability[]): string => {
     })
     .join('\n')
   return [
-    '| Format | Read | Write |',
-    '| --- | --- | --- |',
-    ...rows,
+    '### Stable ordinary codecs',
+    '',
+    ...codecTable(stableCodecs),
+    '',
+    '### Experimental codecs',
+    '',
+    ...codecTable(experimentalCodecs),
     '',
     '“Limited” means PureJsImage supports a useful subset and clearly rejects files',
     'outside it.',
@@ -182,6 +195,7 @@ const generatedExpectations = (manifest: CapabilityManifest): string => {
   const expectations = publicCodecs(manifest.codecs).map((codec) => ({
     id: codec.id,
     format: codec.packageFormat,
+    experimental: codec.experimental,
     decoder: codec.read.status === 'supported' || codec.read.status === 'limited',
     encoder: codec.write.status === 'supported' || codec.write.status === 'limited',
     evidence: codec.evidence,
@@ -207,6 +221,7 @@ const publicJson = (manifest: CapabilityManifest): string => {
   const codecs = manifest.codecs.map((codec) => ({
     id: codec.id,
     name: codec.name,
+    experimental: codec.experimental,
     ...(codec.packageFormat ? { packageFormat: codec.packageFormat } : {}),
     read: codec.read,
     write: codec.write,
@@ -223,12 +238,17 @@ const publicJson = (manifest: CapabilityManifest): string => {
 
 const manifest = await readCapabilityManifest()
 const codecs = publicCodecs(manifest.codecs)
+const stableCodecs = codecs.filter((codec) => !codec.experimental)
+const experimentalCodecs = codecs.filter((codec) => codec.experimental)
 const jpegxl = codecs.find(({ id }) => id === 'jpegxl')
 if (!jpegxl) throw new Error('Capability manifest is missing JPEG XL')
 const outputs = new Map<string, string>()
 
 const readme = await readFile('README.md', 'utf8')
-outputs.set('README.md', replaceRegion(readme, 'readme', readmeBlock(codecs)))
+outputs.set(
+  'README.md',
+  replaceRegion(readme, 'readme', readmeBlock(stableCodecs, experimentalCodecs)),
+)
 
 let llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
 llmsGuide = llmsGuide.replace(

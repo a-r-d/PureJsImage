@@ -4,6 +4,7 @@
     {
       "id": "jpeg",
       "format": "jpeg",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": [
@@ -28,6 +29,7 @@
     {
       "id": "png",
       "format": "png",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": [
@@ -44,6 +46,7 @@
     {
       "id": "webp",
       "format": "webp",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": [
@@ -62,6 +65,7 @@
     {
       "id": "bmp",
       "format": "bmp",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": [
@@ -77,6 +81,7 @@
     {
       "id": "tiff",
       "format": "tiff",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": [
@@ -108,6 +113,7 @@
     {
       "id": "gif",
       "format": "gif",
+      "experimental": false,
       "decoder": true,
       "encoder": false,
       "evidence": [
@@ -123,6 +129,7 @@
     {
       "id": "ico",
       "format": "ico",
+      "experimental": false,
       "decoder": true,
       "encoder": false,
       "evidence": ["tests/ico.test.ts"],
@@ -134,6 +141,7 @@
     {
       "id": "jpeg2000",
       "format": "jp2",
+      "experimental": false,
       "decoder": true,
       "encoder": false,
       "evidence": [
@@ -151,6 +159,7 @@
     {
       "id": "avif",
       "format": "avif",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": [
@@ -201,6 +210,7 @@
     {
       "id": "heif",
       "format": "heif",
+      "experimental": true,
       "decoder": true,
       "encoder": false,
       "evidence": ["tests/heif.test.ts"],
@@ -214,6 +224,7 @@
     {
       "id": "jpegxl",
       "format": "jpegxl",
+      "experimental": false,
       "decoder": true,
       "encoder": false,
       "evidence": [
@@ -230,6 +241,7 @@
     {
       "id": "hdr",
       "format": "hdr",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": ["tests/hdr.test.ts", "tests/small-codec-interoperability.test.ts"],
@@ -241,6 +253,7 @@
     {
       "id": "qoi",
       "format": "qoi",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": ["tests/qoi.test.ts", "tests/small-codec-interoperability.test.ts"],
@@ -252,6 +265,7 @@
     {
       "id": "netpbm",
       "format": "netpbm",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": ["tests/netpbm.test.ts", "tests/small-codec-interoperability.test.ts"],
@@ -263,6 +277,7 @@
     {
       "id": "tga",
       "format": "tga",
+      "experimental": false,
       "decoder": true,
       "encoder": true,
       "evidence": ["tests/tga.test.ts", "tests/small-codec-interoperability.test.ts"],
