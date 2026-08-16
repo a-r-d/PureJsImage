@@ -1,0 +1,16 @@
+browser-tests/scientific.pw.ts
+  h_9f4a25732fa0c1 59,94,100
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 5426-5429
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "dd2d9314a24fc50f119f4e60ede323269305659c",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
