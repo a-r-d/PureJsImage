@@ -85,8 +85,12 @@ const writeReport = async (
       ? ''
       : `-${report.cacheMode}-${report.throughputBytesPerSecond === null ? 'unlimited' : `${report.throughputBytesPerSecond}bps`}`
   const prefix = `viewer-${profile}-${report.scope}-${browser}-${report.phase}-${report.latencyProfileMilliseconds}ms${profileSuffix}`
-  await writeFile(resolve(directory, `${prefix}.json`), `${JSON.stringify(report, null, 2)}\n`)
-  await writeFile(resolve(directory, `${prefix}.md`), markdown(report))
+  const stamp = report.generatedAt.replaceAll(/[:.]/gu, '-')
+  await writeFile(
+    resolve(directory, `${prefix}-${stamp}.json`),
+    `${JSON.stringify(report, null, 2)}\n`,
+  )
+  await writeFile(resolve(directory, `${prefix}-${stamp}.md`), markdown(report))
 }
 
 const familyReport = (report: ViewerBenchmarkReport, scope: ViewerFamily): ViewerBenchmarkReport =>
@@ -153,7 +157,8 @@ test('scientific viewer benchmark lane records cold and warm reports', async ({
     await writeReport(familyReport(warm, scope), profile, browserName)
   }
   for (const report of [cold, warm]) {
-    expect(report.schemaVersion).toBe(1)
+    expect(report.schemaVersion).toBe(2)
+    expect(report.fixtureManifestHash).toMatch(/^[a-f0-9]{64}$/u)
     expect(report.samples.length).toBeGreaterThan(0)
     for (const sample of report.samples) {
       if (sample.status === 'supported' && sample.workload.layer !== 'loader-only') {

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
@@ -48,6 +48,18 @@ if (!Number.isSafeInteger(runs) || runs < 1) throw new Error('--runs must be a p
 if (!Number.isSafeInteger(warmups) || warmups < 0) throw new Error('--warmups must be non-negative')
 if (!Number.isSafeInteger(timeoutMilliseconds) || timeoutMilliseconds < 1) {
   throw new Error('--timeout-ms must be positive')
+}
+
+const gitText = (arguments_: readonly string[]): string | null => {
+  try {
+    return execFileSync('git', arguments_, {
+      cwd: repositoryDirectory,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()
+  } catch {
+    return null
+  }
 }
 
 const engines = scientificCompetitorEngines.filter(
@@ -475,6 +487,8 @@ const main = async (): Promise<void> => {
       nodeVersion: process.version,
       platform: os.platform(),
       architecture: os.arch(),
+      gitCommit: gitText(['rev-parse', 'HEAD']) ?? 'unknown',
+      gitDirty: (gitText(['status', '--porcelain']) ?? '').length > 0,
     },
     configuration: {
       runs,

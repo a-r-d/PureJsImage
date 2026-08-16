@@ -1,5 +1,5 @@
 import { gzipSync } from 'node:zlib'
-
+import { encodeGsf } from '../../src/scientific/readers/gsf.ts'
 import {
   generatedDigitalMicrographFixture,
   generatedDigitalMicrographFourDStemFixture,
@@ -12,7 +12,6 @@ import {
   generatedTiaSerSpectrumImage,
 } from '../tia-ser/generated-fixture.ts'
 import { createGeneratedVeloxEmdFixture } from '../velox-emd/generated-fixture.ts'
-import { encodeGsf } from '../../src/scientific/readers/gsf.ts'
 
 export interface GeneratedScientificResource {
   readonly name: string
@@ -56,6 +55,32 @@ const npy = (
   return output
 }
 
+const checkedSampleCount = (shape: readonly number[], bytesPerSample: number): number => {
+  const samples = shape.reduce((total, length) => total * length, 1)
+  const bytes = samples * bytesPerSample
+  if (!Number.isSafeInteger(samples) || !Number.isSafeInteger(bytes) || samples < 1 || bytes < 1) {
+    throw new Error(`Generated scientific fixture shape ${shape.join('x')} is invalid`)
+  }
+  return samples
+}
+
+const npyZeros = (shape: readonly [number, number]): Uint8Array => {
+  const sampleCount = checkedSampleCount(shape, 2)
+  const shapeText = shape.join(', ')
+  const dictionary = `{'descr': '<u2', 'fortran_order': False, 'shape': (${shapeText}), }`
+  const padding = (64 - ((10 + dictionary.length + 1) % 64)) % 64
+  const header = text(`${dictionary}${' '.repeat(padding)}\n`)
+  const output = new Uint8Array(10 + header.byteLength + sampleCount * 2)
+  output.set([0x93, 0x4e, 0x55, 0x4d, 0x50, 0x59, 1, 0])
+  const view = new DataView(output.buffer)
+  view.setUint16(8, header.byteLength, true)
+  output.set(header, 10)
+  const payloadOffset = 10 + header.byteLength
+  view.setUint16(payloadOffset, 1, true)
+  view.setUint16(output.byteLength - 2, 2, true)
+  return output
+}
+
 const nifti = (): Uint8Array => {
   const output = new Uint8Array(360)
   const view = new DataView(output.buffer)
@@ -78,6 +103,31 @@ const nifti = (): Uint8Array => {
   view.setInt16(354, 7, true)
   view.setInt16(356, 11, true)
   view.setInt16(358, 13, true)
+  return output
+}
+
+const niftiZeros = (width: number, height: number): Uint8Array => {
+  const dataOffset = 352
+  const sampleCount = checkedSampleCount([width, height], 2)
+  const output = new Uint8Array(dataOffset + sampleCount * 2)
+  const view = new DataView(output.buffer)
+  view.setInt32(0, 348, true)
+  view.setInt16(40, 2, true)
+  view.setInt16(42, width, true)
+  view.setInt16(44, height, true)
+  view.setInt16(46, 1, true)
+  view.setInt16(70, 4, true)
+  view.setInt16(72, 16, true)
+  view.setFloat32(76, 1, true)
+  view.setFloat32(80, 1, true)
+  view.setFloat32(84, 1, true)
+  view.setFloat32(108, dataOffset, true)
+  view.setFloat32(112, 1, true)
+  output[123] = 2
+  output.set(text('generated scaling volume'), 148)
+  output.set(text('n+1\0'), 344)
+  view.setInt16(dataOffset, 1, true)
+  view.setInt16(output.byteLength - 2, 2, true)
   return output
 }
 
@@ -118,6 +168,18 @@ const nrrd = (encoding: 'raw' | 'gzip'): Uint8Array => {
   const encoded = encoding === 'gzip' ? Uint8Array.from(gzipSync(payload)) : payload
   const header = text(`NRRD0005\ntype: uchar\ndimension: 2\nsizes: 2 2\nencoding: ${encoding}\n\n`)
   return concat([header, encoded])
+}
+
+const nrrdZeros = (width: number, height: number): Uint8Array => {
+  const sampleCount = checkedSampleCount([width, height], 1)
+  const header = text(
+    `NRRD0005\ntype: uchar\ndimension: 2\nsizes: ${width} ${height}\nencoding: raw\nendian: little\n\n`,
+  )
+  const output = new Uint8Array(header.byteLength + sampleCount)
+  output.set(header)
+  output[header.byteLength] = 1
+  output[output.byteLength - 1] = 2
+  return output
 }
 
 const metaImage = (detached: boolean): readonly GeneratedScientificResource[] => {
@@ -189,6 +251,233 @@ const mrc = (): Uint8Array => {
   output.set([0x44, 0x44, 0, 0], 212)
   for (const [index, value] of [10, 20, 30, 40].entries())
     view.setInt16(1_024 + index * 2, value, true)
+  return output
+}
+
+const mrcZeros = (width: number, height: number): Uint8Array => {
+  const sampleCount = checkedSampleCount([width, height], 2)
+  const output = new Uint8Array(1_024 + sampleCount * 2)
+  const view = new DataView(output.buffer)
+  const integer = (offset: number, value: number): void => view.setInt32(offset, value, true)
+  const real = (offset: number, value: number): void => view.setFloat32(offset, value, true)
+  integer(0, width)
+  integer(4, height)
+  integer(8, 1)
+  integer(12, 1)
+  integer(28, width)
+  integer(32, height)
+  integer(36, 1)
+  real(40, width)
+  real(44, height)
+  real(48, 1)
+  real(52, 90)
+  real(56, 90)
+  real(60, 90)
+  integer(64, 1)
+  integer(68, 2)
+  integer(72, 3)
+  output.set(text('MAP '), 208)
+  output.set([0x44, 0x44, 0, 0], 212)
+  view.setInt16(1_024, 1, true)
+  view.setInt16(output.byteLength - 2, 2, true)
+  return output
+}
+
+const tiledTiffZeros = (width: number, height: number): Uint8Array => {
+  const tileWidth = 256
+  const tileHeight = 256
+  if (width % tileWidth !== 0 || height % tileHeight !== 0) {
+    throw new Error('Generated tiled TIFF dimensions must be divisible by 256')
+  }
+  const tileBytes = tileWidth * tileHeight
+  const tileCount = (width / tileWidth) * (height / tileHeight)
+  const entryCount = 12
+  const ifdOffset = 8
+  const ifdBytes = 2 + entryCount * 12 + 4
+  const offsetsOffset = ifdOffset + ifdBytes
+  const byteCountsOffset = offsetsOffset + tileCount * 4
+  const dataOffset = byteCountsOffset + tileCount * 4
+  const payloadBytes = checkedSampleCount([width, height], 1)
+  const output = new Uint8Array(dataOffset + payloadBytes)
+  const view = new DataView(output.buffer)
+  output.set([0x49, 0x49, 0x2a, 0, 8, 0, 0, 0])
+  view.setUint16(ifdOffset, entryCount, true)
+  const entry = (index: number, tag: number, type: number, count: number, value: number): void => {
+    const offset = ifdOffset + 2 + index * 12
+    view.setUint16(offset, tag, true)
+    view.setUint16(offset + 2, type, true)
+    view.setUint32(offset + 4, count, true)
+    view.setUint32(offset + 8, value, true)
+  }
+  const short = (index: number, tag: number, value: number): void => {
+    entry(index, tag, 3, 1, value)
+    view.setUint16(ifdOffset + 2 + index * 12 + 8, value, true)
+  }
+  entry(0, 256, 4, 1, width)
+  entry(1, 257, 4, 1, height)
+  short(2, 258, 8)
+  short(3, 259, 1)
+  short(4, 262, 1)
+  short(5, 277, 1)
+  entry(6, 322, 4, 1, tileWidth)
+  entry(7, 323, 4, 1, tileHeight)
+  entry(8, 324, 4, tileCount, offsetsOffset)
+  entry(9, 325, 4, tileCount, byteCountsOffset)
+  short(10, 284, 1)
+  short(11, 339, 1)
+  for (let tile = 0; tile < tileCount; tile += 1) {
+    view.setUint32(offsetsOffset + tile * 4, dataOffset + tile * tileBytes, true)
+    view.setUint32(byteCountsOffset + tile * 4, tileBytes, true)
+  }
+  output[dataOffset] = 1
+  output[output.byteLength - 1] = 2
+  return output
+}
+
+const viewerOmeTiff = (): Uint8Array => {
+  const width = 4_096
+  const height = 4_096
+  const tileWidth = 256
+  const tileHeight = 256
+  const tileBytes = tileWidth * tileHeight
+  const tileCount = (width / tileWidth) * (height / tileHeight)
+  const description = text(
+    `<?xml version="1.0" encoding="UTF-8"?><OME><Image ID="Image:0" Name="Representative viewer fixture"><Pixels ID="Pixels:0" DimensionOrder="XYZCT" Type="uint8" SizeX="${width}" SizeY="${height}" SizeZ="1" SizeC="2" SizeT="1"><Channel ID="Channel:0:0" SamplesPerPixel="1"/><Channel ID="Channel:0:1" SamplesPerPixel="1"/><TiffData IFD="0" FirstC="0" FirstZ="0" FirstT="0" PlaneCount="1"/><TiffData IFD="1" FirstC="1" FirstZ="0" FirstT="0" PlaneCount="1"/></Pixels></Image></OME>\0`,
+  )
+  const firstEntryCount = 13
+  const secondEntryCount = 12
+  const firstIfdOffset = 8
+  const firstIfdBytes = 2 + firstEntryCount * 12 + 4
+  const secondIfdOffset = firstIfdOffset + firstIfdBytes
+  const secondIfdBytes = 2 + secondEntryCount * 12 + 4
+  const descriptionOffset = secondIfdOffset + secondIfdBytes
+  const firstOffsetsOffset = descriptionOffset + description.byteLength
+  const firstByteCountsOffset = firstOffsetsOffset + tileCount * 4
+  const secondOffsetsOffset = firstByteCountsOffset + tileCount * 4
+  const secondByteCountsOffset = secondOffsetsOffset + tileCount * 4
+  const dataOffset = secondByteCountsOffset + tileCount * 4
+  const planeBytes = width * height
+  const output = new Uint8Array(dataOffset + planeBytes * 2)
+  const view = new DataView(output.buffer)
+  output.set([0x49, 0x49, 0x2a, 0, 8, 0, 0, 0])
+
+  const writeIfd = (
+    ifdOffset: number,
+    entryCount: number,
+    nextIfdOffset: number,
+    offsetsOffset: number,
+    byteCountsOffset: number,
+    includeDescription: boolean,
+  ): void => {
+    view.setUint16(ifdOffset, entryCount, true)
+    let entryIndex = 0
+    const entry = (tag: number, type: number, count: number, value: number): void => {
+      const offset = ifdOffset + 2 + entryIndex * 12
+      view.setUint16(offset, tag, true)
+      view.setUint16(offset + 2, type, true)
+      view.setUint32(offset + 4, count, true)
+      view.setUint32(offset + 8, value, true)
+      entryIndex += 1
+    }
+    const short = (tag: number, value: number): void => entry(tag, 3, 1, value)
+    entry(256, 4, 1, width)
+    entry(257, 4, 1, height)
+    short(258, 8)
+    short(259, 1)
+    short(262, 1)
+    if (includeDescription) entry(270, 2, description.byteLength, descriptionOffset)
+    short(277, 1)
+    entry(322, 4, 1, tileWidth)
+    entry(323, 4, 1, tileHeight)
+    entry(324, 4, tileCount, offsetsOffset)
+    entry(325, 4, tileCount, byteCountsOffset)
+    short(284, 1)
+    short(339, 1)
+    view.setUint32(ifdOffset + 2 + entryCount * 12, nextIfdOffset, true)
+  }
+
+  writeIfd(
+    firstIfdOffset,
+    firstEntryCount,
+    secondIfdOffset,
+    firstOffsetsOffset,
+    firstByteCountsOffset,
+    true,
+  )
+  writeIfd(secondIfdOffset, secondEntryCount, 0, secondOffsetsOffset, secondByteCountsOffset, false)
+  output.set(description, descriptionOffset)
+  for (let plane = 0; plane < 2; plane += 1) {
+    const offsetsOffset = plane === 0 ? firstOffsetsOffset : secondOffsetsOffset
+    const byteCountsOffset = plane === 0 ? firstByteCountsOffset : secondByteCountsOffset
+    const planeOffset = dataOffset + plane * planeBytes
+    for (let tile = 0; tile < tileCount; tile += 1) {
+      view.setUint32(offsetsOffset + tile * 4, planeOffset + tile * tileBytes, true)
+      view.setUint32(byteCountsOffset + tile * 4, tileBytes, true)
+    }
+    output[planeOffset] = plane + 1
+    output[planeOffset + planeBytes - 1] = plane + 2
+  }
+  return output
+}
+
+const viewerCog = (): Uint8Array => {
+  const width = 8_192
+  const height = 8_192
+  const tileWidth = 256
+  const tileHeight = 256
+  const tileBytes = tileWidth * tileHeight
+  const tileCount = (width / tileWidth) * (height / tileHeight)
+  const entryCount = 15
+  const ifdOffset = 8
+  const ifdBytes = 2 + entryCount * 12 + 4
+  const pixelScaleOffset = ifdOffset + ifdBytes
+  const tiePointOffset = pixelScaleOffset + 3 * 8
+  const geoKeysOffset = tiePointOffset + 6 * 8
+  const offsetsOffset = geoKeysOffset + 8 * 2
+  const byteCountsOffset = offsetsOffset + tileCount * 4
+  const dataOffset = byteCountsOffset + tileCount * 4
+  const output = new Uint8Array(dataOffset + width * height)
+  const view = new DataView(output.buffer)
+  output.set([0x49, 0x49, 0x2a, 0, 8, 0, 0, 0])
+  view.setUint16(ifdOffset, entryCount, true)
+  let entryIndex = 0
+  const entry = (tag: number, type: number, count: number, value: number): void => {
+    const offset = ifdOffset + 2 + entryIndex * 12
+    view.setUint16(offset, tag, true)
+    view.setUint16(offset + 2, type, true)
+    view.setUint32(offset + 4, count, true)
+    view.setUint32(offset + 8, value, true)
+    entryIndex += 1
+  }
+  const short = (tag: number, value: number): void => entry(tag, 3, 1, value)
+  entry(256, 4, 1, width)
+  entry(257, 4, 1, height)
+  short(258, 8)
+  short(259, 1)
+  short(262, 1)
+  short(277, 1)
+  entry(322, 4, 1, tileWidth)
+  entry(323, 4, 1, tileHeight)
+  entry(324, 4, tileCount, offsetsOffset)
+  entry(325, 4, tileCount, byteCountsOffset)
+  short(284, 1)
+  short(339, 1)
+  entry(33_550, 12, 3, pixelScaleOffset)
+  entry(33_922, 12, 6, tiePointOffset)
+  entry(34_735, 3, 8, geoKeysOffset)
+  view.setUint32(ifdOffset + 2 + entryCount * 12, 0, true)
+  for (const [index, value] of [1, 1, 0].entries())
+    view.setFloat64(pixelScaleOffset + index * 8, value, true)
+  for (const [index, value] of [0, 0, 0, 0, 0, 0].entries())
+    view.setFloat64(tiePointOffset + index * 8, value, true)
+  for (const [index, value] of [1, 1, 0, 1, 1_024, 0, 1, 2].entries())
+    view.setUint16(geoKeysOffset + index * 2, value, true)
+  for (let tile = 0; tile < tileCount; tile += 1) {
+    view.setUint32(offsetsOffset + tile * 4, dataOffset + tile * tileBytes, true)
+    view.setUint32(byteCountsOffset + tile * 4, tileBytes, true)
+  }
+  output[dataOffset] = 1
+  output[output.byteLength - 1] = 2
   return output
 }
 
@@ -296,9 +585,31 @@ export const generatedScientificFixtures: Readonly<
     resources: [{ name: 'volume.mrc', bytes: mrc() }],
     payloadRanges: { 'volume.mrc': [[1_024, 1_032] as const] },
   }),
+  'mrc-medium-generated': () => {
+    const bytes = mrcZeros(8_192, 8_192)
+    return {
+      resources: [{ name: 'volume-medium.mrc', bytes }],
+      payloadRanges: { 'volume-medium.mrc': [[1_024, bytes.byteLength] as const] },
+    }
+  },
+  'mrc-large-generated': () => {
+    const bytes = mrcZeros(16_384, 16_384)
+    return {
+      resources: [{ name: 'volume-large.mrc', bytes }],
+      payloadRanges: { 'volume-large.mrc': [[1_024, bytes.byteLength] as const] },
+    }
+  },
   'cbf-generated': () => ({ resources: [{ name: 'frame.cbf', bytes: cbf() }], payloadRanges: {} }),
   'ome-tiff-generated': () => ({
     resources: [{ name: 'image.ome.tiff', bytes: omeTiff() }],
+    payloadRanges: {},
+  }),
+  'ome-tiff-viewer-generated': () => ({
+    resources: [{ name: 'viewer.ome.tiff', bytes: viewerOmeTiff() }],
+    payloadRanges: {},
+  }),
+  'cog-viewer-generated': () => ({
+    resources: [{ name: 'viewer.tiff', bytes: viewerCog() }],
     payloadRanges: {},
   }),
   'digital-micrograph-generated': () => ({
@@ -307,6 +618,18 @@ export const generatedScientificFixtures: Readonly<
   }),
   'digital-micrograph-4d-generated': () => ({
     resources: [{ name: 'stem.dm4', bytes: generatedDigitalMicrographFourDStemFixture() }],
+    payloadRanges: {},
+  }),
+  'digital-micrograph-4d-medium-generated': () => ({
+    resources: [
+      {
+        name: 'stem-medium.dm4',
+        bytes: generatedDigitalMicrographFourDStemFixture({
+          dimensions: [128, 128, 64, 32],
+          zeroFilled: true,
+        }),
+      },
+    ],
     payloadRanges: {},
   }),
   'tia-ser-image-generated': () => ({
@@ -375,6 +698,22 @@ export const generatedScientificFixtures: Readonly<
     resources: [{ name: 'array.nrrd', bytes: nrrd('raw') }],
     payloadRanges: {},
   }),
+  'nrrd-medium-generated': () => {
+    const bytes = nrrdZeros(8_192, 8_192)
+    const payloadOffset = bytes.byteLength - 8_192 * 8_192
+    return {
+      resources: [{ name: 'array-medium.nrrd', bytes }],
+      payloadRanges: { 'array-medium.nrrd': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
+  'nrrd-large-generated': () => {
+    const bytes = nrrdZeros(16_384, 16_384)
+    const payloadOffset = bytes.byteLength - 16_384 * 16_384
+    return {
+      resources: [{ name: 'array-large.nrrd', bytes }],
+      payloadRanges: { 'array-large.nrrd': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
   'nrrd-gzip-generated': () => ({
     resources: [{ name: 'array.nrrd', bytes: nrrd('gzip') }],
     payloadRanges: {},
@@ -388,6 +727,20 @@ export const generatedScientificFixtures: Readonly<
     resources: [{ name: 'volume.nii', bytes: nifti() }],
     payloadRanges: {},
   }),
+  'nifti-medium-generated': () => {
+    const bytes = niftiZeros(8_192, 4_096)
+    return {
+      resources: [{ name: 'volume-medium.nii', bytes }],
+      payloadRanges: { 'volume-medium.nii': [[352, bytes.byteLength] as const] },
+    }
+  },
+  'nifti-large-generated': () => {
+    const bytes = niftiZeros(16_384, 8_192)
+    return {
+      resources: [{ name: 'volume-large.nii', bytes }],
+      payloadRanges: { 'volume-large.nii': [[352, bytes.byteLength] as const] },
+    }
+  },
   'nifti-gzip-generated': () => ({
     resources: [{ name: 'volume.nii.gz', bytes: Uint8Array.from(gzipSync(nifti())) }],
     payloadRanges: {},
@@ -396,6 +749,38 @@ export const generatedScientificFixtures: Readonly<
     resources: [{ name: 'array.npy', bytes: npy([2, 3], [1, 2, 3, 4, 5, 6]) }],
     payloadRanges: {},
   }),
+  'npy-medium-generated': () => {
+    const bytes = npyZeros([8_192, 4_096])
+    const payloadOffset = bytes.byteLength - 8_192 * 4_096 * 2
+    return {
+      resources: [{ name: 'array-medium.npy', bytes }],
+      payloadRanges: { 'array-medium.npy': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
+  'npy-large-generated': () => {
+    const bytes = npyZeros([16_384, 8_192])
+    const payloadOffset = bytes.byteLength - 16_384 * 8_192 * 2
+    return {
+      resources: [{ name: 'array-large.npy', bytes }],
+      payloadRanges: { 'array-large.npy': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
+  'tiff-medium-generated': () => {
+    const bytes = tiledTiffZeros(8_192, 8_192)
+    const payloadOffset = bytes.byteLength - 8_192 * 8_192
+    return {
+      resources: [{ name: 'image-medium.tiff', bytes }],
+      payloadRanges: { 'image-medium.tiff': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
+  'tiff-large-generated': () => {
+    const bytes = tiledTiffZeros(16_384, 16_384)
+    const payloadOffset = bytes.byteLength - 16_384 * 16_384
+    return {
+      resources: [{ name: 'image-large.tiff', bytes }],
+      payloadRanges: { 'image-large.tiff': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
   'npy-f-generated': () => ({
     resources: [{ name: 'array.npy', bytes: npy([3, 2], [1, 2, 3, 4, 5, 6], true) }],
     payloadRanges: {},

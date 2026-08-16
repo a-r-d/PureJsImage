@@ -1,28 +1,37 @@
 import { createHash } from 'node:crypto'
-
+import { type RasterBlock, rasterSampleBytes } from '../../src/raster.ts'
+import {
+  type ScientificCompanionRequest,
+  type ScientificReader,
+  ScientificReaderRegistry,
+  type ScientificResource,
+} from '../../src/scientific/reader.ts'
 import { aperioSvsReader } from '../../src/scientific/readers/aperio-svs.ts'
 import { metaImageReader } from '../../src/scientific/readers/meta-image.ts'
-import { mrcReader } from '../../src/scientific/readers/mrc.ts'
+import { createMrcReader } from '../../src/scientific/readers/mrc.ts'
 import { niftiReader } from '../../src/scientific/readers/nifti.ts'
 import { npyReader } from '../../src/scientific/readers/npy.ts'
 import { nrrdReader } from '../../src/scientific/readers/nrrd.ts'
 import { tiffReader } from '../../src/scientific/readers/tiff.ts'
-import { rasterSampleBytes, type RasterBlock } from '../../src/raster.ts'
-import {
-  ScientificReaderRegistry,
-  type ScientificCompanionRequest,
-  type ScientificReader,
-  type ScientificResource,
-} from '../../src/scientific/reader.ts'
 import type { ImageSource } from '../../src/source.ts'
 import type { PreparedResource } from '../scientific-readers/types.ts'
 import {
-  now,
-  primaryResource,
   type NodeCompetitorAdapter,
   type NodeCompetitorContext,
   type NodeCompetitorExecution,
+  now,
+  primaryResource,
 } from './node-common.ts'
+
+const benchmarkMrcReader = createMrcReader({
+  limits: {
+    maxInputBytes: 1024 * 1024 * 1024,
+    maxDecodedBytes: 1024 * 1024 * 1024,
+    maxPixels: 300_000_000,
+    maxWidth: 32_768,
+    maxHeight: 32_768,
+  },
+})
 
 class TrackedImageSource implements ImageSource {
   public readonly size: number
@@ -41,13 +50,38 @@ class TrackedImageSource implements ImageSource {
 }
 
 const readerForFixture = (fixtureId: string): ScientificReader => {
-  if (fixtureId === 'ordinary-tiff' || fixtureId === 'tiff-bigtiff') return tiffReader
+  if (
+    fixtureId === 'ordinary-tiff' ||
+    fixtureId === 'tiff-bigtiff' ||
+    fixtureId === 'tiff-medium' ||
+    fixtureId === 'tiff-large'
+  )
+    return tiffReader
   if (fixtureId === 'aperio-svs') return aperioSvsReader
-  if (fixtureId === 'nifti' || fixtureId === 'nifti-gzip') return niftiReader
-  if (fixtureId === 'nrrd-raw' || fixtureId === 'nrrd-gzip') return nrrdReader
+  if (
+    fixtureId === 'nifti' ||
+    fixtureId === 'nifti-gzip' ||
+    fixtureId === 'nifti-medium' ||
+    fixtureId === 'nifti-large'
+  )
+    return niftiReader
+  if (
+    fixtureId === 'nrrd-raw' ||
+    fixtureId === 'nrrd-gzip' ||
+    fixtureId === 'nrrd-medium' ||
+    fixtureId === 'nrrd-large'
+  )
+    return nrrdReader
   if (fixtureId === 'meta-image-mha' || fixtureId === 'meta-image-mhd') return metaImageReader
-  if (fixtureId === 'mrc-volume') return mrcReader
-  if (fixtureId === 'npy-c-order' || fixtureId === 'npy-fortran-order') return npyReader
+  if (fixtureId === 'mrc-volume' || fixtureId === 'mrc-medium' || fixtureId === 'mrc-large')
+    return benchmarkMrcReader
+  if (
+    fixtureId === 'npy-c-order' ||
+    fixtureId === 'npy-fortran-order' ||
+    fixtureId === 'npy-medium' ||
+    fixtureId === 'npy-large'
+  )
+    return npyReader
   throw new Error(`PureJsImage has no benchmark reader mapping for ${fixtureId}`)
 }
 
@@ -169,7 +203,9 @@ const run = async (context: NodeCompetitorContext): Promise<NodeCompetitorExecut
   const descriptor = dataset.descriptor
   const descriptorShape = descriptor.axes.map(({ length }) => length)
   const shape =
-    context.fixture.id === 'npy-c-order' ? [...descriptorShape].reverse() : descriptorShape
+    context.fixture.id === 'npy-c-order' || context.fixture.id === 'npy-medium'
+      ? [...descriptorShape].reverse()
+      : descriptorShape
   const details = [
     `reader=${document.reader.id}@${document.reader.version}`,
     `resourceModel=${context.fixture.resources.length === 1 ? 'single' : 'companion-set'}`,

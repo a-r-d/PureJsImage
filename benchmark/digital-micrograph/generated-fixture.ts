@@ -222,8 +222,13 @@ export const generatedDigitalMicrographEelsFixture = (): Uint8Array => {
   ])
 }
 
-/** Generated DM4 4D-STEM image with explicit diffraction/scan semantics. */
-export const generatedDigitalMicrographFourDStemFixture = (): Uint8Array => {
+/** Generated DM 4D-STEM image with explicit diffraction/scan semantics. */
+export const generatedDigitalMicrographFourDStemFixture = (
+  options: Readonly<{
+    readonly dimensions?: readonly [number, number, number, number]
+    readonly zeroFilled?: boolean
+  }> = {},
+): Uint8Array => {
   const text = (value: string): Uint8Array =>
     uint16LittleEndian(Array.from(value, (character) => character.charCodeAt(0)))
   const stringValue = (name: string, value: string): FixtureValue => ({
@@ -232,11 +237,18 @@ export const generatedDigitalMicrographFourDStemFixture = (): Uint8Array => {
     info: [20, 4, value.length],
     payload: text(value),
   })
-  const dimensions = [2, 2, 3, 2]
-  const values = Array.from(
-    { length: dimensions.reduce((total, value) => total * value, 1) },
-    (_, index) => index + 1,
-  )
+  const dimensions = options.dimensions ?? ([2, 2, 3, 2] as const)
+  const sampleCount = dimensions.reduce((total, value) => total * value, 1)
+  const payload = new Uint8Array(sampleCount * 2)
+  const payloadView = new DataView(payload.buffer)
+  if (options.zeroFilled === true) {
+    payloadView.setUint16(0, 1, true)
+    payloadView.setUint16(payload.byteLength - 2, 2, true)
+  } else {
+    for (let index = 0; index < sampleCount; index += 1) {
+      payloadView.setUint16(index * 2, index + 1, true)
+    }
+  }
   const root = encodeGroupContents([
     {
       kind: 'group',
@@ -265,8 +277,8 @@ export const generatedDigitalMicrographFourDStemFixture = (): Uint8Array => {
                 {
                   kind: 'value',
                   name: 'Data',
-                  info: [20, 4, values.length],
-                  payload: uint16LittleEndian(values),
+                  info: [20, 4, sampleCount],
+                  payload,
                 },
               ],
             },

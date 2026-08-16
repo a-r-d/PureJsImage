@@ -368,11 +368,11 @@ export const viewerWorkloads: readonly ViewerWorkloadMetadata[] = Object.freeze(
   workload(
     'viewport-1024-cog',
     'cog-viewers',
-    'Complete 1024x1024 viewport',
+    'Complete fixed 256x192 viewport',
     'minimal-viewer',
     'cog',
-    'fixed 1024x1024 viewport',
-    true,
+    'fixed 256x192 viewport',
+    false,
   ),
   workload(
     'adjacent-pan-cog',
@@ -381,7 +381,7 @@ export const viewerWorkloads: readonly ViewerWorkloadMetadata[] = Object.freeze(
     'complete-interaction',
     'cog',
     'one tile-width adjacent pan',
-    true,
+    false,
   ),
   workload(
     'random-pan-cog',
@@ -390,7 +390,7 @@ export const viewerWorkloads: readonly ViewerWorkloadMetadata[] = Object.freeze(
     'complete-interaction',
     'cog',
     'three seeded pan windows',
-    true,
+    false,
   ),
   workload(
     'overview-transition-cog',
@@ -399,7 +399,7 @@ export const viewerWorkloads: readonly ViewerWorkloadMetadata[] = Object.freeze(
     'complete-interaction',
     'cog',
     'base image to overview',
-    true,
+    false,
   ),
   workload(
     'cold-cache-cog',
@@ -408,7 +408,7 @@ export const viewerWorkloads: readonly ViewerWorkloadMetadata[] = Object.freeze(
     'complete-interaction',
     'cog',
     'new context empty HTTP cache',
-    true,
+    false,
   ),
   workload(
     'warm-cache-cog',
@@ -417,7 +417,7 @@ export const viewerWorkloads: readonly ViewerWorkloadMetadata[] = Object.freeze(
     'complete-interaction',
     'cog',
     'same instance repeated viewport',
-    true,
+    false,
   ),
 ])
 

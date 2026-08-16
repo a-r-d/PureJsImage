@@ -1,3 +1,4 @@
+import type { ScientificReader } from '../../src/scientific/reader.ts'
 import {
   aperioSvsReader,
   blockfileReader,
@@ -11,14 +12,13 @@ import {
   fitsReader,
   gsfReader,
   igorBinaryWaveReader,
-  jpegReader,
   jp2Reader,
+  jpegReader,
   metaImageReader,
   mibReader,
-  mrcReader,
   nanonisSxmReader,
-  niftiReader,
   ncemEmdReader,
+  niftiReader,
   npyReader,
   nrrdReader,
   omeTiffReader,
@@ -26,12 +26,23 @@ import {
   rplReader,
   tiaEmiReader,
   tiaSerReader,
-  tiffReader,
   veloxEmdReader,
   webpReader,
   x3pReader,
 } from '../../src/scientific/readers/all.ts'
-import type { ScientificReader } from '../../src/scientific/reader.ts'
+import { createMrcReader } from '../../src/scientific/readers/mrc.ts'
+import { createTiffReader } from '../../src/scientific/readers/tiff.ts'
+
+const scalingLimits = Object.freeze({
+  maxInputBytes: 1024 * 1024 * 1024,
+  maxDecodedBytes: 1024 * 1024 * 1024,
+  maxPixels: 300_000_000,
+  maxWidth: 32_768,
+  maxHeight: 32_768,
+})
+
+const benchmarkMrcReader = createMrcReader({ limits: scalingLimits })
+const benchmarkTiffReader = createTiffReader({ limits: scalingLimits })
 
 /** The complete public reader set used for late-registry detection measurements. */
 export const allScientificReaders: readonly ScientificReader[] = Object.freeze([
@@ -42,14 +53,14 @@ export const allScientificReaders: readonly ScientificReader[] = Object.freeze([
   x3pReader,
   enviReader,
   fitsReader,
-  mrcReader,
+  benchmarkMrcReader,
   cbfReader,
   pngReader,
   jpegReader,
   webpReader,
   bmpReader,
   jp2Reader,
-  tiffReader,
+  benchmarkTiffReader,
   omeTiffReader,
   aperioSvsReader,
   digitalMicrographReader,

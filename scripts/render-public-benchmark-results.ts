@@ -264,6 +264,99 @@ const scientificSnapshot = async (entry: SourceEntry) => {
   }
 }
 
+const scientificScalingSnapshot = async (entry: SourceEntry) => {
+  const report = await sourceJson(entry)
+  const configuration = record(report.configuration, 'scaling.configuration')
+  const engine = record(configuration.engine, 'scaling.configuration.engine')
+  const environment = record(report.environment, 'scaling.environment')
+  const median = (summary: unknown, label: string): number | null => {
+    if (summary === null) return null
+    return number(record(summary, label).median, `${label}.median`)
+  }
+  const results = array(report.results, 'scaling.results').map((item, index) => {
+    const result = record(item, `scaling.results[${index}]`)
+    const identity = record(result.identity, `scaling.results[${index}].identity`)
+    const reader = record(identity.reader, `scaling.results[${index}].identity.reader`)
+    const timing = record(result.timing, `scaling.results[${index}].timing`)
+    const memory = record(result.memory, `scaling.results[${index}].memory`)
+    const source = record(result.source, `scaling.results[${index}].source`)
+    const correctness = record(result.correctness, `scaling.results[${index}].correctness`)
+    const stability = record(result.stability, `scaling.results[${index}].stability`)
+    const statusValue = string(result.status, `scaling.results[${index}].status`)
+    const sampleHash = string(
+      correctness.selectedSampleSha256,
+      `scaling.results[${index}].correctness.selectedSampleSha256`,
+    )
+    return {
+      absolutePeakRssBytes: median(
+        memory.absolutePeakRssBytes,
+        `scaling.results[${index}].absolutePeakRssBytes`,
+      ),
+      eligibleForCharts: boolean(
+        stability.eligibleForDocumentationHeadlines,
+        `scaling.results[${index}].eligibleForCharts`,
+      ),
+      firstBlockCvPercent: optionalNumber(
+        stability.firstBlockCvPercent,
+        `scaling.results[${index}].firstBlockCvPercent`,
+      ),
+      firstBlockMilliseconds: median(
+        timing.timeToFirstEmittedBlockMilliseconds,
+        `scaling.results[${index}].firstBlockMilliseconds`,
+      ),
+      fixtureId: string(identity.fixtureId, `scaling.results[${index}].fixtureId`),
+      operation: string(identity.operation, `scaling.results[${index}].operation`),
+      overfetchRatio: median(source.overfetchRatio, `scaling.results[${index}].overfetchRatio`),
+      peakRssCvPercent: optionalNumber(
+        stability.absolutePeakRssCvPercent,
+        `scaling.results[${index}].peakRssCvPercent`,
+      ),
+      readerId: string(reader.id, `scaling.results[${index}].reader.id`),
+      readCalls: median(source.readCalls, `scaling.results[${index}].readCalls`),
+      sampleHash,
+      selectedOperationCvPercent: optionalNumber(
+        stability.selectedOperationCvPercent,
+        `scaling.results[${index}].selectedOperationCvPercent`,
+      ),
+      selectedOperationMilliseconds: median(
+        timing.completeSelectedOperationMilliseconds,
+        `scaling.results[${index}].selectedOperationMilliseconds`,
+      ),
+      sourceBytes: median(source.returnedBytes, `scaling.results[${index}].sourceBytes`),
+      sourceBytesCvPercent: optionalNumber(
+        stability.sourceBytesCvPercent,
+        `scaling.results[${index}].sourceBytesCvPercent`,
+      ),
+      status: statusValue,
+      workloadId: string(identity.workloadId, `scaling.results[${index}].workloadId`),
+    }
+  })
+  if (
+    results.some(
+      ({ status: resultStatus, sampleHash }) =>
+        resultStatus !== 'supported' || sampleHash.length !== 64,
+    )
+  ) {
+    throw new Error('Scientific scaling publication contains failed validation')
+  }
+  return {
+    createdAt: string(report.createdAt, 'scaling.createdAt'),
+    engine: {
+      id: string(engine.id, 'scaling.engine.id'),
+      version: string(engine.version, 'scaling.engine.version'),
+    },
+    environment: {
+      architecture: string(environment.architecture, 'scaling.environment.architecture'),
+      cpu: string(environment.cpuModel, 'scaling.environment.cpuModel'),
+      fingerprint: hash(JSON.stringify(environment)),
+      node: string(environment.nodeVersion, 'scaling.environment.nodeVersion'),
+      os: `${string(environment.operatingSystem, 'scaling.environment.operatingSystem')} ${string(environment.operatingSystemVersion, 'scaling.environment.operatingSystemVersion')}`,
+      v8: string(environment.v8Version, 'scaling.environment.v8Version'),
+    },
+    results,
+  }
+}
+
 const rangeSnapshot = async (entry: SourceEntry) => {
   const report = await sourceJson(entry)
   const configuration = record(report.configuration, 'range.configuration')
@@ -324,29 +417,59 @@ const competitorSnapshot = async (entry: SourceEntry) => {
     const metadata = engines.find((candidate) => candidate.id === engineId)
     if (metadata === undefined)
       throw new Error(`Competitor result references unknown engine ${engineId}`)
+    const correctness = details.map((detail, detailIndex) =>
+      record(
+        detail.correctness,
+        `competitors.results[${index}].runsDetail[${detailIndex}].correctness`,
+      ),
+    )
+    const correctnessStable =
+      details.length >= 3 && new Set(correctness.map((value) => JSON.stringify(value))).size === 1
+    const firstUsableDataCvPercent = coefficientOfVariation(
+      values(stages, 'firstUsableDataMilliseconds'),
+    )
+    const peakRssCvPercent = coefficientOfVariation(values(details, 'peakRssBytes'))
+    const sourceBytesCvPercent = coefficientOfVariation(values(sources, 'returnedBytes'))
+    const totalWallCvPercent = coefficientOfVariation(values(stages, 'totalWallMilliseconds'))
+    const lowNoise = [
+      firstUsableDataCvPercent,
+      peakRssCvPercent,
+      sourceBytesCvPercent,
+      totalWallCvPercent,
+    ]
+      .filter((value): value is number => value !== null)
+      .every((value) => value < 10)
+    const representative = boolean(
+      workload.representative,
+      `competitors.results[${index}].workload.representative`,
+    )
+    const resultStatus = string(result.status, `competitors.results[${index}].status`)
     return {
+      correctnessStable,
       engineId,
       family: string(workload.family, `competitors.results[${index}].workload.family`),
-      firstUsableDataCvPercent: coefficientOfVariation(
-        values(stages, 'firstUsableDataMilliseconds'),
-      ),
+      firstUsableDataCvPercent,
       firstUsableDataMilliseconds:
         optionalNumber(summary.firstUsableDataMilliseconds, 'firstUsableDataMilliseconds') ?? 0,
       inputCopyBytes:
         optionalNumber(firstSource.requiredInputCopyBytes, 'requiredInputCopyBytes') ?? 0,
       implementationClass: metadata.implementationClass,
       packageVersion: metadata.packageVersion,
-      peakRssCvPercent: coefficientOfVariation(values(details, 'peakRssBytes')),
+      lowNoise,
+      peakRssCvPercent,
       peakRssBytes: optionalNumber(summary.peakRssBytes, 'peakRssBytes') ?? 0,
       requestCount: optionalNumber(firstSource.requestCount, 'requestCount') ?? 0,
-      sourceBytesCvPercent: coefficientOfVariation(values(sources, 'returnedBytes')),
+      representative,
+      sourceBytesCvPercent,
       sourceBytes: optionalNumber(summary.sourceBytes, 'sourceBytes') ?? 0,
-      status: string(result.status, `competitors.results[${index}].status`),
+      status: resultStatus,
       title: string(workload.title, `competitors.results[${index}].workload.title`),
-      totalWallCvPercent: coefficientOfVariation(values(stages, 'totalWallMilliseconds')),
+      totalWallCvPercent,
       totalWallMilliseconds:
         optionalNumber(summary.totalWallMilliseconds, 'totalWallMilliseconds') ?? 0,
       workloadId: string(workload.id, `competitors.results[${index}].workload.id`),
+      eligibleForCharts:
+        representative && resultStatus === 'supported' && correctnessStable && lowNoise,
     }
   })
   if (results.some((result) => result.status === 'invalid-output' || result.status === 'error')) {
@@ -401,6 +524,7 @@ const writePublicResults = async (): Promise<void> => {
   const definitions = [
     { profile: 'competitors', build: ordinarySnapshot, headline: true },
     { profile: 'scientific-readers-baseline', build: scientificSnapshot, headline: true },
+    { profile: 'scientific-readers-scaling', build: scientificScalingSnapshot, headline: true },
     { profile: 'scientific-readers-range', build: rangeSnapshot, headline: false },
     { profile: 'scientific-competitors-baseline', build: competitorSnapshot, headline: false },
   ] as const
@@ -425,6 +549,10 @@ const writePublicResults = async (): Promise<void> => {
     const stem = `${definition.profile}-${dateStem(source.date)}`
     const jsonPath = join(publicDirectory, `${stem}.json`)
     const markdownPath = join(publicDirectory, `${stem}.md`)
+    const headlineEligible =
+      definition.headline &&
+      source.validationStatus === 'passed' &&
+      source.eligibleForDocumentationHeadlines
     const document = {
       schemaVersion: 1,
       profile: definition.profile,
@@ -453,7 +581,7 @@ const writePublicResults = async (): Promise<void> => {
       `- Environment fingerprint: ${source.environmentFingerprint}`,
       `- Publication validation: passed`,
       `- Source validation: ${source.validationStatus}`,
-      `- Documentation headline eligible: ${definition.headline ? 'yes' : 'no'}`,
+      `- Documentation headline eligible: ${headlineEligible ? 'yes' : 'no'}`,
       `- Status counts: ${
         Object.entries(statusCounts)
           .map(([key, value]) => `${key}=${value}`)
@@ -469,7 +597,7 @@ const writePublicResults = async (): Promise<void> => {
     indexEntries.push({
       commit: source.commit,
       date: source.date,
-      eligibleForDocumentationHeadlines: definition.headline,
+      eligibleForDocumentationHeadlines: headlineEligible,
       engineVersions,
       environmentFingerprint: source.environmentFingerprint,
       fixtureManifestHash: source.fixtureManifestHash,
@@ -520,6 +648,7 @@ const checkPublicResults = async (): Promise<void> => {
   const expectedProfiles = [
     'competitors',
     'scientific-readers-baseline',
+    'scientific-readers-scaling',
     'scientific-readers-range',
     'scientific-competitors-baseline',
   ]

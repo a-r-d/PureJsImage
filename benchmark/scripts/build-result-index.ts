@@ -37,7 +37,7 @@ const walk = async (directory: string): Promise<string[]> => {
   const files: string[] = []
   for (const entry of entries) {
     const path = join(directory, entry.name)
-    if (entry.isDirectory()) files.push(...(await walk(path)))
+    if (entry.isDirectory() && entry.name !== 'public') files.push(...(await walk(path)))
     else if (
       entry.isFile() &&
       extname(entry.name) === '.json' &&
@@ -72,6 +72,11 @@ const engineVersions = (value: Record<string, unknown>): Readonly<Record<string,
       const version = stringValue(entry.packageVersion) ?? stringValue(entry.version)
       if (id !== undefined && version !== undefined) output[id] = version
     }
+  }
+  if (isRecord(value.configuration) && isRecord(value.configuration.engine)) {
+    const id = stringValue(value.configuration.engine.id)
+    const version = stringValue(value.configuration.engine.version)
+    if (id !== undefined && version !== undefined) output[id] = version
   }
   if (isRecord(value.environment) && isRecord(value.environment.provider)) {
     const id = stringValue(value.environment.provider.id)
@@ -109,8 +114,8 @@ const validationStatus = (value: Record<string, unknown>): ResultIndexEntry['val
       else if (status !== undefined) failed += 1
     }
     if (failed > 0) return 'failed'
-    if (supported > 0 && unsupported === 0) return 'passed'
-    if (supported > 0) return 'partial'
+    if (supported > 0) return 'passed'
+    if (unsupported > 0) return 'partial'
   }
   return 'unverified'
 }
@@ -149,6 +154,7 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
     stringValue(value.commit) ??
     stringValue(environment.gitRevision) ??
     stringValue(environment.commit) ??
+    stringValue(environment.gitCommit) ??
     'not-recorded'
   const environmentFingerprint =
     stringValue(value.environmentFingerprint) ??
@@ -157,6 +163,17 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
   const fixtureManifestHash =
     stringValue(value.fixtureManifestHash) ??
     stringValue(environment.fixtureManifestHash) ??
+    (isRecord(value.fixturePreparation) && Array.isArray(value.fixturePreparation.fixtures)
+      ? hashJson(value.fixturePreparation.fixtures)
+      : undefined) ??
+    (Array.isArray(value.fixtures) ? hashJson(value.fixtures) : undefined) ??
+    (Array.isArray(value.results)
+      ? hashJson(
+          value.results.flatMap((result) =>
+            isRecord(result) && isRecord(result.fixture) ? [result.fixture] : [],
+          ),
+        )
+      : undefined) ??
     'not-recorded'
   const path = relative(repositoryDirectory, file)
   const markdownPath = file.replace(/\.json$/u, '.md')
@@ -178,7 +195,9 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
     validationStatus: validationStatus(value),
     eligibleForDocumentationHeadlines:
       value.eligibleForDocumentationHeadlines === true ||
-      (validationStatus(value) === 'passed' && profile(value, path) === 'competitors'),
+      (validationStatus(value) === 'passed' &&
+        (profile(value, path) === 'competitors' ||
+          profile(value, path) === 'scientific-readers-baseline')),
   }
 }
 

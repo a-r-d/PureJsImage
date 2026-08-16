@@ -8,6 +8,8 @@ interface SampleProjection {
   readonly requests: number
   readonly returnedBytes: number
   readonly stableMilliseconds: number | null
+  readonly representative: boolean
+  readonly correctnessPassed: boolean
 }
 
 interface ReportProjection {
@@ -28,6 +30,7 @@ const finiteNumber = (value: unknown): value is number =>
 const parseReport = (value: unknown): ReportProjection | undefined => {
   if (
     !isRecord(value) ||
+    value.schemaVersion !== 2 ||
     typeof value.browser !== 'string' ||
     typeof value.phase !== 'string' ||
     typeof value.scope !== 'string' ||
@@ -51,7 +54,8 @@ const parseReport = (value: unknown): ReportProjection | undefined => {
       !isRecord(entry.engine) ||
       !isRecord(entry.workload) ||
       !isRecord(entry.data) ||
-      !isRecord(entry.latency)
+      !isRecord(entry.latency) ||
+      typeof entry.workload.representative !== 'boolean'
     )
       return undefined
     if (
@@ -71,6 +75,11 @@ const parseReport = (value: unknown): ReportProjection | undefined => {
       requests: entry.data.requests,
       returnedBytes: entry.data.returnedBytes,
       stableMilliseconds: stable,
+      representative: entry.workload.representative,
+      correctnessPassed:
+        entry.status === 'supported' &&
+        isRecord(entry.correctness) &&
+        entry.correctness.passed === true,
     })
   }
   return Object.freeze({
@@ -90,6 +99,14 @@ const median = (values: readonly number[]): number | null => {
   return sorted.length % 2 === 0
     ? ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
     : (sorted[middle] ?? null)
+}
+
+const coefficientOfVariationPercent = (values: readonly number[]): number | null => {
+  if (values.length < 2) return null
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length
+  if (mean === 0) return 0
+  const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length
+  return (Math.sqrt(variance) / Math.abs(mean)) * 100
 }
 
 const escapeHtml = (value: string): string =>
@@ -115,6 +132,7 @@ const grouped = new Map<
   string,
   {
     readonly engine: string
+    readonly workload: string
     readonly browser: string
     readonly phase: string
     readonly latency: number
@@ -125,15 +143,19 @@ const grouped = new Map<
     stable: number[]
     supported: number
     unsupported: number
+    failed: number
+    correctnessPassed: number
+    representative: boolean
   }
 >()
 for (const report of reports) {
   for (const sample of report.samples) {
-    const key = `${report.browser}|${report.phase}|${report.latencyMilliseconds}|${report.cacheMode}|${report.throughputBytesPerSecond ?? 'unlimited'}|${sample.engine}`
+    const key = `${report.browser}|${report.phase}|${report.latencyMilliseconds}|${report.cacheMode}|${report.throughputBytesPerSecond ?? 'unlimited'}|${sample.engine}|${sample.workload}`
     const existing = grouped.get(key)
     if (existing === undefined) {
       grouped.set(key, {
         engine: sample.engine,
+        workload: sample.workload,
         browser: report.browser,
         phase: report.phase,
         latency: report.latencyMilliseconds,
@@ -144,6 +166,9 @@ for (const report of reports) {
         stable: sample.stableMilliseconds === null ? [] : [sample.stableMilliseconds],
         supported: sample.status === 'supported' ? 1 : 0,
         unsupported: sample.status === 'unsupported' ? 1 : 0,
+        failed: sample.status === 'error' || sample.status === 'invalid-output' ? 1 : 0,
+        correctnessPassed: sample.correctnessPassed ? 1 : 0,
+        representative: sample.representative,
       })
     } else {
       existing.requests.push(sample.requests)
@@ -151,6 +176,8 @@ for (const report of reports) {
       if (sample.stableMilliseconds !== null) existing.stable.push(sample.stableMilliseconds)
       if (sample.status === 'supported') existing.supported += 1
       if (sample.status === 'unsupported') existing.unsupported += 1
+      if (sample.status === 'error' || sample.status === 'invalid-output') existing.failed += 1
+      if (sample.correctnessPassed) existing.correctnessPassed += 1
     }
   }
 }
@@ -162,24 +189,47 @@ const rows = [...grouped.values()].map((entry) => ({
   cacheMode: entry.cacheMode,
   throughputBytesPerSecond: entry.throughputBytesPerSecond,
   engine: entry.engine,
+  workload: entry.workload,
   medianRequests: median(entry.requests),
   medianReturnedBytes: median(entry.bytes),
   medianStableViewportMilliseconds: median(entry.stable),
+  requestsCvPercent: coefficientOfVariationPercent(entry.requests),
+  returnedBytesCvPercent: coefficientOfVariationPercent(entry.bytes),
+  stableViewportCvPercent: coefficientOfVariationPercent(entry.stable),
   supportedSamples: entry.supported,
   unsupportedSamples: entry.unsupported,
+  failedSamples: entry.failed,
+  representative: entry.representative,
+  eligibleForCharts:
+    entry.representative &&
+    entry.supported >= 3 &&
+    entry.failed === 0 &&
+    entry.correctnessPassed === entry.supported &&
+    [
+      coefficientOfVariationPercent(entry.requests),
+      coefficientOfVariationPercent(entry.bytes),
+      coefficientOfVariationPercent(entry.stable),
+    ]
+      .filter((value): value is number => value !== null)
+      .every((value) => value < 10),
 }))
-const chartData = Object.freeze({ schemaVersion: 1, generatedAt: new Date().toISOString(), rows })
+const chartData = Object.freeze({
+  schemaVersion: 2,
+  generatedAt: new Date().toISOString(),
+  performanceRows: rows.filter(({ eligibleForCharts }) => eligibleForCharts),
+  rows,
+})
 await writeFile(resolve(directory, 'viewer-charts.json'), `${JSON.stringify(chartData, null, 2)}\n`)
 
 const table = rows
   .map(
     (row) =>
-      `<tr><td>${escapeHtml(row.browser)}</td><td>${escapeHtml(row.phase)}</td><td>${row.latencyProfileMilliseconds}</td><td>${escapeHtml(row.cacheMode)}</td><td>${row.throughputBytesPerSecond ?? 'unlimited'}</td><td>${escapeHtml(row.engine)}</td><td>${row.medianRequests ?? '-'}</td><td>${row.medianReturnedBytes ?? '-'}</td><td>${row.medianStableViewportMilliseconds ?? '-'}</td><td>${row.supportedSamples}</td><td>${row.unsupportedSamples}</td></tr>`,
+      `<tr><td>${escapeHtml(row.browser)}</td><td>${escapeHtml(row.phase)}</td><td>${row.latencyProfileMilliseconds}</td><td>${escapeHtml(row.cacheMode)}</td><td>${row.throughputBytesPerSecond ?? 'unlimited'}</td><td>${escapeHtml(row.engine)}</td><td>${escapeHtml(row.workload)}</td><td>${row.medianRequests ?? '-'}</td><td>${row.medianReturnedBytes ?? '-'}</td><td>${row.medianStableViewportMilliseconds ?? '-'}</td><td>${row.supportedSamples}</td><td>${row.unsupportedSamples}</td><td>${row.eligibleForCharts ? 'yes' : 'no'}</td></tr>`,
   )
   .join('')
 await writeFile(
   resolve(directory, 'viewer-charts.html'),
-  `<!doctype html><meta charset="utf-8"><title>PureJsImage viewer benchmark charts</title><style>body{font:14px system-ui;margin:2rem}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:.35rem .55rem;text-align:right}td:nth-child(6),th:nth-child(6){text-align:left}</style><h1>Scientific viewer benchmark reports</h1><p>Separate engine-family diagnostics; no universal score.</p><table><thead><tr><th>Browser</th><th>Phase</th><th>Latency ms</th><th>Cache mode</th><th>Throughput B/s</th><th>Engine</th><th>Median requests</th><th>Median returned bytes</th><th>Median stable viewport ms</th><th>Supported samples</th><th>Unsupported samples</th></tr></thead><tbody>${table}</tbody></table>`,
+  `<!doctype html><meta charset="utf-8"><title>PureJsImage viewer benchmark charts</title><style>body{font:14px system-ui;margin:2rem}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:.35rem .55rem;text-align:right}td:nth-child(6),th:nth-child(6),td:nth-child(7),th:nth-child(7){text-align:left}</style><h1>Scientific viewer benchmark reports</h1><p>Separate engine-family diagnostics; no universal score. Performance-eligible rows require a representative fixture, at least three supported samples, validated output, and less than 10% CV.</p><table><thead><tr><th>Browser</th><th>Phase</th><th>Latency ms</th><th>Cache mode</th><th>Throughput B/s</th><th>Engine</th><th>Workload</th><th>Median requests</th><th>Median returned bytes</th><th>Median stable viewport ms</th><th>Supported samples</th><th>Unsupported samples</th><th>Chart eligible</th></tr></thead><tbody>${table}</tbody></table>`,
 )
 
 const readJsonRecord = async (path: string): Promise<Readonly<Record<string, unknown>>> => {

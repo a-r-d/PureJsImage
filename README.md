@@ -65,7 +65,7 @@ PureJsImage 0.10.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Core API | 59.9 KiB | 18.9 KiB | 16.8 KiB |
 | All stable codecs | 844.1 KiB | 296.6 KiB | 245.3 KiB |
 | Scientific platform | 154.3 KiB | 44.7 KiB | 38.2 KiB |
-| All scientific readers | 835.0 KiB | 247.5 KiB | 197.8 KiB |
+| All scientific readers | 835.2 KiB | 247.8 KiB | 197.9 KiB |
 
 The extracted npm package is 4.7 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -221,7 +221,7 @@ distributors must evaluate their own licensing obligations.
 
 **Ordinary images (2026-08-16):** 79 validated passes, 19 explicit unsupported rows, and no invalid outputs or errors. On the 24-megapixel northstar photo pipeline, the TypeScript path used 84.2% less absolute peak RSS than Jimp (187.8 MiB versus 1188.4 MiB).
 
-**Scientific readers (2026-08-16):** 43 reader workflows passed correctness validation across 31 readers: 13 representative performance workloads and 30 correctness or contract workloads. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.
+**Scientific readers (2026-08-16):** 43 correctness and startup workflows passed across 31 readers. The separate medium/large scaling profile validated 11 representative workloads; 8 met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.
 
 > Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.
 
@@ -244,7 +244,7 @@ Generated for purejsimage 0.10.0. The README keeps only the major entry points; 
 | Core API | `purejsimage` | 59.9 KiB | 18.9 KiB | 16.8 KiB |
 | Core + all stable codecs | `purejsimage/codecs/all` | 844.1 KiB | 296.6 KiB | 245.3 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 154.3 KiB | 44.7 KiB | 38.2 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 835.0 KiB | 247.5 KiB | 197.8 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 835.2 KiB | 247.8 KiB | 197.9 KiB |
 
 The extracted npm package is 4.7 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 

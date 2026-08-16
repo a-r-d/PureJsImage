@@ -2,13 +2,14 @@ import type { RasterSampleType } from '../../src/raster.ts'
 
 export const scientificReaderBenchmarkSchemaVersion = 1 as const
 
-export type ScientificBenchmarkProfile = 'smoke' | 'baseline' | 'range' | 'full'
+export type ScientificBenchmarkProfile = 'smoke' | 'baseline' | 'range' | 'scaling' | 'full'
 export type ScientificOperationKind =
   | 'selected'
   | 'metadata-only'
   | 'first-block'
   | 'full-plane'
   | 'random-regions'
+  | 'warm-repeated-selections'
 export type ScientificBenchmarkStatus = 'supported' | 'unsupported' | 'invalid-output' | 'error'
 export type ScientificMeasurementClass = 'representative' | 'correctness-only'
 
@@ -135,6 +136,16 @@ export interface ScientificBenchmarkResult {
   readonly memory: MemorySummary
   readonly source: SourceSummary
   readonly correctness: CorrectnessSummary
+  readonly stability: {
+    readonly measuredRuns: number
+    readonly correctnessStable: boolean
+    readonly firstBlockCvPercent: number | null
+    readonly selectedOperationCvPercent: number | null
+    readonly absolutePeakRssCvPercent: number | null
+    readonly sourceBytesCvPercent: number | null
+    readonly lowNoise: boolean
+    readonly eligibleForDocumentationHeadlines: boolean
+  }
   readonly runs: readonly ScientificRunResult[]
 }
 
@@ -214,6 +225,10 @@ export interface ScientificBenchmarkReport {
   readonly schemaVersion: typeof scientificReaderBenchmarkSchemaVersion
   readonly createdAt: string
   readonly profile: ScientificBenchmarkProfile
+  readonly validation: {
+    readonly passed: boolean
+  }
+  readonly eligibleForDocumentationHeadlines: boolean
   readonly configuration: {
     readonly engine: ScientificReaderIdentity
     readonly runs: number

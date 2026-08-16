@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import calibrationOracle from './fixtures/tiff-calibration-oracle.json' with { type: 'json' }
+import { encodeTiffDocument, openTiffDocument } from '../src/codecs/tiff.ts'
+import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import type { RasterBlock } from '../src/raster.ts'
-import { encodeTiffDocument } from '../src/codecs/tiff.ts'
-import { openTiffDocument } from '../src/codecs/tiff.ts'
-import { nodeRuntime } from '../src/node-runtime.ts'
 import { ScientificReaderRegistry } from '../src/scientific/reader.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import {
@@ -14,10 +12,10 @@ import {
 } from '../src/scientific/readers/tiff.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import {
+  type ImageSource,
   MemorySource,
   sourceSessionEnd,
   sourceSessionStart,
-  type ImageSource,
 } from '../src/source.ts'
 import {
   defaultTiffCalibrationProfiles,
@@ -28,6 +26,7 @@ import {
   zeissSemTiffCalibrationProfile,
 } from '../src/tiff/calibration-profiles.ts'
 import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
+import calibrationOracle from './fixtures/tiff-calibration-oracle.json' with { type: 'json' }
 
 interface TiffEntryFixture {
   readonly tag: number
@@ -273,6 +272,7 @@ class SessionTrackingSource implements ImageSource {
   readonly size: number
   starts = 0
   ends = 0
+  reads = 0
   readonly #source: MemorySource
 
   constructor(bytes: Uint8Array) {
@@ -281,6 +281,7 @@ class SessionTrackingSource implements ImageSource {
   }
 
   read(...parameters: Parameters<ImageSource['read']>): ReturnType<ImageSource['read']> {
+    this.reads += 1
     return this.#source.read(...parameters)
   }
 
@@ -294,6 +295,28 @@ class SessionTrackingSource implements ImageSource {
 }
 
 describe('ordinary TIFF scientific reader', () => {
+  it('coalesces metadata and selected pixels through a bounded source cache', async () => {
+    const input = tiffFixture({
+      width: 64,
+      height: 64,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [new Uint8Array(64 * 64)],
+      tiled: true,
+    })
+    const source = new SessionTrackingSource(input)
+    const document = await new ScientificReaderRegistry([tiffReader]).open({
+      primary: { id: 'cached', name: 'cached.tiff', source },
+      readerId: tiffReaderDescriptor.id,
+      readerVersion: tiffReaderDescriptor.version,
+    })
+    const dataset = await document.openDataset('series-0')
+    const blocks = await collect(dataset)
+    expect(blocks.reduce((samples, block) => samples + block.width * block.height, 0)).toBe(64 * 64)
+    expect(source.reads).toBeLessThanOrEqual(2)
+  })
+
   it('applies standard TIFF physical resolution and position with embedded evidence', async () => {
     const input = tiffFixture({
       width: 2,

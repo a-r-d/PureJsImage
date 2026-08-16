@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "profile": "scientific-readers-baseline",
+  "publicationValidationStatus": "passed",
+  "validationStatus": "passed",
+  "source": {
+    "eligibleForDocumentationHeadlines": true,
+    "resultIndex": "benchmark/results/result-index-2026-08-16T17-24-15-257Z.json",
+    "resultPaths": [
+      "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T170738681Z-baseline.json",
+      "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T170738681Z-baseline.md"
+    ],
+    "validationStatus": "passed"
+  },
+  "data": {
+    "createdAt": "2026-08-16T17:07:38.681Z",
+    "engine": {
+      "id": "purejsimage-scientific",
+      "version": "0.10.0"
+    },
+    "environment": {
+      "architecture": "x64",
+      "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "fingerprint": "d882798ad85e3fc74565f2348caa96e121ec8f8b2e5520765f3d3c677547d379",
+      "node": "v24.16.0",
+      "os": "Linux 6.17.0-41-generic",
+      "v8": "13.6.233.17-node.49"
+    },
+    "results": [
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Descriptor and first selected surface samples must be finite float64 values.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/gsf",
+        "status": "supported",
+        "workloadId": "gsf-surface"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First dataset exposes calibrated x/y axes and a readable bounded plane.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/nanonis-sxm",
+        "status": "supported",
+        "workloadId": "nanonis-afm-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First dataset exposes at least two axes and a readable plane.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/igor-binary-wave",
+        "status": "supported",
+        "workloadId": "igor-wave-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First surface descriptor is calibrated and a bounded plane is readable.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/digital-surf",
+        "status": "supported",
+        "workloadId": "digital-surf-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First dataset exposes a 4x4 calibrated plane.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/x3p",
+        "status": "supported",
+        "workloadId": "x3p-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Header and binary resolve as one dataset with a readable band plane.",
+        "outputSampleType": "uint16",
+        "readerId": "purejsimage/envi",
+        "status": "supported",
+        "workloadId": "envi-hyperspectral-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Primary image dataset exposes x/y axes and a readable plane.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/fits",
+        "status": "supported",
+        "workloadId": "fits-cube-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "2x2 int16 plane values are finite and metadata includes cell dimensions.",
+        "outputSampleType": "int16",
+        "readerId": "purejsimage/mrc",
+        "status": "supported",
+        "workloadId": "mrc-volume-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "2x2 detector plane decodes to four finite samples.",
+        "outputSampleType": "int32",
+        "readerId": "purejsimage/cbf",
+        "status": "supported",
+        "workloadId": "cbf-frame-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Image codec adapter exposes a uint8 plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/png",
+        "status": "supported",
+        "workloadId": "png-image-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Image codec adapter exposes a uint8 plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/jpeg",
+        "status": "supported",
+        "workloadId": "jpeg-image-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Image codec adapter exposes a uint8 plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/webp",
+        "status": "supported",
+        "workloadId": "webp-image-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Image codec adapter exposes a uint8 plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/bmp",
+        "status": "supported",
+        "workloadId": "bmp-image-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Image codec adapter exposes a uint8 plane after canonical decode.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/jp2",
+        "status": "supported",
+        "workloadId": "jp2-image-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First TIFF dataset exposes x/y axes and a readable region.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/tiff",
+        "status": "supported",
+        "workloadId": "ordinary-tiff-region"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "OME metadata selects the OME reader and exposes x/y/z/channel/time axes.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/ome-tiff",
+        "status": "supported",
+        "workloadId": "ome-tiff-region"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Pyramid dataset exposes a bounded readable region without full-source materialization.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/aperio-svs",
+        "status": "supported",
+        "workloadId": "aperio-svs-region"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First supported image dataset exposes a readable 2D plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported",
+        "workloadId": "digital-micrograph-2d-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "When the fixture is 4D STEM, kx/ky is readable with fixed scan axes.",
+        "outputSampleType": "uint16",
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported",
+        "workloadId": "digital-micrograph-4d-stem-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Image dataset exposes x/y with one fixed element index.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported",
+        "workloadId": "tia-ser-image-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Spectra dataset exposes x/y/energy and a bounded energy series.",
+        "outputSampleType": "int32",
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported",
+        "workloadId": "tia-ser-spectrum-series"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "At least one ser-* dataset opens and retains EMI metadata/calibration evidence.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/tia-emi",
+        "status": "supported",
+        "workloadId": "tia-emi-companion-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First image dataset exposes a readable plane or series according to rank.",
+        "outputSampleType": "int32",
+        "readerId": "purejsimage/ncem-emd",
+        "status": "supported",
+        "workloadId": "ncem-emd-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First image dataset exposes a readable plane.",
+        "outputSampleType": "int16",
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported",
+        "workloadId": "velox-emd-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Complex dataset preserves two output components and a readable plane.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported",
+        "workloadId": "velox-complex-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Depth-fixed x/y plane is readable and the companion is resolved.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/rpl",
+        "status": "supported",
+        "workloadId": "rpl-raw-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Spectral axis calibration is present and a bounded series is readable.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/emsa",
+        "status": "supported",
+        "workloadId": "emsa-series"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "2x2 raw NRRD plane is readable.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/nrrd",
+        "status": "supported",
+        "workloadId": "nrrd-raw-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "2x2 gzip NRRD plane is readable.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/nrrd",
+        "status": "supported",
+        "workloadId": "nrrd-gzip-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "2x2 local MetaImage plane is readable.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/meta-image",
+        "status": "supported",
+        "workloadId": "meta-image-mha-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Detached 2x1 uint16 plane resolves the RAW companion and is readable.",
+        "outputSampleType": "uint16",
+        "readerId": "purejsimage/meta-image",
+        "status": "supported",
+        "workloadId": "meta-image-mhd-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Scaled output is readable and spatial calibration is retained.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/nifti",
+        "status": "supported",
+        "workloadId": "nifti-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Gzip source opens and returns the same selected plane semantics.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/nifti",
+        "status": "supported",
+        "workloadId": "nifti-gzip-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "C-order axes are preserved and a plane is readable.",
+        "outputSampleType": "uint16",
+        "readerId": "purejsimage/npy",
+        "status": "supported",
+        "workloadId": "npy-c-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Fortran-order axes are preserved and a plane is readable.",
+        "outputSampleType": "uint16",
+        "readerId": "purejsimage/npy",
+        "status": "supported",
+        "workloadId": "npy-fortran-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "A fixed navigation position exposes a readable diffraction plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/blockfile",
+        "status": "supported",
+        "workloadId": "blockfile-4d-stem-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "MIB frame dataset exposes a readable diffraction plane.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/mib",
+        "status": "supported",
+        "workloadId": "mib-4d-stem-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "ANG map exposes a readable x/y plane.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/ebsd-text",
+        "status": "supported",
+        "workloadId": "ebsd-ang-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "CTF map exposes a readable x/y plane.",
+        "outputSampleType": "float64",
+        "readerId": "purejsimage/ebsd-text",
+        "status": "supported",
+        "workloadId": "ebsd-ctf-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First TIFF dataset exposes x/y axes and a readable region.",
+        "outputSampleType": "metadata-only",
+        "readerId": "purejsimage/tiff",
+        "status": "supported",
+        "workloadId": "baseline-tiff-metadata-only"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "First TIFF dataset exposes x/y axes and a readable region.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/tiff",
+        "status": "supported",
+        "workloadId": "baseline-tiff-first-block"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Descriptor and first selected surface samples must be finite float64 values.",
+        "outputSampleType": "float32",
+        "readerId": "purejsimage/gsf",
+        "status": "supported",
+        "workloadId": "baseline-gsf-full-plane"
+      },
+      {
+        "measurementClass": "correctness-only",
+        "oracle": "Pyramid dataset exposes a bounded readable region without full-source materialization.",
+        "outputSampleType": "uint8",
+        "readerId": "purejsimage/aperio-svs",
+        "status": "supported",
+        "workloadId": "baseline-aperio-random-regions"
+      }
+    ]
+  }
+}

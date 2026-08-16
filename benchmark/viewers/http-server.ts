@@ -52,9 +52,9 @@ const fixtureBytes = (key: keyof typeof generatedScientificFixtures): Uint8Array
 }
 
 const viewerNifti = (): Uint8Array => {
-  const width = 8
-  const height = 8
-  const depth = 100
+  const width = 512
+  const height = 512
+  const depth = 128
   const dataOffset = 352
   const voxelCount = width * height * depth
   const output = new Uint8Array(dataOffset + voxelCount * 2)
@@ -77,31 +77,25 @@ const viewerNifti = (): Uint8Array => {
   output[123] = 2
   output.set(new TextEncoder().encode('viewer volume'), 148)
   output.set([0x6e, 0x2b, 0x31, 0, 0, 0, 0, 0], 344)
-  for (let z = 0; z < depth; z += 1) {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const index = (z * height * width + y * width + x) * 2
-        view.setInt16(dataOffset + index, 1 + x * 3 + y * 5 + z * 7, true)
-      }
-    }
-  }
+  view.setInt16(dataOffset, 1, true)
+  view.setInt16(output.byteLength - 2, 2, true)
   return output
 }
 
 const fixtures: Readonly<Record<string, ViewerFixture>> = Object.freeze({
   'ome-tiff': Object.freeze({
     id: 'ome-tiff',
-    bytes: fixtureBytes('ome-tiff-generated'),
+    bytes: fixtureBytes('ome-tiff-viewer-generated'),
     contentType: 'image/tiff',
     exact: true,
-    note: 'Generated OME-TIFF with one C/Z/T plane.',
+    note: 'Generated 4096x4096 two-channel tiled OME-TIFF (32 MiB pixel payload).',
   }),
   nifti: Object.freeze({
     id: 'nifti-volume',
     bytes: viewerNifti(),
     contentType: 'application/octet-stream',
     exact: true,
-    note: 'Viewer-only generated NIfTI-1 8x8x100 volume shared by volume engines.',
+    note: 'Viewer-only generated NIfTI-1 512x512x128 volume (64 MiB payload) shared by volume engines.',
   }),
   nrrd: Object.freeze({
     id: 'nrrd-volume',
@@ -119,16 +113,15 @@ const fixtures: Readonly<Record<string, ViewerFixture>> = Object.freeze({
   }),
   cog: Object.freeze({
     id: 'cog',
-    bytes: new Uint8Array(),
+    bytes: fixtureBytes('cog-viewer-generated'),
     contentType: 'image/tiff',
-    exact: false,
-    note: 'A tracked ordinary TIFF fallback is served until a tiled Cloud-Optimized GeoTIFF fixture is prepared.',
+    exact: true,
+    note: 'Generated 8192x8192 tiled GeoTIFF with metadata and tile tables before pixel payload.',
   }),
 })
 
 const logs: MutableRequestLog[] = []
 let nextLogId = 1
-let cogBytes: Uint8Array | undefined
 
 const writeJson = (response: ServerResponse, value: unknown): void => {
   const body = JSON.stringify(value)
@@ -195,10 +188,6 @@ const fixtureForPath = (pathname: string): ViewerFixture | undefined => {
   const name = pathname.slice('/data/'.length)
   const fixture = fixtures[name]
   if (fixture === undefined) return undefined
-  if (name === 'cog') {
-    if (cogBytes === undefined) throw new Error('COG fallback fixture is not loaded')
-    return Object.freeze({ ...fixture, bytes: cogBytes })
-  }
   return fixture
 }
 
@@ -300,7 +289,7 @@ const server = createServer(async (request, response) => {
             key,
             {
               id: fixture.id,
-              bytes: key === 'cog' ? (cogBytes?.byteLength ?? 0) : fixture.bytes.byteLength,
+              bytes: fixture.bytes.byteLength,
               exact: fixture.exact,
               note: fixture.note,
             },
@@ -376,7 +365,6 @@ const server = createServer(async (request, response) => {
   }
 })
 
-cogBytes = await readFile('benchmark/corpus/files/libtiff-rgb-3c-8b.tiff')
 await build({
   absWorkingDir: process.cwd(),
   alias: {

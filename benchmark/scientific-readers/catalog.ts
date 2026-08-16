@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import {
-  generatedScientificFixtures,
   type GeneratedScientificFixture,
+  generatedScientificFixtures,
 } from './generated-fixtures.ts'
 import type { PreparedFixture, PreparedResource } from './types.ts'
 
@@ -23,6 +23,7 @@ interface FixtureDefinition {
   readonly id: string
   readonly realResources?: readonly ResourceDefinition[]
   readonly generatedKey?: keyof typeof generatedScientificFixtures
+  readonly generatedRepresentative?: boolean
   readonly provenance: string
   readonly supportBoundary: string
   readonly expectedOracle: string
@@ -105,6 +106,22 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: '2x2 int16 plane values are finite and metadata includes cell dimensions.',
   },
   {
+    id: 'mrc-medium',
+    generatedKey: 'mrc-medium-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 128 MiB MRC scaling fixture.',
+    supportBoundary: 'MRC mode-1 little-endian 8192x8192 native int16 plane.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
+    id: 'mrc-large',
+    generatedKey: 'mrc-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 512 MiB MRC scaling fixture.',
+    supportBoundary: 'MRC mode-1 little-endian 16384x16384 native int16 plane.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
     id: 'cbf-frame',
     generatedKey: 'cbf-generated',
     provenance: 'Deterministic first-party CBF byte-offset benchmark fixture.',
@@ -154,6 +171,22 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'First TIFF dataset exposes x/y axes and a readable region.',
   },
   {
+    id: 'tiff-medium',
+    generatedKey: 'tiff-medium-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 64 MiB tiled TIFF scaling fixture.',
+    supportBoundary: '8192x8192 native uint8 TIFF with 256x256 uncompressed tiles.',
+    expectedOracle: 'Twenty deterministic regions preserve dimensions, native type, and hash.',
+  },
+  {
+    id: 'tiff-large',
+    generatedKey: 'tiff-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 256 MiB tiled TIFF scaling fixture.',
+    supportBoundary: '16384x16384 native uint8 TIFF with 256x256 uncompressed tiles.',
+    expectedOracle: 'Twenty deterministic regions preserve dimensions, native type, and hash.',
+  },
+  {
     id: 'tiff-bigtiff',
     realResources: [resource('primary', 'benchmark/corpus/files/tiff-bigtiff-rgb16-1024x768.tiff')],
     provenance: 'Pinned first-party BigTIFF RGB16 benchmark fixture.',
@@ -191,6 +224,14 @@ const definitions: readonly FixtureDefinition[] = [
     provenance: 'Deterministic first-party DigitalMicrograph 4D-STEM fixture.',
     supportBoundary: 'Explicit diffraction-image/Data-Order-Swapped 4D STEM semantics.',
     expectedOracle: 'When the fixture is 4D STEM, kx/ky is readable with fixed scan axes.',
+  },
+  {
+    id: 'digital-micrograph-4d-stem-medium',
+    generatedKey: 'digital-micrograph-4d-medium-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 64 MiB DigitalMicrograph 4D-STEM scaling fixture.',
+    supportBoundary: '128x128 diffraction patterns over a 64x32 scan grid.',
+    expectedOracle: 'Twenty warm diffraction selections preserve 4D-STEM axes and sample hash.',
   },
   {
     id: 'tia-ser-image',
@@ -293,6 +334,22 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: '2x2 raw NRRD plane is readable.',
   },
   {
+    id: 'nrrd-medium',
+    generatedKey: 'nrrd-medium-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 64 MiB raw NRRD scaling fixture.',
+    supportBoundary: '8192x8192 attached raw uint8 NRRD plane.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
+    id: 'nrrd-large',
+    generatedKey: 'nrrd-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 256 MiB raw NRRD scaling fixture.',
+    supportBoundary: '16384x16384 attached raw uint8 NRRD plane.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
     id: 'nrrd-gzip',
     generatedKey: 'nrrd-gzip-generated',
     provenance: 'Deterministic first-party gzip-encoded NRRD benchmark fixture.',
@@ -321,6 +378,22 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'Scaled output is readable and spatial calibration is retained.',
   },
   {
+    id: 'nifti-medium',
+    generatedKey: 'nifti-medium-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 64 MiB NIfTI-1 scaling fixture.',
+    supportBoundary: '8192x4096 uncompressed native int16 NIfTI-1 plane.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
+    id: 'nifti-large',
+    generatedKey: 'nifti-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 256 MiB NIfTI-1 scaling fixture.',
+    supportBoundary: '16384x8192 uncompressed native int16 NIfTI-1 plane.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
     id: 'nifti-gzip',
     generatedKey: 'nifti-gzip-generated',
     provenance: 'Deterministic first-party gzip-wrapped NIfTI benchmark fixture.',
@@ -333,6 +406,22 @@ const definitions: readonly FixtureDefinition[] = [
     provenance: 'Deterministic first-party C-order NPY benchmark fixture.',
     supportBoundary: 'NPY v1 little-endian uint16 C-order array.',
     expectedOracle: 'C-order axes are preserved and a plane is readable.',
+  },
+  {
+    id: 'npy-medium',
+    generatedKey: 'npy-medium-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 64 MiB NumPy NPY scaling fixture.',
+    supportBoundary: '8192x4096 C-order little-endian uint16 array.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
+  },
+  {
+    id: 'npy-large',
+    generatedKey: 'npy-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party 256 MiB NumPy NPY scaling fixture.',
+    supportBoundary: '16384x8192 C-order little-endian uint16 array.',
+    expectedOracle: 'The complete native plane has the expected dimensions, type, and hash.',
   },
   {
     id: 'npy-fortran-order',
@@ -406,7 +495,12 @@ const realResourcesAvailable = async (definition: FixtureDefinition): Promise<bo
 
 const generatedResources = async (
   definition: FixtureDefinition,
-): Promise<readonly PreparedResource[]> => {
+): Promise<
+  Readonly<{
+    resources: readonly PreparedResource[]
+    payloadRanges: Readonly<Record<string, readonly (readonly [number, number])[]>>
+  }>
+> => {
   if (definition.generatedKey === undefined) {
     throw new Error(`Fixture ${definition.id} has no generated fallback`)
   }
@@ -416,6 +510,7 @@ const generatedResources = async (
   const directory = join(generatedDirectory, definition.id)
   await mkdir(directory, { recursive: true })
   const resources: PreparedResource[] = []
+  const payloadRanges: Record<string, readonly (readonly [number, number])[]> = {}
   for (const [index, entry] of generated.resources.entries()) {
     const path = join(
       directory,
@@ -431,8 +526,13 @@ const generatedResources = async (
         sizeBytes: entry.bytes.byteLength,
       }),
     )
+    const ranges = generated.payloadRanges[entry.name]
+    if (ranges !== undefined) payloadRanges[index === 0 ? 'primary' : `companion-${index}`] = ranges
   }
-  return Object.freeze(resources)
+  return Object.freeze({
+    resources: Object.freeze(resources),
+    payloadRanges: Object.freeze(payloadRanges),
+  })
 }
 
 const realPreparedResources = async (
@@ -480,18 +580,19 @@ export const prepareScientificFixture = async (fixtureId: string): Promise<Prepa
   const definition = definitionById.get(fixtureId)
   if (definition === undefined) throw new Error(`Unknown scientific reader fixture ${fixtureId}`)
   const useReal = await realResourcesAvailable(definition)
-  const resources = useReal
-    ? await realPreparedResources(definition)
-    : await generatedResources(definition)
+  const generated = useReal ? undefined : await generatedResources(definition)
+  const resources = useReal ? await realPreparedResources(definition) : generated?.resources
+  if (resources === undefined) throw new Error(`Fixture ${fixtureId} has no prepared resources`)
   const prepared = Object.freeze({
     id: definition.id,
     sha256: fixtureHash(resources),
     resources,
-    payloadRanges: await generatedPayloadRanges(definition, resources),
+    payloadRanges:
+      generated?.payloadRanges ?? (await generatedPayloadRanges(definition, resources)),
     provenance: definition.provenance,
     supportBoundary: definition.supportBoundary,
     expectedOracle: definition.expectedOracle,
-    representative: useReal,
+    representative: useReal || definition.generatedRepresentative === true,
   })
   return prepared
 }

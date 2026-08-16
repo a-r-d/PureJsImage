@@ -197,16 +197,25 @@ isolated Node process after an optional untimed warmup.
 npm run bench:scientific:smoke
 npm run bench:scientific:baseline
 npm run bench:scientific:range
+npm run bench:scientific:scaling
 npm run bench:scientific:full
 ```
 
 Smoke covers every public scientific reader with small or generated fixtures.
 Baseline adds metadata-only, first-block, full-plane, and deterministic random
-region workloads. Range varies direct-range readers over 0, 5, 25, and 100 ms
-of underlying-read latency. Full includes the baseline families and all
-available local corpus resources. Generated fixtures are correctness-only and
-carry provenance, support-boundary, and expected-oracle fields; they are not
-presented as representative large-input performance claims.
+region contract workloads. These microfixtures are correctness and startup
+tests, not performance claims. Range varies direct-range readers over 0, 5, 25,
+and 100 ms of underlying-read latency. Scaling uses explicit reader selection
+with deterministic 64-512 MiB NPY, NIfTI, NRRD, MRC, TIFF, and
+DigitalMicrograph fixtures. TIFF and 4D-STEM DigitalMicrograph rows execute 20
+deterministic selections against one warm open dataset. Full includes the
+contract and scaling families plus available local corpus resources.
+
+Scaling rows are eligible for charts only after at least three measured runs,
+stable correctness hashes, and less than 10% coefficient of variation for the
+recorded first-block, selected-operation, absolute peak RSS, and source-byte
+measurements. Noisy and correctness-only rows remain in the artifacts but are
+excluded from performance charts.
 
 Reports are written to the ignored
 `benchmark/scientific-readers/results/artifacts/scientific-readers/` directory
@@ -214,7 +223,8 @@ as date-stamped JSON and Markdown files plus `latest.json`. The JSON schema
 records process/module/registry timing, detection/open/enumeration/read/close
 stages, absolute RSS and external/ArrayBuffer memory, source requested/returned
 and unique bytes, companion resolutions, payload overlap, and correctness
-evidence. These reports intentionally have no regression gates.
+evidence. The report records per-row stability and publication eligibility;
+these are reporting gates, not pass/fail performance thresholds.
 
 ### Direct scientific JavaScript and WebAssembly competitors
 
@@ -289,13 +299,13 @@ generated before the measured stage; sidecar bytes and generation time are
 reported separately. OME-Zarr remains planned work and is not silently
 represented by the OME-TIFF rows.
 
-The initial volume fixture is shared NIfTI. NRRD and MetaImage endpoints are
-also exposed for future rows, but a viewer is not counted as equivalent until
-its exact format path and output are validated. The current COG endpoint is a
-tracked ordinary TIFF fallback because no exact tiled COG fixture is prepared
-in this checkout. COG rows therefore record that boundary; OpenSeadragon is
-unsupported until the same prepared tile endpoint is available. This avoids
-turning a full-file or striped-TIFF path into a false COG comparison.
+The representative browser fixtures are a shared 512x512x128 NIfTI volume, a
+4096x4096 two-channel tiled OME-TIFF, and an 8192x8192 tiled GeoTIFF whose IFD,
+GeoTIFF metadata, and tile tables precede the pixel payload. NRRD and MetaImage
+endpoints remain available for future exact-support rows, but a viewer is not
+counted as equivalent until its exact format path and output are validated.
+OpenSeadragon remains unsupported until the same prepared tile endpoint is
+available.
 
 Run Chromium cold/warm smoke or an individual family with:
 

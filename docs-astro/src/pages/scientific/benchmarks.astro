@@ -131,8 +131,9 @@ const rangeReaderLabels = benchmark.range.readerIds.map(readerLabel).join(', ')
           <pre><code>npm run bench:scientific:smoke
 npm run bench:scientific:baseline
 npm run bench:scientific:range
+npm run bench:scientific:scaling
 npm run bench:scientific:full</code></pre>
-          <p>Use smoke for a fast contract check, baseline for the page's workload set, range for direct-range latency coverage, and full for the complete profile. Generated fixtures and raw reports stay under the ignored benchmark artifact directory; the page's <a href={benchmarkJsonHref}>JSON snapshot</a> is the reviewable public surface.</p>
+          <p>Use smoke and baseline for contract and startup checks, scaling for representative medium and large performance workloads, range for direct-range latency coverage, and full for the complete profile. Only validated representative rows with at least three runs and less than 10% coefficient of variation are chart-eligible. Generated fixtures and raw reports stay under the ignored benchmark artifact directory; the page's <a href={benchmarkJsonHref}>JSON snapshot</a> is the reviewable public surface.</p>
         </section>
       </article>
 

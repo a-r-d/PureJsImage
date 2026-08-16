@@ -268,25 +268,6 @@ class DigitalMicrographCursor {
     }
     this.position += length
   }
-
-  async uint8(): Promise<number> {
-    return (await this.read(1))[0] ?? 0
-  }
-
-  async uint16BigEndian(): Promise<number> {
-    const bytes = await this.read(2)
-    return new DataView(bytes.buffer, bytes.byteOffset, 2).getUint16(0, false)
-  }
-
-  async uint32BigEndian(): Promise<number> {
-    const bytes = await this.read(4)
-    return new DataView(bytes.buffer, bytes.byteOffset, 4).getUint32(0, false)
-  }
-
-  async uint64BigEndian(): Promise<bigint> {
-    const bytes = await this.read(8)
-    return new DataView(bytes.buffer, bytes.byteOffset, 8).getBigUint64(0, false)
-  }
 }
 
 const safeNumber = (value: bigint, label: string): number => {
@@ -523,11 +504,12 @@ class DigitalMicrographIndexer {
     this.#structuralIntegerBytes = version === 4 ? 8 : 4
   }
 
-  async #structuralInteger(label: string): Promise<bigint> {
+  #structuralInteger(bytes: Uint8Array, offset: number, label: string): bigint {
+    const view = new DataView(bytes.buffer, bytes.byteOffset + offset, this.#structuralIntegerBytes)
     const value =
       this.#structuralIntegerBytes === 8
-        ? await this.#cursor.uint64BigEndian()
-        : BigInt(await this.#cursor.uint32BigEndian())
+        ? view.getBigUint64(0, false)
+        : BigInt(view.getUint32(0, false))
     if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
       throw limitExceeded(`DM ${label} exceeds the JavaScript safe integer range`)
     }
@@ -543,12 +525,13 @@ class DigitalMicrographIndexer {
     if (depth > this.#options.maxDepth) {
       throw limitExceeded(`DM tag-tree depth exceeds ${this.#options.maxDepth}`)
     }
-    const sortedFlag = await this.#cursor.uint8()
-    const openFlag = await this.#cursor.uint8()
+    const groupHeader = await this.#cursor.read(2 + this.#structuralIntegerBytes)
+    const sortedFlag = groupHeader[0] ?? 0
+    const openFlag = groupHeader[1] ?? 0
     if ((sortedFlag !== 0 && sortedFlag !== 1) || (openFlag !== 0 && openFlag !== 1)) {
       throw invalidInput('DM tag group flags must be 0 or 1')
     }
-    const count = safeNumber(await this.#structuralInteger('tag count'), 'tag count')
+    const count = safeNumber(this.#structuralInteger(groupHeader, 2, 'tag count'), 'tag count')
     if (count > this.#options.maxTags - this.tagCount) {
       throw limitExceeded(`DM tag count exceeds ${this.#options.maxTags}`)
     }
@@ -557,22 +540,32 @@ class DigitalMicrographIndexer {
     for (let entry = 0; entry < count; entry += 1) {
       throwIfAborted(this.#options.signal)
       const entryOffset = this.#cursor.position
-      const tagId = await this.#cursor.uint8()
+      const entryHeader = await this.#cursor.read(3)
+      const tagId = entryHeader[0] ?? 0
       if (tagId !== 20 && tagId !== 21) {
         throw invalidInput(`DM tag ID ${tagId} is invalid at offset ${entryOffset}`)
       }
-      const nameLength = await this.#cursor.uint16BigEndian()
+      const nameLength = new DataView(entryHeader.buffer, entryHeader.byteOffset + 1, 2).getUint16(
+        0,
+        false,
+      )
       if (nameLength > this.#options.maxNameBytes) {
         throw limitExceeded(`DM tag name exceeds ${this.#options.maxNameBytes} bytes`)
       }
-      const name = decodeTagName(await this.#cursor.read(nameLength))
+      const entryDetails = await this.#cursor.read(
+        nameLength + (this.#version === 4 ? this.#structuralIntegerBytes : 0),
+      )
+      const name = decodeTagName(entryDetails.subarray(0, nameLength))
       const occurrence = occurrences.get(name) ?? 0
       occurrences.set(name, occurrence + 1)
       const segment = Object.freeze({ name, occurrence })
       const childPath = Object.freeze([...path, segment])
       const declaredContentBytes =
         this.#version === 4
-          ? safeNumber(await this.#structuralInteger('entry byte length'), 'entry byte length')
+          ? safeNumber(
+              this.#structuralInteger(entryDetails, nameLength, 'entry byte length'),
+              'entry byte length',
+            )
           : undefined
       const contentOffset = this.#cursor.position
       const declaredEnd =
@@ -644,7 +637,8 @@ class DigitalMicrographIndexer {
     declaredContentBytes: number | undefined,
     declaredEnd: number | undefined,
   ): Promise<DigitalMicrographValueNode> {
-    const delimiter = await this.#cursor.read(4)
+    const valueHeader = await this.#cursor.read(4 + this.#structuralIntegerBytes)
+    const delimiter = valueHeader.subarray(0, 4)
     if (
       delimiter[0] !== 0x25 ||
       delimiter[1] !== 0x25 ||
@@ -653,14 +647,20 @@ class DigitalMicrographIndexer {
     ) {
       throw invalidInput('DM data tag delimiter is not %%%%')
     }
-    const infoCount = safeNumber(await this.#structuralInteger('info count'), 'info count')
+    const infoCount = safeNumber(
+      this.#structuralInteger(valueHeader, 4, 'info count'),
+      'info count',
+    )
     if (infoCount < 1) throw invalidInput('DM data tag info array is empty')
     if (infoCount > this.#options.maxInfoEntries) {
       throw limitExceeded(`DM info array exceeds ${this.#options.maxInfoEntries} entries`)
     }
+    const infoBytes = await this.#cursor.read(infoCount * this.#structuralIntegerBytes)
     const info: bigint[] = []
     for (let index = 0; index < infoCount; index += 1) {
-      info.push(await this.#structuralInteger('info value'))
+      info.push(
+        this.#structuralInteger(infoBytes, index * this.#structuralIntegerBytes, 'info value'),
+      )
     }
     const descriptor = descriptorFromInfo(Object.freeze(info), this.#options)
     const payloadOffset = this.#cursor.position
@@ -758,15 +758,26 @@ export const indexDigitalMicrograph = async (
   throwIfAborted(resolved.signal)
   const counted = new CountingSource(source)
   const cursor = new DigitalMicrographCursor(counted, resolved.signal)
-  const rawVersion = await cursor.uint32BigEndian()
+  const versionBytes = await cursor.read(4)
+  const rawVersion = new DataView(
+    versionBytes.buffer,
+    versionBytes.byteOffset,
+    versionBytes.byteLength,
+  ).getUint32(0, false)
   if (rawVersion !== 3 && rawVersion !== 4) {
     throw invalidInput(`DM version ${rawVersion} is unsupported; expected 3 or 4`)
   }
   const version: DigitalMicrographVersion = rawVersion
+  const remainingHeader = await cursor.read(version === 4 ? 12 : 8)
+  const remainingView = new DataView(
+    remainingHeader.buffer,
+    remainingHeader.byteOffset,
+    remainingHeader.byteLength,
+  )
   const declaredRootBigInt =
-    version === 4 ? await cursor.uint64BigEndian() : BigInt(await cursor.uint32BigEndian())
+    version === 4 ? remainingView.getBigUint64(0, false) : BigInt(remainingView.getUint32(0, false))
   const declaredRootBytes = safeNumber(declaredRootBigInt, 'root byte length')
-  const byteOrderFlag = await cursor.uint32BigEndian()
+  const byteOrderFlag = remainingView.getUint32(version === 4 ? 8 : 4, false)
   if (byteOrderFlag !== 0 && byteOrderFlag !== 1) {
     throw invalidInput('DM payload byte-order flag must be 0 or 1')
   }

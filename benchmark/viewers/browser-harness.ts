@@ -206,6 +206,7 @@ const renderNumericData = (
 const renderScientific = async (
   dataset: ScientificDataset,
   selection: ScientificPlaneSelection,
+  region?: Readonly<{ x: number; y: number; width: number; height: number }>,
 ): Promise<{
   readonly canvas: HTMLCanvasElement
   readonly outputBytes: number
@@ -214,6 +215,7 @@ const renderScientific = async (
   const started = performance.now()
   const rendered = await renderScientificPlane(dataset, {
     plane: selection,
+    ...(region ?? {}),
     range: { mode: 'percentile', low: 1, high: 99, maxSamples: 4_096 },
     palette: 'grayscale',
   })
@@ -259,12 +261,17 @@ const renderScientificComponentSample = (
 const renderScientificDataset = async (
   dataset: ScientificDataset,
   selection: ScientificPlaneSelection,
+  region?: Readonly<{ x: number; y: number; width: number; height: number }>,
 ): Promise<{
   readonly canvas: HTMLCanvasElement
   readonly outputBytes: number
   readonly firstDecodedAt: number
 }> => {
-  if (dataset.descriptor.components.length === 1) return renderScientific(dataset, selection)
+  if (dataset.descriptor.components.length === 1)
+    return renderScientific(dataset, selection, region)
+  if (region !== undefined) {
+    throw new UnsupportedViewerCase('Bounded multichannel PureJsImage viewer regions are not wired')
+  }
   const channels = dataset.descriptor.components.length
   if (channels !== 3 && channels !== 4) {
     throw new UnsupportedViewerCase(
@@ -1104,7 +1111,22 @@ const pureJsTiffEngine = async (url: string, exactCogFixture = false): Promise<P
           'The tracked COG fixture is an ordinary striped TIFF, not an exact tiled COG',
         )
       }
-      const rendered = await renderScientificDataset(dataset, fixedIndicesFor(dataset, ['x', 'y']))
+      const rendered = await renderScientificDataset(
+        dataset,
+        fixedIndicesFor(dataset, ['x', 'y']),
+        {
+          x: 0,
+          y: 0,
+          width: Math.min(
+            outputWidth,
+            dataset.descriptor.axes.find((axis) => axis.id === 'x')?.length ?? outputWidth,
+          ),
+          height: Math.min(
+            outputHeight,
+            dataset.descriptor.axes.find((axis) => axis.id === 'y')?.length ?? outputHeight,
+          ),
+        },
+      )
       return outputFromCanvas({
         canvas: rendered.canvas,
         outputBytes: rendered.outputBytes,
@@ -1216,9 +1238,9 @@ const prepareEngine = async (
     case 'itk-wasm-volume':
       return itkVolumeEngine(url)
     case 'purejsimage-cog':
-      return pureJsTiffEngine(url, false)
+      return pureJsTiffEngine(url, true)
     case 'geotiff-cog':
-      return geoTiffEngine(url, true)
+      return geoTiffEngine(url)
     case 'cogeotiff':
       return cogeotiffEngine(url)
     case 'openseadragon':
@@ -1453,6 +1475,9 @@ const runViewerBenchmark = async (
   }
   const engines = selectedEngines(profile)
   const workloads = selectedWorkloads(profile)
+  const fixtureManifestResponse = await fetch('/__viewer/manifest', { cache: 'no-store' })
+  if (!fixtureManifestResponse.ok) throw new Error('Viewer fixture manifest is unavailable')
+  const fixtureManifestHash = await hashText(await fixtureManifestResponse.text())
   const sidecarUrl = dataUrl(
     'ome-tiff',
     latencyMilliseconds,
@@ -1514,8 +1539,9 @@ const runViewerBenchmark = async (
     }
   }
   return Object.freeze({
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: new Date().toISOString(),
+    fixtureManifestHash,
     scope: 'all' as const,
     browser: options.browser ?? 'chromium',
     userAgent: navigator.userAgent,
@@ -1531,7 +1557,7 @@ const runViewerBenchmark = async (
       'This lane is separate from low-level scientific-reader scores and has no universal score.',
       'Loader-only samples do not instantiate deck.gl or a complete viewer.',
       'OME-TIFF indexed samples use an IFD offset sidecar generated before timing; sidecar bytes and generation time are reported separately.',
-      'The current COG endpoint is a tracked ordinary TIFF fallback, not a prepared Cloud-Optimized GeoTIFF. COG claims remain unsupported until an exact tiled COG fixture is added.',
+      'The COG endpoint uses a deterministic 8192x8192 tiled GeoTIFF with its IFD, GeoTIFF metadata, and tile tables before the pixel payload.',
       'NIfTI is the shared volume workload. NRRD and MetaImage endpoints are exposed for future exact-support rows and are not silently counted as equivalent.',
       `Requested latency profile: ${latencyMilliseconds} ms; server supports 0, 5, 25, and 100 ms profiles.`,
       `Cold requests force no-store; warm requests use the ${requestedCacheMode} cache profile. Throughput is ${throughputBytesPerSecond === null ? 'unlimited' : `${throughputBytesPerSecond} bytes/s`}.`,

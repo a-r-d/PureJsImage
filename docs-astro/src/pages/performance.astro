@@ -165,7 +165,11 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
               documentation.support.scientificReaderCount
             } explicit readers. The competitor charts use only shared workloads with validated output;
             every published workload includes a PureJsImage row plus at least one external engine.
-            Unsupported semantics remain visible in chart notes and report status counts.
+            The {date(documentation.scientific.scaling.createdAt)} scaling profile admitted {
+              documentation.scientific.scaling.chartEligibleWorkloadCount
+            }/{documentation.scientific.scaling.workloadCount} PureJsImage medium/large rows under the
+            10% CV threshold. Unsupported semantics remain visible in chart notes and report status
+            counts.
           </p>
         </div>
         {
@@ -247,6 +251,11 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
             href={github(documentation.scientific.baseline.reportMarkdown) ?? '#'}
             target="_blank"
             rel="noreferrer">PureJsImage scientific baseline →</a
+          > · <a
+            class="text-link"
+            href={github(documentation.scientific.scaling.reportMarkdown) ?? '#'}
+            target="_blank"
+            rel="noreferrer">PureJsImage medium/large scaling report →</a
           > · <a
             class="text-link"
             href={github(documentation.scientific.competitors.reportMarkdown) ?? '#'}
@@ -356,7 +365,10 @@ npm run bench:competitors
 npm run bench:competitors:charts
 npm run bench:scientific:baseline
 npm run bench:scientific:range
+npm run bench:scientific:scaling
 npm run bench:scientific:competitors:js
+npm run bench:scientific:competitors:baseline
+npm run bench:viewers:smoke
 npm run documentation:write
 npm run documentation:check</code></pre>
         <p>

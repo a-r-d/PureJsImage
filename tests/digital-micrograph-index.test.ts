@@ -881,6 +881,46 @@ describe('DigitalMicrograph tag-tree index', () => {
 })
 
 describe('DigitalMicrograph scientific reader', () => {
+  it('coalesces bounded region rows without materializing the full image payload', async () => {
+    const width = 128
+    const height = 128
+    const bytes = encodedFile(
+      4,
+      'little-endian',
+      readerImages(
+        [
+          {
+            dataType: 10,
+            dimensions: [width, height],
+            type: 'uint16',
+            values: Array.from({ length: width * height }, (_value, index) => index),
+          },
+        ],
+        'little-endian',
+      ),
+    )
+    const source = new TrackingSource(bytes)
+    const document = await digitalMicrographReader.open({
+      primary: { id: 'coalesced', name: 'coalesced.dm4', source },
+    })
+    source.reads.splice(0)
+    const dataset = await document.openDataset('image-0')
+    let rows = 0
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [],
+      x: 16,
+      y: 8,
+      width: 64,
+      height: 64,
+    })) {
+      rows += block.height
+    }
+    expect(rows).toBe(64)
+    expect(source.reads).toHaveLength(1)
+    expect(source.reads[0]?.length).toBeLessThan(width * height * 2)
+  })
+
   it('opens a calibrated volume and reads selected regions directly from its payload', async () => {
     const bytes = encodedFile(4, 'little-endian', readerFixtureTree())
     const context = {

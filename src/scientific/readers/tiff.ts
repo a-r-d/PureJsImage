@@ -3,24 +3,18 @@ import { throwIfAborted } from '../../abort.ts'
 import { openTiffDocument } from '../../codecs/tiff.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import {
-  rasterSampleBytes,
   type RasterBlock,
   type RasterDecoder,
   type RasterFormat,
+  rasterSampleBytes,
 } from '../../raster.ts'
 import {
+  BufferedSource,
   bindImageSourceSignal,
   type ImageSource,
   sourceSessionEnd,
   sourceSessionStart,
 } from '../../source.ts'
-import type {
-  TiffDirectory,
-  TiffDocument,
-  TiffDocumentOptions,
-  TiffTagInfo,
-  TiffTagValue,
-} from '../../tiff/types.ts'
 import {
   defaultTiffCalibrationProfiles,
   type TiffAxisCalibration,
@@ -29,6 +23,13 @@ import {
   type TiffPageAxisCalibration,
 } from '../../tiff/calibration-profiles.ts'
 import { createTiffProfileRegistry, type TiffProfile } from '../../tiff/profiles.ts'
+import type {
+  TiffDirectory,
+  TiffDocument,
+  TiffDocumentOptions,
+  TiffTagInfo,
+  TiffTagValue,
+} from '../../tiff/types.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
@@ -54,6 +55,7 @@ import { resourceHasHint } from './shared.ts'
 
 const defaultMaximumMetadataBytes = 64 * 1024
 const defaultMaximumMetadataTagBytes = 16 * 1024
+const tiffSourceBufferBytes = 64 * 1024
 
 interface SessionManagedSource extends ImageSource {
   [sourceSessionStart](): void
@@ -836,7 +838,11 @@ const createDocument = async (
   if (maximumMetadataTagBytes > maximumMetadataBytes) {
     throw limitExceeded('TIFF reader maxMetadataTagBytes must not exceed maxMetadataBytes')
   }
-  const document = await openTiffDocument(context.primary.source, {
+  const source =
+    context.primary.source instanceof BufferedSource
+      ? context.primary.source
+      : new BufferedSource(context.primary.source, tiffSourceBufferBytes)
+  const document = await openTiffDocument(source, {
     ...(options.limits ?? {}),
     ...(context.signal === undefined ? {} : { signal: context.signal }),
   })
@@ -878,10 +884,7 @@ const createDocument = async (
         datasetId: entry.id,
         resources: [context.primary],
       })
-      const dataset = identifyScientificDataset(
-        new TiffScientificDataset(entry, context.primary.source),
-        identity,
-      )
+      const dataset = identifyScientificDataset(new TiffScientificDataset(entry, source), identity)
       return Object.freeze({ entry, identity, dataset })
     }),
   )

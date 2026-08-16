@@ -8,7 +8,7 @@ import {
   LatencyImageSource,
 } from '../benchmark/scientific-readers/sources.ts'
 import { scientificReaderWorkloads } from '../benchmark/scientific-readers/workloads.ts'
-import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../src/source.ts'
+import { type ImageSource, type ImageSourceReadOptions, MemorySource } from '../src/source.ts'
 
 class CountingBackingSource implements ImageSource {
   readonly size: number
@@ -70,6 +70,23 @@ describe('scientific reader benchmark harness', () => {
     for (const reader of allScientificReaders)
       expect(workloadReaders).toContain(reader.descriptor.id)
     expect(allScientificReaders).toHaveLength(31)
+  })
+
+  it('keeps microfixtures as contract tests and isolates representative scaling workloads', () => {
+    const scaling = scientificReaderWorkloads.filter(({ profiles }) => profiles.includes('scaling'))
+    const baselineOnly = scientificReaderWorkloads.filter(
+      ({ profiles }) => profiles.includes('baseline') && !profiles.includes('scaling'),
+    )
+    expect(scaling.length).toBeGreaterThanOrEqual(10)
+    expect(
+      scaling.every(
+        ({ detectionMode, measurementClass }) =>
+          detectionMode === 'explicit' && measurementClass === 'representative',
+      ),
+    ).toBe(true)
+    expect(
+      baselineOnly.every(({ measurementClass }) => measurementClass === 'correctness-only'),
+    ).toBe(true)
   })
 
   it('prepares deterministic generated companion fixtures with hashes', async () => {

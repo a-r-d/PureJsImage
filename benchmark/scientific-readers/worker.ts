@@ -4,8 +4,8 @@ import type { RasterBlock, RasterSampleType } from '../../src/raster.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../../src/scientific/dataset.ts'
 import type {
   ScientificCompanionRequest,
-  ScientificDocument,
   ScientificDatasetSummary,
+  ScientificDocument,
   ScientificReaderDetection,
   ScientificResource,
 } from '../../src/scientific/reader.ts'
@@ -35,6 +35,10 @@ let LatencyImageSource: typeof import('./sources.ts').LatencyImageSource
 let resourceRunMetrics: typeof import('./sources.ts').resourceRunMetrics
 let allScientificReaders: typeof import('./registry.ts').allScientificReaders
 let scientificEngine: typeof import('./registry.ts').scientificEngine
+type ScientificReaderRegistryInstance = InstanceType<
+  typeof import('../../src/scientific/reader.ts').ScientificReaderRegistry
+>
+let explicitRegistries: ReadonlyMap<string, ScientificReaderRegistryInstance>
 type CountingImageSourceInstance = InstanceType<typeof import('./sources.ts').CountingImageSource>
 
 interface WorkerConfiguration {
@@ -655,7 +659,7 @@ const executeOperation = async (
 
 const executeOnce = async (
   configuration: PreparedRunConfiguration,
-  registry: InstanceType<typeof import('../../src/scientific/reader.ts').ScientificReaderRegistry>,
+  registry: ScientificReaderRegistryInstance,
 ): Promise<ScientificRunResult> => {
   const resources = await buildResources(
     configuration.fixture,
@@ -677,12 +681,19 @@ const executeOnce = async (
   let operationMilliseconds = 0
   let metadataPayload: number | null = null
   try {
+    const selectedRegistry =
+      configuration.workload.detectionMode === 'explicit'
+        ? explicitRegistries.get(configuration.workload.readerId)
+        : registry
+    if (selectedRegistry === undefined) {
+      throw new Error(`Scientific reader ${configuration.workload.readerId} is unavailable`)
+    }
     const detectionStartedAt = performance.now()
-    detection = await registry.detect(context)
+    detection = await selectedRegistry.detect(context)
     detectionMilliseconds = performance.now() - detectionStartedAt
     const afterDetection = sourceSnapshots(resources)
     const documentStartedAt = performance.now()
-    document = await registry.open({
+    document = await selectedRegistry.open({
       ...context,
       readerId: detection.reader.id,
       readerVersion: detection.reader.version,
@@ -856,6 +867,12 @@ scientificEngine = registryModule.scientificEngine
 const moduleImportMilliseconds = performance.now() - moduleImportStartedAt
 const registryConstructionStartedAt = performance.now()
 const registry = new readerModule.ScientificReaderRegistry(allScientificReaders)
+explicitRegistries = new Map(
+  allScientificReaders.map(
+    (reader) =>
+      [reader.descriptor.id, new readerModule.ScientificReaderRegistry([reader])] as const,
+  ),
+)
 const registryConstructionMilliseconds = performance.now() - registryConstructionStartedAt
 const initialized: InitializedMessage = {
   type: 'initialized',

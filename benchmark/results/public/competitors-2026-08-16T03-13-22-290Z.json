@@ -4,13 +4,13 @@
   "publicationValidationStatus": "passed",
   "validationStatus": "passed",
   "source": {
-    "eligibleForDocumentationHeadlines": false,
-    "resultIndex": "benchmark/results/result-index-2026-08-16T12-32-36-126Z.json",
+    "eligibleForDocumentationHeadlines": true,
+    "resultIndex": "benchmark/results/result-index-2026-08-16T17-24-15-257Z.json",
     "resultPaths": [
       "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
       "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md"
     ],
-    "validationStatus": "partial"
+    "validationStatus": "passed"
   },
   "data": {
     "charts": {

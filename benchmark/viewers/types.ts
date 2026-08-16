@@ -1,4 +1,4 @@
-export const viewerBenchmarkSchemaVersion = 1 as const
+export const viewerBenchmarkSchemaVersion = 2 as const
 
 export type ViewerFamily =
   | 'ome-tiff-loaders'
@@ -173,6 +173,7 @@ export interface ViewerBenchmarkSample {
 export interface ViewerBenchmarkReport {
   readonly schemaVersion: typeof viewerBenchmarkSchemaVersion
   readonly generatedAt: string
+  readonly fixtureManifestHash: string
   readonly scope: ViewerReportScope
   readonly browser: ViewerBrowser
   readonly userAgent: string

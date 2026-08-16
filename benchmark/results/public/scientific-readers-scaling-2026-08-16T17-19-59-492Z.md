@@ -1,12 +1,12 @@
-# competitors public benchmark snapshot
+# scientific-readers-scaling public benchmark snapshot
 
-- Date: 2026-08-16T03:13:22.290Z
-- Commit: a2f0ba6
-- Environment fingerprint: cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0
+- Date: 2026-08-16T17:19:59.492Z
+- Commit: fca934c99fd7fdb29fdebae2524eead80634fb44
+- Environment fingerprint: d882798ad85e3fc74565f2348caa96e121ec8f8b2e5520765f3d3c677547d379
 - Publication validation: passed
 - Source validation: passed
 - Documentation headline eligible: yes
-- Status counts: pass=79, unsupported=19
+- Status counts: supported=11
 - Source result index: benchmark/results/result-index-2026-08-16T17-24-15-257Z.json
 
 This compact tracked snapshot contains only the fields consumed by generated public documentation. Raw benchmark output remains local and ignored.

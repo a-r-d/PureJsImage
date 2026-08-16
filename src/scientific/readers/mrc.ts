@@ -11,7 +11,7 @@ import {
   normalizeScientificPlaneReadRequest,
 } from '../dataset.ts'
 import { toScientificDataset } from '../dataset-adapters.ts'
-import { openMrc, type MrcDataset } from '../formats/mrc.ts'
+import { type MrcDataset, type MrcOpenOptions, openMrc } from '../formats/mrc.ts'
 import type {
   ScientificOpenContext,
   ScientificReader,
@@ -140,52 +140,59 @@ class MrcScientificDataset implements ScientificDataset {
   }
 }
 
-export const mrcReader: ScientificReader = Object.freeze({
-  descriptor: mrcReaderDescriptor,
-  async probe(context: Readonly<ScientificOpenContext>) {
-    throwIfAborted(context.signal)
-    const signature = await context.primary.source.read(mrcProbeOffset, mrcProbeBytes, {
-      ...(context.signal === undefined ? {} : { signal: context.signal }),
-    })
-    const matches =
-      signature.byteLength === mrcProbeBytes &&
-      signature[0] === 0x4d &&
-      signature[1] === 0x41 &&
-      signature[2] === 0x50 &&
-      signature[3] === 0x20 &&
-      supportedMachineStamp(signature)
-    if (!matches) return Object.freeze({ confidence: 0, reason: 'MRC signature is absent' })
-    const hinted = resourceHasHint(
-      context.primary,
-      mrcReaderDescriptor.extensions,
-      mrcReaderDescriptor.mediaTypes,
-    )
-    return Object.freeze({
-      confidence: hinted ? 1 : 0.99,
-      reason: hinted ? 'MRC signature and resource hint match' : 'MRC signature matches',
-    })
-  },
-  async open(context: Readonly<ScientificOpenContext>) {
-    throwIfAborted(context.signal)
-    const legacy = await openMrc(context.primary.source)
-    throwIfAborted(context.signal)
-    const formatMetadata = normalizeScientificMetadataObject({
-      byteOrder: legacy.byteOrder,
-      mode: legacy.mode,
-      header: legacy.header,
-    })
-    const dataset = descriptorWithFormatMetadata(
-      new MrcScientificDataset(legacy, context.primary.id),
-      'purejsimage:mrc',
-      formatMetadata,
-    )
-    return singleDatasetDocument({
-      context,
-      reader: mrcReaderDescriptor,
-      metadata: formatMetadata,
-      dataset,
-      datasetId: 'volume',
-      datasetName: 'Volume',
-    })
-  },
-})
+export interface MrcReaderOptions {
+  readonly limits?: Readonly<MrcOpenOptions>
+}
+
+export const createMrcReader = (options: Readonly<MrcReaderOptions> = {}): ScientificReader =>
+  Object.freeze({
+    descriptor: mrcReaderDescriptor,
+    async probe(context: Readonly<ScientificOpenContext>) {
+      throwIfAborted(context.signal)
+      const signature = await context.primary.source.read(mrcProbeOffset, mrcProbeBytes, {
+        ...(context.signal === undefined ? {} : { signal: context.signal }),
+      })
+      const matches =
+        signature.byteLength === mrcProbeBytes &&
+        signature[0] === 0x4d &&
+        signature[1] === 0x41 &&
+        signature[2] === 0x50 &&
+        signature[3] === 0x20 &&
+        supportedMachineStamp(signature)
+      if (!matches) return Object.freeze({ confidence: 0, reason: 'MRC signature is absent' })
+      const hinted = resourceHasHint(
+        context.primary,
+        mrcReaderDescriptor.extensions,
+        mrcReaderDescriptor.mediaTypes,
+      )
+      return Object.freeze({
+        confidence: hinted ? 1 : 0.99,
+        reason: hinted ? 'MRC signature and resource hint match' : 'MRC signature matches',
+      })
+    },
+    async open(context: Readonly<ScientificOpenContext>) {
+      throwIfAborted(context.signal)
+      const legacy = await openMrc(context.primary.source, options.limits)
+      throwIfAborted(context.signal)
+      const formatMetadata = normalizeScientificMetadataObject({
+        byteOrder: legacy.byteOrder,
+        mode: legacy.mode,
+        header: legacy.header,
+      })
+      const dataset = descriptorWithFormatMetadata(
+        new MrcScientificDataset(legacy, context.primary.id),
+        'purejsimage:mrc',
+        formatMetadata,
+      )
+      return singleDatasetDocument({
+        context,
+        reader: mrcReaderDescriptor,
+        metadata: formatMetadata,
+        dataset,
+        datasetId: 'volume',
+        datasetName: 'Volume',
+      })
+    },
+  })
+
+export const mrcReader: ScientificReader = createMrcReader()

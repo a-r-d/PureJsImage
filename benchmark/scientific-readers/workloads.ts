@@ -32,6 +32,7 @@ const workload = (options: {
   readonly calibrationAxes?: readonly string[]
   readonly directRangeReader?: boolean
   readonly operation?: ScientificOperationKind
+  readonly detectionMode?: 'registry' | 'explicit'
 }): ScientificWorkload =>
   Object.freeze({
     id: options.id,
@@ -49,7 +50,7 @@ const workload = (options: {
       ? {}
       : { descriptorAssertion: options.descriptorAssertion }),
     ...(options.calibrationAxes === undefined ? {} : { calibrationAxes: options.calibrationAxes }),
-    detectionMode: 'registry',
+    detectionMode: options.detectionMode ?? 'registry',
     directRangeReader: options.directRangeReader ?? false,
     ...(options.operation === undefined ? {} : { operation: options.operation }),
   })
@@ -58,7 +59,7 @@ const representative = (options: Parameters<typeof workload>[0]): ScientificWork
   workload({ ...options, measurementClass: 'representative' })
 
 export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.freeze([
-  representative({
+  workload({
     id: 'gsf-surface',
     title: 'GSF numeric surface plane',
     readerId: 'purejsimage/gsf',
@@ -68,7 +69,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     calibrationAxes: ['x', 'y'],
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'nanonis-afm-plane',
     title: 'Nanonis SXM AFM plane',
     readerId: 'purejsimage/nanonis-sxm',
@@ -76,7 +77,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
     directRangeReader: true,
   }),
-  representative({
+  workload({
     id: 'igor-wave-plane',
     title: 'Igor binary wave plane',
     readerId: 'purejsimage/igor-binary-wave',
@@ -84,7 +85,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
     directRangeReader: true,
   }),
-  representative({
+  workload({
     id: 'digital-surf-plane',
     title: 'Digital Surf compressed surface plane',
     readerId: 'purejsimage/digital-surf',
@@ -93,7 +94,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     calibrationAxes: ['x', 'y'],
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'x3p-plane',
     title: 'X3P ISO 5436 plane',
     readerId: 'purejsimage/x3p',
@@ -110,7 +111,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     selection: plane({ displayAxes: ['x', 'y'], region: { x: 0, y: 0, width: 16, height: 16 } }),
     directRangeReader: true,
   }),
-  representative({
+  workload({
     id: 'fits-cube-plane',
     title: 'FITS cube plane',
     readerId: 'purejsimage/fits',
@@ -139,7 +140,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'png-image-plane',
     title: 'PNG scientific image adapter',
     readerId: 'purejsimage/png',
@@ -148,7 +149,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     descriptorAssertion: { sampleType: 'uint8' },
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'jpeg-image-plane',
     title: 'JPEG scientific image adapter',
     readerId: 'purejsimage/jpeg',
@@ -157,7 +158,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     descriptorAssertion: { sampleType: 'uint8' },
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'webp-image-plane',
     title: 'WebP scientific image adapter',
     readerId: 'purejsimage/webp',
@@ -166,7 +167,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     descriptorAssertion: { sampleType: 'uint8' },
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'bmp-image-plane',
     title: 'BMP scientific image adapter',
     readerId: 'purejsimage/bmp',
@@ -175,7 +176,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     descriptorAssertion: { sampleType: 'uint8' },
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'jp2-image-plane',
     title: 'JPEG 2000 scientific image adapter',
     readerId: 'purejsimage/jp2',
@@ -184,7 +185,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     descriptorAssertion: { sampleType: 'uint8' },
     directRangeReader: false,
   }),
-  representative({
+  workload({
     id: 'ordinary-tiff-region',
     title: 'Ordinary TIFF bounded region',
     readerId: 'purejsimage/tiff',
@@ -208,7 +209,7 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     }),
     directRangeReader: true,
   }),
-  representative({
+  workload({
     id: 'aperio-svs-region',
     title: 'Aperio SVS whole-slide region',
     readerId: 'purejsimage/aperio-svs',
@@ -479,6 +480,139 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
       randomRegions: { count: 4, width: 32, height: 24, seed: 23 },
     }),
     operation: 'random-regions',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-npy-medium-full-plane',
+    title: 'NPY medium full native plane (64 MiB)',
+    readerId: 'purejsimage/npy',
+    fixtureId: 'npy-medium',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-npy-large-full-plane',
+    title: 'NPY large full native plane (256 MiB)',
+    readerId: 'purejsimage/npy',
+    fixtureId: 'npy-large',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-nifti-medium-full-plane',
+    title: 'NIfTI medium full native plane (64 MiB)',
+    readerId: 'purejsimage/nifti',
+    fixtureId: 'nifti-medium',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-nifti-large-full-plane',
+    title: 'NIfTI large full native plane (256 MiB)',
+    readerId: 'purejsimage/nifti',
+    fixtureId: 'nifti-large',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-nrrd-medium-full-plane',
+    title: 'NRRD medium full native plane (64 MiB)',
+    readerId: 'purejsimage/nrrd',
+    fixtureId: 'nrrd-medium',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-nrrd-large-full-plane',
+    title: 'NRRD large full native plane (256 MiB)',
+    readerId: 'purejsimage/nrrd',
+    fixtureId: 'nrrd-large',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-mrc-medium-full-plane',
+    title: 'MRC medium full native plane (128 MiB)',
+    readerId: 'purejsimage/mrc',
+    fixtureId: 'mrc-medium',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-mrc-large-full-plane',
+    title: 'MRC large full native plane (512 MiB)',
+    readerId: 'purejsimage/mrc',
+    fixtureId: 'mrc-large',
+    profiles: ['scaling', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-tiff-medium-warm-regions',
+    title: 'TIFF medium warm repeated regions (64 MiB)',
+    readerId: 'purejsimage/tiff',
+    fixtureId: 'tiff-medium',
+    profiles: ['scaling', 'full'],
+    selection: plane({
+      randomRegions: { count: 20, width: 256, height: 256, seed: 23 },
+    }),
+    operation: 'warm-repeated-selections',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-tiff-large-warm-regions',
+    title: 'TIFF large warm repeated regions (256 MiB)',
+    readerId: 'purejsimage/tiff',
+    fixtureId: 'tiff-large',
+    profiles: ['scaling', 'full'],
+    selection: plane({
+      randomRegions: { count: 20, width: 256, height: 256, seed: 23 },
+    }),
+    operation: 'warm-repeated-selections',
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'scaling-dm-medium-warm-diffraction-regions',
+    title: 'DigitalMicrograph medium 4D-STEM warm repeated diffraction regions',
+    readerId: 'purejsimage/digital-micrograph',
+    fixtureId: 'digital-micrograph-4d-stem-medium',
+    profiles: ['scaling', 'full'],
+    selection: plane({
+      displayAxes: ['kx', 'ky'],
+      fixedIndices: [
+        { axisId: 'scanX', index: 0 },
+        { axisId: 'scanY', index: 0 },
+      ],
+      randomRegions: { count: 20, width: 64, height: 64, seed: 23 },
+    }),
+    descriptorAssertion: { sampleType: 'uint16', axisId: 'kx' },
+    operation: 'warm-repeated-selections',
+    detectionMode: 'explicit',
     directRangeReader: true,
   }),
 ])

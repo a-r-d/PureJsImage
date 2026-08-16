@@ -43,6 +43,7 @@ interface ScientificCompetitorEngine {
 }
 
 interface ScientificCompetitorResult {
+  readonly correctnessStable: boolean
   readonly engineId: string
   readonly implementationClass: string
   readonly packageVersion: string
@@ -50,11 +51,14 @@ interface ScientificCompetitorResult {
   readonly firstUsableDataCvPercent: number | null
   readonly firstUsableDataMilliseconds: number
   readonly inputCopyBytes: number
+  readonly eligibleForCharts: boolean
   readonly peakRssCvPercent: number | null
   readonly peakRssBytes: number
+  readonly lowNoise: boolean
   readonly requestCount: number
   readonly sourceBytesCvPercent: number | null
   readonly sourceBytes: number
+  readonly representative: boolean
   readonly status: string
   readonly title: string
   readonly totalWallCvPercent: number | null
@@ -290,6 +294,29 @@ const parseScientificRangeReport = (value: unknown, path: string) => {
   })
 }
 
+const parseScientificScalingReport = (value: unknown, path: string) => {
+  const report = recordValue(value, path)
+  const data = recordValue(report.data, `${path}.data`)
+  const results = arrayValue(data.results, `${path}.data.results`).map((entry, index) => {
+    const result = recordValue(entry, `${path}.data.results[${index}]`)
+    return {
+      eligibleForCharts: booleanValue(
+        result.eligibleForCharts,
+        `${path}.data.results[${index}].eligibleForCharts`,
+      ),
+      status: stringValue(result.status, `${path}.data.results[${index}].status`),
+      workloadId: stringValue(result.workloadId, `${path}.data.results[${index}].workloadId`),
+    }
+  })
+  if (results.some(({ status }) => status !== 'supported')) {
+    throw new Error('Scientific scaling report contains failed output')
+  }
+  return {
+    createdAt: stringValue(data.createdAt, `${path}.data.createdAt`),
+    results,
+  }
+}
+
 const parseScientificCompetitorReport = (value: unknown, path: string) => {
   const report = recordValue(value, path)
   const data = recordValue(report.data, `${path}.data`)
@@ -317,6 +344,10 @@ const parseScientificCompetitorReport = (value: unknown, path: string) => {
       throw new Error(`${path}.results[${index}] references unrecorded engine ${engineId}`)
     }
     return {
+      correctnessStable: booleanValue(
+        result.correctnessStable,
+        `${path}.results[${index}].correctnessStable`,
+      ),
       engineId,
       family: stringValue(result.family, `${path}.results[${index}].family`),
       firstUsableDataCvPercent: nullableNumber(
@@ -331,6 +362,10 @@ const parseScientificCompetitorReport = (value: unknown, path: string) => {
         result.inputCopyBytes,
         `${path}.results[${index}].inputCopyBytes`,
       ),
+      eligibleForCharts: booleanValue(
+        result.eligibleForCharts,
+        `${path}.results[${index}].eligibleForCharts`,
+      ),
       implementationClass: engineMetadata.implementationClass,
       packageVersion: engineMetadata.packageVersion,
       peakRssCvPercent: nullableNumber(
@@ -338,12 +373,17 @@ const parseScientificCompetitorReport = (value: unknown, path: string) => {
         `${path}.results[${index}].peakRssCvPercent`,
       ),
       peakRssBytes: numberValue(result.peakRssBytes, `${path}.results[${index}].peakRssBytes`),
+      lowNoise: booleanValue(result.lowNoise, `${path}.results[${index}].lowNoise`),
       requestCount: numberValue(result.requestCount, `${path}.results[${index}].requestCount`),
       sourceBytesCvPercent: nullableNumber(
         result.sourceBytesCvPercent,
         `${path}.results[${index}].sourceBytesCvPercent`,
       ),
       sourceBytes: numberValue(result.sourceBytes, `${path}.results[${index}].sourceBytes`),
+      representative: booleanValue(
+        result.representative,
+        `${path}.results[${index}].representative`,
+      ),
       status: stringValue(result.status, `${path}.results[${index}].status`),
       title: stringValue(result.title, `${path}.results[${index}].title`),
       totalWallCvPercent: nullableNumber(
@@ -580,33 +620,53 @@ const replaceRegion = (source: string, id: string, content: string): string => {
 const resultIndex = await latestResultIndex()
 const ordinaryEntry = latestEntry(resultIndex, 'competitors')
 const scientificEntry = latestEntry(resultIndex, 'scientific-readers-baseline')
+const scientificScalingEntry = latestEntry(resultIndex, 'scientific-readers-scaling')
 const rangeEntry = latestEntry(resultIndex, 'scientific-readers-range')
 const scientificCompetitorEntry = latestEntry(resultIndex, 'scientific-competitors-baseline')
-for (const entry of [ordinaryEntry, scientificEntry]) {
+for (const entry of [ordinaryEntry, scientificEntry, scientificScalingEntry]) {
   if (entry.validationStatus !== 'passed' || !entry.eligibleForDocumentationHeadlines) {
     throw new Error(`${entry.profile} is not eligible for a documentation headline`)
   }
 }
 const ordinaryPath = jsonResultPath(ordinaryEntry)
 const scientificPath = jsonResultPath(scientificEntry)
+const scientificScalingPath = jsonResultPath(scientificScalingEntry)
 const rangePath = jsonResultPath(rangeEntry)
 const scientificCompetitorPath = jsonResultPath(scientificCompetitorEntry)
-for (const path of [ordinaryPath, scientificPath, rangePath, scientificCompetitorPath]) {
+for (const path of [
+  ordinaryPath,
+  scientificPath,
+  scientificScalingPath,
+  rangePath,
+  scientificCompetitorPath,
+]) {
   if (!(await pathExists(path))) throw new Error(`Result index references missing result: ${path}`)
 }
 
-const [manifest, packageMetricsValue, ordinaryValue, scientificValue, rangeValue, competitorValue] =
-  await Promise.all([
-    readCapabilityManifest(),
-    readJson(join(repositoryDirectory, 'benchmark/generated/package-metrics.json')),
-    readJson(ordinaryPath),
-    readJson(scientificPath),
-    readJson(rangePath),
-    readJson(scientificCompetitorPath),
-  ])
+const [
+  manifest,
+  packageMetricsValue,
+  ordinaryValue,
+  scientificValue,
+  scientificScalingValue,
+  rangeValue,
+  competitorValue,
+] = await Promise.all([
+  readCapabilityManifest(),
+  readJson(join(repositoryDirectory, 'benchmark/generated/package-metrics.json')),
+  readJson(ordinaryPath),
+  readJson(scientificPath),
+  readJson(scientificScalingPath),
+  readJson(rangePath),
+  readJson(scientificCompetitorPath),
+])
 const packageMetrics = parsePackageMetrics(packageMetricsValue)
 const ordinary = parseOrdinaryReport(ordinaryValue, ordinaryPath)
 const scientific = parseScientificReport(scientificValue, scientificPath)
+const scientificScaling = parseScientificScalingReport(
+  scientificScalingValue,
+  scientificScalingPath,
+)
 const rangeResults = parseScientificRangeReport(rangeValue, rangePath)
 const scientificCompetitors = parseScientificCompetitorReport(
   competitorValue,
@@ -662,25 +722,27 @@ for (const chart of ordinaryCharts) {
     throw new Error(`Chart references missing result: ${chart.source}`)
 }
 
-const sharedWorkloadIds = [
+const sharedWorkloadCandidates = [
   'tiff-window',
-  'nifti-selected-slice',
+  'nifti-full',
   'nrrd-full',
   'mrc-full',
   'npy-c-full',
 ]
-const chartRows = scientificCompetitors.results.filter(
-  ({ status, workloadId }) => status === 'supported' && sharedWorkloadIds.includes(workloadId),
+const eligibleScientificRows = scientificCompetitors.results.filter(
+  ({ eligibleForCharts, workloadId }) =>
+    eligibleForCharts && sharedWorkloadCandidates.includes(workloadId),
 )
-for (const workloadId of sharedWorkloadIds) {
-  const workloadRows = chartRows.filter((row) => row.workloadId === workloadId)
-  if (!workloadRows.some(({ engineId }) => engineId === 'purejsimage')) {
-    throw new Error(`Scientific chart workload ${workloadId} omits PureJsImage`)
-  }
-  if (workloadRows.length < 2) {
-    throw new Error(`Scientific chart workload ${workloadId} is not shared by at least two engines`)
-  }
+const sharedWorkloadIds = sharedWorkloadCandidates.filter((workloadId) => {
+  const workloadRows = eligibleScientificRows.filter((row) => row.workloadId === workloadId)
+  return workloadRows.length >= 2 && workloadRows.some(({ engineId }) => engineId === 'purejsimage')
+})
+if (sharedWorkloadIds.length === 0) {
+  throw new Error('Scientific charts have no stable shared workload with a PureJsImage row')
 }
+const chartRows = eligibleScientificRows.filter(({ workloadId }) =>
+  sharedWorkloadIds.includes(workloadId),
+)
 const competitorCounts = scientificCompetitors.results.reduce<Record<string, number>>(
   (counts, result) => {
     counts[result.status] = (counts[result.status] ?? 0) + 1
@@ -972,25 +1034,32 @@ const documentation = {
       createdAt: scientificCompetitors.createdAt,
       engineVersions: scientificCompetitors.engines,
       environment: scientificCompetitors.environment,
-      noisyRows: chartRows.flatMap((row) =>
-        [
-          ['first usable data', row.firstUsableDataCvPercent],
-          ['selected operation', row.totalWallCvPercent],
-          ['absolute peak RSS', row.peakRssCvPercent],
-          ['source bytes', row.sourceBytesCvPercent],
-        ].flatMap(([metric, variation]) =>
-          typeof variation === 'number' && variation >= 10
-            ? [
-                {
-                  cvPercent: variation,
-                  engineId: row.engineId,
-                  metric,
-                  workloadId: row.workloadId,
-                },
-              ]
-            : [],
+      noisyRows: scientificCompetitors.results
+        .filter(
+          ({ representative, status, workloadId }) =>
+            representative &&
+            status === 'supported' &&
+            sharedWorkloadCandidates.includes(workloadId),
+        )
+        .flatMap((row) =>
+          [
+            ['first usable data', row.firstUsableDataCvPercent],
+            ['selected operation', row.totalWallCvPercent],
+            ['absolute peak RSS', row.peakRssCvPercent],
+            ['source bytes', row.sourceBytesCvPercent],
+          ].flatMap(([metric, variation]) =>
+            typeof variation === 'number' && variation >= 10
+              ? [
+                  {
+                    cvPercent: variation,
+                    engineId: row.engineId,
+                    metric,
+                    workloadId: row.workloadId,
+                  },
+                ]
+              : [],
+          ),
         ),
-      ),
       reportJson: portablePath(scientificCompetitorPath),
       reportMarkdown:
         scientificCompetitorEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
@@ -1001,6 +1070,16 @@ const documentation = {
       reportJson: portablePath(rangePath),
       reportMarkdown: rangeEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
       statusCounts: rangeCounts,
+    },
+    scaling: {
+      chartEligibleWorkloadCount: scientificScaling.results.filter(
+        ({ eligibleForCharts }) => eligibleForCharts,
+      ).length,
+      createdAt: scientificScaling.createdAt,
+      reportJson: portablePath(scientificScalingPath),
+      reportMarkdown:
+        scientificScalingEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
+      workloadCount: scientificScaling.results.length,
     },
   },
   scientificFormats,
@@ -1036,7 +1115,7 @@ const benchmarkBlock = [
   '',
   `**Ordinary images (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
-  `**Scientific readers (${scientific.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} reader workflows passed correctness validation across ${manifest.scientificReaders.length} readers: ${representativeScientificCount} representative performance workloads and ${contractScientificCount} correctness or contract workloads. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
+  `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup workflows passed across ${manifest.scientificReaders.length} readers. The separate medium/large scaling profile validated ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
   '',

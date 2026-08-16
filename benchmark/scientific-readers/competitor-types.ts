@@ -146,6 +146,8 @@ export interface ScientificCompetitorReport {
     readonly nodeVersion?: string
     readonly platform?: string
     readonly architecture?: string
+    readonly gitCommit?: string
+    readonly gitDirty?: boolean
   }
   readonly configuration: {
     readonly runs: number

@@ -814,47 +814,75 @@ class DigitalMicrographScientificDataset implements ScientificDataset {
       stride *= this.#layout.dimensions[dimension] ?? 0
     }
     const width = this.#layout.dimensions[0] ?? 0
-    for (let row = 0; row < normalized.height; row += 1) {
+    const selectedRowBytes = normalized.width * pixelBytes
+    const storageRowBytes = width * pixelBytes
+    const maximumBatchRows = Math.max(
+      1,
+      Math.min(
+        normalized.height,
+        1 +
+          Math.floor(
+            (Math.min(this.#limits.maxRegionBytes, dmMaximumCoalescedReadBytes) -
+              selectedRowBytes) /
+              storageRowBytes,
+          ),
+      ),
+    )
+    for (let row = 0; row < normalized.height; row += maximumBatchRows) {
       throwIfAborted(normalized.signal)
+      const batchRows = Math.min(maximumBatchRows, normalized.height - row)
       const sampleOffset = fixedOffset + (normalized.y + row) * width + normalized.x
       const sourceOffset = this.#layout.data.payload.offset + sampleOffset * pixelBytes
-      const source = await readExactly(this.#source, sourceOffset, normalized.width * pixelBytes, {
-        ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
-      })
-      let data = source
-      if (channels === 4) {
-        data = new Uint8Array(source.byteLength)
-        for (let pixel = 0; pixel < normalized.width; pixel += 1) {
-          const offset = pixel * 4
-          data[offset] = source[offset + 2] ?? 0
-          data[offset + 1] = source[offset + 1] ?? 0
-          data[offset + 2] = source[offset] ?? 0
-          data[offset + 3] = source[offset + 3] ?? 0
+      const source = await readExactly(
+        this.#source,
+        sourceOffset,
+        selectedRowBytes + (batchRows - 1) * storageRowBytes,
+        {
+          ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
+        },
+      )
+      for (let batchRow = 0; batchRow < batchRows; batchRow += 1) {
+        throwIfAborted(normalized.signal)
+        const sourceRow = source.subarray(
+          batchRow * storageRowBytes,
+          batchRow * storageRowBytes + selectedRowBytes,
+        )
+        let data: Uint8Array
+        if (channels === 4) {
+          data = new Uint8Array(sourceRow.byteLength)
+          for (let pixel = 0; pixel < normalized.width; pixel += 1) {
+            const offset = pixel * 4
+            data[offset] = sourceRow[offset + 2] ?? 0
+            data[offset + 1] = sourceRow[offset + 1] ?? 0
+            data[offset + 2] = sourceRow[offset] ?? 0
+            data[offset + 3] = sourceRow[offset + 3] ?? 0
+          }
+        } else {
+          data = sourceRow.slice()
+          if (bytesPerSample > 1 && this.#layout.data.payload.byteOrder === 'little-endian') {
+            swapSamplesToBigEndian(data, bytesPerSample)
+          }
         }
-      } else {
-        data = source.slice()
-        if (bytesPerSample > 1 && this.#layout.data.payload.byteOrder === 'little-endian') {
-          swapSamplesToBigEndian(data, bytesPerSample)
-        }
+        yield Object.freeze({
+          x: normalized.x,
+          y: normalized.y + row + batchRow,
+          width: normalized.width,
+          height: 1,
+          stride: selectedRowBytes,
+          format: Object.freeze({
+            sampleType: this.#layout.sampleType,
+            channels,
+            planar: false,
+          }),
+          data,
+        })
       }
-      yield Object.freeze({
-        x: normalized.x,
-        y: normalized.y + row,
-        width: normalized.width,
-        height: 1,
-        stride: normalized.width * pixelBytes,
-        format: Object.freeze({
-          sampleType: this.#layout.sampleType,
-          channels,
-          planar: false,
-        }),
-        data,
-      })
     }
   }
 }
 
 const dmProbeBytes = 16
+const dmMaximumCoalescedReadBytes = 1024 * 1024
 
 export const createDigitalMicrographReader = (
   options: Readonly<DigitalMicrographReaderOptions> = {},

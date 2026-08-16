@@ -201,6 +201,7 @@ describe('package contract', () => {
     expect(publicIndex.results.map(({ profile }) => profile)).toEqual([
       'competitors',
       'scientific-readers-baseline',
+      'scientific-readers-scaling',
       'scientific-readers-range',
       'scientific-competitors-baseline',
     ])

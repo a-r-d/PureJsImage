@@ -3,12 +3,10 @@ import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { performance } from 'node:perf_hooks'
-
-import { scientificEngine, allScientificReaders } from './registry.ts'
+import { fileURLToPath } from 'node:url'
 import { prepareScientificFixture, scientificFixtureDefinitions } from './catalog.ts'
-import { workloadsForScientificProfile } from './workloads.ts'
+import { allScientificReaders, scientificEngine } from './registry.ts'
 import type {
   CorrectnessSummary,
   MemorySummary,
@@ -17,14 +15,15 @@ import type {
   PreparedFixtureSummary,
   ResourceSourceSummary,
   ScientificBenchmarkProfile,
-  ScientificBenchmarkResult,
   ScientificBenchmarkReport,
+  ScientificBenchmarkResult,
   ScientificBenchmarkStatus,
   ScientificEnvironmentIdentity,
   ScientificRunResult,
   SourceSummary,
   TimingSummary,
 } from './types.ts'
+import { workloadsForScientificProfile } from './workloads.ts'
 
 const benchmarkDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryDirectory = dirname(dirname(benchmarkDirectory))
@@ -37,7 +36,11 @@ const argument = (name: string, fallback?: string): string | undefined => {
 }
 
 const isScientificBenchmarkProfile = (value: string): value is ScientificBenchmarkProfile =>
-  value === 'smoke' || value === 'baseline' || value === 'range' || value === 'full'
+  value === 'smoke' ||
+  value === 'baseline' ||
+  value === 'range' ||
+  value === 'scaling' ||
+  value === 'full'
 
 const profileArgument = argument('profile', 'smoke') ?? 'smoke'
 if (!isScientificBenchmarkProfile(profileArgument))
@@ -203,6 +206,14 @@ const numericSummary = (values: readonly number[]): NumericSummary | null => {
     minimum: finite[0] ?? 0,
     maximum: finite[finite.length - 1] ?? 0,
   })
+}
+
+const coefficientOfVariationPercent = (values: readonly number[]): number | null => {
+  if (values.length < 2) return null
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length
+  if (mean === 0) return null
+  const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length
+  return (Math.sqrt(variance) / Math.abs(mean)) * 100
 }
 
 const booleanAll = (values: readonly boolean[]): boolean | null =>
@@ -631,6 +642,41 @@ const resultFor = (
   environmentIdentity: ReturnType<typeof environment>,
 ): ScientificBenchmarkResult => {
   const status = aggregateStatus(runResults)
+  const measurementClass =
+    fixture.representative && workload.measurementClass === 'representative'
+      ? 'representative'
+      : 'correctness-only'
+  const supported = supportedRuns(runResults)
+  const correctnessKeys = supported.map((result) => JSON.stringify(result.correctness))
+  const correctnessStable =
+    supported.length === runResults.length && new Set(correctnessKeys).size === 1
+  const firstBlockCvPercent = coefficientOfVariationPercent(
+    supported
+      .map((result) => result.timing.timeToFirstEmittedBlockMilliseconds)
+      .filter((value): value is number => value !== null),
+  )
+  const selectedOperationCvPercent = coefficientOfVariationPercent(
+    supported.map((result) => result.timing.completeSelectedOperationMilliseconds),
+  )
+  const absolutePeakRssCvPercent = coefficientOfVariationPercent(
+    supported.map((result) => result.memory.absolutePeakRssBytes),
+  )
+  const sourceBytesCvPercent = coefficientOfVariationPercent(
+    supported.map((result) => result.source.returnedBytes),
+  )
+  const variations = [
+    firstBlockCvPercent,
+    selectedOperationCvPercent,
+    absolutePeakRssCvPercent,
+    sourceBytesCvPercent,
+  ].filter((value): value is number => value !== null)
+  const lowNoise = runResults.length >= 3 && variations.every((value) => value < 10)
+  const eligibleForDocumentationHeadlines =
+    profile === 'scaling' &&
+    measurementClass === 'representative' &&
+    status.status === 'supported' &&
+    correctnessStable &&
+    lowNoise
   return Object.freeze({
     identity: Object.freeze({
       schemaVersion: 1,
@@ -648,10 +694,7 @@ const resultFor = (
       sourceLatencyMilliseconds: latency,
       operation: workload.operation ?? 'selected',
     }),
-    measurementClass:
-      fixture.representative && workload.measurementClass === 'representative'
-        ? 'representative'
-        : 'correctness-only',
+    measurementClass,
     fixture: Object.freeze({
       provenance: fixture.provenance,
       supportBoundary: fixture.supportBoundary,
@@ -664,6 +707,16 @@ const resultFor = (
     memory: aggregateMemory(runResults),
     source: aggregateSource(runResults),
     correctness: aggregateCorrectness(runResults),
+    stability: Object.freeze({
+      measuredRuns: runResults.length,
+      correctnessStable,
+      firstBlockCvPercent,
+      selectedOperationCvPercent,
+      absolutePeakRssCvPercent,
+      sourceBytesCvPercent,
+      lowNoise,
+      eligibleForDocumentationHeadlines,
+    }),
     runs: Object.freeze(runResults),
   })
 }
@@ -680,7 +733,7 @@ const renderMarkdown = (report: ScientificBenchmarkReport): string => {
   const rows = report.results
     .map(
       (result) =>
-        `| ${result.identity.workloadId} | ${result.identity.reader.id} | ${result.status} | ${result.measurementClass} | ${milliseconds(result.timing.totalWallMilliseconds)} | ${milliseconds(result.timing.timeToFirstEmittedBlockMilliseconds)} | ${bytes(result.memory.absolutePeakRssBytes?.median)} | ${bytes(result.source.readCalls?.median)} | ${ratio(result.source.overfetchRatio)} |`,
+        `| ${result.identity.workloadId} | ${result.identity.reader.id} | ${result.status} | ${result.measurementClass} | ${result.stability.lowNoise ? 'yes' : 'no'} | ${milliseconds(result.timing.totalWallMilliseconds)} | ${milliseconds(result.timing.timeToFirstEmittedBlockMilliseconds)} | ${bytes(result.memory.absolutePeakRssBytes?.median)} | ${bytes(result.source.readCalls?.median)} | ${ratio(result.source.overfetchRatio)} |`,
     )
     .join('\n')
   const largestRead = supported
@@ -698,7 +751,7 @@ const renderMarkdown = (report: ScientificBenchmarkReport): string => {
       bytes: result.memory.maximumEmittedBlockBytes?.median ?? 0,
     }))
     .sort((left, right) => right.bytes - left.bytes)[0]
-  return `# Scientific reader benchmark (${report.profile})\n\nCreated ${report.createdAt}. Fixture preparation and output validation were excluded from timed operations. There are no regression gates in this report.\n\n## Status\n\n| Workload | Reader | Status | Measurement class | Total wall ms | First block ms | Peak RSS bytes | Read calls | Overfetch |\n| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Coverage\n\n- Workloads: ${report.results.length}\n- Supported results: ${supported.length}\n- Representative results: ${report.results.filter((result) => result.measurementClass === 'representative').length}\n- Correctness-only results: ${report.results.filter((result) => result.measurementClass === 'correctness-only').length}\n- Direct-range workload results: ${report.results.filter((result) => result.identity.sourceLatencyMilliseconds > 0 || result.identity.reader.id === 'purejsimage/aperio-svs').length}\n- Corpus resources were not copied into the repository; generated fallbacks are written under the ignored benchmark artifact directory.\n\n## Handoff highlights\n\n- Highest median individual source read: ${largestRead === undefined ? 'none' : `${largestRead.workload} ${largestRead.bytes} bytes`}\n- Largest median emitted block: ${largestBlock === undefined ? 'none' : `${largestBlock.workload} ${largestBlock.bytes} bytes`}\n- The source table in JSON contains per-resource requested, returned, unique-touched, and completeness evidence.\n\n## Fixture boundaries\n\n${report.fixturePreparation.fixtures.map((fixture) => `- **${fixture.id}** (${fixture.representative ? 'representative' : 'correctness-only'}): ${fixture.supportBoundary} Provenance: ${fixture.provenance} Oracle: ${fixture.expectedOracle}`).join('\n')}\n`
+  return `# Scientific reader benchmark (${report.profile})\n\nCreated ${report.createdAt}. Fixture preparation and output validation were excluded from timed operations. Only representative rows with at least three measured runs, stable correctness, and less than 10% coefficient of variation are eligible for publication.\n\n## Status\n\n| Workload | Reader | Status | Measurement class | Low noise | Total wall ms | First block ms | Peak RSS bytes | Read calls | Overfetch |\n| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n## Coverage\n\n- Workloads: ${report.results.length}\n- Supported results: ${supported.length}\n- Representative results: ${report.results.filter((result) => result.measurementClass === 'representative').length}\n- Headline-eligible results: ${report.results.filter((result) => result.stability.eligibleForDocumentationHeadlines).length}\n- Correctness-only results: ${report.results.filter((result) => result.measurementClass === 'correctness-only').length}\n- Direct-range workload results: ${report.results.filter((result) => result.identity.sourceLatencyMilliseconds > 0 || result.identity.reader.id === 'purejsimage/aperio-svs').length}\n- Corpus resources were not copied into the repository; generated fallbacks are written under the ignored benchmark artifact directory.\n\n## Handoff highlights\n\n- Highest median individual source read: ${largestRead === undefined ? 'none' : `${largestRead.workload} ${largestRead.bytes} bytes`}\n- Largest median emitted block: ${largestBlock === undefined ? 'none' : `${largestBlock.workload} ${largestBlock.bytes} bytes`}\n- The source table in JSON contains per-resource requested, returned, unique-touched, and completeness evidence.\n\n## Fixture boundaries\n\n${report.fixturePreparation.fixtures.map((fixture) => `- **${fixture.id}** (${fixture.representative ? 'representative' : 'correctness-only'}): ${fixture.supportBoundary} Provenance: ${fixture.provenance} Oracle: ${fixture.expectedOracle}`).join('\n')}\n`
 }
 
 verifyInventory()
@@ -730,6 +783,14 @@ const report: ScientificBenchmarkReport = Object.freeze({
   schemaVersion: 1,
   createdAt: new Date().toISOString(),
   profile,
+  validation: Object.freeze({
+    passed: results.every(
+      (result) => result.status === 'supported' || result.status === 'unsupported',
+    ),
+  }),
+  eligibleForDocumentationHeadlines: results.some(
+    (result) => result.stability.eligibleForDocumentationHeadlines,
+  ),
   configuration: Object.freeze({
     engine: scientificEngine,
     runs,
