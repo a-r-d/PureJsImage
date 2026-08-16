@@ -21,15 +21,28 @@ const targetById = (metrics: PackageMetricsDocument, id: string): PackageMetric 
   return target
 }
 
+const scientificFormatAnchors: Readonly<Record<string, string>> = {
+  'Common raster and whole-slide': 'common-raster-whole-slide',
+  'Electron microscopy': 'electron-microscopy',
+  'AFM, SPM, and surface metrology': 'afm-spm-surface-metrology',
+  'Medical and volume interchange': 'medical-volume-interchange',
+  'Spectroscopy and detector interchange': 'spectroscopy-detector-interchange',
+  'Raw numeric interchange': 'raw-numeric-interchange',
+}
+
 const renderScientificReaders = (metrics: PackageMetricsDocument): string => {
   const readersById = new Map(metrics.scientificReaders.map((reader) => [reader.id, reader]))
   const groups = metrics.scientificReaderGroups.map((group) => {
     const readers = group.readerIds.map((id) => {
       const reader = readersById.get(id)
       if (reader === undefined) throw new Error(`Scientific reader group references ${id}`)
-      return `**${reader.format}** (\`${reader.packageExport}\`)`
+      return reader
     })
-    return `| ${group.label} | ${readers.join('<br>')} |`
+    const anchor = scientificFormatAnchors[group.label]
+    if (anchor === undefined)
+      throw new Error(`Scientific reader family has no format anchor: ${group.label}`)
+    const formats = readers.map((reader) => reader.format).join(', ')
+    return `| [${group.label}](https://purejsimage.com/scientific-formats/#${anchor}) | ${readers.length} | ${formats} |`
   })
   const demoReaders = metrics.liveDemoReaderIds.map((id) => {
     const reader = readersById.get(id)
@@ -39,11 +52,13 @@ const renderScientificReaders = (metrics: PackageMetricsDocument): string => {
   return [
     '### Scientific reader package surface',
     '',
-    `The package currently exposes **${metrics.scientificReaders.length} scientific readers** through explicit purejsimage/scientific/readers/* exports. This full package surface is generated from the scientific reader inventory in capabilities/manifest.json, the package exports, and src/scientific/readers/all.ts.`,
+    `The package currently exposes **${metrics.scientificReaders.length} scientific readers** through explicit purejsimage/scientific/readers/* exports. This family summary is generated from the scientific reader inventory in capabilities/manifest.json, the package exports, and src/scientific/readers/all.ts.`,
     '',
-    '| Reader group | Package readers |',
-    '| --- | --- |',
+    '| Reader family | Count | Representative formats |',
+    '| --- | ---: | --- |',
     ...groups,
+    '',
+    'The complete per-reader imports and support boundaries remain on the [scientific format reference](https://purejsimage.com/scientific-formats/), the [API reference](https://purejsimage.com/api/#scientific), and the machine-readable [capability manifest](capabilities/manifest.json).',
     '',
     `The live browser explorer currently wires the smaller demo set: ${demoReaders.join(', ')}. The explorer does **not** claim to open every reader in the package surface; applications can register any explicit reader export.`,
     '',

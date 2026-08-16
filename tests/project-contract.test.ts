@@ -1,4 +1,4 @@
-import { globSync, readFileSync } from 'node:fs'
+import { existsSync, globSync, readFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
@@ -78,7 +78,7 @@ describe('package contract', () => {
     )
     expect(readme).toContain('## What PureJsImage is best at')
     expect(readme).toContain('**Low peak memory usage**')
-    expect(readme).toContain('**Maximally portable**')
+    expect(readme).toContain('**Portable across Node.js and modern browsers**')
     expect(readme).toContain('**Zero dependencies**')
     expect(readme).toContain('**Native scientific raster processing**')
     expect(readme).toContain('**Correctness-gated benchmarks**')
@@ -295,12 +295,39 @@ describe('package contract', () => {
     expect(packageJson.scripts['browser:bench']).toContain('--project=chromium')
   })
 
+  it('keeps README images on committed relative paths', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const sources = [...readme.matchAll(/\bsrc="([^"]+)"/gu)].map((match) => match[1] ?? '')
+    const localImages = sources.filter(
+      (source) => source.length > 0 && !/^https?:\/\//u.test(source),
+    )
+    expect(localImages.length).toBeGreaterThanOrEqual(4)
+    for (const source of localImages) {
+      expect(existsSync(source), source).toBe(true)
+      expect(source.startsWith('data:'), source).toBe(false)
+    }
+    expect(readme).toContain('docs-astro/public/assets/readme/whole-slide-viewer.jpg')
+    expect(readme).toContain('docs-astro/public/assets/readme/scientific-explorer.jpg')
+    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.png')
+    expect(readme).toContain('docs-astro/public/assets/readme/brand-mark.svg')
+    const rasterBytes = [
+      'docs-astro/public/assets/readme/whole-slide-viewer.jpg',
+      'docs-astro/public/assets/readme/scientific-explorer.jpg',
+      'docs-astro/public/assets/readme/web-codec-memory.png',
+    ].reduce((sum, path) => sum + readFileSync(path).byteLength, 0)
+    expect(rasterBytes).toBeLessThan(1.2 * 1024 * 1024)
+  })
+
   it('publishes indexed competitor charts through generated documentation data', () => {
     const readme = readFileSync('README.md', 'utf8')
     const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
     const docsPerformance = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
     expect(readme).toContain('https://purejsimage.com/performance/')
+    expect(readme).toContain('**Web codec benchmarks')
+    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.png')
+    expect(readme).toContain('https://purejsimage.com/performance/#web-codec-benchmarks')
     expect(readme).not.toContain('competitors-speed-2026-08-10.png')
+    expect(readme).not.toMatch(/web-codecs-memory-\d{4}-/u)
     expect(docsHome).toContain('documentation.ordinary.charts')
     expect(docsPerformance).toContain('documentation.ordinary.charts')
     for (const chart of Object.values(documentationData.ordinary.charts)) {
