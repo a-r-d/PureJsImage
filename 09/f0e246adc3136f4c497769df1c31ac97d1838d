@@ -1,0 +1,30 @@
+README.md
+  h_9f4a25732fa0c1 69,260
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 178-180,182,973,976,979,988,991,994,1003,1006,1009,1018,1021,1024,1033,1036,1039,1048,1051,1054,1063,1066,1069,1093,1096,1099,1108,1111,1114
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 97-99,117
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 178-180,182,973,976,979,988,991,994,1003,1006,1009,1018,1021,1024,1033,1036,1039,1048,1051,1054,1063,1066,1069,1093,1096,1099,1108,1111,1114
+docs-astro/src/pages/performance.astro
+  h_9f4a25732fa0c1 32-34,295,319-323
+scripts/bundle-size.ts
+  h_9f4a25732fa0c1 36-42,105-106,198-220,225-241,253,256-257,322-353,356-359,370-371,378-379,699-700,704-710,718-749
+src/scientific/readers/interchange-shared.ts
+  h_9f4a25732fa0c1 64-120,122,125-179,298-311,355-357,359-370,375-377,381-390,392-422,430
+tests/package-metrics.test.ts
+  h_9f4a25732fa0c1 89-91,101-121
+tests/scientific-interchange-formats.test.ts
+  h_9f4a25732fa0c1 244-294,749
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "09f0e246adc3136f4c497769df1c31ac97d1838d",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
