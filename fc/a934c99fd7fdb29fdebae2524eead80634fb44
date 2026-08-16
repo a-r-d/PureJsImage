@@ -1,0 +1,101 @@
+scripts/render-public-benchmark-results.ts
+  s_e532dcda1dfd1d::t_20feaab7c6615f 381
+  s_e532dcda1dfd1d::t_82bdf4ca7d8a75 1-3,5-44,47-59,66-72,75,80-124,127,132-156,163-173,177-178,183-198,201-231,236,241-250,255-268,271-272,277-295,300-307,322-324,327-329,337-346,349-357,367-380,382-387,391-411,425-431,433-443,447-456,462-472,474-477,479-501,505-510,514-519,526-531,535-536,540-541,544-546,549-552,555,577-580
+  s_e532dcda1dfd1d::t_385b763118dc27 558-575
+  s_e532dcda1dfd1d::t_6e7b3ea7582395 478
+  s_e532dcda1dfd1d::t_40c8a705239bed 4,432
+  s_e532dcda1dfd1d::t_b8cbc177be1d0b 45-46,60-65,73-74,76-79,125-126,128-131,157-162,174-176,179-182,199-200,232-235,237-240,251-254,296-299,308-321,325-326,330-336,347-348,364,388-390,444-446,457-461,502-504,511-513,520-525,532-533,537-539,542-543,547-548,553-554,556-557
+  s_e532dcda1dfd1d::t_45b5aa75e4b22f 269-270,273-276,412-424,473,534
+  s_e532dcda1dfd1d::t_4f70d6a7a77e57 358-363,365-366
+  s_e532dcda1dfd1d::t_3112e425882a5e 576
+benchmark/results/public/scientific-competitors-baseline-2026-08-16T12-32-28-536Z.json
+  s_e532dcda1dfd1d::t_95121934b9f57e 1-3379
+docs-astro/src/components/SiteFooter.astro
+  s_e532dcda1dfd1d::t_3b91357431e7e7 1-46
+docs-astro/src/layouts/SiteLayout.astro
+  s_e532dcda1dfd1d::t_3b91357431e7e7 3,75
+tests/project-contract.test.ts
+  s_e532dcda1dfd1d::t_b832705a24a344 404-405
+  s_e532dcda1dfd1d::t_f3f7379da2c324 399-403,406-407
+  s_e532dcda1dfd1d::t_0c2aff2a9f9137 127-129,429,436-437
+  s_e532dcda1dfd1d::t_ba4d27bf67ff14 83
+  s_e532dcda1dfd1d::t_bb12aef442126d 187,189-213,216-218,220-226
+  s_e532dcda1dfd1d::t_b8cbc177be1d0b 188,214-215
+  s_e532dcda1dfd1d::t_a7c4d702b5ed62 219
+.github/workflows/ci.yml
+  s_e532dcda1dfd1d::t_385b763118dc27 19,44
+scripts/build-docs-site.ts
+  s_e532dcda1dfd1d::t_abc7da128aefce 1-2,19-43
+benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.md
+  s_e532dcda1dfd1d::t_b6643ebf30a83c 1-12
+benchmark/results/public/scientific-readers-baseline-2026-08-16T03-40-25-698Z.md
+  s_e532dcda1dfd1d::t_b6643ebf30a83c 1-12
+benchmark/generated/package-metrics.json
+  s_e532dcda1dfd1d::t_26b8e93e78680d 509,532,555,578,601,624,647,670,693,716,739,762,785,808,831,854,877,900,923,946,969,992,1015,1038,1061,1084,1107,1130,1153,1176,1199,1222,1245,1268,1291,1314,1337,1360,1383,1406,1429,1452,1475,1498,1521,1544,1567,1590,1613,1636,1659,1682,1705,1728,1751,1774,1813,1836,1874
+docs-astro/astro.config.ts
+  s_e532dcda1dfd1d::t_c71d028f5fd0aa 2,7
+benchmark/results/public/scientific-readers-baseline-2026-08-16T03-40-25-698Z.json
+  s_e532dcda1dfd1d::t_b6643ebf30a83c 1-376
+docs-astro/src/data/documentation-data.json
+  s_e532dcda1dfd1d::t_f5748479e5d138 5,182-183,204-205,209-210,317-318,326-327
+  s_e532dcda1dfd1d::t_26b8e93e78680d 112
+benchmark/results/public/scientific-readers-range-2026-08-16T04-02-13-373Z.json
+  s_e532dcda1dfd1d::t_31952f366f92fb 17-20
+  s_e532dcda1dfd1d::t_b6643ebf30a83c 1-16,21-408
+benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.json
+  s_e532dcda1dfd1d::t_b6643ebf30a83c 1-856
+benchmark/results/public/index.json
+  s_e532dcda1dfd1d::t_95121934b9f57e 1-22,24-42,46-49,51-69,73-76,78-82,84-112,114-130
+  s_e532dcda1dfd1d::t_f5748479e5d138 23,50,77,113
+  s_e532dcda1dfd1d::t_31952f366f92fb 43-45,70-72,83
+docs-astro/public/llms.txt
+  s_e532dcda1dfd1d::t_cd4b48a5300a17 21
+package.json
+  s_e532dcda1dfd1d::t_385b763118dc27 436-438
+  s_e532dcda1dfd1d::t_da1b77b6282cbc 585
+  s_e532dcda1dfd1d::t_5ee87e390f9c70 435
+scripts/render-documentation.ts
+  s_e532dcda1dfd1d::t_b8cbc177be1d0b 190-193,245-248,250-253,322-332,336-338,342-344,349-351,353-355,360-380,653
+  s_e532dcda1dfd1d::t_40c8a705239bed 1,143,183-189,194-205,210-211,213-215,220-221,225,227,229,231,239-244,249,254-258,264,272,283-285,287-288
+  s_e532dcda1dfd1d::t_6b280a350c1057 10,101-105,149-152,585-589
+  s_e532dcda1dfd1d::t_9424753eadc106 271,273-275,295-297,312,314,321,340-341,346-348,357,383,387
+  s_e532dcda1dfd1d::t_64bec3bf0775b7 885-888,964-965,1039
+  s_e532dcda1dfd1d::t_f4b8f292c7f271 657
+benchmark/results/public/index.md
+  s_e532dcda1dfd1d::t_95121934b9f57e 1-10
+browser-tests/demo.pw.ts
+  s_e532dcda1dfd1d::t_ba4d27bf67ff14 52-56
+docs-astro/src/components/SiteHeader.astro
+  s_e532dcda1dfd1d::t_ba4d27bf67ff14 15
+benchmark/results/public/scientific-competitors-baseline-2026-08-16T12-32-28-536Z.md
+  s_e532dcda1dfd1d::t_95121934b9f57e 1-12
+docs-astro/src/data/package-metrics.json
+  s_e532dcda1dfd1d::t_26b8e93e78680d 509,532,555,578,601,624,647,670,693,716,739,762,785,808,831,854,877,900,923,946,969,992,1015,1038,1061,1084,1107,1130,1153,1176,1199,1222,1245,1268,1291,1314,1337,1360,1383,1406,1429,1452,1475,1498,1521,1544,1567,1590,1613,1636,1659,1682,1705,1728,1751,1774,1813,1836,1874
+docs-astro/src/pages/index.astro
+  s_e532dcda1dfd1d::t_ba4d27bf67ff14 36-37
+README.md
+  s_e532dcda1dfd1d::t_ba4d27bf67ff14 38
+  s_e532dcda1dfd1d::t_f5748479e5d138 224,228
+benchmark/results/public/scientific-readers-range-2026-08-16T04-02-13-373Z.md
+  s_e532dcda1dfd1d::t_b6643ebf30a83c 1-12
+docs-astro/public/robots.txt
+  s_e532dcda1dfd1d::t_c71d028f5fd0aa 4
+package-lock.json
+  s_e532dcda1dfd1d::t_973df3f822b837 13,335-356,5261-5270,6141-6147,12284-12320,12406-12412
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "fca934c99fd7fdb29fdebae2524eead80634fb44",
+  "prompts": {},
+  "sessions": {
+    "s_e532dcda1dfd1d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00870-0498-7482-aa81-03f4cacac046",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
