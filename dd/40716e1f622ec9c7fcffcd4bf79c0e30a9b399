@@ -1,0 +1,14 @@
+browser-tests/scientific.pw.ts
+  h_9f4a25732fa0c1 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "dd40716e1f622ec9c7fcffcd4bf79c0e30a9b399",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
