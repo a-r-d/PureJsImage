@@ -1,6 +1,11 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const port = Number(process.env.PUREJSIMAGE_BROWSER_PORT ?? '4173')
+const nonChromiumTestIgnore = [
+  '**/benchmark.pw.ts',
+  '**/scientific-competitors.pw.ts',
+  '**/viewer-benchmarks.pw.ts',
+]
 
 export default defineConfig({
   testDir: './browser-tests',
@@ -21,12 +26,12 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'firefox',
-      testIgnore: '**/benchmark.pw.ts',
+      testIgnore: nonChromiumTestIgnore,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testIgnore: '**/benchmark.pw.ts',
+      testIgnore: nonChromiumTestIgnore,
       use: { ...devices['Desktop Safari'] },
     },
   ],
