@@ -86,6 +86,9 @@ describe('generated package metrics contract', () => {
     const serialized = serializePackageMetrics(metrics)
     expect(serialized).not.toMatch(/generatedAt|timestamp|\/home\/|\/media\/|[A-Za-z]:\\\\/u)
     expect(metrics.package.name).toBe('purejsimage')
+    expect(metrics.package.unpackedPackageBytes).toBeGreaterThan(0)
+    expect(metrics.package.productionPackageCount).toBe(1)
+    expect(metrics.schemaVersion).toBe(3)
     expect(metrics.targets).toHaveLength(pureTargets.length + competitorTargets.length)
     expect(metrics.targets.every(({ packageVersions }) => packageVersions.length > 0)).toBe(true)
     expect(metrics.targets.every(({ unpackedPackageBytes }) => unpackedPackageBytes > 0)).toBe(true)
@@ -94,6 +97,27 @@ describe('generated package metrics contract', () => {
     expect(
       metrics.wasmAssets.every(
         ({ rawBytes, gzipBytes, brotliBytes }) => rawBytes > 0 && gzipBytes > 0 && brotliBytes > 0,
+      ),
+    ).toBe(true)
+  })
+
+  it('stores the host package footprint once instead of copying it onto every entry', () => {
+    const serialized = JSON.parse(serializePackageMetrics(metrics)) as {
+      readonly package: { readonly unpackedPackageBytes: number }
+      readonly targets: readonly Record<string, unknown>[]
+    }
+    expect(serialized.package.unpackedPackageBytes).toBe(metrics.package.unpackedPackageBytes)
+    const hostTargets = serialized.targets.filter(
+      (target) => target.unpackedPackageBytes === undefined && target.packageVersions === undefined,
+    )
+    const foreignTargets = serialized.targets.filter(
+      (target) => target.unpackedPackageBytes !== undefined,
+    )
+    expect(hostTargets.length).toBeGreaterThan(50)
+    expect(foreignTargets.length).toBeGreaterThan(0)
+    expect(
+      foreignTargets.every(
+        (target) => target.unpackedPackageBytes !== serialized.package.unpackedPackageBytes,
       ),
     ).toBe(true)
   })

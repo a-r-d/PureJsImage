@@ -241,6 +241,57 @@ describe('Milestone H interchange and detector readers', () => {
     await expect(planeValues(f)).resolves.toEqual([1, 2, 3, 4, 5, 6])
   })
 
+  it('coalesces sequential packed NPY rows into one source read per output block', async () => {
+    const values = Array.from({ length: 32 }, (_value, index) => index + 1)
+    const bytes = npy([8, 4], values)
+    const dataOffset = 10 + new DataView(bytes.buffer).getUint16(8, true)
+    const source = new TrackingSource(bytes)
+    const reader = createNpyReader({ limits: { rowsPerBlock: 4 } })
+    const document = await reader.open({
+      primary: { id: 'primary', name: 'packed.npy', source },
+    })
+    const headerReads = source.reads.length
+    const dataset = await document.openDataset('array')
+    await expect(planeValues(dataset)).resolves.toEqual(values)
+    expect(source.reads.slice(headerReads)).toEqual([
+      { offset: dataOffset, length: 32 },
+      { offset: dataOffset + 32, length: 32 },
+    ])
+  })
+
+  it('keeps windowed interchange reads on selected row spans', async () => {
+    const values = Array.from({ length: 32 }, (_value, index) => index + 1)
+    const bytes = npy([4, 8], values)
+    const dataOffset = 10 + new DataView(bytes.buffer).getUint16(8, true)
+    const source = new TrackingSource(bytes)
+    const document = await npyReader.open({
+      primary: { id: 'primary', name: 'window.npy', source },
+    })
+    source.reads.splice(0)
+    const dataset = await document.openDataset('array')
+    const selected: number[] = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['axis1', 'axis0'],
+      fixedIndices: [],
+      x: 2,
+      y: 1,
+      width: 3,
+      height: 2,
+    })) {
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let y = 0; y < block.height; y += 1) {
+        for (let x = 0; x < block.width; x += 1) {
+          selected.push(readRasterSample(block.data, view, y * block.stride + x * 2, 'uint16'))
+        }
+      }
+    }
+    expect(selected).toEqual([11, 12, 13, 19, 20, 21])
+    expect(source.reads).toEqual([
+      { offset: dataOffset + 20, length: 6 },
+      { offset: dataOffset + 36, length: 6 },
+    ])
+  })
+
   it('reads paired RPL/RAW vector records with sidecar calibration', async () => {
     const header = text(`key\tvalue
 width\t2
@@ -695,7 +746,7 @@ data file: payload.raw
 
   it('enforces operation, element, compression, cancellation, and truncation limits', async () => {
     const operationLimited = createNpyReader({
-      limits: { maxReadOperations: 1, rowsPerBlock: 2 },
+      limits: { maxReadOperations: 1, rowsPerBlock: 1 },
     })
     const dataset = await openDataset(
       operationLimited,

@@ -61,12 +61,121 @@ const positiveLimit = (value: number, label: string): number => {
   return value
 }
 
-const swapSamples = (input: Uint8Array, bytesPerSample: number): Uint8Array => {
-  const output = new Uint8Array(input.byteLength)
-  for (let offset = 0; offset < input.byteLength; offset += bytesPerSample) {
-    for (let byte = 0; byte < bytesPerSample; byte += 1) {
-      output[offset + byte] = input[offset + bytesPerSample - byte - 1] ?? 0
+const swapSamplesInto = (
+  input: Uint8Array,
+  output: Uint8Array,
+  outputOffset: number,
+  bytesPerSample: number,
+): void => {
+  const end = input.byteLength
+  if (bytesPerSample === 2) {
+    const inputOffset = input.byteOffset
+    const destOffset = output.byteOffset + outputOffset
+    if ((end & 1) === 0 && (inputOffset & 1) === 0 && (destOffset & 1) === 0) {
+      if ((end & 3) === 0 && (inputOffset & 3) === 0 && (destOffset & 3) === 0) {
+        const sourceView = new Uint32Array(input.buffer, inputOffset, end >> 2)
+        const destView = new Uint32Array(output.buffer, destOffset, end >> 2)
+        for (let index = 0; index < sourceView.length; index += 1) {
+          const value = sourceView[index] ?? 0
+          destView[index] = ((value & 0x00ff_00ff) << 8) | ((value >>> 8) & 0x00ff_00ff)
+        }
+        return
+      }
+      const sourceView = new Uint16Array(input.buffer, inputOffset, end >> 1)
+      const destView = new Uint16Array(output.buffer, destOffset, end >> 1)
+      for (let index = 0; index < sourceView.length; index += 1) {
+        const value = sourceView[index] ?? 0
+        destView[index] = ((value & 0xff) << 8) | (value >>> 8)
+      }
+      return
     }
+    for (let offset = 0; offset < end; offset += 2) {
+      output[outputOffset + offset] = input[offset + 1] ?? 0
+      output[outputOffset + offset + 1] = input[offset] ?? 0
+    }
+    return
+  }
+  if (bytesPerSample === 4) {
+    for (let offset = 0; offset < end; offset += 4) {
+      output[outputOffset + offset] = input[offset + 3] ?? 0
+      output[outputOffset + offset + 1] = input[offset + 2] ?? 0
+      output[outputOffset + offset + 2] = input[offset + 1] ?? 0
+      output[outputOffset + offset + 3] = input[offset] ?? 0
+    }
+    return
+  }
+  if (bytesPerSample === 8) {
+    for (let offset = 0; offset < end; offset += 8) {
+      output[outputOffset + offset] = input[offset + 7] ?? 0
+      output[outputOffset + offset + 1] = input[offset + 6] ?? 0
+      output[outputOffset + offset + 2] = input[offset + 5] ?? 0
+      output[outputOffset + offset + 3] = input[offset + 4] ?? 0
+      output[outputOffset + offset + 4] = input[offset + 3] ?? 0
+      output[outputOffset + offset + 5] = input[offset + 2] ?? 0
+      output[outputOffset + offset + 6] = input[offset + 1] ?? 0
+      output[outputOffset + offset + 7] = input[offset] ?? 0
+    }
+    return
+  }
+  for (let offset = 0; offset < end; offset += bytesPerSample) {
+    for (let byte = 0; byte < bytesPerSample; byte += 1) {
+      output[outputOffset + offset + byte] = input[offset + bytesPerSample - byte - 1] ?? 0
+    }
+  }
+}
+
+const transformSamplesInto = (
+  input: Uint8Array,
+  output: Uint8Array,
+  outputOffset: number,
+  type: RasterSampleType,
+  littleEndian: boolean,
+  transform: ContiguousValueTransform,
+): void => {
+  const sourceBytes = rasterSampleBytes(type)
+  const count = input.byteLength / sourceBytes
+  const inputView = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  const outputView = new DataView(output.buffer, output.byteOffset, output.byteLength)
+  for (let index = 0; index < count; index += 1) {
+    const value = readNumeric(inputView, index * sourceBytes, type, littleEndian)
+    outputView.setFloat64(
+      outputOffset + index * 8,
+      value * transform.scale + transform.offset,
+      false,
+    )
+  }
+}
+
+const copyCanonicalInto = (
+  input: Uint8Array,
+  output: Uint8Array,
+  outputOffset: number,
+  sampleType: RasterSampleType,
+  littleEndian: boolean,
+  transform: ContiguousValueTransform | undefined,
+): void => {
+  if (transform !== undefined) {
+    transformSamplesInto(input, output, outputOffset, sampleType, littleEndian, transform)
+    return
+  }
+  const bytesPerSample = rasterSampleBytes(sampleType)
+  if (bytesPerSample === 1 || !littleEndian) {
+    output.set(input, outputOffset)
+    return
+  }
+  swapSamplesInto(input, output, outputOffset, bytesPerSample)
+}
+
+const compactStridedSamples = (
+  input: Uint8Array,
+  width: number,
+  horizontalStride: number,
+  pixelBytes: number,
+): Uint8Array => {
+  const output = new Uint8Array(width * pixelBytes)
+  for (let x = 0; x < width; x += 1) {
+    const start = x * horizontalStride * pixelBytes
+    output.set(input.subarray(start, start + pixelBytes), x * pixelBytes)
   }
   return output
 }
@@ -86,24 +195,6 @@ const readNumeric = (
   if (type === 'float32') return view.getFloat32(offset, littleEndian)
   if (type === 'float64') return view.getFloat64(offset, littleEndian)
   throw unsupportedOperation(`Numeric scaling for ${type} samples is unsupported`)
-}
-
-const transformedSamples = (
-  input: Uint8Array,
-  type: RasterSampleType,
-  littleEndian: boolean,
-  transform: ContiguousValueTransform,
-): Uint8Array => {
-  const sourceBytes = rasterSampleBytes(type)
-  const count = input.byteLength / sourceBytes
-  const output = new Uint8Array(count * 8)
-  const inputView = new DataView(input.buffer, input.byteOffset, input.byteLength)
-  const outputView = new DataView(output.buffer)
-  for (let index = 0; index < count; index += 1) {
-    const value = readNumeric(inputView, index * sourceBytes, type, littleEndian)
-    outputView.setFloat64(index * 8, value * transform.scale + transform.offset, false)
-  }
-  return output
 }
 
 class ContiguousArrayDataset implements ScientificDataset {
@@ -204,17 +295,20 @@ class ContiguousArrayDataset implements ScientificDataset {
       length,
       signal === undefined ? {} : { signal },
     )
-    if (this.#definition.transform !== undefined) {
-      return transformedSamples(
-        input,
-        this.#definition.sourceSampleType,
-        this.#definition.sourceLittleEndian,
-        this.#definition.transform,
-      )
-    }
-    const bytesPerSample = rasterSampleBytes(this.#definition.sourceSampleType)
-    if (bytesPerSample === 1 || !this.#definition.sourceLittleEndian) return Uint8Array.from(input)
-    return swapSamples(input, bytesPerSample)
+    const output = new Uint8Array(
+      this.#definition.transform === undefined
+        ? input.byteLength
+        : (input.byteLength / rasterSampleBytes(this.#definition.sourceSampleType)) * 8,
+    )
+    copyCanonicalInto(
+      input,
+      output,
+      0,
+      this.#definition.sourceSampleType,
+      this.#definition.sourceLittleEndian,
+      this.#definition.transform,
+    )
+    return output
   }
 
   async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock> {
@@ -258,51 +352,74 @@ class ContiguousArrayDataset implements ScientificDataset {
       throw limitExceeded('Interchange source row span exceeds maxRegionBytes')
     }
     const fixedOffset = this.#fixedPixelOffset(selected.fixedIndices)
+    // Packed full-width rows share one source span. Windowed rows stay per-row so a
+    // selected column does not pull unread samples from the rest of each stored row.
+    const packedRows = horizontalStride === 1 && verticalStride === selected.width
     let operations = 0
+    const countRead = (): void => {
+      operations += 1
+      if (operations > this.#definition.limits.maxReadOperations) {
+        throw limitExceeded('Interchange region exceeds maxReadOperations')
+      }
+    }
+    const readOptions = selected.signal === undefined ? {} : { signal: selected.signal }
+    const format = Object.freeze({
+      sampleType: this.descriptor.sampleType,
+      channels: this.#definition.transform === undefined ? this.descriptor.components.length : 1,
+      planar: false,
+    })
     for (let localY = 0; localY < selected.height; localY += blockRows) {
       throwIfAborted(selected.signal)
       const height = Math.min(blockRows, selected.height - localY)
       const output = new Uint8Array(outputRowBytes * height)
-      for (let row = 0; row < height; row += 1) {
-        operations += 1
-        if (operations > this.#definition.limits.maxReadOperations) {
-          throw limitExceeded('Interchange region exceeds maxReadOperations')
-        }
-        const pixel =
-          fixedOffset + (selected.y + localY + row) * verticalStride + selected.x * horizontalStride
+      if (packedRows) {
+        countRead()
+        const pixel = fixedOffset + (selected.y + localY) * verticalStride + selected.x
         const span = await readExactly(
           this.#definition.source,
           this.#definition.dataOffset + pixel * this.#sourcePixelBytes,
-          sourceRowBytes,
-          selected.signal === undefined ? {} : { signal: selected.signal },
+          checkedProduct([height, sourceRowBytes], 'Interchange packed block bytes'),
+          readOptions,
         )
-        const compact =
-          horizontalStride === 1
-            ? span
-            : (() => {
-                const bytes = new Uint8Array(selected.width * this.#sourcePixelBytes)
-                for (let x = 0; x < selected.width; x += 1) {
-                  const start = x * horizontalStride * this.#sourcePixelBytes
-                  bytes.set(
-                    span.subarray(start, start + this.#sourcePixelBytes),
-                    x * this.#sourcePixelBytes,
-                  )
-                }
-                return bytes
-              })()
-        const canonical =
-          this.#definition.transform === undefined
-            ? rasterSampleBytes(this.#definition.sourceSampleType) === 1 ||
-              !this.#definition.sourceLittleEndian
-              ? Uint8Array.from(compact)
-              : swapSamples(compact, rasterSampleBytes(this.#definition.sourceSampleType))
-            : transformedSamples(
-                compact,
-                this.#definition.sourceSampleType,
-                this.#definition.sourceLittleEndian,
-                this.#definition.transform,
-              )
-        output.set(canonical, row * outputRowBytes)
+        copyCanonicalInto(
+          span,
+          output,
+          0,
+          this.#definition.sourceSampleType,
+          this.#definition.sourceLittleEndian,
+          this.#definition.transform,
+        )
+      } else {
+        for (let row = 0; row < height; row += 1) {
+          countRead()
+          const pixel =
+            fixedOffset +
+            (selected.y + localY + row) * verticalStride +
+            selected.x * horizontalStride
+          const span = await readExactly(
+            this.#definition.source,
+            this.#definition.dataOffset + pixel * this.#sourcePixelBytes,
+            sourceRowBytes,
+            readOptions,
+          )
+          const compact =
+            horizontalStride === 1
+              ? span
+              : compactStridedSamples(
+                  span,
+                  selected.width,
+                  horizontalStride,
+                  this.#sourcePixelBytes,
+                )
+          copyCanonicalInto(
+            compact,
+            output,
+            row * outputRowBytes,
+            this.#definition.sourceSampleType,
+            this.#definition.sourceLittleEndian,
+            this.#definition.transform,
+          )
+        }
       }
       yield {
         x: selected.x,
@@ -310,12 +427,7 @@ class ContiguousArrayDataset implements ScientificDataset {
         width: selected.width,
         height,
         stride: outputRowBytes,
-        format: Object.freeze({
-          sampleType: this.descriptor.sampleType,
-          channels:
-            this.#definition.transform === undefined ? this.descriptor.components.length : 1,
-          planar: false,
-        }),
+        format,
         data: output,
       }
     }
