@@ -1,0 +1,13 @@
+{
+  "name": "purejsimage-scientific-benchmark-competitors",
+  "private": true,
+  "type": "module",
+  "description": "Pinned JavaScript and WebAssembly dependencies used only by the PureJsImage scientific-reader benchmark.",
+  "dependencies": {
+    "@itk-wasm/image-io": "1.6.1",
+    "h5wasm": "0.10.3",
+    "jsfive": "0.4.0",
+    "nifti-reader-js": "0.8.0",
+    "npyjs": "1.2.0"
+  }
+}

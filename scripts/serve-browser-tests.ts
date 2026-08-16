@@ -6,6 +6,7 @@ import { build } from 'esbuild'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
 import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
+import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createImageLibrary } from '../src/index.ts'
@@ -27,6 +28,7 @@ const benchmarkEntries = {
   'jsquash-png-encode': 'browser-tests/benchmark/jsquash-png-encode.ts',
   'jsquash-webp-decode': 'browser-tests/benchmark/jsquash-webp-decode.ts',
   'jsquash-webp-encode': 'browser-tests/benchmark/jsquash-webp-encode.ts',
+  'scientific-competitors': 'benchmark/competitors-js/browser-harness.ts',
 } as const
 
 const alphaFixture = (): Uint8Array => {
@@ -204,6 +206,46 @@ await buildAstro({
   base: '/',
 })
 await mkdir(fixtureDirectory, { recursive: true })
+const scientificFixtureDirectory = resolve(fixtureDirectory, 'scientific')
+const scientificPipelineDirectory = resolve(scientificFixtureDirectory, 'pipelines')
+await mkdir(scientificPipelineDirectory, { recursive: true })
+const generatedScientificBytes = (key: keyof typeof generatedScientificFixtures): Uint8Array => {
+  const factory = generatedScientificFixtures[key]
+  if (factory === undefined) throw new Error(`Missing generated scientific fixture ${key}`)
+  const resource = factory().resources[0]
+  if (resource === undefined) throw new Error(`Generated scientific fixture ${key} has no resource`)
+  return resource.bytes
+}
+const generatedScientificBrowserFixtures: readonly (readonly [string, Uint8Array])[] = [
+  ['volume.nii', generatedScientificBytes('nifti-generated')],
+  ['volume.nii.gz', generatedScientificBytes('nifti-gzip-generated')],
+  ['array-c.npy', generatedScientificBytes('npy-c-generated')],
+  ['array-f.npy', generatedScientificBytes('npy-f-generated')],
+  ['array.nrrd', generatedScientificBytes('nrrd-raw-generated')],
+  ['array-gzip.nrrd', generatedScientificBytes('nrrd-gzip-generated')],
+  ['image.mha', generatedScientificBytes('mha-generated')],
+  ['volume.mrc', generatedScientificBytes('mrc-generated')],
+  ['image.ome.tiff', generatedScientificBytes('ome-tiff-generated')],
+]
+for (const [name, bytes] of generatedScientificBrowserFixtures) {
+  await writeFile(resolve(scientificFixtureDirectory, name), bytes)
+}
+await copyFile(
+  'benchmark/corpus/files/libtiff-rgb-3c-8b.tiff',
+  resolve(scientificFixtureDirectory, 'ordinary.tiff'),
+)
+await copyFile(
+  'benchmark/corpus/files/hdf5/h5repack_layout.h5',
+  resolve(scientificFixtureDirectory, 'layout.h5'),
+)
+for (const name of ['nifti', 'nrrd', 'meta', 'mrc', 'tiff']) {
+  for (const extension of ['js', 'wasm.zst']) {
+    await copyFile(
+      `benchmark/competitors-js/node_modules/@itk-wasm/image-io/dist/pipelines/${name}-read-image.${extension}`,
+      resolve(scientificPipelineDirectory, `${name}-read-image.${extension}`),
+    )
+  }
+}
 await build({
   absWorkingDir: process.cwd(),
   bundle: true,
@@ -669,7 +711,7 @@ await copyFile(
 await copyFile(resolve(outputDirectory, 'index.html'), resolve(outputDirectory, 'homepage.html'))
 await writeFile(
   resolve(outputDirectory, 'index.html'),
-  '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script>',
+  '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script><script type="module" src="/scientific-competitors.js"></script>',
 )
 
 const contentTypes: Readonly<Record<string, string>> = {

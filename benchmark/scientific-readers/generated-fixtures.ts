@@ -63,6 +63,7 @@ const nifti = (): Uint8Array => {
   view.setInt16(40, 2, true)
   view.setInt16(42, 2, true)
   view.setInt16(44, 2, true)
+  view.setInt16(46, 1, true)
   view.setInt16(70, 4, true)
   view.setInt16(72, 16, true)
   view.setFloat32(80, 0.5, true)

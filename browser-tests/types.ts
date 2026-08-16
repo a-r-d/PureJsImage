@@ -112,9 +112,42 @@ export interface BrowserBenchmarkModule {
   verify(): Promise<string>
 }
 
+export interface ScientificCompetitorBrowserRow {
+  readonly engine: string
+  readonly workload: string
+  readonly status: 'supported' | 'unsupported' | 'invalid-output' | 'error'
+  readonly statusReason: string | null
+  readonly moduleInitializationMilliseconds: number
+  readonly wasmInitializationMilliseconds: number
+  readonly inputBridgeMilliseconds: number
+  readonly imageReadMilliseconds: number
+  readonly outputTransferMilliseconds: number
+  readonly cleanupMilliseconds: number
+  readonly firstUsableDataMilliseconds: number | null
+  readonly totalWallMilliseconds: number
+  readonly sourceBytes: number
+  readonly requiredInputCopyBytes: number
+  readonly outputBytes: number
+  readonly sampleSha256: string | null
+  readonly shape: readonly number[] | null
+  readonly nativeSampleType: string | null
+}
+
+export interface ScientificCompetitorBrowserReport {
+  readonly browser: string
+  readonly generatedAt: string
+  readonly note: string
+  readonly rows: readonly ScientificCompetitorBrowserRow[]
+}
+
+export interface ScientificCompetitorBrowserHarness {
+  run(): Promise<ScientificCompetitorBrowserReport>
+}
+
 declare global {
   interface Window {
     pureJsImageBrowserBenchmark: BrowserBenchmarkHarness
     pureJsImageBrowserTests: BrowserCompatibilityHarness
+    pureJsImageScientificCompetitors: ScientificCompetitorBrowserHarness
   }
 }

@@ -154,6 +154,14 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'First TIFF dataset exposes x/y axes and a readable region.',
   },
   {
+    id: 'tiff-bigtiff',
+    realResources: [resource('primary', 'benchmark/corpus/files/tiff-bigtiff-rgb16-1024x768.tiff')],
+    provenance: 'Pinned first-party BigTIFF RGB16 benchmark fixture.',
+    supportBoundary: 'BigTIFF image directory and bounded region reads where supported.',
+    expectedOracle:
+      'The first BigTIFF directory exposes native RGB16 samples and a readable window.',
+  },
+  {
     id: 'ome-tiff',
     generatedKey: 'ome-tiff-generated',
     provenance: 'Deterministic first-party OME-XML TIFF benchmark fixture.',
@@ -225,6 +233,13 @@ const definitions: readonly FixtureDefinition[] = [
     provenance: 'Pinned RosettaSciIO NCEM EMD image fixture; generated fallback is deterministic.',
     supportBoundary: 'NCEM EMD HDF5 image/spectrum datasets with bounded contiguous reads.',
     expectedOracle: 'First image dataset exposes a readable plane or series according to rank.',
+  },
+  {
+    id: 'hdf5-layout',
+    realResources: [resource('primary', 'benchmark/corpus/files/hdf5/h5repack_layout.h5')],
+    provenance: 'Pinned HDF5 layout fixture with contiguous and chunked datasets.',
+    supportBoundary: 'HDF5 hierarchy plus native int32 contiguous or chunked dataset reads.',
+    expectedOracle: 'The dset_contiguous and dset_chunk datasets expose 40x20 int32 samples.',
   },
   {
     id: 'velox-emd',

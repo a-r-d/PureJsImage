@@ -216,6 +216,55 @@ stages, absolute RSS and external/ArrayBuffer memory, source requested/returned
 and unique bytes, companion resolutions, payload overlap, and correctness
 evidence. These reports intentionally have no regression gates.
 
+### Direct scientific JavaScript and WebAssembly competitors
+
+The direct-reader scorecard is intentionally separate from the image
+codec comparison. It uses exact-pinned packages in
+`benchmark/competitors-js/package.json` and the checked-in lockfile, so these
+competitor packages are benchmark-only and are not part of the published
+PureJsImage dependency tree.
+
+Prepare the isolated install and shared fixtures first:
+
+```sh
+npm run bench:scientific:competitors:prepare
+```
+
+Run the Node scorecard, or the separate Chromium scorecard:
+
+```sh
+npm run bench:scientific:competitors:js
+npm run bench:scientific:competitors:browser
+```
+
+The Node report is written to
+`benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node.{json,md}`
+with separate family reports for TIFF/whole-slide, HDF5/EMD substrate,
+medical/volumetric interchange, and lightweight array interchange. Each
+engine contract records package version, pure-JavaScript or WebAssembly class,
+runtime environment, public input model, selected/lazy-read claim, complete
+input copying, claimed workload IDs, and explicit unsupported reasons.
+
+GeoTIFF is measured through its public custom range source for metadata,
+selected windows, random whole-slide windows, and BigTIFF. `tiff`, `utif2`,
+and `image-js` are complete native TIFF decoders only; no artificial lazy
+region path or RGBA conversion is used. `nifti-reader-js` and `npyjs` report
+header/full behavior and complete-buffer allocation, while `jsfive` is full
+dataset only and `h5wasm` reports WASM initialization, the Emscripten virtual
+filesystem copy, HDF5 open/hierarchy/selection, and cleanup as separate
+stages. `@itk-wasm/image-io` attempts only its public NIfTI, NRRD, MetaImage,
+MRC, and TIFF readers; its Node path records file-backed input and its
+browser path records the worker/module bridge and output transfer.
+
+Reports show wall time, first usable data, peak RSS and ArrayBuffer memory,
+source requests/bytes, required input copies, native sample hashes, and
+installed footprint. Imported JavaScript is measured minified/gzip/Brotli;
+required distributed WASM assets are measured raw/gzip/Brotli as well. The
+browser report is not averaged with Node results. There is no strong current
+Node-focused JavaScript FITS competitor in this scorecard, so `fitsjs` is not
+used as a primary scorecard engine; no browser historical comparison is
+invented for it.
+
 ### DigitalMicrograph compatibility corpus
 
 Prepare and verify the pinned DM3/DM4 compatibility files with:
