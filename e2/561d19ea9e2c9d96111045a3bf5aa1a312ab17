@@ -1,0 +1,19 @@
+browser-tests/demo.pw.ts
+  s_687012af78d752::t_32f092e46d6e9e 55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e2561d19ea9e2c9d96111045a3bf5aa1a312ab17",
+  "prompts": {},
+  "sessions": {
+    "s_687012af78d752": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00ba6-da88-7c12-9b2c-27d6ff0098c1",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
