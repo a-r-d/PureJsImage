@@ -12,6 +12,7 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - API reference: https://purejsimage.com/api/
 - Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Scientific Raster Explorer: https://purejsimage.com/scientific/
+- Scientific reader benchmarks: https://purejsimage.com/scientific/benchmarks/
 - Scientific application platform: https://purejsimage.com/scientific/platform/
 - Codec matrix: https://purejsimage.com/codecs/
 - Machine-readable codec capabilities: https://purejsimage.com/capabilities.json

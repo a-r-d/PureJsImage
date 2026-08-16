@@ -1,0 +1,143 @@
+---
+import packageMetrics from '../../data/package-metrics.json'
+import benchmark from '../../data/scientific-reader-benchmark.json'
+import SiteLayout from '../../layouts/SiteLayout.astro'
+
+type NumericSummary = {
+  readonly median: number
+  readonly p95: number
+}
+
+const readersById = new Map(packageMetrics.scientificReaders.map((reader) => [reader.id, reader]))
+
+const readerLabel = (id: string): string => {
+  const reader = readersById.get(id)
+  if (reader !== undefined) return reader.format
+  return id.replace(/^purejsimage\//, '').replaceAll('-', ' ')
+}
+
+const formatCount = (value: number | null): string =>
+  value === null ? '—' : new Intl.NumberFormat('en-US').format(Math.round(value))
+
+const formatMilliseconds = (value: number): string => `${value.toFixed(value < 1 ? 2 : 1)} ms`
+
+const formatBytes = (value: number | null): string => {
+  if (value === null) return '—'
+  const units = ['B', 'KiB', 'MiB', 'GiB'] as const
+  let scaled = value
+  let unitIndex = 0
+  while (scaled >= 1024 && unitIndex < units.length - 1) {
+    scaled /= 1024
+    unitIndex += 1
+  }
+  return `${scaled.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
+}
+
+const formatRatio = (value: number | null): string =>
+  value === null ? '—' : `${value.toFixed(2)}×`
+
+const formatPair = (
+  value: NumericSummary | null,
+  formatter: (numberValue: number) => string,
+): string => (value === null ? '—' : `${formatter(value.median)} / ${formatter(value.p95)}`)
+
+const statusLabel = (status: string): string => status.replace('-', ' ')
+const recordedDate = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeZone: 'UTC',
+}).format(new Date(benchmark.generatedFrom.createdAt))
+const docsBase = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`
+const benchmarkJsonHref = `${docsBase}scientific/benchmarks.json`
+const shortCommit = benchmark.generatedFrom.gitCommit?.slice(0, 12) ?? 'unavailable'
+const rangeReaderLabels = benchmark.range.readerIds.map(readerLabel).join(', ')
+---
+
+<SiteLayout
+  title="Scientific reader benchmarks | PureJsImage"
+  description="Recorded PureJsImage scientific reader benchmarks covering source reads, latency, memory, correctness, and representative workload behavior."
+  canonical="https://purejsimage.com/scientific/benchmarks/"
+  current="scientific/"
+  skipLabel="Skip to benchmark content"
+>
+  <main id="main">
+    <header class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Scientific reader evidence</p>
+        <h1>Reader behavior under measurement.</h1>
+        <p class="page-lede">A compact, reproducible view of the first PureJsImage scientific-reader baseline: isolated operation timing, source-read behavior, absolute process memory, and output correctness across native scientific formats.</p>
+        <div class="page-meta"><span class="pill">Baseline · {recordedDate}</span><span class="pill">{benchmark.summary.readerCount} readers</span><span class="pill">{benchmark.summary.workloadCount} workloads</span><span class="pill">Linux x64 · Node {benchmark.generatedFrom.environment.nodeVersion.replace(/^v/, '')}</span></div>
+      </div>
+    </header>
+
+    <div class="container docs-layout">
+      <aside class="side-nav" aria-label="Scientific pages">
+        <div class="nav-group"><strong>Scientific</strong><a href="../">Raster Explorer</a><a href="./" aria-current="page">Reader benchmarks</a><a href="../platform/">Application platform</a><a href="../volumes/">Volumes</a></div>
+        <div class="nav-group"><strong>Reference</strong><a href="../../api/#scientific">Scientific API</a><a href={benchmarkJsonHref}>JSON snapshot</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md#scientific-reader-source-and-memory-harness">Reproduce locally</a></div>
+      </aside>
+
+      <article class="content">
+        <section id="overview">
+          <h2>What this page records</h2>
+          <div class="callout"><strong>This is a dated baseline, not a regression gate.</strong> The page publishes a compact snapshot of the checked benchmark report so the evidence is stable and reviewable. Fixture preparation and output validation were excluded from timed operations, and the raw local artifact remains separate from this public data. <a href={benchmarkJsonHref}>Download the JSON snapshot</a>.</div>
+          <div class="stat-grid">
+            <div class="card stat-card"><strong>{benchmark.summary.readerCount}</strong><span>public reader IDs exercised</span></div>
+            <div class="card stat-card"><strong>{benchmark.summary.workloadCount}</strong><span>baseline workload results</span></div>
+            <div class="card stat-card"><strong>{benchmark.summary.supported}</strong><span>supported outputs · {benchmark.summary.error + benchmark.summary['invalid-output']} invalid or error results</span></div>
+            <div class="card stat-card"><strong>{benchmark.range.readerCount}</strong><span>readers with direct range coverage</span></div>
+          </div>
+          <p>The baseline used <strong>{benchmark.generatedFrom.runs} measured runs</strong> after <strong>{benchmark.generatedFrom.warmups} warmup</strong> per workload, with an isolated process for each run. It contains {benchmark.summary.representativeWorkloadCount} representative measurements and {benchmark.summary.correctnessOnlyWorkloadCount} correctness-only measurements; correctness-only rows verify reader contracts without claiming representative large-input performance.</p>
+          <p>Recorded on {recordedDate} from commit <code>{shortCommit}</code> using {benchmark.generatedFrom.environment.cpuModel ?? 'an unreported CPU'} with {benchmark.generatedFrom.environment.logicalCpuCount} logical CPUs. The benchmark process reported {benchmark.generatedFrom.environment.operatingSystem} {benchmark.generatedFrom.environment.operatingSystemVersion}.</p>
+        </section>
+
+        <section id="method">
+          <h2>Measurement boundary</h2>
+          <p>Each workload opens a scientific source through the same public reader boundary, detects and opens its document, enumerates datasets, opens the selected dataset, reads the selected plane or series, validates the result, and closes all resources. The report keeps process startup, module import, registry construction, fixture preparation, and validation evidence separate from the core operation timing.</p>
+          <ul>
+            <li><strong>Timing:</strong> total wall time, time to the first emitted block, and complete selected operation are reported as median / p95.</li>
+            <li><strong>Source behavior:</strong> read calls, requested and returned bytes, unique source bytes touched, overfetch, and companion resolution are measured.</li>
+            <li><strong>Memory:</strong> absolute process peak RSS is accompanied by external memory, ArrayBuffer memory, output bytes, and the largest emitted block.</li>
+            <li><strong>Correctness:</strong> output sample type, component count, selected sample count, block count, and format-specific calibration assertions are checked before a result is published.</li>
+          </ul>
+        </section>
+
+        <section id="readers">
+          <h2>Reader coverage</h2>
+          <p>Reader-level values below are the maximum median observed among that reader's baseline workloads. They are useful for finding source and memory boundaries, not for ranking unrelated formats against one another.</p>
+          <div class="table-wrap"><table aria-label="Scientific reader benchmark coverage"><thead><tr><th scope="col">Reader</th><th scope="col">Workloads</th><th scope="col">Representative</th><th scope="col">Max reads</th><th scope="col">Max overfetch</th><th scope="col">Max peak RSS</th></tr></thead><tbody>
+            {benchmark.readers.map((reader) => <tr><th scope="row">{readerLabel(reader.id)}</th><td>{reader.workloadCount}</td><td>{reader.representativeWorkloadCount}</td><td>{formatCount(reader.maxMedianReadCalls)}</td><td>{formatRatio(reader.maxMedianOverfetchRatio)}</td><td>{formatBytes(reader.maxMedianPeakRssBytes)}</td></tr>)}
+          </tbody></table></div>
+        </section>
+
+        <section id="workloads">
+          <h2>Baseline workload detail</h2>
+          <p>Timing and source columns show <strong>median / p95</strong> where both are available. Peak RSS is the median absolute process peak. The workload title and support boundary describe the fixture-backed claim; they do not imply a universal guarantee for every file in that format.</p>
+          <div class="table-wrap"><table aria-label="Scientific reader baseline workload results"><thead><tr><th scope="col">Workload</th><th scope="col">Reader</th><th scope="col">Class</th><th scope="col">Status</th><th scope="col">Wall ms</th><th scope="col">First block</th><th scope="col">Reads</th><th scope="col">Overfetch</th><th scope="col">Peak RSS</th></tr></thead><tbody>
+            {benchmark.workloads.map((workload) => <tr><th scope="row">{workload.title}</th><td>{readerLabel(workload.readerId)}</td><td>{workload.measurementClass === 'representative' ? 'Representative' : 'Correctness-only'}</td><td>{statusLabel(workload.status)}</td><td>{formatPair(workload.timing.totalWallMilliseconds, formatMilliseconds)}</td><td>{formatPair(workload.timing.timeToFirstEmittedBlockMilliseconds, formatMilliseconds)}</td><td>{formatPair(workload.source.readCalls, formatCount)}</td><td>{formatPair(workload.source.overfetchRatio, formatRatio)}</td><td>{formatBytes(workload.memory.absolutePeakRssBytes?.median ?? null)}</td></tr>)}
+          </tbody></table></div>
+        </section>
+
+        <section id="range">
+          <h2>Range-backed coverage</h2>
+          <p>The separate range profile covers {benchmark.range.workloadCount} direct-range workloads across {benchmark.range.readerCount} readers at {benchmark.range.sourceLatencyMilliseconds.join(', ')} ms of underlying-read latency. It is designed to expose round-trip sensitivity and coalescing behavior without pretending that a full-file reader has remote range semantics.</p>
+          <p>{rangeReaderLabels}.</p>
+          <p>The published snapshot above is the zero-latency baseline. Run the range profile locally for the expanded latency matrix and inspect its isolated-process report before making performance claims.</p>
+        </section>
+
+        <section id="reproduce">
+          <h2>Reproduce the evidence</h2>
+          <p>The harness and fixture policy are documented in the repository's <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md#scientific-reader-source-and-memory-harness">scientific reader source and memory harness</a> section.</p>
+          <pre><code>npm run bench:scientific:smoke
+npm run bench:scientific:baseline
+npm run bench:scientific:range
+npm run bench:scientific:full</code></pre>
+          <p>Use smoke for a fast contract check, baseline for the page's workload set, range for direct-range latency coverage, and full for the complete profile. Generated fixtures and raw reports stay under the ignored benchmark artifact directory; the page's <a href={benchmarkJsonHref}>JSON snapshot</a> is the reviewable public surface.</p>
+        </section>
+      </article>
+
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#overview">Overview</a><a href="#method">Measurement boundary</a><a href="#readers">Reader coverage</a><a href="#workloads">Workload detail</a><a href="#range">Range coverage</a><a href="#reproduce">Reproduce</a></aside>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../">Scientific Raster Explorer</a> · <a href={benchmarkJsonHref}>Benchmark JSON</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a></span></div></div></footer>
+</SiteLayout>

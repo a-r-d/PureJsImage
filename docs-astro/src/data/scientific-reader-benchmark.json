@@ -1,0 +1,4285 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "reportId": "2026-08-15T234606084Z-baseline",
+    "createdAt": "2026-08-15T23:46:06.084Z",
+    "profile": "baseline",
+    "engine": {
+      "id": "purejsimage-scientific",
+      "version": "0.10.0"
+    },
+    "runs": 3,
+    "warmups": 1,
+    "isolatedProcessPerRun": true,
+    "fixturePreparationTimed": false,
+    "outputValidationTimed": false,
+    "gitCommit": "6acf53304b443f93ac0d861edfa88cb1cb8665fe",
+    "gitDirty": null,
+    "environment": {
+      "operatingSystem": "Linux",
+      "operatingSystemVersion": "6.17.0-41-generic",
+      "architecture": "x64",
+      "nodeVersion": "v24.16.0",
+      "v8Version": "13.6.233.17-node.49",
+      "cpuModel": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "logicalCpuCount": 16,
+      "platform": "linux",
+      "gitCommit": "6acf53304b443f93ac0d861edfa88cb1cb8665fe",
+      "gitDirty": null
+    }
+  },
+  "summary": {
+    "workloadCount": 43,
+    "readerCount": 31,
+    "fixtureCount": 39,
+    "supported": 43,
+    "unsupported": 0,
+    "invalid-output": 0,
+    "error": 0,
+    "representativeWorkloadCount": 13,
+    "correctnessOnlyWorkloadCount": 30
+  },
+  "range": {
+    "sourceLatencyMilliseconds": [0, 5, 25, 100],
+    "workloadCount": 24,
+    "readerCount": 19,
+    "readerIds": [
+      "purejsimage/nanonis-sxm",
+      "purejsimage/igor-binary-wave",
+      "purejsimage/x3p",
+      "purejsimage/envi",
+      "purejsimage/fits",
+      "purejsimage/mrc",
+      "purejsimage/tiff",
+      "purejsimage/ome-tiff",
+      "purejsimage/aperio-svs",
+      "purejsimage/digital-micrograph",
+      "purejsimage/tia-ser",
+      "purejsimage/tia-emi",
+      "purejsimage/ncem-emd",
+      "purejsimage/velox-emd",
+      "purejsimage/rpl",
+      "purejsimage/meta-image",
+      "purejsimage/npy",
+      "purejsimage/blockfile",
+      "purejsimage/mib"
+    ]
+  },
+  "readers": [
+    {
+      "id": "purejsimage/gsf",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 32,
+      "maxMedianOverfetchRatio": 2.461217715164764,
+      "maxMedianPeakRssBytes": 123891712,
+      "maxMedianEmittedBlockBytes": 16384
+    },
+    {
+      "id": "purejsimage/nanonis-sxm",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 48,
+      "maxMedianOverfetchRatio": 2.022706985473633,
+      "maxMedianPeakRssBytes": 130621440,
+      "maxMedianEmittedBlockBytes": 1024
+    },
+    {
+      "id": "purejsimage/igor-binary-wave",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 55,
+      "maxMedianOverfetchRatio": 1.0227789489144834,
+      "maxMedianPeakRssBytes": 130433024,
+      "maxMedianEmittedBlockBytes": 1024
+    },
+    {
+      "id": "purejsimage/digital-surf",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 34,
+      "maxMedianOverfetchRatio": 2.4058709321173475,
+      "maxMedianPeakRssBytes": 121806848,
+      "maxMedianEmittedBlockBytes": 2048
+    },
+    {
+      "id": "purejsimage/x3p",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 45,
+      "maxMedianOverfetchRatio": 6.749045470322804,
+      "maxMedianPeakRssBytes": 125599744,
+      "maxMedianEmittedBlockBytes": 128
+    },
+    {
+      "id": "purejsimage/envi",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 34,
+      "maxMedianOverfetchRatio": 1.026421579312897,
+      "maxMedianPeakRssBytes": 123518976,
+      "maxMedianEmittedBlockBytes": 512
+    },
+    {
+      "id": "purejsimage/fits",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 32,
+      "maxMedianOverfetchRatio": 2.2930298353909464,
+      "maxMedianPeakRssBytes": 124866560,
+      "maxMedianEmittedBlockBytes": 2048
+    },
+    {
+      "id": "purejsimage/mrc",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 32,
+      "maxMedianOverfetchRatio": 7.234496124031008,
+      "maxMedianPeakRssBytes": 119025664,
+      "maxMedianEmittedBlockBytes": 8
+    },
+    {
+      "id": "purejsimage/cbf",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 32,
+      "maxMedianOverfetchRatio": 8.418738049713193,
+      "maxMedianPeakRssBytes": 125788160,
+      "maxMedianEmittedBlockBytes": 16
+    },
+    {
+      "id": "purejsimage/png",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 69,
+      "maxMedianOverfetchRatio": 9.91135303265941,
+      "maxMedianPeakRssBytes": 122871808,
+      "maxMedianEmittedBlockBytes": 192
+    },
+    {
+      "id": "purejsimage/jpeg",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 88,
+      "maxMedianOverfetchRatio": 20.465378421900162,
+      "maxMedianPeakRssBytes": 136749056,
+      "maxMedianEmittedBlockBytes": 192
+    },
+    {
+      "id": "purejsimage/webp",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 34,
+      "maxMedianOverfetchRatio": 4.824086799276673,
+      "maxMedianPeakRssBytes": 132386816,
+      "maxMedianEmittedBlockBytes": 64
+    },
+    {
+      "id": "purejsimage/bmp",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 38,
+      "maxMedianOverfetchRatio": 2.1826228177019895,
+      "maxMedianPeakRssBytes": 121122816,
+      "maxMedianEmittedBlockBytes": 768
+    },
+    {
+      "id": "purejsimage/jp2",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 0,
+      "maxMedianReadCalls": 74,
+      "maxMedianOverfetchRatio": 10.642679900744417,
+      "maxMedianPeakRssBytes": 126263296,
+      "maxMedianEmittedBlockBytes": 192
+    },
+    {
+      "id": "purejsimage/tiff",
+      "version": "1.0.0",
+      "workloadCount": 3,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 55,
+      "maxMedianOverfetchRatio": 1.4424933538547642,
+      "maxMedianPeakRssBytes": 126242816,
+      "maxMedianEmittedBlockBytes": 1632
+    },
+    {
+      "id": "purejsimage/ome-tiff",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 43,
+      "maxMedianOverfetchRatio": 10.682539682539682,
+      "maxMedianPeakRssBytes": 124485632,
+      "maxMedianEmittedBlockBytes": 4
+    },
+    {
+      "id": "purejsimage/aperio-svs",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 1,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 85,
+      "maxMedianOverfetchRatio": 1.0673714689424771,
+      "maxMedianPeakRssBytes": 138223616,
+      "maxMedianEmittedBlockBytes": 6144
+    },
+    {
+      "id": "purejsimage/digital-micrograph",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 1370,
+      "maxMedianOverfetchRatio": 7.878234398782344,
+      "maxMedianPeakRssBytes": 135520256,
+      "maxMedianEmittedBlockBytes": 8
+    },
+    {
+      "id": "purejsimage/tia-ser",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 68,
+      "maxMedianOverfetchRatio": 1.2941276513034816,
+      "maxMedianPeakRssBytes": 123719680,
+      "maxMedianEmittedBlockBytes": 64
+    },
+    {
+      "id": "purejsimage/tia-emi",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 47,
+      "maxMedianOverfetchRatio": 2.9155562821875254,
+      "maxMedianPeakRssBytes": 122101760,
+      "maxMedianEmittedBlockBytes": 32
+    },
+    {
+      "id": "purejsimage/ncem-emd",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 43,
+      "maxMedianOverfetchRatio": 4.294083255378859,
+      "maxMedianPeakRssBytes": 126087168,
+      "maxMedianEmittedBlockBytes": 36
+    },
+    {
+      "id": "purejsimage/velox-emd",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 51,
+      "maxMedianOverfetchRatio": 2.063463671658347,
+      "maxMedianPeakRssBytes": 142999552,
+      "maxMedianEmittedBlockBytes": 72
+    },
+    {
+      "id": "purejsimage/rpl",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 35,
+      "maxMedianOverfetchRatio": 9.855643044619423,
+      "maxMedianPeakRssBytes": 125325312,
+      "maxMedianEmittedBlockBytes": 4
+    },
+    {
+      "id": "purejsimage/emsa",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 32,
+      "maxMedianOverfetchRatio": 7.393478260869565,
+      "maxMedianPeakRssBytes": 119853056,
+      "maxMedianEmittedBlockBytes": 128
+    },
+    {
+      "id": "purejsimage/nrrd",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 34,
+      "maxMedianOverfetchRatio": 13.28125,
+      "maxMedianPeakRssBytes": 126062592,
+      "maxMedianEmittedBlockBytes": 4
+    },
+    {
+      "id": "purejsimage/meta-image",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 34,
+      "maxMedianOverfetchRatio": 10.925619834710744,
+      "maxMedianPeakRssBytes": 129425408,
+      "maxMedianEmittedBlockBytes": 4
+    },
+    {
+      "id": "purejsimage/nifti",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 35,
+      "maxMedianOverfetchRatio": 13.19047619047619,
+      "maxMedianPeakRssBytes": 127115264,
+      "maxMedianEmittedBlockBytes": 32
+    },
+    {
+      "id": "purejsimage/npy",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 35,
+      "maxMedianOverfetchRatio": 10.514285714285714,
+      "maxMedianPeakRssBytes": 125018112,
+      "maxMedianEmittedBlockBytes": 12
+    },
+    {
+      "id": "purejsimage/blockfile",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 36,
+      "maxMedianOverfetchRatio": 5.447135537959944,
+      "maxMedianPeakRssBytes": 120143872,
+      "maxMedianEmittedBlockBytes": 4
+    },
+    {
+      "id": "purejsimage/mib",
+      "version": "1.0.0",
+      "workloadCount": 1,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 1,
+      "maxMedianReadCalls": 35,
+      "maxMedianOverfetchRatio": 9.902061855670103,
+      "maxMedianPeakRssBytes": 120647680,
+      "maxMedianEmittedBlockBytes": 4
+    },
+    {
+      "id": "purejsimage/ebsd-text",
+      "version": "1.0.0",
+      "workloadCount": 2,
+      "representativeWorkloadCount": 0,
+      "correctnessOnlyWorkloadCount": 2,
+      "maxMedianReadCalls": 32,
+      "maxMedianOverfetchRatio": 9.822916666666666,
+      "maxMedianPeakRssBytes": 123555840,
+      "maxMedianEmittedBlockBytes": 352
+    }
+  ],
+  "workloads": [
+    {
+      "id": "gsf-surface",
+      "title": "GSF numeric surface plane",
+      "readerId": "purejsimage/gsf",
+      "readerVersion": "1.0.0",
+      "fixtureId": "gsf-surface",
+      "fixtureSha256": "e7306d83e3fcb8bb467363eedbe2801fc355be433feba288e98c7ca0c2b24868",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Repository-generated Gwyddion Simple Field demo surface.",
+      "supportBoundary": "Single-resource GSF numeric surface.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.9196230000000014,
+          "p95": 5.359228999999971
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.09639599999997017,
+          "p95": 0.16368499999998676
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.11015900000001011,
+          "p95": 0.18515600000000632
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 123891712,
+          "p95": 125689856
+        },
+        "peakExternalBytes": {
+          "median": 12714209,
+          "p95": 12714209
+        },
+        "peakArrayBufferBytes": {
+          "median": 445183,
+          "p95": 445183
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 48,
+          "p95": 48
+        },
+        "outputBytes": {
+          "median": 48,
+          "p95": 48
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 121594,
+          "p95": 121594
+        },
+        "returnedBytes": {
+          "median": 121594,
+          "p95": 121594
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 49404,
+          "p95": 49404
+        },
+        "largestIndividualReadBytes": {
+          "median": 49404,
+          "p95": 49404
+        },
+        "overfetchRatio": {
+          "median": 2.461217715164764,
+          "p95": 2.461217715164764
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 12,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": [
+          "sampleType=float32",
+          "components=1",
+          "calibrated:x",
+          "calibrated:y"
+        ]
+      }
+    },
+    {
+      "id": "nanonis-afm-plane",
+      "title": "Nanonis SXM AFM plane",
+      "readerId": "purejsimage/nanonis-sxm",
+      "readerVersion": "1.0.0",
+      "fixtureId": "nanonis-afm",
+      "fixtureSha256": "85a1ccd0217817f5730b0e235d98cab27f9d3277d330ea3574f731f0c1ae2db6",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned FAIRmat-NFDI pynxtools-spm Generic 4 AFM fixture.",
+      "supportBoundary": "Nanonis SXM maps exposed as labeled planes.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 8.641637000000003,
+          "p95": 12.90657699999997
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 1.3942260000000033,
+          "p95": 1.8604780000000005
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 1.405224999999973,
+          "p95": 1.8785880000000361
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 130621440,
+          "p95": 131883008
+        },
+        "peakExternalBytes": {
+          "median": 18164263,
+          "p95": 18164263
+        },
+        "peakArrayBufferBytes": {
+          "median": 4343527,
+          "p95": 4343527
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 1024,
+          "p95": 1024
+        },
+        "outputBytes": {
+          "median": 1024,
+          "p95": 1024
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 48,
+          "p95": 48
+        },
+        "requestedBytes": {
+          "median": 2120962,
+          "p95": 2120962
+        },
+        "returnedBytes": {
+          "median": 2120962,
+          "p95": 2120962
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1048576,
+          "p95": 1048576
+        },
+        "largestIndividualReadBytes": {
+          "median": 1048576,
+          "p95": 1048576
+        },
+        "overfetchRatio": {
+          "median": 2.022706985473633,
+          "p95": 2.022706985473633
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": false
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 256,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "igor-wave-plane",
+      "title": "Igor binary wave plane",
+      "readerId": "purejsimage/igor-binary-wave",
+      "readerVersion": "1.0.0",
+      "fixtureId": "igor-wave",
+      "fixtureSha256": "910f46e563f85ac3c3ad30feb8770a7e87d5cb2bfb9b759dd73fb490df360462",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned AFMReader Asylum Research Igor binary wave fixture.",
+      "supportBoundary": "Igor binary waves of supported rank and numeric sample types.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 8.789945000000046,
+          "p95": 8.931590000000028
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 1.6450159999999983,
+          "p95": 2.129903000000013
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 1.655321000000015,
+          "p95": 2.1406350000000316
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 130433024,
+          "p95": 130764800
+        },
+        "peakExternalBytes": {
+          "median": 17164774,
+          "p95": 17164774
+        },
+        "peakArrayBufferBytes": {
+          "median": 3344038,
+          "p95": 3344038
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 1024,
+          "p95": 1024
+        },
+        "outputBytes": {
+          "median": 1024,
+          "p95": 1024
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 55,
+          "p95": 55
+        },
+        "requestedBytes": {
+          "median": 1086315,
+          "p95": 1086315
+        },
+        "returnedBytes": {
+          "median": 1086315,
+          "p95": 1086315
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1062121,
+          "p95": 1062121
+        },
+        "largestIndividualReadBytes": {
+          "median": 1048576,
+          "p95": 1048576
+        },
+        "overfetchRatio": {
+          "median": 1.0227789489144834,
+          "p95": 1.0227789489144834
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": false
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 256,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "digital-surf-plane",
+      "title": "Digital Surf compressed surface plane",
+      "readerId": "purejsimage/digital-surf",
+      "readerVersion": "1.0.0",
+      "fixtureId": "digital-surf",
+      "fixtureSha256": "84bc661e93e5d4f9433437f92cbb4f88c347fe9085ef68036c65ff9d6c83b0cf",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO compressed Digital Surf test surface.",
+      "supportBoundary": "Digital Surf map object with bounded compressed decode.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.763374999999996,
+          "p95": 4.996733000000006
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.16690399999998817,
+          "p95": 0.19088600000003453
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.17583400000000893,
+          "p95": 0.20035899999999174
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 121806848,
+          "p95": 126115840
+        },
+        "peakExternalBytes": {
+          "median": 12780622,
+          "p95": 13324771
+        },
+        "peakArrayBufferBytes": {
+          "median": 878551,
+          "p95": 878551
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 2048,
+          "p95": 2048
+        },
+        "outputBytes": {
+          "median": 2048,
+          "p95": 2048
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 34,
+          "p95": 34
+        },
+        "requestedBytes": {
+          "median": 135068,
+          "p95": 135068
+        },
+        "returnedBytes": {
+          "median": 135068,
+          "p95": 135068
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 56141,
+          "p95": 56141
+        },
+        "largestIndividualReadBytes": {
+          "median": 56141,
+          "p95": 56141
+        },
+        "overfetchRatio": {
+          "median": 2.4058709321173475,
+          "p95": 2.4058709321173475
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 256,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:x", "calibrated:y"]
+      }
+    },
+    {
+      "id": "x3p-plane",
+      "title": "X3P ISO 5436 plane",
+      "readerId": "purejsimage/x3p",
+      "readerVersion": "1.0.0",
+      "fixtureId": "x3p-surface",
+      "fixtureSha256": "081fcc5df0d10f12e23451e3738287078a37b794e65c7e7c7c329941940cfab8",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned OpenFMC ISO 5436 sample archive.",
+      "supportBoundary": "X3P ZIP surface with main.xml and binary data member.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.934003000000018,
+          "p95": 5.078094000000021
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.5634150000000204,
+          "p95": 0.5889599999999859
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.5734760000000279,
+          "p95": 0.5988040000000296
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 125599744,
+          "p95": 126193664
+        },
+        "peakExternalBytes": {
+          "median": 12683623,
+          "p95": 12732514
+        },
+        "peakArrayBufferBytes": {
+          "median": 179513,
+          "p95": 179513
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 128,
+          "p95": 128
+        },
+        "outputBytes": {
+          "median": 128,
+          "p95": 128
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 45,
+          "p95": 45
+        },
+        "requestedBytes": {
+          "median": 19444,
+          "p95": 19444
+        },
+        "returnedBytes": {
+          "median": 19444,
+          "p95": 19444
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 2881,
+          "p95": 2881
+        },
+        "largestIndividualReadBytes": {
+          "median": 2881,
+          "p95": 2881
+        },
+        "overfetchRatio": {
+          "median": 6.749045470322804,
+          "p95": 6.749045470322804
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 16,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:x", "calibrated:y"]
+      }
+    },
+    {
+      "id": "envi-hyperspectral-plane",
+      "title": "ENVI hyperspectral band plane",
+      "readerId": "purejsimage/envi",
+      "readerVersion": "1.0.0",
+      "fixtureId": "envi-hyperspectral",
+      "fixtureSha256": "7525289b87f80a118e9c54720573cb015823141a6d9c5a0215f31cf3e2dce2d3",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Repository-generated ENVI hyperspectral demo header and binary pair.",
+      "supportBoundary": "ENVI header/data companion pair with bounded band selection.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.8114739999999756,
+          "p95": 4.072345999999982
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.3003310000000283,
+          "p95": 0.3195549999999798
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.30944500000003927,
+          "p95": 0.3290979999999877
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 123518976,
+          "p95": 124665856
+        },
+        "peakExternalBytes": {
+          "median": 12277139,
+          "p95": 12821288
+        },
+        "peakArrayBufferBytes": {
+          "median": 503086,
+          "p95": 503086
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 512,
+          "p95": 512
+        },
+        "outputBytes": {
+          "median": 512,
+          "p95": 512
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 34,
+          "p95": 34
+        },
+        "requestedBytes": {
+          "median": 202475,
+          "p95": 202475
+        },
+        "returnedBytes": {
+          "median": 202475,
+          "p95": 202475
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 197263,
+          "p95": 197263
+        },
+        "largestIndividualReadBytes": {
+          "median": 196608,
+          "p95": 196608
+        },
+        "overfetchRatio": {
+          "median": 1.026421579312897,
+          "p95": 1.026421579312897
+        },
+        "companionResolutionCount": {
+          "median": 3,
+          "p95": 3
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 256,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "fits-cube-plane",
+      "title": "FITS cube plane",
+      "readerId": "purejsimage/fits",
+      "readerVersion": "1.0.0",
+      "fixtureId": "fits-cube",
+      "fixtureSha256": "406771dc0133975ac834523f3246256b60e215059afb859d8d7f7ef8f1cc65bb",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Repository-generated FITS cube used by the scientific demo.",
+      "supportBoundary": "FITS image HDU numeric cube.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.608355999999958,
+          "p95": 4.75843900000001
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.304883000000018,
+          "p95": 0.3084330000000364
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.3154930000000036,
+          "p95": 0.3176070000000095
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 124866560,
+          "p95": 125046784
+        },
+        "peakExternalBytes": {
+          "median": 12316096,
+          "p95": 12811354
+        },
+        "peakArrayBufferBytes": {
+          "median": 542439,
+          "p95": 542439
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 2048,
+          "p95": 2048
+        },
+        "outputBytes": {
+          "median": 2048,
+          "p95": 2048
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 178306,
+          "p95": 178306
+        },
+        "returnedBytes": {
+          "median": 178306,
+          "p95": 178306
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 77760,
+          "p95": 77760
+        },
+        "largestIndividualReadBytes": {
+          "median": 77760,
+          "p95": 77760
+        },
+        "overfetchRatio": {
+          "median": 2.2930298353909464,
+          "p95": 2.2930298353909464
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 256,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "mrc-volume-plane",
+      "title": "MRC volume plane",
+      "readerId": "purejsimage/mrc",
+      "readerVersion": "1.0.0",
+      "fixtureId": "mrc-volume",
+      "fixtureSha256": "590a02ea12057d18048bdb1557ded413b53dc65ef33c817b1073509cee345636",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party MRC benchmark fixture.",
+      "supportBoundary": "MRC mode-1 little-endian 2D volume with MAP signature.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.0170249999999896,
+          "p95": 3.129955999999993
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.10849000000001752,
+          "p95": 0.10947200000003932
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.11955299999999625,
+          "p95": 0.12109200000003284
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 119025664,
+          "p95": 124751872
+        },
+        "peakExternalBytes": {
+          "median": 11890894,
+          "p95": 12386152
+        },
+        "peakArrayBufferBytes": {
+          "median": 117071,
+          "p95": 117071
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 8,
+          "p95": 8
+        },
+        "outputBytes": {
+          "median": 8,
+          "p95": 8
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 7466,
+          "p95": 7466
+        },
+        "returnedBytes": {
+          "median": 7466,
+          "p95": 7466
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1032,
+          "p95": 1032
+        },
+        "largestIndividualReadBytes": {
+          "median": 1032,
+          "p95": 1032
+        },
+        "overfetchRatio": {
+          "median": 7.234496124031008,
+          "p95": 7.234496124031008
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "int16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:x", "calibrated:y"]
+      }
+    },
+    {
+      "id": "cbf-frame-plane",
+      "title": "CBF detector frame",
+      "readerId": "purejsimage/cbf",
+      "readerVersion": "1.0.0",
+      "fixtureId": "cbf-frame",
+      "fixtureSha256": "a77bbc5291a6072fa0a478e7bfdab0867930f7de3fc9d913a2909c4b11c75eb2",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party CBF byte-offset benchmark fixture.",
+      "supportBoundary": "CBF signed 32-bit little-endian byte-offset detector frame.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.275753000000009,
+          "p95": 3.7895520000000147
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.1077060000000074,
+          "p95": 0.10854999999997972
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.11619699999999966,
+          "p95": 0.1169800000000123
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 125788160,
+          "p95": 127827968
+        },
+        "peakExternalBytes": {
+          "median": 12378899,
+          "p95": 12427790
+        },
+        "peakArrayBufferBytes": {
+          "median": 109952,
+          "p95": 109952
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 16,
+          "p95": 16
+        },
+        "outputBytes": {
+          "median": 16,
+          "p95": 16
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 4403,
+          "p95": 4403
+        },
+        "returnedBytes": {
+          "median": 4403,
+          "p95": 4403
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 523,
+          "p95": 523
+        },
+        "largestIndividualReadBytes": {
+          "median": 523,
+          "p95": 523
+        },
+        "overfetchRatio": {
+          "median": 8.418738049713193,
+          "p95": 8.418738049713193
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "int32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "png-image-plane",
+      "title": "PNG scientific image adapter",
+      "readerId": "purejsimage/png",
+      "readerVersion": "1.0.0",
+      "fixtureId": "png-image",
+      "fixtureSha256": "67309706105d1a791ddaf386c6ca6aae4c9a59e78e1053368d8751000c1e07b3",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned PNG Suite palette sample in the repository corpus.",
+      "supportBoundary": "Public PNG scientific-reader adapter backed by the image codec.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.8706960000000095,
+          "p95": 4.900170000000003
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 1.3000880000000166,
+          "p95": 1.3511020000000258
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 1.5635389999999916,
+          "p95": 1.590771000000018
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 122871808,
+          "p95": 127102976
+        },
+        "peakExternalBytes": {
+          "median": 12177162,
+          "p95": 12744608
+        },
+        "peakArrayBufferBytes": {
+          "median": 187209,
+          "p95": 187209
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 192,
+          "p95": 192
+        },
+        "outputBytes": {
+          "median": 192,
+          "p95": 192
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 69,
+          "p95": 69
+        },
+        "requestedBytes": {
+          "median": 12746,
+          "p95": 12746
+        },
+        "returnedBytes": {
+          "median": 12746,
+          "p95": 12746
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1286,
+          "p95": 1286
+        },
+        "largestIndividualReadBytes": {
+          "median": 1286,
+          "p95": 1286
+        },
+        "overfetchRatio": {
+          "median": 9.91135303265941,
+          "p95": 9.91135303265941
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 192,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["sampleType=uint8"]
+      }
+    },
+    {
+      "id": "jpeg-image-plane",
+      "title": "JPEG scientific image adapter",
+      "readerId": "purejsimage/jpeg",
+      "readerVersion": "1.0.0",
+      "fixtureId": "jpeg-image",
+      "fixtureSha256": "a411b815441526dd27ea971a0d00a785bcf4d191ac4c8f76d97b1917be9cd709",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned Web Platform Tests MozJPEG RGB sample.",
+      "supportBoundary": "Public JPEG scientific-reader adapter backed by the image codec.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 16.505049999999983,
+          "p95": 16.581951000000004
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 6.045000000000016,
+          "p95": 8.151163999999994
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 6.0905500000000075,
+          "p95": 8.231849000000011
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 136749056,
+          "p95": 137809920
+        },
+        "peakExternalBytes": {
+          "median": 13966687,
+          "p95": 14032673
+        },
+        "peakArrayBufferBytes": {
+          "median": 2239811,
+          "p95": 2243103
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 192,
+          "p95": 192
+        },
+        "outputBytes": {
+          "median": 192,
+          "p95": 192
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 88,
+          "p95": 88
+        },
+        "requestedBytes": {
+          "median": 25418,
+          "p95": 25418
+        },
+        "returnedBytes": {
+          "median": 25418,
+          "p95": 25418
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1242,
+          "p95": 1242
+        },
+        "largestIndividualReadBytes": {
+          "median": 1242,
+          "p95": 1242
+        },
+        "overfetchRatio": {
+          "median": 20.465378421900162,
+          "p95": 20.465378421900162
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 192,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["sampleType=uint8"]
+      }
+    },
+    {
+      "id": "webp-image-plane",
+      "title": "WebP scientific image adapter",
+      "readerId": "purejsimage/webp",
+      "readerVersion": "1.0.0",
+      "fixtureId": "webp-image",
+      "fixtureSha256": "5c79a89d2d7a1cb7e2df043db1c834c2a3bb0be3b14a4e108567b9832b332556",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned WebP lossless image corpus sample.",
+      "supportBoundary": "Public WebP scientific-reader adapter backed by the image codec.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 19.61320999999998,
+          "p95": 19.974860000000035
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 1.6318640000000073,
+          "p95": 1.916136999999992
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 15.953581000000042,
+          "p95": 16.594734000000017
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 132386816,
+          "p95": 135880704
+        },
+        "peakExternalBytes": {
+          "median": 14592555,
+          "p95": 14592555
+        },
+        "peakArrayBufferBytes": {
+          "median": 2868971,
+          "p95": 2868971
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 64,
+          "p95": 64
+        },
+        "outputBytes": {
+          "median": 1024,
+          "p95": 1024
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 34,
+          "p95": 34
+        },
+        "requestedBytes": {
+          "median": 133386,
+          "p95": 133386
+        },
+        "returnedBytes": {
+          "median": 133386,
+          "p95": 133386
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 27650,
+          "p95": 27650
+        },
+        "largestIndividualReadBytes": {
+          "median": 27650,
+          "p95": 27650
+        },
+        "overfetchRatio": {
+          "median": 4.824086799276673,
+          "p95": 4.824086799276673
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 4,
+        "selectedSampleCount": 1024,
+        "blockCount": 16,
+        "relevantCalibrationAssertions": ["sampleType=uint8"]
+      }
+    },
+    {
+      "id": "bmp-image-plane",
+      "title": "BMP scientific image adapter",
+      "readerId": "purejsimage/bmp",
+      "readerVersion": "1.0.0",
+      "fixtureId": "bmp-image",
+      "fixtureSha256": "c68526e6a9ea8f929022c1f6b6c6b2f2b0ffe26701f8f221cdcbd6769bfd1f71",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned BMP Suite RGB24 sample.",
+      "supportBoundary": "Public BMP scientific-reader adapter backed by the image codec.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.215828999999985,
+          "p95": 3.2246520000000487
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.2997270000000185,
+          "p95": 0.30035399999997026
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.32905999999996993,
+          "p95": 0.36410399999999754
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 121122816,
+          "p95": 125116416
+        },
+        "peakExternalBytes": {
+          "median": 12004844,
+          "p95": 12500102
+        },
+        "peakArrayBufferBytes": {
+          "median": 231167,
+          "p95": 231167
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 768,
+          "p95": 768
+        },
+        "outputBytes": {
+          "median": 768,
+          "p95": 768
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 38,
+          "p95": 38
+        },
+        "requestedBytes": {
+          "median": 53758,
+          "p95": 53758
+        },
+        "returnedBytes": {
+          "median": 53758,
+          "p95": 53758
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 24630,
+          "p95": 24630
+        },
+        "largestIndividualReadBytes": {
+          "median": 24630,
+          "p95": 24630
+        },
+        "overfetchRatio": {
+          "median": 2.1826228177019895,
+          "p95": 2.1826228177019895
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 768,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["sampleType=uint8"]
+      }
+    },
+    {
+      "id": "jp2-image-plane",
+      "title": "JPEG 2000 scientific image adapter",
+      "readerId": "purejsimage/jp2",
+      "readerVersion": "1.0.0",
+      "fixtureId": "jp2-image",
+      "fixtureSha256": "6b33ce7724d3011fc0acefd3072b21ef26c26ab8e37d226e11fee727a8fb1a2d",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned OpenJPEG lossless RGB16 JPEG 2000 sample.",
+      "supportBoundary": "Public JPEG 2000 scientific-reader adapter backed by the image codec.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 5.40782999999999,
+          "p95": 5.732512999999983
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 1.5982040000000097,
+          "p95": 1.6437899999999672
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 1.6962619999999902,
+          "p95": 1.7319889999999987
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 126263296,
+          "p95": 127565824
+        },
+        "peakExternalBytes": {
+          "median": 12392270,
+          "p95": 12441161
+        },
+        "peakArrayBufferBytes": {
+          "median": 123264,
+          "p95": 123264
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 192,
+          "p95": 192
+        },
+        "outputBytes": {
+          "median": 192,
+          "p95": 192
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 74,
+          "p95": 74
+        },
+        "requestedBytes": {
+          "median": 4289,
+          "p95": 4289
+        },
+        "returnedBytes": {
+          "median": 4289,
+          "p95": 4289
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 403,
+          "p95": 403
+        },
+        "largestIndividualReadBytes": {
+          "median": 403,
+          "p95": 403
+        },
+        "overfetchRatio": {
+          "median": 10.642679900744417,
+          "p95": 10.642679900744417
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 192,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["sampleType=uint8"]
+      }
+    },
+    {
+      "id": "ordinary-tiff-region",
+      "title": "Ordinary TIFF bounded region",
+      "readerId": "purejsimage/tiff",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ordinary-tiff",
+      "fixtureSha256": "7bd7f4b45c111a97ed6424a7ba6c1043665a4d04d47c14a3964392e4c42d0f29",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned LibTIFF RGB sample.",
+      "supportBoundary": "Ordinary TIFF image directory and bounded region reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 5.555018999999959,
+          "p95": 6.547077000000002
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.592948999999976,
+          "p95": 0.8897460000000024
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.6244919999999752,
+          "p95": 0.9378580000000056
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 124477440,
+          "p95": 126627840
+        },
+        "peakExternalBytes": {
+          "median": 12655132,
+          "p95": 12704023
+        },
+        "peakArrayBufferBytes": {
+          "median": 386209,
+          "p95": 386209
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 768,
+          "p95": 768
+        },
+        "outputBytes": {
+          "median": 768,
+          "p95": 768
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 55,
+          "p95": 55
+        },
+        "requestedBytes": {
+          "median": 103095,
+          "p95": 103095
+        },
+        "returnedBytes": {
+          "median": 103095,
+          "p95": 103095
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 71470,
+          "p95": 71470
+        },
+        "largestIndividualReadBytes": {
+          "median": 71470,
+          "p95": 71470
+        },
+        "overfetchRatio": {
+          "median": 1.4424933538547642,
+          "p95": 1.4424933538547642
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 768,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "ome-tiff-region",
+      "title": "OME-TIFF metadata and plane",
+      "readerId": "purejsimage/ome-tiff",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ome-tiff",
+      "fixtureSha256": "f888ede4f1fb8948c4946e09b61d0aa69bf8c3a2c93d696ac5ac6418476e3030",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party OME-XML TIFF benchmark fixture.",
+      "supportBoundary": "OME-TIFF single-plane XYZCT image with embedded XML.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.757024000000001,
+          "p95": 15.838522999999952
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.543500999999992,
+          "p95": 0.6892949999999587
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.556381999999985,
+          "p95": 0.7081979999999817
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 124485632,
+          "p95": 126259200
+        },
+        "peakExternalBytes": {
+          "median": 12380964,
+          "p95": 12440179
+        },
+        "peakArrayBufferBytes": {
+          "median": 111852,
+          "p95": 111852
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 43,
+          "p95": 43
+        },
+        "requestedBytes": {
+          "median": 4711,
+          "p95": 4711
+        },
+        "returnedBytes": {
+          "median": 4711,
+          "p95": 4711
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 441,
+          "p95": 441
+        },
+        "largestIndividualReadBytes": {
+          "median": 441,
+          "p95": 441
+        },
+        "overfetchRatio": {
+          "median": 10.682539682539682,
+          "p95": 10.682539682539682
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "aperio-svs-region",
+      "title": "Aperio SVS whole-slide region",
+      "readerId": "purejsimage/aperio-svs",
+      "readerVersion": "1.0.0",
+      "fixtureId": "aperio-svs",
+      "fixtureSha256": "e489c57c9471c436a8d519798ba08003836c80ed99bcc2a679e64792f8c9c948",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "representative",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned Aperio CMU-1 small-region whole-slide fixture.",
+      "supportBoundary": "Aperio SVS tiled pyramid with direct tile/range reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 19.743966,
+          "p95": 28.489931999999953
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 8.036279999999977,
+          "p95": 13.041983000000073
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 8.158239999999978,
+          "p95": 13.132190000000037
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 134557696,
+          "p95": 135147520
+        },
+        "peakExternalBytes": {
+          "median": 17609262,
+          "p95": 17609262
+        },
+        "peakArrayBufferBytes": {
+          "median": 3788526,
+          "p95": 3788526
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 6144,
+          "p95": 6144
+        },
+        "outputBytes": {
+          "median": 9216,
+          "p95": 9216
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 70,
+          "p95": 70
+        },
+        "requestedBytes": {
+          "median": 1080696,
+          "p95": 1080696
+        },
+        "returnedBytes": {
+          "median": 1080696,
+          "p95": 1080696
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1051968,
+          "p95": 1051968
+        },
+        "largestIndividualReadBytes": {
+          "median": 1048576,
+          "p95": 1048576
+        },
+        "overfetchRatio": {
+          "median": 1.027308815477277,
+          "p95": 1.027308815477277
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": false
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 9216,
+        "blockCount": 2,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "digital-micrograph-2d-plane",
+      "title": "DigitalMicrograph ordinary 2D image",
+      "readerId": "purejsimage/digital-micrograph",
+      "readerVersion": "1.0.0",
+      "fixtureId": "digital-micrograph-2d",
+      "fixtureSha256": "c855196f402bee2fd72025b61f4b472537b9bf01620f07822f64bb6113a4eb8b",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO DigitalMicrograph 2D test fixture; generated fallback is deterministic.",
+      "supportBoundary": "DM3/DM4 numeric 2D image datasets.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 39.35435000000001,
+          "p95": 44.08405600000003
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.3787659999999846,
+          "p95": 0.39660300000002735
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.5198599999999942,
+          "p95": 0.5413719999999671
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 135520256,
+          "p95": 137179136
+        },
+        "peakExternalBytes": {
+          "median": 12234599,
+          "p95": 12235716
+        },
+        "peakArrayBufferBytes": {
+          "median": 511015,
+          "p95": 511015
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 8,
+          "p95": 8
+        },
+        "outputBytes": {
+          "median": 16,
+          "p95": 16
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 1370,
+          "p95": 1370
+        },
+        "requestedBytes": {
+          "median": 59706,
+          "p95": 59706
+        },
+        "returnedBytes": {
+          "median": 59706,
+          "p95": 59706
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 26652,
+          "p95": 26652
+        },
+        "largestIndividualReadBytes": {
+          "median": 26652,
+          "p95": 26652
+        },
+        "overfetchRatio": {
+          "median": 2.240207113912652,
+          "p95": 2.240207113912652
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 4,
+        "selectedSampleCount": 16,
+        "blockCount": 2,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "digital-micrograph-4d-stem-plane",
+      "title": "DigitalMicrograph 4D-STEM diffraction plane",
+      "readerId": "purejsimage/digital-micrograph",
+      "readerVersion": "1.0.0",
+      "fixtureId": "digital-micrograph-4d-stem",
+      "fixtureSha256": "3cf9b798900009c26a4311dd233a6b139c5429a76ab875206254e6aa46676e3f",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party DigitalMicrograph 4D-STEM fixture.",
+      "supportBoundary": "Explicit diffraction-image/Data-Order-Swapped 4D STEM semantics.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 9.760290999999995,
+          "p95": 13.652938000000063
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.31788499999998976,
+          "p95": 0.4816240000000107
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.48757399999999507,
+          "p95": 0.788972000000058
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 125952000,
+          "p95": 127340544
+        },
+        "peakExternalBytes": {
+          "median": 12461060,
+          "p95": 12471384
+        },
+        "peakArrayBufferBytes": {
+          "median": 142947,
+          "p95": 142947
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 8,
+          "p95": 8
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 190,
+          "p95": 190
+        },
+        "requestedBytes": {
+          "median": 5176,
+          "p95": 5176
+        },
+        "returnedBytes": {
+          "median": 5176,
+          "p95": 5176
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 657,
+          "p95": 657
+        },
+        "largestIndividualReadBytes": {
+          "median": 657,
+          "p95": 657
+        },
+        "overfetchRatio": {
+          "median": 7.878234398782344,
+          "p95": 7.878234398782344
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 2,
+        "relevantCalibrationAssertions": ["axis=kx"]
+      }
+    },
+    {
+      "id": "tia-ser-image-plane",
+      "title": "TIA SER image element plane",
+      "readerId": "purejsimage/tia-ser",
+      "readerVersion": "1.0.0",
+      "fixtureId": "tia-ser-image",
+      "fixtureSha256": "0df7537e79a0f03185a5755f40b810c451b6e4d8b28a7c1ef6b115cd4618ed69",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO TIA SER image fixture; generated fallback is deterministic.",
+      "supportBoundary": "TIA SER image elements exposed as calibrated planes.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 6.325421000000006,
+          "p95": 7.509871000000032
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.21726400000000012,
+          "p95": 0.32692700000001196
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 1.7490890000000263,
+          "p95": 2.1020000000000323
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 122540032,
+          "p95": 128913408
+        },
+        "peakExternalBytes": {
+          "median": 12181116,
+          "p95": 12663224
+        },
+        "peakArrayBufferBytes": {
+          "median": 407283,
+          "p95": 407283
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 64,
+          "p95": 64
+        },
+        "outputBytes": {
+          "median": 1024,
+          "p95": 1024
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 58,
+          "p95": 58
+        },
+        "requestedBytes": {
+          "median": 106530,
+          "p95": 106530
+        },
+        "returnedBytes": {
+          "median": 106530,
+          "p95": 106530
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 82318,
+          "p95": 82318
+        },
+        "largestIndividualReadBytes": {
+          "median": 82318,
+          "p95": 82318
+        },
+        "overfetchRatio": {
+          "median": 1.2941276513034816,
+          "p95": 1.2941276513034816
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 256,
+        "blockCount": 16,
+        "relevantCalibrationAssertions": ["calibrated:x", "calibrated:y"]
+      }
+    },
+    {
+      "id": "tia-ser-spectrum-series",
+      "title": "TIA SER spectrum-image energy series",
+      "readerId": "purejsimage/tia-ser",
+      "readerVersion": "1.0.0",
+      "fixtureId": "tia-ser-spectrum",
+      "fixtureSha256": "f759957677188ff785387578ac16bd30eac616395296642d70d466331871583a",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO TIA SER spectrum-image fixture; generated fallback is deterministic.",
+      "supportBoundary": "TIA SER spectrum image with energy series reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 5.256169999999997,
+          "p95": 5.956913999999983
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.22097400000001244,
+          "p95": 0.29510700000003
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.22928300000000945,
+          "p95": 0.3044980000000237
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 123719680,
+          "p95": 128581632
+        },
+        "peakExternalBytes": {
+          "median": 12245488,
+          "p95": 12789637
+        },
+        "peakArrayBufferBytes": {
+          "median": 471611,
+          "p95": 471611
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 64,
+          "p95": 64
+        },
+        "outputBytes": {
+          "median": 64,
+          "p95": 64
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 68,
+          "p95": 68
+        },
+        "requestedBytes": {
+          "median": 128398,
+          "p95": 128398
+        },
+        "returnedBytes": {
+          "median": 128398,
+          "p95": 128398
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 103972,
+          "p95": 103972
+        },
+        "largestIndividualReadBytes": {
+          "median": 103972,
+          "p95": 103972
+        },
+        "overfetchRatio": {
+          "median": 1.234928634632401,
+          "p95": 1.234928634632401
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "int32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 16,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:energy"]
+      }
+    },
+    {
+      "id": "tia-emi-companion-plane",
+      "title": "TIA EMI metadata with SER companion plane",
+      "readerId": "purejsimage/tia-emi",
+      "readerVersion": "1.0.0",
+      "fixtureId": "tia-emi",
+      "fixtureSha256": "4046c21000b4dde4cc3f17073e90391a588b4f0035fc163e70e81cf5101d5af9",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO TIA EMI/SER companion set; generated fallback is deterministic.",
+      "supportBoundary": "EMI metadata with numbered SER companion resolution.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 7.219799000000023,
+          "p95": 7.3906240000000025
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.19064199999996845,
+          "p95": 0.20262599999995246
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.9169909999999959,
+          "p95": 0.9948519999999803
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 122101760,
+          "p95": 124854272
+        },
+        "peakExternalBytes": {
+          "median": 12026284,
+          "p95": 12026284
+        },
+        "peakArrayBufferBytes": {
+          "median": 252245,
+          "p95": 252245
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 32,
+          "p95": 32
+        },
+        "outputBytes": {
+          "median": 256,
+          "p95": 256
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 47,
+          "p95": 47
+        },
+        "requestedBytes": {
+          "median": 71332,
+          "p95": 71332
+        },
+        "returnedBytes": {
+          "median": 71332,
+          "p95": 71332
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 24466,
+          "p95": 24466
+        },
+        "largestIndividualReadBytes": {
+          "median": 24076,
+          "p95": 24076
+        },
+        "overfetchRatio": {
+          "median": 2.9155562821875254,
+          "p95": 2.9155562821875254
+        },
+        "companionResolutionCount": {
+          "median": 4,
+          "p95": 4
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 64,
+        "blockCount": 8,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "ncem-emd-plane",
+      "title": "NCEM EMD image plane",
+      "readerId": "purejsimage/ncem-emd",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ncem-emd",
+      "fixtureSha256": "6776528e020de2089e10a74d8e710d394bf60ed136aa60f84efded2fcc5175d1",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO NCEM EMD image fixture; generated fallback is deterministic.",
+      "supportBoundary": "NCEM EMD HDF5 image/spectrum datasets with bounded contiguous reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 7.415466999999978,
+          "p95": 7.549437000000012
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.46947799999998097,
+          "p95": 0.5331489999999803
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.49281500000000733,
+          "p95": 0.5487799999999652
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 126087168,
+          "p95": 130252800
+        },
+        "peakExternalBytes": {
+          "median": 12567944,
+          "p95": 12616835
+        },
+        "peakArrayBufferBytes": {
+          "median": 298960,
+          "p95": 298960
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 36,
+          "p95": 36
+        },
+        "outputBytes": {
+          "median": 36,
+          "p95": 36
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 43,
+          "p95": 43
+        },
+        "requestedBytes": {
+          "median": 73446,
+          "p95": 73446
+        },
+        "returnedBytes": {
+          "median": 73446,
+          "p95": 73446
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 17104,
+          "p95": 17104
+        },
+        "largestIndividualReadBytes": {
+          "median": 17104,
+          "p95": 17104
+        },
+        "overfetchRatio": {
+          "median": 4.294083255378859,
+          "p95": 4.294083255378859
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "int32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 9,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "velox-emd-plane",
+      "title": "Velox EMD image plane",
+      "readerId": "purejsimage/velox-emd",
+      "readerVersion": "1.0.0",
+      "fixtureId": "velox-emd",
+      "fixtureSha256": "775c4cb6c517e75031136348e51a5fb76e726a9b8ff453ebcfa03a0c02d5e7b7",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO Velox EMD image fixture; generated fallback is deterministic.",
+      "supportBoundary": "Velox EMD image hierarchy with HDF5 metadata columns.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 41.56771600000002,
+          "p95": 43.723566000000005
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.5861530000000243,
+          "p95": 0.6253300000000195
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.6002620000000434,
+          "p95": 0.6381590000000301
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 142999552,
+          "p95": 145399808
+        },
+        "peakExternalBytes": {
+          "median": 12592845,
+          "p95": 12592845
+        },
+        "peakArrayBufferBytes": {
+          "median": 869261,
+          "p95": 869261
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 18,
+          "p95": 18
+        },
+        "outputBytes": {
+          "median": 18,
+          "p95": 18
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 49,
+          "p95": 49
+        },
+        "requestedBytes": {
+          "median": 401134,
+          "p95": 401134
+        },
+        "returnedBytes": {
+          "median": 401134,
+          "p95": 401134
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 196872,
+          "p95": 196872
+        },
+        "largestIndividualReadBytes": {
+          "median": 196872,
+          "p95": 196872
+        },
+        "overfetchRatio": {
+          "median": 2.037537079930107,
+          "p95": 2.037537079930107
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "int16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 9,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "velox-complex-plane",
+      "title": "Velox EMD complex FFT plane",
+      "readerId": "purejsimage/velox-emd",
+      "readerVersion": "1.0.0",
+      "fixtureId": "velox-emd-complex",
+      "fixtureSha256": "b09e97842a8417997171f6e941cd7c4d8255f9731e59bae9ccab0d90e40a91f3",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO Velox complex FFT fixture; generated fallback is deterministic.",
+      "supportBoundary": "Velox EMD complex two-component image samples.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 27.49375900000001,
+          "p95": 27.983253999999988
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.6957330000000184,
+          "p95": 0.8155750000000239
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.7081550000000334,
+          "p95": 0.828013999999996
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 140255232,
+          "p95": 142528512
+        },
+        "peakExternalBytes": {
+          "median": 12579114,
+          "p95": 12579114
+        },
+        "peakArrayBufferBytes": {
+          "median": 855530,
+          "p95": 855530
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 72,
+          "p95": 72
+        },
+        "outputBytes": {
+          "median": 72,
+          "p95": 72
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 51,
+          "p95": 51
+        },
+        "requestedBytes": {
+          "median": 297634,
+          "p95": 297634
+        },
+        "returnedBytes": {
+          "median": 297634,
+          "p95": 297634
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 144240,
+          "p95": 144240
+        },
+        "largestIndividualReadBytes": {
+          "median": 144240,
+          "p95": 144240
+        },
+        "overfetchRatio": {
+          "median": 2.063463671658347,
+          "p95": 2.063463671658347
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 2,
+        "selectedSampleCount": 18,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["components=2"]
+      }
+    },
+    {
+      "id": "rpl-raw-plane",
+      "title": "RPL/RAW depth-fixed plane",
+      "readerId": "purejsimage/rpl",
+      "readerVersion": "1.0.0",
+      "fixtureId": "rpl-raw",
+      "fixtureSha256": "a3281b3c8774337965f34c5cae3816bf0a2b4c7c08ff8e8bb8fa4b34f231b592",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO RPL/RAW interchange pair; generated fallback is deterministic.",
+      "supportBoundary": "RPL vector-record header with RAW companion and calibrated depth axis.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.822207999999989,
+          "p95": 4.099192999999957
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.42768200000000434,
+          "p95": 0.45824500000003354
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.44219000000003916,
+          "p95": 0.46928700000000845
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 125325312,
+          "p95": 126545920
+        },
+        "peakExternalBytes": {
+          "median": 12375683,
+          "p95": 12424574
+        },
+        "peakArrayBufferBytes": {
+          "median": 106356,
+          "p95": 106356
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 35,
+          "p95": 35
+        },
+        "requestedBytes": {
+          "median": 3755,
+          "p95": 3755
+        },
+        "returnedBytes": {
+          "median": 3755,
+          "p95": 3755
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 381,
+          "p95": 381
+        },
+        "largestIndividualReadBytes": {
+          "median": 377,
+          "p95": 377
+        },
+        "overfetchRatio": {
+          "median": 9.855643044619423,
+          "p95": 9.855643044619423
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:x", "calibrated:y", "calibrated:depth"]
+      }
+    },
+    {
+      "id": "emsa-series",
+      "title": "EMSA calibrated spectrum series",
+      "readerId": "purejsimage/emsa",
+      "readerVersion": "1.0.0",
+      "fixtureId": "emsa-spectrum",
+      "fixtureSha256": "56dc15bec948d7ea7a4d6d8cc807c7422e99f934141fb0bb89d00d182f9ed2da",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned ISO 22029 EMSA/MAS compliance spectrum; generated fallback is deterministic.",
+      "supportBoundary": "EMSA Y/XY spectra exposed through bounded series reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 2.5991010000000188,
+          "p95": 2.8625040000000013
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.053159999999991214,
+          "p95": 0.0554440000000227
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.05839499999996178,
+          "p95": 0.060632000000055086
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 119853056,
+          "p95": 120934400
+        },
+        "peakExternalBytes": {
+          "median": 11882183,
+          "p95": 11882183
+        },
+        "peakArrayBufferBytes": {
+          "median": 108447,
+          "p95": 108447
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 128,
+          "p95": 128
+        },
+        "outputBytes": {
+          "median": 128,
+          "p95": 128
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 6802,
+          "p95": 6802
+        },
+        "returnedBytes": {
+          "median": 6802,
+          "p95": 6802
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 920,
+          "p95": 920
+        },
+        "largestIndividualReadBytes": {
+          "median": 920,
+          "p95": 920
+        },
+        "overfetchRatio": {
+          "median": 7.393478260869565,
+          "p95": 7.393478260869565
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 16,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:spectral"]
+      }
+    },
+    {
+      "id": "nrrd-raw-plane",
+      "title": "NRRD raw plane",
+      "readerId": "purejsimage/nrrd",
+      "readerVersion": "1.0.0",
+      "fixtureId": "nrrd-raw",
+      "fixtureSha256": "979d3063d044aa1940aa77199945a7ed26d01fa91feec6b79beae666e8244bc7",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party attached NRRD benchmark fixture.",
+      "supportBoundary": "NRRD raw encoding with a 2D uchar payload.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 2.9582849999999894,
+          "p95": 3.385616999999968
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.31621200000000727,
+          "p95": 0.3684799999999768
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.3266669999999863,
+          "p95": 0.379511999999977
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 124362752,
+          "p95": 126050304
+        },
+        "peakExternalBytes": {
+          "median": 12371730,
+          "p95": 12420621
+        },
+        "peakArrayBufferBytes": {
+          "median": 102827,
+          "p95": 102827
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 34,
+          "p95": 34
+        },
+        "requestedBytes": {
+          "median": 850,
+          "p95": 850
+        },
+        "returnedBytes": {
+          "median": 850,
+          "p95": 850
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 64,
+          "p95": 64
+        },
+        "largestIndividualReadBytes": {
+          "median": 64,
+          "p95": 64
+        },
+        "overfetchRatio": {
+          "median": 13.28125,
+          "p95": 13.28125
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "nrrd-gzip-plane",
+      "title": "NRRD gzip plane",
+      "readerId": "purejsimage/nrrd",
+      "readerVersion": "1.0.0",
+      "fixtureId": "nrrd-gzip",
+      "fixtureSha256": "3c83116794fca6ae84d0c21610377b7219dff31b1e908822e4dfd38fb23bf9a6",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party gzip-encoded NRRD benchmark fixture.",
+      "supportBoundary": "NRRD gzip encoding with bounded decompression.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.933620000000019,
+          "p95": 4.021270000000015
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.0962369999999737,
+          "p95": 0.1069699999999898
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.10774399999996831,
+          "p95": 0.12216000000000804
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 126062592,
+          "p95": 130940928
+        },
+        "peakExternalBytes": {
+          "median": 12629835,
+          "p95": 12678726
+        },
+        "peakArrayBufferBytes": {
+          "median": 121425,
+          "p95": 121425
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 33,
+          "p95": 33
+        },
+        "requestedBytes": {
+          "median": 1054,
+          "p95": 1054
+        },
+        "returnedBytes": {
+          "median": 1054,
+          "p95": 1054
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 85,
+          "p95": 85
+        },
+        "largestIndividualReadBytes": {
+          "median": 85,
+          "p95": 85
+        },
+        "overfetchRatio": {
+          "median": 12.4,
+          "p95": 12.4
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "meta-image-mha-plane",
+      "title": "MetaImage local payload plane",
+      "readerId": "purejsimage/meta-image",
+      "readerVersion": "1.0.0",
+      "fixtureId": "meta-image-mha",
+      "fixtureSha256": "828076792f4669b51ddf71cd0203d65cabbf0a16c931cc559ee835ce94b34f35",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party MetaImage local-payload fixture.",
+      "supportBoundary": "MHA LOCAL payload with 2D uchar data.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.123626999999999,
+          "p95": 3.325181999999984
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.36401999999998225,
+          "p95": 0.4032760000000053
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.3753889999999842,
+          "p95": 0.4160840000000121
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 125759488,
+          "p95": 128323584
+        },
+        "peakExternalBytes": {
+          "median": 12372255,
+          "p95": 12372255
+        },
+        "peakArrayBufferBytes": {
+          "median": 103299,
+          "p95": 103299
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 34,
+          "p95": 34
+        },
+        "requestedBytes": {
+          "median": 1322,
+          "p95": 1322
+        },
+        "returnedBytes": {
+          "median": 1322,
+          "p95": 1322
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 121,
+          "p95": 121
+        },
+        "largestIndividualReadBytes": {
+          "median": 121,
+          "p95": 121
+        },
+        "overfetchRatio": {
+          "median": 10.925619834710744,
+          "p95": 10.925619834710744
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "meta-image-mhd-plane",
+      "title": "MetaImage detached payload plane",
+      "readerId": "purejsimage/meta-image",
+      "readerVersion": "1.0.0",
+      "fixtureId": "meta-image-mhd",
+      "fixtureSha256": "9747868c76c6cad55b300039f4f04783df5a94c4ed1cbc5142ea0d03a750b14a",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party MetaImage detached-payload fixture.",
+      "supportBoundary": "MHD header with an external RAW companion.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.078600999999992,
+          "p95": 3.2297700000000304
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.21288599999996904,
+          "p95": 0.22317800000001853
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.2246189999999615,
+          "p95": 0.23509999999998854
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 129425408,
+          "p95": 129495040
+        },
+        "peakExternalBytes": {
+          "median": 12372399,
+          "p95": 12372399
+        },
+        "peakArrayBufferBytes": {
+          "median": 103107,
+          "p95": 103107
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 33,
+          "p95": 33
+        },
+        "requestedBytes": {
+          "median": 1338,
+          "p95": 1338
+        },
+        "returnedBytes": {
+          "median": 1338,
+          "p95": 1338
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 127,
+          "p95": 127
+        },
+        "largestIndividualReadBytes": {
+          "median": 123,
+          "p95": 123
+        },
+        "overfetchRatio": {
+          "median": 10.535433070866143,
+          "p95": 10.535433070866143
+        },
+        "companionResolutionCount": {
+          "median": 3,
+          "p95": 3
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 2,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "nifti-plane",
+      "title": "NIfTI scaled plane",
+      "readerId": "purejsimage/nifti",
+      "readerVersion": "1.0.0",
+      "fixtureId": "nifti",
+      "fixtureSha256": "92f97401ed6ef74825dfef867ce5a733bd69d046706a9c1d789ead03035abc19",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party NIfTI-1 benchmark fixture.",
+      "supportBoundary": "NIfTI-1 little-endian scaled int16 2D image.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.3861099999999738,
+          "p95": 3.9570850000000064
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.3832100000000196,
+          "p95": 0.4021490000000085
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.3935910000000149,
+          "p95": 0.4115330000000199
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 124600320,
+          "p95": 125640704
+        },
+        "peakExternalBytes": {
+          "median": 12425704,
+          "p95": 12425704
+        },
+        "peakArrayBufferBytes": {
+          "median": 107861,
+          "p95": 107861
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 32,
+          "p95": 32
+        },
+        "outputBytes": {
+          "median": 32,
+          "p95": 32
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 35,
+          "p95": 35
+        },
+        "requestedBytes": {
+          "median": 3248,
+          "p95": 3248
+        },
+        "returnedBytes": {
+          "median": 3248,
+          "p95": 3248
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 360,
+          "p95": 360
+        },
+        "largestIndividualReadBytes": {
+          "median": 360,
+          "p95": 360
+        },
+        "overfetchRatio": {
+          "median": 9.022222222222222,
+          "p95": 9.022222222222222
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": ["calibrated:x", "calibrated:y"]
+      }
+    },
+    {
+      "id": "nifti-gzip-plane",
+      "title": "Gzip NIfTI scaled plane",
+      "readerId": "purejsimage/nifti",
+      "readerVersion": "1.0.0",
+      "fixtureId": "nifti-gzip",
+      "fixtureSha256": "40b6686863a2d1df663771ee8f219a1eb82f3a57f5f275b791b62d8d718cd4a9",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party gzip-wrapped NIfTI benchmark fixture.",
+      "supportBoundary": "Gzip-wrapped NIfTI-1 input.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 5.5243809999999485,
+          "p95": 9.134743999999955
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.10673300000007657,
+          "p95": 0.11077799999998206
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.11822700000004716,
+          "p95": 0.12211300000001302
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 127115264,
+          "p95": 127422464
+        },
+        "peakExternalBytes": {
+          "median": 12592437,
+          "p95": 12697227
+        },
+        "peakArrayBufferBytes": {
+          "median": 140181,
+          "p95": 140181
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 32,
+          "p95": 32
+        },
+        "outputBytes": {
+          "median": 32,
+          "p95": 32
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 34,
+          "p95": 34
+        },
+        "requestedBytes": {
+          "median": 1108,
+          "p95": 1108
+        },
+        "returnedBytes": {
+          "median": 1108,
+          "p95": 1108
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 84,
+          "p95": 84
+        },
+        "largestIndividualReadBytes": {
+          "median": 84,
+          "p95": 84
+        },
+        "overfetchRatio": {
+          "median": 13.19047619047619,
+          "p95": 13.19047619047619
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "npy-c-plane",
+      "title": "NPY C-order plane",
+      "readerId": "purejsimage/npy",
+      "readerVersion": "1.0.0",
+      "fixtureId": "npy-c-order",
+      "fixtureSha256": "18be53777681b4a55fbbe9f1fd6267129ca92a2fe2699dfbd76c7a9718426fde",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party C-order NPY benchmark fixture.",
+      "supportBoundary": "NPY v1 little-endian uint16 C-order array.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.054824000000053,
+          "p95": 12.175927000000001
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.4325730000000476,
+          "p95": 0.8674820000001091
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.4453320000000076,
+          "p95": 0.890299000000141
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 125018112,
+          "p95": 128061440
+        },
+        "peakExternalBytes": {
+          "median": 12360282,
+          "p95": 12422323
+        },
+        "peakArrayBufferBytes": {
+          "median": 104541,
+          "p95": 104541
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 12,
+          "p95": 12
+        },
+        "outputBytes": {
+          "median": 12,
+          "p95": 12
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 35,
+          "p95": 35
+        },
+        "requestedBytes": {
+          "median": 1472,
+          "p95": 1472
+        },
+        "returnedBytes": {
+          "median": 1472,
+          "p95": 1472
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 140,
+          "p95": 140
+        },
+        "largestIndividualReadBytes": {
+          "median": 140,
+          "p95": 140
+        },
+        "overfetchRatio": {
+          "median": 10.514285714285714,
+          "p95": 10.514285714285714
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 6,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "npy-fortran-plane",
+      "title": "NPY Fortran-order plane",
+      "readerId": "purejsimage/npy",
+      "readerVersion": "1.0.0",
+      "fixtureId": "npy-fortran-order",
+      "fixtureSha256": "717b085420505cbec08dd431b8a847e130ed586ebdea6d53a8646fe938e40209",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party Fortran-order NPY benchmark fixture.",
+      "supportBoundary": "NPY v1 little-endian uint16 Fortran-order array.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 2.674631999999974,
+          "p95": 2.9441799999999603
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.26828100000000177,
+          "p95": 0.29379699999998365
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.27805100000000493,
+          "p95": 0.30396899999999505
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 124133376,
+          "p95": 126296064
+        },
+        "peakExternalBytes": {
+          "median": 12373480,
+          "p95": 12422371
+        },
+        "peakArrayBufferBytes": {
+          "median": 104541,
+          "p95": 104541
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 12,
+          "p95": 12
+        },
+        "outputBytes": {
+          "median": 12,
+          "p95": 12
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 35,
+          "p95": 35
+        },
+        "requestedBytes": {
+          "median": 1472,
+          "p95": 1472
+        },
+        "returnedBytes": {
+          "median": 1472,
+          "p95": 1472
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 140,
+          "p95": 140
+        },
+        "largestIndividualReadBytes": {
+          "median": 140,
+          "p95": 140
+        },
+        "overfetchRatio": {
+          "median": 10.514285714285714,
+          "p95": 10.514285714285714
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint16",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 6,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "blockfile-4d-stem-plane",
+      "title": "BLO 4D-STEM diffraction plane",
+      "readerId": "purejsimage/blockfile",
+      "readerVersion": "1.0.0",
+      "fixtureId": "blockfile",
+      "fixtureSha256": "881dd23300161a9a370ac60626a914d1d69a11592332885e8621b4e61d45746a",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned RosettaSciIO Merlin blockfile fixture; generated fallback is deterministic.",
+      "supportBoundary": "BLO navigation plus bounded diffraction frame reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.3154350000000363,
+          "p95": 4.205302999999958
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.5296329999999898,
+          "p95": 0.5647010000000137
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.5393990000000031,
+          "p95": 0.581245000000024
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 120143872,
+          "p95": 128794624
+        },
+        "peakExternalBytes": {
+          "median": 11925390,
+          "p95": 12420648
+        },
+        "peakArrayBufferBytes": {
+          "median": 151567,
+          "p95": 151567
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 36,
+          "p95": 36
+        },
+        "requestedBytes": {
+          "median": 23390,
+          "p95": 23390
+        },
+        "returnedBytes": {
+          "median": 23390,
+          "p95": 23390
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 4294,
+          "p95": 4294
+        },
+        "largestIndividualReadBytes": {
+          "median": 4294,
+          "p95": 4294
+        },
+        "overfetchRatio": {
+          "median": 5.447135537959944,
+          "p95": 5.447135537959944
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "mib-4d-stem-plane",
+      "title": "MIB 4D-STEM diffraction plane",
+      "readerId": "purejsimage/mib",
+      "readerVersion": "1.0.0",
+      "fixtureId": "mib",
+      "fixtureSha256": "925dc9736813dd382844d3b4a10c17d404afacc3bffcfadfe0a2332977aea18d",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party Merlin MIB benchmark fixture.",
+      "supportBoundary": "MIB header with a small uint8 diffraction frame.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.150566000000026,
+          "p95": 3.831120999999996
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.44927599999999757,
+          "p95": 0.5465009999999779
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.4589520000000107,
+          "p95": 0.5581869999999753
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 120647680,
+          "p95": 125562880
+        },
+        "peakExternalBytes": {
+          "median": 11880201,
+          "p95": 12424350
+        },
+        "peakArrayBufferBytes": {
+          "median": 106443,
+          "p95": 106443
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 4,
+          "p95": 4
+        },
+        "outputBytes": {
+          "median": 4,
+          "p95": 4
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 35,
+          "p95": 35
+        },
+        "requestedBytes": {
+          "median": 3842,
+          "p95": 3842
+        },
+        "returnedBytes": {
+          "median": 3842,
+          "p95": 3842
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 388,
+          "p95": 388
+        },
+        "largestIndividualReadBytes": {
+          "median": 388,
+          "p95": 388
+        },
+        "overfetchRatio": {
+          "median": 9.902061855670103,
+          "p95": 9.902061855670103
+        },
+        "companionResolutionCount": {
+          "median": 3,
+          "p95": 3
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 4,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "ebsd-ang-plane",
+      "title": "EBSD ANG map plane",
+      "readerId": "purejsimage/ebsd-text",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ebsd-ang",
+      "fixtureSha256": "e7a36114e967f4c90020a475c256251658abc5aab69985446cc8f6201af35bcf",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party EBSD ANG text benchmark fixture.",
+      "supportBoundary": "EBSD ANG grid with orientation and phase columns.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 3.014526999999987,
+          "p95": 3.0658180000000357
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.08169099999997798,
+          "p95": 0.08343500000000859
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.09019899999998415,
+          "p95": 0.09298400000000129
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 123555840,
+          "p95": 129081344
+        },
+        "peakExternalBytes": {
+          "median": 11877457,
+          "p95": 12372715
+        },
+        "peakArrayBufferBytes": {
+          "median": 103795,
+          "p95": 103795
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 256,
+          "p95": 256
+        },
+        "outputBytes": {
+          "median": 256,
+          "p95": 256
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 1886,
+          "p95": 1886
+        },
+        "returnedBytes": {
+          "median": 1886,
+          "p95": 1886
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 192,
+          "p95": 192
+        },
+        "largestIndividualReadBytes": {
+          "median": 192,
+          "p95": 192
+        },
+        "overfetchRatio": {
+          "median": 9.822916666666666,
+          "p95": 9.822916666666666
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 8,
+        "selectedSampleCount": 32,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "ebsd-ctf-plane",
+      "title": "EBSD CTF map plane",
+      "readerId": "purejsimage/ebsd-text",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ebsd-ctf",
+      "fixtureSha256": "9e35ebf2d70f199665c6e58e9e194e2b8f3b56e8300e0f058ca454ab71a747eb",
+      "operation": "selected",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": false,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Deterministic first-party EBSD CTF text benchmark fixture.",
+      "supportBoundary": "EBSD CTF grid with orientation and phase columns.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 2.684771000000012,
+          "p95": 2.8043539999999894
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.0797680000000014,
+          "p95": 0.08078499999999167
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.08894800000001624,
+          "p95": 0.09036800000001222
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 119898112,
+          "p95": 123670528
+        },
+        "peakExternalBytes": {
+          "median": 11878465,
+          "p95": 12360573
+        },
+        "peakArrayBufferBytes": {
+          "median": 104803,
+          "p95": 104803
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 352,
+          "p95": 352
+        },
+        "outputBytes": {
+          "median": 352,
+          "p95": 352
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 2398,
+          "p95": 2398
+        },
+        "returnedBytes": {
+          "median": 2398,
+          "p95": 2398
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 255,
+          "p95": 255
+        },
+        "largestIndividualReadBytes": {
+          "median": 255,
+          "p95": 255
+        },
+        "overfetchRatio": {
+          "median": 9.403921568627451,
+          "p95": 9.403921568627451
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float64",
+        "outputComponentCount": 11,
+        "selectedSampleCount": 44,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "baseline-tiff-metadata-only",
+      "title": "TIFF metadata-only open",
+      "readerId": "purejsimage/tiff",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ordinary-tiff",
+      "fixtureSha256": "7bd7f4b45c111a97ed6424a7ba6c1043665a4d04d47c14a3964392e4c42d0f29",
+      "operation": "metadata-only",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned LibTIFF RGB sample.",
+      "supportBoundary": "Ordinary TIFF image directory and bounded region reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.759262000000035,
+          "p95": 5.102831999999978
+        },
+        "timeToFirstEmittedBlockMilliseconds": null,
+        "completeSelectedOperationMilliseconds": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 123985920,
+          "p95": 128573440
+        },
+        "peakExternalBytes": {
+          "median": 12685779,
+          "p95": 12685779
+        },
+        "peakArrayBufferBytes": {
+          "median": 367951,
+          "p95": 367951
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 0,
+          "p95": 0
+        },
+        "outputBytes": {
+          "median": 0,
+          "p95": 0
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 50,
+          "p95": 50
+        },
+        "requestedBytes": {
+          "median": 95004,
+          "p95": 95004
+        },
+        "returnedBytes": {
+          "median": 95004,
+          "p95": 95004
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 71470,
+          "p95": 71470
+        },
+        "largestIndividualReadBytes": {
+          "median": 71470,
+          "p95": 71470
+        },
+        "overfetchRatio": {
+          "median": 1.329285014691479,
+          "p95": 1.329285014691479
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": null,
+        "outputComponentCount": null,
+        "selectedSampleCount": null,
+        "blockCount": null,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "baseline-tiff-first-block",
+      "title": "TIFF first emitted block",
+      "readerId": "purejsimage/tiff",
+      "readerVersion": "1.0.0",
+      "fixtureId": "ordinary-tiff",
+      "fixtureSha256": "7bd7f4b45c111a97ed6424a7ba6c1043665a4d04d47c14a3964392e4c42d0f29",
+      "operation": "first-block",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned LibTIFF RGB sample.",
+      "supportBoundary": "Ordinary TIFF image directory and bounded region reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 5.417575999999997,
+          "p95": 6.365321999999992
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.7655060000000162,
+          "p95": 0.8083230000000299
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.8271609999999896,
+          "p95": 0.8397910000000479
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 126242816,
+          "p95": 126816256
+        },
+        "peakExternalBytes": {
+          "median": 12704900,
+          "p95": 12704900
+        },
+        "peakArrayBufferBytes": {
+          "median": 387073,
+          "p95": 387073
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 1632,
+          "p95": 1632
+        },
+        "outputBytes": {
+          "median": 1632,
+          "p95": 1632
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 55,
+          "p95": 55
+        },
+        "requestedBytes": {
+          "median": 103095,
+          "p95": 103095
+        },
+        "returnedBytes": {
+          "median": 103095,
+          "p95": 103095
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 71470,
+          "p95": 71470
+        },
+        "largestIndividualReadBytes": {
+          "median": 71470,
+          "p95": 71470
+        },
+        "overfetchRatio": {
+          "median": 1.4424933538547642,
+          "p95": 1.4424933538547642
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 1632,
+        "blockCount": 1,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "baseline-gsf-full-plane",
+      "title": "GSF full selected plane",
+      "readerId": "purejsimage/gsf",
+      "readerVersion": "1.0.0",
+      "fixtureId": "gsf-surface",
+      "fixtureSha256": "e7306d83e3fcb8bb467363eedbe2801fc355be433feba288e98c7ca0c2b24868",
+      "operation": "full-plane",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Repository-generated Gwyddion Simple Field demo surface.",
+      "supportBoundary": "Single-resource GSF numeric surface.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 4.579445000000021,
+          "p95": 4.632780000000025
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 0.3321650000000318,
+          "p95": 0.33499499999999216
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 0.8780500000000302,
+          "p95": 0.8895709999999895
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 121507840,
+          "p95": 124248064
+        },
+        "peakExternalBytes": {
+          "median": 12267946,
+          "p95": 12812095
+        },
+        "peakArrayBufferBytes": {
+          "median": 494287,
+          "p95": 494287
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 16384,
+          "p95": 16384
+        },
+        "outputBytes": {
+          "median": 49152,
+          "p95": 49152
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 32,
+          "p95": 32
+        },
+        "requestedBytes": {
+          "median": 121594,
+          "p95": 121594
+        },
+        "returnedBytes": {
+          "median": 121594,
+          "p95": 121594
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 49404,
+          "p95": 49404
+        },
+        "largestIndividualReadBytes": {
+          "median": 49404,
+          "p95": 49404
+        },
+        "overfetchRatio": {
+          "median": 2.461217715164764,
+          "p95": 2.461217715164764
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": true
+      },
+      "correctness": {
+        "outputSampleType": "float32",
+        "outputComponentCount": 1,
+        "selectedSampleCount": 12288,
+        "blockCount": 3,
+        "relevantCalibrationAssertions": []
+      }
+    },
+    {
+      "id": "baseline-aperio-random-regions",
+      "title": "Aperio random direct regions",
+      "readerId": "purejsimage/aperio-svs",
+      "readerVersion": "1.0.0",
+      "fixtureId": "aperio-svs",
+      "fixtureSha256": "e489c57c9471c436a8d519798ba08003836c80ed99bcc2a679e64792f8c9c948",
+      "operation": "random-regions",
+      "sourceLatencyMilliseconds": 0,
+      "measurementClass": "correctness-only",
+      "representative": true,
+      "status": "supported",
+      "statusReason": null,
+      "fixtureProvenance": "Pinned Aperio CMU-1 small-region whole-slide fixture.",
+      "supportBoundary": "Aperio SVS tiled pyramid with direct tile/range reads.",
+      "timing": {
+        "totalWallMilliseconds": {
+          "median": 33.517601999999954,
+          "p95": 34.18727200000001
+        },
+        "timeToFirstEmittedBlockMilliseconds": {
+          "median": 7.773214999999993,
+          "p95": 7.8370310000000245
+        },
+        "completeSelectedOperationMilliseconds": {
+          "median": 24.632010000000037,
+          "p95": 24.921560999999997
+        }
+      },
+      "memory": {
+        "absolutePeakRssBytes": {
+          "median": 138223616,
+          "p95": 139218944
+        },
+        "peakExternalBytes": {
+          "median": 19144884,
+          "p95": 19144884
+        },
+        "peakArrayBufferBytes": {
+          "median": 5324148,
+          "p95": 5324148
+        },
+        "maximumEmittedBlockBytes": {
+          "median": 2304,
+          "p95": 2304
+        },
+        "outputBytes": {
+          "median": 9216,
+          "p95": 9216
+        }
+      },
+      "source": {
+        "readCalls": {
+          "median": 85,
+          "p95": 85
+        },
+        "requestedBytes": {
+          "median": 1136123,
+          "p95": 1136123
+        },
+        "returnedBytes": {
+          "median": 1136123,
+          "p95": 1136123
+        },
+        "uniqueSourceBytesTouched": {
+          "median": 1064412,
+          "p95": 1064412
+        },
+        "largestIndividualReadBytes": {
+          "median": 1048576,
+          "p95": 1048576
+        },
+        "overfetchRatio": {
+          "median": 1.0673714689424771,
+          "p95": 1.0673714689424771
+        },
+        "companionResolutionCount": {
+          "median": 2,
+          "p95": 2
+        },
+        "completePrimarySourceRead": false
+      },
+      "correctness": {
+        "outputSampleType": "uint8",
+        "outputComponentCount": 3,
+        "selectedSampleCount": 9216,
+        "blockCount": 4,
+        "relevantCalibrationAssertions": []
+      }
+    }
+  ]
+}

@@ -184,6 +184,38 @@ planner estimates are bounded cache/working-set evidence, not measurements of pr
 The report records Node, operating system, architecture, provider, implementation version, range
 bytes, and cache metrics so results are not compared across unlike environments without context.
 
+### Scientific-reader source and memory harness
+
+The scientific-reader harness measures the reader path separately from image
+decode-transform-encode benchmarks. It uses the complete public reader registry
+for late detection, opens companion resources through an instrumented resolver,
+and validates descriptors, calibrated axes, raster block layout, sample hashes,
+and representative values before reporting timings. Each measured run is an
+isolated Node process after an optional untimed warmup.
+
+```sh
+npm run bench:scientific:smoke
+npm run bench:scientific:baseline
+npm run bench:scientific:range
+npm run bench:scientific:full
+```
+
+Smoke covers every public scientific reader with small or generated fixtures.
+Baseline adds metadata-only, first-block, full-plane, and deterministic random
+region workloads. Range varies direct-range readers over 0, 5, 25, and 100 ms
+of underlying-read latency. Full includes the baseline families and all
+available local corpus resources. Generated fixtures are correctness-only and
+carry provenance, support-boundary, and expected-oracle fields; they are not
+presented as representative large-input performance claims.
+
+Reports are written to the ignored
+`benchmark/scientific-readers/results/artifacts/scientific-readers/` directory
+as date-stamped JSON and Markdown files plus `latest.json`. The JSON schema
+records process/module/registry timing, detection/open/enumeration/read/close
+stages, absolute RSS and external/ArrayBuffer memory, source requested/returned
+and unique bytes, companion resolutions, payload overlap, and correctness
+evidence. These reports intentionally have no regression gates.
+
 ### DigitalMicrograph compatibility corpus
 
 Prepare and verify the pinned DM3/DM4 compatibility files with:

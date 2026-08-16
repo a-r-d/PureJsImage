@@ -1,0 +1,495 @@
+import type {
+  DescriptorAssertion,
+  ScientificBenchmarkProfile,
+  ScientificOperationKind,
+  ScientificSelection,
+  ScientificWorkload,
+} from './types.ts'
+
+const allProfiles: readonly ScientificBenchmarkProfile[] = Object.freeze([
+  'smoke',
+  'baseline',
+  'full',
+])
+
+const plane = (
+  options: Omit<Extract<ScientificSelection, { kind: 'plane' }>, 'kind'> = {},
+): ScientificSelection => Object.freeze({ kind: 'plane', ...options })
+
+const series = (
+  options: Omit<Extract<ScientificSelection, { kind: 'series' }>, 'kind'> = {},
+): ScientificSelection => Object.freeze({ kind: 'series', ...options })
+
+const workload = (options: {
+  readonly id: string
+  readonly title: string
+  readonly readerId: string
+  readonly fixtureId: string
+  readonly profiles?: readonly ScientificBenchmarkProfile[]
+  readonly measurementClass?: 'representative' | 'correctness-only'
+  readonly selection: ScientificSelection
+  readonly descriptorAssertion?: DescriptorAssertion
+  readonly calibrationAxes?: readonly string[]
+  readonly directRangeReader?: boolean
+  readonly operation?: ScientificOperationKind
+}): ScientificWorkload =>
+  Object.freeze({
+    id: options.id,
+    title: options.title,
+    readerId: options.readerId,
+    fixtureId: options.fixtureId,
+    profiles:
+      options.profiles ??
+      (options.directRangeReader === true
+        ? Object.freeze(['smoke', 'baseline', 'range', 'full'] as const)
+        : allProfiles),
+    measurementClass: options.measurementClass ?? 'correctness-only',
+    selection: options.selection,
+    ...(options.descriptorAssertion === undefined
+      ? {}
+      : { descriptorAssertion: options.descriptorAssertion }),
+    ...(options.calibrationAxes === undefined ? {} : { calibrationAxes: options.calibrationAxes }),
+    detectionMode: 'registry',
+    directRangeReader: options.directRangeReader ?? false,
+    ...(options.operation === undefined ? {} : { operation: options.operation }),
+  })
+
+const representative = (options: Parameters<typeof workload>[0]): ScientificWorkload =>
+  workload({ ...options, measurementClass: 'representative' })
+
+export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.freeze([
+  representative({
+    id: 'gsf-surface',
+    title: 'GSF numeric surface plane',
+    readerId: 'purejsimage/gsf',
+    fixtureId: 'gsf-surface',
+    selection: plane({ region: { x: 0, y: 0, width: 4, height: 3 } }),
+    descriptorAssertion: { sampleType: 'float32', componentCount: 1 },
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'nanonis-afm-plane',
+    title: 'Nanonis SXM AFM plane',
+    readerId: 'purejsimage/nanonis-sxm',
+    fixtureId: 'nanonis-afm',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'igor-wave-plane',
+    title: 'Igor binary wave plane',
+    readerId: 'purejsimage/igor-binary-wave',
+    fixtureId: 'igor-wave',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'digital-surf-plane',
+    title: 'Digital Surf compressed surface plane',
+    readerId: 'purejsimage/digital-surf',
+    fixtureId: 'digital-surf',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'x3p-plane',
+    title: 'X3P ISO 5436 plane',
+    readerId: 'purejsimage/x3p',
+    fixtureId: 'x3p-surface',
+    selection: plane({ region: { x: 0, y: 0, width: 4, height: 4 } }),
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'envi-hyperspectral-plane',
+    title: 'ENVI hyperspectral band plane',
+    readerId: 'purejsimage/envi',
+    fixtureId: 'envi-hyperspectral',
+    selection: plane({ displayAxes: ['x', 'y'], region: { x: 0, y: 0, width: 16, height: 16 } }),
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'fits-cube-plane',
+    title: 'FITS cube plane',
+    readerId: 'purejsimage/fits',
+    fixtureId: 'fits-cube',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'mrc-volume-plane',
+    title: 'MRC volume plane',
+    readerId: 'purejsimage/mrc',
+    fixtureId: 'mrc-volume',
+    selection: plane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [{ axisId: 'z', index: 0 }],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'cbf-frame-plane',
+    title: 'CBF detector frame',
+    readerId: 'purejsimage/cbf',
+    fixtureId: 'cbf-frame',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'png-image-plane',
+    title: 'PNG scientific image adapter',
+    readerId: 'purejsimage/png',
+    fixtureId: 'png-image',
+    selection: plane({ region: { x: 0, y: 0, width: 8, height: 8 } }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'jpeg-image-plane',
+    title: 'JPEG scientific image adapter',
+    readerId: 'purejsimage/jpeg',
+    fixtureId: 'jpeg-image',
+    selection: plane({ region: { x: 0, y: 0, width: 8, height: 8 } }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'webp-image-plane',
+    title: 'WebP scientific image adapter',
+    readerId: 'purejsimage/webp',
+    fixtureId: 'webp-image',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'bmp-image-plane',
+    title: 'BMP scientific image adapter',
+    readerId: 'purejsimage/bmp',
+    fixtureId: 'bmp-image',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'jp2-image-plane',
+    title: 'JPEG 2000 scientific image adapter',
+    readerId: 'purejsimage/jp2',
+    fixtureId: 'jp2-image',
+    selection: plane({ region: { x: 0, y: 0, width: 8, height: 8 } }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    directRangeReader: false,
+  }),
+  representative({
+    id: 'ordinary-tiff-region',
+    title: 'Ordinary TIFF bounded region',
+    readerId: 'purejsimage/tiff',
+    fixtureId: 'ordinary-tiff',
+    selection: plane({ region: { x: 0, y: 0, width: 16, height: 16 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'ome-tiff-region',
+    title: 'OME-TIFF metadata and plane',
+    readerId: 'purejsimage/ome-tiff',
+    fixtureId: 'ome-tiff',
+    selection: plane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [
+        { axisId: 'z', index: 0 },
+        { axisId: 'channel', index: 0 },
+        { axisId: 'time', index: 0 },
+      ],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    directRangeReader: true,
+  }),
+  representative({
+    id: 'aperio-svs-region',
+    title: 'Aperio SVS whole-slide region',
+    readerId: 'purejsimage/aperio-svs',
+    fixtureId: 'aperio-svs',
+    selection: plane({
+      datasetId: 'pyramid',
+      displayAxes: ['x', 'y'],
+      region: { x: 0, y: 0, width: 64, height: 48 },
+    }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'digital-micrograph-2d-plane',
+    title: 'DigitalMicrograph ordinary 2D image',
+    readerId: 'purejsimage/digital-micrograph',
+    fixtureId: 'digital-micrograph-2d',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'digital-micrograph-4d-stem-plane',
+    title: 'DigitalMicrograph 4D-STEM diffraction plane',
+    readerId: 'purejsimage/digital-micrograph',
+    fixtureId: 'digital-micrograph-4d-stem',
+    selection: plane({
+      displayAxes: ['kx', 'ky'],
+      fixedIndices: [
+        { axisId: 'scanX', index: 0 },
+        { axisId: 'scanY', index: 0 },
+      ],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    descriptorAssertion: { axisId: 'kx' },
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'tia-ser-image-plane',
+    title: 'TIA SER image element plane',
+    readerId: 'purejsimage/tia-ser',
+    fixtureId: 'tia-ser-image',
+    selection: plane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [{ axisId: 'element', index: 2 }],
+      region: { x: 0, y: 0, width: 16, height: 16 },
+    }),
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'tia-ser-spectrum-series',
+    title: 'TIA SER spectrum-image energy series',
+    readerId: 'purejsimage/tia-ser',
+    fixtureId: 'tia-ser-spectrum',
+    selection: series({
+      axisId: 'energy',
+      fixedIndices: [
+        { axisId: 'x', index: 0 },
+        { axisId: 'y', index: 0 },
+      ],
+      start: 0,
+      length: 16,
+    }),
+    calibrationAxes: ['energy'],
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'tia-emi-companion-plane',
+    title: 'TIA EMI metadata with SER companion plane',
+    readerId: 'purejsimage/tia-emi',
+    fixtureId: 'tia-emi',
+    selection: plane({ region: { x: 0, y: 0, width: 8, height: 8 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'ncem-emd-plane',
+    title: 'NCEM EMD image plane',
+    readerId: 'purejsimage/ncem-emd',
+    fixtureId: 'ncem-emd',
+    selection: plane({ region: { x: 0, y: 0, width: 3, height: 3 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'velox-emd-plane',
+    title: 'Velox EMD image plane',
+    readerId: 'purejsimage/velox-emd',
+    fixtureId: 'velox-emd',
+    selection: plane({ region: { x: 0, y: 0, width: 3, height: 3 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'velox-complex-plane',
+    title: 'Velox EMD complex FFT plane',
+    readerId: 'purejsimage/velox-emd',
+    fixtureId: 'velox-emd-complex',
+    selection: plane({ region: { x: 0, y: 0, width: 3, height: 3 } }),
+    descriptorAssertion: { componentCount: 2 },
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'rpl-raw-plane',
+    title: 'RPL/RAW depth-fixed plane',
+    readerId: 'purejsimage/rpl',
+    fixtureId: 'rpl-raw',
+    selection: plane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [{ axisId: 'depth', index: 1 }],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    calibrationAxes: ['x', 'y', 'depth'],
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'emsa-series',
+    title: 'EMSA calibrated spectrum series',
+    readerId: 'purejsimage/emsa',
+    fixtureId: 'emsa-spectrum',
+    selection: series({ start: 0, length: 16 }),
+    calibrationAxes: ['spectral'],
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'nrrd-raw-plane',
+    title: 'NRRD raw plane',
+    readerId: 'purejsimage/nrrd',
+    fixtureId: 'nrrd-raw',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'nrrd-gzip-plane',
+    title: 'NRRD gzip plane',
+    readerId: 'purejsimage/nrrd',
+    fixtureId: 'nrrd-gzip',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'meta-image-mha-plane',
+    title: 'MetaImage local payload plane',
+    readerId: 'purejsimage/meta-image',
+    fixtureId: 'meta-image-mha',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'meta-image-mhd-plane',
+    title: 'MetaImage detached payload plane',
+    readerId: 'purejsimage/meta-image',
+    fixtureId: 'meta-image-mhd',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 1 } }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'nifti-plane',
+    title: 'NIfTI scaled plane',
+    readerId: 'purejsimage/nifti',
+    fixtureId: 'nifti',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'nifti-gzip-plane',
+    title: 'Gzip NIfTI scaled plane',
+    readerId: 'purejsimage/nifti',
+    fixtureId: 'nifti-gzip',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'npy-c-plane',
+    title: 'NPY C-order plane',
+    readerId: 'purejsimage/npy',
+    fixtureId: 'npy-c-order',
+    selection: plane(),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'npy-fortran-plane',
+    title: 'NPY Fortran-order plane',
+    readerId: 'purejsimage/npy',
+    fixtureId: 'npy-fortran-order',
+    selection: plane(),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'blockfile-4d-stem-plane',
+    title: 'BLO 4D-STEM diffraction plane',
+    readerId: 'purejsimage/blockfile',
+    fixtureId: 'blockfile',
+    selection: plane({
+      displayAxes: ['kx', 'ky'],
+      fixedIndices: [
+        { axisId: 'scanX', index: 0 },
+        { axisId: 'scanY', index: 0 },
+      ],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'mib-4d-stem-plane',
+    title: 'MIB 4D-STEM diffraction plane',
+    readerId: 'purejsimage/mib',
+    fixtureId: 'mib',
+    selection: plane({
+      displayAxes: ['kx', 'ky'],
+      fixedIndices: [{ axisId: 'frame', index: 0 }],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'ebsd-ang-plane',
+    title: 'EBSD ANG map plane',
+    readerId: 'purejsimage/ebsd-text',
+    fixtureId: 'ebsd-ang',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'ebsd-ctf-plane',
+    title: 'EBSD CTF map plane',
+    readerId: 'purejsimage/ebsd-text',
+    fixtureId: 'ebsd-ctf',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'baseline-tiff-metadata-only',
+    title: 'TIFF metadata-only open',
+    readerId: 'purejsimage/tiff',
+    fixtureId: 'ordinary-tiff',
+    profiles: ['baseline', 'full'],
+    selection: plane({ region: { x: 0, y: 0, width: 1, height: 1 } }),
+    operation: 'metadata-only',
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'baseline-tiff-first-block',
+    title: 'TIFF first emitted block',
+    readerId: 'purejsimage/tiff',
+    fixtureId: 'ordinary-tiff',
+    profiles: ['baseline', 'full'],
+    selection: plane({ region: { x: 0, y: 0, width: 32, height: 32 } }),
+    operation: 'first-block',
+    directRangeReader: true,
+  }),
+  workload({
+    id: 'baseline-gsf-full-plane',
+    title: 'GSF full selected plane',
+    readerId: 'purejsimage/gsf',
+    fixtureId: 'gsf-surface',
+    profiles: ['baseline', 'full'],
+    selection: plane(),
+    operation: 'full-plane',
+    directRangeReader: false,
+  }),
+  workload({
+    id: 'baseline-aperio-random-regions',
+    title: 'Aperio random direct regions',
+    readerId: 'purejsimage/aperio-svs',
+    fixtureId: 'aperio-svs',
+    profiles: ['baseline', 'full'],
+    selection: plane({
+      datasetId: 'pyramid',
+      displayAxes: ['x', 'y'],
+      randomRegions: { count: 4, width: 32, height: 24, seed: 23 },
+    }),
+    operation: 'random-regions',
+    directRangeReader: true,
+  }),
+])
+
+export const workloadsForScientificProfile = (
+  profile: ScientificBenchmarkProfile,
+): readonly ScientificWorkload[] =>
+  Object.freeze(
+    scientificReaderWorkloads.filter(
+      (workloadEntry) =>
+        workloadEntry.profiles.includes(profile) &&
+        (profile !== 'range' || workloadEntry.directRangeReader),
+    ),
+  )

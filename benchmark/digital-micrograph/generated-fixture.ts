@@ -221,3 +221,119 @@ export const generatedDigitalMicrographEelsFixture = (): Uint8Array => {
     new Uint8Array(8),
   ])
 }
+
+/** Generated DM4 4D-STEM image with explicit diffraction/scan semantics. */
+export const generatedDigitalMicrographFourDStemFixture = (): Uint8Array => {
+  const text = (value: string): Uint8Array =>
+    uint16LittleEndian(Array.from(value, (character) => character.charCodeAt(0)))
+  const stringValue = (name: string, value: string): FixtureValue => ({
+    kind: 'value',
+    name,
+    info: [20, 4, value.length],
+    payload: text(value),
+  })
+  const dimensions = [2, 2, 3, 2]
+  const values = Array.from(
+    { length: dimensions.reduce((total, value) => total * value, 1) },
+    (_, index) => index + 1,
+  )
+  const root = encodeGroupContents([
+    {
+      kind: 'group',
+      name: 'ImageList',
+      children: [
+        {
+          kind: 'group',
+          name: '0',
+          children: [
+            stringValue('Name', 'Generated 4D STEM'),
+            {
+              kind: 'group',
+              name: 'ImageData',
+              children: [
+                { kind: 'value', name: 'DataType', info: [3], payload: int32LittleEndian(10) },
+                {
+                  kind: 'group',
+                  name: 'Dimensions',
+                  children: dimensions.map((length) => ({
+                    kind: 'value' as const,
+                    name: '',
+                    info: [3],
+                    payload: int32LittleEndian(length),
+                  })),
+                },
+                {
+                  kind: 'value',
+                  name: 'Data',
+                  info: [20, 4, values.length],
+                  payload: uint16LittleEndian(values),
+                },
+              ],
+            },
+            {
+              kind: 'group',
+              name: 'ImageTags',
+              children: [
+                {
+                  kind: 'group',
+                  name: 'Meta Data',
+                  children: [
+                    stringValue('Format', 'Diffraction image'),
+                    {
+                      kind: 'value',
+                      name: 'Data Order Swapped',
+                      info: [8],
+                      payload: Uint8Array.of(1),
+                    },
+                  ],
+                },
+                {
+                  kind: 'group',
+                  name: 'SI',
+                  children: [
+                    {
+                      kind: 'group',
+                      name: 'Acquisition',
+                      children: [
+                        {
+                          kind: 'group',
+                          name: 'SI Application Mode',
+                          children: [stringValue('Name', '2D Array')],
+                        },
+                        {
+                          kind: 'group',
+                          name: 'Spatial Sampling',
+                          children: [
+                            {
+                              kind: 'value',
+                              name: 'Width (pixels)',
+                              info: [3],
+                              payload: int32LittleEndian(dimensions[2] ?? 0),
+                            },
+                            {
+                              kind: 'value',
+                              name: 'Height (pixels)',
+                              info: [3],
+                              payload: int32LittleEndian(dimensions[3] ?? 0),
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ])
+  return concat([
+    uint32BigEndian(3),
+    uint32BigEndian(root.byteLength + 4),
+    uint32BigEndian(1),
+    root,
+    new Uint8Array(8),
+  ])
+}
