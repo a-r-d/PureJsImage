@@ -1,0 +1,26 @@
+.github/workflows/ci.yml
+  s_e532dcda1dfd1d::t_f54044d1f2db1a 74-76
+playwright.config.ts
+  s_e532dcda1dfd1d::t_92789e3d1f232f 8
+browser-tests/demo.pw.ts
+  s_e532dcda1dfd1d::t_11d6e0f3040e1b 50,52
+  s_e532dcda1dfd1d::t_92789e3d1f232f 48
+  s_e532dcda1dfd1d::t_16250b732cc1e3 51
+  s_e532dcda1dfd1d::t_0cc93e08794910 56,59-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9304425e14ee62eea3f04ab7cb8d9a8241a099f8",
+  "prompts": {},
+  "sessions": {
+    "s_e532dcda1dfd1d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00870-0498-7482-aa81-03f4cacac046",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
