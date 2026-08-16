@@ -1,0 +1,19 @@
+playwright.config.ts
+  s_e532dcda1dfd1d::t_d5448b7f8974f5 4-8,29,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a3349088980c78a931f68bc1d5f8dc073c01a9e5",
+  "prompts": {},
+  "sessions": {
+    "s_e532dcda1dfd1d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00870-0498-7482-aa81-03f4cacac046",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
