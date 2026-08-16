@@ -1,4 +1,5 @@
 ---
+import BenchmarkClusterNav from '../../components/BenchmarkClusterNav.astro'
 import packageMetrics from '../../data/package-metrics.json'
 import benchmark from '../../data/scientific-reader-benchmark.json'
 import SiteLayout from '../../layouts/SiteLayout.astro'
@@ -58,10 +59,11 @@ const rangeReaderLabels = benchmark.range.readerIds.map(readerLabel).join(', ')
   title="Scientific reader benchmarks | PureJsImage"
   description="Recorded PureJsImage scientific reader benchmarks covering source reads, latency, memory, correctness, and representative workload behavior."
   canonical="https://purejsimage.com/scientific/benchmarks/"
-  current="scientific/"
+  current="scientific/benchmarks/"
   skipLabel="Skip to benchmark content"
 >
   <main id="main">
+    <BenchmarkClusterNav current="reader-tables" />
     <header class="page-hero">
       <div class="container">
         <p class="eyebrow">Scientific reader evidence</p>
@@ -72,15 +74,16 @@ const rangeReaderLabels = benchmark.range.readerIds.map(readerLabel).join(', ')
     </header>
 
     <div class="container docs-layout">
-      <aside class="side-nav" aria-label="Scientific pages">
-        <div class="nav-group"><strong>Scientific</strong><a href="../">Raster Explorer</a><a href="./" aria-current="page">Reader benchmarks</a><a href="../platform/">Application platform</a><a href="../volumes/">Volumes</a></div>
-        <div class="nav-group"><strong>Reference</strong><a href="../../api/#scientific">Scientific API</a><a href={benchmarkJsonHref}>JSON snapshot</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md#scientific-reader-source-and-memory-harness">Reproduce locally</a></div>
-      </aside>
+      <nav class="side-nav" aria-label="Scientific pages">
+        <div class="nav-group"><strong>Benchmarks</strong><a href="../../performance/">Web codec charts</a><a href="../../performance/#scientific-readers">Scientific reader charts</a><a href="./" aria-current="page">Scientific reader tables</a></div>
+        <div class="nav-group"><strong>Scientific</strong><a href="../">Raster Explorer</a><a href="../platform/">Application platform</a><a href="../volumes/">Volumes</a></div>
+        <div class="nav-group"><strong>Reference</strong><a href="../../scientific-formats/">Format reference</a><a href="../../api/#scientific">Scientific API</a><a href={benchmarkJsonHref}>JSON snapshot</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md#scientific-reader-source-and-memory-harness">Reproduce locally</a></div>
+      </nav>
 
       <article class="content">
         <section id="overview">
           <h2>What this page records</h2>
-          <div class="callout"><strong>This is a dated baseline, not a regression gate.</strong> The page publishes a compact snapshot of the checked benchmark report so the evidence is stable and reviewable. Fixture preparation and output validation were excluded from timed operations, and the raw local artifact remains separate from this public data. <a href={benchmarkJsonHref}>Download the JSON snapshot</a>.</div>
+          <div class="callout"><strong>This is a dated baseline, not a regression gate.</strong> The page publishes a compact snapshot of the checked benchmark report so the evidence is stable and reviewable. Cross-engine scientific charts live on the <a href="../../performance/#scientific-readers">performance page</a>. Fixture preparation and output validation were excluded from timed operations, and the raw local artifact remains separate from this public data. <a href={benchmarkJsonHref}>Download the JSON snapshot</a>.</div>
           <div class="stat-grid">
             <div class="card stat-card"><strong>{benchmark.summary.readerCount}</strong><span>public reader IDs exercised</span></div>
             <div class="card stat-card"><strong>{benchmark.summary.workloadCount}</strong><span>baseline workload results</span></div>

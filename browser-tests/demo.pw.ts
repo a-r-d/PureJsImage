@@ -48,9 +48,11 @@ test('leads the homepage with portable codecs, memory comparison, and open-sourc
     'native scientific raster processing',
   )
   await expect(page.locator('.headline-metrics')).toContainText('less peak RSS than Jimp')
-  await expect(page.locator('.headline-metrics')).toContainText('validated reader workflows')
   await expect(page.locator('.headline-metrics')).toContainText(
-    'representative performance workloads',
+    'stable medium/large scientific benchmark rows',
+  )
+  await expect(page.locator('.headline-metrics')).toContainText(
+    'representative workloads validated',
   )
   await expect(page.locator('main')).not.toContainText(/evidence/iu)
   await expect(page.locator('.metric-info')).toHaveCount(4)

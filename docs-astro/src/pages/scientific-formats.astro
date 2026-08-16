@@ -1,36 +1,20 @@
 ---
+import ScientificFormatCard from '../components/ScientificFormatCard.astro'
 import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
 
-interface CoverageEntry {
-  readonly benchmarkCoverage: {
-    readonly baselineFailed: number
-    readonly baselineSupported: number
-    readonly rangeFailed: number
-    readonly rangeSupported: number
-  }
-}
-
-const coverage = (entry: CoverageEntry): string => {
-  const baseline = `${entry.benchmarkCoverage.baselineSupported} baseline supported`
-  const baselineFailed =
-    entry.benchmarkCoverage.baselineFailed === 0
-      ? ''
-      : `, ${entry.benchmarkCoverage.baselineFailed} baseline failed`
-  const rangeTotal = entry.benchmarkCoverage.rangeSupported + entry.benchmarkCoverage.rangeFailed
-  const range =
-    rangeTotal === 0
-      ? 'no range profile row'
-      : `${entry.benchmarkCoverage.rangeSupported}/${rangeTotal} range rows supported`
-  return `${baseline}${baselineFailed}; ${range}`
-}
+const formatAnchor = (id: string): string => id.replaceAll('/', '-')
+const families = documentation.support.scientificReaderFamilies.map((family) => ({
+  ...family,
+  entries: documentation.scientificFormats.filter((entry) => entry.family === family.id),
+}))
 ---
 
 <SiteLayout
   title="Scientific format reference | PureJsImage"
   description="Generated PureJsImage scientific reader reference with format families, extensions, native precision, range-read support, resource models, benchmark coverage, oracles, and imports."
   canonical="https://purejsimage.com/scientific-formats/"
-  current="scientific/"
+  current="scientific-formats/"
   openGraph={{
     title: 'Scientific format reference | PureJsImage',
     description:
@@ -58,89 +42,102 @@ const coverage = (entry: CoverageEntry): string => {
       </div>
     </header>
 
-    <section class="section">
-      <div class="container prose">
-        <h2>Coverage scope</h2>
-        <p>
-          The reader surface includes common raster and whole-slide data; DM3 and DM4; TIA SER and
-          EMI; NCEM and Velox EMD; 4D-STEM detector data; AFM, SPM, and surface metrology; NIfTI,
-          NRRD, MRC, and MetaImage volumes; OME-TIFF and Aperio SVS; spectroscopy and detector
-          interchange; and raw NumPy arrays. “Direct range” means the reader can request selected
-          source spans through the scientific source abstraction; it does not promise that every
-          operation avoids all metadata or companion-resource reads.
-        </p>
-        <div class="callout warning">
-          <strong>Live explorer boundary.</strong> The browser explorer currently wires only its five
-          generated demo reader IDs. Package readers below require explicit application registration
-          unless and until their UI integration lands.
+    <div class="container docs-layout format-reference-layout">
+      <nav class="side-nav" aria-label="Format index">
+        <div class="nav-group">
+          <strong>On this page</strong>
+          <a href="#coverage-scope">Coverage scope</a>
+          {
+            families.map((family) => (
+              <>
+                <a class="format-index-family" href={`#${family.id}`}>
+                  {family.label}
+                </a>
+                <div class="format-index-children">
+                  {family.entries.map((entry) => (
+                    <a href={`#${formatAnchor(entry.id)}`}>{entry.format}</a>
+                  ))}
+                </div>
+              </>
+            ))
+          }
+          <a href="#methods">Methods and artifacts</a>
         </div>
-      </div>
-    </section>
+        <div class="nav-group">
+          <strong>Related</strong>
+          <a href="../codecs/">Codec support</a>
+          <a href="../scientific/">Scientific explorer</a>
+          <a href="../scientific/benchmarks/">Reader tables</a>
+          <a href="../performance/#scientific-readers">Scientific charts</a>
+        </div>
+      </nav>
 
-    {
-      documentation.support.scientificReaderFamilies.map((family) => {
-        const entries = documentation.scientificFormats.filter(
-          (entry) => entry.family === family.id,
-        )
-        return (
-          <section class="section tint" id={family.id}>
-            <div class="container">
-              <div class="section-heading">
-                <div><p class="section-label">Format family</p><h2>{family.label}</h2></div>
-                <p>{entries.length} explicit reader {entries.length === 1 ? 'export' : 'exports'}.</p>
-              </div>
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Reader ID / format</th>
-                      <th>Extensions</th>
-                      <th>Resource model</th>
-                      <th>Dataset kinds</th>
-                      <th>Range</th>
-                      <th>Native precision</th>
-                      <th>Support boundary</th>
-                      <th>Benchmark coverage</th>
-                      <th>Reference / oracle</th>
-                      <th>Import</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      entries.map((entry) => (
-                        <tr>
-                          <td><code>{entry.id}</code><br /><strong>{entry.format}</strong></td>
-                          <td>{entry.extensions.map((extension) => `.${extension}`).join(', ')}</td>
-                          <td>{entry.resourceModel}</td>
-                          <td>{entry.datasetKinds.join(', ')}</td>
-                          <td>{entry.directRangeReads ? 'Yes' : 'No'}</td>
-                          <td>{entry.nativePrecision}</td>
-                          <td>{entry.supportBoundary}</td>
-                          <td>{coverage(entry)}</td>
-                          <td>{entry.oracle || 'Manifest and fixture assertions only'}</td>
-                          <td><code>{entry.packageExport}</code></td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-        )
-      })
-    }
+      <div class="content">
+        <section id="coverage-scope">
+          <h2>Coverage scope</h2>
+          <p>
+            The reader surface includes common raster and whole-slide data; DM3 and DM4; TIA SER and
+            EMI; NCEM and Velox EMD; 4D-STEM detector data; AFM, SPM, and surface metrology; NIfTI,
+            NRRD, MRC, and MetaImage volumes; OME-TIFF and Aperio SVS; spectroscopy and detector
+            interchange; and raw NumPy arrays. “Direct range” means the reader can request selected
+            source spans through the scientific source abstraction; it does not promise that every
+            operation avoids all metadata or companion-resource reads.
+          </p>
+          <div class="callout warning">
+            <strong>Live explorer boundary.</strong> The browser explorer currently wires only its five
+            generated demo reader IDs. Package readers below require explicit application registration
+            unless and until their UI integration lands.
+          </div>
+        </section>
 
-    <section class="section">
-      <div class="container prose">
-        <h2>Methods and artifacts</h2>
-        <p>
-          Baseline rows validate descriptor identity, selected shapes, native sample type, calibration
-          assertions, sample hashes, and output bytes before admitting timing. Range rows additionally
-          record request count, returned and unique source bytes, overfetch, and resource completeness.
-        </p>
-        <p><a class="text-link" href="../performance/#scientific-readers">Scientific benchmark charts and methodology →</a> · <a class="text-link" href="../scientific/">Wired browser explorer →</a></p>
+        {
+          families.map((family) => (
+            <section id={family.id}>
+              <h2>{family.label}</h2>
+              <p>
+                {family.entries.length} explicit reader {
+                  family.entries.length === 1 ? 'export' : 'exports'
+                }.
+              </p>
+              <div class="scientific-format-grid">
+                {
+                  family.entries.map((entry) => (
+                    <ScientificFormatCard
+                      format={entry.format}
+                      id={entry.id}
+                      extensions={entry.extensions}
+                      datasetKinds={entry.datasetKinds}
+                      directRangeReads={entry.directRangeReads}
+                      nativePrecision={entry.nativePrecision}
+                      packageExport={entry.packageExport}
+                      resourceModel={entry.resourceModel}
+                      supportBoundary={entry.supportBoundary}
+                      oracle={entry.oracle}
+                      benchmarkCoverage={entry.benchmarkCoverage}
+                    />
+                  ))
+                }
+              </div>
+            </section>
+          ))
+        }
+
+        <section id="methods">
+          <h2>Methods and artifacts</h2>
+          <p>
+            Baseline rows validate descriptor identity, selected shapes, native sample type, calibration
+            assertions, sample hashes, and output bytes before admitting timing. Range rows additionally
+            record request count, returned and unique source bytes, overfetch, and resource completeness.
+          </p>
+          <p>
+            <a class="text-link" href="../performance/#scientific-readers">
+              Scientific benchmark charts and methodology →
+            </a>
+            {' · '}
+            <a class="text-link" href="../scientific/">Wired browser explorer →</a>
+          </p>
+        </section>
       </div>
-    </section>
+    </div>
   </main>
 </SiteLayout>

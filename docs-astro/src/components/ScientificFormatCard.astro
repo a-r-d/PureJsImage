@@ -1,0 +1,133 @@
+---
+interface BenchmarkCoverage {
+  readonly baselineFailed: number
+  readonly baselineSupported: number
+  readonly rangeFailed: number
+  readonly rangeSupported: number
+}
+
+interface Props {
+  readonly format: string
+  readonly id: string
+  readonly extensions: readonly string[]
+  readonly datasetKinds: readonly string[]
+  readonly directRangeReads: boolean
+  readonly nativePrecision: string
+  readonly packageExport: string
+  readonly resourceModel: string
+  readonly supportBoundary: string
+  readonly oracle: string
+  readonly benchmarkCoverage: BenchmarkCoverage
+}
+
+const {
+  format,
+  id,
+  extensions,
+  datasetKinds,
+  directRangeReads,
+  nativePrecision,
+  packageExport,
+  resourceModel,
+  supportBoundary,
+  oracle,
+  benchmarkCoverage,
+} = Astro.props
+
+const hyphenLabel = (value: string): string => value.replaceAll('-', ' ')
+
+const coverage = (): string => {
+  const baseline = `${benchmarkCoverage.baselineSupported} baseline supported`
+  const baselineFailed =
+    benchmarkCoverage.baselineFailed === 0
+      ? ''
+      : `, ${benchmarkCoverage.baselineFailed} baseline failed`
+  const rangeTotal = benchmarkCoverage.rangeSupported + benchmarkCoverage.rangeFailed
+  const range =
+    rangeTotal === 0
+      ? 'no range profile row'
+      : `${benchmarkCoverage.rangeSupported}/${rangeTotal} range rows supported`
+  return `${baseline}${baselineFailed}; ${range}`
+}
+
+const benchmarkState = (): 'failed rows present' | 'range tested' | 'baseline only' => {
+  if (benchmarkCoverage.baselineFailed > 0 || benchmarkCoverage.rangeFailed > 0) {
+    return 'failed rows present'
+  }
+  if (benchmarkCoverage.rangeSupported > 0) return 'range tested'
+  return 'baseline only'
+}
+
+const state = benchmarkState()
+const oracleText = oracle || 'Manifest and fixture assertions only'
+---
+
+<article class="scientific-format-card" id={id.replaceAll('/', '-')}>
+  <header>
+    <h3>{format}</h3>
+    <p><code>{id}</code></p>
+    <ul class="scientific-format-badges">
+      <li>
+        <span class:list={['format-badge', directRangeReads ? 'is-yes' : 'is-no']}>
+          Range reads: {directRangeReads ? 'Yes' : 'No'}
+        </span>
+      </li>
+      <li>
+        <span class="format-badge">{hyphenLabel(resourceModel)}</span>
+      </li>
+      {
+        datasetKinds.map((kind) => (
+          <li>
+            <span class="format-badge">{hyphenLabel(kind)}</span>
+          </li>
+        ))
+      }
+      <li>
+        <span class:list={['format-badge', `is-${state.replaceAll(' ', '-')}`]}>{state}</span>
+      </li>
+    </ul>
+  </header>
+  <dl>
+    <div>
+      <dt>Extensions</dt>
+      <dd>{extensions.map((extension) => `.${extension}`).join(', ')}</dd>
+    </div>
+    <div>
+      <dt>Dataset kinds</dt>
+      <dd>{datasetKinds.map(hyphenLabel).join(', ')}</dd>
+    </div>
+    <div>
+      <dt>Direct-range support</dt>
+      <dd>{directRangeReads ? 'Yes' : 'No'}</dd>
+    </div>
+    <div>
+      <dt>Native precision</dt>
+      <dd>{nativePrecision}</dd>
+    </div>
+    <div>
+      <dt>Package import</dt>
+      <dd><code>{packageExport}</code></dd>
+    </div>
+  </dl>
+  <details>
+    <summary>Resource model, support boundary, and evidence</summary>
+    <dl>
+      <div>
+        <dt>Resource model</dt>
+        <dd>{hyphenLabel(resourceModel)}</dd>
+      </div>
+      <div>
+        <dt>Support boundary</dt>
+        <dd>{supportBoundary}</dd>
+      </div>
+      <div>
+        <dt>Benchmark coverage</dt>
+        <dd>{coverage()}</dd>
+      </div>
+      <div>
+        <dt>Reference / oracle</dt>
+        <dd>{oracleText}</dd>
+      </div>
+    </dl>
+  </details>
+</article>

@@ -1,4 +1,7 @@
 ---
+import BenchmarkClusterNav from '../components/BenchmarkClusterNav.astro'
+import BenchmarkGallery from '../components/BenchmarkGallery.astro'
+import TableWrap from '../components/TableWrap.astro'
 import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
 import packageMetrics from '../data/package-metrics.json'
@@ -8,24 +11,101 @@ const kib = (bytes: number): string => `${(bytes / 1024).toFixed(1)} KiB`
 const date = (value: string): string => value.slice(0, 10)
 const github = (path: string | null): string | null =>
   path === null ? null : `https://github.com/a-r-d/PureJsImage/blob/main/${path}`
-const ordinaryCharts = [
+const ordinaryEnvironment = `${documentation.ordinary.environment.os}, ${documentation.ordinary.environment.architecture}, Node ${documentation.ordinary.environment.node}, ${documentation.ordinary.environment.cpu}`
+const webCodecCharts = [
   {
-    key: 'speed',
-    title: 'Common web codec speed',
-    description: 'Median wall time · logarithmic scale · lower is better',
+    id: 'speed',
+    tab: 'Speed',
+    title: 'Web codec speed',
+    explanation: 'Median wall time · logarithmic scale · lower is better',
+    src: documentation.ordinary.charts.speed,
+    alt: 'Web codec speed chart from the current validated web codec benchmark profile',
+    caption: `Environment: ${ordinaryEnvironment}. Resize workflows use each engine’s documented default kernel.`,
+    width: 2400,
+    height: 1510,
+    eager: true,
   },
   {
-    key: 'quality',
-    title: 'Common web codec quality',
-    description: 'Premultiplied-RGBA PSNR · higher is better',
+    id: 'quality',
+    tab: 'Quality',
+    title: 'Web codec quality',
+    explanation: 'Premultiplied-RGBA PSNR · higher is better',
+    src: documentation.ordinary.charts.quality,
+    alt: 'Web codec quality chart from the current validated web codec benchmark profile',
+    caption: `Environment: ${ordinaryEnvironment}. The quality oracle runs outside timed regions.`,
+    width: 2400,
+    height: 1510,
   },
   {
-    key: 'memory',
-    title: 'Common web codec memory',
-    description: 'Absolute process peak RSS · lower is better',
+    id: 'memory',
+    tab: 'Peak memory',
+    title: 'Web codec peak memory',
+    explanation: 'Absolute process peak RSS · lower is better',
+    src: documentation.ordinary.charts.memory,
+    alt: 'Web codec peak memory chart from the current validated web codec benchmark profile',
+    caption: `Environment: ${ordinaryEnvironment}. RSS includes the Node.js runtime and native allocations.`,
+    width: 2400,
+    height: 1510,
   },
 ] as const
-const scientificCharts = Object.entries(documentation.scientific.charts)
+const scientificCaption = `Generated from the ${date(documentation.scientific.competitors.createdAt)} scientific competitor artifact. Each SVG records scale direction, environment, engine class, unsupported rows, and material input-copy differences.`
+const scientificCharts = [
+  {
+    id: 'first-block',
+    tab: 'First usable block',
+    title: 'First usable block',
+    explanation: 'Latency until validated selected data becomes available · lower is better',
+    src: documentation.scientific.charts['Scientific first-block latency'],
+    alt: 'Scientific first usable block latency for shared validated scientific JS and WASM workloads',
+    caption: scientificCaption,
+    width: 1900,
+    height: 896,
+  },
+  {
+    id: 'selected-operation',
+    tab: 'Selected operation',
+    title: 'Selected operation',
+    explanation: 'Complete public operation path for the pinned selection · lower is better',
+    src: documentation.scientific.charts['Scientific selected-operation time'],
+    alt: 'Scientific selected-operation time for shared validated scientific JS and WASM workloads',
+    caption: scientificCaption,
+    width: 1900,
+    height: 896,
+  },
+  {
+    id: 'peak-rss',
+    tab: 'Absolute peak RSS',
+    title: 'Absolute peak RSS',
+    explanation: 'Whole isolated process, including runtime, native allocations, and WASM memory',
+    src: documentation.scientific.charts['Scientific absolute peak RSS'],
+    alt: 'Scientific absolute peak RSS for shared validated scientific JS and WASM workloads',
+    caption: scientificCaption,
+    width: 1900,
+    height: 896,
+  },
+  {
+    id: 'source-io',
+    tab: 'Source I/O',
+    title: 'Source I/O',
+    explanation: 'Instrumented request count, returned bytes, unique bytes, and overfetch',
+    src: documentation.scientific.charts['Scientific source I/O'],
+    alt: 'Scientific source I/O for shared validated scientific JS and WASM workloads',
+    caption: scientificCaption,
+    width: 1900,
+    height: 896,
+  },
+  {
+    id: 'footprint',
+    tab: 'Package and WASM footprint',
+    title: 'Package and WASM footprint',
+    explanation: 'gzip/Brotli JavaScript, external or embedded WASM, and installed bytes',
+    src: documentation.scientific.charts['Scientific package and WASM footprint'],
+    alt: 'Scientific package and WASM footprint for shared validated scientific JS and WASM workloads',
+    caption: scientificCaption,
+    width: 1900,
+    height: 896,
+  },
+] as const
 const majorSizeIds = ['core', 'codecs-web', 'codecs-all', 'scientific', 'scientific-readers-all']
 const majorSizes = packageMetrics.targets.filter(({ id }) => majorSizeIds.includes(id))
 const competitorSizes = packageMetrics.targets.filter(({ category }) => category === 'competitor')
@@ -35,23 +115,24 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
 ---
 
 <SiteLayout
-  title="Validated image and scientific reader benchmarks | PureJsImage"
-  description="Current correctness-gated common web codec and scientific reader benchmarks: speed, quality, peak RSS, source I/O, first-block latency, initialization, and package footprint."
+  title="Web codec and scientific reader benchmarks | PureJsImage"
+  description="Current correctness-gated web codec and scientific reader benchmarks: speed, quality, peak RSS, source I/O, first-block latency, initialization, and package footprint."
   canonical="https://purejsimage.com/performance/"
   current="performance/"
   openGraph={{
-    title: 'Validated image and scientific reader benchmarks | PureJsImage',
+    title: 'Web codec and scientific reader benchmarks | PureJsImage',
     description:
-      'Separate, correctness-gated benchmark evidence for common web codec workflows and native scientific readers.',
+      'Separate, correctness-gated benchmark evidence for web codec workflows and native scientific readers.',
     url: 'https://purejsimage.com/performance/',
   }}
   twitterCard="summary"
 >
   <main id="main">
+    <BenchmarkClusterNav current="web-codecs" />
     <header class="page-hero">
       <div class="container">
         <p class="eyebrow">Generated performance evidence</p>
-        <h1>Common web codec and scientific reader benchmarks.</h1>
+        <h1>Web codec and scientific reader benchmarks.</h1>
         <p class="page-lede">
           Results stay separated by workload class. A timing is admitted only after dimensions,
           selection, sample or pixel hashes, output validation, and any required quality oracle pass.
@@ -70,8 +151,8 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
       <div class="container">
         <div class="proof-heading">
           <div>
-            <p class="section-label">Common web codecs</p>
-            <h2>Speed, quality, memory, and package footprint.</h2>
+            <p class="section-label">Web codec benchmarks</p>
+            <h2 id="web-codec-benchmarks">Speed, quality, and peak memory.</h2>
           </div>
           <p>
             The {date(documentation.ordinary.createdAt)} profile recorded {
@@ -81,7 +162,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
             JavaScript libraries, jSquash WebAssembly, and Sharp/libvips.
           </p>
         </div>
-        <div class="benchmark-facts">
+        <div class="benchmark-facts benchmark-facts-quad">
           <div>
             <strong>{documentation.ordinary.headline.memoryReductionPercent.toFixed(1)}%</strong>
             <span>less peak RSS than Jimp</span>
@@ -105,33 +186,20 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
           for the TypeScript path versus {mib(documentation.ordinary.headline.jimpPeakRssBytes)} for
           Jimp. It is not a cross-date comparison.
         </p>
-        <div class="codec-grid">
-          {
-            ordinaryCharts.map((chart) => (
-              <figure class="card">
-                <h3>{chart.title}</h3>
-                <p>{chart.description}</p>
-                <div class="benchmark-image-scroll">
-                  <img
-                    src={`../${documentation.ordinary.charts[chart.key]}`}
-                    alt={`${chart.title} chart from the current validated common web codec profile`}
-                    loading={chart.key === 'speed' ? 'eager' : 'lazy'}
-                    decoding="async"
-                  />
-                </div>
-                <figcaption>
-                  Environment: {documentation.ordinary.environment.os}, {
-                    documentation.ordinary.environment.architecture
-                  }, Node {documentation.ordinary.environment.node}, {
-                    documentation.ordinary.environment.cpu
-                  }. Resize workflows use each engine’s documented default kernel.
-                </figcaption>
-              </figure>
-            ))
-          }
-        </div>
-        <h3>Recorded common web codec engines</h3>
-        <div class="table-wrap">
+        <p class="benchmark-scope" aria-label="Web codec benchmark formats">
+          <span>JPEG</span><span>PNG</span><span>WebP</span><span>TIFF</span><span>AVIF</span>
+        </p>
+        <p class="section-note">
+          This suite measures JPEG, PNG, WebP, TIFF, and AVIF. It does not represent every stable
+          PureJsImage codec.
+        </p>
+        <BenchmarkGallery
+          id="web-codec"
+          legend="Choose a web codec benchmark chart"
+          charts={webCodecCharts}
+        />
+        <h3>Recorded web codec engines</h3>
+        <TableWrap>
           <table>
             <thead><tr><th>Engine</th><th>Version</th><th>Class</th></tr></thead>
             <tbody>
@@ -142,19 +210,19 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
               }
             </tbody>
           </table>
-        </div>
+        </TableWrap>
         <p>
           <a
             class="text-link"
             href={github(documentation.ordinary.reportMarkdown) ?? '#'}
             target="_blank"
-            rel="noreferrer">Current common web codec report →</a
+            rel="noreferrer">Current web codec benchmark report →</a
           >
         </p>
       </div>
     </section>
 
-    <section class="section" id="scientific-readers">
+    <section class="section scientific-benchmark-showcase" id="scientific-readers">
       <div class="container">
         <div class="section-heading">
           <div>
@@ -192,31 +260,14 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
             </div>
           )
         }
-        <div class="codec-grid">
-          {
-            scientificCharts.map(([title, path]) => (
-              <figure class="card">
-                <h3>{title}</h3>
-                <div class="benchmark-image-scroll">
-                  <img
-                    src={`../${path}`}
-                    alt={`${title} for shared validated scientific JS and WASM workloads`}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <figcaption>
-                  Generated from the {date(documentation.scientific.competitors.createdAt)} scientific
-                  competitor artifact. Each SVG records scale direction, environment, engine class,
-                  unsupported rows, and material input-copy differences.
-                </figcaption>
-              </figure>
-            ))
-          }
-        </div>
+        <BenchmarkGallery
+          id="scientific-reader"
+          legend="Choose a scientific reader benchmark chart"
+          charts={scientificCharts}
+        />
 
         <h3>Scientific metric contract</h3>
-        <div class="table-wrap">
+        <TableWrap>
           <table>
             <thead><tr><th>Metric</th><th>Interpretation</th></tr></thead>
             <tbody>
@@ -229,10 +280,10 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
               <tr><td>Correctness</td><td>Expected shape, native sample type, selected-sample hash, calibration assertions, and output bytes.</td></tr>
             </tbody>
           </table>
-        </div>
+        </TableWrap>
 
         <h3>Scientific JS/WASM engine versions</h3>
-        <div class="table-wrap">
+        <TableWrap>
           <table>
             <thead><tr><th>Engine</th><th>Version</th><th>Class</th></tr></thead>
             <tbody>
@@ -247,7 +298,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
               }
             </tbody>
           </table>
-        </div>
+        </TableWrap>
         <p>
           <a
             class="text-link"
@@ -264,6 +315,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
             href={github(documentation.scientific.competitors.reportMarkdown) ?? '#'}
             target="_blank"
             rel="noreferrer">Scientific JS/WASM report →</a
+          > · <a class="text-link" href="../scientific/benchmarks/">Scientific reader tables →</a
           > · <a class="text-link" href="../scientific-formats/">Scientific format reference →</a>
         </p>
       </div>
@@ -280,7 +332,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
           </p>
         </div>
         <h3>PureJsImage major entries</h3>
-        <div class="table-wrap">
+        <TableWrap>
           <table>
             <thead><tr><th>Entry</th><th>Import</th><th>Minified</th><th>gzip</th><th>Brotli</th><th>Installed</th></tr></thead>
             <tbody>
@@ -298,7 +350,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
               }
             </tbody>
           </table>
-        </div>
+        </TableWrap>
         <h3>Package footprint context</h3>
         <p>
           The PureJsImage common-web entry is measured above. The competitor table preserves the
@@ -306,7 +358,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
           older footprint comparison; each common-web benchmark report records the exact installed
           engine package set it used.
         </p>
-        <div class="table-wrap">
+        <TableWrap>
           <table>
             <thead><tr><th>Engine import</th><th>Implementation</th><th>Minified JS</th><th>Installed</th><th>Production packages</th></tr></thead>
             <tbody>
@@ -326,9 +378,9 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
               }
             </tbody>
           </table>
-        </div>
+        </TableWrap>
         <h3>Optional PureJsImage WASM assets</h3>
-        <div class="table-wrap">
+        <TableWrap>
           <table>
             <thead><tr><th>Asset</th><th>Raw</th><th>gzip</th><th>Brotli</th></tr></thead>
             <tbody>
@@ -339,7 +391,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
               }
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </div>
     </section>
 
@@ -367,7 +419,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
           <li>Input bytes and fixture hashes are pinned before measurement.</li>
           <li>Measured samples run in isolated processes after configured untimed warmups.</li>
           <li>Output validation and independent quality measurement remain outside timed regions.</li>
-          <li>Common web codec resize charts use engine-default kernels and are default-experience comparisons.</li>
+          <li>Web codec resize charts use engine-default kernels and are default-experience comparisons.</li>
           <li>Scientific charts compare only shared operations; they do not create an all-format winner score.</li>
           <li>Different environment fingerprints are not compared without an explicit disclaimer.</li>
         </ul>

@@ -242,15 +242,19 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                 <div><strong id="demo-viewer-name">Image viewport</strong><small id="demo-viewer-subtitle">Drop a file or open a sample</small></div>
               </div>
               <fieldset class="demo-viewer-actions" aria-label="Viewer controls">
-                <button id="demo-zoom-out" type="button" disabled aria-label="Zoom out" title="Zoom out">−</button>
-                <output id="demo-zoom-value" aria-live="polite">Not available</output>
-                <button id="demo-zoom-in" type="button" disabled aria-label="Zoom in" title="Zoom in">+</button>
-                <button id="demo-zoom-fit" type="button" disabled>Fit</button>
-                <button id="demo-zoom-actual" type="button" disabled>1:1</button>
-                <button id="demo-pan-left" type="button" disabled aria-label="Pan left" title="Pan left">←</button>
-                <button id="demo-pan-up" type="button" disabled aria-label="Pan up" title="Pan up">↑</button>
-                <button id="demo-pan-down" type="button" disabled aria-label="Pan down" title="Pan down">↓</button>
-                <button id="demo-pan-right" type="button" disabled aria-label="Pan right" title="Pan right">→</button>
+                <div class="demo-viewer-zoom" role="group" aria-label="Zoom">
+                  <button id="demo-zoom-out" type="button" disabled aria-label="Zoom out" title="Zoom out">−</button>
+                  <output id="demo-zoom-value" aria-live="polite">Not available</output>
+                  <button id="demo-zoom-in" type="button" disabled aria-label="Zoom in" title="Zoom in">+</button>
+                  <button id="demo-zoom-fit" type="button" disabled>Fit</button>
+                  <button id="demo-zoom-actual" type="button" disabled>1:1</button>
+                </div>
+                <div class="demo-viewer-pan" role="group" aria-label="Pan">
+                  <button id="demo-pan-left" type="button" disabled aria-label="Pan left" title="Pan left">←</button>
+                  <button id="demo-pan-up" type="button" disabled aria-label="Pan up" title="Pan up">↑</button>
+                  <button id="demo-pan-down" type="button" disabled aria-label="Pan down" title="Pan down">↓</button>
+                  <button id="demo-pan-right" type="button" disabled aria-label="Pan right" title="Pan right">→</button>
+                </div>
                 <button class="demo-save-clip" id="demo-save-clip" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>Save visible clip</button>
               </fieldset>
             </header>

@@ -1,7 +1,27 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { basename, dirname, join, relative } from 'node:path'
+import { jpegCodec } from '../src/codec-entries/jpeg.ts'
+import { pngCodec } from '../src/codec-entries/png.ts'
+import { createImageLibrary } from '../src/index.ts'
 import { readCapabilityManifest } from './capability-manifest.ts'
 import { formatKibibytes, formatMebibytes, parsePackageMetrics } from './bundle-size.ts'
+
+const readmeAssetLibrary = createImageLibrary([jpegCodec, pngCodec])
+
+const encodeReadmeRaster = async (
+  source: Uint8Array,
+  options: {
+    readonly format: 'jpeg' | 'png'
+    readonly quality?: number
+    readonly width: number
+  },
+): Promise<Uint8Array> => {
+  const image = await readmeAssetLibrary.open(source)
+  const resized = image.resize({ width: options.width, withoutEnlargement: true })
+  return options.format === 'jpeg'
+    ? resized.jpeg({ quality: options.quality ?? 80 }).toUint8Array()
+    : resized.png().toUint8Array()
+}
 
 type ValidationStatus = 'failed' | 'partial' | 'passed' | 'unverified'
 
@@ -1120,13 +1140,20 @@ const summaryBlock = [
 const benchmarkBlock = [
   '## Current benchmark snapshots',
   '',
-  `**Common web codecs (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
+  `**Web codec benchmarks (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
   `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup workflows passed across ${manifest.scientificReaders.length} readers. The separate medium/large scaling profile validated ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
   '',
-  `[Common web codec methodology and report](https://purejsimage.com/performance/#common-web-codecs) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](${portablePath(resultIndex.path)})`,
+  '<p align="center">',
+  '  <a href="https://purejsimage.com/performance/#web-codec-benchmarks">',
+  '    <img src="docs-astro/public/assets/readme/web-codec-memory.png" alt="Web codec benchmark peak RSS chart. Lower peak RSS is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
+  '  </a>',
+  '</p>',
+  '<p align="center"><em>Absolute process peak RSS from the current validated web codec benchmark snapshot.</em></p>',
+  '',
+  `[Web codec benchmarks](https://purejsimage.com/performance/#web-codec-benchmarks) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](${portablePath(resultIndex.path)})`,
 ]
   .filter((line, index, lines) => line.length > 0 || lines[index - 1]?.length !== 0)
   .join('\n')
@@ -1141,6 +1168,38 @@ const expectedReadme = replaceRegion(
 const dataPath = join(repositoryDirectory, 'docs-astro', 'src', 'data', 'documentation-data.json')
 const expectedData = `${JSON.stringify(documentation, null, 2)}\n`
 const publicAssetsDirectory = join(repositoryDirectory, 'docs-astro', 'public', 'assets')
+const readmeAssetsDirectory = join(publicAssetsDirectory, 'readme')
+const memoryChart = ordinaryCharts.find((chart) => chart.metric === 'memory')
+if (memoryChart === undefined) throw new Error('Validated web codec memory chart is missing')
+const readmeAssets: readonly { readonly path: string; readonly bytes: Uint8Array }[] = [
+  {
+    path: join(readmeAssetsDirectory, 'whole-slide-viewer.jpg'),
+    bytes: await encodeReadmeRaster(
+      await readFile(join(publicAssetsDirectory, 'whole-slide-viewer-showcase.jpg')),
+      { format: 'jpeg', quality: 78, width: 1400 },
+    ),
+  },
+  {
+    path: join(readmeAssetsDirectory, 'scientific-explorer.jpg'),
+    bytes: await encodeReadmeRaster(
+      await readFile(join(publicAssetsDirectory, 'scientific-hyperspectral-envi-viewer.png')),
+      { format: 'jpeg', quality: 80, width: 1200 },
+    ),
+  },
+  {
+    path: join(readmeAssetsDirectory, 'web-codec-memory.png'),
+    bytes: await encodeReadmeRaster(await readFile(memoryChart.source), {
+      format: 'png',
+      width: 1600,
+    }),
+  },
+]
+const readmeAssetBytes = readmeAssets.reduce((sum, asset) => sum + asset.bytes.byteLength, 0)
+if (readmeAssetBytes > 1.2 * 1024 * 1024) {
+  throw new Error(
+    `README raster assets are ${readmeAssetBytes} bytes; keep the three visuals under 1.2 MiB`,
+  )
+}
 
 const stale: string[] = []
 const compareOrWrite = async (
@@ -1177,6 +1236,9 @@ for (const chart of ordinaryCharts) {
 for (const chart of scientificCharts) {
   await compareOrWrite(join(publicAssetsDirectory, chart.filename), chart.content)
 }
+for (const asset of readmeAssets) {
+  await compareOrWrite(asset.path, asset.bytes)
+}
 
 if (checkOnly && stale.length > 0) {
   throw new Error(`Generated documentation is stale:\n${stale.join('\n')}`)
@@ -1186,5 +1248,8 @@ if (!checkOnly) {
   console.log(`Updated ${portablePath(readmePath)}`)
   for (const chart of [...ordinaryCharts, ...scientificCharts]) {
     console.log(`Wrote docs-astro/public/assets/${chart.filename}`)
+  }
+  for (const asset of readmeAssets) {
+    console.log(`Wrote ${portablePath(asset.path)}`)
   }
 }

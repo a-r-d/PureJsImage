@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" role="img" aria-label="PureJsImage brand mark">
+  <rect width="36" height="36" rx="9" fill="#ffffff" stroke="rgba(19,26,20,0.15)"/>
+  <g transform="translate(5 5)">
+    <rect x="0" y="0" width="8" height="8" fill="#6b57e8"/>
+    <rect x="9" y="0" width="8" height="8" fill="#b7ed55"/>
+    <rect x="18" y="0" width="8" height="8" fill="#ffca58"/>
+    <rect x="0" y="9" width="8" height="8" fill="#ffca58"/>
+    <rect x="9" y="9" width="8" height="8" fill="#6b57e8"/>
+    <rect x="18" y="9" width="8" height="8" fill="#b7ed55"/>
+    <rect x="0" y="18" width="8" height="8" fill="#b7ed55"/>
+    <rect x="9" y="18" width="8" height="8" fill="#ffca58"/>
+    <rect x="18" y="18" width="8" height="8" fill="#6b57e8"/>
+  </g>
+</svg>

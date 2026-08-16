@@ -1,0 +1,92 @@
+---
+export interface BenchmarkChart {
+  readonly id: string
+  readonly tab: string
+  readonly title: string
+  readonly explanation: string
+  readonly src: string
+  readonly alt: string
+  readonly caption: string
+  readonly badge?: string
+  readonly eager?: boolean
+  readonly width?: number
+  readonly height?: number
+}
+
+interface Props {
+  readonly id: string
+  readonly legend: string
+  readonly charts: readonly BenchmarkChart[]
+}
+
+const { id, legend, charts } = Astro.props
+const configuredBase = import.meta.env.BASE_URL
+const siteBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
+const assetHref = (path: string): string =>
+  path.startsWith('/') || path.startsWith('http') ? path : `${siteBase}${path}`
+---
+
+<div
+  class="benchmark-chart-card"
+  id={`${id}-gallery`}
+  data-benchmark-gallery={id}
+  role="group"
+  aria-label={legend}
+>
+  <p class="benchmark-chart-legend">{legend}</p>
+  <div class="benchmark-chart-tabs" data-scroll-region="tabs">
+    {
+      charts.map((chart, index) => (
+        <label>
+          <input
+            id={`${id}-${chart.id}`}
+            name={id}
+            type="radio"
+            value={chart.id}
+            checked={index === 0 ? true : undefined}
+          />
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          {chart.tab}
+        </label>
+      ))
+    }
+  </div>
+  <div class="benchmark-chart-panels">
+    {
+      charts.map((chart, index) => {
+        const href = assetHref(chart.src)
+        return (
+          <figure class="benchmark-chart-panel" data-chart={chart.id}>
+            <div class="benchmark-chart-head">
+              <div>
+                <h3>{chart.title}</h3>
+                <p>{chart.explanation}</p>
+              </div>
+              {chart.badge && <small>{chart.badge}</small>}
+            </div>
+            <p class="benchmark-chart-scroll-cue" data-chart-scroll-cue hidden>
+              Scroll chart horizontally
+            </p>
+            <div class="benchmark-chart-viewport" data-chart-viewport data-scroll-region="chart">
+              <img
+                src={href}
+                alt={chart.alt}
+                width={chart.width}
+                height={chart.height}
+                loading={chart.eager || index === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchpriority={chart.eager ? 'high' : undefined}
+              />
+            </div>
+            <figcaption>
+              <span>{chart.caption}</span>
+              <a href={href} target="_blank" rel="noreferrer">
+                Open full-size chart
+              </a>
+            </figcaption>
+          </figure>
+        )
+      })
+    }
+  </div>
+</div>

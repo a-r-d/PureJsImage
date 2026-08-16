@@ -1,9 +1,51 @@
 ---
+import BenchmarkGallery from '../components/BenchmarkGallery.astro'
 import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
 
 const mib = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MiB`
 const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
+const webCodecCharts = [
+  {
+    id: 'speed',
+    tab: 'Speed',
+    title: 'Web codec speed',
+    explanation: 'Median wall time · logarithmic scale · lower is better',
+    src: documentation.ordinary.charts.speed,
+    alt: 'Grouped horizontal bars comparing median wall time for seven benchmark engines across validated shared workflows.',
+    caption:
+      'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated.',
+    badge: 'Sharp = native libvips',
+    width: 2400,
+    height: 1510,
+    eager: true,
+  },
+  {
+    id: 'quality',
+    tab: 'Quality',
+    title: 'Web codec quality',
+    explanation: 'Premultiplied-RGBA PSNR · higher is better',
+    src: documentation.ordinary.charts.quality,
+    alt: 'Grouped horizontal bars comparing independently measured output PSNR for validated shared workflows.',
+    caption:
+      'PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling.',
+    badge: 'Independent exact-area reference',
+    width: 2400,
+    height: 1510,
+  },
+  {
+    id: 'memory',
+    tab: 'Peak memory',
+    title: 'Web codec peak memory',
+    explanation: 'Median peak RSS · lower is better',
+    src: documentation.ordinary.charts.memory,
+    alt: 'Grouped horizontal bars comparing median absolute peak RSS for seven isolated engines across validated shared workflows.',
+    caption: 'RSS includes the Node.js runtime and native allocations.',
+    badge: 'Isolated worker processes',
+    width: 2400,
+    height: 1510,
+  },
+] as const
 ---
 
 <SiteLayout title="PureJsImage | Zero-dependency image and scientific raster processing" description="Portable strict TypeScript codecs and native scientific readers for Node.js and browsers, with low peak memory usage, zero runtime dependencies, and explicit optional WASM." canonical="https://purejsimage.com/" bodyClass="home" home openGraph={{"title":"PureJsImage | Zero-dependency image and scientific raster processing","description":"Portable ordinary image codecs and native scientific readers for browsers, servers, serverless, edge, and restricted deployments.","url":"https://purejsimage.com/"}} twitterCard="summary">
@@ -32,9 +74,9 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
               <span class="metric-tooltip" id="metric-jimp-tooltip" role="tooltip">Current {benchmarkDate} isolated-process result for the same 24-megapixel northstar photo pipeline and one environment fingerprint.</span>
             </div>
             <div>
-              <button class="metric-info" type="button" aria-label="About the scientific benchmark baseline" aria-describedby="metric-scientific-tooltip">i</button>
-              <strong>{documentation.scientific.baseline.workloadCount}</strong><span>validated reader workflows</span><small>{documentation.scientific.baseline.representativeWorkloadCount} representative performance workloads</small>
-              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">The current baseline includes {documentation.scientific.baseline.representativeWorkloadCount} representative performance workloads and {documentation.scientific.baseline.contractWorkloadCount} correctness or contract workloads.</span>
+              <button class="metric-info" type="button" aria-label="About the scientific scaling benchmark rows" aria-describedby="metric-scientific-tooltip">i</button>
+              <strong>{documentation.scientific.scaling.chartEligibleWorkloadCount}</strong><span>stable medium/large scientific benchmark rows</span><small>{documentation.scientific.scaling.workloadCount} representative workloads validated, {documentation.scientific.scaling.chartEligibleWorkloadCount} under the 10% CV publication threshold</small>
+              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">Correctness and startup rows stay on the baseline profile ({documentation.scientific.baseline.workloadCount} validated reader workflows, {documentation.scientific.baseline.contractWorkloadCount} contract workloads). Representative medium/large performance comes from the separate scaling profile: {documentation.scientific.scaling.workloadCount} validated workloads, {documentation.scientific.scaling.chartEligibleWorkloadCount} under the 10% CV publication threshold.</span>
             </div>
           </div>
           <p class="headline-metrics-note">Use each info button for the source, workflow, and measurement details.</p>
@@ -118,7 +160,7 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
     <section class="proof-section" id="benchmark" aria-labelledby="benchmark-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Speed, quality, and memory demo</p><h2 id="benchmark-title">Measured performance across common image workflows.</h2></div>
+          <div><p class="section-label">Web codec benchmarks</p><h2 id="benchmark-title">Measured performance across common image workflows.</h2></div>
           <p>The {benchmarkDate} profile compares default PureJsImage and its explicit JPEG/PNG WASM accelerators with Jimp, Sharp, Sharp single-thread, image-js, and jSquash on the same inputs. Each engine runs in isolation and every displayed output is validated before timing is admitted.</p>
         </div>
         <div class="benchmark-facts">
@@ -126,34 +168,14 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
           <div><strong>{documentation.ordinary.statusCounts.unsupported}</strong><span>explicit unsupported results</span></div>
           <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
-        <fieldset class="benchmark-gallery">
-          <legend>Choose a benchmark chart</legend>
-          <input id="benchmark-speed" name="benchmark-chart" type="radio" checked>
-          <input id="benchmark-quality" name="benchmark-chart" type="radio">
-          <input id="benchmark-memory" name="benchmark-chart" type="radio">
-          <div class="benchmark-gallery-tabs">
-            <label for="benchmark-speed"><span>01</span> Speed</label>
-            <label for="benchmark-quality"><span>02</span> Quality</label>
-            <label for="benchmark-memory"><span>03</span> Memory</label>
-          </div>
-          <div class="benchmark-gallery-panels">
-            <figure class="benchmark-gallery-panel" data-chart="speed">
-              <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
-              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.speed} width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for seven benchmark engines across validated shared workflows." fetchpriority="high"></div>
-              <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href={documentation.ordinary.charts.speed}>Open full-size chart</a>.</figcaption>
-            </figure>
-            <figure class="benchmark-gallery-panel" data-chart="quality">
-              <div class="benchmark-gallery-head"><div><span>Output fidelity</span><strong>Premultiplied-RGBA PSNR · higher is better</strong></div><small>Independent exact-area reference</small></div>
-              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.quality} width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for validated shared workflows." loading="lazy" decoding="async"></div>
-              <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href={documentation.ordinary.charts.quality}>Open full-size chart</a>.</figcaption>
-            </figure>
-            <figure class="benchmark-gallery-panel" data-chart="memory">
-              <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
-              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.memory} width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for seven isolated engines across validated shared workflows." loading="lazy" decoding="async"></div>
-              <figcaption>RSS includes the Node.js runtime and native allocations. <a href={documentation.ordinary.charts.memory}>Open full-size chart</a>.</figcaption>
-            </figure>
-          </div>
-        </fieldset>
+        <p class="benchmark-scope" aria-label="Web codec benchmark formats">
+          <span>JPEG</span><span>PNG</span><span>WebP</span><span>TIFF</span><span>AVIF</span>
+        </p>
+        <BenchmarkGallery
+          id="home-web-codec"
+          legend="Choose a web codec benchmark chart"
+          charts={webCodecCharts}
+        />
         <div class="proof-meta">
           <span>{documentation.ordinary.environment.node} · {documentation.ordinary.environment.os} · {documentation.ordinary.environment.architecture} · {documentation.ordinary.environment.cpu} · {benchmarkDate}</span>
           <span><a href="performance/">Methodology</a> · <a href={`https://github.com/a-r-d/PureJsImage/blob/main/${documentation.ordinary.reportMarkdown}`} target="_blank" rel="noreferrer">Readable report</a> · <a href={`https://github.com/a-r-d/PureJsImage/blob/main/${documentation.ordinary.reportJson}`} target="_blank" rel="noreferrer">JSON</a></span>
@@ -245,13 +267,20 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
       <div class="container">
         <div class="section-heading"><div><p class="section-label">Scientific and instrument imagery</p><h2>Native raster workflows beyond ordinary application images.</h2></div><a class="text-link" href="tiff-comparison/">TIFF demo and details →</a></div>
         <p class="comparison-intro">The codec and raster architecture is designed to grow across scientific instruments and research workflows. TIFF, OME microscopy, whole-slide pathology, and geospatial rasters are current examples. This table separates documented features from a 106-file image test of decode coverage and output.</p>
-        <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody><tr><th scope="row"><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">PureJsImage</a><small>benchmark snapshot · 3be4530 · Strict TypeScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><strong>104/106 decoded</strong><small>57 exact · 47 pixel mismatches</small><small>2 oracle-unavailable cases</small></td></tr>
+        <div class="comparison-mobile-summary">
+        <p class="comparison-summary-lede">The dimensions that matter first on a narrow screen. The complete TIFF matrix stays in this page and opens below.</p>
+        <ul class="comparison-summary-list"><li class="comparison-summary-card"><h3>PureJsImage</h3><p>Strict TypeScript</p><dl><div><dt>Pure TypeScript</dt><dd>Yes</dd></div><div><dt>Runtime dependencies</dt><dd>None</dd></div><div><dt>Browser support</dt><dd>Yes</dd></div><div><dt>Native addon</dt><dd>No</dd></div><div><dt>Scientific readers</dt><dd>Yes</dd></div><div><dt>Bounded memory model</dt><dd>Yes</dd></div></dl></li><li class="comparison-summary-card"><h3>GeoTIFF.js</h3><p>Pure JavaScript</p><dl><div><dt>Pure TypeScript</dt><dd>Yes</dd></div><div><dt>Runtime dependencies</dt><dd>JavaScript package</dd></div><div><dt>Browser support</dt><dd>Yes</dd></div><div><dt>Native addon</dt><dd>No</dd></div><div><dt>Scientific readers</dt><dd>Yes</dd></div><div><dt>Bounded memory model</dt><dd>Yes</dd></div></dl></li><li class="comparison-summary-card"><h3>UTIF.js (utif2)</h3><p>Pure JavaScript</p><dl><div><dt>Pure TypeScript</dt><dd>Yes</dd></div><div><dt>Runtime dependencies</dt><dd>JavaScript package</dd></div><div><dt>Browser support</dt><dd>Yes</dd></div><div><dt>Native addon</dt><dd>No</dd></div><div><dt>Scientific readers</dt><dd>Partial</dd></div><div><dt>Bounded memory model</dt><dd>No</dd></div></dl></li><li class="comparison-summary-card"><h3>image-js/tiff</h3><p>Pure JavaScript</p><dl><div><dt>Pure TypeScript</dt><dd>Yes</dd></div><div><dt>Runtime dependencies</dt><dd>JavaScript package</dd></div><div><dt>Browser support</dt><dd>Yes</dd></div><div><dt>Native addon</dt><dd>No</dd></div><div><dt>Scientific readers</dt><dd>Yes</dd></div><div><dt>Bounded memory model</dt><dd>No</dd></div></dl></li><li class="comparison-summary-card"><h3>image-js</h3><p>Pure JavaScript</p><dl><div><dt>Pure TypeScript</dt><dd>Yes</dd></div><div><dt>Runtime dependencies</dt><dd>JavaScript package</dd></div><div><dt>Browser support</dt><dd>Yes</dd></div><div><dt>Native addon</dt><dd>No</dd></div><div><dt>Scientific readers</dt><dd>Partial</dd></div><div><dt>Bounded memory model</dt><dd>No</dd></div></dl></li><li class="comparison-summary-card"><h3>Jimp</h3><p>Pure JavaScript</p><dl><div><dt>Pure TypeScript</dt><dd>Yes</dd></div><div><dt>Runtime dependencies</dt><dd>JavaScript package</dd></div><div><dt>Browser support</dt><dd>Yes</dd></div><div><dt>Native addon</dt><dd>No</dd></div><div><dt>Scientific readers</dt><dd>No</dd></div><div><dt>Bounded memory model</dt><dd>No</dd></div></dl></li><li class="comparison-summary-card"><h3>Sharp / libvips</h3><p>Native wrapper</p><dl><div><dt>Pure TypeScript</dt><dd>No</dd></div><div><dt>Runtime dependencies</dt><dd>Native addon</dd></div><div><dt>Browser support</dt><dd>No</dd></div><div><dt>Native addon</dt><dd>Yes</dd></div><div><dt>Scientific readers</dt><dd>Partial</dd></div><div><dt>Bounded memory model</dt><dd>Partial</dd></div></dl></li></ul>
+      </div>
+        <details class="comparison-matrix-disclosure" open>
+          <summary>Full comparison matrix</summary>
+          <div class="comparison-table-wrap" data-table-wrap><p class="table-scroll-cue" data-scroll-cue hidden>Scroll table horizontally</p><div class="table-wrap-scroller" data-scroll-region="table"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody><tr><th scope="row"><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">PureJsImage</a><small>benchmark snapshot · 3be4530 · Strict TypeScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><strong>104/106 decoded</strong><small>57 exact · 47 pixel mismatches</small><small>2 oracle-unavailable cases</small></td></tr>
 <tr><th scope="row"><a href="https://github.com/geotiffjs/geotiff.js" target="_blank" rel="noreferrer">GeoTIFF.js</a><small>3.0.5 · Pure JavaScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><strong>84/106 decoded</strong><small>32 exact · 52 pixel mismatches</small><small>11 unsupported · 7 errors · 2 oracle-unavailable cases · 2 crashes</small></td></tr>
 <tr><th scope="row"><a href="https://github.com/photopea/UTIF.js" target="_blank" rel="noreferrer">UTIF.js (utif2)</a><small>4.1.0 · Pure JavaScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-no">No</span></td><td><strong>74/106 decoded</strong><small>49 exact · 25 pixel mismatches</small><small>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes</small></td></tr>
 <tr><th scope="row"><a href="https://github.com/image-js/tiff" target="_blank" rel="noreferrer">image-js/tiff</a><small>7.1.3 · Pure JavaScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><strong>41/106 decoded</strong><small>27 exact · 14 pixel mismatches</small><small>51 unsupported · 12 errors · 2 oracle-unavailable cases</small></td></tr>
 <tr><th scope="row"><a href="https://github.com/image-js/image-js" target="_blank" rel="noreferrer">image-js</a><small>1.7.0 · Pure JavaScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-no">No</span></td><td><strong>39/106 decoded</strong><small>33 exact · 6 pixel mismatches</small><small>51 unsupported · 14 errors · 2 oracle-unavailable cases</small></td></tr>
 <tr><th scope="row"><a href="https://github.com/jimp-dev/jimp" target="_blank" rel="noreferrer">Jimp</a><small>1.6.0 · Pure JavaScript</small></th><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-no">No</span></td><td><strong>74/106 decoded</strong><small>49 exact · 25 pixel mismatches</small><small>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes</small></td></tr>
-<tr><th scope="row"><a href="https://github.com/lovell/sharp" target="_blank" rel="noreferrer">Sharp / libvips</a><small>0.35.3 · Native wrapper</small></th><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-no">No</span></td><td>Not run</td></tr></tbody></table></div>
+<tr><th scope="row"><a href="https://github.com/lovell/sharp" target="_blank" rel="noreferrer">Sharp / libvips</a><small>0.35.3 · Native wrapper</small></th><td><span class="comparison-status status-no">No</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-yes">Yes</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-partial">Partial</span></td><td><span class="comparison-status status-no">No</span></td><td>Not run</td></tr></tbody></table></div></div>
+        </details>
         <p class="section-note"><strong>Oracle unavailable is not an engine failure:</strong> the independent Sharp/ImageMagick ground-truth path could not decode the same two fixtures for every measured engine. PureJsImage's 47 non-exact decodes comprise 38 at or above 40 dB PSNR, 6 from 20 to below 30 dB, and 3 below 10 dB, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.</p>
         <p class="section-note">Measured 2026-08-13 with v24.16.0 on linux/x64. <a href="tiff-comparison/#methodology">Methods, caveats, versions, and sources.</a></p>
       </div>

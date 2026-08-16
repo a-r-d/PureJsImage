@@ -410,6 +410,42 @@ The checked ${report.generatedAt.slice(0, 10)} snapshot compared documented TIFF
 ${readmeEnd}`
 }
 
+const runtimeDependencySummary = (library: LibraryComparison): string => {
+  if (library.id === 'purejsimage') return 'None'
+  if (library.implementation === 'native-wrapper') return 'Native addon'
+  return 'JavaScript package'
+}
+
+const wrapScrollableTable = (markup: string): string =>
+  `<div class="comparison-table-wrap" data-table-wrap><p class="table-scroll-cue" data-scroll-cue hidden>Scroll table horizontally</p><div class="table-wrap-scroller" data-scroll-region="table">${markup}</div></div>`
+
+const compactMobileSummary = (): string => {
+  const cards = libraryComparisons
+    .map((library) => {
+      const rows = (
+        [
+          ['Pure TypeScript', statusLabel[library.runtime.pureJavaScript.status]],
+          ['Runtime dependencies', runtimeDependencySummary(library)],
+          ['Browser support', statusLabel[library.runtime.browser.status]],
+          ['Native addon', statusLabel[library.runtime.nativeRequired.status]],
+          ['Scientific readers', statusLabel[capability(library, 'nativeRasterOutput').status]],
+          ['Bounded memory model', statusLabel[capability(library, 'boundedRegionDecode').status]],
+        ] as const satisfies readonly (readonly [string, string])[]
+      )
+        .map(
+          ([label, value]) =>
+            `<div><dt>${htmlEscape(label)}</dt><dd>${htmlEscape(value)}</dd></div>`,
+        )
+        .join('')
+      return `<li class="comparison-summary-card"><h3>${htmlEscape(library.name)}</h3><p>${htmlEscape(implementationLabel(library))}</p><dl>${rows}</dl></li>`
+    })
+    .join('')
+  return `<div class="comparison-mobile-summary">
+        <p class="comparison-summary-lede">The dimensions that matter first on a narrow screen. The complete TIFF matrix stays in this page and opens below.</p>
+        <ul class="comparison-summary-list">${cards}</ul>
+      </div>`
+}
+
 const compactHtml = (report: ConformanceReport, comparisonHref = 'tiff-comparison/'): string => {
   const rows = libraryComparisons
     .map(
@@ -421,7 +457,11 @@ const compactHtml = (report: ConformanceReport, comparisonHref = 'tiff-compariso
       <div class="container">
         <div class="section-heading"><div><p class="section-label">Scientific and instrument imagery</p><h2>Native raster workflows beyond ordinary application images.</h2></div><a class="text-link" href="${comparisonHref}">TIFF demo and details →</a></div>
         <p class="comparison-intro">The codec and raster architecture is designed to grow across scientific instruments and research workflows. TIFF, OME microscopy, whole-slide pathology, and geospatial rasters are current examples. This table separates documented features from a 106-file image test of decode coverage and output.</p>
-        <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table></div>
+        ${compactMobileSummary()}
+        <details class="comparison-matrix-disclosure" open>
+          <summary>Full comparison matrix</summary>
+          ${wrapScrollableTable(`<table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table>`)}
+        </details>
         <p class="section-note"><strong>Oracle unavailable is not an engine failure:</strong> the independent Sharp/ImageMagick ground-truth path could not decode the same two fixtures for every measured engine. PureJsImage's ${report.totals.get('purejsimage')?.mismatch ?? 0} non-exact decodes comprise ${pureJsImagePsnrSummary(report)}, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.</p>
         <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="${comparisonHref}#methodology">Methods, caveats, versions, and sources.</a></p>
       </div>
@@ -445,7 +485,7 @@ const detailedMatrix = (report: ConformanceReport): string =>
             `<th>${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th>`,
         )
         .join('')
-      return `<section class="comparison-group"><h3>${htmlEscape(group.name)}</h3><div class="comparison-table-wrap"><table class="comparison-table"><thead><tr><th>Capability</th>${headers}</tr></thead><tbody>${rows}</tbody></table></div></section>`
+      return `<section class="comparison-group"><h3>${htmlEscape(group.name)}</h3>${wrapScrollableTable(`<table class="comparison-table"><thead><tr><th>Capability</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`)}</section>`
     })
     .join('\n')
 
@@ -458,7 +498,9 @@ const conformanceTable = (report: ConformanceReport): string => {
       return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th><td>${total.attempted}</td><td>${total.rgbaCompared}</td><td>${total.decoded}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported}</td><td>${total.error}</td><td>${total.oracleFailure}</td><td>${total.timeout}</td><td>${total.processCrash}</td><td>${total.notComparable}</td><td>${total.malformedRejected}</td><td>${total.malformedAccepted}</td><td>${total.malformedTimeout}</td><td>${total.malformedCrash}</td></tr>`
     })
     .join('\n')
-  return `<div class="comparison-table-wrap"><table class="comparison-table conformance-table"><thead><tr><th>Library</th><th>Attempted</th><th>RGBA compared</th><th>Decoded</th><th>Exact</th><th>Mismatch</th><th>Unsupported</th><th>Error</th><th>Oracle unavailable</th><th>Timeout</th><th>Crash</th><th>Native raster</th><th>Malformed rejected</th><th>Malformed accepted</th><th>Malformed timeout</th><th>Malformed crash</th></tr></thead><tbody>${rows}</tbody></table></div>`
+  return wrapScrollableTable(
+    `<table class="comparison-table conformance-table"><thead><tr><th>Library</th><th>Attempted</th><th>RGBA compared</th><th>Decoded</th><th>Exact</th><th>Mismatch</th><th>Unsupported</th><th>Error</th><th>Oracle unavailable</th><th>Timeout</th><th>Crash</th><th>Native raster</th><th>Malformed rejected</th><th>Malformed accepted</th><th>Malformed timeout</th><th>Malformed crash</th></tr></thead><tbody>${rows}</tbody></table>`,
+  )
 }
 
 const conformanceSummaryTable = (report: ConformanceReport): string => {
@@ -470,7 +512,9 @@ const conformanceSummaryTable = (report: ConformanceReport): string => {
       return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th><td>${total.decoded} / ${total.rgbaCompared}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported} / ${total.error} / ${total.oracleFailure} / ${total.timeout} / ${total.processCrash}</td><td>${total.malformedRejected} rejected · ${total.malformedAccepted} accepted · ${total.malformedTimeout} timeout · ${total.malformedCrash} crash</td></tr>`
     })
     .join('\n')
-  return `<div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Decoded / comparable</th><th>Exact</th><th>Pixel mismatch</th><th>Unsupported / error / oracle unavailable / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody>${rows}</tbody></table></div>`
+  return wrapScrollableTable(
+    `<table class="comparison-table compact"><thead><tr><th>Library</th><th>Decoded / comparable</th><th>Exact</th><th>Pixel mismatch</th><th>Unsupported / error / oracle unavailable / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody>${rows}</tbody></table>`,
+  )
 }
 
 const evidenceList = (report: ConformanceReport): string =>

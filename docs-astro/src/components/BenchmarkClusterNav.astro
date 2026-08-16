@@ -1,0 +1,44 @@
+---
+interface Props {
+  readonly current: 'web-codecs' | 'scientific-charts' | 'reader-tables'
+}
+
+const { current } = Astro.props
+const configuredBase = import.meta.env.BASE_URL
+const siteBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
+const items = [
+  {
+    id: 'web-codecs',
+    href: 'performance/',
+    label: 'Web codec charts',
+  },
+  {
+    id: 'scientific-charts',
+    href: 'performance/#scientific-readers',
+    label: 'Scientific reader charts',
+  },
+  {
+    id: 'reader-tables',
+    href: 'scientific/benchmarks/',
+    label: 'Scientific reader tables',
+  },
+] as const
+---
+
+<nav class="benchmark-cluster-bar" aria-label="Benchmark evidence">
+  <div class="container benchmark-cluster-nav">
+    <strong>Benchmark evidence</strong>
+    <div>
+      {
+        items.map((item) => (
+          <a
+            href={`${siteBase}${item.href}`}
+            aria-current={current === item.id ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</nav>
