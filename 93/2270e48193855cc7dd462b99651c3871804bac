@@ -1,0 +1,33 @@
+src/codecs/jpeg-baseline.ts
+  s_e1649b41d8dd86::t_b979af4765f2f4 115,118,889,971,992,998
+  s_e1649b41d8dd86::t_279bf05f9f9831 906,908,910,916,918,989,991
+  s_e1649b41d8dd86::t_508bb48d84e6ef 913,1003
+benchmark/generated/package-metrics.json
+  s_e1649b41d8dd86::t_6f6ca6a818f214 793,796,799,853,856,859,868,871,874,883,886,889,1108,1111,1114,1123,1126,1129,1183,1186,1189,1349,1352,1355,1380,1383,1386,1395,1398,1401,1425,1428,1431
+  s_e1649b41d8dd86::t_4c30d128bcbd0d 179
+docs-astro/src/data/package-metrics.json
+  s_e1649b41d8dd86::t_4c30d128bcbd0d 179
+  s_e1649b41d8dd86::t_6f6ca6a818f214 793,796,799,853,856,859,868,871,874,883,886,889,1108,1111,1114,1123,1126,1129,1183,1186,1189,1349,1352,1355,1380,1383,1386,1395,1398,1401,1425,1428,1431
+README.md
+  s_e1649b41d8dd86::t_3b930ab7ab8f02 68-69
+  s_e1649b41d8dd86::t_6f6ca6a818f214 275-276
+docs-astro/src/data/documentation-data.json
+  s_e1649b41d8dd86::t_3b930ab7ab8f02 97-99,102-104,107-109
+  s_e1649b41d8dd86::t_a2a3fe4d799102 117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "932270e48193855cc7dd462b99651c3871804bac",
+  "prompts": {},
+  "sessions": {
+    "s_e1649b41d8dd86": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00cb2-b775-7471-b1fd-fbe33ff8c58f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
