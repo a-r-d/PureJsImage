@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 type Action = 'metadata' | 'resize-jpeg'
@@ -38,20 +39,31 @@ for (const measurement of cases) {
   measurements.push(parsed)
 }
 
-console.log(
-  JSON.stringify(
-    {
-      fixture: 'wikimedia-blue-marble-openjpeg-lossless.jp2',
-      dimensions: '1920x2172',
-      isolatedProcessPerMeasurement: true,
-      notes: {
-        maximumRss: 'Absolute process high-water mark; warm measurements include warmup.',
-        baseline: 'Captured after five explicit GC and event-loop turns.',
-        correctness: 'Metadata dimensions and independently decoded JPEG output are required.',
-      },
-      measurements,
-    },
-    undefined,
-    2,
-  ),
+const report = {
+  generatedAt: new Date().toISOString(),
+  profile: 'jpeg2000-rss',
+  fixture: 'wikimedia-blue-marble-openjpeg-lossless.jp2',
+  dimensions: '1920x2172',
+  isolatedProcessPerMeasurement: true,
+  validation: { passed: true, outputRequired: true },
+  notes: {
+    maximumRss: 'Absolute process high-water mark; warm measurements include warmup.',
+    baseline: 'Captured after five explicit GC and event-loop turns.',
+    correctness: 'Metadata dimensions and independently decoded JPEG output are required.',
+  },
+  measurements,
+}
+const outputFlag = process.argv.indexOf('--output')
+const requestedOutput = outputFlag === -1 ? undefined : process.argv[outputFlag + 1]
+if (outputFlag !== -1 && !requestedOutput) throw new Error('--output requires a path')
+const outputPath =
+  requestedOutput ??
+  `benchmark/results/jpeg2000-rss-${new Date().toISOString().replaceAll(/[:.]/gu, '-')}.json`
+const serialized = `${JSON.stringify(report, undefined, 2)}\n`
+await writeFile(outputPath, serialized)
+await writeFile(
+  outputPath.replace(/\.json$/u, '.md'),
+  `# JPEG 2000 RSS benchmark\n\n- Generated: ${report.generatedAt}\n- Fixture: ${report.fixture} (${report.dimensions})\n- Validation: metadata and independent JPEG output validation passed\n- Result: ${outputPath}\n`,
 )
+console.log(`Wrote ${outputPath}`)
+console.log(serialized.trim())

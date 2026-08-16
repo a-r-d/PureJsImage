@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1054" viewBox="0 0 1900 1054">
+    <title>Scientific absolute peak RSS</title>
+    <rect width="1900" height="1054" fill="#f8fafc" />
+    <style>
+      text { font-family: Inter, Arial, sans-serif; fill: #172033; }
+      .title { font-size: 46px; font-weight: 750; }
+      .subtitle { font-size: 24px; fill: #526077; }
+      .source { font-size: 18px; fill: #64748b; }
+      .group { font-size: 22px; font-weight: 750; }
+      .engine { font-size: 18px; fill: #40506a; }
+      .value { font-size: 17px; font-weight: 650; fill: #273449; }
+      .footer { font-size: 18px; fill: #526077; }
+    </style>
+    <text x="40" y="64" class="title">Scientific absolute peak RSS</text>
+    <text x="40" y="105" class="subtitle">Absolute process peak RSS · lower is better · linear scale</text>
+    <text x="40" y="143" class="source">Scientific JS/WASM competitor profile · 2026-08-16 · linux x64 · Node v24.16.0</text>
+    <text x="40" y="177" class="source">Engine class is recorded per engine; unsupported rows: 135. Only shared workloads with validated output are charted.</text>
+    <text x="40" y="230" class="group">Common raster and whole-slide · TIFF selected native window</text>
+<text x="660" y="275" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
+            <rect x="690" y="259" width="936.6515001648531" height="20" rx="4" fill="#2563eb" />
+            <text x="1638.6515001648531" y="275" class="value">106.7 MiB</text>
+<text x="660" y="309" text-anchor="end" class="engine">geotiff 3.0.5 · pure-javascript</text>
+            <rect x="690" y="293" width="920.9469172436532" height="20" rx="4" fill="#c026d3" />
+            <text x="1622.9469172436532" y="309" class="value">104.9 MiB</text>
+<text x="40" y="378" class="group">Medical and volume interchange · NIfTI selected slice after input materialization</text>
+<text x="660" y="423" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
+            <rect x="690" y="407" width="939.3946587537093" height="20" rx="4" fill="#2563eb" />
+            <text x="1641.3946587537093" y="423" class="value">107.0 MiB</text>
+<text x="660" y="457" text-anchor="end" class="engine">nifti-reader-js 0.8.0 · pure-javascript</text>
+            <rect x="690" y="441" width="842.7668974612595" height="20" rx="4" fill="#c026d3" />
+            <text x="1544.7668974612595" y="457" class="value">96.0 MiB · input copy 0.4 KiB</text>
+<text x="660" y="491" text-anchor="end" class="engine">itk-wasm-image-io 1.6.1 · webassembly</text>
+            <rect x="690" y="475" width="1040" height="20" rx="4" fill="#ea580c" />
+            <text x="1742" y="491" class="value">118.5 MiB · input copy 0.4 KiB</text>
+<text x="40" y="560" class="group">Medical and volume interchange · NRRD full native image</text>
+<text x="660" y="605" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
+            <rect x="690" y="589" width="936.5486317177711" height="20" rx="4" fill="#2563eb" />
+            <text x="1638.548631717771" y="605" class="value">106.7 MiB</text>
+<text x="660" y="639" text-anchor="end" class="engine">itk-wasm-image-io 1.6.1 · webassembly</text>
+            <rect x="690" y="623" width="998.406857896472" height="20" rx="4" fill="#c026d3" />
+            <text x="1700.406857896472" y="639" class="value">113.7 MiB · input copy 0.1 KiB</text>
+<text x="40" y="708" class="group">Medical and volume interchange · MRC full native volume</text>
+<text x="660" y="753" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
+            <rect x="690" y="737" width="956.4708209693372" height="20" rx="4" fill="#2563eb" />
+            <text x="1658.4708209693372" y="753" class="value">109.0 MiB</text>
+<text x="660" y="787" text-anchor="end" class="engine">itk-wasm-image-io 1.6.1 · webassembly</text>
+            <rect x="690" y="771" width="982.3936696340256" height="20" rx="4" fill="#c026d3" />
+            <text x="1684.3936696340256" y="787" class="value">111.9 MiB · input copy 1.0 KiB</text>
+<text x="40" y="856" class="group">Raw numeric interchange · NPY C-order full native array</text>
+<text x="660" y="901" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
+            <rect x="690" y="885" width="954.0362677217277" height="20" rx="4" fill="#2563eb" />
+            <text x="1656.0362677217277" y="901" class="value">108.7 MiB</text>
+<text x="660" y="935" text-anchor="end" class="engine">npyjs 1.2.0 · pure-javascript</text>
+            <rect x="690" y="919" width="841.3267392021103" height="20" rx="4" fill="#c026d3" />
+            <text x="1543.3267392021103" y="935" class="value">95.8 MiB · input copy 0.1 KiB</text>
+    <text x="40" y="982" class="footer">Absolute process RSS includes the runtime, JavaScript heap, native allocations, and WASM memory.</text>
+    <text x="40" y="1016" class="source">Input-copy bytes are shown when material; measured rows at or above 10% coefficient of variation are labeled noisy.</text>
+  </svg>

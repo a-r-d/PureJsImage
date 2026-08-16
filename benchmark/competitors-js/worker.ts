@@ -79,6 +79,8 @@ const emptyRun = (status: ScientificCompetitorStatus, reason: string): Scientifi
 
 const loadAdapter = async (engineId: string): Promise<NodeCompetitorAdapter> => {
   switch (engineId) {
+    case 'purejsimage':
+      return (await import('./node-purejsimage.ts')).adapter
     case 'geotiff':
       return (await import('./node-geotiff.ts')).adapter
     case 'tiff':

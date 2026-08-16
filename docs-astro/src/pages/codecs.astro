@@ -9,7 +9,7 @@ const outputCodecCount = stableCodecs.filter(
 ).length
 ---
 
-<SiteLayout title="Codec support | PureJsImage" description="The exact decode, encode, metadata, animation, and memory support boundaries for every PureJsImage codec." canonical="https://purejsimage.com/codecs/" current="codecs/">
+<SiteLayout title="Codec support | PureJsImage" description="Generated decode, encode, metadata, animation, and memory boundaries for 14 stable PureJsImage codecs plus explicit experimental HEIF/HEIC." canonical="https://purejsimage.com/codecs/" current="codecs/">
 <main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Codec support</p><h1>Supported codec subsets and current limitations.</h1><p class="page-lede">The matrix distinguishes decode, encode, metadata, animation, and memory support. A recognized format may still contain an unsupported coding mode.</p><div class="page-meta"><span class="pill">{stableCodecs.length} stable format contracts</span><span class="pill">{outputCodecCount} stable output formats</span><span class="pill">{experimentalCodecs.length} experimental codec</span><span class="pill">Explicit unsupported errors</span></div></div></header>
     <div class="container docs-layout">
@@ -66,13 +66,14 @@ const outputCodecCount = stableCodecs.filter(
         </section>
 
         <section id="scientific-formats">
-          <h2>Scientific raster formats</h2>
-          <p>Gwyddion Simple Field and paired ENVI Standard rasters are not ordinary photographic codecs and therefore do not appear in the codec-registration matrix. They use the shared scientific dataset and <code>RasterBlock</code> architecture, preserve native quantitative values, and require an explicit display mapping.</p>
+          <h2>Scientific readers use a separate registry</h2>
+          <p>The scientific platform now has 31 explicit readers spanning common raster and whole-slide images, electron microscopy, AFM and surface metrology, medical and volume interchange, spectroscopy and detector interchange, and raw numeric interchange. These readers use the shared scientific dataset and <code>RasterBlock</code> architecture, support direct range reads where the format permits them, and preserve native quantitative values instead of forcing data through RGBA.</p>
+          <p>Coverage includes DM3 and DM4, TIA SER and EMI, NCEM and Velox EMD, 4D-STEM data, NIfTI, NRRD, MRC, OME-TIFF, and Aperio SVS. <a href="../scientific-formats/">Open the generated scientific format reference for exact imports, extensions, resource models, precision, support boundaries, and benchmark coverage →</a></p>
           <div class="codec-grid">
-            <article class="card"><h3>GSF</h3><p>Strict single-channel float32 surface reading and writing, physical extents and offsets, units, arbitrary metadata, and bounded region reads.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/gsf-scientific-raster-support.md" target="_blank" rel="noreferrer">Full GSF checklist →</a></article>
-            <article class="card"><h3>ENVI Standard</h3><p>Paired header/binary reading for BSQ, BIL, and BIP, seven scalar types, both byte orders, spectral metadata, and calculated band/ROI reads. Writing is not implemented.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/envi-scientific-raster-support.md" target="_blank" rel="noreferrer">Full ENVI checklist →</a></article>
+            <article class="card"><h3>GSF example</h3><p>Strict single-channel float32 AFM and surface-metrology reading and writing, physical extents and offsets, units, arbitrary metadata, and bounded region reads.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/gsf-scientific-raster-support.md" target="_blank" rel="noreferrer">Full GSF checklist →</a></article>
+            <article class="card"><h3>ENVI example</h3><p>Paired header/binary reading for BSQ, BIL, and BIP, seven scalar types, both byte orders, spectral metadata, and calculated band/ROI reads. Writing is not implemented.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/envi-scientific-raster-support.md" target="_blank" rel="noreferrer">Full ENVI checklist →</a></article>
           </div>
-          <p><a href="../scientific/">Open the client-side Scientific Raster Explorer for AFM relief and hyperspectral wavelength rendering →</a></p>
+          <p><a href="../scientific/">Open the client-side Scientific Raster Explorer for its currently wired GSF, ENVI, FITS, MRC, and CBF demos →</a></p>
           <p>Bruker Nanoscope <code>.spm</code> is not implemented. Read the <a href="https://github.com/a-r-d/PureJsImage/blob/main/nanoscope-spm-investigation.md" target="_blank" rel="noreferrer">capability investigation</a> for the format ambiguity, CC0 corpus candidate, and validation work required before a safe read-only subset.</p>
         </section>
 

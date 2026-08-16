@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-08-16T03:39:21.354Z",
+  "node": "v24.16.0",
+  "platform": "linux/x64",
+  "encoder": "cjxl 0.11.1, lossless Modular effort 2",
+  "runsPerConfiguration": 3,
+  "notes": {
+    "fixture": "Checksum-pinned 4096x4096 gray8 scientific pattern with a permuted TOC and per-group local MA trees.",
+    "baseline": "Captured after input load and five explicit GC/event-loop turns in a fresh process.",
+    "correctness": "Every run hashes all native gray8 output rows."
+  },
+  "summaries": [
+    {
+      "mode": "crop",
+      "dimensions": "64x64 crop from 4096x4096",
+      "inputBytes": 254824,
+      "outputBytes": 4096,
+      "outputSha256": "373b5353c7c035df56ee86a4527824220bf2b688f5144c54560734ea8e3be1c5",
+      "medianMaximumRssBytes": 177676288,
+      "medianPeakRssDeltaBytes": 84672512,
+      "medianPeakExternalDeltaBytes": 1109122,
+      "medianPeakArrayBuffersDeltaBytes": 1048576,
+      "medianWallMilliseconds": 183.642
+    },
+    {
+      "mode": "full",
+      "dimensions": "4096x4096 full decode",
+      "inputBytes": 254824,
+      "outputBytes": 16777216,
+      "outputSha256": "8fff1a309e8b2f8677e0265bf4b41b29a4c81d3cd9dc3cbbe5c25a01e1a96aac",
+      "medianMaximumRssBytes": 295854080,
+      "medianPeakRssDeltaBytes": 202768384,
+      "medianPeakExternalDeltaBytes": 67455618,
+      "medianPeakArrayBuffersDeltaBytes": 67214848,
+      "medianWallMilliseconds": 3004.326
+    }
+  ]
+}

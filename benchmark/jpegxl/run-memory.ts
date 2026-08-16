@@ -116,6 +116,10 @@ const summaries = (['crop', 'full'] as const).map((mode) => {
 })
 const result = {
   generatedAt: new Date().toISOString(),
+  validation: {
+    passed: true,
+    policy: 'Every isolated run matched the checksum-pinned native gray8 output.',
+  },
   node: process.version,
   platform: `${process.platform}/${process.arch}`,
   encoder: 'cjxl 0.11.1, lossless Modular effort 2',
@@ -131,5 +135,13 @@ const result = {
 const outputFlag = process.argv.indexOf('--output')
 const outputPath = outputFlag === -1 ? undefined : process.argv[outputFlag + 1]
 if (outputFlag !== -1 && !outputPath) throw new Error('--output requires a path')
-if (outputPath) await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`)
+const resultPath =
+  outputPath ??
+  `benchmark/results/jpegxl-memory-${new Date().toISOString().replaceAll(/[:.]/gu, '-')}.json`
+await writeFile(resultPath, `${JSON.stringify(result, null, 2)}\n`)
+await writeFile(
+  resultPath.replace(/\.json$/u, '.md'),
+  `# JPEG XL memory benchmark\n\n- Generated: ${result.generatedAt}\n- Validation: every run hashes all native gray8 output rows\n- Result: ${resultPath}\n`,
+)
+console.log(`Wrote ${resultPath}`)
 console.log(JSON.stringify(result, null, 2))

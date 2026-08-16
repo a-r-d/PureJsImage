@@ -470,30 +470,64 @@ const targetMetric = async (
 }
 
 const readerFamily = (reader: ScientificReaderCapability): string => {
-  if (reader.datasetKinds.includes('surface')) return 'Surface and metrology'
-  if (
-    reader.datasetKinds.includes('spectrum') ||
-    reader.datasetKinds.includes('spectrum-image') ||
-    reader.datasetKinds.includes('orientation-map')
-  ) {
-    return 'Spectroscopy and instrument data'
+  const groups: Readonly<Record<string, readonly string[]>> = {
+    'Common raster and whole-slide': [
+      'purejsimage/png',
+      'purejsimage/jpeg',
+      'purejsimage/webp',
+      'purejsimage/bmp',
+      'purejsimage/jp2',
+      'purejsimage/tiff',
+      'purejsimage/ome-tiff',
+      'purejsimage/aperio-svs',
+    ],
+    'Electron microscopy': [
+      'purejsimage/digital-micrograph',
+      'purejsimage/tia-ser',
+      'purejsimage/tia-emi',
+      'purejsimage/ncem-emd',
+      'purejsimage/velox-emd',
+      'purejsimage/blockfile',
+      'purejsimage/mib',
+    ],
+    'AFM, SPM, and surface metrology': [
+      'purejsimage/gsf',
+      'purejsimage/nanonis-sxm',
+      'purejsimage/igor-binary-wave',
+      'purejsimage/digital-surf',
+      'purejsimage/x3p',
+    ],
+    'Medical and volume interchange': [
+      'purejsimage/mrc',
+      'purejsimage/nrrd',
+      'purejsimage/meta-image',
+      'purejsimage/nifti',
+    ],
+    'Spectroscopy and detector interchange': [
+      'purejsimage/envi',
+      'purejsimage/fits',
+      'purejsimage/cbf',
+      'purejsimage/rpl',
+      'purejsimage/emsa',
+      'purejsimage/ebsd-text',
+    ],
+    'Raw numeric interchange': ['purejsimage/npy'],
   }
-  if (reader.datasetKinds.includes('pyramid')) return 'Microscopy and whole-slide data'
-  if (['PNG', 'JPEG', 'WebP', 'BMP', 'JPEG 2000 / JP2'].includes(reader.format)) {
-    return 'Ordinary image adapters'
-  }
-  return 'Scientific images and volumes'
+  const family = Object.entries(groups).find(([, readerIds]) => readerIds.includes(reader.id))?.[0]
+  if (family === undefined) throw new Error(`Scientific reader ${reader.id} has no format family`)
+  return family
 }
 
 const readerGroups = (
   readers: readonly ScientificReaderMetric[],
 ): readonly ScientificReaderGroup[] => {
   const order = [
-    'Surface and metrology',
-    'Spectroscopy and instrument data',
-    'Microscopy and whole-slide data',
-    'Scientific images and volumes',
-    'Ordinary image adapters',
+    'Common raster and whole-slide',
+    'Electron microscopy',
+    'AFM, SPM, and surface metrology',
+    'Medical and volume interchange',
+    'Spectroscopy and detector interchange',
+    'Raw numeric interchange',
   ] as const
   return order.flatMap((label) => {
     const groupReaders = readers.filter((reader) => reader.family === label)

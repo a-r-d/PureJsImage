@@ -106,7 +106,8 @@ describe('generated package metrics contract', () => {
       expect(readme).toContain(`<!-- package-metrics:${id}:end -->`)
     }
     expect(readme).toContain(`**${metrics.scientificReaders.length} scientific readers**`)
-    expect(readme).toContain('Current WASM asset sizes')
+    expect(readme).toContain('six optional JPEG and PNG accelerator assets')
+    expect(readme).toContain('Complete size and footprint tables')
     expect(packageJson.scripts['package-metrics:check']).toBe(
       'node scripts/render-package-metrics.ts --check',
     )

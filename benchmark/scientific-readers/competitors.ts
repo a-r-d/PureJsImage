@@ -277,6 +277,38 @@ const makeEngine = (options: {
 
 export const scientificCompetitorEngines: readonly ScientificCompetitorEngine[] = Object.freeze([
   makeEngine({
+    id: 'purejsimage',
+    packageName: 'purejsimage',
+    packageVersion: '0.10.0',
+    implementationClass: 'pure-javascript',
+    environment: 'both',
+    inputModel: 'ImageSource',
+    lazyOrSelectedReads: true,
+    copiesCompleteInputBeforeOpen: false,
+    supportedWorkloadIds: [
+      'tiff-metadata',
+      'tiff-window',
+      'tiff-random-windows',
+      'tiff-bigtiff-window',
+      'tiff-full-decode',
+      'nifti-header',
+      'nifti-full',
+      'nifti-gzip-full',
+      'nifti-selected-slice',
+      'nrrd-full',
+      'nrrd-gzip-full',
+      'meta-image-mha-full',
+      'meta-image-mhd-full',
+      'mrc-full',
+      'medical-tiff-full',
+      'npy-c-header',
+      'npy-c-full',
+      'npy-fortran-full',
+    ],
+    unsupportedReason:
+      'PureJsImage is measured through its explicit scientific readers; generic HDF5 datasets are outside those reader contracts.',
+  }),
+  makeEngine({
     id: 'geotiff',
     packageName: 'geotiff',
     packageVersion: '3.0.5',

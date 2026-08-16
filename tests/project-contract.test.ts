@@ -9,6 +9,7 @@ import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
+import documentationData from '../docs-astro/src/data/documentation-data.json' with { type: 'json' }
 import {
   commonCompetitorCodecs,
   createCompetitorBundleTargets,
@@ -61,7 +62,7 @@ describe('package contract', () => {
     expect(packageJson.scripts).not.toHaveProperty('test:hostile-source')
   })
 
-  it('centers public positioning on the first-party codec suite', () => {
+  it('centers public positioning on portable low-memory image processing', () => {
     const readme = readFileSync('README.md', 'utf8')
     const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
     const scientificPlatform = readFileSync(
@@ -72,29 +73,33 @@ describe('package contract', () => {
     const roadmap = readFileSync('ROADMAP.md', 'utf8')
 
     expect(packageJson.description).toBe(
-      'First-party image codecs and low-memory raster processing in strict TypeScript',
+      'Portable image codecs and low-memory raster processing in strict TypeScript',
     )
-    expect(readme).toContain(
-      'PureJsImage is building a broad suite of first-party image codecs in strict',
-    )
-    expect(readme).toContain(
-      'The strict TypeScript reference engine is the permanent portable path',
-    )
+    expect(readme).toContain('## What PureJsImage is best at')
+    expect(readme).toContain('**Low peak memory usage**')
+    expect(readme).toContain('**Maximally portable**')
+    expect(readme).toContain('**Zero dependencies**')
+    expect(readme).toContain('**Native scientific raster processing**')
+    expect(readme).toContain('**Fully benchmarked**')
+    expect(readme).toContain('**Optional WASM accelerators**')
+    expect(readme).toContain('PureJsImage provides portable image codecs')
+    expect(readme).not.toMatch(/first-party/i)
+    expect(readme).toContain('The permanent reference engine is strict TypeScript')
+    expect(readme).toContain('Low memory is a primary product requirement')
+    expect(readme).toContain('Low-memory execution is the northstar')
     expect(docsHome).toContain('Free and open source · zero runtime dependencies')
     expect(docsHome).toContain('Image codecs and low-memory raster processing in')
-    expect(docsHome).toContain('building a broad suite of first-party codecs')
-    expect(docsHome).toContain('86.7%')
-    expect(docsHome).toContain('157.8 vs 1,188.3 MiB')
-    expect(docsHome).toContain('87.6%')
-    expect(docsHome).toContain('157.8 vs 1,276.5 MiB')
-    expect(docsHome).toContain("The 106 display-image cases come from Imazen's TIFF corpus")
-    expect(docsHome).toContain('6000 × 4000 JPEG workflow')
-    expect(docsHome).toContain('2,122,449,395-byte Aperio SVS pathology slide')
+    expect(docsHome).toContain('portable image codecs and native scientific raster processing')
+    expect(docsHome).not.toMatch(/first-party/i)
+    expect(docsHome).toContain('documentation.ordinary.headline.memoryReductionPercent')
+    expect(docsHome).toContain('documentation.support.scientificReaderCount')
+    expect(docsHome).not.toContain('86.7%')
+    expect(docsHome).not.toContain('87.6%')
+    expect(docsHome).toContain('6000 × 4000 baseline JPEG resize')
     expect(docsHome).toContain('Low-memory JPEG demo')
-    expect(docsHome.toLowerCase()).not.toContain('evidence')
+    expect(docsHome).toContain('Measured performance across common image workflows')
     expect(readme).toContain('## Special thanks')
     expect(readme).toContain('[Imazen](https://github.com/imazen)')
-    expect(readme).toContain('A native whole-slide browser demo')
     expect(specification).toContain('The top-level engineering constraints are:')
     expect(specification).toContain(
       'PureJsImage is a first-party image codec suite and low-memory raster engine',
@@ -103,7 +108,7 @@ describe('package contract', () => {
     expect(roadmap).toContain('The explicitly imported JPEG and PNG accelerators')
     for (const document of [readme, docsHome, scientificPlatform]) {
       expect(document).toContain('https://lab.purejsimage.com/')
-      expect(document).toContain('electron microscopy')
+      expect(document.toLowerCase()).toContain('electron microscopy')
     }
     for (const document of [readme, docsHome, specification, roadmap]) {
       expect(document).not.toContain('modern alternative to Jimp')
@@ -115,6 +120,13 @@ describe('package contract', () => {
   it('keeps bundle and deployment size reporting in the full check gate', () => {
     expect(packageJson.scripts.check).toContain('npm run size:check')
     expect(packageJson.scripts.check).toContain('npm run package-metrics:check')
+    expect(packageJson.scripts.check).toContain('npm run documentation:check')
+    expect(packageJson.scripts['documentation:write']).toContain(
+      'node scripts/render-documentation.ts --write',
+    )
+    expect(packageJson.scripts['documentation:check']).toBe(
+      'node scripts/render-documentation.ts --check',
+    )
     expect(packageJson.scripts.size).toContain('npm run build')
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
       60 * 1024,
@@ -214,27 +226,16 @@ describe('package contract', () => {
       'webassembly',
     )
 
-    const readme = readFileSync('README.md', 'utf8')
     const performancePage = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
-    for (const label of [
-      'PureJsImage (matched)',
-      'PureJsImage (all stable codecs)',
-      'Jimp',
-      'image-js',
-      'jSquash',
-      'Sharp JS wrapper',
-    ]) {
-      expect(readme).toContain(label)
-    }
-    expect(readme).toContain(packageJson.version)
     expect(performancePage).toContain('packageMetrics.targets')
     expect(performancePage).toContain('packageMetrics.wasmAssets')
+    expect(performancePage).toContain('Native and WASM payloads are')
+    const recordedEngines = JSON.stringify(documentationData.ordinary.engineVersions)
     for (const version of ['1.6.0', '1.7.0', '0.35.3']) {
-      expect(readme).toContain(version)
-      expect(performancePage).toContain(version)
+      expect(recordedEngines).toContain(version)
     }
-    expect(readme).toContain('native-wrapper')
-    expect(performancePage).toContain('Native payload.')
+    expect(recordedEngines).toContain('native')
+    expect(recordedEngines).toContain('webassembly')
   })
 
   it('keeps real-browser validation tools development-only and version-pinned', () => {
@@ -248,26 +249,22 @@ describe('package contract', () => {
     expect(packageJson.scripts['browser:bench']).toContain('--project=chromium')
   })
 
-  it('embeds the checked-in competitor charts in the README and docs homepage', () => {
+  it('publishes indexed competitor charts through generated documentation data', () => {
     const readme = readFileSync('README.md', 'utf8')
     const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
     const docsPerformance = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
-    for (const chart of [
-      'benchmark/results/competitors-speed-2026-08-10.png',
-      'benchmark/results/competitors-quality-2026-08-10.png',
-      'benchmark/results/competitors-memory-2026-08-10.png',
-    ]) {
-      expect(readme).toContain(`](${chart})`)
-      expect(readFileSync(chart).byteLength).toBeGreaterThan(0)
-    }
-    for (const chart of [
-      'assets/competitors-speed-2026-08-10.png',
-      'assets/competitors-quality-2026-08-10.png',
-      'assets/competitors-memory-2026-08-10.png',
-    ]) {
-      expect(docsHome).toContain(`src="${chart}"`)
-      expect(docsPerformance).toContain(`src="../${chart}"`)
+    expect(readme).toContain('https://purejsimage.com/performance/')
+    expect(readme).not.toContain('competitors-speed-2026-08-10.png')
+    expect(docsHome).toContain('documentation.ordinary.charts')
+    expect(docsPerformance).toContain('documentation.ordinary.charts')
+    for (const chart of Object.values(documentationData.ordinary.charts)) {
       expect(readFileSync(`docs-astro/public/${chart}`).byteLength).toBeGreaterThan(0)
+    }
+    for (const chart of Object.values(documentationData.scientific.charts)) {
+      const svg = readFileSync(`docs-astro/public/${chart}`, 'utf8')
+      expect(svg).toContain('<title>')
+      expect(svg).toContain('purejsimage 0.10.0')
+      expect(svg).toContain('unsupported')
     }
   })
 
@@ -291,10 +288,9 @@ describe('package contract', () => {
     expect(comparison).toContain('Grouped by TIFF workflow')
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
-    expect(readme).toContain('PureJsImage benchmark snapshot · 3be4530')
-    expect(readme).toContain(
-      '104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases',
-    )
+    expect(readme).toContain('Historical TIFF conformance comparison')
+    expect(readme).toContain('PureJsImage decoded 104/106 comparable display cases')
+    expect(readme).not.toContain('104/106 decoded<br>')
     expect(readme).not.toContain('0.8.0 workspace')
     expect(docsHome).toContain(
       '<strong>104/106 decoded</strong><small>57 exact · 47 pixel mismatches</small>',
@@ -420,7 +416,8 @@ describe('package contract', () => {
 
     expect(readme).toContain('https://purejsimage.com/api/#scientific')
     expect(readme).toContain('https://purejsimage.com/scientific/')
-    expect(page).toContain('GSF, ENVI, FITS, MRC, and CBF files stay in this browser tab')
+    expect(page).toContain('The UI below currently wires GSF, ENVI, FITS, MRC, and CBF')
+    expect(page).toContain('It does not claim to open every package reader')
     expect(page).toContain(
       "import { startScientificExplorer } from '../scripts/scientific-explorer.ts'",
     )
@@ -447,6 +444,7 @@ describe('package contract', () => {
     )
     expect(sources).toContain('npm run demo:scientific:generate')
     expect(sitemap).toContain('https://purejsimage.com/scientific/')
+    expect(sitemap).toContain('https://purejsimage.com/scientific-formats/')
     expect(sitemap).toContain('https://purejsimage.com/scientific/platform/')
     expect(platformPage).toContain(
       "import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'",

@@ -383,6 +383,15 @@ export interface BenchmarkEnvironment {
   totalMemoryBytes: number
   gitRevision: string
   dirty: boolean | null
+  v8Version?: string
+  processIsolation?: boolean
+  runner?: 'github-hosted' | 'self-hosted' | 'local'
+  fixtureCachePolicy?: string
+  virtualization?: boolean | null
+  runCount?: number
+  warmupCount?: number
+  environmentFingerprint?: string
+  fixtureManifestHash?: string
 }
 
 export interface BenchmarkReport {

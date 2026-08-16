@@ -24,7 +24,14 @@ describe('scientific competitor benchmark contract', () => {
 
   it('declares valid and unsupported boundaries for every direct engine', () => {
     const workloadIds = new Set(scientificCompetitorWorkloads.map(({ id }) => id))
-    expect(scientificCompetitorEngines).toHaveLength(9)
+    expect(scientificCompetitorEngines).toHaveLength(10)
+    expect(scientificCompetitorEngines[0]).toMatchObject({
+      id: 'purejsimage',
+      implementationClass: 'pure-javascript',
+      inputModel: 'ImageSource',
+      lazyOrSelectedReads: true,
+      copiesCompleteInputBeforeOpen: false,
+    })
     for (const engine of scientificCompetitorEngines) {
       expect(engine.packageVersion).toMatch(/^\d+\.\d+\.\d+$/u)
       expect(engine.supportedWorkloadIds.length).toBeGreaterThan(0)

@@ -1,7 +1,7 @@
 {
   "name": "purejsimage",
   "version": "0.10.0",
-  "description": "First-party image codecs and low-memory raster processing in strict TypeScript",
+  "description": "Portable image codecs and low-memory raster processing in strict TypeScript",
   "keywords": [
     "image",
     "image-codecs",
@@ -410,7 +410,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run size:check && npm run package-metrics:check && npm run docs:build && npm run typecheck && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test",
+    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run size:check && npm run package-metrics:check && npm run documentation:check && npm run docs:build && npm run typecheck && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
@@ -432,6 +432,8 @@
     "analysis:api:check": "node scripts/check-analysis-api-manifest.ts",
     "package-metrics:generate": "node scripts/render-package-metrics.ts && biome format --write benchmark/generated/package-metrics.json docs-astro/src/data/package-metrics.json",
     "package-metrics:check": "node scripts/render-package-metrics.ts --check",
+    "documentation:write": "node scripts/render-documentation.ts --write && biome format --write docs-astro/src/data/documentation-data.json",
+    "documentation:check": "node scripts/render-documentation.ts --check",
     "docs:dev": "astro dev --root docs-astro",
     "docs:build": "node scripts/build-docs-site.ts",
     "docs:preview": "astro preview --root docs-astro",
@@ -510,6 +512,8 @@
     "bench:jimp": "node benchmark/run.ts --engines jimp",
     "bench:competitors": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors",
     "bench:competitors:charts": "node benchmark/scripts/render-competitor-charts.ts",
+    "bench:stable-codecs": "npm run build && node benchmark/stable-codecs/run.ts",
+    "bench:results:index": "node benchmark/scripts/build-result-index.ts",
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
     "bench:bmp:jimp": "node benchmark/run.ts --engines jimp --profile bmp",

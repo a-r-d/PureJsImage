@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-08-16T03:39:02.972Z",
+  "profile": "jpeg2000-rss",
+  "fixture": "wikimedia-blue-marble-openjpeg-lossless.jp2",
+  "dimensions": "1920x2172",
+  "isolatedProcessPerMeasurement": true,
+  "validation": {
+    "passed": true,
+    "outputRequired": true
+  },
+  "notes": {
+    "maximumRss": "Absolute process high-water mark; warm measurements include warmup.",
+    "baseline": "Captured after five explicit GC and event-loop turns.",
+    "correctness": "Metadata dimensions and independently decoded JPEG output are required."
+  },
+  "measurements": [
+    {
+      "action": "metadata",
+      "mode": "cold",
+      "fixtureBytes": 2639087,
+      "wallMilliseconds": 2.359,
+      "baseline": {
+        "rssBytes": 101548032,
+        "heapUsedBytes": 10100112,
+        "externalBytes": 13124630,
+        "arrayBuffersBytes": 2678584
+      },
+      "final": {
+        "rssBytes": 101941248,
+        "heapUsedBytes": 10405864,
+        "externalBytes": 13185176,
+        "arrayBuffersBytes": 2678584
+      },
+      "maximumRssBytes": 101941248,
+      "maximumAllowedRssBytes": 134217728,
+      "peakRssDeltaBytes": 393216,
+      "width": 1920,
+      "height": 2172,
+      "outputBytes": 0
+    },
+    {
+      "action": "metadata",
+      "mode": "warm",
+      "fixtureBytes": 2639087,
+      "wallMilliseconds": 0.275,
+      "baseline": {
+        "rssBytes": 103161856,
+        "heapUsedBytes": 10187928,
+        "externalBytes": 13124630,
+        "arrayBuffersBytes": 2678584
+      },
+      "final": {
+        "rssBytes": 103555072,
+        "heapUsedBytes": 10421352,
+        "externalBytes": 13185176,
+        "arrayBuffersBytes": 2678584
+      },
+      "maximumRssBytes": 103555072,
+      "maximumAllowedRssBytes": 134217728,
+      "peakRssDeltaBytes": 393216,
+      "width": 1920,
+      "height": 2172,
+      "outputBytes": 0
+    },
+    {
+      "action": "resize-jpeg",
+      "mode": "cold",
+      "fixtureBytes": 2639087,
+      "wallMilliseconds": 456.06,
+      "baseline": {
+        "rssBytes": 103964672,
+        "heapUsedBytes": 10100120,
+        "externalBytes": 13124630,
+        "arrayBuffersBytes": 2678584
+      },
+      "final": {
+        "rssBytes": 126640128,
+        "heapUsedBytes": 21369688,
+        "externalBytes": 20506477,
+        "arrayBuffersBytes": 9999885
+      },
+      "maximumRssBytes": 126640128,
+      "maximumAllowedRssBytes": 167772160,
+      "peakRssDeltaBytes": 22675456,
+      "width": 480,
+      "height": 543,
+      "outputBytes": 29301,
+      "outputSha256": "ad3d085b73c6e98df0c21cef23be11d54eca8f0f34ad1c247330326491e89964"
+    },
+    {
+      "action": "resize-jpeg",
+      "mode": "warm",
+      "fixtureBytes": 2639087,
+      "wallMilliseconds": 431.763,
+      "baseline": {
+        "rssBytes": 127123456,
+        "heapUsedBytes": 10813376,
+        "externalBytes": 13141006,
+        "arrayBuffersBytes": 2694960
+      },
+      "final": {
+        "rssBytes": 128876544,
+        "heapUsedBytes": 16737504,
+        "externalBytes": 20461577,
+        "arrayBuffersBytes": 9062919
+      },
+      "maximumRssBytes": 128876544,
+      "maximumAllowedRssBytes": 167772160,
+      "peakRssDeltaBytes": 1753088,
+      "width": 480,
+      "height": 543,
+      "outputBytes": 29301,
+      "outputSha256": "ad3d085b73c6e98df0c21cef23be11d54eca8f0f34ad1c247330326491e89964"
+    }
+  ]
+}

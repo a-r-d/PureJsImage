@@ -489,17 +489,15 @@ const main = async (): Promise<void> => {
     results,
   }
   await mkdir(artifactsDirectory, { recursive: true })
-  await writeFile(
-    join(artifactsDirectory, 'competitors-node.json'),
-    `${JSON.stringify(report, null, 2)}\n`,
-  )
-  await writeFile(join(artifactsDirectory, 'competitors-node.md'), `${renderMarkdown(report)}\n`)
+  const resultStem = `competitors-node-${new Date().toISOString().replaceAll(/[:.]/gu, '-')}`
+  const resultJsonPath = join(artifactsDirectory, `${resultStem}.json`)
+  const resultMarkdownPath = join(artifactsDirectory, `${resultStem}.md`)
+  await writeFile(resultJsonPath, `${JSON.stringify(report, null, 2)}\n`)
+  await writeFile(resultMarkdownPath, `${renderMarkdown(report)}\n`)
   for (const [family, markdown] of familyReports(report)) {
-    await writeFile(join(artifactsDirectory, `${family}.md`), markdown)
+    await writeFile(join(artifactsDirectory, `${family}-${resultStem}.md`), markdown)
   }
-  console.log(
-    `Wrote ${results.length} competitor results to ${join(artifactsDirectory, 'competitors-node.md')}`,
-  )
+  console.log(`Wrote ${results.length} competitor results to ${resultMarkdownPath}`)
 }
 
 await main()

@@ -1,8 +1,12 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
+import documentation from '../data/documentation-data.json'
+
+const mib = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MiB`
+const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
 ---
 
-<SiteLayout title="PureJsImage | First-party image codecs in strict TypeScript" description="A free, open-source suite of first-party image codecs and low-memory raster processing for Node.js and modern browsers, with zero runtime dependencies." canonical="https://purejsimage.com/" bodyClass="home" home openGraph={{"title":"PureJsImage | First-party image codecs in strict TypeScript","description":"Portable image codecs and low-memory raster processing for Node.js, browsers, serverless, edge, and restricted deployments.","url":"https://purejsimage.com/"}} twitterCard="summary">
+<SiteLayout title="PureJsImage | Zero-dependency image and scientific raster processing" description="Portable strict TypeScript codecs and native scientific readers for Node.js and browsers, with low peak memory usage, zero runtime dependencies, and explicit optional WASM." canonical="https://purejsimage.com/" bodyClass="home" home openGraph={{"title":"PureJsImage | Zero-dependency image and scientific raster processing","description":"Portable ordinary image codecs and native scientific readers for browsers, servers, serverless, edge, and restricted deployments.","url":"https://purejsimage.com/"}} twitterCard="summary">
 <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebSite', name: 'PureJsImage', url: 'https://purejsimage.com/' })} />
 <main id="main">
     <section class="hero home-hero">
@@ -10,27 +14,27 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <div class="home-hero-copy">
           <p class="eyebrow">Free and open source · zero runtime dependencies</p>
           <h1>Image codecs and low-memory raster processing in <span class="gradient-text">strict TypeScript.</span></h1>
-          <p class="hero-lede">PureJsImage is building a broad suite of first-party codecs around one portable reference engine for Node.js and modern browsers. Bounded rows and tiles reduce memory pressure where formats permit it, while the same API runs across servers, browsers, serverless, edge, and restricted deployments.</p>
+          <p class="hero-lede">PureJsImage combines portable image codecs and native scientific raster processing in one strict TypeScript engine for Node.js and modern browsers. Bounded rows and tiles reduce memory pressure where formats permit it, while the same API runs across servers, browsers, serverless, edge, and restricted deployments.</p>
           <div class="headline-metrics">
             <div>
-              <button class="metric-info" type="button" aria-label="About the Jimp memory comparison" aria-describedby="metric-jimp-tooltip">i</button>
-              <strong>86.7%</strong><span>less peak memory than Jimp</span><small>157.8 vs 1,188.3 MiB</small>
-              <span class="metric-tooltip" id="metric-jimp-tooltip" role="tooltip">Median peak process RSS in isolated Node.js 24 runs of the same 6000 × 4000 JPEG workflow: auto-orient, center crop to 4:3, resize to 1200 × 900, and encode JPEG at quality 80.</span>
+              <button class="metric-info" type="button" aria-label="About stable codec coverage" aria-describedby="metric-codecs-tooltip">i</button>
+              <strong>{documentation.support.stableCodecCount}</strong><span>stable ordinary codecs</span><small>manifest-generated support</small>
+              <span class="metric-tooltip" id="metric-codecs-tooltip" role="tooltip">{documentation.support.stableCodecNames.join(', ')}. Experimental HEIF/HEIC remains a separate explicit import.</span>
             </div>
             <div>
-              <button class="metric-info" type="button" aria-label="About the image-js memory comparison" aria-describedby="metric-image-js-tooltip">i</button>
-              <strong>87.6%</strong><span>less peak memory than image-js</span><small>157.8 vs 1,276.5 MiB</small>
-              <span class="metric-tooltip" id="metric-image-js-tooltip" role="tooltip">Median peak process RSS in isolated Node.js 24 runs of the same 6000 × 4000 JPEG workflow: auto-orient, center crop to 4:3, resize to 1200 × 900, and encode JPEG at quality 80.</span>
+              <button class="metric-info" type="button" aria-label="About scientific reader coverage" aria-describedby="metric-readers-tooltip">i</button>
+              <strong>{documentation.support.scientificReaderCount}</strong><span>scientific readers</span><small>{documentation.support.scientificReaderFamilies.length} format families</small>
+              <span class="metric-tooltip" id="metric-readers-tooltip" role="tooltip">The package reader surface is broader than the five formats wired into the live browser explorer.</span>
             </div>
             <div>
-              <button class="metric-info" type="button" aria-label="About the TIFF corpus result" aria-describedby="metric-tiff-tooltip">i</button>
-              <strong>104/106</strong><span>display TIFFs decoded</span><small>57 exact · 47 pixel mismatches</small>
-              <span class="metric-tooltip" id="metric-tiff-tooltip" role="tooltip">The 106 display-image cases come from Imazen's TIFF corpus. PureJsImage decoded 104: 57 matched the independent RGBA oracle exactly and 47 had pixel differences. The remaining two cases had no oracle output available.</span>
+              <button class="metric-info" type="button" aria-label="About the current Jimp memory comparison" aria-describedby="metric-jimp-tooltip">i</button>
+              <strong>{documentation.ordinary.headline.memoryReductionPercent.toFixed(1)}%</strong><span>less peak RSS than Jimp</span><small>{mib(documentation.ordinary.headline.pureJsImagePeakRssBytes)} vs {mib(documentation.ordinary.headline.jimpPeakRssBytes)}</small>
+              <span class="metric-tooltip" id="metric-jimp-tooltip" role="tooltip">Current {benchmarkDate} isolated-process result for the same 24-megapixel northstar photo pipeline and one environment fingerprint.</span>
             </div>
             <div>
-              <button class="metric-info" type="button" aria-label="About the whole-slide demo source" aria-describedby="metric-wsi-tooltip">i</button>
-              <strong>2.12 GB</strong><span>whole-slide demo source</span><small>HTTP Range · no conversion</small>
-              <span class="metric-tooltip" id="metric-wsi-tooltip" role="tooltip">The live demo opens an original 2,122,449,395-byte Aperio SVS pathology slide with four pyramid levels and dimensions of 131,472 × 51,113 pixels. It reads requested tiles through HTTP Range without conversion, a tile server, or a sidecar index.</span>
+              <button class="metric-info" type="button" aria-label="About the scientific benchmark baseline" aria-describedby="metric-scientific-tooltip">i</button>
+              <strong>{documentation.scientific.baseline.statusCounts.supported}/{documentation.scientific.baseline.workloadCount}</strong><span>scientific workloads validated</span><small>native selections and hashes</small>
+              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">The current baseline validates every result before reporting first-block latency, selected-operation time, peak RSS, and source I/O.</span>
             </div>
           </div>
           <p class="headline-metrics-note">Use each info button for the source, workflow, and measurement details.</p>
@@ -115,11 +119,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
       <div class="container">
         <div class="proof-heading">
           <div><p class="section-label">Speed, quality, and memory demo</p><h2 id="benchmark-title">Measured performance across common image workflows.</h2></div>
-          <p>The August 10 test compares default PureJsImage and its optional JPEG/PNG WASM accelerators with five other libraries on the same images. Each library runs by itself with its normal settings, and every displayed output was checked before its result was included. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js use JavaScript.</p>
+          <p>The {benchmarkDate} profile compares default PureJsImage and its explicit JPEG/PNG WASM accelerators with Jimp, Sharp, Sharp single-thread, image-js, and jSquash on the same inputs. Each engine runs in isolation and every displayed output is validated before timing is admitted.</p>
         </div>
         <div class="benchmark-facts">
-          <div><strong>79</strong><span>validated passes</span></div>
-          <div><strong>19</strong><span>explicit unsupported results</span></div>
+          <div><strong>{documentation.ordinary.statusCounts.pass}</strong><span>validated passes</span></div>
+          <div><strong>{documentation.ordinary.statusCounts.unsupported}</strong><span>explicit unsupported results</span></div>
           <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
         <fieldset class="benchmark-gallery">
@@ -135,24 +139,24 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           <div class="benchmark-gallery-panels">
             <figure class="benchmark-gallery-panel" data-chart="speed">
               <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-10.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for seven benchmark engines across five commonly supported workflows, including default and WASM PureJsImage variants." fetchpriority="high"></div>
-              <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href="assets/competitors-speed-2026-08-10.png">Open full-size chart</a>.</figcaption>
+              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.speed} width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for seven benchmark engines across validated shared workflows." fetchpriority="high"></div>
+              <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href={documentation.ordinary.charts.speed}>Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="quality">
               <div class="benchmark-gallery-head"><div><span>Output fidelity</span><strong>Premultiplied-RGBA PSNR · higher is better</strong></div><small>Independent exact-area reference</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-quality-2026-08-10.png" width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for seven benchmark engines across five quality-enabled workflows." loading="lazy" decoding="async"></div>
-              <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href="assets/competitors-quality-2026-08-10.png">Open full-size chart</a>.</figcaption>
+              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.quality} width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for validated shared workflows." loading="lazy" decoding="async"></div>
+              <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href={documentation.ordinary.charts.quality}>Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="memory">
               <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-10.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for seven isolated engines across five commonly supported workflows." loading="lazy" decoding="async"></div>
-              <figcaption>RSS includes the Node.js runtime and native allocations. <a href="assets/competitors-memory-2026-08-10.png">Open full-size chart</a>.</figcaption>
+              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.memory} width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for seven isolated engines across validated shared workflows." loading="lazy" decoding="async"></div>
+              <figcaption>RSS includes the Node.js runtime and native allocations. <a href={documentation.ordinary.charts.memory}>Open full-size chart</a>.</figcaption>
             </figure>
           </div>
         </fieldset>
         <div class="proof-meta">
-          <span>Node.js 24.16 · Linux x64 · Intel i7-10700 · recorded August 2026</span>
-          <span><a href="performance/">Methodology</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/competitors-2026-08-10.md" target="_blank" rel="noreferrer">Readable report</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/competitors-2026-08-10.json" target="_blank" rel="noreferrer">JSON</a></span>
+          <span>{documentation.ordinary.environment.node} · {documentation.ordinary.environment.os} · {documentation.ordinary.environment.architecture} · {documentation.ordinary.environment.cpu} · {benchmarkDate}</span>
+          <span><a href="performance/">Methodology</a> · <a href={`https://github.com/a-r-d/PureJsImage/blob/main/${documentation.ordinary.reportMarkdown}`} target="_blank" rel="noreferrer">Readable report</a> · <a href={`https://github.com/a-r-d/PureJsImage/blob/main/${documentation.ordinary.reportJson}`} target="_blank" rel="noreferrer">JSON</a></span>
         </div>
       </div>
     </section>
@@ -197,7 +201,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <div class="architecture-copy">
           <p class="section-label">Low-memory JPEG demo</p>
           <h2>A codec-native resize path without a full-frame bitmap.</h2>
-          <p>The first-party baseline JPEG path demonstrates the larger memory model: it retains one MCU row, pushes crop and resize toward decode, and releases source rows when they can no longer affect the output.</p>
+          <p>The baseline JPEG path demonstrates the larger memory model: it retains one MCU row, pushes crop and resize toward decode, and releases source rows when they can no longer affect the output.</p>
           <div class="architecture-fact"><strong>1 MCU row</strong><span>retained at the decoder boundary</span></div>
           <ul class="precision-list">
             <li><span>01</span><strong>Decode useful MCU rows</strong><small>Skip pixels outside the requested region.</small></li>

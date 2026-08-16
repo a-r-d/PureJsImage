@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="870" viewBox="0 0 1900 870">
+    <title>Scientific package and WASM footprint</title>
+    <rect width="1900" height="870" fill="#f8fafc" />
+    <style>
+      text { font-family: Inter, Arial, sans-serif; fill: #172033; }
+      .title { font-size: 46px; font-weight: 750; }
+      .subtitle { font-size: 24px; fill: #526077; }
+      .source { font-size: 18px; fill: #64748b; }
+      .engine { font-size: 17px; fill: #40506a; }
+      .value { font-size: 16px; font-weight: 650; fill: #273449; }
+    </style>
+    <text x="40" y="64" class="title">Scientific package and WASM footprint</text>
+    <text x="40" y="105" class="subtitle">gzip JavaScript plus raw external WASM · logarithmic scale · smaller is better</text>
+    <text x="40" y="143" class="source">2026-08-16 · linux x64 · Node v24.16.0 · 135 unsupported workload rows</text>
+    <text x="40" y="177" class="source">Embedded WASM remains counted in JavaScript. Installed footprint is labeled separately and is not the bar length.</text>
+    <text x="570" y="237" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
+        <rect x="600" y="220" width="684.1301707505459" height="24" rx="4" fill="#2563eb" />
+        <text x="1296.1301707505459" y="238" class="value">111.0 KiB gzip JS + 0.0 KiB external WASM · installed 4.7 MiB</text>
+<text x="570" y="291" text-anchor="end" class="engine">geotiff 3.0.5 · pure-javascript</text>
+        <rect x="600" y="274" width="679.571040532019" height="24" rx="4" fill="#c026d3" />
+        <text x="1291.571040532019" y="292" class="value">107.4 KiB gzip JS + 0.0 KiB external WASM · installed 8.6 MiB</text>
+<text x="570" y="345" text-anchor="end" class="engine">tiff 7.1.3 · pure-javascript</text>
+        <rect x="600" y="328" width="355.0292830945383" height="24" rx="4" fill="#ea580c" />
+        <text x="967.0292830945383" y="346" class="value">10.9 KiB gzip JS + 0.0 KiB external WASM · installed 980.2 KiB</text>
+<text x="570" y="399" text-anchor="end" class="engine">utif2 4.1.0 · pure-javascript</text>
+        <rect x="600" y="382" width="537.6445397453751" height="24" rx="4" fill="#059669" />
+        <text x="1149.6445397453751" y="400" class="value">39.5 KiB gzip JS + 0.0 KiB external WASM · installed 872.1 KiB</text>
+<text x="570" y="453" text-anchor="end" class="engine">image-js 1.7.0 · pure-javascript</text>
+        <rect x="600" y="436" width="653.8500305677032" height="24" rx="4" fill="#7c3aed" />
+        <text x="1265.8500305677032" y="454" class="value">89.6 KiB gzip JS + 0.0 KiB external WASM · installed 17.0 MiB</text>
+<text x="570" y="507" text-anchor="end" class="engine">nifti-reader-js 0.8.0 · pure-javascript</text>
+        <rect x="600" y="490" width="334.9586740021773" height="24" rx="4" fill="#0891b2" />
+        <text x="946.9586740021773" y="508" class="value">9.4 KiB gzip JS + 0.0 KiB external WASM · installed 949.3 KiB</text>
+<text x="570" y="561" text-anchor="end" class="engine">npyjs 1.2.0 · pure-javascript</text>
+        <rect x="600" y="544" width="98.22627817442242" height="24" rx="4" fill="#2563eb" />
+        <text x="710.2262781744224" y="562" class="value">1.8 KiB gzip JS + 0.0 KiB external WASM · installed 676.5 KiB</text>
+<text x="570" y="615" text-anchor="end" class="engine">jsfive 0.4.0 · pure-javascript</text>
+        <rect x="600" y="598" width="479.9454354368763" height="24" rx="4" fill="#c026d3" />
+        <text x="1091.9454354368763" y="616" class="value">26.3 KiB gzip JS + 0.0 KiB external WASM · installed 3.1 MiB</text>
+<text x="570" y="669" text-anchor="end" class="engine">h5wasm 0.10.3 · webassembly</text>
+        <rect x="600" y="652" width="1000.5244959909865" height="24" rx="4" fill="#ea580c" />
+        <text x="1612.5244959909865" y="670" class="value">1.0 MiB gzip JS + 0.0 KiB external WASM · installed 14.0 MiB</text>
+<text x="570" y="723" text-anchor="end" class="engine">itk-wasm-image-io 1.6.1 · webassembly</text>
+        <rect x="600" y="706" width="1064.1631092831258" height="24" rx="4" fill="#059669" />
+        <text x="1676.1631092831258" y="724" class="value">48.3 KiB gzip JS + 1.5 MiB external WASM · installed 55.2 MiB</text>
+  </svg>

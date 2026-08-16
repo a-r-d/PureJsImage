@@ -1,0 +1,147 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+import documentation from '../data/documentation-data.json'
+
+interface CoverageEntry {
+  readonly benchmarkCoverage: {
+    readonly baselineFailed: number
+    readonly baselineSupported: number
+    readonly rangeFailed: number
+    readonly rangeSupported: number
+  }
+}
+
+const coverage = (entry: CoverageEntry): string => {
+  const baseline = `${entry.benchmarkCoverage.baselineSupported} baseline supported`
+  const baselineFailed =
+    entry.benchmarkCoverage.baselineFailed === 0
+      ? ''
+      : `, ${entry.benchmarkCoverage.baselineFailed} baseline failed`
+  const rangeTotal = entry.benchmarkCoverage.rangeSupported + entry.benchmarkCoverage.rangeFailed
+  const range =
+    rangeTotal === 0
+      ? 'no range profile row'
+      : `${entry.benchmarkCoverage.rangeSupported}/${rangeTotal} range rows supported`
+  return `${baseline}${baselineFailed}; ${range}`
+}
+---
+
+<SiteLayout
+  title="Scientific format reference | PureJsImage"
+  description="Generated PureJsImage scientific reader reference with format families, extensions, native precision, range-read support, resource models, benchmark coverage, oracles, and imports."
+  canonical="https://purejsimage.com/scientific-formats/"
+  current="scientific/"
+  openGraph={{
+    title: 'Scientific format reference | PureJsImage',
+    description:
+      'Generated support and benchmark reference for every explicit PureJsImage scientific reader.',
+    url: 'https://purejsimage.com/scientific-formats/',
+  }}
+  twitterCard="summary"
+>
+  <main id="main">
+    <header class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Generated scientific reader contract</p>
+        <h1>Scientific format and benchmark reference.</h1>
+        <p class="page-lede">
+          This page is generated from <code>capabilities/manifest.json</code>, the current package
+          metrics, and the indexed scientific benchmark artifacts. It distinguishes package support
+          from the smaller set wired into the live explorer.
+        </p>
+        <div class="page-meta">
+          <span class="pill">{documentation.support.scientificReaderCount} readers</span>
+          <span class="pill">{documentation.support.scientificReaderFamilies.length} format families</span>
+          <span class="pill">Native precision</span>
+          <span class="pill">Direct-range evidence</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container prose">
+        <h2>Coverage scope</h2>
+        <p>
+          The reader surface includes common raster and whole-slide data; DM3 and DM4; TIA SER and
+          EMI; NCEM and Velox EMD; 4D-STEM detector data; AFM, SPM, and surface metrology; NIfTI,
+          NRRD, MRC, and MetaImage volumes; OME-TIFF and Aperio SVS; spectroscopy and detector
+          interchange; and raw NumPy arrays. “Direct range” means the reader can request selected
+          source spans through the scientific source abstraction; it does not promise that every
+          operation avoids all metadata or companion-resource reads.
+        </p>
+        <div class="callout warning">
+          <strong>Live explorer boundary.</strong> The browser explorer currently wires only its five
+          generated demo reader IDs. Package readers below require explicit application registration
+          unless and until their UI integration lands.
+        </div>
+      </div>
+    </section>
+
+    {
+      documentation.support.scientificReaderFamilies.map((family) => {
+        const entries = documentation.scientificFormats.filter(
+          (entry) => entry.family === family.id,
+        )
+        return (
+          <section class="section tint" id={family.id}>
+            <div class="container">
+              <div class="section-heading">
+                <div><p class="section-label">Format family</p><h2>{family.label}</h2></div>
+                <p>{entries.length} explicit reader {entries.length === 1 ? 'export' : 'exports'}.</p>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Reader ID / format</th>
+                      <th>Extensions</th>
+                      <th>Resource model</th>
+                      <th>Dataset kinds</th>
+                      <th>Range</th>
+                      <th>Native precision</th>
+                      <th>Support boundary</th>
+                      <th>Benchmark coverage</th>
+                      <th>Reference / oracle</th>
+                      <th>Import</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      entries.map((entry) => (
+                        <tr>
+                          <td><code>{entry.id}</code><br /><strong>{entry.format}</strong></td>
+                          <td>{entry.extensions.map((extension) => `.${extension}`).join(', ')}</td>
+                          <td>{entry.resourceModel}</td>
+                          <td>{entry.datasetKinds.join(', ')}</td>
+                          <td>{entry.directRangeReads ? 'Yes' : 'No'}</td>
+                          <td>{entry.nativePrecision}</td>
+                          <td>{entry.supportBoundary}</td>
+                          <td>{coverage(entry)}</td>
+                          <td>{entry.oracle || 'Manifest and fixture assertions only'}</td>
+                          <td><code>{entry.packageExport}</code></td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        )
+      })
+    }
+
+    <section class="section">
+      <div class="container prose">
+        <h2>Methods and artifacts</h2>
+        <p>
+          Baseline rows validate descriptor identity, selected shapes, native sample type, calibration
+          assertions, sample hashes, and output bytes before admitting timing. Range rows additionally
+          record request count, returned and unique source bytes, overfetch, and resource completeness.
+        </p>
+        <p><a class="text-link" href="../performance/#scientific-readers">Scientific benchmark charts and methodology →</a> · <a class="text-link" href="../scientific/">Wired browser explorer →</a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span>PureJsImage</span></a><p>Generated scientific reader support and benchmark reference.</p></div><div class="footer-column"><strong>Reference</strong><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span>Generated support and benchmark reference</span></div></div></footer>
+</SiteLayout>

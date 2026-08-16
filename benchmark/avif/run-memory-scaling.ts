@@ -211,8 +211,21 @@ try {
   }
   const outputFlag = process.argv.indexOf('--output')
   const outputPath = outputFlag === -1 ? undefined : process.argv[outputFlag + 1]
+  if (outputFlag !== -1 && !outputPath) throw new Error('--output requires a path')
+  const resultPath =
+    outputPath ??
+    join(
+      process.cwd(),
+      'benchmark/results',
+      `avif-memory-scaling-${new Date().toISOString().replaceAll(/[:.]/gu, '-')}.json`,
+    )
   const serialized = `${JSON.stringify(report, undefined, 2)}\n`
-  if (outputPath) await writeFile(outputPath, serialized)
+  await writeFile(resultPath, serialized)
+  await writeFile(
+    resultPath.replace(/\.json$/u, '.md'),
+    `# AVIF memory scaling benchmark\n\n- Generated: ${report.generatedAt}\n- Validation: every full/bounded pair was checksum validated\n- Result: ${resultPath}\n`,
+  )
+  console.log(`Wrote ${resultPath}`)
   console.log(serialized.trim())
 } finally {
   await rm(temporaryDirectory, { recursive: true, force: true })

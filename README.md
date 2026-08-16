@@ -9,59 +9,66 @@
                          I M A G E
 </pre>
 
-<h3>First-party image codecs and low-memory raster processing in strict TypeScript</h3>
+<h3>Zero-runtime-dependency image processing in strict TypeScript</h3>
 
-<p>Portable reference engine · optional first-party acceleration · zero runtime dependencies</p>
+<p>Portable image codecs · native scientific rasters · optional explicit WASM acceleration</p>
 
 <p>
   <a href="https://www.npmjs.com/package/purejsimage"><img alt="npm version" src="https://img.shields.io/npm/v/purejsimage?style=for-the-badge&amp;logo=npm&amp;logoColor=white&amp;color=cb3837"></a>
   <a href="https://github.com/a-r-d/PureJsImage/actions/workflows/ci.yml"><img alt="CI status" src="https://img.shields.io/github/actions/workflow/status/a-r-d/PureJsImage/ci.yml?branch=main&amp;style=for-the-badge&amp;logo=githubactions&amp;logoColor=white&amp;label=CI"></a>
-  <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="TypeScript version" src="https://img.shields.io/github/package-json/dependency-version/a-r-d/PureJsImage/dev/typescript?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"></a>
-  <a href="https://www.npmjs.com/package/purejsimage"><img alt="Node.js version" src="https://img.shields.io/node/v/purejsimage?style=for-the-badge&amp;logo=nodedotjs&amp;logoColor=white"></a>
-</p>
-
-<p>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/runtime_dependencies-0-2ea44f?style=for-the-badge"></a>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/purejsimage?style=for-the-badge&amp;color=blue"></a>
-  <a href="https://github.com/a-r-d/PureJsImage"><img alt="Strict TypeScript reference engine" src="https://img.shields.io/badge/reference-strict_TypeScript-3178c6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"></a>
 </p>
 
 <p>
   <a href="https://purejsimage.com/">Documentation</a> ·
-  <a href="https://purejsimage.com/demo/"><strong>Live browser demo</strong></a> ·
-  <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
+  <a href="https://purejsimage.com/demo/"><strong>Image demo</strong></a> ·
   <a href="https://purejsimage.com/scientific/"><strong>Scientific explorer</strong></a> ·
-  <a href="#install">Install</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#supported-codecs">Codecs</a> ·
-  <a href="ROADMAP.md">Roadmap</a> ·
-  <a href="#benchmarks">Benchmarks</a>
+  <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
+  <a href="https://lab.purejsimage.com/"><strong>PureJsImage Lab</strong></a>
 </p>
 </div>
 
-PureJsImage is building a broad suite of first-party image codecs in strict
-TypeScript. Each codec grows from a checked capability contract and conformance
-corpus toward broader decode coverage, practical encoding, bounded-memory
-execution, and optional first-party acceleration.
+## What PureJsImage is best at
 
-A shared lazy image and raster pipeline makes those codecs useful across two
-workload families:
+- **Low peak memory usage** — bounded rows, scanlines, strips, and tiles avoid source-sized RGBA working sets where formats permit it.
+- **Maximally portable** — strict TypeScript runs across Node.js and modern browsers without native addons or system executables.
+- **Zero dependencies** — the published package has no runtime dependency tree.
+- **Native scientific raster processing** — direct-range reads and native-precision data avoid forcing scientific samples through RGBA.
+- **Fully benchmarked** — ordinary codecs and scientific readers have correctness-gated speed, quality, memory, I/O, and footprint measurements.
+- **Optional WASM accelerators** — explicit JPEG and PNG accelerator imports never load or activate automatically.
 
-- **Application images:** inspect, orient, crop, resize, and transcode common
-  formats.
-- **Large and native rasters:** GSF surfaces, ENVI hyperspectral cubes and classification maps, FITS
-  and MRC volumes, CBF detector frames, TIFF, OME-TIFF, GeoTIFF/COG, whole-slide images, remote
-  regions, and N-channel numeric data.
+PureJsImage provides portable image codecs and low-memory raster workflows for Node.js
+and modern browsers. The permanent reference engine is strict TypeScript with no runtime dependency
+tree, native addon, system executable, or implicit WebAssembly download. Optional JPEG
+and PNG WASM accelerators use separate imports and explicit registration.
 
-The same source, codec, and pipeline architecture targets Node.js, modern
-browsers, serverless, edge, and restricted deployments. It is not a canvas,
-drawing, or graphics-effects toolkit.
+Low memory is a primary product requirement. PureJsImage exists to avoid the source-sized RGBA
+working sets that make common JavaScript image pipelines expensive or unsafe in constrained
+environments such as AWS Lambda. Codecs push crops and resize toward decode, retain bounded rows or
+tiles where their structure permits it, and label full-frame fallbacks explicitly.
 
-The strict TypeScript reference engine is the permanent portable path. Optional
-first-party JPEG and PNG WASM accelerators preserve its public behavior and are
-explicitly registered; they do not replace it. Memory behavior remains codec-
-and operation-specific: bounded rows or tiles are used where implemented, and
-full-frame or larger-state fallbacks are documented.
+<!-- documentation:summary:start -->
+<!-- Generated by scripts/render-documentation.ts. Do not edit this block. -->
+## Current package surface
+
+PureJsImage 0.10.0 is a zero-runtime-dependency strict TypeScript image-processing package for Node.js and modern browsers. The default path uses portable TypeScript implementations; optional JPEG and PNG WASM accelerators require explicit registration.
+
+**14 stable ordinary codecs:** JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000 / JP2, AVIF, JPEG XL, Radiance HDR / RGBE, QOI, Netpbm and PFM, TGA / TARGA.
+
+**Experimental:** HEIF / HEIC (experimental) remains a separate explicit import, is excluded from `allCodecs`, and carries the documented HEVC/H.265 patent notice.
+
+**31 scientific readers:** Common raster and whole-slide (8); Electron microscopy (7); AFM, SPM, and surface metrology (5); Medical and volume interchange (4); Spectroscopy and detector interchange (6); Raw numeric interchange (1). Direct-range readers request selected source spans, and specialized scientific readers retain native numeric precision instead of forcing data through RGBA.
+
+| Current measured surface | Minified JS | gzip | Brotli |
+| --- | ---: | ---: | ---: |
+| Core API | 59.9 KiB | 18.9 KiB | 16.8 KiB |
+| All stable codecs | 844.1 KiB | 296.6 KiB | 245.3 KiB |
+| Scientific platform | 154.3 KiB | 44.7 KiB | 38.2 KiB |
+| All scientific readers | 835.0 KiB | 247.5 KiB | 197.8 KiB |
+
+The extracted npm package is 4.7 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+<!-- documentation:summary:end -->
 
 ## Install
 
@@ -69,35 +76,19 @@ full-frame or larger-state fallbacks are documented.
 npm install purejsimage
 ```
 
-PureJsImage requires Node.js 22 or newer. Browser applications use the
-`purejsimage/browser` entry. Installing it adds no runtime dependencies, native
-addons, or external programs. Optional first-party JPEG and PNG WASM accelerators
-use separate explicit entries.
+PureJsImage requires Node.js 22 or newer. Browser applications import the core API from
+`purejsimage/browser`. Public APIs are pre-1.0 and may still receive breaking refinements.
 
-**Pre-1.0:** Codec behavior is heavily tested, but public APIs may receive breaking
-refinements before 1.0.
+## Ordinary image pipeline
 
-[Read the installation and browser guide →](https://purejsimage.com/guides/)
-
-## Quick start
-
-### Common image pipeline
-
-Register only the codecs the application needs, then build a processing pipeline:
+Register only the codecs an application needs:
 
 ```ts
 import { createImageLibrary } from 'purejsimage'
 import { jpegCodec } from 'purejsimage/codecs/jpeg'
 import { pngCodec } from 'purejsimage/codecs/png'
 
-// Optional first-party WASM accelerators:
-import { wasmJpegAccelerator } from 'purejsimage/accelerators/wasm/jpeg'
-import { wasmPngAccelerator } from 'purejsimage/accelerators/wasm/png'
-
-const images = createImageLibrary({
-  codecs: [jpegCodec, pngCodec],
-  accelerators: [wasmJpegAccelerator, wasmPngAccelerator], // Optional
-})
+const images = createImageLibrary({ codecs: [jpegCodec, pngCodec] })
 const image = await images.open('input.jpg')
 
 await image
@@ -107,22 +98,14 @@ await image
   .toFile('output.jpg')
 ```
 
-In a browser, import from `purejsimage/browser` and use `toBlob()` or
-`toUint8Array()` for output. Tools that need every default codec can register
-`allCodecs` from `purejsimage/codecs/all`.
+Use `purejsimage/browser` with `File`, `Blob`, `Uint8Array`, or an explicit `ImageSource` in a
+browser. Use `purejsimage/codecs/all` only when the complete stable codec aggregate is appropriate.
 
-> **Alpha application platform:** PureJsImage 0.10.0 introduces the scientific application
-> entrypoints documented below. Provider and extension APIs remain experimental. The ordinary
-> codec pipeline above remains the established npm workflow.
+## Scientific datasets
 
-> **Built with PureJsImage:** [PureJsImage Lab](https://lab.purejsimage.com/) is the first
-> application built on the scientific platform—an in-progress, browser-native electron microscopy
-> file analysis workbench.
-
-### Scientific OME-TIFF
-
-Register the OME-TIFF reader explicitly and open the numeric dataset without routing it through the
-ordinary display-image codec pipeline:
+Scientific readers preserve labeled axes, calibration, native sample types, and selected-resource
+semantics. Numeric data becomes display pixels only when an application explicitly chooses a range,
+palette, slice, or projection.
 
 ```ts
 import { FileSource } from 'purejsimage'
@@ -137,321 +120,24 @@ const document = await science.open({
     source: await FileSource.open('input.ome.tif'),
   },
 })
-
-const first = document.datasets[0]
-if (first === undefined) throw new Error('OME-TIFF contains no datasets')
-const dataset = await document.openDataset(first.id)
+const dataset = await document.openDataset(document.datasets[0].id)
 ```
 
-Ordinary PNG, JPEG, WebP, BMP, and JP2 files can use the same registry through explicit fallback readers without
-linking codecs into the base scientific entry:
+Direct-range readers can request only the source spans needed for metadata, a native-precision
+region, a spectrum, a volume plane, or a whole-slide tile. This includes workflows across DM3 and
+DM4, TIA SER and EMI, NCEM and Velox EMD, NIfTI, NRRD, MRC, OME-TIFF, Aperio SVS, AFM and surface
+metrology, and 4D-STEM data.
 
-```ts
-import { createScientificLibrary } from 'purejsimage/scientific'
-import { jpegReader } from 'purejsimage/scientific/readers/jpeg'
-import { pngReader } from 'purejsimage/scientific/readers/png'
-import { webpReader } from 'purejsimage/scientific/readers/webp'
-import { bmpReader } from 'purejsimage/scientific/readers/bmp'
-import { jp2Reader } from 'purejsimage/scientific/readers/jp2'
+The live Scientific Raster Explorer intentionally wires only its smaller demo set. It does not claim
+to open every package reader. Applications and PureJsImage Lab can register the explicit reader
+exports they need.
 
-const science = createScientificLibrary({
-  readers: [pngReader, jpegReader, webpReader, bmpReader, jp2Reader],
-})
-```
+[Scientific format reference →](https://purejsimage.com/scientific-formats/) ·
+[Scientific API reference →](https://purejsimage.com/api/#scientific) ·
+[Scientific application guide →](docs/application-platform.md) ·
+[Native numeric tile contract →](docs/scientific-numeric-tiles.md)
 
-These readers expose exact codec-produced uint8 blocks and remain lower-confidence than specialized
-scientific readers.
-Experimental HEIC remains excluded from ordinary scientific fallback registration.
-
-AFM and surface applications can explicitly compose Nanonis SXM, Igor Binary Wave v5, Digital Surf
-SUR/PRO, and X3P readers from `purejsimage/scientific/readers/{nanonis-sxm,igor-binary-wave,digital-surf,x3p}`.
-Their numeric, calibration, archive, and unsupported-profile boundaries are listed in the
-[AFM and surface format guide](docs/scientific-surface-formats.md).
-
-Ordinary scientific TIFF uses its own native-precision reader rather than that uint8 adapter:
-
-```ts
-import { tiffReader } from 'purejsimage/scientific/readers/tiff'
-
-const science = createScientificLibrary({ readers: [tiffReader, omeTiffReader] })
-```
-
-`tiffReader` preserves signed, floating-point, planar, and N-channel samples. Compatible top-level
-pages become a labeled `page` axis, incompatible contiguous series remain separate datasets, and
-SubIFDs remain resolution levels. Its fallback probe stays below OME-TIFF and Aperio SVS.
-
-FEI/Thermo TIA SER files use an explicit native-precision reader:
-
-```ts
-import { tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
-
-const science = createScientificLibrary({ readers: [tiaSerReader] })
-```
-
-The reader opens v528 and v544 scalar spectra, spectrum images, and image series lazily. Direct SER
-opening exposes only facts present in the SER file; companion EMI metadata is not inferred.
-
-Open a TIA EMI document through its own reader when the numbered SER companions are available:
-
-```ts
-import { tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'
-import { createScientificPathContext } from 'purejsimage/scientific/node'
-
-const document = await tiaEmiReader.open(await createScientificPathContext('capture.emi'))
-```
-
-The EMI path exposes every consecutive `capture_1.ser`, `capture_2.ser`, and later companion as
-datasets, adds bounded acquisition metadata, and includes the EMI plus the contributing SER in each
-dataset identity. SER coordinates remain authoritative; strongly corroborated diffraction axes gain
-reciprocal-space units, while contradictory mode hints are retained as metadata conflicts.
-
-NCEM and FEI/Thermo Velox EMD files share an extension but use separate, hierarchy-probed readers:
-
-```ts
-import { ncemEmdReader } from 'purejsimage/scientific/readers/ncem-emd'
-import { veloxEmdReader } from 'purejsimage/scientific/readers/velox-emd'
-
-const science = createScientificLibrary({ readers: [ncemEmdReader, veloxEmdReader] })
-```
-
-The NCEM reader covers fixture-proven openNCEM 0.2 numeric groups. The Velox reader covers numeric
-image, diffraction, dense-map, DPC, and complex FFT arrays with explicit frames and bounded JSON
-metadata. It preserves positive-half, uncentered FFT storage instead of modifying samples. Sparse
-Velox spectrum streams remain outside the current capability boundary.
-
-### Scientific rasters and explicit display mapping
-
-Scientific readers are separate from photographic codecs. The dataset remains numeric until an
-application requests display pixels:
-
-```ts
-import { createScientificLibrary, renderScientificPlane } from 'purejsimage/scientific'
-import { createScientificPathContext } from 'purejsimage/scientific/node'
-import { fitsReader } from 'purejsimage/scientific/readers/fits'
-
-const science = createScientificLibrary({ readers: [fitsReader] })
-const fits = await science.open(await createScientificPathContext('observation.fits'))
-const dataset = await fits.openDataset(fits.datasets[0].id)
-const display = await renderScientificPlane(dataset, {
-  plane: { displayAxes: ['x', 'y'], fixedIndices: [{ axisId: 'axis-3', index: 0 }] },
-  range: { mode: 'percentile', low: 1, high: 99 },
-  palette: 'viridis',
-})
-```
-
-Labeled-axis datasets use stable axis IDs, so the same renderer can display an ordinary image, an
-energy plane, or either domain of a 4D-STEM acquisition without relabeling dimensions:
-
-```ts
-import type {
-  NormalizedScientificPlaneReadRequest,
-  RasterBlock,
-  ScientificDataset,
-} from 'purejsimage/scientific'
-import {
-  normalizeScientificDatasetDescriptor,
-  normalizeScientificPlaneReadRequest,
-  renderScientificPlane,
-} from 'purejsimage/scientific'
-
-const readSyntheticRegion = (plane: NormalizedScientificPlaneReadRequest): RasterBlock => {
-  const data = new Uint8Array(plane.width * plane.height * 4)
-  const view = new DataView(data.buffer)
-  for (let index = 0; index < plane.width * plane.height; index += 1) {
-    view.setFloat32(index * 4, index, false)
-  }
-  return {
-    x: plane.x,
-    y: plane.y,
-    width: plane.width,
-    height: plane.height,
-    stride: plane.width * 4,
-    format: { sampleType: 'float32', channels: 1, planar: false },
-    data,
-  }
-}
-
-const synthetic: ScientificDataset = {
-  descriptor: normalizeScientificDatasetDescriptor({
-    schemaVersion: 1,
-    axes: [
-      {
-        id: 'x',
-        kind: 'space',
-        length: 64,
-        unit: 'µm',
-        coordinates: { type: 'linear', origin: 0, step: 0.5 },
-      },
-      {
-        id: 'y',
-        kind: 'space',
-        length: 32,
-        unit: 'µm',
-        coordinates: { type: 'linear', origin: 0, step: 0.5 },
-      },
-      {
-        id: 'energy',
-        kind: 'spectral',
-        length: 3,
-        unit: 'eV',
-        coordinates: { type: 'lookup', values: [10, 12, 18] },
-      },
-    ],
-    sampleType: 'float32',
-    components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
-    capabilities: {
-      regionReads: true,
-      resolutionLevels: false,
-      planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
-    },
-  }),
-  async *readPlane(request): AsyncIterable<RasterBlock> {
-    const plane = normalizeScientificPlaneReadRequest(this.descriptor, request)
-    yield readSyntheticRegion(plane)
-  },
-}
-
-const energyDisplay = await renderScientificPlane(synthetic, {
-  plane: {
-    displayAxes: ['x', 'y'],
-    fixedIndices: [{ axisId: 'energy', index: 1 }],
-  },
-  range: { mode: 'percentile', low: 1, high: 99 },
-  palette: 'viridis',
-})
-```
-
-The synthetic reader allocates only the requested region. Real readers should stream smaller blocks
-when needed and propagate each block's optional `release()` callback.
-
-One-dimensional spectra and profiles use a single true axis rather than a synthetic height axis.
-Their descriptors advertise `planeReads: { kind: 'none' }` and `seriesReads`, while
-`readSeries()` yields bounded `ScientificSeriesBlock` segments. Use
-`normalizeScientificSeriesReadRequest()` before native reads. The explicit
-`readScientificSeriesFromPlane()` fallback can compact one requested row or column from an existing
-plane reader without materializing the complete series.
-
-Applications that need format detection can construct an explicit, local scientific library without
-changing the ordinary image codec pipeline:
-
-```ts
-import { FileSource } from 'purejsimage'
-import { createScientificLibrary } from 'purejsimage/scientific'
-import { fitsReader } from 'purejsimage/scientific/readers/fits'
-import { gsfReader } from 'purejsimage/scientific/readers/gsf'
-
-const science = createScientificLibrary({ readers: [fitsReader, gsfReader] })
-const document = await science.open({
-  primary: { id: 'observation', name: 'observation.fits', source: await FileSource.open(path) },
-})
-const dataset = await document.openDataset(document.datasets[0]!.id)
-```
-
-Registration is caller-owned: no package import installs readers globally. See the
-[scientific reader registry guide](docs/scientific-reader-registry.md) for probe budgets,
-multi-resource resolution, and Node/browser adapters.
-
-Scientific readers expose portable canonical-byte `RasterBlock`s. Repeated scientific computation
-converts each block once to a native-endian typed `NumericTile`; direct native tile sources remain an
-explicit, local optimization and the canonical conversion fallback is permanent. Exact `uint64`
-values remain `bigint`, while `float16` expands to `Float32Array`. See the
-[numeric tile guide](docs/scientific-numeric-tiles.md) for ownership, checked conversion, and direct
-provider semantics.
-
-Application builders can explicitly import `purejsimage/operations` for JSON-safe operation
-descriptors, immutable local registries, built-in pipeline lowering, and cost-based provider
-selection. `purejsimage/extensions` composes trusted in-process readers, value types, operations,
-and providers without package-global registration or import-time probing. Extensions execute with
-the application's authority; this is not a sandbox. See the
-[operations and trusted extensions guide](docs/operations-and-extensions.md).
-
-Quantitative application results are available through the explicit `purejsimage/analysis` entry.
-It provides bounded scalar, histogram, profile, columnar table, and collection contracts plus
-JSON-safe summaries and a one-measurement scientific adapter. Typed payloads are never silently
-serialized. See the [quantitative analysis results guide](docs/analysis-results.md).
-
-The same analysis entry also provides versioned declarative graphs, canonical hashing, source
-identity, explicit migrations, non-executing plans and dry runs, immutable workspace commands,
-cancellable generic orchestration, and provenance. Graph mutation never executes providers, and
-the controller is shared by UI, scripts, trusted plugins, and future agents without a privileged
-AI-only path. See the [analysis graph guide](docs/analysis-graphs.md).
-
-The analysis entry also provides calibrated JSON-safe ROI geometry, tile-local masks, deterministic
-line sampling plans, built-in ROI value types, and immutable ROI workspace commands. See the
-[ROI geometry and sampling guide](docs/roi-geometry-and-sampling.md).
-
-Lazy quantitative applications can create a local byte-bounded `TileRuntime` with canonical source
-and derived keys, shared in-flight reads, cancellable priority scheduling, explicit invalidation,
-halo-aware provider execution, and JSON-safe metrics. Imports create no cache or background worker.
-See the [lazy analysis tile runtime guide](docs/analysis-tile-runtime.md).
-
-The initial strict TypeScript scientific operations cover lazy crop, resample, arbitrary-axis
-slice, projection, threshold, Gaussian blur, ROI statistics, histogram, and calibrated line
-profiles. They are registered only through an explicit application-owned bundle. See the
-[built-in scientific analysis operations guide](docs/built-in-analysis-operations.md).
-
-For the complete alpha application workflow—reader registry, arbitrary-axis tiles, ROI analysis,
-graph save/replay, provider pinning, capability/command inspection, and trusted custom
-operations—see [Building scientific applications with PureJsImage](docs/application-platform.md).
-
-MRC and FITS volumes share lazy cross-section and projection operations:
-
-```ts
-import {
-  createScientificLibrary,
-  projectScientificVolume,
-  sliceScientificVolume,
-} from 'purejsimage/scientific'
-import { createScientificPathContext } from 'purejsimage/scientific/node'
-import { mrcReader } from 'purejsimage/scientific/readers/mrc'
-
-const science = createScientificLibrary({ readers: [mrcReader] })
-const document = await science.open(await createScientificPathContext('reconstruction.mrc'))
-const volume = await document.openDataset(document.datasets[0].id)
-const xz = sliceScientificVolume(volume, {
-  displayAxes: ['x', 'z'], fixedIndices: [{ axisId: 'y', index: 128 }],
-})
-const maximum = projectScientificVolume(volume, {
-  displayAxes: ['x', 'y'], axis: 'z', fixedIndices: [], mode: 'max',
-})
-```
-
-[ENVI](https://purejsimage.com/scientific/envi/) ·
-[GSF](https://purejsimage.com/scientific/gsf/) ·
-[FITS](https://purejsimage.com/scientific/fits/) ·
-[MRC2014 / CCP4](https://purejsimage.com/scientific/mrc/) ·
-[CBF / imgCIF](https://purejsimage.com/scientific/cbf/) ·
-[Volume operations](https://purejsimage.com/scientific/volumes/) ·
-[Scientific API](https://purejsimage.com/api/#scientific) ·
-[Client-side explorer](https://purejsimage.com/scientific/)
-
-## Live browser demo
-
-[Open the client-side image converter →](https://purejsimage.com/demo/)
-
-[Open the client-side Scientific Raster Explorer →](https://purejsimage.com/scientific/)
-
-Upload an image, let PureJsImage detect its actual format, apply optional
-orientation, resize, rotation, and flip transforms, then download JPEG, PNG,
-WebP, BMP, TIFF, Radiance HDR, QOI, PBM, PGM, PPM, PAM, PFM, or TGA output.
-The demo runs entirely in the browser, makes no image-upload request, and reports
-conversion time plus the browser memory measurements it can honestly observe.
-
-[Browse a 2.12 GB pathology slide after fetching a fraction of a percent →](https://purejsimage.com/wsi/)
-
-The zero-dependency whole-slide demo reads native Aperio SVS pyramid tiles directly from static
-object storage with HTTP Range. It measures real requests and transferred bytes, cancels offscreen
-tile work in a Web Worker, and requires no conversion, tile server, or sidecar index.
-
-## Optional WASM acceleration
-
-JPEG and PNG have optional first-party WebAssembly accelerators. They are never
-loaded unless you explicitly register them, and unsupported work continues to
-use the default TypeScript codecs.
-
-[See WASM setup, options, and supported workflows →](https://purejsimage.com/api/#wasm-acceleration)
-
-## Supported codecs
+## Support boundaries
 
 <!-- capabilities:readme:start -->
 ### Stable ordinary codecs
@@ -504,18 +190,6 @@ Detailed codec compatibility roadmaps:
 and [HEIF / HEIC (experimental)](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
 <!-- capabilities:readme:end -->
 
-HEIF/HEIC is experimental, excluded from `allCodecs`, and available only through
-`purejsimage/codecs/experimental/heic`. Its [support contract](heif-codec-support.md)
-includes the HEVC patent notice for users and distributors.
-
-AVIF is a first-party codec, not a wrapper around libavif or a third-party
-runtime. Common still-image decode is supported in Node.js and modern browsers;
-the checked [capability contract](avif-codec-support.md) records the explicit
-boundaries for uncommon AV1 syntax and dependent animation. The public encoder
-is intentionally constrained to opaque 8-bit YUV 4:2:0 still images.
-
-## Beyond ordinary image conversion
-
 <!-- package-metrics:scientific-readers:start -->
 <!-- Generated by scripts/render-package-metrics.ts. Do not edit this block. -->
 ### Scientific reader package surface
@@ -524,274 +198,104 @@ The package currently exposes **31 scientific readers** through explicit purejsi
 
 | Reader group | Package readers |
 | --- | --- |
-| Surface and metrology | **Gwyddion Simple Field** (`purejsimage/scientific/readers/gsf`)<br>**Nanonis SXM** (`purejsimage/scientific/readers/nanonis-sxm`)<br>**Digital Surf SUR/PRO** (`purejsimage/scientific/readers/digital-surf`)<br>**X3P surface exchange** (`purejsimage/scientific/readers/x3p`) |
-| Spectroscopy and instrument data | **ENVI** (`purejsimage/scientific/readers/envi`)<br>**Gatan DigitalMicrograph** (`purejsimage/scientific/readers/digital-micrograph`)<br>**FEI/Thermo TIA SER** (`purejsimage/scientific/readers/tia-ser`)<br>**FEI/Thermo TIA EMI** (`purejsimage/scientific/readers/tia-emi`)<br>**NCEM EMD 0.2** (`purejsimage/scientific/readers/ncem-emd`)<br>**Lispix RPL/RAW** (`purejsimage/scientific/readers/rpl`)<br>**EMSA/MAS spectrum** (`purejsimage/scientific/readers/emsa`)<br>**NanoMegas ASTAR blockfile** (`purejsimage/scientific/readers/blockfile`)<br>**Quantum Detectors Merlin MIB** (`purejsimage/scientific/readers/mib`)<br>**ANG/CTF orientation map** (`purejsimage/scientific/readers/ebsd-text`) |
-| Microscopy and whole-slide data | **TIFF** (`purejsimage/scientific/readers/tiff`)<br>**Aperio SVS** (`purejsimage/scientific/readers/aperio-svs`) |
-| Scientific images and volumes | **Igor Binary Wave v5** (`purejsimage/scientific/readers/igor-binary-wave`)<br>**FITS** (`purejsimage/scientific/readers/fits`)<br>**MRC/CCP4** (`purejsimage/scientific/readers/mrc`)<br>**CBF/imgCIF** (`purejsimage/scientific/readers/cbf`)<br>**OME-TIFF** (`purejsimage/scientific/readers/ome-tiff`)<br>**FEI/Thermo Velox EMD** (`purejsimage/scientific/readers/velox-emd`)<br>**NRRD** (`purejsimage/scientific/readers/nrrd`)<br>**MetaImage MHD/MHA** (`purejsimage/scientific/readers/meta-image`)<br>**NIfTI-1/2** (`purejsimage/scientific/readers/nifti`)<br>**NumPy NPY** (`purejsimage/scientific/readers/npy`) |
-| Ordinary image adapters | **PNG** (`purejsimage/scientific/readers/png`)<br>**JPEG** (`purejsimage/scientific/readers/jpeg`)<br>**WebP** (`purejsimage/scientific/readers/webp`)<br>**BMP** (`purejsimage/scientific/readers/bmp`)<br>**JPEG 2000 / JP2** (`purejsimage/scientific/readers/jp2`) |
+| Common raster and whole-slide | **PNG** (`purejsimage/scientific/readers/png`)<br>**JPEG** (`purejsimage/scientific/readers/jpeg`)<br>**WebP** (`purejsimage/scientific/readers/webp`)<br>**BMP** (`purejsimage/scientific/readers/bmp`)<br>**JPEG 2000 / JP2** (`purejsimage/scientific/readers/jp2`)<br>**TIFF** (`purejsimage/scientific/readers/tiff`)<br>**OME-TIFF** (`purejsimage/scientific/readers/ome-tiff`)<br>**Aperio SVS** (`purejsimage/scientific/readers/aperio-svs`) |
+| Electron microscopy | **Gatan DigitalMicrograph** (`purejsimage/scientific/readers/digital-micrograph`)<br>**FEI/Thermo TIA SER** (`purejsimage/scientific/readers/tia-ser`)<br>**FEI/Thermo TIA EMI** (`purejsimage/scientific/readers/tia-emi`)<br>**NCEM EMD 0.2** (`purejsimage/scientific/readers/ncem-emd`)<br>**FEI/Thermo Velox EMD** (`purejsimage/scientific/readers/velox-emd`)<br>**NanoMegas ASTAR blockfile** (`purejsimage/scientific/readers/blockfile`)<br>**Quantum Detectors Merlin MIB** (`purejsimage/scientific/readers/mib`) |
+| AFM, SPM, and surface metrology | **Gwyddion Simple Field** (`purejsimage/scientific/readers/gsf`)<br>**Nanonis SXM** (`purejsimage/scientific/readers/nanonis-sxm`)<br>**Igor Binary Wave v5** (`purejsimage/scientific/readers/igor-binary-wave`)<br>**Digital Surf SUR/PRO** (`purejsimage/scientific/readers/digital-surf`)<br>**X3P surface exchange** (`purejsimage/scientific/readers/x3p`) |
+| Medical and volume interchange | **MRC/CCP4** (`purejsimage/scientific/readers/mrc`)<br>**NRRD** (`purejsimage/scientific/readers/nrrd`)<br>**MetaImage MHD/MHA** (`purejsimage/scientific/readers/meta-image`)<br>**NIfTI-1/2** (`purejsimage/scientific/readers/nifti`) |
+| Spectroscopy and detector interchange | **ENVI** (`purejsimage/scientific/readers/envi`)<br>**FITS** (`purejsimage/scientific/readers/fits`)<br>**CBF/imgCIF** (`purejsimage/scientific/readers/cbf`)<br>**Lispix RPL/RAW** (`purejsimage/scientific/readers/rpl`)<br>**EMSA/MAS spectrum** (`purejsimage/scientific/readers/emsa`)<br>**ANG/CTF orientation map** (`purejsimage/scientific/readers/ebsd-text`) |
+| Raw numeric interchange | **NumPy NPY** (`purejsimage/scientific/readers/npy`) |
 
 The live browser explorer currently wires the smaller demo set: Gwyddion Simple Field (`purejsimage/scientific/readers/gsf`), ENVI (`purejsimage/scientific/readers/envi`), FITS (`purejsimage/scientific/readers/fits`), MRC/CCP4 (`purejsimage/scientific/readers/mrc`), CBF/imgCIF (`purejsimage/scientific/readers/cbf`). The explorer does **not** claim to open every reader in the package surface; applications can register any explicit reader export.
 
 The raster APIs preserve native numeric data instead of forcing every source through RGB. The full reader surface includes scientific images and volumes, spectroscopy and instrument data, microscopy and whole-slide data, surface and metrology formats, and ordinary image adapters.
 <!-- package-metrics:scientific-readers:end -->
 
-The `Image` pipeline uses display-ready `PixelBlock`s for ordinary transformations
-and encoding. Scientific TIFF workflows expose native numeric, N-channel
-`RasterBlock`s and map them to display pixels only when requested.
+Experimental HEIF/HEIC is available only from `purejsimage/codecs/experimental/heic`. It remains
+excluded from `allCodecs` because HEIC commonly carries HEVC/H.265 content that may be subject to
+third-party patent rights. The project’s MIT license grants no third-party patent rights; users and
+distributors must evaluate their own licensing obligations.
 
-The same explicit scientific renderer handles GSF, ENVI, FITS, MRC, CBF, and OME-TIFF planes with declared,
-dataset, or bounded-sample percentile ranges; linear, logarithmic, square-root, or asinh scaling;
-five first-party palettes; and optional three-row scalar relief. Quantitative inputs are never
-mutated by display mapping.
+<!-- documentation:benchmarks:start -->
+<!-- Generated by scripts/render-documentation.ts. Do not edit this block. -->
+## Current benchmark snapshots
 
-### TIFF
+**Ordinary images (2026-08-16):** 79 validated passes, 19 explicit unsupported rows, and no invalid outputs or errors. On the 24-megapixel northstar photo pipeline, the TypeScript path used 84.2% less absolute peak RSS than Jimp (187.8 MiB versus 1188.4 MiB).
 
-TIFF support spans display images, native scientific rasters, OME-TIFF,
-whole-slide pyramids, extensible vendor profiles, and canonical RGB/RGBA output.
-The complete support list, memory model, examples, and remaining boundaries live
-on the dedicated TIFF page:
+**Scientific readers (2026-08-16):** 43/43 baseline workloads passed correctness validation across 31 readers. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.
 
-- [Complete TIFF support →](https://purejsimage.com/tiff/)
-- [TIFF output options →](https://purejsimage.com/tiff/#encode)
-- [Scientific TIFF and OME-TIFF →](https://purejsimage.com/tiff/#scientific)
-  · [Third-party TIFF profiles →](https://purejsimage.com/tiff/#profiles)
-- [Zstandard decompression API →](https://purejsimage.com/api/#zstandard)
+> Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.
 
-<!-- library-comparison:readme:start -->
-<!-- Generated by scripts/render-library-comparison.ts. Do not edit this block. -->
-### TIFF library comparison
+[Ordinary methodology and report](https://purejsimage.com/performance/#ordinary-images) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](benchmark/results/result-index-2026-08-16T12-32-36-126Z.json)
+<!-- documentation:benchmarks:end -->
 
-A capability is **Yes** only when upstream documentation or source supports it; measured decode coverage is reported separately against independent RGBA output. “Not verified” is not treated as unsupported.
-
-| Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage benchmark snapshot · 3be4530 | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases |
-| GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>52 pixel mismatches<br>11 unsupported · 7 errors · 2 oracle-unavailable cases · 2 crashes |
-| UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>25 pixel mismatches<br>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes |
-| image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>14 pixel mismatches<br>51 unsupported · 12 errors · 2 oracle-unavailable cases |
-| image-js 1.7.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 39/106 decoded<br>33 exact<br>6 pixel mismatches<br>51 unsupported · 14 errors · 2 oracle-unavailable cases |
-| Jimp 1.6.0 | Pure JavaScript | Yes | No | Yes | No | No | No | 74/106 decoded<br>49 exact<br>25 pixel mismatches<br>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes |
-| Sharp / libvips 0.35.3 | Native wrapper | No | Partial | Yes | Partial | Partial | No | Not run |
-
-“Oracle unavailable” means the independent Sharp/ImageMagick ground-truth path could not decode the fixture, not that the listed JavaScript engine failed. Every measured engine has the same two unavailable cases. PureJsImage's 47 non-exact decodes comprise 38 at or above 40 dB PSNR, 6 from 20 to below 30 dB, and 3 below 10 dB, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.
-
-[Full grouped capability matrix, methods, sources, and per-library results](https://purejsimage.com/tiff-comparison/)
-<!-- library-comparison:readme:end -->
-
-## Benchmarks
-
-The seven-engine competitor profile measures the default PureJsImage TypeScript codecs and the
-explicitly registered PureJsImage JPEG/PNG WASM accelerators as separate variants alongside Jimp,
-Sharp, Sharp configured for one processing thread, image-js, and jSquash. Sharp uses native libvips;
-PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure
-JavaScript. Each engine received the same files, used its public default resize kernel, and ran in a
-separate process. A result appears only when its output passed validation.
-
-[![Image workflow speed comparison across seven isolated engines, including default and WASM PureJsImage variants.](benchmark/results/competitors-speed-2026-08-10.png)](benchmark/results/competitors-speed-2026-08-10.png)
-
-[![Image workflow output quality comparison across seven engines measured as premultiplied-RGBA PSNR against an exact-area reference.](benchmark/results/competitors-quality-2026-08-10.png)](benchmark/results/competitors-quality-2026-08-10.png)
-
-[![Image workflow absolute peak memory comparison across seven isolated engines.](benchmark/results/competitors-memory-2026-08-10.png)](benchmark/results/competitors-memory-2026-08-10.png)
-
-Resize workflows use engine defaults: PureJsImage and Sharp use Lanczos 3 while
-Jimp uses bilinear. The quality chart reports premultiplied-RGBA PSNR against an
-independently decoded exact-area reference; `exact` means every visible color
-and alpha channel matched. This exposes quality differences, but cross-kernel
-timings remain default-experience measurements rather than matched-quality
-comparisons.
-
-**Benchmark snapshot:** PureJsImage 0.8.0, August 10, 2026, Node.js 24.16.0.
-Against the default TypeScript path, the opt-in WASM variant reduced median wall
-time by 53.0% for JPEG-to-PNG, 38.9% for the 100-megapixel PNG downscale, and
-11.6% for the large PNG resize while returning the same measured output quality.
-On the 24-megapixel photo workflow, default PureJsImage used 86.7% less peak
-memory than Jimp and 87.6% less than image-js. Timing, memory, and quality vary by
-image, operation, machine, and library version.
-
-The focused nine-run TIFF profile recorded:
-
-| Workflow | PureJsImage wall | PureJsImage RSS | Jimp wall | Jimp RSS |
-| --- | ---: | ---: | ---: | ---: |
-| 4000×3000 TIFF metadata | 0.4 ms | 134.4 MiB | 150.4 ms | 289.8 MiB |
-| 4000×3000 TIFF → 1000px JPEG | 144.4 ms | 214.9 MiB | 663.0 ms | 372.1 MiB |
-| 7795×3122 LZW TIFF → 1000px PNG | 1,026.2 ms | 133.0 MiB | 753.2 ms | 284.8 MiB |
-| PNG → Deflate TIFF | 24.5 ms | 111.4 MiB | 97.3 ms | 152.8 MiB |
-
-PureJsImage passed all 18 TIFF workflows. Jimp passed seven, lacked the eight bounded raw/region
-workflows, and produced invalid pixels in three decode-to-PNG cases. The LZW row is the measured
-exception to the speed advantage: PureJsImage was slower there but used 53.3% less peak RSS.
-
-[Raw competitor report](benchmark/results/competitors-2026-08-10.md) ·
-[PureJsImage TIFF report](benchmark/results/tiff-profile-2026-08-10.md) ·
-[Jimp TIFF report](benchmark/results/jimp-tiff-profile-2026-08-10.md)
-
-[See the complete benchmark report and methodology →](https://purejsimage.com/performance/)
-
-### Lambda memory sizing
-
-A 256 MiB Lambda completed every measured 12-megapixel resize/conversion workflow and used
-121–156 MiB at peak. That does not make 256 MiB the fastest setting: Lambda also allocates CPU with
-memory. For JPEG → WebP, warm operation time fell from 10,601 ms at 256 MiB to 5,261 ms at 512 MiB
-and 2,533 ms at 1024 MiB, while peak use stayed at 120–122 MiB. For latency-sensitive endpoints,
-start at 1024 MiB even when the process only consumes about 150 MiB; use 256 MiB when its lower CPU
-allocation and roughly 10-second latency are acceptable. Re-measure with your own images and
-concurrency.
+Historical AWS Lambda measurements remain useful for memory-tier and CPU-allocation context, but are
+kept separate from current local benchmark headlines. See the
+[performance page](https://purejsimage.com/performance/#lambda) for dates, architecture, and exact
+artifacts.
 
 <!-- package-metrics:bundle:start -->
 <!-- Generated by scripts/render-package-metrics.ts. Do not edit this block. -->
 ### Bundle size and npm package size
 
-Generated for package purejsimage 0.10.0. These current measurements are separate from the dated performance charts and headline timings above; those historical benchmark snapshots are not rewritten by this generator.
+Generated for purejsimage 0.10.0. The README keeps only the major entry points; the complete per-codec, per-reader, competitor, gzip, Brotli, installed-package, and WASM measurements are on the performance page and in the machine-readable artifact.
 
-#### Competitor bundle and npm package size
-
-Current deterministic measurements use the repository esbuild, gzip, and Brotli settings. The `npm package (unpacked)` column is the byte size after npm extracts what it publishes, including the full PureJsImage package contents; it is not the compressed `.tgz` download size. Competitor rows also include their production dependency trees and platform packages, and the JSON artifact records every package version used. Run `npm pack --dry-run --json` to see both `size` (compressed tarball) and `unpackedSize`.
-
-| Import | Implementation | Version(s) | Codecs in measured import | Minified JS | gzip | Brotli | npm package (unpacked) | Production packages |
-| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| PureJsImage (matched) | pure-javascript | purejsimage 0.10.0 | JPEG, PNG | 155.6 KiB | 49.9 KiB | 41.9 KiB | 4.8 MiB | 1 |
-| PureJsImage (all stable codecs) | pure-javascript | purejsimage 0.10.0 | JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000 / JP2, AVIF, JPEG XL, Radiance HDR / RGBE, QOI, Netpbm and PFM, TGA / TARGA | 844.1 KiB | 296.6 KiB | 245.3 KiB | 4.8 MiB | 1 |
-| Jimp | pure-javascript | jimp 1.6.0; + 69 dependencies | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB | 29.3 MiB | 70 |
-| image-js | pure-javascript | image-js 1.7.0; + 45 dependencies | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB | 17.0 MiB | 46 |
-| jSquash | webassembly | @jsquash/jpeg 1.6.0; @jsquash/png 3.1.1; @jsquash/resize 2.1.1 | JPEG, PNG | 52.4 KiB | 16.0 KiB | 13.2 KiB | 1.0 MiB | 3 |
-| Sharp JS wrapper | native-wrapper | sharp 0.35.3; + 5 dependencies | JPEG, PNG, TIFF, WebP, GIF, AVIF | 128.4 KiB | 38.3 KiB | 33.5 KiB | 18.9 MiB | 6 |
-
-#### Core, scientific, and application entries
-
-| Entry | Package export/source | Implementation | Minified JS | Recorded baseline | Ceiling | gzip | Brotli |
-| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Core API | purejsimage | package-core | 59.9 KiB | — | 60.0 KiB | 18.9 KiB | 16.8 KiB |
-| Core + scientific platform | purejsimage/scientific | package-core | 154.3 KiB | 140.2 KiB | 182.6 KiB | 44.7 KiB | 38.2 KiB |
-| Scientific readers: all | purejsimage/scientific/readers/all | package-core | 835.0 KiB | 825.0 KiB | 984.4 KiB | 247.5 KiB | 197.8 KiB |
-| Operation descriptors and runtime | purejsimage/operations | package-core | 43.3 KiB | 43.2 KiB | 56.6 KiB | 11.7 KiB | 10.5 KiB |
-| Analysis application API | purejsimage/analysis | package-core | 269.2 KiB | 264.4 KiB | 344.7 KiB | 73.8 KiB | 60.4 KiB |
-| Analysis result schemas | purejsimage/analysis/results | package-core | 54.4 KiB | 54.4 KiB | 70.7 KiB | 15.0 KiB | 13.5 KiB |
-| Analysis ROI utilities | purejsimage/analysis/roi | package-core | 31.9 KiB | 31.9 KiB | 41.4 KiB | 9.6 KiB | 8.7 KiB |
-| Analysis tile runtime | purejsimage/analysis/runtime | package-core | 57.4 KiB | 56.4 KiB | 73.4 KiB | 16.6 KiB | 14.6 KiB |
-| Analysis project and migrations | purejsimage/analysis/project | package-core | 50.0 KiB | 50.0 KiB | 65.0 KiB | 14.5 KiB | 12.8 KiB |
-| Trusted extension host | purejsimage/extensions | package-core | 45.5 KiB | 45.5 KiB | 59.6 KiB | 12.5 KiB | 11.2 KiB |
-
-#### Scientific per-reader imports
-
-| Entry | Package export/source | Implementation | Minified JS | Recorded baseline | Ceiling | gzip | Brotli |
-| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Scientific reader: Gwyddion Simple Field | purejsimage/scientific/readers/gsf | package-core | 40.8 KiB | 37.0 KiB | 48.8 KiB | 12.9 KiB | 11.3 KiB |
-| Scientific reader: Nanonis SXM | purejsimage/scientific/readers/nanonis-sxm | package-core | 32.1 KiB | — | 97.7 KiB | 10.7 KiB | 9.3 KiB |
-| Scientific reader: Igor Binary Wave v5 | purejsimage/scientific/readers/igor-binary-wave | package-core | 33.3 KiB | — | 107.4 KiB | 11.1 KiB | 9.7 KiB |
-| Scientific reader: Digital Surf SUR/PRO | purejsimage/scientific/readers/digital-surf | package-core | 37.8 KiB | — | 107.4 KiB | 11.9 KiB | 10.4 KiB |
-| Scientific reader: X3P surface exchange | purejsimage/scientific/readers/x3p | package-core | 42.9 KiB | — | 117.2 KiB | 14.3 KiB | 12.5 KiB |
-| Scientific reader: ENVI | purejsimage/scientific/readers/envi | package-core | 59.1 KiB | 55.6 KiB | 73.2 KiB | 17.7 KiB | 15.6 KiB |
-| Scientific reader: FITS | purejsimage/scientific/readers/fits | package-core | 46.9 KiB | 43.2 KiB | 58.6 KiB | 15.1 KiB | 13.3 KiB |
-| Scientific reader: MRC/CCP4 | purejsimage/scientific/readers/mrc | package-core | 41.9 KiB | 37.9 KiB | 49.8 KiB | 13.4 KiB | 11.8 KiB |
-| Scientific reader: CBF/imgCIF | purejsimage/scientific/readers/cbf | package-core | 44.2 KiB | 40.7 KiB | 53.7 KiB | 14.2 KiB | 12.6 KiB |
-| Scientific reader: PNG | purejsimage/scientific/readers/png | package-core | 67.5 KiB | 65.8 KiB | 85.5 KiB | 22.7 KiB | 19.8 KiB |
-| Scientific reader: JPEG | purejsimage/scientific/readers/jpeg | package-core | 104.0 KiB | 102.4 KiB | 133.1 KiB | 33.6 KiB | 28.8 KiB |
-| Scientific reader: WebP | purejsimage/scientific/readers/webp | package-core | 103.8 KiB | 103.8 KiB | 135.0 KiB | 36.3 KiB | 31.2 KiB |
-| Scientific reader: BMP | purejsimage/scientific/readers/bmp | package-core | 43.1 KiB | 43.1 KiB | 56.0 KiB | 14.3 KiB | 12.6 KiB |
-| Scientific reader: JPEG 2000 / JP2 | purejsimage/scientific/readers/jp2 | package-core | 91.5 KiB | 91.5 KiB | 119.0 KiB | 29.3 KiB | 25.6 KiB |
-| Scientific reader: TIFF | purejsimage/scientific/readers/tiff | package-core | 280.7 KiB | 256.8 KiB | 333.8 KiB | 88.1 KiB | 73.9 KiB |
-| Scientific reader: OME-TIFF | purejsimage/scientific/readers/ome-tiff | package-core | 269.6 KiB | 261.2 KiB | 341.8 KiB | 85.2 KiB | 71.3 KiB |
-| Scientific reader: Aperio SVS | purejsimage/scientific/readers/aperio-svs | package-core | 262.7 KiB | 253.4 KiB | 330.1 KiB | 82.4 KiB | 69.0 KiB |
-| Scientific reader: Gatan DigitalMicrograph | purejsimage/scientific/readers/digital-micrograph | package-core | 50.2 KiB | — | 97.7 KiB | 15.5 KiB | 13.6 KiB |
-| Scientific reader: FEI/Thermo TIA SER | purejsimage/scientific/readers/tia-ser | package-core | 49.5 KiB | — | 97.7 KiB | 15.1 KiB | 13.3 KiB |
-| Scientific reader: FEI/Thermo TIA EMI | purejsimage/scientific/readers/tia-emi | package-core | 63.1 KiB | — | 146.5 KiB | 19.1 KiB | 16.7 KiB |
-| Scientific reader: NCEM EMD 0.2 | purejsimage/scientific/readers/ncem-emd | package-core | 175.8 KiB | — | 175.8 KiB | 46.8 KiB | 39.9 KiB |
-| Scientific reader: FEI/Thermo Velox EMD | purejsimage/scientific/readers/velox-emd | package-core | 170.3 KiB | — | 175.8 KiB | 45.5 KiB | 38.8 KiB |
-| Scientific reader: Lispix RPL/RAW | purejsimage/scientific/readers/rpl | package-core | 40.2 KiB | 40.2 KiB | 52.2 KiB | 12.3 KiB | 10.8 KiB |
-| Scientific reader: EMSA/MAS spectrum | purejsimage/scientific/readers/emsa | package-core | 38.2 KiB | 38.1 KiB | 49.6 KiB | 11.9 KiB | 10.4 KiB |
-| Scientific reader: NRRD | purejsimage/scientific/readers/nrrd | package-core | 42.9 KiB | 42.7 KiB | 55.5 KiB | 13.5 KiB | 11.9 KiB |
-| Scientific reader: MetaImage MHD/MHA | purejsimage/scientific/readers/meta-image | package-core | 40.0 KiB | 40.0 KiB | 52.0 KiB | 12.4 KiB | 10.9 KiB |
-| Scientific reader: NIfTI-1/2 | purejsimage/scientific/readers/nifti | package-core | 44.1 KiB | 41.4 KiB | 53.9 KiB | 13.8 KiB | 12.1 KiB |
-| Scientific reader: NumPy NPY | purejsimage/scientific/readers/npy | package-core | 38.1 KiB | 38.1 KiB | 49.5 KiB | 11.9 KiB | 10.4 KiB |
-| Scientific reader: NanoMegas ASTAR blockfile | purejsimage/scientific/readers/blockfile | package-core | 38.8 KiB | 38.7 KiB | 50.3 KiB | 11.8 KiB | 10.3 KiB |
-| Scientific reader: Quantum Detectors Merlin MIB | purejsimage/scientific/readers/mib | package-core | 31.8 KiB | 31.8 KiB | 41.4 KiB | 10.4 KiB | 9.1 KiB |
-| Scientific reader: ANG/CTF orientation map | purejsimage/scientific/readers/ebsd-text | package-core | 40.8 KiB | 40.7 KiB | 52.9 KiB | 12.5 KiB | 11.0 KiB |
-
-#### Codec entry sizes
-
-Every stable codec package export is measured individually. Experimental HEIF/HEIC remains a separate row and is not included in the stable aggregate.
-
-| Surface | Codec | Package export | Minified JS | gzip | Brotli | Implementation |
-| --- | --- | --- | ---: | ---: | ---: | --- |
-| Stable | JPEG | `purejsimage/codecs/jpeg` | 130.4 KiB | 41.7 KiB | 35.3 KiB | pure-javascript |
-| Stable | PNG | `purejsimage/codecs/png` | 93.9 KiB | 30.8 KiB | 26.6 KiB | pure-javascript |
-| Stable | WebP | `purejsimage/codecs/webp` | 130.2 KiB | 44.4 KiB | 38.0 KiB | pure-javascript |
-| Stable | BMP | `purejsimage/codecs/bmp` | 69.6 KiB | 22.5 KiB | 19.7 KiB | pure-javascript |
-| Stable | TIFF | `purejsimage/codecs/tiff` | 300.1 KiB | 94.1 KiB | 78.6 KiB | pure-javascript |
-| Stable | GIF | `purejsimage/codecs/gif` | 67.8 KiB | 21.7 KiB | 19.1 KiB | pure-javascript |
-| Stable | ICO | `purejsimage/codecs/ico` | 103.1 KiB | 33.9 KiB | 29.2 KiB | pure-javascript |
-| Stable | JPEG 2000 / JP2 | `purejsimage/codecs/jpeg2000` | 118.7 KiB | 37.6 KiB | 32.7 KiB | pure-javascript |
-| Stable | AVIF | `purejsimage/codecs/avif` | 444.9 KiB | 169.3 KiB | 145.3 KiB | pure-javascript |
-| Experimental | HEIF / HEIC (experimental) | `purejsimage/codecs/experimental/heic` | 158.2 KiB | 51.0 KiB | 43.9 KiB | pure-javascript |
-| Stable | JPEG XL | `purejsimage/codecs/jpegxl` | 99.6 KiB | 31.7 KiB | 27.7 KiB | pure-javascript |
-| Stable | Radiance HDR / RGBE | `purejsimage/codecs/hdr` | 69.8 KiB | 22.2 KiB | 19.5 KiB | pure-javascript |
-| Stable | QOI | `purejsimage/codecs/qoi` | 66.4 KiB | 21.2 KiB | 18.7 KiB | pure-javascript |
-| Stable | Netpbm and PFM | `purejsimage/codecs/netpbm` | 74.6 KiB | 23.7 KiB | 20.7 KiB | pure-javascript |
-| Stable | TGA / TARGA | `purejsimage/codecs/tga` | 70.2 KiB | 22.5 KiB | 19.7 KiB | pure-javascript |
-| Stable aggregate | All stable codecs | `purejsimage/codecs/all` | 844.1 KiB | 296.6 KiB | 245.3 KiB | pure-javascript |
-
-#### Current WASM asset sizes
-
-| Asset | Source entry | Raw WASM | gzip | Brotli |
+| Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| JPEG decoder WASM | `src/accelerator-entries/jpeg-decoder.wasm` | 31104 bytes | 7639 bytes | 6497 bytes |
-| JPEG decoder SIMD WASM | `src/accelerator-entries/jpeg-decoder-simd.wasm` | 30947 bytes | 7794 bytes | 6661 bytes |
-| JPEG encoder WASM | `src/accelerator-entries/jpeg-encoder.wasm` | 39105 bytes | 7037 bytes | 5618 bytes |
-| JPEG encoder SIMD WASM | `src/accelerator-entries/jpeg-encoder-simd.wasm` | 48877 bytes | 9035 bytes | 7283 bytes |
-| PNG codec WASM | `src/accelerator-entries/png-codec.wasm` | 3884 bytes | 1664 bytes | 1451 bytes |
-| PNG codec SIMD WASM | `src/accelerator-entries/png-codec-simd.wasm` | 7293 bytes | 3025 bytes | 2577 bytes |
+| Core API | `purejsimage` | 59.9 KiB | 18.9 KiB | 16.8 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 844.1 KiB | 296.6 KiB | 245.3 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 154.3 KiB | 44.7 KiB | 38.2 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 835.0 KiB | 247.5 KiB | 197.8 KiB |
 
-[See reproduction commands and the machine-readable package metrics →](https://purejsimage.com/performance/#bundle)
+The extracted npm package is 4.7 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
+
+[Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->
+
+## Evidence and methodology
+
+- [Benchmark methodology and current charts](https://purejsimage.com/performance/)
+- [Date-stamped benchmark results and indexes](benchmark/results/)
+- [Machine-readable package metrics](benchmark/generated/package-metrics.json)
+- [Capability manifest](capabilities/manifest.json)
+- [Pinned benchmark corpus](benchmark/corpus/manifest.json)
+- [Detailed benchmark harness guide](benchmark/README.md)
+
+<!-- library-comparison:readme:start -->
+<!-- Generated by scripts/render-library-comparison.ts. Do not edit this block. -->
+### Historical TIFF conformance comparison
+
+The checked 2026-08-13 snapshot compared documented TIFF capabilities separately from independent RGBA output. PureJsImage decoded 104/106 comparable display cases; 57 were exact and 47 had pixel differences. “Oracle unavailable” means the independent Sharp/ImageMagick path could not produce ground truth, not that an engine failed. Current performance headlines come from the newer generated benchmark index above.
+
+[Full grouped capability matrix, methods, sources, and per-library results](https://purejsimage.com/tiff-comparison/)
+<!-- library-comparison:readme:end -->
 
 ## Why PureJsImage?
 
-- First-party codecs implemented in this repository, with strict TypeScript as
-  the permanent portable reference engine.
-- Zero runtime dependencies and no required native image stack, WebAssembly, or
-  external binaries.
-- Codec-native bounded execution where the format permits it, with explicit
-  memory classes and documented full-frame fallbacks.
-- The same reference behavior across Node.js and modern browsers.
-- A native whole-slide browser demo that opens Aperio SVS tiles through HTTP
-  Range without conversion, a tile server, or a sidecar index.
-- Explicit unsupported boundaries instead of plausible corruption.
-- Permanent conformance corpora, hostile-input tests, and reproducible
-  performance and memory measurements.
-- Optional first-party acceleration that preserves the reference contract
-  rather than replacing it.
+- Low-memory execution is the northstar: avoid source-sized bitmaps and duplicate full-frame buffers
+  wherever codec structure permits bounded rows, tiles, regions, or coefficient storage.
+- Strict TypeScript codecs remain the portable production and fallback path.
+- Zero runtime dependencies simplify browser, serverless, edge, air-gapped, and restricted builds.
+- Bounded rows, tiles, regions, and source reads are used where the format permits them.
+- Unsupported syntax fails explicitly instead of producing plausible corruption.
+- Validation, quality oracles, peak RSS, source I/O, and package footprint remain part of the
+  benchmark contract.
 
-### When to use Sharp instead
-
-If you can deploy native libvips and throughput or latency is the main constraint, use
-[Sharp](https://sharp.pixelplumbing.com/). It was 1.9×–12.2× faster than the default TypeScript path
-across the five commonly supported benchmark workflows. PureJsImage is the better fit when the same
-code must run in Node.js and browsers or edge workers, native addons or WASM are prohibited, or a
-zero-dependency deployment materially simplifies an air-gapped or supply-chain-restricted build.
- The current installed-footprint and production-package comparison is maintained in the generated
- package metrics table above.
-
-[Read the practical guides →](https://purejsimage.com/guides/)
+If native libvips is deployable and throughput is the primary constraint, use
+[Sharp](https://sharp.pixelplumbing.com/). PureJsImage is aimed at workflows where portable source,
+browser parity, explicit dependency boundaries, native scientific data, or lower-memory JavaScript
+execution matter.
 
 ## Development
-
-The repository uses TypeScript strict mode, Biome, and Vitest.
 
 ```sh
 npm install
 npm run check
 ```
 
-[Read the contributor guide →](https://purejsimage.com/contributing/)
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository checklist and the
-[project specification](project-spec.md) for the architecture and implementation
-principles.
-
-The detailed implementation and acceleration plans remain in the
-[project roadmap](ROADMAP.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md), the [architecture](project-spec.md), and the
+[roadmap](ROADMAP.md) before larger changes.
 
 ## Special thanks
 
-Special thanks to [Imazen](https://github.com/imazen) for building the image corpus that made broad,
-real-world codec testing possible.
+Thanks to [Imazen](https://github.com/imazen) for the real-world image corpus used in compatibility
+and TIFF validation.

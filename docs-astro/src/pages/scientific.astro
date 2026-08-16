@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
+import documentation from '../data/documentation-data.json'
 import packageMetrics from '../data/package-metrics.json'
 
 const scientificReadersById = new Map(
@@ -13,15 +14,16 @@ const readerLabel = (id: string): string => {
 ---
 
 <SiteLayout
-  title="Scientific raster viewer for ENVI, GSF and FITS | PureJsImage"
-  description="Open ENVI hyperspectral cubes, GSF AFM surfaces, FITS and MRC volumes, and CBF detector frames locally in JavaScript."
+  title="Scientific image readers and browser explorer | PureJsImage"
+  description="Native-precision TypeScript readers for microscopy, whole-slide, AFM, surface metrology, medical volumes, spectroscopy, detector, and numeric interchange data."
   canonical="https://purejsimage.com/scientific/"
   bodyClass="scientific-page"
   current="scientific/"
   skipLabel="Skip to Scientific Raster Explorer"
   openGraph={{
-    title: 'Scientific raster viewer for ENVI, GSF and FITS | PureJsImage',
-    description: 'Open ENVI, GSF, and FITS numeric rasters locally in a browser.',
+    title: 'Scientific image readers and browser explorer | PureJsImage',
+    description:
+      'Native-precision scientific readers for microscopy, whole-slide, AFM, surface, volume, spectroscopy, detector, and numeric data in TypeScript.',
     url: 'https://purejsimage.com/scientific/',
     image: 'https://purejsimage.com/assets/scientific-hyperspectral-envi-viewer.png',
   }}
@@ -31,11 +33,11 @@ const readerLabel = (id: string): string => {
     <section class="scientific-hero">
       <div class="container scientific-hero-grid">
         <div>
-          <p class="eyebrow">Local scientific raster viewer</p>
-          <h1>Open scientific rasters, detector frames, and 3D volumes in the browser.</h1>
-          <p class="scientific-lede">PureJsImage keeps numeric samples separate from the RGB pixels used for display. Range selection, palettes, display transfers, and relief are explicit operations.</p>
+          <p class="eyebrow">Scientific readers and wired browser explorer</p>
+          <h1>Native scientific data in TypeScript, with an intentionally focused live explorer.</h1>
+          <p class="scientific-lede">The package exposes {documentation.support.scientificReaderCount} explicit readers across microscopy, whole-slide, AFM and surface metrology, medical volumes, spectroscopy, detector, and raw numeric interchange. Numeric samples remain separate from RGB display pixels; range selection, palettes, slices, projections, and relief are explicit operations.</p>
         </div>
-        <div class="scientific-local-card"><strong>Local files stay local</strong><span>GSF, ENVI, FITS, MRC, and CBF files stay in this browser tab. Large inputs use bounded Blob reads.</span></div>
+        <div class="scientific-local-card"><strong>Explorer scope is smaller than package scope</strong><span>The UI below currently wires GSF, ENVI, FITS, MRC, and CBF. It does not claim to open every package reader. Local files stay in the browser tab and large inputs use bounded Blob reads.</span></div>
       </div>
     </section>
 
@@ -141,13 +143,14 @@ const readerLabel = (id: string): string => {
     <section class="scientific-sources" aria-labelledby="scientific-reader-surface-title">
       <div class="container">
         <div class="scientific-sources-heading">
-          <div><p class="eyebrow">Package reader surface</p><h2 id="scientific-reader-surface-title">{packageMetrics.scientificReaders.length} explicit scientific reader exports</h2></div>
+          <div><p class="eyebrow">Generated package reader surface</p><h2 id="scientific-reader-surface-title">{documentation.support.scientificReaderCount} explicit scientific reader exports</h2></div>
           <p>The package surface is broader than the interactive explorer above. The explorer currently wires only {packageMetrics.liveDemoReaderIds.length} readers; it does not claim to open every newly supported format. Applications can register any explicit reader export listed below.</p>
         </div>
         <div class="scientific-source-grid">
-          {packageMetrics.scientificReaderGroups.map((group) => <article><span>{group.label}</span><h3>{group.readerIds.length} package readers</h3><p>{group.readerIds.map(readerLabel).join(' · ')}</p></article>)}
+          {documentation.support.scientificReaderFamilies.map((group) => <article><span>{group.label}</span><h3>{group.readerIds.length} package readers</h3><p>{group.readerIds.map(readerLabel).join(' · ')}</p></article>)}
         </div>
         <p class="scientific-quant-note"><strong>Live browser demo:</strong> {packageMetrics.liveDemoReaderIds.map(readerLabel).join(' · ')}. The remaining package readers are available through their explicit imports and the package reader aggregate, subject to their documented source and runtime boundaries.</p>
+        <p><a class="text-link" href="../scientific-formats/">Open the generated scientific format reference, benchmark coverage, and import paths →</a></p>
       </div>
     </section>
 

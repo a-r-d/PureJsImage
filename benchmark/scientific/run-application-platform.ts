@@ -813,6 +813,7 @@ const rangeWsi = await measureWsiRange()
 const cacheClasses = await measureCacheClasses()
 const report = {
   schemaVersion: 1,
+  generatedAt: new Date().toISOString(),
   fixtureVersion: 'application-platform-v1',
   environment: {
     node: process.version,
@@ -913,13 +914,18 @@ bytes are bounded cache accounting rather than process peak memory.
 The range-backed Aperio workflow fetched ${String(rangeWsi.httpRange.bytesFetched)} of ${String(rangeWsi.sourceBytes)} source bytes across ${String(rangeWsi.httpRange.requests)} HTTP range requests. See the JSON companion for source/derived cache counters, Gaussian tile-size scaling, setup/planning splits, and exact fixture descriptors.
 `
 
-if (process.argv.includes('--write')) {
-  await writeFile(
-    'benchmark/results/application-platform.json',
-    `${JSON.stringify(report, null, 2)}\n`,
-  )
-  await writeFile('benchmark/results/application-platform.md', markdown)
-}
+const outputFlag = process.argv.indexOf('--output')
+const requestedOutput = outputFlag === -1 ? undefined : process.argv[outputFlag + 1]
+if (outputFlag !== -1 && !requestedOutput) throw new Error('--output requires a path')
+const outputPath =
+  requestedOutput ??
+  `benchmark/results/application-platform-${new Date().toISOString().replaceAll(/[:.]/gu, '-')}.json`
+await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`)
+await writeFile(
+  outputPath.replace(/\.json$/u, '.md'),
+  `${markdown}\n\nResult JSON: ${outputPath}\n`,
+)
+console.log(`Wrote ${outputPath}`)
 
 console.log(JSON.stringify(report, null, 2))
 runtime.clear()

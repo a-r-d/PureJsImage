@@ -64,7 +64,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="conformance" data-search-item>
           <h2>Imazen conformance baseline</h2>
-          <p>The 2026-08-10 154-file TIFF corpus run records 148 passes, 2 structured <code>UNSUPPORTED_OPERATION</code> results, and 4 safely rejected robustness inputs. It records zero decode failures, invalid outputs, raw exceptions, timeouts, crashes, or out-of-memory results.</p>
+          <p>The historical 2026-08-10 154-file TIFF corpus run records 148 passes, 2 structured <code>UNSUPPORTED_OPERATION</code> results, and 4 safely rejected robustness inputs. It records zero decode failures, invalid outputs, raw exceptions, timeouts, crashes, or out-of-memory results. Current operation-level TIFF and scientific-reader timings are kept on the <a href="../performance/">generated performance page</a>.</p>
           <p>Every file runs in an isolated worker with a 30-second timeout and 512 MiB heap limit. A pass means metadata inspection, TIFF-to-PNG decode, PNG reopen, and output-dimension validation all completed. This corpus result demonstrates safe end-to-end handling; it is not by itself an exact-pixel comparison.</p>
           <p>Exact pixels are tested separately with pinned fixtures and independent ImageMagick/LibTIFF, tifffile/imagecodecs, Esri LERC, libwebp, GeoTIFF.js, and OpenSlide oracles. The corpus worker explicitly composes WebP-in-TIFF while the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.</p>
           <p><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/imazen-tiff-conformance.md" target="_blank" rel="noreferrer">Read the complete Imazen TIFF report →</a></p>

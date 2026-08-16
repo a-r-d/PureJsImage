@@ -11,6 +11,7 @@ import type {
 } from '../scientific-readers/competitor-types.ts'
 
 const adapterEntries: Readonly<Record<string, string>> = {
+  purejsimage: 'node-purejsimage.ts',
   geotiff: 'node-geotiff.ts',
   tiff: 'node-tiff.ts',
   utif2: 'node-utif2.ts',
@@ -132,6 +133,7 @@ export const measureScientificCompetitorFootprints = async (
       )
     }
     const repositoryDirectory =
+      engine.id === 'purejsimage' ||
       engine.id === 'geotiff' ||
       engine.id === 'tiff' ||
       engine.id === 'utif2' ||

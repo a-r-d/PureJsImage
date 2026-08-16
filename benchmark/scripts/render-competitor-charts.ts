@@ -1,14 +1,41 @@
-import { mkdir, readFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import type { BenchmarkReport, BenchmarkResult } from '../types.ts'
 
 const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
-const defaultReportPath = join(benchmarkDirectory, 'results', 'competitors-2026-08-09.json')
-const reportPath = process.argv[2] ?? defaultReportPath
 const outputDirectory = join(benchmarkDirectory, 'results')
 const docsAssetsDirectory = join(dirname(benchmarkDirectory), 'docs', 'assets')
+
+const latestCompetitorReport = async (): Promise<string> => {
+  const candidates = (await readdir(outputDirectory))
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => join(outputDirectory, file))
+  const reports: { readonly path: string; readonly createdAt: string }[] = []
+  for (const path of candidates) {
+    try {
+      const value: unknown = JSON.parse(await readFile(path, 'utf8'))
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        'profile' in value &&
+        value.profile === 'competitors' &&
+        'createdAt' in value &&
+        typeof value.createdAt === 'string'
+      ) {
+        reports.push({ path, createdAt: value.createdAt })
+      }
+    } catch {
+      // Ignore non-report JSON artifacts.
+    }
+  }
+  const latest = reports.sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0]
+  if (latest === undefined) throw new Error(`No competitors report found in ${outputDirectory}`)
+  return latest.path
+}
+
+const reportPath = process.argv[2] ?? (await latestCompetitorReport())
 
 const engines = [
   { id: 'purejsimage', label: 'PureJsImage · pure JS', color: '#2563eb' },
@@ -75,6 +102,7 @@ if (!isBenchmarkReport(parsedReport)) {
 }
 const report = parsedReport
 const reportDate = new Date(report.createdAt).toISOString().slice(0, 10)
+const reportStem = basename(reportPath).replace(/\.json$/u, '')
 
 const resultByKey = new Map(
   report.results.map((result) => [`${result.engine}:${result.workflow}`, result]),
@@ -287,12 +315,12 @@ const chartSvg = (metric: Metric): string => {
   </svg>`
 }
 
-const speedPath = join(outputDirectory, `competitors-speed-${reportDate}.png`)
-const memoryPath = join(outputDirectory, `competitors-memory-${reportDate}.png`)
-const qualityPath = join(outputDirectory, `competitors-quality-${reportDate}.png`)
-const docsSpeedPath = join(docsAssetsDirectory, `competitors-speed-${reportDate}.png`)
-const docsMemoryPath = join(docsAssetsDirectory, `competitors-memory-${reportDate}.png`)
-const docsQualityPath = join(docsAssetsDirectory, `competitors-quality-${reportDate}.png`)
+const speedPath = join(outputDirectory, `competitors-speed-${reportStem}.png`)
+const memoryPath = join(outputDirectory, `competitors-memory-${reportStem}.png`)
+const qualityPath = join(outputDirectory, `competitors-quality-${reportStem}.png`)
+const docsSpeedPath = join(docsAssetsDirectory, `competitors-speed-${reportStem}.png`)
+const docsMemoryPath = join(docsAssetsDirectory, `competitors-memory-${reportStem}.png`)
+const docsQualityPath = join(docsAssetsDirectory, `competitors-quality-${reportStem}.png`)
 
 await mkdir(docsAssetsDirectory, { recursive: true })
 await Promise.all([

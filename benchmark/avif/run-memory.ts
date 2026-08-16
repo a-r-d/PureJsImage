@@ -134,6 +134,11 @@ const median = (values: readonly number[]): number => {
 const outputFlag = process.argv.indexOf('--output')
 const outputPath = outputFlag === -1 ? undefined : process.argv[outputFlag + 1]
 if (outputFlag !== -1 && !outputPath) throw new Error('--output requires a path')
+const defaultOutputPath = join(
+  process.cwd(),
+  'benchmark/results',
+  `avif-memory-${new Date().toISOString().replaceAll(/[:.]/gu, '-')}.json`,
+)
 const labelFlag = process.argv.indexOf('--label')
 const label = labelFlag === -1 ? 'AVIF memory measurement' : process.argv[labelFlag + 1]
 if (!label) throw new Error('--label requires a value')
@@ -185,6 +190,10 @@ try {
   const report = {
     label,
     generatedAt: new Date().toISOString(),
+    validation: {
+      passed: true,
+      policy: 'Every isolated worker output matched its pinned checksum and dimensions.',
+    },
     isolatedColdProcessPerRun: true,
     runsPerScenario: 3,
     node: process.version,
@@ -206,7 +215,13 @@ try {
     runs,
   }
   const serialized = `${JSON.stringify(report, undefined, 2)}\n`
-  if (outputPath) await writeFile(outputPath, serialized)
+  const resultPath = outputPath ?? defaultOutputPath
+  await writeFile(resultPath, serialized)
+  await writeFile(
+    resultPath.replace(/\.json$/u, '.md'),
+    `# AVIF memory benchmark\n\n- Generated: ${report.generatedAt}\n- Validation: every isolated run was checksum validated\n- Result: ${resultPath}\n\n${report.notes.purpose}\n`,
+  )
+  console.log(`Wrote ${resultPath}`)
   console.log(serialized.trim())
 } finally {
   await rm(directory, { recursive: true, force: true })

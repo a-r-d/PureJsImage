@@ -1,0 +1,927 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "packageMetrics": "benchmark/generated/package-metrics.json",
+    "resultIndex": "benchmark/results/result-index-2026-08-16T12-32-36-126Z.json"
+  },
+  "support": {
+    "experimentalCodecs": ["HEIF / HEIC (experimental)"],
+    "scientificReaderCount": 31,
+    "scientificReaderFamilies": [
+      {
+        "id": "common-raster-whole-slide",
+        "label": "Common raster and whole-slide",
+        "readerIds": [
+          "purejsimage/png",
+          "purejsimage/jpeg",
+          "purejsimage/webp",
+          "purejsimage/bmp",
+          "purejsimage/jp2",
+          "purejsimage/tiff",
+          "purejsimage/ome-tiff",
+          "purejsimage/aperio-svs"
+        ]
+      },
+      {
+        "id": "electron-microscopy",
+        "label": "Electron microscopy",
+        "readerIds": [
+          "purejsimage/digital-micrograph",
+          "purejsimage/tia-ser",
+          "purejsimage/tia-emi",
+          "purejsimage/ncem-emd",
+          "purejsimage/velox-emd",
+          "purejsimage/blockfile",
+          "purejsimage/mib"
+        ]
+      },
+      {
+        "id": "afm-spm-surface-metrology",
+        "label": "AFM, SPM, and surface metrology",
+        "readerIds": [
+          "purejsimage/gsf",
+          "purejsimage/nanonis-sxm",
+          "purejsimage/igor-binary-wave",
+          "purejsimage/digital-surf",
+          "purejsimage/x3p"
+        ]
+      },
+      {
+        "id": "medical-volume-interchange",
+        "label": "Medical and volume interchange",
+        "readerIds": [
+          "purejsimage/mrc",
+          "purejsimage/nrrd",
+          "purejsimage/meta-image",
+          "purejsimage/nifti"
+        ]
+      },
+      {
+        "id": "spectroscopy-detector-interchange",
+        "label": "Spectroscopy and detector interchange",
+        "readerIds": [
+          "purejsimage/envi",
+          "purejsimage/fits",
+          "purejsimage/cbf",
+          "purejsimage/rpl",
+          "purejsimage/emsa",
+          "purejsimage/ebsd-text"
+        ]
+      },
+      {
+        "id": "raw-numeric-interchange",
+        "label": "Raw numeric interchange",
+        "readerIds": ["purejsimage/npy"]
+      }
+    ],
+    "stableCodecCount": 14,
+    "stableCodecNames": [
+      "JPEG",
+      "PNG",
+      "WebP",
+      "BMP",
+      "TIFF",
+      "GIF",
+      "ICO",
+      "JPEG 2000 / JP2",
+      "AVIF",
+      "JPEG XL",
+      "Radiance HDR / RGBE",
+      "QOI",
+      "Netpbm and PFM",
+      "TGA / TARGA"
+    ]
+  },
+  "sizes": {
+    "allReaders": {
+      "brotliBytes": 202565,
+      "gzipBytes": 253458,
+      "minifiedBytes": 855022
+    },
+    "allStableCodecs": {
+      "brotliBytes": 251188,
+      "gzipBytes": 303749,
+      "minifiedBytes": 864347
+    },
+    "core": {
+      "brotliBytes": 17171,
+      "gzipBytes": 19388,
+      "minifiedBytes": 61385
+    },
+    "installedPackage": {
+      "bytes": 4977573,
+      "productionPackageCount": 1
+    },
+    "packageVersion": "0.10.0",
+    "scientificPlatform": {
+      "brotliBytes": 39132,
+      "gzipBytes": 45816,
+      "minifiedBytes": 157982
+    }
+  },
+  "ordinary": {
+    "charts": {
+      "speed": "assets/competitors-speed-2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.png",
+      "quality": "assets/competitors-quality-2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.png",
+      "memory": "assets/competitors-memory-2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.png"
+    },
+    "createdAt": "2026-08-16T03:13:22.290Z",
+    "engineVersions": [
+      {
+        "id": "purejsimage",
+        "kind": "pure-javascript",
+        "version": "0.10.0 (workspace)"
+      },
+      {
+        "id": "purejsimage-wasm",
+        "kind": "webassembly",
+        "version": "0.10.0 (workspace WASM)"
+      },
+      {
+        "id": "jimp",
+        "kind": "pure-javascript",
+        "version": "1.6.0"
+      },
+      {
+        "id": "sharp",
+        "kind": "native",
+        "version": "0.35.3"
+      },
+      {
+        "id": "sharp-single-thread",
+        "kind": "native-single-thread",
+        "version": "0.35.3"
+      },
+      {
+        "id": "image-js",
+        "kind": "pure-javascript",
+        "version": "1.7.0"
+      },
+      {
+        "id": "jsquash",
+        "kind": "webassembly",
+        "version": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      }
+    ],
+    "environment": {
+      "architecture": "x64",
+      "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "fingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "node": "v24.16.0",
+      "os": "Linux 6.17.0-41-generic",
+      "runner": "local",
+      "v8": "13.6.233.17-node.49"
+    },
+    "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+    "headline": {
+      "jimpPeakRssBytes": 1246146560,
+      "memoryReductionPercent": 84.20004273012638,
+      "pureJsImagePeakRssBytes": 196890624,
+      "workflow": "24-megapixel northstar photo pipeline"
+    },
+    "reportJson": "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
+    "reportMarkdown": "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md",
+    "statusCounts": {
+      "pass": 79,
+      "unsupported": 19
+    }
+  },
+  "scientific": {
+    "baseline": {
+      "createdAt": "2026-08-16T03:40:25.698Z",
+      "engine": {
+        "id": "purejsimage-scientific",
+        "version": "0.10.0"
+      },
+      "environment": {
+        "architecture": "x64",
+        "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+        "fingerprint": "e324a01def1ede51ffbe2cb8a027c58e87cb88eda6ff419752cd0e456e333ce3",
+        "node": "v24.16.0",
+        "os": "Linux 6.17.0-41-generic",
+        "v8": "13.6.233.17-node.49"
+      },
+      "reportJson": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.json",
+      "reportMarkdown": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.md",
+      "statusCounts": {
+        "supported": 43
+      },
+      "workloadCount": 43
+    },
+    "charts": {
+      "Scientific first-block latency": "assets/scientific-first-block-latency.svg",
+      "Scientific selected-operation time": "assets/scientific-selected-operation.svg",
+      "Scientific absolute peak RSS": "assets/scientific-absolute-peak-rss.svg",
+      "Scientific source I/O": "assets/scientific-source-io.svg",
+      "Scientific package and WASM footprint": "assets/scientific-package-wasm-footprint.svg"
+    },
+    "competitors": {
+      "createdAt": "2026-08-16T12:32:28.536Z",
+      "engineVersions": [
+        {
+          "id": "purejsimage",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "0.10.0"
+        },
+        {
+          "id": "geotiff",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "3.0.5"
+        },
+        {
+          "id": "tiff",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "7.1.3"
+        },
+        {
+          "id": "utif2",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "4.1.0"
+        },
+        {
+          "id": "image-js",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "1.7.0"
+        },
+        {
+          "id": "nifti-reader-js",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "0.8.0"
+        },
+        {
+          "id": "npyjs",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "1.2.0"
+        },
+        {
+          "id": "jsfive",
+          "implementationClass": "pure-javascript",
+          "packageVersion": "0.4.0"
+        },
+        {
+          "id": "h5wasm",
+          "implementationClass": "webassembly",
+          "packageVersion": "0.10.3"
+        },
+        {
+          "id": "itk-wasm-image-io",
+          "implementationClass": "webassembly",
+          "packageVersion": "1.6.1"
+        }
+      ],
+      "environment": {
+        "architecture": "x64",
+        "node": "v24.16.0",
+        "platform": "linux"
+      },
+      "noisyRows": [
+        {
+          "cvPercent": 14.74503707181597,
+          "engineId": "purejsimage",
+          "metric": "first usable data",
+          "workloadId": "nifti-selected-slice"
+        },
+        {
+          "cvPercent": 14.791790717124007,
+          "engineId": "purejsimage",
+          "metric": "selected operation",
+          "workloadId": "nifti-selected-slice"
+        },
+        {
+          "cvPercent": 15.535399310993295,
+          "engineId": "purejsimage",
+          "metric": "first usable data",
+          "workloadId": "npy-c-full"
+        },
+        {
+          "cvPercent": 15.520358577297724,
+          "engineId": "purejsimage",
+          "metric": "selected operation",
+          "workloadId": "npy-c-full"
+        },
+        {
+          "cvPercent": 15.27883335679244,
+          "engineId": "npyjs",
+          "metric": "first usable data",
+          "workloadId": "npy-c-full"
+        },
+        {
+          "cvPercent": 16.555739169641846,
+          "engineId": "npyjs",
+          "metric": "selected operation",
+          "workloadId": "npy-c-full"
+        }
+      ],
+      "reportJson": "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.json",
+      "reportMarkdown": "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.md",
+      "statusCounts": {
+        "supported": 35,
+        "unsupported": 135
+      }
+    },
+    "crossEnvironmentDisclaimer": "Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.",
+    "pythonReference": {
+      "available": false,
+      "note": "No eligible Python scientific performance reference artifact is present in the generated result index. Development oracles remain correctness references, not timed production engines."
+    },
+    "range": {
+      "reportJson": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.json",
+      "reportMarkdown": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.md",
+      "statusCounts": {
+        "supported": 95,
+        "error": 1
+      }
+    }
+  },
+  "scientificFormats": [
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "extensions": ["gsf"],
+      "family": "afm-spm-surface-metrology",
+      "format": "Gwyddion Simple Field",
+      "id": "purejsimage/gsf",
+      "nativePrecision": "Native numeric samples (float32)",
+      "oracle": "Descriptor and first selected surface samples must be finite float64 values.",
+      "packageExport": "purejsimage/scientific/readers/gsf",
+      "resourceModel": "single",
+      "supportBoundary": "One scalar 2D field with exact X/Y calibration and bounded metadata."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "extensions": ["sxm"],
+      "family": "afm-spm-surface-metrology",
+      "format": "Nanonis SXM",
+      "id": "purejsimage/nanonis-sxm",
+      "nativePrecision": "Native numeric samples (float32)",
+      "oracle": "First dataset exposes calibrated x/y axes and a readable bounded plane.",
+      "packageExport": "purejsimage/scientific/readers/nanonis-sxm",
+      "resourceModel": "single",
+      "supportBoundary": "Nanonis SXM v2 FLOAT MSBFIRST images; every recorded channel and direction is separate, binary values retain declared channel units, and Y remains in top-to-bottom file order with a negative calibrated step."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["ibw"],
+      "family": "afm-spm-surface-metrology",
+      "format": "Igor Binary Wave v5",
+      "id": "purejsimage/igor-binary-wave",
+      "nativePrecision": "Native numeric samples (float32)",
+      "oracle": "First dataset exposes at least two axes and a readable plane.",
+      "packageExport": "purejsimage/scientific/readers/igor-binary-wave",
+      "resourceModel": "single",
+      "supportBoundary": "Numeric IBW v5 waves with two through four contiguous dimensions, endian and checksum validation, linear axes, units, notes, labels, and selected XY regions; complex, text, formula-dependent, and private-option waves are rejected."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["surface"],
+      "directRangeReads": false,
+      "extensions": ["sur", "pro"],
+      "family": "afm-spm-surface-metrology",
+      "format": "Digital Surf SUR/PRO",
+      "id": "purejsimage/digital-surf",
+      "nativePrecision": "Native numeric samples (float64)",
+      "oracle": "First surface descriptor is calibrated and a bounded plane is readable.",
+      "packageExport": "purejsimage/scientific/readers/digital-surf",
+      "resourceModel": "single",
+      "supportBoundary": "Digital Surf integer surface, multilayer, and profile records with bounded stored or zlib-stream payloads, exact scale/offset conversion, special-point masks, physical axes, units, object enumeration, comments, and private-zone bounds; spectral maps are rejected."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "extensions": ["x3p"],
+      "family": "afm-spm-surface-metrology",
+      "format": "X3P surface exchange",
+      "id": "purejsimage/x3p",
+      "nativePrecision": "Native numeric samples (float64)",
+      "oracle": "First dataset exposes a 4x4 calibrated plane.",
+      "packageExport": "purejsimage/scientific/readers/x3p",
+      "resourceModel": "single",
+      "supportBoundary": "ISO 5436-2 SUR matrices with incremental X/Y axes, one Z layer, numeric binary point data, optional validity masks, exact Z increment/offset conversion, bounded ZIP/ZIP64 indexing, and stored-member range views."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "extensions": ["hdr", "img", "dat", "raw"],
+      "family": "spectroscopy-detector-interchange",
+      "format": "ENVI",
+      "id": "purejsimage/envi",
+      "nativePrecision": "Native numeric samples (uint16)",
+      "oracle": "Header and binary resolve as one dataset with a readable band plane.",
+      "packageExport": "purejsimage/scientific/readers/envi",
+      "resourceModel": "companion-pair",
+      "supportBoundary": "Header-plus-binary scalar cubes with BSQ, BIL, or BIP layout and exact selected-region reads."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["fits", "fit", "fts"],
+      "family": "spectroscopy-detector-interchange",
+      "format": "FITS",
+      "id": "purejsimage/fits",
+      "nativePrecision": "Native numeric samples (float64)",
+      "oracle": "Primary image dataset exposes x/y axes and a readable plane.",
+      "packageExport": "purejsimage/scientific/readers/fits",
+      "resourceModel": "single",
+      "supportBoundary": "Supported image HDUs with ranked axes, native numeric samples, and linear physical coordinates."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["mrc", "map", "ccp4"],
+      "family": "medical-volume-interchange",
+      "format": "MRC/CCP4",
+      "id": "purejsimage/mrc",
+      "nativePrecision": "Native numeric samples (int16)",
+      "oracle": "2x2 int16 plane values are finite and metadata includes cell dimensions.",
+      "packageExport": "purejsimage/scientific/readers/mrc",
+      "resourceModel": "single",
+      "supportBoundary": "One scalar image or volume for the documented MRC/CCP4 modes and axis mappings."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "extensions": ["cbf"],
+      "family": "spectroscopy-detector-interchange",
+      "format": "CBF/imgCIF",
+      "id": "purejsimage/cbf",
+      "nativePrecision": "Native numeric samples (int32)",
+      "oracle": "2x2 detector plane decodes to four finite samples.",
+      "packageExport": "purejsimage/scientific/readers/cbf",
+      "resourceModel": "single",
+      "supportBoundary": "One 2D detector image using the documented byte-offset encoding subset."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "extensions": ["png"],
+      "family": "common-raster-whole-slide",
+      "format": "PNG",
+      "id": "purejsimage/png",
+      "nativePrecision": "Canonical uint8 adapter (uint8)",
+      "oracle": "Image codec adapter exposes a uint8 plane.",
+      "packageExport": "purejsimage/scientific/readers/png",
+      "resourceModel": "single",
+      "supportBoundary": "Low-confidence codec adapter exposing canonical uint8 image datasets."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "extensions": ["jpg", "jpeg", "jpe"],
+      "family": "common-raster-whole-slide",
+      "format": "JPEG",
+      "id": "purejsimage/jpeg",
+      "nativePrecision": "Canonical uint8 adapter (uint8)",
+      "oracle": "Image codec adapter exposes a uint8 plane.",
+      "packageExport": "purejsimage/scientific/readers/jpeg",
+      "resourceModel": "single",
+      "supportBoundary": "Low-confidence codec adapter exposing canonical uint8 image datasets."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "extensions": ["webp"],
+      "family": "common-raster-whole-slide",
+      "format": "WebP",
+      "id": "purejsimage/webp",
+      "nativePrecision": "Canonical uint8 adapter (uint8)",
+      "oracle": "Image codec adapter exposes a uint8 plane.",
+      "packageExport": "purejsimage/scientific/readers/webp",
+      "resourceModel": "single",
+      "supportBoundary": "Low-confidence codec adapter exposing canonical uint8 image datasets; animated WebP remains outside the codec boundary."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "extensions": ["bmp", "dib"],
+      "family": "common-raster-whole-slide",
+      "format": "BMP",
+      "id": "purejsimage/bmp",
+      "nativePrecision": "Canonical uint8 adapter (uint8)",
+      "oracle": "Image codec adapter exposes a uint8 plane.",
+      "packageExport": "purejsimage/scientific/readers/bmp",
+      "resourceModel": "single",
+      "supportBoundary": "Low-confidence codec adapter exposing canonical uint8 image datasets."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "extensions": ["jp2"],
+      "family": "common-raster-whole-slide",
+      "format": "JPEG 2000 / JP2",
+      "id": "purejsimage/jp2",
+      "nativePrecision": "Canonical uint8 adapter (uint8)",
+      "oracle": "Image codec adapter exposes a uint8 plane after canonical decode.",
+      "packageExport": "purejsimage/scientific/readers/jp2",
+      "resourceModel": "single",
+      "supportBoundary": "Low-confidence codec adapter exposing canonical uint8 image datasets within the first-party JP2 decoder subset."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 3,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume", "pyramid"],
+      "directRangeReads": true,
+      "extensions": ["tif", "tiff"],
+      "family": "common-raster-whole-slide",
+      "format": "TIFF",
+      "id": "purejsimage/tiff",
+      "nativePrecision": "Native numeric samples (metadata-only, uint8)",
+      "oracle": "First TIFF dataset exposes x/y axes and a readable region.",
+      "packageExport": "purejsimage/scientific/readers/tiff",
+      "resourceModel": "single",
+      "supportBoundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels without invented axis semantics."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["tif", "tiff"],
+      "family": "common-raster-whole-slide",
+      "format": "OME-TIFF",
+      "id": "purejsimage/ome-tiff",
+      "nativePrecision": "Native numeric samples (uint8)",
+      "oracle": "OME metadata selects the OME reader and exposes x/y/z/channel/time axes.",
+      "packageExport": "purejsimage/scientific/readers/ome-tiff",
+      "resourceModel": "single",
+      "supportBoundary": "OME-XML-backed X/Y/Z/C/T datasets on supported TIFF sample and compression layouts; detection follows the first TIFF IFD and bounded tag-270 ranges instead of scanning a fixed file prefix."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["pyramid", "image"],
+      "directRangeReads": true,
+      "extensions": ["svs"],
+      "family": "common-raster-whole-slide",
+      "format": "Aperio SVS",
+      "id": "purejsimage/aperio-svs",
+      "nativePrecision": "Native numeric samples (uint8)",
+      "oracle": "Pyramid dataset exposes a bounded readable region without full-source materialization.",
+      "packageExport": "purejsimage/scientific/readers/aperio-svs",
+      "resourceModel": "single",
+      "supportBoundary": "One bounded calibrated whole-slide pyramid plus separate supported associated images."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 1,
+        "rangeSupported": 7
+      },
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "extensions": ["dm3", "dm4"],
+      "family": "electron-microscopy",
+      "format": "Gatan DigitalMicrograph",
+      "id": "purejsimage/digital-micrograph",
+      "nativePrecision": "Native numeric samples (uint16, uint8)",
+      "oracle": "First supported image dataset exposes a readable 2D plane. When the fixture is 4D STEM, kx/ky is readable with fixed scan axes.",
+      "packageExport": "purejsimage/scientific/readers/digital-micrograph",
+      "resourceModel": "single",
+      "supportBoundary": "Rank-2 images, rank-3 X/Y/Z volumes, evidence-gated X/Y/energy EELS spectrum images, evidence-gated C-ordered 4D-STEM diffraction planes, and otherwise neutral rank-4 axes, plus fixture-proven little-endian packed BGRA; no rank-1, complex, encrypted, external, big-endian packed color, or undocumented packed content."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 8
+      },
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "extensions": ["ser"],
+      "family": "electron-microscopy",
+      "format": "FEI/Thermo TIA SER",
+      "id": "purejsimage/tia-ser",
+      "nativePrecision": "Native numeric samples (float32, int32)",
+      "oracle": "Image dataset exposes x/y with one fixed element index. Spectra dataset exposes x/y/energy and a bounded energy series.",
+      "packageExport": "purejsimage/scientific/readers/tia-ser",
+      "resourceModel": "single",
+      "supportBoundary": "TIA SER versions 0x0210 and 0x0220 with scalar element types 1 through 8, request-bounded batched metadata indexing, lazy payload reads, compatible image or spectrum collections, native calibrated series reads, and explicit valid or invalid element metadata; no complex elements or companion EMI metadata."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "extensions": ["emi"],
+      "family": "electron-microscopy",
+      "format": "FEI/Thermo TIA EMI",
+      "id": "purejsimage/tia-emi",
+      "nativePrecision": "Native numeric samples (float32)",
+      "oracle": "At least one ser-* dataset opens and retains EMI metadata/calibration evidence.",
+      "packageExport": "purejsimage/scientific/readers/tia-emi",
+      "resourceModel": "companion-set",
+      "supportBoundary": "Bounded ObjectInfo XML from the TIA EMI binary envelope plus consecutively numbered sibling SER resources resolved through ScientificCompanionResolver; EMI acquisition metadata enriches SER-backed datasets, strongly corroborated diffraction calibration is interpreted as reciprocal space, contradictory mode hints preserve SER facts, and every dataset identity includes its EMI and contributing SER resource."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "extensions": ["emd"],
+      "family": "electron-microscopy",
+      "format": "NCEM EMD 0.2",
+      "id": "purejsimage/ncem-emd",
+      "nativePrecision": "Native numeric samples (int32)",
+      "oracle": "First image dataset exposes a readable plane or series according to rank.",
+      "packageExport": "purejsimage/scientific/readers/ncem-emd",
+      "resourceModel": "single",
+      "supportBoundary": "Berkeley/openNCEM EMD 0.2 numeric groups below /data or /signals with scalar integer or decimal-string version attributes, exact labeled coordinates, bounded scalar or array acquisition attributes, and selected HDF5 hyperslab reads; Direct Electron .de5 and later EMD revisions remain unsupported."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 8
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["emd"],
+      "family": "electron-microscopy",
+      "format": "FEI/Thermo Velox EMD",
+      "id": "purejsimage/velox-emd",
+      "nativePrecision": "Native numeric samples (float32, int16)",
+      "oracle": "First image dataset exposes a readable plane. Complex dataset preserves two output components and a readable plane.",
+      "packageExport": "purejsimage/scientific/readers/velox-emd",
+      "resourceModel": "single",
+      "supportBoundary": "Velox HDF5 image hierarchy with rank-3 numeric image, diffraction, dense-map, DPC complex, or positive-half FFT arrays; bounded per-frame JSON metadata, explicit detector datasets and frame axes, exact native samples, and specific pruned-spectrum-image errors. Sparse SpectrumStream data and dense Spectrum entries remain outside this E2 boundary."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "extensions": ["rpl", "raw"],
+      "family": "spectroscopy-detector-interchange",
+      "format": "Lispix RPL/RAW",
+      "id": "purejsimage/rpl",
+      "nativePrecision": "Native numeric samples (uint8)",
+      "oracle": "Depth-fixed x/y plane is readable and the companion is resolved.",
+      "packageExport": "purejsimage/scientific/readers/rpl",
+      "resourceModel": "companion-pair",
+      "supportBoundary": "One numeric header-plus-RAW array in image, vector, or depth-one order with exact declared endian, offset, dimensions, axis calibration, and selected plane or series reads."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["spectrum"],
+      "directRangeReads": false,
+      "extensions": ["msa", "emsa"],
+      "family": "spectroscopy-detector-interchange",
+      "format": "EMSA/MAS spectrum",
+      "id": "purejsimage/emsa",
+      "nativePrecision": "Native numeric samples (float64)",
+      "oracle": "Spectral axis calibration is present and a bounded series is readable.",
+      "packageExport": "purejsimage/scientific/readers/emsa",
+      "resourceModel": "single",
+      "supportBoundary": "Bounded EMSA/MAS text spectra using Y or XY data, with exact point counts, native float64 series values, calibrated or lookup spectral coordinates, units, and preserved header fields."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "extensions": ["nrrd", "nhdr"],
+      "family": "medical-volume-interchange",
+      "format": "NRRD",
+      "id": "purejsimage/nrrd",
+      "nativePrecision": "Native numeric samples (uint8)",
+      "oracle": "2x2 raw NRRD plane is readable. 2x2 gzip NRRD plane is readable.",
+      "packageExport": "purejsimage/scientific/readers/nrrd",
+      "resourceModel": "companion-pair",
+      "supportBoundary": "NRRD0001 through NRRD0005 scalar numeric arrays with attached or one-file detached raw data, bounded gzip data, endian conversion, linear spacing or direction-vector calibration, origin, units, labels, kinds, and key/value metadata; ASCII, bzip2, and multi-file sequences are rejected."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 8
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["mhd", "mha"],
+      "family": "medical-volume-interchange",
+      "format": "MetaImage MHD/MHA",
+      "id": "purejsimage/meta-image",
+      "nativePrecision": "Native numeric samples (uint16, uint8)",
+      "oracle": "2x2 local MetaImage plane is readable. Detached 2x1 uint16 plane resolves the RAW companion and is readable.",
+      "packageExport": "purejsimage/scientific/readers/meta-image",
+      "resourceModel": "companion-pair",
+      "supportBoundary": "Binary numeric MHA LOCAL or MHD plus one raw companion, with scalar or bounded interleaved components, endian conversion, spacing, origin, and preserved direction; compressed, ASCII, HeaderSize -1, and multi-file series are rejected."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": false,
+      "extensions": ["nii", "gz"],
+      "family": "medical-volume-interchange",
+      "format": "NIfTI-1/2",
+      "id": "purejsimage/nifti",
+      "nativePrecision": "Native numeric samples (float64)",
+      "oracle": "Scaled output is readable and spatial calibration is retained. Gzip source opens and returns the same selected plane semantics.",
+      "packageExport": "purejsimage/scientific/readers/nifti",
+      "resourceModel": "single",
+      "supportBoundary": "Single-file NIfTI-1 and NIfTI-2 scalar numeric arrays, optionally bounded whole-file gzip, with endian conversion, scl_slope/inter transformation, voxel spacing and units, and preserved qform/sform metadata; paired hdr/img and complex, RGB, binary, and extension payloads are outside this subset."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 8
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["npy"],
+      "family": "raw-numeric-interchange",
+      "format": "NumPy NPY",
+      "id": "purejsimage/npy",
+      "nativePrecision": "Native numeric samples (uint16)",
+      "oracle": "C-order axes are preserved and a plane is readable. Fortran-order axes are preserved and a plane is readable.",
+      "packageExport": "purejsimage/scientific/readers/npy",
+      "resourceModel": "single",
+      "supportBoundary": "Exactly one NPY v1, v2, or v3 C- or Fortran-contiguous scalar boolean, integer, float16, float32, or float64 array with generic index axes and selected plane or series reads; scalar, structured, object, complex, datetime, Unicode, and NPZ arrays are rejected."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "extensions": ["blo"],
+      "family": "electron-microscopy",
+      "format": "NanoMegas ASTAR blockfile",
+      "id": "purejsimage/blockfile",
+      "nativePrecision": "Native numeric samples (uint8)",
+      "oracle": "A fixed navigation position exposes a readable diffraction plane.",
+      "packageExport": "purejsimage/scientific/readers/blockfile",
+      "resourceModel": "single",
+      "supportBoundary": "NanoMegas ASTAR blockfiles with bounded square uint8 diffraction frames, per-frame ID validation, a virtual-bright-field navigator, scan calibration, diffraction scale, and acquisition metadata."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 1,
+        "rangeFailed": 0,
+        "rangeSupported": 4
+      },
+      "datasetKinds": ["image", "spectrum-image"],
+      "directRangeReads": true,
+      "extensions": ["mib"],
+      "family": "electron-microscopy",
+      "format": "Quantum Detectors Merlin MIB",
+      "id": "purejsimage/mib",
+      "nativePrecision": "Native numeric samples (uint8)",
+      "oracle": "MIB frame dataset exposes a readable diffraction plane.",
+      "packageExport": "purejsimage/scientific/readers/mib",
+      "resourceModel": "companion-pair",
+      "supportBoundary": "Processed Merlin U08, U16, or U32 frame sequences with 384- or 768-byte per-frame headers, vertical normalization, optional acquisition HDR metadata, and optional rectangular scan navigation; raw packed R64 detector words are explicitly rejected."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 2,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["orientation-map"],
+      "directRangeReads": false,
+      "extensions": ["ang", "ctf"],
+      "family": "spectroscopy-detector-interchange",
+      "format": "ANG/CTF orientation map",
+      "id": "purejsimage/ebsd-text",
+      "nativePrecision": "Native numeric samples (float64)",
+      "oracle": "ANG map exposes a readable x/y plane. CTF map exposes a readable x/y plane.",
+      "packageExport": "purejsimage/scientific/readers/ebsd-text",
+      "resourceModel": "single",
+      "supportBoundary": "Bounded UTF-8 ANG square-grid and CTF rectangular orientation maps with validated row-major positions, physical scan axes, Euler angles, phase, and quality columns; staggered and hexagonal grids are rejected instead of silently reshaped."
+    }
+  ]
+}

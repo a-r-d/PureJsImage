@@ -1,0 +1,2510 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-16T04:03:05.078Z",
+  "repository": "a-r-d/PureJsImage",
+  "resultCount": 175,
+  "results": [
+    {
+      "profile": "smoke",
+      "date": "2026-08-16T04:02:37.473Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "778901488bc0b9c07e6e5fc0dd1bd87dbda47a42148621061c843e57099eed1a",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T04-02-37-473Z.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T04-02-37-473Z.md"
+      ],
+      "engineVersions": {
+        "geotiff": "3.0.5",
+        "tiff": "7.1.3",
+        "utif2": "4.1.0",
+        "image-js": "1.7.0",
+        "nifti-reader-js": "0.8.0",
+        "npyjs": "1.2.0",
+        "jsfive": "0.4.0",
+        "h5wasm": "0.10.3",
+        "itk-wasm-image-io": "1.6.1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "range",
+      "date": "2026-08-16T04:02:13.373Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "e324a01def1ede51ffbe2cb8a027c58e87cb88eda6ff419752cd0e456e333ce3",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "baseline",
+      "date": "2026-08-16T03:40:25.698Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "e324a01def1ede51ffbe2cb8a027c58e87cb88eda6ff419752cd0e456e333ce3",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "application-platform-2026-08-16T03-39-29-637Z",
+      "date": "2026-08-16T03:39:29.637Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "f21110e6dc982e5eed86dac8f0d8352a0173a1eea341c2aa11d9233702243dc3",
+      "resultPaths": [
+        "benchmark/results/application-platform-2026-08-16T03-39-29-637Z.json",
+        "benchmark/results/application-platform-2026-08-16T03-39-29-637Z.md"
+      ],
+      "engineVersions": {
+        "purejsimage.analysis.reference": "1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpegxl-memory-2026-08-16T03-39-21-354Z",
+      "date": "2026-08-16T03:39:21.354Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpegxl-memory-2026-08-16T03-39-21-354Z.json",
+        "benchmark/results/jpegxl-memory-2026-08-16T03-39-21-354Z.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpeg2000-rss",
+      "date": "2026-08-16T03:39:02.972Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpeg2000-rss-2026-08-16T03-39-02-972Z.json",
+        "benchmark/results/jpeg2000-rss-2026-08-16T03-39-02-972Z.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-2026-08-16T03-37-11-153Z",
+      "date": "2026-08-16T03:38:52.268Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-2026-08-16T03-37-11-153Z.json",
+        "benchmark/results/avif-memory-2026-08-16T03-37-11-153Z.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-16T03:37:00.809Z",
+      "commit": "a2f0ba6",
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "resultPaths": [
+        "benchmark/results/2026-08-16T03-37-00-809Z-purejsimage-webp.json",
+        "benchmark/results/2026-08-16T03-37-00-809Z-purejsimage-webp.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.10.0 (workspace)"
+      },
+      "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "small-codecs",
+      "date": "2026-08-16T03:36:31.149Z",
+      "commit": "a2f0ba6",
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "resultPaths": [
+        "benchmark/results/2026-08-16T03-36-31-149Z-purejsimage-small-codecs.json",
+        "benchmark/results/2026-08-16T03-36-31-149Z-purejsimage-small-codecs.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.10.0 (workspace)"
+      },
+      "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-16T03:36:00.862Z",
+      "commit": "a2f0ba6",
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "resultPaths": [
+        "benchmark/results/2026-08-16T03-36-00-862Z-purejsimage-tiff.json",
+        "benchmark/results/2026-08-16T03-36-00-862Z-purejsimage-tiff.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.10.0 (workspace)"
+      },
+      "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "stable-codecs",
+      "date": "2026-08-16T03:35:16.073Z",
+      "commit": "a2f0ba6fb87cde408b27830102a5d5cc17ff25ac",
+      "environmentFingerprint": "fddea90d8d7a324bf4194a77a4d08e25dcef5ad9b2f873db0791c5229e675bb0",
+      "resultPaths": [
+        "benchmark/results/stable-codecs-2026-08-16T03-35-16-111Z.json",
+        "benchmark/results/stable-codecs-2026-08-16T03-35-16-111Z.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "package-local first-party TypeScript"
+      },
+      "fixtureManifestHash": "2feebc150c9b94e872d3e90e14a69a93dc941e01ec61ec185154ae297cc2f58d",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "stable-codecs",
+      "date": "2026-08-16T03:26:01.982Z",
+      "commit": "a2f0ba6fb87cde408b27830102a5d5cc17ff25ac",
+      "environmentFingerprint": "fddea90d8d7a324bf4194a77a4d08e25dcef5ad9b2f873db0791c5229e675bb0",
+      "resultPaths": [
+        "benchmark/results/stable-codecs-2026-08-16T03-26-02-031Z.json",
+        "benchmark/results/stable-codecs-2026-08-16T03-26-02-031Z.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "package-local first-party TypeScript"
+      },
+      "fixtureManifestHash": "2feebc150c9b94e872d3e90e14a69a93dc941e01ec61ec185154ae297cc2f58d",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "competitors",
+      "date": "2026-08-16T03:13:22.290Z",
+      "commit": "a2f0ba6",
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "resultPaths": [
+        "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
+        "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.10.0 (workspace)",
+        "purejsimage-wasm": "0.10.0 (workspace WASM)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+      "validationStatus": "partial",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-16T01:04:00.703Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "778901488bc0b9c07e6e5fc0dd1bd87dbda47a42148621061c843e57099eed1a",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node.md"
+      ],
+      "engineVersions": {
+        "geotiff": "3.0.5",
+        "tiff": "7.1.3",
+        "utif2": "4.1.0",
+        "image-js": "1.7.0",
+        "nifti-reader-js": "0.8.0",
+        "npyjs": "1.2.0",
+        "jsfive": "0.4.0",
+        "h5wasm": "0.10.3",
+        "itk-wasm-image-io": "1.6.1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-16T01:02:12.383Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "857beb7cb4e4eac5ba57ed4e7a60a3cb94a4216f1f05e6ccec49a4dd4423b30d",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T010212383Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T010212383Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "scientific-readers",
+      "date": "2026-08-16T00:41:19.285Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-browser.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-browser.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "baseline",
+      "date": "2026-08-15T23:46:06.084Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "db326a00ff35ec2b543202a8f5797cf388f61b4145ba75c8bbc1fc59a02de306",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T234606084Z-baseline.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T234606084Z-baseline.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "range",
+      "date": "2026-08-15T23:40:33.341Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "db326a00ff35ec2b543202a8f5797cf388f61b4145ba75c8bbc1fc59a02de306",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T234033341Z-range.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T234033341Z-range.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "baseline",
+      "date": "2026-08-15T23:28:42.716Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "db326a00ff35ec2b543202a8f5797cf388f61b4145ba75c8bbc1fc59a02de306",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232842716Z-baseline.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232842716Z-baseline.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:27:53.262Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "db326a00ff35ec2b543202a8f5797cf388f61b4145ba75c8bbc1fc59a02de306",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232753262Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232753262Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:27:39.130Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "db326a00ff35ec2b543202a8f5797cf388f61b4145ba75c8bbc1fc59a02de306",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232739130Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232739130Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "baseline",
+      "date": "2026-08-15T23:25:49.787Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232549787Z-baseline.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232549787Z-baseline.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:25:08.561Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232508561Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232508561Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "range",
+      "date": "2026-08-15T23:22:37.297Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232237297Z-range.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232237297Z-range.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "baseline",
+      "date": "2026-08-15T23:22:19.276Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232219276Z-baseline.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232219276Z-baseline.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:21:53.757Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232153757Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232153757Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:20:33.501Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "b43694f43e5025a4a856d4a7ed2d2ab9294753895be0cc05fdf341bf67e85e97",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232033501Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T232033501Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:19:20.914Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231920914Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231920914Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:18:18.735Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231818735Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231818735Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:18:00.804Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231800804Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231800804Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:17:51.949Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231751949Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231751949Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-15T23:17:33.684Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "d5b8d21c870511c0dcd9ce42f1c59b8054d38952bb692be2a8342934236fe4dc",
+      "resultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231733684Z-smoke.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-15T231733684Z-smoke.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff-competitor-conformance",
+      "date": "2026-08-13T23:43:28.045Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/tiff-competitor-conformance.json",
+        "benchmark/results/tiff-competitor-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "application-platform",
+      "date": "2026-08-13T23:07:26.389Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "b81dd451f05c5372c656522514d62449c54648ef6e6336d0a3a3c9efb8631922",
+      "resultPaths": [
+        "benchmark/results/application-platform.json",
+        "benchmark/results/application-platform.md"
+      ],
+      "engineVersions": {
+        "purejsimage.analysis.reference": "1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpegxl-memory-bounded-groups-2026-08-12",
+      "date": "2026-08-12T19:57:59.212Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpegxl-memory-bounded-groups-2026-08-12.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "small-codecs",
+      "date": "2026-08-12T15:09:18.861Z",
+      "commit": "fdb56a3",
+      "environmentFingerprint": "e30e53f80dd5d54db69c1b9865117ad85b89ddf0c61323d1736113875e773853",
+      "resultPaths": [
+        "benchmark/results/2026-08-12T15-09-18-861Z-purejsimage-small-codecs.json",
+        "benchmark/results/2026-08-12T15-09-18-861Z-purejsimage-small-codecs.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.9.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-imazen-compatibility-2026-08-11",
+      "date": "2026-08-11T18:06:46.294Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-imazen-compatibility-2026-08-11.json",
+        "benchmark/results/avif-imazen-compatibility-2026-08-11.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-compatibility-survey-2026-08-10",
+      "date": "2026-08-11T14:44:37.069Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-compatibility-survey-2026-08-10.json",
+        "benchmark/results/avif-compatibility-survey-2026-08-10.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-high-depth-2026-08-09",
+      "date": "2026-08-11T02:54:00.285Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-high-depth-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-auxiliary-film-grain-2026-08-10",
+      "date": "2026-08-10T23:13:31.843Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff-encode-compatibility",
+      "date": "2026-08-10T22:55:59.630Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/tiff-encode-compatibility.json",
+        "benchmark/results/tiff-encode-compatibility.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T22:28:44.831Z",
+      "commit": "40d7012",
+      "environmentFingerprint": "23b26eeef888cac2794fac290fa76fba67871a988638f18f0b4c3cb9f890de64",
+      "resultPaths": [
+        "benchmark/results/jimp-tiff-profile-2026-08-10.json",
+        "benchmark/results/jimp-tiff-profile-2026-08-10.md"
+      ],
+      "engineVersions": {
+        "jimp": "1.6.0"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T22:27:45.756Z",
+      "commit": "40d7012",
+      "environmentFingerprint": "23b26eeef888cac2794fac290fa76fba67871a988638f18f0b4c3cb9f890de64",
+      "resultPaths": [
+        "benchmark/results/tiff-profile-2026-08-10.json",
+        "benchmark/results/tiff-profile-2026-08-10.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "competitors",
+      "date": "2026-08-10T22:26:05.728Z",
+      "commit": "40d7012",
+      "environmentFingerprint": "23b26eeef888cac2794fac290fa76fba67871a988638f18f0b4c3cb9f890de64",
+      "resultPaths": [
+        "benchmark/results/competitors-2026-08-10.json",
+        "benchmark/results/competitors-2026-08-10.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)",
+        "purejsimage-wasm": "0.8.0 (workspace WASM)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "partial",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-bounded-filtered-2026-08-10",
+      "date": "2026-08-10T21:53:06.779Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-bounded-filtered-2026-08-10.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T14:29:24.134Z",
+      "commit": "38d2fa9",
+      "environmentFingerprint": "fcfee077c276859abf56d8c0131fd7bf509b74d2b2583bb92466432dab74606a",
+      "resultPaths": [
+        "benchmark/results/tiff-encode-deflate.json",
+        "benchmark/results/tiff-encode-deflate.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "zstd-standalone",
+      "date": "2026-08-10T14:11:43.490Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/zstd-standalone.json",
+        "benchmark/results/zstd-standalone.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-tiff-dependencies",
+      "date": "2026-08-10T14:06:45.576Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-tiff-dependencies.json",
+        "benchmark/results/imazen-tiff-dependencies.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-tiff-conformance",
+      "date": "2026-08-10T14:06:37.855Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-tiff-conformance.json",
+        "benchmark/results/imazen-tiff-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T13:28:51.324Z",
+      "commit": "bbeb1a1",
+      "environmentFingerprint": "fcf17005276e43bc2c4f28d3700cd19fd0426a44ee3aac5144cbd0370ddd3b7c",
+      "resultPaths": [
+        "benchmark/results/tiff-color-fillorder-fillorder.json",
+        "benchmark/results/tiff-color-fillorder-fillorder.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T13:26:38.318Z",
+      "commit": "bbeb1a1",
+      "environmentFingerprint": "fcf17005276e43bc2c4f28d3700cd19fd0426a44ee3aac5144cbd0370ddd3b7c",
+      "resultPaths": [
+        "benchmark/results/tiff-color-fillorder-cielab.json",
+        "benchmark/results/tiff-color-fillorder-cielab.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T12:48:30.489Z",
+      "commit": "16e662c",
+      "environmentFingerprint": "e06560f0ec2542dd07b2b74c1c5b9d20625e92c7e1f9b0b6108ca72a38756773",
+      "resultPaths": [
+        "benchmark/results/2026-08-10T12-48-30-489Z-purejsimage-tiff.json",
+        "benchmark/results/2026-08-10T12-48-30-489Z-purejsimage-tiff.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-bounded-superres-2026-08-09",
+      "date": "2026-08-10T10:13:07-04:00",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-bounded-superres-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T04:36:47.720Z",
+      "commit": "dd4164c",
+      "environmentFingerprint": "6e185f95c141bca1fd4ab24f7cce1af1ea6e63189a9d27000b92ab96fdb8f3fa",
+      "resultPaths": [
+        "benchmark/results/tiff-expanded-final-2026-08-10.json",
+        "benchmark/results/tiff-expanded-final-2026-08-10.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T03:47:06.443Z",
+      "commit": "dd4164c",
+      "environmentFingerprint": "6e185f95c141bca1fd4ab24f7cce1af1ea6e63189a9d27000b92ab96fdb8f3fa",
+      "resultPaths": [
+        "benchmark/results/tiff-expanded-cold-baseline-2026-08-09.json",
+        "benchmark/results/tiff-expanded-cold-baseline-2026-08-09.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T03:44:30.839Z",
+      "commit": "dd4164c",
+      "environmentFingerprint": "6e185f95c141bca1fd4ab24f7cce1af1ea6e63189a9d27000b92ab96fdb8f3fa",
+      "resultPaths": [
+        "benchmark/results/tiff-expanded-baseline-2026-08-09.json",
+        "benchmark/results/tiff-expanded-baseline-2026-08-09.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T03:38:30.429Z",
+      "commit": "dd4164c",
+      "environmentFingerprint": "5ede99207246b72e3cfe002c1dc38d0133d74244784df3651a2cbcaef6a0ccff",
+      "resultPaths": [
+        "benchmark/results/2026-08-10T03-38-30-429Z-purejsimage-tiff.json",
+        "benchmark/results/2026-08-10T03-38-30-429Z-purejsimage-tiff.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T03:37:38.256Z",
+      "commit": "dd4164c",
+      "environmentFingerprint": "6e185f95c141bca1fd4ab24f7cce1af1ea6e63189a9d27000b92ab96fdb8f3fa",
+      "resultPaths": [
+        "benchmark/results/2026-08-10T03-37-38-256Z-jimp-tiff.json",
+        "benchmark/results/2026-08-10T03-37-38-256Z-jimp-tiff.md"
+      ],
+      "engineVersions": {
+        "jimp": "1.6.0"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-10T03:36:33.678Z",
+      "commit": "dd4164c",
+      "environmentFingerprint": "c9d74c0c38d9e5ff43160fdc01d6534978173354336c61aaca592404b14f2325",
+      "resultPaths": [
+        "benchmark/results/2026-08-10T03-36-33-678Z-purejsimage-tiff.json",
+        "benchmark/results/2026-08-10T03-36-33-678Z-purejsimage-tiff.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.8.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-bounded-cdef-bands-2026-08-09",
+      "date": "2026-08-10T03:32:02.939Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-bounded-cdef-bands-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-scaling-yuv-resize-2026-08-09",
+      "date": "2026-08-10T03:31:00.199Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-scaling-yuv-resize-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-bounded-alpha-rings-2026-08-09",
+      "date": "2026-08-10T02:44:02.712Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-bounded-alpha-rings-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-scaling-2026-08-09",
+      "date": "2026-08-10T02:31:19.747Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-scaling-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-bounded-context-rings-2026-08-09",
+      "date": "2026-08-10T02:19:15.789Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-bounded-context-rings-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-row-output-2026-08-09",
+      "date": "2026-08-10T01:39:58.049Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-row-output-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-bmp-conformance",
+      "date": "2026-08-10T01:39:51.144Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-bmp-conformance.json",
+        "benchmark/results/imazen-bmp-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-gif-conformance",
+      "date": "2026-08-10T01:26:30.729Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-gif-conformance.json",
+        "benchmark/results/imazen-gif-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-webp-conformance",
+      "date": "2026-08-10T01:25:49.681Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-webp-conformance.json",
+        "benchmark/results/imazen-webp-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-memory-baseline-2026-08-09",
+      "date": "2026-08-10T01:23:35.493Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/avif-memory-baseline-2026-08-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-jpeg-conformance",
+      "date": "2026-08-10T00:31:12.976Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-jpeg-conformance.json",
+        "benchmark/results/imazen-jpeg-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "imazen-png-conformance",
+      "date": "2026-08-09T23:10:49.173Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/imazen-png-conformance.json",
+        "benchmark/results/imazen-png-conformance.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-report",
+      "date": "2026-08-09T21:34:07.418Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-report.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-05",
+      "date": "2026-08-09T21:33:09.890Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-05.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-09",
+      "date": "2026-08-09T21:33:09.257Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-08",
+      "date": "2026-08-09T21:33:08.692Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-08.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-11",
+      "date": "2026-08-09T21:33:07.948Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-11.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-14",
+      "date": "2026-08-09T21:33:07.195Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-14.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-12",
+      "date": "2026-08-09T21:33:05.570Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-12.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-01",
+      "date": "2026-08-09T21:33:05.512Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-01.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-06",
+      "date": "2026-08-09T21:33:05.229Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-06.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-15",
+      "date": "2026-08-09T21:33:03.569Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-15.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-00",
+      "date": "2026-08-09T21:33:03.376Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-00.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-02",
+      "date": "2026-08-09T21:33:03.319Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-02.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-13",
+      "date": "2026-08-09T21:33:02.954Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-13.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-03",
+      "date": "2026-08-09T21:33:00.893Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-03.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-07",
+      "date": "2026-08-09T21:32:57.062Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-07.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-10",
+      "date": "2026-08-09T21:32:56.760Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-10.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-fixed-shard-04",
+      "date": "2026-08-09T21:32:56.652Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-fixed-shard-04.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-report",
+      "date": "2026-08-09T21:05:01.448Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-report.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-12",
+      "date": "2026-08-09T21:03:51.769Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-12.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-13",
+      "date": "2026-08-09T21:03:50.642Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-13.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-08",
+      "date": "2026-08-09T21:03:49.880Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-08.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-05",
+      "date": "2026-08-09T21:03:49.690Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-05.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-14",
+      "date": "2026-08-09T21:03:49.202Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-14.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-09",
+      "date": "2026-08-09T21:03:48.822Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-09.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-00",
+      "date": "2026-08-09T21:03:48.526Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-00.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-10",
+      "date": "2026-08-09T21:03:48.113Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-10.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-06",
+      "date": "2026-08-09T21:03:47.265Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-06.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-11",
+      "date": "2026-08-09T21:03:46.613Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-11.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-01",
+      "date": "2026-08-09T21:03:46.218Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-01.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-07",
+      "date": "2026-08-09T21:03:45.412Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-07.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-15",
+      "date": "2026-08-09T21:03:44.810Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-15.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-02",
+      "date": "2026-08-09T21:03:43.233Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-02.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-04",
+      "date": "2026-08-09T21:03:41.500Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-04.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-shard-03",
+      "date": "2026-08-09T21:03:37.758Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-shard-03.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-other-report",
+      "date": "2026-08-09T20:54:45.438Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-other-report.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-gif-report",
+      "date": "2026-08-09T20:45:18.889Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-gif-report.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "user-corpus-smoke",
+      "date": "2026-08-09T20:35:06.102Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/artifacts/user-corpus-smoke.json"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "competitors",
+      "date": "2026-08-09T19:16:12.206Z",
+      "commit": "3927138",
+      "environmentFingerprint": "8486fe3700939954d4b555fb4b138c66e845b9db84bf7ee13df5f25b37a01d7f",
+      "resultPaths": [
+        "benchmark/results/competitors-2026-08-09.json",
+        "benchmark/results/competitors-2026-08-09.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.7.0 (workspace)",
+        "purejsimage-wasm": "0.7.0 (workspace WASM)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "partial",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "png-wasm-2026-08-09",
+      "date": "2026-08-09T15:17:36.024Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "fc3ed62f32965676610d59ed581608103000991f4f522baf415e709aecce871f",
+      "resultPaths": [
+        "benchmark/results/png-wasm-2026-08-09.json",
+        "benchmark/results/png-wasm-2026-08-09.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpeg-wasm-encoder-2026-08-09",
+      "date": "2026-08-09T14:40:10.832Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpeg-wasm-encoder-2026-08-09.json",
+        "benchmark/results/jpeg-wasm-encoder-2026-08-09.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpeg-wasm-decoder-simd-2026-08-09",
+      "date": "2026-08-09T14:40:10.831Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpeg-wasm-decoder-simd-2026-08-09.json",
+        "benchmark/results/jpeg-wasm-decoder-simd-2026-08-09.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "aws-lambda-2026-08-09",
+      "date": "2026-08-09T14:39:09.927Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/aws-lambda-2026-08-09.json",
+        "benchmark/results/aws-lambda-2026-08-09.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "aws-lambda-arm-wasm-2026-08-09",
+      "date": "2026-08-09T14:39:09.927Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/aws-lambda-arm-wasm-2026-08-09.json",
+        "benchmark/results/aws-lambda-arm-wasm-2026-08-09.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-09T04:14:38.288Z",
+      "commit": "ce60036",
+      "environmentFingerprint": "765a4c630a5a0925d74dd0d6942c7f8b3576e9c1ce0bf0957cb52cc0c12cb2e1",
+      "resultPaths": [
+        "benchmark/results/webp-memory-lossless-2026-08-09.json",
+        "benchmark/results/webp-memory-lossless-2026-08-09.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.7.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-09T04:14:27.369Z",
+      "commit": "ce60036",
+      "environmentFingerprint": "765a4c630a5a0925d74dd0d6942c7f8b3576e9c1ce0bf0957cb52cc0c12cb2e1",
+      "resultPaths": [
+        "benchmark/results/webp-memory-lossy-2026-08-09.json",
+        "benchmark/results/webp-memory-lossy-2026-08-09.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.7.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpeg-progressive-encode-2026-08-09",
+      "date": "2026-08-09T03:37:38.474Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpeg-progressive-encode-2026-08-09.json",
+        "benchmark/results/jpeg-progressive-encode-2026-08-09.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-09T03:14:36.787Z",
+      "commit": "9575b2e",
+      "environmentFingerprint": "32ec9f645b1d51b4e611dddd91e057eea00c67ad17718f8ba8876a0872a1749e",
+      "resultPaths": [
+        "benchmark/results/webp-lossless-adaptive-2026-08-08.json",
+        "benchmark/results/webp-lossless-adaptive-2026-08-08.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.7.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "competitors",
+      "date": "2026-08-09T01:34:09.393Z",
+      "commit": "dc8aa08",
+      "environmentFingerprint": "9789e6a5791070defff310e989658b9dc2732ca7ac47c0c13193ba7fcb26468a",
+      "resultPaths": [
+        "benchmark/results/competitors-2026-08-08.json",
+        "benchmark/results/competitors-2026-08-08.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.7.0 (workspace)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "partial",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "jpeg-scaled-idct-2026-08-08",
+      "date": "2026-08-08T23:57:14.672Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/jpeg-scaled-idct-2026-08-08.json",
+        "benchmark/results/jpeg-scaled-idct-2026-08-08.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "heif-compatibility-2026-08-08",
+      "date": "2026-08-08T23:56:43.181Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/heif-compatibility-2026-08-08.json",
+        "benchmark/results/heif-compatibility-2026-08-08.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-08T22:58:30.772Z",
+      "commit": "45061fc",
+      "environmentFingerprint": "9fca51375db2539d781971744908985441d8f05f0144fdba83dd9c5c4ab11f6d",
+      "resultPaths": [
+        "benchmark/results/webp-lossless-size-fix-2026-08-08.json",
+        "benchmark/results/webp-lossless-size-fix-2026-08-08.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.6.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "browser-chromium-2026-08-08",
+      "date": "2026-08-08T21:55:03.993Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultPaths": [
+        "benchmark/results/browser-chromium-2026-08-08.json",
+        "benchmark/results/browser-chromium-2026-08-08.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-08T21:42:04.508Z",
+      "commit": "26fb975",
+      "environmentFingerprint": "28e40be2315920cce06f16875bb5f3428efb812435306a22bf526755f3149407",
+      "resultPaths": [
+        "benchmark/results/webp-oracle-validated-2026-08-08.json",
+        "benchmark/results/webp-oracle-validated-2026-08-08.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.6.0 (workspace)"
+      },
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "transforms-comparable",
+      "date": "2026-08-08T15:23:40.526Z",
+      "commit": "45c89c3",
+      "environmentFingerprint": "bd7061763b9798a733089617686f988fabe70975b1515de8733c081ee9057908",
+      "resultPaths": [
+        "benchmark/results/transforms-to-jpeg-comparison-2026-08-08.json",
+        "benchmark/results/transforms-to-jpeg-comparison-2026-08-08.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "transforms",
+      "date": "2026-08-08T15:15:53.414Z",
+      "commit": "45c89c3",
+      "environmentFingerprint": "bd7061763b9798a733089617686f988fabe70975b1515de8733c081ee9057908",
+      "resultPaths": [
+        "benchmark/results/transforms-to-jpeg-2026-08-08.json",
+        "benchmark/results/transforms-to-jpeg-2026-08-08.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "ico",
+      "date": "2026-08-08T04:23:04.350Z",
+      "commit": "0f27016",
+      "environmentFingerprint": "df19b13552ba19d24c7dc80088299ee98032f4e8617a6570fbb7150942ac461e",
+      "resultPaths": [
+        "benchmark/results/ico-first-party-2026-08-08.json",
+        "benchmark/results/ico-first-party-2026-08-08.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-07T19:37:41.146Z",
+      "commit": "27f4be1",
+      "environmentFingerprint": "48f08a311aea8e065ffbcf5276d4a6cf5b8e82976ba50c996cedd23b46b2bd46",
+      "resultPaths": [
+        "benchmark/results/webp-cleanup-final-profile-2026-08-07.json",
+        "benchmark/results/webp-cleanup-final-profile-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-07T19:23:54.433Z",
+      "commit": "27f4be1",
+      "environmentFingerprint": "48f08a311aea8e065ffbcf5276d4a6cf5b8e82976ba50c996cedd23b46b2bd46",
+      "resultPaths": [
+        "benchmark/results/webp-cleanup-baseline-profile-2026-08-07.json",
+        "benchmark/results/webp-cleanup-baseline-profile-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "bmp",
+      "date": "2026-08-07T19:19:58.840Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/bmp-cleanup-final-profile-2026-08-07.json",
+        "benchmark/results/bmp-cleanup-final-profile-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "bmp",
+      "date": "2026-08-07T19:19:47.943Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/bmp-cleanup-final-resize-2026-08-07.json",
+        "benchmark/results/bmp-cleanup-final-resize-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "bmp",
+      "date": "2026-08-07T19:17:13.883Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/bmp-cleanup-baseline-profile-2026-08-07.json",
+        "benchmark/results/bmp-cleanup-baseline-profile-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "bmp",
+      "date": "2026-08-07T19:16:58.153Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/bmp-cleanup-baseline-resize-2026-08-07.json",
+        "benchmark/results/bmp-cleanup-baseline-resize-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-07T19:13:20.434Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-tiff-profile-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-tiff-profile-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-07T19:13:12.612Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-tiff-resize-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-tiff-resize-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "full",
+      "date": "2026-08-07T19:11:36.142Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-png-stress-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-png-stress-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:11:31.759Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-png-alpha-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-png-alpha-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:11:29.496Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-png-decode-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-png-decode-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:11:16.623Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-png-encode-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-png-encode-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:11:07.928Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-final-png-resize-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-final-png-resize-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-07T19:06:59.298Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-baseline-tiff-resize-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-baseline-tiff-resize-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:06:49.530Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-baseline-png-decode-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-baseline-png-decode-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:06:39.379Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "b517280c17d87ec280193c1f149c9ea7f77d5497631776d08ee5b3c64eba3e33",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-baseline-png-encode-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-baseline-png-encode-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-07T19:06:32.091Z",
+      "commit": "fdd5e17",
+      "environmentFingerprint": "60fc9692dc221be48cc8be79722f9d5f8d1a86aba55f6a4e8c9d55e517490235",
+      "resultPaths": [
+        "benchmark/results/png-tiff-cleanup-baseline-png-resize-2026-08-07.json",
+        "benchmark/results/png-tiff-cleanup-baseline-png-resize-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "phase4",
+      "date": "2026-08-07T18:55:10.255Z",
+      "commit": "27a3e54",
+      "environmentFingerprint": "752dff0b4b01b80c9e70d607a3f26c1d6dc325140381e0b533e0f2185d5c85d6",
+      "resultPaths": [
+        "benchmark/results/jpeg-easy-wins-phase4-final-2026-08-07.json",
+        "benchmark/results/jpeg-easy-wins-phase4-final-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-07T18:52:07.154Z",
+      "commit": "27a3e54",
+      "environmentFingerprint": "752dff0b4b01b80c9e70d607a3f26c1d6dc325140381e0b533e0f2185d5c85d6",
+      "resultPaths": [
+        "benchmark/results/jpeg-easy-wins-final-released-2026-08-07.json",
+        "benchmark/results/jpeg-easy-wins-final-released-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-07T18:31:49.832Z",
+      "commit": "27a3e54",
+      "environmentFingerprint": "72cfdc517c4d78087238e8463e1a7495028f4331847ffdbcc67d55b610689932",
+      "resultPaths": [
+        "benchmark/results/jpeg-easy-wins-baseline-2026-08-07.json",
+        "benchmark/results/jpeg-easy-wins-baseline-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "phase4",
+      "date": "2026-08-07T18:24:56.328Z",
+      "commit": "6631d7d",
+      "environmentFingerprint": "95bac853218672176be1599e6a2a18eaa9723756ac59ab28a6838a570ac7e74e",
+      "resultPaths": [
+        "benchmark/results/jpeg-phase4-post-typed-arrays-2026-08-07.json",
+        "benchmark/results/jpeg-phase4-post-typed-arrays-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-07T18:02:15.947Z",
+      "commit": "6631d7d",
+      "environmentFingerprint": "95bac853218672176be1599e6a2a18eaa9723756ac59ab28a6838a570ac7e74e",
+      "resultPaths": [
+        "benchmark/results/purejsimage-jpeg-jit-subsampling-2026-08-07.json",
+        "benchmark/results/purejsimage-jpeg-jit-subsampling-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "heif",
+      "date": "2026-08-07T16:26:26.815Z",
+      "commit": "a0db40b",
+      "environmentFingerprint": "0a9b06f4922153cbe34501ed7ee8e30579d7a12b5d028a269ca0693a5717eff3",
+      "resultPaths": [
+        "benchmark/results/heif-iphone-warm-2026-08-07.json",
+        "benchmark/results/heif-iphone-warm-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "heif",
+      "date": "2026-08-07T16:23:24.947Z",
+      "commit": "a0db40b",
+      "environmentFingerprint": "0a9b06f4922153cbe34501ed7ee8e30579d7a12b5d028a269ca0693a5717eff3",
+      "resultPaths": [
+        "benchmark/results/heif-iphone-cold-2026-08-07.json",
+        "benchmark/results/heif-iphone-cold-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-07T04:57:08.685Z",
+      "commit": "f96785e",
+      "environmentFingerprint": "a15007def48cc87c9838ce21aba03caf3318374c4a363e76e933f82205b80404",
+      "resultPaths": [
+        "benchmark/results/purejsimage-tiff-baseline-2026-08-07.json",
+        "benchmark/results/purejsimage-tiff-baseline-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "tiff",
+      "date": "2026-08-07T04:51:53.203Z",
+      "commit": "f96785e",
+      "environmentFingerprint": "a15007def48cc87c9838ce21aba03caf3318374c4a363e76e933f82205b80404",
+      "resultPaths": [
+        "benchmark/results/jimp-tiff-baseline-2026-08-07.json",
+        "benchmark/results/jimp-tiff-baseline-2026-08-07.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "avif-research-baseline-2026-08-06",
+      "date": "2026-08-07T03:05:17.245Z",
+      "commit": "not-recorded",
+      "environmentFingerprint": "f231087915974da1492256cc5a906ed5309d47fbfb9e7bbed0a724fb69675829",
+      "resultPaths": [
+        "benchmark/results/avif-research-baseline-2026-08-06.json",
+        "benchmark/results/avif-research-baseline-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "unverified",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "bmp",
+      "date": "2026-08-07T02:46:35.029Z",
+      "commit": "bb4cdcb",
+      "environmentFingerprint": "d0a8c02e6ddc84cb9dbd3915681982ee4d3b670ae6def0a4d32bdff282ce7e13",
+      "resultPaths": [
+        "benchmark/results/purejsimage-bmp-baseline-2026-08-06.json",
+        "benchmark/results/purejsimage-bmp-baseline-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "bmp",
+      "date": "2026-08-07T02:46:19.694Z",
+      "commit": "bb4cdcb",
+      "environmentFingerprint": "87139115d09992085ea975364f9f5fdd8a0d73c50b193923f459674b8cf04779",
+      "resultPaths": [
+        "benchmark/results/jimp-bmp-baseline-2026-08-06.json",
+        "benchmark/results/jimp-bmp-baseline-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "webp",
+      "date": "2026-08-07T02:26:09.292Z",
+      "commit": "b3b0289",
+      "environmentFingerprint": "0b38935d4b90c76c75f4e53c783e4a4c5d6ec3c51672d974e4d9a8602f4227b5",
+      "resultPaths": [
+        "benchmark/results/purejsimage-webp-baseline-2026-08-06.json",
+        "benchmark/results/purejsimage-webp-baseline-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "phase5",
+      "date": "2026-08-07T01:09:18.458Z",
+      "commit": "4681360",
+      "environmentFingerprint": "163ee2f171000092fe72fe908e96b0222afbce0ef6ae61990a1a9cdfd813155c",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.json",
+        "benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "phase4",
+      "date": "2026-08-07T00:56:55.022Z",
+      "commit": "4681360",
+      "environmentFingerprint": "163ee2f171000092fe72fe908e96b0222afbce0ef6ae61990a1a9cdfd813155c",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase4-first-party-cold-2026-08-06.json",
+        "benchmark/results/purejsimage-phase4-first-party-cold-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-07T00:45:06.441Z",
+      "commit": "fffc964",
+      "environmentFingerprint": "27f60ac6f24cb3d9d486c29aa88a1311777ef1b44ed2909f7f9f03ea8b23e706",
+      "resultPaths": [
+        "benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.json",
+        "benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "smoke",
+      "date": "2026-08-07T00:44:28.409Z",
+      "commit": "fffc964",
+      "environmentFingerprint": "27f60ac6f24cb3d9d486c29aa88a1311777ef1b44ed2909f7f9f03ea8b23e706",
+      "resultPaths": [
+        "benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.json",
+        "benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:54:56.676Z",
+      "commit": "ea2ef8c",
+      "environmentFingerprint": "ac1be78dd5dd6dcb93389680845255b0bbd19b69385a7aa30198c06ab390a0da",
+      "resultPaths": [
+        "benchmark/results/purejsimage-adaptive-png-crop-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-adaptive-png-crop-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "full",
+      "date": "2026-08-06T23:54:24.340Z",
+      "commit": "ea2ef8c",
+      "environmentFingerprint": "ac1be78dd5dd6dcb93389680845255b0bbd19b69385a7aa30198c06ab390a0da",
+      "resultPaths": [
+        "benchmark/results/purejsimage-adaptive-stress-100mp-2026-08-06.json",
+        "benchmark/results/purejsimage-adaptive-stress-100mp-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:53:55.564Z",
+      "commit": "ea2ef8c",
+      "environmentFingerprint": "ac1be78dd5dd6dcb93389680845255b0bbd19b69385a7aa30198c06ab390a0da",
+      "resultPaths": [
+        "benchmark/results/purejsimage-adaptive-png-alpha-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-adaptive-png-alpha-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:53:37.226Z",
+      "commit": "ea2ef8c",
+      "environmentFingerprint": "ac1be78dd5dd6dcb93389680845255b0bbd19b69385a7aa30198c06ab390a0da",
+      "resultPaths": [
+        "benchmark/results/purejsimage-adaptive-png-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-adaptive-png-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:47:53.585Z",
+      "commit": "d699aed",
+      "environmentFingerprint": "73e35153ec3fa352c1353da793ef61edd6517416cc0b3dcf8fbf4a280c395a84",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase3-png-crop-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-phase3-png-crop-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "full",
+      "date": "2026-08-06T23:46:50.675Z",
+      "commit": "d699aed",
+      "environmentFingerprint": "73e35153ec3fa352c1353da793ef61edd6517416cc0b3dcf8fbf4a280c395a84",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase3-stress-100mp-2026-08-06.json",
+        "benchmark/results/purejsimage-phase3-stress-100mp-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:46:23.920Z",
+      "commit": "d699aed",
+      "environmentFingerprint": "73e35153ec3fa352c1353da793ef61edd6517416cc0b3dcf8fbf4a280c395a84",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase3-odd-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-phase3-odd-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:46:17.305Z",
+      "commit": "d699aed",
+      "environmentFingerprint": "73e35153ec3fa352c1353da793ef61edd6517416cc0b3dcf8fbf4a280c395a84",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase3-lambda-logo-png-2026-08-06.json",
+        "benchmark/results/purejsimage-phase3-lambda-logo-png-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:46:10.318Z",
+      "commit": "d699aed",
+      "environmentFingerprint": "73e35153ec3fa352c1353da793ef61edd6517416cc0b3dcf8fbf4a280c395a84",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase3-png-alpha-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-phase3-png-alpha-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:45:55.860Z",
+      "commit": "d699aed",
+      "environmentFingerprint": "73e35153ec3fa352c1353da793ef61edd6517416cc0b3dcf8fbf4a280c395a84",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase3-png-resize-2026-08-06.json",
+        "benchmark/results/purejsimage-phase3-png-resize-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:35:53.007Z",
+      "commit": "2b9c82f",
+      "environmentFingerprint": "8ea173ede3e45baa674f27b1f0f6bb20790275dfcad0ffe8265e04d8ece547ec",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase2-png-crop-2026-08-06.json",
+        "benchmark/results/purejsimage-phase2-png-crop-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:35:03.155Z",
+      "commit": "2b9c82f",
+      "environmentFingerprint": "8ea173ede3e45baa674f27b1f0f6bb20790275dfcad0ffe8265e04d8ece547ec",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase2-png-2026-08-06.json",
+        "benchmark/results/purejsimage-phase2-png-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "standard",
+      "date": "2026-08-06T23:23:16.836Z",
+      "commit": "c06a13e",
+      "environmentFingerprint": "66e738a1ade40f362a21210f6921fa5f1d788984d008e4b836530f5c3ea265f9",
+      "resultPaths": [
+        "benchmark/results/purejsimage-phase1-metadata-2026-08-06.json",
+        "benchmark/results/purejsimage-phase1-metadata-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    },
+    {
+      "profile": "combined",
+      "date": "2026-08-06T23:07:16.885Z",
+      "commit": "916fc40",
+      "environmentFingerprint": "fbd652154e0a965941d111753c722850beac29931bef0e9c9c18240b31650cda",
+      "resultPaths": [
+        "benchmark/results/jimp-baseline-2026-08-06.json",
+        "benchmark/results/jimp-baseline-2026-08-06.md"
+      ],
+      "engineVersions": {},
+      "fixtureManifestHash": "not-recorded",
+      "validationStatus": "failed",
+      "eligibleForDocumentationHeadlines": false
+    }
+  ]
+}

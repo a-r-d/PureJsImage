@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -402,6 +403,42 @@ try {
 
 const createdAt = new Date().toISOString()
 const cpu = os.cpus()[0]?.model
+const environmentBase = {
+  platform: process.platform,
+  osName: os.type(),
+  osRelease: os.release(),
+  architecture: process.arch,
+  node: process.version,
+  ...(cpu ? { cpu } : {}),
+  logicalCpus: os.cpus().length,
+  totalMemoryBytes: os.totalmem(),
+  processIsolation: true,
+  runner:
+    process.env.GITHUB_ACTIONS !== 'true'
+      ? ('local' as const)
+      : process.env.RUNNER_ENVIRONMENT === 'self-hosted'
+        ? ('self-hosted' as const)
+        : ('github-hosted' as const),
+  fixtureCachePolicy:
+    'Fixture bytes are read before the timed operation; isolated workers do not share decoded state.',
+  virtualization: (() => {
+    try {
+      const product = readFileSync('/sys/class/dmi/id/product_name', 'utf8').toLowerCase()
+      return /kvm|virtual|vmware|qemu|hyper-v|xen/u.test(product)
+    } catch {
+      return null
+    }
+  })(),
+  runCount: options.runs,
+  warmupCount: options.warmups,
+  v8Version: process.versions.v8,
+}
+const fixtureManifestHash = createHash('sha256')
+  .update(readFileSync(join(repositoryDirectory, 'benchmark/corpus/manifest.json')))
+  .digest('hex')
+const environmentFingerprint = createHash('sha256')
+  .update(JSON.stringify(environmentBase))
+  .digest('hex')
 const report: BenchmarkReport = {
   schemaVersion: 2,
   createdAt,
@@ -424,16 +461,11 @@ const report: BenchmarkReport = {
     },
   },
   environment: {
-    platform: process.platform,
-    osName: os.type(),
-    osRelease: os.release(),
-    architecture: process.arch,
-    node: process.version,
-    ...(cpu ? { cpu } : {}),
-    logicalCpus: os.cpus().length,
-    totalMemoryBytes: os.totalmem(),
+    ...environmentBase,
     gitRevision: revision,
     dirty,
+    environmentFingerprint,
+    fixtureManifestHash,
   },
   fixtures: [...requiredFixtureIds],
   results,

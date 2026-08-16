@@ -170,9 +170,9 @@ Run the deterministic scientific-application benchmark with:
 npm run bench:application-platform
 ```
 
-Pass `-- --write` to refresh
-`benchmark/results/application-platform.{json,md}` after reviewing the local environment. The
-fixture covers bounded GSF, MRC, and CBF detection and first-tile reads; arbitrary-axis 4D-STEM
+The command writes a new date-stamped `benchmark/results/application-platform-<timestamp>.{json,md}`
+pair; pass `-- --output <path>` only when an explicit artifact path is required. The fixture covers
+bounded GSF, MRC, and CBF detection and first-tile reads; arbitrary-axis 4D-STEM
 selection; first rendered display pixels; a real range-backed Aperio tile without a whole-source
 download; source and derived cache accounting; ROI statistics; a calibrated line profile;
 thresholding; Gaussian tile sizes; graph validation; provider preparation; and planning.
@@ -558,6 +558,42 @@ First-party TIFF compatibility and performance profile:
 ```sh
 npm run bench:tiff
 ```
+
+### Stable-codec baseline
+
+The generated stable-codec profile is driven by the stable, explicit codec entries in
+`capabilities/manifest.json`. It covers JPEG, PNG, WebP, BMP, GIF, TIFF, ICO, JPEG 2000, AVIF,
+the limited JPEG XL decoder, HDR, QOI, Netpbm (PPM, PFM, and PAM), and TGA. It records cold import,
+detection, metadata inspection, full decode, bounded region decode where the decoder advertises it,
+conversion to PNG, encode where the manifest permits it, and TIFF encode through a streaming sink.
+Major codecs use medium and large fixtures. Lossless rows retain exact output and decoded-pixel
+hashes; lossy rows use an independent Sharp/libvips quality oracle after timing. Unsupported encoder
+surfaces, missing fixtures, invalid output, unavailable quality oracles, and noisy rows are retained
+as explicit non-headline statuses rather than being treated as fast results.
+
+Run it with:
+
+```sh
+npm run bench:stable-codecs
+npm run bench:results:index
+```
+
+Each run writes a new `benchmark/results/stable-codecs-<timestamp>.{json,md}` pair. The result index
+also records the ordinary competitor snapshots, specialized codec reports, and scientific-reader
+artifacts without replacing older results. The stable profile is intentionally PureJsImage versus
+prior PureJsImage results; it is not forced into the ordinary competitor chart, whose six-engine
+JPEG/PNG suite remains unchanged. Experimental HEIF/HEIC stays in the separate explicit HEIF profile.
+
+The stable baseline uses only fixtures that exist in the repository. At present, ordinary TIFF
+coverage includes uint8/uint16 strips, tiled packed samples, BigTIFF metadata and native-precision
+decode, Deflate/LZW/PackBits cases, and encode streaming. There are no committed ordinary float32,
+Zstd, LERC, JPEG-in-TIFF, JPEG 2000-in-TIFF, WebP-in-TIFF, or SubIFD pyramid fixtures; those rows
+must remain absent or explicitly unrepresented until a checksum-pinned fixture is added. OME-TIFF
+and SVS selections belong to `bench:scientific:*` reader workloads, not the ordinary TIFF profile.
+
+`bench:scientific:reference` is intentionally not defined because this checkout has no maintained
+Python reference runner. When one is added, its result must use the same date-stamped artifact and
+result-index contract.
 
 Prepare the checksum-pinned HEIF compatibility corpus, regenerate its two
 first-party transform/profile fixtures, and verify the pinned matrix:
