@@ -29,6 +29,9 @@ const scientificCharts = Object.entries(documentation.scientific.charts)
 const majorSizeIds = ['core', 'codecs-web', 'codecs-all', 'scientific', 'scientific-readers-all']
 const majorSizes = packageMetrics.targets.filter(({ id }) => majorSizeIds.includes(id))
 const competitorSizes = packageMetrics.targets.filter(({ category }) => category === 'competitor')
+const hostInstalledBytes = packageMetrics.package.unpackedPackageBytes
+const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number =>
+  entry.unpackedPackageBytes ?? hostInstalledBytes
 ---
 
 <SiteLayout
@@ -289,7 +292,7 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
                     <td>{kib(entry.minifiedJsBytes)}</td>
                     <td>{kib(entry.gzipBytes)}</td>
                     <td>{kib(entry.brotliBytes)}</td>
-                    <td>{mib(entry.unpackedPackageBytes)}</td>
+                    <td>{mib(installedBytes(entry))}</td>
                   </tr>
                 ))
               }
@@ -313,8 +316,11 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
                     <td>{entry.name}</td>
                     <td>{entry.implementation}</td>
                     <td>{kib(entry.minifiedJsBytes)}</td>
-                    <td>{mib(entry.unpackedPackageBytes)}</td>
-                    <td>{entry.productionPackageCount}</td>
+                    <td>{mib(installedBytes(entry))}</td>
+                    <td>
+                      {entry.productionPackageCount ??
+                        packageMetrics.package.productionPackageCount}
+                    </td>
                   </tr>
                 ))
               }

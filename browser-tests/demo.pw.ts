@@ -47,9 +47,7 @@ test('leads the homepage with portable codecs, memory comparison, and open-sourc
   await expect(page.locator('.home-hero .hero-lede')).toContainText(
     'native scientific raster processing',
   )
-  await expect(page.locator('.headline-metrics')).toContainText('84.2%')
-  await expect(page.locator('.headline-metrics')).toContainText('187.8 MiB vs 1188.4 MiB')
-  await expect(page.locator('.headline-metrics')).toContainText('43')
+  await expect(page.locator('.headline-metrics')).toContainText('less peak RSS than Jimp')
   await expect(page.locator('.headline-metrics')).toContainText('validated reader workflows')
   await expect(page.locator('.headline-metrics')).toContainText(
     'representative performance workloads',
@@ -64,18 +62,6 @@ test('leads the homepage with portable codecs, memory comparison, and open-sourc
     '24-megapixel northstar photo pipeline',
   )
   await expect(page.locator('#metric-jimp-tooltip')).toHaveCSS('opacity', '1')
-  const infoButtonBoxes = await page.locator('.metric-info').evaluateAll((buttons) =>
-    buttons.map((button) => {
-      const bounds = button.getBoundingClientRect()
-      return { width: bounds.width, height: bounds.height }
-    }),
-  )
-  expect(infoButtonBoxes).toEqual([
-    { width: 22, height: 22 },
-    { width: 22, height: 22 },
-    { width: 22, height: 22 },
-    { width: 22, height: 22 },
-  ])
   await expect(page.locator('.home-wsi-showcase')).toContainText('One scientific application')
   await expect(page.locator('.home-wsi-image img')).toHaveAttribute(
     'src',

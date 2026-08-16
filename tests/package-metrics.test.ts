@@ -86,6 +86,9 @@ describe('generated package metrics contract', () => {
     const serialized = serializePackageMetrics(metrics)
     expect(serialized).not.toMatch(/generatedAt|timestamp|\/home\/|\/media\/|[A-Za-z]:\\\\/u)
     expect(metrics.package.name).toBe('purejsimage')
+    expect(metrics.package.unpackedPackageBytes).toBeGreaterThan(0)
+    expect(metrics.package.productionPackageCount).toBe(1)
+    expect(metrics.schemaVersion).toBe(3)
     expect(metrics.targets).toHaveLength(pureTargets.length + competitorTargets.length)
     expect(metrics.targets.every(({ packageVersions }) => packageVersions.length > 0)).toBe(true)
     expect(metrics.targets.every(({ unpackedPackageBytes }) => unpackedPackageBytes > 0)).toBe(true)
@@ -94,6 +97,103 @@ describe('generated package metrics contract', () => {
     expect(
       metrics.wasmAssets.every(
         ({ rawBytes, gzipBytes, brotliBytes }) => rawBytes > 0 && gzipBytes > 0 && brotliBytes > 0,
+      ),
+    ).toBe(true)
+  })
+
+  it('reads a v2 metrics document even when a competitor target is listed first', () => {
+    const parsed = parsePackageMetrics({
+      schemaVersion: 2,
+      package: { name: 'purejsimage', version: '0.10.0' },
+      liveDemoReaderIds: [],
+      codecs: [],
+      scientificReaders: [],
+      scientificReaderGroups: [],
+      wasmAssets: [],
+      targets: [
+        {
+          category: 'competitor',
+          configuredCeilingMinifiedBytes: null,
+          entry: { packageExports: ['jimp'] },
+          gzipBytes: 1,
+          id: 'jimp',
+          implementation: 'pure-javascript',
+          unpackedPackageBytes: 99_000,
+          minifiedJsBytes: 10,
+          name: 'Jimp',
+          packageVersions: [{ name: 'jimp', version: '1.0.0' }],
+          productionPackageCount: 70,
+          recordedBaselineMinifiedBytes: null,
+          brotliBytes: 1,
+        },
+        {
+          category: 'purejsimage-entry',
+          configuredCeilingMinifiedBytes: null,
+          entry: { packageExports: ['purejsimage'] },
+          gzipBytes: 2,
+          id: 'core',
+          implementation: 'package-core',
+          unpackedPackageBytes: 4_000,
+          minifiedJsBytes: 20,
+          name: 'Core API',
+          packageVersions: [{ name: 'purejsimage', version: '0.10.0' }],
+          productionPackageCount: 1,
+          recordedBaselineMinifiedBytes: null,
+          brotliBytes: 2,
+        },
+      ],
+    })
+    expect(parsed.package.unpackedPackageBytes).toBe(4_000)
+    expect(parsed.package.productionPackageCount).toBe(1)
+    expect(parsed.targets[0]?.unpackedPackageBytes).toBe(99_000)
+    expect(parsed.targets[1]?.unpackedPackageBytes).toBe(4_000)
+    expect(() =>
+      parsePackageMetrics({
+        schemaVersion: 2,
+        package: { name: 'purejsimage', version: '0.10.0' },
+        liveDemoReaderIds: [],
+        codecs: [],
+        scientificReaders: [],
+        scientificReaderGroups: [],
+        wasmAssets: [],
+        targets: [
+          {
+            category: 'purejsimage-entry',
+            configuredCeilingMinifiedBytes: null,
+            entry: { packageExports: ['purejsimage'] },
+            gzipBytes: 2,
+            id: 'core',
+            implementation: 'package-core',
+            unpackedPackageBytes: 4_000,
+            minifiedJsBytes: 20,
+            name: 'Core API',
+            packageVersions: [{ name: 'purejsimage', version: '9.9.9' }],
+            productionPackageCount: 1,
+            recordedBaselineMinifiedBytes: null,
+            brotliBytes: 2,
+          },
+        ],
+      }),
+    ).toThrow(/packageVersions must match package.name and package.version/u)
+  })
+
+  it('stores the host package footprint once instead of copying it onto every entry', () => {
+    const serialized = JSON.parse(serializePackageMetrics(metrics)) as {
+      readonly package: { readonly unpackedPackageBytes: number }
+      readonly targets: readonly Record<string, unknown>[]
+    }
+    expect(serialized.package.unpackedPackageBytes).toBe(metrics.package.unpackedPackageBytes)
+    const hostTargets = serialized.targets.filter(
+      (target) => target.unpackedPackageBytes === undefined && target.packageVersions === undefined,
+    )
+    const foreignTargets = serialized.targets.filter(
+      (target) => target.unpackedPackageBytes !== undefined,
+    )
+    expect(hostTargets.length).toBeGreaterThan(50)
+    expect(foreignTargets.length).toBeGreaterThan(0)
+    expect(
+      foreignTargets.every(
+        (target) => target.unpackedPackageBytes !== serialized.package.unpackedPackageBytes,
       ),
     ).toBe(true)
   })

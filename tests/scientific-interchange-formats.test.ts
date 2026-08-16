@@ -193,6 +193,38 @@ const modifiedNifti1 = (modify: (view: DataView) => void): Uint8Array<ArrayBuffe
   return bytes
 }
 
+const scaledNifti1Plane = (
+  width: number,
+  height: number,
+  values: readonly number[],
+): Uint8Array<ArrayBuffer> => {
+  if (values.length !== width * height) {
+    throw new Error('NIfTI fixture values must match width × height')
+  }
+  const dataOffset = 352
+  const output = new Uint8Array(dataOffset + values.length * 2)
+  const view = new DataView(output.buffer)
+  view.setInt32(0, 348, true)
+  view.setInt16(40, 2, true)
+  view.setInt16(42, width, true)
+  view.setInt16(44, height, true)
+  view.setInt16(46, 1, true)
+  view.setInt16(70, 4, true)
+  view.setInt16(72, 16, true)
+  view.setFloat32(76, 1, true)
+  view.setFloat32(80, 1, true)
+  view.setFloat32(84, 1, true)
+  view.setFloat32(108, dataOffset, true)
+  view.setFloat32(112, 2, true)
+  view.setFloat32(116, 1, true)
+  output[123] = 2
+  output.set(text('n+1\0'), 344)
+  for (const [index, value] of values.entries()) {
+    view.setInt16(dataOffset + index * 2, value, true)
+  }
+  return output
+}
+
 const blockfile = (): Uint8Array<ArrayBuffer> => {
   const output = new Uint8Array(284)
   const view = new DataView(output.buffer)
@@ -239,6 +271,57 @@ describe('Milestone H interchange and detector readers', () => {
       context('fortran.npy', npy([3, 2], [1, 2, 3, 4, 5, 6], true)),
     )
     await expect(planeValues(f)).resolves.toEqual([1, 2, 3, 4, 5, 6])
+  })
+
+  it('coalesces sequential packed NPY rows into one source read per output block', async () => {
+    const values = Array.from({ length: 32 }, (_value, index) => index + 1)
+    const bytes = npy([8, 4], values)
+    const dataOffset = 10 + new DataView(bytes.buffer).getUint16(8, true)
+    const source = new TrackingSource(bytes)
+    const reader = createNpyReader({ limits: { rowsPerBlock: 4 } })
+    const document = await reader.open({
+      primary: { id: 'primary', name: 'packed.npy', source },
+    })
+    const headerReads = source.reads.length
+    const dataset = await document.openDataset('array')
+    await expect(planeValues(dataset)).resolves.toEqual(values)
+    expect(source.reads.slice(headerReads)).toEqual([
+      { offset: dataOffset, length: 32 },
+      { offset: dataOffset + 32, length: 32 },
+    ])
+  })
+
+  it('keeps windowed interchange reads on selected row spans', async () => {
+    const values = Array.from({ length: 32 }, (_value, index) => index + 1)
+    const bytes = npy([4, 8], values)
+    const dataOffset = 10 + new DataView(bytes.buffer).getUint16(8, true)
+    const source = new TrackingSource(bytes)
+    const document = await npyReader.open({
+      primary: { id: 'primary', name: 'window.npy', source },
+    })
+    source.reads.splice(0)
+    const dataset = await document.openDataset('array')
+    const selected: number[] = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['axis1', 'axis0'],
+      fixedIndices: [],
+      x: 2,
+      y: 1,
+      width: 3,
+      height: 2,
+    })) {
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let y = 0; y < block.height; y += 1) {
+        for (let x = 0; x < block.width; x += 1) {
+          selected.push(readRasterSample(block.data, view, y * block.stride + x * 2, 'uint16'))
+        }
+      }
+    }
+    expect(selected).toEqual([11, 12, 13, 19, 20, 21])
+    expect(source.reads).toEqual([
+      { offset: dataOffset + 20, length: 6 },
+      { offset: dataOffset + 36, length: 6 },
+    ])
   })
 
   it('reads paired RPL/RAW vector records with sidecar calibration', async () => {
@@ -380,6 +463,19 @@ ElementDataFile = image.raw
     await expect(
       planeValues(await openDataset(niftiReader, context('volume-v2.nii', nifti2()))),
     ).resolves.toEqual([1, 2, 3, 4])
+  })
+
+  it('applies NIfTI scaling across a coalesced multi-row plane', async () => {
+    const bytes = scaledNifti1Plane(2, 3, [1, 2, 3, 4, 5, 6])
+    const source = new TrackingSource(bytes)
+    const document = await niftiReader.open({
+      primary: { id: 'primary', name: 'scaled.nii', source },
+    })
+    source.reads.splice(0)
+    const dataset = await document.openDataset('volume')
+    await expect(planeValues(dataset)).resolves.toEqual([3, 5, 7, 9, 11, 13])
+    expect(dataset.descriptor.sampleType).toBe('float64')
+    expect(source.reads).toEqual([{ offset: 352, length: 12 }])
   })
 
   it('ignores scl_inter when scl_slope is zero in NIfTI-1 and NIfTI-2', async () => {
@@ -695,7 +791,7 @@ data file: payload.raw
 
   it('enforces operation, element, compression, cancellation, and truncation limits', async () => {
     const operationLimited = createNpyReader({
-      limits: { maxReadOperations: 1, rowsPerBlock: 2 },
+      limits: { maxReadOperations: 1, rowsPerBlock: 1 },
     })
     const dataset = await openDataset(
       operationLimited,

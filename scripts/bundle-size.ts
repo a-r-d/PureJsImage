@@ -33,6 +33,13 @@ export interface PackageVersion {
   readonly version: string
 }
 
+export interface HostPackageMetric {
+  readonly name: string
+  readonly productionPackageCount: number
+  readonly unpackedPackageBytes: number
+  readonly version: string
+}
+
 export interface BundleEntry {
   readonly packageExports?: readonly string[]
   readonly sourceEntries?: readonly string[]
@@ -95,11 +102,8 @@ export interface ScientificReaderGroup {
 export interface PackageMetricsDocument {
   readonly codecs: readonly CodecMetric[]
   readonly liveDemoReaderIds: readonly string[]
-  readonly package: {
-    readonly name: string
-    readonly version: string
-  }
-  readonly schemaVersion: 2
+  readonly package: HostPackageMetric
+  readonly schemaVersion: 3
   readonly scientificReaderGroups: readonly ScientificReaderGroup[]
   readonly scientificReaders: readonly ScientificReaderMetric[]
   readonly targets: readonly PackageMetric[]
@@ -191,11 +195,50 @@ const parseEntry = (value: unknown, label: string): BundleEntry => {
   }
 }
 
-const parseTarget = (value: unknown, index: number): PackageMetric => {
+const hostPackageVersions = (host: HostPackageMetric): readonly PackageVersion[] => [
+  { name: host.name, version: host.version },
+]
+
+const sharesHostPackageFootprint = (
+  target: Pick<
+    PackageMetric,
+    'packageVersions' | 'productionPackageCount' | 'unpackedPackageBytes'
+  >,
+  host: HostPackageMetric,
+): boolean => {
+  const version = target.packageVersions[0]
+  return (
+    target.unpackedPackageBytes === host.unpackedPackageBytes &&
+    target.productionPackageCount === host.productionPackageCount &&
+    target.packageVersions.length === 1 &&
+    version !== undefined &&
+    version.name === host.name &&
+    version.version === host.version
+  )
+}
+
+const parseTarget = (value: unknown, index: number, host: HostPackageMetric): PackageMetric => {
   const label = `targets[${index}]`
   if (!isRecord(value)) throw new Error(`${label} must be an object`)
   const codecs =
     value.codecs === undefined ? undefined : stringArrayOf(value.codecs, `${label}.codecs`)
+  const hasUnpacked = value.unpackedPackageBytes !== undefined
+  const hasCount = value.productionPackageCount !== undefined
+  const hasVersions = value.packageVersions !== undefined
+  if (hasUnpacked !== hasCount || hasUnpacked !== hasVersions) {
+    throw new Error(
+      `${label} must omit or include unpackedPackageBytes, productionPackageCount, and packageVersions together`,
+    )
+  }
+  const unpackedPackageBytes = hasUnpacked
+    ? numberOf(value.unpackedPackageBytes, `${label}.unpackedPackageBytes`)
+    : host.unpackedPackageBytes
+  const productionPackageCount = hasCount
+    ? numberOf(value.productionPackageCount, `${label}.productionPackageCount`)
+    : host.productionPackageCount
+  const packageVersions = hasVersions
+    ? parsePackageVersions(value.packageVersions, `${label}.packageVersions`)
+    : hostPackageVersions(host)
   return {
     category: categoryOf(value.category, `${label}.category`),
     ...(codecs === undefined ? {} : { codecs }),
@@ -207,14 +250,11 @@ const parseTarget = (value: unknown, index: number): PackageMetric => {
     gzipBytes: numberOf(value.gzipBytes, `${label}.gzipBytes`),
     id: stringOf(value.id, `${label}.id`),
     implementation: implementationOf(value.implementation, `${label}.implementation`),
-    unpackedPackageBytes: numberOf(value.unpackedPackageBytes, `${label}.unpackedPackageBytes`),
+    unpackedPackageBytes,
     minifiedJsBytes: numberOf(value.minifiedJsBytes, `${label}.minifiedJsBytes`),
     name: stringOf(value.name, `${label}.name`),
-    packageVersions: parsePackageVersions(value.packageVersions, `${label}.packageVersions`),
-    productionPackageCount: numberOf(
-      value.productionPackageCount,
-      `${label}.productionPackageCount`,
-    ),
+    packageVersions,
+    productionPackageCount,
     recordedBaselineMinifiedBytes: nullableNumberOf(
       value.recordedBaselineMinifiedBytes,
       `${label}.recordedBaselineMinifiedBytes`,
@@ -279,10 +319,65 @@ const parseScientificReaderGroup = (value: unknown, index: number): ScientificRe
   }
 }
 
+const parseHostPackage = (
+  value: unknown,
+  targets: readonly unknown[],
+  schemaVersion: 2 | 3,
+): HostPackageMetric => {
+  if (!isRecord(value)) throw new Error('Package metrics package must be an object')
+  const name = stringOf(value.name, 'package.name')
+  const version = stringOf(value.version, 'package.version')
+  if (schemaVersion === 3) {
+    return {
+      name,
+      version,
+      unpackedPackageBytes: numberOf(value.unpackedPackageBytes, 'package.unpackedPackageBytes'),
+      productionPackageCount: numberOf(
+        value.productionPackageCount,
+        'package.productionPackageCount',
+      ),
+    }
+  }
+  const hostIndex = targets.findIndex(
+    (target) => isRecord(target) && target.category === 'purejsimage-entry',
+  )
+  const hostTarget = hostIndex === -1 ? undefined : targets[hostIndex]
+  if (!isRecord(hostTarget)) {
+    throw new Error('Package metrics v2 document is missing a purejsimage-entry target')
+  }
+  const label = `targets[${hostIndex}]`
+  if (hostTarget.packageVersions !== undefined) {
+    const versions = parsePackageVersions(hostTarget.packageVersions, `${label}.packageVersions`)
+    const versionEntry = versions[0]
+    if (
+      versions.length !== 1 ||
+      versionEntry === undefined ||
+      versionEntry.name !== name ||
+      versionEntry.version !== version
+    ) {
+      throw new Error(`${label} packageVersions must match package.name and package.version`)
+    }
+  }
+  return {
+    name,
+    version,
+    unpackedPackageBytes: numberOf(
+      hostTarget.unpackedPackageBytes,
+      `${label}.unpackedPackageBytes`,
+    ),
+    productionPackageCount: numberOf(
+      hostTarget.productionPackageCount,
+      `${label}.productionPackageCount`,
+    ),
+  }
+}
+
 export const parsePackageMetrics = (value: unknown): PackageMetricsDocument => {
   if (!isRecord(value)) throw new Error('Package metrics must be an object')
-  if (value.schemaVersion !== 2) throw new Error('Package metrics schemaVersion must be 2')
-  if (!isRecord(value.package)) throw new Error('Package metrics package must be an object')
+  if (value.schemaVersion !== 2 && value.schemaVersion !== 3) {
+    throw new Error('Package metrics schemaVersion must be 2 or 3')
+  }
+  const schemaVersion = value.schemaVersion
   if (!Array.isArray(value.targets)) throw new Error('Package metrics targets must be an array')
   if (!Array.isArray(value.wasmAssets))
     throw new Error('Package metrics wasmAssets must be an array')
@@ -293,18 +388,16 @@ export const parsePackageMetrics = (value: unknown): PackageMetricsDocument => {
   if (!Array.isArray(value.scientificReaderGroups)) {
     throw new Error('Package metrics scientificReaderGroups must be an array')
   }
-  const targets = value.targets.map(parseTarget)
+  const host = parseHostPackage(value.package, value.targets, schemaVersion)
+  const targets = value.targets.map((target, index) => parseTarget(target, index, host))
   if (new Set(targets.map(({ id }) => id)).size !== targets.length) {
     throw new Error('Package metrics target IDs must be unique')
   }
   return {
     codecs: value.codecs.map(parseCodec),
     liveDemoReaderIds: stringArrayOf(value.liveDemoReaderIds, 'liveDemoReaderIds'),
-    package: {
-      name: stringOf(value.package.name, 'package.name'),
-      version: stringOf(value.package.version, 'package.version'),
-    },
-    schemaVersion: 2,
+    package: host,
+    schemaVersion: 3,
     scientificReaderGroups: value.scientificReaderGroups.map(parseScientificReaderGroup),
     scientificReaders: value.scientificReaders.map(parseScientificReader),
     targets,
@@ -624,11 +717,18 @@ export const measurePackageMetrics = async (
   const wasmAssets = await Promise.all(
     wasmAssetTargets.map((target) => measureWasmAsset(target, repositoryDirectory)),
   )
+  const hostTarget = targets.find((target) => target.category === 'purejsimage-entry')
+  if (hostTarget === undefined) throw new Error('Package metrics are missing a PureJsImage entry')
   return {
     codecs,
     liveDemoReaderIds,
-    package: { name: packageJson.name, version: packageJson.version },
-    schemaVersion: 2,
+    package: {
+      name: packageJson.name,
+      version: packageJson.version,
+      unpackedPackageBytes: hostTarget.unpackedPackageBytes,
+      productionPackageCount: hostTarget.productionPackageCount,
+    },
+    schemaVersion: 3,
     scientificReaderGroups: readerGroups(scientificReaders),
     scientificReaders,
     targets,
@@ -636,7 +736,38 @@ export const measurePackageMetrics = async (
   }
 }
 
-const json = (metrics: PackageMetricsDocument): string => `${JSON.stringify(metrics, null, 2)}\n`
+const compactTarget = (target: PackageMetric, host: HostPackageMetric): Record<string, unknown> => {
+  if (!sharesHostPackageFootprint(target, host)) return { ...target }
+  return {
+    category: target.category,
+    ...(target.codecs === undefined ? {} : { codecs: target.codecs }),
+    configuredCeilingMinifiedBytes: target.configuredCeilingMinifiedBytes,
+    entry: target.entry,
+    gzipBytes: target.gzipBytes,
+    id: target.id,
+    implementation: target.implementation,
+    minifiedJsBytes: target.minifiedJsBytes,
+    name: target.name,
+    recordedBaselineMinifiedBytes: target.recordedBaselineMinifiedBytes,
+    brotliBytes: target.brotliBytes,
+  }
+}
+
+const json = (metrics: PackageMetricsDocument): string =>
+  `${JSON.stringify(
+    {
+      codecs: metrics.codecs,
+      liveDemoReaderIds: metrics.liveDemoReaderIds,
+      package: metrics.package,
+      schemaVersion: 3,
+      scientificReaderGroups: metrics.scientificReaderGroups,
+      scientificReaders: metrics.scientificReaders,
+      targets: metrics.targets.map((target) => compactTarget(target, metrics.package)),
+      wasmAssets: metrics.wasmAssets,
+    },
+    null,
+    2,
+  )}\n`
 
 export const writePackageMetrics = async (
   metrics: PackageMetricsDocument,
