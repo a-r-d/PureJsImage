@@ -1,17 +1,67 @@
+const compactNavQuery = () => window.matchMedia('(max-width: 1140px)')
+
+const setMenuOpen = (
+  navigation: HTMLElement | null,
+  menuButton: HTMLButtonElement | null,
+  open: boolean,
+) => {
+  navigation?.classList.toggle('open', open)
+  menuButton?.setAttribute('aria-expanded', String(open))
+  menuButton?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation')
+}
+
+const closeDisclosures = (navigation: HTMLElement | null) => {
+  for (const disclosure of navigation?.querySelectorAll<HTMLDetailsElement>(
+    '[data-nav-disclosure]',
+  ) ?? []) {
+    disclosure.open = false
+  }
+}
+
 export const initializeSite = () => {
   const menuButton = document.querySelector<HTMLButtonElement>('[data-menu-toggle]')
   const navigation = document.querySelector<HTMLElement>('[data-nav]')
+  const disclosures = [...document.querySelectorAll<HTMLDetailsElement>('[data-nav-disclosure]')]
+
+  const closeMobileMenu = () => setMenuOpen(navigation, menuButton, false)
 
   menuButton?.addEventListener('click', () => {
-    const open = navigation?.classList.toggle('open') ?? false
-    menuButton.setAttribute('aria-expanded', String(open))
+    const open = !navigation?.classList.contains('open')
+    setMenuOpen(navigation, menuButton, open)
+    if (open) {
+      for (const disclosure of disclosures) disclosure.open = true
+    }
   })
 
   navigation?.addEventListener('click', (event) => {
-    if (event.target instanceof HTMLAnchorElement) {
-      navigation.classList.remove('open')
-      menuButton?.setAttribute('aria-expanded', 'false')
+    if (!(event.target instanceof Element) || event.target.closest('a') === null) return
+    closeMobileMenu()
+    closeDisclosures(navigation)
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return
+    if (navigation?.classList.contains('open')) {
+      closeMobileMenu()
+      menuButton?.focus()
+      return
     }
+    const openDisclosure = disclosures.find((disclosure) => disclosure.open)
+    if (!openDisclosure) return
+    openDisclosure.open = false
+    openDisclosure.querySelector('summary')?.focus()
+  })
+
+  document.addEventListener('pointerdown', (event) => {
+    if (!(event.target instanceof Node)) return
+    if (menuButton?.contains(event.target) || navigation?.contains(event.target)) return
+    closeMobileMenu()
+    closeDisclosures(navigation)
+  })
+
+  compactNavQuery().addEventListener('change', () => {
+    closeMobileMenu()
+    closeDisclosures(navigation)
   })
 
   const header = document.querySelector<HTMLElement>('.site-header')
