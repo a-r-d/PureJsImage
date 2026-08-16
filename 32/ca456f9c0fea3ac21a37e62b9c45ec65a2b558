@@ -1,0 +1,20 @@
+browser-tests/demo.pw.ts
+  h_9f4a25732fa0c1 50
+scripts/bundle-size.ts
+  h_9f4a25732fa0c1 341-360,364-367,369-370
+tests/package-metrics.test.ts
+  h_9f4a25732fa0c1 104-179
+tests/scientific-interchange-formats.test.ts
+  h_9f4a25732fa0c1 196-227,468-480
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "32ca456f9c0fea3ac21a37e62b9c45ec65a2b558",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
