@@ -18,14 +18,20 @@ const demoItems = [
   { href: 'wsi/', label: 'Whole-slide viewer' },
   { href: 'scientific/', label: 'Scientific explorer' },
 ] as const satisfies readonly NavLink[]
-const primaryLinks = [
-  { href: 'scientific-formats/', label: 'Formats' },
-  { href: 'guides/', label: 'Guides' },
+const benchmarkItems = [
+  { href: 'performance/', label: 'Web codec charts' },
+  { href: 'performance/#scientific-readers', label: 'Scientific reader charts' },
+  { href: 'scientific/benchmarks/', label: 'Scientific reader tables' },
+] as const satisfies readonly NavLink[]
+const referenceItems = [
   { href: 'api/', label: 'API' },
-  { href: 'codecs/', label: 'Codecs' },
-  { href: 'performance/', label: 'Benchmarks' },
+  { href: 'codecs/', label: 'Codec support' },
+  { href: 'scientific-formats/', label: 'Scientific formats' },
 ] as const satisfies readonly NavLink[]
 const demoIsCurrent = demoItems.some(({ href }) => current === href)
+const referenceIsCurrent =
+  current === 'api/' || current === 'codecs/' || current === 'scientific-formats/'
+const benchmarkIsCurrent = current === 'performance/' || current === 'scientific/benchmarks/'
 const configuredBase = import.meta.env.BASE_URL
 const siteBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
 ---
@@ -52,13 +58,37 @@ const siteBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBa
           }
         </div>
       </details>
-      {
-        primaryLinks.map(({ href, label }) => (
-          <a href={`${siteBase}${href}`} aria-current={current === href ? 'page' : undefined}>
-            {label}
-          </a>
-        ))
-      }
+      <a href={`${siteBase}guides/`} aria-current={current === 'guides/' ? 'page' : undefined}>
+        Guides
+      </a>
+      <details class="nav-disclosure" data-nav-disclosure>
+        <summary class="nav-summary" aria-current={referenceIsCurrent ? 'true' : undefined}>
+          Reference
+        </summary>
+        <div class="nav-submenu" role="group" aria-label="Reference">
+          {
+            referenceItems.map(({ href, label }) => (
+              <a href={`${siteBase}${href}`} aria-current={current === href ? 'page' : undefined}>
+                {label}
+              </a>
+            ))
+          }
+        </div>
+      </details>
+      <details class="nav-disclosure" data-nav-disclosure>
+        <summary class="nav-summary" aria-current={benchmarkIsCurrent ? 'true' : undefined}>
+          Benchmarks
+        </summary>
+        <div class="nav-submenu" role="group" aria-label="Benchmarks">
+          {
+            benchmarkItems.map(({ href, label }) => (
+              <a href={`${siteBase}${href}`} aria-current={current === href ? 'page' : undefined}>
+                {label}
+              </a>
+            ))
+          }
+        </div>
+      </details>
       <div class="nav-panel-extras">
         <a
           class="button small app-header-menu"

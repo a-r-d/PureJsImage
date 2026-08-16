@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test'
 
 const overflowViewports = [390, 768, 1024, 1280, 1440] as const
-const desktopPrimaryLabels = ['Demos', 'Formats', 'Guides', 'API', 'Codecs', 'Benchmarks'] as const
+const desktopPrimaryLabels = ['Demos', 'Guides', 'Reference', 'Benchmarks'] as const
 
 const noHorizontalOverflow = async (page: Page) => {
   const { clientWidth, scrollWidth } = await page.evaluate(() => ({
@@ -33,15 +33,31 @@ test('keeps a one-line desktop header with the grouped navigation', async ({ pag
   await expect(page.locator('.nav-panel-extras')).toBeHidden()
 
   const nav = page.locator('[data-nav]')
-  await expect(nav.getByRole('link', { name: 'Formats' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Guides' })).toBeVisible()
-  await expect(nav.getByRole('link', { name: 'API' })).toBeVisible()
-  await expect(nav.getByRole('link', { name: 'Codecs' })).toBeVisible()
-  await expect(nav.getByRole('link', { name: 'Benchmarks' })).toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Contribute' })).toHaveCount(0)
+  await page.locator('.nav-summary', { hasText: 'Reference' }).click()
+  await expect(nav.getByRole('link', { name: 'API' })).toHaveAttribute('href', /\/api\/$/u)
+  await expect(nav.getByRole('link', { name: 'Codec support' })).toHaveAttribute(
+    'href',
+    /\/codecs\/$/u,
+  )
+  await expect(nav.getByRole('link', { name: 'Scientific formats' })).toHaveAttribute(
+    'href',
+    /\/scientific-formats\/$/u,
+  )
+  await page.locator('.nav-summary', { hasText: 'Benchmarks' }).click()
+  await expect(nav.getByRole('link', { name: 'Web codec charts' })).toHaveAttribute(
     'href',
     /\/performance\/$/u,
   )
-  await expect(nav.getByRole('link', { name: 'Contribute' })).toHaveCount(0)
+  await expect(nav.getByRole('link', { name: 'Scientific reader charts' })).toHaveAttribute(
+    'href',
+    /\/performance\/#scientific-readers$/u,
+  )
+  await expect(nav.getByRole('link', { name: 'Scientific reader tables' })).toHaveAttribute(
+    'href',
+    /\/scientific\/benchmarks\/$/u,
+  )
 
   const labels = page.locator('.nav-summary, [data-nav] > a:not(.button)')
   await expect(labels).toHaveText([...desktopPrimaryLabels])
@@ -60,9 +76,7 @@ test('keeps a one-line desktop header with the grouped navigation', async ({ pag
     expect(metric.height).toBeLessThan(40)
   }
 
-  await expect(page.locator('.nav-submenu')).toBeHidden()
-  await page.locator('.nav-summary').click()
-  await expect(page.locator('.nav-disclosure')).toHaveAttribute('open', '')
+  await page.locator('.nav-summary', { hasText: 'Demos' }).click()
   await expect(nav.getByRole('link', { name: 'Image converter' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Whole-slide viewer' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Scientific explorer' })).toBeVisible()
@@ -77,7 +91,7 @@ test('switches to compact navigation before the desktop row would be crushed', a
   await expect(page.locator('[data-menu-toggle]')).toBeVisible()
   await expect(page.locator('.header-actions .app-header')).toBeHidden()
   await expect(page.locator('[data-nav]')).toBeHidden()
-  await expect(page.locator('[data-nav] > a:not(.button)')).toHaveCount(5)
+  await expect(page.locator('[data-nav] > a:not(.button)')).toHaveCount(1)
 
   await noHorizontalOverflow(page)
 })
@@ -108,7 +122,7 @@ test('opens and closes the compact menu as a bounded panel', async ({ page }) =>
     expect(panel.y + panel.height).toBeLessThanOrEqual(845)
   }
 
-  await navigation.locator('.nav-summary').focus()
+  await navigation.locator('.nav-summary', { hasText: 'Demos' }).focus()
   await page.keyboard.press('Tab')
   const outline = await page.evaluate(() => {
     const focused = document.activeElement
@@ -135,17 +149,18 @@ test('opens the Demos submenu with the keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/guides/')
 
-  await page.locator('.nav-summary').focus()
+  const demos = page.locator('.nav-summary', { hasText: 'Demos' })
+  await demos.focus()
   await page.keyboard.press('Enter')
-  await expect(page.locator('.nav-disclosure')).toHaveAttribute('open', '')
+  await expect(page.locator('.nav-disclosure').first()).toHaveAttribute('open', '')
   await expect(page.getByRole('link', { name: 'Image converter' })).toBeVisible()
 
   await page.keyboard.press('Tab')
   await expect(page.getByRole('link', { name: 'Image converter' })).toBeFocused()
 
   await page.keyboard.press('Escape')
-  await expect(page.locator('.nav-disclosure')).not.toHaveAttribute('open')
-  await expect(page.locator('.nav-summary')).toBeFocused()
+  await expect(page.locator('.nav-disclosure').first()).not.toHaveAttribute('open')
+  await expect(demos).toBeFocused()
 })
 
 test('marks the current page and its containing group', async ({ page }) => {
@@ -155,16 +170,22 @@ test('marks the current page and its containing group', async ({ page }) => {
     name: 'Guides',
   })
   await expect(guides).toHaveAttribute('aria-current', 'page')
-  const formats = page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', {
-    name: 'Formats',
-  })
-  const inactiveColor = await formats.evaluate((node) => getComputedStyle(node).color)
-  await expect(guides).not.toHaveCSS('color', inactiveColor)
-  await expect(page.locator('.nav-summary')).not.toHaveAttribute('aria-current')
+  await expect(page.locator('.nav-summary', { hasText: 'Reference' })).not.toHaveAttribute(
+    'aria-current',
+  )
+  await expect(page.locator('.nav-summary', { hasText: 'Demos' })).not.toHaveAttribute(
+    'aria-current',
+  )
+  await expect(page.locator('.nav-summary', { hasText: 'Benchmarks' })).not.toHaveAttribute(
+    'aria-current',
+  )
 
   await page.goto('/demo/')
-  await expect(page.locator('.nav-summary')).toHaveAttribute('aria-current', 'true')
-  await page.locator('.nav-summary').click()
+  await expect(page.locator('.nav-summary', { hasText: 'Demos' })).toHaveAttribute(
+    'aria-current',
+    'true',
+  )
+  await page.locator('.nav-summary', { hasText: 'Demos' }).click()
   const converter = page.getByRole('link', { name: 'Image converter' })
   const explorer = page.getByRole('link', { name: 'Scientific explorer' })
   await expect(converter).toHaveAttribute('aria-current', 'page')
@@ -174,12 +195,49 @@ test('marks the current page and its containing group', async ({ page }) => {
   )
 
   await page.goto('/scientific-formats/')
+  await expect(page.locator('.nav-summary', { hasText: 'Reference' })).toHaveAttribute(
+    'aria-current',
+    'true',
+  )
+  await page.locator('.nav-summary', { hasText: 'Reference' }).click()
   await expect(
     page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', {
-      name: 'Formats',
+      name: 'Scientific formats',
     }),
   ).toHaveAttribute('aria-current', 'page')
-  await expect(page.locator('.nav-summary')).not.toHaveAttribute('aria-current')
+  await expect(page.locator('.nav-summary', { hasText: 'Demos' })).not.toHaveAttribute(
+    'aria-current',
+  )
+
+  await page.goto('/performance/')
+  await expect(page.locator('.nav-summary', { hasText: 'Benchmarks' })).toHaveAttribute(
+    'aria-current',
+    'true',
+  )
+  await page.locator('.nav-summary', { hasText: 'Benchmarks' }).click()
+  await expect(
+    page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', {
+      name: 'Web codec charts',
+    }),
+  ).toHaveAttribute('aria-current', 'page')
+
+  await page.goto('/scientific/benchmarks/')
+  await expect(page.locator('.nav-summary', { hasText: 'Benchmarks' })).toHaveAttribute(
+    'aria-current',
+    'true',
+  )
+  await page.locator('.nav-summary', { hasText: 'Benchmarks' }).click()
+  await expect(
+    page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', {
+      name: 'Scientific reader tables',
+    }),
+  ).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('navigation', { name: 'Benchmark evidence' })).toBeVisible()
+  await expect(
+    page.getByRole('navigation', { name: 'Benchmark evidence' }).getByRole('link', {
+      name: 'Web codec charts',
+    }),
+  ).toHaveAttribute('href', /\/performance\/$/u)
 })
 
 test('keeps the 390px header inside the viewport', async ({ page }) => {

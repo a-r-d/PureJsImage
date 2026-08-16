@@ -68,6 +68,12 @@ test('presents full-width web codec and scientific galleries without page overfl
     'does not represent every stable PureJsImage codec',
   )
   await expect(page.getByRole('link', { name: 'Current web codec benchmark report' })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Benchmark evidence' })).toBeVisible()
+  await expect(
+    page.getByRole('navigation', { name: 'Benchmark evidence' }).getByRole('link', {
+      name: 'Scientific reader tables',
+    }),
+  ).toHaveAttribute('href', /\/scientific\/benchmarks\/$/u)
 
   await expect(page.locator('#common-web-codecs .codec-grid')).toHaveCount(0)
   await expect(page.locator('#scientific-readers .codec-grid')).toHaveCount(0)

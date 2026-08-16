@@ -283,8 +283,44 @@ const readerLabel = (id: string): string => {
     </section>
 
     <section class="scientific-explain">
-       <div class="container scientific-explain-grid"><div><p class="eyebrow">Scientific raster formats</p><h2>Numeric data and display pixels use separate steps</h2></div><div><p>GSF, ENVI, FITS, MRC, and CBF remain scientific datasets rather than photographic codecs. Their numeric samples use the same dataset API as OME-TIFF planes. FITS and MRC volumes share lazy cross-sections and bounded Z projections.</p><img src="../assets/scientific-hyperspectral-envi-viewer.png" width="1280" height="720" loading="lazy" alt="ENVI hyperspectral cube displayed in PureJsImage with band and percentile controls"></div></div>
-      <div class="container"><p><a href="./platform/">Application platform</a> · <a href="./benchmarks/">Reader benchmarks</a> · <a href="./envi/">ENVI guide</a> · <a href="./gsf/">GSF guide</a> · <a href="./fits/">FITS guide</a> · <a href="./mrc/">MRC guide</a> · <a href="./cbf/">CBF guide</a> · <a href="./volumes/">Volume operations</a> · <a href="../api/#scientific">Scientific API</a> · <a href="../tiff/#scientific">OME-TIFF</a> · <a href="../wsi/">Whole-slide viewer</a></p></div>
+      <div class="container scientific-explain-grid">
+        <div class="scientific-explain-copy">
+          <p class="eyebrow">Scientific raster formats</p>
+          <h2>Numeric data and display pixels use separate steps</h2>
+          <p>
+            GSF, ENVI, FITS, MRC, and CBF remain scientific datasets rather than photographic codecs.
+            Their numeric samples use the same dataset API as OME-TIFF planes. FITS and MRC volumes
+            share lazy cross-sections and bounded Z projections.
+          </p>
+        </div>
+        <figure class="scientific-explain-figure">
+          <img
+            src="../assets/scientific-hyperspectral-envi-viewer.png"
+            width="1280"
+            height="720"
+            loading="lazy"
+            decoding="async"
+            alt="ENVI hyperspectral cube displayed in PureJsImage with band and percentile controls"
+          />
+          <figcaption>
+            Native uint16 scientific samples stay in the dataset. This view maps them into display
+            pixels locally in the browser tab.
+          </figcaption>
+        </figure>
+        <nav class="scientific-explain-links" aria-label="Scientific guides">
+          <a href="./platform/">Application platform</a>
+          <a href="./benchmarks/">Reader benchmarks</a>
+          <a href="./envi/">ENVI guide</a>
+          <a href="./gsf/">GSF guide</a>
+          <a href="./fits/">FITS guide</a>
+          <a href="./mrc/">MRC guide</a>
+          <a href="./cbf/">CBF guide</a>
+          <a href="./volumes/">Volume operations</a>
+          <a href="../api/#scientific">Scientific API</a>
+          <a href="../tiff/#scientific">OME-TIFF</a>
+          <a href="../wsi/">Whole-slide viewer</a>
+        </nav>
+      </div>
     </section>
   </main>
   <script>

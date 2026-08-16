@@ -223,7 +223,7 @@ describe('package contract', () => {
     expect(workflow).toContain('run: npm ci')
     expect(workflow).toContain('run: npm run check')
     expect(header).toContain("href: 'scientific-formats/'")
-    expect(header).toContain("label: 'Formats'")
+    expect(header).toContain("label: 'Scientific formats'")
     expect(astroConfig).toContain("import sitemap from '@astrojs/sitemap'")
     expect(astroConfig).toContain('integrations: [react(), sitemap()]')
   })

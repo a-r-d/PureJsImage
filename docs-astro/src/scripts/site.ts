@@ -23,6 +23,15 @@ export const initializeSite = () => {
   const navigation = document.querySelector<HTMLElement>('[data-nav]')
   const disclosures = [...document.querySelectorAll<HTMLDetailsElement>('[data-nav-disclosure]')]
 
+  for (const disclosure of disclosures) {
+    disclosure.addEventListener('toggle', () => {
+      if (!disclosure.open || compactNavQuery().matches) return
+      for (const other of disclosures) {
+        if (other !== disclosure) other.open = false
+      }
+    })
+  }
+
   const closeMobileMenu = () => setMenuOpen(navigation, menuButton, false)
 
   menuButton?.addEventListener('click', () => {

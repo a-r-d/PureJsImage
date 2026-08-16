@@ -1,4 +1,5 @@
 ---
+import BenchmarkClusterNav from '../components/BenchmarkClusterNav.astro'
 import BenchmarkGallery from '../components/BenchmarkGallery.astro'
 import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
@@ -126,6 +127,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
   twitterCard="summary"
 >
   <main id="main">
+    <BenchmarkClusterNav current="web-codecs" />
     <header class="page-hero">
       <div class="container">
         <p class="eyebrow">Generated performance evidence</p>
@@ -312,6 +314,7 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
             href={github(documentation.scientific.competitors.reportMarkdown) ?? '#'}
             target="_blank"
             rel="noreferrer">Scientific JS/WASM report →</a
+          > · <a class="text-link" href="../scientific/benchmarks/">Scientific reader tables →</a
           > · <a class="text-link" href="../scientific-formats/">Scientific format reference →</a>
         </p>
       </div>
