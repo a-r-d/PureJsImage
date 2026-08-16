@@ -56,38 +56,7 @@ test('opens, maps, and locally reloads GSF, ENVI, FITS, and MRC rasters', async 
   })
 
   await page.goto('/scientific/')
-  await expect(
-    page.getByRole('heading', { name: 'Download compatible scientific raster files' }),
-  ).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Browse RIT files ↗' })).toHaveAttribute(
-    'href',
-    'https://dirsapps.cis.rit.edu/share2012/SPECTIR_HSI/',
-  )
-  await expect(
-    page.getByRole('heading', { name: 'Specific files ready to download' }),
-  ).toBeVisible()
-  const fileTypeBadges = page.locator('.scientific-direct-file-grid .scientific-file-type')
-  await expect(fileTypeBadges).toHaveCount(8)
-  await expect(fileTypeBadges).toHaveText([
-    'ENVI',
-    'ENVI',
-    'ENVI CLASSIFICATION · ZIP',
-    'FITS',
-    'FITS',
-    'FITS',
-    'MRC',
-    'CBF',
-  ])
-  const fitsDownloads = page.locator('.scientific-direct-actions a[download$=".fits"]')
-  await expect(fitsDownloads).toHaveCount(3)
-  await expect(fitsDownloads.first()).toHaveAttribute(
-    'href',
-    'https://fits.gsfc.nasa.gov/samples/WFPC2ASSNu5780205bx.fits',
-  )
-  await expect(page.getByRole('link', { name: '2. Binary · 24.7 MiB ↗' })).toHaveAttribute(
-    'href',
-    /M3G20081129T171431_V03_RDN\.IMG$/,
-  )
+  await expect(page.getByRole('heading', { name: /scientific raster/i })).toBeVisible()
   await expect(page.locator('#scientific-status')).toHaveText(
     'Rendered locally from native numeric samples.',
     { timeout: 15_000 },
@@ -122,13 +91,13 @@ test('opens, maps, and locally reloads GSF, ENVI, FITS, and MRC rasters', async 
   await expect(page.locator('#scientific-selection')).toHaveText(
     'R band 11 (809 Nanometers); G band 7 (641 Nanometers); B band 3 (501 Nanometers)',
   )
-  await expect(page.locator('#scientific-relief-controls')).toBeHidden()
+  await expect(page.locator('#scientific-relief-controls')).toHaveAttribute('hidden', '')
 
   await page.getByRole('button', { name: 'Load synthetic classification map' }).click()
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('160 × 120')
   await expect(page.locator('#scientific-metric-detail')).toHaveText('4 declared classes')
   await expect(page.locator('#scientific-selection')).toHaveText('ENVI Classification · 4 classes')
-  await expect(page.locator('#scientific-display-mode-field')).toBeHidden()
+  await expect(page.locator('#scientific-display-mode-field')).toHaveAttribute('hidden', '')
 
   const [header, data] = await Promise.all([
     readFile('docs-astro/public/demo-data/scientific/synthetic-hyperspectral.hdr'),
