@@ -1,0 +1,96 @@
+tests/benchmark-hillclimb.test.ts
+  s_ff47e3716c49cd::t_c88b36fcc3c590 1-91
+benchmark/hillclimb/run.ts
+  s_ff47e3716c49cd::t_484ed9f8cddd3b 70-76,88,407,409,455-459,496
+  s_ff47e3716c49cd::t_2bdf15cd455e69 3
+  s_ff47e3716c49cd::t_82355d6a8b8af6 5,40-48,192-193,377-391,396-400,470-474,725-731
+  s_ff47e3716c49cd::t_35c9b02843bd1d 565-578,628
+  s_ff47e3716c49cd::t_9746eb9cdf344a 1,4,6-8,10-39,49-69,77-78,81-87,89-156,159-183,185-191,194-283,286,289-320,322-376,392-395,401-406,410-440,445-447,449-453,460-463,469,475-495,497-527,530-564,579-588,597-611,617-627,629-713,717-724
+  s_ff47e3716c49cd::t_50d8788495cbc9 79-80,157-158,184,284-285,287-288,441-444,448,454,464-468,528-529,589-596,612-616,714-716
+  s_ff47e3716c49cd::t_49021b3b87568b 2,9
+  s_ff47e3716c49cd::t_c7ba37d7d7d134 321,408
+benchmark/scientific-readers/types.ts
+  s_ff47e3716c49cd::t_82355d6a8b8af6 240-241
+  s_ff47e3716c49cd::t_25ca3d3f7a7d35 25,157,233-234,249-252,256
+  s_ff47e3716c49cd::t_50d8788495cbc9 271
+  s_ff47e3716c49cd::t_3d21095f4bbb6a 3
+benchmark/scientific-readers/run.ts
+  s_ff47e3716c49cd::t_82355d6a8b8af6 809-810
+  s_ff47e3716c49cd::t_3d21095f4bbb6a 671,796,837
+  s_ff47e3716c49cd::t_25ca3d3f7a7d35 1,27-31,36-38,109,184,247-249,434-437,447-456,461,472-477,528,555,589-590,615,633,677-678,771-794,800,802-804,816-819,821-822
+benchmark/scientific-readers/worker.ts
+  s_ff47e3716c49cd::t_25ca3d3f7a7d35 161,762
+benchmark/run.ts
+  s_ff47e3716c49cd::t_65516241ee8135 25-26,374,376,378-381,385-395
+.agents/skills/benchmark-hillclimb/agents/openai.yaml
+  s_ff47e3716c49cd::t_b9036c95e7807c 1-4
+benchmark/generated/package-metrics.json
+  s_ff47e3716c49cd::t_e07e2e3940b6f3 179
+docs-astro/src/data/package-metrics.json
+  s_ff47e3716c49cd::t_e07e2e3940b6f3 179
+benchmark/README.md
+  s_ff47e3716c49cd::t_b6cd467a0ec6f6 229-248
+docs-astro/src/data/documentation-data.json
+  s_ff47e3716c49cd::t_335b986e1e68fb 117
+benchmark/hillclimb/compare.ts
+  s_ff47e3716c49cd::t_c88b36fcc3c590 1-71,73-90,94-141,143-226
+  s_ff47e3716c49cd::t_50d8788495cbc9 72,91-93,142
+.agents/skills/benchmark-hillclimb/SKILL.md
+  s_ff47e3716c49cd::t_b9036c95e7807c 1-2,4-17,19-25,27,29,31,42-44,48-52,54,60,62-64,66,72-74,76,78,80,82-84
+  s_ff47e3716c49cd::t_b947c30b760bdf 3
+  s_ff47e3716c49cd::t_666ccc66413608 18
+  s_ff47e3716c49cd::t_88ac09e4665fd8 26
+  s_ff47e3716c49cd::t_b9d986cf293f68 28
+  s_ff47e3716c49cd::t_d0617040f1683e 30
+  s_ff47e3716c49cd::t_a043353c252e4b 32-34,39-41
+  s_ff47e3716c49cd::t_420bc9a848933f 45-47
+  s_ff47e3716c49cd::t_27885539a44e90 53
+  s_ff47e3716c49cd::t_404afc87c25018 55-59
+  s_ff47e3716c49cd::t_5bcd6acec9e419 61
+  s_ff47e3716c49cd::t_e9692ccb92dab7 65
+  s_ff47e3716c49cd::t_e5825b5e2575a0 67-71
+  s_ff47e3716c49cd::t_14a285d267dd5d 75
+  s_ff47e3716c49cd::t_ae6b25595a9175 77
+  s_ff47e3716c49cd::t_ea8d3911a9d8f4 79
+  s_ff47e3716c49cd::t_fc4019aff551ad 81
+  s_ff47e3716c49cd::t_320290a91d9788 85
+  s_e62c73e3ea6ca3::t_dc7b92462bf13c 35-38
+benchmark/scripts/build-result-index.ts
+  s_ff47e3716c49cd::t_65516241ee8135 17,36-60,66-89,226,236,241-243,247,261-272,293-294,320-321,324
+  s_ff47e3716c49cd::t_50d8788495cbc9 61-65
+  s_ff47e3716c49cd::t_c1a993d8047b50 273-275
+tests/scientific-benchmark-integrity.test.ts
+  s_ff47e3716c49cd::t_91d88d76f04591 71,75
+  s_ff47e3716c49cd::t_abcda66eeb7275 1-19,23-25,29-70,72-74,76-89
+  s_ff47e3716c49cd::t_50d8788495cbc9 20-22,26-28
+package.json
+  s_ff47e3716c49cd::t_9746eb9cdf344a 526
+benchmark/scientific-readers/integrity.ts
+  s_ff47e3716c49cd::t_50d8788495cbc9 46-47,99
+  s_ff47e3716c49cd::t_25ca3d3f7a7d35 1-45,48-82,98,100-111
+  s_ff47e3716c49cd::t_abcda66eeb7275 83-97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2f5567b9693cb52f2f49b8f0b35ed9486f439b9d",
+  "prompts": {},
+  "sessions": {
+    "s_e62c73e3ea6ca3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00c99-b0a1-7eb2-a878-3c39a8a13c71",
+        "model": "unknown"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_ff47e3716c49cd": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00c94-d02f-73d2-abb2-0d6e7d56f6b2",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
