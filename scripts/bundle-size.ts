@@ -338,15 +338,36 @@ const parseHostPackage = (
       ),
     }
   }
-  const first = targets[0]
-  if (!isRecord(first)) throw new Error('Package metrics targets[0] must be an object')
+  const hostIndex = targets.findIndex(
+    (target) => isRecord(target) && target.category === 'purejsimage-entry',
+  )
+  const hostTarget = hostIndex === -1 ? undefined : targets[hostIndex]
+  if (!isRecord(hostTarget)) {
+    throw new Error('Package metrics v2 document is missing a purejsimage-entry target')
+  }
+  const label = `targets[${hostIndex}]`
+  if (hostTarget.packageVersions !== undefined) {
+    const versions = parsePackageVersions(hostTarget.packageVersions, `${label}.packageVersions`)
+    const versionEntry = versions[0]
+    if (
+      versions.length !== 1 ||
+      versionEntry === undefined ||
+      versionEntry.name !== name ||
+      versionEntry.version !== version
+    ) {
+      throw new Error(`${label} packageVersions must match package.name and package.version`)
+    }
+  }
   return {
     name,
     version,
-    unpackedPackageBytes: numberOf(first.unpackedPackageBytes, 'targets[0].unpackedPackageBytes'),
+    unpackedPackageBytes: numberOf(
+      hostTarget.unpackedPackageBytes,
+      `${label}.unpackedPackageBytes`,
+    ),
     productionPackageCount: numberOf(
-      first.productionPackageCount,
-      'targets[0].productionPackageCount',
+      hostTarget.productionPackageCount,
+      `${label}.productionPackageCount`,
     ),
   }
 }

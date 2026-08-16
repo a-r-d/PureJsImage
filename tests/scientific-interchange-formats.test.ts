@@ -193,6 +193,38 @@ const modifiedNifti1 = (modify: (view: DataView) => void): Uint8Array<ArrayBuffe
   return bytes
 }
 
+const scaledNifti1Plane = (
+  width: number,
+  height: number,
+  values: readonly number[],
+): Uint8Array<ArrayBuffer> => {
+  if (values.length !== width * height) {
+    throw new Error('NIfTI fixture values must match width × height')
+  }
+  const dataOffset = 352
+  const output = new Uint8Array(dataOffset + values.length * 2)
+  const view = new DataView(output.buffer)
+  view.setInt32(0, 348, true)
+  view.setInt16(40, 2, true)
+  view.setInt16(42, width, true)
+  view.setInt16(44, height, true)
+  view.setInt16(46, 1, true)
+  view.setInt16(70, 4, true)
+  view.setInt16(72, 16, true)
+  view.setFloat32(76, 1, true)
+  view.setFloat32(80, 1, true)
+  view.setFloat32(84, 1, true)
+  view.setFloat32(108, dataOffset, true)
+  view.setFloat32(112, 2, true)
+  view.setFloat32(116, 1, true)
+  output[123] = 2
+  output.set(text('n+1\0'), 344)
+  for (const [index, value] of values.entries()) {
+    view.setInt16(dataOffset + index * 2, value, true)
+  }
+  return output
+}
+
 const blockfile = (): Uint8Array<ArrayBuffer> => {
   const output = new Uint8Array(284)
   const view = new DataView(output.buffer)
@@ -431,6 +463,19 @@ ElementDataFile = image.raw
     await expect(
       planeValues(await openDataset(niftiReader, context('volume-v2.nii', nifti2()))),
     ).resolves.toEqual([1, 2, 3, 4])
+  })
+
+  it('applies NIfTI scaling across a coalesced multi-row plane', async () => {
+    const bytes = scaledNifti1Plane(2, 3, [1, 2, 3, 4, 5, 6])
+    const source = new TrackingSource(bytes)
+    const document = await niftiReader.open({
+      primary: { id: 'primary', name: 'scaled.nii', source },
+    })
+    source.reads.splice(0)
+    const dataset = await document.openDataset('volume')
+    await expect(planeValues(dataset)).resolves.toEqual([3, 5, 7, 9, 11, 13])
+    expect(dataset.descriptor.sampleType).toBe('float64')
+    expect(source.reads).toEqual([{ offset: 352, length: 12 }])
   })
 
   it('ignores scl_inter when scl_slope is zero in NIfTI-1 and NIfTI-2', async () => {
