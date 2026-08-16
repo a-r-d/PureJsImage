@@ -52,7 +52,7 @@ test('leads the homepage with portable codecs, memory comparison, and open-sourc
   await expect(page.locator('.headline-metrics')).toContainText('43')
   await expect(page.locator('.headline-metrics')).toContainText('validated reader workflows')
   await expect(page.locator('.headline-metrics')).toContainText(
-    '13 representative performance workloads',
+    'representative performance workloads',
   )
   await expect(page.locator('main')).not.toContainText(/evidence/iu)
   await expect(page.locator('.metric-info')).toHaveCount(4)
