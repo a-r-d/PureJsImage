@@ -56,7 +56,7 @@ test('opens, maps, and locally reloads GSF, ENVI, FITS, and MRC rasters', async 
   })
 
   await page.goto('/scientific/')
-  await expect(page.getByRole('heading', { name: /scientific raster/i })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Open a scientific raster' })).toBeVisible()
   await expect(page.locator('#scientific-status')).toHaveText(
     'Rendered locally from native numeric samples.',
     { timeout: 15_000 },
