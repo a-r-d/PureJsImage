@@ -112,9 +112,10 @@ const idctBasis4 = createIdctBasis(4)
 const idctBasis2 = createIdctBasis(2)
 
 type JpegScaleDenominator = 1 | 2 | 4 | 8
+type JpegCoefficients = Int16Array | Int32Array
 
 type InverseDct = (
-  coefficients: ArrayLike<number>,
+  coefficients: JpegCoefficients,
   quantization: Int32Array,
   workspace: Float64Array,
   activeRowIndices: Uint8Array,
@@ -885,7 +886,7 @@ const decodeBlock = (
 }
 
 const inverseDct = (
-  coefficients: ArrayLike<number>,
+  coefficients: JpegCoefficients,
   quantization: Int32Array,
   workspace: Float64Array,
   activeRowIndices: Uint8Array,
@@ -902,18 +903,19 @@ const inverseDct = (
     let rowActive = false
     for (let horizontal = 0; horizontal < 8; horizontal += 1) {
       const index = rowOffset + horizontal
-      const coefficient = byte(coefficients, coefficientOffset + index)
+      const coefficient = coefficients[coefficientOffset + index] ?? 0
       if (coefficient === 0) continue
-      const scaled = coefficient * byte(quantization, index)
+      const scaled = coefficient * (quantization[index] ?? 0)
       if (rowActive) {
+        const basisOffset = horizontal * 8
         for (let x = 0; x < 8; x += 1) {
           const target = rowOffset + x
-          workspace[target] =
-            (workspace[target] ?? 0) + scaled * (idctBasis[horizontal * 8 + x] ?? 0)
+          workspace[target] = (workspace[target] ?? 0) + scaled * (idctBasis[basisOffset + x] ?? 0)
         }
       } else {
+        const basisOffset = horizontal * 8
         for (let x = 0; x < 8; x += 1) {
-          workspace[rowOffset + x] = scaled * (idctBasis[horizontal * 8 + x] ?? 0)
+          workspace[rowOffset + x] = scaled * (idctBasis[basisOffset + x] ?? 0)
         }
         activeRowIndices[activeRowCount] = vertical
         activeRowCount += 1
@@ -966,7 +968,7 @@ const inverseDct = (
 const inverseDctReduced = (
   outputSize: 2 | 4,
   basis: Float64Array,
-  coefficients: ArrayLike<number>,
+  coefficients: JpegCoefficients,
   quantization: Int32Array,
   workspace: Float64Array,
   activeRowIndices: Uint8Array,
@@ -984,21 +986,21 @@ const inverseDctReduced = (
     let rowActive = false
     for (let horizontal = 0; horizontal < outputSize; horizontal += 1) {
       const coefficientIndex = coefficientRowOffset + horizontal
-      const coefficient = byte(coefficients, coefficientOffset + coefficientIndex)
+      const coefficient = coefficients[coefficientOffset + coefficientIndex] ?? 0
       if (coefficient === 0) continue
-      const scaled = coefficient * byte(quantization, coefficientIndex)
+      const scaled = coefficient * (quantization[coefficientIndex] ?? 0)
+      const basisOffset = horizontal * outputSize
       if (!rowActive) {
         activeRowIndices[activeRowCount] = vertical
         activeRowCount += 1
         rowActive = true
         for (let x = 0; x < outputSize; x += 1) {
-          workspace[workspaceRowOffset + x] = scaled * (basis[horizontal * outputSize + x] ?? 0)
+          workspace[workspaceRowOffset + x] = scaled * (basis[basisOffset + x] ?? 0)
         }
       } else {
         for (let x = 0; x < outputSize; x += 1) {
           const target = workspaceRowOffset + x
-          workspace[target] =
-            (workspace[target] ?? 0) + scaled * (basis[horizontal * outputSize + x] ?? 0)
+          workspace[target] = (workspace[target] ?? 0) + scaled * (basis[basisOffset + x] ?? 0)
         }
       }
     }
