@@ -1,0 +1,29 @@
+benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.json
+  s_e532dcda1dfd1d::t_5da6a437902f87 1-21799
+benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.md
+  s_e532dcda1dfd1d::t_3e39fe470261f1 1-211
+benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.json
+  s_e532dcda1dfd1d::t_c00b80ec643882 1-21920
+benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.md
+  s_e532dcda1dfd1d::t_7b1d0a99334714 1-108
+benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.json
+  s_e532dcda1dfd1d::t_a1d056d9ef597d 1-48064
+benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.md
+  s_e532dcda1dfd1d::t_8444dd10a3dcda 1-146
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "478fd3e1ce798693fbd56264ea3eb01fa8bf830a",
+  "prompts": {},
+  "sessions": {
+    "s_e532dcda1dfd1d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00870-0498-7482-aa81-03f4cacac046",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
