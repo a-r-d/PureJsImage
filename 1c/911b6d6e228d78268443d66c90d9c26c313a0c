@@ -1,0 +1,48 @@
+browser-tests/benchmark-presentation.pw.ts
+  h_9f4a25732fa0c1 71-76
+browser-tests/scientific-presentation.pw.ts
+  h_9f4a25732fa0c1 1-142
+browser-tests/site-header.pw.ts
+  h_9f4a25732fa0c1 4,37-49,53-60,79,94,125,152-153,155,162-163,173-181,184-188,198-202,205,208-240
+docs-astro/src/components/BenchmarkClusterNav.astro
+  h_9f4a25732fa0c1 1-44
+docs-astro/src/components/ScientificFormatCard.astro
+  h_9f4a25732fa0c1 1-133
+docs-astro/src/components/SiteHeader.astro
+  h_9f4a25732fa0c1 21-26,28-29,32-34,61-91
+docs-astro/src/pages/api.astro
+  h_9f4a25732fa0c1 9
+docs-astro/src/pages/codecs.astro
+  h_9f4a25732fa0c1 16
+docs-astro/src/pages/contributing.astro
+  h_9f4a25732fa0c1 9
+docs-astro/src/pages/guides.astro
+  h_9f4a25732fa0c1 11
+docs-astro/src/pages/performance.astro
+  h_9f4a25732fa0c1 2,130,317
+docs-astro/src/pages/scientific-formats.astro
+  h_9f4a25732fa0c1 2,6-10,45-64,66-73,75-119,121-123,125-139,141
+docs-astro/src/pages/scientific.astro
+  h_9f4a25732fa0c1 286-323
+docs-astro/src/pages/scientific/benchmarks.astro
+  h_9f4a25732fa0c1 2,62,66,78-80,86
+docs-astro/src/pages/tiff.astro
+  h_9f4a25732fa0c1 9
+docs-astro/src/scripts/site.ts
+  h_9f4a25732fa0c1 26-34
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 305-357,1242-1245,1290-1304,1853-1856,5555-5558,5564,5615-5618,5622,5626-5627,5631,5639-5640,6055-6064,6070-6072,6077-6242,6249,6257-6262,6265
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 226
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1c911b6d6e228d78268443d66c90d9c26c313a0c",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
