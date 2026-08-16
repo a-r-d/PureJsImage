@@ -568,7 +568,12 @@ describe('package contract', () => {
       'scripts/**/*.{cjs,js,jsx,mjs}',
       'src/**/*.{cjs,js,jsx,mjs}',
       'tests/**/*.{cjs,js,jsx,mjs}',
-    ]).filter((path) => !path.startsWith('benchmark/competitors-js/node_modules/'))
+    ]).filter(
+      (path) =>
+        !path.startsWith('benchmark/competitors-js/node_modules/') &&
+        !path.startsWith('benchmark/viewers/node_modules/') &&
+        !path.startsWith('benchmark/viewers/.tmp/'),
+    )
 
     expect(javascriptSources).toEqual([])
   })

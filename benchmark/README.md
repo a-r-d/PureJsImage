@@ -265,6 +265,63 @@ Node-focused JavaScript FITS competitor in this scorecard, so `fitsjs` is not
 used as a primary scorecard engine; no browser historical comparison is
 invented for it.
 
+### Browser-native scientific viewer lane
+
+Browser-native viewers are benchmarked in the separate
+`benchmark/viewers/` package and are not mixed into the direct
+scientific-reader scorecard. The nested package has an exact lockfile for
+`@vivjs/loaders`, `@vivjs/layers`, `@hms-dbmi/viv`, deck.gl/luma.gl,
+NiiVue, Cornerstone3D/NIfTI, GeoTIFF, cogeotiff, ITK-Wasm image-io, and
+OpenSeadragon. These are benchmark-only dependencies; the published
+PureJsImage package keeps its zero-runtime-dependency boundary.
+
+The lane has three explicit paths:
+
+* loader-only: metadata, first native tile, selected Z/C/T plane, and
+  deterministic random tiles;
+* minimal viewer: a fixed canvas viewport or orthogonal volume slice;
+* complete interaction: channel, Z/T, zoom, slice-scroll, window/level, pan,
+  cache, and overview transitions where the engine supports them.
+
+OME-TIFF records direct GeoTIFF, Viv loader-only, indexed Viv loader-only, and
+full Viv/deck.gl separately. Indexed Viv receives an IFD-offset sidecar
+generated before the measured stage; sidecar bytes and generation time are
+reported separately. OME-Zarr remains planned work and is not silently
+represented by the OME-TIFF rows.
+
+The initial volume fixture is shared NIfTI. NRRD and MetaImage endpoints are
+also exposed for future rows, but a viewer is not counted as equivalent until
+its exact format path and output are validated. The current COG endpoint is a
+tracked ordinary TIFF fallback because no exact tiled COG fixture is prepared
+in this checkout. COG rows therefore record that boundary; OpenSeadragon is
+unsupported until the same prepared tile endpoint is available. This avoids
+turning a full-file or striped-TIFF path into a false COG comparison.
+
+Run Chromium cold/warm smoke or an individual family with:
+
+```sh
+npm run bench:viewers:smoke
+npm run bench:viewers:ome-tiff
+npm run bench:viewers:volumes
+npm run bench:viewers:cog
+npm run bench:viewers:correctness
+npm run bench:viewers:charts
+```
+
+Set a controlled profile when needed, for example:
+
+```sh
+PUREJSIMAGE_VIEWER_LATENCY_MS=25 npm run bench:viewers:smoke
+PUREJSIMAGE_VIEWER_CACHE_MODE=revalidate PUREJSIMAGE_VIEWER_THROUGHPUT_BPS=100000 npm run bench:viewers:cog
+```
+
+The server provides deterministic HTTP Range request logs, configurable
+0/5/25/100 ms latency profiles, cache-control modes, optional throughput
+throttling, and aborted-request logging. JSON and Markdown family reports,
+request accounting, correctness evidence, and package/dependency/asset
+footprints are written under the ignored `benchmark/viewers/results/`
+directory. There is deliberately no universal viewer score.
+
 ### DigitalMicrograph compatibility corpus
 
 Prepare and verify the pinned DM3/DM4 compatibility files with:

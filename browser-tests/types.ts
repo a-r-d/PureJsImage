@@ -1,3 +1,5 @@
+import type { ViewerBenchmarkHarness } from '../benchmark/viewers/types.ts'
+
 export interface BrowserWorkflowResult {
   readonly detail: string
   readonly outputBytes: number
@@ -149,5 +151,6 @@ declare global {
     pureJsImageBrowserBenchmark: BrowserBenchmarkHarness
     pureJsImageBrowserTests: BrowserCompatibilityHarness
     pureJsImageScientificCompetitors: ScientificCompetitorBrowserHarness
+    pureJsImageViewerBenchmark: ViewerBenchmarkHarness
   }
 }

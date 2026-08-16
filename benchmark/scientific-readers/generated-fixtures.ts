@@ -214,7 +214,7 @@ const cbf = (): Uint8Array => {
 
 const omeTiff = (): Uint8Array => {
   const description = text(
-    '<?xml version="1.0" encoding="UTF-8"?><OME><Image ID="Image:0" Name="Generated"><Pixels DimensionOrder="XYZCT" Type="uint8" SizeX="2" SizeY="2" SizeZ="1" SizeC="1" SizeT="1"><Channel ID="Channel:0:0" SamplesPerPixel="1"/><TiffData IFD="0" PlaneCount="1"/></Pixels></Image></OME>\0',
+    '<?xml version="1.0" encoding="UTF-8"?><OME><Image ID="Image:0" Name="Generated"><Pixels ID="Pixels:0" DimensionOrder="XYZCT" Type="uint8" SizeX="2" SizeY="2" SizeZ="1" SizeC="1" SizeT="1"><Channel ID="Channel:0:0" SamplesPerPixel="1"/><TiffData IFD="0" PlaneCount="1"/></Pixels></Image></OME>\0',
   )
   const entryCount = 12
   const ifdOffset = 8
