@@ -1,0 +1,217 @@
+benchmark/viewers/render-charts.ts
+  s_e532dcda1dfd1d::t_8a1277f48e418c 169
+  s_e532dcda1dfd1d::t_59c0c551569d1e 11-12,33,57-58,78-82,104-111,135,146-148,153,158,170-171,179-180,192,196-198,201-214,216-221,227,232
+benchmark/results/result-index-2026-08-16T17-14-35-512Z.json
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 1-2954
+benchmark/README.md
+  s_e532dcda1dfd1d::t_830de02fdb7875 200,206-218,226-227
+  s_e532dcda1dfd1d::t_58d1edc333b0a0 302-308
+benchmark/scientific-readers/catalog.ts
+  s_e532dcda1dfd1d::t_8f0a796074eab9 26,108-123,173-188,228-235,336-351,380-395,410-425,498-503,513,529-530,532-535,583-585,590-591,595
+  s_e532dcda1dfd1d::t_6c0f29b718b2ca 8
+benchmark/results/result-index-2026-08-16T17-24-15-257Z.json
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1-2995
+benchmark/viewers/config.ts
+  s_e532dcda1dfd1d::t_30eb63394eb747 371,374-375,384,393,402,411,420
+tests/digital-micrograph-index.test.ts
+  s_e532dcda1dfd1d::t_596643dcdc11d5 884-923
+benchmark/scientific-readers/run.ts
+  s_e532dcda1dfd1d::t_6c0f29b718b2ca 7,9,19,26
+  s_e532dcda1dfd1d::t_ddf176be0ee6e2 39-43
+  s_e532dcda1dfd1d::t_085e01a813c938 211-218,645-679,697,710-719,736,754,786-793
+benchmark/results/result-index-2026-08-16T17-14-35-512Z.md
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 1-214
+benchmark/results/public/scientific-competitors-baseline-2026-08-16T17-06-28-533Z.json
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 8
+  s_e532dcda1dfd1d::t_66fe1143559990 1-7,9-1759
+docs-astro/public/assets/scientific-selected-operation.svg
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1,3,20-21,23-24,27-47
+  s_e532dcda1dfd1d::t_d35c86b8ca251d 17,25
+benchmark/scripts/build-result-index.ts
+  s_e532dcda1dfd1d::t_106af7176f1046 157,166-168
+  s_e532dcda1dfd1d::t_085e01a813c938 76-80
+  s_e532dcda1dfd1d::t_01f53af3d78925 198-200
+  s_e532dcda1dfd1d::t_4c7cca355d4316 40,117-118
+  s_e532dcda1dfd1d::t_9656d0f23c2683 169-176
+benchmark/scientific-readers/registry.ts
+  s_e532dcda1dfd1d::t_8d1619d36d3dad 1,16,21
+  s_e532dcda1dfd1d::t_037639adf43299 33-45,56,63
+tests/scientific-reader-benchmark.test.ts
+  s_e532dcda1dfd1d::t_2b4a2503222123 11,76,87-89
+  s_e532dcda1dfd1d::t_7f6904b6575241 75,77-86,90-91
+benchmark/scientific-readers/workloads.ts
+  s_e532dcda1dfd1d::t_ddf176be0ee6e2 35,53,62,72,80,88,97,114,143,152,161,170,179,188,212,485-617
+benchmark/viewers/types.ts
+  s_e532dcda1dfd1d::t_c1d6ec8169e6b6 1,176
+docs-astro/src/pages/performance.astro
+  s_e532dcda1dfd1d::t_11746b5c3695be 168-172,254-258
+  s_e532dcda1dfd1d::t_b148f9adcdab54 368,370-371
+benchmark/results/public/scientific-readers-range-2026-08-16T16-31-34-778Z.json
+  s_e532dcda1dfd1d::t_66fe1143559990 1-7,9-40
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 8
+benchmark/scientific-readers/types.ts
+  s_e532dcda1dfd1d::t_085e01a813c938 139-148,228-231
+  s_e532dcda1dfd1d::t_ddf176be0ee6e2 5,12
+benchmark/results/public/scientific-readers-baseline-2026-08-16T17-07-38-681Z.md
+  s_e532dcda1dfd1d::t_66fe1143559990 1-3,5-9,11-12
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 10
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 4
+benchmark/results/public/scientific-readers-scaling-2026-08-16T17-00-31-605Z.json
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 8
+  s_e532dcda1dfd1d::t_23f1386dc7b2fb 1-7,9-241
+benchmark/results/public/scientific-readers-scaling-2026-08-16T17-19-59-492Z.md
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 10
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 1-9,11-12
+browser-tests/viewer-benchmarks.pw.ts
+  s_e532dcda1dfd1d::t_c1d6ec8169e6b6 88,93,160-161
+  s_e532dcda1dfd1d::t_8a1277f48e418c 89-92
+benchmark/generated/package-metrics.json
+  s_e532dcda1dfd1d::t_3b80972b326a97 509,532,555,578,601,624,647,670,693,716,739,762,785,808,831,854,874,877-878,888,900,923,946,969,992,1015,1035,1038-1039,1049,1061,1084,1104,1107-1108,1118,1130,1153,1176,1199,1222,1245,1268,1291,1314,1337,1360,1383,1406,1426,1429-1430,1440,1452,1475,1498,1521,1544,1567,1590,1613,1636,1659,1682,1705,1728,1751,1774,1813,1836,1874
+docs-astro/src/data/package-metrics.json
+  s_e532dcda1dfd1d::t_3b80972b326a97 509,532,555,578,601,624,647,670,693,716,739,762,785,808,831,854,874,877-878,888,900,923,946,969,992,1015,1035,1038-1039,1049,1061,1084,1104,1107-1108,1118,1130,1153,1176,1199,1222,1245,1268,1291,1314,1337,1360,1383,1406,1426,1429-1430,1440,1452,1475,1498,1521,1544,1567,1590,1613,1636,1659,1682,1705,1728,1751,1774,1813,1836,1874
+benchmark/results/result-index-2026-08-16T17-20-15-679Z.md
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 1-215
+benchmark/results/public/scientific-readers-scaling-2026-08-16T17-19-59-492Z.json
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 8
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 1-7,9-241
+benchmark/scientific-readers/competitor-types.ts
+  s_e532dcda1dfd1d::t_8465f311a5b1d7 149-150
+benchmark/viewers/http-server.ts
+  s_e532dcda1dfd1d::t_58d1edc333b0a0 55-57,80-81,88,91,98,116,118-119,292
+benchmark/digital-micrograph/generated-fixture.ts
+  s_e532dcda1dfd1d::t_1febe5d569e2fd 225-231,240-251,280-281
+benchmark/scientific-readers/worker.ts
+  s_e532dcda1dfd1d::t_6c0f29b718b2ca 8
+  s_e532dcda1dfd1d::t_d53efff39317f7 38-41,662,684-690,692,696,870-875
+benchmark/scientific-readers/generated-fixtures.ts
+  s_e532dcda1dfd1d::t_84b692e4f37b07 334-335,337-406,408-483
+  s_e532dcda1dfd1d::t_58d1edc333b0a0 607-614
+  s_e532dcda1dfd1d::t_d7b238fdfd30f9 407
+  s_e532dcda1dfd1d::t_b38d6fed771303 58-83,109-133,173-184,257-333,588-601,623-634,701-716,730-743,752-783
+  s_e532dcda1dfd1d::t_6c0f29b718b2ca 2
+  s_e532dcda1dfd1d::t_efa2bdc75e59bd 336
+src/scientific/readers/digital-micrograph.ts
+  s_e532dcda1dfd1d::t_6b0de9bbfc0768 817-831,833,836-864,866-878
+  s_e532dcda1dfd1d::t_d1bd92c966f309 885
+tests/scientific-tiff-reader.test.ts
+  s_e532dcda1dfd1d::t_596643dcdc11d5 275,284,298-315,317-319
+  s_e532dcda1dfd1d::t_8d1619d36d3dad 316
+  s_e532dcda1dfd1d::t_2b4a2503222123 2-3,15,29
+src/scientific/readers/mrc.ts
+  s_e532dcda1dfd1d::t_8d1619d36d3dad 14,151-171
+  s_e532dcda1dfd1d::t_037639adf43299 143-150,172-198
+benchmark/viewers/browser-harness.ts
+  s_e532dcda1dfd1d::t_b8ed38db4652e4 209,218,264,270-274
+  s_e532dcda1dfd1d::t_c1d6ec8169e6b6 1478-1480,1542,1544
+  s_e532dcda1dfd1d::t_58d1edc333b0a0 1241,1243,1560
+  s_e532dcda1dfd1d::t_434f7800fe19aa 1114-1129
+docs-astro/src/pages/scientific/benchmarks.astro
+  s_e532dcda1dfd1d::t_b148f9adcdab54 134,136
+docs-astro/public/assets/scientific-package-wasm-footprint.svg
+  s_e532dcda1dfd1d::t_d35c86b8ca251d 14,17-18
+benchmark/results/public/scientific-competitors-baseline-2026-08-16T17-23-11-640Z.json
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1-1759
+src/scientific/formats/digital-micrograph.ts
+  s_e532dcda1dfd1d::t_6c0f29b718b2ca 508,534,548-551,662
+  s_e532dcda1dfd1d::t_4412b03253a5e1 507,511-512,528-530,543-544,555-558,565-568,640-641,650-653,658,661,663,761-766,771-776,778,780
+benchmark/results/result-index-2026-08-16T17-24-15-257Z.md
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1-216
+src/scientific/readers/tiff.ts
+  s_e532dcda1dfd1d::t_4412b03253a5e1 12,58,841-845
+  s_e532dcda1dfd1d::t_6c0f29b718b2ca 9,26-32,887
+tests/project-contract.test.ts
+  s_e532dcda1dfd1d::t_d897a7f638b7b2 204
+benchmark/results/public/scientific-readers-range-2026-08-16T16-31-34-778Z.md
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 10
+  s_e532dcda1dfd1d::t_66fe1143559990 1-3,5-9,11-12
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 4
+package.json
+  s_e532dcda1dfd1d::t_e5d95012b06671 533,537
+benchmark/results/public/scientific-competitors-baseline-2026-08-16T17-23-11-640Z.md
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1-12
+benchmark/scientific-readers/competitors.ts
+  s_e532dcda1dfd1d::t_ae60e6461a296f 26,71,82,93,104,119,121,124,133,143,149,151,154,163,173,183,189,191,194,217,219,222,231
+benchmark/results/public/scientific-readers-baseline-2026-08-16T17-07-38-681Z.json
+  s_e532dcda1dfd1d::t_66fe1143559990 1-7,9-376
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 8
+benchmark/results/public/scientific-competitors-baseline-2026-08-16T17-06-28-533Z.md
+  s_e532dcda1dfd1d::t_66fe1143559990 1-9,11-12
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 10
+docs-astro/public/assets/scientific-first-block-latency.svg
+  s_e532dcda1dfd1d::t_d35c86b8ca251d 17,25
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1,3,20-21,23-24,27-47
+docs-astro/public/assets/scientific-source-io.svg
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1,3,29,32-47
+  s_e532dcda1dfd1d::t_d35c86b8ca251d 17,20-21,23-25,27-28,30-31
+docs-astro/src/data/documentation-data.json
+  s_e532dcda1dfd1d::t_769e60a796b8c1 319-320,325
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 321-324
+  s_e532dcda1dfd1d::t_d35c86b8ca251d 191,199,204-205,209-210,308-309,314-315,317,353,372,410,429,448,467,600,619,638,656-657,676,695,714,733,752,809,847,866,885
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 221,281,284,287-288,290,293-294,296,299-300,302,305-306
+  s_e532dcda1dfd1d::t_3b80972b326a97 97-99,112
+docs-astro/public/assets/scientific-absolute-peak-rss.svg
+  s_e532dcda1dfd1d::t_d35c86b8ca251d 17,25
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 1,3,20-21,23-24,27-47
+benchmark/results/public/scientific-readers-scaling-2026-08-16T17-00-31-605Z.md
+  s_e532dcda1dfd1d::t_23f1386dc7b2fb 1-3,5-9,11-12
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 4,10
+benchmark/results/result-index-2026-08-16T17-20-15-679Z.json
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 1-2970
+benchmark/scientific-readers/run-competitors.ts
+  s_e532dcda1dfd1d::t_8465f311a5b1d7 1,53-64,490-491
+benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.md
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 10
+  s_e532dcda1dfd1d::t_66fe1143559990 7
+benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.json
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 8
+  s_e532dcda1dfd1d::t_66fe1143559990 7,13
+benchmark/results/public/index.json
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 3-4,29-30,56-57,83-84,110-111,121-122,136,142-143,146-147,151-152
+  s_e532dcda1dfd1d::t_bc6c88be29e1cd 40,47,67,74,94,101,137
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 68,79-80,88-89
+  s_e532dcda1dfd1d::t_66fe1143559990 32,37,41,46,52-53,59-62,64,95,100,106-107,115-116,118,154
+  s_e532dcda1dfd1d::t_23f1386dc7b2fb 63,69-73,75-78,81-82,85-86
+  s_e532dcda1dfd1d::t_2913b50f5a0235 65-66
+benchmark/results/public/index.md
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 3,11
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 9
+  s_e532dcda1dfd1d::t_66fe1143559990 8,10
+scripts/render-public-benchmark-results.ts
+  s_e532dcda1dfd1d::t_e265691cdc5f85 267-308,310-333,340-359,527,651
+  s_e532dcda1dfd1d::t_23f1386dc7b2fb 309,334-339
+  s_e532dcda1dfd1d::t_a5e1360ac7d58e 552-555,584,600
+  s_e532dcda1dfd1d::t_8fc51bec7a3af8 421-424
+  s_e532dcda1dfd1d::t_01f53af3d78925 420,425-446,448,451,458-459,462-463,465,467,471-472
+benchmark/competitors-js/node-purejsimage.ts
+  s_e532dcda1dfd1d::t_2b4a2503222123 2-8,22-23
+  s_e532dcda1dfd1d::t_830de02fdb7875 11,26-35,77
+  s_e532dcda1dfd1d::t_ae60e6461a296f 53-59,61-74,76,78-84,206-208
+README.md
+  s_e532dcda1dfd1d::t_3b80972b326a97 68,247
+  s_e532dcda1dfd1d::t_c0ae0b3906bee4 224
+scripts/render-documentation.ts
+  s_e532dcda1dfd1d::t_9b70f353a915e0 347-350
+  s_e532dcda1dfd1d::t_b72a72726f69ca 1118
+  s_e532dcda1dfd1d::t_01f53af3d78925 46,54,57,61,365-368,376,383-386,733
+  s_e532dcda1dfd1d::t_769e60a796b8c1 308,655-662
+  s_e532dcda1dfd1d::t_d2259955b2b729 725,727,732,734,736-737,739-741,743-745,1037-1044
+  s_e532dcda1dfd1d::t_11746b5c3695be 297-307,309-319,623,626,633,636-642,646-654,666-669,1074-1082
+  s_e532dcda1dfd1d::t_cc29fa5393a1c8 738,1045-1061
+  s_e532dcda1dfd1d::t_98862cd326609c 1083
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8e4228204e00a79c2ed386fe2eeb694eafee09ce",
+  "prompts": {},
+  "sessions": {
+    "s_e532dcda1dfd1d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00870-0498-7482-aa81-03f4cacac046",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
