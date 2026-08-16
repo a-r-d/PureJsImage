@@ -1,0 +1,46 @@
+README.md
+  h_9f4a25732fa0c1 67,69,258,260
+benchmark/competitors-js/node-purejsimage.ts
+  h_9f4a25732fa0c1 57-58
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,748,751,754,853,856,859,868,871,874,883,886,889,898,901,904,1108,1111,1114,1183,1186,1189,1380,1383,1386,1425,1428,1431
+benchmark/scientific-readers/catalog.ts
+  h_9f4a25732fa0c1 181-189
+benchmark/scientific-readers/competitors.ts
+  h_9f4a25732fa0c1 39-55,309-310,343-344
+benchmark/scientific-readers/generated-fixtures.ts
+  h_9f4a25732fa0c1 286-292,294-296,305,790-799
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 97-99,102-104,117
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,748,751,754,853,856,859,868,871,874,883,886,889,898,901,904,1108,1111,1114,1183,1186,1189,1380,1383,1386,1425,1428,1431
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 5,11,29-37,39,54,60-62,68,453,673-854,1859-1864,1867,1869-1871,2118,3021-3238,3245-3247,3614,3812,4193,4199-4200,4247-4257,4268-4275,4366,4380-4381,4494-4504,4515-4522,5121-5122,5274-5299,5302,5319
+src/scientific/formats/digital-micrograph.ts
+  h_9f4a25732fa0c1 168-171,242-243,250-283,294-305,310-323,333,554-555,585-605,629,666-675,677-700,771,792,811,825-831,842-892,919
+src/scientific/formats/mrc.ts
+  h_9f4a25732fa0c1 65,72,85,341-344,373-417,429-439,443-464,466,469-484,494
+src/scientific/readers/tiff.ts
+  h_9f4a25732fa0c1 3,840,842
+tests/digital-micrograph-index.test.ts
+  h_9f4a25732fa0c1 693-754
+tests/mrc.test.ts
+  h_9f4a25732fa0c1 187-211
+tests/scientific-competitor-benchmark.test.ts
+  h_9f4a25732fa0c1 56-77
+tests/scientific-tiff-reader.test.ts
+  h_9f4a25732fa0c1 46-48,88-89,109-113,283-284,292-296,298-300,335-477
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 3-4,7,18-21,24-27,29-31,4266,4277,4421-4427
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "54e9c3d03a604e8542e61900fbe20e2b48c47d35",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
