@@ -69,6 +69,28 @@ export const initializeSite = () => {
   updateHeader()
   window.addEventListener('scroll', updateHeader, { passive: true })
 
+  const syncChartViewports = () => {
+    document.querySelectorAll<HTMLElement>('[data-chart-viewport]').forEach((viewport) => {
+      const panel = viewport.closest('.benchmark-chart-panel')
+      if (!(panel instanceof HTMLElement) || getComputedStyle(panel).display === 'none') return
+      const overflow = viewport.scrollWidth > viewport.clientWidth + 1
+      viewport.classList.toggle('is-scrollable', overflow)
+      const cue = panel.querySelector<HTMLElement>('[data-chart-scroll-cue]')
+      if (cue) cue.hidden = !overflow
+    })
+  }
+  document.querySelectorAll<HTMLElement>('[data-benchmark-gallery]').forEach((gallery) => {
+    gallery.addEventListener('change', () => {
+      window.requestAnimationFrame(syncChartViewports)
+    })
+  })
+  document.querySelectorAll<HTMLImageElement>('[data-chart-viewport] img').forEach((image) => {
+    if (image.complete) return
+    image.addEventListener('load', syncChartViewports, { once: true })
+  })
+  window.addEventListener('resize', syncChartViewports)
+  syncChartViewports()
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
     button.addEventListener('click', async () => {
       const targetId = button.getAttribute('data-copy')

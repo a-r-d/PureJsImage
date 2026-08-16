@@ -1,9 +1,51 @@
 ---
+import BenchmarkGallery from '../components/BenchmarkGallery.astro'
 import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
 
 const mib = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MiB`
 const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
+const webCodecCharts = [
+  {
+    id: 'speed',
+    tab: 'Speed',
+    title: 'Web codec speed',
+    explanation: 'Median wall time · logarithmic scale · lower is better',
+    src: documentation.ordinary.charts.speed,
+    alt: 'Grouped horizontal bars comparing median wall time for seven benchmark engines across validated shared workflows.',
+    caption:
+      'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated.',
+    badge: 'Sharp = native libvips',
+    width: 2400,
+    height: 1510,
+    eager: true,
+  },
+  {
+    id: 'quality',
+    tab: 'Quality',
+    title: 'Web codec quality',
+    explanation: 'Premultiplied-RGBA PSNR · higher is better',
+    src: documentation.ordinary.charts.quality,
+    alt: 'Grouped horizontal bars comparing independently measured output PSNR for validated shared workflows.',
+    caption:
+      'PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling.',
+    badge: 'Independent exact-area reference',
+    width: 2400,
+    height: 1510,
+  },
+  {
+    id: 'memory',
+    tab: 'Peak memory',
+    title: 'Web codec peak memory',
+    explanation: 'Median peak RSS · lower is better',
+    src: documentation.ordinary.charts.memory,
+    alt: 'Grouped horizontal bars comparing median absolute peak RSS for seven isolated engines across validated shared workflows.',
+    caption: 'RSS includes the Node.js runtime and native allocations.',
+    badge: 'Isolated worker processes',
+    width: 2400,
+    height: 1510,
+  },
+] as const
 ---
 
 <SiteLayout title="PureJsImage | Zero-dependency image and scientific raster processing" description="Portable strict TypeScript codecs and native scientific readers for Node.js and browsers, with low peak memory usage, zero runtime dependencies, and explicit optional WASM." canonical="https://purejsimage.com/" bodyClass="home" home openGraph={{"title":"PureJsImage | Zero-dependency image and scientific raster processing","description":"Portable ordinary image codecs and native scientific readers for browsers, servers, serverless, edge, and restricted deployments.","url":"https://purejsimage.com/"}} twitterCard="summary">
@@ -32,9 +74,9 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
               <span class="metric-tooltip" id="metric-jimp-tooltip" role="tooltip">Current {benchmarkDate} isolated-process result for the same 24-megapixel northstar photo pipeline and one environment fingerprint.</span>
             </div>
             <div>
-              <button class="metric-info" type="button" aria-label="About the scientific benchmark baseline" aria-describedby="metric-scientific-tooltip">i</button>
-              <strong>{documentation.scientific.baseline.workloadCount}</strong><span>validated reader workflows</span><small>{documentation.scientific.baseline.representativeWorkloadCount} representative performance workloads</small>
-              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">The current baseline includes {documentation.scientific.baseline.representativeWorkloadCount} representative performance workloads and {documentation.scientific.baseline.contractWorkloadCount} correctness or contract workloads.</span>
+              <button class="metric-info" type="button" aria-label="About the scientific scaling benchmark rows" aria-describedby="metric-scientific-tooltip">i</button>
+              <strong>{documentation.scientific.scaling.chartEligibleWorkloadCount}</strong><span>stable medium/large scientific benchmark rows</span><small>{documentation.scientific.scaling.workloadCount} representative workloads validated, {documentation.scientific.scaling.chartEligibleWorkloadCount} under the 10% CV publication threshold</small>
+              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">Correctness and startup rows stay on the baseline profile ({documentation.scientific.baseline.workloadCount} validated reader workflows, {documentation.scientific.baseline.contractWorkloadCount} contract workloads). Representative medium/large performance comes from the separate scaling profile: {documentation.scientific.scaling.workloadCount} validated workloads, {documentation.scientific.scaling.chartEligibleWorkloadCount} under the 10% CV publication threshold.</span>
             </div>
           </div>
           <p class="headline-metrics-note">Use each info button for the source, workflow, and measurement details.</p>
@@ -118,7 +160,7 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
     <section class="proof-section" id="benchmark" aria-labelledby="benchmark-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Speed, quality, and memory demo</p><h2 id="benchmark-title">Measured performance across common image workflows.</h2></div>
+          <div><p class="section-label">Web codec benchmarks</p><h2 id="benchmark-title">Measured performance across common image workflows.</h2></div>
           <p>The {benchmarkDate} profile compares default PureJsImage and its explicit JPEG/PNG WASM accelerators with Jimp, Sharp, Sharp single-thread, image-js, and jSquash on the same inputs. Each engine runs in isolation and every displayed output is validated before timing is admitted.</p>
         </div>
         <div class="benchmark-facts">
@@ -126,34 +168,14 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
           <div><strong>{documentation.ordinary.statusCounts.unsupported}</strong><span>explicit unsupported results</span></div>
           <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
-        <fieldset class="benchmark-gallery">
-          <legend>Choose a benchmark chart</legend>
-          <input id="benchmark-speed" name="benchmark-chart" type="radio" checked>
-          <input id="benchmark-quality" name="benchmark-chart" type="radio">
-          <input id="benchmark-memory" name="benchmark-chart" type="radio">
-          <div class="benchmark-gallery-tabs">
-            <label for="benchmark-speed"><span>01</span> Speed</label>
-            <label for="benchmark-quality"><span>02</span> Quality</label>
-            <label for="benchmark-memory"><span>03</span> Memory</label>
-          </div>
-          <div class="benchmark-gallery-panels">
-            <figure class="benchmark-gallery-panel" data-chart="speed">
-              <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
-              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.speed} width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for seven benchmark engines across validated shared workflows." fetchpriority="high"></div>
-              <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href={documentation.ordinary.charts.speed}>Open full-size chart</a>.</figcaption>
-            </figure>
-            <figure class="benchmark-gallery-panel" data-chart="quality">
-              <div class="benchmark-gallery-head"><div><span>Output fidelity</span><strong>Premultiplied-RGBA PSNR · higher is better</strong></div><small>Independent exact-area reference</small></div>
-              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.quality} width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for validated shared workflows." loading="lazy" decoding="async"></div>
-              <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href={documentation.ordinary.charts.quality}>Open full-size chart</a>.</figcaption>
-            </figure>
-            <figure class="benchmark-gallery-panel" data-chart="memory">
-              <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
-              <div class="benchmark-image-scroll"><img src={documentation.ordinary.charts.memory} width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for seven isolated engines across validated shared workflows." loading="lazy" decoding="async"></div>
-              <figcaption>RSS includes the Node.js runtime and native allocations. <a href={documentation.ordinary.charts.memory}>Open full-size chart</a>.</figcaption>
-            </figure>
-          </div>
-        </fieldset>
+        <p class="benchmark-scope" aria-label="Web codec benchmark formats">
+          <span>JPEG</span><span>PNG</span><span>WebP</span><span>TIFF</span><span>AVIF</span>
+        </p>
+        <BenchmarkGallery
+          id="home-web-codec"
+          legend="Choose a web codec benchmark chart"
+          charts={webCodecCharts}
+        />
         <div class="proof-meta">
           <span>{documentation.ordinary.environment.node} · {documentation.ordinary.environment.os} · {documentation.ordinary.environment.architecture} · {documentation.ordinary.environment.cpu} · {benchmarkDate}</span>
           <span><a href="performance/">Methodology</a> · <a href={`https://github.com/a-r-d/PureJsImage/blob/main/${documentation.ordinary.reportMarkdown}`} target="_blank" rel="noreferrer">Readable report</a> · <a href={`https://github.com/a-r-d/PureJsImage/blob/main/${documentation.ordinary.reportJson}`} target="_blank" rel="noreferrer">JSON</a></span>
