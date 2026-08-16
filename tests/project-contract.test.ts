@@ -80,7 +80,7 @@ describe('package contract', () => {
     expect(readme).toContain('**Maximally portable**')
     expect(readme).toContain('**Zero dependencies**')
     expect(readme).toContain('**Native scientific raster processing**')
-    expect(readme).toContain('**Fully benchmarked**')
+    expect(readme).toContain('**Correctness-gated benchmarks**')
     expect(readme).toContain('**Optional WASM accelerators**')
     expect(readme).toContain('PureJsImage provides portable image codecs')
     expect(readme).not.toMatch(/first-party/i)
@@ -124,7 +124,9 @@ describe('package contract', () => {
     expect(packageJson.scripts['documentation:write']).toContain(
       'node scripts/render-documentation.ts --write',
     )
-    expect(packageJson.scripts['documentation:check']).toBe(
+    expect(packageJson.scripts['documentation:write']).toContain('npm run benchmark:public:write')
+    expect(packageJson.scripts['documentation:check']).toContain('npm run benchmark:public:check')
+    expect(packageJson.scripts['documentation:check']).toContain(
       'node scripts/render-documentation.ts --check',
     )
     expect(packageJson.scripts.size).toContain('npm run build')
@@ -180,6 +182,46 @@ describe('package contract', () => {
       baselineMinifiedBytes: 46_564,
       maxMinifiedBytes: 61_000,
     })
+  })
+
+  it('publishes compact benchmark inputs that survive a clean checkout', () => {
+    const publicIndex = JSON.parse(readFileSync('benchmark/results/public/index.json', 'utf8')) as {
+      readonly results: readonly {
+        readonly profile: string
+        readonly publicationValidationStatus: string
+        readonly resultPaths: readonly string[]
+      }[]
+    }
+    const ignore = readFileSync('.gitignore', 'utf8')
+    const workflow = readFileSync('.github/workflows/ci.yml', 'utf8')
+    const header = readFileSync('docs-astro/src/components/SiteHeader.astro', 'utf8')
+    const astroConfig = readFileSync('docs-astro/astro.config.ts', 'utf8')
+
+    expect(ignore).toContain('benchmark/scientific-readers/results/')
+    expect(publicIndex.results.map(({ profile }) => profile)).toEqual([
+      'competitors',
+      'scientific-readers-baseline',
+      'scientific-readers-range',
+      'scientific-competitors-baseline',
+    ])
+    for (const result of publicIndex.results) {
+      expect(result.publicationValidationStatus).toBe('passed')
+      for (const path of result.resultPaths) {
+        expect(path).toMatch(/^benchmark\/results\/public\//u)
+        expect(readFileSync(path).byteLength).toBeGreaterThan(0)
+      }
+    }
+    expect(documentationData.generatedFrom.resultIndex).toBe('benchmark/results/public/index.json')
+    expect(documentationData.ordinary.reportJson).toMatch(/^benchmark\/results\/public\//u)
+    expect(documentationData.scientific.baseline.reportJson).toMatch(
+      /^benchmark\/results\/public\//u,
+    )
+    expect(workflow).toContain('name: Clean checkout Node $' + '{{ matrix.node-version }}')
+    expect(workflow).toContain('run: npm ci')
+    expect(workflow).toContain('run: npm run check')
+    expect(header).toContain("['scientific-formats/', 'Formats']")
+    expect(astroConfig).toContain("import sitemap from '@astrojs/sitemap'")
+    expect(astroConfig).toContain('integrations: [react(), sitemap()]')
   })
 
   it('checks packed declarations without Node ambient types', () => {
@@ -273,7 +315,6 @@ describe('package contract', () => {
     const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
     const tiffGuide = readFileSync('docs-astro/src/pages/tiff.astro', 'utf8')
     const comparison = readFileSync('docs-astro/src/pages/tiff-comparison.astro', 'utf8')
-    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
 
     expect(packageJson.scripts['comparison:generate']).toBe(
       'node scripts/render-library-comparison.ts',
@@ -314,12 +355,10 @@ describe('package contract', () => {
     )
     expect(comparison).toContain('Decode coverage, exact pixels, and reported outcomes')
     expect(comparison).toContain('Oracle unavailable')
-    expect(sitemap).toContain('https://purejsimage.com/tiff-comparison/')
   })
 
   it('publishes a capability-backed LLM guide and footer discovery links', () => {
     const llms = readFileSync('docs-astro/public/llms.txt', 'utf8')
-    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
     for (const section of [
       '## Image transform quick API',
       '## Encoder quick API',
@@ -348,7 +387,6 @@ describe('package contract', () => {
     }
     expect(llms).toContain('<!-- capabilities:llms:start -->')
     expect(llms).toContain('<!-- capabilities:llms:end -->')
-    expect(sitemap).toContain('https://purejsimage.com/llms.txt')
     for (const api of [
       'window({ center, width })',
       'lut({ table, format })',
@@ -358,13 +396,15 @@ describe('package contract', () => {
       expect(llms).toContain(api)
     }
 
-    const websitePages = globSync('docs-astro/src/pages/*.astro')
-      .map((path) => ({ path, html: readFileSync(path, 'utf8') }))
-      .filter(({ html }) => html.includes('class="site-footer"'))
-    expect(websitePages.length).toBeGreaterThan(0)
-    for (const { path, html } of websitePages) {
-      expect(html, path).toMatch(/href="(?:\.\.\/)?llms\.txt">LLM guide<\/a>/)
-      expect(html, path).toMatch(/href="(?:\.\.\/)?sitemap\.xml">Sitemap<\/a>/)
+    const footer = readFileSync('docs-astro/src/components/SiteFooter.astro', 'utf8')
+    const layout = readFileSync('docs-astro/src/layouts/SiteLayout.astro', 'utf8')
+    expect(layout).toContain("import SiteFooter from '../components/SiteFooter.astro'")
+    expect(layout).toContain('<SiteFooter />')
+    expect(footer).toContain('class="site-footer"')
+    expect(footer).toContain('llms.txt')
+    expect(footer).toContain('sitemap-index.xml')
+    for (const path of globSync('docs-astro/src/pages/**/*.astro')) {
+      expect(readFileSync(path, 'utf8'), path).not.toContain('class="site-footer"')
     }
   })
 
@@ -373,7 +413,6 @@ describe('package contract', () => {
     const demo = readFileSync('docs-astro/src/pages/demo.astro', 'utf8')
     const docsBuild = readFileSync('scripts/build-docs-site.ts', 'utf8')
     const pagesWorkflow = readFileSync('.github/workflows/pages.yml', 'utf8')
-    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
     expect(readme).toContain('https://purejsimage.com/demo/')
     expect(demo).toContain('assets/demo-app.js')
     expect(demo).toContain('No server upload')
@@ -387,17 +426,19 @@ describe('package contract', () => {
     expect(packageJson.scripts.check).toContain('npm run docs:build')
     expect(packageJson.devDependencies.astro).toBeDefined()
     expect(packageJson.devDependencies['@astrojs/react']).toBeDefined()
+    expect(packageJson.devDependencies['@astrojs/sitemap']).toBeDefined()
     expect(packageJson.devDependencies.react).toBeDefined()
     expect(packageJson.devDependencies['react-dom']).toBeDefined()
     expect(docsBuild).toContain("entryPoints: ['docs-astro/src/scripts/demo.ts']")
     expect(docsBuild).toContain("resolve('src/accelerator-entries/jpeg-decoder.wasm')")
     expect(docsBuild).toContain("join(outputDirectory, 'assets/jpeg-decoder.wasm')")
     expect(docsBuild).toContain("resolve('benchmark/.tmp/docs-site')")
+    expect(docsBuild).toContain("join(outputDirectory, 'sitemap-index.xml')")
+    expect(docsBuild).toContain('Generated sitemap omits canonical Astro route')
     expect(globSync('docs-astro/public/assets/demo-app.js')).toEqual([])
     expect(pagesWorkflow).toContain('actions/upload-pages-artifact@v5')
     expect(pagesWorkflow).toContain('actions/deploy-pages@v5')
     expect(pagesWorkflow).toContain('path: benchmark/.tmp/docs-site')
-    expect(sitemap).toContain('https://purejsimage.com/demo/')
   })
 
   it('publishes a local-only scientific raster explorer and public dataset APIs', () => {
@@ -412,7 +453,6 @@ describe('package contract', () => {
     const llms = readFileSync('docs-astro/public/llms.txt', 'utf8')
     const worker = readFileSync('docs-astro/src/scripts/scientific-worker.ts', 'utf8')
     const sources = readFileSync('docs-astro/public/demo-data/scientific/SOURCES.md', 'utf8')
-    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
 
     expect(readme).toContain('https://purejsimage.com/api/#scientific')
     expect(readme).toContain('https://purejsimage.com/scientific/')
@@ -443,9 +483,6 @@ describe('package contract', () => {
       'do not contain or derive from third-party measurements',
     )
     expect(sources).toContain('npm run demo:scientific:generate')
-    expect(sitemap).toContain('https://purejsimage.com/scientific/')
-    expect(sitemap).toContain('https://purejsimage.com/scientific-formats/')
-    expect(sitemap).toContain('https://purejsimage.com/scientific/platform/')
     expect(platformPage).toContain(
       "import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'",
     )

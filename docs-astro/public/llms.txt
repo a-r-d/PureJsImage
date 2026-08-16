@@ -18,7 +18,7 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - Machine-readable codec capabilities: https://purejsimage.com/capabilities.json
 - TIFF guide: https://purejsimage.com/tiff/
 - Performance evidence: https://purejsimage.com/performance/
-- Sitemap: https://purejsimage.com/sitemap.xml
+- Sitemap: https://purejsimage.com/sitemap-index.xml
 
 ## Choose PureJsImage when
 

@@ -506,7 +506,7 @@
       "gzipBytes": 19388,
       "id": "core",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 61385,
       "name": "Core API",
       "packageVersions": [
@@ -529,7 +529,7 @@
       "gzipBytes": 45816,
       "id": "scientific",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 157982,
       "name": "Core + scientific platform",
       "packageVersions": [
@@ -552,7 +552,7 @@
       "gzipBytes": 11954,
       "id": "operations",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 44300,
       "name": "Operation descriptors and runtime",
       "packageVersions": [
@@ -575,7 +575,7 @@
       "gzipBytes": 75520,
       "id": "analysis",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 275639,
       "name": "Analysis application API",
       "packageVersions": [
@@ -598,7 +598,7 @@
       "gzipBytes": 15374,
       "id": "analysis-results",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 55753,
       "name": "Analysis result schemas",
       "packageVersions": [
@@ -621,7 +621,7 @@
       "gzipBytes": 9869,
       "id": "analysis-roi",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 32622,
       "name": "Analysis ROI utilities",
       "packageVersions": [
@@ -644,7 +644,7 @@
       "gzipBytes": 16981,
       "id": "analysis-runtime",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 58810,
       "name": "Analysis tile runtime",
       "packageVersions": [
@@ -667,7 +667,7 @@
       "gzipBytes": 14882,
       "id": "analysis-project",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 51214,
       "name": "Analysis project and migrations",
       "packageVersions": [
@@ -690,7 +690,7 @@
       "gzipBytes": 12778,
       "id": "extensions",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 46612,
       "name": "Trusted extension host",
       "packageVersions": [
@@ -713,7 +713,7 @@
       "gzipBytes": 13216,
       "id": "scientific-reader-gsf",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 41815,
       "name": "Scientific reader: Gwyddion Simple Field",
       "packageVersions": [
@@ -736,7 +736,7 @@
       "gzipBytes": 10936,
       "id": "scientific-reader-nanonis-sxm",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 32921,
       "name": "Scientific reader: Nanonis SXM",
       "packageVersions": [
@@ -759,7 +759,7 @@
       "gzipBytes": 11328,
       "id": "scientific-reader-igor-binary-wave",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 34132,
       "name": "Scientific reader: Igor Binary Wave v5",
       "packageVersions": [
@@ -782,7 +782,7 @@
       "gzipBytes": 12191,
       "id": "scientific-reader-digital-surf",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 38727,
       "name": "Scientific reader: Digital Surf SUR/PRO",
       "packageVersions": [
@@ -805,7 +805,7 @@
       "gzipBytes": 14619,
       "id": "scientific-reader-x3p",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 43951,
       "name": "Scientific reader: X3P surface exchange",
       "packageVersions": [
@@ -828,7 +828,7 @@
       "gzipBytes": 18149,
       "id": "scientific-reader-envi",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 60564,
       "name": "Scientific reader: ENVI",
       "packageVersions": [
@@ -851,7 +851,7 @@
       "gzipBytes": 15455,
       "id": "scientific-reader-fits",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 48013,
       "name": "Scientific reader: FITS",
       "packageVersions": [
@@ -874,7 +874,7 @@
       "gzipBytes": 13724,
       "id": "scientific-reader-mrc",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 42915,
       "name": "Scientific reader: MRC/CCP4",
       "packageVersions": [
@@ -897,7 +897,7 @@
       "gzipBytes": 14540,
       "id": "scientific-reader-cbf",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 45294,
       "name": "Scientific reader: CBF/imgCIF",
       "packageVersions": [
@@ -920,7 +920,7 @@
       "gzipBytes": 23221,
       "id": "scientific-reader-png",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 69100,
       "name": "Scientific reader: PNG",
       "packageVersions": [
@@ -943,7 +943,7 @@
       "gzipBytes": 34451,
       "id": "scientific-reader-jpeg",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 106533,
       "name": "Scientific reader: JPEG",
       "packageVersions": [
@@ -966,7 +966,7 @@
       "gzipBytes": 37187,
       "id": "scientific-reader-webp",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 106317,
       "name": "Scientific reader: WebP",
       "packageVersions": [
@@ -989,7 +989,7 @@
       "gzipBytes": 14615,
       "id": "scientific-reader-bmp",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 44120,
       "name": "Scientific reader: BMP",
       "packageVersions": [
@@ -1012,7 +1012,7 @@
       "gzipBytes": 30003,
       "id": "scientific-reader-jp2",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 93696,
       "name": "Scientific reader: JPEG 2000 / JP2",
       "packageVersions": [
@@ -1035,7 +1035,7 @@
       "gzipBytes": 90164,
       "id": "scientific-reader-tiff",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 287430,
       "name": "Scientific reader: TIFF",
       "packageVersions": [
@@ -1058,7 +1058,7 @@
       "gzipBytes": 87224,
       "id": "scientific-reader-ome-tiff",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 276085,
       "name": "Scientific reader: OME-TIFF",
       "packageVersions": [
@@ -1081,7 +1081,7 @@
       "gzipBytes": 84382,
       "id": "scientific-reader-aperio-svs",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 268980,
       "name": "Scientific reader: Aperio SVS",
       "packageVersions": [
@@ -1104,7 +1104,7 @@
       "gzipBytes": 15890,
       "id": "scientific-reader-digital-micrograph",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 51444,
       "name": "Scientific reader: Gatan DigitalMicrograph",
       "packageVersions": [
@@ -1127,7 +1127,7 @@
       "gzipBytes": 15460,
       "id": "scientific-reader-tia-ser",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 50667,
       "name": "Scientific reader: FEI/Thermo TIA SER",
       "packageVersions": [
@@ -1150,7 +1150,7 @@
       "gzipBytes": 19532,
       "id": "scientific-reader-tia-emi",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 64631,
       "name": "Scientific reader: FEI/Thermo TIA EMI",
       "packageVersions": [
@@ -1173,7 +1173,7 @@
       "gzipBytes": 47968,
       "id": "scientific-reader-ncem-emd",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 179991,
       "name": "Scientific reader: NCEM EMD 0.2",
       "packageVersions": [
@@ -1196,7 +1196,7 @@
       "gzipBytes": 46549,
       "id": "scientific-reader-velox-emd",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 174337,
       "name": "Scientific reader: FEI/Thermo Velox EMD",
       "packageVersions": [
@@ -1219,7 +1219,7 @@
       "gzipBytes": 12643,
       "id": "scientific-reader-rpl",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 41205,
       "name": "Scientific reader: Lispix RPL/RAW",
       "packageVersions": [
@@ -1242,7 +1242,7 @@
       "gzipBytes": 12221,
       "id": "scientific-reader-emsa",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 39071,
       "name": "Scientific reader: EMSA/MAS spectrum",
       "packageVersions": [
@@ -1265,7 +1265,7 @@
       "gzipBytes": 13825,
       "id": "scientific-reader-nrrd",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 43912,
       "name": "Scientific reader: NRRD",
       "packageVersions": [
@@ -1288,7 +1288,7 @@
       "gzipBytes": 12685,
       "id": "scientific-reader-meta-image",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 40913,
       "name": "Scientific reader: MetaImage MHD/MHA",
       "packageVersions": [
@@ -1311,7 +1311,7 @@
       "gzipBytes": 14154,
       "id": "scientific-reader-nifti",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 45181,
       "name": "Scientific reader: NIfTI-1/2",
       "packageVersions": [
@@ -1334,7 +1334,7 @@
       "gzipBytes": 12170,
       "id": "scientific-reader-npy",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 38965,
       "name": "Scientific reader: NumPy NPY",
       "packageVersions": [
@@ -1357,7 +1357,7 @@
       "gzipBytes": 12054,
       "id": "scientific-reader-blockfile",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 39757,
       "name": "Scientific reader: NanoMegas ASTAR blockfile",
       "packageVersions": [
@@ -1380,7 +1380,7 @@
       "gzipBytes": 10655,
       "id": "scientific-reader-mib",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 32597,
       "name": "Scientific reader: Quantum Detectors Merlin MIB",
       "packageVersions": [
@@ -1403,7 +1403,7 @@
       "gzipBytes": 12848,
       "id": "scientific-reader-ebsd-text",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 41803,
       "name": "Scientific reader: ANG/CTF orientation map",
       "packageVersions": [
@@ -1426,7 +1426,7 @@
       "gzipBytes": 253458,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 855022,
       "name": "Scientific readers: all",
       "packageVersions": [
@@ -1449,7 +1449,7 @@
       "gzipBytes": 42690,
       "id": "codec-jpeg",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 133543,
       "name": "Core + JPEG",
       "packageVersions": [
@@ -1472,7 +1472,7 @@
       "gzipBytes": 31586,
       "id": "codec-png",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 96160,
       "name": "Core + PNG",
       "packageVersions": [
@@ -1495,7 +1495,7 @@
       "gzipBytes": 45430,
       "id": "codec-webp",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 133366,
       "name": "Core + WebP",
       "packageVersions": [
@@ -1518,7 +1518,7 @@
       "gzipBytes": 23013,
       "id": "codec-bmp",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 71242,
       "name": "Core + BMP",
       "packageVersions": [
@@ -1541,7 +1541,7 @@
       "gzipBytes": 96357,
       "id": "codec-tiff",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 307334,
       "name": "Core + TIFF",
       "packageVersions": [
@@ -1564,7 +1564,7 @@
       "gzipBytes": 22216,
       "id": "codec-gif",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 69460,
       "name": "Core + GIF",
       "packageVersions": [
@@ -1587,7 +1587,7 @@
       "gzipBytes": 34678,
       "id": "codec-ico",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 105531,
       "name": "Core + ICO",
       "packageVersions": [
@@ -1610,7 +1610,7 @@
       "gzipBytes": 38551,
       "id": "codec-jpeg2000",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 121583,
       "name": "Core + JPEG 2000 / JP2",
       "packageVersions": [
@@ -1633,7 +1633,7 @@
       "gzipBytes": 173332,
       "id": "codec-avif",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 455601,
       "name": "Core + AVIF",
       "packageVersions": [
@@ -1656,7 +1656,7 @@
       "gzipBytes": 52186,
       "id": "codec-heif",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 161995,
       "name": "Core + HEIF / HEIC (experimental)",
       "packageVersions": [
@@ -1679,7 +1679,7 @@
       "gzipBytes": 32435,
       "id": "codec-jpegxl",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 101974,
       "name": "Core + JPEG XL",
       "packageVersions": [
@@ -1702,7 +1702,7 @@
       "gzipBytes": 22737,
       "id": "codec-hdr",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 71489,
       "name": "Core + Radiance HDR / RGBE",
       "packageVersions": [
@@ -1725,7 +1725,7 @@
       "gzipBytes": 21720,
       "id": "codec-qoi",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 67990,
       "name": "Core + QOI",
       "packageVersions": [
@@ -1748,7 +1748,7 @@
       "gzipBytes": 24259,
       "id": "codec-netpbm",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 76402,
       "name": "Core + Netpbm and PFM",
       "packageVersions": [
@@ -1771,7 +1771,7 @@
       "gzipBytes": 23048,
       "id": "codec-tga",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 71858,
       "name": "Core + TGA / TARGA",
       "packageVersions": [
@@ -1810,7 +1810,7 @@
       "gzipBytes": 303749,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 864347,
       "name": "Core + all stable codecs",
       "packageVersions": [
@@ -1833,7 +1833,7 @@
       "gzipBytes": 51129,
       "id": "purejsimage-matched",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 159301,
       "name": "PureJsImage (matched)",
       "packageVersions": [
@@ -1871,7 +1871,7 @@
       "gzipBytes": 303749,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 4977973,
+      "unpackedPackageBytes": 4978318,
       "minifiedJsBytes": 864347,
       "name": "PureJsImage (all stable codecs)",
       "packageVersions": [

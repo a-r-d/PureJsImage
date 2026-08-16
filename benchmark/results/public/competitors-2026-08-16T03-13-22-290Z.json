@@ -1,0 +1,856 @@
+{
+  "schemaVersion": 1,
+  "profile": "competitors",
+  "publicationValidationStatus": "passed",
+  "validationStatus": "passed",
+  "source": {
+    "eligibleForDocumentationHeadlines": false,
+    "resultIndex": "benchmark/results/result-index-2026-08-16T12-32-36-126Z.json",
+    "resultPaths": [
+      "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
+      "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md"
+    ],
+    "validationStatus": "partial"
+  },
+  "data": {
+    "charts": {
+      "speed": "benchmark/results/competitors-speed-2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.png",
+      "quality": "benchmark/results/competitors-quality-2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.png",
+      "memory": "benchmark/results/competitors-memory-2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.png"
+    },
+    "createdAt": "2026-08-16T03:13:22.290Z",
+    "engines": [
+      {
+        "id": "purejsimage",
+        "kind": "pure-javascript",
+        "version": "0.10.0 (workspace)"
+      },
+      {
+        "id": "purejsimage-wasm",
+        "kind": "webassembly",
+        "version": "0.10.0 (workspace WASM)"
+      },
+      {
+        "id": "jimp",
+        "kind": "pure-javascript",
+        "version": "1.6.0"
+      },
+      {
+        "id": "sharp",
+        "kind": "native",
+        "version": "0.35.3"
+      },
+      {
+        "id": "sharp-single-thread",
+        "kind": "native-single-thread",
+        "version": "0.35.3"
+      },
+      {
+        "id": "image-js",
+        "kind": "pure-javascript",
+        "version": "1.7.0"
+      },
+      {
+        "id": "jsquash",
+        "kind": "webassembly",
+        "version": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      }
+    ],
+    "environment": {
+      "architecture": "x64",
+      "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "fingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "node": "v24.16.0",
+      "os": "Linux 6.17.0-41-generic",
+      "runner": "local",
+      "v8": "13.6.233.17-node.49"
+    },
+    "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+    "results": [
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 142462976,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.15410099999999716,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 172720128,
+        "quality": 30.018769500775054,
+        "status": "pass",
+        "wallMilliseconds": 843.8101780000002,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 196890624,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3389.1298219999994,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 167432192,
+        "quality": 36.615180454527334,
+        "status": "pass",
+        "wallMilliseconds": 943.8955320000002,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 207331328,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 545.0020180000001,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 148262912,
+        "quality": 48.389019642147474,
+        "status": "pass",
+        "wallMilliseconds": 73.498943,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 252825600,
+        "quality": 56.207048334047485,
+        "status": "pass",
+        "wallMilliseconds": 557.3738999999999,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 142278656,
+        "quality": 40.383860868222584,
+        "status": "pass",
+        "wallMilliseconds": 52.82084899999995,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 194146304,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 452.54243999999994,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 218021888,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 162.97501700000004,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 227360768,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 134.15671199999997,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 171794432,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 498.72101899999996,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 219201536,
+        "quality": 57.84251982752234,
+        "status": "pass",
+        "wallMilliseconds": 2398.952632,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 142241792,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.15964099999999348,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 179466240,
+        "quality": 30.01878591320788,
+        "status": "pass",
+        "wallMilliseconds": 764.155252,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 197111808,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3331.7747919999997,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 165023744,
+        "quality": 36.615180454527334,
+        "status": "pass",
+        "wallMilliseconds": 891.5678150000001,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 208560128,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 450.45890999999995,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 149082112,
+        "quality": 48.389019642147474,
+        "status": "pass",
+        "wallMilliseconds": 63.91071999999997,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 223977472,
+        "quality": 56.207048334047485,
+        "status": "pass",
+        "wallMilliseconds": 250.24753099999998,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 144236544,
+        "quality": 40.383860868222584,
+        "status": "pass",
+        "wallMilliseconds": 17.103341999999998,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 196972544,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 228.51104699999996,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 210960384,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 126.56395700000007,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 229158912,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 100.44399500000003,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 170512384,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 476.67140900000004,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 221667328,
+        "quality": 57.84251982752234,
+        "status": "pass",
+        "wallMilliseconds": 1363.2847900000002,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1241952256,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2453.303616,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 624754688,
+        "quality": 32.5984634580715,
+        "status": "pass",
+        "wallMilliseconds": 1428.3744900000002,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1246146560,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3927.7806769999997,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1256607744,
+        "quality": 37.8092067000936,
+        "status": "pass",
+        "wallMilliseconds": 2866.4395570000006,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 319676416,
+        "quality": 76.83243505222757,
+        "status": "pass",
+        "wallMilliseconds": 919.3770879999997,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 143503360,
+        "quality": 98.8592297156444,
+        "status": "pass",
+        "wallMilliseconds": 70.17318700000004,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 345743360,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 677.58736,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 184070144,
+        "quality": 43.96470403934611,
+        "status": "pass",
+        "wallMilliseconds": 208.36521599999998,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 295456768,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 606.7738229999999,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 322166784,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 753.488382,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 370814976,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 648.1713609999999,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1339154432,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 3776.027249,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 123387904,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.8121490000000051,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 179806208,
+        "quality": 30.154621368764136,
+        "status": "pass",
+        "wallMilliseconds": 69.29922900000003,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 241426432,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 438.3348370000001,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 185708544,
+        "quality": 36.62935802309811,
+        "status": "pass",
+        "wallMilliseconds": 251.10893799999997,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 180379648,
+        "quality": 41.110131959948504,
+        "status": "pass",
+        "wallMilliseconds": 269.639879,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 124108800,
+        "quality": 47.43317417594233,
+        "status": "pass",
+        "wallMilliseconds": 11.673635999999988,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 207159296,
+        "quality": 55.0482941742397,
+        "status": "pass",
+        "wallMilliseconds": 64.48708099999999,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 134279168,
+        "quality": 40.168218278614304,
+        "status": "pass",
+        "wallMilliseconds": 6.7509469999999965,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 207257600,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 30.341646999999966,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 202903552,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 41.232136999999966,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 161423360,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 52.45576300000005,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 228831232,
+        "quality": 54.63252298886131,
+        "status": "pass",
+        "wallMilliseconds": 694.941999,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 123191296,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.7714670000000012,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 180396032,
+        "quality": 30.154621368764136,
+        "status": "pass",
+        "wallMilliseconds": 72.23728899999998,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 241360896,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 436.4700869999999,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 185286656,
+        "quality": 36.62935802309811,
+        "status": "pass",
+        "wallMilliseconds": 241.06836200000004,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 180961280,
+        "quality": 41.110131959948504,
+        "status": "pass",
+        "wallMilliseconds": 270.01950400000004,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 124223488,
+        "quality": 47.43317417594233,
+        "status": "pass",
+        "wallMilliseconds": 12.183536000000004,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 208027648,
+        "quality": 55.0482941742397,
+        "status": "pass",
+        "wallMilliseconds": 62.394249,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 133681152,
+        "quality": 40.168218278614304,
+        "status": "pass",
+        "wallMilliseconds": 6.893895000000015,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 211263488,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 30.117936999999984,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 204136448,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 41.203351,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 161693696,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 52.919758,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 228503552,
+        "quality": 54.63252298886131,
+        "status": "pass",
+        "wallMilliseconds": 699.2099109999999,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1252773888,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2440.255545,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 576315392,
+        "quality": 20.364665293959362,
+        "status": "pass",
+        "wallMilliseconds": 1029.746653,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1341448192,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3245.8971930000002,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1263591424,
+        "quality": 29.76133768299252,
+        "status": "pass",
+        "wallMilliseconds": 2824.508668,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 303931392,
+        "quality": 23.46294430987202,
+        "status": "pass",
+        "wallMilliseconds": 746.7363909999999,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 133517312,
+        "quality": 31.9372994809595,
+        "status": "pass",
+        "wallMilliseconds": 87.788882,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 429568000,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 694.1265119999998,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 269602816,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 244.839475,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 274759680,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 159.66721399999994,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1334960128,
+        "quality": 31.632998852072905,
+        "status": "pass",
+        "wallMilliseconds": 1837.848539,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 635346944,
+        "quality": 28.652180330821242,
+        "status": "pass",
+        "wallMilliseconds": 1102.7175859999998,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 550973440,
+        "quality": 36.67341276773452,
+        "status": "pass",
+        "wallMilliseconds": 825.19472,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 137711616,
+        "quality": 47.73296083698841,
+        "status": "pass",
+        "wallMilliseconds": 63.60381699999999,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 306819072,
+        "quality": 55.0482941742397,
+        "status": "pass",
+        "wallMilliseconds": 90.35466200000002,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 264773632,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 392.400118,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "heif-iphone-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "bmp-large-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 295198720,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 502.42202599999996,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 3156598784,
+        "quality": 40.26307313240616,
+        "status": "pass",
+        "wallMilliseconds": 7026.84738,
+        "workflow": "stress-100mp-downscale"
+      }
+    ]
+  }
+}

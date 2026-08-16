@@ -33,8 +33,8 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
             </div>
             <div>
               <button class="metric-info" type="button" aria-label="About the scientific benchmark baseline" aria-describedby="metric-scientific-tooltip">i</button>
-              <strong>{documentation.scientific.baseline.statusCounts.supported}/{documentation.scientific.baseline.workloadCount}</strong><span>scientific workloads validated</span><small>native selections and hashes</small>
-              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">The current baseline validates every result before reporting first-block latency, selected-operation time, peak RSS, and source I/O.</span>
+              <strong>{documentation.scientific.baseline.workloadCount}</strong><span>validated reader workflows</span><small>{documentation.scientific.baseline.representativeWorkloadCount} representative performance workloads</small>
+              <span class="metric-tooltip" id="metric-scientific-tooltip" role="tooltip">The current baseline includes {documentation.scientific.baseline.representativeWorkloadCount} representative performance workloads and {documentation.scientific.baseline.contractWorkloadCount} correctness or contract workloads.</span>
             </div>
           </div>
           <p class="headline-metrics-note">Use each info button for the source, workflow, and measurement details.</p>
@@ -285,15 +285,4 @@ const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
       </div>
     </section>
   </main>
-<footer class="site-footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-intro"><a class="brand" href="./"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div>
-        <div class="footer-column"><strong>Documentation</strong><a href="guides/">Getting started</a><a href="api/">API reference</a><a href="codecs/">Codec support</a><a href="performance/">Performance</a></div>
-        <div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md" target="_blank" rel="noreferrer">Roadmap</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div>
-        <div class="footer-column"><strong>Community</strong><a href="https://github.com/a-r-d/PureJsImage/issues" target="_blank" rel="noreferrer">Report an issue</a><a href="https://github.com/a-r-d/PureJsImage/pulls" target="_blank" rel="noreferrer">Pull requests</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT license</a></div>
-      </div>
-      <div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Default reference engine · strict TypeScript · zero runtime dependencies</span></div>
-    </div>
-  </footer>
 </SiteLayout>

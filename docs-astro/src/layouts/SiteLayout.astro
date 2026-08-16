@@ -1,5 +1,6 @@
 ---
 import SiteHeader from '../components/SiteHeader.astro'
+import SiteFooter from '../components/SiteFooter.astro'
 import '../styles/global.css'
 
 interface Props {
@@ -71,6 +72,7 @@ const assetBase = base.endsWith('/') ? base : `${base}/`
   <body class={bodyClass}>
     {!hideHeader && <SiteHeader current={current} home={home} skipLabel={skipLabel} />}
     <slot />
+    <SiteFooter />
     <script>
       import { initializeSite } from '../scripts/site'
 

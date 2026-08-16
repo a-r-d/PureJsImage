@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-16T12:32:36.238Z",
+  "sourceResultIndex": "benchmark/results/result-index-2026-08-16T12-32-36-126Z.json",
+  "results": [
+    {
+      "commit": "a2f0ba6",
+      "date": "2026-08-16T03:13:22.290Z",
+      "eligibleForDocumentationHeadlines": true,
+      "engineVersions": {
+        "purejsimage": "0.10.0 (workspace)",
+        "purejsimage-wasm": "0.10.0 (workspace WASM)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "fixtureManifestHash": "de169c6330123031231619c56bd324588677e3aac9894c3ced23b2acc478ddc3",
+      "profile": "competitors",
+      "publicationValidationStatus": "passed",
+      "validationStatus": "passed",
+      "resultPaths": [
+        "benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.json",
+        "benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.md"
+      ],
+      "sha256": {
+        "json": "bd30f962f59cf473a468072dbf08492297c6a9dd54169a52019f917caa801314",
+        "markdown": "9313e36a289496a77e6695db98af71d9aad8773c48a4c3ebdb7ffcade8a6c3aa"
+      },
+      "sourceEligibilityForDocumentationHeadlines": false,
+      "sourceResultPaths": [
+        "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
+        "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md"
+      ],
+      "sourceValidationStatus": "partial"
+    },
+    {
+      "commit": "not-recorded",
+      "date": "2026-08-16T03:40:25.698Z",
+      "eligibleForDocumentationHeadlines": true,
+      "engineVersions": {
+        "purejsimage-scientific": "0.10.0"
+      },
+      "environmentFingerprint": "e324a01def1ede51ffbe2cb8a027c58e87cb88eda6ff419752cd0e456e333ce3",
+      "fixtureManifestHash": "not-recorded",
+      "profile": "scientific-readers-baseline",
+      "publicationValidationStatus": "passed",
+      "validationStatus": "passed",
+      "resultPaths": [
+        "benchmark/results/public/scientific-readers-baseline-2026-08-16T03-40-25-698Z.json",
+        "benchmark/results/public/scientific-readers-baseline-2026-08-16T03-40-25-698Z.md"
+      ],
+      "sha256": {
+        "json": "909b6c2ca07a08412c36eaf37aa7fedc8958b71a9e004bb114203ff0bebe441d",
+        "markdown": "a66ba01b61273fd0422ba21764391a231a55bedfacd1e6c0e7c9fc04bd37f67e"
+      },
+      "sourceEligibilityForDocumentationHeadlines": false,
+      "sourceResultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.md"
+      ],
+      "sourceValidationStatus": "passed"
+    },
+    {
+      "commit": "not-recorded",
+      "date": "2026-08-16T04:02:13.373Z",
+      "eligibleForDocumentationHeadlines": false,
+      "engineVersions": {
+        "purejsimage-scientific": "0.10.0"
+      },
+      "environmentFingerprint": "e324a01def1ede51ffbe2cb8a027c58e87cb88eda6ff419752cd0e456e333ce3",
+      "fixtureManifestHash": "not-recorded",
+      "profile": "scientific-readers-range",
+      "publicationValidationStatus": "passed",
+      "validationStatus": "passed",
+      "resultPaths": [
+        "benchmark/results/public/scientific-readers-range-2026-08-16T04-02-13-373Z.json",
+        "benchmark/results/public/scientific-readers-range-2026-08-16T04-02-13-373Z.md"
+      ],
+      "sha256": {
+        "json": "0429d9ea5e68b0115904d9dc70fbd4624198ba7aabe46f26a4aebf34b7c4778e",
+        "markdown": "647708b11ce22523de420e60bb74a65ddae36ccb8bafe26d1f4458e5275b1ed4"
+      },
+      "sourceEligibilityForDocumentationHeadlines": false,
+      "sourceResultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.md"
+      ],
+      "sourceValidationStatus": "failed"
+    },
+    {
+      "commit": "not-recorded",
+      "date": "2026-08-16T12:32:28.536Z",
+      "eligibleForDocumentationHeadlines": false,
+      "engineVersions": {
+        "purejsimage": "0.10.0",
+        "geotiff": "3.0.5",
+        "tiff": "7.1.3",
+        "utif2": "4.1.0",
+        "image-js": "1.7.0",
+        "nifti-reader-js": "0.8.0",
+        "npyjs": "1.2.0",
+        "jsfive": "0.4.0",
+        "h5wasm": "0.10.3",
+        "itk-wasm-image-io": "1.6.1"
+      },
+      "environmentFingerprint": "778901488bc0b9c07e6e5fc0dd1bd87dbda47a42148621061c843e57099eed1a",
+      "fixtureManifestHash": "not-recorded",
+      "profile": "scientific-competitors-baseline",
+      "publicationValidationStatus": "passed",
+      "validationStatus": "passed",
+      "resultPaths": [
+        "benchmark/results/public/scientific-competitors-baseline-2026-08-16T12-32-28-536Z.json",
+        "benchmark/results/public/scientific-competitors-baseline-2026-08-16T12-32-28-536Z.md"
+      ],
+      "sha256": {
+        "json": "7bd704d8a33dbd322853b83d8ce77db20ee3488fc71ba6bfe0b6b47f2b712372",
+        "markdown": "56752525e69cb33b6b31c223e25b3f55f949e50da676af54c91f17a9d484d27c"
+      },
+      "sourceEligibilityForDocumentationHeadlines": false,
+      "sourceResultPaths": [
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.md"
+      ],
+      "sourceValidationStatus": "partial"
+    }
+  ]
+}

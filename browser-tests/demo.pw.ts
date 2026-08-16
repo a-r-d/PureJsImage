@@ -49,7 +49,11 @@ test('leads the homepage with portable codecs, memory comparison, and open-sourc
   )
   await expect(page.locator('.headline-metrics')).toContainText('84.2%')
   await expect(page.locator('.headline-metrics')).toContainText('187.8 MiB vs 1188.4 MiB')
-  await expect(page.locator('.headline-metrics')).toContainText('43/43')
+  await expect(page.locator('.headline-metrics')).toContainText('43')
+  await expect(page.locator('.headline-metrics')).toContainText('validated reader workflows')
+  await expect(page.locator('.headline-metrics')).toContainText(
+    '13 representative performance workloads',
+  )
   await expect(page.locator('main')).not.toContainText(/evidence/iu)
   await expect(page.locator('.metric-info')).toHaveCount(4)
   await expect(page.locator('.metric-info').nth(2)).toHaveAccessibleName(

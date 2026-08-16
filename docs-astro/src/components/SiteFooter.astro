@@ -1,0 +1,46 @@
+---
+const configuredBase = import.meta.env.BASE_URL
+const siteBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-intro">
+        <a class="brand" href={siteBase} aria-label="PureJsImage home">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span>PureJsImage</span>
+        </a>
+        <p>Portable image codecs and low-memory raster processing in strict TypeScript.</p>
+      </div>
+      <div class="footer-column">
+        <strong>Documentation</strong>
+        <a href={`${siteBase}guides/`}>Getting started</a>
+        <a href={`${siteBase}api/`}>API reference</a>
+        <a href={`${siteBase}codecs/`}>Codec support</a>
+        <a href={`${siteBase}scientific-formats/`}>Scientific formats</a>
+        <a href={`${siteBase}performance/`}>Performance</a>
+      </div>
+      <div class="footer-column">
+        <strong>Project</strong>
+        <a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a>
+        <a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a>
+        <a href={`${siteBase}llms.txt`}>LLM guide</a>
+        <a href={`${siteBase}sitemap-index.xml`}>Sitemap</a>
+      </div>
+      <div class="footer-column">
+        <strong>Community</strong>
+        <a href="https://github.com/a-r-d/PureJsImage/issues" target="_blank" rel="noreferrer">Report an issue</a>
+        <a href="https://github.com/a-r-d/PureJsImage/pulls" target="_blank" rel="noreferrer">Pull requests</a>
+        <a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT license</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span>
+      <span>Low-memory · portable TypeScript · zero runtime dependencies</span>
+    </div>
+  </div>
+</footer>

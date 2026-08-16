@@ -1,5 +1,4 @@
-import { createHash } from 'node:crypto'
-import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { basename, dirname, join, relative } from 'node:path'
 import { readCapabilityManifest } from './capability-manifest.ts'
 import { formatKibibytes, formatMebibytes, parsePackageMetrics } from './bundle-size.ts'
@@ -8,6 +7,7 @@ type ValidationStatus = 'failed' | 'partial' | 'passed' | 'unverified'
 
 interface ResultIndexEntry {
   readonly date: string
+  readonly eligibleForDocumentationHeadlines: boolean
   readonly profile: string
   readonly resultPaths: readonly string[]
   readonly validationStatus: ValidationStatus
@@ -98,6 +98,11 @@ const numberValue = (value: unknown, label: string): number => {
   return value
 }
 
+const booleanValue = (value: unknown, label: string): boolean => {
+  if (typeof value !== 'boolean') throw new Error(`${label} must be a boolean`)
+  return value
+}
+
 const nullableNumber = (value: unknown, label: string): number | null =>
   value === null || value === undefined ? null : numberValue(value, label)
 
@@ -126,8 +131,6 @@ const validationStatus = (value: unknown, label: string): ValidationStatus => {
 
 const readJson = async (path: string): Promise<unknown> => JSON.parse(await readFile(path, 'utf8'))
 
-const sha256 = (value: string): string => createHash('sha256').update(value).digest('hex')
-
 const portablePath = (path: string): string =>
   relative(repositoryDirectory, path).replaceAll('\\', '/')
 
@@ -136,27 +139,17 @@ const pathExists = async (path: string): Promise<boolean> =>
     .then(() => true)
     .catch(() => false)
 
-const coefficientOfVariationPercent = (values: readonly number[]): number | null => {
-  if (values.length < 2) return null
-  const mean = values.reduce((total, value) => total + value, 0) / values.length
-  if (mean === 0) return null
-  const variance = values.reduce((total, value) => total + (value - mean) ** 2, 0) / values.length
-  return (Math.sqrt(variance) / Math.abs(mean)) * 100
-}
-
 const latestResultIndex = async (): Promise<ResultIndex> => {
-  const directory = join(repositoryDirectory, 'benchmark', 'results')
-  const candidates = (await readdir(directory))
-    .filter((file) => /^result-index-.*\.json$/u.test(file))
-    .sort()
-  const latest = candidates.at(-1)
-  if (latest === undefined) throw new Error('No generated benchmark result index exists')
-  const path = join(directory, latest)
+  const path = join(repositoryDirectory, 'benchmark', 'results', 'public', 'index.json')
   const document = recordValue(await readJson(path), path)
   const results = arrayValue(document.results, `${path}.results`).map((entry, index) => {
     const value = recordValue(entry, `${path}.results[${index}]`)
     return {
       date: stringValue(value.date, `${path}.results[${index}].date`),
+      eligibleForDocumentationHeadlines: booleanValue(
+        value.eligibleForDocumentationHeadlines,
+        `${path}.results[${index}].eligibleForDocumentationHeadlines`,
+      ),
       profile: stringValue(value.profile, `${path}.results[${index}].profile`),
       resultPaths: arrayValue(value.resultPaths, `${path}.results[${index}].resultPaths`).map(
         (resultPath, pathIndex) =>
@@ -185,121 +178,101 @@ const jsonResultPath = (entry: ResultIndexEntry): string => {
   return join(repositoryDirectory, path)
 }
 
-const parseOrdinaryResult = (value: unknown, index: number): OrdinaryResult => {
-  const result = recordValue(value, `ordinary.results[${index}]`)
-  const summary = recordValue(result.summary, `ordinary.results[${index}].summary`)
-  const wall = isRecord(summary.wallMilliseconds)
-    ? nullableNumber(summary.wallMilliseconds.median, `ordinary.results[${index}].wall.median`)
-    : null
-  const rss = isRecord(summary.peakRssBytes)
-    ? nullableNumber(summary.peakRssBytes.median, `ordinary.results[${index}].rss.median`)
-    : null
-  const qualityValue = summary.qualityPsnrDb
-  const quality =
-    qualityValue === undefined || qualityValue === null
-      ? null
-      : qualityValue === 'exact'
-        ? 'exact'
-        : numberValue(qualityValue, `ordinary.results[${index}].quality`)
-  return {
-    engine: stringValue(result.engine, `ordinary.results[${index}].engine`),
-    peakRssBytes: rss,
-    quality,
-    status: stringValue(summary.status, `ordinary.results[${index}].status`),
-    wallMilliseconds: wall,
-    workflow: stringValue(result.workflow, `ordinary.results[${index}].workflow`),
-  }
-}
-
 const parseOrdinaryReport = (value: unknown, path: string) => {
   const report = recordValue(value, path)
-  const environment = recordValue(report.environment, `${path}.environment`)
-  const results = arrayValue(report.results, `${path}.results`).map(parseOrdinaryResult)
+  const data = recordValue(report.data, `${path}.data`)
+  const environment = recordValue(data.environment, `${path}.data.environment`)
+  const results = arrayValue(data.results, `${path}.data.results`).map((entry, index) => {
+    const result = recordValue(entry, `${path}.data.results[${index}]`)
+    const qualityValue = result.quality
+    return {
+      engine: stringValue(result.engine, `${path}.data.results[${index}].engine`),
+      peakRssBytes: nullableNumber(
+        result.peakRssBytes,
+        `${path}.data.results[${index}].peakRssBytes`,
+      ),
+      quality:
+        qualityValue === 'exact'
+          ? 'exact'
+          : nullableNumber(qualityValue, `${path}.data.results[${index}].quality`),
+      status: stringValue(result.status, `${path}.data.results[${index}].status`),
+      wallMilliseconds: nullableNumber(
+        result.wallMilliseconds,
+        `${path}.data.results[${index}].wallMilliseconds`,
+      ),
+      workflow: stringValue(result.workflow, `${path}.data.results[${index}].workflow`),
+    } satisfies OrdinaryResult
+  })
   const invalid = results.filter(({ status }) => status !== 'pass' && status !== 'unsupported')
   if (invalid.length > 0) {
     throw new Error(`Ordinary headline report contains failed output: ${invalid[0]?.status}`)
   }
-  const startup = arrayValue(report.startup, `${path}.startup`).map((entry, index) => {
-    const engine = recordValue(recordValue(entry, `${path}.startup[${index}]`).engine, 'engine')
+  const startup = arrayValue(data.engines, `${path}.data.engines`).map((entry, index) => {
+    const engine = recordValue(entry, `${path}.data.engines[${index}]`)
     return {
-      id: stringValue(engine.id, `${path}.startup[${index}].engine.id`),
-      kind: stringValue(engine.kind, `${path}.startup[${index}].engine.kind`),
-      version: stringValue(engine.version, `${path}.startup[${index}].engine.version`),
+      id: stringValue(engine.id, `${path}.data.engines[${index}].id`),
+      kind: stringValue(engine.kind, `${path}.data.engines[${index}].kind`),
+      version: stringValue(engine.version, `${path}.data.engines[${index}].version`),
     }
   })
   if (startup.length === 0) throw new Error('Ordinary headline report omits engine versions')
-  const environmentFingerprint = stringValue(
-    environment.environmentFingerprint,
-    `${path}.environment.environmentFingerprint`,
-  )
   return {
-    createdAt: stringValue(report.createdAt, `${path}.createdAt`),
+    charts: recordValue(data.charts, `${path}.data.charts`),
+    createdAt: stringValue(data.createdAt, `${path}.data.createdAt`),
     environment: {
       architecture: stringValue(environment.architecture, `${path}.environment.architecture`),
       cpu: stringValue(environment.cpu, `${path}.environment.cpu`),
-      fingerprint: environmentFingerprint,
+      fingerprint: stringValue(environment.fingerprint, `${path}.environment.fingerprint`),
       node: stringValue(environment.node, `${path}.environment.node`),
-      os: `${stringValue(environment.osName, `${path}.environment.osName`)} ${stringValue(environment.osRelease, `${path}.environment.osRelease`)}`,
+      os: stringValue(environment.os, `${path}.environment.os`),
       runner: stringValue(environment.runner, `${path}.environment.runner`),
-      v8: stringValue(environment.v8Version, `${path}.environment.v8Version`),
+      v8: stringValue(environment.v8, `${path}.environment.v8`),
     },
-    fixtureManifestHash: stringValue(
-      environment.fixtureManifestHash,
-      `${path}.environment.fixtureManifestHash`,
-    ),
+    fixtureManifestHash: stringValue(data.fixtureManifestHash, `${path}.data.fixtureManifestHash`),
     results,
     startup,
   }
 }
 
-const parseScientificBaselineResult = (value: unknown, index: number): ScientificBaselineResult => {
-  const result = recordValue(value, `scientific.results[${index}]`)
-  const identity = recordValue(result.identity, `scientific.results[${index}].identity`)
-  const reader = recordValue(identity.reader, `scientific.results[${index}].identity.reader`)
-  const correctness = recordValue(result.correctness, `scientific.results[${index}].correctness`)
-  const fixture = recordValue(result.fixture, `scientific.results[${index}].fixture`)
-  return {
-    measurementClass: stringValue(
-      result.measurementClass,
-      `scientific.results[${index}].measurementClass`,
-    ),
-    oracle: stringValue(fixture.expectedOracle, `scientific.results[${index}].expectedOracle`),
-    outputSampleType:
-      correctness.outputSampleType === null
-        ? 'metadata-only'
-        : stringValue(
-            correctness.outputSampleType,
-            `scientific.results[${index}].outputSampleType`,
-          ),
-    readerId: stringValue(reader.id, `scientific.results[${index}].reader.id`),
-    status: stringValue(result.status, `scientific.results[${index}].status`),
-    workloadId: stringValue(identity.workloadId, `scientific.results[${index}].workloadId`),
-  }
-}
-
 const parseScientificReport = (value: unknown, path: string) => {
   const report = recordValue(value, path)
-  const configuration = recordValue(report.configuration, `${path}.configuration`)
-  const engine = recordValue(configuration.engine, `${path}.configuration.engine`)
-  const environment = recordValue(report.environment, `${path}.environment`)
-  const results = arrayValue(report.results, `${path}.results`).map(parseScientificBaselineResult)
+  const data = recordValue(report.data, `${path}.data`)
+  const engine = recordValue(data.engine, `${path}.data.engine`)
+  const environment = recordValue(data.environment, `${path}.data.environment`)
+  const results = arrayValue(data.results, `${path}.data.results`).map((entry, index) => {
+    const result = recordValue(entry, `${path}.data.results[${index}]`)
+    return {
+      measurementClass: stringValue(
+        result.measurementClass,
+        `${path}.data.results[${index}].measurementClass`,
+      ),
+      oracle: stringValue(result.oracle, `${path}.data.results[${index}].oracle`),
+      outputSampleType: stringValue(
+        result.outputSampleType,
+        `${path}.data.results[${index}].outputSampleType`,
+      ),
+      readerId: stringValue(result.readerId, `${path}.data.results[${index}].readerId`),
+      status: stringValue(result.status, `${path}.data.results[${index}].status`),
+      workloadId: stringValue(result.workloadId, `${path}.data.results[${index}].workloadId`),
+    }
+  })
   const failed = results.filter(({ status }) => status !== 'supported')
   if (failed.length > 0) {
     throw new Error(`Scientific headline report contains failed output: ${failed[0]?.status}`)
   }
   return {
-    createdAt: stringValue(report.createdAt, `${path}.createdAt`),
+    createdAt: stringValue(data.createdAt, `${path}.data.createdAt`),
     engine: {
       id: stringValue(engine.id, `${path}.configuration.engine.id`),
       version: stringValue(engine.version, `${path}.configuration.engine.version`),
     },
     environment: {
       architecture: stringValue(environment.architecture, `${path}.environment.architecture`),
-      cpu: stringValue(environment.cpuModel, `${path}.environment.cpuModel`),
-      fingerprint: sha256(JSON.stringify(environment)),
-      node: stringValue(environment.nodeVersion, `${path}.environment.nodeVersion`),
-      os: `${stringValue(environment.operatingSystem, `${path}.environment.operatingSystem`)} ${stringValue(environment.operatingSystemVersion, `${path}.environment.operatingSystemVersion`)}`,
-      v8: stringValue(environment.v8Version, `${path}.environment.v8Version`),
+      cpu: stringValue(environment.cpu, `${path}.environment.cpu`),
+      fingerprint: stringValue(environment.fingerprint, `${path}.environment.fingerprint`),
+      node: stringValue(environment.node, `${path}.environment.node`),
+      os: stringValue(environment.os, `${path}.environment.os`),
+      v8: stringValue(environment.v8, `${path}.environment.v8`),
     },
     results,
   }
@@ -307,21 +280,21 @@ const parseScientificReport = (value: unknown, path: string) => {
 
 const parseScientificRangeReport = (value: unknown, path: string) => {
   const report = recordValue(value, path)
-  return arrayValue(report.results, `${path}.results`).map((entry, index) => {
-    const result = recordValue(entry, `${path}.results[${index}]`)
-    const identity = recordValue(result.identity, `${path}.results[${index}].identity`)
-    const reader = recordValue(identity.reader, `${path}.results[${index}].identity.reader`)
+  const data = recordValue(report.data, `${path}.data`)
+  return arrayValue(data.results, `${path}.data.results`).map((entry, index) => {
+    const result = recordValue(entry, `${path}.data.results[${index}]`)
     return {
-      readerId: stringValue(reader.id, `${path}.results[${index}].reader.id`),
-      status: stringValue(result.status, `${path}.results[${index}].status`),
+      readerId: stringValue(result.readerId, `${path}.data.results[${index}].readerId`),
+      status: stringValue(result.status, `${path}.data.results[${index}].status`),
     }
   })
 }
 
 const parseScientificCompetitorReport = (value: unknown, path: string) => {
   const report = recordValue(value, path)
-  const environment = recordValue(report.environment, `${path}.environment`)
-  const engines = arrayValue(report.engines, `${path}.engines`).map((entry, index) => {
+  const data = recordValue(report.data, `${path}.data`)
+  const environment = recordValue(data.environment, `${path}.data.environment`)
+  const engines = arrayValue(data.engines, `${path}.data.engines`).map((entry, index) => {
     const engine = recordValue(entry, `${path}.engines[${index}]`)
     return {
       id: stringValue(engine.id, `${path}.engines[${index}].id`),
@@ -336,113 +309,82 @@ const parseScientificCompetitorReport = (value: unknown, path: string) => {
     }
   })
   if (engines.length === 0) throw new Error('Scientific competitor report omits engine versions')
-  const results = arrayValue(report.results, `${path}.results`).map((entry, index) => {
+  const results = arrayValue(data.results, `${path}.data.results`).map((entry, index) => {
     const result = recordValue(entry, `${path}.results[${index}]`)
-    const engine = recordValue(result.engine, `${path}.results[${index}].engine`)
-    const workload = recordValue(result.workload, `${path}.results[${index}].workload`)
-    const summary = recordValue(result.summary, `${path}.results[${index}].summary`)
-    const detailRecords = arrayValue(result.runsDetail, `${path}.results[${index}].runsDetail`).map(
-      (detail, detailIndex) =>
-        recordValue(detail, `${path}.results[${index}].runsDetail[${detailIndex}]`),
-    )
-    const stageRecords = detailRecords.map((detail, detailIndex) =>
-      recordValue(detail.stages, `${path}.results[${index}].runsDetail[${detailIndex}].stages`),
-    )
-    const sourceRecords = detailRecords.map((detail, detailIndex) =>
-      recordValue(detail.source, `${path}.results[${index}].runsDetail[${detailIndex}].source`),
-    )
-    const firstSource = sourceRecords[0] ?? {}
-    const values = (
-      records: readonly Readonly<Record<string, unknown>>[],
-      field: string,
-    ): readonly number[] =>
-      records
-        .map((record, valueIndex) =>
-          nullableNumber(
-            record[field],
-            `${path}.results[${index}].runsDetail[${valueIndex}].${field}`,
-          ),
-        )
-        .filter((value): value is number => value !== null)
-    const engineId = stringValue(engine.id, `${path}.results[${index}].engine.id`)
+    const engineId = stringValue(result.engineId, `${path}.results[${index}].engineId`)
     const engineMetadata = engines.find((candidate) => candidate.id === engineId)
     if (engineMetadata === undefined) {
       throw new Error(`${path}.results[${index}] references unrecorded engine ${engineId}`)
     }
     return {
       engineId,
-      family: stringValue(workload.family, `${path}.results[${index}].workload.family`),
-      firstUsableDataCvPercent: coefficientOfVariationPercent(
-        values(stageRecords, 'firstUsableDataMilliseconds'),
+      family: stringValue(result.family, `${path}.results[${index}].family`),
+      firstUsableDataCvPercent: nullableNumber(
+        result.firstUsableDataCvPercent,
+        `${path}.results[${index}].firstUsableDataCvPercent`,
       ),
-      firstUsableDataMilliseconds:
-        nullableNumber(
-          summary.firstUsableDataMilliseconds,
-          `${path}.results[${index}].firstUsableDataMilliseconds`,
-        ) ?? 0,
-      inputCopyBytes:
-        nullableNumber(
-          firstSource.requiredInputCopyBytes,
-          `${path}.results[${index}].requiredInputCopyBytes`,
-        ) ?? 0,
+      firstUsableDataMilliseconds: numberValue(
+        result.firstUsableDataMilliseconds,
+        `${path}.results[${index}].firstUsableDataMilliseconds`,
+      ),
+      inputCopyBytes: numberValue(
+        result.inputCopyBytes,
+        `${path}.results[${index}].inputCopyBytes`,
+      ),
       implementationClass: engineMetadata.implementationClass,
       packageVersion: engineMetadata.packageVersion,
-      peakRssCvPercent: coefficientOfVariationPercent(values(detailRecords, 'peakRssBytes')),
-      peakRssBytes:
-        nullableNumber(summary.peakRssBytes, `${path}.results[${index}].peakRssBytes`) ?? 0,
-      requestCount:
-        nullableNumber(firstSource.requestCount, `${path}.results[${index}].requestCount`) ?? 0,
-      sourceBytesCvPercent: coefficientOfVariationPercent(values(sourceRecords, 'returnedBytes')),
-      sourceBytes:
-        nullableNumber(summary.sourceBytes, `${path}.results[${index}].sourceBytes`) ?? 0,
+      peakRssCvPercent: nullableNumber(
+        result.peakRssCvPercent,
+        `${path}.results[${index}].peakRssCvPercent`,
+      ),
+      peakRssBytes: numberValue(result.peakRssBytes, `${path}.results[${index}].peakRssBytes`),
+      requestCount: numberValue(result.requestCount, `${path}.results[${index}].requestCount`),
+      sourceBytesCvPercent: nullableNumber(
+        result.sourceBytesCvPercent,
+        `${path}.results[${index}].sourceBytesCvPercent`,
+      ),
+      sourceBytes: numberValue(result.sourceBytes, `${path}.results[${index}].sourceBytes`),
       status: stringValue(result.status, `${path}.results[${index}].status`),
-      title: stringValue(workload.title, `${path}.results[${index}].workload.title`),
-      totalWallCvPercent: coefficientOfVariationPercent(
-        values(stageRecords, 'totalWallMilliseconds'),
+      title: stringValue(result.title, `${path}.results[${index}].title`),
+      totalWallCvPercent: nullableNumber(
+        result.totalWallCvPercent,
+        `${path}.results[${index}].totalWallCvPercent`,
       ),
-      totalWallMilliseconds:
-        nullableNumber(
-          summary.totalWallMilliseconds,
-          `${path}.results[${index}].totalWallMilliseconds`,
-        ) ?? 0,
-      workloadId: stringValue(workload.id, `${path}.results[${index}].workload.id`),
+      totalWallMilliseconds: numberValue(
+        result.totalWallMilliseconds,
+        `${path}.results[${index}].totalWallMilliseconds`,
+      ),
+      workloadId: stringValue(result.workloadId, `${path}.results[${index}].workloadId`),
     }
   })
-  const bundleRecord = recordValue(report.bundle, `${path}.bundle`)
-  const bundles = engines.map((engine): ScientificBundleMetric => {
-    const metric = recordValue(bundleRecord[engine.id], `${path}.bundle.${engine.id}`)
-    const wasmAssets = arrayValue(metric.wasmAssets, `${path}.bundle.${engine.id}.wasmAssets`)
-    const rawWasmBytes = wasmAssets.reduce<number>((total, asset, index) => {
-      const value = recordValue(asset, `${path}.bundle.${engine.id}.wasmAssets[${index}]`)
-      return (
-        total +
-        numberValue(value.rawBytes, `${path}.bundle.${engine.id}.wasmAssets[${index}].rawBytes`)
-      )
-    }, 0)
-    return {
-      brotliJavaScriptBytes: numberValue(
-        metric.importedJavaScriptBrotliBytes,
-        `${path}.bundle.${engine.id}.brotli`,
-      ),
-      engineId: engine.id,
-      gzipJavaScriptBytes: numberValue(
-        metric.importedJavaScriptGzipBytes,
-        `${path}.bundle.${engine.id}.gzip`,
-      ),
-      installedBytes: numberValue(
-        metric.installedBytes,
-        `${path}.bundle.${engine.id}.installedBytes`,
-      ),
-      rawWasmBytes,
-    }
-  })
+  const bundles = arrayValue(data.bundles, `${path}.data.bundles`).map(
+    (entry, index): ScientificBundleMetric => {
+      const metric = recordValue(entry, `${path}.data.bundles[${index}]`)
+      return {
+        brotliJavaScriptBytes: numberValue(
+          metric.brotliJavaScriptBytes,
+          `${path}.bundles[${index}].brotliJavaScriptBytes`,
+        ),
+        engineId: stringValue(metric.engineId, `${path}.bundles[${index}].engineId`),
+        gzipJavaScriptBytes: numberValue(
+          metric.gzipJavaScriptBytes,
+          `${path}.bundles[${index}].gzipJavaScriptBytes`,
+        ),
+        installedBytes: numberValue(
+          metric.installedBytes,
+          `${path}.bundles[${index}].installedBytes`,
+        ),
+        rawWasmBytes: numberValue(metric.rawWasmBytes, `${path}.bundles[${index}].rawWasmBytes`),
+      }
+    },
+  )
   return {
     bundles,
-    createdAt: stringValue(report.createdAt, `${path}.createdAt`),
+    createdAt: stringValue(data.createdAt, `${path}.data.createdAt`),
     engines,
     environment: {
       architecture: stringValue(environment.architecture, `${path}.environment.architecture`),
-      node: stringValue(environment.nodeVersion, `${path}.environment.nodeVersion`),
+      node: stringValue(environment.node, `${path}.environment.node`),
       platform: stringValue(environment.platform, `${path}.environment.platform`),
     },
     results,
@@ -640,6 +582,11 @@ const ordinaryEntry = latestEntry(resultIndex, 'competitors')
 const scientificEntry = latestEntry(resultIndex, 'scientific-readers-baseline')
 const rangeEntry = latestEntry(resultIndex, 'scientific-readers-range')
 const scientificCompetitorEntry = latestEntry(resultIndex, 'scientific-competitors-baseline')
+for (const entry of [ordinaryEntry, scientificEntry]) {
+  if (entry.validationStatus !== 'passed' || !entry.eligibleForDocumentationHeadlines) {
+    throw new Error(`${entry.profile} is not eligible for a documentation headline`)
+  }
+}
 const ordinaryPath = jsonResultPath(ordinaryEntry)
 const scientificPath = jsonResultPath(scientificEntry)
 const rangePath = jsonResultPath(rangeEntry)
@@ -702,15 +649,12 @@ const ordinaryCounts = ordinary.results.reduce<Record<string, number>>((counts, 
   return counts
 }, {})
 
-const ordinaryStem = basename(ordinaryPath).replace(/\.json$/u, '')
 const ordinaryCharts = ['speed', 'quality', 'memory'].map((metric) => ({
-  filename: `competitors-${metric}-${ordinaryStem}.png`,
+  filename: basename(stringValue(ordinary.charts[metric], `ordinary.charts.${metric}`)),
   metric,
   source: join(
     repositoryDirectory,
-    'benchmark',
-    'results',
-    `competitors-${metric}-${ordinaryStem}.png`,
+    stringValue(ordinary.charts[metric], `ordinary.charts.${metric}`),
   ),
 }))
 for (const chart of ordinaryCharts) {
@@ -938,9 +882,10 @@ const rangeCounts = rangeResults.reduce<Record<string, number>>((counts, result)
   counts[result.status] = (counts[result.status] ?? 0) + 1
   return counts
 }, {})
-const referenceEntries = resultIndex.results.filter(({ profile }) =>
-  /scientific.*(python|reference)|(python|reference).*scientific/u.test(profile),
-)
+const representativeScientificCount = scientific.results.filter(
+  ({ measurementClass }) => measurementClass === 'representative',
+).length
+const contractScientificCount = scientific.results.length - representativeScientificCount
 const crossEnvironmentDisclaimer =
   ordinary.environment.fingerprint === scientific.environment.fingerprint
     ? null
@@ -1016,6 +961,8 @@ const documentation = {
       reportJson: portablePath(scientificPath),
       reportMarkdown: scientificEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
       statusCounts: scientificCounts,
+      contractWorkloadCount: contractScientificCount,
+      representativeWorkloadCount: representativeScientificCount,
       workloadCount: scientific.results.length,
     },
     charts: Object.fromEntries(
@@ -1050,17 +997,6 @@ const documentation = {
       statusCounts: competitorCounts,
     },
     crossEnvironmentDisclaimer,
-    pythonReference:
-      referenceEntries.length === 0
-        ? {
-            available: false,
-            note: 'No eligible Python scientific performance reference artifact is present in the generated result index. Development oracles remain correctness references, not timed production engines.',
-          }
-        : {
-            available: true,
-            note: 'See the indexed Python reference artifact; startup and steady-state measurements remain separate.',
-            result: referenceEntries[0]?.resultPaths[0],
-          },
     range: {
       reportJson: portablePath(rangePath),
       reportMarkdown: rangeEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
@@ -1100,7 +1036,7 @@ const benchmarkBlock = [
   '',
   `**Ordinary images (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
-  `**Scientific readers (${scientific.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0}/${scientific.results.length} baseline workloads passed correctness validation across ${manifest.scientificReaders.length} readers. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
+  `**Scientific readers (${scientific.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} reader workflows passed correctness validation across ${manifest.scientificReaders.length} readers: ${representativeScientificCount} representative performance workloads and ${contractScientificCount} correctness or contract workloads. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
   '',

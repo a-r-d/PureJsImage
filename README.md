@@ -35,7 +35,7 @@
 - **Maximally portable** — strict TypeScript runs across Node.js and modern browsers without native addons or system executables.
 - **Zero dependencies** — the published package has no runtime dependency tree.
 - **Native scientific raster processing** — direct-range reads and native-precision data avoid forcing scientific samples through RGBA.
-- **Fully benchmarked** — ordinary codecs and scientific readers have correctness-gated speed, quality, memory, I/O, and footprint measurements.
+- **Correctness-gated benchmarks** — ordinary codec and scientific-reader suites measure speed, peak RSS, output validity, source I/O, and package footprint.
 - **Optional WASM accelerators** — explicit JPEG and PNG accelerator imports never load or activate automatically.
 
 PureJsImage provides portable image codecs and low-memory raster workflows for Node.js
@@ -221,11 +221,11 @@ distributors must evaluate their own licensing obligations.
 
 **Ordinary images (2026-08-16):** 79 validated passes, 19 explicit unsupported rows, and no invalid outputs or errors. On the 24-megapixel northstar photo pipeline, the TypeScript path used 84.2% less absolute peak RSS than Jimp (187.8 MiB versus 1188.4 MiB).
 
-**Scientific readers (2026-08-16):** 43/43 baseline workloads passed correctness validation across 31 readers. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.
+**Scientific readers (2026-08-16):** 43 reader workflows passed correctness validation across 31 readers: 13 representative performance workloads and 30 correctness or contract workloads. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.
 
 > Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.
 
-[Ordinary methodology and report](https://purejsimage.com/performance/#ordinary-images) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](benchmark/results/result-index-2026-08-16T12-32-36-126Z.json)
+[Ordinary methodology and report](https://purejsimage.com/performance/#ordinary-images) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](benchmark/results/public/index.json)
 <!-- documentation:benchmarks:end -->
 
 Historical AWS Lambda measurements remain useful for memory-tier and CPU-allocation context, but are

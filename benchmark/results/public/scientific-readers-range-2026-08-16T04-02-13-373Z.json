@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "profile": "scientific-readers-range",
+  "publicationValidationStatus": "passed",
+  "validationStatus": "passed",
+  "source": {
+    "eligibleForDocumentationHeadlines": false,
+    "resultIndex": "benchmark/results/result-index-2026-08-16T12-32-36-126Z.json",
+    "resultPaths": [
+      "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.json",
+      "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.md"
+    ],
+    "validationStatus": "failed"
+  },
+  "data": {
+    "createdAt": "2026-08-16T04:02:13.373Z",
+    "engine": {
+      "id": "purejsimage-scientific",
+      "version": "0.10.0"
+    },
+    "results": [
+      {
+        "readerId": "purejsimage/nanonis-sxm",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/nanonis-sxm",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/nanonis-sxm",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/nanonis-sxm",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/igor-binary-wave",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/igor-binary-wave",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/igor-binary-wave",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/igor-binary-wave",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/x3p",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/x3p",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/x3p",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/x3p",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/envi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/envi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/envi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/envi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/fits",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/fits",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/fits",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/fits",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mrc",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mrc",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mrc",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mrc",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ome-tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ome-tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ome-tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ome-tiff",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/aperio-svs",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/aperio-svs",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/aperio-svs",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/aperio-svs",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "error"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/digital-micrograph",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-ser",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-emi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-emi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-emi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/tia-emi",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ncem-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ncem-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ncem-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/ncem-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/velox-emd",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/rpl",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/rpl",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/rpl",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/rpl",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/meta-image",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/npy",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/blockfile",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/blockfile",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/blockfile",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/blockfile",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mib",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mib",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mib",
+        "status": "supported"
+      },
+      {
+        "readerId": "purejsimage/mib",
+        "status": "supported"
+      }
+    ]
+  }
+}

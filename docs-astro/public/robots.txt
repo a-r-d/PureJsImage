@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://purejsimage.com/sitemap.xml
+Sitemap: https://purejsimage.com/sitemap-index.xml

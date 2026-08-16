@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   check:
-    name: Check Node ${{ matrix.node-version }}
+    name: Clean checkout Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run checks
+      - name: Run clean-checkout validation
         run: npm run check
 
   browser:

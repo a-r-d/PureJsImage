@@ -1,5 +1,5 @@
-import { copyFile, mkdir, readFile, stat } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { copyFile, mkdir, readFile, readdir, stat } from 'node:fs/promises'
+import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
 
@@ -16,6 +16,31 @@ const outputPngWasm = join(outputDirectory, 'assets/png-codec.wasm')
 const outputSimdPngWasm = join(outputDirectory, 'assets/png-codec-simd.wasm')
 
 await buildAstro({ root: sourceDirectory })
+
+const builtIndexPages = async (directory: string): Promise<readonly string[]> => {
+  const pages: string[] = []
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) pages.push(...(await builtIndexPages(path)))
+    else if (entry.name === 'index.html') pages.push(path)
+  }
+  return pages
+}
+
+const sitemapIndex = await readFile(join(outputDirectory, 'sitemap-index.xml'), 'utf8')
+if (!sitemapIndex.includes('https://purejsimage.com/sitemap-0.xml')) {
+  throw new Error('Generated sitemap index does not reference sitemap-0.xml')
+}
+const sitemap = await readFile(join(outputDirectory, 'sitemap-0.xml'), 'utf8')
+for (const page of await builtIndexPages(outputDirectory)) {
+  const directory = dirname(relative(outputDirectory, page)).replaceAll('\\', '/')
+  const route = directory === '.' ? '/' : `/${directory}/`
+  if (!sitemap.includes(`<loc>https://purejsimage.com${route}</loc>`)) {
+    throw new Error(`Generated sitemap omits canonical Astro route ${route}`)
+  }
+}
+if (sitemap.includes('/llms.txt')) throw new Error('Generated sitemap includes non-HTML llms.txt')
+
 await mkdir(dirname(outputBundle), { recursive: true })
 const demoBuild = await build({
   absWorkingDir: process.cwd(),

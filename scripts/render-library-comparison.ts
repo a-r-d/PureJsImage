@@ -503,7 +503,6 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
 <SiteLayout title="TIFF library comparison | PureJsImage" description="Evidence-backed JavaScript TIFF library capability, decode-coverage, and exact-pixel comparison." canonical="https://purejsimage.com/tiff-comparison/" current="codecs/">
 <main id="main">${fullComparisonBody(report)}</main>
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Documentation</strong><a href="../guides/">Getting started</a><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../tiff/">TIFF guide</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span>Default reference engine · pure TypeScript · zero runtime dependencies</span></div></div></footer>
 </SiteLayout>
 `
 

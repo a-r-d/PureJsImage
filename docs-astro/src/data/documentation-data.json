@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedFrom": {
     "packageMetrics": "benchmark/generated/package-metrics.json",
-    "resultIndex": "benchmark/results/result-index-2026-08-16T12-32-36-126Z.json"
+    "resultIndex": "benchmark/results/public/index.json"
   },
   "support": {
     "experimentalCodecs": ["HEIF / HEIC (experimental)"],
@@ -109,7 +109,7 @@
       "minifiedBytes": 61385
     },
     "installedPackage": {
-      "bytes": 4977973,
+      "bytes": 4978318,
       "productionPackageCount": 1
     },
     "packageVersion": "0.10.0",
@@ -179,8 +179,8 @@
       "pureJsImagePeakRssBytes": 196890624,
       "workflow": "24-megapixel northstar photo pipeline"
     },
-    "reportJson": "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
-    "reportMarkdown": "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md",
+    "reportJson": "benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.json",
+    "reportMarkdown": "benchmark/results/public/competitors-2026-08-16T03-13-22-290Z.md",
     "statusCounts": {
       "pass": 79,
       "unsupported": 19
@@ -201,11 +201,13 @@
         "os": "Linux 6.17.0-41-generic",
         "v8": "13.6.233.17-node.49"
       },
-      "reportJson": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.json",
-      "reportMarkdown": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T034025698Z-baseline.md",
+      "reportJson": "benchmark/results/public/scientific-readers-baseline-2026-08-16T03-40-25-698Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-readers-baseline-2026-08-16T03-40-25-698Z.md",
       "statusCounts": {
         "supported": 43
       },
+      "contractWorkloadCount": 30,
+      "representativeWorkloadCount": 13,
       "workloadCount": 43
     },
     "charts": {
@@ -312,21 +314,17 @@
           "workloadId": "npy-c-full"
         }
       ],
-      "reportJson": "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.json",
-      "reportMarkdown": "benchmark/scientific-readers/results/artifacts/scientific-competitors/competitors-node-2026-08-16T12-32-28-536Z.md",
+      "reportJson": "benchmark/results/public/scientific-competitors-baseline-2026-08-16T12-32-28-536Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-competitors-baseline-2026-08-16T12-32-28-536Z.md",
       "statusCounts": {
         "supported": 35,
         "unsupported": 135
       }
     },
     "crossEnvironmentDisclaimer": "Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.",
-    "pythonReference": {
-      "available": false,
-      "note": "No eligible Python scientific performance reference artifact is present in the generated result index. Development oracles remain correctness references, not timed production engines."
-    },
     "range": {
-      "reportJson": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.json",
-      "reportMarkdown": "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T040213373Z-range.md",
+      "reportJson": "benchmark/results/public/scientific-readers-range-2026-08-16T04-02-13-373Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-readers-range-2026-08-16T04-02-13-373Z.md",
       "statusCounts": {
         "supported": 95,
         "error": 1
