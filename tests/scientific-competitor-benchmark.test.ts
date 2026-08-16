@@ -53,4 +53,26 @@ describe('scientific competitor benchmark contract', () => {
       1,
     )
   })
+
+  it('places small TIFF tiles after the first 64 KiB source page', async () => {
+    const fixture = await prepareScientificFixture('tiff-small-tiles')
+    const bytes = await readFile(fixture.resources[0]?.path ?? '')
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    const ifdOffset = view.getUint32(4, true)
+    const entryCount = view.getUint16(ifdOffset, true)
+    let tileOffsetsOffset = 0
+    let tileCount = 0
+    for (let index = 0; index < entryCount; index += 1) {
+      const entryOffset = ifdOffset + 2 + index * 12
+      const tag = view.getUint16(entryOffset, true)
+      if (tag === 324) {
+        tileCount = view.getUint32(entryOffset + 4, true)
+        tileOffsetsOffset = view.getUint32(entryOffset + 8, true)
+      }
+    }
+    expect(tileCount).toBeGreaterThan(1)
+    const firstTileOffset = view.getUint32(tileOffsetsOffset, true)
+    expect(firstTileOffset).toBeGreaterThanOrEqual(65_536)
+    expect(bytes.byteLength).toBeGreaterThan(firstTileOffset)
+  })
 })

@@ -690,6 +690,68 @@ describe('DigitalMicrograph tag-tree index', () => {
     })
   }
 
+  it('aggregates small DM4 entries and nearby metadata without reading image samples', async () => {
+    const byteOrder = 'little-endian' as const
+    const imageSamples = Array.from({ length: 4_096 }, (_value, index) => index & 0xffff)
+    const tagCount = 48
+    const bytes = encodedFile(4, byteOrder, [
+      {
+        kind: 'group',
+        name: 'ImageList',
+        children: [
+          {
+            kind: 'group',
+            name: '0',
+            children: [
+              {
+                kind: 'group',
+                name: 'ImageData',
+                children: [
+                  {
+                    kind: 'value',
+                    name: 'Data',
+                    info: [20n, 4n, BigInt(imageSamples.length)],
+                    payload: uint16ArrayPayload(imageSamples, byteOrder),
+                  },
+                ],
+              },
+              {
+                kind: 'group',
+                name: 'ImageTags',
+                children: Array.from({ length: tagCount }, (_value, index) => ({
+                  kind: 'value' as const,
+                  name: `Tag${index}`,
+                  info: [7n],
+                  payload: float64Payload(index + 0.5, byteOrder),
+                })),
+              },
+            ],
+          },
+        ],
+      },
+    ])
+    const source = new TrackingSource(bytes)
+    const index = await indexDigitalMicrograph(source)
+    const imageList = asGroup(child(index.root, 'ImageList'))
+    const image = asGroup(child(imageList, '0'))
+    const imageData = asGroup(child(image, 'ImageData'))
+    const data = asValue(child(imageData, 'Data'))
+    expect(
+      source.reads.some(
+        ({ offset, length }) =>
+          offset < data.payload.offset + data.payload.byteLength &&
+          offset + length > data.payload.offset,
+      ),
+    ).toBe(false)
+    expect(index.tagCount).toBe(tagCount + 5)
+    expect(source.reads.length).toBeLessThan(index.tagCount)
+    expect(source.reads.length).toBeLessThan(24)
+    const projected = new Map(index.metadata.map((entry) => [pathKey(entry.path), entry.value]))
+    expect(projected.get('ImageList[0]/0[0]/ImageTags[0]/Tag0[0]')).toBe(0.5)
+    expect(projected.get('ImageList[0]/0[0]/ImageTags[0]/Tag47[0]')).toBe(47.5)
+    expect(index.metadata).toHaveLength(tagCount)
+  })
+
   it('applies aggregate, per-value, and decoded-value metadata limits independently', async () => {
     const bytes = encodedFile(4, 'little-endian', fixtureTree(4, 'little-endian'))
     const aggregate = await indexDigitalMicrograph(new MemorySource(bytes), {

@@ -283,11 +283,17 @@ const mrcZeros = (width: number, height: number): Uint8Array => {
   return output
 }
 
-const tiledTiffZeros = (width: number, height: number): Uint8Array => {
-  const tileWidth = 256
-  const tileHeight = 256
+const tiledTiffZeros = (
+  width: number,
+  height: number,
+  tileWidth = 256,
+  tileHeight = 256,
+  minimumDataOffset = 0,
+): Uint8Array => {
   if (width % tileWidth !== 0 || height % tileHeight !== 0) {
-    throw new Error('Generated tiled TIFF dimensions must be divisible by 256')
+    throw new Error(
+      `Generated tiled TIFF dimensions ${width}x${height} must be divisible by ${tileWidth}x${tileHeight}`,
+    )
   }
   const tileBytes = tileWidth * tileHeight
   const tileCount = (width / tileWidth) * (height / tileHeight)
@@ -296,7 +302,7 @@ const tiledTiffZeros = (width: number, height: number): Uint8Array => {
   const ifdBytes = 2 + entryCount * 12 + 4
   const offsetsOffset = ifdOffset + ifdBytes
   const byteCountsOffset = offsetsOffset + tileCount * 4
-  const dataOffset = byteCountsOffset + tileCount * 4
+  const dataOffset = Math.max(byteCountsOffset + tileCount * 4, minimumDataOffset)
   const payloadBytes = checkedSampleCount([width, height], 1)
   const output = new Uint8Array(dataOffset + payloadBytes)
   const view = new DataView(output.buffer)
@@ -779,6 +785,16 @@ export const generatedScientificFixtures: Readonly<
     return {
       resources: [{ name: 'image-large.tiff', bytes }],
       payloadRanges: { 'image-large.tiff': [[payloadOffset, bytes.byteLength] as const] },
+    }
+  },
+  'tiff-small-tiles-generated': () => {
+    const width = 2_048
+    const height = 2_048
+    const bytes = tiledTiffZeros(width, height, 64, 64, 80_000)
+    const payloadOffset = bytes.byteLength - width * height
+    return {
+      resources: [{ name: 'image-small-tiles.tiff', bytes }],
+      payloadRanges: { 'image-small-tiles.tiff': [[payloadOffset, bytes.byteLength] as const] },
     }
   },
   'npy-f-generated': () => ({

@@ -5982,6 +5982,10 @@ tr:last-child td {
   gap: 11px;
 }
 
+.scientific-panel [hidden] {
+  display: none !important;
+}
+
 .scientific-inline-fields {
   grid-template-columns: 1fr 1fr;
 }

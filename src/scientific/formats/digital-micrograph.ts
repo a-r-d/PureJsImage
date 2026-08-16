@@ -165,6 +165,10 @@ const defaultOptions: Omit<ResolvedIndexOptions, 'signal'> = Object.freeze({
   maxMetadataValues: 16_384,
 })
 
+const dmIndexPrefetchBytes = 65_536
+const dmMetadataCoalesceGapBytes = 256
+const dmMetadataCoalesceMaxBytes = 65_536
+
 const positiveInteger = (name: string, value: number): number => {
   if (!Number.isSafeInteger(value) || value < 1) {
     throw invalidInput(`${name} must be a positive safe integer`)
@@ -235,10 +239,46 @@ class DigitalMicrographCursor {
   readonly #source: ImageSource
   readonly #signal: AbortSignal | undefined
   position = 0
+  #window: Uint8Array | undefined
+  #windowStart = 0
 
   constructor(source: ImageSource, signal: AbortSignal | undefined) {
     this.#source = source
     this.#signal = signal
+  }
+
+  #windowOffset(position: number): number | undefined {
+    if (this.#window === undefined) return undefined
+    const offset = position - this.#windowStart
+    if (offset < 0 || offset > this.#window.byteLength) return undefined
+    return offset
+  }
+
+  #covers(offset: number, length: number): boolean {
+    const window = this.#window
+    const windowOffset = this.#windowOffset(offset)
+    return (
+      window !== undefined &&
+      windowOffset !== undefined &&
+      windowOffset + length <= window.byteLength
+    )
+  }
+
+  #readOptions(): ImageSourceReadOptions {
+    return this.#signal === undefined ? {} : { signal: this.#signal }
+  }
+
+  copyIfBuffered(offset: number, length: number): Uint8Array | undefined {
+    const window = this.#window
+    const windowOffset = this.#windowOffset(offset)
+    if (
+      window === undefined ||
+      windowOffset === undefined ||
+      windowOffset + length > window.byteLength
+    ) {
+      return undefined
+    }
+    return window.slice(windowOffset, windowOffset + length)
   }
 
   async read(length: number): Promise<Uint8Array> {
@@ -251,11 +291,34 @@ class DigitalMicrographCursor {
     if (end > BigInt(this.#source.size)) {
       throw truncatedInput(`DM structure exceeds the input at offset ${offset}`)
     }
-    const data = await readExactly(this.#source, offset, length, {
-      ...(this.#signal === undefined ? {} : { signal: this.#signal }),
-    })
+    const window = this.#window
+    const windowOffset = this.#windowOffset(offset)
+    if (
+      window !== undefined &&
+      windowOffset !== undefined &&
+      windowOffset + length <= window.byteLength
+    ) {
+      this.position += length
+      return window.subarray(windowOffset, windowOffset + length)
+    }
+    this.#window = undefined
+    const data = await readExactly(this.#source, offset, length, this.#readOptions())
     this.position += length
     return data
+  }
+
+  async prefetch(length: number): Promise<void> {
+    throwIfAborted(this.#signal)
+    if (!Number.isSafeInteger(length) || length < 1) {
+      throw invalidInput('DM structural prefetch length is invalid')
+    }
+    const available = this.#source.size - this.position
+    if (available < 1) return
+    const amount = Math.min(length, available)
+    if (this.#covers(this.position, amount)) return
+    const data = await readExactly(this.#source, this.position, amount, this.#readOptions())
+    this.#window = data.slice()
+    this.#windowStart = this.position
   }
 
   skip(length: number): void {
@@ -267,6 +330,7 @@ class DigitalMicrographCursor {
       throw truncatedInput(`DM payload exceeds the input at offset ${this.position}`)
     }
     this.position += length
+    if (this.#windowOffset(this.position) === undefined) this.#window = undefined
   }
 }
 
@@ -487,6 +551,8 @@ class DigitalMicrographIndexer {
   readonly #byteOrder: DigitalMicrographByteOrder
   readonly #structuralIntegerBytes: 4 | 8
   readonly #valueNodes: DigitalMicrographValueNode[] = []
+  readonly #bufferedPayloads = new Map<DigitalMicrographValueNode, Uint8Array>()
+  #safePrefetchEnd: number | undefined
   tagCount = 0
 
   constructor(
@@ -516,6 +582,27 @@ class DigitalMicrographIndexer {
     return value
   }
 
+  #containsImageSamples(
+    tagId: number,
+    name: string,
+    path: readonly DigitalMicrographPathSegment[],
+  ): boolean {
+    if (tagId === 21) {
+      return name === 'Data' && path.some((segment) => segment.name === 'ImageData')
+    }
+    if (name === 'ImageList' || name === 'ImageData' || name === 'Data') return true
+    // Direct ImageList children are image documents that wrap ImageData/Data.
+    return path.at(-1)?.name === 'ImageList'
+  }
+
+  async #refillSafePrefetch(): Promise<void> {
+    const end = this.#safePrefetchEnd
+    if (end === undefined) return
+    const remaining = end - this.#cursor.position
+    if (remaining < 1) return
+    await this.#cursor.prefetch(Math.min(remaining, dmIndexPrefetchBytes))
+  }
+
   async #groupContents(
     path: readonly DigitalMicrographPathSegment[],
     depth: number,
@@ -539,6 +626,7 @@ class DigitalMicrographIndexer {
     const children: DigitalMicrographNode[] = []
     for (let entry = 0; entry < count; entry += 1) {
       throwIfAborted(this.#options.signal)
+      await this.#refillSafePrefetch()
       const entryOffset = this.#cursor.position
       const entryHeader = await this.#cursor.read(3)
       const tagId = entryHeader[0] ?? 0
@@ -575,27 +663,41 @@ class DigitalMicrographIndexer {
       if (declaredEnd !== undefined && declaredEnd > this.#source.size) {
         throw truncatedInput('DM4 declared entry length exceeds the input')
       }
+      // ImageList/ImageData/Data contain the sample array; never window those extents.
+      const previousSafeEnd = this.#safePrefetchEnd
+      if (declaredEnd !== undefined && !this.#containsImageSamples(tagId, name, path)) {
+        this.#safePrefetchEnd =
+          previousSafeEnd === undefined ? declaredEnd : Math.max(previousSafeEnd, declaredEnd)
+        const remaining = declaredEnd - contentOffset
+        if (remaining > 0) {
+          await this.#cursor.prefetch(Math.min(remaining, dmIndexPrefetchBytes))
+        }
+      }
       this.tagCount += 1
-      const node =
-        tagId === 20
-          ? await this.#groupNode(
-              name,
-              occurrence,
-              childPath,
-              depth + 1,
-              entryOffset,
-              declaredContentBytes,
-              declaredEnd,
-            )
-          : await this.#valueNode(
-              name,
-              occurrence,
-              childPath,
-              entryOffset,
-              declaredContentBytes,
-              declaredEnd,
-            )
-      children.push(node)
+      try {
+        children.push(
+          tagId === 20
+            ? await this.#groupNode(
+                name,
+                occurrence,
+                childPath,
+                depth + 1,
+                entryOffset,
+                declaredContentBytes,
+                declaredEnd,
+              )
+            : await this.#valueNode(
+                name,
+                occurrence,
+                childPath,
+                entryOffset,
+                declaredContentBytes,
+                declaredEnd,
+              ),
+        )
+      } finally {
+        this.#safePrefetchEnd = previousSafeEnd
+      }
     }
     return Object.freeze({
       sorted: sortedFlag === 1,
@@ -666,6 +768,7 @@ class DigitalMicrographIndexer {
     const payloadOffset = this.#cursor.position
     const payloadEnd = checkedAdd(payloadOffset, descriptor.byteLength, 'payload end')
     if (payloadEnd > this.#source.size) throw truncatedInput('DM data payload exceeds the input')
+    const bufferedPayload = this.#cursor.copyIfBuffered(payloadOffset, descriptor.byteLength)
     this.#cursor.skip(descriptor.byteLength)
     if (declaredEnd !== undefined && this.#cursor.position !== declaredEnd) {
       throw invalidInput('DM4 data-tag length does not match its descriptor and payload')
@@ -686,6 +789,7 @@ class DigitalMicrographIndexer {
       }),
     })
     this.#valueNodes.push(node)
+    if (bufferedPayload !== undefined) this.#bufferedPayloads.set(node, bufferedPayload)
     return node
   }
 
@@ -704,6 +808,7 @@ class DigitalMicrographIndexer {
     const entries: DigitalMicrographMetadataEntry[] = []
     const omissions: DigitalMicrographMetadataOmission[] = []
     let remaining = this.#options.maxMetadataBytes
+    const pending: DigitalMicrographValueNode[] = []
     for (const node of this.#valueNodes) {
       let reason: DigitalMicrographMetadataOmissionReason | undefined
       if (isImagePayload(node)) reason = 'image-payload'
@@ -717,10 +822,13 @@ class DigitalMicrographIndexer {
         omissions.push(Object.freeze({ path: node.path, reason }))
         continue
       }
-      throwIfAborted(this.#options.signal)
-      const bytes = await readExactly(this.#source, node.payload.offset, node.payload.byteLength, {
-        ...(this.#options.signal === undefined ? {} : { signal: this.#options.signal }),
-      })
+      pending.push(node)
+      remaining -= node.payload.byteLength
+    }
+    const decodePayload = (
+      node: DigitalMicrographValueNode,
+      bytes: Uint8Array,
+    ): DigitalMicrographMetadataValue => {
       const cursor: DecodeCursor = {
         bytes,
         view: new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength),
@@ -731,8 +839,58 @@ class DigitalMicrographIndexer {
       if (cursor.position !== bytes.byteLength) {
         throw invalidInput('DM metadata descriptor did not consume its payload')
       }
+      return value
+    }
+    const decoded = new Map<DigitalMicrographValueNode, DigitalMicrographMetadataValue>()
+    const unread: DigitalMicrographValueNode[] = []
+    for (const node of pending) {
+      const buffered = this.#bufferedPayloads.get(node)
+      if (buffered !== undefined) decoded.set(node, decodePayload(node, buffered))
+      else unread.push(node)
+    }
+    const byOffset = unread.sort((left, right) => left.payload.offset - right.payload.offset)
+    const readOptions = this.#options.signal === undefined ? {} : { signal: this.#options.signal }
+    let index = 0
+    while (index < byOffset.length) {
+      throwIfAborted(this.#options.signal)
+      const first = byOffset[index]
+      if (first === undefined) break
+      const spanStart = first.payload.offset
+      let spanEnd = first.payload.offset + first.payload.byteLength
+      let last = index
+      while (last + 1 < byOffset.length) {
+        const next = byOffset[last + 1]
+        if (next === undefined) break
+        const nextEnd = next.payload.offset + next.payload.byteLength
+        if (next.payload.offset < spanEnd) {
+          throw invalidInput('DM metadata payloads overlap')
+        }
+        if (next.payload.offset - spanEnd > dmMetadataCoalesceGapBytes) break
+        if (nextEnd - spanStart > dmMetadataCoalesceMaxBytes) break
+        spanEnd = nextEnd
+        last += 1
+      }
+      const span = await readExactly(this.#source, spanStart, spanEnd - spanStart, readOptions)
+      for (let nodeIndex = index; nodeIndex <= last; nodeIndex += 1) {
+        const node = byOffset[nodeIndex]
+        if (node === undefined) continue
+        decoded.set(
+          node,
+          decodePayload(
+            node,
+            span.subarray(
+              node.payload.offset - spanStart,
+              node.payload.offset - spanStart + node.payload.byteLength,
+            ),
+          ),
+        )
+      }
+      index = last + 1
+    }
+    for (const node of pending) {
+      const value = decoded.get(node)
+      if (value === undefined) continue
       entries.push(Object.freeze({ path: node.path, value }))
-      remaining -= node.payload.byteLength
     }
     return Object.freeze({
       entries: Object.freeze(entries),
@@ -758,6 +916,7 @@ export const indexDigitalMicrograph = async (
   throwIfAborted(resolved.signal)
   const counted = new CountingSource(source)
   const cursor = new DigitalMicrographCursor(counted, resolved.signal)
+  await cursor.prefetch(16)
   const versionBytes = await cursor.read(4)
   const rawVersion = new DataView(
     versionBytes.buffer,

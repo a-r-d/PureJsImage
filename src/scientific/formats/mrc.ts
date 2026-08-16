@@ -62,12 +62,14 @@ export interface MrcDataset extends MultidimensionalRasterDataset {
   readonly mode: MrcMode
   readonly byteOrder: MrcByteOrder
   readonly sourceBytesRead: number
+  readonly sourceReadCalls: number
 }
 
 class CountingSource implements ImageSource {
   readonly size: number
   readonly #source: ImageSource
   bytesRead = 0
+  readCalls = 0
 
   constructor(source: ImageSource) {
     this.#source = source
@@ -80,6 +82,7 @@ class CountingSource implements ImageSource {
     options: Readonly<ImageSourceReadOptions> = {},
   ): Promise<Uint8Array> {
     const data = await this.#source.read(offset, length, options)
+    this.readCalls += 1
     this.bytesRead += data.byteLength
     return data
   }
@@ -335,6 +338,10 @@ class MrcRasterDataset implements MrcDataset {
     return this.#source.bytesRead
   }
 
+  get sourceReadCalls(): number {
+    return this.#source.readCalls
+  }
+
   #storedOffset(x: number, y: number, z: number, bytesPerSample: number): number {
     const coordinate = (selectedAxis: 1 | 2 | 3): number =>
       selectedAxis === 1 ? x : selectedAxis === 2 ? y : z
@@ -363,6 +370,51 @@ class MrcRasterDataset implements MrcDataset {
     }
   }
 
+  #copyCanonicalSpan(input: Uint8Array, output: Uint8Array, bytesPerSample: number): void {
+    if (this.byteOrder === 'big-endian' || bytesPerSample === 1) {
+      output.set(input)
+      return
+    }
+    const end = input.byteLength
+    const inputOffset = input.byteOffset
+    const destOffset = output.byteOffset
+    if (
+      bytesPerSample === 2 &&
+      (end & 1) === 0 &&
+      (inputOffset & 1) === 0 &&
+      (destOffset & 1) === 0
+    ) {
+      if ((end & 3) === 0 && (inputOffset & 3) === 0 && (destOffset & 3) === 0) {
+        const sourceView = new Uint32Array(input.buffer, inputOffset, end >> 2)
+        const destView = new Uint32Array(output.buffer, destOffset, end >> 2)
+        for (let index = 0; index < sourceView.length; index += 1) {
+          const value = sourceView[index] ?? 0
+          destView[index] = ((value & 0x00ff_00ff) << 8) | ((value >>> 8) & 0x00ff_00ff)
+        }
+        return
+      }
+      const sourceView = new Uint16Array(input.buffer, inputOffset, end >> 1)
+      const destView = new Uint16Array(output.buffer, destOffset, end >> 1)
+      for (let index = 0; index < sourceView.length; index += 1) {
+        const value = sourceView[index] ?? 0
+        destView[index] = ((value & 0xff) << 8) | (value >>> 8)
+      }
+      return
+    }
+    if (bytesPerSample === 4) {
+      for (let offset = 0; offset < end; offset += 4) {
+        output[offset] = input[offset + 3] ?? 0
+        output[offset + 1] = input[offset + 2] ?? 0
+        output[offset + 2] = input[offset + 1] ?? 0
+        output[offset + 3] = input[offset] ?? 0
+      }
+      return
+    }
+    for (let offset = 0; offset < end; offset += bytesPerSample) {
+      this.#copyCanonical(input, offset, output, offset, bytesPerSample)
+    }
+  }
+
   async *readPlane(request: Readonly<RasterPlaneRequest>): AsyncGenerator<RasterBlock> {
     const region = validateRequest(request, this.sizeX, this.sizeY, this.sizeZ)
     const bytesPerSample = rasterSampleBytes(this.sampleType)
@@ -374,38 +426,62 @@ class MrcRasterDataset implements MrcDataset {
       this.#rowsPerBlock,
       Math.max(1, Math.floor(this.#limits.maxDecodedBytes / rowBytes)),
     )
+    const packedRows =
+      this.header.MAPC === 1 &&
+      this.header.MAPR === 2 &&
+      region.x === 0 &&
+      region.width === this.sizeX
+    const readOptions = request.signal === undefined ? {} : { signal: request.signal }
+    const format = Object.freeze({
+      sampleType: this.sampleType,
+      channels: 1,
+      planar: false,
+    })
     for (let localY = 0; localY < region.height; localY += rowsPerBlock) {
       const blockHeight = Math.min(rowsPerBlock, region.height - localY)
       const output = new Uint8Array(rowBytes * blockHeight)
-      for (let row = 0; row < blockHeight; row += 1) {
-        const logicalY = region.y + localY + row
-        const targetRow = row * rowBytes
-        if (this.header.MAPC === 1) {
-          const inputOffset = this.#storedOffset(region.x, logicalY, request.z, bytesPerSample)
-          const input = await readExactly(this.#source, inputOffset, rowBytes, {
-            ...(request.signal === undefined ? {} : { signal: request.signal }),
-          })
-          for (let x = 0; x < region.width; x += 1) {
-            this.#copyCanonical(
+      if (packedRows) {
+        const inputOffset = this.#storedOffset(
+          region.x,
+          region.y + localY,
+          request.z,
+          bytesPerSample,
+        )
+        const input = await readExactly(
+          this.#source,
+          inputOffset,
+          rowBytes * blockHeight,
+          readOptions,
+        )
+        this.#copyCanonicalSpan(input, output, bytesPerSample)
+      } else {
+        for (let row = 0; row < blockHeight; row += 1) {
+          const logicalY = region.y + localY + row
+          const targetRow = row * rowBytes
+          if (this.header.MAPC === 1) {
+            const inputOffset = this.#storedOffset(region.x, logicalY, request.z, bytesPerSample)
+            const input = await readExactly(this.#source, inputOffset, rowBytes, readOptions)
+            this.#copyCanonicalSpan(
               input,
-              x * bytesPerSample,
-              output,
-              targetRow + x * bytesPerSample,
+              output.subarray(targetRow, targetRow + rowBytes),
               bytesPerSample,
             )
-          }
-        } else {
-          for (let x = 0; x < region.width; x += 1) {
-            const inputOffset = this.#storedOffset(
-              region.x + x,
-              logicalY,
-              request.z,
-              bytesPerSample,
-            )
-            const input = await readExactly(this.#source, inputOffset, bytesPerSample, {
-              ...(request.signal === undefined ? {} : { signal: request.signal }),
-            })
-            this.#copyCanonical(input, 0, output, targetRow + x * bytesPerSample, bytesPerSample)
+          } else {
+            for (let x = 0; x < region.width; x += 1) {
+              const inputOffset = this.#storedOffset(
+                region.x + x,
+                logicalY,
+                request.z,
+                bytesPerSample,
+              )
+              const input = await readExactly(
+                this.#source,
+                inputOffset,
+                bytesPerSample,
+                readOptions,
+              )
+              this.#copyCanonical(input, 0, output, targetRow + x * bytesPerSample, bytesPerSample)
+            }
           }
         }
       }
@@ -415,7 +491,7 @@ class MrcRasterDataset implements MrcDataset {
         width: region.width,
         height: blockHeight,
         stride: rowBytes,
-        format: Object.freeze({ sampleType: this.sampleType, channels: 1, planar: false }),
+        format,
         data: output,
       }
     }

@@ -184,6 +184,31 @@ describe('MRC2014 and CCP4 scientific volumes', () => {
     expect(source.reads.length).toBeGreaterThan(0)
   })
 
+  it('coalesces packed full-width MRC rows into one source read per output block', async () => {
+    const dataset = await openMrc(fixture({ storedSize: [8, 4, 1], mode: 1 }), {
+      rowsPerBlock: 2,
+    })
+    const before = dataset.sourceReadCalls
+    expect(await collect(dataset)).toEqual([
+      0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 25, 26, 27, 30,
+      31, 32, 33, 34, 35, 36, 37,
+    ])
+    expect(dataset.sourceReadCalls - before).toBe(2)
+  })
+
+  it('keeps windowed MRC rows on selected spans', async () => {
+    const dataset = await openMrc(fixture({ storedSize: [8, 4, 1], mode: 1 }), {
+      rowsPerBlock: 4,
+    })
+    const beforeCalls = dataset.sourceReadCalls
+    const beforeBytes = dataset.sourceBytesRead
+    expect(await collect(dataset, { x: 2, y: 1, width: 3, height: 2 })).toEqual([
+      12, 13, 14, 22, 23, 24,
+    ])
+    expect(dataset.sourceReadCalls - beforeCalls).toBe(2)
+    expect(dataset.sourceBytesRead - beforeBytes).toBe(12)
+  })
+
   it('maps arbitrary stored axes to logical XYZ coordinates', async () => {
     const dataset = await openMrc(fixture({ storedSize: [2, 2, 3], axes: [2, 3, 1], mode: 2 }))
     expect([dataset.sizeX, dataset.sizeY, dataset.sizeZ]).toEqual([3, 2, 2])

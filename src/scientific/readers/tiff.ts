@@ -1,6 +1,6 @@
 import type { AbortOptions } from '../../abort.ts'
 import { throwIfAborted } from '../../abort.ts'
-import { openTiffDocument } from '../../codecs/tiff.ts'
+import { openTiffDocument, TiffEncodedCacheSource } from '../../codecs/tiff.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import {
   type RasterBlock,
@@ -9,7 +9,6 @@ import {
   rasterSampleBytes,
 } from '../../raster.ts'
 import {
-  BufferedSource,
   bindImageSourceSignal,
   type ImageSource,
   sourceSessionEnd,
@@ -55,7 +54,6 @@ import { resourceHasHint } from './shared.ts'
 
 const defaultMaximumMetadataBytes = 64 * 1024
 const defaultMaximumMetadataTagBytes = 16 * 1024
-const tiffSourceBufferBytes = 64 * 1024
 
 interface SessionManagedSource extends ImageSource {
   [sourceSessionStart](): void
@@ -839,9 +837,9 @@ const createDocument = async (
     throw limitExceeded('TIFF reader maxMetadataTagBytes must not exceed maxMetadataBytes')
   }
   const source =
-    context.primary.source instanceof BufferedSource
+    context.primary.source instanceof TiffEncodedCacheSource
       ? context.primary.source
-      : new BufferedSource(context.primary.source, tiffSourceBufferBytes)
+      : new TiffEncodedCacheSource(context.primary.source)
   const document = await openTiffDocument(source, {
     ...(options.limits ?? {}),
     ...(context.signal === undefined ? {} : { signal: context.signal }),

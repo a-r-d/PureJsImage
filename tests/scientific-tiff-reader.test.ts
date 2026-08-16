@@ -43,6 +43,9 @@ interface TiffFixtureOptions {
   readonly segments: readonly Uint8Array[]
   readonly planar?: boolean
   readonly tiled?: boolean
+  readonly tileWidth?: number
+  readonly tileHeight?: number
+  readonly dataOffset?: number
   readonly extraEntries?: readonly TiffEntryFixture[]
   readonly ifdOffset?: number
 }
@@ -82,8 +85,8 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
     { tag: 284, type: 3, values: [options.planar ? 2 : 1] },
     ...(options.tiled
       ? [
-          { tag: 322, type: 4 as const, values: [options.width] },
-          { tag: 323, type: 4 as const, values: [options.height] },
+          { tag: 322, type: 4 as const, values: [options.tileWidth ?? options.width] },
+          { tag: 323, type: 4 as const, values: [options.tileHeight ?? options.height] },
           { tag: 324, type: 4 as const, values: offsets },
           {
             tag: 325,
@@ -103,7 +106,11 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
     const bytes = fixtureEntryBytes(entry)
     return total + (bytes > 4 ? bytes : 0)
   }, 0)
-  const pixelOffset = ifdOffset + ifdBytes + externalBytes
+  const minimumDataOffset = ifdOffset + ifdBytes + externalBytes
+  const pixelOffset = options.dataOffset ?? minimumDataOffset
+  if (pixelOffset < minimumDataOffset) {
+    throw new Error('TIFF fixture dataOffset overlaps the IFD')
+  }
   const offsets: number[] = []
   let cursor = pixelOffset
   for (const segment of options.segments) {
@@ -273,6 +280,8 @@ class SessionTrackingSource implements ImageSource {
   starts = 0
   ends = 0
   reads = 0
+  bytesRead = 0
+  readonly ranges: { readonly offset: number; readonly length: number }[] = []
   readonly #source: MemorySource
 
   constructor(bytes: Uint8Array) {
@@ -280,9 +289,15 @@ class SessionTrackingSource implements ImageSource {
     this.size = bytes.byteLength
   }
 
-  read(...parameters: Parameters<ImageSource['read']>): ReturnType<ImageSource['read']> {
+  read(
+    offset: number,
+    length: number,
+    options?: Parameters<ImageSource['read']>[2],
+  ): ReturnType<ImageSource['read']> {
     this.reads += 1
-    return this.#source.read(...parameters)
+    this.bytesRead += length
+    this.ranges.push(Object.freeze({ offset, length }))
+    return this.#source.read(offset, length, options)
   }
 
   [sourceSessionStart](): void {
@@ -315,6 +330,149 @@ describe('ordinary TIFF scientific reader', () => {
     const blocks = await collect(dataset)
     expect(blocks.reduce((samples, block) => samples + block.width * block.height, 0)).toBe(64 * 64)
     expect(source.reads).toBeLessThanOrEqual(2)
+  })
+
+  it('reads distant TIFF windows from exact tiles without repeating cached segments', async () => {
+    const tileWidth = 32
+    const tileHeight = 32
+    const width = 64
+    const height = 64
+    const tilesAcross = width / tileWidth
+    const tilesDown = height / tileHeight
+    const tileBytes = tileWidth * tileHeight
+    const dataOffset = 80_000
+    const segments = Array.from({ length: tilesAcross * tilesDown }, (_value, index) =>
+      Uint8Array.from({ length: tileBytes }, (_sample, sample) => (index + sample) & 0xff),
+    )
+    const input = tiffFixture({
+      width,
+      height,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments,
+      tiled: true,
+      tileWidth,
+      tileHeight,
+      dataOffset,
+    })
+    const source = new SessionTrackingSource(input)
+    const document = await new ScientificReaderRegistry([tiffReader]).open({
+      primary: { id: 'windows', name: 'windows.tiff', source },
+      readerId: tiffReaderDescriptor.id,
+      readerVersion: tiffReaderDescriptor.version,
+    })
+    const dataset = await document.openDataset('series-0')
+    source.reads = 0
+    source.bytesRead = 0
+    source.ranges.splice(0)
+
+    const readWindow = async (x: number, y: number, windowWidth: number, windowHeight: number) => {
+      let samples = 0
+      for await (const block of dataset.readPlane({
+        displayAxes: ['x', 'y'],
+        fixedIndices: [],
+        x,
+        y,
+        width: windowWidth,
+        height: windowHeight,
+      })) {
+        samples += block.width * block.height
+      }
+      return samples
+    }
+
+    expect(await readWindow(0, 0, 48, 16)).toBe(48 * 16)
+    const adjacentReads = source.ranges.filter(({ offset }) => offset >= dataOffset)
+    expect(adjacentReads).toHaveLength(1)
+    expect(adjacentReads[0]?.length).toBe(tileBytes * 2)
+    expect(source.bytesRead).toBeLessThan(tileBytes * 2 + 8_192)
+
+    source.reads = 0
+    source.bytesRead = 0
+    source.ranges.splice(0)
+    expect(await readWindow(0, 0, 16, 16)).toBe(16 * 16)
+    expect(source.ranges.filter(({ offset }) => offset >= dataOffset)).toHaveLength(0)
+
+    source.reads = 0
+    source.bytesRead = 0
+    source.ranges.splice(0)
+    expect(await readWindow(48, 48, 16, 16)).toBe(16 * 16)
+    const farTileReads = source.ranges.filter(({ offset }) => offset >= dataOffset)
+    expect(farTileReads).toHaveLength(1)
+    expect(farTileReads[0]?.length).toBe(tileBytes)
+  })
+
+  it('reads only the TileOffsets entries needed for a selected window', async () => {
+    const tileWidth = 8
+    const tileHeight = 8
+    const width = 256
+    const height = 256
+    const tilesAcross = width / tileWidth
+    const tilesDown = height / tileHeight
+    const tileBytes = tileWidth * tileHeight
+    const segments = Array.from({ length: tilesAcross * tilesDown }, (_value, index) =>
+      Uint8Array.from({ length: tileBytes }, (_sample, sample) => (index + sample) & 0xff),
+    )
+    const input = tiffFixture({
+      width,
+      height,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments,
+      tiled: true,
+      tileWidth,
+      tileHeight,
+    })
+    const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+    const ifdOffset = view.getUint32(4, true)
+    const entryCount = view.getUint16(ifdOffset, true)
+    let tileOffsetsOffset = 0
+    let tileOffsetBytes = 0
+    for (let index = 0; index < entryCount; index += 1) {
+      const entryOffset = ifdOffset + 2 + index * 12
+      if (view.getUint16(entryOffset, true) !== 324) continue
+      const count = view.getUint32(entryOffset + 4, true)
+      tileOffsetBytes = count * 4
+      tileOffsetsOffset = view.getUint32(entryOffset + 8, true)
+    }
+    expect(tileOffsetBytes).toBeGreaterThan(1_024)
+    const source = new SessionTrackingSource(input)
+    const document = await new ScientificReaderRegistry([tiffReader]).open({
+      primary: { id: 'sparse-table', name: 'sparse-table.tiff', source },
+      readerId: tiffReaderDescriptor.id,
+      readerVersion: tiffReaderDescriptor.version,
+    })
+    const dataset = await document.openDataset('series-0')
+    source.reads = 0
+    source.bytesRead = 0
+    source.ranges.splice(0)
+    let samples = 0
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [],
+      x: 0,
+      y: 0,
+      width: tileWidth,
+      height: tileHeight,
+    })) {
+      samples += block.width * block.height
+    }
+    expect(samples).toBe(tileWidth * tileHeight)
+    expect(
+      source.ranges.some(
+        ({ offset, length }) => offset === tileOffsetsOffset && length >= tileOffsetBytes,
+      ),
+    ).toBe(false)
+    expect(
+      source.ranges
+        .filter(
+          ({ offset }) =>
+            offset >= tileOffsetsOffset && offset < tileOffsetsOffset + tileOffsetBytes,
+        )
+        .every(({ length }) => length <= 16),
+    ).toBe(true)
   })
 
   it('applies standard TIFF physical resolution and position with embedded evidence', async () => {

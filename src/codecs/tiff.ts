@@ -1,13 +1,14 @@
 import type { AbortOptions } from '../abort.ts'
 import { throwIfAborted } from '../abort.ts'
 import type {
-  DecoderOptions,
   DecodeRequest,
+  DecoderOptions,
   ImageCodec,
   ImageDecoder,
   ImageMetadata,
   PreservedMetadata,
 } from '../codec.ts'
+import { decodeZstd } from '../compression/zstd/index.ts'
 import {
   ImageError,
   invalidInput,
@@ -25,39 +26,46 @@ import type {
   RasterFormat,
   RasterSampleType,
 } from '../raster.ts'
-import type { ImageSource } from '../source.ts'
-import { bindImageSourceSignal, MemorySource, readExactly } from '../source.ts'
+import type { ImageSource, ImageSourceReadOptions } from '../source.ts'
+import {
+  bindImageSourceSignal,
+  MemorySource,
+  readExactly,
+  sourceSessionEnd,
+  sourceSessionStart,
+} from '../source.ts'
+import { imageSourceIdentity, inheritImageSourceIdentity } from '../source-identity-contract.ts'
 import type {
+  TiffByteReadOptions,
   TiffDirectory,
   TiffDocument,
   TiffDocumentOptions,
-  TiffByteReadOptions,
   TiffTagInfo,
   TiffTagReadOptions,
   TiffTagValue,
 } from '../tiff/types.ts'
-import { decodeZstd } from '../compression/zstd/index.ts'
-import { decodeLerc2 } from './tiff-lerc.ts'
 import {
   type CmykIccTransform,
   ColorManagedDecoder,
-  tiffCieLabToSrgb,
   MAX_ICC_PROFILE_BYTES,
   parseCmykIccTransform,
   parseRgbIccTransform,
   type RgbIccTransform,
+  tiffCieLabToSrgb,
   writeCmykIcc,
 } from './icc.ts'
 import { jpegCodec } from './jpeg.ts'
 import { createJpeg2000CodestreamDecoder } from './jpeg2000.ts'
-import { decodeLogLuvSegment, type LogLuvEncoding } from './tiff-logluv.ts'
 import { TiffEncoder } from './tiff-encode.ts'
-export { encodeTiffDocument } from './tiff-encode.ts'
+import { decodeLerc2 } from './tiff-lerc.ts'
+import { decodeLogLuvSegment, type LogLuvEncoding } from './tiff-logluv.ts'
+
 export type {
   TiffDocumentEncodeRequest,
   TiffEncodeOptions,
   TiffPageEncodeRequest,
 } from './tiff-encode.ts'
+export { encodeTiffDocument } from './tiff-encode.ts'
 
 interface TiffLimits extends ImageLimits {
   readonly maxSegmentCount: number
@@ -442,8 +450,7 @@ interface TiffDescription {
   readonly segmentsAcross: number
   readonly segmentsDown: number
   readonly segmentsPerPlane: number
-  readonly segmentOffsets: Float64Array
-  readonly segmentByteCounts: Float64Array
+  readonly segments: TiffSegmentTable
   readonly planarConfiguration: number
   readonly predictor: number
   readonly palette: Uint8Array | undefined
@@ -661,6 +668,188 @@ const segmentTableByteLength = (entry: IfdEntry, tag: number, expectedCount: num
   }
   if (entry.fieldType === 5) throw invalidInput(`TIFF tag ${tag} must contain integer values`)
   return BigInt(entry.count) * BigInt(fieldBytes(entry.fieldType))
+}
+
+const integerFieldValue = (
+  bytes: Uint8Array,
+  valueOffset: number,
+  fieldType: number,
+  littleEndian: boolean,
+  tag: number,
+): number => {
+  if (fieldType === 1) return bytes[valueOffset] ?? 0
+  if (fieldType === 3) return uint16(bytes, valueOffset, littleEndian)
+  if (fieldType === 4 || fieldType === 13) return uint32(bytes, valueOffset, littleEndian)
+  return uint64(bytes, valueOffset, littleEndian, `tag ${tag} value`)
+}
+
+class TiffSegmentTable {
+  readonly length: number
+  readonly #littleEndian: boolean
+  readonly #offsetTag: number
+  readonly #countTag: number
+  readonly #offsetEntry: IfdEntry
+  readonly #countEntry: IfdEntry
+  readonly #limits: TiffLimits
+  readonly #offsets = new Map<number, number>()
+  readonly #counts = new Map<number, number>()
+
+  constructor(
+    length: number,
+    littleEndian: boolean,
+    offsetTag: number,
+    countTag: number,
+    offsetEntry: IfdEntry,
+    countEntry: IfdEntry,
+    limits: TiffLimits,
+  ) {
+    this.length = length
+    this.#littleEndian = littleEndian
+    this.#offsetTag = offsetTag
+    this.#countTag = countTag
+    this.#offsetEntry = offsetEntry
+    this.#countEntry = countEntry
+    this.#limits = limits
+  }
+
+  offset(index: number): number {
+    const value = this.#offsets.get(index)
+    if (value === undefined) throw invalidInput('TIFF segment offset is missing')
+    return value
+  }
+
+  byteCount(index: number): number {
+    const value = this.#counts.get(index)
+    if (value === undefined) throw invalidInput('TIFF segment byte count is missing')
+    return value
+  }
+
+  async ensure(
+    source: ImageSource,
+    indices: readonly number[],
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<void> {
+    const needed: number[] = []
+    for (const index of indices) {
+      if (!Number.isSafeInteger(index) || index < 0 || index >= this.length) {
+        throw invalidInput('TIFF segment index is invalid')
+      }
+      if (!this.#offsets.has(index) || !this.#counts.has(index)) needed.push(index)
+    }
+    if (needed.length === 0) return
+    needed.sort((left, right) => left - right)
+    const unique: number[] = []
+    for (const index of needed) {
+      if (unique[unique.length - 1] !== index) unique.push(index)
+    }
+    const offsetBytes = fieldBytes(this.#offsetEntry.fieldType)
+    const countBytes = fieldBytes(this.#countEntry.fieldType)
+    const maxGapEntries = Math.max(1, Math.floor(256 / offsetBytes))
+    let start = 0
+    while (start < unique.length) {
+      let end = start
+      while (end + 1 < unique.length) {
+        const next = unique[end + 1]
+        const current = unique[end]
+        if (next === undefined || current === undefined) break
+        if (next - current > maxGapEntries) break
+        end += 1
+      }
+      const first = unique[start]
+      const last = unique[end]
+      if (first === undefined || last === undefined) break
+      const count = last - first + 1
+      const offsets = await this.#readRange(
+        source,
+        this.#offsetEntry,
+        this.#offsetTag,
+        first,
+        count,
+        offsetBytes,
+        options,
+      )
+      const counts = await this.#readRange(
+        source,
+        this.#countEntry,
+        this.#countTag,
+        first,
+        count,
+        countBytes,
+        options,
+      )
+      for (let index = first; index <= last; index += 1) {
+        const offset = offsets[index - first]
+        const encodedBytes = counts[index - first]
+        if (offset === undefined || encodedBytes === undefined) {
+          throw invalidInput('TIFF segment table range is truncated')
+        }
+        if (encodedBytes > this.#limits.maxEncodedSegmentBytes) {
+          throw limitExceeded(
+            `TIFF segment ${index} has ${encodedBytes} encoded bytes; maxEncodedSegmentBytes is ${this.#limits.maxEncodedSegmentBytes}`,
+          )
+        }
+        checkedEnd(offset, encodedBytes, source.size, `segment ${index}`)
+        this.#offsets.set(index, offset)
+        this.#counts.set(index, encodedBytes)
+      }
+      start = end + 1
+    }
+  }
+
+  async #readRange(
+    source: ImageSource,
+    entry: IfdEntry,
+    tag: number,
+    start: number,
+    count: number,
+    bytesPerValue: number,
+    options: Readonly<ImageSourceReadOptions>,
+  ): Promise<Float64Array> {
+    const values = new Float64Array(count)
+    const totalBytes = entry.count * bytesPerValue
+    const rangeBytes = count * bytesPerValue
+    let bytes: Uint8Array
+    if (totalBytes <= entry.inline.byteLength) {
+      bytes = entry.inline.subarray(start * bytesPerValue, start * bytesPerValue + rangeBytes)
+    } else {
+      const valueOffset =
+        externalValueOffset(entry, this.#littleEndian, tag) + start * bytesPerValue
+      bytes = await readTableBytes(
+        source,
+        valueOffset,
+        checkedEnd(valueOffset, rangeBytes, source.size, `tag ${tag}`) - valueOffset,
+        options,
+      )
+    }
+    if (bytes.byteLength < rangeBytes) throw invalidInput(`TIFF tag ${tag} range is truncated`)
+    for (let index = 0; index < count; index += 1) {
+      values[index] = integerFieldValue(
+        bytes,
+        index * bytesPerValue,
+        entry.fieldType,
+        this.#littleEndian,
+        tag,
+      )
+    }
+    return values
+  }
+}
+
+const readTableBytes = async (
+  source: ImageSource,
+  offset: number,
+  length: number,
+  options: Readonly<ImageSourceReadOptions>,
+): Promise<Uint8Array> => {
+  const exact = source as ImageSource & {
+    readonly readExact?: (
+      offset: number,
+      length: number,
+      options?: Readonly<ImageSourceReadOptions>,
+    ) => Promise<Uint8Array>
+  }
+  if (typeof exact.readExact === 'function') return exact.readExact(offset, length, options)
+  return readExactly(source, offset, length, options)
 }
 
 const validateSegmentTables = (
@@ -1667,32 +1856,20 @@ const describeTiffIfd = async (
   const segmentsPerPlane = Number(segmentsPerPlaneBig)
   const expectedSegments = Number(expectedSegmentsBig)
   validateSegmentTables(ifd, offsetTag, byteCountTag, expectedSegments, limits)
-  const segmentOffsets = await requiredValues(
-    source,
-    ifd,
+  const offsetEntry = ifd.entries.get(offsetTag)
+  const byteCountEntry = ifd.entries.get(byteCountTag)
+  if (offsetEntry === undefined || byteCountEntry === undefined) {
+    throw invalidInput('TIFF segment offset or byte-count table is missing')
+  }
+  const segments = new TiffSegmentTable(
+    expectedSegments,
     littleEndian,
     offsetTag,
-    expectedSegments,
-  )
-  const segmentByteCounts = await requiredValues(
-    source,
-    ifd,
-    littleEndian,
     byteCountTag,
-    expectedSegments,
+    offsetEntry,
+    byteCountEntry,
+    limits,
   )
-  if (segmentOffsets.length !== expectedSegments || segmentByteCounts.length !== expectedSegments) {
-    throw invalidInput(`TIFF expected ${expectedSegments} segment offsets and byte counts`)
-  }
-  for (let index = 0; index < expectedSegments; index += 1) {
-    const encodedBytes = segmentByteCounts[index] ?? -1
-    if (encodedBytes > limits.maxEncodedSegmentBytes) {
-      throw limitExceeded(
-        `TIFF segment ${index} has ${encodedBytes} encoded bytes; maxEncodedSegmentBytes is ${limits.maxEncodedSegmentBytes}`,
-      )
-    }
-    checkedEnd(segmentOffsets[index] ?? -1, encodedBytes, source.size, `segment ${index}`)
-  }
 
   let cmykDotRange: Uint32Array | undefined
   if (mode === 'pixels' && photometric === photometricSeparated) {
@@ -1938,8 +2115,7 @@ const describeTiffIfd = async (
     segmentsAcross,
     segmentsDown,
     segmentsPerPlane,
-    segmentOffsets,
-    segmentByteCounts,
+    segments,
     planarConfiguration,
     predictor,
     palette,
@@ -2842,15 +3018,233 @@ const reverseFillOrder = (data: Uint8Array): void => {
   }
 }
 
+const tiffEncodedCoalesceGapBytes = 256
+const tiffEncodedCoalesceMaxBytes = 65_536
+const tiffEncodedCacheSlots = 16
+const tiffEncodedCacheMaxBytes = 1_048_576
+const tiffExactRegionBytes = 1024
+const tiffStructuralPrefetchBytes = 4_096
+
+interface TiffEncodedSpan {
+  readonly offset: number
+  readonly length: number
+}
+
+interface SessionManagedSource extends ImageSource {
+  [sourceSessionStart](): void
+  [sourceSessionEnd](): Promise<void>
+}
+
+const isSessionManagedSource = (source: ImageSource): source is SessionManagedSource =>
+  sourceSessionStart in source &&
+  typeof source[sourceSessionStart] === 'function' &&
+  sourceSessionEnd in source &&
+  typeof source[sourceSessionEnd] === 'function'
+
+class TiffEncodedCacheSource implements ImageSource {
+  readonly size: number
+  readonly #source: ImageSource
+  readonly #entries: { offset: number; data: Uint8Array; lastUsed: number }[] = []
+  #access = 0
+  #residentBytes = 0
+
+  constructor(source: ImageSource) {
+    this.#source = source
+    this.size = source.size
+  }
+
+  [imageSourceIdentity](): ReturnType<typeof inheritImageSourceIdentity> {
+    return inheritImageSourceIdentity(this.#source)
+  }
+
+  [sourceSessionStart](): void {
+    if (isSessionManagedSource(this.#source)) this.#source[sourceSessionStart]()
+  }
+
+  async [sourceSessionEnd](): Promise<void> {
+    if (isSessionManagedSource(this.#source)) await this.#source[sourceSessionEnd]()
+  }
+
+  #cached(offset: number, length: number): Uint8Array | undefined {
+    for (const entry of this.#entries) {
+      if (offset >= entry.offset && offset + length <= entry.offset + entry.data.byteLength) {
+        entry.lastUsed = ++this.#access
+        return entry.data.subarray(offset - entry.offset, offset - entry.offset + length)
+      }
+    }
+    return undefined
+  }
+
+  #store(offset: number, data: Uint8Array): void {
+    if (data.byteLength > tiffEncodedCacheMaxBytes) return
+    const existing = this.#entries.findIndex((entry) => entry.offset === offset)
+    if (existing >= 0) {
+      const previous = this.#entries[existing]
+      if (previous !== undefined) this.#residentBytes -= previous.data.byteLength
+      this.#entries[existing] = { offset, data, lastUsed: ++this.#access }
+      this.#residentBytes += data.byteLength
+      return
+    }
+    while (
+      this.#entries.length >= tiffEncodedCacheSlots ||
+      this.#residentBytes + data.byteLength > tiffEncodedCacheMaxBytes
+    ) {
+      if (this.#entries.length === 0) return
+      let oldest = 0
+      for (let index = 1; index < this.#entries.length; index += 1) {
+        if ((this.#entries[index]?.lastUsed ?? 0) < (this.#entries[oldest]?.lastUsed ?? 0)) {
+          oldest = index
+        }
+      }
+      const removed = this.#entries.splice(oldest, 1)[0]
+      if (removed !== undefined) this.#residentBytes -= removed.data.byteLength
+    }
+    this.#entries.push({ offset, data, lastUsed: ++this.#access })
+    this.#residentBytes += data.byteLength
+  }
+
+  async prefetch(
+    spans: readonly TiffEncodedSpan[],
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<void> {
+    const pending: TiffEncodedSpan[] = []
+    for (const span of spans) {
+      if (span.length < 1) continue
+      if (this.#cached(span.offset, span.length) === undefined) pending.push(span)
+    }
+    pending.sort((left, right) => left.offset - right.offset)
+    let index = 0
+    while (index < pending.length) {
+      const first = pending[index]
+      if (first === undefined) break
+      const spanStart = first.offset
+      let spanEnd = first.offset + first.length
+      let last = index
+      while (last + 1 < pending.length) {
+        const next = pending[last + 1]
+        if (next === undefined) break
+        const nextEnd = next.offset + next.length
+        if (next.offset < spanEnd) {
+          throw invalidInput('TIFF encoded segments overlap')
+        }
+        if (next.offset - spanEnd > tiffEncodedCoalesceGapBytes) break
+        if (nextEnd - spanStart > tiffEncodedCoalesceMaxBytes) break
+        spanEnd = nextEnd
+        last += 1
+      }
+      const span = Uint8Array.from(
+        await readExactly(this.#source, spanStart, spanEnd - spanStart, options),
+      )
+      for (let spanIndex = index; spanIndex <= last; spanIndex += 1) {
+        const item = pending[spanIndex]
+        if (item === undefined) continue
+        this.#store(
+          item.offset,
+          span.slice(item.offset - spanStart, item.offset - spanStart + item.length),
+        )
+      }
+      index = last + 1
+    }
+  }
+
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const cached = this.#cached(offset, length)
+    if (cached !== undefined) return cached
+    if (length >= tiffExactRegionBytes) {
+      const data = Uint8Array.from(await this.#source.read(offset, length, options))
+      this.#store(offset, data)
+      return data
+    }
+    const amount = Math.min(tiffStructuralPrefetchBytes, this.size - offset)
+    if (amount >= length && this.#cached(offset, amount) === undefined) {
+      this.#store(offset, Uint8Array.from(await this.#source.read(offset, amount, options)))
+    }
+    return this.#cached(offset, length) ?? this.#source.read(offset, length, options)
+  }
+
+  async readExact(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const cached = this.#cached(offset, length)
+    if (cached !== undefined) return cached
+    const data = Uint8Array.from(await this.#source.read(offset, length, options))
+    this.#store(offset, data)
+    return data
+  }
+}
+
+export { TiffEncodedCacheSource }
+
+const encodedSegmentSpan = (
+  description: TiffDescription,
+  physicalSegment: number,
+): TiffEncodedSpan | undefined => {
+  const offset = description.segments.offset(physicalSegment)
+  const length = description.segments.byteCount(physicalSegment)
+  if (length < 1) return undefined
+  return { offset, length }
+}
+
+const physicalSegmentsForRow = (
+  description: TiffDescription,
+  segmentRow: number,
+  firstColumn: number,
+  lastColumn: number,
+): number[] => {
+  const indices: number[] = []
+  const planes = description.planarConfiguration === 2 ? description.samplesPerPixel : 1
+  for (let plane = 0; plane < planes; plane += 1) {
+    for (let column = firstColumn; column <= lastColumn; column += 1) {
+      indices.push(
+        plane * description.segmentsPerPlane + segmentRow * description.segmentsAcross + column,
+      )
+    }
+  }
+  return indices
+}
+
+const prefetchEncodedRow = async (
+  source: TiffEncodedCacheSource,
+  description: TiffDescription,
+  segmentRow: number,
+  firstColumn: number,
+  lastColumn: number,
+  options: Readonly<ImageSourceReadOptions>,
+): Promise<void> => {
+  const spans: TiffEncodedSpan[] = []
+  for (let column = firstColumn; column <= lastColumn; column += 1) {
+    const logicalSegment = segmentRow * description.segmentsAcross + column
+    if (description.planarConfiguration === 2) {
+      for (let sample = 0; sample < description.samplesPerPixel; sample += 1) {
+        const span = encodedSegmentSpan(
+          description,
+          sample * description.segmentsPerPlane + logicalSegment,
+        )
+        if (span !== undefined) spans.push(span)
+      }
+    } else {
+      const span = encodedSegmentSpan(description, logicalSegment)
+      if (span !== undefined) spans.push(span)
+    }
+  }
+  await source.prefetch(spans, options)
+}
+
 const readEncodedSegment = async (
   source: ImageSource,
   description: TiffDescription,
   limits: TiffLimits,
   physicalSegment: number,
 ): Promise<Uint8Array> => {
-  const offset = description.segmentOffsets[physicalSegment]
-  const byteCount = description.segmentByteCounts[physicalSegment]
-  if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
+  const offset = description.segments.offset(physicalSegment)
+  const byteCount = description.segments.byteCount(physicalSegment)
+  if (byteCount < 1) throw invalidInput('TIFF segment is missing')
   if (byteCount > limits.maxEncodedSegmentBytes) {
     throw limitExceeded(
       `TIFF segment ${physicalSegment} has ${byteCount} encoded bytes; maxEncodedSegmentBytes is ${limits.maxEncodedSegmentBytes}`,
@@ -3217,7 +3611,7 @@ const decodeJpegSegment = async (
     !hasJpegBoundary(encoded, 0xff, 0xd8)
   ) {
     const interchangeEntropy =
-      description.segmentOffsets.length === 1 && description.jpegInterchange
+      description.segments.length === 1 && description.jpegInterchange
         ? jpegEntropyData(description.jpegInterchange)
         : undefined
     encoded = oldJpegStream(description, oldJpegStripEntropy(interchangeEntropy ?? encoded), rows)
@@ -3415,8 +3809,7 @@ const largestEncodedSegmentBytes = (
     const planeOffset = plane * description.segmentsPerPlane
     for (let column = 0; column < segmentColumns; column += 1) {
       const logicalSegment = segmentRow * description.segmentsAcross + firstSegmentColumn + column
-      const byteCount = description.segmentByteCounts[planeOffset + logicalSegment]
-      if (byteCount === undefined) throw invalidInput('TIFF segment byte count is missing')
+      const byteCount = description.segments.byteCount(planeOffset + logicalSegment)
       if (byteCount > largest) largest = byteCount
     }
   }
@@ -3797,13 +4190,14 @@ class TiffRasterDecoder implements RasterDecoder {
   readonly width: number
   readonly height: number
   readonly format: RasterFormat
-  readonly #source: ImageSource
+  readonly #source: TiffEncodedCacheSource
   readonly #description: TiffDescription
   readonly #limits: TiffLimits
   readonly #bytesPerSample: 1 | 2 | 4 | 8
 
   constructor(source: ImageSource, description: TiffDescription, limits: TiffLimits) {
-    this.#source = source
+    this.#source =
+      source instanceof TiffEncodedCacheSource ? source : new TiffEncodedCacheSource(source)
     this.#description = description
     this.#limits = limits
     this.width = description.width
@@ -3850,6 +4244,17 @@ class TiffRasterDecoder implements RasterDecoder {
         BigInt(rowBytes) *
         BigInt(largestRows) *
         BigInt(this.format.planar ? this.format.channels : 1)
+      const readOptions = request.signal === undefined ? {} : { signal: request.signal }
+      await this.#description.segments.ensure(
+        this.#source,
+        physicalSegmentsForRow(
+          this.#description,
+          segmentRow,
+          firstSegmentColumn,
+          lastSegmentColumn,
+        ),
+        readOptions,
+      )
       validateDecodedWorkingPeak(
         this.#description,
         this.#limits,
@@ -3859,6 +4264,14 @@ class TiffRasterDecoder implements RasterDecoder {
         segmentRows,
         largestOutputBytes,
         'TIFF raster decode',
+      )
+      await prefetchEncodedRow(
+        this.#source,
+        this.#description,
+        segmentRow,
+        firstSegmentColumn,
+        lastSegmentColumn,
+        readOptions,
       )
       const decodedSegments: (readonly Uint8Array[])[] = []
       for (
@@ -3950,7 +4363,7 @@ class TiffDecoder implements ImageDecoder {
   readonly height: number
   readonly pixelFormat: PixelFormat
   readonly capabilities
-  readonly #source: ImageSource
+  readonly #source: TiffEncodedCacheSource
   readonly #description: TiffDescription
   readonly #limits: TiffLimits
   readonly #webpCodec: ImageCodec | undefined
@@ -3964,7 +4377,8 @@ class TiffDecoder implements ImageDecoder {
     if (description.pixelFormat === undefined) {
       throw invalidInput('TIFF display decoder requires a display pixel format')
     }
-    this.#source = source
+    this.#source =
+      source instanceof TiffEncodedCacheSource ? source : new TiffEncodedCacheSource(source)
     this.#description = description
     this.#limits = limits
     this.#webpCodec = webpCodec
@@ -4077,6 +4491,17 @@ class TiffDecoder implements ImageDecoder {
         this.height,
       )
       const largestRows = Math.min(blockRows, intersectionEnd - intersectionStart)
+      const readOptions = request.signal === undefined ? {} : { signal: request.signal }
+      await this.#description.segments.ensure(
+        this.#source,
+        physicalSegmentsForRow(
+          this.#description,
+          segmentRow,
+          firstSegmentColumn,
+          lastSegmentColumn,
+        ),
+        readOptions,
+      )
       validateDecodedWorkingPeak(
         this.#description,
         this.#limits,
@@ -4086,6 +4511,14 @@ class TiffDecoder implements ImageDecoder {
         segmentRows,
         BigInt(region.width) * BigInt(largestRows) * BigInt(outputBytesPerPixel),
         'TIFF display decode',
+      )
+      await prefetchEncodedRow(
+        this.#source,
+        this.#description,
+        segmentRow,
+        firstSegmentColumn,
+        lastSegmentColumn,
+        readOptions,
       )
       const decodedSegments: Uint8Array[][] = []
       for (
@@ -4685,6 +5118,8 @@ class PublicTiffDirectory implements TiffDirectory {
   readonly #ifd: TiffIfd
   readonly #embeddedCodecs: readonly ImageCodec[]
   readonly #tagCache = new Map<number, Promise<TiffTagValue | undefined>>()
+  #rasterDescription: Promise<TiffDescription> | undefined
+  #pixelDescription: Promise<TiffDescription> | undefined
 
   private constructor(options: {
     readonly index: number
@@ -4836,18 +5271,35 @@ class PublicTiffDirectory implements TiffDirectory {
     return publicTagResult(await pending)
   }
 
+  #describe(mode: 'pixels' | 'raster', signal: AbortSignal | undefined): Promise<TiffDescription> {
+    const selected = { ifd: this.#ifd, frames: 1, resolutionLevels: this.#subIfds.length + 1 }
+    const source = bindImageSourceSignal(this.#source, signal)
+    return describeTiffIfd(source, this.#limits, this.#graph, selected, {}, mode, true)
+  }
+
+  async #cachedDescription(
+    mode: 'pixels' | 'raster',
+    signal: AbortSignal | undefined,
+  ): Promise<TiffDescription> {
+    const existing = mode === 'raster' ? this.#rasterDescription : this.#pixelDescription
+    if (existing !== undefined) return existing
+    const pending = this.#describe(mode, signal)
+    if (mode === 'raster') this.#rasterDescription = pending
+    else this.#pixelDescription = pending
+    pending.catch(() => {
+      if (mode === 'raster' && this.#rasterDescription === pending) {
+        this.#rasterDescription = undefined
+      }
+      if (mode === 'pixels' && this.#pixelDescription === pending) {
+        this.#pixelDescription = undefined
+      }
+    })
+    return pending
+  }
+
   async createImageDecoder(options: Readonly<AbortOptions> = {}): Promise<ImageDecoder> {
     const source = bindImageSourceSignal(this.#source, options.signal)
-    const selected = { ifd: this.#ifd, frames: 1, resolutionLevels: this.#subIfds.length + 1 }
-    const description = await describeTiffIfd(
-      source,
-      this.#limits,
-      this.#graph,
-      selected,
-      {},
-      'pixels',
-      true,
-    )
+    const description = await this.#cachedDescription('pixels', options.signal)
     const webpCodec = this.#embeddedCodecs.find((codec) => codec.format === 'webp')
     const applyColorTransform = description.colorTransform !== undefined
     const decoderDescription: TiffDescription =
@@ -4862,10 +5314,9 @@ class PublicTiffDirectory implements TiffDirectory {
 
   async createRasterDecoder(options: Readonly<AbortOptions> = {}): Promise<RasterDecoder> {
     const source = bindImageSourceSignal(this.#source, options.signal)
-    const selected = { ifd: this.#ifd, frames: 1, resolutionLevels: this.#subIfds.length + 1 }
     return new TiffRasterDecoder(
       source,
-      await describeTiffIfd(source, this.#limits, this.#graph, selected, {}, 'raster', true),
+      await this.#cachedDescription('raster', options.signal),
       this.#limits,
     )
   }
