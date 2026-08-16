@@ -1,0 +1,24 @@
+browser-tests/site-header.pw.ts
+  h_9f4a25732fa0c1 1-205
+docs-astro/src/components/SiteHeader.astro
+  h_9f4a25732fa0c1 10-28,42-54,56,62-92,117
+docs-astro/src/pages/scientific-formats.astro
+  h_9f4a25732fa0c1 33
+docs-astro/src/scripts/site.ts
+  h_9f4a25732fa0c1 1-20,24-26,29-33,37-47,49-64
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 151-152,157,209,211-212,214,217-218,225,228-231,236-296,299,304-305,1564-1571,1575-1595,1598-1600,1603-1657,1776-1779
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 225-226
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "b471e1d606cf9820fe5d409cccd33be5fae83fe8",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
