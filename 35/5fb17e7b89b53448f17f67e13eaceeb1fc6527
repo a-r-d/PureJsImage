@@ -1,0 +1,120 @@
+benchmark/competitors-js/node-itk.ts
+  s_892adc3decdca0::t_5eaec9927eb008 2,27-29
+  s_892adc3decdca0::t_cee9292c3ae907 3-4,21-26,30-39,85,94,96-98
+  s_892adc3decdca0::t_5662f371b6cb4f 16-19,40-79,88-89,93
+  s_892adc3decdca0::t_2c2edacf09ec62 1,5-15,20,80-84,86-87,90-92,95,99-105
+types/benchmark-competitors.d.ts
+  s_892adc3decdca0::t_89b88c3c76d88c 1-24,26-30
+  s_892adc3decdca0::t_cd7fe5d86793ba 25
+benchmark/competitors-js/node-nifti.ts
+  s_892adc3decdca0::t_cd7fe5d86793ba 47-48
+  s_892adc3decdca0::t_fb793f4917d14f 1-46,49-116
+benchmark/generated/package-metrics.json
+  s_892adc3decdca0::t_46a88f1c6f410b 502,525,548,571,594,617,640,663,686,709,732,755,778,801,824,847,870,893,916,939,962,985,1008,1031,1054,1077,1100,1123,1146,1169,1192,1215,1238,1261,1284,1307,1330,1353,1376,1399,1422,1445,1468,1491,1514,1537,1560,1583,1606,1629,1652,1675,1698,1721,1744,1767,1806,1829,1867
+benchmark/competitors-js/package.json
+  s_892adc3decdca0::t_12325cd1d6a864 1-13
+benchmark/scientific-readers/run-competitors.ts
+  s_892adc3decdca0::t_540764c93914b1 233,236,262-264,271-272
+  s_892adc3decdca0::t_7a86aa79e8434a 1-8,10-22,29-61,66-68,71,76-88,94-105,109-116,126,132,143-148,155-175,180-232,234-235,237-246,252,254-261,265-270,273-298,301-371,374-388,393,395-426,434-446,454-491,496-499,503-505
+  s_892adc3decdca0::t_eeb0ad82548a9b 91-93,106,124-125,127-129,133-134,141-142
+  s_892adc3decdca0::t_3f9ea709e491d4 9
+  s_892adc3decdca0::t_5662f371b6cb4f 23-28,62-65,69-70,72-75,89-90,107-108,117-123,130-131,135-140,149-154,176-179,247-251,299-300,372-373,389-392,394,427-433,447-453,492-495,500-502
+  s_892adc3decdca0::t_1064a44647ffa9 253
+tests/project-contract.test.ts
+  s_892adc3decdca0::t_fb2f1ccf6e468e 571
+benchmark/competitors-js/node-h5wasm.ts
+  s_892adc3decdca0::t_6ef2e8d28d2155 1-13,15-17,19-26,28-35,37-128
+  s_892adc3decdca0::t_9b5865a45f7875 14
+  s_892adc3decdca0::t_cd7fe5d86793ba 18,27,36
+benchmark/scientific-readers/competitors.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 12-236,247,259-264,288-295,307-308,320-321,333-334,346-347,359-360,372-373,391-392,415-416
+  s_892adc3decdca0::t_3a83b017304027 287,402
+  s_892adc3decdca0::t_931fdb17a4fcb8 1-11,237-246,248-258,265-286,296-306,309-319,322-332,335-345,348-358,361-371,374-390,393-401,403-414,417-426
+benchmark/competitors-js/footprint.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 25-30,130-132,135-138,145-147
+  s_892adc3decdca0::t_9daf85239a84c6 1-24,31-129,133-134,139-144,148-164
+benchmark/competitors-js/node-npy.ts
+  s_892adc3decdca0::t_06cfd58e28d242 1-87
+package.json
+  s_892adc3decdca0::t_50848cd407cbf6 528-530
+scripts/serve-browser-tests.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 212
+  s_892adc3decdca0::t_f7d266dff1769f 714
+  s_892adc3decdca0::t_03abf0ab6f7d33 9,31,209-211,219,229-241,248
+  s_892adc3decdca0::t_c00699fda3b196 242-247
+  s_892adc3decdca0::t_cddabd7ed0b78d 213-218,220-228
+browser-tests/types.ts
+  s_892adc3decdca0::t_1b9d8f0b8069ff 115-146,151
+benchmark/competitors-js/node-geotiff.ts
+  s_892adc3decdca0::t_aad7ab2b292dac 1-28,34,38-61,65,67-81,86-94,102-114,116-153,155-158,161-184
+  s_892adc3decdca0::t_5662f371b6cb4f 33,82-85,159-160
+  s_892adc3decdca0::t_cd7fe5d86793ba 29-32,35-37,62-64,66,115,154
+  s_892adc3decdca0::t_cee9292c3ae907 95-101
+benchmark/README.md
+  s_892adc3decdca0::t_ad0d7c408909dc 219-267
+benchmark/scientific-readers/prepare-competitors.ts
+  s_892adc3decdca0::t_daf358e190b91a 1-38,43-53
+  s_892adc3decdca0::t_5662f371b6cb4f 39-42,54-56
+benchmark/competitors-js/node-image-js.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 33-37
+  s_892adc3decdca0::t_d08d7d62a3946b 1-32,38-45
+benchmark/competitors-js/worker.ts
+  s_892adc3decdca0::t_05bccba734a086 1-33,36,47-115,121-139,142-143,146-187,192-193,195-204,208-214,219-220,222-225
+  s_892adc3decdca0::t_540764c93914b1 37-38,42-46,194,221
+  s_892adc3decdca0::t_5662f371b6cb4f 34-35,116-120,140-141,144-145,188-191,205-207,215-218
+  s_892adc3decdca0::t_1064a44647ffa9 39-41
+browser-tests/scientific-competitors.pw.ts
+  s_892adc3decdca0::t_d2c2ed8db268dd 60-62,66-67
+  s_892adc3decdca0::t_5662f371b6cb4f 32-42,47-58,63-65,70-73
+  s_892adc3decdca0::t_b4717e57b00bbd 1-31,43-46,59,68-69,74-75
+benchmark/competitors-js/node-tiff.ts
+  s_892adc3decdca0::t_d08d7d62a3946b 1-19,22-34,40-47
+  s_892adc3decdca0::t_5662f371b6cb4f 20-21,35-39
+benchmark/competitors-js/node-common.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 22-24,82-84,142-145,165-166,195-197,201-203
+  s_892adc3decdca0::t_cd7fe5d86793ba 36,44-46,192-194,198-200,204-205,210
+  s_892adc3decdca0::t_5012d4a892aa71 239-250
+  s_892adc3decdca0::t_9adf13ba256769 77-81
+  s_892adc3decdca0::t_570179a96590af 151-155
+  s_892adc3decdca0::t_30f7661ffa035f 1-21,25-35,37-43,47-76,85-141,146-150,156-164,167-191,206-209,211-238,251-270
+benchmark/competitors-js/browser-harness.ts
+  s_892adc3decdca0::t_cddabd7ed0b78d 275-280
+  s_892adc3decdca0::t_5025564e03c9e2 2-8,10-164,167-174,189-226,234-237,243-274,281-323,462,473-482
+  s_892adc3decdca0::t_5662f371b6cb4f 9,165-166,175-188,227-233,238-242,324-461,463-472
+  s_892adc3decdca0::t_776a54d7bcaa26 1
+benchmark/competitors-js/node-jsfive.ts
+  s_892adc3decdca0::t_42eb5ff0f0f053 1-104
+benchmark/scientific-readers/generated-fixtures.ts
+  s_892adc3decdca0::t_f2f0d85f61fc84 66
+benchmark/scientific-readers/competitor-types.ts
+  s_892adc3decdca0::t_d759f9c8b51afc 1-161
+benchmark/scientific-readers/catalog.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 158,161-162
+  s_892adc3decdca0::t_0c70c7a1cd0fb9 156-157,159-160,163,237-243
+docs-astro/src/data/package-metrics.json
+  s_892adc3decdca0::t_46a88f1c6f410b 502,525,548,571,594,617,640,663,686,709,732,755,778,801,824,847,870,893,916,939,962,985,1008,1031,1054,1077,1100,1123,1146,1169,1192,1215,1238,1261,1284,1307,1330,1353,1376,1399,1422,1445,1468,1491,1514,1537,1560,1583,1606,1629,1652,1675,1698,1721,1744,1767,1806,1829,1867
+benchmark/competitors-js/node-utif2.ts
+  s_892adc3decdca0::t_5662f371b6cb4f 42-46
+  s_892adc3decdca0::t_d08d7d62a3946b 1-41,47-54
+tests/scientific-competitor-benchmark.test.ts
+  s_892adc3decdca0::t_fe176edbbea7da 1-4,9-44,48-49
+  s_892adc3decdca0::t_5662f371b6cb4f 5-8,45-47
+benchmark/competitors-js/package-lock.json
+  s_892adc3decdca0::t_f876d437650997 1-2162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "355fb17e7b89b53448f17f67e13eaceeb1fc6527",
+  "prompts": {},
+  "sessions": {
+    "s_892adc3decdca0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a007df-8300-7fd2-ba47-72163c904a45",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
