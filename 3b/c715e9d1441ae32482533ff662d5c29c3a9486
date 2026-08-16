@@ -1,0 +1,26 @@
+browser-tests/benchmark-presentation.pw.ts
+  h_9f4a25732fa0c1 1-184
+browser-tests/demo.pw.ts
+  h_9f4a25732fa0c1 52-55
+docs-astro/src/components/BenchmarkGallery.astro
+  h_9f4a25732fa0c1 1-92
+docs-astro/src/pages/index.astro
+  h_9f4a25732fa0c1 2,8-48,77-79,163,171-178
+docs-astro/src/pages/performance.astro
+  h_9f4a25732fa0c1 2,12-13,15-24,27-35,38-104,116-117,121,123,132,151-152,162,186-198,216,222,260-264,418
+docs-astro/src/scripts/site.ts
+  h_9f4a25732fa0c1 72-93
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 125,129-135,1327-1329,1335,1672-1683,2162-2166,2174-2177,2223-2227,2231,2258-2290,2292-2294,2302-2303,2306-2310,2320-2321,2323,2326,2329,2332-2333,2335,2341,2345,2348-2359,2364,2370,2374,2379,2382-2393,2397,2399,2402,2405-2406,2408,2410,2413-2421,2432-2439,2443-2444,2448,2451-2452,2456-2464,2466-2467,2469-2473,2476,2478-2479,3548-3549,3650-3651,3655-3656,3661-3662
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3bc715e9d1441ae32482533ff662d5c29c3a9486",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
