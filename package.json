@@ -523,6 +523,7 @@
     "bench:web-codecs:charts": "node benchmark/scripts/render-competitor-charts.ts --profile web-codecs",
     "bench:stable-codecs": "npm run build && node benchmark/stable-codecs/run.ts",
     "bench:results:index": "node benchmark/scripts/build-result-index.ts",
+    "bench:hillclimb": "node benchmark/hillclimb/run.ts",
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
     "bench:bmp:jimp": "node benchmark/run.ts --engines jimp --profile bmp",

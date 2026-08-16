@@ -1,0 +1,4 @@
+interface:
+  display_name: "Benchmark Hillclimb"
+  short_description: "Optimize one PureJsImage workload safely"
+  default_prompt: "Use $benchmark-hillclimb to optimize one PureJsImage workload safely against an explicit base revision."

@@ -22,7 +22,8 @@ import { workflowsForProfile } from './workflows.ts'
 
 const benchmarkDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryDirectory = dirname(benchmarkDirectory)
-const resultsDirectory = join(benchmarkDirectory, 'results')
+const resultsDirectory =
+  process.env.PUREJSIMAGE_BENCHMARK_OUTPUT_DIRECTORY ?? join(benchmarkDirectory, 'results')
 const workerPath = join(benchmarkDirectory, 'worker.ts')
 const startupWorkerPath = join(benchmarkDirectory, 'startup-worker.ts')
 const engineIds = new Set([
@@ -370,36 +371,28 @@ for (const engine of options.engines) {
   startup.push({ ...measured, footprint })
 }
 
-let revision = 'unknown'
+let revision = process.env.PUREJSIMAGE_BENCHMARK_GIT_COMMIT ?? 'unknown'
 let dirty = null
-try {
-  revision = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
-    encoding: 'utf8',
-  }).trim()
-} catch {
+if (revision === 'unknown') {
   try {
-    const head = readFileSync(join(repositoryDirectory, '.git', 'HEAD'), 'utf8').trim()
-    if (head.startsWith('ref: ')) {
-      const ref = head.slice(5)
-      try {
-        revision = readFileSync(join(repositoryDirectory, '.git', ref), 'utf8')
-          .trim()
-          .slice(0, 7)
-      } catch {
-        const packedRefs = readFileSync(join(repositoryDirectory, '.git', 'packed-refs'), 'utf8')
-        const match = new RegExp(`^([0-9a-f]{40}) ${ref}$`, 'm').exec(packedRefs)
-        const matchedRevision = match?.[1]
-        if (matchedRevision) revision = matchedRevision.slice(0, 7)
-      }
-    } else {
-      revision = head.slice(0, 7)
-    }
+    revision = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: repositoryDirectory,
+      encoding: 'utf8',
+    }).trim()
   } catch {}
 }
 
-try {
-  dirty = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0
-} catch {}
+if (process.env.PUREJSIMAGE_BENCHMARK_GIT_DIRTY === 'true') dirty = true
+else if (process.env.PUREJSIMAGE_BENCHMARK_GIT_DIRTY === 'false') dirty = false
+else {
+  try {
+    dirty =
+      execFileSync('git', ['status', '--porcelain'], {
+        cwd: repositoryDirectory,
+        encoding: 'utf8',
+      }).trim().length > 0
+  } catch {}
+}
 
 const createdAt = new Date().toISOString()
 const cpu = os.cpus()[0]?.model

@@ -158,6 +158,7 @@ const emptyRunResult = (
   status,
   statusReason: reason,
   processStartupMilliseconds: 0,
+  workerLifetimeMilliseconds: 0,
   moduleImportMilliseconds: 0,
   registryConstructionMilliseconds: 0,
   timing: {
@@ -758,6 +759,7 @@ const executeOnce = async (
           ? null
           : `Detected ${detection.reader.id} instead of ${configuration.workload.readerId}`,
       processStartupMilliseconds: 0,
+      workerLifetimeMilliseconds: 0,
       moduleImportMilliseconds: 0,
       registryConstructionMilliseconds: 0,
       timing: {

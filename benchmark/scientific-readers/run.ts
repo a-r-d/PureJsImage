@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import os from 'node:os'
@@ -24,11 +24,18 @@ import type {
   TimingSummary,
 } from './types.ts'
 import { workloadsForScientificProfile } from './workloads.ts'
+import {
+  aggregateScientificStatus,
+  scientificEnvironmentFingerprint,
+  scientificFixtureFingerprint,
+} from './integrity.ts'
 
 const benchmarkDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryDirectory = dirname(dirname(benchmarkDirectory))
 const workerPath = join(benchmarkDirectory, 'worker.ts')
-const artifactsDirectory = join(benchmarkDirectory, 'results', 'artifacts', 'scientific-readers')
+const artifactsDirectory =
+  process.env.PUREJSIMAGE_BENCHMARK_OUTPUT_DIRECTORY ??
+  join(benchmarkDirectory, 'results', 'artifacts', 'scientific-readers')
 
 const argument = (name: string, fallback?: string): string | undefined => {
   const index = process.argv.indexOf(`--${name}`)
@@ -99,6 +106,7 @@ const failedRun = (status: ScientificBenchmarkStatus, reason: string): Scientifi
   status,
   statusReason: reason,
   processStartupMilliseconds: 0,
+  workerLifetimeMilliseconds: 0,
   moduleImportMilliseconds: 0,
   registryConstructionMilliseconds: 0,
   timing: {
@@ -173,6 +181,7 @@ const isScientificRunResult = (value: unknown): value is ScientificRunResult =>
     value.status === 'error') &&
   (value.statusReason === null || typeof value.statusReason === 'string') &&
   isFiniteNumber(value.processStartupMilliseconds) &&
+  isFiniteNumber(value.workerLifetimeMilliseconds) &&
   isFiniteNumber(value.moduleImportMilliseconds) &&
   isFiniteNumber(value.registryConstructionMilliseconds) &&
   isRunTiming(value.timing) &&
@@ -234,6 +243,9 @@ const aggregateTiming = (runsToSummarize: readonly ScientificRunResult[]): Timin
   return Object.freeze({
     processStartupMilliseconds: numericSummary(
       runsToSummarize.map((result) => result.processStartupMilliseconds),
+    ),
+    workerLifetimeMilliseconds: numericSummary(
+      runsToSummarize.map((result) => result.workerLifetimeMilliseconds),
     ),
     moduleImportMilliseconds: numericSummary(
       runsToSummarize.map((result) => result.moduleImportMilliseconds),
@@ -415,52 +427,14 @@ const aggregateCorrectness = (
   return Object.freeze(result.correctness)
 }
 
-const aggregateStatus = (
-  runsToSummarize: readonly ScientificRunResult[],
-): {
-  readonly status: ScientificBenchmarkStatus
-  readonly reason: string | null
-} => {
-  if (runsToSummarize.some((result) => result.status === 'invalid-output')) {
-    return {
-      status: 'invalid-output',
-      reason:
-        runsToSummarize.find((result) => result.statusReason !== null)?.statusReason ??
-        'Invalid output',
-    }
-  }
-  if (runsToSummarize.some((result) => result.status === 'supported')) {
-    const failures = runsToSummarize.filter((result) => result.status !== 'supported')
-    return {
-      status: 'supported',
-      reason:
-        failures.length === 0
-          ? null
-          : `${failures.length} run(s) failed after at least one supported run`,
-    }
-  }
-  const first = runsToSummarize[0]
-  return first === undefined
-    ? { status: 'error', reason: 'No run results' }
-    : { status: first.status, reason: first.statusReason }
-}
-
 const gitCommit = (): string | null => {
   const override = process.env.PUREJSIMAGE_BENCHMARK_GIT_COMMIT
   if (override !== undefined && /^[0-9a-f]{40}$/u.test(override)) return override
   try {
-    const gitHead = readFileSync(join(repositoryDirectory, '.git', 'HEAD'), 'utf8').trim()
-    if (/^[0-9a-f]{40}$/u.test(gitHead)) return gitHead
-    if (!gitHead.startsWith('ref: ')) return null
-    const reference = gitHead.slice('ref: '.length)
-    const looseReference = readFileSync(join(repositoryDirectory, '.git', reference), 'utf8').trim()
-    if (/^[0-9a-f]{40}$/u.test(looseReference)) return looseReference
-    const packedReferences = readFileSync(join(repositoryDirectory, '.git', 'packed-refs'), 'utf8')
-    for (const line of packedReferences.split('\n')) {
-      const [commit, ref] = line.split(' ')
-      if (ref === reference && commit !== undefined && /^[0-9a-f]{40}$/u.test(commit)) return commit
-    }
-    return null
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: repositoryDirectory,
+      encoding: 'utf8',
+    }).trim()
   } catch {
     return null
   }
@@ -470,13 +444,21 @@ const gitDirty = (): boolean | null => {
   const override = process.env.PUREJSIMAGE_BENCHMARK_GIT_DIRTY
   if (override === 'true') return true
   if (override === 'false') return false
-  return null
+  try {
+    return (
+      execFileSync('git', ['status', '--porcelain'], {
+        cwd: repositoryDirectory,
+        encoding: 'utf8',
+      }).trim().length > 0
+    )
+  } catch {
+    return null
+  }
 }
 
 const environment = (): ScientificEnvironmentIdentity & {
   readonly platform: string
-  readonly gitCommit: string
-  readonly gitDirty: boolean | null
+  readonly runnerClass: 'github-hosted' | 'local' | 'self-hosted'
 } => {
   return Object.freeze({
     operatingSystem: os.type(),
@@ -487,8 +469,12 @@ const environment = (): ScientificEnvironmentIdentity & {
     cpuModel: os.cpus()[0]?.model ?? null,
     logicalCpuCount: os.cpus().length,
     platform: process.platform,
-    gitCommit: gitCommit() ?? 'unknown',
-    gitDirty: gitDirty(),
+    runnerClass:
+      process.env.GITHUB_ACTIONS !== 'true'
+        ? 'local'
+        : process.env.RUNNER_ENVIRONMENT === 'self-hosted'
+          ? 'self-hosted'
+          : 'github-hosted',
   })
 }
 
@@ -539,6 +525,7 @@ const runProcess = async (
     let peakRss = 0
     let moduleImportMilliseconds = 0
     let registryConstructionMilliseconds = 0
+    let processStartupMilliseconds = 0
     let ready = false
     let result: ScientificRunResult | undefined
     let stderr = ''
@@ -565,6 +552,7 @@ const runProcess = async (
         typeof message.moduleImportMilliseconds === 'number' &&
         typeof message.registryConstructionMilliseconds === 'number'
       ) {
+        processStartupMilliseconds = performance.now() - processStartedAt
         moduleImportMilliseconds = message.moduleImportMilliseconds
         registryConstructionMilliseconds = message.registryConstructionMilliseconds
         child.send({
@@ -598,7 +586,8 @@ const runProcess = async (
       if (result !== undefined) {
         finish({
           ...result,
-          processStartupMilliseconds: performance.now() - processStartedAt,
+          processStartupMilliseconds,
+          workerLifetimeMilliseconds: performance.now() - processStartedAt,
           moduleImportMilliseconds,
           registryConstructionMilliseconds,
           memory: {
@@ -621,9 +610,9 @@ const fixtureSummary = (fixture: PreparedFixture): PreparedFixtureSummary =>
         Object.freeze({
           id: resource.id,
           name: resource.name,
-          path: resource.path,
           sha256: resource.sha256,
           sizeBytes: resource.sizeBytes,
+          payloadRanges: fixture.payloadRanges[resource.id] ?? Object.freeze([]),
           representative: fixture.representative,
         }),
       ),
@@ -641,7 +630,7 @@ const resultFor = (
   runResults: readonly ScientificRunResult[],
   environmentIdentity: ReturnType<typeof environment>,
 ): ScientificBenchmarkResult => {
-  const status = aggregateStatus(runResults)
+  const status = aggregateScientificStatus(runResults)
   const measurementClass =
     fixture.representative && workload.measurementClass === 'representative'
       ? 'representative'
@@ -679,14 +668,14 @@ const resultFor = (
     lowNoise
   return Object.freeze({
     identity: Object.freeze({
-      schemaVersion: 1,
+      schemaVersion: 2,
       workloadId: workload.id,
       fixtureId: fixture.id,
       fixtureSha256: fixture.sha256,
       reader: Object.freeze({ id: workload.readerId, version: '1.0.0' }),
       engine: scientificEngine,
-      gitCommit: environmentIdentity.gitCommit,
-      gitDirty: environmentIdentity.gitDirty,
+      gitCommit: gitCommit() ?? 'unknown',
+      gitDirty: gitDirty(),
       environment: environmentIdentity,
       profile,
       runs: runResults.length,
@@ -779,31 +768,58 @@ for (const workload of workloads) {
   }
 }
 
+const fixturePreparation = Object.freeze({
+  fixtures: Object.freeze([...preparedFixtures.values()].map(fixtureSummary)),
+})
+const fingerprintConfiguration = Object.freeze({
+  profile,
+  runs,
+  warmups,
+  fragmentBytes,
+  sourceLatencies: Object.freeze(sourceLatencies),
+  isolatedProcessPerRun: true,
+})
+const environmentWithFingerprint = Object.freeze({
+  ...environmentIdentity,
+  environmentFingerprint: scientificEnvironmentFingerprint(
+    environmentIdentity,
+    fingerprintConfiguration,
+  ),
+})
+const validationPassed = results.every(
+  (result) => result.status === 'supported' || result.status === 'unsupported',
+)
+const performanceHeadlineEligible = results.some(
+  (result) => result.stability.eligibleForDocumentationHeadlines,
+)
 const report: ScientificBenchmarkReport = Object.freeze({
-  schemaVersion: 1,
+  schemaVersion: 2,
   createdAt: new Date().toISOString(),
   profile,
   validation: Object.freeze({
-    passed: results.every(
-      (result) => result.status === 'supported' || result.status === 'unsupported',
-    ),
+    passed: validationPassed,
   }),
-  eligibleForDocumentationHeadlines: results.some(
-    (result) => result.stability.eligibleForDocumentationHeadlines,
-  ),
+  eligibleForDocumentation: validationPassed,
+  eligibleForPerformanceHeadline: performanceHeadlineEligible,
+  eligibleForDocumentationHeadlines: validationPassed,
   configuration: Object.freeze({
     engine: scientificEngine,
     runs,
     warmups,
+    fragmentBytes,
+    sourceLatencies: Object.freeze(sourceLatencies),
     isolatedProcessPerRun: true,
     fixturePreparationTimed: false,
     outputValidationTimed: false,
     directRangeReadersOnly: profile === 'range',
   }),
-  environment: environmentIdentity,
-  fixturePreparation: Object.freeze({
-    fixtures: Object.freeze([...preparedFixtures.values()].map(fixtureSummary)),
+  environment: environmentWithFingerprint,
+  revision: Object.freeze({
+    gitCommit: gitCommit() ?? 'unknown',
+    gitDirty: gitDirty(),
   }),
+  fixtureManifestHash: scientificFixtureFingerprint(fixturePreparation.fixtures),
+  fixturePreparation,
   results: Object.freeze(results),
 })
 
@@ -818,7 +834,7 @@ await writeFile(
   latestPath,
   `${JSON.stringify(
     {
-      schemaVersion: 1,
+      schemaVersion: 2,
       profile,
       createdAt: report.createdAt,
       json: jsonPath,

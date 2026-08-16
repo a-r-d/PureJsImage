@@ -1,6 +1,6 @@
 import type { RasterSampleType } from '../../src/raster.ts'
 
-export const scientificReaderBenchmarkSchemaVersion = 1 as const
+export const scientificReaderBenchmarkSchemaVersion = 2 as const
 
 export type ScientificBenchmarkProfile = 'smoke' | 'baseline' | 'range' | 'scaling' | 'full'
 export type ScientificOperationKind =
@@ -22,6 +22,7 @@ export interface NumericSummary {
 
 export interface TimingSummary {
   readonly processStartupMilliseconds: NumericSummary | null
+  readonly workerLifetimeMilliseconds: NumericSummary | null
   readonly moduleImportMilliseconds: NumericSummary | null
   readonly registryConstructionMilliseconds: NumericSummary | null
   readonly detectionMilliseconds: NumericSummary | null
@@ -153,6 +154,7 @@ export interface ScientificRunResult {
   readonly status: ScientificBenchmarkStatus
   readonly statusReason: string | null
   readonly processStartupMilliseconds: number
+  readonly workerLifetimeMilliseconds: number
   readonly moduleImportMilliseconds: number
   readonly registryConstructionMilliseconds: number
   readonly timing: ScientificRunTiming
@@ -228,11 +230,15 @@ export interface ScientificBenchmarkReport {
   readonly validation: {
     readonly passed: boolean
   }
+  readonly eligibleForDocumentation: boolean
+  readonly eligibleForPerformanceHeadline: boolean
   readonly eligibleForDocumentationHeadlines: boolean
   readonly configuration: {
     readonly engine: ScientificReaderIdentity
     readonly runs: number
     readonly warmups: number
+    readonly fragmentBytes: number
+    readonly sourceLatencies: readonly number[]
     readonly isolatedProcessPerRun: true
     readonly fixturePreparationTimed: false
     readonly outputValidationTimed: false
@@ -240,9 +246,14 @@ export interface ScientificBenchmarkReport {
   }
   readonly environment: ScientificEnvironmentIdentity & {
     readonly platform: string
+    readonly runnerClass: 'github-hosted' | 'local' | 'self-hosted'
+    readonly environmentFingerprint: string
+  }
+  readonly revision: {
     readonly gitCommit: string
     readonly gitDirty: boolean | null
   }
+  readonly fixtureManifestHash: string
   readonly fixturePreparation: {
     readonly fixtures: readonly PreparedFixtureSummary[]
   }
@@ -255,9 +266,9 @@ export interface PreparedFixtureSummary {
   readonly resources: readonly {
     readonly id: string
     readonly name: string | null
-    readonly path: string
     readonly sha256: string
     readonly sizeBytes: number
+    readonly payloadRanges: readonly (readonly [number, number])[]
     readonly representative: boolean
   }[]
   readonly provenance: string

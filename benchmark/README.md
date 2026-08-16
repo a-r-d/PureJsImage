@@ -226,6 +226,26 @@ and unique bytes, companion resolutions, payload overlap, and correctness
 evidence. The report records per-row stability and publication eligibility;
 these are reporting gates, not pass/fail performance thresholds.
 
+### Base-versus-candidate hillclimbing
+
+Use the reusable repository skill in `.agents/skills/benchmark-hillclimb/` and the focused runner
+when optimizing one existing web-codec or scientific-reader workload:
+
+```sh
+npm run bench:hillclimb -- --suite web --workload northstar-photo-pipeline --goal memory --base-ref origin/main
+npm run bench:hillclimb -- --suite scientific --workload scaling-tiff-large-warm-regions --goal speed --base-ref origin/main
+```
+
+The runner creates a temporary base worktree, builds both revisions with the current Node runtime,
+and alternates base and candidate one-sample harness runs. Seven paired trials are used by default.
+It compares raw correctness and performance samples, path-independent fixture and
+commit-independent environment fingerprints, protected source/output metrics, median, MAD, IQR,
+coefficient of variation, and paired deltas. Exploratory JSON and Markdown stay under the ignored
+`.tmp/hillclimb/` directory; the runner never changes public snapshots or documentation claims.
+
+Exit code 0 means an accepted improvement or neutral verification, 1 means a correctness or
+protected/performance regression, and 2 means the comparison is noisy, incomparable, or invalid.
+
 ### Direct scientific JavaScript and WebAssembly competitors
 
 The direct-reader scorecard is intentionally separate from the image

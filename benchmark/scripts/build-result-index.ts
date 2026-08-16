@@ -14,6 +14,7 @@ interface ResultIndexEntry {
   readonly fixtureManifestHash: string
   readonly validationStatus: 'passed' | 'failed' | 'partial' | 'unverified'
   readonly eligibleForDocumentationHeadlines: boolean
+  readonly eligibleForPerformanceHeadline: boolean
 }
 
 const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -31,6 +32,60 @@ const stringValue = (value: unknown): string | undefined =>
 
 const hashJson = (value: unknown): string =>
   createHash('sha256').update(JSON.stringify(value)).digest('hex')
+
+const scientificEnvironmentFingerprint = (
+  environment: Readonly<Record<string, unknown>>,
+  configuration: unknown,
+): string =>
+  hashJson({
+    configuration,
+    environment: {
+      operatingSystem: environment.operatingSystem,
+      operatingSystemVersion: environment.operatingSystemVersion,
+      architecture: environment.architecture,
+      nodeVersion: environment.nodeVersion,
+      v8Version: environment.v8Version,
+      cpuModel: environment.cpuModel,
+      logicalCpuCount: environment.logicalCpuCount,
+      platform: environment.platform,
+      runnerClass: environment.runnerClass ?? 'local',
+    },
+  })
+
+const scientificFixtureFingerprint = (value: Record<string, unknown>): string | undefined => {
+  if (!isRecord(value.fixturePreparation) || !Array.isArray(value.fixturePreparation.fixtures)) {
+    return undefined
+  }
+  return hashJson(
+    value.fixturePreparation.fixtures.flatMap((fixture) => {
+      if (
+        !isRecord(fixture) ||
+        typeof fixture.id !== 'string' ||
+        !Array.isArray(fixture.resources)
+      ) {
+        return []
+      }
+      return [
+        {
+          fixtureId: fixture.id,
+          resources: fixture.resources.flatMap((resource) =>
+            isRecord(resource)
+              ? [
+                  {
+                    resourceId: resource.id,
+                    name: resource.name,
+                    sha256: resource.sha256,
+                    sizeBytes: resource.sizeBytes,
+                    payloadRanges: resource.payloadRanges ?? [],
+                  },
+                ]
+              : [],
+          ),
+        },
+      ]
+    }),
+  )
+}
 
 const walk = async (directory: string): Promise<string[]> => {
   const entries = await readdir(directory, { withFileTypes: true }).catch(() => null)
@@ -168,6 +223,7 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
   const parsed: unknown = JSON.parse(await readFile(file, 'utf8'))
   const value = isRecord(parsed) ? parsed : {}
   const environment = isRecord(value.environment) ? value.environment : {}
+  const revision = isRecord(value.revision) ? value.revision : {}
   const createdAt =
     stringValue(value.createdAt) ??
     stringValue(value.generatedAt) ??
@@ -177,17 +233,18 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
     stringValue(environment.gitRevision) ??
     stringValue(environment.commit) ??
     stringValue(environment.gitCommit) ??
+    stringValue(revision.gitCommit) ??
     'not-recorded'
   const environmentFingerprint =
     stringValue(value.environmentFingerprint) ??
     stringValue(environment.environmentFingerprint) ??
-    hashJson(environment)
+    (file.includes('/scientific-readers/results/artifacts/scientific-readers/')
+      ? scientificEnvironmentFingerprint(environment, value.configuration)
+      : hashJson(environment))
   const fixtureManifestHash =
     stringValue(value.fixtureManifestHash) ??
     stringValue(environment.fixtureManifestHash) ??
-    (isRecord(value.fixturePreparation) && Array.isArray(value.fixturePreparation.fixtures)
-      ? hashJson(value.fixturePreparation.fixtures)
-      : undefined) ??
+    scientificFixtureFingerprint(value) ??
     (Array.isArray(value.fixtures) ? hashJson(value.fixtures) : undefined) ??
     (Array.isArray(value.results)
       ? hashJson(
@@ -201,6 +258,21 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
   const resultProfile = profile(value, path)
   const resultValidationStatus = validationStatus(value)
   const completeForHeadline = resultProfile !== 'web-codecs' || isCompleteWebCodecRun(value)
+  const eligibleForDocumentation =
+    completeForHeadline &&
+    (value.eligibleForDocumentation === true ||
+      value.eligibleForDocumentationHeadlines === true ||
+      (resultValidationStatus === 'passed' &&
+        (resultProfile === 'competitors' ||
+          resultProfile === 'web-codecs' ||
+          resultProfile === 'scientific-readers-baseline')))
+  const eligibleForPerformanceHeadline =
+    completeForHeadline &&
+    (value.eligibleForPerformanceHeadline === true ||
+      (value.eligibleForDocumentationHeadlines === true &&
+        resultProfile !== 'scientific-readers-baseline') ||
+      (resultValidationStatus === 'passed' &&
+        (resultProfile === 'competitors' || resultProfile === 'web-codecs')))
   const markdownPath = file.replace(/\.json$/u, '.md')
   const resultPaths = [path]
   try {
@@ -218,13 +290,8 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
     engineVersions: engineVersions(value),
     fixtureManifestHash,
     validationStatus: resultValidationStatus,
-    eligibleForDocumentationHeadlines:
-      completeForHeadline &&
-      (value.eligibleForDocumentationHeadlines === true ||
-        (resultValidationStatus === 'passed' &&
-          (resultProfile === 'competitors' ||
-            resultProfile === 'web-codecs' ||
-            resultProfile === 'scientific-readers-baseline'))),
+    eligibleForDocumentationHeadlines: eligibleForDocumentation,
+    eligibleForPerformanceHeadline,
   }
 }
 
@@ -250,11 +317,11 @@ const markdown = [
   '',
   `Generated: ${report.generatedAt}`,
   '',
-  '| Profile | Date | Commit | Environment | Validation | Headline eligible | Engine versions | Fixture manifest | Result paths |',
-  '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  '| Profile | Date | Commit | Environment | Validation | Documentation eligible | Performance headline eligible | Engine versions | Fixture manifest | Result paths |',
+  '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   ...entries.map(
     (entry) =>
-      `| ${entry.profile} | ${entry.date} | ${entry.commit} | ${entry.environmentFingerprint} | ${entry.validationStatus} | ${entry.eligibleForDocumentationHeadlines ? 'yes' : 'no'} | ${
+      `| ${entry.profile} | ${entry.date} | ${entry.commit} | ${entry.environmentFingerprint} | ${entry.validationStatus} | ${entry.eligibleForDocumentationHeadlines ? 'yes' : 'no'} | ${entry.eligibleForPerformanceHeadline ? 'yes' : 'no'} | ${
         Object.entries(entry.engineVersions)
           .map(([id, version]) => `${id}=${version}`)
           .join('<br>') || '—'
