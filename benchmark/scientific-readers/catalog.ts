@@ -179,6 +179,15 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'Twenty deterministic regions preserve dimensions, native type, and hash.',
   },
   {
+    id: 'tiff-small-tiles',
+    generatedKey: 'tiff-small-tiles-generated',
+    generatedRepresentative: true,
+    provenance:
+      'Deterministic first-party 2048x2048 uint8 TIFF with 64x64 tiles starting after the first 64 KiB source page.',
+    supportBoundary: 'Tiled TIFF whose native tiles are smaller than the 64 KiB source page.',
+    expectedOracle: 'Selected and random windows preserve dimensions and native uint8 samples.',
+  },
+  {
     id: 'tiff-large',
     generatedKey: 'tiff-large-generated',
     generatedRepresentative: true,

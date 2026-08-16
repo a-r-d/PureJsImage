@@ -54,7 +54,8 @@ const readerForFixture = (fixtureId: string): ScientificReader => {
     fixtureId === 'ordinary-tiff' ||
     fixtureId === 'tiff-bigtiff' ||
     fixtureId === 'tiff-medium' ||
-    fixtureId === 'tiff-large'
+    fixtureId === 'tiff-large' ||
+    fixtureId === 'tiff-small-tiles'
   )
     return tiffReader
   if (fixtureId === 'aperio-svs') return aperioSvsReader

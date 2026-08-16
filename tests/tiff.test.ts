@@ -1,12 +1,11 @@
 import { createHash } from 'node:crypto'
-import { deflateSync } from 'node:zlib'
 import { readFile } from 'node:fs/promises'
-import jpeg from 'jpeg-js'
-import { PNG } from 'pngjs'
-import * as Lerc from 'lerc'
+import { deflateSync } from 'node:zlib'
 import { fromArrayBuffer as openGeoTiffOracle } from 'geotiff'
+import jpeg from 'jpeg-js'
+import * as Lerc from 'lerc'
+import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
-import aperioFixture from './fixtures/aperio-33003-first-tile.json' with { type: 'json' }
 import type { DecoderOptions, ImageCodec } from '../src/codec.ts'
 import {
   createTiffCodec,
@@ -14,22 +13,22 @@ import {
   openTiffDocument,
   tiffCodec,
 } from '../src/codecs/tiff.ts'
-import { isAperioSvs, openAperioSvs } from '../src/pathology/aperio-svs.ts'
-import { isOmeTiff, omeTiffProfile, openOmeTiff } from '../src/scientific/ome-tiff.ts'
-import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
-import { ScientificReaderRegistry } from '../src/scientific/reader.ts'
-import { renderScientificPlane } from '../src/scientific/render.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
-import { defaultImageLimits } from '../src/limits.ts'
 import { geoTiffProfile } from '../src/geotiff.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { nodeRuntime } from '../src/node-runtime.ts'
+import { isAperioSvs, openAperioSvs } from '../src/pathology/aperio-svs.ts'
+import { createTiffEncodeOperation } from '../src/pipeline.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import type { RasterBlock } from '../src/raster.ts'
-import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
-import { nodeRuntime } from '../src/node-runtime.ts'
-import { MemorySource, type ImageSource } from '../src/source.ts'
+import { isOmeTiff, omeTiffProfile, openOmeTiff } from '../src/scientific/ome-tiff.ts'
+import { ScientificReaderRegistry } from '../src/scientific/reader.ts'
+import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { renderScientificPlane } from '../src/scientific/render.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
-
-import { createTiffEncodeOperation } from '../src/pipeline.ts'
+import { type ImageSource, MemorySource } from '../src/source.ts'
+import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
+import aperioFixture from './fixtures/aperio-33003-first-tile.json' with { type: 'json' }
 import { channelSwappingRgbProfile, constantGrayCmykProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
@@ -4264,7 +4263,7 @@ describe('Aperio whole-slide profile', () => {
       }
     }
     await expect(directBlocks()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
-    expect(reads).toHaveLength(readsBeforeDirectDecode)
+    expect(reads.slice(readsBeforeDirectDecode).every(({ length }) => length < 16)).toBe(true)
 
     const rasterDecoder = await document.topLevelDirectories[0]?.createRasterDecoder()
     if (rasterDecoder === undefined) throw new Error('Expected tiled TIFF raster decoder')
@@ -4275,7 +4274,7 @@ describe('Aperio whole-slide profile', () => {
       }
     }
     await expect(directRasterBlocks()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
-    expect(reads).toHaveLength(readsBeforeRasterDecode)
+    expect(reads.slice(readsBeforeRasterDecode).every(({ length }) => length < 16)).toBe(true)
 
     const stripe: PixelBlock[] = []
     for await (const block of slide.readRegion({
@@ -4419,9 +4418,13 @@ describe('Aperio whole-slide profile', () => {
       maxDecodedBytes: 1_024,
       maxEncodedSegmentBytes: 1_024,
     })
-    await expect(
-      encodedDocument.topLevelDirectories[0]?.createImageDecoder(),
-    ).rejects.toMatchObject({
+    const decoder = await encodedDocument.topLevelDirectories[0]?.createImageDecoder()
+    await expect(async () => {
+      if (decoder === undefined) throw new Error('Expected a TIFF decoder')
+      for await (const _block of decoder.decode()) {
+        // The oversized byte-count must fail before any payload read.
+      }
+    }).rejects.toMatchObject({
       code: 'LIMIT_EXCEEDED',
       message: expect.stringContaining('maxEncodedSegmentBytes'),
     })
