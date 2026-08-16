@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="896" viewBox="0 0 1900 896">
+<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="772" viewBox="0 0 1900 772">
     <title>Scientific selected-operation time</title>
-    <rect width="1900" height="896" fill="#f8fafc" />
+    <rect width="1900" height="772" fill="#f8fafc" />
     <style>
       text { font-family: Inter, Arial, sans-serif; fill: #172033; }
       .title { font-size: 46px; font-weight: 750; }
@@ -14,35 +14,28 @@
     <text x="40" y="64" class="title">Scientific selected-operation time</text>
     <text x="40" y="105" class="subtitle">Complete selected-operation wall time · lower is better · logarithmic scale</text>
     <text x="40" y="143" class="source">Scientific JS/WASM competitor profile · 2026-08-16 · linux x64 · Node v24.16.0</text>
-    <text x="40" y="177" class="source">Engine class is recorded per engine; unsupported rows: 55. Only shared workloads with validated output are charted.</text>
+    <text x="40" y="177" class="source">Engine class is recorded per engine; unsupported rows: 71. Only shared workloads with validated output are charted.</text>
     <text x="40" y="230" class="group">Common raster and whole-slide · TIFF selected native window</text>
 <text x="660" y="275" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
-            <rect x="690" y="259" width="258.63497110047047" height="20" rx="4" fill="#2563eb" />
-            <text x="960.6349711004705" y="275" class="value">12.1 ms</text>
+            <rect x="690" y="259" width="322.10036258377795" height="20" rx="4" fill="#2563eb" />
+            <text x="1024.100362583778" y="275" class="value">12.1 ms</text>
 <text x="660" y="309" text-anchor="end" class="engine">geotiff 3.0.5 · pure-javascript</text>
-            <rect x="690" y="293" width="119.69801919102463" height="20" rx="4" fill="#c026d3" />
-            <text x="821.6980191910246" y="309" class="value">5.40 ms</text>
+            <rect x="690" y="293" width="140.3116093655517" height="20" rx="4" fill="#c026d3" />
+            <text x="842.3116093655517" y="309" class="value">4.91 ms</text>
 <text x="40" y="378" class="group">Medical and volume interchange · NIfTI medium full native image (64 MiB)</text>
 <text x="660" y="423" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
-            <rect x="690" y="407" width="935.8542175523057" height="20" rx="4" fill="#2563eb" />
-            <text x="1637.8542175523057" y="423" class="value">609.8 ms</text>
+            <rect x="690" y="407" width="882.5573653929964" height="20" rx="4" fill="#2563eb" />
+            <text x="1584.5573653929964" y="423" class="value">192.1 ms</text>
 <text x="660" y="457" text-anchor="end" class="engine">itk-wasm-image-io 1.6.1 · webassembly</text>
-            <rect x="690" y="441" width="845.134185414679" height="20" rx="4" fill="#c026d3" />
-            <text x="1547.134185414679" y="457" class="value">360.6 ms · input copy 64.0 MiB</text>
-<text x="40" y="526" class="group">Medical and volume interchange · MRC medium full native plane (128 MiB)</text>
+            <rect x="690" y="441" width="1003.0932191989486" height="20" rx="4" fill="#c026d3" />
+            <text x="1705.0932191989486" y="457" class="value">348.5 ms · input copy 64.0 MiB</text>
+<text x="40" y="526" class="group">Raw numeric interchange · NPY medium C-order full native array (64 MiB)</text>
 <text x="660" y="571" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
-            <rect x="690" y="555" width="1008.5153026426069" height="20" rx="4" fill="#2563eb" />
-            <text x="1710.515302642607" y="571" class="value">928.8 ms</text>
-<text x="660" y="605" text-anchor="end" class="engine">itk-wasm-image-io 1.6.1 · webassembly</text>
-            <rect x="690" y="589" width="949.4199419611034" height="20" rx="4" fill="#c026d3" />
-            <text x="1651.4199419611034" y="605" class="value">659.6 ms · input copy 128.0 MiB</text>
-<text x="40" y="674" class="group">Raw numeric interchange · NPY medium C-order full native array (64 MiB)</text>
-<text x="660" y="719" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
-            <rect x="690" y="703" width="989.2847696136109" height="20" rx="4" fill="#2563eb" />
-            <text x="1691.284769613611" y="719" class="value">830.9 ms</text>
-<text x="660" y="753" text-anchor="end" class="engine">npyjs 1.2.0 · pure-javascript</text>
-            <rect x="690" y="737" width="716.3839781353392" height="20" rx="4" fill="#c026d3" />
-            <text x="1418.3839781353392" y="753" class="value">171.1 ms · input copy 64.0 MiB</text>
-    <text x="40" y="824" class="footer">Selected-operation wall time includes the public open/read path but excludes validation.</text>
-    <text x="40" y="858" class="source">Input-copy bytes are shown when material; measured rows at or above 10% coefficient of variation are labeled noisy.</text>
+            <rect x="690" y="555" width="885.4970102146324" height="20" rx="4" fill="#2563eb" />
+            <text x="1587.4970102146324" y="571" class="value">194.9 ms</text>
+<text x="660" y="605" text-anchor="end" class="engine">npyjs 1.2.0 · pure-javascript</text>
+            <rect x="690" y="589" width="855.1181530001816" height="20" rx="4" fill="#c026d3" />
+            <text x="1557.1181530001816" y="605" class="value">167.8 ms · input copy 64.0 MiB</text>
+    <text x="40" y="700" class="footer">Selected-operation wall time includes the public open/read path but excludes validation.</text>
+    <text x="40" y="734" class="source">Input-copy bytes are shown when material; measured rows at or above 10% coefficient of variation are labeled noisy.</text>
   </svg>

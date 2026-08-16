@@ -117,7 +117,7 @@
       "bytes": 5009248,
       "productionPackageCount": 1
     },
-    "packageVersion": "0.10.0",
+    "packageVersion": "0.11.0",
     "scientificPlatform": {
       "brotliBytes": 39132,
       "gzipBytes": 45816,
@@ -193,7 +193,7 @@
   },
   "scientific": {
     "baseline": {
-      "createdAt": "2026-08-16T17:07:38.681Z",
+      "createdAt": "2026-08-16T21:15:45.206Z",
       "engine": {
         "id": "purejsimage-scientific",
         "version": "0.10.0"
@@ -201,13 +201,13 @@
       "environment": {
         "architecture": "x64",
         "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
-        "fingerprint": "d882798ad85e3fc74565f2348caa96e121ec8f8b2e5520765f3d3c677547d379",
+        "fingerprint": "e60474dd69a8ee71039369635121d2cac3e6b36c5b37dce5a616531e9555bc24",
         "node": "v24.16.0",
         "os": "Linux 6.17.0-41-generic",
         "v8": "13.6.233.17-node.49"
       },
-      "reportJson": "benchmark/results/public/scientific-readers-baseline-2026-08-16T17-07-38-681Z.json",
-      "reportMarkdown": "benchmark/results/public/scientific-readers-baseline-2026-08-16T17-07-38-681Z.md",
+      "reportJson": "benchmark/results/public/scientific-readers-baseline-2026-08-16T21-15-45-206Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-readers-baseline-2026-08-16T21-15-45-206Z.md",
       "statusCounts": {
         "supported": 43
       },
@@ -223,7 +223,7 @@
       "Scientific package and WASM footprint": "assets/scientific-package-wasm-footprint.svg"
     },
     "competitors": {
-      "createdAt": "2026-08-16T17:23:11.640Z",
+      "createdAt": "2026-08-16T21:31:57.753Z",
       "engineVersions": [
         {
           "id": "purejsimage",
@@ -283,50 +283,56 @@
       },
       "noisyRows": [
         {
-          "cvPercent": 14.234090795235165,
+          "cvPercent": 27.25092071361777,
           "engineId": "purejsimage",
           "metric": "first usable data",
           "workloadId": "nrrd-full"
         },
         {
-          "cvPercent": 10.888586168218247,
+          "cvPercent": 10.151183240875621,
+          "engineId": "purejsimage",
+          "metric": "selected operation",
+          "workloadId": "nrrd-full"
+        },
+        {
+          "cvPercent": 13.37002296961612,
+          "engineId": "purejsimage",
+          "metric": "first usable data",
+          "workloadId": "mrc-full"
+        },
+        {
+          "cvPercent": 14.471781613995391,
           "engineId": "nifti-reader-js",
           "metric": "first usable data",
           "workloadId": "nifti-full"
         },
         {
-          "cvPercent": 10.657382289618772,
+          "cvPercent": 10.860274709377205,
           "engineId": "nifti-reader-js",
           "metric": "selected operation",
           "workloadId": "nifti-full"
-        },
-        {
-          "cvPercent": 12.92766474010764,
-          "engineId": "itk-wasm-image-io",
-          "metric": "selected operation",
-          "workloadId": "nrrd-full"
         }
       ],
-      "reportJson": "benchmark/results/public/scientific-competitors-baseline-2026-08-16T17-23-11-640Z.json",
-      "reportMarkdown": "benchmark/results/public/scientific-competitors-baseline-2026-08-16T17-23-11-640Z.md",
+      "reportJson": "benchmark/results/public/scientific-competitors-baseline-2026-08-16T21-31-57-753Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-competitors-baseline-2026-08-16T21-31-57-753Z.md",
       "statusCounts": {
-        "supported": 15,
-        "unsupported": 55
+        "supported": 19,
+        "unsupported": 71
       }
     },
     "crossEnvironmentDisclaimer": "Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.",
     "range": {
-      "reportJson": "benchmark/results/public/scientific-readers-range-2026-08-16T16-31-34-778Z.json",
-      "reportMarkdown": "benchmark/results/public/scientific-readers-range-2026-08-16T16-31-34-778Z.md",
+      "reportJson": "benchmark/results/public/scientific-readers-range-2026-08-16T21-27-56-863Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-readers-range-2026-08-16T21-27-56-863Z.md",
       "statusCounts": {
-        "supported": 4
+        "supported": 96
       }
     },
     "scaling": {
-      "chartEligibleWorkloadCount": 8,
-      "createdAt": "2026-08-16T17:19:59.492Z",
-      "reportJson": "benchmark/results/public/scientific-readers-scaling-2026-08-16T17-19-59-492Z.json",
-      "reportMarkdown": "benchmark/results/public/scientific-readers-scaling-2026-08-16T17-19-59-492Z.md",
+      "chartEligibleWorkloadCount": 3,
+      "createdAt": "2026-08-16T21:30:06.952Z",
+      "reportJson": "benchmark/results/public/scientific-readers-scaling-2026-08-16T21-30-06-952Z.json",
+      "reportMarkdown": "benchmark/results/public/scientific-readers-scaling-2026-08-16T21-30-06-952Z.md",
       "workloadCount": 11
     }
   },
@@ -355,7 +361,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["surface"],
       "directRangeReads": true,
@@ -374,7 +380,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -412,7 +418,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["surface"],
       "directRangeReads": true,
@@ -431,7 +437,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume", "spectrum-image"],
       "directRangeReads": true,
@@ -450,7 +456,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -469,7 +475,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -602,7 +608,7 @@
         "baselineFailed": 0,
         "baselineSupported": 3,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume", "pyramid"],
       "directRangeReads": true,
@@ -621,7 +627,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -640,7 +646,7 @@
         "baselineFailed": 0,
         "baselineSupported": 2,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["pyramid", "image"],
       "directRangeReads": true,
@@ -659,7 +665,7 @@
         "baselineFailed": 0,
         "baselineSupported": 2,
         "rangeFailed": 0,
-        "rangeSupported": 4
+        "rangeSupported": 8
       },
       "datasetKinds": ["image", "volume", "spectrum-image"],
       "directRangeReads": true,
@@ -678,7 +684,7 @@
         "baselineFailed": 0,
         "baselineSupported": 2,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 8
       },
       "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
       "directRangeReads": true,
@@ -697,7 +703,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
       "directRangeReads": true,
@@ -716,7 +722,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
       "directRangeReads": true,
@@ -735,7 +741,7 @@
         "baselineFailed": 0,
         "baselineSupported": 2,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 8
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -754,7 +760,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "spectrum-image"],
       "directRangeReads": true,
@@ -811,7 +817,7 @@
         "baselineFailed": 0,
         "baselineSupported": 2,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 8
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -849,7 +855,7 @@
         "baselineFailed": 0,
         "baselineSupported": 2,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 8
       },
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
@@ -868,7 +874,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "spectrum-image"],
       "directRangeReads": true,
@@ -887,7 +893,7 @@
         "baselineFailed": 0,
         "baselineSupported": 1,
         "rangeFailed": 0,
-        "rangeSupported": 0
+        "rangeSupported": 4
       },
       "datasetKinds": ["image", "spectrum-image"],
       "directRangeReads": true,

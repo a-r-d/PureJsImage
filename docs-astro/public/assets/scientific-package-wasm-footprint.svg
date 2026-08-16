@@ -11,11 +11,11 @@
     </style>
     <text x="40" y="64" class="title">Scientific package and WASM footprint</text>
     <text x="40" y="105" class="subtitle">gzip JavaScript plus raw external WASM · logarithmic scale · smaller is better</text>
-    <text x="40" y="143" class="source">2026-08-16 · linux x64 · Node v24.16.0 · 55 unsupported workload rows</text>
+    <text x="40" y="143" class="source">2026-08-16 · linux x64 · Node v24.16.0 · 71 unsupported workload rows</text>
     <text x="40" y="177" class="source">Embedded WASM remains counted in JavaScript. Installed footprint is labeled separately and is not the bar length.</text>
     <text x="570" y="237" text-anchor="end" class="engine">purejsimage 0.10.0 · pure-javascript</text>
-        <rect x="600" y="220" width="684.13141805447" height="24" rx="4" fill="#2563eb" />
-        <text x="1296.13141805447" y="238" class="value">111.0 KiB gzip JS + 0.0 KiB external WASM · installed 4.7 MiB</text>
+        <rect x="600" y="220" width="686.813755996523" height="24" rx="4" fill="#2563eb" />
+        <text x="1298.813755996523" y="238" class="value">113.1 KiB gzip JS + 0.0 KiB external WASM · installed 4.8 MiB</text>
 <text x="570" y="291" text-anchor="end" class="engine">geotiff 3.0.5 · pure-javascript</text>
         <rect x="600" y="274" width="679.571040532019" height="24" rx="4" fill="#c026d3" />
         <text x="1291.571040532019" y="292" class="value">107.4 KiB gzip JS + 0.0 KiB external WASM · installed 8.6 MiB</text>

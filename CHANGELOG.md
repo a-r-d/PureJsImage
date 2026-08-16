@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-16
+
 ### Added
 
 - Added the explicit `purejsimage/codecs/web` entry with the frozen `allWebCodecs` JPEG, PNG, WebP,
@@ -127,6 +129,17 @@ All notable changes to PureJsImage are documented in this file.
 - Run the codec test library against hostile one-byte buffered image sources by default, preserving
   the strict source-buffer lifetime coverage while removing the duplicate full-suite test pass from
   `npm run check`.
+- Coalesced sequential packed-row reads in NPY, NIfTI, and NRRD so a full-plane block issues one
+  source request per output block instead of one request per row. In the isolated 9-run scaling
+  harness, the 256 MiB NPY and NIfTI full-plane rows fell from 16,387 and 8,195 source reads to 515
+  and 259, and from 2,918.8 ms and 2,009.2 ms to 720.2 ms and 766.4 ms. The Node competitor
+  scorecard's matching 64 MiB NPY, NIfTI, and NRRD full-plane medians fell from 830.9 ms, 609.8 ms,
+  and 540.5 ms to 194.9 ms, 192.1 ms, and 176.4 ms.
+- Reduced DigitalMicrograph tag-walk, packed MRC, and tiled TIFF window source reads without
+  changing decode hashes. The DigitalMicrograph 2D range row at 100 ms of injected latency went
+  from 702 reads / 70,354 ms to 125 reads / 12,534 ms. The competitor-scorecard MRC full-plane
+  median fell from 928.8 ms to 383.2 ms, and the selected TIFF window returned 68 KiB instead of
+  128 KiB.
 
 ## [0.10.0] - 2026-08-13
 
@@ -888,4 +901,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.8.0]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...v0.8.0
 [0.9.0]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...v0.9.0
 [0.10.0]: https://github.com/a-r-d/PureJsImage/compare/v0.9.0...v0.10.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.10.0...HEAD
+[0.11.0]: https://github.com/a-r-d/PureJsImage/compare/v0.10.0...v0.11.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.11.0...HEAD
