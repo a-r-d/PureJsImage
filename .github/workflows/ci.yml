@@ -71,6 +71,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare pinned HDF5 browser fixture
+        run: npm run fixtures:hdf5:prepare
+
       - name: Install browser engine
         run: npx playwright install --with-deps ${{ matrix.browser }}
 

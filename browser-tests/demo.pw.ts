@@ -45,20 +45,21 @@ test('leads the homepage with portable codecs, memory comparison, and open-sourc
     'Image codecs and low-memory raster processing in strict TypeScript.',
   )
   await expect(page.locator('.home-hero .hero-lede')).toContainText(
-    'building a broad suite of first-party codecs',
+    'native scientific raster processing',
   )
-  await expect(page.locator('.headline-metrics')).toContainText('86.7%')
-  await expect(page.locator('.headline-metrics')).toContainText('157.8 vs 1,188.3 MiB')
-  await expect(page.locator('.headline-metrics')).toContainText('87.6%')
-  await expect(page.locator('.headline-metrics')).toContainText('157.8 vs 1,276.5 MiB')
+  await expect(page.locator('.headline-metrics')).toContainText('84.2%')
+  await expect(page.locator('.headline-metrics')).toContainText('187.8 MiB vs 1188.4 MiB')
+  await expect(page.locator('.headline-metrics')).toContainText('43/43')
   await expect(page.locator('main')).not.toContainText(/evidence/iu)
   await expect(page.locator('.metric-info')).toHaveCount(4)
   await expect(page.locator('.metric-info').nth(2)).toHaveAccessibleName(
-    'About the TIFF corpus result',
+    'About the current Jimp memory comparison',
   )
   await page.locator('.metric-info').nth(2).focus()
-  await expect(page.locator('#metric-tiff-tooltip')).toContainText("Imazen's TIFF corpus")
-  await expect(page.locator('#metric-tiff-tooltip')).toHaveCSS('opacity', '1')
+  await expect(page.locator('#metric-jimp-tooltip')).toContainText(
+    '24-megapixel northstar photo pipeline',
+  )
+  await expect(page.locator('#metric-jimp-tooltip')).toHaveCSS('opacity', '1')
   const infoButtonBoxes = await page.locator('.metric-info').evaluateAll((buttons) =>
     buttons.map((button) => {
       const bounds = button.getBoundingClientRect()

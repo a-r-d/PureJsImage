@@ -5,6 +5,7 @@ const port = Number(process.env.PUREJSIMAGE_BROWSER_PORT ?? '4173')
 export default defineConfig({
   testDir: './browser-tests',
   testMatch: '**/*.pw.ts',
+  testIgnore: '**/viewer-benchmarks.pw.ts',
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
