@@ -1,0 +1,19 @@
+.github/workflows/ci.yml
+  s_e532dcda1dfd1d::t_64b91a9859cb7e 77-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5941317f40f762465750811dd1d2b3578b7ecebc",
+  "prompts": {},
+  "sessions": {
+    "s_e532dcda1dfd1d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00870-0498-7482-aa81-03f4cacac046",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
