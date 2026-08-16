@@ -1,4 +1,5 @@
 export type ImageFormat =
+  | 'avif'
   | 'bmp'
   | 'gif'
   | 'hdr'
@@ -37,6 +38,7 @@ export type BenchmarkProfile =
   | 'small-codecs'
   | 'tiff'
   | 'transforms'
+  | 'web-codecs'
   | 'webp'
 
 export interface FixtureExpectation {
@@ -62,6 +64,7 @@ export interface SourceFixture extends FixtureBase {
 }
 
 export type FixtureGenerator =
+  | 'avif-benchmark-copy'
   | 'bmp-gradient'
   | 'ico-dib24'
   | 'ico-dib32'

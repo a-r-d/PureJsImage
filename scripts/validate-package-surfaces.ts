@@ -139,6 +139,7 @@ export const validatePackageAndBundleSurfaces = async ({
     'Experimental codec bundle targets',
   )
   assertPackageExport(packageJson, 'purejsimage/codecs/all')
+  assertPackageExport(packageJson, 'purejsimage/codecs/web')
 
   const allCodecsSource = await readFile(
     join(repositoryDirectory, 'src/codec-entries/all.ts'),
@@ -151,6 +152,19 @@ export const validatePackageAndBundleSurfaces = async ({
   )
   if (importedCodecIds(allCodecsSource).includes('heic')) {
     throw new Error('Experimental HEIF/HEIC is present in allCodecs')
+  }
+
+  const webCodecsSource = await readFile(
+    join(repositoryDirectory, 'src/codec-entries/web.ts'),
+    'utf8',
+  )
+  assertEqualSets(
+    importedCodecIds(webCodecsSource),
+    ['avif', 'jpeg', 'png', 'webp'],
+    'Common allWebCodecs exports',
+  )
+  if (importedCodecIds(webCodecsSource).includes('heic')) {
+    throw new Error('Experimental HEIF/HEIC is present in allWebCodecs')
   }
 }
 

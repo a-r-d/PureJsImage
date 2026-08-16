@@ -44,7 +44,12 @@ const executePipeline = async (
         }
         return {
           metadata: {
-            format: metadata.format,
+            // libvips reports AVIF through its generic HEIF container loader.
+            // The pinned input is independently identified as AVIF by the corpus gate.
+            format:
+              workflow.expected.format === 'avif' && metadata.format === 'heif'
+                ? 'avif'
+                : metadata.format,
             width: metadata.width,
             height: metadata.height,
           },
@@ -134,6 +139,15 @@ export const createSharpEngine = ({
           await sharp(firstInput).metadata()
         } catch {
           return 'The installed Sharp/libvips build cannot decode the pinned iPhone HEIC fixture'
+        }
+      }
+      if (input.includes('avif')) {
+        const firstInput = inputs[0]
+        if (!firstInput) return 'The AVIF workflow has no input image'
+        try {
+          await sharp(firstInput).metadata()
+        } catch {
+          return 'The installed Sharp/libvips build cannot decode the pinned AVIF fixture'
         }
       }
       if (

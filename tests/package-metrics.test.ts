@@ -71,6 +71,12 @@ describe('generated package metrics contract', () => {
     expect(metrics.targets.find(({ id }) => id === 'codecs-all')?.codecs).toEqual(
       stableCodecs.map(({ name }) => name),
     )
+    expect(metrics.targets.find(({ id }) => id === 'codecs-web')?.codecs).toEqual([
+      'JPEG',
+      'PNG',
+      'WebP',
+      'AVIF',
+    ])
     expect(metrics.codecs.filter(({ experimental }) => experimental).map(({ id }) => id)).toEqual(
       experimentalCodecs.map(({ id }) => id),
     )

@@ -132,6 +132,7 @@ try {
   for (const expected of [
     'dist/index.js',
     'dist/browser.js',
+    'dist/codec-entries/web.js',
     'dist/scientific/index.js',
     'dist/scientific/node.js',
     'dist/scientific/readers/all.js',
@@ -227,6 +228,7 @@ try {
     join(consumerDirectory, 'index.ts'),
     `import { BufferSink, createImageLibrary, MemorySource } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
+import { allWebCodecs } from 'purejsimage/codecs/web'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { defaultTiffCalibrationProfiles, digitalMicrographTiffCalibrationProfile, geoTiffProfile, imageJTiffCalibrationProfile, standardTiffCalibrationProfile } from 'purejsimage/tiff'
@@ -298,6 +300,7 @@ export type { AnalysisProjectV1 }
 
 const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
+export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })
 const extensionReader: ScientificReader = {
   descriptor: {

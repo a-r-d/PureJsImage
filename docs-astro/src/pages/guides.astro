@@ -81,7 +81,7 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
 console.<span class="tok-method">log</span>(images.<span class="tok-method">formats</span>())
 <span class="tok-comment">// ['jpeg', 'png', 'webp']</span></code></pre></div>
           <div class="callout"><strong>Registration controls capability.</strong> Converting PNG to WebP requires both codecs: a decoder for the input and an encoder for the output. A missing codec fails explicitly; nothing is loaded dynamically.</div>
-          <p>For tools that need every default implementation, import <code>allCodecs</code> from <code>purejsimage/codecs/all</code>. Experimental HEIF/HEIC is deliberately excluded and requires the direct <code>purejsimage/codecs/experimental/heic</code> import described in the <a href="../api/#experimental-heic">API reference</a>.</p>
+          <p>For common web images, import <code>allWebCodecs</code> from <code>purejsimage/codecs/web</code> to register JPEG, PNG, WebP, and AVIF together. TIFF stays explicit to keep that aggregate focused. For tools that need every stable implementation, import <code>allCodecs</code> from <code>purejsimage/codecs/all</code>. Experimental HEIF/HEIC is deliberately excluded from both aggregates and requires the direct <code>purejsimage/codecs/experimental/heic</code> import described in the <a href="../api/#experimental-heic">API reference</a>.</p>
         </section>
 
         <section id="open">

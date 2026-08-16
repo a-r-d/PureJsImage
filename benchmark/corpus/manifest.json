@@ -610,6 +610,17 @@
   ],
   "generated": [
     {
+      "id": "avif-fox-profile0-1204x800",
+      "file": "avif-fox-profile0-1204x800.avif",
+      "generator": "avif-benchmark-copy",
+      "expected": {
+        "format": "avif",
+        "width": 1204,
+        "height": 800,
+        "sha256": "a0ae1ad1aea81291730f42259593b297a8444699f4553de8dc25da2db56a40d9"
+      }
+    },
+    {
       "id": "ico-mixed-16-32-256",
       "file": "ico-mixed-16-32-256.ico",
       "generator": "ico-mixed",

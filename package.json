@@ -327,6 +327,11 @@
       "import": "./dist/codec-entries/all.js",
       "default": "./dist/codec-entries/all.js"
     },
+    "./codecs/web": {
+      "types": "./dist/codec-entries/web.d.ts",
+      "import": "./dist/codec-entries/web.js",
+      "default": "./dist/codec-entries/web.js"
+    },
     "./codecs/avif": {
       "types": "./dist/codec-entries/avif.d.ts",
       "import": "./dist/codec-entries/avif.js",
@@ -514,6 +519,8 @@
     "bench:jimp": "node benchmark/run.ts --engines jimp",
     "bench:competitors": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors",
     "bench:competitors:charts": "node benchmark/scripts/render-competitor-charts.ts",
+    "bench:web-codecs": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile web-codecs",
+    "bench:web-codecs:charts": "node benchmark/scripts/render-competitor-charts.ts --profile web-codecs",
     "bench:stable-codecs": "npm run build && node benchmark/stable-codecs/run.ts",
     "bench:results:index": "node benchmark/scripts/build-result-index.ts",
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
@@ -594,6 +601,7 @@
     "@deck.gl/core": "^9.3.10",
     "@hms-dbmi/viv": "^0.22.1",
     "@itk-wasm/image-io": "^1.6.1",
+    "@jsquash/avif": "^2.1.1",
     "@jsquash/jpeg": "1.6.0",
     "@jsquash/png": "3.1.1",
     "@jsquash/resize": "2.1.1",

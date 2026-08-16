@@ -211,6 +211,7 @@ export const engine: Engine = {
   packageName: 'jimp',
   unsupportedReason: (workflow): string | undefined => {
     const input = workflow.batch ? workflow.inputs.join(',') : workflow.input
+    if (input.includes('avif')) return 'Jimp 1.6.0 has no AVIF decoder'
     if (input.includes('webp')) return 'Jimp 1.6.0 has no WebP decoder'
     if (input.includes('iphone12-') || input.includes('heic')) {
       return 'Jimp 1.6.0 has no HEIC decoder'

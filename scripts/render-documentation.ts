@@ -618,7 +618,7 @@ const replaceRegion = (source: string, id: string, content: string): string => {
 }
 
 const resultIndex = await latestResultIndex()
-const ordinaryEntry = latestEntry(resultIndex, 'competitors')
+const ordinaryEntry = latestEntry(resultIndex, 'web-codecs')
 const scientificEntry = latestEntry(resultIndex, 'scientific-readers-baseline')
 const scientificScalingEntry = latestEntry(resultIndex, 'scientific-readers-scaling')
 const rangeEntry = latestEntry(resultIndex, 'scientific-readers-range')
@@ -686,6 +686,7 @@ const target = (id: string) => {
 }
 const coreSize = target('core')
 const allCodecSize = target('codecs-all')
+const webCodecSize = target('codecs-web')
 const scientificSize = target('scientific')
 const allReaderSize = target('scientific-readers-all')
 const installedSize = target('purejsimage-all')
@@ -981,6 +982,11 @@ const documentation = {
       gzipBytes: allCodecSize.gzipBytes,
       minifiedBytes: allCodecSize.minifiedJsBytes,
     },
+    commonWebCodecs: {
+      brotliBytes: webCodecSize.brotliBytes,
+      gzipBytes: webCodecSize.gzipBytes,
+      minifiedBytes: webCodecSize.minifiedJsBytes,
+    },
     core: {
       brotliBytes: coreSize.brotliBytes,
       gzipBytes: coreSize.gzipBytes,
@@ -1103,6 +1109,7 @@ const summaryBlock = [
   '| Current measured surface | Minified JS | gzip | Brotli |',
   '| --- | ---: | ---: | ---: |',
   `| Core API | ${formatKibibytes(coreSize.minifiedJsBytes)} | ${formatKibibytes(coreSize.gzipBytes)} | ${formatKibibytes(coreSize.brotliBytes)} |`,
+  `| Common web codecs | ${formatKibibytes(webCodecSize.minifiedJsBytes)} | ${formatKibibytes(webCodecSize.gzipBytes)} | ${formatKibibytes(webCodecSize.brotliBytes)} |`,
   `| All stable codecs | ${formatKibibytes(allCodecSize.minifiedJsBytes)} | ${formatKibibytes(allCodecSize.gzipBytes)} | ${formatKibibytes(allCodecSize.brotliBytes)} |`,
   `| Scientific platform | ${formatKibibytes(scientificSize.minifiedJsBytes)} | ${formatKibibytes(scientificSize.gzipBytes)} | ${formatKibibytes(scientificSize.brotliBytes)} |`,
   `| All scientific readers | ${formatKibibytes(allReaderSize.minifiedJsBytes)} | ${formatKibibytes(allReaderSize.gzipBytes)} | ${formatKibibytes(allReaderSize.brotliBytes)} |`,
@@ -1113,13 +1120,13 @@ const summaryBlock = [
 const benchmarkBlock = [
   '## Current benchmark snapshots',
   '',
-  `**Ordinary images (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
+  `**Common web codecs (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
   `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup workflows passed across ${manifest.scientificReaders.length} readers. The separate medium/large scaling profile validated ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
   '',
-  `[Ordinary methodology and report](https://purejsimage.com/performance/#ordinary-images) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](${portablePath(resultIndex.path)})`,
+  `[Common web codec methodology and report](https://purejsimage.com/performance/#common-web-codecs) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](${portablePath(resultIndex.path)})`,
 ]
   .filter((line, index, lines) => line.length > 0 || lines[index - 1]?.length !== 0)
   .join('\n')

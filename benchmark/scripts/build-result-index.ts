@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { dirname, extname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { workflowsForProfile } from '../workflows.ts'
 
 interface ResultIndexEntry {
   readonly profile: string
@@ -120,6 +121,27 @@ const validationStatus = (value: Record<string, unknown>): ResultIndexEntry['val
   return 'unverified'
 }
 
+const isCompleteWebCodecRun = (value: Record<string, unknown>): boolean => {
+  if (!isRecord(value.configuration) || !Array.isArray(value.results)) return false
+  const runs = value.configuration.defaultRuns
+  const warmups = value.configuration.defaultWarmups
+  if (typeof runs !== 'number' || runs < 3 || typeof warmups !== 'number' || warmups < 1) {
+    return false
+  }
+  const expectedWorkflows = new Set(workflowsForProfile('web-codecs').map(({ id }) => id))
+  const recordedWorkflows = new Set(
+    value.results.flatMap((result) => {
+      if (!isRecord(result)) return []
+      const workflow = stringValue(result.workflow)
+      return workflow === undefined ? [] : [workflow]
+    }),
+  )
+  return (
+    recordedWorkflows.size === expectedWorkflows.size &&
+    [...expectedWorkflows].every((workflow) => recordedWorkflows.has(workflow))
+  )
+}
+
 const profile = (value: Record<string, unknown>, file: string): string => {
   const scientificProfile = stringValue(value.profile)
   if (file.includes('/scientific-readers/results/artifacts/scientific-competitors/')) {
@@ -176,6 +198,9 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
       : undefined) ??
     'not-recorded'
   const path = relative(repositoryDirectory, file)
+  const resultProfile = profile(value, path)
+  const resultValidationStatus = validationStatus(value)
+  const completeForHeadline = resultProfile !== 'web-codecs' || isCompleteWebCodecRun(value)
   const markdownPath = file.replace(/\.json$/u, '.md')
   const resultPaths = [path]
   try {
@@ -185,19 +210,21 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
     // Some specialized runners historically emitted JSON only.
   }
   return {
-    profile: profile(value, path),
+    profile: resultProfile,
     date: createdAt,
     commit,
     environmentFingerprint,
     resultPaths,
     engineVersions: engineVersions(value),
     fixtureManifestHash,
-    validationStatus: validationStatus(value),
+    validationStatus: resultValidationStatus,
     eligibleForDocumentationHeadlines:
-      value.eligibleForDocumentationHeadlines === true ||
-      (validationStatus(value) === 'passed' &&
-        (profile(value, path) === 'competitors' ||
-          profile(value, path) === 'scientific-readers-baseline')),
+      completeForHeadline &&
+      (value.eligibleForDocumentationHeadlines === true ||
+        (resultValidationStatus === 'passed' &&
+          (resultProfile === 'competitors' ||
+            resultProfile === 'web-codecs' ||
+            resultProfile === 'scientific-readers-baseline'))),
   }
 }
 

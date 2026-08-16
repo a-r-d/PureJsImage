@@ -54,6 +54,7 @@ const renderScientificReaders = (metrics: PackageMetricsDocument): string => {
 const renderBundle = (metrics: PackageMetricsDocument): string => {
   const rows = [
     targetById(metrics, 'core'),
+    targetById(metrics, 'codecs-web'),
     targetById(metrics, 'codecs-all'),
     targetById(metrics, 'scientific'),
     targetById(metrics, 'scientific-readers-all'),

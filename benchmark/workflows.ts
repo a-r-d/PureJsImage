@@ -483,6 +483,55 @@ export const workflows: readonly Workflow[] = [
     timeoutMs: 120000,
   },
   {
+    id: 'avif-fox-metadata',
+    title: 'Read metadata from a 1204x800 AVIF photograph',
+    tier: 'web-codecs',
+    input: 'avif-fox-profile0-1204x800',
+    operations: [{ type: 'metadata' }],
+    expected: { format: 'avif', width: 1204, height: 800 },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'avif-fox-full-png',
+    title: 'Fully decode a 1204x800 AVIF photograph to PNG',
+    tier: 'web-codecs',
+    input: 'avif-fox-profile0-1204x800',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 1204,
+      height: 800,
+      // Independent Sharp/libvips decode of the checksum-pinned libavif fixture.
+      pixelSamples: [
+        { x: 0, y: 0, red: 43, green: 61, blue: 76, alpha: 255, tolerance: 4 },
+        { x: 301, y: 200, red: 13, green: 24, blue: 16, alpha: 255, tolerance: 4 },
+        { x: 602, y: 400, red: 72, green: 106, blue: 138, alpha: 255, tolerance: 4 },
+        { x: 903, y: 600, red: 9, green: 6, blue: 9, alpha: 255, tolerance: 4 },
+        { x: 1203, y: 799, red: 17, green: 24, blue: 36, alpha: 255, tolerance: 4 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'avif-fox-resize-jpeg',
+    title: '1204x800 AVIF photograph to 800px JPEG quality 80',
+    tier: 'web-codecs',
+    input: 'avif-fox-profile0-1204x800',
+    operations: [{ type: 'resize', width: 800 }, jpeg(80)],
+    expected: {
+      format: 'jpeg',
+      width: 800,
+      height: 532,
+      pixelSamples: [
+        { x: 0, y: 0, red: 43, green: 61, blue: 76, tolerance: 20 },
+        { x: 200, y: 133, red: 13, green: 24, blue: 16, tolerance: 20 },
+        { x: 400, y: 266, red: 72, green: 106, blue: 138, tolerance: 20 },
+        { x: 799, y: 531, red: 17, green: 24, blue: 36, tolerance: 20 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
     id: 'bmp-metadata-large',
     title: 'Read metadata from a 4000x3000 24-bit BMP',
     tier: 'bmp',
@@ -1554,6 +1603,24 @@ const competitorWorkflowIds = new Set([
   'heif-iphone-resize-jpeg',
 ])
 
+const commonWebCodecWorkflowIds = new Set([
+  'metadata-jpeg-large',
+  'jpeg-resize-1200',
+  'northstar-photo-pipeline',
+  'jpeg-crop-resize',
+  'png-resize-1000',
+  'png-alpha-resize',
+  'png-to-jpeg',
+  'jpeg-to-png',
+  'auto-orient-6',
+  'stress-100mp-downscale',
+  'tiff-large-resize-jpeg',
+  'webp-large-resize-jpeg',
+  'avif-fox-metadata',
+  'avif-fox-full-png',
+  'avif-fox-resize-jpeg',
+])
+
 export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   if (profile === 'smoke') {
     return workflows.filter((workflow) => workflow.tier === 'smoke')
@@ -1575,6 +1642,7 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
         workflow.tier !== 'ico' &&
         workflow.tier !== 'small-codecs' &&
         workflow.tier !== 'tiff' &&
+        workflow.tier !== 'web-codecs' &&
         workflow.tier !== 'webp',
     )
   }
@@ -1604,6 +1672,9 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'competitors') {
     return workflows.filter((workflow) => competitorWorkflowIds.has(workflow.id))
+  }
+  if (profile === 'web-codecs') {
+    return workflows.filter((workflow) => commonWebCodecWorkflowIds.has(workflow.id))
   }
   throw new Error(`Unknown profile: ${profile}`)
 }

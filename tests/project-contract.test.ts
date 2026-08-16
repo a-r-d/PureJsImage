@@ -24,6 +24,7 @@ import * as analysisRoiApi from '../src/analysis/roi-entry.ts'
 import * as analysisRuntimeApi from '../src/analysis/runtime.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
+import { allWebCodecs } from '../src/codec-entries/web.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
@@ -200,6 +201,7 @@ describe('package contract', () => {
     expect(ignore).toContain('benchmark/scientific-readers/results/')
     expect(publicIndex.results.map(({ profile }) => profile)).toEqual([
       'competitors',
+      'web-codecs',
       'scientific-readers-baseline',
       'scientific-readers-scaling',
       'scientific-readers-range',
@@ -716,6 +718,7 @@ describe('package contract', () => {
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
       './codecs/all',
+      './codecs/web',
       './codecs/avif',
       './codecs/bmp',
       './codecs/hdr',
@@ -744,6 +747,7 @@ describe('package contract', () => {
     expect(analysisProjectApi).toHaveProperty('inspectMigrationPlan')
     for (const name of [
       'allCodecs',
+      'allWebCodecs',
       'avifCodec',
       'bmpCodec',
       'hdrCodec',
@@ -799,6 +803,9 @@ describe('package contract', () => {
 
   it('keeps experimental HEIC out of the default codec set', () => {
     expect(allCodecs.map(({ format }) => format)).not.toContain('heif')
+    expect(Object.isFrozen(allWebCodecs)).toBe(true)
+    expect(allWebCodecs.map(({ format }) => format)).toEqual(['jpeg', 'png', 'webp', 'avif'])
+    expect(allWebCodecs.map(({ format }) => format)).not.toContain('heif')
     expect(experimentalHeicCodec).toBe(experimentalHeifCodec)
     expect(experimentalHeicCodec.format).toBe('heif')
   })
@@ -890,6 +897,7 @@ describe('benchmark contract', () => {
     const webp = workflowsForProfile('webp')
     const smallCodecs = workflowsForProfile('small-codecs')
     const competitors = workflowsForProfile('competitors')
+    const webCodecs = workflowsForProfile('web-codecs')
 
     expect(smoke.length).toBeGreaterThan(0)
     expect(phase4.length).toBe(12)
@@ -901,6 +909,8 @@ describe('benchmark contract', () => {
     expect(webp.length).toBe(11)
     expect(smallCodecs.length).toBe(18)
     expect(competitors).toHaveLength(14)
+    expect(webCodecs).toHaveLength(15)
+    expect(webCodecs.filter(({ id }) => id.startsWith('avif-'))).toHaveLength(3)
     expect(
       competitors
         .filter(
@@ -918,6 +928,7 @@ describe('benchmark contract', () => {
           workflow.tier !== 'ico' &&
           workflow.tier !== 'tiff' &&
           workflow.tier !== 'small-codecs' &&
+          workflow.tier !== 'web-codecs' &&
           workflow.tier !== 'webp',
       ),
     )

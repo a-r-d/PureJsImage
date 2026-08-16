@@ -6,6 +6,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the explicit `purejsimage/codecs/web` entry with the frozen `allWebCodecs` JPEG, PNG, WebP,
+  and AVIF aggregate, plus a correctness-gated common-web benchmark profile with AVIF metadata,
+  full-decode, resize, conversion, and external Sharp and jSquash comparison rows. The historical
+  ordinary competitor profile remains unchanged.
+
 - Completed the initial Milestone H interchange and detector set with explicit portable readers
   for RPL/RAW, EMSA/MAS, NRRD, MetaImage MHD/MHA, NIfTI-1/2 including bounded `.nii.gz`, NPY,
   NanoMegas BLO, processed Merlin MIB, and rectangular ANG/CTF orientation maps. The readers

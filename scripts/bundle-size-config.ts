@@ -297,11 +297,20 @@ export const createPureJsImageEntryTargets = (
     packageExport: 'purejsimage/codecs/all',
     sourceEntries: ['./src/index.ts', './src/codec-entries/all.ts'],
   })
+  const webCodecs = sourceTarget({
+    codecs: ['JPEG', 'PNG', 'WebP', 'AVIF'],
+    id: 'codecs-web',
+    implementation: 'pure-javascript',
+    name: 'Core + common web codecs',
+    packageExport: 'purejsimage/codecs/web',
+    sourceEntries: ['./src/index.ts', './src/codec-entries/web.ts'],
+  })
   const targets = [
     ...staticPureJsImageTargets(),
     ...readers,
     allReaders,
     ...codecTargets,
+    webCodecs,
     allCodecs,
   ]
   const targetIds = new Set(targets.map(({ id }) => id))

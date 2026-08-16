@@ -353,29 +353,29 @@ Quick harness validation:
 npm run bench:smoke
 ```
 
-Broader competitor comparison:
+Common web codec comparison:
 
 ```sh
-npm run bench:competitors
+npm run bench:web-codecs
+npm run bench:web-codecs:charts
 ```
 
 The equivalent direct harness command, after `npm run build`, is:
 
 ```sh
-node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors
+node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile web-codecs
 ```
 
-The profile covers large JPEG metadata; JPEG resize, crop, and orientation;
-transparent and opaque PNG workflows; JPEG/PNG conversion; the 100-megapixel
-PNG downscale; BMP, TIFF, WebP, and HEIC inputs. It reuses the existing pinned
-fixtures. An engine is marked unsupported when its public API or installed
-codec build cannot express the exact workflow. In particular, the installed
-Sharp build is probed against the pinned iPhone HEIC file rather than relying on
-a generic HEIF capability flag.
+This is the primary common-web profile. It covers JPEG metadata, resize, crop,
+orientation, and conversion; transparent and opaque PNG workflows; the
+100-megapixel PNG downscale; representative WebP and TIFF conversion; and AVIF
+metadata, full decode, resize, and conversion. The AVIF photograph is a
+checksum-pinned libavif fixture already used by the codec conformance suite.
+An engine is marked unsupported when its public API or installed codec build
+cannot express the exact workflow.
 `purejsimage` uses the default TypeScript codecs. `purejsimage-wasm` explicitly registers the
 published JPEG and PNG scalar/SIMD accelerator providers and retains their normal eligibility and
-fallback rules; workflows outside those accelerated subsets still execute through the same
-TypeScript reference codecs.
+fallback rules; WebP, TIFF, and AVIF execute through the same TypeScript reference codecs.
 `purejsimage-experimental-heic` is reserved for the HEIF profile and directly imports the
 experimental codec. It must not be added to the default or competitor engine lists.
 
@@ -397,7 +397,7 @@ the timed and peak-RSS regions. This makes quality loss visible alongside speed
 and output size without claiming that different lossy quality scales are
 calibrated or matched.
 
-jSquash uses its public WebAssembly JPEG, PNG, WebP, and resize APIs. The worker
+jSquash uses its public WebAssembly AVIF, JPEG, PNG, WebP, and resize APIs. The worker
 uses jSquash's documented manual Node WASM initialization and a minimal
 `ImageData` environment shim; it does not use a Canvas package or modify the
 codec implementations. Input conversion happens before timing. Its PNG encoder
@@ -405,6 +405,18 @@ does not expose compression-level tuning, so the normal package default is used
 and output size remains recorded. Workflows requiring metadata-only inspection,
 exact crop coordinates, explicit alpha flattening, BMP, TIFF, or HEIC are
 reported as unsupported rather than approximated.
+
+Historical broad ordinary competitor profile:
+
+```sh
+npm run bench:competitors
+npm run bench:competitors:charts
+```
+
+The `competitors` profile remains unchanged for cross-date comparability. It
+includes the prior BMP and experimental HEIC rows and does not retroactively add
+AVIF. New common-web documentation and charts use `web-codecs`; older
+competitor artifacts remain historical evidence.
 
 The current checked-in artifacts are
 [`competitors-2026-08-09.md`](results/competitors-2026-08-09.md) and

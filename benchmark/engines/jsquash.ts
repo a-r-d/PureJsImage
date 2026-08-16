@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises'
+import decodeAvif, { init as initAvifDecode } from '@jsquash/avif/decode.js'
 import decodeJpeg, { init as initJpegDecode } from '@jsquash/jpeg/decode.js'
 import encodeJpeg, { init as initJpegEncode } from '@jsquash/jpeg/encode.js'
 import decodePng, { init as initPngDecode } from '@jsquash/png/decode.js'
@@ -49,6 +50,14 @@ const initializeJpegDecoder = (): Promise<void> => {
     initJpegDecode,
   )
   return jpegDecoderReady
+}
+
+let avifDecoderReady: Promise<void> | undefined
+const initializeAvifDecoder = (): Promise<void> => {
+  avifDecoderReady ??= compiledModule('@jsquash/avif', 'codec/dec/avif_dec.wasm').then(
+    initAvifDecode,
+  )
+  return avifDecoderReady
 }
 
 let jpegEncoderReady: Promise<void> | undefined
@@ -171,6 +180,12 @@ const decode = async (workflow: PipelineWorkflow, input: Buffer): Promise<ImageD
     await initializeWebpDecoder()
     return decodeWebp(bytes)
   }
+  if (workflow.id === 'avif-fox-full-png' || workflow.id === 'avif-fox-resize-jpeg') {
+    await initializeAvifDecoder()
+    const image = await decodeAvif(bytes)
+    if (image === null) throw new Error('jSquash AVIF decoder returned no image')
+    return image
+  }
   throw new Error(`jSquash input decoder is not configured for ${workflow.id}`)
 }
 
@@ -213,18 +228,29 @@ const supportedWorkflows = new Set([
   'auto-orient-6',
   'stress-100mp-downscale',
   'webp-large-resize-jpeg',
+  'avif-fox-full-png',
+  'avif-fox-resize-jpeg',
 ])
 
 export const engine: Engine = {
   id: 'jsquash',
-  version: 'jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1',
+  version: 'avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1',
   kind: 'webassembly',
   packageName: '@jsquash/jpeg',
-  packageNames: ['@jsquash/jpeg', '@jsquash/png', '@jsquash/webp', '@jsquash/resize'],
+  packageNames: [
+    '@jsquash/avif',
+    '@jsquash/jpeg',
+    '@jsquash/png',
+    '@jsquash/webp',
+    '@jsquash/resize',
+  ],
   unsupportedReason: (workflow): string | undefined => {
     if (supportedWorkflows.has(workflow.id)) return undefined
     if (workflow.id === 'metadata-jpeg-large') {
       return 'jSquash has no metadata inspection API; decoding all pixels would not be equivalent'
+    }
+    if (workflow.id === 'avif-fox-metadata') {
+      return 'jSquash has no metadata inspection API; decoding all AVIF pixels would not be equivalent'
     }
     if (workflow.id === 'northstar-photo-pipeline' || workflow.id === 'jpeg-crop-resize') {
       return "jSquash has no public operation for the workflow's exact crop coordinates"

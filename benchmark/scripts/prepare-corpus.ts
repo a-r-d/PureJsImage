@@ -1,7 +1,7 @@
 import { once } from 'node:events'
 import { execFileSync } from 'node:child_process'
-import { mkdir, open, rm, writeFile } from 'node:fs/promises'
-import { basename } from 'node:path'
+import { mkdir, open, readFile, rm, writeFile } from 'node:fs/promises'
+import { basename, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createDeflate } from 'node:zlib'
 import { GifWriter } from 'omggif'
@@ -32,6 +32,19 @@ const corpusDownloadHosts: ReadonlySet<string> = new Set([
   'upload.wikimedia.org',
   'www.gstatic.com',
 ])
+
+const avifBenchmarkSources: Readonly<Record<string, string>> = {
+  'avif-fox-profile0-1204x800': 'fox.profile0.8bpc.yuv420.avif',
+}
+
+const writeAvifBenchmarkCopy = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const sourceName = avifBenchmarkSources[fixture.id]
+  if (sourceName === undefined) {
+    throw new Error(`Unknown AVIF benchmark copy fixture: ${fixture.id}`)
+  }
+  const source = join(corpusFilesDirectory, 'avif', sourceName)
+  await writeFile(fixturePath(fixture), await readFile(source))
+}
 
 const writeRgbaPng = async ({
   fixture,
@@ -823,6 +836,8 @@ const smallCodecPreparer = fileURLToPath(
 
 const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
   switch (fixture.generator) {
+    case 'avif-benchmark-copy':
+      return writeAvifBenchmarkCopy(fixture)
     case 'bmp-gradient':
       return writeBmpGradient(fixture)
     case 'ico-dib24':

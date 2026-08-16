@@ -8,6 +8,16 @@ const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 const outputDirectory = join(benchmarkDirectory, 'results')
 const docsAssetsDirectory = join(dirname(benchmarkDirectory), 'docs', 'assets')
 
+const argument = (name: string): string | undefined => {
+  const index = process.argv.indexOf(`--${name}`)
+  return index < 0 ? undefined : process.argv[index + 1]
+}
+
+const profile = argument('profile') ?? 'competitors'
+if (profile !== 'competitors' && profile !== 'web-codecs') {
+  throw new Error(`Chart profile must be competitors or web-codecs, received ${profile}`)
+}
+
 const latestCompetitorReport = async (): Promise<string> => {
   const candidates = (await readdir(outputDirectory))
     .filter((file) => file.endsWith('.json'))
@@ -20,7 +30,7 @@ const latestCompetitorReport = async (): Promise<string> => {
         typeof value === 'object' &&
         value !== null &&
         'profile' in value &&
-        value.profile === 'competitors' &&
+        value.profile === profile &&
         'createdAt' in value &&
         typeof value.createdAt === 'string'
       ) {
@@ -31,15 +41,22 @@ const latestCompetitorReport = async (): Promise<string> => {
     }
   }
   const latest = reports.sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0]
-  if (latest === undefined) throw new Error(`No competitors report found in ${outputDirectory}`)
+  if (latest === undefined) throw new Error(`No ${profile} report found in ${outputDirectory}`)
   return latest.path
 }
 
-const reportPath = process.argv[2] ?? (await latestCompetitorReport())
+const positionalReport = process.argv
+  .slice(2)
+  .find((value, index, values) => !value.startsWith('--') && values[index - 1] !== '--profile')
+const reportPath = argument('report') ?? positionalReport ?? (await latestCompetitorReport())
 
 const engines = [
   { id: 'purejsimage', label: 'PureJsImage · pure JS', color: '#2563eb' },
-  { id: 'purejsimage-wasm', label: 'PureJsImage · WASM opt-in', color: '#c026d3' },
+  {
+    id: 'purejsimage-wasm',
+    label: 'PureJsImage · WASM opt-in (JPEG/PNG)',
+    color: '#c026d3',
+  },
   { id: 'jimp', label: 'Jimp · pure JS', color: '#7c3aed' },
   { id: 'sharp', label: 'Sharp · native/libvips', color: '#ea580c' },
   {
@@ -51,7 +68,7 @@ const engines = [
   { id: 'jsquash', label: 'jSquash · WebAssembly', color: '#0891b2' },
 ] as const
 
-const workflowCandidates = [
+const competitorWorkflowCandidates = [
   { id: 'metadata-jpeg-large', label: 'Large JPEG metadata' },
   { id: 'jpeg-resize-1200', label: 'JPEG resize → JPEG' },
   { id: 'northstar-photo-pipeline', label: 'Northstar photo pipeline' },
@@ -62,6 +79,18 @@ const workflowCandidates = [
   { id: 'tiff-large-resize-jpeg', label: 'TIFF resize → JPEG' },
   { id: 'stress-100mp-downscale', label: '100 MP PNG downscale' },
 ] as const
+
+const webCodecWorkflowCandidates = [
+  { id: 'jpeg-resize-1200', label: 'JPEG resize → JPEG' },
+  { id: 'png-resize-1000', label: 'PNG resize → PNG' },
+  { id: 'webp-large-resize-jpeg', label: 'WebP resize → JPEG' },
+  { id: 'tiff-large-resize-jpeg', label: 'TIFF resize → JPEG' },
+  { id: 'avif-fox-full-png', label: 'AVIF full decode → PNG' },
+  { id: 'avif-fox-resize-jpeg', label: 'AVIF resize → JPEG' },
+] as const
+
+const workflowCandidates =
+  profile === 'web-codecs' ? webCodecWorkflowCandidates : competitorWorkflowCandidates
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -101,6 +130,9 @@ if (!isBenchmarkReport(parsedReport)) {
   throw new Error(`Invalid benchmark report: ${reportPath}`)
 }
 const report = parsedReport
+if (report.profile !== profile) {
+  throw new Error(`Expected ${profile} report, received ${report.profile}`)
+}
 const reportDate = new Date(report.createdAt).toISOString().slice(0, 10)
 const reportStem = basename(reportPath).replace(/\.json$/u, '')
 
@@ -116,25 +148,32 @@ for (const workflow of workflowCandidates) {
   }
 }
 
-const performanceWorkflows = workflowCandidates.filter((workflow) =>
-  engines.every(
-    (engine) => resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.status === 'pass',
-  ),
-)
+const passingResults = (workflowId: string): readonly BenchmarkResult[] =>
+  engines.flatMap((engine) => {
+    const result = resultByKey.get(`${engine.id}:${workflowId}`)
+    return result?.summary.status === 'pass' ? [result] : []
+  })
+
+const performanceWorkflows = workflowCandidates.filter((workflow) => {
+  const passing = passingResults(workflow.id)
+  if (profile === 'competitors') return passing.length === engines.length
+  return passing.some(({ engine }) => engine === 'purejsimage') && passing.length >= 2
+})
 if (performanceWorkflows.length === 0) {
   throw new Error('No workflow passed validation for every chart engine')
 }
-const qualityWorkflows = performanceWorkflows.filter((workflow) =>
-  engines.every(
-    (engine) => resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.qualityPsnrDb !== undefined,
-  ),
-)
+const qualityWorkflows = performanceWorkflows.filter((workflow) => {
+  const measured = passingResults(workflow.id).filter(
+    ({ summary }) => summary.qualityPsnrDb !== undefined,
+  )
+  return profile === 'competitors' ? measured.length === engines.length : measured.length >= 2
+})
 if (qualityWorkflows.length === 0) {
   throw new Error('No workflow reported quality for every chart engine')
 }
 const finiteQualityValues = qualityWorkflows.flatMap((workflow) =>
-  engines.flatMap((engine) => {
-    const quality = resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.qualityPsnrDb
+  passingResults(workflow.id).flatMap((result) => {
+    const quality = result.summary.qualityPsnrDb
     return typeof quality === 'number' ? [quality] : []
   }),
 )
@@ -193,11 +232,7 @@ const chartSvg = (metric: Metric): string => {
   const speedTicks = [0.1, 1, 10, 100, 1000, 10_000]
   const largestMemory = Math.max(
     ...workflows.flatMap((workflow) =>
-      engines.map((engine) => {
-        const result = resultByKey.get(`${engine.id}:${workflow.id}`)
-        if (!result) throw new Error(`Missing ${engine.id}/${workflow.id} in ${reportPath}`)
-        return metricValue(result, 'memory')
-      }),
+      passingResults(workflow.id).map((result) => metricValue(result, 'memory')),
     ),
   )
   const memoryStep = largestMemory > 2000 ? 500 : 200
@@ -213,10 +248,16 @@ const chartSvg = (metric: Metric): string => {
   const ticks = metric === 'speed' ? speedTicks : metric === 'memory' ? memoryTicks : qualityTicks
   const title =
     metric === 'speed'
-      ? 'Image workflow speed'
+      ? profile === 'web-codecs'
+        ? 'Common web codec speed'
+        : 'Image workflow speed'
       : metric === 'memory'
-        ? 'Image workflow memory'
-        : 'Image workflow quality'
+        ? profile === 'web-codecs'
+          ? 'Common web codec memory'
+          : 'Image workflow memory'
+        : profile === 'web-codecs'
+          ? 'Common web codec quality'
+          : 'Image workflow quality'
   const subtitle =
     metric === 'speed'
       ? 'Median wall time · logarithmic scale · lower is better'
@@ -267,9 +308,17 @@ const chartSvg = (metric: Metric): string => {
           if (result === undefined) {
             throw new Error(`Missing ${engine.id}/${workflow.id} in ${reportPath}`)
           }
+          const y = groupTop + 28 + engineIndex * rowHeight
+          if (result.summary.status !== 'pass') {
+            return `<text x="730" y="${y + 15}" text-anchor="end" class="engine">${escapeXml(engine.label)}</text>
+              <text x="${plotLeft + 12}" y="${y + 15}" class="unsupported">unsupported</text>`
+          }
+          if (metric === 'quality' && result.summary.qualityPsnrDb === undefined) {
+            return `<text x="730" y="${y + 15}" text-anchor="end" class="engine">${escapeXml(engine.label)}</text>
+              <text x="${plotLeft + 12}" y="${y + 15}" class="unsupported">not measured</text>`
+          }
           const value = metricValue(result, metric)
           const endX = valueToX(value)
-          const y = groupTop + 28 + engineIndex * rowHeight
           const widthValue = Math.max(endX - plotLeft, 3)
           return `<text x="730" y="${y + 15}" text-anchor="end" class="engine">${escapeXml(engine.label)}</text>
             <rect x="${plotLeft}" y="${y}" width="${widthValue}" height="${barHeight}" rx="4" fill="${engine.color}" />
@@ -287,7 +336,7 @@ const chartSvg = (metric: Metric): string => {
     metric === 'speed'
       ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
       : metric === 'memory'
-        ? 'Absolute process RSS from isolated workers. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript.'
+        ? 'Absolute process RSS from isolated workers. PureJsImage WASM accelerates JPEG/PNG only and uses TypeScript fallback for WebP, TIFF, and AVIF; jSquash AVIF is WebAssembly.'
         : 'Premultiplied-RGBA PSNR against an independently decoded exact-area reference. Exact means every compared channel matched. Quality measurement is outside timing.'
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -301,26 +350,28 @@ const chartSvg = (metric: Metric): string => {
       .workflow { font-size: 24px; font-weight: 750; }
       .engine { font-size: 18px; fill: #40506a; }
       .value { font-size: 17px; font-weight: 700; fill: #273449; }
+      .unsupported { font-size: 17px; font-weight: 700; fill: #94a3b8; }
       .footer { font-size: 20px; fill: #526077; }
       .source { font-size: 18px; fill: #718096; }
     </style>
     <text x="54" y="78" class="title">${title}</text>
     <text x="54" y="124" class="subtitle">${subtitle}</text>
-    <text x="54" y="168" class="source">Validated competitors profile · ${escapeXml(reportDate)} · ${escapeXml(environment)}</text>
+    <text x="54" y="168" class="source">Validated ${escapeXml(profile)} profile · ${escapeXml(reportDate)} · ${escapeXml(environment)}</text>
     ${legend}
     ${grid}
     ${bars}
     <text x="54" y="${height - 90}" class="footer">${escapeXml(footer)}</text>
-    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows with validated output and the displayed metric for all ${engines.length} engines are shown.</text>
+    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Unsupported rows are explicit; only validated outputs contribute performance bars.</text>
   </svg>`
 }
 
-const speedPath = join(outputDirectory, `competitors-speed-${reportStem}.png`)
-const memoryPath = join(outputDirectory, `competitors-memory-${reportStem}.png`)
-const qualityPath = join(outputDirectory, `competitors-quality-${reportStem}.png`)
-const docsSpeedPath = join(docsAssetsDirectory, `competitors-speed-${reportStem}.png`)
-const docsMemoryPath = join(docsAssetsDirectory, `competitors-memory-${reportStem}.png`)
-const docsQualityPath = join(docsAssetsDirectory, `competitors-quality-${reportStem}.png`)
+const chartPrefix = profile === 'competitors' ? 'competitors' : 'web-codecs'
+const speedPath = join(outputDirectory, `${chartPrefix}-speed-${reportStem}.png`)
+const memoryPath = join(outputDirectory, `${chartPrefix}-memory-${reportStem}.png`)
+const qualityPath = join(outputDirectory, `${chartPrefix}-quality-${reportStem}.png`)
+const docsSpeedPath = join(docsAssetsDirectory, `${chartPrefix}-speed-${reportStem}.png`)
+const docsMemoryPath = join(docsAssetsDirectory, `${chartPrefix}-memory-${reportStem}.png`)
+const docsQualityPath = join(docsAssetsDirectory, `${chartPrefix}-quality-${reportStem}.png`)
 
 await mkdir(docsAssetsDirectory, { recursive: true })
 await Promise.all([

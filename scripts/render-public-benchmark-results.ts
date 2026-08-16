@@ -191,7 +191,8 @@ const ordinarySnapshot = async (entry: SourceEntry) => {
   const sourceStem = basename(sourcePath, '.json')
   const charts = Object.fromEntries(
     ['speed', 'quality', 'memory'].map((metric) => {
-      const path = `benchmark/results/competitors-${metric}-${sourceStem}.png`
+      const chartPrefix = entry.profile === 'web-codecs' ? 'web-codecs' : 'competitors'
+      const path = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.png`
       return [metric, path]
     }),
   )
@@ -523,6 +524,7 @@ const writePublicResults = async (): Promise<void> => {
   const sourceIndex = await latestSourceIndex()
   const definitions = [
     { profile: 'competitors', build: ordinarySnapshot, headline: true },
+    { profile: 'web-codecs', build: ordinarySnapshot, headline: true },
     { profile: 'scientific-readers-baseline', build: scientificSnapshot, headline: true },
     { profile: 'scientific-readers-scaling', build: scientificScalingSnapshot, headline: true },
     { profile: 'scientific-readers-range', build: rangeSnapshot, headline: false },
@@ -592,8 +594,12 @@ const writePublicResults = async (): Promise<void> => {
       'This compact tracked snapshot contains only the fields consumed by generated public documentation. Raw benchmark output remains local and ignored.',
       '',
     ].join('\n')
-    await writeFile(jsonPath, json)
-    await writeFile(markdownPath, markdown)
+    const existingJson = await readFile(jsonPath, 'utf8').catch(() => undefined)
+    const existingMarkdown = await readFile(markdownPath, 'utf8').catch(() => undefined)
+    const publishedJson = existingJson ?? json
+    const publishedMarkdown = existingMarkdown ?? markdown
+    if (existingJson === undefined) await writeFile(jsonPath, publishedJson)
+    if (existingMarkdown === undefined) await writeFile(markdownPath, publishedMarkdown)
     indexEntries.push({
       commit: source.commit,
       date: source.date,
@@ -605,7 +611,7 @@ const writePublicResults = async (): Promise<void> => {
       publicationValidationStatus: 'passed',
       validationStatus: 'passed',
       resultPaths: [portable(jsonPath), portable(markdownPath)],
-      sha256: { json: hash(json), markdown: hash(markdown) },
+      sha256: { json: hash(publishedJson), markdown: hash(publishedMarkdown) },
       sourceEligibilityForDocumentationHeadlines: source.eligibleForDocumentationHeadlines,
       sourceResultPaths: source.resultPaths,
       sourceValidationStatus: source.validationStatus,
@@ -647,6 +653,7 @@ const checkPublicResults = async (): Promise<void> => {
   const entries = array(document.results, `${indexPath}.results`)
   const expectedProfiles = [
     'competitors',
+    'web-codecs',
     'scientific-readers-baseline',
     'scientific-readers-scaling',
     'scientific-readers-range',

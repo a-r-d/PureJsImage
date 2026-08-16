@@ -62,6 +62,7 @@ const isSourceFixture = (value: unknown): value is SourceFixture => {
 }
 
 const fixtureGenerators: Readonly<Record<FixtureGenerator, true>> = {
+  'avif-benchmark-copy': true,
   'bmp-gradient': true,
   'ico-dib24': true,
   'ico-dib32': true,

@@ -42,9 +42,10 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <tr><td><code>purejsimage/codecs/tiff</code></td><td><code>tiffCodec</code></td></tr>
             <tr><td><code>purejsimage/codecs/avif</code></td><td><code>avifCodec</code></td></tr>
             <tr><td><code>purejsimage/codecs/experimental/heic</code></td><td><code>experimentalHeicCodec</code>, <code>experimentalHeifCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/web</code></td><td><code>allWebCodecs</code> (JPEG, PNG, WebP, AVIF)</td></tr>
             <tr><td><code>purejsimage/codecs/all</code></td><td><code>allCodecs</code></td></tr>
           </tbody></table></div>
-          <p><code>allCodecs</code> contains the nine default codecs and intentionally excludes experimental HEIF/HEIC.</p>
+          <p><code>allWebCodecs</code> is the compact common-web group. TIFF remains a direct import because its broader implementation would substantially increase that bundle. <code>allCodecs</code> contains all 14 stable codecs. Both aggregates intentionally exclude experimental HEIF/HEIC.</p>
           <h3 id="experimental-heic">Experimental HEIC opt-in</h3>
           <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">import</span> &#123; createImageLibrary &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 <span class="tok-key">import</span> &#123; allCodecs &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/all'</span>

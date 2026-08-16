@@ -11,35 +11,35 @@ const github = (path: string | null): string | null =>
 const ordinaryCharts = [
   {
     key: 'speed',
-    title: 'Ordinary image speed',
+    title: 'Common web codec speed',
     description: 'Median wall time · logarithmic scale · lower is better',
   },
   {
     key: 'quality',
-    title: 'Ordinary image quality',
+    title: 'Common web codec quality',
     description: 'Premultiplied-RGBA PSNR · higher is better',
   },
   {
     key: 'memory',
-    title: 'Ordinary image memory',
+    title: 'Common web codec memory',
     description: 'Absolute process peak RSS · lower is better',
   },
 ] as const
 const scientificCharts = Object.entries(documentation.scientific.charts)
-const majorSizeIds = ['core', 'codecs-all', 'scientific', 'scientific-readers-all']
+const majorSizeIds = ['core', 'codecs-web', 'codecs-all', 'scientific', 'scientific-readers-all']
 const majorSizes = packageMetrics.targets.filter(({ id }) => majorSizeIds.includes(id))
 const competitorSizes = packageMetrics.targets.filter(({ category }) => category === 'competitor')
 ---
 
 <SiteLayout
   title="Validated image and scientific reader benchmarks | PureJsImage"
-  description="Current correctness-gated ordinary image and scientific reader benchmarks: speed, quality, peak RSS, source I/O, first-block latency, initialization, and package footprint."
+  description="Current correctness-gated common web codec and scientific reader benchmarks: speed, quality, peak RSS, source I/O, first-block latency, initialization, and package footprint."
   canonical="https://purejsimage.com/performance/"
   current="performance/"
   openGraph={{
     title: 'Validated image and scientific reader benchmarks | PureJsImage',
     description:
-      'Separate, correctness-gated benchmark evidence for ordinary image workflows and native scientific readers.',
+      'Separate, correctness-gated benchmark evidence for common web codec workflows and native scientific readers.',
     url: 'https://purejsimage.com/performance/',
   }}
   twitterCard="summary"
@@ -48,7 +48,7 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
     <header class="page-hero">
       <div class="container">
         <p class="eyebrow">Generated performance evidence</p>
-        <h1>Ordinary image and scientific reader benchmarks.</h1>
+        <h1>Common web codec and scientific reader benchmarks.</h1>
         <p class="page-lede">
           Results stay separated by workload class. A timing is admitted only after dimensions,
           selection, sample or pixel hashes, output validation, and any required quality oracle pass.
@@ -63,11 +63,11 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
       </div>
     </header>
 
-    <section class="proof-section performance-showcase" id="ordinary-images">
+    <section class="proof-section performance-showcase" id="common-web-codecs">
       <div class="container">
         <div class="proof-heading">
           <div>
-            <p class="section-label">Ordinary images</p>
+            <p class="section-label">Common web codecs</p>
             <h2>Speed, quality, memory, and package footprint.</h2>
           </div>
           <p>
@@ -111,7 +111,7 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
                 <div class="benchmark-image-scroll">
                   <img
                     src={`../${documentation.ordinary.charts[chart.key]}`}
-                    alt={`${chart.title} chart from the current validated ordinary image competitor profile`}
+                    alt={`${chart.title} chart from the current validated common web codec profile`}
                     loading={chart.key === 'speed' ? 'eager' : 'lazy'}
                     decoding="async"
                   />
@@ -127,7 +127,7 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
             ))
           }
         </div>
-        <h3>Recorded ordinary engines</h3>
+        <h3>Recorded common web codec engines</h3>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Engine</th><th>Version</th><th>Class</th></tr></thead>
@@ -145,7 +145,7 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
             class="text-link"
             href={github(documentation.ordinary.reportMarkdown) ?? '#'}
             target="_blank"
-            rel="noreferrer">Current ordinary report →</a
+            rel="noreferrer">Current common web codec report →</a
           >
         </p>
       </div>
@@ -296,7 +296,13 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
             </tbody>
           </table>
         </div>
-        <h3>Ordinary competitor installed footprint</h3>
+        <h3>Package footprint context</h3>
+        <p>
+          The PureJsImage common-web entry is measured above. The competitor table preserves the
+          historical JPEG/PNG-matched package targets so adding AVIF does not silently redefine the
+          older footprint comparison; each common-web benchmark report records the exact installed
+          engine package set it used.
+        </p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Engine import</th><th>Implementation</th><th>Minified JS</th><th>Installed</th><th>Production packages</th></tr></thead>
@@ -355,14 +361,14 @@ const competitorSizes = packageMetrics.targets.filter(({ category }) => category
           <li>Input bytes and fixture hashes are pinned before measurement.</li>
           <li>Measured samples run in isolated processes after configured untimed warmups.</li>
           <li>Output validation and independent quality measurement remain outside timed regions.</li>
-          <li>Ordinary resize charts use engine-default kernels and are default-experience comparisons.</li>
+          <li>Common web codec resize charts use engine-default kernels and are default-experience comparisons.</li>
           <li>Scientific charts compare only shared operations; they do not create an all-format winner score.</li>
           <li>Different environment fingerprints are not compared without an explicit disclaimer.</li>
         </ul>
         <pre><code>npm run fixtures:prepare
 npm run fixtures:verify
-npm run bench:competitors
-npm run bench:competitors:charts
+npm run bench:web-codecs
+npm run bench:web-codecs:charts
 npm run bench:scientific:baseline
 npm run bench:scientific:range
 npm run bench:scientific:scaling

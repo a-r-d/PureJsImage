@@ -1,0 +1,918 @@
+{
+  "schemaVersion": 2,
+  "createdAt": "2026-08-16T17:51:41.269Z",
+  "profile": "web-codecs",
+  "configuration": {
+    "engines": [
+      "purejsimage",
+      "purejsimage-wasm",
+      "jimp",
+      "sharp",
+      "sharp-single-thread",
+      "image-js",
+      "jsquash"
+    ],
+    "defaultRuns": 1,
+    "defaultWarmups": 0,
+    "isolatedProcessPerSample": true,
+    "isolatedStartupProcessPerEngine": true,
+    "inputFileReadTimed": false,
+    "outputValidationTimed": false,
+    "qualityMeasurementTimed": false,
+    "qualityMetric": "premultiplied-rgba-psnr-vs-independent-exact-area-reference",
+    "resizeKernelPolicy": {
+      "mode": "engine-defaults",
+      "purejsimage": "lanczos3",
+      "sharp": "lanczos3",
+      "jimp": "bilinear"
+    }
+  },
+  "environment": {
+    "platform": "linux",
+    "osName": "Linux",
+    "osRelease": "6.17.0-41-generic",
+    "architecture": "x64",
+    "node": "v24.16.0",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "totalMemoryBytes": 64924504064,
+    "processIsolation": true,
+    "runner": "local",
+    "fixtureCachePolicy": "Fixture bytes are read before the timed operation; isolated workers do not share decoded state.",
+    "virtualization": false,
+    "runCount": 1,
+    "warmupCount": 0,
+    "v8Version": "13.6.233.17-node.49",
+    "gitRevision": "8e42282",
+    "dirty": null,
+    "environmentFingerprint": "e3453f399c5b157fb4997b076918c4becd49e986a0079b8f5690c8ec5ff5c212",
+    "fixtureManifestHash": "2cd8742e661c23c23f7e4009c8b0e3d9516f77b0ac86873435e5f9082476c494"
+  },
+  "fixtures": [
+    "avif-fox-profile0-1204x800"
+  ],
+  "results": [
+    {
+      "engine": "purejsimage",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "pass",
+        "samples": 1,
+        "successfulSamples": 1,
+        "wallMilliseconds": {
+          "median": 1539.210344,
+          "p95": 1539.210344,
+          "minimum": 1539.210344,
+          "maximum": 1539.210344
+        },
+        "cpuMilliseconds": {
+          "median": 1963.006
+        },
+        "peakRssBytes": {
+          "median": 168738816,
+          "maximum": 168738816
+        },
+        "peakRssDeltaBytes": {
+          "median": 46829568,
+          "maximum": 46829568
+        },
+        "outputBytes": {
+          "median": 74521
+        },
+        "finalExternalBytes": {
+          "median": 22928207
+        },
+        "finalArrayBuffersBytes": {
+          "median": 13207923
+        },
+        "output": {
+          "format": "jpeg",
+          "width": 800,
+          "height": 532,
+          "bytes": 74521,
+          "sha256": "8aa5f7d96edffe06dabe3cd22643b31fcac4db98101cd943880b13decac7c390",
+          "corner": {
+            "red": 38,
+            "green": 57,
+            "blue": 75,
+            "alpha": 255
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "jpeg",
+            "width": 800,
+            "height": 532,
+            "bytes": 74521,
+            "sha256": "8aa5f7d96edffe06dabe3cd22643b31fcac4db98101cd943880b13decac7c390",
+            "corner": {
+              "red": 38,
+              "green": 57,
+              "blue": 75,
+              "alpha": 255
+            }
+          },
+          "outputBytes": 74521,
+          "wallMilliseconds": 1539.210344,
+          "cpuMilliseconds": 1963.006,
+          "finalMemory": {
+            "rss": 168701952,
+            "heapTotal": 54906880,
+            "heapUsed": 26160328,
+            "external": 22928207,
+            "arrayBuffers": 13207923
+          },
+          "resourceMaxRssBytes": 168701952,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.10.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 168738816,
+          "peakRssDeltaBytes": 46829568,
+          "baselineMemory": {
+            "rss": 121909248,
+            "heapTotal": 49926144,
+            "heapUsed": 14918608,
+            "external": 9935831,
+            "arrayBuffers": 215587
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "pass",
+        "samples": 1,
+        "successfulSamples": 1,
+        "wallMilliseconds": {
+          "median": 1548.641977,
+          "p95": 1548.641977,
+          "minimum": 1548.641977,
+          "maximum": 1548.641977
+        },
+        "cpuMilliseconds": {
+          "median": 1956.227
+        },
+        "peakRssBytes": {
+          "median": 162500608,
+          "maximum": 162500608
+        },
+        "peakRssDeltaBytes": {
+          "median": 40693760,
+          "maximum": 40693760
+        },
+        "outputBytes": {
+          "median": 74521
+        },
+        "finalExternalBytes": {
+          "median": 24460883
+        },
+        "finalArrayBuffersBytes": {
+          "median": 13364343
+        },
+        "output": {
+          "format": "jpeg",
+          "width": 800,
+          "height": 532,
+          "bytes": 74521,
+          "sha256": "8aa5f7d96edffe06dabe3cd22643b31fcac4db98101cd943880b13decac7c390",
+          "corner": {
+            "red": 38,
+            "green": 57,
+            "blue": 75,
+            "alpha": 255
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "jpeg",
+            "width": 800,
+            "height": 532,
+            "bytes": 74521,
+            "sha256": "8aa5f7d96edffe06dabe3cd22643b31fcac4db98101cd943880b13decac7c390",
+            "corner": {
+              "red": 38,
+              "green": 57,
+              "blue": 75,
+              "alpha": 255
+            }
+          },
+          "outputBytes": 74521,
+          "wallMilliseconds": 1548.641977,
+          "cpuMilliseconds": 1956.227,
+          "finalMemory": {
+            "rss": 161652736,
+            "heapTotal": 55431168,
+            "heapUsed": 26222616,
+            "external": 24460883,
+            "arrayBuffers": 13364343
+          },
+          "resourceMaxRssBytes": 161652736,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.10.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 162500608,
+          "peakRssDeltaBytes": 40693760,
+          "baselineMemory": {
+            "rss": 121806848,
+            "heapTotal": 51236864,
+            "heapUsed": 15025152,
+            "external": 9935831,
+            "arrayBuffers": 215587
+          }
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "Jimp 1.6.0 has no AVIF decoder"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "Jimp 1.6.0 has no AVIF decoder"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "pass",
+        "samples": 1,
+        "successfulSamples": 1,
+        "wallMilliseconds": {
+          "median": 49.925004,
+          "p95": 49.925004,
+          "minimum": 49.925004,
+          "maximum": 49.925004
+        },
+        "cpuMilliseconds": {
+          "median": 52.635
+        },
+        "peakRssBytes": {
+          "median": 132702208,
+          "maximum": 132702208
+        },
+        "peakRssDeltaBytes": {
+          "median": 26886144,
+          "maximum": 26886144
+        },
+        "outputBytes": {
+          "median": 73817
+        },
+        "finalExternalBytes": {
+          "median": 16442379
+        },
+        "finalArrayBuffersBytes": {
+          "median": 5609171
+        },
+        "output": {
+          "format": "jpeg",
+          "width": 800,
+          "height": 532,
+          "bytes": 73817,
+          "sha256": "29237d26e699ffef916ca7e31331a8c3ff6e4c22442174e4ec3ca45c4f9368b9",
+          "corner": {
+            "red": 43,
+            "green": 62,
+            "blue": 82,
+            "alpha": 255
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "jpeg",
+            "width": 800,
+            "height": 532,
+            "bytes": 73817,
+            "sha256": "29237d26e699ffef916ca7e31331a8c3ff6e4c22442174e4ec3ca45c4f9368b9",
+            "corner": {
+              "red": 43,
+              "green": 62,
+              "blue": 82,
+              "alpha": 255
+            }
+          },
+          "outputBytes": 73817,
+          "wallMilliseconds": 49.925004,
+          "cpuMilliseconds": 52.635,
+          "finalMemory": {
+            "rss": 131923968,
+            "heapTotal": 22544384,
+            "heapUsed": 15749808,
+            "external": 16442379,
+            "arrayBuffers": 5609171
+          },
+          "resourceMaxRssBytes": 131923968,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.3",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 132702208,
+          "peakRssDeltaBytes": 26886144,
+          "baselineMemory": {
+            "rss": 105816064,
+            "heapTotal": 22020096,
+            "heapUsed": 12033248,
+            "external": 9908953,
+            "arrayBuffers": 94858
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "pass",
+        "samples": 1,
+        "successfulSamples": 1,
+        "wallMilliseconds": {
+          "median": 52.026377,
+          "p95": 52.026377,
+          "minimum": 52.026377,
+          "maximum": 52.026377
+        },
+        "cpuMilliseconds": {
+          "median": 54.504
+        },
+        "peakRssBytes": {
+          "median": 130928640,
+          "maximum": 130928640
+        },
+        "peakRssDeltaBytes": {
+          "median": 25124864,
+          "maximum": 25124864
+        },
+        "outputBytes": {
+          "median": 73817
+        },
+        "finalExternalBytes": {
+          "median": 16442379
+        },
+        "finalArrayBuffersBytes": {
+          "median": 5609171
+        },
+        "output": {
+          "format": "jpeg",
+          "width": 800,
+          "height": 532,
+          "bytes": 73817,
+          "sha256": "29237d26e699ffef916ca7e31331a8c3ff6e4c22442174e4ec3ca45c4f9368b9",
+          "corner": {
+            "red": 43,
+            "green": 62,
+            "blue": 82,
+            "alpha": 255
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "jpeg",
+            "width": 800,
+            "height": 532,
+            "bytes": 73817,
+            "sha256": "29237d26e699ffef916ca7e31331a8c3ff6e4c22442174e4ec3ca45c4f9368b9",
+            "corner": {
+              "red": 43,
+              "green": 62,
+              "blue": 82,
+              "alpha": 255
+            }
+          },
+          "outputBytes": 73817,
+          "wallMilliseconds": 52.026377,
+          "cpuMilliseconds": 54.504,
+          "finalMemory": {
+            "rss": 130686976,
+            "heapTotal": 22282240,
+            "heapUsed": 15509056,
+            "external": 16442379,
+            "arrayBuffers": 5609171
+          },
+          "resourceMaxRssBytes": 130686976,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.3",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 130928640,
+          "peakRssDeltaBytes": 25124864,
+          "baselineMemory": {
+            "rss": 105803776,
+            "heapTotal": 21757952,
+            "heapUsed": 12038808,
+            "external": 9908953,
+            "arrayBuffers": 94858
+          }
+        }
+      ]
+    },
+    {
+      "engine": "image-js",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "image-js 1.7.0 has no AVIF decoder"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "image-js 1.7.0 has no AVIF decoder"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "jsquash",
+      "workflow": "avif-fox-resize-jpeg",
+      "title": "1204x800 AVIF photograph to 800px JPEG quality 80",
+      "runs": 1,
+      "warmups": 0,
+      "summary": {
+        "status": "pass",
+        "samples": 1,
+        "successfulSamples": 1,
+        "wallMilliseconds": {
+          "median": 465.09783500000003,
+          "p95": 465.09783500000003,
+          "minimum": 465.09783500000003,
+          "maximum": 465.09783500000003
+        },
+        "cpuMilliseconds": {
+          "median": 665.319
+        },
+        "peakRssBytes": {
+          "median": 195469312,
+          "maximum": 195469312
+        },
+        "peakRssDeltaBytes": {
+          "median": 99921920,
+          "maximum": 99921920
+        },
+        "outputBytes": {
+          "median": 68319
+        },
+        "finalExternalBytes": {
+          "median": 109764704
+        },
+        "finalArrayBuffersBytes": {
+          "median": 13255496
+        },
+        "output": {
+          "format": "jpeg",
+          "width": 800,
+          "height": 532,
+          "bytes": 68319,
+          "sha256": "04bbf1028ccaf6a8d6143121a0568280d626d51c79fad8e493ef04bb9f8f0e75",
+          "corner": {
+            "red": 43,
+            "green": 63,
+            "blue": 76,
+            "alpha": 255
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "jpeg",
+            "width": 800,
+            "height": 532,
+            "bytes": 68319,
+            "sha256": "04bbf1028ccaf6a8d6143121a0568280d626d51c79fad8e493ef04bb9f8f0e75",
+            "corner": {
+              "red": 43,
+              "green": 63,
+              "blue": 76,
+              "alpha": 255
+            }
+          },
+          "outputBytes": 68319,
+          "wallMilliseconds": 465.09783500000003,
+          "cpuMilliseconds": 665.319,
+          "finalMemory": {
+            "rss": 194838528,
+            "heapTotal": 31719424,
+            "heapUsed": 18484704,
+            "external": 109764704,
+            "arrayBuffers": 13255496
+          },
+          "resourceMaxRssBytes": 194707456,
+          "engine": {
+            "id": "jsquash",
+            "version": "avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1",
+            "kind": "webassembly",
+            "packageName": "@jsquash/jpeg",
+            "packageNames": [
+              "@jsquash/avif",
+              "@jsquash/jpeg",
+              "@jsquash/png",
+              "@jsquash/webp",
+              "@jsquash/resize"
+            ]
+          },
+          "peakRssBytes": 195469312,
+          "peakRssDeltaBytes": 99921920,
+          "baselineMemory": {
+            "rss": 95547392,
+            "heapTotal": 20447232,
+            "heapUsed": 11003896,
+            "external": 9878577,
+            "arrayBuffers": 158333
+          }
+        }
+      ]
+    }
+  ],
+  "startup": [
+    {
+      "engine": {
+        "id": "purejsimage",
+        "version": "0.10.0 (workspace)",
+        "kind": "pure-javascript",
+        "packageName": "purejsimage"
+      },
+      "importMilliseconds": 78.230482,
+      "rssAfterImportBytes": 109047808,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.5502139999999827,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 859.951499,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 4981765,
+        "packages": [
+          "purejsimage@0.10.0"
+        ],
+        "productionPackageCount": 1
+      }
+    },
+    {
+      "engine": {
+        "id": "purejsimage-wasm",
+        "version": "0.10.0 (workspace WASM)",
+        "kind": "webassembly",
+        "packageName": "purejsimage"
+      },
+      "importMilliseconds": 80.934948,
+      "rssAfterImportBytes": 115404800,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.5547249999999906,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 808.66461,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 4981765,
+        "packages": [
+          "purejsimage@0.10.0"
+        ],
+        "productionPackageCount": 1
+      }
+    },
+    {
+      "engine": {
+        "id": "jimp",
+        "version": "1.6.0",
+        "kind": "pure-javascript",
+        "packageName": "jimp"
+      },
+      "importMilliseconds": 66.67302500000001,
+      "rssAfterImportBytes": 98508800,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 2650.836625,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 1423.775909,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 30740660,
+        "packages": [
+          "@jimp/core@1.6.0",
+          "@jimp/diff@1.6.0",
+          "@jimp/file-ops@1.6.0",
+          "@jimp/js-bmp@1.6.0",
+          "@jimp/js-gif@1.6.0",
+          "@jimp/js-jpeg@1.6.0",
+          "@jimp/js-png@1.6.0",
+          "@jimp/js-tiff@1.6.0",
+          "@jimp/plugin-blit@1.6.0",
+          "@jimp/plugin-blur@1.6.0",
+          "@jimp/plugin-circle@1.6.0",
+          "@jimp/plugin-color@1.6.0",
+          "@jimp/plugin-contain@1.6.0",
+          "@jimp/plugin-cover@1.6.0",
+          "@jimp/plugin-crop@1.6.0",
+          "@jimp/plugin-displace@1.6.0",
+          "@jimp/plugin-dither@1.6.0",
+          "@jimp/plugin-fisheye@1.6.0",
+          "@jimp/plugin-flip@1.6.0",
+          "@jimp/plugin-hash@1.6.0",
+          "@jimp/plugin-mask@1.6.0",
+          "@jimp/plugin-print@1.6.0",
+          "@jimp/plugin-quantize@1.6.0",
+          "@jimp/plugin-resize@1.6.0",
+          "@jimp/plugin-rotate@1.6.0",
+          "@jimp/plugin-threshold@1.6.0",
+          "@jimp/types@1.6.0",
+          "@jimp/utils@1.6.0",
+          "@tokenizer/token@0.3.0",
+          "@types/node@16.9.1",
+          "abort-controller@3.0.0",
+          "any-base@1.1.0",
+          "await-to-js@3.0.0",
+          "base64-js@1.5.1",
+          "bmp-ts@1.0.9",
+          "buffer@6.0.3",
+          "event-target-shim@5.0.1",
+          "events@3.3.0",
+          "exif-parser@0.1.12",
+          "file-type@16.5.4",
+          "gifwrap@0.10.1",
+          "ieee754@1.2.1",
+          "image-q@4.0.0",
+          "jimp@1.6.0",
+          "jpeg-js@0.4.4",
+          "mime@3.0.0",
+          "omggif@1.0.10",
+          "pako@1.0.11",
+          "parse-bmfont-ascii@1.0.6",
+          "parse-bmfont-binary@1.0.6",
+          "parse-bmfont-xml@1.1.6",
+          "peek-readable@4.1.0",
+          "pixelmatch@5.3.0",
+          "pngjs@6.0.0",
+          "pngjs@7.0.0",
+          "process@0.11.10",
+          "readable-stream@4.7.0",
+          "readable-web-to-node-stream@3.0.4",
+          "safe-buffer@5.2.1",
+          "sax@1.6.1",
+          "simple-xml-to-json@1.2.7",
+          "string_decoder@1.3.0",
+          "strtok3@6.3.0",
+          "tinycolor2@1.6.0",
+          "token-types@4.2.1",
+          "utif2@4.1.0",
+          "xml-parse-from-string@1.0.1",
+          "xml2js@0.5.0",
+          "xmlbuilder@11.0.1",
+          "zod@3.25.76"
+        ],
+        "productionPackageCount": 70
+      }
+    },
+    {
+      "engine": {
+        "id": "sharp",
+        "version": "0.35.3",
+        "kind": "native",
+        "packageName": "sharp"
+      },
+      "importMilliseconds": 28.397548999999998,
+      "rssAfterImportBytes": 99532800,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.8759430000000066,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 70.91818999999998,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 19793828,
+        "packages": [
+          "@img/colour@1.1.0",
+          "@img/sharp-libvips-linux-x64@1.3.2",
+          "@img/sharp-linux-x64@0.35.3",
+          "detect-libc@2.1.2",
+          "semver@7.8.5",
+          "sharp@0.35.3"
+        ],
+        "productionPackageCount": 6
+      }
+    },
+    {
+      "engine": {
+        "id": "sharp-single-thread",
+        "version": "0.35.3",
+        "kind": "native-single-thread",
+        "packageName": "sharp"
+      },
+      "importMilliseconds": 27.556213999999997,
+      "rssAfterImportBytes": 99663872,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.995865000000009,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 69.36542399999999,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 19793828,
+        "packages": [
+          "@img/colour@1.1.0",
+          "@img/sharp-libvips-linux-x64@1.3.2",
+          "@img/sharp-linux-x64@0.35.3",
+          "detect-libc@2.1.2",
+          "semver@7.8.5",
+          "sharp@0.35.3"
+        ],
+        "productionPackageCount": 6
+      }
+    },
+    {
+      "engine": {
+        "id": "image-js",
+        "version": "1.7.0",
+        "kind": "pure-javascript",
+        "packageName": "image-js"
+      },
+      "importMilliseconds": 168.81428500000004,
+      "rssAfterImportBytes": 108163072,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 2718.829776,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 1048.3511720000001,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 17779845,
+        "packages": [
+          "binary-search@1.3.6",
+          "bresenham-zingl@0.2.5",
+          "cheminfo-types@1.15.0",
+          "colord@2.9.3",
+          "fast-bmp@4.0.1",
+          "fast-jpeg@3.0.1",
+          "fast-png@8.0.0",
+          "fflate@0.8.3",
+          "fft.js@4.0.4",
+          "file-type@10.11.0",
+          "image-js@1.7.0",
+          "image-type@4.1.0",
+          "iobuffer@6.0.1",
+          "is-any-array@2.0.1",
+          "is-any-array@2.0.1",
+          "is-any-array@3.0.0",
+          "jpeg-js@0.4.4",
+          "js-priority-queue@0.1.5",
+          "median-quickselect@1.0.1",
+          "ml-affine-transform@1.0.3",
+          "ml-array-max@2.0.0",
+          "ml-array-median@1.1.6",
+          "ml-array-min@2.0.0",
+          "ml-array-rescale@2.0.0",
+          "ml-convolution@2.0.0",
+          "ml-matrix@6.15.0",
+          "ml-random@0.5.0",
+          "ml-ransac@1.0.0",
+          "ml-regression-base@4.0.1",
+          "ml-regression-multivariate-linear@2.0.4",
+          "ml-regression-polynomial-2d@1.0.0",
+          "ml-spectra-processing@14.33.0",
+          "ml-xsadd@2.0.0",
+          "ml-xsadd@3.0.1",
+          "next-power-of-two@1.0.0",
+          "robust-orientation@1.2.1",
+          "robust-point-in-polygon@1.0.3",
+          "robust-scale@1.0.2",
+          "robust-subtract@1.0.0",
+          "robust-sum@1.0.0",
+          "ssim.js@3.5.0",
+          "tiff@7.1.3",
+          "ts-pattern@5.9.0",
+          "two-product@1.0.2",
+          "two-sum@1.0.0",
+          "uint8-base64@1.0.0"
+        ],
+        "productionPackageCount": 46
+      }
+    },
+    {
+      "engine": {
+        "id": "jsquash",
+        "version": "avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1",
+        "kind": "webassembly",
+        "packageName": "@jsquash/jpeg",
+        "packageNames": [
+          "@jsquash/avif",
+          "@jsquash/jpeg",
+          "@jsquash/png",
+          "@jsquash/webp",
+          "@jsquash/resize"
+        ]
+      },
+      "importMilliseconds": 12.650891000000001,
+      "rssAfterImportBytes": 91029504,
+      "firstMetadata": {
+        "status": "unsupported",
+        "errors": [
+          "jSquash has no metadata inspection API; decoding all pixels would not be equivalent"
+        ]
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 1479.2586740000002,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 10312828,
+        "packages": [
+          "@jsquash/avif@2.1.1",
+          "@jsquash/jpeg@1.6.0",
+          "@jsquash/png@3.1.1",
+          "@jsquash/resize@2.1.1",
+          "@jsquash/webp@1.5.0",
+          "wasm-feature-detect@1.8.0"
+        ],
+        "productionPackageCount": 6
+      }
+    }
+  ]
+}

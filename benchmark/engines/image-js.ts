@@ -115,6 +115,7 @@ export const engine: Engine = {
     if (workflow.id === 'auto-orient-6') {
       return 'image-js does not expose EXIF auto-orientation through its image API'
     }
+    if (workflow.id.startsWith('avif-')) return 'image-js 1.7.0 has no AVIF decoder'
     if (workflow.id === 'webp-large-resize-jpeg') return 'image-js has no WebP decoder'
     if (workflow.id === 'heif-iphone-resize-jpeg') return 'image-js has no HEIC decoder'
     return 'image-js cannot express this workflow with equivalent semantics'

@@ -183,8 +183,10 @@ describe('competitor benchmark classification', () => {
   it('identifies jSquash as a multi-package WebAssembly engine', () => {
     expect(jsquashEngine.id).toBe('jsquash')
     expect(jsquashEngine.kind).toBe('webassembly')
+    expect(jsquashEngine.version).toContain('avif 2.1.1')
     expect(jsquashEngine.version).toContain('resize 2.1.1')
     expect(jsquashEngine.packageNames).toEqual([
+      '@jsquash/avif',
       '@jsquash/jpeg',
       '@jsquash/png',
       '@jsquash/webp',

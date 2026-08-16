@@ -80,6 +80,31 @@ const applicationPlatformResult = await build({
   },
   write: false,
 })
+
+const webCodecResult = await build({
+  bundle: true,
+  format: 'esm',
+  logLevel: 'silent',
+  metafile: true,
+  platform: 'browser',
+  stdin: {
+    contents: `
+      import { createImageLibrary } from './src/browser.ts'
+      import { allWebCodecs } from './src/codec-entries/web.ts'
+      export const webImages = createImageLibrary(allWebCodecs)
+    `,
+    loader: 'ts',
+    resolveDir: process.cwd(),
+  },
+  write: false,
+})
+for (const [input, metadata] of Object.entries(webCodecResult.metafile.inputs)) {
+  for (const imported of metadata.imports) {
+    if (imported.path.startsWith('node:')) {
+      throw new Error(`Browser web-codec input ${input} contains Node built-in ${imported.path}`)
+    }
+  }
+}
 for (const [input, metadata] of Object.entries(applicationPlatformResult.metafile.inputs)) {
   for (const imported of metadata.imports) {
     if (imported.path.startsWith('node:')) {

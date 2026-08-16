@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T17:24:15.400Z",
-  "sourceResultIndex": "benchmark/results/result-index-2026-08-16T17-24-15-257Z.json",
+  "generatedAt": "2026-08-16T18:13:07.932Z",
+  "sourceResultIndex": "benchmark/results/result-index-2026-08-16T18-13-07-782Z.json",
   "results": [
     {
       "commit": "a2f0ba6",
@@ -33,6 +33,39 @@
       "sourceResultPaths": [
         "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.json",
         "benchmark/results/2026-08-16T03-13-22-290Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-competitors.md"
+      ],
+      "sourceValidationStatus": "passed"
+    },
+    {
+      "commit": "e2561d1",
+      "date": "2026-08-16T18:03:12.693Z",
+      "eligibleForDocumentationHeadlines": true,
+      "engineVersions": {
+        "purejsimage": "0.10.0 (workspace)",
+        "purejsimage-wasm": "0.10.0 (workspace WASM)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "fixtureManifestHash": "2cd8742e661c23c23f7e4009c8b0e3d9516f77b0ac86873435e5f9082476c494",
+      "profile": "web-codecs",
+      "publicationValidationStatus": "passed",
+      "validationStatus": "passed",
+      "resultPaths": [
+        "benchmark/results/public/web-codecs-2026-08-16T18-03-12-693Z.json",
+        "benchmark/results/public/web-codecs-2026-08-16T18-03-12-693Z.md"
+      ],
+      "sha256": {
+        "json": "a85b6e6169a98d3d6c4ea18f376b119bd3adf8a8cfa4ebcd96573f47909bb5c2",
+        "markdown": "f5f222d78cec0f59570ac04c192554316e18d4cfbbfcf141faa48e38a0b6d31a"
+      },
+      "sourceEligibilityForDocumentationHeadlines": true,
+      "sourceResultPaths": [
+        "benchmark/results/2026-08-16T18-03-12-693Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
+        "benchmark/results/2026-08-16T18-03-12-693Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
       ],
       "sourceValidationStatus": "passed"
     },
