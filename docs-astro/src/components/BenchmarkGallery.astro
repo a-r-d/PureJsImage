@@ -34,7 +34,7 @@ const assetHref = (path: string): string =>
   aria-label={legend}
 >
   <p class="benchmark-chart-legend">{legend}</p>
-  <div class="benchmark-chart-tabs">
+  <div class="benchmark-chart-tabs" data-scroll-region="tabs">
     {
       charts.map((chart, index) => (
         <label>
@@ -67,7 +67,7 @@ const assetHref = (path: string): string =>
             <p class="benchmark-chart-scroll-cue" data-chart-scroll-cue hidden>
               Scroll chart horizontally
             </p>
-            <div class="benchmark-chart-viewport" data-chart-viewport>
+            <div class="benchmark-chart-viewport" data-chart-viewport data-scroll-region="chart">
               <img
                 src={href}
                 alt={chart.alt}

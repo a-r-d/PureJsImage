@@ -1,0 +1,14 @@
+---
+interface Props {
+  readonly label?: string
+}
+
+const { label = 'Scroll table horizontally' } = Astro.props
+---
+
+<div class="table-wrap" data-table-wrap>
+  <p class="table-scroll-cue" data-scroll-cue hidden>{label}</p>
+  <div class="table-wrap-scroller" data-scroll-region="table">
+    <slot />
+  </div>
+</div>

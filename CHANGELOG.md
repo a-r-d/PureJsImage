@@ -111,6 +111,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Documentation pages keep wide tables, code samples, comparison matrices, and chip navigation
+  inside named mobile scroll regions. The homepage comparison now leads with a compact six-dimension
+  summary on narrow screens and keeps the full TIFF matrix in an expandable, prerendered section.
 - Hardened scientific probing and metadata semantics after review: HDF5 dialect probes use exact
   eight-byte signature reads and pass the verified user-block offset into dialect opening; shared
   HDF5 loads isolate caller cancellation, preserve late-waiter coalescing, coalesce graph accounting,

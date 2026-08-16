@@ -78,27 +78,153 @@ export const initializeSite = () => {
   updateHeader()
   window.addEventListener('scroll', updateHeader, { passive: true })
 
+  const isHorizontallyScrollable = (element: HTMLElement): boolean =>
+    element.scrollWidth > element.clientWidth + 1
+
+  const syncScrollState = (element: HTMLElement, cue: HTMLElement | null) => {
+    const overflow = isHorizontallyScrollable(element)
+    element.classList.toggle('is-scrollable', overflow)
+    const atEnd = element.scrollLeft + element.clientWidth >= element.scrollWidth - 2
+    element.classList.toggle('is-at-end', overflow && atEnd)
+    if (cue) cue.hidden = !overflow
+  }
+
+  const ensureTableScroller = (wrap: HTMLElement): HTMLElement => {
+    const existing = wrap.querySelector<HTMLElement>(':scope > .table-wrap-scroller')
+    if (existing) {
+      existing.dataset.scrollRegion = existing.dataset.scrollRegion ?? 'table'
+      return existing
+    }
+    const scroller = document.createElement('div')
+    scroller.className = 'table-wrap-scroller'
+    scroller.dataset.scrollRegion = 'table'
+    const moving: ChildNode[] = []
+    for (const child of [...wrap.childNodes]) {
+      if (child instanceof HTMLElement && child.matches('[data-scroll-cue], .table-scroll-cue')) {
+        continue
+      }
+      moving.push(child)
+    }
+    for (const child of moving) scroller.append(child)
+    wrap.append(scroller)
+    return scroller
+  }
+
+  const ensureScrollCue = (host: HTMLElement, label: string): HTMLElement => {
+    const existing = host.querySelector<HTMLElement>(
+      ':scope > [data-scroll-cue], :scope > .table-scroll-cue',
+    )
+    if (existing) return existing
+    const cue = document.createElement('p')
+    cue.className = 'table-scroll-cue'
+    cue.dataset.scrollCue = ''
+    cue.hidden = true
+    cue.textContent = label
+    host.prepend(cue)
+    return cue
+  }
+
   const syncChartViewports = () => {
     document.querySelectorAll<HTMLElement>('[data-chart-viewport]').forEach((viewport) => {
       const panel = viewport.closest('.benchmark-chart-panel')
       if (!(panel instanceof HTMLElement) || getComputedStyle(panel).display === 'none') return
-      const overflow = viewport.scrollWidth > viewport.clientWidth + 1
-      viewport.classList.toggle('is-scrollable', overflow)
+      viewport.dataset.scrollRegion = 'chart'
       const cue = panel.querySelector<HTMLElement>('[data-chart-scroll-cue]')
-      if (cue) cue.hidden = !overflow
+      syncScrollState(viewport, cue)
     })
   }
+
+  const syncTableRegions = () => {
+    document
+      .querySelectorAll<HTMLElement>('.table-wrap, .comparison-table-wrap, .wsi-table-wrap')
+      .forEach((wrap) => {
+        wrap.dataset.tableWrap = ''
+        const cue = ensureScrollCue(wrap, 'Scroll table horizontally')
+        const scroller = ensureTableScroller(wrap)
+        syncScrollState(scroller, cue)
+      })
+  }
+
+  const syncCodeRegions = () => {
+    document.querySelectorAll<HTMLElement>('.container pre, .code-window pre').forEach((block) => {
+      block.dataset.scrollRegion = 'code'
+      const windowHost = block.closest('.code-window')
+      const cueHost = windowHost instanceof HTMLElement ? windowHost : block
+      let cue = cueHost.querySelector<HTMLElement>(':scope > [data-scroll-cue]')
+      if (!cue) {
+        cue = document.createElement('p')
+        cue.className = 'table-scroll-cue'
+        cue.dataset.scrollCue = ''
+        cue.hidden = true
+        cue.textContent = 'Scroll code horizontally'
+        block.before(cue)
+      }
+      syncScrollState(block, cue)
+    })
+  }
+
+  const syncChipNavs = () => {
+    document.querySelectorAll<HTMLElement>('.docs-layout .side-nav').forEach((nav) => {
+      nav.dataset.scrollRegion = 'chips'
+      syncScrollState(nav, null)
+    })
+  }
+
+  const syncTabRows = () => {
+    document
+      .querySelectorAll<HTMLElement>('.scientific-mode-tabs, .benchmark-chart-tabs')
+      .forEach((row) => {
+        row.dataset.scrollRegion = 'tabs'
+        syncScrollState(row, null)
+      })
+  }
+
+  const syncContainedRegions = () => {
+    syncChartViewports()
+    syncTableRegions()
+    syncCodeRegions()
+    syncChipNavs()
+    syncTabRows()
+  }
+
   document.querySelectorAll<HTMLElement>('[data-benchmark-gallery]').forEach((gallery) => {
     gallery.addEventListener('change', () => {
-      window.requestAnimationFrame(syncChartViewports)
+      window.requestAnimationFrame(syncContainedRegions)
     })
   })
   document.querySelectorAll<HTMLImageElement>('[data-chart-viewport] img').forEach((image) => {
     if (image.complete) return
-    image.addEventListener('load', syncChartViewports, { once: true })
+    image.addEventListener('load', syncContainedRegions, { once: true })
   })
-  window.addEventListener('resize', syncChartViewports)
-  syncChartViewports()
+  document
+    .querySelectorAll<HTMLElement>(
+      '.table-wrap-scroller, .table-wrap, .comparison-table-wrap, .wsi-table-wrap, .side-nav, .scientific-mode-tabs, .benchmark-chart-tabs, .container pre, .code-window pre, [data-chart-viewport]',
+    )
+    .forEach((region) => {
+      region.addEventListener('scroll', () => syncContainedRegions(), { passive: true })
+    })
+  window.addEventListener('resize', syncContainedRegions)
+  syncContainedRegions()
+
+  const desktopMatrixQuery = window.matchMedia('(min-width: 821px)')
+  const syncComparisonMatrix = () => {
+    document
+      .querySelectorAll<HTMLDetailsElement>('.comparison-matrix-disclosure')
+      .forEach((panel) => {
+        if (desktopMatrixQuery.matches) panel.open = true
+        else if (panel.dataset.userToggled !== 'true') panel.open = false
+      })
+  }
+  document
+    .querySelectorAll<HTMLDetailsElement>('.comparison-matrix-disclosure')
+    .forEach((panel) => {
+      panel.addEventListener('toggle', () => {
+        if (desktopMatrixQuery.matches) return
+        panel.dataset.userToggled = 'true'
+      })
+    })
+  desktopMatrixQuery.addEventListener('change', syncComparisonMatrix)
+  syncComparisonMatrix()
 
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
     button.addEventListener('click', async () => {

@@ -157,7 +157,9 @@ const defaultSlide = sampleSlides[2].url
           <div><p class="eyebrow">Measured vs cited</p><h2 id="wsi-comparison-title">What “no conversion” changes</h2></div>
           <p>No synthetic timings and no claim that PureJsImage is faster than Viv, OpenSlide, or libvips. This comparison is only about the path from an existing slide in object storage to a browser viewport.</p>
         </div>
-        <div class="wsi-table-wrap">
+        <div class="wsi-table-wrap" data-table-wrap>
+          <p class="table-scroll-cue" data-scroll-cue hidden>Scroll table horizontally</p>
+          <div class="table-wrap-scroller" data-scroll-region="table">
           <table>
             <thead><tr><th scope="col">Question</th><th scope="col">This demo</th><th scope="col">Convert-to-OME-Zarr path</th></tr></thead>
             <tbody>
@@ -170,6 +172,7 @@ const defaultSlide = sampleSlides[2].url
               <tr><th scope="row">Demo runtime dependencies</th><td>0 <span class="wsi-measure-label">Measured</span></td><td>Varies</td></tr>
             </tbody>
           </table>
+          </div>
         </div>
         <div class="wsi-tradeoff"><strong>OME-Zarr is often the right call.</strong><p>It is an open, actively developed format with broad tool support, standardized metadata, and independently accessible chunks. This demo is for a different moment: an Aperio slide is already sitting in a bucket and you want to inspect it before building a conversion pipeline.</p></div>
         <p class="wsi-clinical-note">Technical demonstration only. This viewer is not a diagnostic tool and has not been validated for clinical use.</p>
