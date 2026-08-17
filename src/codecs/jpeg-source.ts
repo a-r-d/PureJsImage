@@ -94,37 +94,82 @@ export class JpegEntropyReader {
     this.#end += data.byteLength
   }
 
-  readBit(): number {
-    if (this.#bitCount === 0) {
-      if (this.#offset >= this.#end) throw truncatedInput('JPEG entropy data is truncated')
-      this.#bits = this.#buffer[this.#offset] ?? 0
+  #tryFillBits(): boolean {
+    if (this.#offset >= this.#end) return false
+    const value = this.#buffer[this.#offset] ?? 0
+    if (value === 0xff) {
+      if (this.#offset + 1 >= this.#end) return false
+      if (this.#buffer[this.#offset + 1] !== 0) return false
+      this.#offset += 2
+    } else {
       this.#offset += 1
-      if (this.#bits === 0xff) {
-        if (this.#offset >= this.#end)
-          throw truncatedInput('JPEG entropy byte stuffing is truncated')
-        const stuffed = this.#buffer[this.#offset] ?? 0
-        this.#offset += 1
-        if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
-          throw new JpegUnexpectedRestart(stuffed)
-        }
-        if (
-          this.#recoverScanBoundary &&
-          (stuffed === 0xc4 || stuffed === 0xda || stuffed === 0xd9)
-        ) {
-          throw new JpegUnexpectedScanBoundary(stuffed, this.position - 2)
-        }
-        if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
-      }
-      this.#bitCount = 8
     }
+    if (this.#bitCount === 0) this.#bits = 0
+    this.#bits = ((this.#bits << 8) | value) >>> 0
+    this.#bitCount += 8
+    return true
+  }
+
+  #fillBits(): void {
+    if (this.#tryFillBits()) return
+    if (this.#offset >= this.#end) throw truncatedInput('JPEG entropy data is truncated')
+    const value = this.#buffer[this.#offset] ?? 0
+    this.#offset += 1
+    if (value === 0xff) {
+      if (this.#offset >= this.#end) throw truncatedInput('JPEG entropy byte stuffing is truncated')
+      const stuffed = this.#buffer[this.#offset] ?? 0
+      this.#offset += 1
+      if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
+        throw new JpegUnexpectedRestart(stuffed)
+      }
+      if (this.#recoverScanBoundary && (stuffed === 0xc4 || stuffed === 0xda || stuffed === 0xd9)) {
+        throw new JpegUnexpectedScanBoundary(stuffed, this.position - 2)
+      }
+      if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
+    }
+    if (this.#bitCount === 0) this.#bits = 0
+    this.#bits = ((this.#bits << 8) | value) >>> 0
+    this.#bitCount += 8
+  }
+
+  readBit(): number {
+    if (this.#bitCount === 0) this.#fillBits()
     this.#bitCount -= 1
     return (this.#bits >>> this.#bitCount) & 1
   }
 
   readBits(length: number): number {
     let value = 0
-    for (let index = 0; index < length; index += 1) value = (value << 1) | this.readBit()
+    let remaining = length
+    while (remaining > 0) {
+      if (this.#bitCount === 0) this.#fillBits()
+      const take = Math.min(remaining, this.#bitCount)
+      const shift = this.#bitCount - take
+      value = (value << take) | ((this.#bits >>> shift) & ((1 << take) - 1))
+      this.#bitCount -= take
+      if (this.#bitCount === 0) this.#bits = 0
+      remaining -= take
+    }
     return value
+  }
+
+  peekBits(length: number): number | undefined {
+    if (length <= 0) return 0
+    while (this.#bitCount < length) {
+      if (!this.#tryFillBits()) return undefined
+    }
+    return (this.#bits >>> (this.#bitCount - length)) & ((1 << length) - 1)
+  }
+
+  skipBits(length: number): void {
+    let remaining = length
+    while (remaining > 0) {
+      if (this.#bitCount === 0) this.#fillBits()
+      const take = Math.min(remaining, this.#bitCount)
+      this.#bitCount -= take
+      if (this.#bitCount === 0) this.#bits = 0
+      remaining -= take
+    }
   }
 
   receiveAndExtend(length: number): number {
@@ -134,6 +179,7 @@ export class JpegEntropyReader {
   }
 
   restart(expected: number): number {
+    this.#bits = 0
     this.#bitCount = 0
     if (!this.#tolerant) {
       while (this.#offset < this.#end && this.#buffer[this.#offset] === 0xff) this.#offset += 1
@@ -168,6 +214,7 @@ export class JpegEntropyReader {
   }
 
   scanEnd(): number {
+    this.#bits = 0
     this.#bitCount = 0
     if (this.#offset >= this.#end || this.#buffer[this.#offset] !== 0xff) {
       throw invalidInput('JPEG scan contains trailing entropy data')
@@ -176,6 +223,7 @@ export class JpegEntropyReader {
   }
 
   async finish(): Promise<void> {
+    this.#bits = 0
     this.#bitCount = 0
     if (this.#ended) return
     while (true) {

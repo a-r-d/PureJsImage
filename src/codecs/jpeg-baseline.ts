@@ -132,6 +132,8 @@ interface HuffmanTable {
   readonly symbols: Uint8Array
   readonly firstCodes: Int32Array
   readonly firstSymbols: Int32Array
+  readonly fastLengths: Uint8Array
+  readonly fastSymbols: Uint8Array
 }
 
 interface FrameComponent {
@@ -243,17 +245,32 @@ const segmentEnd = (data: Uint8Array, offset: number): number => {
 const huffmanTable = (counts: Uint8Array, symbols: Uint8Array): HuffmanTable => {
   const firstCodes = new Int32Array(16)
   const firstSymbols = new Int32Array(16)
+  const fastLengths = new Uint8Array(256)
+  const fastSymbols = new Uint8Array(256)
   let code = 0
   let symbol = 0
   for (let index = 0; index < 16; index += 1) {
     const count = byte(counts, index)
+    const length = index + 1
     firstCodes[index] = code
     firstSymbols[index] = symbol
     if (code + count > 1 << (index + 1)) throw invalidInput('JPEG Huffman table is oversubscribed')
+    if (length <= 8) {
+      const suffixCount = 1 << (8 - length)
+      for (let symbolOffset = 0; symbolOffset < count; symbolOffset += 1) {
+        const prefix = (code + symbolOffset) * suffixCount
+        const value = byte(symbols, symbol + symbolOffset)
+        for (let suffix = 0; suffix < suffixCount; suffix += 1) {
+          const entry = prefix + suffix
+          fastLengths[entry] = length
+          fastSymbols[entry] = value
+        }
+      }
+    }
     code = (code + count) << 1
     symbol += count
   }
-  return { counts, symbols, firstCodes, firstSymbols }
+  return { counts, symbols, firstCodes, firstSymbols, fastLengths, fastSymbols }
 }
 const installMjpegHuffmanTables = (
   dcTables: Map<number, HuffmanTable>,
@@ -722,6 +739,8 @@ export const parseBaselineJpegSource = async (
 interface JpegBitReader {
   readBit(): number
   readBits(length: number): number
+  peekBits(length: number): number | undefined
+  skipBits(length: number): void
   receiveAndExtend(length: number): number
 }
 
@@ -742,30 +761,82 @@ class EntropyReader implements JpegBitReader {
     return this.#ended
   }
 
-  readBit(): number {
-    if (this.#bitCount === 0) {
-      if (this.#offset >= this.#data.byteLength)
-        throw truncatedInput('JPEG entropy data is truncated')
-      this.#bits = byte(this.#data, this.#offset)
+  #tryFillBits(): boolean {
+    if (this.#offset >= this.#data.byteLength) return false
+    const value = byte(this.#data, this.#offset)
+    if (value === 0xff) {
+      if (this.#offset + 1 >= this.#data.byteLength) return false
+      if (byte(this.#data, this.#offset + 1) !== 0) return false
+      this.#offset += 2
+    } else {
       this.#offset += 1
-      if (this.#bits === 0xff) {
-        const stuffed = byte(this.#data, this.#offset)
-        this.#offset += 1
-        if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
-          throw new JpegUnexpectedRestart(stuffed)
-        }
-        if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
-      }
-      this.#bitCount = 8
     }
+    if (this.#bitCount === 0) this.#bits = 0
+    this.#bits = ((this.#bits << 8) | value) >>> 0
+    this.#bitCount += 8
+    return true
+  }
+
+  #fillBits(): void {
+    if (this.#tryFillBits()) return
+    if (this.#offset >= this.#data.byteLength)
+      throw truncatedInput('JPEG entropy data is truncated')
+    const value = byte(this.#data, this.#offset)
+    this.#offset += 1
+    if (value === 0xff) {
+      if (this.#offset >= this.#data.byteLength) {
+        throw truncatedInput('JPEG entropy byte stuffing is truncated')
+      }
+      const stuffed = byte(this.#data, this.#offset)
+      this.#offset += 1
+      if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
+        throw new JpegUnexpectedRestart(stuffed)
+      }
+      if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
+    }
+    if (this.#bitCount === 0) this.#bits = 0
+    this.#bits = ((this.#bits << 8) | value) >>> 0
+    this.#bitCount += 8
+  }
+
+  readBit(): number {
+    if (this.#bitCount === 0) this.#fillBits()
     this.#bitCount -= 1
     return (this.#bits >>> this.#bitCount) & 1
   }
 
   readBits(length: number): number {
     let value = 0
-    for (let index = 0; index < length; index += 1) value = (value << 1) | this.readBit()
+    let remaining = length
+    while (remaining > 0) {
+      if (this.#bitCount === 0) this.#fillBits()
+      const take = Math.min(remaining, this.#bitCount)
+      const shift = this.#bitCount - take
+      value = (value << take) | ((this.#bits >>> shift) & ((1 << take) - 1))
+      this.#bitCount -= take
+      if (this.#bitCount === 0) this.#bits = 0
+      remaining -= take
+    }
     return value
+  }
+
+  peekBits(length: number): number | undefined {
+    if (length <= 0) return 0
+    while (this.#bitCount < length) {
+      if (!this.#tryFillBits()) return undefined
+    }
+    return (this.#bits >>> (this.#bitCount - length)) & ((1 << length) - 1)
+  }
+
+  skipBits(length: number): void {
+    let remaining = length
+    while (remaining > 0) {
+      if (this.#bitCount === 0) this.#fillBits()
+      const take = Math.min(remaining, this.#bitCount)
+      this.#bitCount -= take
+      if (this.#bitCount === 0) this.#bits = 0
+      remaining -= take
+    }
   }
 
   receiveAndExtend(length: number): number {
@@ -775,6 +846,7 @@ class EntropyReader implements JpegBitReader {
   }
 
   restart(expected: number): number {
+    this.#bits = 0
     this.#bitCount = 0
     if (!this.#tolerant) {
       while (byte(this.#data, this.#offset) === 0xff) this.#offset += 1
@@ -810,6 +882,7 @@ class EntropyReader implements JpegBitReader {
   }
 
   scanEnd(): number {
+    this.#bits = 0
     this.#bitCount = 0
     if (byte(this.#data, this.#offset) !== 0xff)
       throw invalidInput('JPEG scan contains trailing entropy data')
@@ -817,6 +890,7 @@ class EntropyReader implements JpegBitReader {
   }
 
   finish(): void {
+    this.#bits = 0
     this.#bitCount = 0
     if (this.#ended) return
     while (this.#offset < this.#data.byteLength) {
@@ -842,6 +916,14 @@ class EntropyReader implements JpegBitReader {
 }
 
 const decodeHuffman = (reader: JpegBitReader, table: HuffmanTable): number => {
+  const prefix = reader.peekBits(8)
+  if (prefix !== undefined) {
+    const length = byte(table.fastLengths, prefix)
+    if (length !== 0) {
+      reader.skipBits(length)
+      return byte(table.fastSymbols, prefix)
+    }
+  }
   let code = 0
   for (let length = 0; length < 16; length += 1) {
     code = (code << 1) | reader.readBit()

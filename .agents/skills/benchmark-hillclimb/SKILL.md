@@ -10,10 +10,11 @@ Optimize one representative workload and one goal at a time. Reuse the existing 
 ## Establish the target
 
 1. Read `AGENTS.md`, `benchmark/README.md`, and the relevant harness and workload definitions.
-2. Check recent commits before selecting a path. Do not re-optimize a recently changed path unless fresh measurements still identify it as a bottleneck.
-3. State one workload, one goal (`speed` or `memory`), and one explicit hypothesis.
-4. Prefer a fresh result from the current commit and machine. If none exists, let the runner perform its one-sample representative survey. Never select a correctness-only microfixture.
-5. For speed, select the largest absolute end-to-end runtime on a meaningful medium or large workload. For memory, select the clearest source-sized allocation, peak-RSS pressure, or external, ArrayBuffer, or block growth. Treat requests and unique bytes as important evidence for range workloads.
+2. Read the checked-in attempt history in `benchmark/optimization-log.md` before selecting a hypothesis. Reuse its stable attempt IDs and do not repeat a rejected idea unless new profiling evidence changes the case.
+3. Check recent commits before selecting a path. Do not re-optimize a recently changed path unless fresh measurements still identify it as a bottleneck.
+4. State one workload, one goal (`speed` or `memory`), and one explicit hypothesis.
+5. Prefer a fresh result from the current commit and machine. If none exists, let the runner perform its one-sample representative survey. Never select a correctness-only microfixture.
+6. For speed, select the largest absolute end-to-end runtime on a meaningful medium or large workload. For memory, select the clearest source-sized allocation, peak-RSS pressure, or external, ArrayBuffer, or block growth. Treat requests and unique bytes as important evidence for range workloads.
 
 Run one of:
 
@@ -59,6 +60,13 @@ Prefer pure TypeScript changes in this order:
 5. Remove polymorphic calls, callbacks, or closures from hot loops.
 
 Make one narrow change, rerun the base-versus-candidate comparison, and revert the experiment when it is incorrect, noisy, incomparable, or regresses a protected metric. Stop after three failed hypotheses unless the user explicitly requests a longer campaign.
+
+After every comparison, append the attempt to `benchmark/optimization-log.md`,
+including the stable ID, timestamp, workload and goal, hypothesis, profiling
+evidence, source paths, base/candidate revisions, artifact path, medians, MAD
+or paired delta when useful, correctness/protected-metric result, verdict, and
+whether the patch was retained or reverted. Log controls and neutral results as
+well as accepted wins.
 
 ## Validate a win
 
