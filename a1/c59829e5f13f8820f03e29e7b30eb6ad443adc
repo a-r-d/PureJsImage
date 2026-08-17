@@ -1,0 +1,38 @@
+docs-astro/src/data/package-metrics.json
+  s_91ff1f8baba74e::t_d470ff1cbe2d13 179,808,811,814,1108,1111,1114,1153,1156,1159,1349,1352,1355,1380,1383,1386,1425,1428,1431
+src/codecs/vp8.ts
+  s_91ff1f8baba74e::t_6c00b1c159e10f 1108-1111,1113-1129,1132
+benchmark/optimization-log.md
+  s_91ff1f8baba74e::t_9a52fd3abb3659 61,71,97
+  s_91ff1f8baba74e::t_b352bf7311b720 60,70
+  s_91ff1f8baba74e::t_97a56112e3665d 46-56,63-66,85-88,93
+  s_91ff1f8baba74e::t_7e33be094b56e8 59,69
+  s_91ff1f8baba74e::t_5919b95b79f652 62,77-80,83
+  s_91ff1f8baba74e::t_bdab71e5ee3300 72-76,81-82,84
+  s_91ff1f8baba74e::t_f9f475a9a2dce0 89-92
+  s_91ff1f8baba74e::t_c9fe2eaeebf2eb 57,67
+  s_91ff1f8baba74e::t_74ce3962df122c 58,68
+docs-astro/src/data/documentation-data.json
+  s_91ff1f8baba74e::t_8511afeccc94e9 97-99,102-104,107-109,117
+README.md
+  s_91ff1f8baba74e::t_d470ff1cbe2d13 275-276,278
+  s_91ff1f8baba74e::t_8511afeccc94e9 68-69,71
+benchmark/generated/package-metrics.json
+  s_91ff1f8baba74e::t_d470ff1cbe2d13 179,808,811,814,1108,1111,1114,1153,1156,1159,1349,1352,1355,1380,1383,1386,1425,1428,1431
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a1c59829e5f13f8820f03e29e7b30eb6ad443adc",
+  "prompts": {},
+  "sessions": {
+    "s_91ff1f8baba74e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00d4b-5363-7233-a906-ba3ee3d89dac",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
