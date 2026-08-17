@@ -1,0 +1,24 @@
+README.md
+  h_9f4a25732fa0c1 68-69,71,275-276,278
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,808,811,814,1108,1111,1114,1153,1156,1159,1349,1352,1355,1380,1383,1386,1425,1428,1431
+benchmark/optimization-log.md
+  h_9f4a25732fa0c1 105-108,121-135
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 97-99,102-104,107-109,117
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,808,811,814,1108,1111,1114,1153,1156,1159,1349,1352,1355,1380,1383,1386,1425,1428,1431
+src/codecs/vp8.ts
+  h_9f4a25732fa0c1 514,887,936-937,940-986
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "b22c759e3cb9276004dd3e864454977261eca16c",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
