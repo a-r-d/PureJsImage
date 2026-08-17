@@ -1,0 +1,19 @@
+docs-astro/src/data/documentation-data.json
+  s_72d57bced5e68c::t_bd16b8bff296d5 102-104,107-109,117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "7a64068ce4a2cc7118099a551671d8cc1b9c686e",
+  "prompts": {},
+  "sessions": {
+    "s_72d57bced5e68c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01182-c850-7440-b40b-8ea44fb3a86e",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
