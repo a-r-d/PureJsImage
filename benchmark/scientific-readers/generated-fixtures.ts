@@ -1,4 +1,5 @@
 import { gzipSync } from 'node:zlib'
+import { crc32c } from '../../src/scientific/formats/crc32c.ts'
 import { encodeGsf } from '../../src/scientific/readers/gsf.ts'
 import {
   generatedDigitalMicrographFixture,
@@ -653,12 +654,122 @@ export const generatedScientificFixtures: Readonly<
             chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
             fill_value: 0,
             codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+            dimension_names: ['y', 'x'],
             attributes: {},
           }),
         },
         { name: '0/c/0/0', bytes: pixels },
       ],
       payloadRanges: { '0/c/0/0': [[0, 4] as const] },
+    }
+  },
+  'ome-zarr-sharded-generated': () => {
+    const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
+    const width = 64
+    const height = 64
+    const inner = 16
+    const pixels = new Uint8Array(width * height)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) pixels[y * width + x] = (y * 3 + x) & 255
+    }
+    const perAxis = width / inner
+    const innerCount = perAxis * perAxis
+    const payloads: Uint8Array[] = []
+    const index = new Uint8Array(innerCount * 16)
+    const indexView = new DataView(index.buffer)
+    let offset = 0
+    for (let innerY = 0; innerY < perAxis; innerY += 1) {
+      for (let innerX = 0; innerX < perAxis; innerX += 1) {
+        const chunk = new Uint8Array(inner * inner)
+        for (let y = 0; y < inner; y += 1) {
+          for (let x = 0; x < inner; x += 1) {
+            chunk[y * inner + x] = pixels[(innerY * inner + y) * width + innerX * inner + x] ?? 0
+          }
+        }
+        const entry = innerY * perAxis + innerX
+        indexView.setUint32(entry * 16, offset, true)
+        indexView.setUint32(entry * 16 + 8, chunk.byteLength, true)
+        payloads.push(chunk)
+        offset += chunk.byteLength
+      }
+    }
+    const encodedIndex = new Uint8Array(index.byteLength + 4)
+    encodedIndex.set(index)
+    new DataView(encodedIndex.buffer).setUint32(index.byteLength, crc32c(index), true)
+    const shard = new Uint8Array(offset + encodedIndex.byteLength)
+    let cursor = 0
+    for (const payload of payloads) {
+      shard.set(payload, cursor)
+      cursor += payload.byteLength
+    }
+    shard.set(encodedIndex, offset)
+    const intersecting: (readonly [number, number])[] = []
+    for (const innerY of [1, 2]) {
+      for (const innerX of [1, 2]) {
+        const start = (innerY * perAxis + innerX) * inner * inner
+        intersecting.push([start, start + inner * inner])
+      }
+    }
+    return {
+      resources: [
+        {
+          name: 'zarr.json',
+          bytes: json({
+            zarr_format: 3,
+            node_type: 'group',
+            attributes: {
+              ome: {
+                version: '0.5',
+                multiscales: [
+                  {
+                    name: 'sharded',
+                    axes: [
+                      { name: 'y', type: 'space', unit: 'micrometer' },
+                      { name: 'x', type: 'space', unit: 'micrometer' },
+                    ],
+                    datasets: [
+                      {
+                        path: '0',
+                        coordinateTransformations: [{ type: 'scale', scale: [1, 1] }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          }),
+        },
+        {
+          name: '0/zarr.json',
+          bytes: json({
+            zarr_format: 3,
+            node_type: 'array',
+            shape: [height, width],
+            data_type: 'uint8',
+            chunk_grid: { name: 'regular', configuration: { chunk_shape: [height, width] } },
+            chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+            fill_value: 0,
+            codecs: [
+              {
+                name: 'sharding_indexed',
+                configuration: {
+                  chunk_shape: [inner, inner],
+                  codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+                  index_codecs: [
+                    { name: 'bytes', configuration: { endian: 'little' } },
+                    { name: 'crc32c' },
+                  ],
+                  index_location: 'end',
+                },
+              },
+            ],
+            dimension_names: ['y', 'x'],
+            attributes: {},
+          }),
+        },
+        { name: '0/c/0/0', bytes: shard },
+      ],
+      payloadRanges: { '0/c/0/0': intersecting },
     }
   },
   'ome-tiff-viewer-generated': () => ({

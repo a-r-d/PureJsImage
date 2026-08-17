@@ -26,7 +26,6 @@ import type {
   ScientificDocument,
   ScientificOpenContext,
   ScientificReaderDescriptor,
-  ScientificResource,
 } from '../reader.ts'
 import {
   createScientificDatasetIdentity,
@@ -68,11 +67,6 @@ const requiredString = (value: unknown, label: string): string => {
   return value
 }
 
-const optionalString = (value: unknown, label: string): string | undefined => {
-  if (value === undefined) return undefined
-  return requiredString(value, label)
-}
-
 const finiteNumber = (value: unknown, label: string): number => {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
     throw invalidInput(`${label} must be a finite number`)
@@ -104,7 +98,6 @@ const applyTransform = (
 ): LinearTransform => {
   if (!isRecord(value)) throw invalidInput('OME-Zarr coordinate transformation is invalid')
   const type = requiredString(value.type, 'OME-Zarr coordinate transformation type')
-  if (type === 'identity') return current
   if (type === 'scale') {
     const scale = value.scale
     if (!Array.isArray(scale) || scale.length !== rank) {
@@ -130,16 +123,71 @@ const applyTransform = (
   throw unsupportedOperation(`OME-Zarr coordinate transformation ${type} is unsupported`)
 }
 
-const composeTransforms = (values: unknown, rank: number, extra: unknown): LinearTransform => {
-  let current = identityTransform(rank)
-  const applyAll = (list: unknown, label: string): void => {
-    if (list === undefined) return
-    if (!Array.isArray(list)) throw invalidInput(`${label} must be an array`)
-    for (const entry of list) current = applyTransform(current, entry, rank)
+const parseRestrictedTransforms = (
+  values: unknown,
+  rank: number,
+  label: string,
+): LinearTransform => {
+  if (values === undefined) {
+    throw invalidInput(`${label} must include exactly one scale transformation`)
   }
-  applyAll(values, 'OME-Zarr dataset coordinateTransformations')
-  applyAll(extra, 'OME-Zarr multiscale coordinateTransformations')
+  if (!Array.isArray(values) || values.length === 0) {
+    throw invalidInput(`${label} must be a non-empty array`)
+  }
+  let scaleCount = 0
+  let translationCount = 0
+  let current = identityTransform(rank)
+  for (const [index, entry] of values.entries()) {
+    if (!isRecord(entry)) throw invalidInput(`${label}[${index}] is invalid`)
+    const type = requiredString(entry.type, `${label}[${index}].type`)
+    if (type === 'identity') {
+      throw invalidInput(`${label} must not contain identity transformations`)
+    }
+    if (type === 'scale') {
+      if (scaleCount !== 0 || translationCount !== 0) {
+        throw invalidInput(`${label} must contain exactly one scale before any translation`)
+      }
+      scaleCount += 1
+      current = applyTransform(current, entry, rank)
+      continue
+    }
+    if (type === 'translation') {
+      if (scaleCount !== 1 || translationCount !== 0) {
+        throw invalidInput(`${label} translation must follow a single scale`)
+      }
+      translationCount += 1
+      current = applyTransform(current, entry, rank)
+      continue
+    }
+    throw unsupportedOperation(`OME-Zarr coordinate transformation ${type} is unsupported`)
+  }
+  if (scaleCount !== 1) {
+    throw invalidInput(`${label} must include exactly one scale transformation`)
+  }
+  if (translationCount > 1) {
+    throw invalidInput(`${label} may include at most one translation`)
+  }
   return current
+}
+
+const composeTransforms = (values: unknown, rank: number, extra: unknown): LinearTransform => {
+  const dataset = parseRestrictedTransforms(
+    values,
+    rank,
+    'OME-Zarr dataset coordinateTransformations',
+  )
+  if (extra === undefined) return dataset
+  const shared = parseRestrictedTransforms(
+    extra,
+    rank,
+    'OME-Zarr multiscale coordinateTransformations',
+  )
+  return {
+    origin: dataset.origin.map(
+      (origin, index) => origin * (shared.step[index] ?? 1) + (shared.origin[index] ?? 0),
+    ),
+    step: dataset.step.map((step, index) => step * (shared.step[index] ?? 1)),
+  }
 }
 
 interface ParsedAxis {
@@ -153,14 +201,20 @@ const parseAxes = (value: unknown): readonly ParsedAxis[] => {
   if (!Array.isArray(value) || value.length === 0) {
     throw invalidInput('OME-Zarr multiscale axes are missing')
   }
-  const seen = new Set<string>()
+  if (value.length < 2 || value.length > 5) {
+    throw invalidInput('OME-Zarr multiscale rank must be between 2 and 5')
+  }
+  const seenIds = new Set<string>()
+  const seenNames = new Set<string>()
   return Object.freeze(
     value.map((entry, index) => {
       if (!isRecord(entry)) throw invalidInput(`OME-Zarr axis ${index} is invalid`)
       const name = requiredString(entry.name, `OME-Zarr axis[${index}].name`)
+      if (seenNames.has(name)) throw invalidInput(`OME-Zarr axis ${name} is repeated`)
+      seenNames.add(name)
       const id = name.toLowerCase()
-      if (seen.has(id)) throw invalidInput(`OME-Zarr axis ${id} is repeated`)
-      seen.add(id)
+      if (seenIds.has(id)) throw invalidInput(`OME-Zarr axis ${id} is repeated`)
+      seenIds.add(id)
       const type =
         entry.type === undefined
           ? undefined
@@ -235,6 +289,43 @@ const joinZarrPath = (base: string, child: string): string => {
   return base.length === 0 ? relative : normalizeScientificRelativeName(`${base}/${relative}`)
 }
 
+const packDisplayOrder = (
+  packed: Uint8Array,
+  blockShape: readonly number[],
+  horizontal: number,
+  vertical: number,
+  sampleBytes: number,
+): Uint8Array => {
+  const width = blockShape[horizontal] ?? 0
+  const height = blockShape[vertical] ?? 0
+  const output = new Uint8Array(width * height * sampleBytes)
+  const strides = new Array<number>(blockShape.length)
+  let stride = 1
+  for (let axis = blockShape.length - 1; axis >= 0; axis -= 1) {
+    strides[axis] = stride
+    stride *= blockShape[axis] ?? 1
+  }
+  const horizontalStride = strides[horizontal] ?? 0
+  const verticalStride = strides[vertical] ?? 0
+  for (let y = 0; y < height; y += 1) {
+    const rowSource = y * verticalStride
+    const rowDest = y * width
+    for (let x = 0; x < width; x += 1) {
+      const sourceOffset = (rowSource + x * horizontalStride) * sampleBytes
+      const destOffset = (rowDest + x) * sampleBytes
+      output.set(packed.subarray(sourceOffset, sourceOffset + sampleBytes), destOffset)
+    }
+  }
+  return output
+}
+
+const displayOrderIsPacked = (blockShape: readonly number[], horizontal: number): boolean => {
+  for (let axis = horizontal + 1; axis < blockShape.length; axis += 1) {
+    if ((blockShape[axis] ?? 1) > 1) return false
+  }
+  return true
+}
+
 const parseMultiscale = async (
   value: unknown,
   store: ZarrStore,
@@ -262,12 +353,63 @@ const parseMultiscale = async (
     if (array.shape.length !== axes.length) {
       throw invalidInput(`OME-Zarr array ${path} rank does not match the multiscale axes`)
     }
+    if (store.format === 3) {
+      if (array.dimensionNames === undefined) {
+        throw invalidInput(`OME-Zarr array ${path} is missing dimension_names`)
+      }
+      if (
+        array.dimensionNames.length !== axes.length ||
+        array.dimensionNames.some((dimension, axisIndex) => dimension !== axes[axisIndex]?.name)
+      ) {
+        throw invalidInput(
+          `OME-Zarr array ${path} dimension_names do not match the multiscale axes`,
+        )
+      }
+    }
     const transform = composeTransforms(
       dataset.coordinateTransformations,
       axes.length,
       value.coordinateTransformations,
     )
     levels.push(Object.freeze({ path, array, transform }))
+  }
+  const first = levels[0]
+  if (first === undefined) throw invalidInput('OME-Zarr multiscale has no datasets')
+  for (const level of levels) {
+    if (level.array.dataType !== first.array.dataType) {
+      throw invalidInput('OME-Zarr resolution levels must share one sample type')
+    }
+    if (level.array.fill.kind !== first.array.fill.kind) {
+      throw invalidInput('OME-Zarr resolution levels must share fill semantics')
+    }
+    const firstFill = first.array.fill
+    const levelFill = level.array.fill
+    if (
+      firstFill.kind === 'defined' &&
+      levelFill.kind === 'defined' &&
+      (firstFill.bytes.byteLength !== levelFill.bytes.byteLength ||
+        firstFill.bytes.some((byte, index) => byte !== (levelFill.bytes[index] ?? 0)))
+    ) {
+      throw invalidInput('OME-Zarr resolution levels must share one fill value')
+    }
+    if (
+      store.format === 3 &&
+      level.array.dimensionNames?.join('\0') !== first.array.dimensionNames?.join('\0')
+    ) {
+      throw invalidInput('OME-Zarr resolution levels must share dimension_names')
+    }
+  }
+  for (let index = 1; index < levels.length; index += 1) {
+    const previous = levels[index - 1]
+    const current = levels[index]
+    if (previous === undefined || current === undefined) continue
+    for (let axis = 0; axis < first.array.shape.length; axis += 1) {
+      if ((current.array.shape[axis] ?? 0) > (previous.array.shape[axis] ?? 0)) {
+        throw invalidInput(
+          'OME-Zarr resolution levels must be ordered from highest to lowest resolution',
+        )
+      }
+    }
   }
   const name =
     value.name === undefined ? 'image' : requiredString(value.name, 'OME-Zarr multiscale name')
@@ -297,16 +439,27 @@ const bioformatsLayout = (value: Readonly<Record<string, unknown>>): number | un
 
 const parseOmeAttributes = (
   attributes: Readonly<Record<string, unknown>>,
+  expectedFormat: 2 | 3,
+  expectedVersion?: string,
 ): { readonly version: string; readonly ome: Readonly<Record<string, unknown>> } => {
   const nested = attributes.ome
+  if (nested !== undefined && !isRecord(nested)) {
+    throw invalidInput('OME-Zarr attributes.ome must be an object')
+  }
+  let parsed: { readonly version: string; readonly ome: Readonly<Record<string, unknown>> }
   if (isRecord(nested)) {
+    if (nested.version === undefined) {
+      throw invalidInput('OME-Zarr version is missing')
+    }
     const version = requiredString(nested.version, 'OME-Zarr version')
     if (version !== '0.5') {
       throw unsupportedOperation(`OME-NGFF ${version} under attributes.ome is unsupported`)
     }
-    return { version, ome: nested }
-  }
-  if (hasNgffSurface(attributes) || bioformatsLayout(attributes) !== undefined) {
+    if (expectedFormat !== 3) {
+      throw invalidInput('OME-NGFF 0.5 requires a Zarr v3 store')
+    }
+    parsed = { version, ome: nested }
+  } else if (hasNgffSurface(attributes) || bioformatsLayout(attributes) !== undefined) {
     const first = Array.isArray(attributes.multiscales) ? attributes.multiscales[0] : undefined
     const version =
       isRecord(first) && first.version !== undefined
@@ -315,18 +468,80 @@ const parseOmeAttributes = (
     if (hasNgffSurface(attributes) && version !== '0.4') {
       throw unsupportedOperation(`OME-NGFF ${version} on Zarr v2 attributes is unsupported`)
     }
-    return { version, ome: attributes }
+    if (expectedFormat !== 2) {
+      throw invalidInput('OME-NGFF 0.4 requires a Zarr v2 store')
+    }
+    parsed = { version, ome: attributes }
+  } else {
+    throw invalidInput('OME-Zarr group is missing NGFF 0.4 or 0.5 image, label, or plate metadata')
   }
-  throw invalidInput('OME-Zarr group is missing NGFF 0.4 or 0.5 image, label, or plate metadata')
+  if (expectedVersion !== undefined && parsed.version !== expectedVersion) {
+    throw invalidInput(
+      `OME-NGFF ${parsed.version} does not match document version ${expectedVersion}`,
+    )
+  }
+  return parsed
 }
 
-const parseImageLabel = (value: unknown): ScientificMetadataObject | undefined => {
+const integerInRange = (value: unknown, min: number, max: number, label: string): number => {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+    throw invalidInput(`${label} must be an integer from ${min} to ${max}`)
+  }
+  return value
+}
+
+const safeNonNegativeInteger = (value: unknown, label: string): number => {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) {
+    throw invalidInput(`${label} must be a non-negative integer`)
+  }
+  return value
+}
+
+const labelValueRange = (sampleType: string): { readonly min: number; readonly max: number } => {
+  if (sampleType === 'uint8') return { min: 0, max: 255 }
+  if (sampleType === 'int8') return { min: -128, max: 127 }
+  if (sampleType === 'uint16') return { min: 0, max: 65_535 }
+  if (sampleType === 'int16') return { min: -32_768, max: 32_767 }
+  if (sampleType === 'uint32') return { min: 0, max: 4_294_967_295 }
+  if (sampleType === 'int32') return { min: -2_147_483_648, max: 2_147_483_647 }
+  if (sampleType === 'uint64') return { min: 0, max: Number.MAX_SAFE_INTEGER }
+  throw invalidInput(`OME-Zarr label sample type ${sampleType} is unsupported`)
+}
+
+const normalizeLabelSourcePath = (value: string): string => {
+  if (
+    value.length === 0 ||
+    value.includes('\\') ||
+    value.includes('\0') ||
+    value.startsWith('/') ||
+    /^[a-z][a-z0-9+.-]*:/i.test(value)
+  ) {
+    throw invalidInput('OME-Zarr image-label.source.image must be a relative path')
+  }
+  const parts = value.split('/')
+  const body = value.endsWith('/') ? parts.slice(0, -1) : parts
+  if (body.length === 0 || body.some((part) => part.length === 0)) {
+    throw invalidInput('OME-Zarr image-label.source.image is not a normalized relative path')
+  }
+  return value
+}
+
+const parseImageLabel = (
+  value: unknown,
+  sampleType: string,
+): ScientificMetadataObject | undefined => {
   if (!isRecord(value)) return undefined
+  if (sampleType.startsWith('float')) {
+    throw invalidInput('OME-Zarr label datasets cannot use a floating-point sample type')
+  }
   const colors = Array.isArray(value.colors)
     ? value.colors.map((entry, index) => {
         if (!isRecord(entry)) throw invalidInput(`OME-Zarr image-label.colors[${index}] is invalid`)
-        const labelValue = finiteNumber(
+        const range = labelValueRange(sampleType)
+        const labelValue = integerInRange(
           entry['label-value'],
+          range.min,
+          range.max,
           `OME-Zarr image-label.colors[${index}].label-value`,
         )
         const rgba = entry.rgba
@@ -336,18 +551,162 @@ const parseImageLabel = (value: unknown): ScientificMetadataObject | undefined =
         return Object.freeze({
           value: labelValue,
           rgba: Object.freeze(
-            rgba.map((component, channel) => finiteNumber(component, `rgba[${channel}]`)),
+            rgba.map((component, channel) => integerInRange(component, 0, 255, `rgba[${channel}]`)),
           ),
         })
       })
     : undefined
   const source = isRecord(value.source)
-    ? optionalString(value.source.image, 'OME-Zarr image-label.source.image')
+    ? normalizeLabelSourcePath(
+        requiredString(value.source.image, 'OME-Zarr image-label.source.image'),
+      )
     : undefined
   return normalizeScientificMetadataObject({
     ...(colors === undefined ? {} : { colors }),
     ...(source === undefined ? {} : { sourceImage: source }),
   })
+}
+
+const namedEntries = (value: unknown, label: string): readonly string[] => {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw invalidInput(`${label} must be a non-empty array`)
+  }
+  return Object.freeze(
+    value.map((entry, index) => {
+      if (!isRecord(entry)) throw invalidInput(`${label}[${index}] is invalid`)
+      return requiredString(entry.name, `${label}[${index}].name`)
+    }),
+  )
+}
+
+const parseAcquisitionIds = (value: unknown): ReadonlySet<number> | undefined => {
+  if (value === undefined) return undefined
+  if (!Array.isArray(value)) throw invalidInput('OME-Zarr plate.acquisitions must be an array')
+  const ids = new Set<number>()
+  for (const [index, entry] of value.entries()) {
+    if (!isRecord(entry)) throw invalidInput(`OME-Zarr plate.acquisitions[${index}] is invalid`)
+    const id = safeNonNegativeInteger(entry.id, `OME-Zarr plate.acquisitions[${index}].id`)
+    if (ids.has(id)) throw invalidInput(`OME-Zarr plate acquisition ${id} is repeated`)
+    ids.add(id)
+  }
+  return ids
+}
+
+const parsePlateWells = (
+  plate: Readonly<Record<string, unknown>>,
+): readonly {
+  readonly path: string
+  readonly rowIndex: number
+  readonly columnIndex: number
+}[] => {
+  const rows = namedEntries(plate.rows, 'OME-Zarr plate.rows')
+  const columns = namedEntries(plate.columns, 'OME-Zarr plate.columns')
+  const wells = plate.wells
+  if (!Array.isArray(wells) || wells.length === 0) {
+    throw invalidInput('OME-Zarr plate has no wells')
+  }
+  const seen = new Set<string>()
+  return Object.freeze(
+    wells.map((entry, index) => {
+      if (!isRecord(entry)) throw invalidInput(`OME-Zarr plate.wells[${index}] is invalid`)
+      const rowIndex = safeNonNegativeInteger(
+        entry.rowIndex,
+        `OME-Zarr plate.wells[${index}].rowIndex`,
+      )
+      const columnIndex = safeNonNegativeInteger(
+        entry.columnIndex,
+        `OME-Zarr plate.wells[${index}].columnIndex`,
+      )
+      if (rowIndex >= rows.length || columnIndex >= columns.length) {
+        throw invalidInput(`OME-Zarr plate.wells[${index}] is outside the declared plate`)
+      }
+      const path = normalizeScientificRelativeName(
+        trimTrailingSlashes(requiredString(entry.path, `OME-Zarr plate.wells[${index}].path`)),
+      )
+      const expected = `${rows[rowIndex]}/${columns[columnIndex]}`
+      if (path !== expected) {
+        throw invalidInput(`OME-Zarr plate.wells[${index}].path ${path} does not match ${expected}`)
+      }
+      if (seen.has(path)) throw invalidInput(`OME-Zarr plate well path ${path} is repeated`)
+      seen.add(path)
+      return Object.freeze({ path, rowIndex, columnIndex })
+    }),
+  )
+}
+
+const parseWellImages = (
+  well: Readonly<Record<string, unknown>>,
+  wellPath: string,
+  acquisitions: ReadonlySet<number> | undefined,
+): readonly { readonly path: string; readonly acquisition?: number }[] => {
+  const images = well.images
+  if (!Array.isArray(images) || images.length === 0) {
+    throw invalidInput(`OME-Zarr well ${wellPath} has no images`)
+  }
+  const seen = new Set<string>()
+  return Object.freeze(
+    images.map((image, index) => {
+      if (!isRecord(image))
+        throw invalidInput(`OME-Zarr well ${wellPath} image ${index} is invalid`)
+      const path = normalizeScientificRelativeName(
+        trimTrailingSlashes(requiredString(image.path, `OME-Zarr well ${wellPath} image path`)),
+      )
+      if (seen.has(path)) {
+        throw invalidInput(`OME-Zarr well ${wellPath} image path ${path} is repeated`)
+      }
+      seen.add(path)
+      if (image.acquisition === undefined) return Object.freeze({ path })
+      const acquisition = safeNonNegativeInteger(
+        image.acquisition,
+        `OME-Zarr well ${wellPath} image acquisition`,
+      )
+      if (acquisitions !== undefined && !acquisitions.has(acquisition)) {
+        throw invalidInput(
+          `OME-Zarr well ${wellPath} image acquisition ${acquisition} is not declared`,
+        )
+      }
+      return Object.freeze({ path, acquisition })
+    }),
+  )
+}
+
+const recognizedOmeAttributes = (attributes: Readonly<Record<string, unknown>>): boolean =>
+  attributes.ome !== undefined ||
+  hasNgffSurface(attributes) ||
+  bioformatsLayout(attributes) !== undefined
+
+const isAbortError = (error: unknown): boolean =>
+  (typeof DOMException !== 'undefined' &&
+    error instanceof DOMException &&
+    error.name === 'AbortError') ||
+  (error instanceof Error && error.name === 'AbortError')
+
+const zarrMetadataKey = (path: string, format: 2 | 3, kind: 'array' | 'group'): string => {
+  if (format === 3) return path.length === 0 ? 'zarr.json' : `${path}/zarr.json`
+  const name = kind === 'array' ? '.zarray' : '.zgroup'
+  return path.length === 0 ? name : `${path}/${name}`
+}
+
+const zarrAttributesKey = (path: string): string =>
+  path.length === 0 ? '.zattrs' : `${path}/.zattrs`
+
+const datasetIdentityPaths = (parsed: ParsedMultiscale, format: 2 | 3): readonly string[] => {
+  const paths: string[] = [zarrMetadataKey('', format, 'group')]
+  if (format === 2) paths.push(zarrAttributesKey(''))
+  const first = parsed.levels[0]
+  if (first !== undefined) {
+    const slash = first.path.lastIndexOf('/')
+    const groupPath = slash < 0 ? '' : first.path.slice(0, slash)
+    if (groupPath.length > 0) {
+      paths.push(zarrMetadataKey(groupPath, format, 'group'))
+      if (format === 2) paths.push(zarrAttributesKey(groupPath))
+    }
+  }
+  for (const level of parsed.levels) {
+    paths.push(zarrMetadataKey(level.path, format, 'array'))
+    if (format === 2) paths.push(zarrAttributesKey(level.path))
+  }
+  return Object.freeze(paths)
 }
 
 const coordinatesFor = (transform: LinearTransform, axis: number): ScientificAxisCoordinates =>
@@ -429,13 +788,16 @@ class OmeZarrDataset implements ScientificDataset {
     const components: readonly ScientificComponentDescriptor[] = Object.freeze([
       Object.freeze({ id: 'value', name: 'Value', kind: 'scalar' as const }),
     ])
+    const fill = base.array.fill
     this.descriptor = normalizeScientificDatasetDescriptor({
       schemaVersion: 1,
       axes: Object.freeze(axes),
       sampleType: base.array.dataType,
       components,
       levels: Object.freeze(levels),
-      noDataValue: base.array.fillValue,
+      ...(fill.kind === 'defined' && fill.numeric !== undefined
+        ? { noDataValue: fill.numeric }
+        : {}),
       metadata: normalizeScientificMetadataObject({
         omeNgffVersion: parsed.version,
         zarrFormat: store.format,
@@ -494,8 +856,9 @@ class OmeZarrDataset implements ScientificDataset {
         blockShape,
         selected.signal,
       )
-      const data = new Uint8Array(packed.byteLength)
-      data.set(packed)
+      const data = displayOrderIsPacked(blockShape, horizontal)
+        ? packed
+        : packDisplayOrder(packed, blockShape, horizontal, vertical, sampleBytes)
       yield Object.freeze({
         x: selected.x,
         y: selected.y + localY,
@@ -605,7 +968,10 @@ const openZipRoot = async (
   const format: 2 | 3 = node?.format === 2 ? 2 : 3
   return {
     json,
-    store: createZarrStore(createZipCompanionResolver(archive), rootKey, limits, format),
+    store: createZarrStore(createZipCompanionResolver(archive), rootKey, limits, format, {
+      identityKind: 'archive',
+      archiveResource: context.primary,
+    }),
   }
 }
 
@@ -675,8 +1041,19 @@ export const probeOmeZarr = async (
         await archive.read(rootKey, context.signal === undefined ? {} : { signal: context.signal }),
       )
       return probeJson(json)
-    } catch {
-      return { confidence: 0, reason: 'ZIP bytes are not a readable OME-Zarr store' }
+    } catch (error) {
+      if (isAbortError(error)) throw error
+      if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') throw error
+      if (
+        error instanceof ImageError &&
+        (error.code === 'INVALID_INPUT' ||
+          error.code === 'TRUNCATED_INPUT' ||
+          error.code === 'UNSUPPORTED_FORMAT' ||
+          error.code === 'UNSUPPORTED_OPERATION')
+      ) {
+        return { confidence: 0, reason: 'ZIP bytes are not a readable OME-Zarr store' }
+      }
+      throw error
     }
   }
   return probeJson(readZarrJsonBytes(bytes))
@@ -708,6 +1085,7 @@ export const openOmeZarr = async (
       context.primary.name,
       limits,
       node?.format === 2 ? 2 : 3,
+      { identityKind: 'session' },
     )
   }
   if (!isRecord(json)) throw invalidInput('OME-Zarr root metadata is not an object')
@@ -722,14 +1100,10 @@ export const openOmeZarr = async (
         : ((await store.readJsonOptional('.zattrs', context.signal)) ?? {})
   let version = format === 3 ? '0.5' : '0.4'
   let ome: Readonly<Record<string, unknown>> = {}
-  if (isRecord(attributes)) {
-    try {
-      const parsed = parseOmeAttributes(attributes)
-      version = parsed.version
-      ome = parsed.ome
-    } catch (error) {
-      if (!(error instanceof ImageError) || error.code === 'UNSUPPORTED_OPERATION') throw error
-    }
+  if (isRecord(attributes) && recognizedOmeAttributes(attributes)) {
+    const parsed = parseOmeAttributes(attributes, format)
+    version = parsed.version
+    ome = parsed.ome
   }
   const collected: {
     readonly id: string
@@ -762,13 +1136,14 @@ export const openOmeZarr = async (
   const omeFromGroup = (
     groupAttributes: Readonly<Record<string, unknown>>,
   ): { readonly version: string; readonly ome: Readonly<Record<string, unknown>> } =>
-    parseOmeAttributes(groupAttributes)
+    parseOmeAttributes(groupAttributes, store.format, version)
   const addMultiscales = async (
     entries: unknown,
     basePath: string,
     idFor: (index: number, name: string) => string,
     extraMetadata: ScientificMetadataObject | undefined,
     channels: ReturnType<typeof parseOmeroChannels>,
+    imageLabelValue?: unknown,
   ): Promise<void> => {
     if (!Array.isArray(entries) || entries.length === 0) {
       throw invalidInput('OME-Zarr group has no multiscales')
@@ -778,13 +1153,25 @@ export const openOmeZarr = async (
     }
     for (const [index, entry] of entries.entries()) {
       const parsed = await parseMultiscale(entry, store, limits, version, context.signal, basePath)
+      let metadata = extraMetadata
+      if (extraMetadata?.kind === 'label') {
+        const sampleType = parsed.levels[0]?.array.dataType ?? 'uint8'
+        if (sampleType.startsWith('float')) {
+          throw invalidInput('OME-Zarr label datasets cannot use a floating-point sample type')
+        }
+        const imageLabel = parseImageLabel(imageLabelValue, sampleType)
+        metadata = normalizeScientificMetadataObject({
+          kind: 'label',
+          ...(imageLabel === undefined ? {} : { imageLabel }),
+        })
+      }
       addCollected(
         idFor(index, parsed.name),
         parsed.name,
         Object.freeze({
           ...parsed,
           channels,
-          ...(extraMetadata === undefined ? {} : { extraMetadata }),
+          ...(metadata === undefined ? {} : { extraMetadata: metadata }),
         }),
       )
     }
@@ -796,16 +1183,13 @@ export const openOmeZarr = async (
       const labelPath = joinZarrPath(indexPath, name)
       const labelGroup = await store.openGroup(labelPath, context.signal)
       const labelOme = omeFromGroup(labelGroup.attributes).ome
-      const imageLabel = parseImageLabel(labelOme['image-label'])
       await addMultiscales(
         labelOme.multiscales,
         labelPath,
         () => (indexPath.length === 0 ? joinZarrPath('labels', name) : labelPath),
-        normalizeScientificMetadataObject({
-          kind: 'label',
-          ...(imageLabel === undefined ? {} : { imageLabel }),
-        }),
+        normalizeScientificMetadataObject({ kind: 'label' }),
         undefined,
+        labelOme['image-label'],
       )
     }
   }
@@ -820,17 +1204,11 @@ export const openOmeZarr = async (
     well: Readonly<Record<string, unknown>>,
     rowIndex: number | undefined,
     columnIndex: number | undefined,
+    acquisitions: ReadonlySet<number> | undefined,
   ): Promise<void> => {
-    const images = well.images
-    if (!Array.isArray(images) || images.length === 0) {
-      throw invalidInput(`OME-Zarr well ${wellPath} has no images`)
-    }
+    const images = parseWellImages(well, wellPath, acquisitions)
     for (const image of images) {
-      if (!isRecord(image)) throw invalidInput(`OME-Zarr well ${wellPath} image is invalid`)
-      const fieldPath = joinZarrPath(
-        wellPath,
-        requiredString(image.path, 'OME-Zarr well image path'),
-      )
+      const fieldPath = joinZarrPath(wellPath, image.path)
       const fieldGroup = await store.openGroup(fieldPath, context.signal)
       const fieldOme = omeFromGroup(fieldGroup.attributes).ome
       await addMultiscales(
@@ -844,7 +1222,7 @@ export const openOmeZarr = async (
             field: fieldPath,
             ...(rowIndex === undefined ? {} : { rowIndex }),
             ...(columnIndex === undefined ? {} : { columnIndex }),
-            ...(typeof image.acquisition === 'number' ? { acquisition: image.acquisition } : {}),
+            ...(image.acquisition === undefined ? {} : { acquisition: image.acquisition }),
           },
         }),
         parseOmeroChannels(fieldOme.omero),
@@ -880,27 +1258,23 @@ export const openOmeZarr = async (
     await addLabelEntries('', ome.labels)
   }
   if (isRecord(ome.plate)) {
-    const wells = ome.plate.wells
-    if (!Array.isArray(wells) || wells.length === 0) {
-      throw invalidInput('OME-Zarr plate has no wells')
-    }
-    for (const wellEntry of wells) {
-      if (!isRecord(wellEntry)) throw invalidInput('OME-Zarr plate well entry is invalid')
-      const wellPath = normalizeScientificRelativeName(
-        trimTrailingSlashes(requiredString(wellEntry.path, 'OME-Zarr plate well path')),
-      )
-      const wellGroup = await store.openGroup(wellPath, context.signal)
+    const acquisitions = parseAcquisitionIds(ome.plate.acquisitions)
+    for (const wellEntry of parsePlateWells(ome.plate)) {
+      const wellGroup = await store.openGroup(wellEntry.path, context.signal)
       const wellOme = omeFromGroup(wellGroup.attributes).ome
       if (!isRecord(wellOme.well)) {
-        throw invalidInput(`OME-Zarr well ${wellPath} is missing well metadata`)
+        throw invalidInput(`OME-Zarr well ${wellEntry.path} is missing well metadata`)
       }
-      const rowIndex = typeof wellEntry.rowIndex === 'number' ? wellEntry.rowIndex : undefined
-      const columnIndex =
-        typeof wellEntry.columnIndex === 'number' ? wellEntry.columnIndex : undefined
-      await addWellImages(wellPath, wellOme.well, rowIndex, columnIndex)
+      await addWellImages(
+        wellEntry.path,
+        wellOme.well,
+        wellEntry.rowIndex,
+        wellEntry.columnIndex,
+        acquisitions,
+      )
     }
   } else if (isRecord(ome.well)) {
-    await addWellImages('', ome.well, undefined, undefined)
+    await addWellImages('', ome.well, undefined, undefined, undefined)
   }
   let seriesCount = 0
   if (collected.length === 0) {
@@ -911,10 +1285,16 @@ export const openOmeZarr = async (
       let seriesOme: Readonly<Record<string, unknown>>
       try {
         seriesOme = omeFromGroup(group.attributes).ome
-      } catch {
+      } catch (error) {
+        if (rootLayout !== undefined || recognizedOmeAttributes(group.attributes)) throw error
         break
       }
-      if (!Array.isArray(seriesOme.multiscales) || seriesOme.multiscales.length === 0) break
+      if (!Array.isArray(seriesOme.multiscales) || seriesOme.multiscales.length === 0) {
+        if (rootLayout !== undefined) {
+          throw invalidInput(`OME-Zarr bioformats2raw series ${path} is missing multiscales`)
+        }
+        break
+      }
       seriesCount += 1
       await addMultiscales(
         seriesOme.multiscales,
@@ -943,13 +1323,15 @@ export const openOmeZarr = async (
     readonly identity: Awaited<ReturnType<typeof createScientificDatasetIdentity>>
   }[] = []
   const summaries: ScientificDocument['datasets'][number][] = []
-  const resources: Pick<ScientificResource, 'id' | 'source'>[] = [context.primary]
   for (const entry of collected) {
     const dataset = new OmeZarrDataset(store, entry.parsed, limits, context.primary.id)
     const identity = await createScientificDatasetIdentity({
       reader: descriptor,
       datasetId: entry.id,
-      resources,
+      resources: await store.identityResources(
+        datasetIdentityPaths(entry.parsed, store.format),
+        context.signal,
+      ),
     })
     datasets.push({
       id: entry.id,

@@ -221,6 +221,20 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     descriptorAssertion: { sampleType: 'uint8' },
     directRangeReader: true,
   }),
+  representative({
+    id: 'ome-zarr-sharded-range',
+    title: 'OME-Zarr sharded 64x64 range window',
+    readerId: 'purejsimage/ome-zarr',
+    fixtureId: 'ome-zarr-sharded',
+    profiles: ['range', 'scaling', 'full'],
+    selection: plane({
+      displayAxes: ['x', 'y'],
+      region: { x: 16, y: 16, width: 32, height: 32 },
+    }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    detectionMode: 'explicit',
+    directRangeReader: true,
+  }),
   workload({
     id: 'aperio-svs-region',
     title: 'Aperio SVS whole-slide region',

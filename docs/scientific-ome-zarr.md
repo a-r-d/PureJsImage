@@ -56,9 +56,9 @@ C-order, F-order, gzip, zlib, and Blosc memcpy/LZ4 stores. They pin selected sam
 fill, partial last chunks, F-order clipped and padded edge chunks, omitted v3 chunk-key encoding,
 string/hex/null fill values, uint16/int16/float32/uint64, big-endian samples and shard indexes,
 shuffle, numeric and `#RRGGBB` OMERO colors, UTF-8 BOM metadata, 4D and F-order 3D planes,
-index-at-start shards, empty chunk objects, empty optional `.zattrs`, trailing dataset slashes,
+index-at-start shards, present empty chunk objects, empty optional `.zattrs`, trailing dataset slashes,
 `numcodecs.*` ids, case-insensitive NaN fills, gzip/Blosc edge chunks, crc32c array codecs,
-zero-size and overlapping shard payloads, store-prefix and Node
+all-ones shard-index sentinels, overlapping shard payloads, store-prefix and Node
 directory resolution, browser `File` companions, stored and deflated ZIP roots, `*.zarr` /
 `*.ome.zarr` ZIP probe hints, `__MACOSX/` sidecars beside a unique nested root, a root `labels`
 list that must not hide bioformats2raw series, `maxDatasets` overflow on extra series, and hostile

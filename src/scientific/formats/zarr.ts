@@ -3,7 +3,7 @@ import { decodeZstd } from '../../compression/zstd/index.ts'
 import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import type { RasterSampleType } from '../../raster.ts'
 import { rasterSampleBytes } from '../../raster.ts'
-import { type ImageSource, readExactly } from '../../source.ts'
+import { type ImageSource, MemorySource, readExactly } from '../../source.ts'
 import type { ScientificCompanionResolver, ScientificResource } from '../reader.ts'
 import { normalizeScientificRelativeName } from '../reader.ts'
 import { decodeBlosc } from './blosc.ts'
@@ -16,17 +16,25 @@ export interface ZarrCodec {
   readonly configuration: Readonly<Record<string, unknown>>
 }
 
+export type ZarrFill =
+  | {
+      readonly kind: 'defined'
+      readonly bytes: Uint8Array
+      readonly numeric?: number
+    }
+  | { readonly kind: 'undefined' }
+
 export interface ZarrArrayMetadata {
   readonly path: string
   readonly shape: readonly number[]
   readonly chunkShape: readonly number[]
   readonly dataType: RasterSampleType
   readonly endian: ZarrEndian
-  readonly fillValue: number
-  readonly fillBytes: Uint8Array
+  readonly fill: ZarrFill
   readonly chunkKeyEncoding: 'default' | 'v2'
   readonly separator: string
   readonly codecs: readonly ZarrCodec[]
+  readonly dimensionNames?: readonly string[]
   readonly attributes: Readonly<Record<string, unknown>>
 }
 
@@ -47,11 +55,16 @@ export interface ZarrStoreLimits {
 export interface ZarrStore {
   readonly prefix: string
   readonly format: 2 | 3
+  readonly identityKind: 'session' | 'archive'
   resolve(relative: string, signal?: AbortSignal): Promise<ScientificResource | undefined>
   readJson(relative: string, signal?: AbortSignal): Promise<unknown>
   readJsonOptional(relative: string, signal?: AbortSignal): Promise<unknown>
   openArray(relative: string, signal?: AbortSignal): Promise<ZarrArrayMetadata>
   openGroup(relative: string, signal?: AbortSignal): Promise<ZarrGroupMetadata>
+  identityResources(
+    paths: readonly string[],
+    signal?: AbortSignal,
+  ): Promise<readonly Pick<ScientificResource, 'id' | 'source'>[]>
   readRegion(
     array: Readonly<ZarrArrayMetadata>,
     start: readonly number[],
@@ -157,6 +170,129 @@ const parseCodecs = (value: unknown, label: string): readonly ZarrCodec[] => {
   return Object.freeze(value.map(parseCodec))
 }
 
+const supportedArrayCodecs = new Set([
+  'bytes',
+  'gzip',
+  'zlib',
+  'zstd',
+  'blosc',
+  'crc32c',
+  'transpose',
+  'shuffle',
+  'sharding_indexed',
+])
+
+const variableIndexCodecs = new Set(['gzip', 'zlib', 'zstd', 'blosc', 'transpose', 'shuffle'])
+
+const validateInnerCodecs = (codecs: readonly ZarrCodec[], label: string): void => {
+  if (codecs.some((codec) => codec.name === 'sharding_indexed')) {
+    throw unsupportedOperation(`${label} cannot nest sharding_indexed`)
+  }
+  for (const codec of codecs) {
+    if (!supportedArrayCodecs.has(codec.name)) {
+      throw unsupportedOperation(`Zarr codec ${codec.name} is unsupported`)
+    }
+  }
+  const bytesIndexes = codecs.flatMap((codec, index) => (codec.name === 'bytes' ? [index] : []))
+  if (bytesIndexes.length === 0) throw invalidInput(`${label} is missing a bytes codec`)
+  if (bytesIndexes.length > 1) throw invalidInput(`${label} has repeated bytes codecs`)
+  const bytesIndex = bytesIndexes[0] ?? 0
+  for (let index = 0; index < bytesIndex; index += 1) {
+    if (codecs[index]?.name !== 'transpose') {
+      throw invalidInput(`${label} codec order is invalid`)
+    }
+  }
+  for (let index = bytesIndex + 1; index < codecs.length; index += 1) {
+    const name = codecs[index]?.name ?? ''
+    if (name === 'bytes' || name === 'transpose' || name === 'sharding_indexed') {
+      throw invalidInput(`${label} codec order is invalid`)
+    }
+  }
+}
+
+const validateIndexCodecs = (codecs: readonly ZarrCodec[], label: string): void => {
+  const bytesIndexes = codecs.flatMap((codec, index) => (codec.name === 'bytes' ? [index] : []))
+  if (bytesIndexes.length !== 1) {
+    throw invalidInput(`${label} must contain exactly one bytes codec`)
+  }
+  const bytesIndex = bytesIndexes[0] ?? 0
+  if (bytesIndex !== 0) throw invalidInput(`${label} must start with a bytes codec`)
+  for (let index = 1; index < codecs.length; index += 1) {
+    const name = codecs[index]?.name ?? ''
+    if (variableIndexCodecs.has(name)) {
+      throw unsupportedOperation(`${label} codec ${name} is not a fixed-size index codec`)
+    }
+    if (name !== 'crc32c') {
+      throw unsupportedOperation(`${label} codec ${name} is unsupported`)
+    }
+  }
+}
+
+const validateShardingCodec = (
+  codec: Readonly<ZarrCodec>,
+  shardShape: readonly number[],
+  sampleType: RasterSampleType,
+): void => {
+  const innerShape = integerTuple(
+    codec.configuration.chunk_shape,
+    'Zarr sharding chunk_shape',
+    shardShape.length,
+  )
+  for (const [axis, outer] of shardShape.entries()) {
+    const inner = innerShape[axis] ?? 0
+    if (inner < 1 || outer % inner !== 0) {
+      throw invalidInput('Zarr shard shape is not divisible by the inner chunk shape')
+    }
+  }
+  const innerCodecs = parseCodecs(codec.configuration.codecs, 'Zarr sharding codecs')
+  validateInnerCodecs(innerCodecs, 'Zarr sharding codecs')
+  parseEndian(innerCodecs, sampleType)
+  const indexCodecs = parseCodecs(codec.configuration.index_codecs, 'Zarr sharding index_codecs')
+  validateIndexCodecs(indexCodecs, 'Zarr sharding index_codecs')
+  const location = codec.configuration.index_location ?? 'end'
+  if (location !== 'end' && location !== 'start') {
+    throw unsupportedOperation(`Zarr sharding index_location ${String(location)} is unsupported`)
+  }
+}
+
+const validateArrayCodecs = (
+  codecs: readonly ZarrCodec[],
+  chunkShape: readonly number[],
+  sampleType: RasterSampleType,
+): void => {
+  const sharding = codecs.find((codec) => codec.name === 'sharding_indexed')
+  if (sharding !== undefined) {
+    if (codecs.length !== 1) {
+      throw unsupportedOperation(
+        `Zarr codecs surrounding sharding_indexed (${codecs.map((codec) => codec.name).join(', ')}) are unsupported`,
+      )
+    }
+    validateShardingCodec(sharding, chunkShape, sampleType)
+    return
+  }
+  validateInnerCodecs(codecs, 'Zarr codecs')
+  parseEndian(codecs, sampleType)
+}
+
+const parseDimensionNames = (value: unknown, rank: number): readonly string[] | undefined => {
+  if (value === undefined) return undefined
+  if (!Array.isArray(value) || value.length !== rank) {
+    throw invalidInput('Zarr dimension_names rank does not match the array shape')
+  }
+  const names = value.map((entry, index) => {
+    if (typeof entry !== 'string' || entry.length === 0) {
+      throw invalidInput(`Zarr dimension_names[${index}] must be a non-empty string`)
+    }
+    return entry
+  })
+  const seen = new Set<string>()
+  for (const name of names) {
+    if (seen.has(name)) throw invalidInput(`Zarr dimension_names repeats ${name}`)
+    seen.add(name)
+  }
+  return Object.freeze(names)
+}
+
 const dataTypes: Readonly<Record<string, RasterSampleType>> = Object.freeze({
   int8: 'int8',
   uint8: 'uint8',
@@ -182,96 +318,174 @@ const parseDataType = (value: unknown): RasterSampleType => {
 const isFloatSampleType = (sampleType: RasterSampleType): boolean =>
   sampleType === 'float16' || sampleType === 'float32' || sampleType === 'float64'
 
+const integerBitWidth = (sampleType: RasterSampleType): number => rasterSampleBytes(sampleType) * 8
+
+const integerFillRange = (
+  sampleType: RasterSampleType,
+): { readonly min: bigint; readonly max: bigint } => {
+  const width = BigInt(integerBitWidth(sampleType))
+  if (sampleType.startsWith('u')) return { min: 0n, max: (1n << width) - 1n }
+  const half = 1n << (width - 1n)
+  return { min: -half, max: half - 1n }
+}
+
+const writeExactIntegerBits = (
+  bits: bigint,
+  sampleType: RasterSampleType,
+  littleEndian: boolean,
+): Uint8Array => {
+  const bytes = new Uint8Array(rasterSampleBytes(sampleType))
+  const width = BigInt(bytes.byteLength * 8)
+  if (bits < 0n || bits >= 1n << width) {
+    throw invalidInput(`Zarr fill_value bit pattern exceeds ${sampleType}`)
+  }
+  const view = new DataView(bytes.buffer)
+  if (bytes.byteLength === 1) view.setUint8(0, Number(bits))
+  else if (bytes.byteLength === 2) view.setUint16(0, Number(bits), littleEndian)
+  else if (bytes.byteLength === 4) view.setUint32(0, Number(bits), littleEndian)
+  else view.setBigUint64(0, bits, littleEndian)
+  return bytes
+}
+
+const signedIntegerFromBits = (bits: bigint, sampleType: RasterSampleType): bigint => {
+  const width = BigInt(integerBitWidth(sampleType))
+  const sign = 1n << (width - 1n)
+  return (bits & sign) === 0n ? bits : bits - (1n << width)
+}
+
+const representableNumber = (value: bigint): number | undefined => {
+  if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
+    return undefined
+  }
+  return Number(value)
+}
+
+const writeExactIntegerValue = (
+  value: bigint,
+  sampleType: RasterSampleType,
+  littleEndian: boolean,
+): { readonly bytes: Uint8Array; readonly numeric?: number } => {
+  const range = integerFillRange(sampleType)
+  if (value < range.min || value > range.max) {
+    throw invalidInput(`Zarr fill_value ${value.toString()} is outside ${sampleType}`)
+  }
+  const width = BigInt(integerBitWidth(sampleType))
+  const bits = value < 0n ? (1n << width) + value : value
+  const bytes = writeExactIntegerBits(bits, sampleType, littleEndian)
+  const numeric = representableNumber(value)
+  return numeric === undefined ? { bytes } : { bytes, numeric }
+}
+
 const writeNumericSample = (
-  view: DataView,
   sampleType: RasterSampleType,
   value: number,
   littleEndian: boolean,
-): void => {
-  if (sampleType === 'uint8') view.setUint8(0, value)
-  else if (sampleType === 'int8') view.setInt8(0, value)
-  else if (sampleType === 'uint16') view.setUint16(0, value, littleEndian)
-  else if (sampleType === 'int16') view.setInt16(0, value, littleEndian)
-  else if (sampleType === 'uint32') view.setUint32(0, value, littleEndian)
-  else if (sampleType === 'int32') view.setInt32(0, value, littleEndian)
-  else if (sampleType === 'uint64') view.setBigUint64(0, BigInt(value), littleEndian)
-  else if (sampleType === 'float16') {
+): { readonly bytes: Uint8Array; readonly numeric: number } => {
+  const bytes = new Uint8Array(rasterSampleBytes(sampleType))
+  const view = new DataView(bytes.buffer)
+  if (sampleType === 'float16') {
     if (value !== 0) {
       throw unsupportedOperation('Zarr float16 fill values other than 0 are unsupported')
     }
     view.setUint16(0, 0, littleEndian)
   } else if (sampleType === 'float32') view.setFloat32(0, value, littleEndian)
   else view.setFloat64(0, value, littleEndian)
+  return { bytes, numeric: value }
 }
 
-const writeIntegerBits = (
-  bits: bigint,
-  sampleType: RasterSampleType,
-  littleEndian: boolean,
-): Uint8Array => {
-  const bytes = new Uint8Array(rasterSampleBytes(sampleType))
-  const view = new DataView(bytes.buffer)
-  const masked = bits & ((1n << BigInt(bytes.byteLength * 8)) - 1n)
-  if (bytes.byteLength === 1) view.setUint8(0, Number(masked))
-  else if (bytes.byteLength === 2) view.setUint16(0, Number(masked), littleEndian)
-  else if (bytes.byteLength === 4) view.setUint32(0, Number(masked), littleEndian)
-  else view.setBigUint64(0, masked, littleEndian)
-  return bytes
+const parseIntegerCandidate = (value: unknown, label: string): bigint => {
+  if (typeof value === 'bigint') return value
+  if (typeof value === 'boolean') return value ? 1n : 0n
+  if (typeof value === 'number') {
+    if (!Number.isInteger(value) || !Number.isSafeInteger(value)) {
+      throw invalidInput(`${label} is not an exact integer`)
+    }
+    return BigInt(value)
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (trimmed.length === 0) throw invalidInput(`${label} is not an exact integer`)
+    if (!/^[+-]?\d+$/u.test(trimmed)) throw invalidInput(`${label} is not an exact integer`)
+    return BigInt(trimmed)
+  }
+  throw invalidInput(`${label} is unsupported`)
 }
 
 const parseFillValue = (
   value: unknown,
   sampleType: RasterSampleType,
   littleEndian: boolean,
-): { readonly numeric: number; readonly bytes: Uint8Array } => {
+  required: boolean,
+): ZarrFill => {
   const floating = isFloatSampleType(sampleType)
-  let numeric: number
-  let bytes: Uint8Array | undefined
-  if (value === undefined || value === null) {
-    numeric = floating && value === null ? Number.NaN : 0
-  } else if (typeof value === 'number' && Number.isFinite(value)) numeric = value
-  else if (typeof value === 'boolean') numeric = value ? 1 : 0
-  else if (typeof value === 'string') {
-    const trimmed = value.trim()
-    const special = trimmed.toLowerCase()
+  if (value === undefined) {
+    if (required) throw invalidInput('Zarr fill_value is missing')
+    return { kind: 'undefined' }
+  }
+  if (value === null) {
+    if (!floating) {
+      if (required) throw invalidInput(`Zarr fill_value null is invalid for ${sampleType}`)
+      return { kind: 'undefined' }
+    }
+    return { kind: 'defined', ...writeNumericSample(sampleType, Number.NaN, littleEndian) }
+  }
+  if (floating) {
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value) && !Number.isNaN(value)) {
+        throw invalidInput(`Zarr fill_value ${String(value)} is invalid for ${sampleType}`)
+      }
+      return { kind: 'defined', ...writeNumericSample(sampleType, value, littleEndian) }
+    }
+    if (typeof value !== 'string') throw invalidInput('Zarr fill_value is unsupported')
+    const special = value.trim().toLowerCase()
     if (special === 'nan') {
-      if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-      numeric = Number.NaN
-    } else if (
+      return { kind: 'defined', ...writeNumericSample(sampleType, Number.NaN, littleEndian) }
+    }
+    if (
       special === 'infinity' ||
       special === '+infinity' ||
       special === 'inf' ||
       special === '+inf'
     ) {
-      if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-      numeric = Number.POSITIVE_INFINITY
-    } else if (special === '-infinity' || special === '-inf') {
-      if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-      numeric = Number.NEGATIVE_INFINITY
-    } else {
-      const hex = /^0x([0-9a-fA-F]+)$/u.exec(trimmed)
-      if (hex !== null) {
-        if (floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-        const bits = BigInt(`0x${hex[1]}`)
-        bytes = writeIntegerBits(bits, sampleType, littleEndian)
-        numeric = Number(bits)
-      } else {
-        const parsed = Number(trimmed)
-        if (trimmed.length === 0 || !Number.isFinite(parsed)) {
-          throw invalidInput('Zarr fill_value is unsupported')
-        }
-        numeric = parsed
+      return {
+        kind: 'defined',
+        ...writeNumericSample(sampleType, Number.POSITIVE_INFINITY, littleEndian),
       }
     }
-  } else throw invalidInput('Zarr fill_value is unsupported')
-  if (bytes === undefined) {
-    if (!floating && !Number.isInteger(numeric)) {
-      throw invalidInput(`Zarr fill_value ${String(value)} is invalid for ${sampleType}`)
+    if (special === '-infinity' || special === '-inf') {
+      return {
+        kind: 'defined',
+        ...writeNumericSample(sampleType, Number.NEGATIVE_INFINITY, littleEndian),
+      }
     }
-    bytes = new Uint8Array(rasterSampleBytes(sampleType))
-    writeNumericSample(new DataView(bytes.buffer), sampleType, numeric, littleEndian)
+    const parsed = Number(value.trim())
+    if (value.trim().length === 0 || !Number.isFinite(parsed)) {
+      throw invalidInput('Zarr fill_value is unsupported')
+    }
+    return { kind: 'defined', ...writeNumericSample(sampleType, parsed, littleEndian) }
   }
-  return { numeric, bytes }
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    const hex = /^0x([0-9a-fA-F]+)$/u.exec(trimmed)
+    if (hex !== null) {
+      const bits = BigInt(`0x${hex[1]}`)
+      const width = BigInt(integerBitWidth(sampleType))
+      if (bits >= 1n << width) {
+        throw invalidInput(`Zarr fill_value ${value} exceeds ${sampleType}`)
+      }
+      const bytes = writeExactIntegerBits(bits, sampleType, littleEndian)
+      const signed = sampleType.startsWith('i') ? signedIntegerFromBits(bits, sampleType) : bits
+      const numeric = representableNumber(signed)
+      return numeric === undefined
+        ? { kind: 'defined', bytes }
+        : { kind: 'defined', bytes, numeric }
+    }
+  }
+  const integer = parseIntegerCandidate(value, `Zarr fill_value ${String(value)}`)
+  const written = writeExactIntegerValue(integer, sampleType, littleEndian)
+  return written.numeric === undefined
+    ? { kind: 'defined', bytes: written.bytes }
+    : { kind: 'defined', bytes: written.bytes, numeric: written.numeric }
 }
 
 const codecsForEndian = (codecs: readonly ZarrCodec[]): readonly ZarrCodec[] => {
@@ -478,16 +692,16 @@ const parseV2ArrayMetadata = (value: unknown, path: string): ZarrArrayMetadata =
   codecs.push(...parseV2Filters(value.filters))
   const compressor = parseV2Compressor(value.compressor)
   if (compressor !== undefined) codecs.push(compressor)
-  const fill = parseFillValue(value.fill_value, dtype.sampleType, dtype.littleEndian)
+  validateArrayCodecs(codecs, chunkShape, dtype.sampleType)
+  const fill = parseFillValue(value.fill_value, dtype.sampleType, dtype.littleEndian, false)
   return Object.freeze({
     path,
     shape,
     chunkShape,
     dataType: dtype.sampleType,
     endian: dtype.littleEndian ? 'little' : 'big',
-    fillValue: fill.numeric,
-    fillBytes: fill.bytes,
-    chunkKeyEncoding: 'v2',
+    fill,
+    chunkKeyEncoding: 'v2' as const,
     separator,
     codecs: Object.freeze(codecs),
     attributes: isRecord(value.attributes) ? Object.freeze({ ...value.attributes }) : {},
@@ -509,8 +723,10 @@ const parseArrayMetadata = (value: unknown, path: string): ZarrArrayMetadata => 
   const chunkShape = parseRegularChunkShape(value.chunk_grid, shape.length)
   const keyEncoding = parseChunkKeyEncoding(value.chunk_key_encoding)
   const codecs = parseCodecs(value.codecs, `Zarr ${path} codecs`)
+  validateArrayCodecs(codecs, chunkShape, dataType)
   const endian = parseEndian(codecs, dataType)
-  const fill = parseFillValue(value.fill_value, dataType, endian === 'little')
+  const fill = parseFillValue(value.fill_value, dataType, endian === 'little', true)
+  const dimensionNames = parseDimensionNames(value.dimension_names, shape.length)
   const attributes = isRecord(value.attributes) ? Object.freeze({ ...value.attributes }) : {}
   return Object.freeze({
     path,
@@ -518,11 +734,11 @@ const parseArrayMetadata = (value: unknown, path: string): ZarrArrayMetadata => 
     chunkShape,
     dataType,
     endian,
-    fillValue: fill.numeric,
-    fillBytes: fill.bytes,
+    fill,
     chunkKeyEncoding: keyEncoding.name,
     separator: keyEncoding.separator,
     codecs,
+    ...(dimensionNames === undefined ? {} : { dimensionNames }),
     attributes,
   })
 }
@@ -840,16 +1056,22 @@ const clippedChunkShape = (
     return Math.min(size, available)
   })
 
-const decodeShard = async (
+interface DecodedShardIndex {
+  readonly view: DataView
+  readonly indexOffset: number
+  readonly encodedIndexBytes: number
+  readonly counts: readonly number[]
+  readonly innerShape: readonly number[]
+  readonly innerCodecs: readonly ZarrCodec[]
+}
+
+const loadShardIndex = async (
   source: ImageSource,
   codec: Readonly<ZarrCodec>,
   shardShape: readonly number[],
-  sampleType: RasterSampleType,
-  innerStart: readonly number[],
-  decodedInnerShape: readonly number[],
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
-): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] }> => {
+): Promise<DecodedShardIndex> => {
   const innerShape = integerTuple(
     codec.configuration.chunk_shape,
     'Zarr sharding chunk_shape',
@@ -859,18 +1081,16 @@ const decodeShard = async (
   const innerCodecs = parseCodecs(codec.configuration.codecs, 'Zarr sharding codecs')
   const indexCodecs = parseCodecs(codec.configuration.index_codecs, 'Zarr sharding index_codecs')
   const location = codec.configuration.index_location ?? 'end'
-  if (location !== 'end' && location !== 'start') {
-    throw unsupportedOperation(`Zarr sharding index_location ${String(location)} is unsupported`)
-  }
-  if (indexCodecs.some((entry) => entry.name !== 'bytes' && entry.name !== 'crc32c')) {
-    throw unsupportedOperation(
-      `Zarr sharding index codecs ${indexCodecs.map((entry) => entry.name).join(', ')} are unsupported`,
-    )
-  }
   const innerCount = checkedProduct(counts, 'Zarr shard inner chunk count')
   const rawIndexBytes = checkedProduct([innerCount, 16], 'Zarr shard index bytes')
   const crcCount = indexCodecs.filter((entry) => entry.name === 'crc32c').length
   const encodedIndexBytes = rawIndexBytes + crcCount * 4
+  if (
+    rawIndexBytes > limits.maxDecodedChunkBytes ||
+    encodedIndexBytes > limits.maxDecodedChunkBytes
+  ) {
+    throw limitExceeded(`Zarr shard index exceeds ${limits.maxDecodedChunkBytes} bytes`)
+  }
   if (encodedIndexBytes > source.size) throw invalidInput('Zarr shard is smaller than its index')
   const indexOffset = location === 'end' ? source.size - encodedIndexBytes : 0
   const encodedIndex = await readExactly(source, indexOffset, encodedIndexBytes, {
@@ -886,82 +1106,91 @@ const decodeShard = async (
   )
   const indexEndian = indexCodecs.find((entry) => entry.name === 'bytes')?.configuration.endian
   const indexBytes = indexEndian === 'big' ? swapEndian(index.data, 8) : index.data
-  const view = new DataView(indexBytes.buffer, indexBytes.byteOffset, indexBytes.byteLength)
-  for (let axis = 0; axis < counts.length; axis += 1) {
+  return {
+    view: new DataView(indexBytes.buffer, indexBytes.byteOffset, indexBytes.byteLength),
+    indexOffset,
+    encodedIndexBytes,
+    counts,
+    innerShape,
+    innerCodecs,
+  }
+}
+
+const lookupShardInner = (
+  index: Readonly<DecodedShardIndex>,
+  innerStart: readonly number[],
+  sourceSize: number,
+): { readonly offset: number; readonly bytes: number } | 'fill' => {
+  for (let axis = 0; axis < index.counts.length; axis += 1) {
     const coord = innerStart[axis] ?? 0
-    const limit = counts[axis] ?? 0
+    const limit = index.counts[axis] ?? 0
     if (!Number.isSafeInteger(coord) || coord < 0 || coord >= limit) {
       throw invalidInput('Zarr shard inner chunk index is outside the shard')
     }
   }
   let linear = 0
   let stride = 1
-  for (let axis = counts.length - 1; axis >= 0; axis -= 1) {
+  for (let axis = index.counts.length - 1; axis >= 0; axis -= 1) {
     linear += (innerStart[axis] ?? 0) * stride
-    stride *= counts[axis] ?? 1
+    stride *= index.counts[axis] ?? 1
   }
   const entry = linear * 16
-  const payloadOffset = readUint64(view, entry, 'Zarr shard chunk offset')
-  const payloadBytes = readUint64(view, entry + 8, 'Zarr shard chunk size')
-  if (payloadOffset === undefined || payloadBytes === undefined || payloadBytes === 0) {
-    return { data: new Uint8Array(0), shape: decodedInnerShape }
+  const payloadOffset = readUint64(index.view, entry, 'Zarr shard chunk offset')
+  const payloadBytes = readUint64(index.view, entry + 8, 'Zarr shard chunk size')
+  const offsetMissing = payloadOffset === undefined
+  const lengthMissing = payloadBytes === undefined
+  if (offsetMissing && lengthMissing) return 'fill'
+  if (offsetMissing || lengthMissing) {
+    throw invalidInput('Zarr shard index mixes a missing-chunk sentinel with a defined field')
   }
-  if (payloadBytes > limits.maxChunkBytes) {
-    throw limitExceeded(`Zarr shard inner chunk exceeds ${limits.maxChunkBytes} bytes`)
+  if (payloadBytes === 0) {
+    throw invalidInput('Zarr shard inner chunk has a zero-length payload')
   }
-  if (payloadBytes > source.size || payloadOffset > source.size - payloadBytes) {
+  if (payloadBytes > sourceSize || payloadOffset > sourceSize - payloadBytes) {
     throw invalidInput('Zarr shard inner chunk extends outside the shard')
   }
   const payloadEnd = payloadOffset + payloadBytes
-  const indexEnd = indexOffset + encodedIndexBytes
-  if (payloadOffset < indexEnd && payloadEnd > indexOffset) {
+  const indexEnd = index.indexOffset + index.encodedIndexBytes
+  if (payloadOffset < indexEnd && payloadEnd > index.indexOffset) {
     throw invalidInput('Zarr shard inner chunk overlaps the shard index')
   }
-  const encoded = await readExactly(source, payloadOffset, payloadBytes, {
+  return { offset: payloadOffset, bytes: payloadBytes }
+}
+
+const decodeShardInner = async (
+  source: ImageSource,
+  index: Readonly<DecodedShardIndex>,
+  innerStart: readonly number[],
+  decodedInnerShape: readonly number[],
+  sampleType: RasterSampleType,
+  limits: Readonly<ZarrStoreLimits>,
+  signal?: AbortSignal,
+): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] } | 'fill'> => {
+  const lookup = lookupShardInner(index, innerStart, source.size)
+  if (lookup === 'fill') return 'fill'
+  if (lookup.bytes > limits.maxChunkBytes) {
+    throw limitExceeded(`Zarr shard inner chunk exceeds ${limits.maxChunkBytes} bytes`)
+  }
+  const encoded = await readExactly(source, lookup.offset, lookup.bytes, {
     ...(signal === undefined ? {} : { signal }),
   })
   return decodeBytesCodecs(
     encoded,
-    innerCodecs,
-    [decodedInnerShape, innerShape],
+    index.innerCodecs,
+    [decodedInnerShape, index.innerShape],
     sampleType,
     limits,
     signal,
   )
 }
 
-const decodeChunkObject = async (
+const decodeRegularChunk = async (
   source: ImageSource,
   array: Readonly<ZarrArrayMetadata>,
-  innerStart: readonly number[],
   innerOrigin: readonly number[],
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
 ): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] }> => {
-  const last = array.codecs[array.codecs.length - 1]
-  if (last?.name === 'sharding_indexed') {
-    if (array.codecs.length !== 1) {
-      throw unsupportedOperation(
-        `Zarr codecs surrounding sharding_indexed (${array.codecs.map((codec) => codec.name).join(', ')}) are unsupported`,
-      )
-    }
-    const nominal = logicalChunkShape(array)
-    return decodeShard(
-      source,
-      last,
-      array.chunkShape,
-      array.dataType,
-      innerStart,
-      clippedChunkShape(array.shape, innerOrigin, nominal),
-      limits,
-      signal,
-    )
-  }
-  if (array.codecs.some((codec) => codec.name === 'sharding_indexed')) {
-    throw unsupportedOperation(
-      `Zarr codec pipeline ${array.codecs.map((codec) => codec.name).join(', ')} is unsupported`,
-    )
-  }
   if (source.size > limits.maxChunkBytes) {
     throw limitExceeded(`Zarr chunk exceeds ${limits.maxChunkBytes} bytes`)
   }
@@ -1040,68 +1269,140 @@ const copyFromChunk = (
   }
 }
 
-const prefill = (output: Uint8Array, fillBytes: Uint8Array, littleEndian: boolean): void => {
+const prefill = (output: Uint8Array, fill: ZarrFill, littleEndian: boolean): void => {
+  if (fill.kind !== 'defined') return
   const canonical =
-    littleEndian && fillBytes.byteLength > 1
-      ? swapEndian(fillBytes, fillBytes.byteLength)
-      : fillBytes
+    littleEndian && fill.bytes.byteLength > 1
+      ? swapEndian(fill.bytes, fill.bytes.byteLength)
+      : fill.bytes
   for (let offset = 0; offset < output.byteLength; offset += canonical.byteLength) {
     output.set(canonical, offset)
+  }
+}
+
+interface CacheEntry<T> {
+  readonly value: T
+}
+
+class BoundedLru<T> {
+  readonly #max: number
+  readonly #entries = new Map<string, CacheEntry<T>>()
+
+  constructor(max: number) {
+    this.#max = Math.max(1, max)
+  }
+
+  get size(): number {
+    return this.#entries.size
+  }
+
+  get(key: string): CacheEntry<T> | undefined {
+    const entry = this.#entries.get(key)
+    if (entry === undefined) return undefined
+    this.#entries.delete(key)
+    this.#entries.set(key, entry)
+    return entry
+  }
+
+  set(key: string, value: T): void {
+    if (this.#entries.has(key)) this.#entries.delete(key)
+    this.#entries.set(key, { value })
+    while (this.#entries.size > this.#max) {
+      const oldest = this.#entries.keys().next().value
+      if (oldest === undefined) break
+      this.#entries.delete(oldest)
+    }
   }
 }
 
 class CompanionZarrStore implements ZarrStore {
   readonly prefix: string
   readonly format: 2 | 3
+  readonly identityKind: 'session' | 'archive'
   readonly #resolver: ScientificCompanionResolver
   readonly #limits: Readonly<ZarrStoreLimits>
-  readonly #resources = new Map<string, ScientificResource | undefined>()
-  #resolutions = 0
+  readonly #sessionResource: ScientificResource
+  readonly #archiveResource: ScientificResource | undefined
+  readonly #metadata = new BoundedLru<ScientificResource | undefined>(64)
+  readonly #chunks: BoundedLru<ScientificResource | undefined>
+  #metadataResolutions = 0
 
   constructor(
     resolver: ScientificCompanionResolver,
     prefix: string,
     limits: Readonly<ZarrStoreLimits>,
     format: 2 | 3,
+    identityKind: 'session' | 'archive',
+    archiveResource: ScientificResource | undefined,
   ) {
     this.#resolver = resolver
     this.prefix = prefix
     this.format = format
+    this.identityKind = identityKind
     this.#limits = limits
+    this.#chunks = new BoundedLru(limits.maxOpenSources)
+    this.#sessionResource = Object.freeze({
+      id: `zarr-session:${prefix}:${format}:${Math.random().toString(36).slice(2)}`,
+      name: 'zarr-session',
+      source: new MemorySource(Uint8Array.of(1)),
+    })
+    this.#archiveResource = archiveResource
   }
 
   async resolve(relative: string, signal?: AbortSignal): Promise<ScientificResource | undefined> {
+    return this.#resolve(relative, 'metadata', signal)
+  }
+
+  async #resolve(
+    relative: string,
+    kind: 'metadata' | 'chunk',
+    signal?: AbortSignal,
+  ): Promise<ScientificResource | undefined> {
     const name = joinPath(this.prefix, relative)
-    const cached = this.#resources.get(name)
-    if (cached !== undefined || this.#resources.has(name)) return cached
-    this.#resolutions += 1
-    if (this.#resolutions > this.#limits.maxStoreResolutions) {
-      throw limitExceeded(
-        `Zarr store exceeded ${this.#limits.maxStoreResolutions} companion resolutions`,
-      )
-    }
-    if (this.#resources.size >= this.#limits.maxOpenSources) {
-      throw limitExceeded(`Zarr store exceeded ${this.#limits.maxOpenSources} open sources`)
+    const cache = kind === 'metadata' ? this.#metadata : this.#chunks
+    const cached = cache.get(name)
+    if (cached !== undefined) return cached.value
+    if (kind === 'metadata') {
+      this.#metadataResolutions += 1
+      if (this.#metadataResolutions > this.#limits.maxStoreResolutions) {
+        throw limitExceeded(
+          `Zarr store exceeded ${this.#limits.maxStoreResolutions} companion resolutions`,
+        )
+      }
     }
     const resource = await this.#resolver.resolve(
       { kind: 'relative-name', name },
       signal === undefined ? {} : { signal },
     )
-    this.#resources.set(name, resource)
+    cache.set(name, resource)
     return resource
   }
 
-  async readJson(relative: string, signal?: AbortSignal): Promise<unknown> {
-    const resource = await this.resolve(relative, signal)
-    if (resource === undefined) throw invalidInput(`Zarr metadata ${relative} is missing`)
+  async #readJsonBytes(
+    relative: string,
+    optional: boolean,
+    signal?: AbortSignal,
+  ): Promise<Uint8Array | undefined> {
+    const resource = await this.#resolve(relative, 'metadata', signal)
+    if (resource === undefined) {
+      if (optional) return undefined
+      throw invalidInput(`Zarr metadata ${relative} is missing`)
+    }
     if (resource.source.size > this.#limits.maxMetadataBytes) {
       throw limitExceeded(
         `Zarr metadata ${relative} exceeds ${this.#limits.maxMetadataBytes} bytes`,
       )
     }
-    const bytes = await readExactly(resource.source, 0, resource.source.size, {
+    if (optional && resource.source.size === 0) return undefined
+    throwIfAborted(signal)
+    return readExactly(resource.source, 0, resource.source.size, {
       ...(signal === undefined ? {} : { signal }),
     })
+  }
+
+  async readJson(relative: string, signal?: AbortSignal): Promise<unknown> {
+    const bytes = await this.#readJsonBytes(relative, false, signal)
+    if (bytes === undefined) throw invalidInput(`Zarr metadata ${relative} is missing`)
     const text = decodeZarrJsonText(bytes)
     if (text === undefined) throw invalidInput(`Zarr metadata ${relative} is not valid UTF-8`)
     try {
@@ -1112,11 +1413,8 @@ class CompanionZarrStore implements ZarrStore {
   }
 
   async readJsonOptional(relative: string, signal?: AbortSignal): Promise<unknown> {
-    const resource = await this.resolve(relative, signal)
-    if (resource === undefined || resource.source.size === 0) return undefined
-    const bytes = await readExactly(resource.source, 0, resource.source.size, {
-      ...(signal === undefined ? {} : { signal }),
-    })
+    const bytes = await this.#readJsonBytes(relative, true, signal)
+    if (bytes === undefined) return undefined
     const text = decodeZarrJsonText(bytes)
     if (text === undefined) throw invalidInput(`Zarr metadata ${relative} is not valid UTF-8`)
     if (text.trim().length === 0) return undefined
@@ -1128,10 +1426,12 @@ class CompanionZarrStore implements ZarrStore {
   }
 
   async openArray(relative: string, signal?: AbortSignal): Promise<ZarrArrayMetadata> {
-    const parsed = parseArrayMetadata(
-      await this.readJson(metadataKey(relative, this.format, 'array'), signal),
-      relative,
-    )
+    const json = await this.readJson(metadataKey(relative, this.format, 'array'), signal)
+    const node = parseZarrNodeJson(json)
+    if (node !== undefined && node.format !== this.format) {
+      throw invalidInput(`Zarr array ${relative} format does not match the store`)
+    }
+    const parsed = parseArrayMetadata(json, relative)
     if (this.format === 2) {
       const attributes = await this.readJsonOptional(attributesKey(relative), signal)
       if (isRecord(attributes)) {
@@ -1142,10 +1442,12 @@ class CompanionZarrStore implements ZarrStore {
   }
 
   async openGroup(relative: string, signal?: AbortSignal): Promise<ZarrGroupMetadata> {
-    const parsed = parseGroupMetadata(
-      await this.readJson(metadataKey(relative, this.format, 'group'), signal),
-      relative,
-    )
+    const json = await this.readJson(metadataKey(relative, this.format, 'group'), signal)
+    const node = parseZarrNodeJson(json)
+    if (node !== undefined && node.format !== this.format) {
+      throw invalidInput(`Zarr group ${relative} format does not match the store`)
+    }
+    const parsed = parseGroupMetadata(json, relative)
     if (this.format === 2) {
       const attributes = await this.readJsonOptional(attributesKey(relative), signal)
       if (isRecord(attributes)) {
@@ -1153,6 +1455,24 @@ class CompanionZarrStore implements ZarrStore {
       }
     }
     return parsed
+  }
+
+  async identityResources(
+    paths: readonly string[],
+    signal?: AbortSignal,
+  ): Promise<readonly Pick<ScientificResource, 'id' | 'source'>[]> {
+    if (this.identityKind === 'archive' && this.#archiveResource !== undefined) {
+      return Object.freeze([this.#archiveResource])
+    }
+    const resources: Pick<ScientificResource, 'id' | 'source'>[] = [this.#sessionResource]
+    const seen = new Set<string>([this.#sessionResource.id])
+    for (const path of paths) {
+      const resource = await this.#resolve(path, 'metadata', signal)
+      if (resource === undefined || seen.has(resource.id)) continue
+      seen.add(resource.id)
+      resources.push(resource)
+    }
+    return Object.freeze(resources)
   }
 
   async readRegion(
@@ -1178,13 +1498,15 @@ class CompanionZarrStore implements ZarrStore {
       throw limitExceeded(`Zarr region exceeds ${this.#limits.maxDecodedChunkBytes} bytes`)
     }
     const output = new Uint8Array(outputBytes)
-    prefill(output, array.fillBytes, array.endian === 'little')
+    prefill(output, array.fill, array.endian === 'little')
     const innerShape = logicalChunkShape(array)
     const shardShape = array.chunkShape
     const first = start.map((value, axis) => Math.floor(value / (innerShape[axis] ?? 1)))
     const last = start.map((value, axis) =>
       Math.floor((value + (shape[axis] ?? 1) - 1) / (innerShape[axis] ?? 1)),
     )
+    const sharding = array.codecs.find((codec) => codec.name === 'sharding_indexed')
+    const shardIndexes = new Map<string, DecodedShardIndex>()
     const innerCoords = first.slice()
     while (true) {
       throwIfAborted(signal)
@@ -1196,18 +1518,49 @@ class CompanionZarrStore implements ZarrStore {
         const perShard = (shardShape[axis] ?? 1) / (innerShape[axis] ?? 1)
         return index - Math.floor(index / perShard) * perShard
       })
-      const resource = await this.resolve(chunkKey(array, shardCoords), signal)
+      const key = chunkKey(array, shardCoords)
+      const resource = await this.#resolve(key, 'chunk', signal)
       const copyStart = start.map((value, axis) => Math.max(value, innerOrigin[axis] ?? 0))
-      if (resource !== undefined && resource.source.size > 0) {
-        const decoded = await decodeChunkObject(
-          resource.source,
-          array,
-          innerStart,
-          innerOrigin,
-          this.#limits,
-          signal,
-        )
-        if (decoded.data.byteLength > 0) {
+      if (resource === undefined) {
+        if (array.fill.kind === 'undefined') {
+          throw invalidInput(`Zarr chunk ${key} is missing and fill_value is undefined`)
+        }
+      } else if (resource.source.size === 0) {
+        throw invalidInput(`Zarr chunk ${key} is an empty object`)
+      } else {
+        const decodedInnerShape = clippedChunkShape(array.shape, innerOrigin, innerShape)
+        let decoded: { readonly data: Uint8Array; readonly shape: readonly number[] } | 'fill'
+        if (sharding !== undefined) {
+          let index = shardIndexes.get(key)
+          if (index === undefined) {
+            index = await loadShardIndex(
+              resource.source,
+              sharding,
+              array.chunkShape,
+              this.#limits,
+              signal,
+            )
+            shardIndexes.set(key, index)
+          }
+          decoded = await decodeShardInner(
+            resource.source,
+            index,
+            innerStart,
+            decodedInnerShape,
+            array.dataType,
+            this.#limits,
+            signal,
+          )
+        } else {
+          decoded = await decodeRegularChunk(
+            resource.source,
+            array,
+            innerOrigin,
+            this.#limits,
+            signal,
+          )
+        }
+        if (decoded !== 'fill') {
           const copyEnd = start.map((value, axis) =>
             Math.min(
               value + (shape[axis] ?? 0),
@@ -1227,6 +1580,8 @@ class CompanionZarrStore implements ZarrStore {
             sampleBytes,
             array.endian === 'little',
           )
+        } else if (array.fill.kind === 'undefined') {
+          throw invalidInput(`Zarr shard inner chunk is missing and fill_value is undefined`)
         }
       }
       let axis = innerCoords.length - 1
@@ -1245,12 +1600,26 @@ class CompanionZarrStore implements ZarrStore {
   }
 }
 
+export interface ZarrStoreOptions {
+  readonly identityKind?: 'session' | 'archive'
+  readonly archiveResource?: ScientificResource
+}
+
 export const createZarrStore = (
   resolver: ScientificCompanionResolver,
   primaryName: string | undefined,
   limits: Readonly<ZarrStoreLimits>,
   format: 2 | 3 = 3,
-): ZarrStore => new CompanionZarrStore(resolver, zarrStorePrefix(primaryName), limits, format)
+  options: Readonly<ZarrStoreOptions> = {},
+): ZarrStore =>
+  new CompanionZarrStore(
+    resolver,
+    zarrStorePrefix(primaryName),
+    limits,
+    format,
+    options.identityKind ?? 'session',
+    options.archiveResource,
+  )
 
 const decodeZarrJsonText = (bytes: Uint8Array): string | undefined => {
   try {

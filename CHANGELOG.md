@@ -15,21 +15,25 @@ All notable changes to PureJsImage are documented in this file.
   `zarr.json` or `.zgroup` opens as a single-file store without companions. Partial last chunks,
   sharded inner endian, Blosc split streams, and the C-Blosc compressor enumeration are handled.
   A pinned IDR 6001240 coarsest-plane slice cross-checks NGFF 0.4 Blosc/LZ4 against 0.5 sharded
-  Blosc/zstd. The reader also accepts omitted v3 `chunk_key_encoding`, v2 null/omitted and
-  string/hex `fill_value`s, F-order padded last chunks, numeric OMERO colors, UTF-8 BOM metadata,
-  empty chunk objects, and zero-size shard payloads, honors big-endian shard indexes, and rejects
-  shard payloads that overlap the index. Clipped last chunks no longer fail when the nominal
-  chunk exceeds the decode budget; empty optional `.zattrs`, trailing dataset slashes, bare
-  one-byte NumPy dtypes, `numcodecs.*` codec ids, and case-insensitive NaN/Infinity fills are
-  accepted. bioformats2raw `0/`, `1/`, … series roots and a single nested ZIP store prefix are
-  supported; ambiguous multi-root ZIPs stay rejected. Series discovery also works without a
-  root `.zattrs` file, `bioformats2raw.layout` may be a numeric string, and `seriesCount` counts
-  series groups rather than every collected dataset. ZIP stores named `*.zarr` / `*.ome.zarr`
-  probe as OME-Zarr, macOS `__MACOSX/` sidecars no longer make a unique nested root look
-  ambiguous, a root `labels` list does not hide bioformats2raw series, and extra integer series
-  beyond `maxDatasets` raise `LIMIT_EXCEEDED`. Pinned IDR slices now include 6001240 sibling
-  labels, an IDR0010 0.5 plate well, an IDR0001 0.4 plate field, and an IDR0101 translation
-  image. BloscLZ, Snappy, bitshuffle,
+  Blosc/zstd. The reader also accepts omitted v3 `chunk_key_encoding`, exact integer and hex
+  `fill_value`s, F-order padded last chunks, numeric OMERO colors, UTF-8 BOM metadata, and
+  big-endian shard indexes, and rejects overlapping shard payloads. `any-axis-pair` planes are
+  packed into destination row order. Zarr v2 `fill_value: null` decodes present chunks and fails
+  on absent ones instead of inventing zeros; a present zero-byte chunk is malformed; missing
+  shard inners use only the uint64 all-ones sentinel pair. Directory dataset identity includes
+  defining metadata plus a session store id; ZIP identity stays the archive source. Chunk lookup
+  uses a bounded LRU so `maxOpenSources` is not a lifetime visit limit. Clipped last chunks no
+  longer fail when the nominal chunk exceeds the decode budget; empty optional `.zattrs`, trailing
+  dataset slashes, bare one-byte NumPy dtypes, `numcodecs.*` codec ids, and case-insensitive
+  NaN/Infinity fills are accepted. bioformats2raw `0/`, `1/`, … series roots and a single nested
+  ZIP store prefix are supported; ambiguous multi-root ZIPs stay rejected. Series discovery also
+  works without a root `.zattrs` file, `bioformats2raw.layout` may be a numeric string, and
+  `seriesCount` counts series groups rather than every collected dataset. ZIP stores named
+  `*.zarr` / `*.ome.zarr` probe as OME-Zarr, macOS `__MACOSX/` sidecars no longer make a unique
+  nested root look ambiguous, a root `labels` list does not hide bioformats2raw series, and extra
+  integer series beyond `maxDatasets` raise `LIMIT_EXCEEDED`. ZIP probes propagate abort and
+  `LIMIT_EXCEEDED`. Pinned IDR slices now include 6001240 sibling labels, an IDR0010 0.5 plate
+  well, an IDR0001 0.4 plate field, and an IDR0101 translation image. BloscLZ, Snappy, bitshuffle,
   tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
   operations.
 

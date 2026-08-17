@@ -18,6 +18,7 @@ import type {
   ScientificReader,
   ScientificResource,
 } from '../src/scientific/reader.ts'
+import { getScientificDatasetIdentity } from '../src/scientific/reader.ts'
 import { createOmeZarrReader, omeZarrReader } from '../src/scientific/readers/ome-zarr.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource } from '../src/source.ts'
@@ -80,13 +81,27 @@ const groupMeta = (
     },
   })
 
+const defaultDimensionNames = (rank: number): readonly string[] | undefined => {
+  if (rank === 2) return ['y', 'x']
+  if (rank === 3) return ['c', 'y', 'x']
+  if (rank === 4) return ['c', 'z', 'y', 'x']
+  if (rank === 5) return ['t', 'c', 'z', 'y', 'x']
+  return undefined
+}
+
 const arrayMeta = (
   shape: readonly number[],
   chunkShape: readonly number[],
   codecs: unknown,
   extras: Readonly<Record<string, unknown>> = {},
-): Uint8Array =>
-  text({
+): Uint8Array => {
+  const names =
+    extras.dimension_names === undefined
+      ? defaultDimensionNames(shape.length)
+      : extras.dimension_names === null
+        ? undefined
+        : extras.dimension_names
+  return text({
     zarr_format: 3,
     node_type: 'array',
     shape,
@@ -98,8 +113,10 @@ const arrayMeta = (
     },
     fill_value: extras.fill_value ?? 0,
     codecs,
+    ...(names === undefined ? {} : { dimension_names: names }),
     attributes: {},
   })
+}
 
 const bytesCodec = [{ name: 'bytes', configuration: { endian: 'little' } }]
 
@@ -501,7 +518,7 @@ const v2Array = (
     chunks,
     dtype: extras.dtype ?? '|u1',
     compressor: extras.compressor ?? null,
-    fill_value: extras.fill_value ?? 0,
+    fill_value: extras.fill_value === undefined ? 0 : extras.fill_value,
     order: extras.order ?? 'C',
     filters: extras.filters ?? null,
     dimension_separator: extras.dimension_separator ?? '/',
@@ -1179,6 +1196,7 @@ describe('OME-Zarr edge cases', () => {
         chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
         fill_value: 0,
         codecs: bytesCodec,
+        dimension_names: ['y', 'x'],
         attributes: {},
       }),
       '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
@@ -1214,9 +1232,10 @@ describe('OME-Zarr edge cases', () => {
         filters: null,
         dimension_separator: '/',
       }),
+      '0/0/0': Uint8Array.of(1, 2, 3, 4),
     }
     expect(await planeValues(await openDataset(omeZarrReader, nullInt, '.zgroup'))).toEqual([
-      0, 0, 0, 0,
+      1, 2, 3, 4,
     ])
 
     const omittedV2Fill = {
@@ -1232,9 +1251,10 @@ describe('OME-Zarr edge cases', () => {
         filters: null,
         dimension_separator: '/',
       }),
+      '0/0/0': Uint8Array.of(4, 3, 2, 1),
     }
     expect(await planeValues(await openDataset(omeZarrReader, omittedV2Fill, '.zgroup'))).toEqual([
-      0, 0, 0, 0,
+      4, 3, 2, 1,
     ])
 
     const nanFill = {
@@ -1248,6 +1268,7 @@ describe('OME-Zarr edge cases', () => {
         chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
         fill_value: null,
         codecs: bytesCodec,
+        dimension_names: ['y', 'x'],
         attributes: {},
       }),
     }
@@ -1359,7 +1380,7 @@ describe('OME-Zarr edge cases', () => {
     })
   })
 
-  it('treats a zero-size shard payload as fill and rejects index overlap', async () => {
+  it('rejects a zero-size shard payload and overlapping shard indexes', async () => {
     const emptyIndex = new Uint8Array(16)
     const emptyShard = appendCrc32c(emptyIndex)
     const empty = {
@@ -1382,7 +1403,10 @@ describe('OME-Zarr edge cases', () => {
       ),
       '0/c/0/0': emptyShard,
     }
-    expect(await planeValues(await openDataset(omeZarrReader, empty))).toEqual([7, 7, 7, 7])
+    await expectCode(
+      () => openDataset(omeZarrReader, empty).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
 
     const overlapIndex = new Uint8Array(16)
     const overlapView = new DataView(overlapIndex.buffer)
@@ -1483,13 +1507,16 @@ describe('OME-Zarr edge cases', () => {
     ).toEqual([0])
   })
 
-  it('treats empty chunk objects as fill and decodes F-order uint16 edge chunks', async () => {
+  it('rejects empty chunk objects and decodes F-order uint16 edge chunks', async () => {
     const emptyFile = {
       'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
       '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { fill_value: 5 }),
       '0/c/0/0': new Uint8Array(0),
     }
-    expect(await planeValues(await openDataset(omeZarrReader, emptyFile))).toEqual([5, 5, 5, 5])
+    await expectCode(
+      () => openDataset(omeZarrReader, emptyFile).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
 
     const fortran = {
       '.zgroup': v2Group(),
@@ -2278,5 +2305,1088 @@ describe('OME-Zarr additional IDR corpus', () => {
         ],
       }),
     ).toEqual([0, 0, 4, 0])
+  })
+})
+
+const UINT64_SENTINEL = 0xffff_ffff_ffff_ffffn
+
+const shardingCodec = (
+  innerShape: readonly number[],
+  extras: {
+    readonly codecs?: unknown
+    readonly indexCodecs?: unknown
+  } = {},
+): unknown[] => [
+  {
+    name: 'sharding_indexed',
+    configuration: {
+      chunk_shape: innerShape,
+      codecs: extras.codecs ?? bytesCodec,
+      index_codecs: extras.indexCodecs ?? [...bytesCodec, { name: 'crc32c' }],
+      index_location: 'end',
+    },
+  },
+]
+
+const shardFromEntries = (
+  entries: readonly (
+    | { readonly kind: 'payload'; readonly bytes: Uint8Array }
+    | { readonly kind: 'fill' }
+    | { readonly kind: 'fields'; readonly offset: bigint; readonly length: bigint }
+  )[],
+): Uint8Array => {
+  const index = new Uint8Array(entries.length * 16)
+  const indexView = new DataView(index.buffer)
+  const payloads: Uint8Array[] = []
+  let offset = 0
+  for (const [indexEntry, entry] of entries.entries()) {
+    if (entry.kind === 'fill') {
+      indexView.setBigUint64(indexEntry * 16, UINT64_SENTINEL, true)
+      indexView.setBigUint64(indexEntry * 16 + 8, UINT64_SENTINEL, true)
+    } else if (entry.kind === 'fields') {
+      indexView.setBigUint64(indexEntry * 16, entry.offset, true)
+      indexView.setBigUint64(indexEntry * 16 + 8, entry.length, true)
+    } else {
+      indexView.setBigUint64(indexEntry * 16, BigInt(offset), true)
+      indexView.setBigUint64(indexEntry * 16 + 8, BigInt(entry.bytes.byteLength), true)
+      payloads.push(entry.bytes)
+      offset += entry.bytes.byteLength
+    }
+  }
+  const encodedIndex = appendCrc32c(index)
+  const shard = new Uint8Array(offset + encodedIndex.byteLength)
+  let cursor = 0
+  for (const payload of payloads) {
+    shard.set(payload, cursor)
+    cursor += payload.byteLength
+  }
+  shard.set(encodedIndex, offset)
+  return shard
+}
+
+const readTrackingContext = (
+  files: Readonly<Record<string, Uint8Array>>,
+  primaryName = 'zarr.json',
+): {
+  readonly context: ScientificOpenContext
+  readonly reads: { readonly name: string; readonly offset: number; readonly length: number }[]
+} => {
+  const reads: { name: string; offset: number; length: number }[] = []
+  const primary = files[primaryName]
+  if (primary === undefined) throw new Error(`Test store is missing ${primaryName}`)
+  const wrap = (name: string, bytes: Uint8Array): ScientificResource =>
+    Object.freeze({
+      id: name,
+      name,
+      source: {
+        size: bytes.byteLength,
+        async read(offset: number, length: number) {
+          const available =
+            offset >= bytes.byteLength ? 0 : Math.min(length, bytes.byteLength - offset)
+          reads.push({ name, offset, length: available })
+          return bytes.subarray(offset, offset + available)
+        },
+      },
+    })
+  return {
+    reads,
+    context: {
+      primary: wrap(primaryName, primary),
+      companions: {
+        async resolve(request: Readonly<ScientificCompanionRequest>) {
+          const name = request.kind === 'relative-name' ? request.name : request.relativeName
+          if (name === undefined) return undefined
+          const bytes = files[name]
+          return bytes === undefined ? undefined : wrap(name, bytes)
+        },
+      },
+    },
+  }
+}
+
+const unreadSource = (
+  size: number,
+): { readonly source: ScientificResource['source']; readonly reads: number } => {
+  const state = { reads: 0 }
+  return {
+    get reads() {
+      return state.reads
+    },
+    source: {
+      size,
+      async read() {
+        state.reads += 1
+        return new Uint8Array(0)
+      },
+    },
+  }
+}
+
+describe('OME-Zarr PR 24 correctness', () => {
+  it('packs any-axis-pair planes into destination row order', async () => {
+    const files = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 3], [2, 3], bytesCodec),
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4, 5, 6),
+    }
+    const dataset = await openDataset(omeZarrReader, files)
+    expect(await planeValues(dataset, { displayAxes: ['x', 'y'] })).toEqual([1, 2, 3, 4, 5, 6])
+
+    const transposed: { width: number; height: number; stride: number; values: number[] }[] = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['y', 'x'],
+      fixedIndices: [],
+    })) {
+      transposed.push({
+        width: block.width,
+        height: block.height,
+        stride: block.stride,
+        values: [...block.data],
+      })
+    }
+    expect(transposed).toEqual([{ width: 2, height: 3, stride: 2, values: [1, 4, 2, 5, 3, 6] }])
+
+    const volume = {
+      'zarr.json': text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: 'vol',
+                axes: [
+                  { name: 'c', type: 'channel' },
+                  { name: 'y', type: 'space' },
+                  { name: 'x', type: 'space' },
+                ],
+                datasets: [
+                  { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1, 1] }] },
+                ],
+              },
+            ],
+          },
+        },
+      }),
+      '0/zarr.json': arrayMeta([2, 2, 3], [2, 2, 3], bytesCodec, {
+        dimension_names: ['c', 'y', 'x'],
+      }),
+      '0/c/0/0/0': Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+    }
+    const stacked = await openDataset(omeZarrReader, volume)
+    expect(
+      await planeValues(stacked, {
+        displayAxes: ['c', 'x'],
+        fixedIndices: [{ axisId: 'y', index: 0 }],
+      }),
+    ).toEqual([1, 7, 2, 8, 3, 9])
+
+    const blocked = await createOmeZarrReader({ limits: { rowsPerBlock: 1 } }).open(
+      trackingContext(files).context,
+    )
+    const pieces: { x: number; y: number; width: number; height: number; values: number[] }[] = []
+    for await (const block of (await blocked.openDataset('image')).readPlane({
+      displayAxes: ['y', 'x'],
+      fixedIndices: [],
+    })) {
+      pieces.push({
+        x: block.x,
+        y: block.y,
+        width: block.width,
+        height: block.height,
+        values: [...block.data],
+      })
+    }
+    expect(pieces).toEqual([
+      { x: 0, y: 0, width: 2, height: 1, values: [1, 4] },
+      { x: 0, y: 1, width: 2, height: 1, values: [2, 5] },
+      { x: 0, y: 2, width: 2, height: 1, values: [3, 6] },
+    ])
+  })
+
+  it('rejects integer fills outside the exact sample range and keeps representable no-data', async () => {
+    const rejectFill = async (
+      extras: Readonly<Record<string, unknown>>,
+      code: ImageError['code'] = 'INVALID_INPUT',
+    ): Promise<void> => {
+      const files = {
+        'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+        '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, extras),
+      }
+      await expectCode(() => openDataset(omeZarrReader, files), code)
+    }
+
+    await rejectFill({ data_type: 'uint8', fill_value: -1 })
+    await rejectFill({ data_type: 'uint8', fill_value: 256 })
+    await rejectFill({ data_type: 'uint8', fill_value: 300 })
+    await rejectFill({ data_type: 'uint8', fill_value: '0x1ff' })
+    await rejectFill({ data_type: 'int8', fill_value: -129 })
+    await rejectFill({ data_type: 'int8', fill_value: 128 })
+    await rejectFill({ data_type: 'uint16', fill_value: 65_536 })
+    await rejectFill({ data_type: 'uint64', fill_value: Number.MAX_SAFE_INTEGER + 1 })
+
+    const boundaries: readonly {
+      readonly data_type: string
+      readonly fill_value: number | string
+      readonly expected: number
+    }[] = [
+      { data_type: 'uint8', fill_value: 0, expected: 0 },
+      { data_type: 'uint8', fill_value: 255, expected: 255 },
+      { data_type: 'int8', fill_value: -128, expected: -128 },
+      { data_type: 'int8', fill_value: 127, expected: 127 },
+      { data_type: 'uint16', fill_value: 0, expected: 0 },
+      { data_type: 'uint16', fill_value: 65_535, expected: 65_535 },
+      { data_type: 'int16', fill_value: -32_768, expected: -32_768 },
+      { data_type: 'int16', fill_value: 32_767, expected: 32_767 },
+      { data_type: 'uint32', fill_value: 0, expected: 0 },
+      { data_type: 'uint32', fill_value: 4_294_967_295, expected: 4_294_967_295 },
+      { data_type: 'int32', fill_value: -2_147_483_648, expected: -2_147_483_648 },
+      { data_type: 'int32', fill_value: 2_147_483_647, expected: 2_147_483_647 },
+    ]
+    for (const boundary of boundaries) {
+      const files = {
+        'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+        '0/zarr.json': arrayMeta([1, 1], [1, 1], bytesCodec, {
+          data_type: boundary.data_type,
+          fill_value: boundary.fill_value,
+        }),
+      }
+      const dataset = await openDataset(omeZarrReader, files)
+      expect(dataset.descriptor.noDataValue).toBe(boundary.expected)
+      expect(await planeValues(dataset, { width: 1, height: 1 })).toEqual([boundary.expected])
+    }
+
+    const exactUint64 = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([1, 1], [1, 1], bytesCodec, {
+        data_type: 'uint64',
+        fill_value: '0x0000000000000009',
+      }),
+    }
+    const exact = await openDataset(omeZarrReader, exactUint64)
+    expect(exact.descriptor.noDataValue).toBe(9)
+    expect(await planeValues(exact, { width: 1, height: 1 })).toEqual([9])
+
+    const wideUint64 = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([1, 1], [1, 1], bytesCodec, {
+        data_type: 'uint64',
+        fill_value: '0xffffffffffffffff',
+      }),
+    }
+    const wide = await openDataset(omeZarrReader, wideUint64)
+    expect(wide.descriptor.noDataValue).toBeUndefined()
+
+    const missingV3Fill = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': text({
+        zarr_format: 3,
+        node_type: 'array',
+        shape: [1, 1],
+        data_type: 'uint8',
+        chunk_grid: { name: 'regular', configuration: { chunk_shape: [1, 1] } },
+        codecs: bytesCodec,
+        dimension_names: ['y', 'x'],
+        attributes: {},
+      }),
+    }
+    await expectCode(() => openDataset(omeZarrReader, missingV3Fill), 'INVALID_INPUT')
+
+    const v2NullPresent = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': v2Array([2, 2], [2, 2], { fill_value: null }),
+      '0/0/0': Uint8Array.of(1, 2, 3, 4),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, v2NullPresent, '.zgroup'))).toEqual([
+      1, 2, 3, 4,
+    ])
+
+    const v2NullAbsent = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': v2Array([2, 2], [2, 2], { fill_value: null }),
+    }
+    await expectCode(
+      () =>
+        openDataset(omeZarrReader, v2NullAbsent, '.zgroup').then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
+
+    const presentEmpty = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { fill_value: 5 }),
+      '0/c/0/0': new Uint8Array(0),
+    }
+    const absent = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { fill_value: 5 }),
+    }
+    await expectCode(
+      () => openDataset(omeZarrReader, presentEmpty).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
+    expect(await planeValues(await openDataset(omeZarrReader, absent))).toEqual([5, 5, 5, 5])
+  })
+
+  it('validates sharding configuration at open and uses only both-sentinel missing inners', async () => {
+    const sharded = (
+      configuration: Readonly<Record<string, unknown>>,
+      extras: Readonly<Record<string, unknown>> = {},
+    ): Record<string, Uint8Array> => ({
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta(
+        [2, 2],
+        [2, 2],
+        [{ name: 'sharding_indexed', configuration }],
+        extras,
+      ),
+    })
+
+    expect(
+      await planeValues(
+        await openDataset(omeZarrReader, {
+          ...sharded({
+            chunk_shape: [2, 2],
+            codecs: bytesCodec,
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+            index_location: 'end',
+          }),
+          '0/c/0/0': shardFromEntries([{ kind: 'fill' }]),
+        }),
+      ),
+    ).toEqual([0, 0, 0, 0])
+
+    await expectCode(
+      () =>
+        openDataset(omeZarrReader, {
+          ...sharded({
+            chunk_shape: [2, 2],
+            codecs: bytesCodec,
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+            index_location: 'end',
+          }),
+          '0/c/0/0': shardFromEntries([{ kind: 'fields', offset: UINT64_SENTINEL, length: 4n }]),
+        }).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(omeZarrReader, {
+          ...sharded({
+            chunk_shape: [2, 2],
+            codecs: bytesCodec,
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+            index_location: 'end',
+          }),
+          '0/c/0/0': shardFromEntries([{ kind: 'fields', offset: 0n, length: UINT64_SENTINEL }]),
+        }).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(omeZarrReader, {
+          ...sharded({
+            chunk_shape: [2, 2],
+            codecs: bytesCodec,
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+            index_location: 'end',
+          }),
+          '0/c/0/0': shardFromEntries([{ kind: 'fields', offset: 0n, length: 0n }]),
+        }).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
+
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          sharded({
+            chunk_shape: [3, 2],
+            codecs: bytesCodec,
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+          }),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          sharded({
+            chunk_shape: [2, 2],
+            codecs: [{ name: 'gzip', configuration: { level: 1 } }],
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+          }),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          sharded({
+            chunk_shape: [2, 2],
+            codecs: [...bytesCodec, ...bytesCodec],
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+          }),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          sharded({
+            chunk_shape: [2, 2],
+            codecs: [...bytesCodec, { name: 'transpose', configuration: { order: [1, 0] } }],
+            index_codecs: [...bytesCodec, { name: 'crc32c' }],
+          }),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          sharded({
+            chunk_shape: [2, 2],
+            codecs: bytesCodec,
+            index_codecs: [
+              { name: 'bytes', configuration: { endian: 'little' } },
+              { name: 'gzip', configuration: { level: 1 } },
+            ],
+          }),
+        ),
+      'UNSUPPORTED_OPERATION',
+    )
+    await expectCode(
+      () =>
+        openDataset(omeZarrReader, {
+          'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+          '0/zarr.json': arrayMeta(
+            [2, 2],
+            [2, 2],
+            shardingCodec([2, 2], { codecs: [{ name: 'snappy' }] }),
+          ),
+        }),
+      'UNSUPPORTED_OPERATION',
+    )
+
+    const hugeInner = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([1, 256], [1, 256], shardingCodec([1, 1])),
+      '0/c/0/0': new Uint8Array(8),
+    }
+    const unread = unreadSource(8)
+    const hugeContext: ScientificOpenContext = {
+      primary: resource('zarr.json', hugeInner['zarr.json'] ?? new Uint8Array()),
+      companions: {
+        async resolve(request) {
+          const name = request.kind === 'relative-name' ? request.name : request.relativeName
+          if (name === '0/zarr.json') {
+            return resource('0/zarr.json', hugeInner['0/zarr.json'] ?? new Uint8Array())
+          }
+          if (name === '0/c/0/0') return { id: name, name, source: unread.source }
+          return undefined
+        },
+      },
+    }
+    const hugeDocument = await createOmeZarrReader({
+      limits: { maxDecodedChunkBytes: 1024 },
+    }).open(hugeContext)
+    await expectCode(
+      async () => planeValues(await hugeDocument.openDataset('image'), { width: 1, height: 1 }),
+      'LIMIT_EXCEEDED',
+    )
+    expect(unread.reads).toBe(0)
+  })
+
+  it('rejects oversized optional metadata before reading the payload', async () => {
+    const assertUnread = async (
+      primaryName: string,
+      files: Record<string, Uint8Array>,
+      oversizedName: string,
+    ): Promise<void> => {
+      const unread = unreadSource(2_000_000)
+      const context: ScientificOpenContext = {
+        primary: resource(primaryName, files[primaryName] ?? new Uint8Array()),
+        companions: {
+          async resolve(request) {
+            const name = request.kind === 'relative-name' ? request.name : request.relativeName
+            if (name === undefined) return undefined
+            if (name === oversizedName) return { id: name, name, source: unread.source }
+            const bytes = files[name]
+            return bytes === undefined ? undefined : resource(name, bytes)
+          },
+        },
+      }
+      await expectCode(() => omeZarrReader.open(context), 'LIMIT_EXCEEDED')
+      expect(unread.reads).toBe(0)
+    }
+
+    await assertUnread(
+      '.zgroup',
+      {
+        '.zgroup': v2Group(),
+        '0/.zarray': v2Array([1, 1], [1, 1]),
+        '0/0/0': Uint8Array.of(1),
+      },
+      '.zattrs',
+    )
+    await assertUnread(
+      '.zgroup',
+      {
+        '.zgroup': v2Group(),
+        '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+        '0/.zarray': v2Array([1, 1], [1, 1]),
+        '0/0/0': Uint8Array.of(1),
+      },
+      '0/.zattrs',
+    )
+    await assertUnread(
+      '.zgroup',
+      {
+        '.zgroup': v2Group(),
+        '.zattrs': text({ labels: ['cell'] }),
+        'cell/.zgroup': v2Group(),
+        'cell/0/.zarray': v2Array([1, 1], [1, 1]),
+        'cell/0/0/0': Uint8Array.of(1),
+      },
+      'cell/.zattrs',
+    )
+  })
+
+  it('enforces OME-NGFF and Zarr format pairing and malformed nested metadata', async () => {
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext(
+            {
+              '.zgroup': v2Group(),
+              '.zattrs': text({
+                ome: {
+                  version: '0.5',
+                  multiscales: [
+                    {
+                      name: 'bad',
+                      axes: [
+                        { name: 'y', type: 'space' },
+                        { name: 'x', type: 'space' },
+                      ],
+                      datasets: [
+                        {
+                          path: '0',
+                          coordinateTransformations: [{ type: 'scale', scale: [1, 1] }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              }),
+            },
+            '.zgroup',
+          ).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': text({
+              zarr_format: 3,
+              node_type: 'group',
+              attributes: {
+                multiscales: [
+                  {
+                    version: '0.4',
+                    axes: [
+                      { name: 'y', type: 'space' },
+                      { name: 'x', type: 'space' },
+                    ],
+                    datasets: [
+                      {
+                        path: '0',
+                        coordinateTransformations: [{ type: 'scale', scale: [1, 1] }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(omeZarrReader, {
+          'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+          '0/zarr.json': text({
+            zarr_format: 2,
+            shape: [2, 2],
+            chunks: [2, 2],
+            dtype: '|u1',
+            fill_value: 0,
+          }),
+        }),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          {
+            '.zgroup': v2Group(),
+            '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+            '0/.zarray': text({
+              zarr_format: 3,
+              node_type: 'array',
+              shape: [2, 2],
+              data_type: 'uint8',
+              fill_value: 0,
+              codecs: bytesCodec,
+            }),
+          },
+          '.zgroup',
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            ...tinyImage('', Uint8Array.of(1, 2, 3, 4)),
+            'labels/zarr.json': text({
+              zarr_format: 3,
+              node_type: 'group',
+              attributes: {
+                ome: {
+                  version: '0.4',
+                  labels: ['cell'],
+                },
+              },
+            }),
+          }).context,
+        ),
+      'UNSUPPORTED_OPERATION',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': text({
+              zarr_format: 3,
+              node_type: 'group',
+              attributes: { ome: { multiscales: [] } },
+            }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': text({
+              zarr_format: 3,
+              node_type: 'group',
+              attributes: { ome: { version: '0.5', 'bioformats2raw.layout': 3 } },
+            }),
+            '0/zarr.json': text({
+              zarr_format: 3,
+              node_type: 'group',
+              attributes: {
+                ome: {
+                  version: '0.5',
+                  multiscales: [
+                    {
+                      name: 'ok',
+                      axes: [
+                        { name: 'y', type: 'space' },
+                        { name: 'x', type: 'space' },
+                      ],
+                      datasets: [
+                        {
+                          path: '0',
+                          coordinateTransformations: [{ type: 'scale', scale: [1, 1] }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            }),
+            '0/0/zarr.json': arrayMeta([1, 1], [1, 1], bytesCodec),
+            '0/0/c/0/0': Uint8Array.of(1),
+            '1/zarr.json': text({
+              zarr_format: 3,
+              node_type: 'group',
+              attributes: { ome: { version: '0.5' } },
+            }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+  })
+
+  it('validates NGFF dimension names and restricted transform lists', async () => {
+    const withArray = (
+      extras: Readonly<Record<string, unknown>>,
+      transforms: unknown = [{ type: 'scale', scale: [1, 1] }],
+    ): Record<string, Uint8Array> => ({
+      'zarr.json': text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: 'demo',
+                axes: [
+                  { name: 'y', type: 'space' },
+                  { name: 'x', type: 'space' },
+                ],
+                datasets: [{ path: '0', coordinateTransformations: transforms }],
+              },
+            ],
+          },
+        },
+      }),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, extras),
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+    })
+
+    await expectCode(
+      () => openDataset(omeZarrReader, withArray({ dimension_names: null })),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () => openDataset(omeZarrReader, withArray({ dimension_names: ['x', 'y'] })),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () => openDataset(omeZarrReader, withArray({ dimension_names: ['y', 'X'] })),
+      'INVALID_INPUT',
+    )
+    await expectCode(() => openDataset(omeZarrReader, withArray({}, [])), 'INVALID_INPUT')
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          withArray({}, [
+            { type: 'scale', scale: [1, 1] },
+            { type: 'scale', scale: [2, 2] },
+          ]),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          withArray({}, [
+            { type: 'scale', scale: [1, 1] },
+            { type: 'translation', translation: [0, 0] },
+            { type: 'translation', translation: [1, 1] },
+          ]),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          withArray({}, [
+            { type: 'translation', translation: [1, 1] },
+            { type: 'scale', scale: [1, 1] },
+          ]),
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () => openDataset(omeZarrReader, withArray({}, [{ type: 'identity' }])),
+      'INVALID_INPUT',
+    )
+  })
+
+  it('rejects resolution levels that change the sample contract', async () => {
+    const twoLevel = (
+      first: Readonly<Record<string, unknown>>,
+      second: Readonly<Record<string, unknown>>,
+    ): Record<string, Uint8Array> => ({
+      'zarr.json': groupMeta([
+        { path: '0', scale: [1, 1] },
+        { path: '1', scale: [2, 2] },
+      ]),
+      '0/zarr.json': arrayMeta([4, 4], [4, 4], bytesCodec, first),
+      '0/c/0/0': raster(4, 4),
+      '1/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, second),
+      '1/c/0/0': raster(2, 2),
+    })
+    await expectCode(
+      () => openDataset(omeZarrReader, twoLevel({}, { data_type: 'uint16' })),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () => openDataset(omeZarrReader, twoLevel({ fill_value: 0 }, { fill_value: 1 })),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        openDataset(
+          omeZarrReader,
+          twoLevel({ dimension_names: ['y', 'x'] }, { dimension_names: ['x', 'y'] }),
+        ),
+      'INVALID_INPUT',
+    )
+  })
+
+  it('keeps chunk lookup bounded separately from metadata discovery', async () => {
+    const files: Record<string, Uint8Array> = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 10], [2, 2], bytesCodec),
+    }
+    for (let chunk = 0; chunk < 5; chunk += 1) {
+      files[`0/c/0/${chunk}`] = Uint8Array.of(
+        chunk * 10,
+        chunk * 10 + 1,
+        chunk * 10 + 2,
+        chunk * 10 + 3,
+      )
+    }
+    const { context, resolved } = trackingContext(files)
+    const document = await createOmeZarrReader({ limits: { maxOpenSources: 2 } }).open(context)
+    const dataset = await document.openDataset('image')
+    for (let chunk = 0; chunk < 5; chunk += 1) {
+      expect(await planeValues(dataset, { x: chunk * 2, y: 0, width: 2, height: 2 })).toEqual([
+        chunk * 10,
+        chunk * 10 + 1,
+        chunk * 10 + 2,
+        chunk * 10 + 3,
+      ])
+    }
+    const firstBefore = resolved.filter((name) => name === '0/c/0/0').length
+    expect(await planeValues(dataset, { x: 0, y: 0, width: 2, height: 2 })).toEqual([0, 1, 2, 3])
+    expect(resolved.filter((name) => name === '0/c/0/0').length).toBeGreaterThan(firstBefore)
+
+    await expectCode(
+      () =>
+        createOmeZarrReader({ limits: { maxStoreResolutions: 1 } }).open(
+          trackingContext(regularStore()).context,
+        ),
+      'LIMIT_EXCEEDED',
+    )
+  })
+
+  it('identifies directory stores from defining metadata and ZIP stores from the archive', async () => {
+    const root = groupMeta([{ path: '0', scale: [1, 1] }])
+    const array = arrayMeta([2, 2], [2, 2], bytesCodec)
+    const first = {
+      'zarr.json': root,
+      '0/zarr.json': array,
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+    }
+    const second = {
+      'zarr.json': root,
+      '0/zarr.json': array,
+      '0/c/0/0': Uint8Array.of(9, 8, 7, 6),
+    }
+    const document = await omeZarrReader.open(trackingContext(first).context)
+    const dataset = await document.openDataset('image')
+    const identity = getScientificDatasetIdentity(dataset)
+    expect(identity).toBeDefined()
+    expect(getScientificDatasetIdentity(await document.openDataset('image'))).toEqual(identity)
+    expect(identity?.resources.some((entry) => entry.id === '0/zarr.json')).toBe(true)
+    expect(identity?.resources.some((entry) => entry.id.includes('c/0/0'))).toBe(false)
+
+    const otherChunks = getScientificDatasetIdentity(
+      await (await omeZarrReader.open(trackingContext(second).context)).openDataset('image'),
+    )
+    expect(otherChunks).not.toEqual(identity)
+
+    const changedArray = getScientificDatasetIdentity(
+      await (
+        await omeZarrReader.open(
+          trackingContext({
+            'zarr.json': root,
+            '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { fill_value: 3 }),
+            '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+          }).context,
+        )
+      ).openDataset('image'),
+    )
+    expect(changedArray).not.toEqual(identity)
+
+    const zipDocument = await omeZarrReader.open(zipContext(first))
+    const zipIdentity = getScientificDatasetIdentity(await zipDocument.openDataset('image'))
+    expect(zipIdentity?.resources).toHaveLength(1)
+    expect(zipIdentity?.resources[0]?.id).toBe('image.ozx')
+  })
+
+  it('validates exposed label colors and plate well geometry', async () => {
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            ...tinyImage('', Uint8Array.of(1, 2, 3, 4)),
+            'labels/zarr.json': v3Group({ labels: ['cell'] }),
+            ...tinyImage('labels/cell', Uint8Array.of(0, 1, 1, 0), {
+              'image-label': { colors: [{ 'label-value': 1, rgba: [255, 0, 0, 255] }] },
+            }),
+            'labels/cell/0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, {
+              data_type: 'float32',
+              fill_value: 0,
+            }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            ...tinyImage('', Uint8Array.of(1, 2, 3, 4)),
+            'labels/zarr.json': v3Group({ labels: ['cell'] }),
+            ...tinyImage('labels/cell', Uint8Array.of(0, 1, 1, 0), {
+              'image-label': { colors: [{ 'label-value': 300, rgba: [0, 0, 0, 255] }] },
+            }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            ...tinyImage('', Uint8Array.of(1, 2, 3, 4)),
+            'labels/zarr.json': v3Group({ labels: ['cell'] }),
+            ...tinyImage('labels/cell', Uint8Array.of(0, 1, 1, 0), {
+              'image-label': { colors: [{ 'label-value': 1, rgba: [0, 0, 0, 300] }] },
+            }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+
+    const plate = (wells: unknown, extras: Readonly<Record<string, unknown>> = {}): Uint8Array =>
+      v3Group({
+        plate: {
+          rows: [{ name: 'A' }],
+          columns: [{ name: '1' }, { name: '2' }],
+          wells,
+          ...extras,
+        },
+      })
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': plate([{ path: 'A/1', rowIndex: -1, columnIndex: 0 }]),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': plate([{ path: 'A/1', rowIndex: 0, columnIndex: 3 }]),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': plate([{ path: 'B/1', rowIndex: 0, columnIndex: 0 }]),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': plate([
+              { path: 'A/1', rowIndex: 0, columnIndex: 0 },
+              { path: 'A/1', rowIndex: 0, columnIndex: 0 },
+            ]),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': plate([{ path: 'A/1', rowIndex: 0, columnIndex: 0 }]),
+            'A/1/zarr.json': v3Group({ well: { images: [{ path: '0' }, { path: '0' }] } }),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+    await expectCode(
+      () =>
+        omeZarrReader.open(
+          trackingContext({
+            'zarr.json': plate([{ path: 'A/1', rowIndex: 0, columnIndex: 0 }], {
+              acquisitions: [{ id: 1 }],
+            }),
+            'A/1/zarr.json': v3Group({ well: { images: [{ path: '0', acquisition: 2 }] } }),
+            ...tinyImage('A/1/0', Uint8Array.of(1, 1, 1, 1)),
+          }).context,
+        ),
+      'INVALID_INPUT',
+    )
+  })
+
+  it('reads a sharded region without refetching the index or the whole shard', async () => {
+    const pixels = raster(4, 4)
+    const shard = shardFromEntries([
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 0, 0, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 0, 2, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 2, 0, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 2, 2, 2, 2) },
+    ])
+    const files = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([4, 4], [4, 4], shardingCodec([2, 2])),
+      '0/c/0/0': shard,
+    }
+    const { context, reads } = readTrackingContext(files)
+    const document = await omeZarrReader.open(context)
+    const dataset = await document.openDataset('image')
+    expect(await planeValues(dataset, { x: 0, y: 0, width: 2, height: 4 })).toEqual([
+      0, 1, 10, 11, 20, 21, 30, 31,
+    ])
+    const shardReads = reads.filter((entry) => entry.name === '0/c/0/0')
+    const indexReads = shardReads.filter(
+      (entry) => entry.offset + entry.length === shard.byteLength,
+    )
+    const payloadReads = shardReads.filter(
+      (entry) => entry.offset + entry.length < shard.byteLength,
+    )
+    expect(indexReads).toHaveLength(1)
+    expect(payloadReads).toHaveLength(2)
+    expect(
+      shardReads.some((entry) => entry.offset === 0 && entry.length === shard.byteLength),
+    ).toBe(false)
+    expect(await planeValues(dataset, { width: 4, height: 4 })).toEqual([...pixels])
+  })
+
+  it('propagates ZIP probe cancellation', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    await expect(
+      omeZarrReader.probe({
+        ...zipContext(tinyImage('', Uint8Array.of(1, 2, 3, 4))),
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ name: 'AbortError' })
   })
 })
