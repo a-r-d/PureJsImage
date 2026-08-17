@@ -1105,14 +1105,31 @@ const convertVp8Rows = (
   height: number,
 ): Uint32Array => {
   const pixels = new Uint32Array(width * height)
+  const yData = yPlane.data
+  const uData = uPlane.data
+  const vData = vPlane.data
+  let pixelOffset = 0
   for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      pixels[y * width + x] = yuvToArgb(
-        yPlane.data[yPlane.origin + y * yPlane.stride + x] ?? 0,
-        uPlane.data[uPlane.origin + (y >> 1) * uPlane.stride + (x >> 1)] ?? 0,
-        vPlane.data[vPlane.origin + (y >> 1) * vPlane.stride + (x >> 1)] ?? 0,
+    const yOffset = yPlane.origin + y * yPlane.stride
+    const uvOffset = uPlane.origin + (y >> 1) * uPlane.stride
+    const vvOffset = vPlane.origin + (y >> 1) * vPlane.stride
+    let x = 0
+    for (; x + 1 < width; x += 2) {
+      const chromaOffset = x >> 1
+      const u = uData[uvOffset + chromaOffset] ?? 0
+      const v = vData[vvOffset + chromaOffset] ?? 0
+      pixels[pixelOffset + x] = yuvToArgb(yData[yOffset + x] ?? 0, u, v)
+      pixels[pixelOffset + x + 1] = yuvToArgb(yData[yOffset + x + 1] ?? 0, u, v)
+    }
+    if (x < width) {
+      const chromaOffset = x >> 1
+      pixels[pixelOffset + x] = yuvToArgb(
+        yData[yOffset + x] ?? 0,
+        uData[uvOffset + chromaOffset] ?? 0,
+        vData[vvOffset + chromaOffset] ?? 0,
       )
     }
+    pixelOffset += width
   }
   return pixels
 }

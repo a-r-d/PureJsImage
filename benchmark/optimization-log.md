@@ -43,10 +43,58 @@ Measurement artifacts:
 - JPEG-006: `.tmp/hillclimb/2026-08-17T00-24-28-306Z/comparison.md`
 - JPEG-007: `.tmp/hillclimb/2026-08-17T00-36-30-485Z/comparison.md`
 
+## WebP speed campaign
+
+The selected workload is `webp-large-resize-jpeg`: a 1600x2000 lossy WebP
+decoded, resized to 800x1000, and encoded as JPEG quality 80. It is the
+decode-heavy WebP workload admitted by the existing `web-codecs` hillclimb
+profile. The 4000x3000 lossy pressure decode was used for additional CPU
+profiling.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Paired speed Δ | Peak RSS Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |
+| WEBP-000 | 2026-08-17 01:21 | No-change control: compare clean `4496dff` against itself. | 619.59 → 626.32 | +1.09% | +0.22% | -1.43% | neutral | Control; no source change. |
+| WEBP-001 | 2026-08-17 01:25 | Reuse one `Int32Array(25 * 16)` coefficient buffer across VP8 macroblocks in `src/codecs/vp8.ts`. | 506.44 → 496.85 | -1.89% | -1.63% | -0.42% | neutral | Reverted; correct and slightly faster, but below the 3% material threshold with higher candidate MAD. |
+| WEBP-002 | 2026-08-17 01:30 | Unroll all VP8 4x4 intra prediction modes to remove per-block arrays and closure calls in `predictBlock`. | 715.59 → 497.92 | -30.42% | -24.97% | +20.72% | rejected | Reverted; peak RSS regression exceeded the 5% protected limit and candidate CV exceeded 10%. |
+| WEBP-003 | 2026-08-17 01:36 | Reuse typed scratch arrays and remove per-block prediction arrays/closure calls while retaining the prediction loops. | 653.07 → 534.21 | -18.20% | -20.41% | +19.61% | rejected | Reverted; stable peak RSS regression exceeded the 5% protected limit. |
+| WEBP-004 | 2026-08-17 01:39 | Pack loop-filter parameters and replace fixed `[4, 8, 12]` edge arrays with direct calls. | 591.39 → 595.99 | +0.78% | -1.23% | +2.11% | neutral | Reverted; below the 3% material speed threshold. |
+| WEBP-005 | 2026-08-17 01:44 | Reuse typed top/left/diagonal neighbor scratch in `predictBlock` while preserving the existing prediction loops. | 589.69 → 498.31 | -15.50% | -16.75% | +11.25% | rejected | Reverted; the speed win came with an 11.25% peak-RSS regression. |
+| WEBP-006 | 2026-08-17 01:48 | Hoist conversion row bases and reuse each 4:2:0 chroma sample for its two luma pixels in `convertVp8Rows`. | 632.99 → 591.63 | -6.53% | -3.11% | +0.40% | accepted | Retained; primary and lossless pressure paths passed with a negligible RSS change. |
+
+Measurement artifacts:
+
+- WEBP-000: `.tmp/hillclimb/2026-08-17T01-21-53-187Z/comparison.md`
+- WEBP-001: `.tmp/hillclimb/2026-08-17T01-25-34-767Z/comparison.md`
+- WEBP-002: `.tmp/hillclimb/2026-08-17T01-30-20-291Z/comparison.md`
+- WEBP-003: `.tmp/hillclimb/2026-08-17T01-36-23-174Z/comparison.md`
+- WEBP-004: `.tmp/hillclimb/2026-08-17T01-39-45-067Z/comparison.md`
+- WEBP-005: `.tmp/hillclimb/2026-08-17T01-44-35-970Z/comparison.md`
+- WEBP-006: `.tmp/hillclimb/2026-08-17T01-48-03-807Z/comparison.md`
+
+### WEBP-006 neighboring validation
+
+The candidate passed the lossless pressure resize in three runs (median
+1258.0 ms; output SHA-256 `f9d79a42a22bba80718a4143b38e8789befe965890f6c016c0f6684eb884ebef`).
+The lossy pressure resize reported blue 200 instead of 174 ± 24, but the
+unchanged base revision produced the same result, so this is a pre-existing
+fixture/baseline mismatch rather than a candidate regression. Artifacts:
+
+- Lossy pressure validation: `.tmp/webp-neighbor-lossy/memory-lossy.md`
+- Clean-base lossy reproduction: `.tmp/webp-baseline-neighbor-lossy/baseline-lossy.md`
+- Lossless pressure validation: `.tmp/webp-neighbor-lossless/memory-lossless.md`
+
+CPU profiles under `.tmp/cpu-webp-large/` and `.tmp/cpu-webp-pressure/` put
+`predictBlock`, `decodeCoefficientBlock`, `inverseDctAdd`,
+`filterNormalEdge`, `filterCommon`, `applyLoopFilterRow`, and
+`convertVp8Rows` in the WebP VP8 decode path. The retained change removes
+repeated row-base and chroma-index work without adding a working-set buffer;
+future decoder work should preserve that memory boundary and resolve the
+known lossy pressure-fixture mismatch before using that fixture as a gate.
+
 All seven-pair measurements used the reusable command:
 
 ```sh
-npm run bench:hillclimb -- --suite web --workload northstar-photo-pipeline --goal speed --base-ref origin/main
+npm run bench:hillclimb -- --suite web --workload webp-large-resize-jpeg --goal speed --base-ref origin/main
 ```
 
 ## Controls and repeatability
