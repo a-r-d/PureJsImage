@@ -95,9 +95,9 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 221580,
-      "gzipBytes": 278466,
-      "minifiedBytes": 936827
+      "brotliBytes": 222394,
+      "gzipBytes": 278931,
+      "minifiedBytes": 938568
     },
     "allStableCodecs": {
       "brotliBytes": 256358,
@@ -115,7 +115,7 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5201965,
+      "bytes": 5206669,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",

@@ -33,7 +33,6 @@ import {
   normalizeScientificRelativeName,
 } from '../reader.ts'
 import {
-  createZarrReadSession,
   createZarrStore,
   parseZarrNodeJson,
   readZarrJsonBytes,
@@ -974,7 +973,7 @@ class OmeZarrDataset implements ScientificDataset {
       channels: 1,
       planar: false,
     })
-    const session = createZarrReadSession()
+    const session = this.#store.createReadSession()
     try {
       for (let localY = 0; localY < selected.height; localY += blockRows) {
         throwIfAborted(selected.signal)
@@ -1007,8 +1006,7 @@ class OmeZarrDataset implements ScientificDataset {
         })
       }
     } finally {
-      session.chunks.clear()
-      session.indexes.clear()
+      session.release()
     }
   }
 }

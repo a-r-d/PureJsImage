@@ -40,7 +40,18 @@ replace that series scan. Extra integer series beyond `maxDatasets` fail with `L
 | Chunks | Regular grids and `sharding_indexed` with index-at-end or index-at-start. A missing chunk is fill only when a defined fill exists; Zarr v2 `fill_value: null` leaves missing contents undefined. |
 | Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, one `transpose`, `shuffle`, and Blosc 1 with LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
 | Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` colors and source. Plate wells become one dataset per field, with well path and indices in metadata. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and optional OMERO channel names/colors are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
-| Reads | Selected planes fetch only intersecting shards/inner chunks. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
+| Reads | Selected planes fetch only intersecting shards/inner chunks. A plane session layers a bounded cache over the store LRU (`maxOpenSources` entries and `maxCachedChunkBytes`). One oversized shard may be held transiently for adjacent `rowsPerBlock` subdivisions; it is not retained in the persistent LRU and is reread on a later `readPlane`. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
+
+Chunk resolution during a plane read is session cache, then the persistent store LRU, then the
+companion resolver. Cacheable hits write through to both caches so a later `readPlane` can warm-hit
+the store LRU. Each plane session retains at most `maxOpenSources` chunk entries,
+`maxCachedChunkBytes` of chunk resources, the same two limits for decoded shard indexes, and a
+bounded set of negative lookups. A source larger than `maxCachedChunkBytes` never enters either
+LRU; the session may keep one such shard (and its decoded index) only while that plane is open so
+`rowsPerBlock` subdivisions of a single-shard plane still resolve and decode the index once.
+Traversal walks outer shard coordinates, then the intersecting inner range inside the current
+shard, so temporary state stays O(rank plus those bounded caches) rather than one object per
+selected chunk.
 
 ## Explicit exclusions
 

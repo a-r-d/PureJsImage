@@ -11,6 +11,7 @@ import { rasterSampleBytes } from '../src/raster.ts'
 import { createScientificFileContext } from '../src/scientific/browser.ts'
 import type { ScientificDataset } from '../src/scientific/dataset.ts'
 import { crc32c } from '../src/scientific/formats/crc32c.ts'
+import { lastZarrReadSessionStats } from '../src/scientific/formats/zarr.ts'
 import { createScientificPathContext } from '../src/scientific/node.ts'
 import type {
   ScientificCompanionRequest,
@@ -4106,5 +4107,161 @@ describe('OME-Zarr remaining review regressions', () => {
     expect((await optionalSource.openDataset('labels/cell')).descriptor.metadata?.kind).toBe(
       'label',
     )
+  })
+
+  it('hits the persistent chunk cache across readPlane calls and evicts by budget', async () => {
+    const files: Record<string, Uint8Array> = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 8], [2, 2], bytesCodec),
+      '0/c/0/0': Uint8Array.of(1, 1, 1, 1),
+      '0/c/0/1': Uint8Array.of(2, 2, 2, 2),
+      '0/c/0/2': Uint8Array.of(3, 3, 3, 3),
+      '0/c/0/3': Uint8Array.of(4, 4, 4, 4),
+    }
+    const { context, resolved } = trackingContext(files)
+    const document = await createOmeZarrReader({
+      limits: { maxOpenSources: 8, maxCachedChunkBytes: 6 },
+    }).open(context)
+    const dataset = await document.openDataset('image')
+    expect(await planeValues(dataset, { x: 0, y: 0, width: 2, height: 2 })).toEqual([1, 1, 1, 1])
+    const afterFirst = resolved.filter((name) => name === '0/c/0/0').length
+    expect(await planeValues(dataset, { x: 0, y: 0, width: 2, height: 2 })).toEqual([1, 1, 1, 1])
+    expect(resolved.filter((name) => name === '0/c/0/0').length).toBe(afterFirst)
+    expect(await planeValues(dataset, { x: 2, y: 0, width: 2, height: 2 })).toEqual([2, 2, 2, 2])
+    expect(await planeValues(dataset, { x: 4, y: 0, width: 2, height: 2 })).toEqual([3, 3, 3, 3])
+    expect(await planeValues(dataset, { x: 0, y: 0, width: 2, height: 2 })).toEqual([1, 1, 1, 1])
+    const afterEvict = resolved.filter((name) => name === '0/c/0/0').length
+    expect(afterEvict).toBeGreaterThan(afterFirst)
+  })
+
+  it('keeps plane-session entry and byte high-water marks inside configured limits', async () => {
+    const files: Record<string, Uint8Array> = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 8], [2, 2], bytesCodec),
+      '0/c/0/0': Uint8Array.of(1, 1, 1, 1),
+      '0/c/0/2': Uint8Array.of(3, 3, 3, 3),
+    }
+    const { context } = trackingContext(files)
+    const document = await createOmeZarrReader({
+      limits: { maxOpenSources: 2, maxCachedChunkBytes: 4 },
+    }).open(context)
+    expect(await planeValues(await document.openDataset('image'), { width: 8, height: 2 })).toEqual(
+      [1, 1, 0, 0, 3, 3, 0, 0, 1, 1, 0, 0, 3, 3, 0, 0],
+    )
+    const stats = lastZarrReadSessionStats()
+    expect(stats).toBeDefined()
+    expect(stats?.chunkEntryHighWater).toBe(2)
+    expect(stats?.chunkByteHighWater).toBe(4)
+    expect(stats?.indexEntryHighWater).toBe(0)
+    expect(stats?.indexByteHighWater).toBe(0)
+  })
+
+  it('processes a 1x1-chunk region incrementally under tiny session limits', async () => {
+    const width = 16
+    const height = 8
+    const files: Record<string, Uint8Array> = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([height, width], [1, 1], bytesCodec),
+    }
+    const expected: number[] = []
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const value = (y * width + x) & 255
+        files[`0/c/${y}/${x}`] = Uint8Array.of(value)
+        expected.push(value)
+      }
+    }
+    const { context } = trackingContext(files)
+    const document = await createOmeZarrReader({
+      limits: { maxOpenSources: 3, maxCachedChunkBytes: 3 },
+    }).open(context)
+    expect(await planeValues(await document.openDataset('image'), { width, height })).toEqual(
+      expected,
+    )
+    const stats = lastZarrReadSessionStats()
+    expect(stats?.chunkEntryHighWater).toBe(3)
+    expect(stats?.chunkByteHighWater).toBe(3)
+  })
+
+  it('reuses one cacheable shard and its index across rowsPerBlock subdivisions', async () => {
+    const pixels = raster(4, 4)
+    const shard = shardFromEntries([
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 0, 0, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 0, 2, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 2, 0, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 2, 2, 2, 2) },
+    ])
+    const { context, resolved, reads } = readTrackingContext({
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([4, 4], [4, 4], shardingCodec([2, 2])),
+      '0/c/0/0': shard,
+    })
+    const document = await createOmeZarrReader({
+      limits: { rowsPerBlock: 1 },
+    }).open(context)
+    const afterOpen = resolved.filter((name) => name === '0/c/0/0').length
+    const indexReadsBefore = reads.filter(
+      (entry) => entry.name === '0/c/0/0' && entry.offset + entry.length === shard.byteLength,
+    ).length
+    expect(await planeValues(await document.openDataset('image'), { width: 4, height: 4 })).toEqual(
+      [...pixels],
+    )
+    expect(resolved.filter((name) => name === '0/c/0/0').length).toBe(afterOpen + 1)
+    expect(
+      reads.filter(
+        (entry) => entry.name === '0/c/0/0' && entry.offset + entry.length === shard.byteLength,
+      ).length,
+    ).toBe(indexReadsBefore + 1)
+    expect(
+      reads.some(
+        (entry) =>
+          entry.name === '0/c/0/0' && entry.offset === 0 && entry.length === shard.byteLength,
+      ),
+    ).toBe(false)
+  })
+
+  it('warms a second readPlane of the same cacheable region', async () => {
+    const { context, resolved } = trackingContext(regularStore())
+    const document = await omeZarrReader.open(context)
+    const dataset = await document.openDataset('image')
+    const first = await planeValues(dataset, { x: 4, y: 0, width: 2, height: 2 })
+    const afterFirst = resolved.filter((name) => name.startsWith('0/c/')).length
+    const second = await planeValues(dataset, { x: 4, y: 0, width: 2, height: 2 })
+    expect(second).toEqual(first)
+    expect(resolved.filter((name) => name.startsWith('0/c/')).length).toBe(afterFirst)
+  })
+
+  it('retains at most one oversized shard transiently and rereads it later', async () => {
+    const pixels = raster(4, 4)
+    const shard = shardFromEntries([
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 0, 0, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 0, 2, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 2, 0, 2, 2) },
+      { kind: 'payload', bytes: chunkOf(pixels, 4, 4, 2, 2, 2, 2) },
+    ])
+    const { context, resolved, reads } = readTrackingContext({
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([4, 4], [4, 4], shardingCodec([2, 2])),
+      '0/c/0/0': shard,
+    })
+    const document = await createOmeZarrReader({
+      limits: { maxCachedChunkBytes: 8, rowsPerBlock: 1 },
+    }).open(context)
+    const dataset = await document.openDataset('image')
+    const afterOpen = resolved.filter((name) => name === '0/c/0/0').length
+    expect(await planeValues(dataset, { width: 4, height: 4 })).toEqual([...pixels])
+    const stats = lastZarrReadSessionStats()
+    expect(stats?.chunkEntryHighWater).toBe(1)
+    expect(stats?.chunkByteHighWater).toBe(shard.byteLength)
+    expect(stats?.indexEntryHighWater).toBe(1)
+    expect(stats?.indexByteHighWater).toBe(shard.byteLength - 16)
+    expect(resolved.filter((name) => name === '0/c/0/0').length).toBe(afterOpen + 1)
+    expect(
+      reads.filter(
+        (entry) => entry.name === '0/c/0/0' && entry.offset + entry.length === shard.byteLength,
+      ).length,
+    ).toBe(1)
+    expect(await planeValues(dataset, { width: 4, height: 4 })).toEqual([...pixels])
+    expect(resolved.filter((name) => name === '0/c/0/0').length).toBe(afterOpen + 2)
   })
 })

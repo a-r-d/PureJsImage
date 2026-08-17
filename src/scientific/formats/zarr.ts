@@ -73,11 +73,23 @@ export interface ZarrStore {
     signal?: AbortSignal,
     session?: ZarrReadSession,
   ): Promise<Uint8Array>
+  createReadSession(): ZarrReadSession
 }
 
+/** Opaque plane-scoped cache. Created by the store; not a public application API. */
 export interface ZarrReadSession {
-  readonly chunks: Map<string, ScientificResource | undefined>
-  readonly indexes: Map<string, DecodedShardIndex>
+  release(): void
+}
+
+export interface ZarrReadSessionStats {
+  readonly chunkEntries: number
+  readonly chunkBytes: number
+  readonly chunkEntryHighWater: number
+  readonly chunkByteHighWater: number
+  readonly indexEntries: number
+  readonly indexBytes: number
+  readonly indexEntryHighWater: number
+  readonly indexByteHighWater: number
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -1141,7 +1153,7 @@ const clippedChunkShape = (
     return Math.min(size, available)
   })
 
-export interface DecodedShardIndex {
+interface DecodedShardIndex {
   readonly view: DataView
   readonly indexOffset: number
   readonly encodedIndexBytes: number
@@ -1151,10 +1163,10 @@ export interface DecodedShardIndex {
   readonly endian: ZarrEndian
 }
 
-export const createZarrReadSession = (): ZarrReadSession => ({
-  chunks: new Map(),
-  indexes: new Map(),
-})
+let lastReadSessionStats: ZarrReadSessionStats | undefined
+
+/** Package-private test instrumentation for plane-session high-water marks. */
+export const lastZarrReadSessionStats = (): ZarrReadSessionStats | undefined => lastReadSessionStats
 
 const loadShardIndex = async (
   source: ImageSource,
@@ -1309,6 +1321,24 @@ const logicalChunkShape = (array: Readonly<ZarrArrayMetadata>): readonly number[
   )
 }
 
+const stepCoords = (
+  coords: number[],
+  first: readonly number[],
+  last: readonly number[],
+): boolean => {
+  let axis = coords.length - 1
+  while (axis >= 0) {
+    const next = (coords[axis] ?? 0) + 1
+    if (next <= (last[axis] ?? 0)) {
+      coords[axis] = next
+      return true
+    }
+    coords[axis] = first[axis] ?? 0
+    axis -= 1
+  }
+  return false
+}
+
 const copyFromChunk = (
   output: Uint8Array,
   outputStart: readonly number[],
@@ -1382,6 +1412,8 @@ class BoundedLru<T> {
   readonly #maxBytes: number
   readonly #entries = new Map<string, CacheEntry<T>>()
   #bytes = 0
+  #entryHighWater = 0
+  #byteHighWater = 0
 
   constructor(maxEntries: number, maxBytes = Number.MAX_SAFE_INTEGER) {
     this.#maxEntries = Math.max(1, maxEntries)
@@ -1396,12 +1428,33 @@ class BoundedLru<T> {
     return this.#bytes
   }
 
+  get maxBytes(): number {
+    return this.#maxBytes
+  }
+
+  get entryHighWater(): number {
+    return this.#entryHighWater
+  }
+
+  get byteHighWater(): number {
+    return this.#byteHighWater
+  }
+
+  has(key: string): boolean {
+    return this.#entries.has(key)
+  }
+
   get(key: string): CacheEntry<T> | undefined {
     const entry = this.#entries.get(key)
     if (entry === undefined) return undefined
     this.#entries.delete(key)
     this.#entries.set(key, entry)
     return entry
+  }
+
+  #recordWater(): void {
+    if (this.#entries.size > this.#entryHighWater) this.#entryHighWater = this.#entries.size
+    if (this.#bytes > this.#byteHighWater) this.#byteHighWater = this.#bytes
   }
 
   #evictOldest(): boolean {
@@ -1429,6 +1482,121 @@ class BoundedLru<T> {
     if (this.#entries.size >= this.#maxEntries || this.#bytes + weight > this.#maxBytes) return
     this.#entries.set(key, { value, bytes: weight })
     this.#bytes += weight
+    this.#recordWater()
+  }
+
+  clear(): void {
+    this.#entries.clear()
+    this.#bytes = 0
+  }
+}
+
+interface SessionChunkHit {
+  readonly hit: true
+  readonly value: ScientificResource | undefined
+}
+
+interface SessionChunkMiss {
+  readonly hit: false
+}
+
+class ZarrPlaneSession implements ZarrReadSession {
+  readonly #chunks: BoundedLru<ScientificResource | undefined>
+  readonly #indexes: BoundedLru<DecodedShardIndex>
+  #transient:
+    | {
+        readonly key: string
+        readonly resource: ScientificResource
+        readonly bytes: number
+        index?: DecodedShardIndex
+        indexBytes: number
+      }
+    | undefined
+  #chunkEntryHighWater = 0
+  #chunkByteHighWater = 0
+  #indexEntryHighWater = 0
+  #indexByteHighWater = 0
+
+  constructor(limits: Readonly<ZarrStoreLimits>) {
+    this.#chunks = new BoundedLru(limits.maxOpenSources, limits.maxCachedChunkBytes)
+    this.#indexes = new BoundedLru(limits.maxOpenSources, limits.maxCachedChunkBytes)
+    this.#publishStats()
+  }
+
+  getChunk(key: string): SessionChunkHit | SessionChunkMiss {
+    const cached = this.#chunks.get(key)
+    if (cached !== undefined) return { hit: true, value: cached.value }
+    if (this.#transient?.key === key) return { hit: true, value: this.#transient.resource }
+    return { hit: false }
+  }
+
+  setChunk(key: string, resource: ScientificResource | undefined): void {
+    const bytes = resource?.source.size ?? 0
+    if (resource !== undefined && bytes > this.#chunks.maxBytes) {
+      this.#transient = { key, resource, bytes, indexBytes: 0 }
+      this.#publishStats()
+      return
+    }
+    if (this.#transient?.key === key) this.#transient = undefined
+    this.#chunks.set(key, resource, bytes)
+    this.#publishStats()
+  }
+
+  getIndex(key: string): DecodedShardIndex | undefined {
+    const cached = this.#indexes.get(key)
+    if (cached !== undefined) return cached.value
+    if (this.#transient?.key === key) return this.#transient.index
+    return undefined
+  }
+
+  setIndex(key: string, index: DecodedShardIndex): void {
+    const bytes = index.encodedIndexBytes
+    if (this.#transient?.key === key) {
+      this.#transient.index = index
+      this.#transient.indexBytes = bytes
+      this.#publishStats()
+      return
+    }
+    this.#indexes.set(key, index, bytes)
+    this.#publishStats()
+  }
+
+  release(): void {
+    this.#chunks.clear()
+    this.#indexes.clear()
+    this.#transient = undefined
+    this.#publishStats()
+  }
+
+  #retainedChunks(): { readonly entries: number; readonly bytes: number } {
+    const extra = this.#transient === undefined ? 0 : 1
+    const extraBytes = this.#transient?.bytes ?? 0
+    return { entries: this.#chunks.size + extra, bytes: this.#chunks.bytes + extraBytes }
+  }
+
+  #retainedIndexes(): { readonly entries: number; readonly bytes: number } {
+    const extra = this.#transient?.index === undefined ? 0 : 1
+    const extraBytes = this.#transient?.indexBytes ?? 0
+    return { entries: this.#indexes.size + extra, bytes: this.#indexes.bytes + extraBytes }
+  }
+
+  #publishStats(): void {
+    const chunks = this.#retainedChunks()
+    const indexes = this.#retainedIndexes()
+    if (chunks.entries > this.#chunkEntryHighWater) this.#chunkEntryHighWater = chunks.entries
+    if (chunks.bytes > this.#chunkByteHighWater) this.#chunkByteHighWater = chunks.bytes
+    if (indexes.entries > this.#indexEntryHighWater) this.#indexEntryHighWater = indexes.entries
+    if (indexes.bytes > this.#indexByteHighWater) this.#indexByteHighWater = indexes.bytes
+    lastReadSessionStats = Object.freeze({
+      chunkEntries: chunks.entries,
+      chunkBytes: chunks.bytes,
+      chunkEntryHighWater: this.#chunkEntryHighWater,
+      chunkByteHighWater: this.#chunkByteHighWater,
+      indexEntries: indexes.entries,
+      indexBytes: indexes.bytes,
+      indexEntryHighWater: this.#indexEntryHighWater,
+      indexByteHighWater: this.#indexByteHighWater,
+    })
   }
 }
 
@@ -1470,6 +1638,10 @@ class CompanionZarrStore implements ZarrStore {
     return this.#resolve(relative, 'metadata', signal)
   }
 
+  createReadSession(): ZarrReadSession {
+    return new ZarrPlaneSession(this.#limits)
+  }
+
   async #resolve(
     relative: string,
     kind: 'metadata' | 'chunk',
@@ -1477,18 +1649,17 @@ class CompanionZarrStore implements ZarrStore {
     session?: ZarrReadSession,
   ): Promise<ScientificResource | undefined> {
     const name = joinPath(this.prefix, relative)
-    if (kind === 'chunk' && session !== undefined) {
-      if (session.chunks.has(name)) return session.chunks.get(name)
-      const resource = await this.#resolver.resolve(
-        { kind: 'relative-name', name },
-        signal === undefined ? {} : { signal },
-      )
-      session.chunks.set(name, resource)
-      return resource
+    const plane = session instanceof ZarrPlaneSession ? session : undefined
+    if (kind === 'chunk' && plane !== undefined) {
+      const sessionHit = plane.getChunk(name)
+      if (sessionHit.hit) return sessionHit.value
     }
     const cache = kind === 'metadata' ? this.#metadata : this.#chunks
     const cached = cache.get(name)
-    if (cached !== undefined) return cached.value
+    if (cached !== undefined) {
+      if (kind === 'chunk' && plane !== undefined) plane.setChunk(name, cached.value)
+      return cached.value
+    }
     if (kind === 'metadata') {
       this.#metadataResolutions += 1
       if (this.#metadataResolutions > this.#limits.maxStoreResolutions) {
@@ -1502,6 +1673,7 @@ class CompanionZarrStore implements ZarrStore {
       signal === undefined ? {} : { signal },
     )
     cache.set(name, resource, resource?.source.size ?? 0)
+    if (kind === 'chunk' && plane !== undefined) plane.setChunk(name, resource)
     return resource
   }
 
@@ -1629,51 +1801,21 @@ class CompanionZarrStore implements ZarrStore {
     prefill(output, array.fill, array.endian === 'little')
     const innerShape = logicalChunkShape(array)
     const shardShape = array.chunkShape
-    const first = start.map((value, axis) => Math.floor(value / (innerShape[axis] ?? 1)))
-    const last = start.map((value, axis) =>
+    const sharding = array.codecs.find((codec) => codec.name === 'sharding_indexed')
+    const plane = session instanceof ZarrPlaneSession ? session : undefined
+    const firstShard = start.map((value, axis) => Math.floor(value / (shardShape[axis] ?? 1)))
+    const lastShard = start.map((value, axis) =>
+      Math.floor((value + (shape[axis] ?? 1) - 1) / (shardShape[axis] ?? 1)),
+    )
+    const innersPerShard = shardShape.map((outer, axis) => outer / (innerShape[axis] ?? 1))
+    const regionFirstInner = start.map((value, axis) => Math.floor(value / (innerShape[axis] ?? 1)))
+    const regionLastInner = start.map((value, axis) =>
       Math.floor((value + (shape[axis] ?? 1) - 1) / (innerShape[axis] ?? 1)),
     )
-    const sharding = array.codecs.find((codec) => codec.name === 'sharding_indexed')
-    const groups = new Map<
-      string,
-      {
-        readonly inners: {
-          readonly innerOrigin: readonly number[]
-          readonly innerStart: readonly number[]
-        }[]
-      }
-    >()
-    const innerCoords = first.slice()
-    while (true) {
-      const innerOrigin = innerCoords.map((index, axis) => index * (innerShape[axis] ?? 1))
-      const shardCoords = innerOrigin.map((origin, axis) =>
-        Math.floor(origin / (shardShape[axis] ?? 1)),
-      )
-      const innerStart = innerCoords.map((index, axis) => {
-        const perShard = (shardShape[axis] ?? 1) / (innerShape[axis] ?? 1)
-        return index - Math.floor(index / perShard) * perShard
-      })
-      const key = chunkKey(array, shardCoords)
-      const group = groups.get(key)
-      if (group === undefined) {
-        groups.set(key, { inners: [{ innerOrigin, innerStart }] })
-      } else {
-        group.inners.push({ innerOrigin, innerStart })
-      }
-      let axis = innerCoords.length - 1
-      while (axis >= 0) {
-        const next = (innerCoords[axis] ?? 0) + 1
-        if (next <= (last[axis] ?? 0)) {
-          innerCoords[axis] = next
-          break
-        }
-        innerCoords[axis] = first[axis] ?? 0
-        axis -= 1
-      }
-      if (axis < 0) break
-    }
-    for (const [key, group] of groups) {
+    const shardCoords = firstShard.slice()
+    do {
       throwIfAborted(signal)
+      const key = chunkKey(array, shardCoords)
       const resource = await this.#resolve(key, 'chunk', signal, session)
       if (resource === undefined) {
         if (array.fill.kind === 'undefined') {
@@ -1686,10 +1828,8 @@ class CompanionZarrStore implements ZarrStore {
       }
       let shardIndex: DecodedShardIndex | undefined
       if (sharding !== undefined) {
-        const cached = session?.indexes.get(key)
-        if (cached !== undefined) {
-          shardIndex = cached
-        } else {
+        shardIndex = plane?.getIndex(key)
+        if (shardIndex === undefined) {
           shardIndex = await loadShardIndex(
             resource.source,
             sharding,
@@ -1697,25 +1837,35 @@ class CompanionZarrStore implements ZarrStore {
             this.#limits,
             signal,
           )
-          session?.indexes.set(key, shardIndex)
+          plane?.setIndex(key, shardIndex)
         }
       }
-      for (const inner of group.inners) {
+      const globalInnerOrigin = shardCoords.map(
+        (coord, axis) => coord * (innersPerShard[axis] ?? 1),
+      )
+      const firstLocal = globalInnerOrigin.map(
+        (origin, axis) => Math.max(regionFirstInner[axis] ?? 0, origin) - origin,
+      )
+      const lastLocal = globalInnerOrigin.map(
+        (origin, axis) =>
+          Math.min(regionLastInner[axis] ?? 0, origin + (innersPerShard[axis] ?? 1) - 1) - origin,
+      )
+      if (firstLocal.some((value, axis) => value > (lastLocal[axis] ?? 0))) continue
+      const local = firstLocal.slice()
+      do {
         throwIfAborted(signal)
-        const decodedInnerShape = clippedChunkShape(array.shape, inner.innerOrigin, innerShape)
+        const innerStart = local
+        const innerOrigin = local.map(
+          (inner, axis) => ((globalInnerOrigin[axis] ?? 0) + inner) * (innerShape[axis] ?? 1),
+        )
+        const decodedInnerShape = clippedChunkShape(array.shape, innerOrigin, innerShape)
         const decoded =
           sharding === undefined || shardIndex === undefined
-            ? await decodeRegularChunk(
-                resource.source,
-                array,
-                inner.innerOrigin,
-                this.#limits,
-                signal,
-              )
+            ? await decodeRegularChunk(resource.source, array, innerOrigin, this.#limits, signal)
             : await decodeShardInner(
                 resource.source,
                 shardIndex,
-                inner.innerStart,
+                innerStart,
                 decodedInnerShape,
                 array.dataType,
                 this.#limits,
@@ -1727,11 +1877,11 @@ class CompanionZarrStore implements ZarrStore {
           }
           continue
         }
-        const copyStart = start.map((value, axis) => Math.max(value, inner.innerOrigin[axis] ?? 0))
+        const copyStart = start.map((value, axis) => Math.max(value, innerOrigin[axis] ?? 0))
         const copyEnd = start.map((value, axis) =>
           Math.min(
             value + (shape[axis] ?? 0),
-            (inner.innerOrigin[axis] ?? 0) + (decoded.shape[axis] ?? 0),
+            (innerOrigin[axis] ?? 0) + (decoded.shape[axis] ?? 0),
           ),
         )
         copyFromChunk(
@@ -1739,15 +1889,15 @@ class CompanionZarrStore implements ZarrStore {
           start,
           shape,
           decoded.data,
-          inner.innerOrigin,
+          innerOrigin,
           decoded.shape,
           copyStart,
           copyStart.map((value, axis) => (copyEnd[axis] ?? 0) - value),
           sampleBytes,
           array.endian === 'little',
         )
-      }
-    }
+      } while (stepCoords(local, firstLocal, lastLocal))
+    } while (stepCoords(shardCoords, firstShard, lastShard))
     return output
   }
 }

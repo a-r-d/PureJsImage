@@ -43,7 +43,8 @@ All notable changes to PureJsImage are documented in this file.
   transformers, repeated transpose codecs, and writers remain explicit unsupported operations.
   ZIP members are limited before decompression; sharded plane reads resolve each shard once;
   `bioformats2raw.layout` must be `3`; and directory calibration cites the resolved metadata
-  resource id.
+  resource id. Plane-session caches stay bounded and layer over the persistent chunk LRU;
+  a source larger than `maxCachedChunkBytes` is held at most as one transient shard.
 
 ### Changed
 
