@@ -1,0 +1,20 @@
+benchmark/README.md
+  h_9f4a25732fa0c1 383-390
+benchmark/lib/compare-published.ts
+  h_9f4a25732fa0c1 1-227
+benchmark/run.ts
+  h_9f4a25732fa0c1 10,55,560-580
+tests/benchmark-published-regression.test.ts
+  h_9f4a25732fa0c1 1-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "866e5de800e702e12b9d245fbe41b4f767381b11",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
