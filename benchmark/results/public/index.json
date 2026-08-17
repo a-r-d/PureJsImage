@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T16:53:50.903Z",
+  "generatedAt": "2026-08-17T17:24:44.463Z",
   "sourceResultIndex": "benchmark/results/result-index-2026-08-16T21-32-38-092Z.json",
   "results": [
     {
@@ -37,8 +37,8 @@
       "sourceValidationStatus": "passed"
     },
     {
-      "commit": "5cfa0e6296784327aa50e6033e5816b100d2aa29",
-      "date": "2026-08-17T16:53:43.390Z",
+      "commit": "b55af93",
+      "date": "2026-08-17T17:24:44.463Z",
       "eligibleForDocumentationHeadlines": true,
       "engineVersions": {
         "purejsimage": "0.11.0 (workspace)",
@@ -55,17 +55,17 @@
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
       "resultPaths": [
-        "benchmark/results/public/web-codecs-2026-08-17T16-53-43-390Z.json",
-        "benchmark/results/public/web-codecs-2026-08-17T16-53-43-390Z.md"
+        "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.json",
+        "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.md"
       ],
       "sha256": {
-        "json": "17d6cb93dca4570cb323b6ae22d5d37c439266178f26501730808abbb95bc847",
-        "markdown": "228ca7ae9cc39cd0c1c350bc6395b88c52b1cc89492c75382a37543923dece9b"
+        "json": "b8daa3b1a17bb63b778aedffdbb21639ccb73a33eea893afc98af072274b2428",
+        "markdown": "ebdd571372aaf23a669f383c42dbbc593b4eef42cebc6ad9a11aaf1edc18429e"
       },
       "sourceEligibilityForDocumentationHeadlines": true,
       "sourceResultPaths": [
-        "benchmark/results/2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
-        "benchmark/results/2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
+        "benchmark/results/2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
+        "benchmark/results/2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
       ],
       "sourceValidationStatus": "passed"
     },

@@ -128,21 +128,21 @@
     "charts": {
       "speed": {
         "height": 1714,
-        "src": "assets/web-codecs-speed-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-speed-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
         "width": 2400
       },
       "quality": {
         "height": 898,
-        "src": "assets/web-codecs-quality-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-quality-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
         "width": 2400
       },
       "memory": {
         "height": 1714,
-        "src": "assets/web-codecs-memory-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-memory-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
         "width": 2400
       }
     },
-    "createdAt": "2026-08-17T16:53:43.390Z",
+    "createdAt": "2026-08-17T17:24:44.463Z",
     "engineVersions": [
       {
         "id": "purejsimage",
@@ -191,13 +191,13 @@
     },
     "fixtureManifestHash": "2cd8742e661c23c23f7e4009c8b0e3d9516f77b0ac86873435e5f9082476c494",
     "headline": {
-      "jimpPeakRssBytes": 1247432704,
-      "memoryReductionPercent": 84.61429852010679,
-      "pureJsImagePeakRssBytes": 191926272,
+      "jimpPeakRssBytes": 1246949376,
+      "memoryReductionPercent": 84.5005929093949,
+      "pureJsImagePeakRssBytes": 193269760,
       "workflow": "24-megapixel northstar photo pipeline"
     },
-    "reportJson": "benchmark/results/public/web-codecs-2026-08-17T16-53-43-390Z.json",
-    "reportMarkdown": "benchmark/results/public/web-codecs-2026-08-17T16-53-43-390Z.md",
+    "reportJson": "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.json",
+    "reportMarkdown": "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.md",
     "statusCounts": {
       "pass": 89,
       "unsupported": 16

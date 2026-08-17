@@ -47,134 +47,134 @@
     <text x="54" y="347" class="workflow">JPEG resize → JPEG</text>
         <line x1="54" y1="517" x2="2328" y2="517" stroke="#e8edf5" stroke-width="2" />
         <text x="730" y="373" text-anchor="end" class="engine">PureJsImage · pure JS</text>
-            <rect x="760" y="358" width="1233.857471507529" height="19" rx="4" fill="#2563eb" />
-            <text x="2005.857471507529" y="373" class="value">1,681 ms</text>
+            <rect x="760" y="358" width="1135.980747507211" height="19" rx="4" fill="#2563eb" />
+            <text x="1907.980747507211" y="373" class="value">777 ms</text>
 <text x="730" y="399" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG)</text>
-            <rect x="760" y="384" width="1128.472785724649" height="19" rx="4" fill="#c026d3" />
-            <text x="1900.472785724649" y="399" class="value">732 ms</text>
+            <rect x="760" y="384" width="1120.2343489098919" height="19" rx="4" fill="#c026d3" />
+            <text x="1892.2343489098919" y="399" class="value">686 ms</text>
 <text x="730" y="425" text-anchor="end" class="engine">Jimp · pure JS</text>
-            <rect x="760" y="410" width="1215.1236773892067" height="19" rx="4" fill="#7c3aed" />
-            <text x="1987.1236773892067" y="425" class="value">1,450 ms</text>
+            <rect x="760" y="410" width="1212.451924924007" height="19" rx="4" fill="#7c3aed" />
+            <text x="1984.451924924007" y="425" class="value">1,420 ms</text>
 <text x="730" y="451" text-anchor="end" class="engine">Sharp · native/libvips</text>
-            <rect x="760" y="436" width="832.8641352749285" height="19" rx="4" fill="#ea580c" />
-            <text x="1604.8641352749285" y="451" class="value">71 ms</text>
+            <rect x="760" y="436" width="834.653910465589" height="19" rx="4" fill="#ea580c" />
+            <text x="1606.653910465589" y="451" class="value">72 ms</text>
 <text x="730" y="477" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
-            <rect x="760" y="462" width="828.6129429583468" height="19" rx="4" fill="#dc2626" />
-            <text x="1600.6129429583468" y="477" class="value">69 ms</text>
+            <rect x="760" y="462" width="826.9105796512843" height="19" rx="4" fill="#dc2626" />
+            <text x="1598.9105796512843" y="477" class="value">68 ms</text>
 <text x="730" y="503" text-anchor="end" class="engine">image-js · pure JS</text>
-            <rect x="760" y="488" width="1169.9772044977353" height="19" rx="4" fill="#059669" />
-            <text x="1941.9772044977353" y="503" class="value">1,016 ms</text>
+            <rect x="760" y="488" width="1170.626032610836" height="19" rx="4" fill="#059669" />
+            <text x="1942.626032610836" y="503" class="value">1,021 ms</text>
 <text x="730" y="529" text-anchor="end" class="engine">jSquash · WebAssembly</text>
-            <rect x="760" y="514" width="1180.2122192170837" height="19" rx="4" fill="#0891b2" />
-            <text x="1952.2122192170837" y="529" class="value">1,101 ms</text>
+            <rect x="760" y="514" width="1180.5430434203029" height="19" rx="4" fill="#0891b2" />
+            <text x="1952.5430434203029" y="529" class="value">1,104 ms</text>
 <text x="54" y="551" class="workflow">PNG resize → PNG</text>
         <line x1="54" y1="721" x2="2328" y2="721" stroke="#e8edf5" stroke-width="2" />
         <text x="730" y="577" text-anchor="end" class="engine">PureJsImage · pure JS</text>
-            <rect x="760" y="562" width="1084.0362865616262" height="19" rx="4" fill="#2563eb" />
-            <text x="1856.0362865616262" y="577" class="value">516 ms</text>
+            <rect x="760" y="562" width="1086.1906684277699" height="19" rx="4" fill="#2563eb" />
+            <text x="1858.1906684277699" y="577" class="value">525 ms</text>
 <text x="730" y="603" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG)</text>
-            <rect x="760" y="588" width="1062.5084665548181" height="19" rx="4" fill="#c026d3" />
-            <text x="1834.5084665548181" y="603" class="value">435 ms</text>
+            <rect x="760" y="588" width="1062.1763860242713" height="19" rx="4" fill="#c026d3" />
+            <text x="1834.1763860242713" y="603" class="value">434 ms</text>
 <text x="730" y="629" text-anchor="end" class="engine">Jimp · pure JS</text>
-            <rect x="760" y="614" width="1151.7705291429393" height="19" rx="4" fill="#7c3aed" />
-            <text x="1923.7705291429393" y="629" class="value">880 ms</text>
+            <rect x="760" y="614" width="1150.9303883753569" height="19" rx="4" fill="#7c3aed" />
+            <text x="1922.9303883753569" y="629" class="value">874 ms</text>
 <text x="730" y="655" text-anchor="end" class="engine">Sharp · native/libvips</text>
-            <rect x="760" y="640" width="1000.4009715454281" height="19" rx="4" fill="#ea580c" />
-            <text x="1772.400971545428" y="655" class="value">267 ms</text>
+            <rect x="760" y="640" width="1016.5837846141242" height="19" rx="4" fill="#ea580c" />
+            <text x="1788.5837846141242" y="655" class="value">303 ms</text>
 <text x="730" y="681" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
-            <rect x="760" y="666" width="1000.5537995398638" height="19" rx="4" fill="#dc2626" />
-            <text x="1772.5537995398638" y="681" class="value">267 ms</text>
+            <rect x="760" y="666" width="1000.1089100028441" height="19" rx="4" fill="#dc2626" />
+            <text x="1772.1089100028441" y="681" class="value">266 ms</text>
 <text x="730" y="707" text-anchor="end" class="engine">image-js · pure JS</text>
-            <rect x="760" y="692" width="1129.8138739002254" height="19" rx="4" fill="#059669" />
-            <text x="1901.8138739002254" y="707" class="value">740 ms</text>
+            <rect x="760" y="692" width="1128.1817014813942" height="19" rx="4" fill="#059669" />
+            <text x="1900.1817014813942" y="707" class="value">731 ms</text>
 <text x="730" y="733" text-anchor="end" class="engine">jSquash · WebAssembly</text>
-            <rect x="760" y="718" width="1143.6328454797267" height="19" rx="4" fill="#0891b2" />
-            <text x="1915.6328454797267" y="733" class="value">825 ms</text>
+            <rect x="760" y="718" width="1144.9910941654746" height="19" rx="4" fill="#0891b2" />
+            <text x="1916.9910941654746" y="733" class="value">834 ms</text>
 <text x="54" y="755" class="workflow">WebP resize → JPEG</text>
         <line x1="54" y1="925" x2="2328" y2="925" stroke="#e8edf5" stroke-width="2" />
         <text x="730" y="781" text-anchor="end" class="engine">PureJsImage · pure JS</text>
-            <rect x="760" y="766" width="1033.0071389278226" height="19" rx="4" fill="#2563eb" />
-            <text x="1805.0071389278226" y="781" class="value">345 ms</text>
+            <rect x="760" y="766" width="1036.5628112751647" height="19" rx="4" fill="#2563eb" />
+            <text x="1808.5628112751647" y="781" class="value">355 ms</text>
 <text x="730" y="807" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG)</text>
-            <rect x="760" y="792" width="1019.9024123384947" height="19" rx="4" fill="#c026d3" />
-            <text x="1791.9024123384947" y="807" class="value">311 ms</text>
+            <rect x="760" y="792" width="1018.360174433486" height="19" rx="4" fill="#c026d3" />
+            <text x="1790.360174433486" y="807" class="value">307 ms</text>
 <text x="730" y="833" text-anchor="end" class="engine">Jimp · pure JS</text>
               <text x="772" y="833" class="unsupported">unsupported</text>
 <text x="730" y="859" text-anchor="end" class="engine">Sharp · native/libvips</text>
-            <rect x="760" y="844" width="795.2512305121897" height="19" rx="4" fill="#ea580c" />
-            <text x="1567.2512305121897" y="859" class="value">53 ms</text>
+            <rect x="760" y="844" width="796.4952645125766" height="19" rx="4" fill="#ea580c" />
+            <text x="1568.4952645125766" y="859" class="value">53 ms</text>
 <text x="730" y="885" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
-            <rect x="760" y="870" width="801.0039139027044" height="19" rx="4" fill="#dc2626" />
-            <text x="1573.0039139027044" y="885" class="value">55 ms</text>
+            <rect x="760" y="870" width="796.785885225459" height="19" rx="4" fill="#dc2626" />
+            <text x="1568.785885225459" y="885" class="value">54 ms</text>
 <text x="730" y="911" text-anchor="end" class="engine">image-js · pure JS</text>
               <text x="772" y="911" class="unsupported">unsupported</text>
 <text x="730" y="937" text-anchor="end" class="engine">jSquash · WebAssembly</text>
-            <rect x="760" y="922" width="1082.3321906117126" height="19" rx="4" fill="#0891b2" />
-            <text x="1854.3321906117126" y="937" class="value">509 ms</text>
+            <rect x="760" y="922" width="1082.4200110836045" height="19" rx="4" fill="#0891b2" />
+            <text x="1854.4200110836045" y="937" class="value">509 ms</text>
 <text x="54" y="959" class="workflow">TIFF resize → JPEG</text>
         <line x1="54" y1="1129" x2="2328" y2="1129" stroke="#e8edf5" stroke-width="2" />
         <text x="730" y="985" text-anchor="end" class="engine">PureJsImage · pure JS</text>
-            <rect x="760" y="970" width="926.424931343972" height="19" rx="4" fill="#2563eb" />
-            <text x="1698.424931343972" y="985" class="value">149 ms</text>
+            <rect x="760" y="970" width="928.6165098529327" height="19" rx="4" fill="#2563eb" />
+            <text x="1700.6165098529327" y="985" class="value">151 ms</text>
 <text x="730" y="1011" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG)</text>
-            <rect x="760" y="996" width="894.6827199393297" height="19" rx="4" fill="#c026d3" />
-            <text x="1666.6827199393297" y="1011" class="value">116 ms</text>
+            <rect x="760" y="996" width="880.0654601969161" height="19" rx="4" fill="#c026d3" />
+            <text x="1652.065460196916" y="1011" class="value">103 ms</text>
 <text x="730" y="1037" text-anchor="end" class="engine">Jimp · pure JS</text>
-            <rect x="760" y="1022" width="1113.753995414169" height="19" rx="4" fill="#7c3aed" />
-            <text x="1885.753995414169" y="1037" class="value">652 ms</text>
+            <rect x="760" y="1022" width="1111.409777428281" height="19" rx="4" fill="#7c3aed" />
+            <text x="1883.409777428281" y="1037" class="value">640 ms</text>
 <text x="730" y="1063" text-anchor="end" class="engine">Sharp · native/libvips</text>
-            <rect x="760" y="1048" width="767.6264080681924" height="19" rx="4" fill="#ea580c" />
-            <text x="1539.6264080681924" y="1063" class="value">43 ms</text>
+            <rect x="760" y="1048" width="767.477885230353" height="19" rx="4" fill="#ea580c" />
+            <text x="1539.477885230353" y="1063" class="value">42 ms</text>
 <text x="730" y="1089" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
-            <rect x="760" y="1074" width="769.4337389872421" height="19" rx="4" fill="#dc2626" />
-            <text x="1541.4337389872421" y="1089" class="value">43 ms</text>
+            <rect x="760" y="1074" width="763.2299044900428" height="19" rx="4" fill="#dc2626" />
+            <text x="1535.2299044900428" y="1089" class="value">41 ms</text>
 <text x="730" y="1115" text-anchor="end" class="engine">image-js · pure JS</text>
-            <rect x="760" y="1100" width="966.1216319635648" height="19" rx="4" fill="#059669" />
-            <text x="1738.1216319635648" y="1115" class="value">204 ms</text>
+            <rect x="760" y="1100" width="935.8103592100331" height="19" rx="4" fill="#059669" />
+            <text x="1707.810359210033" y="1115" class="value">160 ms</text>
 <text x="730" y="1141" text-anchor="end" class="engine">jSquash · WebAssembly</text>
               <text x="772" y="1141" class="unsupported">unsupported</text>
 <text x="54" y="1163" class="workflow">AVIF full decode → PNG</text>
         <line x1="54" y1="1333" x2="2328" y2="1333" stroke="#e8edf5" stroke-width="2" />
         <text x="730" y="1189" text-anchor="end" class="engine">PureJsImage · pure JS</text>
-            <rect x="760" y="1174" width="1166.2783389320182" height="19" rx="4" fill="#2563eb" />
-            <text x="1938.2783389320182" y="1189" class="value">987 ms</text>
+            <rect x="760" y="1174" width="1164.2072607303155" height="19" rx="4" fill="#2563eb" />
+            <text x="1936.2072607303155" y="1189" class="value">971 ms</text>
 <text x="730" y="1215" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG)</text>
-            <rect x="760" y="1200" width="1164.8113936826292" height="19" rx="4" fill="#c026d3" />
-            <text x="1936.8113936826292" y="1215" class="value">975 ms</text>
+            <rect x="760" y="1200" width="1159.6254439958466" height="19" rx="4" fill="#c026d3" />
+            <text x="1931.6254439958466" y="1215" class="value">936 ms</text>
 <text x="730" y="1241" text-anchor="end" class="engine">Jimp · pure JS</text>
               <text x="772" y="1241" class="unsupported">unsupported</text>
 <text x="730" y="1267" text-anchor="end" class="engine">Sharp · native/libvips</text>
-            <rect x="760" y="1252" width="839.3266005226415" height="19" rx="4" fill="#ea580c" />
-            <text x="1611.3266005226415" y="1267" class="value">75 ms</text>
+            <rect x="760" y="1252" width="839.8725460837275" height="19" rx="4" fill="#ea580c" />
+            <text x="1611.8725460837275" y="1267" class="value">75 ms</text>
 <text x="730" y="1293" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
-            <rect x="760" y="1278" width="839.2264553174509" height="19" rx="4" fill="#dc2626" />
-            <text x="1611.226455317451" y="1293" class="value">75 ms</text>
+            <rect x="760" y="1278" width="840.6325186527738" height="19" rx="4" fill="#dc2626" />
+            <text x="1612.6325186527738" y="1293" class="value">76 ms</text>
 <text x="730" y="1319" text-anchor="end" class="engine">image-js · pure JS</text>
               <text x="772" y="1319" class="unsupported">unsupported</text>
 <text x="730" y="1345" text-anchor="end" class="engine">jSquash · WebAssembly</text>
-            <rect x="760" y="1330" width="921.596143005635" height="19" rx="4" fill="#0891b2" />
-            <text x="1693.596143005635" y="1345" class="value">143 ms</text>
+            <rect x="760" y="1330" width="912.641546942155" height="19" rx="4" fill="#0891b2" />
+            <text x="1684.641546942155" y="1345" class="value">134 ms</text>
 <text x="54" y="1367" class="workflow">AVIF resize → JPEG</text>
         <line x1="54" y1="1537" x2="2328" y2="1537" stroke="#e8edf5" stroke-width="2" />
         <text x="730" y="1393" text-anchor="end" class="engine">PureJsImage · pure JS</text>
-            <rect x="760" y="1378" width="1140.2384624018857" height="19" rx="4" fill="#2563eb" />
-            <text x="1912.2384624018857" y="1393" class="value">803 ms</text>
+            <rect x="760" y="1378" width="1140.0595906896554" height="19" rx="4" fill="#2563eb" />
+            <text x="1912.0595906896554" y="1393" class="value">802 ms</text>
 <text x="730" y="1419" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG)</text>
-            <rect x="760" y="1404" width="1135.600911951882" height="19" rx="4" fill="#c026d3" />
-            <text x="1907.600911951882" y="1419" class="value">775 ms</text>
+            <rect x="760" y="1404" width="1135.224119395364" height="19" rx="4" fill="#c026d3" />
+            <text x="1907.224119395364" y="1419" class="value">772 ms</text>
 <text x="730" y="1445" text-anchor="end" class="engine">Jimp · pure JS</text>
               <text x="772" y="1445" class="unsupported">unsupported</text>
 <text x="730" y="1471" text-anchor="end" class="engine">Sharp · native/libvips</text>
-            <rect x="760" y="1456" width="784.8937473480432" height="19" rx="4" fill="#ea580c" />
-            <text x="1556.8937473480432" y="1471" class="value">49 ms</text>
+            <rect x="760" y="1456" width="786.1354369909275" height="19" rx="4" fill="#ea580c" />
+            <text x="1558.1354369909275" y="1471" class="value">49 ms</text>
 <text x="730" y="1497" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
-            <rect x="760" y="1482" width="786.7657935389457" height="19" rx="4" fill="#dc2626" />
-            <text x="1558.7657935389457" y="1497" class="value">49 ms</text>
+            <rect x="760" y="1482" width="783.6149487392286" height="19" rx="4" fill="#dc2626" />
+            <text x="1555.6149487392286" y="1497" class="value">48 ms</text>
 <text x="730" y="1523" text-anchor="end" class="engine">image-js · pure JS</text>
               <text x="772" y="1523" class="unsupported">unsupported</text>
 <text x="730" y="1549" text-anchor="end" class="engine">jSquash · WebAssembly</text>
-            <rect x="760" y="1534" width="1024.3674264337767" height="19" rx="4" fill="#0891b2" />
-            <text x="1796.3674264337767" y="1549" class="value">322 ms</text>
+            <rect x="760" y="1534" width="1026.1625125721828" height="19" rx="4" fill="#0891b2" />
+            <text x="1798.1625125721828" y="1549" class="value">327 ms</text>
     <text x="54" y="1624" class="footer">Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.</text>
-    <text x="54" y="1664" class="source">Source: 2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json · Unsupported rows are explicit; only validated outputs contribute performance bars.</text>
+    <text x="54" y="1664" class="source">Source: 2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json · Unsupported rows are explicit; only validated outputs contribute performance bars.</text>
   </svg>
