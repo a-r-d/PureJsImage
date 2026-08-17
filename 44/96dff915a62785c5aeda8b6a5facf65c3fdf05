@@ -1,0 +1,45 @@
+benchmark/optimization-log.md
+  s_e1649b41d8dd86::t_7a86c9723f2407 33,43
+  s_e1649b41d8dd86::t_b829feb51011e6 88-93
+  s_e1649b41d8dd86::t_e7b0c3d04ca0f9 1-32,35-42,45,47-70,80,94-95
+  s_e1649b41d8dd86::t_0d81c0771e9254 34,44,46,71-79
+  s_e1649b41d8dd86::t_0d9bc4ea6f5ce4 81-87
+.agents/skills/benchmark-hillclimb/SKILL.md
+  s_e1649b41d8dd86::t_e7b0c3d04ca0f9 13-17,64-69
+  s_e1649b41d8dd86::t_cb969b089c32d7 70
+docs-astro/src/data/package-metrics.json
+  s_e1649b41d8dd86::t_f7723f7b225045 179
+  s_e1649b41d8dd86::t_468088f820727a 793,796,799,853,856,859,868,871,874,883,886,889,1108,1111,1114,1123,1126,1129,1183,1186,1189,1349,1352,1355,1380,1383,1386,1395,1398,1401,1425,1428,1431
+README.md
+  s_e1649b41d8dd86::t_dddac4bd9393c9 68-69,71
+  s_e1649b41d8dd86::t_468088f820727a 275-276,278
+src/codecs/jpeg-source.ts
+  s_e1649b41d8dd86::t_d411fc1698c941 119,125
+  s_e1649b41d8dd86::t_7a0693e92047df 97-104,106-118,120-123,126-128,130-136,143-152,156-174,182,217,226
+src/codecs/jpeg-baseline.ts
+  s_e1649b41d8dd86::t_950f0a7e85cffb 135-136,248-249,254,258-269,273
+  s_e1649b41d8dd86::t_2a351f4a616d5e 742-743,764-771,773-793,795,797-803,810-819,823-841,849,885,893
+  s_e1649b41d8dd86::t_43cd14d19924a4 919-926
+benchmark/generated/package-metrics.json
+  s_e1649b41d8dd86::t_468088f820727a 793,796,799,853,856,859,868,871,874,883,886,889,1108,1111,1114,1123,1126,1129,1183,1186,1189,1349,1352,1355,1380,1383,1386,1395,1398,1401,1425,1428,1431
+  s_e1649b41d8dd86::t_f7723f7b225045 179
+docs-astro/src/data/documentation-data.json
+  s_e1649b41d8dd86::t_dddac4bd9393c9 97-99,102-104,107-109
+  s_e1649b41d8dd86::t_c8b8670b5e7a9e 117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "4496dff915a62785c5aeda8b6a5facf65c3fdf05",
+  "prompts": {},
+  "sessions": {
+    "s_e1649b41d8dd86": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00cb2-b775-7471-b1fd-fbe33ff8c58f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
