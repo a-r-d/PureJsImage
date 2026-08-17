@@ -988,22 +988,49 @@ const quantize = (
   output: Int32Array,
 ): void => {
   for (let row = 0; row < 8; row += 1) {
+    const sampleOffset = row * 8
+    const s0 = samples[sampleOffset] ?? 0
+    const s1 = samples[sampleOffset + 1] ?? 0
+    const s2 = samples[sampleOffset + 2] ?? 0
+    const s3 = samples[sampleOffset + 3] ?? 0
+    const s4 = samples[sampleOffset + 4] ?? 0
+    const s5 = samples[sampleOffset + 5] ?? 0
+    const s6 = samples[sampleOffset + 6] ?? 0
+    const s7 = samples[sampleOffset + 7] ?? 0
     for (let frequency = 0; frequency < 8; frequency += 1) {
-      let value = 0
-      for (let x = 0; x < 8; x += 1) {
-        value += (samples[row * 8 + x] ?? 0) * (dctBasis[frequency * 8 + x] ?? 0)
-      }
-      intermediate[row * 8 + frequency] = value
+      const basisOffset = frequency * 8
+      intermediate[sampleOffset + frequency] =
+        s0 * (dctBasis[basisOffset] ?? 0) +
+        s1 * (dctBasis[basisOffset + 1] ?? 0) +
+        s2 * (dctBasis[basisOffset + 2] ?? 0) +
+        s3 * (dctBasis[basisOffset + 3] ?? 0) +
+        s4 * (dctBasis[basisOffset + 4] ?? 0) +
+        s5 * (dctBasis[basisOffset + 5] ?? 0) +
+        s6 * (dctBasis[basisOffset + 6] ?? 0) +
+        s7 * (dctBasis[basisOffset + 7] ?? 0)
     }
   }
-  for (let vertical = 0; vertical < 8; vertical += 1) {
-    for (let horizontal = 0; horizontal < 8; horizontal += 1) {
-      let value = 0
-      for (let y = 0; y < 8; y += 1) {
-        value += (dctBasis[vertical * 8 + y] ?? 0) * (intermediate[y * 8 + horizontal] ?? 0)
-      }
+  for (let horizontal = 0; horizontal < 8; horizontal += 1) {
+    const i0 = intermediate[horizontal] ?? 0
+    const i1 = intermediate[8 + horizontal] ?? 0
+    const i2 = intermediate[16 + horizontal] ?? 0
+    const i3 = intermediate[24 + horizontal] ?? 0
+    const i4 = intermediate[32 + horizontal] ?? 0
+    const i5 = intermediate[40 + horizontal] ?? 0
+    const i6 = intermediate[48 + horizontal] ?? 0
+    const i7 = intermediate[56 + horizontal] ?? 0
+    for (let vertical = 0; vertical < 8; vertical += 1) {
+      const basisOffset = vertical * 8
       output[vertical * 8 + horizontal] = Math.round(
-        value / (table[vertical * 8 + horizontal] ?? 1),
+        (i0 * (dctBasis[basisOffset] ?? 0) +
+          i1 * (dctBasis[basisOffset + 1] ?? 0) +
+          i2 * (dctBasis[basisOffset + 2] ?? 0) +
+          i3 * (dctBasis[basisOffset + 3] ?? 0) +
+          i4 * (dctBasis[basisOffset + 4] ?? 0) +
+          i5 * (dctBasis[basisOffset + 5] ?? 0) +
+          i6 * (dctBasis[basisOffset + 6] ?? 0) +
+          i7 * (dctBasis[basisOffset + 7] ?? 0)) /
+          (table[vertical * 8 + horizontal] ?? 1),
       )
     }
   }

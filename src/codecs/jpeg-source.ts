@@ -172,6 +172,93 @@ export class JpegEntropyReader {
     }
   }
 
+  skipRemainingAc(fastLengths: Uint8Array, fastSymbols: Uint8Array, startIndex: number): number {
+    let index = startIndex
+    let bits = this.#bits
+    let bitCount = this.#bitCount
+    let offset = this.#offset
+    const buffer = this.#buffer
+    const end = this.#end
+    while (index < 64) {
+      while (bitCount < 8) {
+        if (offset >= end) {
+          this.#bits = bits
+          this.#bitCount = bitCount
+          this.#offset = offset
+          return index
+        }
+        const value = buffer[offset] ?? 0
+        if (value === 0xff) {
+          if (offset + 1 >= end) {
+            this.#bits = bits
+            this.#bitCount = bitCount
+            this.#offset = offset
+            return index
+          }
+          if (buffer[offset + 1] !== 0) {
+            this.#bits = bits
+            this.#bitCount = bitCount
+            this.#offset = offset
+            return index
+          }
+          offset += 2
+        } else {
+          offset += 1
+        }
+        if (bitCount === 0) bits = 0
+        bits = ((bits << 8) | value) >>> 0
+        bitCount += 8
+      }
+      const prefix = (bits >>> (bitCount - 8)) & 255
+      const huffmanLength = fastLengths[prefix] ?? 0
+      if (huffmanLength === 0) {
+        this.#bits = bits
+        this.#bitCount = bitCount
+        this.#offset = offset
+        return index
+      }
+      const symbol = fastSymbols[prefix] ?? 0
+      const extra = symbol & 15
+      let remaining = huffmanLength + extra
+      while (remaining > 0) {
+        if (bitCount === 0) {
+          this.#bits = bits
+          this.#bitCount = bitCount
+          this.#offset = offset
+          this.#fillBits()
+          bits = this.#bits
+          bitCount = this.#bitCount
+          offset = this.#offset
+        }
+        const take = remaining < bitCount ? remaining : bitCount
+        bitCount -= take
+        if (bitCount === 0) bits = 0
+        remaining -= take
+      }
+      if (extra === 0) {
+        if (symbol >>> 4 !== 15) {
+          this.#bits = bits
+          this.#bitCount = bitCount
+          this.#offset = offset
+          return -1
+        }
+        index += 16
+        continue
+      }
+      index += (symbol >>> 4) + 1
+      if (index > 64) {
+        this.#bits = bits
+        this.#bitCount = bitCount
+        this.#offset = offset
+        throw invalidInput('JPEG AC coefficient exceeds its block')
+      }
+    }
+    this.#bits = bits
+    this.#bitCount = bitCount
+    this.#offset = offset
+    return -1
+  }
+
   receiveAndExtend(length: number): number {
     if (length === 0) return 0
     const value = this.readBits(length)
@@ -291,7 +378,15 @@ export const indexJpegEntropy = async (
           throw limitExceeded(`JPEG restart index exceeds ${maximumRestarts} entries`)
         }
         const point = { marker: value, mcu: restart * restartInterval, offset: markerPosition }
-        if (point.mcu <= targetMcu) restartPoint = point
+        if (point.mcu <= targetMcu) {
+          restartPoint = point
+        } else if (targetMcu !== Number.MAX_SAFE_INTEGER) {
+          return {
+            endOffset: markerPosition,
+            restartCount: restart,
+            ...(restartPoint ? { restart: restartPoint } : {}),
+          }
+        }
       } else if (value === 0xd9) {
         return {
           endOffset: markerPosition,

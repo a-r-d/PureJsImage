@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
@@ -476,6 +478,55 @@ describe('JPEG pixel pipeline', () => {
       expect(meanAbsoluteError(scaled.data, reference)).toBeLessThan(24)
     },
   )
+
+  it.each([
+    ['4:4:4', 2, '508bac9254b17a71bf88b948322db31f8bb16ffa3ee2cc1e88d3472fb8dce87f'],
+    ['4:4:4', 4, '1e88786d62aecd443fbd310702b05fc31b1b6020de85cf3e1b95d8b03d366dbb'],
+    ['4:4:4', 8, '69c102af2f7bf77c897bc05c4e1869b0ef5372978260d2de62a2b02884251e74'],
+    ['4:2:0', 2, 'b3c96a35d83ff7952d4d8103f5ec048534b98a81ad81adb24b6e9ea82ff4610c'],
+    ['4:2:0', 4, 'a5ba15f43eaf5430a646d7c0b41b1de683818ab28a847260189fb2e2544f2d1a'],
+    ['4:2:0', 8, '8454019aef8ff4514461e66c9bbf15970ba074afffd2accf94375978e6bcbfbb'],
+    ['grayscale', 2, '69f289ee964e49d837ac958bced16e49c788c8f2090f0d22960b4082164e8af2'],
+    ['grayscale', 4, '3b63f3913b72f3c795334bbd87406596a373de998bb79177ec7866bae95b2b13'],
+    ['grayscale', 8, '2f2a12ed1381e2d26ad8e359bb21263d03b02f1db0d84190dc6702aef334d9c8'],
+    ['restart', 2, '5ff790b68e76eb2ef2b0b3f6babac12b499de3d434e62fbcb40902578e6bb7f1'],
+    ['restart', 4, 'deda7b669655613c912783266e82147d60970285292569ec9483f74fd05f3bdb'],
+    ['restart', 8, '230ef65cd29a8979be3896827f0fa7de112615ae11d3f601da965500877dfb26'],
+  ] as const)(
+    'keeps exact scaled %s 1/%i pixels after unused-AC skip',
+    async (name, scaleDenominator, digest) => {
+      const scaled = await decodeRgb(
+        Buffer.from(baselineJpegFixtures[name], 'base64'),
+        scaleDenominator,
+      )
+      expect(createHash('sha256').update(scaled.data).digest('hex')).toBe(digest)
+    },
+  )
+
+  it('crops past the first restart marker without changing pixels', async () => {
+    const input = encodedJpeg(48, 40, (x, y) => [x * 5, y * 6, (x + y) * 3, 255])
+    const withRestarts = await (await Image.open(input))
+      .jpeg({ quality: 92, chromaSubsampling: '444', restartInterval: 2 })
+      .toBuffer()
+    const decoder = await jpegCodec.createDecoder?.(
+      new MemorySource(withRestarts),
+      defaultImageLimits,
+    )
+    const fullDecoder = await jpegCodec.createDecoder?.(
+      new MemorySource(withRestarts),
+      defaultImageLimits,
+    )
+    if (!decoder || !fullDecoder) throw new Error('JPEG decoder is unavailable')
+    const crop = { x: 8, y: 16, width: 24, height: 16 }
+    const cropped = await collectRgb(decoder.decode(crop), crop.width, crop.height)
+    const full = await collectRgb(fullDecoder.decode(), fullDecoder.width, fullDecoder.height)
+    const expected = new Uint8Array(crop.width * crop.height * 3)
+    for (let y = 0; y < crop.height; y += 1) {
+      const source = ((crop.y + y) * fullDecoder.width + crop.x) * 3
+      expected.set(full.subarray(source, source + crop.width * 3), y * crop.width * 3)
+    }
+    expect(cropped).toEqual(expected)
+  })
 
   it('retains decoder blocks unless their typed storage is explicitly released', async () => {
     const input = encodedJpeg(32, 32, (x, y) => [x * 7, y * 5, (x + y) * 3, 255])

@@ -110,6 +110,22 @@ const createIdctBasis = (size: number): Float64Array =>
 const idctBasis = createIdctBasis(8)
 const idctBasis4 = createIdctBasis(4)
 const idctBasis2 = createIdctBasis(2)
+const idct4b00 = idctBasis4[0] ?? 0
+const idct4b01 = idctBasis4[1] ?? 0
+const idct4b02 = idctBasis4[2] ?? 0
+const idct4b03 = idctBasis4[3] ?? 0
+const idct4b10 = idctBasis4[4] ?? 0
+const idct4b11 = idctBasis4[5] ?? 0
+const idct4b12 = idctBasis4[6] ?? 0
+const idct4b13 = idctBasis4[7] ?? 0
+const idct4b20 = idctBasis4[8] ?? 0
+const idct4b21 = idctBasis4[9] ?? 0
+const idct4b22 = idctBasis4[10] ?? 0
+const idct4b23 = idctBasis4[11] ?? 0
+const idct4b30 = idctBasis4[12] ?? 0
+const idct4b31 = idctBasis4[13] ?? 0
+const idct4b32 = idctBasis4[14] ?? 0
+const idct4b33 = idctBasis4[15] ?? 0
 
 type JpegScaleDenominator = 1 | 2 | 4 | 8
 type JpegCoefficients = Int16Array | Int32Array
@@ -967,6 +983,122 @@ const decodeBlock = (
   return nextPredictor
 }
 
+const lastZigZagForScale = (scaleDenominator: JpegScaleDenominator): number => {
+  if (scaleDenominator === 1) return 63
+  if (scaleDenominator === 2) return 24
+  if (scaleDenominator === 4) return 4
+  return 0
+}
+
+const clearReducedCoefficients = (coefficients: Int32Array, lastZigZag: number): void => {
+  coefficients[0] = 0
+  if (lastZigZag === 0) return
+  coefficients[1] = 0
+  coefficients[8] = 0
+  coefficients[9] = 0
+  if (lastZigZag === 4) return
+  coefficients[2] = 0
+  coefficients[3] = 0
+  coefficients[10] = 0
+  coefficients[11] = 0
+  coefficients[16] = 0
+  coefficients[17] = 0
+  coefficients[18] = 0
+  coefficients[19] = 0
+  coefficients[24] = 0
+  coefficients[25] = 0
+  coefficients[26] = 0
+  coefficients[27] = 0
+}
+
+const skipRemainingAc = (reader: JpegBitReader, table: HuffmanTable, startIndex: number): void => {
+  const fastLengths = table.fastLengths
+  const fastSymbols = table.fastSymbols
+  let index =
+    reader instanceof JpegEntropyReader
+      ? reader.skipRemainingAc(fastLengths, fastSymbols, startIndex)
+      : startIndex
+  if (index < 0) return
+  while (index < 64) {
+    const prefix = reader.peekBits(8)
+    if (prefix !== undefined) {
+      const huffmanLength = fastLengths[prefix] ?? 0
+      if (huffmanLength !== 0) {
+        const symbol = fastSymbols[prefix] ?? 0
+        const extra = symbol & 15
+        reader.skipBits(huffmanLength + extra)
+        if (extra === 0) {
+          if (symbol >>> 4 !== 15) return
+          index += 16
+          continue
+        }
+        index += (symbol >>> 4) + 1
+        if (index > 64) throw invalidInput('JPEG AC coefficient exceeds its block')
+        continue
+      }
+    }
+    const symbol = decodeHuffman(reader, table)
+    const zeroes = symbol >>> 4
+    const length = symbol & 15
+    if (length === 0) {
+      if (zeroes !== 15) return
+      index += 16
+      continue
+    }
+    index += zeroes
+    if (index >= 64) throw invalidInput('JPEG AC coefficient exceeds its block')
+    reader.skipBits(length)
+    index += 1
+  }
+}
+
+const decodeBlockLimited = (
+  reader: JpegBitReader,
+  component: FrameComponent,
+  predictor: number,
+  coefficients: Int32Array,
+  lastZigZag: number,
+): number => {
+  if (lastZigZag >= 63) return decodeBlock(reader, component, predictor, coefficients)
+  clearReducedCoefficients(coefficients, lastZigZag)
+  const dcLength = decodeHuffman(reader, component.dcTable)
+  if (dcLength > 16) throw invalidInput('JPEG DC coefficient is invalid')
+  const nextPredictor = predictor + reader.receiveAndExtend(dcLength)
+  coefficients[0] = nextPredictor
+  if (lastZigZag === 0) {
+    skipRemainingAc(reader, component.acTable, 1)
+    return nextPredictor
+  }
+  let index = 1
+  while (index < 64) {
+    const symbol = decodeHuffman(reader, component.acTable)
+    const zeroes = symbol >>> 4
+    const length = symbol & 15
+    if (length === 0) {
+      if (zeroes !== 15) break
+      index += 16
+      if (index > lastZigZag) {
+        skipRemainingAc(reader, component.acTable, index)
+        break
+      }
+      continue
+    }
+    index += zeroes
+    if (index >= 64) throw invalidInput('JPEG AC coefficient exceeds its block')
+    if (index <= lastZigZag) {
+      coefficients[byte(zigZag, index)] = reader.receiveAndExtend(length)
+    } else {
+      reader.skipBits(length)
+    }
+    index += 1
+    if (index > lastZigZag) {
+      skipRemainingAc(reader, component.acTable, index)
+      break
+    }
+  }
+  return nextPredictor
+}
+
 const inverseDct = (
   coefficients: JpegCoefficients,
   quantization: Int32Array,
@@ -1063,120 +1195,122 @@ const inverseDct = (
   }
 }
 
-const inverseDctReduced = (
-  outputSize: 2 | 4,
-  basis: Float64Array,
-  coefficients: JpegCoefficients,
-  quantization: Int32Array,
-  workspace: Float64Array,
-  activeRowIndices: Uint8Array,
-  sampleWorkspace: Float64Array,
-  output: Uint8Array,
-  outputStride: number,
-  blockX: number,
-  blockY: number,
-  coefficientOffset = 0,
-): void => {
-  let activeRowCount = 0
-  for (let vertical = 0; vertical < outputSize; vertical += 1) {
-    const coefficientRowOffset = vertical * 8
-    const workspaceRowOffset = vertical * outputSize
-    let rowActive = false
-    for (let horizontal = 0; horizontal < outputSize; horizontal += 1) {
-      const coefficientIndex = coefficientRowOffset + horizontal
-      const coefficient = coefficients[coefficientOffset + coefficientIndex] ?? 0
-      if (coefficient === 0) continue
-      const scaled = coefficient * (quantization[coefficientIndex] ?? 0)
-      const basisOffset = horizontal * outputSize
-      if (!rowActive) {
-        activeRowIndices[activeRowCount] = vertical
-        activeRowCount += 1
-        rowActive = true
-        for (let x = 0; x < outputSize; x += 1) {
-          workspace[workspaceRowOffset + x] = scaled * (basis[basisOffset + x] ?? 0)
-        }
-      } else {
-        for (let x = 0; x < outputSize; x += 1) {
-          const target = workspaceRowOffset + x
-          workspace[target] = (workspace[target] ?? 0) + scaled * (basis[basisOffset + x] ?? 0)
-        }
-      }
-    }
-  }
-
-  for (let y = 0; y < outputSize; y += 1) {
-    sampleWorkspace.fill(0, 0, outputSize)
-    for (let activeIndex = 0; activeIndex < activeRowCount; activeIndex += 1) {
-      const vertical = activeRowIndices[activeIndex] ?? 0
-      const workspaceOffset = vertical * outputSize
-      const verticalBasis = basis[vertical * outputSize + y] ?? 0
-      for (let x = 0; x < outputSize; x += 1) {
-        sampleWorkspace[x] =
-          (sampleWorkspace[x] ?? 0) + verticalBasis * (workspace[workspaceOffset + x] ?? 0)
-      }
-    }
-    const outputOffset = (blockY * outputSize + y) * outputStride + blockX * outputSize
-    for (let x = 0; x < outputSize; x += 1) {
-      const sample = Math.round((sampleWorkspace[x] ?? 0) + 128)
-      output[outputOffset + x] = sample < 0 ? 0 : sample > 255 ? 255 : sample
-    }
-  }
-}
-
 const inverseDct4: InverseDct = (
   coefficients,
   quantization,
-  workspace,
-  activeRowIndices,
-  sampleWorkspace,
+  _workspace,
+  _activeRowIndices,
+  _sampleWorkspace,
   output,
   outputStride,
   blockX,
   blockY,
   coefficientOffset = 0,
 ): void => {
-  inverseDctReduced(
-    4,
-    idctBasis4,
-    coefficients,
-    quantization,
-    workspace,
-    activeRowIndices,
-    sampleWorkspace,
-    output,
-    outputStride,
-    blockX,
-    blockY,
-    coefficientOffset,
-  )
+  const c00 = (coefficients[coefficientOffset] ?? 0) * (quantization[0] ?? 0)
+  const c01 = (coefficients[coefficientOffset + 1] ?? 0) * (quantization[1] ?? 0)
+  const c02 = (coefficients[coefficientOffset + 2] ?? 0) * (quantization[2] ?? 0)
+  const c03 = (coefficients[coefficientOffset + 3] ?? 0) * (quantization[3] ?? 0)
+  const c10 = (coefficients[coefficientOffset + 8] ?? 0) * (quantization[8] ?? 0)
+  const c11 = (coefficients[coefficientOffset + 9] ?? 0) * (quantization[9] ?? 0)
+  const c12 = (coefficients[coefficientOffset + 10] ?? 0) * (quantization[10] ?? 0)
+  const c13 = (coefficients[coefficientOffset + 11] ?? 0) * (quantization[11] ?? 0)
+  const c20 = (coefficients[coefficientOffset + 16] ?? 0) * (quantization[16] ?? 0)
+  const c21 = (coefficients[coefficientOffset + 17] ?? 0) * (quantization[17] ?? 0)
+  const c22 = (coefficients[coefficientOffset + 18] ?? 0) * (quantization[18] ?? 0)
+  const c23 = (coefficients[coefficientOffset + 19] ?? 0) * (quantization[19] ?? 0)
+  const c30 = (coefficients[coefficientOffset + 24] ?? 0) * (quantization[24] ?? 0)
+  const c31 = (coefficients[coefficientOffset + 25] ?? 0) * (quantization[25] ?? 0)
+  const c32 = (coefficients[coefficientOffset + 26] ?? 0) * (quantization[26] ?? 0)
+  const c33 = (coefficients[coefficientOffset + 27] ?? 0) * (quantization[27] ?? 0)
+  const w00 = c00 * idct4b00 + c01 * idct4b10 + c02 * idct4b20 + c03 * idct4b30
+  const w01 = c00 * idct4b01 + c01 * idct4b11 + c02 * idct4b21 + c03 * idct4b31
+  const w02 = c00 * idct4b02 + c01 * idct4b12 + c02 * idct4b22 + c03 * idct4b32
+  const w03 = c00 * idct4b03 + c01 * idct4b13 + c02 * idct4b23 + c03 * idct4b33
+  const w10 = c10 * idct4b00 + c11 * idct4b10 + c12 * idct4b20 + c13 * idct4b30
+  const w11 = c10 * idct4b01 + c11 * idct4b11 + c12 * idct4b21 + c13 * idct4b31
+  const w12 = c10 * idct4b02 + c11 * idct4b12 + c12 * idct4b22 + c13 * idct4b32
+  const w13 = c10 * idct4b03 + c11 * idct4b13 + c12 * idct4b23 + c13 * idct4b33
+  const w20 = c20 * idct4b00 + c21 * idct4b10 + c22 * idct4b20 + c23 * idct4b30
+  const w21 = c20 * idct4b01 + c21 * idct4b11 + c22 * idct4b21 + c23 * idct4b31
+  const w22 = c20 * idct4b02 + c21 * idct4b12 + c22 * idct4b22 + c23 * idct4b32
+  const w23 = c20 * idct4b03 + c21 * idct4b13 + c22 * idct4b23 + c23 * idct4b33
+  const w30 = c30 * idct4b00 + c31 * idct4b10 + c32 * idct4b20 + c33 * idct4b30
+  const w31 = c30 * idct4b01 + c31 * idct4b11 + c32 * idct4b21 + c33 * idct4b31
+  const w32 = c30 * idct4b02 + c31 * idct4b12 + c32 * idct4b22 + c33 * idct4b32
+  const w33 = c30 * idct4b03 + c31 * idct4b13 + c32 * idct4b23 + c33 * idct4b33
+  const s00 = Math.round(w00 * idct4b00 + w10 * idct4b10 + w20 * idct4b20 + w30 * idct4b30 + 128)
+  const s01 = Math.round(w01 * idct4b00 + w11 * idct4b10 + w21 * idct4b20 + w31 * idct4b30 + 128)
+  const s02 = Math.round(w02 * idct4b00 + w12 * idct4b10 + w22 * idct4b20 + w32 * idct4b30 + 128)
+  const s03 = Math.round(w03 * idct4b00 + w13 * idct4b10 + w23 * idct4b20 + w33 * idct4b30 + 128)
+  const s10 = Math.round(w00 * idct4b01 + w10 * idct4b11 + w20 * idct4b21 + w30 * idct4b31 + 128)
+  const s11 = Math.round(w01 * idct4b01 + w11 * idct4b11 + w21 * idct4b21 + w31 * idct4b31 + 128)
+  const s12 = Math.round(w02 * idct4b01 + w12 * idct4b11 + w22 * idct4b21 + w32 * idct4b31 + 128)
+  const s13 = Math.round(w03 * idct4b01 + w13 * idct4b11 + w23 * idct4b21 + w33 * idct4b31 + 128)
+  const s20 = Math.round(w00 * idct4b02 + w10 * idct4b12 + w20 * idct4b22 + w30 * idct4b32 + 128)
+  const s21 = Math.round(w01 * idct4b02 + w11 * idct4b12 + w21 * idct4b22 + w31 * idct4b32 + 128)
+  const s22 = Math.round(w02 * idct4b02 + w12 * idct4b12 + w22 * idct4b22 + w32 * idct4b32 + 128)
+  const s23 = Math.round(w03 * idct4b02 + w13 * idct4b12 + w23 * idct4b22 + w33 * idct4b32 + 128)
+  const s30 = Math.round(w00 * idct4b03 + w10 * idct4b13 + w20 * idct4b23 + w30 * idct4b33 + 128)
+  const s31 = Math.round(w01 * idct4b03 + w11 * idct4b13 + w21 * idct4b23 + w31 * idct4b33 + 128)
+  const s32 = Math.round(w02 * idct4b03 + w12 * idct4b13 + w22 * idct4b23 + w32 * idct4b33 + 128)
+  const s33 = Math.round(w03 * idct4b03 + w13 * idct4b13 + w23 * idct4b23 + w33 * idct4b33 + 128)
+  const row0 = blockY * 4 * outputStride + blockX * 4
+  const row1 = row0 + outputStride
+  const row2 = row1 + outputStride
+  const row3 = row2 + outputStride
+  output[row0] = s00 < 0 ? 0 : s00 > 255 ? 255 : s00
+  output[row0 + 1] = s01 < 0 ? 0 : s01 > 255 ? 255 : s01
+  output[row0 + 2] = s02 < 0 ? 0 : s02 > 255 ? 255 : s02
+  output[row0 + 3] = s03 < 0 ? 0 : s03 > 255 ? 255 : s03
+  output[row1] = s10 < 0 ? 0 : s10 > 255 ? 255 : s10
+  output[row1 + 1] = s11 < 0 ? 0 : s11 > 255 ? 255 : s11
+  output[row1 + 2] = s12 < 0 ? 0 : s12 > 255 ? 255 : s12
+  output[row1 + 3] = s13 < 0 ? 0 : s13 > 255 ? 255 : s13
+  output[row2] = s20 < 0 ? 0 : s20 > 255 ? 255 : s20
+  output[row2 + 1] = s21 < 0 ? 0 : s21 > 255 ? 255 : s21
+  output[row2 + 2] = s22 < 0 ? 0 : s22 > 255 ? 255 : s22
+  output[row2 + 3] = s23 < 0 ? 0 : s23 > 255 ? 255 : s23
+  output[row3] = s30 < 0 ? 0 : s30 > 255 ? 255 : s30
+  output[row3 + 1] = s31 < 0 ? 0 : s31 > 255 ? 255 : s31
+  output[row3 + 2] = s32 < 0 ? 0 : s32 > 255 ? 255 : s32
+  output[row3 + 3] = s33 < 0 ? 0 : s33 > 255 ? 255 : s33
 }
 
 const inverseDct2: InverseDct = (
   coefficients,
   quantization,
-  workspace,
-  activeRowIndices,
-  sampleWorkspace,
+  _workspace,
+  _activeRowIndices,
+  _sampleWorkspace,
   output,
   outputStride,
   blockX,
   blockY,
   coefficientOffset = 0,
 ): void => {
-  inverseDctReduced(
-    2,
-    idctBasis2,
-    coefficients,
-    quantization,
-    workspace,
-    activeRowIndices,
-    sampleWorkspace,
-    output,
-    outputStride,
-    blockX,
-    blockY,
-    coefficientOffset,
-  )
+  const c00 = (coefficients[coefficientOffset] ?? 0) * (quantization[0] ?? 0)
+  const c01 = (coefficients[coefficientOffset + 1] ?? 0) * (quantization[1] ?? 0)
+  const c10 = (coefficients[coefficientOffset + 8] ?? 0) * (quantization[8] ?? 0)
+  const c11 = (coefficients[coefficientOffset + 9] ?? 0) * (quantization[9] ?? 0)
+  const b00 = idctBasis2[0] ?? 0
+  const b01 = idctBasis2[1] ?? 0
+  const b10 = idctBasis2[2] ?? 0
+  const b11 = idctBasis2[3] ?? 0
+  const w0 = c00 * b00 + c01 * b10
+  const w1 = c00 * b01 + c01 * b11
+  const w2 = c10 * b00 + c11 * b10
+  const w3 = c10 * b01 + c11 * b11
+  const s00 = Math.round(w0 * b00 + w2 * b10 + 128)
+  const s01 = Math.round(w1 * b00 + w3 * b10 + 128)
+  const s10 = Math.round(w0 * b01 + w2 * b11 + 128)
+  const s11 = Math.round(w1 * b01 + w3 * b11 + 128)
+  const row0 = blockY * 2 * outputStride + blockX * 2
+  const row1 = row0 + outputStride
+  output[row0] = s00 < 0 ? 0 : s00 > 255 ? 255 : s00
+  output[row0 + 1] = s01 < 0 ? 0 : s01 > 255 ? 255 : s01
+  output[row1] = s10 < 0 ? 0 : s10 > 255 ? 255 : s10
+  output[row1 + 1] = s11 < 0 ? 0 : s11 > 255 ? 255 : s11
 }
 
 const inverseDct1: InverseDct = (
@@ -1479,6 +1613,41 @@ const renderYcbcrRows = (
         const y = byte(luminancePlane, sourceY * luminanceWidth + (luminanceX[x] ?? 0))
         const cb = byte(blueChromaPlane, sourceY * blueChromaWidth + (blueChromaX[x] ?? 0)) - 128
         const cr = byte(redChromaPlane, sourceY * redChromaWidth + (redChromaX[x] ?? 0)) - 128
+        const target = (row * region.width + x) * 3
+        data[target] = clamp(y + 1.402 * cr)
+        data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
+        data[target + 2] = clamp(y + 1.772 * cb)
+      }
+    }
+    return
+  }
+  if (
+    luminance.horizontalSampling === jpeg.maximumHorizontalSampling &&
+    luminance.verticalSampling === jpeg.maximumVerticalSampling &&
+    blueChroma.verticalSampling === jpeg.maximumVerticalSampling &&
+    redChroma.verticalSampling === jpeg.maximumVerticalSampling
+  ) {
+    for (let row = 0; row < height; row += 1) {
+      const sourceY = plan.haloRows + first + row - rowStart
+      const lumaRow = sourceY * luminanceWidth
+      const blueRow = sourceY * blueChromaWidth
+      const redRow = sourceY * redChromaWidth
+      for (let x = 0; x < region.width; x += 1) {
+        const y = byte(luminancePlane, lumaRow + (luminanceX[x] ?? 0))
+        const blueChromaXWeight = blueChromaXWeights[x] ?? 0
+        const redChromaXWeight = redChromaXWeights[x] ?? 0
+        const cb =
+          ((byte(blueChromaPlane, blueRow + (blueChromaX[x] ?? 0)) * (256 - blueChromaXWeight) +
+            byte(blueChromaPlane, blueRow + (blueChromaRightX[x] ?? 0)) * blueChromaXWeight +
+            128) >>
+            8) -
+          128
+        const cr =
+          ((byte(redChromaPlane, redRow + (redChromaX[x] ?? 0)) * (256 - redChromaXWeight) +
+            byte(redChromaPlane, redRow + (redChromaRightX[x] ?? 0)) * redChromaXWeight +
+            128) >>
+            8) -
+          128
         const target = (row * region.width + x) * 3
         data[target] = clamp(y + 1.402 * cr)
         data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
@@ -1843,6 +2012,7 @@ export const decodeBaselineJpeg = async function* (
   const activeRowIndices = new Uint8Array(8)
   const sampleWorkspace = new Float64Array(8)
   const inverseBlock = inverseDctForScale(scaleDenominator)
+  const lastNeededZigZag = lastZigZagForScale(scaleDenominator)
   const plan = createRenderPlan(jpeg, region, blockSize)
   let currentPlanes = componentPlanes(jpeg, blockSize)
   let pendingPlanes: Uint8Array[] | undefined
@@ -1891,11 +2061,12 @@ export const decodeBaselineJpeg = async function* (
           const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
           for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
             for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
-              predictors[componentIndex] = decodeBlock(
+              predictors[componentIndex] = decodeBlockLimited(
                 reader,
                 component,
                 byte(predictors, componentIndex),
                 coefficients,
+                reconstruct ? lastNeededZigZag : 0,
               )
               if (reconstruct) {
                 if (metrics) metrics.blocksReconstructed += 1

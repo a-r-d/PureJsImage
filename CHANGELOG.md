@@ -47,6 +47,18 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Speed up JPEG resize-to-encode pipelines by unrolling the scale-2 4×4 IDCT, skipping vertical
+  chroma bilinear on 4:2:2 (chroma already has full vertical resolution), and unrolling the encoder
+  DCT. Local `jpeg-resize-1200` fell from 715 ms to 543 ms (−24%) with an exact bitstream hash;
+  neighbor `jpeg-crop-resize` improved 18%. Imazen JPEG stayed 39 pass / 2 unsupported / 167
+  rejected-safely / 46 accepted.
+- Speed up scaled JPEG decode by skipping unused AC store after the last zigzag the reduced IDCT
+  reads, fusing leftover Huffman bit skips, unrolling the scale-4 2×2 IDCT, stopping restart
+  indexing once the crop target is passed, and inlining leftover-AC skip on the entropy reader.
+  Official `northstar-photo-pipeline` fell from 1181 ms to 802 ms (−32%) on top of the previous
+  scaled-IDCT work, with an exact bitstream hash. Neighbor `jpeg-crop-resize` improved 13.5%;
+  `jpeg-resize-1200` kept its exact hash. Imazen JPEG stayed 39 pass / 2 unsupported / 167
+  rejected-safely / 46 accepted.
 - Speed up large JPEG crop-then-resize pipelines by snapping unaligned decoder crops to a
   containing scale-aligned box so scaled IDCT can run. Official `northstar-photo-pipeline` fell
   from 2857 ms to 1181 ms (−59%). Pixel samples stayed inside the documented ±8 tolerance; the
