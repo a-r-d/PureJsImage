@@ -190,11 +190,15 @@ const ordinarySnapshot = async (entry: SourceEntry) => {
   const sourcePath = entry.resultPaths.find((candidate) => candidate.endsWith('.json')) ?? ''
   const sourceStem = basename(sourcePath, '.json')
   const charts = Object.fromEntries(
-    ['speed', 'quality', 'memory'].map((metric) => {
-      const chartPrefix = entry.profile === 'web-codecs' ? 'web-codecs' : 'competitors'
-      const path = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.png`
-      return [metric, path]
-    }),
+    await Promise.all(
+      ['speed', 'quality', 'memory'].map(async (metric) => {
+        const chartPrefix = entry.profile === 'web-codecs' ? 'web-codecs' : 'competitors'
+        const svgPath = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.svg`
+        const pngPath = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.png`
+        const path = (await exists(join(repositoryDirectory, svgPath))) ? svgPath : pngPath
+        return [metric, path] as const
+      }),
+    ),
   )
   for (const path of Object.values(charts)) {
     if (!(await exists(join(repositoryDirectory, path))))

@@ -730,18 +730,30 @@ const ordinaryCounts = ordinary.results.reduce<Record<string, number>>((counts, 
   return counts
 }, {})
 
-const ordinaryCharts = ['speed', 'quality', 'memory'].map((metric) => ({
-  filename: basename(stringValue(ordinary.charts[metric], `ordinary.charts.${metric}`)),
-  metric,
-  source: join(
-    repositoryDirectory,
-    stringValue(ordinary.charts[metric], `ordinary.charts.${metric}`),
-  ),
-}))
-for (const chart of ordinaryCharts) {
-  if (!(await pathExists(chart.source)))
-    throw new Error(`Chart references missing result: ${chart.source}`)
+const svgDimensions = (source: string, markup: string): { width: number; height: number } => {
+  const viewBox = /viewBox="0 0 ([0-9]+) ([0-9]+)"/u.exec(markup)
+  const width = Number(viewBox?.[1] ?? /(?:\s|^)width="([0-9]+)"/u.exec(markup)?.[1])
+  const height = Number(viewBox?.[2] ?? /(?:\s|^)height="([0-9]+)"/u.exec(markup)?.[1])
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    throw new Error(`Chart ${source} is missing SVG dimensions`)
+  }
+  return { width, height }
 }
+
+const ordinaryCharts = await Promise.all(
+  ['speed', 'quality', 'memory'].map(async (metric) => {
+    const source = join(
+      repositoryDirectory,
+      stringValue(ordinary.charts[metric], `ordinary.charts.${metric}`),
+    )
+    if (!(await pathExists(source))) throw new Error(`Chart references missing result: ${source}`)
+    const filename = basename(source)
+    const dimensions = filename.endsWith('.svg')
+      ? svgDimensions(source, await readFile(source, 'utf8'))
+      : { width: 2400, height: 1510 }
+    return { filename, metric, source, ...dimensions }
+  }),
+)
 
 const sharedWorkloadCandidates = [
   'tiff-window',
@@ -1025,7 +1037,10 @@ const documentation = {
   },
   ordinary: {
     charts: Object.fromEntries(
-      ordinaryCharts.map(({ filename, metric }) => [metric, `assets/${filename}`]),
+      ordinaryCharts.map(({ filename, height, metric, width }) => [
+        metric,
+        { height, src: `assets/${filename}`, width },
+      ]),
     ),
     createdAt: ordinary.createdAt,
     engineVersions: ordinary.startup,
@@ -1148,7 +1163,7 @@ const benchmarkBlock = [
   '',
   '<p align="center">',
   '  <a href="https://purejsimage.com/performance/#web-codec-benchmarks">',
-  '    <img src="docs-astro/public/assets/readme/web-codec-memory.png" alt="Web codec benchmark peak RSS chart. Lower peak RSS is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
+  '    <img src="docs-astro/public/assets/readme/web-codec-memory.svg" alt="Web codec benchmark peak RSS chart. Lower peak RSS is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
   '  </a>',
   '</p>',
   '<p align="center"><em>Absolute process peak RSS from the current validated web codec benchmark snapshot.</em></p>',
@@ -1187,11 +1202,8 @@ const readmeAssets: readonly { readonly path: string; readonly bytes: Uint8Array
     ),
   },
   {
-    path: join(readmeAssetsDirectory, 'web-codec-memory.png'),
-    bytes: await encodeReadmeRaster(await readFile(memoryChart.source), {
-      format: 'png',
-      width: 1600,
-    }),
+    path: join(readmeAssetsDirectory, 'web-codec-memory.svg'),
+    bytes: await readFile(memoryChart.source),
   },
 ]
 const readmeAssetBytes = readmeAssets.reduce((sum, asset) => sum + asset.bytes.byteLength, 0)

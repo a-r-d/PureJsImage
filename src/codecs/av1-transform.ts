@@ -41,6 +41,12 @@ const hadamard = (values: Int32Array, first: number, second: number, flip = fals
   values[rightIndex] = clampTransform(left - right)
 }
 
+const transformValues = new Int32Array(64)
+const transformOutput = new Int32Array(64)
+const dequantScratch = new Int32Array(4096)
+const intermediateScratch = new Int32Array(4096)
+const columnInputScratch = new Int32Array(64)
+
 const inverseAdst4 = (input: ArrayLike<number>): Int32Array => {
   const first = input[0] ?? 0
   const second = input[1] ?? 0
@@ -52,12 +58,11 @@ const inverseAdst4 = (input: ArrayLike<number>): Int32Array => {
   const s2 = 3344 * (first - third + fourth)
   s0 += 2482 * fourth
   s1 -= 3803 * fourth
-  return Int32Array.of(
-    roundedShift(s0 + s3, 12),
-    roundedShift(s1 + s3, 12),
-    roundedShift(s2, 12),
-    roundedShift(s0 + s1 - s3, 12),
-  )
+  transformOutput[0] = roundedShift(s0 + s3, 12)
+  transformOutput[1] = roundedShift(s1 + s3, 12)
+  transformOutput[2] = roundedShift(s2, 12)
+  transformOutput[3] = roundedShift(s0 + s1 - s3, 12)
+  return transformOutput
 }
 
 const reversedBits = (value: number, bits: number): number => {
@@ -71,10 +76,10 @@ const inverseDct = (input: ArrayLike<number>): Int32Array => {
   const bits = Math.log2(input.length)
   if (bits !== 2 && bits !== 3 && bits !== 4 && bits !== 5 && bits !== 6)
     throw unsupportedOperation(`Unsupported AV1 inverse DCT length ${input.length}`)
-  const values = Int32Array.from(
-    { length: input.length },
-    (_, index) => input[reversedBits(index, bits)] ?? 0,
-  )
+  const values = transformValues
+  for (let index = 0; index < input.length; index += 1) {
+    values[index] = input[reversedBits(index, bits)] ?? 0
+  }
   if (bits === 6) {
     for (let index = 0; index < 16; index += 1) {
       butterfly(values, 32 + index, 63 - index, 63 - 4 * reversedBits(index, 4), false)
@@ -236,10 +241,11 @@ const inverseDct = (input: ArrayLike<number>): Int32Array => {
 }
 
 const inverseAdst8 = (input: ArrayLike<number>): Int32Array => {
-  const values = Int32Array.from({ length: 8 }, (_, index) => {
+  const values = transformValues
+  for (let index = 0; index < 8; index += 1) {
     const source = (index & 1) === 1 ? index - 1 : 7 - index
-    return input[source] ?? 0
-  })
+    values[index] = input[source] ?? 0
+  }
   for (let index = 0; index < 4; index += 1)
     butterfly(values, 2 * index, 2 * index + 1, 60 - 16 * index, true)
   for (let index = 0; index < 4; index += 1) hadamard(values, index, 4 + index)
@@ -251,7 +257,7 @@ const inverseAdst8 = (input: ArrayLike<number>): Int32Array => {
   }
   butterfly(values, 2, 3, 32, true)
   butterfly(values, 6, 7, 32, true)
-  const output = new Int32Array(values)
+  const output = transformOutput
   for (let index = 0; index < 8; index += 1) {
     const a = (index >> 3) & 1
     const b = ((index >> 2) & 1) ^ ((index >> 3) & 1)
@@ -264,10 +270,11 @@ const inverseAdst8 = (input: ArrayLike<number>): Int32Array => {
 }
 
 const inverseAdst16 = (input: ArrayLike<number>): Int32Array => {
-  const values = Int32Array.from({ length: 16 }, (_, index) => {
+  const values = transformValues
+  for (let index = 0; index < 16; index += 1) {
     const source = (index & 1) === 1 ? index - 1 : 15 - index
-    return input[source] ?? 0
-  })
+    values[index] = input[source] ?? 0
+  }
   for (let index = 0; index < 8; index += 1) {
     butterfly(values, 2 * index, 2 * index + 1, 62 - 8 * index, true)
   }
@@ -294,7 +301,7 @@ const inverseAdst16 = (input: ArrayLike<number>): Int32Array => {
   for (let index = 0; index < 4; index += 1) {
     butterfly(values, 2 + 4 * index, 3 + 4 * index, 32, true)
   }
-  const output = new Int32Array(values)
+  const output = transformOutput
   for (let index = 0; index < 16; index += 1) {
     const a = (index >> 3) & 1
     const b = ((index >> 2) & 1) ^ a
@@ -326,7 +333,7 @@ const inverseIdentity = (input: ArrayLike<number>): Int32Array => {
     shift = 12
   } else if (input.length === 32) multiplier = 4
   else throw unsupportedOperation(`Unsupported AV1 inverse identity length ${input.length}`)
-  const output = new Int32Array(input.length)
+  const output = transformOutput
   for (let index = 0; index < input.length; index += 1) {
     const value = (input[index] ?? 0) * multiplier
     output[index] = shift === 0 ? value : roundedShift(value, shift)
@@ -345,7 +352,11 @@ const inverseWht4 = (input: ArrayLike<number>, shift: number): Int32Array => {
   c = e - c
   a -= b
   d += c
-  return Int32Array.of(a, b, c, d)
+  transformOutput[0] = a
+  transformOutput[1] = b
+  transformOutput[2] = c
+  transformOutput[3] = d
+  return transformOutput
 }
 
 const rowDctMask = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 11)
@@ -379,13 +390,14 @@ const dequantizeAv1Coefficients = (
       ? av1InverseQuantizationMatrix(matrixLevel, plane, width, height)
       : undefined
 
-  const dequantized = new Int32Array(width * height)
+  const dequantized = dequantScratch
+  const coefficientCount = width * height
   const matrixWidth = Math.min(width, 32)
   const matrixHeight = Math.min(height, 32)
   const rectangularScale = width * 2 === height || height * 2 === width
   const sizeContext = (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
   const dequantizerDivisor = 2 ** Math.max(0, sizeContext - 2)
-  for (let index = 0; index < dequantized.length; index += 1) {
+  for (let index = 0; index < coefficientCount; index += 1) {
     const quantization = index === 0 ? dc : ac
     const row = Math.floor(index / width)
     const column = index % width
@@ -438,7 +450,7 @@ export const inverseTransform = (
         `Lossless AV1 transform dimensions must be 4x4, received ${width}x${height}`,
       )
     }
-    const intermediate = new Int32Array(16)
+    const intermediate = intermediateScratch
     for (let row = 0; row < 4; row += 1) {
       const transformed = inverseWht4(dequantized.subarray(row * 4, row * 4 + 4), 2)
       for (let column = 0; column < 4; column += 1) {
@@ -446,7 +458,7 @@ export const inverseTransform = (
       }
     }
     const residual = new Int32Array(16)
-    const columnInput = new Int32Array(4)
+    const columnInput = columnInputScratch
     for (let column = 0; column < 4; column += 1) {
       for (let row = 0; row < 4; row += 1) {
         columnInput[row] = intermediate[row * 4 + column] ?? 0
@@ -458,7 +470,7 @@ export const inverseTransform = (
     }
     return residual
   }
-  const intermediate = new Int32Array(width * height)
+  const intermediate = intermediateScratch
   const rowUsesDct = ((rowDctMask >>> transformType) & 1) !== 0
   const rowUsesAdst = ((rowAdstMask >>> transformType) & 1) !== 0
   const columnUsesDct = ((columnDctMask >>> transformType) & 1) !== 0
@@ -497,7 +509,7 @@ export const inverseTransform = (
   transformClampMinimum = columnClampMinimum
   transformClampMaximum = columnClampMaximum
   const residual = new Int32Array(width * height)
-  const columnInput = new Int32Array(height)
+  const columnInput = columnInputScratch.subarray(0, height)
   for (let column = 0; column < width; column += 1) {
     for (let row = 0; row < height; row += 1) {
       columnInput[row] = intermediate[row * width + column] ?? 0

@@ -380,6 +380,10 @@ npm run bench:web-codecs
 npm run bench:web-codecs:charts
 ```
 
+Chart rendering writes compact SVG files under `benchmark/results/`. It does
+not rasterize PNG copies or duplicate charts into `docs/assets/`. Generated
+documentation copies the current SVG set into the site public assets.
+
 The equivalent direct harness command, after `npm run build`, is:
 
 ```sh

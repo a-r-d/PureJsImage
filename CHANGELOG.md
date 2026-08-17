@@ -6,10 +6,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
-- Speed up first-party AVIF decode loop restoration by gathering each 4x4 self-guided and Wiener
-  window once and computing SGR box sums from prefix totals. Official `avif-fox-resize-jpeg` fell
-  from 1429 ms to 1122 ms (−21.5%) and `avif-fox-full-png` from 1592 ms to 1287 ms (−19.2%) with
-  unchanged output bytes.
+- Publish web-codec and competitor benchmark charts as SVG instead of rasterizing them to PNG.
+- Speed up first-party AVIF decode after the retained restoration gather/prefix work: hoist SGR
+  prefixes, unroll Wiener and SGR blend, copy interior CDEF windows, reuse inverse-transform
+  scratch buffers, specialize 4:2:0 chroma upsample, and specialize 8-bit Wiener rounding. Official
+  `avif-fox-resize-jpeg` fell from 1452 ms to 803 ms (−45%) and `avif-fox-full-png` from 1573 ms to
+  987 ms (−37%) on the 2026-08-17 web-codec snapshot, with unchanged output hashes.
 - Speed up first-party lossless WebP encoding by replacing the shifting LZ77 candidate table with a
   ring buffer, recording match tokens once for histogram and bitstream emission, and scoring color
   cache sizes in a single scan. Isolated 1200x480 effort-4 encode of `transparent-logo-1200x480`

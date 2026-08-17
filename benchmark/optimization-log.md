@@ -187,6 +187,15 @@ CPU samples put `boxFilter` (35%), `restoreWienerBlock` (9%), and
 | AVIF-002 | 2026-08-17 11:45 | Skip `round2` when bit-depth shift is 0 in `boxFilter`. | 1922.48 → 1268.32 | noisy | -0.13% | neutral | Reverted; 7-trial base CV exceeded 10% and no incremental win over AVIF-001. |
 | AVIF-003 | 2026-08-17 11:48 | Prefix-sum SGR box sums/squares on the gathered window. | 1428.54 → 1161.68 | -18.68% | -0.10% | material | Retained; 15-trial accepted on the AVIF-001 stack. |
 | AVIF-004 | 2026-08-17 11:51 | Gather a 10x10 window for Wiener 7-tap filtering. | 1429.29 → 1122.23 | -21.48% | -0.34% | material | Retained; 15-trial accepted on the AVIF-001+003 stack. Neighbor `avif-fox-full-png` 1591.88 → 1287.02 (−19.15%). |
+| AVIF-005 | 2026-08-17 16:08 | Build SGR prefix sums once per block instead of once per box-filter pass. | 1126.17 → 1086.82 | -3.49% | +0.15% | material | Retained; 7-trial accepted vs `5cfa0e6`, exact hashes. |
+| AVIF-006 | 2026-08-17 16:10 | Unroll Wiener 7-tap horizontal and vertical filters from the gathered window. | 1122.57 → 1061.15 | -5.47% | +0.56% | material | Retained on the AVIF-005 stack; 7-trial accepted vs `5cfa0e6`, exact hashes. |
+| AVIF-007 | 2026-08-17 16:15 | Copy interior CDEF windows without `sourceSample` clipping; require plane and stripe bounds. | 1133.10 → 1028.32 | -9.25% | -0.39% | material | Retained on the AVIF-005+006 stack; 162 AVIF decode tests passed after a first-pass plane-end clip miss. |
+| AVIF-008 | 2026-08-17 16:17 | Unroll SGR 3x3 a/b blend; specialize pass-0 odd/even rows and pass-1 weights. | 1125.44 → 968.89 | -13.91% | +0.26% | material | Retained on the AVIF-005–007 stack; photo and high-bit hashes matched. |
+| AVIF-009 | 2026-08-17 16:20 | Specialize 8-bit SGR prefix variance; inline `round2` for shifts 12 and 20. | 1121.34 → 971.26 | -13.38% | +0.62% | neutral | Reverted; no incremental win over AVIF-008 (968.89 ms) and candidate MAD jumped to 33 ms. |
+| AVIF-010 | 2026-08-17 16:30 | Reuse 1D transform, dequant, intermediate, and column scratch buffers. | 1134.79 → 867.14 | -23.59% | -0.42% | material | Retained; isolated 7-trial accepted. First run was incomparable under concurrent tests (−25.63%). 162+256 AVIF tests passed after fixing column `input.length`. |
+| AVIF-011 | 2026-08-17 16:32 | Specialize 4:2:0 chroma upsample and hoist plane pointers in `av1ToRgbaRegion`. | 1127.48 → 828.65 | -26.50% | -0.73% | material | Retained on the AVIF-005–008+010 stack; photo hashes matched. |
+| AVIF-012 | 2026-08-17 16:35 | Specialize 8-bit Wiener 7-tap rounding and clamping. | 1141.81 → 802.34 | -29.73% | +0.87% | material | Retained; photo and high-bit restoration hashes matched. Neighbor `avif-fox-full-png` 1312.74 → 987.77 (−24.76%). |
+| AVIF-013 | 2026-08-17 16:37 | Copy interior restoration windows with `TypedArray.set()`. | 1134.64 → 923.45 | -18.61% | +0.82% | rejected | Reverted; per-row `subarray`/`set` allocations lost ~120 ms versus AVIF-012. |
 
 Measurement artifacts:
 
@@ -196,6 +205,17 @@ Measurement artifacts:
 - AVIF-003: `.tmp/hillclimb/2026-08-17T15-48-30-460Z/comparison.md`
 - AVIF-004: `.tmp/hillclimb/2026-08-17T15-51-39-465Z/comparison.md`
 - Neighbor `avif-fox-full-png`: `.tmp/hillclimb/2026-08-17T15-53-50-785Z/comparison.md`
+- AVIF-005: `.tmp/hillclimb/2026-08-17T16-08-13-195Z/comparison.md`
+- AVIF-006: `.tmp/hillclimb/2026-08-17T16-10-54-258Z/comparison.md`
+- AVIF-007: `.tmp/hillclimb/2026-08-17T16-15-01-472Z/comparison.md`
+- AVIF-008: `.tmp/hillclimb/2026-08-17T16-17-29-006Z/comparison.md`
+- AVIF-009: `.tmp/hillclimb/2026-08-17T16-20-24-483Z/comparison.md`
+- AVIF-010 noisy: `.tmp/hillclimb/2026-08-17T16-28-57-134Z/comparison.md`
+- AVIF-010 isolated: `.tmp/hillclimb/2026-08-17T16-30-03-218Z/comparison.md`
+- AVIF-011: `.tmp/hillclimb/2026-08-17T16-32-50-283Z/comparison.md`
+- AVIF-012: `.tmp/hillclimb/2026-08-17T16-35-10-828Z/comparison.md`
+- Neighbor `avif-fox-full-png` after AVIF-012: `.tmp/hillclimb/2026-08-17T16-36-16-232Z/comparison.md`
+- AVIF-013: `.tmp/hillclimb/2026-08-17T16-37-42-282Z/comparison.md`
 - Profiles: `.tmp/cpu-avif/`
 
 Measurement artifacts:

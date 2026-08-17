@@ -839,29 +839,93 @@ const restoreWienerBlock = (
     window,
     windowStride,
   )
+  const h0 = horizontalFilter[0] ?? 0
+  const h1 = horizontalFilter[1] ?? 0
+  const h2 = horizontalFilter[2] ?? 0
+  const h3 = horizontalFilter[3] ?? 0
+  const h4 = horizontalFilter[4] ?? 0
+  const h5 = horizontalFilter[5] ?? 0
+  const h6 = horizontalFilter[6] ?? 0
+  const v0 = verticalFilter[0] ?? 0
+  const v1 = verticalFilter[1] ?? 0
+  const v2 = verticalFilter[2] ?? 0
+  const v3 = verticalFilter[3] ?? 0
+  const v4 = verticalFilter[4] ?? 0
+  const v5 = verticalFilter[5] ?? 0
+  const v6 = verticalFilter[6] ?? 0
+  const outputData = output.data
+  const outputStride = output.stride
+  if (!highBitDepth) {
+    for (let row = 0; row < height + 6; row += 1) {
+      const windowRow = row * windowStride
+      const intermediateRow = row * width
+      for (let column = 0; column < width; column += 1) {
+        const origin = windowRow + column
+        const sum =
+          h0 * (window[origin] ?? 0) +
+          h1 * (window[origin + 1] ?? 0) +
+          h2 * (window[origin + 2] ?? 0) +
+          h3 * (window[origin + 3] ?? 0) +
+          h4 * (window[origin + 4] ?? 0) +
+          h5 * (window[origin + 5] ?? 0) +
+          h6 * (window[origin + 6] ?? 0)
+        const rounded = Math.floor((sum + 4) / 8)
+        intermediate[intermediateRow + column] =
+          rounded < -2048 ? -2048 : rounded > 6143 ? 6143 : rounded
+      }
+    }
+    for (let row = 0; row < height; row += 1) {
+      const row0 = row * width
+      const dest = row * outputStride + x
+      for (let column = 0; column < width; column += 1) {
+        const sum =
+          v0 * (intermediate[row0 + column] ?? 0) +
+          v1 * (intermediate[row0 + width + column] ?? 0) +
+          v2 * (intermediate[row0 + width * 2 + column] ?? 0) +
+          v3 * (intermediate[row0 + width * 3 + column] ?? 0) +
+          v4 * (intermediate[row0 + width * 4 + column] ?? 0) +
+          v5 * (intermediate[row0 + width * 5 + column] ?? 0) +
+          v6 * (intermediate[row0 + width * 6 + column] ?? 0)
+        const rounded = Math.floor((sum + 1024) / 2048)
+        outputData[dest + column] = rounded < 0 ? 0 : rounded > 255 ? 255 : rounded
+      }
+    }
+    return
+  }
   for (let row = 0; row < height + 6; row += 1) {
     const windowRow = row * windowStride
     for (let column = 0; column < width; column += 1) {
-      let sum = 0
       const origin = windowRow + column
-      for (let tap = 0; tap < 7; tap += 1) {
-        sum += (horizontalFilter[tap] ?? 0) * (window[origin + tap] ?? 0)
-      }
-      intermediate[row * width + column] = highBitDepth
-        ? clip(0, horizontalMaximum, round2(sum + horizontalOffset, horizontalBits))
-        : clip(-2048, 6143, round2(sum, 3))
+      const sum =
+        h0 * (window[origin] ?? 0) +
+        h1 * (window[origin + 1] ?? 0) +
+        h2 * (window[origin + 2] ?? 0) +
+        h3 * (window[origin + 3] ?? 0) +
+        h4 * (window[origin + 4] ?? 0) +
+        h5 * (window[origin + 5] ?? 0) +
+        h6 * (window[origin + 6] ?? 0)
+      intermediate[row * width + column] = clip(
+        0,
+        horizontalMaximum,
+        round2(sum + horizontalOffset, horizontalBits),
+      )
     }
   }
   for (let row = 0; row < height; row += 1) {
+    const row0 = row * width
     for (let column = 0; column < width; column += 1) {
-      let sum = 0
-      for (let tap = 0; tap < 7; tap += 1) {
-        sum += (verticalFilter[tap] ?? 0) * (intermediate[(row + tap) * width + column] ?? 0)
-      }
-      output.data[row * output.stride + x + column] = clip(
+      const sum =
+        v0 * (intermediate[row0 + column] ?? 0) +
+        v1 * (intermediate[row0 + width + column] ?? 0) +
+        v2 * (intermediate[row0 + width * 2 + column] ?? 0) +
+        v3 * (intermediate[row0 + width * 3 + column] ?? 0) +
+        v4 * (intermediate[row0 + width * 4 + column] ?? 0) +
+        v5 * (intermediate[row0 + width * 5 + column] ?? 0) +
+        v6 * (intermediate[row0 + width * 6 + column] ?? 0)
+      outputData[row * outputStride + x + column] = clip(
         0,
         sampleMaximum,
-        round2(sum - (highBitDepth ? verticalOffset : 0), verticalBits),
+        round2(sum - verticalOffset, verticalBits),
       )
     }
   }
@@ -886,6 +950,26 @@ const fillRestorationWindow = (
   const originY = y - 1 - radius
   const rows = height + 2 + 2 * radius
   const columns = width + 2 + 2 * radius
+  const interior =
+    originX >= 0 &&
+    originX + columns - 1 <= planeEndX &&
+    originY >= 0 &&
+    originY + rows - 1 <= planeEndY &&
+    originY >= stripeStartY &&
+    originY + rows - 1 <= stripeEndY &&
+    cdef.rowOffsets === undefined
+  if (interior) {
+    const cdefData = cdef.data
+    const cdefStride = cdef.stride
+    for (let row = 0; row < rows; row += 1) {
+      const source = (originY + row) * cdefStride + originX
+      const destination = row * windowStride
+      for (let column = 0; column < columns; column += 1) {
+        window[destination + column] = cdefData[source + column] ?? 0
+      }
+    }
+    return
+  }
   for (let row = 0; row < rows; row += 1) {
     const sampleY = originY + row
     const rowOffset = row * windowStride
@@ -906,8 +990,8 @@ const fillRestorationWindow = (
 
 const boxFilter = (
   cdef: Av1FilterPlane,
-  window: Int32Array,
-  windowStride: number,
+  _window: Int32Array,
+  _windowStride: number,
   windowRadius: number,
   x: number,
   y: number,
@@ -932,26 +1016,6 @@ const boxFilter = (
   const depthShift = bitDepth - 8
   const scale = Math.floor((2 ** 20 + Math.floor(nSquaredEpsilon / 2)) / nSquaredEpsilon)
   const oneOverN = Math.floor((2 ** 12 + Math.floor(n / 2)) / n)
-  const windowRows = height + 2 + 2 * windowRadius
-  const windowColumns = width + 2 + 2 * windowRadius
-  for (let row = 0; row < windowRows; row += 1) {
-    const windowRow = row * windowStride
-    const prefixRow = (row + 1) * prefixStride
-    const previousPrefixRow = row * prefixStride
-    for (let column = 0; column < windowColumns; column += 1) {
-      const sample = window[windowRow + column] ?? 0
-      prefixSums[prefixRow + column + 1] =
-        (prefixSums[previousPrefixRow + column + 1] ?? 0) +
-        (prefixSums[prefixRow + column] ?? 0) -
-        (prefixSums[previousPrefixRow + column] ?? 0) +
-        sample
-      prefixSquares[prefixRow + column + 1] =
-        (prefixSquares[previousPrefixRow + column + 1] ?? 0) +
-        (prefixSquares[prefixRow + column] ?? 0) -
-        (prefixSquares[previousPrefixRow + column] ?? 0) +
-        sample * sample
-    }
-  }
   for (let inputRow = -1; inputRow <= height; inputRow += 1) {
     for (let inputColumn = -1; inputColumn <= width; inputColumn += 1) {
       const centerRow = inputRow + 1 + windowRadius
@@ -981,30 +1045,89 @@ const boxFilter = (
       bValues[target] = b
     }
   }
-  for (let row = 0; row < height; row += 1) {
-    const shift = pass === 0 && (row & 1) === 1 ? 4 : 5
-    for (let column = 0; column < width; column += 1) {
-      let a = 0
-      let b = 0
-      for (let deltaY = -1; deltaY <= 1; deltaY += 1) {
-        for (let deltaX = -1; deltaX <= 1; deltaX += 1) {
-          const weight =
-            pass === 0
-              ? ((row + deltaY) & 1) === 1
-                ? deltaX === 0
-                  ? 6
-                  : 5
-                : 0
-              : deltaX === 0 || deltaY === 0
-                ? 4
-                : 3
-          const source = (row + deltaY + 1) * boxWidth + column + deltaX + 1
-          a += weight * (aValues[source] ?? 0)
-          b += weight * (bValues[source] ?? 0)
+  const cdefData = cdef.data
+  const cdefStride = cdef.stride
+  if (pass === 0) {
+    for (let row = 0; row < height; row += 1) {
+      const oddRow = (row & 1) === 1
+      const shift = oddRow ? 4 : 5
+      const cdefRow = (y + row) * cdefStride + x
+      const row0 = row * boxWidth
+      const row1 = row0 + boxWidth
+      const row2 = row1 + boxWidth
+      for (let column = 0; column < width; column += 1) {
+        let a = 0
+        let b = 0
+        if (oddRow) {
+          const origin = row1 + column
+          a =
+            5 * (aValues[origin] ?? 0) +
+            6 * (aValues[origin + 1] ?? 0) +
+            5 * (aValues[origin + 2] ?? 0)
+          b =
+            5 * (bValues[origin] ?? 0) +
+            6 * (bValues[origin + 1] ?? 0) +
+            5 * (bValues[origin + 2] ?? 0)
+        } else {
+          const top = row0 + column
+          const bottom = row2 + column
+          a =
+            5 *
+              ((aValues[top] ?? 0) +
+                (aValues[top + 2] ?? 0) +
+                (aValues[bottom] ?? 0) +
+                (aValues[bottom + 2] ?? 0)) +
+            6 * ((aValues[top + 1] ?? 0) + (aValues[bottom + 1] ?? 0))
+          b =
+            5 *
+              ((bValues[top] ?? 0) +
+                (bValues[top + 2] ?? 0) +
+                (bValues[bottom] ?? 0) +
+                (bValues[bottom + 2] ?? 0)) +
+            6 * ((bValues[top + 1] ?? 0) + (bValues[bottom + 1] ?? 0))
         }
+        filtered[row * width + column] = round2(
+          a * (cdefData[cdefRow + column] ?? 0) + b,
+          8 + shift - 4,
+        )
       }
-      const center = cdef.data[(y + row) * cdef.stride + x + column] ?? 0
-      filtered[row * width + column] = round2(a * center + b, 8 + shift - 4)
+    }
+    return
+  }
+  for (let row = 0; row < height; row += 1) {
+    const cdefRow = (y + row) * cdefStride + x
+    const row0 = row * boxWidth
+    const row1 = row0 + boxWidth
+    const row2 = row1 + boxWidth
+    for (let column = 0; column < width; column += 1) {
+      const top = row0 + column
+      const middle = row1 + column
+      const bottom = row2 + column
+      const a =
+        3 *
+          ((aValues[top] ?? 0) +
+            (aValues[top + 2] ?? 0) +
+            (aValues[bottom] ?? 0) +
+            (aValues[bottom + 2] ?? 0)) +
+        4 *
+          ((aValues[top + 1] ?? 0) +
+            (aValues[middle] ?? 0) +
+            (aValues[middle + 1] ?? 0) +
+            (aValues[middle + 2] ?? 0) +
+            (aValues[bottom + 1] ?? 0))
+      const b =
+        3 *
+          ((bValues[top] ?? 0) +
+            (bValues[top + 2] ?? 0) +
+            (bValues[bottom] ?? 0) +
+            (bValues[bottom + 2] ?? 0)) +
+        4 *
+          ((bValues[top + 1] ?? 0) +
+            (bValues[middle] ?? 0) +
+            (bValues[middle + 1] ?? 0) +
+            (bValues[middle + 2] ?? 0) +
+            (bValues[bottom + 1] ?? 0))
+      filtered[row * width + column] = round2(a * (cdefData[cdefRow + column] ?? 0) + b, 9)
     }
   }
 }
@@ -1054,6 +1177,26 @@ const restoreSelfGuidedBlock = (
       window,
       windowStride,
     )
+    const windowRows = height + 2 + 2 * windowRadius
+    const windowColumns = width + 2 + 2 * windowRadius
+    for (let row = 0; row < windowRows; row += 1) {
+      const windowRow = row * windowStride
+      const prefixRow = (row + 1) * prefixStride
+      const previousPrefixRow = row * prefixStride
+      for (let column = 0; column < windowColumns; column += 1) {
+        const sample = window[windowRow + column] ?? 0
+        prefixSums[prefixRow + column + 1] =
+          (prefixSums[previousPrefixRow + column + 1] ?? 0) +
+          (prefixSums[prefixRow + column] ?? 0) -
+          (prefixSums[previousPrefixRow + column] ?? 0) +
+          sample
+        prefixSquares[prefixRow + column + 1] =
+          (prefixSquares[previousPrefixRow + column + 1] ?? 0) +
+          (prefixSquares[prefixRow + column] ?? 0) -
+          (prefixSquares[previousPrefixRow + column] ?? 0) +
+          sample * sample
+      }
+    }
   }
   boxFilter(
     cdef,

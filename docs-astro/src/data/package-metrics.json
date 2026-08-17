@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.11.0",
-    "unpackedPackageBytes": 5033762,
+    "unpackedPackageBytes": 5042499,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -1240,13 +1240,13 @@
         "packageExports": ["purejsimage/codecs/avif"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/avif.ts"]
       },
-      "gzipBytes": 173588,
+      "gzipBytes": 174419,
       "id": "codec-avif",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 456228,
+      "minifiedJsBytes": 458265,
       "name": "Core + AVIF",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 148762
+      "brotliBytes": 149582
     },
     {
       "category": "purejsimage-entry",
@@ -1346,13 +1346,13 @@
         "packageExports": ["purejsimage/codecs/web"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/web.ts"]
       },
-      "gzipBytes": 224885,
+      "gzipBytes": 225774,
       "id": "codecs-web",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 609483,
+      "minifiedJsBytes": 611536,
       "name": "Core + common web codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 189542
+      "brotliBytes": 189652
     },
     {
       "category": "purejsimage-entry",
@@ -1377,13 +1377,13 @@
         "packageExports": ["purejsimage/codecs/all"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
       },
-      "gzipBytes": 307768,
+      "gzipBytes": 308612,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 875171,
+      "minifiedJsBytes": 877195,
       "name": "Core + all stable codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 254120
+      "brotliBytes": 255059
     },
     {
       "category": "competitor",
@@ -1422,13 +1422,13 @@
       "entry": {
         "packageExports": ["purejsimage/codecs/all"]
       },
-      "gzipBytes": 307768,
+      "gzipBytes": 308612,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 875171,
+      "minifiedJsBytes": 877195,
       "name": "PureJsImage (all stable codecs)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 254120
+      "brotliBytes": 255059
     },
     {
       "category": "competitor",
