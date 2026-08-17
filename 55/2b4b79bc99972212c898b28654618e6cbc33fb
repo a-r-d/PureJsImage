@@ -1,0 +1,68 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 9-14
+README.md
+  h_9f4a25732fa0c1 68-69,245,253,275-276
+benchmark/README.md
+  h_9f4a25732fa0c1 383-386
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,1243,1246,1249,1349,1352,1355,1380,1383,1386,1425,1428,1431
+benchmark/optimization-log.md
+  h_9f4a25732fa0c1 190-198,208-218
+benchmark/results/2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md
+  h_9f4a25732fa0c1 1-189
+benchmark/results/public/index.json
+  h_9f4a25732fa0c1 3,40-41,44-45,58-59,62-63,67-68
+benchmark/results/public/index.md
+  h_9f4a25732fa0c1 8
+benchmark/results/public/web-codecs-2026-08-17T16-53-43-390Z.json
+  h_9f4a25732fa0c1 1-912
+benchmark/results/public/web-codecs-2026-08-17T16-53-43-390Z.md
+  h_9f4a25732fa0c1 1-12
+benchmark/results/web-codecs-memory-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-178
+benchmark/results/web-codecs-quality-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-113
+benchmark/results/web-codecs-speed-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-180
+benchmark/scripts/render-competitor-charts.ts
+  h_9f4a25732fa0c1 1,340-342,357-358,369-371,373-377,379-381
+docs-astro/public/assets/readme/web-codec-memory.svg
+  h_9f4a25732fa0c1 1-178
+docs-astro/public/assets/web-codecs-memory-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-178
+docs-astro/public/assets/web-codecs-quality-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-113
+docs-astro/public/assets/web-codecs-speed-2026-08-17T16-53-43-390Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-180
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 102-104,107-109,117,129-143,145,150,155,194-196,199-200
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,1243,1246,1249,1349,1352,1355,1380,1383,1386,1425,1428,1431
+docs-astro/src/pages/index.astro
+  h_9f4a25732fa0c1 14,19-20,28,33-34,41,45-46
+docs-astro/src/pages/performance.astro
+  h_9f4a25732fa0c1 21,24-25,33,36-37,44,47-48
+scripts/render-documentation.ts
+  h_9f4a25732fa0c1 733-740,743-757,1040-1043,1166,1205-1206
+scripts/render-public-benchmark-results.ts
+  h_9f4a25732fa0c1 193-201
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 4517-4547,4857-4897
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 842-894,899-911,915,917-925,928,953-972,993-994,1048-1087,1089-1092,1094-1130,1180-1199
+src/codecs/av1-transform.ts
+  h_9f4a25732fa0c1 44-49,61-65,79-82,244-245,247-248,260,273-274,276-277,304,336,355-359,393-394,400,453,461,473,512
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 311,318-320,329,336-343
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "552b4b79bc99972212c898b28654618e6cbc33fb",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

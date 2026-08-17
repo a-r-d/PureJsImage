@@ -1,0 +1,42 @@
+README.md
+  h_9f4a25732fa0c1 245
+benchmark/results/2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json
+  h_9f4a25732fa0c1 1-16765
+benchmark/results/2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md
+  h_9f4a25732fa0c1 1-189
+benchmark/results/public/index.json
+  h_9f4a25732fa0c1 3,40-41,58-59,62-63,67-68
+benchmark/results/public/index.md
+  h_9f4a25732fa0c1 8
+benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.json
+  h_9f4a25732fa0c1 1-912
+benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.md
+  h_9f4a25732fa0c1 1-12
+benchmark/results/web-codecs-memory-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 48-49,51-52,54-55,57-58,60-61,63-64,66-67,71-72,74-75,77-78,80-81,83-84,86-87,89-90,94-95,97-98,102-103,105-106,110-111,115-116,118-119,121-122,124-125,127-128,130-131,137-138,140-141,145-146,148-149,153-154,158-159,161-162,166-167,169-170,174-175,177
+benchmark/results/web-codecs-quality-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 112
+benchmark/results/web-codecs-speed-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 50-51,53-54,56-57,59-60,62-63,65-66,68-69,73-74,76-77,79-80,82-83,85-86,88-89,91-92,96-97,99-100,104-105,107-108,112-113,117-118,120-121,123-124,126-127,129-130,132-133,139-140,142-143,147-148,150-151,155-156,160-161,163-164,168-169,171-172,176-177,179
+docs-astro/public/assets/readme/web-codec-memory.svg
+  h_9f4a25732fa0c1 48-49,51-52,54-55,57-58,60-61,63-64,66-67,71-72,74-75,77-78,80-81,83-84,86-87,89-90,94-95,97-98,102-103,105-106,110-111,115-116,118-119,121-122,124-125,127-128,130-131,137-138,140-141,145-146,148-149,153-154,158-159,161-162,166-167,169-170,174-175,177
+docs-astro/public/assets/web-codecs-memory-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-178
+docs-astro/public/assets/web-codecs-quality-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-113
+docs-astro/public/assets/web-codecs-speed-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  h_9f4a25732fa0c1 1-180
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 131,136,141,145,194-196,199-200
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "bf9f941854fb3253d4b142a43d4675aab867b75f",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
