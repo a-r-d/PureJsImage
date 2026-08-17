@@ -48,6 +48,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Speed up first-party AVIF loop restoration by specializing the 8-bit SGR box filter, restoring
+  8-bit SGR/Wiener as unit-width tiles in 8-row bands, and applying interior Wiener 7-tap filters
+  directly from the CDEF plane. Local `avif-fox-resize-jpeg` fell from 838 ms to 623 ms (−25%) with
+  an exact output hash; neighbor `avif-fox-full-png` improved 18%. High-bit restoration stays on
+  4-wide 4-row tiles so Int32 prefix squares do not overflow. The Imazen AVIF survey stayed 36/36
+  decoded with maximum RGB error 2.
 - Fuse 8-bit AC Huffman prefix decoding into scaled JPEG block decode. Local `jpeg-resize-1200`
   fell from 543 ms to 511 ms (−7%) with an exact bitstream hash; neighbor `jpeg-crop-resize`
   improved 3.9% and `northstar-photo-pipeline` improved 3.4%. Imazen JPEG stayed 39 pass / 2

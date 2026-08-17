@@ -64,6 +64,27 @@ repeat a dead end without new evidence.
 - Neighbor `northstar-photo-pipeline` after JPEG-037: exact hash, 778 → 752 ms
   (−3.35%).
 
+## AVIF fox-resize campaign
+
+- Workload: `avif-fox-resize-jpeg` — 1204x800 profile0 4:2:0 AVIF, resize 800,
+  JPEG 80. Goal is end-to-end speed versus Sharp (official 802 vs 49 ms, ~16×).
+- Retained `AVIF-014`: 8-bit SGR `boxFilter`. 828 → 769 ms (−7.11%).
+- Rejected `AVIF-015`: prefix-from-CDEF on 4x4 interiors was noise vs 014.
+- Retained `AVIF-016`: restore 8-bit unit-width × 4-row tiles. 838 → 646 ms
+  (−22.91%) vs HEAD, exact hash, 7/7 pairs faster. High-bit stays 4-wide
+  because Int32 prefix squares overflow on wide 10/12-bit windows.
+- Retained `AVIF-020`: Wiener interior from CDEF. Incremental ~646 → 638 ms.
+- Retained `AVIF-021`: 8-row 8-bit restoration bands. 15-trial 835 → 623 ms
+  (−25.36% vs HEAD), 15/15 pairs faster.
+- Versus Sharp (~49 ms) the primary is now ~623 ms (~12.7×). Need ~490 ms
+  for a 10× gap.
+- Neighbor `avif-fox-full-png` on AVIF-014+016+020+021: 983 → 810 ms (−17.56%),
+  exact hash. Artifact `.tmp/hillclimb/2026-08-17T22-06-20-423Z/comparison.md`.
+- Handoff: `fixtures:avif:post-filters` matched dav1d/libaom YUV hashes (tolerance 0),
+  including fox. Imazen AVIF survey 36/36 decoded, max RGB error 2, min PSNR
+  52.21 dB (`.tmp/imazen-avif-021/`). `npm run check` passed (134 files, 1587
+  tests). Core API stayed 60.0 KiB.
+
 ## Northstar scaled-decode campaign
 
 | ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
@@ -294,6 +315,15 @@ CPU samples put `boxFilter` (35%), `restoreWienerBlock` (9%), and
 | AVIF-011 | 2026-08-17 16:32 | Specialize 4:2:0 chroma upsample and hoist plane pointers in `av1ToRgbaRegion`. | 1127.48 → 828.65 | -26.50% | -0.73% | material | Retained on the AVIF-005–008+010 stack; photo hashes matched. |
 | AVIF-012 | 2026-08-17 16:35 | Specialize 8-bit Wiener 7-tap rounding and clamping. | 1141.81 → 802.34 | -29.73% | +0.87% | material | Retained; photo and high-bit restoration hashes matched. Neighbor `avif-fox-full-png` 1312.74 → 987.77 (−24.76%). |
 | AVIF-013 | 2026-08-17 16:37 | Copy interior restoration windows with `TypedArray.set()`. | 1134.64 → 923.45 | -18.61% | +0.82% | rejected | Reverted; per-row `subarray`/`set` allocations lost ~120 ms versus AVIF-012. |
+| AVIF-014 | 2026-08-17 21:26 | Specialize 8-bit SGR `boxFilter`: drop bit-depth rounding and inline `round2` as shifts. | 827.92 → 769.02 | **-7.11%** | -0.69% | material | Retained. Exact hash. |
+| AVIF-015 | 2026-08-17 21:28 | Build SGR prefixes from the CDEF plane for interior 4x4 blocks; skip the Int32 window copy. | 838.04 → 765.76 | **-8.62%** vs HEAD (~0% vs AVIF-014) | -0.09% | rejected | Reverted. Incremental vs AVIF-014 was noise (MAD 17.5 ms). |
+| AVIF-016 | 2026-08-17 21:38 | Restore 8-bit SGR/Wiener as unit-width × 4-row tiles instead of 4x4. High-bit stays 4-wide so Int32 prefix squares do not overflow. | 838.46 → 646.38 | **-22.91%** | +1.25% | material | Retained on AVIF-014. Exact hash, 7/7 pairs faster. First 12-bit draft overflowed prefix squares; capped high-bit tiles. |
+| AVIF-017 | 2026-08-17 21:48 | Replace `boxFilter8` `a`-from-`z` division with a 256-entry LUT. | 799.78 → 639.02 | **-20.10%** vs HEAD (~0% vs AVIF-016 646 ms) | -0.79% | neutral | Reverted. Incremental vs 016 was noise (candidate 639 vs 646, MAD ~10 ms). |
+| AVIF-018 | 2026-08-17 21:52 | Inline 8-bit 4:2:0 YUV convert; hoist range/matrix scales out of the per-pixel closure. | 885.16 → 684.69 | **-22.65%** vs HEAD (~0% vs AVIF-016; noisy) | +2.54% | neutral | Reverted. Base MAD 25 ms; incremental vs 016 not credible. |
+| AVIF-019 | 2026-08-17 21:54 | Retry prefix-from-CDEF on unit-width 8-bit interiors (windows ~26× larger than AVIF-015). | 815.60 → 678.27 | incomparable | -0.51% | inconclusive | Reverted. Host CV >10%; incremental vs 016 (646 ms) not shown. |
+| AVIF-020 | 2026-08-17 21:57 | Wiener 8-bit interior: 7-tap from CDEF, skip the Int32 window gather. | 789.84 → 638.45 | **-19.17%** vs HEAD (~−1.2% vs AVIF-016) | -1.10% | promising | Retained. Exact hash, candidate MAD 5.4 ms. Deterministic copy skip. |
+| AVIF-021 | 2026-08-17 22:01 | Restore 8-bit frames in 8-row bands (12-bit stays 4-row so prefix squares fit Int32). | 834.62 → 622.96 | **-25.36%** vs HEAD (~−2.4% vs AVIF-020) | -0.84% | promising | Retained. 15-trial, 15/15 pairs faster, paired MAD 1.49%. Runner incomparable from two host-load outliers. Exact hash. |
+| AVIF-022 | 2026-08-17 22:07 | Restore 8-bit frames in 32-row bands. | n/a | n/a | n/a | rejected | Reverted. 32-row tiles cross the AV1 stripe boundary at luma row 56 and apply the wrong stripe pad. 8-row is the largest power-of-two that stays inside a stripe. |
 
 Measurement artifacts:
 
@@ -314,6 +344,15 @@ Measurement artifacts:
 - AVIF-012: `.tmp/hillclimb/2026-08-17T16-35-10-828Z/comparison.md`
 - Neighbor `avif-fox-full-png` after AVIF-012: `.tmp/hillclimb/2026-08-17T16-36-16-232Z/comparison.md`
 - AVIF-013: `.tmp/hillclimb/2026-08-17T16-37-42-282Z/comparison.md`
+- AVIF-014: `.tmp/hillclimb/2026-08-17T21-26-52-491Z/comparison.md`
+- AVIF-015: `.tmp/hillclimb/2026-08-17T21-28-50-632Z/comparison.md`
+- AVIF-016: `.tmp/hillclimb/2026-08-17T21-38-47-182Z/comparison.md`
+- AVIF-017: `.tmp/hillclimb/2026-08-17T21-48-02-138Z/comparison.md`
+- AVIF-018: `.tmp/hillclimb/2026-08-17T21-52-09-456Z/comparison.md`
+- AVIF-019: `.tmp/hillclimb/2026-08-17T21-54-28-613Z/comparison.md`
+- AVIF-020: `.tmp/hillclimb/2026-08-17T21-57-08-537Z/comparison.md`
+- AVIF-021 7-trial: `.tmp/hillclimb/2026-08-17T22-00-45-800Z/comparison.md`
+- AVIF-021 15-trial: `.tmp/hillclimb/2026-08-17T22-01-57-921Z/comparison.md`
 - Profiles: `.tmp/cpu-avif/`
 
 Measurement artifacts:
