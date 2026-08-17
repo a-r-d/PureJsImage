@@ -557,24 +557,26 @@ await writeFile(markdownPath, markdown.join('\n'))
 console.log(`JSON: ${jsonPath}`)
 console.log(`Markdown: ${markdownPath}`)
 
-const publishedSpeed = await checkPublishedSpeed({
-  repositoryDirectory,
-  profile: options.profile,
-  results,
-})
-if (publishedSpeed.snapshotPath !== null) {
-  console.log(
-    `Published speed check: ${publishedSpeed.compared} pair(s) compared to ${publishedSpeed.snapshotPath}`,
-  )
-} else if (publishedSpeed.skippedReason?.startsWith('no headline public snapshot') === true) {
-  console.warn(`Published speed check skipped: ${publishedSpeed.skippedReason}`)
-}
-if (publishedSpeed.regressions.length > 0) {
-  console.error(formatPublishedSpeedBanner(publishedSpeed))
-  if (options.allowSpeedRegression) {
-    console.error('Continuing because --allow-speed-regression was passed.')
-  } else {
-    process.exitCode = 1
+if (options.workflow === undefined) {
+  const publishedSpeed = await checkPublishedSpeed({
+    repositoryDirectory,
+    profile: options.profile,
+    results,
+  })
+  if (publishedSpeed.snapshotPath !== null) {
+    console.log(
+      `Published speed check: ${publishedSpeed.compared} pair(s) compared to ${publishedSpeed.snapshotPath}`,
+    )
+  } else if (publishedSpeed.skippedReason?.startsWith('no headline public snapshot') === true) {
+    console.warn(`Published speed check skipped: ${publishedSpeed.skippedReason}`)
+  }
+  if (publishedSpeed.regressions.length > 0) {
+    console.error(formatPublishedSpeedBanner(publishedSpeed))
+    if (options.allowSpeedRegression) {
+      console.error('Continuing because --allow-speed-regression was passed.')
+    } else {
+      process.exitCode = 1
+    }
   }
 }
 

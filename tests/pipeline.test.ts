@@ -139,6 +139,57 @@ describe('immutable image pipelines', () => {
       code: 'UNSUPPORTED_OPERATION',
     })
   })
+
+  it('releases decoder pixel blocks after a direct encode', async () => {
+    let released = 0
+    const pixels = Uint8Array.of(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
+    const codec: ImageCodec = {
+      format: 'release-fixture',
+      mimeTypes: ['image/x-release-fixture'],
+      minimumBytes: 1,
+      detect: (header) => header[0] === 0x52,
+      metadata: async () => ({
+        width: 2,
+        height: 2,
+        format: 'release-fixture',
+        mimeType: 'image/x-release-fixture',
+        hasAlpha: false,
+      }),
+      createDecoder: async () => ({
+        width: 2,
+        height: 2,
+        pixelFormat: 'rgb8',
+        capabilities: {
+          sequential: true,
+          regionDecode: true,
+          scaledDecode: false,
+          progressive: false,
+        },
+        async *decode(): AsyncGenerator<PixelBlock> {
+          yield {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 2,
+            stride: 6,
+            format: 'rgb8',
+            data: pixels,
+            release: () => {
+              released += 1
+            },
+          }
+        },
+      }),
+      createEncoder: async () => ({
+        async write(): Promise<void> {},
+        async finish(): Promise<void> {},
+      }),
+    }
+    const image = await createImageLibrary([codec]).open(Uint8Array.of(0x52))
+    await image.toBuffer()
+    expect(released).toBe(1)
+  })
+
   it('applies an explicit grayscale window before a color LUT', async () => {
     const captured: PixelBlock[] = []
     const codec: ImageCodec = {

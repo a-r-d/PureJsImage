@@ -380,11 +380,12 @@ npm run bench:web-codecs
 npm run bench:web-codecs:charts
 ```
 
-After writing the report, `web-codecs` and `competitors` compare every
-pass/pass engine+workflow wall median against the current headline snapshot in
-`benchmark/results/public/`. A pair more than 10% slower than a baseline of at
-least 50 ms prints a loud banner and exits 1. Metadata-scale jobs stay under
-that floor so millisecond jitter cannot trip the gate. Pass
+After writing a full-profile report, `web-codecs` and `competitors` compare
+every pass/pass engine+workflow wall median against the current headline
+snapshot in `benchmark/results/public/`. A pair more than 10% slower than a
+baseline of at least 50 ms prints a loud banner and exits 1. Single-workflow
+runs used by hillclimb are not gated. Metadata-scale jobs stay under that
+floor so millisecond jitter cannot trip the gate. Pass
 `--allow-speed-regression` to keep the banner but continue, for example after
 confirming a loaded machine or an intentional change.
 

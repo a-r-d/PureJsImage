@@ -94,34 +94,34 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 206853,
-      "gzipBytes": 258999,
-      "minifiedBytes": 869601
+      "brotliBytes": 206910,
+      "gzipBytes": 259443,
+      "minifiedBytes": 871067
     },
     "allStableCodecs": {
-      "brotliBytes": 255059,
-      "gzipBytes": 308612,
-      "minifiedBytes": 877195
+      "brotliBytes": 255350,
+      "gzipBytes": 309003,
+      "minifiedBytes": 878688
     },
     "commonWebCodecs": {
-      "brotliBytes": 189652,
-      "gzipBytes": 225774,
-      "minifiedBytes": 611536
+      "brotliBytes": 189986,
+      "gzipBytes": 226234,
+      "minifiedBytes": 613023
     },
     "core": {
-      "brotliBytes": 17171,
-      "gzipBytes": 19388,
-      "minifiedBytes": 61385
+      "brotliBytes": 17134,
+      "gzipBytes": 19394,
+      "minifiedBytes": 61411
     },
     "installedPackage": {
-      "bytes": 5042499,
+      "bytes": 5048336,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
     "scientificPlatform": {
-      "brotliBytes": 39132,
-      "gzipBytes": 45816,
-      "minifiedBytes": 157982
+      "brotliBytes": 39109,
+      "gzipBytes": 45822,
+      "minifiedBytes": 158008
     }
   },
   "ordinary": {

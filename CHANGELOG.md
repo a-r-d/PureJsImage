@@ -6,6 +6,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Speed up JPEG-to-PNG conversion by recycling decoder row buffers after encode, specializing
+  adaptive PNG filter scoring for RGB8, and skipping bilinear luma interpolation when luma is
+  already full resolution. Official `jpeg-to-png` fell from 552 ms to 444 ms (−20%) with a 6.5%
+  peak-RSS drop on the recycle path; neighbor `jpeg-resize-1200` improved 4.5%. Output hashes and
+  the Imazen JPEG/PNG corpora were unchanged.
+- Fail full official `web-codecs` and `competitors` benchmark runs when any matched pass/pass wall
+  median is more than 10% slower than the published headline snapshot. Single-workflow hillclimb
+  runs are not gated.
 - Publish web-codec and competitor benchmark charts as SVG instead of rasterizing them to PNG.
 - Speed up first-party AVIF decode after the retained restoration gather/prefix work: hoist SGR
   prefixes, unroll Wiener and SGR blend, copy interior CDEF windows, reuse inverse-transform

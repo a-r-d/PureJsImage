@@ -421,9 +421,13 @@ export const executePipeline = async (
           }),
     })
     for await (const block of blocks) {
-      throwIfAborted(options.signal)
-      await encoder.write(block)
-      throwIfAborted(options.signal)
+      try {
+        throwIfAborted(options.signal)
+        await encoder.write(block)
+        throwIfAborted(options.signal)
+      } finally {
+        block.release?.()
+      }
     }
     await encoder.finish()
     throwIfAborted(options.signal)

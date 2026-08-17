@@ -7,21 +7,20 @@ repeat a dead end without new evidence.
 
 ## Current state
 
-- Primary workload: `northstar-photo-pipeline` — 6000x4000 JPEG, center crop,
-  resize to 1200x900, JPEG quality 80.
-- Goal: end-to-end speed. The default material threshold is 3% speed or 5%
-  peak-RSS improvement, with correctness and protected metrics unchanged.
-- Current baseline: `4496dff` (`perf(jpeg): accelerate entropy Huffman decoding`),
-  retaining the IDCT change from `932270e`, the marker-safe entropy and
-  8-bit-prefix Huffman changes from `JPEG-007`, and the unrolled IDCT kernel
-  retained by `JPEG-019`.
-- All measurements below passed support, correctness, operation-signature,
-  environment, fixture, and protected-output checks. `outputBytes` stayed at
-  zero percent delta in every comparison.
-- CPU samples in `.tmp/cpu-northstar-2/` put `inverseDct`, `decodeHuffman`,
-  `applyRgbIcc`, `decodeBaselineJpeg`, `renderYcbcrRows`, and `resizedBlocks`
-  among the sampled hot functions. The next useful experiment should remove
-  meaningful work or fuse stages, rather than repeat accessor aliases.
+- Primary workload: `jpeg-to-png` — 2400x2400 Earthrise JPEG decoded to PNG
+  compression level 6. Official snapshot was 541 ms / 228 MiB.
+- Goals: memory (5% peak RSS) and speed (3% wall). Protected `outputBytes`
+  stayed at 1,702,021 in every comparison.
+- Retained stack versus `0ea2665`: release decoded pixel blocks after encode
+  (`JPEG-PNG-001`), specialize PNG adaptive filter scoring for RGB8
+  (`JPEG-PNG-002`), and skip full-resolution luma bilinear in 4:2:0 YCbCr
+  (`JPEG-PNG-003`). Scanline-buffer reuse (`JPEG-PNG-004`) was reverted.
+- Cumulative `jpeg-to-png` after JPEG-PNG-003: 552.34 → 443.88 ms (−19.64%,
+  paired −19.26%, 7/7 faster). Isolated JPEG-PNG-001 memory 252.42 → 235.94 MiB
+  (−6.53%). Neighbor `jpeg-resize-1200` 771.08 → 736.46 ms (−4.49%).
+- CPU samples in `.tmp/cpu-jpeg-png/` put `renderYcbcrRows` (~25%),
+  `filterScanline` (~20%), and `inverseDct` (~8%) at the top. Earthrise is
+  4:2:0 YCbCr with no ICC. The remaining convert cost is chroma bilinear.
 
 ## JPEG speed campaign
 
@@ -363,6 +362,58 @@ Two no-change controls help separate benchmark noise from code effects:
 | --- | --- | ---: | ---: | --- |
 | 2026-08-16 22:32 | Clean revision against itself | +0.67% | -0.39% | `.tmp/hillclimb/2026-08-16T22-32-52-267Z/comparison.md` |
 | 2026-08-16 23:44 | Retained IDCT commit, fresh repeat | -0.38% | -0.14% | `.tmp/hillclimb/2026-08-16T23-44-09-993Z/comparison.md` |
+
+## JPEG-to-PNG campaign
+
+Official workload: `jpeg-to-png` — 2400x2400 baseline 4:2:0 JPEG to PNG 6.
+No crop or resize. The executor streams MCU rows into the PNG encoder, but it
+did not call `block.release()`, so JPEG's recycled RGB row buffers were never
+returned. PNG adaptive filtering and 4:2:0 YCbCr conversion dominate remaining
+JS time. Native zlib does not appear in CPU profiles.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| JPEG-PNG-000 | 2026-08-17 18:08 | No-change control: dirty-empty `HEAD` against itself. | 545.68 → 549.48 | +0.70% | +0.27% | neutral | Control; no source change. |
+| JPEG-PNG-001 | 2026-08-17 18:10 | Release decoder pixel blocks after `encoder.write()` so JPEG row buffers recycle. | 551.25 → 555.42 | +0.76% | **-6.53%** | material | Retained; RSS MAD tightened 3.7 MiB → 0.6 MiB. Exact output bytes. |
+| JPEG-PNG-002 | 2026-08-17 18:13 | Specialize adaptive PNG filter scoring for RGB8 (`bytesPerPixel === 3`). | 549.62 → 530.85 | **-3.42%** | +0.98% | material | Retained on the JPEG-PNG-001 stack; exact filter choice and output bytes. |
+| JPEG-PNG-003 | 2026-08-17 18:15 | Skip bilinear luma interpolation when luma sampling is already full resolution (4:2:0 / 4:2:2). | 552.34 → 443.88 | **-19.64%** | +3.02% | material | Retained; 7/7 pairs faster, paired −19.26%. JPEG tests passed. |
+| JPEG-PNG-004 | 2026-08-17 18:16 | Reuse one PNG scanline buffer across 32-row chunks. | n/a | n/a | n/a | rejected | Reverted; Node zlib holds the written buffer, so reuse corrupted later rows. |
+
+Measurement artifacts:
+
+- JPEG-PNG-000: `.tmp/hillclimb/2026-08-17T18-08-34-231Z/comparison.md`
+- JPEG-PNG-001: `.tmp/hillclimb/2026-08-17T18-10-27-951Z/comparison.md`
+- JPEG-PNG-002: `.tmp/hillclimb/2026-08-17T18-13-14-061Z/comparison.md`
+- JPEG-PNG-003: `.tmp/hillclimb/2026-08-17T18-15-05-515Z/comparison.md`
+- Neighbor `jpeg-resize-1200`: `.tmp/hillclimb/2026-08-17T18-16-50-420Z/comparison.md`
+- Profile: `.tmp/cpu-jpeg-png/jpeg-to-png.cpuprofile`
+
+The published-snapshot 10% speed gate now runs only on full official profiles.
+Single-workflow hillclimb trials were aborting the base harness when one noisy
+sample exceeded the public snapshot.
+
+### JPEG-PNG-003 neighboring validation
+
+The retained stack also passed `jpeg-resize-1200`: wall median 771.08 →
+736.46 ms (−4.49%), peak RSS −0.76%. Correctness and protected output bytes
+matched.
+
+Imazen JPEG stayed 254 images, 39 pass / 2 unsupported / 167 rejected-safely /
+46 accepted, with 0 decode failures, raw exceptions, timeouts, crashes, or OOM.
+Imazen PNG stayed 176 images, 162 pass / 14 rejected-safely, with the same zero
+failure counts. Artifacts: `.tmp/imazen-jpeg-png/`.
+
+Quiet `jpeg-crop-resize` and `png-resize-1000` neighbors were incomparable
+(CV > 10%) but correctness and output bytes matched. Isolated medians were
+740.44 → 751.31 ms (+1.47%, RSS +4.17%) and 525.34 → 519.37 ms (−1.14%, RSS
++2.72%). Neither exceeded the 5% protected regression limit.
+
+Reproduction:
+
+```sh
+npm run bench:hillclimb -- --suite web --workload jpeg-to-png --goal memory --base-ref HEAD
+npm run bench:hillclimb -- --suite web --workload jpeg-to-png --goal speed --base-ref HEAD
+```
 
 ## Next hypotheses
 
