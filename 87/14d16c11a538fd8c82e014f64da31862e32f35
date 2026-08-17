@@ -1,0 +1,19 @@
+src/codecs/av1-transform.ts
+  s_72d57bced5e68c::t_97fbcecdb03290 48,461,500-512,516,524,527,529-540
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8714d16c11a538fd8c82e014f64da31862e32f35",
+  "prompts": {},
+  "sessions": {
+    "s_72d57bced5e68c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01182-c850-7440-b40b-8ea44fb3a86e",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
