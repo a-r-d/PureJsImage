@@ -18,7 +18,10 @@ All notable changes to PureJsImage are documented in this file.
   Blosc/zstd. The reader also accepts omitted v3 `chunk_key_encoding`, v2 null/omitted and
   string/hex `fill_value`s, F-order padded last chunks, numeric OMERO colors, UTF-8 BOM metadata,
   empty chunk objects, and zero-size shard payloads, honors big-endian shard indexes, and rejects
-  shard payloads that overlap the index. BloscLZ, Snappy, bitshuffle,
+  shard payloads that overlap the index. Clipped last chunks no longer fail when the nominal
+  chunk exceeds the decode budget; empty optional `.zattrs`, trailing dataset slashes, bare
+  one-byte NumPy dtypes, `numcodecs.*` codec ids, and case-insensitive NaN/Infinity fills are
+  accepted. BloscLZ, Snappy, bitshuffle,
   tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
   operations.
 

@@ -131,9 +131,15 @@ const codecName = (value: unknown): string => {
   return requiredString(value.name, 'Zarr codec name')
 }
 
+const normalizeCodecName = (name: string): string =>
+  name.startsWith('numcodecs.') ? name.slice('numcodecs.'.length) : name
+
 const parseCodec = (value: unknown): ZarrCodec => {
   if (typeof value === 'string') {
-    return Object.freeze({ name: value, configuration: Object.freeze({}) })
+    return Object.freeze({
+      name: normalizeCodecName(value),
+      configuration: Object.freeze({}),
+    })
   }
   if (!isRecord(value)) throw invalidInput('Zarr codec entry is invalid')
   const configuration = value.configuration
@@ -141,7 +147,7 @@ const parseCodec = (value: unknown): ZarrCodec => {
     throw invalidInput(`Zarr codec ${codecName(value)} configuration is invalid`)
   }
   return Object.freeze({
-    name: requiredString(value.name, 'Zarr codec name'),
+    name: normalizeCodecName(requiredString(value.name, 'Zarr codec name')),
     configuration: Object.freeze(configuration === undefined ? {} : { ...configuration }),
   })
 }
@@ -223,27 +229,39 @@ const parseFillValue = (
   let bytes: Uint8Array | undefined
   if (value === undefined || value === null) {
     numeric = floating && value === null ? Number.NaN : 0
-  } else if (value === 'NaN') {
-    if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-    numeric = Number.NaN
-  } else if (value === 'Infinity' || value === '-Infinity') {
-    if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-    numeric = value === 'Infinity' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
   } else if (typeof value === 'number' && Number.isFinite(value)) numeric = value
   else if (typeof value === 'boolean') numeric = value ? 1 : 0
   else if (typeof value === 'string') {
-    const hex = /^0x([0-9a-fA-F]+)$/u.exec(value)
-    if (hex !== null) {
-      if (floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
-      const bits = BigInt(`0x${hex[1]}`)
-      bytes = writeIntegerBits(bits, sampleType, littleEndian)
-      numeric = Number(bits)
+    const trimmed = value.trim()
+    const special = trimmed.toLowerCase()
+    if (special === 'nan') {
+      if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+      numeric = Number.NaN
+    } else if (
+      special === 'infinity' ||
+      special === '+infinity' ||
+      special === 'inf' ||
+      special === '+inf'
+    ) {
+      if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+      numeric = Number.POSITIVE_INFINITY
+    } else if (special === '-infinity' || special === '-inf') {
+      if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+      numeric = Number.NEGATIVE_INFINITY
     } else {
-      const parsed = Number(value.trim())
-      if (value.trim().length === 0 || !Number.isFinite(parsed)) {
-        throw invalidInput('Zarr fill_value is unsupported')
+      const hex = /^0x([0-9a-fA-F]+)$/u.exec(trimmed)
+      if (hex !== null) {
+        if (floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+        const bits = BigInt(`0x${hex[1]}`)
+        bytes = writeIntegerBits(bits, sampleType, littleEndian)
+        numeric = Number(bits)
+      } else {
+        const parsed = Number(trimmed)
+        if (trimmed.length === 0 || !Number.isFinite(parsed)) {
+          throw invalidInput('Zarr fill_value is unsupported')
+        }
+        numeric = parsed
       }
-      numeric = parsed
     }
   } else throw invalidInput('Zarr fill_value is unsupported')
   if (bytes === undefined) {
@@ -351,9 +369,9 @@ const parseNumpyDtype = (
   value: unknown,
 ): { readonly sampleType: RasterSampleType; readonly littleEndian: boolean } => {
   const descriptor = requiredString(value, 'Zarr v2 dtype')
-  const match = descriptor.match(/^([<>|=])([?uif])(1|2|4|8)$/u)
+  const match = descriptor.match(/^([<>|=])?([?uif])(1|2|4|8)$/u)
   if (match === null) throw unsupportedOperation(`Zarr v2 dtype ${descriptor} is unsupported`)
-  const order = match[1]
+  const order = match[1] ?? '|'
   const kind = match[2]
   const bytes = Number(match[3])
   if (kind === '?') throw unsupportedOperation('Zarr boolean dtypes are unsupported')
@@ -392,7 +410,7 @@ const parseNumpyDtype = (
 const parseV2Compressor = (value: unknown): ZarrCodec | undefined => {
   if (value === null || value === undefined) return undefined
   if (!isRecord(value)) throw invalidInput('Zarr v2 compressor is invalid')
-  const id = requiredString(value.id, 'Zarr v2 compressor id')
+  const id = normalizeCodecName(requiredString(value.id, 'Zarr v2 compressor id'))
   if (id !== 'gzip' && id !== 'zlib' && id !== 'zstd' && id !== 'blosc') {
     throw unsupportedOperation(`Zarr v2 compressor ${id} is unsupported`)
   }
@@ -405,7 +423,7 @@ const parseV2Filters = (value: unknown): readonly ZarrCodec[] => {
   return Object.freeze(
     value.map((filter, index) => {
       if (!isRecord(filter)) throw invalidInput(`Zarr v2 filter[${index}] is invalid`)
-      const id = requiredString(filter.id, `Zarr v2 filter[${index}].id`)
+      const id = normalizeCodecName(requiredString(filter.id, `Zarr v2 filter[${index}].id`))
       if (id !== 'shuffle') {
         throw unsupportedOperation(`Zarr v2 filter ${id} is unsupported`)
       }
@@ -764,15 +782,13 @@ const decodeBytesCodecs = async (
     }
     throw unsupportedOperation(`Zarr codec ${codec.name} is unsupported`)
   }
+  if (current.byteLength > limits.maxDecodedChunkBytes) {
+    throw limitExceeded(`Zarr decoded chunk exceeds ${limits.maxDecodedChunkBytes} bytes`)
+  }
   const expected = logicalShapes.map((shape) => ({
     shape,
     bytes: checkedProduct([...shape, sampleBytes], 'Zarr decoded chunk bytes'),
   }))
-  for (const candidate of expected) {
-    if (candidate.bytes > limits.maxDecodedChunkBytes) {
-      throw limitExceeded(`Zarr decoded chunk exceeds ${limits.maxDecodedChunkBytes} bytes`)
-    }
-  }
   const matched = expected.find((candidate) => candidate.bytes === current.byteLength)
   if (matched === undefined) {
     throw invalidInput(
@@ -867,6 +883,13 @@ const decodeShard = async (
   const indexEndian = indexCodecs.find((entry) => entry.name === 'bytes')?.configuration.endian
   const indexBytes = indexEndian === 'big' ? swapEndian(index.data, 8) : index.data
   const view = new DataView(indexBytes.buffer, indexBytes.byteOffset, indexBytes.byteLength)
+  for (let axis = 0; axis < counts.length; axis += 1) {
+    const coord = innerStart[axis] ?? 0
+    const limit = counts[axis] ?? 0
+    if (!Number.isSafeInteger(coord) || coord < 0 || coord >= limit) {
+      throw invalidInput('Zarr shard inner chunk index is outside the shard')
+    }
+  }
   let linear = 0
   let stride = 1
   for (let axis = counts.length - 1; axis >= 0; axis -= 1) {
@@ -1086,8 +1109,18 @@ class CompanionZarrStore implements ZarrStore {
 
   async readJsonOptional(relative: string, signal?: AbortSignal): Promise<unknown> {
     const resource = await this.resolve(relative, signal)
-    if (resource === undefined) return undefined
-    return this.readJson(relative, signal)
+    if (resource === undefined || resource.source.size === 0) return undefined
+    const bytes = await readExactly(resource.source, 0, resource.source.size, {
+      ...(signal === undefined ? {} : { signal }),
+    })
+    const text = decodeZarrJsonText(bytes)
+    if (text === undefined) throw invalidInput(`Zarr metadata ${relative} is not valid UTF-8`)
+    if (text.trim().length === 0) return undefined
+    try {
+      return JSON.parse(text) as unknown
+    } catch {
+      throw invalidInput(`Zarr metadata ${relative} is not valid JSON`)
+    }
   }
 
   async openArray(relative: string, signal?: AbortSignal): Promise<ZarrArrayMetadata> {

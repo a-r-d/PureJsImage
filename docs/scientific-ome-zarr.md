@@ -48,8 +48,10 @@ Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name
 Focused tests generate structural fixtures for v3 regular/gzip/zstd/sharded stores and v2
 C-order, F-order, gzip, zlib, and Blosc memcpy/LZ4 stores. They pin selected samples, missing-chunk
 fill, partial last chunks, F-order clipped and padded edge chunks, omitted v3 chunk-key encoding,
-string/hex/null fill values, uint16/float32/uint64, big-endian samples and shard indexes, shuffle,
-numeric OMERO colors, UTF-8 BOM metadata, 4D planes, index-at-start shards, empty chunk objects,
+string/hex/null fill values, uint16/int16/float32/uint64, big-endian samples and shard indexes,
+shuffle, numeric and `#RRGGBB` OMERO colors, UTF-8 BOM metadata, 4D and F-order 3D planes,
+index-at-start shards, empty chunk objects, empty optional `.zattrs`, trailing dataset slashes,
+`numcodecs.*` ids, case-insensitive NaN fills, gzip/Blosc edge chunks, crc32c array codecs,
 zero-size and overlapping shard payloads, store-prefix and Node
 directory resolution, browser `File` companions, stored and deflated ZIP roots, and hostile
 traversal/limit cases. CRC-32C is checked against the Castagnoli vector `123456789`.

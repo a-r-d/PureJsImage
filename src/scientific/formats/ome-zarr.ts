@@ -228,8 +228,10 @@ interface ParsedMultiscale {
   readonly extraMetadata?: ScientificMetadataObject
 }
 
+const trimTrailingSlashes = (value: string): string => value.replace(/\/+$/u, '')
+
 const joinZarrPath = (base: string, child: string): string => {
-  const relative = normalizeScientificRelativeName(child)
+  const relative = normalizeScientificRelativeName(trimTrailingSlashes(child))
   return base.length === 0 ? relative : normalizeScientificRelativeName(`${base}/${relative}`)
 }
 
@@ -824,7 +826,7 @@ export const openOmeZarr = async (
     for (const wellEntry of wells) {
       if (!isRecord(wellEntry)) throw invalidInput('OME-Zarr plate well entry is invalid')
       const wellPath = normalizeScientificRelativeName(
-        requiredString(wellEntry.path, 'OME-Zarr plate well path'),
+        trimTrailingSlashes(requiredString(wellEntry.path, 'OME-Zarr plate well path')),
       )
       const wellGroup = await store.openGroup(wellPath, context.signal)
       const wellOme = omeFromGroup(wellGroup.attributes).ome
