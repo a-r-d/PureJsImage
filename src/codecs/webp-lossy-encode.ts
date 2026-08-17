@@ -299,6 +299,50 @@ const createPlane = (width: number, height: number): ReconstructionPlane => {
   return { data: new Uint8Array((height + 2) * stride), stride, origin: stride + 1 }
 }
 
+const padPlane = (
+  source: Uint8Array,
+  sourceWidth: number,
+  sourceHeight: number,
+  paddedWidth: number,
+  paddedHeight: number,
+): Uint8Array => {
+  if (sourceWidth === paddedWidth && sourceHeight === paddedHeight) return source
+  const padded = new Uint8Array(paddedWidth * paddedHeight)
+  for (let y = 0; y < paddedHeight; y += 1) {
+    const sourceY = y < sourceHeight ? y : sourceHeight - 1
+    const sourceRow = sourceY * sourceWidth
+    const paddedRow = y * paddedWidth
+    padded.set(source.subarray(sourceRow, sourceRow + sourceWidth), paddedRow)
+    if (paddedWidth > sourceWidth) {
+      padded.fill(
+        source[sourceRow + sourceWidth - 1] ?? 0,
+        paddedRow + sourceWidth,
+        paddedRow + paddedWidth,
+      )
+    }
+  }
+  return padded
+}
+
+const finalizeChroma = (
+  source: Uint16Array,
+  width: number,
+  height: number,
+  chromaWidth: number,
+  chromaHeight: number,
+): Uint8Array => {
+  const bytes = new Uint8Array(chromaWidth * chromaHeight)
+  for (let y = 0; y < chromaHeight; y += 1) {
+    const row = y * chromaWidth
+    const yCount = y * 2 + 1 < height ? 2 : 1
+    for (let x = 0; x < chromaWidth; x += 1) {
+      const count = (x * 2 + 1 < width ? 2 : 1) * yCount
+      bytes[row + x] = Math.round((source[row + x] ?? 0) / count)
+    }
+  }
+  return bytes
+}
+
 const prepareEdges = (
   plane: ReconstructionPlane,
   offset: number,
@@ -407,14 +451,25 @@ const encodeVp8 = (
   const dctTemporary = new Int32Array(16)
   const transformed = new Int32Array(16)
   const reconstructed = new Int32Array(16)
-  const sourceY = (x: number, y: number): number =>
-    ySource[Math.min(height - 1, y) * width + Math.min(width - 1, x)] ?? 0
-  const sourceChroma = (source: Uint16Array, x: number, y: number): number => {
-    const sourceX = Math.min(chromaWidth - 1, x)
-    const sourceY = Math.min(chromaHeight - 1, y)
-    const count = (sourceX * 2 + 1 < width ? 2 : 1) * (sourceY * 2 + 1 < height ? 2 : 1)
-    return Math.round((source[sourceY * chromaWidth + sourceX] ?? 0) / count)
-  }
+  const paddedYWidth = columns * 16
+  const paddedYHeight = rows * 16
+  const paddedCWidth = columns * 8
+  const paddedCHeight = rows * 8
+  const yPadded = padPlane(ySource, width, height, paddedYWidth, paddedYHeight)
+  const uPadded = padPlane(
+    finalizeChroma(uSource, width, height, chromaWidth, chromaHeight),
+    chromaWidth,
+    chromaHeight,
+    paddedCWidth,
+    paddedCHeight,
+  )
+  const vPadded = padPlane(
+    finalizeChroma(vSource, width, height, chromaWidth, chromaHeight),
+    chromaWidth,
+    chromaHeight,
+    paddedCWidth,
+    paddedCHeight,
+  )
   for (let row = 0; row < rows; row += 1) {
     const left = new Int8Array(8)
     for (let column = 0; column < columns; column += 1) {
@@ -426,9 +481,23 @@ const encodeVp8 = (
         const blockY = row * 16 + (block >> 2) * 4
         const output = yOffset + (block >> 2) * 4 * yPlane.stride + (block & 3) * 4
         const predictor = predictDc(yPlane, output, 4)
-        for (let index = 0; index < 16; index += 1) {
-          residual[index] = sourceY(blockX + (index & 3), blockY + (index >> 2)) - predictor
-        }
+        const sampleRow = blockY * paddedYWidth + blockX
+        residual[0] = (yPadded[sampleRow] ?? 0) - predictor
+        residual[1] = (yPadded[sampleRow + 1] ?? 0) - predictor
+        residual[2] = (yPadded[sampleRow + 2] ?? 0) - predictor
+        residual[3] = (yPadded[sampleRow + 3] ?? 0) - predictor
+        residual[4] = (yPadded[sampleRow + paddedYWidth] ?? 0) - predictor
+        residual[5] = (yPadded[sampleRow + paddedYWidth + 1] ?? 0) - predictor
+        residual[6] = (yPadded[sampleRow + paddedYWidth + 2] ?? 0) - predictor
+        residual[7] = (yPadded[sampleRow + paddedYWidth + 3] ?? 0) - predictor
+        residual[8] = (yPadded[sampleRow + paddedYWidth * 2] ?? 0) - predictor
+        residual[9] = (yPadded[sampleRow + paddedYWidth * 2 + 1] ?? 0) - predictor
+        residual[10] = (yPadded[sampleRow + paddedYWidth * 2 + 2] ?? 0) - predictor
+        residual[11] = (yPadded[sampleRow + paddedYWidth * 2 + 3] ?? 0) - predictor
+        residual[12] = (yPadded[sampleRow + paddedYWidth * 3] ?? 0) - predictor
+        residual[13] = (yPadded[sampleRow + paddedYWidth * 3 + 1] ?? 0) - predictor
+        residual[14] = (yPadded[sampleRow + paddedYWidth * 3 + 2] ?? 0) - predictor
+        residual[15] = (yPadded[sampleRow + paddedYWidth * 3 + 3] ?? 0) - predictor
         forwardDct(residual, dctTemporary, transformed)
         const coefficientOffset = block * 16
         quantize(transformed, yDc, yAc, coefficients, coefficientOffset)
@@ -437,17 +506,30 @@ const encodeVp8 = (
       }
       for (let planeIndex = 0; planeIndex < 2; planeIndex += 1) {
         const plane = planeIndex === 0 ? uPlane : vPlane
-        const source = planeIndex === 0 ? uSource : vSource
         const output = plane.origin + row * 8 * plane.stride + column * 8
         prepareEdges(plane, output, 8, row, column)
         const predictor = predictChromaDc(plane, output, row, column)
+        const chromaSource = planeIndex === 0 ? uPadded : vPadded
         for (let block = 0; block < 4; block += 1) {
           const blockX = column * 8 + (block & 1) * 4
           const blockY = row * 8 + (block >> 1) * 4
-          for (let index = 0; index < 16; index += 1) {
-            residual[index] =
-              sourceChroma(source, blockX + (index & 3), blockY + (index >> 2)) - predictor
-          }
+          const sampleRow = blockY * paddedCWidth + blockX
+          residual[0] = (chromaSource[sampleRow] ?? 0) - predictor
+          residual[1] = (chromaSource[sampleRow + 1] ?? 0) - predictor
+          residual[2] = (chromaSource[sampleRow + 2] ?? 0) - predictor
+          residual[3] = (chromaSource[sampleRow + 3] ?? 0) - predictor
+          residual[4] = (chromaSource[sampleRow + paddedCWidth] ?? 0) - predictor
+          residual[5] = (chromaSource[sampleRow + paddedCWidth + 1] ?? 0) - predictor
+          residual[6] = (chromaSource[sampleRow + paddedCWidth + 2] ?? 0) - predictor
+          residual[7] = (chromaSource[sampleRow + paddedCWidth + 3] ?? 0) - predictor
+          residual[8] = (chromaSource[sampleRow + paddedCWidth * 2] ?? 0) - predictor
+          residual[9] = (chromaSource[sampleRow + paddedCWidth * 2 + 1] ?? 0) - predictor
+          residual[10] = (chromaSource[sampleRow + paddedCWidth * 2 + 2] ?? 0) - predictor
+          residual[11] = (chromaSource[sampleRow + paddedCWidth * 2 + 3] ?? 0) - predictor
+          residual[12] = (chromaSource[sampleRow + paddedCWidth * 3] ?? 0) - predictor
+          residual[13] = (chromaSource[sampleRow + paddedCWidth * 3 + 1] ?? 0) - predictor
+          residual[14] = (chromaSource[sampleRow + paddedCWidth * 3 + 2] ?? 0) - predictor
+          residual[15] = (chromaSource[sampleRow + paddedCWidth * 3 + 3] ?? 0) - predictor
           forwardDct(residual, dctTemporary, transformed)
           const coefficientOffset = (16 + planeIndex * 4 + block) * 16
           quantize(transformed, uvDc, uvAc, coefficients, coefficientOffset)
@@ -560,29 +642,57 @@ export class LossyWebpEncoder implements ImageEncoder {
     )
       throw invalidInput('WebP encoder requires ordered, full-width pixel blocks')
     const chromaWidth = Math.ceil(this.#width / 2)
-    for (let row = 0; row < block.height; row += 1)
-      for (let x = 0; x < this.#width; x += 1) {
-        const source = row * block.stride + x * this.#channels
-        const red = block.data[source] ?? 0
-        const green = this.#channels === 1 ? red : (block.data[source + 1] ?? 0)
-        const blue = this.#channels === 1 ? red : (block.data[source + 2] ?? 0)
+    if (this.#channels === 3) {
+      const data = block.data
+      const width = this.#width
+      const yPlane = this.#y
+      const uPlane = this.#u
+      const vPlane = this.#v
+      for (let row = 0; row < block.height; row += 1) {
         const y = this.#expectedY + row
-        this.#y[y * this.#width + x] = clampByte(
-          ((66 * red + 129 * green + 25 * blue + 128) >> 8) + 16,
-        )
-        const chroma = (y >> 1) * chromaWidth + (x >> 1)
-        this.#u[chroma] =
-          (this.#u[chroma] ?? 0) +
-          clampByte(((-38 * red - 74 * green + 112 * blue + 128) >> 8) + 128)
-        this.#v[chroma] =
-          (this.#v[chroma] ?? 0) +
-          clampByte(((112 * red - 94 * green - 18 * blue + 128) >> 8) + 128)
-        if (this.#alpha) {
-          const alpha = block.data[source + 3] ?? 0
-          this.#alpha[y * this.#width + x] = alpha
-          this.#hasAlpha ||= alpha !== 255
+        const yRow = y * width
+        const chromaRow = (y >> 1) * chromaWidth
+        let source = row * block.stride
+        for (let x = 0; x < width; x += 1) {
+          const red = data[source] ?? 0
+          const green = data[source + 1] ?? 0
+          const blue = data[source + 2] ?? 0
+          source += 3
+          const luma = ((66 * red + 129 * green + 25 * blue + 128) >> 8) + 16
+          yPlane[yRow + x] = luma < 0 ? 0 : luma > 255 ? 255 : luma
+          const chroma = chromaRow + (x >> 1)
+          const uValue = ((-38 * red - 74 * green + 112 * blue + 128) >> 8) + 128
+          const vValue = ((112 * red - 94 * green - 18 * blue + 128) >> 8) + 128
+          uPlane[chroma] = (uPlane[chroma] ?? 0) + (uValue < 0 ? 0 : uValue > 255 ? 255 : uValue)
+          vPlane[chroma] = (vPlane[chroma] ?? 0) + (vValue < 0 ? 0 : vValue > 255 ? 255 : vValue)
         }
       }
+    } else {
+      for (let row = 0; row < block.height; row += 1) {
+        for (let x = 0; x < this.#width; x += 1) {
+          const source = row * block.stride + x * this.#channels
+          const red = block.data[source] ?? 0
+          const green = this.#channels === 1 ? red : (block.data[source + 1] ?? 0)
+          const blue = this.#channels === 1 ? red : (block.data[source + 2] ?? 0)
+          const y = this.#expectedY + row
+          this.#y[y * this.#width + x] = clampByte(
+            ((66 * red + 129 * green + 25 * blue + 128) >> 8) + 16,
+          )
+          const chroma = (y >> 1) * chromaWidth + (x >> 1)
+          this.#u[chroma] =
+            (this.#u[chroma] ?? 0) +
+            clampByte(((-38 * red - 74 * green + 112 * blue + 128) >> 8) + 128)
+          this.#v[chroma] =
+            (this.#v[chroma] ?? 0) +
+            clampByte(((112 * red - 94 * green - 18 * blue + 128) >> 8) + 128)
+          if (this.#alpha) {
+            const alpha = block.data[source + 3] ?? 0
+            this.#alpha[y * this.#width + x] = alpha
+            this.#hasAlpha ||= alpha !== 255
+          }
+        }
+      }
+    }
     this.#expectedY += block.height
   }
 

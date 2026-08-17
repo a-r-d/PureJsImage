@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.11.0",
-    "unpackedPackageBytes": 5021008,
+    "unpackedPackageBytes": 5026463,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -805,13 +805,13 @@
         "packageExports": ["purejsimage/scientific/readers/webp"],
         "sourceEntries": ["./src/scientific/readers/webp.ts"]
       },
-      "gzipBytes": 37783,
+      "gzipBytes": 38173,
       "id": "scientific-reader-webp",
       "implementation": "package-core",
-      "minifiedJsBytes": 107183,
+      "minifiedJsBytes": 108515,
       "name": "Scientific reader: WebP",
       "recordedBaselineMinifiedBytes": 106317,
-      "brotliBytes": 32404
+      "brotliBytes": 32765
     },
     {
       "category": "purejsimage-entry",
@@ -1105,13 +1105,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 257762,
+      "gzipBytes": 258206,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 866577,
+      "minifiedJsBytes": 867949,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 205711
+      "brotliBytes": 205882
     },
     {
       "category": "purejsimage-entry",
@@ -1150,13 +1150,13 @@
         "packageExports": ["purejsimage/codecs/webp"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/webp.ts"]
       },
-      "gzipBytes": 46030,
+      "gzipBytes": 46440,
       "id": "codec-webp",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 134247,
+      "minifiedJsBytes": 135596,
       "name": "Core + WebP",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 39443
+      "brotliBytes": 39782
     },
     {
       "category": "purejsimage-entry",
@@ -1346,13 +1346,13 @@
         "packageExports": ["purejsimage/codecs/web"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/web.ts"]
       },
-      "gzipBytes": 223407,
+      "gzipBytes": 223827,
       "id": "codecs-web",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 605839,
+      "minifiedJsBytes": 607213,
       "name": "Core + common web codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 187836
+      "brotliBytes": 188080
     },
     {
       "category": "purejsimage-entry",
@@ -1377,13 +1377,13 @@
         "packageExports": ["purejsimage/codecs/all"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
       },
-      "gzipBytes": 306244,
+      "gzipBytes": 306647,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 871519,
+      "minifiedJsBytes": 872899,
       "name": "Core + all stable codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 253094
+      "brotliBytes": 253192
     },
     {
       "category": "competitor",
@@ -1422,13 +1422,13 @@
       "entry": {
         "packageExports": ["purejsimage/codecs/all"]
       },
-      "gzipBytes": 306244,
+      "gzipBytes": 306647,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 871519,
+      "minifiedJsBytes": 872899,
       "name": "PureJsImage (all stable codecs)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 253094
+      "brotliBytes": 253192
     },
     {
       "category": "competitor",

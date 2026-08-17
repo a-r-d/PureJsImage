@@ -934,7 +934,7 @@ describe('benchmark contract', () => {
     expect(heif.length).toBe(4)
     expect(ico.length).toBe(6)
     expect(tiff.length).toBe(18)
-    expect(webp.length).toBe(11)
+    expect(webp.length).toBe(13)
     expect(smallCodecs.length).toBe(18)
     expect(competitors).toHaveLength(14)
     expect(webCodecs).toHaveLength(15)

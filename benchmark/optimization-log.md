@@ -121,8 +121,25 @@ the correctness/RSS gate; decode-only timings isolate the VP8L kernel.
 | WEBP-024 | 2026-08-17 08:55 | Skip per-symbol meta-group lookup when `groupCount === 1`. | 260.36 → 291.82 | +12.08% | n/a | n/a | rejected | Reverted; extra branch did not pay. |
 | WEBP-025 | 2026-08-17 08:56 | Inline `inverseColorRow` arithmetic and drop `pack`/`channel`. | n/a | n/a | n/a | n/a | inconclusive | Reverted; measurement collided with host load ~38. |
 
+## WebP lossy encode campaign
+
+Official `web-codecs` hillclimb cannot select an encode-to-WebP
+workload. `jpeg-to-webp-lossy` is the right family job, but on current
+`main` it fails its pixel-sample gate (center 151/164/100 vs 206/216/154
+±20) before any candidate change. Isolated 1200x900 RGB → WebP quality
+80 encode of the same tundra frame is the speed kernel; bitstream SHA-256
+must stay `863189a52dc302ff68a9007b2d124f88b6a9603e03d782173782a6806e7211ff`.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | --- | --- |
+| WEBP-ENC-001 | 2026-08-17 09:23 | Precompute clamped Y and finalized chroma planes; unroll 4x4 residual gathers in `encodeVp8`. | 126.06 → 50.16 | -60.21% | material | Retained; exact bitstream, 31/31 webp tests. |
+| WEBP-ENC-002 | 2026-08-17 09:24 | Specialize RGB8 RGB→YUV in `LossyWebpEncoder.write()` without per-pixel format/alpha branches. | 51.86 → 43.22 | -16.66% | material | Retained; exact bitstream. |
+| WEBP-ENC-003 | 2026-08-17 09:25 | Integer-only `quantize` without `Math.floor`/`Math.abs`/`Math.min`. | 43.22 → 63.67 | +47.3% | rejected | Reverted; exact bitstream but slower. |
+
 Measurement artifacts:
 
+- WEBP-ENC isolated timer: `.tmp/time-webp-lossy-encode.ts`
+- Official `jpeg-to-webp-lossy` pre-existing invalid sample: `.tmp/webp-enc-base/jpeg-to-webp.md`
 - WEBP-000: `.tmp/hillclimb/2026-08-17T01-21-53-187Z/comparison.md`
 - WEBP-001: `.tmp/hillclimb/2026-08-17T01-25-34-767Z/comparison.md`
 - WEBP-002: `.tmp/hillclimb/2026-08-17T01-30-20-291Z/comparison.md`
