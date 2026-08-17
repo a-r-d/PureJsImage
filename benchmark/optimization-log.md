@@ -100,6 +100,8 @@ profiling.
 | WEBP-004 | 2026-08-17 01:39 | Pack loop-filter parameters and replace fixed `[4, 8, 12]` edge arrays with direct calls. | 591.39 → 595.99 | +0.78% | -1.23% | +2.11% | neutral | Reverted; below the 3% material speed threshold. |
 | WEBP-005 | 2026-08-17 01:44 | Reuse typed top/left/diagonal neighbor scratch in `predictBlock` while preserving the existing prediction loops. | 589.69 → 498.31 | -15.50% | -16.75% | +11.25% | rejected | Reverted; the speed win came with an 11.25% peak-RSS regression. |
 | WEBP-006 | 2026-08-17 01:48 | Hoist conversion row bases and reuse each 4:2:0 chroma sample for its two luma pixels in `convertVp8Rows`. | 632.99 → 591.63 | -6.53% | -3.11% | +0.40% | accepted | Retained; primary and lossless pressure paths passed with a negligible RSS change. |
+| WEBP-007 | 2026-08-17 02:29 | Rewrite `predictBlock` with local neighbor samples and direct stores, without reused scratch buffers. | 491.35 → 389.42 | -20.75% | n/a | +15.01% | rejected | Reverted; exact output, but peak RSS exceeded the 5% protected limit. |
+| WEBP-008 | 2026-08-17 02:38 | Keep the allocation-free `predictBlock` rewrite and reuse one coefficient buffer plus Walsh temps across macroblocks. | 489.88 → 380.49 | -22.33% | -23.21% | +3.27% | accepted | Retained; the reused buffers kept the live set inside the RSS gate. |
 
 Measurement artifacts:
 
@@ -110,6 +112,8 @@ Measurement artifacts:
 - WEBP-004: `.tmp/hillclimb/2026-08-17T01-39-45-067Z/comparison.md`
 - WEBP-005: `.tmp/hillclimb/2026-08-17T01-44-35-970Z/comparison.md`
 - WEBP-006: `.tmp/hillclimb/2026-08-17T01-48-03-807Z/comparison.md`
+- WEBP-007: `.tmp/hillclimb/2026-08-17T02-29-22-647Z/comparison.md`
+- WEBP-008: `.tmp/hillclimb/2026-08-17T02-38-09-800Z/comparison.md`
 
 ### WEBP-006 neighboring validation
 
@@ -126,10 +130,33 @@ fixture/baseline mismatch rather than a candidate regression. Artifacts:
 CPU profiles under `.tmp/cpu-webp-large/` and `.tmp/cpu-webp-pressure/` put
 `predictBlock`, `decodeCoefficientBlock`, `inverseDctAdd`,
 `filterNormalEdge`, `filterCommon`, `applyLoopFilterRow`, and
-`convertVp8Rows` in the WebP VP8 decode path. The retained change removes
-repeated row-base and chroma-index work without adding a working-set buffer;
-future decoder work should preserve that memory boundary and resolve the
-known lossy pressure-fixture mismatch before using that fixture as a gate.
+`convertVp8Rows` in the WebP VP8 decode path. WEBP-006 removed repeated
+row-base and chroma-index work. WEBP-007 showed that an allocation-free
+`predictBlock` is about 21% faster but lets per-macroblock coefficient
+arrays accumulate and raise peak RSS. WEBP-008 keeps that prediction
+rewrite and reuses one coefficient buffer plus Walsh temps, so the live
+set stays bounded. Resolve the known lossy pressure-fixture mismatch
+before using that fixture as a gate.
+
+WEBP-008 seven-pair run reported wall median 489.88 → 380.49 ms, MAD
+3.15 → 7.43 ms, paired median -23.2111% (MAD 0.8215%), peak RSS median
+170,389,504 → 175,968,256 bytes (+3.27%), and protected output bytes
+unchanged at 126,466. Base and candidate correctness and operation
+signatures were identical across all seven trials.
+
+### WEBP-008 neighboring validation
+
+The candidate passed the lossless pressure resize in three runs (median
+1110.4 ms; output SHA-256
+`f9d79a42a22bba80718a4143b38e8789befe965890f6c016c0f6684eb884ebef`).
+It also passed the gallery lossy photograph to PNG path in three runs
+(median 174.6 ms). Artifacts:
+
+- Lossless pressure validation: `.tmp/webp-neighbor-lossless/memory-lossless.md`
+- Gallery photo validation: `.tmp/webp-neighbor-photo/photo-png.md`
+
+The lossy 4000x3000 pressure fixture still has the pre-existing baseline
+mismatch noted under WEBP-006 and was not used as a gate.
 
 All seven-pair measurements used the reusable command:
 
