@@ -99,14 +99,14 @@
       "minifiedBytes": 869601
     },
     "allStableCodecs": {
-      "brotliBytes": 254280,
-      "gzipBytes": 307489,
-      "minifiedBytes": 874551
+      "brotliBytes": 254120,
+      "gzipBytes": 307768,
+      "minifiedBytes": 875171
     },
     "commonWebCodecs": {
-      "brotliBytes": 188743,
-      "gzipBytes": 224597,
-      "minifiedBytes": 608865
+      "brotliBytes": 189542,
+      "gzipBytes": 224885,
+      "minifiedBytes": 609483
     },
     "core": {
       "brotliBytes": 17171,
@@ -114,7 +114,7 @@
       "minifiedBytes": 61385
     },
     "installedPackage": {
-      "bytes": 5030801,
+      "bytes": 5033762,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",

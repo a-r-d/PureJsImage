@@ -174,6 +174,30 @@ Neighbor `odd-rgba-257x193` isolated encode: 4.74 ms, hash
 Handoff: Imazen WebP corpus stayed 223 pass / 2 unsupported / 0 decode
 failures. `npm run check` passed (133 files, 1565 tests).
 
+## AVIF speed campaign
+
+Official workload: `avif-fox-resize-jpeg` — 1204x800 profile0 4:2:0 AVIF
+decoded, resized to 800px, JPEG quality 80. Goal is end-to-end speed.
+CPU samples put `boxFilter` (35%), `restoreWienerBlock` (9%), and
+`round2` among the hottest functions before this campaign.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| AVIF-001 | 2026-08-17 11:43 | Gather each SGR 4x4 window once; box-filter from the local buffer. | 1427.12 → 1209.91 | -15.22% | +0.28% | material | Retained; 15-trial accepted, exact correctness/output bytes. |
+| AVIF-002 | 2026-08-17 11:45 | Skip `round2` when bit-depth shift is 0 in `boxFilter`. | 1922.48 → 1268.32 | noisy | -0.13% | neutral | Reverted; 7-trial base CV exceeded 10% and no incremental win over AVIF-001. |
+| AVIF-003 | 2026-08-17 11:48 | Prefix-sum SGR box sums/squares on the gathered window. | 1428.54 → 1161.68 | -18.68% | -0.10% | material | Retained; 15-trial accepted on the AVIF-001 stack. |
+| AVIF-004 | 2026-08-17 11:51 | Gather a 10x10 window for Wiener 7-tap filtering. | 1429.29 → 1122.23 | -21.48% | -0.34% | material | Retained; 15-trial accepted on the AVIF-001+003 stack. Neighbor `avif-fox-full-png` 1591.88 → 1287.02 (−19.15%). |
+
+Measurement artifacts:
+
+- AVIF-001 7-trial: `.tmp/hillclimb/2026-08-17T15-41-43-152Z/comparison.md`
+- AVIF-001 15-trial: `.tmp/hillclimb/2026-08-17T15-43-03-589Z/comparison.md`
+- AVIF-002: `.tmp/hillclimb/2026-08-17T15-45-52-676Z/comparison.md`
+- AVIF-003: `.tmp/hillclimb/2026-08-17T15-48-30-460Z/comparison.md`
+- AVIF-004: `.tmp/hillclimb/2026-08-17T15-51-39-465Z/comparison.md`
+- Neighbor `avif-fox-full-png`: `.tmp/hillclimb/2026-08-17T15-53-50-785Z/comparison.md`
+- Profiles: `.tmp/cpu-avif/`
+
 Measurement artifacts:
 
 - WEBP-LLENC isolated timer: `.tmp/time-webp-lossless-encode.ts`

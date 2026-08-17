@@ -1,5 +1,5 @@
-import type { Av1FrameHeader } from './av1-frame.ts'
 import { invalidInput } from '../errors.ts'
+import type { Av1FrameHeader } from './av1-frame.ts'
 
 export interface Av1FilterPlane {
   readonly data: Uint8Array | Uint16Array
@@ -809,6 +809,8 @@ const restoreWienerBlock = (
   verticalFilter: Int16Array,
   horizontalFilter: Int16Array,
   intermediate: Int32Array,
+  window: Int32Array,
+  windowStride: number,
   bitDepth: 8 | 10 | 12,
 ): void => {
   const coefficientOffset = unitIndex * 6
@@ -821,22 +823,29 @@ const restoreWienerBlock = (
   const horizontalMaximum = 2 ** (bitDepth + 8 - horizontalBits) - 1
   const verticalOffset = 2 ** (bitDepth + verticalBits - 1)
   const sampleMaximum = 2 ** bitDepth - 1
+  const windowRadius = 2
+  fillRestorationWindow(
+    deblocked,
+    cdef,
+    x,
+    y,
+    width,
+    height,
+    windowRadius,
+    planeEndX,
+    planeEndY,
+    stripeStartY,
+    stripeEndY,
+    window,
+    windowStride,
+  )
   for (let row = 0; row < height + 6; row += 1) {
+    const windowRow = row * windowStride
     for (let column = 0; column < width; column += 1) {
       let sum = 0
+      const origin = windowRow + column
       for (let tap = 0; tap < 7; tap += 1) {
-        sum +=
-          (horizontalFilter[tap] ?? 0) *
-          sourceSample(
-            deblocked,
-            cdef,
-            x + column + tap - 3,
-            y + row - 3,
-            planeEndX,
-            planeEndY,
-            stripeStartY,
-            stripeEndY,
-          )
+        sum += (horizontalFilter[tap] ?? 0) * (window[origin + tap] ?? 0)
       }
       intermediate[row * width + column] = highBitDepth
         ? clip(0, horizontalMaximum, round2(sum + horizontalOffset, horizontalBits))
@@ -858,22 +867,60 @@ const restoreWienerBlock = (
   }
 }
 
-const boxFilter = (
+const fillRestorationWindow = (
   deblocked: Av1FilterPlane,
   cdef: Av1FilterPlane,
   x: number,
   y: number,
   width: number,
   height: number,
-  set: number,
-  pass: number,
+  radius: number,
   planeEndX: number,
   planeEndY: number,
   stripeStartY: number,
   stripeEndY: number,
+  window: Int32Array,
+  windowStride: number,
+): void => {
+  const originX = x - 1 - radius
+  const originY = y - 1 - radius
+  const rows = height + 2 + 2 * radius
+  const columns = width + 2 + 2 * radius
+  for (let row = 0; row < rows; row += 1) {
+    const sampleY = originY + row
+    const rowOffset = row * windowStride
+    for (let column = 0; column < columns; column += 1) {
+      window[rowOffset + column] = sourceSample(
+        deblocked,
+        cdef,
+        originX + column,
+        sampleY,
+        planeEndX,
+        planeEndY,
+        stripeStartY,
+        stripeEndY,
+      )
+    }
+  }
+}
+
+const boxFilter = (
+  cdef: Av1FilterPlane,
+  window: Int32Array,
+  windowStride: number,
+  windowRadius: number,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  set: number,
+  pass: number,
   aValues: Int32Array,
   bValues: Int32Array,
   filtered: Int32Array,
+  prefixSums: Int32Array,
+  prefixSquares: Int32Array,
+  prefixStride: number,
   bitDepth: 8 | 10 | 12,
 ): void => {
   const radius = sgrParameters[set * 4 + pass * 2] ?? 0
@@ -885,26 +932,44 @@ const boxFilter = (
   const depthShift = bitDepth - 8
   const scale = Math.floor((2 ** 20 + Math.floor(nSquaredEpsilon / 2)) / nSquaredEpsilon)
   const oneOverN = Math.floor((2 ** 12 + Math.floor(n / 2)) / n)
+  const windowRows = height + 2 + 2 * windowRadius
+  const windowColumns = width + 2 + 2 * windowRadius
+  for (let row = 0; row < windowRows; row += 1) {
+    const windowRow = row * windowStride
+    const prefixRow = (row + 1) * prefixStride
+    const previousPrefixRow = row * prefixStride
+    for (let column = 0; column < windowColumns; column += 1) {
+      const sample = window[windowRow + column] ?? 0
+      prefixSums[prefixRow + column + 1] =
+        (prefixSums[previousPrefixRow + column + 1] ?? 0) +
+        (prefixSums[prefixRow + column] ?? 0) -
+        (prefixSums[previousPrefixRow + column] ?? 0) +
+        sample
+      prefixSquares[prefixRow + column + 1] =
+        (prefixSquares[previousPrefixRow + column + 1] ?? 0) +
+        (prefixSquares[prefixRow + column] ?? 0) -
+        (prefixSquares[previousPrefixRow + column] ?? 0) +
+        sample * sample
+    }
+  }
   for (let inputRow = -1; inputRow <= height; inputRow += 1) {
     for (let inputColumn = -1; inputColumn <= width; inputColumn += 1) {
-      let squares = 0
-      let sum = 0
-      for (let deltaY = -radius; deltaY <= radius; deltaY += 1) {
-        for (let deltaX = -radius; deltaX <= radius; deltaX += 1) {
-          const sample = sourceSample(
-            deblocked,
-            cdef,
-            x + inputColumn + deltaX,
-            y + inputRow + deltaY,
-            planeEndX,
-            planeEndY,
-            stripeStartY,
-            stripeEndY,
-          )
-          squares += sample * sample
-          sum += sample
-        }
-      }
+      const centerRow = inputRow + 1 + windowRadius
+      const centerColumn = inputColumn + 1 + windowRadius
+      const top = centerRow - radius
+      const left = centerColumn - radius
+      const bottom = centerRow + radius + 1
+      const right = centerColumn + radius + 1
+      const sum =
+        (prefixSums[bottom * prefixStride + right] ?? 0) -
+        (prefixSums[top * prefixStride + right] ?? 0) -
+        (prefixSums[bottom * prefixStride + left] ?? 0) +
+        (prefixSums[top * prefixStride + left] ?? 0)
+      const squares =
+        (prefixSquares[bottom * prefixStride + right] ?? 0) -
+        (prefixSquares[top * prefixStride + right] ?? 0) -
+        (prefixSquares[bottom * prefixStride + left] ?? 0) +
+        (prefixSquares[top * prefixStride + left] ?? 0)
       const normalizedSquares = round2(squares, depthShift * 2)
       const normalizedSum = round2(sum, depthShift)
       const variance = Math.max(0, normalizedSquares * n - normalizedSum * normalizedSum)
@@ -962,50 +1027,75 @@ const restoreSelfGuidedBlock = (
   bValues: Int32Array,
   filtered0: Int32Array,
   filtered1: Int32Array,
+  window: Int32Array,
+  windowStride: number,
+  prefixSums: Int32Array,
+  prefixSquares: Int32Array,
+  prefixStride: number,
   bitDepth: 8 | 10 | 12,
 ): void => {
   const set = unit.sgrSets[unitIndex] ?? 0
+  const radius0 = sgrParameters[set * 4] ?? 0
+  const radius1 = sgrParameters[set * 4 + 2] ?? 0
+  const windowRadius = radius0 > radius1 ? radius0 : radius1
+  if (windowRadius > 0) {
+    fillRestorationWindow(
+      deblocked,
+      cdef,
+      x,
+      y,
+      width,
+      height,
+      windowRadius,
+      planeEndX,
+      planeEndY,
+      stripeStartY,
+      stripeEndY,
+      window,
+      windowStride,
+    )
+  }
   boxFilter(
-    deblocked,
     cdef,
+    window,
+    windowStride,
+    windowRadius,
     x,
     y,
     width,
     height,
     set,
     0,
-    planeEndX,
-    planeEndY,
-    stripeStartY,
-    stripeEndY,
     aValues,
     bValues,
     filtered0,
+    prefixSums,
+    prefixSquares,
+    prefixStride,
     bitDepth,
   )
   boxFilter(
-    deblocked,
     cdef,
+    window,
+    windowStride,
+    windowRadius,
     x,
     y,
     width,
     height,
     set,
     1,
-    planeEndX,
-    planeEndY,
-    stripeStartY,
-    stripeEndY,
     aValues,
     bValues,
     filtered1,
+    prefixSums,
+    prefixSquares,
+    prefixStride,
     bitDepth,
   )
   const weight0 = unit.sgrXqd[unitIndex * 2] ?? 0
   const weight1 = unit.sgrXqd[unitIndex * 2 + 1] ?? 0
   const weight2 = 128 - weight0 - weight1
-  const radius0 = sgrParameters[set * 4] ?? 0
-  const radius1 = sgrParameters[set * 4 + 2] ?? 0
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
       const target = row * output.stride + x + column
@@ -1159,6 +1249,11 @@ export const applyAv1LoopRestoration = (
   const bValues = new Int32Array(36)
   const filtered0 = new Int32Array(16)
   const filtered1 = new Int32Array(16)
+  const windowStride = 16
+  const window = new Int32Array(windowStride * windowStride)
+  const prefixStride = 17
+  const prefixSums = new Int32Array(prefixStride * prefixStride)
+  const prefixSquares = new Int32Array(prefixStride * prefixStride)
   for (let lumaY = 0; lumaY < header.frameHeight; lumaY += 4) {
     for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
       const plane = cdef[planeIndex]
@@ -1209,6 +1304,8 @@ export const applyAv1LoopRestoration = (
             verticalFilter,
             horizontalFilter,
             intermediate,
+            window,
+            windowStride,
             state.bitDepth,
           )
         } else if (type === 2) {
@@ -1230,6 +1327,11 @@ export const applyAv1LoopRestoration = (
             bValues,
             filtered0,
             filtered1,
+            window,
+            windowStride,
+            prefixSums,
+            prefixSquares,
+            prefixStride,
             state.bitDepth,
           )
         }
