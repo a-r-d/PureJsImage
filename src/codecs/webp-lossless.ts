@@ -323,12 +323,22 @@ const reverseBits = (value: number, length: number): number => {
   return reversed
 }
 
+const uniformGreenChannel = (data: Uint32Array): number | undefined => {
+  if (data.length === 0) return undefined
+  const first = ((data[0] ?? 0) >>> 8) & 255
+  for (let index = 1; index < data.length; index += 1) {
+    if ((((data[index] ?? 0) >>> 8) & 255) !== first) return undefined
+  }
+  return first
+}
+
 type Transform =
   | {
       readonly type: 'predictor'
       readonly sizeBits: number
       readonly width: number
       readonly data: Uint32Array
+      readonly uniformMode: number | undefined
     }
   | {
       readonly type: 'color'
@@ -473,13 +483,6 @@ const distanceValue = (code: number, width: number): number => {
   return Math.max(1, x + y * width)
 }
 
-const cacheIndex = (color: number, bits: number): number =>
-  Math.imul(0x1e35a7bd, color) >>> (32 - bits)
-
-const insertCache = (cache: Uint32Array | undefined, bits: number, color: number): void => {
-  if (cache) cache[cacheIndex(color, bits)] = color
-}
-
 const maximumBackwardDistance = 1_048_576
 
 function* decodeImageRows(
@@ -533,10 +536,11 @@ function* decodeImageRows(
   let position = 0
   let x = 0
   let y = 0
+  const hashShift = 32 - cacheBits
   const write = (color: number): Uint32Array | undefined => {
     history[historyPowerOfTwo ? position & historyMask : position] = color
     row[x] = color
-    insertCache(cache, cacheBits, color)
+    if (cache) cache[Math.imul(0x1e35a7bd, color) >>> hashShift] = color
     position += 1
     x += 1
     if (x !== width) return undefined
@@ -570,11 +574,37 @@ function* decodeImageRows(
         throw invalidInput(
           `WebP backward reference exceeds decoded pixels (${position}, length ${length}, distance prefix ${distancePrefix}, code ${distanceCode}, distance ${distance}, size ${pixelCount})`,
         )
-      for (let index = 0; index < length; index += 1) {
-        const source = position - distance
-        const color = (historyPowerOfTwo ? history[source & historyMask] : history[source]) ?? 0
-        const completed = write(color)
-        if (completed) yield completed
+      let remaining = length
+      while (remaining > 0) {
+        const room = width - x
+        const run = remaining < room ? remaining : room
+        if (historyPowerOfTwo) {
+          for (let index = 0; index < run; index += 1) {
+            const color = history[(position - distance) & historyMask] ?? 0
+            history[position & historyMask] = color
+            row[x] = color
+            if (cache) cache[Math.imul(0x1e35a7bd, color) >>> hashShift] = color
+            position += 1
+            x += 1
+          }
+        } else {
+          for (let index = 0; index < run; index += 1) {
+            const color = history[position - distance] ?? 0
+            history[position] = color
+            row[x] = color
+            if (cache) cache[Math.imul(0x1e35a7bd, color) >>> hashShift] = color
+            position += 1
+            x += 1
+          }
+        }
+        remaining -= run
+        if (x === width) {
+          const completed = row
+          row = completed === firstRow ? secondRow : firstRow
+          x = 0
+          y += 1
+          yield completed
+        }
       }
       continue
     }
@@ -684,16 +714,35 @@ const addPacked = (first: number, second: number): number => {
 }
 
 const selectPacked = (left: number, top: number, topLeft: number): number => {
-  let leftDistance = 0
-  let topDistance = 0
-  let shift = 24
-  while (shift >= 0) {
-    const diagonal = (topLeft >>> shift) & 255
-    leftDistance += Math.abs(((top >>> shift) & 255) - diagonal)
-    topDistance += Math.abs(((left >>> shift) & 255) - diagonal)
-    shift -= 8
-  }
+  const diagonalBlue = topLeft & 255
+  const diagonalGreen = (topLeft >>> 8) & 255
+  const diagonalRed = (topLeft >>> 16) & 255
+  const diagonalAlpha = topLeft >>> 24
+  const leftDistance =
+    Math.abs((top & 255) - diagonalBlue) +
+    Math.abs(((top >>> 8) & 255) - diagonalGreen) +
+    Math.abs(((top >>> 16) & 255) - diagonalRed) +
+    Math.abs((top >>> 24) - diagonalAlpha)
+  const topDistance =
+    Math.abs((left & 255) - diagonalBlue) +
+    Math.abs(((left >>> 8) & 255) - diagonalGreen) +
+    Math.abs(((left >>> 16) & 255) - diagonalRed) +
+    Math.abs((left >>> 24) - diagonalAlpha)
   return leftDistance < topDistance ? left : top
+}
+
+const inversePredictorSelectRow = (
+  row: Uint32Array,
+  width: number,
+  previous: Uint32Array,
+): void => {
+  row[0] = addPacked(row[0] ?? 0, previous[0] ?? 0)
+  for (let x = 1; x < width; x += 1) {
+    row[x] = addPacked(
+      row[x] ?? 0,
+      selectPacked(row[x - 1] ?? 0, previous[x] ?? 0, previous[x - 1] ?? 0),
+    )
+  }
 }
 
 const inversePredictorRow = (
@@ -709,6 +758,10 @@ const inversePredictorRow = (
     return
   }
   if (!previous) throw invalidInput('WebP predictor previous row is missing')
+  if (transform.uniformMode === 11) {
+    inversePredictorSelectRow(row, width, previous)
+    return
+  }
   row[0] = addPacked(row[0] ?? 0, previous[0] ?? 0)
   const sizeBits = transform.sizeBits
   const transformWidth = transform.width
@@ -822,12 +875,17 @@ function* decodeLosslessImageRows(
       const sizeBits = reader.readBits(3) + 2
       const transformWidth = Math.ceil(encodedWidth / 2 ** sizeBits)
       const data = decodeImageData(reader, transformWidth, Math.ceil(height / 2 ** sizeBits), false)
-      transforms.push({
-        type: type === 0 ? 'predictor' : 'color',
-        sizeBits,
-        width: transformWidth,
-        data,
-      })
+      transforms.push(
+        type === 0
+          ? {
+              type: 'predictor',
+              sizeBits,
+              width: transformWidth,
+              data,
+              uniformMode: uniformGreenChannel(data),
+            }
+          : { type: 'color', sizeBits, width: transformWidth, data },
+      )
     } else if (type === 2) {
       transforms.push({ type: 'subtract-green' })
     } else {

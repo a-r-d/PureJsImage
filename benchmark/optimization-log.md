@@ -113,6 +113,13 @@ the correctness/RSS gate; decode-only timings isolate the VP8L kernel.
 | WEBP-016 | 2026-08-17 03:13 | Skip `inverseDctAdd` using a decode-time residual bitmask; unroll `[3,7,11]` predictor copies. | 359.88 → 354.42 | -1.52% | -2.48% | -0.45% | inconclusive | Reverted; 7-trial looked promising but 15-trial median was +2.18% and noisy. |
 | WEBP-017 | 2026-08-17 03:17 | Share 4:2:0 chroma matrix products across two luma pixels in `convertVp8Rows`. | 360.79 → 381.48 | +5.73% | n/a | +3.71% | rejected | Reverted; slower than calling `yuvToArgb` twice. |
 | WEBP-018 | 2026-08-17 03:35 | VP8L: reuse two scanline buffers, drop per-pixel `%`, reuse predictor previous via `.set()`, specialize mode-11 `select` + packed byte add. | 722.68 → 428.53 | -40.70% | n/a | mixed / ~0% | material | Retained; 4000x3000 decode-only, exact e2e hash, Imazen 223/2/0. |
+| WEBP-019 | 2026-08-17 08:49 | Hoist uniform predictor mode; dedicated mode-11 `inversePredictorSelectRow` without per-pixel mode-table lookup. | 445.99 → 414.39 | -7.09% | n/a | n/a | promising | Retained; 4K fixture is 100% mode 11. |
+| WEBP-020 | 2026-08-17 08:51 | Inline color-cache inserts and copy backward-reference runs without calling `write()` per pixel. | 414.39 → 279.11 | -32.65% | n/a | n/a | material | Retained; post-019 profile had `write` at 27.8%. |
+| WEBP-021 | 2026-08-17 08:52 | Specialize packed-ARGB→RGBA unpack when there is no extra alpha plane. | 279.11 → 260.36 | -6.72% | n/a | n/a | promising | Retained; decode() was 14.6% of the post-019 profile. |
+| WEBP-022 | 2026-08-17 08:53 | Hoist a uniform color-transform kernel / skip identity color transform. | 260.36 → 256.67 | -1.42% | n/a | n/a | neutral | Reverted; within noise and the 4K color transform is not uniform. |
+| WEBP-023 | 2026-08-17 08:54 | Packed subtract-green without `pack`/`channel`. | 260.36 → 291.94 | +12.13% | n/a | n/a | rejected | Reverted; slower and noisier. |
+| WEBP-024 | 2026-08-17 08:55 | Skip per-symbol meta-group lookup when `groupCount === 1`. | 260.36 → 291.82 | +12.08% | n/a | n/a | rejected | Reverted; extra branch did not pay. |
+| WEBP-025 | 2026-08-17 08:56 | Inline `inverseColorRow` arithmetic and drop `pack`/`channel`. | n/a | n/a | n/a | n/a | inconclusive | Reverted; measurement collided with host load ~38. |
 
 Measurement artifacts:
 
@@ -139,6 +146,8 @@ Measurement artifacts:
 - WEBP-018 4K e2e: `.tmp/webp-018-candidate/memory-lossless.md` and `.tmp/webp-018-pairs/`
 - WEBP-018 Imazen: `.tmp/imazen-webp-018/imazen-webp-conformance.md`
 - WEBP-018 VP8 no-regression: `.tmp/hillclimb/2026-08-17T03-34-46-947Z/comparison.md`
+- WEBP-019–021 Imazen: `.tmp/imazen-webp-019/imazen-webp-conformance.md`
+- WEBP-021 4K e2e: `.tmp/webp-021-e2e/memory-lossless.md`
 
 ### WEBP-018 large lossless decode
 
@@ -161,6 +170,26 @@ decode-only is the kernel measurement. Isolated official hillclimb on
 `webp-large-resize-jpeg` stayed neutral (356.65 → 361.29 ms, +1.30%
 speed, +2.24% RSS) with matching correctness. Imazen WebP corpus
 remained 223 pass / 2 unsupported / 0 failures.
+
+### WEBP-019–021 follow-ups
+
+Post-018 4K decode-only profiles still spent 27.8% in `write`, 20.1%
+in the mode-11 predictor row, 14.6% in ARGB→RGBA `decode`, and 11.9%
+in `inverseColorRow`. The retained follow-ups hoist a uniform mode-11
+kernel, copy backward-reference runs without a per-pixel `write()`
+call, and specialize the no-alpha unpack loop.
+
+Quiet incremental decode-only medians on the 4000x3000 lossless
+fixture: 445.99 → 414.39 → 279.11 → 260.36 ms. Stacked on WEBP-018
+that is 722.68 → 260.36 ms (−64.0%). Tux after WEBP-021 was 12.83 ms
+versus 14.88 ms after WEBP-018. Official 4K e2e SHA-256 stayed
+`f9d79a42a22bba80718a4143b38e8789befe965890f6c016c0f6684eb884ebef`.
+Imazen WebP corpus remained 223 pass / 2 unsupported / 0 failures.
+
+Uniform color-transform, packed subtract-green, single Huffman-group,
+and inlined color-row follow-ups were reverted. Remaining decode time
+is mostly `inversePredictorSelectRow`, `inverseColorRow`, residual
+entropy/`write` of literals, and resize if measured end-to-end.
 
 ### WEBP-011 neighboring validation
 
