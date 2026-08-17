@@ -49,6 +49,7 @@ export interface ZarrStoreLimits {
   readonly maxChunkBytes: number
   readonly maxDecodedChunkBytes: number
   readonly maxOpenSources: number
+  readonly maxCachedChunkBytes: number
   readonly maxStoreResolutions: number
 }
 
@@ -249,6 +250,7 @@ const validateShardingCodec = (
   parseEndian(innerCodecs, sampleType)
   const indexCodecs = parseCodecs(codec.configuration.index_codecs, 'Zarr sharding index_codecs')
   validateIndexCodecs(indexCodecs, 'Zarr sharding index_codecs')
+  parseEndian(indexCodecs, 'uint64')
   const location = codec.configuration.index_location ?? 'end'
   if (location !== 'end' && location !== 'start') {
     throw unsupportedOperation(`Zarr sharding index_location ${String(location)} is unsupported`)
@@ -388,9 +390,14 @@ const writeNumericSample = (
       throw unsupportedOperation('Zarr float16 fill values other than 0 are unsupported')
     }
     view.setUint16(0, 0, littleEndian)
-  } else if (sampleType === 'float32') view.setFloat32(0, value, littleEndian)
-  else view.setFloat64(0, value, littleEndian)
-  return { bytes, numeric: value }
+    return { bytes, numeric: 0 }
+  }
+  if (sampleType === 'float32') {
+    view.setFloat32(0, value, littleEndian)
+    return { bytes, numeric: view.getFloat32(0, littleEndian) }
+  }
+  view.setFloat64(0, value, littleEndian)
+  return { bytes, numeric: view.getFloat64(0, littleEndian) }
 }
 
 const parseIntegerCandidate = (value: unknown, label: string): bigint => {
@@ -411,27 +418,59 @@ const parseIntegerCandidate = (value: unknown, label: string): bigint => {
   throw invalidInput(`${label} is unsupported`)
 }
 
+const parseFloatHexFill = (
+  value: string,
+  sampleType: RasterSampleType,
+  littleEndian: boolean,
+): ZarrFill | undefined => {
+  const hex = /^0x([0-9a-fA-F]+)$/u.exec(value.trim())
+  if (hex === null) return undefined
+  const bits = BigInt(`0x${hex[1]}`)
+  const width = BigInt(integerBitWidth(sampleType))
+  if (bits >= 1n << width) {
+    throw invalidInput(`Zarr fill_value ${value} exceeds ${sampleType}`)
+  }
+  const integerType: RasterSampleType =
+    sampleType === 'float16' ? 'uint16' : sampleType === 'float32' ? 'uint32' : 'uint64'
+  const bytes = writeExactIntegerBits(bits, integerType, littleEndian)
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const numeric =
+    sampleType === 'float16'
+      ? view.getUint16(0, littleEndian) === 0
+        ? 0
+        : Number.NaN
+      : sampleType === 'float32'
+        ? view.getFloat32(0, littleEndian)
+        : view.getFloat64(0, littleEndian)
+  if (sampleType === 'float16' && view.getUint16(0, littleEndian) !== 0) {
+    throw unsupportedOperation('Zarr float16 fill values other than 0 are unsupported')
+  }
+  return { kind: 'defined', bytes, numeric }
+}
+
 const parseFillValue = (
   value: unknown,
   sampleType: RasterSampleType,
   littleEndian: boolean,
-  required: boolean,
+  format: 2 | 3,
 ): ZarrFill => {
   const floating = isFloatSampleType(sampleType)
   if (value === undefined) {
-    if (required) throw invalidInput('Zarr fill_value is missing')
+    if (format === 3) throw invalidInput('Zarr fill_value is missing')
     return { kind: 'undefined' }
   }
   if (value === null) {
-    if (!floating) {
-      if (required) throw invalidInput(`Zarr fill_value null is invalid for ${sampleType}`)
-      return { kind: 'undefined' }
-    }
-    return { kind: 'defined', ...writeNumericSample(sampleType, Number.NaN, littleEndian) }
+    if (format === 3) throw invalidInput('Zarr v3 fill_value null is invalid')
+    return { kind: 'undefined' }
   }
   if (floating) {
     if (typeof value === 'number') {
-      if (!Number.isFinite(value) && !Number.isNaN(value)) {
+      if (
+        !Number.isFinite(value) &&
+        !Number.isNaN(value) &&
+        value !== Number.POSITIVE_INFINITY &&
+        value !== Number.NEGATIVE_INFINITY
+      ) {
         throw invalidInput(`Zarr fill_value ${String(value)} is invalid for ${sampleType}`)
       }
       return { kind: 'defined', ...writeNumericSample(sampleType, value, littleEndian) }
@@ -458,11 +497,25 @@ const parseFillValue = (
         ...writeNumericSample(sampleType, Number.NEGATIVE_INFINITY, littleEndian),
       }
     }
+    const hex = parseFloatHexFill(value, sampleType, littleEndian)
+    if (hex !== undefined) return hex
     const parsed = Number(value.trim())
     if (value.trim().length === 0 || !Number.isFinite(parsed)) {
       throw invalidInput('Zarr fill_value is unsupported')
     }
     return { kind: 'defined', ...writeNumericSample(sampleType, parsed, littleEndian) }
+  }
+  if (format === 3) {
+    if (typeof value !== 'number') {
+      throw invalidInput('Zarr v3 integer fill_value must be a number')
+    }
+    if (!Number.isInteger(value) || !Number.isSafeInteger(value)) {
+      throw invalidInput('Zarr v3 integer fill_value must be an exact integer')
+    }
+    const written = writeExactIntegerValue(BigInt(value), sampleType, littleEndian)
+    return written.numeric === undefined
+      ? { kind: 'defined', bytes: written.bytes }
+      : { kind: 'defined', bytes: written.bytes, numeric: written.numeric }
   }
   if (typeof value === 'string') {
     const trimmed = value.trim()
@@ -693,7 +746,7 @@ const parseV2ArrayMetadata = (value: unknown, path: string): ZarrArrayMetadata =
   const compressor = parseV2Compressor(value.compressor)
   if (compressor !== undefined) codecs.push(compressor)
   validateArrayCodecs(codecs, chunkShape, dtype.sampleType)
-  const fill = parseFillValue(value.fill_value, dtype.sampleType, dtype.littleEndian, false)
+  const fill = parseFillValue(value.fill_value, dtype.sampleType, dtype.littleEndian, 2)
   return Object.freeze({
     path,
     shape,
@@ -725,7 +778,22 @@ const parseArrayMetadata = (value: unknown, path: string): ZarrArrayMetadata => 
   const codecs = parseCodecs(value.codecs, `Zarr ${path} codecs`)
   validateArrayCodecs(codecs, chunkShape, dataType)
   const endian = parseEndian(codecs, dataType)
-  const fill = parseFillValue(value.fill_value, dataType, endian === 'little', true)
+  const fill = parseFillValue(value.fill_value, dataType, endian === 'little', 3)
+  if (value.storage_transformers !== undefined) {
+    if (!Array.isArray(value.storage_transformers)) {
+      throw invalidInput(`Zarr ${path} storage_transformers must be an array`)
+    }
+    if (value.storage_transformers.length > 0) {
+      const first = value.storage_transformers[0]
+      const name =
+        typeof first === 'string'
+          ? first
+          : isRecord(first) && typeof first.name === 'string'
+            ? first.name
+            : 'unknown'
+      throw unsupportedOperation(`Zarr storage transformer ${name} is unsupported`)
+    }
+  }
   const dimensionNames = parseDimensionNames(value.dimension_names, shape.length)
   const attributes = isRecord(value.attributes) ? Object.freeze({ ...value.attributes }) : {}
   return Object.freeze({
@@ -1063,6 +1131,7 @@ interface DecodedShardIndex {
   readonly counts: readonly number[]
   readonly innerShape: readonly number[]
   readonly innerCodecs: readonly ZarrCodec[]
+  readonly endian: ZarrEndian
 }
 
 const loadShardIndex = async (
@@ -1104,7 +1173,7 @@ const loadShardIndex = async (
     limits,
     signal,
   )
-  const indexEndian = indexCodecs.find((entry) => entry.name === 'bytes')?.configuration.endian
+  const indexEndian = parseEndian(indexCodecs, 'uint64')
   const indexBytes = indexEndian === 'big' ? swapEndian(index.data, 8) : index.data
   return {
     view: new DataView(indexBytes.buffer, indexBytes.byteOffset, indexBytes.byteLength),
@@ -1113,6 +1182,7 @@ const loadShardIndex = async (
     counts,
     innerShape,
     innerCodecs,
+    endian: indexEndian,
   }
 }
 
@@ -1282,18 +1352,26 @@ const prefill = (output: Uint8Array, fill: ZarrFill, littleEndian: boolean): voi
 
 interface CacheEntry<T> {
   readonly value: T
+  readonly bytes: number
 }
 
 class BoundedLru<T> {
-  readonly #max: number
+  readonly #maxEntries: number
+  readonly #maxBytes: number
   readonly #entries = new Map<string, CacheEntry<T>>()
+  #bytes = 0
 
-  constructor(max: number) {
-    this.#max = Math.max(1, max)
+  constructor(maxEntries: number, maxBytes = Number.MAX_SAFE_INTEGER) {
+    this.#maxEntries = Math.max(1, maxEntries)
+    this.#maxBytes = Math.max(0, maxBytes)
   }
 
   get size(): number {
     return this.#entries.size
+  }
+
+  get bytes(): number {
+    return this.#bytes
   }
 
   get(key: string): CacheEntry<T> | undefined {
@@ -1304,14 +1382,31 @@ class BoundedLru<T> {
     return entry
   }
 
-  set(key: string, value: T): void {
-    if (this.#entries.has(key)) this.#entries.delete(key)
-    this.#entries.set(key, { value })
-    while (this.#entries.size > this.#max) {
-      const oldest = this.#entries.keys().next().value
-      if (oldest === undefined) break
-      this.#entries.delete(oldest)
+  #evictOldest(): boolean {
+    const oldest = this.#entries.keys().next().value
+    if (oldest === undefined) return false
+    const entry = this.#entries.get(oldest)
+    this.#entries.delete(oldest)
+    this.#bytes -= entry?.bytes ?? 0
+    if (this.#bytes < 0) this.#bytes = 0
+    return true
+  }
+
+  set(key: string, value: T, bytes = 0): void {
+    const existing = this.#entries.get(key)
+    if (existing !== undefined) {
+      this.#entries.delete(key)
+      this.#bytes -= existing.bytes
+      if (this.#bytes < 0) this.#bytes = 0
     }
+    const weight = Number.isSafeInteger(bytes) && bytes > 0 ? bytes : 0
+    if (weight > this.#maxBytes) return
+    while (this.#entries.size >= this.#maxEntries || this.#bytes + weight > this.#maxBytes) {
+      if (!this.#evictOldest()) break
+    }
+    if (this.#entries.size >= this.#maxEntries || this.#bytes + weight > this.#maxBytes) return
+    this.#entries.set(key, { value, bytes: weight })
+    this.#bytes += weight
   }
 }
 
@@ -1340,7 +1435,7 @@ class CompanionZarrStore implements ZarrStore {
     this.format = format
     this.identityKind = identityKind
     this.#limits = limits
-    this.#chunks = new BoundedLru(limits.maxOpenSources)
+    this.#chunks = new BoundedLru(limits.maxOpenSources, limits.maxCachedChunkBytes)
     this.#sessionResource = Object.freeze({
       id: `zarr-session:${prefix}:${format}:${Math.random().toString(36).slice(2)}`,
       name: 'zarr-session',
@@ -1374,7 +1469,7 @@ class CompanionZarrStore implements ZarrStore {
       { kind: 'relative-name', name },
       signal === undefined ? {} : { signal },
     )
-    cache.set(name, resource)
+    cache.set(name, resource, resource?.source.size ?? 0)
     return resource
   }
 

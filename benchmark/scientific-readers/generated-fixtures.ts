@@ -772,6 +772,102 @@ export const generatedScientificFixtures: Readonly<
       payloadRanges: { '0/c/0/0': intersecting },
     }
   },
+  'ome-zarr-sharded-large-generated': () => {
+    const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
+    const width = 4096
+    const height = 4096
+    const shard = 1024
+    const inner = 256
+    const shardsPerAxis = width / shard
+    const innersPerAxis = shard / inner
+    const innerCount = innersPerAxis * innersPerAxis
+    const resources: { name: string; bytes: Uint8Array }[] = [
+      {
+        name: 'zarr.json',
+        bytes: json({
+          zarr_format: 3,
+          node_type: 'group',
+          attributes: {
+            ome: {
+              version: '0.5',
+              multiscales: [
+                {
+                  name: 'sharded-large',
+                  axes: [
+                    { name: 'y', type: 'space', unit: 'micrometer' },
+                    { name: 'x', type: 'space', unit: 'micrometer' },
+                  ],
+                  datasets: [
+                    {
+                      path: '0',
+                      coordinateTransformations: [{ type: 'scale', scale: [1, 1] }],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        }),
+      },
+      {
+        name: '0/zarr.json',
+        bytes: json({
+          zarr_format: 3,
+          node_type: 'array',
+          shape: [height, width],
+          data_type: 'uint8',
+          chunk_grid: { name: 'regular', configuration: { chunk_shape: [shard, shard] } },
+          chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+          fill_value: 0,
+          codecs: [
+            {
+              name: 'sharding_indexed',
+              configuration: {
+                chunk_shape: [inner, inner],
+                codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+                index_codecs: [
+                  { name: 'bytes', configuration: { endian: 'little' } },
+                  { name: 'crc32c' },
+                ],
+                index_location: 'end',
+              },
+            },
+          ],
+          dimension_names: ['y', 'x'],
+          attributes: {},
+        }),
+      },
+    ]
+    const payloadRanges: Record<string, readonly (readonly [number, number])[]> = {}
+    const innerBytes = inner * inner
+    for (let shardY = 0; shardY < shardsPerAxis; shardY += 1) {
+      for (let shardX = 0; shardX < shardsPerAxis; shardX += 1) {
+        const index = new Uint8Array(innerCount * 16)
+        const indexView = new DataView(index.buffer)
+        const shardBytes = new Uint8Array(innerCount * innerBytes + innerCount * 16 + 4)
+        let offset = 0
+        for (let innerY = 0; innerY < innersPerAxis; innerY += 1) {
+          for (let innerX = 0; innerX < innersPerAxis; innerX += 1) {
+            const entry = innerY * innersPerAxis + innerX
+            shardBytes.fill(
+              (shardY * 17 + shardX * 3 + innerY + innerX) & 255,
+              offset,
+              offset + innerBytes,
+            )
+            indexView.setUint32(entry * 16, offset, true)
+            indexView.setUint32(entry * 16 + 8, innerBytes, true)
+            offset += innerBytes
+          }
+        }
+        shardBytes.set(index, offset)
+        new DataView(shardBytes.buffer).setUint32(offset + index.byteLength, crc32c(index), true)
+        const name = `0/c/${shardY}/${shardX}`
+        resources.push({ name, bytes: shardBytes })
+        payloadRanges[name] = [[0, innerCount * innerBytes]]
+      }
+    }
+    return { resources, payloadRanges }
+  },
   'ome-tiff-viewer-generated': () => ({
     resources: [{ name: 'viewer.ome.tiff', bytes: viewerOmeTiff() }],
     payloadRanges: {},

@@ -95,53 +95,65 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 217474,
-      "gzipBytes": 272857,
-      "minifiedBytes": 920474
+      "brotliBytes": 220044,
+      "gzipBytes": 276012,
+      "minifiedBytes": 929590
     },
     "allStableCodecs": {
-      "brotliBytes": 252838,
-      "gzipBytes": 305781,
-      "minifiedBytes": 870730
+      "brotliBytes": 255947,
+      "gzipBytes": 309083,
+      "minifiedBytes": 878712
     },
     "commonWebCodecs": {
-      "brotliBytes": 187584,
-      "gzipBytes": 222866,
-      "minifiedBytes": 605043
+      "brotliBytes": 189956,
+      "gzipBytes": 226300,
+      "minifiedBytes": 613047
     },
     "core": {
-      "brotliBytes": 17171,
-      "gzipBytes": 19388,
-      "minifiedBytes": 61385
+      "brotliBytes": 17195,
+      "gzipBytes": 19448,
+      "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5141294,
+      "bytes": 5181043,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
     "scientificPlatform": {
-      "brotliBytes": 39132,
-      "gzipBytes": 45816,
-      "minifiedBytes": 157982
+      "brotliBytes": 39118,
+      "gzipBytes": 45886,
+      "minifiedBytes": 158032
     }
   },
   "ordinary": {
     "charts": {
-      "speed": "assets/web-codecs-speed-2026-08-16T18-03-12-693Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.png",
-      "quality": "assets/web-codecs-quality-2026-08-16T18-03-12-693Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.png",
-      "memory": "assets/web-codecs-memory-2026-08-16T18-03-12-693Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.png"
+      "speed": {
+        "height": 1714,
+        "src": "assets/web-codecs-speed-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "width": 2400
+      },
+      "quality": {
+        "height": 898,
+        "src": "assets/web-codecs-quality-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "width": 2400
+      },
+      "memory": {
+        "height": 1714,
+        "src": "assets/web-codecs-memory-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "width": 2400
+      }
     },
-    "createdAt": "2026-08-16T18:03:12.693Z",
+    "createdAt": "2026-08-17T17:24:44.463Z",
     "engineVersions": [
       {
         "id": "purejsimage",
         "kind": "pure-javascript",
-        "version": "0.10.0 (workspace)"
+        "version": "0.11.0 (workspace)"
       },
       {
         "id": "purejsimage-wasm",
         "kind": "webassembly",
-        "version": "0.10.0 (workspace WASM)"
+        "version": "0.11.0 (workspace WASM)"
       },
       {
         "id": "jimp",
@@ -180,13 +192,13 @@
     },
     "fixtureManifestHash": "2cd8742e661c23c23f7e4009c8b0e3d9516f77b0ac86873435e5f9082476c494",
     "headline": {
-      "jimpPeakRssBytes": 1246171136,
-      "memoryReductionPercent": 84.26083269513313,
-      "pureJsImagePeakRssBytes": 196136960,
+      "jimpPeakRssBytes": 1246949376,
+      "memoryReductionPercent": 84.5005929093949,
+      "pureJsImagePeakRssBytes": 193269760,
       "workflow": "24-megapixel northstar photo pipeline"
     },
-    "reportJson": "benchmark/results/public/web-codecs-2026-08-16T18-03-12-693Z.json",
-    "reportMarkdown": "benchmark/results/public/web-codecs-2026-08-16T18-03-12-693Z.md",
+    "reportJson": "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.json",
+    "reportMarkdown": "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.md",
     "statusCounts": {
       "pass": 89,
       "unsupported": 16

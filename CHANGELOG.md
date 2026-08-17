@@ -31,11 +31,16 @@ All notable changes to PureJsImage are documented in this file.
   `seriesCount` counts series groups rather than every collected dataset. ZIP stores named
   `*.zarr` / `*.ome.zarr` probe as OME-Zarr, macOS `__MACOSX/` sidecars no longer make a unique
   nested root look ambiguous, a root `labels` list does not hide bioformats2raw series, and extra
-  integer series beyond `maxDatasets` raise `LIMIT_EXCEEDED`. ZIP probes propagate abort and
-  `LIMIT_EXCEEDED`. Pinned IDR slices now include 6001240 sibling labels, an IDR0010 0.5 plate
-  well, an IDR0001 0.4 plate field, and an IDR0101 translation image. BloscLZ, Snappy, bitshuffle,
-  tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
-  operations.
+  integer series beyond `maxDatasets` raise `LIMIT_EXCEEDED`. ZIP probes use name-plus-magic
+  evidence and do not open the archive. Generic Zarr v2 groups are not detected without NGFF
+  attributes. Zarr storage fill is recorded as `zarrFill` rather than `noDataValue`; v3 rejects
+  null and non-numeric integer fills; shard-index codecs must declare endian; nonempty
+  `storage_transformers` are unsupported; NGFF axes must be time, then channel or custom, then
+  2–3 spatial axes; OMERO colors must be six hex digits or 0–0xffffff; and the chunk cache is
+  bounded by `maxCachedChunkBytes`. Pinned IDR slices now include 6001240 sibling labels, an
+  IDR0010 0.5 plate well, an IDR0001 0.4 plate field, and an IDR0101 translation image. BloscLZ,
+  Snappy, bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` requirements, nonempty storage
+  transformers, and writers remain explicit unsupported operations.
 
 ### Changed
 

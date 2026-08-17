@@ -18,6 +18,7 @@ const defaults: Readonly<OmeZarrLimits> = Object.freeze({
   maxChunkBytes: 67_108_864,
   maxDecodedChunkBytes: 67_108_864,
   maxOpenSources: 4_096,
+  maxCachedChunkBytes: 16_777_216,
   maxStoreResolutions: 8_192,
   maxMultiscales: 16,
   maxDatasets: 256,
@@ -52,6 +53,11 @@ const resolveLimits = (input: Partial<OmeZarrLimits> = {}): Readonly<OmeZarrLimi
       input.maxOpenSources,
       defaults.maxOpenSources,
       'OME-Zarr maxOpenSources',
+    ),
+    maxCachedChunkBytes: positive(
+      input.maxCachedChunkBytes,
+      defaults.maxCachedChunkBytes,
+      'OME-Zarr maxCachedChunkBytes',
     ),
     maxStoreResolutions: positive(
       input.maxStoreResolutions,

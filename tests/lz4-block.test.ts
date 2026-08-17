@@ -25,5 +25,15 @@ describe('LZ4 block decoder', () => {
     expect(() => decodeLz4Block(literals(Uint8Array.of(1, 2, 3)), { maxOutputBytes: 2 })).toThrow(
       ImageError,
     )
+    try {
+      decodeLz4Block(literals(Uint8Array.of(1, 2, 3, 4)), {
+        maxOutputBytes: 2,
+        expectedOutputBytes: 8,
+      })
+      throw new Error('Expected LIMIT_EXCEEDED')
+    } catch (error) {
+      expect(error).toBeInstanceOf(ImageError)
+      expect((error as ImageError).code).toBe('LIMIT_EXCEEDED')
+    }
   })
 })

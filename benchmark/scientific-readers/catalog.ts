@@ -228,6 +228,16 @@ const definitions: readonly FixtureDefinition[] = [
       'A 32x32 window inside the shard reads only intersecting inner payloads and the shard index.',
   },
   {
+    id: 'ome-zarr-sharded-large',
+    generatedKey: 'ome-zarr-sharded-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party large sharded OME-NGFF 0.5 / Zarr v3 scaling fixture.',
+    supportBoundary:
+      'Directory-like OME-Zarr 0.5 uint8 4096x4096 image stored as 16 shards of 256x256 inner chunks.',
+    expectedOracle:
+      'Repeated 512x512 windows read only intersecting shard indexes and inner payloads.',
+  },
+  {
     id: 'aperio-svs',
     realResources: [resource('primary', 'tests/fixtures/aperio-cmu-1-small-region.svs')],
     provenance: 'Pinned Aperio CMU-1 small-region whole-slide fixture.',

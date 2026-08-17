@@ -19,6 +19,14 @@ export const decodeLz4Block = (
   ) {
     throw invalidInput('LZ4 expectedOutputBytes must be a non-negative safe integer')
   }
+  if (
+    options.expectedOutputBytes !== undefined &&
+    options.expectedOutputBytes > options.maxOutputBytes
+  ) {
+    throw limitExceeded(
+      `LZ4 expectedOutputBytes ${options.expectedOutputBytes} exceeds maxOutputBytes ${options.maxOutputBytes}`,
+    )
+  }
   let buffer = new Uint8Array(options.expectedOutputBytes ?? Math.min(options.maxOutputBytes, 4096))
   let written = 0
   let cursor = 0
