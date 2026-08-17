@@ -1132,6 +1132,384 @@ describe('OME-Zarr edge cases', () => {
       'INVALID_INPUT',
     )
   })
+
+  it('defaults omitted v3 chunk keys and accepts string, hex, and null fills', async () => {
+    const omittedKey = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': text({
+        zarr_format: 3,
+        node_type: 'array',
+        shape: [2, 2],
+        data_type: 'uint8',
+        chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
+        fill_value: 0,
+        codecs: bytesCodec,
+        attributes: {},
+      }),
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, omittedKey))).toEqual([1, 2, 3, 4])
+
+    const stringFill = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { fill_value: '9' }),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, stringFill))).toEqual([9, 9, 9, 9])
+
+    const hexFill = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, {
+        data_type: 'uint16',
+        fill_value: '0x0009',
+      }),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, hexFill))).toEqual([9, 9, 9, 9])
+
+    const nullInt = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': text({
+        zarr_format: 2,
+        shape: [2, 2],
+        chunks: [2, 2],
+        dtype: '|u1',
+        compressor: null,
+        fill_value: null,
+        order: 'C',
+        filters: null,
+        dimension_separator: '/',
+      }),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, nullInt, '.zgroup'))).toEqual([
+      0, 0, 0, 0,
+    ])
+
+    const omittedV2Fill = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': text({
+        zarr_format: 2,
+        shape: [2, 2],
+        chunks: [2, 2],
+        dtype: '|u1',
+        compressor: null,
+        order: 'C',
+        filters: null,
+        dimension_separator: '/',
+      }),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, omittedV2Fill, '.zgroup'))).toEqual([
+      0, 0, 0, 0,
+    ])
+
+    const nanFill = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': text({
+        zarr_format: 3,
+        node_type: 'array',
+        shape: [2, 2],
+        data_type: 'float32',
+        chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
+        chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+        fill_value: null,
+        codecs: bytesCodec,
+        attributes: {},
+      }),
+    }
+    const nanDataset = await openDataset(omeZarrReader, nanFill)
+    expect(Number.isNaN(nanDataset.descriptor.noDataValue)).toBe(true)
+    const nanValues = await planeValues(nanDataset)
+    expect(nanValues).toHaveLength(4)
+    expect(nanValues.every((value) => Number.isNaN(value))).toBe(true)
+
+    const infinityInt = regularStore()
+    infinityInt['0/zarr.json'] = arrayMeta([8, 8], [8, 8], bytesCodec, { fill_value: 'Infinity' })
+    await expectCode(() => openDataset(omeZarrReader, infinityInt), 'INVALID_INPUT')
+
+    const fractional = regularStore()
+    fractional['0/zarr.json'] = arrayMeta([8, 8], [8, 8], bytesCodec, {
+      data_type: 'uint64',
+      fill_value: 1.5,
+    })
+    await expectCode(() => openDataset(omeZarrReader, fractional), 'INVALID_INPUT')
+  })
+
+  it('decodes F-order edge chunks, big-endian samples, shuffle, and numeric OMERO colors', async () => {
+    const clipped = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': v2Array([3, 2], [2, 2], { order: 'F', dimension_separator: '/' }),
+      '0/0/0': Uint8Array.of(1, 3, 2, 4),
+      '0/1/0': Uint8Array.of(5, 6),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, clipped, '.zgroup'))).toEqual([
+      1, 2, 3, 4, 5, 6,
+    ])
+
+    const padded = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': v2Array([3, 2], [2, 2], { order: 'F', dimension_separator: '/' }),
+      '0/0/0': Uint8Array.of(1, 3, 2, 4),
+      '0/1/0': Uint8Array.of(5, 0, 6, 0),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, padded, '.zgroup'))).toEqual([
+      1, 2, 3, 4, 5, 6,
+    ])
+
+    const big = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta(
+        [2, 2],
+        [2, 2],
+        [{ name: 'bytes', configuration: { endian: 'big' } }],
+        { data_type: 'uint16' },
+      ),
+      '0/c/0/0': Uint8Array.of(0, 1, 0, 2, 0, 3, 0, 4),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, big))).toEqual([1, 2, 3, 4])
+
+    const shuffled = u16le([1, 2, 3, 4])
+    const elements = 4
+    const encoded = new Uint8Array(8)
+    for (let byte = 0; byte < 2; byte += 1) {
+      for (let element = 0; element < elements; element += 1) {
+        encoded[byte * elements + element] = shuffled[element * 2 + byte] ?? 0
+      }
+    }
+    const shuffleStore = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': v2Array([2, 2], [2, 2], {
+        dtype: '<u2',
+        filters: [{ id: 'shuffle', elementsize: 2 }],
+      }),
+      '0/0/0': encoded,
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, shuffleStore, '.zgroup'))).toEqual([
+      1, 2, 3, 4,
+    ])
+
+    const colored = {
+      'zarr.json': text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: 'stack',
+                axes: [
+                  { name: 'c', type: 'channel' },
+                  { name: 'y', type: 'space' },
+                  { name: 'x', type: 'space' },
+                ],
+                datasets: [
+                  { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1, 1] }] },
+                ],
+              },
+            ],
+            omero: { channels: [{ label: 'DAPI', color: 255 }] },
+          },
+        },
+      }),
+      '0/zarr.json': arrayMeta([1, 2, 2], [1, 2, 2], bytesCodec),
+      '0/c/0/0/0': Uint8Array.of(1, 2, 3, 4),
+    }
+    const dataset = await openDataset(omeZarrReader, colored)
+    expect(dataset.descriptor.axes[0]?.entries?.[0]).toMatchObject({
+      name: 'DAPI',
+      color: 0x00_00ff,
+    })
+  })
+
+  it('treats a zero-size shard payload as fill and rejects index overlap', async () => {
+    const emptyIndex = new Uint8Array(16)
+    const emptyShard = appendCrc32c(emptyIndex)
+    const empty = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta(
+        [2, 2],
+        [2, 2],
+        [
+          {
+            name: 'sharding_indexed',
+            configuration: {
+              chunk_shape: [2, 2],
+              codecs: bytesCodec,
+              index_codecs: [...bytesCodec, { name: 'crc32c' }],
+              index_location: 'end',
+            },
+          },
+        ],
+        { fill_value: 7 },
+      ),
+      '0/c/0/0': emptyShard,
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, empty))).toEqual([7, 7, 7, 7])
+
+    const overlapIndex = new Uint8Array(16)
+    const overlapView = new DataView(overlapIndex.buffer)
+    overlapView.setUint32(0, 4, true)
+    overlapView.setUint32(8, 4, true)
+    const overlapShard = new Uint8Array(24)
+    overlapShard.set(Uint8Array.of(1, 2, 3, 4), 0)
+    overlapShard.set(appendCrc32c(overlapIndex), 4)
+    const overlap = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta(
+        [2, 2],
+        [2, 2],
+        [
+          {
+            name: 'sharding_indexed',
+            configuration: {
+              chunk_shape: [2, 2],
+              codecs: bytesCodec,
+              index_codecs: [...bytesCodec, { name: 'crc32c' }],
+              index_location: 'end',
+            },
+          },
+        ],
+      ),
+      '0/c/0/0': overlapShard,
+    }
+    await expectCode(
+      () => openDataset(omeZarrReader, overlap).then((opened) => planeValues(opened)),
+      'INVALID_INPUT',
+    )
+  })
+
+  it('decodes big-endian shard indexes, v3 transpose, uint64, and UTF-8 BOM metadata', async () => {
+    const beIndex = new Uint8Array(16)
+    const beView = new DataView(beIndex.buffer)
+    beView.setBigUint64(8, 4n, false)
+    const beShard = new Uint8Array(24)
+    beShard.set(Uint8Array.of(1, 2, 3, 4), 0)
+    beShard.set(appendCrc32c(beIndex), 4)
+    const sharded = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta(
+        [2, 2],
+        [2, 2],
+        [
+          {
+            name: 'sharding_indexed',
+            configuration: {
+              chunk_shape: [2, 2],
+              codecs: bytesCodec,
+              index_codecs: [
+                { name: 'bytes', configuration: { endian: 'big' } },
+                { name: 'crc32c' },
+              ],
+              index_location: 'end',
+            },
+          },
+        ],
+      ),
+      '0/c/0/0': beShard,
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, sharded))).toEqual([1, 2, 3, 4])
+
+    const transposed = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta(
+        [2, 3],
+        [2, 3],
+        [
+          { name: 'transpose', configuration: { order: [1, 0] } },
+          { name: 'bytes', configuration: { endian: 'little' } },
+        ],
+      ),
+      '0/c/0/0': Uint8Array.of(1, 4, 2, 5, 3, 6),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, transposed))).toEqual([
+      1, 2, 3, 4, 5, 6,
+    ])
+
+    const u64 = new Uint8Array(32)
+    const u64View = new DataView(u64.buffer)
+    for (const [index, value] of [1, 2, 3, 4].entries())
+      u64View.setBigUint64(index * 8, BigInt(value), true)
+    const uint64Store = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { data_type: 'uint64' }),
+      '0/c/0/0': u64,
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, uint64Store))).toEqual([1, 2, 3, 4])
+
+    const bom = regularStore()
+    const root = bom['zarr.json']
+    if (root === undefined) throw new Error('missing root')
+    bom['zarr.json'] = Uint8Array.of(0xef, 0xbb, 0xbf, ...root)
+    expect(
+      await planeValues(await openDataset(omeZarrReader, bom), { width: 1, height: 1 }),
+    ).toEqual([0])
+  })
+
+  it('treats empty chunk objects as fill and decodes F-order uint16 edge chunks', async () => {
+    const emptyFile = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec, { fill_value: 5 }),
+      '0/c/0/0': new Uint8Array(0),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, emptyFile))).toEqual([5, 5, 5, 5])
+
+    const fortran = {
+      '.zgroup': v2Group(),
+      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
+      '0/.zarray': v2Array([3, 2], [2, 2], { dtype: '<u2', order: 'F', dimension_separator: '/' }),
+      '0/0/0': u16le([1, 3, 2, 4]),
+      '0/1/0': u16le([5, 6]),
+    }
+    expect(await planeValues(await openDataset(omeZarrReader, fortran, '.zgroup'))).toEqual([
+      1, 2, 3, 4, 5, 6,
+    ])
+
+    const translation = {
+      'zarr.json': text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                axes: [
+                  { name: 'y', type: 'space', unit: 'micrometer' },
+                  { name: 'x', type: 'space', unit: 'micrometer' },
+                ],
+                datasets: [
+                  {
+                    path: '0',
+                    coordinateTransformations: [
+                      { type: 'scale', scale: [2, 3] },
+                      { type: 'translation', translation: [10, 20] },
+                    ],
+                  },
+                ],
+                coordinateTransformations: [{ type: 'scale', scale: [0.5, 0.5] }],
+              },
+            ],
+          },
+        },
+      }),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec),
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+    }
+    const dataset = await openDataset(omeZarrReader, translation)
+    expect(dataset.descriptor.axes.find((axis) => axis.id === 'y')?.coordinates).toEqual({
+      type: 'linear',
+      origin: 5,
+      step: 1,
+    })
+    expect(dataset.descriptor.axes.find((axis) => axis.id === 'x')?.coordinates).toEqual({
+      type: 'linear',
+      origin: 10,
+      step: 1.5,
+    })
+  })
 })
 
 const fixtureRoot = 'tests/fixtures/scientific-ome-zarr'

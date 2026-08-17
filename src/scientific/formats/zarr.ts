@@ -173,6 +173,9 @@ const parseDataType = (value: unknown): RasterSampleType => {
   return type
 }
 
+const isFloatSampleType = (sampleType: RasterSampleType): boolean =>
+  sampleType === 'float16' || sampleType === 'float32' || sampleType === 'float64'
+
 const writeNumericSample = (
   view: DataView,
   sampleType: RasterSampleType,
@@ -195,24 +198,61 @@ const writeNumericSample = (
   else view.setFloat64(0, value, littleEndian)
 }
 
+const writeIntegerBits = (
+  bits: bigint,
+  sampleType: RasterSampleType,
+  littleEndian: boolean,
+): Uint8Array => {
+  const bytes = new Uint8Array(rasterSampleBytes(sampleType))
+  const view = new DataView(bytes.buffer)
+  const masked = bits & ((1n << BigInt(bytes.byteLength * 8)) - 1n)
+  if (bytes.byteLength === 1) view.setUint8(0, Number(masked))
+  else if (bytes.byteLength === 2) view.setUint16(0, Number(masked), littleEndian)
+  else if (bytes.byteLength === 4) view.setUint32(0, Number(masked), littleEndian)
+  else view.setBigUint64(0, masked, littleEndian)
+  return bytes
+}
+
 const parseFillValue = (
   value: unknown,
   sampleType: RasterSampleType,
   littleEndian: boolean,
 ): { readonly numeric: number; readonly bytes: Uint8Array } => {
+  const floating = isFloatSampleType(sampleType)
   let numeric: number
-  if (value === null || value === 'NaN') {
-    if (sampleType !== 'float16' && sampleType !== 'float32' && sampleType !== 'float64') {
+  let bytes: Uint8Array | undefined
+  if (value === undefined || value === null) {
+    numeric = floating && value === null ? Number.NaN : 0
+  } else if (value === 'NaN') {
+    if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+    numeric = Number.NaN
+  } else if (value === 'Infinity' || value === '-Infinity') {
+    if (!floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+    numeric = value === 'Infinity' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
+  } else if (typeof value === 'number' && Number.isFinite(value)) numeric = value
+  else if (typeof value === 'boolean') numeric = value ? 1 : 0
+  else if (typeof value === 'string') {
+    const hex = /^0x([0-9a-fA-F]+)$/u.exec(value)
+    if (hex !== null) {
+      if (floating) throw invalidInput(`Zarr fill_value ${value} is invalid for ${sampleType}`)
+      const bits = BigInt(`0x${hex[1]}`)
+      bytes = writeIntegerBits(bits, sampleType, littleEndian)
+      numeric = Number(bits)
+    } else {
+      const parsed = Number(value.trim())
+      if (value.trim().length === 0 || !Number.isFinite(parsed)) {
+        throw invalidInput('Zarr fill_value is unsupported')
+      }
+      numeric = parsed
+    }
+  } else throw invalidInput('Zarr fill_value is unsupported')
+  if (bytes === undefined) {
+    if (!floating && !Number.isInteger(numeric)) {
       throw invalidInput(`Zarr fill_value ${String(value)} is invalid for ${sampleType}`)
     }
-    numeric = Number.NaN
-  } else if (value === 'Infinity') numeric = Number.POSITIVE_INFINITY
-  else if (value === '-Infinity') numeric = Number.NEGATIVE_INFINITY
-  else if (typeof value === 'number' && Number.isFinite(value)) numeric = value
-  else if (typeof value === 'boolean') numeric = value ? 1 : 0
-  else throw invalidInput('Zarr fill_value is unsupported')
-  const bytes = new Uint8Array(rasterSampleBytes(sampleType))
-  writeNumericSample(new DataView(bytes.buffer), sampleType, numeric, littleEndian)
+    bytes = new Uint8Array(rasterSampleBytes(sampleType))
+    writeNumericSample(new DataView(bytes.buffer), sampleType, numeric, littleEndian)
+  }
   return { numeric, bytes }
 }
 
@@ -240,6 +280,9 @@ const parseEndian = (codecs: readonly ZarrCodec[], sampleType: RasterSampleType)
 const parseChunkKeyEncoding = (
   value: unknown,
 ): { readonly name: 'default' | 'v2'; readonly separator: string } => {
+  if (value === undefined || value === null) {
+    return { name: 'default', separator: '/' }
+  }
   if (!isRecord(value)) throw invalidInput('Zarr chunk_key_encoding is invalid')
   const name = requiredString(value.name, 'Zarr chunk_key_encoding.name')
   if (name !== 'default' && name !== 'v2') {
@@ -709,7 +752,14 @@ const decodeBytesCodecs = async (
         primary.length,
         true,
       )
-      current = decodeTranspose(current, primary, order, sampleBytes)
+      const matched = logicalShapes.find(
+        (shape) =>
+          checkedProduct([...shape, sampleBytes], 'Zarr transpose bytes') === current.byteLength,
+      )
+      if (matched === undefined) {
+        throw invalidInput('Zarr transpose payload does not match the chunk shape')
+      }
+      current = decodeTranspose(current, matched, order, sampleBytes)
       continue
     }
     throw unsupportedOperation(`Zarr codec ${codec.name} is unsupported`)
@@ -814,7 +864,9 @@ const decodeShard = async (
     limits,
     signal,
   )
-  const view = new DataView(index.data.buffer, index.data.byteOffset, index.data.byteLength)
+  const indexEndian = indexCodecs.find((entry) => entry.name === 'bytes')?.configuration.endian
+  const indexBytes = indexEndian === 'big' ? swapEndian(index.data, 8) : index.data
+  const view = new DataView(indexBytes.buffer, indexBytes.byteOffset, indexBytes.byteLength)
   let linear = 0
   let stride = 1
   for (let axis = counts.length - 1; axis >= 0; axis -= 1) {
@@ -824,14 +876,19 @@ const decodeShard = async (
   const entry = linear * 16
   const payloadOffset = readUint64(view, entry, 'Zarr shard chunk offset')
   const payloadBytes = readUint64(view, entry + 8, 'Zarr shard chunk size')
-  if (payloadOffset === undefined || payloadBytes === undefined) {
+  if (payloadOffset === undefined || payloadBytes === undefined || payloadBytes === 0) {
     return { data: new Uint8Array(0), shape: decodedInnerShape }
   }
   if (payloadBytes > limits.maxChunkBytes) {
     throw limitExceeded(`Zarr shard inner chunk exceeds ${limits.maxChunkBytes} bytes`)
   }
-  if (payloadOffset + payloadBytes > source.size) {
+  if (payloadBytes > source.size || payloadOffset > source.size - payloadBytes) {
     throw invalidInput('Zarr shard inner chunk extends outside the shard')
+  }
+  const payloadEnd = payloadOffset + payloadBytes
+  const indexEnd = indexOffset + encodedIndexBytes
+  if (payloadOffset < indexEnd && payloadEnd > indexOffset) {
+    throw invalidInput('Zarr shard inner chunk overlaps the shard index')
   }
   const encoded = await readExactly(source, payloadOffset, payloadBytes, {
     ...(signal === undefined ? {} : { signal }),
@@ -916,6 +973,7 @@ const copyFromChunk = (
   sampleBytes: number,
   littleEndian: boolean,
 ): void => {
+  if (copyShape.some((length) => length < 1)) return
   const outputCount = checkedProduct(outputShape, 'Zarr output element count')
   const coords = copyStart.slice()
   const end = copyStart.map((value, index) => value + (copyShape[index] ?? 0))
@@ -1017,12 +1075,8 @@ class CompanionZarrStore implements ZarrStore {
     const bytes = await readExactly(resource.source, 0, resource.source.size, {
       ...(signal === undefined ? {} : { signal }),
     })
-    let text: string
-    try {
-      text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
-    } catch {
-      throw invalidInput(`Zarr metadata ${relative} is not valid UTF-8`)
-    }
+    const text = decodeZarrJsonText(bytes)
+    if (text === undefined) throw invalidInput(`Zarr metadata ${relative} is not valid UTF-8`)
     try {
       return JSON.parse(text) as unknown
     } catch {
@@ -1107,7 +1161,7 @@ class CompanionZarrStore implements ZarrStore {
       })
       const resource = await this.resolve(chunkKey(array, shardCoords), signal)
       const copyStart = start.map((value, axis) => Math.max(value, innerOrigin[axis] ?? 0))
-      if (resource !== undefined) {
+      if (resource !== undefined && resource.source.size > 0) {
         const decoded = await decodeChunkObject(
           resource.source,
           array,
@@ -1161,13 +1215,18 @@ export const createZarrStore = (
   format: 2 | 3 = 3,
 ): ZarrStore => new CompanionZarrStore(resolver, zarrStorePrefix(primaryName), limits, format)
 
-export const readZarrJsonBytes = (bytes: Uint8Array): unknown => {
-  let text: string
+const decodeZarrJsonText = (bytes: Uint8Array): string | undefined => {
   try {
-    text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+    return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text
   } catch {
     return undefined
   }
+}
+
+export const readZarrJsonBytes = (bytes: Uint8Array): unknown => {
+  const text = decodeZarrJsonText(bytes)
+  if (text === undefined) return undefined
   try {
     return JSON.parse(text) as unknown
   } catch {

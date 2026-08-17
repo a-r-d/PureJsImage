@@ -15,8 +15,12 @@ All notable changes to PureJsImage are documented in this file.
   `zarr.json` or `.zgroup` opens as a single-file store without companions. Partial last chunks,
   sharded inner endian, Blosc split streams, and the C-Blosc compressor enumeration are handled.
   A pinned IDR 6001240 coarsest-plane slice cross-checks NGFF 0.4 Blosc/LZ4 against 0.5 sharded
-  Blosc/zstd. BloscLZ, Snappy, bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` requirements,
-  and writers remain explicit unsupported operations.
+  Blosc/zstd. The reader also accepts omitted v3 `chunk_key_encoding`, v2 null/omitted and
+  string/hex `fill_value`s, F-order padded last chunks, numeric OMERO colors, UTF-8 BOM metadata,
+  empty chunk objects, and zero-size shard payloads, honors big-endian shard indexes, and rejects
+  shard payloads that overlap the index. BloscLZ, Snappy, bitshuffle,
+  tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
+  operations.
 
 ## [0.11.0] - 2026-08-16
 

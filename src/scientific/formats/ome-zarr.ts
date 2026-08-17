@@ -199,7 +199,12 @@ const parseOmeroChannels = (value: unknown): readonly ChannelEntry[] | undefined
         channel.label === undefined
           ? undefined
           : requiredString(channel.label, `OME-Zarr omero.channels[${index}].label`)
-      const color = typeof channel.color === 'string' ? parseHexColor(channel.color) : undefined
+      const color =
+        typeof channel.color === 'number' && Number.isSafeInteger(channel.color)
+          ? channel.color & 0xff_ffff
+          : typeof channel.color === 'string'
+            ? parseHexColor(channel.color)
+            : undefined
       return Object.freeze({
         ...(name === undefined ? {} : { name }),
         ...(color === undefined ? {} : { color }),
@@ -420,7 +425,7 @@ class OmeZarrDataset implements ScientificDataset {
       sampleType: base.array.dataType,
       components,
       levels: Object.freeze(levels),
-      noDataValue: Number.isNaN(base.array.fillValue) ? undefined : base.array.fillValue,
+      noDataValue: base.array.fillValue,
       metadata: normalizeScientificMetadataObject({
         omeNgffVersion: parsed.version,
         zarrFormat: store.format,
