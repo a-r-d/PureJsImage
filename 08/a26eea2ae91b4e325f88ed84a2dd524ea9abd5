@@ -1,0 +1,28 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 9-13
+README.md
+  h_9f4a25732fa0c1 68-69,71,275-276,278
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,793,796,799,853,856,859,868,871,874,883,886,889,1108,1111,1114,1123,1126,1129,1183,1186,1189,1349,1352,1355,1380,1383,1386,1395,1398,1401,1425,1428,1431
+benchmark/optimization-log.md
+  h_9f4a25732fa0c1 43-62,76-81,102-110
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 97-99,102-104,107-109,117
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,793,796,799,853,856,859,868,871,874,883,886,889,1108,1111,1114,1123,1126,1129,1183,1186,1189,1349,1352,1355,1380,1383,1386,1395,1398,1401,1425,1428,1431
+src/codecs/jpeg-baseline.ts
+  h_9f4a25732fa0c1 113-128,1201-1203,1210-1277,1624-1658
+src/codecs/jpeg-encode.ts
+  h_9f4a25732fa0c1 991-999,1001-1010,1013-1023,1025-1033
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "08a26eea2ae91b4e325f88ed84a2dd524ea9abd5",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
