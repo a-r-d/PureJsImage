@@ -1,0 +1,16 @@
+.agents/skills/benchmark-hillclimb/SKILL.md
+  h_9f4a25732fa0c1 3,8,10-20,23-50,56,60-194,200-227,229,231,233-236,238-239,241,243-252,254-256,258,260,262-268,270-272,274-276,278-282,284-285,287,289,291-298,300-301
+.agents/skills/benchmark-hillclimb/agents/openai.yaml
+  h_9f4a25732fa0c1 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "605e768dd353982c666ba12e44d933abdcb648ae",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
