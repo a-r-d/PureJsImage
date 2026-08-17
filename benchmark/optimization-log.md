@@ -40,6 +40,26 @@ repeat a dead end without new evidence.
 - Rejected `JPEG-030`: specialized `decodeBlockScale4`/`decodeBlockDcOnly`.
   1164 → 804 ms versus HEAD, indistinguishable from JPEG-029b's 802 ms.
 
+## JPEG resize-1200 campaign
+
+- Workload: `jpeg-resize-1200` — tundra 4000x3000 4:2:2 JPEG, resize 1200x900,
+  JPEG 80. Goal is end-to-end speed versus Sharp (official 777 vs 72 ms).
+- Scale 2 is selected (2000x1500 decode). Profile put `inverseDctReduced`
+  first (~25%), then `resizedBlocks` (~20%), then YCbCr render and Huffman.
+- Retained `JPEG-031`: unroll the scale-2 4x4 IDCT. 714 → 568 ms (−20.38%).
+  Exact hash.
+- Retained `JPEG-032`: 4:2:2 YCbCr render skips vertical chroma bilinear
+  (chroma V already equals max). Incremental ~568 → 557 ms. RSS +4.12% vs
+  HEAD, under the 5% reject.
+- Neighbor `jpeg-crop-resize` on the full stack: exact hash, 627 → 515 ms
+  (−17.95%).
+- Retained `JPEG-036`: unroll the encoder DCT in `quantize`. Incremental
+  557 → 543 ms. Exact hash. Versus Sharp (~72 ms) the primary is ~543 ms
+  (~7.5×).
+- Post-036 profile: resize ~26%, decode entropy/IDCT ~31%, 4:2:2 render ~7%,
+  encode DCT ~6%. Three resize-kernel experiments missed; further resize work
+  needs a size-safe core plan.
+
 ## Northstar scaled-decode campaign
 
 | ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
@@ -53,6 +73,12 @@ repeat a dead end without new evidence.
 | JPEG-029 | 2026-08-17 19:43 | Move leftover-AC skip onto `JpegEntropyReader` with per-call `tryFill`/`skip` closures. | 1151.76 → 928.85 | **-19.35%** vs HEAD (slower than JPEG-028) | +0.31% | rejected | Replaced in place; closures allocated on every block. |
 | JPEG-029b | 2026-08-17 19:44 | Same reader-local leftover-AC skip, fully inlined, no closures. | 1149.29 → 802.10 | **-30.21%** vs HEAD (~−3.6% vs JPEG-028) | -0.46% | material | Retained. Exact hash; candidate MAD 3.33 ms. |
 | JPEG-030 | 2026-08-17 20:15 | Specialize `decodeBlockScale4` / `decodeBlockDcOnly` instead of one limited decoder. | 1164.43 → 804.09 | **-30.95%** vs HEAD (~0% vs JPEG-029b) | -3.29% | neutral | Reverted. First attempt also broke scale-8 DC writes. |
+| JPEG-031 | 2026-08-17 20:28 | Unroll scale-2 `inverseDct4` to 16 dequantized products and a fixed 4x4 transform; remove unused `inverseDctReduced`. | 713.81 → 568.32 | **-20.38%** | -0.56% | material | Retained. Exact hash on `jpeg-resize-1200`. |
+| JPEG-032 | 2026-08-17 20:30 | Skip vertical chroma bilinear when chroma V equals max (4:2:2). Horizontal mix only. | 710.07 → 557.46 | **-21.49%** vs HEAD (~−1.9% vs JPEG-031) | +4.12% | promising | Retained. Exact hash. Tundra is 4:2:2. |
+| JPEG-033 | 2026-08-17 20:32 | Reuse one chroma pair across two luma pixels when 4:2:2 X weights match. | 708.75 → 561.65 | **-20.76%** vs HEAD (slower than JPEG-032) | +2.13% | rejected | Reverted. Extra per-pixel branch outweighed the skipped mix. |
+| JPEG-034 | 2026-08-17 20:38 | Specialize RGB8 vertical resize accumulation with a 3-channel inner loop. | 731.05 → 564.45 | **-22.79%** vs HEAD (slower than JPEG-032 557 ms) | +4.48% | rejected | Reverted. Duplicated loop did not beat the generic accumulate. |
+| JPEG-035 | 2026-08-17 20:39 | Fast-path `writeContent` for rgb8→rgb8 without gray/alpha branches. | 710.20 → 553.98 | **-22.00%** vs HEAD (~0% vs JPEG-032) | +3.52% | rejected | Reverted. Within noise of JPEG-032 and grows the core resize path. |
+| JPEG-036 | 2026-08-17 20:41 | Unroll both separable passes of the JPEG encoder DCT in `quantize`. | 714.66 → 542.80 | **-24.05%** vs HEAD (~−2.6% vs JPEG-032) | +3.31% | promising | Retained. Exact hash; candidate MAD 2.31 ms. |
 
 Measurement artifacts:
 
@@ -73,6 +99,15 @@ Measurement artifacts:
 - Neighbor `jpeg-resize-1200` (full stack): `.tmp/hillclimb/2026-08-17T19-47-14-989Z/comparison.md`
 - Imazen JPEG: `.tmp/imazen-jpeg-025/imazen-jpeg-conformance.md`
 - JPEG-030: `.tmp/hillclimb/2026-08-17T20-15-21-834Z/comparison.md`
+- JPEG-031: `.tmp/hillclimb/2026-08-17T20-28-36-634Z/comparison.md`
+- JPEG-032: `.tmp/hillclimb/2026-08-17T20-30-52-595Z/comparison.md`
+- JPEG-033: `.tmp/hillclimb/2026-08-17T20-32-28-603Z/comparison.md`
+- JPEG-034: `.tmp/hillclimb/2026-08-17T20-38-10-149Z/comparison.md`
+- JPEG-035: `.tmp/hillclimb/2026-08-17T20-39-58-332Z/comparison.md`
+- JPEG-036: `.tmp/hillclimb/2026-08-17T20-41-56-533Z/comparison.md`
+- Imazen JPEG (031–036): `.tmp/imazen-jpeg-031/imazen-jpeg-conformance.md`
+- Neighbor `jpeg-crop-resize` (031–036): `.tmp/hillclimb/2026-08-17T20-43-20-143Z/comparison.md`
+- Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T20-33-45-188Z/comparison.md`
 - Profiles: `.tmp/cpu-northstar-speed/`
 
 ## JPEG speed campaign
