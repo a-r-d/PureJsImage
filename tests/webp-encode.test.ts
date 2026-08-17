@@ -1,14 +1,9 @@
 import { createHash } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import { Image } from './image-library.ts'
-
-const tundra = 'benchmark/corpus/files/tundra-4000x3000.jpg'
-const transparentLogo = 'benchmark/corpus/files/transparent-logo-1200x480.png'
-const oddRgbaFixture = 'benchmark/corpus/files/odd-rgba-257x193.png'
 
 const sha256 = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 
@@ -34,11 +29,11 @@ const writeRgbaPng = (
 const oddRgba = (): Uint8Array =>
   writeRgbaPng(257, 193, (x, y) => [x & 255, y & 255, (x * 17 + y * 31) & 255, (x + y) & 255])
 
-const logoRgba = (): Uint8Array =>
-  writeRgbaPng(240, 96, (x, y) => {
-    const dx = x - 120
-    const dy = y - 48
-    const inside = (dx * dx) / (240 * 240 * 0.2) + (dy * dy) / (96 * 96 * 0.12) < 1
+const logoRgba = (width = 240, height = 96): Uint8Array =>
+  writeRgbaPng(width, height, (x, y) => {
+    const dx = x - width / 2
+    const dy = y - height / 2
+    const inside = (dx * dx) / (width * width * 0.2) + (dy * dy) / (height * height * 0.12) < 1
     return inside ? [20, 110 + ((x >>> 3) & 63), 210, 220] : [0, 0, 0, 0]
   })
 
@@ -143,9 +138,7 @@ describe('WebP encode baselines', { timeout: 30_000 }, () => {
   })
 
   it('keeps pinned lossless bitstreams for the official logo and odd RGBA fixtures', async () => {
-    const logo = await (await Image.open(await readFile(transparentLogo)))
-      .webp({ lossless: true })
-      .toBuffer()
+    const logo = await (await Image.open(logoRgba(1200, 480))).webp({ lossless: true }).toBuffer()
     expect(logo.byteLength).toBe(2188)
     expect(sha256(logo)).toBe('44a5f0e6925af63fa0305ea86b57544b9288d855c66507a5e853637ea00d0a1f')
     const logoPixels = await sharpRgba(logo)
@@ -153,9 +146,7 @@ describe('WebP encode baselines', { timeout: 30_000 }, () => {
     expect(logoDecoded.data).toEqual(logoPixels)
     expect(sample(logoDecoded.data, 1200, 0, 0)).toEqual([0, 0, 0, 0])
 
-    const odd = await (await Image.open(await readFile(oddRgbaFixture)))
-      .webp({ lossless: true })
-      .toBuffer()
+    const odd = await (await Image.open(oddRgba())).webp({ lossless: true }).toBuffer()
     expect(odd.byteLength).toBe(1846)
     expect(sha256(odd)).toBe('8e6cb43e37b3f2b0c1213dea59d2e85b0c09bfa1b20b7c84e18a7896a68ce3ee')
     const oddDecoded = PNG.sync.read(await (await Image.open(odd)).png().toBuffer())
@@ -189,19 +180,31 @@ describe('WebP encode baselines', { timeout: 30_000 }, () => {
     expect(center[3]).toBe(220)
   })
 
-  it('encodes the tundra resize with stable photograph samples', async () => {
-    const image = await Image.open(await readFile(tundra))
-    const encoded = await image.resize({ width: 1200 }).webp({ quality: 80 }).toBuffer()
+  it('encodes a resized photograph with stable samples', async () => {
+    const photograph = writeRgbaPng(640, 480, (x, y) => {
+      const texture = ((x * 29 + y * 17 + ((x * y) % 97)) & 31) - 16
+      return [
+        Math.max(0, Math.min(255, Math.round(40 + (x * 140) / 640 + texture))),
+        Math.max(0, Math.min(255, Math.round(70 + (y * 110) / 480 - texture / 2))),
+        Math.max(0, Math.min(255, Math.round(160 - (y * 80) / 480 + texture / 3))),
+        255,
+      ]
+    })
+    const jpeg = await (await Image.open(photograph)).jpeg({ quality: 90 }).toBuffer()
+    const encoded = await (await Image.open(jpeg))
+      .resize({ width: 320 })
+      .webp({ quality: 80 })
+      .toBuffer()
     const decoded = await sharpRgba(encoded)
     const points = [
-      { x: 0, y: 0, rgb: [165, 216, 255] },
-      { x: 300, y: 225, rgb: [95, 107, 81] },
-      { x: 600, y: 450, rgb: [157, 168, 92] },
-      { x: 900, y: 675, rgb: [93, 138, 62] },
-      { x: 1199, y: 899, rgb: [194, 204, 181] },
+      { x: 0, y: 0, rgb: [42, 69, 156] },
+      { x: 80, y: 60, rgb: [76, 97, 140] },
+      { x: 160, y: 120, rgb: [110, 125, 120] },
+      { x: 240, y: 180, rgb: [144, 153, 102] },
+      { x: 319, y: 239, rgb: [178, 178, 78] },
     ]
     for (const point of points) {
-      const actual = sample(decoded, 1200, point.x, point.y)
+      const actual = sample(decoded, 320, point.x, point.y)
       for (let channel = 0; channel < 3; channel += 1) {
         expect(Math.abs((actual[channel] ?? 0) - (point.rgb[channel] ?? 0))).toBeLessThanOrEqual(20)
       }
