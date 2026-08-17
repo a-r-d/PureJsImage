@@ -1,0 +1,60 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 15-19
+README.md
+  h_9f4a25732fa0c1 71,278
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,892,895,898,1132,1135,1138
+biome.json
+  h_9f4a25732fa0c1 9-16
+capabilities/manifest.json
+  h_9f4a25732fa0c1 265
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 6762
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 98-100,118
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,892,895,898,1132,1135,1138
+docs/scientific-ome-zarr.md
+  h_9f4a25732fa0c1 50-57
+src/scientific/formats/blosc.ts
+  h_9f4a25732fa0c1 10,12-13,88-92,94-96,131,143-154,157-177
+src/scientific/formats/zarr.ts
+  h_9f4a25732fa0c1 219-224,226,652,656-658,709,712,717-724,726-727,729-731,734,762-772,779,782,812,817,828,839-846,853,856,864-874,887-894,1115,1119-1126,1131,1133,1135
+tests/fixtures/scientific-ome-zarr/README.md
+  h_9f4a25732fa0c1 1-9
+tests/fixtures/scientific-ome-zarr/corpus.json
+  h_9f4a25732fa0c1 1-102
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/.zattrs
+  h_9f4a25732fa0c1 1-115
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/.zgroup
+  h_9f4a25732fa0c1 1-3
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/0/.zarray
+  h_9f4a25732fa0c1 1-27
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/1/.zarray
+  h_9f4a25732fa0c1 1-27
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/2/.zarray
+  h_9f4a25732fa0c1 1-27
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/0/zarr.json
+  h_9f4a25732fa0c1 1
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/1/zarr.json
+  h_9f4a25732fa0c1 1
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/2/zarr.json
+  h_9f4a25732fa0c1 1
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/zarr.json
+  h_9f4a25732fa0c1 1
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 534
+tests/scientific-ome-zarr.test.ts
+  h_9f4a25732fa0c1 1-2,24,176,253,262-264,924-1199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5c47ca20b86da30f98cfee7d49f9e895d97c7ff8",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
