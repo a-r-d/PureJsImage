@@ -1,0 +1,27 @@
+README.md
+  s_52a5179db125df::t_04a4e9c5231c7e 68-69,71,275-276,278
+benchmark/generated/package-metrics.json
+  s_52a5179db125df::t_0b530b2f47c10d 179,808,811,814,1108,1111,1114,1153,1156,1159,1349,1352,1355,1380,1383,1386,1425,1428,1431
+docs-astro/src/data/documentation-data.json
+  s_52a5179db125df::t_ff9cfd7d85bd66 97-99,102-104,107-109,117
+docs-astro/src/data/package-metrics.json
+  s_52a5179db125df::t_dd4252215f587b 179,808,811,814,1108,1111,1114,1153,1156,1159,1349,1352,1355,1380,1383,1386,1425,1428,1431
+tests/webp-encode.test.ts
+  s_52a5179db125df::t_72819848479c8f 1,10-13,145-164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8502ec69627c7022096734b5496e8bb636189cc2",
+  "prompts": {},
+  "sessions": {
+    "s_52a5179db125df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ff1f6-7c4d-7783-8a8c-137b1600feff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
