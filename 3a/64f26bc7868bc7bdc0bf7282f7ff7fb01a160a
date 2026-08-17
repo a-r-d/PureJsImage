@@ -1,0 +1,19 @@
+tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/labels/0/0/zarr.json
+  s_52a5179db125df::t_2b230291d20a68 1-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3a64f26bc7868bc7bdc0bf7282f7ff7fb01a160a",
+  "prompts": {},
+  "sessions": {
+    "s_52a5179db125df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ff1f6-7c4d-7783-8a8c-137b1600feff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
