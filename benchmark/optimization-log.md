@@ -102,6 +102,10 @@ profiling.
 | WEBP-006 | 2026-08-17 01:48 | Hoist conversion row bases and reuse each 4:2:0 chroma sample for its two luma pixels in `convertVp8Rows`. | 632.99 → 591.63 | -6.53% | -3.11% | +0.40% | accepted | Retained; primary and lossless pressure paths passed with a negligible RSS change. |
 | WEBP-007 | 2026-08-17 02:29 | Rewrite `predictBlock` with local neighbor samples and direct stores, without reused scratch buffers. | 491.35 → 389.42 | -20.75% | n/a | +15.01% | rejected | Reverted; exact output, but peak RSS exceeded the 5% protected limit. |
 | WEBP-008 | 2026-08-17 02:38 | Keep the allocation-free `predictBlock` rewrite and reuse one coefficient buffer plus Walsh temps across macroblocks. | 489.88 → 380.49 | -22.33% | -23.21% | +3.27% | accepted | Retained; the reused buffers kept the live set inside the RSS gate. |
+| WEBP-009 | 2026-08-17 02:54 | Replace private BooleanDecoder fields with locals inside `bit()` and pass an explicit 128-probability for signs. | 381.67 → 377.46 | -1.10% | -2.07% | +0.02% | inconclusive | Reverted; 5/7 pairs were faster but paired CV was 227% and two pairs were slower. |
+| WEBP-010 | 2026-08-17 02:57 | Replace `Math.max`/`Math.min` clamps in `clampByte` and `saturateInt8` with direct branches. | 385.40 → 375.81 | -2.49% | -3.56% | -0.55% | promising | Retained; 6/7 pairs favored the candidate and paired median cleared 3%. |
+| WEBP-011 | 2026-08-17 02:58 | Inline VP8 loop-filter threshold, common, and macroblock kernels in `filterNormalEdge`, stacked on WEBP-010. | 380.46 → 358.88 | -5.67% | -5.76% | +0.91% | material | Retained; 7/7 pairs faster, exact output, RSS +0.91%. |
+| WEBP-012 | 2026-08-17 02:59 | Precompute 8-bit YUV-to-RGB multiply tables in `yuvToArgb`. | 374.50 → 355.58 | -5.05% | -5.67% | +3.85% | neutral | Reverted; no incremental gain over WEBP-011 and higher RSS. |
 
 Measurement artifacts:
 
@@ -114,6 +118,21 @@ Measurement artifacts:
 - WEBP-006: `.tmp/hillclimb/2026-08-17T01-48-03-807Z/comparison.md`
 - WEBP-007: `.tmp/hillclimb/2026-08-17T02-29-22-647Z/comparison.md`
 - WEBP-008: `.tmp/hillclimb/2026-08-17T02-38-09-800Z/comparison.md`
+- WEBP-009: `.tmp/hillclimb/2026-08-17T02-54-58-462Z/comparison.md`
+- WEBP-010: `.tmp/hillclimb/2026-08-17T02-57-09-012Z/comparison.md`
+- WEBP-011: `.tmp/hillclimb/2026-08-17T02-58-27-936Z/comparison.md`
+- WEBP-012: `.tmp/hillclimb/2026-08-17T02-59-48-180Z/comparison.md`
+
+### WEBP-011 neighboring validation
+
+The retained clamp plus inlined loop-filter stack passed the lossless
+pressure resize and gallery lossy photograph paths. Imazen WebP corpus
+remained 223 pass / 2 unsupported / 0 failures, matching the pre-change
+baseline. Artifacts:
+
+- Lossless pressure: `.tmp/webp-neighbor-lossless-011/memory-lossless.md`
+- Gallery photo: `.tmp/webp-neighbor-photo-011/photo-png.md`
+- Imazen corpus: `.tmp/imazen-webp-hillclimb/imazen-webp-conformance.md`
 
 ### WEBP-006 neighboring validation
 

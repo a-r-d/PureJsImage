@@ -511,7 +511,7 @@ const fixAbove = (
   plane.data.fill(127, offset - plane.stride + size, offset - plane.stride + size + 4)
 }
 
-const clampByte = (value: number): number => Math.max(0, Math.min(255, value))
+const clampByte = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 const average2 = (a: number, b: number): number => (a + b + 1) >> 1
 const average3 = (a: number, b: number, c: number): number => (a + 2 * b + c + 2) >> 2
 
@@ -884,7 +884,7 @@ const reconstruct = (
   }
 }
 
-const saturateInt8 = (value: number): number => Math.max(-128, Math.min(127, value))
+const saturateInt8 = (value: number): number => (value < -128 ? -128 : value > 127 ? 127 : value)
 
 const simpleFilterThreshold = (
   plane: Plane,
@@ -898,36 +898,6 @@ const simpleFilterThreshold = (
   const q1 = plane.data[offset + step] ?? 0
   return Math.abs(p0 - q0) * 2 + (Math.abs(p1 - q1) >> 1) <= limit
 }
-
-const normalFilterThreshold = (
-  plane: Plane,
-  offset: number,
-  step: number,
-  edgeLimit: number,
-  interiorLimit: number,
-): boolean => {
-  if (!simpleFilterThreshold(plane, offset, step, edgeLimit * 2 + interiorLimit)) return false
-  const p3 = plane.data[offset - 4 * step] ?? 0
-  const p2 = plane.data[offset - 3 * step] ?? 0
-  const p1 = plane.data[offset - 2 * step] ?? 0
-  const p0 = plane.data[offset - step] ?? 0
-  const q0 = plane.data[offset] ?? 0
-  const q1 = plane.data[offset + step] ?? 0
-  const q2 = plane.data[offset + 2 * step] ?? 0
-  const q3 = plane.data[offset + 3 * step] ?? 0
-  return (
-    Math.abs(p3 - p2) <= interiorLimit &&
-    Math.abs(p2 - p1) <= interiorLimit &&
-    Math.abs(p1 - p0) <= interiorLimit &&
-    Math.abs(q0 - q1) <= interiorLimit &&
-    Math.abs(q1 - q2) <= interiorLimit &&
-    Math.abs(q2 - q3) <= interiorLimit
-  )
-}
-
-const highEdgeVariance = (plane: Plane, offset: number, step: number, threshold: number): boolean =>
-  Math.abs((plane.data[offset - 2 * step] ?? 0) - (plane.data[offset - step] ?? 0)) > threshold ||
-  Math.abs((plane.data[offset + step] ?? 0) - (plane.data[offset] ?? 0)) > threshold
 
 const filterCommon = (plane: Plane, offset: number, step: number, outerTaps: boolean): void => {
   const p1Offset = offset - 2 * step
@@ -952,27 +922,6 @@ const filterCommon = (plane: Plane, offset: number, step: number, outerTaps: boo
   }
 }
 
-const filterMacroblockEdge = (plane: Plane, offset: number, step: number): void => {
-  const p2Offset = offset - 3 * step
-  const p1Offset = offset - 2 * step
-  const p0Offset = offset - step
-  const q0Offset = offset
-  const q1Offset = offset + step
-  const q2Offset = offset + 2 * step
-  const p1 = plane.data[p1Offset] ?? 0
-  const p0 = plane.data[p0Offset] ?? 0
-  const q0 = plane.data[q0Offset] ?? 0
-  const q1 = plane.data[q1Offset] ?? 0
-  const weight = saturateInt8(saturateInt8(p1 - q1) + 3 * (q0 - p0))
-  const adjust = (coefficient: number): number => (coefficient * weight + 63) >> 7
-  plane.data[p0Offset] = clampByte(p0 + adjust(27))
-  plane.data[q0Offset] = clampByte(q0 - adjust(27))
-  plane.data[p1Offset] = clampByte(p1 + adjust(18))
-  plane.data[q1Offset] = clampByte(q1 - adjust(18))
-  plane.data[p2Offset] = clampByte((plane.data[p2Offset] ?? 0) + adjust(9))
-  plane.data[q2Offset] = clampByte((plane.data[q2Offset] ?? 0) - adjust(9))
-}
-
 const filterNormalEdge = (
   plane: Plane,
   offset: number,
@@ -984,12 +933,57 @@ const filterNormalEdge = (
   varianceThreshold: number,
   macroblockEdge: boolean,
 ): void => {
+  const data = plane.data
+  const simpleLimit = edgeLimit * 2 + interiorLimit
   for (let index = 0; index < length; index += 1) {
     const pixel = offset + index * advance
-    if (!normalFilterThreshold(plane, pixel, step, edgeLimit, interiorLimit)) continue
-    const highVariance = highEdgeVariance(plane, pixel, step, varianceThreshold)
-    if (macroblockEdge && !highVariance) filterMacroblockEdge(plane, pixel, step)
-    else filterCommon(plane, pixel, step, highVariance || macroblockEdge)
+    const p3 = data[pixel - 4 * step] ?? 0
+    const p2 = data[pixel - 3 * step] ?? 0
+    const p1 = data[pixel - 2 * step] ?? 0
+    const p0 = data[pixel - step] ?? 0
+    const q0 = data[pixel] ?? 0
+    const q1 = data[pixel + step] ?? 0
+    const q2 = data[pixel + 2 * step] ?? 0
+    const q3 = data[pixel + 3 * step] ?? 0
+    if (Math.abs(p0 - q0) * 2 + (Math.abs(p1 - q1) >> 1) > simpleLimit) continue
+    if (
+      Math.abs(p3 - p2) > interiorLimit ||
+      Math.abs(p2 - p1) > interiorLimit ||
+      Math.abs(p1 - p0) > interiorLimit ||
+      Math.abs(q0 - q1) > interiorLimit ||
+      Math.abs(q1 - q2) > interiorLimit ||
+      Math.abs(q2 - q3) > interiorLimit
+    ) {
+      continue
+    }
+    const highVariance =
+      Math.abs(p1 - p0) > varianceThreshold || Math.abs(q1 - q0) > varianceThreshold
+    if (macroblockEdge && !highVariance) {
+      const weight = saturateInt8(saturateInt8(p1 - q1) + 3 * (q0 - p0))
+      const adjust27 = (27 * weight + 63) >> 7
+      const adjust18 = (18 * weight + 63) >> 7
+      const adjust9 = (9 * weight + 63) >> 7
+      data[pixel - step] = clampByte(p0 + adjust27)
+      data[pixel] = clampByte(q0 - adjust27)
+      data[pixel - 2 * step] = clampByte(p1 + adjust18)
+      data[pixel + step] = clampByte(q1 - adjust18)
+      data[pixel - 3 * step] = clampByte(p2 + adjust9)
+      data[pixel + 2 * step] = clampByte(q2 - adjust9)
+      continue
+    }
+    let adjustment = 3 * (q0 - p0)
+    const outerTaps = highVariance || macroblockEdge
+    if (outerTaps) adjustment += saturateInt8(p1 - q1)
+    adjustment = saturateInt8(adjustment)
+    const first = Math.min(127, adjustment + 4) >> 3
+    const second = Math.min(127, adjustment + 3) >> 3
+    data[pixel - step] = clampByte(p0 + second)
+    data[pixel] = clampByte(q0 - first)
+    if (!outerTaps) {
+      const outer = (first + 1) >> 1
+      data[pixel - 2 * step] = clampByte(p1 + outer)
+      data[pixel + step] = clampByte(q1 - outer)
+    }
   }
 }
 
