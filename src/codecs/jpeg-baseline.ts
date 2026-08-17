@@ -988,17 +988,33 @@ const inverseDct = (
       const coefficient = coefficients[coefficientOffset + index] ?? 0
       if (coefficient === 0) continue
       const scaled = coefficient * (quantization[index] ?? 0)
+      const basisOffset = horizontal * 8
+      const basis0 = idctBasis[basisOffset] ?? 0
+      const basis1 = idctBasis[basisOffset + 1] ?? 0
+      const basis2 = idctBasis[basisOffset + 2] ?? 0
+      const basis3 = idctBasis[basisOffset + 3] ?? 0
+      const basis4 = idctBasis[basisOffset + 4] ?? 0
+      const basis5 = idctBasis[basisOffset + 5] ?? 0
+      const basis6 = idctBasis[basisOffset + 6] ?? 0
+      const basis7 = idctBasis[basisOffset + 7] ?? 0
       if (rowActive) {
-        const basisOffset = horizontal * 8
-        for (let x = 0; x < 8; x += 1) {
-          const target = rowOffset + x
-          workspace[target] = (workspace[target] ?? 0) + scaled * (idctBasis[basisOffset + x] ?? 0)
-        }
+        workspace[rowOffset] = (workspace[rowOffset] ?? 0) + scaled * basis0
+        workspace[rowOffset + 1] = (workspace[rowOffset + 1] ?? 0) + scaled * basis1
+        workspace[rowOffset + 2] = (workspace[rowOffset + 2] ?? 0) + scaled * basis2
+        workspace[rowOffset + 3] = (workspace[rowOffset + 3] ?? 0) + scaled * basis3
+        workspace[rowOffset + 4] = (workspace[rowOffset + 4] ?? 0) + scaled * basis4
+        workspace[rowOffset + 5] = (workspace[rowOffset + 5] ?? 0) + scaled * basis5
+        workspace[rowOffset + 6] = (workspace[rowOffset + 6] ?? 0) + scaled * basis6
+        workspace[rowOffset + 7] = (workspace[rowOffset + 7] ?? 0) + scaled * basis7
       } else {
-        const basisOffset = horizontal * 8
-        for (let x = 0; x < 8; x += 1) {
-          workspace[rowOffset + x] = scaled * (idctBasis[basisOffset + x] ?? 0)
-        }
+        workspace[rowOffset] = scaled * basis0
+        workspace[rowOffset + 1] = scaled * basis1
+        workspace[rowOffset + 2] = scaled * basis2
+        workspace[rowOffset + 3] = scaled * basis3
+        workspace[rowOffset + 4] = scaled * basis4
+        workspace[rowOffset + 5] = scaled * basis5
+        workspace[rowOffset + 6] = scaled * basis6
+        workspace[rowOffset + 7] = scaled * basis7
         activeRowIndices[activeRowCount] = vertical
         activeRowCount += 1
         rowActive = true

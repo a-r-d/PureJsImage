@@ -11,8 +11,10 @@ repeat a dead end without new evidence.
   resize to 1200x900, JPEG quality 80.
 - Goal: end-to-end speed. The default material threshold is 3% speed or 5%
   peak-RSS improvement, with correctness and protected metrics unchanged.
-- Current baseline: `932270e` (`small jpeg optimization`), the retained IDCT
-  typed-array change in `src/codecs/jpeg-baseline.ts`.
+- Current baseline: `4496dff` (`perf(jpeg): accelerate entropy Huffman decoding`),
+  retaining the IDCT change from `932270e`, the marker-safe entropy and
+  8-bit-prefix Huffman changes from `JPEG-007`, and the unrolled IDCT kernel
+  retained by `JPEG-019`.
 - All measurements below passed support, correctness, operation-signature,
   environment, fixture, and protected-output checks. `outputBytes` stayed at
   zero percent delta in every comparison.
@@ -31,7 +33,23 @@ repeat a dead end without new evidence.
 | JPEG-004 | 2026-08-16 23:56 | Alias RGB ICC matrix/curve arrays in the per-pixel ICC loop. | 3435.44 → 3457.35 | +0.64% | +0.88% | -0.67% | neutral | Reverted; slower for the speed goal. |
 | JPEG-005 | 2026-08-17 00:10 | Combine the retained IDCT change with the YCbCr and Huffman candidates. | 3380.69 → 3343.78 | -1.09% | -2.04% | +0.25% | neutral | Reverted; cumulative result still missed 3% and regressed RSS. |
 | JPEG-006 | 2026-08-17 00:24 | Fuse matrix-ICC conversion into YCbCr rendering to remove the second RGB traversal. | 3661.07 → 3928.86 | +7.31% | +9.76% | +2.30% | rejected | Reverted; per-pixel writer calls cost more than the removed pass. |
-| JPEG-007 | 2026-08-17 00:36 | Add marker-safe buffered entropy lookahead and 8-bit-prefix Huffman tables in `src/codecs/jpeg-baseline.ts` and `src/codecs/jpeg-source.ts`. | 3350.26 → 2911.43 | -13.10% | -13.09% | -1.03% | accepted | Retained in the working tree; exact output and protected metrics matched. |
+| JPEG-007 | 2026-08-17 00:36 | Add marker-safe buffered entropy lookahead and 8-bit-prefix Huffman tables in `src/codecs/jpeg-baseline.ts` and `src/codecs/jpeg-source.ts`. | 3350.26 → 2911.43 | -13.10% | -13.09% | -1.03% | accepted | Retained in `4496dff`; exact output and protected metrics matched. |
+| JPEG-008 | 2026-08-17 01:09 | No-change control: compare the skill-only `HEAD` against `origin/main`. | 3028.76 → 2992.38 | -1.20% | -1.16% | -0.23% | neutral | Control; no source changes retained. |
+| JPEG-009 | 2026-08-17 01:13 | Precompute exact `red+green` ICC matrix contribution pairs to reduce per-pixel lookup work in `src/codecs/icc.ts`. | 2996.98 → 3003.67 | +0.22% | +2.01% | +1.17% | neutral | Reverted; correctness matched, but the table allocation and lookup path were slower and noisier. |
+| JPEG-010 | 2026-08-17 01:18 | Expand the JPEG canonical Huffman prefix table from 8 to 12 bits in `src/codecs/jpeg-baseline.ts`. | 2988.11 → 3079.25 | +3.05% | -1.52% | +0.24% | inconclusive | Seven-pair run was noisy (base CV 8.95%, paired MAD 3.25 percentage points); retained pending 15-pair confirmation. |
+| JPEG-011 | 2026-08-17 01:20 | Confirm `JPEG-010` with 15 paired trials. | 3304.67 → 3467.21 | +4.92% | +2.10% | +0.45% | rejected | Reverted; 11/15 pairs were slower, so the larger prefix table is a credible regression despite matching correctness and protected metrics. |
+| JPEG-012 | 2026-08-17 01:27 | Add a DC-only baseline IDCT fast path that fills constant blocks without the second transform pass. | 3200.62 → 3312.37 | +3.49% | +0.54% | -1.29% | neutral | Reverted; the branch and fill path outweighed the rare arithmetic savings. |
+| JPEG-013 | 2026-08-17 01:31 | Add single-accumulator fast paths for JPEG `readBits` and `skipBits` in the in-memory and source readers. | 3340.31 → 3352.79 | +0.37% | +2.72% | +0.05% | neutral | Reverted; 5/7 pairs were slower and the general loop was not a measurable bottleneck. |
+| JPEG-014 | 2026-08-17 01:35 | Replace ICC `Math.min`/`Math.max` clamping with equivalent bounds branches in `encodeLinear`. | 3404.87 → 3473.36 | +2.01% | +2.30% | -0.01% | neutral | Reverted; the existing clamp form is faster on V8 for this workload. |
+| JPEG-015 | 2026-08-17 01:42 | Use a guarded `Uint32Array` workspace for exact RGB/RGBA box-shrink sums in `src/resize.ts`. | 3487.67 → 3525.18 | +1.08% | +2.95% | -0.45% | neutral | Reverted; the smaller integer workspace did not overcome its extra selection/type cost. |
+| JPEG-016 | 2026-08-17 01:46 | Use direct contiguous source offsets for the full-resolution YCbCr render branch, avoiding three redundant x-index lookups. | 3433.80 → 3397.29 | -1.06% | -0.49% | -1.22% | neutral | Reverted; the paired median was effectively unchanged and far below the material speed threshold. |
+| JPEG-017 | 2026-08-17 01:50 | Remove the baseline decoder’s recycled-plane `fill(0)` pass after each MCU row. | 2971.39 → 3065.96 | +3.18% | +1.21% | -1.31% | rejected | Reverted; stale-plane avoidance is cheaper than the slower reuse path on this workload. |
+| JPEG-018 | 2026-08-17 01:56 | Precompute per-component `quantization × IDCT basis` tables to remove repeated dequantization multiplies in `inverseDct`. | 3080.10 → 3078.49 | -0.05% | +0.25% | +0.28% | neutral | Reverted; the extra table footprint canceled the arithmetic saving. |
+| JPEG-019 | 2026-08-17 02:00 | Unroll the fixed eight horizontal IDCT output accumulations while preserving coefficient order and arithmetic. | 3151.41 → 3053.53 | -3.11% | -2.89% | +0.10% | material | Retained; exact output/protected metrics matched and 6/7 paired trials favored the candidate. |
+| JPEG-020 | 2026-08-17 02:03 | Confirm `JPEG-019` with 15 paired trials. | 3011.58 → 2917.01 | -3.14% | -3.14% | -0.58% | inconclusive | Retained provisionally; 13/15 pairs favored the candidate and the median remained material, but two extreme slow pairs exceeded the runner’s 10% CV comparability guard. |
+| JPEG-021 | 2026-08-17 02:08 | Validate retained `JPEG-019` on neighboring `jpeg-resize-1200`. | 804.19 → 854.49 | +6.25% | +3.02% | -0.38% | inconclusive | Kept provisionally; the neighbor is noisy (paired CV 271%) and the candidate-specific unrolled scale-1 kernel needs a higher-sample check before being discarded. |
+| JPEG-022 | 2026-08-17 02:10 | Confirm neighboring `jpeg-resize-1200` with 15 paired trials. | 811.37 → 822.00 | +1.31% | +0.30% | -0.28% | inconclusive | No cross-workload speed win, but the paired median was near zero with 504% CV; keep the primary-specific kernel and validate a same-source crop/resize neighbor. |
+| JPEG-023 | 2026-08-17 02:13 | Validate retained `JPEG-019` on same-source `jpeg-crop-resize`. | 748.81 → 727.77 | -2.81% | -0.25% | +0.31% | neutral | Reconfirmed correctness and a noisy directional speed benefit, but the paired median stayed below the promising threshold; no additional change retained. |
 
 Measurement artifacts:
 
@@ -42,6 +60,28 @@ Measurement artifacts:
 - JPEG-005: `.tmp/hillclimb/2026-08-17T00-10-26-156Z/comparison.md`
 - JPEG-006: `.tmp/hillclimb/2026-08-17T00-24-28-306Z/comparison.md`
 - JPEG-007: `.tmp/hillclimb/2026-08-17T00-36-30-485Z/comparison.md`
+- JPEG-008: `.tmp/hillclimb/2026-08-17T01-09-41-480Z/comparison.md`
+- JPEG-009: `.tmp/hillclimb/2026-08-17T01-13-59-577Z/comparison.md`
+- JPEG-010: `.tmp/hillclimb/2026-08-17T01-18-11-586Z/comparison.md`
+- JPEG-011: `.tmp/hillclimb/2026-08-17T01-20-41-864Z/comparison.md`
+- JPEG-012: `.tmp/hillclimb/2026-08-17T01-27-17-605Z/comparison.md`
+- JPEG-013: `.tmp/hillclimb/2026-08-17T01-31-01-748Z/comparison.md`
+- JPEG-014: `.tmp/hillclimb/2026-08-17T01-35-01-265Z/comparison.md`
+- JPEG-015: `.tmp/hillclimb/2026-08-17T01-42-31-014Z/comparison.md`
+- JPEG-016: `.tmp/hillclimb/2026-08-17T01-46-26-709Z/comparison.md`
+- JPEG-017: `.tmp/hillclimb/2026-08-17T01-50-14-878Z/comparison.md`
+- JPEG-018: `.tmp/hillclimb/2026-08-17T01-56-29-204Z/comparison.md`
+- JPEG-019: `.tmp/hillclimb/2026-08-17T02-00-49-091Z/comparison.md`
+- JPEG-020: `.tmp/hillclimb/2026-08-17T02-03-09-738Z/comparison.md`
+- JPEG-021: `.tmp/hillclimb/2026-08-17T02-08-08-687Z/comparison.md`
+- JPEG-022: `.tmp/hillclimb/2026-08-17T02-10-01-060Z/comparison.md`
+- JPEG-023: `.tmp/hillclimb/2026-08-17T02-13-10-755Z/comparison.md`
+
+## Retained-stack validation
+
+- JPEG corpus: `.tmp/hillclimb/jpeg-corpus-2026-08-17-escalated/` — 254
+  images, 39 pass, 2 unsupported, 167 safely rejected, 46 accepted, and 0
+  decode failures, raw exceptions, timeouts, process crashes, or OOM results.
 
 ## WebP speed campaign
 
