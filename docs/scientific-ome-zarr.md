@@ -17,20 +17,26 @@ names. Node callers can use `createScientificPathContext` on that root file; bro
 pass a directory `File` list through `createScientificFileContext`. A directory-picker path such as
 `plate.zarr/zarr.json` keeps children under the same store prefix.
 
-A ZIP archive whose root contains `zarr.json` or `.zgroup` is also a store. Stored members stay
-range-readable; deflated members are decoded as whole objects. The `.ozx` name is accepted as a
-hint. RFC-9 zip-comment and `jsonFirst` recommendations are not required. Nested or multi-part
-archives remain rejected. The reader does not invent a second store abstraction.
+A ZIP archive whose root contains `zarr.json` or `.zgroup` is also a store. A single nested
+prefix such as `image.zarr/zarr.json` is accepted; two sibling store roots are rejected. macOS
+`__MACOSX/` sidecar members are ignored when deciding uniqueness. Stored members stay
+range-readable; deflated members are decoded as whole objects. `.ozx`, `.zip`, `.zarr.zip`, and
+`.zarr` / `.ome.zarr` names are ZIP probe hints. RFC-9 zip-comment and `jsonFirst`
+recommendations are not required. The reader does not invent a second store abstraction.
+
+A `bioformats2raw.layout` root without `multiscales` is scanned as consecutive series groups
+`0/`, `1/`, … until the next integer path is missing. A leftover root `labels` list does not
+replace that series scan. Extra integer series beyond `maxDatasets` fail with `LIMIT_EXCEEDED`.
 
 ## Supported boundary
 
 | Surface | Implemented boundary |
 | --- | --- |
 | Specification | OME-NGFF 0.5 image `multiscales` on Zarr v3, and OME-NGFF 0.4 on Zarr v2. |
-| Resource model | Directory-like group plus arrays and chunk objects, or a ZIP archive with root-level Zarr metadata. |
+| Resource model | Directory-like group plus arrays and chunk objects, or a ZIP archive with root-level or one nested Zarr prefix. |
 | Chunks | Regular grids and `sharding_indexed` with index-at-end or index-at-start. Missing chunks become the declared fill value. |
 | Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, `transpose`, `shuffle`, and Blosc 1 with LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c`. |
-| Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` colors and source. Plate wells become one dataset per field, with well path and indices in metadata. Arrays become resolution levels. Axes, scale/translation, units, and optional OMERO channel names/colors are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
+| Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` colors and source. Plate wells become one dataset per field, with well path and indices in metadata. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and optional OMERO channel names/colors are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
 | Reads | Selected planes fetch only intersecting shards/inner chunks. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
 
 ## Explicit exclusions
@@ -53,10 +59,15 @@ shuffle, numeric and `#RRGGBB` OMERO colors, UTF-8 BOM metadata, 4D and F-order 
 index-at-start shards, empty chunk objects, empty optional `.zattrs`, trailing dataset slashes,
 `numcodecs.*` ids, case-insensitive NaN fills, gzip/Blosc edge chunks, crc32c array codecs,
 zero-size and overlapping shard payloads, store-prefix and Node
-directory resolution, browser `File` companions, stored and deflated ZIP roots, and hostile
+directory resolution, browser `File` companions, stored and deflated ZIP roots, `*.zarr` /
+`*.ome.zarr` ZIP probe hints, `__MACOSX/` sidecars beside a unique nested root, a root `labels`
+list that must not hide bioformats2raw series, `maxDatasets` overflow on extra series, and hostile
 traversal/limit cases. CRC-32C is checked against the Castagnoli vector `123456789`.
 
 A pinned IDR 6001240 slice (CC-BY-4.0) independently encodes the same coarsest plane as NGFF 0.4
 Blosc/LZ4 and NGFF 0.5 sharded Blosc/zstd. Both must decode to the same uint16 2x2 window.
+A pinned IDR0033 `BR00109990_C2` 0.5 slice (CC-BY-4.0) is a bioformats2raw layout root; opening it
+must publish series `0` and decode the coarsest uint16 plane, including when those members are
+zipped under a single `*.zarr/` prefix.
 Zarrita, Viv, Vizarr, Neuroglancer, and ITK-Wasm remain comparison targets, not runtime
 dependencies.

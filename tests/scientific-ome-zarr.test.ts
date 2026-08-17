@@ -893,14 +893,25 @@ describe('OME-Zarr ZIP store', () => {
     expect(await planeValues(await browser.openDataset('image'))).toEqual([1, 1, 1, 1])
   })
 
-  it('rejects nested-only metadata, non-Zarr ZIPs, and missing directory companions', async () => {
+  it('opens a single nested ZIP store and rejects ambiguous or non-Zarr ZIPs', async () => {
     const nestedOnly = {
       'nested/zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
       'nested/0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec),
       'nested/0/c/0/0': Uint8Array.of(1, 2, 3, 4),
     }
-    expect((await omeZarrReader.probe(zipContext(nestedOnly))).confidence).toBe(0)
-    await expectCode(() => omeZarrReader.open(zipContext(nestedOnly)), 'INVALID_INPUT')
+    expect((await omeZarrReader.probe(zipContext(nestedOnly))).confidence).toBeGreaterThan(0.9)
+    expect(
+      await planeValues(
+        await omeZarrReader.open(zipContext(nestedOnly)).then((doc) => doc.openDataset('image')),
+      ),
+    ).toEqual([1, 2, 3, 4])
+
+    const ambiguous = {
+      'a.zarr/zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      'b.zarr/zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+    }
+    expect((await omeZarrReader.probe(zipContext(ambiguous))).confidence).toBe(0)
+    await expectCode(() => omeZarrReader.open(zipContext(ambiguous)), 'INVALID_INPUT')
 
     const notZarr = zipContext({ 'main.xml': new TextEncoder().encode('<x3p/>') }, 'surface.x3p')
     expect((await omeZarrReader.probe(notZarr)).confidence).toBe(0)
@@ -919,6 +930,30 @@ describe('OME-Zarr ZIP store', () => {
         }),
       'INVALID_INPUT',
     )
+
+    const zarrNamed = zipContext(nestedOnly, 'image.ome.zarr')
+    expect((await omeZarrReader.probe(zarrNamed)).confidence).toBeGreaterThan(0.9)
+    expect(
+      await planeValues(
+        await omeZarrReader.open(zarrNamed).then((doc) => doc.openDataset('image')),
+      ),
+    ).toEqual([1, 2, 3, 4])
+
+    const macosSidecar = {
+      ...nestedOnly,
+      '__MACOSX/nested/zarr.json': text({ zarr_format: 3, node_type: 'group', attributes: {} }),
+      '__MACOSX/._nested': Uint8Array.of(0, 5, 0x16, 7),
+    }
+    expect(
+      (await omeZarrReader.probe(zipContext(macosSidecar, 'image.zarr'))).confidence,
+    ).toBeGreaterThan(0.9)
+    expect(
+      await planeValues(
+        await omeZarrReader
+          .open(zipContext(macosSidecar, 'image.zarr'))
+          .then((doc) => doc.openDataset('image')),
+      ),
+    ).toEqual([1, 2, 3, 4])
   })
 })
 
@@ -1714,6 +1749,294 @@ describe('OME-Zarr edge cases', () => {
       1, 2, 3, 4,
     ])
   })
+
+  it('opens bioformats2raw layout roots as consecutive series groups', async () => {
+    const seriesAttrs = (name: string, pixels: Uint8Array): Record<string, Uint8Array> => ({
+      [`${name}/.zgroup`]: v2Group(),
+      [`${name}/.zattrs`]: text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: `series-${name}`,
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      [`${name}/0/.zarray`]: v2Array([2, 2], [2, 2]),
+      [`${name}/0/0/0`]: pixels,
+    })
+    const files = {
+      '.zgroup': v2Group(),
+      '.zattrs': text({ 'bioformats2raw.layout': 3 }),
+      ...seriesAttrs('0', Uint8Array.of(1, 2, 3, 4)),
+      ...seriesAttrs('1', Uint8Array.of(5, 6, 7, 8)),
+    }
+    const probed = await omeZarrReader.probe(trackingContext(files, '.zattrs').context)
+    expect(probed.confidence).toBeGreaterThan(0.85)
+    const document = await omeZarrReader.open(trackingContext(files, '.zgroup').context)
+    expect(document.metadata.bioformats2rawLayout).toBe(3)
+    expect(document.metadata.seriesCount).toBe(2)
+    expect(document.datasets.map((entry) => entry.id)).toEqual(['0', '1'])
+    expect(await planeValues(await document.openDataset('0'))).toEqual([1, 2, 3, 4])
+    expect(await planeValues(await document.openDataset('1'))).toEqual([5, 6, 7, 8])
+  })
+
+  it('discovers series without root .zattrs and does not count labels as series', async () => {
+    const files = {
+      '.zgroup': v2Group(),
+      '0/.zgroup': v2Group(),
+      '0/.zattrs': text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'only',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '0/0/.zarray': v2Array([2, 2], [2, 2]),
+      '0/0/0/0': Uint8Array.of(9, 8, 7, 6),
+      '0/labels/.zgroup': v2Group(),
+      '0/labels/.zattrs': text({ labels: ['cell'] }),
+      '0/labels/cell/.zgroup': v2Group(),
+      '0/labels/cell/.zattrs': text({
+        version: '0.4',
+        'image-label': { colors: [{ 'label-value': 1, rgba: [0, 255, 0, 255] }] },
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'cells',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '0/labels/cell/0/.zarray': v2Array([2, 2], [2, 2]),
+      '0/labels/cell/0/0/0': Uint8Array.of(0, 1, 1, 0),
+    }
+    const document = await omeZarrReader.open(trackingContext(files, '.zgroup').context)
+    expect(document.metadata.seriesCount).toBe(1)
+    expect(document.metadata.bioformats2rawLayout).toBeUndefined()
+    expect(document.datasets.map((entry) => entry.id)).toEqual(['0', '0/labels/cell'])
+    expect(await planeValues(await document.openDataset('0'))).toEqual([9, 8, 7, 6])
+    expect(await planeValues(await document.openDataset('0/labels/cell'))).toEqual([0, 1, 1, 0])
+
+    const stringLayout = {
+      '.zgroup': v2Group(),
+      '.zattrs': text({ 'bioformats2raw.layout': '3' }),
+      '0/.zgroup': v2Group(),
+      '0/.zattrs': text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: 's',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '0/0/.zarray': v2Array([1, 1], [1, 1]),
+      '0/0/0/0': Uint8Array.of(4),
+    }
+    const laidOut = await omeZarrReader.open(trackingContext(stringLayout, '.zattrs').context)
+    expect(laidOut.metadata.bioformats2rawLayout).toBe(3)
+    expect(await planeValues(await laidOut.openDataset('0'))).toEqual([4])
+
+    const nestedV2 = {
+      'stack.zarr/.zgroup': v2Group(),
+      'stack.zarr/.zattrs': text({ 'bioformats2raw.layout': 3 }),
+      'stack.zarr/0/.zgroup': v2Group(),
+      'stack.zarr/0/.zattrs': text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'nested',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      'stack.zarr/0/0/.zarray': v2Array([2, 2], [2, 2]),
+      'stack.zarr/0/0/0/0': Uint8Array.of(1, 1, 1, 1),
+    }
+    const zipped = await omeZarrReader.open(zipContext(nestedV2, 'stack.zarr.zip'))
+    expect(zipped.metadata.store).toBe('zip')
+    expect(zipped.metadata.bioformats2rawLayout).toBe(3)
+    expect(await planeValues(await zipped.openDataset('0'))).toEqual([1, 1, 1, 1])
+  })
+
+  it('keeps bioformats2raw series when the root also lists labels', async () => {
+    const files = {
+      '.zgroup': v2Group(),
+      '.zattrs': text({
+        'bioformats2raw.layout': 3,
+        labels: ['cell'],
+      }),
+      '0/.zgroup': v2Group(),
+      '0/.zattrs': text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'series-0',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '0/0/.zarray': v2Array([2, 2], [2, 2]),
+      '0/0/0/0': Uint8Array.of(1, 2, 3, 4),
+      'cell/.zgroup': v2Group(),
+      'cell/.zattrs': text({
+        version: '0.4',
+        'image-label': { colors: [{ 'label-value': 1, rgba: [255, 0, 0, 255] }] },
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'cells',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      'cell/0/.zarray': v2Array([2, 2], [2, 2]),
+      'cell/0/0/0': Uint8Array.of(0, 1, 1, 0),
+    }
+    const document = await omeZarrReader.open(trackingContext(files, '.zattrs').context)
+    expect(document.metadata.seriesCount).toBe(1)
+    expect(document.datasets.map((entry) => entry.id)).toContain('0')
+    expect(await planeValues(await document.openDataset('0'))).toEqual([1, 2, 3, 4])
+  })
+
+  it('rejects a bioformats2raw root that exceeds maxDatasets', async () => {
+    const files = {
+      '.zgroup': v2Group(),
+      '.zattrs': text({ 'bioformats2raw.layout': 3 }),
+      '0/.zgroup': v2Group(),
+      '0/.zattrs': text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'a',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '0/0/.zarray': v2Array([1, 1], [1, 1]),
+      '0/0/0/0': Uint8Array.of(1),
+      '1/.zgroup': v2Group(),
+      '1/.zattrs': text({
+        multiscales: [
+          {
+            version: '0.4',
+            name: 'b',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '1/0/.zarray': v2Array([1, 1], [1, 1]),
+      '1/0/0/0': Uint8Array.of(2),
+    }
+    await expectCode(
+      () =>
+        createOmeZarrReader({ limits: { maxDatasets: 1 } }).open(
+          trackingContext(files, '.zgroup').context,
+        ),
+      'LIMIT_EXCEEDED',
+    )
+  })
+
+  it('opens a v3 bioformats2raw layout with two series', async () => {
+    const series = (index: number, pixels: Uint8Array): Record<string, Uint8Array> => ({
+      [`${index}/zarr.json`]: text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: `s${index}`,
+                axes: [
+                  { name: 'y', type: 'space' },
+                  { name: 'x', type: 'space' },
+                ],
+                datasets: [
+                  { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+                ],
+              },
+            ],
+          },
+        },
+      }),
+      [`${index}/0/zarr.json`]: arrayMeta([2, 2], [2, 2], bytesCodec),
+      [`${index}/0/c/0/0`]: pixels,
+    })
+    const files = {
+      'zarr.json': text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: { ome: { version: '0.5', 'bioformats2raw.layout': 3 } },
+      }),
+      ...series(0, Uint8Array.of(1, 1, 1, 1)),
+      ...series(1, Uint8Array.of(2, 2, 2, 2)),
+    }
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    expect(document.metadata.seriesCount).toBe(2)
+    expect(document.datasets.map((entry) => entry.id)).toEqual(['0', '1'])
+    const first = await document.openDataset('0')
+    expect(first.descriptor.axes[0]?.kind).toBe('space')
+    expect(await planeValues(first)).toEqual([1, 1, 1, 1])
+    expect(await planeValues(await document.openDataset('1'))).toEqual([2, 2, 2, 2])
+  })
 })
 
 const fixtureRoot = 'tests/fixtures/scientific-ome-zarr'
@@ -1777,5 +2100,59 @@ describe('OME-Zarr IDR 6001240 corpus', () => {
     const fromV5 = await planeValues(v5Image, window)
     expect(fromV4).toEqual([28, 10, 10, 9])
     expect(fromV5).toEqual(fromV4)
+  })
+})
+
+describe('OME-Zarr IDR0033 bioformats2raw corpus', () => {
+  it('discovers series 0 from a layout-only 0.5 root and decodes the coarsest plane', async () => {
+    const files = await collectStore(join(fixtureRoot, 'idr0033-BR00109990-C2-v0.5'))
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    expect(document.metadata.omeNgffVersion).toBe('0.5')
+    expect(document.metadata.bioformats2rawLayout).toBe(3)
+    expect(document.metadata.seriesCount).toBe(1)
+    expect(document.datasets.map((entry) => entry.id)).toEqual(['0'])
+    const dataset = await document.openDataset('0')
+    expect(dataset.descriptor.sampleType).toBe('uint16')
+    expect(dataset.descriptor.axes.map((axis) => axis.id)).toEqual(['c', 'y', 'x'])
+    expect(dataset.descriptor.axes[0]?.entries?.map((entry) => entry.name)).toEqual([
+      'Nuclei',
+      'ER',
+      'Nucleoli/Cytoplasmic RNA',
+      'Actin/Golgi/Membrane',
+      'Mitochondria',
+    ])
+    expect(dataset.descriptor.axes[0]?.entries?.[0]?.color).toBe(0x00_00ff)
+    expect(dataset.descriptor.levels).toHaveLength(6)
+    expect(dataset.descriptor.levels[5]?.axisLengths).toEqual([
+      { axisId: 'c', length: 5 },
+      { axisId: 'y', length: 48 },
+      { axisId: 'x', length: 65 },
+    ])
+    const window = await planeValues(dataset, {
+      resolutionLevel: 5,
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 2,
+      fixedIndices: [{ axisId: 'c', index: 0 }],
+    })
+    expect(window).toEqual([517, 567, 638, 4709])
+
+    const nested = Object.fromEntries(
+      Object.entries(files).map(([name, bytes]) => [`BR00109990_C2.zarr/${name}`, bytes]),
+    )
+    const zipped = await omeZarrReader.open(zipContext(nested, 'idr0033.zarr.zip'))
+    expect(zipped.metadata.store).toBe('zip')
+    expect(zipped.metadata.bioformats2rawLayout).toBe(3)
+    expect(
+      await planeValues(await zipped.openDataset('0'), {
+        resolutionLevel: 5,
+        x: 0,
+        y: 0,
+        width: 2,
+        height: 2,
+        fixedIndices: [{ axisId: 'c', index: 0 }],
+      }),
+    ).toEqual(window)
   })
 })

@@ -889,11 +889,14 @@ Gwyddion `.gwy`, Nanosurf NID, optical OPD, and other SPM formats should remain 
 
 ## Milestone G: OME-Zarr / NGFF
 
-Status: **0.4/v2 and 0.5/v3 image, label, plate, and ZIP-store readers complete**. The public
+Status: **0.4/v2 and 0.5/v3 image, label, plate, ZIP-store, bioformats2raw series, and single
+nested ZIP prefix readers complete**. The public
 `purejsimage/scientific/readers/ome-zarr` entry reads directory-like OME-NGFF 0.4 and 0.5
 multiscales, sibling and root label indexes, and plate/well fields through the existing companion
-resolver. A ZIP archive with root-level `zarr.json` or `.zgroup` is accepted as a single-file store
-(`.ozx` is a name hint). Regular and `sharding_indexed` chunks, bytes, gzip, zlib, zstd, crc32c,
+resolver. A ZIP archive with root-level or one nested `zarr.json` / `.zgroup` is accepted as a
+single-file store (`.ozx`, `.zip`, and `.zarr` names are probe hints; `__MACOSX/` sidecars are
+ignored). `bioformats2raw.layout` roots are scanned as consecutive
+`0/`, `1/`, … series groups. Regular and `sharding_indexed` chunks, bytes, gzip, zlib, zstd, crc32c,
 transpose, shuffle, Blosc 1 with LZ4/zlib/zstd/memcpy, missing-chunk fill, C/F order, selected
 intersecting reads, and store-prefix resolution are covered. Remaining G items are
 BloscLZ/Snappy/bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` profile requirements, and a

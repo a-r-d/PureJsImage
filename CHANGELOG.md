@@ -21,7 +21,13 @@ All notable changes to PureJsImage are documented in this file.
   shard payloads that overlap the index. Clipped last chunks no longer fail when the nominal
   chunk exceeds the decode budget; empty optional `.zattrs`, trailing dataset slashes, bare
   one-byte NumPy dtypes, `numcodecs.*` codec ids, and case-insensitive NaN/Infinity fills are
-  accepted. BloscLZ, Snappy, bitshuffle,
+  accepted. bioformats2raw `0/`, `1/`, … series roots and a single nested ZIP store prefix are
+  supported; ambiguous multi-root ZIPs stay rejected. Series discovery also works without a
+  root `.zattrs` file, `bioformats2raw.layout` may be a numeric string, and `seriesCount` counts
+  series groups rather than every collected dataset. ZIP stores named `*.zarr` / `*.ome.zarr`
+  probe as OME-Zarr, macOS `__MACOSX/` sidecars no longer make a unique nested root look
+  ambiguous, a root `labels` list does not hide bioformats2raw series, and extra integer series
+  beyond `maxDatasets` raise `LIMIT_EXCEEDED`. BloscLZ, Snappy, bitshuffle,
   tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
   operations.
 

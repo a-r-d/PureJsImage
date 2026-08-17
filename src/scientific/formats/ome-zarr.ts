@@ -1,5 +1,5 @@
 import { type AbortOptions, throwIfAborted } from '../../abort.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
+import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import type { RasterBlock } from '../../raster.ts'
 import { rasterSampleBytes } from '../../raster.ts'
 import { MemorySource } from '../../source.ts'
@@ -287,6 +287,14 @@ const hasNgffSurface = (value: Readonly<Record<string, unknown>>): boolean =>
   isRecord(value.well) ||
   isRecord(value['image-label'])
 
+const bioformatsLayout = (value: Readonly<Record<string, unknown>>): number | undefined => {
+  const raw = value['bioformats2raw.layout']
+  const numeric =
+    typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw.trim()) : Number.NaN
+  if (Number.isSafeInteger(numeric) && numeric > 0) return numeric
+  return undefined
+}
+
 const parseOmeAttributes = (
   attributes: Readonly<Record<string, unknown>>,
 ): { readonly version: string; readonly ome: Readonly<Record<string, unknown>> } => {
@@ -298,13 +306,13 @@ const parseOmeAttributes = (
     }
     return { version, ome: nested }
   }
-  if (hasNgffSurface(attributes)) {
+  if (hasNgffSurface(attributes) || bioformatsLayout(attributes) !== undefined) {
     const first = Array.isArray(attributes.multiscales) ? attributes.multiscales[0] : undefined
     const version =
       isRecord(first) && first.version !== undefined
         ? requiredString(first.version, 'OME-Zarr multiscale version')
         : '0.4'
-    if (version !== '0.4') {
+    if (hasNgffSurface(attributes) && version !== '0.4') {
       throw unsupportedOperation(`OME-NGFF ${version} on Zarr v2 attributes is unsupported`)
     }
     return { version, ome: attributes }
@@ -514,14 +522,45 @@ const looksLikeZip = (bytes: Uint8Array): boolean =>
 
 const zipNameHint = (name: string | undefined): boolean => {
   const lower = name?.toLowerCase() ?? ''
-  return lower.endsWith('.ozx') || lower.endsWith('.zarr.zip') || lower.endsWith('.zip')
+  return lower.endsWith('.ozx') || lower.endsWith('.zip') || lower.endsWith('.zarr')
+}
+
+const zipPrefixIsIgnored = (prefix: string): boolean => {
+  const lower = prefix.toLowerCase()
+  return lower === '__macosx' || lower.startsWith('__macosx/')
+}
+
+const zipEntryDirectory = (path: string): string => {
+  const slash = path.lastIndexOf('/')
+  return slash < 0 ? '' : path.slice(0, slash)
+}
+
+const zipPreferredMetadataKey = (archive: ZipArchive, prefix: string): string | undefined => {
+  const lead = prefix.length === 0 ? '' : `${prefix}/`
+  if (archive.get(`${lead}zarr.json`) !== undefined) return `${lead}zarr.json`
+  if (archive.get(`${lead}.zgroup`) !== undefined) return `${lead}.zgroup`
+  if (archive.get(`${lead}.zattrs`) !== undefined) return `${lead}.zattrs`
+  return undefined
 }
 
 const zipRootMetadataKey = (archive: ZipArchive): string | undefined => {
-  if (archive.get('zarr.json') !== undefined) return 'zarr.json'
-  if (archive.get('.zgroup') !== undefined) return '.zgroup'
-  if (archive.get('.zattrs') !== undefined) return '.zattrs'
-  return undefined
+  const top = zipPreferredMetadataKey(archive, '')
+  if (top !== undefined) return top
+  const prefixes = new Set<string>()
+  for (const entry of archive.entries) {
+    const slash = entry.path.lastIndexOf('/')
+    const name = slash < 0 ? entry.path : entry.path.slice(slash + 1)
+    if (name === 'zarr.json' || name === '.zgroup' || name === '.zattrs') {
+      const directory = zipEntryDirectory(entry.path)
+      if (!zipPrefixIsIgnored(directory)) prefixes.add(directory)
+    }
+  }
+  const outermost = [...prefixes].filter(
+    (prefix) => ![...prefixes].some((other) => other !== prefix && prefix.startsWith(`${other}/`)),
+  )
+  if (outermost.length !== 1) return undefined
+  const prefix = outermost[0]
+  return prefix === undefined ? undefined : zipPreferredMetadataKey(archive, prefix)
 }
 
 const createZipCompanionResolver = (archive: ZipArchive): ScientificCompanionResolver =>
@@ -550,7 +589,9 @@ const openZipRoot = async (
   const archive = await openZipArchive(context.primary.source, limits.zip ?? {}, context.signal)
   const rootKey = zipRootMetadataKey(archive)
   if (rootKey === undefined) {
-    throw invalidInput('OME-Zarr ZIP archive is missing root zarr.json or .zgroup metadata')
+    throw invalidInput(
+      'OME-Zarr ZIP archive is missing a unique root zarr.json or .zgroup metadata',
+    )
   }
   const entry = archive.get(rootKey)
   if (entry !== undefined && entry.uncompressedBytes > limits.maxMetadataBytes) {
@@ -578,6 +619,9 @@ const probeJson = (json: unknown): { readonly confidence: number; readonly reaso
     if (isRecord(json) && hasNgffSurface(json)) {
       return { confidence: 0.95, reason: 'OME-NGFF 0.4 Zarr v2 attributes' }
     }
+    if (isRecord(json) && bioformatsLayout(json) !== undefined) {
+      return { confidence: 0.9, reason: 'bioformats2raw Zarr v2 layout root' }
+    }
     return { confidence: 0.75, reason: 'Zarr v2 group; NGFF 0.4 attributes are resolved on open' }
   }
   if (node.nodeType !== 'group' || !isRecord(json)) {
@@ -585,11 +629,20 @@ const probeJson = (json: unknown): { readonly confidence: number; readonly reaso
   }
   const attributes = isRecord(json.attributes) ? json.attributes : undefined
   const ome = attributes === undefined ? undefined : attributes.ome
+  const layout =
+    (isRecord(ome) ? bioformatsLayout(ome) : undefined) ??
+    (attributes === undefined ? undefined : bioformatsLayout(attributes))
   if (!isRecord(ome)) {
+    if (layout !== undefined) {
+      return { confidence: 0.85, reason: 'bioformats2raw Zarr v3 layout root' }
+    }
     return { confidence: 0, reason: 'Zarr v3 group without OME attributes' }
   }
   if (ome.version === '0.5' && hasNgffSurface(ome)) {
     return { confidence: 0.95, reason: 'OME-NGFF 0.5 Zarr v3 group' }
+  }
+  if (layout !== undefined) {
+    return { confidence: 0.9, reason: 'bioformats2raw OME-NGFF 0.5 layout root' }
   }
   return { confidence: 0.7, reason: 'Zarr v3 group with OME attributes' }
 }
@@ -664,16 +717,20 @@ export const openOmeZarr = async (
       ? isRecord(json.attributes)
         ? json.attributes
         : {}
-      : hasNgffSurface(json)
+      : hasNgffSurface(json) || bioformatsLayout(json) !== undefined
         ? json
-        : await (async () => {
-            const attrs = await store.readJsonOptional('.zattrs', context.signal)
-            if (!isRecord(attrs)) {
-              throw invalidInput('OME-Zarr v2 group is missing .zattrs NGFF metadata')
-            }
-            return attrs
-          })()
-  const { version, ome } = parseOmeAttributes(attributes)
+        : ((await store.readJsonOptional('.zattrs', context.signal)) ?? {})
+  let version = format === 3 ? '0.5' : '0.4'
+  let ome: Readonly<Record<string, unknown>> = {}
+  if (isRecord(attributes)) {
+    try {
+      const parsed = parseOmeAttributes(attributes)
+      version = parsed.version
+      ome = parsed.ome
+    } catch (error) {
+      if (!(error instanceof ImageError) || error.code === 'UNSUPPORTED_OPERATION') throw error
+    }
+  }
   const collected: {
     readonly id: string
     readonly name: string
@@ -699,6 +756,7 @@ export const openOmeZarr = async (
           : `${path}/.zgroup`
     const json = await store.readJsonOptional(key, context.signal)
     if (json === undefined) return undefined
+    if (parseZarrNodeJson(json)?.nodeType === 'array') return undefined
     return store.openGroup(path, context.signal)
   }
   const omeFromGroup = (
@@ -795,6 +853,8 @@ export const openOmeZarr = async (
     }
   }
 
+  const rootLayout =
+    bioformatsLayout(ome) ?? (isRecord(attributes) ? bioformatsLayout(attributes) : undefined)
   if (Array.isArray(ome.multiscales) && ome.multiscales.length > 0) {
     await addMultiscales(
       ome.multiscales,
@@ -814,7 +874,8 @@ export const openOmeZarr = async (
     Array.isArray(ome.labels) &&
     !Array.isArray(ome.multiscales) &&
     !isRecord(ome.plate) &&
-    !isRecord(ome.well)
+    !isRecord(ome.well) &&
+    rootLayout === undefined
   ) {
     await addLabelEntries('', ome.labels)
   }
@@ -840,6 +901,36 @@ export const openOmeZarr = async (
     }
   } else if (isRecord(ome.well)) {
     await addWellImages('', ome.well, undefined, undefined)
+  }
+  let seriesCount = 0
+  if (collected.length === 0) {
+    for (let index = 0; index < limits.maxDatasets; index += 1) {
+      const path = String(index)
+      const group = await openGroupIfPresent(path)
+      if (group === undefined) break
+      let seriesOme: Readonly<Record<string, unknown>>
+      try {
+        seriesOme = omeFromGroup(group.attributes).ome
+      } catch {
+        break
+      }
+      if (!Array.isArray(seriesOme.multiscales) || seriesOme.multiscales.length === 0) break
+      seriesCount += 1
+      await addMultiscales(
+        seriesOme.multiscales,
+        path,
+        () => path,
+        normalizeScientificMetadataObject({ kind: 'image', series: index }),
+        parseOmeroChannels(seriesOme.omero),
+      )
+      await addLabelSibling(path)
+    }
+    if (seriesCount === limits.maxDatasets) {
+      const extra = await openGroupIfPresent(String(limits.maxDatasets))
+      if (extra !== undefined) {
+        throw limitExceeded(`OME-Zarr dataset count exceeds ${limits.maxDatasets}`)
+      }
+    }
   }
   if (collected.length === 0) {
     throw invalidInput('OME-Zarr group has no image, label, or plate datasets')
@@ -882,6 +973,8 @@ export const openOmeZarr = async (
     omeNgffVersion: version,
     zarrFormat: format,
     store: storeKind,
+    ...(rootLayout === undefined ? {} : { bioformats2rawLayout: rootLayout }),
+    ...(seriesCount === 0 ? {} : { seriesCount }),
     ...(isRecord(ome.plate)
       ? {
           plate: {

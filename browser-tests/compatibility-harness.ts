@@ -2114,10 +2114,115 @@ const scientificOmeZarr = async (): Promise<BrowserWorkflowResult> => {
   if (zipped.metadata.store !== 'zip' || zipValues.join(',') !== '5,6,7,8') {
     throw new Error(`Browser OME-Zarr ZIP pixels were ${zipValues.join(',')}`)
   }
+  const nestedZip = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(
+      new File(
+        [
+          Uint8Array.from(
+            storedZipArchive({
+              'plate.zarr/zarr.json': root,
+              'plate.zarr/0/zarr.json': array,
+              'plate.zarr/0/c/0/0': Uint8Array.of(2, 2, 2, 2),
+            }),
+          ),
+        ],
+        'plate.zarr.zip',
+      ),
+    ),
+  )
+  const nestedValues: number[] = []
+  for await (const block of (
+    await nestedZip.openDataset(nestedZip.datasets[0]?.id ?? '')
+  ).readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    nestedValues.push(...block.data)
+  }
+  if (nestedValues.join(',') !== '2,2,2,2') {
+    throw new Error(`Browser nested OME-Zarr ZIP pixels were ${nestedValues.join(',')}`)
+  }
+  const zarrNamedZip = createScientificFileContext(
+    new File(
+      [
+        Uint8Array.from(
+          storedZipArchive({
+            'plate.zarr/zarr.json': root,
+            'plate.zarr/0/zarr.json': array,
+            'plate.zarr/0/c/0/0': Uint8Array.of(2, 2, 2, 2),
+            '__MACOSX/plate.zarr/zarr.json': root,
+          }),
+        ),
+      ],
+      'plate.ome.zarr',
+    ),
+  )
+  const zarrNamedProbe = await omeZarrReader.probe(zarrNamedZip)
+  if (zarrNamedProbe.confidence < 0.9) {
+    throw new Error(`Browser *.ome.zarr ZIP probe confidence was ${zarrNamedProbe.confidence}`)
+  }
+  const zarrNamed = await createScientificLibrary({ readers: [omeZarrReader] }).open(zarrNamedZip)
+  if (zarrNamed.metadata.store !== 'zip') {
+    throw new Error('Browser *.ome.zarr ZIP store was not opened')
+  }
+  const layoutRoot = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: { ome: { version: '0.5', 'bioformats2raw.layout': 3 } },
+  })
+  const seriesRoot = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: {
+      ome: {
+        version: '0.5',
+        multiscales: [
+          {
+            name: 'series-0',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      },
+    },
+  })
+  const series = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(new File([Uint8Array.from(layoutRoot)], 'zarr.json'), {
+      companions: [
+        new File([Uint8Array.from(seriesRoot)], '0/zarr.json'),
+        new File([Uint8Array.from(array)], '0/0/zarr.json'),
+        new File([Uint8Array.of(3, 3, 3, 3)], '0/0/c/0/0'),
+      ],
+    }),
+  )
+  if (series.metadata.bioformats2rawLayout !== 3 || series.datasets[0]?.id !== '0') {
+    throw new Error('Browser bioformats2raw series root was not discovered')
+  }
+  const seriesValues: number[] = []
+  for await (const block of (await series.openDataset('0')).readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    seriesValues.push(...block.data)
+  }
+  if (seriesValues.join(',') !== '3,3,3,3') {
+    throw new Error(`Browser bioformats2raw pixels were ${seriesValues.join(',')}`)
+  }
   return {
     detail:
-      'portable OME-Zarr 0.5, labels, 0.4, and ZIP readers resolved browser File stores and selected 2x2 planes',
-    outputBytes: values.length + labelValues.length + v2Values.length + zipValues.length,
+      'portable OME-Zarr 0.5, labels, 0.4, ZIP, nested ZIP, and bioformats2raw readers resolved browser File stores and selected 2x2 planes',
+    outputBytes:
+      values.length +
+      labelValues.length +
+      v2Values.length +
+      zipValues.length +
+      nestedValues.length +
+      seriesValues.length,
   }
 }
 

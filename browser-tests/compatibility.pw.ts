@@ -223,8 +223,8 @@ test('reads a calibrated TIA SER spectrum image in a real browser', async ({ pag
 test('opens an OME-Zarr 0.5 store from browser Files', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificOmeZarr())
-  expect(result.outputBytes).toBe(16)
-  expect(result.detail).toContain('OME-Zarr 0.5, labels, 0.4, and ZIP')
+  expect(result.outputBytes).toBe(24)
+  expect(result.detail).toContain('nested ZIP, and bioformats2raw')
 })
 
 test('opens TIA EMI with its SER companion in a real browser', async ({ page }) => {

@@ -95,9 +95,9 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 214302,
-      "gzipBytes": 268848,
-      "minifiedBytes": 906691
+      "brotliBytes": 214966,
+      "gzipBytes": 269490,
+      "minifiedBytes": 908505
     },
     "allStableCodecs": {
       "brotliBytes": 252838,
@@ -115,7 +115,7 @@
       "minifiedBytes": 61385
     },
     "installedPackage": {
-      "bytes": 5110933,
+      "bytes": 5115153,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
@@ -659,7 +659,7 @@
       "oracle": "",
       "packageExport": "purejsimage/scientific/readers/ome-zarr",
       "resourceModel": "directory-like",
-      "supportBoundary": "OME-NGFF 0.4 and 0.5 image multiscales, labels, and plates/wells on Zarr v2 and v3 directory stores or a ZIP archive with root-level zarr.json/.zgroup. Regular and sharding_indexed chunk grids; bytes, gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 with LZ4/zlib/zstd or memcpy; missing chunks become fill values; selected planes fetch only intersecting chunks. BloscLZ, Snappy, bitshuffle, tables, RFC-9 zip-comment/jsonFirst requirements, and writers are rejected."
+      "supportBoundary": "OME-NGFF 0.4 and 0.5 image multiscales, labels, and plates/wells on Zarr v2 and v3 directory stores, a ZIP archive with root-level or a single nested zarr.json/.zgroup (including *.zarr / *.ome.zarr names and ignored __MACOSX/ sidecars), and bioformats2raw.layout series roots (0/, 1/, …). Regular and sharding_indexed chunk grids; bytes, gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 with LZ4/zlib/zstd or memcpy; missing chunks become fill values; selected planes fetch only intersecting chunks. BloscLZ, Snappy, bitshuffle, tables, RFC-9 zip-comment/jsonFirst requirements, multi-root ZIPs, and writers are rejected."
     },
     {
       "benchmarkCoverage": {

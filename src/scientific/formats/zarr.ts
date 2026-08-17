@@ -355,7 +355,11 @@ export const parseZarrNodeJson = (
       Array.isArray(value.labels) ||
       isRecord(value.plate) ||
       isRecord(value.well) ||
-      isRecord(value['image-label']))
+      isRecord(value['image-label']) ||
+      ((typeof value['bioformats2raw.layout'] === 'number' ||
+        typeof value['bioformats2raw.layout'] === 'string') &&
+        Number.isSafeInteger(Number(value['bioformats2raw.layout'])) &&
+        Number(value['bioformats2raw.layout']) > 0))
   ) {
     return { format: 2, nodeType: 'group' }
   }

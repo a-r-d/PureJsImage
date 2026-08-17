@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.11.0",
-    "unpackedPackageBytes": 5110933,
+    "unpackedPackageBytes": 5115153,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -889,13 +889,13 @@
         "packageExports": ["purejsimage/scientific/readers/ome-zarr"],
         "sourceEntries": ["./src/scientific/readers/ome-zarr.ts"]
       },
-      "gzipBytes": 28588,
+      "gzipBytes": 29168,
       "id": "scientific-reader-ome-zarr",
       "implementation": "package-core",
-      "minifiedJsBytes": 92220,
+      "minifiedJsBytes": 94052,
       "name": "Scientific reader: OME-Zarr",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 25064
+      "brotliBytes": 25599
     },
     {
       "category": "purejsimage-entry",
@@ -1129,13 +1129,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 268848,
+      "gzipBytes": 269490,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 906691,
+      "minifiedJsBytes": 908505,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 214302
+      "brotliBytes": 214966
     },
     {
       "category": "purejsimage-entry",

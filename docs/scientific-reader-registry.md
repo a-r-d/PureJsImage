@@ -122,10 +122,12 @@ const science = createScientificLibrary({ readers: [omeZarrReader] })
 
 The primary resource is the store-root `zarr.json` for v3 or `.zgroup` / `.zattrs` for v2. Child
 metadata and chunks resolve by normalized relative name through the existing companion resolver.
-A ZIP archive with that root metadata is also accepted as a single-file store. Image `multiscales`
-from NGFF 0.4 and 0.5 become scientific resolution levels. Sibling `labels/` groups and plate/well
-fields become additional datasets. The reader fetches only intersecting chunks, including Blosc 1
-LZ4/zlib/zstd payloads, and rejects BloscLZ, Snappy, bitshuffle, tables, and writers. The exact
+A ZIP archive with that root metadata, or a single nested `*.zarr/` prefix, is accepted as a
+single-file store (`.ozx`, `.zip`, and `.zarr` names are probe hints; `__MACOSX/` sidecars are
+ignored). Image `multiscales` from NGFF 0.4 and 0.5 become scientific resolution levels.
+Sibling `labels/` groups, plate/well fields, and `bioformats2raw.layout` series become additional
+datasets. The reader fetches only intersecting chunks, including Blosc 1 LZ4/zlib/zstd payloads,
+and rejects BloscLZ, Snappy, bitshuffle, tables, multi-root ZIPs, and writers. The exact
 codec and store boundary is documented in [`scientific-ome-zarr.md`](scientific-ome-zarr.md).
 
 ## Detection and budgets
