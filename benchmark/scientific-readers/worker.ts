@@ -577,10 +577,7 @@ const buildResources = async (
     const file = await FileSource.open(resource.path)
     const fragmented = fragmentBytes > 0 ? new FragmentingImageSource(file, fragmentBytes) : file
     const physicalCounter = new CountingImageSource(fragmented)
-    const source =
-      latencyMilliseconds > 0
-        ? new LatencyImageSource(physicalCounter, latencyMilliseconds)
-        : physicalCounter
+    const source = new LatencyImageSource(physicalCounter, latencyMilliseconds)
     physicalCounters.set(resource.id, physicalCounter)
     readerSources.set(resource.id, source)
   }
@@ -614,22 +611,25 @@ const executeOperation = async (
         ? [boundedRegion(descriptor, axes, selection.region)]
         : randomRegions(descriptor, axes, selection.randomRegions)
     const fixed = fixedIndices(descriptor, axes, selection.fixedIndices)
-    for (const region of regions) {
-      const blocks = dataset.readPlane({
-        displayAxes: axes,
-        fixedIndices: fixed,
-        x: region.x,
-        y: region.y,
-        width: region.width,
-        height: region.height,
-      })
-      for await (const block of blocks) {
-        try {
-          consumeRasterBlock(accumulator, block, operationStartedAt)
-        } finally {
-          block.release?.()
+    const passes = workload.operation === 'warm-repeated-selections' ? 2 : 1
+    for (let pass = 0; pass < passes; pass += 1) {
+      for (const region of regions) {
+        const blocks = dataset.readPlane({
+          displayAxes: axes,
+          fixedIndices: fixed,
+          x: region.x,
+          y: region.y,
+          width: region.width,
+          height: region.height,
+        })
+        for await (const block of blocks) {
+          try {
+            consumeRasterBlock(accumulator, block, operationStartedAt)
+          } finally {
+            block.release?.()
+          }
+          if (workload.operation === 'first-block') return
         }
-        if (workload.operation === 'first-block') return
       }
     }
     return

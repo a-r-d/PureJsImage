@@ -235,7 +235,7 @@ const definitions: readonly FixtureDefinition[] = [
     supportBoundary:
       'Directory-like OME-Zarr 0.5 uint8 4096x4096 image stored as 16 shards of 256x256 inner chunks.',
     expectedOracle:
-      'Repeated 512x512 windows read only intersecting shard indexes and inner payloads.',
+      'Random and warm-repeated 512x512 windows read only intersecting shard indexes and inner payloads.',
   },
   {
     id: 'aperio-svs',

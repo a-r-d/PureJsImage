@@ -114,11 +114,7 @@ export const createOmeZarrReader = (
         name.endsWith('/zarr.json') ||
         name.endsWith('.zgroup') ||
         name.endsWith('.ozx')
-      const probed = await probeOmeZarr(
-        context,
-        Math.min(limits.maxMetadataBytes, 16_384),
-        limits.zip ?? {},
-      )
+      const probed = await probeOmeZarr(context, Math.min(limits.maxMetadataBytes, 16_384))
       if (probed.confidence === 0 && probed.reason === undefined && (hinted || looksLikeRoot)) {
         return { confidence: 0.2, reason: 'OME-Zarr name hint without confirming metadata' }
       }

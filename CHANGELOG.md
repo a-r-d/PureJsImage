@@ -40,7 +40,10 @@ All notable changes to PureJsImage are documented in this file.
   bounded by `maxCachedChunkBytes`. Pinned IDR slices now include 6001240 sibling labels, an
   IDR0010 0.5 plate well, an IDR0001 0.4 plate field, and an IDR0101 translation image. BloscLZ,
   Snappy, bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` requirements, nonempty storage
-  transformers, and writers remain explicit unsupported operations.
+  transformers, repeated transpose codecs, and writers remain explicit unsupported operations.
+  ZIP members are limited before decompression; sharded plane reads resolve each shard once;
+  `bioformats2raw.layout` must be `3`; and directory calibration cites the resolved metadata
+  resource id.
 
 ### Changed
 

@@ -71,7 +71,13 @@ export interface ZarrStore {
     start: readonly number[],
     shape: readonly number[],
     signal?: AbortSignal,
+    session?: ZarrReadSession,
   ): Promise<Uint8Array>
+}
+
+export interface ZarrReadSession {
+  readonly chunks: Map<string, ScientificResource | undefined>
+  readonly indexes: Map<string, DecodedShardIndex>
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -185,7 +191,7 @@ const supportedArrayCodecs = new Set([
 
 const variableIndexCodecs = new Set(['gzip', 'zlib', 'zstd', 'blosc', 'transpose', 'shuffle'])
 
-const validateInnerCodecs = (codecs: readonly ZarrCodec[], label: string): void => {
+const validateInnerCodecs = (codecs: readonly ZarrCodec[], label: string, rank: number): void => {
   if (codecs.some((codec) => codec.name === 'sharding_indexed')) {
     throw unsupportedOperation(`${label} cannot nest sharding_indexed`)
   }
@@ -208,6 +214,17 @@ const validateInnerCodecs = (codecs: readonly ZarrCodec[], label: string): void 
     if (name === 'bytes' || name === 'transpose' || name === 'sharding_indexed') {
       throw invalidInput(`${label} codec order is invalid`)
     }
+  }
+  const transposes = codecs.filter((codec) => codec.name === 'transpose')
+  if (transposes.length > 1) {
+    throw unsupportedOperation('Zarr repeated transpose codecs are unsupported')
+  }
+  const transpose = transposes[0]
+  if (transpose !== undefined) {
+    transposeShape(
+      Array.from({ length: rank }, () => 1),
+      integerTuple(transpose.configuration.order, 'Zarr transpose order', rank, true),
+    )
   }
 }
 
@@ -246,7 +263,7 @@ const validateShardingCodec = (
     }
   }
   const innerCodecs = parseCodecs(codec.configuration.codecs, 'Zarr sharding codecs')
-  validateInnerCodecs(innerCodecs, 'Zarr sharding codecs')
+  validateInnerCodecs(innerCodecs, 'Zarr sharding codecs', innerShape.length)
   parseEndian(innerCodecs, sampleType)
   const indexCodecs = parseCodecs(codec.configuration.index_codecs, 'Zarr sharding index_codecs')
   validateIndexCodecs(indexCodecs, 'Zarr sharding index_codecs')
@@ -272,7 +289,7 @@ const validateArrayCodecs = (
     validateShardingCodec(sharding, chunkShape, sampleType)
     return
   }
-  validateInnerCodecs(codecs, 'Zarr codecs')
+  validateInnerCodecs(codecs, 'Zarr codecs', chunkShape.length)
   parseEndian(codecs, sampleType)
 }
 
@@ -1124,7 +1141,7 @@ const clippedChunkShape = (
     return Math.min(size, available)
   })
 
-interface DecodedShardIndex {
+export interface DecodedShardIndex {
   readonly view: DataView
   readonly indexOffset: number
   readonly encodedIndexBytes: number
@@ -1133,6 +1150,11 @@ interface DecodedShardIndex {
   readonly innerCodecs: readonly ZarrCodec[]
   readonly endian: ZarrEndian
 }
+
+export const createZarrReadSession = (): ZarrReadSession => ({
+  chunks: new Map(),
+  indexes: new Map(),
+})
 
 const loadShardIndex = async (
   source: ImageSource,
@@ -1452,8 +1474,18 @@ class CompanionZarrStore implements ZarrStore {
     relative: string,
     kind: 'metadata' | 'chunk',
     signal?: AbortSignal,
+    session?: ZarrReadSession,
   ): Promise<ScientificResource | undefined> {
     const name = joinPath(this.prefix, relative)
+    if (kind === 'chunk' && session !== undefined) {
+      if (session.chunks.has(name)) return session.chunks.get(name)
+      const resource = await this.#resolver.resolve(
+        { kind: 'relative-name', name },
+        signal === undefined ? {} : { signal },
+      )
+      session.chunks.set(name, resource)
+      return resource
+    }
     const cache = kind === 'metadata' ? this.#metadata : this.#chunks
     const cached = cache.get(name)
     if (cached !== undefined) return cached.value
@@ -1575,6 +1607,7 @@ class CompanionZarrStore implements ZarrStore {
     start: readonly number[],
     shape: readonly number[],
     signal?: AbortSignal,
+    session?: ZarrReadSession,
   ): Promise<Uint8Array> {
     if (start.length !== array.shape.length || shape.length !== array.shape.length) {
       throw invalidInput('Zarr region rank does not match the array')
@@ -1601,10 +1634,17 @@ class CompanionZarrStore implements ZarrStore {
       Math.floor((value + (shape[axis] ?? 1) - 1) / (innerShape[axis] ?? 1)),
     )
     const sharding = array.codecs.find((codec) => codec.name === 'sharding_indexed')
-    const shardIndexes = new Map<string, DecodedShardIndex>()
+    const groups = new Map<
+      string,
+      {
+        readonly inners: {
+          readonly innerOrigin: readonly number[]
+          readonly innerStart: readonly number[]
+        }[]
+      }
+    >()
     const innerCoords = first.slice()
     while (true) {
-      throwIfAborted(signal)
       const innerOrigin = innerCoords.map((index, axis) => index * (innerShape[axis] ?? 1))
       const shardCoords = innerOrigin.map((origin, axis) =>
         Math.floor(origin / (shardShape[axis] ?? 1)),
@@ -1614,70 +1654,11 @@ class CompanionZarrStore implements ZarrStore {
         return index - Math.floor(index / perShard) * perShard
       })
       const key = chunkKey(array, shardCoords)
-      const resource = await this.#resolve(key, 'chunk', signal)
-      const copyStart = start.map((value, axis) => Math.max(value, innerOrigin[axis] ?? 0))
-      if (resource === undefined) {
-        if (array.fill.kind === 'undefined') {
-          throw invalidInput(`Zarr chunk ${key} is missing and fill_value is undefined`)
-        }
-      } else if (resource.source.size === 0) {
-        throw invalidInput(`Zarr chunk ${key} is an empty object`)
+      const group = groups.get(key)
+      if (group === undefined) {
+        groups.set(key, { inners: [{ innerOrigin, innerStart }] })
       } else {
-        const decodedInnerShape = clippedChunkShape(array.shape, innerOrigin, innerShape)
-        let decoded: { readonly data: Uint8Array; readonly shape: readonly number[] } | 'fill'
-        if (sharding !== undefined) {
-          let index = shardIndexes.get(key)
-          if (index === undefined) {
-            index = await loadShardIndex(
-              resource.source,
-              sharding,
-              array.chunkShape,
-              this.#limits,
-              signal,
-            )
-            shardIndexes.set(key, index)
-          }
-          decoded = await decodeShardInner(
-            resource.source,
-            index,
-            innerStart,
-            decodedInnerShape,
-            array.dataType,
-            this.#limits,
-            signal,
-          )
-        } else {
-          decoded = await decodeRegularChunk(
-            resource.source,
-            array,
-            innerOrigin,
-            this.#limits,
-            signal,
-          )
-        }
-        if (decoded !== 'fill') {
-          const copyEnd = start.map((value, axis) =>
-            Math.min(
-              value + (shape[axis] ?? 0),
-              (innerOrigin[axis] ?? 0) + (decoded.shape[axis] ?? 0),
-            ),
-          )
-          const adjustedCopy = copyStart.map((value, axis) => (copyEnd[axis] ?? 0) - value)
-          copyFromChunk(
-            output,
-            start,
-            shape,
-            decoded.data,
-            innerOrigin,
-            decoded.shape,
-            copyStart,
-            adjustedCopy,
-            sampleBytes,
-            array.endian === 'little',
-          )
-        } else if (array.fill.kind === 'undefined') {
-          throw invalidInput(`Zarr shard inner chunk is missing and fill_value is undefined`)
-        }
+        group.inners.push({ innerOrigin, innerStart })
       }
       let axis = innerCoords.length - 1
       while (axis >= 0) {
@@ -1690,6 +1671,82 @@ class CompanionZarrStore implements ZarrStore {
         axis -= 1
       }
       if (axis < 0) break
+    }
+    for (const [key, group] of groups) {
+      throwIfAborted(signal)
+      const resource = await this.#resolve(key, 'chunk', signal, session)
+      if (resource === undefined) {
+        if (array.fill.kind === 'undefined') {
+          throw invalidInput(`Zarr chunk ${key} is missing and fill_value is undefined`)
+        }
+        continue
+      }
+      if (resource.source.size === 0) {
+        throw invalidInput(`Zarr chunk ${key} is an empty object`)
+      }
+      let shardIndex: DecodedShardIndex | undefined
+      if (sharding !== undefined) {
+        const cached = session?.indexes.get(key)
+        if (cached !== undefined) {
+          shardIndex = cached
+        } else {
+          shardIndex = await loadShardIndex(
+            resource.source,
+            sharding,
+            array.chunkShape,
+            this.#limits,
+            signal,
+          )
+          session?.indexes.set(key, shardIndex)
+        }
+      }
+      for (const inner of group.inners) {
+        throwIfAborted(signal)
+        const decodedInnerShape = clippedChunkShape(array.shape, inner.innerOrigin, innerShape)
+        const decoded =
+          sharding === undefined || shardIndex === undefined
+            ? await decodeRegularChunk(
+                resource.source,
+                array,
+                inner.innerOrigin,
+                this.#limits,
+                signal,
+              )
+            : await decodeShardInner(
+                resource.source,
+                shardIndex,
+                inner.innerStart,
+                decodedInnerShape,
+                array.dataType,
+                this.#limits,
+                signal,
+              )
+        if (decoded === 'fill') {
+          if (array.fill.kind === 'undefined') {
+            throw invalidInput(`Zarr shard inner chunk is missing and fill_value is undefined`)
+          }
+          continue
+        }
+        const copyStart = start.map((value, axis) => Math.max(value, inner.innerOrigin[axis] ?? 0))
+        const copyEnd = start.map((value, axis) =>
+          Math.min(
+            value + (shape[axis] ?? 0),
+            (inner.innerOrigin[axis] ?? 0) + (decoded.shape[axis] ?? 0),
+          ),
+        )
+        copyFromChunk(
+          output,
+          start,
+          shape,
+          decoded.data,
+          inner.innerOrigin,
+          decoded.shape,
+          copyStart,
+          copyStart.map((value, axis) => (copyEnd[axis] ?? 0) - value),
+          sampleBytes,
+          array.endian === 'little',
+        )
+      }
     }
     return output
   }

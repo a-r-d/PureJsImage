@@ -63,6 +63,19 @@ describe('scientific reader benchmark harness', () => {
     expect(backing.reads).toHaveLength(1)
     first[0] = 99
     await expect(source.read(0, 4)).resolves.toEqual(Uint8Array.from([1, 2, 3, 4]))
+    expect(backing.reads).toHaveLength(2)
+  })
+
+  it('keeps source-I/O metrics identical at 0 ms and 25 ms latency', async () => {
+    const sequence = async (latency: number) => {
+      const backing = new CountingBackingSource(Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]))
+      const source = new LatencyImageSource(backing, latency)
+      await source.read(0, 4)
+      await source.read(2, 4)
+      await source.read(0, 4)
+      return backing.reads
+    }
+    expect(await sequence(0)).toEqual(await sequence(25))
   })
 
   it('keeps the public reader inventory and workload coverage explicit', () => {

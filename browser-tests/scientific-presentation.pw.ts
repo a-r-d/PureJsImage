@@ -54,7 +54,11 @@ test('replaces the scientific format tables with indexable cards', async ({ page
   await page.goto('/scientific-formats/')
 
   await expect(page.locator('table')).toHaveCount(0)
-  await expect(page.getByRole('article')).toHaveCount(31)
+  const readerCount = Number(
+    await page.locator('main').getAttribute('data-scientific-reader-count'),
+  )
+  expect(Number.isInteger(readerCount) && readerCount > 0).toBe(true)
+  await expect(page.getByRole('article')).toHaveCount(readerCount)
 
   const familyNav = page.getByRole('navigation', { name: 'Format index' })
   const families = [

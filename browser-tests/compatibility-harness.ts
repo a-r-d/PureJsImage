@@ -1979,6 +1979,7 @@ const scientificOmeZarr = async (): Promise<BrowserWorkflowResult> => {
     chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
     fill_value: 0,
     codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+    dimension_names: ['y', 'x'],
     attributes: {},
   })
   const labelsIndex = json({

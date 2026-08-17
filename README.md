@@ -68,7 +68,7 @@ PureJsImage 0.11.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Common web codecs | 598.7 KiB | 221.0 KiB | 185.5 KiB |
 | All stable codecs | 858.1 KiB | 301.8 KiB | 249.9 KiB |
 | Scientific platform | 154.3 KiB | 44.8 KiB | 38.2 KiB |
-| All scientific readers | 907.8 KiB | 269.5 KiB | 214.9 KiB |
+| All scientific readers | 910.2 KiB | 270.3 KiB | 215.6 KiB |
 
 The extracted npm package is 4.9 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -275,7 +275,7 @@ Generated for purejsimage 0.11.0. The README keeps only the major entry points; 
 | Core + common web codecs | `purejsimage/codecs/web` | 598.7 KiB | 221.0 KiB | 185.5 KiB |
 | Core + all stable codecs | `purejsimage/codecs/all` | 858.1 KiB | 301.8 KiB | 249.9 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 154.3 KiB | 44.8 KiB | 38.2 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 907.8 KiB | 269.5 KiB | 214.9 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 910.2 KiB | 270.3 KiB | 215.6 KiB |
 
 The extracted npm package is 4.9 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 

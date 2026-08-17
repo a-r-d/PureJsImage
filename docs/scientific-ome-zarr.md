@@ -21,7 +21,8 @@ A ZIP archive whose root contains `zarr.json` or `.zgroup` is also a store. A si
 prefix such as `image.zarr/zarr.json` is accepted; two sibling store roots are rejected. macOS
 `__MACOSX/` sidecar members are ignored when deciding uniqueness. Stored members stay
 range-readable; deflated members are decoded as whole objects and count against the chunk
-byte cache at their decoded size. Probe treats `.ozx`, `.ome.zarr`, `.zarr.zip`, and `*.zarr`
+byte cache at their decoded size. Metadata members must fit `maxMetadataBytes` and chunks
+must fit `maxChunkBytes` before decompression. Probe treats `.ozx`, `.ome.zarr`, `.zarr.zip`, and `*.zarr`
 ZIP magic as name-plus-magic evidence and does not open the archive. Generic `.zip` is not an
 OME-Zarr hint. Deep ZIP validation happens on open. RFC-9 zip-comment and `jsonFirst`
 recommendations are not required. The reader does not invent a second store abstraction.
@@ -37,7 +38,7 @@ replace that series scan. Extra integer series beyond `maxDatasets` fail with `L
 | Specification | OME-NGFF 0.5 image `multiscales` on Zarr v3, and OME-NGFF 0.4 on Zarr v2. |
 | Resource model | Directory-like group plus arrays and chunk objects, or a ZIP archive with root-level or one nested Zarr prefix. |
 | Chunks | Regular grids and `sharding_indexed` with index-at-end or index-at-start. A missing chunk is fill only when a defined fill exists; Zarr v2 `fill_value: null` leaves missing contents undefined. |
-| Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, `transpose`, `shuffle`, and Blosc 1 with LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
+| Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, one `transpose`, `shuffle`, and Blosc 1 with LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
 | Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` colors and source. Plate wells become one dataset per field, with well path and indices in metadata. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and optional OMERO channel names/colors are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
 | Reads | Selected planes fetch only intersecting shards/inner chunks. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
 
@@ -59,6 +60,11 @@ When an axis omits `type`, the reader infers time, channel, or space from the co
 `t`/`time`, `c`/`channel`, and `x`/`y`/`z`; any other unnamed type is the single allowed custom
 axis. Declared types still control composition: time, then at most one channel or custom axis,
 then 2 or 3 spatial axes.
+
+`bioformats2raw.layout` must be numeric `3`. The string `"3"` is accepted only as a documented
+compatibility extension. Any other explicit layout is a definitive probe non-match and an open
+metadata error; the reader does not fall through to numbered-series scanning. At most one
+`transpose` codec is supported.
 
 Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name.
 
