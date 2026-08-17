@@ -78,6 +78,11 @@ repeat a dead end without new evidence.
   (−25.36% vs HEAD), 15/15 pairs faster.
 - Versus Sharp (~49 ms) the primary is now ~623 ms (~12.7×). Need ~490 ms
   for a 10× gap.
+- Retained `AVIF-024` + `AVIF-026`: reuse inverse-transform residual scratch and
+  skip all-zero 1D rows/columns. 621 → 589 ms (−5.12%) versus committed HEAD.
+  Versus Sharp the primary is now ~589 ms (~12.0×).
+- Neighbor `avif-fox-full-png` on AVIF-024+026: 810 → 812 ms (+0.22%), exact hash.
+  Artifact `.tmp/hillclimb/2026-08-17T22-31-22-115Z/comparison.md`.
 - Neighbor `avif-fox-full-png` on AVIF-014+016+020+021: 983 → 810 ms (−17.56%),
   exact hash. Artifact `.tmp/hillclimb/2026-08-17T22-06-20-423Z/comparison.md`.
 - Handoff: `fixtures:avif:post-filters` matched dav1d/libaom YUV hashes (tolerance 0),
@@ -324,6 +329,11 @@ CPU samples put `boxFilter` (35%), `restoreWienerBlock` (9%), and
 | AVIF-020 | 2026-08-17 21:57 | Wiener 8-bit interior: 7-tap from CDEF, skip the Int32 window gather. | 789.84 → 638.45 | **-19.17%** vs HEAD (~−1.2% vs AVIF-016) | -1.10% | promising | Retained. Exact hash, candidate MAD 5.4 ms. Deterministic copy skip. |
 | AVIF-021 | 2026-08-17 22:01 | Restore 8-bit frames in 8-row bands (12-bit stays 4-row so prefix squares fit Int32). | 834.62 → 622.96 | **-25.36%** vs HEAD (~−2.4% vs AVIF-020) | -0.84% | promising | Retained. 15-trial, 15/15 pairs faster, paired MAD 1.49%. Runner incomparable from two host-load outliers. Exact hash. |
 | AVIF-022 | 2026-08-17 22:07 | Restore 8-bit frames in 32-row bands. | n/a | n/a | n/a | rejected | Reverted. 32-row tiles cross the AV1 stripe boundary at luma row 56 and apply the wrong stripe pad. 8-row is the largest power-of-two that stays inside a stripe. |
+| AVIF-023 | 2026-08-17 22:22 | Restore 8-bit frames in stripe-aligned bands (56 then 64), clipped to unit rows. | 634.14 → 623.46 | **-1.68%** | -0.40% | neutral | Reverted. 4/7 pairs faster; candidate MAD 21 ms. Extra stripe/unit logic did not beat 8-row. |
+| AVIF-024 | 2026-08-17 22:24 | Reuse a 4096-int residual scratch in `inverseTransform` instead of allocating per TU. | 617.22 → 611.48 | **-0.93%** | -0.22% | promising | Retained. Exact hash, 5/7 pairs faster, candidate MAD 2.2 ms. Deterministic allocation cut. |
+| AVIF-025 | 2026-08-17 22:26 | Reuse coefficient Int32 scratch in the entropy reader; fill(0) each TU. | 613.52 → 612.92 | **-0.10%** | -0.35% | neutral | Reverted. fill(0) cancelled the allocation win. |
+| AVIF-026 | 2026-08-17 22:27 | Skip inverse 1D transforms on all-zero rows and columns. | 620.87 → 589.07 | **-5.12%** | +1.98% | material | Retained on AVIF-024. Exact hash, 7/7 pairs faster, paired MAD 1.43%. |
+| AVIF-027 | 2026-08-17 22:30 | Specialize 8-bit SGR final blend: shift-11 rounding and hoist plane pointers. | 620.12 → 599.68 | **-3.30%** vs HEAD (slower than AVIF-026 589 ms) | +1.79% | neutral | Reverted. No incremental win over the zero-row skip. |
 
 Measurement artifacts:
 
@@ -352,6 +362,11 @@ Measurement artifacts:
 - AVIF-019: `.tmp/hillclimb/2026-08-17T21-54-28-613Z/comparison.md`
 - AVIF-020: `.tmp/hillclimb/2026-08-17T21-57-08-537Z/comparison.md`
 - AVIF-021 7-trial: `.tmp/hillclimb/2026-08-17T22-00-45-800Z/comparison.md`
+- AVIF-023: `.tmp/hillclimb/2026-08-17T22-22-57-089Z/comparison.md`
+- AVIF-024: `.tmp/hillclimb/2026-08-17T22-24-29-719Z/comparison.md`
+- AVIF-025: `.tmp/hillclimb/2026-08-17T22-26-18-591Z/comparison.md`
+- AVIF-026: `.tmp/hillclimb/2026-08-17T22-27-43-703Z/comparison.md`
+- AVIF-027: `.tmp/hillclimb/2026-08-17T22-30-24-283Z/comparison.md`
 - AVIF-021 15-trial: `.tmp/hillclimb/2026-08-17T22-01-57-921Z/comparison.md`
 - Profiles: `.tmp/cpu-avif/`
 

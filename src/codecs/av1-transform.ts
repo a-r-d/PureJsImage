@@ -45,6 +45,7 @@ const transformValues = new Int32Array(64)
 const transformOutput = new Int32Array(64)
 const dequantScratch = new Int32Array(4096)
 const intermediateScratch = new Int32Array(4096)
+const residualScratch = new Int32Array(4096)
 const columnInputScratch = new Int32Array(64)
 
 const inverseAdst4 = (input: ArrayLike<number>): Int32Array => {
@@ -457,7 +458,7 @@ export const inverseTransform = (
         intermediate[row * 4 + column] = transformed[column] ?? 0
       }
     }
-    const residual = new Int32Array(16)
+    const residual = residualScratch.subarray(0, 16)
     const columnInput = columnInputScratch
     for (let column = 0; column < 4; column += 1) {
       for (let row = 0; row < 4; row += 1) {
@@ -496,11 +497,23 @@ export const inverseTransform = (
   transformClampMinimum = rowClampMinimum
   transformClampMaximum = rowClampMaximum
   for (let row = 0; row < height; row += 1) {
-    const input = dequantized.subarray(row * width, row * width + width)
+    const rowOrigin = row * width
+    let nonzero = false
+    for (let column = 0; column < width; column += 1) {
+      if ((dequantized[rowOrigin + column] ?? 0) !== 0) {
+        nonzero = true
+        break
+      }
+    }
+    if (!nonzero) {
+      for (let column = 0; column < width; column += 1) intermediate[rowOrigin + column] = 0
+      continue
+    }
+    const input = dequantized.subarray(rowOrigin, rowOrigin + width)
     const transformed =
       rowUsesDct || rowUsesAdst ? oneDimensional(input, rowUsesAdst) : inverseIdentity(input)
     for (let column = 0; column < width; column += 1) {
-      intermediate[row * width + column] = Math.max(
+      intermediate[rowOrigin + column] = Math.max(
         columnClampMinimum,
         Math.min(columnClampMaximum, roundedShift(transformed[column] ?? 0, rowShift)),
       )
@@ -508,11 +521,23 @@ export const inverseTransform = (
   }
   transformClampMinimum = columnClampMinimum
   transformClampMaximum = columnClampMaximum
-  const residual = new Int32Array(width * height)
+  const residual = residualScratch.subarray(0, width * height)
   const columnInput = columnInputScratch.subarray(0, height)
   for (let column = 0; column < width; column += 1) {
+    let nonzero = false
     for (let row = 0; row < height; row += 1) {
-      columnInput[row] = intermediate[row * width + column] ?? 0
+      const sample = intermediate[row * width + column] ?? 0
+      columnInput[row] = sample
+      if (sample !== 0) nonzero = true
+    }
+    if (!nonzero) {
+      const targetColumn =
+        ((flippedColumnMask >>> transformType) & 1) !== 0 ? width - column - 1 : column
+      for (let row = 0; row < height; row += 1) {
+        const targetRow = ((flippedRowMask >>> transformType) & 1) !== 0 ? height - row - 1 : row
+        residual[targetRow * width + targetColumn] = 0
+      }
+      continue
     }
     const transformed =
       columnUsesDct || columnUsesAdst
