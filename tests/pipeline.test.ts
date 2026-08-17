@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import { selectDecodeScaleDenominator } from '../src/executor.ts'
@@ -31,7 +34,16 @@ describe('immutable image pipelines', () => {
         [{ type: 'resize', width: 200 }],
         true,
       ),
-    ).toBe(1)
+    ).toBe(8)
+    expect(
+      selectDecodeScaleDenominator(
+        6000,
+        4000,
+        { x: 333, y: 0, width: 5334, height: 4000 },
+        [{ type: 'resize', width: 1200, height: 900 }],
+        true,
+      ),
+    ).toBe(4)
     expect(
       selectDecodeScaleDenominator(
         6000,
@@ -40,7 +52,33 @@ describe('immutable image pipelines', () => {
         [{ type: 'resize', width: 200 }],
         true,
       ),
-    ).toBe(4)
+    ).toBe(8)
+  })
+
+  it('keeps northstar crop-resize samples after aligned scaled JPEG decode', async () => {
+    const fixture = 'benchmark/corpus/files/old-faithful-6000x4000.jpg'
+    if (!existsSync(fixture)) return
+    const encoded = await (await Image.open(await readFile(fixture)))
+      .autoOrient()
+      .crop({ x: 333, y: 0, width: 5334, height: 4000 })
+      .resize({ width: 1200, height: 900 })
+      .jpeg({ quality: 80 })
+      .toBuffer()
+    const decoded = await (await Image.open(encoded)).png({ compressionLevel: 0 }).toBuffer()
+    const pixels = PNG.sync.read(decoded).data
+    const sample = (x: number, y: number): readonly [number, number, number] => {
+      const offset = (y * 1200 + x) * 4
+      return [pixels[offset] ?? -1, pixels[offset + 1] ?? -1, pixels[offset + 2] ?? -1]
+    }
+    const within = (
+      actual: readonly [number, number, number],
+      expected: readonly [number, number, number],
+      tolerance: number,
+    ): boolean =>
+      actual.every((value, index) => Math.abs(value - (expected[index] ?? 0)) <= tolerance)
+    expect(within(sample(0, 0), [148, 173, 207], 8)).toBe(true)
+    expect(within(sample(300, 225), [187, 190, 195], 8)).toBe(true)
+    expect(within(sample(600, 450), [228, 225, 222], 8)).toBe(true)
   })
 
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {
@@ -139,6 +177,57 @@ describe('immutable image pipelines', () => {
       code: 'UNSUPPORTED_OPERATION',
     })
   })
+
+  it('releases decoder pixel blocks after a direct encode', async () => {
+    let released = 0
+    const pixels = Uint8Array.of(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
+    const codec: ImageCodec = {
+      format: 'release-fixture',
+      mimeTypes: ['image/x-release-fixture'],
+      minimumBytes: 1,
+      detect: (header) => header[0] === 0x52,
+      metadata: async () => ({
+        width: 2,
+        height: 2,
+        format: 'release-fixture',
+        mimeType: 'image/x-release-fixture',
+        hasAlpha: false,
+      }),
+      createDecoder: async () => ({
+        width: 2,
+        height: 2,
+        pixelFormat: 'rgb8',
+        capabilities: {
+          sequential: true,
+          regionDecode: true,
+          scaledDecode: false,
+          progressive: false,
+        },
+        async *decode(): AsyncGenerator<PixelBlock> {
+          yield {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 2,
+            stride: 6,
+            format: 'rgb8',
+            data: pixels,
+            release: () => {
+              released += 1
+            },
+          }
+        },
+      }),
+      createEncoder: async () => ({
+        async write(): Promise<void> {},
+        async finish(): Promise<void> {},
+      }),
+    }
+    const image = await createImageLibrary([codec]).open(Uint8Array.of(0x52))
+    await image.toBuffer()
+    expect(released).toBe(1)
+  })
+
   it('applies an explicit grayscale window before a color LUT', async () => {
     const captured: PixelBlock[] = []
     const codec: ImageCodec = {

@@ -1260,47 +1260,38 @@ const writeChunk = async (sink: ImageSink, type: string, data: Uint8Array): Prom
 
 const filteredMagnitude = (value: number): number => (value < 128 ? value : 256 - value)
 
-const filterScanline = (
+const chooseAdaptiveFilter = (
+  none: number,
+  sub: number,
+  up: number,
+  average: number,
+  paethScore: number,
+): number => {
+  let filter = 0
+  let score = none
+  if (sub < score) {
+    filter = 1
+    score = sub
+  }
+  if (up < score) {
+    filter = 2
+    score = up
+  }
+  if (average < score) {
+    filter = 3
+    score = average
+  }
+  if (paethScore < score) return 4
+  return filter
+}
+
+const applyFilterScanline = (
   source: Uint8Array,
   previous: Uint8Array,
   bytesPerPixel: number,
   output: Uint8Array,
-  adaptive: boolean,
+  filter: number,
 ): void => {
-  let filter = 0
-  if (adaptive) {
-    let none = 0
-    let sub = 0
-    let up = 0
-    let average = 0
-    let paethScore = 0
-    for (let index = 0; index < source.byteLength; index += 1) {
-      const value = source[index] ?? 0
-      const left = index >= bytesPerPixel ? (source[index - bytesPerPixel] ?? 0) : 0
-      const above = previous[index] ?? 0
-      const upperLeft = index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0
-      none += filteredMagnitude(value)
-      sub += filteredMagnitude((value - left) & 0xff)
-      up += filteredMagnitude((value - above) & 0xff)
-      average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
-      paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
-    }
-    let score = none
-    if (sub < score) {
-      filter = 1
-      score = sub
-    }
-    if (up < score) {
-      filter = 2
-      score = up
-    }
-    if (average < score) {
-      filter = 3
-      score = average
-    }
-    if (paethScore < score) filter = 4
-  }
-
   output[0] = filter
   if (filter === 0) {
     output.set(source, 1)
@@ -1338,6 +1329,93 @@ const filterScanline = (
     const upperLeft = previous[index - bytesPerPixel] ?? 0
     output[index + 1] = ((source[index] ?? 0) - paeth(left, above, upperLeft)) & 0xff
   }
+}
+
+const filterScanlineRgb8 = (
+  source: Uint8Array,
+  previous: Uint8Array,
+  output: Uint8Array,
+  adaptive: boolean,
+): void => {
+  let filter = 0
+  if (adaptive) {
+    let none = 0
+    let sub = 0
+    let up = 0
+    let average = 0
+    let paethScore = 0
+    const length = source.byteLength
+    for (let index = 0; index < 3 && index < length; index += 1) {
+      const value = source[index] ?? 0
+      const above = previous[index] ?? 0
+      const residual = (value - above) & 0xff
+      none += filteredMagnitude(value)
+      sub += filteredMagnitude(value)
+      up += filteredMagnitude(residual)
+      average += filteredMagnitude((value - Math.floor(above / 2)) & 0xff)
+      paethScore += filteredMagnitude(residual)
+    }
+    for (let index = 3; index < length; index += 1) {
+      const value = source[index] ?? 0
+      const left = source[index - 3] ?? 0
+      const above = previous[index] ?? 0
+      const upperLeft = previous[index - 3] ?? 0
+      none += filteredMagnitude(value)
+      sub += filteredMagnitude((value - left) & 0xff)
+      up += filteredMagnitude((value - above) & 0xff)
+      average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
+      paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
+    }
+    filter = chooseAdaptiveFilter(none, sub, up, average, paethScore)
+  }
+  applyFilterScanline(source, previous, 3, output, filter)
+}
+
+const filterScanline = (
+  source: Uint8Array,
+  previous: Uint8Array,
+  bytesPerPixel: number,
+  output: Uint8Array,
+  adaptive: boolean,
+): void => {
+  if (bytesPerPixel === 3) {
+    filterScanlineRgb8(source, previous, output, adaptive)
+    return
+  }
+  let filter = 0
+  if (adaptive) {
+    let none = 0
+    let sub = 0
+    let up = 0
+    let average = 0
+    let paethScore = 0
+    for (let index = 0; index < source.byteLength; index += 1) {
+      const value = source[index] ?? 0
+      const left = index >= bytesPerPixel ? (source[index - bytesPerPixel] ?? 0) : 0
+      const above = previous[index] ?? 0
+      const upperLeft = index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0
+      none += filteredMagnitude(value)
+      sub += filteredMagnitude((value - left) & 0xff)
+      up += filteredMagnitude((value - above) & 0xff)
+      average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
+      paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
+    }
+    let score = none
+    if (sub < score) {
+      filter = 1
+      score = sub
+    }
+    if (up < score) {
+      filter = 2
+      score = up
+    }
+    if (average < score) {
+      filter = 3
+      score = average
+    }
+    if (paethScore < score) filter = 4
+  }
+  applyFilterScanline(source, previous, bytesPerPixel, output, filter)
 }
 
 class PngEncoder implements ImageEncoder {

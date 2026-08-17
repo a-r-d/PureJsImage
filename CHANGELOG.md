@@ -37,6 +37,35 @@ All notable changes to PureJsImage are documented in this file.
   tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
   operations.
 
+### Changed
+
+- Speed up large JPEG crop-then-resize pipelines by snapping unaligned decoder crops to a
+  containing scale-aligned box so scaled IDCT can run. Official `northstar-photo-pipeline` fell
+  from 2857 ms to 1181 ms (−59%). Pixel samples stayed inside the documented ±8 tolerance; the
+  lossy JPEG bitstream changed as expected. Aligned neighbors kept exact hashes. Imazen JPEG
+  stayed 39 pass / 2 unsupported / 167 rejected-safely / 46 accepted.
+- Speed up JPEG-to-PNG conversion by recycling decoder row buffers after encode, specializing
+  adaptive PNG filter scoring for RGB8, and skipping bilinear luma interpolation when luma is
+  already full resolution. Official `jpeg-to-png` fell from 552 ms to 444 ms (−20%) with a 6.5%
+  peak-RSS drop on the recycle path; neighbor `jpeg-resize-1200` improved 4.5%. Output hashes and
+  the Imazen JPEG/PNG corpora were unchanged.
+- Fail full official `web-codecs` and `competitors` benchmark runs when any matched pass/pass wall
+  median is more than 10% slower than the published headline snapshot. Single-workflow hillclimb
+  runs are not gated.
+- Publish web-codec and competitor benchmark charts as SVG instead of rasterizing them to PNG.
+- Speed up first-party AVIF decode after the retained restoration gather/prefix work: hoist SGR
+  prefixes, unroll Wiener and SGR blend, copy interior CDEF windows, reuse inverse-transform
+  scratch buffers, specialize 4:2:0 chroma upsample, and specialize 8-bit Wiener rounding. Official
+  `avif-fox-resize-jpeg` fell from 1452 ms to 803 ms (−45%) and `avif-fox-full-png` from 1573 ms to
+  987 ms (−37%) on the 2026-08-17 web-codec snapshot, with unchanged output hashes.
+- Speed up first-party lossless WebP encoding by replacing the shifting LZ77 candidate table with a
+  ring buffer, recording match tokens once for histogram and bitstream emission, and scoring color
+  cache sizes in a single scan. Isolated 1200x480 effort-4 encode of `transparent-logo-1200x480`
+  fell from 166 ms to 100 ms with an unchanged bitstream.
+- Speed up first-party lossy WebP encoding by adding the DC predictor during reconstruction instead
+  of prefilling each 4x4, and by finalizing RGB8 chroma in the 2x2 write. Isolated 1200x900
+  quality-80 encode of the tundra frame fell from about 44 ms to 32 ms with an unchanged bitstream.
+
 ## [0.11.0] - 2026-08-16
 
 ### Added

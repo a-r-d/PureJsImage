@@ -308,14 +308,16 @@ describe('package contract', () => {
     }
     expect(readme).toContain('docs-astro/public/assets/readme/whole-slide-viewer.jpg')
     expect(readme).toContain('docs-astro/public/assets/readme/scientific-explorer.jpg')
-    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.png')
+    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.svg')
     expect(readme).toContain('docs-astro/public/assets/readme/brand-mark.svg')
     const rasterBytes = [
       'docs-astro/public/assets/readme/whole-slide-viewer.jpg',
       'docs-astro/public/assets/readme/scientific-explorer.jpg',
-      'docs-astro/public/assets/readme/web-codec-memory.png',
     ].reduce((sum, path) => sum + readFileSync(path).byteLength, 0)
     expect(rasterBytes).toBeLessThan(1.2 * 1024 * 1024)
+    expect(readFileSync('docs-astro/public/assets/readme/web-codec-memory.svg', 'utf8')).toContain(
+      '<svg',
+    )
   })
 
   it('publishes indexed competitor charts through generated documentation data', () => {
@@ -324,14 +326,21 @@ describe('package contract', () => {
     const docsPerformance = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
     expect(readme).toContain('https://purejsimage.com/performance/')
     expect(readme).toContain('**Web codec benchmarks')
-    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.png')
+    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.svg')
     expect(readme).toContain('https://purejsimage.com/performance/#web-codec-benchmarks')
     expect(readme).not.toContain('competitors-speed-2026-08-10.png')
     expect(readme).not.toMatch(/web-codecs-memory-\d{4}-/u)
     expect(docsHome).toContain('documentation.ordinary.charts')
     expect(docsPerformance).toContain('documentation.ordinary.charts')
     for (const chart of Object.values(documentationData.ordinary.charts)) {
-      expect(readFileSync(`docs-astro/public/${chart}`).byteLength).toBeGreaterThan(0)
+      expect(chart.src.endsWith('.svg'), chart.src).toBe(true)
+      expect(chart.width).toBeGreaterThan(0)
+      expect(chart.height).toBeGreaterThan(0)
+      const svg = readFileSync(`docs-astro/public/${chart.src}`, 'utf8')
+      expect(svg).toContain('<svg')
+      expect(svg).toContain('<title')
+      expect(svg).toContain(`width="${chart.width}"`)
+      expect(svg).toContain(`height="${chart.height}"`)
     }
     for (const chart of Object.values(documentationData.scientific.charts)) {
       const svg = readFileSync(`docs-astro/public/${chart}`, 'utf8')
@@ -938,7 +947,7 @@ describe('benchmark contract', () => {
     expect(heif.length).toBe(4)
     expect(ico.length).toBe(6)
     expect(tiff.length).toBe(18)
-    expect(webp.length).toBe(11)
+    expect(webp.length).toBe(13)
     expect(smallCodecs.length).toBe(18)
     expect(competitors).toHaveLength(14)
     expect(webCodecs).toHaveLength(15)

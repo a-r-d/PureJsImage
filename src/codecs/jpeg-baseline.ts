@@ -1487,6 +1487,73 @@ const renderYcbcrRows = (
     }
     return
   }
+  if (
+    luminance.horizontalSampling === jpeg.maximumHorizontalSampling &&
+    luminance.verticalSampling === jpeg.maximumVerticalSampling
+  ) {
+    for (let row = 0; row < height; row += 1) {
+      const outputY = first + row
+      const lumaRow = (plan.haloRows + outputY - rowStart) * luminanceWidth
+      const blueChromaPosition =
+        ((outputY + 0.5) * blueChroma.verticalSampling) / jpeg.maximumVerticalSampling -
+        0.5 -
+        (rowStart * blueChroma.verticalSampling) / jpeg.maximumVerticalSampling +
+        plan.haloRows
+      const redChromaPosition =
+        ((outputY + 0.5) * redChroma.verticalSampling) / jpeg.maximumVerticalSampling -
+        0.5 -
+        (rowStart * redChroma.verticalSampling) / jpeg.maximumVerticalSampling +
+        plan.haloRows
+      const blueChromaY = Math.floor(blueChromaPosition)
+      const redChromaY = Math.floor(redChromaPosition)
+      const blueChromaBottomY = blueChromaY + 1
+      const redChromaBottomY = redChromaY + 1
+      const blueChromaYWeight = Math.round((blueChromaPosition - blueChromaY) * 256)
+      const redChromaYWeight = Math.round((redChromaPosition - redChromaY) * 256)
+      for (let x = 0; x < region.width; x += 1) {
+        const y = byte(luminancePlane, lumaRow + (luminanceX[x] ?? 0))
+        const blueChromaXWeight = blueChromaXWeights[x] ?? 0
+        const redChromaXWeight = redChromaXWeights[x] ?? 0
+        const blueChromaTop =
+          byte(blueChromaPlane, blueChromaY * blueChromaWidth + (blueChromaX[x] ?? 0)) *
+            (256 - blueChromaXWeight) +
+          byte(blueChromaPlane, blueChromaY * blueChromaWidth + (blueChromaRightX[x] ?? 0)) *
+            blueChromaXWeight
+        const blueChromaBottom =
+          byte(blueChromaPlane, blueChromaBottomY * blueChromaWidth + (blueChromaX[x] ?? 0)) *
+            (256 - blueChromaXWeight) +
+          byte(blueChromaPlane, blueChromaBottomY * blueChromaWidth + (blueChromaRightX[x] ?? 0)) *
+            blueChromaXWeight
+        const redChromaTop =
+          byte(redChromaPlane, redChromaY * redChromaWidth + (redChromaX[x] ?? 0)) *
+            (256 - redChromaXWeight) +
+          byte(redChromaPlane, redChromaY * redChromaWidth + (redChromaRightX[x] ?? 0)) *
+            redChromaXWeight
+        const redChromaBottom =
+          byte(redChromaPlane, redChromaBottomY * redChromaWidth + (redChromaX[x] ?? 0)) *
+            (256 - redChromaXWeight) +
+          byte(redChromaPlane, redChromaBottomY * redChromaWidth + (redChromaRightX[x] ?? 0)) *
+            redChromaXWeight
+        const cb =
+          ((blueChromaTop * (256 - blueChromaYWeight) +
+            blueChromaBottom * blueChromaYWeight +
+            32_768) >>
+            16) -
+          128
+        const cr =
+          ((redChromaTop * (256 - redChromaYWeight) +
+            redChromaBottom * redChromaYWeight +
+            32_768) >>
+            16) -
+          128
+        const target = (row * region.width + x) * 3
+        data[target] = clamp(y + 1.402 * cr)
+        data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
+        data[target + 2] = clamp(y + 1.772 * cb)
+      }
+    }
+    return
+  }
   for (let row = 0; row < height; row += 1) {
     const outputY = first + row
     const luminancePosition =

@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { allFixtures, inspectFixture, readManifest, verifyInspection } from './lib/corpus.ts'
 import { measurePackageFootprint } from './lib/package-footprint.ts'
+import { checkPublishedSpeed, formatPublishedSpeedBanner } from './lib/compare-published.ts'
 import { isSuccessfulSample, summarizeSamples } from './lib/results.ts'
 import type {
   BenchmarkReport,
@@ -51,6 +52,7 @@ const options = {
   warmups: Number(argument('warmups', '1')),
   workflow: argument('workflow'),
   output: argument('output'),
+  allowSpeedRegression: process.argv.includes('--allow-speed-regression'),
 }
 
 if (!Number.isInteger(options.runs) || options.runs < 1) {
@@ -554,6 +556,29 @@ await writeFile(markdownPath, markdown.join('\n'))
 
 console.log(`JSON: ${jsonPath}`)
 console.log(`Markdown: ${markdownPath}`)
+
+if (options.workflow === undefined) {
+  const publishedSpeed = await checkPublishedSpeed({
+    repositoryDirectory,
+    profile: options.profile,
+    results,
+  })
+  if (publishedSpeed.snapshotPath !== null) {
+    console.log(
+      `Published speed check: ${publishedSpeed.compared} pair(s) compared to ${publishedSpeed.snapshotPath}`,
+    )
+  } else if (publishedSpeed.skippedReason?.startsWith('no headline public snapshot') === true) {
+    console.warn(`Published speed check skipped: ${publishedSpeed.skippedReason}`)
+  }
+  if (publishedSpeed.regressions.length > 0) {
+    console.error(formatPublishedSpeedBanner(publishedSpeed))
+    if (options.allowSpeedRegression) {
+      console.error('Continuing because --allow-speed-regression was passed.')
+    } else {
+      process.exitCode = 1
+    }
+  }
+}
 
 if (
   results.some(({ summary }) => summary.status === 'error' || summary.status === 'invalid-output')

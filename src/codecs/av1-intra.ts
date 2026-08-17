@@ -4514,6 +4514,37 @@ const sampleChroma = (
   const bottomSample = bottomLeft * (4 - rightWeight) + bottomRight * rightWeight
   return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
 }
+
+const sampleChroma420 = (
+  plane: Av1SampleArray,
+  stride: number,
+  width: number,
+  height: number,
+  yOrigin: number,
+  x: number,
+  y: number,
+  midpoint: number,
+): number => {
+  const left = (x - 1) >> 1
+  const top = (y - 1) >> 1
+  const rightWeight = (x & 1) === 1 ? 1 : 3
+  const bottomWeight = (y & 1) === 1 ? 1 : 3
+  const lastX = width - 1
+  const lastY = height - 1
+  const leftX = left < 0 ? 0 : left > lastX ? lastX : left
+  const rightX = left + 1 < 0 ? 0 : left + 1 > lastX ? lastX : left + 1
+  const topY = (top < 0 ? 0 : top > lastY ? lastY : top) - yOrigin
+  const bottomY = (top + 1 < 0 ? 0 : top + 1 > lastY ? lastY : top + 1) - yOrigin
+  const topRow = topY * stride
+  const bottomRow = bottomY * stride
+  const topLeft = plane[topRow + leftX] ?? midpoint
+  const topRight = plane[topRow + rightX] ?? midpoint
+  const bottomLeft = plane[bottomRow + leftX] ?? midpoint
+  const bottomRight = plane[bottomRow + rightX] ?? midpoint
+  const topSample = topLeft * (4 - rightWeight) + topRight * rightWeight
+  const bottomSample = bottomLeft * (4 - rightWeight) + bottomRight * rightWeight
+  return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
+}
 const averagePlaneSample = (
   plane: Av1SampleArray,
   stride: number,
@@ -4823,6 +4854,47 @@ export const av1ToRgbaRegion = (
   }
   const chromaShiftX = 1
   const chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
+  if (chromaShiftY === 1 && scaleDenominator === 1) {
+    const yPlane = frame.y
+    const uPlane = frame.u
+    const vPlane = frame.v
+    const yStride = frame.yStride
+    const chromaStride = frame.chromaStride
+    const chromaWidth = frame.chromaWidth
+    const chromaHeight = frame.chromaHeight
+    for (let localY = 0; localY < region.height; localY += 1) {
+      const sourceY = region.y + localY
+      const lumaRow = (sourceY - yOrigin) * yStride
+      for (let localX = 0; localX < region.width; localX += 1) {
+        const sourceX = region.x + localX
+        convert(
+          yPlane[lumaRow + sourceX] ?? 0,
+          sampleChroma420(
+            uPlane,
+            chromaStride,
+            chromaWidth,
+            chromaHeight,
+            chromaYOrigin,
+            sourceX,
+            sourceY,
+            sampleMidpoint,
+          ),
+          sampleChroma420(
+            vPlane,
+            chromaStride,
+            chromaWidth,
+            chromaHeight,
+            chromaYOrigin,
+            sourceX,
+            sourceY,
+            sampleMidpoint,
+          ),
+          (localY * region.width + localX) * 4,
+        )
+      }
+    }
+    return output
+  }
   for (let localY = 0; localY < region.height; localY += 1) {
     const sourceY = region.y + localY * scaleDenominator
     for (let localX = 0; localX < region.width; localX += 1) {

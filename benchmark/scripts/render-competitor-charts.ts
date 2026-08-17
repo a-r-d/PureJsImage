@@ -1,12 +1,10 @@
-import { mkdir, readFile, readdir } from 'node:fs/promises'
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import sharp from 'sharp'
 import type { BenchmarkReport, BenchmarkResult } from '../types.ts'
 
 const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 const outputDirectory = join(benchmarkDirectory, 'results')
-const docsAssetsDirectory = join(dirname(benchmarkDirectory), 'docs', 'assets')
 
 const argument = (name: string): string | undefined => {
   const index = process.argv.indexOf(`--${name}`)
@@ -339,7 +337,9 @@ const chartSvg = (metric: Metric): string => {
         ? 'Absolute process RSS from isolated workers. PureJsImage WASM accelerates JPEG/PNG only and uses TypeScript fallback for WebP, TIFF, and AVIF; jSquash AVIF is WebAssembly.'
         : 'Premultiplied-RGBA PSNR against an independently decoded exact-area reference. Exact means every compared channel matched. Quality measurement is outside timing.'
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title subtitle">
+    <title id="title">${escapeXml(title)}</title>
     <rect width="${width}" height="${height}" fill="#f8fafc" />
     <style>
       text { font-family: Inter, Arial, sans-serif; fill: #172033; }
@@ -354,8 +354,8 @@ const chartSvg = (metric: Metric): string => {
       .footer { font-size: 20px; fill: #526077; }
       .source { font-size: 18px; fill: #718096; }
     </style>
-    <text x="54" y="78" class="title">${title}</text>
-    <text x="54" y="124" class="subtitle">${subtitle}</text>
+    <text x="54" y="78" class="title" id="heading">${title}</text>
+    <text x="54" y="124" class="subtitle" id="subtitle">${subtitle}</text>
     <text x="54" y="168" class="source">Validated ${escapeXml(profile)} profile · ${escapeXml(reportDate)} · ${escapeXml(environment)}</text>
     ${legend}
     ${grid}
@@ -366,38 +366,21 @@ const chartSvg = (metric: Metric): string => {
 }
 
 const chartPrefix = profile === 'competitors' ? 'competitors' : 'web-codecs'
-const speedPath = join(outputDirectory, `${chartPrefix}-speed-${reportStem}.png`)
-const memoryPath = join(outputDirectory, `${chartPrefix}-memory-${reportStem}.png`)
-const qualityPath = join(outputDirectory, `${chartPrefix}-quality-${reportStem}.png`)
-const docsSpeedPath = join(docsAssetsDirectory, `${chartPrefix}-speed-${reportStem}.png`)
-const docsMemoryPath = join(docsAssetsDirectory, `${chartPrefix}-memory-${reportStem}.png`)
-const docsQualityPath = join(docsAssetsDirectory, `${chartPrefix}-quality-${reportStem}.png`)
+const speedPath = join(outputDirectory, `${chartPrefix}-speed-${reportStem}.svg`)
+const memoryPath = join(outputDirectory, `${chartPrefix}-memory-${reportStem}.svg`)
+const qualityPath = join(outputDirectory, `${chartPrefix}-quality-${reportStem}.svg`)
 
-await mkdir(docsAssetsDirectory, { recursive: true })
+const writeSvg = async (path: string, svg: string): Promise<void> => {
+  await writeFile(path, `${svg.trimEnd()}\n`)
+}
+
+await mkdir(outputDirectory, { recursive: true })
 await Promise.all([
-  sharp(Buffer.from(chartSvg('speed')))
-    .png()
-    .toFile(speedPath),
-  sharp(Buffer.from(chartSvg('memory')))
-    .png()
-    .toFile(memoryPath),
-  sharp(Buffer.from(chartSvg('quality')))
-    .png()
-    .toFile(qualityPath),
-  sharp(Buffer.from(chartSvg('speed')))
-    .png()
-    .toFile(docsSpeedPath),
-  sharp(Buffer.from(chartSvg('memory')))
-    .png()
-    .toFile(docsMemoryPath),
-  sharp(Buffer.from(chartSvg('quality')))
-    .png()
-    .toFile(docsQualityPath),
+  writeSvg(speedPath, chartSvg('speed')),
+  writeSvg(memoryPath, chartSvg('memory')),
+  writeSvg(qualityPath, chartSvg('quality')),
 ])
 
 console.log(speedPath)
 console.log(memoryPath)
 console.log(qualityPath)
-console.log(docsSpeedPath)
-console.log(docsMemoryPath)
-console.log(docsQualityPath)

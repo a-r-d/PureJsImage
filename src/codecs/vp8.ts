@@ -453,8 +453,9 @@ const decodeMacroblockCoefficients = (
   factors: Factors,
   left: Int8Array,
   above: Int8Array,
-): Int32Array => {
-  const coefficients = new Int32Array(25 * 16)
+  coefficients: Int32Array,
+): void => {
+  coefficients.fill(0)
   const blockMode = block.yMode === BLOCK
   const count = blockMode ? 24 : 25
   for (let iteration = 0; iteration < count; iteration += 1) {
@@ -476,7 +477,6 @@ const decodeMacroblockCoefficients = (
     above[aboveIndex] = nonzero ? 1 : 0
     block.hasCoefficients ||= nonzero
   }
-  return coefficients
 }
 
 const createPlane = (width: number, height: number): Plane => {
@@ -511,7 +511,7 @@ const fixAbove = (
   plane.data.fill(127, offset - plane.stride + size, offset - plane.stride + size + 4)
 }
 
-const clampByte = (value: number): number => Math.max(0, Math.min(255, value))
+const clampByte = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 const average2 = (a: number, b: number): number => (a + b + 1) >> 1
 const average3 = (a: number, b: number, c: number): number => (a + 2 * b + c + 2) >> 2
 
@@ -541,160 +541,218 @@ const predictSquare = (plane: Plane, offset: number, size: number, mode: number)
   }
 }
 
+const writePredictRow = (
+  data: Uint8Array,
+  row: number,
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+): void => {
+  data[row] = a
+  data[row + 1] = b
+  data[row + 2] = c
+  data[row + 3] = d
+}
+
 const predictBlock = (plane: Plane, offset: number, mode: number): void => {
   if (mode <= 1) {
     predictSquare(plane, offset, 4, mode === 1 ? TRUE_MOTION : DC)
     return
   }
+  const data = plane.data
   const stride = plane.stride
-  const top = Array.from({ length: 8 }, (_, index) => plane.data[offset - stride + index] ?? 0)
-  const left = Array.from({ length: 4 }, (_, index) => plane.data[offset - 1 + index * stride] ?? 0)
-  const corner = plane.data[offset - stride - 1] ?? 0
-  const set = (x: number, y: number, value: number): void => {
-    plane.data[offset + y * stride + x] = value
-  }
+  const above = offset - stride
+  const t0 = data[above] ?? 0
+  const t1 = data[above + 1] ?? 0
+  const t2 = data[above + 2] ?? 0
+  const t3 = data[above + 3] ?? 0
+  const t4 = data[above + 4] ?? 0
+  const t5 = data[above + 5] ?? 0
+  const t6 = data[above + 6] ?? 0
+  const t7 = data[above + 7] ?? 0
+  const l0 = data[offset - 1] ?? 0
+  const l1 = data[offset - 1 + stride] ?? 0
+  const l2 = data[offset - 1 + stride * 2] ?? 0
+  const l3 = data[offset - 1 + stride * 3] ?? 0
+  const corner = data[above - 1] ?? 0
+  const row0 = offset
+  const row1 = offset + stride
+  const row2 = offset + stride * 2
+  const row3 = offset + stride * 3
   if (mode === 2) {
-    for (let x = 0; x < 4; x += 1) {
-      const value = average3(x === 0 ? corner : (top[x - 1] ?? 0), top[x] ?? 0, top[x + 1] ?? 0)
-      for (let y = 0; y < 4; y += 1) set(x, y, value)
-    }
+    const c0 = average3(corner, t0, t1)
+    const c1 = average3(t0, t1, t2)
+    const c2 = average3(t1, t2, t3)
+    const c3 = average3(t2, t3, t4)
+    writePredictRow(data, row0, c0, c1, c2, c3)
+    writePredictRow(data, row1, c0, c1, c2, c3)
+    writePredictRow(data, row2, c0, c1, c2, c3)
+    writePredictRow(data, row3, c0, c1, c2, c3)
     return
   }
   if (mode === 3) {
-    for (let y = 0; y < 4; y += 1) {
-      const value = average3(
-        y === 0 ? corner : (left[y - 1] ?? 0),
-        left[y] ?? 0,
-        left[Math.min(3, y + 1)] ?? 0,
-      )
-      for (let x = 0; x < 4; x += 1) set(x, y, value)
-    }
+    const c0 = average3(corner, l0, l1)
+    const c1 = average3(l0, l1, l2)
+    const c2 = average3(l1, l2, l3)
+    const c3 = average3(l2, l3, l3)
+    writePredictRow(data, row0, c0, c0, c0, c0)
+    writePredictRow(data, row1, c1, c1, c1, c1)
+    writePredictRow(data, row2, c2, c2, c2, c2)
+    writePredictRow(data, row3, c3, c3, c3, c3)
     return
   }
   if (mode === 4) {
-    for (let y = 0; y < 4; y += 1)
-      for (let x = 0; x < 4; x += 1) {
-        const index = x + y
-        set(
-          x,
-          y,
-          average3(
-            top[index] ?? top[7] ?? 0,
-            top[index + 1] ?? top[7] ?? 0,
-            top[index + 2] ?? top[7] ?? 0,
-          ),
-        )
-      }
+    const a01 = average3(t0, t1, t2)
+    const a12 = average3(t1, t2, t3)
+    const a23 = average3(t2, t3, t4)
+    const a34 = average3(t3, t4, t5)
+    const a45 = average3(t4, t5, t6)
+    const a56 = average3(t5, t6, t7)
+    const a67 = average3(t6, t7, t7)
+    writePredictRow(data, row0, a01, a12, a23, a34)
+    writePredictRow(data, row1, a12, a23, a34, a45)
+    writePredictRow(data, row2, a23, a34, a45, a56)
+    writePredictRow(data, row3, a34, a45, a56, a67)
     return
   }
   if (mode === 7) {
-    for (let x = 0; x < 4; x += 1) {
-      set(x, 0, average2(top[x] ?? 0, top[x + 1] ?? 0))
-      set(x, 1, average3(top[x] ?? 0, top[x + 1] ?? 0, top[x + 2] ?? 0))
-    }
-    set(0, 2, average2(top[1] ?? 0, top[2] ?? 0))
-    set(1, 2, average2(top[2] ?? 0, top[3] ?? 0))
-    set(2, 2, average2(top[3] ?? 0, top[4] ?? 0))
-    set(3, 2, average3(top[4] ?? 0, top[5] ?? 0, top[6] ?? 0))
-    set(0, 3, average3(top[1] ?? 0, top[2] ?? 0, top[3] ?? 0))
-    set(1, 3, average3(top[2] ?? 0, top[3] ?? 0, top[4] ?? 0))
-    set(2, 3, average3(top[3] ?? 0, top[4] ?? 0, top[5] ?? 0))
-    set(3, 3, average3(top[5] ?? 0, top[6] ?? 0, top[7] ?? 0))
+    writePredictRow(
+      data,
+      row0,
+      average2(t0, t1),
+      average2(t1, t2),
+      average2(t2, t3),
+      average2(t3, t4),
+    )
+    writePredictRow(
+      data,
+      row1,
+      average3(t0, t1, t2),
+      average3(t1, t2, t3),
+      average3(t2, t3, t4),
+      average3(t3, t4, t5),
+    )
+    writePredictRow(
+      data,
+      row2,
+      average2(t1, t2),
+      average2(t2, t3),
+      average2(t3, t4),
+      average3(t4, t5, t6),
+    )
+    writePredictRow(
+      data,
+      row3,
+      average3(t1, t2, t3),
+      average3(t2, t3, t4),
+      average3(t3, t4, t5),
+      average3(t5, t6, t7),
+    )
     return
   }
-  const diagonal = [left[3] ?? 0, left[2] ?? 0, left[1] ?? 0, left[0] ?? 0, corner, ...top]
   if (mode === 5) {
-    for (let y = 0; y < 4; y += 1)
-      for (let x = 0; x < 4; x += 1) {
-        const index = 3 - y + x
-        set(
-          x,
-          y,
-          average3(diagonal[index] ?? 0, diagonal[index + 1] ?? 0, diagonal[index + 2] ?? 0),
-        )
-      }
+    writePredictRow(
+      data,
+      row0,
+      average3(l0, corner, t0),
+      average3(corner, t0, t1),
+      average3(t0, t1, t2),
+      average3(t1, t2, t3),
+    )
+    writePredictRow(
+      data,
+      row1,
+      average3(l1, l0, corner),
+      average3(l0, corner, t0),
+      average3(corner, t0, t1),
+      average3(t0, t1, t2),
+    )
+    writePredictRow(
+      data,
+      row2,
+      average3(l2, l1, l0),
+      average3(l1, l0, corner),
+      average3(l0, corner, t0),
+      average3(corner, t0, t1),
+    )
+    writePredictRow(
+      data,
+      row3,
+      average3(l3, l2, l1),
+      average3(l2, l1, l0),
+      average3(l1, l0, corner),
+      average3(l0, corner, t0),
+    )
     return
   }
   if (mode === 6) {
-    const row0 = [
-      average2(corner, top[0] ?? 0),
-      average2(top[0] ?? 0, top[1] ?? 0),
-      average2(top[1] ?? 0, top[2] ?? 0),
-      average2(top[2] ?? 0, top[3] ?? 0),
-    ]
-    const row1 = [
-      average3(left[0] ?? 0, corner, top[0] ?? 0),
-      average3(corner, top[0] ?? 0, top[1] ?? 0),
-      average3(top[0] ?? 0, top[1] ?? 0, top[2] ?? 0),
-      average3(top[1] ?? 0, top[2] ?? 0, top[3] ?? 0),
-    ]
-    const row2 = [
-      average3(left[1] ?? 0, left[0] ?? 0, corner),
-      row0[0] ?? 0,
-      row0[1] ?? 0,
-      row0[2] ?? 0,
-    ]
-    const row3 = [
-      average3(left[2] ?? 0, left[1] ?? 0, left[0] ?? 0),
-      row1[0] ?? 0,
-      row1[1] ?? 0,
-      row1[2] ?? 0,
-    ]
-    for (const [y, row] of [row0, row1, row2, row3].entries()) {
-      for (let x = 0; x < 4; x += 1) set(x, y, row[x] ?? 0)
-    }
+    const a0 = average2(corner, t0)
+    const a1 = average2(t0, t1)
+    const a2 = average2(t1, t2)
+    const a3 = average2(t2, t3)
+    const b0 = average3(l0, corner, t0)
+    const b1 = average3(corner, t0, t1)
+    const b2 = average3(t0, t1, t2)
+    writePredictRow(data, row0, a0, a1, a2, a3)
+    writePredictRow(data, row1, b0, b1, b2, average3(t1, t2, t3))
+    writePredictRow(data, row2, average3(l1, l0, corner), a0, a1, a2)
+    writePredictRow(data, row3, average3(l2, l1, l0), b0, b1, b2)
     return
   }
   if (mode === 8) {
-    const row0 = [
-      average2(left[0] ?? 0, corner),
-      average3(left[0] ?? 0, corner, top[0] ?? 0),
-      average3(corner, top[0] ?? 0, top[1] ?? 0),
-      average3(top[0] ?? 0, top[1] ?? 0, top[2] ?? 0),
-    ]
-    const row1 = [
-      average2(left[1] ?? 0, left[0] ?? 0),
-      average3(left[1] ?? 0, left[0] ?? 0, corner),
-      row0[0] ?? 0,
-      row0[1] ?? 0,
-    ]
-    const row2 = [
-      average2(left[2] ?? 0, left[1] ?? 0),
-      average3(left[2] ?? 0, left[1] ?? 0, left[0] ?? 0),
-      row1[0] ?? 0,
-      row1[1] ?? 0,
-    ]
-    const row3 = [
-      average2(left[3] ?? 0, left[2] ?? 0),
-      average3(left[3] ?? 0, left[2] ?? 0, left[1] ?? 0),
-      row2[0] ?? 0,
-      row2[1] ?? 0,
-    ]
-    for (const [y, row] of [row0, row1, row2, row3].entries()) {
-      for (let x = 0; x < 4; x += 1) set(x, y, row[x] ?? 0)
-    }
+    const a0 = average2(l0, corner)
+    const a1 = average3(l0, corner, t0)
+    const b0 = average2(l1, l0)
+    const b1 = average3(l1, l0, corner)
+    const c0 = average2(l2, l1)
+    const c1 = average3(l2, l1, l0)
+    writePredictRow(data, row0, a0, a1, average3(corner, t0, t1), average3(t0, t1, t2))
+    writePredictRow(data, row1, b0, b1, a0, a1)
+    writePredictRow(data, row2, c0, c1, b0, b1)
+    writePredictRow(data, row3, average2(l3, l2), average3(l3, l2, l1), c0, c1)
     return
   }
-  for (let y = 0; y < 4; y += 1)
-    for (let x = 0; x < 4; x += 1) {
-      const position = y + (x >> 1)
-      set(
-        x,
-        y,
-        x & 1
-          ? average3(
-              left[position] ?? left[3] ?? 0,
-              left[position + 1] ?? left[3] ?? 0,
-              left[position + 2] ?? left[3] ?? 0,
-            )
-          : average2(left[position] ?? left[3] ?? 0, left[position + 1] ?? left[3] ?? 0),
-      )
-    }
+  writePredictRow(
+    data,
+    row0,
+    average2(l0, l1),
+    average3(l0, l1, l2),
+    average2(l1, l2),
+    average3(l1, l2, l3),
+  )
+  writePredictRow(
+    data,
+    row1,
+    average2(l1, l2),
+    average3(l1, l2, l3),
+    average2(l2, l3),
+    average3(l2, l3, l3),
+  )
+  writePredictRow(
+    data,
+    row2,
+    average2(l2, l3),
+    average3(l2, l3, l3),
+    average2(l3, l3),
+    average3(l3, l3, l3),
+  )
+  writePredictRow(
+    data,
+    row3,
+    average2(l3, l3),
+    average3(l3, l3, l3),
+    average2(l3, l3),
+    average3(l3, l3, l3),
+  )
 }
 
-const walsh = (input: Int32Array, offset: number): Int32Array => {
-  const temporary = new Int32Array(16)
-  const output = new Int32Array(16)
+const walsh = (
+  input: Int32Array,
+  offset: number,
+  temporary: Int32Array,
+  output: Int32Array,
+): void => {
   for (let x = 0; x < 4; x += 1) {
     const a = (input[offset + x] ?? 0) + (input[offset + 12 + x] ?? 0)
     const b = (input[offset + 4 + x] ?? 0) + (input[offset + 8 + x] ?? 0)
@@ -716,7 +774,6 @@ const walsh = (input: Int32Array, offset: number): Int32Array => {
     output[offsetY + 2] = (a - b + 3) >> 3
     output[offsetY + 3] = (d - c + 3) >> 3
   }
-  return output
 }
 
 const inverseDctAdd = (
@@ -774,6 +831,8 @@ const reconstruct = (
   coefficients: Int32Array,
   rightEdge: boolean,
   inverseDctTemporary: Int32Array,
+  walshTemporary: Int32Array,
+  walshOutput: Int32Array,
 ): void => {
   const yOffset = yPlane.origin + row * 16 * yPlane.stride + column * 16
   const uOffset = uPlane.origin + row * 8 * uPlane.stride + column * 8
@@ -803,10 +862,10 @@ const reconstruct = (
       inverseDctAdd(yPlane, offset, coefficients, index * 16, inverseDctTemporary)
     }
   } else {
-    const dc = walsh(coefficients, 24 * 16)
+    walsh(coefficients, 24 * 16, walshTemporary, walshOutput)
     predictSquare(yPlane, yOffset, 16, block.yMode)
     for (let index = 0; index < 16; index += 1) {
-      coefficients[index * 16] = dc[index] ?? 0
+      coefficients[index * 16] = walshOutput[index] ?? 0
       inverseDctAdd(
         yPlane,
         yOffset + (index >> 2) * 4 * yPlane.stride + (index & 3) * 4,
@@ -825,7 +884,7 @@ const reconstruct = (
   }
 }
 
-const saturateInt8 = (value: number): number => Math.max(-128, Math.min(127, value))
+const saturateInt8 = (value: number): number => (value < -128 ? -128 : value > 127 ? 127 : value)
 
 const simpleFilterThreshold = (
   plane: Plane,
@@ -839,36 +898,6 @@ const simpleFilterThreshold = (
   const q1 = plane.data[offset + step] ?? 0
   return Math.abs(p0 - q0) * 2 + (Math.abs(p1 - q1) >> 1) <= limit
 }
-
-const normalFilterThreshold = (
-  plane: Plane,
-  offset: number,
-  step: number,
-  edgeLimit: number,
-  interiorLimit: number,
-): boolean => {
-  if (!simpleFilterThreshold(plane, offset, step, edgeLimit * 2 + interiorLimit)) return false
-  const p3 = plane.data[offset - 4 * step] ?? 0
-  const p2 = plane.data[offset - 3 * step] ?? 0
-  const p1 = plane.data[offset - 2 * step] ?? 0
-  const p0 = plane.data[offset - step] ?? 0
-  const q0 = plane.data[offset] ?? 0
-  const q1 = plane.data[offset + step] ?? 0
-  const q2 = plane.data[offset + 2 * step] ?? 0
-  const q3 = plane.data[offset + 3 * step] ?? 0
-  return (
-    Math.abs(p3 - p2) <= interiorLimit &&
-    Math.abs(p2 - p1) <= interiorLimit &&
-    Math.abs(p1 - p0) <= interiorLimit &&
-    Math.abs(q0 - q1) <= interiorLimit &&
-    Math.abs(q1 - q2) <= interiorLimit &&
-    Math.abs(q2 - q3) <= interiorLimit
-  )
-}
-
-const highEdgeVariance = (plane: Plane, offset: number, step: number, threshold: number): boolean =>
-  Math.abs((plane.data[offset - 2 * step] ?? 0) - (plane.data[offset - step] ?? 0)) > threshold ||
-  Math.abs((plane.data[offset + step] ?? 0) - (plane.data[offset] ?? 0)) > threshold
 
 const filterCommon = (plane: Plane, offset: number, step: number, outerTaps: boolean): void => {
   const p1Offset = offset - 2 * step
@@ -893,27 +922,6 @@ const filterCommon = (plane: Plane, offset: number, step: number, outerTaps: boo
   }
 }
 
-const filterMacroblockEdge = (plane: Plane, offset: number, step: number): void => {
-  const p2Offset = offset - 3 * step
-  const p1Offset = offset - 2 * step
-  const p0Offset = offset - step
-  const q0Offset = offset
-  const q1Offset = offset + step
-  const q2Offset = offset + 2 * step
-  const p1 = plane.data[p1Offset] ?? 0
-  const p0 = plane.data[p0Offset] ?? 0
-  const q0 = plane.data[q0Offset] ?? 0
-  const q1 = plane.data[q1Offset] ?? 0
-  const weight = saturateInt8(saturateInt8(p1 - q1) + 3 * (q0 - p0))
-  const adjust = (coefficient: number): number => (coefficient * weight + 63) >> 7
-  plane.data[p0Offset] = clampByte(p0 + adjust(27))
-  plane.data[q0Offset] = clampByte(q0 - adjust(27))
-  plane.data[p1Offset] = clampByte(p1 + adjust(18))
-  plane.data[q1Offset] = clampByte(q1 - adjust(18))
-  plane.data[p2Offset] = clampByte((plane.data[p2Offset] ?? 0) + adjust(9))
-  plane.data[q2Offset] = clampByte((plane.data[q2Offset] ?? 0) - adjust(9))
-}
-
 const filterNormalEdge = (
   plane: Plane,
   offset: number,
@@ -925,12 +933,57 @@ const filterNormalEdge = (
   varianceThreshold: number,
   macroblockEdge: boolean,
 ): void => {
+  const data = plane.data
+  const simpleLimit = edgeLimit * 2 + interiorLimit
   for (let index = 0; index < length; index += 1) {
     const pixel = offset + index * advance
-    if (!normalFilterThreshold(plane, pixel, step, edgeLimit, interiorLimit)) continue
-    const highVariance = highEdgeVariance(plane, pixel, step, varianceThreshold)
-    if (macroblockEdge && !highVariance) filterMacroblockEdge(plane, pixel, step)
-    else filterCommon(plane, pixel, step, highVariance || macroblockEdge)
+    const p3 = data[pixel - 4 * step] ?? 0
+    const p2 = data[pixel - 3 * step] ?? 0
+    const p1 = data[pixel - 2 * step] ?? 0
+    const p0 = data[pixel - step] ?? 0
+    const q0 = data[pixel] ?? 0
+    const q1 = data[pixel + step] ?? 0
+    const q2 = data[pixel + 2 * step] ?? 0
+    const q3 = data[pixel + 3 * step] ?? 0
+    if (Math.abs(p0 - q0) * 2 + (Math.abs(p1 - q1) >> 1) > simpleLimit) continue
+    if (
+      Math.abs(p3 - p2) > interiorLimit ||
+      Math.abs(p2 - p1) > interiorLimit ||
+      Math.abs(p1 - p0) > interiorLimit ||
+      Math.abs(q0 - q1) > interiorLimit ||
+      Math.abs(q1 - q2) > interiorLimit ||
+      Math.abs(q2 - q3) > interiorLimit
+    ) {
+      continue
+    }
+    const highVariance =
+      Math.abs(p1 - p0) > varianceThreshold || Math.abs(q1 - q0) > varianceThreshold
+    if (macroblockEdge && !highVariance) {
+      const weight = saturateInt8(saturateInt8(p1 - q1) + 3 * (q0 - p0))
+      const adjust27 = (27 * weight + 63) >> 7
+      const adjust18 = (18 * weight + 63) >> 7
+      const adjust9 = (9 * weight + 63) >> 7
+      data[pixel - step] = clampByte(p0 + adjust27)
+      data[pixel] = clampByte(q0 - adjust27)
+      data[pixel - 2 * step] = clampByte(p1 + adjust18)
+      data[pixel + step] = clampByte(q1 - adjust18)
+      data[pixel - 3 * step] = clampByte(p2 + adjust9)
+      data[pixel + 2 * step] = clampByte(q2 - adjust9)
+      continue
+    }
+    let adjustment = 3 * (q0 - p0)
+    const outerTaps = highVariance || macroblockEdge
+    if (outerTaps) adjustment += saturateInt8(p1 - q1)
+    adjustment = saturateInt8(adjustment)
+    const first = Math.min(127, adjustment + 4) >> 3
+    const second = Math.min(127, adjustment + 3) >> 3
+    data[pixel - step] = clampByte(p0 + second)
+    data[pixel] = clampByte(q0 - first)
+    if (!outerTaps) {
+      const outer = (first + 1) >> 1
+      data[pixel - 2 * step] = clampByte(p1 + outer)
+      data[pixel + step] = clampByte(q1 - outer)
+    }
   }
 }
 
@@ -1201,6 +1254,9 @@ export const decodeVp8 = (
       const vPlane = createPlane(columns * 8, 16)
       const aboveContexts = Array.from({ length: columns }, () => new Int8Array(9))
       const inverseDctTemporary = new Int32Array(16)
+      const walshTemporary = new Int32Array(16)
+      const walshOutput = new Int32Array(16)
+      const coefficients = new Int32Array(25 * 16)
       const factors = Array.from({ length: 4 }, (_, segment) =>
         factorSet(segment, segmentation, quantization),
       )
@@ -1240,8 +1296,8 @@ export const decodeVp8 = (
           const block = blocks[column]
           const aboveContext = aboveContexts[column]
           if (!block || !aboveContext) throw invalidInput('VP8 macroblock state is missing')
-          let coefficients: Int32Array = new Int32Array(25 * 16)
           if (block.skip) {
+            coefficients.fill(0)
             leftContext.fill(0, 0, 8)
             aboveContext.fill(0, 0, 8)
             if (block.yMode !== BLOCK) {
@@ -1249,13 +1305,14 @@ export const decodeVp8 = (
               aboveContext[8] = 0
             }
           } else {
-            coefficients = decodeMacroblockCoefficients(
+            decodeMacroblockCoefficients(
               tokenDecoder,
               probabilities,
               block,
               factors[block.segment] ?? factorSet(0, segmentation, quantization),
               leftContext,
               aboveContext,
+              coefficients,
             )
           }
           reconstruct(
@@ -1268,6 +1325,8 @@ export const decodeVp8 = (
             coefficients,
             column + 1 === columns,
             inverseDctTemporary,
+            walshTemporary,
+            walshOutput,
           )
         }
 

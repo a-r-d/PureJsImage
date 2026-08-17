@@ -671,16 +671,33 @@ const updateColorCache = (
 // the table fixed at 4 MiB instead of scaling with the source pixel count.
 const matchCandidateCount = (pixelCount: number): number => (pixelCount < 16_384 ? 1 : 16)
 
-const createMatchTable = (pixelCount: number, deepSearch: boolean): Int32Array =>
-  new Int32Array((1 << 16) * (deepSearch ? matchCandidateCount(pixelCount) : 1))
+interface MatchTable {
+  readonly candidateCount: number
+  readonly heads: Uint8Array
+  readonly slots: Int32Array
+}
+
+const createMatchTable = (pixelCount: number, deepSearch: boolean): MatchTable => {
+  const candidateCount = deepSearch ? matchCandidateCount(pixelCount) : 1
+  return {
+    candidateCount,
+    heads: new Uint8Array(1 << 16),
+    slots: new Int32Array((1 << 16) * candidateCount),
+  }
+}
+
+const resetMatchTable = (matches: MatchTable): void => {
+  matches.slots.fill(-1)
+  matches.heads.fill(0)
+}
 
 const bestMatch = (
   pixels: Uint32Array,
   position: number,
   width: number,
-  matches: Int32Array,
+  matches: MatchTable,
 ): { readonly distance: number; readonly length: number } => {
-  const candidateCount = matches.length >>> 16
+  const candidateCount = matches.candidateCount
   let distance = 1
   let length = matchLength(pixels, position, distance)
   const previousRow = matchLength(pixels, position, width)
@@ -688,9 +705,12 @@ const bestMatch = (
     distance = width
     length = previousRow
   }
-  const bucket = matchHash(pixels, position) * candidateCount
-  for (let index = 0; index < candidateCount; index += 1) {
-    const candidate = matches[bucket + index] ?? -1
+  const hash = matchHash(pixels, position)
+  const bucket = hash * candidateCount
+  const head = matches.heads[hash] ?? 0
+  let index = head === 0 ? candidateCount - 1 : head - 1
+  for (let visited = 0; visited < candidateCount; visited += 1) {
+    const candidate = matches.slots[bucket + index] ?? -1
     const candidateDistance = position - candidate
     if (candidate >= 0 && candidateDistance <= 1_048_456) {
       const candidateLength = matchLength(pixels, position, candidateDistance)
@@ -699,6 +719,7 @@ const bestMatch = (
         length = candidateLength
       }
     }
+    index = index === 0 ? candidateCount - 1 : index - 1
   }
   return { length, distance }
 }
@@ -719,42 +740,108 @@ const distanceCode = (distance: number, codes: ReadonlyMap<number, number>): Pre
   prefixCode(codes.get(distance) ?? distance + 120, 39)
 
 const updateMatches = (
-  matches: Int32Array,
+  matches: MatchTable,
   pixels: Uint32Array,
   position: number,
   length: number,
 ): void => {
-  const candidateCount = matches.length >>> 16
+  const candidateCount = matches.candidateCount
   const end = position + length
   for (let current = position; current < end; current += 1) {
-    const bucket = matchHash(pixels, current) * candidateCount
-    for (let index = candidateCount - 1; index > 0; index -= 1) {
-      matches[bucket + index] = matches[bucket + index - 1] ?? -1
-    }
-    matches[bucket] = current
+    const hash = matchHash(pixels, current)
+    const head = matches.heads[hash] ?? 0
+    matches.slots[hash * candidateCount + head] = current
+    matches.heads[hash] = head + 1 === candidateCount ? 0 : head + 1
   }
 }
 
-const collectHistograms = (
+const TOKEN_LITERAL = 0
+const TOKEN_CACHE = 1
+const TOKEN_MATCH = 2
+
+interface Lz77Stream {
+  readonly count: number
+  readonly distances: Int32Array
+  readonly kinds: Uint8Array
+  readonly lengths: Uint16Array
+  readonly positions: Int32Array
+  readonly values: Uint32Array
+}
+
+const recordToken = (
+  stream: {
+    count: number
+    readonly distances: Int32Array
+    readonly kinds: Uint8Array
+    readonly lengths: Uint16Array
+    readonly positions: Int32Array
+    readonly values: Uint32Array
+  },
+  kind: number,
+  value: number,
+  length: number,
+  distance: number,
+  position: number,
+): void => {
+  const index = stream.count
+  stream.kinds[index] = kind
+  stream.values[index] = value
+  stream.lengths[index] = length
+  stream.distances[index] = distance
+  stream.positions[index] = position
+  stream.count += 1
+}
+
+const addHistogramToken = (
+  histograms: PrefixHistograms,
+  kind: number,
+  value: number,
+  length: number,
+  distance: number,
+  distanceCodes: ReadonlyMap<number, number>,
+): void => {
+  if (kind === TOKEN_MATCH) {
+    const lengthCode = prefixCode(length, 23)
+    histograms.green[256 + lengthCode.prefix] = (histograms.green[256 + lengthCode.prefix] ?? 0) + 1
+    const coded = distanceCode(distance, distanceCodes)
+    histograms.distance[coded.prefix] = (histograms.distance[coded.prefix] ?? 0) + 1
+    return
+  }
+  if (kind === TOKEN_CACHE) {
+    histograms.green[280 + value] = (histograms.green[280 + value] ?? 0) + 1
+    return
+  }
+  histograms.green[channel(value, 8)] = (histograms.green[channel(value, 8)] ?? 0) + 1
+  histograms.red[channel(value, 16)] = (histograms.red[channel(value, 16)] ?? 0) + 1
+  histograms.blue[channel(value, 0)] = (histograms.blue[channel(value, 0)] ?? 0) + 1
+  histograms.alpha[channel(value, 24)] = (histograms.alpha[channel(value, 24)] ?? 0) + 1
+}
+
+const collectLz77 = (
   pixels: Uint32Array,
   width: number,
   cacheBits: number,
-  matches: Int32Array,
-): PrefixHistograms => {
+  matches: MatchTable,
+): { readonly histograms: PrefixHistograms; readonly stream: Lz77Stream } => {
   const cacheSize = cacheBits === 0 ? 0 : 1 << cacheBits
   const histograms = createPrefixHistograms(cacheSize)
-  matches.fill(-1)
+  const stream = {
+    count: 0,
+    distances: new Int32Array(pixels.length),
+    kinds: new Uint8Array(pixels.length),
+    lengths: new Uint16Array(pixels.length),
+    positions: new Int32Array(pixels.length),
+    values: new Uint32Array(pixels.length),
+  }
+  resetMatchTable(matches)
   const cache = cacheBits === 0 ? undefined : new Uint32Array(cacheSize)
   const distanceCodes = createDistanceCodeMap(width)
   let position = 0
   while (position < pixels.length) {
     const match = bestMatch(pixels, position, width, matches)
     if (match.length >= 2) {
-      const lengthCode = prefixCode(match.length, 23)
-      histograms.green[256 + lengthCode.prefix] =
-        (histograms.green[256 + lengthCode.prefix] ?? 0) + 1
-      const distance = distanceCode(match.distance, distanceCodes)
-      histograms.distance[distance.prefix] = (histograms.distance[distance.prefix] ?? 0) + 1
+      recordToken(stream, TOKEN_MATCH, 0, match.length, match.distance, position)
+      addHistogramToken(histograms, TOKEN_MATCH, 0, match.length, match.distance, distanceCodes)
       updateMatches(matches, pixels, position, match.length)
       updateColorCache(cache, cacheBits, pixels, position, match.length)
       position += match.length
@@ -763,74 +850,40 @@ const collectHistograms = (
     const color = pixels[position] ?? 0
     const cacheEntry = cache ? colorCacheIndex(color, cacheBits) : -1
     if (cache && (cache[cacheEntry] ?? 0) === color) {
-      histograms.green[280 + cacheEntry] = (histograms.green[280 + cacheEntry] ?? 0) + 1
+      recordToken(stream, TOKEN_CACHE, cacheEntry, 1, 0, position)
+      addHistogramToken(histograms, TOKEN_CACHE, cacheEntry, 1, 0, distanceCodes)
       updateMatches(matches, pixels, position, 1)
       updateColorCache(cache, cacheBits, pixels, position, 1)
       position += 1
       continue
     }
-    const green = channel(color, 8)
-    const red = channel(color, 16)
-    const blue = channel(color, 0)
-    const alpha = channel(color, 24)
-    histograms.green[green] = (histograms.green[green] ?? 0) + 1
-    histograms.red[red] = (histograms.red[red] ?? 0) + 1
-    histograms.blue[blue] = (histograms.blue[blue] ?? 0) + 1
-    histograms.alpha[alpha] = (histograms.alpha[alpha] ?? 0) + 1
+    recordToken(stream, TOKEN_LITERAL, color, 1, 0, position)
+    addHistogramToken(histograms, TOKEN_LITERAL, color, 1, 0, distanceCodes)
     updateMatches(matches, pixels, position, 1)
     updateColorCache(cache, cacheBits, pixels, position, 1)
     position += 1
   }
-  return histograms
+  return { histograms, stream }
 }
 const collectSpatialHistograms = (
-  pixels: Uint32Array,
+  stream: Lz77Stream,
   width: number,
-  cacheBits: number,
-  matches: Int32Array,
+  cacheSize: number,
   map: EntropyMap,
 ): readonly PrefixHistograms[] => {
-  const cacheSize = cacheBits === 0 ? 0 : 1 << cacheBits
   const groups = Array.from({ length: map.count }, () => createPrefixHistograms(cacheSize))
-  matches.fill(-1)
-  const cache = cacheBits === 0 ? undefined : new Uint32Array(cacheSize)
   const distanceCodes = createDistanceCodeMap(width)
-  let position = 0
-  while (position < pixels.length) {
-    const histograms = groups[entropyGroup(map, position, width)]
+  for (let index = 0; index < stream.count; index += 1) {
+    const histograms = groups[entropyGroup(map, stream.positions[index] ?? 0, width)]
     if (!histograms) throw invalidInput('WebP entropy group is missing')
-    const match = bestMatch(pixels, position, width, matches)
-    if (match.length >= 2) {
-      const lengthCode = prefixCode(match.length, 23)
-      histograms.green[256 + lengthCode.prefix] =
-        (histograms.green[256 + lengthCode.prefix] ?? 0) + 1
-      const distance = distanceCode(match.distance, distanceCodes)
-      histograms.distance[distance.prefix] = (histograms.distance[distance.prefix] ?? 0) + 1
-      updateMatches(matches, pixels, position, match.length)
-      updateColorCache(cache, cacheBits, pixels, position, match.length)
-      position += match.length
-      continue
-    }
-    const color = pixels[position] ?? 0
-    const cacheEntry = cache ? colorCacheIndex(color, cacheBits) : -1
-    if (cache && (cache[cacheEntry] ?? 0) === color) {
-      histograms.green[280 + cacheEntry] = (histograms.green[280 + cacheEntry] ?? 0) + 1
-      updateMatches(matches, pixels, position, 1)
-      updateColorCache(cache, cacheBits, pixels, position, 1)
-      position += 1
-      continue
-    }
-    const green = channel(color, 8)
-    const red = channel(color, 16)
-    const blue = channel(color, 0)
-    const alpha = channel(color, 24)
-    histograms.green[green] = (histograms.green[green] ?? 0) + 1
-    histograms.red[red] = (histograms.red[red] ?? 0) + 1
-    histograms.blue[blue] = (histograms.blue[blue] ?? 0) + 1
-    histograms.alpha[alpha] = (histograms.alpha[alpha] ?? 0) + 1
-    updateMatches(matches, pixels, position, 1)
-    updateColorCache(cache, cacheBits, pixels, position, 1)
-    position += 1
+    addHistogramToken(
+      histograms,
+      stream.kinds[index] ?? 0,
+      stream.values[index] ?? 0,
+      stream.lengths[index] ?? 0,
+      stream.distances[index] ?? 0,
+      distanceCodes,
+    )
   }
   return groups
 }
@@ -868,95 +921,34 @@ const prefixGroupBits = (histograms: PrefixHistograms, tables: PrefixTables): nu
     huffmanDataBits(histograms.distance, tables.distance)
   )
 }
-const writeImageTokens = (
+const writeStreamTokens = (
   writer: BitOutput,
-  pixels: Uint32Array,
+  stream: Lz77Stream,
   width: number,
-  cacheBits: number,
-  tables: PrefixTables,
-  matches: Int32Array,
+  tablesFor: (index: number) => PrefixTables,
 ): void => {
-  matches.fill(-1)
-  const cache = cacheBits === 0 ? undefined : new Uint32Array(1 << cacheBits)
   const distanceCodes = createDistanceCodeMap(width)
-  let position = 0
-  while (position < pixels.length) {
-    const match = bestMatch(pixels, position, width, matches)
-    if (match.length >= 2) {
-      const lengthCode = prefixCode(match.length, 23)
+  for (let index = 0; index < stream.count; index += 1) {
+    const tables = tablesFor(index)
+    const kind = stream.kinds[index] ?? 0
+    if (kind === TOKEN_MATCH) {
+      const lengthCode = prefixCode(stream.lengths[index] ?? 0, 23)
       writeHuffmanSymbol(writer, tables.green, 256 + lengthCode.prefix)
       writer.writeBits(lengthCode.extra, lengthCode.extraBits)
-      const distance = distanceCode(match.distance, distanceCodes)
+      const distance = distanceCode(stream.distances[index] ?? 0, distanceCodes)
       writeHuffmanSymbol(writer, tables.distance, distance.prefix)
       writer.writeBits(distance.extra, distance.extraBits)
-      updateMatches(matches, pixels, position, match.length)
-      updateColorCache(cache, cacheBits, pixels, position, match.length)
-      position += match.length
       continue
     }
-    const color = pixels[position] ?? 0
-    const cacheEntry = cache ? colorCacheIndex(color, cacheBits) : -1
-    if (cache && (cache[cacheEntry] ?? 0) === color) {
-      writeHuffmanSymbol(writer, tables.green, 280 + cacheEntry)
-      updateMatches(matches, pixels, position, 1)
-      updateColorCache(cache, cacheBits, pixels, position, 1)
-      position += 1
+    if (kind === TOKEN_CACHE) {
+      writeHuffmanSymbol(writer, tables.green, 280 + (stream.values[index] ?? 0))
       continue
     }
+    const color = stream.values[index] ?? 0
     writeHuffmanSymbol(writer, tables.green, channel(color, 8))
     writeHuffmanSymbol(writer, tables.red, channel(color, 16))
     writeHuffmanSymbol(writer, tables.blue, channel(color, 0))
     writeHuffmanSymbol(writer, tables.alpha, channel(color, 24))
-    updateMatches(matches, pixels, position, 1)
-    updateColorCache(cache, cacheBits, pixels, position, 1)
-    position += 1
-  }
-}
-const writeSpatialImageTokens = (
-  writer: BitOutput,
-  pixels: Uint32Array,
-  width: number,
-  cacheBits: number,
-  tables: readonly PrefixTables[],
-  matches: Int32Array,
-  map: EntropyMap,
-): void => {
-  matches.fill(-1)
-  const cache = cacheBits === 0 ? undefined : new Uint32Array(1 << cacheBits)
-  const distanceCodes = createDistanceCodeMap(width)
-  let position = 0
-  while (position < pixels.length) {
-    const group = tables[entropyGroup(map, position, width)]
-    if (!group) throw invalidInput('WebP entropy group is missing')
-    const match = bestMatch(pixels, position, width, matches)
-    if (match.length >= 2) {
-      const lengthCode = prefixCode(match.length, 23)
-      writeHuffmanSymbol(writer, group.green, 256 + lengthCode.prefix)
-      writer.writeBits(lengthCode.extra, lengthCode.extraBits)
-      const distance = distanceCode(match.distance, distanceCodes)
-      writeHuffmanSymbol(writer, group.distance, distance.prefix)
-      writer.writeBits(distance.extra, distance.extraBits)
-      updateMatches(matches, pixels, position, match.length)
-      updateColorCache(cache, cacheBits, pixels, position, match.length)
-      position += match.length
-      continue
-    }
-    const color = pixels[position] ?? 0
-    const cacheEntry = cache ? colorCacheIndex(color, cacheBits) : -1
-    if (cache && (cache[cacheEntry] ?? 0) === color) {
-      writeHuffmanSymbol(writer, group.green, 280 + cacheEntry)
-      updateMatches(matches, pixels, position, 1)
-      updateColorCache(cache, cacheBits, pixels, position, 1)
-      position += 1
-      continue
-    }
-    writeHuffmanSymbol(writer, group.green, channel(color, 8))
-    writeHuffmanSymbol(writer, group.red, channel(color, 16))
-    writeHuffmanSymbol(writer, group.blue, channel(color, 0))
-    writeHuffmanSymbol(writer, group.alpha, channel(color, 24))
-    updateMatches(matches, pixels, position, 1)
-    updateColorCache(cache, cacheBits, pixels, position, 1)
-    position += 1
   }
 }
 
@@ -984,24 +976,26 @@ const writePredictorImage = (writer: BitOutput, modes: Uint32Array, modeWidth: n
     return
   }
   const matches = createMatchTable(modes.length, false)
-  const tables = buildPrefixTables(collectHistograms(modes, modeWidth, 0, matches))
+  const collected = collectLz77(modes, modeWidth, 0, matches)
+  const tables = buildPrefixTables(collected.histograms)
   writeHuffmanTree(writer, tables.green)
   writeHuffmanTree(writer, tables.red)
   writeHuffmanTree(writer, tables.blue)
   writeHuffmanTree(writer, tables.alpha)
   writeHuffmanTree(writer, tables.distance)
-  writeImageTokens(writer, modes, modeWidth, 0, tables, matches)
+  writeStreamTokens(writer, collected.stream, modeWidth, () => tables)
 }
 const writeAuxiliaryImage = (writer: BitOutput, pixels: Uint32Array, width: number): void => {
   writer.writeBits(0, 1)
   const matches = createMatchTable(pixels.length, false)
-  const tables = buildPrefixTables(collectHistograms(pixels, width, 0, matches))
+  const collected = collectLz77(pixels, width, 0, matches)
+  const tables = buildPrefixTables(collected.histograms)
   writeHuffmanTree(writer, tables.green)
   writeHuffmanTree(writer, tables.red)
   writeHuffmanTree(writer, tables.blue)
   writeHuffmanTree(writer, tables.alpha)
   writeHuffmanTree(writer, tables.distance)
-  writeImageTokens(writer, pixels, width, 0, tables, matches)
+  writeStreamTokens(writer, collected.stream, width, () => tables)
 }
 
 interface PaletteEncoding {
@@ -1221,22 +1215,33 @@ const applyNearLossless = (pixels: Uint32Array, quality: number): void => {
 
 const chooseColorCacheBits = (pixels: Uint32Array): number => {
   if (pixels.length < 4096) return 0
+  const cache8 = new Uint32Array(256)
+  const cache9 = new Uint32Array(512)
+  const cache10 = new Uint32Array(1024)
+  let hits8 = 0
+  let hits9 = 0
+  let hits10 = 0
+  for (let position = 0; position < pixels.length; position += 1) {
+    const color = pixels[position] ?? 0
+    const index8 = colorCacheIndex(color, 8)
+    const index9 = colorCacheIndex(color, 9)
+    const index10 = colorCacheIndex(color, 10)
+    if ((cache8[index8] ?? 0) === color) hits8 += 1
+    if ((cache9[index9] ?? 0) === color) hits9 += 1
+    if ((cache10[index10] ?? 0) === color) hits10 += 1
+    cache8[index8] = color
+    cache9[index9] = color
+    cache10[index10] = color
+  }
   let bestBits = 0
   let bestScore = 0
-  for (let bits = 8; bits <= 10; bits += 1) {
-    const cache = new Uint32Array(1 << bits)
-    let hits = 0
-    for (let position = 0; position < pixels.length; position += 1) {
-      const color = pixels[position] ?? 0
-      const index = colorCacheIndex(color, bits)
-      if ((cache[index] ?? 0) === color) hits += 1
-      cache[index] = color
-    }
-    // Approximate the three omitted channel symbols minus the larger green tree.
-    const score = hits * (24 - bits) - (1 << bits) * 4
+  const scores = [hits8 * 16 - 1024, hits9 * 15 - 2048, hits10 * 14 - 4096]
+  const bits = [8, 9, 10]
+  for (let index = 0; index < 3; index += 1) {
+    const score = scores[index] ?? 0
     if (score > bestScore) {
       bestScore = score
-      bestBits = bits
+      bestBits = bits[index] ?? 0
     }
   }
   return bestBits
@@ -1261,14 +1266,16 @@ const writeMainImage = (
   writer.writeBits(cacheBits === 0 ? 0 : 1, 1)
   if (cacheBits !== 0) writer.writeBits(cacheBits, 4)
   const matches = createMatchTable(pixels.length, deepSearch)
-  const histograms = collectHistograms(pixels, width, cacheBits, matches)
+  const collected = collectLz77(pixels, width, cacheBits, matches)
+  const histograms = collected.histograms
   const tables = buildPrefixTables(histograms)
   const map =
     spatialBits === undefined
       ? undefined
       : createEntropyMap(pixels, width, pixels.length / width, spatialBits)
+  const cacheSize = cacheBits === 0 ? 0 : 1 << cacheBits
   const spatialHistograms = map
-    ? collectSpatialHistograms(pixels, width, cacheBits, matches, map)
+    ? collectSpatialHistograms(collected.stream, width, cacheSize, map)
     : undefined
   const spatialTables = spatialHistograms?.map(buildPrefixTables)
   let useSpatial = false
@@ -1292,10 +1299,14 @@ const writeMainImage = (
     writer.writeBits(map.bits - 2, 3)
     writeAuxiliaryImage(writer, map.image, map.width)
     for (const groupTables of spatialTables) writePrefixTrees(writer, groupTables)
-    writeSpatialImageTokens(writer, pixels, width, cacheBits, spatialTables, matches, map)
+    writeStreamTokens(writer, collected.stream, width, (index) => {
+      const group = spatialTables[entropyGroup(map, collected.stream.positions[index] ?? 0, width)]
+      if (!group) throw invalidInput('WebP entropy group is missing')
+      return group
+    })
   } else {
     writePrefixTrees(writer, tables)
-    writeImageTokens(writer, pixels, width, cacheBits, tables, matches)
+    writeStreamTokens(writer, collected.stream, width, () => tables)
   }
 }
 

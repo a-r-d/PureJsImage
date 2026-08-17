@@ -354,17 +354,34 @@ class WebpPixelDecoder implements ImageDecoder {
       const blockHeight = sourceEnd - sourceStart
       const stride = region.width * 4
       const data = new Uint8Array(stride * blockHeight)
-      for (let row = 0; row < blockHeight; row += 1) {
-        const sourceY = sourceStart + row
-        const blockRow = sourceY - block.y
-        for (let x = 0; x < region.width; x += 1) {
-          const sourceX = region.x + x
-          const color = block.pixels[blockRow * this.width + sourceX] ?? 0
-          const target = row * stride + x * 4
-          data[target] = (color >>> 16) & 255
-          data[target + 1] = (color >>> 8) & 255
-          data[target + 2] = color & 255
-          data[target + 3] = alphaRows ? (alphaBlock[blockRow]?.[sourceX] ?? 0) : color >>> 24
+      const pixels = block.pixels
+      if (!alphaRows) {
+        for (let row = 0; row < blockHeight; row += 1) {
+          let sourceIndex = (sourceStart + row - block.y) * this.width + region.x
+          let target = row * stride
+          const sourceEndIndex = sourceIndex + region.width
+          for (; sourceIndex < sourceEndIndex; sourceIndex += 1) {
+            const color = pixels[sourceIndex] ?? 0
+            data[target] = (color >>> 16) & 255
+            data[target + 1] = (color >>> 8) & 255
+            data[target + 2] = color & 255
+            data[target + 3] = color >>> 24
+            target += 4
+          }
+        }
+      } else {
+        for (let row = 0; row < blockHeight; row += 1) {
+          const sourceY = sourceStart + row
+          const blockRow = sourceY - block.y
+          for (let x = 0; x < region.width; x += 1) {
+            const sourceX = region.x + x
+            const color = pixels[blockRow * this.width + sourceX] ?? 0
+            const target = row * stride + x * 4
+            data[target] = (color >>> 16) & 255
+            data[target + 1] = (color >>> 8) & 255
+            data[target + 2] = color & 255
+            data[target + 3] = alphaBlock[blockRow]?.[sourceX] ?? 0
+          }
         }
       }
       yield {
