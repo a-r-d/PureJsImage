@@ -48,6 +48,10 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Fuse 8-bit AC Huffman prefix decoding into scaled JPEG block decode. Local `jpeg-resize-1200`
+  fell from 543 ms to 511 ms (−7%) with an exact bitstream hash; neighbor `jpeg-crop-resize`
+  improved 3.9% and `northstar-photo-pipeline` improved 3.4%. Imazen JPEG stayed 39 pass / 2
+  unsupported / 167 rejected-safely / 46 accepted.
 - Speed up JPEG resize-to-encode pipelines by unrolling the scale-2 4×4 IDCT, skipping vertical
   chroma bilinear on 4:2:2 (chroma already has full vertical resolution), and unrolling the encoder
   DCT. Local `jpeg-resize-1200` fell from 715 ms to 543 ms (−24%) with an exact bitstream hash;

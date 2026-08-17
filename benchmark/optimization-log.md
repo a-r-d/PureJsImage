@@ -56,9 +56,13 @@ repeat a dead end without new evidence.
 - Retained `JPEG-036`: unroll the encoder DCT in `quantize`. Incremental
   557 → 543 ms. Exact hash. Versus Sharp (~72 ms) the primary is ~543 ms
   (~7.5×).
-- Post-036 profile: resize ~26%, decode entropy/IDCT ~31%, 4:2:2 render ~7%,
-  encode DCT ~6%. Three resize-kernel experiments missed; further resize work
-  needs a size-safe core plan.
+- Retained `JPEG-037`: fuse the 8-bit AC Huffman prefix into
+  `decodeBlockLimited` instead of calling `decodeHuffman` per coefficient.
+  550 → 511 ms (−7.01%) versus committed HEAD. Exact hash.
+- Versus Sharp (~72 ms) the primary is now ~511 ms (~7.1×).
+- Neighbor `jpeg-crop-resize` after JPEG-037: exact hash, 516 → 497 ms (−3.85%).
+- Neighbor `northstar-photo-pipeline` after JPEG-037: exact hash, 778 → 752 ms
+  (−3.35%).
 
 ## Northstar scaled-decode campaign
 
@@ -79,6 +83,8 @@ repeat a dead end without new evidence.
 | JPEG-034 | 2026-08-17 20:38 | Specialize RGB8 vertical resize accumulation with a 3-channel inner loop. | 731.05 → 564.45 | **-22.79%** vs HEAD (slower than JPEG-032 557 ms) | +4.48% | rejected | Reverted. Duplicated loop did not beat the generic accumulate. |
 | JPEG-035 | 2026-08-17 20:39 | Fast-path `writeContent` for rgb8→rgb8 without gray/alpha branches. | 710.20 → 553.98 | **-22.00%** vs HEAD (~0% vs JPEG-032) | +3.52% | rejected | Reverted. Within noise of JPEG-032 and grows the core resize path. |
 | JPEG-036 | 2026-08-17 20:41 | Unroll both separable passes of the JPEG encoder DCT in `quantize`. | 714.66 → 542.80 | **-24.05%** vs HEAD (~−2.6% vs JPEG-032) | +3.31% | promising | Retained. Exact hash; candidate MAD 2.31 ms. |
+| JPEG-037 | 2026-08-17 21:06 | Fuse 8-bit AC Huffman prefix decode into `decodeBlockLimited`. | 549.69 → 511.14 | **-7.01%** | +0.18% | material | Retained. Exact hash versus committed 031–036 stack. |
+| JPEG-038 | 2026-08-17 21:10 | Skip zero frequency rows in unrolled `inverseDct4`. | 566.71 → 520.68 | **-8.12%** vs HEAD (slower than JPEG-037 511 ms) | +2.29% | rejected | Reverted. Row-zero branches cost more than the skipped multiplies. |
 
 Measurement artifacts:
 
@@ -107,6 +113,11 @@ Measurement artifacts:
 - JPEG-036: `.tmp/hillclimb/2026-08-17T20-41-56-533Z/comparison.md`
 - Imazen JPEG (031–036): `.tmp/imazen-jpeg-031/imazen-jpeg-conformance.md`
 - Neighbor `jpeg-crop-resize` (031–036): `.tmp/hillclimb/2026-08-17T20-43-20-143Z/comparison.md`
+- JPEG-037: `.tmp/hillclimb/2026-08-17T21-06-35-912Z/comparison.md`
+- Neighbor `jpeg-crop-resize` after JPEG-037: `.tmp/hillclimb/2026-08-17T21-07-54-845Z/comparison.md`
+- JPEG-038: `.tmp/hillclimb/2026-08-17T21-10-15-222Z/comparison.md`
+- Neighbor `northstar-photo-pipeline` after JPEG-037: `.tmp/hillclimb/2026-08-17T21-11-36-435Z/comparison.md`
+- Imazen JPEG (037): `.tmp/imazen-jpeg-037/imazen-jpeg-conformance.md`
 - Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T20-33-45-188Z/comparison.md`
 - Profiles: `.tmp/cpu-northstar-speed/`
 

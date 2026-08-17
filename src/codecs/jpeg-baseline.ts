@@ -1069,16 +1069,31 @@ const decodeBlockLimited = (
     skipRemainingAc(reader, component.acTable, 1)
     return nextPredictor
   }
+  const acTable = component.acTable
+  const fastLengths = acTable.fastLengths
+  const fastSymbols = acTable.fastSymbols
   let index = 1
   while (index < 64) {
-    const symbol = decodeHuffman(reader, component.acTable)
+    const prefix = reader.peekBits(8)
+    let symbol: number
+    if (prefix !== undefined) {
+      const huffmanLength = fastLengths[prefix] ?? 0
+      if (huffmanLength !== 0) {
+        symbol = fastSymbols[prefix] ?? 0
+        reader.skipBits(huffmanLength)
+      } else {
+        symbol = decodeHuffman(reader, acTable)
+      }
+    } else {
+      symbol = decodeHuffman(reader, acTable)
+    }
     const zeroes = symbol >>> 4
     const length = symbol & 15
     if (length === 0) {
       if (zeroes !== 15) break
       index += 16
       if (index > lastZigZag) {
-        skipRemainingAc(reader, component.acTable, index)
+        skipRemainingAc(reader, acTable, index)
         break
       }
       continue
@@ -1092,7 +1107,7 @@ const decodeBlockLimited = (
     }
     index += 1
     if (index > lastZigZag) {
-      skipRemainingAc(reader, component.acTable, index)
+      skipRemainingAc(reader, acTable, index)
       break
     }
   }
