@@ -1,0 +1,16 @@
+benchmark/results/2026-08-17T14-42-52-683Z-purejsimage-webp.json
+  h_9f4a25732fa0c1 1-1348
+benchmark/results/2026-08-17T14-42-52-683Z-purejsimage-webp.md
+  h_9f4a25732fa0c1 1-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "4eba635e422775227b29078c1f92d3bcad9033ae",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
