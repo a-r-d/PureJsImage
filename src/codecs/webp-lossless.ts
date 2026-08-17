@@ -523,22 +523,30 @@ function* decodeImageRows(
   }
 
   const pixelCount = width * height
-  const history = new Uint32Array(Math.min(pixelCount, maximumBackwardDistance))
-  let row = new Uint32Array(width)
+  const historyLength = Math.min(pixelCount, maximumBackwardDistance)
+  const history = new Uint32Array(historyLength)
+  const historyMask = historyLength - 1
+  const historyPowerOfTwo = (historyLength & historyMask) === 0
+  const firstRow = new Uint32Array(width)
+  const secondRow = new Uint32Array(width)
+  let row = firstRow
   let position = 0
+  let x = 0
+  let y = 0
   const write = (color: number): Uint32Array | undefined => {
-    history[position % history.length] = color
-    row[position % width] = color
+    history[historyPowerOfTwo ? position & historyMask : position] = color
+    row[x] = color
     insertCache(cache, cacheBits, color)
     position += 1
-    if (position % width !== 0) return undefined
+    x += 1
+    if (x !== width) return undefined
     const completed = row
-    row = new Uint32Array(width)
+    row = completed === firstRow ? secondRow : firstRow
+    x = 0
+    y += 1
     return completed
   }
   while (position < pixelCount) {
-    const x = position % width
-    const y = Math.floor(position / width)
     const metaIndex = (y >>> prefixBits) * prefixWidth + (x >>> prefixBits)
     const groupIndex = metaCodes ? ((metaCodes[metaIndex] ?? 0) >>> 8) & 0xffff : 0
     const group = groups[groupIndex]
@@ -563,7 +571,8 @@ function* decodeImageRows(
           `WebP backward reference exceeds decoded pixels (${position}, length ${length}, distance prefix ${distancePrefix}, code ${distanceCode}, distance ${distance}, size ${pixelCount})`,
         )
       for (let index = 0; index < length; index += 1) {
-        const color = history[(position - distance) % history.length] ?? 0
+        const source = position - distance
+        const color = (historyPowerOfTwo ? history[source & historyMask] : history[source]) ?? 0
         const completed = write(color)
         if (completed) yield completed
       }
@@ -667,6 +676,26 @@ const addPixels = (residual: number, predicted: number): number =>
     channel(residual, 0) + channel(predicted, 0),
   )
 
+const addPacked = (first: number, second: number): number => {
+  const mask = 0x00ff00ff
+  const low = (first & mask) + (second & mask)
+  const high = ((first >>> 8) & mask) + ((second >>> 8) & mask)
+  return ((low & mask) | ((high & mask) << 8)) >>> 0
+}
+
+const selectPacked = (left: number, top: number, topLeft: number): number => {
+  let leftDistance = 0
+  let topDistance = 0
+  let shift = 24
+  while (shift >= 0) {
+    const diagonal = (topLeft >>> shift) & 255
+    leftDistance += Math.abs(((top >>> shift) & 255) - diagonal)
+    topDistance += Math.abs(((left >>> shift) & 255) - diagonal)
+    shift -= 8
+  }
+  return leftDistance < topDistance ? left : top
+}
+
 const inversePredictorRow = (
   row: Uint32Array,
   width: number,
@@ -674,23 +703,28 @@ const inversePredictorRow = (
   previous: Uint32Array | undefined,
   transform: Extract<Transform, { type: 'predictor' }>,
 ): void => {
-  for (let x = 0; x < width; x += 1) {
-    let predicted: number
-    if (y === 0 && x === 0) predicted = 0xff000000
-    else if (y === 0) predicted = row[x - 1] ?? 0
-    else if (x === 0) predicted = previous?.[0] ?? 0
-    else {
-      const modePosition = (y >>> transform.sizeBits) * transform.width + (x >>> transform.sizeBits)
-      const mode = ((transform.data[modePosition] ?? 0) >>> 8) & 255
-      predicted = predictor(
-        mode,
-        row[x - 1] ?? 0,
-        previous?.[x] ?? 0,
-        previous?.[x - 1] ?? 0,
-        x === width - 1 ? (row[0] ?? 0) : (previous?.[x + 1] ?? 0),
-      )
-    }
-    row[x] = addPixels(row[x] ?? 0, predicted)
+  if (y === 0) {
+    row[0] = addPacked(row[0] ?? 0, 0xff000000)
+    for (let x = 1; x < width; x += 1) row[x] = addPacked(row[x] ?? 0, row[x - 1] ?? 0)
+    return
+  }
+  if (!previous) throw invalidInput('WebP predictor previous row is missing')
+  row[0] = addPacked(row[0] ?? 0, previous[0] ?? 0)
+  const sizeBits = transform.sizeBits
+  const transformWidth = transform.width
+  const modes = transform.data
+  const last = width - 1
+  const rowOffset = (y >>> sizeBits) * transformWidth
+  for (let x = 1; x < width; x += 1) {
+    const mode = ((modes[rowOffset + (x >>> sizeBits)] ?? 0) >>> 8) & 255
+    const left = row[x - 1] ?? 0
+    const top = previous[x] ?? 0
+    const topLeft = previous[x - 1] ?? 0
+    const predicted =
+      mode === 11
+        ? selectPacked(left, top, topLeft)
+        : predictor(mode, left, top, topLeft, x === last ? (row[0] ?? 0) : (previous[x + 1] ?? 0))
+    row[x] = addPacked(row[x] ?? 0, predicted)
   }
 }
 
@@ -820,7 +854,10 @@ function* decodeLosslessImageRows(
       else if (transform.type === 'color') inverseColorRow(row, currentWidth, y, transform)
       else {
         inversePredictorRow(row, currentWidth, y, predictorPrevious, transform)
-        predictorPrevious = Uint32Array.from(row)
+        if (predictorPrevious === undefined || predictorPrevious.length !== currentWidth) {
+          predictorPrevious = new Uint32Array(currentWidth)
+        }
+        predictorPrevious.set(row)
       }
     }
     if (currentWidth !== width || row.length !== width) {

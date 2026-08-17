@@ -85,11 +85,12 @@ Measurement artifacts:
 
 ## WebP speed campaign
 
-The selected workload is `webp-large-resize-jpeg`: a 1600x2000 lossy WebP
-decoded, resized to 800x1000, and encoded as JPEG quality 80. It is the
-decode-heavy WebP workload admitted by the existing `web-codecs` hillclimb
-profile. The 4000x3000 lossy pressure decode was used for additional CPU
-profiling.
+The selected official hillclimb workload is `webp-large-resize-jpeg`: a
+1600x2000 lossy WebP decoded, resized to 800x1000, and encoded as JPEG
+quality 80. After WEBP-011 that VP8 path is mostly resize/JPEG-bound, so
+WEBP-018 moved to the larger `webp-memory-lossless-resize-jpeg`
+4000x3000 lossless decode (not in `web-codecs`). Official e2e remains
+the correctness/RSS gate; decode-only timings isolate the VP8L kernel.
 
 | ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Paired speed Δ | Peak RSS Δ | Verdict | Disposition |
 | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |
@@ -106,6 +107,12 @@ profiling.
 | WEBP-010 | 2026-08-17 02:57 | Replace `Math.max`/`Math.min` clamps in `clampByte` and `saturateInt8` with direct branches. | 385.40 → 375.81 | -2.49% | -3.56% | -0.55% | promising | Retained; 6/7 pairs favored the candidate and paired median cleared 3%. |
 | WEBP-011 | 2026-08-17 02:58 | Inline VP8 loop-filter threshold, common, and macroblock kernels in `filterNormalEdge`, stacked on WEBP-010. | 380.46 → 358.88 | -5.67% | -5.76% | +0.91% | material | Retained; 7/7 pairs faster, exact output, RSS +0.91%. |
 | WEBP-012 | 2026-08-17 02:59 | Precompute 8-bit YUV-to-RGB multiply tables in `yuvToArgb`. | 374.50 → 355.58 | -5.05% | -5.67% | +3.85% | neutral | Reverted; no incremental gain over WEBP-011 and higher RSS. |
+| WEBP-013 | 2026-08-17 03:08 | Fast-path `inverseDctAdd` for all-zero and DC-only 4x4 residuals. | 363.29 → 362.16 | -0.31% | -1.45% | +0.29% | neutral | Reverted; scanning every block canceled most of the skipped-IDCT saving. |
+| WEBP-014 | 2026-08-17 03:10 | Precompute VP8 coefficient probability offsets in `decodeCoefficientBlock`. | 370.62 → 360.50 | -2.73% | -0.87% | -0.15% | inconclusive | Reverted; 5/7 pairs faster but two pairs were 5–10% slower. |
+| WEBP-015 | 2026-08-17 03:12 | Specialize `filterNormalEdge` for adjacent (`step === 1`) pixels. | 367.89 → 360.06 | -2.13% | -2.51% | +0.62% | inconclusive | Reverted; 4/7 pairs faster and three pairs were slower. |
+| WEBP-016 | 2026-08-17 03:13 | Skip `inverseDctAdd` using a decode-time residual bitmask; unroll `[3,7,11]` predictor copies. | 359.88 → 354.42 | -1.52% | -2.48% | -0.45% | inconclusive | Reverted; 7-trial looked promising but 15-trial median was +2.18% and noisy. |
+| WEBP-017 | 2026-08-17 03:17 | Share 4:2:0 chroma matrix products across two luma pixels in `convertVp8Rows`. | 360.79 → 381.48 | +5.73% | n/a | +3.71% | rejected | Reverted; slower than calling `yuvToArgb` twice. |
+| WEBP-018 | 2026-08-17 03:35 | VP8L: reuse two scanline buffers, drop per-pixel `%`, reuse predictor previous via `.set()`, specialize mode-11 `select` + packed byte add. | 722.68 → 428.53 | -40.70% | n/a | mixed / ~0% | material | Retained; 4000x3000 decode-only, exact e2e hash, Imazen 223/2/0. |
 
 Measurement artifacts:
 
@@ -122,6 +129,38 @@ Measurement artifacts:
 - WEBP-010: `.tmp/hillclimb/2026-08-17T02-57-09-012Z/comparison.md`
 - WEBP-011: `.tmp/hillclimb/2026-08-17T02-58-27-936Z/comparison.md`
 - WEBP-012: `.tmp/hillclimb/2026-08-17T02-59-48-180Z/comparison.md`
+- WEBP-013: `.tmp/hillclimb/2026-08-17T03-08-47-173Z/comparison.md`
+- WEBP-014: `.tmp/hillclimb/2026-08-17T03-10-35-631Z/comparison.md`
+- WEBP-015: `.tmp/hillclimb/2026-08-17T03-12-13-178Z/comparison.md`
+- WEBP-016: `.tmp/hillclimb/2026-08-17T03-13-56-165Z/comparison.md`
+- WEBP-016b: `.tmp/hillclimb/2026-08-17T03-14-43-140Z/comparison.md`
+- WEBP-017: `.tmp/hillclimb/2026-08-17T03-17-07-159Z/comparison.md`
+- WEBP-018 decode-only: `.tmp/time-webp-decode.ts` vs `.tmp/hillclimb/webp-018-base/dist`
+- WEBP-018 4K e2e: `.tmp/webp-018-candidate/memory-lossless.md` and `.tmp/webp-018-pairs/`
+- WEBP-018 Imazen: `.tmp/imazen-webp-018/imazen-webp-conformance.md`
+- WEBP-018 VP8 no-regression: `.tmp/hillclimb/2026-08-17T03-34-46-947Z/comparison.md`
+
+### WEBP-018 large lossless decode
+
+4000x3000 lossless CPU profiles put `inversePredictorRow` (16.5%),
+`write` (11.5%), and `predictor` (8.4%) at the top of the e2e. Every
+interior pixel on `webp-gradient-lossless-4000x3000` uses predictor
+mode 11 (`select`). The change reuses two VP8L row buffers, replaces
+`position % width` / `position % history.length` with running `x`/`y`
+and a power-of-two history mask, copies the previous predictor row
+with `.set()` instead of `Uint32Array.from`, and specializes the
+interior loop for mode 11 plus packed wrapping byte adds.
+
+Warm decode-only medians on that fixture, confirmed in both run
+orders: 722.68 ms → 428.53 ms (−40.70%). The smaller
+`webp-lossless-tux-386x395` decode was 17.21 ms → 14.88 ms (−13.5%).
+Official `webp-memory-lossless-resize-jpeg` output SHA-256 stayed
+`f9d79a42a22bba80718a4143b38e8789befe965890f6c016c0f6684eb884ebef`.
+Cold e2e 4K resize+JPEG is too noisy to headline (resize still large);
+decode-only is the kernel measurement. Isolated official hillclimb on
+`webp-large-resize-jpeg` stayed neutral (356.65 → 361.29 ms, +1.30%
+speed, +2.24% RSS) with matching correctness. Imazen WebP corpus
+remained 223 pass / 2 unsupported / 0 failures.
 
 ### WEBP-011 neighboring validation
 
