@@ -610,6 +610,57 @@ export const generatedScientificFixtures: Readonly<
     resources: [{ name: 'image.ome.tiff', bytes: omeTiff() }],
     payloadRanges: {},
   }),
+  'ome-zarr-generated': () => {
+    const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
+    const pixels = Uint8Array.from([1, 2, 3, 4])
+    return {
+      resources: [
+        {
+          name: 'zarr.json',
+          bytes: json({
+            zarr_format: 3,
+            node_type: 'group',
+            attributes: {
+              ome: {
+                version: '0.5',
+                multiscales: [
+                  {
+                    name: 'demo',
+                    axes: [
+                      { name: 'y', type: 'space', unit: 'micrometer' },
+                      { name: 'x', type: 'space', unit: 'micrometer' },
+                    ],
+                    datasets: [
+                      {
+                        path: '0',
+                        coordinateTransformations: [{ type: 'scale', scale: [1, 1] }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          }),
+        },
+        {
+          name: '0/zarr.json',
+          bytes: json({
+            zarr_format: 3,
+            node_type: 'array',
+            shape: [2, 2],
+            data_type: 'uint8',
+            chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
+            chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+            fill_value: 0,
+            codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+            attributes: {},
+          }),
+        },
+        { name: '0/c/0/0', bytes: pixels },
+      ],
+      payloadRanges: { '0/c/0/0': [[0, 4] as const] },
+    }
+  },
   'ome-tiff-viewer-generated': () => ({
     resources: [{ name: 'viewer.ome.tiff', bytes: viewerOmeTiff() }],
     payloadRanges: {},

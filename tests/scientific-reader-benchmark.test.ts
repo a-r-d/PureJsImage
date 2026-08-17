@@ -69,7 +69,7 @@ describe('scientific reader benchmark harness', () => {
     const workloadReaders = new Set(scientificReaderWorkloads.map((workload) => workload.readerId))
     for (const reader of allScientificReaders)
       expect(workloadReaders).toContain(reader.descriptor.id)
-    expect(allScientificReaders).toHaveLength(31)
+    expect(allScientificReaders).toHaveLength(32)
   })
 
   it('keeps microfixtures as contract tests and isolates representative scaling workloads', () => {

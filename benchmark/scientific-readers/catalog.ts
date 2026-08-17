@@ -211,6 +211,13 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'OME metadata selects the OME reader and exposes x/y/z/channel/time axes.',
   },
   {
+    id: 'ome-zarr',
+    generatedKey: 'ome-zarr-generated',
+    provenance: 'Deterministic first-party OME-NGFF 0.5 / Zarr v3 benchmark fixture.',
+    supportBoundary: 'Directory-like OME-Zarr 0.5 image with one uint8 level and regular chunks.',
+    expectedOracle: 'The image dataset exposes calibrated x/y axes and a readable 2x2 plane.',
+  },
+  {
     id: 'aperio-svs',
     realResources: [resource('primary', 'tests/fixtures/aperio-cmu-1-small-region.svs')],
     provenance: 'Pinned Aperio CMU-1 small-region whole-slide fixture.',

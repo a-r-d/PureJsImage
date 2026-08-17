@@ -148,7 +148,7 @@ describe('HDF5 dialect probe budget', () => {
   })
 
   it('runs the actual all-reader registry against a late X3P match within defaults', async () => {
-    expect(allReaders).toHaveLength(31)
+    expect(allReaders).toHaveLength(32)
     const bytes = Uint8Array.from(
       readFileSync('tests/fixtures/scientific-surface/iso5436-sample1.x3p'),
     )
@@ -161,7 +161,7 @@ describe('HDF5 dialect probe budget', () => {
     })
     expect(detection).toMatchObject({
       reader: { id: 'purejsimage/x3p' },
-      stats: { readers: 31, reads: 31 },
+      stats: { readers: 32, reads: 32 },
     })
   })
 })

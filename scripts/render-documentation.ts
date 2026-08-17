@@ -3,8 +3,8 @@ import { basename, dirname, join, relative } from 'node:path'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createImageLibrary } from '../src/index.ts'
-import { readCapabilityManifest } from './capability-manifest.ts'
 import { formatKibibytes, formatMebibytes, parsePackageMetrics } from './bundle-size.ts'
+import { readCapabilityManifest } from './capability-manifest.ts'
 
 const readmeAssetLibrary = createImageLibrary([jpegCodec, pngCodec])
 
@@ -852,6 +852,7 @@ const readerFamilyIds: Readonly<Record<string, readonly string[]>> = {
     'purejsimage/jp2',
     'purejsimage/tiff',
     'purejsimage/ome-tiff',
+    'purejsimage/ome-zarr',
     'purejsimage/aperio-svs',
   ],
   'electron-microscopy': [

@@ -210,6 +210,18 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     directRangeReader: true,
   }),
   workload({
+    id: 'ome-zarr-region',
+    title: 'OME-Zarr 0.5 selected plane',
+    readerId: 'purejsimage/ome-zarr',
+    fixtureId: 'ome-zarr',
+    selection: plane({
+      displayAxes: ['x', 'y'],
+      region: { x: 0, y: 0, width: 2, height: 2 },
+    }),
+    descriptorAssertion: { sampleType: 'uint8' },
+    directRangeReader: true,
+  }),
+  workload({
     id: 'aperio-svs-region',
     title: 'Aperio SVS whole-slide region',
     readerId: 'purejsimage/aperio-svs',

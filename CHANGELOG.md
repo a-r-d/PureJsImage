@@ -4,6 +4,18 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added the explicit `purejsimage/scientific/readers/ome-zarr` reader for OME-NGFF 0.4 and 0.5
+  image multiscales on first-party Zarr v2 and v3 directory stores. Selected planes fetch only
+  intersecting regular or `sharding_indexed` chunks through the existing companion resolver; bytes,
+  gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 (LZ4/zlib/zstd/memcpy) are implemented;
+  missing chunks become fill values. Sibling and root NGFF labels become separate datasets with
+  `image-label` colors; plate wells become one dataset per field. A ZIP archive with root-level
+  `zarr.json` or `.zgroup` opens as a single-file store without companions. BloscLZ, Snappy,
+  bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit
+  unsupported operations.
+
 ## [0.11.0] - 2026-08-16
 
 ### Added

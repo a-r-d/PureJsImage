@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.11.0",
-    "unpackedPackageBytes": 5016284,
+    "unpackedPackageBytes": 5103872,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -192,6 +192,7 @@
         "purejsimage/jp2",
         "purejsimage/tiff",
         "purejsimage/ome-tiff",
+        "purejsimage/ome-zarr",
         "purejsimage/aperio-svs"
       ]
     },
@@ -375,6 +376,14 @@
       "id": "purejsimage/ome-tiff",
       "packageExport": "purejsimage/scientific/readers/ome-tiff",
       "targetId": "scientific-reader-ome-tiff"
+    },
+    {
+      "demoWired": false,
+      "family": "Common raster and whole-slide",
+      "format": "OME-Zarr",
+      "id": "purejsimage/ome-zarr",
+      "packageExport": "purejsimage/scientific/readers/ome-zarr",
+      "targetId": "scientific-reader-ome-zarr"
     },
     {
       "demoWired": false,
@@ -875,6 +884,21 @@
     },
     {
       "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 220000,
+      "entry": {
+        "packageExports": ["purejsimage/scientific/readers/ome-zarr"],
+        "sourceEntries": ["./src/scientific/readers/ome-zarr.ts"]
+      },
+      "gzipBytes": 27773,
+      "id": "scientific-reader-ome-zarr",
+      "implementation": "package-core",
+      "minifiedJsBytes": 89377,
+      "name": "Scientific reader: OME-Zarr",
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 24292
+    },
+    {
+      "category": "purejsimage-entry",
       "configuredCeilingMinifiedBytes": 338000,
       "entry": {
         "packageExports": ["purejsimage/scientific/readers/aperio-svs"],
@@ -1105,13 +1129,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 257214,
+      "gzipBytes": 268003,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 865787,
+      "minifiedJsBytes": 903852,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 205248
+      "brotliBytes": 213870
     },
     {
       "category": "purejsimage-entry",

@@ -553,6 +553,7 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/mrc',
       'purejsimage/scientific/readers/tiff',
       'purejsimage/scientific/readers/ome-tiff',
+      'purejsimage/scientific/readers/ome-zarr',
       'purejsimage/scientific/readers/png',
       'purejsimage/scientific/readers/jpeg',
       'purejsimage/scientific/readers/webp',
@@ -596,6 +597,8 @@ describe('package contract', () => {
     expect(allScientificReaders).toHaveProperty('metaImageReader')
     expect(allScientificReaders).toHaveProperty('niftiReader')
     expect(allScientificReaders).toHaveProperty('npyReader')
+    expect(allScientificReaders).toHaveProperty('omeZarrReader')
+    expect(allScientificReaders).toHaveProperty('createOmeZarrReader')
     expect(allScientificReaders).toHaveProperty('blockfileReader')
     expect(allScientificReaders).toHaveProperty('mibReader')
     expect(allScientificReaders).toHaveProperty('ebsdTextReader')
@@ -726,6 +729,7 @@ describe('package contract', () => {
       './scientific/readers/velox-emd',
       './scientific/readers/tiff',
       './scientific/readers/ome-tiff',
+      './scientific/readers/ome-zarr',
       './scientific/readers/aperio-svs',
       './scientific/readers/png',
       './scientific/readers/jpeg',

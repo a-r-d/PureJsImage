@@ -223,6 +223,11 @@
       "import": "./dist/scientific/readers/ome-tiff.js",
       "default": "./dist/scientific/readers/ome-tiff.js"
     },
+    "./scientific/readers/ome-zarr": {
+      "types": "./dist/scientific/readers/ome-zarr.d.ts",
+      "import": "./dist/scientific/readers/ome-zarr.js",
+      "default": "./dist/scientific/readers/ome-zarr.js"
+    },
     "./scientific/readers/aperio-svs": {
       "types": "./dist/scientific/readers/aperio-svs.d.ts",
       "import": "./dist/scientific/readers/aperio-svs.js",

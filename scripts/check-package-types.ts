@@ -160,6 +160,7 @@ try {
     'dist/scientific/readers/npy.js',
     'dist/scientific/readers/nrrd.js',
     'dist/scientific/readers/ome-tiff.js',
+    'dist/scientific/readers/ome-zarr.js',
     'dist/scientific/readers/png.js',
     'dist/scientific/readers/rpl.js',
     'dist/scientific/readers/tiff.js',
@@ -291,6 +292,7 @@ import { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnaly
 import { getImageSourceIdentity } from 'purejsimage/scientific'
 export { rasterToPixels } from 'purejsimage/scientific'
 export { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
+export { createOmeZarrReader, omeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
