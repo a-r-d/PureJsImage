@@ -124,17 +124,33 @@ the correctness/RSS gate; decode-only timings isolate the VP8L kernel.
 ## WebP lossy encode campaign
 
 Official `web-codecs` hillclimb cannot select an encode-to-WebP
-workload. `jpeg-to-webp-lossy` is the right family job, but on current
-`main` it fails its pixel-sample gate (center 151/164/100 vs 206/216/154
-±20) before any candidate change. Isolated 1200x900 RGB → WebP quality
-80 encode of the same tundra frame is the speed kernel; bitstream SHA-256
-must stay `863189a52dc302ff68a9007b2d124f88b6a9603e03d782173782a6806e7211ff`.
+workload. Isolated 1200x900 RGB → WebP quality 80 encode of the tundra
+frame is the speed kernel; bitstream SHA-256 must stay
+`863189a52dc302ff68a9007b2d124f88b6a9603e03d782173782a6806e7211ff`.
+`jpeg-to-webp-lossy` pixel samples were updated to the current Lanczos
+source and remain the family correctness/RSS gate.
 
 | ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Verdict | Disposition |
 | --- | --- | --- | ---: | ---: | --- | --- |
 | WEBP-ENC-001 | 2026-08-17 09:23 | Precompute clamped Y and finalized chroma planes; unroll 4x4 residual gathers in `encodeVp8`. | 126.06 → 50.16 | -60.21% | material | Retained; exact bitstream, 31/31 webp tests. |
 | WEBP-ENC-002 | 2026-08-17 09:24 | Specialize RGB8 RGB→YUV in `LossyWebpEncoder.write()` without per-pixel format/alpha branches. | 51.86 → 43.22 | -16.66% | material | Retained; exact bitstream. |
 | WEBP-ENC-003 | 2026-08-17 09:25 | Integer-only `quantize` without `Math.floor`/`Math.abs`/`Math.min`. | 43.22 → 63.67 | +47.3% | rejected | Reverted; exact bitstream but slower. |
+| WEBP-ENC-004 | 2026-08-17 10:20 | Specialize luma DC prediction as `predictDc4` without a generic size loop. | ~47 → 43.78 | ~-7% | promising | Retained; exact bitstream. |
+| WEBP-ENC-005 | 2026-08-17 10:24 | Compute DC predictors without filling the plane; add the predictor in a dedicated inverse DCT. | 43.78 → 34.74 | -20.65% | material | Retained; exact bitstream. The previous fill was overwritten by reconstruction. |
+| WEBP-ENC-006 | 2026-08-17 10:25 | Fuse dequantization into the inverse DCT first pass. | 34.74 → 36.19 | +4.2% | rejected | Reverted; extra multiplies in IDCT cost more than the removed reconstruct pass. |
+| WEBP-ENC-007 | 2026-08-17 10:26 | Drop RGB8 Y/U/V clamps that are in-range for 8-bit BT.601. | 34.74 → 34.60 | -0.4% | neutral | Reverted; exact bitstream, within noise. |
+| WEBP-ENC-008 | 2026-08-17 10:27 | Skip the EOB zero-scan in `writeCoefficientBlock` when `checkEnd` is false. | 34.74 → 35.56 | +2.4% | rejected | Reverted; extra branch on the common path. |
+| WEBP-ENC-009 | 2026-08-17 10:28 | Process two RGB8 pixels per iteration and share the chroma bucket. | 34.74 → 35.10 | +1.0% | neutral | Reverted; superseded by ENC-016. |
+| WEBP-ENC-010 | 2026-08-17 10:31 | Skip reconstruct/IDCT when the quantized 4x4 is all zero (96% of tundra q80 blocks). | 34.74 → 38.61 | +11.1% | rejected | Reverted; the extra scan/fill/branch in the MB loop outweighed skipped IDCT. |
+| WEBP-ENC-011 | 2026-08-17 10:33 | Fast-path all-zero coefficient blocks to a single EOB bit. | 34.74 → 38.81 | +11.7% | rejected | Reverted; the existing first-iteration scan already emits one EOB. |
+| WEBP-ENC-012 | 2026-08-17 10:34 | Replace RGB→YUV multiplies with 256-entry contribution tables. | 34.74 → 43.35 | +24.8% | rejected | Reverted; lookups slower than the integer multiplies. |
+| WEBP-ENC-013 | 2026-08-17 10:35 | `BooleanEncoder.zeros()` with local range/bottom for 16 keyframe block-mode bits. | 34.74 → 34.97 | +0.7% | neutral | Reverted; header bits are not the bottleneck. |
+| WEBP-ENC-014 | 2026-08-17 10:36 | Even-size `finalizeChroma` uses `(sum + 2) >> 2` instead of `Math.round(sum / 4)`. | 34.74 → 32.55 / 34.00 | -2% to -6% | promising | Retained; exact bitstream. Still used for gray/RGBA. |
+| WEBP-ENC-015 | 2026-08-17 10:37 | Split DC/AC in `quantize` and hoist `ac / 2`. | 34.00 → 33.61 | -1.1% | neutral | Reverted; within noise. |
+| WEBP-ENC-016 | 2026-08-17 10:39 | RGB8 2x2 write finalizes chroma into `Uint8` planes and skips the extra pass. | 34.00 → 31.03 / 32.57 | -4% to -9% | promising | Retained; exact bitstream, 37/37 webp tests. |
+
+Handoff: Imazen WebP corpus stayed 223 pass / 2 unsupported / 0
+decode failures. `npm run check` passed (133 files, 1564 tests).
 
 Measurement artifacts:
 
