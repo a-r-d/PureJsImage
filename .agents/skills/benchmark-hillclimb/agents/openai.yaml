@@ -1,4 +1,4 @@
 interface:
   display_name: "Benchmark Hillclimb"
-  short_description: "Optimize one PureJsImage workload safely"
-  default_prompt: "Use $benchmark-hillclimb to optimize one PureJsImage workload safely against an explicit base revision."
+  short_description: "Run a cumulative performance optimization campaign"
+  default_prompt: "Use $benchmark-hillclimb to run an evidence-driven optimization campaign on one target. Profile the real hotspots, test several focused TypeScript hypotheses, retain repeatable small gains cumulatively, consult and update benchmark/optimization-log.md after every attempt, and stop only after a material cumulative win or after re-profiling exhausts credible opportunities. Do not commit changes."
