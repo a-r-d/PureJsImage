@@ -1,0 +1,30 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 18-23
+README.md
+  h_9f4a25732fa0c1 71,278
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,892,895,898,1132,1135,1138
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 98-100,118
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,892,895,898,1132,1135,1138
+docs/scientific-ome-zarr.md
+  h_9f4a25732fa0c1 50-53
+src/scientific/formats/ome-zarr.ts
+  h_9f4a25732fa0c1 202-207,428
+src/scientific/formats/zarr.ts
+  h_9f4a25732fa0c1 176-178,201-215,221,223-227,229-232,234-255,283-285,755-762,867-869,879,885,888-892,976,1078-1079,1164,1218,1220-1221,1225-1229
+tests/scientific-ome-zarr.test.ts
+  h_9f4a25732fa0c1 1135-1512
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "157af2691e3030ef2f9a3fe7694ea0808cc17d0d",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
