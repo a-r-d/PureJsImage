@@ -6,6 +6,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Speed up large JPEG crop-then-resize pipelines by snapping unaligned decoder crops to a
+  containing scale-aligned box so scaled IDCT can run. Official `northstar-photo-pipeline` fell
+  from 2857 ms to 1181 ms (−59%). Pixel samples stayed inside the documented ±8 tolerance; the
+  lossy JPEG bitstream changed as expected. Aligned neighbors kept exact hashes. Imazen JPEG
+  stayed 39 pass / 2 unsupported / 167 rejected-safely / 46 accepted.
 - Speed up JPEG-to-PNG conversion by recycling decoder row buffers after encode, specializing
   adaptive PNG filter scoring for RGB8, and skipping bilinear luma interpolation when luma is
   already full resolution. Official `jpeg-to-png` fell from 552 ms to 444 ms (−20%) with a 6.5%

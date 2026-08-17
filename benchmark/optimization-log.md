@@ -7,20 +7,33 @@ repeat a dead end without new evidence.
 
 ## Current state
 
-- Primary workload: `jpeg-to-png` — 2400x2400 Earthrise JPEG decoded to PNG
-  compression level 6. Official snapshot was 541 ms / 228 MiB.
-- Goals: memory (5% peak RSS) and speed (3% wall). Protected `outputBytes`
-  stayed at 1,702,021 in every comparison.
-- Retained stack versus `0ea2665`: release decoded pixel blocks after encode
-  (`JPEG-PNG-001`), specialize PNG adaptive filter scoring for RGB8
-  (`JPEG-PNG-002`), and skip full-resolution luma bilinear in 4:2:0 YCbCr
-  (`JPEG-PNG-003`). Scanline-buffer reuse (`JPEG-PNG-004`) was reverted.
-- Cumulative `jpeg-to-png` after JPEG-PNG-003: 552.34 → 443.88 ms (−19.64%,
-  paired −19.26%, 7/7 faster). Isolated JPEG-PNG-001 memory 252.42 → 235.94 MiB
-  (−6.53%). Neighbor `jpeg-resize-1200` 771.08 → 736.46 ms (−4.49%).
-- CPU samples in `.tmp/cpu-jpeg-png/` put `renderYcbcrRows` (~25%),
-  `filterScanline` (~20%), and `inverseDct` (~8%) at the top. Earthrise is
-  4:2:0 YCbCr with no ICC. The remaining convert cost is chroma bilinear.
+- Primary workload: `northstar-photo-pipeline` — 6000x4000 JPEG, center crop
+  5334x4000, resize 1200x900, JPEG 80. Goal is end-to-end speed versus Sharp
+  (official 2882 vs 439 ms).
+- Old-Faithful is 4:4:4 YCbCr with ICC. The crop origin `x=333` blocked every
+  scaled-IDCT denominator, so the decoder rebuilt the full crop at scale 1.
+- Retained `JPEG-024`: snap an unaligned crop to a containing aligned box so
+  scale 4 can run. Hillclimb rejected the bitstream hash / +0.45% outputBytes,
+  which is expected. Official pixel samples stayed inside tolerance 8.
+- Cumulative wall 2856.75 → 1181.11 ms (−58.66%). Peak RSS −4.85%. Neighbors
+  `jpeg-resize-1200` and `jpeg-crop-resize` kept exact hashes.
+- After scale 4, CPU samples in `.tmp/cpu-northstar-speed/northstar-scaled.cpuprofile`
+  put `decodeBlock` and `inverseDctReduced` first. ICC is no longer dominant.
+
+## Northstar scaled-decode campaign
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| JPEG-024-ctl | 2026-08-17 18:47 | No-change control on `northstar-photo-pipeline`. | 2820.34 → 2819.14 | -0.04% | +0.21% | neutral | Control. |
+| JPEG-024 | 2026-08-17 18:50 | Snap unaligned decoder crops to a containing scale-aligned box so scaled IDCT can run. Northstar `x=333` now decodes 332,0,5336x4000 at scale 4. | 2856.75 → 1181.11 | **-58.66%** | -4.85% | material | Retained. Runner rejected bitstream hash and +0.45% outputBytes; pixel samples passed ±8. |
+
+Measurement artifacts:
+
+- JPEG-024 control: `.tmp/hillclimb/2026-08-17T18-47-17-238Z/comparison.md`
+- JPEG-024: `.tmp/hillclimb/2026-08-17T18-50-18-324Z/comparison.md`
+- Neighbor `jpeg-resize-1200`: `.tmp/hillclimb/2026-08-17T18-52-16-709Z/comparison.md` (exact hash, +2.54%)
+- Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T18-53-20-053Z/comparison.md` (exact hash; scale 4 still too small)
+- Profiles: `.tmp/cpu-northstar-speed/`
 
 ## JPEG speed campaign
 

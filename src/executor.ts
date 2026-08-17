@@ -48,6 +48,21 @@ interface OutputPlan {
 
 type DecodeScaleDenominator = 1 | 2 | 4 | 8
 
+const containingAlignedRegion = (
+  region: Region,
+  sourceWidth: number,
+  sourceHeight: number,
+  step: number,
+): Region | undefined => {
+  const x = ((region.x / step) | 0) * step
+  const y = ((region.y / step) | 0) * step
+  const width = Math.min(sourceWidth, Math.ceil((region.x + region.width) / step) * step) - x
+  const height = Math.min(sourceHeight, Math.ceil((region.y + region.height) / step) * step) - y
+  return width < step || height < step || width % step || height % step
+    ? undefined
+    : { x, y, width, height }
+}
+
 export const selectDecodeScaleDenominator = (
   sourceWidth: number,
   sourceHeight: number,
@@ -56,31 +71,16 @@ export const selectDecodeScaleDenominator = (
   scaledDecode: boolean,
 ): DecodeScaleDenominator => {
   const firstStage = stages[0]
-  if (!scaledDecode || firstStage?.type !== 'resize') {
-    return 1
-  }
-
+  if (!scaledDecode || firstStage?.type !== 'resize') return 1
   const target = calculateResizeDimensions(decoderRegion.width, decoderRegion.height, firstStage)
-  const candidates = [8, 4, 2] as const
-  for (const denominator of candidates) {
-    const fullFrame =
-      decoderRegion.x === 0 &&
-      decoderRegion.y === 0 &&
-      decoderRegion.width === sourceWidth &&
-      decoderRegion.height === sourceHeight
-    const alignedRegion =
-      decoderRegion.x % denominator === 0 &&
-      decoderRegion.y % denominator === 0 &&
-      decoderRegion.width % denominator === 0 &&
-      decoderRegion.height % denominator === 0
-    if (!fullFrame && !alignedRegion) continue
-    const scaledWidth = Math.ceil(decoderRegion.width / denominator)
-    const scaledHeight = Math.ceil(decoderRegion.height / denominator)
+  for (const denominator of [8, 4, 2] as const) {
+    const region = containingAlignedRegion(decoderRegion, sourceWidth, sourceHeight, denominator)
+    if (!region) continue
+    const scaledWidth = region.width / denominator
+    const scaledHeight = region.height / denominator
     if (scaledWidth < target.width || scaledHeight < target.height) continue
-    const scaledTarget = calculateResizeDimensions(scaledWidth, scaledHeight, firstStage)
-    if (scaledTarget.width === target.width && scaledTarget.height === target.height) {
-      return denominator
-    }
+    const scaled = calculateResizeDimensions(scaledWidth, scaledHeight, firstStage)
+    if (scaled.width === target.width && scaled.height === target.height) return denominator
   }
   return 1
 }
@@ -291,8 +291,15 @@ export const executePipeline = async (
       output.stages,
       decoder.capabilities.scaledDecode,
     )
-    let width = Math.ceil(output.decoderRegion.width / scaleDenominator)
-    let height = Math.ceil(output.decoderRegion.height / scaleDenominator)
+    const decoderRegion =
+      containingAlignedRegion(
+        output.decoderRegion,
+        decoder.width,
+        decoder.height,
+        scaleDenominator,
+      ) ?? output.decoderRegion
+    let width = decoderRegion.width / scaleDenominator
+    let height = decoderRegion.height / scaleDenominator
     const sourcePixelFormat = decoder.pixelFormat
     if (output.window && !sourcePixelFormat.startsWith('gray')) {
       throw unsupportedOperation(`Window input must be grayscale, received ${sourcePixelFormat}`)
@@ -301,12 +308,12 @@ export const executePipeline = async (
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
         ? {
-            ...output.decoderRegion,
+            ...decoderRegion,
             ...(options.signal === undefined ? {} : { signal: options.signal }),
           }
         : {
-            x: Math.floor(output.decoderRegion.x / scaleDenominator),
-            y: Math.floor(output.decoderRegion.y / scaleDenominator),
+            x: decoderRegion.x / scaleDenominator,
+            y: decoderRegion.y / scaleDenominator,
             width,
             height,
             scaleDenominator,
