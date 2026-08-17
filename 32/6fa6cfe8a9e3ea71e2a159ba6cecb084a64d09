@@ -1,0 +1,32 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 50-61
+README.md
+  h_9f4a25732fa0c1 68-69,71,73,275-276,278,280
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,802,805,808,862,865,868,877,880,883,892,895,898,907,910,913,1132,1135,1138,1147,1150,1153,1207,1210,1213,1373,1376,1379,1404,1407,1410,1419,1422,1425,1449,1452,1455
+benchmark/optimization-log.md
+  h_9f4a25732fa0c1 18-61,69-81,89-110
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 98-100,103-105,108-110,118
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,802,805,808,862,865,868,877,880,883,892,895,898,907,910,913,1132,1135,1138,1147,1150,1153,1207,1210,1213,1373,1376,1379,1404,1407,1410,1419,1422,1425,1449,1452,1455
+src/codecs/jpeg-baseline.ts
+  h_9f4a25732fa0c1 113-128,986-1101,1201-1203,1210-1277,1283-1285,1292-1313,1624-1658,2015,2064,2069
+src/codecs/jpeg-encode.ts
+  h_9f4a25732fa0c1 991-999,1001-1010,1013-1023,1025-1033
+src/codecs/jpeg-source.ts
+  h_9f4a25732fa0c1 175-261,381-389
+tests/jpeg.test.ts
+  h_9f4a25732fa0c1 1-2,482-530
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "326fa6cfe8a9e3ea71e2a159ba6cecb084a64d09",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
