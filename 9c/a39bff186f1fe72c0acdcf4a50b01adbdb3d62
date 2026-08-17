@@ -1,0 +1,47 @@
+README.md
+  s_3657363d2bb2a2::t_10eafb2d7620d3 71,278
+benchmark/generated/package-metrics.json
+  s_3657363d2bb2a2::t_0c0390bca4c2ac 179,892,895,898,1132,1135,1138
+benchmark/scientific-readers/catalog.ts
+  s_72d57bced5e68c::t_e09f09744a861f 238
+benchmark/scientific-readers/sources.ts
+  s_72d57bced5e68c::t_9a341cecf98c13 187,243
+benchmark/scientific-readers/worker.ts
+  s_72d57bced5e68c::t_90b39276726487 580,614-631
+benchmark/scientific-readers/workloads.ts
+  s_72d57bced5e68c::t_fa1a0698489429 240,253-267
+docs-astro/src/data/documentation-data.json
+  s_3657363d2bb2a2::t_7c93ca96b95a74 98-100,118
+docs-astro/src/data/package-metrics.json
+  s_3657363d2bb2a2::t_d25cbc1f667031 179,892,895,898,1132,1135,1138
+src/scientific/formats/ome-zarr.ts
+  s_72d57bced5e68c::t_eb9f4222b50a76 36,291-296,316-336,351,399-407,409,508,520-526,528-540,564,566-567,642,653-656,670-674,788,864,872,977-1011,1073-1079,1090-1095,1127,1144-1151,1160,1162-1165,1167,1175,1178,1224,1232-1236,1241-1246,1285,1351,1431-1432,1524-1535
+src/scientific/readers/ome-zarr.ts
+  s_72d57bced5e68c::t_88a3298db17e3f 117
+tests/scientific-reader-benchmark.test.ts
+  s_72d57bced5e68c::t_7a859993b61ec0 66-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "9ca39bff186f1fe72c0acdcf4a50b01adbdb3d62",
+  "prompts": {},
+  "sessions": {
+    "s_3657363d2bb2a2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01199-e9c5-7ed3-ab7b-56ea00fde0ae",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_72d57bced5e68c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01182-c850-7440-b40b-8ea44fb3a86e",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
