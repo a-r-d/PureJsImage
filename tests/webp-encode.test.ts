@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
@@ -6,6 +7,10 @@ import { describe, expect, it } from 'vitest'
 import { Image } from './image-library.ts'
 
 const tundra = 'benchmark/corpus/files/tundra-4000x3000.jpg'
+const transparentLogo = 'benchmark/corpus/files/transparent-logo-1200x480.png'
+const oddRgbaFixture = 'benchmark/corpus/files/odd-rgba-257x193.png'
+
+const sha256 = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 
 const writeRgbaPng = (
   width: number,
@@ -135,6 +140,26 @@ describe('WebP encode baselines', { timeout: 30_000 }, () => {
     expect(sample(ours.data, 257, 64, 48)).toEqual([64, 48, 16, 112])
     expect(sample(ours.data, 257, 128, 96)).toEqual([128, 96, 32, 224])
     expect(sample(ours.data, 257, 256, 192)).toEqual([0, 192, 64, 192])
+  })
+
+  it('keeps pinned lossless bitstreams for the official logo and odd RGBA fixtures', async () => {
+    const logo = await (await Image.open(await readFile(transparentLogo)))
+      .webp({ lossless: true })
+      .toBuffer()
+    expect(logo.byteLength).toBe(2188)
+    expect(sha256(logo)).toBe('44a5f0e6925af63fa0305ea86b57544b9288d855c66507a5e853637ea00d0a1f')
+    const logoPixels = await sharpRgba(logo)
+    const logoDecoded = PNG.sync.read(await (await Image.open(logo)).png().toBuffer())
+    expect(logoDecoded.data).toEqual(logoPixels)
+    expect(sample(logoDecoded.data, 1200, 0, 0)).toEqual([0, 0, 0, 0])
+
+    const odd = await (await Image.open(await readFile(oddRgbaFixture)))
+      .webp({ lossless: true })
+      .toBuffer()
+    expect(odd.byteLength).toBe(1846)
+    expect(sha256(odd)).toBe('8e6cb43e37b3f2b0c1213dea59d2e85b0c09bfa1b20b7c84e18a7896a68ce3ee')
+    const oddDecoded = PNG.sync.read(await (await Image.open(odd)).png().toBuffer())
+    expect(await sharpRgba(odd)).toEqual(oddDecoded.data)
   })
 
   it('round-trips the production-style logo through lossless WebP exactly', async () => {

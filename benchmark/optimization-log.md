@@ -152,6 +152,33 @@ source and remain the family correctness/RSS gate.
 Handoff: Imazen WebP corpus stayed 223 pass / 2 unsupported / 0
 decode failures. `npm run check` passed (133 files, 1564 tests).
 
+## WebP lossless encode campaign
+
+Official `web-codecs` hillclimb cannot select an encode-to-WebP
+workload. Isolated 1200x480 RGBA → lossless WebP (default effort 4) of
+`transparent-logo-1200x480.png` is the speed kernel; bitstream SHA-256
+must stay `29ddceecce1e7134a23ef349f2260923c426cb6e6f11831e19d01078af0442d9`
+(408 bytes). `png-to-webp-lossless` remains the family correctness gate.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Verdict | Disposition |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| WEBP-LLENC-001 | 2026-08-17 11:07 | Ring-buffer LZ77 hash table: O(1) insert instead of shifting 16 candidates. | 165.68 → 142.72 | -13.86% | material | Retained; exact bitstream, newest-first tie-break preserved. |
+| WEBP-LLENC-002 | 2026-08-17 11:09 | Record LZ77 tokens once; build spatial histograms and emit bits from the stream. | 142.72 → 101.49 | -28.89% | material | Retained; exact bitstream. Removed two rematch passes. |
+| WEBP-LLENC-003 | 2026-08-17 11:10 | Unroll `matchLength` four pixels at a time. | 101.49 → 106.91 | +5.3% | rejected | Reverted; extra branches lost. |
+| WEBP-LLENC-004 | 2026-08-17 11:11 | Specialize RGBA8 `write()` without per-pixel channel branches. | 101.49 → 103.68 | +2.2% | neutral | Reverted; within noise. |
+| WEBP-LLENC-005 | 2026-08-17 11:11 | Skip the color-transform cost pass when it cannot win. | 101.49 → 250.28 | +146% | rejected | Reverted; noisy and slower; early-out did not pay. |
+| WEBP-LLENC-006 | 2026-08-17 11:12 | Score color-cache sizes 8/9/10 in one pixel scan. | 101.49 → 100.17 | -1.3% | promising | Retained; exact bitstream, one-third the cache scans. |
+
+Neighbor `odd-rgba-257x193` isolated encode: 4.74 ms, hash
+`4159b433761cae56d0d61aa95f32bf6d791ae610a756960a93a079ec51251e11`.
+Handoff: Imazen WebP corpus stayed 223 pass / 2 unsupported / 0 decode
+failures. `npm run check` passed (133 files, 1565 tests).
+
+Measurement artifacts:
+
+- WEBP-LLENC isolated timer: `.tmp/time-webp-lossless-encode.ts`
+- WEBP-LLENC profiles: `.tmp/cpu-webp-llenc/`
+
 Measurement artifacts:
 
 - WEBP-ENC isolated timer: `.tmp/time-webp-lossy-encode.ts`

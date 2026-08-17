@@ -4,6 +4,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Speed up first-party lossless WebP encoding by replacing the shifting LZ77 candidate table with a
+  ring buffer, recording match tokens once for histogram and bitstream emission, and scoring color
+  cache sizes in a single scan. Isolated 1200x480 effort-4 encode of `transparent-logo-1200x480`
+  fell from 166 ms to 100 ms with an unchanged bitstream.
+- Speed up first-party lossy WebP encoding by adding the DC predictor during reconstruction instead
+  of prefilling each 4x4, and by finalizing RGB8 chroma in the 2x2 write. Isolated 1200x900
+  quality-80 encode of the tundra frame fell from about 44 ms to 32 ms with an unchanged bitstream.
+
 ## [0.11.0] - 2026-08-16
 
 ### Added
