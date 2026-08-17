@@ -69,5 +69,7 @@ Blosc/LZ4 and NGFF 0.5 sharded Blosc/zstd. Both must decode to the same uint16 2
 A pinned IDR0033 `BR00109990_C2` 0.5 slice (CC-BY-4.0) is a bioformats2raw layout root; opening it
 must publish series `0` and decode the coarsest uint16 plane, including when those members are
 zipped under a single `*.zarr/` prefix.
+The same IDR 6001240 stores also pin sibling `labels/0` groups. Additional CC-BY-4.0 slices cover
+an IDR0010 0.5 plate well, an IDR0001 0.4 plate field, and an IDR0101 0.4 scale+translation image.
 Zarrita, Viv, Vizarr, Neuroglancer, and ITK-Wasm remain comparison targets, not runtime
 dependencies.

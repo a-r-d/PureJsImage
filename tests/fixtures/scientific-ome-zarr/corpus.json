@@ -7,7 +7,7 @@
       "spdx": "CC-BY-4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
     },
-    "attribution": "Image Data Resource idr0062 / image 6001240 and idr0033 / image 14002892 (BR00109990_C2); OME-NGFF public conversions hosted by EMBL-EBI."
+    "attribution": "Image Data Resource CC-BY-4.0 OME-NGFF conversions hosted by EMBL-EBI: idr0062/6001240, idr0033/14002892 (BR00109990_C2), idr0010/1921421 well A/1, idr0001/2551 field C/3/0, and idr0101/13457537."
   },
   "files": [
     {
@@ -149,6 +149,251 @@
       "source": {
         "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0033A/BR00109990_C2.zarr/0/5/c/0/0/0"
       }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/.zgroup",
+      "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/.zgroup"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/.zattrs",
+      "sha256": "54d1c02be5e50b2d3c3228c7987b2937793ddc2b4dd36becd281a1e888b034d5",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/.zattrs"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/.zgroup",
+      "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/.zgroup"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/.zattrs",
+      "sha256": "53f183e5f37e041c87ecf5c04fa29acafc91b14a5cf9f267f81ce415111356e4",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/.zattrs"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/0/.zarray",
+      "sha256": "2ea03a2320c0ec062d8e331361a50e06594a602b254e9bcd0f023156994635f8",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/0/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/1/.zarray",
+      "sha256": "60dcf0569762e34b2378b469c05bbf06657d8f3de278309eda3f421602dd3d55",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/1/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/2/.zarray",
+      "sha256": "a35a64c791f1e085c7e028e98e738ed1d23061ecd946c829bcab9c5e457525ab",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/2/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/3/.zarray",
+      "sha256": "dcc2bfbcadd5b1d11df925c8f8b96db4bc35a8fea3ea2577f213b7d8f63ed711",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/3/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.4/labels/0/3/0/0/0/0",
+      "sha256": "af74c2905ecde04fe03669dedc8d8d0d32a0f4f8705dcb88b7a26ff5b4caad4f",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/labels/0/3/0/0/0/0"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.5/labels/zarr.json",
+      "sha256": "c2ffc26a18a16cc7d63b802abf99a42fd90a87711bffbeb19bd2044b296bccf1",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/labels/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.5/labels/0/zarr.json",
+      "sha256": "feaa2c5bceef982b8a6576008d9df5d293343114c3961fd73911f3c8cedb8d9b",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/labels/0/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.5/labels/0/0/zarr.json",
+      "sha256": "6418df19cb52575942f3dfca801a0e16f894a869dd0bfab2b0142d5ba12368bb",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/labels/0/0/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.5/labels/0/1/zarr.json",
+      "sha256": "a9be3188621d24b92c66933eeb636c52760fa220de003a4468e6018e3afaaeaf",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/labels/0/1/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.5/labels/0/2/zarr.json",
+      "sha256": "924268cc480feee9f15cd5aeb56569a245107176d5d5e58f34d7bb82e804efe1",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/labels/0/2/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0062-6001240-v0.5/labels/0/2/c/0/0/0/0",
+      "sha256": "6f6a6be61b26b33b58b8775f33fcc8a13da7c5b4af9383244b8c8c930b01c553",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/labels/0/2/c/0/0/0/0"
+      }
+    },
+    {
+      "localFile": "idr0010-76-45-well-A1-v0.5/zarr.json",
+      "sha256": "1ebaebd99eb1f4e1f029cb595129bca11e8002f524e41a03c9ca57ef004d338c",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0010-76-45-well-A1-v0.5/0/zarr.json",
+      "sha256": "d2851bdd5c52e23a03cc05a28b88b869d3cea484a9003c9b0f3a4fd6e1ef5f63",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/0/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0010-76-45-well-A1-v0.5/0/0/zarr.json",
+      "sha256": "21e48e05c617695eed058ecee830b1df612e4ba51d291ff5c26e7dddbb0a38fb",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/0/0/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0010-76-45-well-A1-v0.5/0/1/zarr.json",
+      "sha256": "3a7be40d4b99c49e835be4c923b302386668219cc7f9d7fe3cef1d3cda2b99c9",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/0/1/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0010-76-45-well-A1-v0.5/0/2/zarr.json",
+      "sha256": "2e11b29c0ca8c3716192f879298efa26e6c7a56937f90a826ccf45b8be916887",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/0/2/zarr.json"
+      }
+    },
+    {
+      "localFile": "idr0010-76-45-well-A1-v0.5/0/2/c/0/0/0/0/0",
+      "sha256": "a94fa1cac6e9cc8687680446fd2c72f881794f561e801fc4ae56fa51ef788e87",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/0/2/c/0/0/0/0/0"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/.zgroup",
+      "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/.zgroup"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/.zattrs",
+      "sha256": "352bde7cf7170c4e68b290de5624b670ff4d55eb23c217b447bbb64a3d3f5c68",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/.zattrs"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/0/.zarray",
+      "sha256": "23c6e8087835fb3eb87fccf2d503351f9bb19f1ed93eafa4e2b36df36c7e85f3",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/0/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/1/.zarray",
+      "sha256": "51ee0f66e345c3a45c461618165db38b0174bdef53f0605d379c1666d08087e7",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/1/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/2/.zarray",
+      "sha256": "3d0c0290efa0e3e44cb8a0695841e227f511a67ec8ad518b30bc1335d0cb0a35",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/2/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/3/.zarray",
+      "sha256": "65007b32ad7a3a1f2472c9d25c79cddfa928d0d5535f209a496a476949e6155b",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/3/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/4/.zarray",
+      "sha256": "5842a634a2c90ac7aa5e4fbf21e979ddf72c705b925fd1fe98de29b9bc715219",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/4/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0001-2551-C3-0-v0.4/4/0/0/0/0",
+      "sha256": "a67e905ef5fd017015caeccfa65ea0629dd0acca5e7a13f5baffa16411cedf65",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/C/3/0/4/0/0/0/0"
+      }
+    },
+    {
+      "localFile": "idr0101-13457537-v0.4/.zgroup",
+      "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr/.zgroup"
+      }
+    },
+    {
+      "localFile": "idr0101-13457537-v0.4/.zattrs",
+      "sha256": "68dfe7805bf4f5ce32d7ca227c7568486bb3ab73977d7a9d9a5c17fbf9865e7b",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr/.zattrs"
+      }
+    },
+    {
+      "localFile": "idr0101-13457537-v0.4/0/.zarray",
+      "sha256": "4dabce2b3545b4c21804615cd6f9c8c6ddd467e8d84a5318dbcf9eb31287cce1",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr/0/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0101-13457537-v0.4/1/.zarray",
+      "sha256": "8cf4769f614e56ab1b52027962b956f9ef31cd79b46c8721467f13dcc72c58ee",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr/1/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0101-13457537-v0.4/2/.zarray",
+      "sha256": "000d53c869c75c392e7bc69bf60227d884aa87107912dd383451368a32721df7",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr/2/.zarray"
+      }
+    },
+    {
+      "localFile": "idr0101-13457537-v0.4/2/0/0/0/0/0",
+      "sha256": "1cd1ba2d51d218da840acca00a6dc586d3a4ec728e96d01e7ad23e958c8e5ca4",
+      "source": {
+        "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr/2/0/0/0/0/0"
+      }
     }
   ],
   "oracle": {
@@ -161,7 +406,13 @@
       "channel 0 is LaminB1",
       "0.4 and 0.5 2x2 window at x=0,y=0,z=0,c=0 is 28,10,10,9",
       "idr0033 BR00109990_C2 bioformats2raw layout root discovers series 0",
-      "idr0033 coarsest 2x2 window at x=0,y=0,c=0 is 517,567,638,4709"
+      "idr0033 coarsest 2x2 window at x=0,y=0,c=0 is 517,567,638,4709",
+      "idr0062 0.4 and 0.5 sibling labels/0 decode as int8",
+      "idr0062 0.4 label 2x2 at z=40,x=13,y=10 is 13,13,13,13",
+      "idr0062 0.5 label 2x2 at z=40,x=28,y=20 is 13,13,13,13",
+      "idr0010 0.5 well A/1 coarsest 2x2 is 72,90,105,130",
+      "idr0001 0.4 plate field C/3/0 coarsest 2x2 is 52,52,56,53",
+      "idr0101 0.4 translation origin y=52.109135 and 2x2 at x=8,y=0 is 0,0,4,0"
     ]
   }
 }

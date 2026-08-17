@@ -27,7 +27,9 @@ All notable changes to PureJsImage are documented in this file.
   series groups rather than every collected dataset. ZIP stores named `*.zarr` / `*.ome.zarr`
   probe as OME-Zarr, macOS `__MACOSX/` sidecars no longer make a unique nested root look
   ambiguous, a root `labels` list does not hide bioformats2raw series, and extra integer series
-  beyond `maxDatasets` raise `LIMIT_EXCEEDED`. BloscLZ, Snappy, bitshuffle,
+  beyond `maxDatasets` raise `LIMIT_EXCEEDED`. Pinned IDR slices now include 6001240 sibling
+  labels, an IDR0010 0.5 plate well, an IDR0001 0.4 plate field, and an IDR0101 translation
+  image. BloscLZ, Snappy, bitshuffle,
   tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit unsupported
   operations.
 

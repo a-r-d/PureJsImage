@@ -2100,6 +2100,44 @@ describe('OME-Zarr IDR 6001240 corpus', () => {
     const fromV5 = await planeValues(v5Image, window)
     expect(fromV4).toEqual([28, 10, 10, 9])
     expect(fromV5).toEqual(fromV4)
+
+    expect(v4.datasets.map((entry) => entry.id)).toEqual(['image', 'labels/0'])
+    expect(v5.datasets.map((entry) => entry.id)).toEqual(['image', 'labels/0'])
+    const v4Label = await v4.openDataset('labels/0')
+    const v5Label = await v5.openDataset('labels/0')
+    expect(v4Label.descriptor.sampleType).toBe('int8')
+    expect(v5Label.descriptor.sampleType).toBe('int8')
+    expect(v4Label.descriptor.metadata?.kind).toBe('label')
+    expect(
+      (v4Label.descriptor.metadata?.imageLabel as { sourceImage?: string } | undefined)
+        ?.sourceImage,
+    ).toBe('../..')
+    expect(
+      await planeValues(v4Label, {
+        resolutionLevel: 3,
+        x: 13,
+        y: 10,
+        width: 2,
+        height: 2,
+        fixedIndices: [
+          { axisId: 'c', index: 0 },
+          { axisId: 'z', index: 40 },
+        ],
+      }),
+    ).toEqual([13, 13, 13, 13])
+    expect(
+      await planeValues(v5Label, {
+        resolutionLevel: 2,
+        x: 28,
+        y: 20,
+        width: 2,
+        height: 2,
+        fixedIndices: [
+          { axisId: 'c', index: 0 },
+          { axisId: 'z', index: 40 },
+        ],
+      }),
+    ).toEqual([13, 13, 13, 13])
   })
 })
 
@@ -2154,5 +2192,91 @@ describe('OME-Zarr IDR0033 bioformats2raw corpus', () => {
         fixedIndices: [{ axisId: 'c', index: 0 }],
       }),
     ).toEqual(window)
+  })
+})
+
+describe('OME-Zarr additional IDR corpus', () => {
+  it('opens an IDR0010 0.5 well root and decodes the coarsest sharded plane', async () => {
+    const files = await collectStore(join(fixtureRoot, 'idr0010-76-45-well-A1-v0.5'))
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    expect(document.metadata.omeNgffVersion).toBe('0.5')
+    expect(document.datasets.map((entry) => entry.id)).toEqual(['0'])
+    const dataset = await document.openDataset('0')
+    expect(dataset.descriptor.sampleType).toBe('uint16')
+    expect(dataset.descriptor.axes.map((axis) => axis.id)).toEqual(['t', 'c', 'z', 'y', 'x'])
+    expect(dataset.descriptor.axes[1]?.entries?.map((entry) => entry.name)).toEqual([
+      'Dapi',
+      'Channel 1',
+    ])
+    expect(dataset.descriptor.metadata?.well).toMatchObject({ field: '0' })
+    expect(
+      await planeValues(dataset, {
+        resolutionLevel: 2,
+        x: 0,
+        y: 0,
+        width: 2,
+        height: 2,
+        fixedIndices: [
+          { axisId: 't', index: 0 },
+          { axisId: 'c', index: 0 },
+          { axisId: 'z', index: 0 },
+        ],
+      }),
+    ).toEqual([72, 90, 105, 130])
+  })
+
+  it('opens an IDR0001 0.4 plate field and an IDR0101 translation image', async () => {
+    const plate = await omeZarrReader.open(
+      trackingContext(await collectStore(join(fixtureRoot, 'idr0001-2551-C3-0-v0.4')), '.zattrs')
+        .context,
+    )
+    const field = await plate.openDataset('image')
+    expect(field.descriptor.sampleType).toBe('uint16')
+    expect(field.descriptor.axes.map((axis) => axis.id)).toEqual(['c', 'z', 'y', 'x'])
+    expect(field.descriptor.axes[0]?.entries?.map((entry) => entry.name)).toEqual([
+      'GFP',
+      'Cascade blue',
+    ])
+    expect(
+      await planeValues(field, {
+        resolutionLevel: 4,
+        x: 0,
+        y: 0,
+        width: 2,
+        height: 2,
+        fixedIndices: [
+          { axisId: 'c', index: 0 },
+          { axisId: 'z', index: 0 },
+        ],
+      }),
+    ).toEqual([52, 52, 56, 53])
+
+    const translated = await omeZarrReader.open(
+      trackingContext(await collectStore(join(fixtureRoot, 'idr0101-13457537-v0.4')), '.zattrs')
+        .context,
+    )
+    const image = await translated.openDataset('image')
+    const y = image.descriptor.axes.find((axis) => axis.id === 'y')
+    expect(y?.coordinates).toEqual({ type: 'linear', origin: 52.109135, step: 0.108335 })
+    expect(
+      image.descriptor.levels[2]?.axisCoordinates?.find((entry) => entry.axisId === 'y'),
+    ).toEqual({
+      axisId: 'y',
+      coordinates: { type: 'linear', origin: 52.109135, step: 0.43334 },
+    })
+    expect(
+      await planeValues(image, {
+        resolutionLevel: 2,
+        x: 8,
+        y: 0,
+        width: 2,
+        height: 2,
+        fixedIndices: [
+          { axisId: 't', index: 0 },
+          { axisId: 'c', index: 0 },
+          { axisId: 'z', index: 0 },
+        ],
+      }),
+    ).toEqual([0, 0, 4, 0])
   })
 })
