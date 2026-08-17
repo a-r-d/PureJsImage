@@ -1,0 +1,92 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 7-18
+README.md
+  h_9f4a25732fa0c1 63,71,73,218,222,247,278,280
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,195,380-387,885-899,1132,1135,1138
+benchmark/scientific-readers/catalog.ts
+  h_9f4a25732fa0c1 213-219
+benchmark/scientific-readers/generated-fixtures.ts
+  h_9f4a25732fa0c1 613-663
+benchmark/scientific-readers/registry.ts
+  h_9f4a25732fa0c1 25,66
+benchmark/scientific-readers/workloads.ts
+  h_9f4a25732fa0c1 212-223
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 40,68,78,83,1894-2123,4353
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 223-229
+browser-tests/types.ts
+  h_9f4a25732fa0c1 77
+capabilities/manifest.json
+  h_9f4a25732fa0c1 253-266
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 6750-6763
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 101
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 9,22,98-100,118,645-663
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,195,380-387,885-899,1132,1135,1138
+docs-astro/src/pages/api.astro
+  h_9f4a25732fa0c1 85
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  h_9f4a25732fa0c1 892-901,911,941-942
+docs/scientific-ome-zarr.md
+  h_9f4a25732fa0c1 1-53
+docs/scientific-reader-registry.md
+  h_9f4a25732fa0c1 112-130
+docs/scientific-surface-formats.md
+  h_9f4a25732fa0c1 36-37
+package.json
+  h_9f4a25732fa0c1 226-230
+scripts/bundle-size-budgets.ts
+  h_9f4a25732fa0c1 31
+scripts/bundle-size.ts
+  h_9f4a25732fa0c1 1,8-9,20,24,575
+scripts/check-package-types.ts
+  h_9f4a25732fa0c1 163,295
+scripts/render-documentation.ts
+  h_9f4a25732fa0c1 7,855
+src/compression/lz4/block.ts
+  h_9f4a25732fa0c1 1-75
+src/scientific/formats/blosc.ts
+  h_9f4a25732fa0c1 1-155
+src/scientific/formats/crc32c.ts
+  h_9f4a25732fa0c1 1-17
+src/scientific/formats/ome-zarr.ts
+  h_9f4a25732fa0c1 1-914
+src/scientific/formats/zarr.ts
+  h_9f4a25732fa0c1 1-1119
+src/scientific/readers/all.ts
+  h_9f4a25732fa0c1 27
+src/scientific/readers/ome-zarr.ts
+  h_9f4a25732fa0c1 1-127
+tests/capability-manifest.test.ts
+  h_9f4a25732fa0c1 43,88
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 523-535
+tests/hdf5-dialect-probe.test.ts
+  h_9f4a25732fa0c1 151,164
+tests/lz4-block.test.ts
+  h_9f4a25732fa0c1 1-29
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 556,600-601,732
+tests/scientific-ome-zarr.test.ts
+  h_9f4a25732fa0c1 1-919
+tests/scientific-reader-benchmark.test.ts
+  h_9f4a25732fa0c1 72
+tsconfig.json
+  h_9f4a25732fa0c1 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "72c33177bf74e31a3c601572a720f20e5609840a",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
