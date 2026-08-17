@@ -1,0 +1,14 @@
+tests/webp-encode.test.ts
+  h_9f4a25732fa0c1 32-36,141,149,183-197,200-204,207
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "0ea2665738727a55a8bfeb7f6d8293c17020549f",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
