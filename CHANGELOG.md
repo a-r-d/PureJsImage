@@ -12,9 +12,11 @@ All notable changes to PureJsImage are documented in this file.
   gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 (LZ4/zlib/zstd/memcpy) are implemented;
   missing chunks become fill values. Sibling and root NGFF labels become separate datasets with
   `image-label` colors; plate wells become one dataset per field. A ZIP archive with root-level
-  `zarr.json` or `.zgroup` opens as a single-file store without companions. BloscLZ, Snappy,
-  bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` requirements, and writers remain explicit
-  unsupported operations.
+  `zarr.json` or `.zgroup` opens as a single-file store without companions. Partial last chunks,
+  sharded inner endian, Blosc split streams, and the C-Blosc compressor enumeration are handled.
+  A pinned IDR 6001240 coarsest-plane slice cross-checks NGFF 0.4 Blosc/LZ4 against 0.5 sharded
+  Blosc/zstd. BloscLZ, Snappy, bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` requirements,
+  and writers remain explicit unsupported operations.
 
 ## [0.11.0] - 2026-08-16
 

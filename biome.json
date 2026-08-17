@@ -6,7 +6,14 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!benchmark/.tmp", "!!benchmark/corpus/files", "!!benchmark/results"]
+    "includes": [
+      "**",
+      "!!benchmark/.tmp",
+      "!!benchmark/corpus/files",
+      "!!benchmark/results",
+      "!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**",
+      "!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**"
+    ]
   },
   "formatter": {
     "enabled": true,

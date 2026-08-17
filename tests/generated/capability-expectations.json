@@ -531,7 +531,7 @@
       "datasetKinds": ["image", "volume", "pyramid"],
       "directRangeReads": true,
       "evidence": ["tests/scientific-ome-zarr.test.ts", "tests/lz4-block.test.ts"],
-      "fixtures": ["tests/scientific-ome-zarr.test.ts"]
+      "fixtures": ["tests/fixtures/scientific-ome-zarr/corpus.json"]
     },
     {
       "id": "purejsimage/aperio-svs",

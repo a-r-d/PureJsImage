@@ -47,7 +47,11 @@ Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name
 
 Focused tests generate structural fixtures for v3 regular/gzip/zstd/sharded stores and v2
 C-order, F-order, gzip, zlib, and Blosc memcpy/LZ4 stores. They pin selected samples, missing-chunk
-fill, store-prefix and Node directory resolution, browser `File` companions, stored and deflated
-ZIP roots, and hostile traversal/limit cases. CRC-32C is checked against the Castagnoli vector
-`123456789`. Zarrita, Viv, Vizarr, Neuroglancer, and ITK-Wasm remain independent comparison
-targets, not runtime dependencies.
+fill, partial last chunks, uint16/float32, 4D planes, index-at-start shards, store-prefix and Node
+directory resolution, browser `File` companions, stored and deflated ZIP roots, and hostile
+traversal/limit cases. CRC-32C is checked against the Castagnoli vector `123456789`.
+
+A pinned IDR 6001240 slice (CC-BY-4.0) independently encodes the same coarsest plane as NGFF 0.4
+Blosc/LZ4 and NGFF 0.5 sharded Blosc/zstd. Both must decode to the same uint16 2x2 window.
+Zarrita, Viv, Vizarr, Neuroglancer, and ITK-Wasm remain comparison targets, not runtime
+dependencies.

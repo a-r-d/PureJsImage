@@ -7,7 +7,10 @@ const headerBytes = 16
 const memcpyed = 0x02
 const byteShuffle = 0x01
 const bitShuffle = 0x04
+const dontSplit = 0x10
 const compressorShift = 5
+const maxSplits = 16
+const minSplitBuffer = 128
 
 export interface BloscDecodeOptions {
   readonly maxOutputBytes: number
@@ -82,12 +85,15 @@ const decodeInner = async (
   maximumBytes: number,
   signal?: AbortSignal,
 ): Promise<Uint8Array> => {
-  if (compressor === 1 || compressor === 2) {
-    return decodeLz4Block(encoded, { maxOutputBytes: maximumBytes })
+  if (compressor === 1) {
+    return decodeLz4Block(encoded, {
+      maxOutputBytes: maximumBytes,
+      expectedOutputBytes: maximumBytes,
+    })
   }
-  if (compressor === 4) return decodeZlib(encoded, maximumBytes, signal)
-  if (compressor === 5) return decodeZstd(encoded, { maxOutputBytes: maximumBytes })
-  const names = ['blosclz', 'lz4', 'lz4hc', 'snappy', 'zlib', 'zstd']
+  if (compressor === 3) return decodeZlib(encoded, maximumBytes, signal)
+  if (compressor === 4) return decodeZstd(encoded, { maxOutputBytes: maximumBytes })
+  const names = ['blosclz', 'lz4', 'snappy', 'zlib', 'zstd']
   throw unsupportedOperation(
     `Blosc compressor ${names[compressor] ?? String(compressor)} is unsupported`,
   )
@@ -122,33 +128,54 @@ export const decodeBlosc = async (
     return encoded.slice(headerBytes, headerBytes + nbytes)
   }
   const compressor = flags >>> compressorShift
+  const leftover = nbytes % blocksize
   const blockCount = Math.ceil(nbytes / blocksize)
   const tableBytes = blockCount * 4
   if (encoded.byteLength < headerBytes + tableBytes) {
     throw invalidInput('Blosc block table is truncated')
   }
   const output = new Uint8Array(nbytes)
-  let source = headerBytes + tableBytes
   let dest = 0
   for (let block = 0; block < blockCount; block += 1) {
     throwIfAborted(options.signal)
     const remaining = nbytes - dest
     const expected = Math.min(blocksize, remaining)
-    const compressedSize = view.getInt32(headerBytes + block * 4, true)
-    if (compressedSize < 0 || source + compressedSize > encoded.byteLength) {
+    const leftoverBlock = leftover > 0 && block === blockCount - 1
+    const split =
+      (flags & dontSplit) === 0 &&
+      typesize <= maxSplits &&
+      Math.floor(blocksize / typesize) >= minSplitBuffer &&
+      !leftoverBlock
+        ? typesize
+        : 1
+    if (expected % split !== 0) throw invalidInput('Blosc block is not divisible into splits')
+    const splitBytes = expected / split
+    const start = view.getInt32(headerBytes + block * 4, true)
+    if (start < headerBytes + tableBytes || start > encoded.byteLength - 4) {
       throw invalidInput('Blosc compressed block extends outside the buffer')
     }
-    const payload = encoded.subarray(source, source + compressedSize)
-    source += compressedSize
-    const decoded =
-      compressedSize === expected
-        ? payload
-        : await decodeInner(payload, compressor, expected, options.signal)
-    if (decoded.byteLength !== expected) {
-      throw invalidInput(`Blosc block decoded ${decoded.byteLength} bytes; expected ${expected}`)
+    let cursor = start
+    for (let part = 0; part < split; part += 1) {
+      if (cursor + 4 > encoded.byteLength) throw invalidInput('Blosc split size is truncated')
+      const compressedSize = view.getInt32(cursor, true)
+      cursor += 4
+      if (compressedSize < 0 || cursor + compressedSize > encoded.byteLength) {
+        throw invalidInput('Blosc compressed split extends outside the buffer')
+      }
+      const payload = encoded.subarray(cursor, cursor + compressedSize)
+      cursor += compressedSize
+      const decoded =
+        compressedSize === splitBytes
+          ? payload
+          : await decodeInner(payload, compressor, splitBytes, options.signal)
+      if (decoded.byteLength !== splitBytes) {
+        throw invalidInput(
+          `Blosc split decoded ${decoded.byteLength} bytes; expected ${splitBytes}`,
+        )
+      }
+      output.set(decoded, dest)
+      dest += splitBytes
     }
-    output.set(decoded, dest)
-    dest += expected
   }
   if (dest !== nbytes) throw invalidInput('Blosc decoded size does not match the header')
   return (flags & byteShuffle) === 0 ? output : unshuffle(output, typesize)

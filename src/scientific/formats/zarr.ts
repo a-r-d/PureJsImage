@@ -216,8 +216,14 @@ const parseFillValue = (
   return { numeric, bytes }
 }
 
+const codecsForEndian = (codecs: readonly ZarrCodec[]): readonly ZarrCodec[] => {
+  const sharding = codecs.find((codec) => codec.name === 'sharding_indexed')
+  if (sharding === undefined) return codecs
+  return parseCodecs(sharding.configuration.codecs, 'Zarr sharding codecs')
+}
+
 const parseEndian = (codecs: readonly ZarrCodec[], sampleType: RasterSampleType): ZarrEndian => {
-  const bytesCodec = codecs.find((codec) => codec.name === 'bytes')
+  const bytesCodec = codecsForEndian(codecs).find((codec) => codec.name === 'bytes')
   const configured = bytesCodec?.configuration.endian
   if (configured === undefined) {
     if (rasterSampleBytes(sampleType) > 1) {
@@ -643,11 +649,13 @@ const integerTuple = (
 const decodeBytesCodecs = async (
   encoded: Uint8Array,
   codecs: readonly ZarrCodec[],
-  logicalShape: readonly number[],
+  logicalShapes: readonly (readonly number[])[],
   sampleType: RasterSampleType,
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
-): Promise<Uint8Array> => {
+): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] }> => {
+  const primary = logicalShapes[0]
+  if (primary === undefined) throw invalidInput('Zarr decoded chunk shape is missing')
   let current = encoded
   const sampleBytes = rasterSampleBytes(sampleType)
   for (let index = codecs.length - 1; index >= 0; index -= 1) {
@@ -698,24 +706,32 @@ const decodeBytesCodecs = async (
       const order = integerTuple(
         codec.configuration.order,
         'Zarr transpose order',
-        logicalShape.length,
+        primary.length,
         true,
       )
-      current = decodeTranspose(current, logicalShape, order, sampleBytes)
+      current = decodeTranspose(current, primary, order, sampleBytes)
       continue
     }
     throw unsupportedOperation(`Zarr codec ${codec.name} is unsupported`)
   }
-  const expected = checkedProduct([...logicalShape, sampleBytes], 'Zarr decoded chunk bytes')
-  if (expected > limits.maxDecodedChunkBytes) {
-    throw limitExceeded(`Zarr decoded chunk exceeds ${limits.maxDecodedChunkBytes} bytes`)
+  const expected = logicalShapes.map((shape) => ({
+    shape,
+    bytes: checkedProduct([...shape, sampleBytes], 'Zarr decoded chunk bytes'),
+  }))
+  for (const candidate of expected) {
+    if (candidate.bytes > limits.maxDecodedChunkBytes) {
+      throw limitExceeded(`Zarr decoded chunk exceeds ${limits.maxDecodedChunkBytes} bytes`)
+    }
   }
-  if (current.byteLength !== expected) {
+  const matched = expected.find((candidate) => candidate.bytes === current.byteLength)
+  if (matched === undefined) {
     throw invalidInput(
-      `Zarr decoded chunk is ${current.byteLength} bytes; expected ${expected} for shape ${logicalShape.join('x')}`,
+      `Zarr decoded chunk is ${current.byteLength} bytes; expected ${expected
+        .map((candidate) => `${candidate.bytes} for ${candidate.shape.join('x')}`)
+        .join(' or ')}`,
     )
   }
-  return current
+  return { data: current, shape: matched.shape }
 }
 
 const readUint64 = (view: DataView, offset: number, label: string): number | undefined => {
@@ -743,15 +759,27 @@ const innerCounts = (
   })
 }
 
+const clippedChunkShape = (
+  arrayShape: readonly number[],
+  origin: readonly number[],
+  chunkShape: readonly number[],
+): readonly number[] =>
+  chunkShape.map((size, axis) => {
+    const available = (arrayShape[axis] ?? 0) - (origin[axis] ?? 0)
+    if (available < 1) throw invalidInput('Zarr chunk origin is outside the array')
+    return Math.min(size, available)
+  })
+
 const decodeShard = async (
   source: ImageSource,
   codec: Readonly<ZarrCodec>,
   shardShape: readonly number[],
   sampleType: RasterSampleType,
   innerStart: readonly number[],
+  decodedInnerShape: readonly number[],
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
-): Promise<Uint8Array> => {
+): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] }> => {
   const innerShape = integerTuple(
     codec.configuration.chunk_shape,
     'Zarr sharding chunk_shape',
@@ -781,12 +809,12 @@ const decodeShard = async (
   const index = await decodeBytesCodecs(
     encodedIndex,
     indexCodecs,
-    [innerCount, 2],
+    [[innerCount, 2]],
     'uint64',
     limits,
     signal,
   )
-  const view = new DataView(index.buffer, index.byteOffset, index.byteLength)
+  const view = new DataView(index.data.buffer, index.data.byteOffset, index.data.byteLength)
   let linear = 0
   let stride = 1
   for (let axis = counts.length - 1; axis >= 0; axis -= 1) {
@@ -797,7 +825,7 @@ const decodeShard = async (
   const payloadOffset = readUint64(view, entry, 'Zarr shard chunk offset')
   const payloadBytes = readUint64(view, entry + 8, 'Zarr shard chunk size')
   if (payloadOffset === undefined || payloadBytes === undefined) {
-    return new Uint8Array(0)
+    return { data: new Uint8Array(0), shape: decodedInnerShape }
   }
   if (payloadBytes > limits.maxChunkBytes) {
     throw limitExceeded(`Zarr shard inner chunk exceeds ${limits.maxChunkBytes} bytes`)
@@ -808,16 +836,24 @@ const decodeShard = async (
   const encoded = await readExactly(source, payloadOffset, payloadBytes, {
     ...(signal === undefined ? {} : { signal }),
   })
-  return decodeBytesCodecs(encoded, innerCodecs, innerShape, sampleType, limits, signal)
+  return decodeBytesCodecs(
+    encoded,
+    innerCodecs,
+    [decodedInnerShape, innerShape],
+    sampleType,
+    limits,
+    signal,
+  )
 }
 
 const decodeChunkObject = async (
   source: ImageSource,
   array: Readonly<ZarrArrayMetadata>,
   innerStart: readonly number[],
+  innerOrigin: readonly number[],
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
-): Promise<Uint8Array> => {
+): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] }> => {
   const last = array.codecs[array.codecs.length - 1]
   if (last?.name === 'sharding_indexed') {
     if (array.codecs.length !== 1) {
@@ -825,7 +861,17 @@ const decodeChunkObject = async (
         `Zarr codecs surrounding sharding_indexed (${array.codecs.map((codec) => codec.name).join(', ')}) are unsupported`,
       )
     }
-    return decodeShard(source, last, array.chunkShape, array.dataType, innerStart, limits, signal)
+    const nominal = logicalChunkShape(array)
+    return decodeShard(
+      source,
+      last,
+      array.chunkShape,
+      array.dataType,
+      innerStart,
+      clippedChunkShape(array.shape, innerOrigin, nominal),
+      limits,
+      signal,
+    )
   }
   if (array.codecs.some((codec) => codec.name === 'sharding_indexed')) {
     throw unsupportedOperation(
@@ -838,7 +884,14 @@ const decodeChunkObject = async (
   const encoded = await readExactly(source, 0, source.size, {
     ...(signal === undefined ? {} : { signal }),
   })
-  return decodeBytesCodecs(encoded, array.codecs, array.chunkShape, array.dataType, limits, signal)
+  return decodeBytesCodecs(
+    encoded,
+    array.codecs,
+    [clippedChunkShape(array.shape, innerOrigin, array.chunkShape), array.chunkShape],
+    array.dataType,
+    limits,
+    signal,
+  )
 }
 
 const logicalChunkShape = (array: Readonly<ZarrArrayMetadata>): readonly number[] => {
@@ -1054,28 +1107,32 @@ class CompanionZarrStore implements ZarrStore {
       })
       const resource = await this.resolve(chunkKey(array, shardCoords), signal)
       const copyStart = start.map((value, axis) => Math.max(value, innerOrigin[axis] ?? 0))
-      const copyEnd = start.map((value, axis) =>
-        Math.min(value + (shape[axis] ?? 0), (innerOrigin[axis] ?? 0) + (innerShape[axis] ?? 0)),
-      )
-      const copyShape = copyStart.map((value, axis) => (copyEnd[axis] ?? 0) - value)
       if (resource !== undefined) {
         const decoded = await decodeChunkObject(
           resource.source,
           array,
           innerStart,
+          innerOrigin,
           this.#limits,
           signal,
         )
-        if (decoded.byteLength > 0) {
+        if (decoded.data.byteLength > 0) {
+          const copyEnd = start.map((value, axis) =>
+            Math.min(
+              value + (shape[axis] ?? 0),
+              (innerOrigin[axis] ?? 0) + (decoded.shape[axis] ?? 0),
+            ),
+          )
+          const adjustedCopy = copyStart.map((value, axis) => (copyEnd[axis] ?? 0) - value)
           copyFromChunk(
             output,
             start,
             shape,
-            decoded,
+            decoded.data,
             innerOrigin,
-            innerShape,
+            decoded.shape,
             copyStart,
-            copyShape,
+            adjustedCopy,
             sampleBytes,
             array.endian === 'little',
           )

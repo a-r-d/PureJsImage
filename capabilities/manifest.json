@@ -262,7 +262,7 @@
       "directRangeReads": true,
       "boundary": "OME-NGFF 0.4 and 0.5 image multiscales, labels, and plates/wells on Zarr v2 and v3 directory stores or a ZIP archive with root-level zarr.json/.zgroup. Regular and sharding_indexed chunk grids; bytes, gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 with LZ4/zlib/zstd or memcpy; missing chunks become fill values; selected planes fetch only intersecting chunks. BloscLZ, Snappy, bitshuffle, tables, RFC-9 zip-comment/jsonFirst requirements, and writers are rejected.",
       "evidence": ["tests/scientific-ome-zarr.test.ts", "tests/lz4-block.test.ts"],
-      "fixtures": ["tests/scientific-ome-zarr.test.ts"]
+      "fixtures": ["tests/fixtures/scientific-ome-zarr/corpus.json"]
     },
     {
       "id": "purejsimage/aperio-svs",
