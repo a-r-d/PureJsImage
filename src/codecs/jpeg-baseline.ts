@@ -967,6 +967,122 @@ const decodeBlock = (
   return nextPredictor
 }
 
+const lastZigZagForScale = (scaleDenominator: JpegScaleDenominator): number => {
+  if (scaleDenominator === 1) return 63
+  if (scaleDenominator === 2) return 24
+  if (scaleDenominator === 4) return 4
+  return 0
+}
+
+const clearReducedCoefficients = (coefficients: Int32Array, lastZigZag: number): void => {
+  coefficients[0] = 0
+  if (lastZigZag === 0) return
+  coefficients[1] = 0
+  coefficients[8] = 0
+  coefficients[9] = 0
+  if (lastZigZag === 4) return
+  coefficients[2] = 0
+  coefficients[3] = 0
+  coefficients[10] = 0
+  coefficients[11] = 0
+  coefficients[16] = 0
+  coefficients[17] = 0
+  coefficients[18] = 0
+  coefficients[19] = 0
+  coefficients[24] = 0
+  coefficients[25] = 0
+  coefficients[26] = 0
+  coefficients[27] = 0
+}
+
+const skipRemainingAc = (reader: JpegBitReader, table: HuffmanTable, startIndex: number): void => {
+  const fastLengths = table.fastLengths
+  const fastSymbols = table.fastSymbols
+  let index =
+    reader instanceof JpegEntropyReader
+      ? reader.skipRemainingAc(fastLengths, fastSymbols, startIndex)
+      : startIndex
+  if (index < 0) return
+  while (index < 64) {
+    const prefix = reader.peekBits(8)
+    if (prefix !== undefined) {
+      const huffmanLength = fastLengths[prefix] ?? 0
+      if (huffmanLength !== 0) {
+        const symbol = fastSymbols[prefix] ?? 0
+        const extra = symbol & 15
+        reader.skipBits(huffmanLength + extra)
+        if (extra === 0) {
+          if (symbol >>> 4 !== 15) return
+          index += 16
+          continue
+        }
+        index += (symbol >>> 4) + 1
+        if (index > 64) throw invalidInput('JPEG AC coefficient exceeds its block')
+        continue
+      }
+    }
+    const symbol = decodeHuffman(reader, table)
+    const zeroes = symbol >>> 4
+    const length = symbol & 15
+    if (length === 0) {
+      if (zeroes !== 15) return
+      index += 16
+      continue
+    }
+    index += zeroes
+    if (index >= 64) throw invalidInput('JPEG AC coefficient exceeds its block')
+    reader.skipBits(length)
+    index += 1
+  }
+}
+
+const decodeBlockLimited = (
+  reader: JpegBitReader,
+  component: FrameComponent,
+  predictor: number,
+  coefficients: Int32Array,
+  lastZigZag: number,
+): number => {
+  if (lastZigZag >= 63) return decodeBlock(reader, component, predictor, coefficients)
+  clearReducedCoefficients(coefficients, lastZigZag)
+  const dcLength = decodeHuffman(reader, component.dcTable)
+  if (dcLength > 16) throw invalidInput('JPEG DC coefficient is invalid')
+  const nextPredictor = predictor + reader.receiveAndExtend(dcLength)
+  coefficients[0] = nextPredictor
+  if (lastZigZag === 0) {
+    skipRemainingAc(reader, component.acTable, 1)
+    return nextPredictor
+  }
+  let index = 1
+  while (index < 64) {
+    const symbol = decodeHuffman(reader, component.acTable)
+    const zeroes = symbol >>> 4
+    const length = symbol & 15
+    if (length === 0) {
+      if (zeroes !== 15) break
+      index += 16
+      if (index > lastZigZag) {
+        skipRemainingAc(reader, component.acTable, index)
+        break
+      }
+      continue
+    }
+    index += zeroes
+    if (index >= 64) throw invalidInput('JPEG AC coefficient exceeds its block')
+    if (index <= lastZigZag) {
+      coefficients[byte(zigZag, index)] = reader.receiveAndExtend(length)
+    } else {
+      reader.skipBits(length)
+    }
+    index += 1
+    if (index > lastZigZag) {
+      skipRemainingAc(reader, component.acTable, index)
+      break
+    }
+  }
+  return nextPredictor
+}
+
 const inverseDct = (
   coefficients: JpegCoefficients,
   quantization: Int32Array,
@@ -1154,29 +1270,37 @@ const inverseDct4: InverseDct = (
 const inverseDct2: InverseDct = (
   coefficients,
   quantization,
-  workspace,
-  activeRowIndices,
-  sampleWorkspace,
+  _workspace,
+  _activeRowIndices,
+  _sampleWorkspace,
   output,
   outputStride,
   blockX,
   blockY,
   coefficientOffset = 0,
 ): void => {
-  inverseDctReduced(
-    2,
-    idctBasis2,
-    coefficients,
-    quantization,
-    workspace,
-    activeRowIndices,
-    sampleWorkspace,
-    output,
-    outputStride,
-    blockX,
-    blockY,
-    coefficientOffset,
-  )
+  const c00 = (coefficients[coefficientOffset] ?? 0) * (quantization[0] ?? 0)
+  const c01 = (coefficients[coefficientOffset + 1] ?? 0) * (quantization[1] ?? 0)
+  const c10 = (coefficients[coefficientOffset + 8] ?? 0) * (quantization[8] ?? 0)
+  const c11 = (coefficients[coefficientOffset + 9] ?? 0) * (quantization[9] ?? 0)
+  const b00 = idctBasis2[0] ?? 0
+  const b01 = idctBasis2[1] ?? 0
+  const b10 = idctBasis2[2] ?? 0
+  const b11 = idctBasis2[3] ?? 0
+  const w0 = c00 * b00 + c01 * b10
+  const w1 = c00 * b01 + c01 * b11
+  const w2 = c10 * b00 + c11 * b10
+  const w3 = c10 * b01 + c11 * b11
+  const s00 = Math.round(w0 * b00 + w2 * b10 + 128)
+  const s01 = Math.round(w1 * b00 + w3 * b10 + 128)
+  const s10 = Math.round(w0 * b01 + w2 * b11 + 128)
+  const s11 = Math.round(w1 * b01 + w3 * b11 + 128)
+  const row0 = blockY * 2 * outputStride + blockX * 2
+  const row1 = row0 + outputStride
+  output[row0] = s00 < 0 ? 0 : s00 > 255 ? 255 : s00
+  output[row0 + 1] = s01 < 0 ? 0 : s01 > 255 ? 255 : s01
+  output[row1] = s10 < 0 ? 0 : s10 > 255 ? 255 : s10
+  output[row1 + 1] = s11 < 0 ? 0 : s11 > 255 ? 255 : s11
 }
 
 const inverseDct1: InverseDct = (
@@ -1843,6 +1967,7 @@ export const decodeBaselineJpeg = async function* (
   const activeRowIndices = new Uint8Array(8)
   const sampleWorkspace = new Float64Array(8)
   const inverseBlock = inverseDctForScale(scaleDenominator)
+  const lastNeededZigZag = lastZigZagForScale(scaleDenominator)
   const plan = createRenderPlan(jpeg, region, blockSize)
   let currentPlanes = componentPlanes(jpeg, blockSize)
   let pendingPlanes: Uint8Array[] | undefined
@@ -1891,11 +2016,12 @@ export const decodeBaselineJpeg = async function* (
           const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
           for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
             for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
-              predictors[componentIndex] = decodeBlock(
+              predictors[componentIndex] = decodeBlockLimited(
                 reader,
                 component,
                 byte(predictors, componentIndex),
                 coefficients,
+                reconstruct ? lastNeededZigZag : 0,
               )
               if (reconstruct) {
                 if (metrics) metrics.blocksReconstructed += 1

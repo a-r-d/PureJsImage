@@ -15,10 +15,30 @@ repeat a dead end without new evidence.
 - Retained `JPEG-024`: snap an unaligned crop to a containing aligned box so
   scale 4 can run. Hillclimb rejected the bitstream hash / +0.45% outputBytes,
   which is expected. Official pixel samples stayed inside tolerance 8.
-- Cumulative wall 2856.75 → 1181.11 ms (−58.66%). Peak RSS −4.85%. Neighbors
-  `jpeg-resize-1200` and `jpeg-crop-resize` kept exact hashes.
-- After scale 4, CPU samples in `.tmp/cpu-northstar-speed/northstar-scaled.cpuprofile`
-  put `decodeBlock` and `inverseDctReduced` first. ICC is no longer dominant.
+- Retained `JPEG-025`: skip unused AC store/extend after the last zigzag the
+  reduced IDCT reads (zz 4 at scale 4). Exact northstar bitstream hash and
+  pinned scaled-fixture hashes matched.
+- Retained `JPEG-026`: fuse leftover-AC Huffman `skipBits` on the 8-bit prefix
+  path. Incremental ~2.4% on top of JPEG-025.
+- Retained `JPEG-027`: unroll the scale-4 2x2 IDCT. 15-trial median 1167 → 856 ms
+  versus JPEG-024 HEAD (−26.69%). Candidate MAD 2.54 ms; exact hash.
+- Retained `JPEG-028`: stop entropy restart indexing once the next restart MCU
+  is past the crop target. Old-Faithful DRI=750, target MCU ~40, so the
+  previous 17 MiB scan returned after the first RST. Incremental ~856 → 832 ms.
+- Rejected `JPEG-029` closures: per-block `tryFill`/`skip` closures in
+  `JpegEntropyReader.skipRemainingAc` slowed northstar 832 → 929 ms.
+- Retained `JPEG-029`: same reader-local leftover-AC skip, fully inlined.
+  1149 → 802 ms versus JPEG-024 HEAD (−30.21%).
+- Neighbor `jpeg-resize-1200` on the full stack: exact hash, 703 → 714 ms
+  (+1.57%, below the 5% reject). Scale 2 keeps most AC, so leftover skip is small.
+- Neighbor `jpeg-crop-resize` on the full stack: exact hash, 727 → 629 ms
+  (−13.50%). Scale 2 last zz=24 plus early entropy-index return.
+- Validation (JPEG-025–029b): Imazen JPEG 254/254 matches the published
+  baseline (39 pass, 2 unsupported, 167 rejected-safely, 46 accepted, 0
+  failures). `npm run fixtures:jpeg`, `browser:check`, typecheck, and 1587
+  tests passed. Core API stayed 60.0 KiB.
+- Rejected `JPEG-030`: specialized `decodeBlockScale4`/`decodeBlockDcOnly`.
+  1164 → 804 ms versus HEAD, indistinguishable from JPEG-029b's 802 ms.
 
 ## Northstar scaled-decode campaign
 
@@ -26,6 +46,13 @@ repeat a dead end without new evidence.
 | --- | --- | --- | ---: | ---: | ---: | --- | --- |
 | JPEG-024-ctl | 2026-08-17 18:47 | No-change control on `northstar-photo-pipeline`. | 2820.34 → 2819.14 | -0.04% | +0.21% | neutral | Control. |
 | JPEG-024 | 2026-08-17 18:50 | Snap unaligned decoder crops to a containing scale-aligned box so scaled IDCT can run. Northstar `x=333` now decodes 332,0,5336x4000 at scale 4. | 2856.75 → 1181.11 | **-58.66%** | -4.85% | material | Retained. Runner rejected bitstream hash and +0.45% outputBytes; pixel samples passed ±8. |
+| JPEG-025 | 2026-08-17 19:25 | Skip unused AC store/`receiveAndExtend` after the last zigzag the reduced IDCT reads; consume remaining Huffman with `skipBits`. Scale 4 last zz=4; non-reconstruct blocks decode DC only. | 1161.75 → 1044.85 | **-10.06%** | -2.60% | material | Retained. Exact northstar hash/outputBytes; pinned scaled fixture pixels matched. |
+| JPEG-026 | 2026-08-17 19:29 | Fuse leftover-AC Huffman+extra into one `skipBits` on the 8-bit prefix path. | 1158.96 → 1019.44 | **-12.04%** vs HEAD (~−2.4% vs JPEG-025) | -4.09% | promising | Retained. Exact hash. Incremental hot-loop win on `skipRemainingAc`. |
+| JPEG-027 | 2026-08-17 19:32 | Unroll scale-4 `inverseDct2` to four dequantized products and eight basis multiplies, no row workspace. | 1167.17 → 855.67 | **-26.69%** vs HEAD (~−16% vs JPEG-026) | -3.39% | material | Retained. 15/15-trial run; exact hash; first 7-trial was noisy (host load). |
+| JPEG-028 | 2026-08-17 19:38 | Return from `indexJpegEntropy` at the first restart MCU past the crop target instead of scanning to EOI. | 1181.80 → 832.13 | **-29.59%** vs HEAD (~−2.7% vs JPEG-027) | -4.30% | promising | Retained. Exact hash; 15/15 pairs faster; runner incomparable (base CV 42%). |
+| JPEG-029 | 2026-08-17 19:43 | Move leftover-AC skip onto `JpegEntropyReader` with per-call `tryFill`/`skip` closures. | 1151.76 → 928.85 | **-19.35%** vs HEAD (slower than JPEG-028) | +0.31% | rejected | Replaced in place; closures allocated on every block. |
+| JPEG-029b | 2026-08-17 19:44 | Same reader-local leftover-AC skip, fully inlined, no closures. | 1149.29 → 802.10 | **-30.21%** vs HEAD (~−3.6% vs JPEG-028) | -0.46% | material | Retained. Exact hash; candidate MAD 3.33 ms. |
+| JPEG-030 | 2026-08-17 20:15 | Specialize `decodeBlockScale4` / `decodeBlockDcOnly` instead of one limited decoder. | 1164.43 → 804.09 | **-30.95%** vs HEAD (~0% vs JPEG-029b) | -3.29% | neutral | Reverted. First attempt also broke scale-8 DC writes. |
 
 Measurement artifacts:
 
@@ -33,6 +60,19 @@ Measurement artifacts:
 - JPEG-024: `.tmp/hillclimb/2026-08-17T18-50-18-324Z/comparison.md`
 - Neighbor `jpeg-resize-1200`: `.tmp/hillclimb/2026-08-17T18-52-16-709Z/comparison.md` (exact hash, +2.54%)
 - Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T18-53-20-053Z/comparison.md` (exact hash; scale 4 still too small)
+- JPEG-025: `.tmp/hillclimb/2026-08-17T19-25-44-854Z/comparison.md`
+- JPEG-026: `.tmp/hillclimb/2026-08-17T19-29-12-975Z/comparison.md`
+- JPEG-027 noisy 7-trial: `.tmp/hillclimb/2026-08-17T19-30-58-190Z/comparison.md`
+- JPEG-027 15-trial: `.tmp/hillclimb/2026-08-17T19-32-56-923Z/comparison.md`
+- JPEG-028 7-trial: `.tmp/hillclimb/2026-08-17T19-36-52-749Z/comparison.md`
+- JPEG-028 15-trial: `.tmp/hillclimb/2026-08-17T19-38-12-205Z/comparison.md`
+- Neighbor `jpeg-resize-1200` (025–028): `.tmp/hillclimb/2026-08-17T19-41-05-146Z/comparison.md`
+- JPEG-029 closures: `.tmp/hillclimb/2026-08-17T19-43-10-930Z/comparison.md`
+- JPEG-029b: `.tmp/hillclimb/2026-08-17T19-44-35-360Z/comparison.md`
+- Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T19-45-47-087Z/comparison.md`
+- Neighbor `jpeg-resize-1200` (full stack): `.tmp/hillclimb/2026-08-17T19-47-14-989Z/comparison.md`
+- Imazen JPEG: `.tmp/imazen-jpeg-025/imazen-jpeg-conformance.md`
+- JPEG-030: `.tmp/hillclimb/2026-08-17T20-15-21-834Z/comparison.md`
 - Profiles: `.tmp/cpu-northstar-speed/`
 
 ## JPEG speed campaign
