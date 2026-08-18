@@ -74,6 +74,7 @@ export interface BrowserCompatibilityHarness {
   scientificTiffDocument(): Promise<BrowserWorkflowResult>
   scientificDigitalMicrograph(): Promise<BrowserWorkflowResult>
   scientificInterchangeFormats(): Promise<BrowserWorkflowResult>
+  scientificOmeZarr(): Promise<BrowserWorkflowResult>
   scientificSurfaceFormats(): Promise<BrowserWorkflowResult>
   scientificTiaEmi(): Promise<BrowserWorkflowResult>
   scientificTiaSer(): Promise<BrowserWorkflowResult>

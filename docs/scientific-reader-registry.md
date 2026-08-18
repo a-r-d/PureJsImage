@@ -109,6 +109,27 @@ resolution levels. Standard optional tags and selected DigitalMicrograph, FEI, a
 tags are normalized under aggregate and per-tag byte limits; oversized or malformed optional tags
 do not prevent pixel opening.
 
+## OME-Zarr / NGFF
+
+OME-Zarr 0.5 is a separate cloud-native reader, not an HDF5 side effect:
+
+```ts
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { omeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
+
+const science = createScientificLibrary({ readers: [omeZarrReader] })
+```
+
+The primary resource is the store-root `zarr.json` for v3 or `.zgroup` / `.zattrs` for v2. Child
+metadata and chunks resolve by normalized relative name through the existing companion resolver.
+A ZIP archive with that root metadata, or a single nested `*.zarr/` prefix, is accepted as a
+single-file store (`.ozx`, `.zip`, and `.zarr` names are probe hints; `__MACOSX/` sidecars are
+ignored). Image `multiscales` from NGFF 0.4 and 0.5 become scientific resolution levels.
+Sibling `labels/` groups, plate/well fields, and `bioformats2raw.layout` series become additional
+datasets. The reader fetches only intersecting chunks, including Blosc 1 LZ4/zlib/zstd payloads,
+and rejects BloscLZ, Snappy, bitshuffle, tables, multi-root ZIPs, and writers. The exact
+codec and store boundary is documented in [`scientific-ome-zarr.md`](scientific-ome-zarr.md).
+
 ## Detection and budgets
 
 Readers are probed in registration order. One unique highest confidence wins; equal nonzero top

@@ -28,6 +28,7 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   'scientific-reader-velox-emd': { maxMinifiedBytes: 180_000 },
   'scientific-reader-tiff': { baselineMinifiedBytes: 262_942, maxMinifiedBytes: 341_825 },
   'scientific-reader-ome-tiff': { baselineMinifiedBytes: 267_489, maxMinifiedBytes: 350_000 },
+  'scientific-reader-ome-zarr': { maxMinifiedBytes: 220_000 },
   'scientific-reader-aperio-svs': { baselineMinifiedBytes: 259_477, maxMinifiedBytes: 338_000 },
   'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 87_601 },
   'scientific-reader-jpeg': { baselineMinifiedBytes: 104_815, maxMinifiedBytes: 136_260 },

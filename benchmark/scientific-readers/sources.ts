@@ -184,13 +184,12 @@ export class FragmentingImageSource implements ImageSource {
   }
 }
 
-/** Applies latency to physical underlying reads; exact cached and coalesced reads wait once. */
+/** Applies latency to physical underlying reads. Inflight exact reads coalesce; completed reads do not cache. */
 export class LatencyImageSource implements ImageSource {
   readonly size: number
   readonly [imageSourceIdentity]: () => SourceIdentity | Promise<SourceIdentity>
   readonly #source: ImageSource
   readonly #latencyMilliseconds: number
-  readonly #cache = new Map<string, Uint8Array>()
   readonly #inflight = new Map<string, Promise<Uint8Array>>()
 
   constructor(source: ImageSource, latencyMilliseconds: number) {
@@ -220,8 +219,6 @@ export class LatencyImageSource implements ImageSource {
     const available = availableLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
     const key = `${offset}:${available}`
-    const cached = this.#cache.get(key)
-    if (cached !== undefined) return cached.slice()
     const existing = this.#inflight.get(key)
     if (existing !== undefined) return (await existing).slice()
 
@@ -243,9 +240,7 @@ export class LatencyImageSource implements ImageSource {
       if (data.byteLength !== available) {
         throw new Error(`Latency source returned ${data.byteLength} of ${available} bytes`)
       }
-      const stable = Uint8Array.from(data)
-      this.#cache.set(key, stable)
-      return stable
+      return Uint8Array.from(data)
     })()
     this.#inflight.set(key, operation)
     try {

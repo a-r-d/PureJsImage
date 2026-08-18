@@ -33,8 +33,8 @@ ratio are separately bounded.
 - X3P inline point lists, absolute X/Y coordinate arrays, and multilayer Z matrices are rejected.
 - ZIP-backed JPK fixtures available to the project are force curves/maps rather than the initial
   image subset. A `.jpk` image fixture encountered during research is TIFF, not a ZIP container.
-- OME-Zarr Zip/OZX is not claimed until OME publishes a stable released profile. Ordinary OME-Zarr
-  remains Milestone G rather than an incidental ZIP feature.
+- OME-Zarr ZIP archives are read by the OME-Zarr reader when root-level `zarr.json` or `.zgroup`
+  is present. RFC-9 zip-comment and `jsonFirst` requirements remain unclaimed.
 
 ## Evidence
 

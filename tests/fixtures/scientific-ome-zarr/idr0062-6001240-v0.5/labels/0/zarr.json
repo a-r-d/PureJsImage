@@ -1,0 +1,943 @@
+{
+  "attributes": {
+    "ome": {
+      "version": "0.5",
+      "multiscales": [
+        {
+          "datasets": [
+            {
+              "path": "0",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    0.5002025531914894,
+                    0.3603981534640209,
+                    0.3603981534640209
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "1",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    0.5002025531914894,
+                    0.7207963069280418,
+                    0.7207963069280418
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "2",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    0.5002025531914894,
+                    1.4415926138560835,
+                    1.4415926138560835
+                  ]
+                }
+              ]
+            }
+          ],
+          "name": "0",
+          "axes": [
+            {
+              "name": "c",
+              "type": "channel"
+            },
+            {
+              "name": "z",
+              "type": "space",
+              "unit": "micrometer"
+            },
+            {
+              "name": "y",
+              "type": "space",
+              "unit": "micrometer"
+            },
+            {
+              "name": "x",
+              "type": "space",
+              "unit": "micrometer"
+            }
+          ]
+        }
+      ],
+      "image-label": {
+        "source": {
+          "image": "../.."
+        },
+        "colors": [
+          {
+            "label-value": 1,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 2,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 3,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 4,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 5,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 6,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 7,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 8,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 9,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 10,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 11,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 12,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 13,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 14,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 15,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 16,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 17,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 18,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 19,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 20,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 21,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 22,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 23,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 24,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 25,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 26,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 27,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 28,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 29,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 30,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 31,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 32,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 33,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 34,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 35,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 36,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 37,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 38,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 39,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 40,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 41,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 42,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 43,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 44,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 45,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 46,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 47,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 48,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 49,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 50,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 51,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 52,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 53,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 54,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 55,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 56,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 57,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 58,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 59,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 60,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          },
+          {
+            "label-value": 61,
+            "rgba": [
+              128,
+              128,
+              128,
+              128
+            ]
+          }
+        ],
+        "properties": [
+          {
+            "label-value": 1,
+            "omero:shapeId": 1664569,
+            "omero:roiId": 1380887
+          },
+          {
+            "label-value": 2,
+            "omero:shapeId": 1664617,
+            "omero:roiId": 1380888
+          },
+          {
+            "label-value": 3,
+            "omero:shapeId": 1664664,
+            "omero:roiId": 1380889
+          },
+          {
+            "label-value": 4,
+            "omero:shapeId": 1664709,
+            "omero:roiId": 1380890
+          },
+          {
+            "label-value": 5,
+            "omero:shapeId": 1664749,
+            "omero:roiId": 1380891
+          },
+          {
+            "label-value": 6,
+            "omero:shapeId": 1664787,
+            "omero:roiId": 1380892
+          },
+          {
+            "label-value": 7,
+            "omero:shapeId": 1664826,
+            "omero:roiId": 1380893
+          },
+          {
+            "label-value": 8,
+            "omero:shapeId": 1664859,
+            "omero:roiId": 1380894
+          },
+          {
+            "label-value": 9,
+            "omero:shapeId": 1664898,
+            "omero:roiId": 1380895
+          },
+          {
+            "label-value": 10,
+            "omero:shapeId": 1664932,
+            "omero:roiId": 1380896
+          },
+          {
+            "label-value": 11,
+            "omero:shapeId": 1664967,
+            "omero:roiId": 1380897
+          },
+          {
+            "label-value": 12,
+            "omero:shapeId": 1665000,
+            "omero:roiId": 1380898
+          },
+          {
+            "label-value": 13,
+            "omero:shapeId": 1665036,
+            "omero:roiId": 1380899
+          },
+          {
+            "label-value": 14,
+            "omero:shapeId": 1665078,
+            "omero:roiId": 1380900
+          },
+          {
+            "label-value": 15,
+            "omero:shapeId": 1665118,
+            "omero:roiId": 1380901
+          },
+          {
+            "label-value": 16,
+            "omero:shapeId": 1665156,
+            "omero:roiId": 1380902
+          },
+          {
+            "label-value": 17,
+            "omero:shapeId": 1665200,
+            "omero:roiId": 1380903
+          },
+          {
+            "label-value": 18,
+            "omero:shapeId": 1665238,
+            "omero:roiId": 1380904
+          },
+          {
+            "label-value": 19,
+            "omero:shapeId": 1665283,
+            "omero:roiId": 1380905
+          },
+          {
+            "label-value": 20,
+            "omero:shapeId": 1665319,
+            "omero:roiId": 1380906
+          },
+          {
+            "label-value": 21,
+            "omero:shapeId": 1665356,
+            "omero:roiId": 1380907
+          },
+          {
+            "label-value": 22,
+            "omero:shapeId": 1665396,
+            "omero:roiId": 1380908
+          },
+          {
+            "label-value": 23,
+            "omero:shapeId": 1665428,
+            "omero:roiId": 1380909
+          },
+          {
+            "label-value": 24,
+            "omero:shapeId": 1665467,
+            "omero:roiId": 1380910
+          },
+          {
+            "label-value": 25,
+            "omero:shapeId": 1665513,
+            "omero:roiId": 1380911
+          },
+          {
+            "label-value": 26,
+            "omero:shapeId": 1665541,
+            "omero:roiId": 1380912
+          },
+          {
+            "label-value": 27,
+            "omero:shapeId": 1665575,
+            "omero:roiId": 1380913
+          },
+          {
+            "label-value": 28,
+            "omero:shapeId": 1665611,
+            "omero:roiId": 1380914
+          },
+          {
+            "label-value": 29,
+            "omero:shapeId": 1665662,
+            "omero:roiId": 1380915
+          },
+          {
+            "label-value": 30,
+            "omero:shapeId": 1665709,
+            "omero:roiId": 1380916
+          },
+          {
+            "label-value": 31,
+            "omero:shapeId": 1665743,
+            "omero:roiId": 1380917
+          },
+          {
+            "label-value": 32,
+            "omero:shapeId": 1665777,
+            "omero:roiId": 1380918
+          },
+          {
+            "label-value": 33,
+            "omero:shapeId": 1665808,
+            "omero:roiId": 1380919
+          },
+          {
+            "label-value": 34,
+            "omero:shapeId": 1665853,
+            "omero:roiId": 1380920
+          },
+          {
+            "label-value": 35,
+            "omero:shapeId": 1665891,
+            "omero:roiId": 1380921
+          },
+          {
+            "label-value": 36,
+            "omero:shapeId": 1665935,
+            "omero:roiId": 1380922
+          },
+          {
+            "label-value": 37,
+            "omero:shapeId": 1665970,
+            "omero:roiId": 1380923
+          },
+          {
+            "label-value": 38,
+            "omero:shapeId": 1666013,
+            "omero:roiId": 1380924
+          },
+          {
+            "label-value": 39,
+            "omero:shapeId": 1666052,
+            "omero:roiId": 1380925
+          },
+          {
+            "label-value": 40,
+            "omero:shapeId": 1666085,
+            "omero:roiId": 1380926
+          },
+          {
+            "label-value": 41,
+            "omero:shapeId": 1666118,
+            "omero:roiId": 1380927
+          },
+          {
+            "label-value": 42,
+            "omero:shapeId": 1666158,
+            "omero:roiId": 1380928
+          },
+          {
+            "label-value": 43,
+            "omero:shapeId": 1666194,
+            "omero:roiId": 1380929
+          },
+          {
+            "label-value": 44,
+            "omero:shapeId": 1666235,
+            "omero:roiId": 1380930
+          },
+          {
+            "label-value": 45,
+            "omero:shapeId": 1666268,
+            "omero:roiId": 1380931
+          },
+          {
+            "label-value": 46,
+            "omero:shapeId": 1666307,
+            "omero:roiId": 1380932
+          },
+          {
+            "label-value": 47,
+            "omero:shapeId": 1666338,
+            "omero:roiId": 1380933
+          },
+          {
+            "label-value": 48,
+            "omero:shapeId": 1666378,
+            "omero:roiId": 1380934
+          },
+          {
+            "label-value": 49,
+            "omero:shapeId": 1666411,
+            "omero:roiId": 1380935
+          },
+          {
+            "label-value": 50,
+            "omero:shapeId": 1666446,
+            "omero:roiId": 1380936
+          },
+          {
+            "label-value": 51,
+            "omero:shapeId": 1666481,
+            "omero:roiId": 1380937
+          },
+          {
+            "label-value": 52,
+            "omero:shapeId": 1666518,
+            "omero:roiId": 1380938
+          },
+          {
+            "label-value": 53,
+            "omero:shapeId": 1666558,
+            "omero:roiId": 1380939
+          },
+          {
+            "label-value": 54,
+            "omero:shapeId": 1666596,
+            "omero:roiId": 1380940
+          },
+          {
+            "label-value": 55,
+            "omero:shapeId": 1666671,
+            "omero:roiId": 1380941
+          },
+          {
+            "label-value": 56,
+            "omero:shapeId": 1666711,
+            "omero:roiId": 1380942
+          },
+          {
+            "label-value": 57,
+            "omero:shapeId": 1666746,
+            "omero:roiId": 1380943
+          },
+          {
+            "label-value": 58,
+            "omero:shapeId": 1666789,
+            "omero:roiId": 1380944
+          },
+          {
+            "label-value": 59,
+            "omero:shapeId": 1666826,
+            "omero:roiId": 1380945
+          },
+          {
+            "label-value": 60,
+            "omero:shapeId": 1666846,
+            "omero:roiId": 1380946
+          },
+          {
+            "label-value": 61,
+            "omero:shapeId": 1666891,
+            "omero:roiId": 1380947
+          }
+        ]
+      }
+    }
+  },
+  "zarr_format": 3,
+  "consolidated_metadata": null,
+  "node_type": "group"
+}

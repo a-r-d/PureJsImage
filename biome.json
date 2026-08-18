@@ -6,7 +6,18 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!benchmark/.tmp", "!!benchmark/corpus/files", "!!benchmark/results"]
+    "includes": [
+      "**",
+      "!!benchmark/.tmp",
+      "!!benchmark/corpus/files",
+      "!!benchmark/results",
+      "!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**",
+      "!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**",
+      "!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**",
+      "!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**",
+      "!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**",
+      "!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**"
+    ]
   },
   "formatter": {
     "enabled": true,

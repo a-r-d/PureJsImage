@@ -1,0 +1,138 @@
+{
+    "multiscales": [
+        {
+            "axes": [
+                {
+                    "name": "c",
+                    "type": "channel"
+                },
+                {
+                    "name": "z",
+                    "type": "space"
+                },
+                {
+                    "name": "y",
+                    "type": "space",
+                    "unit": "micrometer"
+                },
+                {
+                    "name": "x",
+                    "type": "space",
+                    "unit": "micrometer"
+                }
+            ],
+            "datasets": [
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                0.1077,
+                                0.1077
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "0"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                0.2154,
+                                0.2154
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "1"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                0.4308,
+                                0.4308
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "2"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                0.8616,
+                                0.8616
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "3"
+                },
+                {
+                    "coordinateTransformations": [
+                        {
+                            "scale": [
+                                1.0,
+                                1.0,
+                                1.7232,
+                                1.7232
+                            ],
+                            "type": "scale"
+                        }
+                    ],
+                    "path": "4"
+                }
+            ],
+            "version": "0.4"
+        }
+    ],
+    "omero": {
+        "channels": [
+            {
+                "active": true,
+                "coefficient": 1.0,
+                "color": "00FF00",
+                "family": "linear",
+                "inverted": false,
+                "label": "GFP",
+                "window": {
+                    "end": 300.0,
+                    "max": 669.0,
+                    "min": 45.0,
+                    "start": 50.0
+                }
+            },
+            {
+                "active": true,
+                "coefficient": 1.0,
+                "color": "0000FF",
+                "family": "linear",
+                "inverted": false,
+                "label": "Cascade blue",
+                "window": {
+                    "end": 800.0,
+                    "max": 391.0,
+                    "min": 98.0,
+                    "start": 100.0
+                }
+            }
+        ],
+        "id": 1,
+        "rdefs": {
+            "defaultT": 0,
+            "defaultZ": 6,
+            "model": "color"
+        },
+        "version": "0.4"
+    }
+}

@@ -1,29 +1,29 @@
-import { readFile, mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 import { build } from 'esbuild'
 import { measurePackageFootprint } from '../benchmark/lib/package-footprint.ts'
 import type { EngineKind, EngineMetadata, PackageFootprint } from '../benchmark/types.ts'
 import {
+  type BundleTarget,
+  type CompetitorBundleTarget,
   codecPackageExport,
   codecTargetId,
   createCompetitorBundleTargets,
   createPureJsImageEntryTargets,
   scientificReaderTargetId,
-  type BundleTarget,
-  type CompetitorBundleTarget,
   type WasmAssetTarget,
   wasmAssetTargets,
 } from './bundle-size-config.ts'
 import {
-  readCapabilityManifest,
   type CapabilityManifest,
+  readCapabilityManifest,
   type ScientificReaderCapability,
 } from './capability-manifest.ts'
 import {
+  type PackageJsonSurface,
   parsePackageJsonSurface,
   validatePackageAndBundleSurfaces,
-  type PackageJsonSurface,
 } from './validate-package-surfaces.ts'
 
 export type { BundleTarget, CompetitorBundleTarget }
@@ -572,6 +572,7 @@ const readerFamily = (reader: ScientificReaderCapability): string => {
       'purejsimage/jp2',
       'purejsimage/tiff',
       'purejsimage/ome-tiff',
+      'purejsimage/ome-zarr',
       'purejsimage/aperio-svs',
     ],
     'Electron microscopy': [

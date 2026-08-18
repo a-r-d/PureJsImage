@@ -1,0 +1,194 @@
+{
+  "attributes": {
+    "ome": {
+      "version": "0.5",
+      "multiscales": [
+        {
+          "datasets": [
+            {
+              "path": "0",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    0.3,
+                    0.3
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "1",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    0.6,
+                    0.6
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "2",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    1.2,
+                    1.2
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "3",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    2.4,
+                    2.4
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "4",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    4.8,
+                    4.8
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "5",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [
+                    1.0,
+                    9.6,
+                    9.6
+                  ]
+                }
+              ]
+            }
+          ],
+          "name": "14002892",
+          "axes": [
+            {
+              "name": "c",
+              "type": "channel"
+            },
+            {
+              "name": "y",
+              "type": "space",
+              "unit": "micrometer"
+            },
+            {
+              "name": "x",
+              "type": "space",
+              "unit": "micrometer"
+            }
+          ]
+        }
+      ],
+      "omero": {
+        "channels": [
+          {
+            "label": "Nuclei",
+            "color": "0000FF",
+            "inverted": false,
+            "family": "linear",
+            "coefficient": 1.0,
+            "window": {
+              "min": 0.0,
+              "max": 65535.0,
+              "start": 457.0,
+              "end": 25000.0
+            },
+            "active": true
+          },
+          {
+            "label": "ER",
+            "color": "00FF00",
+            "inverted": false,
+            "family": "linear",
+            "coefficient": 1.0,
+            "window": {
+              "min": 0.0,
+              "max": 65535.0,
+              "start": 1306.0,
+              "end": 30000.0
+            },
+            "active": true
+          },
+          {
+            "label": "Nucleoli/Cytoplasmic RNA",
+            "color": "FF0000",
+            "inverted": false,
+            "family": "linear",
+            "coefficient": 1.0,
+            "window": {
+              "min": 0.0,
+              "max": 65535.0,
+              "start": 889.0,
+              "end": 30000.0
+            },
+            "active": true
+          },
+          {
+            "label": "Actin/Golgi/Membrane",
+            "color": "FFA500",
+            "inverted": false,
+            "family": "linear",
+            "coefficient": 1.0,
+            "window": {
+              "min": 0.0,
+              "max": 65535.0,
+              "start": 979.0,
+              "end": 65535.0
+            },
+            "active": false
+          },
+          {
+            "label": "Mitochondria",
+            "color": "00FFFF",
+            "inverted": false,
+            "family": "linear",
+            "coefficient": 1.0,
+            "window": {
+              "min": 0.0,
+              "max": 65535.0,
+              "start": 1804.0,
+              "end": 65535.0
+            },
+            "active": false
+          }
+        ],
+        "rdefs": {
+          "model": "color",
+          "defaultZ": 0,
+          "defaultT": 0
+        }
+      },
+      "_creator": {
+        "name": "omero-zarr",
+        "version": "0.5.6.dev59+g03d46b2.d20250610"
+      }
+    }
+  },
+  "zarr_format": 3,
+  "consolidated_metadata": null,
+  "node_type": "group"
+}

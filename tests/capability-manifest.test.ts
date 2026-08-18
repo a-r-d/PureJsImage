@@ -40,6 +40,7 @@ import { niftiReaderDescriptor } from '../src/scientific/readers/nifti.ts'
 import { npyReaderDescriptor } from '../src/scientific/readers/npy.ts'
 import { nrrdReaderDescriptor } from '../src/scientific/readers/nrrd.ts'
 import { omeTiffReaderDescriptor } from '../src/scientific/readers/ome-tiff.ts'
+import { omeZarrReaderDescriptor } from '../src/scientific/readers/ome-zarr.ts'
 import { pngReaderDescriptor } from '../src/scientific/readers/png.ts'
 import { rplReaderDescriptor } from '../src/scientific/readers/rpl.ts'
 import { tiffReaderDescriptor } from '../src/scientific/readers/tiff.ts'
@@ -84,6 +85,7 @@ const runtimeScientificReaders: readonly ScientificReaderDescriptor[] = [
   jp2ReaderDescriptor,
   tiffReaderDescriptor,
   omeTiffReaderDescriptor,
+  omeZarrReaderDescriptor,
   aperioSvsReaderDescriptor,
   digitalMicrographReaderDescriptor,
   tiaEmiReaderDescriptor,

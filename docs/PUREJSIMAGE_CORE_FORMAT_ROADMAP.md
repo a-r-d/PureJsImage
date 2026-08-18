@@ -889,6 +889,19 @@ Gwyddion `.gwy`, Nanosurf NID, optical OPD, and other SPM formats should remain 
 
 ## Milestone G: OME-Zarr / NGFF
 
+Status: **0.4/v2 and 0.5/v3 image, label, plate, ZIP-store, bioformats2raw series, and single
+nested ZIP prefix readers complete**. The public
+`purejsimage/scientific/readers/ome-zarr` entry reads directory-like OME-NGFF 0.4 and 0.5
+multiscales, sibling and root label indexes, and plate/well fields through the existing companion
+resolver. A ZIP archive with root-level or one nested `zarr.json` / `.zgroup` is accepted as a
+single-file store (`.ozx`, `.zip`, and `.zarr` names are probe hints; `__MACOSX/` sidecars are
+ignored). `bioformats2raw.layout` roots are scanned as consecutive
+`0/`, `1/`, … series groups. Regular and `sharding_indexed` chunks, bytes, gzip, zlib, zstd, crc32c,
+transpose, shuffle, Blosc 1 with LZ4/zlib/zstd/memcpy, missing-chunk fill, C/F order, selected
+intersecting reads, and store-prefix resolution are covered. Remaining G items are
+BloscLZ/Snappy/bitshuffle, tables, RFC-9 zip-comment/`jsonFirst` profile requirements, and a
+writer.
+
 OME-Zarr should be implemented as a separate cloud-native track, not as a side effect of HDF5.
 
 ### G1. Resource-root handling
@@ -898,6 +911,7 @@ Prove the existing companion resolver can model a selected Zarr root before addi
 - browser directory input selects `.zgroup` / `.zattrs` for v2 or `zarr.json` for v3 as the primary resource;
 - all child metadata and chunks resolve by normalized relative name;
 - a remote `.zarr/` URL is normalized by the application to the root metadata resource;
+- a ZIP archive with root-level `zarr.json` or `.zgroup` is resolved through the existing ZIP indexer as companions;
 - same-origin and traversal protections remain enforced;
 - resource count and open-source cache limits are explicit.
 
@@ -927,7 +941,8 @@ Add a new store interface only if a real operation cannot be expressed safely th
 - channel names/colors and physical units;
 - multiscale levels as scientific resolution levels;
 - image datasets first;
-- labels, tables, plates, and wells later and only with product demand.
+- labels, plates, and wells: implemented as additional scientific datasets.
+- tables later and only with product demand.
 
 Do not build an OME-Zarr writer in the first reader milestone.
 

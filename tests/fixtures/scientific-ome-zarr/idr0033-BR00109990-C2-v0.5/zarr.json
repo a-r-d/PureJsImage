@@ -1,0 +1,11 @@
+{
+  "attributes": {
+    "ome": {
+      "bioformats2raw.layout": 3,
+      "version": "0.5"
+    }
+  },
+  "zarr_format": 3,
+  "consolidated_metadata": null,
+  "node_type": "group"
+}

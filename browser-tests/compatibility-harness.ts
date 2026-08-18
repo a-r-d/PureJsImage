@@ -37,6 +37,7 @@ import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
+import { crc32 } from '../src/codecs/crc32.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
@@ -63,8 +64,8 @@ import {
   rasterToPixels,
   ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
-import { bmpReader } from '../src/scientific/readers/bmp.ts'
 import { blockfileReader } from '../src/scientific/readers/blockfile.ts'
+import { bmpReader } from '../src/scientific/readers/bmp.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { digitalSurfReader } from '../src/scientific/readers/digital-surf.ts'
 import { ebsdTextReader } from '../src/scientific/readers/ebsd-text.ts'
@@ -73,12 +74,13 @@ import { igorBinaryWaveReader } from '../src/scientific/readers/igor-binary-wave
 import { jp2Reader } from '../src/scientific/readers/jp2.ts'
 import { metaImageReader } from '../src/scientific/readers/meta-image.ts'
 import { mibReader } from '../src/scientific/readers/mib.ts'
-import { createNcemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
 import { nanonisSxmReader } from '../src/scientific/readers/nanonis-sxm.ts'
+import { createNcemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
 import { niftiReader } from '../src/scientific/readers/nifti.ts'
 import { npyReader } from '../src/scientific/readers/npy.ts'
 import { nrrdReader } from '../src/scientific/readers/nrrd.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { omeZarrReader } from '../src/scientific/readers/ome-zarr.ts'
 import { rplReader } from '../src/scientific/readers/rpl.ts'
 import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
@@ -1886,6 +1888,342 @@ const scientificTiaSer = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'portable v544 TIA SER reader preserved calibrated spectrum-image native series reads',
     outputBytes: output.length,
+  }
+}
+
+const storedZipArchive = (files: Readonly<Record<string, Uint8Array>>): Uint8Array<ArrayBuffer> => {
+  const names = Object.keys(files)
+  const locals: Uint8Array[] = []
+  const centrals: Uint8Array[] = []
+  let offset = 0
+  for (const name of names) {
+    const data = files[name]
+    if (data === undefined) continue
+    const nameBytes = new TextEncoder().encode(name)
+    const checksum = crc32(data)
+    const local = new Uint8Array(30 + nameBytes.byteLength + data.byteLength)
+    const localView = new DataView(local.buffer)
+    localView.setUint32(0, 0x04034b50, true)
+    localView.setUint16(4, 20, true)
+    localView.setUint32(14, checksum, true)
+    localView.setUint32(18, data.byteLength, true)
+    localView.setUint32(22, data.byteLength, true)
+    localView.setUint16(26, nameBytes.byteLength, true)
+    local.set(nameBytes, 30)
+    local.set(data, 30 + nameBytes.byteLength)
+    locals.push(local)
+    const central = new Uint8Array(46 + nameBytes.byteLength)
+    const centralView = new DataView(central.buffer)
+    centralView.setUint32(0, 0x02014b50, true)
+    centralView.setUint16(4, 20, true)
+    centralView.setUint16(6, 20, true)
+    centralView.setUint32(16, checksum, true)
+    centralView.setUint32(20, data.byteLength, true)
+    centralView.setUint32(24, data.byteLength, true)
+    centralView.setUint16(28, nameBytes.byteLength, true)
+    centralView.setUint32(42, offset, true)
+    central.set(nameBytes, 46)
+    centrals.push(central)
+    offset += local.byteLength
+  }
+  const centralSize = centrals.reduce((sum, entry) => sum + entry.byteLength, 0)
+  const bytes = new Uint8Array(offset + centralSize + 22)
+  let cursor = 0
+  for (const local of locals) {
+    bytes.set(local, cursor)
+    cursor += local.byteLength
+  }
+  const centralOffset = cursor
+  for (const central of centrals) {
+    bytes.set(central, cursor)
+    cursor += central.byteLength
+  }
+  const view = new DataView(bytes.buffer)
+  view.setUint32(cursor, 0x06054b50, true)
+  view.setUint16(cursor + 8, names.length, true)
+  view.setUint16(cursor + 10, names.length, true)
+  view.setUint32(cursor + 12, centralSize, true)
+  view.setUint32(cursor + 16, centralOffset, true)
+  return bytes
+}
+
+const scientificOmeZarr = async (): Promise<BrowserWorkflowResult> => {
+  const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
+  const root = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: {
+      ome: {
+        version: '0.5',
+        multiscales: [
+          {
+            name: 'browser',
+            axes: [
+              { name: 'y', type: 'space', unit: 'micrometer' },
+              { name: 'x', type: 'space', unit: 'micrometer' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      },
+    },
+  })
+  const array = json({
+    zarr_format: 3,
+    node_type: 'array',
+    shape: [2, 2],
+    data_type: 'uint8',
+    chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
+    chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+    fill_value: 0,
+    codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+    dimension_names: ['y', 'x'],
+    attributes: {},
+  })
+  const labelsIndex = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: { ome: { version: '0.5', labels: ['cell'] } },
+  })
+  const labelRoot = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: {
+      ome: {
+        version: '0.5',
+        'image-label': { colors: [{ 'label-value': 1, rgba: [255, 0, 0, 255] }] },
+        multiscales: [
+          {
+            name: 'cell',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      },
+    },
+  })
+  const document = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(new File([Uint8Array.from(root)], 'zarr.json'), {
+      companions: [
+        new File([Uint8Array.from(array)], '0/zarr.json'),
+        new File([Uint8Array.of(1, 2, 3, 4)], '0/c/0/0'),
+        new File([Uint8Array.from(labelsIndex)], 'labels/zarr.json'),
+        new File([Uint8Array.from(labelRoot)], 'labels/cell/zarr.json'),
+        new File([Uint8Array.from(array)], 'labels/cell/0/zarr.json'),
+        new File([Uint8Array.of(0, 1, 1, 0)], 'labels/cell/0/c/0/0'),
+      ],
+    }),
+  )
+  const dataset = await document.openDataset(document.datasets[0]?.id ?? '')
+  const values: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    values.push(...block.data)
+  }
+  if (values.join(',') !== '1,2,3,4') {
+    throw new Error(`Browser OME-Zarr pixels were ${values.join(',')}`)
+  }
+  const label = await document.openDataset('labels/cell')
+  const labelValues: number[] = []
+  for await (const block of label.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    labelValues.push(...block.data)
+  }
+  if (label.descriptor.metadata?.kind !== 'label' || labelValues.join(',') !== '0,1,1,0') {
+    throw new Error(`Browser OME-Zarr labels were ${labelValues.join(',')}`)
+  }
+  const group = json({ zarr_format: 2 })
+  const attrs = json({
+    multiscales: [
+      {
+        version: '0.4',
+        name: 'legacy',
+        axes: [
+          { name: 'y', type: 'space', unit: 'micrometer' },
+          { name: 'x', type: 'space', unit: 'micrometer' },
+        ],
+        datasets: [{ path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] }],
+      },
+    ],
+  })
+  const zarray = json({
+    zarr_format: 2,
+    shape: [2, 2],
+    chunks: [2, 2],
+    dtype: '|u1',
+    compressor: null,
+    fill_value: 0,
+    order: 'C',
+    filters: null,
+    dimension_separator: '/',
+  })
+  const v2 = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(new File([Uint8Array.from(group)], '.zgroup'), {
+      companions: [
+        new File([Uint8Array.from(attrs)], '.zattrs'),
+        new File([Uint8Array.from(zarray)], '0/.zarray'),
+        new File([Uint8Array.of(9, 8, 7, 6)], '0/0/0'),
+      ],
+    }),
+  )
+  const v2Dataset = await v2.openDataset(v2.datasets[0]?.id ?? '')
+  const v2Values: number[] = []
+  for await (const block of v2Dataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    v2Values.push(...block.data)
+  }
+  if (v2.metadata.omeNgffVersion !== '0.4' || v2Values.join(',') !== '9,8,7,6') {
+    throw new Error(`Browser OME-Zarr 0.4 pixels were ${v2Values.join(',')}`)
+  }
+  const zipped = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(
+      new File(
+        [
+          Uint8Array.from(
+            storedZipArchive({
+              'zarr.json': root,
+              '0/zarr.json': array,
+              '0/c/0/0': Uint8Array.of(5, 6, 7, 8),
+            }),
+          ),
+        ],
+        'image.ozx',
+      ),
+    ),
+  )
+  const zipDataset = await zipped.openDataset(zipped.datasets[0]?.id ?? '')
+  const zipValues: number[] = []
+  for await (const block of zipDataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    zipValues.push(...block.data)
+  }
+  if (zipped.metadata.store !== 'zip' || zipValues.join(',') !== '5,6,7,8') {
+    throw new Error(`Browser OME-Zarr ZIP pixels were ${zipValues.join(',')}`)
+  }
+  const nestedZip = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(
+      new File(
+        [
+          Uint8Array.from(
+            storedZipArchive({
+              'plate.zarr/zarr.json': root,
+              'plate.zarr/0/zarr.json': array,
+              'plate.zarr/0/c/0/0': Uint8Array.of(2, 2, 2, 2),
+            }),
+          ),
+        ],
+        'plate.zarr.zip',
+      ),
+    ),
+  )
+  const nestedValues: number[] = []
+  for await (const block of (
+    await nestedZip.openDataset(nestedZip.datasets[0]?.id ?? '')
+  ).readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    nestedValues.push(...block.data)
+  }
+  if (nestedValues.join(',') !== '2,2,2,2') {
+    throw new Error(`Browser nested OME-Zarr ZIP pixels were ${nestedValues.join(',')}`)
+  }
+  const zarrNamedZip = createScientificFileContext(
+    new File(
+      [
+        Uint8Array.from(
+          storedZipArchive({
+            'plate.zarr/zarr.json': root,
+            'plate.zarr/0/zarr.json': array,
+            'plate.zarr/0/c/0/0': Uint8Array.of(2, 2, 2, 2),
+            '__MACOSX/plate.zarr/zarr.json': root,
+          }),
+        ),
+      ],
+      'plate.ome.zarr',
+    ),
+  )
+  const zarrNamedProbe = await omeZarrReader.probe(zarrNamedZip)
+  if (zarrNamedProbe.confidence < 0.9) {
+    throw new Error(`Browser *.ome.zarr ZIP probe confidence was ${zarrNamedProbe.confidence}`)
+  }
+  const zarrNamed = await createScientificLibrary({ readers: [omeZarrReader] }).open(zarrNamedZip)
+  if (zarrNamed.metadata.store !== 'zip') {
+    throw new Error('Browser *.ome.zarr ZIP store was not opened')
+  }
+  const layoutRoot = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: { ome: { version: '0.5', 'bioformats2raw.layout': 3 } },
+  })
+  const seriesRoot = json({
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: {
+      ome: {
+        version: '0.5',
+        multiscales: [
+          {
+            name: 'series-0',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      },
+    },
+  })
+  const series = await createScientificLibrary({ readers: [omeZarrReader] }).open(
+    createScientificFileContext(new File([Uint8Array.from(layoutRoot)], 'zarr.json'), {
+      companions: [
+        new File([Uint8Array.from(seriesRoot)], '0/zarr.json'),
+        new File([Uint8Array.from(array)], '0/0/zarr.json'),
+        new File([Uint8Array.of(3, 3, 3, 3)], '0/0/c/0/0'),
+      ],
+    }),
+  )
+  if (series.metadata.bioformats2rawLayout !== 3 || series.datasets[0]?.id !== '0') {
+    throw new Error('Browser bioformats2raw series root was not discovered')
+  }
+  const seriesValues: number[] = []
+  for await (const block of (await series.openDataset('0')).readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+  })) {
+    seriesValues.push(...block.data)
+  }
+  if (seriesValues.join(',') !== '3,3,3,3') {
+    throw new Error(`Browser bioformats2raw pixels were ${seriesValues.join(',')}`)
+  }
+  return {
+    detail:
+      'portable OME-Zarr 0.5, labels, 0.4, ZIP, nested ZIP, and bioformats2raw readers resolved browser File stores and selected 2x2 planes',
+    outputBytes:
+      values.length +
+      labelValues.length +
+      v2Values.length +
+      zipValues.length +
+      nestedValues.length +
+      seriesValues.length,
   }
 }
 
@@ -4118,6 +4456,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   scientificTiffDocument,
   scientificDigitalMicrograph,
   scientificInterchangeFormats,
+  scientificOmeZarr,
   scientificSurfaceFormats,
   scientificTiaEmi,
   scientificTiaSer,

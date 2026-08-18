@@ -3,8 +3,8 @@ import { basename, dirname, join, relative } from 'node:path'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createImageLibrary } from '../src/index.ts'
-import { readCapabilityManifest } from './capability-manifest.ts'
 import { formatKibibytes, formatMebibytes, parsePackageMetrics } from './bundle-size.ts'
+import { readCapabilityManifest } from './capability-manifest.ts'
 
 const readmeAssetLibrary = createImageLibrary([jpegCodec, pngCodec])
 
@@ -864,6 +864,7 @@ const readerFamilyIds: Readonly<Record<string, readonly string[]>> = {
     'purejsimage/jp2',
     'purejsimage/tiff',
     'purejsimage/ome-tiff',
+    'purejsimage/ome-zarr',
     'purejsimage/aperio-svs',
   ],
   'electron-microscopy': [
@@ -1157,7 +1158,7 @@ const benchmarkBlock = [
   '',
   `**Web codec benchmarks (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
-  `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup workflows passed across ${manifest.scientificReaders.length} readers. The separate medium/large scaling profile validated ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
+  `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup workflows passed across ${new Set(scientific.results.map(({ readerId }) => readerId)).size} readers in that snapshot. The separate medium/large scaling profile validated ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
   '',

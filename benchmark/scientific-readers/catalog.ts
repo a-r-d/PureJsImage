@@ -211,6 +211,33 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'OME metadata selects the OME reader and exposes x/y/z/channel/time axes.',
   },
   {
+    id: 'ome-zarr',
+    generatedKey: 'ome-zarr-generated',
+    provenance: 'Deterministic first-party OME-NGFF 0.5 / Zarr v3 benchmark fixture.',
+    supportBoundary: 'Directory-like OME-Zarr 0.5 image with one uint8 level and regular chunks.',
+    expectedOracle: 'The image dataset exposes calibrated x/y axes and a readable 2x2 plane.',
+  },
+  {
+    id: 'ome-zarr-sharded',
+    generatedKey: 'ome-zarr-sharded-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party sharded OME-NGFF 0.5 / Zarr v3 range fixture.',
+    supportBoundary:
+      'Directory-like OME-Zarr 0.5 uint8 image stored as one shard of 16x16 inner chunks.',
+    expectedOracle:
+      'A 32x32 window inside the shard reads only intersecting inner payloads and the shard index.',
+  },
+  {
+    id: 'ome-zarr-sharded-large',
+    generatedKey: 'ome-zarr-sharded-large-generated',
+    generatedRepresentative: true,
+    provenance: 'Deterministic first-party large sharded OME-NGFF 0.5 / Zarr v3 scaling fixture.',
+    supportBoundary:
+      'Directory-like OME-Zarr 0.5 uint8 4096x4096 image stored as 16 shards of 256x256 inner chunks.',
+    expectedOracle:
+      'Random and warm-repeated 512x512 windows read only intersecting shard indexes and inner payloads.',
+  },
+  {
     id: 'aperio-svs',
     realResources: [resource('primary', 'tests/fixtures/aperio-cmu-1-small-region.svs')],
     provenance: 'Pinned Aperio CMU-1 small-region whole-slide fixture.',

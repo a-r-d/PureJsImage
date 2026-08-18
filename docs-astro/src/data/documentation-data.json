@@ -6,7 +6,7 @@
   },
   "support": {
     "experimentalCodecs": ["HEIF / HEIC (experimental)"],
-    "scientificReaderCount": 31,
+    "scientificReaderCount": 32,
     "scientificReaderFamilies": [
       {
         "id": "common-raster-whole-slide",
@@ -19,6 +19,7 @@
           "purejsimage/jp2",
           "purejsimage/tiff",
           "purejsimage/ome-tiff",
+          "purejsimage/ome-zarr",
           "purejsimage/aperio-svs"
         ]
       },
@@ -94,9 +95,9 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 208276,
-      "gzipBytes": 261083,
-      "minifiedBytes": 875859
+      "brotliBytes": 222394,
+      "gzipBytes": 278931,
+      "minifiedBytes": 938568
     },
     "allStableCodecs": {
       "brotliBytes": 256358,
@@ -114,7 +115,7 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5063821,
+      "bytes": 5206669,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
@@ -652,6 +653,25 @@
       "packageExport": "purejsimage/scientific/readers/ome-tiff",
       "resourceModel": "single",
       "supportBoundary": "OME-XML-backed X/Y/Z/C/T datasets on supported TIFF sample and compression layouts; detection follows the first TIFF IFD and bounded tag-270 ranges instead of scanning a fixed file prefix."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 0,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image", "volume", "pyramid"],
+      "directRangeReads": true,
+      "extensions": ["zarr", "ozx"],
+      "family": "common-raster-whole-slide",
+      "format": "OME-Zarr",
+      "id": "purejsimage/ome-zarr",
+      "nativePrecision": "Native numeric samples",
+      "oracle": "",
+      "packageExport": "purejsimage/scientific/readers/ome-zarr",
+      "resourceModel": "directory-like",
+      "supportBoundary": "OME-NGFF 0.4 and 0.5 image multiscales, labels, and plates/wells on Zarr v2 and v3 directory stores, a ZIP archive with root-level or a single nested zarr.json/.zgroup (including *.zarr / *.ome.zarr names and ignored __MACOSX/ sidecars), and bioformats2raw.layout series roots (0/, 1/, …). Regular and sharding_indexed chunk grids; bytes, gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 with LZ4/zlib/zstd or memcpy; missing chunks become fill values; selected planes fetch only intersecting chunks. BloscLZ, Snappy, bitshuffle, tables, RFC-9 zip-comment/jsonFirst requirements, multi-root ZIPs, and writers are rejected."
     },
     {
       "benchmarkCoverage": {
