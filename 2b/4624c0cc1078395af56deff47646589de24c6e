@@ -1,0 +1,180 @@
+src/scientific/formats/dicom/pixel-description.ts
+  s_50e223f730d0b3::t_a39dcd66821fb3 65
+  s_50e223f730d0b3::t_8f62e41e4a5dc0 16-19
+  s_50e223f730d0b3::t_d4341afb71d317 126,132-141
+  s_50e223f730d0b3::t_02475651fbead2 6
+  s_50e223f730d0b3::t_aefc71f8fce1e8 14
+  s_50e223f730d0b3::t_ab8a42c3ce7edb 173,179,185-189
+  s_50e223f730d0b3::t_e9a220b0da4ea9 38
+  s_50e223f730d0b3::t_87c462c9e87c4f 288
+tests/dicom/part10-writer.ts
+  s_50e223f730d0b3::t_b8f43115327e0e 26,37-39
+  s_50e223f730d0b3::t_7472b102e17200 130-132,137,142
+  s_50e223f730d0b3::t_acb78b4bed8402 234-238,243-248
+  s_50e223f730d0b3::t_a14d261c3c23bc 256-299
+browser-tests/compatibility-harness.ts
+  s_50e223f730d0b3::t_32440489f3ed3a 258-259,276-302,305
+  s_50e223f730d0b3::t_2f4a0ab4f752e7 153-154
+  s_50e223f730d0b3::t_f54b1eb93c1f9a 317-318
+  s_50e223f730d0b3::t_ba1eb71aefc5d0 350,352
+  s_50e223f730d0b3::t_0ecfa4c919f3cd 113-114
+  s_50e223f730d0b3::t_bcc9aa2c7da684 206-207,211
+src/scientific/formats/dicom/functional-groups.ts
+  s_50e223f730d0b3::t_aa6657e0417c8a 79-94
+benchmark/scientific-readers/generated-fixtures.ts
+  s_50e223f730d0b3::t_800c190279e425 7-8
+  s_50e223f730d0b3::t_a6f38536e6cd8f 1024-1025
+src/scientific/formats/dicom/parser.ts
+  s_50e223f730d0b3::t_17fd02f135da3b 145-147
+  s_50e223f730d0b3::t_48e26560abeaa4 29
+  s_50e223f730d0b3::t_07c46221df16d8 89-92,99
+  s_50e223f730d0b3::t_f30b30556cf11b 139-143,148-149
+  s_50e223f730d0b3::t_607e7aebd99de1 204
+src/scientific/formats/dicom/file-meta.ts
+  s_50e223f730d0b3::t_17fd02f135da3b 165-167,208-211
+  s_50e223f730d0b3::t_838c6aee07412f 2,4-11,19-20,32-35,41-59,61-94,96,98-101,105-136,139-141,143,145,147-148,157-164,168-207,212-245
+src/scientific/formats/dicom/rle.ts
+  s_50e223f730d0b3::t_caec8fd3de07e9 19-20,23-55,58-64,93-94
+  s_50e223f730d0b3::t_17fd02f135da3b 115-117
+tests/scientific-dicom-reader.test.ts
+  s_50e223f730d0b3::t_b35bcca78cb0c0 703,791-819,821-949,951-959,961-1060,1065-1129,1131-1202
+  s_50e223f730d0b3::t_8272ab58c50ac8 752
+  s_50e223f730d0b3::t_93b1f729a48e49 84,612
+  s_50e223f730d0b3::t_c17a0770788adc 647,651,665-667,682-683,689-702
+  s_50e223f730d0b3::t_579c54dfdeaef5 30,36-41
+  s_50e223f730d0b3::t_529865d6f00e32 630
+  s_50e223f730d0b3::t_f2da2ffb17ad38 608-611,613,619-621
+  s_50e223f730d0b3::t_17d3072f32d1d9 760
+  s_50e223f730d0b3::t_17fd02f135da3b 820,960,1061-1064,1130
+  s_50e223f730d0b3::t_bdaaa24b881f69 950
+  s_50e223f730d0b3::t_0e8eb927a21465 704
+benchmark/generated/package-metrics.json
+  s_50e223f730d0b3::t_fe5c7954c7c002 179,811,817,871,877,886,892,1081,1084,1087,1156,1159,1162,1177,1237,1397,1403,1428,1434,1443,1449,1473,1479
+src/scientific/formats/dicom/metadata.ts
+  s_50e223f730d0b3::t_64747da1dcea09 72-74,80-82
+  s_50e223f730d0b3::t_ae72d1c76f3c13 75,86-89
+  s_50e223f730d0b3::t_ae2b45349e32e5 6,8
+  s_50e223f730d0b3::t_e9cac8ae088fc0 23
+  s_50e223f730d0b3::t_c14c031a8906c9 123-137
+  s_50e223f730d0b3::t_4c52892bc99cee 176
+  s_50e223f730d0b3::t_078b4c444d00b6 90-91
+src/scientific/formats/dicom/codestream.ts
+  s_50e223f730d0b3::t_55bf3a3c7a1938 118,124,131,138
+  s_50e223f730d0b3::t_17fd02f135da3b 22-23
+  s_50e223f730d0b3::t_5abfe0bb37fabe 1,19-21,24-78,86-106,110-112,132-133,148,150-160,166,197
+tests/dicom/jpeg-encode.ts
+  s_50e223f730d0b3::t_3e6c3f22c3b2b5 32,35,37-57
+  s_50e223f730d0b3::t_2fbb0a5b944e13 2,10-31,33-34,36
+README.md
+  s_50e223f730d0b3::t_fe5c7954c7c002 289,291
+  s_50e223f730d0b3::t_767ec6fcb5e718 75,77
+src/scientific/formats/dicom/elements.ts
+  s_50e223f730d0b3::t_aa322987b4f303 442-465
+docs-astro/src/data/package-metrics.json
+  s_50e223f730d0b3::t_fe5c7954c7c002 179,811,817,871,877,886,892,1081,1084,1087,1156,1159,1162,1177,1237,1397,1403,1428,1434,1443,1449,1473,1479
+docs/scientific-dicom-roadmap.md
+  s_50e223f730d0b3::t_1ab08c478dc477 528
+  s_50e223f730d0b3::t_0f49e10b589783 318
+  s_50e223f730d0b3::t_c97c15b0381bf1 473-476
+  s_50e223f730d0b3::t_20268a8833aabd 298-301,306-307
+  s_50e223f730d0b3::t_97ee4573bbdc68 1120
+capabilities/manifest.json
+  s_50e223f730d0b3::t_01b6e5c5796569 469
+tests/dicom/rle-encode.ts
+  s_50e223f730d0b3::t_eb070bd267804d 8,12-23,25-32,43,58
+  s_50e223f730d0b3::t_17fd02f135da3b 33-34
+tests/dicom-parser.test.ts
+  s_50e223f730d0b3::t_9bf237af875d52 21-22
+  s_50e223f730d0b3::t_ddc8d6df2eda7a 650-676,678,682
+  s_50e223f730d0b3::t_ac19ceb33c0706 23,28-39
+  s_50e223f730d0b3::t_9ed76f5305505c 713,718
+  s_50e223f730d0b3::t_ceae8e33d06e2c 438-478,480-481,486-649,677,679-681,683-712,714-717,719-777
+  s_50e223f730d0b3::t_e855f6265f744d 267
+  s_50e223f730d0b3::t_17fd02f135da3b 479
+  s_50e223f730d0b3::t_c3a7a014a05f70 482-485
+  s_50e223f730d0b3::t_225a82da4012b5 49,52
+tests/dicom-rle.test.ts
+  s_50e223f730d0b3::t_430ac4a916ffbb 10
+  s_50e223f730d0b3::t_0e7cdf9478672c 74-155
+  s_50e223f730d0b3::t_ef6914aa887b53 20
+tests/dicom/jpeg-lossless-encode.ts
+  s_50e223f730d0b3::t_da020afc1a58a8 48,51-61
+  s_50e223f730d0b3::t_bd3f5e786cd82b 62,106-110,114,126-130,138-140,144-149,151-152,171-172
+tests/dicom/raw-part10.ts
+  s_50e223f730d0b3::t_c5551b307133b7 150-175,182-237
+  s_50e223f730d0b3::t_0dccfb364b2762 66-67
+  s_50e223f730d0b3::t_17fd02f135da3b 35-42,176-181
+  s_50e223f730d0b3::t_f463a36fb099ab 1-3,5-34,43-61,68-149
+  s_50e223f730d0b3::t_12130dfc0a61e6 4
+  s_50e223f730d0b3::t_60f1c1fa3c1250 62-65
+package.json
+  s_50e223f730d0b3::t_03eb4b188c2939 429
+tests/dicom-codestream.test.ts
+  s_50e223f730d0b3::t_d79d437cd9dc25 413-432
+  s_50e223f730d0b3::t_b4fb8b5de133bc 16-17
+  s_50e223f730d0b3::t_09da71100064ea 448
+  s_50e223f730d0b3::t_ab707bd2e50154 21
+  s_50e223f730d0b3::t_0c6fa5e3c09f90 183-196,198-199,203
+  s_50e223f730d0b3::t_fa7e81567eea48 66-67,111-114,119-137
+  s_50e223f730d0b3::t_04c55aeb1a77c6 372-373
+  s_50e223f730d0b3::t_87f235b187cc21 5
+  s_50e223f730d0b3::t_bc825443e36ca6 76-79
+  s_50e223f730d0b3::t_17fd02f135da3b 200-202,385-387
+  s_50e223f730d0b3::t_6f4fa0772d8583 451-460
+  s_50e223f730d0b3::t_91ade703507dec 31
+  s_50e223f730d0b3::t_768ea5fcb3bad0 138,383-384,388-412,433-447,449-450,461-496,506-513,523-532,542-550,560-595
+  s_50e223f730d0b3::t_fc1c9fe568a21b 497-505,514-522,533-541,551-559
+  s_50e223f730d0b3::t_5f068642fc1906 75
+  s_50e223f730d0b3::t_94bbeaba45f674 139
+src/scientific/formats/dicom/encapsulated-pixel.ts
+  s_50e223f730d0b3::t_2fe41891302962 29-39,55,58,60,62,71,88-98,103,115,117,127-129,131-166,168-188,199,215-221,225-227,231,234,251,256,259-264,308-320,324-326,341
+  s_50e223f730d0b3::t_e165c7470f20c9 288,290-291,298-307
+  s_50e223f730d0b3::t_17fd02f135da3b 22-26,167,321-323
+benchmark/results/public/index.json
+  s_50e223f730d0b3::t_7c850ab6a8cea5 3
+docs-astro/src/data/documentation-data.json
+  s_50e223f730d0b3::t_7c850ab6a8cea5 903
+  s_50e223f730d0b3::t_355346cf3f7546 99-101,104-105,109-110,119
+src/codecs/jpeg-baseline.ts
+  s_50e223f730d0b3::t_89f094d3748411 494-504,506-509,513-521,523-527,529-559,561-593
+  s_50e223f730d0b3::t_6ebdc744ff0956 510-512,522,528
+  s_50e223f730d0b3::t_17fd02f135da3b 505
+  s_50e223f730d0b3::t_addc7cb2bfcb91 560
+tests/jpeg-lossless.test.ts
+  s_50e223f730d0b3::t_3ac5ab989b669f 3,6-26,57-96
+src/scientific/readers/dicom.ts
+  s_50e223f730d0b3::t_e2ca27d257533d 75-102,104-120
+src/codecs/jpeg.ts
+  s_50e223f730d0b3::t_54d6eac586b441 581
+  s_50e223f730d0b3::t_bd446dd830823c 582
+tests/dicom/oracle.ts
+  s_50e223f730d0b3::t_2df7b7de4ade58 63-65,78
+  s_50e223f730d0b3::t_3650e25fc7321a 46,107
+  s_50e223f730d0b3::t_0c29e8dad51590 115-117,130
+src/codecs/jpeg-lossless.ts
+  s_50e223f730d0b3::t_bcf5453fafb598 1-16,20-21
+  s_50e223f730d0b3::t_17fd02f135da3b 321-325
+  s_50e223f730d0b3::t_ef271ade25f437 259-320,326-336,344-351,399-401,457,461-462,468-470,472-499,501-509,511
+tests/dicom/generate-fixtures.ts
+  s_50e223f730d0b3::t_f3254ae6fe47a0 8-13,17,19
+docs-astro/public/capabilities.json
+  s_50e223f730d0b3::t_51f278e7c77c82 6966
+tests/fixtures/dicom/corpus.json
+  s_50e223f730d0b3::t_94cb72cc48cceb 7,24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2b4624c0cc1078395af56deff47646589de24c6e",
+  "prompts": {},
+  "sessions": {
+    "s_50e223f730d0b3": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ae8bf182-53f0-4d24-b6c0-d9d6e20749ce",
+        "model": "grok-4.6"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
