@@ -6,6 +6,10 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Expanded the official common-web (`web-codecs`) suite with JPEG→AVIF, JPEG→lossy WebP, AVIF
+  crop+resize, the Lambda JPEG thumbnail, progressive JPEG resize, and lossless WebP alpha decode.
+  The published speed and memory SVG charts include those jobs, and the README now shows both
+  charts.
 - Added the explicit `purejsimage/scientific/readers/ome-zarr` reader for OME-NGFF 0.4 and 0.5
   image multiscales on first-party Zarr v2 and v3 directory stores. Selected planes fetch only
   intersecting regular or `sharding_indexed` chunks through the existing companion resolver; bytes,

@@ -14,6 +14,7 @@ export type ImageFormat =
   | 'tiff'
   | 'webp'
 export type OutputFormat =
+  | 'avif'
   | 'bmp'
   | 'hdr'
   | 'jpeg'
@@ -70,6 +71,7 @@ export type FixtureGenerator =
   | 'ico-dib32'
   | 'ico-mixed'
   | 'odd-rgba'
+  | 'progressive-jpeg-from-tundra'
   | 'rgba-gradient'
   | 'seeded-noise'
   | 'static-transparent-gif'

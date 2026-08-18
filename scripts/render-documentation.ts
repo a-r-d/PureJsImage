@@ -1164,6 +1164,13 @@ const benchmarkBlock = [
   '',
   '<p align="center">',
   '  <a href="https://purejsimage.com/performance/#web-codec-benchmarks">',
+  '    <img src="docs-astro/public/assets/readme/web-codec-speed.svg" alt="Web codec benchmark speed chart. Lower wall time is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
+  '  </a>',
+  '</p>',
+  '<p align="center"><em>Median wall time from the current validated web codec benchmark snapshot.</em></p>',
+  '',
+  '<p align="center">',
+  '  <a href="https://purejsimage.com/performance/#web-codec-benchmarks">',
   '    <img src="docs-astro/public/assets/readme/web-codec-memory.svg" alt="Web codec benchmark peak RSS chart. Lower peak RSS is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
   '  </a>',
   '</p>',
@@ -1186,7 +1193,9 @@ const expectedData = `${JSON.stringify(documentation, null, 2)}\n`
 const publicAssetsDirectory = join(repositoryDirectory, 'docs-astro', 'public', 'assets')
 const readmeAssetsDirectory = join(publicAssetsDirectory, 'readme')
 const memoryChart = ordinaryCharts.find((chart) => chart.metric === 'memory')
+const speedChart = ordinaryCharts.find((chart) => chart.metric === 'speed')
 if (memoryChart === undefined) throw new Error('Validated web codec memory chart is missing')
+if (speedChart === undefined) throw new Error('Validated web codec speed chart is missing')
 const readmeAssets: readonly { readonly path: string; readonly bytes: Uint8Array }[] = [
   {
     path: join(readmeAssetsDirectory, 'whole-slide-viewer.jpg'),
@@ -1201,6 +1210,10 @@ const readmeAssets: readonly { readonly path: string; readonly bytes: Uint8Array
       await readFile(join(publicAssetsDirectory, 'scientific-hyperspectral-envi-viewer.png')),
       { format: 'jpeg', quality: 80, width: 1200 },
     ),
+  },
+  {
+    path: join(readmeAssetsDirectory, 'web-codec-speed.svg'),
+    bytes: await readFile(speedChart.source),
   },
   {
     path: join(readmeAssetsDirectory, 'web-codec-memory.svg'),

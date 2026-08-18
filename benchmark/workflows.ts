@@ -17,6 +17,7 @@ const bmp = (): Operation => ({ type: 'encode', format: 'bmp' })
 const tiff = (): Operation => ({ type: 'encode', format: 'tiff' })
 const webp = (quality: number): Operation => ({ type: 'encode', format: 'webp', quality })
 const losslessWebp = (): Operation => ({ type: 'encode', format: 'webp', lossless: true })
+const avif = (): Operation => ({ type: 'encode', format: 'avif' })
 
 export const workflows: readonly Workflow[] = [
   {
@@ -530,6 +531,59 @@ export const workflows: readonly Workflow[] = [
       ],
     },
     timeoutMs: 120000,
+  },
+  {
+    id: 'avif-fox-crop-resize-jpeg',
+    title: '1204x800 AVIF photograph, crop 800x600, resize 400px JPEG 80',
+    tier: 'web-codecs',
+    input: 'avif-fox-profile0-1204x800',
+    operations: [
+      { type: 'crop', x: 200, y: 100, width: 800, height: 600 },
+      { type: 'resize', width: 400 },
+      jpeg(80),
+    ],
+    expected: {
+      format: 'jpeg',
+      width: 400,
+      height: 300,
+      pixelSamples: [
+        { x: 50, y: 50, red: 13, green: 24, blue: 16, tolerance: 24 },
+        { x: 201, y: 150, red: 72, green: 106, blue: 138, tolerance: 24 },
+        { x: 351, y: 250, red: 9, green: 6, blue: 9, tolerance: 24 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'jpeg-to-avif',
+    title: '4000x3000 JPEG to 800px AVIF',
+    tier: 'web-codecs',
+    input: 'tundra-4000x3000',
+    operations: [{ type: 'resize', width: 800 }, avif()],
+    expected: {
+      format: 'avif',
+      width: 800,
+      height: 600,
+    },
+    timeoutMs: 180000,
+  },
+  {
+    id: 'jpeg-progressive-resize-1200',
+    title: '4000x3000 progressive JPEG to 1200px JPEG quality 80',
+    tier: 'web-codecs',
+    qualityReference: 'exact-area',
+    input: 'tundra-4000x3000-progressive',
+    operations: [{ type: 'resize', width: 1200 }, jpeg(80)],
+    expected: {
+      format: 'jpeg',
+      width: 1200,
+      height: 900,
+      pixelSamples: [
+        { x: 0, y: 0, red: 165, green: 216, blue: 251, tolerance: 20 },
+        { x: 300, y: 225, red: 92, green: 104, blue: 80, tolerance: 20 },
+        { x: 1199, y: 899, red: 185, green: 199, blue: 177, tolerance: 20 },
+      ],
+    },
   },
   {
     id: 'bmp-metadata-large',
@@ -1668,6 +1722,12 @@ const commonWebCodecWorkflowIds = new Set([
   'avif-fox-metadata',
   'avif-fox-full-png',
   'avif-fox-resize-jpeg',
+  'avif-fox-crop-resize-jpeg',
+  'jpeg-to-avif',
+  'jpeg-to-webp-lossy',
+  'lambda-twilio-mms-jpeg-1024',
+  'jpeg-progressive-resize-1200',
+  'webp-lossless-alpha-png',
 ])
 
 export const workflowsForProfile = (profile: string): readonly Workflow[] => {

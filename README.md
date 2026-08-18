@@ -4,7 +4,7 @@
 
 <h1>PureJsImage</h1>
 
-<p><strong>Zero-runtime-dependency image processing in strict TypeScript</strong></p>
+<p><strong font-size="font-size: 20px">Zero-runtime-dependency image processing in strict TypeScript</strong></p>
 
 <p>Portable image codecs · native scientific rasters · optional explicit WASM acceleration</p>
 
@@ -22,6 +22,10 @@
   <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
   <a href="https://lab.purejsimage.com/"><strong>PureJsImage Lab</strong></a>
 </p>
+
+<p >
+  <blockquote style="font-size:20px;">Sometimes the wrong tool for the job is the right one 😉</blockquote>
+</p>
 </div>
 
 <p align="center">
@@ -33,12 +37,14 @@
 
 ## What PureJsImage is best at
 
-- **Low peak memory usage** — bounded rows, scanlines, strips, and tiles avoid source-sized RGBA working sets where formats permit it.
-- **Portable across Node.js and modern browsers** — strict TypeScript runs without native addons or system executables.
-- **Zero dependencies** — the published package has no runtime dependency tree.
-- **Native scientific raster processing** — direct-range reads and native-precision data avoid forcing scientific samples through RGBA.
-- **Correctness-gated benchmarks** — ordinary codec and scientific-reader suites measure speed, peak RSS, output validity, source I/O, and package footprint.
-- **Optional WASM accelerators** — explicit JPEG and PNG accelerator imports never load or activate automatically.
+- **Low peak memory usage** - bounded rows, scanlines, strips, and tiles avoid source-sized RGBA working sets where formats permit it.
+- **Portable across Node.js and modern browsers** - strict TypeScript runs without native addons or system executables.
+- **Zero dependencies** - the published package has no runtime dependency tree. You can also easily tree-shake our exports.
+- **Native scientific raster processing** - direct-range reads and native-precision data avoid forcing scientific samples through RGBA.
+- **Correctness-gated benchmarks** - ordinary codec and scientific-reader suites measure speed, peak RSS, output validity, source I/O, and package footprint.
+- **Optional WASM accelerators** - explicit JPEG and PNG accelerator imports never load or activate automatically.
+- **HUGE tested compatibility matrix** - we used Imazen image corpus ensure massive breadth of compatibility. PureJsImage can process many more image format variations successfully than nearly every competing project.
+- **Benchmaxxed performance** - we painstakingly hillclimbed performance metrics vs other JS image libraries. Most of the hot loops have been unrolled. We are still slower than Sharp but mostly faster than anything else that is pure JS.
 
 PureJsImage provides portable image codecs and low-memory raster workflows for Node.js
 and modern browsers. The permanent reference engine is strict TypeScript with no runtime dependency
@@ -87,28 +93,28 @@ PureJsImage requires Node.js 22 or newer. Browser applications import the core A
 Register only the codecs an application needs:
 
 ```ts
-import { createImageLibrary } from 'purejsimage'
-import { jpegCodec } from 'purejsimage/codecs/jpeg'
-import { pngCodec } from 'purejsimage/codecs/png'
+import { createImageLibrary } from "purejsimage";
+import { jpegCodec } from "purejsimage/codecs/jpeg";
+import { pngCodec } from "purejsimage/codecs/png";
 
-const images = createImageLibrary({ codecs: [jpegCodec, pngCodec] })
-const image = await images.open('input.jpg')
+const images = createImageLibrary({ codecs: [jpegCodec, pngCodec] });
+const image = await images.open("input.jpg");
 
 await image
   .autoOrient()
   .resize({ width: 1200, withoutEnlargement: true })
-  .jpeg({ quality: 80, background: '#ffffff' })
-  .toFile('output.jpg')
+  .jpeg({ quality: 80, background: "#ffffff" })
+  .toFile("output.jpg");
 ```
 
 Use `purejsimage/browser` with `File`, `Blob`, `Uint8Array`, or an explicit `ImageSource` in a
 browser. For the common web formats, register the prebuilt JPEG, PNG, WebP, and AVIF group:
 
 ```ts
-import { createImageLibrary } from 'purejsimage'
-import { allWebCodecs } from 'purejsimage/codecs/web'
+import { createImageLibrary } from "purejsimage";
+import { allWebCodecs } from "purejsimage/codecs/web";
 
-const webImages = createImageLibrary(allWebCodecs)
+const webImages = createImageLibrary(allWebCodecs);
 ```
 
 TIFF remains an explicit `purejsimage/codecs/tiff` import because including it would substantially
@@ -129,19 +135,19 @@ palette, slice, or projection.
 <p align="center"><em>The explorer maps native samples to display pixels in the tab. It does not write an RGB conversion of the cube.</em></p>
 
 ```ts
-import { FileSource } from 'purejsimage'
-import { createScientificLibrary } from 'purejsimage/scientific'
-import { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
+import { FileSource } from "purejsimage";
+import { createScientificLibrary } from "purejsimage/scientific";
+import { omeTiffReader } from "purejsimage/scientific/readers/ome-tiff";
 
-const science = createScientificLibrary({ readers: [omeTiffReader] })
+const science = createScientificLibrary({ readers: [omeTiffReader] });
 const document = await science.open({
   primary: {
-    id: 'input',
-    name: 'input.ome.tif',
-    source: await FileSource.open('input.ome.tif'),
+    id: "input",
+    name: "input.ome.tif",
+    source: await FileSource.open("input.ome.tif"),
   },
-})
-const dataset = await document.openDataset(document.datasets[0].id)
+});
+const dataset = await document.openDataset(document.datasets[0].id);
 ```
 
 Direct-range readers can request only the source spans needed for metadata, a native-precision
@@ -242,11 +248,18 @@ distributors must evaluate their own licensing obligations.
 <!-- Generated by scripts/render-documentation.ts. Do not edit this block. -->
 ## Current benchmark snapshots
 
-**Web codec benchmarks (2026-08-17):** 89 validated passes, 16 explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the 24-megapixel northstar photo pipeline, the TypeScript path used 84.5% less absolute peak RSS than Jimp (184.3 MiB versus 1189.2 MiB).
+**Web codec benchmarks (2026-08-18):** 122 validated passes, 25 explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the 24-megapixel northstar photo pipeline, the TypeScript path used 84.9% less absolute peak RSS than Jimp (180.1 MiB versus 1189.3 MiB).
 
 **Scientific readers (2026-08-16):** 43 correctness and startup workflows passed across 31 readers in that snapshot. The separate medium/large scaling profile validated 11 representative workloads; 3 met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.
 
 > Ordinary and scientific reports use separately fingerprinted harnesses. No cross-section speed or memory ratio is claimed.
+
+<p align="center">
+  <a href="https://purejsimage.com/performance/#web-codec-benchmarks">
+    <img src="docs-astro/public/assets/readme/web-codec-speed.svg" alt="Web codec benchmark speed chart. Lower wall time is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">
+  </a>
+</p>
+<p align="center"><em>Median wall time from the current validated web codec benchmark snapshot.</em></p>
 
 <p align="center">
   <a href="https://purejsimage.com/performance/#web-codec-benchmarks">
@@ -329,4 +342,6 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md), the [architecture](project-spec.md), an
 ## Special thanks
 
 Thanks to [Imazen](https://github.com/imazen) for the real-world image corpus used in compatibility
-and TIFF validation.
+and (especially) TIFF validation.
+
+Thanks to [PgRust](https://malisper.me/how-we-made-postgres-hundreds-of-times-faster-the-query-engine/) for inspiring me to do this work.

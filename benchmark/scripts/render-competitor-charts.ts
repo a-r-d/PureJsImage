@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { BenchmarkReport, BenchmarkResult } from '../types.ts'
@@ -80,11 +80,17 @@ const competitorWorkflowCandidates = [
 
 const webCodecWorkflowCandidates = [
   { id: 'jpeg-resize-1200', label: 'JPEG resize → JPEG' },
+  { id: 'jpeg-progressive-resize-1200', label: 'Progressive JPEG resize → JPEG' },
+  { id: 'lambda-twilio-mms-jpeg-1024', label: 'Lambda JPEG thumbnail' },
   { id: 'png-resize-1000', label: 'PNG resize → PNG' },
   { id: 'webp-large-resize-jpeg', label: 'WebP resize → JPEG' },
+  { id: 'webp-lossless-alpha-png', label: 'Lossless WebP alpha → PNG' },
+  { id: 'jpeg-to-webp-lossy', label: 'JPEG → WebP' },
   { id: 'tiff-large-resize-jpeg', label: 'TIFF resize → JPEG' },
   { id: 'avif-fox-full-png', label: 'AVIF full decode → PNG' },
   { id: 'avif-fox-resize-jpeg', label: 'AVIF resize → JPEG' },
+  { id: 'avif-fox-crop-resize-jpeg', label: 'AVIF crop + resize → JPEG' },
+  { id: 'jpeg-to-avif', label: 'JPEG → AVIF' },
 ] as const
 
 const workflowCandidates =
@@ -218,7 +224,7 @@ const formatMetric = (result: BenchmarkResult, value: number, metric: Metric): s
 const chartSvg = (metric: Metric): string => {
   const workflows = metric === 'quality' ? qualityWorkflows : performanceWorkflows
   const width = 2400
-  const groupHeight = 204
+  const groupHeight = 220
   const height = 490 + workflows.length * groupHeight
   const plotLeft = 760
   const plotRight = 2220

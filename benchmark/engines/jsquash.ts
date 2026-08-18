@@ -1,11 +1,13 @@
 import { readFile } from 'node:fs/promises'
 import decodeAvif, { init as initAvifDecode } from '@jsquash/avif/decode.js'
+import encodeAvif, { init as initAvifEncode } from '@jsquash/avif/encode.js'
 import decodeJpeg, { init as initJpegDecode } from '@jsquash/jpeg/decode.js'
 import encodeJpeg, { init as initJpegEncode } from '@jsquash/jpeg/encode.js'
 import decodePng, { init as initPngDecode } from '@jsquash/png/decode.js'
 import encodePng, { init as initPngEncode } from '@jsquash/png/encode.js'
 import resize, { initResize } from '@jsquash/resize'
 import decodeWebp, { init as initWebpDecode } from '@jsquash/webp/decode.js'
+import encodeWebp, { init as initWebpEncode } from '@jsquash/webp/encode.js'
 import type { Engine, EngineExecution, Operation, PipelineWorkflow } from '../types.ts'
 
 type EncodeOperation = Extract<Operation, { type: 'encode' }>
@@ -60,6 +62,14 @@ const initializeAvifDecoder = (): Promise<void> => {
   return avifDecoderReady
 }
 
+let avifEncoderReady: Promise<void> | undefined
+const initializeAvifEncoder = (): Promise<void> => {
+  avifEncoderReady ??= compiledModule('@jsquash/avif', 'codec/enc/avif_enc.wasm').then(
+    initAvifEncode,
+  )
+  return avifEncoderReady
+}
+
 let jpegEncoderReady: Promise<void> | undefined
 const initializeJpegEncoder = (): Promise<void> => {
   jpegEncoderReady ??= compiledModule('@jsquash/jpeg', 'codec/enc/mozjpeg_enc.wasm').then(
@@ -108,6 +118,16 @@ const initializeWebpDecoder = (): Promise<void> => {
   return webpDecoderReady
 }
 
+let webpEncoderReady: Promise<void> | undefined
+const initializeWebpEncoder = (): Promise<void> => {
+  webpEncoderReady ??= compiledModule('@jsquash/webp', 'codec/enc/webp_enc.wasm').then(
+    async (module) => {
+      await initWebpEncode(module)
+    },
+  )
+  return webpEncoderReady
+}
+
 const preparedInputs = new WeakMap<Buffer, ArrayBuffer>()
 
 const preparedInput = (input: Buffer): ArrayBuffer => {
@@ -153,6 +173,19 @@ const encode = async (image: ImageData, operation: EncodeOperation): Promise<Uin
     // encoder defaults are used; decoded output remains losslessly equivalent.
     return new Uint8Array(await encodePng(image))
   }
+  if (operation.format === 'webp') {
+    await initializeWebpEncoder()
+    return new Uint8Array(
+      await encodeWebp(image, {
+        ...(operation.quality !== undefined ? { quality: operation.quality } : {}),
+        ...(operation.lossless !== undefined ? { lossless: operation.lossless ? 1 : 0 } : {}),
+      }),
+    )
+  }
+  if (operation.format === 'avif') {
+    await initializeAvifEncoder()
+    return new Uint8Array(await encodeAvif(image))
+  }
   throw new Error(`jSquash benchmark output is unsupported: ${operation.format}`)
 }
 
@@ -161,7 +194,11 @@ const decode = async (workflow: PipelineWorkflow, input: Buffer): Promise<ImageD
   if (
     workflow.id === 'jpeg-resize-1200' ||
     workflow.id === 'jpeg-to-png' ||
-    workflow.id === 'auto-orient-6'
+    workflow.id === 'auto-orient-6' ||
+    workflow.id === 'jpeg-to-avif' ||
+    workflow.id === 'jpeg-to-webp-lossy' ||
+    workflow.id === 'jpeg-progressive-resize-1200' ||
+    workflow.id === 'lambda-twilio-mms-jpeg-1024'
   ) {
     await initializeJpegDecoder()
     return decodeJpeg(bytes, {
@@ -176,7 +213,7 @@ const decode = async (workflow: PipelineWorkflow, input: Buffer): Promise<ImageD
     await initializePngDecoder()
     return decodePng(bytes)
   }
-  if (workflow.id === 'webp-large-resize-jpeg') {
+  if (workflow.id === 'webp-large-resize-jpeg' || workflow.id === 'webp-lossless-alpha-png') {
     await initializeWebpDecoder()
     return decodeWebp(bytes)
   }
@@ -228,8 +265,13 @@ const supportedWorkflows = new Set([
   'auto-orient-6',
   'stress-100mp-downscale',
   'webp-large-resize-jpeg',
+  'webp-lossless-alpha-png',
   'avif-fox-full-png',
   'avif-fox-resize-jpeg',
+  'jpeg-to-avif',
+  'jpeg-to-webp-lossy',
+  'jpeg-progressive-resize-1200',
+  'lambda-twilio-mms-jpeg-1024',
 ])
 
 export const engine: Engine = {
@@ -252,7 +294,11 @@ export const engine: Engine = {
     if (workflow.id === 'avif-fox-metadata') {
       return 'jSquash has no metadata inspection API; decoding all AVIF pixels would not be equivalent'
     }
-    if (workflow.id === 'northstar-photo-pipeline' || workflow.id === 'jpeg-crop-resize') {
+    if (
+      workflow.id === 'northstar-photo-pipeline' ||
+      workflow.id === 'jpeg-crop-resize' ||
+      workflow.id === 'avif-fox-crop-resize-jpeg'
+    ) {
       return "jSquash has no public operation for the workflow's exact crop coordinates"
     }
     if (workflow.id === 'png-to-jpeg') {

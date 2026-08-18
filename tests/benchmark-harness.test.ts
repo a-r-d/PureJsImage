@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
 import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
-import { engine as pureJsImageExperimentalHeicEngine } from '../benchmark/engines/purejsimage-experimental-heic.ts'
 import { engine as pureJsImageEngine } from '../benchmark/engines/purejsimage.ts'
+import { engine as pureJsImageExperimentalHeicEngine } from '../benchmark/engines/purejsimage-experimental-heic.ts'
 import { engine as pureJsImageWasmEngine } from '../benchmark/engines/purejsimage-wasm.ts'
-import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { engine as sharpEngine } from '../benchmark/engines/sharp.ts'
+import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { createQualityReference, measureQualityPsnr } from '../benchmark/lib/quality.ts'
 import { summarizeSamples } from '../benchmark/lib/results.ts'
 import { validateExecution } from '../benchmark/lib/validate-output.ts'
@@ -18,6 +18,12 @@ import { workflowsForProfile } from '../benchmark/workflows.ts'
 const competitorWorkflow = (id: string): PipelineWorkflow => {
   const workflow = workflowsForProfile('competitors').find((candidate) => candidate.id === id)
   if (!workflow || workflow.batch) throw new Error(`Missing competitor workflow: ${id}`)
+  return workflow
+}
+
+const webCodecWorkflow = (id: string): PipelineWorkflow => {
+  const workflow = workflowsForProfile('web-codecs').find((candidate) => candidate.id === id)
+  if (!workflow || workflow.batch) throw new Error(`Missing web-codecs workflow: ${id}`)
   return workflow
 }
 
@@ -63,6 +69,64 @@ describe('competitor benchmark classification', () => {
           [],
         ),
       ),
+    ).resolves.toBeUndefined()
+  })
+
+  it('classifies the expanded common-web jobs without approximating them', async () => {
+    const avifCrop = webCodecWorkflow('avif-fox-crop-resize-jpeg')
+    const jpegToAvif = webCodecWorkflow('jpeg-to-avif')
+    const jpegToWebp = webCodecWorkflow('jpeg-to-webp-lossy')
+    const progressive = webCodecWorkflow('jpeg-progressive-resize-1200')
+    const lambdaJpeg = webCodecWorkflow('lambda-twilio-mms-jpeg-1024')
+    const losslessAlpha = webCodecWorkflow('webp-lossless-alpha-png')
+
+    await expect(Promise.resolve(jsquashEngine.unsupportedReason(avifCrop, []))).resolves.toContain(
+      'exact crop coordinates',
+    )
+    await expect(Promise.resolve(jimpEngine.unsupportedReason(jpegToAvif, []))).resolves.toContain(
+      'no AVIF encoder',
+    )
+    await expect(
+      Promise.resolve(imageJsEngine.unsupportedReason(jpegToAvif, [])),
+    ).resolves.toContain('no AVIF encoder')
+    await expect(Promise.resolve(jimpEngine.unsupportedReason(jpegToWebp, []))).resolves.toContain(
+      'no WebP encoder',
+    )
+    await expect(
+      Promise.resolve(imageJsEngine.unsupportedReason(jpegToWebp, [])),
+    ).resolves.toContain('no WebP encoder')
+    await expect(
+      Promise.resolve(jimpEngine.unsupportedReason(losslessAlpha, [])),
+    ).resolves.toContain('no WebP decoder')
+    await expect(
+      Promise.resolve(imageJsEngine.unsupportedReason(losslessAlpha, [])),
+    ).resolves.toContain('no WebP decoder')
+    await expect(
+      Promise.resolve(jsquashEngine.unsupportedReason(jpegToAvif, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(jsquashEngine.unsupportedReason(jpegToWebp, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(jsquashEngine.unsupportedReason(progressive, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(jsquashEngine.unsupportedReason(lambdaJpeg, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(imageJsEngine.unsupportedReason(progressive, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(imageJsEngine.unsupportedReason(lambdaJpeg, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(jimpEngine.unsupportedReason(progressive, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(jimpEngine.unsupportedReason(lambdaJpeg, [])),
+    ).resolves.toBeUndefined()
+    await expect(
+      Promise.resolve(pureJsImageEngine.unsupportedReason(jpegToAvif, [])),
     ).resolves.toBeUndefined()
   })
 
