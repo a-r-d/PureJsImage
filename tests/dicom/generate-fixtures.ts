@@ -5,24 +5,18 @@ import {
   explicitVrLittleEndianUid,
   implicitVrLittleEndianUid,
 } from '../../src/scientific/formats/dicom/constants.ts'
-import { dicomTextBytes, dicomUInt16Bytes, writeDicomPart10 } from './part10-writer.ts'
+import {
+  dicomIdentityElements,
+  dicomMonochromePixelElements,
+  dicomTextBytes,
+  writeDicomPart10,
+} from './part10-writer.ts'
 
 const pixel = Uint8Array.from({ length: 32 }, () => 0xab)
 const dataset = [
-  {
-    tag: dicomTag.sopClassUid,
-    vr: 'UI' as const,
-    value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7'),
-  },
-  {
-    tag: dicomTag.sopInstanceUid,
-    vr: 'UI' as const,
-    value: dicomTextBytes('1.2.826.0.1.3680043.10.850.1.1'),
-  },
+  ...dicomIdentityElements(),
   { tag: dicomTag.modality, vr: 'CS' as const, value: dicomTextBytes('OT') },
-  { tag: dicomTag.rows, vr: 'US' as const, value: dicomUInt16Bytes(4) },
-  { tag: dicomTag.columns, vr: 'US' as const, value: dicomUInt16Bytes(4) },
-  { tag: dicomTag.bitsAllocated, vr: 'US' as const, value: dicomUInt16Bytes(16) },
+  ...dicomMonochromePixelElements({ rows: 4, columns: 4, bitsAllocated: 16 }),
   { tag: dicomTag.pixelData, vr: 'OW' as const, value: pixel },
 ]
 

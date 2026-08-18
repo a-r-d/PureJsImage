@@ -45,12 +45,20 @@ class BitWriter {
   }
 
   finish(): Uint8Array {
-    if (this.#bitCount > 0) {
-      this.#bits <<= 8 - this.#bitCount
-      this.#bits |= (1 << (8 - this.#bitCount)) - 1
-      this.#flushByte()
-    }
+    this.align()
     return Uint8Array.from(this.#bytes)
+  }
+
+  align(): void {
+    if (this.#bitCount === 0) return
+    this.#bits <<= 8 - this.#bitCount
+    this.#bits |= (1 << (8 - this.#bitCount)) - 1
+    this.#flushByte()
+  }
+
+  marker(value: number): void {
+    this.align()
+    this.#bytes.push(0xff, value)
   }
 }
 
@@ -95,10 +103,15 @@ export const encodeJpegLosslessGray = (
   width: number,
   height: number,
   samples: readonly number[],
-  options: Readonly<{ readonly precision?: number; readonly selection?: number }> = {},
+  options: Readonly<{
+    readonly precision?: number
+    readonly selection?: number
+    readonly restartInterval?: number
+  }> = {},
 ): Uint8Array => {
   const precision = options.precision ?? 8
   const selection = options.selection ?? 1
+  const restartInterval = options.restartInterval ?? 0
   if (samples.length !== width * height) throw new Error('lossless JPEG sample count is invalid')
   const header: number[] = [0xff, 0xd8, 0xff, 0xc4]
   const tableBytes = [0, ...losslessDcCounts, ...losslessDcValues]
@@ -110,6 +123,11 @@ export const encodeJpegLosslessGray = (
   writeUint16(header, height)
   writeUint16(header, width)
   header.push(1, 1, 0x11, 0)
+  if (restartInterval > 0) {
+    header.push(0xff, 0xdd)
+    writeUint16(header, 4)
+    writeUint16(header, restartInterval)
+  }
   header.push(0xff, 0xda)
   writeUint16(header, 8)
   header.push(1, 1, 0, selection, 0, 0)
@@ -117,12 +135,21 @@ export const encodeJpegLosslessGray = (
   const codes = huffmanCodes(losslessDcCounts, losslessDcValues)
   const writer = new BitWriter()
   const firstPredictor = 1 << (precision - 1)
+  let samplesSinceRestart = 0
+  let restart = 0
+  let restartLine = true
   for (let index = 0; index < samples.length; index += 1) {
     const x = index % width
     const y = Math.floor(index / width)
+    if (restartInterval > 0 && samplesSinceRestart === restartInterval) {
+      writer.marker(0xd0 + (restart & 7))
+      restart += 1
+      samplesSinceRestart = 0
+      restartLine = true
+    }
     let predicted: number
-    if (index === 0) predicted = firstPredictor
-    else if (y === 0) predicted = samples[index - 1] ?? 0
+    if (samplesSinceRestart === 0) predicted = firstPredictor
+    else if (restartLine || y === 0) predicted = samples[index - 1] ?? 0
     else if (x === 0) predicted = samples[index - width] ?? 0
     else {
       predicted = predict(
@@ -141,6 +168,8 @@ export const encodeJpegLosslessGray = (
     if (encoded === undefined) throw new Error(`no Huffman code for category ${category}`)
     writer.write(encoded.code, encoded.length)
     if (category > 0) writer.write(extraBits(diff, category), category)
+    samplesSinceRestart += 1
+    if (x === width - 1) restartLine = false
   }
   const entropy = writer.finish()
   return Uint8Array.from([...header, ...entropy, 0xff, 0xd9])

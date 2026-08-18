@@ -3,7 +3,7 @@ import { invalidInput, limitExceeded, unsupportedOperation } from '../../../erro
 import type { RasterSampleType } from '../../../raster.ts'
 import { rasterSampleBytes } from '../../../raster.ts'
 import type { ImageSource } from '../../../source.ts'
-import { dicomTag, formatDicomTag } from './constants.ts'
+import { dicomTag } from './constants.ts'
 import {
   type DicomDataset,
   type DicomElement,
@@ -11,9 +11,12 @@ import {
   decodeDicomIntegerString,
   decodeDicomText,
   decodeDicomUInt16Values,
-  findDicomElement,
+  requireUniqueDicomElement,
 } from './elements.ts'
-import { indexDicomEncapsulatedFrames } from './encapsulated-pixel.ts'
+import {
+  dicomEncapsulatedFragmentPolicy,
+  indexDicomEncapsulatedFrames,
+} from './encapsulated-pixel.ts'
 import type { DicomLimits } from './limits.ts'
 import type { DicomPixelDataLocator } from './parser.ts'
 import type { DicomTransferSyntax } from './transfer-syntax.ts'
@@ -32,6 +35,7 @@ export type DicomPixelEncoding =
 export interface DicomEncapsulatedFrame {
   readonly fragments: readonly DicomFragmentLocator[]
   readonly encodedBytes: number
+  readonly physicalEncodedBytes: number
 }
 
 export interface DicomPixelDescription {
@@ -58,14 +62,7 @@ const requiredElement = (
   elements: readonly DicomElement[],
   tag: number,
   label: string,
-): DicomElement => {
-  const matches = elements.filter((element) => element.tag === tag)
-  if (matches.length === 0) throw invalidInput(`DICOM ${label} is missing`)
-  if (matches.length > 1) throw invalidInput(`DICOM ${label} is duplicated`)
-  const element = matches[0]
-  if (element === undefined) throw invalidInput(`DICOM ${label} is missing`)
-  return element
-}
+): DicomElement => requireUniqueDicomElement(elements, tag, label)
 
 const requiredValue = (
   elements: readonly DicomElement[],
@@ -93,18 +90,6 @@ const requiredUInt16 = (elements: readonly DicomElement[], tag: number, label: s
   const value = values[0]
   if (value === undefined) throw invalidInput(`DICOM ${label} is missing`)
   return value
-}
-
-const optionalUInt16 = (
-  elements: readonly DicomElement[],
-  tag: number,
-  label: string,
-): number | undefined => {
-  const bytes = optionalValue(elements, tag, label)
-  if (bytes === undefined) return undefined
-  const values = decodeDicomUInt16Values(bytes)
-  if (values.length !== 1) throw invalidInput(`DICOM ${label} must contain one value`)
-  return values[0]
 }
 
 const checkedProduct = (values: readonly number[], label: string): number => {
@@ -138,13 +123,22 @@ export const describeDicomPixels = async (
   options: Readonly<AbortOptions> = {},
 ): Promise<DicomPixelDescription> => {
   if (pixelData === undefined) throw invalidInput('DICOM Pixel Data is missing')
+  requireUniqueDicomElement(dataset.elements, dicomTag.pixelData, 'Pixel Data')
   const encoding = pixelEncoding(transferSyntax)
   if (encoding === 'native') {
     if (pixelData.encapsulated || pixelData.valueLength === undefined) {
       throw invalidInput('DICOM native transfer syntax cannot use encapsulated Pixel Data')
     }
-  } else if (!pixelData.encapsulated || pixelData.fragments === undefined) {
-    throw invalidInput('DICOM encapsulated transfer syntax requires encapsulated Pixel Data')
+  } else {
+    if (!pixelData.encapsulated || pixelData.valueLength !== undefined) {
+      throw invalidInput('DICOM encapsulated Pixel Data must have undefined length')
+    }
+    if (pixelData.vr !== undefined && pixelData.vr !== 'OB') {
+      throw invalidInput('DICOM encapsulated Pixel Data must use VR OB')
+    }
+    if (pixelData.fragments === undefined) {
+      throw invalidInput('DICOM encapsulated transfer syntax requires encapsulated Pixel Data')
+    }
   }
   const samplesPerPixel = requiredUInt16(
     dataset.elements,
@@ -176,21 +170,23 @@ export const describeDicomPixels = async (
   if (bitsAllocated !== 8 && bitsAllocated !== 16) {
     throw unsupportedOperation(`DICOM Bits Allocated ${bitsAllocated} is unsupported`)
   }
-  const bitsStored =
-    optionalUInt16(dataset.elements, dicomTag.bitsStored, 'Bits Stored') ?? bitsAllocated
+  const bitsStored = requiredUInt16(dataset.elements, dicomTag.bitsStored, 'Bits Stored')
   if (bitsStored < 1 || bitsStored > bitsAllocated) {
     throw invalidInput(
       `DICOM Bits Stored ${bitsStored} is invalid for Bits Allocated ${bitsAllocated}`,
     )
   }
-  const highBit = optionalUInt16(dataset.elements, dicomTag.highBit, 'High Bit') ?? bitsStored - 1
+  const highBit = requiredUInt16(dataset.elements, dicomTag.highBit, 'High Bit')
   if (highBit !== bitsStored - 1) {
     throw unsupportedOperation(
       `DICOM High Bit ${highBit} is unsupported; High Bit must equal Bits Stored - 1`,
     )
   }
-  const representationCode =
-    optionalUInt16(dataset.elements, dicomTag.pixelRepresentation, 'Pixel Representation') ?? 0
+  const representationCode = requiredUInt16(
+    dataset.elements,
+    dicomTag.pixelRepresentation,
+    'Pixel Representation',
+  )
   if (representationCode !== 0 && representationCode !== 1) {
     throw invalidInput(`DICOM Pixel Representation ${representationCode} is invalid`)
   }
@@ -249,9 +245,6 @@ export const describeDicomPixels = async (
       `DICOM frame is ${frameBytes} bytes; maxDecodedFrameBytes is ${limits.maxDecodedFrameBytes}`,
     )
   }
-  if (findDicomElement(dataset.elements, dicomTag.pixelData) === undefined) {
-    throw invalidInput(`DICOM ${formatDicomTag(dicomTag.pixelData)} is missing`)
-  }
   if (encoding === 'native') {
     const available = pixelData.valueLength
     if (available === undefined) throw invalidInput('DICOM native Pixel Data length is missing')
@@ -292,6 +285,7 @@ export const describeDicomPixels = async (
     pixelData,
     numberOfFrames,
     limits,
+    dicomEncapsulatedFragmentPolicy(encoding),
     options.signal,
   )
   return Object.freeze({

@@ -1,7 +1,24 @@
-import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
+import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
+
+export interface JpegLosslessFrameHeader {
+  readonly width: number
+  readonly height: number
+  readonly precision: number
+}
+
+export interface JpegLosslessDecodeLimits {
+  readonly maxWidth?: number
+  readonly maxHeight?: number
+  readonly maxEncodedBytes?: number
+  readonly maxDecodedBytes?: number
+  readonly expectedWidth?: number
+  readonly expectedHeight?: number
+}
 
 export interface JpegLosslessDecodeOptions {
   readonly requiredSelection?: number
+  readonly limits?: JpegLosslessDecodeLimits
+  readonly onFrameHeader?: (header: JpegLosslessFrameHeader) => void
 }
 
 export interface JpegLosslessFrame {
@@ -239,12 +256,98 @@ const skipSegment = (data: Uint8Array, offset: number): number => {
   return end
 }
 
+const jpegLosslessWorkingBytes = (width: number, height: number, precision: number): bigint => {
+  const bytesPerSample = BigInt(precision <= 8 ? 1 : 2)
+  const outputBytes = BigInt(width) * BigInt(height) * bytesPerSample
+  const predictorBytes = BigInt(width) * 4n * 2n
+  return outputBytes + predictorBytes
+}
+
+const validateJpegLosslessFrameHeader = (
+  encodedLength: number,
+  header: JpegLosslessFrameHeader,
+  limits: JpegLosslessDecodeLimits | undefined,
+): void => {
+  if (header.width < 1 || header.height < 1) {
+    throw invalidInput('JPEG lossless dimensions are invalid')
+  }
+  if (limits?.maxEncodedBytes !== undefined && encodedLength > limits.maxEncodedBytes) {
+    throw limitExceeded(
+      `JPEG lossless input is ${encodedLength} bytes; maxEncodedBytes is ${limits.maxEncodedBytes}`,
+    )
+  }
+  if (limits?.expectedWidth !== undefined && header.width !== limits.expectedWidth) {
+    throw invalidInput(
+      `JPEG lossless width ${header.width} does not match expected width ${limits.expectedWidth}`,
+    )
+  }
+  if (limits?.expectedHeight !== undefined && header.height !== limits.expectedHeight) {
+    throw invalidInput(
+      `JPEG lossless height ${header.height} does not match expected height ${limits.expectedHeight}`,
+    )
+  }
+  if (limits?.maxWidth !== undefined && header.width > limits.maxWidth) {
+    throw limitExceeded(`JPEG lossless width ${header.width} exceeds maxWidth ${limits.maxWidth}`)
+  }
+  if (limits?.maxHeight !== undefined && header.height > limits.maxHeight) {
+    throw limitExceeded(
+      `JPEG lossless height ${header.height} exceeds maxHeight ${limits.maxHeight}`,
+    )
+  }
+  const pixelCount = BigInt(header.width) * BigInt(header.height)
+  if (pixelCount > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw limitExceeded('JPEG lossless pixel count exceeds safe integers')
+  }
+  const bytesPerSample = header.precision <= 8 ? 1 : 2
+  const outputBytes = pixelCount * BigInt(bytesPerSample)
+  if (outputBytes > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw limitExceeded('JPEG lossless output byte count exceeds safe integers')
+  }
+  const workingBytes = jpegLosslessWorkingBytes(header.width, header.height, header.precision)
+  if (workingBytes > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw limitExceeded('JPEG lossless working set exceeds safe integers')
+  }
+  if (limits?.maxDecodedBytes !== undefined && workingBytes > BigInt(limits.maxDecodedBytes)) {
+    throw limitExceeded(
+      `JPEG lossless working set is ${workingBytes} bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,
+    )
+  }
+}
+
+const allocateJpegLosslessBuffers = (
+  width: number,
+  sampleCount: number,
+  bytesPerSample: number,
+): {
+  readonly previousRow: Int32Array
+  readonly currentRow: Int32Array
+  readonly output: Uint8Array
+} => {
+  try {
+    return {
+      previousRow: new Int32Array(width),
+      currentRow: new Int32Array(width),
+      output: new Uint8Array(sampleCount * bytesPerSample),
+    }
+  } catch {
+    throw limitExceeded('JPEG lossless working buffers exceed the typed-array allocation limit')
+  }
+}
+
 export const decodeJpegLosslessFrame = (
   encoded: Uint8Array,
   options: Readonly<JpegLosslessDecodeOptions> = {},
 ): JpegLosslessFrame => {
   if (encoded.byteLength < 4 || byte(encoded, 0) !== 0xff || byte(encoded, 1) !== 0xd8) {
     throw invalidInput('JPEG lossless frame is missing SOI')
+  }
+  if (
+    options.limits?.maxEncodedBytes !== undefined &&
+    encoded.byteLength > options.limits.maxEncodedBytes
+  ) {
+    throw limitExceeded(
+      `JPEG lossless input is ${encoded.byteLength} bytes; maxEncodedBytes is ${options.limits.maxEncodedBytes}`,
+    )
   }
   const dcTables = new Map<number, HuffmanTable>()
   let width = 0
@@ -293,6 +396,9 @@ export const decodeJpegLosslessFrame = (
       }
       if (quantization !== 0)
         throw invalidInput('JPEG lossless quantization table selector must be 0')
+      const header = Object.freeze({ width, height, precision })
+      validateJpegLosslessFrameHeader(encoded.byteLength, header, options.limits)
+      options.onFrameHeader?.(header)
       sawFrame = true
     } else if (marker === 0xc4) {
       parseHuffmanTables(encoded, start, end, dcTables)
@@ -343,63 +449,68 @@ export const decodeJpegLosslessFrame = (
   }
 
   if (!sawFrame || scanOffset < 0) throw invalidInput('JPEG lossless SOF3 scan is missing')
-  if (width < 1 || height < 1) throw invalidInput('JPEG lossless dimensions are invalid')
   const table = dcTables.get(tableId)
   if (table === undefined) throw invalidInput('JPEG lossless Huffman table is missing')
   if (pointTransform >= precision) {
     throw invalidInput('JPEG lossless point transform exceeds sample precision')
   }
+  validateJpegLosslessFrameHeader(encoded.byteLength, { width, height, precision }, options.limits)
 
   const reader = new LosslessBitReader(encoded, scanOffset)
   const sampleCount = width * height
-  const samples = new Int32Array(sampleCount)
+  const bytesPerSample = precision <= 8 ? 1 : 2
+  const buffers = allocateJpegLosslessBuffers(width, sampleCount, bytesPerSample)
   const mask = (1 << precision) - 1
   const firstPredictor = 1 << (precision - pointTransform - 1)
   let samplesSinceRestart = 0
   let restart = 0
   let restartLine = true
+  const previousRow = buffers.previousRow
+  const currentRow = buffers.currentRow
+  const output = buffers.output
 
-  for (let index = 0; index < sampleCount; index += 1) {
-    if (restartInterval > 0 && samplesSinceRestart === restartInterval) {
-      reader.consumeRestart(0xd0 + (restart & 7))
-      restart += 1
-      samplesSinceRestart = 0
-      restartLine = true
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (restartInterval > 0 && samplesSinceRestart === restartInterval) {
+        reader.consumeRestart(0xd0 + (restart & 7))
+        restart += 1
+        samplesSinceRestart = 0
+        restartLine = true
+      }
+      let predicted: number
+      if (samplesSinceRestart === 0) {
+        predicted = firstPredictor
+      } else if (restartLine || y === 0) {
+        predicted = currentRow[x - 1] ?? 0
+      } else if (x === 0) {
+        predicted = previousRow[x] ?? 0
+      } else {
+        predicted = predict(
+          selection,
+          currentRow[x - 1] ?? 0,
+          previousRow[x] ?? 0,
+          previousRow[x - 1] ?? 0,
+        )
+      }
+      const category = decodeHuffman(reader, table)
+      const diff = reader.receiveAndExtend(category)
+      currentRow[x] = (predicted + diff) & mask
+      samplesSinceRestart += 1
+      if (x === width - 1) restartLine = false
     }
-    const x = index % width
-    let predicted: number
-    if (samplesSinceRestart === 0) {
-      predicted = firstPredictor
-    } else if (restartLine || Math.floor(index / width) === 0) {
-      predicted = samples[index - 1] ?? 0
-    } else if (x === 0) {
-      predicted = samples[index - width] ?? 0
-    } else {
-      predicted = predict(
-        selection,
-        samples[index - 1] ?? 0,
-        samples[index - width] ?? 0,
-        samples[index - width - 1] ?? 0,
-      )
+    for (let x = 0; x < width; x += 1) {
+      const value = (currentRow[x] ?? 0) << pointTransform
+      const index = y * width + x
+      if (bytesPerSample === 1) {
+        output[index] = value & 0xff
+      } else {
+        output[index * 2] = value & 0xff
+        output[index * 2 + 1] = (value >> 8) & 0xff
+      }
     }
-    const category = decodeHuffman(reader, table)
-    const diff = reader.receiveAndExtend(category)
-    samples[index] = (predicted + diff) & mask
-    samplesSinceRestart += 1
-    if (x === width - 1) restartLine = false
+    previousRow.set(currentRow)
   }
 
-  const bytesPerSample = precision <= 8 ? 1 : 2
-  const output = new Uint8Array(sampleCount * bytesPerSample)
-  for (let index = 0; index < sampleCount; index += 1) {
-    const value = (samples[index] ?? 0) << pointTransform
-    if (bytesPerSample === 1) {
-      output[index] = value & 0xff
-    } else {
-      output[index * 2] = value & 0xff
-      output[index * 2 + 1] = (value >> 8) & 0xff
-    }
-  }
   return Object.freeze({
     width,
     height,

@@ -96,18 +96,18 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 278099,
-      "gzipBytes": 348380,
-      "minifiedBytes": 1203536
+      "brotliBytes": 280371,
+      "gzipBytes": 350820,
+      "minifiedBytes": 1213720
     },
     "allStableCodecs": {
-      "brotliBytes": 257494,
-      "gzipBytes": 312479,
+      "brotliBytes": 257749,
+      "gzipBytes": 312453,
       "minifiedBytes": 887341
     },
     "commonWebCodecs": {
-      "brotliBytes": 192241,
-      "gzipBytes": 229679,
+      "brotliBytes": 192178,
+      "gzipBytes": 229680,
       "minifiedBytes": 621664
     },
     "core": {
@@ -116,7 +116,7 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5838219,
+      "bytes": 5863430,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
@@ -900,7 +900,7 @@
       "oracle": "",
       "packageExport": "purejsimage/scientific/readers/dicom",
       "resourceModel": "single",
-      "supportBoundary": "Local DICOM Part 10 image instances using Implicit or Explicit VR Little Endian native uncompressed MONOCHROME1/2 pixels, Encapsulated Uncompressed Explicit VR Little Endian, RLE Lossless, JPEG Baseline 8-bit, JPEG Lossless Process 14 Selection Value 1, JPEG 2000 Lossless, and JPEG 2000, with 8-bit or 16-bit allocation as the transfer syntax permits, signed or unsigned stored values, 12-bit-in-16 normalization, homogeneous multi-frame selection, Pixel Spacing, linear rescale slope/intercept metadata, and Window Center/Width presets. Stored samples are not rescaled, windowed, or inverted. Selected encapsulated frames read only their offset table and fragments. Color, LUT-based presentation, DICOMweb, series discovery, private-tag interpretation, JPEG Lossless Process 14 other selection values, JPEG-LS, HTJ2K, and other compressed transfer syntaxes remain unsupported. Not validated for diagnostic use."
+      "supportBoundary": "Local DICOM Part 10 image instances using Implicit or Explicit VR Little Endian native uncompressed MONOCHROME1/2 pixels, Encapsulated Uncompressed Explicit VR Little Endian, RLE Lossless, JPEG Baseline 8-bit, JPEG Lossless Process 14 Selection Value 1, JPEG 2000 Lossless, and JPEG 2000, with 8-bit or 16-bit allocation as the transfer syntax permits, signed or unsigned stored values, 12-bit-in-16 normalization, homogeneous multi-frame selection, Pixel Spacing, linear rescale slope/intercept metadata, and Window Center/Width presets. Stored samples are not rescaled, windowed, or inverted. Selected encapsulated frames read only their offset table and fragments. Encapsulated Uncompressed and RLE require one fragment per frame. JPEG families may split a frame across fragments only with a valid Basic Offset Table. Empty offset tables with ambiguous multi-fragment frame boundaries remain unsupported; the reader does not scan for JPEG EOI markers to guess frames. Color, LUT-based presentation, DICOMweb, series discovery, private-tag interpretation, JPEG Lossless Process 14 other selection values, JPEG-LS, HTJ2K, and other compressed transfer syntaxes remain unsupported. Not validated for diagnostic use."
     },
     {
       "benchmarkCoverage": {

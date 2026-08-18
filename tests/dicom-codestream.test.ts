@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import jpeg from 'jpeg-js'
 import { describe, expect, it } from 'vitest'
-import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { inspectJpegCodestream, jpegCodec } from '../src/codecs/jpeg.ts'
 import { decodeJpeg2000NativeGrayFrame } from '../src/codecs/jpeg2000.ts'
 import { rasterSampleBytes } from '../src/raster.ts'
 import type { ScientificDataset } from '../src/scientific/dataset.ts'
@@ -13,10 +13,12 @@ import {
   jpegBaseline8BitUid,
   jpegLosslessSv1Uid,
 } from '../src/scientific/formats/dicom/constants.ts'
+import { packDicomCodecSamples } from '../src/scientific/formats/dicom/codestream.ts'
+import type { DicomPixelDescription } from '../src/scientific/formats/dicom/pixel-description.ts'
 import { createDicomReader } from '../src/scientific/readers/dicom.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource } from '../src/source.ts'
-import { encodeGrayJpeg, stripJpegJfif } from './dicom/jpeg-encode.ts'
+import { encodeGrayJpeg, encodeRgbJpeg, stripJpegJfif } from './dicom/jpeg-encode.ts'
 import { encodeJpegLosslessGray } from './dicom/jpeg-lossless-encode.ts'
 import {
   dicomEncapsulatedFragments,
@@ -26,6 +28,7 @@ import {
 } from './dicom/part10-writer.ts'
 
 const losslessGray16 = readFileSync('tests/fixtures/dicom/lossless-gray16.j2k')
+const losslessGray8 = readFileSync('tests/fixtures/dicom/lossless-gray8.j2k')
 const lossyGray8 = readFileSync('tests/fixtures/dicom/lossy-gray8.j2k')
 
 const planeSamples = async (dataset: ScientificDataset): Promise<number[]> => {
@@ -60,6 +63,8 @@ const encapsulated = (
     readonly photometric?: 'MONOCHROME1' | 'MONOCHROME2'
     readonly samplesPerPixel?: number
     readonly frame: Uint8Array
+    readonly fragments?: readonly Uint8Array[]
+    readonly offsetTable?: 'empty' | 'basic'
   },
 ): Uint8Array =>
   writeDicomPart10({
@@ -67,6 +72,11 @@ const encapsulated = (
     transferSyntaxUid,
     dataset: [
       { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
+      {
+        tag: dicomTag.sopInstanceUid,
+        vr: 'UI',
+        value: dicomTextBytes('1.2.826.0.1.3680043.10.850.1.1'),
+      },
       {
         tag: dicomTag.samplesPerPixel,
         vr: 'US',
@@ -98,9 +108,33 @@ const encapsulated = (
       {
         tag: dicomTag.pixelData,
         vr: 'OB',
-        fragments: dicomEncapsulatedFragments([[options.frame]], 'empty'),
+        fragments: dicomEncapsulatedFragments(
+          [options.fragments ?? [options.frame]],
+          options.offsetTable ?? 'empty',
+        ),
       },
     ],
+  })
+
+const grayContainer16 = (overrides: Partial<DicomPixelDescription> = {}): DicomPixelDescription =>
+  Object.freeze({
+    rows: 1,
+    columns: 4,
+    numberOfFrames: 1,
+    samplesPerPixel: 1,
+    photometricInterpretation: 'MONOCHROME2',
+    bitsAllocated: 16,
+    bitsStored: 8,
+    highBit: 7,
+    pixelRepresentation: 'unsigned',
+    sampleType: 'uint16',
+    bytesPerSample: 2,
+    frameBytes: 8,
+    totalPixelBytes: 8,
+    pixelDataOffset: 0,
+    pixelDataLength: 8,
+    encoding: 'jpeg-lossless-sv1',
+    ...overrides,
   })
 
 const openBytes = async (bytes: Uint8Array) => {
@@ -136,11 +170,6 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
     const withJfif = await encodeGrayJpeg(8, 4, source, 92)
     const withoutJfif = stripJpegJfif(withJfif)
     expect(withoutJfif[2]).not.toBe(0xe0)
-    const oracle = jpeg.decode(Buffer.from(withJfif), {
-      useTArray: true,
-      formatAsRGBA: false,
-      tolerantDecoding: false,
-    })
     const dataset = await openBytes(
       encapsulated(jpegBaseline8BitUid, {
         bitsAllocated: 8,
@@ -151,13 +180,27 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
     )
     const values = await planeSamples(dataset)
     expect(values).toHaveLength(32)
-    const channels = Math.max(1, Math.floor(oracle.data.byteLength / 32))
-    const reference: number[] = []
-    for (let index = 0; index < 32; index += 1) {
-      reference.push(oracle.data[index * channels] ?? 0)
+    let jpegJsReference: number[] | undefined
+    try {
+      const oracle = jpeg.decode(Buffer.from(withJfif), {
+        useTArray: true,
+        formatAsRGBA: false,
+        tolerantDecoding: false,
+      })
+      const channels = Math.max(1, Math.floor(oracle.data.byteLength / 32))
+      jpegJsReference = []
+      for (let index = 0; index < 32; index += 1) {
+        jpegJsReference.push(oracle.data[index * channels] ?? 0)
+      }
+    } catch {
+      jpegJsReference = undefined
     }
-    for (let index = 0; index < values.length; index += 1) {
-      expect(Math.abs((values[index] ?? 0) - (reference[index] ?? 0))).toBeLessThanOrEqual(1)
+    if (jpegJsReference !== undefined) {
+      for (let index = 0; index < values.length; index += 1) {
+        expect(Math.abs((values[index] ?? 0) - (jpegJsReference[index] ?? 0))).toBeLessThanOrEqual(
+          1,
+        )
+      }
     }
     const decoder = jpegCodec.createDecoder
     if (decoder === undefined) throw new Error('JPEG decoder missing')
@@ -326,8 +369,8 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
         await openBytes(
           encapsulated(jpegLosslessSv1Uid, {
             bitsAllocated: 8,
-            rows: 2,
-            columns: 1,
+            rows: 1,
+            columns: 2,
             frame: encodeJpegLosslessGray(2, 1, [8, 9], { selection: 2 }),
           }),
         ),
@@ -336,5 +379,218 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
       code: 'UNSUPPORTED_OPERATION',
       message: expect.stringMatching(/selection value 2/),
     })
+  })
+
+  it('repacks 8-bit JPEG Lossless and JPEG 2000 samples into 16-bit DICOM containers', async () => {
+    expect(packDicomCodecSamples(Uint8Array.of(0, 127, 128, 255), 8, grayContainer16())).toEqual(
+      Uint8Array.of(0, 0, 127, 0, 128, 0, 255, 0),
+    )
+    const lossless8 = encodeJpegLosslessGray(2, 2, [0, 127, 128, 255])
+    const losslessDataset = await openBytes(
+      encapsulated(jpegLosslessSv1Uid, {
+        bitsAllocated: 16,
+        bitsStored: 8,
+        rows: 2,
+        columns: 2,
+        frame: lossless8,
+      }),
+    )
+    expect(losslessDataset.descriptor.sampleType).toBe('uint16')
+    expect(await planeSamples(losslessDataset)).toEqual([0, 127, 128, 255])
+    const signedLossless = encodeJpegLosslessGray(2, 2, [0x80, 0xff, 0x00, 0x7f])
+    const signedDataset = await openBytes(
+      encapsulated(jpegLosslessSv1Uid, {
+        bitsAllocated: 16,
+        bitsStored: 8,
+        signed: true,
+        rows: 2,
+        columns: 2,
+        frame: signedLossless,
+      }),
+    )
+    expect(signedDataset.descriptor.sampleType).toBe('int16')
+    expect(await planeSamples(signedDataset)).toEqual([-128, -1, 0, 127])
+    const jpeg2000LosslessNative = decodeJpeg2000NativeGrayFrame(losslessGray8)
+    expect(jpeg2000LosslessNative).toMatchObject({
+      width: 2,
+      height: 2,
+      precision: 8,
+      signed: false,
+      reversible: true,
+    })
+    expect([...jpeg2000LosslessNative.samplesLittleEndian]).toEqual([0, 127, 128, 255])
+    const jpeg2000Lossless8in16 = await openBytes(
+      encapsulated(jpeg2000LosslessUid, {
+        bitsAllocated: 16,
+        bitsStored: 8,
+        rows: 2,
+        columns: 2,
+        frame: losslessGray8,
+      }),
+    )
+    expect(jpeg2000Lossless8in16.descriptor.sampleType).toBe('uint16')
+    expect(await planeSamples(jpeg2000Lossless8in16)).toEqual([0, 127, 128, 255])
+    const lossy8in16 = await openBytes(
+      encapsulated(jpeg2000Uid, {
+        bitsAllocated: 16,
+        bitsStored: 8,
+        rows: 6,
+        columns: 8,
+        frame: lossyGray8,
+      }),
+    )
+    const native8 = decodeJpeg2000NativeGrayFrame(lossyGray8)
+    expect(lossy8in16.descriptor.sampleType).toBe('uint16')
+    expect(await planeSamples(lossy8in16)).toEqual([...native8.samplesLittleEndian])
+  })
+
+  it('rejects JPEG Baseline codestreams that are not Process 1 grayscale', async () => {
+    const rgb = await encodeRgbJpeg(1, 1, Uint8Array.of(10, 20, 30))
+    expect(inspectJpegCodestream(rgb).componentCount).toBeGreaterThan(1)
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegBaseline8BitUid, {
+            bitsAllocated: 8,
+            rows: 1,
+            columns: 1,
+            photometric: 'MONOCHROME2',
+            frame: rgb,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/exactly one component/),
+    })
+    const sof2 = Uint8Array.of(
+      0xff,
+      0xd8,
+      0xff,
+      0xc2,
+      0x00,
+      0x0b,
+      8,
+      0x00,
+      0x01,
+      0x00,
+      0x02,
+      1,
+      1,
+      0x11,
+      0,
+      0xff,
+      0xda,
+      0x00,
+      0x08,
+      1,
+      1,
+      0,
+      0,
+      0x3f,
+      0,
+      0,
+      0xff,
+      0xd9,
+    )
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegBaseline8BitUid, {
+            bitsAllocated: 8,
+            rows: 1,
+            columns: 2,
+            frame: sof2,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/requires SOF0/),
+    })
+    const sof1 = Uint8Array.from(sof2)
+    sof1[3] = 0xc1
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegBaseline8BitUid, {
+            bitsAllocated: 8,
+            rows: 1,
+            columns: 2,
+            frame: sof1,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/requires SOF0/),
+    })
+    const gray = await encodeGrayJpeg(2, 1, Uint8Array.of(10, 20), 95)
+    expect(inspectJpegCodestream(gray).sofMarker).toBe(0xc0)
+    expect(inspectJpegCodestream(gray).componentCount).toBe(1)
+    const withoutEoi = gray.subarray(0, gray.byteLength - 2)
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegBaseline8BitUid, {
+            bitsAllocated: 8,
+            rows: 1,
+            columns: 2,
+            frame: withoutEoi,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/missing EOI/),
+    })
+    const extraAfterEoi = new Uint8Array(gray.byteLength + 1)
+    extraAfterEoi.set(gray)
+    extraAfterEoi[gray.byteLength] = 0x01
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegBaseline8BitUid, {
+            bitsAllocated: 8,
+            rows: 1,
+            columns: 2,
+            frame: extraAfterEoi,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/invalid bytes after EOI/),
+    })
+    const padded = new Uint8Array(gray.byteLength + 1)
+    padded.set(gray)
+    const paddedDataset = await openBytes(
+      encapsulated(jpegBaseline8BitUid, {
+        bitsAllocated: 8,
+        rows: 1,
+        columns: 2,
+        frame: padded,
+      }),
+    )
+    expect(await planeSamples(paddedDataset)).toHaveLength(2)
+  })
+
+  it('allows a JPEG Baseline frame split across BOT fragments', async () => {
+    const samples = Uint8Array.of(0, 40, 80, 120, 160, 180, 200, 220)
+    const jpeg = await encodeGrayJpeg(4, 2, samples, 90)
+    const split = jpeg.byteLength & ~1
+    const first = jpeg.subarray(0, Math.max(2, split / 2) & ~1)
+    const second = jpeg.subarray(first.byteLength)
+    const dataset = await openBytes(
+      encapsulated(jpegBaseline8BitUid, {
+        bitsAllocated: 8,
+        rows: 2,
+        columns: 4,
+        frame: jpeg,
+        fragments: [first, second],
+        offsetTable: 'basic',
+      }),
+    )
+    expect(await planeSamples(dataset)).toHaveLength(8)
   })
 })

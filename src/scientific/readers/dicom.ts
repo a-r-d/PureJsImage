@@ -72,50 +72,52 @@ class DicomScientificDataset implements ScientificDataset {
     this.#pixels = pixels
     this.#limits = limits
     const spacing = metadata.pixelSpacingMm
-    const xAxis = Object.freeze({
-      id: 'x',
-      name: 'X',
-      kind: 'space' as const,
-      length: pixels.columns,
-      ...(spacing === undefined
-        ? { coordinates: Object.freeze({ type: 'index' as const }) }
-        : {
-            unit: 'mm',
-            coordinates: Object.freeze({
-              type: 'linear' as const,
-              origin: 0,
-              step: spacing.column,
+    const spatialAxis = (
+      id: 'x' | 'y',
+      name: string,
+      length: number,
+      step: number | undefined,
+      locator: string,
+      formula: string,
+    ) =>
+      Object.freeze({
+        id,
+        name,
+        kind: 'space' as const,
+        length,
+        ...(step === undefined || !(step > 0)
+          ? { coordinates: Object.freeze({ type: 'index' as const }) }
+          : {
+              unit: 'mm' as const,
+              coordinates: Object.freeze({
+                type: 'linear' as const,
+                origin: 0,
+                step,
+              }),
+              calibration: Object.freeze({
+                kind: 'embedded' as const,
+                resourceId,
+                locator,
+                formula,
+              }),
             }),
-            calibration: Object.freeze({
-              kind: 'embedded' as const,
-              resourceId,
-              locator: 'dicom:(0028,0030)[1]',
-              formula: 'dicom-column-spacing-mm-v1',
-            }),
-          }),
-    })
-    const yAxis = Object.freeze({
-      id: 'y',
-      name: 'Y',
-      kind: 'space' as const,
-      length: pixels.rows,
-      ...(spacing === undefined
-        ? { coordinates: Object.freeze({ type: 'index' as const }) }
-        : {
-            unit: 'mm',
-            coordinates: Object.freeze({
-              type: 'linear' as const,
-              origin: 0,
-              step: spacing.row,
-            }),
-            calibration: Object.freeze({
-              kind: 'embedded' as const,
-              resourceId,
-              locator: 'dicom:(0028,0030)[0]',
-              formula: 'dicom-row-spacing-mm-v1',
-            }),
-          }),
-    })
+      })
+    const xAxis = spatialAxis(
+      'x',
+      'X',
+      pixels.columns,
+      spacing?.column,
+      'dicom:(0028,0030)[1]',
+      'dicom-column-spacing-mm-v1',
+    )
+    const yAxis = spatialAxis(
+      'y',
+      'Y',
+      pixels.rows,
+      spacing?.row,
+      'dicom:(0028,0030)[0]',
+      'dicom-row-spacing-mm-v1',
+    )
     const frameAxis = Object.freeze({
       id: 'frame',
       name: 'Frame',

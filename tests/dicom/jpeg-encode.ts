@@ -1,9 +1,5 @@
-import { PNG } from 'pngjs'
 import { jpegCodec } from '../../src/codecs/jpeg.ts'
-import { pngCodec } from '../../src/codecs/png.ts'
-import { createNodeImageLibrary } from '../../src/node-image.ts'
-
-const images = createNodeImageLibrary([pngCodec, jpegCodec])
+import { Uint8ArraySink } from '../../src/sink.ts'
 
 export const encodeGrayJpeg = async (
   width: number,
@@ -11,15 +7,54 @@ export const encodeGrayJpeg = async (
   samples: Uint8Array,
   quality = 90,
 ): Promise<Uint8Array> => {
-  const png = new PNG({ width, height })
-  for (let index = 0; index < width * height; index += 1) {
-    const value = samples[index] ?? 0
-    png.data.set([value, value, value, 255], index * 4)
-  }
-  const encoded = await (await images.open(PNG.sync.write(png, { colorType: 0 })))
-    .jpeg({ quality })
-    .toBuffer()
-  return Uint8Array.from(encoded)
+  const createEncoder = jpegCodec.createEncoder
+  if (createEncoder === undefined) throw new Error('JPEG encoder is unavailable')
+  const sink = new Uint8ArraySink()
+  const encoder = await createEncoder(sink, {
+    width,
+    height,
+    pixelFormat: 'gray8',
+    options: { quality },
+  })
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width,
+    format: 'gray8',
+    data: samples,
+  })
+  await encoder.finish()
+  return sink.toUint8Array()
+}
+
+export const encodeRgbJpeg = async (
+  width: number,
+  height: number,
+  rgb: Uint8Array,
+  quality = 90,
+): Promise<Uint8Array> => {
+  const createEncoder = jpegCodec.createEncoder
+  if (createEncoder === undefined) throw new Error('JPEG encoder is unavailable')
+  const sink = new Uint8ArraySink()
+  const encoder = await createEncoder(sink, {
+    width,
+    height,
+    pixelFormat: 'rgb8',
+    options: { quality },
+  })
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 3,
+    format: 'rgb8',
+    data: rgb,
+  })
+  await encoder.finish()
+  return sink.toUint8Array()
 }
 
 export const stripJpegJfif = (encoded: Uint8Array): Uint8Array => {

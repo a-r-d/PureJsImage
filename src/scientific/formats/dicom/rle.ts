@@ -16,40 +16,52 @@ const readUint32Le = (bytes: Uint8Array, offset: number): number => {
   return (b0 | (b1 << 8) | (b2 << 16) | (b3 << 24)) >>> 0
 }
 
-const decodeRleSegment = (input: Uint8Array, expected: number): Uint8Array => {
+const decodeRleSegment = (input: Uint8Array, rows: number, columns: number): Uint8Array => {
+  const expected = rows * columns
   const output = new Uint8Array(expected)
   let inputOffset = 0
-  let outputOffset = 0
-  while (outputOffset < expected) {
-    if (inputOffset >= input.byteLength) {
-      throw invalidInput('DICOM RLE segment is truncated')
+  for (let row = 0; row < rows; row += 1) {
+    const rowStart = row * columns
+    const rowEnd = rowStart + columns
+    let outputOffset = rowStart
+    while (outputOffset < rowEnd) {
+      if (inputOffset >= input.byteLength) throw invalidInput('DICOM RLE segment is truncated')
+      const code = input[inputOffset]
+      if (code === undefined) throw invalidInput('DICOM RLE segment is truncated')
+      inputOffset += 1
+      if (code === 128) continue
+      const remaining = rowEnd - outputOffset
+      if (code < 128) {
+        const count = code + 1
+        if (count > remaining) {
+          throw invalidInput('DICOM RLE literal run crosses a row boundary')
+        }
+        const next = addDicomSafe(inputOffset, count, 'RLE literal end')
+        if (next > input.byteLength) throw invalidInput('DICOM RLE literal run is truncated')
+        output.set(input.subarray(inputOffset, next), outputOffset)
+        inputOffset = next
+        outputOffset += count
+        continue
+      }
+      const count = 257 - code
+      if (count > remaining) {
+        throw invalidInput('DICOM RLE repeat run crosses a row boundary')
+      }
+      if (inputOffset >= input.byteLength) throw invalidInput('DICOM RLE repeat run is truncated')
+      const value = input[inputOffset]
+      if (value === undefined) throw invalidInput('DICOM RLE repeat run is truncated')
+      inputOffset += 1
+      output.fill(value, outputOffset, outputOffset + count)
+      outputOffset += count
     }
-    const code = input[inputOffset]
-    if (code === undefined) throw invalidInput('DICOM RLE segment is truncated')
-    inputOffset += 1
-    if (code === 128) continue
-    if (code < 128) {
-      const count = code + 1
-      const next = addDicomSafe(inputOffset, count, 'RLE literal end')
-      if (next > input.byteLength) throw invalidInput('DICOM RLE literal run is truncated')
-      const outEnd = addDicomSafe(outputOffset, count, 'RLE literal output')
-      if (outEnd > expected) throw invalidInput('DICOM RLE literal run exceeds the segment')
-      output.set(input.subarray(inputOffset, next), outputOffset)
-      inputOffset = next
-      outputOffset = outEnd
-      continue
-    }
-    const count = 257 - code
-    if (inputOffset >= input.byteLength) throw invalidInput('DICOM RLE repeat run is truncated')
-    const value = input[inputOffset]
-    if (value === undefined) throw invalidInput('DICOM RLE repeat run is truncated')
-    inputOffset += 1
-    const outEnd = addDicomSafe(outputOffset, count, 'RLE repeat output')
-    if (outEnd > expected) throw invalidInput('DICOM RLE repeat run exceeds the segment')
-    output.fill(value, outputOffset, outEnd)
-    outputOffset = outEnd
   }
-  return output
+  const unused = input.byteLength - inputOffset
+  if (unused === 0) return output
+  if (unused === 1 && (inputOffset & 1) === 1 && input[inputOffset] === 0) return output
+  if (unused === 1 && input[inputOffset] !== 0) {
+    throw invalidInput('DICOM RLE segment padding byte must be zero')
+  }
+  throw invalidInput('DICOM RLE segment has trailing bytes after the decoded rows')
 }
 
 export const decodeDicomRleFrame = (
@@ -78,8 +90,8 @@ export const decodeDicomRleFrame = (
     }
   }
   const firstOffset = offsets[0]
-  if (firstOffset === undefined || firstOffset < rleHeaderBytes) {
-    throw invalidInput('DICOM RLE first segment offset is invalid')
+  if (firstOffset !== rleHeaderBytes) {
+    throw invalidInput('DICOM RLE first segment offset must equal 64')
   }
   for (let index = 1; index < offsets.length; index += 1) {
     const previous = offsets[index - 1]
@@ -100,7 +112,9 @@ export const decodeDicomRleFrame = (
     if (start === undefined || end === undefined || end < start) {
       throw invalidInput('DICOM RLE segment bounds are invalid')
     }
-    planes.push(decodeRleSegment(encoded.subarray(start, end), planeBytes))
+    planes.push(
+      decodeRleSegment(encoded.subarray(start, end), description.rows, description.columns),
+    )
   }
   if (description.bitsAllocated === 8) {
     const plane = planes[0]

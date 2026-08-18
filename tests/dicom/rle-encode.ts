@@ -5,30 +5,34 @@ const writeUint32Le = (output: Uint8Array, offset: number, value: number): void 
   output[offset + 3] = (value >>> 24) & 0xff
 }
 
-const encodeRleSegment = (input: Uint8Array): Uint8Array => {
+const encodeRleSegment = (input: Uint8Array, columns: number): Uint8Array => {
   const output: number[] = []
   let index = 0
   while (index < input.byteLength) {
-    const value = input[index]
-    if (value === undefined) break
-    let run = 1
-    while (index + run < input.byteLength && input[index + run] === value && run < 128) run += 1
-    if (run >= 2) {
-      output.push(257 - run, value)
-      index += run
-      continue
-    }
-    const literalStart = index
-    index += 1
-    while (index < input.byteLength && index - literalStart < 128) {
-      const next = input[index]
-      const following = input[index + 1]
-      if (next !== undefined && next === following) break
+    const rowEnd = Math.min(input.byteLength, index + columns - (index % columns))
+    while (index < rowEnd) {
+      const value = input[index]
+      if (value === undefined) break
+      let run = 1
+      while (index + run < rowEnd && input[index + run] === value && run < 128) run += 1
+      if (run >= 2) {
+        output.push(257 - run, value)
+        index += run
+        continue
+      }
+      const literalStart = index
       index += 1
+      while (index < rowEnd && index - literalStart < 128) {
+        const next = input[index]
+        const following = input[index + 1]
+        if (next !== undefined && index + 1 < rowEnd && next === following) break
+        index += 1
+      }
+      const count = index - literalStart
+      output.push(count - 1)
+      for (let offset = 0; offset < count; offset += 1)
+        output.push(input[literalStart + offset] ?? 0)
     }
-    const count = index - literalStart
-    output.push(count - 1)
-    for (let offset = 0; offset < count; offset += 1) output.push(input[literalStart + offset] ?? 0)
   }
   return Uint8Array.from(output)
 }
@@ -36,6 +40,7 @@ const encodeRleSegment = (input: Uint8Array): Uint8Array => {
 export const encodeDicomRleFrame = (
   nativeLittleEndian: Uint8Array,
   bitsAllocated: 8 | 16,
+  columns: number,
 ): Uint8Array => {
   const planes: Uint8Array[] = []
   if (bitsAllocated === 8) {
@@ -50,7 +55,7 @@ export const encodeDicomRleFrame = (
     }
     planes.push(high, low)
   }
-  const encodedPlanes = planes.map((plane) => encodeRleSegment(plane))
+  const encodedPlanes = planes.map((plane) => encodeRleSegment(plane, columns))
   const header = new Uint8Array(64)
   writeUint32Le(header, 0, encodedPlanes.length)
   let offset = 64

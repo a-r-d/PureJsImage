@@ -295,11 +295,16 @@ A later explicit compatibility mode may accept dataset-only input when the calle
 ### File Meta Information
 
 - Parse File Meta Information as Explicit VR Little Endian.
-- Read Transfer Syntax UID from `(0002,0010)`.
+- Require unique `(0002,0000)` File Meta Information Group Length as the first File Meta element, and require that it exactly describes the remaining group `0002` bytes.
+- Require unique `(0002,0001)` File Meta Information Version (`OB`, two bytes, reserved first byte `00`, current-version bit set).
+- Require unique `(0002,0002)` Media Storage SOP Class UID, `(0002,0003)` Media Storage SOP Instance UID, `(0002,0010)` Transfer Syntax UID, and `(0002,0012)` Implementation Class UID.
+- Reject File Meta VR `UN` and duplicated critical File Meta elements.
 - File Meta Information ends when the group changes from `0002`.
 - Validate explicit lengths, padding, and source extents.
 - Ignore unknown future `0002` elements safely.
 - Do not interpret the dataset transfer syntax as applying to the File Meta Information.
+- The public image reader also requires unique dataset SOP Class UID and SOP Instance UID values that match the File Meta Media Storage SOP UIDs.
+- `fileMetaConformance: 'tolerant'` is an explicit named parser option. Strict File Meta validation remains the default. Do not treat missing required File Meta fields as a silent compatibility mode.
 
 ### Data element parser
 
@@ -310,6 +315,7 @@ Support:
 - 16-bit and 32-bit explicit value lengths according to VR;
 - explicit-length sequences;
 - undefined-length sequences;
+- explicit VR UN with undefined length, parsed as an Item container whose nested Data Sets use Implicit VR Little Endian;
 - explicit-length items;
 - undefined-length items;
 - item and sequence delimiters;
@@ -464,7 +470,10 @@ The parser must index fragments lazily and validate:
 
 Initial support:
 
-- single-frame encapsulated instance: concatenate its frame fragments within `maxEncodedFrameBytes`;
+- Encapsulated Uncompressed Explicit VR Little Endian and RLE Lossless: exactly one fragment per frame.
+- JPEG Baseline, JPEG Lossless SV1, JPEG 2000 Lossless, and JPEG 2000: a valid Basic Offset Table may split one frame across fragments, but a fragment must not contain encoded bytes from more than one frame.
+- Extended Offset Table requires Extended Offset Table Lengths, an empty Basic Offset Table, one fragment per frame, strictly increasing offsets that identify fragment Item Tags, and logical encoded lengths that exclude the Item header and a trailing odd-length padding byte.
+- single-frame encapsulated instance: concatenate its frame fragments within `maxEncodedFrameBytes` when the transfer syntax permits multi-fragment frames;
 - multi-frame with valid Extended Offset Table;
 - multi-frame with valid Basic Offset Table;
 - multi-frame with exactly one fragment per frame when the transfer syntax requires or permits that mapping.
@@ -516,7 +525,7 @@ DICOM RLE is a good early compressed syntax because the frame boundary is explic
 
 | Transfer syntax | UID | Gate |
 | --- | --- | --- |
-| JPEG Baseline 8-bit | `1.2.840.10008.1.2.4.50` | Existing JPEG decoder must accept DICOM codestreams without JFIF assumptions and match independent pixels |
+| JPEG Baseline 8-bit | `1.2.840.10008.1.2.4.50` | Existing JPEG decoder must accept DICOM SOF0 8-bit single-component codestreams without JFIF assumptions, without inventing a missing EOI, and match independent pixels |
 | JPEG 2000 Lossless | `1.2.840.10008.1.2.4.90` | Existing JPEG 2000 path must support raw codestream, bit depth, signedness, components, and DICOM photometric semantics |
 | JPEG 2000 | `1.2.840.10008.1.2.4.91` | Same gate, with independent lossy validation |
 
@@ -1108,7 +1117,7 @@ The first public capability entry should not say simply:
 
 It should say something like:
 
-> DICOM Part 10 local image instances using Implicit or Explicit VR Little Endian native uncompressed MONOCHROME1/2 pixels, with 8-bit or 16-bit allocation, signed or unsigned stored values, 12-bit-in-16 normalization, homogeneous multi-frame selection, Pixel Spacing, linear rescale metadata, and Window Center/Width presets. Color, LUT-based presentation, DICOMweb, series discovery, private tags, and compressed transfer syntaxes remain unsupported unless separately listed.
+> DICOM Part 10 local image instances using Implicit or Explicit VR Little Endian native uncompressed MONOCHROME1/2 pixels, Encapsulated Uncompressed Explicit VR Little Endian, RLE Lossless, JPEG Baseline Process 1, JPEG Lossless Process 14 Selection Value 1, and JPEG 2000 lossless/lossy grayscale, with 8-bit or 16-bit allocation as the transfer syntax permits, signed or unsigned stored values, 12-bit-in-16 normalization, homogeneous multi-frame selection, Pixel Spacing, linear rescale metadata, and Window Center/Width presets. Empty offset tables with ambiguous multi-fragment frame boundaries, color, LUT-based presentation, DICOMweb, series discovery, private tags, JPEG-LS, HTJ2K, and other compressed transfer syntaxes remain unsupported. Not validated or certified for diagnostic use.
 
 ## Definition of complete DICOM image lane
 

@@ -1,37 +1,10 @@
 {
   "schemaVersion": 1,
   "description": "Synthetic DICOM Part 10 fixtures for parser D0/D1 tests. No patient identifiers.",
-  "oracles": {
-    "developmentOnly": ["pydicom", "DCMTK", "GDCM"],
-    "runtimeDependencies": []
-  },
-  "external": [
-    {
-      "status": "prepared-not-included",
-      "note": "D0/D1 uses synthetic Part 10 files only. External de-identified corpora may be added later with these required fields and without PHI.",
-      "requiredFields": [
-        "source.url",
-        "source.revision",
-        "license.spdx",
-        "redistribution.status",
-        "sha256",
-        "transferSyntaxUid",
-        "expected.technicalTags"
-      ],
-      "candidateSources": [
-        {
-          "name": "pydicom-data",
-          "url": "https://github.com/pydicom/pydicom-data",
-          "license": "License-Ref-pydicom-data",
-          "redistribution": "review-before-inclusion"
-        }
-      ]
-    }
-  ],
   "files": [
     {
       "localFile": "synthetic-explicit-le.dcm",
-      "sha256": "8bafe936ba6dbc2921ae192b787961e01763ca1e1331fad052f9379baecad6d2",
+      "sha256": "334d44ed5fc25f474845f2be2f50ca80316d5dfde26f9995513d3450d460702d",
       "source": {
         "generator": "tests/dicom/part10-writer.ts",
         "revision": "workspace-generated",
@@ -48,7 +21,7 @@
     },
     {
       "localFile": "synthetic-implicit-le.dcm",
-      "sha256": "0d7f07b8fa205b2a20397e19430122dc921fe05a4438a00805e4d7175345015e",
+      "sha256": "76d523a95ef5997592e324f6232aa87e9b42ca857409e02b28ae942e8fa6d1f7",
       "source": {
         "generator": "tests/dicom/part10-writer.ts",
         "revision": "workspace-generated",

@@ -19,8 +19,23 @@ import {
 import { addDicomSafe, type DicomLimits, requireDicomSafeInteger } from './limits.ts'
 import { convertDicomNativeRow } from './native-pixel.ts'
 import type { DicomPixelDataLocator } from './parser.ts'
-import type { DicomEncapsulatedFrame, DicomPixelDescription } from './pixel-description.ts'
+import type {
+  DicomEncapsulatedFrame,
+  DicomPixelDescription,
+  DicomPixelEncoding,
+} from './pixel-description.ts'
 import { decodeDicomRleFrame } from './rle.ts'
+
+export type DicomEncapsulatedFragmentPolicy = 'single-fragment-per-frame' | 'offset-table-frames'
+
+export const dicomEncapsulatedFragmentPolicy = (
+  encoding: DicomPixelEncoding,
+): DicomEncapsulatedFragmentPolicy => {
+  if (encoding === 'encapsulated-uncompressed' || encoding === 'rle') {
+    return 'single-fragment-per-frame'
+  }
+  return 'offset-table-frames'
+}
 
 export interface DicomEncapsulatedPlaneRead extends AbortOptions {
   readonly frame: number
@@ -37,12 +52,14 @@ export interface DicomEncapsulatedPlaneRead extends AbortOptions {
 const frameFromFragments = (
   fragments: readonly DicomFragmentLocator[],
   limits: Readonly<DicomLimits>,
+  logicalEncodedBytes?: number,
 ): DicomEncapsulatedFrame => {
   if (fragments.length === 0) throw invalidInput('DICOM encapsulated frame has no fragments')
-  let encodedBytes = 0
+  let physicalBytes = 0
   for (const fragment of fragments) {
-    encodedBytes = addDicomSafe(encodedBytes, fragment.valueLength, 'encoded frame bytes')
+    physicalBytes = addDicomSafe(physicalBytes, fragment.valueLength, 'encoded frame bytes')
   }
+  const encodedBytes = logicalEncodedBytes ?? physicalBytes
   if (encodedBytes > limits.maxEncodedFrameBytes) {
     throw limitExceeded(
       `DICOM encapsulated frame is ${encodedBytes} bytes; maxEncodedFrameBytes is ${limits.maxEncodedFrameBytes}`,
@@ -51,6 +68,7 @@ const frameFromFragments = (
   return Object.freeze({
     fragments: Object.freeze([...fragments]),
     encodedBytes,
+    physicalEncodedBytes: physicalBytes,
   })
 }
 
@@ -67,36 +85,36 @@ const requireOffsetMatch = (
   throw invalidInput(`DICOM ${label} does not point to a fragment Item Tag`)
 }
 
-const framesFromOffsets = (
+const requireStrictlyIncreasingOffsets = (offsets: readonly number[], label: string): void => {
+  for (let index = 1; index < offsets.length; index += 1) {
+    const previous = offsets[index - 1]
+    const offset = offsets[index]
+    if (previous === undefined || offset === undefined || offset <= previous) {
+      throw invalidInput(`DICOM ${label} is not strictly increasing`)
+    }
+  }
+}
+
+const framesFromBasicOffsets = (
   pixelFragments: readonly DicomFragmentLocator[],
   offsets: readonly number[],
-  lengths: readonly number[] | undefined,
   numberOfFrames: number,
   limits: Readonly<DicomLimits>,
+  policy: DicomEncapsulatedFragmentPolicy,
 ): readonly DicomEncapsulatedFrame[] => {
   if (offsets.length !== numberOfFrames) {
     throw invalidInput(
       `DICOM offset table has ${offsets.length} entries; Number of Frames is ${numberOfFrames}`,
     )
   }
-  if (lengths !== undefined && lengths.length !== numberOfFrames) {
-    throw invalidInput('DICOM Extended Offset Table Lengths count does not match Number of Frames')
-  }
   const first = pixelFragments[0]
   if (first === undefined)
     throw invalidInput('DICOM encapsulated Pixel Data has no pixel fragments')
   const origin = first.headerOffset
   if (offsets[0] !== 0) throw invalidInput('DICOM offset table must start at 0')
+  requireStrictlyIncreasingOffsets(offsets, 'offset table')
   const starts: number[] = []
-  for (let index = 0; index < offsets.length; index += 1) {
-    const offset = offsets[index]
-    if (offset === undefined) throw invalidInput('DICOM offset table is missing an entry')
-    if (index > 0) {
-      const previous = offsets[index - 1]
-      if (previous === undefined || offset <= previous) {
-        throw invalidInput('DICOM offset table is not strictly increasing')
-      }
-    }
+  for (const offset of offsets) {
     starts.push(requireOffsetMatch(pixelFragments, origin, offset, 'offset table'))
   }
   const frames: DicomEncapsulatedFrame[] = []
@@ -106,12 +124,68 @@ const framesFromOffsets = (
     if (begin === undefined || end === undefined || end <= begin) {
       throw invalidInput('DICOM offset table frame bounds are invalid')
     }
-    const frame = frameFromFragments(pixelFragments.slice(begin, end), limits)
-    const declared = lengths?.[index]
-    if (declared !== undefined && declared !== frame.encodedBytes) {
-      throw invalidInput('DICOM Extended Offset Table Lengths do not match fragment payloads')
+    const fragments = pixelFragments.slice(begin, end)
+    if (policy === 'single-fragment-per-frame' && fragments.length !== 1) {
+      throw invalidInput('DICOM transfer syntax requires exactly one fragment per frame')
     }
-    frames.push(frame)
+    frames.push(frameFromFragments(fragments, limits))
+  }
+  return Object.freeze(frames)
+}
+
+const framesFromExtendedOffsets = (
+  pixelFragments: readonly DicomFragmentLocator[],
+  offsets: readonly number[],
+  lengths: readonly number[],
+  numberOfFrames: number,
+  limits: Readonly<DicomLimits>,
+): readonly DicomEncapsulatedFrame[] => {
+  if (offsets.length === 0 || lengths.length === 0) {
+    throw invalidInput('DICOM Extended Offset Table and Lengths must be non-empty')
+  }
+  if (offsets.length !== numberOfFrames || lengths.length !== numberOfFrames) {
+    throw invalidInput(
+      'DICOM Extended Offset Table and Lengths must contain exactly Number of Frames entries',
+    )
+  }
+  const first = pixelFragments[0]
+  if (first === undefined)
+    throw invalidInput('DICOM encapsulated Pixel Data has no pixel fragments')
+  const origin = first.headerOffset
+  if (offsets[0] !== 0) throw invalidInput('DICOM Extended Offset Table must start at 0')
+  requireStrictlyIncreasingOffsets(offsets, 'Extended Offset Table')
+  const starts: number[] = []
+  for (const offset of offsets) {
+    starts.push(requireOffsetMatch(pixelFragments, origin, offset, 'Extended Offset Table'))
+  }
+  const frames: DicomEncapsulatedFrame[] = []
+  for (let index = 0; index < starts.length; index += 1) {
+    const begin = starts[index]
+    const next = starts[index + 1]
+    const end = next ?? pixelFragments.length
+    if (begin === undefined || end !== begin + 1) {
+      throw invalidInput('DICOM Extended Offset Table frame must occupy exactly one fragment')
+    }
+    const fragment = pixelFragments[begin]
+    const logicalLength = lengths[index]
+    if (fragment === undefined || logicalLength === undefined) {
+      throw invalidInput('DICOM Extended Offset Table frame bounds are invalid')
+    }
+    if (!Number.isSafeInteger(logicalLength) || logicalLength < 1) {
+      throw invalidInput('DICOM Extended Offset Table Length must be a positive integer')
+    }
+    if ((logicalLength & 1) === 0) {
+      if (fragment.valueLength !== logicalLength) {
+        throw invalidInput(
+          'DICOM Extended Offset Table Length must equal the even fragment Item Value Length',
+        )
+      }
+    } else if (fragment.valueLength !== logicalLength + 1) {
+      throw invalidInput(
+        'DICOM Extended Offset Table Length plus one padding byte must equal the odd-frame fragment Item Value Length',
+      )
+    }
+    frames.push(frameFromFragments([fragment], limits, logicalLength))
   }
   return Object.freeze(frames)
 }
@@ -122,6 +196,7 @@ export const indexDicomEncapsulatedFrames = async (
   pixelData: DicomPixelDataLocator,
   numberOfFrames: number,
   limits: Readonly<DicomLimits>,
+  policy: DicomEncapsulatedFragmentPolicy,
   signal?: AbortSignal,
 ): Promise<readonly DicomEncapsulatedFrame[]> => {
   throwIfAborted(signal)
@@ -137,31 +212,29 @@ export const indexDicomEncapsulatedFrames = async (
   }
   const extended = findDicomElement(dataset.elements, dicomTag.extendedOffsetTable)
   const extendedLengths = findDicomElement(dataset.elements, dicomTag.extendedOffsetTableLengths)
-  if (extended !== undefined) {
+  if (extended !== undefined && extendedLengths === undefined) {
+    throw invalidInput('DICOM Extended Offset Table requires Extended Offset Table Lengths')
+  }
+  if (extended === undefined && extendedLengths !== undefined) {
+    throw invalidInput('DICOM Extended Offset Table Lengths require an Extended Offset Table')
+  }
+  if (extended !== undefined && extendedLengths !== undefined) {
     if (extended.value === undefined) {
       throw limitExceeded('DICOM Extended Offset Table was not materialized')
+    }
+    if (extendedLengths.value === undefined) {
+      throw limitExceeded('DICOM Extended Offset Table Lengths were not materialized')
     }
     if (bot.valueLength > 0) {
       throw invalidInput('DICOM Extended Offset Table requires an empty Basic Offset Table')
     }
-    const lengths =
-      extendedLengths === undefined
-        ? undefined
-        : extendedLengths.value === undefined
-          ? (() => {
-              throw limitExceeded('DICOM Extended Offset Table Lengths were not materialized')
-            })()
-          : decodeDicomUInt64Values(extendedLengths.value, 'Extended Offset Table Lengths')
-    return framesFromOffsets(
+    return framesFromExtendedOffsets(
       pixelFragments,
       decodeDicomUInt64Values(extended.value, 'Extended Offset Table'),
-      lengths,
+      decodeDicomUInt64Values(extendedLengths.value, 'Extended Offset Table Lengths'),
       numberOfFrames,
       limits,
     )
-  }
-  if (extendedLengths !== undefined) {
-    throw invalidInput('DICOM Extended Offset Table Lengths require an Extended Offset Table')
   }
   if (bot.valueLength > 0) {
     if (bot.valueLength > limits.maxOffsetTableBytes) {
@@ -175,15 +248,20 @@ export const indexDicomEncapsulatedFrames = async (
       bot.valueLength,
       signal === undefined ? {} : { signal },
     )
-    return framesFromOffsets(
+    return framesFromBasicOffsets(
       pixelFragments,
       decodeDicomUInt32Values(bytes),
-      undefined,
       numberOfFrames,
       limits,
+      policy,
     )
   }
-  if (numberOfFrames === 1) return Object.freeze([frameFromFragments(pixelFragments, limits)])
+  if (numberOfFrames === 1) {
+    if (policy === 'single-fragment-per-frame' && pixelFragments.length !== 1) {
+      throw invalidInput('DICOM transfer syntax requires exactly one fragment per frame')
+    }
+    return Object.freeze([frameFromFragments(pixelFragments, limits)])
+  }
   if (pixelFragments.length === numberOfFrames) {
     return Object.freeze(pixelFragments.map((fragment) => frameFromFragments([fragment], limits)))
   }
@@ -207,16 +285,45 @@ export const readDicomEncapsulatedFrameBytes = async (
   const output = new Uint8Array(frame.encodedBytes)
   let offset = 0
   const readOptions = signal === undefined ? {} : { signal }
-  for (const fragment of frame.fragments) {
+  for (let index = 0; index < frame.fragments.length; index += 1) {
     throwIfAborted(signal)
+    const fragment = frame.fragments[index]
+    if (fragment === undefined) throw invalidInput('DICOM encapsulated fragment is missing')
     const payload = await readExactly(
       source,
       fragment.valueOffset,
       fragment.valueLength,
       readOptions,
     )
-    output.set(payload, offset)
-    offset += fragment.valueLength
+    const remaining = frame.encodedBytes - offset
+    const last = index === frame.fragments.length - 1
+    if (!last) {
+      if (payload.byteLength > remaining) {
+        throw invalidInput('DICOM encapsulated fragment payload exceeds the logical frame length')
+      }
+      output.set(payload, offset)
+      offset += payload.byteLength
+      continue
+    }
+    if (payload.byteLength === remaining) {
+      output.set(payload, offset)
+      offset += payload.byteLength
+      continue
+    }
+    if (payload.byteLength === remaining + 1 && (remaining & 1) === 1 && payload[remaining] === 0) {
+      output.set(payload.subarray(0, remaining), offset)
+      offset += remaining
+      continue
+    }
+    if (payload.byteLength === remaining + 1 && (remaining & 1) === 1) {
+      throw invalidInput('DICOM encapsulated fragment padding byte must be zero')
+    }
+    throw invalidInput(
+      'DICOM encapsulated fragment payload does not match the logical frame length',
+    )
+  }
+  if (offset !== frame.encodedBytes) {
+    throw invalidInput('DICOM encapsulated frame logical length is incomplete')
   }
   return output
 }
@@ -231,7 +338,7 @@ const nativeFrameBytes = async (
     return decodeDicomJpegBaselineFrame(encoded, description, limits)
   }
   if (description.encoding === 'jpeg-lossless-sv1') {
-    return decodeDicomJpegLosslessFrame(encoded, description)
+    return decodeDicomJpegLosslessFrame(encoded, description, limits)
   }
   if (description.encoding === 'jpeg2000-lossless' || description.encoding === 'jpeg2000') {
     return decodeDicomJpeg2000Frame(encoded, description, limits)

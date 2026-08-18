@@ -1,6 +1,28 @@
 import { describe, expect, it } from 'vitest'
 import { decodeJpegLosslessFrame } from '../src/codecs/jpeg-lossless.ts'
+import { ImageError } from '../src/errors.ts'
 import { encodeJpegLosslessGray } from './dicom/jpeg-lossless-encode.ts'
+
+const hugeSof3 = (): Uint8Array =>
+  Uint8Array.of(
+    0xff,
+    0xd8,
+    0xff,
+    0xc3,
+    0x00,
+    0x0b,
+    8,
+    0xff,
+    0xff,
+    0xff,
+    0xff,
+    1,
+    1,
+    0x11,
+    0,
+    0xff,
+    0xd9,
+  )
 
 describe('JPEG lossless Huffman', () => {
   it('round-trips 8-bit SV1 gray samples', () => {
@@ -30,6 +52,46 @@ describe('JPEG lossless Huffman', () => {
     const encoded = encodeJpegLosslessGray(2, 1, [8, 9], { selection: 2 })
     expect(() => decodeJpegLosslessFrame(encoded, { requiredSelection: 1 })).toThrow(
       /selection value 2/,
+    )
+  })
+
+  it('decodes restart intervals after the row-buffer refactor', () => {
+    const samples = [10, 20, 30, 40, 80, 90, 100, 110]
+    const encoded = encodeJpegLosslessGray(4, 2, samples, { restartInterval: 3 })
+    const decoded = decodeJpegLosslessFrame(encoded, { requiredSelection: 1 })
+    expect([...decoded.samplesLittleEndian]).toEqual(samples)
+  })
+
+  it('validates SOF3 dimensions before allocating working buffers', () => {
+    let sawHeader = false
+    expect(() =>
+      decodeJpegLosslessFrame(hugeSof3(), {
+        limits: { expectedWidth: 2, expectedHeight: 2 },
+        onFrameHeader: () => {
+          sawHeader = true
+        },
+      }),
+    ).toThrow(ImageError)
+    expect(sawHeader).toBe(false)
+    try {
+      decodeJpegLosslessFrame(hugeSof3(), { limits: { expectedWidth: 2, expectedHeight: 2 } })
+      throw new Error('expected dimension mismatch')
+    } catch (error) {
+      expect(error).toBeInstanceOf(ImageError)
+      expect(error).toMatchObject({
+        code: 'INVALID_INPUT',
+        message: expect.stringMatching(/does not match expected width/),
+      })
+    }
+    expect(() =>
+      decodeJpegLosslessFrame(hugeSof3(), { limits: { maxWidth: 10, maxHeight: 10 } }),
+    ).toThrow(/exceeds maxWidth/)
+    expect(() => decodeJpegLosslessFrame(hugeSof3(), { limits: { maxDecodedBytes: 1 } })).toThrow(
+      /working set/,
+    )
+    const encoded = encodeJpegLosslessGray(2, 2, [1, 2, 3, 4])
+    expect(() => decodeJpegLosslessFrame(encoded, { limits: { maxEncodedBytes: 4 } })).toThrow(
+      /maxEncodedBytes/,
     )
   })
 })

@@ -23,6 +23,7 @@ export interface DicomWriteElement {
   readonly items?: readonly (readonly DicomWriteElement[])[]
   readonly fragments?: readonly Uint8Array[]
   readonly undefinedLength?: boolean
+  readonly nestedExplicitVr?: boolean
   readonly forceLength?: number
   readonly rawHeader?: Uint8Array
 }
@@ -33,6 +34,9 @@ export interface DicomWriteOptions {
   readonly preamble?: Uint8Array
   readonly includeDicomPrefix?: boolean
   readonly fileMeta?: readonly DicomWriteElement[]
+  readonly rawFileMeta?: Uint8Array
+  readonly fileMetaGroupLength?: number
+  readonly omitFileMetaGroupLength?: boolean
   readonly omitTransferSyntax?: boolean
   readonly dataset: readonly DicomWriteElement[]
 }
@@ -123,16 +127,19 @@ const writeDataset = (
     }
     const childBytes: number[] = []
     if (element.items !== undefined) {
+      const nestedExplicit =
+        element.nestedExplicitVr ??
+        (element.vr === 'UN' && element.undefinedLength === true ? false : explicitVr)
       for (const item of element.items) {
         writeTag(childBytes, dicomTag.item)
         if (element.undefinedLength === true) {
           writeUint32(childBytes, dicomUndefinedLength)
-          writeDataset(childBytes, item, explicitVr)
+          writeDataset(childBytes, item, nestedExplicit)
           writeTag(childBytes, dicomTag.itemDelimitation)
           writeUint32(childBytes, 0)
         } else {
           const itemBytes: number[] = []
-          writeDataset(itemBytes, item, explicitVr)
+          writeDataset(itemBytes, item, nestedExplicit)
           writeUint32(childBytes, itemBytes.length)
           childBytes.push(...itemBytes)
         }
@@ -224,20 +231,71 @@ export const writeDicomPart10 = (options: Readonly<DicomWriteOptions>): Uint8Arr
   if (options.includeDicomPrefix !== false) {
     output.push(0x44, 0x49, 0x43, 0x4d)
   }
+  if (options.rawFileMeta !== undefined) {
+    appendBytes(output, options.rawFileMeta)
+    writeDataset(output, options.dataset, explicitDataset)
+    return Uint8Array.from(output)
+  }
   const fileMetaSource =
     options.fileMeta ?? defaultFileMeta(transferSyntaxUid, options.omitTransferSyntax === true)
   const fileMetaBody: number[] = []
   writeDataset(fileMetaBody, fileMetaSource, true)
-  writeTag(output, dicomTag.fileMetaInformationGroupLength)
-  output.push(0x55, 0x4c)
-  writeUint16(output, 4)
-  writeUint32(output, fileMetaBody.length)
+  if (options.omitFileMetaGroupLength !== true) {
+    writeTag(output, dicomTag.fileMetaInformationGroupLength)
+    output.push(0x55, 0x4c)
+    writeUint16(output, 4)
+    writeUint32(output, options.fileMetaGroupLength ?? fileMetaBody.length)
+  }
   output.push(...fileMetaBody)
   writeDataset(output, options.dataset, explicitDataset)
   return Uint8Array.from(output)
 }
 
 export const dicomTextBytes = (value: string): Uint8Array => uidBytes(value)
+
+export const dicomTestSopClassUid = '1.2.840.10008.5.1.4.1.1.7'
+export const dicomTestSopInstanceUid = '1.2.826.0.1.3680043.10.850.1.1'
+
+export const dicomIdentityElements = (
+  sopInstanceUid = dicomTestSopInstanceUid,
+): DicomWriteElement[] => [
+  { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes(dicomTestSopClassUid) },
+  { tag: dicomTag.sopInstanceUid, vr: 'UI', value: dicomTextBytes(sopInstanceUid) },
+]
+
+export const dicomMonochromePixelElements = (options: {
+  readonly rows: number
+  readonly columns: number
+  readonly bitsAllocated: 8 | 16
+  readonly bitsStored?: number
+  readonly signed?: boolean
+  readonly photometric?: 'MONOCHROME1' | 'MONOCHROME2'
+  readonly samplesPerPixel?: number
+}): DicomWriteElement[] => {
+  const bitsStored = options.bitsStored ?? options.bitsAllocated
+  return [
+    {
+      tag: dicomTag.samplesPerPixel,
+      vr: 'US',
+      value: dicomUInt16Bytes(options.samplesPerPixel ?? 1),
+    },
+    {
+      tag: dicomTag.photometricInterpretation,
+      vr: 'CS',
+      value: dicomTextBytes(options.photometric ?? 'MONOCHROME2'),
+    },
+    { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(options.rows) },
+    { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(options.columns) },
+    { tag: dicomTag.bitsAllocated, vr: 'US', value: dicomUInt16Bytes(options.bitsAllocated) },
+    { tag: dicomTag.bitsStored, vr: 'US', value: dicomUInt16Bytes(bitsStored) },
+    { tag: dicomTag.highBit, vr: 'US', value: dicomUInt16Bytes(bitsStored - 1) },
+    {
+      tag: dicomTag.pixelRepresentation,
+      vr: 'US',
+      value: dicomUInt16Bytes(options.signed === true ? 1 : 0),
+    },
+  ]
+}
 
 export const dicomUInt16Bytes = (...values: readonly number[]): Uint8Array => {
   const bytes = new Uint8Array(values.length * 2)

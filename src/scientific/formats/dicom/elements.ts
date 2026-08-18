@@ -439,6 +439,30 @@ export const findDicomElement = (
   return undefined
 }
 
+export const collectDicomElements = (
+  elements: readonly DicomElement[],
+  tag: number,
+): readonly DicomElement[] => {
+  const matches: DicomElement[] = []
+  for (const element of elements) {
+    if (element.tag === tag) matches.push(element)
+  }
+  return Object.freeze(matches)
+}
+
+export const requireUniqueDicomElement = (
+  elements: readonly DicomElement[],
+  tag: number,
+  label: string,
+): DicomElement => {
+  const matches = collectDicomElements(elements, tag)
+  if (matches.length === 0) throw invalidInput(`DICOM ${label} is missing`)
+  if (matches.length > 1) throw invalidInput(`DICOM ${label} is duplicated`)
+  const element = matches[0]
+  if (element === undefined) throw invalidInput(`DICOM ${label} is missing`)
+  return element
+}
+
 export const decodeDicomText = (bytes: Uint8Array): string => {
   let end = bytes.byteLength
   while (end > 0 && (bytes[end - 1] === 0 || bytes[end - 1] === 0x20)) end -= 1

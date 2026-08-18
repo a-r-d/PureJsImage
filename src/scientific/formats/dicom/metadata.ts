@@ -3,8 +3,9 @@ import { dicomTag } from './constants.ts'
 import {
   type DicomDataset,
   type DicomElement,
+  collectDicomElements,
   decodeDicomText,
-  findDicomElement,
+  requireUniqueDicomElement,
 } from './elements.ts'
 import type { DicomFileMetaInformation } from './file-meta.ts'
 import {
@@ -19,6 +20,7 @@ import {
   parseDicomPixelSpacing,
   parseDicomSharedFunctionalGroup,
   resolveDicomHomogeneousValue,
+  validateDicomPixelSpacing,
 } from './functional-groups.ts'
 import type { DicomPixelDescription } from './pixel-description.ts'
 import {
@@ -67,14 +69,24 @@ export type {
   DicomVoiPreset,
 } from './presentation.ts'
 
-const optionalText = (dataset: DicomDataset, tag: number): string | undefined => {
-  const value = findDicomElement(dataset.elements, tag)?.value
+const optionalText = (dataset: DicomDataset, tag: number, label: string): string | undefined => {
+  const matches = collectDicomElements(dataset.elements, tag)
+  if (matches.length > 1) throw invalidInput(`DICOM ${label} is duplicated`)
+  const value = matches[0]?.value
   return value === undefined ? undefined : decodeDicomText(value)
 }
 
 const optionalUid = (dataset: DicomDataset, tag: number, label: string): string | undefined => {
-  const value = findDicomElement(dataset.elements, tag)?.value
+  const matches = collectDicomElements(dataset.elements, tag)
+  if (matches.length > 1) throw invalidInput(`DICOM ${label} is duplicated`)
+  const value = matches[0]?.value
   return value === undefined ? undefined : decodeDicomUid(value, label)
+}
+
+const requiredDatasetUid = (dataset: DicomDataset, tag: number, label: string): string => {
+  const element = requireUniqueDicomElement(dataset.elements, tag, label)
+  if (element.value === undefined) throw invalidInput(`DICOM ${label} value was not materialized`)
+  return decodeDicomUid(element.value, label)
 }
 
 const datasetContainsTag = (elements: readonly DicomElement[], tag: number): boolean => {
@@ -108,13 +120,21 @@ export const createDicomTechnicalMetadata = (
   pixels: DicomPixelDescription,
 ): DicomTechnicalMetadata => {
   rejectUnsupportedLuts(dataset)
-  const sopClassUid =
-    optionalUid(dataset, dicomTag.sopClassUid, 'SOP Class UID') ?? fileMeta.mediaStorageSopClassUid
-  if (sopClassUid === undefined) throw invalidInput('DICOM SOP Class UID is missing')
-  const sopInstanceUid =
-    optionalUid(dataset, dicomTag.sopInstanceUid, 'SOP Instance UID') ??
-    fileMeta.mediaStorageSopInstanceUid
-  const modality = optionalText(dataset, dicomTag.modality)
+  const sopClassUid = requiredDatasetUid(dataset, dicomTag.sopClassUid, 'SOP Class UID')
+  const sopInstanceUid = requiredDatasetUid(dataset, dicomTag.sopInstanceUid, 'SOP Instance UID')
+  if (
+    fileMeta.mediaStorageSopClassUid !== undefined &&
+    fileMeta.mediaStorageSopClassUid !== sopClassUid
+  ) {
+    throw invalidInput('DICOM Media Storage SOP Class UID does not match SOP Class UID')
+  }
+  if (
+    fileMeta.mediaStorageSopInstanceUid !== undefined &&
+    fileMeta.mediaStorageSopInstanceUid !== sopInstanceUid
+  ) {
+    throw invalidInput('DICOM Media Storage SOP Instance UID does not match SOP Instance UID')
+  }
+  const modality = optionalText(dataset, dicomTag.modality, 'Modality')
   const frameOfReferenceUid = optionalUid(
     dataset,
     dicomTag.frameOfReferenceUid,
@@ -153,6 +173,7 @@ export const createDicomTechnicalMetadata = (
     dicomNumberTupleEqual,
   )
   const spacing = resolvedValue(pixelSpacingMm)
+  if (spacing !== undefined) validateDicomPixelSpacing(spacing, pixels.rows, pixels.columns)
   const position = resolvedValue(imagePositionPatient)
   const orientation = resolvedValue(imageOrientationPatient)
   const transform = resolvedValue(storedValueTransform)

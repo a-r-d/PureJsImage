@@ -11,7 +11,6 @@ import {
   type DicomFragmentLocator,
   DicomSourceCursor,
   defaultDicomSelectedTags,
-  findDicomElement,
   shouldMaterializeDicomValue,
 } from './elements.ts'
 import { type DicomFileMetaInformation, parseDicomFileMeta } from './file-meta.ts'
@@ -27,6 +26,7 @@ import type { DicomTransferSyntax } from './transfer-syntax.ts'
 export interface DicomParseOptions extends AbortOptions {
   readonly limits?: DicomLimitOptions
   readonly select?: readonly number[]
+  readonly fileMetaConformance?: 'strict' | 'tolerant'
 }
 
 export interface DicomPixelDataLocator {
@@ -86,13 +86,17 @@ const parseElementValue = async (
     const sequence = await parseDicomSequence(cursor, header, explicitVr, handlers)
     return Object.freeze({ ...header, sequence })
   }
+  if (header.undefinedLength && header.vr === 'UN' && !isPixelData) {
+    const sequence = await parseDicomSequence(cursor, header, false, handlers)
+    return Object.freeze({ ...header, vr: 'UN' as const, sequence })
+  }
   if (isPixelData && header.undefinedLength) {
     const fragments = await parseEncapsulatedPixelFragments(cursor)
     return Object.freeze({ ...header, fragments })
   }
   if (header.undefinedLength) {
     throw invalidInput(
-      'DICOM undefined-length values are only supported for sequences and encapsulated Pixel Data',
+      'DICOM undefined-length values are only supported for sequences, explicit VR UN, and encapsulated Pixel Data',
     )
   }
   const length = header.valueLength ?? 0
@@ -132,9 +136,17 @@ export const parseDicomPart10 = async (
   }
   const selected = selectedTags(options.select)
   const handlers = createHandlers(selected)
-  const fileMeta = await parseDicomFileMeta(cursor, handlers)
+  const fileMeta = await parseDicomFileMeta(cursor, handlers, {
+    ...(options.fileMetaConformance === undefined
+      ? {}
+      : { conformance: options.fileMetaConformance }),
+  })
   const parsed = await parseDicomDataset(cursor, fileMeta.transferSyntax.explicitVr, handlers)
-  const pixelElement = findDicomElement(parsed.dataset.elements, dicomTag.pixelData)
+  const pixelMatches = parsed.dataset.elements.filter(
+    (element) => element.tag === dicomTag.pixelData,
+  )
+  if (pixelMatches.length > 1) throw invalidInput('DICOM Pixel Data is duplicated')
+  const pixelElement = pixelMatches[0]
   const pixelData =
     pixelElement === undefined
       ? undefined
@@ -189,6 +201,7 @@ export {
   defaultDicomSelectedTags,
   findDicomElement,
 } from './elements.ts'
+export type { DicomFileMetaConformance } from './file-meta.ts'
 export { defaultDicomLimits, resolveDicomLimits } from './limits.ts'
 export {
   decodeDicomUid,

@@ -76,6 +76,22 @@ export const parseDicomPixelSpacing = (
   })
 }
 
+export const validateDicomPixelSpacing = (
+  spacing: DicomPixelSpacingMm,
+  rows: number,
+  columns: number,
+): void => {
+  if (!(spacing.row >= 0) || !(spacing.column >= 0)) {
+    throw invalidInput('DICOM Pixel Spacing must not be negative')
+  }
+  if (rows !== 1 && !(spacing.row > 0)) {
+    throw invalidInput('DICOM row Pixel Spacing must be positive unless Rows equals 1')
+  }
+  if (columns !== 1 && !(spacing.column > 0)) {
+    throw invalidInput('DICOM column Pixel Spacing must be positive unless Columns equals 1')
+  }
+}
+
 export const parseDicomImagePositionPatient = (
   elements: readonly DicomElement[],
 ): DicomImagePositionPatient | undefined => {

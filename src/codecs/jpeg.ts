@@ -578,6 +578,8 @@ export const jpegCodec: ImageCodec = {
   createEncoder: createBaselineJpegEncoder,
 }
 
+export { inspectJpegCodestream, type JpegCodestreamInspection } from './jpeg-baseline.ts'
+
 export const accelerateJpegCodec = (
   reference: ImageCodec,
   acceleration: JpegAcceleration,

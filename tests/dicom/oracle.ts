@@ -43,7 +43,7 @@ print(json.dumps({
 `
 
 const runOracle = (command: string, args: readonly string[]): DicomOracleResult | undefined => {
-  const result = spawnSync(command, args, { encoding: 'utf8' })
+  const result = spawnSync(command, args, { encoding: 'utf8', timeout: 2_000 })
   if (result.status !== 0 || result.stdout.trim().length === 0) return undefined
   const parsed: unknown = JSON.parse(result.stdout)
   if (
@@ -60,6 +60,9 @@ const runOracle = (command: string, args: readonly string[]): DicomOracleResult 
 export const readDicomOracle = (path: string): DicomOracleResult => {
   const direct = runOracle('python3', ['-c', pydicomScript, path])
   if (direct?.available === true) return direct
+  if (direct !== undefined) {
+    return { available: false, reason: direct.reason ?? 'pydicom is not available' }
+  }
   const isolated = runOracle('uv', [
     'run',
     '--with',
@@ -72,7 +75,7 @@ export const readDicomOracle = (path: string): DicomOracleResult => {
   if (isolated?.available === true) return isolated
   return {
     available: false,
-    reason: direct?.reason ?? isolated?.reason ?? 'pydicom is not available',
+    reason: isolated?.reason ?? 'pydicom is not available',
   }
 }
 
@@ -101,7 +104,7 @@ export interface DicomOraclePixels {
 
 export const readDicomOraclePixels = (path: string): DicomOraclePixels => {
   const parse = (command: string, args: readonly string[]): DicomOraclePixels | undefined => {
-    const result = spawnSync(command, args, { encoding: 'utf8' })
+    const result = spawnSync(command, args, { encoding: 'utf8', timeout: 2_000 })
     if (result.status !== 0 || result.stdout.trim().length === 0) return undefined
     const parsed: unknown = JSON.parse(result.stdout)
     if (parsed === null || typeof parsed !== 'object' || !('available' in parsed)) return undefined
@@ -109,6 +112,9 @@ export const readDicomOraclePixels = (path: string): DicomOraclePixels => {
   }
   const direct = parse('python3', ['-c', pydicomPixelScript, path])
   if (direct?.available === true) return direct
+  if (direct !== undefined) {
+    return { available: false, reason: direct.reason ?? 'pydicom is not available' }
+  }
   const isolated = parse('uv', [
     'run',
     '--with',
@@ -121,6 +127,6 @@ export const readDicomOraclePixels = (path: string): DicomOraclePixels => {
   if (isolated?.available === true) return isolated
   return {
     available: false,
-    reason: direct?.reason ?? isolated?.reason ?? 'pydicom is not available',
+    reason: isolated?.reason ?? 'pydicom is not available',
   }
 }

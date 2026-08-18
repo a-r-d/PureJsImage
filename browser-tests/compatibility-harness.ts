@@ -110,8 +110,9 @@ import { encodeJpegLosslessGray } from '../tests/dicom/jpeg-lossless-encode.ts'
 import {
   dicomDecimalBytes,
   dicomEncapsulatedFragments,
+  dicomIdentityElements,
+  dicomMonochromePixelElements,
   dicomTextBytes,
-  dicomUInt16Bytes,
   writeDicomPart10,
 } from '../tests/dicom/part10-writer.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
@@ -149,12 +150,8 @@ const dicomReaderFileSmoke = async (): Promise<BrowserWorkflowResult> => {
   const bytes = writeDicomPart10({
     transferSyntax: 'explicit-vr-le',
     dataset: [
-      { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
-      { tag: dicomTag.samplesPerPixel, vr: 'US', value: dicomUInt16Bytes(1) },
-      { tag: dicomTag.photometricInterpretation, vr: 'CS', value: dicomTextBytes('MONOCHROME2') },
-      { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(4) },
-      { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(4) },
-      { tag: dicomTag.bitsAllocated, vr: 'US', value: dicomUInt16Bytes(8) },
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 4, columns: 4, bitsAllocated: 8 }),
       { tag: dicomTag.rescaleIntercept, vr: 'DS', value: dicomDecimalBytes(-1024) },
       { tag: dicomTag.rescaleSlope, vr: 'DS', value: dicomDecimalBytes(1) },
       { tag: dicomTag.windowCenter, vr: 'DS', value: dicomDecimalBytes(40) },
@@ -206,19 +203,12 @@ const dicomEncapsulatedFileSmoke = async (): Promise<BrowserWorkflowResult> => {
     transferSyntax: 'explicit-vr-le',
     transferSyntaxUid: encapsulatedUncompressedExplicitVrLittleEndianUid,
     dataset: [
-      { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
-      { tag: dicomTag.samplesPerPixel, vr: 'US', value: dicomUInt16Bytes(1) },
-      { tag: dicomTag.photometricInterpretation, vr: 'CS', value: dicomTextBytes('MONOCHROME2') },
-      { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(2) },
-      { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(2) },
-      { tag: dicomTag.bitsAllocated, vr: 'US', value: dicomUInt16Bytes(8) },
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 2, columns: 2, bitsAllocated: 8 }),
       {
         tag: dicomTag.pixelData,
         vr: 'OB',
-        fragments: dicomEncapsulatedFragments(
-          [[pixels.subarray(0, 2), pixels.subarray(2)]],
-          'empty',
-        ),
+        fragments: dicomEncapsulatedFragments([[pixels]], 'empty'),
       },
     ],
   })
@@ -265,12 +255,8 @@ const dicomJpegBaselineFileSmoke = async (): Promise<BrowserWorkflowResult> => {
     transferSyntax: 'explicit-vr-le',
     transferSyntaxUid: jpegBaseline8BitUid,
     dataset: [
-      { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
-      { tag: dicomTag.samplesPerPixel, vr: 'US', value: dicomUInt16Bytes(1) },
-      { tag: dicomTag.photometricInterpretation, vr: 'CS', value: dicomTextBytes('MONOCHROME2') },
-      { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(2) },
-      { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(4) },
-      { tag: dicomTag.bitsAllocated, vr: 'US', value: dicomUInt16Bytes(8) },
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 2, columns: 4, bitsAllocated: 8 }),
       {
         tag: dicomTag.pixelData,
         vr: 'OB',
@@ -287,11 +273,36 @@ const dicomJpegBaselineFileSmoke = async (): Promise<BrowserWorkflowResult> => {
   for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
     values.push(...block.data)
   }
-  if (values.length !== 8) {
-    throw new Error(`Browser JPEG Baseline DICOM samples were ${values.join(',')}`)
+  const createDecoder = jpegCodec.createDecoder
+  if (createDecoder === undefined) throw new Error('JPEG decoder is unavailable')
+  const oracleDecoder = await createDecoder(new MemorySource(jpeg), {
+    maxWidth: 8,
+    maxHeight: 8,
+    maxPixels: 64,
+    maxInputBytes: jpeg.byteLength,
+    maxFrames: 1,
+    maxDecodedBytes: 256,
+  })
+  const oracle: number[] = []
+  for await (const block of oracleDecoder.decode()) {
+    for (let row = 0; row < block.height; row += 1) {
+      for (let column = 0; column < block.width; column += 1) {
+        oracle.push(block.data[row * block.stride + column * 3] ?? 0)
+      }
+    }
+  }
+  if (values.length !== oracle.length) {
+    throw new Error(`Browser JPEG Baseline DICOM sample count was ${values.length}`)
+  }
+  for (let index = 0; index < values.length; index += 1) {
+    if (Math.abs((values[index] ?? 0) - (oracle[index] ?? 0)) > 1) {
+      throw new Error(
+        `Browser JPEG Baseline DICOM samples ${values.join(',')} exceeded lossy tolerance versus ${oracle.join(',')}`,
+      )
+    }
   }
   return {
-    detail: 'public DICOM reader decoded JPEG Baseline 8-bit File fragments',
+    detail: 'public DICOM reader decoded JPEG Baseline 8-bit File fragments within lossy tolerance',
     outputBytes: values.length,
   }
 }
@@ -303,12 +314,8 @@ const dicomJpegLosslessFileSmoke = async (): Promise<BrowserWorkflowResult> => {
     transferSyntax: 'explicit-vr-le',
     transferSyntaxUid: jpegLosslessSv1Uid,
     dataset: [
-      { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
-      { tag: dicomTag.samplesPerPixel, vr: 'US', value: dicomUInt16Bytes(1) },
-      { tag: dicomTag.photometricInterpretation, vr: 'CS', value: dicomTextBytes('MONOCHROME2') },
-      { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(2) },
-      { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(4) },
-      { tag: dicomTag.bitsAllocated, vr: 'US', value: dicomUInt16Bytes(8) },
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 2, columns: 4, bitsAllocated: 8 }),
       {
         tag: dicomTag.pixelData,
         vr: 'OB',
@@ -340,10 +347,9 @@ const dicomParserFileSmoke = async (): Promise<BrowserWorkflowResult> => {
   const bytes = writeDicomPart10({
     transferSyntax: 'explicit-vr-le',
     dataset: [
-      { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
+      ...dicomIdentityElements(),
       { tag: dicomTag.modality, vr: 'CS', value: dicomTextBytes('OT') },
-      { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(4) },
-      { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(4) },
+      ...dicomMonochromePixelElements({ rows: 4, columns: 4, bitsAllocated: 16 }),
       { tag: dicomTag.pixelData, vr: 'OW', value: new Uint8Array(32).fill(0xab) },
     ],
   })
