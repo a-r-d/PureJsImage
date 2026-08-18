@@ -6,6 +6,7 @@ import {
   implicitVrLittleEndianUid,
 } from '../../src/scientific/formats/dicom/constants.ts'
 import {
+  dicomDecimalBytes,
   dicomIdentityElements,
   dicomMonochromePixelElements,
   dicomTextBytes,
@@ -15,8 +16,11 @@ import {
 const pixel = Uint8Array.from({ length: 32 }, () => 0xab)
 const dataset = [
   ...dicomIdentityElements(),
-  { tag: dicomTag.modality, vr: 'CS' as const, value: dicomTextBytes('OT') },
+  { tag: dicomTag.modality, vr: 'CS' as const, value: dicomTextBytes('ECG') },
+  { tag: 0x0008_0070, vr: 'LO' as const, value: dicomTextBytes('X') },
+  { tag: 0x0020_000d, vr: 'UI' as const, value: dicomTextBytes('1.2.3') },
   ...dicomMonochromePixelElements({ rows: 4, columns: 4, bitsAllocated: 16 }),
+  { tag: dicomTag.pixelSpacing, vr: 'DS' as const, value: dicomDecimalBytes(0.5, 0.4) },
   { tag: dicomTag.pixelData, vr: 'OW' as const, value: pixel },
 ]
 
@@ -36,7 +40,7 @@ const files = [
       redistribution: 'included-test-only',
     },
     transferSyntaxUid: explicitVrLittleEndianUid,
-    expected: { modality: 'OT', rows: 4, columns: 4, sopClassUid: '1.2.840.10008.5.1.4.1.1.7' },
+    expected: { modality: 'ECG', rows: 4, columns: 4, sopClassUid: '1.2.840.10008.5.1.4.1.1.7' },
   },
   {
     localFile: 'synthetic-implicit-le.dcm',
@@ -48,7 +52,7 @@ const files = [
       redistribution: 'included-test-only',
     },
     transferSyntaxUid: implicitVrLittleEndianUid,
-    expected: { modality: 'OT', rows: 4, columns: 4, sopClassUid: '1.2.840.10008.5.1.4.1.1.7' },
+    expected: { modality: 'ECG', rows: 4, columns: 4, sopClassUid: '1.2.840.10008.5.1.4.1.1.7' },
   },
 ]
 

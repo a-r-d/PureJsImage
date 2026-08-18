@@ -14,7 +14,7 @@ import {
   type DicomFragmentLocator,
   decodeDicomUInt32Values,
   decodeDicomUInt64Values,
-  findDicomElement,
+  collectDicomElements,
 } from './elements.ts'
 import { addDicomSafe, type DicomLimits, requireDicomSafeInteger } from './limits.ts'
 import { convertDicomNativeRow } from './native-pixel.ts'
@@ -210,8 +210,19 @@ export const indexDicomEncapsulatedFrames = async (
   if (pixelFragments.length === 0) {
     throw invalidInput('DICOM encapsulated Pixel Data has no pixel fragments')
   }
-  const extended = findDicomElement(dataset.elements, dicomTag.extendedOffsetTable)
-  const extendedLengths = findDicomElement(dataset.elements, dicomTag.extendedOffsetTableLengths)
+  const extendedMatches = collectDicomElements(dataset.elements, dicomTag.extendedOffsetTable)
+  const extendedLengthMatches = collectDicomElements(
+    dataset.elements,
+    dicomTag.extendedOffsetTableLengths,
+  )
+  if (extendedMatches.length > 1) {
+    throw invalidInput('DICOM Extended Offset Table is duplicated')
+  }
+  if (extendedLengthMatches.length > 1) {
+    throw invalidInput('DICOM Extended Offset Table Lengths is duplicated')
+  }
+  const extended = extendedMatches[0]
+  const extendedLengths = extendedLengthMatches[0]
   if (extended !== undefined && extendedLengths === undefined) {
     throw invalidInput('DICOM Extended Offset Table requires Extended Offset Table Lengths')
   }
@@ -344,8 +355,15 @@ const nativeFrameBytes = async (
     return decodeDicomJpeg2000Frame(encoded, description, limits)
   }
   if (encoded.byteLength === description.frameBytes) return encoded
-  if (encoded.byteLength === description.frameBytes + 1 && (description.frameBytes & 1) === 1) {
+  if (
+    encoded.byteLength === description.frameBytes + 1 &&
+    (description.frameBytes & 1) === 1 &&
+    encoded[description.frameBytes] === 0
+  ) {
     return encoded.subarray(0, description.frameBytes)
+  }
+  if (encoded.byteLength === description.frameBytes + 1 && (description.frameBytes & 1) === 1) {
+    throw invalidInput('DICOM encapsulated uncompressed padding byte must be zero')
   }
   throw invalidInput(
     `DICOM encapsulated uncompressed frame is ${encoded.byteLength} bytes; ${description.frameBytes} bytes are required`,

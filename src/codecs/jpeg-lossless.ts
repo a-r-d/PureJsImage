@@ -125,16 +125,23 @@ class LosslessBitReader {
     this.#bitCount = 0
   }
 
+  offset(): number {
+    return this.#offset
+  }
+
   consumeRestart(expected: number): void {
     this.align()
-    if (
-      this.#offset + 1 >= this.#data.byteLength ||
-      byte(this.#data, this.#offset) !== 0xff ||
-      byte(this.#data, this.#offset + 1) !== expected
-    ) {
+    if (this.#offset >= this.#data.byteLength || byte(this.#data, this.#offset) !== 0xff) {
       throw invalidInput('JPEG lossless restart marker is missing')
     }
-    this.#offset += 2
+    this.#offset += 1
+    while (this.#offset < this.#data.byteLength && byte(this.#data, this.#offset) === 0xff) {
+      this.#offset += 1
+    }
+    if (this.#offset >= this.#data.byteLength || byte(this.#data, this.#offset) !== expected) {
+      throw invalidInput('JPEG lossless restart marker is missing')
+    }
+    this.#offset += 1
   }
 
   #fillBits(): void {
@@ -509,6 +516,21 @@ export const decodeJpegLosslessFrame = (
       }
     }
     previousRow.set(currentRow)
+  }
+
+  reader.align()
+  let eoiOffset = reader.offset()
+  if (eoiOffset >= encoded.byteLength || byte(encoded, eoiOffset) !== 0xff) {
+    throw invalidInput('JPEG lossless is missing EOI')
+  }
+  eoiOffset += 1
+  while (eoiOffset < encoded.byteLength && byte(encoded, eoiOffset) === 0xff) eoiOffset += 1
+  if (eoiOffset >= encoded.byteLength || byte(encoded, eoiOffset) !== 0xd9) {
+    throw invalidInput('JPEG lossless is missing EOI')
+  }
+  eoiOffset += 1
+  if (eoiOffset !== encoded.byteLength) {
+    throw invalidInput('JPEG lossless contains bytes after EOI')
   }
 
   return Object.freeze({

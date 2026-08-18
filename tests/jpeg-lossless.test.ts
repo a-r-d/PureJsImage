@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { decodeJpegLosslessFrame } from '../src/codecs/jpeg-lossless.ts'
+import { inspectJpegCodestream } from '../src/codecs/jpeg.ts'
 import { ImageError } from '../src/errors.ts'
 import { encodeJpegLosslessGray } from './dicom/jpeg-lossless-encode.ts'
 
@@ -23,6 +24,22 @@ const hugeSof3 = (): Uint8Array =>
     0xff,
     0xd9,
   )
+
+const insertFillBeforeMarker = (
+  data: Uint8Array,
+  marker: number,
+  fillCount: number,
+): Uint8Array => {
+  for (let index = 0; index + 1 < data.byteLength; index += 1) {
+    if (data[index] !== 0xff || data[index + 1] !== marker) continue
+    const output = new Uint8Array(data.byteLength + fillCount)
+    output.set(data.subarray(0, index))
+    output.fill(0xff, index, index + fillCount)
+    output.set(data.subarray(index), index + fillCount)
+    return output
+  }
+  throw new Error(`JPEG marker 0x${marker.toString(16)} is missing`)
+}
 
 describe('JPEG lossless Huffman', () => {
   it('round-trips 8-bit SV1 gray samples', () => {
@@ -93,5 +110,29 @@ describe('JPEG lossless Huffman', () => {
     expect(() => decodeJpegLosslessFrame(encoded, { limits: { maxEncodedBytes: 4 } })).toThrow(
       /maxEncodedBytes/,
     )
+  })
+
+  it('treats repeated FF bytes as fill before EOI and restart markers', () => {
+    const samples = [10, 20, 30, 40, 80, 90, 100, 110]
+    const encoded = encodeJpegLosslessGray(4, 2, samples)
+    const ordinary = inspectJpegCodestream(encoded)
+    expect(ordinary.sofMarker).toBe(0xc3)
+    expect(ordinary.trailingByteCount).toBe(0)
+    const oneFill = insertFillBeforeMarker(encoded, 0xd9, 1)
+    const severalFill = insertFillBeforeMarker(encoded, 0xd9, 4)
+    expect(inspectJpegCodestream(oneFill).eoiOffset).toBe(ordinary.eoiOffset + 1)
+    expect(inspectJpegCodestream(severalFill).eoiOffset).toBe(ordinary.eoiOffset + 4)
+    expect([
+      ...decodeJpegLosslessFrame(oneFill, { requiredSelection: 1 }).samplesLittleEndian,
+    ]).toEqual(samples)
+    const restart = encodeJpegLosslessGray(4, 2, samples, { restartInterval: 3 })
+    const restartFilled = insertFillBeforeMarker(restart, 0xd0, 3)
+    expect([
+      ...decodeJpegLosslessFrame(restart, { requiredSelection: 1 }).samplesLittleEndian,
+    ]).toEqual(samples)
+    expect([
+      ...decodeJpegLosslessFrame(restartFilled, { requiredSelection: 1 }).samplesLittleEndian,
+    ]).toEqual(samples)
+    expect(inspectJpegCodestream(restartFilled).sofMarker).toBe(0xc3)
   })
 })

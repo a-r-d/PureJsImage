@@ -93,19 +93,66 @@ export const jpeg2000: Readonly<DicomTransferSyntax> = Object.freeze({
   encapsulated: true,
 })
 
-export const decodeDicomUid = (bytes: Uint8Array, label: string): string => {
+export const decodeDicomUid = (
+  bytes: Uint8Array,
+  label: string,
+  options: { readonly conformance?: 'strict' | 'tolerant' } = {},
+): string => {
+  if (options.conformance === 'tolerant') {
+    let end = bytes.byteLength
+    while (end > 0 && (bytes[end - 1] === 0 || bytes[end - 1] === 0x20)) end -= 1
+    if (end === 0) throw invalidInput(`DICOM ${label} is empty`)
+    let uid = ''
+    for (let index = 0; index < end; index += 1) {
+      const code = bytes[index]
+      if (code === undefined || code < 0x20 || code > 0x7e) {
+        throw invalidInput(`DICOM ${label} contains a non-ASCII byte`)
+      }
+      uid += String.fromCharCode(code)
+    }
+    if (!/^[0-9]+(?:\.[0-9]+)*$/.test(uid)) throw invalidInput(`DICOM ${label} is not a UID`)
+    return uid
+  }
+  if (bytes.byteLength === 0) throw invalidInput(`DICOM ${label} is empty`)
+  if (bytes.byteLength > 64) {
+    throw invalidInput(`DICOM ${label} exceeds 64 bytes including padding`)
+  }
   let end = bytes.byteLength
-  while (end > 0 && (bytes[end - 1] === 0 || bytes[end - 1] === 0x20)) end -= 1
+  if (bytes[end - 1] === 0x20) {
+    throw invalidInput(`DICOM ${label} must not use SPACE padding`)
+  }
+  if (bytes[end - 1] === 0) {
+    if (end > 1 && bytes[end - 2] === 0) {
+      throw invalidInput(`DICOM ${label} has repeated trailing NULLs`)
+    }
+    if ((bytes.byteLength & 1) !== 0) {
+      throw invalidInput(`DICOM ${label} NULL padding is not the even-length pad`)
+    }
+    end -= 1
+    if ((end & 1) === 0) {
+      throw invalidInput(`DICOM ${label} NULL padding is not required for an even-length UID`)
+    }
+  }
   if (end === 0) throw invalidInput(`DICOM ${label} is empty`)
   let uid = ''
   for (let index = 0; index < end; index += 1) {
     const code = bytes[index]
-    if (code === undefined || code < 0x20 || code > 0x7e) {
-      throw invalidInput(`DICOM ${label} contains a non-ASCII byte`)
+    if (code === 0) throw invalidInput(`DICOM ${label} contains an embedded NULL`)
+    if (code === 0x20) throw invalidInput(`DICOM ${label} must not use SPACE padding`)
+    if (code === undefined || code < 0x30 || code > 0x39) {
+      if (code !== 0x2e) throw invalidInput(`DICOM ${label} is not a UID`)
     }
-    uid += String.fromCharCode(code)
+    uid += String.fromCharCode(code ?? 0)
   }
-  if (!/^[0-9]+(?:\.[0-9]+)*$/.test(uid)) throw invalidInput(`DICOM ${label} is not a UID`)
+  const components = uid.split('.')
+  if (components.length === 0 || components.some((component) => component.length === 0)) {
+    throw invalidInput(`DICOM ${label} contains an empty component`)
+  }
+  for (const component of components) {
+    if (!/^(?:0|[1-9][0-9]*)$/.test(component)) {
+      throw invalidInput(`DICOM ${label} contains a leading zero`)
+    }
+  }
   return uid
 }
 

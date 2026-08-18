@@ -254,7 +254,7 @@ export { createEmsaReader, emsaReader } from 'purejsimage/scientific/readers/ems
 export { createNrrdReader, nrrdReader } from 'purejsimage/scientific/readers/nrrd'
 export { createMetaImageReader, metaImageReader } from 'purejsimage/scientific/readers/meta-image'
 export { createDicomReader, dicomReader } from 'purejsimage/scientific/readers/dicom'
-export type { DicomReaderOptions } from 'purejsimage/scientific/readers/dicom'
+export type { DicomFileMetaConformance, DicomReaderOptions } from 'purejsimage/scientific/readers/dicom'
 export { createNiftiReader, niftiReader } from 'purejsimage/scientific/readers/nifti'
 export { createNpyReader, npyReader } from 'purejsimage/scientific/readers/npy'
 export { blockfileReader, createBlockfileReader } from 'purejsimage/scientific/readers/blockfile'

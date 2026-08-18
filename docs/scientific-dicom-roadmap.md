@@ -304,7 +304,7 @@ A later explicit compatibility mode may accept dataset-only input when the calle
 - Ignore unknown future `0002` elements safely.
 - Do not interpret the dataset transfer syntax as applying to the File Meta Information.
 - The public image reader also requires unique dataset SOP Class UID and SOP Instance UID values that match the File Meta Media Storage SOP UIDs.
-- `fileMetaConformance: 'tolerant'` is an explicit named parser option. Strict File Meta validation remains the default. Do not treat missing required File Meta fields as a silent compatibility mode.
+- `fileMetaConformance: 'strict' | 'tolerant'` is an explicit named option on `parseDicomPart10()` and `createDicomReader()`. Strict File Meta validation remains the default. Do not treat missing required File Meta fields as a silent compatibility mode.
 
 ### Data element parser
 

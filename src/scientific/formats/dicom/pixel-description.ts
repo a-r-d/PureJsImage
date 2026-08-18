@@ -2,7 +2,7 @@ import type { AbortOptions } from '../../../abort.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../../errors.ts'
 import type { RasterSampleType } from '../../../raster.ts'
 import { rasterSampleBytes } from '../../../raster.ts'
-import type { ImageSource } from '../../../source.ts'
+import { type ImageSource, readExactly } from '../../../source.ts'
 import { dicomTag } from './constants.ts'
 import {
   type DicomDataset,
@@ -133,9 +133,6 @@ export const describeDicomPixels = async (
     if (!pixelData.encapsulated || pixelData.valueLength !== undefined) {
       throw invalidInput('DICOM encapsulated Pixel Data must have undefined length')
     }
-    if (pixelData.vr !== undefined && pixelData.vr !== 'OB') {
-      throw invalidInput('DICOM encapsulated Pixel Data must use VR OB')
-    }
     if (pixelData.fragments === undefined) {
       throw invalidInput('DICOM encapsulated transfer syntax requires encapsulated Pixel Data')
     }
@@ -169,6 +166,24 @@ export const describeDicomPixels = async (
   const bitsAllocated = requiredUInt16(dataset.elements, dicomTag.bitsAllocated, 'Bits Allocated')
   if (bitsAllocated !== 8 && bitsAllocated !== 16) {
     throw unsupportedOperation(`DICOM Bits Allocated ${bitsAllocated} is unsupported`)
+  }
+  if (encoding === 'native') {
+    const vr = pixelData.vr
+    if (vr === undefined) {
+      if (transferSyntax.explicitVr) {
+        throw invalidInput('DICOM explicit VR Pixel Data is missing a VR')
+      }
+    } else if (bitsAllocated > 8) {
+      if (vr !== 'OW') {
+        throw invalidInput(
+          'DICOM native Pixel Data with Bits Allocated greater than 8 must use VR OW',
+        )
+      }
+    } else if (vr !== 'OB' && vr !== 'OW') {
+      throw invalidInput('DICOM native 8-bit Pixel Data must use VR OB or OW')
+    }
+  } else if (pixelData.vr !== 'OB') {
+    throw invalidInput('DICOM encapsulated Pixel Data must use VR OB')
   }
   const bitsStored = requiredUInt16(dataset.elements, dicomTag.bitsStored, 'Bits Stored')
   if (bitsStored < 1 || bitsStored > bitsAllocated) {
@@ -258,6 +273,15 @@ export const describeDicomPixels = async (
         throw invalidInput(
           `DICOM Pixel Data has ${available - totalPixelBytes} trailing bytes inside the native frame calculation`,
         )
+      }
+      const pad = await readExactly(
+        source,
+        pixelData.valueOffset + totalPixelBytes,
+        1,
+        options.signal === undefined ? {} : { signal: options.signal },
+      )
+      if (pad[0] !== 0) {
+        throw invalidInput('DICOM native Pixel Data padding byte must be zero')
       }
     }
     return Object.freeze({

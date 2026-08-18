@@ -55,7 +55,13 @@ export const encodeDicomRleFrame = (
     }
     planes.push(high, low)
   }
-  const encodedPlanes = planes.map((plane) => encodeRleSegment(plane, columns))
+  const encodedPlanes = planes.map((plane) => {
+    const encoded = encodeRleSegment(plane, columns)
+    if ((encoded.byteLength & 1) === 0) return encoded
+    const padded = new Uint8Array(encoded.byteLength + 1)
+    padded.set(encoded)
+    return padded
+  })
   const header = new Uint8Array(64)
   writeUint32Le(header, 0, encodedPlanes.length)
   let offset = 64

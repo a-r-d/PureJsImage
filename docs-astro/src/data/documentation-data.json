@@ -96,14 +96,14 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 280371,
-      "gzipBytes": 350820,
-      "minifiedBytes": 1213720
+      "brotliBytes": 281109,
+      "gzipBytes": 351785,
+      "minifiedBytes": 1217082
     },
     "allStableCodecs": {
-      "brotliBytes": 257749,
-      "gzipBytes": 312453,
-      "minifiedBytes": 887341
+      "brotliBytes": 257706,
+      "gzipBytes": 312484,
+      "minifiedBytes": 887385
     },
     "commonWebCodecs": {
       "brotliBytes": 192178,
@@ -116,7 +116,7 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5863430,
+      "bytes": 5870853,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",

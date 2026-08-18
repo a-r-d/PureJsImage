@@ -31,7 +31,7 @@ describe('DICOM RLE', () => {
     const header = new Uint8Array(64)
     header[0] = 1
     header[4] = 64
-    const segment = Uint8Array.of(0xff, 0x11, 0x01, 0x22, 0x33)
+    const segment = Uint8Array.of(0xff, 0x11, 0x01, 0x22, 0x33, 0x00)
     const encoded = new Uint8Array(64 + segment.byteLength)
     encoded.set(header)
     encoded.set(segment, 64)
@@ -153,5 +153,58 @@ describe('DICOM RLE', () => {
         frameBytes: 1,
       }),
     ).toThrow(/trailing bytes/)
+  })
+
+  it('requires each 16-bit RLE segment to have even physical length', () => {
+    const oddSegment = Uint8Array.of(0x80, 0x00, 0xaa)
+    const writeHeader = (secondOffset: number): Uint8Array => {
+      const header = new Uint8Array(64)
+      header[0] = 2
+      header[4] = 64
+      header[8] = secondOffset & 0xff
+      return header
+    }
+    const oddCombined = new Uint8Array(70)
+    oddCombined.set(writeHeader(67))
+    oddCombined.set(oddSegment, 64)
+    oddCombined.set(oddSegment, 67)
+    expect(oddCombined.byteLength & 1).toBe(0)
+    expect(() =>
+      decodeDicomRleFrame(oddCombined, {
+        rows: 1,
+        columns: 1,
+        samplesPerPixel: 1,
+        bitsAllocated: 16,
+        frameBytes: 2,
+      }),
+    ).toThrow(/segment length must be even/)
+    const evenSegment = Uint8Array.of(0x80, 0x00, 0xaa, 0x00)
+    const evenCombined = new Uint8Array(72)
+    evenCombined.set(writeHeader(68))
+    evenCombined.set(evenSegment, 64)
+    evenCombined.set(evenSegment, 68)
+    expect(
+      decodeDicomRleFrame(evenCombined, {
+        rows: 1,
+        columns: 1,
+        samplesPerPixel: 1,
+        bitsAllocated: 16,
+        frameBytes: 2,
+      }),
+    ).toEqual(Uint8Array.of(0xaa, 0xaa))
+    const nonZeroPad = Uint8Array.of(0x80, 0x00, 0xaa, 0x01)
+    const nonZero = new Uint8Array(72)
+    nonZero.set(writeHeader(68))
+    nonZero.set(evenSegment, 64)
+    nonZero.set(nonZeroPad, 68)
+    expect(() =>
+      decodeDicomRleFrame(nonZero, {
+        rows: 1,
+        columns: 1,
+        samplesPerPixel: 1,
+        bitsAllocated: 16,
+        frameBytes: 2,
+      }),
+    ).toThrow(/padding byte must be zero/)
   })
 })

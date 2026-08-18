@@ -2,7 +2,11 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { dicomTag } from '../src/scientific/formats/dicom/constants.ts'
+import {
+  dicomTag,
+  formatDicomTag,
+  parseDicomTagText,
+} from '../src/scientific/formats/dicom/constants.ts'
 import {
   getDicomDictionarySource,
   lookupDicomDictionary,
@@ -44,6 +48,45 @@ describe('DICOM PS3.6 dictionary', () => {
     expect(privateCreator.entry).toBeUndefined()
     const unknownStandard = lookupDicomDictionary(0x0008_9999)
     expect(unknownStandard).toMatchObject({ known: false, private: false })
+  })
+
+  it('looks up high-group exact tags as unsigned 32-bit values', () => {
+    const signatures = 0xfffa_fffa
+    const padding = 0xfffc_fffc
+    const signedSignatures = (0xfffa << 16) | 0xfffa
+    const signedPadding = (0xfffc << 16) | 0xfffc
+    expect(signedSignatures).toBeLessThan(0)
+    expect(signatures).toBeGreaterThan(0x7fff_ffff)
+    expect(lookupDicomDictionary(signatures).entry).toMatchObject({
+      tag: signatures,
+      vr: 'SQ',
+      keyword: 'DigitalSignaturesSequence',
+    })
+    expect(lookupDicomDictionary(signedSignatures).entry).toMatchObject({
+      tag: signatures,
+      vr: 'SQ',
+    })
+    expect(resolveImplicitVr(signatures)).toBe('SQ')
+    expect(resolveImplicitVr(signedSignatures)).toBe('SQ')
+    expect(lookupDicomDictionary(padding).entry).toMatchObject({
+      tag: padding,
+      vr: 'OB',
+      keyword: 'DataSetTrailingPadding',
+    })
+    expect(lookupDicomDictionary(signedPadding).entry).toMatchObject({
+      tag: padding,
+      vr: 'OB',
+    })
+    expect(resolveImplicitVr(padding)).toBe('OB')
+    expect(parseDicomTagText('FFFA,FFFA')).toBe(signatures)
+    expect(parseDicomTagText('FFFC,FFFC')).toBe(padding)
+    expect(formatDicomTag(signatures)).toBe('(FFFA,FFFA)')
+    expect(formatDicomTag(padding)).toBe('(FFFC,FFFC)')
+    expect(formatDicomTag(signedSignatures)).toBe('(FFFA,FFFA)')
+    expect(parseDicomTagText('FFFE,E000')).toBe(dicomTag.item)
+    expect(parseDicomTagText('FFFE,E00D')).toBe(dicomTag.itemDelimitation)
+    expect(parseDicomTagText('FFFE,E0DD')).toBe(dicomTag.sequenceDelimitation)
+    expect(lookupDicomDictionary(dicomTag.item).known).toBe(false)
   })
 
   it('matches the deterministic generator output', () => {

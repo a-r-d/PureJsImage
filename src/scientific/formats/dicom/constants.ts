@@ -148,7 +148,7 @@ export const parseDicomTagText = (value: string): number => {
   if (match === null || match[1] === undefined || match[2] === undefined) {
     throw new Error(`Invalid DICOM tag ${value}`)
   }
-  return (Number.parseInt(match[1], 16) << 16) | Number.parseInt(match[2], 16)
+  return ((Number.parseInt(match[1], 16) << 16) | Number.parseInt(match[2], 16)) >>> 0
 }
 
 export const dicomGroup = (tag: number): number => tag >>> 16

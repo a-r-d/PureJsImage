@@ -774,6 +774,61 @@ describe('DICOM Part 10 parser', () => {
     )
     expect(tolerant.transferSyntaxUid).toBe(explicitVrLittleEndianUid)
     expect(tolerant.fileMeta.mediaStorageSopClassUid).toBeUndefined()
+    await rejectMeta(
+      writeDicomPart10({
+        transferSyntax: 'explicit-vr-le',
+        fileMeta: requiredMeta().map((element) =>
+          element.tag === dicomTag.transferSyntaxUid ||
+          element.tag === dicomTag.mediaStorageSopClassUid
+            ? { ...element, vr: 'LO' as const }
+            : element,
+        ),
+        dataset: technicalDataset(),
+      }),
+      /must use VR UI/,
+    )
+    await rejectMeta(
+      writeDicomPart10({
+        transferSyntax: 'explicit-vr-le',
+        fileMeta: requiredMeta().map((element) =>
+          element.tag === dicomTag.mediaStorageSopInstanceUid
+            ? { ...element, vr: 'OB' as const }
+            : element,
+        ),
+        dataset: technicalDataset(),
+      }),
+      /must use VR UI/,
+    )
+    await rejectMeta(
+      writeDicomPart10({
+        transferSyntax: 'explicit-vr-le',
+        fileMeta: requiredMeta(undefined, [
+          { tag: dicomTag.implementationVersionName, vr: 'LO', value: dicomTextBytes('BAD') },
+        ]),
+        dataset: technicalDataset(),
+      }),
+      /must use VR SH/,
+    )
+  })
+
+  it('enforces strict UID syntax and padding', () => {
+    const uidBytes = (value: string): Uint8Array => new TextEncoder().encode(value)
+    expect(decodeDicomUid(uidBytes('1.2.840.10008.1.2'), 'UID')).toBe('1.2.840.10008.1.2')
+    expect(decodeDicomUid(uidBytes('1.2.3.40'), 'UID')).toBe('1.2.3.40')
+    expect(decodeDicomUid(Uint8Array.of(...uidBytes('1.2.3'), 0), 'UID')).toBe('1.2.3')
+    expect(() => decodeDicomUid(uidBytes('1.01.2'), 'UID')).toThrow(/leading zero/)
+    expect(() => decodeDicomUid(uidBytes(`${'1'.repeat(65)}`), 'UID')).toThrow(/64 bytes/)
+    expect(() => decodeDicomUid(uidBytes('1.2.3 '), 'UID')).toThrow(/SPACE padding/)
+    expect(() =>
+      decodeDicomUid(Uint8Array.of(...uidBytes('1.2'), 0, ...uidBytes('.3')), 'UID'),
+    ).toThrow(/embedded NULL/)
+    expect(() => decodeDicomUid(Uint8Array.of(...uidBytes('1.2.3'), 0, 0), 'UID')).toThrow(
+      /repeated trailing NULLs/,
+    )
+    expect(() => decodeDicomUid(Uint8Array.of(...uidBytes('1.2.3.40'), 0), 'UID')).toThrow(
+      /even-length pad/,
+    )
+    expect(decodeDicomUid(uidBytes('1.2.3 '), 'UID', { conformance: 'tolerant' })).toBe('1.2.3')
   })
 })
 
@@ -807,5 +862,41 @@ describe('committed synthetic DICOM fixtures', () => {
         )[0],
       ).toBe(entry.expected.rows)
     }
+  })
+
+  it('pads odd CS, DS, LO, and UI fixture values according to VR', () => {
+    const bytes = readFileSync('tests/fixtures/dicom/synthetic-explicit-le.dcm')
+    const findExplicit = (tag: number, vr: string, raw: string): Uint8Array => {
+      const needle = Uint8Array.of(
+        (tag >>> 16) & 0xff,
+        (tag >>> 24) & 0xff,
+        tag & 0xff,
+        (tag >>> 8) & 0xff,
+        vr.charCodeAt(0),
+        vr.charCodeAt(1),
+      )
+      for (let offset = 0; offset + needle.byteLength + 4 <= bytes.byteLength; offset += 1) {
+        let matched = true
+        for (let index = 0; index < needle.byteLength; index += 1) {
+          if (bytes[offset + index] !== needle[index]) {
+            matched = false
+            break
+          }
+        }
+        if (!matched) continue
+        const length = (bytes[offset + 6] ?? 0) | ((bytes[offset + 7] ?? 0) << 8)
+        const value = bytes.subarray(offset + 8, offset + 8 + length)
+        if (new TextDecoder().decode(value.subarray(0, raw.length)) === raw) return value
+      }
+      throw new Error(`expected ${vr} ${raw}`)
+    }
+    const modality = findExplicit(dicomTag.modality, 'CS', 'ECG')
+    expect([...modality]).toEqual([0x45, 0x43, 0x47, 0x20])
+    const manufacturer = findExplicit(0x0008_0070, 'LO', 'X')
+    expect([...manufacturer]).toEqual([0x58, 0x20])
+    const studyUid = findExplicit(0x0020_000d, 'UI', '1.2.3')
+    expect([...studyUid]).toEqual([0x31, 0x2e, 0x32, 0x2e, 0x33, 0])
+    const spacing = findExplicit(dicomTag.pixelSpacing, 'DS', '0.5\\0.4')
+    expect(spacing[spacing.byteLength - 1]).toBe(0x20)
   })
 })

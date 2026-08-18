@@ -31,6 +31,18 @@ const losslessGray16 = readFileSync('tests/fixtures/dicom/lossless-gray16.j2k')
 const losslessGray8 = readFileSync('tests/fixtures/dicom/lossless-gray8.j2k')
 const lossyGray8 = readFileSync('tests/fixtures/dicom/lossy-gray8.j2k')
 
+const insertJpegFillBeforeEoi = (data: Uint8Array, fillCount: number): Uint8Array => {
+  for (let index = data.byteLength - 2; index >= 0; index -= 1) {
+    if (data[index] !== 0xff || data[index + 1] !== 0xd9) continue
+    const output = new Uint8Array(data.byteLength + fillCount)
+    output.set(data.subarray(0, index))
+    output.fill(0xff, index, index + fillCount)
+    output.set(data.subarray(index), index + fillCount)
+    return output
+  }
+  throw new Error('JPEG EOI marker is missing')
+}
+
 const planeSamples = async (dataset: ScientificDataset): Promise<number[]> => {
   const values: number[] = []
   for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
@@ -592,5 +604,172 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
       }),
     )
     expect(await planeSamples(dataset)).toHaveLength(8)
+  })
+
+  it('rejects JPEG Lossless frames that lack a single terminated SOF3 scan', async () => {
+    const encoded = encodeJpegLosslessGray(2, 2, [0, 127, 128, 255])
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegLosslessSv1Uid, {
+            bitsAllocated: 8,
+            rows: 2,
+            columns: 2,
+            frame: encoded.subarray(0, encoded.byteLength - 2),
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/missing EOI/),
+    })
+    const extra = new Uint8Array(encoded.byteLength + 1)
+    extra.set(encoded)
+    extra[encoded.byteLength] = 0x01
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegLosslessSv1Uid, {
+            bitsAllocated: 8,
+            rows: 2,
+            columns: 2,
+            frame: extra,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/invalid bytes after EOI/),
+    })
+    const concatenated = new Uint8Array(encoded.byteLength * 2)
+    concatenated.set(encoded)
+    concatenated.set(encoded, encoded.byteLength)
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegLosslessSv1Uid, {
+            bitsAllocated: 8,
+            rows: 2,
+            columns: 2,
+            frame: concatenated,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/invalid bytes after EOI/),
+    })
+    const oddCodestream =
+      (encoded.byteLength & 1) === 1 ? encoded : insertJpegFillBeforeEoi(encoded, 1)
+    const padded = new Uint8Array(oddCodestream.byteLength + 1)
+    padded.set(oddCodestream)
+    expect(
+      await planeSamples(
+        await openBytes(
+          encapsulated(jpegLosslessSv1Uid, {
+            bitsAllocated: 8,
+            rows: 2,
+            columns: 2,
+            frame: padded,
+          }),
+        ),
+      ),
+    ).toEqual([0, 127, 128, 255])
+  })
+
+  it('rejects JPEG 2000 frames that do not end at EOC except for one zero pad', async () => {
+    const native = decodeJpeg2000NativeGrayFrame(losslessGray8)
+    expect([...native.samplesLittleEndian]).toEqual([0, 127, 128, 255])
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: losslessGray8.subarray(0, losslessGray8.byteLength - 2),
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      message: expect.stringMatching(/EOC/),
+    })
+    const evenZeroPad = new Uint8Array(losslessGray8.byteLength + 1)
+    evenZeroPad.set(losslessGray8)
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: evenZeroPad,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      message: expect.stringMatching(/invalid bytes after EOC/),
+    })
+    const extra = new Uint8Array(losslessGray8.byteLength + 1)
+    extra.set(losslessGray8)
+    extra[losslessGray8.byteLength] = 0x01
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: extra,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      message: expect.stringMatching(/invalid bytes after EOC/),
+    })
+    const concatenated = new Uint8Array(losslessGray8.byteLength * 2)
+    concatenated.set(losslessGray8)
+    concatenated.set(losslessGray8, losslessGray8.byteLength)
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: concatenated,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      message: expect.stringMatching(/invalid bytes after EOC/),
+    })
+    const lossyNative = decodeJpeg2000NativeGrayFrame(lossyGray8)
+    const paddedLossy = new Uint8Array(lossyGray8.byteLength + 1)
+    paddedLossy.set(lossyGray8)
+    const paddedDataset = await openBytes(
+      encapsulated(jpeg2000Uid, {
+        bitsAllocated: 16,
+        bitsStored: 8,
+        rows: 6,
+        columns: 8,
+        frame: paddedLossy,
+      }),
+    )
+    expect(await planeSamples(paddedDataset)).toEqual([...lossyNative.samplesLittleEndian])
+    const losslessAgain = await openBytes(
+      encapsulated(jpeg2000LosslessUid, {
+        bitsAllocated: 16,
+        bitsStored: 8,
+        rows: 2,
+        columns: 2,
+        frame: losslessGray8,
+      }),
+    )
+    expect(await planeSamples(losslessAgain)).toEqual([0, 127, 128, 255])
   })
 })

@@ -772,6 +772,7 @@ interface ParsedCodestream {
   readonly tiles: readonly Tile[]
   readonly lossless: boolean
   readonly resolutionLevels: number
+  readonly endOffset: number
 }
 
 const parseSizeMarker = (payload: Uint8Array, limits: ImageLimits): SizeMarker => {
@@ -1706,7 +1707,11 @@ const segmentPayload = (
   return { payload: data.subarray(markerStart + 4, end), end }
 }
 
-const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestream => {
+const parseCodestream = (
+  data: Uint8Array,
+  limits: ImageLimits,
+  options: { readonly allowTrailingBytes?: boolean } = {},
+): ParsedCodestream => {
   if (data.byteLength < 6 || be16(data, 0) !== 0xff4f) {
     throw invalidInput('JPEG 2000 SOC marker is missing')
   }
@@ -1949,7 +1954,9 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
     throw unsupportedOperation(`JPEG 2000 marker 0x${marker.toString(16)} is unsupported`)
   }
   if (!sawEnd) throw truncatedInput('JPEG 2000 EOC marker is missing')
-  if (position !== data.byteLength) throw invalidInput('JPEG 2000 data follows EOC')
+  if (options.allowTrailingBytes !== true && position !== data.byteLength) {
+    throw invalidInput('JPEG 2000 data follows EOC')
+  }
   if (!size || !defaultStyle || !defaultQuantization) {
     throw invalidInput('JPEG 2000 main header is incomplete')
   }
@@ -1984,6 +1991,7 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
           tile.components.map((component) => component.style.decompositionLevels),
         ),
       ),
+    endOffset: position,
   }
 }
 
@@ -2868,6 +2876,7 @@ export interface Jpeg2000NativeGrayFrame {
   readonly signed: boolean
   readonly reversible: boolean
   readonly samplesLittleEndian: Uint8Array
+  readonly consumedBytes: number
 }
 
 const nativeGraySample = (value: number, specification: ComponentSpec): number => {
@@ -2885,11 +2894,15 @@ const nativeGraySample = (value: number, specification: ComponentSpec): number =
 
 export const decodeJpeg2000NativeGrayFrame = (
   codestream: Uint8Array,
-  options: Readonly<ImageLimitOptions> = {},
+  options: Readonly<ImageLimitOptions & { readonly allowTrailingBytes?: boolean }> = {},
 ): Jpeg2000NativeGrayFrame => {
   const limits = resolveLimits(options)
   validateInputSize(codestream.byteLength, limits)
-  const parsed = parseCodestream(codestream, limits)
+  const parsed = parseCodestream(codestream, limits, {
+    ...(options.allowTrailingBytes === undefined
+      ? {}
+      : { allowTrailingBytes: options.allowTrailingBytes }),
+  })
   const specification = parsed.size.components[0]
   if (parsed.size.components.length !== 1 || specification === undefined) {
     throw unsupportedOperation(
@@ -2943,6 +2956,7 @@ export const decodeJpeg2000NativeGrayFrame = (
     signed: specification.signed,
     reversible,
     samplesLittleEndian: samples,
+    consumedBytes: parsed.endOffset,
   })
 }
 

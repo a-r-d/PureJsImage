@@ -4,7 +4,7 @@
   "files": [
     {
       "localFile": "synthetic-explicit-le.dcm",
-      "sha256": "334d44ed5fc25f474845f2be2f50ca80316d5dfde26f9995513d3450d460702d",
+      "sha256": "1d99cfa72c4d92b5d18ac70a4039961d9949407a2b45d98149dc3f296fde50ac",
       "source": {
         "generator": "tests/dicom/part10-writer.ts",
         "revision": "workspace-generated",
@@ -13,7 +13,7 @@
       },
       "transferSyntaxUid": "1.2.840.10008.1.2.1",
       "expected": {
-        "modality": "OT",
+        "modality": "ECG",
         "rows": 4,
         "columns": 4,
         "sopClassUid": "1.2.840.10008.5.1.4.1.1.7"
@@ -21,7 +21,7 @@
     },
     {
       "localFile": "synthetic-implicit-le.dcm",
-      "sha256": "76d523a95ef5997592e324f6232aa87e9b42ca857409e02b28ae942e8fa6d1f7",
+      "sha256": "70b4e0621008abe39850920f11448d1e4c9f58d87d415f1955ea3d6f25044274",
       "source": {
         "generator": "tests/dicom/part10-writer.ts",
         "revision": "workspace-generated",
@@ -30,7 +30,7 @@
       },
       "transferSyntaxUid": "1.2.840.10008.1.2",
       "expected": {
-        "modality": "OT",
+        "modality": "ECG",
         "rows": 4,
         "columns": 4,
         "sopClassUid": "1.2.840.10008.5.1.4.1.1.7"

@@ -4,6 +4,7 @@ import {
   type DicomDataset,
   type DicomElement,
   type DicomItem,
+  collectDicomElements,
   decodeDicomDecimalStrings,
   findDicomElement,
 } from './elements.ts'
@@ -64,7 +65,9 @@ const singleSequenceItemElements = (
 export const parseDicomPixelSpacing = (
   elements: readonly DicomElement[],
 ): DicomPixelSpacingMm | undefined => {
-  const value = findDicomElement(elements, dicomTag.pixelSpacing)?.value
+  const matches = collectDicomElements(elements, dicomTag.pixelSpacing)
+  if (matches.length > 1) throw invalidInput('DICOM Pixel Spacing is duplicated')
+  const value = matches[0]?.value
   if (value === undefined) return undefined
   const numbers = decodeDicomDecimalStrings(value, 'Pixel Spacing')
   if (numbers.length !== 2 || numbers[0] === undefined || numbers[1] === undefined) {

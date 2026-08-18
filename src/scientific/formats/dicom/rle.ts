@@ -112,6 +112,9 @@ export const decodeDicomRleFrame = (
     if (start === undefined || end === undefined || end < start) {
       throw invalidInput('DICOM RLE segment bounds are invalid')
     }
+    if (((end - start) & 1) !== 0) {
+      throw invalidInput('DICOM RLE segment length must be even')
+    }
     planes.push(
       decodeRleSegment(encoded.subarray(start, end), description.rows, description.columns),
     )

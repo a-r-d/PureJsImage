@@ -516,11 +516,11 @@ const scanJpegEntropy = (
       offset += 1
       continue
     }
-    const markerOffset = offset
     offset += 1
     while (offset < data.byteLength && byte(data, offset) === 0xff) offset += 1
     if (offset >= data.byteLength) return undefined
     const marker = byte(data, offset)
+    const markerOffset = offset - 1
     offset += 1
     if (marker === 0x00 || (marker >= 0xd0 && marker <= 0xd7)) continue
     return { marker, markerOffset, afterMarker: offset }

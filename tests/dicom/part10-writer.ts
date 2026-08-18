@@ -26,6 +26,7 @@ export interface DicomWriteElement {
   readonly nestedExplicitVr?: boolean
   readonly forceLength?: number
   readonly rawHeader?: Uint8Array
+  readonly skipPadding?: boolean
 }
 
 export interface DicomWriteOptions {
@@ -41,13 +42,38 @@ export interface DicomWriteOptions {
   readonly dataset: readonly DicomWriteElement[]
 }
 
-const uidBytes = (value: string): Uint8Array => {
-  const raw = new TextEncoder().encode(value)
-  if ((raw.byteLength & 1) === 0) return raw
-  const padded = new Uint8Array(raw.byteLength + 1)
-  padded.set(raw)
-  return padded
-}
+const textEncoder = new TextEncoder()
+
+const characterStringVrs: ReadonlySet<DicomVr> = new Set([
+  'AE',
+  'AS',
+  'CS',
+  'DA',
+  'DS',
+  'DT',
+  'IS',
+  'LO',
+  'LT',
+  'PN',
+  'SH',
+  'ST',
+  'TM',
+  'UC',
+  'UR',
+  'UT',
+])
+
+const fixedNumericVrs: ReadonlySet<DicomVr> = new Set([
+  'US',
+  'SS',
+  'UL',
+  'SL',
+  'FL',
+  'FD',
+  'AT',
+  'SV',
+  'UV',
+])
 
 const writeUint16 = (output: number[], value: number): void => {
   output.push(value & 0xff, (value >>> 8) & 0xff)
@@ -62,12 +88,22 @@ const writeTag = (output: number[], tag: number): void => {
   writeUint16(output, tag & 0xffff)
 }
 
-const padEven = (value: Uint8Array): Uint8Array => {
-  if ((value.byteLength & 1) === 0) return value
+const padValueForVr = (
+  value: Uint8Array,
+  vr: DicomVr | undefined,
+  skipPadding: boolean,
+): Uint8Array => {
+  if (skipPadding || (value.byteLength & 1) === 0) return value
+  if (vr !== undefined && fixedNumericVrs.has(vr)) {
+    throw new Error(`Test DICOM writer cannot silently repair odd-length ${vr}`)
+  }
   const padded = new Uint8Array(value.byteLength + 1)
   padded.set(value)
+  if (vr !== undefined && characterStringVrs.has(vr)) padded[value.byteLength] = 0x20
   return padded
 }
+
+const padEven = (value: Uint8Array): Uint8Array => padValueForVr(value, 'OB', false)
 
 const resolveVr = (element: DicomWriteElement, explicitVr: boolean): DicomVr | undefined => {
   if (element.vr !== undefined) return element.vr
@@ -152,7 +188,7 @@ const writeDataset = (
     const value =
       element.items !== undefined
         ? Uint8Array.from(childBytes)
-        : padEven(element.value ?? new Uint8Array())
+        : padValueForVr(element.value ?? new Uint8Array(), vr, element.skipPadding === true)
     const length =
       element.forceLength ??
       (element.undefinedLength === true ? dicomUndefinedLength : value.byteLength)
@@ -187,31 +223,31 @@ const defaultFileMeta = (
     {
       tag: dicomTag.mediaStorageSopClassUid,
       vr: 'UI',
-      value: uidBytes('1.2.840.10008.5.1.4.1.1.7'),
+      value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7'),
     },
     {
       tag: dicomTag.mediaStorageSopInstanceUid,
       vr: 'UI',
-      value: uidBytes('1.2.826.0.1.3680043.10.850.1.1'),
+      value: dicomTextBytes('1.2.826.0.1.3680043.10.850.1.1'),
     },
   ]
   if (!omitTransferSyntax) {
     elements.push({
       tag: dicomTag.transferSyntaxUid,
       vr: 'UI',
-      value: uidBytes(transferSyntaxUid),
+      value: dicomTextBytes(transferSyntaxUid),
     })
   }
   elements.push(
     {
       tag: dicomTag.implementationClassUid,
       vr: 'UI',
-      value: uidBytes('1.2.826.0.1.3680043.10.850.1'),
+      value: dicomTextBytes('1.2.826.0.1.3680043.10.850.1'),
     },
     {
       tag: dicomTag.implementationVersionName,
       vr: 'SH',
-      value: uidBytes('PUREJSIMAGE_TEST'),
+      value: dicomTextBytes('PUREJSIMAGE_TEST'),
     },
   )
   return elements
@@ -251,7 +287,7 @@ export const writeDicomPart10 = (options: Readonly<DicomWriteOptions>): Uint8Arr
   return Uint8Array.from(output)
 }
 
-export const dicomTextBytes = (value: string): Uint8Array => uidBytes(value)
+export const dicomTextBytes = (value: string): Uint8Array => textEncoder.encode(value)
 
 export const dicomTestSopClassUid = '1.2.840.10008.5.1.4.1.1.7'
 export const dicomTestSopInstanceUid = '1.2.826.0.1.3680043.10.850.1.1'

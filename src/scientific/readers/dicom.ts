@@ -12,6 +12,7 @@ import {
   normalizeScientificPlaneReadRequest,
 } from '../dataset.ts'
 import { readDicomEncapsulatedPlane } from '../formats/dicom/encapsulated-pixel.ts'
+import type { DicomFileMetaConformance } from '../formats/dicom/file-meta.ts'
 import type { DicomLimitOptions, DicomLimits } from '../formats/dicom/limits.ts'
 import { defaultDicomLimits, resolveDicomLimits } from '../formats/dicom/limits.ts'
 import type {
@@ -51,6 +52,7 @@ export const dicomReaderDescriptor: ScientificReaderDescriptor = Object.freeze({
 
 export interface DicomReaderOptions {
   readonly limits?: DicomLimitOptions
+  readonly fileMetaConformance?: DicomFileMetaConformance
 }
 
 const rowsPerBlock = 32
@@ -193,6 +195,7 @@ class DicomScientificDataset implements ScientificDataset {
 
 export const createDicomReader = (options: Readonly<DicomReaderOptions> = {}): ScientificReader => {
   const limits = resolveDicomLimits(options.limits)
+  const fileMetaConformance = options.fileMetaConformance
   return Object.freeze({
     descriptor: dicomReaderDescriptor,
     async probe(context: Readonly<ScientificOpenContext>) {
@@ -224,6 +227,7 @@ export const createDicomReader = (options: Readonly<DicomReaderOptions> = {}): S
       throwIfAborted(context.signal)
       const parsed = await parseDicomPart10(context.primary.source, {
         limits,
+        ...(fileMetaConformance === undefined ? {} : { fileMetaConformance }),
         ...(context.signal === undefined ? {} : { signal: context.signal }),
       })
       const pixels = await describeDicomPixels(
@@ -269,4 +273,5 @@ export type {
   DicomVoiLutFunction,
   DicomVoiPreset,
 }
+export type { DicomFileMetaConformance }
 export { defaultDicomLimits, resolveDicomLimits }

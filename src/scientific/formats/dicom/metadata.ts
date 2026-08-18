@@ -154,10 +154,22 @@ export const createDicomTechnicalMetadata = (
     perFrame.map((group) => group.voiPresets),
     dicomVoiPresetsEqual,
   )
+  const pixelSpacingTopLevel = parseDicomPixelSpacing(dataset.elements)
+  const pixelSpacingShared = shared?.pixelSpacingMm
+  const pixelSpacingPerFrame = perFrame.map((group) => group.pixelSpacingMm)
+  if (pixelSpacingTopLevel !== undefined) {
+    validateDicomPixelSpacing(pixelSpacingTopLevel, pixels.rows, pixels.columns)
+  }
+  if (pixelSpacingShared !== undefined) {
+    validateDicomPixelSpacing(pixelSpacingShared, pixels.rows, pixels.columns)
+  }
+  for (const spacing of pixelSpacingPerFrame) {
+    if (spacing !== undefined) validateDicomPixelSpacing(spacing, pixels.rows, pixels.columns)
+  }
   const pixelSpacingMm = resolveDicomHomogeneousValue(
-    parseDicomPixelSpacing(dataset.elements),
-    shared?.pixelSpacingMm,
-    perFrame.map((group) => group.pixelSpacingMm),
+    pixelSpacingTopLevel,
+    pixelSpacingShared,
+    pixelSpacingPerFrame,
     dicomPixelSpacingEqual,
   )
   const imagePositionPatient = resolveDicomHomogeneousValue(
@@ -173,7 +185,6 @@ export const createDicomTechnicalMetadata = (
     dicomNumberTupleEqual,
   )
   const spacing = resolvedValue(pixelSpacingMm)
-  if (spacing !== undefined) validateDicomPixelSpacing(spacing, pixels.rows, pixels.columns)
   const position = resolvedValue(imagePositionPatient)
   const orientation = resolvedValue(imageOrientationPatient)
   const transform = resolvedValue(storedValueTransform)

@@ -16,15 +16,64 @@ const jpegLimits = (limits: Readonly<DicomLimits>) =>
     maxFrames: 1,
   })
 
-const trimDicomJpegCodestream = (encoded: Uint8Array): Uint8Array => {
+const requireDicomJpegCodestream = (
+  encoded: Uint8Array,
+  options: {
+    readonly sofMarker: number
+    readonly label: string
+    readonly columns: number
+    readonly rows: number
+    readonly precision?: number
+    readonly componentCount?: number
+  },
+): {
+  readonly inspection: ReturnType<typeof inspectJpegCodestream>
+  readonly codestream: Uint8Array
+} => {
   const inspection = inspectJpegCodestream(encoded)
-  const eoiEnd = inspection.eoiOffset + 2
-  if (inspection.trailingByteCount === 0)
-    return encoded.byteLength === eoiEnd ? encoded : encoded.subarray(0, eoiEnd)
-  if (inspection.trailingByteCount === 1 && encoded[eoiEnd] === 0) {
-    return encoded.subarray(0, eoiEnd)
+  if (inspection.sofMarker !== options.sofMarker) {
+    throw invalidInput(
+      options.sofMarker === 0xc0
+        ? `${options.label} requires SOF0`
+        : `${options.label} requires SOF3`,
+    )
   }
-  throw invalidInput('DICOM JPEG Baseline contains invalid bytes after EOI')
+  if (inspection.componentCount !== (options.componentCount ?? 1)) {
+    throw invalidInput(`${options.label} requires exactly one component`)
+  }
+  if (inspection.width !== options.columns || inspection.height !== options.rows) {
+    throw invalidInput(
+      `${options.label} ${inspection.width}x${inspection.height} does not match ${options.columns}x${options.rows}`,
+    )
+  }
+  if (options.precision !== undefined && inspection.precision !== options.precision) {
+    throw invalidInput(
+      `${options.label} precision ${inspection.precision} does not match Bits Stored ${options.precision}`,
+    )
+  }
+  const eoiEnd = inspection.eoiOffset + 2
+  if (inspection.trailingByteCount === 0) {
+    return {
+      inspection,
+      codestream: encoded.byteLength === eoiEnd ? encoded : encoded.subarray(0, eoiEnd),
+    }
+  }
+  if (inspection.trailingByteCount === 1 && encoded[eoiEnd] === 0) {
+    return { inspection, codestream: encoded.subarray(0, eoiEnd) }
+  }
+  throw invalidInput(`${options.label} contains invalid bytes after EOI`)
+}
+
+const requireDicomJpeg2000Padding = (encoded: Uint8Array, consumedBytes: number): void => {
+  if (consumedBytes === encoded.byteLength) return
+  if (
+    consumedBytes === encoded.byteLength - 1 &&
+    (consumedBytes & 1) === 1 &&
+    encoded[consumedBytes] === 0
+  ) {
+    return
+  }
+  throw invalidInput('DICOM JPEG 2000 contains invalid bytes after EOC')
 }
 
 const storedBitMask = (bitsStored: number, bitsAllocated: 8 | 16): number => {
@@ -83,22 +132,13 @@ export const decodeDicomJpegBaselineFrame = async (
   description: DicomPixelDescription,
   limits: Readonly<DicomLimits>,
 ): Promise<Uint8Array> => {
-  const trimmed = trimDicomJpegCodestream(encoded)
-  const inspection = inspectJpegCodestream(trimmed)
-  if (inspection.sofMarker !== 0xc0) {
-    throw invalidInput('DICOM JPEG Baseline requires SOF0')
-  }
-  if (inspection.precision !== 8) {
-    throw invalidInput('DICOM JPEG Baseline requires 8-bit precision')
-  }
-  if (inspection.componentCount !== 1) {
-    throw invalidInput('DICOM JPEG Baseline requires exactly one component')
-  }
-  if (inspection.width !== description.columns || inspection.height !== description.rows) {
-    throw invalidInput(
-      `DICOM JPEG Baseline ${inspection.width}x${inspection.height} does not match ${description.columns}x${description.rows}`,
-    )
-  }
+  const { codestream: trimmed } = requireDicomJpegCodestream(encoded, {
+    sofMarker: 0xc0,
+    label: 'DICOM JPEG Baseline',
+    columns: description.columns,
+    rows: description.rows,
+    precision: 8,
+  })
   if (description.bitsAllocated !== 8 || description.bitsStored !== 8) {
     throw unsupportedOperation('DICOM JPEG Baseline requires 8-bit stored samples')
   }
@@ -147,7 +187,14 @@ export const decodeDicomJpegLosslessFrame = (
   description: DicomPixelDescription,
   limits: Readonly<DicomLimits>,
 ): Uint8Array => {
-  const decoded = decodeJpegLosslessFrame(encoded, {
+  const { codestream } = requireDicomJpegCodestream(encoded, {
+    sofMarker: 0xc3,
+    label: 'DICOM JPEG Lossless',
+    columns: description.columns,
+    rows: description.rows,
+    precision: description.bitsStored,
+  })
+  const decoded = decodeJpegLosslessFrame(codestream, {
     requiredSelection: 1,
     limits: {
       expectedWidth: description.columns,
@@ -166,21 +213,16 @@ export const decodeDicomJpegLosslessFrame = (
   return packDicomCodecSamples(decoded.samplesLittleEndian, decoded.precision, description)
 }
 
-const trimJpeg2000Codestream = (encoded: Uint8Array): Uint8Array => {
-  for (let index = encoded.byteLength - 2; index >= 0; index -= 1) {
-    if (encoded[index] === 0xff && encoded[index + 1] === 0xd9) {
-      return encoded.subarray(0, index + 2)
-    }
-  }
-  return encoded
-}
-
 export const decodeDicomJpeg2000Frame = (
   encoded: Uint8Array,
   description: DicomPixelDescription,
   limits: Readonly<DicomLimits>,
 ): Uint8Array => {
-  const decoded = decodeJpeg2000NativeGrayFrame(trimJpeg2000Codestream(encoded), jpegLimits(limits))
+  const decoded = decodeJpeg2000NativeGrayFrame(encoded, {
+    ...jpegLimits(limits),
+    allowTrailingBytes: true,
+  })
+  requireDicomJpeg2000Padding(encoded, decoded.consumedBytes)
   if (decoded.width !== description.columns || decoded.height !== description.rows) {
     throw invalidInput(
       `DICOM JPEG 2000 ${decoded.width}x${decoded.height} does not match ${description.columns}x${description.rows}`,

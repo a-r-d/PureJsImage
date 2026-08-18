@@ -1,5 +1,5 @@
 import { invalidInput } from '../../../errors.ts'
-import { dicomFileMetaGroup, dicomTag, formatDicomTag } from './constants.ts'
+import { dicomFileMetaGroup, dicomTag, formatDicomTag, type DicomVr } from './constants.ts'
 import type { DicomCursor, DicomElement } from './elements.ts'
 import {
   collectDicomElements,
@@ -33,14 +33,24 @@ export interface DicomFileMetaParseOptions {
   readonly conformance?: DicomFileMetaConformance
 }
 
-const optionalUid = (element: DicomElement | undefined, label: string): string | undefined => {
+const requireFileMetaVr = (element: DicomElement, vr: DicomVr, label: string): void => {
+  if (element.vr !== vr) {
+    throw invalidInput(`DICOM File Meta ${label} must use VR ${vr}`)
+  }
+}
+
+const optionalUid = (
+  element: DicomElement | undefined,
+  label: string,
+  conformance: DicomFileMetaConformance,
+): string | undefined => {
   if (element?.value === undefined) return undefined
-  return decodeDicomUid(element.value, label)
+  return decodeDicomUid(element.value, label, { conformance })
 }
 
 const requireUid = (elements: readonly DicomElement[], tag: number, label: string): string => {
   const element = requireUniqueDicomElement(elements, tag, label)
-  if (element.vr === 'UN') throw invalidInput(`DICOM File Meta ${label} must not use VR UN`)
+  requireFileMetaVr(element, 'UI', label)
   if (element.value === undefined) throw invalidInput(`DICOM ${label} value was not materialized`)
   return decodeDicomUid(element.value, label)
 }
@@ -86,6 +96,7 @@ const rejectFileMetaUnAndDuplicates = (elements: readonly DicomElement[]): void 
 
 const parseTransferSyntax = (
   elements: readonly DicomElement[],
+  required: boolean,
 ): {
   readonly transferSyntaxUid: string
   readonly transferSyntax: DicomTransferSyntax
@@ -95,13 +106,16 @@ const parseTransferSyntax = (
     dicomTag.transferSyntaxUid,
     'Transfer Syntax UID',
   )
+  if (required) requireFileMetaVr(transferSyntaxElement, 'UI', 'Transfer Syntax UID')
   if (transferSyntaxElement.vr === 'UN') {
     throw invalidInput('DICOM File Meta Transfer Syntax UID must not use VR UN')
   }
   if (transferSyntaxElement.value === undefined) {
     throw invalidInput('DICOM File Meta Information is missing Transfer Syntax UID')
   }
-  const transferSyntaxUid = decodeDicomUid(transferSyntaxElement.value, 'Transfer Syntax UID')
+  const transferSyntaxUid = decodeDicomUid(transferSyntaxElement.value, 'Transfer Syntax UID', {
+    conformance: required ? 'strict' : 'tolerant',
+  })
   return Object.freeze({
     transferSyntaxUid,
     transferSyntax: resolveDicomTransferSyntax(transferSyntaxUid),
@@ -113,24 +127,27 @@ const fileMetaResult = (
   endOffset: number,
   required: boolean,
 ): DicomFileMetaInformation => {
-  const { transferSyntaxUid, transferSyntax } = parseTransferSyntax(elements)
+  const { transferSyntaxUid, transferSyntax } = parseTransferSyntax(elements, required)
   const mediaStorageSopClassUid = required
     ? requireUid(elements, dicomTag.mediaStorageSopClassUid, 'Media Storage SOP Class UID')
     : optionalUid(
         collectDicomElements(elements, dicomTag.mediaStorageSopClassUid)[0],
         'Media Storage SOP Class UID',
+        'tolerant',
       )
   const mediaStorageSopInstanceUid = required
     ? requireUid(elements, dicomTag.mediaStorageSopInstanceUid, 'Media Storage SOP Instance UID')
     : optionalUid(
         collectDicomElements(elements, dicomTag.mediaStorageSopInstanceUid)[0],
         'Media Storage SOP Instance UID',
+        'tolerant',
       )
   const implementationClassUid = required
     ? requireUid(elements, dicomTag.implementationClassUid, 'Implementation Class UID')
     : optionalUid(
         collectDicomElements(elements, dicomTag.implementationClassUid)[0],
         'Implementation Class UID',
+        'tolerant',
       )
   const implementationVersionNameElement = collectDicomElements(
     elements,
@@ -139,10 +156,12 @@ const fileMetaResult = (
   if (implementationVersionNameElement.length > 1) {
     throw invalidInput('DICOM Implementation Version Name is duplicated')
   }
+  const versionName = implementationVersionNameElement[0]
+  if (required && versionName !== undefined) {
+    requireFileMetaVr(versionName, 'SH', 'Implementation Version Name')
+  }
   const implementationVersionName =
-    implementationVersionNameElement[0]?.value === undefined
-      ? undefined
-      : decodeDicomText(implementationVersionNameElement[0].value)
+    versionName?.value === undefined ? undefined : decodeDicomText(versionName.value)
   return Object.freeze({
     elements,
     endOffset,

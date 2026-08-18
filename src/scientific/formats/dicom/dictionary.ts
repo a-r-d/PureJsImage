@@ -49,7 +49,7 @@ const parseExactTag = (value: string): number => {
   if (!Number.isInteger(group) || !Number.isInteger(element)) {
     throw invalidInput(`DICOM dictionary tag ${value} is invalid`)
   }
-  return (group << 16) | element
+  return ((group << 16) | element) >>> 0
 }
 
 const parsePattern = (value: string): { readonly value: number; readonly mask: number } => {
@@ -132,17 +132,18 @@ export const getDicomDictionarySource = (): typeof dicomDictionarySource => dico
 
 export const lookupDicomDictionary = (tag: number): DicomDictionaryLookup => {
   loadPacked()
-  const privateTag = isDicomPrivateTag(tag)
+  const normalized = tag >>> 0
+  const privateTag = isDicomPrivateTag(normalized)
   if (privateTag) return Object.freeze({ known: false, private: true })
-  const exact = exactEntries.get(tag)
+  const exact = exactEntries.get(normalized)
   if (exact !== undefined) return Object.freeze({ known: true, private: false, entry: exact })
   for (const pattern of patternEntries) {
-    if ((tag & pattern.mask) === pattern.value) {
+    if ((normalized & pattern.mask) >>> 0 === pattern.value) {
       return Object.freeze({
         known: true,
         private: false,
         entry: Object.freeze({
-          tag,
+          tag: normalized,
           vr: pattern.vr,
           keyword: pattern.keyword,
           retired: pattern.retired,
