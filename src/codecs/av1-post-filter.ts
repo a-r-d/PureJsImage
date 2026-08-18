@@ -1067,23 +1067,23 @@ const boxFilter8 = (
   const scale = Math.floor((1_048_576 + Math.floor(nSquaredEpsilon / 2)) / nSquaredEpsilon)
   const oneOverN = Math.floor((4096 + Math.floor(n / 2)) / n)
   for (let inputRow = -1; inputRow <= height; inputRow += 1) {
+    const centerRow = inputRow + 1 + windowRadius
+    const topRow = (centerRow - radius) * prefixStride
+    const bottomRow = (centerRow + radius + 1) * prefixStride
     for (let inputColumn = -1; inputColumn <= width; inputColumn += 1) {
-      const centerRow = inputRow + 1 + windowRadius
       const centerColumn = inputColumn + 1 + windowRadius
-      const top = centerRow - radius
       const left = centerColumn - radius
-      const bottom = centerRow + radius + 1
       const right = centerColumn + radius + 1
       const sum =
-        (prefixSums[bottom * prefixStride + right] ?? 0) -
-        (prefixSums[top * prefixStride + right] ?? 0) -
-        (prefixSums[bottom * prefixStride + left] ?? 0) +
-        (prefixSums[top * prefixStride + left] ?? 0)
+        (prefixSums[bottomRow + right] ?? 0) -
+        (prefixSums[topRow + right] ?? 0) -
+        (prefixSums[bottomRow + left] ?? 0) +
+        (prefixSums[topRow + left] ?? 0)
       const squares =
-        (prefixSquares[bottom * prefixStride + right] ?? 0) -
-        (prefixSquares[top * prefixStride + right] ?? 0) -
-        (prefixSquares[bottom * prefixStride + left] ?? 0) +
-        (prefixSquares[top * prefixStride + left] ?? 0)
+        (prefixSquares[bottomRow + right] ?? 0) -
+        (prefixSquares[topRow + right] ?? 0) -
+        (prefixSquares[bottomRow + left] ?? 0) +
+        (prefixSquares[topRow + left] ?? 0)
       const variance = Math.max(0, squares * n - sum * sum)
       const z = (variance * scale + 524_288) >> 20
       const a = z >= 255 ? 256 : z === 0 ? 1 : Math.floor((z * 256 + (z >> 1)) / (z + 1))

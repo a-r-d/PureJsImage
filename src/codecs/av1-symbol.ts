@@ -29,7 +29,25 @@ export class Av1SymbolDecoder {
   }
 
   readBoolean(): number {
-    return this.readSymbol(new Uint16Array([1 << 14, 1 << 15, 0]))
+    // Equiprobable bit: same split as readSymbol([16384, 32768, 0]) without allocating
+    // a throwaway CDF or adapting it.
+    const split =
+      (((this.#range >> 8) * (16_384 >> CDF_PROBABILITY_SHIFT)) >> (7 - CDF_PROBABILITY_SHIFT)) +
+      MIN_PROBABILITY
+    const symbol = this.#value < split ? 1 : 0
+    if (symbol === 0) {
+      this.#range -= split
+      this.#value -= split
+    } else this.#range = split
+    const bits = 15 - floorLog2(this.#range)
+    const scale = 1 << bits
+    this.#range *= scale
+    const newBits = Math.min(bits, Math.max(0, this.#maximumBits))
+    const newData = this.#readRaw(newBits)
+    const paddedData = newData * (1 << (bits - newBits))
+    this.#value = paddedData ^ ((this.#value + 1) * scale - 1)
+    this.#maximumBits -= bits
+    return symbol
   }
 
   readLiteral(bits: number): number {
@@ -73,11 +91,12 @@ export class Av1SymbolDecoder {
     this.#range = previous - current
     this.#value -= current
     const bits = 15 - floorLog2(this.#range)
-    this.#range *= 2 ** bits
+    const scale = 1 << bits
+    this.#range *= scale
     const newBits = Math.min(bits, Math.max(0, this.#maximumBits))
     const newData = this.#readRaw(newBits)
-    const paddedData = newData * 2 ** (bits - newBits)
-    this.#value = paddedData ^ ((this.#value + 1) * 2 ** bits - 1)
+    const paddedData = newData * (1 << (bits - newBits))
+    this.#value = paddedData ^ ((this.#value + 1) * scale - 1)
     this.#maximumBits -= bits
 
     if (this.#updateCdfs) {

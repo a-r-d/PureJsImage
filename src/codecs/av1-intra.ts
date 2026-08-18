@@ -4481,7 +4481,10 @@ export const decodeRestrictedAv1Intra = (
   return decoded
 }
 
-const clampByte = (value: number): number => Math.max(0, Math.min(255, Math.round(value)))
+const clampByte = (value: number): number => {
+  const rounded = (value + 0.5) | 0
+  return rounded < 0 ? 0 : rounded > 255 ? 255 : rounded
+}
 
 const sampleChroma = (
   plane: Av1SampleArray,
@@ -4545,6 +4548,29 @@ const sampleChroma420 = (
   const bottomSample = bottomLeft * (4 - rightWeight) + bottomRight * rightWeight
   return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
 }
+
+const sampleChroma420Interior = (
+  plane: Av1SampleArray,
+  stride: number,
+  yOrigin: number,
+  x: number,
+  y: number,
+): number => {
+  const left = (x - 1) >> 1
+  const top = ((y - 1) >> 1) - yOrigin
+  const rightWeight = (x & 1) === 1 ? 1 : 3
+  const bottomWeight = (y & 1) === 1 ? 1 : 3
+  const topRow = top * stride + left
+  const bottomRow = topRow + stride
+  const topLeft = plane[topRow] ?? 0
+  const topRight = plane[topRow + 1] ?? 0
+  const bottomLeft = plane[bottomRow] ?? 0
+  const bottomRight = plane[bottomRow + 1] ?? 0
+  const topSample = topLeft * (4 - rightWeight) + topRight * rightWeight
+  const bottomSample = bottomLeft * (4 - rightWeight) + bottomRight * rightWeight
+  return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
+}
+
 const averagePlaneSample = (
   plane: Av1SampleArray,
   stride: number,
@@ -4862,33 +4888,95 @@ export const av1ToRgbaRegion = (
     const chromaStride = frame.chromaStride
     const chromaWidth = frame.chromaWidth
     const chromaHeight = frame.chromaHeight
+    const chromaXLimit = chromaWidth * 2 - 1
+    const chromaYLimit = chromaHeight * 2 - 1
+    if (!toneMap && sequence.bitDepth === 8 && color.matrixCoefficients !== 10) {
+      const lumaGain = color.fullRange ? 1 : 255 / limitedLumaRange
+      const lumaBias = color.fullRange ? 0 : -limitedLumaMinimum * lumaGain
+      const chromaGain = color.fullRange ? 1 : 255 / limitedChromaRange
+      const crRed = redChroma * chromaGain
+      const crGreen = redGreenChroma * chromaGain
+      const cbGreen = blueGreenChroma * chromaGain
+      const cbBlue = blueChroma * chromaGain
+      const midpoint = sampleMidpoint
+      for (let localY = 0; localY < region.height; localY += 1) {
+        const sourceY = region.y + localY
+        const lumaRow = (sourceY - yOrigin) * yStride
+        const chromaInteriorY = chromaYOrigin === 0 && sourceY >= 1 && sourceY < chromaYLimit
+        const outputRow = localY * region.width * 4
+        for (let localX = 0; localX < region.width; localX += 1) {
+          const sourceX = region.x + localX
+          const chromaInterior = chromaInteriorY && sourceX >= 1 && sourceX < chromaXLimit
+          const luma = yPlane[lumaRow + sourceX] ?? 0
+          const cb = chromaInterior
+            ? sampleChroma420Interior(uPlane, chromaStride, chromaYOrigin, sourceX, sourceY)
+            : sampleChroma420(
+                uPlane,
+                chromaStride,
+                chromaWidth,
+                chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                midpoint,
+              )
+          const cr = chromaInterior
+            ? sampleChroma420Interior(vPlane, chromaStride, chromaYOrigin, sourceX, sourceY)
+            : sampleChroma420(
+                vPlane,
+                chromaStride,
+                chromaWidth,
+                chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                midpoint,
+              )
+          const y = luma * lumaGain + lumaBias
+          const cb0 = cb - midpoint
+          const cr0 = cr - midpoint
+          const target = outputRow + localX * 4
+          output[target] = clampByte(y + crRed * cr0)
+          output[target + 1] = clampByte(y - crGreen * cr0 - cbGreen * cb0)
+          output[target + 2] = clampByte(y + cbBlue * cb0)
+          output[target + 3] = 255
+        }
+      }
+      return output
+    }
     for (let localY = 0; localY < region.height; localY += 1) {
       const sourceY = region.y + localY
       const lumaRow = (sourceY - yOrigin) * yStride
+      const chromaInteriorY = chromaYOrigin === 0 && sourceY >= 1 && sourceY < chromaYLimit
       for (let localX = 0; localX < region.width; localX += 1) {
         const sourceX = region.x + localX
+        const chromaInterior = chromaInteriorY && sourceX >= 1 && sourceX < chromaXLimit
         convert(
           yPlane[lumaRow + sourceX] ?? 0,
-          sampleChroma420(
-            uPlane,
-            chromaStride,
-            chromaWidth,
-            chromaHeight,
-            chromaYOrigin,
-            sourceX,
-            sourceY,
-            sampleMidpoint,
-          ),
-          sampleChroma420(
-            vPlane,
-            chromaStride,
-            chromaWidth,
-            chromaHeight,
-            chromaYOrigin,
-            sourceX,
-            sourceY,
-            sampleMidpoint,
-          ),
+          chromaInterior
+            ? sampleChroma420Interior(uPlane, chromaStride, chromaYOrigin, sourceX, sourceY)
+            : sampleChroma420(
+                uPlane,
+                chromaStride,
+                chromaWidth,
+                chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                sampleMidpoint,
+              ),
+          chromaInterior
+            ? sampleChroma420Interior(vPlane, chromaStride, chromaYOrigin, sourceX, sourceY)
+            : sampleChroma420(
+                vPlane,
+                chromaStride,
+                chromaWidth,
+                chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                sampleMidpoint,
+              ),
           (localY * region.width + localX) * 4,
         )
       }

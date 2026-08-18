@@ -48,6 +48,13 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Speed up first-party AVIF decode after the retained inverse-transform skip: decode equiprobable
+  bits without a throwaway CDF, skip zero-coefficient dequant, upsample interior 4:2:0 chroma
+  without edge clips, renormalize the arithmetic coder with integer shifts, clamp YUV bytes with
+  integer rounding, hoist SGR prefix-row bases, and inline the common 8-bit 4:2:0 convert. Local
+  `avif-fox-resize-jpeg` fell from 589 ms to 500 ms (−15%) with an exact output hash; neighbor
+  `avif-fox-full-png` improved 11%. The Imazen AVIF survey stayed 36/36 decoded with maximum RGB
+  error 2; post-filter, color, high-bit, tile, q-matrix, and common-photo oracles were unchanged.
 - Speed up first-party AVIF inverse transforms by reusing residual scratch and skipping 1D
   transforms on all-zero rows and columns. Local `avif-fox-resize-jpeg` fell from 621 ms to 589 ms
   (−5%) with an exact output hash. The Imazen AVIF survey stayed 36/36 decoded with maximum RGB

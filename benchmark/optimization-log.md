@@ -81,14 +81,38 @@ repeat a dead end without new evidence.
 - Retained `AVIF-024` + `AVIF-026`: reuse inverse-transform residual scratch and
   skip all-zero 1D rows/columns. 621 → 589 ms (−5.12%) versus committed HEAD.
   Versus Sharp the primary is now ~589 ms (~12.0×).
+- Retained `AVIF-028` + `AVIF-029`: non-allocating equiprobable bits and skip-zero
+  dequant. 585 → 561 ms (−4.15%) versus committed HEAD. Versus Sharp the primary
+  is now ~561 ms (~11.4×).
+- Retained `AVIF-031`: interior 4:2:0 chroma upsample. Stack 591 → 548 ms (−7.20%)
+  versus committed HEAD. Versus Sharp the primary is now ~548 ms (~11.2×).
+- Retained `AVIF-034`: integer `1 << bits` arithmetic-coder renormalize. Stack
+  581 → 537 ms (−7.57%) versus committed HEAD. Versus Sharp ~537 ms (~11.0×).
+- Retained `AVIF-036`: integer `clampByte` in YUV convert. Stack 588 → 518 ms
+  (−11.80%) versus committed HEAD. Versus Sharp ~518 ms (~10.6×).
+- Retained `AVIF-037`: hoist SGR prefix-row bases. Stack 589 → 514 ms (−12.74%).
+  Versus Sharp ~514 ms (~10.5×).
+- Retained `AVIF-042`: inline 8-bit 4:2:0 YUV convert with hoisted range/matrix
+  scales. Stack 588 → 500 ms (−15.06%). Versus Sharp ~500 ms (~10.2×). Need
+  ~490 ms for a 10× gap.
+- Neighbor `avif-fox-full-png` on AVIF-028–031: 844 → 812 ms (−3.77%), exact hash.
+  Artifact `.tmp/hillclimb/2026-08-17T22-49-04-952Z/comparison.md`.
+- Neighbor `avif-fox-full-png` on AVIF-028–034: 773 → 713 ms (−7.78%), exact hash.
+  Artifact `.tmp/hillclimb/2026-08-17T23-01-37-377Z/comparison.md`.
+- Neighbor `avif-fox-full-png` on AVIF-028–037: 766 → 707 ms (−7.72%), exact hash.
+  Artifact `.tmp/hillclimb/2026-08-17T23-08-40-580Z/comparison.md`.
+- Neighbor `avif-fox-full-png` on AVIF-028–037+042: 766 → 680 ms (−11.26%), exact hash.
+  Artifact `.tmp/hillclimb/2026-08-17T23-46-21-550Z/comparison.md`.
+- Neighbor `avif-fox-full-png` on AVIF-028+029: 795 → 765 ms (−3.73%), exact hash.
+  Artifact `.tmp/hillclimb/2026-08-17T22-43-51-426Z/comparison.md`.
 - Neighbor `avif-fox-full-png` on AVIF-024+026: 810 → 812 ms (+0.22%), exact hash.
   Artifact `.tmp/hillclimb/2026-08-17T22-31-22-115Z/comparison.md`.
 - Neighbor `avif-fox-full-png` on AVIF-014+016+020+021: 983 → 810 ms (−17.56%),
   exact hash. Artifact `.tmp/hillclimb/2026-08-17T22-06-20-423Z/comparison.md`.
 - Handoff: `fixtures:avif:post-filters` matched dav1d/libaom YUV hashes (tolerance 0),
   including fox. Imazen AVIF survey 36/36 decoded, max RGB error 2, min PSNR
-  52.21 dB (`.tmp/imazen-avif-021/`). `npm run check` passed (134 files, 1587
-  tests). Core API stayed 60.0 KiB.
+  52.21 dB (`.tmp/imazen-avif-042/`). Color, high-bit, q-matrix, tiles, and
+  common-photo oracles passed. 162 focused AVIF tests passed.
 
 ## Northstar scaled-decode campaign
 
@@ -334,6 +358,25 @@ CPU samples put `boxFilter` (35%), `restoreWienerBlock` (9%), and
 | AVIF-025 | 2026-08-17 22:26 | Reuse coefficient Int32 scratch in the entropy reader; fill(0) each TU. | 613.52 → 612.92 | **-0.10%** | -0.35% | neutral | Reverted. fill(0) cancelled the allocation win. |
 | AVIF-026 | 2026-08-17 22:27 | Skip inverse 1D transforms on all-zero rows and columns. | 620.87 → 589.07 | **-5.12%** | +1.98% | material | Retained on AVIF-024. Exact hash, 7/7 pairs faster, paired MAD 1.43%. |
 | AVIF-027 | 2026-08-17 22:30 | Specialize 8-bit SGR final blend: shift-11 rounding and hoist plane pointers. | 620.12 → 599.68 | **-3.30%** vs HEAD (slower than AVIF-026 589 ms) | +1.79% | neutral | Reverted. No incremental win over the zero-row skip. |
+| AVIF-028 | 2026-08-17 22:40 | Decode equiprobable bits without allocating a throwaway 50/50 CDF. | 580.04 → 574.62 | **-0.93%** | +1.14% | promising | Retained. Exact hash, 6/7 pairs faster, paired median −2.31%. |
+| AVIF-029 | 2026-08-17 22:41 | Skip full dequant math for zero coefficients; write 0 and continue. | 585.36 → 561.05 | **-4.15%** | -0.72% | material | Retained on AVIF-028. Exact hash, 6/7 pairs faster, paired median −5.41%. |
+| AVIF-030 | 2026-08-17 22:42 | Hoist YUV range scales out of `convert` (multiply instead of per-pixel fullRange branches). | 592.30 → 561.55 | **-5.19%** vs HEAD (~0% vs AVIF-029) | +0.07% | neutral | Reverted. Incremental vs 029 (561 ms) was noise. |
+| AVIF-031 | 2026-08-17 22:47 | Interior 4:2:0 chroma upsample without edge clips. | 590.57 → 548.03 | **-7.20%** | -0.56% | material | Retained on AVIF-028+029. Exact hash, 7/7 pairs faster, candidate MAD 5.8 ms. |
+| AVIF-032 | 2026-08-17 22:48 | Replace `Math.log2` `floorLog2` with `31 - Math.clz32`. | 637.16 → 598.78 | **-6.02%** vs HEAD (slower than AVIF-031 548 ms) | +1.33% | rejected | Reverted. No incremental win; noisier candidate (MAD 20.6 ms). |
+| AVIF-033 | 2026-08-17 22:57 | Reuse intra above/left/neighbor/filter-edge scratch buffers. | 610.96 → 626.34 | **+2.52%** | -0.97% | rejected | Reverted. Noisy (MAD 30–54 ms) and slower than allocating per block. |
+| AVIF-034 | 2026-08-17 23:00 | Replace `2 ** bits` renormalize in the arithmetic coder with `1 << bits`. | 581.38 → 537.38 | **-7.57%** | -0.01% | material | Retained on AVIF-028–031. Exact hash, 7/7 pairs faster, candidate MAD 4.2 ms. |
+| AVIF-035 | 2026-08-17 23:05 | Batch `#readRaw` by consuming leftover bits in the current byte. | 586.25 → 536.54 | **-8.48%** vs HEAD (~0% vs AVIF-034) | -0.20% | neutral | Reverted. Incremental vs 034 (537 ms) was noise. |
+| AVIF-036 | 2026-08-17 23:06 | Integer `clampByte` via `(value + 0.5) | 0` instead of `Math.round`. | 587.54 → 518.20 | **-11.80%** | -0.04% | material | Retained on AVIF-028–034. Exact hash, 7/7 pairs faster, candidate MAD 4.2 ms. |
+| AVIF-037 | 2026-08-17 23:07 | Hoist `boxFilter8` prefix-row bases out of the column loop. | 588.87 → 513.83 | **-12.74%** | +0.84% | promising | Retained on AVIF-036. Exact hash. Incremental ~518 → 514 ms. |
+| AVIF-038 | 2026-08-17 23:37 | Replace 8-bit Wiener `Math.floor` rounding with arithmetic shifts. | 609.32 → 526.23 | **-13.64%** vs HEAD (~0% vs AVIF-037 514 ms) | -0.40% | neutral | Reverted. Incremental vs 037 was noise (526 vs 514, MAD 8 ms). |
+| AVIF-039 | 2026-08-17 23:38 | Inline `filterSample` edge reads; drop the per-edge closure. | 597.70 → 522.12 | **-12.65%** vs HEAD (~0% vs AVIF-037 514 ms) | +0.22% | neutral | Reverted. Incremental vs 037 was noise (522 vs 514, MAD 5.8 ms). |
+| AVIF-040 | 2026-08-17 23:41 | Specialize rgba8 resize write and 4-wide vertical accumulate. | 603.89 → 528.91 | **-12.42%** vs HEAD (slower than AVIF-037 514 ms) | -1.06% | rejected | Reverted. No incremental win; candidate MAD 11 ms. |
+| AVIF-041 | 2026-08-17 23:43 | Replace inverse-transform `roundedShift` `Math.floor`/`2**` with arithmetic shifts. | 589.20 → 514.49 | **-12.68%** vs HEAD (~0% vs AVIF-037 514 ms) | +1.24% | neutral | Reverted. Incremental vs 037 was noise. |
+| AVIF-042 | 2026-08-17 23:44 | Inline 8-bit 4:2:0 YUV convert; hoist range/matrix scales; drop per-pixel `convert()`. | 588.10 → 499.53 | **-15.06%** | +0.85% | material | Retained on AVIF-028–037. Exact hash, 7/7 pairs faster, candidate MAD 2.7 ms. Incremental ~514 → 500 ms. |
+| AVIF-043 | 2026-08-17 23:47 | Constant `n`/`oneOverN` and integer `a` in `boxFilter8`. | 581.08 → 493.18 | **-15.13%** vs HEAD (~0% vs AVIF-042 500 ms) | +1.23% | neutral | Reverted. Incremental vs 042 was host drift (relative −15.13% vs −15.06%). |
+| AVIF-044 | 2026-08-18 00:13 | Specialize interior 8-bit 4:2:0 rows; hoist chroma row bases and vertical weights. | 589.88 → 502.51 | **-14.81%** vs HEAD (slower than AVIF-042 500 ms) | +1.27% | rejected | Reverted. Extra row splitting did not beat the 042 convert loop. |
+| AVIF-045 | 2026-08-18 00:14 | Build 8-bit interior SGR prefixes from CDEF; skip the Int32 window copy. | 588.08 → 507.75 | **-13.66%** vs HEAD (slower than AVIF-042 500 ms) | -0.72% | rejected | Reverted. Same miss as AVIF-015/019; boxFilter8 still dominates restoration. |
+| AVIF-046 | 2026-08-18 00:16 | Replace inverse-DCT `Math.log2` and bit-reverse loops with length LUTs. | 584.50 → 519.62 | **-11.10%** vs HEAD (slower than AVIF-042 500 ms) | +0.68% | rejected | Reverted. Noisy (MAD 16–17 ms) and no incremental win. |
 
 Measurement artifacts:
 
@@ -367,6 +410,25 @@ Measurement artifacts:
 - AVIF-025: `.tmp/hillclimb/2026-08-17T22-26-18-591Z/comparison.md`
 - AVIF-026: `.tmp/hillclimb/2026-08-17T22-27-43-703Z/comparison.md`
 - AVIF-027: `.tmp/hillclimb/2026-08-17T22-30-24-283Z/comparison.md`
+- AVIF-028: `.tmp/hillclimb/2026-08-17T22-40-21-590Z/comparison.md`
+- AVIF-029: `.tmp/hillclimb/2026-08-17T22-41-34-205Z/comparison.md`
+- AVIF-030: `.tmp/hillclimb/2026-08-17T22-42-43-186Z/comparison.md`
+- AVIF-031: `.tmp/hillclimb/2026-08-17T22-47-00-731Z/comparison.md`
+- AVIF-032: `.tmp/hillclimb/2026-08-17T22-48-10-220Z/comparison.md`
+- AVIF-033: `.tmp/hillclimb/2026-08-17T22-57-49-182Z/comparison.md`
+- AVIF-034: `.tmp/hillclimb/2026-08-17T23-00-34-304Z/comparison.md`
+- AVIF-035: `.tmp/hillclimb/2026-08-17T23-05-02-394Z/comparison.md`
+- AVIF-036: `.tmp/hillclimb/2026-08-17T23-06-39-424Z/comparison.md`
+- AVIF-037: `.tmp/hillclimb/2026-08-17T23-07-48-855Z/comparison.md`
+- AVIF-038: `.tmp/hillclimb/2026-08-17T23-37-08-094Z/comparison.md`
+- AVIF-039: `.tmp/hillclimb/2026-08-17T23-38-53-701Z/comparison.md`
+- AVIF-040: `.tmp/hillclimb/2026-08-17T23-41-05-986Z/comparison.md`
+- AVIF-041: `.tmp/hillclimb/2026-08-17T23-43-00-862Z/comparison.md`
+- AVIF-042: `.tmp/hillclimb/2026-08-17T23-44-34-361Z/comparison.md`
+- AVIF-043: `.tmp/hillclimb/2026-08-17T23-47-19-429Z/comparison.md`
+- AVIF-044: `.tmp/hillclimb/2026-08-18T00-13-24-768Z/comparison.md`
+- AVIF-045: `.tmp/hillclimb/2026-08-18T00-14-58-317Z/comparison.md`
+- AVIF-046: `.tmp/hillclimb/2026-08-18T00-16-35-003Z/comparison.md`
 - AVIF-021 15-trial: `.tmp/hillclimb/2026-08-17T22-01-57-921Z/comparison.md`
 - Profiles: `.tmp/cpu-avif/`
 

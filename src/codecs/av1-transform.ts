@@ -398,7 +398,13 @@ const dequantizeAv1Coefficients = (
   const rectangularScale = width * 2 === height || height * 2 === width
   const sizeContext = (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
   const dequantizerDivisor = 2 ** Math.max(0, sizeContext - 2)
+  const coefficientLimit = 2 ** (bitDepth + 7)
   for (let index = 0; index < coefficientCount; index += 1) {
+    const level = quantized[index] ?? 0
+    if (level === 0) {
+      dequantized[index] = 0
+      continue
+    }
     const quantization = index === 0 ? dc : ac
     const row = Math.floor(index / width)
     const column = index % width
@@ -408,8 +414,7 @@ const dequantizeAv1Coefficients = (
         ? (matrix[column * matrixHeight + row] ?? 32)
         : 32
     const weighted = matrix ? roundedShift(quantization * matrixWeight, 5) : quantization
-    const scaled = (quantized[index] ?? 0) * weighted
-    const coefficientLimit = 2 ** (bitDepth + 7)
+    const scaled = level * weighted
     const value = Math.max(
       -coefficientLimit,
       Math.min(
