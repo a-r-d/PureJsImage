@@ -90,6 +90,8 @@ const images = createImageLibrary(allCodecs)
 
 Interchange and detector readers are individually importable from `purejsimage/scientific/readers/rpl`, `purejsimage/scientific/readers/emsa`, `purejsimage/scientific/readers/nrrd`, `purejsimage/scientific/readers/meta-image`, `purejsimage/scientific/readers/nifti`, `purejsimage/scientific/readers/npy`, `purejsimage/scientific/readers/blockfile`, `purejsimage/scientific/readers/mib`, and `purejsimage/scientific/readers/ebsd-text`.
 
+DICOM Part 10 grayscale images are available from `purejsimage/scientific/readers/dicom`. The first public subset is native uncompressed MONOCHROME1/2 Implicit or Explicit VR Little Endian, Encapsulated Uncompressed Explicit VR Little Endian, RLE Lossless, JPEG Baseline 8-bit, JPEG Lossless Process 14 Selection Value 1, and JPEG 2000 lossless/lossy grayscale, with 8-bit or 16-bit allocation as the transfer syntax permits, signed or unsigned stored values, 12-bit-in-16 normalization, homogeneous multi-frame selection, Pixel Spacing, linear rescale slope/intercept metadata, and Window Center/Width presets. Stored samples are not rescaled, windowed, or inverted. Color, LUT-based presentation, other JPEG Lossless selection values, JPEG-LS, HTJ2K, DICOMweb, and series discovery remain unsupported. The reader is not validated for diagnostic use.
+
 PureJsImage 0.10.0 introduces these alpha application entrypoints. Provider and extension APIs are experimental and may change in later releases through explicit versioning. The ordinary codec pipeline remains the established npm path: the application entries do not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
 
 Alpha package entrypoints:

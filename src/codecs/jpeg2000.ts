@@ -2861,6 +2861,91 @@ export const createJpeg2000CodestreamDecoder = (
   return decoderFor({ container, codestream, parsed })
 }
 
+export interface Jpeg2000NativeGrayFrame {
+  readonly width: number
+  readonly height: number
+  readonly precision: number
+  readonly signed: boolean
+  readonly reversible: boolean
+  readonly samplesLittleEndian: Uint8Array
+}
+
+const nativeGraySample = (value: number, specification: ComponentSpec): number => {
+  const shifted = specification.signed
+    ? roundHalfAwayFromZero(value)
+    : roundHalfAwayFromZero(value + 2 ** (specification.precision - 1))
+  if (specification.signed) {
+    const minimum = -(2 ** (specification.precision - 1))
+    const maximum = 2 ** (specification.precision - 1) - 1
+    return Math.max(minimum, Math.min(maximum, shifted))
+  }
+  const maximum = 2 ** specification.precision - 1
+  return Math.max(0, Math.min(maximum, shifted))
+}
+
+export const decodeJpeg2000NativeGrayFrame = (
+  codestream: Uint8Array,
+  options: Readonly<ImageLimitOptions> = {},
+): Jpeg2000NativeGrayFrame => {
+  const limits = resolveLimits(options)
+  validateInputSize(codestream.byteLength, limits)
+  const parsed = parseCodestream(codestream, limits)
+  const specification = parsed.size.components[0]
+  if (parsed.size.components.length !== 1 || specification === undefined) {
+    throw unsupportedOperation(
+      `JPEG 2000 native gray decoding does not support ${parsed.size.components.length} components`,
+    )
+  }
+  if (specification.xSampling !== 1 || specification.ySampling !== 1) {
+    throw unsupportedOperation('JPEG 2000 subsampled gray components are unsupported')
+  }
+  const width = parsed.size.xSize - parsed.size.xOrigin
+  const height = parsed.size.ySize - parsed.size.yOrigin
+  validateImageDimensions(width, height, 1, limits)
+  if (specification.precision < 1 || specification.precision > 16) {
+    throw unsupportedOperation(
+      `JPEG 2000 component precision ${specification.precision} is unsupported`,
+    )
+  }
+  const bytesPerSample = specification.precision <= 8 ? 1 : 2
+  const samples = new Uint8Array(width * height * bytesPerSample)
+  let reversible = true
+  for (const tile of parsed.tiles) {
+    reversible = reversible && tile.style.reversible
+    const rendered = reconstructTile(codestream, parsed, tile, 1)
+    const component = rendered.components[0]
+    if (component === undefined)
+      throw invalidInput('JPEG 2000 reconstructed gray component is missing')
+    const x0 = Math.max(tile.x0, parsed.size.xOrigin)
+    const y0 = Math.max(tile.y0, parsed.size.yOrigin)
+    const x1 = Math.min(tile.x1, parsed.size.xSize)
+    const y1 = Math.min(tile.y1, parsed.size.ySize)
+    for (let y = y0; y < y1; y += 1) {
+      for (let x = x0; x < x1; x += 1) {
+        const sample = nativeGraySample(
+          componentValueAt(component, specification, x, y),
+          specification,
+        )
+        const index = (y - parsed.size.yOrigin) * width + (x - parsed.size.xOrigin)
+        if (bytesPerSample === 1) {
+          samples[index] = sample & 0xff
+          continue
+        }
+        samples[index * 2] = sample & 0xff
+        samples[index * 2 + 1] = (sample >> 8) & 0xff
+      }
+    }
+  }
+  return Object.freeze({
+    width,
+    height,
+    precision: specification.precision,
+    signed: specification.signed,
+    reversible,
+    samplesLittleEndian: samples,
+  })
+}
+
 const preservedJpeg2000Metadata = async (
   source: ImageSource,
   limits: ImageLimits,

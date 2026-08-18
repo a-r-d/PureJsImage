@@ -25,6 +25,48 @@ test('uses Lanczos3 as the default resize kernel in a real browser', async ({ pa
   expect(result.detail).toContain('matched explicit Lanczos3')
 })
 
+test('opens a DICOM Part 10 File in Chromium and returns stored samples', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.dicomReaderFileSmoke())
+  expect(result.outputBytes).toBe(16)
+  expect(result.detail).toContain('in-memory File')
+})
+
+test('decodes JPEG Lossless SV1 DICOM fragments in Chromium', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.dicomJpegLosslessFileSmoke(),
+  )
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('JPEG Lossless SV1')
+})
+
+test('decodes JPEG Baseline DICOM fragments in Chromium', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.dicomJpegBaselineFileSmoke(),
+  )
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('JPEG Baseline')
+})
+
+test('decodes encapsulated uncompressed DICOM fragments in Chromium', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.dicomEncapsulatedFileSmoke(),
+  )
+  expect(result.outputBytes).toBe(4)
+  expect(result.detail).toContain('encapsulated uncompressed')
+})
+
+test('parses a DICOM Part 10 File in Chromium without reading Pixel Data', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.dicomParserFileSmoke())
+  expect(result.outputBytes).toBeGreaterThan(0)
+  expect(result.detail).toContain('in-memory File')
+  expect(result.detail).toContain('without Pixel Data')
+})
+
 test('decodes the required HDF5 filters in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5Filters())

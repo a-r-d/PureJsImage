@@ -50,6 +50,11 @@ export interface BrowserCompatibilityHarness {
   heifPqDisplay(): Promise<BrowserWorkflowResult>
   hdf5DatasetBlocks(): Promise<BrowserWorkflowResult>
   hdf5Filters(): Promise<BrowserWorkflowResult>
+  dicomParserFileSmoke(): Promise<BrowserWorkflowResult>
+  dicomReaderFileSmoke(): Promise<BrowserWorkflowResult>
+  dicomEncapsulatedFileSmoke(): Promise<BrowserWorkflowResult>
+  dicomJpegBaselineFileSmoke(): Promise<BrowserWorkflowResult>
+  dicomJpegLosslessFileSmoke(): Promise<BrowserWorkflowResult>
   hdf5NcemEmd(): Promise<BrowserWorkflowResult>
   hdf5VeloxEmd(): Promise<BrowserWorkflowResult>
   hdf5VeloxSpectrum(): Promise<BrowserWorkflowResult>

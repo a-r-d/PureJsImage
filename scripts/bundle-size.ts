@@ -596,6 +596,7 @@ const readerFamily = (reader: ScientificReaderCapability): string => {
       'purejsimage/nrrd',
       'purejsimage/meta-image',
       'purejsimage/nifti',
+      'purejsimage/dicom',
     ],
     'Spectroscopy and detector interchange': [
       'purejsimage/envi',

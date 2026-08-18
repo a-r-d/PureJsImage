@@ -156,6 +156,7 @@ try {
     'dist/scientific/readers/mrc.js',
     'dist/scientific/readers/meta-image.js',
     'dist/scientific/readers/mib.js',
+    'dist/scientific/readers/dicom.js',
     'dist/scientific/readers/nifti.js',
     'dist/scientific/readers/npy.js',
     'dist/scientific/readers/nrrd.js',
@@ -252,6 +253,8 @@ export { createRplReader, rplReader } from 'purejsimage/scientific/readers/rpl'
 export { createEmsaReader, emsaReader } from 'purejsimage/scientific/readers/emsa'
 export { createNrrdReader, nrrdReader } from 'purejsimage/scientific/readers/nrrd'
 export { createMetaImageReader, metaImageReader } from 'purejsimage/scientific/readers/meta-image'
+export { createDicomReader, dicomReader } from 'purejsimage/scientific/readers/dicom'
+export type { DicomReaderOptions } from 'purejsimage/scientific/readers/dicom'
 export { createNiftiReader, niftiReader } from 'purejsimage/scientific/readers/nifti'
 export { createNpyReader, npyReader } from 'purejsimage/scientific/readers/npy'
 export { blockfileReader, createBlockfileReader } from 'purejsimage/scientific/readers/blockfile'

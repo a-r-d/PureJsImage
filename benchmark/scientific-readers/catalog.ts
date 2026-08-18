@@ -407,6 +407,13 @@ const definitions: readonly FixtureDefinition[] = [
     expectedOracle: 'Detached 2x1 uint16 plane resolves the RAW companion and is readable.',
   },
   {
+    id: 'dicom',
+    generatedKey: 'dicom-generated',
+    provenance: 'Deterministic first-party DICOM Part 10 native grayscale fixture.',
+    supportBoundary: 'Explicit VR Little Endian MONOCHROME2 uint8 2x2 image with Pixel Spacing.',
+    expectedOracle: 'Stored samples and millimeter X/Y spacing are readable.',
+  },
+  {
     id: 'nifti',
     generatedKey: 'nifti-generated',
     provenance: 'Deterministic first-party NIfTI-1 benchmark fixture.',

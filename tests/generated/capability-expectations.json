@@ -715,6 +715,26 @@
       "fixtures": ["tests/scientific-interchange-formats.test.ts"]
     },
     {
+      "id": "purejsimage/dicom",
+      "version": "1.0.0",
+      "format": "DICOM Part 10 Image",
+      "packageExport": "purejsimage/scientific/readers/dicom",
+      "extensions": ["dcm", "dicom"],
+      "mediaTypes": ["application/dicom"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "evidence": [
+        "tests/scientific-dicom-reader.test.ts",
+        "tests/dicom-presentation.test.ts",
+        "tests/dicom-rle.test.ts",
+        "tests/dicom-parser.test.ts",
+        "tests/dicom-codestream.test.ts",
+        "tests/jpeg-lossless.test.ts"
+      ],
+      "fixtures": ["tests/fixtures/dicom/corpus.json", "tests/scientific-dicom-reader.test.ts"]
+    },
+    {
       "id": "purejsimage/npy",
       "version": "1.0.0",
       "format": "NumPy NPY",

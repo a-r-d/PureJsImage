@@ -3,19 +3,19 @@ import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
-import capabilityManifestJson from '../capabilities/manifest.json' with { type: 'json' }
 import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpus.ts'
 import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
-import packageJson from '../package.json' with { type: 'json' }
+import capabilityManifestJson from '../capabilities/manifest.json' with { type: 'json' }
 import documentationData from '../docs-astro/src/data/documentation-data.json' with { type: 'json' }
+import packageJson from '../package.json' with { type: 'json' }
+import { bundleSizeBudgets } from '../scripts/bundle-size-budgets.ts'
 import {
   commonCompetitorCodecs,
   createCompetitorBundleTargets,
   createPureJsImageEntryTargets,
 } from '../scripts/bundle-size-config.ts'
-import { bundleSizeBudgets } from '../scripts/bundle-size-budgets.ts'
 import { parseCapabilityManifest } from '../scripts/capability-manifest.ts'
 import * as analysisApi from '../src/analysis/index.ts'
 import * as analysisProjectApi from '../src/analysis/project-entry.ts'
@@ -24,11 +24,11 @@ import * as analysisRoiApi from '../src/analysis/roi-entry.ts'
 import * as analysisRuntimeApi from '../src/analysis/runtime.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
-import { allWebCodecs } from '../src/codec-entries/web.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
+import { allWebCodecs } from '../src/codec-entries/web.ts'
 import * as publicApi from '../src/index.ts'
 import * as pathologyApi from '../src/pathology/index.ts'
 import * as scientificApi from '../src/scientific/index.ts'
@@ -554,6 +554,7 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/emsa',
       'purejsimage/scientific/readers/nrrd',
       'purejsimage/scientific/readers/meta-image',
+      'purejsimage/scientific/readers/dicom',
       'purejsimage/scientific/readers/nifti',
       'purejsimage/scientific/readers/npy',
       'purejsimage/scientific/readers/blockfile',
@@ -718,6 +719,7 @@ describe('package contract', () => {
       './scientific/readers/fits',
       './scientific/readers/mrc',
       './scientific/readers/cbf',
+      './scientific/readers/dicom',
       './scientific/readers/digital-micrograph',
       './scientific/readers/digital-surf',
       './scientific/readers/igor-binary-wave',

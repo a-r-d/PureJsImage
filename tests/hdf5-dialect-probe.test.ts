@@ -13,7 +13,7 @@ import {
 import * as allScientificReaders from '../src/scientific/readers/all.ts'
 import { ncemEmdReader } from '../src/scientific/readers/ncem-emd.ts'
 import { veloxEmdReader } from '../src/scientific/readers/velox-emd.ts'
-import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../src/source.ts'
+import { type ImageSource, type ImageSourceReadOptions, MemorySource } from '../src/source.ts'
 
 class SparseZeroSource implements ImageSource {
   readonly size: number
@@ -148,7 +148,7 @@ describe('HDF5 dialect probe budget', () => {
   })
 
   it('runs the actual all-reader registry against a late X3P match within defaults', async () => {
-    expect(allReaders).toHaveLength(32)
+    expect(allReaders).toHaveLength(33)
     const bytes = Uint8Array.from(
       readFileSync('tests/fixtures/scientific-surface/iso5436-sample1.x3p'),
     )
@@ -161,7 +161,7 @@ describe('HDF5 dialect probe budget', () => {
     })
     expect(detection).toMatchObject({
       reader: { id: 'purejsimage/x3p' },
-      stats: { readers: 32, reads: 32 },
+      stats: { readers: 33, reads: 33 },
     })
   })
 })

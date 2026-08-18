@@ -16,7 +16,9 @@
       "!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**",
       "!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**",
       "!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**",
-      "!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**"
+      "!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**",
+      "!!src/scientific/formats/dicom/dictionary.generated.ts",
+      "!!scripts/dicom/ps3.6-2026c-registry.json"
     ]
   },
   "formatter": {

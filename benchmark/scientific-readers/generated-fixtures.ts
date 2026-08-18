@@ -1,6 +1,13 @@
 import { gzipSync } from 'node:zlib'
 import { crc32c } from '../../src/scientific/formats/crc32c.ts'
+import { dicomTag } from '../../src/scientific/formats/dicom/constants.ts'
 import { encodeGsf } from '../../src/scientific/readers/gsf.ts'
+import {
+  dicomDecimalBytes,
+  dicomTextBytes,
+  dicomUInt16Bytes,
+  writeDicomPart10,
+} from '../../tests/dicom/part10-writer.ts'
 import {
   generatedDigitalMicrographFixture,
   generatedDigitalMicrographFourDStemFixture,
@@ -1009,6 +1016,30 @@ export const generatedScientificFixtures: Readonly<
     resources: [{ name: 'volume.nii.gz', bytes: Uint8Array.from(gzipSync(nifti())) }],
     payloadRanges: {},
   }),
+  'dicom-generated': () => {
+    const pixels = Uint8Array.of(0, 1, 2, 3)
+    const bytes = writeDicomPart10({
+      transferSyntax: 'explicit-vr-le',
+      dataset: [
+        { tag: dicomTag.sopClassUid, vr: 'UI', value: dicomTextBytes('1.2.840.10008.5.1.4.1.1.7') },
+        { tag: dicomTag.samplesPerPixel, vr: 'US', value: dicomUInt16Bytes(1) },
+        {
+          tag: dicomTag.photometricInterpretation,
+          vr: 'CS',
+          value: dicomTextBytes('MONOCHROME2'),
+        },
+        { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(2) },
+        { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(2) },
+        { tag: dicomTag.pixelSpacing, vr: 'DS', value: dicomDecimalBytes(0.5, 0.4) },
+        { tag: dicomTag.bitsAllocated, vr: 'US', value: dicomUInt16Bytes(8) },
+        { tag: dicomTag.pixelData, vr: 'OB', value: pixels },
+      ],
+    })
+    return {
+      resources: [{ name: 'image.dcm', bytes }],
+      payloadRanges: { 'image.dcm': [[bytes.byteLength - 4, bytes.byteLength] as const] },
+    }
+  },
   'npy-c-generated': () => ({
     resources: [{ name: 'array.npy', bytes: npy([2, 3], [1, 2, 3, 4, 5, 6]) }],
     payloadRanges: {},

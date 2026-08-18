@@ -28,6 +28,7 @@
       "purejsimage/scientific/node": ["./src/scientific/node.ts"],
       "purejsimage/scientific/readers/all": ["./src/scientific/readers/all.ts"],
       "purejsimage/scientific/readers/cbf": ["./src/scientific/readers/cbf.ts"],
+      "purejsimage/scientific/readers/dicom": ["./src/scientific/readers/dicom.ts"],
       "purejsimage/scientific/readers/digital-micrograph": [
         "./src/scientific/readers/digital-micrograph.ts"
       ],

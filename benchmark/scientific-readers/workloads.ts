@@ -419,6 +419,16 @@ export const scientificReaderWorkloads: readonly ScientificWorkload[] = Object.f
     directRangeReader: true,
   }),
   workload({
+    id: 'dicom-plane',
+    title: 'DICOM native grayscale plane',
+    readerId: 'purejsimage/dicom',
+    fixtureId: 'dicom',
+    selection: plane({ region: { x: 0, y: 0, width: 2, height: 2 } }),
+    descriptorAssertion: { sampleType: 'uint8', componentCount: 1 },
+    calibrationAxes: ['x', 'y'],
+    directRangeReader: true,
+  }),
+  workload({
     id: 'nifti-plane',
     title: 'NIfTI scaled plane',
     readerId: 'purejsimage/nifti',

@@ -43,6 +43,7 @@
     "x-ray-diffraction",
     "hyperspectral",
     "afm",
+    "dicom",
     "scientific-imaging",
     "whole-slide-image"
   ],
@@ -122,6 +123,11 @@
       "types": "./dist/scientific/readers/cbf.d.ts",
       "import": "./dist/scientific/readers/cbf.js",
       "default": "./dist/scientific/readers/cbf.js"
+    },
+    "./scientific/readers/dicom": {
+      "types": "./dist/scientific/readers/dicom.d.ts",
+      "import": "./dist/scientific/readers/dicom.js",
+      "default": "./dist/scientific/readers/dicom.js"
     },
     "./scientific/readers/digital-micrograph": {
       "types": "./dist/scientific/readers/digital-micrograph.d.ts",
@@ -450,6 +456,8 @@
     "docs:build": "node scripts/build-docs-site.ts",
     "docs:preview": "astro preview --root docs-astro",
     "demo:scientific:generate": "node scripts/generate-scientific-demo-data.ts",
+    "dicom:dictionary:generate": "node scripts/dicom/generate-dictionary.ts",
+    "dicom:dictionary:check": "node scripts/dicom/generate-dictionary.ts --check",
     "size": "npm run build && node scripts/measure-bundle-size.ts && npm run package-metrics:generate && node scripts/measure-bundle-size.ts && npm run package-metrics:generate",
     "size:check": "npm run build && node scripts/measure-bundle-size.ts --check",
     "test": "vitest run",
