@@ -230,6 +230,198 @@ const asciiEntry = (tag: number, value: string): TiffEntryFixture => ({
   values: [...new TextEncoder().encode(value), 0],
 })
 
+interface GeoTiffEntryFixture {
+  readonly tag: number
+  readonly type: 2 | 3 | 4 | 12 | 16 | 18
+  readonly values: readonly number[]
+}
+
+interface GeoTiffDirectoryFixture {
+  readonly width: number
+  readonly height: number
+  readonly components?: number
+  readonly pixels: Uint8Array
+  readonly extraEntries?: readonly GeoTiffEntryFixture[]
+}
+
+interface GeoTiffFixtureOptions extends GeoTiffDirectoryFixture {
+  readonly littleEndian?: boolean
+  readonly bigTiff?: boolean
+  readonly overview?: GeoTiffDirectoryFixture
+}
+
+const geoTiffEntryBytes = (type: GeoTiffEntryFixture['type']): number =>
+  type === 3 ? 2 : type === 4 ? 4 : type === 12 || type === 16 || type === 18 ? 8 : 1
+
+const geoTiffFixture = (options: GeoTiffFixtureOptions): Uint8Array => {
+  const littleEndian = options.littleEndian ?? true
+  const bigTiff = options.bigTiff ?? false
+  const headerBytes = bigTiff ? 16 : 8
+  const countBytes = bigTiff ? 8 : 2
+  const entryBytes = bigTiff ? 20 : 12
+  const nextBytes = bigTiff ? 8 : 4
+  const inlineBytes = bigTiff ? 8 : 4
+  const offsetType = bigTiff ? (16 as const) : (4 as const)
+  const subIfdType = bigTiff ? (18 as const) : (4 as const)
+  const directories = [options, ...(options.overview === undefined ? [] : [options.overview])]
+  const entriesFor = (
+    directory: GeoTiffDirectoryFixture,
+    stripOffset: number,
+    subIfdOffset: number | undefined,
+  ): GeoTiffEntryFixture[] => {
+    const components = directory.components ?? 1
+    const entries: GeoTiffEntryFixture[] = [
+      { tag: 256, type: 4, values: [directory.width] },
+      { tag: 257, type: 4, values: [directory.height] },
+      { tag: 258, type: 3, values: Array.from({ length: components }, () => 8) },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: offsetType, values: [stripOffset] },
+      { tag: 277, type: 3, values: [components] },
+      { tag: 278, type: 4, values: [directory.height] },
+      { tag: 279, type: offsetType, values: [directory.pixels.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: Array.from({ length: components }, () => 1) },
+      ...(subIfdOffset === undefined
+        ? []
+        : [{ tag: 330, type: subIfdType, values: [subIfdOffset] }]),
+      ...(directory.extraEntries ?? []),
+    ]
+    return entries.sort((left, right) => left.tag - right.tag)
+  }
+  const placeholders = directories.map((directory, index) =>
+    entriesFor(directory, 0, index === 0 && directories.length > 1 ? 0 : undefined),
+  )
+  const directoryOffsets: number[] = []
+  let cursor = headerBytes
+  for (const entries of placeholders) {
+    directoryOffsets.push(cursor)
+    cursor += countBytes + entries.length * entryBytes + nextBytes
+  }
+  const externalOffsets = new Map<GeoTiffEntryFixture, number>()
+  const finalEntries = directories.map((directory, index) =>
+    entriesFor(
+      directory,
+      0,
+      index === 0 && directories.length > 1 ? directoryOffsets[1] : undefined,
+    ),
+  )
+  for (const entries of finalEntries) {
+    for (const entry of entries) {
+      const byteLength = entry.values.length * geoTiffEntryBytes(entry.type)
+      if (byteLength <= inlineBytes) continue
+      externalOffsets.set(entry, cursor)
+      cursor += byteLength
+    }
+  }
+  const pixelOffsets: number[] = []
+  for (const directory of directories) {
+    pixelOffsets.push(cursor)
+    cursor += directory.pixels.byteLength
+  }
+  const output = new Uint8Array(cursor)
+  const view = new DataView(output.buffer)
+  output.set(littleEndian ? [0x49, 0x49] : [0x4d, 0x4d])
+  view.setUint16(2, bigTiff ? 43 : 42, littleEndian)
+  if (bigTiff) {
+    view.setUint16(4, 8, littleEndian)
+    view.setUint16(6, 0, littleEndian)
+    view.setBigUint64(8, BigInt(directoryOffsets[0] ?? 16), littleEndian)
+  } else {
+    view.setUint32(4, directoryOffsets[0] ?? 8, littleEndian)
+  }
+  const writeOffset = (offset: number, value: number): void => {
+    if (bigTiff) view.setBigUint64(offset, BigInt(value), littleEndian)
+    else view.setUint32(offset, value, littleEndian)
+  }
+  for (let directoryIndex = 0; directoryIndex < finalEntries.length; directoryIndex += 1) {
+    const entries = finalEntries[directoryIndex] ?? []
+    const directoryOffset = directoryOffsets[directoryIndex] ?? 0
+    const pixelsOffset = pixelOffsets[directoryIndex] ?? 0
+    if (bigTiff) view.setBigUint64(directoryOffset, BigInt(entries.length), littleEndian)
+    else view.setUint16(directoryOffset, entries.length, littleEndian)
+    for (let entryIndex = 0; entryIndex < entries.length; entryIndex += 1) {
+      const entry = entries[entryIndex]
+      if (entry === undefined) continue
+      const entryOffset = directoryOffset + countBytes + entryIndex * entryBytes
+      const values =
+        entry.tag === 273
+          ? [pixelsOffset]
+          : entry.tag === 279
+            ? [directories[directoryIndex]?.pixels.byteLength ?? 0]
+            : entry.values
+      const byteLength = values.length * geoTiffEntryBytes(entry.type)
+      const externalOffset = externalOffsets.get(entry)
+      const valuesOffset = externalOffset ?? entryOffset + (bigTiff ? 12 : 8)
+      view.setUint16(entryOffset, entry.tag, littleEndian)
+      view.setUint16(entryOffset + 2, entry.type, littleEndian)
+      if (bigTiff) view.setBigUint64(entryOffset + 4, BigInt(values.length), littleEndian)
+      else view.setUint32(entryOffset + 4, values.length, littleEndian)
+      if (externalOffset !== undefined)
+        writeOffset(entryOffset + (bigTiff ? 12 : 8), externalOffset)
+      if (byteLength > inlineBytes && externalOffset === undefined) {
+        throw new Error('GeoTIFF fixture lost an external value offset')
+      }
+      for (let valueIndex = 0; valueIndex < values.length; valueIndex += 1) {
+        const offset = valuesOffset + valueIndex * geoTiffEntryBytes(entry.type)
+        const value = values[valueIndex] ?? 0
+        if (entry.type === 3) view.setUint16(offset, value, littleEndian)
+        else if (entry.type === 4) view.setUint32(offset, value, littleEndian)
+        else if (entry.type === 12) view.setFloat64(offset, value, littleEndian)
+        else if (entry.type === 16 || entry.type === 18)
+          view.setBigUint64(offset, BigInt(value), littleEndian)
+        else output[offset] = value
+      }
+    }
+    writeOffset(directoryOffset + countBytes + entries.length * entryBytes, 0)
+    output.set(directories[directoryIndex]?.pixels ?? new Uint8Array(), pixelsOffset)
+  }
+  return output
+}
+
+const geoAsciiEntry = (tag: number, value: string): GeoTiffEntryFixture => ({
+  tag,
+  type: 2,
+  values: [...new TextEncoder().encode(value), 0],
+})
+
+const geoKeyEntry = (
+  rasterType: 1 | 2,
+  crs:
+    | { readonly kind: 'projected' | 'geographic'; readonly code: number; readonly name: string }
+    | undefined,
+): readonly GeoTiffEntryFixture[] => {
+  const citation = crs === undefined ? undefined : `${crs.name}|`
+  const crsKey = crs?.kind === 'projected' ? 3_072 : 2_048
+  const citationKey = crs?.kind === 'projected' ? 3_073 : 2_049
+  const keys = [
+    1_024,
+    0,
+    1,
+    crs?.kind === 'projected' ? 1 : crs?.kind === 'geographic' ? 2 : 0,
+    1_025,
+    0,
+    1,
+    rasterType,
+    ...(crs === undefined
+      ? []
+      : [
+          crsKey,
+          0,
+          1,
+          crs.code,
+          citationKey,
+          34_737,
+          new TextEncoder().encode(citation ?? '').byteLength,
+          0,
+        ]),
+  ]
+  return [
+    { tag: 34_735, type: 3, values: [1, 1, 0, keys.length / 4, ...keys] },
+    ...(citation === undefined ? [] : [geoAsciiEntry(34_737, citation)]),
+  ]
+}
+
 const open = async (bytes: Uint8Array, reader = tiffReader) =>
   new ScientificReaderRegistry([reader]).open({
     primary: { id: 'primary', name: 'fixture.tiff', source: new MemorySource(bytes) },
@@ -1014,6 +1206,296 @@ describe('ordinary TIFF scientific reader', () => {
       ],
       acquisition: { manufacturer: 'Zeiss', acquisitionDate: '14 Aug 2026 11:00:00' },
     })
+  })
+
+  it('exposes north-up GeoTIFF affine, inverse, bounds, CRS, metadata, and scalar nodata', async () => {
+    const input = geoTiffFixture({
+      width: 4,
+      height: 2,
+      pixels: Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8),
+      extraEntries: [
+        { tag: 33_550, type: 12, values: [10, 20, 0] },
+        { tag: 33_922, type: 12, values: [0, 0, 0, 100, 200, 0] },
+        ...geoKeyEntry(1, { kind: 'geographic', code: 4_326, name: 'WGS 84' }),
+        geoAsciiEntry(
+          42_112,
+          '<GDALMetadata><Item name="STATISTICS_MINIMUM" sample="0">1</Item></GDALMetadata>',
+        ),
+        geoAsciiEntry(42_113, '-9999'),
+      ],
+    })
+    const document = await open(input)
+    const dataset = await document.openDataset('series-0')
+
+    expect(dataset.descriptor.spatialReference).toMatchObject({
+      crs: { kind: 'geographic', authority: 'EPSG', code: 4_326, name: 'WGS 84' },
+      pixelInterpretation: 'pixel-is-area',
+      pixelToModel: [10, 0, 100, 0, -20, 200],
+      modelToPixel: [0.1, 0, -10, 0, -0.05, 10],
+      bounds: { minX: 100, minY: 160, maxX: 140, maxY: 200 },
+      noData: { kind: 'scalar', value: -9_999 },
+    })
+    expect(dataset.descriptor.noDataValue).toBe(-9_999)
+    expect(dataset.descriptor.spatialReference?.metadata?.['purejsimage:geotiff']).toMatchObject({
+      modelType: 2,
+      geographicCrs: 4_326,
+      gdalMetadata: [{ name: 'STATISTICS_MINIMUM', value: '1', sample: 0 }],
+    })
+    expect(() => JSON.stringify(dataset.descriptor.spatialReference)).not.toThrow()
+
+    const blocks: RasterBlock[] = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [],
+      x: 1,
+      y: 1,
+      width: 2,
+      height: 1,
+    })) {
+      blocks.push(block)
+    }
+    expect(blocks.map(({ x, y, width, height }) => ({ x, y, width, height }))).toEqual([
+      { x: 1, y: 1, width: 2, height: 1 },
+    ])
+    expect(Array.from(blocks[0]?.data ?? [])).toEqual([6, 7])
+  })
+
+  it.each([
+    { rasterType: 1 as const, expected: 'pixel-is-area' },
+    { rasterType: 2 as const, expected: 'pixel-is-point' },
+  ])('preserves $expected raster interpretation', async ({ rasterType, expected }) => {
+    const dataset = await (
+      await open(
+        geoTiffFixture({
+          width: 1,
+          height: 1,
+          pixels: Uint8Array.of(1),
+          extraEntries: [
+            { tag: 33_550, type: 12, values: [1, 1, 0] },
+            { tag: 33_922, type: 12, values: [0, 0, 0, 0, 0, 0] },
+            ...geoKeyEntry(rasterType, undefined),
+          ],
+        }),
+      )
+    ).openDataset('series-0')
+
+    expect(dataset.descriptor.spatialReference?.pixelInterpretation).toBe(expected)
+    expect(dataset.descriptor.spatialReference?.crs).toEqual({ kind: 'unknown' })
+  })
+
+  it('exposes rotated and sheared projected affine bounds with a numerical inverse', async () => {
+    const dataset = await (
+      await open(
+        geoTiffFixture({
+          width: 4,
+          height: 2,
+          pixels: new Uint8Array(8),
+          extraEntries: [
+            {
+              tag: 34_264,
+              type: 12,
+              values: [2, 0.5, 0, 10, -0.25, -3, 0, 20, 0, 0, 1, 0, 0, 0, 0, 1],
+            },
+            ...geoKeyEntry(1, {
+              kind: 'projected',
+              code: 32_618,
+              name: 'WGS 84 / UTM zone 18N',
+            }),
+          ],
+        }),
+      )
+    ).openDataset('series-0')
+    const spatial = dataset.descriptor.spatialReference
+    expect(spatial).toMatchObject({
+      crs: { kind: 'projected', authority: 'EPSG', code: 32_618 },
+      pixelToModel: [2, 0.5, 10, -0.25, -3, 20],
+      bounds: { minX: 10, minY: 13, maxX: 19, maxY: 20 },
+    })
+    const inverse = spatial?.modelToPixel
+    if (inverse === undefined) throw new Error('Expected an invertible GeoTIFF affine')
+    const modelX = 2 * 3 + 0.5 * 1 + 10
+    const modelY = -0.25 * 3 - 3 * 1 + 20
+    expect(inverse[0] * modelX + inverse[1] * modelY + inverse[2]).toBeCloseTo(3, 12)
+    expect(inverse[3] * modelX + inverse[4] * modelY + inverse[5]).toBeCloseTo(1, 12)
+  })
+
+  it('keeps malformed GeoTIFF optional and omits inverse for a singular affine', async () => {
+    const malformedDocument = await open(
+      geoTiffFixture({
+        width: 1,
+        height: 1,
+        pixels: Uint8Array.of(7),
+        extraEntries: [{ tag: 34_264, type: 12, values: Array.from({ length: 15 }, () => 1) }],
+      }),
+    )
+    const malformed = await malformedDocument.openDataset('series-0')
+    expect(malformed.descriptor.spatialReference).toBeUndefined()
+    expect(JSON.stringify(malformedDocument.datasets[0]?.metadata)).toContain(
+      'ModelTransformationTag must contain 16 values',
+    )
+    expect(Array.from((await collect(malformed))[0]?.data ?? [])).toEqual([7])
+
+    const singular = await (
+      await open(
+        geoTiffFixture({
+          width: 2,
+          height: 2,
+          pixels: Uint8Array.of(1, 2, 3, 4),
+          extraEntries: [
+            {
+              tag: 34_264,
+              type: 12,
+              values: [1, 2, 0, 5, 2, 4, 0, 6, 0, 0, 1, 0, 0, 0, 0, 1],
+            },
+          ],
+        }),
+      )
+    ).openDataset('series-0')
+    expect(singular.descriptor.spatialReference?.pixelToModel).toEqual([1, 2, 5, 2, 4, 6])
+    expect(singular.descriptor.spatialReference?.modelToPixel).toBeUndefined()
+    expect(singular.descriptor.spatialReference?.crs).toEqual({ kind: 'unknown' })
+  })
+
+  it('charges GeoTIFF tags against per-tag and aggregate optional metadata limits', async () => {
+    const input = geoTiffFixture({
+      width: 1,
+      height: 1,
+      pixels: Uint8Array.of(7),
+      extraEntries: [
+        { tag: 33_550, type: 12, values: [1, 1, 0] },
+        { tag: 33_922, type: 12, values: [0, 0, 0, 10, 20, 0] },
+        ...geoKeyEntry(1, { kind: 'geographic', code: 4_326, name: 'WGS 84' }),
+      ],
+    })
+    const perTagDocument = await open(
+      input,
+      createTiffReader({ maxMetadataBytes: 1_024, maxMetadataTagBytes: 32 }),
+    )
+    expect(
+      (await perTagDocument.openDataset('series-0')).descriptor.spatialReference,
+    ).toBeUndefined()
+    expect(JSON.stringify(perTagDocument.datasets[0]?.metadata)).toContain(
+      'exceeds TIFF reader maxMetadataTagBytes',
+    )
+
+    const aggregateDocument = await open(
+      input,
+      createTiffReader({ maxMetadataBytes: 256, maxMetadataTagBytes: 256 }),
+    )
+    expect(
+      (await aggregateDocument.openDataset('series-0')).descriptor.spatialReference,
+    ).toBeUndefined()
+    expect(JSON.stringify(aggregateDocument.datasets[0]?.metadata)).toContain(
+      'exceeds TIFF reader maxMetadataBytes',
+    )
+    expect(aggregateDocument.metadata.optionalMetadataBytesAdmitted).toBeLessThan(256)
+  })
+
+  it.each([
+    { label: 'big-endian Classic TIFF', littleEndian: false, bigTiff: false },
+    { label: 'little-endian BigTIFF', littleEndian: true, bigTiff: true },
+    { label: 'big-endian BigTIFF', littleEndian: false, bigTiff: true },
+  ])('reads GeoTIFF georeferencing from $label', async ({ littleEndian, bigTiff }) => {
+    const document = await open(
+      geoTiffFixture({
+        width: 2,
+        height: 1,
+        littleEndian,
+        bigTiff,
+        pixels: Uint8Array.of(4, 5),
+        extraEntries: [
+          { tag: 33_550, type: 12, values: [2, 3, 0] },
+          { tag: 33_922, type: 12, values: [0, 0, 0, 10, 20, 0] },
+          ...geoKeyEntry(1, { kind: 'geographic', code: 4_326, name: 'WGS 84' }),
+        ],
+      }),
+    )
+    const dataset = await document.openDataset('series-0')
+
+    expect(document.metadata).toMatchObject({ littleEndian, bigTiff })
+    expect(dataset.descriptor.spatialReference?.pixelToModel).toEqual([2, 0, 10, 0, -3, 20])
+    expect(Array.from((await collect(dataset))[0]?.data ?? [])).toEqual([4, 5])
+  })
+
+  it('derives SubIFD overview georeferencing while preserving model-space bounds', async () => {
+    const document = await open(
+      geoTiffFixture({
+        width: 4,
+        height: 4,
+        pixels: Uint8Array.from({ length: 16 }, (_value, index) => index),
+        extraEntries: [
+          { tag: 33_550, type: 12, values: [10, 10, 0] },
+          { tag: 33_922, type: 12, values: [0, 0, 0, 100, 200, 0] },
+          ...geoKeyEntry(1, { kind: 'geographic', code: 4_326, name: 'WGS 84' }),
+        ],
+        overview: {
+          width: 2,
+          height: 2,
+          pixels: Uint8Array.of(20, 21, 22, 23),
+        },
+      }),
+    )
+    const dataset = await document.openDataset('series-0')
+    expect(dataset.descriptor.levels).toMatchObject([
+      {
+        level: 0,
+        spatialReference: {
+          pixelToModel: [10, 0, 100, 0, -10, 200],
+          bounds: { minX: 100, minY: 160, maxX: 140, maxY: 200 },
+        },
+      },
+      {
+        level: 1,
+        spatialReference: {
+          pixelToModel: [20, 0, 100, 0, -20, 200],
+          modelToPixel: [0.05, 0, -5, 0, -0.05, 10],
+          bounds: { minX: 100, minY: 160, maxX: 140, maxY: 200 },
+        },
+      },
+    ])
+    expect(Array.from((await collect(dataset, [], 1))[0]?.data ?? [])).toEqual([20, 21, 22, 23])
+  })
+
+  it('preserves component-specific GDAL nodata without inventing a scalar noDataValue', async () => {
+    const dataset = await (
+      await open(
+        geoTiffFixture({
+          width: 1,
+          height: 1,
+          components: 3,
+          pixels: Uint8Array.of(1, 2, 3),
+          extraEntries: [
+            ...geoKeyEntry(1, { kind: 'geographic', code: 4_326, name: 'WGS 84' }),
+            geoAsciiEntry(42_113, '-1 -2 -3'),
+          ],
+        }),
+      )
+    ).openDataset('series-0')
+
+    expect(dataset.descriptor.spatialReference?.noData).toEqual({
+      kind: 'components',
+      values: [-1, -2, -3],
+    })
+    expect(dataset.descriptor.noDataValue).toBeUndefined()
+  })
+
+  it('leaves a non-GeoTIFF scientific TIFF descriptor unchanged', async () => {
+    const document = await open(
+      tiffFixture({
+        width: 2,
+        height: 1,
+        bitsPerSample: [8],
+        sampleFormats: [1],
+        photometric: 1,
+        segments: [Uint8Array.of(8, 9)],
+      }),
+    )
+    const dataset = await document.openDataset('series-0')
+
+    expect(dataset.descriptor.spatialReference).toBeUndefined()
+    expect(dataset.descriptor.noDataValue).toBeUndefined()
+    expect(JSON.stringify(document.datasets[0]?.metadata)).not.toContain('spatialReferenceWarning')
+    expect(Array.from((await collect(dataset))[0]?.data ?? [])).toEqual([8, 9])
   })
 
   it('preserves uint16, signed int16, planar float32, and native component semantics', async () => {

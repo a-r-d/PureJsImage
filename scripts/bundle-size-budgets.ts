@@ -24,7 +24,7 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   'scientific-reader-x3p': { maxMinifiedBytes: 120_000 },
   'scientific-reader-tia-ser': { maxMinifiedBytes: 100_000 },
   'scientific-reader-tia-emi': { maxMinifiedBytes: 150_000 },
-  'scientific-reader-ncem-emd': { maxMinifiedBytes: 180_000 },
+  'scientific-reader-ncem-emd': { maxMinifiedBytes: 185_000 },
   'scientific-reader-velox-emd': { maxMinifiedBytes: 180_000 },
   'scientific-reader-tiff': { baselineMinifiedBytes: 262_942, maxMinifiedBytes: 341_825 },
   'scientific-reader-ome-tiff': { baselineMinifiedBytes: 267_489, maxMinifiedBytes: 350_000 },

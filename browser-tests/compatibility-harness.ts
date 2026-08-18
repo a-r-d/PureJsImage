@@ -105,7 +105,12 @@ import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
 import { BlobSource, MemorySource } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
-import { encodeTiffDocument, geoTiffProfile, openTiffDocument } from '../src/tiff/index.ts'
+import {
+  encodeTiffDocument,
+  geoTiffProfile,
+  inspectCog,
+  openTiffDocument,
+} from '../src/tiff/index.ts'
 import { encodeJpegLosslessGray } from '../tests/dicom/jpeg-lossless-encode.ts'
 import {
   dicomDecimalBytes,
@@ -1528,7 +1533,7 @@ const sha256 = async (bytes: Uint8Array | Uint8ClampedArray): Promise<string> =>
 
 interface BrowserTiffEntry {
   readonly tag: number
-  readonly type: 2 | 3 | 4 | 5 | 7
+  readonly type: 2 | 3 | 4 | 5 | 7 | 12
   readonly values: readonly number[]
 }
 
@@ -1540,7 +1545,8 @@ const browserTiffFixture = (
   const entryCount = (entry: BrowserTiffEntry): number =>
     entry.type === 5 ? entry.values.length / 2 : entry.values.length
   const entryBytes = (entry: BrowserTiffEntry): number =>
-    entryCount(entry) * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : entry.type === 5 ? 8 : 1)
+    entryCount(entry) *
+    (entry.type === 3 ? 2 : entry.type === 4 ? 4 : entry.type === 5 || entry.type === 12 ? 8 : 1)
   const ifdBytes = 2 + placeholder.length * 12 + 4
   const externalBytes = placeholder.reduce((total, entry) => {
     const bytes = entryBytes(entry)
@@ -1581,11 +1587,13 @@ const browserTiffFixture = (
       }
     } else {
       for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
-        const elementBytes: number = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1
+        const elementBytes: number =
+          entry.type === 3 ? 2 : entry.type === 4 ? 4 : entry.type === 12 ? 8 : 1
         const offset = valuesOffset + valueIndex * elementBytes
         const value = entry.values[valueIndex] ?? 0
         if (entry.type === 3) view.setUint16(offset, value, true)
         else if (entry.type === 4) view.setUint32(offset, value, true)
+        else if (entry.type === 12) view.setFloat64(offset, value, true)
         else output[offset] = value
       }
     }
@@ -1625,6 +1633,17 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
       { tag: 283, type: 5, values: [10_000, 1] },
       { tag: 296, type: 3, values: [3] },
       { tag: 339, type: 3, values: [1, 1, 1] },
+      {
+        tag: 34_264,
+        type: 12,
+        values: [0.5, 0, 0, 100, 0, -0.5, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
+      },
+      {
+        tag: 34_735,
+        type: 3,
+        values: [1, 1, 0, 3, 1_024, 0, 1, 2, 1_025, 0, 1, 1, 2_048, 0, 1, 4_326],
+      },
+      { tag: 42_113, type: 2, values: [...new TextEncoder().encode('-9999'), 0] },
       { tag: 34_682, type: 2, values: [...feiMetadata] },
     ],
     [strip],
@@ -1689,6 +1708,11 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     !(JSON.stringify(ordinaryDataset.descriptor.metadata?.['purejsimage:tiff']) ?? '').includes(
       'fei-sem-tiff-calibration',
     ) ||
+    ordinaryDataset.descriptor.spatialReference?.crs.code !== 4_326 ||
+    ordinaryDataset.descriptor.spatialReference.pixelToModel?.join(',') !==
+      '0.5,0,100,0,-0.5,200' ||
+    ordinaryDataset.descriptor.spatialReference.noData?.kind !== 'scalar' ||
+    ordinaryDataset.descriptor.spatialReference.noData.value !== -9_999 ||
     ordinarySamples.join(',') !== '65535,32768,0'
   ) {
     throw new Error(`Browser ordinary TIFF native samples were ${ordinarySamples.join(',')}`)
@@ -1766,6 +1790,15 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   })
   const aperioDirectory = aperioDocument.topLevelDirectories[0]
   if (aperioDirectory === undefined) throw new Error('Browser Aperio TIFF has no directory')
+  const cogInspection = await inspectCog(aperioDocument)
+  if (
+    !cogInspection.likelyCog ||
+    cogInspection.container !== 'TIFF' ||
+    cogInspection.directories[0]?.tileWidth !== 4 ||
+    cogInspection.directories[0]?.compression.name !== 'Uncompressed'
+  ) {
+    throw new Error(`Browser COG structural inspection failed: ${JSON.stringify(cogInspection)}`)
+  }
   const directDecoder = await aperioDirectory.createImageDecoder()
   try {
     for await (const _block of directDecoder.decode({ x: 0, y: 1, width: 12, height: 1 })) {
@@ -1800,7 +1833,7 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail:
-      'bounded TIFF extension APIs, calibrated native-precision ordinary TIFF opening, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
+      'bounded TIFF extension APIs and COG structural inspection, calibrated native-precision ordinary TIFF opening with typed GeoTIFF spatial reference, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
     outputBytes: input.byteLength + aperioInput.byteLength,
   }
 }

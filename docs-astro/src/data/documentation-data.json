@@ -96,14 +96,14 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 281154,
-      "gzipBytes": 352171,
-      "minifiedBytes": 1218648
+      "brotliBytes": 285211,
+      "gzipBytes": 357334,
+      "minifiedBytes": 1234962
     },
     "allStableCodecs": {
-      "brotliBytes": 257381,
-      "gzipBytes": 312522,
-      "minifiedBytes": 887457
+      "brotliBytes": 258673,
+      "gzipBytes": 313301,
+      "minifiedBytes": 890330
     },
     "commonWebCodecs": {
       "brotliBytes": 192178,
@@ -116,14 +116,14 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5875077,
+      "bytes": 5910767,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
     "scientificPlatform": {
-      "brotliBytes": 39173,
-      "gzipBytes": 45887,
-      "minifiedBytes": 158032
+      "brotliBytes": 39808,
+      "gzipBytes": 46700,
+      "minifiedBytes": 160717
     }
   },
   "ordinary": {
@@ -634,7 +634,7 @@
       "oracle": "First TIFF dataset exposes x/y axes and a readable region.",
       "packageExport": "purejsimage/scientific/readers/tiff",
       "resourceModel": "single",
-      "supportBoundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels without invented axis semantics."
+      "supportBoundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels with typed GeoTIFF CRS, affine, inverse, bounds, pixel interpretation, nodata, and JSON-safe source metadata; deterministic tiled Classic TIFF, BigTIFF, Deflate, LZW, PackBits, RGB/RGBA, and overview COG fixtures prove the applicable native-raster paths while JPEG-in-TIFF remains display-only. Pixel reads remain in raster coordinates without invented axis semantics."
     },
     {
       "benchmarkCoverage": {

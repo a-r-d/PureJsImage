@@ -37,7 +37,13 @@ const descriptorInput = (
   overrides: Partial<
     Pick<
       ScientificDatasetDescriptor,
-      'capabilities' | 'components' | 'levels' | 'metadata' | 'noDataValue' | 'sampleType'
+      | 'capabilities'
+      | 'components'
+      | 'levels'
+      | 'metadata'
+      | 'noDataValue'
+      | 'sampleType'
+      | 'spatialReference'
     >
   > = {},
 ): ScientificDatasetDescriptor => ({
@@ -52,6 +58,9 @@ const descriptorInput = (
   },
   ...(overrides.levels === undefined ? {} : { levels: overrides.levels }),
   ...(overrides.noDataValue === undefined ? {} : { noDataValue: overrides.noDataValue }),
+  ...(overrides.spatialReference === undefined
+    ? {}
+    : { spatialReference: overrides.spatialReference }),
   ...(overrides.metadata === undefined ? {} : { metadata: overrides.metadata }),
 })
 
@@ -275,6 +284,71 @@ describe('ScientificDataset descriptors', () => {
     expect(supportsScientificSeriesRead(descriptor, 'energy')).toBe(true)
     expect(supportsScientificSeriesRead(descriptor, 'unknown')).toBe(false)
     expect(lookup.axes[0]?.coordinates).toEqual({ type: 'lookup', values: [100, 100.6, 102.1] })
+  })
+
+  it('normalizes typed raster georeferencing and resolves level-specific transforms', () => {
+    const spatialReference = {
+      crs: { kind: 'projected' as const, authority: 'EPSG', code: 32618, name: 'WGS 84 / UTM 18N' },
+      pixelInterpretation: 'pixel-is-area' as const,
+      pixelToModel: [30, 4, 500_000, -2, -30, 4_500_000] as const,
+      modelToPixel: [
+        1 / 29.733333333333334,
+        4 / 896,
+        -36_785.71428571428,
+        -2 / 896,
+        -30 / 896,
+        151_785.7142857143,
+      ] as const,
+      bounds: { minX: 500_000, minY: 4_499_834, maxX: 500_252, maxY: 4_500_000 },
+      noData: { kind: 'scalar' as const, value: -9999 },
+      metadata: { geotiff: { modelType: 1 } },
+    }
+    const overviewReference = {
+      ...spatialReference,
+      pixelToModel: [60, 8, 500_000, -4, -60, 4_500_000] as const,
+      modelToPixel: [
+        1 / 59.46666666666667,
+        8 / 3584,
+        -18_392.85714285714,
+        -4 / 3584,
+        -60 / 3584,
+        75_892.85714285714,
+      ] as const,
+    }
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([axis('x', 'space', 8), axis('y', 'space', 6)], {
+        spatialReference,
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: true,
+          planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+        },
+        levels: [
+          {
+            level: 0,
+            axisLengths: [
+              { axisId: 'x', length: 8 },
+              { axisId: 'y', length: 6 },
+            ],
+            spatialReference,
+          },
+          {
+            level: 1,
+            axisLengths: [
+              { axisId: 'x', length: 4 },
+              { axisId: 'y', length: 3 },
+            ],
+            spatialReference: overviewReference,
+          },
+        ],
+      }),
+    )
+
+    expect(descriptor.spatialReference).toEqual(spatialReference)
+    expect(resolveScientificDescriptorAtResolutionLevel(descriptor, 1).spatialReference).toEqual(
+      overviewReference,
+    )
+    expect(Object.isFrozen(descriptor.spatialReference?.metadata?.geotiff)).toBe(true)
   })
 
   it('rejects unusable or contradictory one-dimensional capabilities', () => {

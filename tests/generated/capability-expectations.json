@@ -96,6 +96,8 @@
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
         "tests/scientific-tiff-reader.test.ts",
+        "tests/tiff-cog.test.ts",
+        "tests/tiff-cog-benchmark.test.ts",
         "tests/scientific-aperio-reader.test.ts",
         "tests/scientific-whole-slide-bridge.test.ts"
       ],
@@ -490,7 +492,7 @@
     },
     {
       "id": "purejsimage/tiff",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "format": "TIFF",
       "packageExport": "purejsimage/scientific/readers/tiff",
       "extensions": ["tif", "tiff"],
@@ -498,8 +500,12 @@
       "resourceModel": "single",
       "datasetKinds": ["image", "volume", "pyramid"],
       "directRangeReads": true,
-      "evidence": ["tests/scientific-tiff-reader.test.ts"],
-      "fixtures": ["tests/scientific-tiff-reader.test.ts"]
+      "evidence": [
+        "tests/scientific-tiff-reader.test.ts",
+        "tests/tiff-cog.test.ts",
+        "tests/tiff-cog-benchmark.test.ts"
+      ],
+      "fixtures": ["tests/scientific-tiff-reader.test.ts", "tests/fixtures/cog/manifest.json"]
     },
     {
       "id": "purejsimage/ome-tiff",

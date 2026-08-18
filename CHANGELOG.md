@@ -6,6 +6,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added a deterministic Cloud Optimized GeoTIFF compatibility corpus, checked compression matrix,
+  public bounded `inspectCog()` structural report, explicit compression ID/name errors, and a
+  simulated-HTTP-range viewport benchmark that asserts overview selection and reports requests,
+  bytes fetched, cache hits, first decoded tile-block latency, and decoded pixels.
+
+- Added typed GeoTIFF spatial references to ordinary TIFF scientific dataset descriptors and
+  SubIFD levels, including CRS authority/code and citation, six-parameter pixel-to-model affine,
+  invertible inverse, model bounds, pixel-is-area/point semantics, scalar or component GDAL nodata,
+  and JSON-safe source metadata. Region reads remain in raster pixel coordinates, and malformed
+  optional georeferencing does not block native TIFF pixels.
+
 - Expanded the official common-web (`web-codecs`) suite with JPEG→AVIF, JPEG→lossy WebP, AVIF
   crop+resize, the Lambda JPEG thumbnail, progressive JPEG resize, and lossless WebP alpha decode.
   The published speed and memory SVG charts include those jobs, and the README now shows both

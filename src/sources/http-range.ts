@@ -29,6 +29,7 @@ export interface HttpRangeSourceOptions {
 export interface HttpRangeSourceStats {
   readonly requests: number
   readonly bytesFetched: number
+  readonly cacheHits: number
   readonly cacheBytes: number
 }
 
@@ -109,6 +110,7 @@ export class HttpRangeSource implements ImageSource {
   #cacheBytes = 0
   #requests = 0
   #bytesFetched = 0
+  #cacheHits = 0
 
   private constructor(
     url: string,
@@ -223,6 +225,7 @@ export class HttpRangeSource implements ImageSource {
     return Object.freeze({
       requests: this.#requests,
       bytesFetched: this.#bytesFetched,
+      cacheHits: this.#cacheHits,
       cacheBytes: this.#cacheBytes,
     })
   }
@@ -254,6 +257,7 @@ export class HttpRangeSource implements ImageSource {
     throwIfAborted(signal)
     const cached = this.#cache.get(start)
     if (cached) {
+      this.#cacheHits += 1
       this.#cache.delete(start)
       this.#cache.set(start, cached)
       return cached

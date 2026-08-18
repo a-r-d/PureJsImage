@@ -109,6 +109,27 @@ resolution levels. Standard optional tags and selected DigitalMicrograph, FEI, a
 tags are normalized under aggregate and per-tag byte limits; oversized or malformed optional tags
 do not prevent pixel opening.
 
+GeoTIFF georeferencing is part of the ordinary reader's scientific descriptor rather than a
+microscopy calibration profile. The base raster uses `descriptor.spatialReference`; each SubIFD
+level may carry its own transform, with missing overview transforms derived from the base raster
+geometry. The six affine values map raster `(x, y)` to model coordinates as
+`(a*x + b*y + c, d*x + e*y + f)`:
+
+```ts
+const summary = document.datasets[0]
+if (summary === undefined) throw new Error('GeoTIFF contains no scientific datasets')
+const dataset = await document.openDataset(summary.id)
+const spatial = dataset.descriptor.spatialReference
+if (spatial?.pixelToModel) {
+  const [a, b, c, d, e, f] = spatial.pixelToModel
+  const model = { x: a * 100 + b * 200 + c, y: d * 100 + e * 200 + f }
+  console.log(spatial.crs, model, spatial.bounds, spatial.noData)
+}
+
+// Regions are still raster pixel coordinates, not CRS/model coordinates.
+dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [], x: 100, y: 200, width: 256, height: 256 })
+```
+
 ## OME-Zarr / NGFF
 
 OME-Zarr 0.5 is a separate cloud-native reader, not an HDF5 side effect:

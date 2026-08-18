@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "generator": "node scripts/generate-cog-fixtures.ts",
+  "notes": "Deterministic first-party fixture construction; Node zlib and dev-only jpeg-js encode fixture segments and are not runtime dependencies.",
+  "fixtures": [
+    {
+      "filename": "classic-deflate-rgb-nodata.tif",
+      "sha256": "164a71a28feb376628805d7db506077c55d703187897b1fdcc4cfa08bb27a3dd",
+      "bytes": 1220,
+      "container": "TIFF",
+      "compressionIds": [8],
+      "levels": [
+        {
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "filename": "bigtiff-lzw-rgba.tif",
+      "sha256": "6ff4c5df93b1abd2a4e7802633bbb1b7b0b3fe8d9d18a6e7c9c2f516398cdcb9",
+      "bytes": 908,
+      "container": "BigTIFF",
+      "compressionIds": [5],
+      "levels": [
+        {
+          "width": 8,
+          "height": 8
+        }
+      ]
+    },
+    {
+      "filename": "subifd-deflate-rotated.tif",
+      "sha256": "6131fc3fec57e868515a6a5d15d3613c6a03d2cccb61e788ed484f2ba6546692",
+      "bytes": 4836,
+      "container": "TIFF",
+      "compressionIds": [8],
+      "levels": [
+        {
+          "width": 32,
+          "height": 32
+        },
+        {
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "filename": "classic-packbits-gray.tif",
+      "sha256": "fdd6aba568b1bd5d69395a92ceb275ccc5dddaad869b334f91ead374c8f8688c",
+      "bytes": 306,
+      "container": "TIFF",
+      "compressionIds": [32773],
+      "levels": [
+        {
+          "width": 16,
+          "height": 8
+        }
+      ]
+    },
+    {
+      "filename": "classic-jpeg-rgb.tif",
+      "sha256": "ed37b12cb29f01b5fb8cfc20152574fa6a908eb225d57e35d36120aab65e1e6d",
+      "bytes": 1426,
+      "container": "TIFF",
+      "compressionIds": [7],
+      "levels": [
+        {
+          "width": 16,
+          "height": 8
+        }
+      ]
+    }
+  ]
+}

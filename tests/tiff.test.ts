@@ -1445,6 +1445,7 @@ describe('TIFF codec', () => {
     })
     await expect(decodeDirect(zstandard)).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
+      message: 'TIFF compression 34887 (LERC) with additional Zstandard compression is unsupported',
     })
 
     const missingParameters = tiffFixture({

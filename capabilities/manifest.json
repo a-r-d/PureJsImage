@@ -218,7 +218,7 @@
     },
     {
       "id": "purejsimage/tiff",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "format": "TIFF",
       "packageExport": "purejsimage/scientific/readers/tiff",
       "extensions": ["tif", "tiff"],
@@ -226,9 +226,13 @@
       "resourceModel": "single",
       "datasetKinds": ["image", "volume", "pyramid"],
       "directRangeReads": true,
-      "boundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels without invented axis semantics.",
-      "evidence": ["tests/scientific-tiff-reader.test.ts"],
-      "fixtures": ["tests/scientific-tiff-reader.test.ts"]
+      "boundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels with typed GeoTIFF CRS, affine, inverse, bounds, pixel interpretation, nodata, and JSON-safe source metadata; deterministic tiled Classic TIFF, BigTIFF, Deflate, LZW, PackBits, RGB/RGBA, and overview COG fixtures prove the applicable native-raster paths while JPEG-in-TIFF remains display-only. Pixel reads remain in raster coordinates without invented axis semantics.",
+      "evidence": [
+        "tests/scientific-tiff-reader.test.ts",
+        "tests/tiff-cog.test.ts",
+        "tests/tiff-cog-benchmark.test.ts"
+      ],
+      "fixtures": ["tests/scientific-tiff-reader.test.ts", "tests/fixtures/cog/manifest.json"]
     },
     {
       "id": "purejsimage/ome-tiff",
@@ -1359,10 +1363,10 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, lightweight tag metadata, native scientific-raster, explicit calibrated ordinary TIFF ScientificDocument, GeoTIFF, OME-TIFF, deterministic profile, whole-slide and explicit Aperio ScientificDocument access with configurable WSI limits, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit Z/time interpretation of ordinary pages without ImageJ or DigitalMicrograph evidence, inferred FEI field-of-view calibration without fixture proof, implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads and payload-free tag metadata, native-precision N-channel rasters, an explicitly registered ordinary TIFF scientific reader with compatible-page axes, incompatible series, SubIFD levels, bounded selected metadata, and standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, or Zeiss SEM calibration evidence, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, an explicitly registered configurable Aperio scientific-document reader, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, lightweight tag metadata, native scientific-raster, explicit calibrated ordinary TIFF ScientificDocument, typed scientific GeoTIFF spatial references, a generated compression audit and public COG structural inspector, OME-TIFF, deterministic profile, whole-slide and explicit Aperio ScientificDocument access with configurable WSI limits, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit Z/time interpretation of ordinary pages without ImageJ or DigitalMicrograph evidence, inferred FEI field-of-view calibration without fixture proof, implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. A checked compression registry distinguishes fully COG-tested paths, implemented but weakly COG-tested paths, recognized unsupported assignments, and known unimplemented assignments; unsupported compression diagnostics include the numeric ID and assigned name. Supported display compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes, while the native raster surface is intentionally narrower. Public APIs expose bounded tag reads and payload-free tag metadata, a COG structural inspector, native-precision N-channel rasters, an explicitly registered ordinary TIFF scientific reader with compatible-page axes, incompatible series, SubIFD levels, bounded selected metadata, standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, or Zeiss SEM calibration evidence, and typed GeoTIFF CRS, affine, inverse, bounds, raster interpretation, nodata, and JSON-safe source metadata while keeping reads in raster pixel coordinates. OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, an explicitly registered configurable Aperio scientific-document reader, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels remain separate public paths. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
       "memory": "Selected-frame, ordinary TIFF scientific-dataset, GeoTIFF, OME plane, whole-slide region, and Aperio scientific-dataset reads remain strip- or tile-bounded; IFD traversal, profile detection, and scientific document construction do not read unselected pixel segments or complete ICC payloads merely to enumerate metadata. The ordinary reader admits selected optional tag values under aggregate and per-tag byte limits and records oversized or unreadable optional metadata without blocking pixels. TIFF document options independently bound physical segment count, the raw-plus-converted segment-table construction peak, and each encoded segment before the corresponding payload read. Aperio readers use explicit source, dimension, directory, region-pixel, decoded-byte, and associated-image limits while allowing large lazy sources, and tiled regions decode sequential native-tile intersections. Direct TIFF display and raster reads preflight the aggregate live decoded segments, largest intersecting encoded segment, largest output block, and predictor scratch before segment payload reads. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or admitted segment set and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
-      "recommendation": "Broad display-image input compatibility, native ordinary scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, explicit Aperio scientific documents, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
+      "recommendation": "Broad display-image input compatibility, native ordinary scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, explicit Aperio scientific documents, structurally inspected and deterministic-corpus-tested selective remote COG reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7, tifffile with imagecodecs, libwebp, and OpenSlide 3.4.1",
@@ -1385,6 +1389,8 @@
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
         "tests/scientific-tiff-reader.test.ts",
+        "tests/tiff-cog.test.ts",
+        "tests/tiff-cog-benchmark.test.ts",
         "tests/scientific-aperio-reader.test.ts",
         "tests/scientific-whole-slide-bridge.test.ts"
       ],
@@ -1411,6 +1417,7 @@
         "- [x] Classic TIFF and BigTIFF SubIFD traversal with cycle, offset, and global directory-count validation plus alias-safe shared-directory reuse",
         "- [x] Reduced-resolution pyramid selection through `resolutionLevel`, including nested and chained SubIFDs",
         "- [x] Bounded validator-protected HTTP range input with request deduplication, an LRU byte cap, and selective COG-style tile reads",
+        "- [x] Public bounded COG structural inspection reporting TIFF/BigTIFF, IFD/SubIFD layout, overview and tile dimensions, compression and sample layout, and likely remote-read issues",
         "",
         "### Document, raster, and profile APIs",
         "",
@@ -1419,6 +1426,7 @@
         "- [x] Configurable physical-segment count, segment-table construction-peak, and per-segment encoded-byte limits rejected before oversized payload reads",
         "- [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion",
         "- [x] Explicit ordinary TIFF `ScientificDocument` reader with native precision/components, contiguous compatible-page series, labeled page axes, SubIFD resolution levels, bounded selected metadata, identities, cancellation, and region reads",
+        "- [x] Expose GeoTIFF CRS, six-parameter affine and invertible inverse, model bounds, raster interpretation, scalar or component nodata, and JSON-safe source metadata on ordinary scientific TIFF descriptors and SubIFD levels while keeping reads in raster pixel coordinates",
         "- [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges",
         "- [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers",
         "- [x] OME-TIFF Z/C/T datasets with validated dimension orders, channel metadata, physical pixel sizes, and explicit or implicit `TiffData` mappings",
@@ -1473,6 +1481,8 @@
         "- [x] SGILog (`Compression=34676`) and SGILog24 (`Compression=34677`) with bounded row RLE and exact segment sizing",
         "- [x] Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor",
         "- [x] LERC and LERC plus Deflate (`Compression=34887`) with bounded first-party LERC2 decoding",
+        "- [x] Generated compression audit distinguishing fully COG-tested, weakly COG-tested, recognized unsupported, and not-implemented assignments, with display-versus-native-raster boundaries",
+        "- [x] Deterministic tiled Classic TIFF, BigTIFF, SubIFD, Deflate, LZW, PackBits, JPEG-in-TIFF, RGB/RGBA, nodata, and rotated-affine COG fixtures",
         "- [ ] ThunderScan and other extension compressions",
         "- [x] Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction",
         "",
@@ -1481,6 +1491,7 @@
         "The 2026-08-10 154-file Imazen TIFF baseline records 148 passes, 2 structured `UNSUPPORTED_OPERATION` results, and 4 safely rejected robustness inputs, with zero decode failures, invalid outputs, raw exceptions, timeouts, crashes, or out-of-memory results. Each file runs in an isolated worker with a 30-second timeout and 512 MiB heap limit. A pass means metadata inspection, TIFF-to-PNG decode, PNG reopen, and output-dimension validation all completed; it is not by itself an exact-pixel oracle.",
         "",
         "Exact pixel behavior is covered separately by pinned focused fixtures and independent ImageMagick/LibTIFF, tifffile/imagecodecs, Esri LERC, libwebp, GeoTIFF.js, and OpenSlide comparisons. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.",
+        "The generated `docs/tiff-cog-compatibility.md` matrix records every audited compression assignment, its display/native-raster boundary, deterministic COG fixtures, structural inspection contract, and simulated-range viewport benchmark.",
         "",
         "### Remaining priorities",
         "",
@@ -1521,7 +1532,7 @@
         "- [x] Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries",
         "- [x] Bound decompression output to the declared strip or tile geometry",
         "- [x] Preflight aggregate decoded-segment, output-block, and predictor-scratch peaks before direct TIFF segment reads; stream tiled Aperio regions one native intersection at a time",
-        "- [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly",
+        "- [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly, naming both compression ID and assigned name",
         "- [x] Verify decoded pixels against pinned LibTIFF fixtures",
         "- [x] Verify packed 10-, 12-, and 14-bit output exactly at native 16-bit depth against ImageMagick/LibTIFF",
         "- [x] Verify low packed depths, CMYK-alpha, and lossless WebP-in-TIFF output exactly against ImageMagick/LibTIFF",
@@ -1539,6 +1550,7 @@
         "- [x] Verify canonical Deflate-predicted RGB and RGBA output exactly after ImageMagick/LibTIFF reopen",
         "- [x] Verify first-party LERC and LERC-plus-Deflate pixels against the independent Esri decoder and reject corrupt masks, headers, dimensions, checksums, and missing TIFF metadata",
         "- [x] Verify bounded HTTP range caching, resource validators, failure propagation, and selective tile reads without fetching unrelated segment payloads",
+        "- [x] Assert COG overview selection in a simulated-remote viewport benchmark and report requests, fetched bytes, cache hits, first decoded tile-block latency, and decoded pixels without fetching the complete source",
         "- [x] Verify tiled RGB/RGBA, BigTIFF, multi-page, and SubIFD-pyramid writer output through independent GeoTIFF.js reopen",
         "- [x] Compare PureJsImage, GeoTIFF.js, UTIF.js, image-js, and Jimp against sharp with an ImageMagick fallback on the targeted TIFF feature corpus",
         "- [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every",

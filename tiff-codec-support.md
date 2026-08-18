@@ -21,6 +21,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Classic TIFF and BigTIFF SubIFD traversal with cycle, offset, and global directory-count validation plus alias-safe shared-directory reuse
 - [x] Reduced-resolution pyramid selection through `resolutionLevel`, including nested and chained SubIFDs
 - [x] Bounded validator-protected HTTP range input with request deduplication, an LRU byte cap, and selective COG-style tile reads
+- [x] Public bounded COG structural inspection reporting TIFF/BigTIFF, IFD/SubIFD layout, overview and tile dimensions, compression and sample layout, and likely remote-read issues
 
 ### Document, raster, and profile APIs
 
@@ -29,6 +30,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Configurable physical-segment count, segment-table construction-peak, and per-segment encoded-byte limits rejected before oversized payload reads
 - [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion
 - [x] Explicit ordinary TIFF `ScientificDocument` reader with native precision/components, contiguous compatible-page series, labeled page axes, SubIFD resolution levels, bounded selected metadata, identities, cancellation, and region reads
+- [x] Expose GeoTIFF CRS, six-parameter affine and invertible inverse, model bounds, raster interpretation, scalar or component nodata, and JSON-safe source metadata on ordinary scientific TIFF descriptors and SubIFD levels while keeping reads in raster pixel coordinates
 - [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges
 - [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers
 - [x] OME-TIFF Z/C/T datasets with validated dimension orders, channel metadata, physical pixel sizes, and explicit or implicit `TiffData` mappings
@@ -83,6 +85,8 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] SGILog (`Compression=34676`) and SGILog24 (`Compression=34677`) with bounded row RLE and exact segment sizing
 - [x] Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor
 - [x] LERC and LERC plus Deflate (`Compression=34887`) with bounded first-party LERC2 decoding
+- [x] Generated compression audit distinguishing fully COG-tested, weakly COG-tested, recognized unsupported, and not-implemented assignments, with display-versus-native-raster boundaries
+- [x] Deterministic tiled Classic TIFF, BigTIFF, SubIFD, Deflate, LZW, PackBits, JPEG-in-TIFF, RGB/RGBA, nodata, and rotated-affine COG fixtures
 - [ ] ThunderScan and other extension compressions
 - [x] Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction
 
@@ -91,6 +95,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 The 2026-08-10 154-file Imazen TIFF baseline records 148 passes, 2 structured `UNSUPPORTED_OPERATION` results, and 4 safely rejected robustness inputs, with zero decode failures, invalid outputs, raw exceptions, timeouts, crashes, or out-of-memory results. Each file runs in an isolated worker with a 30-second timeout and 512 MiB heap limit. A pass means metadata inspection, TIFF-to-PNG decode, PNG reopen, and output-dimension validation all completed; it is not by itself an exact-pixel oracle.
 
 Exact pixel behavior is covered separately by pinned focused fixtures and independent ImageMagick/LibTIFF, tifffile/imagecodecs, Esri LERC, libwebp, GeoTIFF.js, and OpenSlide comparisons. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
+The generated `docs/tiff-cog-compatibility.md` matrix records every audited compression assignment, its display/native-raster boundary, deterministic COG fixtures, structural inspection contract, and simulated-range viewport benchmark.
 
 ### Remaining priorities
 
@@ -131,7 +136,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 - [x] Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries
 - [x] Bound decompression output to the declared strip or tile geometry
 - [x] Preflight aggregate decoded-segment, output-block, and predictor-scratch peaks before direct TIFF segment reads; stream tiled Aperio regions one native intersection at a time
-- [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
+- [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly, naming both compression ID and assigned name
 - [x] Verify decoded pixels against pinned LibTIFF fixtures
 - [x] Verify packed 10-, 12-, and 14-bit output exactly at native 16-bit depth against ImageMagick/LibTIFF
 - [x] Verify low packed depths, CMYK-alpha, and lossless WebP-in-TIFF output exactly against ImageMagick/LibTIFF
@@ -149,6 +154,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 - [x] Verify canonical Deflate-predicted RGB and RGBA output exactly after ImageMagick/LibTIFF reopen
 - [x] Verify first-party LERC and LERC-plus-Deflate pixels against the independent Esri decoder and reject corrupt masks, headers, dimensions, checksums, and missing TIFF metadata
 - [x] Verify bounded HTTP range caching, resource validators, failure propagation, and selective tile reads without fetching unrelated segment payloads
+- [x] Assert COG overview selection in a simulated-remote viewport benchmark and report requests, fetched bytes, cache hits, first decoded tile-block latency, and decoded pixels without fetching the complete source
 - [x] Verify tiled RGB/RGBA, BigTIFF, multi-page, and SubIFD-pyramid writer output through independent GeoTIFF.js reopen
 - [x] Compare PureJsImage, GeoTIFF.js, UTIF.js, image-js, and Jimp against sharp with an ImageMagick fallback on the targeted TIFF feature corpus
 - [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every

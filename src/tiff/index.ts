@@ -4,11 +4,31 @@ export type {
   GeoTiffGdalMetadataItem,
   GeoTiffKey,
   GeoTiffModel,
+  GeoTiffNoData,
   GeoTiffPoint,
   GeoTiffProfile,
   GeoTiffRasterType,
 } from '../geotiff.ts'
 export { openTiffDocument } from '../codecs/tiff.ts'
+export { inspectCog } from './cog.ts'
+export type {
+  CogCompressionInspection,
+  CogDirectoryInspection,
+  CogInspection,
+  CogInspectionIssue,
+  CogInspectionOptions,
+  CogInspectionSeverity,
+} from './cog.ts'
+export {
+  tiffCompressionCapabilities,
+  tiffCompressionCapability,
+  tiffCompressionName,
+} from './compressions.ts'
+export type {
+  TiffCompressionCapability,
+  TiffCompressionDecodeSupport,
+  TiffCompressionTestStatus,
+} from './compressions.ts'
 export { encodeTiffDocument } from '../codecs/tiff-encode.ts'
 export type {
   TiffDocumentEncodeRequest,

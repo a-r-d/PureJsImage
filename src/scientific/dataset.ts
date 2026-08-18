@@ -93,11 +93,51 @@ export interface ScientificResolutionAxisCoordinates {
   readonly coordinates: ScientificAxisCoordinates
 }
 
+/** Six-parameter two-dimensional affine: x' = a*x + b*y + c, y' = d*x + e*y + f. */
+export type ScientificAffineTransform = readonly [
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+  e: number,
+  f: number,
+]
+
+export interface ScientificCoordinateReferenceSystem {
+  readonly kind: 'projected' | 'geographic' | 'unknown'
+  readonly authority?: string
+  readonly code?: number | string
+  readonly name?: string
+}
+
+export interface ScientificSpatialBounds {
+  readonly minX: number
+  readonly minY: number
+  readonly maxX: number
+  readonly maxY: number
+}
+
+export type ScientificNoData =
+  | { readonly kind: 'scalar'; readonly value: number | string }
+  | { readonly kind: 'components'; readonly values: readonly (number | string)[] }
+
+/** Portable georeferencing for one raster geometry; reads continue to use raster pixel indices. */
+export interface ScientificSpatialReference {
+  readonly crs: ScientificCoordinateReferenceSystem
+  readonly pixelInterpretation: 'pixel-is-area' | 'pixel-is-point' | 'unspecified'
+  readonly pixelToModel?: ScientificAffineTransform
+  readonly modelToPixel?: ScientificAffineTransform
+  readonly bounds?: ScientificSpatialBounds
+  readonly noData?: ScientificNoData
+  readonly metadata?: ScientificMetadataObject
+}
+
 /** Explicit axis lengths and optional calibrated coordinates at one resolution level. */
 export interface ScientificResolutionLevel {
   readonly level: number
   readonly axisLengths: readonly ScientificResolutionAxisLength[]
   readonly axisCoordinates?: readonly ScientificResolutionAxisCoordinates[]
+  readonly spatialReference?: ScientificSpatialReference
 }
 
 export type ScientificMetadataValue =
@@ -139,6 +179,7 @@ export interface ScientificDatasetDescriptor {
   readonly components: readonly ScientificComponentDescriptor[]
   readonly levels?: readonly ScientificResolutionLevel[]
   readonly noDataValue?: number
+  readonly spatialReference?: ScientificSpatialReference
   readonly metadata?: ScientificMetadataObject
   readonly capabilities: ScientificDatasetCapabilities
 }
@@ -670,6 +711,130 @@ const normalizeMetadata = (value: unknown, mode: ParseMode): ScientificMetadataO
 export const normalizeScientificMetadataObject = (value: unknown): ScientificMetadataObject =>
   normalizeMetadata(value, 'normalize')
 
+const normalizeAffineTransform = (value: unknown, label: string): ScientificAffineTransform => {
+  const input = arrayValue(value, label)
+  if (input.length !== 6) throw invalidInput(`${label} must contain exactly six values`)
+  return Object.freeze([
+    finiteNumber(input[0], `${label}[0]`),
+    finiteNumber(input[1], `${label}[1]`),
+    finiteNumber(input[2], `${label}[2]`),
+    finiteNumber(input[3], `${label}[3]`),
+    finiteNumber(input[4], `${label}[4]`),
+    finiteNumber(input[5], `${label}[5]`),
+  ] as const)
+}
+
+const normalizeSpatialReference = (
+  value: unknown,
+  componentCount: number,
+  mode: ParseMode,
+  label: string,
+): ScientificSpatialReference => {
+  const input = recordValue(value, label)
+  onlyKeys(
+    input,
+    ['crs', 'pixelInterpretation', 'pixelToModel', 'modelToPixel', 'bounds', 'noData', 'metadata'],
+    label,
+  )
+  const crsInput = recordValue(input.crs, `${label}.crs`)
+  onlyKeys(crsInput, ['kind', 'authority', 'code', 'name'], `${label}.crs`)
+  const kind = enumValue(
+    crsInput.kind,
+    ['projected', 'geographic', 'unknown'] as const,
+    `${label}.crs.kind`,
+  )
+  const authority = optionalString(crsInput.authority, `${label}.crs.authority`)
+  const name = optionalString(crsInput.name, `${label}.crs.name`)
+  let code: number | string | undefined
+  if (crsInput.code !== undefined) {
+    code =
+      typeof crsInput.code === 'number'
+        ? nonNegativeInteger(crsInput.code, `${label}.crs.code`)
+        : requiredString(crsInput.code, `${label}.crs.code`)
+  }
+  if ((authority === undefined) !== (code === undefined)) {
+    throw invalidInput(`${label}.crs authority and code must be provided together`)
+  }
+  const crs = Object.freeze({
+    kind,
+    ...(authority === undefined ? {} : { authority }),
+    ...(code === undefined ? {} : { code }),
+    ...(name === undefined ? {} : { name }),
+  })
+  const pixelInterpretation = enumValue(
+    input.pixelInterpretation,
+    ['pixel-is-area', 'pixel-is-point', 'unspecified'] as const,
+    `${label}.pixelInterpretation`,
+  )
+  const pixelToModel =
+    input.pixelToModel === undefined
+      ? undefined
+      : normalizeAffineTransform(input.pixelToModel, `${label}.pixelToModel`)
+  const modelToPixel =
+    input.modelToPixel === undefined
+      ? undefined
+      : normalizeAffineTransform(input.modelToPixel, `${label}.modelToPixel`)
+  if (modelToPixel !== undefined && pixelToModel === undefined) {
+    throw invalidInput(`${label}.modelToPixel requires pixelToModel`)
+  }
+  let bounds: ScientificSpatialBounds | undefined
+  if (input.bounds !== undefined) {
+    const boundsInput = recordValue(input.bounds, `${label}.bounds`)
+    onlyKeys(boundsInput, ['minX', 'minY', 'maxX', 'maxY'], `${label}.bounds`)
+    const minX = finiteNumber(boundsInput.minX, `${label}.bounds.minX`)
+    const minY = finiteNumber(boundsInput.minY, `${label}.bounds.minY`)
+    const maxX = finiteNumber(boundsInput.maxX, `${label}.bounds.maxX`)
+    const maxY = finiteNumber(boundsInput.maxY, `${label}.bounds.maxY`)
+    if (minX > maxX || minY > maxY) throw invalidInput(`${label}.bounds are inverted`)
+    bounds = Object.freeze({ minX, minY, maxX, maxY })
+  }
+  let noData: ScientificNoData | undefined
+  if (input.noData !== undefined) {
+    const noDataInput = recordValue(input.noData, `${label}.noData`)
+    const noDataKind = enumValue(
+      noDataInput.kind,
+      ['scalar', 'components'] as const,
+      `${label}.noData.kind`,
+    )
+    const normalizeNoDataValue = (entry: unknown, entryLabel: string): number | string => {
+      if (typeof entry === 'string') return entry
+      return finiteNumber(entry, entryLabel)
+    }
+    if (noDataKind === 'scalar') {
+      onlyKeys(noDataInput, ['kind', 'value'], `${label}.noData`)
+      noData = Object.freeze({
+        kind: noDataKind,
+        value: normalizeNoDataValue(noDataInput.value, `${label}.noData.value`),
+      })
+    } else {
+      onlyKeys(noDataInput, ['kind', 'values'], `${label}.noData`)
+      const valuesInput = arrayValue(noDataInput.values, `${label}.noData.values`)
+      if (valuesInput.length !== componentCount) {
+        throw invalidInput(`${label}.noData.values must match the dataset component count`)
+      }
+      noData = Object.freeze({
+        kind: noDataKind,
+        values: Object.freeze(
+          valuesInput.map((entry, index) =>
+            normalizeNoDataValue(entry, `${label}.noData.values[${index}]`),
+          ),
+        ),
+      })
+    }
+  }
+  const metadata =
+    input.metadata === undefined ? undefined : normalizeMetadata(input.metadata, mode)
+  return Object.freeze({
+    crs,
+    pixelInterpretation,
+    ...(pixelToModel === undefined ? {} : { pixelToModel }),
+    ...(modelToPixel === undefined ? {} : { modelToPixel }),
+    ...(bounds === undefined ? {} : { bounds }),
+    ...(noData === undefined ? {} : { noData }),
+    ...(metadata === undefined ? {} : { metadata }),
+  })
+}
+
 const implicitLevelZero = (axes: readonly ScientificAxisDescriptor[]): ScientificResolutionLevel =>
   Object.freeze({
     level: 0,
@@ -681,6 +846,7 @@ const implicitLevelZero = (axes: readonly ScientificAxisDescriptor[]): Scientifi
 const normalizeLevels = (
   value: unknown,
   axes: readonly ScientificAxisDescriptor[],
+  componentCount: number,
   mode: ParseMode,
 ): readonly ScientificResolutionLevel[] => {
   if (value === undefined) return Object.freeze([implicitLevelZero(axes)])
@@ -692,7 +858,7 @@ const normalizeLevels = (
   for (let index = 0; index < input.length; index += 1) {
     const label = `Scientific dataset level ${index}`
     const levelInput = recordValue(input[index], label)
-    onlyKeys(levelInput, ['level', 'axisLengths', 'axisCoordinates'], label)
+    onlyKeys(levelInput, ['level', 'axisLengths', 'axisCoordinates', 'spatialReference'], label)
     const level = nonNegativeInteger(levelInput.level, `${label}.level`)
     if (seenLevels.has(level)) throw invalidInput(`Scientific dataset level ${level} is duplicated`)
     seenLevels.add(level)
@@ -774,6 +940,16 @@ const normalizeLevels = (
         level,
         axisLengths,
         ...(axisCoordinates === undefined ? {} : { axisCoordinates }),
+        ...(levelInput.spatialReference === undefined
+          ? {}
+          : {
+              spatialReference: normalizeSpatialReference(
+                levelInput.spatialReference,
+                componentCount,
+                mode,
+                `${label}.spatialReference`,
+              ),
+            }),
       }),
     )
   }
@@ -796,6 +972,7 @@ const parseDescriptor = (
       'components',
       'levels',
       'noDataValue',
+      'spatialReference',
       'metadata',
       'capabilities',
     ],
@@ -828,7 +1005,7 @@ const parseDescriptor = (
     componentIds.add(component.id)
   }
 
-  const levels = normalizeLevels(input.levels, axes, mode)
+  const levels = normalizeLevels(input.levels, axes, components.length, mode)
   const capabilitiesInput = recordValue(input.capabilities, 'Scientific dataset capabilities')
   onlyKeys(
     capabilitiesInput,
@@ -969,6 +1146,15 @@ const parseDescriptor = (
     }
     noDataValue = input.noDataValue
   }
+  const spatialReference =
+    input.spatialReference === undefined
+      ? undefined
+      : normalizeSpatialReference(
+          input.spatialReference,
+          components.length,
+          mode,
+          'Scientific dataset spatialReference',
+        )
   const metadata =
     input.metadata === undefined ? undefined : normalizeMetadata(input.metadata, mode)
 
@@ -980,6 +1166,7 @@ const parseDescriptor = (
     levels,
     capabilities,
     ...(noDataValue === undefined ? {} : { noDataValue }),
+    ...(spatialReference === undefined ? {} : { spatialReference }),
     ...(metadata === undefined ? {} : { metadata }),
   })
 }
@@ -1077,7 +1264,7 @@ export const resolveScientificDescriptorAtResolutionLevel = (
   descriptor: NormalizedScientificDatasetDescriptor,
   level: number,
 ): NormalizedScientificDatasetDescriptor => {
-  getResolutionLevel(descriptor, level)
+  const selected = getResolutionLevel(descriptor, level)
   const axes = descriptor.axes.map((axis) =>
     resolveScientificAxisAtResolutionLevel(descriptor, axis.id, level),
   )
@@ -1090,6 +1277,9 @@ export const resolveScientificDescriptorAtResolutionLevel = (
         axisLengths: axes.map((axis) => ({ axisId: axis.id, length: axis.length })),
       },
     ],
+    ...(selected.spatialReference === undefined
+      ? {}
+      : { spatialReference: selected.spatialReference }),
     capabilities: { ...descriptor.capabilities, resolutionLevels: false },
   })
 }

@@ -559,6 +559,11 @@ describe('HDF5 D6 low-level file API', () => {
     const remoteBlocks = await collect(remote.readDataset('/', { start: [4, 5], shape: [1, 1] }))
     expect(remoteBlocks).toEqual(localBlocks)
     expect(requests).toEqual(['bytes=0-0', 'bytes=0-4095', 'bytes=4096-8191'])
-    expect(remoteSource.stats).toEqual({ requests: 3, bytesFetched: 8_193, cacheBytes: 8_192 })
+    expect(remoteSource.stats).toEqual({
+      requests: 3,
+      bytesFetched: 8_193,
+      cacheHits: 0,
+      cacheBytes: 8_192,
+    })
   })
 })

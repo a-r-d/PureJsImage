@@ -1,5 +1,5 @@
 import { invalidInput, unsupportedOperation } from './errors.ts'
-import type { TiffDirectory, TiffTagValue } from './tiff/types.ts'
+import type { TiffDirectory, TiffTagReadOptions, TiffTagValue } from './tiff/types.ts'
 import type { TiffProfile, TiffProfileContext } from './tiff/profiles.ts'
 import { parseXmlDocument, xmlChildren, xmlLocalName } from './xml.ts'
 
@@ -50,6 +50,8 @@ export interface GeoTiffGdalMetadataItem {
   readonly domain?: string
 }
 
+export type GeoTiffNoData = number | string | readonly (number | string)[]
+
 export interface GeoTiffModel {
   readonly kind: 'transformation' | 'tiepoint-scale'
   readonly matrix: readonly number[]
@@ -68,7 +70,7 @@ export interface GeoTiffProfile {
   readonly origin?: GeoTiffPoint
   readonly resolution?: GeoTiffPoint
   readonly boundingBox?: GeoTiffBoundingBox
-  readonly noData?: number | string
+  readonly noData?: GeoTiffNoData
   readonly gdalMetadata: readonly GeoTiffGdalMetadataItem[]
 }
 
@@ -279,12 +281,21 @@ const parseGdalMetadata = (xml: string | undefined): readonly GeoTiffGdalMetadat
   )
 }
 
-const parseNoData = (raw: string | undefined): number | string | undefined => {
+const parseNoDataValue = (value: string): number | string => {
+  const numeric = Number(value)
+  return Number.isNaN(numeric) && value.toLowerCase() !== 'nan' ? value : numeric
+}
+
+const parseNoData = (raw: string | undefined): GeoTiffNoData | undefined => {
   if (raw === undefined) return undefined
   const value = raw.trim()
   if (value === '') return ''
-  const numeric = Number(value)
-  return Number.isNaN(numeric) && value.toLowerCase() !== 'nan' ? value : numeric
+  const components = value.split(/\s+/)
+  if (components.length > 1) {
+    const parsed = components.map(parseNoDataValue)
+    if (parsed.every((entry) => typeof entry === 'number')) return Object.freeze(parsed)
+  }
+  return parseNoDataValue(value)
 }
 
 const boundingBox = (model: GeoTiffModel, width: number, height: number): GeoTiffBoundingBox => {
@@ -317,7 +328,10 @@ const modelResolution = (model: GeoTiffModel): GeoTiffPoint => {
   )
 }
 
-const openGeoTiff = async (directory: TiffDirectory): Promise<GeoTiffProfile> => {
+export const openGeoTiffDirectory = async (
+  directory: TiffDirectory,
+  options: Readonly<TiffTagReadOptions> = {},
+): Promise<GeoTiffProfile> => {
   const [
     rawScale,
     rawTiepoints,
@@ -328,14 +342,14 @@ const openGeoTiff = async (directory: TiffDirectory): Promise<GeoTiffProfile> =>
     rawGdalMetadata,
     rawNoData,
   ] = await Promise.all([
-    directory.getTag(tagModelPixelScale),
-    directory.getTag(tagModelTiepoint),
-    directory.getTag(tagModelTransformation),
-    directory.getTag(tagGeoKeyDirectory),
-    directory.getTag(tagGeoDoubleParams),
-    directory.getTag(tagGeoAsciiParams),
-    directory.getTag(tagGdalMetadata),
-    directory.getTag(tagGdalNoData),
+    directory.getTag(tagModelPixelScale, options),
+    directory.getTag(tagModelTiepoint, options),
+    directory.getTag(tagModelTransformation, options),
+    directory.getTag(tagGeoKeyDirectory, options),
+    directory.getTag(tagGeoDoubleParams, options),
+    directory.getTag(tagGeoAsciiParams, options),
+    directory.getTag(tagGdalMetadata, options),
+    directory.getTag(tagGdalNoData, options),
   ])
   const scales = numbers(rawScale, 'ModelPixelScaleTag')
   const tiepoints = numbers(rawTiepoints, 'ModelTiepointTag')
@@ -406,6 +420,6 @@ export const geoTiffProfile: TiffProfile<GeoTiffProfile> = Object.freeze({
   open: async ({ document }: Readonly<TiffProfileContext>) => {
     const directory = document.topLevelDirectories[0]
     if (!directory) throw invalidInput('GeoTIFF document has no top-level image')
-    return openGeoTiff(directory)
+    return openGeoTiffDirectory(directory)
   },
 })

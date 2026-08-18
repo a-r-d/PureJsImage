@@ -44,6 +44,7 @@ import type {
   TiffTagReadOptions,
   TiffTagValue,
 } from '../tiff/types.ts'
+import { tiffCompressionCapability, tiffCompressionName } from '../tiff/compressions.ts'
 import {
   type CmykIccTransform,
   ColorManagedDecoder,
@@ -127,6 +128,11 @@ const compressionAperioJpeg2000Ycbcr = 33003
 const compressionAperioJpeg2000Mct = 33005
 const compressionSgiLog = 34676
 const compressionSgiLog24 = 34677
+
+const unsupportedCompression = (compression: number, operation?: string): ImageError =>
+  unsupportedOperation(
+    `TIFF compression ${compression} (${tiffCompressionName(compression)}) is unsupported${operation === undefined ? '' : ` for ${operation}`}`,
+  )
 const sampleFormatUnsigned = 1
 const sampleFormatSigned = 2
 const sampleFormatFloat = 3
@@ -1364,32 +1370,20 @@ const describeTiffIfd = async (
     throw invalidInput('TIFF LERC additional compression is invalid')
   }
   if (rawLercAdditionalCompression === 2) {
-    throw unsupportedOperation('TIFF LERC plus Zstandard compression is unsupported')
+    throw unsupportedOperation(
+      `TIFF compression ${compressionLerc} (${tiffCompressionName(compressionLerc)}) with additional Zstandard compression is unsupported`,
+    )
   }
   if (rawLercAdditionalCompression > 2) {
     throw invalidInput('TIFF LERC additional compression is invalid')
   }
   const lercAdditionalCompression: 0 | 1 = rawLercAdditionalCompression === 1 ? 1 : 0
+  const compressionCapability = tiffCompressionCapability(compression)
   if (
-    compression !== compressionNone &&
-    compression !== compressionCcittModifiedHuffman &&
-    compression !== compressionCcittGroup3 &&
-    compression !== compressionCcittGroup4 &&
-    compression !== compressionLzw &&
-    compression !== compressionOldJpeg &&
-    compression !== compressionJpeg &&
-    compression !== compressionDeflate &&
-    compression !== compressionAdobeDeflate &&
-    compression !== compressionPackBits &&
-    compression !== compressionSgiLog &&
-    compression !== compressionSgiLog24 &&
-    compression !== compressionZstandard &&
-    compression !== compressionLerc &&
-    compression !== compressionWebp &&
-    compression !== compressionAperioJpeg2000Ycbcr &&
-    compression !== compressionAperioJpeg2000Mct
+    compressionCapability === undefined ||
+    compressionCapability.decodeSupport === 'unsupported'
   ) {
-    throw unsupportedOperation(`TIFF compression ${compression} is unsupported`)
+    throw unsupportedCompression(compression)
   }
   const byteRasterCompression =
     compression === compressionNone ||
@@ -1400,9 +1394,7 @@ const describeTiffIfd = async (
     compression === compressionPackBits ||
     compression === compressionLerc
   if (mode === 'raster' && !byteRasterCompression) {
-    throw unsupportedOperation(
-      'TIFF raster decoding supports uncompressed, PackBits, LZW, Deflate, Zstandard, and LERC segments',
-    )
+    throw unsupportedCompression(compression, 'native raster decoding')
   }
   const photometric = await singleValue(source, ifd, littleEndian, 262)
   if (
@@ -3704,7 +3696,9 @@ const decodeWebpSegment = async (
 ): Promise<Uint8Array> => {
   const createDecoder = webpCodec?.createDecoder
   if (!createDecoder) {
-    throw unsupportedOperation('TIFF WebP compression requires an explicitly composed WebP codec')
+    throw unsupportedOperation(
+      `TIFF compression ${compressionWebp} (${tiffCompressionName(compressionWebp)}) requires an explicitly composed WebP codec`,
+    )
   }
   const encoded = await readEncodedSegment(source, description, limits, physicalSegment)
   const decoder = await createDecoder(new MemorySource(encoded), limits)

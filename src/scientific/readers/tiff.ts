@@ -2,6 +2,7 @@ import type { AbortOptions } from '../../abort.ts'
 import { throwIfAborted } from '../../abort.ts'
 import { openTiffDocument, TiffEncodedCacheSource } from '../../codecs/tiff.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
+import { openGeoTiffDirectory, type GeoTiffProfile } from '../../geotiff.ts'
 import {
   type RasterBlock,
   type RasterDecoder,
@@ -31,12 +32,16 @@ import type {
 } from '../../tiff/types.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
+  ScientificAffineTransform,
   ScientificAxisDescriptor,
   ScientificComponentDescriptor,
   ScientificDataset,
   ScientificMetadataObject,
+  ScientificNoData,
   ScientificPlaneReadRequest,
   ScientificResolutionLevel,
+  ScientificSpatialBounds,
+  ScientificSpatialReference,
 } from '../dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
@@ -66,6 +71,8 @@ interface TiffLevelDescription {
   readonly width: number
   readonly height: number
   readonly format: RasterFormat
+  readonly spatialReference?: ScientificSpatialReference
+  readonly spatialReferenceWarning?: string
 }
 
 interface TiffPageDescription {
@@ -149,7 +156,7 @@ export interface TiffReaderOptions {
 
 export const tiffReaderDescriptor: ScientificReaderDescriptor = Object.freeze({
   id: 'purejsimage/tiff',
-  version: '1.0.0',
+  version: '1.1.0',
   format: 'TIFF',
   extensions: Object.freeze(['tif', 'tiff']),
   mediaTypes: Object.freeze(['image/tiff', 'image/x-tiff']),
@@ -395,9 +402,268 @@ const directoryMetadata = async (
   })
 }
 
+const geoTiffTagIds = Object.freeze([
+  33_550, 33_922, 34_264, 34_735, 34_736, 34_737, 42_112, 42_113,
+])
+
+const jsonSafeGeoValue = (value: number | string): number | string => {
+  if (typeof value === 'string' || Number.isFinite(value)) return value
+  if (Number.isNaN(value)) return 'NaN'
+  return value > 0 ? 'Infinity' : '-Infinity'
+}
+
+const isGeoNumberArray = (value: number | string | readonly number[]): value is readonly number[] =>
+  Array.isArray(value)
+
+const isGeoNoDataArray = (
+  value: NonNullable<GeoTiffProfile['noData']>,
+): value is readonly (number | string)[] => Array.isArray(value)
+
+const geoTiffMetadata = (profile: GeoTiffProfile): ScientificMetadataObject => ({
+  modelType: profile.modelType ?? null,
+  rasterType: profile.rasterType,
+  projectedCrs: profile.projectedCrs ?? null,
+  geographicCrs: profile.geographicCrs ?? null,
+  citation: profile.citation ?? null,
+  model:
+    profile.model === undefined
+      ? null
+      : {
+          kind: profile.model.kind,
+          matrix: profile.model.matrix.map(jsonSafeGeoValue),
+        },
+  keys: [...profile.keys.values()].map(({ id, location, count, offset, value }) => ({
+    id,
+    location,
+    count,
+    offset,
+    value: isGeoNumberArray(value) ? value.map(jsonSafeGeoValue) : jsonSafeGeoValue(value),
+  })),
+  gdalMetadata: profile.gdalMetadata.map((item) => ({ ...item })),
+  noData:
+    profile.noData === undefined
+      ? null
+      : isGeoNoDataArray(profile.noData)
+        ? profile.noData.map(jsonSafeGeoValue)
+        : jsonSafeGeoValue(profile.noData),
+})
+
+const affineFromGeoTiff = (profile: GeoTiffProfile): ScientificAffineTransform | undefined => {
+  const matrix = profile.model?.matrix
+  if (matrix === undefined) return undefined
+  const denominator = matrix[15]
+  if (
+    denominator === undefined ||
+    !Number.isFinite(denominator) ||
+    denominator === 0 ||
+    matrix[12] !== 0 ||
+    matrix[13] !== 0
+  ) {
+    return undefined
+  }
+  const affine = [
+    (matrix[0] ?? 0) / denominator,
+    (matrix[1] ?? 0) / denominator,
+    (matrix[3] ?? 0) / denominator,
+    (matrix[4] ?? 0) / denominator,
+    (matrix[5] ?? 0) / denominator,
+    (matrix[7] ?? 0) / denominator,
+  ]
+  if (affine.some((value) => !Number.isFinite(value))) return undefined
+  return Object.freeze([
+    affine[0] ?? 0,
+    affine[1] ?? 0,
+    affine[2] ?? 0,
+    affine[3] ?? 0,
+    affine[4] ?? 0,
+    affine[5] ?? 0,
+  ] as const)
+}
+
+const inverseAffine = (
+  affine: ScientificAffineTransform,
+): ScientificAffineTransform | undefined => {
+  const [a, b, c, d, e, f] = affine
+  const determinant = a * e - b * d
+  if (!Number.isFinite(determinant) || determinant === 0) return undefined
+  const inverse = [
+    e / determinant,
+    -b / determinant,
+    (b * f - e * c) / determinant,
+    -d / determinant,
+    a / determinant,
+    (d * c - a * f) / determinant,
+  ]
+  if (inverse.some((value) => !Number.isFinite(value))) return undefined
+  return Object.freeze([
+    inverse[0] ?? 0,
+    inverse[1] ?? 0,
+    inverse[2] ?? 0,
+    inverse[3] ?? 0,
+    inverse[4] ?? 0,
+    inverse[5] ?? 0,
+  ] as const)
+}
+
+const affineBounds = (
+  affine: ScientificAffineTransform,
+  width: number,
+  height: number,
+): ScientificSpatialBounds => {
+  const [a, b, c, d, e, f] = affine
+  const corners = [
+    [c, f],
+    [a * width + c, d * width + f],
+    [b * height + c, e * height + f],
+    [a * width + b * height + c, d * width + e * height + f],
+  ]
+  const xs = corners.map(([x]) => x ?? 0)
+  const ys = corners.map(([, y]) => y ?? 0)
+  return Object.freeze({
+    minX: Math.min(...xs),
+    minY: Math.min(...ys),
+    maxX: Math.max(...xs),
+    maxY: Math.max(...ys),
+  })
+}
+
+const scientificNoData = (
+  profile: GeoTiffProfile,
+  componentCount: number,
+): ScientificNoData | undefined => {
+  const value = profile.noData
+  if (value === undefined) return undefined
+  if (isGeoNoDataArray(value)) {
+    if (value.length !== componentCount) return undefined
+    return Object.freeze({ kind: 'components', values: Object.freeze(value.map(jsonSafeGeoValue)) })
+  }
+  return Object.freeze({ kind: 'scalar', value: jsonSafeGeoValue(value) })
+}
+
+const scientificSpatialReference = (
+  profile: GeoTiffProfile,
+  componentCount: number,
+): ScientificSpatialReference => {
+  const projected = profile.projectedCrs
+  const geographic = profile.geographicCrs
+  const epsg =
+    projected !== undefined && projected > 0 && projected !== 32_767
+      ? projected
+      : geographic !== undefined && geographic > 0 && geographic !== 32_767
+        ? geographic
+        : undefined
+  const kind =
+    profile.modelType === 1 || projected !== undefined
+      ? ('projected' as const)
+      : profile.modelType === 2 || geographic !== undefined
+        ? ('geographic' as const)
+        : ('unknown' as const)
+  const affine = affineFromGeoTiff(profile)
+  const inverse = affine === undefined ? undefined : inverseAffine(affine)
+  const noData = scientificNoData(profile, componentCount)
+  return Object.freeze({
+    crs: Object.freeze({
+      kind,
+      ...(epsg === undefined ? {} : { authority: 'EPSG', code: epsg }),
+      ...(profile.citation === undefined ? {} : { name: profile.citation }),
+    }),
+    pixelInterpretation: profile.rasterType,
+    ...(affine === undefined ? {} : { pixelToModel: affine }),
+    ...(inverse === undefined ? {} : { modelToPixel: inverse }),
+    ...(affine === undefined
+      ? {}
+      : { bounds: affineBounds(affine, profile.directory.width, profile.directory.height) }),
+    ...(noData === undefined ? {} : { noData }),
+    metadata: normalizeScientificMetadataObject({
+      'purejsimage:geotiff': geoTiffMetadata(profile),
+    }),
+  })
+}
+
+interface InspectedSpatialReference {
+  readonly value?: ScientificSpatialReference
+  readonly warning?: string
+}
+
+const inspectSpatialReference = async (
+  directory: TiffDirectory,
+  budget: MetadataBudget,
+  signal: AbortSignal | undefined,
+): Promise<InspectedSpatialReference> => {
+  const tags = geoTiffTagIds.flatMap((tag) => {
+    const info = directory.getTagInfo?.(tag)
+    return info === undefined ? [] : [{ tag, info }]
+  })
+  if (tags.length === 0) return Object.freeze({})
+  const oversized = tags.find(({ info }) => info.byteLength > budget.maximumTagBytes)
+  if (oversized !== undefined) {
+    return Object.freeze({
+      warning: `GeoTIFF tag ${oversized.tag} exceeds TIFF reader maxMetadataTagBytes`,
+    })
+  }
+  let estimate = 0
+  for (const { info } of tags) {
+    estimate = Math.min(Number.MAX_SAFE_INTEGER, estimate + estimatedMetadataBytes(info))
+  }
+  if (estimate > budget.remaining) {
+    return Object.freeze({ warning: 'GeoTIFF metadata exceeds TIFF reader maxMetadataBytes' })
+  }
+  try {
+    const profile = await openGeoTiffDirectory(directory, {
+      maxBytes: budget.maximumTagBytes,
+      ...(signal === undefined ? {} : { signal }),
+    })
+    budget.remaining -= estimate
+    return Object.freeze({ value: scientificSpatialReference(profile, directory.samplesPerPixel) })
+  } catch (error: unknown) {
+    throwIfAborted(signal)
+    return Object.freeze({ warning: errorMessage(error) })
+  }
+}
+
+const deriveOverviewSpatialReference = (
+  base: ScientificSpatialReference,
+  baseWidth: number,
+  baseHeight: number,
+  width: number,
+  height: number,
+): ScientificSpatialReference => {
+  const source = base.pixelToModel
+  if (source === undefined) return base
+  const scaleX = baseWidth / width
+  const scaleY = baseHeight / height
+  const affine = Object.freeze([
+    source[0] * scaleX,
+    source[1] * scaleY,
+    source[2],
+    source[3] * scaleX,
+    source[4] * scaleY,
+    source[5],
+  ] as const)
+  const inverse = inverseAffine(affine)
+  const derivedMetadata: ScientificMetadataObject = {
+    ...(base.metadata ?? {}),
+    'purejsimage:overview-georeferencing': {
+      derivedFromLevel: 0,
+      scaleX,
+      scaleY,
+    },
+  }
+  return Object.freeze({
+    crs: base.crs,
+    pixelInterpretation: base.pixelInterpretation,
+    pixelToModel: affine,
+    ...(inverse === undefined ? {} : { modelToPixel: inverse }),
+    bounds: affineBounds(affine, width, height),
+    ...(base.noData === undefined ? {} : { noData: base.noData }),
+    metadata: normalizeScientificMetadataObject(derivedMetadata),
+  })
+}
+
 const inspectLevel = async (
   directory: TiffDirectory,
   level: number,
+  metadataBudget: MetadataBudget,
   signal: AbortSignal | undefined,
 ): Promise<TiffLevelDescription> => {
   const decoder = await directory.createRasterDecoder({
@@ -409,12 +675,17 @@ const inspectLevel = async (
       `TIFF directory ${directory.index} raster dimensions changed during inspection`,
     )
   }
+  const spatialReference = await inspectSpatialReference(directory, metadataBudget, signal)
   return Object.freeze({
     level,
     directory,
     width: decoder.width,
     height: decoder.height,
     format: decoder.format,
+    ...(spatialReference.value === undefined ? {} : { spatialReference: spatialReference.value }),
+    ...(spatialReference.warning === undefined
+      ? {}
+      : { spatialReferenceWarning: spatialReference.warning }),
   })
 }
 
@@ -431,6 +702,7 @@ const pageCompatibilityKey = (
       photometric: level.directory.photometric,
       bitsPerSample: level.directory.bitsPerSample,
       sampleFormats: level.directory.sampleFormats,
+      spatialReference: level.spatialReference,
     })),
     components: components.map(({ id, kind }) => ({ id, kind })),
     calibration:
@@ -456,6 +728,7 @@ const describePage = async (
   page: number,
   metadata: ScientificMetadataObject,
   calibration: TiffDirectoryCalibration | undefined,
+  metadataBudget: MetadataBudget,
   signal: AbortSignal | undefined,
 ): Promise<TiffPageDescription> => {
   const directories = [directory, ...directory.subIfds]
@@ -463,10 +736,26 @@ const describePage = async (
   for (let level = 0; level < directories.length; level += 1) {
     const selected = directories[level]
     if (selected === undefined) continue
-    levels.push(await inspectLevel(selected, level, signal))
+    levels.push(await inspectLevel(selected, level, metadataBudget, signal))
   }
   const base = levels[0]
   if (base === undefined) throw invalidInput(`TIFF page ${page} exposes no raster level`)
+  if (base.spatialReference !== undefined) {
+    for (let level = 1; level < levels.length; level += 1) {
+      const selected = levels[level]
+      if (selected === undefined || selected.spatialReference !== undefined) continue
+      levels[level] = Object.freeze({
+        ...selected,
+        spatialReference: deriveOverviewSpatialReference(
+          base.spatialReference,
+          base.width,
+          base.height,
+          selected.width,
+          selected.height,
+        ),
+      })
+    }
+  }
   for (const level of levels.slice(1)) {
     if (!sameRasterFormat(base.format, level.format)) {
       throw unsupportedOperation(
@@ -518,6 +807,9 @@ const scientificLevels = (
             ? []
             : [Object.freeze({ axisId: pageAxisId, length: pages.length })]),
         ]),
+        ...(level.spatialReference === undefined
+          ? {}
+          : { spatialReference: level.spatialReference }),
       }),
     ),
   )
@@ -616,10 +908,18 @@ const describeSeries = (
   const pageAxisId = pageAxisCalibration?.axisId ?? (pages.length === 1 ? undefined : 'page')
   const firstCalibration = first.calibration
   const intensity = firstCalibration?.intensity
+  const spatialReferenceWarnings = pages.flatMap(({ page, levels }) =>
+    levels.flatMap(({ level, spatialReferenceWarning }) =>
+      spatialReferenceWarning === undefined
+        ? []
+        : [{ page, level, warning: spatialReferenceWarning }],
+    ),
+  )
   const metadata = normalizeScientificMetadataObject({
     firstPage: first.page,
     pageCount: pages.length,
     pages: pages.map(({ metadata: pageMetadata }) => pageMetadata),
+    ...(spatialReferenceWarnings.length === 0 ? {} : { spatialReferenceWarnings }),
     ...(calibration === undefined
       ? {}
       : {
@@ -643,6 +943,15 @@ const describeSeries = (
   })
   const xCalibration = firstCalibration?.axes.find(({ axisId }) => axisId === 'x')
   const yCalibration = firstCalibration?.axes.find(({ axisId }) => axisId === 'y')
+  const spatialNoData = base.spatialReference?.noData
+  const noDataValue =
+    spatialNoData?.kind !== 'scalar'
+      ? undefined
+      : typeof spatialNoData.value === 'number'
+        ? spatialNoData.value
+        : spatialNoData.value === 'NaN'
+          ? Number.NaN
+          : undefined
   const descriptor = normalizeScientificDatasetDescriptor({
     schemaVersion: 1,
     axes: [
@@ -672,6 +981,8 @@ const describeSeries = (
     sampleType: base.format.sampleType,
     components: calibratedComponents(first.components, firstCalibration),
     levels: scientificLevels(pages, pageAxisId),
+    ...(noDataValue === undefined ? {} : { noDataValue }),
+    ...(base.spatialReference === undefined ? {} : { spatialReference: base.spatialReference }),
     metadata: { 'purejsimage:tiff': metadata },
     capabilities: {
       regionReads: true,
@@ -866,6 +1177,7 @@ const createDocument = async (
         page,
         await directoryMetadata(directory, budget),
         directoryCalibration,
+        budget,
         context.signal,
       ),
     )

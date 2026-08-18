@@ -72,9 +72,9 @@ PureJsImage 0.11.0 is a zero-runtime-dependency strict TypeScript image-processi
 | --- | ---: | ---: | ---: |
 | Core API | 60.0 KiB | 19.0 KiB | 16.8 KiB |
 | Common web codecs | 607.1 KiB | 224.3 KiB | 187.7 KiB |
-| All stable codecs | 866.7 KiB | 305.2 KiB | 251.3 KiB |
-| Scientific platform | 154.3 KiB | 44.8 KiB | 38.3 KiB |
-| All scientific readers | 1190.1 KiB | 343.9 KiB | 274.6 KiB |
+| All stable codecs | 869.5 KiB | 306.0 KiB | 252.6 KiB |
+| Scientific platform | 157.0 KiB | 45.6 KiB | 38.9 KiB |
+| All scientific readers | 1206.0 KiB | 349.0 KiB | 278.5 KiB |
 
 The extracted npm package is 5.6 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -149,6 +149,16 @@ const document = await science.open({
 });
 const dataset = await document.openDataset(document.datasets[0].id);
 ```
+
+Ordinary GeoTIFFs opened through `tiffReader` expose a typed
+`dataset.descriptor.spatialReference` with CRS identity/citation, pixel-to-model affine, inverse
+when invertible, model bounds, pixel interpretation, nodata, and JSON-safe GeoTIFF evidence.
+`readPlane()` regions remain raster pixel coordinates.
+
+For Cloud Optimized GeoTIFF workflows, `inspectCog()` reports container, IFD/SubIFD, tile,
+overview, compression, and sample layout plus likely structural issues. The checked
+[COG compatibility matrix](docs/tiff-cog-compatibility.md) distinguishes display-only compression
+from native scientific-raster support and includes the simulated-range viewport benchmark.
 
 Direct-range readers can request only the source spans needed for metadata, a native-precision
 region, a spectrum, a volume plane, or a whole-slide tile. This includes workflows across DM3 and
@@ -286,9 +296,9 @@ Generated for purejsimage 0.11.0. The README keeps only the major entry points; 
 | --- | --- | ---: | ---: | ---: |
 | Core API | `purejsimage` | 60.0 KiB | 19.0 KiB | 16.8 KiB |
 | Core + common web codecs | `purejsimage/codecs/web` | 607.1 KiB | 224.3 KiB | 187.7 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 866.7 KiB | 305.2 KiB | 251.3 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 154.3 KiB | 44.8 KiB | 38.3 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1190.1 KiB | 343.9 KiB | 274.6 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 869.5 KiB | 306.0 KiB | 252.6 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 157.0 KiB | 45.6 KiB | 38.9 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1206.0 KiB | 349.0 KiB | 278.5 KiB |
 
 The extracted npm package is 5.6 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 
