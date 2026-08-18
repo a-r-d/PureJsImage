@@ -135,4 +135,69 @@ describe('JPEG lossless Huffman', () => {
     ]).toEqual(samples)
     expect(inspectJpegCodestream(restartFilled).sofMarker).toBe(0xc3)
   })
+
+  it('rejects a required DICOM SV1 point transform before allocating scan buffers', () => {
+    const samples = [10, 20, 30, 40]
+    const encoded = encodeJpegLosslessGray(2, 2, samples)
+    const ordinary = decodeJpegLosslessFrame(encoded, {
+      requiredSelection: 1,
+      requiredPointTransform: 0,
+    })
+    expect([...ordinary.samplesLittleEndian]).toEqual(samples)
+
+    const mutated = Uint8Array.from(encoded)
+    let sawSos = false
+    for (let index = 0; index + 1 < mutated.byteLength; index += 1) {
+      if (mutated[index] !== 0xff || mutated[index + 1] !== 0xda) continue
+      const length = ((mutated[index + 2] ?? 0) << 8) | (mutated[index + 3] ?? 0)
+      mutated[index + 1 + length] = ((mutated[index + 1 + length] ?? 0) & 0xf0) | 1
+      sawSos = true
+      break
+    }
+    expect(sawSos).toBe(true)
+
+    let sawHeader = false
+    expect(() =>
+      decodeJpegLosslessFrame(mutated, {
+        requiredSelection: 1,
+        requiredPointTransform: 0,
+        onFrameHeader: () => {
+          sawHeader = true
+        },
+      }),
+    ).toThrow(/point transform/)
+    expect(sawHeader).toBe(true)
+
+    const sosWithoutTables = Uint8Array.of(
+      0xff,
+      0xd8,
+      0xff,
+      0xc3,
+      0x00,
+      0x0b,
+      8,
+      0,
+      2,
+      0,
+      2,
+      1,
+      1,
+      0x11,
+      0,
+      0xff,
+      0xda,
+      0x00,
+      0x08,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+    )
+    expect(() => decodeJpegLosslessFrame(sosWithoutTables, { requiredPointTransform: 0 })).toThrow(
+      /point transform/,
+    )
+    expect(() => decodeJpegLosslessFrame(sosWithoutTables)).toThrow(/Huffman table is missing/)
+  })
 })

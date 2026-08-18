@@ -192,6 +192,9 @@ export const parseEncapsulatedPixelFragments = async (
     ) {
       throw invalidInput('DICOM encapsulated Pixel Data contains a malformed fragment')
     }
+    if (fragments.length > 0 && header.valueLength < 2) {
+      throw invalidInput('DICOM encoded fragment Item must have a Value Length of at least 2')
+    }
     cursor.admitFragment()
     fragments.push(
       Object.freeze({

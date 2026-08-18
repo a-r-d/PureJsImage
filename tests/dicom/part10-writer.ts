@@ -372,7 +372,15 @@ export const dicomEncapsulatedFragments = (
   frames: readonly (readonly Uint8Array[])[],
   offsetTable: 'empty' | 'basic',
 ): readonly Uint8Array[] => {
-  const paddedFrames = frames.map((frame) => frame.map((fragment) => padEven(fragment)))
+  const paddedFrames = frames.map((frame) => {
+    if (frame.length === 0) throw new Error('DICOM test frame has no fragments')
+    return frame.map((fragment, index) => {
+      if (index < frame.length - 1 && (fragment.byteLength & 1) !== 0) {
+        throw new Error('DICOM non-final fragment of a frame must have even length')
+      }
+      return index === frame.length - 1 ? padEven(fragment) : fragment
+    })
+  })
   const pixelFragments = paddedFrames.flat()
   if (offsetTable === 'empty') return [new Uint8Array(), ...pixelFragments]
   const offsets: number[] = []

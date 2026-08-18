@@ -9,6 +9,8 @@ import type { ScientificDataset } from '../src/scientific/dataset.ts'
 import {
   dicomTag,
   encapsulatedUncompressedExplicitVrLittleEndianUid,
+  explicitVrLittleEndianUid,
+  implicitVrLittleEndianUid,
   rleLosslessUid,
   type DicomVr,
 } from '../src/scientific/formats/dicom/constants.ts'
@@ -703,6 +705,26 @@ describe('DICOM scientific reader', () => {
     })
   })
 
+  it('rejects a zero-length fragment before an otherwise valid RLE frame', async () => {
+    const encoded = encodeDicomRleFrame(Uint8Array.of(1, 2, 3, 4), 8, 2)
+    await expect(
+      open(
+        part10(
+          withEncapsulatedPixels(
+            { bitsAllocated: 8, rows: 2, columns: 2, pixels: Uint8Array.of(0, 0, 0, 0) },
+            [[new Uint8Array(), encoded]],
+            'empty',
+          ),
+          'explicit-vr-le',
+          rleLosslessUid,
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/Value Length of at least 2/),
+    })
+  })
+
   it('indexes Extended Offset Table frames and rejects ambiguous empty tables', async () => {
     const frame0 = Uint8Array.of(4, 5, 6, 7)
     const frame1 = Uint8Array.of(8, 9, 10, 11)
@@ -733,7 +755,7 @@ describe('DICOM scientific reader', () => {
     const ambiguous = part10(
       withEncapsulatedPixels(
         { bitsAllocated: 8, rows: 1, columns: 2, frames: 2, pixels: Uint8Array.of(0, 0) },
-        [[Uint8Array.of(1), Uint8Array.of(2)], [Uint8Array.of(3, 4)]],
+        [[Uint8Array.of(1, 0), Uint8Array.of(2)], [Uint8Array.of(3, 4)]],
         'empty',
       ),
       'explicit-vr-le',
@@ -970,12 +992,13 @@ describe('DICOM scientific reader', () => {
   it('rejects RLE frames split across two fragments and duplicate Pixel Data', async () => {
     const encoded = encodeDicomRleFrame(Uint8Array.of(1, 2, 3, 4), 8, 2)
     const split = encoded.byteLength / 2
+    const firstLength = Math.max(2, split & ~1)
     await expect(
       open(
         part10(
           withEncapsulatedPixels(
             { bitsAllocated: 8, rows: 2, columns: 2, pixels: Uint8Array.of(0, 0, 0, 0) },
-            [[encoded.subarray(0, split), encoded.subarray(split)]],
+            [[encoded.subarray(0, firstLength), encoded.subarray(firstLength)]],
             'empty',
           ),
           'explicit-vr-le',
@@ -1430,6 +1453,218 @@ describe('DICOM scientific reader', () => {
       code: 'INVALID_INPUT',
       message: expect.stringMatching(/Extended Offset Table is duplicated/),
     })
+  })
+
+  it('requires Extended Offset Table VR OV and rejects native Pixel Data that carries the table', async () => {
+    const frame0 = Uint8Array.of(4, 5, 6, 7)
+    const frame1 = Uint8Array.of(8, 9, 10, 11)
+    const valid = part10(
+      [
+        ...withEncapsulatedPixels(
+          { bitsAllocated: 8, rows: 2, columns: 2, frames: 2, pixels: Uint8Array.of(0, 0, 0, 0) },
+          [[frame0], [frame1]],
+          'empty',
+        ).filter((element) => element.tag !== dicomTag.pixelData),
+        { tag: dicomTag.extendedOffsetTable, vr: 'OV', value: dicomUInt64Bytes(0, 12) },
+        {
+          tag: dicomTag.extendedOffsetTableLengths,
+          vr: 'OV',
+          value: dicomUInt64Bytes(frame0.byteLength, frame1.byteLength),
+        },
+        {
+          tag: dicomTag.pixelData,
+          vr: 'OB',
+          fragments: dicomEncapsulatedFragments([[frame0], [frame1]], 'empty'),
+        },
+      ],
+      'explicit-vr-le',
+      encapsulatedUncompressedExplicitVrLittleEndianUid,
+    )
+    expect((await planeSamples((await open(valid)).dataset, 1)).values).toEqual([8, 9, 10, 11])
+
+    await expect(
+      open(
+        part10(
+          [
+            ...withEncapsulatedPixels(
+              {
+                bitsAllocated: 8,
+                rows: 2,
+                columns: 2,
+                frames: 2,
+                pixels: Uint8Array.of(0, 0, 0, 0),
+              },
+              [[frame0], [frame1]],
+              'empty',
+            ).filter((element) => element.tag !== dicomTag.pixelData),
+            { tag: dicomTag.extendedOffsetTable, vr: 'OB', value: dicomUInt64Bytes(0, 12) },
+            {
+              tag: dicomTag.extendedOffsetTableLengths,
+              vr: 'OV',
+              value: dicomUInt64Bytes(4, 4),
+            },
+            {
+              tag: dicomTag.pixelData,
+              vr: 'OB',
+              fragments: dicomEncapsulatedFragments([[frame0], [frame1]], 'empty'),
+            },
+          ],
+          'explicit-vr-le',
+          encapsulatedUncompressedExplicitVrLittleEndianUid,
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/Extended Offset Table must use VR OV/),
+    })
+
+    await expect(
+      open(
+        part10(
+          [
+            ...withEncapsulatedPixels(
+              {
+                bitsAllocated: 8,
+                rows: 2,
+                columns: 2,
+                frames: 2,
+                pixels: Uint8Array.of(0, 0, 0, 0),
+              },
+              [[frame0], [frame1]],
+              'empty',
+            ).filter((element) => element.tag !== dicomTag.pixelData),
+            { tag: dicomTag.extendedOffsetTable, vr: 'OV', value: dicomUInt64Bytes(0, 12) },
+            {
+              tag: dicomTag.extendedOffsetTableLengths,
+              vr: 'UN',
+              value: dicomUInt64Bytes(4, 4),
+            },
+            {
+              tag: dicomTag.pixelData,
+              vr: 'OB',
+              fragments: dicomEncapsulatedFragments([[frame0], [frame1]], 'empty'),
+            },
+          ],
+          'explicit-vr-le',
+          encapsulatedUncompressedExplicitVrLittleEndianUid,
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/Extended Offset Table Lengths must use VR OV/),
+    })
+
+    await expect(
+      open(
+        part10(
+          [
+            ...withEncapsulatedPixels(
+              {
+                bitsAllocated: 8,
+                rows: 2,
+                columns: 2,
+                frames: 2,
+                pixels: Uint8Array.of(0, 0, 0, 0),
+              },
+              [[frame0], [frame1]],
+              'empty',
+            ).filter((element) => element.tag !== dicomTag.pixelData),
+            { tag: dicomTag.extendedOffsetTable, vr: 'OV', value: dicomUInt64Bytes(0, 12) },
+            {
+              tag: dicomTag.extendedOffsetTableLengths,
+              vr: 'OB',
+              value: dicomUInt64Bytes(4, 4),
+            },
+            {
+              tag: dicomTag.pixelData,
+              vr: 'OB',
+              fragments: dicomEncapsulatedFragments([[frame0], [frame1]], 'empty'),
+            },
+          ],
+          'explicit-vr-le',
+          encapsulatedUncompressedExplicitVrLittleEndianUid,
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/Extended Offset Table Lengths must use VR OV/),
+    })
+
+    const nativeExplicit = part10(
+      grayscaleDataset({
+        bitsAllocated: 8,
+        rows: 2,
+        columns: 2,
+        pixels: Uint8Array.of(1, 2, 3, 4),
+        extras: [
+          { tag: dicomTag.extendedOffsetTable, vr: 'OV', value: dicomUInt64Bytes(0) },
+          { tag: dicomTag.extendedOffsetTableLengths, vr: 'OV', value: dicomUInt64Bytes(4) },
+        ],
+      }),
+      'explicit-vr-le',
+      explicitVrLittleEndianUid,
+    )
+    await expect(open(nativeExplicit)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(
+        /native transfer syntax cannot include an Extended Offset Table/,
+      ),
+    })
+
+    const nativeImplicit = part10(
+      grayscaleDataset({
+        bitsAllocated: 8,
+        rows: 2,
+        columns: 2,
+        pixels: Uint8Array.of(1, 2, 3, 4),
+        extras: [
+          { tag: dicomTag.extendedOffsetTable, vr: 'OV', value: dicomUInt64Bytes(0) },
+          { tag: dicomTag.extendedOffsetTableLengths, vr: 'OV', value: dicomUInt64Bytes(4) },
+        ],
+      }),
+      'implicit-vr-le',
+      implicitVrLittleEndianUid,
+    )
+    await expect(open(nativeImplicit)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(
+        /native transfer syntax cannot include an Extended Offset Table/,
+      ),
+    })
+  })
+
+  it('pads only the final fragment of a synthetic encapsulated frame', async () => {
+    expect(() =>
+      dicomEncapsulatedFragments([[Uint8Array.of(1), Uint8Array.of(2, 3)]], 'basic'),
+    ).toThrow(/non-final fragment of a frame must have even length/)
+
+    const evenThenOdd = dicomEncapsulatedFragments(
+      [[Uint8Array.of(1, 2), Uint8Array.of(3)]],
+      'basic',
+    )
+    expect(evenThenOdd).toHaveLength(3)
+    expect(evenThenOdd[1]).toEqual(Uint8Array.of(1, 2))
+    expect(evenThenOdd[2]).toEqual(Uint8Array.of(3, 0))
+    expect([...(evenThenOdd[0] ?? [])]).toEqual([0, 0, 0, 0])
+
+    const oddFrame = Uint8Array.of(9, 8, 7)
+    const padded = dicomEncapsulatedFragments([[oddFrame]], 'empty')
+    expect(padded[1]).toEqual(Uint8Array.of(9, 8, 7, 0))
+    const eot = part10(
+      [
+        ...withEncapsulatedPixels(
+          { bitsAllocated: 8, rows: 1, columns: 3, pixels: Uint8Array.of(0, 0, 0) },
+          [[oddFrame]],
+          'empty',
+        ).filter((element) => element.tag !== dicomTag.pixelData),
+        { tag: dicomTag.extendedOffsetTable, vr: 'OV', value: dicomUInt64Bytes(0) },
+        { tag: dicomTag.extendedOffsetTableLengths, vr: 'OV', value: dicomUInt64Bytes(3) },
+        { tag: dicomTag.pixelData, vr: 'OB', fragments: padded },
+      ],
+      'explicit-vr-le',
+      encapsulatedUncompressedExplicitVrLittleEndianUid,
+    )
+    expect((await planeSamples((await open(eot)).dataset)).values).toEqual([9, 8, 7])
   })
 
   it('exposes tolerant File Meta mode on createDicomReader without changing the default', async () => {

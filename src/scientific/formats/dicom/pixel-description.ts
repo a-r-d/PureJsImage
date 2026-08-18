@@ -8,6 +8,7 @@ import {
   type DicomDataset,
   type DicomElement,
   type DicomFragmentLocator,
+  collectDicomElements,
   decodeDicomIntegerString,
   decodeDicomText,
   decodeDicomUInt16Values,
@@ -136,6 +137,17 @@ export const describeDicomPixels = async (
     if (pixelData.fragments === undefined) {
       throw invalidInput('DICOM encapsulated transfer syntax requires encapsulated Pixel Data')
     }
+  }
+  const extendedOffsetTables = collectDicomElements(dataset.elements, dicomTag.extendedOffsetTable)
+  const extendedOffsetTableLengths = collectDicomElements(
+    dataset.elements,
+    dicomTag.extendedOffsetTableLengths,
+  )
+  if (
+    encoding === 'native' &&
+    (extendedOffsetTables.length > 0 || extendedOffsetTableLengths.length > 0)
+  ) {
+    throw invalidInput('DICOM native transfer syntax cannot include an Extended Offset Table')
   }
   const samplesPerPixel = requiredUInt16(
     dataset.elements,

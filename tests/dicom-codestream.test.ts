@@ -21,6 +21,11 @@ import { MemorySource } from '../src/source.ts'
 import { encodeGrayJpeg, encodeRgbJpeg, stripJpegJfif } from './dicom/jpeg-encode.ts'
 import { encodeJpegLosslessGray } from './dicom/jpeg-lossless-encode.ts'
 import {
+  jpeg2000WithIrreversibleComponentCoc,
+  jpeg2000WithScalarQuantization,
+  jpeg2000WithTruncatedCodingPasses,
+} from './dicom/jpeg2000-qualify-fixtures.ts'
+import {
   dicomEncapsulatedFragments,
   dicomTextBytes,
   dicomUInt16Bytes,
@@ -242,7 +247,9 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
       height: 7,
       precision: 16,
       signed: false,
-      reversible: true,
+      reversibleTransform: true,
+      unquantized: true,
+      bitPreserving: true,
     })
     const samples: number[] = []
     for (let index = 0; index < native.samplesLittleEndian.byteLength; index += 2) {
@@ -275,7 +282,9 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
       height: 6,
       precision: 8,
       signed: false,
-      reversible: false,
+      reversibleTransform: false,
+      unquantized: false,
+      bitPreserving: false,
     })
     const dataset = await openBytes(
       encapsulated(jpeg2000Uid, {
@@ -322,6 +331,47 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
     )
     expect(signedDataset.descriptor.sampleType).toBe('int16')
     expect(await planeSamples(signedDataset)).toEqual([-2, -1, 0, 1])
+  })
+
+  it('rejects DICOM JPEG Lossless SV1 frames whose SOS declares a nonzero point transform', async () => {
+    const encoded = encodeJpegLosslessGray(2, 2, [1, 2, 3, 4])
+    expect(
+      await planeSamples(
+        await openBytes(
+          encapsulated(jpegLosslessSv1Uid, {
+            bitsAllocated: 8,
+            rows: 2,
+            columns: 2,
+            frame: encoded,
+          }),
+        ),
+      ),
+    ).toEqual([1, 2, 3, 4])
+    const mutated = Uint8Array.from(encoded)
+    let sawSos = false
+    for (let index = 0; index + 1 < mutated.byteLength; index += 1) {
+      if (mutated[index] !== 0xff || mutated[index + 1] !== 0xda) continue
+      const length = ((mutated[index + 2] ?? 0) << 8) | (mutated[index + 3] ?? 0)
+      mutated[index + 1 + length] = ((mutated[index + 1 + length] ?? 0) & 0xf0) | 1
+      sawSos = true
+      break
+    }
+    expect(sawSos).toBe(true)
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpegLosslessSv1Uid, {
+            bitsAllocated: 8,
+            rows: 2,
+            columns: 2,
+            frame: mutated,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/point transform/),
+    })
   })
 
   it('rejects JPEG Baseline 16-bit, JPEG 2000 metadata mismatch, and remaining medical JPEG syntaxes', async () => {
@@ -428,7 +478,9 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
       height: 2,
       precision: 8,
       signed: false,
-      reversible: true,
+      reversibleTransform: true,
+      unquantized: true,
+      bitPreserving: true,
     })
     expect([...jpeg2000LosslessNative.samplesLittleEndian]).toEqual([0, 127, 128, 255])
     const jpeg2000Lossless8in16 = await openBytes(
@@ -771,5 +823,149 @@ describe('DICOM JPEG and JPEG 2000 codestreams', () => {
       }),
     )
     expect(await planeSamples(losslessAgain)).toEqual([0, 127, 128, 255])
+  })
+
+  it('qualifies JPEG 2000 lossless from each tile component, quantization, and coding passes', async () => {
+    const lossless = decodeJpeg2000NativeGrayFrame(losslessGray8)
+    expect(lossless).toMatchObject({
+      reversibleTransform: true,
+      unquantized: true,
+      bitPreserving: true,
+    })
+    expect([...lossless.samplesLittleEndian]).toEqual([0, 127, 128, 255])
+
+    const irreversibleCoc = jpeg2000WithIrreversibleComponentCoc(losslessGray8)
+    const irreversibleNative = decodeJpeg2000NativeGrayFrame(irreversibleCoc)
+    expect(irreversibleNative).toMatchObject({
+      reversibleTransform: false,
+      unquantized: true,
+      bitPreserving: false,
+    })
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: irreversibleCoc,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/irreversible component transform/),
+    })
+    expect(
+      await planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000Uid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: irreversibleCoc,
+          }),
+        ),
+      ),
+    ).toEqual([...irreversibleNative.samplesLittleEndian])
+
+    const quantized = jpeg2000WithScalarQuantization(losslessGray8)
+    const quantizedNative = decodeJpeg2000NativeGrayFrame(quantized)
+    expect(quantizedNative).toMatchObject({
+      reversibleTransform: true,
+      unquantized: false,
+      bitPreserving: false,
+    })
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: quantized,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/quantized codestream/),
+    })
+    expect(
+      await planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000Uid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: quantized,
+          }),
+        ),
+      ),
+    ).toEqual([...quantizedNative.samplesLittleEndian])
+
+    const truncated = jpeg2000WithTruncatedCodingPasses(losslessGray8)
+    const truncatedNative = decodeJpeg2000NativeGrayFrame(truncated)
+    expect(truncatedNative).toMatchObject({
+      reversibleTransform: true,
+      unquantized: true,
+      bitPreserving: false,
+    })
+    await expect(
+      planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000LosslessUid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: truncated,
+          }),
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/rate-truncated/),
+    })
+    expect(
+      await planeSamples(
+        await openBytes(
+          encapsulated(jpeg2000Uid, {
+            bitsAllocated: 16,
+            bitsStored: 8,
+            rows: 2,
+            columns: 2,
+            frame: truncated,
+          }),
+        ),
+      ),
+    ).toEqual([...truncatedNative.samplesLittleEndian])
+  })
+
+  it('rejects an empty encoded fragment between JPEG Baseline fragments', async () => {
+    const samples = Uint8Array.of(0, 40, 80, 120, 160, 180, 200, 220)
+    const jpeg = await encodeGrayJpeg(4, 2, samples, 90)
+    const split = jpeg.byteLength & ~1
+    const first = jpeg.subarray(0, Math.max(2, split / 2) & ~1)
+    const second = jpeg.subarray(first.byteLength)
+    await expect(
+      openBytes(
+        encapsulated(jpegBaseline8BitUid, {
+          bitsAllocated: 8,
+          rows: 2,
+          columns: 4,
+          frame: jpeg,
+          fragments: [first, new Uint8Array(), second],
+          offsetTable: 'basic',
+        }),
+      ),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/Value Length of at least 2/),
+    })
   })
 })

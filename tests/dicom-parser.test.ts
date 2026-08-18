@@ -136,6 +136,45 @@ describe('DICOM Part 10 parser', () => {
     ).toBe(false)
   })
 
+  it('rejects empty encoded Pixel Data fragment Items after the Basic Offset Table', async () => {
+    const emptyFragment = writeDicomPart10({
+      transferSyntax: 'explicit-vr-le',
+      transferSyntaxUid: encapsulatedUncompressedExplicitVrLittleEndianUid,
+      dataset: [
+        { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(2) },
+        { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(4) },
+        {
+          tag: dicomTag.pixelData,
+          vr: 'OB',
+          fragments: dicomEncapsulatedFragments([[new Uint8Array()]], 'empty'),
+        },
+      ],
+    })
+    await expect(parse(emptyFragment)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringMatching(/Value Length of at least 2/),
+    })
+
+    const payload = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8)
+    const valid = writeDicomPart10({
+      transferSyntax: 'explicit-vr-le',
+      transferSyntaxUid: encapsulatedUncompressedExplicitVrLittleEndianUid,
+      dataset: [
+        { tag: dicomTag.rows, vr: 'US', value: dicomUInt16Bytes(2) },
+        { tag: dicomTag.columns, vr: 'US', value: dicomUInt16Bytes(4) },
+        {
+          tag: dicomTag.pixelData,
+          vr: 'OB',
+          fragments: dicomEncapsulatedFragments([[payload]], 'empty'),
+        },
+      ],
+    })
+    const parsed = await parse(valid)
+    expect(parsed.pixelData?.fragments).toHaveLength(2)
+    expect(parsed.pixelData?.fragments?.[0]?.valueLength).toBe(0)
+    expect(parsed.pixelData?.fragments?.[1]?.valueLength).toBe(8)
+  })
+
   it('parses Implicit VR Little Endian datasets using the generated dictionary', async () => {
     const bytes = writeDicomPart10({
       transferSyntax: 'implicit-vr-le',

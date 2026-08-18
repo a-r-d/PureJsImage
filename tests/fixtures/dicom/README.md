@@ -17,4 +17,13 @@ The fixture writer is not a public DICOM writer.
 Pinned raw JPEG 2000 codestreams used by D5 are extracted from development encoder outputs and contain no patient-identifying values:
 
 - `lossless-gray16.j2k` is the `jp2c` payload of `benchmark/corpus/files/jp2/openjpeg-lossless-gray16.jp2` (ImageMagick 7.1.2-3 / OpenJPEG 2.5.3, 9×7 lossless gray).
+- `lossless-gray8.j2k` is a 2×2 reversible unquantized OpenJPEG 2.5.3 grayscale raw codestream used as the D5/D10 lossless JPEG 2000 reference.
 - `lossy-gray8.j2k` is the `jp2c` payload of an FFmpeg 7.1.1 `testsrc` 8×6 grayscale irreversible JPEG 2000.
+
+JPEG 2000 Lossless Only qualification cases are generated at test time from `lossless-gray8.j2k` by `tests/dicom/jpeg2000-qualify-fixtures.ts`:
+
+- a main-header COC that selects an irreversible 9/7 transform for component 0 under a reversible COD;
+- a main-header QCD rewritten from style 0 to scalar-expounded style 2 with zero mantissa;
+- a packet-header coding-pass count reduced from 19 to 16 on the first included HL code-block.
+
+OpenJPEG is used only as a development-time encoder for the pinned reversible original. It is not a runtime dependency.

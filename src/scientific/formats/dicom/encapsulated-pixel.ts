@@ -230,6 +230,12 @@ export const indexDicomEncapsulatedFrames = async (
     throw invalidInput('DICOM Extended Offset Table Lengths require an Extended Offset Table')
   }
   if (extended !== undefined && extendedLengths !== undefined) {
+    if (extended.vr !== 'OV') {
+      throw invalidInput('DICOM Extended Offset Table must use VR OV')
+    }
+    if (extendedLengths.vr !== 'OV') {
+      throw invalidInput('DICOM Extended Offset Table Lengths must use VR OV')
+    }
     if (extended.value === undefined) {
       throw limitExceeded('DICOM Extended Offset Table was not materialized')
     }

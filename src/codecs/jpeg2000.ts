@@ -770,7 +770,6 @@ interface Packet {
 interface ParsedCodestream {
   readonly size: SizeMarker
   readonly tiles: readonly Tile[]
-  readonly lossless: boolean
   readonly resolutionLevels: number
   readonly endOffset: number
 }
@@ -1981,9 +1980,6 @@ const parseCodestream = (
   return {
     size,
     tiles: [...tiles.values()].sort((left, right) => left.index - right.index),
-    lossless: [...tiles.values()].every((tile) =>
-      tile.components.every((component) => component.style.reversible),
-    ),
     resolutionLevels:
       1 +
       Math.max(
@@ -2022,6 +2018,54 @@ const quantStep = (
   const step = quantization.steps[sequentialIndex]
   if (!step) throw invalidInput('JPEG 2000 quantization step table is too short')
   return step
+}
+
+export interface Jpeg2000LosslessQualification {
+  readonly reversibleTransform: boolean
+  readonly unquantized: boolean
+  readonly bitPreserving: boolean
+}
+
+const expectedJpeg2000CodingPasses = (magnitudeBits: number, zeroBitPlanes: number): number => {
+  const remaining = magnitudeBits - zeroBitPlanes
+  if (remaining <= 0) return 0
+  return 1 + 3 * (remaining - 1)
+}
+
+const qualifyJpeg2000Codestream = (parsed: ParsedCodestream): Jpeg2000LosslessQualification => {
+  let reversibleTransform = true
+  let unquantized = true
+  let completeCodingPasses = true
+  for (const tile of parsed.tiles) {
+    for (const component of tile.components) {
+      if (!component.style.reversible) reversibleTransform = false
+      if (component.quantization.style !== 0) unquantized = false
+      let sequentialStep = 0
+      for (const resolution of component.resolutions) {
+        for (const band of resolution.bands) {
+          const step = quantStep(component.quantization, sequentialStep, resolution.level)
+          if (component.quantization.style !== 1) sequentialStep += 1
+          const magnitudeBits = component.quantization.guardBits + step.exponent - 1
+          const codedMagnitudeBits = magnitudeBits + component.roiShift
+          for (const block of band.blocks) {
+            if (!block.included) continue
+            let codingPasses = 0
+            for (const chunk of block.chunks) codingPasses += chunk.codingPasses
+            if (
+              codingPasses < expectedJpeg2000CodingPasses(codedMagnitudeBits, block.zeroBitPlanes)
+            ) {
+              completeCodingPasses = false
+            }
+          }
+        }
+      }
+    }
+  }
+  return {
+    reversibleTransform,
+    unquantized,
+    bitPreserving: reversibleTransform && unquantized && completeCodingPasses,
+  }
 }
 
 const decodeBand = (
@@ -2540,7 +2584,7 @@ const reconstructPixelBlocks = async function* (
 interface Jpeg2000Inspection {
   readonly container: Jp2Header
   readonly size: SizeMarker
-  readonly lossless: boolean
+  readonly lossless?: boolean
   readonly resolutionLevels: number
   readonly tiles: number
 }
@@ -2581,8 +2625,9 @@ const inspectCodestreamHeader = async (
   let size: SizeMarker | undefined
   let defaultStyle: CodingStyle | undefined
   const componentStyles = new Map<number, CodingStyle>()
-  const componentQuantizations = new Set<number>()
+  const componentQuantizations = new Map<number, Quantization>()
   const componentRoiShifts = new Set<number>()
+  let defaultQuantization: Quantization | undefined
   let sawQuantization = false
   while (position + 2 <= end) {
     markerCount += 1
@@ -2631,7 +2676,7 @@ const inspectCodestreamHeader = async (
       componentStyles.set(parsedStyle.component, parsedStyle.style)
     } else if (marker === 0xff5c) {
       if (sawQuantization) throw invalidInput('JPEG 2000 contains duplicate main QCD markers')
-      parseQuantization(payload, 0)
+      defaultQuantization = parseQuantization(payload, 0).quantization
       sawQuantization = true
     } else if (marker === 0xff5d) {
       if (!size) throw invalidInput('JPEG 2000 QCC precedes SIZ')
@@ -2642,7 +2687,7 @@ const inspectCodestreamHeader = async (
       if (componentQuantizations.has(parsed.component)) {
         throw invalidInput('JPEG 2000 duplicate main QCC marker')
       }
-      componentQuantizations.add(parsed.component)
+      componentQuantizations.set(parsed.component, parsed.quantization)
     } else if (marker === 0xff5e) {
       if (!size) throw invalidInput('JPEG 2000 RGN precedes SIZ')
       const parsed = parseRoiShift(payload, size.components.length < 257 ? 1 : 2)
@@ -2667,7 +2712,7 @@ const inspectCodestreamHeader = async (
     }
     position = markerEnd
   }
-  if (!size || !defaultStyle || !sawQuantization) {
+  if (!size || !defaultStyle || !sawQuantization || !defaultQuantization) {
     throw invalidInput('JPEG 2000 main header is incomplete')
   }
   if (position + 2 > end) throw truncatedInput('JPEG 2000 first tile-part is missing')
@@ -2676,10 +2721,15 @@ const inspectCodestreamHeader = async (
   const styles = size.components.map(
     (_, component) => componentStyles.get(component) ?? defaultStyle,
   )
+  const quantizations = size.components.map(
+    (_, component) => componentQuantizations.get(component) ?? defaultQuantization,
+  )
+  const reversibleTransform = styles.every((style) => style.reversible)
+  const unquantized = quantizations.every((quantization) => quantization.style === 0)
   return {
     container,
     size,
-    lossless: styles.every((style) => style.reversible),
+    ...(reversibleTransform && unquantized ? {} : { lossless: false as const }),
     resolutionLevels: 1 + Math.max(...styles.map((style) => style.decompositionLevels)),
     tiles:
       Math.ceil((size.xSize - size.tileXOrigin) / size.tileWidth) *
@@ -2745,7 +2795,7 @@ const metadataFor = (inspection: Jpeg2000Inspection): ImageMetadata => {
     components: inspection.container.components,
     channels: layout.outputChannels,
     channelBitDepths: inspection.container.bitDepths,
-    lossless: inspection.lossless,
+    ...(inspection.lossless === undefined ? {} : { lossless: inspection.lossless }),
     tiles: inspection.tiles,
     resolutionLevels: inspection.resolutionLevels,
   }
@@ -2874,7 +2924,9 @@ export interface Jpeg2000NativeGrayFrame {
   readonly height: number
   readonly precision: number
   readonly signed: boolean
-  readonly reversible: boolean
+  readonly reversibleTransform: boolean
+  readonly unquantized: boolean
+  readonly bitPreserving: boolean
   readonly samplesLittleEndian: Uint8Array
   readonly consumedBytes: number
 }
@@ -2922,9 +2974,8 @@ export const decodeJpeg2000NativeGrayFrame = (
   }
   const bytesPerSample = specification.precision <= 8 ? 1 : 2
   const samples = new Uint8Array(width * height * bytesPerSample)
-  let reversible = true
+  const qualification = qualifyJpeg2000Codestream(parsed)
   for (const tile of parsed.tiles) {
-    reversible = reversible && tile.style.reversible
     const rendered = reconstructTile(codestream, parsed, tile, 1)
     const component = rendered.components[0]
     if (component === undefined)
@@ -2954,7 +3005,9 @@ export const decodeJpeg2000NativeGrayFrame = (
     height,
     precision: specification.precision,
     signed: specification.signed,
-    reversible,
+    reversibleTransform: qualification.reversibleTransform,
+    unquantized: qualification.unquantized,
+    bitPreserving: qualification.bitPreserving,
     samplesLittleEndian: samples,
     consumedBytes: parsed.endOffset,
   })

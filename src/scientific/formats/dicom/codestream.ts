@@ -196,6 +196,7 @@ export const decodeDicomJpegLosslessFrame = (
   })
   const decoded = decodeJpegLosslessFrame(codestream, {
     requiredSelection: 1,
+    requiredPointTransform: 0,
     limits: {
       expectedWidth: description.columns,
       expectedHeight: description.rows,
@@ -231,10 +232,20 @@ export const decodeDicomJpeg2000Frame = (
   if (decoded.signed !== (description.pixelRepresentation === 'signed')) {
     throw invalidInput('DICOM JPEG 2000 signedness does not match Pixel Representation')
   }
-  if (description.encoding === 'jpeg2000-lossless' && !decoded.reversible) {
-    throw invalidInput(
-      'DICOM JPEG 2000 Lossless transfer syntax contains an irreversible codestream',
-    )
+  if (description.encoding === 'jpeg2000-lossless') {
+    if (!decoded.reversibleTransform) {
+      throw invalidInput(
+        'DICOM JPEG 2000 Lossless transfer syntax contains an irreversible component transform',
+      )
+    }
+    if (!decoded.unquantized) {
+      throw invalidInput('DICOM JPEG 2000 Lossless transfer syntax contains a quantized codestream')
+    }
+    if (!decoded.bitPreserving) {
+      throw invalidInput(
+        'DICOM JPEG 2000 Lossless transfer syntax contains a rate-truncated codestream',
+      )
+    }
   }
   return packDicomCodecSamples(decoded.samplesLittleEndian, decoded.precision, description)
 }

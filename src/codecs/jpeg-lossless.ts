@@ -17,6 +17,7 @@ export interface JpegLosslessDecodeLimits {
 
 export interface JpegLosslessDecodeOptions {
   readonly requiredSelection?: number
+  readonly requiredPointTransform?: number
   readonly limits?: JpegLosslessDecodeLimits
   readonly onFrameHeader?: (header: JpegLosslessFrameHeader) => void
 }
@@ -438,6 +439,14 @@ export const decodeJpegLosslessFrame = (
       if (options.requiredSelection !== undefined && selection !== options.requiredSelection) {
         throw unsupportedOperation(
           `JPEG lossless selection value ${selection} is unsupported for this transfer syntax`,
+        )
+      }
+      if (
+        options.requiredPointTransform !== undefined &&
+        pointTransform !== options.requiredPointTransform
+      ) {
+        throw invalidInput(
+          `JPEG lossless point transform ${pointTransform} is unsupported for this transfer syntax`,
         )
       }
       if (selection < 1 || selection > 7) {
