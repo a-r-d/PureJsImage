@@ -1,0 +1,153 @@
+docs/scientific-dicom-roadmap.md
+  h_9f4a25732fa0c1 1-1139
+  h_9f4a25732fa0c1 1140-1141
+README.md
+  h_9f4a25732fa0c1 63,69-71,73,218,225,276-278,280
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,230-231,477-484,541,547,577,622,646,652,661,667,676,682,691,697,706,712,721,727,736,742,751,757,772,787,796,802,817,826,832,841,847,856,862,871,877,886,892,901,907,922,931,937,952,967,976,982,991,997,1006,1012,1021,1027,1036,1042,1057,1072-1087,1102,1117,1126,1132,1141,1147,1151,1156,1159,1162,1276,1279,1282,1428,1431,1434,1473,1476,1479
+benchmark/scientific-readers/catalog.ts
+  h_9f4a25732fa0c1 409-415
+benchmark/scientific-readers/generated-fixtures.ts
+  h_9f4a25732fa0c1 3,5-10,1019-1042
+benchmark/scientific-readers/registry.ts
+  h_9f4a25732fa0c1 7,60
+benchmark/scientific-readers/workloads.ts
+  h_9f4a25732fa0c1 421-430
+biome.json
+  h_9f4a25732fa0c1 19-21
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 46-56,80,106,109-116,147-366,4681-4685
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 28-69
+browser-tests/types.ts
+  h_9f4a25732fa0c1 53-57
+capabilities/manifest.json
+  h_9f4a25732fa0c1 459-479
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 6956-6976
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 93-94
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 9,57-58,99-101,104-106,119,124-125,886-904
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,230-231,477-484,541,547,577,622,646,652,661,667,676,682,691,697,706,712,721,727,736,742,751,757,772,787,796,802,817,826,832,841,847,856,862,871,877,886,892,901,907,922,931,937,952,967,976,982,991,997,1006,1012,1021,1027,1036,1042,1057,1072-1087,1102,1117,1126,1132,1141,1147,1151,1156,1159,1162,1276,1279,1282,1428,1431,1434,1473,1476,1479
+docs-astro/src/pages/api.astro
+  h_9f4a25732fa0c1 84
+package.json
+  h_9f4a25732fa0c1 46,127-131,459-460
+scripts/bundle-size-budgets.ts
+  h_9f4a25732fa0c1 42,48
+scripts/bundle-size.ts
+  h_9f4a25732fa0c1 599
+scripts/check-package-types.ts
+  h_9f4a25732fa0c1 159,256-257
+scripts/dicom/generate-dictionary.ts
+  h_9f4a25732fa0c1 1-170
+scripts/dicom/ps3.6-2026c-registry.json
+  h_9f4a25732fa0c1 1-42452
+scripts/render-documentation.ts
+  h_9f4a25732fa0c1 891
+src/codecs/jpeg-lossless.ts
+  h_9f4a25732fa0c1 1-411
+src/codecs/jpeg2000.ts
+  h_9f4a25732fa0c1 2864-2948
+src/scientific/formats/dicom/codestream.ts
+  h_9f4a25732fa0c1 1-143
+src/scientific/formats/dicom/constants.ts
+  h_9f4a25732fa0c1 1-163
+src/scientific/formats/dicom/dictionary.generated.ts
+  h_9f4a25732fa0c1 1-22
+src/scientific/formats/dicom/dictionary.ts
+  h_9f4a25732fa0c1 1-165
+src/scientific/formats/dicom/elements.ts
+  h_9f4a25732fa0c1 1-508
+src/scientific/formats/dicom/encapsulated-pixel.ts
+  h_9f4a25732fa0c1 1-310
+src/scientific/formats/dicom/file-meta.ts
+  h_9f4a25732fa0c1 1-78
+src/scientific/formats/dicom/functional-groups.ts
+  h_9f4a25732fa0c1 1-244
+src/scientific/formats/dicom/limits.ts
+  h_9f4a25732fa0c1 1-116
+src/scientific/formats/dicom/metadata.ts
+  h_9f4a25732fa0c1 1-186
+src/scientific/formats/dicom/native-pixel.ts
+  h_9f4a25732fa0c1 1-117
+src/scientific/formats/dicom/parser.ts
+  h_9f4a25732fa0c1 1-203
+src/scientific/formats/dicom/pixel-description.ts
+  h_9f4a25732fa0c1 1-316
+src/scientific/formats/dicom/presentation.ts
+  h_9f4a25732fa0c1 1-204
+src/scientific/formats/dicom/rle.ts
+  h_9f4a25732fa0c1 1-126
+src/scientific/formats/dicom/sequences.ts
+  h_9f4a25732fa0c1 1-205
+src/scientific/formats/dicom/transfer-syntax.ts
+  h_9f4a25732fa0c1 1-124
+src/scientific/reader.ts
+  h_9f4a25732fa0c1 65-66
+src/scientific/readers/all.ts
+  h_9f4a25732fa0c1 5,15,18,20,28-29,31
+src/scientific/readers/dicom.ts
+  h_9f4a25732fa0c1 1-270
+tests/capability-manifest.test.ts
+  h_9f4a25732fa0c1 4,15,18,20,25,35,38,50,91
+tests/dicom-codestream.test.ts
+  h_9f4a25732fa0c1 1-340
+tests/dicom-dictionary.test.ts
+  h_9f4a25732fa0c1 1-57
+tests/dicom-oracle.test.ts
+  h_9f4a25732fa0c1 1-32
+tests/dicom-parser.test.ts
+  h_9f4a25732fa0c1 1-469
+tests/dicom-presentation.test.ts
+  h_9f4a25732fa0c1 1-100
+tests/dicom-rle.test.ts
+  h_9f4a25732fa0c1 1-76
+tests/dicom/generate-fixtures.ts
+  h_9f4a25732fa0c1 1-77
+tests/dicom/jpeg-encode.ts
+  h_9f4a25732fa0c1 1-41
+tests/dicom/jpeg-lossless-encode.ts
+  h_9f4a25732fa0c1 1-147
+tests/dicom/oracle.ts
+  h_9f4a25732fa0c1 1-126
+tests/dicom/part10-writer.ts
+  h_9f4a25732fa0c1 1-294
+tests/dicom/rle-encode.ts
+  h_9f4a25732fa0c1 1-69
+tests/dicom/tracking-source.ts
+  h_9f4a25732fa0c1 1-35
+tests/fixtures/dicom/README.md
+  h_9f4a25732fa0c1 1-20
+tests/fixtures/dicom/corpus.json
+  h_9f4a25732fa0c1 1-67
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 717-736
+tests/hdf5-dialect-probe.test.ts
+  h_9f4a25732fa0c1 16,151,164
+tests/jpeg-lossless.test.ts
+  h_9f4a25732fa0c1 1-35
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 10,12-13,31,557,722
+tests/scientific-dicom-reader.test.ts
+  h_9f4a25732fa0c1 1-767
+tests/scientific-reader-benchmark.test.ts
+  h_9f4a25732fa0c1 85
+tsconfig.browser.json
+  h_9f4a25732fa0c1 22
+tsconfig.json
+  h_9f4a25732fa0c1 31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c68c6e6d6d26ab8e6ad6931d87a707bae48bf2fb",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
