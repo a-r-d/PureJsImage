@@ -1,0 +1,24 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 51-57
+benchmark/optimization-log.md
+  h_9f4a25732fa0c1 84-107,114-115,361-379,413-431
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 4484-4487,4551-4573,4891-4946,4950,4953,4956-4979
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 1070-1072,1078-1081,1083-1086
+src/codecs/av1-symbol.ts
+  h_9f4a25732fa0c1 32-50,94-95,98-99
+src/codecs/av1-transform.ts
+  h_9f4a25732fa0c1 401,403-407,417
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a18c846b926641576ad0b73247f59a8782e2871e",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
