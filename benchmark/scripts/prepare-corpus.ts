@@ -1,5 +1,5 @@
-import { once } from 'node:events'
 import { execFileSync } from 'node:child_process'
+import { once } from 'node:events'
 import { mkdir, open, readFile, rm, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -35,6 +35,25 @@ const corpusDownloadHosts: ReadonlySet<string> = new Set([
 
 const avifBenchmarkSources: Readonly<Record<string, string>> = {
   'avif-fox-profile0-1204x800': 'fox.profile0.8bpc.yuv420.avif',
+}
+
+const writeProgressiveJpegFromTundra = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const source = join(corpusFilesDirectory, 'tundra-4000x3000.jpg')
+  const destination = fixturePath(fixture)
+  await sharp(source)
+    .jpeg({ progressive: true, quality: 80, chromaSubsampling: '4:2:0' })
+    .toFile(destination)
+  const metadata = await sharp(destination).metadata()
+  if (
+    metadata.format !== 'jpeg' ||
+    metadata.width !== fixture.expected.width ||
+    metadata.height !== fixture.expected.height ||
+    metadata.isProgressive !== true
+  ) {
+    throw new Error(
+      `Progressive JPEG generator produced ${metadata.format} ${metadata.width}x${metadata.height} progressive=${String(metadata.isProgressive)}`,
+    )
+  }
 }
 
 const writeAvifBenchmarkCopy = async (fixture: GeneratedCorpusFixture): Promise<void> => {
@@ -838,6 +857,8 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
   switch (fixture.generator) {
     case 'avif-benchmark-copy':
       return writeAvifBenchmarkCopy(fixture)
+    case 'progressive-jpeg-from-tundra':
+      return writeProgressiveJpegFromTundra(fixture)
     case 'bmp-gradient':
       return writeBmpGradient(fixture)
     case 'ico-dib24':

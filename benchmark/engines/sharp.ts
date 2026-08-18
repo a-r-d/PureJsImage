@@ -26,6 +26,11 @@ const encode = (image: SharpImage, operation: EncodeOperation): SharpImage => {
       ...(operation.lossless !== undefined ? { lossless: operation.lossless } : {}),
     })
   }
+  if (operation.format === 'avif') {
+    return output.avif({
+      ...(operation.quality !== undefined ? { quality: operation.quality } : {}),
+    })
+  }
   if (operation.format === 'tiff') return output.tiff()
   throw new Error(`Sharp benchmark output is unsupported: ${operation.format}`)
 }

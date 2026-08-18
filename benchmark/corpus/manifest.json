@@ -621,6 +621,17 @@
       }
     },
     {
+      "id": "tundra-4000x3000-progressive",
+      "file": "tundra-4000x3000-progressive.jpg",
+      "generator": "progressive-jpeg-from-tundra",
+      "expected": {
+        "format": "jpeg",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e"
+      }
+    },
+    {
       "id": "ico-mixed-16-32-256",
       "file": "ico-mixed-16-32-256.ico",
       "generator": "ico-mixed",

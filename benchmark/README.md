@@ -401,9 +401,12 @@ node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-si
 
 This is the primary common-web profile. It covers JPEG metadata, resize, crop,
 orientation, and conversion; transparent and opaque PNG workflows; the
-100-megapixel PNG downscale; representative WebP and TIFF conversion; and AVIF
-metadata, full decode, resize, and conversion. The AVIF photograph is a
-checksum-pinned libavif fixture already used by the codec conformance suite.
+100-megapixel PNG downscale; representative WebP and TIFF conversion; AVIF
+metadata, full decode, resize, crop+resize, and JPEG→AVIF conversion; JPEG→lossy
+WebP; a Lambda-style JPEG thumbnail; progressive JPEG resize; and lossless WebP
+alpha decode. The progressive JPEG fixture is a deterministic Sharp re-encode of
+the pinned tundra photograph. The AVIF photograph is a checksum-pinned libavif
+fixture already used by the codec conformance suite.
 An engine is marked unsupported when its public API or installed codec build
 cannot express the exact workflow.
 `purejsimage` uses the default TypeScript codecs. `purejsimage-wasm` explicitly registers the

@@ -100,6 +100,8 @@ const supportedCompetitorWorkflows = new Set([
   'stress-100mp-downscale',
   'bmp-large-resize-jpeg',
   'tiff-large-resize-jpeg',
+  'lambda-twilio-mms-jpeg-1024',
+  'jpeg-progressive-resize-1200',
 ])
 
 export const engine: Engine = {
@@ -115,8 +117,27 @@ export const engine: Engine = {
     if (workflow.id === 'auto-orient-6') {
       return 'image-js does not expose EXIF auto-orientation through its image API'
     }
-    if (workflow.id.startsWith('avif-')) return 'image-js 1.7.0 has no AVIF decoder'
-    if (workflow.id === 'webp-large-resize-jpeg') return 'image-js has no WebP decoder'
+    const input = workflow.batch ? workflow.inputs.join(',') : workflow.input
+    if (workflow.id.startsWith('avif-') || input.includes('avif')) {
+      return 'image-js 1.7.0 has no AVIF decoder'
+    }
+    if (
+      workflow.operations?.some(
+        (operation) => operation.type === 'encode' && operation.format === 'avif',
+      )
+    ) {
+      return 'image-js 1.7.0 has no AVIF encoder'
+    }
+    if (workflow.id.startsWith('webp-') || input.includes('webp')) {
+      return 'image-js has no WebP decoder'
+    }
+    if (
+      workflow.operations?.some(
+        (operation) => operation.type === 'encode' && operation.format === 'webp',
+      )
+    ) {
+      return 'image-js has no WebP encoder'
+    }
     if (workflow.id === 'heif-iphone-resize-jpeg') return 'image-js has no HEIC decoder'
     return 'image-js cannot express this workflow with equivalent semantics'
   },

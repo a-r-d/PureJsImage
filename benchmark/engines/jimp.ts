@@ -227,6 +227,13 @@ export const engine: Engine = {
     ) {
       return 'Jimp 1.6.0 has no WebP encoder'
     }
+    if (
+      workflow.operations?.some(
+        (operation) => operation.type === 'encode' && operation.format === 'avif',
+      )
+    ) {
+      return 'Jimp 1.6.0 has no AVIF encoder'
+    }
     return undefined
   },
   execute: async ({ workflow, inputs }): Promise<EngineExecution> => {

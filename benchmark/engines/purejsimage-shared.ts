@@ -29,7 +29,7 @@ interface PureImage {
   pfm(): { toBuffer(): Promise<Uint8Array> }
   ppm(): { toBuffer(): Promise<Uint8Array> }
   encode(
-    format: 'bmp' | 'hdr' | 'jpeg' | 'netpbm' | 'png' | 'qoi' | 'tga' | 'tiff' | 'webp',
+    format: 'avif' | 'bmp' | 'hdr' | 'jpeg' | 'netpbm' | 'png' | 'qoi' | 'tga' | 'tiff' | 'webp',
     options: {
       quality?: number
       compressionLevel?: number

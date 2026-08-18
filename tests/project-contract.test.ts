@@ -308,6 +308,7 @@ describe('package contract', () => {
     }
     expect(readme).toContain('docs-astro/public/assets/readme/whole-slide-viewer.jpg')
     expect(readme).toContain('docs-astro/public/assets/readme/scientific-explorer.jpg')
+    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-speed.svg')
     expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.svg')
     expect(readme).toContain('docs-astro/public/assets/readme/brand-mark.svg')
     const rasterBytes = [
@@ -315,6 +316,9 @@ describe('package contract', () => {
       'docs-astro/public/assets/readme/scientific-explorer.jpg',
     ].reduce((sum, path) => sum + readFileSync(path).byteLength, 0)
     expect(rasterBytes).toBeLessThan(1.2 * 1024 * 1024)
+    expect(readFileSync('docs-astro/public/assets/readme/web-codec-speed.svg', 'utf8')).toContain(
+      '<svg',
+    )
     expect(readFileSync('docs-astro/public/assets/readme/web-codec-memory.svg', 'utf8')).toContain(
       '<svg',
     )
@@ -326,6 +330,7 @@ describe('package contract', () => {
     const docsPerformance = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
     expect(readme).toContain('https://purejsimage.com/performance/')
     expect(readme).toContain('**Web codec benchmarks')
+    expect(readme).toContain('docs-astro/public/assets/readme/web-codec-speed.svg')
     expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.svg')
     expect(readme).toContain('https://purejsimage.com/performance/#web-codec-benchmarks')
     expect(readme).not.toContain('competitors-speed-2026-08-10.png')
@@ -341,6 +346,17 @@ describe('package contract', () => {
       expect(svg).toContain('<title')
       expect(svg).toContain(`width="${chart.width}"`)
       expect(svg).toContain(`height="${chart.height}"`)
+    }
+    for (const metric of ['speed', 'memory'] as const) {
+      const chart = documentationData.ordinary.charts[metric]
+      if (chart === undefined) throw new Error(`Missing ordinary ${metric} chart`)
+      const svg = readFileSync(`docs-astro/public/${chart.src}`, 'utf8')
+      expect(svg).toContain('Progressive JPEG resize')
+      expect(svg).toContain('Lambda JPEG thumbnail')
+      expect(svg).toContain('Lossless WebP alpha')
+      expect(svg).toContain('JPEG → WebP')
+      expect(svg).toContain('AVIF crop + resize')
+      expect(svg).toContain('JPEG → AVIF')
     }
     for (const chart of Object.values(documentationData.scientific.charts)) {
       const svg = readFileSync(`docs-astro/public/${chart}`, 'utf8')
@@ -927,6 +943,19 @@ describe('benchmark contract', () => {
     expect(jpegCompatibilityFixtureIds.every((id) => sourceIds.has(id))).toBe(true)
   })
 
+  it('pins a deterministic progressive JPEG generated from the tundra photograph', () => {
+    const fixture = corpusManifest.generated.find(({ id }) => id === 'tundra-4000x3000-progressive')
+    expect(fixture).toMatchObject({
+      generator: 'progressive-jpeg-from-tundra',
+      expected: { format: 'jpeg', width: 4000, height: 3000 },
+    })
+    expect(fixture?.expected.sha256).toMatch(/^[0-9a-f]{64}$/u)
+    expect(fixture?.expected.sha256).not.toBe(
+      '0000000000000000000000000000000000000000000000000000000000000000',
+    )
+    expect(fixture?.expected.sha256).not.toBe('PENDING')
+  })
+
   it('keeps every profile populated and ordered by scope', () => {
     const smoke = workflowsForProfile('smoke')
     const standard = workflowsForProfile('standard')
@@ -952,8 +981,29 @@ describe('benchmark contract', () => {
     expect(webp.length).toBe(13)
     expect(smallCodecs.length).toBe(18)
     expect(competitors).toHaveLength(14)
-    expect(webCodecs).toHaveLength(15)
-    expect(webCodecs.filter(({ id }) => id.startsWith('avif-'))).toHaveLength(3)
+    expect(webCodecs).toHaveLength(21)
+    expect(webCodecs.filter(({ id }) => id.startsWith('avif-'))).toHaveLength(4)
+    expect(webCodecs.map(({ id }) => id)).toEqual(
+      expect.arrayContaining([
+        'avif-fox-crop-resize-jpeg',
+        'jpeg-to-avif',
+        'jpeg-to-webp-lossy',
+        'jpeg-progressive-resize-1200',
+        'lambda-twilio-mms-jpeg-1024',
+        'webp-lossless-alpha-png',
+      ]),
+    )
+    const chartSource = readFileSync('benchmark/scripts/render-competitor-charts.ts', 'utf8')
+    for (const id of [
+      'jpeg-progressive-resize-1200',
+      'lambda-twilio-mms-jpeg-1024',
+      'webp-lossless-alpha-png',
+      'jpeg-to-webp-lossy',
+      'avif-fox-crop-resize-jpeg',
+      'jpeg-to-avif',
+    ]) {
+      expect(chartSource).toContain(`id: '${id}'`)
+    }
     expect(
       competitors
         .filter(

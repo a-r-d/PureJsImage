@@ -129,22 +129,22 @@
   "ordinary": {
     "charts": {
       "speed": {
-        "height": 1714,
-        "src": "assets/web-codecs-speed-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "height": 3130,
+        "src": "assets/web-codecs-speed-2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
         "width": 2400
       },
       "quality": {
-        "height": 898,
-        "src": "assets/web-codecs-quality-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "height": 1150,
+        "src": "assets/web-codecs-quality-2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
         "width": 2400
       },
       "memory": {
-        "height": 1714,
-        "src": "assets/web-codecs-memory-2026-08-17T17-24-44-463Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+        "height": 3130,
+        "src": "assets/web-codecs-memory-2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
         "width": 2400
       }
     },
-    "createdAt": "2026-08-17T17:24:44.463Z",
+    "createdAt": "2026-08-18T01:10:00.015Z",
     "engineVersions": [
       {
         "id": "purejsimage",
@@ -191,18 +191,18 @@
       "runner": "local",
       "v8": "13.6.233.17-node.49"
     },
-    "fixtureManifestHash": "2cd8742e661c23c23f7e4009c8b0e3d9516f77b0ac86873435e5f9082476c494",
+    "fixtureManifestHash": "20d9b39e77da4238954d00e85fb649e9bc6cf68fc599f1f60fc6e4ae33796bb6",
     "headline": {
-      "jimpPeakRssBytes": 1246949376,
-      "memoryReductionPercent": 84.5005929093949,
-      "pureJsImagePeakRssBytes": 193269760,
+      "jimpPeakRssBytes": 1247023104,
+      "memoryReductionPercent": 84.85493465243769,
+      "pureJsImagePeakRssBytes": 188862464,
       "workflow": "24-megapixel northstar photo pipeline"
     },
-    "reportJson": "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.json",
-    "reportMarkdown": "benchmark/results/public/web-codecs-2026-08-17T17-24-44-463Z.md",
+    "reportJson": "benchmark/results/public/web-codecs-2026-08-18T01-10-00-015Z.json",
+    "reportMarkdown": "benchmark/results/public/web-codecs-2026-08-18T01-10-00-015Z.md",
     "statusCounts": {
-      "pass": 89,
-      "unsupported": 16
+      "pass": 122,
+      "unsupported": 25
     }
   },
   "scientific": {

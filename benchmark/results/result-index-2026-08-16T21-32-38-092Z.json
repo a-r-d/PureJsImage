@@ -1,9 +1,32 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T21:32:38.246Z",
+  "generatedAt": "2026-08-18T01:13:09.040Z",
   "repository": "a-r-d/PureJsImage",
-  "resultCount": 207,
+  "resultCount": 208,
   "results": [
+    {
+      "profile": "web-codecs",
+      "date": "2026-08-18T01:10:00.015Z",
+      "commit": "1abd15dfe188638e3c713efde1a1777e50c4bd04",
+      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "resultPaths": [
+        "benchmark/results/2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
+        "benchmark/results/2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
+      ],
+      "engineVersions": {
+        "purejsimage": "0.11.0 (workspace)",
+        "purejsimage-wasm": "0.11.0 (workspace WASM)",
+        "jimp": "1.6.0",
+        "sharp": "0.35.3",
+        "sharp-single-thread": "0.35.3",
+        "image-js": "1.7.0",
+        "jsquash": "avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      },
+      "fixtureManifestHash": "20d9b39e77da4238954d00e85fb649e9bc6cf68fc599f1f60fc6e4ae33796bb6",
+      "validationStatus": "passed",
+      "eligibleForDocumentationHeadlines": true,
+      "eligibleForPerformanceHeadline": true
+    },
     {
       "profile": "scientific-competitors-baseline",
       "date": "2026-08-16T21:31:57.753Z",

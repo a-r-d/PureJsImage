@@ -68,6 +68,7 @@ const fixtureGenerators: Readonly<Record<FixtureGenerator, true>> = {
   'ico-dib32': true,
   'ico-mixed': true,
   'odd-rgba': true,
+  'progressive-jpeg-from-tundra': true,
   'rgba-gradient': true,
   'seeded-noise': true,
   'small-codec-corpus': true,
