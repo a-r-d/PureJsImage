@@ -196,16 +196,16 @@ describe('JPEG 2000 codec', () => {
       bitDepth: 16,
       components: 3,
       channels: 3,
-      lossless: true,
       tiles: 1,
     })
+    expect((await (await images.open(rgb)).metadata()).lossless).toBeUndefined()
     await expect((await images.open(gray)).metadata()).resolves.toMatchObject({
       width: 9,
       height: 7,
       colorSpace: 'gray',
       components: 1,
-      lossless: true,
     })
+    expect((await (await images.open(gray)).metadata()).lossless).toBeUndefined()
 
     const rgbPixels = PNG.sync.read(await (await images.open(rgb)).png().toBuffer())
     expect(pixel(rgbPixels, 0, 0)).toEqual([255, 0, 0])

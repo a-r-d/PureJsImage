@@ -6,7 +6,7 @@
   },
   "support": {
     "experimentalCodecs": ["HEIF / HEIC (experimental)"],
-    "scientificReaderCount": 32,
+    "scientificReaderCount": 33,
     "scientificReaderFamilies": [
       {
         "id": "common-raster-whole-slide",
@@ -54,7 +54,8 @@
           "purejsimage/mrc",
           "purejsimage/nrrd",
           "purejsimage/meta-image",
-          "purejsimage/nifti"
+          "purejsimage/nifti",
+          "purejsimage/dicom"
         ]
       },
       {
@@ -95,18 +96,18 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 222045,
-      "gzipBytes": 279002,
-      "minifiedBytes": 938686
+      "brotliBytes": 281154,
+      "gzipBytes": 352171,
+      "minifiedBytes": 1218648
     },
     "allStableCodecs": {
-      "brotliBytes": 257943,
-      "gzipBytes": 312471,
-      "minifiedBytes": 887337
+      "brotliBytes": 257381,
+      "gzipBytes": 312522,
+      "minifiedBytes": 887457
     },
     "commonWebCodecs": {
-      "brotliBytes": 192241,
-      "gzipBytes": 229679,
+      "brotliBytes": 192178,
+      "gzipBytes": 229680,
       "minifiedBytes": 621664
     },
     "core": {
@@ -115,13 +116,13 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5223591,
+      "bytes": 5875077,
       "productionPackageCount": 1
     },
     "packageVersion": "0.11.0",
     "scientificPlatform": {
-      "brotliBytes": 39118,
-      "gzipBytes": 45886,
+      "brotliBytes": 39173,
+      "gzipBytes": 45887,
       "minifiedBytes": 158032
     }
   },
@@ -881,6 +882,25 @@
       "packageExport": "purejsimage/scientific/readers/nifti",
       "resourceModel": "single",
       "supportBoundary": "Single-file NIfTI-1 and NIfTI-2 scalar numeric arrays, optionally bounded whole-file gzip, with endian conversion, scl_slope/inter transformation, voxel spacing and units, and preserved qform/sform metadata; paired hdr/img and complex, RGB, binary, and extension payloads are outside this subset."
+    },
+    {
+      "benchmarkCoverage": {
+        "baselineFailed": 0,
+        "baselineSupported": 0,
+        "rangeFailed": 0,
+        "rangeSupported": 0
+      },
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "extensions": ["dcm", "dicom"],
+      "family": "medical-volume-interchange",
+      "format": "DICOM Part 10 Image",
+      "id": "purejsimage/dicom",
+      "nativePrecision": "Native numeric samples",
+      "oracle": "",
+      "packageExport": "purejsimage/scientific/readers/dicom",
+      "resourceModel": "single",
+      "supportBoundary": "Local DICOM Part 10 image instances using Implicit or Explicit VR Little Endian native uncompressed MONOCHROME1/2 pixels, Encapsulated Uncompressed Explicit VR Little Endian, RLE Lossless, JPEG Baseline 8-bit, JPEG Lossless Process 14 Selection Value 1, JPEG 2000 Lossless, and JPEG 2000, with 8-bit or 16-bit allocation as the transfer syntax permits, signed or unsigned stored values, 12-bit-in-16 normalization, homogeneous multi-frame selection, Pixel Spacing, linear rescale slope/intercept metadata, and Window Center/Width presets. Stored samples are not rescaled, windowed, or inverted. Selected encapsulated frames read only their offset table and fragments. Encapsulated Uncompressed and RLE require one fragment per frame. JPEG families may split a frame across fragments only with a valid Basic Offset Table. Empty offset tables with ambiguous multi-fragment frame boundaries remain unsupported; the reader does not scan for JPEG EOI markers to guess frames. Color, LUT-based presentation, DICOMweb, series discovery, private-tag interpretation, JPEG Lossless Process 14 other selection values, JPEG-LS, HTJ2K, and other compressed transfer syntaxes remain unsupported. Not validated for diagnostic use."
     },
     {
       "benchmarkCoverage": {

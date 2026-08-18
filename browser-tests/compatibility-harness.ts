@@ -43,6 +43,17 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { createScientificFileContext } from '../src/scientific/browser.ts'
+import {
+  encapsulatedUncompressedExplicitVrLittleEndianUid,
+  jpegBaseline8BitUid,
+  jpegLosslessSv1Uid,
+} from '../src/scientific/formats/dicom/constants.ts'
+import {
+  decodeDicomText,
+  dicomTag,
+  findDicomElement,
+  parseDicomPart10,
+} from '../src/scientific/formats/dicom/parser.ts'
 import { openHdf5File } from '../src/scientific/formats/hdf5-file.ts'
 import type { Hdf5FilterPipeline } from '../src/scientific/formats/hdf5-filter-message.ts'
 import { decodeHdf5ChunkFilters, hdf5Fletcher32 } from '../src/scientific/formats/hdf5-filters.ts'
@@ -66,6 +77,7 @@ import {
 } from '../src/scientific/index.ts'
 import { blockfileReader } from '../src/scientific/readers/blockfile.ts'
 import { bmpReader } from '../src/scientific/readers/bmp.ts'
+import { dicomReader } from '../src/scientific/readers/dicom.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { digitalSurfReader } from '../src/scientific/readers/digital-surf.ts'
 import { ebsdTextReader } from '../src/scientific/readers/ebsd-text.ts'
@@ -91,9 +103,18 @@ import { x3pReader } from '../src/scientific/readers/x3p.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
-import { MemorySource } from '../src/source.ts'
+import { BlobSource, MemorySource } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 import { encodeTiffDocument, geoTiffProfile, openTiffDocument } from '../src/tiff/index.ts'
+import { encodeJpegLosslessGray } from '../tests/dicom/jpeg-lossless-encode.ts'
+import {
+  dicomDecimalBytes,
+  dicomEncapsulatedFragments,
+  dicomIdentityElements,
+  dicomMonochromePixelElements,
+  dicomTextBytes,
+  writeDicomPart10,
+} from '../tests/dicom/part10-writer.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([
@@ -122,6 +143,231 @@ const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
   if (!response.ok) throw new Error(`Fixture request failed: ${response.status} ${path}`)
   return new Uint8Array(await response.arrayBuffer())
+}
+
+const dicomReaderFileSmoke = async (): Promise<BrowserWorkflowResult> => {
+  const pixels = Uint8Array.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+  const bytes = writeDicomPart10({
+    transferSyntax: 'explicit-vr-le',
+    dataset: [
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 4, columns: 4, bitsAllocated: 8 }),
+      { tag: dicomTag.rescaleIntercept, vr: 'DS', value: dicomDecimalBytes(-1024) },
+      { tag: dicomTag.rescaleSlope, vr: 'DS', value: dicomDecimalBytes(1) },
+      { tag: dicomTag.windowCenter, vr: 'DS', value: dicomDecimalBytes(40) },
+      { tag: dicomTag.windowWidth, vr: 'DS', value: dicomDecimalBytes(80) },
+      { tag: dicomTag.pixelData, vr: 'OB', value: pixels },
+    ],
+  })
+  const file = new File([Uint8Array.from(bytes)], 'synthetic.dcm', { type: 'application/dicom' })
+  const document = await createScientificLibrary({ readers: [dicomReader] }).open(
+    createScientificFileContext(file, { readerId: 'purejsimage/dicom' }),
+  )
+  const dataset = await document.openDataset(document.datasets[0]?.id ?? '')
+  const values: number[] = []
+  for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
+    values.push(...block.data)
+  }
+  if (values.join(',') !== [...pixels].join(',')) {
+    throw new Error(`Browser DICOM reader samples were ${values.join(',')}`)
+  }
+  const transform = document.metadata.storedValueTransform
+  const presets = document.metadata.voiPresets
+  const firstPreset = Array.isArray(presets) ? presets[0] : undefined
+  if (
+    transform === null ||
+    typeof transform !== 'object' ||
+    Array.isArray(transform) ||
+    !('slope' in transform) ||
+    !('intercept' in transform) ||
+    transform.slope !== 1 ||
+    transform.intercept !== -1024 ||
+    firstPreset === null ||
+    typeof firstPreset !== 'object' ||
+    Array.isArray(firstPreset) ||
+    firstPreset.center !== 40 ||
+    firstPreset.width !== 80
+  ) {
+    throw new Error('Browser DICOM reader missing rescale or VOI metadata')
+  }
+  return {
+    detail:
+      'public DICOM reader opened an in-memory File and returned stored uint8 samples plus rescale/VOI metadata',
+    outputBytes: values.length,
+  }
+}
+
+const dicomEncapsulatedFileSmoke = async (): Promise<BrowserWorkflowResult> => {
+  const pixels = Uint8Array.of(9, 8, 7, 6)
+  const bytes = writeDicomPart10({
+    transferSyntax: 'explicit-vr-le',
+    transferSyntaxUid: encapsulatedUncompressedExplicitVrLittleEndianUid,
+    dataset: [
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 2, columns: 2, bitsAllocated: 8 }),
+      {
+        tag: dicomTag.pixelData,
+        vr: 'OB',
+        fragments: dicomEncapsulatedFragments([[pixels]], 'empty'),
+      },
+    ],
+  })
+  const file = new File([Uint8Array.from(bytes)], 'encapsulated.dcm', { type: 'application/dicom' })
+  const document = await createScientificLibrary({ readers: [dicomReader] }).open(
+    createScientificFileContext(file, { readerId: 'purejsimage/dicom' }),
+  )
+  const dataset = await document.openDataset(document.datasets[0]?.id ?? '')
+  const values: number[] = []
+  for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
+    values.push(...block.data)
+  }
+  if (values.join(',') !== [...pixels].join(',')) {
+    throw new Error(`Browser encapsulated DICOM samples were ${values.join(',')}`)
+  }
+  return {
+    detail: 'public DICOM reader decoded encapsulated uncompressed File fragments',
+    outputBytes: values.length,
+  }
+}
+
+const dicomJpegBaselineFileSmoke = async (): Promise<BrowserWorkflowResult> => {
+  const createEncoder = jpegCodec.createEncoder
+  if (createEncoder === undefined) throw new Error('JPEG encoder is unavailable')
+  const sink = new Uint8ArraySink()
+  const encoder = await createEncoder(sink, {
+    width: 4,
+    height: 2,
+    pixelFormat: 'gray8',
+    options: { quality: 90 },
+  })
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width: 4,
+    height: 2,
+    stride: 4,
+    format: 'gray8',
+    data: Uint8Array.of(0, 40, 80, 120, 160, 180, 200, 220),
+  })
+  await encoder.finish()
+  const jpeg = sink.toUint8Array()
+  const bytes = writeDicomPart10({
+    transferSyntax: 'explicit-vr-le',
+    transferSyntaxUid: jpegBaseline8BitUid,
+    dataset: [
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 2, columns: 4, bitsAllocated: 8 }),
+      {
+        tag: dicomTag.pixelData,
+        vr: 'OB',
+        fragments: dicomEncapsulatedFragments([[jpeg]], 'empty'),
+      },
+    ],
+  })
+  const file = new File([Uint8Array.from(bytes)], 'jpeg.dcm', { type: 'application/dicom' })
+  const document = await createScientificLibrary({ readers: [dicomReader] }).open(
+    createScientificFileContext(file, { readerId: 'purejsimage/dicom' }),
+  )
+  const dataset = await document.openDataset(document.datasets[0]?.id ?? '')
+  const values: number[] = []
+  for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
+    values.push(...block.data)
+  }
+  const createDecoder = jpegCodec.createDecoder
+  if (createDecoder === undefined) throw new Error('JPEG decoder is unavailable')
+  const oracleDecoder = await createDecoder(new MemorySource(jpeg), {
+    maxWidth: 8,
+    maxHeight: 8,
+    maxPixels: 64,
+    maxInputBytes: jpeg.byteLength,
+    maxFrames: 1,
+    maxDecodedBytes: 256,
+  })
+  const oracle: number[] = []
+  for await (const block of oracleDecoder.decode()) {
+    for (let row = 0; row < block.height; row += 1) {
+      for (let column = 0; column < block.width; column += 1) {
+        oracle.push(block.data[row * block.stride + column * 3] ?? 0)
+      }
+    }
+  }
+  if (values.length !== oracle.length) {
+    throw new Error(`Browser JPEG Baseline DICOM sample count was ${values.length}`)
+  }
+  for (let index = 0; index < values.length; index += 1) {
+    if (Math.abs((values[index] ?? 0) - (oracle[index] ?? 0)) > 1) {
+      throw new Error(
+        `Browser JPEG Baseline DICOM samples ${values.join(',')} exceeded lossy tolerance versus ${oracle.join(',')}`,
+      )
+    }
+  }
+  return {
+    detail: 'public DICOM reader decoded JPEG Baseline 8-bit File fragments within lossy tolerance',
+    outputBytes: values.length,
+  }
+}
+
+const dicomJpegLosslessFileSmoke = async (): Promise<BrowserWorkflowResult> => {
+  const samples = [0, 32, 64, 96, 128, 160, 192, 224]
+  const jpeg = encodeJpegLosslessGray(4, 2, samples)
+  const bytes = writeDicomPart10({
+    transferSyntax: 'explicit-vr-le',
+    transferSyntaxUid: jpegLosslessSv1Uid,
+    dataset: [
+      ...dicomIdentityElements(),
+      ...dicomMonochromePixelElements({ rows: 2, columns: 4, bitsAllocated: 8 }),
+      {
+        tag: dicomTag.pixelData,
+        vr: 'OB',
+        fragments: dicomEncapsulatedFragments([[jpeg]], 'empty'),
+      },
+    ],
+  })
+  const file = new File([Uint8Array.from(bytes)], 'jpeg-lossless.dcm', {
+    type: 'application/dicom',
+  })
+  const document = await createScientificLibrary({ readers: [dicomReader] }).open(
+    createScientificFileContext(file, { readerId: 'purejsimage/dicom' }),
+  )
+  const dataset = await document.openDataset(document.datasets[0]?.id ?? '')
+  const values: number[] = []
+  for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
+    values.push(...block.data)
+  }
+  if (values.join(',') !== samples.join(',')) {
+    throw new Error(`Browser JPEG Lossless DICOM samples were ${values.join(',')}`)
+  }
+  return {
+    detail: 'public DICOM reader decoded JPEG Lossless SV1 File fragments',
+    outputBytes: values.length,
+  }
+}
+
+const dicomParserFileSmoke = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = writeDicomPart10({
+    transferSyntax: 'explicit-vr-le',
+    dataset: [
+      ...dicomIdentityElements(),
+      { tag: dicomTag.modality, vr: 'CS', value: dicomTextBytes('OT') },
+      ...dicomMonochromePixelElements({ rows: 4, columns: 4, bitsAllocated: 16 }),
+      { tag: dicomTag.pixelData, vr: 'OW', value: new Uint8Array(32).fill(0xab) },
+    ],
+  })
+  const file = new File([Uint8Array.from(bytes)], 'synthetic.dcm', { type: 'application/dicom' })
+  const parsed = await parseDicomPart10(new BlobSource(file))
+  const modality = decodeDicomText(
+    findDicomElement(parsed.dataset.elements, dicomTag.modality)?.value ?? new Uint8Array(),
+  )
+  if (parsed.transferSyntaxUid !== '1.2.840.10008.1.2.1' || modality !== 'OT') {
+    throw new Error(`Browser DICOM parser returned ${parsed.transferSyntaxUid} / ${modality}`)
+  }
+  if (parsed.pixelData?.valueLength !== 32 || parsed.stats.sourceBytesRead >= bytes.byteLength) {
+    throw new Error('Browser DICOM parser read Pixel Data while parsing metadata')
+  }
+  return {
+    detail: 'package-private DICOM parser read an in-memory File without Pixel Data payload reads',
+    outputBytes: parsed.stats.sourceBytesRead,
+  }
 }
 
 const hdf5Filters = async (): Promise<BrowserWorkflowResult> => {
@@ -4438,6 +4684,11 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   heifPqDisplay,
   hdf5DatasetBlocks,
   hdf5Filters,
+  dicomEncapsulatedFileSmoke,
+  dicomJpegBaselineFileSmoke,
+  dicomJpegLosslessFileSmoke,
+  dicomParserFileSmoke,
+  dicomReaderFileSmoke,
   hdf5NcemEmd,
   hdf5VeloxEmd,
   hdf5VeloxSpectrum,

@@ -19,6 +19,7 @@
     "src/browser.ts",
     "src/scientific/browser.ts",
     "src/scientific/readers/all.ts",
+    "src/scientific/formats/dicom/parser.ts",
     "src/operations/index.ts",
     "src/analysis/index.ts",
     "src/analysis/project-entry.ts",

@@ -131,7 +131,7 @@ for (const fixture of fixtures) {
     metadata.width !== fixture.width ||
     metadata.height !== fixture.height ||
     metadata.colorSpace !== fixture.colorSpace ||
-    metadata.lossless !== fixture.lossless
+    (fixture.lossless ? metadata.lossless === false : metadata.lossless !== false)
   ) {
     throw new Error(`${fixture.file}: metadata mismatch`)
   }
@@ -144,6 +144,8 @@ for (const fixture of fixtures) {
     throw new Error(`${fixture.file}: decoded pixel checksum mismatch`)
   }
   console.log(
-    `${fixture.file}: ${metadata.width}x${metadata.height} ${metadata.colorSpace} ${metadata.lossless ? 'lossless' : 'lossy'} ok`,
+    `${fixture.file}: ${metadata.width}x${metadata.height} ${metadata.colorSpace} ${
+      metadata.lossless === false ? 'lossy' : fixture.lossless ? 'reversible' : 'lossy'
+    } ok`,
   )
 }

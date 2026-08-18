@@ -888,6 +888,7 @@ const readerFamilyIds: Readonly<Record<string, readonly string[]>> = {
     'purejsimage/nrrd',
     'purejsimage/meta-image',
     'purejsimage/nifti',
+    'purejsimage/dicom',
   ],
   'spectroscopy-detector-interchange': [
     'purejsimage/envi',

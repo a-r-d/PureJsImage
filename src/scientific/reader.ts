@@ -62,8 +62,8 @@ export type ScientificProbeLimitOptions = Partial<ScientificProbeLimits>
 
 export const defaultScientificProbeLimits: Readonly<ScientificProbeLimits> = Object.freeze({
   maxTotalBytes: 65_536,
-  maxTotalReads: 32,
-  maxReaders: 32,
+  maxTotalReads: 64,
+  maxReaders: 64,
   maxReadBytes: 16_384,
   maxCompanionResolutions: 32,
 })

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "description": "Synthetic DICOM Part 10 fixtures for parser D0/D1 tests. No patient identifiers.",
+  "files": [
+    {
+      "localFile": "synthetic-explicit-le.dcm",
+      "sha256": "1d99cfa72c4d92b5d18ac70a4039961d9949407a2b45d98149dc3f296fde50ac",
+      "source": {
+        "generator": "tests/dicom/part10-writer.ts",
+        "revision": "workspace-generated",
+        "license": "MIT",
+        "redistribution": "included-test-only"
+      },
+      "transferSyntaxUid": "1.2.840.10008.1.2.1",
+      "expected": {
+        "modality": "ECG",
+        "rows": 4,
+        "columns": 4,
+        "sopClassUid": "1.2.840.10008.5.1.4.1.1.7"
+      }
+    },
+    {
+      "localFile": "synthetic-implicit-le.dcm",
+      "sha256": "70b4e0621008abe39850920f11448d1e4c9f58d87d415f1955ea3d6f25044274",
+      "source": {
+        "generator": "tests/dicom/part10-writer.ts",
+        "revision": "workspace-generated",
+        "license": "MIT",
+        "redistribution": "included-test-only"
+      },
+      "transferSyntaxUid": "1.2.840.10008.1.2",
+      "expected": {
+        "modality": "ECG",
+        "rows": 4,
+        "columns": 4,
+        "sopClassUid": "1.2.840.10008.5.1.4.1.1.7"
+      }
+    }
+  ]
+}
