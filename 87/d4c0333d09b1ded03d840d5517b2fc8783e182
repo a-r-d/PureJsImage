@@ -1,0 +1,38 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 7-8,1026-1027
+README.md
+  h_9f4a25732fa0c1 63,293
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 178
+benchmark/results/tiff-competitor-conformance.json
+  h_9f4a25732fa0c1 18
+benchmark/results/tiff-competitor-conformance.md
+  h_9f4a25732fa0c1 11
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 122
+docs-astro/src/data/library-comparison.ts
+  h_9f4a25732fa0c1 235
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 178
+docs-astro/src/pages/demo.astro
+  h_9f4a25732fa0c1 397,399
+docs-astro/src/pages/tiff-comparison.astro
+  h_9f4a25732fa0c1 84-85
+package-lock.json
+  h_9f4a25732fa0c1 3,9
+package.json
+  h_9f4a25732fa0c1 3
+tests/tiff-competitor-harness.test.ts
+  h_9f4a25732fa0c1 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "87d4c0333d09b1ded03d840d5517b2fc8783e182",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
