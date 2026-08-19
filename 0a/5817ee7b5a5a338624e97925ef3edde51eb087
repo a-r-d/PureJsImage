@@ -1,0 +1,14 @@
+.github/workflows/ci.yml
+  h_9f4a25732fa0c1 51-53,76-77,84-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "0a5817ee7b5a5a338624e97925ef3edde51eb087",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
