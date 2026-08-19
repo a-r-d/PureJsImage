@@ -1,0 +1,16 @@
+docs-astro/src/pages/api.astro
+  h_9f4a25732fa0c1 383,387-388,390
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 1567,1574-1579
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2915fd1b4059958b726cc811ea3bc64b6b282498",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
