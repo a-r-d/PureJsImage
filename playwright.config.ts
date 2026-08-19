@@ -11,10 +11,10 @@ export default defineConfig({
   testDir: './browser-tests',
   testMatch: '**/*.pw.ts',
   testIgnore: '**/viewer-benchmarks.pw.ts',
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: 1,
+  workers: process.env.CI ? 4 : undefined,
   reporter: 'line',
   timeout: 120_000,
   use: {
