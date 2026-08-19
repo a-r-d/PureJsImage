@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { RasterBlock } from '../src/raster.ts'
 import { ScientificReaderRegistry } from '../src/scientific/reader.ts'
-import { tiffReader } from '../src/scientific/readers/tiff.ts'
+import { createTiffReader } from '../src/scientific/readers/tiff.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 import manifest from './fixtures/kyfromabove/manifest.json' with { type: 'json' }
 const live = process.env.KYFROMABOVE_LIVE === '1'
@@ -27,7 +27,15 @@ describe.skipIf(!live)('live KyFromAbove JPEG COG smoke', () => {
         blockBytes: 65_536,
         maxCacheBytes: 1_048_576,
       })
-      const document = await new ScientificReaderRegistry([tiffReader]).open({
+      const document = await new ScientificReaderRegistry([
+        createTiffReader({
+          limits: {
+            maxInputBytes: source.size,
+            maxPixels: 1_073_741_824,
+            maxDecodedBytes: 4_294_967_295,
+          },
+        }),
+      ]).open({
         primary: { id: asset.itemId, name: asset.itemId, source },
       })
       const dataset = await document.openDataset('series-0')

@@ -4,15 +4,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-19
+
 ### Added
 
-- Added native scientific-raster decoding for TIFF JPEG compression 7 so Cloud Optimized
-  GeoTIFFs such as KyFromAbove three-band and four-band orthos open without the RGB display
-  decoder. Region reads stay tile-bounded. Complete and JPEGTables-composed streams are
-  supported. Photometric RGB ExtraSamples=0 keeps four data bands for CIR and band math;
-  photometric YCbCr three-band samples are converted RGB. Old-style JPEG compression 6
-  remains display-only. Inspected public KyFromAbove Phase 1–3 layouts are recorded in
-  `tests/fixtures/kyfromabove/manifest.json`. Live smoke is opt-in (`KYFROMABOVE_LIVE=1`).
+- Added tile-bounded scientific-raster decoding for TIFF JPEG compression 7. Three-component RGB
+  and YCbCr tiles decode to RGB, while four-component photometric-RGB files with ExtraSamples=0
+  preserve all four components for CIR and band math instead of passing through the RGB-only
+  display path. Complete and JPEGTables-composed streams are supported. Public KyFromAbove Phase
+  1–3 four-band orthophoto layouts were inspected and recorded in
+  `tests/fixtures/kyfromabove/manifest.json`. Old-style JPEG compression 6 remains display-only.
 
 ### Changed
 
@@ -21,8 +22,9 @@ All notable changes to PureJsImage are documented in this file.
   retained as the source lifetime. Concurrent signaled reads of one block share one fetch;
   the network request aborts only when the source lifetime ends or no consumer still needs
   it. Stats now report transfer bytes, unique source-byte coverage, coalesced consumers,
-  and aborted consumers.
-
+  and aborted consumers. Migration: callers that previously used `signal` to dispose the
+  returned source must use `lifetimeSignal`; use `openSignal` when cancellation should apply
+  only while opening the source.
 
 - Speed up 8-bit RGBA PNG decode by copying unfiltered scanline bytes instead of
   sampling each channel, and by walking CRC-32 with an indexed loop instead of
@@ -31,7 +33,6 @@ All notable changes to PureJsImage are documented in this file.
   `png-alpha-resize` improved 9%. Imazen PNG stayed 162 pass / 14 rejected-safely.
   CRC-32 now has ISO-HDLC and Node zlib oracles; decode tests cover 32-row
   blocks, last-column and cross-block crops, and 16-bit RGBA high-byte output.
-
 
 ## [0.12.0] - 2026-08-18
 
@@ -1053,4 +1054,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.10.0]: https://github.com/a-r-d/PureJsImage/compare/v0.9.0...v0.10.0
 [0.11.0]: https://github.com/a-r-d/PureJsImage/compare/v0.10.0...v0.11.0
 [0.12.0]: https://github.com/a-r-d/PureJsImage/compare/v0.11.0...v0.12.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.12.0...HEAD
+[0.13.0]: https://github.com/a-r-d/PureJsImage/compare/v0.12.0...v0.13.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.13.0...HEAD
