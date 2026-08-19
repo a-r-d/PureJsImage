@@ -1,0 +1,36 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 19-26
+README.md
+  h_9f4a25732fa0c1 79,303
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 386
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 119
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179
+docs-astro/src/pages/api.astro
+  h_9f4a25732fa0c1 418
+docs-astro/src/scripts/wsi-worker.ts
+  h_9f4a25732fa0c1 104
+src/sources/http-range.ts
+  h_9f4a25732fa0c1 1,24-38,46,48-51,54-57,65-75,104,133-160,167,171,174,177,179-180,193,241,244,250,253,268,288-289,294,297-299,302-303,315-326,342-344,352-370,372,374-376,378-381,383-387,391,433,442-443,449,456-458,468-469
+tests/hdf5-file.test.ts
+  h_9f4a25732fa0c1 565-566,569-570
+tests/http-range-source.test.ts
+  h_9f4a25732fa0c1 1-252
+tests/source-contract.test.ts
+  h_9f4a25732fa0c1 154-163,209-218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2493ace9c113dfebcfc1d52784d54718eb3cf9d2",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
