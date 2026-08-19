@@ -16,6 +16,7 @@ import { openTiffDocument } from '../../../src/tiff/index.ts'
 import type { TiffDirectory, TiffDocument } from '../../../src/tiff/types.ts'
 
 type OutputFormat =
+  | 'avif'
   | 'bmp'
   | 'hdr'
   | 'jpeg'
@@ -117,6 +118,7 @@ const webpLosslessGroup = requiredElement('demo-webp-lossless-group', HTMLElemen
 const webpLossless = requiredElement('demo-webp-lossless', HTMLInputElement)
 const jpegProgressiveGroup = requiredElement('demo-jpeg-progressive-group', HTMLElement)
 const jpegProgressive = requiredElement('demo-jpeg-progressive', HTMLInputElement)
+const avifNote = requiredElement('demo-avif-note', HTMLElement)
 const autoOrient = requiredElement('demo-auto-orient', HTMLInputElement)
 const resizeEnabled = requiredElement('demo-resize-enabled', HTMLInputElement)
 const resizeFields = requiredElement('demo-resize-fields', HTMLElement)
@@ -135,6 +137,14 @@ const resultPreview = requiredElement('demo-result-preview', HTMLImageElement)
 const resultFallback = requiredElement('demo-result-fallback', HTMLElement)
 const resultSummary = requiredElement('demo-result-summary', HTMLElement)
 const downloadLink = requiredElement('demo-download', HTMLAnchorElement)
+const convertOriginalPane = requiredElement('demo-convert-original-pane', HTMLElement)
+const convertOriginal = requiredElement('demo-convert-original', HTMLImageElement)
+const convertOriginalFallback = requiredElement('demo-convert-original-fallback', HTMLElement)
+const convertOriginalTitle = requiredElement('demo-convert-original-title', HTMLElement)
+const convertOriginalSummary = requiredElement('demo-convert-original-summary', HTMLElement)
+const convertEmpty = requiredElement('demo-convert-empty', HTMLElement)
+const compareGrid = requiredElement('demo-compare', HTMLElement)
+const metricsPanel = requiredElement('demo-metrics', HTMLDListElement)
 const elapsedMetric = requiredElement('demo-metric-elapsed', HTMLElement)
 const providerMetric = requiredElement('demo-metric-provider', HTMLElement)
 const comparisonMetric = requiredElement('demo-metric-comparison', HTMLElement)
@@ -250,6 +260,7 @@ const outputTypes: Readonly<
     { readonly extension: string; readonly label: string; readonly mime: string }
   >
 > = Object.freeze({
+  avif: { extension: 'avif', label: 'AVIF', mime: 'image/avif' },
   bmp: { extension: 'bmp', label: 'BMP', mime: 'image/bmp' },
   hdr: { extension: 'hdr', label: 'Radiance HDR', mime: 'image/vnd.radiance' },
   jpeg: { extension: 'jpg', label: 'JPEG', mime: 'image/jpeg' },
@@ -360,6 +371,16 @@ resultPreview.addEventListener('error', () => {
   resultFallback.textContent =
     'The conversion succeeded. This browser does not natively preview this output format.'
 })
+convertOriginal.addEventListener('load', () => {
+  convertOriginal.hidden = false
+  convertOriginalFallback.hidden = true
+})
+convertOriginal.addEventListener('error', () => {
+  convertOriginal.hidden = true
+  convertOriginalFallback.hidden = false
+  convertOriginalFallback.textContent =
+    'This browser cannot preview the source format, but PureJsImage can still convert it.'
+})
 
 const revokeUrl = (url: string | undefined): void => {
   if (url !== undefined) URL.revokeObjectURL(url)
@@ -370,6 +391,8 @@ const resetResult = (): void => {
   resultObjectUrl = undefined
   resultPreview.removeAttribute('src')
   resultPanel.hidden = true
+  metricsPanel.hidden = true
+  convertEmpty.hidden = false
   downloadLink.removeAttribute('href')
   elapsedMetric.textContent = 'Not available'
   providerMetric.textContent = 'Not available'
@@ -379,9 +402,24 @@ const resetResult = (): void => {
   outputBytesMetric.textContent = 'Not available'
 }
 
+const showConvertOriginal = (file: File, summary: string): void => {
+  convertOriginalPane.hidden = false
+  compareGrid.classList.add('has-original')
+  convertOriginalTitle.textContent = file.name
+  convertOriginalSummary.textContent = summary
+  if (sourceObjectUrl === undefined) return
+  setImagePreview(
+    convertOriginal,
+    convertOriginalFallback,
+    sourceObjectUrl,
+    `Original preview of ${file.name}`,
+  )
+}
+
 const outputFormatValue = (): OutputFormat => {
   const value = outputFormat.value
   if (
+    value === 'avif' ||
     value === 'bmp' ||
     value === 'hdr' ||
     value === 'jpeg' ||
@@ -411,6 +449,7 @@ const updateOutputOptions = (): void => {
   qualityGroup.hidden = format !== 'jpeg' && format !== 'webp'
   webpLosslessGroup.hidden = format !== 'webp'
   jpegProgressiveGroup.hidden = format !== 'jpeg'
+  avifNote.hidden = format !== 'avif'
   qualityInput.disabled = format === 'webp' && webpLossless.checked
 }
 
@@ -1025,6 +1064,7 @@ const prepareTiffViewer = async (file: File): Promise<void> => {
   setViewerControls(true)
   updateViewerFacts(viewerSelection)
   sourceDetails.textContent = `${first.directory.width.toLocaleString()} × ${first.directory.height.toLocaleString()} · ${formatBytes(file.size)} · ${choices.length} viewable image${choices.length === 1 ? '' : 's'}`
+  convertOriginalSummary.textContent = sourceDetails.textContent
   sourceBadges.replaceChildren(
     createBadge(document.bigTiff ? 'BigTIFF' : 'TIFF'),
     createBadge(`${first.directory.bitsPerSample.join('/')}-bit`),
@@ -1062,6 +1102,7 @@ const prepareImageViewer = async (
   setViewerControls(true, false)
   updateViewerFacts(selection)
   sourceDetails.textContent = `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()} · ${metadata.mimeType} · ${formatBytes(file.size)}`
+  convertOriginalSummary.textContent = sourceDetails.textContent
   describeMetadata(metadata)
   fitViewer()
   setViewerLoading(false)
@@ -1136,6 +1177,7 @@ const inspectFile = async (file: File): Promise<void> => {
   sourcePanel.hidden = false
   sourceName.textContent = file.name
   sourceDetails.textContent = `${formatBytes(file.size)} · detecting from file bytes…`
+  showConvertOriginal(file, `${formatBytes(file.size)} · detecting from file bytes…`)
   sourceBadges.replaceChildren(createBadge('Inspecting'))
   addLog('info', `Selected ${file.name} (${formatBytes(file.size)}). No bytes leave this browser.`)
 
@@ -1387,6 +1429,9 @@ const plannedPipeline = (
   } else if (format === 'tga') {
     image = image.tga({ alpha: selectedMetadata.hasAlpha })
     steps.push(selectedMetadata.hasAlpha ? '32-bit TGA' : '24-bit TGA')
+  } else if (format === 'avif') {
+    image = image.avif()
+    steps.push('constrained AVIF')
   } else {
     image = image.tiff({ compression: 'deflate', predictor: 'horizontal', layout: 'strips' })
     steps.push('Deflate TIFF')
@@ -1431,9 +1476,14 @@ const recordComparison = (key: string, mode: DecodeMode, milliseconds: number): 
 }
 
 const convert = async (): Promise<void> => {
-  if (!selectedFile || !selectedImage || !selectedMetadata) return
+  if (!selectedFile || !selectedImage || !selectedMetadata) {
+    operationStatus.textContent = 'Choose a file or sample first.'
+    return
+  }
   convertButton.disabled = true
+  convertButton.setAttribute('aria-busy', 'true')
   controls.disabled = true
+  convertLabel.textContent = 'Converting…'
   operationStatus.textContent = 'Converting in this browser…'
   resetResult()
 
@@ -1496,7 +1546,10 @@ const convert = async (): Promise<void> => {
     downloadLink.href = resultObjectUrl
     downloadLink.download = `${safeBaseName(selectedFile.name)}-converted.${outputType.extension}`
     downloadLink.type = outputType.mime
+    convertEmpty.hidden = true
+    metricsPanel.hidden = false
     resultPanel.hidden = false
+    compareGrid.scrollIntoView({ block: 'start', inline: 'nearest' })
     operationStatus.textContent = 'Conversion complete. Preview or download the result.'
 
     addLog(
@@ -1519,8 +1572,10 @@ const convert = async (): Promise<void> => {
     operationStatus.textContent = errorMessage(error)
     addLog('error', errorMessage(error))
   } finally {
+    convertButton.removeAttribute('aria-busy')
     controls.disabled = false
     convertButton.disabled = false
+    updateAccelerationStatus()
   }
 }
 

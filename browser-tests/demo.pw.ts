@@ -120,6 +120,11 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
   await expect(page.locator('#demo-source-details')).toContainText('640 × 480')
   await expect(page.locator('#demo-source-badges')).toContainText('PNG')
   await expect(page.locator('#demo-controls')).toBeEnabled()
+  const convertBox = await page.locator('#demo-convert').boundingBox()
+  expect(convertBox).not.toBeNull()
+  expect(convertBox?.y ?? -1).toBeGreaterThanOrEqual(0)
+  expect((convertBox?.y ?? 0) + (convertBox?.height ?? 0)).toBeLessThanOrEqual(720)
+
   await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
   await expect(page.locator('#demo-view-panel')).toBeHidden()
 
@@ -471,4 +476,42 @@ test('converts a progressive JPEG with AC-refinement ZRLs to WebP', async ({ pag
   await expect(page.locator('#demo-log-list')).toContainText('lossless WebP')
   await expect(page.locator('#demo-log-list')).toContainText('WebP output validated as 200×133')
   await expect(page.locator('#demo-log-list')).not.toContainText('ERROR')
+})
+
+test('converts to constrained AVIF and keeps original beside output on a large screen', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/demo/')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
+
+  const input = await readFile('benchmark/.tmp/browser-tests/fixtures/benchmark-input.png')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/png',
+    name: 'compare-source.png',
+  })
+
+  await expect(page.locator('#demo-controls')).toBeEnabled()
+  await expect(page.locator('#demo-output-format')).toContainText('AVIF')
+  await page.locator('#demo-output-format').selectOption('avif')
+  await expect(page.locator('#demo-avif-note')).toBeVisible()
+  await page.locator('#demo-resize-enabled').check()
+  await page.locator('#demo-resize-width').fill('64')
+  await page.locator('#demo-convert').click()
+
+  await expect(page.locator('#demo-result')).toBeVisible()
+  await expect(page.locator('#demo-result-summary')).toContainText('AVIF · 64 ×')
+  await expect(page.locator('#demo-convert-original-pane')).toBeVisible()
+  await expect(page.locator('#demo-log-list')).toContainText('constrained AVIF')
+  await expect(page.locator('#demo-log-list')).toContainText('AVIF output validated as 64×')
+  await expect(page.locator('#demo-log-list')).not.toContainText('ERROR')
+
+  const original = await page.locator('#demo-convert-original-pane').boundingBox()
+  const converted = await page.locator('#demo-result').boundingBox()
+  expect(original).not.toBeNull()
+  expect(converted).not.toBeNull()
+  expect(Math.abs((original?.y ?? 0) - (converted?.y ?? 0))).toBeLessThan(48)
+  expect(converted?.x ?? 0).toBeGreaterThan((original?.x ?? 0) + 80)
 })

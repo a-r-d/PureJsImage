@@ -4,6 +4,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Browser convert demo now keeps the original and converted images side by side on
+  large screens, and the output list includes constrained AVIF encode.
+
+
 ## [0.13.0] - 2026-08-19
 
 ### Added

@@ -9,7 +9,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <div>
           <p class="eyebrow">Browser image viewer + converter</p>
           <h1 id="workspace-title">Open an image. Choose what to do.</h1>
-          <p>View any supported image with pan and zoom, or switch to Convert and create JPEG, PNG, WebP, BMP, or TIFF output. The selected mode never changes when you choose a file.</p>
+          <p>View any supported image with pan and zoom, or switch to Convert and create JPEG, PNG, WebP, AVIF, TIFF, and other first-party output. The selected mode never changes when you choose a file.</p>
         </div>
         <p class="demo-local-summary"><strong>No server upload</strong><span>Your files stay in this tab. Public samples load from their named source only when you click Open here.</span></p>
       </div>
@@ -302,14 +302,42 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <section class="demo-mode-panel" id="demo-convert-panel" role="tabpanel" aria-labelledby="demo-mode-convert" hidden>
           <div class="demo-convert-layout">
             <form class="demo-controls-card" id="demo-form" aria-label="Conversion options">
+              <div class="demo-convert-actions">
+                <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span id="demo-convert-label">Convert with TypeScript</span></button>
+                <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
+              </div>
               <fieldset id="demo-controls" disabled>
                 <legend>Conversion options</legend>
                 <div class="demo-control-section">
                   <div class="demo-control-heading"><span>Output</span><small>First-party encoder</small></div>
-                  <label class="demo-field"><span>Convert to</span><select id="demo-output-format"><option value="jpeg">JPEG</option><option value="png">PNG</option><option value="webp">WebP</option><option value="bmp">BMP</option><option value="tiff">TIFF (Deflate)</option><option value="hdr">Radiance HDR</option><option value="qoi">QOI</option><option value="pbm">PBM</option><option value="pgm">PGM</option><option value="ppm">PPM</option><option value="pam">PAM</option><option value="pfm">PFM</option><option value="tga">TGA</option></select></label>
+                  <label class="demo-field"><span>Convert to</span>
+                    <select id="demo-output-format">
+                      <optgroup label="Web">
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="webp">WebP</option>
+                        <option value="avif">AVIF</option>
+                      </optgroup>
+                      <optgroup label="Documents">
+                        <option value="tiff">TIFF (Deflate)</option>
+                        <option value="bmp">BMP</option>
+                        <option value="qoi">QOI</option>
+                        <option value="tga">TGA</option>
+                      </optgroup>
+                      <optgroup label="Scientific / raw">
+                        <option value="hdr">Radiance HDR</option>
+                        <option value="pbm">PBM</option>
+                        <option value="pgm">PGM</option>
+                        <option value="ppm">PPM</option>
+                        <option value="pam">PAM</option>
+                        <option value="pfm">PFM</option>
+                      </optgroup>
+                    </select>
+                  </label>
                   <label class="demo-field" id="demo-quality-group"><span>Quality <output id="demo-quality-value" for="demo-quality">82</output></span><input id="demo-quality" type="range" min="1" max="100" value="82"></label>
                   <label class="demo-check" id="demo-webp-lossless-group" hidden><input id="demo-webp-lossless" type="checkbox"><span><strong>Lossless WebP</strong><small>Ignore quality and preserve exact pixels.</small></span></label>
                   <label class="demo-check" id="demo-jpeg-progressive-group"><input id="demo-jpeg-progressive" type="checkbox"><span><strong>Progressive JPEG</strong><small>Write a six-scan progressive file.</small></span></label>
+                  <p class="demo-format-note" id="demo-avif-note" hidden>Constrained 8-bit YUV 4:2:0 still encode with fixed quantization. Resize large photos first.</p>
                 </div>
                 <div class="demo-control-section">
                   <div class="demo-control-heading"><span>Transforms</span><small>Applied in order</small></div>
@@ -331,36 +359,44 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                   <label class="demo-check"><input id="demo-wasm-enabled" type="checkbox"><span><strong>Rust/WASM JPEG decoder</strong><small>Eligible baseline JPEG input can use the optional accelerator. Other work remains TypeScript.</small></span></label>
                   <p class="demo-accelerator-status" id="demo-accelerator-status">TypeScript reference selected.</p>
                 </div>
-                <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span id="demo-convert-label">Convert with TypeScript</span></button>
               </fieldset>
-              <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
             </form>
 
-            <div class="demo-convert-note">
-              <p class="demo-card-kicker">Complete pipeline</p>
-              <h3>Decode, transform, encode, validate.</h3>
-              <p>The converter reopens its own output and verifies its dimensions before offering the download. Whole-slide inputs should use a visible clip rather than converting the complete base level.</p>
-              <div><span>INPUT</span><i></i><span>PIXELS</span><i></i><span>OUTPUT</span></div>
+            <div class="demo-convert-stage">
+              <div class="demo-compare" id="demo-compare">
+                <article class="demo-compare-pane" id="demo-convert-original-pane" hidden>
+                  <p class="demo-card-kicker">Original</p>
+                  <h2 id="demo-convert-original-title">No image selected</h2>
+                  <p id="demo-convert-original-summary">Choose a file or sample to preview it here.</p>
+                  <div class="demo-compare-frame"><img id="demo-convert-original" alt=""><div class="demo-preview-fallback" id="demo-convert-original-fallback">Drop a file or open a sample.</div></div>
+                </article>
+
+                <div class="demo-convert-note" id="demo-convert-empty">
+                  <p class="demo-card-kicker">Complete pipeline</p>
+                  <h3>Converted output appears here.</h3>
+                  <p>The converter reopens its own output and verifies dimensions before offering a download. Whole-slide inputs should use a visible clip rather than converting the complete base level.</p>
+                  <div><span>INPUT</span><i></i><span>PIXELS</span><i></i><span>OUTPUT</span></div>
+                </div>
+
+                <article class="demo-compare-pane demo-result" id="demo-result" aria-labelledby="result-title" hidden>
+                  <p class="demo-card-kicker">Converted</p>
+                  <h2 id="result-title">Converted image</h2>
+                  <p id="demo-result-summary"></p>
+                  <div class="demo-compare-frame demo-result-preview-frame"><img id="demo-result-preview" alt=""><div class="demo-preview-fallback" id="demo-result-fallback" hidden></div></div>
+                  <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
+                </article>
+              </div>
+
+              <dl class="demo-metrics" id="demo-metrics" aria-label="Conversion measurements" hidden>
+                <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">Not available</dd><small>Decode, transform, and encode</small></div>
+                <div><dt>Decode mode</dt><dd id="demo-metric-provider">Not available</dd><small>Enabled mode; selectors may fall back</small></div>
+                <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">Not available</dd><small>Same file and settings in this tab</small></div>
+                <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">Not available</dd><small>Browser estimate at checkpoints</small></div>
+                <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">Not available</dd><small>Input + output, not scratch memory</small></div>
+                <div><dt>Output size</dt><dd id="demo-metric-output">Not available</dd><small>Validated encoded Blob</small></div>
+              </dl>
             </div>
           </div>
-
-          <section class="demo-result" id="demo-result" aria-labelledby="result-title" hidden>
-            <div class="demo-result-preview-wrap">
-              <p class="demo-card-kicker">Validated output</p>
-              <h2 id="result-title">Your converted image is ready.</h2>
-              <p id="demo-result-summary"></p>
-              <div class="demo-result-preview-frame"><img id="demo-result-preview" alt=""><div class="demo-preview-fallback" id="demo-result-fallback" hidden></div></div>
-              <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
-            </div>
-            <dl class="demo-metrics" aria-label="Conversion measurements">
-              <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">Not available</dd><small>Decode, transform, and encode</small></div>
-              <div><dt>Decode mode</dt><dd id="demo-metric-provider">Not available</dd><small>Enabled mode; selectors may fall back</small></div>
-              <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">Not available</dd><small>Same file and settings in this tab</small></div>
-              <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">Not available</dd><small>Browser estimate at checkpoints</small></div>
-              <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">Not available</dd><small>Input + output, not scratch memory</small></div>
-              <div><dt>Output size</dt><dd id="demo-metric-output">Not available</dd><small>Validated encoded Blob</small></div>
-            </dl>
-          </section>
         </section>
           </div>
         </div>
