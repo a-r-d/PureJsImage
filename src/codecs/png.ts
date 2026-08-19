@@ -820,6 +820,10 @@ const convertRow = (
   outputOffset: number,
 ): void => {
   const { bitDepth, colorType, palette, transparency } = description
+  if (bitDepth === 8 && colorType === 6 && transparency === undefined) {
+    output.set(row.subarray(cropX * 4, (cropX + width) * 4), outputOffset)
+    return
+  }
   let target = outputOffset
 
   for (let x = cropX; x < cropX + width; x += 1) {

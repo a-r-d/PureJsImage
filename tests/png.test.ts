@@ -169,6 +169,72 @@ describe('PNG pixel pipeline', () => {
     }
   })
 
+  it('copies every 8-bit RGBA pixel across a 32-row decode block', async () => {
+    const input = rgbaPng(13, 40)
+    const reference = PNG.sync.read(input)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect({ width: output.width, height: output.height }).toEqual({ width: 13, height: 40 })
+    expect(output.data).toEqual(reference.data)
+  })
+
+  it('crops the last column and a strip that crosses a 32-row block', async () => {
+    const source = PNG.sync.read(rgbaPng(11, 40))
+    const input = PNG.sync.write(source)
+    const lastColumn = PNG.sync.read(
+      await (await Image.open(input)).crop({ x: 10, y: 0, width: 1, height: 40 }).png().toBuffer(),
+    )
+    const crossing = PNG.sync.read(
+      await (await Image.open(input)).crop({ x: 3, y: 28, width: 5, height: 8 }).png().toBuffer(),
+    )
+
+    expect({ width: lastColumn.width, height: lastColumn.height }).toEqual({ width: 1, height: 40 })
+    expect({ width: crossing.width, height: crossing.height }).toEqual({ width: 5, height: 8 })
+    for (let y = 0; y < 40; y += 1) {
+      expect(lastColumn.data.subarray(y * 4, y * 4 + 4)).toEqual(
+        source.data.subarray((y * 11 + 10) * 4, (y * 11 + 11) * 4),
+      )
+    }
+    for (let y = 0; y < 8; y += 1) {
+      const sourceStart = ((y + 28) * 11 + 3) * 4
+      expect(crossing.data.subarray(y * 20, y * 20 + 20)).toEqual(
+        source.data.subarray(sourceStart, sourceStart + 20),
+      )
+    }
+  })
+
+  it('keeps 16-bit RGBA on the high-byte path instead of copying packed samples', async () => {
+    const input = specializedPng(
+      2,
+      1,
+      16,
+      6,
+      Uint8Array.of(
+        0,
+        0x12,
+        0x34,
+        0x56,
+        0x78,
+        0x9a,
+        0xbc,
+        0xde,
+        0xf0,
+        0x01,
+        0x02,
+        0x03,
+        0x04,
+        0x05,
+        0x06,
+        0x07,
+        0x08,
+      ),
+    )
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(Array.from(output.data)).toEqual([0x12, 0x56, 0x9a, 0xde, 0x01, 0x03, 0x05, 0x07])
+    expect(Array.from(output.data)).not.toEqual([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0])
+  })
+
   it('decodes palette and 16-bit grayscale PNG variants', async () => {
     const palette = specializedPng(
       2,

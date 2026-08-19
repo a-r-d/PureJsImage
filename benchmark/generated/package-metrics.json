@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.12.0",
-    "unpackedPackageBytes": 5910767,
+    "unpackedPackageBytes": 5911017,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -718,13 +718,13 @@
         "packageExports": ["purejsimage/scientific/readers/x3p"],
         "sourceEntries": ["./src/scientific/readers/x3p.ts"]
       },
-      "gzipBytes": 15440,
+      "gzipBytes": 15452,
       "id": "scientific-reader-x3p",
       "implementation": "package-core",
-      "minifiedJsBytes": 46559,
+      "minifiedJsBytes": 46588,
       "name": "Scientific reader: X3P surface exchange",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 13487
+      "brotliBytes": 13534
     },
     {
       "category": "purejsimage-entry",
@@ -793,13 +793,13 @@
         "packageExports": ["purejsimage/scientific/readers/png"],
         "sourceEntries": ["./src/scientific/readers/png.ts"]
       },
-      "gzipBytes": 24190,
+      "gzipBytes": 24231,
       "id": "scientific-reader-png",
       "implementation": "package-core",
-      "minifiedJsBytes": 72251,
+      "minifiedJsBytes": 72353,
       "name": "Scientific reader: PNG",
       "recordedBaselineMinifiedBytes": 67385,
-      "brotliBytes": 21121
+      "brotliBytes": 21108
     },
     {
       "category": "purejsimage-entry",
@@ -898,13 +898,13 @@
         "packageExports": ["purejsimage/scientific/readers/ome-zarr"],
         "sourceEntries": ["./src/scientific/readers/ome-zarr.ts"]
       },
-      "gzipBytes": 35362,
+      "gzipBytes": 35371,
       "id": "scientific-reader-ome-zarr",
       "implementation": "package-core",
-      "minifiedJsBytes": 116644,
+      "minifiedJsBytes": 116673,
       "name": "Scientific reader: OME-Zarr",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 30780
+      "brotliBytes": 30791
     },
     {
       "category": "purejsimage-entry",
@@ -1153,13 +1153,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 357334,
+      "gzipBytes": 357375,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 1234962,
+      "minifiedJsBytes": 1235064,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 285211
+      "brotliBytes": 285385
     },
     {
       "category": "purejsimage-entry",
@@ -1183,13 +1183,13 @@
         "packageExports": ["purejsimage/codecs/png"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/png.ts"]
       },
-      "gzipBytes": 31826,
+      "gzipBytes": 31863,
       "id": "codec-png",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 96748,
+      "minifiedJsBytes": 96850,
       "name": "Core + PNG",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 27461
+      "brotliBytes": 27559
     },
     {
       "category": "purejsimage-entry",
@@ -1258,13 +1258,13 @@
         "packageExports": ["purejsimage/codecs/ico"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/ico.ts"]
       },
-      "gzipBytes": 34920,
+      "gzipBytes": 34961,
       "id": "codec-ico",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 106122,
+      "minifiedJsBytes": 106224,
       "name": "Core + ICO",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 30183
+      "brotliBytes": 30203
     },
     {
       "category": "purejsimage-entry",
@@ -1394,13 +1394,13 @@
         "packageExports": ["purejsimage/codecs/web"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/web.ts"]
       },
-      "gzipBytes": 229680,
+      "gzipBytes": 229720,
       "id": "codecs-web",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 621664,
+      "minifiedJsBytes": 621766,
       "name": "Core + common web codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 192178
+      "brotliBytes": 192426
     },
     {
       "category": "purejsimage-entry",
@@ -1425,13 +1425,13 @@
         "packageExports": ["purejsimage/codecs/all"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
       },
-      "gzipBytes": 313301,
+      "gzipBytes": 313338,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 890330,
+      "minifiedJsBytes": 890432,
       "name": "Core + all stable codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 258673
+      "brotliBytes": 258372
     },
     {
       "category": "competitor",
@@ -1440,13 +1440,13 @@
       "entry": {
         "packageExports": ["purejsimage"]
       },
-      "gzipBytes": 53908,
+      "gzipBytes": 53947,
       "id": "purejsimage-matched",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 167727,
+      "minifiedJsBytes": 167829,
       "name": "PureJsImage (matched)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 44759
+      "brotliBytes": 44814
     },
     {
       "category": "competitor",
@@ -1470,13 +1470,13 @@
       "entry": {
         "packageExports": ["purejsimage/codecs/all"]
       },
-      "gzipBytes": 313301,
+      "gzipBytes": 313338,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 890330,
+      "minifiedJsBytes": 890432,
       "name": "PureJsImage (all stable codecs)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 258673
+      "brotliBytes": 258372
     },
     {
       "category": "competitor",

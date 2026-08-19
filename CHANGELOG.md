@@ -4,6 +4,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Speed up 8-bit RGBA PNG decode by copying unfiltered scanline bytes instead of
+  sampling each channel, and by walking CRC-32 with an indexed loop instead of
+  `for-of`. Local `png-resize-1000` fell from 537 ms to 416 ms (−23%) with an
+  exact output hash; neighbor `stress-100mp-downscale` improved 48% and
+  `png-alpha-resize` improved 9%. Imazen PNG stayed 162 pass / 14 rejected-safely.
+  CRC-32 now has ISO-HDLC and Node zlib oracles; decode tests cover 32-row
+  blocks, last-column and cross-block crops, and 16-bit RGBA high-byte output.
+
+
 ## [0.12.0] - 2026-08-18
 
 ### Added

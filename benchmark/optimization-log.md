@@ -7,38 +7,29 @@ repeat a dead end without new evidence.
 
 ## Current state
 
-- Primary workload: `northstar-photo-pipeline` — 6000x4000 JPEG, center crop
-  5334x4000, resize 1200x900, JPEG 80. Goal is end-to-end speed versus Sharp
-  (official 2882 vs 439 ms).
-- Old-Faithful is 4:4:4 YCbCr with ICC. The crop origin `x=333` blocked every
-  scaled-IDCT denominator, so the decoder rebuilt the full crop at scale 1.
-- Retained `JPEG-024`: snap an unaligned crop to a containing aligned box so
-  scale 4 can run. Hillclimb rejected the bitstream hash / +0.45% outputBytes,
-  which is expected. Official pixel samples stayed inside tolerance 8.
-- Retained `JPEG-025`: skip unused AC store/extend after the last zigzag the
-  reduced IDCT reads (zz 4 at scale 4). Exact northstar bitstream hash and
-  pinned scaled-fixture hashes matched.
-- Retained `JPEG-026`: fuse leftover-AC Huffman `skipBits` on the 8-bit prefix
-  path. Incremental ~2.4% on top of JPEG-025.
-- Retained `JPEG-027`: unroll the scale-4 2x2 IDCT. 15-trial median 1167 → 856 ms
-  versus JPEG-024 HEAD (−26.69%). Candidate MAD 2.54 ms; exact hash.
-- Retained `JPEG-028`: stop entropy restart indexing once the next restart MCU
-  is past the crop target. Old-Faithful DRI=750, target MCU ~40, so the
-  previous 17 MiB scan returned after the first RST. Incremental ~856 → 832 ms.
-- Rejected `JPEG-029` closures: per-block `tryFill`/`skip` closures in
-  `JpegEntropyReader.skipRemainingAc` slowed northstar 832 → 929 ms.
-- Retained `JPEG-029`: same reader-local leftover-AC skip, fully inlined.
-  1149 → 802 ms versus JPEG-024 HEAD (−30.21%).
-- Neighbor `jpeg-resize-1200` on the full stack: exact hash, 703 → 714 ms
-  (+1.57%, below the 5% reject). Scale 2 keeps most AC, so leftover skip is small.
-- Neighbor `jpeg-crop-resize` on the full stack: exact hash, 727 → 629 ms
-  (−13.50%). Scale 2 last zz=24 plus early entropy-index return.
-- Validation (JPEG-025–029b): Imazen JPEG 254/254 matches the published
-  baseline (39 pass, 2 unsupported, 167 rejected-safely, 46 accepted, 0
-  failures). `npm run fixtures:jpeg`, `browser:check`, typecheck, and 1587
-  tests passed. Core API stayed 60.0 KiB.
-- Rejected `JPEG-030`: specialized `decodeBlockScale4`/`decodeBlockDcOnly`.
-  1164 → 804 ms versus HEAD, indistinguishable from JPEG-029b's 802 ms.
+- Primary workload: `png-resize-1000` — 4000x3000 RGBA PNG to 1000px PNG 6.
+  Official 522 vs Sharp 263 ms. Goal is end-to-end speed.
+- Profile: `#decodeTypeScript` ~45% (unfilter + per-pixel `convertRow`), CRC-32 ~10%,
+  resize ~12%.
+- Retained `PNG-001`: indexed CRC-32. 15-trial 562 → 527 ms (−6.29%).
+- Retained `PNG-003`: memcpy 8-bit RGBA `convertRow`. 15-trial 537 → 416 ms
+  (−22.52% vs original HEAD), 14/15 pairs faster, paired MAD 1.04%.
+- Versus Sharp (~263 ms) the primary is now ~416 ms (~1.6×).
+- Neighbor `stress-100mp-downscale`: 2653 → 1391 ms (−47.58%), RSS −1.55%, exact
+  signatures. Artifact `.tmp/hillclimb/2026-08-19T13-08-00-007Z/`.
+- Neighbor `png-alpha-resize`: 79.89 → 72.99 ms (−8.63%), RSS −0.07%.
+  Artifact `.tmp/hillclimb/2026-08-19T13-10-50-434Z/`.
+- Neighbor `jpeg-to-png`: 483.46 → 479.43 ms (−0.83%), RSS −0.98%. CRC-only
+  effect. Artifact `.tmp/hillclimb/2026-08-19T13-10-00-061Z/`.
+- Imazen PNG: 176 images, 162 pass / 14 rejected-safely / 0 failures.
+  Artifact `.tmp/imazen-png-001/`.
+
+- Reverted `PNG-002` RGBA8 unfilter; incremental vs PNG-001 was noise.
+- Progressive `jpeg-progressive-resize-1200` JPEG-039/040/041 did not retain.
+  Entropy is ~365 ms across 10 scans; refine micro-opts did not pay.
+- Prior JPEG northstar / resize-1200 / AVIF retained stacks are unchanged.
+
+
 
 ## JPEG resize-1200 campaign
 
@@ -135,6 +126,23 @@ repeat a dead end without new evidence.
 | JPEG-036 | 2026-08-17 20:41 | Unroll both separable passes of the JPEG encoder DCT in `quantize`. | 714.66 → 542.80 | **-24.05%** vs HEAD (~−2.6% vs JPEG-032) | +3.31% | promising | Retained. Exact hash; candidate MAD 2.31 ms. |
 | JPEG-037 | 2026-08-17 21:06 | Fuse 8-bit AC Huffman prefix decode into `decodeBlockLimited`. | 549.69 → 511.14 | **-7.01%** | +0.18% | material | Retained. Exact hash versus committed 031–036 stack. |
 | JPEG-038 | 2026-08-17 21:10 | Skip zero frequency rows in unrolled `inverseDct4`. | 566.71 → 520.68 | **-8.12%** vs HEAD (slower than JPEG-037 511 ms) | +2.29% | rejected | Reverted. Row-zero branches cost more than the skipped multiplies. |
+| JPEG-039 | 2026-08-19 12:43 | Inline progressive AC refine without `Math.abs`/`setCoefficient`; extra undefined checks. | 772.42 → 787.56 | +1.96% | +0.09% RSS | rejected | Reverted. 5/7 pairs slower; paired median +7.43%. Artifact `.tmp/hillclimb/2026-08-19T12-42-35-919Z/comparison.md`. |
+| JPEG-040 | 2026-08-19 12:46 | Replace `2 ** successiveLow` with `1 << successiveLow` in progressive first scans. | 764.36 → 782.70 | +2.40% | -0.58% | neutral | Reverted. Paired median +0.01%; 3/7 faster. Artifact `.tmp/hillclimb/2026-08-19T12-45-48-261Z/comparison.md`. |
+| JPEG-041 | 2026-08-19 12:53 | Localize progressive AC-refine Huffman/bit IO on `JpegEntropyReader`. | 747.06 → 740.84 | -0.83% | -0.37% | inconclusive | Reverted. Paired median -1.67%, 4/7 faster, paired CV 314%. Large kernel, not retainable. Artifact `.tmp/hillclimb/2026-08-19T12-52-54-787Z/comparison.md`. |
+
+## PNG resize-1000 campaign
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| PNG-001 | 2026-08-19 12:58 | Indexed `updateCrc32` loop instead of `for-of` over `Uint8Array`. | 562.10 → 526.74 | **-6.29%** | +3.53% | material | Retained. 15/15-trial; 12/15 pairs faster; paired median −7.06%; exact outputBytes 43059. 7-trial was −1.48% / 5/7. Artifacts `.tmp/hillclimb/2026-08-19T12-56-59-749Z/` and `.tmp/hillclimb/2026-08-19T12-57-56-662Z/`. |
+| PNG-002 | 2026-08-19 13:02 | Specialize RGBA8 unfilter and inline Paeth without `Math.abs`. | 555.91 → 533.02 | -4.12% vs HEAD | -0.24% | inconclusive | Reverted. Incremental vs PNG-001 (~527 ms) was noise; 15-trial base CV 18.7% from a 990 ms outlier. Artifact `.tmp/hillclimb/2026-08-19T13-01-44-856Z/`. |
+| PNG-003 | 2026-08-19 13:05 | `convertRow` memcpy for 8-bit RGBA without tRNS. | 536.57 → 415.76 | **-22.52%** | +0.22% | material | Retained on PNG-001. 14/15 pairs faster; paired median −22.52%; exact outputBytes. 7-trial incomparable (candidate CV 11.9%) then 15-trial accepted. Artifacts `.tmp/hillclimb/2026-08-19T13-04-25-604Z/` and `.tmp/hillclimb/2026-08-19T13-05-21-086Z/`. |
+
+
+
+
+
+
 
 Measurement artifacts:
 

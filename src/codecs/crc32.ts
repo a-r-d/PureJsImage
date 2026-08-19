@@ -10,8 +10,9 @@ for (let index = 0; index < table.length; index += 1) {
 
 export const updateCrc32 = (crc: number, data: Uint8Array): number => {
   let value = crc
-  for (const byte of data) {
-    value = (table[(value ^ byte) & 0xff] ?? 0) ^ (value >>> 8)
+  const length = data.byteLength
+  for (let index = 0; index < length; index += 1) {
+    value = (table[(value ^ (data[index] ?? 0)) & 0xff] ?? 0) ^ (value >>> 8)
   }
   return value >>> 0
 }
