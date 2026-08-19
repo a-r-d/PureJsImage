@@ -1,0 +1,19 @@
+docs-astro/src/styles/global.css
+  s_06ddef2cc80384::t_750aa1cf6d2460 391-397
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8c672cf99460693b3d87cf39cd7b3118bc23d36e",
+  "prompts": {},
+  "sessions": {
+    "s_06ddef2cc80384": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e36f334e-3d5e-4df0-bddc-0e9ee634ee7d",
+        "model": "grok-4.6"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
