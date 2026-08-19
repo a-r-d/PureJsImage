@@ -1,4 +1,4 @@
-import { combineAbortSignals, throwIfAborted } from '../abort.ts'
+import { combineAbortSignals, throwIfAborted, waitForPromise } from '../abort.ts'
 import { ImageError, invalidInput, truncatedInput } from '../errors.ts'
 import { stableSourceBuffers, type ImageSource, type ImageSourceReadOptions } from '../source.ts'
 import type { RemoteSourceIdentity } from '../source-identity.ts'
@@ -21,6 +21,21 @@ export interface HttpRangeSourceOptions {
   /** Maximum retained response bytes. Defaults to 1 MiB. */
   readonly maxCacheBytes?: number
   readonly headers?: HeadersInit
+  /**
+   * Cancels only the initial range probe. Not retained after `open()` resolves.
+   *
+   * Prefer this over `signal` for operation-scoped open cancellation.
+   */
+  readonly openSignal?: AbortSignal
+  /**
+   * Cancels every subsequent read and in-flight fetch for the returned source.
+   * Distinct from `openSignal` and from each `read()` consumer signal.
+   */
+  readonly lifetimeSignal?: AbortSignal
+  /**
+   * @deprecated Use `openSignal` to cancel the probe. This option is not retained
+   * as the source lifetime; an operation-scoped abort cannot poison a returned source.
+   */
   readonly signal?: AbortSignal
   /** Alternate Fetch implementation for controlled runtimes and tests. */
   readonly fetch?: typeof fetch
@@ -28,14 +43,34 @@ export interface HttpRangeSourceOptions {
 
 export interface HttpRangeSourceStats {
   readonly requests: number
+  /** Transferred response body bytes, including refetches. */
   readonly bytesFetched: number
+  /** Same as `bytesFetched`; transfer volume rather than unique coverage. */
+  readonly transferBytes: number
+  /** Union of successfully received source-byte intervals; never exceeds `size`. */
+  readonly uniqueBytes: number
   readonly cacheHits: number
   readonly cacheBytes: number
+  /** Consumers that joined an in-flight fetch for a block already requested. */
+  readonly coalescedConsumers: number
+  /** Read consumers rejected because their signal or the source lifetime aborted. */
+  readonly abortedConsumers: number
 }
 
 interface HttpRangeBlock {
   readonly data: Uint8Array<ArrayBuffer>
   readonly start: number
+}
+
+interface CoverageRange {
+  start: number
+  end: number
+}
+
+interface InflightBlock {
+  readonly promise: Promise<HttpRangeBlock>
+  readonly abort: AbortController
+  consumers: number
 }
 
 const contentRangePattern = /^bytes (\d+)-(\d+)\/(\d+)$/
@@ -66,6 +101,7 @@ const parseContentRange = (
   }
   return size
 }
+
 export interface HttpRangeValidator {
   readonly header: 'etag' | 'last-modified' | 'x-amz-version-id'
   readonly value: string
@@ -94,23 +130,54 @@ const responseBytes = async (
   }
 }
 
+const resolveOpenSignal = (options: Readonly<HttpRangeSourceOptions>): AbortSignal | undefined =>
+  options.openSignal ?? options.signal
+
+const addCoverage = (
+  ranges: readonly CoverageRange[],
+  start: number,
+  end: number,
+): CoverageRange[] => {
+  if (end <= start) return [...ranges]
+  const next = [...ranges, { start, end }].sort((left, right) => left.start - right.start)
+  const merged: CoverageRange[] = []
+  for (const range of next) {
+    const last = merged.at(-1)
+    if (last === undefined || range.start > last.end) {
+      merged.push({ start: range.start, end: range.end })
+      continue
+    }
+    if (range.end > last.end) last.end = range.end
+  }
+  return merged
+}
+
+const coverageBytes = (ranges: readonly CoverageRange[]): number => {
+  let total = 0
+  for (const range of ranges) total += range.end - range.start
+  return total
+}
+
 export class HttpRangeSource implements ImageSource {
   readonly size: number
   readonly [stableSourceBuffers] = true
   readonly #url: string
   readonly #fetch: typeof fetch
   readonly #headers: Headers
-  readonly #signal: AbortSignal | undefined
+  readonly #lifetimeSignal: AbortSignal | undefined
   readonly #blockBytes: number
   readonly #maxCacheBytes: number
   readonly #cache = new Map<number, HttpRangeBlock>()
-  readonly #pending = new Map<number, Promise<HttpRangeBlock>>()
+  readonly #pending = new Map<number, InflightBlock>()
   readonly #validator: HttpRangeValidator | undefined
   readonly #identity: RemoteSourceIdentity
+  #covered: CoverageRange[] = []
   #cacheBytes = 0
   #requests = 0
-  #bytesFetched = 0
+  #transferBytes = 0
   #cacheHits = 0
+  #coalescedConsumers = 0
+  #abortedConsumers = 0
 
   private constructor(
     url: string,
@@ -123,7 +190,7 @@ export class HttpRangeSource implements ImageSource {
     this.size = size
     this.#fetch = fetcher
     this.#headers = new Headers(options.headers)
-    this.#signal = options.signal
+    this.#lifetimeSignal = options.lifetimeSignal
     this.#blockBytes = options.blockBytes ?? defaultBufferBytes
     this.#maxCacheBytes = options.maxCacheBytes ?? defaultBufferBytes * defaultBufferSlots
     this.#validator = validator
@@ -171,18 +238,19 @@ export class HttpRangeSource implements ImageSource {
     // this closure so both the probe and later range reads call it as a plain function.
     const fetcher: typeof fetch = (input, init) => configuredFetch(input, init)
     const href = String(url)
+    const openSignal = resolveOpenSignal(options)
     let response: Response
     try {
-      throwIfAborted(options.signal)
+      throwIfAborted(openSignal)
       const headers = new Headers(options.headers)
       headers.set('range', 'bytes=0-0')
       response = await fetcher(href, {
         headers,
         method: 'GET',
-        ...(options.signal === undefined ? {} : { signal: options.signal }),
+        ...(openSignal === undefined ? {} : { signal: openSignal }),
       })
     } catch (cause) {
-      throwIfAborted(options.signal)
+      throwIfAborted(openSignal)
       throw new ImageError('INVALID_INPUT', `HTTP range probe failed for ${href}`, { cause })
     }
     if (response.status !== 206) {
@@ -197,7 +265,7 @@ export class HttpRangeSource implements ImageSource {
       throw invalidInput('HTTP range source does not support content-encoded responses')
     }
     const size = parseContentRange(response, 0, 0)
-    const probe = await responseBytes(response, 'HTTP range probe', options.signal)
+    const probe = await responseBytes(response, 'HTTP range probe', openSignal)
     if (probe.byteLength !== 1)
       throw truncatedInput('HTTP range probe did not return exactly one byte')
     const etag = response.headers.get('etag')
@@ -217,16 +285,22 @@ export class HttpRangeSource implements ImageSource {
             : Object.freeze({ header: 'last-modified', value: lastModified })
     const source = new HttpRangeSource(href, size, options, fetcher, validator)
     source.#requests = 1
-    source.#bytesFetched = 1
+    source.#transferBytes = 1
+    source.#cover(0, 1)
     return source
   }
 
   get stats(): HttpRangeSourceStats {
+    const uniqueBytes = Math.min(this.size, coverageBytes(this.#covered))
     return Object.freeze({
       requests: this.#requests,
-      bytesFetched: this.#bytesFetched,
+      bytesFetched: this.#transferBytes,
+      transferBytes: this.#transferBytes,
+      uniqueBytes,
       cacheHits: this.#cacheHits,
       cacheBytes: this.#cacheBytes,
+      coalescedConsumers: this.#coalescedConsumers,
+      abortedConsumers: this.#abortedConsumers,
     })
   }
 
@@ -236,6 +310,18 @@ export class HttpRangeSource implements ImageSource {
 
   [imageSourceIdentity](): RemoteSourceIdentity {
     return this.#identity
+  }
+
+  #cover(start: number, end: number): void {
+    const clampedStart = Math.max(0, start)
+    const clampedEnd = Math.min(this.size, end)
+    this.#covered = addCoverage(this.#covered, clampedStart, clampedEnd)
+  }
+
+  #recordAbortedConsumer(signal: AbortSignal | undefined): void {
+    if (signal?.aborted !== true) return
+    this.#abortedConsumers += 1
+    throwIfAborted(signal)
   }
 
   #store(block: HttpRangeBlock): void {
@@ -253,8 +339,9 @@ export class HttpRangeSource implements ImageSource {
     }
   }
 
-  async #load(start: number, signal: AbortSignal | undefined): Promise<HttpRangeBlock> {
-    throwIfAborted(signal)
+  async #load(start: number, consumerSignal: AbortSignal | undefined): Promise<HttpRangeBlock> {
+    this.#recordAbortedConsumer(this.#lifetimeSignal)
+    this.#recordAbortedConsumer(consumerSignal)
     const cached = this.#cache.get(start)
     if (cached) {
       this.#cacheHits += 1
@@ -262,29 +349,46 @@ export class HttpRangeSource implements ImageSource {
       this.#cache.set(start, cached)
       return cached
     }
-    if (signal !== undefined) {
-      const block = await this.#fetchBlock(start, signal)
-      this.#store(block)
-      return block
+    const waitSignal = combineAbortSignals(this.#lifetimeSignal, consumerSignal)
+    let inflight = this.#pending.get(start)
+    if (inflight) {
+      this.#coalescedConsumers += 1
+      inflight.consumers += 1
+    } else {
+      const abort = new AbortController()
+      const fetchSignal = combineAbortSignals(this.#lifetimeSignal, abort.signal)
+      const promise = this.#fetchBlock(start, fetchSignal).then((block) => {
+        this.#store(block)
+        this.#cover(start, start + block.data.byteLength)
+        return block
+      })
+      void promise.catch(() => {
+        // Waiters observe the rejection through waitForPromise. This listener prevents an
+        // unhandled rejection when the last consumer already aborted.
+      })
+      inflight = { promise, abort, consumers: 1 }
+      this.#pending.set(start, inflight)
     }
-    const active = this.#pending.get(start)
-    if (active) return active
-    const promise = this.#fetchBlock(start, undefined)
-    this.#pending.set(start, promise)
+    const current = inflight
     try {
-      const block = await promise
-      this.#store(block)
+      const block = await waitForPromise(current.promise, waitSignal)
+      this.#recordAbortedConsumer(this.#lifetimeSignal)
+      this.#recordAbortedConsumer(consumerSignal)
       return block
+    } catch (error) {
+      this.#recordAbortedConsumer(this.#lifetimeSignal)
+      this.#recordAbortedConsumer(consumerSignal)
+      throw error
     } finally {
-      this.#pending.delete(start)
+      current.consumers -= 1
+      if (current.consumers === 0 && this.#pending.get(start) === current) {
+        this.#pending.delete(start)
+        current.abort.abort()
+      }
     }
   }
 
-  async #fetchBlock(
-    start: number,
-    requestSignal: AbortSignal | undefined,
-  ): Promise<HttpRangeBlock> {
-    const signal = combineAbortSignals(this.#signal, requestSignal)
+  async #fetchBlock(start: number, signal: AbortSignal | undefined): Promise<HttpRangeBlock> {
     throwIfAborted(signal)
     const end = Math.min(this.size, start + this.#blockBytes) - 1
     const headers = new Headers(this.#headers)
@@ -326,7 +430,7 @@ export class HttpRangeSource implements ImageSource {
     if (data.byteLength !== expected) {
       throw truncatedInput(`HTTP range returned ${data.byteLength} of ${expected} requested bytes`)
     }
-    this.#bytesFetched += data.byteLength
+    this.#transferBytes += data.byteLength
     return Object.freeze({ start, data })
   }
 
@@ -335,22 +439,23 @@ export class HttpRangeSource implements ImageSource {
     length: number,
     options: Readonly<ImageSourceReadOptions> = {},
   ): Promise<Uint8Array<ArrayBuffer>> {
-    const signal = combineAbortSignals(this.#signal, options.signal)
-    throwIfAborted(signal)
+    this.#recordAbortedConsumer(this.#lifetimeSignal)
+    this.#recordAbortedConsumer(options.signal)
     const available = readLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
     const firstBlock = Math.floor(offset / this.#blockBytes) * this.#blockBytes
     const lastBlock = Math.floor((offset + available - 1) / this.#blockBytes) * this.#blockBytes
     if (firstBlock === lastBlock) {
-      const block = await this.#load(firstBlock, signal)
+      const block = await this.#load(firstBlock, options.signal)
       const blockOffset = offset - firstBlock
       return block.data.subarray(blockOffset, blockOffset + available)
     }
     const output = new Uint8Array(available)
     let outputOffset = 0
     for (let start = firstBlock; start <= lastBlock; start += this.#blockBytes) {
-      throwIfAborted(signal)
-      const block = await this.#load(start, signal)
+      this.#recordAbortedConsumer(this.#lifetimeSignal)
+      this.#recordAbortedConsumer(options.signal)
+      const block = await this.#load(start, options.signal)
       const sourceStart = Math.max(offset, start)
       const sourceEnd = Math.min(offset + available, start + block.data.byteLength)
       const amount = sourceEnd - sourceStart
@@ -360,7 +465,8 @@ export class HttpRangeSource implements ImageSource {
       )
       outputOffset += amount
     }
-    throwIfAborted(signal)
+    this.#recordAbortedConsumer(this.#lifetimeSignal)
+    this.#recordAbortedConsumer(options.signal)
     return output
   }
 }

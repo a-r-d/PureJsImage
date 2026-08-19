@@ -383,7 +383,7 @@ Available source adapters:
 - `MemorySource`: zero-copy reads over `ArrayBuffer` or `Uint8Array`.
 - `BlobSource`: browser range reads using `Blob.slice()`.
 - `FileSource`: Node-only; use `await FileSource.open(path)`.
-- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics; import it from `purejsimage/sources/http-range`. Each per-read signal is combined with the source-lifetime signal and cancels an active fetch.
+- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics; import it from `purejsimage/sources/http-range`. `openSignal` (or deprecated `signal`) cancels only the probe. `lifetimeSignal` cancels the returned source. Each `read()` signal cancels that consumer without aborting a shared fetch still needed by others.
 
 A custom source must return exactly the requested in-range byte count or reject. Short, oversized, detached, and rejected reads become structured `ImageError` results. Public image opening, metadata, terminal output, decoder, TIFF document/profile, raster, whole-slide, and source-read options accept `AbortSignal`.
 

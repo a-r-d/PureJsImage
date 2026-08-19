@@ -151,7 +151,16 @@ describe('HttpRangeSource', () => {
     expect(Array.from(await source.read(13, 10))).toEqual(Array.from(bytes.slice(13, 23)))
     expect(Array.from(await source.read(16, 4))).toEqual([16, 17, 18, 19])
     expect(requests).toEqual(['bytes=0-0', 'bytes=0-15', 'bytes=16-31'])
-    expect(source.stats).toEqual({ requests: 3, bytesFetched: 33, cacheHits: 1, cacheBytes: 32 })
+    expect(source.stats).toEqual({
+      requests: 3,
+      bytesFetched: 33,
+      transferBytes: 33,
+      uniqueBytes: 32,
+      cacheHits: 1,
+      cacheBytes: 32,
+      coalescedConsumers: 0,
+      abortedConsumers: 0,
+    })
   })
 
   it('invokes the configured fetch without binding it to the range source', async () => {
@@ -197,7 +206,16 @@ describe('HttpRangeSource', () => {
       'bytes=64-79',
       'bytes=48-63',
     ])
-    expect(source.stats).toEqual({ requests: 5, bytesFetched: 65, cacheHits: 1, cacheBytes: 32 })
+    expect(source.stats).toEqual({
+      requests: 5,
+      bytesFetched: 65,
+      transferBytes: 65,
+      uniqueBytes: 49,
+      cacheHits: 1,
+      cacheBytes: 32,
+      coalescedConsumers: 1,
+      abortedConsumers: 0,
+    })
   })
 
   it('cancels an in-flight range fetch with a per-read signal', async () => {

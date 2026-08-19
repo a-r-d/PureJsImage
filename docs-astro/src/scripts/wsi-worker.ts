@@ -101,7 +101,7 @@ const openSlide = async (url: string): Promise<void> => {
     const openedSource = await HttpRangeSource.open(url, {
       blockBytes: 65_536,
       maxCacheBytes: 1_048_576,
-      signal: controller.signal,
+      openSignal: controller.signal,
     })
     const document = await openTiffDocument(openedSource, {
       maxInputBytes: defaultAperioSvsLimits.maxSourceBytes,

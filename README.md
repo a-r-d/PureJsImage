@@ -76,7 +76,7 @@ PureJsImage 0.12.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Scientific platform | 157.0 KiB | 45.6 KiB | 38.9 KiB |
 | All scientific readers | 1211.6 KiB | 350.5 KiB | 279.8 KiB |
 
-The extracted npm package is 5.6 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 5.7 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 ## Install
@@ -300,7 +300,7 @@ Generated for purejsimage 0.12.0. The README keeps only the major entry points; 
 | Core + scientific platform | `purejsimage/scientific` | 157.0 KiB | 45.6 KiB | 38.9 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1211.6 KiB | 350.5 KiB | 279.8 KiB |
 
-The extracted npm package is 5.6 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 5.7 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

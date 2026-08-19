@@ -562,8 +562,12 @@ describe('HDF5 D6 low-level file API', () => {
     expect(remoteSource.stats).toEqual({
       requests: 3,
       bytesFetched: 8_193,
+      transferBytes: 8_193,
+      uniqueBytes: 8_192,
       cacheHits: 0,
       cacheBytes: 8_192,
+      coalescedConsumers: 0,
+      abortedConsumers: 0,
     })
   })
 })

@@ -16,6 +16,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Split `HttpRangeSource` cancellation into `openSignal`, `lifetimeSignal`, and per-read
+  `read()` signals. Deprecated `open({ signal })` now cancels only the probe and is not
+  retained as the source lifetime. Concurrent signaled reads of one block share one fetch;
+  the network request aborts only when the source lifetime ends or no consumer still needs
+  it. Stats now report transfer bytes, unique source-byte coverage, coalesced consumers,
+  and aborted consumers.
+
+
 - Speed up 8-bit RGBA PNG decode by copying unfiltered scanline bytes instead of
   sampling each channel, and by walking CRC-32 with an indexed loop instead of
   `for-of`. Local `png-resize-1000` fell from 537 ms to 416 ms (−23%) with an
