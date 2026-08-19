@@ -119,7 +119,7 @@
       "bytes": 5910767,
       "productionPackageCount": 1
     },
-    "packageVersion": "0.11.0",
+    "packageVersion": "0.12.0",
     "scientificPlatform": {
       "brotliBytes": 39808,
       "gzipBytes": 46700,

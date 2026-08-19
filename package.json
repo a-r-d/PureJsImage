@@ -1,6 +1,6 @@
 {
   "name": "purejsimage",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Portable image codecs and low-memory raster processing in strict TypeScript",
   "keywords": [
     "image",

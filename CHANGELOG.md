@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-18
+
 ### Added
 
 - Added a deterministic Cloud Optimized GeoTIFF compatibility corpus, checked compression matrix,
@@ -1021,4 +1023,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.9.0]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...v0.9.0
 [0.10.0]: https://github.com/a-r-d/PureJsImage/compare/v0.9.0...v0.10.0
 [0.11.0]: https://github.com/a-r-d/PureJsImage/compare/v0.10.0...v0.11.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.11.0...HEAD
+[0.12.0]: https://github.com/a-r-d/PureJsImage/compare/v0.11.0...v0.12.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.12.0...HEAD
