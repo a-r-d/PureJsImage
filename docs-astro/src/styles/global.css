@@ -6855,6 +6855,7 @@ tr:last-child td {
 }
 
 .wsi-activity {
+  min-width: 0;
   padding: 14px 16px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: #141b16;
@@ -6899,10 +6900,13 @@ tr:last-child td {
 
 .wsi-request-strip {
   display: flex;
+  min-width: 0;
   min-height: 30px;
   align-items: center;
   gap: 4px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
   margin: 10px 0 6px;
 }
 

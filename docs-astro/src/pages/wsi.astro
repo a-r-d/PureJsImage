@@ -104,7 +104,7 @@ const defaultSlide = sampleSlides[2].url
             <p class="wsi-status" id="wsi-status" role="status" aria-live="polite">Starting the worker…</p>
             <section class="wsi-activity" aria-labelledby="wsi-activity-title">
               <div><strong id="wsi-activity-title">Tile requests</strong><span><i class="pending"></i>Pending <i class="decoded"></i>Decoded <i class="cancelled"></i>Cancelled</span></div>
-              <div class="wsi-request-strip" id="wsi-request-strip" aria-live="polite"></div>
+              <div class="wsi-request-strip" id="wsi-request-strip" aria-live="polite" data-scroll-region="chips"></div>
               <p>Drag quickly: offscreen work turns red as its <code>AbortController</code> is cancelled instead of piling up.</p>
             </section>
           </section>
