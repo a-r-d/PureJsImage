@@ -1564,10 +1564,17 @@ tr:last-child td {
 }
 
 .api-item {
+  min-width: 0;
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 13px;
   background: var(--surface);
+}
+
+.api-item .code-window,
+.api-item pre {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .api-item h3,
