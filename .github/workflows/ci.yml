@@ -48,6 +48,9 @@ jobs:
     name: Browser ${{ matrix.browser }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001 --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -70,15 +73,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
       - name: Prepare pinned HDF5 browser fixture
         run: npm run fixtures:hdf5:prepare
 
       - name: Install pinned scientific browser competitors
         run: npm ci --prefix benchmark/competitors-js --no-fund --no-audit
-
-      - name: Install browser engine
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
       - name: Run browser compatibility gate
         run: npm run browser:test -- --project=${{ matrix.browser }}
