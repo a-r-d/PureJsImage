@@ -1,0 +1,19 @@
+src/codecs/png.ts
+  s_06ddef2cc80384::t_d213cfaca9c066 823-826
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "db2ed41211809495ce026f3b0b9b4a5bcfe6a62b",
+  "prompts": {},
+  "sessions": {
+    "s_06ddef2cc80384": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "e36f334e-3d5e-4df0-bddc-0e9ee634ee7d",
+        "model": "grok-4.6"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
