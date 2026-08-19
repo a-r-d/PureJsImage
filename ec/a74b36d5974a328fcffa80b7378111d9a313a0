@@ -1,0 +1,16 @@
+docs-astro/src/pages/wsi.astro
+  h_9f4a25732fa0c1 107
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 6858,6903,6907-6909
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "eca74b36d5974a328fcffa80b7378111d9a313a0",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
