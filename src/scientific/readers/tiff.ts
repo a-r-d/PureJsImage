@@ -269,15 +269,25 @@ const component = (
   kind: ScientificComponentDescriptor['kind'],
 ): ScientificComponentDescriptor => Object.freeze({ id, name, kind })
 
+const sampleInterpretationFor = (
+  directory: TiffDirectory,
+): 'grayscale' | 'rgb' | 'ycbcr-converted-rgb' | 'preserved-components' => {
+  if (directory.photometric === 6) return 'ycbcr-converted-rgb'
+  if (directory.photometric === 2 && directory.samplesPerPixel === 3) return 'rgb'
+  if (directory.photometric === 0 || directory.photometric === 1) return 'grayscale'
+  return 'preserved-components'
+}
+
 const componentsFor = async (
   directory: TiffDirectory,
   format: RasterFormat,
 ): Promise<readonly ScientificComponentDescriptor[]> => {
   const output: ScientificComponentDescriptor[] = []
-  const baseSamples = directory.photometric === 2 ? 3 : directory.photometric === 5 ? 4 : 1
+  const rgb = directory.photometric === 2 || directory.photometric === 6
+  const baseSamples = rgb ? 3 : directory.photometric === 5 ? 4 : 1
   const alpha = await alphaExtraSamples(directory)
   for (let index = 0; index < format.channels; index += 1) {
-    if (directory.photometric === 2 && index < 3) {
+    if (rgb && index < 3) {
       output.push(
         index === 0
           ? component('red', 'Red', 'red')
@@ -723,6 +733,15 @@ const pageCompatibilityKey = (
           },
   })
 
+const isReducedResolutionDirectory = async (directory: TiffDirectory): Promise<boolean> => {
+  try {
+    const value = await directory.getTag(254, { maxBytes: 16 })
+    return value?.kind === 'numbers' && ((value.values[0] ?? 0) & 1) === 1
+  } catch {
+    return false
+  }
+}
+
 const describePage = async (
   directory: TiffDirectory,
   page: number,
@@ -730,8 +749,12 @@ const describePage = async (
   calibration: TiffDirectoryCalibration | undefined,
   metadataBudget: MetadataBudget,
   signal: AbortSignal | undefined,
+  extraOverviews: readonly TiffDirectory[] = [],
 ): Promise<TiffPageDescription> => {
-  const directories = [directory, ...directory.subIfds]
+  const directories = [
+    directory,
+    ...(directory.subIfds.length > 0 ? directory.subIfds : extraOverviews),
+  ]
   const levels: TiffLevelDescription[] = []
   for (let level = 0; level < directories.length; level += 1) {
     const selected = directories[level]
@@ -770,7 +793,10 @@ const describePage = async (
     levels: Object.freeze(levels),
     components,
     compatibilityKey: pageCompatibilityKey(levels, components, calibration),
-    metadata,
+    metadata: normalizeScientificMetadataObject({
+      ...metadata,
+      sampleInterpretation: sampleInterpretationFor(directory),
+    }),
     ...(calibration === undefined ? {} : { calibration }),
   })
 }
@@ -1164,21 +1190,46 @@ const createDocument = async (
     maximumTagBytes: maximumMetadataTagBytes,
   }
   const pages: TiffPageDescription[] = []
+  const consumed = new Set<number>()
   for (let page = 0; page < document.topLevelDirectories.length; page += 1) {
     throwIfAborted(context.signal)
     const directory = document.topLevelDirectories[page]
-    if (directory === undefined) continue
+    if (directory === undefined || consumed.has(directory.index)) continue
+    const extraOverviews: TiffDirectory[] = []
+    if (directory.subIfds.length === 0) {
+      let previousWidth = directory.width
+      let previousHeight = directory.height
+      for (let next = page + 1; next < document.topLevelDirectories.length; next += 1) {
+        const candidate = document.topLevelDirectories[next]
+        if (candidate === undefined || !(await isReducedResolutionDirectory(candidate))) break
+        if (
+          candidate.samplesPerPixel !== directory.samplesPerPixel ||
+          candidate.photometric !== directory.photometric ||
+          candidate.compression !== directory.compression ||
+          candidate.planar !== directory.planar ||
+          candidate.width >= previousWidth ||
+          candidate.height >= previousHeight
+        ) {
+          break
+        }
+        extraOverviews.push(candidate)
+        consumed.add(candidate.index)
+        previousWidth = candidate.width
+        previousHeight = candidate.height
+      }
+    }
     const directoryCalibration = calibration.value?.directories.find(
       ({ directoryIndex }) => directoryIndex === directory.index,
     )
     pages.push(
       await describePage(
         directory,
-        page,
+        pages.length,
         await directoryMetadata(directory, budget),
         directoryCalibration,
         budget,
         context.signal,
+        extraOverviews,
       ),
     )
   }

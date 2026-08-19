@@ -4,6 +4,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added native scientific-raster decoding for TIFF JPEG compression 7 so Cloud Optimized
+  GeoTIFFs such as KyFromAbove three-band and four-band orthos open without the RGB display
+  decoder. Region reads stay tile-bounded. Complete and JPEGTables-composed streams are
+  supported. Photometric RGB ExtraSamples=0 keeps four data bands for CIR and band math;
+  photometric YCbCr three-band samples are converted RGB. Old-style JPEG compression 6
+  remains display-only. Inspected public KyFromAbove Phase 1–3 layouts are recorded in
+  `tests/fixtures/kyfromabove/manifest.json`. Live smoke is opt-in (`KYFROMABOVE_LIVE=1`).
+
 ### Changed
 
 - Speed up 8-bit RGBA PNG decode by copying unfiltered scanline bytes instead of

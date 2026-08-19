@@ -2191,3 +2191,114 @@ export const createBaselineJpegEncoder = async (
   await encoder.start()
   return encoder
 }
+
+export const encodeJpegIdentityComponents = (
+  width: number,
+  height: number,
+  channels: number,
+  pixels: Uint8Array,
+  abbreviated = false,
+): { readonly tables: Uint8Array; readonly stream: Uint8Array } => {
+  if (
+    !Number.isSafeInteger(width) ||
+    !Number.isSafeInteger(height) ||
+    !Number.isSafeInteger(channels) ||
+    width < 1 ||
+    height < 1 ||
+    channels < 1 ||
+    channels > 4 ||
+    pixels.byteLength < width * height * channels
+  ) {
+    throw invalidInput('JPEG identity component image is invalid')
+  }
+  const quantization = new Uint8Array(64).fill(1)
+  const writer = new ByteWriter()
+  const samples = new Float64Array(64)
+  const intermediate = new Float64Array(64)
+  const coefficients = new Int32Array(64)
+  const predictors = new Int32Array(channels)
+  for (let originY = 0; originY < height; originY += 8) {
+    for (let originX = 0; originX < width; originX += 8) {
+      for (let channel = 0; channel < channels; channel += 1) {
+        for (let localY = 0; localY < 8; localY += 1) {
+          const y = Math.min(originY + localY, height - 1)
+          for (let localX = 0; localX < 8; localX += 1) {
+            const x = Math.min(originX + localX, width - 1)
+            samples[localY * 8 + localX] = (pixels[(y * width + x) * channels + channel] ?? 0) - 128
+          }
+        }
+        quantize(samples, quantization, intermediate, coefficients)
+        predictors[channel] = encodeBlock(
+          writer,
+          coefficients,
+          predictors[channel] ?? 0,
+          luminanceDcCodes,
+          luminanceAcCodes,
+        )
+      }
+    }
+  }
+  writer.flushBits()
+  const entropy = writer.take()
+  const tablesWriter = new ByteWriter()
+  tablesWriter.byte(0xff)
+  tablesWriter.byte(0xd8)
+  tablesWriter.byte(0xff)
+  tablesWriter.byte(0xdb)
+  tablesWriter.word(67)
+  tablesWriter.byte(0)
+  tablesWriter.bytes(quantization)
+  tablesWriter.byte(0xff)
+  tablesWriter.byte(0xd9)
+  const stream = new ByteWriter()
+  stream.byte(0xff)
+  stream.byte(0xd8)
+  if (!abbreviated) {
+    stream.byte(0xff)
+    stream.byte(0xdb)
+    stream.word(67)
+    stream.byte(0)
+    stream.bytes(quantization)
+  }
+  const frame = new Uint8Array(6 + channels * 3)
+  frame[0] = 8
+  frame[1] = height >>> 8
+  frame[2] = height & 0xff
+  frame[3] = width >>> 8
+  frame[4] = width & 0xff
+  frame[5] = channels
+  for (let channel = 0; channel < channels; channel += 1) {
+    frame[6 + channel * 3] = channel
+    frame[7 + channel * 3] = 0x11
+    frame[8 + channel * 3] = 0
+  }
+  stream.byte(0xff)
+  stream.byte(0xc0)
+  stream.word(frame.byteLength + 2)
+  stream.bytes(frame)
+  stream.byte(0xff)
+  stream.byte(0xc4)
+  stream.word(3 + luminanceDcCounts.byteLength + luminanceDcValues.byteLength)
+  writeTable(stream, 0, 0, luminanceDcCounts, luminanceDcValues)
+  stream.byte(0xff)
+  stream.byte(0xc4)
+  stream.word(3 + luminanceAcCounts.byteLength + luminanceAcValues.byteLength)
+  writeTable(stream, 1, 0, luminanceAcCounts, luminanceAcValues)
+  const scan = new Uint8Array(1 + channels * 2 + 3)
+  scan[0] = channels
+  for (let channel = 0; channel < channels; channel += 1) {
+    scan[1 + channel * 2] = channel
+    scan[2 + channel * 2] = 0
+  }
+  scan[scan.byteLength - 3] = 0
+  scan[scan.byteLength - 2] = 63
+  scan[scan.byteLength - 1] = 0
+  stream.byte(0xff)
+  stream.byte(0xda)
+  stream.word(scan.byteLength + 2)
+  stream.bytes(scan)
+  stream.bytes(entropy)
+  stream.byte(0xff)
+  stream.byte(0xd9)
+  return { tables: tablesWriter.take(), stream: stream.take() }
+}

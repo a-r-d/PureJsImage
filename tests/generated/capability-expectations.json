@@ -96,6 +96,7 @@
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
         "tests/scientific-tiff-reader.test.ts",
+        "tests/scientific-tiff-jpeg.test.ts",
         "tests/tiff-cog.test.ts",
         "tests/tiff-cog-benchmark.test.ts",
         "tests/scientific-aperio-reader.test.ts",
@@ -502,10 +503,16 @@
       "directRangeReads": true,
       "evidence": [
         "tests/scientific-tiff-reader.test.ts",
+        "tests/scientific-tiff-jpeg.test.ts",
         "tests/tiff-cog.test.ts",
-        "tests/tiff-cog-benchmark.test.ts"
+        "tests/tiff-cog-benchmark.test.ts",
+        "tests/kyfromabove-live.test.ts"
       ],
-      "fixtures": ["tests/scientific-tiff-reader.test.ts", "tests/fixtures/cog/manifest.json"]
+      "fixtures": [
+        "tests/scientific-tiff-reader.test.ts",
+        "tests/fixtures/cog/manifest.json",
+        "tests/fixtures/kyfromabove/manifest.json"
+      ]
     },
     {
       "id": "purejsimage/ome-tiff",

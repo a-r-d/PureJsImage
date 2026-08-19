@@ -70,8 +70,9 @@ export const tiffCompressionCapabilities: readonly TiffCompressionCapability[] =
     id: 7,
     name: 'JPEG',
     status: 'fully-tested',
-    decodeSupport: 'display-only',
-    notes: 'Complete or JPEGTables-composed streams.',
+    decodeSupport: 'display-and-raster',
+    notes:
+      'Complete or JPEGTables-composed streams. Native raster keeps 3-band YCbCr as converted RGB and 4-band photometric RGB ExtraSamples=0 as preserved components.',
   },
   {
     id: 8,

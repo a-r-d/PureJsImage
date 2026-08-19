@@ -239,10 +239,12 @@ describe('Cloud Optimized GeoTIFF compatibility corpus', () => {
     expect(data[1]).toBeLessThan(60)
     expect(data[8 * 3]).toBeLessThan(50)
     expect(data[8 * 3 + 2]).toBeGreaterThan(180)
-    await expect(directory.createRasterDecoder()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: 'TIFF compression 7 (JPEG) is unsupported for native raster decoding',
-    })
+    const raster = await collectRaster(
+      (await directory.createRasterDecoder()).decode({ x: 0, y: 0, width: 9, height: 1 }),
+    )
+    expect(raster[0]?.format).toEqual({ sampleType: 'uint8', channels: 3, planar: false })
+    expect(raster[0]?.data[0]).toBeGreaterThan(210)
+    expect(raster[0]?.data[1]).toBeLessThan(60)
   })
 
   it('keeps the compression audit synchronized and names unsupported IDs explicitly', async () => {

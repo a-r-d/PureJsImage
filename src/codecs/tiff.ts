@@ -56,6 +56,7 @@ import {
   writeCmykIcc,
 } from './icc.ts'
 import { jpegCodec } from './jpeg.ts'
+import { decodeBaselineJpegNative, parseBaselineJpeg } from './jpeg-baseline.ts'
 import { createJpeg2000CodestreamDecoder } from './jpeg2000.ts'
 import { TiffEncoder } from './tiff-encode.ts'
 import { decodeLerc2 } from './tiff-lerc.ts'
@@ -1392,7 +1393,8 @@ const describeTiffIfd = async (
     compression === compressionAdobeDeflate ||
     compression === compressionZstandard ||
     compression === compressionPackBits ||
-    compression === compressionLerc
+    compression === compressionLerc ||
+    compression === compressionJpeg
   if (mode === 'raster' && !byteRasterCompression) {
     throw unsupportedCompression(compression, 'native raster decoding')
   }
@@ -1590,6 +1592,9 @@ const describeTiffIfd = async (
   if (compression === compressionLerc && (fillOrder !== 1 || predictor !== 1)) {
     throw unsupportedOperation('TIFF LERC compression requires FillOrder 1 and no TIFF predictor')
   }
+  if (compression === compressionJpeg && fillOrder !== 1) {
+    throw unsupportedOperation('TIFF JPEG decoding requires FillOrder 1')
+  }
   const supportedHorizontalDepth =
     baseSampleFormat === sampleFormatUnsigned
       ? [2, 4, 6, 8, 10, 12, 14, 16, 24, 32, 64].includes(baseBitDepth)
@@ -1724,10 +1729,15 @@ const describeTiffIfd = async (
   const jpegCompression =
     compression === compressionOldJpeg || compression === compressionJpeg || jpeg2000Compression
   const jpegSamplesMatchPhotometric =
-    (samplesPerPixel === 1 && photometric === photometricBlackIsZero) ||
-    (samplesPerPixel === 3 &&
-      (photometric === photometricRgb || photometric === photometricYCbCr)) ||
-    (samplesPerPixel === 4 && photometric === photometricSeparated)
+    mode === 'raster'
+      ? (samplesPerPixel === 1 && photometric === photometricBlackIsZero) ||
+        (samplesPerPixel === 3 &&
+          (photometric === photometricRgb || photometric === photometricYCbCr)) ||
+        (samplesPerPixel === 4 && photometric === photometricRgb)
+      : (samplesPerPixel === 1 && photometric === photometricBlackIsZero) ||
+        (samplesPerPixel === 3 &&
+          (photometric === photometricRgb || photometric === photometricYCbCr)) ||
+        (samplesPerPixel === 4 && photometric === photometricSeparated)
   if (
     jpegCompression &&
     (baseSampleFormat !== sampleFormatUnsigned ||
@@ -1736,6 +1746,11 @@ const describeTiffIfd = async (
       predictor !== 1 ||
       planarConfiguration !== 1)
   ) {
+    if (mode === 'raster') {
+      throw unsupportedOperation(
+        `TIFF JPEG native raster decoding does not support photometric ${photometric} with ${samplesPerPixel} sample(s) and planar configuration ${planarConfiguration}`,
+      )
+    }
     throw unsupportedOperation(
       'TIFF JPEG decoding requires chunky 8-bit grayscale, RGB, YCbCr, or CMYK samples',
     )
@@ -1989,7 +2004,10 @@ const describeTiffIfd = async (
       )
     }
   }
-  const jpegTablesEntry = mode === 'pixels' ? ifd.entries.get(347) : undefined
+  const jpegTablesEntry =
+    mode === 'pixels' || (mode === 'raster' && compression === compressionJpeg)
+      ? ifd.entries.get(347)
+      : undefined
   const jpegTables = jpegTablesEntry
     ? (await undefinedEntryBytes(source, jpegTablesEntry, littleEndian, 347)).slice()
     : undefined
@@ -3648,6 +3666,53 @@ const decodeJpegSegment = async (
   return output
 }
 
+const decodeJpegRasterSegment = async (
+  source: ImageSource,
+  description: TiffDescription,
+  limits: TiffLimits,
+  physicalSegment: number,
+  rows: number,
+): Promise<Uint8Array> => {
+  const convertToRgb =
+    description.samplesPerPixel === 3 &&
+    (description.photometric === photometricRgb || description.photometric === photometricYCbCr)
+  if (convertToRgb) return decodeJpegSegment(source, description, limits, physicalSegment, rows)
+
+  let encoded = await readEncodedSegment(source, description, limits, physicalSegment)
+  if (description.jpegTables) {
+    encoded = jpegWithTables(description.jpegTables, encoded)
+  } else if (!hasJpegBoundary(encoded, 0xff, 0xd8)) {
+    throw invalidInput('TIFF JPEG segment is missing its SOI marker')
+  }
+  const jpeg = parseBaselineJpeg(encoded, false, description.samplesPerPixel >= 4)
+  if (!jpeg) {
+    throw invalidInput('TIFF JPEG raster segment is not a supported baseline stream')
+  }
+  if (jpeg.components.length !== description.samplesPerPixel) {
+    throw invalidInput(
+      `TIFF JPEG raster segment has ${jpeg.components.length} components, expected ${description.samplesPerPixel}`,
+    )
+  }
+  if (jpeg.width !== description.segmentWidth || jpeg.height < rows) {
+    throw invalidInput(
+      `TIFF JPEG raster segment dimensions ${jpeg.width}x${jpeg.height} do not match ${description.segmentWidth}x${rows}`,
+    )
+  }
+  const decoded = await decodeBaselineJpegNative(jpeg, {
+    x: 0,
+    y: 0,
+    width: description.segmentWidth,
+    height: rows,
+  })
+  const expectedBytes = description.segmentWidth * rows * description.samplesPerPixel
+  if (decoded.byteLength !== expectedBytes) {
+    throw invalidInput(
+      `TIFF JPEG raster decoder produced ${decoded.byteLength}, expected ${expectedBytes} bytes`,
+    )
+  }
+  return decoded
+}
+
 const decodeJpeg2000Segment = async (
   source: ImageSource,
   description: TiffDescription,
@@ -4144,6 +4209,14 @@ const decodeRasterPlanes = async (
   logicalSegment: number,
   segmentRows: number,
 ): Promise<readonly Uint8Array[]> => {
+  if (description.compression === compressionJpeg) {
+    if (description.planarConfiguration !== 1) {
+      throw unsupportedOperation(
+        `TIFF JPEG native raster decoding does not support photometric ${description.photometric} with ${description.samplesPerPixel} sample(s) and planar configuration ${description.planarConfiguration}`,
+      )
+    }
+    return [await decodeJpegRasterSegment(source, description, limits, logicalSegment, segmentRows)]
+  }
   if (description.planarConfiguration === 1) {
     const rowBytes = description.rowBytes[0]
     if (rowBytes === undefined) throw invalidInput('TIFF chunky row size is missing')

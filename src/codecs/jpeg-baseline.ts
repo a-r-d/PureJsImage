@@ -166,7 +166,7 @@ interface RenderComponent {
   readonly verticalSampling: number
 }
 
-export type JpegColorTransform = 'cmyk' | 'gray' | 'rgb' | 'ycbcr' | 'ycck'
+export type JpegColorTransform = 'cmyk' | 'components' | 'gray' | 'rgb' | 'ycbcr' | 'ycck'
 
 interface RenderJpeg {
   readonly components: readonly RenderComponent[]
@@ -410,6 +410,7 @@ const parseAdobeTransform = (data: Uint8Array, start: number, end: number): numb
 const colorTransform = (
   frame: ParsedFrame,
   adobeTransform: number | undefined,
+  nativeComponents = false,
 ): JpegColorTransform => {
   if (frame.components.length === 1) return 'gray'
   if (frame.components.length === 3) {
@@ -422,6 +423,7 @@ const colorTransform = (
     if (adobeTransform === 1) return 'ycbcr'
     throw invalidInput(`Adobe transform ${adobeTransform} is invalid for a three-component JPEG`)
   }
+  if (nativeComponents) return 'components'
   if (adobeTransform === 0) return 'cmyk'
   if (adobeTransform === 2) return 'ycck'
   if (adobeTransform === undefined) {
@@ -591,7 +593,11 @@ export const inspectJpegCodestream = (data: Uint8Array): JpegCodestreamInspectio
   })
 }
 
-export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJpeg | undefined => {
+export const parseBaselineJpeg = (
+  data: Uint8Array,
+  applyIcc = true,
+  nativeComponents = false,
+): BaselineJpeg | undefined => {
   if (data.byteLength < 4 || readUint16(data, 0) !== 0xffd8)
     throw invalidInput('JPEG start marker is missing')
   const quantizationTables = new Map<number, Int32Array>()
@@ -687,8 +693,11 @@ export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJp
           acTable,
         })
       }
-      const jpegColorTransform = colorTransform(frame, adobeTransform)
-      const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
+      const jpegColorTransform = colorTransform(frame, adobeTransform, nativeComponents)
+      const iccTransform =
+        applyIcc && jpegColorTransform !== 'components'
+          ? createIccTransform(iccChunks, jpegColorTransform)
+          : undefined
       return {
         data,
         width: frame.width,
@@ -1663,6 +1672,41 @@ const renderRgbRows = (
   }
 }
 
+const renderNativeComponentRows = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  region: JpegRegion,
+  rowStart: number,
+  first: number,
+  height: number,
+  data: Uint8Array,
+  plan: RenderPlan,
+  channels: number,
+): void => {
+  if (channels < 1 || channels > jpeg.components.length) {
+    throw invalidInput('JPEG native component count is invalid')
+  }
+  for (let row = 0; row < height; row += 1) {
+    const sourceY = first + row - rowStart
+    for (let x = 0; x < region.width; x += 1) {
+      const target = (row * region.width + x) * channels
+      for (let sample = 0; sample < channels; sample += 1) {
+        const component = jpeg.components[sample]
+        const plane = planes[sample]
+        const sampleX = plan.componentX[sample]
+        const width = plan.componentWidths[sample] ?? 0
+        if (!component || !plane || !sampleX) {
+          throw invalidInput('JPEG native component storage is missing')
+        }
+        const sampleY =
+          plan.haloRows +
+          Math.floor((sourceY * component.verticalSampling) / jpeg.maximumVerticalSampling)
+        data[target + sample] = byte(plane, sampleY * width + (sampleX[x] ?? 0))
+      }
+    }
+  }
+}
+
 const renderYcbcrRows = (
   jpeg: RenderJpeg,
   planes: readonly Uint8Array[],
@@ -2022,6 +2066,7 @@ const renderRows = (
   plan: RenderPlan,
   data: Uint8Array,
   blockSize: number,
+  nativeChannels?: number,
 ): PixelBlock | undefined => {
   const rowStart = mcuRow * jpeg.maximumVerticalSampling * blockSize
   const first = Math.max(region.y, rowStart)
@@ -2031,9 +2076,22 @@ const renderRows = (
   )
   if (first >= last) return undefined
   const height = last - first
-  const stride = region.width * 3
+  const bytesPerPixel = nativeChannels ?? 3
+  const stride = region.width * bytesPerPixel
 
-  if (jpeg.colorTransform === 'gray') {
+  if (nativeChannels !== undefined) {
+    renderNativeComponentRows(
+      jpeg,
+      planes,
+      region,
+      rowStart,
+      first,
+      height,
+      data,
+      plan,
+      nativeChannels,
+    )
+  } else if (jpeg.colorTransform === 'gray') {
     renderGrayRows(jpeg, planes, region, rowStart, first, height, data, plan)
   } else if (jpeg.colorTransform === 'rgb') {
     renderRgbRows(jpeg, planes, region, rowStart, first, height, data, plan)
@@ -2041,6 +2099,8 @@ const renderRows = (
   } else if (jpeg.colorTransform === 'ycbcr') {
     renderYcbcrRows(jpeg, planes, region, rowStart, first, height, data, plan)
     if (jpeg.iccTransform?.kind === 'rgb') applyRgbIcc(data, jpeg.iccTransform)
+  } else if (jpeg.colorTransform === 'components') {
+    throw invalidInput('JPEG native component streams require the native sample decoder')
   } else {
     renderFourComponentRows(
       jpeg,
@@ -2073,6 +2133,7 @@ export const decodeBaselineJpeg = async function* (
   scaleDenominator: JpegScaleDenominator = 1,
   metrics?: JpegDecodeMetrics,
   tolerantDecoding = false,
+  nativeChannels?: number,
 ): AsyncGenerator<PixelBlock> {
   const blockSize = outputSizeForScale(scaleDenominator)
   const mcuWidth = jpeg.maximumHorizontalSampling * blockSize
@@ -2133,7 +2194,8 @@ export const decodeBaselineJpeg = async function* (
   let pendingPlanes: Uint8Array[] | undefined
   let pendingRow = -1
   const recycledOutput: Uint8Array[] = []
-  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * blockSize
+  const outputBytes =
+    region.width * (nativeChannels ?? 3) * jpeg.maximumVerticalSampling * blockSize
 
   const totalMcus = jpeg.mcusPerLine * jpeg.mcusPerColumn
   if (metrics) {
@@ -2220,7 +2282,16 @@ export const decodeBaselineJpeg = async function* (
     } else {
       linkPlaneHalos(jpeg, pendingPlanes, currentPlanes, blockSize)
       const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
-      const output = renderRows(jpeg, pendingPlanes, pendingRow, region, plan, data, blockSize)
+      const output = renderRows(
+        jpeg,
+        pendingPlanes,
+        pendingRow,
+        region,
+        plan,
+        data,
+        blockSize,
+        nativeChannels,
+      )
       if (output) {
         let released = false
         yield {
@@ -2246,7 +2317,16 @@ export const decodeBaselineJpeg = async function* (
   if (!pendingPlanes) return
   replicateBottomHalo(jpeg, pendingPlanes, blockSize)
   const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
-  const output = renderRows(jpeg, pendingPlanes, pendingRow, region, plan, data, blockSize)
+  const output = renderRows(
+    jpeg,
+    pendingPlanes,
+    pendingRow,
+    region,
+    plan,
+    data,
+    blockSize,
+    nativeChannels,
+  )
   if (!output) return
   let released = false
   yield {
@@ -2257,6 +2337,37 @@ export const decodeBaselineJpeg = async function* (
       recycledOutput.push(data)
     },
   }
+}
+
+export const decodeBaselineJpegNative = async (
+  jpeg: BaselineJpeg,
+  region: JpegRegion,
+): Promise<Uint8Array> => {
+  const channels = jpeg.components.length
+  if (channels < 1) throw invalidInput('JPEG native decode requires at least one component')
+  const output = new Uint8Array(region.width * region.height * channels)
+  for await (const block of decodeBaselineJpeg(jpeg, region, 1, undefined, false, channels)) {
+    const rowBytes = block.width * channels
+    if (
+      block.x !== 0 ||
+      block.width !== region.width ||
+      block.stride < rowBytes ||
+      block.y < 0 ||
+      block.height < 1 ||
+      block.y + block.height > region.height
+    ) {
+      throw invalidInput('JPEG native decoder produced a malformed sample block')
+    }
+    for (let row = 0; row < block.height; row += 1) {
+      const sourceStart = row * block.stride
+      output.set(
+        block.data.subarray(sourceStart, sourceStart + rowBytes),
+        ((block.y + row) * region.width + block.x) * channels,
+      )
+    }
+    block.release?.()
+  }
+  return output
 }
 
 interface ProgressiveFrameComponent extends RenderComponent {

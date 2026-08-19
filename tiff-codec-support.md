@@ -79,6 +79,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit integer or floating-point samples
 - [x] Floating-point predictor 3 byte unshuffle and accumulation for float16, float32, and float64 samples
 - [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
+- [x] Native scientific raster for JPEG-in-TIFF three-band YCbCr-converted RGB and four-band photometric RGB ExtraSamples=0, including JPEGTables, edge tiles, SubIFD overviews, region reads, and explicit unsupported photometric/planar errors
 - [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
 - [x] Aperio JPEG 2000 (`Compression=33003` YCbCr and `33005` MCT) tiles through the reusable codestream decoder
 - [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition
@@ -86,7 +87,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor
 - [x] LERC and LERC plus Deflate (`Compression=34887`) with bounded first-party LERC2 decoding
 - [x] Generated compression audit distinguishing fully COG-tested, weakly COG-tested, recognized unsupported, and not-implemented assignments, with display-versus-native-raster boundaries
-- [x] Deterministic tiled Classic TIFF, BigTIFF, SubIFD, Deflate, LZW, PackBits, JPEG-in-TIFF, RGB/RGBA, nodata, and rotated-affine COG fixtures
+- [x] Deterministic tiled Classic TIFF, BigTIFF, SubIFD, Deflate, LZW, PackBits, JPEG-in-TIFF three-band and four-band, RGB/RGBA, nodata, and rotated-affine COG fixtures
 - [ ] ThunderScan and other extension compressions
 - [x] Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction
 

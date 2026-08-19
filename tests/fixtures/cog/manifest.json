@@ -71,6 +71,23 @@
           "height": 8
         }
       ]
+    },
+    {
+      "filename": "classic-jpeg-rgb-nir.tif",
+      "sha256": "4b4d5fb30acc155e8dcd324e698e8f2d0cdf03b572c9a4e21496ee6f7a68c1e9",
+      "bytes": 3706,
+      "container": "TIFF",
+      "compressionIds": [7],
+      "levels": [
+        {
+          "width": 20,
+          "height": 12
+        },
+        {
+          "width": 10,
+          "height": 6
+        }
+      ]
     }
   ]
 }

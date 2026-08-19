@@ -3,9 +3,10 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { deflateSync } from 'node:zlib'
 import jpeg from 'jpeg-js'
+import { encodeJpegIdentityComponents } from '../src/codecs/jpeg-encode.ts'
 
 type FixtureCompression = 1 | 5 | 7 | 8 | 32773
-type FieldType = 2 | 3 | 4 | 12 | 16 | 18
+type FieldType = 2 | 3 | 4 | 7 | 12 | 16 | 18
 
 interface GeoFixture {
   readonly kind: 'north-up' | 'rotated'
@@ -20,6 +21,9 @@ interface LevelFixture {
   readonly tileHeight: number
   readonly samples: 1 | 3 | 4
   readonly compression: FixtureCompression
+  readonly photometric?: 1 | 2 | 6
+  readonly extraSamples?: readonly number[]
+  readonly jpegTables?: boolean
   readonly geo?: GeoFixture
 }
 
@@ -38,6 +42,7 @@ interface Entry {
 interface EncodedLevel {
   readonly definition: LevelFixture
   readonly tiles: readonly Uint8Array[]
+  readonly jpegTables?: Uint8Array
 }
 
 const outputDirectory = resolve('tests/fixtures/cog')
@@ -120,12 +125,39 @@ const fixtures: readonly CogFixture[] = [
       },
     ],
   },
+  {
+    filename: 'classic-jpeg-rgb-nir.tif',
+    levels: [
+      {
+        width: 20,
+        height: 12,
+        tileWidth: 8,
+        tileHeight: 8,
+        samples: 4,
+        compression: 7,
+        photometric: 2,
+        extraSamples: [0],
+        jpegTables: true,
+        geo: { kind: 'north-up' },
+      },
+      {
+        width: 10,
+        height: 6,
+        tileWidth: 8,
+        tileHeight: 8,
+        samples: 4,
+        compression: 7,
+        photometric: 2,
+        extraSamples: [0],
+        jpegTables: true,
+      },
+    ],
+  },
 ]
 
 const align = (value: number, alignment: number): number => Math.ceil(value / alignment) * alignment
-
 const typeBytes = (type: FieldType): number =>
-  type === 2 ? 1 : type === 3 ? 2 : type === 4 ? 4 : 8
+  type === 2 || type === 7 ? 1 : type === 3 ? 2 : type === 4 ? 4 : 8
 
 const entryCount = (entry: Entry): number =>
   typeof entry.values === 'string'
@@ -143,7 +175,8 @@ const entryPayload = (entry: Entry, littleEndian: boolean): Uint8Array => {
   for (let index = 0; index < entry.values.length; index += 1) {
     const value = entry.values[index] ?? 0
     const offset = index * typeBytes(entry.type)
-    if (entry.type === 3) view.setUint16(offset, value, littleEndian)
+    if (entry.type === 2 || entry.type === 7) output[offset] = value & 0xff
+    else if (entry.type === 3) view.setUint16(offset, value, littleEndian)
     else if (entry.type === 4) view.setUint32(offset, value, littleEndian)
     else if (entry.type === 12) view.setFloat64(offset, value, littleEndian)
     else view.setBigUint64(offset, BigInt(value), littleEndian)
@@ -193,7 +226,8 @@ const tileSample = (
   if (level.compression === 7) {
     if (sample === 0) return tileX % 2 === 0 ? 230 : 20
     if (sample === 1) return tileY % 2 === 0 ? 35 : 220
-    return tileX % 2 === 0 ? 45 : 210
+    if (sample === 2) return tileX % 2 === 0 ? 45 : 210
+    return 70 + ((tileX * 40 + tileY * 55) % 140)
   }
   if (sample === 3) return 80 + ((x * 7 + y * 11) % 176)
   return (x * 17 + y * 29 + sample * 61 + 3) & 0xff
@@ -226,6 +260,15 @@ const encodeTile = (level: LevelFixture, raw: Uint8Array): Uint8Array => {
   if (level.compression === 5) return lzwLiteralStream(raw)
   if (level.compression === 8) return Uint8Array.from(deflateSync(raw, { level: 9 }))
   if (level.compression === 32773) return packBits(raw)
+  if (level.samples === 4 || level.jpegTables === true) {
+    return encodeJpegIdentityComponents(
+      level.tileWidth,
+      level.tileHeight,
+      level.samples,
+      raw,
+      level.jpegTables === true,
+    ).stream
+  }
   const rgba = new Uint8Array(level.tileWidth * level.tileHeight * 4)
   for (let pixel = 0; pixel < level.tileWidth * level.tileHeight; pixel += 1) {
     rgba[pixel * 4] = raw[pixel * 3] ?? 0
@@ -247,7 +290,15 @@ const encodeLevel = (definition: LevelFixture): EncodedLevel => {
       tiles.push(encodeTile(definition, rawTile(definition, tileX, tileY)))
     }
   }
-  return { definition, tiles: Object.freeze(tiles) }
+  return {
+    definition,
+    tiles: Object.freeze(tiles),
+    ...(definition.jpegTables === true
+      ? {
+          jpegTables: encodeJpegIdentityComponents(8, 8, 1, new Uint8Array(64), true).tables,
+        }
+      : {}),
+  }
 }
 
 const geoEntries = (geo: GeoFixture | undefined): readonly Entry[] => {
@@ -314,7 +365,10 @@ const directoryEntries = (
     {
       tag: 262,
       type: 3,
-      values: [definition.compression === 7 ? 6 : definition.samples === 1 ? 1 : 2],
+      values: [
+        definition.photometric ??
+          (definition.compression === 7 ? 6 : definition.samples === 1 ? 1 : 2),
+      ],
     },
     { tag: 277, type: 3, values: [definition.samples] },
     { tag: 284, type: 3, values: [1] },
@@ -323,7 +377,14 @@ const directoryEntries = (
     { tag: 324, type: offsetType, values: tileOffsets },
     { tag: 325, type: offsetType, values: level.tiles.map(({ byteLength }) => byteLength) },
     { tag: 339, type: 3, values: new Array<number>(definition.samples).fill(1) },
-    ...(definition.samples === 4 ? [{ tag: 338, type: 3 as const, values: [2] }] : []),
+    ...(definition.extraSamples !== undefined
+      ? [{ tag: 338, type: 3 as const, values: definition.extraSamples }]
+      : definition.samples === 4
+        ? [{ tag: 338, type: 3 as const, values: [2] }]
+        : []),
+    ...(level.jpegTables === undefined
+      ? []
+      : [{ tag: 347, type: 7 as const, values: Array.from(level.jpegTables) }]),
     ...(subIfdOffsets.length === 0
       ? []
       : [{ tag: 330, type: bigTiff ? (18 as const) : (4 as const), values: subIfdOffsets }]),

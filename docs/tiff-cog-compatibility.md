@@ -21,7 +21,7 @@ unsupported” and “not implemented” both fail with an explicit compression 
 | 4 | CCITT Group 4 | Implemented but weakly COG-tested | Display only | Bilevel display decoding with supported T6 options. |
 | 5 | LZW | Fully tested | Display and native raster | Standard and legacy code packing. |
 | 6 | Old-style JPEG | Implemented but weakly COG-tested | Display only | Complete streams and supported table reconstruction. |
-| 7 | JPEG | Fully tested | Display only | Complete or JPEGTables-composed streams. |
+| 7 | JPEG | Fully tested | Display and native raster | Complete or JPEGTables-composed streams. Native raster keeps 3-band YCbCr as converted RGB and 4-band photometric RGB ExtraSamples=0 as preserved components. |
 | 8 | Deflate | Fully tested | Display and native raster | TIFF Deflate assignment. |
 | 32773 | PackBits | Fully tested | Display and native raster | Bounded PackBits strips and tiles. |
 | 32809 | ThunderScan | Recognized but unsupported | Unsupported | No decoder; rejected explicitly. |
@@ -36,9 +36,12 @@ unsupported” and “not implemented” both fail with an explicit compression 
 | 50001 | WebP | Implemented but weakly COG-tested | Display with explicit codec composition | Requires explicit TIFF/WebP codec composition. |
 | 50002 | JPEG XL | Not implemented | Unsupported | No TIFF JPEG XL segment integration. |
 
-Native scientific TIFF reads require the “Display and native raster” surface. JPEG, old-style JPEG,
-CCITT, Aperio JPEG 2000, and SGILog are display-decoder capabilities; they are not silently converted
-into native scientific raster samples. WebP requires explicit TIFF/WebP codec composition.
+Native scientific TIFF reads require the “Display and native raster” surface. Old-style JPEG,
+CCITT, Aperio JPEG 2000, and SGILog remain display-decoder capabilities and are not silently
+converted into native scientific raster samples. JPEG compression 7 native raster is tested for
+three-band YCbCr-converted RGB and four-band photometric RGB ExtraSamples=0 layouts; four-band
+sources are not routed through the RGB display decoder. WebP requires explicit TIFF/WebP codec
+composition.
 
 ## Deterministic COG corpus
 
@@ -49,11 +52,13 @@ into native scientific raster samples. WebP requires explicit TIFF/WebP codec co
 | `subifd-deflate-rotated.tif` | TIFF | 8 | 32×32 → 16×16 | 4,836 |
 | `classic-packbits-gray.tif` | TIFF | 32773 | 16×8 | 306 |
 | `classic-jpeg-rgb.tif` | TIFF | 7 | 16×8 | 1,426 |
+| `classic-jpeg-rgb-nir.tif` | TIFF | 7 | 20×12 → 10×6 | 3,706 |
 
 The corpus covers tiled Classic TIFF and BigTIFF, internal SubIFD overviews, Deflate, LZW, PackBits,
-JPEG-in-TIFF, scalar and component nodata, RGB and RGBA samples, north-up and rotated affines, and
-pixel-is-area/pixel-is-point semantics. Reduced-resolution tile payloads precede full-resolution tile
-payloads in the pyramid fixture so a remote overview request can avoid the base imagery.
+JPEG-in-TIFF three-band YCbCr and four-band RGB+unspecified extra-sample layouts, scalar and
+component nodata, RGB and RGBA samples, north-up and rotated affines, and pixel-is-area/pixel-is-point
+semantics. Reduced-resolution tile payloads precede full-resolution tile payloads in the pyramid
+fixture so a remote overview request can avoid the base imagery.
 
 Regenerate the corpus reproducibly with:
 

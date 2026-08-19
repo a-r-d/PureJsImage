@@ -52,9 +52,12 @@ unsupported” and “not implemented” both fail with an explicit compression 
 | ---: | --- | --- | --- | --- |
 ${matrix.join('\n')}
 
-Native scientific TIFF reads require the “Display and native raster” surface. JPEG, old-style JPEG,
-CCITT, Aperio JPEG 2000, and SGILog are display-decoder capabilities; they are not silently converted
-into native scientific raster samples. WebP requires explicit TIFF/WebP codec composition.
+Native scientific TIFF reads require the “Display and native raster” surface. Old-style JPEG,
+CCITT, Aperio JPEG 2000, and SGILog remain display-decoder capabilities and are not silently
+converted into native scientific raster samples. JPEG compression 7 native raster is tested for
+three-band YCbCr-converted RGB and four-band photometric RGB ExtraSamples=0 layouts; four-band
+sources are not routed through the RGB display decoder. WebP requires explicit TIFF/WebP codec
+composition.
 
 ## Deterministic COG corpus
 
@@ -63,9 +66,10 @@ into native scientific raster samples. WebP requires explicit TIFF/WebP codec co
 ${corpus.join('\n')}
 
 The corpus covers tiled Classic TIFF and BigTIFF, internal SubIFD overviews, Deflate, LZW, PackBits,
-JPEG-in-TIFF, scalar and component nodata, RGB and RGBA samples, north-up and rotated affines, and
-pixel-is-area/pixel-is-point semantics. Reduced-resolution tile payloads precede full-resolution tile
-payloads in the pyramid fixture so a remote overview request can avoid the base imagery.
+JPEG-in-TIFF three-band YCbCr and four-band RGB+unspecified extra-sample layouts, scalar and
+component nodata, RGB and RGBA samples, north-up and rotated affines, and pixel-is-area/pixel-is-point
+semantics. Reduced-resolution tile payloads precede full-resolution tile payloads in the pyramid
+fixture so a remote overview request can avoid the base imagery.
 
 Regenerate the corpus reproducibly with:
 

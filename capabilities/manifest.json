@@ -226,13 +226,19 @@
       "resourceModel": "single",
       "datasetKinds": ["image", "volume", "pyramid"],
       "directRangeReads": true,
-      "boundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels with typed GeoTIFF CRS, affine, inverse, bounds, pixel interpretation, nodata, and JSON-safe source metadata; deterministic tiled Classic TIFF, BigTIFF, Deflate, LZW, PackBits, RGB/RGBA, and overview COG fixtures prove the applicable native-raster paths while JPEG-in-TIFF remains display-only. Pixel reads remain in raster coordinates without invented axis semantics.",
+      "boundary": "Native-precision compatible page series, separate incompatible series, and SubIFD or chained reduced-resolution levels with typed GeoTIFF CRS, affine, inverse, bounds, pixel interpretation, nodata, and JSON-safe source metadata; deterministic tiled Classic TIFF, BigTIFF, Deflate, LZW, PackBits, RGB/RGBA, three-band YCbCr JPEG, four-band photometric-RGB ExtraSamples=0 JPEG, and overview COG fixtures prove the applicable native-raster paths. JPEG compression 7 native samples are YCbCr-converted RGB, preserved RGB+unspecified extra components, or grayscale; four-band sources are not routed through the RGB display decoder. Old-style JPEG remains display-only. Pixel reads remain in raster coordinates without invented axis semantics.",
       "evidence": [
         "tests/scientific-tiff-reader.test.ts",
+        "tests/scientific-tiff-jpeg.test.ts",
         "tests/tiff-cog.test.ts",
-        "tests/tiff-cog-benchmark.test.ts"
+        "tests/tiff-cog-benchmark.test.ts",
+        "tests/kyfromabove-live.test.ts"
       ],
-      "fixtures": ["tests/scientific-tiff-reader.test.ts", "tests/fixtures/cog/manifest.json"]
+      "fixtures": [
+        "tests/scientific-tiff-reader.test.ts",
+        "tests/fixtures/cog/manifest.json",
+        "tests/fixtures/kyfromabove/manifest.json"
+      ]
     },
     {
       "id": "purejsimage/ome-tiff",
@@ -1389,6 +1395,7 @@
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
         "tests/scientific-tiff-reader.test.ts",
+        "tests/scientific-tiff-jpeg.test.ts",
         "tests/tiff-cog.test.ts",
         "tests/tiff-cog-benchmark.test.ts",
         "tests/scientific-aperio-reader.test.ts",
@@ -1475,6 +1482,7 @@
         "- [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit integer or floating-point samples",
         "- [x] Floating-point predictor 3 byte unshuffle and accumulation for float16, float32, and float64 samples",
         "- [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`",
+        "- [x] Native scientific raster for JPEG-in-TIFF three-band YCbCr-converted RGB and four-band photometric RGB ExtraSamples=0, including JPEGTables, edge tiles, SubIFD overviews, region reads, and explicit unsupported photometric/planar errors",
         "- [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction",
         "- [x] Aperio JPEG 2000 (`Compression=33003` YCbCr and `33005` MCT) tiles through the reusable codestream decoder",
         "- [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition",
@@ -1482,7 +1490,7 @@
         "- [x] Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor",
         "- [x] LERC and LERC plus Deflate (`Compression=34887`) with bounded first-party LERC2 decoding",
         "- [x] Generated compression audit distinguishing fully COG-tested, weakly COG-tested, recognized unsupported, and not-implemented assignments, with display-versus-native-raster boundaries",
-        "- [x] Deterministic tiled Classic TIFF, BigTIFF, SubIFD, Deflate, LZW, PackBits, JPEG-in-TIFF, RGB/RGBA, nodata, and rotated-affine COG fixtures",
+        "- [x] Deterministic tiled Classic TIFF, BigTIFF, SubIFD, Deflate, LZW, PackBits, JPEG-in-TIFF three-band and four-band, RGB/RGBA, nodata, and rotated-affine COG fixtures",
         "- [ ] ThunderScan and other extension compressions",
         "- [x] Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction",
         "",
