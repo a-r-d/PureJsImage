@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test'
 
 const overflowViewports = [390, 768, 1024, 1280, 1440] as const
-const desktopPrimaryLabels = ['Demos', 'Guides', 'Reference', 'Benchmarks'] as const
+const desktopPrimaryLabels = ['Demos', 'Apps', 'Guides', 'Reference', 'Benchmarks'] as const
 
 const noHorizontalOverflow = async (page: Page) => {
   const { clientWidth, scrollWidth } = await page.evaluate(() => ({
@@ -24,10 +24,10 @@ test('keeps a one-line desktop header with the grouped navigation', async ({ pag
   await page.goto('/guides/')
 
   await expect(page.locator('[data-menu-toggle]')).toBeHidden()
-  await expect(page.locator('.header-actions .app-header')).toBeVisible()
-  await expect(page.locator('.header-actions .app-header')).toHaveAttribute(
+  await expect(page.locator('.header-actions .github-header')).toBeVisible()
+  await expect(page.locator('.header-actions .github-header')).toHaveAttribute(
     'href',
-    'https://lab.purejsimage.com/',
+    'https://github.com/a-r-d/PureJsImage',
   )
   await expect(page.locator('.header-actions a', { hasText: 'GitHub' })).toHaveCount(0)
   await expect(page.locator('.nav-panel-extras')).toBeHidden()
@@ -80,6 +80,15 @@ test('keeps a one-line desktop header with the grouped navigation', async ({ pag
   await expect(nav.getByRole('link', { name: 'Image converter' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Whole-slide viewer' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Scientific explorer' })).toBeVisible()
+  await page.locator('.nav-summary', { hasText: 'Apps' }).click()
+  await expect(nav.getByRole('link', { name: 'Scientific imagery' })).toHaveAttribute(
+    'href',
+    'https://lab.purejsimage.com/',
+  )
+  await expect(nav.getByRole('link', { name: 'Geospatial' })).toHaveAttribute(
+    'href',
+    'https://geo.purejsimage.com/',
+  )
 
   await noHorizontalOverflow(page)
 })
@@ -89,7 +98,7 @@ test('switches to compact navigation before the desktop row would be crushed', a
   await page.goto('/homepage.html')
 
   await expect(page.locator('[data-menu-toggle]')).toBeVisible()
-  await expect(page.locator('.header-actions .app-header')).toBeHidden()
+  await expect(page.locator('.header-actions .github-header')).toBeVisible()
   await expect(page.locator('[data-nav]')).toBeHidden()
   await expect(page.locator('[data-nav] > a:not(.button)')).toHaveCount(1)
 
@@ -103,14 +112,15 @@ test('opens and closes the compact menu as a bounded panel', async ({ page }) =>
   const toggle = page.locator('[data-menu-toggle]')
   const navigation = page.locator('[data-nav]')
   await expect(toggle).toHaveAttribute('aria-expanded', 'false')
-  await expect(page.locator('.header-actions .app-header')).toBeHidden()
+  await expect(page.locator('.header-actions .github-header')).toBeVisible()
   await expect(navigation).toBeHidden()
 
   await toggle.click()
   await expect(toggle).toHaveAttribute('aria-expanded', 'true')
   await expect(toggle).toHaveAttribute('aria-label', 'Close navigation')
   await expect(navigation).toBeVisible()
-  await expect(navigation.locator('.app-header-menu')).toBeVisible()
+  await expect(navigation.getByRole('link', { name: 'Scientific imagery' })).toBeVisible()
+  await expect(navigation.getByRole('link', { name: 'Geospatial' })).toBeVisible()
   await expect(navigation.getByRole('link', { name: 'GitHub' })).toBeVisible()
   await expect(navigation.getByRole('link', { name: 'Contribute' })).toBeVisible()
 
@@ -138,7 +148,7 @@ test('opens and closes the compact menu as a bounded panel', async ({ page }) =>
 
   await toggle.click()
   const popupPromise = page.waitForEvent('popup')
-  await navigation.locator('.app-header-menu').click()
+  await navigation.getByRole('link', { name: 'Scientific imagery' }).click()
   const popup = await popupPromise
   await popup.close()
   await expect(toggle).toHaveAttribute('aria-expanded', 'false')
@@ -177,6 +187,9 @@ test('marks the current page and its containing group', async ({ page }) => {
     'aria-current',
   )
   await expect(page.locator('.nav-summary', { hasText: 'Benchmarks' })).not.toHaveAttribute(
+    'aria-current',
+  )
+  await expect(page.locator('.nav-summary', { hasText: 'Apps' })).not.toHaveAttribute(
     'aria-current',
   )
 
@@ -247,9 +260,10 @@ test('keeps the 390px header inside the viewport', async ({ page }) => {
   const brand = page.locator('.site-header .brand')
   await expect(brand).toBeVisible()
   await expect(brand).toContainText('PureJsImage')
-  await expect(page.locator('.header-actions .app-header')).toBeHidden()
+  await expect(page.locator('.header-actions .github-header')).toBeVisible()
   await boxInsideViewport(page, '.site-header .brand', 390)
   await boxInsideViewport(page, '[data-theme-toggle]', 390)
+  await boxInsideViewport(page, '.header-actions .github-header', 390)
   await boxInsideViewport(page, '[data-menu-toggle]', 390)
   await noHorizontalOverflow(page)
 })

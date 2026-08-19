@@ -388,9 +388,13 @@ pre {
   gap: 8px;
 }
 
-.app-header,
-.app-header-menu {
-  white-space: nowrap;
+a.icon-button {
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.icon-button:hover {
+  text-decoration: none;
 }
 
 .icon-button {
@@ -1750,10 +1754,6 @@ tr:last-child td {
     display: inline-grid;
   }
 
-  .app-header {
-    display: none;
-  }
-
   .site-nav {
     position: absolute;
     top: 100%;
@@ -1827,10 +1827,6 @@ tr:last-child td {
     font-weight: 730;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-  }
-
-  .app-header-menu {
-    align-self: stretch;
   }
 }
 
