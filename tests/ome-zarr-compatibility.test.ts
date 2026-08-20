@@ -34,7 +34,10 @@ const mockFetch =
     const end = Math.min(Number(range[2]), bytes.byteLength - 1)
     return new Response(bytes.slice(start, end + 1), {
       status: 206,
-      headers: { 'content-range': `bytes ${start}-${end}/${bytes.byteLength}` },
+      headers: {
+        'content-range': `bytes ${start}-${end}/${bytes.byteLength}`,
+        etag: '"fixture-v1"',
+      },
     })
   }
 
@@ -99,6 +102,15 @@ describe('OME-Zarr compatibility runner', () => {
     expect(result).toMatchObject({
       classification: 'PASS',
       probeConfidence: 0.95,
+      storeIdentity: {
+        normalizedRootUrl: 'https://example.test/store/',
+        selectedRootMetadataObject: 'zarr.json',
+        sourceIdentityStrength: 'strong',
+        rootObjectSize: files['zarr.json'].byteLength,
+        rootObjectValidator: { kind: 'etag', value: '"fixture-v1"' },
+        zarrFormat: 3,
+        omeNgffVersion: '0.5',
+      },
       datasets: [
         {
           id: 'image',
@@ -228,6 +240,15 @@ describe('OME-Zarr compatibility runner', () => {
           expectedClassification: 'PASS',
           classification: 'PASS',
           observedSurfaces: ['regular-chunks'],
+          storeIdentity: {
+            normalizedRootUrl: 'https://example.test/store/',
+            selectedRootMetadataObject: 'zarr.json',
+            sourceIdentityStrength: 'weak',
+            rootObjectSize: 100,
+            sessionIdentity: 'run-one',
+            zarrFormat: 3,
+            omeNgffVersion: '0.5',
+          },
         },
       ],
       unexpectedFailures: [],
@@ -247,9 +268,53 @@ describe('OME-Zarr compatibility runner', () => {
     expect(() =>
       assertOmeZarrCompatibilityReportCurrent(base, {
         ...base,
+        results: [
+          {
+            ...base.results[0],
+            storeIdentity: { ...base.results[0]?.storeIdentity, sessionIdentity: 'run-two' },
+          },
+        ],
+      }),
+    ).not.toThrow()
+    expect(() =>
+      assertOmeZarrCompatibilityReportCurrent(base, {
+        ...base,
         results: [{ ...base.results[0], classification: 'INVALID' }],
       }),
     ).toThrow(/stale/u)
+    expect(() =>
+      assertOmeZarrCompatibilityReportCurrent(base, {
+        ...base,
+        results: [
+          {
+            ...base.results[0],
+            storeIdentity: {
+              normalizedRootUrl: 'https://example.test/store/',
+              selectedRootMetadataObject: 'zarr.json',
+              sourceIdentityStrength: 'strong',
+              rootObjectSize: 100,
+              rootObjectValidator: { kind: 'etag', value: '"changed"' },
+              zarrFormat: 3,
+              omeNgffVersion: '0.5',
+            },
+          },
+        ],
+      }),
+    ).toThrow(/stale/u)
     expect(() => parseOmeZarrCompatibilityReport({ ...base, schemaVersion: 1 })).toThrow(/schema/u)
+    expect(() =>
+      parseOmeZarrCompatibilityReport({
+        ...base,
+        results: [
+          {
+            ...base.results[0],
+            storeIdentity: {
+              ...base.results[0]?.storeIdentity,
+              sourceIdentityStrength: 'strong',
+            },
+          },
+        ],
+      }),
+    ).toThrow(/identity evidence/u)
   })
 })

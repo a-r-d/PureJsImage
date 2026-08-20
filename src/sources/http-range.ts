@@ -117,26 +117,93 @@ export interface HttpRangeValidator {
   readonly value: string
 }
 
-const cancelResponse = async (response: Response): Promise<void> => {
+const cancelResponse = (response: Response): void => {
   try {
-    await response.body?.cancel()
+    void response.body?.cancel().catch(() => undefined)
   } catch {
     // The response is already rejected; cancellation is best-effort cleanup.
   }
 }
 
-const responseBytes = async (
+const exactResponseBytes = async (
   response: Response,
   label: string,
+  expected: number,
   signal: AbortSignal | undefined,
 ): Promise<Uint8Array<ArrayBuffer>> => {
+  const rawContentLength = response.headers.get('content-length')
+  if (rawContentLength !== null) {
+    const contentLength = Number(rawContentLength)
+    if (
+      !/^\d+$/u.test(rawContentLength) ||
+      !Number.isSafeInteger(contentLength) ||
+      contentLength !== expected
+    ) {
+      cancelResponse(response)
+      throw invalidInput(
+        `${label} Content-Length ${rawContentLength} does not match expected ${expected}`,
+      )
+    }
+  }
+
+  if (response.body === null) {
+    if (rawContentLength === null) {
+      throw invalidInput(`${label} has no readable body or bounded Content-Length fallback`)
+    }
+    try {
+      const buffered = new Uint8Array(await response.arrayBuffer())
+      throwIfAborted(signal)
+      if (buffered.byteLength !== expected) {
+        throw truncatedInput(`${label} returned ${buffered.byteLength} of ${expected} bytes`)
+      }
+      return buffered
+    } catch (cause) {
+      throwIfAborted(signal)
+      if (cause instanceof ImageError) throw cause
+      throw new ImageError('INVALID_INPUT', `${label} body could not be read`, { cause })
+    }
+  }
+
+  const reader = response.body.getReader()
+  const output = new Uint8Array(expected)
+  let received = 0
+  let complete = false
+  let cancelPromise: Promise<void> | undefined
+  const cancelReader = (reason?: unknown): Promise<void> => {
+    cancelPromise ??= reader.cancel(reason).catch(() => undefined)
+    return cancelPromise
+  }
+  const abortReader = (): void => {
+    void cancelReader(signal?.reason)
+  }
+  signal?.addEventListener('abort', abortReader, { once: true })
   try {
-    const data = new Uint8Array(await response.arrayBuffer())
-    throwIfAborted(signal)
-    return data
+    while (true) {
+      throwIfAborted(signal)
+      const result = await waitForPromise(reader.read(), signal)
+      throwIfAborted(signal)
+      if (result.done) {
+        if (received !== expected) {
+          throw truncatedInput(`${label} returned ${received} of ${expected} bytes`)
+        }
+        complete = true
+        return output
+      }
+      if (result.value.byteLength > expected - received) {
+        void cancelReader()
+        throw invalidInput(`${label} returned more than the expected ${expected} bytes`)
+      }
+      output.set(result.value, received)
+      received += result.value.byteLength
+    }
   } catch (cause) {
     throwIfAborted(signal)
+    if (cause instanceof ImageError) throw cause
     throw new ImageError('INVALID_INPUT', `${label} body could not be read`, { cause })
+  } finally {
+    signal?.removeEventListener('abort', abortReader)
+    if (complete) reader.releaseLock()
+    else void cancelReader(signal?.reason)
   }
 }
 
@@ -275,18 +342,18 @@ export class HttpRangeSource implements ImageSource {
       throw new ImageError('INVALID_INPUT', `HTTP range probe failed for ${href}`, { cause })
     }
     if (options.allowNotFound === true && (response.status === 404 || response.status === 410)) {
-      await cancelResponse(response)
+      cancelResponse(response)
       return undefined
     }
     if (response.status !== 206) {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput(
         `HTTP source must support byte ranges; probe returned status ${response.status}`,
       )
     }
     const contentEncoding = response.headers.get('content-encoding')
     if (contentEncoding !== null && contentEncoding.toLowerCase() !== 'identity') {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput('HTTP range source does not support content-encoded responses')
     }
     const rawContentRange = response.headers.get('content-range')
@@ -297,7 +364,7 @@ export class HttpRangeSource implements ImageSource {
     } else if (options.allowHeadSizeFallback === true && options.expectedSize !== undefined) {
       size = options.expectedSize
       if (!Number.isSafeInteger(size) || size < 1) {
-        await cancelResponse(response)
+        cancelResponse(response)
         throw invalidInput('HTTP expected size must be a positive safe integer')
       }
     } else if (options.allowHeadSizeFallback === true) {
@@ -312,29 +379,27 @@ export class HttpRangeSource implements ImageSource {
         headRequests += 1
       } catch (cause) {
         throwIfAborted(openSignal)
-        await cancelResponse(response)
+        cancelResponse(response)
         throw new ImageError('INVALID_INPUT', `HTTP size probe failed for ${href}`, { cause })
       }
       if (head.status !== 200) {
-        await cancelResponse(response)
-        await cancelResponse(head)
+        cancelResponse(response)
+        cancelResponse(head)
         throw invalidInput(`HTTP size probe returned status ${head.status}`)
       }
       const rawSize = head.headers.get('content-length')
       size = Number(rawSize)
       if (!Number.isSafeInteger(size) || size < 1) {
-        await cancelResponse(response)
-        await cancelResponse(head)
+        cancelResponse(response)
+        cancelResponse(head)
         throw invalidInput('HTTP size probe is missing a valid Content-Length header')
       }
-      await cancelResponse(head)
+      cancelResponse(head)
     } else {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput('HTTP range response is missing a valid Content-Range header')
     }
-    const probe = await responseBytes(response, 'HTTP range probe', openSignal)
-    if (probe.byteLength !== 1)
-      throw truncatedInput('HTTP range probe did not return exactly one byte')
+    await exactResponseBytes(response, 'HTTP range probe', 1, openSignal)
     const etag = response.headers.get('etag')
     const lastModified = response.headers.get('last-modified')
     const rawVersionId = response.headers.get('x-amz-version-id')
@@ -482,7 +547,7 @@ export class HttpRangeSource implements ImageSource {
       })
     }
     if (response.status !== 206) {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput(`HTTP range request returned status ${response.status}`)
     }
     const rawContentRange = response.headers.get('content-range')
@@ -491,23 +556,20 @@ export class HttpRangeSource implements ImageSource {
         ? this.size
         : parseContentRange(response, start, end)
     if (responseSize !== this.size) {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput(`HTTP range source size changed from ${this.size} to ${responseSize}`)
     }
     const contentEncoding = response.headers.get('content-encoding')
     if (contentEncoding !== null && contentEncoding.toLowerCase() !== 'identity') {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput('HTTP range source does not support content-encoded responses')
     }
     if (this.#validator && response.headers.get(this.#validator.header) !== this.#validator.value) {
-      await cancelResponse(response)
+      cancelResponse(response)
       throw invalidInput(`HTTP range source ${this.#validator.header} changed during reading`)
     }
-    const data = await responseBytes(response, 'HTTP range response', signal)
     const expected = end - start + 1
-    if (data.byteLength !== expected) {
-      throw truncatedInput(`HTTP range returned ${data.byteLength} of ${expected} requested bytes`)
-    }
+    const data = await exactResponseBytes(response, 'HTTP range response', expected, signal)
     this.#transferBytes += data.byteLength
     return Object.freeze({ start, data })
   }

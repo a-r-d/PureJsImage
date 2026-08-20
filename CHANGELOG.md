@@ -22,6 +22,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- HTTP range responses now stream into the exact requested buffer, validate visible
+  `Content-Length` before reading, cancel immediately on excess bytes, and reject oversized,
+  infinite, or truncated bodies without first materializing the complete response. The public
+  OME-Zarr HTTP store now documents ownership, close/LRU/statistics behavior and exposes a
+  JSON-safe root-object identity summary; dated compatibility evidence records those root
+  validators without claiming a version for the complete store.
 - OME-Zarr descriptors now expose immutable normalized `omeZarrLevels` storage metadata, including
   logical chunk and outer shard shapes, codec names, and shard-index location. Blosc 1 decoding now
   supports 8-element-aligned bitshuffle blocks, including the zstd payloads used by the verified

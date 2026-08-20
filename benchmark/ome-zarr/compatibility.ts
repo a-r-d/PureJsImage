@@ -3,6 +3,7 @@ import type { ScientificDataset, ScientificPlaneReadRequest } from '../../src/sc
 import {
   createOmeZarrHttpContext,
   normalizeOmeZarrStoreUrl,
+  type OmeZarrHttpStoreIdentitySummary,
   type OmeZarrHttpStoreOptions,
 } from '../../src/scientific/ome-zarr-http.ts'
 import {
@@ -112,6 +113,7 @@ export interface OmeZarrCompatibilityResult {
   readonly expectedClassification?: OmeZarrCompatibilityClassification
   readonly probeConfidence?: number
   readonly observedSurfaces?: readonly OmeZarrCompatibilitySurface[]
+  readonly storeIdentity?: OmeZarrHttpStoreIdentitySummary
   readonly warnings?: readonly OmeZarrWarning[]
   readonly datasets?: readonly OmeZarrCompatibilityDatasetResult[]
   readonly message?: string
@@ -467,8 +469,10 @@ export const runOmeZarrCompatibilitySample = async (
   }
   let context: Awaited<ReturnType<typeof createOmeZarrHttpContext>> | undefined
   let probeConfidence: number | undefined
+  let storeIdentity: OmeZarrHttpStoreIdentitySummary | undefined
   try {
     context = await createOmeZarrHttpContext(sample.url, storeOptions)
+    storeIdentity = context.store.identitySummary()
     const reader = createOmeZarrReader({
       limits: { maxDatasets: 256, maxLevels: 64, maxRegionBytes: 1_048_576 },
       metadataValidation: sample.metadataValidation ?? 'strict',
@@ -478,6 +482,7 @@ export const runOmeZarrCompatibilitySample = async (
     if (probe.confidence === 0) throw invalidInput(probe.reason ?? 'Not an OME-Zarr store')
     const document = await reader.open(context)
     try {
+      storeIdentity = context.store.identitySummary(document)
       const datasets: OmeZarrCompatibilityDatasetResult[] = []
       const surfaces = new Set<OmeZarrCompatibilitySurface>()
       if (document.metadata.omeNgffVersion === '0.4' && document.metadata.zarrFormat === 2) {
@@ -547,6 +552,7 @@ export const runOmeZarrCompatibilitySample = async (
         ...sample,
         classification: 'PASS',
         probeConfidence,
+        storeIdentity,
         observedSurfaces,
         ...(warnings === undefined ? {} : { warnings }),
         datasets: Object.freeze(datasets),
@@ -559,6 +565,7 @@ export const runOmeZarrCompatibilitySample = async (
       ...sample,
       classification: classifyOmeZarrCompatibilityFailure(cause),
       ...(probeConfidence === undefined ? {} : { probeConfidence }),
+      ...(storeIdentity === undefined ? {} : { storeIdentity }),
       message: cause instanceof Error ? cause.message : String(cause),
     })
   } finally {

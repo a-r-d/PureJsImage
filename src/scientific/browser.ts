@@ -13,6 +13,7 @@ export type {
   NormalizedOmeZarrStoreUrl,
   OmeZarrHttpContext,
   OmeZarrHttpStoreOptions,
+  OmeZarrHttpStoreIdentitySummary,
   OmeZarrNetworkStats,
 } from './ome-zarr-http.ts'
 export {

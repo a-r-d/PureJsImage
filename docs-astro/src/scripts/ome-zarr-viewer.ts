@@ -1358,7 +1358,7 @@ const openUrl = (): void => {
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : 'Invalid OME-Zarr URL'
     openButton.disabled = false
-    openButton.textContent = 'Open OME-Zarr store'
+    openButton.textContent = 'Open store'
     openButton.removeAttribute('aria-busy')
     statusElement.textContent = message
     statusElement.dataset.error = 'true'
@@ -1403,7 +1403,7 @@ const acceptMetadata = (
   setMetadataFacts(opened)
   renderControls()
   openButton.disabled = false
-  openButton.textContent = 'Open OME-Zarr store'
+  openButton.textContent = 'Open store'
   openButton.removeAttribute('aria-busy')
   resetButton.disabled = false
   setViewerControlsEnabled(true)
@@ -1483,7 +1483,7 @@ worker.onmessage = (event: MessageEvent<OmeZarrWorkerResponse>): void => {
   }
   if (message.generation !== undefined && message.generation !== generation) return
   openButton.disabled = false
-  openButton.textContent = 'Open OME-Zarr store'
+  openButton.textContent = 'Open store'
   openButton.removeAttribute('aria-busy')
   if (message.requestId !== undefined) {
     const request = pendingById.get(message.requestId)
@@ -1503,7 +1503,7 @@ worker.onmessage = (event: MessageEvent<OmeZarrWorkerResponse>): void => {
 
 worker.onerror = (event): void => {
   openButton.disabled = false
-  openButton.textContent = 'Open OME-Zarr store'
+  openButton.textContent = 'Open store'
   openButton.removeAttribute('aria-busy')
   const message = event.message || 'OME-Zarr worker failed'
   statusElement.textContent = message

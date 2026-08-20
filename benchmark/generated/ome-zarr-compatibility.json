@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "reportType": "public-compatibility",
   "corpusPath": "benchmark/ome-zarr/official-corpus.json",
-  "generatedAt": "2026-08-20T19:22:50.335Z",
+  "generatedAt": "2026-08-20T20:36:20.258Z",
   "nodeVersion": "v24.16.0",
   "platform": "linux/x64",
   "results": [
@@ -20,6 +20,18 @@
       ],
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/",
+        "selectedRootMetadataObject": ".zgroup",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 24,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"e20297935e73dd0154104d4ea53040ab\""
+        },
+        "zarrFormat": 2,
+        "omeNgffVersion": "0.4"
+      },
       "observedSurfaces": [
         "ome-ngff-0.4-zarr-v2",
         "regular-chunks",
@@ -151,6 +163,18 @@
       ],
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/",
+        "selectedRootMetadataObject": "zarr.json",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 1243,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"064277cec351dc92f5810aa7eb580e69\""
+        },
+        "zarrFormat": 3,
+        "omeNgffVersion": "0.5"
+      },
       "observedSurfaces": [
         "ome-ngff-0.5-zarr-v3",
         "regular-chunks",
@@ -282,6 +306,18 @@
       },
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0044A/4007801.zarr/",
+        "selectedRootMetadataObject": ".zgroup",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 23,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"7edf56b472f9b79a67c08ae204f2b0f7\""
+        },
+        "zarrFormat": 2,
+        "omeNgffVersion": "0.4"
+      },
       "observedSurfaces": [
         "ome-ngff-0.4-zarr-v2",
         "regular-chunks",
@@ -377,6 +413,18 @@
       },
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/",
+        "selectedRootMetadataObject": "zarr.json",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 120,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"3c906397b588dfb32c0ccb97f247908f\""
+        },
+        "zarrFormat": 3,
+        "omeNgffVersion": "0.5"
+      },
       "observedSurfaces": [
         "ome-ngff-0.5-zarr-v3",
         "sharding-indexed",
@@ -453,6 +501,18 @@
       ],
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://uk1s3.embassy.ebi.ac.uk/idr/share/ome2024-ngff-challenge/0.0.5/6001240.zarr/",
+        "selectedRootMetadataObject": "zarr.json",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 2787,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"ce18185fad6ca05958cf02a470ed6576\""
+        },
+        "zarrFormat": 3,
+        "omeNgffVersion": "0.5"
+      },
       "observedSurfaces": [
         "ome-ngff-0.5-zarr-v3",
         "sharding-indexed",
@@ -525,6 +585,18 @@
       ],
       "classification": "PASS",
       "probeConfidence": 0.9,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://storage.googleapis.com/jax-public-ngff/public/41028.zarr/",
+        "selectedRootMetadataObject": "zarr.json",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 215,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"e68dafe109571cb22ea16371bcbc39f6\""
+        },
+        "zarrFormat": 3,
+        "omeNgffVersion": "0.5"
+      },
       "observedSurfaces": [
         "ome-ngff-0.5-zarr-v3",
         "sharding-indexed",
@@ -703,6 +775,18 @@
       ],
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://uk1s3.embassy.ebi.ac.uk/bia-zarr-test/S-BSST410/IM1.zarr/0/",
+        "selectedRootMetadataObject": ".zgroup",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 23,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"7edf56b472f9b79a67c08ae204f2b0f7\""
+        },
+        "zarrFormat": 2,
+        "omeNgffVersion": "0.4"
+      },
       "observedSurfaces": [
         "ome-ngff-0.4-zarr-v2",
         "regular-chunks",
@@ -773,6 +857,16 @@
       "expectedClassification": "UNSUPPORTED_METADATA",
       "classification": "UNSUPPORTED_METADATA",
       "probeConfidence": 0.9,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://haniffa.cog.sanger.ac.uk/fetal-immune/fetal-spleen/visium/0.0.1/visium_1_raw.zarr/",
+        "selectedRootMetadataObject": ".zgroup",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 23,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"7edf56b472f9b79a67c08ae204f2b0f7\""
+        }
+      },
       "message": "OME-NGFF 0.2 on Zarr v2 attributes is unsupported"
     },
     {
@@ -783,6 +877,18 @@
       "expectedSurfaces": ["ome-ngff-0.4-zarr-v2", "regular-chunks"],
       "classification": "PASS",
       "probeConfidence": 0.95,
+      "storeIdentity": {
+        "normalizedRootUrl": "https://ssbd.riken.jp/100118-dcacbb41/zarr/v0.4/Fig3a_FIB-SEM_synapse.zarr/",
+        "selectedRootMetadataObject": ".zgroup",
+        "sourceIdentityStrength": "strong",
+        "rootObjectSize": 23,
+        "rootObjectValidator": {
+          "kind": "etag",
+          "value": "\"7edf56b472f9b79a67c08ae204f2b0f7\""
+        },
+        "zarrFormat": 2,
+        "omeNgffVersion": "0.4"
+      },
       "observedSurfaces": ["ome-ngff-0.4-zarr-v2", "regular-chunks"],
       "datasets": [
         {

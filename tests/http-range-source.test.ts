@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 
 const bytes = Uint8Array.from({ length: 100 }, (_value, index) => index)
@@ -63,6 +63,136 @@ describe('HttpRangeSource cancellation scopes', () => {
     await expect(source.read(16, 2)).resolves.toEqual(Uint8Array.of(16, 17))
     expect(methods).toEqual(['GET', 'GET'])
     expect(source.stats).toMatchObject({ requests: 2, bytesFetched: 17, uniqueBytes: 17 })
+  })
+
+  it('rejects an invalid HEAD size when Content-Range is hidden', async () => {
+    const fetchRange: typeof fetch = async (_input, init) => {
+      if (init?.method === 'HEAD') {
+        return new Response(null, { status: 200, headers: { 'content-length': '0' } })
+      }
+      return new Response(Uint8Array.of(0), { status: 206 })
+    }
+    await expect(
+      HttpRangeSource.open('https://example.test/invalid-head-size.bin', {
+        allowHeadSizeFallback: true,
+        fetch: fetchRange,
+      }),
+    ).rejects.toThrow('missing a valid Content-Length')
+  })
+
+  it('rejects a visible Content-Length that does not match the requested range', async () => {
+    let cancelled = false
+    const fetchRange: typeof fetch = async () =>
+      new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(Uint8Array.of(0))
+          },
+          cancel() {
+            cancelled = true
+          },
+        }),
+        {
+          status: 206,
+          headers: {
+            'content-length': '2',
+            'content-range': 'bytes 0-0/100',
+          },
+        },
+      )
+    await expect(
+      HttpRangeSource.open('https://example.test/incorrect-content-length.bin', {
+        fetch: fetchRange,
+      }),
+    ).rejects.toThrow('Content-Length 2 does not match expected 1')
+    expect(cancelled).toBe(true)
+  })
+
+  it('cancels and rejects an oversized HTTP 206 stream', async () => {
+    let cancelled = false
+    const fetchRange: typeof fetch = async (_input, init) => {
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 416 })
+      if (range.start === 0 && range.end === 0) return rangeResponse(0, 0)
+      return new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array(range.end - range.start + 2))
+          },
+          cancel() {
+            cancelled = true
+            return new Promise<void>(() => undefined)
+          },
+        }),
+        {
+          status: 206,
+          headers: { 'content-range': `bytes ${range.start}-${range.end}/100` },
+        },
+      )
+    }
+    const source = await HttpRangeSource.open('https://example.test/oversized-stream.bin', {
+      blockBytes: 16,
+      fetch: fetchRange,
+    })
+    await expect(source.read(16, 1)).rejects.toThrow('more than the expected 16 bytes')
+    expect(cancelled).toBe(true)
+  })
+
+  it('stops an infinite HTTP 206 stream after the first excess byte', async () => {
+    let cancelled = false
+    let chunks = 0
+    const fetchRange: typeof fetch = async (_input, init) => {
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 416 })
+      if (range.start === 0 && range.end === 0) return rangeResponse(0, 0)
+      return new Response(
+        new ReadableStream<Uint8Array>({
+          pull(controller) {
+            chunks += 1
+            controller.enqueue(new Uint8Array(8))
+          },
+          cancel() {
+            cancelled = true
+          },
+        }),
+        {
+          status: 206,
+          headers: { 'content-range': `bytes ${range.start}-${range.end}/100` },
+        },
+      )
+    }
+    const source = await HttpRangeSource.open('https://example.test/infinite-stream.bin', {
+      blockBytes: 16,
+      fetch: fetchRange,
+    })
+    await expect(source.read(16, 1)).rejects.toThrow('more than the expected 16 bytes')
+    expect(cancelled).toBe(true)
+    expect(chunks).toBeLessThanOrEqual(4)
+  })
+
+  it('rejects a truncated HTTP 206 stream', async () => {
+    const fetchRange: typeof fetch = async (_input, init) => {
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 416 })
+      if (range.start === 0 && range.end === 0) return rangeResponse(0, 0)
+      return new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array(8))
+            controller.close()
+          },
+        }),
+        {
+          status: 206,
+          headers: { 'content-range': `bytes ${range.start}-${range.end}/100` },
+        },
+      )
+    }
+    const source = await HttpRangeSource.open('https://example.test/truncated-stream.bin', {
+      blockBytes: 16,
+      fetch: fetchRange,
+    })
+    await expect(source.read(16, 1)).rejects.toThrow('returned 8 of 16 bytes')
   })
 
   it('rejects an invalid expected size even after a successful range probe', async () => {
@@ -204,6 +334,47 @@ describe('HttpRangeSource cancellation scopes', () => {
     expect(fetchAborted).toBe(true)
     expect(source.stats.abortedConsumers).toBe(2)
     expect(source.stats.coalescedConsumers).toBe(1)
+  })
+
+  it('cancels a response body when the last consumer aborts during streaming', async () => {
+    let bodyStarted: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      bodyStarted = resolve
+    })
+    let bodyCancelled = false
+    const fetchRange: typeof fetch = async (_input, init) => {
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 416 })
+      if (range.start === 0 && range.end === 0) return rangeResponse(0, 0)
+      return new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(Uint8Array.of(16, 17, 18, 19))
+            bodyStarted?.()
+          },
+          pull() {
+            // Leave the exact reader waiting for the rest of the requested block.
+          },
+          cancel() {
+            bodyCancelled = true
+          },
+        }),
+        {
+          status: 206,
+          headers: { 'content-range': `bytes ${range.start}-${range.end}/100` },
+        },
+      )
+    }
+    const source = await HttpRangeSource.open('https://example.test/stream-cancel.bin', {
+      blockBytes: 16,
+      fetch: fetchRange,
+    })
+    const controller = new AbortController()
+    const reading = source.read(16, 1, { signal: controller.signal })
+    await started
+    controller.abort()
+    await expect(reading).rejects.toMatchObject({ name: 'AbortError' })
+    await vi.waitFor(() => expect(bodyCancelled).toBe(true))
   })
   it('rejects later reads when the source lifetime signal aborts', async () => {
     const lifetime = new AbortController()

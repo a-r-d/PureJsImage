@@ -3,12 +3,13 @@ import { ImageError, invalidInput } from '../errors.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../source.ts'
 import { stableSourceBuffers } from '../source.ts'
 import type { RemoteSourceIdentity } from '../source-identity.ts'
-import { imageSourceIdentity } from '../source-identity.ts'
+import { createSessionSourceIdentity, imageSourceIdentity } from '../source-identity.ts'
 import { HttpRangeSource, type HttpRangeSourceStats } from '../sources/http-range.ts'
 import type {
   ScientificCompanionRequest,
   ScientificCompanionResolver,
   ScientificOpenContext,
+  ScientificDocument,
   ScientificResource,
 } from './reader.ts'
 import { normalizeScientificRelativeName } from './reader.ts'
@@ -39,6 +40,18 @@ export interface OmeZarrHttpStoreOptions {
   readonly maxOpenSources?: number
   readonly blockBytes?: number
   readonly maxCacheBytesPerSource?: number
+}
+
+/** Root-scoped identity evidence. This is not a version claim for every object in the store. */
+export interface OmeZarrHttpStoreIdentitySummary {
+  readonly normalizedRootUrl: string
+  readonly selectedRootMetadataObject: string
+  readonly sourceIdentityStrength: RemoteSourceIdentity['strength']
+  readonly rootObjectSize: number
+  readonly rootObjectValidator?: RemoteSourceIdentity['validator']
+  readonly sessionIdentity?: string
+  readonly zarrFormat?: 2 | 3
+  readonly omeNgffVersion?: string
 }
 
 /** A reader-ready remote context that retains its owning store for stats and cleanup. */
@@ -213,6 +226,13 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
   readonly #sourceTotals = emptySourceTotals()
   readonly #metadataSourceTotals = emptySourceTotals()
   readonly #arraySourceTotals = emptySourceTotals()
+  #rootMetadata:
+    | {
+        readonly name: string
+        readonly identity: RemoteSourceIdentity
+        readonly sessionIdentity?: string
+      }
+    | undefined
   #objectRequests = 0
   #rangeRequests = 0
   #objectsOpened = 0
@@ -257,6 +277,19 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
     if (primary === undefined) {
       throw invalidInput(`OME-Zarr root metadata ${candidates.join(', ')} was not found`)
     }
+    const identity = await primary.source[imageSourceIdentity]?.()
+    if (identity?.kind !== 'remote') {
+      throw invalidInput('OME-Zarr HTTP root metadata is missing its remote source identity')
+    }
+    const stable = identity.validator?.kind === 'etag' || identity.validator?.kind === 'version-id'
+    const sessionIdentity = stable
+      ? undefined
+      : (this.#rootMetadata?.sessionIdentity ?? createSessionSourceIdentity(identity.size).id)
+    this.#rootMetadata = Object.freeze({
+      name: primary.name ?? primary.id,
+      identity,
+      ...(sessionIdentity === undefined ? {} : { sessionIdentity }),
+    })
     return Object.freeze({
       primary,
       companions: this,
@@ -294,6 +327,38 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
 
   resetStats(): void {
     this.#baseline = this.#rawStats()
+  }
+
+  /**
+   * Return JSON-safe evidence for the selected root metadata object.
+   *
+   * Pass the document returned by the OME-Zarr reader to include its parsed NGFF and Zarr
+   * versions. Validators in this summary apply only to the root metadata object.
+   */
+  identitySummary(
+    document?: Pick<ScientificDocument, 'reader' | 'metadata'>,
+  ): OmeZarrHttpStoreIdentitySummary {
+    const root = this.#rootMetadata
+    if (root === undefined) throw invalidInput('OME-Zarr HTTP root metadata has not been opened')
+    if (document !== undefined && document.reader.id !== 'purejsimage/ome-zarr') {
+      throw invalidInput('OME-Zarr HTTP identity summary requires an OME-Zarr document')
+    }
+    const rawZarrFormat = document?.metadata.zarrFormat
+    const zarrFormat = rawZarrFormat === 2 || rawZarrFormat === 3 ? rawZarrFormat : undefined
+    const rawOmeNgffVersion = document?.metadata.omeNgffVersion
+    const omeNgffVersion = typeof rawOmeNgffVersion === 'string' ? rawOmeNgffVersion : undefined
+    return Object.freeze({
+      normalizedRootUrl: this.normalized.storeRootUrl,
+      selectedRootMetadataObject: root.name,
+      sourceIdentityStrength: root.identity.strength,
+      rootObjectSize: root.identity.size,
+      ...(root.identity.validator === undefined
+        ? {}
+        : { rootObjectValidator: Object.freeze({ ...root.identity.validator }) }),
+      ...(root.sessionIdentity === undefined ? {} : { sessionIdentity: root.sessionIdentity }),
+      ...(zarrFormat === undefined ? {} : { zarrFormat }),
+      ...(omeNgffVersion === undefined ? {} : { omeNgffVersion }),
+    })
   }
 
   close(): void {

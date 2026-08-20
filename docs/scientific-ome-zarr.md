@@ -24,9 +24,13 @@ import { createOmeZarrHttpContext } from 'purejsimage/scientific/browser'
 import { omeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
 
 const context = await createOmeZarrHttpContext('https://example.org/image.ome.zarr')
-const document = await omeZarrReader.open(context)
-console.log(context.store.stats())
-context.store.close()
+try {
+  const document = await omeZarrReader.open(context)
+  console.log(context.store.stats())
+  console.log(context.store.identitySummary(document))
+} finally {
+  context.store.close()
+}
 ```
 
 The context normalizes the root, confines companion paths, treats 404/410 as absent objects,
@@ -35,6 +39,53 @@ and exposes measured request/cache statistics. A naked store URL discovers `zarr
 `.zgroup` / `.zattrs`, while an explicit metadata URL remains authoritative. Object opening starts
 with `GET Range: bytes=0-0`; a successful HEAD supplies object size only when that valid 206
 response omits browser-visible `Content-Range`.
+
+### HTTP context ownership and lifetime
+
+`createOmeZarrHttpContext()` creates and owns one `OmeZarrHttpStore`, returned as
+`context.store`. The caller owns that context and must call `context.store.close()` when the
+document, its datasets, and retained resources are no longer needed. `close()` is synchronous and
+idempotent. It aborts a pending context/object open and all in-flight source reads, removes the
+external abort listener, and clears the store's source and pending-open maps. Context methods and
+resources retained from that context reject with the lifetime abort after close. The helper closes
+the store itself when initial context creation fails.
+
+The store source map is a true LRU capped by `maxOpenSources`. Eviction removes the store's cache
+reference; it does not revoke a `ScientificResource` already returned to the caller. Such a retained
+resource remains readable, continues contributing transfer statistics, and keeps its own bounded
+HTTP block cache until it is released or the owning store is closed. Consequently,
+`sourceCacheBytes` reports only caches still held by the store LRU, not caches reachable solely
+through caller-retained resources. A 404 or 410 lookup returns `undefined` and is not negatively
+cached by the HTTP store, so a later resolve checks the server again.
+
+`identitySummary()` returns a frozen, JSON-safe summary without listing or probing child objects.
+Before a reader document is supplied it contains the normalized root URL, selected root metadata
+name, root object size, and the identity evidence from that root object's range response. Passing
+the document returned by `omeZarrReader.open(context)` adds the parsed NGFF and Zarr versions. A
+strong ETag or version ID identifies only the selected root metadata object. Last-Modified is weak
+evidence, and a session identity is included whenever the root lacks a strong validator. Neither a
+root nor chunk validator is presented as a version for the complete store.
+
+### HTTP statistics
+
+`store.stats()` is a snapshot relative to construction or the last `resetStats()` call:
+
+| Field | Meaning |
+| --- | --- |
+| `objectRequests` | All GET and fallback HEAD requests issued by the store, including negative lookups. |
+| `rangeRequests` | Requests carrying `Range`, including probes, retries after eviction, and missing-object probes. |
+| `bytesFetched` | Successfully completed range-body bytes, including repeated transfers. |
+| `uniqueBytes` | Per-object interval union summed across opened sources; repeated ranges for one source are counted once. |
+| `metadataBytesFetched` | Completed bytes for `zarr.json`, `.zgroup`, `.zattrs`, and `.zarray` objects. |
+| `arrayBytesFetched` | Completed bytes for other objects, including chunks and shards. |
+| `sourceCacheHits` | Reads served by an individual HTTP source block cache. |
+| `sourceCacheBytes` | Current bytes in sources still owned by the store LRU; this is not baseline-relative. |
+| `coalescedConsumers` | Consumers that joined an already pending block request. |
+| `abortedConsumers` | Tracked source-read consumers rejected by consumer or store-lifetime cancellation. |
+| `objectsOpened` | Successful HTTP source opens; reopening after eviction increments it again. |
+
+Failed, truncated, oversized, or cancelled bodies do not contribute completed byte or unique-byte
+counts. `resetStats()` changes counter baselines without clearing source caches.
 
 A ZIP archive whose root contains `zarr.json` or `.zgroup` is also a store. A single nested
 prefix such as `image.zarr/zarr.json` is accepted; two sibling store roots are rejected. macOS
@@ -189,8 +240,11 @@ Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name
 `benchmark/ome-zarr/official-corpus.json`. For each URL it probes the root, opens the document,
 enumerates every dataset and resolution level, and reads bounded top-left, center, clipped-edge,
 nonzero channel/Z/T, inner-chunk-boundary, and outer-shard-boundary selections when those dimensions
-exist. Per-dataset output records dtype, codec stacks, logical chunks, outer shards, requests, and
-bytes fetched. It never enumerates object storage or downloads a complete image.
+exist. Each dated report records the selected root metadata object's normalized URL, size, and
+validator evidence (or an explicitly session-only identity). Per-dataset output records dtype,
+codec stacks, logical chunks, outer shards, requests, and bytes fetched. It never enumerates object
+storage or downloads a complete image. Root identity evidence is not presented as a version for
+every chunk in the store.
 Results are classified as `PASS`, `UNSUPPORTED_CODEC`, `UNSUPPORTED_DTYPE`,
 `UNSUPPORTED_METADATA`, `INVALID`, or `NETWORK_FAILURE`. A different reviewed manifest path may be
 passed as the first argument. The checked-in roots cover IDR, BIA, Sanger, SSBD, and OME 2024

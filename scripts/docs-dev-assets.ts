@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const featureTourPrefix = '/fixtures/ome-zarr-feature-tour/'
 
 const scriptEntries: Readonly<Record<string, string>> = {
   '/assets/demo-app.js': 'docs-astro/src/scripts/demo.ts',
@@ -26,9 +27,39 @@ const binaryAssets: Readonly<Record<string, string>> = {
 export interface DocsDevAsset {
   readonly body: Uint8Array
   readonly contentType: string
+  readonly rangeCapable?: boolean
+}
+
+let featureTourAssets: Promise<ReadonlyMap<string, Uint8Array>> | undefined
+
+const loadFeatureTourAsset = async (pathname: string): Promise<DocsDevAsset | undefined> => {
+  if (!pathname.startsWith(featureTourPrefix)) return undefined
+  if (featureTourAssets === undefined) {
+    featureTourAssets = import('../benchmark/scientific-readers/generated-fixtures.ts').then(
+      ({ generatedScientificFixtures }) => {
+        const factory = generatedScientificFixtures['ome-zarr-feature-tour-generated']
+        if (factory === undefined) throw new Error('Missing generated OME-Zarr Feature Tour')
+        return new Map(
+          factory().resources.map(({ name, bytes }) => [`${featureTourPrefix}${name}`, bytes]),
+        )
+      },
+    )
+  }
+  const body = (await featureTourAssets).get(pathname)
+  if (body === undefined) return undefined
+  return {
+    body,
+    contentType: pathname.endsWith('.json')
+      ? 'application/json; charset=utf-8'
+      : 'application/octet-stream',
+    rangeCapable: true,
+  }
 }
 
 export const loadDocsDevAsset = async (pathname: string): Promise<DocsDevAsset | undefined> => {
+  const featureTourAsset = await loadFeatureTourAsset(pathname)
+  if (featureTourAsset !== undefined) return featureTourAsset
+
   const scriptEntry = scriptEntries[pathname]
   if (scriptEntry !== undefined) {
     const result = await build({
@@ -91,6 +122,47 @@ export const docsDevAssets = () => ({
         response.statusCode = 200
         response.setHeader('Cache-Control', 'no-store')
         response.setHeader('Content-Type', asset.contentType)
+        if (asset.rangeCapable === true) response.setHeader('Accept-Ranges', 'bytes')
+        const range =
+          asset.rangeCapable === true
+            ? (request.headers.range?.match(/^bytes=(\d+)-(\d+)$/u) ?? undefined)
+            : undefined
+        if (
+          asset.rangeCapable === true &&
+          request.headers.range !== undefined &&
+          range === undefined
+        ) {
+          response.statusCode = 416
+          response.setHeader('Content-Length', '0')
+          response.setHeader('Content-Range', `bytes */${asset.body.byteLength}`)
+          response.end()
+          return
+        }
+        if (range !== undefined) {
+          const start = Number(range[1])
+          const requestedEnd = Number(range[2])
+          if (
+            !Number.isSafeInteger(start) ||
+            !Number.isSafeInteger(requestedEnd) ||
+            start < 0 ||
+            requestedEnd < start ||
+            start >= asset.body.byteLength
+          ) {
+            response.statusCode = 416
+            response.setHeader('Content-Length', '0')
+            response.setHeader('Content-Range', `bytes */${asset.body.byteLength}`)
+            response.end()
+            return
+          }
+          const end = Math.min(requestedEnd, asset.body.byteLength - 1)
+          const body = asset.body.subarray(start, end + 1)
+          response.statusCode = 206
+          response.setHeader('Content-Length', String(body.byteLength))
+          response.setHeader('Content-Range', `bytes ${start}-${end}/${asset.body.byteLength}`)
+          response.end(request.method === 'HEAD' ? undefined : body)
+          return
+        }
+        response.setHeader('Content-Length', String(asset.body.byteLength))
         response.end(request.method === 'HEAD' ? undefined : asset.body)
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)

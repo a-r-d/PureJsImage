@@ -17,6 +17,16 @@ describe('docs development assets', () => {
     expect(Array.from(asset?.body.subarray(0, 4) ?? [])).toEqual([0, 97, 115, 109])
   })
 
+  it('serves the generated OME-Zarr Feature Tour as a range-capable same-origin store', async () => {
+    const asset = await loadDocsDevAsset('/fixtures/ome-zarr-feature-tour/zarr.json')
+    expect(asset?.contentType).toBe('application/json; charset=utf-8')
+    expect(asset?.rangeCapable).toBe(true)
+    expect(JSON.parse(new TextDecoder().decode(asset?.body))).toMatchObject({ zarr_format: 3 })
+    await expect(
+      loadDocsDevAsset('/fixtures/ome-zarr-feature-tour/not-present'),
+    ).resolves.toBeUndefined()
+  })
+
   it('leaves unrelated routes to Astro', async () => {
     await expect(loadDocsDevAsset('/ome-zarr/')).resolves.toBeUndefined()
   })

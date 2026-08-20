@@ -36,7 +36,7 @@ const publicSamples = [
   },
 ] as const
 
-const defaultSample = featureTour
+const defaultSample = publicSamples[0]
 
 const collections = [
   ...new Set(compatibilityReport.results.map(({ collection }) => collection)),
@@ -181,7 +181,7 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
         <div>
           <p class="eyebrow">OME-Zarr whole-slide image · measured in your browser</p>
           <h1>Only the viewport.</h1>
-          <p class="wsi-lede">Pan and zoom a multi-gigabyte OME-Zarr whole-slide image. PureJsImage reads the existing NGFF metadata, shard indexes, and intersecting chunks directly from static object storage. No application server or tile proxy is involved.</p>
+          <p class="wsi-lede">Pan and zoom a multi-gigabyte OME-Zarr whole-slide image. PureJsImage reads only the metadata, shard indexes, and chunks needed for the viewport directly from object storage—no application server or tile proxy.</p>
           <p class="ome-zarr-reader-scope">The current WSI proves large remote sharded access. The same reader also exposes Z/T navigation, channel display metadata, labels, image collections, and HCS plates and wells.</p>
           <div class="wsi-proof-pills" aria-label="Demo constraints">
             <span>Reader: NGFF 0.4 + 0.5</span><span>Reader: Zarr v2 + v3</span><span>Current sample: v3 sharded</span><span>Browser HTTP access</span><span>0 runtime dependencies</span>
@@ -198,151 +198,161 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
 
     <section class="wsi-demo" aria-labelledby="ome-zarr-viewer-title">
       <div class="container">
-        <div class="wsi-source-bar">
-          <div>
-            <label for="ome-zarr-url">OME-Zarr store URL</label>
-            <input id="ome-zarr-url" type="url" value={defaultSample.url} spellcheck="false" autocomplete="off" />
-          </div>
-          <button class="button" id="ome-zarr-open" type="button">Open OME-Zarr store</button>
-        </div>
-        <div class="wsi-sample-picker" aria-labelledby="ome-zarr-sample-picker-label">
-          <span id="ome-zarr-sample-picker-label">Choose a demonstration store</span>
-          <div class="wsi-sample-group" data-sample-group="feature-tour">
-            <span>Feature tour</span>
-            <div>
-              <button
-                type="button"
-                data-ome-zarr-sample-url={featureTour.url}
-                aria-pressed="true"
-              >
-                <strong>{featureTour.label}</strong>
-                <small>{featureTour.detail}</small>
-              </button>
-            </div>
-          </div>
-          <div class="wsi-sample-group" data-sample-group="large-public-wsi">
-            <span>Large public WSI</span>
-            <div>
-              {publicSamples.map((sample) => (
-                <button
-                  type="button"
-                  data-ome-zarr-sample-url={sample.url}
-                  data-ome-zarr-published-bytes={sample.publishedBytes}
-                  aria-pressed="false"
-                >
-                  <strong>{sample.label}</strong>
-                  <small>{sample.detail}</small>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <p class="wsi-source-note ome-zarr-feature-note"><strong>Feature Tour:</strong> a deterministic, synthetic same-origin store generated from shared first-party fixture code. It is not a real experiment.</p>
-        <p class="wsi-source-note">The public stores are OME 2024 NGFF Challenge conversions from <a href="https://www.jax.org/" target="_blank" rel="noreferrer">The Jackson Laboratory</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. Their shard responses return valid HTTP 206 ranges; Google Cloud currently hides <code>Content-Range</code> from browser JavaScript, so this demo establishes each object size with a measured HEAD request and still validates 206 plus exact response length. No PureJsImage proxy is involved.</p>
-
-        <div class="wsi-workspace">
-          <section class="wsi-canvas-panel" aria-labelledby="ome-zarr-viewer-title">
-            <header class="wsi-canvas-toolbar">
-              <div><p class="demo-card-kicker">Logical chunks from sharded arrays</p><h2 id="ome-zarr-viewer-title">OME-Zarr viewport</h2></div>
-              <div class="wsi-view-controls">
-                <button id="ome-zarr-zoom-out" type="button" aria-label="Zoom out" disabled>−</button>
-                <button id="ome-zarr-fit" type="button" disabled>Fit</button>
-                <button id="ome-zarr-zoom-in" type="button" aria-label="Zoom in" disabled>+</button>
-                <button id="ome-zarr-fullscreen" type="button" disabled>Full screen</button>
+        <div class="ome-zarr-demo-layout">
+          <aside class="ome-zarr-launch-panel" aria-label="Choose and open an OME-Zarr store">
+            <div class="wsi-source-bar">
+              <div>
+                <label for="ome-zarr-url">OME-Zarr store URL</label>
+                <input id="ome-zarr-url" type="url" value={defaultSample.url} spellcheck="false" autocomplete="off" />
               </div>
-            </header>
-            <section class="ome-zarr-controls" aria-label="Scientific viewer controls">
-              <div class="ome-zarr-control-row ome-zarr-dataset-control">
-                <label for="ome-zarr-dataset">Image / plate field</label>
-                <select id="ome-zarr-dataset" disabled><option>Waiting for metadata…</option></select>
-                <span id="ome-zarr-plate-summary">Single image</span>
-              </div>
-              <div class="ome-zarr-axis-controls" id="ome-zarr-axis-controls" aria-label="Axis navigation"></div>
-              <div class="ome-zarr-channel-panel">
-                <header><strong>Channel mixer</strong><span>Up to three channels · window / gamma</span></header>
-                <div id="ome-zarr-channel-controls"></div>
-                <div class="ome-zarr-histogram-row">
-                  <canvas id="ome-zarr-histogram" width="360" height="68" aria-label="Visible tile channel histograms"></canvas>
-                  <button id="ome-zarr-auto-contrast" type="button" disabled>Auto contrast visible tiles</button>
+              <button class="button" id="ome-zarr-open" type="button">Open store</button>
+            </div>
+            <div class="wsi-sample-picker" aria-labelledby="ome-zarr-sample-picker-label">
+              <span id="ome-zarr-sample-picker-label">Sample stores</span>
+              <div class="wsi-sample-group" data-sample-group="large-public-wsi">
+                <span>Large public WSI</span>
+                <div>
+                  {publicSamples.map((sample, index) => (
+                    <button
+                      type="button"
+                      data-ome-zarr-sample-url={sample.url}
+                      data-ome-zarr-published-bytes={sample.publishedBytes}
+                      aria-pressed={index === 0 ? 'true' : 'false'}
+                    >
+                      <strong>{sample.label}</strong>
+                      <small>{sample.detail}</small>
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div class="ome-zarr-label-control">
-                <label for="ome-zarr-label">Label overlay</label>
-                <select id="ome-zarr-label" disabled><option value="">None available</option></select>
-                <label for="ome-zarr-label-opacity">Opacity <output id="ome-zarr-label-opacity-value">45%</output></label>
-                <input id="ome-zarr-label-opacity" type="range" min="0" max="100" value="45" disabled>
-              </div>
-            </section>
-            <div class="wsi-canvas-wrap" id="ome-zarr-canvas-wrap" aria-busy="true">
-              <canvas class="wsi-canvas" id="ome-zarr-canvas" aria-label="Pannable and zoomable OME-Zarr whole-slide image"></canvas>
-              <div class="wsi-canvas-help">Drag to pan · wheel or pinch to zoom</div>
-              <div class="ome-zarr-cursor-readout" id="ome-zarr-cursor-readout">X — · Y — · display RGB —</div>
-              <div class="ome-zarr-scale" id="ome-zarr-scale" hidden><span></span><output></output></div>
-              <canvas class="ome-zarr-minimap" id="ome-zarr-minimap" width="180" height="126" aria-label="Slide overview and current viewport"></canvas>
-              <div class="wsi-level-live" id="ome-zarr-level-live">Waiting for OME-Zarr metadata…</div>
-              <div class="wsi-loading" id="ome-zarr-loading" data-phase="opening" role="status" aria-live="polite" aria-atomic="true">
-                <div class="wsi-loading-card">
-                  <span class="wsi-loading-spinner" aria-hidden="true"></span>
-                  <div class="wsi-loading-copy">
-                    <strong id="ome-zarr-loading-title">Opening OME-Zarr store</strong>
-                    <span id="ome-zarr-loading-detail">Starting the worker and connecting to object storage…</span>
-                  </div>
-                  <div class="wsi-loading-progress" id="ome-zarr-loading-progress" role="progressbar" aria-label="OME-Zarr loading progress">
-                    <span id="ome-zarr-loading-progress-bar"></span>
-                  </div>
+              <div class="wsi-sample-group" data-sample-group="feature-tour">
+                <span>Feature tour</span>
+                <div>
+                  <button
+                    type="button"
+                    data-ome-zarr-sample-url={featureTour.url}
+                    aria-pressed="false"
+                  >
+                    <strong>{featureTour.label}</strong>
+                    <small>{featureTour.detail}</small>
+                  </button>
                 </div>
               </div>
             </div>
-            <p class="wsi-status" id="ome-zarr-status" role="status" aria-live="polite">Starting the worker…</p>
-            <section class="wsi-activity" aria-labelledby="ome-zarr-activity-title">
-              <div><strong id="ome-zarr-activity-title">Viewport tile jobs</strong><span><i class="pending"></i>Pending <i class="decoded"></i>Decoded <i class="cancelled"></i>Cancelled</span></div>
-              <div class="wsi-request-strip" id="ome-zarr-request-strip" aria-live="polite" data-scroll-region="chips"></div>
-              <p>Each chip is a render job, not an HTTP request. Actual object and range requests are counted separately in the instrument.</p>
-            </section>
-          </section>
-
-          <aside class="wsi-instrument" aria-labelledby="ome-zarr-instrument-title">
-            <header><div><p class="demo-card-kicker">Measurement instrument</p><h2 id="ome-zarr-instrument-title">What this tab actually used</h2></div><span>MEASURED</span></header>
-            <dl>
-              <div><dt>Store</dt><dd id="ome-zarr-stat-store">Not available</dd></div>
-              <div><dt>OME-NGFF</dt><dd id="ome-zarr-stat-version">Not available</dd></div>
-              <div><dt>Zarr</dt><dd id="ome-zarr-stat-zarr">Not available</dd></div>
-              <div><dt>Published size</dt><dd id="ome-zarr-stat-size">Not available</dd></div>
-              <div><dt>Dimensions</dt><dd id="ome-zarr-stat-dimensions">Not available</dd></div>
-              <div><dt>Axes</dt><dd id="ome-zarr-stat-axes">Not available</dd></div>
-              <div><dt>Active channels</dt><dd id="ome-zarr-stat-channels">Not available</dd></div>
-              <div><dt>Levels</dt><dd id="ome-zarr-stat-levels">Not available</dd></div>
-              <div><dt>Logical chunk</dt><dd id="ome-zarr-stat-logical-chunk">Not available</dd></div>
-              <div><dt>Shard</dt><dd id="ome-zarr-stat-shard">Not available</dd></div>
-              <div><dt>Codecs</dt><dd id="ome-zarr-stat-codecs">Not available</dd></div>
-            </dl>
-            <div class="wsi-stat-divider"></div>
-            <dl>
-              <div><dt>Object requests</dt><dd id="ome-zarr-stat-object-requests">0</dd></div>
-              <div><dt>Range requests</dt><dd id="ome-zarr-stat-range-requests">0</dd></div>
-              <div><dt>Bytes fetched</dt><dd id="ome-zarr-stat-bytes">0 B</dd></div>
-              <div><dt>Unique source bytes</dt><dd id="ome-zarr-stat-unique-bytes">0 B</dd></div>
-              <div><dt>Metadata bytes</dt><dd id="ome-zarr-stat-metadata-bytes">0 B</dd></div>
-              <div><dt>Shard / chunk bytes</dt><dd id="ome-zarr-stat-array-bytes">0 B</dd></div>
-              <div class="wsi-fraction-row"><dt>Fraction of published store</dt><dd id="ome-zarr-stat-fraction">0.000%</dd></div>
-              <div><dt>Viewport tiles decoded</dt><dd id="ome-zarr-stat-decoded">0</dd></div>
-              <div><dt>Viewport tiles cancelled</dt><dd id="ome-zarr-stat-cancelled">0</dd></div>
-              <div><dt>Viewport tiles failed</dt><dd id="ome-zarr-stat-failed">0</dd></div>
-              <div><dt>Tile jobs in flight</dt><dd id="ome-zarr-stat-in-flight">0</dd></div>
-              <div><dt>Last / total decode</dt><dd id="ome-zarr-stat-decode-time">0 / 0 ms</dd></div>
-              <div><dt>Bitmap cache hits</dt><dd id="ome-zarr-stat-cache-hits">0</dd></div>
-              <div><dt>Bitmap cache resident</dt><dd id="ome-zarr-stat-cache-resident">0 / 192 tiles</dd></div>
-              <div><dt>Source cache hits</dt><dd id="ome-zarr-stat-source-cache-hits">0</dd></div>
-              <div><dt>Source cache resident</dt><dd id="ome-zarr-stat-source-cache-resident">0 B</dd></div>
-              <div><dt>Coalesced consumers</dt><dd id="ome-zarr-stat-coalesced">0</dd></div>
-              <div><dt>Aborted consumers</dt><dd id="ome-zarr-stat-aborted">0</dd></div>
-              <div><dt>Objects opened</dt><dd id="ome-zarr-stat-objects-opened">0</dd></div>
-            </dl>
-            <button class="button secondary" id="ome-zarr-reset" type="button" disabled>Reset counters</button>
-            <p class="wsi-instrument-note">Reset establishes baselines against monotonic worker counters. It does not discard useful source or bitmap caches, so later viewport work may complete without new transfer.</p>
+            <p class="ome-zarr-source-credit">Public WSI from <a href="https://www.jax.org/" target="_blank" rel="noreferrer">The Jackson Laboratory</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a> · no proxy</p>
+            <details class="ome-zarr-source-details">
+              <summary>Sample and HTTP details</summary>
+              <p><strong>Feature Tour:</strong> a deterministic, synthetic same-origin store generated from shared first-party fixture code. It is not a real experiment.</p>
+              <p>The public stores are OME 2024 NGFF Challenge conversions. Their shard responses return valid HTTP 206 ranges; Google Cloud currently hides <code>Content-Range</code> from browser JavaScript, so this demo establishes each object size with a measured HEAD request and still validates 206 plus exact response length. No PureJsImage proxy is involved.</p>
+            </details>
           </aside>
+
+          <div class="ome-zarr-demo-stage">
+            <div class="wsi-workspace">
+              <section class="wsi-canvas-panel" aria-labelledby="ome-zarr-viewer-title">
+                <header class="wsi-canvas-toolbar">
+                  <div><p class="demo-card-kicker">Logical chunks from sharded arrays</p><h2 id="ome-zarr-viewer-title">OME-Zarr viewport</h2></div>
+                  <div class="wsi-view-controls">
+                    <button id="ome-zarr-zoom-out" type="button" aria-label="Zoom out" disabled>−</button>
+                    <button id="ome-zarr-fit" type="button" disabled>Fit</button>
+                    <button id="ome-zarr-zoom-in" type="button" aria-label="Zoom in" disabled>+</button>
+                    <button id="ome-zarr-fullscreen" type="button" aria-label="Enter full screen" disabled>Full screen</button>
+                  </div>
+                </header>
+                <section class="ome-zarr-controls" aria-label="Scientific viewer controls">
+                  <div class="ome-zarr-control-row ome-zarr-dataset-control">
+                    <label for="ome-zarr-dataset">Image / plate field</label>
+                    <select id="ome-zarr-dataset" disabled><option>Waiting for metadata…</option></select>
+                    <span id="ome-zarr-plate-summary">Single image</span>
+                  </div>
+                  <div class="ome-zarr-axis-controls" id="ome-zarr-axis-controls" aria-label="Axis navigation"></div>
+                  <div class="ome-zarr-channel-panel">
+                    <header><strong>Channel mixer</strong><span>Up to three channels · window / gamma</span></header>
+                    <div id="ome-zarr-channel-controls"></div>
+                    <div class="ome-zarr-histogram-row">
+                      <canvas id="ome-zarr-histogram" width="360" height="68" aria-label="Visible tile channel histograms"></canvas>
+                      <button id="ome-zarr-auto-contrast" type="button" disabled>Auto contrast visible tiles</button>
+                    </div>
+                  </div>
+                  <div class="ome-zarr-label-control">
+                    <label for="ome-zarr-label">Label overlay</label>
+                    <select id="ome-zarr-label" disabled><option value="">None available</option></select>
+                    <label for="ome-zarr-label-opacity">Opacity <output id="ome-zarr-label-opacity-value">45%</output></label>
+                    <input id="ome-zarr-label-opacity" type="range" min="0" max="100" value="45" disabled>
+                  </div>
+                </section>
+                <div class="wsi-canvas-wrap" id="ome-zarr-canvas-wrap" aria-busy="true">
+                  <canvas class="wsi-canvas" id="ome-zarr-canvas" aria-label="Pannable and zoomable OME-Zarr whole-slide image"></canvas>
+                  <div class="wsi-canvas-help">Drag to pan · wheel or pinch to zoom</div>
+                  <div class="ome-zarr-cursor-readout" id="ome-zarr-cursor-readout">X — · Y — · display RGB —</div>
+                  <div class="ome-zarr-scale" id="ome-zarr-scale" hidden><span></span><output></output></div>
+                  <canvas class="ome-zarr-minimap" id="ome-zarr-minimap" width="180" height="126" aria-label="Slide overview and current viewport"></canvas>
+                  <div class="wsi-level-live" id="ome-zarr-level-live">Waiting for OME-Zarr metadata…</div>
+                  <div class="wsi-loading" id="ome-zarr-loading" data-phase="opening" role="status" aria-live="polite" aria-atomic="true">
+                    <div class="wsi-loading-card">
+                      <span class="wsi-loading-spinner" aria-hidden="true"></span>
+                      <div class="wsi-loading-copy">
+                        <strong id="ome-zarr-loading-title">Opening OME-Zarr store</strong>
+                        <span id="ome-zarr-loading-detail">Starting the worker and connecting to object storage…</span>
+                      </div>
+                      <div class="wsi-loading-progress" id="ome-zarr-loading-progress" role="progressbar" aria-label="OME-Zarr loading progress">
+                        <span id="ome-zarr-loading-progress-bar"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="wsi-status" id="ome-zarr-status" role="status" aria-live="polite">Starting the worker…</p>
+                <section class="wsi-activity" aria-labelledby="ome-zarr-activity-title">
+                  <div><strong id="ome-zarr-activity-title">Viewport tile jobs</strong><span><i class="pending"></i>Pending <i class="decoded"></i>Decoded <i class="cancelled"></i>Cancelled</span></div>
+                  <div class="wsi-request-strip" id="ome-zarr-request-strip" aria-live="polite" data-scroll-region="chips"></div>
+                  <p>Each chip is a render job, not an HTTP request. Actual object and range requests are counted separately in the instrument.</p>
+                </section>
+              </section>
+
+              <aside class="wsi-instrument" aria-labelledby="ome-zarr-instrument-title">
+                <header><div><p class="demo-card-kicker">Measurement instrument</p><h2 id="ome-zarr-instrument-title">What this tab actually used</h2></div><span>MEASURED</span></header>
+                <dl>
+                  <div><dt>Store</dt><dd id="ome-zarr-stat-store">Not available</dd></div>
+                  <div><dt>OME-NGFF</dt><dd id="ome-zarr-stat-version">Not available</dd></div>
+                  <div><dt>Zarr</dt><dd id="ome-zarr-stat-zarr">Not available</dd></div>
+                  <div><dt>Published size</dt><dd id="ome-zarr-stat-size">Not available</dd></div>
+                  <div><dt>Dimensions</dt><dd id="ome-zarr-stat-dimensions">Not available</dd></div>
+                  <div><dt>Axes</dt><dd id="ome-zarr-stat-axes">Not available</dd></div>
+                  <div><dt>Active channels</dt><dd id="ome-zarr-stat-channels">Not available</dd></div>
+                  <div><dt>Levels</dt><dd id="ome-zarr-stat-levels">Not available</dd></div>
+                  <div><dt>Logical chunk</dt><dd id="ome-zarr-stat-logical-chunk">Not available</dd></div>
+                  <div><dt>Shard</dt><dd id="ome-zarr-stat-shard">Not available</dd></div>
+                  <div><dt>Codecs</dt><dd id="ome-zarr-stat-codecs">Not available</dd></div>
+                </dl>
+                <div class="wsi-stat-divider"></div>
+                <dl>
+                  <div><dt>Object requests</dt><dd id="ome-zarr-stat-object-requests">0</dd></div>
+                  <div><dt>Range requests</dt><dd id="ome-zarr-stat-range-requests">0</dd></div>
+                  <div><dt>Bytes fetched</dt><dd id="ome-zarr-stat-bytes">0 B</dd></div>
+                  <div><dt>Unique source bytes</dt><dd id="ome-zarr-stat-unique-bytes">0 B</dd></div>
+                  <div><dt>Metadata bytes</dt><dd id="ome-zarr-stat-metadata-bytes">0 B</dd></div>
+                  <div><dt>Shard / chunk bytes</dt><dd id="ome-zarr-stat-array-bytes">0 B</dd></div>
+                  <div class="wsi-fraction-row"><dt>Fraction of published store</dt><dd id="ome-zarr-stat-fraction">0.000%</dd></div>
+                  <div><dt>Viewport tiles decoded</dt><dd id="ome-zarr-stat-decoded">0</dd></div>
+                  <div><dt>Viewport tiles cancelled</dt><dd id="ome-zarr-stat-cancelled">0</dd></div>
+                  <div><dt>Viewport tiles failed</dt><dd id="ome-zarr-stat-failed">0</dd></div>
+                  <div><dt>Tile jobs in flight</dt><dd id="ome-zarr-stat-in-flight">0</dd></div>
+                  <div><dt>Last / total decode</dt><dd id="ome-zarr-stat-decode-time">0 / 0 ms</dd></div>
+                  <div><dt>Bitmap cache hits</dt><dd id="ome-zarr-stat-cache-hits">0</dd></div>
+                  <div><dt>Bitmap cache resident</dt><dd id="ome-zarr-stat-cache-resident">0 / 192 tiles</dd></div>
+                  <div><dt>Source cache hits</dt><dd id="ome-zarr-stat-source-cache-hits">0</dd></div>
+                  <div><dt>Source cache resident</dt><dd id="ome-zarr-stat-source-cache-resident">0 B</dd></div>
+                  <div><dt>Coalesced consumers</dt><dd id="ome-zarr-stat-coalesced">0</dd></div>
+                  <div><dt>Aborted consumers</dt><dd id="ome-zarr-stat-aborted">0</dd></div>
+                  <div><dt>Objects opened</dt><dd id="ome-zarr-stat-objects-opened">0</dd></div>
+                </dl>
+                <button class="button secondary" id="ome-zarr-reset" type="button" disabled>Reset counters</button>
+                <p class="wsi-instrument-note">Reset establishes baselines against monotonic worker counters. It does not discard useful source or bitmap caches, so later viewport work may complete without new transfer.</p>
+              </aside>
+            </div>
+            <p class="wsi-clinical-note ome-zarr-trust-line">Read-only technical demonstration. Not validated for diagnostic use.</p>
+          </div>
         </div>
-        <p class="wsi-clinical-note ome-zarr-trust-line">Read-only technical demonstration. Not validated for diagnostic use.</p>
       </div>
     </section>
 

@@ -22,6 +22,85 @@ const canvasDigest = async (page: import('@playwright/test').Page): Promise<numb
     return digest
   })
 
+test('defaults to Quick WSI and keeps the viewer prominent at desktop and phone widths', async ({
+  page,
+}) => {
+  await page.route('https://storage.googleapis.com/**', async (route) =>
+    route.fulfill({ status: 503, contentType: 'text/plain', body: 'offline test' }),
+  )
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/ome-zarr/')
+  await page.waitForFunction(() => window.pureJsImageOmeZarrReady === true)
+
+  const publicGroup = page.locator('[data-sample-group="large-public-wsi"]')
+  const quickButton = publicGroup.getByRole('button', { name: /Quick WSI/ })
+  const featureButton = page.locator('[data-sample-group="feature-tour"]').getByRole('button')
+  await expect(page.getByLabel('OME-Zarr store URL')).toHaveValue(
+    'https://storage.googleapis.com/jax-public-ngff/public/41028.zarr',
+  )
+  await expect(quickButton).toHaveAttribute('aria-pressed', 'true')
+  await expect(featureButton).toHaveAttribute('aria-pressed', 'false')
+
+  const desktop = await page.locator('.ome-zarr-demo-layout').evaluate((layout) => {
+    const launch = layout.querySelector('.ome-zarr-launch-panel')
+    const workspace = layout.querySelector('.wsi-workspace')
+    if (!(launch instanceof HTMLElement) || !(workspace instanceof HTMLElement)) return undefined
+    const launchBox = launch.getBoundingClientRect()
+    const workspaceBox = workspace.getBoundingClientRect()
+    return {
+      launchWidth: launchBox.width,
+      launchTop: launchBox.top,
+      launchRight: launchBox.right,
+      workspaceTop: workspaceBox.top,
+      workspaceLeft: workspaceBox.left,
+    }
+  })
+  expect(desktop).toBeDefined()
+  expect(desktop?.launchWidth).toBeLessThan(300)
+  expect(Math.abs((desktop?.launchTop ?? 0) - (desktop?.workspaceTop ?? 0))).toBeLessThan(2)
+  expect(desktop?.workspaceLeft).toBeGreaterThan(desktop?.launchRight ?? 0)
+  expect(desktop?.workspaceTop).toBeLessThan(430)
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.evaluate(
+    async () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  )
+  const mobile = await page.locator('.ome-zarr-demo-layout').evaluate((layout) => {
+    const launch = layout.querySelector('.ome-zarr-launch-panel')
+    const workspace = layout.querySelector('.wsi-workspace')
+    const canvas = layout.querySelector('.wsi-canvas-wrap')
+    const controls = layout.querySelector('.ome-zarr-controls')
+    const buttons = [...layout.querySelectorAll<HTMLButtonElement>('[data-ome-zarr-sample-url]')]
+    if (
+      !(launch instanceof HTMLElement) ||
+      !(workspace instanceof HTMLElement) ||
+      !(canvas instanceof HTMLElement) ||
+      !(controls instanceof HTMLElement)
+    )
+      return undefined
+    return {
+      launchBottom: launch.getBoundingClientRect().bottom,
+      workspaceTop: workspace.getBoundingClientRect().top,
+      canvasTop: canvas.getBoundingClientRect().top,
+      controlsTop: controls.getBoundingClientRect().top,
+      buttonHeights: buttons.map((button) => button.getBoundingClientRect().height),
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }
+  })
+  expect(mobile).toBeDefined()
+  expect(mobile?.workspaceTop).toBeGreaterThan(mobile?.launchBottom ?? 0)
+  expect(mobile?.canvasTop).toBeLessThan(mobile?.controlsTop ?? 0)
+  expect(mobile?.buttonHeights).toHaveLength(4)
+  expect(mobile?.buttonHeights.every((height) => height >= 48)).toBe(true)
+  expect(mobile?.scrollWidth).toBeLessThanOrEqual(mobile?.clientWidth ?? 0)
+  await expect(page.getByLabel('OME-Zarr store URL')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open store' })).toBeVisible()
+})
+
 test('opens the same-origin Feature Tour and exposes multidimensional authored metadata', async ({
   page,
   baseURL,
@@ -34,7 +113,8 @@ test('opens the same-origin Feature Tour and exposes multidimensional authored m
     if (requested.origin !== expectedOrigin) externalRequests.push(request.url())
   })
 
-  await page.goto('/ome-zarr/')
+  const featureUrl = `${baseURL}/fixtures/ome-zarr-feature-tour`
+  await page.goto(`/ome-zarr/?url=${encodeURIComponent(featureUrl)}`)
   await page.waitForFunction(() => window.pureJsImageOmeZarrReady === true)
   await expect(page.locator('#ome-zarr-stat-store')).toContainText('ome-zarr-feature-tour', {
     timeout: 20_000,
@@ -120,10 +200,13 @@ test('opens the same-origin Feature Tour and exposes multidimensional authored m
   )
 
   await expect(page.getByLabel('OME-Zarr store URL')).toBeVisible()
+  const quickButton = publicGroup.getByRole('button', { name: /Quick WSI/ })
+  await quickButton.focus()
+  await expect(quickButton).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(publicGroup.getByRole('button', { name: /Square WSI/ })).toBeFocused()
   await featureButton.focus()
   await expect(featureButton).toBeFocused()
-  await page.keyboard.press('Tab')
-  await expect(publicGroup.getByRole('button', { name: /Quick WSI/ })).toBeFocused()
   const omeZarrNavigationLink = page.locator('.nav-submenu a', {
     hasText: 'OME-Zarr viewer',
   })

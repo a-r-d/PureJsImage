@@ -22,6 +22,9 @@ const mockStore = (
     readonly headStatus?: number
     readonly missingStatus?: Readonly<Record<string, 404 | 410>>
     readonly rangeStatus?: number
+    readonly etag?: string
+    readonly lastModified?: string
+    readonly versionId?: string
   } = {},
 ): MockStore => {
   const requests: { method: string; path: string }[] = []
@@ -50,6 +53,9 @@ const mockStore = (
     const end = Math.min(Number(match[2]), bytes.byteLength - 1)
     const responseHeaders: Record<string, string> = {
       'content-length': String(end - start + 1),
+      ...(options.etag === undefined ? {} : { etag: options.etag }),
+      ...(options.lastModified === undefined ? {} : { 'last-modified': options.lastModified }),
+      ...(options.versionId === undefined ? {} : { 'x-amz-version-id': options.versionId }),
     }
     if (options.hideContentRange !== true) {
       responseHeaders['content-range'] = `bytes ${start}-${end}/${bytes.byteLength}`
@@ -216,6 +222,80 @@ describe('OME-Zarr HTTP object resolution', () => {
     await expect(context.primary.source.read(0, 1)).rejects.toMatchObject({ name: 'AbortError' })
   })
 
+  it('reports JSON-safe root identity without claiming identity for the complete store', async () => {
+    const mocked = mockStore(
+      {
+        '.zgroup': json({ zarr_format: 2 }),
+        '.zattrs': json({
+          multiscales: [
+            {
+              version: '0.4',
+              axes: [
+                { name: 'y', type: 'space' },
+                { name: 'x', type: 'space' },
+              ],
+              datasets: [
+                { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+              ],
+            },
+          ],
+        }),
+        '0/.zarray': json({
+          zarr_format: 2,
+          shape: [1, 1],
+          chunks: [1, 1],
+          dtype: '|u1',
+          compressor: null,
+          fill_value: 0,
+          order: 'C',
+          filters: null,
+        }),
+        '0/.zattrs': json({}),
+      },
+      { etag: '"root-version"' },
+    )
+    const context = await createOmeZarrHttpContext('https://example.test/store', {
+      fetch: mocked.fetch,
+    })
+    try {
+      const document = await omeZarrReader.open(context)
+      const summary = context.store.identitySummary(document)
+      expect(summary).toEqual({
+        normalizedRootUrl: 'https://example.test/store/',
+        selectedRootMetadataObject: '.zgroup',
+        sourceIdentityStrength: 'strong',
+        rootObjectSize: json({ zarr_format: 2 }).byteLength,
+        rootObjectValidator: { kind: 'etag', value: '"root-version"' },
+        zarrFormat: 2,
+        omeNgffVersion: '0.4',
+      })
+      expect(JSON.parse(JSON.stringify(summary))).toEqual(summary)
+      expect('storeValidator' in summary).toBe(false)
+      expect('objects' in summary).toBe(false)
+    } finally {
+      context.store.close()
+    }
+  })
+
+  it('uses a session identity when root metadata has no stable validator', async () => {
+    const mocked = mockStore({ 'zarr.json': Uint8Array.of(123, 125) })
+    const context = await createOmeZarrHttpContext('https://example.test/store/zarr.json', {
+      fetch: mocked.fetch,
+    })
+    const first = context.store.identitySummary()
+    const second = context.store.identitySummary()
+    expect(first).toMatchObject({
+      normalizedRootUrl: 'https://example.test/store/',
+      selectedRootMetadataObject: 'zarr.json',
+      sourceIdentityStrength: 'weak',
+      rootObjectSize: 2,
+    })
+    expect(first.sessionIdentity).toMatch(/^\d+$/u)
+    expect(second.sessionIdentity).toBe(first.sessionIdentity)
+    expect(first.rootObjectValidator).toBeUndefined()
+    context.store.close()
+  })
+
   it('honors an already-aborted store lifetime without issuing a request', async () => {
     const controller = new AbortController()
     controller.abort()
@@ -228,6 +308,43 @@ describe('OME-Zarr HTTP object resolution', () => {
     expect(mocked.requests).toEqual([])
   })
 
+  it('cancels a pending open and keeps close idempotent', async () => {
+    let markStarted: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      markStarted = resolve
+    })
+    let requestAborted = false
+    const pendingFetch: typeof fetch = async (_input, init) => {
+      markStarted?.()
+      return new Promise<Response>((_resolve, reject) => {
+        const signal = init?.signal
+        if (signal == null) {
+          reject(new Error('Expected a request signal'))
+          return
+        }
+        signal.addEventListener(
+          'abort',
+          () => {
+            requestAborted = true
+            reject(signal.reason)
+          },
+          { once: true },
+        )
+      })
+    }
+    const store = new OmeZarrHttpStore('https://example.test/store', { fetch: pendingFetch })
+    const opening = store.openContext()
+    await started
+    store.close()
+    store.close()
+    await expect(opening).rejects.toMatchObject({ name: 'AbortError' })
+    expect(requestAborted).toBe(true)
+    await expect(store.openContext()).rejects.toMatchObject({ name: 'AbortError' })
+    await expect(store.resolve({ kind: 'relative-name', name: 'zarr.json' })).rejects.toMatchObject(
+      { name: 'AbortError' },
+    )
+  })
+
   it.each([404, 410] as const)('returns undefined for an HTTP %s companion', async (status) => {
     const mocked = mockStore(
       { 'zarr.json': Uint8Array.of(1) },
@@ -237,6 +354,24 @@ describe('OME-Zarr HTTP object resolution', () => {
     await expect(
       store.resolve({ kind: 'relative-name', name: 'missing/zarr.json' }),
     ).resolves.toBeUndefined()
+  })
+
+  it('does not retain negative lookups', async () => {
+    const mocked = mockStore(
+      { 'zarr.json': Uint8Array.of(1) },
+      { missingStatus: { 'missing/zarr.json': 404 } },
+    )
+    const store = new OmeZarrHttpStore('https://example.test/store', { fetch: mocked.fetch })
+    await expect(
+      store.resolve({ kind: 'relative-name', name: 'missing/zarr.json' }),
+    ).resolves.toBeUndefined()
+    await expect(
+      store.resolve({ kind: 'relative-name', name: 'missing/zarr.json' }),
+    ).resolves.toBeUndefined()
+    expect(mocked.requests.filter((request) => request.path === 'missing/zarr.json')).toHaveLength(
+      2,
+    )
+    store.close()
   })
 
   it('rejects a remote object that does not honor byte ranges', async () => {
