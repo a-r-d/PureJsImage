@@ -1,6 +1,6 @@
 # OME-Zarr / NGFF
 
-Milestone G adds an explicit, browser-portable OME-Zarr reader. Importing the base scientific
+PureJsImage includes an explicit, browser-portable OME-Zarr reader. Importing the base scientific
 package still does not register any reader automatically.
 
 ```ts
@@ -277,7 +277,7 @@ hierarchy testing, but no hierarchy claim is made until those upstream suites ac
 `benchmark/generated/ome-zarr-conformance.json`; `--check` fails if its semantic evidence is stale.
 The five exclusions are typed, date-reviewed contradictions where the pinned cases expect valid
 plates while omitting `plate.version`. That includes `plate/non_alphanumeric_row`: its row name
-`A1` is alphanumeric, so the omitted version—not the row—is the conflict. Exclusions record exact
+`A1` is alphanumeric, so the omitted version, not the row, is the conflict. Exclusions record exact
 expected and PureJsImage results and are never counted as passes.
 
 The weekly/manual `.github/workflows/ome-zarr-compatibility.yml` job uses Node 22, writes all three

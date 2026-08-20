@@ -441,7 +441,7 @@ const compactMobileSummary = (): string => {
     })
     .join('')
   return `<div class="comparison-mobile-summary">
-        <p class="comparison-summary-lede">The dimensions that matter first on a narrow screen. The complete TIFF matrix stays in this page and opens below.</p>
+        <p class="comparison-summary-lede">The main columns on a phone. The full TIFF table is still on this page below.</p>
         <ul class="comparison-summary-list">${cards}</ul>
       </div>`
 }
@@ -455,8 +455,8 @@ const compactHtml = (report: ConformanceReport, comparisonHref = 'tiff-compariso
     .join('\n')
   return `<section class="section tint comparison-section" id="tiff-library-comparison">
       <div class="container">
-        <div class="section-heading"><div><p class="section-label">Scientific and instrument imagery</p><h2>Native raster workflows beyond ordinary application images.</h2></div><a class="text-link" href="${comparisonHref}">TIFF demo and details →</a></div>
-        <p class="comparison-intro">The codec and raster architecture is designed to grow across scientific instruments and research workflows. TIFF, OME microscopy, whole-slide pathology, and geospatial rasters are current examples. This table separates documented features from a 106-file image test of decode coverage and output.</p>
+        <div class="section-heading"><div><p class="section-label">Scientific and instrument imagery</p><h2>Scientific rasters, not just everyday photos.</h2></div><a class="text-link" href="${comparisonHref}">TIFF demo and details →</a></div>
+        <p class="comparison-intro">This table covers TIFF, OME microscopy, whole-slide pathology, and geospatial rasters. It separates documented features from a 106-file test of decode coverage and output.</p>
         ${compactMobileSummary()}
         <details class="comparison-matrix-disclosure" open>
           <summary>Full comparison matrix</summary>

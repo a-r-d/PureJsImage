@@ -78,7 +78,7 @@ export const tiffCapabilityGroups = [
   },
   {
     id: 'ecosystems',
-    name: 'Specialized TIFF ecosystems',
+    name: 'Specialized TIFF formats',
     features: [
       ['omeTiffPixels', 'OME-TIFF pixel decode'],
       ['omeTiffSemantics', 'OME Z/C/T dataset API'],
@@ -93,7 +93,7 @@ export const tiffCapabilityGroups = [
   },
   {
     id: 'robustness',
-    name: 'Robustness and API',
+    name: 'Safety and API',
     features: [
       ['boundedRegionDecode', 'Bounded region decoding'],
       ['malformedInputBounds', 'Malformed-input bounds'],

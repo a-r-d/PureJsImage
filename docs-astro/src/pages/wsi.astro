@@ -217,7 +217,7 @@ const highlightedImplementationCode = highlightTypeScript(implementationCode)
               <div><dt>Cache resident</dt><dd id="wsi-stat-cache-resident">0 tiles / 0 B source cache</dd></div>
             </dl>
             <button class="button secondary" id="wsi-reset" type="button" disabled>Reset counters</button>
-            <p class="wsi-instrument-note">Reset establishes a new baseline against the worker’s real <code>HttpRangeSource.stats</code>. Cached source bytes may satisfy later tiles without a new transfer.</p>
+            <p class="wsi-instrument-note">Reset starts the on-screen counters over against the worker’s real <code>HttpRangeSource.stats</code>. Cached source bytes may satisfy later tiles without a new download.</p>
           </aside>
         </div>
       </div>

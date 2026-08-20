@@ -51,9 +51,9 @@
 - **Portable across Node.js and modern browsers** - strict TypeScript runs without native addons or system executables.
 - **Zero dependencies** - the published package has no runtime dependency tree. You can also easily tree-shake our exports.
 - **Native scientific raster processing** - direct-range reads and native-precision data avoid forcing scientific samples through RGBA.
-- **Correctness-gated benchmarks** - ordinary codec and scientific-reader suites measure speed, peak RSS, output validity, source I/O, and package footprint.
+- **Benchmarks that check correctness** - ordinary codec and scientific-reader suites measure speed, peak RSS, output validity, source I/O, and package footprint.
 - **Optional WASM accelerators** - explicit JPEG and PNG accelerator imports never load or activate automatically.
-- **HUGE tested compatibility matrix** - we used Imazen image corpus ensure massive breadth of compatibility. PureJsImage can process many more image format variations successfully than nearly every competing project.
+- **HUGE tested compatibility matrix** - we used the Imazen image corpus to cover a huge range of real files. PureJsImage can open more format variations than nearly any other JS image library we compared.
 - **Benchmaxxed performance** - we painstakingly hillclimbed performance metrics vs other JS image libraries. Most of the hot loops have been unrolled. We are still slower than Sharp but mostly faster than anything else that is pure JS.
 
 PureJsImage provides portable image codecs and low-memory raster workflows for Node.js
@@ -133,9 +133,9 @@ aggregate is appropriate.
 
 ## Scientific datasets
 
-Scientific readers preserve labeled axes, calibration, native sample types, and selected-resource
-semantics. Numeric data becomes display pixels only when an application explicitly chooses a range,
-palette, slice, or projection.
+Scientific readers preserve labeled axes, calibration, native sample types, and the ability to read
+only the parts you need. Numeric data becomes display pixels only when an application explicitly
+chooses a range, palette, slice, or projection.
 
 <p align="center">
   <a href="https://purejsimage.com/scientific/">
@@ -175,7 +175,7 @@ region, a spectrum, a volume plane, or a whole-slide tile. This includes workflo
 DM4, TIA SER and EMI, NCEM and Velox EMD, NIfTI, NRRD, MRC, OME-TIFF, Aperio SVS, AFM and surface
 metrology, and 4D-STEM data.
 
-The live Scientific Raster Explorer intentionally wires only its smaller demo set. It does not claim
+The live Scientific Raster Explorer currently wires only its smaller demo set. It does not claim
 to open every package reader. Applications and PureJsImage Lab can register the explicit reader
 exports they need.
 
@@ -338,7 +338,7 @@ The checked 2026-08-13 snapshot compared documented TIFF capabilities separately
 
 ## Why PureJsImage?
 
-- Low-memory execution is the northstar: avoid source-sized bitmaps and duplicate full-frame buffers
+- Low-memory execution is the main goal: avoid source-sized bitmaps and duplicate full-frame buffers
   wherever codec structure permits bounded rows, tiles, regions, or coefficient storage.
 - Strict TypeScript codecs remain the portable production and fallback path.
 - Zero runtime dependencies simplify browser, serverless, edge, air-gapped, and restricted builds.

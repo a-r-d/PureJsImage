@@ -96,7 +96,7 @@ console.<span class="tok-method">log</span>(&#123;
   format: metadata.format,
   orientation: metadata.orientation,
 &#125;)</code></pre></div>
-          <p>Metadata inspection is designed to avoid decoding all pixels. When called on a transformed pipeline, it reports the planned output dimensions and format.</p>
+          <p>Metadata inspection avoids decoding all pixels. When called on a transformed pipeline, it reports the planned output dimensions and format.</p>
           <div class="callout warning"><strong>Borrowed memory.</strong> Buffer, Uint8Array, and ArrayBuffer inputs are not copied. Do not mutate or detach them until every pipeline derived from the image has finished.</div>
           <h3>Remote or custom sources</h3>
           <p>A custom source exposes its byte length and a range-read function. Each in-range read must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject if the backing read fails. Returned bytes only need to remain valid until the next read begins.</p>

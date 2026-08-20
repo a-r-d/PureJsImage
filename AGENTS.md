@@ -40,6 +40,13 @@
   Regenerate README, codec pages, website tables, public JSON, and compatibility expectations; do
   not edit generated capability surfaces directly.
 
+## Documentation
+
+- When creating or updating README, website, or docs copy, follow the `write-docs` repository skill
+  in `.agents/skills/write-docs/SKILL.md`.
+- Write in plain simple English. Do not invent jargon. Avoid em dashes, contrast punchlines, and
+  fluffy marketing speak. Many website pages should include a Quick Answer at the top.
+
 ## Experimental HEIF / HEIC
 
 - HEIF/HEIC decoding must remain experimental and explicit opt-in because HEIC commonly carries

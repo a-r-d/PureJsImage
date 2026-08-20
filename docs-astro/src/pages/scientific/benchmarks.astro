@@ -18,12 +18,12 @@ const readerLabel = (id: string): string => {
 }
 
 const formatCount = (value: number | null): string =>
-  value === null ? '—' : new Intl.NumberFormat('en-US').format(Math.round(value))
+  value === null ? '-' : new Intl.NumberFormat('en-US').format(Math.round(value))
 
 const formatMilliseconds = (value: number): string => `${value.toFixed(value < 1 ? 2 : 1)} ms`
 
 const formatBytes = (value: number | null): string => {
-  if (value === null) return '—'
+  if (value === null) return '-'
   const units = ['B', 'KiB', 'MiB', 'GiB'] as const
   let scaled = value
   let unitIndex = 0
@@ -35,12 +35,12 @@ const formatBytes = (value: number | null): string => {
 }
 
 const formatRatio = (value: number | null): string =>
-  value === null ? '—' : `${value.toFixed(2)}×`
+  value === null ? '-' : `${value.toFixed(2)}×`
 
 const formatPair = (
   value: NumericSummary | null,
   formatter: (numberValue: number) => string,
-): string => (value === null ? '—' : `${formatter(value.median)} / ${formatter(value.p95)}`)
+): string => (value === null ? '-' : `${formatter(value.median)} / ${formatter(value.p95)}`)
 
 const statusLabel = (status: string): string => status.replace('-', ' ')
 const recordedDate = new Intl.DateTimeFormat('en-US', {
@@ -123,7 +123,7 @@ const rangeReaderLabels = benchmark.range.readerIds.map(readerLabel).join(', ')
 
         <section id="range">
           <h2>Range-backed coverage</h2>
-          <p>The separate range profile covers {benchmark.range.workloadCount} direct-range workloads across {benchmark.range.readerCount} readers at {benchmark.range.sourceLatencyMilliseconds.join(', ')} ms of underlying-read latency. It is designed to expose round-trip sensitivity and coalescing behavior without pretending that a full-file reader has remote range semantics.</p>
+          <p>The separate range profile covers {benchmark.range.workloadCount} direct-range workloads across {benchmark.range.readerCount} readers at {benchmark.range.sourceLatencyMilliseconds.join(', ')} ms of underlying-read latency. It shows round-trip cost and coalescing without pretending that a full-file reader has remote range semantics.</p>
           <p>{rangeReaderLabels}.</p>
           <p>The published snapshot above is the zero-latency baseline. Run the range profile locally for the expanded latency matrix and inspect its isolated-process report before making performance claims.</p>
         </section>
