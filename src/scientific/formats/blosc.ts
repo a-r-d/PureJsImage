@@ -33,6 +33,33 @@ const unshuffle = (encoded: Uint8Array, elementBytes: number): Uint8Array => {
   return output
 }
 
+const bitUnshuffle = (encoded: Uint8Array, elementBytes: number): Uint8Array => {
+  if (encoded.byteLength % elementBytes !== 0) {
+    throw invalidInput('Blosc bitshuffled payload is not aligned to the element size')
+  }
+  const elements = encoded.byteLength / elementBytes
+  if (elements % 8 !== 0) {
+    throw invalidInput('Blosc bitshuffled payload must contain a multiple of 8 elements')
+  }
+  const rowBytes = elements / 8
+  const output = new Uint8Array(encoded.byteLength)
+  for (let group = 0; group < rowBytes; group += 1) {
+    const outputGroup = group * 8 * elementBytes
+    for (let byte = 0; byte < elementBytes; byte += 1) {
+      const row = byte * 8 * rowBytes + group
+      for (let element = 0; element < 8; element += 1) {
+        let value = 0
+        for (let bit = 0; bit < 8; bit += 1) {
+          const packed = encoded[row + bit * rowBytes] ?? 0
+          value |= ((packed >>> element) & 1) << bit
+        }
+        output[outputGroup + element * elementBytes + byte] = value
+      }
+    }
+  }
+  return output
+}
+
 const decodeZlib = async (
   encoded: Uint8Array,
   maximumBytes: number,
@@ -99,7 +126,7 @@ const decodeInner = async (
   )
 }
 
-/** Decode a Blosc 1 buffer. Bitshuffle and BloscLZ/Snappy remain unsupported. */
+/** Decode a Blosc 1 buffer. BloscLZ and Snappy remain unsupported. */
 export const decodeBlosc = async (
   encoded: Uint8Array,
   options: Readonly<BloscDecodeOptions>,
@@ -118,14 +145,16 @@ export const decodeBlosc = async (
     throw limitExceeded(`Blosc output exceeds ${options.maxOutputBytes} bytes`)
   }
   if (typesize < 1) throw invalidInput('Blosc typesize is invalid')
-  if ((flags & bitShuffle) !== 0) {
-    throw unsupportedOperation('Blosc bitshuffle is unsupported')
-  }
   if ((flags & memcpyed) !== 0) {
     if (encoded.byteLength !== headerBytes + nbytes) {
       throw invalidInput('Blosc memcpy payload size is invalid')
     }
     return encoded.slice(headerBytes, headerBytes + nbytes)
+  }
+  const isByteShuffled = (flags & byteShuffle) !== 0
+  const isBitShuffled = (flags & bitShuffle) !== 0
+  if (isByteShuffled && isBitShuffled) {
+    throw invalidInput('Blosc byte shuffle and bitshuffle cannot both be enabled')
   }
   const compressor = flags >>> compressorShift
   const leftover = nbytes % blocksize
@@ -150,6 +179,9 @@ export const decodeBlosc = async (
         : 1
     if (expected % split !== 0) throw invalidInput('Blosc block is not divisible into splits')
     const splitBytes = expected / split
+    const shuffled = isByteShuffled || isBitShuffled ? new Uint8Array(expected) : undefined
+    const blockOutput = shuffled ?? output
+    let blockDest = shuffled === undefined ? dest : 0
     const start = view.getInt32(headerBytes + block * 4, true)
     if (start < headerBytes + tableBytes || start > encoded.byteLength - 4) {
       throw invalidInput('Blosc compressed block extends outside the buffer')
@@ -173,10 +205,17 @@ export const decodeBlosc = async (
           `Blosc split decoded ${decoded.byteLength} bytes; expected ${splitBytes}`,
         )
       }
-      output.set(decoded, dest)
-      dest += splitBytes
+      blockOutput.set(decoded, blockDest)
+      blockDest += splitBytes
     }
+    if (shuffled !== undefined) {
+      const decoded = isBitShuffled
+        ? bitUnshuffle(shuffled, typesize)
+        : unshuffle(shuffled, typesize)
+      output.set(decoded, dest)
+    }
+    dest += expected
   }
   if (dest !== nbytes) throw invalidInput('Blosc decoded size does not match the header')
-  return (flags & byteShuffle) === 0 ? output : unshuffle(output, typesize)
+  return output
 }

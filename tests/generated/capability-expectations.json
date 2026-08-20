@@ -543,7 +543,11 @@
       "resourceModel": "directory-like",
       "datasetKinds": ["image", "volume", "pyramid"],
       "directRangeReads": true,
-      "evidence": ["tests/scientific-ome-zarr.test.ts", "tests/lz4-block.test.ts"],
+      "evidence": [
+        "tests/scientific-ome-zarr.test.ts",
+        "tests/scientific-blosc.test.ts",
+        "tests/lz4-block.test.ts"
+      ],
       "fixtures": ["tests/fixtures/scientific-ome-zarr/corpus.json"]
     },
     {

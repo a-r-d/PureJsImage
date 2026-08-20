@@ -43,6 +43,7 @@ interface VisibleTile {
 }
 
 type RequestVisualState = 'pending' | 'decoded' | 'cancelled' | 'failed'
+type LoadingPhase = 'opening' | 'viewport' | 'idle' | 'error'
 
 interface RequestVisual {
   readonly requestId: number
@@ -82,6 +83,12 @@ const cacheResidentElement = requiredElement('wsi-stat-cache-resident', HTMLElem
 const measuredBytesElement = requiredElement('wsi-measured-bytes', HTMLElement)
 const measuredFractionElement = requiredElement('wsi-measured-fraction', HTMLElement)
 const metadataSummaryElement = requiredElement('wsi-metadata-summary', HTMLElement)
+const canvasWrap = requiredElement('wsi-canvas-wrap', HTMLElement)
+const loadingElement = requiredElement('wsi-loading', HTMLElement)
+const loadingTitleElement = requiredElement('wsi-loading-title', HTMLElement)
+const loadingDetailElement = requiredElement('wsi-loading-detail', HTMLElement)
+const loadingProgressElement = requiredElement('wsi-loading-progress', HTMLElement)
+const loadingProgressBar = requiredElement('wsi-loading-progress-bar', HTMLElement)
 const sampleButtons = Array.from(
   document.querySelectorAll<HTMLButtonElement>('[data-wsi-sample-url]'),
 )
@@ -96,15 +103,17 @@ const requestVisuals: RequestVisual[] = []
 const maximumCachedTiles = 192
 const maximumRequestVisuals = 32
 let metadata: WsiMetadata | undefined
-let stats: WsiStats = {
+const emptyStats = (): WsiStats => ({
   requests: 0,
   bytesFetched: 0,
   sourceCacheBytes: 0,
   tilesDecoded: 0,
   tilesCancelled: 0,
-}
+})
+let stats = emptyStats()
 let cacheHits = 0
 let previousVisibleKeys = new Set<string>()
+let loadingVisibleKeys = new Set<string>()
 let nextRequestId = 1
 let centerX = 0
 let centerY = 0
@@ -112,6 +121,9 @@ let zoom = 1
 let fittedZoom = 1
 let updateFrame: number | undefined
 let requestStripFrame: number | undefined
+let loadingPhase: LoadingPhase = 'opening'
+let loadingMessage = 'Starting the worker and connecting to object storage…'
+let loadingStartedAt = performance.now()
 
 const send = (message: WsiWorkerRequest): void => worker.postMessage(message)
 const tileKey = (level: number, column: number, row: number): string => `${level}:${column}:${row}`
@@ -126,6 +138,91 @@ const formatBytes = (bytes: number): string => {
     index += 1
   }
   return `${value.toFixed(value >= 100 ? 0 : value >= 10 ? 1 : 2)} ${units[index]}`
+}
+
+const loadingElapsed = (): string => {
+  const seconds = Math.max(0, Math.floor((performance.now() - loadingStartedAt) / 1_000))
+  return seconds === 0 ? 'just started' : `${seconds}s elapsed`
+}
+
+const setLoadingProgress = (ready: number, total: number): void => {
+  if (total === 0) {
+    loadingProgressElement.removeAttribute('aria-valuenow')
+    loadingProgressElement.removeAttribute('aria-valuetext')
+    loadingProgressElement.dataset.indeterminate = 'true'
+    loadingProgressBar.style.width = ''
+    return
+  }
+  const percent = Math.round((ready / total) * 100)
+  delete loadingProgressElement.dataset.indeterminate
+  loadingProgressElement.setAttribute('aria-valuemin', '0')
+  loadingProgressElement.setAttribute('aria-valuemax', '100')
+  loadingProgressElement.setAttribute('aria-valuenow', String(percent))
+  loadingProgressElement.setAttribute('aria-valuetext', `${ready} of ${total} visible tiles ready`)
+  loadingProgressBar.style.width = `${percent}%`
+}
+
+const showLoading = (): void => {
+  loadingElement.hidden = false
+  canvasWrap.setAttribute('aria-busy', 'true')
+}
+
+const hideLoading = (): void => {
+  loadingElement.hidden = true
+  canvasWrap.setAttribute('aria-busy', 'false')
+}
+
+const renderLoadingIndicator = (): void => {
+  if (loadingPhase === 'error') return
+  if (loadingPhase === 'idle') {
+    hideLoading()
+    return
+  }
+  showLoading()
+  loadingElement.dataset.phase = loadingPhase
+  if (loadingPhase === 'opening') {
+    loadingTitleElement.textContent = 'Opening whole-slide image'
+    loadingDetailElement.textContent = `${loadingMessage} · ${stats.requests.toLocaleString()} range requests · ${formatBytes(stats.bytesFetched)} fetched · ${loadingElapsed()}`
+    setLoadingProgress(0, 0)
+    return
+  }
+
+  let ready = 0
+  let failed = 0
+  for (const key of loadingVisibleKeys) {
+    if (cache.has(key)) ready += 1
+    else if (failedKeys.has(key)) failed += 1
+  }
+  const total = loadingVisibleKeys.size
+  const remaining = Math.max(0, total - ready - failed)
+  if (total > 0 && remaining === 0) {
+    loadingPhase = 'idle'
+    hideLoading()
+    return
+  }
+  loadingElement.dataset.preview = ready > 0 ? 'true' : 'false'
+  loadingTitleElement.textContent =
+    ready === 0 ? 'Loading the first visible tiles' : 'Refining the viewport'
+  const failedText = failed === 0 ? '' : ` · ${failed.toLocaleString()} failed`
+  loadingDetailElement.textContent = `${ready.toLocaleString()} of ${total.toLocaleString()} visible tiles ready · ${formatBytes(stats.bytesFetched)} fetched${failedText}`
+  setLoadingProgress(ready + failed, total)
+}
+
+const showLoadingError = (message: string): void => {
+  loadingPhase = 'error'
+  showLoading()
+  canvasWrap.setAttribute('aria-busy', 'false')
+  loadingElement.dataset.phase = 'error'
+  delete loadingElement.dataset.preview
+  loadingTitleElement.textContent = 'Could not load this whole-slide image'
+  loadingDetailElement.textContent = message
+  loadingProgressElement.hidden = true
+}
+
+const setViewerControlsEnabled = (enabled: boolean): void => {
+  fitButton.disabled = !enabled
+  zoomInButton.disabled = !enabled
+  zoomOutButton.disabled = !enabled
 }
 
 const fractionForBytes = (bytes: number, size: number): string =>
@@ -143,6 +240,7 @@ const renderStats = (): void => {
   cacheResidentElement.textContent = `${cache.size.toLocaleString()} tiles / ${formatBytes(stats.sourceCacheBytes)} source cache`
   measuredBytesElement.textContent = formatBytes(stats.bytesFetched)
   measuredFractionElement.textContent = fractionText()
+  renderLoadingIndicator()
 }
 
 const updateRequestStrip = (): void => {
@@ -342,6 +440,11 @@ const updateRequests = (): void => {
   if (!chosen || !coarsest) return
   const primaryTiles = visibleTiles(chosen, 1)
   const placeholderTiles = chosen.index === coarsest.index ? [] : visibleTiles(coarsest, 0)
+  const visiblePrimaryTiles = visibleTiles(chosen, 0)
+  loadingVisibleKeys = new Set(
+    [...placeholderTiles, ...visiblePrimaryTiles].map((tile) => tile.key),
+  )
+  loadingPhase = 'viewport'
   const desiredTiles = [...placeholderTiles, ...primaryTiles]
   const desiredKeys = new Set(desiredTiles.map((tile) => tile.key))
   for (const request of pendingByKey.values()) {
@@ -504,18 +607,37 @@ const openUrl = (): void => {
     requestVisuals.length = 0
     previousVisibleKeys.clear()
     cacheHits = 0
+    stats = emptyStats()
     metadata = undefined
+    loadingVisibleKeys.clear()
+    loadingPhase = 'opening'
+    loadingMessage = 'Connecting to object storage…'
+    loadingStartedAt = performance.now()
+    loadingProgressElement.hidden = false
+    delete loadingElement.dataset.preview
     openButton.disabled = true
+    openButton.textContent = 'Opening slide…'
+    openButton.setAttribute('aria-busy', 'true')
     resetButton.disabled = true
+    setViewerControlsEnabled(false)
+    delete statusElement.dataset.error
     statusElement.textContent = 'Opening the original SVS with HTTP byte ranges…'
+    levelElement.textContent = 'Waiting for slide metadata…'
     measuredFractionElement.textContent = 'Opening…'
     measuredBytesElement.textContent = 'Reading metadata'
     metadataSummaryElement.textContent = 'Metadata ranges pending'
     updateRequestStrip()
     draw()
+    renderLoadingIndicator()
     send({ type: 'open', url: parsed.href })
   } catch (cause) {
-    statusElement.textContent = cause instanceof Error ? cause.message : 'Invalid slide URL'
+    const message = cause instanceof Error ? cause.message : 'Invalid slide URL'
+    openButton.disabled = false
+    openButton.textContent = 'Open original SVS'
+    openButton.removeAttribute('aria-busy')
+    statusElement.textContent = message
+    statusElement.dataset.error = 'true'
+    showLoadingError(message)
   }
 }
 
@@ -550,15 +672,23 @@ const setMetadata = (opened: WsiMetadata): void => {
   const first = opened.levels[0]
   tileSizeElement.textContent = first ? `${first.tileWidth} × ${first.tileHeight}` : 'Not available'
   openButton.disabled = false
+  openButton.textContent = 'Open original SVS'
+  openButton.removeAttribute('aria-busy')
   resetButton.disabled = false
+  setViewerControlsEnabled(true)
+  loadingPhase = 'viewport'
+  delete statusElement.dataset.error
   statusElement.textContent = `Opened ${opened.name} directly from static object storage.`
+  renderLoadingIndicator()
   fitSlide()
 }
 
 worker.onmessage = (event: MessageEvent<WsiWorkerResponse>): void => {
   const message = event.data
   if (message.type === 'opening') {
+    loadingMessage = message.message
     statusElement.textContent = message.message
+    renderLoadingIndicator()
     return
   }
   if (message.type === 'opened') {
@@ -607,6 +737,8 @@ worker.onmessage = (event: MessageEvent<WsiWorkerResponse>): void => {
     return
   }
   openButton.disabled = false
+  openButton.textContent = 'Open original SVS'
+  openButton.removeAttribute('aria-busy')
   if (message.requestId !== undefined) {
     const request = pendingById.get(message.requestId)
     pendingById.delete(message.requestId)
@@ -618,12 +750,19 @@ worker.onmessage = (event: MessageEvent<WsiWorkerResponse>): void => {
   }
   if (message.stats) stats = message.stats
   statusElement.textContent = message.message
+  statusElement.dataset.error = 'true'
+  if (message.requestId === undefined) showLoadingError(message.message)
   renderStats()
 }
 
 worker.onerror = (event): void => {
   openButton.disabled = false
-  statusElement.textContent = `Viewer worker failed: ${event.message}`
+  openButton.textContent = 'Open original SVS'
+  openButton.removeAttribute('aria-busy')
+  const message = `Viewer worker failed: ${event.message}`
+  statusElement.textContent = message
+  statusElement.dataset.error = 'true'
+  showLoadingError(message)
 }
 
 new ResizeObserver(() => scheduleViewportUpdate()).observe(canvas)
@@ -631,7 +770,7 @@ window.setInterval(() => send({ type: 'stats' }), 250)
 updateRequestStrip()
 renderStats()
 const configuredUrl = new URL(window.location.href).searchParams.get('url')
-if (configuredUrl) urlInput.value = new URL(configuredUrl, window.location.href).href
+if (configuredUrl) urlInput.value = configuredUrl
 openUrl()
 
 declare global {

@@ -38,9 +38,53 @@ replace that series scan. Extra integer series beyond `maxDatasets` fail with `L
 | Specification | OME-NGFF 0.5 image `multiscales` on Zarr v3, and OME-NGFF 0.4 on Zarr v2. |
 | Resource model | Directory-like group plus arrays and chunk objects, or a ZIP archive with root-level or one nested Zarr prefix. |
 | Chunks | Regular grids and `sharding_indexed` with index-at-end or index-at-start. A missing chunk is fill only when a defined fill exists; Zarr v2 `fill_value: null` leaves missing contents undefined. |
-| Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, one `transpose`, `shuffle`, and Blosc 1 with LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
+| Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, one `transpose`, `shuffle`, and Blosc 1 with byte shuffle or 8-element-aligned bitshuffle plus LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
 | Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` colors and source. Plate wells become one dataset per field, with well path and indices in metadata. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and optional OMERO channel names/colors are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
 | Reads | Selected planes fetch only intersecting shards/inner chunks. A plane session layers a bounded cache over the store LRU (`maxOpenSources` entries and `maxCachedChunkBytes`). One oversized shard may be held transiently for adjacent `rowsPerBlock` subdivisions; it is not retained in the persistent LRU and is reread on a later `readPlane`. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
+
+## Normalized storage metadata
+
+Each OME-Zarr dataset descriptor exposes a JSON-safe `metadata.omeZarrLevels` array. It is a frozen
+summary rather than a parser-internal Zarr object:
+
+```ts
+interface OmeZarrLevelStorageMetadata {
+  readonly level: number
+  readonly path: string
+  readonly shape: readonly number[]
+  readonly logicalChunkShape: readonly number[]
+  readonly storageChunkShape: readonly number[]
+  readonly sharded: boolean
+  readonly codecs: readonly string[]
+  readonly shardIndexLocation?: 'start' | 'end'
+}
+```
+
+For regular arrays, logical and storage chunk shapes are equal. For `sharding_indexed`, the logical
+shape is the inner chunk and the storage shape is the outer shard. Applications can display or plan
+viewport reads from this normalized metadata without reparsing `zarr.json`.
+
+## Remote whole-slide viewer
+
+The [OME-Zarr WSI demo](https://purejsimage.com/ome-zarr/) opens a store-root URL (or its root
+`zarr.json`, `.zgroup`, or `.zattrs`) and resolves normalized companion names within that root. The
+demo adapter is intentionally local to the website; it reuses `omeZarrReader`, `HttpRangeSource`,
+and `ScientificDataset.readPlane()` rather than adding a second parser or public store API.
+
+The verified production inputs are the Jackson Laboratory OME 2024 NGFF Challenge conversions
+`41028.zarr`, `46125.zarr`, and `42815.zarr`: OME-NGFF 0.5, Zarr v3,
+`sharding_indexed`, 1,024 × 1,024 logical chunks, 32,768 × 32,768 outer shards, and Blosc/zstd
+bitshuffle data. Their published catalog sizes are used only for the displayed fetched fraction.
+For any other URL, the demo reports `Total store size unknown`; it does not infer a store total by
+enumerating objects or summing individual object sizes.
+
+Static hosting must permit cross-origin GET access and byte Range requests to shard objects, return
+206 for valid ranges, and expose `Content-Range` to browser JavaScript. HEAD access and exposed
+`Content-Length` are also required by the demo's bounded object opener. The verified Google Cloud
+Jackson deployment currently returns a valid wire-level `Content-Range` but omits that header from
+`Access-Control-Expose-Headers`; for this named exception, the demo establishes object size with
+HEAD and still validates the 206 status and exact response length. Other CORS, status, range, or
+content-encoding failures remain explicit errors.
 
 Chunk resolution during a plane read is session cache, then the persistent store LRU, then the
 companion resolver. Cacheable hits write through to both caches so a later `readPlane` can warm-hit
@@ -55,7 +99,7 @@ selected chunk.
 
 ## Explicit exclusions
 
-- BloscLZ, Snappy, and Blosc bitshuffle
+- BloscLZ, Snappy, and malformed or non-8-element-aligned Blosc bitshuffle blocks
 - Zarr v3 `storage_transformers` (any nonempty list)
 - Tables
 - RFC-9 zip-comment / `jsonFirst` profile requirements

@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
+import { highlightTypeScript } from '../utils/highlight-typescript.ts'
 
 const sampleSlides = [
   {
@@ -25,13 +26,76 @@ const sampleSlides = [
 ] as const
 
 const defaultSlide = sampleSlides[2].url
+
+const implementationCode = `import type { PixelBlock } from 'purejsimage'
+import { defaultAperioSvsLimits, openAperioSvs } from 'purejsimage/pathology'
+import { HttpRangeSource } from 'purejsimage/sources/http-range'
+import { openTiffDocument } from 'purejsimage/tiff'
+
+// Open only the remote byte ranges needed for metadata and visible tiles.
+const source = await HttpRangeSource.open(slideUrl, {
+  blockBytes: 65_536,
+  maxCacheBytes: 1_048_576,
+  openSignal: signal,
+})
+const tiff = await openTiffDocument(source, {
+  maxInputBytes: defaultAperioSvsLimits.maxSourceBytes,
+  maxWidth: defaultAperioSvsLimits.maxWidth,
+  maxHeight: defaultAperioSvsLimits.maxHeight,
+  maxDecodedBytes: defaultAperioSvsLimits.maxRegionDecodedBytes,
+  signal,
+})
+const slide = await openAperioSvs(tiff, {
+  limits: defaultAperioSvsLimits,
+  signal,
+})
+
+const copyRgbBlock = (
+  target: Uint8ClampedArray,
+  targetWidth: number,
+  block: PixelBlock,
+): void => {
+  if (block.format !== 'rgb8') throw new Error('Expected an RGB8 tile')
+  for (let row = 0; row < block.height; row += 1) {
+    let input = row * block.stride
+    let output = ((block.y + row) * targetWidth + block.x) * 4
+    for (let column = 0; column < block.width; column += 1) {
+      target[output] = block.data[input] ?? 0
+      target[output + 1] = block.data[input + 1] ?? 0
+      target[output + 2] = block.data[input + 2] ?? 0
+      target[output + 3] = 255
+      input += 3
+      output += 4
+    }
+  }
+}
+
+// level, column, and row come from the current canvas viewport.
+const level = slide.levels[levelIndex]
+if (!level?.tileWidth || !level.tileHeight) throw new Error('Level is not tiled')
+const width = Math.min(level.tileWidth, level.width - column * level.tileWidth)
+const height = Math.min(level.tileHeight, level.height - row * level.tileHeight)
+const rgba = new Uint8ClampedArray(width * height * 4)
+
+for await (const block of level.tile(column, row, { signal })) {
+  try {
+    copyRgbBlock(rgba, width, block)
+  } finally {
+    block.release?.()
+  }
+}
+
+const bitmap = await createImageBitmap(new ImageData(rgba, width, height))
+postMessage({ level: levelIndex, column, row, bitmap }, [bitmap])`
+
+const highlightedImplementationCode = highlightTypeScript(implementationCode)
 ---
 
 <SiteLayout
   title="No Conversion Needed | PureJsImage whole-slide demo"
   description="Pan and zoom a 2.12 GB Aperio SVS directly from static object storage while measuring the byte ranges actually fetched."
   canonical="https://purejsimage.com/wsi/"
-  bodyClass="wsi-page"
+  bodyClass="wsi-page svs-wsi-page"
   current="wsi/"
   skipLabel="Skip to whole-slide viewer"
   openGraph={{
@@ -91,15 +155,39 @@ const defaultSlide = sampleSlides[2].url
             <header class="wsi-canvas-toolbar">
               <div><p class="demo-card-kicker">Original pyramid tiles</p><h2 id="wsi-viewer-title">Whole-slide viewport</h2></div>
               <div class="wsi-view-controls">
-                <button id="wsi-zoom-out" type="button" aria-label="Zoom out">−</button>
-                <button id="wsi-fit" type="button">Fit</button>
-                <button id="wsi-zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button id="wsi-zoom-out" type="button" aria-label="Zoom out" disabled>−</button>
+                <button id="wsi-fit" type="button" disabled>Fit</button>
+                <button id="wsi-zoom-in" type="button" aria-label="Zoom in" disabled>+</button>
               </div>
             </header>
-            <div class="wsi-canvas-wrap">
+            <div class="wsi-canvas-wrap" id="wsi-canvas-wrap" aria-busy="true">
               <canvas id="wsi-canvas" aria-label="Pannable and zoomable Aperio whole-slide image"></canvas>
               <div class="wsi-canvas-help">Drag to pan · wheel or pinch to zoom</div>
               <div class="wsi-level-live" id="wsi-level-live">Waiting for slide metadata…</div>
+              <div
+                class="wsi-loading"
+                id="wsi-loading"
+                data-phase="opening"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <div class="wsi-loading-card">
+                  <span class="wsi-loading-spinner" aria-hidden="true"></span>
+                  <div class="wsi-loading-copy">
+                    <strong id="wsi-loading-title">Opening whole-slide image</strong>
+                    <span id="wsi-loading-detail">Starting the worker and connecting to object storage…</span>
+                  </div>
+                  <div
+                    class="wsi-loading-progress"
+                    id="wsi-loading-progress"
+                    role="progressbar"
+                    aria-label="Whole-slide loading progress"
+                  >
+                    <span id="wsi-loading-progress-bar"></span>
+                  </div>
+                </div>
+              </div>
             </div>
             <p class="wsi-status" id="wsi-status" role="status" aria-live="polite">Starting the worker…</p>
             <section class="wsi-activity" aria-labelledby="wsi-activity-title">
@@ -176,6 +264,28 @@ const defaultSlide = sampleSlides[2].url
         </div>
         <div class="wsi-tradeoff"><strong>OME-Zarr is often the right call.</strong><p>It is an open, actively developed format with broad tool support, standardized metadata, and independently accessible chunks. This demo is for a different moment: an Aperio slide is already sitting in a bucket and you want to inspect it before building a conversion pipeline.</p></div>
         <p class="wsi-clinical-note">Technical demonstration only. This viewer is not a diagnostic tool and has not been validated for clinical use.</p>
+      </div>
+    </section>
+
+    <section class="section wsi-code" aria-labelledby="wsi-code-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><p class="eyebrow">Build it with PureJsImage</p><h2 id="wsi-code-title">Decode only the native tiles in view.</h2></div>
+          <p>The worker opens the original SVS through <code>HttpRangeSource</code>, reads its TIFF pyramid with <code>openAperioSvs()</code>, and decodes only the tile coordinates selected by the canvas viewport. Every returned block is released after it is copied into one transferable bitmap.</p>
+        </div>
+        <div class="code-window wsi-code-window">
+          <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">wsi-worker.ts</span></div>
+          <button class="code-copy" type="button" data-copy="wsi-implementation-code">Copy</button>
+          <pre><code id="wsi-implementation-code" set:html={highlightedImplementationCode}></code></pre>
+        </div>
+        <div class="wsi-code-footer">
+          <p>The complete demo adds a four-job decode queue, one <code>AbortController</code> per tile, coarse-level placeholders, a bounded 192-bitmap LRU, pan and zoom math, and live <code>HttpRangeSource.stats</code>.</p>
+          <div>
+            <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs-astro/src/scripts/wsi-worker.ts">Complete worker →</a>
+            <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs-astro/src/scripts/wsi-viewer.ts">Canvas controller →</a>
+            <a href="/guides/#whole-slide-recipe">Whole-slide guide →</a>
+          </div>
+        </div>
       </div>
     </section>
   </main>

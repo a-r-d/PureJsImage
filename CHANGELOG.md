@@ -4,6 +4,21 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added the measured `/ome-zarr/` browser demo for viewport-bounded pan and zoom of public
+  OME-NGFF whole-slide stores. It reuses the first-party scientific reader in a worker, reports
+  object, Range, byte, source-cache, bitmap-cache, decode, and cancellation activity, and includes
+  a deterministic sharded three-level browser fixture plus an opt-in Jackson Laboratory live smoke
+  test.
+
+### Changed
+
+- OME-Zarr descriptors now expose immutable normalized `omeZarrLevels` storage metadata, including
+  logical chunk and outer shard shapes, codec names, and shard-index location. Blosc 1 decoding now
+  supports 8-element-aligned bitshuffle blocks, including the zstd payloads used by the verified
+  Jackson OME-NGFF 0.5 stores.
+
 ## [0.14.0] - 2026-08-20
 
 ### Added

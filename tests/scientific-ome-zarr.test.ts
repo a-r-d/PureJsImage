@@ -57,6 +57,7 @@ const trackingContext = (
 const groupMeta = (
   datasets: readonly { readonly path: string; readonly scale: readonly number[] }[],
   extras: Readonly<Record<string, unknown>> = {},
+  name = 'demo',
 ): Uint8Array =>
   text({
     zarr_format: 3,
@@ -67,7 +68,7 @@ const groupMeta = (
         ...extras,
         multiscales: [
           {
-            name: 'demo',
+            name,
             axes: [
               { name: 'y', type: 'space', unit: 'micrometer' },
               { name: 'x', type: 'space', unit: 'micrometer' },
@@ -313,6 +314,26 @@ describe('OME-Zarr 0.5 reader', () => {
     expect(document.format).toBe('OME-Zarr')
     expect(document.metadata.omeNgffVersion).toBe('0.5')
     const dataset = await document.openDataset('image')
+    expect(dataset.descriptor.metadata?.omeZarrLevels).toEqual([
+      {
+        level: 0,
+        path: '0',
+        shape: [8, 8],
+        logicalChunkShape: [4, 4],
+        storageChunkShape: [4, 4],
+        sharded: false,
+        codecs: ['bytes'],
+      },
+      {
+        level: 1,
+        path: '1',
+        shape: [4, 4],
+        logicalChunkShape: [4, 4],
+        storageChunkShape: [4, 4],
+        sharded: false,
+        codecs: ['bytes'],
+      },
+    ])
     expect(dataset.descriptor.axes.map((axis) => axis.id)).toEqual(['y', 'x'])
     expect(dataset.descriptor.capabilities.resolutionLevels).toBe(true)
     const x = dataset.descriptor.axes.find((axis) => axis.id === 'x')
@@ -333,6 +354,20 @@ describe('OME-Zarr 0.5 reader', () => {
     ])
     expect(await planeValues(dataset, { resolutionLevel: 1, width: 2, height: 1 })).toEqual([0, 1])
     expect(resolved.filter((name) => name.startsWith('0/c/'))).toEqual(['0/c/0/1'])
+  })
+
+  it('treats an empty optional multiscale display name like an omitted name', async () => {
+    const files = regularStore()
+    files['zarr.json'] = groupMeta(
+      [
+        { path: '0', scale: [0.5, 0.5] },
+        { path: '1', scale: [1, 1] },
+      ],
+      {},
+      '',
+    )
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    expect(document.datasets[0]?.name).toBe('image')
   })
 
   it('fills missing chunks and rejects unsupported codecs by name', async () => {
@@ -422,7 +457,20 @@ describe('OME-Zarr 0.5 reader', () => {
       ),
       '0/c/0/0': shard,
     }
-    expect(await planeValues(await openDataset(omeZarrReader, sharded))).toEqual([...pixels])
+    const shardedDataset = await openDataset(omeZarrReader, sharded)
+    expect(shardedDataset.descriptor.metadata?.omeZarrLevels).toEqual([
+      {
+        level: 0,
+        path: '0',
+        shape: [4, 4],
+        logicalChunkShape: [2, 2],
+        storageChunkShape: [4, 4],
+        sharded: true,
+        codecs: ['sharding_indexed', 'bytes', 'crc32c'],
+        shardIndexLocation: 'end',
+      },
+    ])
+    expect(await planeValues(shardedDataset)).toEqual([...pixels])
   })
 
   it('resolves store-relative companions and Node directory roots', async () => {
@@ -628,7 +676,7 @@ describe('OME-Zarr 0.4 / Zarr v2 reader', () => {
     ])
   })
 
-  it('fills missing v2 chunks and rejects Blosc bitshuffle', async () => {
+  it('fills missing v2 chunks', async () => {
     const files = {
       '.zgroup': text({ zarr_format: 2 }),
       '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
@@ -637,19 +685,6 @@ describe('OME-Zarr 0.4 / Zarr v2 reader', () => {
     expect(await planeValues(await openDataset(omeZarrReader, files, '.zgroup'))).toEqual([
       9, 9, 9, 9,
     ])
-
-    const bitshuffle = bloscMemcpy(Uint8Array.of(1, 2, 3, 4))
-    bitshuffle[2] = 0x04
-    const rejected = {
-      '.zgroup': text({ zarr_format: 2 }),
-      '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
-      '0/.zarray': v2Array([2, 2], [2, 2], { compressor: { id: 'blosc' } }),
-      '0/0/0': bitshuffle,
-    }
-    await expectCode(
-      () => openDataset(omeZarrReader, rejected, '.zgroup').then((opened) => planeValues(opened)),
-      'UNSUPPORTED_OPERATION',
-    )
   })
 })
 

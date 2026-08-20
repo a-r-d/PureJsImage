@@ -39,6 +39,14 @@ export interface HttpRangeSourceOptions {
   readonly signal?: AbortSignal
   /** Alternate Fetch implementation for controlled runtimes and tests. */
   readonly fetch?: typeof fetch
+  /** Trusted object size used only with allowHeadSizeFallback after a successful 206 probe. */
+  readonly expectedSize?: number
+  /**
+   * Allow a HEAD request to establish the object size when a successful 206 response's
+   * Content-Range header is hidden by CORS. The response remains strict when Content-Range is
+   * present, and every subsequent request must still return 206 with the requested byte count.
+   */
+  readonly allowHeadSizeFallback?: boolean
 }
 
 export interface HttpRangeSourceStats {
@@ -167,6 +175,7 @@ export class HttpRangeSource implements ImageSource {
   readonly #lifetimeSignal: AbortSignal | undefined
   readonly #blockBytes: number
   readonly #maxCacheBytes: number
+  readonly #allowMissingContentRange: boolean
   readonly #cache = new Map<number, HttpRangeBlock>()
   readonly #pending = new Map<number, InflightBlock>()
   readonly #validator: HttpRangeValidator | undefined
@@ -185,6 +194,7 @@ export class HttpRangeSource implements ImageSource {
     options: Readonly<HttpRangeSourceOptions>,
     fetcher: typeof fetch,
     validator: HttpRangeValidator | undefined,
+    allowMissingContentRange: boolean,
   ) {
     this.#url = new URL(url).href
     this.size = size
@@ -193,6 +203,7 @@ export class HttpRangeSource implements ImageSource {
     this.#lifetimeSignal = options.lifetimeSignal
     this.#blockBytes = options.blockBytes ?? defaultBufferBytes
     this.#maxCacheBytes = options.maxCacheBytes ?? defaultBufferBytes * defaultBufferSlots
+    this.#allowMissingContentRange = allowMissingContentRange
     this.#validator = validator
     const identityValidator =
       validator === undefined
@@ -264,7 +275,49 @@ export class HttpRangeSource implements ImageSource {
       await cancelResponse(response)
       throw invalidInput('HTTP range source does not support content-encoded responses')
     }
-    const size = parseContentRange(response, 0, 0)
+    const rawContentRange = response.headers.get('content-range')
+    let size: number
+    let headRequests = 0
+    if (rawContentRange !== null) {
+      size = parseContentRange(response, 0, 0)
+    } else if (options.allowHeadSizeFallback === true && options.expectedSize !== undefined) {
+      size = options.expectedSize
+      if (!Number.isSafeInteger(size) || size < 1) {
+        await cancelResponse(response)
+        throw invalidInput('HTTP expected size must be a positive safe integer')
+      }
+    } else if (options.allowHeadSizeFallback === true) {
+      let head: Response
+      try {
+        throwIfAborted(openSignal)
+        head = await fetcher(href, {
+          headers: new Headers(options.headers),
+          method: 'HEAD',
+          ...(openSignal === undefined ? {} : { signal: openSignal }),
+        })
+        headRequests += 1
+      } catch (cause) {
+        throwIfAborted(openSignal)
+        await cancelResponse(response)
+        throw new ImageError('INVALID_INPUT', `HTTP size probe failed for ${href}`, { cause })
+      }
+      if (head.status !== 200) {
+        await cancelResponse(response)
+        await cancelResponse(head)
+        throw invalidInput(`HTTP size probe returned status ${head.status}`)
+      }
+      const rawSize = head.headers.get('content-length')
+      size = Number(rawSize)
+      if (!Number.isSafeInteger(size) || size < 1) {
+        await cancelResponse(response)
+        await cancelResponse(head)
+        throw invalidInput('HTTP size probe is missing a valid Content-Length header')
+      }
+      await cancelResponse(head)
+    } else {
+      await cancelResponse(response)
+      throw invalidInput('HTTP range response is missing a valid Content-Range header')
+    }
     const probe = await responseBytes(response, 'HTTP range probe', openSignal)
     if (probe.byteLength !== 1)
       throw truncatedInput('HTTP range probe did not return exactly one byte')
@@ -283,8 +336,15 @@ export class HttpRangeSource implements ImageSource {
           : lastModified === null
             ? undefined
             : Object.freeze({ header: 'last-modified', value: lastModified })
-    const source = new HttpRangeSource(href, size, options, fetcher, validator)
-    source.#requests = 1
+    const source = new HttpRangeSource(
+      href,
+      size,
+      options,
+      fetcher,
+      validator,
+      rawContentRange === null,
+    )
+    source.#requests = 1 + headRequests
     source.#transferBytes = 1
     source.#cover(0, 1)
     return source
@@ -411,7 +471,11 @@ export class HttpRangeSource implements ImageSource {
       await cancelResponse(response)
       throw invalidInput(`HTTP range request returned status ${response.status}`)
     }
-    const responseSize = parseContentRange(response, start, end)
+    const rawContentRange = response.headers.get('content-range')
+    const responseSize =
+      rawContentRange === null && this.#allowMissingContentRange
+        ? this.size
+        : parseContentRange(response, start, end)
     if (responseSize !== this.size) {
       await cancelResponse(response)
       throw invalidInput(`HTTP range source size changed from ${this.size} to ${responseSize}`)

@@ -8,6 +8,8 @@ const outputDirectory = resolve('benchmark/.tmp/docs-site')
 const outputBundle = join(outputDirectory, 'assets/demo-app.js')
 const outputWsiBundle = join(outputDirectory, 'assets/wsi-viewer.js')
 const outputWsiWorker = join(outputDirectory, 'assets/wsi-worker.js')
+const outputOmeZarrBundle = join(outputDirectory, 'assets/ome-zarr-viewer.js')
+const outputOmeZarrWorker = join(outputDirectory, 'assets/ome-zarr-worker.js')
 const outputWasm = join(outputDirectory, 'assets/jpeg-decoder.wasm')
 const outputSimdDecoderWasm = join(outputDirectory, 'assets/jpeg-decoder-simd.wasm')
 const outputEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder.wasm')
@@ -70,6 +72,8 @@ await build({
   entryPoints: {
     'wsi-viewer': 'docs-astro/src/scripts/wsi-viewer.ts',
     'wsi-worker': 'docs-astro/src/scripts/wsi-worker.ts',
+    'ome-zarr-viewer': 'docs-astro/src/scripts/ome-zarr-viewer.ts',
+    'ome-zarr-worker': 'docs-astro/src/scripts/ome-zarr-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
@@ -107,6 +111,11 @@ const wsiWorker = await stat(outputWsiWorker)
 if (wsiBundle.size === 0 || wsiWorker.size === 0) {
   throw new Error('Generated whole-slide viewer bundle is empty')
 }
+const omeZarrBundle = await stat(outputOmeZarrBundle)
+const omeZarrWorker = await stat(outputOmeZarrWorker)
+if (omeZarrBundle.size === 0 || omeZarrWorker.size === 0) {
+  throw new Error('Generated OME-Zarr viewer bundle is empty')
+}
 const wasm = await stat(outputWasm)
 const simdDecoderWasm = await stat(outputSimdDecoderWasm)
 const encoderWasm = await stat(outputEncoderWasm)
@@ -125,5 +134,5 @@ if (
 }
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
 )

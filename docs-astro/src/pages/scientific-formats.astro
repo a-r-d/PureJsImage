@@ -67,6 +67,7 @@ const families = documentation.support.scientificReaderFamilies.map((family) => 
           <strong>Related</strong>
           <a href="../codecs/">Codec support</a>
           <a href="../scientific/">Scientific explorer</a>
+          <a href="../ome-zarr/">OME-Zarr WSI viewer</a>
           <a href="../scientific/benchmarks/">Reader tables</a>
           <a href="../performance/#scientific-readers">Scientific charts</a>
         </div>
@@ -82,6 +83,11 @@ const families = documentation.support.scientificReaderFamilies.map((family) => 
             interchange; and raw NumPy arrays. “Direct range” means the reader can request selected
             source spans through the scientific source abstraction; it does not promise that every
             operation avoids all metadata or companion-resource reads.
+          </p>
+          <p>
+            The <a href="../ome-zarr/">OME-Zarr WSI viewer</a> is the measured browser proof for
+            remote, sharded OME-NGFF pyramids; the general scientific explorer remains local-file
+            focused.
           </p>
           <div class="callout warning">
             <strong>Live explorer boundary.</strong> The browser explorer currently wires only its five

@@ -1,6 +1,6 @@
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
-import { extname, relative, resolve } from 'node:path'
+import { dirname, extname, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
 import { GifWriter } from 'omggif'
@@ -230,6 +230,14 @@ const generatedScientificBrowserFixtures: readonly (readonly [string, Uint8Array
 for (const [name, bytes] of generatedScientificBrowserFixtures) {
   await writeFile(resolve(scientificFixtureDirectory, name), bytes)
 }
+const omeZarrWsiFactory = generatedScientificFixtures['ome-zarr-wsi-generated']
+if (omeZarrWsiFactory === undefined) throw new Error('Missing generated OME-Zarr WSI fixture')
+const omeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi')
+for (const resource of omeZarrWsiFactory().resources) {
+  const target = resolve(omeZarrWsiDirectory, resource.name)
+  await mkdir(dirname(target), { recursive: true })
+  await writeFile(target, resource.bytes)
+}
 await copyFile(
   'benchmark/corpus/files/libtiff-rgb-3c-8b.tiff',
   resolve(scientificFixtureDirectory, 'ordinary.tiff'),
@@ -266,6 +274,8 @@ await build({
   entryPoints: {
     'wsi-viewer': 'docs-astro/src/scripts/wsi-viewer.ts',
     'wsi-worker': 'docs-astro/src/scripts/wsi-worker.ts',
+    'ome-zarr-viewer': 'docs-astro/src/scripts/ome-zarr-viewer.ts',
+    'ome-zarr-worker': 'docs-astro/src/scripts/ome-zarr-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',

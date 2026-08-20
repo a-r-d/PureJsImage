@@ -147,8 +147,9 @@ A ZIP archive with that root metadata, or a single nested `*.zarr/` prefix, is a
 single-file store (`.ozx`, `.zip`, and `.zarr` names are probe hints; `__MACOSX/` sidecars are
 ignored). Image `multiscales` from NGFF 0.4 and 0.5 become scientific resolution levels.
 Sibling `labels/` groups, plate/well fields, and `bioformats2raw.layout` series become additional
-datasets. The reader fetches only intersecting chunks, including Blosc 1 LZ4/zlib/zstd payloads,
-and rejects BloscLZ, Snappy, bitshuffle, tables, multi-root ZIPs, and writers. The exact
+datasets. The reader fetches only intersecting chunks, including Blosc 1 LZ4/zlib/zstd payloads
+with byte shuffle or 8-element-aligned bitshuffle, and rejects BloscLZ, Snappy, malformed bitshuffle,
+tables, multi-root ZIPs, and writers. The exact
 codec and store boundary is documented in [`scientific-ome-zarr.md`](scientific-ome-zarr.md).
 
 ## Detection and budgets

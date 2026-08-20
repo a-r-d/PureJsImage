@@ -23,6 +23,78 @@ const immediateFetch: typeof fetch = async (_input, init) => {
 }
 
 describe('HttpRangeSource cancellation scopes', () => {
+  it('uses an opt-in HEAD size fallback when Content-Range is hidden by CORS', async () => {
+    const methods: string[] = []
+    const fetchRange: typeof fetch = async (_input, init) => {
+      const method = init?.method ?? 'GET'
+      methods.push(method)
+      if (method === 'HEAD') {
+        return new Response(null, { status: 200, headers: { 'content-length': '100' } })
+      }
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 416 })
+      return new Response(bytes.slice(range.start, Math.min(range.end, 99) + 1), { status: 206 })
+    }
+    const source = await HttpRangeSource.open('https://example.test/cors-range.bin', {
+      allowHeadSizeFallback: true,
+      blockBytes: 16,
+      fetch: fetchRange,
+    })
+    await expect(source.read(16, 2)).resolves.toEqual(Uint8Array.of(16, 17))
+    expect(methods).toEqual(['GET', 'HEAD', 'GET'])
+    expect(source.size).toBe(100)
+    expect(source.stats).toMatchObject({ requests: 3, bytesFetched: 17, uniqueBytes: 17 })
+  })
+
+  it('uses a validated expected size without issuing a duplicate HEAD request', async () => {
+    const methods: string[] = []
+    const fetchRange: typeof fetch = async (_input, init) => {
+      methods.push(init?.method ?? 'GET')
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 400 })
+      return new Response(bytes.slice(range.start, Math.min(range.end, 99) + 1), { status: 206 })
+    }
+    const source = await HttpRangeSource.open('https://example.test/known-size.bin', {
+      allowHeadSizeFallback: true,
+      blockBytes: 16,
+      expectedSize: 100,
+      fetch: fetchRange,
+    })
+    await expect(source.read(16, 2)).resolves.toEqual(Uint8Array.of(16, 17))
+    expect(methods).toEqual(['GET', 'GET'])
+    expect(source.stats).toMatchObject({ requests: 2, bytesFetched: 17, uniqueBytes: 17 })
+  })
+
+  it('rejects an invalid expected size even after a successful range probe', async () => {
+    const fetchRange: typeof fetch = async () => new Response(Uint8Array.of(0), { status: 206 })
+    await expect(
+      HttpRangeSource.open('https://example.test/invalid-known-size.bin', {
+        allowHeadSizeFallback: true,
+        expectedSize: 0,
+        fetch: fetchRange,
+      }),
+    ).rejects.toThrow('expected size must be a positive safe integer')
+  })
+
+  it('keeps missing and malformed Content-Range strict without the opt-in fallback', async () => {
+    const missing: typeof fetch = async () => new Response(Uint8Array.of(0), { status: 206 })
+    await expect(
+      HttpRangeSource.open('https://example.test/missing-content-range.bin', { fetch: missing }),
+    ).rejects.toThrow('missing a valid Content-Range')
+
+    const malformed: typeof fetch = async () =>
+      new Response(Uint8Array.of(0), {
+        status: 206,
+        headers: { 'content-range': 'bytes nope' },
+      })
+    await expect(
+      HttpRangeSource.open('https://example.test/malformed-content-range.bin', {
+        allowHeadSizeFallback: true,
+        fetch: malformed,
+      }),
+    ).rejects.toThrow('missing a valid Content-Range')
+  })
+
   it('aborts only the probe when openSignal is aborted during open', async () => {
     const controller = new AbortController()
     const fetchProbe: typeof fetch = async (_input, init) => {

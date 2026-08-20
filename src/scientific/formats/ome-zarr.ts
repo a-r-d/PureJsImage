@@ -496,7 +496,9 @@ const parseMultiscale = async (
     }
   }
   const name =
-    value.name === undefined ? 'image' : requiredString(value.name, 'OME-Zarr multiscale name')
+    value.name === undefined || value.name === ''
+      ? 'image'
+      : requiredString(value.name, 'OME-Zarr multiscale name')
   return Object.freeze({
     name,
     version,
@@ -849,6 +851,82 @@ const zarrFillMetadata = (fill: ZarrArrayMetadata['fill']): ScientificMetadataOb
   })
 }
 
+export interface OmeZarrLevelStorageMetadata {
+  readonly level: number
+  readonly path: string
+  readonly shape: readonly number[]
+  readonly logicalChunkShape: readonly number[]
+  readonly storageChunkShape: readonly number[]
+  readonly sharded: boolean
+  readonly codecs: readonly string[]
+  readonly shardIndexLocation?: 'start' | 'end'
+}
+
+const numericTuple = (value: unknown, label: string, rank: number): readonly number[] => {
+  if (
+    !Array.isArray(value) ||
+    value.length !== rank ||
+    value.some((entry) => typeof entry !== 'number' || !Number.isSafeInteger(entry) || entry < 1)
+  ) {
+    throw invalidInput(`${label} is invalid`)
+  }
+  return Object.freeze(value.map((entry) => Number(entry)))
+}
+
+const storageMetadataForLevel = (
+  level: Readonly<ParsedLevel>,
+  index: number,
+): OmeZarrLevelStorageMetadata => {
+  const sharding = level.array.codecs.find((codec) => codec.name === 'sharding_indexed')
+  if (sharding === undefined) {
+    return Object.freeze({
+      level: index,
+      path: level.path,
+      shape: Object.freeze([...level.array.shape]),
+      logicalChunkShape: Object.freeze([...level.array.chunkShape]),
+      storageChunkShape: Object.freeze([...level.array.chunkShape]),
+      sharded: false,
+      codecs: Object.freeze(level.array.codecs.map((codec) => codec.name)),
+    })
+  }
+  const innerCodecs = Array.isArray(sharding.configuration.codecs)
+    ? sharding.configuration.codecs
+        .map((codec) =>
+          typeof codec === 'object' && codec !== null && 'name' in codec
+            ? Reflect.get(codec, 'name')
+            : undefined,
+        )
+        .filter((name): name is string => typeof name === 'string')
+    : []
+  const indexCodecs = Array.isArray(sharding.configuration.index_codecs)
+    ? sharding.configuration.index_codecs
+        .map((codec) =>
+          typeof codec === 'object' && codec !== null && 'name' in codec
+            ? Reflect.get(codec, 'name')
+            : undefined,
+        )
+        .filter((name): name is string => typeof name === 'string')
+    : []
+  const location = sharding.configuration.index_location ?? 'end'
+  if (location !== 'start' && location !== 'end') {
+    throw invalidInput('OME-Zarr shard index location is invalid')
+  }
+  return Object.freeze({
+    level: index,
+    path: level.path,
+    shape: Object.freeze([...level.array.shape]),
+    logicalChunkShape: numericTuple(
+      sharding.configuration.chunk_shape,
+      'OME-Zarr logical chunk shape',
+      level.array.shape.length,
+    ),
+    storageChunkShape: Object.freeze([...level.array.chunkShape]),
+    sharded: true,
+    codecs: Object.freeze([sharding.name, ...new Set([...innerCodecs, ...indexCodecs])]),
+    shardIndexLocation: location,
+  })
+}
+
 class OmeZarrDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #store: ZarrStore
@@ -931,6 +1009,7 @@ class OmeZarrDataset implements ScientificDataset {
         omeNgffVersion: parsed.version,
         zarrFormat: store.format,
         path: base.path,
+        omeZarrLevels: parsed.levels.map(storageMetadataForLevel),
         zarrFill: zarrFillMetadata(fill),
         ...(parsed.extraMetadata ?? {}),
       }),

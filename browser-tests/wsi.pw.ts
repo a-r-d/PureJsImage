@@ -6,8 +6,21 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
     const url = new URL(request.url())
     if (url.hostname !== '127.0.0.1') externalRequests.push(request.url())
   })
-  await page.goto('/wsi/?url=/fixtures/aperio-cmu-1-small-region.svs%3FrangeDelay%3D75')
+  await page.goto('/wsi/?url=/fixtures/aperio-cmu-1-small-region.svs%3FrangeDelay%3D200')
   await page.waitForFunction(() => window.pureJsImageWsiReady === true)
+
+  const implementationCode = page.locator('#wsi-implementation-code')
+  await expect(implementationCode).toContainText("openAperioSvs } from 'purejsimage/pathology'")
+  await expect(implementationCode).toContainText('level.tile(column, row')
+  await expect(implementationCode.locator('.tok-key').first()).toBeVisible()
+  await expect(implementationCode.locator('.tok-string').first()).toBeVisible()
+  await expect(page.locator('[data-copy="wsi-implementation-code"]')).toHaveText('Copy')
+
+  const loading = page.locator('#wsi-loading')
+  await expect(loading).toBeVisible()
+  await expect(page.locator('#wsi-loading-title')).toContainText('Opening whole-slide image')
+  await expect(page.locator('#wsi-canvas-wrap')).toHaveAttribute('aria-busy', 'true')
+  await expect(page.locator('#wsi-open')).toBeDisabled()
 
   await expect(async () => {
     const status = await page.locator('#wsi-status').textContent()
@@ -21,9 +34,28 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
   await expect(page.locator('#wsi-stat-tile-size')).toHaveText('240 × 240')
   await expect(page.locator('#wsi-measured-fraction')).not.toHaveText('Opening…')
   await expect(page.locator('#wsi-measured-bytes')).not.toHaveText('Reading metadata')
+  const heroLayout = await page.locator('.wsi-hero').evaluate((hero) => {
+    const claim = hero.querySelector('.wsi-claim-card')
+    const value = hero.querySelector('#wsi-measured-fraction')
+    if (!(claim instanceof HTMLElement) || !(value instanceof HTMLElement)) return undefined
+    return {
+      claimHeight: claim.getBoundingClientRect().height,
+      heroHeight: hero.getBoundingClientRect().height,
+      valueOverflow: getComputedStyle(value).overflow,
+      valueWhiteSpace: getComputedStyle(value).whiteSpace,
+    }
+  })
+  expect(heroLayout).toBeDefined()
+  expect(heroLayout?.claimHeight).toBe(166)
+  expect(heroLayout?.heroHeight).toBeLessThan(320)
+  expect(heroLayout?.valueOverflow).toBe('hidden')
+  expect(heroLayout?.valueWhiteSpace).toBe('nowrap')
   await expect(page.locator('#wsi-metadata-summary')).toContainText('metadata only')
   await expect(page.locator('#wsi-metadata-summary')).not.toContainText('0 B')
   await expect(page.locator('.wsi-request-state.pending').first()).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator('#wsi-loading-title')).toContainText(/visible tiles|viewport/u)
+  await expect(page.locator('#wsi-loading-progress')).toHaveAttribute('aria-valuenow', /\d+/u)
+  await expect(page.locator('#wsi-open')).toBeEnabled()
   await page.locator('#wsi-zoom-in').click()
   await expect(page.locator('.wsi-request-state.cancelled').first()).toBeVisible({
     timeout: 10_000,
@@ -56,6 +88,8 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
     expect(await renderedColorCount()).toBeGreaterThan(2)
   }).toPass({ timeout: 20_000 })
   await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 20_000 })
+  await expect(loading).toBeHidden()
+  await expect(page.locator('#wsi-canvas-wrap')).toHaveAttribute('aria-busy', 'false')
   await expect(async () => {
     const before = await page.locator('#wsi-stat-decoded').textContent()
     await page.waitForTimeout(500)

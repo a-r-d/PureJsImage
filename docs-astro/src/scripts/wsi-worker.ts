@@ -1,6 +1,6 @@
-import type { PixelBlock } from '../../../src/pixel.ts'
 import { defaultAperioSvsLimits, openAperioSvs } from '../../../src/pathology/aperio-svs.ts'
 import type { WholeSlideImage, WholeSlideLevel } from '../../../src/pathology/whole-slide.ts'
+import type { PixelBlock } from '../../../src/pixel.ts'
 import { HttpRangeSource } from '../../../src/sources/http-range.ts'
 import { openTiffDocument } from '../../../src/tiff/index.ts'
 import type {
@@ -22,6 +22,7 @@ interface TileJob {
   readonly column: number
   readonly row: number
   readonly controller: AbortController
+  readonly openSerial: number
 }
 
 const scope = globalThis as unknown as WorkerScope
@@ -187,13 +188,12 @@ const copyBlock = (
   }
 }
 
-const decodeTile = async (
-  requestId: number,
-  levelIndex: number,
-  column: number,
-  row: number,
-  controller: AbortController,
-): Promise<void> => {
+const decodeTile = async (job: TileJob): Promise<void> => {
+  const { requestId, level: levelIndex, column, row, controller } = job
+  if (job.openSerial !== openSerial) {
+    controllers.delete(requestId)
+    return
+  }
   const activeSlide = slide
   const activeSource = source
   const level = activeSlide?.levels[levelIndex]
@@ -227,6 +227,10 @@ const decodeTile = async (
     }
     const bitmap = await createImageBitmap(new ImageData(rgba, width, height))
     controllers.delete(requestId)
+    if (job.openSerial !== openSerial || controller.signal.aborted) {
+      bitmap.close()
+      return
+    }
     tilesDecoded += 1
     post(
       {
@@ -245,6 +249,7 @@ const decodeTile = async (
     )
   } catch (cause) {
     controllers.delete(requestId)
+    if (job.openSerial !== openSerial) return
     if (isAbortError(cause)) {
       post({ type: 'tile-cancelled', requestId, stats: currentStats() })
       return
@@ -258,7 +263,7 @@ const pumpTileQueue = (): void => {
     const job = tileQueue.shift()
     if (!job) return
     activeDecodes += 1
-    void decodeTile(job.requestId, job.level, job.column, job.row, job.controller).finally(() => {
+    void decodeTile(job).finally(() => {
       activeDecodes -= 1
       pumpTileQueue()
     })
@@ -280,6 +285,7 @@ scope.onmessage = (event): void => {
       column: message.column,
       row: message.row,
       controller,
+      openSerial,
     })
     pumpTileQueue()
     return

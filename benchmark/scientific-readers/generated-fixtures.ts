@@ -571,6 +571,310 @@ const envi = (): readonly GeneratedScientificResource[] => [
   },
 ]
 
+const omeZarrWsi = (): GeneratedScientificFixture => {
+  const json = (value: unknown): Uint8Array => text(JSON.stringify(value))
+  const logicalHeight = 128
+  const logicalWidth = 128
+  const shardHeight = 512
+  const shardWidth = 512
+  const innerRows = shardHeight / logicalHeight
+  const innerColumns = shardWidth / logicalWidth
+  const levels = [
+    { height: 1_280, width: 1_792, scale: 1 },
+    { height: 640, width: 896, scale: 2 },
+    { height: 320, width: 448, scale: 4 },
+  ] as const
+  const resources: GeneratedScientificResource[] = [
+    {
+      name: 'zarr.json',
+      bytes: json({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: 'deterministic-rgb-wsi',
+                axes: [
+                  { name: 't', type: 'time' },
+                  { name: 'c', type: 'channel' },
+                  { name: 'z', type: 'space' },
+                  { name: 'y', type: 'space', unit: 'micrometer' },
+                  { name: 'x', type: 'space', unit: 'micrometer' },
+                ],
+                datasets: levels.map((level, index) => ({
+                  path: String(index),
+                  coordinateTransformations: [
+                    { type: 'scale', scale: [1, 1, 1, level.scale, level.scale] },
+                  ],
+                })),
+              },
+            ],
+            omero: {
+              channels: [
+                { label: 'Red tissue', color: 'FF0000' },
+                { label: 'Green structure', color: '00FF00' },
+                { label: 'Blue detail', color: '0000FF' },
+              ],
+            },
+            plate: {
+              name: 'deterministic-demo-plate',
+              rows: [{ name: 'A' }],
+              columns: [{ name: '1' }, { name: '2' }],
+              wells: [
+                { path: 'A/1', rowIndex: 0, columnIndex: 0 },
+                { path: 'A/2', rowIndex: 0, columnIndex: 1 },
+              ],
+            },
+          },
+        },
+      }),
+    },
+    {
+      name: 'labels/zarr.json',
+      bytes: json({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: { ome: { version: '0.5', labels: ['segmentation'] } },
+      }),
+    },
+    {
+      name: 'labels/segmentation/zarr.json',
+      bytes: json({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: 'deterministic-segmentation',
+                axes: [
+                  { name: 'z', type: 'space' },
+                  { name: 'y', type: 'space', unit: 'micrometer' },
+                  { name: 'x', type: 'space', unit: 'micrometer' },
+                ],
+                datasets: levels.map((level, index) => ({
+                  path: String(index),
+                  coordinateTransformations: [
+                    { type: 'scale', scale: [1, level.scale, level.scale] },
+                  ],
+                })),
+              },
+            ],
+            'image-label': {
+              colors: [
+                { 'label-value': 1, rgba: [255, 210, 40, 220] },
+                { 'label-value': 2, rgba: [0, 220, 255, 210] },
+              ],
+              source: { image: '../../' },
+            },
+          },
+        },
+      }),
+    },
+  ]
+  const payloadRanges: Record<string, readonly (readonly [number, number])[]> = {}
+  for (let well = 1; well <= 2; well += 1) {
+    const wellPath = `A/${well}`
+    resources.push(
+      {
+        name: `${wellPath}/zarr.json`,
+        bytes: json({
+          zarr_format: 3,
+          node_type: 'group',
+          attributes: { ome: { version: '0.5', well: { images: [{ path: '0' }] } } },
+        }),
+      },
+      {
+        name: `${wellPath}/0/zarr.json`,
+        bytes: json({
+          zarr_format: 3,
+          node_type: 'group',
+          attributes: {
+            ome: {
+              version: '0.5',
+              multiscales: [
+                {
+                  name: `well-A${well}`,
+                  axes: [
+                    { name: 'y', type: 'space', unit: 'micrometer' },
+                    { name: 'x', type: 'space', unit: 'micrometer' },
+                  ],
+                  datasets: [
+                    {
+                      path: '0',
+                      coordinateTransformations: [{ type: 'scale', scale: [0.5, 0.5] }],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        }),
+      },
+      {
+        name: `${wellPath}/0/0/zarr.json`,
+        bytes: json({
+          zarr_format: 3,
+          node_type: 'array',
+          shape: [256, 256],
+          data_type: 'uint8',
+          chunk_grid: { name: 'regular', configuration: { chunk_shape: [128, 128] } },
+          chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+          fill_value: 0,
+          codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+          dimension_names: ['y', 'x'],
+          attributes: {},
+        }),
+      },
+    )
+    for (let row = 0; row < 2; row += 1) {
+      for (let column = 0; column < 2; column += 1) {
+        const chunk = new Uint8Array(128 * 128)
+        for (let y = 0; y < 128; y += 1) {
+          for (let x = 0; x < 128; x += 1) {
+            chunk[y * 128 + x] = (well * 60 + row * 35 + column * 20 + x + y) & 255
+          }
+        }
+        const name = `${wellPath}/0/0/c/${row}/${column}`
+        resources.push({ name, bytes: chunk })
+        payloadRanges[name] = [[0, chunk.byteLength]]
+      }
+    }
+  }
+  for (const [levelIndex, level] of levels.entries()) {
+    resources.push({
+      name: `${levelIndex}/zarr.json`,
+      bytes: json({
+        zarr_format: 3,
+        node_type: 'array',
+        shape: [1, 3, 2, level.height, level.width],
+        data_type: 'uint8',
+        chunk_grid: {
+          name: 'regular',
+          configuration: { chunk_shape: [1, 3, 2, shardHeight, shardWidth] },
+        },
+        chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+        fill_value: 0,
+        codecs: [
+          {
+            name: 'sharding_indexed',
+            configuration: {
+              chunk_shape: [1, 3, 1, logicalHeight, logicalWidth],
+              codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+              index_codecs: [
+                { name: 'bytes', configuration: { endian: 'little' } },
+                { name: 'crc32c' },
+              ],
+              index_location: 'end',
+            },
+          },
+        ],
+        dimension_names: ['t', 'c', 'z', 'y', 'x'],
+        attributes: {},
+      }),
+    })
+    const shardRows = Math.ceil(level.height / shardHeight)
+    const shardColumns = Math.ceil(level.width / shardWidth)
+    for (let shardY = 0; shardY < shardRows; shardY += 1) {
+      for (let shardX = 0; shardX < shardColumns; shardX += 1) {
+        const chunks: Uint8Array[] = []
+        const index = new Uint8Array(2 * innerRows * innerColumns * 16)
+        const indexView = new DataView(index.buffer)
+        let offset = 0
+        for (let z = 0; z < 2; z += 1) {
+          for (let innerY = 0; innerY < innerRows; innerY += 1) {
+            for (let innerX = 0; innerX < innerColumns; innerX += 1) {
+              const chunk = new Uint8Array(3 * logicalHeight * logicalWidth)
+              const originY = shardY * shardHeight + innerY * logicalHeight
+              const originX = shardX * shardWidth + innerX * logicalWidth
+              for (let channel = 0; channel < 3; channel += 1) {
+                const channelOffset = channel * logicalHeight * logicalWidth
+                for (let y = 0; y < logicalHeight; y += 1) {
+                  for (let x = 0; x < logicalWidth; x += 1) {
+                    const imageX = (originX + x) * level.scale
+                    const imageY = (originY + y) * level.scale
+                    const value =
+                      channel === 0
+                        ? (imageX + Math.floor(imageY / 3)) & 255
+                        : channel === 1
+                          ? (imageY * 2 + Math.floor(imageX / 5)) & 255
+                          : ((Math.floor(imageX / 16) ^ Math.floor(imageY / 16)) * 92 +
+                              imageX +
+                              imageY +
+                              z * 37) &
+                            255
+                    chunk[channelOffset + y * logicalWidth + x] = value
+                  }
+                }
+              }
+              const entry = z * innerRows * innerColumns + innerY * innerColumns + innerX
+              indexView.setBigUint64(entry * 16, BigInt(offset), true)
+              indexView.setBigUint64(entry * 16 + 8, BigInt(chunk.byteLength), true)
+              chunks.push(chunk)
+              offset += chunk.byteLength
+            }
+          }
+        }
+        const encodedIndex = new Uint8Array(index.byteLength + 4)
+        encodedIndex.set(index)
+        new DataView(encodedIndex.buffer).setUint32(index.byteLength, crc32c(index), true)
+        const shard = concat([...chunks, encodedIndex])
+        const name = `${levelIndex}/c/0/0/0/${shardY}/${shardX}`
+        resources.push({ name, bytes: shard })
+        payloadRanges[name] = chunks.map((chunk, chunkIndex) => {
+          const start = chunkIndex * chunk.byteLength
+          return [start, start + chunk.byteLength] as const
+        })
+      }
+    }
+    resources.push({
+      name: `labels/segmentation/${levelIndex}/zarr.json`,
+      bytes: json({
+        zarr_format: 3,
+        node_type: 'array',
+        shape: [2, level.height, level.width],
+        data_type: 'uint8',
+        chunk_grid: {
+          name: 'regular',
+          configuration: { chunk_shape: [1, logicalHeight, logicalWidth] },
+        },
+        chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+        fill_value: 0,
+        codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+        dimension_names: ['z', 'y', 'x'],
+        attributes: {},
+      }),
+    })
+    const labelRows = Math.ceil(level.height / logicalHeight)
+    const labelColumns = Math.ceil(level.width / logicalWidth)
+    for (let z = 0; z < 2; z += 1) {
+      for (let row = 0; row < labelRows; row += 1) {
+        for (let column = 0; column < labelColumns; column += 1) {
+          const chunk = new Uint8Array(logicalHeight * logicalWidth)
+          for (let y = 0; y < logicalHeight; y += 1) {
+            for (let x = 0; x < logicalWidth; x += 1) {
+              const imageX = (column * logicalWidth + x) * level.scale
+              const imageY = (row * logicalHeight + y) * level.scale
+              const inside =
+                imageX < levels[0].width &&
+                imageY < levels[0].height &&
+                (imageX - 620) ** 2 / 150_000 + (imageY - 450) ** 2 / 80_000 < 1
+              chunk[y * logicalWidth + x] = inside ? (z === 0 ? 1 : 2) : 0
+            }
+          }
+          const name = `labels/segmentation/${levelIndex}/c/${z}/${row}/${column}`
+          resources.push({ name, bytes: chunk })
+          payloadRanges[name] = [[0, chunk.byteLength]]
+        }
+      }
+    }
+  }
+  return { resources, payloadRanges }
+}
+
 export const generatedScientificFixtures: Readonly<
   Record<string, () => GeneratedScientificFixture>
 > = Object.freeze({
@@ -875,6 +1179,7 @@ export const generatedScientificFixtures: Readonly<
     }
     return { resources, payloadRanges }
   },
+  'ome-zarr-wsi-generated': omeZarrWsi,
   'ome-tiff-viewer-generated': () => ({
     resources: [{ name: 'viewer.ome.tiff', bytes: viewerOmeTiff() }],
     payloadRanges: {},

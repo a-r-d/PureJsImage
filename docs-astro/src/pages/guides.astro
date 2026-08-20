@@ -61,7 +61,7 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
 
 <span class="tok-key">const</span> cubeDocument = <span class="tok-key">await</span> science.open(createScientificFileContext(headerFile, &#123; companions: [binaryFile] &#125;))
 <span class="tok-key">const</span> cube = <span class="tok-key">await</span> cubeDocument.openDataset(cubeDocument.datasets[0].id)</code></pre></div>
-          <p>Keep expensive range scans and rendering in a Web Worker, transfer final display bytes to the main thread, and use Canvas only as that final display surface. The core reader and renderer do not depend on Canvas. The <a href="../scientific/">Scientific Raster Explorer</a> demonstrates local file selection, paired-file ENVI opening, wavelength controls, false-color composition, relief, and honest binary-read timing entirely client-side.</p>
+          <p>Keep expensive range scans and rendering in a Web Worker, transfer final display bytes to the main thread, and use Canvas only as that final display surface. The core reader and renderer do not depend on Canvas. The <a href="../scientific/">Scientific Raster Explorer</a> demonstrates local file selection, paired-file ENVI opening, wavelength controls, false-color composition, relief, and honest binary-read timing entirely client-side. The <a href="../ome-zarr/">OME-Zarr WSI viewer</a> demonstrates measured remote Range access to visible logical chunks in sharded multiscale stores.</p>
         </section>
 
         <section id="library">
