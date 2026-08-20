@@ -12,5 +12,15 @@
     "h_9f4a25732fa0c1": {
       "author": "aaron decker <aaron@ard.ninja>"
     }
+  },
+  "sessions": {
+    "s_80e149f944adf4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00d3f-a3a2-7921-a442-a9f1d25ec60d",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
   }
 }
