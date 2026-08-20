@@ -1,0 +1,92 @@
+docs-astro/src/data/documentation-data.json
+  s_be3cd033bbc5d1::t_b1743e7d95ffa3 119
+.agents/skills/write-docs/SKILL.md
+  s_be3cd033bbc5d1::t_f931f672733b06 1-124
+docs-astro/src/pages/index.astro
+  s_be3cd033bbc5d1::t_3065826237bc3b 191-192
+  s_be3cd033bbc5d1::t_bee59df4911c3e 205
+  s_be3cd033bbc5d1::t_756e8378e7cd7f 268-269,271
+  s_be3cd033bbc5d1::t_14e8a5a8392bcf 293
+  s_be3cd033bbc5d1::t_15f85e741678a9 69
+docs-astro/src/pages/scientific.astro
+  s_be3cd033bbc5d1::t_3ee53a69e91f95 36
+  s_be3cd033bbc5d1::t_85cc7c4743b3f1 37
+docs/scientific-ome-zarr.md
+  s_be3cd033bbc5d1::t_6a9dcf3714e13c 3
+  s_be3cd033bbc5d1::t_9ca8ad96b3c0e5 280
+AGENTS.md
+  s_be3cd033bbc5d1::t_fa81b55146404b 43-49
+docs-astro/src/pages/scientific/platform.astro
+  s_be3cd033bbc5d1::t_8296bc89b70167 30
+  s_be3cd033bbc5d1::t_d9a69f753e4fa2 70-71
+tests/project-contract.test.ts
+  s_be3cd033bbc5d1::t_36282ad05e6f81 396
+  s_be3cd033bbc5d1::t_00fd00638d94f9 90
+  s_be3cd033bbc5d1::t_2c5979413b9ea8 84
+docs-astro/src/pages/demo.astro
+  s_be3cd033bbc5d1::t_f97d7d3739639e 31
+scripts/render-library-comparison.ts
+  s_be3cd033bbc5d1::t_5aa3d1944c6eaa 444
+  s_be3cd033bbc5d1::t_efd7e9781e37fb 458-459
+docs-astro/src/data/library-comparison.ts
+  s_be3cd033bbc5d1::t_775dcba4423616 96
+  s_be3cd033bbc5d1::t_78c2788377ab59 81
+docs-astro/src/pages/guides.astro
+  s_be3cd033bbc5d1::t_3cf6630e1315c4 99
+benchmark/generated/package-metrics.json
+  s_be3cd033bbc5d1::t_7a7a05e5eead64 179
+README.md
+  s_be3cd033bbc5d1::t_dc363c92f3276c 54,56
+  s_be3cd033bbc5d1::t_f0c33bb501c951 178
+  s_be3cd033bbc5d1::t_dc4be72e05af54 341
+  s_be3cd033bbc5d1::t_8d3087c206729c 136-138
+docs-astro/src/pages/scientific/benchmarks.astro
+  s_be3cd033bbc5d1::t_17a2b5831f5af4 38
+  s_be3cd033bbc5d1::t_62a635017e26ba 126
+  s_be3cd033bbc5d1::t_5bf602e49e0252 21
+  s_be3cd033bbc5d1::t_e36f4c94c4bbcc 26
+  s_be3cd033bbc5d1::t_09fb92ff8670dd 43
+docs-astro/src/pages/ome-zarr.astro
+  s_be3cd033bbc5d1::t_5469ad7c194a54 397
+  s_be3cd033bbc5d1::t_89ccdfa0d79592 418
+  s_be3cd033bbc5d1::t_2435df0e3fb1b2 408-409
+  s_be3cd033bbc5d1::t_374c17c90e3697 84
+  s_be3cd033bbc5d1::t_08bbc3fb59d441 184-185
+  s_be3cd033bbc5d1::t_e6ee669aa24356 245
+  s_be3cd033bbc5d1::t_ab43bba5b5b638 451
+  s_be3cd033bbc5d1::t_cb38b25cd3630b 412,414
+  s_be3cd033bbc5d1::t_da7d49a649a3bf 287
+  s_be3cd033bbc5d1::t_2b939e1a423f80 362
+  s_be3cd033bbc5d1::t_2e8b89910c943b 425-426
+  s_be3cd033bbc5d1::t_89b46f471155a7 90
+  s_be3cd033bbc5d1::t_f16f2d1e25b06e 379
+  s_be3cd033bbc5d1::t_7a53d641710b82 401
+  s_be3cd033bbc5d1::t_f626247a10220a 416
+  s_be3cd033bbc5d1::t_59fe3fa1343503 350
+  s_be3cd033bbc5d1::t_66e3edef7c4d92 72-73
+  s_be3cd033bbc5d1::t_8ba9b45efefbb3 388-389
+docs-astro/src/pages/wsi.astro
+  s_be3cd033bbc5d1::t_5c00e6e1e128e1 220
+docs-astro/src/pages/scientific-formats.astro
+  s_be3cd033bbc5d1::t_536580b3c56be2 34
+docs-astro/src/data/package-metrics.json
+  s_be3cd033bbc5d1::t_7a7a05e5eead64 179
+docs-astro/src/pages/tiff-comparison.astro
+  s_be3cd033bbc5d1::t_756e8378e7cd7f 9-10,12,67,76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "988087ba7a7995f9115d4ced55f7d89f03a1c3fe",
+  "prompts": {},
+  "sessions": {
+    "s_be3cd033bbc5d1": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fc7b68ed-4ec1-45aa-98d3-1dd6f5e65feb",
+        "model": "grok-4.6"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
