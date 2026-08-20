@@ -15,6 +15,10 @@ All notable changes to PureJsImage are documented in this file.
   revision. Its report separates normative and optional strict cases, keeps contradictory upstream
   plate cases as explicit exclusions instead of passes, and complements the expanded bounded-read
   public corpus across IDR, BIA, Sanger, SSBD, and OME 2024 stores.
+- Added checked OME-Zarr attribute-conformance and public-compatibility JSON evidence, a generated
+  Markdown compatibility report, and a weekly/manual Node 22 workflow that uploads temporary
+  reports without committing changing network results. The public corpus now explicitly exercises
+  multidimensional time, HCS well/field, and bioformats2raw series layouts.
 
 ### Changed
 
@@ -29,6 +33,13 @@ All notable changes to PureJsImage are documented in this file.
   `Content-Range` is unavailable. Compatibility reads now cover corners, nonzero auxiliary axes,
   inner-chunk boundaries, and outer-shard boundaries while recording codec, chunk, shard, request,
   and fetched-byte evidence per dataset.
+- OME-Zarr readers now expose an explicit strict-by-default metadata validation policy. The narrow
+  compatible mode accepts only reviewed versionless 0.5 plates, does not synthesize a version, and
+  exposes an immutable `OME_ZARR_PLATE_VERSION_MISSING` warning. The web demo opts into this
+  consumer-oriented mode, while conformance and public compatibility evidence remain strict.
+  Conformance reporting is labeled as the official 0.5 attribute case corpus rather than total
+  hierarchy or pixel-data conformance, and exclusions now carry pinned expected/actual results,
+  final-spec sections, and review dates.
 
 ## [0.14.0] - 2026-08-20
 

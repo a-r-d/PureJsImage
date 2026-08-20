@@ -5,7 +5,11 @@ import {
   normalizeOmeZarrStoreUrl,
   type OmeZarrHttpStoreOptions,
 } from '../../src/scientific/ome-zarr-http.ts'
-import { createOmeZarrReader } from '../../src/scientific/readers/ome-zarr.ts'
+import {
+  createOmeZarrReader,
+  type OmeZarrMetadataValidation,
+  type OmeZarrWarning,
+} from '../../src/scientific/readers/ome-zarr.ts'
 
 export type OmeZarrCompatibilityClassification =
   | 'PASS'
@@ -31,11 +35,48 @@ export const isOmeZarrCompatibilityClassification = (
 ): value is OmeZarrCompatibilityClassification =>
   typeof value === 'string' && compatibilityClassifications.has(value)
 
+export type OmeZarrCompatibilitySurface =
+  | 'ome-ngff-0.4-zarr-v2'
+  | 'ome-ngff-0.5-zarr-v3'
+  | 'regular-chunks'
+  | 'sharding-indexed'
+  | 'multidimensional-z'
+  | 'multidimensional-t'
+  | 'multiple-channels-omero'
+  | 'image-labels'
+  | 'hcs-plate-well-field'
+  | 'bioformats2raw-series'
+
+export const OME_ZARR_COMPATIBILITY_SURFACES = Object.freeze([
+  'ome-ngff-0.4-zarr-v2',
+  'ome-ngff-0.5-zarr-v3',
+  'regular-chunks',
+  'sharding-indexed',
+  'multidimensional-z',
+  'multidimensional-t',
+  'multiple-channels-omero',
+  'image-labels',
+  'hcs-plate-well-field',
+  'bioformats2raw-series',
+] satisfies readonly OmeZarrCompatibilitySurface[])
+
+const compatibilitySurfaces = new Set<string>(OME_ZARR_COMPATIBILITY_SURFACES)
+
+export interface OmeZarrCompatibilityProvenance {
+  readonly dataset: string
+  readonly sourceUrl: string
+  readonly license: string
+  readonly licenseUrl: string
+}
+
 export interface OmeZarrCompatibilitySample {
   readonly id: string
   readonly collection: string
   readonly url: string
   readonly expectedClassification?: OmeZarrCompatibilityClassification
+  readonly metadataValidation?: OmeZarrMetadataValidation
+  readonly expectedSurfaces?: readonly OmeZarrCompatibilitySurface[]
+  readonly provenance?: OmeZarrCompatibilityProvenance
 }
 
 export interface OmeZarrCompatibilityCorpus {
@@ -52,6 +93,9 @@ export interface OmeZarrCompatibilityDatasetResult {
   readonly objectRequests: number
   readonly rangeRequests: number
   readonly bytesFetched: number
+  readonly axes: readonly { readonly id: string; readonly length: number }[]
+  readonly kind?: string
+  readonly hasOmeroDisplay: boolean
   readonly levelStorage: readonly {
     readonly level: number
     readonly codecs: readonly string[]
@@ -67,6 +111,8 @@ export interface OmeZarrCompatibilityResult {
   readonly classification: OmeZarrCompatibilityClassification
   readonly expectedClassification?: OmeZarrCompatibilityClassification
   readonly probeConfidence?: number
+  readonly observedSurfaces?: readonly OmeZarrCompatibilitySurface[]
+  readonly warnings?: readonly OmeZarrWarning[]
   readonly datasets?: readonly OmeZarrCompatibilityDatasetResult[]
   readonly message?: string
 }
@@ -113,11 +159,64 @@ export const parseOmeZarrCompatibilityCorpus = (value: unknown): OmeZarrCompatib
     ) {
       throw invalidInput(`OME-Zarr compatibility sample ${id} expectedClassification is invalid`)
     }
+    const metadataValidation = entry.metadataValidation
+    if (
+      metadataValidation !== undefined &&
+      metadataValidation !== 'strict' &&
+      metadataValidation !== 'compatible'
+    ) {
+      throw invalidInput(`OME-Zarr compatibility sample ${id} metadataValidation is invalid`)
+    }
+    const expectedSurfaces = entry.expectedSurfaces
+    if (
+      expectedSurfaces !== undefined &&
+      (!Array.isArray(expectedSurfaces) ||
+        expectedSurfaces.some(
+          (surface) => typeof surface !== 'string' || !compatibilitySurfaces.has(surface),
+        ) ||
+        new Set(expectedSurfaces).size !== expectedSurfaces.length)
+    ) {
+      throw invalidInput(`OME-Zarr compatibility sample ${id} expectedSurfaces is invalid`)
+    }
+    const provenance = entry.provenance
+    let parsedProvenance: OmeZarrCompatibilityProvenance | undefined
+    if (provenance !== undefined) {
+      if (!isRecord(provenance)) {
+        throw invalidInput(`OME-Zarr compatibility sample ${id} provenance is invalid`)
+      }
+      const sourceUrl = requiredManifestString(
+        provenance.sourceUrl,
+        `OME-Zarr compatibility sample ${id} provenance sourceUrl`,
+      )
+      normalizeOmeZarrStoreUrl(sourceUrl)
+      const licenseUrl = requiredManifestString(
+        provenance.licenseUrl,
+        `OME-Zarr compatibility sample ${id} provenance licenseUrl`,
+      )
+      normalizeOmeZarrStoreUrl(licenseUrl)
+      parsedProvenance = Object.freeze({
+        dataset: requiredManifestString(
+          provenance.dataset,
+          `OME-Zarr compatibility sample ${id} provenance dataset`,
+        ),
+        sourceUrl,
+        license: requiredManifestString(
+          provenance.license,
+          `OME-Zarr compatibility sample ${id} provenance license`,
+        ),
+        licenseUrl,
+      })
+    }
     return Object.freeze({
       id,
       collection,
       url,
       ...(expectedClassification === undefined ? {} : { expectedClassification }),
+      ...(metadataValidation === undefined ? {} : { metadataValidation }),
+      ...(expectedSurfaces === undefined
+        ? {}
+        : { expectedSurfaces: Object.freeze(expectedSurfaces.slice()) }),
+      ...(parsedProvenance === undefined ? {} : { provenance: parsedProvenance }),
     })
   })
   return Object.freeze({ schemaVersion: 1, samples: Object.freeze(samples) })
@@ -150,7 +249,7 @@ export const classifyOmeZarrCompatibilityFailure = (
     .join(' ')
     .toLowerCase()
   if (
-    /network|fetch failed|request failed|returned status|http .*status|timed? out|dns|cors/u.test(
+    /network|fetch failed|request failed|returned status|http .*status|timeout|timed? out|aborted|dns|cors/u.test(
       message,
     )
   ) {
@@ -333,6 +432,27 @@ const readAllLevels = async (
   return { bytesRead, selections }
 }
 
+const metadataWarnings = (value: unknown): readonly OmeZarrWarning[] | undefined => {
+  if (!Array.isArray(value)) return undefined
+  const warnings = value.map((entry, index): OmeZarrWarning => {
+    if (
+      !isRecord(entry) ||
+      entry.code !== 'OME_ZARR_PLATE_VERSION_MISSING' ||
+      typeof entry.path !== 'string' ||
+      typeof entry.message !== 'string'
+    ) {
+      throw invalidInput(`OME-Zarr warning ${index} is invalid`)
+    }
+    return Object.freeze({ code: entry.code, path: entry.path, message: entry.message })
+  })
+  return Object.freeze(warnings)
+}
+
+const orderedSurfaces = (
+  values: ReadonlySet<OmeZarrCompatibilitySurface>,
+): readonly OmeZarrCompatibilitySurface[] =>
+  Object.freeze(OME_ZARR_COMPATIBILITY_SURFACES.filter((surface) => values.has(surface)))
+
 export const runOmeZarrCompatibilitySample = async (
   sample: Readonly<OmeZarrCompatibilitySample>,
   options: Readonly<OmeZarrCompatibilityOptions> = {},
@@ -351,6 +471,7 @@ export const runOmeZarrCompatibilitySample = async (
     context = await createOmeZarrHttpContext(sample.url, storeOptions)
     const reader = createOmeZarrReader({
       limits: { maxDatasets: 256, maxLevels: 64, maxRegionBytes: 1_048_576 },
+      metadataValidation: sample.metadataValidation ?? 'strict',
     })
     const probe = await reader.probe(context)
     probeConfidence = probe.confidence
@@ -358,11 +479,41 @@ export const runOmeZarrCompatibilitySample = async (
     const document = await reader.open(context)
     try {
       const datasets: OmeZarrCompatibilityDatasetResult[] = []
+      const surfaces = new Set<OmeZarrCompatibilitySurface>()
+      if (document.metadata.omeNgffVersion === '0.4' && document.metadata.zarrFormat === 2) {
+        surfaces.add('ome-ngff-0.4-zarr-v2')
+      }
+      if (document.metadata.omeNgffVersion === '0.5' && document.metadata.zarrFormat === 3) {
+        surfaces.add('ome-ngff-0.5-zarr-v3')
+      }
+      if (document.metadata.bioformats2rawLayout === 3) surfaces.add('bioformats2raw-series')
+      if (isRecord(document.metadata.plate)) surfaces.add('hcs-plate-well-field')
       for (const summary of document.datasets) {
         const dataset = await document.openDataset(summary.id)
         const before = context.store.stats()
         const read = await readAllLevels(dataset, width, height)
         const after = context.store.stats()
+        const storage = levelStorage(dataset)
+        if (storage.some((entry) => entry.codecs.includes('sharding_indexed'))) {
+          surfaces.add('sharding-indexed')
+        }
+        if (storage.some((entry) => !entry.codecs.includes('sharding_indexed'))) {
+          surfaces.add('regular-chunks')
+        }
+        const zAxis = dataset.descriptor.axes.find((axis) => axis.id.toLowerCase() === 'z')
+        const tAxis = dataset.descriptor.axes.find((axis) => axis.id.toLowerCase() === 't')
+        const cAxis = dataset.descriptor.axes.find((axis) => axis.id.toLowerCase() === 'c')
+        if (zAxis !== undefined && zAxis.length > 1) surfaces.add('multidimensional-z')
+        if (tAxis !== undefined && tAxis.length > 1) surfaces.add('multidimensional-t')
+        const descriptorMetadata = dataset.descriptor.metadata
+        const hasOmeroDisplay = isRecord(descriptorMetadata?.omeZarrDisplay)
+        if (cAxis !== undefined && cAxis.length > 1 && hasOmeroDisplay) {
+          surfaces.add('multiple-channels-omero')
+        }
+        if (descriptorMetadata?.kind === 'label') surfaces.add('image-labels')
+        if (isRecord(descriptorMetadata?.well)) surfaces.add('hcs-plate-well-field')
+        const kind =
+          typeof descriptorMetadata?.kind === 'string' ? descriptorMetadata.kind : undefined
         datasets.push(
           Object.freeze({
             id: summary.id,
@@ -373,14 +524,31 @@ export const runOmeZarrCompatibilitySample = async (
             objectRequests: after.objectRequests - before.objectRequests,
             rangeRequests: after.rangeRequests - before.rangeRequests,
             bytesFetched: after.bytesFetched - before.bytesFetched,
-            levelStorage: levelStorage(dataset),
+            axes: Object.freeze(
+              dataset.descriptor.axes.map((axis) =>
+                Object.freeze({ id: axis.id, length: axis.length }),
+              ),
+            ),
+            ...(kind === undefined ? {} : { kind }),
+            hasOmeroDisplay,
+            levelStorage: storage,
           }),
         )
       }
+      const observedSurfaces = orderedSurfaces(surfaces)
+      const missingSurface = sample.expectedSurfaces?.find((surface) => !surfaces.has(surface))
+      if (missingSurface !== undefined) {
+        throw invalidInput(
+          `OME-Zarr sample ${sample.id} did not exercise expected surface ${missingSurface}`,
+        )
+      }
+      const warnings = metadataWarnings(document.metadata.omeZarrWarnings)
       return Object.freeze({
         ...sample,
         classification: 'PASS',
         probeConfidence,
+        observedSurfaces,
+        ...(warnings === undefined ? {} : { warnings }),
         datasets: Object.freeze(datasets),
       })
     } finally {

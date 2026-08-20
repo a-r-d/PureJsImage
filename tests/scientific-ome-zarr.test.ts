@@ -2096,9 +2096,14 @@ describe('OME-Zarr edge cases', () => {
       '0/0/.zarray': v2Array([1, 1], [1, 1]),
       '0/0/0/0': Uint8Array.of(4),
     }
-    const laidOut = await omeZarrReader.open(trackingContext(stringLayout, '.zattrs').context)
-    expect(laidOut.metadata.bioformats2rawLayout).toBe(3)
-    expect(await planeValues(await laidOut.openDataset('0'))).toEqual([4])
+    await expect(
+      omeZarrReader.open(trackingContext(stringLayout, '.zattrs').context),
+    ).rejects.toThrow('must be the number 3')
+    await expect(
+      createOmeZarrReader({ metadataValidation: 'compatible' }).open(
+        trackingContext(stringLayout, '.zattrs').context,
+      ),
+    ).rejects.toThrow('must be the number 3')
 
     const nestedV2 = {
       'stack.zarr/.zgroup': v2Group(),
@@ -4506,6 +4511,27 @@ describe('OME-Zarr 0.5 community conformance', () => {
     await expect(omeZarrReader.open(trackingContext(plateStore(base)).context)).rejects.toThrow(
       'plate.version must be present',
     )
+    const historical = {
+      'zarr.json': v3Group({ plate: base }),
+      'A/1/zarr.json': v3Group({ well: { images: [{ path: '0' }] } }),
+      ...tinyImage('A/1/0', Uint8Array.of(1, 2, 3, 4)),
+    }
+    const compatible = await createOmeZarrReader({ metadataValidation: 'compatible' }).open(
+      trackingContext(historical).context,
+    )
+    expect(compatible.metadata.plate).not.toHaveProperty('version')
+    expect(compatible.metadata.omeZarrWarnings).toEqual([
+      {
+        code: 'OME_ZARR_PLATE_VERSION_MISSING',
+        path: 'ome.plate.version',
+        message: 'Accepted a historical OME-Zarr 0.5 plate without required plate.version.',
+      },
+    ])
+    const warnings = compatible.metadata.omeZarrWarnings
+    expect(Array.isArray(warnings)).toBe(true)
+    if (!Array.isArray(warnings)) throw new Error('Compatible OME-Zarr warning array is missing')
+    expect(Object.isFrozen(warnings)).toBe(true)
+    expect(Object.isFrozen(warnings[0])).toBe(true)
     await expect(
       omeZarrReader.open(
         trackingContext(plateStore({ ...base, version: '0.5', rows: [{ name: 'A-1' }] })).context,

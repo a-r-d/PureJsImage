@@ -55,6 +55,31 @@ export interface OmeZarrOpenOptions {
   readonly context: Readonly<ScientificOpenContext>
   readonly descriptor: ScientificReaderDescriptor
   readonly limits: Readonly<OmeZarrLimits>
+  readonly metadataValidation: OmeZarrMetadataValidation
+}
+
+export type OmeZarrMetadataValidation = 'strict' | 'compatible'
+
+export type OmeZarrWarningCode = 'OME_ZARR_PLATE_VERSION_MISSING'
+
+export interface OmeZarrWarning {
+  readonly code: OmeZarrWarningCode
+  readonly path: string
+  readonly message: string
+}
+
+interface OmeZarrValidationContext {
+  readonly mode: OmeZarrMetadataValidation
+  readonly warnings: OmeZarrWarning[]
+}
+
+const addOmeZarrWarning = (validation: OmeZarrValidationContext, warning: OmeZarrWarning): void => {
+  if (
+    validation.warnings.some((entry) => entry.code === warning.code && entry.path === warning.path)
+  ) {
+    return
+  }
+  validation.warnings.push(Object.freeze(warning))
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -825,25 +850,27 @@ type BioformatsLayout =
 const parseBioformatsLayout = (value: Readonly<Record<string, unknown>>): BioformatsLayout => {
   if (!('bioformats2raw.layout' in value)) return { kind: 'absent' }
   const raw = value['bioformats2raw.layout']
-  if (raw === 3 || raw === '3') return { kind: 'valid', value: 3 }
+  if (raw === 3) return { kind: 'valid', value: 3 }
   return { kind: 'invalid', raw }
 }
 
 const validBioformatsLayout = (value: Readonly<Record<string, unknown>>): 3 | undefined => {
   const parsed = parseBioformatsLayout(value)
-  return parsed.kind === 'valid' ? parsed.value : undefined
+  if (parsed.kind !== 'valid') return undefined
+  return parsed.value
 }
 
-const rejectInvalidBioformatsLayout = (value: Readonly<Record<string, unknown>>): void => {
-  if (parseBioformatsLayout(value).kind === 'invalid') {
-    throw invalidInput('OME-Zarr bioformats2raw.layout must be 3')
-  }
+const validateBioformatsLayout = (value: Readonly<Record<string, unknown>>, path: string): void => {
+  const parsed = parseBioformatsLayout(value)
+  if (parsed.kind === 'invalid') throw invalidInput(`OME-Zarr ${path} must be the number 3`)
+  if (parsed.kind === 'valid') validBioformatsLayout(value)
 }
 
 const parseOmeAttributes = (
   attributes: Readonly<Record<string, unknown>>,
   expectedFormat: 2 | 3,
   expectedVersion?: string,
+  metadataPath = '',
 ): { readonly version: string; readonly ome: Readonly<Record<string, unknown>> } => {
   const nested = attributes.ome
   if (nested !== undefined && !isRecord(nested)) {
@@ -861,10 +888,16 @@ const parseOmeAttributes = (
     if (expectedFormat !== 3) {
       throw invalidInput('OME-NGFF 0.5 requires a Zarr v3 store')
     }
-    rejectInvalidBioformatsLayout(nested)
+    validateBioformatsLayout(
+      nested,
+      `${metadataPath.length === 0 ? '' : `${metadataPath}.`}ome.bioformats2raw.layout`,
+    )
     parsed = { version, ome: nested }
   } else if (hasNgffSurface(attributes) || parseBioformatsLayout(attributes).kind !== 'absent') {
-    rejectInvalidBioformatsLayout(attributes)
+    validateBioformatsLayout(
+      attributes,
+      `${metadataPath.length === 0 ? '' : `${metadataPath}.`}bioformats2raw.layout`,
+    )
     const first = Array.isArray(attributes.multiscales) ? attributes.multiscales[0] : undefined
     const version =
       isRecord(first) && first.version !== undefined
@@ -1128,6 +1161,8 @@ interface ParsedPlateMetadata {
 const parsePlateMetadata = (
   plate: Readonly<Record<string, unknown>>,
   documentVersion: string,
+  validation: OmeZarrValidationContext,
+  metadataPath = 'ome.plate',
 ): ParsedPlateMetadata => {
   const acquisitions = parseAcquisitions(plate.acquisitions)
   const name =
@@ -1138,7 +1173,12 @@ const parsePlateMetadata = (
       : safeNonNegativeInteger(plate.field_count, 'OME-Zarr plate.field_count')
   if (fieldCount === 0) throw invalidInput('OME-Zarr plate.field_count must be positive')
   if (documentVersion === '0.5' && plate.version === undefined) {
-    throw invalidInput('OME-Zarr plate.version must be present')
+    if (validation.mode === 'strict') throw invalidInput('OME-Zarr plate.version must be present')
+    addOmeZarrWarning(validation, {
+      code: 'OME_ZARR_PLATE_VERSION_MISSING',
+      path: `${metadataPath}.version`,
+      message: 'Accepted a historical OME-Zarr 0.5 plate without required plate.version.',
+    })
   }
   const version =
     plate.version === undefined
@@ -1320,9 +1360,13 @@ const validateMultiscaleMetadata = (value: unknown, index: number): void => {
   }
 }
 
-/** Validate finalized OME-Zarr 0.5 attributes without requiring array payloads. */
-export const validateOmeZarr05Attributes = (attributes: unknown): void => {
+/** Validate OME-Zarr 0.5 attributes without requiring array payloads. */
+export const validateOmeZarr05Attributes = (
+  attributes: unknown,
+  metadataValidation: OmeZarrMetadataValidation = 'strict',
+): readonly OmeZarrWarning[] => {
   if (!isRecord(attributes)) throw invalidInput('OME-Zarr attributes must be an object')
+  const validation: OmeZarrValidationContext = { mode: metadataValidation, warnings: [] }
   const { ome } = parseOmeAttributes(attributes, 3)
   if (Array.isArray(ome.multiscales)) {
     if (ome.multiscales.length === 0) throw invalidInput('OME-Zarr multiscales must not be empty')
@@ -1334,7 +1378,7 @@ export const validateOmeZarr05Attributes = (attributes: unknown): void => {
     throw invalidInput('OME-Zarr omero metadata requires multiscales')
   }
   if (isRecord(ome.plate)) {
-    parsePlateMetadata(ome.plate, '0.5')
+    parsePlateMetadata(ome.plate, '0.5', validation)
     parsePlateWells(ome.plate)
   }
   if (isRecord(ome.well)) parseWellImages(ome.well, '', undefined)
@@ -1361,6 +1405,7 @@ export const validateOmeZarr05Attributes = (attributes: unknown): void => {
   ) {
     throw invalidInput('OME-Zarr attributes contain no supported 0.5 metadata surface')
   }
+  return Object.freeze(validation.warnings.slice())
 }
 
 const recognizedOmeAttributes = (attributes: Readonly<Record<string, unknown>>): boolean =>
@@ -1916,7 +1961,8 @@ export const probeOmeZarr = async (
 export const openOmeZarr = async (
   options: Readonly<OmeZarrOpenOptions>,
 ): Promise<ScientificDocument> => {
-  const { context, descriptor, limits } = options
+  const { context, descriptor, limits, metadataValidation } = options
+  const validation: OmeZarrValidationContext = { mode: metadataValidation, warnings: [] }
   const prefix = await context.primary.source.read(0, Math.min(context.primary.source.size, 4), {
     ...(context.signal === undefined ? {} : { signal: context.signal }),
   })
@@ -1989,8 +2035,9 @@ export const openOmeZarr = async (
   }
   const omeFromGroup = (
     groupAttributes: Readonly<Record<string, unknown>>,
+    metadataPath: string,
   ): { readonly version: string; readonly ome: Readonly<Record<string, unknown>> } =>
-    parseOmeAttributes(groupAttributes, store.format, version)
+    parseOmeAttributes(groupAttributes, store.format, version, metadataPath)
   const addMultiscales = async (
     entries: unknown,
     basePath: string,
@@ -2071,7 +2118,7 @@ export const openOmeZarr = async (
       const name = requiredString(entry, `OME-Zarr labels[${index}]`)
       const labelPath = joinZarrPath(indexPath, name)
       const labelGroup = await store.openGroup(labelPath, context.signal)
-      const labelOme = omeFromGroup(labelGroup.attributes).ome
+      const labelOme = omeFromGroup(labelGroup.attributes, labelPath).ome
       await addMultiscales(
         labelOme.multiscales,
         labelPath,
@@ -2092,7 +2139,7 @@ export const openOmeZarr = async (
     if (group === undefined) return
     await addLabelEntries(
       labelsPath,
-      omeFromGroup(group.attributes).ome.labels,
+      omeFromGroup(group.attributes, labelsPath).ome.labels,
       addedImages.length === 1 ? addedImages[0] : undefined,
     )
   }
@@ -2111,7 +2158,7 @@ export const openOmeZarr = async (
     for (const image of images) {
       const fieldPath = joinZarrPath(wellPath, image.path)
       const fieldGroup = await store.openGroup(fieldPath, context.signal)
-      const fieldOme = omeFromGroup(fieldGroup.attributes).ome
+      const fieldOme = omeFromGroup(fieldGroup.attributes, fieldPath).ome
       const addedImages = await addMultiscales(
         fieldOme.multiscales,
         fieldPath,
@@ -2133,10 +2180,10 @@ export const openOmeZarr = async (
     }
   }
 
-  const rootLayout =
-    validBioformatsLayout(ome) ??
-    (isRecord(attributes) ? validBioformatsLayout(attributes) : undefined)
-  const parsedPlate = isRecord(ome.plate) ? parsePlateMetadata(ome.plate, version) : undefined
+  const rootLayout = validBioformatsLayout(ome)
+  const parsedPlate = isRecord(ome.plate)
+    ? parsePlateMetadata(ome.plate, version, validation)
+    : undefined
   if (Array.isArray(ome.multiscales) && ome.multiscales.length > 0) {
     const addedImages = await addMultiscales(
       ome.multiscales,
@@ -2164,7 +2211,7 @@ export const openOmeZarr = async (
   if (isRecord(ome.plate)) {
     for (const wellEntry of parsePlateWells(ome.plate)) {
       const wellGroup = await store.openGroup(wellEntry.path, context.signal)
-      const wellOme = omeFromGroup(wellGroup.attributes).ome
+      const wellOme = omeFromGroup(wellGroup.attributes, wellEntry.path).ome
       if (!isRecord(wellOme.well)) {
         throw invalidInput(`OME-Zarr well ${wellEntry.path} is missing well metadata`)
       }
@@ -2183,7 +2230,7 @@ export const openOmeZarr = async (
   if (rootLayout !== undefined) {
     const omeGroup = await openGroupIfPresent('OME')
     if (omeGroup !== undefined) {
-      const omeMetadata = omeFromGroup(omeGroup.attributes).ome
+      const omeMetadata = omeFromGroup(omeGroup.attributes, 'OME').ome
       if (omeMetadata.series !== undefined) {
         if (!Array.isArray(omeMetadata.series) || omeMetadata.series.length === 0) {
           throw invalidInput('OME-Zarr OME.series must be a non-empty array')
@@ -2220,7 +2267,7 @@ export const openOmeZarr = async (
       }
       let seriesOme: Readonly<Record<string, unknown>>
       try {
-        seriesOme = omeFromGroup(group.attributes).ome
+        seriesOme = omeFromGroup(group.attributes, path).ome
       } catch (error) {
         if (rootLayout !== undefined || recognizedOmeAttributes(group.attributes)) throw error
         if (explicitSeries !== undefined) {
@@ -2311,6 +2358,9 @@ export const openOmeZarr = async (
     ...(rootLayout === undefined ? {} : { bioformats2rawLayout: rootLayout }),
     ...(seriesCount === 0 ? {} : { seriesCount }),
     ...(parsedPlate === undefined ? {} : { plate: parsedPlate.metadata }),
+    ...(validation.warnings.length === 0
+      ? {}
+      : { omeZarrWarnings: Object.freeze(validation.warnings.slice()) }),
     ...(ignored.length === 0 ? {} : { ignoredSurfaces: ignored }),
   })
   return Object.freeze({

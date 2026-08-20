@@ -10,7 +10,7 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
     const url = new URL(request.url())
     if (url.hostname !== '127.0.0.1') externalRequests.push(request.url())
   })
-  const fixtureUrl = `${baseURL}/fixtures/ome-zarr-wsi?rangeDelay=200`
+  const fixtureUrl = `${baseURL}/fixtures/ome-zarr-wsi-compatible?rangeDelay=200`
   const malformedChannels = JSON.stringify([
     { index: 0, enabled: true, color: 0xff0000, minimum: 0, maximum: 255, gamma: 1 },
     { index: 0, enabled: true, color: 0x00ff00, minimum: 0, maximum: 255, gamma: 1 },
@@ -28,6 +28,7 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
     "createOmeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'",
   )
   await expect(implementationCode).toContainText('createOmeZarrHttpContext')
+  await expect(implementationCode).toContainText("metadataValidation: 'compatible'")
   await expect(implementationCode).toContainText('dataset.readPlane')
   await expect(implementationCode.locator('.tok-key').first()).toBeVisible()
   await expect(page.locator('[data-copy="ome-zarr-implementation-code"]')).toHaveText('Copy')
@@ -40,7 +41,7 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await expect(httpCode.locator('.tok-string').first()).toBeVisible()
   await expect(page.locator('[data-copy="ome-zarr-http-code"]')).toHaveText('Copy')
 
-  await expect(page.locator('#ome-zarr-stat-store')).toContainText('ome-zarr-wsi', {
+  await expect(page.locator('#ome-zarr-stat-store')).toContainText('ome-zarr-wsi-compatible', {
     timeout: 20_000,
   })
   await expect(page.locator('#ome-zarr-stat-dimensions')).toHaveText('1,792 × 1,280')

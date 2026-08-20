@@ -2,10 +2,17 @@ import { describe, expect, it } from 'vitest'
 
 import {
   classifyOmeZarrCompatibilityFailure,
+  OME_ZARR_COMPATIBILITY_SURFACES,
   parseOmeZarrCompatibilityCorpus,
   runOmeZarrCompatibilitySample,
 } from '../benchmark/ome-zarr/compatibility.ts'
+import {
+  assertOmeZarrCompatibilityReportCurrent,
+  parseOmeZarrCompatibilityReport,
+  renderOmeZarrCompatibilityMarkdown,
+} from '../benchmark/ome-zarr/report.ts'
 import { invalidInput, unsupportedOperation } from '../src/errors.ts'
+import officialCorpus from '../benchmark/ome-zarr/official-corpus.json' with { type: 'json' }
 
 const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
 
@@ -190,5 +197,59 @@ describe('OME-Zarr compatibility runner', () => {
         ],
       }),
     ).toThrow(/expectedClassification/u)
+  })
+
+  it('pins provenance and complete distinct-surface coverage in the official corpus', () => {
+    const corpus = parseOmeZarrCompatibilityCorpus(officialCorpus)
+    const covered = new Set(corpus.samples.flatMap((sample) => sample.expectedSurfaces ?? []))
+    expect([...covered].sort()).toEqual([...OME_ZARR_COMPATIBILITY_SURFACES].sort())
+    expect(
+      corpus.samples
+        .filter((sample) =>
+          ['idr0044-v0.4-time-series', 'idr0010-v0.5-hcs-well-field'].includes(sample.id),
+        )
+        .every((sample) => sample.provenance?.license === 'CC BY 4.0'),
+    ).toBe(true)
+  })
+
+  it('parses deterministic public reports and detects stale classifications', () => {
+    const base = {
+      schemaVersion: 2,
+      reportType: 'public-compatibility',
+      corpusPath: 'benchmark/ome-zarr/official-corpus.json',
+      generatedAt: '2026-08-20T12:00:00.000Z',
+      nodeVersion: 'v22.18.0',
+      platform: 'linux/x64',
+      results: [
+        {
+          id: 'sample',
+          collection: 'test',
+          url: 'https://example.test/store/',
+          expectedClassification: 'PASS',
+          classification: 'PASS',
+          observedSurfaces: ['regular-chunks'],
+        },
+      ],
+      unexpectedFailures: [],
+    }
+    const parsed = parseOmeZarrCompatibilityReport(base)
+    const markdown = renderOmeZarrCompatibilityMarkdown(parsed)
+    expect(markdown).toContain(
+      'Results: 1 supported stores passed; expected non-PASS boundary entries: 0; unexpected classifications: 0',
+    )
+    expect(markdown).toContain('| sample | PASS | PASS |')
+    expect(() =>
+      assertOmeZarrCompatibilityReportCurrent(base, {
+        ...base,
+        generatedAt: '2026-08-21T12:00:00.000Z',
+      }),
+    ).not.toThrow()
+    expect(() =>
+      assertOmeZarrCompatibilityReportCurrent(base, {
+        ...base,
+        results: [{ ...base.results[0], classification: 'INVALID' }],
+      }),
+    ).toThrow(/stale/u)
+    expect(() => parseOmeZarrCompatibilityReport({ ...base, schemaVersion: 1 })).toThrow(/schema/u)
   })
 })

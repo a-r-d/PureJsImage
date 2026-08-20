@@ -1,0 +1,80 @@
+name: OME-Zarr external compatibility
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Pinned attributes and public stores
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Prepare report directory
+        run: mkdir -p "$RUNNER_TEMP/ome-zarr-evidence"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run pinned OME-Zarr 0.5 attribute cases
+        run: >-
+          npm run compat:ome-zarr:conformance -- --write
+          --output "$RUNNER_TEMP/ome-zarr-evidence/ome-zarr-conformance.json"
+
+      - name: Run pinned public compatibility corpus
+        run: >-
+          npm run compat:ome-zarr -- --write
+          --output-dir "$RUNNER_TEMP/ome-zarr-evidence"
+
+      - name: Write job summary
+        if: always()
+        run: |
+          node --input-type=module -e '
+            import { existsSync, readFileSync } from "node:fs";
+            const directory = process.env.RUNNER_TEMP + "/ome-zarr-evidence";
+            const conformancePath = directory + "/ome-zarr-conformance.json";
+            const compatibilityPath = directory + "/ome-zarr-compatibility.json";
+            if (!existsSync(conformancePath) || !existsSync(compatibilityPath)) {
+              console.log("## OME-Zarr external validation");
+              console.log("The validation job stopped before both reports were generated.");
+              process.exit(0);
+            }
+            const conformance = JSON.parse(readFileSync(conformancePath, "utf8"));
+            const compatibility = JSON.parse(readFileSync(compatibilityPath, "utf8"));
+            const passed = compatibility.results.filter((entry) => entry.classification === "PASS").length;
+            console.log("## OME-Zarr external validation");
+            console.log(`- Attribute cases: ${conformance.normative.passed}/${conformance.normative.total} normative`);
+            console.log(`- Optional strict cases: ${conformance.strict.passed}/${conformance.strict.total}`);
+            console.log(`- Reviewed exclusions: ${conformance.excludedCases.length}`);
+            console.log(`- Public stores: ${passed}/${compatibility.results.length} classified PASS`);
+            console.log(`- Unexpected classifications: ${compatibility.unexpectedFailures.length}`);
+          ' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload launch evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ome-zarr-external-evidence
+          path: ${{ runner.temp }}/ome-zarr-evidence
+          if-no-files-found: error
+          retention-days: 30

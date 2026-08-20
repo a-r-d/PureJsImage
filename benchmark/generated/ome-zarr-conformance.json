@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 2,
+  "conformanceLevel": "attributes",
+  "upstreamRepository": "https://github.com/ome/ngff-spec.git",
+  "upstreamRevision": "69b136f1e64e68fead11216ac8dd3f1155668d04",
+  "omeZarrVersion": "0.5",
+  "normative": {
+    "passed": 70,
+    "total": 70
+  },
+  "strict": {
+    "passed": 10,
+    "total": 11,
+    "failures": [
+      {
+        "id": "strict_label_suite/image-label/no_colors",
+        "strict": true,
+        "expectedValid": false,
+        "actualValid": true,
+        "matchesExpected": false,
+        "excluded": false
+      }
+    ]
+  },
+  "excludedCases": [
+    {
+      "id": "plate_suite/plate/minimal_no_acquisitions",
+      "expectedValid": true,
+      "pureJsImageValid": false,
+      "reason": "The case expects valid metadata but omits required plate.version.",
+      "finalSpecSection": "2.7 \"plate\" metadata: plate.version is required",
+      "reviewedAt": "2026-08-20"
+    },
+    {
+      "id": "plate_suite/plate/minimal_acquisitions",
+      "expectedValid": true,
+      "pureJsImageValid": false,
+      "reason": "The case expects valid metadata but omits required plate.version.",
+      "finalSpecSection": "2.7 \"plate\" metadata: plate.version is required",
+      "reviewedAt": "2026-08-20"
+    },
+    {
+      "id": "plate_suite/plate/non_alphanumeric_row",
+      "expectedValid": true,
+      "pureJsImageValid": false,
+      "reason": "The row name \"A1\" is alphanumeric; the actual conflict is the omitted required plate.version.",
+      "finalSpecSection": "2.7 \"plate\" metadata: plate.version is required",
+      "reviewedAt": "2026-08-20"
+    },
+    {
+      "id": "strict_plate_suite/plate/strict_no_acquisitions",
+      "expectedValid": true,
+      "pureJsImageValid": false,
+      "reason": "The case expects valid metadata but omits required plate.version.",
+      "finalSpecSection": "2.7 \"plate\" metadata: plate.version is required",
+      "reviewedAt": "2026-08-20"
+    },
+    {
+      "id": "strict_plate_suite/plate/strict_acquisitions",
+      "expectedValid": true,
+      "pureJsImageValid": false,
+      "reason": "The case expects valid metadata but omits required plate.version.",
+      "finalSpecSection": "2.7 \"plate\" metadata: plate.version is required",
+      "reviewedAt": "2026-08-20"
+    }
+  ],
+  "unexpectedFailures": [],
+  "generatedAt": "2026-08-20T19:09:15.875Z",
+  "nodeVersion": "v24.16.0",
+  "platform": "linux/x64"
+}

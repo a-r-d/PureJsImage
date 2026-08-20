@@ -51,6 +51,37 @@ A `bioformats2raw.layout` root without `multiscales` uses an authored `OME/zarr.
 the next integer path is missing. A leftover root `labels` list does not replace series discovery.
 Extra integer or explicitly listed series beyond `maxDatasets` fail with `LIMIT_EXCEEDED`.
 
+## Metadata validation policy
+
+`createOmeZarrReader()` defaults to `metadataValidation: 'strict'`. Strict mode enforces the
+finalized OME-Zarr 0.5 metadata rules and is always used by the conformance Dingus. Consumer code
+that must open specifically documented historical metadata can opt into the narrow compatible mode:
+
+```ts
+import { createOmeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
+
+const reader = createOmeZarrReader({ metadataValidation: 'compatible' })
+```
+
+Compatible mode currently accepts exactly one deviation: an OME-Zarr 0.5 `plate` without the
+required `plate.version`, as found in reviewed cases from the pinned official attribute corpus. It
+does not invent a version. Instead, the frozen document metadata contains a frozen warning:
+
+```ts
+document.metadata.omeZarrWarnings === [
+  {
+    code: 'OME_ZARR_PLATE_VERSION_MISSING',
+    path: 'ome.plate.version',
+    message: 'Accepted a historical OME-Zarr 0.5 plate without required plate.version.',
+  },
+]
+```
+
+The option never relaxes store-root confinement, path validation, ranks, dimensions, shapes,
+chunks, shards, codecs, byte/allocation/decompression limits, or other hostile-input checks. It is
+not a generic ignore-errors switch. Every future deviation requires a specific warning code,
+pinned external evidence, focused strict/compatible tests, and documentation.
+
 ## Supported boundary
 
 | Surface | Implemented boundary |
@@ -99,6 +130,8 @@ The [OME-Zarr WSI demo](https://purejsimage.com/ome-zarr/) opens a store-root UR
 `zarr.json`, `.zgroup`, or `.zattrs`) and resolves normalized companion names within that root. The
 demo uses the public `createOmeZarrHttpContext()`, `omeZarrReader`, and
 `ScientificDataset.readPlane()` rather than maintaining a website-only store implementation.
+The demo explicitly opts into `metadataValidation: 'compatible'` so reviewed historical stores can
+open with warnings; the conformance Dingus and public compatibility evidence remain strict.
 
 The verified production inputs are the Jackson Laboratory OME 2024 NGFF Challenge conversions
 `41028.zarr`, `46125.zarr`, and `42815.zarr`: OME-NGFF 0.5, Zarr v3,
@@ -144,10 +177,9 @@ When an axis omits `type`, the reader infers time, channel, or space from the co
 axis. Declared types still control composition: time, then at most one channel or custom axis,
 then 2 or 3 spatial axes.
 
-`bioformats2raw.layout` must be numeric `3`. The string `"3"` is accepted only as a documented
-compatibility extension. Any other explicit layout is a definitive probe non-match and an open
-metadata error; the reader does not fall through to numbered-series scanning. At most one
-`transpose` codec is supported.
+`bioformats2raw.layout` must be numeric `3` in both validation modes. Any other explicit layout is a
+definitive probe non-match and an open metadata error; the reader does not fall through to
+numbered-series scanning. At most one `transpose` codec is supported.
 
 Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name.
 
@@ -162,16 +194,41 @@ bytes fetched. It never enumerates object storage or downloads a complete image.
 Results are classified as `PASS`, `UNSUPPORTED_CODEC`, `UNSUPPORTED_DTYPE`,
 `UNSUPPORTED_METADATA`, `INVALID`, or `NETWORK_FAILURE`. A different reviewed manifest path may be
 passed as the first argument. The checked-in roots cover IDR, BIA, Sanger, SSBD, and OME 2024
-Challenge stores. A sample may pin an `expectedClassification`; this keeps known compatibility
-boundaries visible and makes the command fail if they unexpectedly regress or change. The Sanger
-sample currently guards the explicit OME-NGFF 0.2 `UNSUPPORTED_METADATA` boundary.
+Challenge stores. The corpus explicitly asserts OME-NGFF 0.4/Zarr v2, OME-NGFF 0.5/Zarr v3,
+regular chunks, `sharding_indexed`, multidimensional Z and T, multiple OMERO channels, labels, an
+HCS well/field, and bioformats2raw series. The IDR0044 time-series sample has 532 T positions. A
+sample may pin an `expectedClassification`; this keeps known compatibility boundaries visible and
+makes the command fail if they unexpectedly regress or change. The Sanger sample currently guards
+the explicit OME-NGFF 0.2 `UNSUPPORTED_METADATA` boundary. Each remote sample has a five-minute
+abort and a timeout is a failing `NETWORK_FAILURE`, never a compatibility pass.
+
+`npm run compat:ome-zarr -- --write` refreshes
+`benchmark/generated/ome-zarr-compatibility.json` and
+`docs/generated/ome-zarr-compatibility.md`. `--check` reruns the external corpus and fails on stale
+semantic evidence, stale Markdown, unexpected failures, or changed expected classifications. These
+network commands are intentionally excluded from ordinary `npm run check`; report schema and stale
+detection are covered by local tests. `--output-dir <directory>` writes both reports elsewhere for
+scheduled validation without modifying the repository.
 
 `npm run compat:ome-zarr:conformance` runs the PureJsImage dingus contract against the official
 OME `ngff-spec` source pinned to finalized 0.5 revision
-`69b136f1e64e68fead11216ac8dd3f1155668d04`. The report separates normative cases, optional strict
-cases, and explicit upstream-suite exclusions. Exclusions are limited to cases where that pinned
-case corpus contradicts the finalized 0.5 report (currently versionless plates and a
-non-alphanumeric plate row); they are never counted as passes.
+`69b136f1e64e68fead11216ac8dd3f1155668d04`. This is the official OME-Zarr 0.5 **attribute case
+corpus**, not hierarchy or pixel-data conformance. The report declares
+`conformanceLevel: "attributes"` and records the upstream repository/revision, OME-Zarr version,
+normative and optional-strict counts, reviewed exclusions, unexpected normative failures,
+generation time, Node version, and platform. The Dingus keeps directory input support for future
+hierarchy testing, but no hierarchy claim is made until those upstream suites actually run.
+
+`npm run compat:ome-zarr:conformance -- --write` refreshes
+`benchmark/generated/ome-zarr-conformance.json`; `--check` fails if its semantic evidence is stale.
+The five exclusions are typed, date-reviewed contradictions where the pinned cases expect valid
+plates while omitting `plate.version`. That includes `plate/non_alphanumeric_row`: its row name
+`A1` is alphanumeric, so the omitted version—not the row—is the conflict. Exclusions record exact
+expected and PureJsImage results and are never counted as passes.
+
+The weekly/manual `.github/workflows/ome-zarr-compatibility.yml` job uses Node 22, writes all three
+reports to temporary storage, uploads them as artifacts, and prints a concise job summary. It never
+commits changing network results.
 
 ## Evidence
 

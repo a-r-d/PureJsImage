@@ -76,7 +76,7 @@ PureJsImage 0.14.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Common web codecs | 607.6 KiB | 224.4 KiB | 188.0 KiB |
 | All stable codecs | 870.4 KiB | 306.2 KiB | 252.4 KiB |
 | Scientific platform | 159.9 KiB | 46.1 KiB | 39.2 KiB |
-| All scientific readers | 1223.4 KiB | 353.4 KiB | 282.0 KiB |
+| All scientific readers | 1224.1 KiB | 353.7 KiB | 282.0 KiB |
 
 The extracted npm package is 5.8 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -174,6 +174,8 @@ exports they need.
 [Scientific format reference →](https://purejsimage.com/scientific-formats/) ·
 [Scientific API reference →](https://purejsimage.com/api/#scientific) ·
 [Scientific application guide →](docs/application-platform.md) ·
+[OME-Zarr reader and validation policy →](docs/scientific-ome-zarr.md) ·
+[OME-Zarr public compatibility evidence →](docs/generated/ome-zarr-compatibility.md) ·
 [Native numeric tile contract →](docs/scientific-numeric-tiles.md) ·
 [Bounded raster analysis →](docs/bounded-raster-analysis.md)
 
@@ -301,7 +303,7 @@ Generated for purejsimage 0.14.0. The README keeps only the major entry points; 
 | Core + common web codecs | `purejsimage/codecs/web` | 607.6 KiB | 224.4 KiB | 188.0 KiB |
 | Core + all stable codecs | `purejsimage/codecs/all` | 870.4 KiB | 306.2 KiB | 252.4 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 159.9 KiB | 46.1 KiB | 39.2 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1223.4 KiB | 353.4 KiB | 282.0 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1224.1 KiB | 353.7 KiB | 282.0 KiB |
 
 The extracted npm package is 5.8 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 

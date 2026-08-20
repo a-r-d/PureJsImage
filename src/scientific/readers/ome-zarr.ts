@@ -7,9 +7,13 @@ export type {
   OmeZarrDisplayMetadata,
   OmeZarrDisplayWindowMetadata,
   OmeZarrLevelStorageMetadata,
+  OmeZarrMetadataValidation,
   OmeZarrPlateAcquisitionMetadata,
+  OmeZarrWarning,
+  OmeZarrWarningCode,
 } from '../formats/ome-zarr.ts'
 
+import type { OmeZarrMetadataValidation } from '../formats/ome-zarr.ts'
 import type {
   ScientificDocument,
   ScientificOpenContext,
@@ -20,6 +24,8 @@ import { resourceHasHint } from './shared.ts'
 
 export interface OmeZarrReaderOptions {
   readonly limits?: Partial<OmeZarrLimits>
+  /** Finalized 0.5 validation by default; compatible accepts only documented historical deviations. */
+  readonly metadataValidation?: OmeZarrMetadataValidation
 }
 
 const defaults: Readonly<OmeZarrLimits> = Object.freeze({
@@ -110,6 +116,10 @@ export const createOmeZarrReader = (
   options: Readonly<OmeZarrReaderOptions> = {},
 ): ScientificReader => {
   const limits = resolveLimits(options.limits)
+  const metadataValidation = options.metadataValidation ?? 'strict'
+  if (metadataValidation !== 'strict' && metadataValidation !== 'compatible') {
+    throw invalidInput('OME-Zarr metadataValidation must be strict or compatible')
+  }
   return Object.freeze({
     descriptor: omeZarrReaderDescriptor,
     async probe(context: Readonly<ScientificOpenContext>) {
@@ -131,7 +141,12 @@ export const createOmeZarrReader = (
       return probed
     },
     open(context: Readonly<ScientificOpenContext>): Promise<ScientificDocument> {
-      return openOmeZarr({ context, descriptor: omeZarrReaderDescriptor, limits })
+      return openOmeZarr({
+        context,
+        descriptor: omeZarrReaderDescriptor,
+        limits,
+        metadataValidation,
+      })
     },
   })
 }

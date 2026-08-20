@@ -617,7 +617,10 @@ const openStore = async (url: string, nextPublishedStoreBytes?: number): Promise
     })
     nextStore = context.store
     store = nextStore
-    const reader = createOmeZarrReader({ limits: { rowsPerBlock: 1_024 } })
+    const reader = createOmeZarrReader({
+      limits: { rowsPerBlock: 1_024 },
+      metadataValidation: 'compatible',
+    })
     const opened = await reader.open(context)
     const selected = selectInitialDataset(opened)
     const openedDataset = await opened.openDataset(

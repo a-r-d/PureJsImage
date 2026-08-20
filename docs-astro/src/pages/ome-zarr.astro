@@ -37,6 +37,7 @@ const context = await createOmeZarrHttpContext(storeUrl, {
 
 const reader = createOmeZarrReader({
   limits: { rowsPerBlock: 1_024 },
+  metadataValidation: 'compatible',
 })
 const document = await reader.open(context)
 

@@ -233,10 +233,36 @@ for (const [name, bytes] of generatedScientificBrowserFixtures) {
 const omeZarrWsiFactory = generatedScientificFixtures['ome-zarr-wsi-generated']
 if (omeZarrWsiFactory === undefined) throw new Error('Missing generated OME-Zarr WSI fixture')
 const omeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi')
+const compatibleOmeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi-compatible')
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+const omitPlateVersion = (bytes: Uint8Array): Uint8Array => {
+  const root: unknown = JSON.parse(new TextDecoder().decode(bytes))
+  if (!isRecord(root) || !isRecord(root.attributes) || !isRecord(root.attributes.ome)) {
+    throw new Error('Generated OME-Zarr WSI root metadata is invalid')
+  }
+  const ome = root.attributes.ome
+  if (!isRecord(ome.plate) || ome.plate.version !== '0.5') {
+    throw new Error('Generated OME-Zarr WSI plate metadata is invalid')
+  }
+  const { version: _version, ...historicalPlate } = ome.plate
+  return new TextEncoder().encode(
+    JSON.stringify({
+      ...root,
+      attributes: { ...root.attributes, ome: { ...ome, plate: historicalPlate } },
+    }),
+  )
+}
 for (const resource of omeZarrWsiFactory().resources) {
   const target = resolve(omeZarrWsiDirectory, resource.name)
+  const compatibleTarget = resolve(compatibleOmeZarrWsiDirectory, resource.name)
   await mkdir(dirname(target), { recursive: true })
+  await mkdir(dirname(compatibleTarget), { recursive: true })
   await writeFile(target, resource.bytes)
+  await writeFile(
+    compatibleTarget,
+    resource.name === 'zarr.json' ? omitPlateVersion(resource.bytes) : resource.bytes,
+  )
 }
 await copyFile(
   'benchmark/corpus/files/libtiff-rgb-3c-8b.tiff',

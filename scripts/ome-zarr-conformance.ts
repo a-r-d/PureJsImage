@@ -26,13 +26,13 @@ if (input === undefined || input === process.argv[1]) {
     const metadata = await stat(input)
     if (metadata.isDirectory()) {
       const context = await createScientificPathContext(join(input, 'zarr.json'))
-      const document = await createOmeZarrReader().open(context)
+      const document = await createOmeZarrReader({ metadataValidation: 'strict' }).open(context)
       if (document.datasets.length === 0) throw new Error('OME-Zarr hierarchy contains no datasets')
     } else {
       const parsed: unknown = JSON.parse(await readFile(input, 'utf8'))
       if (!isRecord(parsed)) throw new Error('OME-Zarr attributes must be an object')
       const { _conformance: _ignored, ...attributes } = parsed
-      validateOmeZarr05Attributes(attributes)
+      validateOmeZarr05Attributes(attributes, 'strict')
     }
     await writeOutput({ valid: true })
   } catch (cause) {

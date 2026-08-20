@@ -5,27 +5,102 @@
     {
       "id": "idr0062-v0.4-image",
       "collection": "IDR",
-      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/.zgroup"
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/.zgroup",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.4-zarr-v2",
+        "regular-chunks",
+        "multidimensional-z",
+        "multiple-channels-omero",
+        "image-labels"
+      ]
     },
     {
       "id": "idr0062-v0.5-image-labels",
       "collection": "IDR",
-      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/zarr.json"
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/zarr.json",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.5-zarr-v3",
+        "regular-chunks",
+        "sharding-indexed",
+        "multidimensional-z",
+        "multiple-channels-omero",
+        "image-labels"
+      ]
+    },
+    {
+      "id": "idr0044-v0.4-time-series",
+      "collection": "IDR",
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0044A/4007801.zarr/.zgroup",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.4-zarr-v2",
+        "regular-chunks",
+        "multidimensional-z",
+        "multidimensional-t",
+        "multiple-channels-omero"
+      ],
+      "provenance": {
+        "dataset": "IDR0044 image 4007801",
+        "sourceUrl": "https://www.openmicroscopy.org/2020/11/04/zarr-data.html",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+      }
+    },
+    {
+      "id": "idr0010-v0.5-hcs-well-field",
+      "collection": "IDR",
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/zarr.json",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.5-zarr-v3",
+        "sharding-indexed",
+        "multiple-channels-omero",
+        "hcs-plate-well-field"
+      ],
+      "provenance": {
+        "dataset": "IDR0010 plate 76-45, well A/1",
+        "sourceUrl": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/zarr.json",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+      }
     },
     {
       "id": "ome2024-6001240",
       "collection": "OME 2024 NGFF Challenge",
-      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/share/ome2024-ngff-challenge/0.0.5/6001240.zarr/"
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/share/ome2024-ngff-challenge/0.0.5/6001240.zarr/",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.5-zarr-v3",
+        "sharding-indexed",
+        "multidimensional-z",
+        "multiple-channels-omero"
+      ]
     },
     {
       "id": "ome2024-jax-41028",
       "collection": "OME 2024 NGFF Challenge / Jackson Laboratory",
-      "url": "https://storage.googleapis.com/jax-public-ngff/public/41028.zarr"
+      "url": "https://storage.googleapis.com/jax-public-ngff/public/41028.zarr",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.5-zarr-v3",
+        "sharding-indexed",
+        "multiple-channels-omero",
+        "bioformats2raw-series"
+      ]
     },
     {
       "id": "bia-s-bsst410-im1",
       "collection": "BioImage Archive",
-      "url": "https://uk1s3.embassy.ebi.ac.uk/bia-zarr-test/S-BSST410/IM1.zarr/0/.zgroup"
+      "url": "https://uk1s3.embassy.ebi.ac.uk/bia-zarr-test/S-BSST410/IM1.zarr/0/.zgroup",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": [
+        "ome-ngff-0.4-zarr-v2",
+        "regular-chunks",
+        "multidimensional-z",
+        "multiple-channels-omero"
+      ]
     },
     {
       "id": "sanger-fetal-spleen-visium-1",
@@ -36,7 +111,9 @@
     {
       "id": "ssbd-fib-sem-synapse",
       "collection": "SSBD",
-      "url": "https://ssbd.riken.jp/100118-dcacbb41/zarr/v0.4/Fig3a_FIB-SEM_synapse.zarr/.zgroup"
+      "url": "https://ssbd.riken.jp/100118-dcacbb41/zarr/v0.4/Fig3a_FIB-SEM_synapse.zarr/.zgroup",
+      "expectedClassification": "PASS",
+      "expectedSurfaces": ["ome-ngff-0.4-zarr-v2", "regular-chunks"]
     }
   ]
 }
