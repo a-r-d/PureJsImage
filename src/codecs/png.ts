@@ -1262,7 +1262,11 @@ const writeChunk = async (sink: ImageSink, type: string, data: Uint8Array): Prom
   await sink.write(uint32Bytes(crc32(encodedType, data)))
 }
 
-const filteredMagnitude = (value: number): number => (value < 128 ? value : 256 - value)
+const filteredMagnitudeTable = Uint8Array.from({ length: 256 }, (_entry, value) =>
+  Math.min(value, 256 - value),
+)
+
+const filteredMagnitude = (value: number): number => filteredMagnitudeTable[value] ?? 0
 
 const chooseAdaptiveFilter = (
   none: number,
@@ -1335,9 +1339,10 @@ const applyFilterScanline = (
   }
 }
 
-const filterScanlineRgb8 = (
+const filterScanline = (
   source: Uint8Array,
   previous: Uint8Array,
+  bytesPerPixel: number,
   output: Uint8Array,
   adaptive: boolean,
 ): void => {
@@ -1349,7 +1354,7 @@ const filterScanlineRgb8 = (
     let average = 0
     let paethScore = 0
     const length = source.byteLength
-    for (let index = 0; index < 3 && index < length; index += 1) {
+    for (let index = 0; index < bytesPerPixel && index < length; index += 1) {
       const value = source[index] ?? 0
       const above = previous[index] ?? 0
       const residual = (value - above) & 0xff
@@ -1359,11 +1364,11 @@ const filterScanlineRgb8 = (
       average += filteredMagnitude((value - Math.floor(above / 2)) & 0xff)
       paethScore += filteredMagnitude(residual)
     }
-    for (let index = 3; index < length; index += 1) {
+    for (let index = bytesPerPixel; index < length; index += 1) {
       const value = source[index] ?? 0
-      const left = source[index - 3] ?? 0
+      const left = source[index - bytesPerPixel] ?? 0
       const above = previous[index] ?? 0
-      const upperLeft = previous[index - 3] ?? 0
+      const upperLeft = previous[index - bytesPerPixel] ?? 0
       none += filteredMagnitude(value)
       sub += filteredMagnitude((value - left) & 0xff)
       up += filteredMagnitude((value - above) & 0xff)
@@ -1371,53 +1376,6 @@ const filterScanlineRgb8 = (
       paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
     }
     filter = chooseAdaptiveFilter(none, sub, up, average, paethScore)
-  }
-  applyFilterScanline(source, previous, 3, output, filter)
-}
-
-const filterScanline = (
-  source: Uint8Array,
-  previous: Uint8Array,
-  bytesPerPixel: number,
-  output: Uint8Array,
-  adaptive: boolean,
-): void => {
-  if (bytesPerPixel === 3) {
-    filterScanlineRgb8(source, previous, output, adaptive)
-    return
-  }
-  let filter = 0
-  if (adaptive) {
-    let none = 0
-    let sub = 0
-    let up = 0
-    let average = 0
-    let paethScore = 0
-    for (let index = 0; index < source.byteLength; index += 1) {
-      const value = source[index] ?? 0
-      const left = index >= bytesPerPixel ? (source[index - bytesPerPixel] ?? 0) : 0
-      const above = previous[index] ?? 0
-      const upperLeft = index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0
-      none += filteredMagnitude(value)
-      sub += filteredMagnitude((value - left) & 0xff)
-      up += filteredMagnitude((value - above) & 0xff)
-      average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
-      paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
-    }
-    let score = none
-    if (sub < score) {
-      filter = 1
-      score = sub
-    }
-    if (up < score) {
-      filter = 2
-      score = up
-    }
-    if (average < score) {
-      filter = 3
-      score = average
-    }
-    if (paethScore < score) filter = 4
   }
   applyFilterScanline(source, previous, bytesPerPixel, output, filter)
 }

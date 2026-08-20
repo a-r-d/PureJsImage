@@ -14,7 +14,14 @@ repeat a dead end without new evidence.
 - Retained `PNG-001`: indexed CRC-32. 15-trial 562 → 527 ms (−6.29%).
 - Retained `PNG-003`: memcpy 8-bit RGBA `convertRow`. 15-trial 537 → 416 ms
   (−22.52% vs original HEAD), 14/15 pairs faster, paired MAD 1.04%.
-- Versus Sharp (~263 ms) the primary is now ~416 ms (~1.6×).
+- Retained `PNG-015/016`: generalize adaptive-filter prefix/body scoring to remove RGBA boundary
+  branches and the redundant RGB-only kernel. 15-trial 437 → 433 ms (−0.82%), paired median
+  −1.03%, 12/15 pairs faster, RSS −0.62%.
+- Retained `PNG-017/018`: use a 256-entry filtered-magnitude lookup. The cumulative 15-trial
+  stack is 438 → 432 ms (−1.35%), paired median −1.06%, 13/15 pairs faster, RSS −0.05%.
+- `PNG-008` reached −6.07% but was superseded because its fully unrolled kernel exceeded the core
+  bundle ceiling.
+- Versus Sharp (~263 ms), the final stack's latest paired candidate median is ~432 ms (~1.6×).
 - Neighbor `stress-100mp-downscale`: 2653 → 1391 ms (−47.58%), RSS −1.55%, exact
   signatures. Artifact `.tmp/hillclimb/2026-08-19T13-08-00-007Z/`.
 - Neighbor `png-alpha-resize`: 79.89 → 72.99 ms (−8.63%), RSS −0.07%.
@@ -22,7 +29,7 @@ repeat a dead end without new evidence.
 - Neighbor `jpeg-to-png`: 483.46 → 479.43 ms (−0.83%), RSS −0.98%. CRC-only
   effect. Artifact `.tmp/hillclimb/2026-08-19T13-10-00-061Z/`.
 - Imazen PNG: 176 images, 162 pass / 14 rejected-safely / 0 failures.
-  Artifact `.tmp/imazen-png-001/`.
+  Artifact `.tmp/imazen-png-final/`.
 
 - Reverted `PNG-002` RGBA8 unfilter; incremental vs PNG-001 was noise.
 - Progressive `jpeg-progressive-resize-1200` JPEG-039/040/041 did not retain.
@@ -137,6 +144,26 @@ repeat a dead end without new evidence.
 | PNG-001 | 2026-08-19 12:58 | Indexed `updateCrc32` loop instead of `for-of` over `Uint8Array`. | 562.10 → 526.74 | **-6.29%** | +3.53% | material | Retained. 15/15-trial; 12/15 pairs faster; paired median −7.06%; exact outputBytes 43059. 7-trial was −1.48% / 5/7. Artifacts `.tmp/hillclimb/2026-08-19T12-56-59-749Z/` and `.tmp/hillclimb/2026-08-19T12-57-56-662Z/`. |
 | PNG-002 | 2026-08-19 13:02 | Specialize RGBA8 unfilter and inline Paeth without `Math.abs`. | 555.91 → 533.02 | -4.12% vs HEAD | -0.24% | inconclusive | Reverted. Incremental vs PNG-001 (~527 ms) was noise; 15-trial base CV 18.7% from a 990 ms outlier. Artifact `.tmp/hillclimb/2026-08-19T13-01-44-856Z/`. |
 | PNG-003 | 2026-08-19 13:05 | `convertRow` memcpy for 8-bit RGBA without tRNS. | 536.57 → 415.76 | **-22.52%** | +0.22% | material | Retained on PNG-001. 14/15 pairs faster; paired median −22.52%; exact outputBytes. 7-trial incomparable (candidate CV 11.9%) then 15-trial accepted. Artifacts `.tmp/hillclimb/2026-08-19T13-04-25-604Z/` and `.tmp/hillclimb/2026-08-19T13-05-21-086Z/`. |
+| PNG-004 | 2026-08-20 01:25 | No-change control at `1621ad3` after re-profiling the committed PNG-001/003 stack. | 450.37 → 468.16 | +3.95% | +0.10% | inconclusive | Control; no source change. Base CV 17.12%, candidate CV 7.86%, paired median +0.45% with 3/7 candidate-faster pairs. Correctness and outputBytes matched. Artifact `.tmp/hillclimb/2026-08-20T01-25-01-614Z/`. |
+| PNG-005 | 2026-08-20 01:27 | Express Paeth distances directly as `up-upperLeft`, `left-upperLeft`, and `left+up-2*upperLeft` to remove the shared prediction temporary. | 448.16 → 447.91 | -0.06% | +0.18% | neutral | Reverted. Paired median −0.13%, 4/7 pairs faster; base/candidate CV 0.81%/0.83%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-26-43-137Z/`. |
+| PNG-006 | 2026-08-20 01:29 | Unroll filter-type 2 reconstruction four bytes at a time when `filterBytesPerPixel === 4`. | 443.40 → 452.62 | +2.08% | +0.42% | inconclusive | Retained only for confirmation. Host outliers drove base/candidate CV to 33.34%/18.33%; paired median +0.87%, 3/7 pairs faster, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-28-19-127Z/`. |
+| PNG-007 | 2026-08-20 01:31 | Confirm PNG-006 with 15 paired trials. | 438.10 → 439.10 | +0.23% | +0.03% | neutral | Reverted. Two base outliers kept base CV at 14.13%, but the robust paired median was only −0.18% with 9/15 pairs faster, below the promising range; candidate CV 2.66%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-29-34-597Z/`. |
+| PNG-008 | 2026-08-20 01:33 | Unroll exact factor-4 RGBA box-shrink accumulation in `src/resize.ts`, preserving premultiplied sums and final rounding. | 437.66 → 411.08 | **-6.07%** | -0.15% | material | Superseded after the final size gate: the fully unrolled kernel exceeded the 61,440-byte core API ceiling by 360 bytes. Paired median −5.68%, 7/7 pairs faster; base/candidate CV 1.29%/1.55%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-32-47-404Z/`. |
+| PNG-009 | 2026-08-20 01:36 | Confirm the cumulative PNG-008 stack with 15 paired trials. | 444.86 → 417.51 | **-6.15%** | +0.11% | inconclusive | Retained based on PNG-008. The direction confirmed in 14/15 pairs with paired median −5.56% and exact outputBytes, but one 681 ms candidate outlier raised candidate CV to 15.14%, so the runner correctly marked this confirmation incomparable. Artifact `.tmp/hillclimb/2026-08-20T01-34-10-493Z/`. |
+| PNG-010 | 2026-08-20 01:37 | Validate PNG-008 on neighboring `png-alpha-resize`, whose 1200→800 ratio does not select the factor-4 path. | 76.76 → 77.08 | +0.42% | +0.01% | neutral | Validation only; retained stack unchanged. Paired median +0.48%, 2/7 pairs faster; base/candidate CV 1.19%/1.30%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-36-15-652Z/`. |
+| PNG-011 | 2026-08-20 01:39 | Validate PNG-008 on neighboring `stress-100mp-downscale`, which selects the adjacent factor-8 path. | 1263.33 → 1317.80 | +4.31% | +0.61% | neutral | Retained only pending a 15-pair regression guard. Paired median +2.65%, 2/7 pairs faster; base/candidate CV 5.53%/2.86%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-37-08-391Z/`. |
+| PNG-012 | 2026-08-20 01:42 | Confirm PNG-011's factor-8 neighboring regression guard with 15 paired trials. | 1277.37 → 1273.07 | -0.34% | -0.01% | neutral | Validation passed; retained PNG-008. Paired median −0.93%, 9/15 pairs faster; base/candidate CV 3.21%/1.71%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-39-09-085Z/`. |
+| PNG-013 | 2026-08-20 01:51 | Replace per-pixel `sourceX * 4` in RGBA box shrink with one streaming byte offset, keeping the generic partial-group path and bundle ceiling. | 444.92 → 440.70 | -0.95% | -0.17% | promising | Retained conditionally for 15-pair confirmation. Paired median −0.95%, 5/7 pairs faster; base/candidate CV 2.59%/1.57%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-49-48-784Z/`. |
+| PNG-014 | 2026-08-20 01:53 | Confirm PNG-013 with 15 paired trials. | 439.25 → 439.43 | +0.04% | +0.04% | neutral | Reverted. Paired median −0.62%, only 8/15 pairs faster; base/candidate CV 3.54%/8.48%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-51-15-965Z/`. |
+| PNG-015 | 2026-08-20 01:56 | Generalize the adaptive-filter prefix/body split so RGBA scoring avoids per-byte `index >= bytesPerPixel` branches, then remove the redundant RGB-only kernel. | 434.45 → 429.81 | -1.07% | -0.08% | promising | Retained conditionally for 15-pair confirmation. Paired median −0.83%, 6/7 pairs faster; base/candidate CV 0.61%/1.44%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-54-42-913Z/`. |
+| PNG-016 | 2026-08-20 01:58 | Confirm PNG-015 with 15 paired trials. | 436.79 → 433.22 | -0.82% | -0.62% | promising | Retained. Paired median −1.03%, 12/15 pairs faster; base/candidate CV 2.12%/0.92%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-55-52-331Z/`. |
+| PNG-017 | 2026-08-20 02:00 | Add a 256-entry filtered-residual magnitude lookup on the retained PNG-015/016 stack. | 438.14 → 431.89 | -1.43% | -0.69% | promising | Retained conditionally for 15-pair cumulative confirmation. Paired median −1.91%, 7/7 pairs faster; base/candidate CV 5.45%/0.37%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-58-38-026Z/`. |
+| PNG-018 | 2026-08-20 02:02 | Confirm the cumulative PNG-015–017 stack with 15 paired trials. | 438.16 → 432.26 | -1.35% | -0.05% | promising | Retained. Paired median −1.06%, 13/15 pairs faster; base/candidate CV 1.58%/9.02% (one 592 ms candidate outlier), exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T01-59-54-761Z/`. |
+| PNG-019 | 2026-08-20 02:04 | Unroll `updateCrc32` four bytes at a time on the retained PNG-015–018 stack. | 443.44 → 439.97 | -0.78% | +0.37% | neutral | Reverted. The cumulative result weakened versus PNG-018 despite a paired median of −0.78% and 6/7 faster pairs; exact outputBytes, base/candidate CV 0.75%/0.83%. Artifact `.tmp/hillclimb/2026-08-20T02-02-34-377Z/`. |
+| PNG-020 | 2026-08-20 02:05 | Replace exact nonnegative `/ 2` floors in Average-filter scoring with unsigned shifts on the retained PNG-015–018 stack. | 442.40 → 437.56 | -1.09% | +0.37% | neutral | Reverted. All 7 pairs favored the candidate, but paired median −1.03% was indistinguishable from retained PNG-018 and the cumulative median weakened; exact outputBytes, base/candidate CV 0.95%/0.58%. Artifact `.tmp/hillclimb/2026-08-20T02-04-08-261Z/`. |
+| PNG-021 | 2026-08-20 02:07 | Validate the final PNG-015–018 stack on neighboring `png-alpha-resize`. | 77.34 → 77.39 | +0.07% | -0.04% | neutral | Validation passed; retained stack unchanged. Paired median −0.66%, 4/7 pairs faster; base/candidate CV 1.04%/0.90%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T02-05-50-552Z/`. |
+| PNG-022 | 2026-08-20 02:08 | Validate the final PNG-015–018 stack on neighboring `jpeg-to-png`. | 411.30 → 416.72 | +1.32% | +0.16% | neutral | Retained only pending a 15-pair regression guard. Paired median +1.66%, 2/7 pairs faster; base/candidate CV 1.31%/1.28%, exact outputBytes. Artifact `.tmp/hillclimb/2026-08-20T02-07-09-100Z/`. |
+| PNG-023 | 2026-08-20 02:10 | Confirm PNG-022's `jpeg-to-png` neighboring regression guard with 15 paired trials. | 414.93 → 417.84 | +0.70% | -0.44% | neutral | Validation passed; retained final stack. Paired median +0.51%, 6/15 pairs faster; base/candidate CV 2.09%/1.62%, exact outputBytes, well below the 5% regression guard. Artifact `.tmp/hillclimb/2026-08-20T02-08-20-360Z/`. |
 
 
 
