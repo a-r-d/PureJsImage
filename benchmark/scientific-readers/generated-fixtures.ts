@@ -571,19 +571,50 @@ const envi = (): readonly GeneratedScientificResource[] => [
   },
 ]
 
-const omeZarrWsi = (): GeneratedScientificFixture => {
+interface OmeZarrViewerFixtureOptions {
+  readonly imageName: string
+  readonly labelCenterX: number
+  readonly labelCenterY: number
+  readonly labelRadiusXSquared: number
+  readonly labelRadiusYSquared: number
+  readonly levels: readonly {
+    readonly height: number
+    readonly width: number
+    readonly scale: number
+  }[]
+  readonly logicalHeight: number
+  readonly logicalWidth: number
+  readonly plateName: string
+  readonly shardHeight: number
+  readonly shardWidth: number
+  readonly timepoints: number
+}
+
+const createOmeZarrViewerFixture = (
+  options: OmeZarrViewerFixtureOptions,
+): GeneratedScientificFixture => {
   const json = (value: unknown): Uint8Array => text(JSON.stringify(value))
-  const logicalHeight = 128
-  const logicalWidth = 128
-  const shardHeight = 512
-  const shardWidth = 512
+  const {
+    imageName,
+    labelCenterX,
+    labelCenterY,
+    labelRadiusXSquared,
+    labelRadiusYSquared,
+    levels,
+    logicalHeight,
+    logicalWidth,
+    plateName,
+    shardHeight,
+    shardWidth,
+    timepoints,
+  } = options
   const innerRows = shardHeight / logicalHeight
   const innerColumns = shardWidth / logicalWidth
-  const levels = [
-    { height: 1_280, width: 1_792, scale: 1 },
-    { height: 640, width: 896, scale: 2 },
-    { height: 320, width: 448, scale: 4 },
-  ] as const
+  if (!Number.isInteger(innerRows) || !Number.isInteger(innerColumns)) {
+    throw new Error('OME-Zarr viewer fixture shard dimensions must contain whole logical chunks')
+  }
+  const baseLevel = levels[0]
+  if (baseLevel === undefined) throw new Error('OME-Zarr viewer fixture requires a pyramid level')
   const resources: GeneratedScientificResource[] = [
     {
       name: 'zarr.json',
@@ -595,7 +626,7 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
             version: '0.5',
             multiscales: [
               {
-                name: 'deterministic-rgb-wsi',
+                name: imageName,
                 axes: [
                   { name: 't', type: 'time' },
                   { name: 'c', type: 'channel' },
@@ -644,7 +675,7 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
               rdefs: { defaultT: 0, defaultZ: 1, model: 'color' },
             },
             plate: {
-              name: 'deterministic-demo-plate',
+              name: plateName,
               version: '0.5',
               field_count: 1,
               acquisitions: [
@@ -797,7 +828,7 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
       bytes: json({
         zarr_format: 3,
         node_type: 'array',
-        shape: [1, 3, 2, level.height, level.width],
+        shape: [timepoints, 3, 2, level.height, level.width],
         data_type: 'uint8',
         chunk_grid: {
           name: 'regular',
@@ -825,56 +856,59 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
     })
     const shardRows = Math.ceil(level.height / shardHeight)
     const shardColumns = Math.ceil(level.width / shardWidth)
-    for (let shardY = 0; shardY < shardRows; shardY += 1) {
-      for (let shardX = 0; shardX < shardColumns; shardX += 1) {
-        const chunks: Uint8Array[] = []
-        const index = new Uint8Array(2 * innerRows * innerColumns * 16)
-        const indexView = new DataView(index.buffer)
-        let offset = 0
-        for (let z = 0; z < 2; z += 1) {
-          for (let innerY = 0; innerY < innerRows; innerY += 1) {
-            for (let innerX = 0; innerX < innerColumns; innerX += 1) {
-              const chunk = new Uint8Array(3 * logicalHeight * logicalWidth)
-              const originY = shardY * shardHeight + innerY * logicalHeight
-              const originX = shardX * shardWidth + innerX * logicalWidth
-              for (let channel = 0; channel < 3; channel += 1) {
-                const channelOffset = channel * logicalHeight * logicalWidth
-                for (let y = 0; y < logicalHeight; y += 1) {
-                  for (let x = 0; x < logicalWidth; x += 1) {
-                    const imageX = (originX + x) * level.scale
-                    const imageY = (originY + y) * level.scale
-                    const value =
-                      channel === 0
-                        ? (imageX + Math.floor(imageY / 3)) & 255
-                        : channel === 1
-                          ? (imageY * 2 + Math.floor(imageX / 5)) & 255
-                          : ((Math.floor(imageX / 16) ^ Math.floor(imageY / 16)) * 92 +
-                              imageX +
-                              imageY +
-                              z * 37) &
-                            255
-                    chunk[channelOffset + y * logicalWidth + x] = value
+    for (let time = 0; time < timepoints; time += 1) {
+      for (let shardY = 0; shardY < shardRows; shardY += 1) {
+        for (let shardX = 0; shardX < shardColumns; shardX += 1) {
+          const chunks: Uint8Array[] = []
+          const index = new Uint8Array(2 * innerRows * innerColumns * 16)
+          const indexView = new DataView(index.buffer)
+          let offset = 0
+          for (let z = 0; z < 2; z += 1) {
+            for (let innerY = 0; innerY < innerRows; innerY += 1) {
+              for (let innerX = 0; innerX < innerColumns; innerX += 1) {
+                const chunk = new Uint8Array(3 * logicalHeight * logicalWidth)
+                const originY = shardY * shardHeight + innerY * logicalHeight
+                const originX = shardX * shardWidth + innerX * logicalWidth
+                for (let channel = 0; channel < 3; channel += 1) {
+                  const channelOffset = channel * logicalHeight * logicalWidth
+                  for (let y = 0; y < logicalHeight; y += 1) {
+                    for (let x = 0; x < logicalWidth; x += 1) {
+                      const imageX = (originX + x) * level.scale
+                      const imageY = (originY + y) * level.scale
+                      const value =
+                        channel === 0
+                          ? (imageX + Math.floor(imageY / 3)) & 255
+                          : channel === 1
+                            ? (imageY * 2 + Math.floor(imageX / 5)) & 255
+                            : ((Math.floor(imageX / 16) ^ Math.floor(imageY / 16)) * 92 +
+                                imageX +
+                                imageY +
+                                z * 37 +
+                                time * 53) &
+                              255
+                      chunk[channelOffset + y * logicalWidth + x] = value
+                    }
                   }
                 }
+                const entry = z * innerRows * innerColumns + innerY * innerColumns + innerX
+                indexView.setBigUint64(entry * 16, BigInt(offset), true)
+                indexView.setBigUint64(entry * 16 + 8, BigInt(chunk.byteLength), true)
+                chunks.push(chunk)
+                offset += chunk.byteLength
               }
-              const entry = z * innerRows * innerColumns + innerY * innerColumns + innerX
-              indexView.setBigUint64(entry * 16, BigInt(offset), true)
-              indexView.setBigUint64(entry * 16 + 8, BigInt(chunk.byteLength), true)
-              chunks.push(chunk)
-              offset += chunk.byteLength
             }
           }
+          const encodedIndex = new Uint8Array(index.byteLength + 4)
+          encodedIndex.set(index)
+          new DataView(encodedIndex.buffer).setUint32(index.byteLength, crc32c(index), true)
+          const shard = concat([...chunks, encodedIndex])
+          const name = `${levelIndex}/c/${time}/0/0/${shardY}/${shardX}`
+          resources.push({ name, bytes: shard })
+          payloadRanges[name] = chunks.map((chunk, chunkIndex) => {
+            const start = chunkIndex * chunk.byteLength
+            return [start, start + chunk.byteLength] as const
+          })
         }
-        const encodedIndex = new Uint8Array(index.byteLength + 4)
-        encodedIndex.set(index)
-        new DataView(encodedIndex.buffer).setUint32(index.byteLength, crc32c(index), true)
-        const shard = concat([...chunks, encodedIndex])
-        const name = `${levelIndex}/c/0/0/0/${shardY}/${shardX}`
-        resources.push({ name, bytes: shard })
-        payloadRanges[name] = chunks.map((chunk, chunkIndex) => {
-          const start = chunkIndex * chunk.byteLength
-          return [start, start + chunk.byteLength] as const
-        })
       }
     }
     resources.push({
@@ -906,9 +940,11 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
               const imageX = (column * logicalWidth + x) * level.scale
               const imageY = (row * logicalHeight + y) * level.scale
               const inside =
-                imageX < levels[0].width &&
-                imageY < levels[0].height &&
-                (imageX - 620) ** 2 / 150_000 + (imageY - 450) ** 2 / 80_000 < 1
+                imageX < baseLevel.width &&
+                imageY < baseLevel.height &&
+                (imageX - labelCenterX) ** 2 / labelRadiusXSquared +
+                  (imageY - labelCenterY) ** 2 / labelRadiusYSquared <
+                  1
               chunk[y * logicalWidth + x] = inside ? (z === 0 ? 1 : 2) : 0
             }
           }
@@ -921,6 +957,46 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
   }
   return { resources, payloadRanges }
 }
+
+const omeZarrWsi = (): GeneratedScientificFixture =>
+  createOmeZarrViewerFixture({
+    imageName: 'deterministic-rgb-wsi',
+    labelCenterX: 620,
+    labelCenterY: 450,
+    labelRadiusXSquared: 150_000,
+    labelRadiusYSquared: 80_000,
+    levels: [
+      { height: 1_280, width: 1_792, scale: 1 },
+      { height: 640, width: 896, scale: 2 },
+      { height: 320, width: 448, scale: 4 },
+    ],
+    logicalHeight: 128,
+    logicalWidth: 128,
+    plateName: 'deterministic-demo-plate',
+    shardHeight: 512,
+    shardWidth: 512,
+    timepoints: 1,
+  })
+
+const omeZarrFeatureTour = (): GeneratedScientificFixture =>
+  createOmeZarrViewerFixture({
+    imageName: 'synthetic-feature-tour',
+    labelCenterX: 192,
+    labelCenterY: 115.2,
+    labelRadiusXSquared: 107.52 ** 2,
+    labelRadiusYSquared: 76.8 ** 2,
+    levels: [
+      { height: 256, width: 384, scale: 1 },
+      { height: 128, width: 192, scale: 2 },
+      { height: 64, width: 96, scale: 4 },
+    ],
+    logicalHeight: 64,
+    logicalWidth: 64,
+    plateName: 'synthetic-feature-tour-plate',
+    shardHeight: 128,
+    shardWidth: 128,
+    timepoints: 2,
+  })
 
 export const generatedScientificFixtures: Readonly<
   Record<string, () => GeneratedScientificFixture>
@@ -1226,6 +1302,7 @@ export const generatedScientificFixtures: Readonly<
     }
     return { resources, payloadRanges }
   },
+  'ome-zarr-feature-tour-generated': omeZarrFeatureTour,
   'ome-zarr-wsi-generated': omeZarrWsi,
   'ome-tiff-viewer-generated': () => ({
     resources: [{ name: 'viewer.ome.tiff', bytes: viewerOmeTiff() }],

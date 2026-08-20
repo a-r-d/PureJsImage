@@ -817,8 +817,10 @@ document.addEventListener('fullscreenchange', () => {
 })
 
 const cancelAllRequests = (): void => {
-  for (const request of pendingByKey.values())
+  for (const request of pendingByKey.values()) {
+    setRequestVisual(request.requestId, 'cancelled')
     send({ type: 'cancel', requestId: request.requestId })
+  }
   pendingByKey.clear()
   pendingById.clear()
 }
@@ -836,7 +838,8 @@ const invalidateRendering = (): void => {
   renderLoadingIndicator()
 }
 
-const normalizedSampleUrl = (url: string): string => url.replace(/\/+$/u, '')
+const normalizedSampleUrl = (url: string): string =>
+  new URL(url, window.location.href).href.replace(/\/+$/u, '')
 const selectedSample = (url: string): HTMLButtonElement | undefined =>
   sampleButtons.find(
     (button) =>

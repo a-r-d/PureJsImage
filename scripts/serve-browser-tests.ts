@@ -232,8 +232,13 @@ for (const [name, bytes] of generatedScientificBrowserFixtures) {
 }
 const omeZarrWsiFactory = generatedScientificFixtures['ome-zarr-wsi-generated']
 if (omeZarrWsiFactory === undefined) throw new Error('Missing generated OME-Zarr WSI fixture')
+const omeZarrFeatureTourFactory = generatedScientificFixtures['ome-zarr-feature-tour-generated']
+if (omeZarrFeatureTourFactory === undefined) {
+  throw new Error('Missing generated OME-Zarr Feature Tour fixture')
+}
 const omeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi')
 const compatibleOmeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi-compatible')
+const omeZarrFeatureTourDirectory = resolve(fixtureDirectory, 'ome-zarr-feature-tour')
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 const omitPlateVersion = (bytes: Uint8Array): Uint8Array => {
@@ -263,6 +268,11 @@ for (const resource of omeZarrWsiFactory().resources) {
     compatibleTarget,
     resource.name === 'zarr.json' ? omitPlateVersion(resource.bytes) : resource.bytes,
   )
+}
+for (const resource of omeZarrFeatureTourFactory().resources) {
+  const target = resolve(omeZarrFeatureTourDirectory, resource.name)
+  await mkdir(dirname(target), { recursive: true })
+  await writeFile(target, resource.bytes)
 }
 await copyFile(
   'benchmark/corpus/files/libtiff-rgb-3c-8b.tiff',

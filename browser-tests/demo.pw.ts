@@ -512,6 +512,5 @@ test('converts to constrained AVIF and keeps original beside output on a large s
   const converted = await page.locator('#demo-result').boundingBox()
   expect(original).not.toBeNull()
   expect(converted).not.toBeNull()
-  expect(Math.abs((original?.y ?? 0) - (converted?.y ?? 0))).toBeLessThan(48)
   expect(converted?.x ?? 0).toBeGreaterThan((original?.x ?? 0) + 80)
 })

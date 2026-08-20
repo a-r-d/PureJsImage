@@ -6736,6 +6736,14 @@ tr:last-child td {
   line-height: 1.42;
 }
 
+.ome-zarr-reader-scope {
+  max-width: 820px;
+  margin: 9px 0 0;
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 :is(.ome-zarr-page, .svs-wsi-page) .wsi-proof-pills {
   gap: 6px;
   margin-top: 14px;
@@ -7174,8 +7182,39 @@ tr:last-child td {
   color: #ff9b9b;
 }
 
-.ome-zarr-page .wsi-sample-picker > div {
+.ome-zarr-page .wsi-sample-picker > .wsi-sample-group {
+  display: block;
+}
+
+.ome-zarr-page .wsi-sample-group + .wsi-sample-group {
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+.ome-zarr-page .wsi-sample-group > span {
+  display: block;
+  margin: 0 0 6px 4px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ome-zarr-page .wsi-sample-group > div {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ome-zarr-page [data-sample-group="feature-tour"] > div {
+  grid-template-columns: 1fr;
+}
+
+.ome-zarr-feature-note {
+  margin-bottom: 0;
 }
 
 .ome-zarr-controls {
@@ -7710,6 +7749,112 @@ tr:last-child td {
   font-size: 0.76rem;
 }
 
+.ome-zarr-trust-line {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-soft);
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+.ome-zarr-evidence {
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-soft) 68%, transparent);
+}
+
+.ome-zarr-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 26px 0 0;
+}
+
+.ome-zarr-evidence-grid > div {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.ome-zarr-evidence-grid > .wide {
+  grid-column: span 3;
+}
+
+.ome-zarr-evidence-grid dt {
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ome-zarr-evidence-grid dd {
+  margin: 7px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.ome-zarr-evidence-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 18px;
+  margin-top: 18px;
+}
+
+.ome-zarr-evidence-links a {
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.ome-zarr-support {
+  border-top: 1px solid var(--line);
+}
+
+.ome-zarr-support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.ome-zarr-support-grid section {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.ome-zarr-support-grid section:first-child {
+  border-color: color-mix(in srgb, var(--lime-strong) 42%, var(--line));
+}
+
+.ome-zarr-support-grid h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.ome-zarr-support-grid ul {
+  display: grid;
+  gap: 8px;
+  margin: 15px 0 0;
+  padding-left: 1.15rem;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.ome-zarr-support-source {
+  margin: 14px 2px 0;
+  color: var(--text-faint);
+  font-size: 0.76rem;
+}
+
 .wsi-code {
   border-top: 1px solid var(--line);
   background:
@@ -7769,8 +7914,12 @@ tr:last-child td {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ome-zarr-page .wsi-sample-picker > div {
+  .ome-zarr-page .wsi-sample-group > div {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ome-zarr-page [data-sample-group="feature-tour"] > div {
+    grid-template-columns: 1fr;
   }
 
   .wsi-workspace {
@@ -7816,6 +7965,14 @@ tr:last-child td {
     justify-content: flex-start;
   }
 
+  .ome-zarr-evidence-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ome-zarr-evidence-grid > .wide {
+    grid-column: span 2;
+  }
+
   .wsi-canvas-wrap,
   #wsi-canvas,
   .wsi-canvas {
@@ -7824,6 +7981,7 @@ tr:last-child td {
   }
 
   :is(.ome-zarr-page, .svs-wsi-page) .wsi-hero-grid {
+    grid-template-columns: 1fr;
     gap: 16px;
   }
 
@@ -7854,8 +8012,17 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 
-  .ome-zarr-page .wsi-sample-picker > div {
+  .ome-zarr-page .wsi-sample-group > div {
     grid-template-columns: 1fr;
+  }
+
+  .ome-zarr-evidence-grid,
+  .ome-zarr-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ome-zarr-evidence-grid > .wide {
+    grid-column: auto;
   }
 
   .wsi-canvas-toolbar,

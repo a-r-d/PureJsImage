@@ -20,6 +20,7 @@
   <a href="https://purejsimage.com/demo/"><strong>Image demo</strong></a> ·
   <a href="https://purejsimage.com/scientific/"><strong>Scientific explorer</strong></a> ·
   <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
+  <a href="https://purejsimage.com/ome-zarr/"><strong>OME-Zarr demo</strong></a> ·
   <a href="https://lab.purejsimage.com/"><strong>PureJsImage Lab</strong></a>
 </p>
 
@@ -36,6 +37,13 @@
   </a>
 </p>
 <p align="center"><em>Measured HTTP Range session from the live browser viewer: only the visible pyramid tiles were read.</em></p>
+
+<p align="center">
+  <a href="https://purejsimage.com/ome-zarr/">
+    <img src="docs-astro/public/assets/ome-zarr-open-graph.png" alt="PureJsImage OME-Zarr feature tour showing the viewer, active channels, and live fetched-byte counter" width="78%">
+  </a>
+</p>
+<p align="center"><em>Try the synthetic same-origin Feature Tour, or open one of the multi-gigabyte public whole-slide stores.</em></p>
 
 ## What PureJsImage is best at
 

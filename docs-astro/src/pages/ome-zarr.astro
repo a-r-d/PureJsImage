@@ -1,8 +1,21 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
 import { highlightTypeScript } from '../utils/highlight-typescript.ts'
+import compatibilityReport from '../../../benchmark/generated/ome-zarr-compatibility.json' with {
+  type: 'json',
+}
+import conformanceReport from '../../../benchmark/generated/ome-zarr-conformance.json' with {
+  type: 'json',
+}
 
-const samples = [
+const base = import.meta.env.BASE_URL
+const assetBase = base.endsWith('/') ? base : `${base}/`
+const featureTour = {
+  label: 'Multidimensional + channels + labels + HCS',
+  detail: 'Synthetic · 2 timepoints · 2 Z sections · 3 channels · 3 levels',
+  url: `${assetBase}fixtures/ome-zarr-feature-tour`,
+}
+const publicSamples = [
   {
     label: 'Quick WSI',
     detail: '1.9 GiB · 53,760 × 32,256 · 3 channels',
@@ -23,7 +36,53 @@ const samples = [
   },
 ] as const
 
-const defaultSample = samples[0]
+const defaultSample = featureTour
+
+const collections = [
+  ...new Set(compatibilityReport.results.map(({ collection }) => collection)),
+].sort()
+const surfaceLabels: Readonly<Record<string, string>> = {
+  'ome-ngff-0.4-zarr-v2': 'OME-NGFF 0.4 / Zarr v2',
+  'ome-ngff-0.5-zarr-v3': 'OME-NGFF 0.5 / Zarr v3',
+  'regular-chunks': 'regular chunks',
+  'sharding-indexed': 'sharding_indexed',
+  'bioformats2raw-series': 'bioformats2raw series layout',
+}
+const representedSurfaces = [
+  ...new Set(
+    compatibilityReport.results.flatMap(({ observedSurfaces }) =>
+      (observedSurfaces ?? []).filter((surface) => surfaceLabels[surface] !== undefined),
+    ),
+  ),
+].map((surface) => surfaceLabels[surface])
+const implementedSupport = [
+  'OME-NGFF 0.4 and 0.5',
+  'Zarr v2 and v3',
+  'Regular and sharded reads',
+  'OMERO display metadata',
+  'Labels',
+  'Plates and wells',
+  'HTTP and ZIP stores',
+  'Documented codec stack',
+] as const
+const outsideSupport = [
+  'Writer',
+  'OME-Zarr 0.6rc0',
+  'Storage transformers',
+  'Unsupported codecs and dtypes listed by the capability manifest',
+  'Non-range-capable large remote serving',
+] as const
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'PureJsImage OME-Zarr viewer',
+  url: 'https://purejsimage.com/ome-zarr/',
+  applicationCategory: 'ScientificApplication',
+  operatingSystem: 'Modern web browsers',
+  isAccessibleForFree: true,
+  description:
+    'A read-only OME-Zarr viewer demonstrating bounded browser access to multidimensional images, channels, labels, and HCS plates.',
+})
 
 const implementationCode = `import { createOmeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
 import { createOmeZarrHttpContext } from 'purejsimage/scientific/browser'
@@ -108,8 +167,14 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
     title: 'Only the Viewport | PureJsImage OME-Zarr viewer',
     description: 'Browse a multi-gigabyte OME-Zarr WSI from static object storage and measure what the visible viewport actually fetches.',
     url: 'https://purejsimage.com/ome-zarr/',
+    image: 'https://purejsimage.com/assets/ome-zarr-open-graph.png',
+    imageAlt: 'PureJsImage OME-Zarr viewer with active channels and measured fetched bytes',
+    imageWidth: 1200,
+    imageHeight: 630,
   }}
+  twitterCard="summary_large_image"
 >
+  <script type="application/ld+json" set:html={structuredData}></script>
   <main id="main">
     <section class="wsi-hero">
       <div class="container wsi-hero-grid">
@@ -117,8 +182,9 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
           <p class="eyebrow">OME-Zarr whole-slide image · measured in your browser</p>
           <h1>Only the viewport.</h1>
           <p class="wsi-lede">Pan and zoom a multi-gigabyte OME-Zarr whole-slide image. PureJsImage reads the existing NGFF metadata, shard indexes, and intersecting chunks directly from static object storage. No application server or tile proxy is involved.</p>
+          <p class="ome-zarr-reader-scope">The current WSI proves large remote sharded access. The same reader also exposes Z/T navigation, channel display metadata, labels, image collections, and HCS plates and wells.</p>
           <div class="wsi-proof-pills" aria-label="Demo constraints">
-            <span>OME-NGFF 0.5</span><span>Zarr v3 sharding</span><span>Static object storage</span><span>0 runtime dependencies</span><span>Worker decode</span>
+            <span>Reader: NGFF 0.4 + 0.5</span><span>Reader: Zarr v2 + v3</span><span>Current sample: v3 sharded</span><span>Browser HTTP access</span><span>0 runtime dependencies</span>
           </div>
         </div>
         <aside class="wsi-claim-card">
@@ -140,21 +206,38 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
           <button class="button" id="ome-zarr-open" type="button">Open OME-Zarr store</button>
         </div>
         <div class="wsi-sample-picker" aria-labelledby="ome-zarr-sample-picker-label">
-          <span id="ome-zarr-sample-picker-label">Verified Jackson Laboratory samples</span>
-          <div>
-            {samples.map((sample) => (
+          <span id="ome-zarr-sample-picker-label">Choose a demonstration store</span>
+          <div class="wsi-sample-group" data-sample-group="feature-tour">
+            <span>Feature tour</span>
+            <div>
               <button
                 type="button"
-                data-ome-zarr-sample-url={sample.url}
-                data-ome-zarr-published-bytes={sample.publishedBytes}
-                aria-pressed={sample.url === defaultSample.url ? 'true' : 'false'}
+                data-ome-zarr-sample-url={featureTour.url}
+                aria-pressed="true"
               >
-                <strong>{sample.label}</strong>
-                <small>{sample.detail}</small>
+                <strong>{featureTour.label}</strong>
+                <small>{featureTour.detail}</small>
               </button>
-            ))}
+            </div>
+          </div>
+          <div class="wsi-sample-group" data-sample-group="large-public-wsi">
+            <span>Large public WSI</span>
+            <div>
+              {publicSamples.map((sample) => (
+                <button
+                  type="button"
+                  data-ome-zarr-sample-url={sample.url}
+                  data-ome-zarr-published-bytes={sample.publishedBytes}
+                  aria-pressed="false"
+                >
+                  <strong>{sample.label}</strong>
+                  <small>{sample.detail}</small>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+        <p class="wsi-source-note ome-zarr-feature-note"><strong>Feature Tour:</strong> a deterministic, synthetic same-origin store generated from shared first-party fixture code. It is not a real experiment.</p>
         <p class="wsi-source-note">The public stores are OME 2024 NGFF Challenge conversions from <a href="https://www.jax.org/" target="_blank" rel="noreferrer">The Jackson Laboratory</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. Their shard responses return valid HTTP 206 ranges; Google Cloud currently hides <code>Content-Range</code> from browser JavaScript, so this demo establishes each object size with a measured HEAD request and still validates 206 plus exact response length. No PureJsImage proxy is involved.</p>
 
         <div class="wsi-workspace">
@@ -259,6 +342,53 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
             <p class="wsi-instrument-note">Reset establishes baselines against monotonic worker counters. It does not discard useful source or bitmap caches, so later viewport work may complete without new transfer.</p>
           </aside>
         </div>
+        <p class="wsi-clinical-note ome-zarr-trust-line">Read-only technical demonstration. Not validated for diagnostic use.</p>
+      </div>
+    </section>
+
+    <section class="section ome-zarr-evidence" aria-labelledby="ome-zarr-evidence-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><p class="eyebrow">Checked-in evidence</p><h2 id="ome-zarr-evidence-title">OME-Zarr 0.5 attribute-case conformance</h2></div>
+          <p>This is attribute-case conformance plus a separate public-store compatibility corpus. It is not a claim of complete Zarr v3 or full hierarchy conformance.</p>
+        </div>
+        <dl class="ome-zarr-evidence-grid">
+          <div><dt>OME-Zarr version tested</dt><dd id="ome-zarr-evidence-version">{conformanceReport.omeZarrVersion}</dd></div>
+          <div><dt>Upstream case-corpus revision</dt><dd id="ome-zarr-evidence-revision"><code>{conformanceReport.upstreamRevision}</code></dd></div>
+          <div><dt>Normative attribute cases</dt><dd id="ome-zarr-evidence-normative">{conformanceReport.normative.passed} / {conformanceReport.normative.total}</dd></div>
+          <div><dt>Optional strict cases</dt><dd id="ome-zarr-evidence-strict">{conformanceReport.strict.passed} / {conformanceReport.strict.total}</dd></div>
+          <div><dt>Explicit exclusions</dt><dd id="ome-zarr-evidence-exclusions">{conformanceReport.excludedCases.length}</dd></div>
+          <div><dt>Public roots tested</dt><dd id="ome-zarr-evidence-public-roots">{compatibilityReport.results.length}</dd></div>
+          <div class="wide"><dt>Collections represented</dt><dd id="ome-zarr-evidence-collections">{collections.length} · {collections.join(' · ')}</dd></div>
+          <div class="wide"><dt>Remote versions and layouts represented</dt><dd id="ome-zarr-evidence-layouts">{representedSurfaces.join(' · ')}</dd></div>
+        </dl>
+        <nav class="ome-zarr-evidence-links" aria-label="OME-Zarr evidence and support links">
+          <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/generated/ome-zarr-compatibility.md">Readable report</a>
+          <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/generated/ome-zarr-conformance.json">Conformance JSON</a>
+          <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/generated/ome-zarr-compatibility.json">Compatibility JSON</a>
+          <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/scientific-ome-zarr.md">Exact support documentation</a>
+          <a href="https://github.com/a-r-d/PureJsImage/issues">Issue tracker</a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="section ome-zarr-support" aria-labelledby="ome-zarr-support-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><p class="eyebrow">Support boundary</p><h2 id="ome-zarr-support-title">What the reader does—and does not—cover.</h2></div>
+          <p>The capability manifest and exact support documentation remain authoritative for codec, dtype, storage, validation-mode, and serving details.</p>
+        </div>
+        <div class="ome-zarr-support-grid">
+          <section aria-labelledby="ome-zarr-implemented-title">
+            <h3 id="ome-zarr-implemented-title">Implemented</h3>
+            <ul>{implementedSupport.map((item) => <li>{item}</li>)}</ul>
+          </section>
+          <section aria-labelledby="ome-zarr-outside-title">
+            <h3 id="ome-zarr-outside-title">Explicitly outside the current boundary</h3>
+            <ul>{outsideSupport.map((item) => <li>{item}</li>)}</ul>
+          </section>
+        </div>
+        <p class="ome-zarr-support-source">See the <a href={`${assetBase}capabilities.json`}>generated capability manifest</a> and <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/scientific-ome-zarr.md">exact OME-Zarr support documentation</a> for the complete boundary.</p>
       </div>
     </section>
 
@@ -276,7 +406,6 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
           <div><span>3</span><strong>Worker + canvas</strong><small>Mix channels and labels, then transfer one generation-safe <code>ImageBitmap</code></small></div>
         </div>
         <div class="wsi-tradeoff"><strong>Read-only and bounded by design.</strong><p>The viewer exposes plate fields, non-spatial axes, a three-channel mixer, compatible label overlays, visible-tile histograms, and calibrated navigation without downloading the full store. It does not write annotations or data, authenticate private stores, or cache decoded chunks beyond the bounded bitmap LRU. Label overlays require matching x/y pyramid geometry; unsupported datasets remain visible but disabled.</p></div>
-        <p class="wsi-clinical-note">Technical demonstration only. This viewer is not a diagnostic tool and has not been validated for clinical use.</p>
       </div>
     </section>
 

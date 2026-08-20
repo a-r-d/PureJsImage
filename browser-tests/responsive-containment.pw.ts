@@ -7,6 +7,7 @@ const documentationRoutes = [
   '/homepage.html',
   '/demo/',
   '/wsi/',
+  '/ome-zarr/',
   '/scientific/',
   '/scientific-formats/',
   '/guides/',

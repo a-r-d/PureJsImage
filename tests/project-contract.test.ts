@@ -497,6 +497,14 @@ describe('package contract', () => {
     expect(pagesWorkflow).toContain('path: benchmark/.tmp/docs-site')
   })
 
+  it('links the README and site navigation to the OME-Zarr Feature Tour', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const header = readFileSync('docs-astro/src/components/SiteHeader.astro', 'utf8')
+    expect(readme).toContain('https://purejsimage.com/ome-zarr/')
+    expect(readme).toContain('docs-astro/public/assets/ome-zarr-open-graph.png')
+    expect(header).toContain("{ href: 'ome-zarr/', label: 'OME-Zarr viewer' }")
+  })
+
   it('publishes a local-only scientific raster explorer and public dataset APIs', () => {
     const readme = readFileSync('README.md', 'utf8')
     const page = readFileSync('docs-astro/src/pages/scientific.astro', 'utf8')

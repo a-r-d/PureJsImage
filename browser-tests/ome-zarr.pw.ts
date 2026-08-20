@@ -1,4 +1,134 @@
 import { expect, test } from '@playwright/test'
+import compatibilityReport from '../benchmark/generated/ome-zarr-compatibility.json' with {
+  type: 'json',
+}
+import conformanceReport from '../benchmark/generated/ome-zarr-conformance.json' with {
+  type: 'json',
+}
+
+const canvasDigest = async (page: import('@playwright/test').Page): Promise<number> =>
+  page.locator('#ome-zarr-canvas').evaluate((element) => {
+    if (!(element instanceof HTMLCanvasElement)) throw new Error('OME-Zarr canvas is missing')
+    const context = element.getContext('2d')
+    if (context === null) throw new Error('OME-Zarr canvas has no 2D context')
+    const data = context.getImageData(0, 0, element.width, element.height).data
+    const step = Math.max(4, Math.floor(data.length / 4_096 / 4) * 4)
+    let digest = 2_166_136_261
+    for (let offset = 0; offset < data.length; offset += step) {
+      digest = Math.imul(digest ^ (data[offset] ?? 0), 16_777_619) >>> 0
+      digest = Math.imul(digest ^ (data[offset + 1] ?? 0), 16_777_619) >>> 0
+      digest = Math.imul(digest ^ (data[offset + 2] ?? 0), 16_777_619) >>> 0
+    }
+    return digest
+  })
+
+test('opens the same-origin Feature Tour and exposes multidimensional authored metadata', async ({
+  page,
+  baseURL,
+}) => {
+  if (baseURL === undefined) throw new Error('Playwright baseURL is required')
+  const expectedOrigin = new URL(baseURL).origin
+  const externalRequests: string[] = []
+  page.on('request', (request) => {
+    const requested = new URL(request.url())
+    if (requested.origin !== expectedOrigin) externalRequests.push(request.url())
+  })
+
+  await page.goto('/ome-zarr/')
+  await page.waitForFunction(() => window.pureJsImageOmeZarrReady === true)
+  await expect(page.locator('#ome-zarr-stat-store')).toContainText('ome-zarr-feature-tour', {
+    timeout: 20_000,
+  })
+  await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 30_000 })
+  await expect(page.locator('#ome-zarr-loading')).toBeHidden({ timeout: 30_000 })
+  expect(externalRequests).toEqual([])
+
+  const featureGroup = page.locator('[data-sample-group="feature-tour"]')
+  await expect(featureGroup).toContainText('Feature tour')
+  await expect(featureGroup).toContainText('Synthetic')
+  const featureButton = featureGroup.getByRole('button', {
+    name: /Multidimensional \+ channels \+ labels \+ HCS/,
+  })
+  await expect(featureButton).toHaveAttribute('aria-pressed', 'true')
+  const publicGroup = page.locator('[data-sample-group="large-public-wsi"]')
+  await expect(publicGroup.getByRole('button')).toHaveCount(3)
+  await expect(publicGroup).toContainText('Quick WSI')
+  await expect(publicGroup).toContainText('Square WSI')
+  await expect(publicGroup).toContainText('Large WSI')
+
+  await expect(page.locator('#ome-zarr-stat-dimensions')).toHaveText('384 × 256')
+  await expect(page.locator('#ome-zarr-stat-axes')).toHaveText('t[2], c[3], z[2], y[256], x[384]')
+  await expect(page.locator('#ome-zarr-stat-levels')).toContainText('3 (1×, 2×, 4×)')
+  await expect(page.locator('[data-axis-id="t"]')).toHaveAttribute('max', '1')
+  await expect(page.locator('[data-axis-id="z"]')).toHaveAttribute('max', '1')
+  await expect(page.locator('[data-axis-id="z"]')).toHaveValue('1')
+
+  const channelControls = page.locator('.ome-zarr-channel-control')
+  await expect(channelControls).toHaveCount(3)
+  await expect(channelControls.nth(0)).toContainText('Red tissue')
+  await expect(channelControls.nth(0).locator('input[type="checkbox"]')).toBeChecked()
+  await expect(channelControls.nth(1).locator('input[type="checkbox"]')).not.toBeChecked()
+  await expect(channelControls.nth(2).locator('input[type="checkbox"]')).toBeChecked()
+  await expect(channelControls.nth(0).locator('input[type="color"]')).toHaveValue('#aa1100')
+  await expect(channelControls.nth(0).locator('input[title="Display minimum"]')).toHaveValue('10')
+  await expect(channelControls.nth(2).locator('input[title="Display maximum"]')).toHaveValue('220')
+
+  const initialDigest = await canvasDigest(page)
+  await page.locator('[data-axis-id="t"]').fill('1')
+  await page.locator('[data-axis-id="t"]').dispatchEvent('change')
+  await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 30_000 })
+  await expect.poll(() => canvasDigest(page)).not.toBe(initialDigest)
+  const timeDigest = await canvasDigest(page)
+  await page.locator('[data-axis-id="z"]').fill('0')
+  await page.locator('[data-axis-id="z"]').dispatchEvent('change')
+  await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 30_000 })
+  await expect.poll(() => canvasDigest(page)).not.toBe(timeDigest)
+  await expect(page).toHaveURL(/axes=/)
+
+  await expect(page.locator('#ome-zarr-label option')).toHaveCount(2)
+  await page.getByLabel('Label overlay').selectOption('labels/segmentation')
+  await expect(page.locator('#ome-zarr-label-opacity')).toBeEnabled()
+  await expect(page.locator('#ome-zarr-loading')).toBeHidden({ timeout: 30_000 })
+
+  const dataset = page.getByLabel('Image / plate field')
+  await expect(dataset.locator('option')).toHaveCount(3)
+  await dataset.selectOption('A/1/0')
+  await expect(page.locator('#ome-zarr-stat-store')).toContainText('well-A1')
+  await dataset.selectOption('A/2/0')
+  await expect(page.locator('#ome-zarr-stat-store')).toContainText('well-A2')
+
+  await expect(page.locator('#ome-zarr-evidence-version')).toHaveText(
+    conformanceReport.omeZarrVersion,
+  )
+  await expect(page.locator('#ome-zarr-evidence-normative')).toHaveText(
+    `${conformanceReport.normative.passed} / ${conformanceReport.normative.total}`,
+  )
+  await expect(page.locator('#ome-zarr-evidence-strict')).toHaveText(
+    `${conformanceReport.strict.passed} / ${conformanceReport.strict.total}`,
+  )
+  await expect(page.locator('#ome-zarr-evidence-exclusions')).toHaveText(
+    String(conformanceReport.excludedCases.length),
+  )
+  await expect(page.locator('#ome-zarr-evidence-public-roots')).toHaveText(
+    String(compatibilityReport.results.length),
+  )
+  await expect(page.locator('#ome-zarr-support-title')).toBeVisible()
+  await expect(page.locator('.ome-zarr-support-grid')).toContainText('OME-NGFF 0.4 and 0.5')
+  await expect(page.locator('.ome-zarr-support-grid')).toContainText('OME-Zarr 0.6rc0')
+  await expect(page.locator('.ome-zarr-trust-line')).toHaveText(
+    'Read-only technical demonstration. Not validated for diagnostic use.',
+  )
+
+  await expect(page.getByLabel('OME-Zarr store URL')).toBeVisible()
+  await featureButton.focus()
+  await expect(featureButton).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(publicGroup.getByRole('button', { name: /Quick WSI/ })).toBeFocused()
+  const omeZarrNavigationLink = page.locator('.nav-submenu a', {
+    hasText: 'OME-Zarr viewer',
+  })
+  await expect(omeZarrNavigationLink).toHaveAttribute('href', '/ome-zarr/')
+})
 
 test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr WSI', async ({
   page,

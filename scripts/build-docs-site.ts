@@ -1,7 +1,8 @@
-import { copyFile, mkdir, readFile, readdir, stat } from 'node:fs/promises'
+import { copyFile, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
+import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
 
 const sourceDirectory = resolve('docs-astro')
 const outputDirectory = resolve('benchmark/.tmp/docs-site')
@@ -18,6 +19,24 @@ const outputPngWasm = join(outputDirectory, 'assets/png-codec.wasm')
 const outputSimdPngWasm = join(outputDirectory, 'assets/png-codec-simd.wasm')
 
 await buildAstro({ root: sourceDirectory })
+
+const featureTourFactory = generatedScientificFixtures['ome-zarr-feature-tour-generated']
+if (featureTourFactory === undefined) throw new Error('Missing generated OME-Zarr Feature Tour')
+const featureTour = featureTourFactory()
+const featureTourDirectory = join(outputDirectory, 'fixtures/ome-zarr-feature-tour')
+let featureTourBytes = 0
+for (const resource of featureTour.resources) {
+  const target = join(featureTourDirectory, resource.name)
+  await mkdir(dirname(target), { recursive: true })
+  await writeFile(target, resource.bytes)
+  featureTourBytes += resource.bytes.byteLength
+}
+const maximumFeatureTourBytes = 4 * 1_024 * 1_024
+if (featureTourBytes > maximumFeatureTourBytes) {
+  throw new Error(
+    `Generated OME-Zarr Feature Tour is ${featureTourBytes.toLocaleString()} bytes; expected at most ${maximumFeatureTourBytes.toLocaleString()}`,
+  )
+}
 
 const builtIndexPages = async (directory: string): Promise<readonly string[]> => {
   const pages: string[] = []
@@ -134,5 +153,5 @@ if (
 }
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${featureTourBytes.toLocaleString()} byte synthetic OME-Zarr Feature Tour, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
 )
