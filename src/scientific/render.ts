@@ -1,8 +1,6 @@
 import { combineAbortSignals } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './legacy-dataset.ts'
-import { isScientificDataset } from './dataset-adapters.ts'
 import type {
   NormalizedScientificPlaneReadRequest,
   ScientificAxisIndex,
@@ -10,13 +8,15 @@ import type {
   ScientificPlaneReadRequest,
 } from './dataset.ts'
 import { normalizeScientificPlaneReadRequest } from './dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
+import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './legacy-dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
   rasterBlockToNumericTile,
   resolveNumericTileSource,
   validateNumericTile,
 } from './numeric-tile.ts'
-import { scientificPaletteTable, type ScientificPalette } from './palettes.ts'
+import { type ScientificPalette, scientificPaletteTable } from './palettes.ts'
 
 export type ScientificDisplayScale = 'linear' | 'log' | 'sqrt' | 'asinh'
 
@@ -163,7 +163,7 @@ export interface ScientificHistogram {
 
 interface ScalarRow {
   readonly y: number
-  readonly values: Exclude<NumericArray, BigUint64Array>
+  readonly values: Exclude<NumericArray, BigUint64Array | BigInt64Array>
   readonly offset: number
   readonly width: number
 }
@@ -181,7 +181,9 @@ interface ResolvedScalarPlane {
 
 const numericSource = (dataset: ScientificDataset): NumericTileSource =>
   resolveNumericTileSource(dataset, {
-    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+    ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
+      ? { targetSampleType: 'float64' }
+      : {}),
   })
 
 const isScientificPlaneOptions = (
@@ -242,7 +244,9 @@ const resolveLegacyPlane = (
     read: async function* () {
       for await (const block of dataset.readPlane(request)) {
         yield rasterBlockToNumericTile(block, {
-          ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+          ...(block.format.sampleType === 'uint64' || block.format.sampleType === 'int64'
+            ? { targetSampleType: 'float64' }
+            : {}),
         })
       }
     },
@@ -283,7 +287,9 @@ const resolveScientificPlane = (
     read: () =>
       source.readNumericTiles({
         ...normalized,
-        ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+        ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
+          ? { targetSampleType: 'float64' }
+          : {}),
       }),
   }
 }
@@ -303,8 +309,10 @@ const scalarRows = async function* (plane: ResolvedScalarPlane): AsyncGenerator<
         throw invalidInput('Scientific dataset emitted non-contiguous plane blocks')
       }
       validateNumericTile(tile)
-      if (tile.data instanceof BigUint64Array) {
-        throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
+      if (tile.data instanceof BigUint64Array || tile.data instanceof BigInt64Array) {
+        throw invalidInput(
+          'Scientific 64-bit integer values must be exactly convertible to float64',
+        )
       }
       for (let row = 0; row < tile.height; row += 1) {
         yield {

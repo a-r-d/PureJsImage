@@ -21,7 +21,7 @@ import type {
 } from '../src/scientific/reader.ts'
 import { getScientificDatasetIdentity, ScientificReaderRegistry } from '../src/scientific/reader.ts'
 import { createOmeZarrReader, omeZarrReader } from '../src/scientific/readers/ome-zarr.ts'
-import { readRasterSample } from '../src/scientific/samples.ts'
+import { readRasterBigIntSample, readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource } from '../src/source.ts'
 import omeZarrCorpus from './fixtures/scientific-ome-zarr/corpus.json' with { type: 'json' }
 
@@ -715,7 +715,12 @@ describe('OME-Zarr labels and plates', () => {
       'labels/zarr.json': v3Group({ labels: ['cell'] }),
       ...tinyImage('labels/cell', Uint8Array.of(0, 1, 1, 0), {
         'image-label': {
+          version: '0.5',
           colors: [{ 'label-value': 1, rgba: [255, 0, 0, 255] }],
+          properties: [
+            { 'label-value': 0, class: 'background' },
+            { 'label-value': 1, class: 'cell', area: 2 },
+          ],
           source: { image: '../../' },
         },
       }),
@@ -726,9 +731,112 @@ describe('OME-Zarr labels and plates', () => {
     expect(label.descriptor.metadata?.kind).toBe('label')
     expect(label.descriptor.metadata?.imageLabel).toMatchObject({
       sourceImage: '../../',
+      version: '0.5',
       colors: [{ value: 1, rgba: [255, 0, 0, 255] }],
+      properties: [
+        { value: 0, metadata: { class: 'background' } },
+        { value: 1, metadata: { class: 'cell', area: 2 } },
+      ],
+      source: { image: '../../', relation: 'derived-from', datasetId: 'image' },
     })
     expect(await planeValues(label)).toEqual([0, 1, 1, 0])
+  })
+
+  it('does not attribute an authored external label source to its containing image', async () => {
+    const files = {
+      ...tinyImage('', Uint8Array.of(1, 2, 3, 4)),
+      'labels/zarr.json': v3Group({ labels: ['external'] }),
+      ...tinyImage('labels/external', Uint8Array.of(0, 1, 1, 0), {
+        'image-label': { version: '0.5', source: { image: '../../../reference-image' } },
+      }),
+    }
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    const label = await document.openDataset('labels/external')
+    expect(label.descriptor.metadata?.imageLabel).toMatchObject({
+      source: { image: '../../../reference-image', relation: 'derived-from' },
+    })
+    expect(label.descriptor.metadata?.imageLabel).not.toMatchObject({
+      source: { datasetId: 'image' },
+    })
+  })
+
+  it('preserves complete OMERO display state and exact signed int64 label samples', async () => {
+    const omeroStore = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }], {
+        omero: {
+          channels: [
+            {
+              active: false,
+              coefficient: 0.75,
+              color: '12ABEF',
+              family: 'linear',
+              inverted: true,
+              label: 'Nuclei',
+              window: { min: -10, max: 500, start: 12, end: 240 },
+            },
+          ],
+          rdefs: { defaultT: 0, defaultZ: 0, model: 'greyscale' },
+        },
+      }),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec),
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+    }
+    const displayed = await openDataset(omeZarrReader, omeroStore)
+    expect(displayed.descriptor.metadata?.omeZarrDisplay).toEqual({
+      channels: [
+        {
+          active: false,
+          coefficient: 0.75,
+          color: 0x12_ab_ef,
+          family: 'linear',
+          inverted: true,
+          label: 'Nuclei',
+          window: { min: -10, max: 500, start: 12, end: 240 },
+        },
+      ],
+      rdefs: { defaultT: 0, defaultZ: 0, model: 'greyscale' },
+    })
+
+    const signed = new Uint8Array(16)
+    const signedView = new DataView(signed.buffer)
+    signedView.setBigInt64(0, -9_007_199_254_740_993n, true)
+    signedView.setBigInt64(8, 9_007_199_254_740_993n, true)
+    const int64Store = {
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }]),
+      '0/zarr.json': arrayMeta([1, 2], [1, 2], bytesCodec, { data_type: 'int64' }),
+      '0/c/0/0': signed,
+    }
+    const int64 = await openDataset(omeZarrReader, int64Store)
+    expect(int64.descriptor.sampleType).toBe('int64')
+    const values: bigint[] = []
+    for await (const block of int64.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [],
+    })) {
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      values.push(readRasterBigIntSample(view, 0, 'int64'))
+      values.push(readRasterBigIntSample(view, 8, 'int64'))
+      expect(() => readRasterSample(block.data, view, 0, 'int64')).toThrow('exact numeric')
+    }
+    expect(values).toEqual([-9_007_199_254_740_993n, 9_007_199_254_740_993n])
+  })
+
+  it('rejects a sibling label pyramid with a different level count', async () => {
+    const files = {
+      'zarr.json': groupMeta([
+        { path: '0', scale: [1, 1] },
+        { path: '1', scale: [2, 2] },
+      ]),
+      '0/zarr.json': arrayMeta([4, 4], [2, 2], bytesCodec),
+      '1/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec),
+      'labels/zarr.json': v3Group({ labels: ['cell'] }),
+      ...tinyImage('labels/cell', Uint8Array.of(0, 1, 1, 0), {
+        'image-label': { version: '0.5' },
+      }),
+    }
+    await expect(omeZarrReader.open(trackingContext(files).context)).rejects.toThrow(
+      'label pyramid has 1 levels',
+    )
   })
 
   it('opens a plate of well fields and rejects traversal in well paths', async () => {
@@ -736,6 +844,18 @@ describe('OME-Zarr labels and plates', () => {
       'zarr.json': v3Group({
         plate: {
           name: 'demo-plate',
+          version: '0.5',
+          field_count: 2,
+          acquisitions: [
+            {
+              id: 7,
+              name: 'baseline',
+              maximumfieldcount: 2,
+              description: 'Initial scan',
+              starttime: 100,
+              endtime: 200,
+            },
+          ],
           rows: [{ name: 'A' }],
           columns: [{ name: '1' }, { name: '2' }],
           wells: [
@@ -744,15 +864,36 @@ describe('OME-Zarr labels and plates', () => {
           ],
         },
       }),
-      'A/1/zarr.json': v3Group({ well: { images: [{ path: '0' }] } }),
+      'A/1/zarr.json': v3Group({
+        well: { version: '0.5', images: [{ path: '0', acquisition: 7 }] },
+      }),
       ...tinyImage('A/1/0', Uint8Array.of(1, 1, 1, 1)),
-      'A/2/zarr.json': v3Group({ well: { images: [{ path: '0' }] } }),
+      'A/2/zarr.json': v3Group({
+        well: { version: '0.5', images: [{ path: '0', acquisition: 7 }] },
+      }),
       ...tinyImage('A/2/0', Uint8Array.of(2, 2, 2, 2)),
     }
     const probed = await omeZarrReader.probe(trackingContext(files).context)
     expect(probed.confidence).toBeGreaterThan(0.9)
     const document = await omeZarrReader.open(trackingContext(files).context)
-    expect(document.metadata.plate).toMatchObject({ name: 'demo-plate', wellCount: 2 })
+    expect(document.metadata.plate).toMatchObject({
+      name: 'demo-plate',
+      version: '0.5',
+      fieldCount: 2,
+      rows: ['A'],
+      columns: ['1', '2'],
+      wellCount: 2,
+      acquisitions: [
+        {
+          id: 7,
+          name: 'baseline',
+          maximumFieldCount: 2,
+          description: 'Initial scan',
+          startTime: 100,
+          endTime: 200,
+        },
+      ],
+    })
     expect(document.datasets.map((entry) => entry.id)).toEqual(['A/1/0', 'A/2/0'])
     const first = await document.openDataset('A/1/0')
     expect(first.descriptor.metadata?.well).toMatchObject({
@@ -760,6 +901,8 @@ describe('OME-Zarr labels and plates', () => {
       field: 'A/1/0',
       rowIndex: 0,
       columnIndex: 0,
+      version: '0.5',
+      acquisition: 7,
     })
     expect(await planeValues(first)).toEqual([1, 1, 1, 1])
     expect(await planeValues(await document.openDataset('A/2/0'))).toEqual([2, 2, 2, 2])
@@ -1132,7 +1275,7 @@ describe('OME-Zarr edge cases', () => {
     expect(await planeValues(await openDataset(omeZarrReader, sharded))).toEqual([...raster(4, 4)])
   })
 
-  it('reads a 4D plane, rejects NGFF 0.2 and int64, and verifies a corrupt shard index', async () => {
+  it('reads a 4D plane, rejects NGFF 0.2, supports int64, and verifies a corrupt shard index', async () => {
     const volume = {
       'zarr.json': text({
         zarr_format: 3,
@@ -1203,7 +1346,8 @@ describe('OME-Zarr edge cases', () => {
     )
     const int64 = regularStore()
     int64['0/zarr.json'] = arrayMeta([8, 8], [8, 8], bytesCodec, { data_type: 'int64' })
-    await expectCode(() => openDataset(omeZarrReader, int64), 'UNSUPPORTED_OPERATION')
+    int64['1/zarr.json'] = arrayMeta([4, 4], [4, 4], bytesCodec, { data_type: 'int64' })
+    expect((await openDataset(omeZarrReader, int64)).descriptor.sampleType).toBe('int64')
 
     const bad = regularStore()
     const index = new Uint8Array(68)
@@ -4139,9 +4283,10 @@ describe('OME-Zarr remaining review regressions', () => {
         'cell/0/c/0/0': Uint8Array.of(0, 1, 1, 0),
       }).context,
     )
-    expect((await optionalSource.openDataset('labels/cell')).descriptor.metadata?.kind).toBe(
-      'label',
-    )
+    const optionalSourceLabel = await optionalSource.openDataset('labels/cell')
+    expect(optionalSourceLabel.descriptor.metadata?.kind).toBe('label')
+    expect(optionalSourceLabel.descriptor.metadata?.imageLabel).not.toHaveProperty('source')
+    expect(optionalSourceLabel.descriptor.metadata?.imageLabel).not.toHaveProperty('sourceImage')
   })
 
   it('hits the persistent chunk cache across readPlane calls and evicts by budget', async () => {

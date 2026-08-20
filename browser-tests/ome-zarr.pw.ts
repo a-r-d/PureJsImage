@@ -27,6 +27,7 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await expect(implementationCode).toContainText(
     "createOmeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'",
   )
+  await expect(implementationCode).toContainText('createOmeZarrHttpContext')
   await expect(implementationCode).toContainText('dataset.readPlane')
   await expect(implementationCode.locator('.tok-key').first()).toBeVisible()
   await expect(page.locator('[data-copy="ome-zarr-implementation-code"]')).toHaveText('Copy')
@@ -35,7 +36,7 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await codeTabs.nth(1).click()
   const httpCode = page.locator('#ome-zarr-http-code')
   await expect(httpCode).toBeVisible()
-  await expect(httpCode).toContainText('HttpRangeSource.open')
+  await expect(httpCode).toContainText('createOmeZarrHttpContext')
   await expect(httpCode.locator('.tok-string').first()).toBeVisible()
   await expect(page.locator('[data-copy="ome-zarr-http-code"]')).toHaveText('Copy')
 
@@ -69,7 +70,15 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await expect(page.locator('#ome-zarr-dataset option')).toHaveCount(3)
   await expect(page.locator('#ome-zarr-plate-summary')).toContainText('2 wells')
   await expect(page.locator('[data-axis-id="z"]')).toHaveAttribute('max', '1')
-  await expect(page.locator('.ome-zarr-channel-control')).toHaveCount(3)
+  await expect(page.locator('[data-axis-id="z"]')).toHaveValue('1')
+  const channelControls = page.locator('.ome-zarr-channel-control')
+  await expect(channelControls).toHaveCount(3)
+  await expect(channelControls.nth(0).locator('input[type="checkbox"]')).toBeChecked()
+  await expect(channelControls.nth(1).locator('input[type="checkbox"]')).not.toBeChecked()
+  await expect(channelControls.nth(2).locator('input[type="checkbox"]')).toBeChecked()
+  await expect(channelControls.nth(0).locator('input[type="color"]')).toHaveValue('#aa1100')
+  await expect(channelControls.nth(0).locator('input[title="Display minimum"]')).toHaveValue('10')
+  await expect(channelControls.nth(0).locator('input[title="Display maximum"]')).toHaveValue('200')
   await expect(page.locator('#ome-zarr-label option')).toHaveCount(2)
   await expect(page.locator('#ome-zarr-label option').nth(1)).toContainText(
     'deterministic-segmentation',
@@ -136,7 +145,7 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   })
   expect(colors).toBeGreaterThan(2)
 
-  await page.locator('[data-axis-id="z"]').fill('1')
+  await page.locator('[data-axis-id="z"]').fill('0')
   await page.locator('[data-axis-id="z"]').dispatchEvent('change')
   await expect(page).toHaveURL(/axes=/)
   await expect(page.locator('#ome-zarr-stat-decoded')).not.toHaveText('0', { timeout: 30_000 })

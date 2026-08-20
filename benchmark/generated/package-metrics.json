@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.14.0",
-    "unpackedPackageBytes": 6012559,
+    "unpackedPackageBytes": 6044811,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -538,13 +538,13 @@
         "packageExports": ["purejsimage/scientific"],
         "sourceEntries": ["./src/index.ts", "./src/scientific/index.ts"]
       },
-      "gzipBytes": 46700,
+      "gzipBytes": 47225,
       "id": "scientific",
       "implementation": "package-core",
-      "minifiedJsBytes": 160717,
+      "minifiedJsBytes": 163688,
       "name": "Core + scientific platform",
       "recordedBaselineMinifiedBytes": 143546,
-      "brotliBytes": 39808
+      "brotliBytes": 40165
     },
     {
       "category": "purejsimage-entry",
@@ -568,13 +568,13 @@
         "packageExports": ["purejsimage/analysis"],
         "sourceEntries": ["./src/analysis/index.ts"]
       },
-      "gzipBytes": 84302,
+      "gzipBytes": 84512,
       "id": "analysis",
       "implementation": "package-core",
-      "minifiedJsBytes": 307077,
+      "minifiedJsBytes": 308147,
       "name": "Analysis application API",
       "recordedBaselineMinifiedBytes": 270789,
-      "brotliBytes": 68831
+      "brotliBytes": 69074
     },
     {
       "category": "purejsimage-entry",
@@ -583,13 +583,13 @@
         "packageExports": ["purejsimage/analysis/results"],
         "sourceEntries": ["./src/analysis/results.ts"]
       },
-      "gzipBytes": 15375,
+      "gzipBytes": 15489,
       "id": "analysis-results",
       "implementation": "package-core",
-      "minifiedJsBytes": 55753,
+      "minifiedJsBytes": 56572,
       "name": "Analysis result schemas",
       "recordedBaselineMinifiedBytes": 55713,
-      "brotliBytes": 13805
+      "brotliBytes": 13917
     },
     {
       "category": "purejsimage-entry",
@@ -613,13 +613,13 @@
         "packageExports": ["purejsimage/analysis/runtime"],
         "sourceEntries": ["./src/analysis/runtime.ts"]
       },
-      "gzipBytes": 16980,
+      "gzipBytes": 16986,
       "id": "analysis-runtime",
       "implementation": "package-core",
-      "minifiedJsBytes": 58810,
+      "minifiedJsBytes": 58845,
       "name": "Analysis tile runtime",
       "recordedBaselineMinifiedBytes": 57784,
-      "brotliBytes": 14919
+      "brotliBytes": 14943
     },
     {
       "category": "purejsimage-entry",
@@ -658,13 +658,13 @@
         "packageExports": ["purejsimage/scientific/readers/gsf"],
         "sourceEntries": ["./src/scientific/readers/gsf.ts"]
       },
-      "gzipBytes": 13979,
+      "gzipBytes": 13982,
       "id": "scientific-reader-gsf",
       "implementation": "package-core",
-      "minifiedJsBytes": 44421,
+      "minifiedJsBytes": 44429,
       "name": "Scientific reader: Gwyddion Simple Field",
       "recordedBaselineMinifiedBytes": 37864,
-      "brotliBytes": 12251
+      "brotliBytes": 12278
     },
     {
       "category": "purejsimage-entry",
@@ -673,13 +673,13 @@
         "packageExports": ["purejsimage/scientific/readers/nanonis-sxm"],
         "sourceEntries": ["./src/scientific/readers/nanonis-sxm.ts"]
       },
-      "gzipBytes": 11731,
+      "gzipBytes": 11735,
       "id": "scientific-reader-nanonis-sxm",
       "implementation": "package-core",
-      "minifiedJsBytes": 35529,
+      "minifiedJsBytes": 35537,
       "name": "Scientific reader: Nanonis SXM",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 10220
+      "brotliBytes": 10235
     },
     {
       "category": "purejsimage-entry",
@@ -688,13 +688,13 @@
         "packageExports": ["purejsimage/scientific/readers/igor-binary-wave"],
         "sourceEntries": ["./src/scientific/readers/igor-binary-wave.ts"]
       },
-      "gzipBytes": 12117,
+      "gzipBytes": 12118,
       "id": "scientific-reader-igor-binary-wave",
       "implementation": "package-core",
-      "minifiedJsBytes": 36733,
+      "minifiedJsBytes": 36741,
       "name": "Scientific reader: Igor Binary Wave v5",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 10653
+      "brotliBytes": 10643
     },
     {
       "category": "purejsimage-entry",
@@ -703,13 +703,13 @@
         "packageExports": ["purejsimage/scientific/readers/digital-surf"],
         "sourceEntries": ["./src/scientific/readers/digital-surf.ts"]
       },
-      "gzipBytes": 13012,
+      "gzipBytes": 13015,
       "id": "scientific-reader-digital-surf",
       "implementation": "package-core",
-      "minifiedJsBytes": 41333,
+      "minifiedJsBytes": 41341,
       "name": "Scientific reader: Digital Surf SUR/PRO",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 11300
+      "brotliBytes": 11298
     },
     {
       "category": "purejsimage-entry",
@@ -718,13 +718,13 @@
         "packageExports": ["purejsimage/scientific/readers/x3p"],
         "sourceEntries": ["./src/scientific/readers/x3p.ts"]
       },
-      "gzipBytes": 15452,
+      "gzipBytes": 15456,
       "id": "scientific-reader-x3p",
       "implementation": "package-core",
-      "minifiedJsBytes": 46588,
+      "minifiedJsBytes": 46596,
       "name": "Scientific reader: X3P surface exchange",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 13534
+      "brotliBytes": 13544
     },
     {
       "category": "purejsimage-entry",
@@ -733,13 +733,13 @@
         "packageExports": ["purejsimage/scientific/readers/envi"],
         "sourceEntries": ["./src/scientific/readers/envi.ts"]
       },
-      "gzipBytes": 18922,
+      "gzipBytes": 19044,
       "id": "scientific-reader-envi",
       "implementation": "package-core",
-      "minifiedJsBytes": 63172,
+      "minifiedJsBytes": 63916,
       "name": "Scientific reader: ENVI",
       "recordedBaselineMinifiedBytes": 56958,
-      "brotliBytes": 16615
+      "brotliBytes": 16724
     },
     {
       "category": "purejsimage-entry",
@@ -748,13 +748,13 @@
         "packageExports": ["purejsimage/scientific/readers/fits"],
         "sourceEntries": ["./src/scientific/readers/fits.ts"]
       },
-      "gzipBytes": 16221,
+      "gzipBytes": 16220,
       "id": "scientific-reader-fits",
       "implementation": "package-core",
-      "minifiedJsBytes": 50619,
+      "minifiedJsBytes": 50627,
       "name": "Scientific reader: FITS",
       "recordedBaselineMinifiedBytes": 44278,
-      "brotliBytes": 14251
+      "brotliBytes": 14263
     },
     {
       "category": "purejsimage-entry",
@@ -763,13 +763,13 @@
         "packageExports": ["purejsimage/scientific/readers/mrc"],
         "sourceEntries": ["./src/scientific/readers/mrc.ts"]
       },
-      "gzipBytes": 14830,
+      "gzipBytes": 14831,
       "id": "scientific-reader-mrc",
       "implementation": "package-core",
-      "minifiedJsBytes": 46391,
+      "minifiedJsBytes": 46399,
       "name": "Scientific reader: MRC/CCP4",
       "recordedBaselineMinifiedBytes": 38787,
-      "brotliBytes": 12997
+      "brotliBytes": 13020
     },
     {
       "category": "purejsimage-entry",
@@ -778,13 +778,13 @@
         "packageExports": ["purejsimage/scientific/readers/cbf"],
         "sourceEntries": ["./src/scientific/readers/cbf.ts"]
       },
-      "gzipBytes": 15295,
+      "gzipBytes": 15413,
       "id": "scientific-reader-cbf",
       "implementation": "package-core",
-      "minifiedJsBytes": 47902,
+      "minifiedJsBytes": 48295,
       "name": "Scientific reader: CBF/imgCIF",
       "recordedBaselineMinifiedBytes": 41686,
-      "brotliBytes": 13497
+      "brotliBytes": 13607
     },
     {
       "category": "purejsimage-entry",
@@ -796,10 +796,10 @@
       "gzipBytes": 24122,
       "id": "scientific-reader-png",
       "implementation": "package-core",
-      "minifiedJsBytes": 72059,
+      "minifiedJsBytes": 72067,
       "name": "Scientific reader: PNG",
       "recordedBaselineMinifiedBytes": 67385,
-      "brotliBytes": 21025
+      "brotliBytes": 21059
     },
     {
       "category": "purejsimage-entry",
@@ -808,13 +808,13 @@
         "packageExports": ["purejsimage/scientific/readers/jpeg"],
         "sourceEntries": ["./src/scientific/readers/jpeg.ts"]
       },
-      "gzipBytes": 38015,
+      "gzipBytes": 38018,
       "id": "scientific-reader-jpeg",
       "implementation": "package-core",
-      "minifiedJsBytes": 117681,
+      "minifiedJsBytes": 117689,
       "name": "Scientific reader: JPEG",
       "recordedBaselineMinifiedBytes": 104815,
-      "brotliBytes": 31925
+      "brotliBytes": 31886
     },
     {
       "category": "purejsimage-entry",
@@ -823,13 +823,13 @@
         "packageExports": ["purejsimage/scientific/readers/webp"],
         "sourceEntries": ["./src/scientific/readers/webp.ts"]
       },
-      "gzipBytes": 39763,
+      "gzipBytes": 39765,
       "id": "scientific-reader-webp",
       "implementation": "package-core",
-      "minifiedJsBytes": 112808,
+      "minifiedJsBytes": 112816,
       "name": "Scientific reader: WebP",
       "recordedBaselineMinifiedBytes": 106317,
-      "brotliBytes": 34169
+      "brotliBytes": 34101
     },
     {
       "category": "purejsimage-entry",
@@ -838,13 +838,13 @@
         "packageExports": ["purejsimage/scientific/readers/bmp"],
         "sourceEntries": ["./src/scientific/readers/bmp.ts"]
       },
-      "gzipBytes": 15482,
+      "gzipBytes": 15485,
       "id": "scientific-reader-bmp",
       "implementation": "package-core",
-      "minifiedJsBytes": 46726,
+      "minifiedJsBytes": 46734,
       "name": "Scientific reader: BMP",
       "recordedBaselineMinifiedBytes": 44120,
-      "brotliBytes": 13527
+      "brotliBytes": 13523
     },
     {
       "category": "purejsimage-entry",
@@ -853,13 +853,13 @@
         "packageExports": ["purejsimage/scientific/readers/jp2"],
         "sourceEntries": ["./src/scientific/readers/jp2.ts"]
       },
-      "gzipBytes": 30848,
+      "gzipBytes": 30850,
       "id": "scientific-reader-jp2",
       "implementation": "package-core",
-      "minifiedJsBytes": 96428,
+      "minifiedJsBytes": 96436,
       "name": "Scientific reader: JPEG 2000 / JP2",
       "recordedBaselineMinifiedBytes": 93696,
-      "brotliBytes": 26899
+      "brotliBytes": 26900
     },
     {
       "category": "purejsimage-entry",
@@ -868,13 +868,13 @@
         "packageExports": ["purejsimage/scientific/readers/tiff"],
         "sourceEntries": ["./src/scientific/readers/tiff.ts"]
       },
-      "gzipBytes": 101966,
+      "gzipBytes": 101968,
       "id": "scientific-reader-tiff",
       "implementation": "package-core",
-      "minifiedJsBytes": 325458,
+      "minifiedJsBytes": 325466,
       "name": "Scientific reader: TIFF",
       "recordedBaselineMinifiedBytes": 262942,
-      "brotliBytes": 84956
+      "brotliBytes": 85019
     },
     {
       "category": "purejsimage-entry",
@@ -883,13 +883,13 @@
         "packageExports": ["purejsimage/scientific/readers/ome-tiff"],
         "sourceEntries": ["./src/scientific/readers/ome-tiff.ts"]
       },
-      "gzipBytes": 94206,
+      "gzipBytes": 94207,
       "id": "scientific-reader-ome-tiff",
       "implementation": "package-core",
-      "minifiedJsBytes": 299002,
+      "minifiedJsBytes": 299010,
       "name": "Scientific reader: OME-TIFF",
       "recordedBaselineMinifiedBytes": 267489,
-      "brotliBytes": 78130
+      "brotliBytes": 78144
     },
     {
       "category": "purejsimage-entry",
@@ -898,13 +898,13 @@
         "packageExports": ["purejsimage/scientific/readers/ome-zarr"],
         "sourceEntries": ["./src/scientific/readers/ome-zarr.ts"]
       },
-      "gzipBytes": 35920,
+      "gzipBytes": 37207,
       "id": "scientific-reader-ome-zarr",
       "implementation": "package-core",
-      "minifiedJsBytes": 118629,
+      "minifiedJsBytes": 123506,
       "name": "Scientific reader: OME-Zarr",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 31267
+      "brotliBytes": 32319
     },
     {
       "category": "purejsimage-entry",
@@ -913,13 +913,13 @@
         "packageExports": ["purejsimage/scientific/readers/aperio-svs"],
         "sourceEntries": ["./src/scientific/readers/aperio-svs.ts"]
       },
-      "gzipBytes": 91431,
+      "gzipBytes": 91432,
       "id": "scientific-reader-aperio-svs",
       "implementation": "package-core",
-      "minifiedJsBytes": 291898,
+      "minifiedJsBytes": 291906,
       "name": "Scientific reader: Aperio SVS",
       "recordedBaselineMinifiedBytes": 259477,
-      "brotliBytes": 75926
+      "brotliBytes": 76019
     },
     {
       "category": "purejsimage-entry",
@@ -928,13 +928,13 @@
         "packageExports": ["purejsimage/scientific/readers/digital-micrograph"],
         "sourceEntries": ["./src/scientific/readers/digital-micrograph.ts"]
       },
-      "gzipBytes": 17514,
+      "gzipBytes": 17515,
       "id": "scientific-reader-digital-micrograph",
       "implementation": "package-core",
-      "minifiedJsBytes": 56178,
+      "minifiedJsBytes": 56186,
       "name": "Scientific reader: Gatan DigitalMicrograph",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 15278
+      "brotliBytes": 15284
     },
     {
       "category": "purejsimage-entry",
@@ -946,10 +946,10 @@
       "gzipBytes": 16365,
       "id": "scientific-reader-tia-ser",
       "implementation": "package-core",
-      "minifiedJsBytes": 53275,
+      "minifiedJsBytes": 53283,
       "name": "Scientific reader: FEI/Thermo TIA SER",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 14229
+      "brotliBytes": 14232
     },
     {
       "category": "purejsimage-entry",
@@ -958,13 +958,13 @@
         "packageExports": ["purejsimage/scientific/readers/tia-emi"],
         "sourceEntries": ["./src/scientific/readers/tia-emi.ts"]
       },
-      "gzipBytes": 20348,
+      "gzipBytes": 20349,
       "id": "scientific-reader-tia-emi",
       "implementation": "package-core",
-      "minifiedJsBytes": 67238,
+      "minifiedJsBytes": 67246,
       "name": "Scientific reader: FEI/Thermo TIA EMI",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 17803
+      "brotliBytes": 17819
     },
     {
       "category": "purejsimage-entry",
@@ -973,13 +973,13 @@
         "packageExports": ["purejsimage/scientific/readers/ncem-emd"],
         "sourceEntries": ["./src/scientific/readers/ncem-emd.ts"]
       },
-      "gzipBytes": 48747,
+      "gzipBytes": 48749,
       "id": "scientific-reader-ncem-emd",
       "implementation": "package-core",
-      "minifiedJsBytes": 182605,
+      "minifiedJsBytes": 182613,
       "name": "Scientific reader: NCEM EMD 0.2",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 41563
+      "brotliBytes": 41540
     },
     {
       "category": "purejsimage-entry",
@@ -988,13 +988,13 @@
         "packageExports": ["purejsimage/scientific/readers/velox-emd"],
         "sourceEntries": ["./src/scientific/readers/velox-emd.ts"]
       },
-      "gzipBytes": 47334,
+      "gzipBytes": 47335,
       "id": "scientific-reader-velox-emd",
       "implementation": "package-core",
-      "minifiedJsBytes": 176953,
+      "minifiedJsBytes": 176961,
       "name": "Scientific reader: FEI/Thermo Velox EMD",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 40531
+      "brotliBytes": 40489
     },
     {
       "category": "purejsimage-entry",
@@ -1003,13 +1003,13 @@
         "packageExports": ["purejsimage/scientific/readers/rpl"],
         "sourceEntries": ["./src/scientific/readers/rpl.ts"]
       },
-      "gzipBytes": 13870,
+      "gzipBytes": 13871,
       "id": "scientific-reader-rpl",
       "implementation": "package-core",
-      "minifiedJsBytes": 44755,
+      "minifiedJsBytes": 44763,
       "name": "Scientific reader: Lispix RPL/RAW",
       "recordedBaselineMinifiedBytes": 41135,
-      "brotliBytes": 12033
+      "brotliBytes": 12063
     },
     {
       "category": "purejsimage-entry",
@@ -1018,13 +1018,13 @@
         "packageExports": ["purejsimage/scientific/readers/emsa"],
         "sourceEntries": ["./src/scientific/readers/emsa.ts"]
       },
-      "gzipBytes": 13467,
+      "gzipBytes": 13469,
       "id": "scientific-reader-emsa",
       "implementation": "package-core",
-      "minifiedJsBytes": 42621,
+      "minifiedJsBytes": 42629,
       "name": "Scientific reader: EMSA/MAS spectrum",
       "recordedBaselineMinifiedBytes": 39050,
-      "brotliBytes": 11687
+      "brotliBytes": 11669
     },
     {
       "category": "purejsimage-entry",
@@ -1033,13 +1033,13 @@
         "packageExports": ["purejsimage/scientific/readers/nrrd"],
         "sourceEntries": ["./src/scientific/readers/nrrd.ts"]
       },
-      "gzipBytes": 15086,
+      "gzipBytes": 15090,
       "id": "scientific-reader-nrrd",
       "implementation": "package-core",
-      "minifiedJsBytes": 47462,
+      "minifiedJsBytes": 47470,
       "name": "Scientific reader: NRRD",
       "recordedBaselineMinifiedBytes": 43686,
-      "brotliBytes": 13107
+      "brotliBytes": 13118
     },
     {
       "category": "purejsimage-entry",
@@ -1048,13 +1048,13 @@
         "packageExports": ["purejsimage/scientific/readers/meta-image"],
         "sourceEntries": ["./src/scientific/readers/meta-image.ts"]
       },
-      "gzipBytes": 13924,
+      "gzipBytes": 13925,
       "id": "scientific-reader-meta-image",
       "implementation": "package-core",
-      "minifiedJsBytes": 44463,
+      "minifiedJsBytes": 44471,
       "name": "Scientific reader: MetaImage MHD/MHA",
       "recordedBaselineMinifiedBytes": 40913,
-      "brotliBytes": 12055
+      "brotliBytes": 12080
     },
     {
       "category": "purejsimage-entry",
@@ -1063,13 +1063,13 @@
         "packageExports": ["purejsimage/scientific/readers/nifti"],
         "sourceEntries": ["./src/scientific/readers/nifti.ts"]
       },
-      "gzipBytes": 15383,
+      "gzipBytes": 15387,
       "id": "scientific-reader-nifti",
       "implementation": "package-core",
-      "minifiedJsBytes": 48724,
+      "minifiedJsBytes": 48732,
       "name": "Scientific reader: NIfTI-1/2",
       "recordedBaselineMinifiedBytes": 42422,
-      "brotliBytes": 13350
+      "brotliBytes": 13360
     },
     {
       "category": "purejsimage-entry",
@@ -1078,13 +1078,13 @@
         "packageExports": ["purejsimage/scientific/readers/dicom"],
         "sourceEntries": ["./src/scientific/readers/dicom.ts"]
       },
-      "gzipBytes": 117107,
+      "gzipBytes": 117108,
       "id": "scientific-reader-dicom",
       "implementation": "package-core",
-      "minifiedJsBytes": 421279,
+      "minifiedJsBytes": 421287,
       "name": "Scientific reader: DICOM Part 10 Image",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 98048
+      "brotliBytes": 98037
     },
     {
       "category": "purejsimage-entry",
@@ -1093,10 +1093,10 @@
         "packageExports": ["purejsimage/scientific/readers/npy"],
         "sourceEntries": ["./src/scientific/readers/npy.ts"]
       },
-      "gzipBytes": 13375,
+      "gzipBytes": 13377,
       "id": "scientific-reader-npy",
       "implementation": "package-core",
-      "minifiedJsBytes": 42515,
+      "minifiedJsBytes": 42523,
       "name": "Scientific reader: NumPy NPY",
       "recordedBaselineMinifiedBytes": 38965,
       "brotliBytes": 11603
@@ -1108,13 +1108,13 @@
         "packageExports": ["purejsimage/scientific/readers/blockfile"],
         "sourceEntries": ["./src/scientific/readers/blockfile.ts"]
       },
-      "gzipBytes": 13236,
+      "gzipBytes": 13237,
       "id": "scientific-reader-blockfile",
       "implementation": "package-core",
-      "minifiedJsBytes": 43307,
+      "minifiedJsBytes": 43315,
       "name": "Scientific reader: NanoMegas ASTAR blockfile",
       "recordedBaselineMinifiedBytes": 39615,
-      "brotliBytes": 11538
+      "brotliBytes": 11537
     },
     {
       "category": "purejsimage-entry",
@@ -1123,13 +1123,13 @@
         "packageExports": ["purejsimage/scientific/readers/mib"],
         "sourceEntries": ["./src/scientific/readers/mib.ts"]
       },
-      "gzipBytes": 11435,
+      "gzipBytes": 11437,
       "id": "scientific-reader-mib",
       "implementation": "package-core",
-      "minifiedJsBytes": 35205,
+      "minifiedJsBytes": 35213,
       "name": "Scientific reader: Quantum Detectors Merlin MIB",
       "recordedBaselineMinifiedBytes": 32612,
-      "brotliBytes": 9977
+      "brotliBytes": 9969
     },
     {
       "category": "purejsimage-entry",
@@ -1141,10 +1141,10 @@
       "gzipBytes": 14065,
       "id": "scientific-reader-ebsd-text",
       "implementation": "package-core",
-      "minifiedJsBytes": 45353,
+      "minifiedJsBytes": 45361,
       "name": "Scientific reader: ANG/CTF orientation map",
       "recordedBaselineMinifiedBytes": 41681,
-      "brotliBytes": 12180
+      "brotliBytes": 12191
     },
     {
       "category": "purejsimage-entry",
@@ -1153,13 +1153,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 359348,
+      "gzipBytes": 360888,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 1242303,
+      "minifiedJsBytes": 1248276,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 286974
+      "brotliBytes": 287907
     },
     {
       "category": "purejsimage-entry",

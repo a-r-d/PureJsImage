@@ -15,6 +15,7 @@ export type NumericArray =
   | Uint16Array
   | Uint32Array
   | BigUint64Array
+  | BigInt64Array
   | Int8Array
   | Int16Array
   | Int32Array
@@ -97,6 +98,7 @@ const arraySampleType = (data: NumericArray): NumericSampleType => {
   if (data instanceof Uint16Array) return 'uint16'
   if (data instanceof Uint32Array) return 'uint32'
   if (data instanceof BigUint64Array) return 'uint64'
+  if (data instanceof BigInt64Array) return 'int64'
   if (data instanceof Int8Array) return 'int8'
   if (data instanceof Int16Array) return 'int16'
   if (data instanceof Int32Array) return 'int32'
@@ -109,6 +111,7 @@ const allocateArray = (sampleType: NumericSampleType, length: number): NumericAr
   if (sampleType === 'uint16') return new Uint16Array(length)
   if (sampleType === 'uint32') return new Uint32Array(length)
   if (sampleType === 'uint64') return new BigUint64Array(length)
+  if (sampleType === 'int64') return new BigInt64Array(length)
   if (sampleType === 'int8') return new Int8Array(length)
   if (sampleType === 'int16') return new Int16Array(length)
   if (sampleType === 'int32') return new Int32Array(length)
@@ -136,6 +139,7 @@ const isRasterSampleType = (value: unknown): value is RasterSampleType =>
   value === 'int8' ||
   value === 'int16' ||
   value === 'int32' ||
+  value === 'int64' ||
   value === 'float16' ||
   value === 'float32' ||
   value === 'float64'
@@ -210,16 +214,33 @@ const sameNumber = (left: number, right: number): boolean =>
 
 const checkedNumber = (value: number | bigint, target: NumericSampleType): number | bigint => {
   if (target === 'uint64') {
-    if (typeof value === 'bigint') return value
+    if (typeof value === 'bigint') {
+      if (value < 0n || value > (1n << 64n) - 1n) {
+        throw invalidInput(`Numeric tile value ${value} is outside uint64`)
+      }
+      return value
+    }
     if (!Number.isSafeInteger(value) || value < 0) {
       throw invalidInput(`Numeric tile value ${value} cannot be represented exactly as uint64`)
     }
     return BigInt(value)
   }
+  if (target === 'int64') {
+    if (typeof value === 'bigint') {
+      if (value < -(1n << 63n) || value > (1n << 63n) - 1n) {
+        throw invalidInput(`Numeric tile value ${value} is outside int64`)
+      }
+      return value
+    }
+    if (!Number.isSafeInteger(value)) {
+      throw invalidInput(`Numeric tile value ${value} cannot be represented exactly as int64`)
+    }
+    return BigInt(value)
+  }
   if (typeof value === 'bigint') {
-    if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+    if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
       throw invalidInput(
-        `Numeric tile uint64 value ${value} cannot be represented exactly as ${target}`,
+        `Numeric tile 64-bit value ${value} cannot be represented exactly as ${target}`,
       )
     }
     value = Number(value)
@@ -271,9 +292,9 @@ const writeChecked = (
   value: number | bigint,
 ): void => {
   const checked = checkedNumber(value, target)
-  if (destination instanceof BigUint64Array) {
+  if (destination instanceof BigUint64Array || destination instanceof BigInt64Array) {
     if (typeof checked !== 'bigint') {
-      throw invalidInput('Numeric tile uint64 conversion produced a non-bigint value')
+      throw invalidInput('Numeric tile 64-bit conversion produced a non-bigint value')
     }
     destination[index] = checked
   } else {
@@ -317,6 +338,7 @@ const readCanonical = (
   if (sampleType === 'uint16') return view.getUint16(offset, false)
   if (sampleType === 'uint32') return view.getUint32(offset, false)
   if (sampleType === 'uint64') return view.getBigUint64(offset, false)
+  if (sampleType === 'int64') return view.getBigInt64(offset, false)
   if (sampleType === 'int8') return view.getInt8(offset)
   if (sampleType === 'int16') return view.getInt16(offset, false)
   if (sampleType === 'int32') return view.getInt32(offset, false)
@@ -427,6 +449,12 @@ const convertPreservedSamples = (
           source += strides.sourcePixel
           target += strides.targetPixel
         }
+      } else if (sampleType === 'int64' && destination instanceof BigInt64Array) {
+        while (source < end) {
+          destination[target] = view.getBigInt64(source, false)
+          source += strides.sourcePixel
+          target += strides.targetPixel
+        }
       } else if (sampleType === 'float64' && destination instanceof Float64Array) {
         while (source < end) {
           destination[target] = view.getFloat64(source, false)
@@ -495,6 +523,7 @@ const nativeView = (data: Uint8Array, sampleType: NumericSampleType): NumericArr
   if (sampleType === 'uint16') return new Uint16Array(data.buffer, data.byteOffset, length)
   if (sampleType === 'uint32') return new Uint32Array(data.buffer, data.byteOffset, length)
   if (sampleType === 'uint64') return new BigUint64Array(data.buffer, data.byteOffset, length)
+  if (sampleType === 'int64') return new BigInt64Array(data.buffer, data.byteOffset, length)
   if (sampleType === 'int16') return new Int16Array(data.buffer, data.byteOffset, length)
   if (sampleType === 'int32') return new Int32Array(data.buffer, data.byteOffset, length)
   if (sampleType === 'float32') return new Float32Array(data.buffer, data.byteOffset, length)

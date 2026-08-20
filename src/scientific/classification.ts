@@ -115,7 +115,9 @@ const classificationRows = async function* (
       height: 1,
     })) {
       const tile = rasterBlockToNumericTile(block, {
-        ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+        ...(block.format.sampleType === 'uint64' || block.format.sampleType === 'int64'
+          ? { targetSampleType: 'float64' }
+          : {}),
       })
       try {
         if (
@@ -130,8 +132,10 @@ const classificationRows = async function* (
         }
         emitted = true
         validateNumericTile(tile)
-        if (tile.data instanceof BigUint64Array) {
-          throw invalidInput('ENVI classification uint64 values must convert exactly to float64')
+        if (tile.data instanceof BigUint64Array || tile.data instanceof BigInt64Array) {
+          throw invalidInput(
+            'ENVI classification 64-bit integer values must convert exactly to float64',
+          )
         }
         const output = new Uint8Array(render.outputWidth * 3)
         for (let outputX = 0; outputX < render.outputWidth; outputX += 1) {

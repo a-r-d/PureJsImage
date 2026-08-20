@@ -7,13 +7,16 @@ import type {
   ScientificDataset,
   ScientificMetadataObject,
 } from '../../../src/scientific/dataset.ts'
+import {
+  createOmeZarrHttpContext,
+  type OmeZarrHttpStore,
+} from '../../../src/scientific/ome-zarr-http.ts'
 import type {
   ScientificDatasetSummary,
   ScientificDocument,
 } from '../../../src/scientific/reader.ts'
 import { createOmeZarrReader } from '../../../src/scientific/readers/ome-zarr.ts'
 import { readRasterSample } from '../../../src/scientific/samples.ts'
-import { OmeZarrHttpStore } from './ome-zarr-http.ts'
 import {
   compositeOmeZarrSample,
   normalizeOmeZarrSample,
@@ -284,16 +287,38 @@ const channelsFor = (
 ): readonly OmeZarrChannelMetadata[] => {
   const range = displayRange(descriptor)
   const count = axes.channel?.length ?? 1
+  const display = isRecord(descriptor.metadata?.omeZarrDisplay)
+    ? descriptor.metadata.omeZarrDisplay
+    : undefined
+  const authoredChannels = Array.isArray(display?.channels) ? display.channels : []
   return Object.freeze(
     Array.from({ length: count }, (_, index) => {
       const entry = axes.channel?.entries?.[index]
+      const authored = isRecord(authoredChannels[index]) ? authoredChannels[index] : undefined
+      const window = isRecord(authored?.window) ? authored.window : undefined
+      const authoredStart =
+        typeof window?.start === 'number' && Number.isFinite(window.start)
+          ? window.start
+          : undefined
+      const authoredEnd =
+        typeof window?.end === 'number' && Number.isFinite(window.end) ? window.end : undefined
+      const useAuthoredWindow =
+        authoredStart !== undefined && authoredEnd !== undefined && authoredEnd > authoredStart
+      const minimum = useAuthoredWindow ? authoredStart : range.minimum
+      const maximum = useAuthoredWindow ? authoredEnd : range.maximum
       return Object.freeze({
         index,
         id: entry?.id ?? (axes.channel === undefined ? 'value' : `channel-${index}`),
         name: entry?.name ?? (axes.channel === undefined ? 'Value' : `Channel ${index}`),
         color: entry?.color ?? omeZarrDefaultChannelColor(index, count),
-        minimum: range.minimum,
-        maximum: range.maximum,
+        minimum,
+        maximum,
+        ...(typeof authored?.active === 'boolean' ? { active: authored.active } : {}),
+        ...(typeof authored?.coefficient === 'number' && Number.isFinite(authored.coefficient)
+          ? { coefficient: authored.coefficient }
+          : {}),
+        ...(typeof authored?.family === 'string' ? { family: authored.family } : {}),
+        ...(typeof authored?.inverted === 'boolean' ? { inverted: authored.inverted } : {}),
       })
     }),
   )
@@ -449,6 +474,15 @@ const buildMetadata = (
   const plateValue = isRecord(opened.metadata.plate) ? opened.metadata.plate : undefined
   const wellCount = numericField(plateValue?.wellCount)
   const plateName = stringField(plateValue?.name)
+  const display = isRecord(descriptor.metadata?.omeZarrDisplay)
+    ? descriptor.metadata.omeZarrDisplay
+    : undefined
+  const rdefs = isRecord(display?.rdefs) ? display.rdefs : undefined
+  const defaultT = numericField(rdefs?.defaultT)
+  const defaultZ = numericField(rdefs?.defaultZ)
+  const rawModel = rdefs?.model
+  const model: 'color' | 'greyscale' | undefined =
+    rawModel === 'color' || rawModel === 'greyscale' ? rawModel : undefined
   return Object.freeze({
     url: storeUrl,
     name: storeName(storeUrl),
@@ -473,6 +507,15 @@ const buildMetadata = (
     omeNgffVersion,
     zarrFormat,
     sampleType: descriptor.sampleType,
+    ...(defaultT === undefined && defaultZ === undefined && model === undefined
+      ? {}
+      : {
+          displayDefaults: {
+            ...(defaultT === undefined ? {} : { defaultT }),
+            ...(defaultZ === undefined ? {} : { defaultZ }),
+            ...(model === undefined ? {} : { model }),
+          },
+        }),
   })
 }
 
@@ -481,6 +524,28 @@ const defaultConfiguration = (
   axes: DisplayAxes,
 ): OmeZarrRenderConfiguration => {
   const channelAxis = activeMetadata.axes.find((axis) => axis.kind === 'channel')
+  const grayscale = activeMetadata.displayDefaults?.model === 'greyscale'
+  let enabledChannels = 0
+  const configuredChannels = activeMetadata.channels.map((channel) => {
+    const enabled = (channel.active ?? true) && enabledChannels < maximumMixedChannels
+    if (enabled) enabledChannels += 1
+    return {
+      index: channel.index,
+      enabled,
+      color: grayscale ? 0xffffff : channel.color,
+      minimum: channel.minimum,
+      maximum: channel.maximum,
+      gamma: 1,
+      coefficient: channel.coefficient ?? 1,
+      inverted: channel.inverted ?? false,
+    }
+  })
+  if (
+    !configuredChannels.some((channel) => channel.enabled) &&
+    configuredChannels[0] !== undefined
+  ) {
+    configuredChannels[0] = { ...configuredChannels[0], enabled: true }
+  }
   return Object.freeze({
     generation: 1,
     datasetId: activeMetadata.datasetId,
@@ -492,18 +557,17 @@ const defaultConfiguration = (
             axis.id !== axes.vertical.id &&
             axis.id !== channelAxis?.id,
         )
-        .map((axis) => ({ axisId: axis.id, index: 0 })),
+        .map((axis) => ({
+          axisId: axis.id,
+          index:
+            axis.id.toLowerCase() === 't'
+              ? (activeMetadata.displayDefaults?.defaultT ?? 0)
+              : axis.id.toLowerCase() === 'z'
+                ? (activeMetadata.displayDefaults?.defaultZ ?? 0)
+                : 0,
+        })),
     ),
-    channels: Object.freeze(
-      activeMetadata.channels.map((channel) => ({
-        index: channel.index,
-        enabled: channel.index < maximumMixedChannels,
-        color: channel.color,
-        minimum: channel.minimum,
-        maximum: channel.maximum,
-        gamma: 1,
-      })),
-    ),
+    channels: Object.freeze(configuredChannels.map((channel) => Object.freeze(channel))),
   })
 }
 
@@ -547,12 +611,12 @@ const openStore = async (url: string, nextPublishedStoreBytes?: number): Promise
   post({ type: 'opening', message: 'Reading OME-NGFF metadata and array layouts…' })
   let nextStore: OmeZarrHttpStore | undefined
   try {
-    nextStore = new OmeZarrHttpStore(url, {
+    const context = await createOmeZarrHttpContext(url, {
       maxCacheBytesPerSource: 8_388_608,
       maxOpenSources: 8,
     })
+    nextStore = context.store
     store = nextStore
-    const context = await nextStore.openContext()
     const reader = createOmeZarrReader({ limits: { rowsPerBlock: 1_024 } })
     const opened = await reader.open(context)
     const selected = selectInitialDataset(opened)
@@ -603,7 +667,9 @@ const validateChannelConfiguration = (
     channel.maximum <= channel.minimum ||
     !Number.isFinite(channel.gamma) ||
     channel.gamma < 0.05 ||
-    channel.gamma > 10
+    channel.gamma > 10 ||
+    !Number.isFinite(channel.coefficient) ||
+    channel.coefficient < 0
   ) {
     throw invalidInput(`Channel ${channel.index} configuration is invalid`)
   }
@@ -805,10 +871,16 @@ const decodeChannel = async (
             const bin = Math.min(histogramBins - 1, Math.floor(normalized * histogramBins))
             bins[bin] = (bins[bin] ?? 0) + 1
           }
+          const displayValue = normalizeOmeZarrSample(
+            value,
+            channel.minimum,
+            channel.maximum,
+            channel.gamma,
+          )
           compositeOmeZarrSample(
             rgba,
             localY * width + localX,
-            normalizeOmeZarrSample(value, channel.minimum, channel.maximum, channel.gamma),
+            (channel.inverted ? 1 - displayValue : displayValue) * channel.coefficient,
             color,
           )
         }

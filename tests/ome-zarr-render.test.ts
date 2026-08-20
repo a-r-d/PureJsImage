@@ -4,8 +4,8 @@ import {
   compositeOmeZarrSample,
   normalizeOmeZarrSample,
   omeZarrChannelColor,
-  omeZarrLabelColor,
   omeZarrDisplayRange,
+  omeZarrLabelColor,
   overlayOmeZarrLabel,
 } from '../docs-astro/src/scripts/ome-zarr-render.ts'
 
@@ -26,11 +26,12 @@ describe('OME-Zarr viewport channel rendering', () => {
     expect(omeZarrChannelColor(1, 0, 0xff0000)).toEqual([255, 255, 255])
   })
 
-  it('uses stable integer ranges, tile-local float ranges, and rejects uint64 explicitly', () => {
+  it('uses stable integer ranges, tile-local float ranges, and rejects 64-bit display', () => {
     expect(omeZarrDisplayRange('uint16')).toEqual({ minimum: 0, maximum: 65_535 })
     expect(omeZarrDisplayRange('int16')).toEqual({ minimum: -32_768, maximum: 32_767 })
     expect(omeZarrDisplayRange('float32')).toBeUndefined()
     expect(() => omeZarrDisplayRange('uint64')).toThrow('does not support uint64')
+    expect(() => omeZarrDisplayRange('int64')).toThrow('does not support int64')
   })
 
   it('applies bounded channel windows and gamma without leaking invalid values', () => {

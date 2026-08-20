@@ -24,6 +24,16 @@ export interface OmeZarrChannelMetadata {
   readonly color: number
   readonly minimum: number
   readonly maximum: number
+  readonly active?: boolean
+  readonly coefficient?: number
+  readonly family?: string
+  readonly inverted?: boolean
+}
+
+export interface OmeZarrDisplayDefaultsMetadata {
+  readonly defaultT?: number
+  readonly defaultZ?: number
+  readonly model?: 'color' | 'greyscale'
 }
 
 export interface OmeZarrAxisMetadata {
@@ -86,6 +96,7 @@ export interface OmeZarrMetadata {
   readonly omeNgffVersion: string
   readonly zarrFormat: number
   readonly sampleType: RasterSampleType
+  readonly displayDefaults?: OmeZarrDisplayDefaultsMetadata
 }
 
 export interface OmeZarrChannelConfiguration {
@@ -95,6 +106,8 @@ export interface OmeZarrChannelConfiguration {
   readonly minimum: number
   readonly maximum: number
   readonly gamma: number
+  readonly coefficient: number
+  readonly inverted: boolean
 }
 
 export interface OmeZarrAxisIndexConfiguration {

@@ -1,5 +1,5 @@
 import { invalidInput } from '../errors.ts'
-import { rasterSampleBytes, type RasterBlock, type RasterSampleType } from '../raster.ts'
+import { type RasterBlock, type RasterSampleType, rasterSampleBytes } from '../raster.ts'
 
 const halfFloat = (bits: number): number => {
   const sign = (bits & 0x8000) === 0 ? 1 : -1
@@ -46,15 +46,54 @@ export const readRasterSample = (
   if (sampleType === 'uint16') return view.getUint16(offset, false)
   if (sampleType === 'uint32') return view.getUint32(offset, false)
   if (sampleType === 'uint64') {
-    return view.getUint32(offset, false) * 4_294_967_296 + view.getUint32(offset + 4, false)
+    const value = view.getBigUint64(offset, false)
+    if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw invalidInput('Scientific uint64 sample exceeds exact numeric conversion')
+    }
+    return Number(value)
   }
   if (sampleType === 'int8') return view.getInt8(offset)
   if (sampleType === 'int16') return view.getInt16(offset, false)
   if (sampleType === 'int32') return view.getInt32(offset, false)
+  if (sampleType === 'int64') {
+    const value = view.getBigInt64(offset, false)
+    if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
+      throw invalidInput('Scientific int64 sample exceeds exact numeric conversion')
+    }
+    return Number(value)
+  }
   if (sampleType === 'float16') return halfFloat(view.getUint16(offset, false))
   if (sampleType === 'float32') return view.getFloat32(offset, false)
   if (sampleType === 'float64') return view.getFloat64(offset, false)
   return data[offset] ?? 0
+}
+
+/** Reads one exact 64-bit integer sample from canonical big-endian raster bytes. */
+export const readRasterBigIntSample = (
+  view: DataView,
+  offset: number,
+  sampleType: 'uint64' | 'int64',
+): bigint =>
+  sampleType === 'uint64' ? view.getBigUint64(offset, false) : view.getBigInt64(offset, false)
+
+/** Writes one exact 64-bit integer sample using canonical big-endian raster bytes. */
+export const writeRasterBigIntSample = (
+  view: DataView,
+  offset: number,
+  sampleType: 'uint64' | 'int64',
+  value: bigint,
+): void => {
+  if (sampleType === 'uint64') {
+    if (value < 0n || value > (1n << 64n) - 1n) {
+      throw invalidInput(`Scientific uint64 sample ${value} is outside uint64`)
+    }
+    view.setBigUint64(offset, value, false)
+    return
+  }
+  if (value < -(1n << 63n) || value > (1n << 63n) - 1n) {
+    throw invalidInput(`Scientific int64 sample ${value} is outside int64`)
+  }
+  view.setBigInt64(offset, value, false)
 }
 
 /** Writes one numeric sample using the raster model's canonical big-endian byte order. */
@@ -67,8 +106,12 @@ export const writeRasterSample = (
   if (sampleType === 'uint8') view.setUint8(offset, value)
   else if (sampleType === 'uint16') view.setUint16(offset, value, false)
   else if (sampleType === 'uint32') view.setUint32(offset, value, false)
-  else if (sampleType === 'uint64') view.setBigUint64(offset, BigInt(value), false)
-  else if (sampleType === 'int8') view.setInt8(offset, value)
+  else if (sampleType === 'uint64' || sampleType === 'int64') {
+    if (!Number.isSafeInteger(value)) {
+      throw invalidInput(`Scientific ${sampleType} sample requires an exact safe integer`)
+    }
+    writeRasterBigIntSample(view, offset, sampleType, BigInt(value))
+  } else if (sampleType === 'int8') view.setInt8(offset, value)
   else if (sampleType === 'int16') view.setInt16(offset, value, false)
   else if (sampleType === 'int32') view.setInt32(offset, value, false)
   else if (sampleType === 'float16') view.setUint16(offset, floatToHalf(value), false)

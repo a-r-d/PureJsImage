@@ -73,10 +73,10 @@ PureJsImage 0.14.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Core API | 60.0 KiB | 19.0 KiB | 16.8 KiB |
 | Common web codecs | 607.6 KiB | 224.4 KiB | 188.0 KiB |
 | All stable codecs | 870.4 KiB | 306.2 KiB | 252.4 KiB |
-| Scientific platform | 157.0 KiB | 45.6 KiB | 38.9 KiB |
-| All scientific readers | 1213.2 KiB | 350.9 KiB | 280.2 KiB |
+| Scientific platform | 159.9 KiB | 46.1 KiB | 39.2 KiB |
+| All scientific readers | 1219.0 KiB | 352.4 KiB | 281.2 KiB |
 
-The extracted npm package is 5.7 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 5.8 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 ## Install
@@ -298,10 +298,10 @@ Generated for purejsimage 0.14.0. The README keeps only the major entry points; 
 | Core API | `purejsimage` | 60.0 KiB | 19.0 KiB | 16.8 KiB |
 | Core + common web codecs | `purejsimage/codecs/web` | 607.6 KiB | 224.4 KiB | 188.0 KiB |
 | Core + all stable codecs | `purejsimage/codecs/all` | 870.4 KiB | 306.2 KiB | 252.4 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 157.0 KiB | 45.6 KiB | 38.9 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1213.2 KiB | 350.9 KiB | 280.2 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 159.9 KiB | 46.1 KiB | 39.2 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1219.0 KiB | 352.4 KiB | 281.2 KiB |
 
-The extracted npm package is 5.7 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 5.8 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

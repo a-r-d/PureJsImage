@@ -330,6 +330,7 @@ const dataTypes: Readonly<Record<string, RasterSampleType>> = Object.freeze({
   int16: 'int16',
   uint16: 'uint16',
   int32: 'int32',
+  int64: 'int64',
   uint32: 'uint32',
   uint64: 'uint64',
   float16: 'float16',
@@ -691,13 +692,15 @@ const parseNumpyDtype = (
                 ? 'int16'
                 : key === 'i4'
                   ? 'int32'
-                  : key === 'f2'
-                    ? 'float16'
-                    : key === 'f4'
-                      ? 'float32'
-                      : key === 'f8'
-                        ? 'float64'
-                        : undefined
+                  : key === 'i8'
+                    ? 'int64'
+                    : key === 'f2'
+                      ? 'float16'
+                      : key === 'f4'
+                        ? 'float32'
+                        : key === 'f8'
+                          ? 'float64'
+                          : undefined
   if (sampleType === undefined) {
     throw unsupportedOperation(`Zarr v2 dtype ${descriptor} is unsupported`)
   }

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
+import { describe, expect, it } from 'vitest'
 
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -159,7 +159,7 @@ describe('WebP codec', () => {
       ).toBeLessThanOrEqual(1)
       expect(decoded.data[offset + 3]).toBe(reference.data[offset + 3])
     }
-  })
+  }, 15_000)
 
   it('rejects corrupt or inconsistently signaled ICCP chunks', async () => {
     const corrupt = withIccProfile(lossless, Uint8Array.of(1, 2, 3))

@@ -1,12 +1,5 @@
 import { invalidInput } from '../errors.ts'
-import { rasterSampleBytes, type RasterBlock, type RasterSampleType } from '../raster.ts'
-import type {
-  MultidimensionalRasterDataset,
-  PhysicalPixelSize,
-  RasterChannelInfo,
-  RasterPlaneRequest,
-} from './legacy-dataset.ts'
-import { isScientificDataset } from './dataset-adapters.ts'
+import { type RasterBlock, type RasterSampleType, rasterSampleBytes } from '../raster.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisIndex,
@@ -18,6 +11,13 @@ import {
   normalizeScientificPlaneReadRequest,
   resolveScientificAxisAtResolutionLevel,
 } from './dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
+import type {
+  MultidimensionalRasterDataset,
+  PhysicalPixelSize,
+  RasterChannelInfo,
+  RasterPlaneRequest,
+} from './legacy-dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
   rasterBlockToNumericTile,
@@ -26,17 +26,19 @@ import {
 } from './numeric-tile.ts'
 import { writeRasterSample } from './samples.ts'
 
-type NumberNumericArray = Exclude<NumericArray, BigUint64Array>
+type NumberNumericArray = Exclude<NumericArray, BigUint64Array | BigInt64Array>
 
 const numericSource = (dataset: ScientificDataset): NumericTileSource =>
   resolveNumericTileSource(dataset, {
-    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+    ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
+      ? { targetSampleType: 'float64' }
+      : {}),
   })
 
 const numberTileData = (tile: NumericTile): NumberNumericArray => {
   validateNumericTile(tile)
-  if (tile.data instanceof BigUint64Array) {
-    throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
+  if (tile.data instanceof BigUint64Array || tile.data instanceof BigInt64Array) {
+    throw invalidInput('Scientific 64-bit integer values must be exactly convertible to float64')
   }
   return tile.data
 }
@@ -138,7 +140,9 @@ const readScalarRegion = async (
   let expectedY = request.y ?? 0
   for await (const block of dataset.readPlane(request)) {
     const tile = rasterBlockToNumericTile(block, {
-      ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+      ...(block.format.sampleType === 'uint64' || block.format.sampleType === 'int64'
+        ? { targetSampleType: 'float64' }
+        : {}),
       ...(request.signal === undefined ? {} : { signal: request.signal }),
     })
     try {
@@ -323,6 +327,7 @@ const projectionSampleType = (
     sourceSampleType === 'uint16' ||
     sourceSampleType === 'uint32' ||
     sourceSampleType === 'uint64' ||
+    sourceSampleType === 'int64' ||
     sourceSampleType === 'int8' ||
     sourceSampleType === 'int16' ||
     sourceSampleType === 'int32'
@@ -540,7 +545,9 @@ const readScientificScalarRegion = async (
   let expectedY = normalized.y
   for await (const tile of source.readNumericTiles({
     ...normalized,
-    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+    ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
+      ? { targetSampleType: 'float64' }
+      : {}),
   })) {
     try {
       if (

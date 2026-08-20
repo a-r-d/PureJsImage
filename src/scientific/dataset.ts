@@ -1,7 +1,7 @@
 import type { AbortOptions } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
-import { rasterSampleBytes } from '../raster.ts'
 import type { RasterBlock, RasterFormat, RasterSampleType } from '../raster.ts'
+import { rasterSampleBytes } from '../raster.ts'
 
 export type ScientificAxisKind =
   | 'space'
@@ -292,6 +292,7 @@ const sampleTypes: readonly RasterSampleType[] = [
   'int8',
   'int16',
   'int32',
+  'int64',
   'float16',
   'float32',
   'float64',

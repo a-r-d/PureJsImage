@@ -11,6 +11,7 @@ export type RasterSampleType =
   | 'int8'
   | 'int16'
   | 'int32'
+  | 'int64'
   | 'float16'
   | 'float32'
   | 'float64'
@@ -89,11 +90,22 @@ const readSample = (
   if (sampleType === 'uint16') return view.getUint16(offset, false)
   if (sampleType === 'uint32') return view.getUint32(offset, false)
   if (sampleType === 'uint64') {
-    return view.getUint32(offset, false) * 4_294_967_296 + view.getUint32(offset + 4, false)
+    const value = view.getBigUint64(offset, false)
+    if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw invalidInput('Raster uint64 sample exceeds exact numeric conversion')
+    }
+    return Number(value)
   }
   if (sampleType === 'int8') return view.getInt8(offset)
   if (sampleType === 'int16') return view.getInt16(offset, false)
   if (sampleType === 'int32') return view.getInt32(offset, false)
+  if (sampleType === 'int64') {
+    const value = view.getBigInt64(offset, false)
+    if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
+      throw invalidInput('Raster int64 sample exceeds exact numeric conversion')
+    }
+    return Number(value)
+  }
   if (sampleType === 'float16') return halfFloat(view.getUint16(offset, false))
   if (sampleType === 'float32') return view.getFloat32(offset, false)
   if (sampleType === 'float64') return view.getFloat64(offset, false)

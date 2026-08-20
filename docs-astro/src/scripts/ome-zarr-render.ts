@@ -19,7 +19,7 @@ export const omeZarrDisplayRange = (
     return undefined
   }
   throw unsupportedOperation(
-    'OME-Zarr WSI display does not support uint64 because browser numeric conversion is not exact',
+    `OME-Zarr WSI display does not support ${sampleType} because browser numeric conversion is not exact`,
   )
 }
 

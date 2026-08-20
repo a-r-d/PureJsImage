@@ -26,10 +26,11 @@ const samples = [
 const defaultSample = samples[0]
 
 const implementationCode = `import { createOmeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
-import { OmeZarrHttpStore } from './ome-zarr-http'
+import { createOmeZarrHttpContext } from 'purejsimage/scientific/browser'
 
-// The demo adapter resolves each Zarr object through a bounded HttpRangeSource.
-const store = new OmeZarrHttpStore(storeUrl, {
+// Public context: confined object names, bounded source LRU, cancellation,
+// range validation, request coalescing, and measured network statistics.
+const context = await createOmeZarrHttpContext(storeUrl, {
   maxOpenSources: 8,
   maxCacheBytesPerSource: 8_388_608,
 })
@@ -37,7 +38,7 @@ const store = new OmeZarrHttpStore(storeUrl, {
 const reader = createOmeZarrReader({
   limits: { rowsPerBlock: 1_024 },
 })
-const document = await reader.open(await store.openContext())
+const document = await reader.open(context)
 
 // Choose any displayable image or plate field. The UI persists these indices.
 const summary = document.datasets.find(({ descriptor }) =>
@@ -69,67 +70,27 @@ for await (const block of dataset.readPlane({
   }
 }
 
-store.close()`
+console.log(context.store.stats())
+context.store.close()`
 
-const httpAdapterCode = `import type {
-  ScientificCompanionRequest,
-  ScientificCompanionResolver,
-  ScientificOpenContext,
-  ScientificResource,
-} from 'purejsimage/scientific'
-import { HttpRangeSource } from 'purejsimage/sources/http-range'
+const httpAdapterCode = `import {
+  createOmeZarrHttpContext,
+  type OmeZarrHttpContext,
+} from 'purejsimage/scientific/browser'
 
-export class OmeZarrHttpStore implements ScientificCompanionResolver {
-  readonly #rootUrl: string
-  readonly #sources = new Map<string, HttpRangeSource>()
+export const openRemoteOmeZarr = async (
+  storeUrl: string,
+  signal: AbortSignal,
+): Promise<OmeZarrHttpContext> =>
+  createOmeZarrHttpContext(storeUrl, {
+    signal,
+    maxOpenSources: 16,
+    blockBytes: 262_144,
+    maxCacheBytesPerSource: 2_097_152,
+  })
 
-  constructor(storeUrl: string) {
-    this.#rootUrl = normalizeOmeZarrStoreUrl(storeUrl).storeRootUrl
-  }
-
-  async openContext(): Promise<ScientificOpenContext> {
-    const primary = await this.#openResource('zarr.json')
-    if (!primary) throw new Error('OME-Zarr root metadata was not found')
-    return { primary, companions: this, readerId: 'purejsimage/ome-zarr' }
-  }
-
-  async resolve(
-    request: Readonly<ScientificCompanionRequest>,
-    options: { readonly signal?: AbortSignal } = {},
-  ): Promise<ScientificResource | undefined> {
-    const name = request.kind === 'relative-name'
-      ? request.name
-      : request.relativeName
-    return name ? this.#openResource(name, options.signal) : undefined
-  }
-
-  async #openResource(
-    name: string,
-    signal?: AbortSignal,
-  ): Promise<ScientificResource | undefined> {
-    const cached = this.#sources.get(name)
-    if (cached) return { id: name, name, source: cached }
-
-    const url = resolveOmeZarrObjectUrl(this.#rootUrl, name)
-    const response = await fetch(url, { method: 'HEAD', signal })
-    if (response.status === 404 || response.status === 410) return undefined
-    if (response.status !== 200) throw new Error(\`Object returned HTTP \${response.status}\`)
-
-    const size = Number(response.headers.get('content-length'))
-    if (!Number.isSafeInteger(size) || size < 1) {
-      throw new Error('Object is missing a valid Content-Length')
-    }
-    const source = await HttpRangeSource.open(url, {
-      allowHeadSizeFallback: true,
-      expectedSize: size,
-      blockBytes: 262_144,
-      maxCacheBytes: 8_388_608,
-      openSignal: signal,
-    })
-    this.#sources.set(name, source)
-    return { id: name, name, source }
-  }
-}`
+// Pass the returned context directly to createOmeZarrReader().open().
+// Keep context.store to inspect stats, reset counters, or close the session.`
 
 const highlightedImplementationCode = highlightTypeScript(implementationCode)
 const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
@@ -347,10 +308,10 @@ const highlightedHttpAdapterCode = highlightTypeScript(httpAdapterCode)
           </fieldset>
         </div>
         <div class="wsi-code-footer">
-          <p><code>OmeZarrHttpStore</code> is the demo’s thin URL adapter. It maps normalized companion names to bounded <code>HttpRangeSource</code> instances; parsing and decoding remain inside PureJsImage.</p>
+          <p><code>createOmeZarrHttpContext()</code> is the public remote-store adapter. It maps confined companion names to bounded <code>HttpRangeSource</code> instances; parsing and decoding remain inside the OME-Zarr reader.</p>
           <div>
             <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs-astro/src/scripts/ome-zarr-worker.ts">Complete worker →</a>
-            <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs-astro/src/scripts/ome-zarr-http.ts">HTTP adapter →</a>
+            <a href="https://github.com/a-r-d/PureJsImage/blob/main/src/scientific/ome-zarr-http.ts">HTTP context →</a>
             <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/scientific-ome-zarr.md">OME-Zarr support →</a>
           </div>
         </div>

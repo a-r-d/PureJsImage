@@ -13,15 +13,16 @@ import type {
   ScientificPlaneReadRequest,
 } from '../src/scientific/index.ts'
 import {
+  measureScientificPlane,
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-  measureScientificPlane,
   numericTileSampleOffset,
   rasterBlockToNumericTile,
-  resolveNumericTileSource,
   renderScientificPlane,
+  resolveNumericTileSource,
   scientificDatasetToNumericTileSource,
   validateNumericTile,
+  writeRasterBigIntSample,
 } from '../src/scientific/index.ts'
 
 const descriptorFor = (
@@ -59,6 +60,7 @@ const writeCanonical = (
   else if (sampleType === 'int8') view.setInt8(offset, Number(value))
   else if (sampleType === 'int16') view.setInt16(offset, Number(value), false)
   else if (sampleType === 'int32') view.setInt32(offset, Number(value), false)
+  else if (sampleType === 'int64') view.setBigInt64(offset, BigInt(value), false)
   else if (sampleType === 'float16') view.setUint16(offset, Number(value), false)
   else if (sampleType === 'float32') view.setFloat32(offset, Number(value), false)
   else view.setFloat64(offset, Number(value), false)
@@ -164,6 +166,12 @@ describe('RasterBlock to NumericTile conversion', () => {
       values: [-2_147_483_648, 2_147_483_647],
       array: 'Int32Array',
       output: [-2_147_483_648, 2_147_483_647],
+    },
+    {
+      sampleType: 'int64',
+      values: [-(1n << 63n), (1n << 63n) - 1n],
+      array: 'BigInt64Array',
+      output: [-(1n << 63n), (1n << 63n) - 1n],
     },
     {
       sampleType: 'float16',
@@ -277,8 +285,22 @@ describe('RasterBlock to NumericTile conversion', () => {
       }),
     ).toThrow(/cannot be represented exactly/)
     expect(() =>
+      rasterBlockToNumericTile(blockFor('int64', [-1n]), { targetSampleType: 'uint64' }),
+    ).toThrow(/outside uint64/)
+    expect(() =>
       rasterBlockToNumericTile(blockFor('float64', [0.1]), { targetSampleType: 'float32' }),
     ).toThrow(/cannot be represented exactly/)
+  })
+
+  it('writes exact 64-bit integers without modulo wrapping', () => {
+    const bytes = new Uint8Array(16)
+    const view = new DataView(bytes.buffer)
+    writeRasterBigIntSample(view, 0, 'int64', -(1n << 63n))
+    writeRasterBigIntSample(view, 8, 'uint64', (1n << 64n) - 1n)
+    expect(view.getBigInt64(0, false)).toBe(-(1n << 63n))
+    expect(view.getBigUint64(8, false)).toBe((1n << 64n) - 1n)
+    expect(() => writeRasterBigIntSample(view, 0, 'int64', 1n << 63n)).toThrow('outside int64')
+    expect(() => writeRasterBigIntSample(view, 0, 'uint64', -1n)).toThrow('outside uint64')
   })
 
   it('uses caller-owned destination storage and an explicit allocator', () => {

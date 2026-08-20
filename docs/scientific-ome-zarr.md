@@ -17,6 +17,23 @@ names. Node callers can use `createScientificPathContext` on that root file; bro
 pass a directory `File` list through `createScientificFileContext`. A directory-picker path such as
 `plate.zarr/zarr.json` keeps children under the same store prefix.
 
+Remote HTTP(S) callers can pass the public browser context directly to the reader:
+
+```ts
+import { createOmeZarrHttpContext } from 'purejsimage/scientific/browser'
+import { omeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'
+
+const context = await createOmeZarrHttpContext('https://example.org/image.ome.zarr')
+const document = await omeZarrReader.open(context)
+console.log(context.store.stats())
+context.store.close()
+```
+
+The context normalizes the root, confines companion paths, treats 404/410 as absent objects,
+validates strict byte ranges, keeps a bounded source LRU, coalesces reads, propagates cancellation,
+and exposes measured request/cache statistics. A successful HEAD supplies object size only when a
+valid 206 response omits browser-visible `Content-Range`.
+
 A ZIP archive whose root contains `zarr.json` or `.zgroup` is also a store. A single nested
 prefix such as `image.zarr/zarr.json` is accepted; two sibling store roots are rejected. macOS
 `__MACOSX/` sidecar members are ignored when deciding uniqueness. Stored members stay
@@ -39,7 +56,7 @@ replace that series scan. Extra integer series beyond `maxDatasets` fail with `L
 | Resource model | Directory-like group plus arrays and chunk objects, or a ZIP archive with root-level or one nested Zarr prefix. |
 | Chunks | Regular grids and `sharding_indexed` with index-at-end or index-at-start. A missing chunk is fill only when a defined fill exists; Zarr v2 `fill_value: null` leaves missing contents undefined. |
 | Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, one `transpose`, `shuffle`, and Blosc 1 with byte shuffle or 8-element-aligned bitshuffle plus LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
-| Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` colors and source. Plate wells become one dataset per field, with well path and indices in metadata. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and optional OMERO channel names/colors are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
+| Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` version, colors, arbitrary per-value properties, and source relationship. OME-NGFF 0.5 associated labels must have the same pyramid-level count; legacy 0.4 labels preserve their published pyramids. Plate wells become one dataset per field, with well version, path, indices, and acquisition in metadata; plate metadata preserves name, version, field count, layout, and complete acquisitions. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and full authored OMERO channel/rdefs display state are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
 | Reads | Selected planes fetch only intersecting shards/inner chunks. A plane session layers a bounded cache over the store LRU (`maxOpenSources` entries and `maxCachedChunkBytes`). One oversized shard may be held transiently for adjacent `rowsPerBlock` subdivisions; it is not retained in the persistent LRU and is reread on a later `readPlane`. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
 
 ## Normalized storage metadata
@@ -64,12 +81,21 @@ For regular arrays, logical and storage chunk shapes are equal. For `sharding_in
 shape is the inner chunk and the storage shape is the outer shard. Applications can display or plan
 viewport reads from this normalized metadata without reparsing `zarr.json`.
 
+When authored OMERO rendering metadata exists, `metadata.omeZarrDisplay` preserves channel
+`active`, `coefficient`, normalized RGB `color`, `family`, `inverted`, `label`, and the complete
+`window`, plus `rdefs.defaultT`, `defaultZ`, and `model`. The website viewer initializes its axis,
+active-channel, color, inversion, coefficient, and display-window state from this object.
+
+Signed and unsigned 64-bit integer arrays remain exact at the canonical byte boundary. Use
+`readRasterBigIntSample()` for `int64` or `uint64`; `readRasterSample()` and numeric render/analysis
+paths reject values outside JavaScript's exact integer range rather than rounding them.
+
 ## Remote whole-slide viewer
 
 The [OME-Zarr WSI demo](https://purejsimage.com/ome-zarr/) opens a store-root URL (or its root
 `zarr.json`, `.zgroup`, or `.zattrs`) and resolves normalized companion names within that root. The
-demo adapter is intentionally local to the website; it reuses `omeZarrReader`, `HttpRangeSource`,
-and `ScientificDataset.readPlane()` rather than adding a second parser or public store API.
+demo uses the public `createOmeZarrHttpContext()`, `omeZarrReader`, and
+`ScientificDataset.readPlane()` rather than maintaining a website-only store implementation.
 
 The verified production inputs are the Jackson Laboratory OME 2024 NGFF Challenge conversions
 `41028.zarr`, `46125.zarr`, and `42815.zarr`: OME-NGFF 0.5, Zarr v3,
@@ -104,7 +130,7 @@ selected chunk.
 - Tables
 - RFC-9 zip-comment / `jsonFirst` profile requirements
 - Writers
-- `int64`, complex, boolean, and structured data types
+- Complex, boolean, and structured data types
 
 Zarr v2 integer `fill_value` still accepts decimal strings, hex bit patterns, and booleans as a
 compatibility extension. Zarr v3 integer fills must be numbers. Zarr v3 float fills accept
@@ -123,12 +149,27 @@ metadata error; the reader does not fall through to numbered-series scanning. At
 
 Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name.
 
+## Public-corpus compatibility runner
+
+`npm run compat:ome-zarr` reads the pinned manifest at
+`benchmark/ome-zarr/official-corpus.json`. For each URL it probes the root, opens the document,
+enumerates every dataset, inspects every resolution level, and reads a deterministic at-most-2x2
+region from every level. It never enumerates object storage or downloads a complete image.
+Results are classified as `PASS`, `UNSUPPORTED_CODEC`, `UNSUPPORTED_DTYPE`,
+`UNSUPPORTED_METADATA`, `INVALID`, or `NETWORK_FAILURE`. A different reviewed manifest path may be
+passed as the first argument. The checked-in roots cover IDR, BIA, Sanger, SSBD, and OME 2024
+Challenge stores. A sample may pin an `expectedClassification`; this keeps known compatibility
+boundaries visible and makes the command fail if they unexpectedly regress or change. The Sanger
+sample currently guards the explicit OME-NGFF 0.2 `UNSUPPORTED_METADATA` boundary.
+
 ## Evidence
 
 Focused tests generate structural fixtures for v3 regular/gzip/zstd/sharded stores and v2
 C-order, F-order, gzip, zlib, and Blosc memcpy/LZ4 stores. They pin selected samples, missing-chunk
 fill, partial last chunks, F-order clipped and padded edge chunks, omitted v3 chunk-key encoding,
-string/hex/null v2 fill values, uint16/int16/float32/uint64, big-endian samples and shard indexes,
+string/hex/null v2 fill values, uint16/int16/float32/uint64/int64, big-endian samples and shard indexes,
+exact signed int64 canonical bytes and BigInt reads, full OMERO display/rdefs normalization,
+image-label properties/source semantics and pyramid parity, rich plate acquisition and well version metadata,
 shuffle, six-digit and integer OMERO colors, UTF-8 BOM metadata, 4D and F-order 3D planes,
 index-at-start shards, present empty chunk objects, empty optional `.zattrs`, trailing dataset slashes,
 `numcodecs.*` ids, case-insensitive NaN fills, gzip/Blosc edge chunks, crc32c array codecs,

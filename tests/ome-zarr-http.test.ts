@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  createOmeZarrHttpContext,
   normalizeOmeZarrStoreUrl,
   OmeZarrHttpStore,
   resolveOmeZarrObjectUrl,
-} from '../docs-astro/src/scripts/ome-zarr-http.ts'
+} from '../src/scientific/browser.ts'
 
 interface MockStore {
   readonly fetch: typeof fetch
@@ -94,6 +95,30 @@ describe('OME-Zarr HTTP store URL handling', () => {
 })
 
 describe('OME-Zarr HTTP object resolution', () => {
+  it('creates a reader-ready public context with an owning store', async () => {
+    const mocked = mockStore({ 'zarr.json': Uint8Array.of(123, 125) })
+    const context = await createOmeZarrHttpContext('https://example.test/store', {
+      fetch: mocked.fetch,
+    })
+    expect(context.primary.name).toBe('zarr.json')
+    expect(context.companions).toBe(context.store)
+    expect(context.readerId).toBe('purejsimage/ome-zarr')
+    context.store.close()
+    await expect(context.primary.source.read(0, 1)).rejects.toMatchObject({ name: 'AbortError' })
+  })
+
+  it('honors an already-aborted store lifetime without issuing a request', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    const mocked = mockStore({ 'zarr.json': Uint8Array.of(1) })
+    const store = new OmeZarrHttpStore('https://example.test/store', {
+      fetch: mocked.fetch,
+      signal: controller.signal,
+    })
+    await expect(store.openContext()).rejects.toMatchObject({ name: 'AbortError' })
+    expect(mocked.requests).toEqual([])
+  })
+
   it.each([404, 410] as const)('returns undefined for an HTTP %s companion', async (status) => {
     const mocked = mockStore(
       { 'zarr.json': Uint8Array.of(1) },

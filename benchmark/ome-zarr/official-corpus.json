@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "description": "Pinned bounded-read OME-Zarr compatibility samples from IDR, BIA, Sanger, SSBD, and the OME 2024 NGFF Challenge. Expected non-PASS entries guard known compatibility boundaries.",
+  "samples": [
+    {
+      "id": "idr0062-v0.4-image",
+      "collection": "IDR",
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr/.zgroup"
+    },
+    {
+      "id": "idr0062-v0.5-image-labels",
+      "collection": "IDR",
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0062A/6001240_labels.zarr/zarr.json"
+    },
+    {
+      "id": "ome2024-6001240",
+      "collection": "OME 2024 NGFF Challenge",
+      "url": "https://uk1s3.embassy.ebi.ac.uk/idr/share/ome2024-ngff-challenge/0.0.5/6001240.zarr/"
+    },
+    {
+      "id": "ome2024-jax-41028",
+      "collection": "OME 2024 NGFF Challenge / Jackson Laboratory",
+      "url": "https://storage.googleapis.com/jax-public-ngff/public/41028.zarr"
+    },
+    {
+      "id": "bia-s-bsst410-im1",
+      "collection": "BioImage Archive",
+      "url": "https://uk1s3.embassy.ebi.ac.uk/bia-zarr-test/S-BSST410/IM1.zarr/0/.zgroup"
+    },
+    {
+      "id": "sanger-fetal-spleen-visium-1",
+      "collection": "Sanger Institute",
+      "url": "https://haniffa.cog.sanger.ac.uk/fetal-immune/fetal-spleen/visium/0.0.1/visium_1_raw.zarr/.zgroup",
+      "expectedClassification": "UNSUPPORTED_METADATA"
+    },
+    {
+      "id": "ssbd-fib-sem-synapse",
+      "collection": "SSBD",
+      "url": "https://ssbd.riken.jp/100118-dcacbb41/zarr/v0.4/Fig3a_FIB-SEM_synapse.zarr/.zgroup"
+    }
+  ]
+}

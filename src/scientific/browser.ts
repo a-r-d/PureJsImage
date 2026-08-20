@@ -1,13 +1,26 @@
 import { invalidInput } from '../errors.ts'
 import { BlobSource } from '../source.ts'
 import type {
-  ScientificCompanionResolver,
   ScientificCompanionRequest,
+  ScientificCompanionResolver,
   ScientificOpenContext,
   ScientificProbeLimitOptions,
   ScientificResource,
 } from './reader.ts'
 import { normalizeScientificRelativeName } from './reader.ts'
+
+export type {
+  NormalizedOmeZarrStoreUrl,
+  OmeZarrHttpContext,
+  OmeZarrHttpStoreOptions,
+  OmeZarrNetworkStats,
+} from './ome-zarr-http.ts'
+export {
+  createOmeZarrHttpContext,
+  normalizeOmeZarrStoreUrl,
+  OmeZarrHttpStore,
+  resolveOmeZarrObjectUrl,
+} from './ome-zarr-http.ts'
 
 const fileRelativeName = (file: File): string => {
   const relativePath = file.webkitRelativePath

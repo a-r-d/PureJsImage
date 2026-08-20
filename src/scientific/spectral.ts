@@ -2,13 +2,6 @@ import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { RasterBlock } from '../raster.ts'
 import type {
-  MultidimensionalRasterDataset,
-  PhysicalPixelSize,
-  RasterChannelInfo,
-  RasterPlaneRequest,
-} from './legacy-dataset.ts'
-import { isScientificDataset } from './dataset-adapters.ts'
-import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
@@ -17,6 +10,13 @@ import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
 } from './dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
+import type {
+  MultidimensionalRasterDataset,
+  PhysicalPixelSize,
+  RasterChannelInfo,
+  RasterPlaneRequest,
+} from './legacy-dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
   rasterBlockToNumericTile,
@@ -24,24 +24,26 @@ import {
   validateNumericTile,
 } from './numeric-tile.ts'
 import {
-  type ScientificPlaneRenderOptions,
-  type ScientificRenderedPlane,
-  renderScientificPlane,
   type LegacyScientificPlaneRenderOptions,
   type LegacyScientificRenderedPlane,
+  renderScientificPlane,
+  type ScientificPlaneRenderOptions,
+  type ScientificRenderedPlane,
 } from './render.ts'
 
-type NumberNumericArray = Exclude<NumericArray, BigUint64Array>
+type NumberNumericArray = Exclude<NumericArray, BigUint64Array | BigInt64Array>
 
 const numericSource = (dataset: ScientificDataset): NumericTileSource =>
   resolveNumericTileSource(dataset, {
-    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+    ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
+      ? { targetSampleType: 'float64' }
+      : {}),
   })
 
 const numberTileData = (tile: NumericTile): NumberNumericArray => {
   validateNumericTile(tile)
-  if (tile.data instanceof BigUint64Array) {
-    throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
+  if (tile.data instanceof BigUint64Array || tile.data instanceof BigInt64Array) {
+    throw invalidInput('Scientific 64-bit integer values must be exactly convertible to float64')
   }
   return tile.data
 }
@@ -511,7 +513,9 @@ class DerivedSpectralDataset implements LegacySpectralDerivedDataset {
       c: this.sourceChannels,
     })) {
       const tile = rasterBlockToNumericTile(block, {
-        ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+        ...(block.format.sampleType === 'uint64' || block.format.sampleType === 'int64'
+          ? { targetSampleType: 'float64' }
+          : {}),
         ...(request.signal === undefined ? {} : { signal: request.signal }),
       })
       try {
@@ -585,7 +589,9 @@ const readScientificSpectralRegion = async (
   let expectedY = normalized.y
   for await (const tile of source.readNumericTiles({
     ...normalized,
-    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+    ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
+      ? { targetSampleType: 'float64' }
+      : {}),
   })) {
     try {
       if (tile.x !== normalized.x || tile.y !== expectedY || tile.width !== normalized.width) {
@@ -690,7 +696,10 @@ class DerivedScientificSpectralDataset implements SpectralDerivedDataset {
     let expectedY = normalized.y
     for await (const tile of source.readNumericTiles({
       ...firstRequest,
-      ...(this.#source.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+      ...(this.#source.descriptor.sampleType === 'uint64' ||
+      this.#source.descriptor.sampleType === 'int64'
+        ? { targetSampleType: 'float64' }
+        : {}),
     })) {
       try {
         if (tile.x !== normalized.x || tile.y !== expectedY || tile.width !== normalized.width) {

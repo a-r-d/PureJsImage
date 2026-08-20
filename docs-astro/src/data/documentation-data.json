@@ -96,9 +96,9 @@
   },
   "sizes": {
     "allReaders": {
-      "brotliBytes": 286974,
-      "gzipBytes": 359348,
-      "minifiedBytes": 1242303
+      "brotliBytes": 287907,
+      "gzipBytes": 360888,
+      "minifiedBytes": 1248276
     },
     "allStableCodecs": {
       "brotliBytes": 258491,
@@ -116,14 +116,14 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 6012559,
+      "bytes": 6044811,
       "productionPackageCount": 1
     },
     "packageVersion": "0.14.0",
     "scientificPlatform": {
-      "brotliBytes": 39808,
-      "gzipBytes": 46700,
-      "minifiedBytes": 160717
+      "brotliBytes": 40165,
+      "gzipBytes": 47225,
+      "minifiedBytes": 163688
     }
   },
   "ordinary": {
@@ -672,7 +672,7 @@
       "oracle": "",
       "packageExport": "purejsimage/scientific/readers/ome-zarr",
       "resourceModel": "directory-like",
-      "supportBoundary": "OME-NGFF 0.4 and 0.5 image multiscales, labels, and plates/wells on Zarr v2 and v3 directory stores, a ZIP archive with root-level or a single nested zarr.json/.zgroup (including *.zarr / *.ome.zarr names and ignored __MACOSX/ sidecars), and bioformats2raw.layout series roots (0/, 1/, …). Regular and sharding_indexed chunk grids; bytes, gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 with byte shuffle or 8-element-aligned bitshuffle and LZ4/zlib/zstd or memcpy; missing chunks become fill values; selected planes fetch only intersecting chunks. BloscLZ, Snappy, malformed bitshuffle blocks, tables, RFC-9 zip-comment/jsonFirst requirements, multi-root ZIPs, and writers are rejected."
+      "supportBoundary": "OME-NGFF 0.4 and 0.5 image multiscales, full OMERO channel/rdefs display metadata, image-label colors/properties/source with 0.5 associated-pyramid parity, and rich plates/wells/acquisitions on Zarr v2 and v3 directory stores, bounded public HTTP contexts, or a ZIP archive with root-level or a single nested zarr.json/.zgroup (including *.zarr / *.ome.zarr names and ignored __MACOSX/ sidecars), plus bioformats2raw.layout series roots (0/, 1/, …). Integer arrays include exact signed/unsigned 64-bit canonical bytes and BigInt access. Regular and sharding_indexed chunk grids; bytes, gzip, zlib, zstd, crc32c, transpose, shuffle, and Blosc 1 with byte shuffle or 8-element-aligned bitshuffle and LZ4/zlib/zstd or memcpy; missing chunks become fill values; selected planes fetch only intersecting chunks. BloscLZ, Snappy, malformed bitshuffle blocks, complex/boolean/structured dtypes, tables, RFC-9 zip-comment/jsonFirst requirements, multi-root ZIPs, and writers are rejected."
     },
     {
       "benchmarkCoverage": {

@@ -135,6 +135,12 @@ export type {
   ScientificRenderRange,
   ScientificStatisticsRequest,
 } from './render.ts'
+export {
+  readRasterBigIntSample,
+  readRasterSample,
+  writeRasterBigIntSample,
+  writeRasterSample,
+} from './samples.ts'
 export type {
   BandRatioOptions,
   SpectralBandRenderOptions,

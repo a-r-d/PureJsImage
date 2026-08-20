@@ -1,5 +1,15 @@
 import { invalidInput } from '../../errors.ts'
 import { type OmeZarrLimits, openOmeZarr, probeOmeZarr } from '../formats/ome-zarr.ts'
+
+export type {
+  OmeZarrDisplayChannelMetadata,
+  OmeZarrDisplayDefaultsMetadata,
+  OmeZarrDisplayMetadata,
+  OmeZarrDisplayWindowMetadata,
+  OmeZarrLevelStorageMetadata,
+  OmeZarrPlateAcquisitionMetadata,
+} from '../formats/ome-zarr.ts'
+
 import type {
   ScientificDocument,
   ScientificOpenContext,
@@ -82,7 +92,7 @@ const resolveLimits = (input: Partial<OmeZarrLimits> = {}): Readonly<OmeZarrLimi
 
 export const omeZarrReaderDescriptor: ScientificReaderDescriptor = Object.freeze({
   id: 'purejsimage/ome-zarr',
-  version: '1.0.0',
+  version: '1.1.0',
   format: 'OME-Zarr',
   extensions: Object.freeze(['zarr', 'ozx']),
   mediaTypes: Object.freeze(['application/vnd.ome.zarr', 'application/x-zarr']),

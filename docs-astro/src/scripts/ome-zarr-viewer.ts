@@ -20,6 +20,45 @@ const requiredElement = <ElementType extends Element>(
   return candidate
 }
 
+const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const parseChannelConfiguration = (entry: unknown): OmeZarrChannelConfiguration | undefined => {
+  if (!isRecord(entry)) return undefined
+  const coefficient = entry.coefficient === undefined ? 1 : entry.coefficient
+  const inverted = entry.inverted === undefined ? false : entry.inverted
+  if (
+    typeof entry.index !== 'number' ||
+    !Number.isSafeInteger(entry.index) ||
+    typeof entry.enabled !== 'boolean' ||
+    typeof entry.color !== 'number' ||
+    !Number.isSafeInteger(entry.color) ||
+    entry.color < 0 ||
+    entry.color > 0xff_ffff ||
+    typeof entry.minimum !== 'number' ||
+    !Number.isFinite(entry.minimum) ||
+    typeof entry.maximum !== 'number' ||
+    !Number.isFinite(entry.maximum) ||
+    typeof entry.gamma !== 'number' ||
+    !Number.isFinite(entry.gamma) ||
+    typeof coefficient !== 'number' ||
+    !Number.isFinite(coefficient) ||
+    typeof inverted !== 'boolean'
+  ) {
+    return undefined
+  }
+  return Object.freeze({
+    index: entry.index,
+    enabled: entry.enabled,
+    color: entry.color,
+    minimum: entry.minimum,
+    maximum: entry.maximum,
+    gamma: entry.gamma,
+    coefficient,
+    inverted,
+  })
+}
+
 interface CachedTile {
   readonly key: string
   readonly generation: number
@@ -1023,6 +1062,8 @@ const renderControls = (): void => {
         minimum: Number(minimum.value),
         maximum: Number(maximum.value),
         gamma: Number(gamma.value),
+        coefficient: channel.coefficient,
+        inverted: channel.inverted,
       }
       const activeCount = configuration.channels.filter((entry) =>
         entry.index === channel.index ? nextChannel.enabled : entry.enabled,
@@ -1178,8 +1219,8 @@ const restoreConfigurationFromUrl = (): void => {
   if (rawAxes !== null) {
     try {
       const parsed: unknown = JSON.parse(rawAxes)
-      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-        const record = parsed as Readonly<Record<string, unknown>>
+      if (isRecord(parsed)) {
+        const record = parsed
         next = {
           ...next,
           fixedIndices: next.fixedIndices.map((entry) => {
@@ -1203,25 +1244,9 @@ const restoreConfigurationFromUrl = (): void => {
     try {
       const parsed: unknown = JSON.parse(rawChannels)
       if (Array.isArray(parsed) && parsed.length === next.channels.length) {
-        const candidates = parsed.filter((entry): entry is OmeZarrChannelConfiguration => {
-          if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) return false
-          const value = entry as Readonly<Record<string, unknown>>
-          return (
-            typeof value.index === 'number' &&
-            Number.isSafeInteger(value.index) &&
-            typeof value.enabled === 'boolean' &&
-            typeof value.color === 'number' &&
-            Number.isSafeInteger(value.color) &&
-            value.color >= 0 &&
-            value.color <= 0xff_ffff &&
-            typeof value.minimum === 'number' &&
-            Number.isFinite(value.minimum) &&
-            typeof value.maximum === 'number' &&
-            Number.isFinite(value.maximum) &&
-            typeof value.gamma === 'number' &&
-            Number.isFinite(value.gamma)
-          )
-        })
+        const candidates = parsed
+          .map(parseChannelConfiguration)
+          .filter((entry): entry is OmeZarrChannelConfiguration => entry !== undefined)
         const enabled = candidates.filter((entry) => entry.enabled).length
         const expectedIndices = new Set(next.channels.map((entry) => entry.index))
         const candidateIndices = new Set(candidates.map((entry) => entry.index))
@@ -1232,7 +1257,11 @@ const restoreConfigurationFromUrl = (): void => {
           enabled >= 1 &&
           enabled <= 3 &&
           candidates.every(
-            (entry) => entry.maximum > entry.minimum && entry.gamma >= 0.05 && entry.gamma <= 10,
+            (entry) =>
+              entry.maximum > entry.minimum &&
+              entry.gamma >= 0.05 &&
+              entry.gamma <= 10 &&
+              entry.coefficient >= 0,
           )
         )
           next = { ...next, channels: candidates }

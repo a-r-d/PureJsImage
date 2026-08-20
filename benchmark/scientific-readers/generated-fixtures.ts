@@ -613,13 +613,50 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
             ],
             omero: {
               channels: [
-                { label: 'Red tissue', color: 'FF0000' },
-                { label: 'Green structure', color: '00FF00' },
-                { label: 'Blue detail', color: '0000FF' },
+                {
+                  active: true,
+                  coefficient: 1,
+                  color: 'AA1100',
+                  family: 'linear',
+                  inverted: false,
+                  label: 'Red tissue',
+                  window: { min: 0, max: 255, start: 10, end: 200 },
+                },
+                {
+                  active: false,
+                  coefficient: 0.5,
+                  color: '00BB44',
+                  family: 'linear',
+                  inverted: false,
+                  label: 'Green structure',
+                  window: { min: 0, max: 255, start: 20, end: 180 },
+                },
+                {
+                  active: true,
+                  coefficient: 0.75,
+                  color: '2244CC',
+                  family: 'linear',
+                  inverted: true,
+                  label: 'Blue detail',
+                  window: { min: 0, max: 255, start: 30, end: 220 },
+                },
               ],
+              rdefs: { defaultT: 0, defaultZ: 1, model: 'color' },
             },
             plate: {
               name: 'deterministic-demo-plate',
+              version: '0.5',
+              field_count: 1,
+              acquisitions: [
+                {
+                  id: 0,
+                  name: 'deterministic-acquisition',
+                  maximumfieldcount: 1,
+                  description: 'Generated browser fixture',
+                  starttime: 1_700_000_000,
+                  endtime: 1_700_000_100,
+                },
+              ],
               rows: [{ name: 'A' }],
               columns: [{ name: '1' }, { name: '2' }],
               wells: [
@@ -664,9 +701,14 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
               },
             ],
             'image-label': {
+              version: '0.5',
               colors: [
                 { 'label-value': 1, rgba: [255, 210, 40, 220] },
                 { 'label-value': 2, rgba: [0, 220, 255, 210] },
+              ],
+              properties: [
+                { 'label-value': 1, name: 'Tissue', class: 'foreground' },
+                { 'label-value': 2, name: 'Structure', class: 'foreground' },
               ],
               source: { image: '../../' },
             },
@@ -684,7 +726,12 @@ const omeZarrWsi = (): GeneratedScientificFixture => {
         bytes: json({
           zarr_format: 3,
           node_type: 'group',
-          attributes: { ome: { version: '0.5', well: { images: [{ path: '0' }] } } },
+          attributes: {
+            ome: {
+              version: '0.5',
+              well: { version: '0.5', images: [{ path: '0', acquisition: 0 }] },
+            },
+          },
         }),
       },
       {
