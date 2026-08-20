@@ -31,8 +31,10 @@ context.store.close()
 
 The context normalizes the root, confines companion paths, treats 404/410 as absent objects,
 validates strict byte ranges, keeps a bounded source LRU, coalesces reads, propagates cancellation,
-and exposes measured request/cache statistics. A successful HEAD supplies object size only when a
-valid 206 response omits browser-visible `Content-Range`.
+and exposes measured request/cache statistics. A naked store URL discovers `zarr.json`, then
+`.zgroup` / `.zattrs`, while an explicit metadata URL remains authoritative. Object opening starts
+with `GET Range: bytes=0-0`; a successful HEAD supplies object size only when that valid 206
+response omits browser-visible `Content-Range`.
 
 A ZIP archive whose root contains `zarr.json` or `.zgroup` is also a store. A single nested
 prefix such as `image.zarr/zarr.json` is accepted; two sibling store roots are rejected. macOS
@@ -44,9 +46,10 @@ ZIP magic as name-plus-magic evidence and does not open the archive. Generic `.z
 OME-Zarr hint. Deep ZIP validation happens on open. RFC-9 zip-comment and `jsonFirst`
 recommendations are not required. The reader does not invent a second store abstraction.
 
-A `bioformats2raw.layout` root without `multiscales` is scanned as consecutive series groups
-`0/`, `1/`, … until the next integer path is missing. A leftover root `labels` list does not
-replace that series scan. Extra integer series beyond `maxDatasets` fail with `LIMIT_EXCEEDED`.
+A `bioformats2raw.layout` root without `multiscales` uses an authored `OME/zarr.json`
+`ome.series` list when present, otherwise it scans consecutive series groups `0/`, `1/`, … until
+the next integer path is missing. A leftover root `labels` list does not replace series discovery.
+Extra integer or explicitly listed series beyond `maxDatasets` fail with `LIMIT_EXCEEDED`.
 
 ## Supported boundary
 
@@ -56,7 +59,7 @@ replace that series scan. Extra integer series beyond `maxDatasets` fail with `L
 | Resource model | Directory-like group plus arrays and chunk objects, or a ZIP archive with root-level or one nested Zarr prefix. |
 | Chunks | Regular grids and `sharding_indexed` with index-at-end or index-at-start. A missing chunk is fill only when a defined fill exists; Zarr v2 `fill_value: null` leaves missing contents undefined. |
 | Codecs | `bytes`, `gzip`, `zlib`, `zstd`, `crc32c`, one `transpose`, `shuffle`, and Blosc 1 with byte shuffle or 8-element-aligned bitshuffle plus LZ4, LZ4HC, zlib, zstd, or memcpy. Index codecs are `bytes` and `crc32c` and must declare endian. |
-| Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` version, colors, arbitrary per-value properties, and source relationship. OME-NGFF 0.5 associated labels must have the same pyramid-level count; legacy 0.4 labels preserve their published pyramids. Plate wells become one dataset per field, with well version, path, indices, and acquisition in metadata; plate metadata preserves name, version, field count, layout, and complete acquisitions. `bioformats2raw.layout` series become one dataset per integer series path. Arrays become resolution levels. Axes, scale/translation, units, and full authored OMERO channel/rdefs display state are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
+| Mapping | Each multiscale image is one scientific dataset. Sibling `labels/` groups and root label indexes become separate datasets with `image-label` version, colors, arbitrary per-value properties, and source relationship. OME-NGFF 0.5 associated labels must have the same pyramid-level count; legacy 0.4 labels preserve their published pyramids. Plate wells become one dataset per field, with well version, path, indices, and acquisition in metadata; plate metadata preserves name, version, field count, layout, and complete acquisitions. `bioformats2raw.layout` series become one dataset per authored `OME.series` path or consecutive integer fallback. Arrays become resolution levels. Axes, inline or path-backed scale/translation, units, multiscale generation type/metadata, and full authored OMERO channel/rdefs display state are preserved. C- and F-order v2 arrays are converted to canonical plane order. |
 | Reads | Selected planes fetch only intersecting shards/inner chunks. A plane session layers a bounded cache over the store LRU (`maxOpenSources` entries and `maxCachedChunkBytes`). One oversized shard may be held transiently for adjacent `rowsPerBlock` subdivisions; it is not retained in the persistent LRU and is reread on a later `readPlane`. Emitted blocks are canonical big-endian rasters with caller-owned `release()`. |
 
 ## Normalized storage metadata
@@ -105,12 +108,11 @@ For any other URL, the demo reports `Total store size unknown`; it does not infe
 enumerating objects or summing individual object sizes.
 
 Static hosting must permit cross-origin GET access and byte Range requests to shard objects, return
-206 for valid ranges, and expose `Content-Range` to browser JavaScript. HEAD access and exposed
-`Content-Length` are also required by the demo's bounded object opener. The verified Google Cloud
-Jackson deployment currently returns a valid wire-level `Content-Range` but omits that header from
-`Access-Control-Expose-Headers`; for this named exception, the demo establishes object size with
-HEAD and still validates the 206 status and exact response length. Other CORS, status, range, or
-content-encoding failures remain explicit errors.
+206 for valid ranges, and normally expose `Content-Range` to browser JavaScript. HEAD and exposed
+`Content-Length` are only the fallback when a successful 206 response hides `Content-Range`. The
+verified Google Cloud Jackson deployment uses that fallback; every data response must still be 206
+with the exact requested length. Other CORS, status, range, or content-encoding failures remain
+explicit errors.
 
 Chunk resolution during a plane read is session cache, then the persistent store LRU, then the
 companion resolver. Cacheable hits write through to both caches so a later `readPlane` can warm-hit
@@ -153,14 +155,23 @@ Unrecognized codecs fail with `UNSUPPORTED_OPERATION` and include the codec name
 
 `npm run compat:ome-zarr` reads the pinned manifest at
 `benchmark/ome-zarr/official-corpus.json`. For each URL it probes the root, opens the document,
-enumerates every dataset, inspects every resolution level, and reads a deterministic at-most-2x2
-region from every level. It never enumerates object storage or downloads a complete image.
+enumerates every dataset and resolution level, and reads bounded top-left, center, clipped-edge,
+nonzero channel/Z/T, inner-chunk-boundary, and outer-shard-boundary selections when those dimensions
+exist. Per-dataset output records dtype, codec stacks, logical chunks, outer shards, requests, and
+bytes fetched. It never enumerates object storage or downloads a complete image.
 Results are classified as `PASS`, `UNSUPPORTED_CODEC`, `UNSUPPORTED_DTYPE`,
 `UNSUPPORTED_METADATA`, `INVALID`, or `NETWORK_FAILURE`. A different reviewed manifest path may be
 passed as the first argument. The checked-in roots cover IDR, BIA, Sanger, SSBD, and OME 2024
 Challenge stores. A sample may pin an `expectedClassification`; this keeps known compatibility
 boundaries visible and makes the command fail if they unexpectedly regress or change. The Sanger
 sample currently guards the explicit OME-NGFF 0.2 `UNSUPPORTED_METADATA` boundary.
+
+`npm run compat:ome-zarr:conformance` runs the PureJsImage dingus contract against the official
+OME `ngff-spec` source pinned to finalized 0.5 revision
+`69b136f1e64e68fead11216ac8dd3f1155668d04`. The report separates normative cases, optional strict
+cases, and explicit upstream-suite exclusions. Exclusions are limited to cases where that pinned
+case corpus contradicts the finalized 0.5 report (currently versionless plates and a
+non-alphanumeric plate row); they are never counted as passes.
 
 ## Evidence
 

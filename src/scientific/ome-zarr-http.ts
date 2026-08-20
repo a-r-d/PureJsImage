@@ -16,6 +16,7 @@ import { normalizeScientificRelativeName } from './reader.ts'
 export interface NormalizedOmeZarrStoreUrl {
   readonly storeRootUrl: string
   readonly primaryMetadataName: 'zarr.json' | '.zgroup' | '.zattrs'
+  readonly discoverRootMetadata: boolean
 }
 
 export interface OmeZarrNetworkStats {
@@ -93,14 +94,17 @@ export const normalizeOmeZarrStoreUrl = (input: string | URL): NormalizedOmeZarr
   } catch (cause) {
     throw new ImageError('INVALID_INPUT', 'OME-Zarr store URL path is malformed', { cause })
   }
-  const primaryMetadataName = rootMetadataNames.has(last)
+  const explicitMetadata = rootMetadataNames.has(last)
+  const primaryMetadataName = explicitMetadata
     ? (last as NormalizedOmeZarrStoreUrl['primaryMetadataName'])
     : 'zarr.json'
-  const rootPath = rootMetadataNames.has(last)
-    ? trimmedPath.slice(0, Math.max(0, slash))
-    : trimmedPath
+  const rootPath = explicitMetadata ? trimmedPath.slice(0, Math.max(0, slash)) : trimmedPath
   url.pathname = `${rootPath.replace(/\/+$/u, '')}/`
-  return Object.freeze({ storeRootUrl: url.href, primaryMetadataName })
+  return Object.freeze({
+    storeRootUrl: url.href,
+    primaryMetadataName,
+    discoverRootMetadata: !explicitMetadata,
+  })
 }
 
 export const resolveOmeZarrObjectUrl = (storeRootUrl: string, name: unknown): string => {
@@ -241,10 +245,17 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
   }
 
   async openContext(): Promise<ScientificOpenContext> {
-    const primaryName = this.normalized.primaryMetadataName
-    const primary = await this.#openResource(primaryName, this.#lifetime.signal)
+    const candidates: readonly NormalizedOmeZarrStoreUrl['primaryMetadataName'][] = this.normalized
+      .discoverRootMetadata
+      ? ['zarr.json', '.zgroup', '.zattrs']
+      : [this.normalized.primaryMetadataName]
+    let primary: ScientificResource | undefined
+    for (const name of candidates) {
+      primary = await this.#openResource(name, this.#lifetime.signal)
+      if (primary !== undefined) break
+    }
     if (primary === undefined) {
-      throw invalidInput(`OME-Zarr root metadata ${primaryName} was not found`)
+      throw invalidInput(`OME-Zarr root metadata ${candidates.join(', ')} was not found`)
     }
     return Object.freeze({
       primary,
@@ -320,30 +331,16 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
 
   async #openSource(name: string): Promise<TrackedHttpRangeSource | undefined> {
     const url = resolveOmeZarrObjectUrl(this.normalized.storeRootUrl, name)
-    let head: Response
-    try {
-      head = await this.#fetch(url, { method: 'HEAD', signal: this.#lifetime.signal })
-    } catch (cause) {
-      throwIfAborted(this.#lifetime.signal)
-      throw new ImageError('INVALID_INPUT', `OME-Zarr object request failed for ${name}`, { cause })
-    }
-    if (head.status === 404 || head.status === 410) return undefined
-    if (head.status !== 200) {
-      throw invalidInput(`OME-Zarr object ${name} returned status ${head.status}`)
-    }
-    const size = Number(head.headers.get('content-length'))
-    if (!Number.isSafeInteger(size) || size < 1) {
-      throw invalidInput(`OME-Zarr object ${name} is missing a valid Content-Length header`)
-    }
     const remoteSource = await HttpRangeSource.open(url, {
+      allowNotFound: true,
       allowHeadSizeFallback: true,
       blockBytes: this.#blockBytes,
-      expectedSize: size,
       fetch: this.#fetch,
       lifetimeSignal: this.#lifetime.signal,
       maxCacheBytes: this.#maxCacheBytesPerSource,
       openSignal: this.#lifetime.signal,
     })
+    if (remoteSource === undefined) return undefined
     const metadataObject = /(?:^|\/)(?:zarr\.json|\.zgroup|\.zattrs|\.zarray)$/u.test(name)
     const source = new TrackedHttpRangeSource(remoteSource, (delta) => {
       addSourceStats(this.#sourceTotals, delta)

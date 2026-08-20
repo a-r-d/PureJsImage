@@ -6,6 +6,9 @@ import {
   OmeZarrHttpStore,
   resolveOmeZarrObjectUrl,
 } from '../src/scientific/browser.ts'
+import { omeZarrReader } from '../src/scientific/readers/ome-zarr.ts'
+
+const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
 
 interface MockStore {
   readonly fetch: typeof fetch
@@ -15,6 +18,8 @@ interface MockStore {
 const mockStore = (
   files: Readonly<Record<string, Uint8Array>>,
   options: {
+    readonly hideContentRange?: boolean
+    readonly headStatus?: number
     readonly missingStatus?: Readonly<Record<string, 404 | 410>>
     readonly rangeStatus?: number
   } = {},
@@ -30,6 +35,9 @@ const mockStore = (
     const bytes = files[path]
     if (bytes === undefined) return new Response(null, { status: 404 })
     if (method === 'HEAD') {
+      if (options.headStatus !== undefined) {
+        return new Response(null, { status: options.headStatus })
+      }
       return new Response(null, {
         status: 200,
         headers: { 'content-length': String(bytes.byteLength) },
@@ -40,12 +48,15 @@ const mockStore = (
     if (match === undefined || match === null) return new Response(null, { status: 400 })
     const start = Number(match[1])
     const end = Math.min(Number(match[2]), bytes.byteLength - 1)
+    const responseHeaders: Record<string, string> = {
+      'content-length': String(end - start + 1),
+    }
+    if (options.hideContentRange !== true) {
+      responseHeaders['content-range'] = `bytes ${start}-${end}/${bytes.byteLength}`
+    }
     return new Response(bytes.slice(start, end + 1), {
       status: options.rangeStatus ?? 206,
-      headers: {
-        'content-length': String(end - start + 1),
-        'content-range': `bytes ${start}-${end}/${bytes.byteLength}`,
-      },
+      headers: responseHeaders,
     })
   }
   return { fetch: fetcher, requests }
@@ -56,20 +67,24 @@ describe('OME-Zarr HTTP store URL handling', () => {
     expect(normalizeOmeZarrStoreUrl('https://example.test/data/image.zarr')).toEqual({
       storeRootUrl: 'https://example.test/data/image.zarr/',
       primaryMetadataName: 'zarr.json',
+      discoverRootMetadata: true,
     })
     expect(
       normalizeOmeZarrStoreUrl('https://example.test/data/image.zarr/zarr.json?token=one'),
     ).toEqual({
       storeRootUrl: 'https://example.test/data/image.zarr/?token=one',
       primaryMetadataName: 'zarr.json',
+      discoverRootMetadata: false,
     })
     expect(normalizeOmeZarrStoreUrl('https://example.test/v2/.zgroup')).toEqual({
       storeRootUrl: 'https://example.test/v2/',
       primaryMetadataName: '.zgroup',
+      discoverRootMetadata: false,
     })
     expect(normalizeOmeZarrStoreUrl('https://example.test/v2/.zattrs')).toEqual({
       storeRootUrl: 'https://example.test/v2/',
       primaryMetadataName: '.zattrs',
+      discoverRootMetadata: false,
     })
   })
 
@@ -95,6 +110,100 @@ describe('OME-Zarr HTTP store URL handling', () => {
 })
 
 describe('OME-Zarr HTTP object resolution', () => {
+  it('discovers a naked Zarr v2 root after a missing v3 root without requiring HEAD', async () => {
+    const mocked = mockStore({
+      '.zgroup': new TextEncoder().encode('{"zarr_format":2}'),
+      '.zattrs': new TextEncoder().encode('{}'),
+    })
+    const context = await createOmeZarrHttpContext('https://example.test/store', {
+      fetch: mocked.fetch,
+    })
+    expect(context.primary.name).toBe('.zgroup')
+    expect(mocked.requests).toEqual([
+      { method: 'GET', path: 'zarr.json' },
+      { method: 'GET', path: '.zgroup' },
+    ])
+    context.store.close()
+  })
+
+  it('opens and reads a naked remote Zarr v2 store through the public context', async () => {
+    const mocked = mockStore({
+      '.zgroup': json({ zarr_format: 2 }),
+      '.zattrs': json({
+        multiscales: [
+          {
+            version: '0.4',
+            axes: [
+              { name: 'y', type: 'space' },
+              { name: 'x', type: 'space' },
+            ],
+            datasets: [
+              { path: '0', coordinateTransformations: [{ type: 'scale', scale: [1, 1] }] },
+            ],
+          },
+        ],
+      }),
+      '0/.zarray': json({
+        zarr_format: 2,
+        shape: [2, 2],
+        chunks: [2, 2],
+        dtype: '|u1',
+        compressor: null,
+        fill_value: 0,
+        order: 'C',
+        filters: null,
+      }),
+      '0/.zattrs': json({}),
+      '0/0.0': Uint8Array.of(1, 2, 3, 4),
+    })
+    const context = await createOmeZarrHttpContext('https://example.test/store', {
+      fetch: mocked.fetch,
+    })
+    try {
+      const document = await omeZarrReader.open(context)
+      const dataset = await document.openDataset('image')
+      const values: number[] = []
+      for await (const block of dataset.readPlane({
+        displayAxes: ['x', 'y'],
+        fixedIndices: [],
+        resolutionLevel: 0,
+        x: 0,
+        y: 0,
+        width: 2,
+        height: 2,
+      })) {
+        values.push(...block.data)
+        block.release?.()
+      }
+      expect(values).toEqual([1, 2, 3, 4])
+      expect(mocked.requests.some((request) => request.method === 'HEAD')).toBe(false)
+    } finally {
+      context.store.close()
+    }
+  })
+
+  it('keeps an explicit metadata URL authoritative instead of falling through discovery', async () => {
+    const mocked = mockStore({ '.zgroup': Uint8Array.of(1) })
+    await expect(
+      createOmeZarrHttpContext('https://example.test/store/zarr.json', {
+        fetch: mocked.fetch,
+      }),
+    ).rejects.toThrow('zarr.json was not found')
+    expect(mocked.requests).toEqual([{ method: 'GET', path: 'zarr.json' }])
+  })
+
+  it('uses HEAD only when a successful range response hides Content-Range', async () => {
+    const mocked = mockStore({ 'zarr.json': Uint8Array.of(123, 125) }, { hideContentRange: true })
+    const context = await createOmeZarrHttpContext('https://example.test/store/zarr.json', {
+      fetch: mocked.fetch,
+    })
+    expect(mocked.requests).toEqual([
+      { method: 'GET', path: 'zarr.json' },
+      { method: 'HEAD', path: 'zarr.json' },
+    ])
+    context.store.close()
+  })
+
   it('creates a reader-ready public context with an owning store', async () => {
     const mocked = mockStore({ 'zarr.json': Uint8Array.of(123, 125) })
     const context = await createOmeZarrHttpContext('https://example.test/store', {
@@ -153,7 +262,7 @@ describe('OME-Zarr HTTP object resolution', () => {
     await level.source.read(9, 2)
     const measured = store.stats()
     expect(measured).toMatchObject({
-      objectRequests: 5,
+      objectRequests: 3,
       rangeRequests: 3,
       objectsOpened: 2,
       bytesFetched: 10,
@@ -200,9 +309,7 @@ describe('OME-Zarr HTTP object resolution', () => {
     await store.resolve({ kind: 'relative-name', name: 'zarr.json' })
     expect(store.stats().objectsOpened).toBe(4)
     expect(
-      mocked.requests.filter(
-        (request) => request.method === 'HEAD' && request.path === 'zarr.json',
-      ),
+      mocked.requests.filter((request) => request.method === 'GET' && request.path === 'zarr.json'),
     ).toHaveLength(2)
 
     const beforeRetiredRead = store.stats()

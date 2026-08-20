@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+
+import { readFile, stat } from 'node:fs/promises'
+import { join } from 'node:path'
+
+import { validateOmeZarr05Attributes } from '../src/scientific/formats/ome-zarr.ts'
+import { createScientificPathContext } from '../src/scientific/node.ts'
+import { createOmeZarrReader } from '../src/scientific/readers/ome-zarr.ts'
+
+const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const writeOutput = async (value: unknown): Promise<void> =>
+  new Promise((resolve, reject) => {
+    process.stdout.write(`${JSON.stringify(value)}\n`, (error) => {
+      if (error === null || error === undefined) resolve()
+      else reject(error)
+    })
+  })
+
+const input = process.argv.at(-1)
+if (input === undefined || input === process.argv[1]) {
+  await writeOutput({ valid: false, message: 'Missing conformance input path' })
+} else {
+  try {
+    const metadata = await stat(input)
+    if (metadata.isDirectory()) {
+      const context = await createScientificPathContext(join(input, 'zarr.json'))
+      const document = await createOmeZarrReader().open(context)
+      if (document.datasets.length === 0) throw new Error('OME-Zarr hierarchy contains no datasets')
+    } else {
+      const parsed: unknown = JSON.parse(await readFile(input, 'utf8'))
+      if (!isRecord(parsed)) throw new Error('OME-Zarr attributes must be an object')
+      const { _conformance: _ignored, ...attributes } = parsed
+      validateOmeZarr05Attributes(attributes)
+    }
+    await writeOutput({ valid: true })
+  } catch (cause) {
+    await writeOutput({
+      valid: false,
+      message: cause instanceof Error ? cause.message : String(cause),
+    })
+  }
+}

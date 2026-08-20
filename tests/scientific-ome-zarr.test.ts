@@ -121,6 +121,7 @@ const arrayMeta = (
 }
 
 const bytesCodec = [{ name: 'bytes', configuration: { endian: 'little' } }]
+const validOmeroWindow = { min: 0, max: 255, start: 0, end: 255 }
 
 const raster = (height: number, width: number): Uint8Array => {
   const data = new Uint8Array(height * width)
@@ -159,7 +160,7 @@ const regularStore = (): Record<string, Uint8Array> => {
       ],
       {
         omero: {
-          channels: [{ label: 'DAPI', color: '0000FF' }],
+          channels: [{ label: 'DAPI', color: '0000FF', window: validOmeroWindow }],
         },
       },
     ),
@@ -1302,8 +1303,8 @@ describe('OME-Zarr edge cases', () => {
             ],
             omero: {
               channels: [
-                { label: 'DAPI', color: '00FF00' },
-                { label: 'GFP', color: '0000FF' },
+                { label: 'DAPI', color: '00FF00', window: validOmeroWindow },
+                { label: 'GFP', color: '0000FF', window: validOmeroWindow },
               ],
             },
           },
@@ -1494,7 +1495,7 @@ describe('OME-Zarr edge cases', () => {
     await expectCode(() => openDataset(omeZarrReader, fractional), 'INVALID_INPUT')
   })
 
-  it('decodes F-order edge chunks, big-endian samples, shuffle, and numeric OMERO colors', async () => {
+  it('decodes F-order edge chunks, big-endian samples, shuffle, and OMERO colors', async () => {
     const clipped = {
       '.zgroup': v2Group(),
       '.zattrs': v2Attrs([{ path: '0', scale: [1, 1] }]),
@@ -1570,7 +1571,9 @@ describe('OME-Zarr edge cases', () => {
                 ],
               },
             ],
-            omero: { channels: [{ label: 'DAPI', color: 255 }] },
+            omero: {
+              channels: [{ label: 'DAPI', color: '0000FF', window: validOmeroWindow }],
+            },
           },
         },
       }),
@@ -1922,7 +1925,9 @@ describe('OME-Zarr edge cases', () => {
                 ],
               },
             ],
-            omero: { channels: [{ label: 'DAPI', color: '00FF00' }] },
+            omero: {
+              channels: [{ label: 'DAPI', color: '00FF00', window: validOmeroWindow }],
+            },
           },
         },
       }),
@@ -3487,6 +3492,7 @@ describe('OME-Zarr PR 24 correctness', () => {
     const plate = (wells: unknown, extras: Readonly<Record<string, unknown>> = {}): Uint8Array =>
       v3Group({
         plate: {
+          version: '0.5',
           rows: [{ name: 'A' }],
           columns: [{ name: '1' }, { name: '2' }],
           wells,
@@ -3899,7 +3905,9 @@ describe('OME-Zarr PR 24 correctness', () => {
                       ],
                     },
                   ],
-                  omero: { channels: [{ label: 'DAPI', color: '#00FF00' }] },
+                  omero: {
+                    channels: [{ label: 'DAPI', color: '#00FF00', window: validOmeroWindow }],
+                  },
                 },
               },
             }),
@@ -3958,6 +3966,7 @@ describe('OME-Zarr PR 24 correctness', () => {
     const files = {
       'zarr.json': v3Group({
         plate: {
+          version: '0.5',
           rows: [{ name: 'A' }],
           columns: [{ name: '1' }],
           wells: [{ path: 'A/1', rowIndex: 0, columnIndex: 0 }],
@@ -4212,7 +4221,9 @@ describe('OME-Zarr remaining review regressions', () => {
                     ],
                   },
                 ],
-                omero: { channels: [{ label: 'only-one', color: '00FF00' }] },
+                omero: {
+                  channels: [{ label: 'only-one', color: '00FF00', window: validOmeroWindow }],
+                },
               },
             },
           }),
@@ -4443,5 +4454,142 @@ describe('OME-Zarr remaining review regressions', () => {
     ).toBe(1)
     expect(await planeValues(dataset, { width: 4, height: 4 })).toEqual([...pixels])
     expect(resolved.filter((name) => name === '0/c/0/0').length).toBe(afterOpen + 2)
+  })
+})
+
+describe('OME-Zarr 0.5 community conformance', () => {
+  const float64Vector = (values: readonly number[]): Uint8Array => {
+    const bytes = new Uint8Array(values.length * 8)
+    const view = new DataView(bytes.buffer)
+    for (const [index, value] of values.entries()) view.setFloat64(index * 8, value, true)
+    return bytes
+  }
+
+  it('requires complete OMERO channel display metadata', async () => {
+    const store = (channel: Readonly<Record<string, unknown>>) => ({
+      ...regularStore(),
+      'zarr.json': groupMeta([{ path: '0', scale: [1, 1] }], {
+        omero: { channels: [channel] },
+      }),
+    })
+    await expect(
+      omeZarrReader.open(trackingContext(store({ color: '00FF00', label: 'DAPI' })).context),
+    ).rejects.toThrow('window must be present')
+    await expect(
+      omeZarrReader.open(
+        trackingContext(store({ label: 'DAPI', window: validOmeroWindow })).context,
+      ),
+    ).rejects.toThrow('color must be present')
+    await expect(
+      omeZarrReader.open(
+        trackingContext(store({ color: 0x00ff00, label: 'DAPI', window: validOmeroWindow }))
+          .context,
+      ),
+    ).rejects.toThrow('exactly six hexadecimal digits')
+    await expect(
+      omeZarrReader.open(
+        trackingContext(store({ color: '00FF00', label: 'DAPI', window: { min: 0, max: 1 } }))
+          .context,
+      ),
+    ).rejects.toThrow('window.start')
+  })
+
+  it('requires 0.5 plate versions and unique alphanumeric row and column names', async () => {
+    const plateStore = (plate: Readonly<Record<string, unknown>>) => ({
+      'zarr.json': v3Group({ plate }),
+    })
+    const base = {
+      rows: [{ name: 'A' }],
+      columns: [{ name: '1' }],
+      wells: [{ path: 'A/1', rowIndex: 0, columnIndex: 0 }],
+    }
+    await expect(omeZarrReader.open(trackingContext(plateStore(base)).context)).rejects.toThrow(
+      'plate.version must be present',
+    )
+    await expect(
+      omeZarrReader.open(
+        trackingContext(plateStore({ ...base, version: '0.5', rows: [{ name: 'A-1' }] })).context,
+      ),
+    ).rejects.toThrow('only alphanumeric')
+    await expect(
+      omeZarrReader.open(
+        trackingContext(
+          plateStore({ ...base, version: '0.5', columns: [{ name: '1' }, { name: '1' }] }),
+        ).context,
+      ),
+    ).rejects.toThrow('is repeated')
+  })
+
+  it('reads path-backed transforms and preserves multiscale generation metadata', async () => {
+    const files = {
+      'zarr.json': text({
+        zarr_format: 3,
+        node_type: 'group',
+        attributes: {
+          ome: {
+            version: '0.5',
+            multiscales: [
+              {
+                name: 'calibrated',
+                type: 'gaussian',
+                metadata: { method: 'example.downsample', version: '1.2.3' },
+                axes: [
+                  { name: 'y', type: 'space', unit: 'micrometer' },
+                  { name: 'x', type: 'space', unit: 'micrometer' },
+                ],
+                datasets: [
+                  {
+                    path: '0',
+                    coordinateTransformations: [
+                      { type: 'scale', path: 'coordinateTransformations/scale' },
+                      { type: 'translation', path: 'coordinateTransformations/translation' },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      }),
+      '0/zarr.json': arrayMeta([2, 2], [2, 2], bytesCodec),
+      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
+      'coordinateTransformations/scale/zarr.json': arrayMeta([2], [2], bytesCodec, {
+        data_type: 'float64',
+      }),
+      'coordinateTransformations/scale/c/0': float64Vector([0.5, 0.25]),
+      'coordinateTransformations/translation/zarr.json': arrayMeta([2], [2], bytesCodec, {
+        data_type: 'float64',
+      }),
+      'coordinateTransformations/translation/c/0': float64Vector([10, 20]),
+    }
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    const dataset = await document.openDataset('image')
+    expect(dataset.descriptor.axes.find((axis) => axis.id === 'y')?.coordinates).toEqual({
+      type: 'linear',
+      origin: 10,
+      step: 0.5,
+    })
+    expect(dataset.descriptor.axes.find((axis) => axis.id === 'x')?.coordinates).toEqual({
+      type: 'linear',
+      origin: 20,
+      step: 0.25,
+    })
+    expect(dataset.descriptor.metadata).toMatchObject({
+      omeZarrMultiscaleType: 'gaussian',
+      omeZarrMultiscaleMetadata: { method: 'example.downsample', version: '1.2.3' },
+    })
+  })
+
+  it('honors an explicit OME.series list before numbered fallback discovery', async () => {
+    const files = {
+      'zarr.json': v3Group({ 'bioformats2raw.layout': 3 }),
+      'OME/zarr.json': v3Group({ series: ['foo', 'bar'] }),
+      ...tinyImage('foo', Uint8Array.of(1, 2, 3, 4)),
+      ...tinyImage('bar', Uint8Array.of(5, 6, 7, 8)),
+    }
+    const document = await omeZarrReader.open(trackingContext(files).context)
+    expect(document.datasets.map((dataset) => dataset.id)).toEqual(['foo', 'bar'])
+    expect(document.metadata).toMatchObject({ bioformats2rawLayout: 3, seriesCount: 2 })
+    expect(await planeValues(await document.openDataset('bar'))).toEqual([5, 6, 7, 8])
   })
 })

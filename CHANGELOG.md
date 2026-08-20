@@ -11,6 +11,10 @@ All notable changes to PureJsImage are documented in this file.
   object, Range, byte, source-cache, bitmap-cache, decode, and cancellation activity, and includes
   a deterministic sharded three-level browser fixture plus an opt-in Jackson Laboratory live smoke
   test.
+- Added a dingus-compatible OME-Zarr conformance command pinned to the finalized OME-NGFF 0.5
+  revision. Its report separates normative and optional strict cases, keeps contradictory upstream
+  plate cases as explicit exclusions instead of passes, and complements the expanded bounded-read
+  public corpus across IDR, BIA, Sanger, SSBD, and OME 2024 stores.
 
 ### Changed
 
@@ -18,6 +22,13 @@ All notable changes to PureJsImage are documented in this file.
   logical chunk and outer shard shapes, codec names, and shard-index location. Blosc 1 decoding now
   supports 8-element-aligned bitshuffle blocks, including the zstd payloads used by the verified
   Jackson OME-NGFF 0.5 stores.
+- OME-Zarr 0.5 now enforces required OMERO channel colors/windows and plate version/layout rules,
+  reads path-backed scale and translation vectors, preserves multiscale generation metadata, and
+  honors explicit `OME.series` lists. Remote naked roots discover both Zarr v3 and v2 metadata;
+  object opening uses Range GET first and falls back to HEAD only when browser-visible
+  `Content-Range` is unavailable. Compatibility reads now cover corners, nonzero auxiliary axes,
+  inner-chunk boundaries, and outer-shard boundaries while recording codec, chunk, shard, request,
+  and fetched-byte evidence per dataset.
 
 ## [0.14.0] - 2026-08-20
 

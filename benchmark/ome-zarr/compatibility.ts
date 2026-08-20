@@ -47,7 +47,17 @@ export interface OmeZarrCompatibilityDatasetResult {
   readonly id: string
   readonly sampleType: string
   readonly levels: number
+  readonly selections: number
   readonly bytesRead: number
+  readonly objectRequests: number
+  readonly rangeRequests: number
+  readonly bytesFetched: number
+  readonly levelStorage: readonly {
+    readonly level: number
+    readonly codecs: readonly string[]
+    readonly logicalChunkShape: readonly number[]
+    readonly storageChunkShape: readonly number[]
+  }[]
 }
 
 export interface OmeZarrCompatibilityResult {
@@ -166,11 +176,13 @@ const levelAxisLength = (dataset: ScientificDataset, level: number, axisId: stri
   return value
 }
 
-const tinyPlaneRequest = (
+const planeRequest = (
   dataset: ScientificDataset,
   level: number,
   widthLimit: number,
   heightLimit: number,
+  position: 'top-left' | 'center' | 'bottom-right',
+  boundary?: { readonly axis: 'x' | 'y'; readonly coordinate: number },
 ): ScientificPlaneReadRequest => {
   const spatial = dataset.descriptor.axes.filter((axis) => axis.kind === 'space')
   const horizontal = spatial.find((axis) => axis.id.toLowerCase() === 'x') ?? spatial.at(-1)
@@ -182,40 +194,143 @@ const tinyPlaneRequest = (
     horizontal.id,
     vertical.id,
   ])
+  const horizontalLength = levelAxisLength(dataset, level, horizontal.id)
+  const verticalLength = levelAxisLength(dataset, level, vertical.id)
+  const width = Math.min(widthLimit, horizontalLength)
+  const height = Math.min(heightLimit, verticalLength)
+  const positionStart = (length: number, extent: number): number => {
+    if (position === 'top-left') return 0
+    if (position === 'center') return Math.max(0, Math.floor((length - extent) / 2))
+    return Math.max(0, length - extent)
+  }
+  let x = positionStart(horizontalLength, width)
+  let y = positionStart(verticalLength, height)
+  if (boundary?.axis === 'x')
+    x = Math.max(0, Math.min(horizontalLength - width, boundary.coordinate))
+  if (boundary?.axis === 'y')
+    y = Math.max(0, Math.min(verticalLength - height, boundary.coordinate))
+  const fixedIndex = (axisId: string): number => {
+    const length = levelAxisLength(dataset, level, axisId)
+    if (position === 'top-left') return 0
+    if (position === 'center') return Math.min(1, length - 1)
+    return length - 1
+  }
   return Object.freeze({
     displayAxes,
     fixedIndices: Object.freeze(
       dataset.descriptor.axes
         .filter((axis) => axis.id !== horizontal.id && axis.id !== vertical.id)
-        .map((axis) => Object.freeze({ axisId: axis.id, index: 0 })),
+        .map((axis) => Object.freeze({ axisId: axis.id, index: fixedIndex(axis.id) })),
     ),
     resolutionLevel: level,
-    x: 0,
-    y: 0,
-    width: Math.min(widthLimit, levelAxisLength(dataset, level, horizontal.id)),
-    height: Math.min(heightLimit, levelAxisLength(dataset, level, vertical.id)),
+    x,
+    y,
+    width,
+    height,
   })
+}
+
+interface CompatibilityLevelStorage {
+  readonly level: number
+  readonly codecs: readonly string[]
+  readonly logicalChunkShape: readonly number[]
+  readonly storageChunkShape: readonly number[]
+}
+
+const numberTuple = (value: unknown): readonly number[] | undefined =>
+  Array.isArray(value) &&
+  value.every((entry) => typeof entry === 'number' && Number.isSafeInteger(entry) && entry > 0)
+    ? Object.freeze(value.map(Number))
+    : undefined
+
+const levelStorage = (dataset: ScientificDataset): readonly CompatibilityLevelStorage[] => {
+  const value = dataset.descriptor.metadata?.omeZarrLevels
+  if (!Array.isArray(value)) return Object.freeze([])
+  return Object.freeze(
+    value.flatMap((entry): readonly CompatibilityLevelStorage[] => {
+      if (!isRecord(entry) || !Number.isSafeInteger(entry.level) || !Array.isArray(entry.codecs)) {
+        return []
+      }
+      const codecs = entry.codecs.filter((codec): codec is string => typeof codec === 'string')
+      const logicalChunkShape = numberTuple(entry.logicalChunkShape)
+      const storageChunkShape = numberTuple(entry.storageChunkShape)
+      if (logicalChunkShape === undefined || storageChunkShape === undefined) return []
+      return [
+        Object.freeze({
+          level: Number(entry.level),
+          codecs: Object.freeze(codecs),
+          logicalChunkShape,
+          storageChunkShape,
+        }),
+      ]
+    }),
+  )
 }
 
 const readAllLevels = async (
   dataset: ScientificDataset,
   width: number,
   height: number,
-): Promise<number> => {
+): Promise<{ readonly bytesRead: number; readonly selections: number }> => {
   let bytesRead = 0
+  let selections = 0
+  const storage = levelStorage(dataset)
   for (const level of dataset.descriptor.levels.keys()) {
-    let blocks = 0
-    for await (const block of dataset.readPlane(tinyPlaneRequest(dataset, level, width, height))) {
-      try {
-        bytesRead += block.data.byteLength
-        blocks += 1
-      } finally {
-        block.release?.()
+    const requests: ScientificPlaneReadRequest[] = [
+      planeRequest(dataset, level, width, height, 'top-left'),
+      planeRequest(dataset, level, width, height, 'center'),
+      planeRequest(dataset, level, width, height, 'bottom-right'),
+    ]
+    const levelInfo = storage.find((entry) => entry.level === level)
+    const spatial = dataset.descriptor.axes.filter((axis) => axis.kind === 'space')
+    const horizontal = spatial.find((axis) => axis.id.toLowerCase() === 'x') ?? spatial.at(-1)
+    const vertical = spatial.find((axis) => axis.id.toLowerCase() === 'y') ?? spatial.at(-2)
+    if (levelInfo !== undefined && horizontal !== undefined && vertical !== undefined) {
+      const horizontalIndex = dataset.descriptor.axes.findIndex((axis) => axis.id === horizontal.id)
+      const verticalIndex = dataset.descriptor.axes.findIndex((axis) => axis.id === vertical.id)
+      for (const [axis, axisIndex] of [
+        ['x', horizontalIndex],
+        ['y', verticalIndex],
+      ] as const) {
+        const inner = levelInfo.logicalChunkShape[axisIndex]
+        const outer = levelInfo.storageChunkShape[axisIndex]
+        if (inner !== undefined && inner > 1) {
+          requests.push(
+            planeRequest(dataset, level, width, height, 'top-left', {
+              axis,
+              coordinate: inner - 1,
+            }),
+          )
+        }
+        if (outer !== undefined && outer > 1 && outer !== inner) {
+          requests.push(
+            planeRequest(dataset, level, width, height, 'top-left', {
+              axis,
+              coordinate: outer - 1,
+            }),
+          )
+        }
       }
     }
-    if (blocks === 0) throw invalidInput(`OME-Zarr level ${level} returned no raster blocks`)
+    const seen = new Set<string>()
+    for (const request of requests) {
+      const key = JSON.stringify(request)
+      if (seen.has(key)) continue
+      seen.add(key)
+      let blocks = 0
+      for await (const block of dataset.readPlane(request)) {
+        try {
+          bytesRead += block.data.byteLength
+          blocks += 1
+        } finally {
+          block.release?.()
+        }
+      }
+      if (blocks === 0) throw invalidInput(`OME-Zarr level ${level} returned no raster blocks`)
+      selections += 1
+    }
   }
-  return bytesRead
+  return { bytesRead, selections }
 }
 
 export const runOmeZarrCompatibilitySample = async (
@@ -245,12 +360,20 @@ export const runOmeZarrCompatibilitySample = async (
       const datasets: OmeZarrCompatibilityDatasetResult[] = []
       for (const summary of document.datasets) {
         const dataset = await document.openDataset(summary.id)
+        const before = context.store.stats()
+        const read = await readAllLevels(dataset, width, height)
+        const after = context.store.stats()
         datasets.push(
           Object.freeze({
             id: summary.id,
             sampleType: dataset.descriptor.sampleType,
             levels: dataset.descriptor.levels.length,
-            bytesRead: await readAllLevels(dataset, width, height),
+            selections: read.selections,
+            bytesRead: read.bytesRead,
+            objectRequests: after.objectRequests - before.objectRequests,
+            rangeRequests: after.rangeRequests - before.rangeRequests,
+            bytesFetched: after.bytesFetched - before.bytesFetched,
+            levelStorage: levelStorage(dataset),
           }),
         )
       }

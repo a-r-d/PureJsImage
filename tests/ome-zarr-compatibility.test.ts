@@ -58,6 +58,22 @@ describe('OME-Zarr compatibility runner', () => {
       '0/zarr.json': json({
         zarr_format: 3,
         node_type: 'array',
+        shape: [4, 4],
+        data_type: 'uint8',
+        chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
+        chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+        fill_value: 0,
+        codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+        dimension_names: ['y', 'x'],
+        attributes: {},
+      }),
+      '0/c/0/0': Uint8Array.of(1, 2, 5, 6),
+      '0/c/0/1': Uint8Array.of(3, 4, 7, 8),
+      '0/c/1/0': Uint8Array.of(9, 10, 13, 14),
+      '0/c/1/1': Uint8Array.of(11, 12, 15, 16),
+      '1/zarr.json': json({
+        zarr_format: 3,
+        node_type: 'array',
         shape: [2, 2],
         data_type: 'uint8',
         chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 2] } },
@@ -67,20 +83,7 @@ describe('OME-Zarr compatibility runner', () => {
         dimension_names: ['y', 'x'],
         attributes: {},
       }),
-      '0/c/0/0': Uint8Array.of(1, 2, 3, 4),
-      '1/zarr.json': json({
-        zarr_format: 3,
-        node_type: 'array',
-        shape: [1, 1],
-        data_type: 'uint8',
-        chunk_grid: { name: 'regular', configuration: { chunk_shape: [1, 1] } },
-        chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
-        fill_value: 0,
-        codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
-        dimension_names: ['y', 'x'],
-        attributes: {},
-      }),
-      '1/c/0/0': Uint8Array.of(9),
+      '1/c/0/0': Uint8Array.of(9, 10, 11, 12),
     }
     const result = await runOmeZarrCompatibilitySample(
       { id: 'tiny', collection: 'test', url: 'https://example.test/store/' },
@@ -89,7 +92,29 @@ describe('OME-Zarr compatibility runner', () => {
     expect(result).toMatchObject({
       classification: 'PASS',
       probeConfidence: 0.95,
-      datasets: [{ id: 'image', sampleType: 'uint8', levels: 2, bytesRead: 5 }],
+      datasets: [
+        {
+          id: 'image',
+          sampleType: 'uint8',
+          levels: 2,
+          selections: 6,
+          bytesRead: 24,
+          levelStorage: [
+            {
+              level: 0,
+              codecs: ['bytes'],
+              logicalChunkShape: [2, 2],
+              storageChunkShape: [2, 2],
+            },
+            {
+              level: 1,
+              codecs: ['bytes'],
+              logicalChunkShape: [2, 2],
+              storageChunkShape: [2, 2],
+            },
+          ],
+        },
+      ],
     })
   })
 

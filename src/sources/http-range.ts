@@ -47,6 +47,8 @@ export interface HttpRangeSourceOptions {
    * present, and every subsequent request must still return 206 with the requested byte count.
    */
   readonly allowHeadSizeFallback?: boolean
+  /** Return `undefined` when the initial range probe receives HTTP 404 or 410. */
+  readonly allowNotFound?: boolean
 }
 
 export interface HttpRangeSourceStats {
@@ -230,8 +232,16 @@ export class HttpRangeSource implements ImageSource {
 
   static async open(
     url: string | URL,
+    options: Readonly<HttpRangeSourceOptions> & { readonly allowNotFound: true },
+  ): Promise<HttpRangeSource | undefined>
+  static async open(
+    url: string | URL,
+    options?: Readonly<HttpRangeSourceOptions>,
+  ): Promise<HttpRangeSource>
+  static async open(
+    url: string | URL,
     options: Readonly<HttpRangeSourceOptions> = {},
-  ): Promise<HttpRangeSource> {
+  ): Promise<HttpRangeSource | undefined> {
     const blockBytes = options.blockBytes ?? defaultBufferBytes
     const maxCacheBytes = options.maxCacheBytes ?? defaultBufferBytes * defaultBufferSlots
     if (!Number.isSafeInteger(blockBytes) || blockBytes < 1) {
@@ -263,6 +273,10 @@ export class HttpRangeSource implements ImageSource {
     } catch (cause) {
       throwIfAborted(openSignal)
       throw new ImageError('INVALID_INPUT', `HTTP range probe failed for ${href}`, { cause })
+    }
+    if (options.allowNotFound === true && (response.status === 404 || response.status === 410)) {
+      await cancelResponse(response)
+      return undefined
     }
     if (response.status !== 206) {
       await cancelResponse(response)
