@@ -1,0 +1,14 @@
+playwright.config.ts
+  h_9f4a25732fa0c1 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5459d7fd5ac112741d4c08be88b3a409d392c6fa",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

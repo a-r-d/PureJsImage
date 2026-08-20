@@ -40,5 +40,15 @@ tests/scientific-ome-zarr.test.ts
     "h_9f4a25732fa0c1": {
       "author": "aaron decker <aaron@ard.ninja>"
     }
+  },
+  "sessions": {
+    "s_72d57bced5e68c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01182-c850-7440-b40b-8ea44fb3a86e",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
   }
 }

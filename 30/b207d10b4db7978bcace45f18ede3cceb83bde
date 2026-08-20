@@ -1,0 +1,56 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 7-16
+README.md
+  h_9f4a25732fa0c1 74-75,77,298-299,301
+benchmark/generated/package-metrics.json
+  h_9f4a25732fa0c1 179,811,814,817,871,874,877,886,889,892,916,919,922,1081,1084,1087,1156,1159,1162,1171,1174,1177,1231,1234,1237,1397,1400,1403,1428,1431,1434,1443,1446,1449,1473,1476,1479
+capabilities/manifest.json
+  h_9f4a25732fa0c1 229,232,234-235,237-241,1398,1485,1493
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 1634,1903-1906,1937,6753,6756,6758-6759,6761-6765
+docs-astro/src/data/documentation-data.json
+  h_9f4a25732fa0c1 99-101,104-106,109-111,119,637
+docs-astro/src/data/package-metrics.json
+  h_9f4a25732fa0c1 179,811,814,817,871,874,877,886,889,892,916,919,922,1081,1084,1087,1156,1159,1162,1171,1174,1177,1231,1234,1237,1397,1400,1403,1428,1431,1434,1443,1446,1449,1473,1476,1479
+docs/tiff-cog-compatibility.md
+  h_9f4a25732fa0c1 24,39-44,55,58-61
+scripts/generate-cog-fixtures.ts
+  h_9f4a25732fa0c1 6,9,24-26,45,128-155,160,178-179,229-230,263-271,293-301,368-371,380-387
+scripts/render-tiff-cog-support.ts
+  h_9f4a25732fa0c1 55-60,69-72
+src/codecs/jpeg-baseline.ts
+  h_9f4a25732fa0c1 169,413,426,596-600,696-700,1675-1709,2069,2079-2080,2082-2094,2102-2103,2136,2197-2198,2285-2294,2320-2329,2342-2372
+src/codecs/jpeg-encode.ts
+  h_9f4a25732fa0c1 2194-2304
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 59,1396-1397,1595-1597,1732-1740,1749-1753,2007-2010,3669-3715,4212-4219
+src/scientific/readers/tiff.ts
+  h_9f4a25732fa0c1 272-280,286-287,290,736-744,752,754-757,796-799,1193,1197-1220,1227,1232
+src/tiff/compressions.ts
+  h_9f4a25732fa0c1 73-75
+tests/fixtures/cog/manifest.json
+  h_9f4a25732fa0c1 74-90
+tests/fixtures/kyfromabove/manifest.json
+  h_9f4a25732fa0c1 1-145
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 99,506,508-509,511-515
+tests/kyfromabove-live.test.ts
+  h_9f4a25732fa0c1 1-54
+tests/scientific-tiff-jpeg.test.ts
+  h_9f4a25732fa0c1 1-357
+tests/tiff-cog.test.ts
+  h_9f4a25732fa0c1 242-247
+tiff-codec-support.md
+  h_9f4a25732fa0c1 82,90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "30b207d10b4db7978bcace45f18ede3cceb83bde",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
