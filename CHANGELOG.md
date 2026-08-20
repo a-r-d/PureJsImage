@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-20
+
 ### Added
 
 - Added the measured `/ome-zarr/` browser demo for viewport-bounded pan and zoom of public
@@ -1116,4 +1118,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.12.0]: https://github.com/a-r-d/PureJsImage/compare/v0.11.0...v0.12.0
 [0.13.0]: https://github.com/a-r-d/PureJsImage/compare/v0.12.0...v0.13.0
 [0.14.0]: https://github.com/a-r-d/PureJsImage/compare/v0.13.0...v0.14.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.14.0...HEAD
+[0.15.0]: https://github.com/a-r-d/PureJsImage/compare/v0.14.0...v0.15.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.15.0...HEAD
