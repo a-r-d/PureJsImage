@@ -129,3 +129,81 @@ export {
   referenceAnalysisProviderId,
   referenceAnalysisProviderVersion,
 } from './builtins.ts'
+export type {
+  NumericRasterGrid,
+  RasterNoData,
+  RasterOperationLimits,
+  RasterPixelInterpretation,
+  RasterResampling,
+  RasterTileRegion,
+  ResolvedRasterOperationLimits,
+} from './raster-contracts.ts'
+export {
+  admitRasterAllocation,
+  assertTileCoversRegion,
+  defaultRasterOperationLimits,
+  normalizeNumericRasterGrid,
+  normalizeRasterNoData,
+  normalizeRasterTileRegion,
+  numericRasterGridsEqual,
+  numericRasterPlanSchemaVersion,
+  numericSampleBytes,
+  rasterNoDataNumber,
+  rasterSampleIsNoData,
+  resolveRasterOperationLimits,
+} from './raster-contracts.ts'
+export type {
+  CreateRasterBandMathPlanOptions,
+  RasterBandInputPlan,
+  RasterBandMathExpression,
+  RasterBandMathFunction,
+  RasterBandMathPlan,
+  RasterBandMathPlanInput,
+  RasterBandValueMode,
+  RasterLinearCombinationTerm,
+} from './raster-band-math.ts'
+export {
+  createLinearCombinationPlan,
+  createNormalizedDifferencePlan,
+  createRasterBandMathPlan,
+  createRasterSubtractionPlan,
+  evaluateRasterBandMathTile,
+  rasterBandMathAlgorithm,
+} from './raster-band-math.ts'
+export type {
+  CreateRasterTerrainPlanOptions,
+  RasterLengthUnit,
+  RasterSlopeUnit,
+  RasterTerrainOperation,
+  RasterTerrainPlan,
+} from './raster-terrain.ts'
+export {
+  createRasterTerrainPlan,
+  evaluateRasterTerrainTile,
+  rasterLengthUnitMetres,
+  rasterTerrainAlgorithm,
+} from './raster-terrain.ts'
+export type {
+  RasterCoordinateTransform,
+  RasterCoordinateTransformDescriptor,
+  RasterHistogramPlan,
+  RasterLinePoint,
+  RasterLineProfile,
+  RasterLineProfilePlan,
+  RasterRegionStatistics,
+  RasterRegionStatisticsPlan,
+  RasterTargetGridPlan,
+  RasterTransformAccuracy,
+} from './raster-sampling.ts'
+export {
+  computeRasterRegionStatistics,
+  createRasterLineProfilePlan,
+  createRasterRegionStatisticsPlan,
+  createRasterTargetGridPlan,
+  estimateRasterTargetGridTile,
+  rasterLineProfileAlgorithm,
+  rasterResampleAlgorithm,
+  rasterStatisticsAlgorithm,
+  resampleRasterTileToGrid,
+  sampleRasterLineProfile,
+} from './raster-sampling.ts'

@@ -116,10 +116,10 @@
       "minifiedBytes": 61435
     },
     "installedPackage": {
-      "bytes": 5926167,
+      "bytes": 6005280,
       "productionPackageCount": 1
     },
-    "packageVersion": "0.13.0",
+    "packageVersion": "0.14.0",
     "scientificPlatform": {
       "brotliBytes": 39808,
       "gzipBytes": 46700,

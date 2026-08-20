@@ -531,6 +531,11 @@ The maintainer approved the following decisions on 2026-08-12:
       remains a bounded reducer with lexical scratch accounting.
 - [x] Keep crop and slice as lightweight coordinate views with stable derived identities.
 - [x] Keep statistics, histogram, and line profile on the result-reducer path.
+- [x] Publish the bounded geo-raster primitive follow-up after its package and browser gates pass:
+      parsed band math, normalized difference, linear combination, subtraction, terrain derivatives,
+      regional statistics/histograms, line profiles, explicit target-grid resampling, and
+      caller-supplied inverse reprojection are implemented as JSON-safe plans over bounded
+      `NumericTile` inputs. The downstream virtual-layer integration remains release-gated.
 - [x] Split the public API into `purejsimage/analysis`, `/results`, `/roi`, `/runtime`, and `/project`
       with checked-in export manifests and independent browser/size gates.
 - [x] Implement the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) with

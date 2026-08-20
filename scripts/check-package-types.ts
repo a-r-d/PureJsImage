@@ -285,8 +285,8 @@ export type { TiffReaderOptions } from 'purejsimage/scientific/readers/tiff'
 export * as allScientificReaders from 'purejsimage/scientific/readers/all'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { analysisGaussianBlurOperationId, createAnalysisController, createBuiltInAnalysisBundle, hashAnalysisGraph, normalizeRoi, summarizeResult } from 'purejsimage/analysis'
-import type { AnalysisGraph, AnalysisProjectV1, Roi } from 'purejsimage/analysis'
+import { analysisGaussianBlurOperationId, createAnalysisController, createBuiltInAnalysisBundle, createNormalizedDifferencePlan, createRasterTargetGridPlan, hashAnalysisGraph, normalizeRoi, summarizeResult } from 'purejsimage/analysis'
+import type { AnalysisGraph, AnalysisProjectV1, NumericRasterGrid, RasterCoordinateTransformDescriptor, Roi } from 'purejsimage/analysis'
 import { canonicalTileKey, createTileRuntime } from 'purejsimage/analysis/runtime'
 import type { TileRequest, TileSource } from 'purejsimage/analysis/runtime'
 import { createAnalysisResultValueTypeRegistry, validateScalarResult } from 'purejsimage/analysis/results'
@@ -358,6 +358,32 @@ export const analysisController = createAnalysisController({
 })
 export const emptyGraphHash = hashAnalysisGraph(emptyGraph)
 export const emptyWorkspace = analysisController.createWorkspace(emptyGraph)
+const rasterGrid: NumericRasterGrid = {
+  schemaVersion: 1,
+  crs: 'EPSG:32616',
+  width: 2,
+  height: 2,
+  affine: [1, 0, 0, 0, -1, 2],
+  pixelInterpretation: 'area',
+  extent: [0, 0, 2, 2],
+  sampleType: 'float32',
+  noData: { kind: 'nan' },
+  resampling: 'bilinear',
+}
+const rasterTransform: RasterCoordinateTransformDescriptor = {
+  id: 'consumer.transform',
+  version: '1',
+  accuracy: { kind: 'exact' },
+}
+export const normalizedDifference = createNormalizedDifferencePlan(
+  { name: 'nir', valueMode: 'scaled', scale: 0.0001, offset: 0 },
+  { name: 'red', valueMode: 'scaled', scale: 0.0001, offset: 0 },
+)
+export const targetGridPlan = createRasterTargetGridPlan({
+  sourceGrid: rasterGrid,
+  targetGrid: { ...rasterGrid, crs: 'EPSG:4326' },
+  transform: rasterTransform,
+})
 export const memoryIdentity = getImageSourceIdentity(new MemorySource(Uint8Array.of(1)))
 const tileRequest: TileRequest = {
   address: {

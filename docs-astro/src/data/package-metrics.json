@@ -175,8 +175,8 @@
   ],
   "package": {
     "name": "purejsimage",
-    "version": "0.13.0",
-    "unpackedPackageBytes": 5926167,
+    "version": "0.14.0",
+    "unpackedPackageBytes": 6005280,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -568,13 +568,13 @@
         "packageExports": ["purejsimage/analysis"],
         "sourceEntries": ["./src/analysis/index.ts"]
       },
-      "gzipBytes": 76355,
+      "gzipBytes": 84302,
       "id": "analysis",
       "implementation": "package-core",
-      "minifiedJsBytes": 278340,
+      "minifiedJsBytes": 307077,
       "name": "Analysis application API",
       "recordedBaselineMinifiedBytes": 270789,
-      "brotliBytes": 62388
+      "brotliBytes": 68831
     },
     {
       "category": "purejsimage-entry",

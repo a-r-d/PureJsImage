@@ -4,6 +4,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-20
+
+### Added
+
+- Added deterministic bounded numeric-raster plans and tile executors for parsed band math,
+  normalized difference, linear combinations, subtraction, terrain slope/aspect/hillshade,
+  regional statistics and histograms, line profiles, explicit target-grid resampling, and
+  caller-supplied inverse reprojection. Plans record raw/scaled value handling, units, nodata,
+  algorithm versions, and coordinate-transform identity and accuracy; the executors expose explicit
+  tile and memory limits without introducing runtime dependencies or full-raster materialization.
+
 ### Changed
 
 - Browser convert demo now keeps the original and converted images side by side on
@@ -1061,4 +1072,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.11.0]: https://github.com/a-r-d/PureJsImage/compare/v0.10.0...v0.11.0
 [0.12.0]: https://github.com/a-r-d/PureJsImage/compare/v0.11.0...v0.12.0
 [0.13.0]: https://github.com/a-r-d/PureJsImage/compare/v0.12.0...v0.13.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.13.0...HEAD
+[0.14.0]: https://github.com/a-r-d/PureJsImage/compare/v0.13.0...v0.14.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.14.0...HEAD

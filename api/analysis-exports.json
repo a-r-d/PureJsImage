@@ -3,6 +3,10 @@
   "entries": {
     "purejsimage/analysis": [
       {
+        "kind": "value",
+        "name": "admitRasterAllocation"
+      },
+      {
         "kind": "type",
         "name": "AnalysisBatchCommand"
       },
@@ -255,6 +259,10 @@
         "name": "applyCommands"
       },
       {
+        "kind": "value",
+        "name": "assertTileCoversRegion"
+      },
+      {
         "kind": "type",
         "name": "BuiltInAnalysisBundle"
       },
@@ -273,6 +281,10 @@
       {
         "kind": "value",
         "name": "computeAnalysisProjectHashes"
+      },
+      {
+        "kind": "value",
+        "name": "computeRasterRegionStatistics"
       },
       {
         "kind": "type",
@@ -304,6 +316,46 @@
       },
       {
         "kind": "value",
+        "name": "createLinearCombinationPlan"
+      },
+      {
+        "kind": "value",
+        "name": "createNormalizedDifferencePlan"
+      },
+      {
+        "kind": "value",
+        "name": "createRasterBandMathPlan"
+      },
+      {
+        "kind": "type",
+        "name": "CreateRasterBandMathPlanOptions"
+      },
+      {
+        "kind": "value",
+        "name": "createRasterLineProfilePlan"
+      },
+      {
+        "kind": "value",
+        "name": "createRasterRegionStatisticsPlan"
+      },
+      {
+        "kind": "value",
+        "name": "createRasterSubtractionPlan"
+      },
+      {
+        "kind": "value",
+        "name": "createRasterTargetGridPlan"
+      },
+      {
+        "kind": "value",
+        "name": "createRasterTerrainPlan"
+      },
+      {
+        "kind": "type",
+        "name": "CreateRasterTerrainPlanOptions"
+      },
+      {
+        "kind": "value",
         "name": "createReferenceAnalysisProvider"
       },
       {
@@ -312,11 +364,27 @@
       },
       {
         "kind": "value",
+        "name": "defaultRasterOperationLimits"
+      },
+      {
+        "kind": "value",
         "name": "describeAnalysisCommands"
       },
       {
         "kind": "value",
         "name": "dryRun"
+      },
+      {
+        "kind": "value",
+        "name": "estimateRasterTargetGridTile"
+      },
+      {
+        "kind": "value",
+        "name": "evaluateRasterBandMathTile"
+      },
+      {
+        "kind": "value",
+        "name": "evaluateRasterTerrainTile"
       },
       {
         "kind": "value",
@@ -340,11 +408,39 @@
       },
       {
         "kind": "value",
+        "name": "normalizeNumericRasterGrid"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeRasterNoData"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeRasterTileRegion"
+      },
+      {
+        "kind": "value",
         "name": "normalizeRoi"
       },
       {
         "kind": "value",
         "name": "normalizeRoiSet"
+      },
+      {
+        "kind": "type",
+        "name": "NumericRasterGrid"
+      },
+      {
+        "kind": "value",
+        "name": "numericRasterGridsEqual"
+      },
+      {
+        "kind": "value",
+        "name": "numericRasterPlanSchemaVersion"
+      },
+      {
+        "kind": "value",
+        "name": "numericSampleBytes"
       },
       {
         "kind": "type",
@@ -371,6 +467,142 @@
         "name": "PreparedAnalysisPlan"
       },
       {
+        "kind": "type",
+        "name": "RasterBandInputPlan"
+      },
+      {
+        "kind": "value",
+        "name": "rasterBandMathAlgorithm"
+      },
+      {
+        "kind": "type",
+        "name": "RasterBandMathExpression"
+      },
+      {
+        "kind": "type",
+        "name": "RasterBandMathFunction"
+      },
+      {
+        "kind": "type",
+        "name": "RasterBandMathPlan"
+      },
+      {
+        "kind": "type",
+        "name": "RasterBandMathPlanInput"
+      },
+      {
+        "kind": "type",
+        "name": "RasterBandValueMode"
+      },
+      {
+        "kind": "type",
+        "name": "RasterCoordinateTransform"
+      },
+      {
+        "kind": "type",
+        "name": "RasterCoordinateTransformDescriptor"
+      },
+      {
+        "kind": "type",
+        "name": "RasterHistogramPlan"
+      },
+      {
+        "kind": "type",
+        "name": "RasterLengthUnit"
+      },
+      {
+        "kind": "value",
+        "name": "rasterLengthUnitMetres"
+      },
+      {
+        "kind": "type",
+        "name": "RasterLinearCombinationTerm"
+      },
+      {
+        "kind": "type",
+        "name": "RasterLinePoint"
+      },
+      {
+        "kind": "type",
+        "name": "RasterLineProfile"
+      },
+      {
+        "kind": "value",
+        "name": "rasterLineProfileAlgorithm"
+      },
+      {
+        "kind": "type",
+        "name": "RasterLineProfilePlan"
+      },
+      {
+        "kind": "type",
+        "name": "RasterNoData"
+      },
+      {
+        "kind": "value",
+        "name": "rasterNoDataNumber"
+      },
+      {
+        "kind": "type",
+        "name": "RasterOperationLimits"
+      },
+      {
+        "kind": "type",
+        "name": "RasterPixelInterpretation"
+      },
+      {
+        "kind": "type",
+        "name": "RasterRegionStatistics"
+      },
+      {
+        "kind": "type",
+        "name": "RasterRegionStatisticsPlan"
+      },
+      {
+        "kind": "value",
+        "name": "rasterResampleAlgorithm"
+      },
+      {
+        "kind": "type",
+        "name": "RasterResampling"
+      },
+      {
+        "kind": "value",
+        "name": "rasterSampleIsNoData"
+      },
+      {
+        "kind": "type",
+        "name": "RasterSlopeUnit"
+      },
+      {
+        "kind": "value",
+        "name": "rasterStatisticsAlgorithm"
+      },
+      {
+        "kind": "type",
+        "name": "RasterTargetGridPlan"
+      },
+      {
+        "kind": "value",
+        "name": "rasterTerrainAlgorithm"
+      },
+      {
+        "kind": "type",
+        "name": "RasterTerrainOperation"
+      },
+      {
+        "kind": "type",
+        "name": "RasterTerrainPlan"
+      },
+      {
+        "kind": "type",
+        "name": "RasterTileRegion"
+      },
+      {
+        "kind": "type",
+        "name": "RasterTransformAccuracy"
+      },
+      {
         "kind": "value",
         "name": "referenceAnalysisBuildFingerprint"
       },
@@ -388,6 +620,10 @@
       },
       {
         "kind": "value",
+        "name": "resampleRasterTileToGrid"
+      },
+      {
+        "kind": "value",
         "name": "resolveAnalysisLimits"
       },
       {
@@ -396,11 +632,23 @@
       },
       {
         "kind": "type",
+        "name": "ResolvedRasterOperationLimits"
+      },
+      {
+        "kind": "value",
+        "name": "resolveRasterOperationLimits"
+      },
+      {
+        "kind": "type",
         "name": "Roi"
       },
       {
         "kind": "type",
         "name": "RoiSet"
+      },
+      {
+        "kind": "value",
+        "name": "sampleRasterLineProfile"
       },
       {
         "kind": "value",
