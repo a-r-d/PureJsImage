@@ -26,6 +26,8 @@
 <p >
   <blockquote style="font-size:20px;">Sometimes the wrong tool for the job is the right one 😉</blockquote>
 </p>
+
+<p><a href="https://ard.ninja/blog/2026-08-20-why-i-started-building-purejsimage/">Why I started building PureJsImage</a></p>
 </div>
 
 <p align="center">
