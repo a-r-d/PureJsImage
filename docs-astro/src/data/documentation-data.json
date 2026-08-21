@@ -121,12 +121,12 @@
       "minifiedBytes": 61435
     },
     "geoPlatform": {
-      "brotliBytes": 32290,
-      "gzipBytes": 37848,
-      "minifiedBytes": 139491
+      "brotliBytes": 32464,
+      "gzipBytes": 38024,
+      "minifiedBytes": 140212
     },
     "installedPackage": {
-      "bytes": 6597320,
+      "bytes": 6599177,
       "productionPackageCount": 1
     },
     "packageVersion": "0.15.0",

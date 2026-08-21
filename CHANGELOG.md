@@ -4,6 +4,33 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added the `purejsimage/geo` raster API with CRS and affine grid metadata, resolution levels,
+  bands and non-spatial axes, bounded pixel and world views, target-grid comparison, caller-supplied
+  coordinate transforms, inverse-mapped reprojection, and the existing band math, terrain,
+  statistics, histogram, and line-profile operations.
+- Added lazy geo readers for GeoTIFF and COG, GeoZarr v2 and v3, world-file TIFF, JPEG, and PNG,
+  georeferenced ENVI, Esri ASCII Grid, SRTM HGT, and classic NetCDF CDF-1 and CDF-2 files with
+  regular rectilinear CF coordinates. The readers preserve native sample values, selected
+  multidimensional axes, cancellation, source ownership, and bounded region access where the
+  source format permits it.
+- Added a generated geo compatibility manifest and deterministic CI benchmarks for remote COG,
+  sharded and multidimensional GeoZarr, ENVI, classic NetCDF, and identity reprojection. The
+  benchmark records request, byte, cache, chunk, shard, pixel, timing, and memory evidence while
+  enforcing selective reads and output correctness.
+- Added the `/geo/` browser demo with deterministic local fixtures, public Kentucky aerial imagery,
+  a USGS Grand Canyon elevation COG, pan and zoom controls, hillshade, live range telemetry, clear
+  loading and error states, and copyable examples for the active GeoTIFF or GeoZarr view.
+
+### Changed
+
+- GeoTIFF overview levels now derive their affine transform when an overview repeats CRS metadata
+  without its own model transform. Hillshade reads its required one-pixel source border without
+  weakening the 196,608-pixel output limit, and geo views preserve exact nodata values and source
+  level identity. Geo reprojection policies, serialized plans, and result provenance now preserve
+  caller-supplied full-range int64 and uint64 nodata as canonical decimal strings.
+
 ## [0.15.0] - 2026-08-20
 
 ### Added

@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.15.0",
-    "unpackedPackageBytes": 6597320,
+    "unpackedPackageBytes": 6599177,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -553,13 +553,13 @@
         "packageExports": ["purejsimage/geo"],
         "sourceEntries": ["./src/geo/index.ts"]
       },
-      "gzipBytes": 37848,
+      "gzipBytes": 38024,
       "id": "geo",
       "implementation": "package-core",
-      "minifiedJsBytes": 139491,
+      "minifiedJsBytes": 140212,
       "name": "Geo raster platform",
       "recordedBaselineMinifiedBytes": 138715,
-      "brotliBytes": 32290
+      "brotliBytes": 32464
     },
     {
       "category": "purejsimage-entry",

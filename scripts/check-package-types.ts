@@ -261,7 +261,7 @@ import type { ScientificReader, ScientificSeriesBlock, ScientificSeriesReadReque
 export { createImageCodecScientificReader, readScientificSeriesFromPlane } from 'purejsimage/scientific'
 export type { ScientificSeriesBlock }
 import { adaptScientificDatasetToGeo, canonicalizeGeoTargetGrid, createGeoGridGeometry, createNormalizedDifferencePlan as createGeoNormalizedDifferencePlan, geoSpatialReferenceToScientific, proposeGeoTargetGrid } from 'purejsimage/geo'
-import type { GeoCoordinateTransformProvider, GeoRasterDataset, GeoRasterDescriptor, GeoRasterView, GeoReprojectReadRequest, GeoSpatialReference, GeoTargetGrid } from 'purejsimage/geo'
+import type { GeoCoordinateTransformProvider, GeoExactIntegerNoData, GeoRasterDataset, GeoRasterDescriptor, GeoRasterView, GeoReprojectReadRequest, GeoReprojectionNoData, GeoSpatialReference, GeoTargetGrid } from 'purejsimage/geo'
 import { geoReaders } from 'purejsimage/geo/readers/all'
 import { geoTiffReader } from 'purejsimage/geo/readers/geotiff'
 import { geoZarrReader, openGeoZarrHttp, openGeoZarrObjectStore } from 'purejsimage/geo/readers/geozarr'
@@ -352,6 +352,8 @@ export type GeoConsumerContracts = {
   readonly targetGrid: GeoTargetGrid
   readonly transformProvider: GeoCoordinateTransformProvider
   readonly reprojectRead: GeoReprojectReadRequest
+  readonly exactIntegerNoData: GeoExactIntegerNoData
+  readonly reprojectionNoData: GeoReprojectionNoData
 }
 export { adaptScientificDatasetToGeo, createGeoGridGeometry, geoSpatialReferenceToScientific }
 export const geoReaderCount = geoReaders.length

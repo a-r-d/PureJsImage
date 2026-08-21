@@ -132,8 +132,12 @@ are checked before allocating their buffers.
 Nearest resampling keeps the native sample type, so categorical values remain exact. Bilinear
 resampling requires float output. Nodata contributors have zero weight, and the output is nodata
 when the remaining weight is below `minimumValidWeight`. Nodata sentinels are never interpolated as
-ordinary numbers. Result provenance records the source and target grid identities, transform and
-implementation identities, accuracy, warnings, resampling method, and valid-weight rule.
+ordinary numbers. `GeoReprojectionNoData` accepts the shared number-based policies and an exact
+`{ kind: 'integer64', value: string }` variant. The string must be a canonical base-10 value in the
+source or target `int64` or `uint64` range. Reprojection plans and result provenance preserve that
+string without numeric conversion. Result provenance also records the source and target grid
+identities, transform and implementation identities, accuracy, warnings, resampling method, and
+valid-weight rule.
 
 Longitude wrapping remains explicit. Geographic latitude bounds are validated. A source or target
 grid that crosses the antimeridian returns an unsupported-operation error that requires the caller

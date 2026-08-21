@@ -254,6 +254,25 @@ describe('Geo target grids and alignment', () => {
       },
     })
     expect(canonicalizeGeoReprojectionPlan(plan)).toBe(canonicalizeGeoReprojectionPlan({ ...plan }))
+
+    const exactIntegerPlan = createGeoReprojectionPlan({
+      ...plan,
+      sourceNoData: [{ kind: 'integer64', value: '18446744073709551615' }],
+      outputNoData: { kind: 'integer64', value: '18446744073709551614' },
+    })
+    const serializedExactIntegerPlan: unknown = JSON.parse(
+      canonicalizeGeoReprojectionPlan(exactIntegerPlan),
+    )
+    expect(serializedExactIntegerPlan).toMatchObject({
+      sourceNoData: [{ kind: 'integer64', value: '18446744073709551615' }],
+      outputNoData: { kind: 'integer64', value: '18446744073709551614' },
+    })
+    expect(() =>
+      createGeoReprojectionPlan({
+        ...plan,
+        sourceNoData: [{ kind: 'integer64', value: '018446744073709551615' }],
+      }),
+    ).toThrow(/canonical integer string/u)
   })
 
   it('proposes explicit grid orientation and enforces dimension limits', () => {
@@ -651,23 +670,36 @@ describe('bounded Geo reprojection reads', () => {
 
   it('recognizes exact int64 and uint64 source nodata outside the safe-integer range', async () => {
     const uint64NoData = 18_446_744_073_709_551_615n
-    const uint64 = createGeoDataset(
-      2,
-      1,
-      'uint64',
-      [1, 0, 0, 0, 1, 0],
-      [uint64NoData, 7n],
-      uint64NoData.toString(),
-    )
+    const uint64 = createGeoDataset(2, 1, 'uint64', [1, 0, 0, 0, 1, 0], [uint64NoData, 7n])
     const uint64Tile = await collectOne(
       readReprojectedGeoRegion(viewFor(uint64), {
         targetGrid: targetFor(uint64, { noData: { kind: 'value', value: 0 } }),
         targetRegion: { x: 0, y: 0, width: 2, height: 1 },
         sourceBands: [0],
         resampling: 'nearest',
+        noData: {
+          source: { kind: 'integer64', value: uint64NoData.toString() },
+          output: { kind: 'integer64', value: '18446744073709551614' },
+        },
       }),
     )
-    expect(exactValuesOf(uint64Tile)).toEqual([0n, 7n])
+    expect(exactValuesOf(uint64Tile)).toEqual([18_446_744_073_709_551_614n, 7n])
+    expect(uint64Tile.provenance).toMatchObject({
+      sourceNoData: [{ kind: 'integer64', value: '18446744073709551615' }],
+      outputNoData: { kind: 'integer64', value: '18446744073709551614' },
+    })
+
+    await expect(async () =>
+      collectOne(
+        readReprojectedGeoRegion(viewFor(uint64), {
+          targetGrid: targetFor(uint64),
+          targetRegion: { x: 0, y: 0, width: 1, height: 1 },
+          sourceBands: [0],
+          resampling: 'nearest',
+          noData: { output: { kind: 'integer64', value: '-1' } },
+        }),
+      ),
+    ).rejects.toThrow(/outside uint64/u)
 
     const int64NoData = -9_223_372_036_854_775_808n
     const int64 = createGeoDataset(
@@ -684,9 +716,14 @@ describe('bounded Geo reprojection reads', () => {
         targetRegion: { x: 0, y: 0, width: 2, height: 1 },
         sourceBands: [0],
         resampling: 'nearest',
+        noData: { output: { kind: 'integer64', value: '9223372036854775807' } },
       }),
     )
-    expect(exactValuesOf(int64Tile)).toEqual([-1n, 7n])
+    expect(exactValuesOf(int64Tile)).toEqual([9_223_372_036_854_775_807n, 7n])
+    expect(int64Tile.provenance).toMatchObject({
+      sourceNoData: [{ kind: 'integer64', value: '-9223372036854775808' }],
+      outputNoData: { kind: 'integer64', value: '9223372036854775807' },
+    })
   })
 
   it('keeps pixel registration explicit and rejects wrapped geographic requests', async () => {

@@ -114,9 +114,11 @@ export {
   validateGeoCoordinateTransformer,
 } from './transform.ts'
 export type {
+  GeoExactIntegerNoData,
   GeoReprojectedTile,
   GeoReprojectReadRequest,
   GeoReprojectionLimits,
+  GeoReprojectionNoData,
   GeoReprojectionNoDataPolicy,
   GeoReprojectionPlan,
   GeoReprojectionProvenance,

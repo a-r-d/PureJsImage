@@ -50,6 +50,8 @@ export interface GeoReprojectionProvenance {
   readonly targetGridIdentity: string
   readonly transform: GeoReprojectionTransformProvenance
   readonly resampling: RasterResampling
+  readonly sourceNoData: readonly GeoReprojectionNoData[]
+  readonly outputNoData: GeoReprojectionNoData
   readonly minimumValidWeight: number
 }
 
@@ -65,19 +67,20 @@ export interface ResolvedGeoReprojectionLimits extends ResolvedGeoGridLimits {
   readonly maxSourcePixels: number
 }
 
-export interface GeoReprojectionNoDataPolicy {
-  readonly source?: RasterNoData | readonly RasterNoData[]
-  readonly output?: RasterNoData
-  /** Bilinear output is nodata when valid contributors have less total weight. */
-  readonly minimumValidWeight?: number
-}
-
-interface ExactIntegerNoData {
+export interface GeoExactIntegerNoData {
   readonly kind: 'integer64'
+  /** Canonical base-10 int64 or uint64 value. */
   readonly value: string
 }
 
-type GeoSourceNoData = RasterNoData | ExactIntegerNoData
+export type GeoReprojectionNoData = RasterNoData | GeoExactIntegerNoData
+
+export interface GeoReprojectionNoDataPolicy {
+  readonly source?: GeoReprojectionNoData | readonly GeoReprojectionNoData[]
+  readonly output?: GeoReprojectionNoData
+  /** Bilinear output is nodata when valid contributors have less total weight. */
+  readonly minimumValidWeight?: number
+}
 
 export interface GeoReprojectReadRequest {
   readonly targetGrid: GeoTargetGrid
@@ -98,8 +101,8 @@ export interface GeoReprojectionPlan {
   readonly targetRegion: GeoPixelRegion
   readonly sourceBands: readonly number[]
   readonly resampling: RasterResampling
-  readonly sourceNoData: readonly RasterNoData[]
-  readonly outputNoData: RasterNoData
+  readonly sourceNoData: readonly GeoReprojectionNoData[]
+  readonly outputNoData: GeoReprojectionNoData
   readonly minimumValidWeight: number
   readonly transform: GeoReprojectionTransformProvenance
 }
@@ -119,21 +122,53 @@ const numericSampleType = (
   value: GeoRasterView['dataset']['descriptor']['sampleType'],
 ): NumericSampleType => (value === 'float16' ? 'float32' : value)
 
-const exactIntegerNoData = (value: string, sampleType: 'int64' | 'uint64'): ExactIntegerNoData => {
+const exactIntegerNoData = (
+  value: string,
+  sampleType?: 'int64' | 'uint64',
+): GeoExactIntegerNoData => {
   const canonical = value.trim()
   if (!/^-?(?:0|[1-9][0-9]*)$/.test(canonical)) {
-    throw invalidInput(`${sampleType} source nodata must be a canonical integer string`)
+    throw invalidInput('Exact 64-bit nodata must be a canonical integer string')
   }
   const integer = BigInt(canonical)
-  const minimum = sampleType === 'int64' ? -(1n << 63n) : 0n
+  if (integer.toString() !== canonical) {
+    throw invalidInput('Exact 64-bit nodata must be a canonical integer string')
+  }
+  const minimum = sampleType === 'uint64' ? 0n : -(1n << 63n)
   const maximum = sampleType === 'int64' ? (1n << 63n) - 1n : (1n << 64n) - 1n
   if (integer < minimum || integer > maximum) {
-    throw invalidInput(`${sampleType} source nodata is outside the native sample range`)
+    throw invalidInput(
+      sampleType === undefined
+        ? 'Exact 64-bit nodata is outside the int64 and uint64 ranges'
+        : `Exact 64-bit nodata is outside ${sampleType}`,
+    )
   }
   return Object.freeze({ kind: 'integer64', value: canonical })
 }
 
-const sourceNoDataForBand = (view: GeoRasterView, bandIndex: number): GeoSourceNoData => {
+const normalizeGeoReprojectionNoData = (
+  value: Readonly<GeoReprojectionNoData>,
+  sampleType?: NumericSampleType,
+): GeoReprojectionNoData => {
+  if (value.kind === 'integer64') {
+    if (sampleType !== undefined && !isBigIntSampleType(sampleType)) {
+      throw invalidInput('Exact 64-bit nodata requires an int64 or uint64 raster')
+    }
+    return exactIntegerNoData(value.value, sampleType)
+  }
+  const normalized = normalizeRasterNoData(value)
+  if (
+    sampleType !== undefined &&
+    isBigIntSampleType(sampleType) &&
+    normalized.kind === 'value' &&
+    !Number.isSafeInteger(normalized.value)
+  ) {
+    throw invalidInput(`${sampleType} nodata must use an exact integer64 string`)
+  }
+  return normalized
+}
+
+const sourceNoDataForBand = (view: GeoRasterView, bandIndex: number): GeoReprojectionNoData => {
   const band = view.dataset.descriptor.bands.find(
     ({ sourceComponentIndex }) => sourceComponentIndex === bandIndex,
   )
@@ -157,21 +192,11 @@ const sourceNoDataForBand = (view: GeoRasterView, bandIndex: number): GeoSourceN
 }
 
 const configuredSourceNoData = (
-  value: Readonly<RasterNoData>,
+  value: Readonly<GeoReprojectionNoData>,
   sampleType: NumericSampleType,
-): RasterNoData => {
-  const normalized = normalizeRasterNoData(value)
-  if (
-    isBigIntSampleType(sampleType) &&
-    normalized.kind === 'value' &&
-    !Number.isSafeInteger(normalized.value)
-  ) {
-    throw invalidInput(`${sampleType} source nodata must be an exact safe integer`)
-  }
-  return normalized
-}
+): GeoReprojectionNoData => normalizeGeoReprojectionNoData(value, sampleType)
 
-const rasterSourceNoData = (value: GeoSourceNoData): RasterNoData => {
+const rasterSourceNoData = (value: GeoReprojectionNoData): RasterNoData => {
   if (value.kind === 'integer64') return Object.freeze({ kind: 'none' })
   return value
 }
@@ -200,16 +225,16 @@ const normalizeNoDataPolicies = (
   policy: Readonly<GeoReprojectionNoDataPolicy> | undefined,
   targetGrid: GeoTargetGrid,
 ): {
-  readonly source: readonly GeoSourceNoData[]
-  readonly output: RasterNoData
+  readonly source: readonly GeoReprojectionNoData[]
+  readonly output: GeoReprojectionNoData
   readonly minimumValidWeight: number
 } => {
   const configured = policy?.source
   const sampleType = numericSampleType(view.dataset.descriptor.sampleType)
-  let source: readonly GeoSourceNoData[]
+  let source: readonly GeoReprojectionNoData[]
   if (configured === undefined) {
     source = Object.freeze(bands.map((band) => sourceNoDataForBand(view, band)))
-  } else if (isRasterNoDataArray(configured)) {
+  } else if (isGeoReprojectionNoDataArray(configured)) {
     if (configured.length !== bands.length) {
       throw invalidInput('Per-band source nodata must match the selected source bands')
     }
@@ -224,14 +249,17 @@ const normalizeNoDataPolicies = (
   }
   return Object.freeze({
     source,
-    output: normalizeRasterNoData(policy?.output ?? targetGrid.noData),
+    output: normalizeGeoReprojectionNoData(
+      policy?.output ?? targetGrid.noData,
+      targetGrid.sampleType,
+    ),
     minimumValidWeight,
   })
 }
 
-const isRasterNoDataArray = (
-  value: RasterNoData | readonly RasterNoData[],
-): value is readonly RasterNoData[] => Array.isArray(value)
+const isGeoReprojectionNoDataArray = (
+  value: GeoReprojectionNoData | readonly GeoReprojectionNoData[],
+): value is readonly GeoReprojectionNoData[] => Array.isArray(value)
 
 const modelPoint = (
   grid: GeoTargetGrid,
@@ -430,8 +458,19 @@ const integerSampleRange = (
 const writeNoData = (
   data: NumericArray,
   sampleType: NumericSampleType,
-  noData: RasterNoData,
+  noData: GeoReprojectionNoData,
 ): void => {
+  if (noData.kind === 'integer64') {
+    if (sampleType === 'int64' && data instanceof BigInt64Array) {
+      data.fill(BigInt(noData.value))
+      return
+    }
+    if (sampleType === 'uint64' && data instanceof BigUint64Array) {
+      data.fill(BigInt(noData.value))
+      return
+    }
+    throw invalidInput('Exact 64-bit output nodata requires a matching int64 or uint64 target')
+  }
   const range = integerSampleRange(sampleType)
   if (range === undefined) {
     if (data instanceof BigInt64Array || data instanceof BigUint64Array) {
@@ -468,7 +507,7 @@ const outputOffset = (
 const isBigIntSampleType = (sampleType: NumericSampleType): sampleType is 'int64' | 'uint64' =>
   sampleType === 'int64' || sampleType === 'uint64'
 
-const bigIntSampleIsNoData = (value: bigint, noData: GeoSourceNoData): boolean => {
+const bigIntSampleIsNoData = (value: bigint, noData: GeoReprojectionNoData): boolean => {
   if (noData.kind === 'integer64') return value === BigInt(noData.value)
   return (
     noData.kind === 'value' && Number.isSafeInteger(noData.value) && value === BigInt(noData.value)
@@ -483,7 +522,7 @@ const resampleBigIntNearest = (
   targetGrid: GeoTargetGrid,
   targetRegion: GeoPixelRegion,
   bands: readonly number[],
-  sourceNoData: readonly GeoSourceNoData[],
+  sourceNoData: readonly GeoReprojectionNoData[],
   inverse: NonNullable<GeoCoordinateTransformer['inverse']>,
   signal: AbortSignal | undefined,
 ): void => {
@@ -608,8 +647,10 @@ export const createGeoReprojectionPlan = (
     ...value,
     targetRegion: Object.freeze({ ...targetRegion }),
     sourceBands: Object.freeze([...value.sourceBands]),
-    sourceNoData: Object.freeze(value.sourceNoData.map((entry) => normalizeRasterNoData(entry))),
-    outputNoData: normalizeRasterNoData(value.outputNoData),
+    sourceNoData: Object.freeze(
+      value.sourceNoData.map((entry) => normalizeGeoReprojectionNoData(entry)),
+    ),
+    outputNoData: normalizeGeoReprojectionNoData(value.outputNoData),
     transform: Object.freeze({
       ...value.transform,
       accuracy: Object.freeze({ ...value.transform.accuracy }),
@@ -720,6 +761,8 @@ export async function* readReprojectedGeoRegion(
     targetGridIdentity: canonicalizeGeoTargetGrid(targetGrid),
     transform: transformProvenance,
     resampling: request.resampling,
+    sourceNoData: policies.source,
+    outputNoData: policies.output,
     minimumValidWeight: policies.minimumValidWeight,
   })
   try {
@@ -790,7 +833,10 @@ export async function* readReprojectedGeoRegion(
           inverseTransform,
           request.signal,
         )
-      } else
+      } else {
+        if (policies.output.kind === 'integer64') {
+          throw invalidInput('Exact 64-bit output nodata requires a 64-bit target')
+        }
         for (let component = 0; component < bands.length; component += 1) {
           throwIfAborted(request.signal)
           const plan = createRasterTargetGridPlan({
@@ -835,6 +881,7 @@ export async function* readReprojectedGeoRegion(
             componentTile.release()
           }
         }
+      }
       if (!sameFixedIndices(fixedIndices, mosaic.fixedIndices)) {
         throw unsupportedOperation('Reprojected reads require one fixed non-spatial plane')
       }

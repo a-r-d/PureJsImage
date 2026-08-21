@@ -550,6 +550,13 @@ The maintainer approved the following decisions on 2026-08-12:
 - [x] Consolidate target-grid alignment, pluggable coordinate transforms, bounded inverse-mapped
       reads, antimeridian refusal, and existing raster analysis operations under `purejsimage/geo`
       without adding a projection dependency or another raster engine.
+- [x] Expose exact 64-bit nodata in the public reprojection policy, plan, and provenance contracts.
+      Validate canonical decimal strings against the active int64 or uint64 sample type and reject
+      values that cannot be represented without rounding.
+  - Result: `GeoReprojectionNoData` now includes the public `integer64` string variant. Source
+        overrides, output fills, canonical plans, and tile provenance preserve full-range values,
+        while the existing number-based `RasterNoData` contract remains unchanged for shared raster
+        analysis operations.
 - [x] Extract the released OME-Zarr storage, v2/v3 metadata, array, chunk, codec, and sharding engine
       into one internal generic Zarr substrate. Preserve OME-Zarr imports and behavior, provide
       HTTP, local-directory, ZIP, and caller-supplied object stores below domain interpretation, and
