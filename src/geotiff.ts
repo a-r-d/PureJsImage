@@ -14,10 +14,61 @@ const tagGdalNoData = 42_113
 
 const keyModelType = 1_024
 const keyRasterType = 1_025
+const keyModelCitation = 1_026
 const keyGeographicType = 2_048
 const keyGeographicCitation = 2_049
+const keyGeodeticDatum = 2_050
+const keyPrimeMeridian = 2_051
+const keyGeographicLinearUnits = 2_052
+const keyGeographicLinearUnitSize = 2_053
+const keyAngularUnits = 2_054
+const keyAngularUnitSize = 2_055
+const keyEllipsoid = 2_056
+const keySemiMajorAxis = 2_057
+const keySemiMinorAxis = 2_058
+const keyInverseFlattening = 2_059
+const keyAzimuthUnits = 2_060
+const keyPrimeMeridianLongitude = 2_061
 const keyProjectedCrs = 3_072
 const keyProjectedCitation = 3_073
+const keyProjection = 3_074
+const keyCoordinateTransform = 3_075
+const keyProjectedLinearUnits = 3_076
+const keyProjectedLinearUnitSize = 3_077
+const keyVerticalCrs = 4_096
+const keyVerticalCitation = 4_097
+const keyVerticalDatum = 4_098
+const keyVerticalUnits = 4_099
+
+const geoKeyNames = new Map<number, string>([
+  [keyModelType, 'GTModelTypeGeoKey'],
+  [keyRasterType, 'GTRasterTypeGeoKey'],
+  [keyModelCitation, 'GTCitationGeoKey'],
+  [keyGeographicType, 'GeographicTypeGeoKey'],
+  [keyGeographicCitation, 'GeogCitationGeoKey'],
+  [keyGeodeticDatum, 'GeogGeodeticDatumGeoKey'],
+  [keyPrimeMeridian, 'GeogPrimeMeridianGeoKey'],
+  [keyGeographicLinearUnits, 'GeogLinearUnitsGeoKey'],
+  [keyGeographicLinearUnitSize, 'GeogLinearUnitSizeGeoKey'],
+  [keyAngularUnits, 'GeogAngularUnitsGeoKey'],
+  [keyAngularUnitSize, 'GeogAngularUnitSizeGeoKey'],
+  [keyEllipsoid, 'GeogEllipsoidGeoKey'],
+  [keySemiMajorAxis, 'GeogSemiMajorAxisGeoKey'],
+  [keySemiMinorAxis, 'GeogSemiMinorAxisGeoKey'],
+  [keyInverseFlattening, 'GeogInvFlatteningGeoKey'],
+  [keyAzimuthUnits, 'GeogAzimuthUnitsGeoKey'],
+  [keyPrimeMeridianLongitude, 'GeogPrimeMeridianLongGeoKey'],
+  [keyProjectedCrs, 'ProjectedCSTypeGeoKey'],
+  [keyProjectedCitation, 'PCSCitationGeoKey'],
+  [keyProjection, 'ProjectionGeoKey'],
+  [keyCoordinateTransform, 'ProjCoordTransGeoKey'],
+  [keyProjectedLinearUnits, 'ProjLinearUnitsGeoKey'],
+  [keyProjectedLinearUnitSize, 'ProjLinearUnitSizeGeoKey'],
+  [keyVerticalCrs, 'VerticalCSTypeGeoKey'],
+  [keyVerticalCitation, 'VerticalCitationGeoKey'],
+  [keyVerticalDatum, 'VerticalDatumGeoKey'],
+  [keyVerticalUnits, 'VerticalUnitsGeoKey'],
+])
 
 export type GeoTiffRasterType = 'pixel-is-area' | 'pixel-is-point' | 'unspecified'
 
@@ -36,10 +87,30 @@ export interface GeoTiffBoundingBox {
 
 export interface GeoTiffKey {
   readonly id: number
+  readonly name?: string
+  readonly recognized: boolean
   readonly location: number
   readonly count: number
   readonly offset: number
-  readonly value: number | string | readonly number[]
+  readonly value: number | string | readonly number[] | null
+  readonly unavailableReason?: string
+}
+
+export interface GeoTiffTiepoint {
+  readonly raster: GeoTiffPoint
+  readonly model: GeoTiffPoint
+}
+
+export type GeoTiffDiagnosticCode =
+  | 'INCONSISTENT_TIEPOINT'
+  | 'UNSUPPORTED_GCP_WARP'
+  | 'UNSUPPORTED_PROJECTIVE_TRANSFORM'
+
+export interface GeoTiffDiagnostic {
+  readonly code: GeoTiffDiagnosticCode
+  readonly severity: 'warning' | 'error'
+  readonly message: string
+  readonly tiepointIndex?: number
 }
 
 export interface GeoTiffGdalMetadataItem {
@@ -65,7 +136,34 @@ export interface GeoTiffProfile {
   readonly rasterType: GeoTiffRasterType
   readonly projectedCrs?: number
   readonly geographicCrs?: number
+  readonly verticalCrs?: number
+  readonly verticalDatum?: number
+  readonly verticalUnits?: number
+  readonly modelCitation?: string
+  readonly projectedCitation?: string
+  readonly geographicCitation?: string
+  readonly verticalCitation?: string
+  readonly geodeticDatum?: number
+  readonly primeMeridian?: number
+  readonly geographicLinearUnits?: number
+  readonly geographicLinearUnitSize?: number
+  readonly angularUnits?: number
+  readonly angularUnitSize?: number
+  readonly ellipsoid?: number
+  readonly semiMajorAxis?: number
+  readonly semiMinorAxis?: number
+  readonly inverseFlattening?: number
+  readonly azimuthUnits?: number
+  readonly primeMeridianLongitude?: number
+  readonly projection?: number
+  readonly coordinateTransform?: number
+  readonly projectedLinearUnits?: number
+  readonly projectedLinearUnitSize?: number
   readonly citation?: string
+  readonly pixelScale?: GeoTiffPoint
+  readonly tiepoints: readonly GeoTiffTiepoint[]
+  readonly modelTransformation?: readonly number[]
+  readonly diagnostics: readonly GeoTiffDiagnostic[]
   readonly model?: GeoTiffModel
   readonly origin?: GeoTiffPoint
   readonly resolution?: GeoTiffPoint
@@ -123,22 +221,21 @@ const transformationModel = (values: readonly number[]): GeoTiffModel => {
 
 const tiepointScaleModel = (
   scales: readonly number[],
-  tiepoints: readonly number[],
+  tiepoints: readonly GeoTiffTiepoint[],
 ): GeoTiffModel => {
   if (scales.length !== 3) throw invalidInput('GeoTIFF ModelPixelScaleTag must contain 3 values')
-  if (tiepoints.length < 6 || tiepoints.length % 6 !== 0) {
-    throw invalidInput('GeoTIFF ModelTiepointTag must contain complete six-value tiepoints')
-  }
   const scaleX = finite(scales[0] ?? Number.NaN, 'x scale')
   const scaleY = finite(scales[1] ?? Number.NaN, 'y scale')
   const scaleZ = finite(scales[2] ?? Number.NaN, 'z scale')
   if (scaleX === 0 || scaleY === 0) throw invalidInput('GeoTIFF pixel scale must be non-zero')
-  const rasterX = finite(tiepoints[0] ?? Number.NaN, 'tiepoint raster x')
-  const rasterY = finite(tiepoints[1] ?? Number.NaN, 'tiepoint raster y')
-  const rasterZ = finite(tiepoints[2] ?? Number.NaN, 'tiepoint raster z')
-  const modelX = finite(tiepoints[3] ?? Number.NaN, 'tiepoint model x')
-  const modelY = finite(tiepoints[4] ?? Number.NaN, 'tiepoint model y')
-  const modelZ = finite(tiepoints[5] ?? Number.NaN, 'tiepoint model z')
+  const first = tiepoints[0]
+  if (first === undefined) throw invalidInput('GeoTIFF tiepoint-scale model has no tiepoint')
+  const rasterX = first.raster.x
+  const rasterY = first.raster.y
+  const rasterZ = first.raster.z
+  const modelX = first.model.x
+  const modelY = first.model.y
+  const modelZ = first.model.z
   const matrix = Object.freeze([
     scaleX,
     0,
@@ -164,6 +261,55 @@ const tiepointScaleModel = (
     pixelToModel: model.pixelToModel,
   })
 }
+
+const parseTiepoints = (values: readonly number[] | undefined): readonly GeoTiffTiepoint[] => {
+  if (values === undefined) return Object.freeze([])
+  if (values.length < 6 || values.length % 6 !== 0) {
+    throw invalidInput('GeoTIFF ModelTiepointTag must contain complete six-value tiepoints')
+  }
+  return Object.freeze(
+    Array.from({ length: values.length / 6 }, (_, index) => {
+      const offset = index * 6
+      return Object.freeze({
+        raster: point(
+          finite(values[offset] ?? Number.NaN, `tiepoint ${index} raster x`),
+          finite(values[offset + 1] ?? Number.NaN, `tiepoint ${index} raster y`),
+          finite(values[offset + 2] ?? Number.NaN, `tiepoint ${index} raster z`),
+        ),
+        model: point(
+          finite(values[offset + 3] ?? Number.NaN, `tiepoint ${index} model x`),
+          finite(values[offset + 4] ?? Number.NaN, `tiepoint ${index} model y`),
+          finite(values[offset + 5] ?? Number.NaN, `tiepoint ${index} model z`),
+        ),
+      })
+    }),
+  )
+}
+
+const closeTiepointCoordinate = (expected: number, actual: number): boolean =>
+  Math.abs(expected - actual) <= Math.max(1, Math.abs(expected), Math.abs(actual)) * 1e-9
+
+const tiepointDiagnostics = (
+  model: GeoTiffModel,
+  tiepoints: readonly GeoTiffTiepoint[],
+): readonly GeoTiffDiagnostic[] =>
+  Object.freeze(
+    tiepoints.flatMap((tiepoint, index) => {
+      const expected = model.pixelToModel(tiepoint.raster.x, tiepoint.raster.y, tiepoint.raster.z)
+      return closeTiepointCoordinate(expected.x, tiepoint.model.x) &&
+        closeTiepointCoordinate(expected.y, tiepoint.model.y) &&
+        closeTiepointCoordinate(expected.z, tiepoint.model.z)
+        ? []
+        : [
+            Object.freeze({
+              code: 'INCONSISTENT_TIEPOINT' as const,
+              severity: 'error' as const,
+              message: `GeoTIFF tiepoint ${index} is inconsistent with ModelPixelScaleTag and the first tiepoint.`,
+              tiepointIndex: index,
+            }),
+          ]
+    }),
+  )
 
 const parseGeoKeys = (
   directoryValues: readonly number[] | undefined,
@@ -212,7 +358,8 @@ const parseGeoKeys = (
       throw invalidInput('GeoTIFF GeoKey entry contains an invalid field')
     }
     if (keys.has(id)) throw invalidInput(`GeoTIFF GeoKey ${id} is repeated`)
-    let value: number | string | readonly number[]
+    let value: number | string | readonly number[] | null
+    let unavailableReason: string | undefined
     if (location === 0) {
       if (count !== 1 || offset > 65_535)
         throw invalidInput(`GeoTIFF inline GeoKey ${id} is invalid`)
@@ -232,9 +379,26 @@ const parseGeoKeys = (
         throw invalidInput(`GeoTIFF GeoKey ${id} exceeds GeoAsciiParamsTag`)
       value = asciiValues.slice(offset, offset + count).replace(/\|$/, '')
     } else {
-      throw unsupportedOperation(`GeoTIFF GeoKey ${id} references unsupported tag ${location}`)
+      if (geoKeyNames.has(id)) {
+        throw unsupportedOperation(`GeoTIFF GeoKey ${id} references unsupported tag ${location}`)
+      }
+      value = null
+      unavailableReason = `GeoKey references unsupported tag ${location}`
     }
-    keys.set(id, Object.freeze({ id, location, count, offset, value }))
+    const name = geoKeyNames.get(id)
+    keys.set(
+      id,
+      Object.freeze({
+        id,
+        ...(name === undefined ? {} : { name }),
+        recognized: name !== undefined,
+        location,
+        count,
+        offset,
+        value,
+        ...(unavailableReason === undefined ? {} : { unavailableReason }),
+      }),
+    )
   }
   return keys
 }
@@ -352,20 +516,44 @@ export const openGeoTiffDirectory = async (
     directory.getTag(tagGdalNoData, options),
   ])
   const scales = numbers(rawScale, 'ModelPixelScaleTag')
-  const tiepoints = numbers(rawTiepoints, 'ModelTiepointTag')
+  const tiepoints = parseTiepoints(numbers(rawTiepoints, 'ModelTiepointTag'))
   const transformation = numbers(rawTransformation, 'ModelTransformationTag')
-  if (transformation !== undefined && (scales !== undefined || tiepoints !== undefined)) {
+  if (transformation !== undefined && (scales !== undefined || tiepoints.length > 0)) {
     throw invalidInput('GeoTIFF must not combine ModelTransformationTag with tiepoint-scale tags')
   }
-  if ((scales === undefined) !== (tiepoints === undefined)) {
-    throw invalidInput('GeoTIFF ModelPixelScaleTag and ModelTiepointTag must be provided together')
+  if (scales !== undefined && tiepoints.length === 0) {
+    throw invalidInput('GeoTIFF ModelPixelScaleTag requires ModelTiepointTag')
   }
-  const model =
-    transformation !== undefined
-      ? transformationModel(transformation)
-      : scales !== undefined && tiepoints !== undefined
-        ? tiepointScaleModel(scales, tiepoints)
-        : undefined
+  const diagnostics: GeoTiffDiagnostic[] = []
+  let model: GeoTiffModel | undefined
+  if (transformation !== undefined) {
+    model = transformationModel(transformation)
+    const matrix = model.matrix
+    if (matrix[12] !== 0 || matrix[13] !== 0 || matrix[15] === 0) {
+      diagnostics.push(
+        Object.freeze({
+          code: 'UNSUPPORTED_PROJECTIVE_TRANSFORM',
+          severity: 'error',
+          message:
+            'GeoTIFF ModelTransformationTag uses projective terms that cannot be represented as a pixel-to-world affine.',
+        }),
+      )
+    }
+  } else if (scales !== undefined) {
+    const candidate = tiepointScaleModel(scales, tiepoints)
+    const validation = tiepointDiagnostics(candidate, tiepoints)
+    diagnostics.push(...validation)
+    if (!validation.some(({ severity }) => severity === 'error')) model = candidate
+  } else if (tiepoints.length > 0) {
+    diagnostics.push(
+      Object.freeze({
+        code: 'UNSUPPORTED_GCP_WARP',
+        severity: 'warning',
+        message:
+          'GeoTIFF tiepoints without a pixel scale are preserved as ground-control-point evidence; arbitrary GCP warping is not supported.',
+      }),
+    )
+  }
   const keys = parseGeoKeys(
     numbers(rawKeyDirectory, 'GeoKeyDirectoryTag'),
     numbers(rawDoubles, 'GeoDoubleParamsTag'),
@@ -383,7 +571,30 @@ export const openGeoTiffDirectory = async (
   const modelType = scalarKey(keys, keyModelType)
   const projectedCrs = scalarKey(keys, keyProjectedCrs)
   const geographicCrs = scalarKey(keys, keyGeographicType)
-  const citation = textKey(keys, keyProjectedCitation) ?? textKey(keys, keyGeographicCitation)
+  const geodeticDatum = scalarKey(keys, keyGeodeticDatum)
+  const primeMeridian = scalarKey(keys, keyPrimeMeridian)
+  const geographicLinearUnits = scalarKey(keys, keyGeographicLinearUnits)
+  const geographicLinearUnitSize = scalarKey(keys, keyGeographicLinearUnitSize)
+  const angularUnits = scalarKey(keys, keyAngularUnits)
+  const angularUnitSize = scalarKey(keys, keyAngularUnitSize)
+  const ellipsoid = scalarKey(keys, keyEllipsoid)
+  const semiMajorAxis = scalarKey(keys, keySemiMajorAxis)
+  const semiMinorAxis = scalarKey(keys, keySemiMinorAxis)
+  const inverseFlattening = scalarKey(keys, keyInverseFlattening)
+  const azimuthUnits = scalarKey(keys, keyAzimuthUnits)
+  const primeMeridianLongitude = scalarKey(keys, keyPrimeMeridianLongitude)
+  const projection = scalarKey(keys, keyProjection)
+  const coordinateTransform = scalarKey(keys, keyCoordinateTransform)
+  const projectedLinearUnits = scalarKey(keys, keyProjectedLinearUnits)
+  const projectedLinearUnitSize = scalarKey(keys, keyProjectedLinearUnitSize)
+  const verticalCrs = scalarKey(keys, keyVerticalCrs)
+  const verticalDatum = scalarKey(keys, keyVerticalDatum)
+  const verticalUnits = scalarKey(keys, keyVerticalUnits)
+  const modelCitation = textKey(keys, keyModelCitation)
+  const projectedCitation = textKey(keys, keyProjectedCitation)
+  const geographicCitation = textKey(keys, keyGeographicCitation)
+  const verticalCitation = textKey(keys, keyVerticalCitation)
+  const citation = projectedCitation ?? geographicCitation ?? modelCitation
   const bounds =
     model === undefined ? undefined : boundingBox(model, directory.width, directory.height)
   const noData = parseNoData(ascii(rawNoData, 'GDAL_NODATA'))
@@ -391,11 +602,48 @@ export const openGeoTiffDirectory = async (
     directory,
     keys,
     rasterType,
+    tiepoints,
+    diagnostics: Object.freeze(diagnostics),
     gdalMetadata: parseGdalMetadata(ascii(rawGdalMetadata, 'GDAL_METADATA')),
     ...(modelType === undefined ? {} : { modelType }),
     ...(projectedCrs === undefined ? {} : { projectedCrs }),
     ...(geographicCrs === undefined ? {} : { geographicCrs }),
+    ...(verticalCrs === undefined ? {} : { verticalCrs }),
+    ...(verticalDatum === undefined ? {} : { verticalDatum }),
+    ...(verticalUnits === undefined ? {} : { verticalUnits }),
+    ...(modelCitation === undefined ? {} : { modelCitation }),
+    ...(projectedCitation === undefined ? {} : { projectedCitation }),
+    ...(geographicCitation === undefined ? {} : { geographicCitation }),
+    ...(verticalCitation === undefined ? {} : { verticalCitation }),
+    ...(geodeticDatum === undefined ? {} : { geodeticDatum }),
+    ...(primeMeridian === undefined ? {} : { primeMeridian }),
+    ...(geographicLinearUnits === undefined ? {} : { geographicLinearUnits }),
+    ...(geographicLinearUnitSize === undefined ? {} : { geographicLinearUnitSize }),
+    ...(angularUnits === undefined ? {} : { angularUnits }),
+    ...(angularUnitSize === undefined ? {} : { angularUnitSize }),
+    ...(ellipsoid === undefined ? {} : { ellipsoid }),
+    ...(semiMajorAxis === undefined ? {} : { semiMajorAxis }),
+    ...(semiMinorAxis === undefined ? {} : { semiMinorAxis }),
+    ...(inverseFlattening === undefined ? {} : { inverseFlattening }),
+    ...(azimuthUnits === undefined ? {} : { azimuthUnits }),
+    ...(primeMeridianLongitude === undefined ? {} : { primeMeridianLongitude }),
+    ...(projection === undefined ? {} : { projection }),
+    ...(coordinateTransform === undefined ? {} : { coordinateTransform }),
+    ...(projectedLinearUnits === undefined ? {} : { projectedLinearUnits }),
+    ...(projectedLinearUnitSize === undefined ? {} : { projectedLinearUnitSize }),
     ...(citation === undefined ? {} : { citation }),
+    ...(scales === undefined
+      ? {}
+      : {
+          pixelScale: point(
+            finite(scales[0] ?? Number.NaN, 'x scale'),
+            finite(scales[1] ?? Number.NaN, 'y scale'),
+            finite(scales[2] ?? Number.NaN, 'z scale'),
+          ),
+        }),
+    ...(transformation === undefined
+      ? {}
+      : { modelTransformation: Object.freeze([...transformation]) }),
     ...(model === undefined ? {} : { model }),
     ...(origin === undefined ? {} : { origin }),
     ...(resolution === undefined ? {} : { resolution }),

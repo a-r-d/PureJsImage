@@ -709,6 +709,8 @@ const allCodecSize = target('codecs-all')
 const webCodecSize = target('codecs-web')
 const scientificSize = target('scientific')
 const allReaderSize = target('scientific-readers-all')
+const geoSize = target('geo')
+const allGeoReaderSize = target('geo-readers-all')
 const installedSize = target('purejsimage-all')
 
 const northstar = (engine: string): OrdinaryResult => {
@@ -1006,6 +1008,11 @@ const documentation = {
     stableCodecNames: stableCodecs.map(({ name }) => name),
   },
   sizes: {
+    allGeoReaders: {
+      brotliBytes: allGeoReaderSize.brotliBytes,
+      gzipBytes: allGeoReaderSize.gzipBytes,
+      minifiedBytes: allGeoReaderSize.minifiedJsBytes,
+    },
     allReaders: {
       brotliBytes: allReaderSize.brotliBytes,
       gzipBytes: allReaderSize.gzipBytes,
@@ -1025,6 +1032,11 @@ const documentation = {
       brotliBytes: coreSize.brotliBytes,
       gzipBytes: coreSize.gzipBytes,
       minifiedBytes: coreSize.minifiedJsBytes,
+    },
+    geoPlatform: {
+      brotliBytes: geoSize.brotliBytes,
+      gzipBytes: geoSize.gzipBytes,
+      minifiedBytes: geoSize.minifiedJsBytes,
     },
     installedPackage: {
       bytes: installedSize.unpackedPackageBytes,
@@ -1150,6 +1162,8 @@ const summaryBlock = [
   `| All stable codecs | ${formatKibibytes(allCodecSize.minifiedJsBytes)} | ${formatKibibytes(allCodecSize.gzipBytes)} | ${formatKibibytes(allCodecSize.brotliBytes)} |`,
   `| Scientific platform | ${formatKibibytes(scientificSize.minifiedJsBytes)} | ${formatKibibytes(scientificSize.gzipBytes)} | ${formatKibibytes(scientificSize.brotliBytes)} |`,
   `| All scientific readers | ${formatKibibytes(allReaderSize.minifiedJsBytes)} | ${formatKibibytes(allReaderSize.gzipBytes)} | ${formatKibibytes(allReaderSize.brotliBytes)} |`,
+  `| Geo raster platform | ${formatKibibytes(geoSize.minifiedJsBytes)} | ${formatKibibytes(geoSize.gzipBytes)} | ${formatKibibytes(geoSize.brotliBytes)} |`,
+  `| All Geo readers | ${formatKibibytes(allGeoReaderSize.minifiedJsBytes)} | ${formatKibibytes(allGeoReaderSize.gzipBytes)} | ${formatKibibytes(allGeoReaderSize.brotliBytes)} |`,
   '',
   `The extracted npm package is ${formatMebibytes(installedSize.unpackedPackageBytes)} with ${installedSize.productionPackageCount} production package. This is unpacked size, not the compressed npm tarball.`,
 ].join('\n')

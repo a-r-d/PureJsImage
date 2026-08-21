@@ -65,9 +65,13 @@ const assertPermittedInnerScrollOnly = async (page: Page) => {
       })
       const offenders: {
         readonly tag: string
+        readonly id: string
         readonly className: string
         readonly kind: string
         readonly overflowX: string
+        readonly left: number
+        readonly right: number
+        readonly text: string
       }[] = []
       const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT)
       let node: Node | null = walk.currentNode
@@ -86,9 +90,13 @@ const assertPermittedInnerScrollOnly = async (page: Page) => {
             if (!permitted) {
               offenders.push({
                 tag: node.tagName.toLowerCase(),
+                id: node.id,
                 className: node.className.toString().slice(0, 80),
                 kind,
                 overflowX,
+                left: Math.round(box.left),
+                right: Math.round(box.right),
+                text: (node.textContent ?? '').trim().slice(0, 120),
               })
             }
           }

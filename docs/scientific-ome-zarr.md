@@ -3,6 +3,11 @@
 PureJsImage includes an explicit, browser-portable OME-Zarr reader. Importing the base scientific
 package still does not register any reader automatically.
 
+The reader uses the internal generic Zarr substrate described in
+[Generic Zarr substrate](./zarr-architecture.md). OME multiscales, OMERO channels, labels, plates,
+and wells stay in the OME-NGFF layer. Object stores, v2/v3 metadata, chunks, shards, codecs, and
+bounded region reads are shared with future Zarr domain readers.
+
 ```ts
 import { createScientificLibrary } from 'purejsimage/scientific'
 import { omeZarrReader } from 'purejsimage/scientific/readers/ome-zarr'

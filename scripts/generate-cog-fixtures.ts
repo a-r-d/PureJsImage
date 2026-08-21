@@ -12,6 +12,7 @@ interface GeoFixture {
   readonly kind: 'north-up' | 'rotated'
   readonly pixelIsPoint?: boolean
   readonly nodata?: string
+  readonly omitModelTransform?: boolean
 }
 
 interface LevelFixture {
@@ -87,13 +88,44 @@ const fixtures: readonly CogFixture[] = [
         tileHeight: 8,
         samples: 3,
         compression: 8,
-        geo: { kind: 'rotated', nodata: '-9999' },
+        geo: { kind: 'rotated', nodata: '255' },
       },
       {
         width: 16,
         height: 16,
         tileWidth: 8,
         tileHeight: 8,
+        samples: 3,
+        compression: 8,
+        geo: { kind: 'rotated', omitModelTransform: true },
+      },
+    ],
+  },
+  {
+    filename: 'showcase-subifd-deflate-rotated.tif',
+    levels: [
+      {
+        width: 2_048,
+        height: 1_024,
+        tileWidth: 128,
+        tileHeight: 128,
+        samples: 3,
+        compression: 8,
+        geo: { kind: 'rotated', nodata: '255' },
+      },
+      {
+        width: 1_024,
+        height: 512,
+        tileWidth: 128,
+        tileHeight: 128,
+        samples: 3,
+        compression: 8,
+      },
+      {
+        width: 512,
+        height: 256,
+        tileWidth: 128,
+        tileHeight: 128,
         samples: 3,
         compression: 8,
       },
@@ -109,6 +141,7 @@ const fixtures: readonly CogFixture[] = [
         tileHeight: 8,
         samples: 1,
         compression: 32773,
+        geo: { kind: 'north-up' },
       },
     ],
   },
@@ -122,6 +155,7 @@ const fixtures: readonly CogFixture[] = [
         tileHeight: 8,
         samples: 3,
         compression: 7,
+        geo: { kind: 'north-up' },
       },
     ],
   },
@@ -327,18 +361,20 @@ const geoEntries = (geo: GeoFixture | undefined): readonly Entry[] => {
     0,
   ]
   const modelEntries: readonly Entry[] =
-    geo.kind === 'north-up'
-      ? [
-          { tag: 33550, type: 12, values: [2, 2, 0] },
-          { tag: 33922, type: 12, values: [0, 0, 0, 500_000, 4_500_000, 0] },
-        ]
-      : [
-          {
-            tag: 34264,
-            type: 12,
-            values: [2, 0.5, 0, 100, -0.25, -2, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
-          },
-        ]
+    geo.omitModelTransform === true
+      ? []
+      : geo.kind === 'north-up'
+        ? [
+            { tag: 33550, type: 12, values: [2, 2, 0] },
+            { tag: 33922, type: 12, values: [0, 0, 0, 500_000, 4_500_000, 0] },
+          ]
+        : [
+            {
+              tag: 34264,
+              type: 12,
+              values: [2, 0.5, 0, 100, -0.25, -2, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
+            },
+          ]
   return [
     ...modelEntries,
     { tag: 34735, type: 3, values: keyDirectory },

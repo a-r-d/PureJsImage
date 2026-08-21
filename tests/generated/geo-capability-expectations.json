@@ -1,0 +1,733 @@
+{
+  "schemaVersion": 1,
+  "formats": [
+    {
+      "id": "geotiff",
+      "publicEntry": "purejsimage/geo/readers/geotiff",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Opens byte-backed and local sources.",
+          "evidence": ["test-geotiff", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-tested",
+          "detail": "Opens HTTP Range sources without full download.",
+          "evidence": ["test-geotiff", "benchmark-geo"]
+        },
+        "range-access": {
+          "state": "implemented-tested",
+          "detail": "TIFF tags, strips, and tiles use bounded source ranges.",
+          "evidence": ["test-geotiff", "fixture-cog"]
+        },
+        "region-read": {
+          "state": "implemented-tested",
+          "detail": "Native strips and tiles satisfy bounded pixel regions.",
+          "evidence": ["test-geotiff"]
+        },
+        "multiscale": {
+          "state": "implemented-tested",
+          "detail": "Top-level IFD and SubIFD levels retain explicit geometry.",
+          "evidence": ["test-geotiff", "fixture-cog"]
+        },
+        "rotated-affine": {
+          "state": "implemented-tested",
+          "detail": "ModelTransformation and rotated level geometry are preserved.",
+          "evidence": ["test-geotiff", "fixture-cog"]
+        },
+        "pixel-is-area": {
+          "state": "implemented-tested",
+          "detail": "RasterPixelIsArea maps to the shared registration model.",
+          "evidence": ["test-geotiff"]
+        },
+        "pixel-is-point": {
+          "state": "implemented-tested",
+          "detail": "RasterPixelIsPoint maps to the shared registration model.",
+          "evidence": ["test-geotiff"]
+        },
+        "unknown-crs": {
+          "state": "implemented-tested",
+          "detail": "Incomplete CRS evidence remains explicit and readable.",
+          "evidence": ["test-geotiff"]
+        },
+        "bands": {
+          "state": "implemented-tested",
+          "detail": "RGB, four-band, signed, and floating samples retain component metadata.",
+          "evidence": ["test-geotiff"]
+        },
+        "time-dimension": {
+          "state": "unavailable",
+          "detail": "TIFF pages are not exposed as a time axis by the GeoTIFF reader.",
+          "evidence": []
+        },
+        "vertical-dimension": {
+          "state": "metadata-only",
+          "detail": "Vertical CRS evidence is preserved, but no vertical array axis is synthesized.",
+          "evidence": ["test-geotiff"]
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "GDAL nodata is normalized into grid and band metadata.",
+          "evidence": ["test-geotiff"]
+        },
+        "scale-offset": {
+          "state": "metadata-only",
+          "detail": "Bounded GDAL metadata is retained without inventing sample scaling.",
+          "evidence": ["test-geotiff"]
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "GeoTIFF datasets use the shared bounded target-grid read.",
+          "evidence": ["test-grid", "test-geotiff"]
+        },
+        "reprojection": {
+          "state": "implemented-tested",
+          "detail": "Caller-supplied coordinate transforms can inverse-map requested output regions.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "The public geo reader is read-only.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "cog",
+      "publicEntry": "purejsimage/geo/readers/geotiff",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "COG-shaped TIFF fixtures open locally.",
+          "evidence": ["test-geotiff", "fixture-cog", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-tested",
+          "detail": "Remote COG-shaped sources open through HTTP Range.",
+          "evidence": ["test-geotiff"]
+        },
+        "range-access": {
+          "state": "implemented-tested",
+          "detail": "Requests, transferred bytes, unique bytes, and cache activity are reported.",
+          "evidence": ["test-geotiff", "benchmark-geo"]
+        },
+        "region-read": {
+          "state": "implemented-tested",
+          "detail": "Viewport reads fetch intersecting native tiles or strips.",
+          "evidence": ["test-geotiff"]
+        },
+        "multiscale": {
+          "state": "implemented-tested",
+          "detail": "SubIFD overviews are selectable with per-level geometry.",
+          "evidence": ["test-geotiff", "fixture-cog"]
+        },
+        "rotated-affine": {
+          "state": "implemented-tested",
+          "detail": "Rotated base and overview transforms are retained.",
+          "evidence": ["test-geotiff", "fixture-cog"]
+        },
+        "pixel-is-area": {
+          "state": "implemented-tested",
+          "detail": "Area registration is tested with COG-shaped fixtures.",
+          "evidence": ["test-geotiff"]
+        },
+        "pixel-is-point": {
+          "state": "implemented-fixture-limited",
+          "detail": "Point registration is supported by GeoTIFF normalization; the COG corpus is limited.",
+          "evidence": ["test-geotiff"]
+        },
+        "unknown-crs": {
+          "state": "implemented-fixture-limited",
+          "detail": "Unknown CRS stays explicit; the remote COG corpus is limited.",
+          "evidence": ["test-geotiff"]
+        },
+        "bands": {
+          "state": "implemented-tested",
+          "detail": "Component and color layout follow the GeoTIFF reader.",
+          "evidence": ["test-geotiff"]
+        },
+        "time-dimension": {
+          "state": "unavailable",
+          "detail": "COG behavior does not define a time dimension.",
+          "evidence": []
+        },
+        "vertical-dimension": {
+          "state": "metadata-only",
+          "detail": "Vertical CRS metadata may be preserved without a vertical array axis.",
+          "evidence": ["test-geotiff"]
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "Nodata is retained during bounded viewport reads.",
+          "evidence": ["test-geotiff"]
+        },
+        "scale-offset": {
+          "state": "metadata-only",
+          "detail": "Bounded GDAL metadata is retained without inferred scaling.",
+          "evidence": ["test-geotiff"]
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "COG-backed datasets can feed bounded target-grid reads.",
+          "evidence": ["test-grid", "test-geotiff"]
+        },
+        "reprojection": {
+          "state": "implemented-tested",
+          "detail": "Reprojection uses the shared caller-injected transform contract.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "COG writing and certification are not part of the read-only geo core.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "geozarr",
+      "publicEntry": "purejsimage/geo/readers/geozarr",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Local directory and ZIP stores are supported.",
+          "evidence": ["test-geozarr", "fixture-geozarr", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-tested",
+          "detail": "HTTP object-store roots open without unbounded enumeration.",
+          "evidence": ["test-geozarr"]
+        },
+        "range-access": {
+          "state": "implemented-tested",
+          "detail": "Metadata, chunks, and shards use bounded object reads.",
+          "evidence": ["test-geozarr", "benchmark-geo"]
+        },
+        "region-read": {
+          "state": "implemented-tested",
+          "detail": "Region planning reads only intersecting logical chunks or shards.",
+          "evidence": ["test-geozarr"]
+        },
+        "multiscale": {
+          "state": "implemented-tested",
+          "detail": "Arbitrary declared multiscale levels retain ordering and geometry.",
+          "evidence": ["test-geozarr", "fixture-geozarr-official"]
+        },
+        "rotated-affine": {
+          "state": "implemented-tested",
+          "detail": "Rotated affine convention metadata is preserved and used.",
+          "evidence": ["test-geozarr"]
+        },
+        "pixel-is-area": {
+          "state": "implemented-tested",
+          "detail": "Pixel registration maps to area semantics.",
+          "evidence": ["test-geozarr"]
+        },
+        "pixel-is-point": {
+          "state": "implemented-tested",
+          "detail": "Node registration maps to point semantics.",
+          "evidence": ["test-geozarr"]
+        },
+        "unknown-crs": {
+          "state": "implemented-tested",
+          "detail": "Missing or incomplete CRS is explicit in descriptors and diagnostics.",
+          "evidence": ["test-geozarr"]
+        },
+        "bands": {
+          "state": "implemented-tested",
+          "detail": "Band dimensions remain selectable and are not guessed from component count.",
+          "evidence": ["test-geozarr"]
+        },
+        "time-dimension": {
+          "state": "implemented-tested",
+          "detail": "Time indices remain selectable in multidimensional arrays.",
+          "evidence": ["test-geozarr"]
+        },
+        "vertical-dimension": {
+          "state": "implemented-tested",
+          "detail": "Vertical indices remain selectable in multidimensional arrays.",
+          "evidence": ["test-geozarr"]
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "Fill values and represented nodata are normalized during reads.",
+          "evidence": ["test-geozarr"]
+        },
+        "scale-offset": {
+          "state": "implemented-fixture-limited",
+          "detail": "Represented sample scale and offset are supported; convention fixtures are limited.",
+          "evidence": ["test-geozarr"]
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "GeoZarr datasets use the shared bounded target-grid read.",
+          "evidence": ["test-grid", "test-geozarr"]
+        },
+        "reprojection": {
+          "state": "implemented-tested",
+          "detail": "Cross-CRS reads require a caller-supplied transformer.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "GeoZarr mutation and writing are outside this reader.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "world-file-image",
+      "publicEntry": "purejsimage/geo/readers/world-file",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Caller maps and local sibling resources can provide world files and PRJ files.",
+          "evidence": ["test-contained", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-tested",
+          "detail": "A bounded documented URL resolver can retrieve sibling sidecars.",
+          "evidence": ["test-contained"]
+        },
+        "range-access": {
+          "state": "implemented-fixture-limited",
+          "detail": "Sidecar reads are bounded; pixel access depends on the underlying image codec.",
+          "evidence": ["test-contained"]
+        },
+        "region-read": {
+          "state": "implemented-fixture-limited",
+          "detail": "Geo views expose regions, but some image codecs materialize the decoded image.",
+          "evidence": ["test-contained"]
+        },
+        "multiscale": {
+          "state": "unavailable",
+          "detail": "World files do not define a pyramid.",
+          "evidence": []
+        },
+        "rotated-affine": {
+          "state": "implemented-tested",
+          "detail": "All six world-file coefficients, rotations, and signs are retained.",
+          "evidence": ["test-contained"]
+        },
+        "pixel-is-area": {
+          "state": "implemented-tested",
+          "detail": "World-file pixel-center coordinates are converted to the canonical area affine.",
+          "evidence": ["test-contained"]
+        },
+        "pixel-is-point": {
+          "state": "unavailable",
+          "detail": "World files describe image pixel centers and do not declare point registration.",
+          "evidence": []
+        },
+        "unknown-crs": {
+          "state": "implemented-tested",
+          "detail": "A missing PRJ file leaves explicit unknown CRS evidence.",
+          "evidence": ["test-contained"]
+        },
+        "bands": {
+          "state": "implemented-fixture-limited",
+          "detail": "Components come from the selected image codec; geo semantics remain neutral.",
+          "evidence": ["test-contained"]
+        },
+        "time-dimension": {
+          "state": "unavailable",
+          "detail": "Sidecars do not define a time dimension.",
+          "evidence": []
+        },
+        "vertical-dimension": {
+          "state": "unavailable",
+          "detail": "Sidecars do not define a vertical dimension.",
+          "evidence": []
+        },
+        "nodata": {
+          "state": "unavailable",
+          "detail": "World files and PRJ files do not define source nodata.",
+          "evidence": []
+        },
+        "scale-offset": {
+          "state": "unavailable",
+          "detail": "World files do not define sample scale or offset.",
+          "evidence": []
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "The adapted image uses the shared target-grid path.",
+          "evidence": ["test-grid", "test-contained"]
+        },
+        "reprojection": {
+          "state": "implemented-tested",
+          "detail": "PRJ-backed data can use a caller-supplied transformer.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "Image and sidecar writing are outside the geo reader.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "envi",
+      "publicEntry": "purejsimage/geo/readers/envi",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Header and binary companion sources open locally.",
+          "evidence": ["test-contained", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-fixture-limited",
+          "detail": "Caller-supplied remote source pairs work; current geo fixtures are local.",
+          "evidence": ["test-contained"]
+        },
+        "range-access": {
+          "state": "implemented-tested",
+          "detail": "BSQ, BIL, and BIP reads use the shared bounded ENVI source path.",
+          "evidence": ["test-contained"]
+        },
+        "region-read": {
+          "state": "implemented-tested",
+          "detail": "Selected bands and bounded pixel regions reuse the scientific decoder.",
+          "evidence": ["test-contained", "benchmark-geo"]
+        },
+        "multiscale": {
+          "state": "unavailable",
+          "detail": "ENVI headers do not expose a pyramid in this reader.",
+          "evidence": []
+        },
+        "rotated-affine": {
+          "state": "recognized-unsupported",
+          "detail": "The supported map-info subset does not invent rotation.",
+          "evidence": ["test-contained"]
+        },
+        "pixel-is-area": {
+          "state": "implemented-tested",
+          "detail": "Supported map info is converted to canonical area geometry.",
+          "evidence": ["test-contained"]
+        },
+        "pixel-is-point": {
+          "state": "unavailable",
+          "detail": "The implemented ENVI map-info subset does not declare point registration.",
+          "evidence": []
+        },
+        "unknown-crs": {
+          "state": "implemented-tested",
+          "detail": "Incomplete coordinate-system evidence remains explicit.",
+          "evidence": ["test-contained"]
+        },
+        "bands": {
+          "state": "implemented-tested",
+          "detail": "Band names, wavelengths, wavelength units, and neutral components are retained.",
+          "evidence": ["test-contained"]
+        },
+        "time-dimension": {
+          "state": "unavailable",
+          "detail": "ENVI bands are not reinterpreted as time.",
+          "evidence": []
+        },
+        "vertical-dimension": {
+          "state": "unavailable",
+          "detail": "ENVI bands are not reinterpreted as a vertical axis.",
+          "evidence": []
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "Data ignore values are normalized as nodata.",
+          "evidence": ["test-contained"]
+        },
+        "scale-offset": {
+          "state": "implemented-tested",
+          "detail": "Reflectance scale factors are preserved without copying samples.",
+          "evidence": ["test-contained"]
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "ENVI geo datasets use the shared target-grid path.",
+          "evidence": ["test-grid", "test-contained"]
+        },
+        "reprojection": {
+          "state": "implemented-tested",
+          "detail": "Cross-CRS work requires caller-supplied coordinate transformation.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "ENVI writing is not part of this read-only adapter.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "esri-ascii-grid",
+      "publicEntry": "purejsimage/geo/readers/esri-ascii-grid",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Bounded local byte sources are supported.",
+          "evidence": ["test-contained", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-fixture-limited",
+          "detail": "Remote byte sources can open, but parsing remains sequential.",
+          "evidence": ["test-contained"]
+        },
+        "range-access": {
+          "state": "recognized-unsupported",
+          "detail": "The format requires parsing preceding ASCII content unless an external index exists.",
+          "evidence": ["test-contained"]
+        },
+        "region-read": {
+          "state": "implemented-fixture-limited",
+          "detail": "Region results are available after bounded sequential parsing, not direct random access.",
+          "evidence": ["test-contained"]
+        },
+        "multiscale": {
+          "state": "unavailable",
+          "detail": "The format has no pyramid model.",
+          "evidence": []
+        },
+        "rotated-affine": {
+          "state": "unavailable",
+          "detail": "The header defines one axis-aligned cell size.",
+          "evidence": []
+        },
+        "pixel-is-area": {
+          "state": "implemented-tested",
+          "detail": "Corner declarations map to area registration.",
+          "evidence": ["test-contained"]
+        },
+        "pixel-is-point": {
+          "state": "implemented-tested",
+          "detail": "Center declarations retain their pixel-center evidence during canonical conversion.",
+          "evidence": ["test-contained"]
+        },
+        "unknown-crs": {
+          "state": "implemented-tested",
+          "detail": "The format contains no CRS and reports it as unknown.",
+          "evidence": ["test-contained"]
+        },
+        "bands": {
+          "state": "unavailable",
+          "detail": "One elevation or scalar component is exposed.",
+          "evidence": []
+        },
+        "time-dimension": {
+          "state": "unavailable",
+          "detail": "No time dimension is defined.",
+          "evidence": []
+        },
+        "vertical-dimension": {
+          "state": "metadata-only",
+          "detail": "Values may represent elevation, but no vertical coordinate axis is defined.",
+          "evidence": ["test-contained"]
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "NODATA_value is preserved and applied.",
+          "evidence": ["test-contained"]
+        },
+        "scale-offset": {
+          "state": "unavailable",
+          "detail": "The format does not define sample scale and offset.",
+          "evidence": []
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "Parsed datasets use the shared bounded target-grid path.",
+          "evidence": ["test-grid", "test-contained"]
+        },
+        "reprojection": {
+          "state": "implemented-fixture-limited",
+          "detail": "Unknown source CRS limits reprojection unless the caller supplies CRS evidence and a transformer.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "ASCII Grid writing is outside the read-only geo reader.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "srtm-hgt",
+      "publicEntry": "purejsimage/geo/readers/srtm-hgt",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Standard exact-size local tile sources are supported.",
+          "evidence": ["test-contained", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-fixture-limited",
+          "detail": "Remote range sources can be supplied; the deterministic format fixture is local.",
+          "evidence": ["test-contained"]
+        },
+        "range-access": {
+          "state": "implemented-tested",
+          "detail": "Requested rows use bounded byte ranges.",
+          "evidence": ["test-contained"]
+        },
+        "region-read": {
+          "state": "implemented-tested",
+          "detail": "Requested pixel regions read only their source rows.",
+          "evidence": ["test-contained"]
+        },
+        "multiscale": {
+          "state": "unavailable",
+          "detail": "One HGT file contains one resolution.",
+          "evidence": []
+        },
+        "rotated-affine": {
+          "state": "unavailable",
+          "detail": "HGT tiles use a fixed geographic north-up grid.",
+          "evidence": []
+        },
+        "pixel-is-area": {
+          "state": "unavailable",
+          "detail": "HGT samples are elevation posts rather than pixel areas.",
+          "evidence": []
+        },
+        "pixel-is-point": {
+          "state": "implemented-tested",
+          "detail": "Elevation posts use point registration and north-to-south rows.",
+          "evidence": ["test-contained"]
+        },
+        "unknown-crs": {
+          "state": "unavailable",
+          "detail": "Valid tile locations have an explicit geographic CRS.",
+          "evidence": []
+        },
+        "bands": {
+          "state": "unavailable",
+          "detail": "One signed elevation component is exposed.",
+          "evidence": []
+        },
+        "time-dimension": {
+          "state": "unavailable",
+          "detail": "No time dimension is defined.",
+          "evidence": []
+        },
+        "vertical-dimension": {
+          "state": "metadata-only",
+          "detail": "Elevation units and void semantics are described without a vertical array axis.",
+          "evidence": ["test-contained"]
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "The SRTM void value is preserved as nodata.",
+          "evidence": ["test-contained"]
+        },
+        "scale-offset": {
+          "state": "unavailable",
+          "detail": "Samples are direct signed 16-bit elevations.",
+          "evidence": []
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "HGT datasets use the shared target-grid path.",
+          "evidence": ["test-grid", "test-contained"]
+        },
+        "reprojection": {
+          "state": "implemented-tested",
+          "detail": "A caller-supplied transformer can map the geographic source CRS.",
+          "evidence": ["test-grid"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "HGT writing is outside the read-only reader.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    },
+    {
+      "id": "netcdf-cf",
+      "publicEntry": "purejsimage/geo/readers/netcdf",
+      "capabilities": {
+        "local-open": {
+          "state": "implemented-tested",
+          "detail": "Local CDF-1 and CDF-2 sources open without scanning variable data.",
+          "evidence": ["test-netcdf", "fixture-netcdf", "fixture-geo-corpus"]
+        },
+        "remote-open": {
+          "state": "implemented-tested",
+          "detail": "Remote range-backed sources open from bounded metadata reads.",
+          "evidence": ["test-netcdf"]
+        },
+        "range-access": {
+          "state": "implemented-tested",
+          "detail": "Fixed and record variables use checked 64-bit source offsets.",
+          "evidence": ["test-netcdf", "benchmark-geo"]
+        },
+        "region-read": {
+          "state": "implemented-tested",
+          "detail": "Fixed-index views read bounded rows from selected variables.",
+          "evidence": ["test-netcdf"]
+        },
+        "multiscale": {
+          "state": "unavailable",
+          "detail": "The bounded CF reader does not infer multiscale layouts.",
+          "evidence": []
+        },
+        "rotated-affine": {
+          "state": "recognized-unsupported",
+          "detail": "Only regular affine and rectilinear one-dimensional coordinates are accepted.",
+          "evidence": ["test-netcdf"]
+        },
+        "pixel-is-area": {
+          "state": "unavailable",
+          "detail": "The initial CF subset models coordinate samples as grid nodes.",
+          "evidence": []
+        },
+        "pixel-is-point": {
+          "state": "implemented-tested",
+          "detail": "Regular coordinate variables produce point-registered grid geometry.",
+          "evidence": ["test-netcdf"]
+        },
+        "unknown-crs": {
+          "state": "implemented-tested",
+          "detail": "Missing or unsupported grid mapping evidence remains explicit.",
+          "evidence": ["test-netcdf"]
+        },
+        "bands": {
+          "state": "implemented-fixture-limited",
+          "detail": "Band-like dimensions remain selectable without combining unrelated variables.",
+          "evidence": ["test-netcdf"]
+        },
+        "time-dimension": {
+          "state": "implemented-tested",
+          "detail": "Time dimensions and bounded calendar evidence remain selectable.",
+          "evidence": ["test-netcdf"]
+        },
+        "vertical-dimension": {
+          "state": "implemented-tested",
+          "detail": "Level and depth dimensions retain axis direction and units.",
+          "evidence": ["test-netcdf"]
+        },
+        "nodata": {
+          "state": "implemented-tested",
+          "detail": "Fill, missing, and valid-range metadata are normalized.",
+          "evidence": ["test-netcdf"]
+        },
+        "scale-offset": {
+          "state": "implemented-tested",
+          "detail": "scale_factor and add_offset are preserved and applied by the view contract.",
+          "evidence": ["test-netcdf"]
+        },
+        "target-grid-read": {
+          "state": "implemented-tested",
+          "detail": "Regular CF geo datasets use the shared target-grid path.",
+          "evidence": ["test-grid", "test-netcdf"]
+        },
+        "reprojection": {
+          "state": "implemented-fixture-limited",
+          "detail": "Supported mapping metadata is separate from caller-supplied transform execution.",
+          "evidence": ["test-grid", "test-netcdf", "benchmark-geo"]
+        },
+        "writer": {
+          "state": "intentionally-out-of-scope",
+          "detail": "NetCDF writing and NetCDF4 are outside this read-only reader.",
+          "evidence": ["policy-geo"]
+        }
+      }
+    }
+  ]
+}

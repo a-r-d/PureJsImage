@@ -248,10 +248,10 @@ const validatePixelBlock = (
     !Number.isSafeInteger(block.height) ||
     block.width < 1 ||
     block.height < 1 ||
-    block.x < request.x ||
-    block.y < request.y ||
-    block.x + block.width > request.x + request.width ||
-    block.y + block.height > request.y + request.height
+    block.x < 0 ||
+    block.y < 0 ||
+    block.x + block.width > request.width ||
+    block.y + block.height > request.height
   ) {
     throw invalidInput('Scientific codec decoder returned a block outside the requested region')
   }
@@ -350,8 +350,8 @@ class ImageCodecScientificDataset implements ScientificDataset {
           throwIfAborted(normalized.signal)
           validatePixelBlock(block, this.#frame.pixelFormat, normalized)
           const rasterBlock = Object.freeze({
-            x: block.x,
-            y: block.y,
+            x: normalized.x + block.x,
+            y: normalized.y + block.y,
             width: block.width,
             height: block.height,
             stride: block.stride,

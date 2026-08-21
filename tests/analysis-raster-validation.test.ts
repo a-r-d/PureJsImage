@@ -720,17 +720,13 @@ describe('target-grid resampling validation and nodata', () => {
         transform: { id: 'x', version: '1', accuracy: { kind: 'estimated' } },
       }),
     ).toThrow(/accuracy/u)
-    expect(() =>
+    expect(
       createRasterTargetGridPlan({
         sourceGrid: rasterGrid(),
         targetGrid: rasterGrid({ crs: 'EPSG:4326' }),
-        transform: {
-          id: 'x',
-          version: '1',
-          accuracy: { kind: 'unknown' as 'exact' },
-        },
-      }),
-    ).toThrow(/accuracy/u)
+        transform: { id: 'x', version: '1', accuracy: { kind: 'unknown' } },
+      }).transform,
+    ).toEqual({ id: 'x', version: '1', accuracy: { kind: 'unknown' } })
   })
 
   it('applies bilinear nodata weighting and emits nodata outside the source grid', () => {

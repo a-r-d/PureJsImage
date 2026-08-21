@@ -1,8 +1,8 @@
-import { type AbortOptions, throwIfAborted } from '../../abort.ts'
+import { throwIfAborted } from '../../abort.ts'
+import type { ZipLimits } from '../../archive/zip.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import type { RasterBlock } from '../../raster.ts'
 import { rasterSampleBytes } from '../../raster.ts'
-import { MemorySource } from '../../source.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisCoordinates,
@@ -21,8 +21,6 @@ import {
   normalizeScientificPlaneReadRequest,
 } from '../dataset.ts'
 import type {
-  ScientificCompanionRequest,
-  ScientificCompanionResolver,
   ScientificDocument,
   ScientificOpenContext,
   ScientificReaderDescriptor,
@@ -40,7 +38,7 @@ import {
   type ZarrStore,
   type ZarrStoreLimits,
 } from './zarr.ts'
-import { openZipArchive, type ZipArchive, type ZipLimits } from './zip.ts'
+import { isZipBytes, openZarrZipStore } from '../../zarr/zip-store.ts'
 
 export interface OmeZarrLimits extends ZarrStoreLimits {
   readonly maxMultiscales: number
@@ -841,6 +839,20 @@ const hasNgffSurface = (value: Readonly<Record<string, unknown>>): boolean =>
   isRecord(value.plate) ||
   isRecord(value.well) ||
   isRecord(value['image-label'])
+
+const parseOmeZarrNodeJson = (
+  value: unknown,
+): { readonly format: 2 | 3; readonly nodeType: 'array' | 'group' } | undefined => {
+  const node = parseZarrNodeJson(value)
+  if (node !== undefined || !isRecord(value)) return node
+  const layout = value['bioformats2raw.layout']
+  const legacyGroup =
+    hasNgffSurface(value) ||
+    ((typeof layout === 'number' || typeof layout === 'string') &&
+      Number.isSafeInteger(Number(layout)) &&
+      Number(layout) > 0)
+  return legacyGroup ? { format: 2, nodeType: 'group' } : undefined
+}
 
 type BioformatsLayout =
   | { readonly kind: 'absent' }
@@ -1725,14 +1737,6 @@ class OmeZarrDataset implements ScientificDataset {
   }
 }
 
-const looksLikeZip = (bytes: Uint8Array): boolean =>
-  bytes.byteLength >= 4 &&
-  bytes[0] === 0x50 &&
-  bytes[1] === 0x4b &&
-  ((bytes[2] === 0x03 && bytes[3] === 0x04) ||
-    (bytes[2] === 0x05 && bytes[3] === 0x06) ||
-    (bytes[2] === 0x06 && bytes[3] === 0x06))
-
 const omeZarrZipNameHint = (name: string | undefined): boolean => {
   const lower = name?.toLowerCase() ?? ''
   return (
@@ -1744,107 +1748,21 @@ const omeZarrZipNameHint = (name: string | undefined): boolean => {
   )
 }
 
-const zipPrefixIsIgnored = (prefix: string): boolean => {
-  const lower = prefix.toLowerCase()
-  return lower === '__macosx' || lower.startsWith('__macosx/')
-}
-
-const zipEntryDirectory = (path: string): string => {
-  const slash = path.lastIndexOf('/')
-  return slash < 0 ? '' : path.slice(0, slash)
-}
-
-const zipPreferredMetadataKey = (archive: ZipArchive, prefix: string): string | undefined => {
-  const lead = prefix.length === 0 ? '' : `${prefix}/`
-  if (archive.get(`${lead}zarr.json`) !== undefined) return `${lead}zarr.json`
-  if (archive.get(`${lead}.zgroup`) !== undefined) return `${lead}.zgroup`
-  if (archive.get(`${lead}.zattrs`) !== undefined) return `${lead}.zattrs`
-  return undefined
-}
-
-const zipRootMetadataKey = (archive: ZipArchive): string | undefined => {
-  const top = zipPreferredMetadataKey(archive, '')
-  if (top !== undefined) return top
-  const prefixes = new Set<string>()
-  for (const entry of archive.entries) {
-    const slash = entry.path.lastIndexOf('/')
-    const name = slash < 0 ? entry.path : entry.path.slice(slash + 1)
-    if (name === 'zarr.json' || name === '.zgroup' || name === '.zattrs') {
-      const directory = zipEntryDirectory(entry.path)
-      if (!zipPrefixIsIgnored(directory)) prefixes.add(directory)
-    }
-  }
-  const outermost = [...prefixes].filter(
-    (prefix) => ![...prefixes].some((other) => other !== prefix && prefix.startsWith(`${other}/`)),
-  )
-  if (outermost.length !== 1) return undefined
-  const prefix = outermost[0]
-  return prefix === undefined ? undefined : zipPreferredMetadataKey(archive, prefix)
-}
-
-const zipMemberIsMetadata = (name: string): boolean =>
-  /(?:^|\/)(?:zarr\.json|\.zgroup|\.zattrs|\.zarray)$/u.test(name)
-
-const createZipCompanionResolver = (
-  archive: ZipArchive,
-  limits: Readonly<OmeZarrLimits>,
-): ScientificCompanionResolver =>
-  Object.freeze({
-    async resolve(
-      request: Readonly<ScientificCompanionRequest>,
-      options: Readonly<AbortOptions> = {},
-    ) {
-      const requested = request.kind === 'relative-name' ? request.name : request.relativeName
-      if (requested === undefined) return undefined
-      const name = normalizeScientificRelativeName(requested)
-      const entry = archive.get(name)
-      if (entry === undefined) return undefined
-      const metadata = zipMemberIsMetadata(name)
-      const limit = metadata ? limits.maxMetadataBytes : limits.maxChunkBytes
-      const label = metadata ? 'maxMetadataBytes' : 'maxChunkBytes'
-      if (entry.uncompressedBytes > limit) {
-        throw limitExceeded(`OME-Zarr ZIP member ${name} exceeds ${label}`)
-      }
-      const source =
-        entry.compression === 'stored'
-          ? await archive.openStored(name, options)
-          : new MemorySource(await archive.read(name, options))
-      return Object.freeze({ id: name, name, source })
-    },
-  })
-
 const openZipRoot = async (
   context: Readonly<ScientificOpenContext>,
   limits: Readonly<OmeZarrLimits>,
 ): Promise<{ readonly json: unknown; readonly store: ZarrStore }> => {
-  const archive = await openZipArchive(context.primary.source, limits.zip ?? {}, context.signal)
-  const rootKey = zipRootMetadataKey(archive)
-  if (rootKey === undefined) {
-    throw invalidInput(
-      'OME-Zarr ZIP archive is missing a unique root zarr.json or .zgroup metadata',
-    )
-  }
-  const entry = archive.get(rootKey)
-  if (entry !== undefined && entry.uncompressedBytes > limits.maxMetadataBytes) {
-    throw limitExceeded(`OME-Zarr root metadata exceeds ${limits.maxMetadataBytes} bytes`)
-  }
-  const json = readZarrJsonBytes(
-    await archive.read(rootKey, context.signal === undefined ? {} : { signal: context.signal }),
-  )
-  if (json === undefined) throw invalidInput('OME-Zarr ZIP root metadata is not valid JSON')
-  const node = parseZarrNodeJson(json)
-  const format: 2 | 3 = node?.format === 2 ? 2 : 3
-  return {
-    json,
-    store: createZarrStore(createZipCompanionResolver(archive, limits), rootKey, limits, format, {
-      identityKind: 'archive',
-      archiveResource: context.primary,
-    }),
-  }
+  const opened = await openZarrZipStore(context.primary.source, {
+    limits,
+    ...(limits.zip === undefined ? {} : { zip: limits.zip }),
+    identityResource: context.primary,
+    ...(context.signal === undefined ? {} : { signal: context.signal }),
+  })
+  return { json: opened.json, store: opened.store }
 }
 
 const probeJson = (json: unknown): { readonly confidence: number; readonly reason?: string } => {
-  const node = parseZarrNodeJson(json)
+  const node = parseOmeZarrNodeJson(json)
   if (node === undefined) return { confidence: 0 }
   if (node.format === 2) {
     if (node.nodeType === 'array') {
@@ -1928,7 +1846,7 @@ export const probeOmeZarr = async (
   const bytes = await context.primary.source.read(0, size, {
     ...(context.signal === undefined ? {} : { signal: context.signal }),
   })
-  if (looksLikeZip(bytes)) {
+  if (isZipBytes(bytes)) {
     if (!omeZarrZipNameHint(context.primary.name)) {
       return { confidence: 0, reason: 'ZIP bytes without an OME-Zarr name hint' }
     }
@@ -1940,7 +1858,7 @@ export const probeOmeZarr = async (
   const json = readZarrJsonBytes(bytes)
   const probed = probeJson(json)
   if (probed.confidence > 0) return probed
-  const node = parseZarrNodeJson(json)
+  const node = parseOmeZarrNodeJson(json)
   if (node?.format !== 2 || node.nodeType !== 'group') {
     return probed.reason === undefined
       ? { confidence: 0, reason: probed.reason ?? 'Not an OME-Zarr root' }
@@ -1969,7 +1887,7 @@ export const openOmeZarr = async (
   let json: unknown
   let store: ZarrStore
   let storeKind: 'directory' | 'zip' = 'directory'
-  if (looksLikeZip(prefix)) {
+  if (isZipBytes(prefix)) {
     const opened = await openZipRoot(context, limits)
     json = opened.json
     store = opened.store
@@ -1979,7 +1897,7 @@ export const openOmeZarr = async (
       throw invalidInput('OME-Zarr requires a companion resolver for store members')
     }
     json = await readPrimaryJson(context, limits.maxMetadataBytes)
-    const node = parseZarrNodeJson(json)
+    const node = parseOmeZarrNodeJson(json)
     store = createZarrStore(
       context.companions,
       context.primary.name,
@@ -1989,7 +1907,7 @@ export const openOmeZarr = async (
     )
   }
   if (!isRecord(json)) throw invalidInput('OME-Zarr root metadata is not an object')
-  const format: 2 | 3 = parseZarrNodeJson(json)?.format === 2 ? 2 : 3
+  const format: 2 | 3 = parseOmeZarrNodeJson(json)?.format === 2 ? 2 : 3
   const attributes =
     format === 3
       ? isRecord(json.attributes)
@@ -2030,7 +1948,7 @@ export const openOmeZarr = async (
           : `${path}/.zgroup`
     const json = await store.readJsonOptional(key, context.signal)
     if (json === undefined) return undefined
-    if (parseZarrNodeJson(json)?.nodeType === 'array') return undefined
+    if (parseOmeZarrNodeJson(json)?.nodeType === 'array') return undefined
     return store.openGroup(path, context.signal)
   }
   const omeFromGroup = (

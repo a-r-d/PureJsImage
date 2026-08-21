@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { encodeTiffDocument, openTiffDocument } from '../src/codecs/tiff.ts'
+import { geoTiffReader } from '../src/geo/readers/geotiff.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import type { RasterBlock } from '../src/raster.ts'
@@ -240,6 +241,8 @@ interface GeoTiffDirectoryFixture {
   readonly width: number
   readonly height: number
   readonly components?: number
+  readonly bitsPerSample?: readonly number[]
+  readonly sampleFormats?: readonly number[]
   readonly pixels: Uint8Array
   readonly extraEntries?: readonly GeoTiffEntryFixture[]
 }
@@ -273,7 +276,11 @@ const geoTiffFixture = (options: GeoTiffFixtureOptions): Uint8Array => {
     const entries: GeoTiffEntryFixture[] = [
       { tag: 256, type: 4, values: [directory.width] },
       { tag: 257, type: 4, values: [directory.height] },
-      { tag: 258, type: 3, values: Array.from({ length: components }, () => 8) },
+      {
+        tag: 258,
+        type: 3,
+        values: directory.bitsPerSample ?? Array.from({ length: components }, () => 8),
+      },
       { tag: 259, type: 3, values: [1] },
       { tag: 262, type: 3, values: [1] },
       { tag: 273, type: offsetType, values: [stripOffset] },
@@ -281,7 +288,11 @@ const geoTiffFixture = (options: GeoTiffFixtureOptions): Uint8Array => {
       { tag: 278, type: 4, values: [directory.height] },
       { tag: 279, type: offsetType, values: [directory.pixels.byteLength] },
       { tag: 284, type: 3, values: [1] },
-      { tag: 339, type: 3, values: Array.from({ length: components }, () => 1) },
+      {
+        tag: 339,
+        type: 3,
+        values: directory.sampleFormats ?? Array.from({ length: components }, () => 1),
+      },
       ...(subIfdOffset === undefined
         ? []
         : [{ tag: 330, type: subIfdType, values: [subIfdOffset] }]),
@@ -1456,6 +1467,52 @@ describe('ordinary TIFF scientific reader', () => {
     expect(Array.from((await collect(dataset, [], 1))[0]?.data ?? [])).toEqual([20, 21, 22, 23])
   })
 
+  it('prefers explicit overview georeferencing and reports inconsistent geometry in geo', async () => {
+    const keys = geoKeyEntry(1, {
+      kind: 'projected',
+      code: 32_618,
+      name: 'WGS 84 / UTM zone 18N',
+    })
+    const input = geoTiffFixture({
+      width: 4,
+      height: 4,
+      pixels: Uint8Array.from({ length: 16 }, (_value, index) => index),
+      extraEntries: [
+        {
+          tag: 34_264,
+          type: 12,
+          values: [2, 0, 0, 100, 0, -2, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
+        },
+        ...keys,
+      ],
+      overview: {
+        width: 2,
+        height: 2,
+        pixels: Uint8Array.of(1, 2, 3, 4),
+        extraEntries: [
+          {
+            tag: 34_264,
+            type: 12,
+            values: [4, 0, 0, 101, 0, -4, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
+          },
+          ...keys,
+        ],
+      },
+    })
+    const document = await geoTiffReader.open({
+      primary: { id: 'explicit-overview', source: new MemorySource(input) },
+    })
+    const dataset = await document.openDataset('series-0')
+
+    expect(dataset.descriptor.levels[1]?.geometry.pixelToWorld).toEqual([4, 0, 101, 0, -4, 200])
+    expect(dataset.descriptor.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'geotiff-inconsistent-overview',
+        path: 'levels[1].geometry.pixelToWorld',
+      }),
+    )
+  })
+
   it('preserves component-specific GDAL nodata without inventing a scalar noDataValue', async () => {
     const dataset = await (
       await open(
@@ -1576,6 +1633,62 @@ describe('ordinary TIFF scientific reader', () => {
       { id: 'green', kind: 'green' },
       { id: 'blue', kind: 'blue' },
     ])
+  })
+
+  it('keeps signed and floating strip samples native through the GeoTIFF geo adapter', async () => {
+    const geoEntries = [
+      { tag: 33_550, type: 12 as const, values: [1, 1, 0] },
+      { tag: 33_922, type: 12 as const, values: [0, 0, 0, 100, 200, 0] },
+      ...geoKeyEntry(1, { kind: 'projected' as const, code: 32_618, name: 'UTM 18N' }),
+    ]
+    const read = async (input: Uint8Array) => {
+      const document = await geoTiffReader.open({
+        primary: { id: 'native-geo', name: 'native-geo.tif', source: new MemorySource(input) },
+      })
+      const dataset = await document.openDataset('series-0')
+      const view = dataset.createView({
+        spatialDimensions: ['x', 'y'],
+        nonSpatial: [],
+        sourceBands: [0],
+        levelId: '0',
+      })
+      for await (const tile of view.readPixelRegion({
+        region: { x: 0, y: 0, width: 2, height: 1 },
+      })) {
+        return tile
+      }
+      throw new Error('GeoTIFF native sample view returned no tile')
+    }
+
+    const signed = await read(
+      geoTiffFixture({
+        width: 2,
+        height: 1,
+        bitsPerSample: [16],
+        sampleFormats: [2],
+        pixels: encoded16([-32_768, 32_767], true),
+        extraEntries: geoEntries,
+      }),
+    )
+    expect(signed.sampleType).toBe('int16')
+    expect(signed.data).toBeInstanceOf(Int16Array)
+    expect(signed.data[0]).toBe(-32_768)
+    expect(signed.data[1]).toBe(32_767)
+
+    const floating = await read(
+      geoTiffFixture({
+        width: 2,
+        height: 1,
+        bitsPerSample: [32],
+        sampleFormats: [3],
+        pixels: encodedFloat32([0.25, -1.5]),
+        extraEntries: geoEntries,
+      }),
+    )
+    expect(floating.sampleType).toBe('float32')
+    expect(floating.data).toBeInstanceOf(Float32Array)
+    expect(floating.data[0]).toBe(0.25)
+    expect(floating.data[1]).toBe(-1.5)
   })
 
   it('groups only contiguous compatible pages and exposes SubIFDs as levels', async () => {

@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "stateCodes": {
+    "implemented-tested": "tested",
+    "implemented-fixture-limited": "limited",
+    "metadata-only": "metadata",
+    "recognized-unsupported": "unsupported",
+    "unavailable": "none",
+    "intentionally-out-of-scope": "out-of-scope"
+  },
+  "capabilities": [
+    {
+      "id": "local-open",
+      "label": "Local open"
+    },
+    {
+      "id": "remote-open",
+      "label": "Remote open"
+    },
+    {
+      "id": "range-access",
+      "label": "Range access"
+    },
+    {
+      "id": "region-read",
+      "label": "Region read"
+    },
+    {
+      "id": "multiscale",
+      "label": "Multiscale"
+    },
+    {
+      "id": "rotated-affine",
+      "label": "Rotated affine"
+    },
+    {
+      "id": "pixel-is-area",
+      "label": "Pixel is area"
+    },
+    {
+      "id": "pixel-is-point",
+      "label": "Pixel is point"
+    },
+    {
+      "id": "unknown-crs",
+      "label": "Unknown CRS"
+    },
+    {
+      "id": "bands",
+      "label": "Bands"
+    },
+    {
+      "id": "time-dimension",
+      "label": "Time"
+    },
+    {
+      "id": "vertical-dimension",
+      "label": "Vertical"
+    },
+    {
+      "id": "nodata",
+      "label": "Nodata"
+    },
+    {
+      "id": "scale-offset",
+      "label": "Scale and offset"
+    },
+    {
+      "id": "target-grid-read",
+      "label": "Target grid"
+    },
+    {
+      "id": "reprojection",
+      "label": "Reprojection"
+    },
+    {
+      "id": "writer",
+      "label": "Writer"
+    }
+  ],
+  "formats": [
+    {
+      "id": "geotiff",
+      "name": "GeoTIFF",
+      "publicEntry": "purejsimage/geo/readers/geotiff",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "tested",
+        "range-access": "tested",
+        "region-read": "tested",
+        "multiscale": "tested",
+        "rotated-affine": "tested",
+        "pixel-is-area": "tested",
+        "pixel-is-point": "tested",
+        "unknown-crs": "tested",
+        "bands": "tested",
+        "time-dimension": "none",
+        "vertical-dimension": "metadata",
+        "nodata": "tested",
+        "scale-offset": "metadata",
+        "target-grid-read": "tested",
+        "reprojection": "tested",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "cog",
+      "name": "COG behavior",
+      "publicEntry": "purejsimage/geo/readers/geotiff",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "tested",
+        "range-access": "tested",
+        "region-read": "tested",
+        "multiscale": "tested",
+        "rotated-affine": "tested",
+        "pixel-is-area": "tested",
+        "pixel-is-point": "limited",
+        "unknown-crs": "limited",
+        "bands": "tested",
+        "time-dimension": "none",
+        "vertical-dimension": "metadata",
+        "nodata": "tested",
+        "scale-offset": "metadata",
+        "target-grid-read": "tested",
+        "reprojection": "tested",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "geozarr",
+      "name": "GeoZarr",
+      "publicEntry": "purejsimage/geo/readers/geozarr",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "tested",
+        "range-access": "tested",
+        "region-read": "tested",
+        "multiscale": "tested",
+        "rotated-affine": "tested",
+        "pixel-is-area": "tested",
+        "pixel-is-point": "tested",
+        "unknown-crs": "tested",
+        "bands": "tested",
+        "time-dimension": "tested",
+        "vertical-dimension": "tested",
+        "nodata": "tested",
+        "scale-offset": "limited",
+        "target-grid-read": "tested",
+        "reprojection": "tested",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "world-file-image",
+      "name": "Image plus world file",
+      "publicEntry": "purejsimage/geo/readers/world-file",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "tested",
+        "range-access": "limited",
+        "region-read": "limited",
+        "multiscale": "none",
+        "rotated-affine": "tested",
+        "pixel-is-area": "tested",
+        "pixel-is-point": "none",
+        "unknown-crs": "tested",
+        "bands": "limited",
+        "time-dimension": "none",
+        "vertical-dimension": "none",
+        "nodata": "none",
+        "scale-offset": "none",
+        "target-grid-read": "tested",
+        "reprojection": "tested",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "envi",
+      "name": "ENVI",
+      "publicEntry": "purejsimage/geo/readers/envi",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "limited",
+        "range-access": "tested",
+        "region-read": "tested",
+        "multiscale": "none",
+        "rotated-affine": "unsupported",
+        "pixel-is-area": "tested",
+        "pixel-is-point": "none",
+        "unknown-crs": "tested",
+        "bands": "tested",
+        "time-dimension": "none",
+        "vertical-dimension": "none",
+        "nodata": "tested",
+        "scale-offset": "tested",
+        "target-grid-read": "tested",
+        "reprojection": "tested",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "esri-ascii-grid",
+      "name": "Esri ASCII Grid",
+      "publicEntry": "purejsimage/geo/readers/esri-ascii-grid",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "limited",
+        "range-access": "unsupported",
+        "region-read": "limited",
+        "multiscale": "none",
+        "rotated-affine": "none",
+        "pixel-is-area": "tested",
+        "pixel-is-point": "tested",
+        "unknown-crs": "tested",
+        "bands": "none",
+        "time-dimension": "none",
+        "vertical-dimension": "metadata",
+        "nodata": "tested",
+        "scale-offset": "none",
+        "target-grid-read": "tested",
+        "reprojection": "limited",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "srtm-hgt",
+      "name": "SRTM HGT",
+      "publicEntry": "purejsimage/geo/readers/srtm-hgt",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "limited",
+        "range-access": "tested",
+        "region-read": "tested",
+        "multiscale": "none",
+        "rotated-affine": "none",
+        "pixel-is-area": "none",
+        "pixel-is-point": "tested",
+        "unknown-crs": "none",
+        "bands": "none",
+        "time-dimension": "none",
+        "vertical-dimension": "metadata",
+        "nodata": "tested",
+        "scale-offset": "none",
+        "target-grid-read": "tested",
+        "reprojection": "tested",
+        "writer": "out-of-scope"
+      }
+    },
+    {
+      "id": "netcdf-cf",
+      "name": "Classic NetCDF / CF",
+      "publicEntry": "purejsimage/geo/readers/netcdf",
+      "states": {
+        "local-open": "tested",
+        "remote-open": "tested",
+        "range-access": "tested",
+        "region-read": "tested",
+        "multiscale": "none",
+        "rotated-affine": "unsupported",
+        "pixel-is-area": "none",
+        "pixel-is-point": "tested",
+        "unknown-crs": "tested",
+        "bands": "limited",
+        "time-dimension": "tested",
+        "vertical-dimension": "tested",
+        "nodata": "tested",
+        "scale-offset": "tested",
+        "target-grid-read": "tested",
+        "reprojection": "limited",
+        "writer": "out-of-scope"
+      }
+    }
+  ]
+}

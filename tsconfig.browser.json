@@ -19,6 +19,17 @@
     "src/browser.ts",
     "src/scientific/browser.ts",
     "src/scientific/readers/all.ts",
+    "src/geo/index.ts",
+    "src/geo/browser.ts",
+    "src/geo/readers/index.ts",
+    "src/geo/readers/all.ts",
+    "src/geo/readers/geotiff.ts",
+    "src/geo/readers/geozarr/index.ts",
+    "src/geo/readers/world-file.ts",
+    "src/geo/readers/envi.ts",
+    "src/geo/readers/esri-ascii-grid.ts",
+    "src/geo/readers/srtm-hgt.ts",
+    "src/geo/readers/netcdf.ts",
     "src/scientific/formats/dicom/parser.ts",
     "src/operations/index.ts",
     "src/analysis/index.ts",
@@ -33,6 +44,9 @@
     "docs-astro/src/scripts/wsi-viewer.ts",
     "docs-astro/src/scripts/wsi-worker.ts",
     "docs-astro/src/scripts/scientific-explorer.ts",
-    "docs-astro/src/scripts/scientific-worker.ts"
+    "docs-astro/src/scripts/scientific-worker.ts",
+    "docs-astro/src/scripts/geo-showcase.ts",
+    "docs-astro/src/scripts/geo-showcase-worker.ts",
+    "docs-astro/src/scripts/geo-showcase-types.ts"
   ]
 }

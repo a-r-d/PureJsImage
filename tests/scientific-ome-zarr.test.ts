@@ -24,8 +24,9 @@ import { createOmeZarrReader, omeZarrReader } from '../src/scientific/readers/om
 import { readRasterBigIntSample, readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource } from '../src/source.ts'
 import omeZarrCorpus from './fixtures/scientific-ome-zarr/corpus.json' with { type: 'json' }
+import { encodeZarrJson } from './helpers/zarr-metadata-fixtures.ts'
 
-const text = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
+const text = encodeZarrJson
 
 const resource = (name: string, bytes: Uint8Array): ScientificResource =>
   Object.freeze({ id: name, name, source: new MemorySource(bytes) })

@@ -271,6 +271,27 @@ test('opens an OME-Zarr 0.5 store from browser Files', async ({ page }) => {
   expect(result.detail).toContain('nested ZIP, and bioformats2raw')
 })
 
+test('opens a bounded GeoZarr viewport from browser Files', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.geoZarrRaster())
+  expect(result.outputBytes).toBe(4)
+  expect(result.detail).toContain('rotated-grid viewport')
+})
+
+test('opens a bounded CF grid from a classic NetCDF browser File', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.geoNetCdfRaster())
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('classic NetCDF')
+})
+
+test('opens a world-file PNG from browser Files', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.worldFileRaster())
+  expect(result.outputBytes).toBeGreaterThan(0)
+  expect(result.detail).toContain('world-file Geo raster')
+})
+
 test('opens TIA EMI with its SER companion in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaEmi())

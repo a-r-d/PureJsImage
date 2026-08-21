@@ -14,6 +14,7 @@ import {
   parsePackageMetrics,
   packageMetricsPath,
   serializePackageMetrics,
+  applyRecordedNativeWrapperFootprints,
 } from '../scripts/bundle-size.ts'
 import {
   parsePackageJsonSurface,
@@ -99,6 +100,36 @@ describe('generated package metrics contract', () => {
         ({ rawBytes, gzipBytes, brotliBytes }) => rawBytes > 0 && gzipBytes > 0 && brotliBytes > 0,
       ),
     ).toBe(true)
+  })
+
+  it('keeps native wrapper footprints platform-specific without hiding bundle changes', () => {
+    const nativeTarget = metrics.targets.find(
+      ({ implementation }) => implementation === 'native-wrapper',
+    )
+    expect(nativeTarget).toBeDefined()
+    if (nativeTarget === undefined) return
+    const measured = {
+      ...metrics,
+      targets: metrics.targets.map((target) =>
+        target.id === nativeTarget.id
+          ? {
+              ...target,
+              minifiedJsBytes: target.minifiedJsBytes + 1,
+              unpackedPackageBytes: target.unpackedPackageBytes + 2,
+              packageVersions: [{ name: '@img/platform-package', version: '1.0.0' }],
+              productionPackageCount: target.productionPackageCount + 3,
+            }
+          : target,
+      ),
+    }
+    const comparable = applyRecordedNativeWrapperFootprints(measured, metrics)
+    const comparableTarget = comparable.targets.find(({ id }) => id === nativeTarget.id)
+    expect(comparableTarget).toMatchObject({
+      minifiedJsBytes: nativeTarget.minifiedJsBytes + 1,
+      unpackedPackageBytes: nativeTarget.unpackedPackageBytes,
+      packageVersions: nativeTarget.packageVersions,
+      productionPackageCount: nativeTarget.productionPackageCount,
+    })
   })
 
   it('reads a v2 metrics document even when a competitor target is listed first', () => {

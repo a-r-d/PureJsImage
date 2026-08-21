@@ -3,9 +3,12 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
+import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
+import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const featureTourPrefix = '/fixtures/ome-zarr-feature-tour/'
+const geoFixturePrefix = '/fixtures/geo/'
 
 const scriptEntries: Readonly<Record<string, string>> = {
   '/assets/demo-app.js': 'docs-astro/src/scripts/demo.ts',
@@ -13,6 +16,8 @@ const scriptEntries: Readonly<Record<string, string>> = {
   '/assets/wsi-worker.js': 'docs-astro/src/scripts/wsi-worker.ts',
   '/assets/ome-zarr-viewer.js': 'docs-astro/src/scripts/ome-zarr-viewer.ts',
   '/assets/ome-zarr-worker.js': 'docs-astro/src/scripts/ome-zarr-worker.ts',
+  '/assets/geo-showcase.js': 'docs-astro/src/scripts/geo-showcase.ts',
+  '/assets/geo-showcase-worker.js': 'docs-astro/src/scripts/geo-showcase-worker.ts',
 }
 
 const binaryAssets: Readonly<Record<string, string>> = {
@@ -31,6 +36,7 @@ export interface DocsDevAsset {
 }
 
 let featureTourAssets: Promise<ReadonlyMap<string, Uint8Array>> | undefined
+let geoFixtureAssets: Promise<ReadonlyMap<string, Uint8Array>> | undefined
 
 const loadFeatureTourAsset = async (pathname: string): Promise<DocsDevAsset | undefined> => {
   if (!pathname.startsWith(featureTourPrefix)) return undefined
@@ -56,14 +62,45 @@ const loadFeatureTourAsset = async (pathname: string): Promise<DocsDevAsset | un
   }
 }
 
+const loadGeoFixtureAsset = async (pathname: string): Promise<DocsDevAsset | undefined> => {
+  if (!pathname.startsWith(geoFixturePrefix)) return undefined
+  if (geoFixtureAssets === undefined) {
+    geoFixtureAssets = readFile(
+      resolve(repositoryRoot, 'tests/fixtures/cog/showcase-subifd-deflate-rotated.tif'),
+    ).then((cog) => {
+      const resources: Array<readonly [string, Uint8Array]> = [
+        [`${geoFixturePrefix}overview-cog.tif`, cog],
+        ...geoShowcaseZarrResources().map(
+          ({ name, bytes }) => [`${geoFixturePrefix}geozarr-cube/${name}`, bytes] as const,
+        ),
+      ]
+      return new Map(resources)
+    })
+  }
+  const body = (await geoFixtureAssets).get(pathname)
+  if (body === undefined) return undefined
+  return {
+    body,
+    contentType: pathname.endsWith('.json')
+      ? 'application/json; charset=utf-8'
+      : pathname.endsWith('.tif')
+        ? 'image/tiff'
+        : 'application/octet-stream',
+    rangeCapable: true,
+  }
+}
+
 export const loadDocsDevAsset = async (pathname: string): Promise<DocsDevAsset | undefined> => {
   const featureTourAsset = await loadFeatureTourAsset(pathname)
   if (featureTourAsset !== undefined) return featureTourAsset
+  const geoFixtureAsset = await loadGeoFixtureAsset(pathname)
+  if (geoFixtureAsset !== undefined) return geoFixtureAsset
 
   const scriptEntry = scriptEntries[pathname]
   if (scriptEntry !== undefined) {
     const result = await build({
       absWorkingDir: repositoryRoot,
+      alias: geoShowcaseSourceAliases,
       bundle: true,
       charset: 'utf8',
       entryPoints: [scriptEntry],

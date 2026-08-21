@@ -217,6 +217,26 @@ const sharesHostPackageFootprint = (
   )
 }
 
+export const applyRecordedNativeWrapperFootprints = (
+  measured: PackageMetricsDocument,
+  recorded: PackageMetricsDocument,
+): PackageMetricsDocument => ({
+  ...measured,
+  targets: measured.targets.map((target) => {
+    if (target.implementation !== 'native-wrapper') return target
+    const recordedTarget = recorded.targets.find((candidate) => candidate.id === target.id)
+    if (recordedTarget === undefined || recordedTarget.implementation !== 'native-wrapper') {
+      throw new Error(`Recorded package metrics are missing native wrapper ${target.id}`)
+    }
+    return {
+      ...target,
+      unpackedPackageBytes: recordedTarget.unpackedPackageBytes,
+      packageVersions: recordedTarget.packageVersions,
+      productionPackageCount: recordedTarget.productionPackageCount,
+    }
+  }),
+})
+
 const parseTarget = (value: unknown, index: number, host: HostPackageMetric): PackageMetric => {
   const label = `targets[${index}]`
   if (!isRecord(value)) throw new Error(`${label} must be an object`)

@@ -39,6 +39,9 @@ import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
+import { geoZarrReader } from '../src/geo/readers/geozarr/index.ts'
+import { geoNetCdfReader } from '../src/geo/readers/netcdf.ts'
+import { worldFileReader } from '../src/geo/readers/world-file.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
 import type { PixelBlock } from '../src/pixel.ts'
@@ -120,6 +123,7 @@ import {
   dicomTextBytes,
   writeDicomPart10,
 } from '../tests/dicom/part10-writer.ts'
+import { createNetCdfClassicFixture } from '../tests/helpers/netcdf-classic-fixture.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([
@@ -2506,6 +2510,194 @@ const scientificOmeZarr = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const geoZarrRaster = async (): Promise<BrowserWorkflowResult> => {
+  const json = (value: unknown): Uint8Array => new TextEncoder().encode(JSON.stringify(value))
+  const conventions = [
+    {
+      schema_url:
+        'https://raw.githubusercontent.com/zarr-conventions/proj/refs/tags/v0.1/schema.json',
+      spec_url: 'https://github.com/zarr-conventions/proj/blob/v0.1/README.md',
+      uuid: 'f17cb550-5864-4468-aeb7-f3180cfb622f',
+      name: 'proj',
+      description: 'Coordinate reference system information for geospatial data',
+    },
+    {
+      schema_url:
+        'https://raw.githubusercontent.com/zarr-conventions/spatial/refs/tags/v0.1/schema.json',
+      spec_url: 'https://github.com/zarr-conventions/spatial/blob/v0.1/README.md',
+      uuid: '689b58e2-cf7b-45e0-9fff-9cfc0883d6b4',
+      name: 'spatial',
+      description: 'Spatial coordinate information',
+    },
+  ]
+  const root = json({
+    zarr_format: 3,
+    node_type: 'array',
+    shape: [2, 3],
+    data_type: 'uint8',
+    chunk_grid: { name: 'regular', configuration: { chunk_shape: [2, 3] } },
+    chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+    fill_value: 0,
+    codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+    dimension_names: ['Y', 'X'],
+    attributes: {
+      zarr_conventions: conventions,
+      'proj:code': 'EPSG:32632',
+      'spatial:dimensions': ['Y', 'X'],
+      'spatial:transform': [10, 1, 500000, 0, -10, 5000000],
+    },
+  })
+  const document = await geoZarrReader.open(
+    createScientificFileContext(new File([Uint8Array.from(root)], 'zarr.json'), {
+      companions: [new File([Uint8Array.of(1, 2, 3, 4, 5, 6)], 'c/0/0')],
+    }),
+  )
+  const dataset = await document.openDataset('root')
+  const view = dataset.createView({
+    spatialDimensions: ['X', 'Y'],
+    nonSpatial: [],
+    sourceBands: [0],
+    levelId: '0',
+  })
+  const values: number[] = []
+  for await (const tile of view.readPixelRegion({
+    region: { x: 1, y: 0, width: 2, height: 2 },
+  })) {
+    values.push(...Array.from(tile.data, Number))
+    tile.release()
+  }
+  if (
+    values.join(',') !== '2,3,5,6' ||
+    dataset.descriptor.grid.pixelToWorld.join(',') !== '10,1,500000,0,-10,5000000'
+  ) {
+    throw new Error(`Browser GeoZarr result was ${values.join(',')}`)
+  }
+  await document.close?.()
+  return {
+    detail: 'portable GeoZarr reader selected a bounded rotated-grid viewport from browser Files',
+    outputBytes: values.length,
+  }
+}
+
+const geoNetCdfRaster = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createNetCdfClassicFixture({
+    version: 1,
+    dimensions: [
+      { name: 'latitude', length: 2 },
+      { name: 'longitude', length: 3 },
+    ],
+    variables: [
+      {
+        name: 'latitude',
+        dimensions: ['latitude'],
+        type: 'float',
+        attributes: [
+          { name: 'standard_name', type: 'char', values: 'latitude' },
+          { name: 'units', type: 'char', values: 'degrees_north' },
+        ],
+        values: [51, 50],
+      },
+      {
+        name: 'longitude',
+        dimensions: ['longitude'],
+        type: 'float',
+        attributes: [
+          { name: 'standard_name', type: 'char', values: 'longitude' },
+          { name: 'units', type: 'char', values: 'degrees_east' },
+        ],
+        values: [-2, -1, 0],
+      },
+      {
+        name: 'temperature',
+        dimensions: ['latitude', 'longitude'],
+        type: 'short',
+        attributes: [{ name: 'units', type: 'char', values: 'K' }],
+        values: [280, 281, 282, 283, 284, 285],
+      },
+    ],
+  })
+  if (fixture.bytes === undefined) throw new Error('Browser NetCDF fixture was not materialized')
+  const browserBytes = new Uint8Array(fixture.bytes.byteLength)
+  browserBytes.set(fixture.bytes)
+  const document = await geoNetCdfReader.open(
+    createScientificFileContext(new File([browserBytes], 'browser-grid.nc')),
+  )
+  const dataset = await document.openDataset('temperature')
+  const view = dataset.createView({
+    spatialDimensions: ['longitude', 'latitude'],
+    nonSpatial: [],
+    sourceBands: [0],
+    levelId: '0',
+  })
+  const values: number[] = []
+  for await (const tile of view.readPixelRegion({
+    region: { x: 1, y: 0, width: 2, height: 2 },
+  })) {
+    values.push(...Array.from(tile.data, Number))
+    tile.release()
+  }
+  if (
+    values.join(',') !== '281,282,284,285' ||
+    dataset.descriptor.grid.pixelToWorld.join(',') !== '1,0,-2,0,-1,51'
+  ) {
+    throw new Error(`Browser NetCDF result was ${values.join(',')}`)
+  }
+  await document.close?.()
+  return {
+    detail:
+      'portable classic NetCDF reader selected a bounded CF grid viewport from a browser File',
+    outputBytes: values.length * 2,
+  }
+}
+
+const worldFileRaster = async (): Promise<BrowserWorkflowResult> => {
+  const image = new File([await fetchBytes('/fixtures/benchmark-input.png')], 'browser-map.png', {
+    type: 'image/png',
+  })
+  const world = new File(
+    [new TextEncoder().encode('2\n-0.25\n0.5\n-3\n100\n200')],
+    'browser-map.pgw',
+    { type: 'text/plain' },
+  )
+  const wkt = 'GEOGCS["WGS 84",AUTHORITY["EPSG","4326"]]'
+  const prj = new File([new TextEncoder().encode(wkt)], 'browser-map.prj', {
+    type: 'text/plain',
+  })
+  const document = await worldFileReader.open(
+    createScientificFileContext(image, { companions: [world, prj] }),
+  )
+  const dataset = await document.openDataset('image')
+  const affine = dataset.descriptor.grid.pixelToWorld
+  const evidence = dataset.descriptor.spatialReference.evidence
+  const originalWkt = evidence.find((item) => item.locator === 'browser-map.prj')?.metadata
+    ?.originalWkt
+  if (
+    affine.join(',') !== '2,0.5,98.75,-0.25,-3,201.625' ||
+    dataset.descriptor.grid.pixelRegistration !== 'pixel-is-area' ||
+    originalWkt !== wkt
+  ) {
+    throw new Error(`Browser world-file result was ${affine.join(',')}`)
+  }
+  const view = dataset.createView({
+    spatialDimensions: ['x', 'y'],
+    nonSpatial: [],
+    sourceBands: [0],
+    levelId: '0',
+  })
+  let outputBytes = 0
+  for await (const tile of view.readPixelRegion({
+    region: { x: 2, y: 3, width: 1, height: 1 },
+  })) {
+    outputBytes += tile.data.byteLength
+    tile.release()
+  }
+  await document.close?.()
+  return {
+    detail: 'portable PNG decoding and bounded File companions produced a world-file Geo raster',
+    outputBytes,
+  }
+}
+
 const scientificTiaEmi = async (): Promise<BrowserWorkflowResult> => {
   const emi = generateTiaEmiFixture([
     generatedTiaEmiObject({
@@ -4737,6 +4929,9 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,
+  geoZarrRaster,
+  geoNetCdfRaster,
+  worldFileRaster,
   scientificTiffDocument,
   scientificDigitalMicrograph,
   scientificInterchangeFormats,

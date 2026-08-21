@@ -7,6 +7,8 @@ import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
 import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
+import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
+import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createImageLibrary } from '../src/index.ts'
@@ -239,6 +241,7 @@ if (omeZarrFeatureTourFactory === undefined) {
 const omeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi')
 const compatibleOmeZarrWsiDirectory = resolve(fixtureDirectory, 'ome-zarr-wsi-compatible')
 const omeZarrFeatureTourDirectory = resolve(fixtureDirectory, 'ome-zarr-feature-tour')
+const geoZarrShowcaseDirectory = resolve(fixtureDirectory, 'geo/geozarr-cube')
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 const omitPlateVersion = (bytes: Uint8Array): Uint8Array => {
@@ -274,6 +277,16 @@ for (const resource of omeZarrFeatureTourFactory().resources) {
   await mkdir(dirname(target), { recursive: true })
   await writeFile(target, resource.bytes)
 }
+for (const resource of geoShowcaseZarrResources()) {
+  const target = resolve(geoZarrShowcaseDirectory, resource.name)
+  await mkdir(dirname(target), { recursive: true })
+  await writeFile(target, resource.bytes)
+}
+await mkdir(resolve(fixtureDirectory, 'geo'), { recursive: true })
+await copyFile(
+  'tests/fixtures/cog/showcase-subifd-deflate-rotated.tif',
+  resolve(fixtureDirectory, 'geo/overview-cog.tif'),
+)
 await copyFile(
   'benchmark/corpus/files/libtiff-rgb-3c-8b.tiff',
   resolve(scientificFixtureDirectory, 'ordinary.tiff'),
@@ -305,6 +318,7 @@ await build({
 })
 await build({
   absWorkingDir: process.cwd(),
+  alias: geoShowcaseSourceAliases,
   bundle: true,
   charset: 'utf8',
   entryPoints: {
@@ -312,6 +326,8 @@ await build({
     'wsi-worker': 'docs-astro/src/scripts/wsi-worker.ts',
     'ome-zarr-viewer': 'docs-astro/src/scripts/ome-zarr-viewer.ts',
     'ome-zarr-worker': 'docs-astro/src/scripts/ome-zarr-worker.ts',
+    'geo-showcase': 'docs-astro/src/scripts/geo-showcase.ts',
+    'geo-showcase-worker': 'docs-astro/src/scripts/geo-showcase-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',

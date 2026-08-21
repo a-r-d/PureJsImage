@@ -3040,6 +3040,13 @@ interface TiffEncodedSpan {
   readonly length: number
 }
 
+export interface TiffEncodedCacheStats {
+  readonly hits: number
+  readonly misses: number
+  readonly entries: number
+  readonly residentBytes: number
+}
+
 interface SessionManagedSource extends ImageSource {
   [sourceSessionStart](): void
   [sourceSessionEnd](): Promise<void>
@@ -3057,6 +3064,8 @@ class TiffEncodedCacheSource implements ImageSource {
   readonly #entries: { offset: number; data: Uint8Array; lastUsed: number }[] = []
   #access = 0
   #residentBytes = 0
+  #hits = 0
+  #misses = 0
 
   constructor(source: ImageSource) {
     this.#source = source
@@ -3075,14 +3084,25 @@ class TiffEncodedCacheSource implements ImageSource {
     if (isSessionManagedSource(this.#source)) await this.#source[sourceSessionEnd]()
   }
 
-  #cached(offset: number, length: number): Uint8Array | undefined {
+  #cached(offset: number, length: number, record = true): Uint8Array | undefined {
     for (const entry of this.#entries) {
       if (offset >= entry.offset && offset + length <= entry.offset + entry.data.byteLength) {
         entry.lastUsed = ++this.#access
+        if (record) this.#hits += 1
         return entry.data.subarray(offset - entry.offset, offset - entry.offset + length)
       }
     }
+    if (record) this.#misses += 1
     return undefined
+  }
+
+  get stats(): TiffEncodedCacheStats {
+    return Object.freeze({
+      hits: this.#hits,
+      misses: this.#misses,
+      entries: this.#entries.length,
+      residentBytes: this.#residentBytes,
+    })
   }
 
   #store(offset: number, data: Uint8Array): void {
@@ -3170,10 +3190,10 @@ class TiffEncodedCacheSource implements ImageSource {
       return data
     }
     const amount = Math.min(tiffStructuralPrefetchBytes, this.size - offset)
-    if (amount >= length && this.#cached(offset, amount) === undefined) {
+    if (amount >= length && this.#cached(offset, amount, false) === undefined) {
       this.#store(offset, Uint8Array.from(await this.#source.read(offset, amount, options)))
     }
-    return this.#cached(offset, length) ?? this.#source.read(offset, length, options)
+    return this.#cached(offset, length, false) ?? this.#source.read(offset, length, options)
   }
 
   async readExact(

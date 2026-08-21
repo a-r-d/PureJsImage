@@ -219,6 +219,20 @@ const staticPureJsImageTargets = (): readonly BundleTarget[] => [
     sourceEntries: ['./src/index.ts', './src/scientific/index.ts'],
   }),
   sourceTarget({
+    id: 'geo',
+    implementation: 'package-core',
+    name: 'Geo raster platform',
+    packageExport: 'purejsimage/geo',
+    sourceEntries: ['./src/geo/index.ts'],
+  }),
+  sourceTarget({
+    id: 'geo-readers-all',
+    implementation: 'package-core',
+    name: 'Geo readers: all',
+    packageExport: 'purejsimage/geo/readers/all',
+    sourceEntries: ['./src/geo/readers/all.ts'],
+  }),
+  sourceTarget({
     id: 'operations',
     implementation: 'package-core',
     name: 'Operation descriptors and runtime',

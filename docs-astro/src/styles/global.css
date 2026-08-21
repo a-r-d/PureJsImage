@@ -7118,7 +7118,7 @@ tr:last-child td {
 
 .wsi-loading-progress[data-indeterminate="true"] > span {
   width: 42%;
-  animation: wsi-loading-progress 1.15s ease-in-out infinite;
+  animation: wsi-loading-progress 1.15s ease-in-out infinite alternate;
 }
 
 @keyframes wsi-loading-spin {
@@ -7129,11 +7129,11 @@ tr:last-child td {
 
 @keyframes wsi-loading-progress {
   from {
-    transform: translateX(-125%);
+    transform: translateX(0);
   }
 
   to {
-    transform: translateX(340%);
+    transform: translateX(135%);
   }
 }
 
