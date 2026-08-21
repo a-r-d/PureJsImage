@@ -6,15 +6,15 @@ import {
   createRasterTerrainPlan,
   evaluateRasterBandMathTile,
   evaluateRasterTerrainTile,
-  sampleRasterLineProfile,
   type GeoNumericTile,
   type GeoRasterDataset,
   type GeoRasterViewSelection,
   type RasterNoData,
+  sampleRasterLineProfile,
 } from 'purejsimage/geo'
 import { HttpRangeSource } from 'purejsimage/geo/browser'
-import { geoTiffReader, type GeoTiffDocument } from 'purejsimage/geo/readers/geotiff'
-import { openGeoZarrHttp, type GeoZarrDocument } from 'purejsimage/geo/readers/geozarr'
+import { createGeoTiffReader, type GeoTiffDocument } from 'purejsimage/geo/readers/geotiff'
+import { type GeoZarrDocument, openGeoZarrHttp } from 'purejsimage/geo/readers/geozarr'
 import type {
   GeoAnalysisKind,
   GeoDemoMetadata,
@@ -46,6 +46,13 @@ type ActiveSession =
 let active: ActiveSession | undefined
 let operation: AbortController | undefined
 const maximumPixels = 512 * 384
+const demoGeoTiffReader = createGeoTiffReader({
+  limits: {
+    maxInputBytes: 256 * 1_024 * 1_024,
+    maxPixels: 128 * 1_024 * 1_024,
+    maxDecodedBytes: 512 * 1_024 * 1_024,
+  },
+})
 
 const post = (message: GeoDemoWorkerResponse, transfer: Transferable[] = []): void => {
   self.postMessage(message, { transfer })
@@ -230,6 +237,17 @@ const displayBands = (
 ): readonly number[] => {
   const descriptors = dataset.descriptor.bands
   const bands = descriptors.map((band) => band.sourceComponentIndex)
+  if (selection.displayBands !== undefined) {
+    const expected = selection.mode === 'grayscale' ? 1 : 3
+    const available = new Set(bands)
+    if (
+      selection.displayBands.length !== expected ||
+      selection.displayBands.some((band) => !available.has(band))
+    ) {
+      throw new Error('The curated display mapping does not match this raster')
+    }
+    return selection.displayBands
+  }
   const colorBand = (color: 'red' | 'green' | 'blue' | 'nir'): number | undefined =>
     descriptors.find((band) => band.colorInterpretation === color)?.sourceComponentIndex
   if (selection.mode === 'rgb') {
@@ -592,13 +610,14 @@ const open = async (request: Extract<GeoDemoWorkerRequest, { kind: 'open' }>): P
   let session: ActiveSession
   if (request.sourceKind === 'cog') {
     const source = await HttpRangeSource.open(request.url, {
+      allowHeadSizeFallback: true,
       blockBytes: 16 * 1_024,
       maxCacheBytes: 4 * 1_024 * 1_024,
       openSignal: controller.signal,
       lifetimeSignal: controller.signal,
     })
     if (source === undefined) throw new Error('The COG source was not found')
-    const document = await geoTiffReader.open({
+    const document = await demoGeoTiffReader.open({
       primary: {
         id: 'cog',
         name: new URL(request.url).pathname.split('/').pop() ?? 'image.tif',

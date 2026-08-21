@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 const enabled = process.env.PUREJSIMAGE_GEO_PUBLIC_SMOKE === '1'
 const cogUrl =
-  'https://oin-hotosm.s3.amazonaws.com/5d7dad0becaf880008a9bc88/0/5d7dad0becaf880008a9bc89.tif'
+  'https://kyfromabove.s3.us-west-2.amazonaws.com/imagery/orthos/Phase2/KY_KYAPED_2019_6IN/N082E280_2019_6IN_cog.tif'
 const geoZarrUrl = 'https://data.source.coop/pangeo/geozarr-examples/TCI.zarr/'
 
 const recordSource = async (
@@ -47,12 +47,17 @@ test('opens the pinned public COG through direct browser range access', async ({
   await recordSource(testInfo, head, cogUrl)
   await page.goto('/geo/')
   await page.waitForFunction(() => window.pureJsImageGeoReady === true)
-  await page.locator('#cog-url').fill(cogUrl)
-  await page.locator('#cog-open').click()
+  await page.locator('[data-geo-preset-id="kentucky-ortho"]').click()
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'ready', {
     timeout: 60_000,
   })
   await expect(page.locator('#cog-lab [data-geo-telemetry="dataRequests"]')).not.toHaveText('0')
+  await expect(page.locator('#cog-lab [data-geo-fact="dimensions"]')).toHaveText('10,000 × 10,000')
+  await expect(page.locator('#cog-level')).toHaveValue('4')
+  await expect(page.locator('#cog-mode')).toHaveValue('rgb')
+  await page.locator('#cog-mode').selectOption('cir')
+  await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'ready')
+  await expect(page.locator('#geo-code')).toContainText('sourceBands: [3,0,1]')
 })
 
 test('reports the newer public GeoZarr convention as unsupported', async ({
@@ -69,6 +74,7 @@ test('reports the newer public GeoZarr convention as unsupported', async ({
   await recordSource(testInfo, head, metadataUrl)
   await page.goto('/geo/')
   await page.waitForFunction(() => window.pureJsImageGeoReady === true)
+  await page.locator('#geozarr-lab .geo-custom-source summary').click()
   await page.locator('#geozarr-url').fill(geoZarrUrl)
   await page.locator('#geozarr-open').click()
   await expect(page.locator('#geozarr-status')).toHaveAttribute('data-state', 'error', {

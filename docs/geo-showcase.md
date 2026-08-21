@@ -2,10 +2,9 @@
 
 ## Quick Answer
 
-The `/geo/` documentation page is a browser demonstration of the public `purejsimage/geo` package.
-It is not a replacement for PureJsImage Atlas. The page opens COG and GeoZarr sources directly from
-the browser, reads bounded viewports in a worker, and reports the source access measured by each
-reader.
+The `/geo/` documentation page opens COG and GeoZarr sources through the public `purejsimage/geo`
+package. It reads bounded viewports in a worker and reports the source access measured by each
+reader. PureJsImage Atlas provides the larger catalog and project workflow.
 
 ## Public package boundary
 
@@ -27,16 +26,25 @@ The docs build generates a small time/band/Y/X GeoZarr v3 pyramid from
 SubIFD overview from `tests/fixtures/cog/showcase-subifd-deflate-rotated.tif`. The browser test server
 serves both fixtures with exact byte-range responses.
 
-The COG public preset is an attributed OpenAerialMap object hosted by HOT OSM. The GeoZarr public
-preset is Pangeo's TCI pyramid on Source Cooperative. That store currently uses newer v1 convention
-metadata. The package's v0.1 reader reports the unsupported transform boundary instead of claiming
-compatibility from a successful metadata response. Public sources are optional.
+The featured COG is the `N082E280_2019_6IN_cog.tif` leaf-off ortho from Kentucky From Above. It is a
+10,000 by 10,000 pixel, four-band, seven-level JPEG COG in EPSG:3089. The Kentucky Division of
+Geographic Information publishes the source under CC BY 4.0. The preset uses the documented Atlas
+display mappings: RGB bands `[0, 1, 2]` and color infrared bands `[3, 0, 1]`. The demo does not infer
+an NIR band from component count.
+
+The GeoZarr public preset is Pangeo's TCI pyramid on Source Cooperative. That store currently uses
+newer v1 convention metadata. The package's v0.1 reader reports the unsupported transform boundary
+instead of claiming compatibility from a successful metadata response. Public sources are optional.
 
 ## Limits and failure behavior
 
 - A viewport or analysis operation admits at most 196,608 decoded pixels.
+- The showcase admits range-backed TIFF objects up to 256 MiB and keeps decoded-region limits
+  separate from the remote object size.
 - The browser sends remote requests directly. There is no arbitrary server proxy.
-- Remote TIFF and Zarr objects must support CORS and valid byte ranges.
+- Remote TIFF and Zarr objects must support CORS and valid byte ranges. The TIFF source can use a
+  HEAD `Content-Length` when CORS hides `Content-Range`; every data response must still be HTTP 206
+  with the requested byte count.
 - Cancellation reaches source reads, format decoding, and package-native analysis.
 - Source URLs, metadata, and diagnostics are assigned as text. They are not injected as HTML.
 - Coordinate transformation remains caller supplied. The showcase does not load a projection engine.

@@ -5,11 +5,15 @@ import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { describe, expect, it } from 'vitest'
 import { encodeTiffDocument } from '../src/codecs/tiff.ts'
-import { geoTiffReader, type GeoTiffDocument } from '../src/geo/readers/geotiff.ts'
+import {
+  createGeoTiffReader,
+  type GeoTiffDocument,
+  geoTiffReader,
+} from '../src/geo/readers/geotiff.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
-import { MemorySource } from '../src/source.ts'
+import { type ImageSource, MemorySource } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 import fixtureManifest from './fixtures/cog/manifest.json' with { type: 'json' }
 
@@ -292,6 +296,28 @@ describe('GeoTIFF geo reader', () => {
     expect(report.io.uniqueBytes).toBeLessThan(bytes.byteLength)
     expect(report.io.encodedCache.hits).toBeGreaterThan(0)
     expect(ranges.every(([start, end]) => end - start + 1 < bytes.byteLength)).toBe(true)
+  })
+
+  it('accepts an explicit range-backed object-size limit for large COGs', async () => {
+    const bytes = await fixture('classic-deflate-rgb-nodata.tif')
+    const advertisedSize = 128 * 1_024 * 1_024 + 1
+    const source: ImageSource = {
+      size: advertisedSize,
+      async read(offset, length) {
+        return bytes.slice(offset, Math.min(bytes.byteLength, offset + length))
+      },
+    }
+    const context = {
+      primary: { id: 'large-cog', name: 'large-cog.tif', source },
+    } as const
+
+    await expect(geoTiffReader.open(context)).rejects.toThrow('maxInputBytes')
+    const reader = createGeoTiffReader({ limits: { maxInputBytes: advertisedSize } })
+    const document = await reader.open(context)
+    expect((await document.openDataset('series-0')).descriptor.grid).toMatchObject({
+      width: 16,
+      height: 16,
+    })
   })
 
   it('preserves cancellation through geo views', async () => {

@@ -17,6 +17,8 @@ export interface GeoDemoSelection {
   readonly time: number
   readonly vertical: number
   readonly region: GeoDemoRegion
+  /** Explicit source-band order supplied by a documented curated preset. */
+  readonly displayBands?: readonly number[]
 }
 
 export interface GeoDemoAxis {

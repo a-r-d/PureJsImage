@@ -3,14 +3,14 @@ import { throwIfAborted } from '../../abort.ts'
 import { invalidInput, unsupportedFormat } from '../../errors.ts'
 import type { GeoTiffKey, GeoTiffProfile } from '../../geotiff.ts'
 import type { ScientificOpenContext, ScientificReaderDescriptor } from '../../scientific/reader.ts'
-import { createTiffReader } from '../../scientific/readers/tiff.ts'
+import { createTiffReader, type TiffReaderOptions } from '../../scientific/readers/tiff.ts'
 import {
   getTiffScientificDocumentBridge,
   type TiffScientificDatasetBridge,
   type TiffScientificDocumentBridge,
 } from '../../scientific/readers/tiff-bridge.ts'
 import { HttpRangeSource, type HttpRangeSourceStats } from '../../sources/http-range.ts'
-import { inspectCog, type CogDirectoryInspection, type CogInspectionIssue } from '../../tiff/cog.ts'
+import { type CogDirectoryInspection, type CogInspectionIssue, inspectCog } from '../../tiff/cog.ts'
 import { tiffCompressionName } from '../../tiff/compressions.ts'
 import type { TiffDirectory } from '../../tiff/types.ts'
 import type {
@@ -32,7 +32,7 @@ import { geoCrsStateFromEvidence } from '../crs.ts'
 import { adaptScientificDatasetToGeo } from '../scientific-adapter.ts'
 import type { GeoRasterDocument, GeoRasterReader } from './index.ts'
 
-export interface GeoTiffReaderOptions {
+export interface GeoTiffReaderOptions extends Pick<TiffReaderOptions, 'limits'> {
   /** Aggregate admitted GeoTIFF and optional TIFF metadata. Defaults to 64 KiB. */
   readonly maxMetadataBytes?: number
   /** Largest admitted optional metadata tag. Defaults to 16 KiB. */

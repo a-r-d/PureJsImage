@@ -4,7 +4,7 @@ const openBundled = async (
   page: import('@playwright/test').Page,
   kind: 'cog' | 'geozarr',
 ): Promise<void> => {
-  await page.locator(`#${kind}-lab [data-geo-preset]`).first().click()
+  await page.locator(`#${kind}-lab [data-geo-preset-kind="bundled"]`).click()
   await expect(page.locator(`#${kind}-status`)).toHaveAttribute('data-state', 'ready', {
     timeout: 30_000,
   })
@@ -26,6 +26,18 @@ const digest = async (page: import('@playwright/test').Page, id: string): Promis
 test.beforeEach(async ({ page }) => {
   await page.goto('/geo/')
   await page.waitForFunction(() => window.pureJsImageGeoReady === true)
+})
+
+test('features a sourced government COG without opening it during deterministic CI', async ({
+  page,
+}) => {
+  const source = page.locator('[data-geo-preset-id="kentucky-ortho"]')
+  await expect(source).toContainText('Kentucky From Above')
+  await expect(source).toContainText('10,000 × 10,000')
+  await expect(source).toHaveAttribute(
+    'data-geo-preset',
+    'https://kyfromabove.s3.us-west-2.amazonaws.com/imagery/orthos/Phase2/KY_KYAPED_2019_6IN/N082E280_2019_6IN_cog.tif',
+  )
 })
 
 test('opens, navigates, samples, and measures the deterministic COG', async ({ page }) => {
@@ -54,9 +66,17 @@ test('opens, navigates, samples, and measures the deterministic COG', async ({ p
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'ready')
 
   const canvas = page.locator('#cog-canvas')
-  const box = await canvas.boundingBox()
-  expect(box).not.toBeNull()
-  if (box !== null) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await canvas.evaluate((element) => {
+    const rectangle = element.getBoundingClientRect()
+    element.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: rectangle.left + rectangle.width / 2,
+        clientY: rectangle.top + rectangle.height / 2,
+        pointerType: 'mouse',
+      }),
+    )
+  })
   await expect(page.locator('#cog-sample')).toContainText('world')
   await expect(page.locator('#cog-sample')).toContainText('sample')
 })
@@ -82,6 +102,7 @@ test('opens the GeoZarr cube and selects level, time, and band dimensions', asyn
 })
 
 test('reports URL and cancellation states without a proxy fallback', async ({ page }) => {
+  await page.locator('#cog-lab .geo-custom-source summary').click()
   await page.locator('#cog-url').fill('file:///tmp/not-allowed.tif')
   await page.locator('#cog-open').click()
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'error')

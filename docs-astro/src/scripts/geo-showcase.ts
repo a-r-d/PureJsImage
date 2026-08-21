@@ -100,6 +100,42 @@ const setOptions = (
   select.disabled = options.length < 2
 }
 
+interface GeoPreset {
+  readonly title: string
+  readonly provider: string
+  readonly initialLevelId?: string
+  readonly initialMode?: 'grayscale' | 'rgb' | 'cir'
+  readonly center: boolean
+  readonly rgb?: readonly number[]
+  readonly cir?: readonly number[]
+}
+
+const bandMapping = (value: string | undefined): readonly number[] | undefined => {
+  if (value === undefined) return undefined
+  const bands = value.split(',').map(Number)
+  return bands.length === 3 && bands.every((band) => Number.isSafeInteger(band) && band >= 0)
+    ? bands
+    : undefined
+}
+
+const presetFor = (button: HTMLButtonElement): GeoPreset => {
+  const rgb = bandMapping(button.dataset.geoRgb)
+  const cir = bandMapping(button.dataset.geoCir)
+  return {
+    title: button.dataset.geoPresetTitle ?? button.textContent?.trim() ?? 'Geo raster',
+    provider: button.dataset.geoPresetProvider ?? 'Custom source',
+    ...(button.dataset.geoInitialLevel === undefined
+      ? {}
+      : { initialLevelId: button.dataset.geoInitialLevel }),
+    ...(button.dataset.geoInitialMode === 'rgb' || button.dataset.geoInitialMode === 'cir'
+      ? { initialMode: button.dataset.geoInitialMode }
+      : {}),
+    center: button.dataset.geoInitialRegion === 'center',
+    ...(rgb === undefined ? {} : { rgb }),
+    ...(cir === undefined ? {} : { cir }),
+  }
+}
+
 class GeoLab {
   readonly kind: GeoDemoKind
   readonly elements: LabElements
@@ -110,6 +146,7 @@ class GeoLab {
   #latestPrimaryRequest = 0
   #latestSampleRequest = 0
   #sampleFrame: number | undefined
+  #preset: GeoPreset | undefined
   #dragStart:
     | { readonly clientX: number; readonly clientY: number; readonly region: GeoDemoRegion }
     | undefined
@@ -152,7 +189,12 @@ class GeoLab {
       button.addEventListener('click', () => {
         const url = button.dataset.geoPreset
         if (url !== undefined) this.elements.url.value = new URL(url, window.location.href).href
-        this.open()
+        for (const candidate of this.elements.root.querySelectorAll<HTMLButtonElement>(
+          '[data-geo-preset]',
+        )) {
+          candidate.setAttribute('aria-pressed', String(candidate === button))
+        }
+        this.open(presetFor(button))
       })
     }
     this.elements.canvas.addEventListener('pointerdown', (event) => this.#startDrag(event))
@@ -177,7 +219,7 @@ class GeoLab {
     this.elements.root.dataset.state = state
   }
 
-  open(): void {
+  open(preset?: GeoPreset): void {
     let url: URL
     try {
       url = new URL(this.elements.url.value, window.location.href)
@@ -186,7 +228,21 @@ class GeoLab {
       this.#setStatus('Enter a valid HTTP or HTTPS source URL.', 'error')
       return
     }
-    this.#setStatus(`Opening ${this.kind === 'cog' ? 'GeoTIFF' : 'GeoZarr'} metadata…`, 'loading')
+    this.#preset = preset
+    const sourceTitle =
+      preset?.title ?? new URL(url.href).pathname.split('/').filter(Boolean).pop() ?? 'Geo raster'
+    const sourceProvider = preset?.provider ?? url.hostname
+    for (const element of this.elements.root.querySelectorAll<HTMLElement>(
+      '[data-geo-source-title]',
+    )) {
+      element.textContent = sourceTitle
+    }
+    for (const element of this.elements.root.querySelectorAll<HTMLElement>(
+      '[data-geo-source-provider]',
+    )) {
+      element.textContent = sourceProvider
+    }
+    this.#setStatus(`Opening ${sourceTitle} metadata…`, 'loading')
     this.elements.open.disabled = true
     this.elements.cancel.disabled = false
     this.#latestPrimaryRequest = this.#send({
@@ -204,21 +260,21 @@ class GeoLab {
 
   #opened(metadata: GeoDemoMetadata, telemetry: GeoDemoTelemetry): void {
     this.metadata = metadata
-    const firstLevel = metadata.levels[0]
+    const firstLevel =
+      metadata.levels.find((level) => level.id === this.#preset?.initialLevelId) ??
+      metadata.levels[0]
     if (firstLevel === undefined) throw new Error('Geo source has no resolution level')
+    const mode = this.#preset?.initialMode ?? 'grayscale'
+    const initialDisplayBands = this.#presetBands(mode)
     this.selection = {
       datasetId: metadata.datasetId,
       levelId: firstLevel.id,
-      mode: 'grayscale',
+      mode,
       band: 0,
       time: 0,
       vertical: 0,
-      region: {
-        x: 0,
-        y: 0,
-        width: Math.min(512, firstLevel.width),
-        height: Math.min(320, firstLevel.height),
-      },
+      region: this.#regionFor(firstLevel, this.#preset?.center === true),
+      ...(initialDisplayBands === undefined ? {} : { displayBands: initialDisplayBands }),
     }
     setOptions(
       this.elements.dataset,
@@ -231,6 +287,8 @@ class GeoLab {
         label: `${index}: ${level.width} × ${level.height}`,
       })),
     )
+    this.elements.dataset.value = metadata.datasetId
+    this.elements.level.value = firstLevel.id
     const bandAxis = metadata.axes.find((axis) => axis.kind === 'band')
     const bandCount = bandAxis?.length ?? metadata.bands.length
     setOptions(
@@ -240,6 +298,7 @@ class GeoLab {
         label: metadata.bands[index]?.name ?? `Band ${index + 1}`,
       })),
     )
+    this.elements.band.value = '0'
     this.#axisOptions('time', this.elements.time)
     const vertical = metadata.axes.find((axis) => axis.kind === 'vertical' || axis.kind === 'depth')
     setOptions(
@@ -253,13 +312,35 @@ class GeoLab {
     const rgb = this.elements.mode.querySelector<HTMLOptionElement>('option[value="rgb"]')
     const cir = this.elements.mode.querySelector<HTMLOptionElement>('option[value="cir"]')
     if (rgb === null || cir === null) throw new Error('Geo mapping options are incomplete')
-    rgb.disabled = !(colors.has('red') && colors.has('green') && colors.has('blue'))
-    cir.disabled = !(colors.has('nir') && colors.has('red') && colors.has('green'))
+    rgb.disabled =
+      this.#preset?.rgb === undefined &&
+      !(colors.has('red') && colors.has('green') && colors.has('blue'))
+    cir.disabled =
+      this.#preset?.cir === undefined &&
+      !(colors.has('nir') && colors.has('red') && colors.has('green'))
+    this.elements.mode.value = mode
     this.#facts(metadata)
     this.#telemetry(telemetry)
     this.#setStatus('Metadata validated. Reading the first bounded viewport…', 'loading')
     this.render()
     this.onState?.()
+  }
+
+  #presetBands(mode: 'grayscale' | 'rgb' | 'cir'): readonly number[] | undefined {
+    if (mode === 'rgb') return this.#preset?.rgb
+    if (mode === 'cir') return this.#preset?.cir
+    return undefined
+  }
+
+  #regionFor(level: Readonly<{ width: number; height: number }>, center: boolean): GeoDemoRegion {
+    const width = Math.min(512, level.width)
+    const height = Math.min(384, level.height)
+    return {
+      x: center ? Math.max(0, Math.floor((level.width - width) / 2)) : 0,
+      y: center ? Math.max(0, Math.floor((level.height - height) / 2)) : 0,
+      width,
+      height,
+    }
   }
 
   #axisOptions(kind: string, select: HTMLSelectElement): void {
@@ -401,19 +482,22 @@ class GeoLab {
     const level = metadata.levels.find((entry) => entry.id === levelId)
     if (level === undefined) return
     const levelChanged = levelId !== current.levelId
+    const mode =
+      this.elements.mode.value === 'rgb' || this.elements.mode.value === 'cir'
+        ? this.elements.mode.value
+        : 'grayscale'
+    const mappedBands = this.#presetBands(mode)
+    const { displayBands: previousDisplayBands, ...baseSelection } = current
+    void previousDisplayBands
     this.selection = {
-      ...current,
+      ...baseSelection,
       levelId,
       band: Number(this.elements.band.value),
       time: Number(this.elements.time.value),
       vertical: Number(this.elements.vertical.value),
-      mode:
-        this.elements.mode.value === 'rgb' || this.elements.mode.value === 'cir'
-          ? this.elements.mode.value
-          : 'grayscale',
-      region: levelChanged
-        ? { x: 0, y: 0, width: Math.min(512, level.width), height: Math.min(320, level.height) }
-        : current.region,
+      mode,
+      region: levelChanged ? this.#regionFor(level, this.#preset?.center === true) : current.region,
+      ...(mappedBands === undefined ? {} : { displayBands: mappedBands }),
     }
     this.#facts(metadata)
     this.render()
@@ -574,6 +658,18 @@ for (const lab of [cog, geozarr]) {
   lab.onState = () => updateCode()
 }
 
+for (const launcher of document.querySelectorAll<HTMLButtonElement>('[data-geo-launch]')) {
+  launcher.addEventListener('click', () => {
+    const presetId = launcher.dataset.geoLaunch
+    const preset =
+      presetId === undefined
+        ? null
+        : document.querySelector<HTMLButtonElement>(`[data-geo-preset-id="${presetId}"]`)
+    preset?.click()
+    document.getElementById('cog-range-lab')?.scrollIntoView({ block: 'start' })
+  })
+}
+
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-geo-analysis]')) {
   button.addEventListener('click', () => {
     const analysis = button.dataset.geoAnalysis
@@ -609,6 +705,7 @@ const codeText = (): string => {
   const selectedSourceBand = lab.metadata?.axes.some((axis) => axis.kind === 'band')
     ? 0
     : sourceBand
+  const selectedSourceBands = selection?.displayBands ?? [selectedSourceBand]
   if (lab.kind === 'geozarr') {
     return `import type { GeoRasterDataset } from 'purejsimage/geo'
 import { openGeoZarrHttp } from 'purejsimage/geo/readers/geozarr'
@@ -624,7 +721,7 @@ try {
   const view = dataset.createView({
     spatialDimensions: [dataset.descriptor.spatialDimensions.x.id, dataset.descriptor.spatialDimensions.y.id],
     nonSpatial: ${JSON.stringify(nonSpatial)},
-    sourceBands: [${selectedSourceBand}],
+    sourceBands: ${JSON.stringify(selectedSourceBands)},
     levelId: ${JSON.stringify(selection?.levelId ?? '0')},
   })
   for await (const tile of view.readPixelRegion({
@@ -640,16 +737,18 @@ try {
   }
   return `import type { GeoRasterDataset } from 'purejsimage/geo'
 import { HttpRangeSource } from 'purejsimage/geo/browser'
-import { geoTiffReader } from 'purejsimage/geo/readers/geotiff'
+import { createGeoTiffReader } from 'purejsimage/geo/readers/geotiff'
 
 const controller = new AbortController()
 const source = await HttpRangeSource.open(${JSON.stringify(sourceUrl)}, {
+  allowHeadSizeFallback: true,
   openSignal: controller.signal,
   lifetimeSignal: controller.signal,
   maxCacheBytes: 4 * 1024 * 1024,
 })
 if (!source) throw new Error('COG not found')
-const document = await geoTiffReader.open({ primary: { id: 'cog', source }, signal: controller.signal })
+const reader = createGeoTiffReader({ limits: { maxInputBytes: 256 * 1024 * 1024 } })
+const document = await reader.open({ primary: { id: 'cog', source }, signal: controller.signal })
 
 try {
   const summary = document.datasets[0]
@@ -657,7 +756,7 @@ try {
   const dataset: GeoRasterDataset = await document.openDataset(summary.id)
   const view = dataset.createView({
     spatialDimensions: [dataset.descriptor.spatialDimensions.x.id, dataset.descriptor.spatialDimensions.y.id],
-    nonSpatial: ${JSON.stringify(nonSpatial)}, sourceBands: [${sourceBand}], levelId: ${JSON.stringify(selection?.levelId ?? '0')},
+    nonSpatial: ${JSON.stringify(nonSpatial)}, sourceBands: ${JSON.stringify(selection?.displayBands ?? [sourceBand])}, levelId: ${JSON.stringify(selection?.levelId ?? '0')},
   })
   for await (const tile of view.readPixelRegion({ region: ${JSON.stringify(selection?.region ?? { x: 0, y: 0, width: 256, height: 256 })}, signal: controller.signal })) {
     console.log(tile)
