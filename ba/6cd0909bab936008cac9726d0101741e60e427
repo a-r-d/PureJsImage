@@ -1,0 +1,22 @@
+tests/docs-dev-assets.test.ts
+  s_7d25dd617ba7f4::t_ebb0de3a8d118b 5-11,35-46
+  s_7d25dd617ba7f4::t_37fcae33cf868a 47-48
+scripts/docs-dev-assets.ts
+  s_7d25dd617ba7f4::t_ebb0de3a8d118b 6-7,11,19-20,39,65-92,96-97,103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "ba6cd0909bab936008cac9726d0101741e60e427",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
