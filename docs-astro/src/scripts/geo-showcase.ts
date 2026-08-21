@@ -742,18 +742,6 @@ for (const lab of [cog, geozarr]) {
   lab.onState = () => updateCode()
 }
 
-for (const launcher of document.querySelectorAll<HTMLButtonElement>('[data-geo-launch]')) {
-  launcher.addEventListener('click', () => {
-    const presetId = launcher.dataset.geoLaunch
-    const preset =
-      presetId === undefined
-        ? null
-        : document.querySelector<HTMLButtonElement>(`[data-geo-preset-id="${presetId}"]`)
-    preset?.click()
-    document.getElementById('cog-range-lab')?.scrollIntoView({ block: 'start' })
-  })
-}
-
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-geo-analysis]')) {
   button.addEventListener('click', () => {
     const analysis = button.dataset.geoAnalysis

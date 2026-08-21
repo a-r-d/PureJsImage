@@ -43,6 +43,10 @@ test('autoloads the sourced government COG without contacting it during determin
   await expect(page.locator('#cog-status')).not.toHaveText(
     'Choose the Kentucky survey or bundled fixture to begin.',
   )
+  const heroBox = await page.locator('.geo-hero').boundingBox()
+  const canvasBox = await page.locator('#cog-canvas').boundingBox()
+  expect(heroBox?.height ?? Number.POSITIVE_INFINITY).toBeLessThan(260)
+  expect(canvasBox?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(720)
 })
 
 test('opens, navigates, samples, and measures the deterministic COG', async ({ page }) => {
