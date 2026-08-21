@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test'
 
+const cogUrl =
+  'https://kyfromabove.s3.us-west-2.amazonaws.com/imagery/orthos/Phase2/KY_KYAPED_2019_6IN/N082E280_2019_6IN_cog.tif'
+
 const openBundled = async (
   page: import('@playwright/test').Page,
   kind: 'cog' | 'geozarr',
@@ -24,19 +27,21 @@ const digest = async (page: import('@playwright/test').Page, id: string): Promis
   })
 
 test.beforeEach(async ({ page }) => {
+  await page.route(cogUrl, (route) => route.abort('blockedbyclient'))
   await page.goto('/geo/')
   await page.waitForFunction(() => window.pureJsImageGeoReady === true)
 })
 
-test('features a sourced government COG without opening it during deterministic CI', async ({
+test('autoloads the sourced government COG without contacting it during deterministic CI', async ({
   page,
 }) => {
   const source = page.locator('[data-geo-preset-id="kentucky-ortho"]')
   await expect(source).toContainText('Kentucky From Above')
   await expect(source).toContainText('10,000 × 10,000')
-  await expect(source).toHaveAttribute(
-    'data-geo-preset',
-    'https://kyfromabove.s3.us-west-2.amazonaws.com/imagery/orthos/Phase2/KY_KYAPED_2019_6IN/N082E280_2019_6IN_cog.tif',
+  await expect(source).toHaveAttribute('data-geo-preset', cogUrl)
+  await expect(source).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('#cog-status')).not.toHaveText(
+    'Choose the Kentucky survey or bundled fixture to begin.',
   )
 })
 
@@ -111,8 +116,14 @@ test('reports URL and cancellation states without a proxy fallback', async ({ pa
   await page.locator('#cog-url').fill('/fixtures/geo/overview-cog.tif?rangeDelay=400')
   await page.locator('#cog-open').click()
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'loading')
-  await page.locator('#cog-cancel').click()
-  await expect(page.locator('#cog-status')).toContainText(/cancel/i)
+  await expect(page.locator('#cog-loading')).toBeVisible()
+  await expect(page.locator('#cog-loading-title')).toContainText('Opening')
+  await expect(page.locator('#cog-loading-progress')).toHaveAttribute('data-indeterminate', 'true')
+  await expect(page.locator('#cog-canvas-wrap')).toHaveAttribute('aria-busy', 'true')
+  await page.locator('#cog-loading-cancel').click()
+  await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'idle')
+  await expect(page.locator('#cog-loading')).toBeHidden()
+  await expect(page.locator('#cog-canvas-wrap')).toHaveAttribute('aria-busy', 'false')
 })
 
 test('runs bounded analysis and generates public package code', async ({ page }) => {

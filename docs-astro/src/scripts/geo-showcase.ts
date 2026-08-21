@@ -49,6 +49,12 @@ interface LabElements {
   readonly vertical: HTMLSelectElement
   readonly mode: HTMLSelectElement
   readonly sample: HTMLElement
+  readonly canvasWrap: HTMLElement
+  readonly loading: HTMLElement
+  readonly loadingTitle: HTMLElement
+  readonly loadingDetail: HTMLElement
+  readonly loadingProgress: HTMLElement
+  readonly loadingCancel: HTMLButtonElement
 }
 
 type WorkerCommand =
@@ -83,6 +89,12 @@ const labElements = (kind: GeoDemoKind): LabElements => ({
   vertical: required(`${kind}-vertical`, HTMLSelectElement),
   mode: required(`${kind}-mode`, HTMLSelectElement),
   sample: required(`${kind}-sample`, HTMLElement),
+  canvasWrap: required(`${kind}-canvas-wrap`, HTMLElement),
+  loading: required(`${kind}-loading`, HTMLElement),
+  loadingTitle: required(`${kind}-loading-title`, HTMLElement),
+  loadingDetail: required(`${kind}-loading-detail`, HTMLElement),
+  loadingProgress: required(`${kind}-loading-progress`, HTMLElement),
+  loadingCancel: required(`${kind}-loading-cancel`, HTMLButtonElement),
 })
 
 const setOptions = (
@@ -147,6 +159,9 @@ class GeoLab {
   #latestSampleRequest = 0
   #sampleFrame: number | undefined
   #preset: GeoPreset | undefined
+  #loadingStartedAt = performance.now()
+  #loadingDetail = ''
+  #loadingTimer: number | undefined
   #dragStart:
     | { readonly clientX: number; readonly clientY: number; readonly region: GeoDemoRegion }
     | undefined
@@ -164,6 +179,7 @@ class GeoLab {
     })
     this.elements.open.addEventListener('click', () => this.open())
     this.elements.cancel.addEventListener('click', () => this.cancel())
+    this.elements.loadingCancel.addEventListener('click', () => this.cancel())
     this.elements.url.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') this.open()
     })
@@ -219,6 +235,34 @@ class GeoLab {
     this.elements.root.dataset.state = state
   }
 
+  #updateLoadingDetail(): void {
+    const seconds = Math.max(0, Math.floor((performance.now() - this.#loadingStartedAt) / 1_000))
+    const elapsed = seconds === 0 ? 'just started' : `${seconds}s elapsed`
+    this.elements.loadingDetail.textContent = `${this.#loadingDetail} · ${elapsed}`
+  }
+
+  #showLoading(title: string, detail: string, preview = false): void {
+    if (this.#loadingTimer !== undefined) window.clearInterval(this.#loadingTimer)
+    this.#loadingStartedAt = performance.now()
+    this.#loadingDetail = detail
+    this.elements.loadingTitle.textContent = title
+    this.elements.loading.hidden = false
+    this.elements.loading.dataset.preview = String(preview)
+    this.elements.loadingProgress.dataset.indeterminate = 'true'
+    this.elements.loadingCancel.disabled = false
+    this.elements.canvasWrap.setAttribute('aria-busy', 'true')
+    this.#updateLoadingDetail()
+    this.#loadingTimer = window.setInterval(() => this.#updateLoadingDetail(), 1_000)
+  }
+
+  #hideLoading(): void {
+    if (this.#loadingTimer !== undefined) window.clearInterval(this.#loadingTimer)
+    this.#loadingTimer = undefined
+    this.elements.loading.hidden = true
+    this.elements.loadingCancel.disabled = true
+    this.elements.canvasWrap.setAttribute('aria-busy', 'false')
+  }
+
   open(preset?: GeoPreset): void {
     let url: URL
     try {
@@ -226,6 +270,7 @@ class GeoLab {
       if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error()
     } catch {
       this.#setStatus('Enter a valid HTTP or HTTPS source URL.', 'error')
+      this.#hideLoading()
       return
     }
     this.#preset = preset
@@ -243,6 +288,12 @@ class GeoLab {
       element.textContent = sourceProvider
     }
     this.#setStatus(`Opening ${sourceTitle} metadata…`, 'loading')
+    this.#showLoading(
+      `Opening ${sourceTitle}`,
+      this.kind === 'cog'
+        ? 'Connecting to object storage and reading bounded TIFF metadata'
+        : 'Connecting to object storage and reading bounded Zarr metadata',
+    )
     this.elements.open.disabled = true
     this.elements.cancel.disabled = false
     this.#latestPrimaryRequest = this.#send({
@@ -256,6 +307,12 @@ class GeoLab {
   cancel(): void {
     this.#latestPrimaryRequest = this.#send({ kind: 'cancel' })
     this.#setStatus('Cancelling the active request…', 'loading')
+    this.#showLoading(
+      'Stopping the active read',
+      'Cancelling source requests and discarding partial work',
+      this.metadata !== undefined,
+    )
+    this.elements.loadingCancel.disabled = true
   }
 
   #opened(metadata: GeoDemoMetadata, telemetry: GeoDemoTelemetry): void {
@@ -321,8 +378,10 @@ class GeoLab {
     this.elements.mode.value = mode
     this.#facts(metadata)
     this.#telemetry(telemetry)
-    this.#setStatus('Metadata validated. Reading the first bounded viewport…', 'loading')
-    this.render()
+    this.render(
+      'Loading the first viewport',
+      `Metadata ready after ${telemetry.metadataRequests.toLocaleString()} requests. Reading level ${firstLevel.id}`,
+    )
     this.onState?.()
   }
 
@@ -407,9 +466,18 @@ class GeoLab {
     }
   }
 
-  render(): void {
+  render(
+    title = 'Reading the selected viewport',
+    detail = 'Requesting only the pixels needed for the visible region',
+  ): void {
     if (this.selection === undefined) return
     this.#setStatus('Reading only the selected viewport…', 'loading')
+    const region = this.selection.region
+    this.#showLoading(
+      title,
+      `${detail} · ${region.width.toLocaleString()} × ${region.height.toLocaleString()} pixels`,
+      this.metadata !== undefined,
+    )
     this.#latestPrimaryRequest = this.#send({ kind: 'render', selection: this.selection })
     this.onActivate?.(this)
   }
@@ -440,6 +508,7 @@ class GeoLab {
         'Viewport ready. Drag, use arrow keys, or zoom to request another bounded region.',
         'ready',
       )
+      this.#hideLoading()
       this.elements.open.disabled = false
       this.elements.cancel.disabled = true
       this.onState?.()
@@ -454,14 +523,17 @@ class GeoLab {
       this.#telemetry(message.telemetry)
       required('geo-analysis-output', HTMLElement).textContent = message.summary
       this.#setStatus('Bounded analysis complete.', 'ready')
+      this.#hideLoading()
     } else if (message.kind === 'sample') {
       this.elements.sample.textContent = `Pixel ${this.#lastPointer?.x.toFixed(1) ?? '?'}, ${this.#lastPointer?.y.toFixed(1) ?? '?'} · world ${message.world[0].toFixed(3)}, ${message.world[1].toFixed(3)} · sample ${message.values.map((value) => value.toFixed(3)).join(', ')}`
     } else if (message.kind === 'cancelled') {
       this.#setStatus('Request cancelled and partial work discarded.', 'idle')
+      this.#hideLoading()
       this.elements.open.disabled = false
       this.elements.cancel.disabled = true
     } else if (message.kind === 'error') {
       this.#setStatus(message.message, 'error')
+      this.#hideLoading()
       this.elements.open.disabled = false
       this.elements.cancel.disabled = true
     } else {
@@ -475,6 +547,11 @@ class GeoLab {
     if (current === undefined || metadata === undefined) return
     if (select === this.elements.dataset && select.value !== current.datasetId) {
       this.#setStatus('Opening the selected dataset metadata…', 'loading')
+      this.#showLoading(
+        'Opening the selected dataset',
+        'Reading its dimensions, axes, levels, and grid metadata',
+        true,
+      )
       this.#latestPrimaryRequest = this.#send({ kind: 'dataset', datasetId: select.value })
       return
     }
@@ -633,6 +710,12 @@ class GeoLab {
       return
     }
     required('geo-analysis-output', HTMLElement).textContent = 'Running bounded analysis…'
+    this.#setStatus('Running bounded viewport analysis…', 'loading')
+    this.#showLoading(
+      'Analyzing the current viewport',
+      'Processing the bounded visible region in the worker',
+      true,
+    )
     this.#latestPrimaryRequest = this.#send({
       kind: 'analyze',
       analysis,
@@ -642,6 +725,7 @@ class GeoLab {
 
   close(): void {
     if (this.#sampleFrame !== undefined) window.cancelAnimationFrame(this.#sampleFrame)
+    if (this.#loadingTimer !== undefined) window.clearInterval(this.#loadingTimer)
     this.#send({ kind: 'close' })
     this.worker.terminate()
     this.elements.root.dataset.worker = 'terminated'
@@ -804,6 +888,8 @@ const filterMatrix = (): void => {
 }
 for (const filter of matrixFilters) filter.addEventListener('change', filterMatrix)
 filterMatrix()
+
+document.querySelector<HTMLButtonElement>('[data-geo-autoload]')?.click()
 
 window.addEventListener(
   'pagehide',

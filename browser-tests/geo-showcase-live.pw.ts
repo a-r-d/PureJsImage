@@ -47,7 +47,10 @@ test('opens the pinned public COG through direct browser range access', async ({
   await recordSource(testInfo, head, cogUrl)
   await page.goto('/geo/')
   await page.waitForFunction(() => window.pureJsImageGeoReady === true)
-  await page.locator('[data-geo-preset-id="kentucky-ortho"]').click()
+  await expect(page.locator('[data-geo-preset-id="kentucky-ortho"]')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'ready', {
     timeout: 60_000,
   })

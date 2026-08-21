@@ -30,7 +30,12 @@ The featured COG is the `N082E280_2019_6IN_cog.tif` leaf-off ortho from Kentucky
 10,000 by 10,000 pixel, four-band, seven-level JPEG COG in EPSG:3089. The Kentucky Division of
 Geographic Information publishes the source under CC BY 4.0. The preset uses the documented Atlas
 display mappings: RGB bands `[0, 1, 2]` and color infrared bands `[3, 0, 1]`. The demo does not infer
-an NIR band from component count.
+an NIR band from component count. The page opens this source automatically at overview level 4.
+
+The viewport uses an indeterminate progress indicator because one bounded GeoTIFF region read does
+not expose false byte-level completion percentages. It reports the current metadata, viewport, or
+analysis stage, elapsed time, and a visible Cancel action. Existing imagery remains visible while a
+new viewport is being read.
 
 The GeoZarr public preset is Pangeo's TCI pyramid on Source Cooperative. That store currently uses
 newer v1 convention metadata. The package's v0.1 reader reports the unsupported transform boundary
