@@ -223,8 +223,9 @@ describe('GeoTIFF geo reader', () => {
     })
     expect(reference.authority).toBeUndefined()
     expect(reference.diagnostics).toContainEqual(
-      expect.objectContaining({ code: 'unknown-crs', severity: 'warning' }),
+      expect.objectContaining({ code: 'incomplete-crs', severity: 'warning' }),
     )
+    expect(reference.diagnostics.some(({ code }) => code === 'unknown-crs')).toBe(false)
   })
 
   it('preserves user-defined projected unit evidence without inventing an EPSG CRS', async () => {

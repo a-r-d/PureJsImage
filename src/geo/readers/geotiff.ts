@@ -314,6 +314,12 @@ const spatialReference = (
           ],
     ),
   ]
+  const hasUnresolvedCrsEvidence =
+    coordinateSystemType !== 'unknown' ||
+    citation !== undefined ||
+    profile.verticalCitation !== undefined ||
+    vertical !== undefined
+  const state = geoCrsStateFromEvidence(code !== undefined, hasUnresolvedCrsEvidence)
   const diagnostics = Object.freeze([
     ...source.diagnostics.filter(({ code: sourceCode }) => sourceCode !== 'unknown-crs'),
     ...profileDiagnostics(profile, `ifd[${profile.directory.index}]`),
@@ -321,19 +327,15 @@ const spatialReference = (
       ? [
           createGeoDiagnostic({
             severity: 'warning',
-            code: 'unknown-crs',
-            message: 'GeoTIFF grid geometry is available, but no recognized CRS code is present.',
+            code: hasUnresolvedCrsEvidence ? 'incomplete-crs' : 'unknown-crs',
+            message: hasUnresolvedCrsEvidence
+              ? 'GeoTIFF CRS evidence is present, but no recognized CRS code is available.'
+              : 'GeoTIFF grid geometry is available, but no usable CRS definition is present.',
             path: 'spatialReference',
           }),
         ]
       : []),
   ])
-  const hasUnresolvedCrsEvidence =
-    coordinateSystemType !== 'unknown' ||
-    citation !== undefined ||
-    profile.verticalCitation !== undefined ||
-    vertical !== undefined
-  const state = geoCrsStateFromEvidence(code !== undefined, hasUnresolvedCrsEvidence)
   return Object.freeze({
     schemaVersion: 1,
     coordinateSystemType,

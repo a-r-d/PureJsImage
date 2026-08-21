@@ -221,9 +221,10 @@ layers. They are not dependencies of `purejsimage/geo`.
 - `purejsimage/geo/conventions/geozarr` exports the read-only, version-aware GeoZarr convention
   metadata layer.
 
-There is no `purejsimage/geo/browser` entry in the initial namespace because the public contracts
-are environment-neutral. A browser entry should be added only when a browser-specific API is
-needed.
+`purejsimage/geo/browser` is the narrow browser transport entry. It exports the browser-safe
+`HttpRangeSource`, `BlobSource`, and `MemorySource` implementations and their public source types.
+The environment-neutral geo contracts remain in `purejsimage/geo`. Browser code still imports
+format readers through their explicit public reader subpaths.
 
 ## Consequences
 

@@ -6,9 +6,9 @@ import { describe, expect, it } from 'vitest'
 import { crc32 } from '../src/codecs/crc32.ts'
 import {
   createGeoZarrReader,
+  type GeoZarrDocument,
   openGeoZarrHttp,
   openGeoZarrObjectStore,
-  type GeoZarrDocument,
 } from '../src/geo/readers/geozarr/index.ts'
 import { openGeoZarrDirectory } from '../src/geo/readers/geozarr/node.ts'
 import type {
@@ -409,6 +409,50 @@ describe('GeoZarr geo reader', () => {
     ])
     expect(await values(document, 'multiscales', { levelId: '1' })).toEqual([1, 2, 3, 7, 8, 9])
     expect(document.inspectStructure().datasets[0]?.diagnostics).toEqual([])
+  })
+
+  it('keeps semantic assets separate from group-based multiscale array paths', async () => {
+    const attributes = {
+      ...geoAttributes(['Y', 'X'], [1, 0, 0, 0, -1, 4]),
+      zarr_conventions: [conventions.proj, conventions.spatial, conventions.multiscales],
+      multiscales: {
+        layout: [
+          {
+            asset: 'fine',
+            'spatial:transform': [1, 0, 0, 0, -1, 4],
+          },
+          {
+            asset: 'coarse',
+            derived_from: 'fine',
+            transform: { scale: [4, 4] },
+            'spatial:transform': [0, -4, 40, 4, 0, 0],
+          },
+        ],
+      },
+    }
+    const files = {
+      'zarr.json': zarrV3GroupMetadata(attributes),
+      'fine/zarr.json': zarrV3GroupMetadata(),
+      'fine/data/zarr.json': zarrV3ArrayMetadata({
+        shape: [4, 4],
+        chunkShape: [4, 4],
+        dimensionNames: ['Y', 'X'],
+      }),
+      'coarse/zarr.json': zarrV3GroupMetadata(),
+      'coarse/data/zarr.json': zarrV3ArrayMetadata({
+        shape: [1, 1],
+        chunkShape: [1, 1],
+        dimensionNames: ['Y', 'X'],
+      }),
+    }
+    const document = await openGeoZarrObjectStore(memoryStore(files), {
+      primaryName: 'zarr.json',
+    })
+    const dataset = await document.openDataset('multiscales')
+    expect(dataset.descriptor.levels).toMatchObject([
+      { id: '0', arrayPath: 'fine/data' },
+      { id: '1', arrayPath: 'coarse/data', downsample: { x: 4, y: 4 } },
+    ])
   })
 
   it('reads declared lazy coordinates only when requested', async () => {

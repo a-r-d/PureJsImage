@@ -1,14 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { RasterBlock } from '../src/raster.ts'
-import type {
-  DirectNumericTileDataset,
-  NumericArray,
-  NumericSampleType,
-  NumericTile,
-  NumericTileReadRequest,
-  ScientificPlaneReadRequest,
-} from '../src/scientific/index.ts'
-import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 import type {
   GeoAffineTransform,
   GeoCoordinateTransformer,
@@ -24,20 +14,30 @@ import {
   canonicalizeGeoTargetGrid,
   classifyGeoGridRelationship,
   createGeoGridGeometry,
-  createProj4CompatibleTransformProvider,
   createGeoReprojectionPlan,
   createNormalizedDifferencePlan,
+  createProj4CompatibleTransformProvider,
   estimateGeoOutputDimensions,
   geoTargetGridFromGeometry,
   geoTargetGridsEqual,
-  normalizeGeoTargetGrid,
   normalizeGeoSpatialReference,
+  normalizeGeoTargetGrid,
   overlappingGeoGridExtent,
   proposeGeoTargetGrid,
   readReprojectedGeoRegion,
   resolveGeoCoordinateTransformer,
   transformGeoBounds,
 } from '../src/geo/index.ts'
+import type { RasterBlock } from '../src/raster.ts'
+import type {
+  DirectNumericTileDataset,
+  NumericArray,
+  NumericSampleType,
+  NumericTile,
+  NumericTileReadRequest,
+  ScientificPlaneReadRequest,
+} from '../src/scientific/index.ts'
+import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 
 const crs = (
   code = 32618,
@@ -75,7 +75,7 @@ const createGeoDataset = (
   sampleType: 'uint8' | 'int16' | 'float32' | 'int64' | 'uint64',
   pixelToWorld: GeoAffineTransform,
   values: readonly (number | bigint)[],
-  noData?: number,
+  noData?: number | string,
   registration: 'pixel-is-area' | 'pixel-is-point' = 'pixel-is-point',
 ): GeoRasterDataset => {
   const descriptor = normalizeScientificDatasetDescriptor({
@@ -647,6 +647,46 @@ describe('bounded Geo reprojection reads', () => {
         }),
       ),
     ).rejects.toThrow(/does not support int64 or uint64/u)
+  })
+
+  it('recognizes exact int64 and uint64 source nodata outside the safe-integer range', async () => {
+    const uint64NoData = 18_446_744_073_709_551_615n
+    const uint64 = createGeoDataset(
+      2,
+      1,
+      'uint64',
+      [1, 0, 0, 0, 1, 0],
+      [uint64NoData, 7n],
+      uint64NoData.toString(),
+    )
+    const uint64Tile = await collectOne(
+      readReprojectedGeoRegion(viewFor(uint64), {
+        targetGrid: targetFor(uint64, { noData: { kind: 'value', value: 0 } }),
+        targetRegion: { x: 0, y: 0, width: 2, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(exactValuesOf(uint64Tile)).toEqual([0n, 7n])
+
+    const int64NoData = -9_223_372_036_854_775_808n
+    const int64 = createGeoDataset(
+      2,
+      1,
+      'int64',
+      [1, 0, 0, 0, 1, 0],
+      [int64NoData, 7n],
+      int64NoData.toString(),
+    )
+    const int64Tile = await collectOne(
+      readReprojectedGeoRegion(viewFor(int64), {
+        targetGrid: targetFor(int64, { noData: { kind: 'value', value: -1 } }),
+        targetRegion: { x: 0, y: 0, width: 2, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(exactValuesOf(int64Tile)).toEqual([-1n, 7n])
   })
 
   it('keeps pixel registration explicit and rejects wrapped geographic requests', async () => {

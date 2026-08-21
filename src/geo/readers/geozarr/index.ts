@@ -74,6 +74,7 @@ import {
   normalizeGeoRasterDescriptor,
   normalizeGeoSpatialReference,
 } from '../../contracts.ts'
+import { geoZarrDiagnostic, rejectGeoZarrErrors } from '../../conventions/geozarr/diagnostics.ts'
 import type {
   GeoZarrConventionMetadata,
   GeoZarrConventionMode,
@@ -84,11 +85,10 @@ import type {
   GeoZarrSpatialMetadata,
 } from '../../conventions/geozarr/index.ts'
 import {
-  parseGeoZarrConventionMetadata,
   type GeoZarrConventionLimits,
   type GeoZarrConventionRegistration,
+  parseGeoZarrConventionMetadata,
 } from '../../conventions/geozarr/index.ts'
-import { geoZarrDiagnostic, rejectGeoZarrErrors } from '../../conventions/geozarr/diagnostics.ts'
 import { parseGeoZarrProjMetadata } from '../../conventions/geozarr/proj.ts'
 import {
   hasKnownGeoZarrConvention,
@@ -566,7 +566,8 @@ const derivedAffine = (
 
 interface OpenedLevel {
   readonly id: string
-  readonly path: string
+  readonly asset: string
+  readonly arrayPath: string
   readonly order: number
   readonly array: ZarrArrayMetadata
   readonly geometry: GeoGridGeometry
@@ -794,7 +795,8 @@ const createLevelStates = (
     }
     const result: OpenedLevel = Object.freeze({
       id: String(level.order),
-      path: array.path,
+      asset: level.asset,
+      arrayPath: array.path,
       order: level.order,
       array,
       geometry,
@@ -823,7 +825,9 @@ const assertLevelCompatibility = (levels: readonly OpenedLevel[]): void => {
       names.length !== baseNames.length ||
       names.some((name, index) => name !== baseNames[index])
     ) {
-      throw invalidInput(`GeoZarr level ${level.path} changes sample type or dimension ordering`)
+      throw invalidInput(
+        `GeoZarr level ${level.arrayPath} changes sample type or dimension ordering`,
+      )
     }
     for (let index = 0; index < names.length; index += 1) {
       if (
@@ -831,7 +835,7 @@ const assertLevelCompatibility = (levels: readonly OpenedLevel[]): void => {
         index !== base.geometry.spatialDimensions.y.dimensionIndex &&
         level.array.shape[index] !== base.array.shape[index]
       ) {
-        throw invalidInput(`GeoZarr level ${level.path} changes a non-spatial dimension`)
+        throw invalidInput(`GeoZarr level ${level.arrayPath} changes a non-spatial dimension`)
       }
     }
   }
@@ -885,7 +889,7 @@ const scientificDescriptor = (state: DatasetState): NormalizedScientificDatasetD
     spatialReference: scientificSpatialReference(state.spatialReference, base.geometry),
     metadata: normalizeScientificMetadataObject({
       zarrFormat: conventionFormat(state.convention),
-      geoZarrLevels: state.levels.map((level) => arrayInspection(level.path, level.array)),
+      geoZarrLevels: state.levels.map((level) => arrayInspection(level.arrayPath, level.array)),
     }),
     capabilities: Object.freeze({
       regionReads: true,
@@ -1057,19 +1061,19 @@ const comparableAffineDownsample = (
 const declaredDownsample = (
   level: OpenedLevel,
   base: OpenedLevel,
-  levelsByPath: ReadonlyMap<string, OpenedLevel>,
+  levelsByAsset: ReadonlyMap<string, OpenedLevel>,
   visiting: Set<string> = new Set(),
 ): Readonly<{ readonly x: number; readonly y: number }> | undefined => {
-  if (level.path === base.path) return Object.freeze({ x: 1, y: 1 })
+  if (level.asset === base.asset) return Object.freeze({ x: 1, y: 1 })
   const scale = spatialScale(level)
-  if (scale === undefined || level.derivedFrom === undefined || visiting.has(level.path)) {
+  if (scale === undefined || level.derivedFrom === undefined || visiting.has(level.asset)) {
     return undefined
   }
-  const parent = levelsByPath.get(level.derivedFrom)
+  const parent = levelsByAsset.get(level.derivedFrom)
   if (parent === undefined) return undefined
-  visiting.add(level.path)
-  const parentScale = declaredDownsample(parent, base, levelsByPath, visiting)
-  visiting.delete(level.path)
+  visiting.add(level.asset)
+  const parentScale = declaredDownsample(parent, base, levelsByAsset, visiting)
+  visiting.delete(level.asset)
   return parentScale === undefined
     ? undefined
     : Object.freeze({ x: parentScale.x * scale.x, y: parentScale.y * scale.y })
@@ -1078,19 +1082,19 @@ const declaredDownsample = (
 const levelDescriptor = (
   level: OpenedLevel,
   base: OpenedLevel,
-  levelsByPath: ReadonlyMap<string, OpenedLevel>,
+  levelsByAsset: ReadonlyMap<string, OpenedLevel>,
 ): GeoRasterLevel => {
-  const inspection = arrayInspection(level.path, level.array)
+  const inspection = arrayInspection(level.arrayPath, level.array)
   const resolution = Object.freeze({
     x: Math.hypot(level.geometry.pixelToWorld[0], level.geometry.pixelToWorld[3]),
     y: Math.hypot(level.geometry.pixelToWorld[1], level.geometry.pixelToWorld[4]),
   })
   const compression = inspection.codecs.join('+')
   const downsample =
-    declaredDownsample(level, base, levelsByPath) ?? comparableAffineDownsample(base, level)
+    declaredDownsample(level, base, levelsByAsset) ?? comparableAffineDownsample(base, level)
   return Object.freeze({
     id: level.id,
-    ...(level.path.length === 0 ? {} : { arrayPath: level.path }),
+    ...(level.arrayPath.length === 0 ? {} : { arrayPath: level.arrayPath }),
     sourceResolutionLevel: level.order,
     sourceOrder: level.order,
     width: level.geometry.width,
@@ -1154,9 +1158,9 @@ const descriptorFor = (adapted: GeoRasterDataset, state: DatasetState): GeoRaste
       })
     }),
   )
-  const levelsByPath = new Map(state.levels.map((level) => [level.path, level]))
+  const levelsByAsset = new Map(state.levels.map((level) => [level.asset, level]))
   const levels = Object.freeze(
-    state.levels.map((level) => levelDescriptor(level, base, levelsByPath)),
+    state.levels.map((level) => levelDescriptor(level, base, levelsByAsset)),
   )
   const identity = getScientificDatasetIdentity(adapted.scientificDataset)
   return normalizeGeoRasterDescriptor(
@@ -1180,7 +1184,7 @@ const descriptorFor = (adapted: GeoRasterDataset, state: DatasetState): GeoRaste
           version: entry.version.selectedTag ?? null,
           versionStatus: entry.version.status,
         })),
-        arrays: state.levels.map((level) => arrayInspection(level.path, level.array)),
+        arrays: state.levels.map((level) => arrayInspection(level.arrayPath, level.array)),
         ...(identity === undefined ? {} : { sourceIdentity: identity }),
       }),
       diagnostics: state.diagnostics,
@@ -1378,7 +1382,14 @@ const buildStates = async (
     const geometry = geometryFor(array, spatial, spatial.affine)
     const diagnostics = convention.diagnostics.map(geoDiagnostic)
     const reference = convention.node.proj?.spatialReference ?? unknownSpatialReference('root')
-    const level: OpenedLevel = Object.freeze({ id: '0', path: '', order: 0, array, geometry })
+    const level: OpenedLevel = Object.freeze({
+      id: '0',
+      asset: '',
+      arrayPath: '',
+      order: 0,
+      array,
+      geometry,
+    })
     const coordinates = await openCoordinateArrays(root.store, array, geometry, signal)
     return Object.freeze([
       {
@@ -1466,7 +1477,14 @@ const buildStates = async (
     if (spatial?.affine === undefined)
       throw unsupportedFormat(`GeoZarr array ${path} has no usable spatial transform`)
     const geometry = geometryFor(array, spatial, spatial.affine)
-    const level: OpenedLevel = Object.freeze({ id: '0', path, order: 0, array, geometry })
+    const level: OpenedLevel = Object.freeze({
+      id: '0',
+      asset: path,
+      arrayPath: path,
+      order: 0,
+      array,
+      geometry,
+    })
     states.push({
       id: path,
       title: titleFrom(array.attributes, path),
@@ -1630,7 +1648,7 @@ class GeoZarrDocumentImpl implements GeoZarrDocument {
                 Object.freeze({
                   id: level.id,
                   order: level.order,
-                  array: arrayInspection(level.path, level.array),
+                  array: arrayInspection(level.arrayPath, level.array),
                   geometry: level.geometry,
                   ...(level.relativeScale === undefined
                     ? {}
