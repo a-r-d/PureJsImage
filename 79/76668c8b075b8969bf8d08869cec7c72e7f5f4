@@ -1,0 +1,48 @@
+docs-astro/src/data/package-metrics.json
+  s_7d25dd617ba7f4::t_3b6fb48b1a2b39 179,556,559,562,571,574,577
+src/geo/readers/geozarr/index.ts
+  s_7d25dd617ba7f4::t_89f55252fafc69 77,90,892
+  s_7d25dd617ba7f4::t_922f6c0d5eff8f 1385-1392,1480-1487,1651
+  s_7d25dd617ba7f4::t_39fb1bd382e6a8 569-570,798-799,828-830,838,1064,1067,1069,1072,1074-1076,1085,1087,1094,1097,1161,1163,1187
+docs/geo-architecture.md
+  s_7d25dd617ba7f4::t_348be4721c68ff 224-227
+src/geo/readers/geotiff.ts
+  s_7d25dd617ba7f4::t_d2b51a48cb77a3 317-322,330-333
+README.md
+  s_7d25dd617ba7f4::t_5a31a16a4bba10 88-89
+docs-astro/src/data/documentation-data.json
+  s_7d25dd617ba7f4::t_5a31a16a4bba10 99-101,124-126,129
+tests/geo-geotiff-reader.test.ts
+  s_7d25dd617ba7f4::t_ae634cc8b667a6 228
+  s_7d25dd617ba7f4::t_cd28a103a37141 226
+benchmark/generated/package-metrics.json
+  s_7d25dd617ba7f4::t_3b6fb48b1a2b39 179,556,559,562,571,574,577
+tests/geo-geozarr-reader.test.ts
+  s_7d25dd617ba7f4::t_aabfde38270d82 414-457
+  s_7d25dd617ba7f4::t_89f55252fafc69 9
+src/geo/reprojection.ts
+  s_7d25dd617ba7f4::t_ed94d831cdb86f 471-472,476,486,696,801-803
+  s_7d25dd617ba7f4::t_ffd9edea86e68e 75-81,123-136,141,143-145,152,159-178,203,208-209,216,218
+  s_7d25dd617ba7f4::t_89f55252fafc69 18-20,473-475
+  s_7d25dd617ba7f4::t_fae87b401ffa1c 122,468
+tests/geo-grid-reprojection.test.ts
+  s_7d25dd617ba7f4::t_b7de53fcc6b657 78,652-689
+  s_7d25dd617ba7f4::t_89f55252fafc69 19,24,31-40
+  s_7d25dd617ba7f4::t_1685409487f227 690-691
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "7976668c8b075b8969bf8d08869cec7c72e7f5f4",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
