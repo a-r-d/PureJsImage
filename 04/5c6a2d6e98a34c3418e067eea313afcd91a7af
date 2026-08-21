@@ -1,0 +1,25 @@
+browser-tests/responsive-containment.pw.ts
+  s_7d25dd617ba7f4::t_f1cda34bf1323d 68,72-74,93,97-99
+docs-astro/src/styles/global.css
+  s_7d25dd617ba7f4::t_e57a2c6427acbb 7121,7132,7136
+docs-astro/src/scripts/geo-showcase-worker.ts
+  s_7d25dd617ba7f4::t_f1cda34bf1323d 661-669,671
+scripts/render-geo-capabilities.ts
+  s_7d25dd617ba7f4::t_f1cda34bf1323d 1,170-172,176,178-180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "045c6a2d6e98a34c3418e067eea313afcd91a7af",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
