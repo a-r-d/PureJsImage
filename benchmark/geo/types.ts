@@ -13,6 +13,9 @@ export interface GeoBenchmarkMeasurements {
   readonly overviewSelection: string | null
   readonly zarrChunksAccessed: number
   readonly zarrShardsAccessed: number
+  readonly zarrUniqueShardObjects: number
+  readonly zarrShardIndexReads: number
+  readonly zarrShardPayloadRanges: number
 }
 
 export interface GeoBenchmarkResult {
@@ -91,6 +94,15 @@ const parseMeasurements = (value: unknown): GeoBenchmarkMeasurements => {
     overviewSelection: overview,
     zarrChunksAccessed: finiteNonNegative(value.zarrChunksAccessed, 'zarrChunksAccessed'),
     zarrShardsAccessed: finiteNonNegative(value.zarrShardsAccessed, 'zarrShardsAccessed'),
+    zarrUniqueShardObjects: finiteNonNegative(
+      value.zarrUniqueShardObjects,
+      'zarrUniqueShardObjects',
+    ),
+    zarrShardIndexReads: finiteNonNegative(value.zarrShardIndexReads, 'zarrShardIndexReads'),
+    zarrShardPayloadRanges: finiteNonNegative(
+      value.zarrShardPayloadRanges,
+      'zarrShardPayloadRanges',
+    ),
   }
 }
 

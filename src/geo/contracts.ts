@@ -1004,9 +1004,6 @@ export const normalizeGeoSpatialReference = (
   if (value.state !== 'complete' && value.state !== 'incomplete' && value.state !== 'unknown') {
     throw invalidInput('Geo CRS state is invalid')
   }
-  if (value.coordinateSystemType === 'unknown' && value.state !== 'unknown') {
-    throw invalidInput('An unknown Geo CRS must use unknown diagnostic state')
-  }
   const confidence =
     value.confidence === undefined ? undefined : finite(value.confidence, 'Geo CRS confidence')
   if (confidence !== undefined && (confidence < 0 || confidence > 1)) {
@@ -1570,13 +1567,6 @@ export const normalizeGeoRasterDescriptor = (
       level.geometry.spatialDimensions.y.dimensionIndex !== spatialY.dimensionIndex
     ) {
       throw invalidInput(`Geo level ${level.id} spatial dimensions differ from the dataset`)
-    }
-    if (
-      level.downsample !== undefined &&
-      (!closeNumber(level.downsample.x, xDimension.length / level.width) ||
-        !closeNumber(level.downsample.y, yDimension.length / level.height))
-    ) {
-      throw invalidInput(`Geo level ${level.id} downsample does not match its dimensions`)
     }
   }
   const primary = levels.find(({ id }) => id === value.primaryLevelId)

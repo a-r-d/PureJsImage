@@ -134,12 +134,17 @@ export const resolveGeoCoordinateTransformer = async (
   const transformer = await options.provider.createTransformer(sourceCrs, destinationCrs, {
     ...(options.signal === undefined ? {} : { signal: options.signal }),
   })
-  throwIfAborted(options.signal)
-  return Object.freeze({
-    transformer: validateGeoCoordinateTransformer(transformer, sourceCrs, destinationCrs),
-    owned: true,
-    identity: false,
-  })
+  try {
+    throwIfAborted(options.signal)
+    return Object.freeze({
+      transformer: validateGeoCoordinateTransformer(transformer, sourceCrs, destinationCrs),
+      owned: true,
+      identity: false,
+    })
+  } catch (error: unknown) {
+    await transformer.dispose?.()
+    throw error
+  }
 }
 
 export const transformGeoBounds = (
@@ -282,7 +287,9 @@ export const createProj4CompatibleTransformProvider = (
         forward: (x: number, y: number) => proj4Coordinate(transform.forward([x, y])),
         ...(inverse === undefined
           ? {}
-          : { inverse: (x: number, y: number) => proj4Coordinate(inverse([x, y])) }),
+          : {
+              inverse: (x: number, y: number) => proj4Coordinate(inverse.call(transform, [x, y])),
+            }),
       })
     },
   })

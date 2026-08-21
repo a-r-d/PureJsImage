@@ -5,6 +5,7 @@ import type {
   GeoUnitDescriptor,
 } from '../../contracts.ts'
 import { normalizeGeoSpatialReference } from '../../contracts.ts'
+import { geoCoordinateSystemTypeFromWkt, geoCrsStateFromEvidence } from '../../crs.ts'
 import type { GeoZarrConventionMode, GeoZarrDiagnostic } from './diagnostics.ts'
 import { geoZarrDiagnostic } from './diagnostics.ts'
 import { geoZarrProjConvention } from './registry.ts'
@@ -255,7 +256,7 @@ export const parseGeoZarrProjMetadata = (
       ),
   )
   const projType = coordinateSystemType(projJson?.type)
-  const wktType = coordinateSystemType(wkt2?.slice(0, 32))
+  const wktType = geoCoordinateSystemTypeFromWkt(wkt2)
   const type = projType !== 'unknown' ? projType : wktType
   const name = geoZarrString(projJson?.name) ?? wktName(wkt2)
   let additional: GeoZarrJsonObject
@@ -282,8 +283,9 @@ export const parseGeoZarrProjMetadata = (
   const code = codeValid ? codeParts?.[1] : identifiers[0]?.[1]
   const xIndex = applicationAxisIndex(axes, 'x')
   const yIndex = applicationAxisIndex(axes, 'y')
+  const hasUsableDefinition = codeValid || wkt2 !== undefined || projJson !== undefined
   const geoDiagnostics =
-    type === 'unknown'
+    type === 'unknown' && !hasUsableDefinition
       ? [
           {
             severity: 'warning' as const,
@@ -316,7 +318,7 @@ export const parseGeoZarrProjMetadata = (
         citation: geoZarrProjConvention.specUrl,
       },
     ],
-    state: type === 'unknown' ? 'unknown' : conflicts.length === 0 ? 'complete' : 'incomplete',
+    state: geoCrsStateFromEvidence(hasUsableDefinition, false, conflicts.length > 0),
     confidence: conflicts.length === 0 ? 1 : 0.5,
     diagnostics: geoDiagnostics,
   })

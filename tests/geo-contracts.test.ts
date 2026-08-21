@@ -525,7 +525,7 @@ describe('Geo descriptor validation', () => {
     expect(() =>
       normalizeGeoRasterDescriptor({ ...descriptor, bands: [{ ...firstBand, noData: 256 }] }, 1),
     ).toThrow('outside uint8')
-    expect(() =>
+    expect(
       normalizeGeoRasterDescriptor(
         {
           ...descriptor,
@@ -535,8 +535,8 @@ describe('Geo descriptor validation', () => {
           })),
         },
         1,
-      ),
-    ).toThrow('downsample does not match its dimensions')
+      ).levels[0]?.downsample,
+    ).toEqual({ x: 2, y: 1 })
     expect(() =>
       normalizeGeoRasterDescriptor(
         { ...descriptor, formatEvidence: { note: 'x'.repeat(4_097) } },
@@ -552,12 +552,12 @@ describe('Geo descriptor validation', () => {
         pixelRegistration: 'pixel-is-area',
       }),
     ).toThrow('spatial dimensions must be unique')
-    expect(() =>
+    expect(
       normalizeGeoSpatialReference({
         ...descriptor.spatialReference,
         coordinateSystemType: 'unknown',
         state: 'complete',
       }),
-    ).toThrow('must use unknown diagnostic state')
+    ).toMatchObject({ coordinateSystemType: 'unknown', state: 'complete' })
   })
 })

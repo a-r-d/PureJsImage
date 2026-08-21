@@ -28,6 +28,7 @@ import type {
   GeoUnitDescriptor,
 } from '../contracts.ts'
 import { createGeoDiagnostic, normalizeGeoRasterDescriptor } from '../contracts.ts'
+import { geoCrsStateFromEvidence } from '../crs.ts'
 import { adaptScientificDatasetToGeo } from '../scientific-adapter.ts'
 import type { GeoRasterDocument, GeoRasterReader } from './index.ts'
 
@@ -327,6 +328,12 @@ const spatialReference = (
         ]
       : []),
   ])
+  const hasUnresolvedCrsEvidence =
+    coordinateSystemType !== 'unknown' ||
+    citation !== undefined ||
+    profile.verticalCitation !== undefined ||
+    vertical !== undefined
+  const state = geoCrsStateFromEvidence(code !== undefined, hasUnresolvedCrsEvidence)
   return Object.freeze({
     schemaVersion: 1,
     coordinateSystemType,
@@ -345,7 +352,7 @@ const spatialReference = (
     formalAxes: source.formalAxes,
     applicationAxes: source.applicationAxes,
     evidence: Object.freeze(evidence),
-    state: code === undefined ? 'unknown' : 'complete',
+    state,
     confidence: code === undefined ? 0.4 : 0.95,
     diagnostics,
   })

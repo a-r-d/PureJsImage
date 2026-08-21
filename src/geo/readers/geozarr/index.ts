@@ -185,6 +185,11 @@ export interface GeoZarrIoReport {
   readonly coalescedConsumers: number
   readonly cancelledReads: number
   readonly sourceCacheBytes: number
+  readonly logicalChunkReads: number
+  readonly outerShardAccesses: number
+  readonly uniqueShardObjects: number
+  readonly shardIndexReads: number
+  readonly shardPayloadRanges: number
 }
 
 export interface GeoZarrStructuralReport {
@@ -565,6 +570,7 @@ interface OpenedLevel {
   readonly order: number
   readonly array: ZarrArrayMetadata
   readonly geometry: GeoGridGeometry
+  readonly derivedFrom?: string
   readonly relativeScale?: readonly number[]
   readonly relativeTranslation?: readonly number[]
   readonly resamplingMethod?: string
@@ -792,6 +798,7 @@ const createLevelStates = (
       order: level.order,
       array,
       geometry,
+      ...(level.derivedFrom === undefined ? {} : { derivedFrom: level.derivedFrom }),
       ...(level.relativeScale === undefined ? {} : { relativeScale: level.relativeScale }),
       ...(level.relativeTranslation === undefined
         ? {}
@@ -1000,13 +1007,87 @@ class GeoZarrScientificDataset implements ScientificDataset {
   }
 }
 
-const levelDescriptor = (level: OpenedLevel, base: OpenedLevel): GeoRasterLevel => {
+const spatialScale = (
+  level: OpenedLevel,
+): Readonly<{ readonly x: number; readonly y: number }> | undefined => {
+  const scale = level.relativeScale
+  if (scale === undefined) return undefined
+  const xIndex = level.geometry.spatialDimensions.x.dimensionIndex
+  const yIndex = level.geometry.spatialDimensions.y.dimensionIndex
+  const compact = scale.length === 2
+  const x = compact ? scale[1] : scale[xIndex]
+  const y = compact ? scale[0] : scale[yIndex]
+  return typeof x === 'number' && typeof y === 'number' && x > 0 && y > 0
+    ? Object.freeze({ x, y })
+    : undefined
+}
+
+const comparableAffineDownsample = (
+  base: OpenedLevel,
+  level: OpenedLevel,
+): Readonly<{ readonly x: number; readonly y: number }> | undefined => {
+  const [baseA, baseB, , baseD, baseE] = base.geometry.pixelToWorld
+  const [levelA, levelB, , levelD, levelE] = level.geometry.pixelToWorld
+  const baseX = Math.hypot(baseA, baseD)
+  const baseY = Math.hypot(baseB, baseE)
+  const levelX = Math.hypot(levelA, levelD)
+  const levelY = Math.hypot(levelB, levelE)
+  if ([baseX, baseY, levelX, levelY].some((value) => value === 0 || !Number.isFinite(value))) {
+    return undefined
+  }
+  const parallel = (
+    firstX: number,
+    firstY: number,
+    secondX: number,
+    secondY: number,
+    firstLength: number,
+    secondLength: number,
+  ): boolean =>
+    Math.abs(firstX * secondY - firstY * secondX) <= firstLength * secondLength * 1e-9 &&
+    firstX * secondX + firstY * secondY > 0
+  if (
+    !parallel(baseA, baseD, levelA, levelD, baseX, levelX) ||
+    !parallel(baseB, baseE, levelB, levelE, baseY, levelY)
+  ) {
+    return undefined
+  }
+  return Object.freeze({ x: levelX / baseX, y: levelY / baseY })
+}
+
+const declaredDownsample = (
+  level: OpenedLevel,
+  base: OpenedLevel,
+  levelsByPath: ReadonlyMap<string, OpenedLevel>,
+  visiting: Set<string> = new Set(),
+): Readonly<{ readonly x: number; readonly y: number }> | undefined => {
+  if (level.path === base.path) return Object.freeze({ x: 1, y: 1 })
+  const scale = spatialScale(level)
+  if (scale === undefined || level.derivedFrom === undefined || visiting.has(level.path)) {
+    return undefined
+  }
+  const parent = levelsByPath.get(level.derivedFrom)
+  if (parent === undefined) return undefined
+  visiting.add(level.path)
+  const parentScale = declaredDownsample(parent, base, levelsByPath, visiting)
+  visiting.delete(level.path)
+  return parentScale === undefined
+    ? undefined
+    : Object.freeze({ x: parentScale.x * scale.x, y: parentScale.y * scale.y })
+}
+
+const levelDescriptor = (
+  level: OpenedLevel,
+  base: OpenedLevel,
+  levelsByPath: ReadonlyMap<string, OpenedLevel>,
+): GeoRasterLevel => {
   const inspection = arrayInspection(level.path, level.array)
   const resolution = Object.freeze({
     x: Math.hypot(level.geometry.pixelToWorld[0], level.geometry.pixelToWorld[3]),
     y: Math.hypot(level.geometry.pixelToWorld[1], level.geometry.pixelToWorld[4]),
   })
   const compression = inspection.codecs.join('+')
+  const downsample =
+    declaredDownsample(level, base, levelsByPath) ?? comparableAffineDownsample(base, level)
   return Object.freeze({
     id: level.id,
     ...(level.path.length === 0 ? {} : { arrayPath: level.path }),
@@ -1016,10 +1097,7 @@ const levelDescriptor = (level: OpenedLevel, base: OpenedLevel): GeoRasterLevel 
     height: level.geometry.height,
     geometry: level.geometry,
     nominalResolution: resolution,
-    downsample: Object.freeze({
-      x: base.geometry.width / level.geometry.width,
-      y: base.geometry.height / level.geometry.height,
-    }),
+    ...(downsample === undefined ? {} : { downsample }),
     storage: Object.freeze({
       organization: 'chunked' as const,
       chunkShape: inspection.logicalChunkShape,
@@ -1076,7 +1154,10 @@ const descriptorFor = (adapted: GeoRasterDataset, state: DatasetState): GeoRaste
       })
     }),
   )
-  const levels = Object.freeze(state.levels.map((level) => levelDescriptor(level, base)))
+  const levelsByPath = new Map(state.levels.map((level) => [level.path, level]))
+  const levels = Object.freeze(
+    state.levels.map((level) => levelDescriptor(level, base, levelsByPath)),
+  )
   const identity = getScientificDatasetIdentity(adapted.scientificDataset)
   return normalizeGeoRasterDescriptor(
     {
@@ -1411,6 +1492,11 @@ const emptyIo = (): GeoZarrIoReport =>
     coalescedConsumers: 0,
     cancelledReads: 0,
     sourceCacheBytes: 0,
+    logicalChunkReads: 0,
+    outerShardAccesses: 0,
+    uniqueShardObjects: 0,
+    shardIndexReads: 0,
+    shardPayloadRanges: 0,
   })
 
 const storeIo = (store: ZarrStoreDiagnostics): GeoZarrIoReport =>
@@ -1424,6 +1510,11 @@ const storeIo = (store: ZarrStoreDiagnostics): GeoZarrIoReport =>
     coalescedConsumers: 0,
     cancelledReads: store.cancelledReads,
     sourceCacheBytes: store.chunkCacheBytes,
+    logicalChunkReads: store.logicalChunkReads,
+    outerShardAccesses: store.outerShardAccesses,
+    uniqueShardObjects: store.uniqueShardObjects,
+    shardIndexReads: store.shardIndexReads,
+    shardPayloadRanges: store.shardPayloadRanges,
   })
 
 const httpIo = (stats: ZarrHttpStoreStats, store: ZarrStoreDiagnostics): GeoZarrIoReport =>
@@ -1437,6 +1528,11 @@ const httpIo = (stats: ZarrHttpStoreStats, store: ZarrStoreDiagnostics): GeoZarr
     coalescedConsumers: stats.coalescedConsumers,
     cancelledReads: stats.abortedConsumers + store.cancelledReads,
     sourceCacheBytes: stats.sourceCacheBytes,
+    logicalChunkReads: store.logicalChunkReads,
+    outerShardAccesses: store.outerShardAccesses,
+    uniqueShardObjects: store.uniqueShardObjects,
+    shardIndexReads: store.shardIndexReads,
+    shardPayloadRanges: store.shardPayloadRanges,
   })
 
 class GeoZarrDocumentImpl implements GeoZarrDocument {

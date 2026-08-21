@@ -201,10 +201,39 @@ describe('GeoZarr convention metadata', () => {
     const proj = parseGeoZarrConventionMetadata({
       group: group({
         zarr_conventions: [registration(geoZarrProjConvention)],
-        'proj:wkt2': 'GEOGCRS["Example",ID["EPSG",4326]]',
+        'proj:wkt2': 'GEOGCRS["Local geographic CRS"]',
       }),
     })
     expect(proj.group.proj?.wkt2).toContain('GEOGCRS')
+    expect(proj.group.proj?.spatialReference).toMatchObject({
+      coordinateSystemType: 'geographic',
+      state: 'complete',
+    })
+
+    const codeOnly = parseGeoZarrConventionMetadata({
+      group: group({
+        zarr_conventions: [registration(geoZarrProjConvention)],
+        'proj:code': 'CUSTOM:local-grid',
+      }),
+    })
+    expect(codeOnly.group.proj?.spatialReference).toMatchObject({
+      authority: 'CUSTOM',
+      code: 'local-grid',
+      coordinateSystemType: 'unknown',
+      state: 'complete',
+    })
+
+    const projJsonOnly = parseGeoZarrConventionMetadata({
+      group: group({
+        zarr_conventions: [registration(geoZarrProjConvention)],
+        'proj:projjson': { type: 'ProjectedCRS', name: 'Local projected CRS' },
+      }),
+    })
+    expect(projJsonOnly.group.proj?.spatialReference).toMatchObject({
+      name: 'Local projected CRS',
+      coordinateSystemType: 'projected',
+      state: 'complete',
+    })
 
     const spatial = parseGeoZarrConventionMetadata({
       group: group({ zarr_conventions: [registration(geoZarrSpatialConvention)] }),

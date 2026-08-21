@@ -16,6 +16,7 @@ import type {
   GeoSpatialReference,
 } from '../contracts.ts'
 import { geoRasterSchemaVersion, normalizeGeoSpatialReference } from '../contracts.ts'
+import { geoCoordinateSystemTypeFromWkt } from '../crs.ts'
 import type { GeoRasterDocument, GeoRasterReader } from './index.ts'
 import { createGeoDatasetFromScientific } from './shared.ts'
 
@@ -133,10 +134,8 @@ const isWkt2 = (value: string): boolean =>
 const wktCoordinateType = (
   value: string | undefined,
 ): GeoSpatialReference['coordinateSystemType'] | undefined => {
-  const root = value?.match(/^\s*([A-Za-z_]+)\s*\[/u)?.[1]?.toUpperCase()
-  if (root === 'PROJCRS' || root === 'PROJCS') return 'projected'
-  if (root === 'GEOGCRS' || root === 'GEODCRS' || root === 'GEOGCS') return 'geographic'
-  return undefined
+  const type = geoCoordinateSystemTypeFromWkt(value)
+  return type === 'unknown' ? undefined : type
 }
 
 const enviSpatialReference = (

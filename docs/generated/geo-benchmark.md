@@ -7,14 +7,14 @@ All required scenarios passed against deterministic in-process range and object-
 Timing is a local snapshot. Requests, bytes, selected chunks, selected shards, decoded pixels,
 and correctness gates are the stable CI evidence.
 
-| Scenario | Open ms | First tile ms | Requests | Transfer bytes | Unique bytes | Pixels | Cache hits | Reprojection overhead ms | Overview | Zarr chunks | Zarr shards |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| Large remote COG viewport | 20.447 | 10.935 | 9 | 4097 | 4096 | 4 | 0 | 0 | 1 | 0 | 0 |
-| Remote sharded GeoZarr viewport | 15.754 | 2.732 | 44 | 2542 | 1310 | 4 | 6 | 0 | n/a | 3 | 1 |
-| Multidimensional GeoZarr time and band selection | 7.5 | 0.899 | 39 | 2248 | 1125 | 4 | 2 | 0 | n/a | 2 | 0 |
-| Local ENVI subset | 5.671 | 1.047 | 3 | 8664 | 8428 | 64 | 0 | 0 | n/a | 0 | 0 |
-| Remote NetCDF variable subset | 4.807 | 1.03 | 6 | 2561 | 2560 | 64 | 80 | 0 | n/a | 0 | 0 |
-| Target-grid reprojection | 1.446 | 6.452 | 3 | 8664 | 8428 | 1024 | 0 | 5.995 | n/a | 0 | 0 |
+| Scenario | Open ms | First tile ms | Requests | Transfer bytes | Unique bytes | Pixels | Cache hits | Reprojection overhead ms | Overview | Zarr chunks | Zarr shard accesses | Unique shard objects | Shard index reads | Shard payload ranges |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| Large remote COG viewport | 26.395 | 10.529 | 9 | 4097 | 4096 | 4 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| Remote sharded GeoZarr viewport | 14.614 | 2.589 | 44 | 2542 | 1310 | 4 | 6 | 0 | n/a | 4 | 1 | 1 | 1 | 4 |
+| Multidimensional GeoZarr time and band selection | 6.617 | 0.838 | 39 | 2248 | 1125 | 4 | 2 | 0 | n/a | 2 | 0 | 0 | 0 | 0 |
+| Local ENVI subset | 5.285 | 1.13 | 3 | 8664 | 8428 | 64 | 0 | 0 | n/a | 0 | 0 | 0 | 0 | 0 |
+| Remote NetCDF variable subset | 4.629 | 0.977 | 6 | 2561 | 2560 | 64 | 80 | 0 | n/a | 0 | 0 | 0 | 0 | 0 |
+| Target-grid reprojection | 1.265 | 6.588 | 3 | 8664 | 8428 | 1024 | 0 | 6.081 | n/a | 0 | 0 | 0 | 0 | 0 |
 
 Peak managed memory is recorded in the JSON artifact as sampled V8 heap, external, and ArrayBuffer
 memory. It is not presented as process peak RSS.

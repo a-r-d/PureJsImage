@@ -382,15 +382,15 @@ describe('GeoZarr geo reader', () => {
         dimensionNames: ['Y', 'X'],
       }),
       'coarse/zarr.json': zarrV3ArrayMetadata({
-        shape: [2, 2],
-        chunkShape: [2, 2],
+        shape: [2, 3],
+        chunkShape: [2, 3],
         dimensionNames: ['Y', 'X'],
       }),
       'fine/c/0/0': Uint8Array.of(1, 2, 3, 7, 8, 9, 13, 14, 15),
       'fine/c/0/1': Uint8Array.of(4, 5, 6, 10, 11, 12, 16, 17, 18),
       'fine/c/1/0': Uint8Array.of(19, 20, 21, 25, 26, 27, 31, 32, 33),
       'fine/c/1/1': Uint8Array.of(22, 23, 24, 28, 29, 30, 34, 35, 36),
-      'coarse/c/0/0': Uint8Array.of(1, 3, 7, 9),
+      'coarse/c/0/0': Uint8Array.of(1, 2, 3, 7, 8, 9),
     }
     const document = await openGeoZarrObjectStore(memoryStore(files), {
       primaryName: 'zarr.json',
@@ -400,13 +400,14 @@ describe('GeoZarr geo reader', () => {
       { id: '0', width: 6, height: 6 },
       {
         id: '1',
-        width: 2,
+        width: 3,
         height: 2,
+        downsample: { x: 3, y: 3 },
         geometry: { pixelToWorld: [9, 0, 103, 0, -9, 194] },
         storage: { metadata: { resamplingMethod: 'mode' } },
       },
     ])
-    expect(await values(document, 'multiscales', { levelId: '1' })).toEqual([1, 3, 7, 9])
+    expect(await values(document, 'multiscales', { levelId: '1' })).toEqual([1, 2, 3, 7, 8, 9])
     expect(document.inspectStructure().datasets[0]?.diagnostics).toEqual([])
   })
 
@@ -475,6 +476,13 @@ describe('GeoZarr geo reader', () => {
       outerShardShape: [4, 4],
       sharded: true,
       codecs: ['sharding_indexed', 'bytes'],
+    })
+    expect(document.inspectStructure().io).toMatchObject({
+      logicalChunkReads: 4,
+      outerShardAccesses: 1,
+      uniqueShardObjects: 1,
+      shardIndexReads: 1,
+      shardPayloadRanges: 4,
     })
   })
 

@@ -34,7 +34,9 @@ supported boolean.
 
 The harness records metadata-open time, first-tile time, requests to first tile, transferred bytes,
 unique bytes, decoded pixels, cache hits, sampled managed memory, reprojection overhead, overview
-selection, and Zarr chunk and shard access. Timing is snapshot evidence. Correctness and selective
+selection, logical Zarr chunks, outer shard accesses, unique shard objects, shard index reads, and
+shard payload ranges. These Zarr values come from the generic runtime substrate. The benchmark does
+not fill them from fixture assumptions. Timing is snapshot evidence. Correctness and selective
 access gates decide whether CI passes.
 
 ## Security and boundedness
@@ -69,6 +71,9 @@ Review the geo change in this order:
    `benchmark/geo/run.ts` for executable evidence behind public claims.
 6. Check `docs-astro/src/pages/geo.astro` and its worker for public-only imports, bounded viewport
    work, cancellation, untrusted text handling, and source closure.
+7. Check that `npm run browser:check` bundles the Geo worker from source while its code continues to
+   use public package imports. This catches package-self imports that would otherwise require a
+   pre-existing `dist` directory.
 
 ## Review checks
 
@@ -77,6 +82,9 @@ Run the required repository gate:
 ```sh
 npm run check
 ```
+
+The gate includes the clean-source Geo worker bundle, deterministic geo benchmark comparison,
+public package type checks, generated documentation checks, and focused reprojection regressions.
 
 Run the deterministic browser showcase in every configured browser:
 

@@ -41,6 +41,7 @@ import type {
   GeoSpatialReference,
 } from '../contracts.ts'
 import { geoRasterSchemaVersion, normalizeGeoSpatialReference } from '../contracts.ts'
+import { geoCoordinateSystemTypeFromWkt } from '../crs.ts'
 import type { GeoRasterDocument, GeoRasterReader } from './index.ts'
 import { createGeoDatasetFromScientific } from './shared.ts'
 
@@ -311,10 +312,8 @@ const regularAxis = (
 }
 
 const wktType = (wkt: string): GeoSpatialReference['coordinateSystemType'] | undefined => {
-  const root = wkt.match(/^\s*([A-Za-z_]+)\s*\[/u)?.[1]?.toUpperCase()
-  if (root === 'PROJCRS' || root === 'PROJCS') return 'projected'
-  if (root === 'GEOGCRS' || root === 'GEODCRS' || root === 'GEOGCS') return 'geographic'
-  return undefined
+  const type = geoCoordinateSystemTypeFromWkt(wkt)
+  return type === 'unknown' ? undefined : type
 }
 
 const wktAuthority = (wkt: string): readonly [string, string] | undefined => {

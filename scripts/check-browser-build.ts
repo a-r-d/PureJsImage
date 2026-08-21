@@ -1,4 +1,5 @@
 import { build } from 'esbuild'
+import { assertGeoShowcaseSourceInputs, geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 
 const result = await build({
   bundle: true,
@@ -84,6 +85,19 @@ const applicationPlatformResult = await build({
   },
   write: false,
 })
+
+const geoShowcaseResult = await build({
+  absWorkingDir: process.cwd(),
+  alias: geoShowcaseSourceAliases,
+  bundle: true,
+  entryPoints: ['docs-astro/src/scripts/geo-showcase-worker.ts'],
+  format: 'esm',
+  logLevel: 'silent',
+  metafile: true,
+  platform: 'browser',
+  write: false,
+})
+assertGeoShowcaseSourceInputs(Object.keys(geoShowcaseResult.metafile.inputs))
 
 const webCodecResult = await build({
   bundle: true,

@@ -83,6 +83,11 @@ export interface ZarrStoreDiagnostics {
   readonly metadataReadBytes: number
   readonly chunkReadRequests: number
   readonly chunkReadBytes: number
+  readonly logicalChunkReads: number
+  readonly outerShardAccesses: number
+  readonly uniqueShardObjects: number
+  readonly shardIndexReads: number
+  readonly shardPayloadRanges: number
   readonly cancelledReads: number
   readonly closed: boolean
 }
@@ -1229,6 +1234,7 @@ const loadShardIndex = async (
   shardShape: readonly number[],
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
+  onRead?: () => void,
 ): Promise<DecodedShardIndex> => {
   const innerShape = integerTuple(
     codec.configuration.chunk_shape,
@@ -1254,6 +1260,7 @@ const loadShardIndex = async (
   const encodedIndex = await readExactly(source, indexOffset, encodedIndexBytes, {
     ...(signal === undefined ? {} : { signal }),
   })
+  onRead?.()
   const index = await decodeBytesCodecs(
     encodedIndex,
     indexCodecs,
@@ -1324,6 +1331,7 @@ const decodeShardInner = async (
   sampleType: RasterSampleType,
   limits: Readonly<ZarrStoreLimits>,
   signal?: AbortSignal,
+  onPayloadRead?: () => void,
 ): Promise<{ readonly data: Uint8Array; readonly shape: readonly number[] } | 'fill'> => {
   const lookup = lookupShardInner(index, innerStart, source.size)
   if (lookup === 'fill') return 'fill'
@@ -1333,6 +1341,7 @@ const decodeShardInner = async (
   const encoded = await readExactly(source, lookup.offset, lookup.bytes, {
     ...(signal === undefined ? {} : { signal }),
   })
+  onPayloadRead?.()
   return decodeBytesCodecs(
     encoded,
     index.innerCodecs,
@@ -1703,6 +1712,11 @@ class ObjectZarrStore implements ZarrStore {
   #metadataReadBytes = 0
   #chunkReadRequests = 0
   #chunkReadBytes = 0
+  #logicalChunkReads = 0
+  #outerShardAccesses = 0
+  readonly #uniqueShardObjects = new Set<string>()
+  #shardIndexReads = 0
+  #shardPayloadRanges = 0
   #cancelledReads = 0
   #closed = false
 
@@ -1967,6 +1981,8 @@ class ObjectZarrStore implements ZarrStore {
       }
       let shardIndex: DecodedShardIndex | undefined
       if (sharding !== undefined) {
+        this.#outerShardAccesses += 1
+        this.#uniqueShardObjects.add(key)
         shardIndex = plane?.getIndex(key)
         if (shardIndex === undefined) {
           shardIndex = await loadShardIndex(
@@ -1975,6 +1991,9 @@ class ObjectZarrStore implements ZarrStore {
             array.chunkShape,
             this.#limits,
             signal,
+            () => {
+              this.#shardIndexReads += 1
+            },
           )
           plane?.setIndex(key, shardIndex)
         }
@@ -1993,6 +2012,7 @@ class ObjectZarrStore implements ZarrStore {
       const local = firstLocal.slice()
       do {
         throwIfAborted(signal)
+        this.#logicalChunkReads += 1
         const innerStart = local
         const innerOrigin = local.map(
           (inner, axis) => ((globalInnerOrigin[axis] ?? 0) + inner) * (innerShape[axis] ?? 1),
@@ -2009,6 +2029,9 @@ class ObjectZarrStore implements ZarrStore {
                 array.dataType,
                 this.#limits,
                 signal,
+                () => {
+                  this.#shardPayloadRanges += 1
+                },
               )
         if (decoded === 'fill') {
           if (array.fill.kind === 'undefined') {
@@ -2055,6 +2078,11 @@ class ObjectZarrStore implements ZarrStore {
       metadataReadBytes: this.#metadataReadBytes,
       chunkReadRequests: this.#chunkReadRequests,
       chunkReadBytes: this.#chunkReadBytes,
+      logicalChunkReads: this.#logicalChunkReads,
+      outerShardAccesses: this.#outerShardAccesses,
+      uniqueShardObjects: this.#uniqueShardObjects.size,
+      shardIndexReads: this.#shardIndexReads,
+      shardPayloadRanges: this.#shardPayloadRanges,
       cancelledReads: this.#cancelledReads,
       closed: this.#closed,
     })

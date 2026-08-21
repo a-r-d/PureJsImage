@@ -35,6 +35,7 @@ import {
   overlappingGeoGridExtent,
   proposeGeoTargetGrid,
   readReprojectedGeoRegion,
+  resolveGeoCoordinateTransformer,
   transformGeoBounds,
 } from '../src/geo/index.ts'
 
@@ -56,18 +57,24 @@ const crs = (
     diagnostics: [],
   })
 
-const arrayFor = (sampleType: NumericSampleType, values: readonly number[]): NumericArray => {
-  if (sampleType === 'uint8') return Uint8Array.from(values)
-  if (sampleType === 'float32') return Float32Array.from(values)
+const arrayFor = (
+  sampleType: NumericSampleType,
+  values: readonly (number | bigint)[],
+): NumericArray => {
+  if (sampleType === 'uint8') return Uint8Array.from(values, Number)
+  if (sampleType === 'int16') return Int16Array.from(values, Number)
+  if (sampleType === 'float32') return Float32Array.from(values, Number)
+  if (sampleType === 'int64') return BigInt64Array.from(values, BigInt)
+  if (sampleType === 'uint64') return BigUint64Array.from(values, BigInt)
   throw new Error(`Unsupported test sample type ${sampleType}`)
 }
 
 const createGeoDataset = (
   width: number,
   height: number,
-  sampleType: 'uint8' | 'float32',
+  sampleType: 'uint8' | 'int16' | 'float32' | 'int64' | 'uint64',
   pixelToWorld: GeoAffineTransform,
-  values: readonly number[],
+  values: readonly (number | bigint)[],
   noData?: number,
   registration: 'pixel-is-area' | 'pixel-is-point' = 'pixel-is-point',
 ): GeoRasterDataset => {
@@ -107,7 +114,7 @@ const createGeoDataset = (
       const y = request.y ?? 0
       const tileWidth = request.width ?? width
       const tileHeight = request.height ?? height
-      const selected: number[] = []
+      const selected: (number | bigint)[] = []
       for (let row = 0; row < tileHeight; row += 1) {
         for (let column = 0; column < tileWidth; column += 1) {
           selected.push(values[(y + row) * width + x + column] ?? 0)
@@ -192,6 +199,10 @@ const collectOne = async <Tile extends NumericTile>(source: AsyncIterable<Tile>)
 }
 
 const valuesOf = (tile: NumericTile): readonly number[] => Array.from(tile.data, Number)
+const exactValuesOf = (tile: NumericTile): readonly (number | bigint)[] =>
+  tile.data instanceof BigInt64Array || tile.data instanceof BigUint64Array
+    ? Array.from(tile.data)
+    : Array.from(tile.data)
 
 describe('Geo target grids and alignment', () => {
   it('distinguishes exact grids, same-CRS grids, overlap, and pixel alignment', () => {
@@ -407,6 +418,85 @@ describe('bounded Geo reprojection reads', () => {
     ).rejects.toThrow(/inverse/u)
   })
 
+  it('disposes provider-created transformers when validation or cancellation fails', async () => {
+    const source = crs(32618)
+    const destination = crs(3857)
+    let invalidDisposals = 0
+    await expect(
+      resolveGeoCoordinateTransformer(source, destination, {
+        provider: {
+          implementationIdentity: 'invalid-provider@1',
+          createTransformer: () => ({
+            sourceCrs: crs(4326),
+            destinationCrs: destination,
+            transformIdentity: 'invalid-source',
+            implementationIdentity: 'invalid-provider@1',
+            accuracy: { kind: 'unknown' },
+            warnings: [],
+            forward: (x, y) => [x, y],
+            dispose: () => {
+              invalidDisposals += 1
+            },
+          }),
+        },
+      }),
+    ).rejects.toThrow(/source CRS/u)
+    expect(invalidDisposals).toBe(1)
+
+    const controller = new AbortController()
+    let abortedDisposals = 0
+    await expect(
+      resolveGeoCoordinateTransformer(source, destination, {
+        signal: controller.signal,
+        provider: {
+          implementationIdentity: 'aborting-provider@1',
+          createTransformer: () => {
+            controller.abort(new Error('cancel after create'))
+            return {
+              sourceCrs: source,
+              destinationCrs: destination,
+              transformIdentity: 'cancelled-transform',
+              implementationIdentity: 'aborting-provider@1',
+              accuracy: { kind: 'unknown' },
+              warnings: [],
+              forward: (x, y) => [x, y],
+              dispose: () => {
+                abortedDisposals += 1
+              },
+            }
+          },
+        },
+      }),
+    ).rejects.toThrow('cancel after create')
+    expect(abortedDisposals).toBe(1)
+  })
+
+  it('preserves this binding for proj4-compatible inverse methods', async () => {
+    const source = crs(32618)
+    const destination = crs(3857)
+    const provider = createProj4CompatibleTransformProvider(
+      {
+        create: () => {
+          const transform = {
+            offset: 10,
+            forward(coordinate: readonly [number, number]): readonly [number, number] {
+              return [coordinate[0] + this.offset, coordinate[1]]
+            },
+            inverse(coordinate: readonly [number, number]): readonly [number, number] {
+              return [coordinate[0] - this.offset, coordinate[1]]
+            },
+          }
+          return transform
+        },
+      },
+      { implementationIdentity: 'stateful-proj4-test@1' },
+    )
+    const resolved = await resolveGeoCoordinateTransformer(source, destination, { provider })
+    expect(resolved.transformer.forward(2, 3)).toEqual([12, 3])
+    expect(resolved.transformer.inverse?.(12, 3)).toEqual([2, 3])
+    await resolved.transformer.dispose?.()
+  })
+
   it('preserves nearest categorical values and excludes nodata from bilinear weights', async () => {
     const categorical = createGeoDataset(2, 2, 'uint8', [1, 0, 0, 0, 1, 0], [1, 9, 4, 7])
     const nearest = await collectOne(
@@ -430,6 +520,133 @@ describe('bounded Geo reprojection reads', () => {
       }),
     )
     expect(valuesOf(bilinear)[0]).toBeCloseTo(3)
+  })
+
+  it('requires representable nodata for uncovered integer output', async () => {
+    const uint8 = createGeoDataset(2, 1, 'uint8', [1, 0, 0, 0, 1, 0], [7, 9])
+    await expect(async () =>
+      collectOne(
+        readReprojectedGeoRegion(viewFor(uint8), {
+          targetGrid: targetFor(uint8, {
+            width: 2,
+            height: 1,
+            affine: [1, 0, 10, 0, 1, 0],
+            noData: { kind: 'none' },
+          }),
+          targetRegion: { x: 0, y: 0, width: 2, height: 1 },
+          sourceBands: [0],
+          resampling: 'nearest',
+        }),
+      ),
+    ).rejects.toThrow(/explicit representable output nodata/u)
+
+    const uint8Uncovered = await collectOne(
+      readReprojectedGeoRegion(viewFor(uint8), {
+        targetGrid: targetFor(uint8, {
+          width: 2,
+          height: 1,
+          affine: [1, 0, 10, 0, 1, 0],
+          noData: { kind: 'value', value: 255 },
+        }),
+        targetRegion: { x: 0, y: 0, width: 2, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(valuesOf(uint8Uncovered)).toEqual([255, 255])
+
+    const int16 = createGeoDataset(2, 1, 'int16', [1, 0, 0, 0, 1, 0], [100, -20])
+    const int16Partial = await collectOne(
+      readReprojectedGeoRegion(viewFor(int16), {
+        targetGrid: targetFor(int16, {
+          width: 4,
+          height: 1,
+          noData: { kind: 'value', value: -32_768 },
+        }),
+        targetRegion: { x: 0, y: 0, width: 4, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(valuesOf(int16Partial)).toEqual([100, -20, -32_768, -32_768])
+
+    const float32 = createGeoDataset(1, 1, 'float32', [1, 0, 0, 0, 1, 0], [5])
+    const float32Uncovered = await collectOne(
+      readReprojectedGeoRegion(viewFor(float32), {
+        targetGrid: targetFor(float32, {
+          affine: [1, 0, 10, 0, 1, 0],
+          noData: { kind: 'none' },
+        }),
+        targetRegion: { x: 0, y: 0, width: 1, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(Number.isNaN(valuesOf(float32Uncovered)[0] ?? 0)).toBe(true)
+  })
+
+  it('copies int64 and uint64 nearest samples exactly', async () => {
+    const int64Values = [9_007_199_254_740_993n, -9_007_199_254_740_993n] as const
+    const int64 = createGeoDataset(2, 1, 'int64', [1, 0, 0, 0, 1, 0], int64Values)
+    const int64Tile = await collectOne(
+      readReprojectedGeoRegion(viewFor(int64), {
+        targetGrid: targetFor(int64, { noData: { kind: 'value', value: -1 } }),
+        targetRegion: { x: 0, y: 0, width: 2, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(exactValuesOf(int64Tile)).toEqual(int64Values)
+
+    const uint64Values = [18_446_744_073_709_551_615n] as const
+    const uint64 = createGeoDataset(1, 1, 'uint64', [1, 0, 0, 0, 1, 0], uint64Values)
+    const uint64Tile = await collectOne(
+      readReprojectedGeoRegion(viewFor(uint64), {
+        targetGrid: targetFor(uint64, { noData: { kind: 'value', value: 0 } }),
+        targetRegion: { x: 0, y: 0, width: 1, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(exactValuesOf(uint64Tile)).toEqual(uint64Values)
+
+    const int64Uncovered = await collectOne(
+      readReprojectedGeoRegion(viewFor(int64), {
+        targetGrid: targetFor(int64, {
+          affine: [1, 0, 10, 0, 1, 0],
+          noData: { kind: 'value', value: -1 },
+        }),
+        targetRegion: { x: 0, y: 0, width: 2, height: 1 },
+        sourceBands: [0],
+        resampling: 'nearest',
+      }),
+    )
+    expect(exactValuesOf(int64Uncovered)).toEqual([-1n, -1n])
+
+    await expect(async () =>
+      collectOne(
+        readReprojectedGeoRegion(viewFor(uint64), {
+          targetGrid: targetFor(uint64, { noData: { kind: 'none' } }),
+          targetRegion: { x: 0, y: 0, width: 1, height: 1 },
+          sourceBands: [0],
+          resampling: 'nearest',
+        }),
+      ),
+    ).rejects.toThrow(/explicit representable output nodata/u)
+
+    await expect(async () =>
+      collectOne(
+        readReprojectedGeoRegion(viewFor(uint64), {
+          targetGrid: targetFor(uint64, {
+            sampleType: 'float32',
+            noData: { kind: 'nan' },
+          }),
+          targetRegion: { x: 0, y: 0, width: 1, height: 1 },
+          sourceBands: [0],
+          resampling: 'bilinear',
+        }),
+      ),
+    ).rejects.toThrow(/does not support int64 or uint64/u)
   })
 
   it('keeps pixel registration explicit and rejects wrapped geographic requests', async () => {

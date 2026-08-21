@@ -628,6 +628,18 @@ The maintainer approved the following decisions on 2026-08-12:
         through packed public exports. Eighteen required tests pass in Chromium, Firefox, and WebKit,
         with six public-source cases skipped unless explicitly enabled. The complete `npm run check`
         gate passes 171 files and 2,029 tests with 3 intentional skips.
+  - Review hardening validation: clean-source browser builds resolve the worker's public package
+        imports through repository-only aliases. Integer reprojection requires explicit
+        representable output nodata, nearest-neighbor reads preserve exact signed and unsigned
+        64-bit samples, and bilinear 64-bit input is rejected. CRS definition state is independent
+        from inferred coordinate-system type, provider-created transforms are disposed on failed
+        resolution, and GeoZarr level downsample uses declared scale or comparable affine bases.
+        Generic Zarr telemetry now measures logical chunks, outer shard accesses, unique shard
+        objects, index reads, and payload ranges. The 69 focused tests pass with one intentional
+        skip. Eighteen required Geo showcase tests pass in Chromium, Firefox, and WebKit with six
+        opt-in public cases skipped. The packed consumer contains 636 files, the clean-source browser
+        graph passes, and the complete `npm run check` gate passes 171 files and 2,035 tests with 3
+        intentional skips.
 - [x] Split the public API into `purejsimage/analysis`, `/results`, `/roi`, `/runtime`, and `/project`
       with checked-in export manifests and independent browser/size gates.
 - [x] Implement the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) with

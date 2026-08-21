@@ -366,16 +366,46 @@ const readSourceMosaic = async (
   })
 }
 
-const writeNoData = (data: NumericArray, noData: RasterNoData): void => {
-  const value = rasterNoDataNumber(noData)
-  if (data instanceof BigInt64Array || data instanceof BigUint64Array) {
-    if (!Number.isSafeInteger(value) || (data instanceof BigUint64Array && value < 0)) {
-      throw invalidInput('Integer Geo target requires an exact finite output nodata value')
+const integerSampleRange = (
+  sampleType: NumericSampleType,
+): readonly [minimum: number, maximum: number] | undefined => {
+  if (sampleType === 'uint8') return [0, 0xff]
+  if (sampleType === 'uint16') return [0, 0xffff]
+  if (sampleType === 'uint32') return [0, 0xffff_ffff]
+  if (sampleType === 'uint64') return [0, Number.MAX_SAFE_INTEGER]
+  if (sampleType === 'int8') return [-0x80, 0x7f]
+  if (sampleType === 'int16') return [-0x8000, 0x7fff]
+  if (sampleType === 'int32') return [-0x8000_0000, 0x7fff_ffff]
+  if (sampleType === 'int64') return [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]
+  return undefined
+}
+
+const writeNoData = (
+  data: NumericArray,
+  sampleType: NumericSampleType,
+  noData: RasterNoData,
+): void => {
+  const range = integerSampleRange(sampleType)
+  if (range === undefined) {
+    if (data instanceof BigInt64Array || data instanceof BigUint64Array) {
+      throw invalidInput('Floating Geo target received a 64-bit integer output array')
     }
-    data.fill(BigInt(value))
-  } else {
-    data.fill(value)
+    data.fill(rasterNoDataNumber(noData))
+    return
   }
+  if (
+    noData.kind !== 'value' ||
+    !Number.isSafeInteger(noData.value) ||
+    noData.value < range[0] ||
+    noData.value > range[1]
+  ) {
+    throw invalidInput(
+      `${sampleType} Geo reprojection requires an explicit representable output nodata value`,
+    )
+  }
+  if (data instanceof BigInt64Array || data instanceof BigUint64Array) {
+    data.fill(BigInt(noData.value))
+  } else data.fill(noData.value)
 }
 
 const outputOffset = (
@@ -387,6 +417,68 @@ const outputOffset = (
   grid.bandLayout.layout === 'interleaved'
     ? pixelIndex * grid.bandLayout.componentCount + component
     : component * pixelCount + pixelIndex
+
+const isBigIntSampleType = (sampleType: NumericSampleType): boolean =>
+  sampleType === 'int64' || sampleType === 'uint64'
+
+const bigIntSampleIsNoData = (value: bigint, noData: RasterNoData): boolean =>
+  noData.kind === 'value' && Number.isSafeInteger(noData.value) && value === BigInt(noData.value)
+
+const resampleBigIntNearest = (
+  output: BigInt64Array | BigUint64Array,
+  source: NumericTile,
+  sourceRegion: GeoPixelRegion,
+  sourceGrid: GeoTargetGrid,
+  targetGrid: GeoTargetGrid,
+  targetRegion: GeoPixelRegion,
+  bands: readonly number[],
+  sourceNoData: readonly RasterNoData[],
+  inverse: NonNullable<GeoCoordinateTransformer['inverse']>,
+  signal: AbortSignal | undefined,
+): void => {
+  if (!(source.data instanceof BigInt64Array) && !(source.data instanceof BigUint64Array)) {
+    throw invalidInput('64-bit nearest reprojection requires a BigInt source tile')
+  }
+  const outputPixels = targetRegion.width * targetRegion.height
+  for (let y = 0; y < targetRegion.height; y += 1) {
+    throwIfAborted(signal)
+    for (let x = 0; x < targetRegion.width; x += 1) {
+      const target = modelPoint(targetGrid, targetRegion.x + x, targetRegion.y + y)
+      const sourceWorld = inverse(target[0], target[1])
+      if (
+        sourceWorld.length !== 2 ||
+        !Number.isFinite(sourceWorld[0]) ||
+        !Number.isFinite(sourceWorld[1])
+      ) {
+        continue
+      }
+      const pixel = sourcePixel(sourceGrid, sourceWorld[0], sourceWorld[1])
+      const sourceX = Math.round(pixel[0])
+      const sourceY = Math.round(pixel[1])
+      if (
+        sourceX < sourceRegion.x ||
+        sourceY < sourceRegion.y ||
+        sourceX >= sourceRegion.x + sourceRegion.width ||
+        sourceY >= sourceRegion.y + sourceRegion.height
+      ) {
+        continue
+      }
+      const sourcePixelIndex =
+        (sourceY - sourceRegion.y) * sourceRegion.width + sourceX - sourceRegion.x
+      const outputPixelIndex = y * targetRegion.width + x
+      for (let component = 0; component < bands.length; component += 1) {
+        const value = source.data[sourcePixelIndex * bands.length + component]
+        if (
+          value === undefined ||
+          bigIntSampleIsNoData(value, sourceNoData[component] ?? { kind: 'none' })
+        ) {
+          continue
+        }
+        output[outputOffset(targetGrid, outputPixelIndex, component, outputPixels)] = value
+      }
+    }
+  }
+}
 
 const rasterLimits = (limits: ResolvedGeoReprojectionLimits): RasterOperationLimits => ({
   maxTilePixels: limits.maxOutputPixels,
@@ -537,6 +629,9 @@ export async function* readReprojectedGeoRegion(
   ) {
     throw invalidInput('Bilinear Geo reprojection requires a float32 or float64 target grid')
   }
+  if (request.resampling === 'bilinear' && isBigIntSampleType(sourceSampleType)) {
+    throw unsupportedOperation('Bilinear Geo reprojection does not support int64 or uint64 sources')
+  }
   if (request.resampling === 'nearest' && targetGrid.sampleType !== sourceSampleType) {
     throw invalidInput(
       'Nearest Geo reprojection preserves categorical values and requires the native sample type',
@@ -618,7 +713,7 @@ export async function* readReprojectedGeoRegion(
       throw limitExceeded('Reprojected read exceeds maxWorkingBytes')
     }
     const output = allocateNumericArray(targetGrid.sampleType, outputSamples)
-    writeNoData(output, policies.output)
+    writeNoData(output, targetGrid.sampleType, policies.output)
     if (sourceRegion !== undefined) {
       const mosaic = await readSourceMosaic(
         view,
@@ -627,48 +722,66 @@ export async function* readReprojectedGeoRegion(
         sourceSampleType,
         request.signal,
       )
-      for (let component = 0; component < bands.length; component += 1) {
-        throwIfAborted(request.signal)
-        const plan = createRasterTargetGridPlan({
-          sourceGrid: geoTargetGridToNumericRasterGrid(sourceGrid, request.resampling),
-          targetGrid: geoTargetGridToNumericRasterGrid(targetGrid, request.resampling),
-          sourceComponent: component,
-          resampling: request.resampling,
-          sourceNoData: policies.source[component] ?? Object.freeze({ kind: 'none' }),
-          outputNoData: policies.output,
-          minimumValidWeight: policies.minimumValidWeight,
-          ...(resolved.identity
-            ? {}
-            : {
-                transform: {
-                  id: transformer.transformIdentity,
-                  version: transformer.implementationIdentity,
-                  accuracy: transformer.accuracy,
-                },
-              }),
-        })
-        const transform =
-          plan.transform === undefined
-            ? undefined
-            : {
-                descriptor: plan.transform,
-                inverse: (x: number, y: number) => inverseTransform(x, y),
-              }
-        const componentTile = resampleRasterTileToGrid(plan, mosaic.tile, targetRegion, {
-          ...(transform === undefined ? {} : { transform }),
-          ...(request.signal === undefined ? {} : { signal: request.signal }),
-          limits: rasterLimits(limits),
-        })
-        try {
-          for (let pixel = 0; pixel < outputPixels; pixel += 1) {
-            const value = componentTile.data[pixel]
-            if (value === undefined) throw invalidInput('Reprojected component tile is truncated')
-            writeValue(output, outputOffset(targetGrid, pixel, component, outputPixels), value)
+      if (
+        request.resampling === 'nearest' &&
+        isBigIntSampleType(sourceSampleType) &&
+        (output instanceof BigInt64Array || output instanceof BigUint64Array)
+      ) {
+        resampleBigIntNearest(
+          output,
+          mosaic.tile,
+          sourceRegion,
+          sourceGrid,
+          targetGrid,
+          targetRegion,
+          bands,
+          policies.source,
+          inverseTransform,
+          request.signal,
+        )
+      } else
+        for (let component = 0; component < bands.length; component += 1) {
+          throwIfAborted(request.signal)
+          const plan = createRasterTargetGridPlan({
+            sourceGrid: geoTargetGridToNumericRasterGrid(sourceGrid, request.resampling),
+            targetGrid: geoTargetGridToNumericRasterGrid(targetGrid, request.resampling),
+            sourceComponent: component,
+            resampling: request.resampling,
+            sourceNoData: policies.source[component] ?? Object.freeze({ kind: 'none' }),
+            outputNoData: policies.output,
+            minimumValidWeight: policies.minimumValidWeight,
+            ...(resolved.identity
+              ? {}
+              : {
+                  transform: {
+                    id: transformer.transformIdentity,
+                    version: transformer.implementationIdentity,
+                    accuracy: transformer.accuracy,
+                  },
+                }),
+          })
+          const transform =
+            plan.transform === undefined
+              ? undefined
+              : {
+                  descriptor: plan.transform,
+                  inverse: (x: number, y: number) => inverseTransform(x, y),
+                }
+          const componentTile = resampleRasterTileToGrid(plan, mosaic.tile, targetRegion, {
+            ...(transform === undefined ? {} : { transform }),
+            ...(request.signal === undefined ? {} : { signal: request.signal }),
+            limits: rasterLimits(limits),
+          })
+          try {
+            for (let pixel = 0; pixel < outputPixels; pixel += 1) {
+              const value = componentTile.data[pixel]
+              if (value === undefined) throw invalidInput('Reprojected component tile is truncated')
+              writeValue(output, outputOffset(targetGrid, pixel, component, outputPixels), value)
+            }
+          } finally {
+            componentTile.release()
           }
-        } finally {
-          componentTile.release()
         }
-      }
       if (!sameFixedIndices(fixedIndices, mosaic.fixedIndices)) {
         throw unsupportedOperation('Reprojected reads require one fixed non-spatial plane')
       }

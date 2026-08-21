@@ -91,6 +91,9 @@ const measurements = (values: Partial<GeoBenchmarkMeasurements>): GeoBenchmarkMe
   overviewSelection: values.overviewSelection ?? null,
   zarrChunksAccessed: values.zarrChunksAccessed ?? 0,
   zarrShardsAccessed: values.zarrShardsAccessed ?? 0,
+  zarrUniqueShardObjects: values.zarrUniqueShardObjects ?? 0,
+  zarrShardIndexReads: values.zarrShardIndexReads ?? 0,
+  zarrShardPayloadRanges: values.zarrShardPayloadRanges ?? 0,
 })
 
 const conventions = {
@@ -254,10 +257,13 @@ const remoteShardedZarr = async (): Promise<GeoBenchmarkResult> => {
       decodedPixels: output.pixels,
       cacheHits: report.io.cacheHits,
       peakManagedMemoryBytes: peak,
-      zarrChunksAccessed: report.io.chunkRequests,
-      zarrShardsAccessed: 1,
+      zarrChunksAccessed: report.io.logicalChunkReads,
+      zarrShardsAccessed: report.io.outerShardAccesses,
+      zarrUniqueShardObjects: report.io.uniqueShardObjects,
+      zarrShardIndexReads: report.io.shardIndexReads,
+      zarrShardPayloadRanges: report.io.shardPayloadRanges,
     }),
-    notes: ['Logical chunks remain distinct from the single requested outer shard.'],
+    notes: ['Logical chunks, outer shards, shard indexes, and payload ranges are observed.'],
   }
 }
 
@@ -585,11 +591,11 @@ const markdown = [
   'Timing is a local snapshot. Requests, bytes, selected chunks, selected shards, decoded pixels,',
   'and correctness gates are the stable CI evidence.',
   '',
-  '| Scenario | Open ms | First tile ms | Requests | Transfer bytes | Unique bytes | Pixels | Cache hits | Reprojection overhead ms | Overview | Zarr chunks | Zarr shards |',
-  '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |',
+  '| Scenario | Open ms | First tile ms | Requests | Transfer bytes | Unique bytes | Pixels | Cache hits | Reprojection overhead ms | Overview | Zarr chunks | Zarr shard accesses | Unique shard objects | Shard index reads | Shard payload ranges |',
+  '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |',
   ...results.map(
     ({ name, measurements: item }) =>
-      `| ${name} | ${item.openMetadataMs} | ${item.timeToFirstTileMs} | ${item.requestsToFirstTile} | ${item.transferredBytes} | ${item.uniqueBytes} | ${item.decodedPixels} | ${item.cacheHits} | ${item.reprojectionOverheadMs} | ${item.overviewSelection ?? 'n/a'} | ${item.zarrChunksAccessed} | ${item.zarrShardsAccessed} |`,
+      `| ${name} | ${item.openMetadataMs} | ${item.timeToFirstTileMs} | ${item.requestsToFirstTile} | ${item.transferredBytes} | ${item.uniqueBytes} | ${item.decodedPixels} | ${item.cacheHits} | ${item.reprojectionOverheadMs} | ${item.overviewSelection ?? 'n/a'} | ${item.zarrChunksAccessed} | ${item.zarrShardsAccessed} | ${item.zarrUniqueShardObjects} | ${item.zarrShardIndexReads} | ${item.zarrShardPayloadRanges} |`,
   ),
   '',
   'Peak managed memory is recorded in the JSON artifact as sampled V8 heap, external, and ArrayBuffer',
@@ -624,6 +630,9 @@ if (writeOutputs) {
     overviewSelection: result.measurements.overviewSelection,
     zarrChunksAccessed: result.measurements.zarrChunksAccessed,
     zarrShardsAccessed: result.measurements.zarrShardsAccessed,
+    zarrUniqueShardObjects: result.measurements.zarrUniqueShardObjects,
+    zarrShardIndexReads: result.measurements.zarrShardIndexReads,
+    zarrShardPayloadRanges: result.measurements.zarrShardPayloadRanges,
   })
   if (
     JSON.stringify(retained.results.map(stableEvidence)) !==

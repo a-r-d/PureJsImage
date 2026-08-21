@@ -42,6 +42,9 @@ describe('generated geo benchmark evidence', () => {
     expect(netcdf?.measurements.transferredBytes).toBeLessThan(32 * 1024 * 1024 * 0.01)
     expect(zarr?.measurements.zarrChunksAccessed).toBeGreaterThan(0)
     expect(zarr?.measurements.zarrShardsAccessed).toBe(1)
+    expect(zarr?.measurements.zarrUniqueShardObjects).toBe(1)
+    expect(zarr?.measurements.zarrShardIndexReads).toBe(1)
+    expect(zarr?.measurements.zarrShardPayloadRanges).toBeGreaterThan(0)
   })
 
   it('requires complete provenance for opt-in public live compatibility records', () => {

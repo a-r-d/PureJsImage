@@ -27,6 +27,7 @@ import type {
   GeoSpatialReference,
 } from '../contracts.ts'
 import { geoRasterSchemaVersion, normalizeGeoSpatialReference } from '../contracts.ts'
+import { geoCoordinateSystemTypeFromWkt } from '../crs.ts'
 import type { GeoRasterDocument, GeoRasterReader } from './index.ts'
 import { createGeoDatasetFromScientific } from './shared.ts'
 
@@ -195,15 +196,6 @@ const resolveSidecars = async (
   return Object.freeze({ world, ...(prj === undefined ? {} : { prj }) })
 }
 
-const wktType = (wkt: string): GeoSpatialReference['coordinateSystemType'] => {
-  const root = wkt.match(/^\s*([A-Za-z_]+)\s*\[/u)?.[1]?.toUpperCase()
-  if (root === 'PROJCRS' || root === 'PROJCS') return 'projected'
-  if (root === 'GEOGCRS' || root === 'GEODCRS' || root === 'GEOGCS') return 'geographic'
-  if (root === 'COMPOUNDCRS' || root === 'COMPD_CS') return 'compound'
-  if (root === 'VERTCRS' || root === 'VERT_CS') return 'vertical'
-  return 'unknown'
-}
-
 const wktAuthority = (wkt: string): readonly [string, string] | undefined => {
   const matches = [
     ...wkt.matchAll(/(?:ID|AUTHORITY)\s*\[\s*["']([^"']+)["']\s*,\s*["']?(\d+)["']?/giu),
@@ -245,7 +237,7 @@ const spatialReference = (
     )
   }
   const authority = wkt === undefined ? undefined : wktAuthority(wkt)
-  const type = wkt === undefined ? 'unknown' : wktType(wkt)
+  const type = geoCoordinateSystemTypeFromWkt(wkt)
   const name = wkt === undefined ? undefined : wktName(wkt)
   const diagnostics =
     wkt === undefined

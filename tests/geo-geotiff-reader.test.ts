@@ -90,6 +90,62 @@ const setGeoKeyVersion = (bytes: Uint8Array, version: number): Uint8Array => {
   throw new Error('GeoKeyDirectoryTag is missing')
 }
 
+const setInlineGeoKeyValue = (bytes: Uint8Array, keyId: number, value: number): Uint8Array => {
+  const output = Uint8Array.from(bytes)
+  const view = new DataView(output.buffer)
+  const littleEndian = output[0] === 0x49
+  const ifdOffset = view.getUint32(4, littleEndian)
+  const entryCount = view.getUint16(ifdOffset, littleEndian)
+  for (let index = 0; index < entryCount; index += 1) {
+    const entryOffset = ifdOffset + 2 + index * 12
+    if (view.getUint16(entryOffset, littleEndian) !== 34_735) continue
+    const valueOffset = view.getUint32(entryOffset + 8, littleEndian)
+    const keyCount = view.getUint16(valueOffset + 6, littleEndian)
+    for (let keyIndex = 0; keyIndex < keyCount; keyIndex += 1) {
+      const keyOffset = valueOffset + 8 + keyIndex * 8
+      if (
+        view.getUint16(keyOffset, littleEndian) === keyId &&
+        view.getUint16(keyOffset + 2, littleEndian) === 0
+      ) {
+        view.setUint16(keyOffset + 6, value, littleEndian)
+        return output
+      }
+    }
+    throw new Error(`Inline GeoKey ${keyId} is missing`)
+  }
+  throw new Error('GeoKeyDirectoryTag is missing')
+}
+
+const replaceGeoKeyWithInlineValue = (
+  bytes: Uint8Array,
+  keyId: number,
+  replacementKeyId: number,
+  value: number,
+): Uint8Array => {
+  const output = Uint8Array.from(bytes)
+  const view = new DataView(output.buffer)
+  const littleEndian = output[0] === 0x49
+  const ifdOffset = view.getUint32(4, littleEndian)
+  const entryCount = view.getUint16(ifdOffset, littleEndian)
+  for (let index = 0; index < entryCount; index += 1) {
+    const entryOffset = ifdOffset + 2 + index * 12
+    if (view.getUint16(entryOffset, littleEndian) !== 34_735) continue
+    const valueOffset = view.getUint32(entryOffset + 8, littleEndian)
+    const keyCount = view.getUint16(valueOffset + 6, littleEndian)
+    for (let keyIndex = 0; keyIndex < keyCount; keyIndex += 1) {
+      const keyOffset = valueOffset + 8 + keyIndex * 8
+      if (view.getUint16(keyOffset, littleEndian) !== keyId) continue
+      view.setUint16(keyOffset, replacementKeyId, littleEndian)
+      view.setUint16(keyOffset + 2, 0, littleEndian)
+      view.setUint16(keyOffset + 4, 1, littleEndian)
+      view.setUint16(keyOffset + 6, value, littleEndian)
+      return output
+    }
+    throw new Error(`GeoKey ${keyId} is missing`)
+  }
+  throw new Error('GeoKeyDirectoryTag is missing')
+}
+
 describe('GeoTIFF geo reader', () => {
   it('normalizes CRS, grid, bands, storage, nodata, and structural diagnostics', async () => {
     const bytes = await fixture('classic-deflate-rgb-nodata.tif')
@@ -146,6 +202,42 @@ describe('GeoTIFF geo reader', () => {
       geospatialMetadata: [{ rasterType: 'pixel-is-area', projectedCrs: 32618, keyCount: 4 }],
     })
     expect(() => JSON.stringify(report)).not.toThrow()
+  })
+
+  it('reports user-defined projected CRS evidence as incomplete instead of unknown', async () => {
+    const bytes = setInlineGeoKeyValue(
+      await fixture('classic-deflate-rgb-nodata.tif'),
+      3_072,
+      32_767,
+    )
+    const document = await openGeo(bytes)
+    const reference = (await document.openDataset('series-0')).descriptor.spatialReference
+    expect(reference).toMatchObject({
+      coordinateSystemType: 'projected',
+      state: 'incomplete',
+      name: expect.any(String),
+    })
+    expect(reference.authority).toBeUndefined()
+    expect(reference.diagnostics).toContainEqual(
+      expect.objectContaining({ code: 'unknown-crs', severity: 'warning' }),
+    )
+  })
+
+  it('preserves user-defined projected unit evidence without inventing an EPSG CRS', async () => {
+    const userDefined = setInlineGeoKeyValue(
+      await fixture('classic-deflate-rgb-nodata.tif'),
+      3_072,
+      32_767,
+    )
+    const bytes = replaceGeoKeyWithInlineValue(userDefined, 3_073, 3_076, 9_001)
+    const reference = (await (await openGeo(bytes)).openDataset('series-0')).descriptor
+      .spatialReference
+    expect(reference).toMatchObject({
+      coordinateSystemType: 'projected',
+      state: 'incomplete',
+      horizontalUnit: { name: 'metre', symbol: 'm', conversionToSI: 1 },
+    })
+    expect(reference.authority).toBeUndefined()
   })
 
   it('opens every deterministic compression/container fixture through the native geo path', async () => {

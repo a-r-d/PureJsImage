@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "harnessVersion": 1,
-  "generatedAt": "2026-08-21T14:04:57.624Z",
+  "generatedAt": "2026-08-21T17:06:38.691Z",
   "deterministicServers": true,
   "results": [
     {
@@ -11,18 +11,21 @@
       "fixtureIdentity": "subifd-deflate-rotated.tif in a 64 MiB sparse deterministic object",
       "correctness": "sample-sum:104",
       "measurements": {
-        "openMetadataMs": 20.447,
-        "timeToFirstTileMs": 10.935,
+        "openMetadataMs": 26.395,
+        "timeToFirstTileMs": 10.529,
         "requestsToFirstTile": 9,
         "transferredBytes": 4097,
         "uniqueBytes": 4096,
         "decodedPixels": 4,
         "cacheHits": 0,
-        "peakManagedMemoryBytes": 43143417,
+        "peakManagedMemoryBytes": 41252935,
         "reprojectionOverheadMs": 0,
         "overviewSelection": "1",
         "zarrChunksAccessed": 0,
-        "zarrShardsAccessed": 0
+        "zarrShardsAccessed": 0,
+        "zarrUniqueShardObjects": 0,
+        "zarrShardIndexReads": 0,
+        "zarrShardPayloadRanges": 0
       },
       "notes": [
         "The sparse logical size makes a full-source fallback fail the selective-access gate."
@@ -35,20 +38,23 @@
       "fixtureIdentity": "deterministic-zarr-v3-sharding-indexed-4x4",
       "correctness": "sample-sum:34",
       "measurements": {
-        "openMetadataMs": 15.754,
-        "timeToFirstTileMs": 2.732,
+        "openMetadataMs": 14.614,
+        "timeToFirstTileMs": 2.589,
         "requestsToFirstTile": 44,
         "transferredBytes": 2542,
         "uniqueBytes": 1310,
         "decodedPixels": 4,
         "cacheHits": 6,
-        "peakManagedMemoryBytes": 34515952,
+        "peakManagedMemoryBytes": 34953432,
         "reprojectionOverheadMs": 0,
         "overviewSelection": null,
-        "zarrChunksAccessed": 3,
-        "zarrShardsAccessed": 1
+        "zarrChunksAccessed": 4,
+        "zarrShardsAccessed": 1,
+        "zarrUniqueShardObjects": 1,
+        "zarrShardIndexReads": 1,
+        "zarrShardPayloadRanges": 4
       },
-      "notes": ["Logical chunks remain distinct from the single requested outer shard."]
+      "notes": ["Logical chunks, outer shards, shard indexes, and payload ranges are observed."]
     },
     {
       "id": "geozarr-time-band-selection",
@@ -57,18 +63,21 @@
       "fixtureIdentity": "deterministic-zarr-v3-time-band-y-x",
       "correctness": "sample-sum:94",
       "measurements": {
-        "openMetadataMs": 7.5,
-        "timeToFirstTileMs": 0.899,
+        "openMetadataMs": 6.617,
+        "timeToFirstTileMs": 0.838,
         "requestsToFirstTile": 39,
         "transferredBytes": 2248,
         "uniqueBytes": 1125,
         "decodedPixels": 4,
         "cacheHits": 2,
-        "peakManagedMemoryBytes": 36880388,
+        "peakManagedMemoryBytes": 36949308,
         "reprojectionOverheadMs": 0,
         "overviewSelection": null,
         "zarrChunksAccessed": 2,
-        "zarrShardsAccessed": 0
+        "zarrShardsAccessed": 0,
+        "zarrUniqueShardObjects": 0,
+        "zarrShardIndexReads": 0,
+        "zarrShardPayloadRanges": 0
       },
       "notes": ["Only the selected time, band, and spatial chunk key may be requested."]
     },
@@ -79,18 +88,21 @@
       "fixtureIdentity": "deterministic-envi-bsq-uint16-64x64",
       "correctness": "sample-sum:97760",
       "measurements": {
-        "openMetadataMs": 5.671,
-        "timeToFirstTileMs": 1.047,
+        "openMetadataMs": 5.285,
+        "timeToFirstTileMs": 1.13,
         "requestsToFirstTile": 3,
         "transferredBytes": 8664,
         "uniqueBytes": 8428,
         "decodedPixels": 64,
         "cacheHits": 0,
-        "peakManagedMemoryBytes": 37218396,
+        "peakManagedMemoryBytes": 37670164,
         "reprojectionOverheadMs": 0,
         "overviewSelection": null,
         "zarrChunksAccessed": 0,
-        "zarrShardsAccessed": 0
+        "zarrShardsAccessed": 0,
+        "zarrUniqueShardObjects": 0,
+        "zarrShardIndexReads": 0,
+        "zarrShardPayloadRanges": 0
       },
       "notes": ["BSQ subset reads reuse the scientific ENVI decoder."]
     },
@@ -101,18 +113,21 @@
       "fixtureIdentity": "deterministic-cdf2-64x64 in a 32 MiB sparse object",
       "correctness": "sample-sum:114400",
       "measurements": {
-        "openMetadataMs": 4.807,
-        "timeToFirstTileMs": 1.03,
+        "openMetadataMs": 4.629,
+        "timeToFirstTileMs": 0.977,
         "requestsToFirstTile": 6,
         "transferredBytes": 2561,
         "uniqueBytes": 2560,
         "decodedPixels": 64,
         "cacheHits": 80,
-        "peakManagedMemoryBytes": 38444788,
+        "peakManagedMemoryBytes": 39254220,
         "reprojectionOverheadMs": 0,
         "overviewSelection": null,
         "zarrChunksAccessed": 0,
-        "zarrShardsAccessed": 0
+        "zarrShardsAccessed": 0,
+        "zarrUniqueShardObjects": 0,
+        "zarrShardIndexReads": 0,
+        "zarrShardPayloadRanges": 0
       },
       "notes": [
         "Metadata and one variable subset must remain below one percent of logical object size."
@@ -125,18 +140,21 @@
       "fixtureIdentity": "deterministic-envi-bsq-uint16-64x64",
       "correctness": "identity-sample-sum:1564160",
       "measurements": {
-        "openMetadataMs": 1.446,
-        "timeToFirstTileMs": 6.452,
+        "openMetadataMs": 1.265,
+        "timeToFirstTileMs": 6.588,
         "requestsToFirstTile": 3,
         "transferredBytes": 8664,
         "uniqueBytes": 8428,
         "decodedPixels": 1024,
         "cacheHits": 0,
-        "peakManagedMemoryBytes": 41875034,
-        "reprojectionOverheadMs": 5.995,
+        "peakManagedMemoryBytes": 42337082,
+        "reprojectionOverheadMs": 6.081,
         "overviewSelection": null,
         "zarrChunksAccessed": 0,
-        "zarrShardsAccessed": 0
+        "zarrShardsAccessed": 0,
+        "zarrUniqueShardObjects": 0,
+        "zarrShardIndexReads": 0,
+        "zarrShardPayloadRanges": 0
       },
       "notes": ["Overhead is measured against a native read of the same source window and samples."]
     }

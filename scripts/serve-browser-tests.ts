@@ -7,6 +7,7 @@ import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
 import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
+import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
@@ -317,6 +318,7 @@ await build({
 })
 await build({
   absWorkingDir: process.cwd(),
+  alias: geoShowcaseSourceAliases,
   bundle: true,
   charset: 'utf8',
   entryPoints: {
