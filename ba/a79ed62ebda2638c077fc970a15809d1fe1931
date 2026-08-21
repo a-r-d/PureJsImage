@@ -1,0 +1,36 @@
+benchmark/generated/package-metrics.json
+  s_7d25dd617ba7f4::t_cbb5a6570a3ef7 551,561,566,576
+  s_7d25dd617ba7f4::t_ac0e5773d10716 179
+  s_7d25dd617ba7f4::t_1b78a04b3aecbc 549-550,552-560,562-565,567-575,577-578
+docs-astro/src/data/package-metrics.json
+  s_7d25dd617ba7f4::t_1b78a04b3aecbc 549-550,552-560,562-565,567-575,577-578
+  s_7d25dd617ba7f4::t_cbb5a6570a3ef7 551,561,566,576
+  s_7d25dd617ba7f4::t_ac0e5773d10716 179
+scripts/render-documentation.ts
+  s_7d25dd617ba7f4::t_93491d76037e05 712-713,1011-1015,1036-1040,1165-1166
+scripts/bundle-size-budgets.ts
+  s_7d25dd617ba7f4::t_dbf44d67110fad 15-16
+README.md
+  s_7d25dd617ba7f4::t_cbb5a6570a3ef7 88-89
+scripts/bundle-size-config.ts
+  s_7d25dd617ba7f4::t_dceab0d3f211bd 221-234
+docs-astro/src/data/documentation-data.json
+  s_7d25dd617ba7f4::t_ac0e5773d10716 129
+  s_7d25dd617ba7f4::t_cbb5a6570a3ef7 98-102,123-127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "baa79ed62ebda2638c077fc970a15809d1fe1931",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
