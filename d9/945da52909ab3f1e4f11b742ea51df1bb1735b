@@ -1,0 +1,114 @@
+src/geo/readers/geozarr/index.ts
+  s_7d25dd617ba7f4::t_f63f6025da1caf 573,801,1010-1082,1089-1090,1100,1157-1159
+  s_7d25dd617ba7f4::t_c86dc7f3f01139 188-192,1495-1499,1513-1517,1531-1535
+  s_7d25dd617ba7f4::t_9a6069f27542f8 1160
+docs/architecture/application-platform.md
+  s_7d25dd617ba7f4::t_509dec0e9b14a9 631-642
+src/geo/readers/geotiff.ts
+  s_7d25dd617ba7f4::t_3efa99a8383189 31,336
+  s_7d25dd617ba7f4::t_5193e48a66fb0a 331-335,355
+scripts/build-docs-site.ts
+  s_7d25dd617ba7f4::t_833d28456ff85a 100,102,120,127
+  s_7d25dd617ba7f4::t_ddf43818338c3f 6
+src/geo/conventions/geozarr/proj.ts
+  s_7d25dd617ba7f4::t_3efa99a8383189 8,259,321
+  s_7d25dd617ba7f4::t_5193e48a66fb0a 286,288
+scripts/serve-browser-tests.ts
+  s_7d25dd617ba7f4::t_67a53da9cea140 321
+  s_7d25dd617ba7f4::t_833d28456ff85a 10
+scripts/check-browser-build.ts
+  s_7d25dd617ba7f4::t_ddf43818338c3f 2
+  s_7d25dd617ba7f4::t_833d28456ff85a 89-100
+  s_7d25dd617ba7f4::t_352935fd71d0fd 101
+src/geo/transform.ts
+  s_7d25dd617ba7f4::t_9327e0602ac676 291
+  s_7d25dd617ba7f4::t_df7c7e758d6a24 137-147,290,292
+src/zarr/core.ts
+  s_7d25dd617ba7f4::t_7a9c504474e84a 86-90,1237,1263,1334,1344,1715-1719,1984-1985,1994-1996,2015,2032-2034,2081-2085
+src/geo/reprojection.ts
+  s_7d25dd617ba7f4::t_3edfa98954138c 390-391,408
+  s_7d25dd617ba7f4::t_78e798255b7340 744-782
+  s_7d25dd617ba7f4::t_50a5104dc2e6bd 369-389,393-394,396-407,421-482,632-634,716,725-743
+benchmark/generated/package-metrics.json
+  s_7d25dd617ba7f4::t_4f6574dca6c676 901,904,907,1156,1159,1162
+  s_7d25dd617ba7f4::t_64b25d4f585825 179
+tests/geo-geozarr-reader.test.ts
+  s_7d25dd617ba7f4::t_f63f6025da1caf 405
+  s_7d25dd617ba7f4::t_4c1f087504f3e0 385-386,393,403,410
+  s_7d25dd617ba7f4::t_e5483d42fac665 480-486
+benchmark/geo/types.ts
+  s_7d25dd617ba7f4::t_c86dc7f3f01139 16-18,97-105
+src/geo/readers/netcdf.ts
+  s_7d25dd617ba7f4::t_3821980aa8e1b2 44,315-316
+tests/geo-geotiff-reader.test.ts
+  s_7d25dd617ba7f4::t_6af872c45ed6f2 119-148,223-230,232-241
+  s_7d25dd617ba7f4::t_677b564bf63fc7 218
+  s_7d25dd617ba7f4::t_4a1671dbf925c9 93-118,207-217,219-220,222
+  s_7d25dd617ba7f4::t_eb21eaa9865eb7 221,231
+  s_7d25dd617ba7f4::t_dd29f2014aece6 242
+tests/geo-benchmark-evidence.test.ts
+  s_7d25dd617ba7f4::t_c86dc7f3f01139 45-47
+tests/geo-grid-reprojection.test.ts
+  s_7d25dd617ba7f4::t_df7c7e758d6a24 38,421-497
+  s_7d25dd617ba7f4::t_3edfa98954138c 202-205
+  s_7d25dd617ba7f4::t_6fb71362f7b8fa 498,525-651
+  s_7d25dd617ba7f4::t_50a5104dc2e6bd 60-68,75,77,117
+  s_37374c3c8b46d6::t_6b68ed6227af0d 499
+tests/geo-geozarr-conventions.test.ts
+  s_7d25dd617ba7f4::t_5193e48a66fb0a 208-222,235-236
+  s_7d25dd617ba7f4::t_677b564bf63fc7 204,223-234
+benchmark/geo/run.ts
+  s_7d25dd617ba7f4::t_c86dc7f3f01139 94-96,260-264,266,594,598,633-635
+  s_7d25dd617ba7f4::t_54eff1635e1106 595
+docs/geo-evidence.md
+  s_7d25dd617ba7f4::t_6fda36078364f8 37-39,74-76,86-87
+  s_7d25dd617ba7f4::t_9e9c6231d53b70 88
+docs-astro/src/data/documentation-data.json
+  s_7d25dd617ba7f4::t_46295b5640b625 99-101
+  s_7d25dd617ba7f4::t_64b25d4f585825 119
+README.md
+  s_7d25dd617ba7f4::t_46295b5640b625 87
+  s_7d25dd617ba7f4::t_4f6574dca6c676 348
+tests/geo-contracts.test.ts
+  s_7d25dd617ba7f4::t_5193e48a66fb0a 555,561
+  s_7d25dd617ba7f4::t_f63f6025da1caf 528,538-539
+scripts/geo-showcase-build.ts
+  s_7d25dd617ba7f4::t_833d28456ff85a 1-27
+src/geo/crs.ts
+  s_7d25dd617ba7f4::t_3efa99a8383189 1-28
+src/geo/readers/world-file.ts
+  s_7d25dd617ba7f4::t_3e0d0552d25715 30,240
+benchmark/generated/geo-benchmark.json
+  s_7d25dd617ba7f4::t_4340f48411d52d 4,14-15,21,25-28,41-42,48,51-55,57,66-67,73,77-80,91-92,98,102-105,116-117,123,127-130,143-144,150-151,154-157
+docs-astro/src/data/package-metrics.json
+  s_7d25dd617ba7f4::t_64b25d4f585825 179
+  s_7d25dd617ba7f4::t_4f6574dca6c676 901,904,907,1156,1159,1162
+src/geo/readers/envi.ts
+  s_7d25dd617ba7f4::t_3e0d0552d25715 19,137-138
+docs/generated/geo-benchmark.md
+  s_7d25dd617ba7f4::t_4340f48411d52d 10-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "d9945da52909ab3f1e4f11b742ea51df1bb1735b",
+  "prompts": {},
+  "sessions": {
+    "s_37374c3c8b46d6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a02539-1f6f-75f3-9410-efc8a006cc57",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
