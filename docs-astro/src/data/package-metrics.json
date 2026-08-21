@@ -2051,7 +2051,7 @@
       "gzipBytes": 39223,
       "id": "sharp",
       "implementation": "native-wrapper",
-      "unpackedPackageBytes": 19229274,
+      "unpackedPackageBytes": 19793828,
       "minifiedJsBytes": 131502,
       "name": "Sharp JS wrapper",
       "packageVersions": [
@@ -2060,12 +2060,12 @@
           "version": "1.1.0"
         },
         {
-          "name": "@img/sharp-darwin-arm64",
-          "version": "0.35.3"
+          "name": "@img/sharp-libvips-linux-x64",
+          "version": "1.3.2"
         },
         {
-          "name": "@img/sharp-libvips-darwin-arm64",
-          "version": "1.3.2"
+          "name": "@img/sharp-linux-x64",
+          "version": "0.35.3"
         },
         {
           "name": "detect-libc",

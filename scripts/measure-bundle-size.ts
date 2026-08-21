@@ -7,6 +7,7 @@ import {
   packageVersionLabel,
   serializePackageMetrics,
   targetPackageExport,
+  applyRecordedNativeWrapperFootprints,
   writePackageMetrics,
   type PackageMetric,
   type PackageMetricsDocument,
@@ -22,8 +23,8 @@ const generatedPaths = [
 ] as const
 
 const assertGeneratedMetrics = async (document: PackageMetricsDocument): Promise<void> => {
-  const expected = serializePackageMetrics(document)
   const stalePaths: string[] = []
+  let firstRecorded: string | undefined
   for (const path of generatedPaths) {
     let actual: string
     try {
@@ -34,7 +35,14 @@ const assertGeneratedMetrics = async (document: PackageMetricsDocument): Promise
     }
     try {
       const parsed = parsePackageMetrics(JSON.parse(actual))
-      if (serializePackageMetrics(parsed) !== expected) stalePaths.push(path)
+      const recorded = serializePackageMetrics(parsed)
+      const expected = serializePackageMetrics(
+        applyRecordedNativeWrapperFootprints(document, parsed),
+      )
+      if (recorded !== expected || (firstRecorded !== undefined && recorded !== firstRecorded)) {
+        stalePaths.push(path)
+      }
+      firstRecorded ??= recorded
     } catch {
       stalePaths.push(path)
     }
