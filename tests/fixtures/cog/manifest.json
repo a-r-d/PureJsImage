@@ -31,8 +31,8 @@
     },
     {
       "filename": "subifd-deflate-rotated.tif",
-      "sha256": "76ec63970d1c598eff7afbc83eb786f2b52b4fc38a81f6777990a92df4d34cc9",
-      "bytes": 4828,
+      "sha256": "1ae26c0009413bc95a6f6950618e82b16ddb3878d02f08e15bf71ba79d961d05",
+      "bytes": 4916,
       "container": "TIFF",
       "compressionIds": [8],
       "levels": [

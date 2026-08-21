@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.15.0",
-    "unpackedPackageBytes": 6597294,
+    "unpackedPackageBytes": 6597320,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -568,13 +568,13 @@
         "packageExports": ["purejsimage/geo/readers/all"],
         "sourceEntries": ["./src/geo/readers/all.ts"]
       },
-      "gzipBytes": 189884,
+      "gzipBytes": 189889,
       "id": "geo-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 627147,
+      "minifiedJsBytes": 627173,
       "name": "Geo readers: all",
       "recordedBaselineMinifiedBytes": 626956,
-      "brotliBytes": 153983
+      "brotliBytes": 153750
     },
     {
       "category": "purejsimage-entry",
@@ -898,13 +898,13 @@
         "packageExports": ["purejsimage/scientific/readers/tiff"],
         "sourceEntries": ["./src/scientific/readers/tiff.ts"]
       },
-      "gzipBytes": 103733,
+      "gzipBytes": 103738,
       "id": "scientific-reader-tiff",
       "implementation": "package-core",
-      "minifiedJsBytes": 330775,
+      "minifiedJsBytes": 330801,
       "name": "Scientific reader: TIFF",
       "recordedBaselineMinifiedBytes": 262942,
-      "brotliBytes": 86365
+      "brotliBytes": 86300
     },
     {
       "category": "purejsimage-entry",
@@ -1183,13 +1183,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 364781,
+      "gzipBytes": 364785,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 1261109,
+      "minifiedJsBytes": 1261135,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 290892
+      "brotliBytes": 291078
     },
     {
       "category": "purejsimage-entry",
@@ -2051,7 +2051,7 @@
       "gzipBytes": 39223,
       "id": "sharp",
       "implementation": "native-wrapper",
-      "unpackedPackageBytes": 19793828,
+      "unpackedPackageBytes": 19229274,
       "minifiedJsBytes": 131502,
       "name": "Sharp JS wrapper",
       "packageVersions": [
@@ -2060,12 +2060,12 @@
           "version": "1.1.0"
         },
         {
-          "name": "@img/sharp-libvips-linux-x64",
-          "version": "1.3.2"
+          "name": "@img/sharp-darwin-arm64",
+          "version": "0.35.3"
         },
         {
-          "name": "@img/sharp-linux-x64",
-          "version": "0.35.3"
+          "name": "@img/sharp-libvips-darwin-arm64",
+          "version": "1.3.2"
         },
         {
           "name": "detect-libc",

@@ -45,7 +45,7 @@ const arrayMetadata = (
     shape,
     data_type: 'uint8',
     chunk_grid: { name: 'regular', configuration: { chunk_shape: chunkShape } },
-    chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+    chunk_key_encoding: { name: 'default', configuration: { separator: '.' } },
     fill_value: 0,
     codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
     dimension_names: ['time', 'band', 'Y', 'X'],
@@ -89,7 +89,7 @@ const chunks = (
               values[y * chunkWidth + x] = sample(time, band, globalX, globalY)
             }
           }
-          output.push({ name: `${prefix}/c/${time}/${band}/${row}/${column}`, bytes: values })
+          output.push({ name: `${prefix}/c.${time}.${band}.${row}.${column}`, bytes: values })
         }
       }
     }

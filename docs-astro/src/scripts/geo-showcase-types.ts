@@ -19,6 +19,10 @@ export interface GeoDemoSelection {
   readonly region: GeoDemoRegion
   /** Explicit source-band order supplied by a documented curated preset. */
   readonly displayBands?: readonly number[]
+  /** Curated logical band order for a normalized-difference analysis. */
+  readonly normalizedDifferenceBands?: readonly [number, number]
+  /** Curated logical elevation band for terrain analysis. */
+  readonly terrainBand?: number
 }
 
 export interface GeoDemoAxis {
@@ -118,6 +122,9 @@ export type GeoDemoWorkerResponse =
       readonly width: number
       readonly height: number
       readonly rgba: Uint8ClampedArray
+      readonly displayRanges: readonly (readonly [number, number])[]
+      readonly noDataPixels: number
+      readonly dataRegion?: GeoDemoRegion
       readonly telemetry: GeoDemoTelemetry
     }
   | {

@@ -1,10 +1,13 @@
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 export const geoShowcaseSourceAliases: Readonly<Record<string, string>> = Object.freeze({
-  'purejsimage/geo': resolve('src/geo/index.ts'),
-  'purejsimage/geo/browser': resolve('src/geo/browser.ts'),
-  'purejsimage/geo/readers/geotiff': resolve('src/geo/readers/geotiff.ts'),
-  'purejsimage/geo/readers/geozarr': resolve('src/geo/readers/geozarr/index.ts'),
+  'purejsimage/geo': resolve(repositoryRoot, 'src/geo/index.ts'),
+  'purejsimage/geo/browser': resolve(repositoryRoot, 'src/geo/browser.ts'),
+  'purejsimage/geo/readers/geotiff': resolve(repositoryRoot, 'src/geo/readers/geotiff.ts'),
+  'purejsimage/geo/readers/geozarr': resolve(repositoryRoot, 'src/geo/readers/geozarr/index.ts'),
 })
 
 const requiredGeoShowcaseInputs = [

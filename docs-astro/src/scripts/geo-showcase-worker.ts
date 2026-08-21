@@ -15,6 +15,7 @@ import {
 import { HttpRangeSource } from 'purejsimage/geo/browser'
 import { createGeoTiffReader, type GeoTiffDocument } from 'purejsimage/geo/readers/geotiff'
 import { type GeoZarrDocument, openGeoZarrHttp } from 'purejsimage/geo/readers/geozarr'
+import { geoTileSampleOffset, renderGeoTileDisplay } from './geo-showcase-display.ts'
 import type {
   GeoAnalysisKind,
   GeoDemoMetadata,
@@ -45,7 +46,8 @@ type ActiveSession =
 
 let active: ActiveSession | undefined
 let operation: AbortController | undefined
-const maximumPixels = 512 * 384
+const maximumOutputPixels = 512 * 384
+const maximumTerrainReadPixels = (512 + 2) * (384 + 2)
 const demoGeoTiffReader = createGeoTiffReader({
   limits: {
     maxInputBytes: 256 * 1_024 * 1_024,
@@ -267,7 +269,12 @@ const displayBands = (
   return [bands[Math.min(selection.band, bands.length - 1)] ?? bands[0] ?? 0]
 }
 
-const validateRegion = (region: GeoDemoRegion, width: number, height: number): GeoDemoRegion => {
+const validateRegion = (
+  region: GeoDemoRegion,
+  width: number,
+  height: number,
+  maximumPixels = maximumOutputPixels,
+): GeoDemoRegion => {
   const x = Math.max(0, Math.min(Math.floor(region.x), width - 1))
   const y = Math.max(0, Math.min(Math.floor(region.y), height - 1))
   const regionWidth = Math.min(Math.floor(region.width), width - x)
@@ -278,11 +285,6 @@ const validateRegion = (region: GeoDemoRegion, width: number, height: number): G
   return { x, y, width: regionWidth, height: regionHeight }
 }
 
-const sampleOffset = (tile: GeoNumericTile, x: number, y: number, component: number): number =>
-  tile.layout === 'planar'
-    ? component * (tile.planeStrideElements ?? 0) + y * tile.rowStrideElements + x
-    : y * tile.rowStrideElements + x * tile.componentCount + component
-
 const readTile = async (
   dataset: GeoRasterDataset,
   selection: GeoDemoSelection,
@@ -291,11 +293,17 @@ const readTile = async (
     readonly region?: GeoDemoRegion
     readonly sourceBands?: readonly number[]
     readonly axisBand?: number
+    readonly maximumPixels?: number
   }> = {},
 ): Promise<GeoNumericTile> => {
   const level = dataset.descriptor.levels.find((entry) => entry.id === selection.levelId)
   if (level === undefined) throw new Error(`Resolution level ${selection.levelId} is unavailable`)
-  const region = validateRegion(options.region ?? selection.region, level.width, level.height)
+  const region = validateRegion(
+    options.region ?? selection.region,
+    level.width,
+    level.height,
+    options.maximumPixels,
+  )
   const view = dataset.createView(
     viewSelection(dataset, selection, options.sourceBands, options.axisBand),
   )
@@ -308,7 +316,7 @@ const readTile = async (
         for (let x = 0; x < tile.width; x += 1) {
           const outputX = tile.x + x - region.x
           for (let component = 0; component < componentCount; component += 1) {
-            const value = tile.data[sampleOffset(tile, x, y, component)]
+            const value = tile.data[geoTileSampleOffset(tile, x, y, component)]
             data[(outputY * region.width + outputX) * componentCount + component] = Number(value)
           }
         }
@@ -334,40 +342,31 @@ const readTile = async (
   }
 }
 
-const rangeFor = (tile: GeoNumericTile, component: number): readonly [number, number] => {
-  let minimum = Number.POSITIVE_INFINITY
-  let maximum = Number.NEGATIVE_INFINITY
-  for (let y = 0; y < tile.height; y += 1) {
-    for (let x = 0; x < tile.width; x += 1) {
-      const value = Number(tile.data[sampleOffset(tile, x, y, component)])
-      if (!Number.isFinite(value)) continue
-      minimum = Math.min(minimum, value)
-      maximum = Math.max(maximum, value)
-    }
-  }
-  return minimum < maximum ? [minimum, maximum] : [minimum || 0, (minimum || 0) + 1]
+const noDataFor = (session: ActiveSession, logicalBand: number): RasterNoData => {
+  const descriptor = session.dataset.descriptor
+  const band = descriptor.axes.some((axis) => axis.kind === 'band')
+    ? descriptor.bands[0]
+    : descriptor.bands[Math.min(logicalBand, descriptor.bands.length - 1)]
+  const value = band?.noData
+  if (typeof value !== 'number') return { kind: 'none' }
+  return Number.isNaN(value) ? { kind: 'nan' } : { kind: 'value', value }
 }
 
-const rgbaFor = (tile: GeoNumericTile): Uint8ClampedArray => {
-  const output = new Uint8ClampedArray(tile.width * tile.height * 4)
-  const ranges = Array.from({ length: tile.componentCount }, (_, component) =>
-    rangeFor(tile, component),
-  )
-  for (let y = 0; y < tile.height; y += 1) {
-    for (let x = 0; x < tile.width; x += 1) {
-      const pixel = y * tile.width + x
-      for (let channel = 0; channel < 3; channel += 1) {
-        const component = tile.componentCount === 1 ? 0 : Math.min(channel, tile.componentCount - 1)
-        const value = Number(tile.data[sampleOffset(tile, x, y, component)])
-        const range = ranges[component] ?? [0, 1]
-        output[pixel * 4 + channel] = Number.isFinite(value)
-          ? Math.round(((value - range[0]) / (range[1] - range[0])) * 255)
-          : 0
-      }
-      output[pixel * 4 + 3] = 255
-    }
+const displayNoData = (
+  session: ActiveSession,
+  selection: GeoDemoSelection,
+  sourceBands: readonly number[],
+): readonly RasterNoData[] => {
+  const descriptor = session.dataset.descriptor
+  if (descriptor.axes.some((axis) => axis.kind === 'band')) {
+    return sourceBands.map(() => noDataFor(session, selection.band))
   }
-  return output
+  return sourceBands.map((sourceBand) => {
+    const logicalBand = descriptor.bands.findIndex(
+      (band) => band.sourceComponentIndex === sourceBand,
+    )
+    return noDataFor(session, logicalBand < 0 ? selection.band : logicalBand)
+  })
 }
 
 const render = async (requestId: number, selection: GeoDemoSelection): Promise<void> => {
@@ -376,20 +375,24 @@ const render = async (requestId: number, selection: GeoDemoSelection): Promise<v
   operation?.abort(new DOMException('Superseded by a new viewport', 'AbortError'))
   const controller = new AbortController()
   operation = controller
+  const sourceBands = displayBands(session.dataset, selection)
   const tile = await readTile(session.dataset, selection, controller.signal, {
-    sourceBands: displayBands(session.dataset, selection),
+    sourceBands,
   })
-  const rgba = rgbaFor(tile)
+  const display = renderGeoTileDisplay(tile, displayNoData(session, selection, sourceBands))
   post(
     {
       kind: 'frame',
       requestId,
       width: tile.width,
       height: tile.height,
-      rgba,
+      rgba: display.rgba,
+      displayRanges: display.ranges,
+      noDataPixels: display.noDataPixels,
+      ...(display.dataRegion === undefined ? {} : { dataRegion: display.dataRegion }),
       telemetry: telemetry(session),
     },
-    [rgba.buffer],
+    [display.rgba.buffer],
   )
 }
 
@@ -399,6 +402,7 @@ const oneBandTile = async (
   axisBand: number,
   signal: AbortSignal,
   region?: GeoDemoRegion,
+  maximumPixels?: number,
 ): Promise<GeoNumericTile> => {
   const componentBands = session.dataset.descriptor.bands
   if (session.dataset.descriptor.axes.some((axis) => axis.kind === 'band')) {
@@ -406,6 +410,7 @@ const oneBandTile = async (
       axisBand,
       sourceBands: [session.dataset.descriptor.bands[0]?.sourceComponentIndex ?? 0],
       ...(region === undefined ? {} : { region }),
+      ...(maximumPixels === undefined ? {} : { maximumPixels }),
     })
   }
   const sourceBand =
@@ -413,17 +418,8 @@ const oneBandTile = async (
   return readTile(session.dataset, selection, signal, {
     sourceBands: [sourceBand],
     ...(region === undefined ? {} : { region }),
+    ...(maximumPixels === undefined ? {} : { maximumPixels }),
   })
-}
-
-const noDataFor = (session: ActiveSession, logicalBand: number): RasterNoData => {
-  const descriptor = session.dataset.descriptor
-  const band = descriptor.axes.some((axis) => axis.kind === 'band')
-    ? descriptor.bands[0]
-    : descriptor.bands[Math.min(logicalBand, descriptor.bands.length - 1)]
-  const value = band?.noData
-  if (typeof value !== 'number') return { kind: 'none' }
-  return Number.isNaN(value) ? { kind: 'nan' } : { kind: 'value', value }
 }
 
 const analysisSummary = async (
@@ -437,12 +433,20 @@ const analysisSummary = async (
     const axis = session.dataset.descriptor.axes.find((entry) => entry.kind === 'band')
     const available = axis?.length ?? session.dataset.descriptor.bands.length
     if (available < 2) throw new Error('Normalized difference requires at least two bands')
-    const left = await oneBandTile(session, selection, Math.min(2, available - 1), signal)
-    const right = await oneBandTile(session, selection, 0, signal)
+    const pair: readonly [number, number] = selection.normalizedDifferenceBands ?? [
+      Math.min(2, available - 1),
+      0,
+    ]
+    const [leftBand, rightBand] = pair
+    if (leftBand >= available || rightBand >= available) {
+      throw new Error(`Normalized difference bands must be within the ${available} available bands`)
+    }
+    const left = await oneBandTile(session, selection, leftBand, signal)
+    const right = await oneBandTile(session, selection, rightBand, signal)
     const result = evaluateRasterBandMathTile(
       createNormalizedDifferencePlan(
-        { name: 'left', valueMode: 'raw', noData: noDataFor(session, Math.min(2, available - 1)) },
-        { name: 'right', valueMode: 'raw', noData: noDataFor(session, 0) },
+        { name: 'left', valueMode: 'raw', noData: noDataFor(session, leftBand) },
+        { name: 'right', valueMode: 'raw', noData: noDataFor(session, rightBand) },
       ),
       [left, right],
       undefined,
@@ -454,7 +458,10 @@ const analysisSummary = async (
       sourceBands: [0],
       levelId: selection.levelId,
     }
-    return { summary: 'Normalized difference for the current bounded viewport.', tile }
+    return {
+      summary: `Normalized difference from bands ${leftBand + 1} and ${rightBand + 1} for the current bounded viewport.`,
+      tile,
+    }
   }
   if (analysis === 'hillshade') {
     const level = session.dataset.descriptor.levels.find((entry) => entry.id === selection.levelId)
@@ -471,7 +478,15 @@ const analysisSummary = async (
         Math.min(level.height, outputRegion.y + outputRegion.height + 1) -
         Math.max(0, outputRegion.y - 1),
     }
-    const terrainSource = await oneBandTile(session, selection, selection.band, signal, haloRegion)
+    const terrainBand = selection.terrainBand ?? selection.band
+    const terrainSource = await oneBandTile(
+      session,
+      selection,
+      terrainBand,
+      signal,
+      haloRegion,
+      maximumTerrainReadPixels,
+    )
     const result = evaluateRasterTerrainTile(
       createRasterTerrainPlan({
         operation: 'hillshade',
@@ -484,7 +499,7 @@ const analysisSummary = async (
         verticalUnit: { kind: 'metre' },
         rowDirection: affine[4] < 0 ? 'south' : 'north',
         edge: 'clamp',
-        inputNoData: noDataFor(session, selection.band),
+        inputNoData: noDataFor(session, terrainBand),
       }),
       terrainSource,
       outputRegion,
@@ -496,7 +511,10 @@ const analysisSummary = async (
       sourceBands: [0],
       levelId: selection.levelId,
     }
-    return { summary: 'Hillshade for the current bounded viewport.', tile }
+    return {
+      summary: `Hillshade from band ${terrainBand + 1} for the current bounded viewport.`,
+      tile,
+    }
   }
   const source = await oneBandTile(session, selection, selection.band, signal)
   if (analysis === 'statistics') {
@@ -555,7 +573,7 @@ const analyze = async (
     })
     return
   }
-  const rgba = rgbaFor(result.tile)
+  const display = renderGeoTileDisplay(result.tile, [{ kind: 'none' }])
   result.tile.release()
   post(
     {
@@ -565,10 +583,10 @@ const analyze = async (
       summary: result.summary,
       width: result.tile.width,
       height: result.tile.height,
-      rgba,
+      rgba: display.rgba,
       telemetry: telemetry(session),
     },
-    [rgba.buffer],
+    [display.rgba.buffer],
   )
 }
 
@@ -593,7 +611,7 @@ const samplePoint = async (
     sourceBands: displayBands(session.dataset, selection),
   })
   const values = Array.from({ length: tile.componentCount }, (_, component) =>
-    Number(tile.data[sampleOffset(tile, 0, 0, component)]),
+    Number(tile.data[geoTileSampleOffset(tile, 0, 0, component)]),
   )
   const affine = level.geometry.pixelToWorld
   const world: readonly [number, number] = [

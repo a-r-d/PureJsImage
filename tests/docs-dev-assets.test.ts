@@ -43,6 +43,10 @@ describe('docs development assets', () => {
     expect(zarr?.rangeCapable).toBe(true)
     expect(JSON.parse(new TextDecoder().decode(zarr?.body))).toMatchObject({ zarr_format: 3 })
 
+    const zarrChunk = await loadDocsDevAsset('/fixtures/geo/geozarr-cube/fine/c.0.0.0.0')
+    expect(zarrChunk?.contentType).toBe('application/octet-stream')
+    expect(Array.from(zarrChunk?.body.subarray(0, 4) ?? [])).toEqual([25, 30, 35, 40])
+
     await expect(loadDocsDevAsset('/fixtures/geo/not-present')).resolves.toBeUndefined()
   })
 

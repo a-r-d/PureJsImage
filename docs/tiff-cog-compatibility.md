@@ -49,7 +49,7 @@ composition.
 | --- | --- | --- | --- | ---: |
 | `classic-deflate-rgb-nodata.tif` | TIFF | 8 | 16×16 | 1,220 |
 | `bigtiff-lzw-rgba.tif` | BigTIFF | 5 | 8×8 | 908 |
-| `subifd-deflate-rotated.tif` | TIFF | 8 | 32×32 → 16×16 | 4,828 |
+| `subifd-deflate-rotated.tif` | TIFF | 8 | 32×32 → 16×16 | 4,916 |
 | `showcase-subifd-deflate-rotated.tif` | TIFF | 8 | 2048×1024 → 1024×512 → 512×256 | 238,596 |
 | `classic-packbits-gray.tif` | TIFF | 32773 | 16×8 | 490 |
 | `classic-jpeg-rgb.tif` | TIFF | 7 | 16×8 | 1,610 |

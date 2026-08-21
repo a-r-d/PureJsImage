@@ -263,6 +263,15 @@ describe('GeoTIFF geo reader', () => {
       { width: 32, height: 32, geometry: { pixelToWorld: [2, 0.5, 100, -0.25, -2, 200] } },
       { width: 16, height: 16, geometry: { pixelToWorld: [4, 1, 100, -0.5, -4, 200] } },
     ])
+    expect(dataset.descriptor.formatEvidence).toMatchObject({
+      levels: [
+        expect.objectContaining({ georeferencing: 'explicit' }),
+        expect.objectContaining({
+          georeferencing: 'derived',
+          profile: expect.objectContaining({ projectedCrs: 32618 }),
+        }),
+      ],
+    })
     expect((await firstTile(document, '1')).levelId).toBe('1')
   })
 

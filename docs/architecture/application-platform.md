@@ -628,6 +628,19 @@ The maintainer approved the following decisions on 2026-08-12:
         through packed public exports. Eighteen required tests pass in Chromium, Firefox, and WebKit,
         with six public-source cases skipped unless explicitly enabled. The complete `npm run check`
         gate passes 171 files and 2,029 tests with 3 intentional skips.
+  - Showcase usability hardening: boundary pans and zooms no longer start no-op worker reads, cached
+        renders identify that no network transfer was needed, short cached work does not flash the
+        loading overlay, and the live viewport coordinates, analysis band mapping, active result,
+        and source attribution remain visible. The final page section now provides a source-aware
+        public TypeScript example that follows the active COG or GeoZarr viewport. Kentucky opens at a more useful overview, while a
+        public-domain USGS 3DEP Grand Canyon elevation COG provides a real Hillshade example. The
+        GeoTIFF reader now derives overview transforms when an IFD repeats CRS keys without a model
+        transform. Hillshade admits its required one-pixel source border without weakening the
+        196,608-pixel output limit, with deterministic GeoTIFF and browser regressions. Elevation
+        previews now exclude numeric nodata sentinels from auto contrast and show the active display
+        range and hidden nodata count, preventing valid DEMs from appearing as a blank white canvas.
+        Zoom-in anchors follow the visible data footprint across overviews, while empty pans report a
+        clear no-data state.
   - Review hardening validation: clean-source browser builds resolve the worker's public package
         imports through repository-only aliases. Integer reprojection requires explicit
         representable output nodata, nearest-neighbor reads preserve exact signed and unsigned

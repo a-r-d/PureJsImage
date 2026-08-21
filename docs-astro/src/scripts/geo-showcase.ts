@@ -1,6 +1,7 @@
 import type {
   GeoAnalysisKind,
   GeoDemoKind,
+  GeoDemoLevel,
   GeoDemoMetadata,
   GeoDemoRegion,
   GeoDemoSelection,
@@ -8,6 +9,10 @@ import type {
   GeoDemoWorkerRequest,
   GeoDemoWorkerResponse,
 } from './geo-showcase-types.ts'
+
+const maximumViewportWidth = 512
+const maximumViewportHeight = 384
+const minimumViewportDimension = 4
 
 type ElementConstructor<ElementType extends Element> = new () => ElementType
 const required = <ElementType extends Element>(
@@ -31,8 +36,31 @@ const formatBytes = (value: number): string => {
   return `${(value / (1_024 * 1_024)).toFixed(2)} MiB`
 }
 
+const formatDisplayValue = (value: number): string => Number(value.toPrecision(4)).toLocaleString()
+
+const analysisDisplayName = (analysis: GeoAnalysisKind): string => {
+  if (analysis === 'normalized-difference') return 'Normalized difference'
+  if (analysis === 'hillshade') return 'Hillshade'
+  if (analysis === 'statistics') return 'Statistics'
+  return 'Line profile'
+}
+
 const copyText = async (value: string): Promise<void> => {
-  await navigator.clipboard.writeText(value)
+  try {
+    await navigator.clipboard.writeText(value)
+    return
+  } catch {
+    const textarea = document.createElement('textarea')
+    textarea.value = value
+    textarea.readOnly = true
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.append(textarea)
+    textarea.select()
+    const copied = document.execCommand('copy')
+    textarea.remove()
+    if (!copied) throw new Error('Clipboard access is unavailable')
+  }
 }
 
 interface LabElements {
@@ -118,8 +146,15 @@ interface GeoPreset {
   readonly initialLevelId?: string
   readonly initialMode?: 'grayscale' | 'rgb' | 'cir'
   readonly center: boolean
+  readonly initialX?: number
+  readonly initialY?: number
   readonly rgb?: readonly number[]
   readonly cir?: readonly number[]
+  readonly normalizedDifferenceBands?: readonly [number, number]
+  readonly terrainBand?: number
+  readonly analysisContext?: string
+  readonly attribution?: string
+  readonly attributionUrl?: string
 }
 
 const bandMapping = (value: string | undefined): readonly number[] | undefined => {
@@ -130,9 +165,27 @@ const bandMapping = (value: string | undefined): readonly number[] | undefined =
     : undefined
 }
 
+const bandPair = (value: string | undefined): readonly [number, number] | undefined => {
+  if (value === undefined) return undefined
+  const bands = value.split(',').map(Number)
+  return bands.length === 2 && bands.every((band) => Number.isSafeInteger(band) && band >= 0)
+    ? [bands[0] ?? 0, bands[1] ?? 0]
+    : undefined
+}
+
+const bandIndex = (value: string | undefined): number | undefined => {
+  if (value === undefined) return undefined
+  const band = Number(value)
+  return Number.isSafeInteger(band) && band >= 0 ? band : undefined
+}
+
 const presetFor = (button: HTMLButtonElement): GeoPreset => {
   const rgb = bandMapping(button.dataset.geoRgb)
   const cir = bandMapping(button.dataset.geoCir)
+  const normalizedDifferenceBands = bandPair(button.dataset.geoNormalizedDifference)
+  const terrainBand = bandIndex(button.dataset.geoTerrainBand)
+  const initialX = bandIndex(button.dataset.geoInitialX)
+  const initialY = bandIndex(button.dataset.geoInitialY)
   return {
     title: button.dataset.geoPresetTitle ?? button.textContent?.trim() ?? 'Geo raster',
     provider: button.dataset.geoPresetProvider ?? 'Custom source',
@@ -143,10 +196,29 @@ const presetFor = (button: HTMLButtonElement): GeoPreset => {
       ? { initialMode: button.dataset.geoInitialMode }
       : {}),
     center: button.dataset.geoInitialRegion === 'center',
+    ...(initialX === undefined ? {} : { initialX }),
+    ...(initialY === undefined ? {} : { initialY }),
     ...(rgb === undefined ? {} : { rgb }),
     ...(cir === undefined ? {} : { cir }),
+    ...(normalizedDifferenceBands === undefined ? {} : { normalizedDifferenceBands }),
+    ...(terrainBand === undefined ? {} : { terrainBand }),
+    ...(button.dataset.geoAnalysisContext === undefined
+      ? {}
+      : { analysisContext: button.dataset.geoAnalysisContext }),
+    ...(button.dataset.geoAttribution === undefined
+      ? {}
+      : { attribution: button.dataset.geoAttribution }),
+    ...(button.dataset.geoAttributionUrl === undefined
+      ? {}
+      : { attributionUrl: button.dataset.geoAttributionUrl }),
   }
 }
+
+const sameRegion = (left: GeoDemoRegion, right: GeoDemoRegion): boolean =>
+  left.x === right.x &&
+  left.y === right.y &&
+  left.width === right.width &&
+  left.height === right.height
 
 class GeoLab {
   readonly kind: GeoDemoKind
@@ -162,6 +234,11 @@ class GeoLab {
   #loadingStartedAt = performance.now()
   #loadingDetail = ''
   #loadingTimer: number | undefined
+  #loadingDelayTimer: number | undefined
+  #lastTelemetry: GeoDemoTelemetry | undefined
+  #displaySummary = 'Auto contrast pending'
+  #visibleDataRegion: GeoDemoRegion | undefined
+  #latestAnalysisRequest = 0
   #dragStart:
     | { readonly clientX: number; readonly clientY: number; readonly region: GeoDemoRegion }
     | undefined
@@ -176,6 +253,12 @@ class GeoLab {
     })
     this.worker.addEventListener('message', (event: MessageEvent<GeoDemoWorkerResponse>) => {
       this.#receive(event.data)
+    })
+    this.worker.addEventListener('error', (event) => {
+      this.#workerFailed(event.message)
+    })
+    this.worker.addEventListener('messageerror', () => {
+      this.#workerFailed('The worker returned an unreadable message')
     })
     this.elements.open.addEventListener('click', () => this.open())
     this.elements.cancel.addEventListener('click', () => this.cancel())
@@ -235,6 +318,14 @@ class GeoLab {
     this.elements.root.dataset.state = state
   }
 
+  #workerFailed(detail: string): void {
+    this.#setStatus(`Demo worker could not start. ${detail}`, 'error')
+    this.#hideLoading()
+    this.elements.open.disabled = false
+    this.elements.cancel.disabled = true
+    this.elements.root.dataset.worker = 'error'
+  }
+
   #updateLoadingDetail(): void {
     const seconds = Math.max(0, Math.floor((performance.now() - this.#loadingStartedAt) / 1_000))
     const elapsed = seconds === 0 ? 'just started' : `${seconds}s elapsed`
@@ -242,6 +333,8 @@ class GeoLab {
   }
 
   #showLoading(title: string, detail: string, preview = false): void {
+    if (this.#loadingDelayTimer !== undefined) window.clearTimeout(this.#loadingDelayTimer)
+    this.#loadingDelayTimer = undefined
     if (this.#loadingTimer !== undefined) window.clearInterval(this.#loadingTimer)
     this.#loadingStartedAt = performance.now()
     this.#loadingDetail = detail
@@ -255,12 +348,35 @@ class GeoLab {
     this.#loadingTimer = window.setInterval(() => this.#updateLoadingDetail(), 1_000)
   }
 
+  #showLoadingAfterDelay(title: string, detail: string, preview = false): void {
+    this.#hideLoading()
+    this.#loadingDelayTimer = window.setTimeout(() => {
+      this.#loadingDelayTimer = undefined
+      this.#showLoading(title, detail, preview)
+    }, 180)
+  }
+
   #hideLoading(): void {
+    if (this.#loadingDelayTimer !== undefined) window.clearTimeout(this.#loadingDelayTimer)
+    this.#loadingDelayTimer = undefined
     if (this.#loadingTimer !== undefined) window.clearInterval(this.#loadingTimer)
     this.#loadingTimer = undefined
     this.elements.loading.hidden = true
     this.elements.loadingCancel.disabled = true
     this.elements.canvasWrap.setAttribute('aria-busy', 'false')
+  }
+
+  #updateAttribution(url: URL, preset: GeoPreset | undefined): void {
+    const title = this.elements.root.querySelector<HTMLElement>('[data-geo-attribution-title]')
+    const copy = this.elements.root.querySelector<HTMLElement>('[data-geo-attribution-copy]')
+    const link = this.elements.root.querySelector<HTMLAnchorElement>('[data-geo-attribution-link]')
+    if (title === null || copy === null || link === null) return
+    title.textContent = preset === undefined ? 'Custom source' : 'Source'
+    copy.textContent =
+      preset?.attribution ??
+      `${url.hostname}. Check the publisher's source and license terms before reuse.`
+    link.href = preset?.attributionUrl ?? url.href
+    link.textContent = preset === undefined ? 'Open source' : 'Source information'
   }
 
   open(preset?: GeoPreset): void {
@@ -287,6 +403,8 @@ class GeoLab {
     )) {
       element.textContent = sourceProvider
     }
+    this.#updateAttribution(url, preset)
+    updateAnalysisContext(this)
     this.#setStatus(`Opening ${sourceTitle} metadata…`, 'loading')
     this.#showLoading(
       `Opening ${sourceTitle}`,
@@ -317,6 +435,10 @@ class GeoLab {
 
   #opened(metadata: GeoDemoMetadata, telemetry: GeoDemoTelemetry): void {
     this.metadata = metadata
+    this.#displaySummary = 'Auto contrast pending'
+    this.#visibleDataRegion = undefined
+    const bandAxis = metadata.axes.find((axis) => axis.kind === 'band')
+    const bandCount = bandAxis?.length ?? metadata.bands.length
     const firstLevel =
       metadata.levels.find((level) => level.id === this.#preset?.initialLevelId) ??
       metadata.levels[0]
@@ -330,8 +452,19 @@ class GeoLab {
       band: 0,
       time: 0,
       vertical: 0,
-      region: this.#regionFor(firstLevel, this.#preset?.center === true),
+      region: this.#regionFor(
+        firstLevel,
+        this.#preset?.center === true,
+        this.#preset?.initialX,
+        this.#preset?.initialY,
+      ),
       ...(initialDisplayBands === undefined ? {} : { displayBands: initialDisplayBands }),
+      ...(this.#preset?.normalizedDifferenceBands === undefined
+        ? {}
+        : { normalizedDifferenceBands: this.#preset.normalizedDifferenceBands }),
+      ...(this.#preset?.terrainBand === undefined && bandCount !== 1
+        ? {}
+        : { terrainBand: this.#preset?.terrainBand ?? 0 }),
     }
     setOptions(
       this.elements.dataset,
@@ -346,8 +479,6 @@ class GeoLab {
     )
     this.elements.dataset.value = metadata.datasetId
     this.elements.level.value = firstLevel.id
-    const bandAxis = metadata.axes.find((axis) => axis.kind === 'band')
-    const bandCount = bandAxis?.length ?? metadata.bands.length
     setOptions(
       this.elements.band,
       Array.from({ length: Math.max(1, bandCount) }, (_, index) => ({
@@ -377,11 +508,15 @@ class GeoLab {
       !(colors.has('nir') && colors.has('red') && colors.has('green'))
     this.elements.mode.value = mode
     this.#facts(metadata)
+    this.#updateViewportControls()
+    this.#lastTelemetry = undefined
     this.#telemetry(telemetry)
     this.render(
       'Loading the first viewport',
       `Metadata ready after ${telemetry.metadataRequests.toLocaleString()} requests. Reading level ${firstLevel.id}`,
+      true,
     )
+    updateAnalysisContext(this)
     this.onState?.()
   }
 
@@ -391,14 +526,102 @@ class GeoLab {
     return undefined
   }
 
-  #regionFor(level: Readonly<{ width: number; height: number }>, center: boolean): GeoDemoRegion {
-    const width = Math.min(512, level.width)
-    const height = Math.min(384, level.height)
+  #regionFor(
+    level: Readonly<{ width: number; height: number }>,
+    center: boolean,
+    initialX?: number,
+    initialY?: number,
+  ): GeoDemoRegion {
+    const width = Math.min(maximumViewportWidth, level.width)
+    const height = Math.min(maximumViewportHeight, level.height)
     return {
-      x: center ? Math.max(0, Math.floor((level.width - width) / 2)) : 0,
-      y: center ? Math.max(0, Math.floor((level.height - height) / 2)) : 0,
+      x: Math.min(
+        level.width - width,
+        initialX ?? (center ? Math.max(0, Math.floor((level.width - width) / 2)) : 0),
+      ),
+      y: Math.min(
+        level.height - height,
+        initialY ?? (center ? Math.max(0, Math.floor((level.height - height) / 2)) : 0),
+      ),
       width,
       height,
+    }
+  }
+
+  #regionAtCenter(
+    sourceLevel: GeoDemoLevel,
+    sourceRegion: GeoDemoRegion,
+    targetLevel: GeoDemoLevel,
+    requestedWidth: number,
+    requestedHeight: number,
+  ): GeoDemoRegion {
+    const width = Math.max(
+      1,
+      Math.min(maximumViewportWidth, targetLevel.width, Math.round(requestedWidth)),
+    )
+    const height = Math.max(
+      1,
+      Math.min(maximumViewportHeight, targetLevel.height, Math.round(requestedHeight)),
+    )
+    const normalizedCenterX = (sourceRegion.x + sourceRegion.width / 2) / sourceLevel.width
+    const normalizedCenterY = (sourceRegion.y + sourceRegion.height / 2) / sourceLevel.height
+    return {
+      x: Math.max(
+        0,
+        Math.min(
+          targetLevel.width - width,
+          Math.round(normalizedCenterX * targetLevel.width - width / 2),
+        ),
+      ),
+      y: Math.max(
+        0,
+        Math.min(
+          targetLevel.height - height,
+          Math.round(normalizedCenterY * targetLevel.height - height / 2),
+        ),
+      ),
+      width,
+      height,
+    }
+  }
+
+  #zoomTarget(
+    factor: number,
+  ): { readonly level: GeoDemoLevel; readonly region: GeoDemoRegion } | undefined {
+    const current = this.selection
+    const levels = this.metadata?.levels
+    if (current === undefined || levels === undefined) return undefined
+    const currentIndex = levels.findIndex((entry) => entry.id === current.levelId)
+    const currentLevel = levels[currentIndex]
+    if (currentIndex < 0 || currentLevel === undefined) return undefined
+
+    const adjacentIndex = factor < 1 ? currentIndex - 1 : currentIndex + 1
+    const adjacentLevel = levels[adjacentIndex]
+    const anchorRegion = factor < 1 ? (this.#visibleDataRegion ?? current.region) : current.region
+    if (adjacentLevel !== undefined) {
+      return {
+        level: adjacentLevel,
+        region: this.#regionAtCenter(
+          currentLevel,
+          anchorRegion,
+          adjacentLevel,
+          current.region.width,
+          current.region.height,
+        ),
+      }
+    }
+
+    const width =
+      factor < 1
+        ? Math.max(minimumViewportDimension, Math.round(current.region.width * factor))
+        : Math.min(maximumViewportWidth, Math.round(current.region.width * factor))
+    const height =
+      factor < 1
+        ? Math.max(minimumViewportDimension, Math.round(current.region.height * factor))
+        : Math.min(maximumViewportHeight, Math.round(current.region.height * factor))
+    return {
+      level: currentLevel,
+      region: this.#regionAtCenter(currentLevel, anchorRegion, currentLevel, width, height),
     }
   }
 
@@ -433,6 +656,11 @@ class GeoLab {
         activeLevel === undefined
           ? undefined
           : `${activeLevel.id}: ${activeLevel.width.toLocaleString()} × ${activeLevel.height.toLocaleString()}`,
+      viewport:
+        this.selection === undefined
+          ? undefined
+          : `x ${this.selection.region.x.toLocaleString()} · y ${this.selection.region.y.toLocaleString()} · ${this.selection.region.width.toLocaleString()} × ${this.selection.region.height.toLocaleString()}`,
+      display: this.#displaySummary,
       zarrVersion: metadata.zarrVersion,
       conventions: metadata.conventions?.join('\n'),
       axes: metadata.axes.map((axis) => `${axis.id}:${axis.length}`).join(', '),
@@ -464,22 +692,102 @@ class GeoLab {
     )) {
       element.textContent = values[element.dataset.geoTelemetry ?? ''] ?? 'n/a'
     }
+    this.#lastTelemetry = value
   }
 
   render(
     title = 'Reading the selected viewport',
     detail = 'Requesting only the pixels needed for the visible region',
+    showImmediately = false,
   ): void {
     if (this.selection === undefined) return
     this.#setStatus('Reading only the selected viewport…', 'loading')
     const region = this.selection.region
-    this.#showLoading(
-      title,
-      `${detail} · ${region.width.toLocaleString()} × ${region.height.toLocaleString()} pixels`,
-      this.metadata !== undefined,
-    )
+    const loadingDetail = `${detail} · ${region.width.toLocaleString()} × ${region.height.toLocaleString()} pixels`
+    if (showImmediately) this.#showLoading(title, loadingDetail, this.metadata !== undefined)
+    else this.#showLoadingAfterDelay(title, loadingDetail, this.metadata !== undefined)
     this.#latestPrimaryRequest = this.#send({ kind: 'render', selection: this.selection })
     this.onActivate?.(this)
+  }
+
+  #updateViewportControls(): void {
+    const current = this.selection
+    const level = this.metadata?.levels.find((entry) => entry.id === current?.levelId)
+    if (current === undefined || level === undefined) return
+    const atLeft = current.region.x === 0
+    const atTop = current.region.y === 0
+    const atRight = current.region.x + current.region.width === level.width
+    const atBottom = current.region.y + current.region.height === level.height
+    const boundaries: Readonly<Record<string, boolean>> = {
+      left: atLeft,
+      right: atRight,
+      up: atTop,
+      down: atBottom,
+    }
+    for (const button of this.elements.root.querySelectorAll<HTMLButtonElement>('[data-pan]')) {
+      const direction = button.dataset.pan ?? ''
+      button.disabled = boundaries[direction] === true
+      button.title = button.disabled ? `${direction} edge reached` : `Pan ${direction}`
+    }
+    for (const button of this.elements.root.querySelectorAll<HTMLButtonElement>('[data-zoom]')) {
+      const zoomingIn = button.dataset.zoom === 'in'
+      const target = this.#zoomTarget(zoomingIn ? 0.5 : 2)
+      const unchanged =
+        target === undefined ||
+        (target.level.id === current.levelId && sameRegion(target.region, current.region))
+      button.disabled = unchanged
+      button.title = button.disabled
+        ? zoomingIn
+          ? 'Maximum zoom reached'
+          : 'Full overview is visible'
+        : target?.level.id !== current.levelId
+          ? `${zoomingIn ? 'Zoom in' : 'Zoom out'} with overview ${target?.level.id}`
+          : zoomingIn
+            ? 'Zoom in'
+            : 'Zoom out'
+    }
+  }
+
+  #applyRegion(
+    region: GeoDemoRegion,
+    noChangeMessage: string,
+    levelId = this.selection?.levelId,
+  ): boolean {
+    const current = this.selection
+    if (current === undefined || levelId === undefined) return false
+    if (current.levelId === levelId && sameRegion(current.region, region)) {
+      this.#setStatus(noChangeMessage, 'ready')
+      this.#hideLoading()
+      this.#updateViewportControls()
+      return false
+    }
+    const levelChanged = current.levelId !== levelId
+    this.selection = { ...current, levelId, region }
+    this.elements.level.value = levelId
+    if (this.metadata !== undefined) this.#facts(this.metadata)
+    this.#updateViewportControls()
+    setActiveAnalysis(undefined)
+    this.render(
+      levelChanged ? `Loading overview ${levelId}` : 'Reading the selected viewport',
+      levelChanged
+        ? 'Keeping the same map center while changing source resolution'
+        : 'Requesting only the pixels needed for the visible region',
+    )
+    return true
+  }
+
+  analysisContext(): string {
+    return (
+      this.#preset?.analysisContext ??
+      'Analysis uses the selected band. Normalized difference uses the first and third available bands.'
+    )
+  }
+
+  canAnalyze(analysis: GeoAnalysisKind): boolean {
+    if (this.selection === undefined || this.metadata === undefined) return false
+    if (analysis !== 'normalized-difference') return true
+    const bandAxis = this.metadata.axes.find((axis) => axis.kind === 'band')
+    return (bandAxis?.length ?? this.metadata.bands.length) >= 2
   }
 
   #draw(width: number, height: number, rgba: Uint8ClampedArray): void {
@@ -503,14 +811,32 @@ class GeoLab {
     if (message.kind === 'opened') this.#opened(message.metadata, message.telemetry)
     else if (message.kind === 'frame') {
       this.#draw(message.width, message.height, message.rgba)
+      this.#visibleDataRegion = message.dataRegion
+      const range = message.displayRanges[0]
+      this.#displaySummary =
+        message.noDataPixels === message.width * message.height
+          ? 'No data in this viewport'
+          : message.displayRanges.length === 1 && range !== undefined
+            ? `Auto contrast ${formatDisplayValue(range[0])}–${formatDisplayValue(range[1])}${message.noDataPixels > 0 ? ` · ${message.noDataPixels.toLocaleString()} nodata hidden` : ''}`
+            : `Auto contrast · ${message.displayRanges.length.toLocaleString()} bands`
+      if (this.metadata !== undefined) this.#facts(this.metadata)
+      const previousTelemetry = this.#lastTelemetry
       this.#telemetry(message.telemetry)
+      const overview = this.selection?.levelId ?? '?'
       this.#setStatus(
-        'Viewport ready. Drag, use arrow keys, or zoom to request another bounded region.',
+        message.noDataPixels === message.width * message.height
+          ? 'No raster data in this viewport. Pan or zoom out to find coverage.'
+          : previousTelemetry !== undefined &&
+              message.telemetry.dataRequests === previousTelemetry.dataRequests &&
+              message.telemetry.transferredBytes === previousTelemetry.transferredBytes
+            ? `Overview ${overview} ready from cache. No network transfer was needed.`
+            : `Overview ${overview} ready at ${message.width.toLocaleString()} × ${message.height.toLocaleString()} pixels. Drag, use arrow keys, or zoom to continue.`,
         'ready',
       )
       this.#hideLoading()
       this.elements.open.disabled = false
       this.elements.cancel.disabled = true
+      this.#updateViewportControls()
       this.onState?.()
     } else if (message.kind === 'analysis') {
       if (
@@ -519,10 +845,13 @@ class GeoLab {
         message.height !== undefined
       ) {
         this.#draw(message.width, message.height, message.rgba)
+        this.#displaySummary = `${analysisDisplayName(message.analysis)} result`
+        if (this.metadata !== undefined) this.#facts(this.metadata)
       }
       this.#telemetry(message.telemetry)
       required('geo-analysis-output', HTMLElement).textContent = message.summary
       this.#setStatus('Bounded analysis complete.', 'ready')
+      setActiveAnalysis(message.analysis)
       this.#hideLoading()
     } else if (message.kind === 'sample') {
       this.elements.sample.textContent = `Pixel ${this.#lastPointer?.x.toFixed(1) ?? '?'}, ${this.#lastPointer?.y.toFixed(1) ?? '?'} · world ${message.world[0].toFixed(3)}, ${message.world[1].toFixed(3)} · sample ${message.values.map((value) => value.toFixed(3)).join(', ')}`
@@ -533,6 +862,11 @@ class GeoLab {
       this.elements.cancel.disabled = true
     } else if (message.kind === 'error') {
       this.#setStatus(message.message, 'error')
+      if (message.requestId === this.#latestAnalysisRequest) {
+        required('geo-analysis-output', HTMLElement).textContent =
+          `Analysis could not run. ${message.message}`
+        setActiveAnalysis(undefined)
+      }
       this.#hideLoading()
       this.elements.open.disabled = false
       this.elements.cancel.disabled = true
@@ -573,10 +907,20 @@ class GeoLab {
       time: Number(this.elements.time.value),
       vertical: Number(this.elements.vertical.value),
       mode,
-      region: levelChanged ? this.#regionFor(level, this.#preset?.center === true) : current.region,
+      region: levelChanged
+        ? this.#regionAtCenter(
+            metadata.levels.find((entry) => entry.id === current.levelId) ?? level,
+            current.region,
+            level,
+            current.region.width,
+            current.region.height,
+          )
+        : current.region,
       ...(mappedBands === undefined ? {} : { displayBands: mappedBands }),
     }
     this.#facts(metadata)
+    this.#updateViewportControls()
+    setActiveAnalysis(undefined)
     this.render()
   }
 
@@ -588,35 +932,25 @@ class GeoLab {
     const stepY = Math.max(1, Math.floor(current.region.height / 4))
     const dx = direction === 'left' ? -stepX : direction === 'right' ? stepX : 0
     const dy = direction === 'up' ? -stepY : direction === 'down' ? stepY : 0
-    this.selection = {
-      ...current,
-      region: {
-        ...current.region,
-        x: Math.max(0, Math.min(level.width - current.region.width, current.region.x + dx)),
-        y: Math.max(0, Math.min(level.height - current.region.height, current.region.y + dy)),
-      },
+    const region = {
+      ...current.region,
+      x: Math.max(0, Math.min(level.width - current.region.width, current.region.x + dx)),
+      y: Math.max(0, Math.min(level.height - current.region.height, current.region.y + dy)),
     }
-    this.render()
+    this.#applyRegion(region, `${direction} edge reached. The viewport is unchanged.`)
   }
 
   zoom(factor: number): void {
     const current = this.selection
-    const level = this.metadata?.levels.find((entry) => entry.id === current?.levelId)
-    if (current === undefined || level === undefined) return
-    const width = Math.max(4, Math.min(level.width, Math.round(current.region.width * factor)))
-    const height = Math.max(4, Math.min(level.height, Math.round(current.region.height * factor)))
-    const centerX = current.region.x + current.region.width / 2
-    const centerY = current.region.y + current.region.height / 2
-    this.selection = {
-      ...current,
-      region: {
-        x: Math.max(0, Math.min(level.width - width, Math.round(centerX - width / 2))),
-        y: Math.max(0, Math.min(level.height - height, Math.round(centerY - height / 2))),
-        width,
-        height,
-      },
-    }
-    this.render()
+    const target = this.#zoomTarget(factor)
+    if (current === undefined || target === undefined) return
+    this.#applyRegion(
+      target.region,
+      factor < 1
+        ? 'Maximum zoom reached. The viewport is unchanged.'
+        : 'The full overview is visible.',
+      target.level.id,
+    )
   }
 
   #startDrag(event: PointerEvent): void {
@@ -638,21 +972,18 @@ class GeoLab {
     const dy = Math.round((this.#dragStart.clientY - event.clientY) * scaleY)
     const level = this.metadata?.levels.find((entry) => entry.id === this.selection?.levelId)
     if (level !== undefined) {
-      this.selection = {
-        ...this.selection,
-        region: {
-          ...this.selection.region,
-          x: Math.max(
-            0,
-            Math.min(level.width - this.selection.region.width, this.#dragStart.region.x + dx),
-          ),
-          y: Math.max(
-            0,
-            Math.min(level.height - this.selection.region.height, this.#dragStart.region.y + dy),
-          ),
-        },
+      const region = {
+        ...this.selection.region,
+        x: Math.max(
+          0,
+          Math.min(level.width - this.selection.region.width, this.#dragStart.region.x + dx),
+        ),
+        y: Math.max(
+          0,
+          Math.min(level.height - this.selection.region.height, this.#dragStart.region.y + dy),
+        ),
       }
-      this.render()
+      this.#applyRegion(region, 'Viewport unchanged. Drag farther to move the raster.')
     }
     this.#dragStart = undefined
   }
@@ -710,6 +1041,7 @@ class GeoLab {
       return
     }
     required('geo-analysis-output', HTMLElement).textContent = 'Running bounded analysis…'
+    setActiveAnalysis(analysis)
     this.#setStatus('Running bounded viewport analysis…', 'loading')
     this.#showLoading(
       'Analyzing the current viewport',
@@ -721,14 +1053,46 @@ class GeoLab {
       analysis,
       selection: this.selection,
     })
+    this.#latestAnalysisRequest = this.#latestPrimaryRequest
   }
 
   close(): void {
     if (this.#sampleFrame !== undefined) window.cancelAnimationFrame(this.#sampleFrame)
     if (this.#loadingTimer !== undefined) window.clearInterval(this.#loadingTimer)
+    if (this.#loadingDelayTimer !== undefined) window.clearTimeout(this.#loadingDelayTimer)
     this.#send({ kind: 'close' })
     this.worker.terminate()
     this.elements.root.dataset.worker = 'terminated'
+  }
+}
+
+const analysisButtons = Array.from(
+  document.querySelectorAll<HTMLButtonElement>('[data-geo-analysis]'),
+)
+
+const setActiveAnalysis = (analysis: GeoAnalysisKind | undefined): void => {
+  for (const button of analysisButtons) {
+    button.setAttribute('aria-pressed', String(button.dataset.geoAnalysis === analysis))
+  }
+}
+
+const updateAnalysisContext = (lab: GeoLab): void => {
+  required('geo-analysis-context', HTMLElement).textContent = lab.analysisContext()
+  for (const button of analysisButtons) {
+    const analysis = button.dataset.geoAnalysis
+    if (
+      analysis !== 'normalized-difference' &&
+      analysis !== 'hillshade' &&
+      analysis !== 'statistics' &&
+      analysis !== 'line-profile'
+    )
+      continue
+    button.disabled = !lab.canAnalyze(analysis)
+    button.title = button.disabled
+      ? analysis === 'normalized-difference'
+        ? 'This source needs at least two bands'
+        : 'Open a raster first'
+      : ''
   }
 }
 
@@ -738,11 +1102,15 @@ let activeLab = cog
 for (const lab of [cog, geozarr]) {
   lab.onActivate = (value) => {
     activeLab = value
+    updateAnalysisContext(value)
   }
-  lab.onState = () => updateCode()
+  lab.onState = () => {
+    updateCode()
+    updateAnalysisContext(lab)
+  }
 }
 
-for (const button of document.querySelectorAll<HTMLButtonElement>('[data-geo-analysis]')) {
+for (const button of analysisButtons) {
   button.addEventListener('click', () => {
     const analysis = button.dataset.geoAnalysis
     if (
@@ -845,14 +1213,22 @@ const updateCode = (): void => {
 }
 updateCode()
 required('geo-copy-code', HTMLButtonElement).addEventListener('click', async (event) => {
-  await copyText(codeText())
   const button = event.currentTarget
-  if (button instanceof HTMLButtonElement) {
+  if (!(button instanceof HTMLButtonElement)) return
+  try {
+    await copyText(codeText())
     button.textContent = 'Copied'
-    window.setTimeout(() => {
-      button.textContent = 'Copy TypeScript'
-    }, 1_200)
+  } catch {
+    const selection = window.getSelection()
+    const range = document.createRange()
+    range.selectNodeContents(code)
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+    button.textContent = 'Code selected'
   }
+  window.setTimeout(() => {
+    button.textContent = 'Copy'
+  }, 1_200)
 })
 
 const matrixRows = Array.from(

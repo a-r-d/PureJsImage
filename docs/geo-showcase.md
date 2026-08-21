@@ -30,12 +30,29 @@ The featured COG is the `N082E280_2019_6IN_cog.tif` leaf-off ortho from Kentucky
 10,000 by 10,000 pixel, four-band, seven-level JPEG COG in EPSG:3089. The Kentucky Division of
 Geographic Information publishes the source under CC BY 4.0. The preset uses the documented Atlas
 display mappings: RGB bands `[0, 1, 2]` and color infrared bands `[3, 0, 1]`. The demo does not infer
-an NIR band from component count. The page opens this source automatically at overview level 4.
+an NIR band from component count. Normalized difference uses the curated NIR and red pair. The page
+opens this source automatically at overview level 3 so the first viewport has room to pan.
+
+The terrain preset is a public-domain U.S. Geological Survey 3DEP 1 metre DEM for Grand Canyon
+National Park. It is a 10,012 by 10,012 pixel, single-band Float32 COG with six levels in EPSG:26912.
+The preset opens a populated part of level 3 and identifies band 1 as metre elevation for Hillshade,
+statistics, and line profiles. Normalized difference is disabled because the source has one band.
+The initial elevation preview applies viewport-local auto contrast after excluding the DEM nodata
+sentinel. The visible display badge reports the active elevation range and the number of hidden
+nodata pixels, so a valid terrain read cannot collapse into an unexplained white canvas.
+Zooming in follows the visible data footprint when the current overview includes empty coverage.
+An intentionally empty pan is rendered in a dark neutral color and reports that the viewport has no
+data instead of looking like a successful blank image.
 
 The viewport uses an indeterminate progress indicator because one bounded GeoTIFF region read does
 not expose false byte-level completion percentages. It reports the current metadata, viewport, or
 analysis stage, elapsed time, and a visible Cancel action. Existing imagery remains visible while a
 new viewport is being read.
+
+Cached reads wait briefly before showing the loading overlay, which avoids a flash for work that
+finishes immediately. The status says when a viewport came from cache without network transfer.
+Pan and zoom controls become disabled at their boundary, and keyboard or drag attempts that cannot
+move the viewport report that no change occurred without starting another worker read.
 
 The GeoZarr public preset is Pangeo's TCI pyramid on Source Cooperative. That store currently uses
 newer v1 convention metadata. The package's v0.1 reader reports the unsupported transform boundary
@@ -43,7 +60,8 @@ instead of claiming compatibility from a successful metadata response. Public so
 
 ## Limits and failure behavior
 
-- A viewport or analysis operation admits at most 196,608 decoded pixels.
+- A viewport or analysis output admits at most 196,608 decoded pixels. Hillshade may read a
+  one-pixel source border around that output, up to 198,404 pixels, to calculate edge gradients.
 - The showcase admits range-backed TIFF objects up to 256 MiB and keeps decoded-region limits
   separate from the remote object size.
 - The browser sends remote requests directly. There is no arbitrary server proxy.

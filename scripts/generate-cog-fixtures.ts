@@ -12,6 +12,7 @@ interface GeoFixture {
   readonly kind: 'north-up' | 'rotated'
   readonly pixelIsPoint?: boolean
   readonly nodata?: string
+  readonly omitModelTransform?: boolean
 }
 
 interface LevelFixture {
@@ -96,6 +97,7 @@ const fixtures: readonly CogFixture[] = [
         tileHeight: 8,
         samples: 3,
         compression: 8,
+        geo: { kind: 'rotated', omitModelTransform: true },
       },
     ],
   },
@@ -359,18 +361,20 @@ const geoEntries = (geo: GeoFixture | undefined): readonly Entry[] => {
     0,
   ]
   const modelEntries: readonly Entry[] =
-    geo.kind === 'north-up'
-      ? [
-          { tag: 33550, type: 12, values: [2, 2, 0] },
-          { tag: 33922, type: 12, values: [0, 0, 0, 500_000, 4_500_000, 0] },
-        ]
-      : [
-          {
-            tag: 34264,
-            type: 12,
-            values: [2, 0.5, 0, 100, -0.25, -2, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
-          },
-        ]
+    geo.omitModelTransform === true
+      ? []
+      : geo.kind === 'north-up'
+        ? [
+            { tag: 33550, type: 12, values: [2, 2, 0] },
+            { tag: 33922, type: 12, values: [0, 0, 0, 500_000, 4_500_000, 0] },
+          ]
+        : [
+            {
+              tag: 34264,
+              type: 12,
+              values: [2, 0.5, 0, 100, -0.25, -2, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1],
+            },
+          ]
   return [
     ...modelEntries,
     { tag: 34735, type: 3, values: keyDirectory },

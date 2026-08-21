@@ -741,7 +741,7 @@ const inspectLevel = async (
     format: decoder.format,
     ...(spatialReference.value === undefined ? {} : { spatialReference: spatialReference.value }),
     ...(spatialReference.profile === undefined ? {} : { geoTiffProfile: spatialReference.profile }),
-    georeferencing: spatialReference.profile === undefined ? 'none' : 'explicit',
+    georeferencing: spatialReference.value?.pixelToModel === undefined ? 'none' : 'explicit',
     ...(spatialReference.warning === undefined
       ? {}
       : { spatialReferenceWarning: spatialReference.warning }),
@@ -815,7 +815,7 @@ const describePage = async (
   if (base.spatialReference !== undefined) {
     for (let level = 1; level < levels.length; level += 1) {
       const selected = levels[level]
-      if (selected === undefined || selected.spatialReference !== undefined) continue
+      if (selected === undefined || selected.spatialReference?.pixelToModel !== undefined) continue
       levels[level] = Object.freeze({
         ...selected,
         georeferencing: 'derived',
