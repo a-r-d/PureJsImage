@@ -1,4 +1,4 @@
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import {
   geoCapabilityIds,
@@ -166,15 +166,18 @@ const expectationsJson = (manifest: GeoCapabilityManifest): string =>
 
 const manifest = await readGeoCapabilityManifest()
 for (const item of manifest.evidence) {
-  await access(item.path).catch(() => {
-    throw new Error(`Geo capability evidence does not exist: ${item.path}`)
-  })
   if (item.kind === 'test') {
-    const contents = await readFile(item.path, 'utf8')
+    const contents = await readFile(item.path, 'utf8').catch(() => {
+      throw new Error(`Geo capability evidence does not exist: ${item.path}`)
+    })
     if (!/(?:describe|test)\s*\(/.test(contents)) {
       throw new Error(`Geo test evidence contains no test declaration: ${item.path}`)
     }
+    continue
   }
+  await stat(item.path).catch(() => {
+    throw new Error(`Geo capability evidence does not exist: ${item.path}`)
+  })
 }
 
 const outputs = new Map<string, string>()

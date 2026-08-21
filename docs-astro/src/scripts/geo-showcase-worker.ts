@@ -658,7 +658,17 @@ const selectDataset = async (requestId: number, datasetId: string): Promise<void
   })
 }
 
+const isTrustedMessageOrigin = (origin: string): boolean => {
+  if (origin === '' || origin === 'null') return true
+  try {
+    return new URL(origin).origin === self.location.origin
+  } catch {
+    return false
+  }
+}
+
 self.addEventListener('message', (event: MessageEvent<GeoDemoWorkerRequest>) => {
+  if (!isTrustedMessageOrigin(event.origin)) return
   const request = event.data
   void (async () => {
     try {
