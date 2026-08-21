@@ -95,6 +95,11 @@
     ]
   },
   "sizes": {
+    "allGeoReaders": {
+      "brotliBytes": 153638,
+      "gzipBytes": 189823,
+      "minifiedBytes": 626956
+    },
     "allReaders": {
       "brotliBytes": 290892,
       "gzipBytes": 364781,
@@ -115,8 +120,13 @@
       "gzipBytes": 19448,
       "minifiedBytes": 61435
     },
+    "geoPlatform": {
+      "brotliBytes": 32166,
+      "gzipBytes": 37625,
+      "minifiedBytes": 138715
+    },
     "installedPackage": {
-      "bytes": 6594816,
+      "bytes": 6594930,
       "productionPackageCount": 1
     },
     "packageVersion": "0.15.0",

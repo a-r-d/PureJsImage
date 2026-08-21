@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.15.0",
-    "unpackedPackageBytes": 6594816,
+    "unpackedPackageBytes": 6594930,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -545,6 +545,36 @@
       "name": "Core + scientific platform",
       "recordedBaselineMinifiedBytes": 143546,
       "brotliBytes": 40170
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 181000,
+      "entry": {
+        "packageExports": ["purejsimage/geo"],
+        "sourceEntries": ["./src/geo/index.ts"]
+      },
+      "gzipBytes": 37625,
+      "id": "geo",
+      "implementation": "package-core",
+      "minifiedJsBytes": 138715,
+      "name": "Geo raster platform",
+      "recordedBaselineMinifiedBytes": 138715,
+      "brotliBytes": 32166
+    },
+    {
+      "category": "purejsimage-entry",
+      "configuredCeilingMinifiedBytes": 816000,
+      "entry": {
+        "packageExports": ["purejsimage/geo/readers/all"],
+        "sourceEntries": ["./src/geo/readers/all.ts"]
+      },
+      "gzipBytes": 189823,
+      "id": "geo-readers-all",
+      "implementation": "package-core",
+      "minifiedJsBytes": 626956,
+      "name": "Geo readers: all",
+      "recordedBaselineMinifiedBytes": 626956,
+      "brotliBytes": 153638
     },
     {
       "category": "purejsimage-entry",

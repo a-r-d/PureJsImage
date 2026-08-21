@@ -12,6 +12,8 @@ export interface BundleSizeBudget {
 export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 60 * 1024 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 187_000 },
+  geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
+  'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
   'scientific-reader-gsf': { baselineMinifiedBytes: 37_864, maxMinifiedBytes: 50_000 },
   'scientific-reader-envi': { baselineMinifiedBytes: 56_958, maxMinifiedBytes: 75_000 },
   'scientific-reader-fits': { baselineMinifiedBytes: 44_278, maxMinifiedBytes: 60_000 },
