@@ -155,6 +155,7 @@ const isNumericSampleType = (value: string): value is NumericSampleType =>
   value === 'int8' ||
   value === 'int16' ||
   value === 'int32' ||
+  value === 'int64' ||
   value === 'float32' ||
   value === 'float64'
 
@@ -267,7 +268,7 @@ export const numericSampleBytes = (sampleType: NumericSampleType): number =>
     ? 1
     : sampleType === 'uint16' || sampleType === 'int16'
       ? 2
-      : sampleType === 'float64' || sampleType === 'uint64'
+      : sampleType === 'float64' || sampleType === 'uint64' || sampleType === 'int64'
         ? 8
         : 4
 

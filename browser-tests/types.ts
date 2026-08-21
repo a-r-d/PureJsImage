@@ -47,6 +47,9 @@ export interface BrowserCompatibilityHarness {
   avifYuv422(): Promise<BrowserWorkflowResult>
   avifYuv444(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>
+  geoZarrRaster(): Promise<BrowserWorkflowResult>
+  geoNetCdfRaster(): Promise<BrowserWorkflowResult>
+  worldFileRaster(): Promise<BrowserWorkflowResult>
   heifPqDisplay(): Promise<BrowserWorkflowResult>
   hdf5DatasetBlocks(): Promise<BrowserWorkflowResult>
   hdf5Filters(): Promise<BrowserWorkflowResult>

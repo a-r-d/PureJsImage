@@ -1,0 +1,132 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+import geoCapabilityManifest from '../data/geo-capabilities.json'
+
+const geoCapabilities = geoCapabilityManifest
+
+const stateLabels: Readonly<Record<string, string>> = {
+  tested: 'Tested',
+  limited: 'Fixture-limited',
+  metadata: 'Metadata only',
+  unsupported: 'Unsupported',
+  none: 'Unavailable',
+  'out-of-scope': 'Out of scope',
+}
+const enabled = (state: string | undefined): boolean =>
+  state === 'tested' || state === 'limited' || state === 'metadata'
+const rowCapabilities = (format: (typeof geoCapabilities.formats)[number]): string => {
+  const tokens = ['read']
+  if (enabled(format.states['local-open'])) tokens.push('local')
+  if (enabled(format.states['remote-open'])) tokens.push('remote')
+  if (enabled(format.states.multiscale)) tokens.push('multiscale')
+  if (enabled(format.states['time-dimension']) || enabled(format.states['vertical-dimension']))
+    tokens.push('multidimensional')
+  if (enabled(format.states.reprojection)) tokens.push('reprojection')
+  if (enabled(format.states.writer)) tokens.push('write')
+  const values = Object.values(format.states)
+  if (values.includes('tested')) tokens.push('state-tested')
+  if (values.includes('limited') || values.includes('metadata')) tokens.push('state-partial')
+  if (values.includes('unsupported') || values.includes('none') || values.includes('out-of-scope'))
+    tokens.push('state-unsupported')
+  return tokens.join(' ')
+}
+const cogFacts = [
+  ['format', 'Format'],
+  ['container', 'TIFF container'],
+  ['byteOrder', 'Byte order'],
+  ['dimensions', 'Dimensions'],
+  ['tileDimensions', 'Tile layout'],
+  ['compression', 'Compression'],
+  ['sampleType', 'Sample type'],
+  ['crs', 'CRS'],
+  ['affine', 'Affine'],
+  ['bounds', 'Bounds'],
+  ['registration', 'Registration'],
+  ['levels', 'IFD / SubIFD levels'],
+  ['activeLevel', 'Active overview'],
+] as const
+const zarrFacts = [
+  ['zarrVersion', 'Zarr version'],
+  ['conventions', 'GeoZarr conventions'],
+  ['dimensions', 'Dimensions'],
+  ['axes', 'Non-spatial dimensions'],
+  ['crs', 'CRS'],
+  ['affine', 'Affine'],
+  ['registration', 'Registration'],
+  ['levels', 'Levels'],
+  ['activeLevel', 'Active level'],
+  ['chunkShape', 'Logical chunk shape'],
+  ['shardShape', 'Outer shard shape'],
+  ['codecs', 'Codecs'],
+] as const
+const telemetryFacts = [
+  ['metadataRequests', 'Metadata requests'],
+  ['dataRequests', 'Tile, chunk, or shard requests'],
+  ['transferredBytes', 'Transferred bytes'],
+  ['uniqueBytes', 'Unique source bytes'],
+  ['cacheHits', 'Cache hits'],
+  ['coalesced', 'Coalesced reads'],
+  ['cancelled', 'Cancelled reads'],
+  ['percentage', 'Unique source bytes read'],
+] as const
+---
+
+<SiteLayout title="Geo raster browser labs | PureJsImage" description="Open COG and GeoZarr rasters directly in the browser, inspect selective range access, run bounded analysis, and verify generated geo capabilities." canonical="https://purejsimage.com/geo/" current="geo/">
+  <main id="main">
+    <header class="page-hero"><div class="container">
+      <p class="eyebrow">Public package capability showcase</p><h1>Geo rasters, read where they live.</h1>
+      <p class="page-lede">Open a Cloud Optimized GeoTIFF or GeoZarr store directly in your browser. Each lab shows the source requests, bytes, cache activity, grid, and level selected by the package.</p>
+      <div class="page-meta"><span class="pill">No upload server</span><span class="pill">No API key</span><span class="pill">Bounded viewport reads</span><span class="pill">Worker decoding</span></div>
+      <p class="geo-boundary-note">This page demonstrates <code>purejsimage/geo</code>. For complete application workflows, use <a href="https://geo.purejsimage.com/">PureJsImage Atlas</a>.</p>
+    </div></header>
+
+    <div class="container content geo-content">
+      <section id="quick-answer"><h2>Quick Answer</h2><p>PureJsImage reads selected GeoTIFF tiles and Zarr chunks through public browser-safe sources. It keeps CRS interpretation separate from coordinate transformation and does not proxy arbitrary URLs. Remote sources must permit CORS and expose valid byte-range responses.</p></section>
+
+      <section id="cog-range-lab" class="geo-lab">
+        <div class="geo-section-heading"><div><p class="eyebrow">1. COG Range Lab</p><h2>See every requested byte range.</h2></div><p>Structural diagnostics are evidence, not formal COG certification.</p></div>
+        <div id="cog-lab" class="geo-lab-shell" data-state="idle" data-worker="running">
+          <div class="geo-source-bar"><label for="cog-url">GeoTIFF URL</label><input id="cog-url" type="url" spellcheck="false" autocomplete="url" value="/fixtures/geo/overview-cog.tif" /><button id="cog-open" class="button" type="button">Open</button><button id="cog-cancel" type="button" disabled>Cancel</button></div>
+          <div class="geo-presets" aria-label="COG examples"><button type="button" data-geo-preset="/fixtures/geo/overview-cog.tif">Bundled rotated COG</button><button type="button" data-geo-preset="https://oin-hotosm.s3.amazonaws.com/5d7dad0becaf880008a9bc88/0/5d7dad0becaf880008a9bc89.tif">Public OpenAerialMap COG</button></div>
+          <p class="geo-source-note">Public example: OpenAerialMap imagery hosted by HOT OSM. Compatibility is established only after the reader validates GeoTIFF metadata and completes a bounded pixel read.</p>
+          <div class="geo-controls"><label>Dataset<select id="cog-dataset" disabled><option>Open a source</option></select></label><label>Overview<select id="cog-level" disabled><option>Open a source</option></select></label><label>Band<select id="cog-band" disabled><option>Open a source</option></select></label><label>Time<select id="cog-time" disabled><option>Not present</option></select></label><label>Vertical<select id="cog-vertical" disabled><option>Not present</option></select></label><label>Mapping<select id="cog-mode"><option value="grayscale">Grayscale</option><option value="rgb">RGB</option><option value="cir">CIR</option></select></label></div>
+          <div class="geo-workbench"><div class="geo-canvas-panel">
+            <div class="geo-canvas-toolbar" aria-label="COG viewport controls"><button type="button" data-pan="left" aria-label="Pan left">←</button><button type="button" data-pan="right" aria-label="Pan right">→</button><button type="button" data-pan="up" aria-label="Pan up">↑</button><button type="button" data-pan="down" aria-label="Pan down">↓</button><button type="button" data-zoom="in">Zoom in</button><button type="button" data-zoom="out">Zoom out</button></div>
+            <canvas id="cog-canvas" width="512" height="320" tabindex="0" aria-label="COG raster viewport. Use arrow keys to pan and plus or minus to zoom."></canvas><p id="cog-sample" class="geo-sample" aria-live="polite">Move the pointer over an opened viewport for world coordinates and samples.</p><p id="cog-status" class="geo-status" role="status" aria-live="polite">Choose a deterministic or public source.</p>
+          </div><div class="geo-diagnostics"><h3>Source and grid</h3><dl>{cogFacts.map(([id, label]) => <><dt>{label}</dt><dd data-geo-fact={id}>n/a</dd></>)}</dl><h3>Selective access</h3><dl>{telemetryFacts.map(([id, label]) => <><dt>{label}</dt><dd data-geo-telemetry={id}>0</dd></>)}</dl></div></div>
+        </div>
+      </section>
+
+      <section id="geozarr-cube-lab" class="geo-lab">
+        <div class="geo-section-heading"><div><p class="eyebrow">2. GeoZarr Cube Lab</p><h2>Select dimensions before chunks.</h2></div><p>The store is discovered from declared metadata paths. The browser does not list remote buckets.</p></div>
+        <div id="geozarr-lab" class="geo-lab-shell" data-state="idle" data-worker="running">
+          <div class="geo-source-bar"><label for="geozarr-url">GeoZarr store root</label><input id="geozarr-url" type="url" spellcheck="false" autocomplete="url" value="/fixtures/geo/geozarr-cube/" /><button id="geozarr-open" class="button" type="button">Open</button><button id="geozarr-cancel" type="button" disabled>Cancel</button></div>
+          <div class="geo-presets" aria-label="GeoZarr examples"><button type="button" data-geo-preset="/fixtures/geo/geozarr-cube/">Bundled time/band cube</button><button type="button" data-geo-preset="https://data.source.coop/pangeo/geozarr-examples/TCI.zarr/">Public Source Cooperative GeoZarr</button></div>
+          <p class="geo-source-note">Public example: Pangeo's GeoZarr TCI pyramid on Source Cooperative. It currently uses newer v1 convention metadata. This v0.1 reader reports the unsupported transform boundary instead of claiming compatibility from a successful metadata response.</p>
+          <div class="geo-controls"><label>Dataset<select id="geozarr-dataset" disabled><option>Open a source</option></select></label><label>Level<select id="geozarr-level" disabled><option>Open a source</option></select></label><label>Band<select id="geozarr-band" disabled><option>Open a source</option></select></label><label>Time<select id="geozarr-time" disabled><option>Open a source</option></select></label><label>Vertical<select id="geozarr-vertical" disabled><option>Not present</option></select></label><label>Mapping<select id="geozarr-mode"><option value="grayscale">Grayscale</option><option value="rgb">RGB</option><option value="cir">CIR</option></select></label></div>
+          <div class="geo-workbench"><div class="geo-canvas-panel">
+            <div class="geo-canvas-toolbar" aria-label="GeoZarr viewport controls"><button type="button" data-pan="left" aria-label="Pan left">←</button><button type="button" data-pan="right" aria-label="Pan right">→</button><button type="button" data-pan="up" aria-label="Pan up">↑</button><button type="button" data-pan="down" aria-label="Pan down">↓</button><button type="button" data-zoom="in">Zoom in</button><button type="button" data-zoom="out">Zoom out</button></div>
+            <canvas id="geozarr-canvas" width="512" height="320" tabindex="0" aria-label="GeoZarr raster viewport. Use arrow keys to pan and plus or minus to zoom."></canvas><p id="geozarr-sample" class="geo-sample" aria-live="polite">Move the pointer over an opened viewport for world coordinates and samples.</p><p id="geozarr-status" class="geo-status" role="status" aria-live="polite">Choose a deterministic or public store.</p>
+          </div><div class="geo-diagnostics"><h3>Store and grid</h3><dl>{zarrFacts.map(([id, label]) => <><dt>{label}</dt><dd data-geo-fact={id}>n/a</dd></>)}</dl><h3>Selective access</h3><dl>{telemetryFacts.map(([id, label]) => <><dt>{label}</dt><dd data-geo-telemetry={id}>0</dd></>)}</dl></div></div>
+        </div>
+      </section>
+
+      <section id="raster-analysis" class="geo-analysis-section"><p class="eyebrow">3. Raster Analysis</p><h2>Run package-native operations on the active viewport.</h2><p>Band mapping is controlled in each lab. These operations use the current bounded region and do not request a whole source raster.</p><div class="geo-analysis-actions"><button type="button" data-geo-analysis="normalized-difference">Normalized difference</button><button type="button" data-geo-analysis="hillshade">Hillshade</button><button type="button" data-geo-analysis="statistics">Regional statistics</button><button type="button" data-geo-analysis="line-profile">Line profile</button></div><output id="geo-analysis-output" class="callout">Open a lab, then choose an operation.</output><p>Point sampling is available on both canvases. Grayscale, RGB, and CIR are explicit band mappings.</p></section>
+
+      <section id="api-and-code"><p class="eyebrow">4. API and Code</p><h2>Copy the current bounded read.</h2><p>The example updates after an open, level change, dimension selection, pan, or zoom. It uses documented package subpaths and closes the source document in <code>finally</code>.</p><div class="code-window geo-code-window"><div class="window-bar"><span class="window-title">geo-viewport.ts</span><button id="geo-copy-code" type="button">Copy TypeScript</button></div><pre><code id="geo-code"></code></pre></div><p>Target-grid and reprojection reads use the same <code>GeoTargetGrid</code> contract through <code>purejsimage/geo</code>. Cross-CRS reads require a caller-supplied transform provider.</p></section>
+
+      <section id="capability-matrix"><p class="eyebrow">5. Capability Matrix</p><h2>Generated support, with partial states intact.</h2><p>This table reads the compact manifest generated from executable evidence. Full claim and test references are in <a href="../geo-capabilities.json">geo-capabilities.json</a>.</p>
+        <div class="geo-matrix-filters" aria-label="Capability matrix filters"><label>Format<select data-geo-matrix-filter="format"><option value="">All formats</option>{geoCapabilities.formats.map((format) => <option value={format.id}>{format.name}</option>)}</select></label><label>Access<select data-geo-matrix-filter="access"><option value="">Local or remote</option><option value="local">Local</option><option value="remote">Remote</option></select></label><label>Shape<select data-geo-matrix-filter="shape"><option value="">Any shape</option><option value="multiscale">Multiscale</option><option value="multidimensional">Multidimensional</option></select></label><label>Grid<select data-geo-matrix-filter="grid"><option value="">Any grid</option><option value="reprojection">Reprojection</option></select></label><label>Mode<select data-geo-matrix-filter="mode"><option value="">Read or write</option><option value="read">Read</option><option value="write">Write</option></select></label><label>Evidence<select data-geo-matrix-filter="state"><option value="">Any state</option><option value="state-tested">Tested</option><option value="state-partial">Partial</option><option value="state-unsupported">Unsupported present</option></select></label></div><p id="geo-matrix-count" aria-live="polite">{geoCapabilities.formats.length} formats shown</p>
+        <div class="table-wrap geo-matrix-wrap"><table><thead><tr><th>Format</th>{geoCapabilities.capabilities.map((capability) => <th>{capability.label}</th>)}</tr></thead><tbody>{geoCapabilities.formats.map((format) => <tr data-geo-format-row data-format={format.id} data-capabilities={rowCapabilities(format)}><td><strong>{format.name}</strong><br /><code>{format.publicEntry}</code></td>{geoCapabilities.capabilities.map((capability) => { const state = format.states[capability.id as keyof typeof format.states] ?? 'none'; return <td><span class={`geo-state geo-state-${state}`}>{stateLabels[state] ?? 'Unavailable'}</span></td> })}</tr>)}</tbody></table></div>
+      </section>
+
+      <section id="package-boundaries"><h2>Package scope and safety</h2><ul><li>URLs and source metadata are rendered as text. The client does not inject source HTML.</li><li>The demo permits at most 196,608 decoded viewport pixels per operation.</li><li>Cancellation propagates through range reads, chunk reads, decoding, and analysis.</li><li>CRS metadata does not load a projection engine. Reprojection needs an explicit provider.</li><li>CORS, Range, codec, metadata, grid, and CRS failures retain their source error.</li><li>Public network examples are optional. Required browser tests use deterministic local servers.</li></ul></section>
+    </div>
+  </main>
+  <script type="module" src="../assets/geo-showcase.js"></script>
+</SiteLayout>
+
+<style>
+  .geo-content{padding-bottom:5rem}.geo-boundary-note{margin-top:1.25rem;max-width:58rem}.geo-lab,.geo-analysis-section,#api-and-code,#capability-matrix,#package-boundaries{margin-top:5rem}.geo-section-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(16rem,28rem);align-items:end;gap:2rem}.geo-section-heading h2{margin-bottom:0}.geo-lab-shell{margin-top:1.5rem;border:1px solid var(--border);border-radius:1rem;overflow:hidden;background:var(--surface)}.geo-source-bar{display:grid;grid-template-columns:auto minmax(12rem,1fr) auto auto;gap:.75rem;align-items:center;padding:1rem;border-bottom:1px solid var(--border)}.geo-source-bar input{min-width:0;width:100%}.geo-presets{display:flex;flex-wrap:wrap;gap:.5rem;padding:.75rem 1rem 0}.geo-source-note{margin:.5rem 1rem 1rem;font-size:.88rem;color:var(--muted)}.geo-controls{display:grid;grid-template-columns:repeat(6,minmax(7rem,1fr));gap:.75rem;padding:1rem;border-block:1px solid var(--border)}.geo-controls label,.geo-matrix-filters label{display:grid;gap:.35rem;font-size:.78rem;font-weight:700}.geo-controls select,.geo-matrix-filters select{min-width:0;width:100%}.geo-workbench{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(18rem,.85fr)}.geo-canvas-panel{min-width:0;padding:1rem;background:#101715;color:#efffea}.geo-canvas-toolbar{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}.geo-canvas-panel canvas{display:block;width:100%;max-height:31rem;min-height:17rem;object-fit:contain;image-rendering:pixelated;background:#050706;border:1px solid #35443e;border-radius:.45rem;cursor:crosshair;touch-action:none}.geo-canvas-panel canvas:focus-visible{outline:3px solid #b7ed55;outline-offset:3px}.geo-sample,.geo-status{margin:.75rem 0 0;min-height:1.5rem;font-size:.88rem}.geo-status[data-state="error"]{color:#ffaaa0}.geo-diagnostics{min-width:0;padding:1rem;overflow:auto;max-height:44rem}.geo-diagnostics h3{margin:.25rem 0 .75rem}.geo-diagnostics dl{display:grid;grid-template-columns:minmax(8rem,1fr) minmax(7rem,1.2fr);gap:.45rem .8rem;margin:0 0 1.5rem;font-size:.82rem}.geo-diagnostics dt{color:var(--muted)}.geo-diagnostics dd{margin:0;overflow-wrap:anywhere;white-space:pre-line;font-family:var(--font-mono)}.geo-analysis-actions,.geo-matrix-filters{display:flex;flex-wrap:wrap;gap:.75rem;margin:1rem 0}#geo-analysis-output{display:block;width:100%}.geo-code-window pre{max-height:40rem;overflow:auto}.geo-code-window .window-bar{display:flex;align-items:center;justify-content:space-between}.geo-matrix-filters label{min-width:10rem;flex:1 1 10rem}.geo-matrix-wrap{max-height:48rem;overflow:auto}.geo-matrix-wrap thead{position:sticky;top:0;z-index:1}.geo-state{display:inline-block;max-width:8rem;padding:.2rem .42rem;border-radius:.35rem;font-size:.72rem;line-height:1.2}.geo-state-tested{background:color-mix(in srgb,#4f9 18%,transparent)}.geo-state-limited,.geo-state-metadata{background:color-mix(in srgb,#fc5 18%,transparent)}.geo-state-unsupported,.geo-state-none,.geo-state-out-of-scope{color:var(--muted);background:color-mix(in srgb,currentColor 8%,transparent)}
+  @media(max-width:980px){.geo-controls{grid-template-columns:repeat(3,minmax(0,1fr))}.geo-workbench{grid-template-columns:1fr}.geo-section-heading{grid-template-columns:1fr;gap:.5rem}}@media(max-width:620px){.geo-source-bar{grid-template-columns:1fr 1fr}.geo-source-bar label,.geo-source-bar input{grid-column:1/-1}.geo-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.geo-canvas-panel canvas{min-height:13rem}}@media(prefers-reduced-motion:reduce){.geo-lab-shell,.geo-canvas-panel canvas{scroll-behavior:auto;transition:none}}
+</style>

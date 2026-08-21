@@ -31,6 +31,8 @@
     "heif",
     "heic",
     "geotiff",
+    "netcdf",
+    "cf-conventions",
     "ome-tiff",
     "gsf",
     "envi",
@@ -269,6 +271,76 @@
       "import": "./dist/scientific/readers/all.js",
       "default": "./dist/scientific/readers/all.js"
     },
+    "./geo": {
+      "types": "./dist/geo/index.d.ts",
+      "import": "./dist/geo/index.js",
+      "default": "./dist/geo/index.js"
+    },
+    "./geo/browser": {
+      "types": "./dist/geo/browser.d.ts",
+      "import": "./dist/geo/browser.js",
+      "default": "./dist/geo/browser.js"
+    },
+    "./geo/readers": {
+      "types": "./dist/geo/readers/index.d.ts",
+      "import": "./dist/geo/readers/index.js",
+      "default": "./dist/geo/readers/index.js"
+    },
+    "./geo/readers/all": {
+      "types": "./dist/geo/readers/all.d.ts",
+      "import": "./dist/geo/readers/all.js",
+      "default": "./dist/geo/readers/all.js"
+    },
+    "./geo/readers/geotiff": {
+      "types": "./dist/geo/readers/geotiff.d.ts",
+      "import": "./dist/geo/readers/geotiff.js",
+      "default": "./dist/geo/readers/geotiff.js"
+    },
+    "./geo/readers/geozarr": {
+      "types": "./dist/geo/readers/geozarr/index.d.ts",
+      "import": "./dist/geo/readers/geozarr/index.js",
+      "default": "./dist/geo/readers/geozarr/index.js"
+    },
+    "./geo/readers/geozarr/node": {
+      "types": "./dist/geo/readers/geozarr/node.d.ts",
+      "import": "./dist/geo/readers/geozarr/node.js",
+      "default": "./dist/geo/readers/geozarr/node.js"
+    },
+    "./geo/readers/world-file": {
+      "types": "./dist/geo/readers/world-file.d.ts",
+      "import": "./dist/geo/readers/world-file.js",
+      "default": "./dist/geo/readers/world-file.js"
+    },
+    "./geo/readers/world-file/node": {
+      "types": "./dist/geo/readers/world-file-node.d.ts",
+      "import": "./dist/geo/readers/world-file-node.js",
+      "default": "./dist/geo/readers/world-file-node.js"
+    },
+    "./geo/readers/envi": {
+      "types": "./dist/geo/readers/envi.d.ts",
+      "import": "./dist/geo/readers/envi.js",
+      "default": "./dist/geo/readers/envi.js"
+    },
+    "./geo/readers/esri-ascii-grid": {
+      "types": "./dist/geo/readers/esri-ascii-grid.d.ts",
+      "import": "./dist/geo/readers/esri-ascii-grid.js",
+      "default": "./dist/geo/readers/esri-ascii-grid.js"
+    },
+    "./geo/readers/srtm-hgt": {
+      "types": "./dist/geo/readers/srtm-hgt.d.ts",
+      "import": "./dist/geo/readers/srtm-hgt.js",
+      "default": "./dist/geo/readers/srtm-hgt.js"
+    },
+    "./geo/readers/netcdf": {
+      "types": "./dist/geo/readers/netcdf.d.ts",
+      "import": "./dist/geo/readers/netcdf.js",
+      "default": "./dist/geo/readers/netcdf.js"
+    },
+    "./geo/conventions/geozarr": {
+      "types": "./dist/geo/conventions/geozarr/index.d.ts",
+      "import": "./dist/geo/conventions/geozarr/index.js",
+      "default": "./dist/geo/conventions/geozarr/index.js"
+    },
     "./operations": {
       "types": "./dist/operations/index.d.ts",
       "import": "./dist/operations/index.js",
@@ -426,7 +498,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run size:check && npm run package-metrics:check && npm run documentation:check && npm run docs:build && npm run typecheck && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm run dicom:dictionary:check && npm test",
+    "check": "npm run capabilities:check && npm run bench:geo:check && npm run comparison:check && npm run analysis:api:check && npm run size:check && npm run package-metrics:check && npm run documentation:check && npm run docs:build && npm run typecheck && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm run dicom:dictionary:check && npm test",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
@@ -434,14 +506,17 @@
     "platform:example:check": "node scripts/check-external-application-platform.ts && tsc -p examples/scientific-application-platform/tsconfig.json",
     "browser:test": "playwright test",
     "browser:bench": "PUREJSIMAGE_WRITE_BROWSER_BENCHMARK=1 playwright test browser-tests/benchmark.pw.ts --project=chromium",
+    "bench:geo": "node benchmark/geo/run.ts",
+    "bench:geo:check": "node benchmark/geo/run.ts",
+    "bench:geo:write": "node benchmark/geo/run.ts --write && biome format --write benchmark/generated/geo-benchmark.json",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
     "wasm:build:png": "node scripts/build-wasm-png.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "capabilities:generate": "node scripts/render-capabilities.ts && node scripts/render-tiff-cog-support.ts && biome format --write docs-astro/public/capabilities.json tests/generated/capability-expectations.json",
-    "capabilities:check": "node scripts/render-capabilities.ts --check && node scripts/render-tiff-cog-support.ts --check",
+    "capabilities:generate": "node scripts/render-capabilities.ts && node scripts/render-tiff-cog-support.ts && node scripts/render-geo-capabilities.ts && biome format --write docs-astro/public/capabilities.json docs-astro/public/geo-capabilities.json docs-astro/src/data/geo-capabilities.json tests/generated/capability-expectations.json tests/generated/geo-capability-expectations.json",
+    "capabilities:check": "node scripts/render-capabilities.ts --check && node scripts/render-tiff-cog-support.ts --check && node scripts/render-geo-capabilities.ts --check",
     "comparison:generate": "node scripts/render-library-comparison.ts",
     "comparison:check": "node scripts/render-library-comparison.ts --check",
     "analysis:api:generate": "node scripts/check-analysis-api-manifest.ts --write",

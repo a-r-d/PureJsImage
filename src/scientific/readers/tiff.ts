@@ -2,7 +2,7 @@ import type { AbortOptions } from '../../abort.ts'
 import { throwIfAborted } from '../../abort.ts'
 import { openTiffDocument, TiffEncodedCacheSource } from '../../codecs/tiff.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
-import { openGeoTiffDirectory, type GeoTiffProfile } from '../../geotiff.ts'
+import { openGeoTiffDirectory, type GeoTiffKey, type GeoTiffProfile } from '../../geotiff.ts'
 import {
   type RasterBlock,
   type RasterDecoder,
@@ -56,6 +56,10 @@ import type {
 } from '../reader.ts'
 import { createScientificDatasetIdentity, identifyScientificDataset } from '../reader.ts'
 import { resourceHasHint } from './shared.ts'
+import {
+  setTiffScientificDocumentBridge,
+  type TiffScientificDocumentBridge,
+} from './tiff-bridge.ts'
 
 const defaultMaximumMetadataBytes = 64 * 1024
 const defaultMaximumMetadataTagBytes = 16 * 1024
@@ -73,6 +77,8 @@ interface TiffLevelDescription {
   readonly format: RasterFormat
   readonly spatialReference?: ScientificSpatialReference
   readonly spatialReferenceWarning?: string
+  readonly geoTiffProfile?: GeoTiffProfile
+  readonly georeferencing: 'explicit' | 'derived' | 'none'
 }
 
 interface TiffPageDescription {
@@ -422,8 +428,16 @@ const jsonSafeGeoValue = (value: number | string): number | string => {
   return value > 0 ? 'Infinity' : '-Infinity'
 }
 
-const isGeoNumberArray = (value: number | string | readonly number[]): value is readonly number[] =>
-  Array.isArray(value)
+const isGeoNumberArray = (
+  value: number | string | readonly number[] | null,
+): value is readonly number[] => Array.isArray(value)
+
+const jsonSafeGeoKeyValue = (value: GeoTiffKey['value']): ScientificMetadataObject[string] =>
+  value === null
+    ? null
+    : isGeoNumberArray(value)
+      ? value.map(jsonSafeGeoValue)
+      : jsonSafeGeoValue(value)
 
 const isGeoNoDataArray = (
   value: NonNullable<GeoTiffProfile['noData']>,
@@ -434,7 +448,25 @@ const geoTiffMetadata = (profile: GeoTiffProfile): ScientificMetadataObject => (
   rasterType: profile.rasterType,
   projectedCrs: profile.projectedCrs ?? null,
   geographicCrs: profile.geographicCrs ?? null,
+  verticalCrs: profile.verticalCrs ?? null,
+  verticalDatum: profile.verticalDatum ?? null,
+  verticalUnits: profile.verticalUnits ?? null,
   citation: profile.citation ?? null,
+  citations: {
+    model: profile.modelCitation ?? null,
+    projected: profile.projectedCitation ?? null,
+    geographic: profile.geographicCitation ?? null,
+    vertical: profile.verticalCitation ?? null,
+  },
+  pixelScale:
+    profile.pixelScale === undefined
+      ? null
+      : [profile.pixelScale.x, profile.pixelScale.y, profile.pixelScale.z],
+  tiepoints: profile.tiepoints.map(({ raster, model }) => ({
+    raster: [raster.x, raster.y, raster.z],
+    model: [model.x, model.y, model.z],
+  })),
+  modelTransformation: profile.modelTransformation?.map(jsonSafeGeoValue) ?? null,
   model:
     profile.model === undefined
       ? null
@@ -442,12 +474,23 @@ const geoTiffMetadata = (profile: GeoTiffProfile): ScientificMetadataObject => (
           kind: profile.model.kind,
           matrix: profile.model.matrix.map(jsonSafeGeoValue),
         },
-  keys: [...profile.keys.values()].map(({ id, location, count, offset, value }) => ({
-    id,
-    location,
-    count,
-    offset,
-    value: isGeoNumberArray(value) ? value.map(jsonSafeGeoValue) : jsonSafeGeoValue(value),
+  keys: [...profile.keys.values()].map(
+    ({ id, name, recognized, location, count, offset, value, unavailableReason }) => ({
+      id,
+      name: name ?? null,
+      recognized,
+      location,
+      count,
+      offset,
+      value: jsonSafeGeoKeyValue(value),
+      unavailableReason: unavailableReason ?? null,
+    }),
+  ),
+  diagnostics: profile.diagnostics.map(({ code, severity, message, tiepointIndex }) => ({
+    code,
+    severity,
+    message,
+    tiepointIndex: tiepointIndex ?? null,
   })),
   gdalMetadata: profile.gdalMetadata.map((item) => ({ ...item })),
   noData:
@@ -593,6 +636,7 @@ const scientificSpatialReference = (
 interface InspectedSpatialReference {
   readonly value?: ScientificSpatialReference
   readonly warning?: string
+  readonly profile?: GeoTiffProfile
 }
 
 const inspectSpatialReference = async (
@@ -624,7 +668,10 @@ const inspectSpatialReference = async (
       ...(signal === undefined ? {} : { signal }),
     })
     budget.remaining -= estimate
-    return Object.freeze({ value: scientificSpatialReference(profile, directory.samplesPerPixel) })
+    return Object.freeze({
+      value: scientificSpatialReference(profile, directory.samplesPerPixel),
+      profile,
+    })
   } catch (error: unknown) {
     throwIfAborted(signal)
     return Object.freeze({ warning: errorMessage(error) })
@@ -693,6 +740,8 @@ const inspectLevel = async (
     height: decoder.height,
     format: decoder.format,
     ...(spatialReference.value === undefined ? {} : { spatialReference: spatialReference.value }),
+    ...(spatialReference.profile === undefined ? {} : { geoTiffProfile: spatialReference.profile }),
+    georeferencing: spatialReference.profile === undefined ? 'none' : 'explicit',
     ...(spatialReference.warning === undefined
       ? {}
       : { spatialReferenceWarning: spatialReference.warning }),
@@ -769,6 +818,7 @@ const describePage = async (
       if (selected === undefined || selected.spatialReference !== undefined) continue
       levels[level] = Object.freeze({
         ...selected,
+        georeferencing: 'derived',
         spatialReference: deriveOverviewSpatialReference(
           base.spatialReference,
           base.width,
@@ -1205,7 +1255,6 @@ const createDocument = async (
         if (
           candidate.samplesPerPixel !== directory.samplesPerPixel ||
           candidate.photometric !== directory.photometric ||
-          candidate.compression !== directory.compression ||
           candidate.planar !== directory.planar ||
           candidate.width >= previousWidth ||
           candidate.height >= previousHeight
@@ -1280,7 +1329,7 @@ const createDocument = async (
       ? {}
       : { calibrationDetectionFailures: calibration.detectionFailures }),
   })
-  return Object.freeze({
+  const scientificDocument: ScientificDocument = Object.freeze({
     reader: Object.freeze({ id: tiffReaderDescriptor.id, version: tiffReaderDescriptor.version }),
     format: tiffReaderDescriptor.format,
     metadata,
@@ -1302,6 +1351,42 @@ const createDocument = async (
       return selected.dataset
     },
   })
+  const bridge: TiffScientificDocumentBridge = Object.freeze({
+    document,
+    source: context.primary.source,
+    encodedSource: source,
+    datasets: Object.freeze(
+      series.map((entry) =>
+        Object.freeze({
+          datasetId: entry.id,
+          pages: Object.freeze(
+            entry.pages.map((page) =>
+              Object.freeze({
+                page: page.page,
+                levels: Object.freeze(
+                  page.levels.map((level) =>
+                    Object.freeze({
+                      level: level.level,
+                      directory: level.directory,
+                      georeferencing: level.georeferencing,
+                      ...(level.geoTiffProfile === undefined
+                        ? {}
+                        : { geoTiffProfile: level.geoTiffProfile }),
+                      ...(level.spatialReferenceWarning === undefined
+                        ? {}
+                        : { warning: level.spatialReferenceWarning }),
+                    }),
+                  ),
+                ),
+              }),
+            ),
+          ),
+        }),
+      ),
+    ),
+  })
+  setTiffScientificDocumentBridge(scientificDocument, bridge)
+  return scientificDocument
 }
 
 export const createTiffReader = (options: Readonly<TiffReaderOptions> = {}): ScientificReader =>

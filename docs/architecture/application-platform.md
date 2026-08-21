@@ -536,6 +536,98 @@ The maintainer approved the following decisions on 2026-08-12:
       regional statistics/histograms, line profiles, explicit target-grid resampling, and
       caller-supplied inverse reprojection are implemented as JSON-safe plans over bounded
       `NumericTile` inputs. The downstream virtual-layer integration remains release-gated.
+- [x] Add the raster-focused `purejsimage/geo` package boundary over the existing scientific dataset,
+      numeric-tile, and target-grid contracts. Keep GeoTIFF and Zarr implementations in their current
+      lower layers, publish an initially empty explicit geo reader set, and enforce scientific-to-geo,
+      reader, browser, parser-export, packed-consumer, and package-subpath boundaries.
+- [x] Define the durable Geo raster model and zero-copy scientific adapter: rich CRS evidence,
+      affine grid geometry, source-defined levels, component bands, first-class non-spatial axes,
+      bounded pixel and world views, lazy coordinates, typed conversion loss, and deterministic
+      validation. Prove COG-like 2D and time/band/Y/X cube shapes without adding GeoZarr parsing.
+- [x] Publish the GeoTIFF geo reader over the existing scientific TIFF document and native raster
+      path. Normalize GeoKeys, tiepoints, CRS and vertical evidence, per-level geometry, bands,
+      nodata, and JSON-safe structural and range-read diagnostics without adding another decoder.
+- [x] Consolidate target-grid alignment, pluggable coordinate transforms, bounded inverse-mapped
+      reads, antimeridian refusal, and existing raster analysis operations under `purejsimage/geo`
+      without adding a projection dependency or another raster engine.
+- [x] Extract the released OME-Zarr storage, v2/v3 metadata, array, chunk, codec, and sharding engine
+      into one internal generic Zarr substrate. Preserve OME-Zarr imports and behavior, provide
+      HTTP, local-directory, ZIP, and caller-supplied object stores below domain interpretation, and
+      prove that future GeoZarr code does not need OME-NGFF parsers.
+  - Result: one `src/zarr` substrate now owns root discovery, metadata, arrays, chunk and shard
+        decoding, codecs, HTTP Range, directory, ZIP, bounded caches, diagnostics, cancellation, and
+        close propagation. Scientific compatibility wrappers preserve the existing OME-Zarr APIs.
+        The 146-test Zarr, OME-Zarr, ZIP, and surface-format subset, packed consumer, browser graph,
+        docs build, and focused real-Chromium OME-Zarr File workflow pass. The complete 1,958-test
+        suite passes with one worker; the ordinary parallel run reached 1,956 passes and only hit
+        existing five-second JPEG progressive and TIFF LERC load-sensitive timeouts, both of which
+        pass in isolation.
+- [x] Add the read-only, version-aware GeoZarr `proj`, `spatial`, and `multiscales` metadata layer
+      over extracted v2 or v3 attributes. Pin the official convention UUIDs, v0.1 schemas,
+      specifications, tag commits, and fixture sources; preserve bounded future metadata; and keep
+      chunk reads, CRS transformation, and a full GeoZarr reader out of scope.
+  - Result: `purejsimage/geo/conventions/geozarr` now matches the three Pilot conventions by
+        permanent UUID, pins their v0.1 URLs and tag commits, normalizes v2 and v3 attributes through
+        one path, and composes group, direct-child, and per-level CRS and grid evidence. Strict and
+        compatibility modes retain typed version, schema, inheritance, transform, bounds, and path
+        diagnostics without opening a store or chunk. The 59 focused convention, geo-boundary,
+        Zarr-boundary, and package-contract tests pass. The packed declaration and browser consumer,
+        browser graph, documentation and metrics checks, and complete `npm run check` gate pass with
+        1,974 tests and 3 intentional skips.
+- [x] Publish the read-only GeoZarr geo reader over the generic Zarr substrate and pinned convention
+      metadata. Keep multiscale and multidimensional reads lazy, use the existing scientific and
+      numeric-tile adapter, support HTTP, local-directory, ZIP, regular chunks, and supported v3
+      shards, and expose bounded structural and I/O diagnostics without listing remote stores.
+      Result: the portable and Node-specific public entries share the generic v2/v3 metadata,
+      object-store, chunk, shard, codec, cache, and lifecycle implementation with OME-Zarr. Bounded
+      discovery follows declared multiscale assets or caller-supplied candidate paths. Native views
+      retain labeled non-spatial dimensions and read only intersecting chunks or shards. Focused
+      GeoZarr, convention, substrate, OME-Zarr, architecture, package-consumer, and Chromium checks
+      pass. The complete `npm run check` gate passes with 1,984 tests and 3 intentional skips.
+- [x] Add contained geo readers for world-file TIFF, JPEG, and PNG images, georeferenced ENVI, Esri
+      ASCII Grid, and SRTM HGT. Reuse the existing image and ENVI decoders, normalize every format to
+      the shared lazy `GeoRasterDataset`, preserve bounded companion and source access, and state
+      sequential ASCII limitations explicitly.
+  - Result: world-file and PRJ sidecars use exact caller-supplied, local sibling, or bounded HTTP
+        resolution; ENVI keeps the released BSQ, BIL, and BIP data path; ASCII Grid enforces file,
+        row, token, and memory limits; and HGT accepts only exact standard dimensions plus valid tile
+        names or explicit coordinates. Focused format, architecture, package-consumer, browser, and
+        full repository gates are recorded with this change.
+- [x] Add a browser-native classic NetCDF reader for CDF-1 and CDF-2 plus a bounded rectilinear CF
+      subset. Preserve native samples and selectable non-spatial dimensions, use exact or
+      range-backed source reads, and reject CDF-5, HDF5-backed NetCDF4, irregular affine fitting,
+      and curvilinear misrepresentation. Complete focused, packed-consumer, browser, docs, and full
+      repository gates before marking this item complete.
+  - Result: the portable reader publishes one lazy Geo dataset per regular CF raster variable,
+        keeps record, time, vertical, band-like, ensemble, and custom dimensions selectable, and
+        reads native fixed or record data through bounded `ImageSource` regions. Focused parser,
+        reader, architecture, and package-contract coverage passes 52 tests. Independently generated
+        SciPy 1.18.0 CDF-1 and CDF-2 files match affine, metadata, record selection, and sample
+        values. The 632-file packed consumer, focused real-Chromium `File` workflow, browser graph,
+        generated docs, package metrics, and size checks pass. The complete repository gate passes
+        167 files and 2,015 tests with 3 intentional skips.
+- [x] Generate geo compatibility claims, fixture coverage, and selective-access benchmark evidence
+      from executable repository contracts. Keep tested, fixture-limited, metadata-only,
+      recognized-unsupported, unavailable, and intentionally out-of-scope states distinct. Run the
+      required geo benchmark against deterministic local range and object-store servers, retain
+      boundedness tests and opt-in live-result provenance, and publish full and compact JSON outputs
+      for the website.
+  - Result: one checked source now generates the README summary, full Markdown matrix, public JSON,
+        compact website data, and test expectations for eight geo format profiles and seventeen
+        capabilities. Six correctness-gated workloads record first-tile I/O, cache, memory, level,
+        chunk, shard, and reprojection evidence. The 14 focused manifest, corpus, benchmark, live
+        record, and hostile-input tests pass. The complete `npm run check` gate passes package,
+        documentation, browser, formatting, and 2,029 tests with 3 intentional skips.
+- [x] Add the `/geo/` documentation showcase over public package subpaths, with deterministic COG and
+      GeoZarr worker labs, bounded package-native analysis, current-state code generation, generated
+      capability filtering, direct-browser safety boundaries, and required local browser coverage.
+  - Result: `/geo/` now runs deterministic range-backed COG and multidimensional GeoZarr fixtures in
+        dedicated workers, exposes level-aware source and transfer telemetry, supports bounded band
+        mapping, point sampling, normalized difference, hillshade, statistics, and line profiles,
+        and renders the generated eight-format capability manifest. Generated examples compile
+        through packed public exports. Eighteen required tests pass in Chromium, Firefox, and WebKit,
+        with six public-source cases skipped unless explicitly enabled. The complete `npm run check`
+        gate passes 171 files and 2,029 tests with 3 intentional skips.
 - [x] Split the public API into `purejsimage/analysis`, `/results`, `/roi`, `/runtime`, and `/project`
       with checked-in export manifests and independent browser/size gates.
 - [x] Implement the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) with

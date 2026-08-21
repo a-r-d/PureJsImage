@@ -68,8 +68,9 @@ ${corpus.join('\n')}
 The corpus covers tiled Classic TIFF and BigTIFF, internal SubIFD overviews, Deflate, LZW, PackBits,
 JPEG-in-TIFF three-band YCbCr and four-band RGB+unspecified extra-sample layouts, scalar and
 component nodata, RGB and RGBA samples, north-up and rotated affines, and pixel-is-area/pixel-is-point
-semantics. Reduced-resolution tile payloads precede full-resolution tile payloads in the pyramid
-fixture so a remote overview request can avoid the base imagery.
+semantics. Every audited compression fixture can be opened through the GeoTIFF geo reader.
+Reduced-resolution tile payloads precede full-resolution tile payloads in the pyramid fixture so a
+remote overview request can avoid the base imagery.
 
 Regenerate the corpus reproducibly with:
 
@@ -80,6 +81,10 @@ npm run fixtures:cog:prepare
 The generator is first-party TypeScript. Node's zlib and the existing development-only \`jpeg-js\`
 oracle encode fixture segments; neither is a published runtime dependency. SHA-256 values and byte
 lengths are recorded in \`tests/fixtures/cog/manifest.json\`.
+
+Set \`PUREJSIMAGE_GDAL_ORACLE=1\` when GDAL development tools are installed to compare the public
+geo reader's size, affine, and band count with \`gdalinfo -json\`. GDAL is an optional test oracle
+and is not a runtime dependency.
 
 ## Structural inspection
 
@@ -99,6 +104,18 @@ console.log(report.container, report.directories, report.issues)
 This is a structural diagnostic, not a standards certification service. A warning identifies a
 layout that is likely to cost extra remote reads; an error means the file misses a core tiled/readable
 boundary used by PureJsImage.
+
+The public geo adapter adds object size, normalized geospatial evidence, range-read suitability,
+request and transferred-byte counts, unique bytes, and cache activity while keeping the same
+non-certification boundary:
+
+\`\`\`ts
+import { geoTiffReader } from 'purejsimage/geo/readers/geotiff'
+
+const document = await geoTiffReader.open(context)
+const report = await document.inspectStructure()
+console.log(report.formalCogCertification, report.io)
+\`\`\`
 
 ## Viewport benchmark
 

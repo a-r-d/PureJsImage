@@ -108,8 +108,8 @@ export const createRasterRegionStatisticsPlan = (
 const tileNumberAt = (tile: NumericTile, x: number, y: number, component: number): number => {
   const value = tile.data[numericTileSampleOffset(tile, x, y, component)]
   if (typeof value === 'bigint') {
-    if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
-      throw invalidInput('Raster uint64 sample exceeds exact numeric conversion')
+    if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
+      throw invalidInput('Raster uint64/int64 sample exceeds exact numeric conversion')
     }
     return Number(value)
   }
@@ -414,7 +414,7 @@ export const sampleRasterLineProfile = (
 }
 
 export interface RasterTransformAccuracy {
-  readonly kind: 'exact' | 'estimated'
+  readonly kind: 'exact' | 'estimated' | 'unknown'
   readonly maximumError?: number
   readonly unit?: string
 }
@@ -453,7 +453,11 @@ const boundedString = (value: string, name: string): string => {
 const normalizeTransformDescriptor = (
   value: Readonly<RasterCoordinateTransformDescriptor>,
 ): RasterCoordinateTransformDescriptor => {
-  if (value.accuracy.kind !== 'exact' && value.accuracy.kind !== 'estimated') {
+  if (
+    value.accuracy.kind !== 'exact' &&
+    value.accuracy.kind !== 'estimated' &&
+    value.accuracy.kind !== 'unknown'
+  ) {
     throw invalidInput('Unsupported coordinate-transform accuracy')
   }
   if (
@@ -466,13 +470,13 @@ const normalizeTransformDescriptor = (
     throw invalidInput('Estimated transform accuracy requires a finite error and unit')
   }
   const accuracy: RasterTransformAccuracy =
-    value.accuracy.kind === 'exact'
-      ? Object.freeze({ kind: 'exact' })
-      : Object.freeze({
+    value.accuracy.kind === 'estimated'
+      ? Object.freeze({
           kind: 'estimated',
           maximumError: value.accuracy.maximumError ?? 0,
           unit: boundedString(value.accuracy.unit ?? '', 'transform accuracy unit'),
         })
+      : Object.freeze({ kind: value.accuracy.kind })
   return Object.freeze({
     id: boundedString(value.id, 'transform id'),
     version: boundedString(value.version, 'transform version'),
@@ -567,6 +571,7 @@ const allocateNumericArray = (sampleType: NumericSampleType, length: number): Nu
   if (sampleType === 'uint16') return new Uint16Array(length)
   if (sampleType === 'uint32') return new Uint32Array(length)
   if (sampleType === 'uint64') return new BigUint64Array(length)
+  if (sampleType === 'int64') return new BigInt64Array(length)
   if (sampleType === 'int8') return new Int8Array(length)
   if (sampleType === 'int16') return new Int16Array(length)
   if (sampleType === 'int32') return new Int32Array(length)
@@ -575,9 +580,9 @@ const allocateNumericArray = (sampleType: NumericSampleType, length: number): Nu
 }
 
 const writeOutput = (data: NumericArray, index: number, value: number): void => {
-  if (data instanceof BigUint64Array) {
-    if (!Number.isSafeInteger(value) || value < 0)
-      throw invalidInput('Output is not an exact uint64')
+  if (data instanceof BigUint64Array || data instanceof BigInt64Array) {
+    if (!Number.isSafeInteger(value) || (data instanceof BigUint64Array && value < 0))
+      throw invalidInput('Output is not an exact 64-bit integer')
     data[index] = BigInt(value)
     return
   }

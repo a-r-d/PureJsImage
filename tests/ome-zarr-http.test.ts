@@ -413,6 +413,8 @@ describe('OME-Zarr HTTP object resolution', () => {
     expect(store.stats()).toEqual({
       objectRequests: 0,
       rangeRequests: 0,
+      metadataRequests: 0,
+      arrayRequests: 0,
       bytesFetched: 0,
       uniqueBytes: 0,
       metadataBytesFetched: 0,

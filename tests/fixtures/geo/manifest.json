@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "generatedNotice": "Each entry is deterministic and is materialized by the named repository fixture or test builder.",
+  "entries": [
+    {
+      "id": "geotiff-north-up-area",
+      "format": "geotiff",
+      "source": "tests/fixtures/cog/manifest.json",
+      "materializer": "scripts/generate-cog-fixtures.ts",
+      "profiles": ["north-up", "pixel-is-area", "uint8", "bands"],
+      "oracle": "GDAL fixture generator"
+    },
+    {
+      "id": "geotiff-rotated-subifd",
+      "format": "geotiff",
+      "source": "tests/fixtures/cog/subifd-deflate-rotated.tif",
+      "materializer": "scripts/generate-cog-fixtures.ts",
+      "profiles": ["rotated-affine", "multiscale", "uint16", "nodata"],
+      "oracle": "GDAL fixture generator"
+    },
+    {
+      "id": "geotiff-bigtiff-point",
+      "format": "geotiff",
+      "source": "tests/fixtures/cog/manifest.json",
+      "materializer": "scripts/generate-cog-fixtures.ts",
+      "profiles": ["pixel-is-point", "bigtiff", "float", "unknown-crs"],
+      "oracle": "GDAL fixture generator"
+    },
+    {
+      "id": "geotiff-malformed",
+      "format": "geotiff",
+      "source": "tests/geo-geotiff-reader.test.ts",
+      "materializer": "inline bounded TIFF tag builder",
+      "profiles": ["malformed", "overflow", "unsupported-compression"],
+      "oracle": "reader rejection contract"
+    },
+    {
+      "id": "geozarr-v2-area",
+      "format": "geozarr",
+      "source": "tests/geo-geozarr-reader.test.ts",
+      "materializer": "in-memory Zarr object store",
+      "profiles": ["zarr-v2", "pixel-is-area", "uint16", "nodata"],
+      "oracle": "pinned official GeoZarr examples"
+    },
+    {
+      "id": "geozarr-v3-sharded-point",
+      "format": "geozarr",
+      "source": "tests/geo-geozarr-reader.test.ts",
+      "materializer": "in-memory Zarr v3 shard builder",
+      "profiles": ["zarr-v3", "sharded", "pixel-is-point", "float"],
+      "oracle": "pinned official GeoZarr examples"
+    },
+    {
+      "id": "geozarr-multiscale-non-power-two",
+      "format": "geozarr",
+      "source": "tests/geo-geozarr-reader.test.ts",
+      "materializer": "in-memory Zarr object store",
+      "profiles": ["multiscale", "non-power-of-two", "translated-overview", "rotated-affine"],
+      "oracle": "pinned official GeoZarr examples"
+    },
+    {
+      "id": "geozarr-time-band-cube",
+      "format": "geozarr",
+      "source": "tests/geo-geozarr-reader.test.ts",
+      "materializer": "in-memory Zarr object store",
+      "profiles": ["multidimensional", "time", "bands", "time-band-y-x"],
+      "oracle": "GDAL GeoZarr comparison"
+    },
+    {
+      "id": "geozarr-vertical-cube",
+      "format": "geozarr",
+      "source": "tests/geo-geozarr-reader.test.ts",
+      "materializer": "in-memory Zarr object store",
+      "profiles": ["multidimensional", "vertical", "vertical-y-x", "scale-offset"],
+      "oracle": "GDAL GeoZarr comparison"
+    },
+    {
+      "id": "geozarr-malformed",
+      "format": "geozarr",
+      "source": "tests/geo-geozarr-reader.test.ts",
+      "materializer": "in-memory malformed metadata and codec builders",
+      "profiles": ["malformed", "oversized-metadata", "excessive-chunks", "unsupported-codec"],
+      "oracle": "reader rejection contract"
+    },
+    {
+      "id": "world-file-rotated-area",
+      "format": "world-file-image",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "in-memory PNG and six-line sidecar builder",
+      "profiles": [
+        "rotated-affine",
+        "negative-y",
+        "pixel-is-area",
+        "uint8",
+        "bands",
+        "unknown-crs"
+      ],
+      "oracle": "world-file center conversion equation"
+    },
+    {
+      "id": "world-file-malformed",
+      "format": "world-file-image",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "in-memory malformed companion map",
+      "profiles": ["malformed", "oversized-metadata"],
+      "oracle": "reader rejection contract"
+    },
+    {
+      "id": "envi-interleaves",
+      "format": "envi",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "in-memory ENVI header and binary pairs",
+      "profiles": [
+        "north-up",
+        "pixel-is-area",
+        "bsq",
+        "bil",
+        "bip",
+        "uint16",
+        "float",
+        "bands",
+        "nodata",
+        "scale-offset"
+      ],
+      "oracle": "existing scientific ENVI decoder"
+    },
+    {
+      "id": "envi-malformed",
+      "format": "envi",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "in-memory malformed header and companion builders",
+      "profiles": ["malformed", "overflow"],
+      "oracle": "reader rejection contract"
+    },
+    {
+      "id": "ascii-corner-center",
+      "format": "esri-ascii-grid",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "in-memory ASCII text builder",
+      "profiles": [
+        "north-up",
+        "negative-y",
+        "pixel-is-area",
+        "pixel-is-point",
+        "float",
+        "nodata",
+        "negative-elevation"
+      ],
+      "oracle": "Esri header coordinate equations"
+    },
+    {
+      "id": "ascii-malformed",
+      "format": "esri-ascii-grid",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "in-memory conflicting and oversized ASCII builders",
+      "profiles": ["malformed", "malicious-dimensions", "overflow"],
+      "oracle": "reader rejection contract"
+    },
+    {
+      "id": "hgt-cardinal-tiles",
+      "format": "srtm-hgt",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "sparse exact-size HGT source builder",
+      "profiles": [
+        "north-up",
+        "pixel-is-point",
+        "int16",
+        "nodata",
+        "negative-elevation",
+        "north-south-east-west"
+      ],
+      "oracle": "SRTM filename and byte-order contract"
+    },
+    {
+      "id": "hgt-malformed",
+      "format": "srtm-hgt",
+      "source": "tests/geo-contained-readers.test.ts",
+      "materializer": "invalid-size and invalid-name sources",
+      "profiles": ["malformed", "malicious-dimensions"],
+      "oracle": "reader rejection contract"
+    },
+    {
+      "id": "netcdf-cdf1-time",
+      "format": "netcdf-cf",
+      "source": "tests/helpers/netcdf-classic-fixture.ts",
+      "materializer": "createNetCdfClassicFixture CDF-1",
+      "profiles": [
+        "cdf-1",
+        "north-up",
+        "pixel-is-point",
+        "float",
+        "time",
+        "time-y-x",
+        "nodata",
+        "scale-offset"
+      ],
+      "oracle": "SciPy and xarray generated fixture comparison"
+    },
+    {
+      "id": "netcdf-cdf2-vertical",
+      "format": "netcdf-cf",
+      "source": "tests/helpers/netcdf-classic-fixture.ts",
+      "materializer": "createNetCdfClassicFixture CDF-2",
+      "profiles": [
+        "cdf-2",
+        "negative-y",
+        "pixel-is-point",
+        "int16",
+        "vertical",
+        "time-level-y-x",
+        "large-offset"
+      ],
+      "oracle": "SciPy and xarray generated fixture comparison"
+    },
+    {
+      "id": "netcdf-irregular-curvilinear-malformed",
+      "format": "netcdf-cf",
+      "source": "tests/geo-netcdf-reader.test.ts",
+      "materializer": "bounded classic NetCDF variable builder",
+      "profiles": ["irregular", "curvilinear", "malformed", "overflow", "malicious-dimensions"],
+      "oracle": "NetCDF tooling and reader rejection contract"
+    }
+  ]
+}

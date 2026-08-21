@@ -2,12 +2,15 @@ export { geoTiffProfile } from '../geotiff.ts'
 export type {
   GeoTiffBoundingBox,
   GeoTiffGdalMetadataItem,
+  GeoTiffDiagnostic,
+  GeoTiffDiagnosticCode,
   GeoTiffKey,
   GeoTiffModel,
   GeoTiffNoData,
   GeoTiffPoint,
   GeoTiffProfile,
   GeoTiffRasterType,
+  GeoTiffTiepoint,
 } from '../geotiff.ts'
 export { openTiffDocument } from '../codecs/tiff.ts'
 export { inspectCog } from './cog.ts'

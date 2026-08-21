@@ -15,14 +15,14 @@ import type { RasterBlock } from '../src/raster.ts'
 import {
   createImageCodecScientificReader,
   getScientificDatasetIdentity,
-  ScientificReaderRegistry,
   type ScientificDataset,
   type ScientificReaderDescriptor,
+  ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
-import { jpegReader } from '../src/scientific/readers/jpeg.ts'
-import { jp2Reader } from '../src/scientific/readers/jp2.ts'
-import { pngReader } from '../src/scientific/readers/png.ts'
 import { bmpReader } from '../src/scientific/readers/bmp.ts'
+import { jp2Reader } from '../src/scientific/readers/jp2.ts'
+import { jpegReader } from '../src/scientific/readers/jpeg.ts'
+import { pngReader } from '../src/scientific/readers/png.ts'
 import { webpReader } from '../src/scientific/readers/webp.ts'
 import { MemorySource } from '../src/source.ts'
 
@@ -243,6 +243,23 @@ describe('image-codec scientific readers', () => {
     expect(await collectDataset(await document.openDataset('image'))).toEqual([17, 231])
   })
 
+  it('rebases codec-relative region blocks to scientific dataset coordinates', async () => {
+    const document = await new ScientificReaderRegistry([pngReader]).open({
+      primary: { id: 'png', name: 'sample.png', source: new MemorySource(pngFixture()) },
+    })
+    const dataset = await document.openDataset('image')
+    const iterator = dataset
+      .readPlane({ displayAxes: ['x', 'y'], fixedIndices: [], x: 1, y: 1, width: 1, height: 1 })
+      [Symbol.asyncIterator]()
+    const result = await iterator.next()
+    expect(result).toMatchObject({
+      done: false,
+      value: { x: 1, y: 1, width: 1, height: 1, data: Uint8Array.of(165, 175, 185, 195) },
+    })
+    if (result.done === false) result.value.release?.()
+    await iterator.return?.()
+  })
+
   it('uses one dataset per selectable frame and levels within each dataset', async () => {
     const descriptor: ScientificReaderDescriptor = {
       id: 'test/selectable',
@@ -283,8 +300,8 @@ describe('image-codec scientific readers', () => {
             const width = request.width ?? 8 / divisor
             const height = request.height ?? 6 / divisor
             yield {
-              x: request.x ?? 0,
-              y: request.y ?? 0,
+              x: 0,
+              y: 0,
               width,
               height,
               stride: width * 3,
@@ -370,8 +387,8 @@ describe('image-codec scientific readers', () => {
       async *decode(request = {}) {
         decodeCalls += 1
         yield {
-          x: request.x ?? 0,
-          y: request.y ?? 0,
+          x: 0,
+          y: 0,
           width: request.width ?? 2,
           height: request.height ?? 2,
           stride: (request.width ?? 2) * 4,

@@ -82,11 +82,11 @@ PureJsImage 0.15.0 is a zero-runtime-dependency strict TypeScript image-processi
 | --- | ---: | ---: | ---: |
 | Core API | 60.0 KiB | 19.0 KiB | 16.8 KiB |
 | Common web codecs | 607.6 KiB | 224.4 KiB | 188.0 KiB |
-| All stable codecs | 870.4 KiB | 306.2 KiB | 252.4 KiB |
-| Scientific platform | 159.9 KiB | 46.1 KiB | 39.2 KiB |
-| All scientific readers | 1224.1 KiB | 353.7 KiB | 282.0 KiB |
+| All stable codecs | 870.5 KiB | 306.3 KiB | 252.5 KiB |
+| Scientific platform | 159.8 KiB | 46.1 KiB | 39.2 KiB |
+| All scientific readers | 1231.3 KiB | 356.1 KiB | 284.1 KiB |
 
-The extracted npm package is 5.8 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 6.3 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 ## Install
@@ -170,6 +170,36 @@ overview, compression, and sample layout plus likely structural issues. The chec
 [COG compatibility matrix](docs/tiff-cog-compatibility.md) distinguishes display-only compression
 from native scientific-raster support and includes the simulated-range viewport benchmark.
 
+GeoTIFF and GeoZarr are also available as lazy `GeoRasterDataset` readers under
+`purejsimage/geo/readers`. The GeoZarr reader supports v2 and v3 metadata, regular chunks, supported
+v3 shards, multiscales, HTTP stores, local directories, and ZIP stores without adding another Zarr
+decoder. Band, time, vertical, ensemble, and custom dimensions remain selectable axes.
+World-file TIFF, JPEG, and PNG images, georeferenced ENVI, Esri ASCII Grid, and SRTM HGT use the same
+geo contract while retaining each format's honest region-read limits.
+Classic NetCDF CDF-1 and CDF-2 files with regular rectilinear CF coordinates are available through
+`purejsimage/geo/readers/netcdf`. Time and vertical dimensions remain selectable. CDF-5,
+HDF5-backed NetCDF4, irregular coordinate lookup, and curvilinear grids are reported explicitly.
+
+<!-- geo-capabilities:readme:start -->
+<!-- Generated from capabilities/geo-manifest.json. Do not edit directly. -->
+### Geographic raster compatibility
+
+| Format | Local | Remote | Region | Multiscale | Reprojection | Write |
+| --- | --- | --- | --- | --- | --- | --- |
+| GeoTIFF | Tested | Tested | Tested | Tested | Tested | Out of scope |
+| COG behavior | Tested | Tested | Tested | Tested | Tested | Out of scope |
+| GeoZarr | Tested | Tested | Tested | Tested | Tested | Out of scope |
+| Image plus world file | Tested | Tested | Fixture-limited | Unavailable | Tested | Out of scope |
+| ENVI | Tested | Fixture-limited | Tested | Unavailable | Tested | Out of scope |
+| Esri ASCII Grid | Tested | Fixture-limited | Fixture-limited | Unavailable | Fixture-limited | Out of scope |
+| SRTM HGT | Tested | Fixture-limited | Tested | Unavailable | Tested | Out of scope |
+| Classic NetCDF / CF | Tested | Tested | Tested | Unavailable | Fixture-limited | Out of scope |
+
+“Fixture-limited” is implemented behavior with a narrow current corpus. “Metadata only” does not
+claim the related pixel operation. See the [complete generated geo evidence table](docs/generated/geo-compatibility.md)
+and the [machine-readable manifest](docs-astro/public/geo-capabilities.json).
+<!-- geo-capabilities:readme:end -->
+
 Direct-range readers can request only the source spans needed for metadata, a native-precision
 region, a spectrum, a volume plane, or a whole-slide tile. This includes workflows across DM3 and
 DM4, TIA SER and EMI, NCEM and Velox EMD, NIfTI, NRRD, MRC, OME-TIFF, Aperio SVS, AFM and surface
@@ -184,6 +214,10 @@ exports they need.
 [Scientific application guide →](docs/application-platform.md) ·
 [OME-Zarr reader and validation policy →](docs/scientific-ome-zarr.md) ·
 [OME-Zarr public compatibility evidence →](docs/generated/ome-zarr-compatibility.md) ·
+[Geo raster architecture →](docs/geo-architecture.md) ·
+[GeoZarr reader →](docs/geozarr-reader.md) ·
+[Contained geo formats →](docs/geo-contained-formats.md) ·
+[Classic NetCDF and CF grids →](docs/netcdf-cf.md) ·
 [Native numeric tile contract →](docs/scientific-numeric-tiles.md) ·
 [Bounded raster analysis →](docs/bounded-raster-analysis.md)
 
@@ -309,11 +343,11 @@ Generated for purejsimage 0.15.0. The README keeps only the major entry points; 
 | --- | --- | ---: | ---: | ---: |
 | Core API | `purejsimage` | 60.0 KiB | 19.0 KiB | 16.8 KiB |
 | Core + common web codecs | `purejsimage/codecs/web` | 607.6 KiB | 224.4 KiB | 188.0 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 870.4 KiB | 306.2 KiB | 252.4 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 159.9 KiB | 46.1 KiB | 39.2 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1224.1 KiB | 353.7 KiB | 282.0 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 870.5 KiB | 306.3 KiB | 252.5 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 159.8 KiB | 46.1 KiB | 39.2 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1231.3 KiB | 356.1 KiB | 284.1 KiB |
 
-The extracted npm package is 5.8 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 6.3 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
+import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 
 const sourceDirectory = resolve('docs-astro')
 const outputDirectory = resolve('benchmark/.tmp/docs-site')
@@ -11,6 +12,8 @@ const outputWsiBundle = join(outputDirectory, 'assets/wsi-viewer.js')
 const outputWsiWorker = join(outputDirectory, 'assets/wsi-worker.js')
 const outputOmeZarrBundle = join(outputDirectory, 'assets/ome-zarr-viewer.js')
 const outputOmeZarrWorker = join(outputDirectory, 'assets/ome-zarr-worker.js')
+const outputGeoBundle = join(outputDirectory, 'assets/geo-showcase.js')
+const outputGeoWorker = join(outputDirectory, 'assets/geo-showcase-worker.js')
 const outputWasm = join(outputDirectory, 'assets/jpeg-decoder.wasm')
 const outputSimdDecoderWasm = join(outputDirectory, 'assets/jpeg-decoder-simd.wasm')
 const outputEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder.wasm')
@@ -19,6 +22,18 @@ const outputPngWasm = join(outputDirectory, 'assets/png-codec.wasm')
 const outputSimdPngWasm = join(outputDirectory, 'assets/png-codec-simd.wasm')
 
 await buildAstro({ root: sourceDirectory })
+
+const geoFixtureDirectory = join(outputDirectory, 'fixtures/geo/geozarr-cube')
+for (const resource of geoShowcaseZarrResources()) {
+  const target = join(geoFixtureDirectory, resource.name)
+  await mkdir(dirname(target), { recursive: true })
+  await writeFile(target, resource.bytes)
+}
+await mkdir(join(outputDirectory, 'fixtures/geo'), { recursive: true })
+await copyFile(
+  resolve('tests/fixtures/cog/showcase-subifd-deflate-rotated.tif'),
+  join(outputDirectory, 'fixtures/geo/overview-cog.tif'),
+)
 
 const featureTourFactory = generatedScientificFixtures['ome-zarr-feature-tour-generated']
 if (featureTourFactory === undefined) throw new Error('Missing generated OME-Zarr Feature Tour')
@@ -93,6 +108,8 @@ await build({
     'wsi-worker': 'docs-astro/src/scripts/wsi-worker.ts',
     'ome-zarr-viewer': 'docs-astro/src/scripts/ome-zarr-viewer.ts',
     'ome-zarr-worker': 'docs-astro/src/scripts/ome-zarr-worker.ts',
+    'geo-showcase': 'docs-astro/src/scripts/geo-showcase.ts',
+    'geo-showcase-worker': 'docs-astro/src/scripts/geo-showcase-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
@@ -135,6 +152,11 @@ const omeZarrWorker = await stat(outputOmeZarrWorker)
 if (omeZarrBundle.size === 0 || omeZarrWorker.size === 0) {
   throw new Error('Generated OME-Zarr viewer bundle is empty')
 }
+const geoBundle = await stat(outputGeoBundle)
+const geoWorker = await stat(outputGeoWorker)
+if (geoBundle.size === 0 || geoWorker.size === 0) {
+  throw new Error('Generated geo showcase bundle is empty')
+}
 const wasm = await stat(outputWasm)
 const simdDecoderWasm = await stat(outputSimdDecoderWasm)
 const encoderWasm = await stat(outputEncoderWasm)
@@ -153,5 +175,5 @@ if (
 }
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${featureTourBytes.toLocaleString()} byte synthetic OME-Zarr Feature Tour, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${(geoBundle.size + geoWorker.size).toLocaleString()} byte geo showcase, ${featureTourBytes.toLocaleString()} byte synthetic OME-Zarr Feature Tour, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
 )

@@ -67,6 +67,10 @@ const applicationPlatformResult = await build({
     contents: `
       export * from './src/scientific/index.ts'
       export * from './src/scientific/readers/all.ts'
+      export * from './src/geo/index.ts'
+      export * from './src/geo/readers/all.ts'
+      export * from './src/geo/readers/geozarr/index.ts'
+      export * from './src/geo/readers/netcdf.ts'
       export * from './src/operations/index.ts'
       export * from './src/analysis/index.ts'
       export * from './src/analysis/project-entry.ts'

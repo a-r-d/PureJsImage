@@ -169,6 +169,20 @@ try {
     'dist/scientific/readers/webp.js',
     'dist/scientific/readers/bmp.js',
     'dist/scientific/readers/jp2.js',
+    'dist/geo/index.js',
+    'dist/geo/browser.js',
+    'dist/geo/readers/index.js',
+    'dist/geo/readers/all.js',
+    'dist/geo/readers/geotiff.js',
+    'dist/geo/readers/geozarr/index.js',
+    'dist/geo/readers/geozarr/node.js',
+    'dist/geo/readers/world-file.js',
+    'dist/geo/readers/world-file-node.js',
+    'dist/geo/readers/envi.js',
+    'dist/geo/readers/esri-ascii-grid.js',
+    'dist/geo/readers/srtm-hgt.js',
+    'dist/geo/readers/netcdf.js',
+    'dist/geo/conventions/geozarr/index.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
     'dist/analysis/project-entry.js',
@@ -220,7 +234,14 @@ try {
           strict: true,
           types: [],
         },
-        include: ['index.ts', 'runtime.ts', 'browser.ts', 'worker.ts', 'import-effects.ts'],
+        include: [
+          'index.ts',
+          'runtime.ts',
+          'browser.ts',
+          'worker.ts',
+          'geo-showcase.ts',
+          'import-effects.ts',
+        ],
       },
       null,
       2,
@@ -239,6 +260,22 @@ import { createScientificLibrary, normalizeScientificDatasetDescriptor, normaliz
 import type { ScientificReader, ScientificSeriesBlock, ScientificSeriesReadRequest } from 'purejsimage/scientific'
 export { createImageCodecScientificReader, readScientificSeriesFromPlane } from 'purejsimage/scientific'
 export type { ScientificSeriesBlock }
+import { adaptScientificDatasetToGeo, canonicalizeGeoTargetGrid, createGeoGridGeometry, createNormalizedDifferencePlan as createGeoNormalizedDifferencePlan, geoSpatialReferenceToScientific, proposeGeoTargetGrid } from 'purejsimage/geo'
+import type { GeoCoordinateTransformProvider, GeoRasterDataset, GeoRasterDescriptor, GeoRasterView, GeoReprojectReadRequest, GeoSpatialReference, GeoTargetGrid } from 'purejsimage/geo'
+import { geoReaders } from 'purejsimage/geo/readers/all'
+import { geoTiffReader } from 'purejsimage/geo/readers/geotiff'
+import { geoZarrReader, openGeoZarrHttp, openGeoZarrObjectStore } from 'purejsimage/geo/readers/geozarr'
+import type { GeoZarrDocument, GeoZarrStructuralReport } from 'purejsimage/geo/readers/geozarr'
+import { openGeoZarrDirectory } from 'purejsimage/geo/readers/geozarr/node'
+import { openWorldFileHttp, worldFileReader } from 'purejsimage/geo/readers/world-file'
+import { openWorldFilePath } from 'purejsimage/geo/readers/world-file/node'
+import { geoEnviReader } from 'purejsimage/geo/readers/envi'
+import { esriAsciiGridReader } from 'purejsimage/geo/readers/esri-ascii-grid'
+import { srtmHgtReader } from 'purejsimage/geo/readers/srtm-hgt'
+import { geoNetCdfReader } from 'purejsimage/geo/readers/netcdf'
+import type { CfGridMappingDefinition, GeoNetCdfReaderLimits } from 'purejsimage/geo/readers/netcdf'
+import { geoZarrConventionRegistry, parseGeoZarrConventionMetadata } from 'purejsimage/geo/conventions/geozarr'
+import type { GeoZarrConventionMetadata } from 'purejsimage/geo/conventions/geozarr'
 import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 export { aperioSvsReader, createAperioSvsReader } from 'purejsimage/scientific/readers/aperio-svs'
 export type { AperioSvsLimits, AperioSvsReaderOptions } from 'purejsimage/scientific/readers/aperio-svs'
@@ -307,6 +344,50 @@ const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })
+export type GeoConsumerContracts = {
+  readonly dataset: GeoRasterDataset
+  readonly descriptor: GeoRasterDescriptor
+  readonly view: GeoRasterView
+  readonly spatialReference: GeoSpatialReference
+  readonly targetGrid: GeoTargetGrid
+  readonly transformProvider: GeoCoordinateTransformProvider
+  readonly reprojectRead: GeoReprojectReadRequest
+}
+export { adaptScientificDatasetToGeo, createGeoGridGeometry, geoSpatialReferenceToScientific }
+export const geoReaderCount = geoReaders.length
+export const geoTiffReaderId = geoTiffReader.descriptor.id
+export const geoZarrReaderId = geoZarrReader.descriptor.id
+export const geoNetCdfReaderId = geoNetCdfReader.descriptor.id
+export { openGeoZarrDirectory, openGeoZarrHttp, openGeoZarrObjectStore }
+export { esriAsciiGridReader, geoEnviReader, openWorldFileHttp, openWorldFilePath, srtmHgtReader, worldFileReader }
+export type { GeoZarrDocument, GeoZarrStructuralReport }
+export type GeoNetCdfConsumerContracts = {
+  readonly limits: GeoNetCdfReaderLimits
+  readonly mapping: CfGridMappingDefinition
+}
+export const geoZarrConventionCount = geoZarrConventionRegistry.length
+export type GeoZarrConsumerMetadata = GeoZarrConventionMetadata
+export const parseGeoZarrConsumerMetadata = parseGeoZarrConventionMetadata
+const geoConsumerCrs: GeoSpatialReference = {
+  schemaVersion: 1,
+  coordinateSystemType: 'projected',
+  authority: 'EPSG', code: 32618, name: 'WGS 84 / UTM zone 18N',
+  formalAxes: [],
+  applicationAxes: { x: { name: 'easting' }, y: { name: 'northing' } },
+  evidence: [], state: 'complete', diagnostics: [],
+}
+export const geoConsumerTargetGrid = proposeGeoTargetGrid({
+  crs: geoConsumerCrs,
+  bounds: { minX: 0, minY: 0, maxX: 2, maxY: 2 },
+  width: 2, height: 2, origin: 'upper-left', pixelRegistration: 'pixel-is-area',
+  sampleType: 'float32', noData: { kind: 'nan' },
+  bandLayout: { componentCount: 1, layout: 'interleaved', sourceBands: [0] },
+})
+export const geoConsumerTargetGridKey = canonicalizeGeoTargetGrid(geoConsumerTargetGrid)
+export const geoNormalizedDifference = createGeoNormalizedDifferencePlan(
+  { name: 'red', valueMode: 'raw' },
+  { name: 'nir', valueMode: 'raw' },
+)
 const extensionReader: ScientificReader = {
   descriptor: {
     id: 'example.science/readers/cube',

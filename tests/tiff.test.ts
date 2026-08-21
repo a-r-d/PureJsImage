@@ -3819,6 +3819,99 @@ describe('GeoTIFF metadata profile', () => {
     expect(blocks[0]?.format).toEqual({ sampleType: 'uint8', channels: 5, planar: false })
     expect(Array.from(blocks[0]?.data ?? [])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
   })
+
+  it('validates every tiepoint and preserves vertical and unknown GeoKey evidence', async () => {
+    const verticalCitation = new TextEncoder().encode('NAVD88|')
+    const create = (secondModelX: number): Uint8Array =>
+      tiffFixture({
+        width: 4,
+        height: 2,
+        bitsPerSample: [8],
+        compression: 1,
+        photometric: 1,
+        strips: [Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8)],
+        extraEntries: [
+          { tag: 33_550, type: 12, values: [10, 20, 1] },
+          {
+            tag: 33_922,
+            type: 12,
+            values: [0, 0, 0, 100, 200, 0, 2, 1, 0, secondModelX, 180, 0],
+          },
+          {
+            tag: 34_735,
+            type: 3,
+            values: [
+              1,
+              1,
+              0,
+              7,
+              1_024,
+              0,
+              1,
+              2,
+              1_025,
+              0,
+              1,
+              1,
+              2_048,
+              0,
+              1,
+              4_326,
+              4_096,
+              0,
+              1,
+              5_703,
+              4_097,
+              34_737,
+              verticalCitation.byteLength,
+              0,
+              65_000,
+              0,
+              1,
+              42,
+              65_001,
+              1_234,
+              1,
+              0,
+            ],
+          },
+          { tag: 34_737, type: 2, values: [...verticalCitation, 0] },
+        ],
+      })
+
+    const consistent = await geoTiffProfile.open({
+      document: await openTiffDocument(new MemorySource(create(120))),
+    })
+    expect(consistent.model?.matrix).toEqual([
+      10, 0, 0, 100, 0, -20, 0, 200, 0, 0, 1, 0, 0, 0, 0, 1,
+    ])
+    expect(consistent.tiepoints).toHaveLength(2)
+    expect(consistent.diagnostics).toEqual([])
+    expect(consistent).toMatchObject({
+      verticalCrs: 5703,
+      verticalCitation: 'NAVD88',
+    })
+    expect(consistent.keys.get(65_000)).toMatchObject({ recognized: false, value: 42 })
+    expect(consistent.keys.get(65_001)).toMatchObject({
+      recognized: false,
+      value: null,
+      unavailableReason: 'GeoKey references unsupported tag 1234',
+    })
+
+    const inconsistent = await geoTiffProfile.open({
+      document: await openTiffDocument(new MemorySource(create(121))),
+    })
+    expect(inconsistent.model).toBeUndefined()
+    expect(inconsistent.diagnostics).toEqual([
+      {
+        code: 'INCONSISTENT_TIEPOINT',
+        severity: 'error',
+        message:
+          'GeoTIFF tiepoint 1 is inconsistent with ModelPixelScaleTag and the first tiepoint.',
+        tiepointIndex: 1,
+      },
+    ])
+  })
 })
 
 describe('OME-TIFF scientific semantics', () => {

@@ -80,6 +80,7 @@ test('keeps a one-line desktop header with the grouped navigation', async ({ pag
   await expect(nav.getByRole('link', { name: 'Image converter' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Whole-slide viewer' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Scientific explorer' })).toBeVisible()
+  await expect(nav.getByRole('link', { name: 'Geo raster labs' })).toBeVisible()
   await page.locator('.nav-summary', { hasText: 'Apps' }).click()
   await expect(nav.getByRole('link', { name: 'Scientific imagery' })).toHaveAttribute(
     'href',
