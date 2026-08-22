@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-08-21
+
 ### Added
 
 - Added the `purejsimage/geo` raster API with CRS and affine grid metadata, resolution levels,
@@ -25,6 +27,10 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- The installed-package Geo consumer now runs deterministic range-backed GeoTIFF and
+  multidimensional GeoZarr workflows through the public Geo, scientific, and tile-runtime entries.
+  It also checks stable resource identity, cancellation ownership, exact cleanup, reprojection, and
+  a browser Worker bundle. The Geo architecture guide now documents this application pattern.
 - GeoTIFF overview levels now derive their affine transform when an overview repeats CRS metadata
   without its own model transform. Hillshade reads its required one-pixel source border without
   weakening the 196,608-pixel output limit, and geo views preserve exact nodata values and source
@@ -1146,4 +1152,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.13.0]: https://github.com/a-r-d/PureJsImage/compare/v0.12.0...v0.13.0
 [0.14.0]: https://github.com/a-r-d/PureJsImage/compare/v0.13.0...v0.14.0
 [0.15.0]: https://github.com/a-r-d/PureJsImage/compare/v0.14.0...v0.15.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.15.0...HEAD
+[0.16.0]: https://github.com/a-r-d/PureJsImage/compare/v0.15.0...v0.16.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.16.0...HEAD

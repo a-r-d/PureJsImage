@@ -660,6 +660,19 @@ The maintainer approved the following decisions on 2026-08-12:
         opt-in public cases skipped. The packed consumer contains 636 files, the clean-source browser
         graph passes, and the complete `npm run check` gate passes 171 files and 2,035 tests with 3
         intentional skips.
+- [x] Harden the installed-package Geo consumer with deterministic range-backed GeoTIFF and
+      multidimensional GeoZarr workflows. Prove public scientific identity, numeric tile runtime,
+      target-grid canonicalization, identity and caller-provider reprojection, request cancellation,
+      exact cleanup, and a browser module Worker bundle without private source imports or Node
+      built-ins.
+  - Result: the clean consumer installs the exact packed tarball and imports `purejsimage/geo`,
+        `/geo/browser`, `/geo/readers/geotiff`, and `/geo/readers/geozarr`. Its deterministic COG and
+        GeoZarr proof covers structural inspection, overview and band selection, time and band axis
+        selection, bounded reads, stable and invalidated resource identity, the numeric tile runtime,
+        target-grid canonicalization, both reprojection paths, cancellation recovery, and exact
+        release and close counts. The 636-file package consumer builds a 1,246,800-byte browser
+        module Worker without Node built-ins or private source imports. The complete repository gate
+        passes 172 test files and 2,039 tests with 1 file and 6 cases intentionally skipped.
 - [x] Split the public API into `purejsimage/analysis`, `/results`, `/roi`, `/runtime`, and `/project`
       with checked-in export manifests and independent browser/size gates.
 - [x] Implement the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) with

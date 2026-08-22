@@ -232,7 +232,7 @@ export const libraryComparisons: readonly LibraryComparison[] = Object.freeze([
   {
     id: 'purejsimage',
     name: 'PureJsImage',
-    version: '0.15.0',
+    version: '0.16.0',
     packageName: 'purejsimage',
     url: 'https://github.com/a-r-d/PureJsImage',
     implementation: 'pure-javascript',

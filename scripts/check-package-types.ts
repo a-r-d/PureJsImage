@@ -70,6 +70,10 @@ const expectBuildFailure = async (
 const assertPortableBundle = async (
   entryPoint: string,
   consumerDirectory: string,
+  options: Readonly<{
+    readonly requiredPackageInputs?: readonly RegExp[]
+    readonly rejectPrivateGeoInputs?: boolean
+  }> = {},
 ): Promise<number> => {
   const result = await build({
     absWorkingDir: consumerDirectory,
@@ -82,6 +86,7 @@ const assertPortableBundle = async (
     write: false,
   })
   const builtins = new Set(builtinModules.flatMap((name) => [name, `node:${name}`]))
+  const inputs = Object.keys(result.metafile.inputs)
   for (const [input, metadata] of Object.entries(result.metafile.inputs)) {
     for (const imported of metadata.imports) {
       if (builtins.has(imported.path) || imported.path.startsWith('node:')) {
@@ -93,6 +98,17 @@ const assertPortableBundle = async (
   if (output === undefined) throw new Error(`Browser bundle ${entryPoint} produced no output`)
   if (/\bnode:[a-z0-9_/-]+/iu.test(output)) {
     throw new Error(`Packed browser bundle ${entryPoint} contains a Node built-in specifier`)
+  }
+  if (
+    options.rejectPrivateGeoInputs === true &&
+    inputs.some((input) => /node_modules\/purejsimage\/src\//u.test(input))
+  ) {
+    throw new Error(`Packed browser bundle ${entryPoint} contains a private Geo implementation`)
+  }
+  for (const required of options.requiredPackageInputs ?? []) {
+    if (!inputs.some((input) => required.test(input))) {
+      throw new Error(`Packed browser bundle ${entryPoint} omitted ${required.source}`)
+    }
   }
   return output.length
 }
@@ -170,11 +186,15 @@ try {
     'dist/scientific/readers/bmp.js',
     'dist/scientific/readers/jp2.js',
     'dist/geo/index.js',
+    'dist/geo/index.d.ts',
     'dist/geo/browser.js',
+    'dist/geo/browser.d.ts',
     'dist/geo/readers/index.js',
     'dist/geo/readers/all.js',
     'dist/geo/readers/geotiff.js',
+    'dist/geo/readers/geotiff.d.ts',
     'dist/geo/readers/geozarr/index.js',
+    'dist/geo/readers/geozarr/index.d.ts',
     'dist/geo/readers/geozarr/node.js',
     'dist/geo/readers/world-file.js',
     'dist/geo/readers/world-file-node.js',
@@ -196,6 +216,24 @@ try {
   }
   if (files.some((path) => path.startsWith('src/'))) {
     throw new Error('Packed package must not expose source files')
+  }
+  for (const entry of [
+    './geo',
+    './geo/browser',
+    './geo/readers/geotiff',
+    './geo/readers/geozarr',
+  ]) {
+    if (!(entry in packageJson.exports)) throw new Error(`Package exports omit ${entry}`)
+  }
+  for (const internal of [
+    './tiff/types',
+    './zarr/core',
+    './geo/readers/geotiff/parser',
+    './geo/conventions/geozarr/proj',
+  ]) {
+    if (internal in packageJson.exports) {
+      throw new Error(`Package exports expose internal implementation ${internal}`)
+    }
   }
   for (const path of files.filter(
     (candidate) => candidate.startsWith('dist/scientific/') && candidate.endsWith('.d.ts'),
@@ -240,6 +278,9 @@ try {
           'browser.ts',
           'worker.ts',
           'geo-showcase.ts',
+          'geo-showcase-data.ts',
+          'geo-showcase-worker.ts',
+          'geo-showcase-runner.ts',
           'import-effects.ts',
         ],
       },
@@ -585,9 +626,22 @@ export const openScientific = async () => {
     'private-import.ts',
     'browser-node-import.ts',
     'import-effects.ts',
+    'geo-showcase.ts',
+    'geo-showcase-worker.ts',
   ]) {
     await copyFile(join(fixtureRoot, name), join(consumerDirectory, name))
   }
+  const cogFixture = await readFile(
+    join(repositoryRoot, 'tests/fixtures/cog/subifd-deflate-rotated.tif'),
+  )
+  await writeFile(
+    join(consumerDirectory, 'geo-showcase-data.ts'),
+    `export const cogFixtureBytes = Uint8Array.from(${JSON.stringify([...cogFixture])})\n`,
+  )
+  await writeFile(
+    join(consumerDirectory, 'geo-showcase-runner.ts'),
+    `import { runGeoConsumerProof } from './geo-showcase.js'\nconsole.log(JSON.stringify(await runGeoConsumerProof((step) => console.error(step))))\n`,
+  )
 
   run(
     'npm',
@@ -604,6 +658,15 @@ export const openScientific = async () => {
 
   const browserBytes = await assertPortableBundle('browser.ts', consumerDirectory)
   const workerBytes = await assertPortableBundle('worker.ts', consumerDirectory)
+  const geoWorkerBytes = await assertPortableBundle('geo-showcase-worker.ts', consumerDirectory, {
+    requiredPackageInputs: [
+      /node_modules\/purejsimage\/dist\/geo\/index\.js$/u,
+      /node_modules\/purejsimage\/dist\/geo\/browser\.js$/u,
+      /node_modules\/purejsimage\/dist\/geo\/readers\/geotiff\.js$/u,
+      /node_modules\/purejsimage\/dist\/geo\/readers\/geozarr\/index\.js$/u,
+    ],
+    rejectPrivateGeoInputs: true,
+  })
   await expectBuildFailure(
     'private-import.ts',
     consumerDirectory,
@@ -637,6 +700,42 @@ export const openScientific = async () => {
     throw new Error(`Unexpected packed runtime report: ${runtimeOutput}`)
   }
 
+  const geoRuntimeBundle = join(consumerDirectory, 'geo-showcase-runner.mjs')
+  await build({
+    absWorkingDir: consumerDirectory,
+    bundle: true,
+    entryPoints: ['geo-showcase-runner.ts'],
+    format: 'esm',
+    logLevel: 'silent',
+    outfile: geoRuntimeBundle,
+    platform: 'node',
+  })
+  const geoRuntimeOutput = run(
+    process.execPath,
+    [geoRuntimeBundle],
+    consumerDirectory,
+    environment,
+  ).trim()
+  const geoReport: unknown = JSON.parse(geoRuntimeOutput)
+  if (
+    geoReport === null ||
+    typeof geoReport !== 'object' ||
+    !('cog' in geoReport) ||
+    geoReport.cog === null ||
+    typeof geoReport.cog !== 'object' ||
+    !('identityStable' in geoReport.cog) ||
+    geoReport.cog.identityStable !== true ||
+    !('identityChanged' in geoReport.cog) ||
+    geoReport.cog.identityChanged !== true ||
+    !('geozarr' in geoReport) ||
+    geoReport.geozarr === null ||
+    typeof geoReport.geozarr !== 'object' ||
+    !('values' in geoReport.geozarr) ||
+    JSON.stringify(geoReport.geozarr.values) !== '[12,13,15,16]'
+  ) {
+    throw new Error(`Unexpected packed Geo consumer report: ${geoRuntimeOutput}`)
+  }
+
   const importEffectsBundle = join(consumerDirectory, 'import-effects.mjs')
   await build({
     absWorkingDir: consumerDirectory,
@@ -658,7 +757,7 @@ export const openScientific = async () => {
   }
 
   console.log(
-    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes)`,
+    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
   )
 } finally {
   await rm(temporaryDirectory, { force: true, recursive: true })

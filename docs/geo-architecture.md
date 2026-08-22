@@ -204,6 +204,58 @@ The geo core excludes:
 These features can consume the public geo contracts from applications or separate integration
 layers. They are not dependencies of `purejsimage/geo`.
 
+## Worker-backed application integration
+
+A browser application can keep source, document, dataset, and tile-runtime ownership inside one
+module Worker. Use `purejsimage/geo/browser` for the range source and import each format reader from
+its public subpath. The Geo dataset keeps the same scientific dataset object, so applications can
+use the existing numeric tile runtime without a second adapter layer:
+
+```ts
+import {
+  createTileDatasetIdentityForScientificDataset,
+  createTileRuntime,
+  numericTileSourceToTileSource,
+} from 'purejsimage/analysis/runtime'
+import { HttpRangeSource } from 'purejsimage/geo/browser'
+import { createGeoTiffReader } from 'purejsimage/geo/readers/geotiff'
+import {
+  getScientificDatasetIdentity,
+  resolveNumericTileSource,
+} from 'purejsimage/scientific'
+
+const lifetime = new AbortController()
+const source = await HttpRangeSource.open(url, {
+  openSignal: openRequest.signal,
+  lifetimeSignal: lifetime.signal,
+})
+const document = await createGeoTiffReader().open({ primary: { id: url, source } })
+const dataset = await document.openDataset(document.datasets[0]!.id)
+const identity = getScientificDatasetIdentity(dataset.scientificDataset)
+const runtime = createTileRuntime()
+const tileSource = numericTileSourceToTileSource(
+  resolveNumericTileSource(dataset.scientificDataset),
+)
+const tileIdentity = createTileDatasetIdentityForScientificDataset(
+  dataset.scientificDataset,
+  { sessionId: workerSessionId },
+)
+```
+
+The public identity is `getScientificDatasetIdentity(dataset.scientificDataset)`. Strong resource
+validators make it stable across opens of the same source and different when a validator changes.
+Weak resources stay scoped by the application session when they become tile-runtime identities.
+
+Each viewport request should use its own abort signal. Aborting one request must not abort the
+source lifetime. Release every returned tile once. When the Worker no longer owns the dataset,
+dispose the tile runtime, close the reader document, and then abort the source lifetime. Source
+telemetry remains available from `HttpRangeSource.stats`.
+
+Cross-CRS reads require a caller-supplied `GeoCoordinateTransformProvider`. The base package does
+not load a projection database. Direct GeoZarr follows the GeoZarr convention metadata described
+in this guide. OME-Zarr keeps its existing microscopy semantics under
+`purejsimage/scientific/readers/ome-zarr`; neither reader converts the other format automatically.
+
 ## Public entries
 
 - `purejsimage/geo` exports the initial geo raster and coordinate contracts.
