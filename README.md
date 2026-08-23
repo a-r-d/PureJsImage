@@ -388,6 +388,12 @@ If native libvips is deployable and throughput is the primary constraint, use
 browser parity, explicit dependency boundaries, native scientific data, or lower-memory JavaScript
 execution matter.
 
+## Citation
+
+Use the metadata in [`CITATION.cff`](CITATION.cff) to cite PureJsImage. The file records the current
+software release, author, source repository, npm package, license, and project keywords in Citation
+File Format 1.2.0.
+
 ## Development
 
 ```sh

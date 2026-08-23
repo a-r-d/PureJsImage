@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use PureJsImage in your work, please cite the software using these metadata."
+title: "PureJsImage"
+type: software
+authors:
+  - family-names: "Decker"
+    given-names: "Aaron"
+    website: "https://www.ard.ninja"
+abstract: "Portable image codecs and low-memory raster processing in strict TypeScript for Node.js and modern browsers."
+version: "0.16.0"
+date-released: "2026-08-21"
+keywords:
+  - "image codecs"
+  - "image processing"
+  - "low memory"
+  - "TypeScript"
+  - "Node.js"
+  - "web browsers"
+  - "serverless"
+  - "scientific imaging"
+  - "geospatial raster"
+  - "whole-slide imaging"
+  - "TIFF"
+  - "OME-Zarr"
+  - "GeoTIFF"
+license: MIT
+repository-code: "https://github.com/a-r-d/PureJsImage"
+repository-artifact: "https://www.npmjs.com/package/purejsimage/v/0.16.0"
+url: "https://purejsimage.com/"

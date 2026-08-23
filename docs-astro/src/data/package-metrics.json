@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.16.0",
-    "unpackedPackageBytes": 6599177,
+    "unpackedPackageBytes": 6599411,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -2060,12 +2060,12 @@
           "version": "1.1.0"
         },
         {
-          "name": "@img/sharp-libvips-linux-x64",
-          "version": "1.3.2"
+          "name": "@img/sharp-darwin-arm64",
+          "version": "0.35.3"
         },
         {
-          "name": "@img/sharp-linux-x64",
-          "version": "0.35.3"
+          "name": "@img/sharp-libvips-darwin-arm64",
+          "version": "1.3.2"
         },
         {
           "name": "detect-libc",

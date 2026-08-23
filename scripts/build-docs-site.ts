@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
@@ -77,6 +77,98 @@ for (const page of await builtIndexPages(outputDirectory)) {
   }
 }
 if (sitemap.includes('/llms.txt')) throw new Error('Generated sitemap includes non-HTML llms.txt')
+
+const homePage = await readFile(join(outputDirectory, 'index.html'), 'utf8')
+const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+const jsonLdScriptPattern = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
+const structuredData = [...homePage.matchAll(jsonLdScriptPattern)].map((match, index) => {
+  const serialized = match[1]
+  if (serialized === undefined) {
+    throw new Error(`Generated home page JSON-LD block ${index + 1} has no content`)
+  }
+  let value: unknown
+  try {
+    value = JSON.parse(serialized)
+  } catch (error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error)
+    throw new Error(`Generated home page JSON-LD block ${index + 1} is invalid JSON: ${detail}`)
+  }
+  if (!isRecord(value)) {
+    throw new Error(`Generated home page JSON-LD block ${index + 1} is not an object`)
+  }
+  if (value['@context'] !== 'https://schema.org') {
+    throw new Error(`Generated home page JSON-LD block ${index + 1} has an invalid @context`)
+  }
+  return value
+})
+const structuredDataOfType = (type: string): Readonly<Record<string, unknown>> => {
+  const matches = structuredData.filter((value) => value['@type'] === type)
+  if (matches.length !== 1 || matches[0] === undefined) {
+    throw new Error(`Generated home page must contain exactly one ${type} JSON-LD object`)
+  }
+  return matches[0]
+}
+
+structuredDataOfType('WebSite')
+const softwareSourceCode = structuredDataOfType('SoftwareSourceCode')
+if ('downloadUrl' in softwareSourceCode) {
+  throw new Error(
+    'Generated SoftwareSourceCode metadata must not use SoftwareApplication.downloadUrl',
+  )
+}
+for (const [property, expected] of [
+  ['codeRepository', 'https://github.com/a-r-d/PureJsImage'],
+  ['citation', 'https://github.com/a-r-d/PureJsImage/blob/main/CITATION.cff'],
+] as const) {
+  if (softwareSourceCode[property] !== expected) {
+    throw new Error(`Generated SoftwareSourceCode metadata has an invalid ${property}`)
+  }
+}
+
+const faqPage = structuredDataOfType('FAQPage')
+if (faqPage['@id'] !== 'https://purejsimage.com/#faq') {
+  throw new Error('Generated FAQPage metadata has an invalid @id')
+}
+const questions = faqPage.mainEntity
+if (!Array.isArray(questions) || questions.length === 0) {
+  throw new Error('Generated FAQPage metadata must contain at least one mainEntity')
+}
+const visibleHomePage = homePage.replace(jsonLdScriptPattern, '')
+const visibleFaqCount = visibleHomePage.match(/class="home-faq-item"/g)?.length ?? 0
+if (visibleFaqCount !== questions.length) {
+  throw new Error(
+    `Generated FAQPage has ${questions.length} questions but the visible FAQ has ${visibleFaqCount}`,
+  )
+}
+const questionNames = new Set<string>()
+for (const [index, value] of questions.entries()) {
+  if (!isRecord(value) || value['@type'] !== 'Question') {
+    throw new Error(`Generated FAQPage mainEntity ${index + 1} is not a Question`)
+  }
+  const name = value.name
+  const acceptedAnswer = value.acceptedAnswer
+  if (typeof name !== 'string' || name.trim() === '') {
+    throw new Error(`Generated FAQPage Question ${index + 1} has no name`)
+  }
+  if (questionNames.has(name)) {
+    throw new Error(`Generated FAQPage contains the duplicate question: ${name}`)
+  }
+  questionNames.add(name)
+  if (!isRecord(acceptedAnswer) || acceptedAnswer['@type'] !== 'Answer') {
+    throw new Error(`Generated FAQPage Question ${index + 1} has no accepted Answer`)
+  }
+  const answer = acceptedAnswer.text
+  if (typeof answer !== 'string' || answer.trim() === '' || /<[^>]+>/.test(answer)) {
+    throw new Error(`Generated FAQPage Answer ${index + 1} must contain plain text`)
+  }
+  if (
+    !visibleHomePage.includes(`<h3>${name}</h3>`) ||
+    !visibleHomePage.includes(`<p>${answer}</p>`)
+  ) {
+    throw new Error(`Generated FAQPage Question ${index + 1} is not visibly rendered on the page`)
+  }
+}
 
 await mkdir(dirname(outputBundle), { recursive: true })
 const demoBuild = await build({

@@ -1,10 +1,74 @@
 ---
+import codeMeta from '../../../codemeta.json' with { type: 'json' }
 import BenchmarkGallery from '../components/BenchmarkGallery.astro'
-import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
+import SiteLayout from '../layouts/SiteLayout.astro'
 
 const mib = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MiB`
 const benchmarkDate = documentation.ordinary.createdAt.slice(0, 10)
+const softwareSourceCode = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': codeMeta.type,
+  '@id': 'https://purejsimage.com/#software',
+  name: codeMeta.name,
+  description: codeMeta.description,
+  url: codeMeta.url,
+  codeRepository: codeMeta.codeRepository,
+  license: codeMeta.license,
+  citation: codeMeta.citation,
+  author: codeMeta.author,
+  version: codeMeta.version,
+  dateCreated: codeMeta.dateCreated,
+  datePublished: codeMeta.datePublished,
+  programmingLanguage: codeMeta.programmingLanguage,
+  runtimePlatform: codeMeta.runtimePlatform,
+  keywords: codeMeta.keywords,
+})
+const homepageFaq = [
+  {
+    question: 'What is PureJsImage?',
+    answer:
+      'PureJsImage is an image codec and raster-processing library written in strict TypeScript. It runs in Node.js and modern browsers and has no runtime dependencies.',
+  },
+  {
+    question: 'Does PureJsImage work in both Node.js and web browsers?',
+    answer:
+      'Yes. The shared codec, pipeline, transform, source, sink, and public APIs support Node.js 22 or later and modern browsers. Browser applications use File, Blob, ArrayBuffer, Uint8Array, fetched bytes, or an ImageSource instead of local path strings.',
+  },
+  {
+    question: 'Which image formats does PureJsImage support?',
+    answer:
+      'PureJsImage supports JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, JPEG XL, Radiance HDR, QOI, Netpbm, and TGA. Read, write, and format-subset support varies, so use the codec matrix for exact boundaries.',
+  },
+  {
+    question: 'Can PureJsImage read scientific and geospatial image data?',
+    answer:
+      'Yes. Explicit reader imports cover microscopy, whole-slide pathology, medical imaging, astronomy, structural biology, hyperspectral, geospatial, and multidimensional array formats. Readers preserve native numeric samples where the format and API permit it.',
+  },
+  {
+    question: 'Does PureJsImage load WebAssembly or native code by default?',
+    answer:
+      'No. The default package uses strict TypeScript reference codecs and does not load native addons, external binaries, or WebAssembly. Optional JPEG and PNG WebAssembly accelerators require explicit imports and registration.',
+  },
+  {
+    question: 'How does PureJsImage reduce memory use?',
+    answer:
+      'PureJsImage uses bounded rows, tiles, regions, source reads, and compact coefficient storage where each format permits them. Full-frame fallbacks are explicit and benchmarked separately.',
+  },
+] as const
+const faqPage = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': 'https://purejsimage.com/#faq',
+  mainEntity: homepageFaq.map(({ question, answer }) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: answer,
+    },
+  })),
+})
 const webCodecCharts = [
   {
     id: 'speed',
@@ -50,6 +114,8 @@ const webCodecCharts = [
 
 <SiteLayout title="PureJsImage | Zero-dependency image and scientific raster processing" description="Portable strict TypeScript codecs and native scientific readers for Node.js and browsers, with low peak memory usage, zero runtime dependencies, and explicit optional WASM." canonical="https://purejsimage.com/" bodyClass="home" home openGraph={{"title":"PureJsImage | Zero-dependency image and scientific raster processing","description":"Portable ordinary image codecs and native scientific readers for browsers, servers, serverless, edge, and restricted deployments.","url":"https://purejsimage.com/"}} twitterCard="summary">
 <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebSite', name: 'PureJsImage', url: 'https://purejsimage.com/' })} />
+<script type="application/ld+json" set:html={softwareSourceCode} />
+<script type="application/ld+json" set:html={faqPage} />
 <main id="main">
     <section class="hero home-hero">
       <div class="container home-hero-grid">
@@ -300,6 +366,26 @@ const webCodecCharts = [
         </div>
         <div class="codec-line"><span>Codec entries</span><div><a href="codecs/#jpeg">JPEG</a><a href="codecs/#jpeg2000">JPEG 2000</a><a href="codecs/#png">PNG</a><a href="codecs/#webp">WebP</a><a href="codecs/#gif">GIF</a><a href="codecs/#bmp">BMP</a><a href="codecs/#ico">ICO</a><a href="tiff/">TIFF</a><a href="codecs/#avif">AVIF</a><a href="codecs/#heif">HEIF experimental</a></div><a class="text-link" href="codecs/">Capability matrix →</a></div>
         <p class="section-note">The <a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md" target="_blank" rel="noreferrer">acceleration roadmap</a> defines how large jobs may progressively use optional WASM or WebGPU providers without changing the default package or output semantics.</p>
+      </div>
+    </section>
+
+    <section class="section home-faq-section" id="faq" aria-labelledby="home-faq-title">
+      <div class="container">
+        <div class="section-heading home-faq-heading">
+          <div>
+            <p class="section-label">Frequently asked questions</p>
+            <h2 id="home-faq-title">Questions about PureJsImage.</h2>
+            <p>These answers describe the default package. The codec and reader documentation lists exact support boundaries.</p>
+          </div>
+        </div>
+        <div class="home-faq-grid">
+          {homepageFaq.map(({ question, answer }) => (
+            <article class="home-faq-item">
+              <h3>{question}</h3>
+              <p>{answer}</p>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
 
