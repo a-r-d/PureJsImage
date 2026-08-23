@@ -1,0 +1,201 @@
+{
+  "name": "PureJsImage",
+  "description": "PureJsImage is a free, open-source TypeScript library for decoding, inspecting, processing, and converting ordinary images and scientific rasters in Node.js and modern browsers. It provides explicit readers for microscopy, whole-slide pathology, medical imaging, electron microscopy, spectroscopy, hyperspectral, and multidimensional array formats. These include OME-TIFF, OME-Zarr, Aperio SVS, DICOM, NIfTI, MRC/CCP4, NRRD, DigitalMicrograph, EMD, ENVI, and FITS. Range-backed readers can request selected regions, tiles, volume planes, and metadata while preserving native numeric samples where supported. The default package has no runtime dependencies. Optional JPEG and PNG WebAssembly accelerators require explicit registration.",
+  "homepage": "https://purejsimage.com/",
+  "version": ["0.16.0"],
+  "function": [
+    {
+      "operation": [
+        {
+          "uri": "http://edamontology.org/operation_0335",
+          "term": "Formatting"
+        },
+        {
+          "uri": "http://edamontology.org/operation_2409",
+          "term": "Data handling"
+        },
+        {
+          "uri": "http://edamontology.org/operation_3443",
+          "term": "Image analysis"
+        }
+      ],
+      "input": [
+        {
+          "data": {
+            "uri": "http://edamontology.org/data_2968",
+            "term": "Image"
+          },
+          "format": [
+            {
+              "uri": "http://edamontology.org/format_3548",
+              "term": "DICOM format"
+            },
+            {
+              "uri": "http://edamontology.org/format_3591",
+              "term": "TIFF"
+            },
+            {
+              "uri": "http://edamontology.org/format_3727",
+              "term": "OME-TIFF"
+            },
+            {
+              "uri": "http://edamontology.org/format_3603",
+              "term": "PNG"
+            },
+            {
+              "uri": "http://edamontology.org/format_3915",
+              "term": "Zarr"
+            },
+            {
+              "uri": "http://edamontology.org/format_4001",
+              "term": "NIFTI format"
+            }
+          ]
+        },
+        {
+          "data": {
+            "uri": "http://edamontology.org/data_3546",
+            "term": "Image metadata"
+          }
+        }
+      ],
+      "output": [
+        {
+          "data": {
+            "uri": "http://edamontology.org/data_2968",
+            "term": "Image"
+          },
+          "format": [
+            {
+              "uri": "http://edamontology.org/format_3603",
+              "term": "PNG"
+            },
+            {
+              "uri": "http://edamontology.org/format_3591",
+              "term": "TIFF"
+            }
+          ]
+        },
+        {
+          "data": {
+            "uri": "http://edamontology.org/data_3546",
+            "term": "Image metadata"
+          }
+        }
+      ],
+      "note": "Reads, inspects, processes, and converts image and scientific raster data while preserving native numeric samples where supported."
+    },
+    {
+      "operation": [
+        {
+          "uri": "http://edamontology.org/operation_3552",
+          "term": "Microscope image visualisation"
+        }
+      ],
+      "input": [
+        {
+          "data": {
+            "uri": "http://edamontology.org/data_2968",
+            "term": "Image"
+          },
+          "format": [
+            {
+              "uri": "http://edamontology.org/format_3591",
+              "term": "TIFF"
+            },
+            {
+              "uri": "http://edamontology.org/format_3727",
+              "term": "OME-TIFF"
+            },
+            {
+              "uri": "http://edamontology.org/format_3915",
+              "term": "Zarr"
+            }
+          ]
+        }
+      ],
+      "output": [],
+      "note": "Provides browser examples and typed raster data for microscope image viewing."
+    }
+  ],
+  "toolType": ["Library"],
+  "topic": [
+    {
+      "uri": "http://edamontology.org/topic_3383",
+      "term": "Bioimaging"
+    },
+    {
+      "uri": "http://edamontology.org/topic_3382",
+      "term": "Imaging"
+    },
+    {
+      "uri": "http://edamontology.org/topic_0611",
+      "term": "Electron microscopy"
+    }
+  ],
+  "operatingSystem": ["Linux", "Windows", "Mac"],
+  "language": ["TypeScript"],
+  "license": "MIT",
+  "cost": "Free of charge",
+  "accessibility": "Open access",
+  "link": [
+    {
+      "url": "https://github.com/a-r-d/PureJsImage",
+      "type": ["Repository"]
+    },
+    {
+      "url": "https://github.com/a-r-d/PureJsImage/issues",
+      "type": ["Issue tracker"]
+    }
+  ],
+  "download": [
+    {
+      "url": "https://registry.npmjs.org/purejsimage/-/purejsimage-0.16.0.tgz",
+      "type": "Software package",
+      "version": "0.16.0"
+    },
+    {
+      "url": "https://github.com/a-r-d/PureJsImage/archive/refs/tags/v0.16.0.tar.gz",
+      "type": "Source code",
+      "version": "0.16.0"
+    }
+  ],
+  "documentation": [
+    {
+      "url": "https://purejsimage.com/guides/",
+      "type": ["General", "User manual", "Installation instructions"]
+    },
+    {
+      "url": "https://purejsimage.com/api/",
+      "type": ["API documentation"]
+    },
+    {
+      "url": "https://github.com/a-r-d/PureJsImage/blob/main/CITATION.cff",
+      "type": ["Citation instructions"]
+    },
+    {
+      "url": "https://github.com/a-r-d/PureJsImage/releases/tag/v0.16.0",
+      "type": ["Release notes"]
+    },
+    {
+      "url": "https://purejsimage.com/scientific-formats/",
+      "type": ["General"]
+    }
+  ],
+  "publication": [
+    {
+      "doi": "10.5281/zenodo.22071815",
+      "type": ["Other"],
+      "note": "Archived PureJsImage 0.16.0 software release.",
+      "version": "0.16.0"
+    }
+  ],
+  "credit": [
+    {
+      "name": "Aaron Decker",
+      "url": "https://www.ard.ninja",
+      "typeEntity": "Person",
+      "typeRole": ["Developer", "Maintainer", "Documentor", "Provider", "Primary contact"]
+    }
+  ]
+}

@@ -530,6 +530,8 @@
     "docs:dev": "astro dev --root docs-astro",
     "docs:build": "node scripts/build-docs-site.ts",
     "docs:preview": "astro preview --root docs-astro",
+    "indexnow:prepare": "node scripts/indexnow.ts prepare",
+    "indexnow:submit": "node scripts/indexnow.ts submit",
     "demo:scientific:generate": "node scripts/generate-scientific-demo-data.ts",
     "dicom:dictionary:generate": "node scripts/dicom/generate-dictionary.ts",
     "dicom:dictionary:check": "node scripts/dicom/generate-dictionary.ts --check",

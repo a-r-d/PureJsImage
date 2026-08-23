@@ -390,9 +390,14 @@ execution matter.
 
 ## Citation
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22071814.svg)](https://doi.org/10.5281/zenodo.22071814)
+
 Use the metadata in [`CITATION.cff`](CITATION.cff) to cite PureJsImage. The file records the current
 software release, author, source repository, npm package, license, and project keywords in Citation
-File Format 1.2.0.
+File Format 1.2.0. The DOI for release 0.16.0 is
+[`10.5281/zenodo.22071815`](https://doi.org/10.5281/zenodo.22071815). Use
+[`10.5281/zenodo.22071814`](https://doi.org/10.5281/zenodo.22071814) to cite the project across all
+versions.
 
 ## Development
 

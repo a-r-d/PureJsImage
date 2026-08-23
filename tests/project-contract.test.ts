@@ -495,6 +495,11 @@ describe('package contract', () => {
     expect(pagesWorkflow).toContain('actions/upload-pages-artifact@v5')
     expect(pagesWorkflow).toContain('actions/deploy-pages@v5')
     expect(pagesWorkflow).toContain('path: benchmark/.tmp/docs-site')
+    expect(pagesWorkflow).toContain('INDEXNOW_KEY: $' + '{{ secrets.INDEXNOW_KEY }}')
+    expect(pagesWorkflow).toContain('run: npm run indexnow:prepare')
+    expect(pagesWorkflow).toContain('run: npm run indexnow:submit')
+    expect(packageJson.scripts['indexnow:prepare']).toBe('node scripts/indexnow.ts prepare')
+    expect(packageJson.scripts['indexnow:submit']).toBe('node scripts/indexnow.ts submit')
   })
 
   it('links the README and site navigation to the OME-Zarr Feature Tour', () => {

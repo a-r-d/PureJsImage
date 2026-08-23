@@ -26,6 +26,7 @@ describe('software citation metadata', () => {
     expect(cffValue('type')).toBe('software')
     expect(cffValue('version')).toBe(packageJson.version)
     expect(cffValue('date-released')).toBe(release?.[1])
+    expect(cffValue('doi')).toBe('10.5281/zenodo.22071815')
     expect(cffValue('license')).toBe(packageJson.license)
     expect(cffValue('repository-code')).toBe('https://github.com/a-r-d/PureJsImage')
     expect(cffValue('repository-artifact')).toBe(
@@ -41,6 +42,8 @@ describe('software citation metadata', () => {
     expect(codeMeta.datePublished).toBe(release?.[1])
     expect(codeMeta.license).toBe('https://spdx.org/licenses/MIT.html')
     expect(codeMeta.codeRepository).toBe('https://github.com/a-r-d/PureJsImage')
+    expect(codeMeta.identifier).toBe('https://doi.org/10.5281/zenodo.22071815')
+    expect(codeMeta.sameAs).toBe('https://doi.org/10.5281/zenodo.22071814')
     expect(codeMeta.citation).toBe('https://github.com/a-r-d/PureJsImage/blob/main/CITATION.cff')
     expect(codeMeta.downloadUrl).toBe(
       `https://registry.npmjs.org/purejsimage/-/purejsimage-${packageJson.version}.tgz`,
@@ -56,13 +59,18 @@ describe('software citation metadata', () => {
     expect(homePage).toContain("import codeMeta from '../../../codemeta.json'")
     expect(homePage).toContain("'@type': codeMeta.type")
     expect(homePage).toContain('codeRepository: codeMeta.codeRepository')
+    expect(homePage).toContain('identifier: codeMeta.identifier')
+    expect(homePage).toContain('sameAs: codeMeta.sameAs')
     expect(homePage).not.toContain('downloadUrl: codeMeta.downloadUrl')
     expect(homePage).toContain('citation: codeMeta.citation')
     expect(homePage).toContain('keywords: codeMeta.keywords')
     expect(homePage).toContain('set:html={softwareSourceCode}')
     expect(footer).toContain('PureJsImage/blob/main/CITATION.cff')
+    expect(footer).toContain('https://doi.org/10.5281/zenodo.22071814')
     expect(readme).toContain('## Citation')
     expect(readme).toContain('[`CITATION.cff`](CITATION.cff)')
+    expect(readme).toContain('10.5281/zenodo.22071815')
+    expect(readme).toContain('10.5281/zenodo.22071814')
   })
 
   it('renders visible homepage answers from the FAQPage JSON-LD source', () => {

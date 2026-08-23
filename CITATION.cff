@@ -9,6 +9,7 @@ authors:
 abstract: "Portable image codecs and low-memory raster processing in strict TypeScript for Node.js and modern browsers."
 version: "0.16.0"
 date-released: "2026-08-21"
+doi: "10.5281/zenodo.22071815"
 keywords:
   - "image codecs"
   - "image processing"

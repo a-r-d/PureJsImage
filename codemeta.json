@@ -31,6 +31,8 @@
   "url": "https://purejsimage.com/",
   "downloadUrl": "https://registry.npmjs.org/purejsimage/-/purejsimage-0.16.0.tgz",
   "installUrl": "https://www.npmjs.com/package/purejsimage/v/0.16.0",
+  "identifier": "https://doi.org/10.5281/zenodo.22071815",
+  "sameAs": "https://doi.org/10.5281/zenodo.22071814",
   "citation": "https://github.com/a-r-d/PureJsImage/blob/main/CITATION.cff",
   "license": "https://spdx.org/licenses/MIT.html",
   "version": "0.16.0",
