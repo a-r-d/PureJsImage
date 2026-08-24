@@ -1,0 +1,19 @@
+benchmark/viewers/http-server.ts
+  s_5d3857b1b6a91f::t_1a4f5fa73bd963 140-143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "4946b0ff45852601eed5b3ffa7cbf7425ca589a9",
+  "prompts": {},
+  "sessions": {
+    "s_5d3857b1b6a91f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0344e-0392-7e00-b4c8-8f847ba87912",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
