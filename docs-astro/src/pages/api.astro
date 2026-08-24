@@ -181,17 +181,18 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="wasm-acceleration" data-search-item>
           <h2>Optional WASM acceleration</h2>
-          <p>JPEG and PNG provide first-party WebAssembly accelerators as explicit package entries. The root, browser, and codec imports never load them automatically. Register either provider through <code>ImageLibraryConfiguration</code>; ineligible or unavailable work continues through the corresponding TypeScript codec.</p>
+          <p>JPEG, PNG, and WebP provide first-party WebAssembly accelerators as explicit package entries. The root, browser, and codec imports never load them automatically. Register a provider through <code>ImageLibraryConfiguration</code>; ineligible or unavailable work continues through the corresponding TypeScript codec.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">Node.js</span></div><pre><code><span class="tok-key">import</span> &#123; createImageLibrary &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 <span class="tok-key">import</span> &#123; wasmJpegAccelerator &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/accelerators/wasm/jpeg'</span>
 <span class="tok-key">import</span> &#123; wasmPngAccelerator &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/accelerators/wasm/png'</span>
+<span class="tok-key">import</span> &#123; wasmWebpAccelerator &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/accelerators/wasm/webp'</span>
 <span class="tok-key">import</span> &#123; allCodecs &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/all'</span>
 
 <span class="tok-key">const</span> images = createImageLibrary(&#123;
   codecs: allCodecs,
-  accelerators: [wasmJpegAccelerator, wasmPngAccelerator],
+  accelerators: [wasmJpegAccelerator, wasmPngAccelerator, wasmWebpAccelerator],
 &#125;)</code></pre></div>
-          <p>Browser applications use <code>createImageLibrary</code> from <code>purejsimage/browser</code>; the two accelerator import paths are unchanged and resolve to browser-safe loaders.</p>
+          <p>Browser applications use <code>createImageLibrary</code> from <code>purejsimage/browser</code>. The accelerator import paths stay the same and resolve to browser-safe loaders.</p>
           <h3>Configuration</h3>
           <p>The ready-made providers use defaults chosen to avoid paying module and copy overhead on small images. Use the factory exports when an application needs different thresholds or input limits.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> WasmJpegAcceleratorOptions &#123;
@@ -207,13 +208,21 @@ import SiteLayout from '../layouts/SiteLayout.astro'
   maximumRowBytes?: number
 &#125;
 
+<span class="tok-key">interface</span> WasmWebpAcceleratorOptions &#123;
+  minimumPixels?: number
+  minimumEncodePixels?: number
+  maximumPixels?: number
+&#125;
+
 <span class="tok-key">function</span> <span class="tok-method">createWasmJpegAccelerator</span>(options?: WasmJpegAcceleratorOptions): ImageCodecAccelerator
-<span class="tok-key">function</span> <span class="tok-method">createWasmPngAccelerator</span>(options?: WasmPngAcceleratorOptions): ImageCodecAccelerator</code></pre></div>
-          <p>Both pixel thresholds default to 65,536. JPEG accepts at most 32 MiB of compressed input and a 16 MiB encoder row by default; PNG accepts at most a 16 MiB row. Every supplied value must be a positive integer.</p>
+<span class="tok-key">function</span> <span class="tok-method">createWasmPngAccelerator</span>(options?: WasmPngAcceleratorOptions): ImageCodecAccelerator
+<span class="tok-key">function</span> <span class="tok-method">createWasmWebpAccelerator</span>(options?: WasmWebpAcceleratorOptions): ImageCodecAccelerator</code></pre></div>
+          <p>JPEG and PNG pixel thresholds default to 65,536. WebP defaults to 16,384 pixels and accepts at most 64 million pixels. JPEG accepts at most 32 MiB of compressed input and a 16 MiB encoder row by default; PNG accepts at most a 16 MiB row. Every supplied value must be a positive integer.</p>
           <h3>Eligible workflows</h3>
           <div class="table-wrap"><table><thead><tr><th>Provider</th><th>Accelerated work</th><th>TypeScript fallback examples</th></tr></thead><tbody>
             <tr><td><strong>JPEG</strong></td><td>Common full-image baseline YCbCr decode and baseline <code>gray8</code>, <code>rgb8</code>, or <code>rgba8</code> encode</td><td>Progressive output, crop or scaled decode, ICC-transformed decode, metadata-preserving output, small images, and inputs beyond configured limits</td></tr>
             <tr><td><strong>PNG</strong></td><td>Full-image, non-interlaced 8-bit grayscale, RGB, or RGBA decode without <code>tRNS</code>; adaptive-filter <code>gray8</code>, <code>rgb8</code>, or <code>rgba8</code> encode</td><td>Palette, grayscale-alpha, sub-byte, 16-bit, <code>tRNS</code>, Adam7, APNG frames, crop, compression level 0, small images, and rows beyond configured limits</td></tr>
+            <tr><td><strong>WebP</strong></td><td>VP8 YUV row conversion, VP8L predictor and color reconstruction, lossless transform encoding, and lossy <code>rgba8</code> or <code>gray8</code> to YUV420 conversion</td><td>RIFF parsing, VP8 and VP8L entropy coding, VP8 prediction and transforms, measured-faster paired-row <code>rgb8</code> conversion, animation, small images, and images beyond configured limits</td></tr>
           </tbody></table></div>
           <div class="callout"><strong>Runtime behavior.</strong> Modules load lazily and are reused. SIMD is preferred when the runtime validates it, with scalar WASM and then TypeScript as fallbacks. Node retains native <code>zlib</code>; browsers retain platform compression streams. Codec parsing, metadata, limits, CRC validation, sources, and sinks remain in JavaScript, and pixel processing remains bounded by rows or blocks.</div>
         </section>

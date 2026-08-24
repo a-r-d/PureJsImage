@@ -53,7 +53,8 @@
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/lossy-codec-quality.test.ts",
-        "tests/imazen-corpus-harness.test.ts"
+        "tests/imazen-corpus-harness.test.ts",
+        "tests/wasm-webp.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

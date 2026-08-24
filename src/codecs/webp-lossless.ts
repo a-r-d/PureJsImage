@@ -1,4 +1,5 @@
 import { invalidInput, truncatedInput } from '../errors.ts'
+import type { WebpKernel } from './webp-acceleration.ts'
 
 const codeLengthOrder = Uint8Array.of(
   17,
@@ -863,6 +864,7 @@ function* decodeLosslessImageRows(
   reader: BitReader,
   width: number,
   height: number,
+  kernel?: WebpKernel,
 ): IterableIterator<LosslessWebpRows> {
   const transforms: Transform[] = []
   const seen = new Set<number>()
@@ -897,21 +899,80 @@ function* decodeLosslessImageRows(
     }
   }
 
+  const firstInverse = transforms[2]
+  const secondInverse = transforms[1]
+  const thirdInverse = transforms[0]
+  const fusedTransforms =
+    transforms.length === 3 &&
+    firstInverse?.type === 'color' &&
+    secondInverse?.type === 'predictor' &&
+    thirdInverse?.type === 'subtract-green'
+      ? { color: firstInverse, predictor: secondInverse }
+      : undefined
+
   let predictorPrevious: Uint32Array | undefined
   let y = 0
   for (const encodedRow of decodeImageRows(reader, encodedWidth, height, true)) {
     let row = encodedRow
     let currentWidth = encodedWidth
-    for (let index = transforms.length - 1; index >= 0; index -= 1) {
+    const fusedPredictorOutput =
+      fusedTransforms && kernel ? (predictorPrevious ?? new Uint32Array(currentWidth)) : undefined
+    const fused =
+      fusedTransforms &&
+      fusedPredictorOutput &&
+      kernel?.vp8lInverseRow(
+        row,
+        predictorPrevious,
+        fusedTransforms.predictor.data,
+        (y >>> fusedTransforms.predictor.sizeBits) * fusedTransforms.predictor.width,
+        fusedTransforms.predictor.width,
+        fusedTransforms.predictor.sizeBits,
+        fusedTransforms.color.data,
+        (y >>> fusedTransforms.color.sizeBits) * fusedTransforms.color.width,
+        fusedTransforms.color.width,
+        fusedTransforms.color.sizeBits,
+        y,
+        fusedPredictorOutput,
+      )
+    if (fused) {
+      predictorPrevious = fusedPredictorOutput
+    }
+    for (let index = fused ? -1 : transforms.length - 1; index >= 0; index -= 1) {
       const transform = transforms[index]
       if (!transform) continue
       if (transform.type === 'color-indexing') {
         row = inverseColorIndexingRow(row, transform)
         currentWidth = transform.width
-      } else if (transform.type === 'subtract-green') inverseSubtractGreen(row)
-      else if (transform.type === 'color') inverseColorRow(row, currentWidth, y, transform)
-      else {
-        inversePredictorRow(row, currentWidth, y, predictorPrevious, transform)
+      } else if (transform.type === 'subtract-green') {
+        if (!kernel?.vp8lInverseSubtractGreen(row)) inverseSubtractGreen(row)
+      } else if (transform.type === 'color') {
+        const elementOffset = (y >>> transform.sizeBits) * transform.width
+        if (
+          !kernel?.vp8lInverseColor(
+            row,
+            transform.data,
+            elementOffset,
+            transform.width,
+            transform.sizeBits,
+          )
+        ) {
+          inverseColorRow(row, currentWidth, y, transform)
+        }
+      } else {
+        const modeOffset = (y >>> transform.sizeBits) * transform.width
+        if (
+          !kernel?.vp8lInversePredictor(
+            row,
+            predictorPrevious,
+            transform.data,
+            modeOffset,
+            transform.width,
+            transform.sizeBits,
+            y,
+          )
+        ) {
+          inversePredictorRow(row, currentWidth, y, predictorPrevious, transform)
+        }
         if (predictorPrevious === undefined || predictorPrevious.length !== currentWidth) {
           predictorPrevious = new Uint32Array(currentWidth)
         }
@@ -931,6 +992,7 @@ export const decodeLosslessWebp = (
   offset: number,
   length: number,
   validateDimensions: (width: number, height: number) => void,
+  kernel?: WebpKernel,
 ): LosslessWebpImage => {
   if (data[offset] !== 0x2f) throw invalidInput('WebP lossless signature is invalid')
   const reader = new BitReader(data, offset + 1, length - 1)
@@ -948,7 +1010,7 @@ export const decodeLosslessWebp = (
       imageReader.readBits(14)
       imageReader.readBits(1)
       imageReader.readBits(3)
-      yield* decodeLosslessImageRows(imageReader, width, height)
+      yield* decodeLosslessImageRows(imageReader, width, height, kernel)
     },
   }
 }
@@ -959,10 +1021,11 @@ export const decodeLosslessWebpAlpha = (
   length: number,
   width: number,
   height: number,
+  kernel?: WebpKernel,
 ): LosslessWebpImage => ({
   width,
   height,
   *rows(): IterableIterator<LosslessWebpRows> {
-    yield* decodeLosslessImageRows(new BitReader(data, offset, length), width, height)
+    yield* decodeLosslessImageRows(new BitReader(data, offset, length), width, height, kernel)
   },
 })

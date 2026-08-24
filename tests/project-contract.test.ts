@@ -62,12 +62,17 @@ describe('package contract', () => {
       'wasm/jpeg-decoder/src/lib.rs',
       'wasm/jpeg-encoder/src/lib.rs',
       'wasm/png-codec/src/lib.rs',
+      'wasm/webp-codec/src/lib.rs',
     ]) {
       const rust = readFileSync(source, 'utf8')
       expect(rust).toContain('core::arch::wasm32::unreachable()')
       expect(rust).not.toMatch(/fn panic[\s\S]*loop \{\}/)
     }
-    for (const source of ['scripts/build-wasm-jpeg.ts', 'scripts/build-wasm-png.ts']) {
+    for (const source of [
+      'scripts/build-wasm-jpeg.ts',
+      'scripts/build-wasm-png.ts',
+      'scripts/build-wasm-webp.ts',
+    ]) {
       expect(readFileSync(source, 'utf8')).toContain('-zstack-size=131072')
     }
   })
@@ -255,6 +260,10 @@ describe('package contract', () => {
     expect(workflow).toContain('repository: imazen/codec-corpus')
     expect(workflow).toContain(`ref: ${corpusCommit}`)
     expect(workflow).toContain('--baseline benchmark/results')
+    expect(workflow).toContain('npm run corpus:imazen:webp-wasm --')
+    expect(workflow).toContain(`--variant "\${{ matrix.variant }}"`)
+    expect(workflow).toContain('          - scalar')
+    expect(workflow).toContain('          - simd')
     expect(workflow).toContain('if: always()')
     for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp']) {
       expect(workflow).toContain(`          - ${format}`)
@@ -842,6 +851,7 @@ describe('package contract', () => {
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
+      './accelerators/wasm/webp',
       './codecs/all',
       './codecs/web',
       './codecs/avif',

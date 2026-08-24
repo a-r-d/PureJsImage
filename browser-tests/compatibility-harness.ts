@@ -22,8 +22,10 @@ import { createGeneratedVeloxEmdFixture } from '../benchmark/velox-emd/generated
 import { createGeneratedVeloxSpectrumFixture } from '../benchmark/velox-emd/generated-spectrum-fixture.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
+import { createWasmWebpAccelerator } from '../src/accelerator-entries/wasm-webp-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import { createWasmWebpAcceleratorWithLoaders } from '../src/accelerators/wasm/webp.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
@@ -1227,6 +1229,96 @@ const wasmPng = async (): Promise<BrowserWorkflowResult> => {
     detail:
       'SIMD selection plus scalar and TypeScript PNG decode fallback matched exact public output',
     outputBytes: simd.byteLength,
+  }
+}
+
+const wasmWebp = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/benchmark-input.png')
+  let scalarLoads = 0
+  let simdLoads = 0
+  let selectedScalarLoads = 0
+  const publicImages = createImageLibrary({
+    codecs: [pngCodec, webpCodec],
+    accelerators: [createWasmWebpAccelerator({ minimumEncodePixels: 1, minimumPixels: 1 })],
+  })
+  const scalarImages = createImageLibrary({
+    codecs: [pngCodec, webpCodec],
+    accelerators: [
+      createWasmWebpAcceleratorWithLoaders(
+        {
+          decoder: async () => {
+            scalarLoads += 1
+            return instantiateWasm('/webp-codec.wasm')
+          },
+          encoder: async () => {
+            scalarLoads += 1
+            return instantiateWasm('/webp-codec.wasm')
+          },
+        },
+        { minimumEncodePixels: 1, minimumPixels: 1 },
+      ),
+    ],
+  })
+  const simdImages = createImageLibrary({
+    codecs: [pngCodec, webpCodec],
+    accelerators: [
+      createWasmWebpAcceleratorWithLoaders(
+        {
+          decoder: async () => {
+            selectedScalarLoads += 1
+            return instantiateWasm('/webp-codec.wasm')
+          },
+          simdDecoder: async () => {
+            simdLoads += 1
+            return instantiateWasm('/webp-codec-simd.wasm')
+          },
+          encoder: async () => {
+            selectedScalarLoads += 1
+            return instantiateWasm('/webp-codec.wasm')
+          },
+          simdEncoder: async () => {
+            simdLoads += 1
+            return instantiateWasm('/webp-codec-simd.wasm')
+          },
+        },
+        { minimumEncodePixels: 1, minimumPixels: 1 },
+      ),
+    ],
+  })
+  const assertExact = (label: string, expected: Uint8Array, actual: Uint8Array): void => {
+    if (expected.byteLength !== actual.byteLength) {
+      throw new Error(`${label} WebP output length differs from the TypeScript reference`)
+    }
+    for (let offset = 0; offset < expected.byteLength; offset += 1) {
+      if (expected[offset] !== actual[offset]) {
+        throw new Error(`${label} WebP output differs at byte ${offset}`)
+      }
+    }
+  }
+  for (const options of [{ lossless: true } as const, { quality: 80 } as const]) {
+    const [reference, publicOutput, scalar, simd] = await Promise.all([
+      (await images.open(bytes)).webp(options).toUint8Array(),
+      (await publicImages.open(bytes)).webp(options).toUint8Array(),
+      (await scalarImages.open(bytes)).webp(options).toUint8Array(),
+      (await simdImages.open(bytes)).webp(options).toUint8Array(),
+    ])
+    assertExact('Public Rust/WASM', reference, publicOutput)
+    assertExact('Scalar Rust/WASM', reference, scalar)
+    assertExact('SIMD Rust/WASM', reference, simd)
+    const [referencePixels, acceleratedPixels] = await Promise.all([
+      (await images.open(reference)).png().toUint8Array(),
+      (await simdImages.open(reference)).png().toUint8Array(),
+    ])
+    assertExact('SIMD decode', referencePixels, acceleratedPixels)
+  }
+  if (scalarLoads !== 1 || simdLoads !== 2 || selectedScalarLoads !== 0) {
+    throw new Error(
+      `WebP selection loaded scalar=${scalarLoads}, SIMD=${simdLoads}, selected scalar=${selectedScalarLoads}`,
+    )
+  }
+  return {
+    detail: 'Scalar and SIMD WebP decode and encode matched exact TypeScript output in the browser',
+    outputBytes: bytes.byteLength,
   }
 }
 
@@ -4948,6 +5040,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   wasmJpeg,
   wasmJpegEncode,
   wasmPng,
+  wasmWebp,
   webpLossless,
   webpLossyDecode,
 })

@@ -6,12 +6,23 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added an explicit optional Rust/WASM WebP accelerator with scalar and SIMD modules for VP8 row
+  color conversion, VP8L predictor and color transforms, lossless encode transforms, and lossy
+  RGBA or gray to YUV420 conversion. Measured RGB input keeps the existing paired-row TypeScript
+  conversion because it is faster end to end. The TypeScript codec still owns RIFF parsing, entropy
+  coding, limits, metadata, and bounded row orchestration. Module or kernel failures fall back to
+  the TypeScript path. The pull-request corpus workflow now forces scalar and SIMD WebP runs and
+  checks exact decode pixels, deterministic encode bytes, and actual kernel use.
 - Added a pull-request-only Imazen corpus workflow for JPEG, PNG, WebP, TIFF, GIF, and BMP. The
   workflow checks out the corpus at a pinned commit, runs every file in an isolated process, fails
   on per-file behavior changes, and uploads the generated reports for review.
 
 ### Changed
 
+- The optional WebP WASM accelerator now uses four-pixel SIMD for VP8L color transforms, fuses the
+  common inverse color, predictor, and subtract-green row sequence into one call, and specializes
+  uniform mode-11 prediction. Seven paired 4000x3000 lossless WebP trials reduced the median from
+  617.90 ms to 518.50 ms, with exact output and a 2.00% peak RSS reduction.
 - The optional Rust/WASM JPEG encoder now uses a separable f32 AAN transform, precomputed
   reciprocal quantization factors, and four-pixel SIMD RGB and RGBA compositing and color
   conversion. Unused SIMD scratch arrays were removed. Seven paired end-to-end trials reduced the

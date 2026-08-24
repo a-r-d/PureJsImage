@@ -143,6 +143,7 @@ const acceleratorResult = await build({
     contents: `
       export * from './src/accelerator-entries/wasm-jpeg-browser.ts'
       export * from './src/accelerator-entries/wasm-png-browser.ts'
+      export * from './src/accelerator-entries/wasm-webp-browser.ts'
     `,
     loader: 'ts',
     resolveDir: process.cwd(),
@@ -158,5 +159,5 @@ for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs
 }
 
 console.log(
-  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; scientific reader, optional JPEG/PNG WASM, and experimental HEIF/HEIC entries remain explicit)`,
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; scientific reader, optional JPEG/PNG/WebP WASM, and experimental HEIF/HEIC entries remain explicit)`,
 )

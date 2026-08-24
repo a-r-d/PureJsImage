@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.16.0",
-    "unpackedPackageBytes": 6598145,
+    "unpackedPackageBytes": 6649935,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -853,13 +853,13 @@
         "packageExports": ["purejsimage/scientific/readers/webp"],
         "sourceEntries": ["./src/scientific/readers/webp.ts"]
       },
-      "gzipBytes": 39761,
+      "gzipBytes": 40469,
       "id": "scientific-reader-webp",
       "implementation": "package-core",
-      "minifiedJsBytes": 112812,
+      "minifiedJsBytes": 115153,
       "name": "Scientific reader: WebP",
       "recordedBaselineMinifiedBytes": 106317,
-      "brotliBytes": 34120
+      "brotliBytes": 34778
     },
     {
       "category": "purejsimage-entry",
@@ -1183,13 +1183,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 364785,
+      "gzipBytes": 365506,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 1261135,
+      "minifiedJsBytes": 1263471,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 291078
+      "brotliBytes": 291546
     },
     {
       "category": "purejsimage-entry",
@@ -1228,13 +1228,13 @@
         "packageExports": ["purejsimage/codecs/webp"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/webp.ts"]
       },
-      "gzipBytes": 47317,
+      "gzipBytes": 48021,
       "id": "codec-webp",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 137301,
+      "minifiedJsBytes": 139636,
       "name": "Core + WebP",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 40397
+      "brotliBytes": 41033
     },
     {
       "category": "purejsimage-entry",
@@ -1424,13 +1424,13 @@
         "packageExports": ["purejsimage/codecs/web"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/web.ts"]
       },
-      "gzipBytes": 229781,
+      "gzipBytes": 230495,
       "id": "codecs-web",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 622148,
+      "minifiedJsBytes": 624473,
       "name": "Core + common web codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 192469
+      "brotliBytes": 192934
     },
     {
       "category": "purejsimage-entry",
@@ -1455,13 +1455,13 @@
         "packageExports": ["purejsimage/codecs/all"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
       },
-      "gzipBytes": 313606,
+      "gzipBytes": 314294,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 891403,
+      "minifiedJsBytes": 893730,
       "name": "Core + all stable codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 258596
+      "brotliBytes": 259090
     },
     {
       "category": "competitor",
@@ -1500,13 +1500,13 @@
       "entry": {
         "packageExports": ["purejsimage/codecs/all"]
       },
-      "gzipBytes": 313606,
+      "gzipBytes": 314294,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 891403,
+      "minifiedJsBytes": 893730,
       "name": "PureJsImage (all stable codecs)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 258596
+      "brotliBytes": 259090
     },
     {
       "category": "competitor",
@@ -2133,6 +2133,22 @@
       "name": "PNG codec SIMD WASM",
       "rawBytes": 7287,
       "sourceEntry": "src/accelerator-entries/png-codec-simd.wasm"
+    },
+    {
+      "brotliBytes": 3238,
+      "gzipBytes": 3800,
+      "id": "webp-codec",
+      "name": "WebP codec WASM",
+      "rawBytes": 9329,
+      "sourceEntry": "src/accelerator-entries/webp-codec.wasm"
+    },
+    {
+      "brotliBytes": 3955,
+      "gzipBytes": 4667,
+      "id": "webp-codec-simd",
+      "name": "WebP codec SIMD WASM",
+      "rawBytes": 11845,
+      "sourceEntry": "src/accelerator-entries/webp-codec-simd.wasm"
     }
   ]
 }

@@ -68,3 +68,56 @@ jobs:
           path: ${{ runner.temp }}/imazen-${{ matrix.format }}/
           if-no-files-found: warn
           retention-days: 30
+
+  validate-webp-wasm:
+    name: WebP ${{ matrix.variant }} WASM corpus
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - scalar
+          - simd
+
+    steps:
+      - name: Checkout PureJsImage
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned Imazen codec corpus
+        uses: actions/checkout@v7
+        with:
+          repository: imazen/codec-corpus
+          ref: 28205bbc5cf40364d012c462240ba28143373d67
+          path: codec-corpus
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate exact WebP WASM parity and accelerator use
+        run: >-
+          npm run corpus:imazen:webp-wasm --
+          --corpus codec-corpus
+          --variant "${{ matrix.variant }}"
+          --output "$RUNNER_TEMP/imazen-webp-wasm-${{ matrix.variant }}"
+          --timeout-ms 30000
+          --memory-mb 512
+          --concurrency 2
+
+      - name: Upload WebP WASM corpus report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imazen-webp-${{ matrix.variant }}-wasm-corpus-report
+          path: ${{ runner.temp }}/imazen-webp-wasm-${{ matrix.variant }}/
+          if-no-files-found: warn
+          retention-days: 30

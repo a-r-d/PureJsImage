@@ -9,6 +9,7 @@ import {
   defaultCoefficientProbabilities,
   keyframeBlockModeProbabilities,
 } from './vp8-tables.ts'
+import type { WebpKernel } from './webp-acceleration.ts'
 
 const yModeProbabilities = Uint8Array.of(145, 156, 163, 128)
 const uvModeProbabilities = Uint8Array.of(142, 114, 183)
@@ -729,12 +730,13 @@ export class LossyWebpEncoder implements ImageEncoder {
   readonly #quality: number
   readonly #metadata: Readonly<PreservedMetadata> | undefined
   readonly #y: Uint8Array
-  readonly #u: Uint8Array
-  readonly #v: Uint8Array
+  readonly #u: Uint8Array | undefined
+  readonly #v: Uint8Array | undefined
   readonly #uAcc: Uint16Array | undefined
   readonly #vAcc: Uint16Array | undefined
   readonly #pendingRgb: Uint8Array | undefined
   readonly #alpha: Uint8Array | undefined
+  readonly #kernel: WebpKernel | undefined
   #hasPendingRgb = false
   #hasAlpha = false
   #expectedY = 0
@@ -747,6 +749,7 @@ export class LossyWebpEncoder implements ImageEncoder {
     format: PixelFormat,
     quality: number,
     metadata: Readonly<PreservedMetadata> | undefined,
+    kernel?: WebpKernel,
   ) {
     this.#sink = sink
     this.#width = width
@@ -758,12 +761,14 @@ export class LossyWebpEncoder implements ImageEncoder {
     this.#metadata = metadata
     this.#y = new Uint8Array(width * height)
     const chromaPixels = Math.ceil(width / 2) * Math.ceil(height / 2)
-    this.#u = new Uint8Array(chromaPixels)
-    this.#v = new Uint8Array(chromaPixels)
-    this.#uAcc = this.#channels === 3 ? undefined : new Uint16Array(chromaPixels)
-    this.#vAcc = this.#channels === 3 ? undefined : new Uint16Array(chromaPixels)
-    this.#pendingRgb = this.#channels === 3 ? new Uint8Array(width * 3) : undefined
+    const directRgb = this.#channels === 3 && kernel === undefined
+    this.#u = directRgb ? new Uint8Array(chromaPixels) : undefined
+    this.#v = directRgb ? new Uint8Array(chromaPixels) : undefined
+    this.#uAcc = directRgb ? undefined : new Uint16Array(chromaPixels)
+    this.#vAcc = directRgb ? undefined : new Uint16Array(chromaPixels)
+    this.#pendingRgb = directRgb ? new Uint8Array(width * 3) : undefined
     this.#alpha = format === 'rgba8' ? new Uint8Array(width * height) : undefined
+    this.#kernel = kernel
   }
 
   async write(block: PixelBlock): Promise<void> {
@@ -781,36 +786,65 @@ export class LossyWebpEncoder implements ImageEncoder {
     )
       throw invalidInput('WebP encoder requires ordered, full-width pixel blocks')
     const chromaWidth = Math.ceil(this.#width / 2)
-    if (this.#channels === 3) {
-      const data = block.data
-      const width = this.#width
-      const yPlane = this.#y
-      const uPlane = this.#u
-      const vPlane = this.#v
+    if (this.#channels === 3 && this.#kernel === undefined) {
+      const u = this.#u
+      const v = this.#v
       const pending = this.#pendingRgb
+      if (!u || !v || !pending) throw invalidInput('WebP encoder is missing RGB planes')
       let row = 0
-      if (this.#hasPendingRgb && pending) {
-        writeRgb8Pair(pending, 0, data, 0, width, this.#expectedY - 1, yPlane, uPlane, vPlane)
+      if (this.#hasPendingRgb) {
+        writeRgb8Pair(pending, 0, block.data, 0, this.#width, this.#expectedY - 1, this.#y, u, v)
         this.#hasPendingRgb = false
         row = 1
       }
       while (row + 1 < block.height) {
         writeRgb8Pair(
-          data,
+          block.data,
           row * block.stride,
-          data,
+          block.data,
           (row + 1) * block.stride,
-          width,
+          this.#width,
           this.#expectedY + row,
-          yPlane,
-          uPlane,
-          vPlane,
+          this.#y,
+          u,
+          v,
         )
         row += 2
       }
-      if (row < block.height && pending) {
-        pending.set(data.subarray(row * block.stride, row * block.stride + width * 3))
+      if (row < block.height) {
+        pending.set(block.data.subarray(row * block.stride, row * block.stride + this.#width * 3))
         this.#hasPendingRgb = true
+      }
+      this.#expectedY += block.height
+      return
+    }
+    const accelerated = this.#kernel?.vp8RgbToYuv420(
+      block.data,
+      block.stride,
+      this.#width,
+      block.height,
+      this.#channels as 1 | 3 | 4,
+      this.#expectedY,
+    )
+    if (accelerated) {
+      const uAcc = this.#uAcc
+      const vAcc = this.#vAcc
+      if (!uAcc || !vAcc) throw invalidInput('WebP encoder is missing chroma accumulators')
+      for (let row = 0; row < block.height; row += 1) {
+        this.#y.set(
+          accelerated.y.subarray(row * this.#width, (row + 1) * this.#width),
+          (this.#expectedY + row) * this.#width,
+        )
+        if (this.#alpha && accelerated.alpha) {
+          const source = accelerated.alpha.subarray(row * this.#width, (row + 1) * this.#width)
+          this.#alpha.set(source, (this.#expectedY + row) * this.#width)
+          for (const alpha of source) this.#hasAlpha ||= alpha !== 255
+        }
+      }
+      const chromaOffset = accelerated.chromaStartY * chromaWidth
+      for (let index = 0; index < accelerated.u.length; index += 1) {
+        uAcc[chromaOffset + index] = (uAcc[chromaOffset + index] ?? 0) + (accelerated.u[index] ?? 0)
+        vAcc[chromaOffset + index] = (vAcc[chromaOffset + index] ?? 0) + (accelerated.v[index] ?? 0)
       }
     } else {
       const uAcc = this.#uAcc
@@ -847,7 +881,7 @@ export class LossyWebpEncoder implements ImageEncoder {
     if (this.#finished || this.#expectedY !== this.#height)
       throw invalidInput('WebP encoder received incomplete pixels')
     this.#finished = true
-    if (this.#hasPendingRgb && this.#pendingRgb) {
+    if (this.#hasPendingRgb && this.#pendingRgb && this.#u && this.#v) {
       writeRgb8Pair(
         this.#pendingRgb,
         0,
@@ -865,14 +899,13 @@ export class LossyWebpEncoder implements ImageEncoder {
     const vAcc = this.#vAcc
     const chromaWidth = Math.ceil(this.#width / 2)
     const chromaHeight = Math.ceil(this.#height / 2)
-    const u =
-      uAcc === undefined
-        ? this.#u
-        : finalizeChroma(uAcc, this.#width, this.#height, chromaWidth, chromaHeight)
-    const v =
-      vAcc === undefined
-        ? this.#v
-        : finalizeChroma(vAcc, this.#width, this.#height, chromaWidth, chromaHeight)
+    const u = uAcc
+      ? finalizeChroma(uAcc, this.#width, this.#height, chromaWidth, chromaHeight)
+      : this.#u
+    const v = vAcc
+      ? finalizeChroma(vAcc, this.#width, this.#height, chromaWidth, chromaHeight)
+      : this.#v
+    if (!u || !v) throw invalidInput('WebP encoder is missing chroma planes')
     const vp8 = encodeVp8(this.#width, this.#height, this.#y, u, v, this.#quality)
     const alpha = this.#hasAlpha ? this.#alpha : undefined
     const icc = this.#metadata?.icc

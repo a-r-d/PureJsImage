@@ -94,7 +94,7 @@ describe('generated package metrics contract', () => {
     expect(metrics.targets.every(({ packageVersions }) => packageVersions.length > 0)).toBe(true)
     expect(metrics.targets.every(({ unpackedPackageBytes }) => unpackedPackageBytes > 0)).toBe(true)
     expect(serialized).not.toContain('installedPackageFootprintBytes')
-    expect(metrics.wasmAssets).toHaveLength(6)
+    expect(metrics.wasmAssets).toHaveLength(8)
     expect(
       metrics.wasmAssets.every(
         ({ rawBytes, gzipBytes, brotliBytes }) => rawBytes > 0 && gzipBytes > 0 && brotliBytes > 0,
@@ -243,7 +243,7 @@ describe('generated package metrics contract', () => {
       expect(readme).toContain(`<!-- package-metrics:${id}:end -->`)
     }
     expect(readme).toContain(`**${metrics.scientificReaders.length} scientific readers**`)
-    expect(readme).toContain('six optional JPEG and PNG accelerator assets')
+    expect(readme).toContain('eight optional JPEG, PNG, and WebP accelerator assets')
     expect(readme).toContain('Complete size and footprint tables')
     expect(packageJson.scripts['package-metrics:check']).toBe(
       'node scripts/render-package-metrics.ts --check',

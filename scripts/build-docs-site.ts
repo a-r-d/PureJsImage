@@ -21,6 +21,8 @@ const outputEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder.wasm')
 const outputSimdEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder-simd.wasm')
 const outputPngWasm = join(outputDirectory, 'assets/png-codec.wasm')
 const outputSimdPngWasm = join(outputDirectory, 'assets/png-codec-simd.wasm')
+const outputWebpWasm = join(outputDirectory, 'assets/webp-codec.wasm')
+const outputSimdWebpWasm = join(outputDirectory, 'assets/webp-codec-simd.wasm')
 
 await buildAstro({ root: sourceDirectory })
 
@@ -231,6 +233,8 @@ await copyFile(resolve('src/accelerator-entries/jpeg-encoder.wasm'), outputEncod
 await copyFile(resolve('src/accelerator-entries/jpeg-encoder-simd.wasm'), outputSimdEncoderWasm)
 await copyFile(resolve('src/accelerator-entries/png-codec.wasm'), outputPngWasm)
 await copyFile(resolve('src/accelerator-entries/png-codec-simd.wasm'), outputSimdPngWasm)
+await copyFile(resolve('src/accelerator-entries/webp-codec.wasm'), outputWebpWasm)
+await copyFile(resolve('src/accelerator-entries/webp-codec-simd.wasm'), outputSimdWebpWasm)
 
 const demoHtml = await readFile(join(outputDirectory, 'demo/index.html'), 'utf8')
 if (!demoHtml.includes('assets/demo-app.js')) {
@@ -259,17 +263,21 @@ const encoderWasm = await stat(outputEncoderWasm)
 const simdEncoderWasm = await stat(outputSimdEncoderWasm)
 const pngWasm = await stat(outputPngWasm)
 const simdPngWasm = await stat(outputSimdPngWasm)
+const webpWasm = await stat(outputWebpWasm)
+const simdWebpWasm = await stat(outputSimdWebpWasm)
 if (
   wasm.size === 0 ||
   simdDecoderWasm.size === 0 ||
   encoderWasm.size === 0 ||
   simdEncoderWasm.size === 0 ||
   pngWasm.size === 0 ||
-  simdPngWasm.size === 0
+  simdPngWasm.size === 0 ||
+  webpWasm.size === 0 ||
+  simdWebpWasm.size === 0
 ) {
   throw new Error('Generated docs WASM module is empty')
 }
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${(geoBundle.size + geoWorker.size).toLocaleString()} byte geo showcase, ${featureTourBytes.toLocaleString()} byte synthetic OME-Zarr Feature Tour, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wsiBundle.size + wsiWorker.size).toLocaleString()} byte WSI viewer, ${(omeZarrBundle.size + omeZarrWorker.size).toLocaleString()} byte OME-Zarr viewer, ${(geoBundle.size + geoWorker.size).toLocaleString()} byte geo showcase, ${featureTourBytes.toLocaleString()} byte synthetic OME-Zarr Feature Tour, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size + webpWasm.size + simdWebpWasm.size).toLocaleString()} bytes of JPEG, PNG, and WebP WASM modules)`,
 )
