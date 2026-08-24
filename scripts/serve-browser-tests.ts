@@ -805,8 +805,9 @@ const server = createServer(async (request, response) => {
     const data = await readFile(path)
     const range = request.headers.range?.match(/^bytes=(\d+)-(\d+)$/)
     if (range) {
-      const rangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
-      if (Number.isFinite(rangeDelay) && rangeDelay > 0 && rangeDelay <= 1_000) {
+      const requestedRangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
+      if (Number.isFinite(requestedRangeDelay) && requestedRangeDelay > 0) {
+        const rangeDelay = Math.min(requestedRangeDelay, 1_000)
         await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, rangeDelay))
       }
       const start = Number(range[1])

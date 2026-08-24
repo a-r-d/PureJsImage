@@ -72,7 +72,7 @@ const readJson = async (path: string): Promise<unknown> => JSON.parse(await read
 const portable = (path: string): string => relative(repositoryDirectory, path).replaceAll('\\', '/')
 const hash = (value: string | Uint8Array): string =>
   createHash('sha256').update(value).digest('hex')
-const dateStem = (date: string): string => date.replaceAll(/[:.]/gu, '-').replace(/Z$/u, 'Z')
+const dateStem = (date: string): string => date.replaceAll(/[:.]/gu, '-')
 const exists = async (path: string): Promise<boolean> =>
   stat(path)
     .then(() => true)

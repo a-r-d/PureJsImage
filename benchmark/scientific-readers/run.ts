@@ -824,7 +824,7 @@ const report: ScientificBenchmarkReport = Object.freeze({
 })
 
 await mkdir(artifactsDirectory, { recursive: true })
-const stamp = report.createdAt.replaceAll(':', '').replaceAll('.', '').replace('Z', 'Z')
+const stamp = report.createdAt.replaceAll(':', '').replaceAll('.', '')
 const jsonPath = join(artifactsDirectory, `${stamp}-${profile}.json`)
 const markdownPath = join(artifactsDirectory, `${stamp}-${profile}.md`)
 const latestPath = join(artifactsDirectory, 'latest.json')
