@@ -20,6 +20,7 @@ const channels = (format: PixelFormat): number => {
 const tileSize = 32
 
 const temporaryStorageError = (operation: string, error: unknown): ImageError => {
+  if (error instanceof ImageError) return error
   const code =
     error instanceof Error && 'code' in error && typeof error.code === 'string'
       ? error.code

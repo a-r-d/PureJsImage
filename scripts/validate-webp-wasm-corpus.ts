@@ -6,11 +6,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { discoverImazenCorpus, type ImazenCorpusEntry } from './validate-imazen-corpus.ts'
 
 type WasmVariant = 'scalar' | 'simd'
+type WasmCorpusFormat = 'jpeg' | 'png' | 'webp'
 
 interface CliOptions {
   readonly concurrency: number
   readonly corpus: string
   readonly filter: string | null
+  readonly format: WasmCorpusFormat
   readonly limit: number | null
   readonly memoryMb: number
   readonly output: string
@@ -36,7 +38,11 @@ interface WorkerResult {
   readonly message?: string
 }
 
-const workerPath = fileURLToPath(new URL('./validate-webp-wasm-worker.ts', import.meta.url))
+const workerPaths: Readonly<Record<WasmCorpusFormat, string>> = Object.freeze({
+  jpeg: fileURLToPath(new URL('./validate-jpeg-wasm-worker.ts', import.meta.url)),
+  png: fileURLToPath(new URL('./validate-png-wasm-worker.ts', import.meta.url)),
+  webp: fileURLToPath(new URL('./validate-webp-wasm-worker.ts', import.meta.url)),
+})
 const maximumOutputBytes = 65_536
 
 const positiveInteger = (value: string, name: string): number => {
@@ -54,7 +60,8 @@ const valueAfter = (arguments_: readonly string[], index: number, name: string):
 const parseCli = (arguments_: readonly string[]): CliOptions => {
   let corpus: string | undefined
   let variant: WasmVariant | undefined
-  let output = 'benchmark/.tmp/imazen-webp-wasm'
+  let format: WasmCorpusFormat = 'webp'
+  let output: string | undefined
   let timeoutMs = 30_000
   let memoryMb = 512
   let concurrency = 2
@@ -63,7 +70,13 @@ const parseCli = (arguments_: readonly string[]): CliOptions => {
   for (let index = 0; index < arguments_.length; index += 1) {
     const argument = arguments_[index]
     if (argument === '--corpus') corpus = valueAfter(arguments_, index, argument)
-    else if (argument === '--variant') {
+    else if (argument === '--format') {
+      const value = valueAfter(arguments_, index, argument)
+      if (value !== 'jpeg' && value !== 'png' && value !== 'webp') {
+        throw new Error('format must be jpeg, png, or webp')
+      }
+      format = value
+    } else if (argument === '--variant') {
       const value = valueAfter(arguments_, index, argument)
       if (value !== 'scalar' && value !== 'simd') throw new Error('variant must be scalar or simd')
       variant = value
@@ -82,10 +95,20 @@ const parseCli = (arguments_: readonly string[]): CliOptions => {
   }
   if (!corpus || !variant) {
     throw new Error(
-      'Usage: npm run corpus:imazen:webp-wasm -- --corpus <path> --variant scalar|simd [--output <path>] [--timeout-ms N] [--memory-mb N] [--concurrency N] [--limit N] [--filter substring]',
+      'Usage: npm run corpus:imazen:wasm -- --corpus <path> --format jpeg|png|webp --variant scalar|simd [--output <path>] [--timeout-ms N] [--memory-mb N] [--concurrency N] [--limit N] [--filter substring]',
     )
   }
-  return { concurrency, corpus, filter, limit, memoryMb, output, timeoutMs, variant }
+  return {
+    concurrency,
+    corpus,
+    filter,
+    format,
+    limit,
+    memoryMb,
+    output: output ?? `benchmark/.tmp/imazen-${format}-wasm`,
+    timeoutMs,
+    variant,
+  }
 }
 
 const portable = (path: string): string => path.split(sep).join('/')
@@ -131,7 +154,7 @@ const runEntry = async (
     process.execPath,
     [
       `--max-old-space-size=${options.memoryMb}`,
-      workerPath,
+      workerPaths[options.format],
       '--file',
       entry.absolutePath,
       '--variant',
@@ -225,7 +248,9 @@ const processConcurrently = async (
       results[index] = await runEntry(entry, options, corpusRoot)
       completed += 1
       if (completed === entries.length || completed % 10 === 0) {
-        console.error(`Processed ${completed}/${entries.length} ${options.variant} WebP files`)
+        console.error(
+          `Processed ${completed}/${entries.length} ${options.variant} ${options.format.toUpperCase()} files`,
+        )
       }
     }
   }
@@ -250,8 +275,14 @@ const atomicWrite = async (path: string, content: string): Promise<void> => {
 const runCli = async (): Promise<void> => {
   const options = parseCli(process.argv.slice(2))
   const corpusRoot = resolve(options.corpus)
-  const entries = await discoverImazenCorpus(corpusRoot, 'webp', options.filter, options.limit)
-  if (entries.length === 0) throw new Error('No WebP corpus files matched')
+  const entries = await discoverImazenCorpus(
+    corpusRoot,
+    options.format,
+    options.filter,
+    options.limit,
+  )
+  if (entries.length === 0)
+    throw new Error(`No ${options.format.toUpperCase()} corpus files matched`)
   const records = await processConcurrently(entries, options, corpusRoot)
   const totals = Object.groupBy(records, ({ status }) => status)
   const summary = Object.fromEntries(
@@ -264,16 +295,17 @@ const runCli = async (): Promise<void> => {
     records,
     timeoutMs: options.timeoutMs,
     totals: summary,
+    format: options.format,
     variant: options.variant,
   }
   const output = resolve(options.output)
-  const jsonPath = join(output, `imazen-webp-wasm-${options.variant}.json`)
-  const markdownPath = join(output, `imazen-webp-wasm-${options.variant}.md`)
+  const jsonPath = join(output, `imazen-${options.format}-wasm-${options.variant}.json`)
+  const markdownPath = join(output, `imazen-${options.format}-wasm-${options.variant}.md`)
   const failures = records.filter(({ status }) => status !== 'pass' && status !== 'matched-error')
   const lines = [
-    `# Imazen WebP ${options.variant} WASM validation`,
+    `# Imazen ${options.format.toUpperCase()} ${options.variant} WASM validation`,
     '',
-    `Exact TypeScript parity with forced ${options.variant} WASM kernels across ${records.length} isolated files.`,
+    `Reference parity and quality validation with forced eligible ${options.variant} WASM kernels across ${records.length} isolated files.`,
     '',
     `- Pass: ${summary.pass ?? 0}`,
     `- Matched structured errors: ${summary['matched-error'] ?? 0}`,

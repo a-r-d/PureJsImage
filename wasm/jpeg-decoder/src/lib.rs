@@ -538,6 +538,39 @@ fn restart(scratch: &mut Scratch) -> Result<u8, u32> {
     Err(ERROR_ENTROPY)
 }
 
+fn finish_entropy(scratch: &mut Scratch) -> Result<(), u32> {
+    scratch.state.bits = 0;
+    scratch.state.bit_count = 0;
+    if scratch.state.entropy_ended {
+        return Ok(());
+    }
+    while scratch.state.input_offset < scratch.state.input_length {
+        if input_byte(scratch, scratch.state.input_offset)? != 0xff {
+            scratch.state.input_offset += 1;
+            continue;
+        }
+        scratch.state.input_offset += 1;
+        while scratch.state.input_offset < scratch.state.input_length
+            && input_byte(scratch, scratch.state.input_offset)? == 0xff
+        {
+            scratch.state.input_offset += 1;
+        }
+        if scratch.state.input_offset >= scratch.state.input_length {
+            return Err(ERROR_TRUNCATED);
+        }
+        let marker = input_byte(scratch, scratch.state.input_offset)?;
+        scratch.state.input_offset += 1;
+        if marker == 0 {
+            continue;
+        }
+        if marker == 0xd9 {
+            return Ok(());
+        }
+        return Err(ERROR_ENTROPY);
+    }
+    Err(ERROR_TRUNCATED)
+}
+
 fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
     scratch.coefficients.fill(0);
     let dc_length = decode_huffman(scratch, component, false)?;
@@ -712,7 +745,10 @@ fn inverse_dct(
     if !has_ac {
         let scaled = f64::from(scratch.coefficients[0])
             * f64::from(scratch.quantization[component * BLOCK_VALUES]);
-        let sample = idct_sample(scaled * 0.125);
+        // Match the TypeScript basis-matrix path exactly at half-integer
+        // rounding boundaries. Multiplying the stored basis value twice is
+        // observably different from replacing it with the exact 1/8 value.
+        let sample = idct_sample(scaled * IDCT_BASIS[0] * IDCT_BASIS[0]);
         for y in 0..BLOCK {
             let target = plane_offset + (1 + block_y * BLOCK + y) * stride + block_x * BLOCK;
             for x in 0..BLOCK {
@@ -1720,6 +1756,9 @@ pub extern "C" fn jpeg_decoder_next() -> u32 {
             return STATUS_OK;
         }
         if scratch.state.pending {
+            if let Err(status) = finish_entropy(scratch) {
+                return status;
+            }
             let pending = scratch.state.pending_buffer;
             replicate_bottom(scratch, pending);
             if let Err(status) = render_pending(scratch) {

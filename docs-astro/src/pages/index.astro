@@ -50,7 +50,7 @@ const homepageFaq = [
   {
     question: 'Does PureJsImage load WebAssembly or native code by default?',
     answer:
-      'No. The default package uses strict TypeScript reference codecs and does not load native addons, external binaries, or WebAssembly. Optional JPEG and PNG WebAssembly accelerators require explicit imports and registration.',
+      'No. The default package uses strict TypeScript reference codecs and does not load native addons, external binaries, or WebAssembly. Optional JPEG, PNG, and WebP WebAssembly accelerators require explicit imports and registration.',
   },
   {
     question: 'How does PureJsImage reduce memory use?',
@@ -229,7 +229,7 @@ const webCodecCharts = [
       <div class="container">
         <div class="proof-heading">
           <div><p class="section-label">Web codec benchmarks</p><h2 id="benchmark-title">Measured performance across common image workflows.</h2></div>
-          <p>The {benchmarkDate} profile compares default PureJsImage and its explicit JPEG/PNG WASM accelerators with Jimp, Sharp, Sharp single-thread, image-js, and jSquash on the same inputs. Each engine runs in isolation and every displayed output is validated before timing is admitted.</p>
+          <p>The {benchmarkDate} profile compares default PureJsImage and its explicit JPEG, PNG, and WebP WASM accelerators with Jimp, Sharp, Sharp single-thread, image-js, and jSquash on the same inputs. Each engine runs in isolation and every displayed output is validated before timing is admitted.</p>
         </div>
         <div class="benchmark-facts">
           <div><strong>{documentation.ordinary.statusCounts.pass}</strong><span>validated passes</span></div>

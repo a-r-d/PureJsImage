@@ -90,6 +90,23 @@ the reference codec and fallback behavior, never as evidence that scalar or SIMD
 Imazen workflow verifies decode, PNG encode and reopen, dimensions, and process safety. It does not
 prove exact pixel parity.
 
+Run the forced scalar and SIMD lanes for every accelerated web codec:
+
+```sh
+for format in jpeg png webp; do
+  for variant in scalar simd; do
+    npm run corpus:imazen:wasm -- --corpus ../codec-corpus --format "$format" --variant "$variant" --output "benchmark/.tmp/imazen-$format-wasm-$variant" --timeout-ms 30000 --memory-mb 512 --concurrency 2
+  done
+done
+```
+
+The JPEG and PNG lanes require the selected WASM kernel for each input inside that accelerator's
+documented subset and record expected reference fallback outside it. Every successful input is
+decoded exactly against TypeScript and encoded through the forced WASM encoder. Scalar JPEG and
+PNG encoding require deterministic byte parity. SIMD JPEG encoding uses the benchmark's AAN gate:
+decoded PSNR must stay within 0.05 dB and output size within 1% of the TypeScript encoder. The WebP
+lane requires the selected WASM decoder and encoder for each supported still image.
+
 A WASM corpus lane must:
 
 * explicitly register scalar and SIMD loaders in separate runs;

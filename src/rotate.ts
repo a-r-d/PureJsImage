@@ -22,6 +22,7 @@ const channels = (format: PixelFormat): number => {
 }
 
 const temporaryStorageError = (operation: string, error: unknown): ImageError => {
+  if (error instanceof ImageError) return error
   const code =
     error instanceof Error && 'code' in error && typeof error.code === 'string'
       ? error.code

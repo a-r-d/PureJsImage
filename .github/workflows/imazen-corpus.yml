@@ -69,13 +69,17 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-  validate-webp-wasm:
-    name: WebP ${{ matrix.variant }} WASM corpus
+  validate-wasm:
+    name: ${{ matrix.format }} ${{ matrix.variant }} WASM corpus
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
+        format:
+          - jpeg
+          - png
+          - webp
         variant:
           - scalar
           - simd
@@ -103,21 +107,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate exact WebP WASM parity and accelerator use
+      - name: Validate WASM parity, quality, and accelerator use
         run: >-
-          npm run corpus:imazen:webp-wasm --
+          npm run corpus:imazen:wasm --
           --corpus codec-corpus
+          --format "${{ matrix.format }}"
           --variant "${{ matrix.variant }}"
-          --output "$RUNNER_TEMP/imazen-webp-wasm-${{ matrix.variant }}"
+          --output "$RUNNER_TEMP/imazen-${{ matrix.format }}-wasm-${{ matrix.variant }}"
           --timeout-ms 30000
           --memory-mb 512
           --concurrency 2
 
-      - name: Upload WebP WASM corpus report
+      - name: Upload WASM corpus report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: imazen-webp-${{ matrix.variant }}-wasm-corpus-report
-          path: ${{ runner.temp }}/imazen-webp-wasm-${{ matrix.variant }}/
+          name: imazen-${{ matrix.format }}-${{ matrix.variant }}-wasm-corpus-report
+          path: ${{ runner.temp }}/imazen-${{ matrix.format }}-wasm-${{ matrix.variant }}/
           if-no-files-found: warn
           retention-days: 30

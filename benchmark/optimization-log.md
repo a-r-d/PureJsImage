@@ -818,3 +818,31 @@ The final 13-workflow profile reports 605.6 to 529.6 ms (-12.5%) for that workfl
 artifact is 9,329 bytes, 3,800 gzip bytes, and 3,238 Brotli bytes. The SIMD artifact is 11,845
 bytes, 4,667 gzip bytes, and 3,955 Brotli bytes. Forced scalar and SIMD Imazen corpus runs each
 accepted all 225 inputs: 223 decodes passed and two expected structured errors matched.
+
+## Node temporary storage comparison - 2026-08-24
+
+Seven alternating isolated-process pairs compared the filesystem-backed Node temporary store with
+the bounded 1 MiB-chunk memory store. Both modes received the same deterministic streamed RGBA
+blocks. Full output SHA-256 hashes, dimensions, row counts, and byte counts matched in every pair.
+The benchmark included EXIF orientation 6, where temporary storage is the main cost, and arbitrary
+17-degree rotation, where interpolation also contributes substantial work.
+
+| Workload | Tile spool | File wall | Memory wall | Memory speed change | File peak RSS | Memory peak RSS | Memory RSS change |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Orientation 6, 1024x768 RGBA | 3.00 MiB | 78.67 ms | 59.32 ms | -24.6% | 88.74 MiB | 94.46 MiB | +5.71 MiB |
+| Orientation 6, 2048x1536 RGBA | 12.00 MiB | 265.70 ms | 190.64 ms | -28.3% | 89.91 MiB | 110.61 MiB | +20.70 MiB |
+| Orientation 6, 4000x3000 RGBA | 45.90 MiB | 820.48 ms | 654.72 ms | -20.2% | 90.90 MiB | 147.69 MiB | +56.79 MiB |
+| Rotate 17 degrees, 1024x768 RGBA | 3.00 MiB | 274.46 ms | 207.79 ms | -24.3% | 95.80 MiB | 104.89 MiB | +9.09 MiB |
+| Rotate 17 degrees, 2048x1536 RGBA | 12.00 MiB | 905.70 ms | 667.65 ms | -26.3% | 102.86 MiB | 116.00 MiB | +13.14 MiB |
+
+The host mounted `/tmp` as `tmpfs`. The spool therefore remained RAM-backed but outside process
+RSS. For example, the 12 MP orientation row used a 45.90 MiB tmpfs file, so its rough combined live
+RAM was about 136.80 MiB before filesystem metadata, versus 147.69 MiB for the memory-store process.
+The process-RSS reduction is still useful where that metric sets the runtime limit, but it must not
+be presented as an equal reduction in total host memory on tmpfs systems.
+
+Verdict: retain the guarded file store as an explicit opt-in rather than remove it. It materially
+reduces large-transform process RSS, while memory is safer across runtimes and materially faster in
+all measured rows. The default policy therefore uses lazy chunked memory without the previous 64
+MiB Node ceiling. Opt-in file setup and later write failures fall back to memory. Local harness:
+`.tmp/temporary-storage-benchmark/{run.ts,worker.ts}`.

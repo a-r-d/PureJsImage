@@ -870,9 +870,11 @@ fn downsample_chroma(
 
 #[inline(always)]
 fn round_like_javascript(value: f64) -> i32 {
-    let adjusted = value + 0.5;
-    let truncated = adjusted as i32;
-    if adjusted < truncated as f64 {
+    let truncated = value as i32;
+    let fraction = value - f64::from(truncated);
+    if fraction >= 0.5 {
+        truncated + 1
+    } else if fraction < -0.5 {
         truncated - 1
     } else {
         truncated
@@ -1344,6 +1346,7 @@ pub extern "C" fn jpeg_encoder_abi_version() -> u32 {
 pub extern "C" fn jpeg_encoder_simd() -> u32 {
     if cfg!(feature = "simd") { 1 } else { 0 }
 }
+
 #[unsafe(no_mangle)]
 pub extern "C" fn jpeg_encoder_output_length() -> u32 {
     scratch().state.output_length as u32

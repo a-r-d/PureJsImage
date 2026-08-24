@@ -291,6 +291,7 @@ try {
   await writeFile(
     join(consumerDirectory, 'index.ts'),
     `import { BufferSink, createImageLibrary, MemorySource } from 'purejsimage'
+import type { NodeImageLibraryOptions } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
 import { allWebCodecs } from 'purejsimage/codecs/web'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
@@ -381,7 +382,8 @@ export { HttpRangeSource } from 'purejsimage/sources/http-range'
 export { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 }
 export type { AnalysisProjectV1 }
 
-const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
+const nodeOptions: NodeImageLibraryOptions = { temporaryFiles: true }
+const nodeImages = createImageLibrary([pngCodec, jpegxlCodec], nodeOptions)
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })

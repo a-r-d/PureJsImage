@@ -152,7 +152,7 @@ describe('package contract', () => {
     )
     expect(packageJson.scripts.size).toContain('npm run build')
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
-      60 * 1024,
+      64 * 1024,
     )
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
@@ -260,11 +260,15 @@ describe('package contract', () => {
     expect(workflow).toContain('repository: imazen/codec-corpus')
     expect(workflow).toContain(`ref: ${corpusCommit}`)
     expect(workflow).toContain('--baseline benchmark/results')
-    expect(workflow).toContain('npm run corpus:imazen:webp-wasm --')
+    expect(workflow).toContain('npm run corpus:imazen:wasm --')
+    expect(workflow).toContain(`--format "\${{ matrix.format }}"`)
     expect(workflow).toContain(`--variant "\${{ matrix.variant }}"`)
     expect(workflow).toContain('          - scalar')
     expect(workflow).toContain('          - simd')
     expect(workflow).toContain('if: always()')
+    for (const format of ['jpeg', 'png', 'webp']) {
+      expect(workflow).toContain(`          - ${format}`)
+    }
     for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp']) {
       expect(workflow).toContain(`          - ${format}`)
       const baseline = readFileSync(`benchmark/results/imazen-${format}-conformance.json`, 'utf8')

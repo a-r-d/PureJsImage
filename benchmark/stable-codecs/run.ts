@@ -1,16 +1,16 @@
-import { createHash } from 'node:crypto'
 import { execFileSync, spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
-import { arch, cpus, hostname, platform, release, totalmem } from 'node:os'
+import { arch, cpus, hostname, platform, release, tmpdir, totalmem } from 'node:os'
 import { dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import {
   readStableCodecCapabilities,
-  stableCodecProfile,
-  type StableCodecPlan,
   type StableCodecFixture,
+  type StableCodecPlan,
   type StableFixtureSize,
+  stableCodecProfile,
 } from '../profiles.ts'
 
 interface WorkerValidation {
@@ -560,7 +560,7 @@ const main = async (): Promise<void> => {
   const selectedPlans =
     selectedCodec === undefined ? plans : plans.filter(({ id }) => id === selectedCodec)
   if (selectedPlans.length === 0) throw new Error(`Unknown stable codec: ${selectedCodec}`)
-  const temporaryDirectory = await mkdtemp(join('/tmp', 'purejsimage-stable-codecs-'))
+  const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-stable-codecs-'))
   const results: CaseResult[] = []
   try {
     for (const plan of selectedPlans) {

@@ -5,7 +5,7 @@ Jimp 1.6.0 remains the original Lambda baseline. The broader competitor profile
 also pins Sharp 0.35.3, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
 WebP 1.5.0, and resize 2.1.1 packages.
 The profile treats the default pure-JavaScript implementation and the explicitly registered
-first-party JPEG/PNG WASM accelerators as separate PureJsImage engines. HEIF/HEIC measurements use
+first-party JPEG, PNG, and WebP WASM accelerators as separate PureJsImage engines. HEIF/HEIC measurements use
 another explicit `purejsimage-experimental-heic` engine; the default engine never registers it.
 
 ## Authoritative inventories and generated metrics
@@ -410,8 +410,8 @@ fixture already used by the codec conformance suite.
 An engine is marked unsupported when its public API or installed codec build
 cannot express the exact workflow.
 `purejsimage` uses the default TypeScript codecs. `purejsimage-wasm` explicitly registers the
-published JPEG and PNG scalar/SIMD accelerator providers and retains their normal eligibility and
-fallback rules; WebP, TIFF, and AVIF execute through the same TypeScript reference codecs.
+published JPEG, PNG, and WebP scalar/SIMD accelerator providers and retains their normal eligibility
+and fallback rules; TIFF and AVIF execute through the same TypeScript reference codecs.
 `purejsimage-experimental-heic` is reserved for the HEIF profile and directly imports the
 experimental codec. It must not be added to the default or competitor engine lists.
 
@@ -423,7 +423,7 @@ that calls `sharp.concurrency(1)` before processing. image-js uses its normal
 public decode, transform, and encode APIs. Its optional Canvas integration is
 omitted and is not part of the benchmark dependency tree.
 
-For quality-enabled JPEG and PNG workflows, the harness independently decodes
+For quality-enabled JPEG, PNG, and WebP workflows, the harness independently decodes
 the pinned input, applies crop and exact-area resize semantics, applies alpha
 flattening where requested, and independently decodes each engine's output.
 It reports PSNR over premultiplied RGB plus alpha, so invisible RGB values in
