@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises'
 
-import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -20,15 +19,10 @@ import { MemorySource } from '../src/source.ts'
 
 const scalarArtifactUrl = new URL('../src/accelerator-entries/webp-codec.wasm', import.meta.url)
 const simdArtifactUrl = new URL('../src/accelerator-entries/webp-codec-simd.wasm', import.meta.url)
-const lossyFixtureUrl = new URL(
-  '../benchmark/corpus/files/webp-gallery-cherry-1024x772.webp',
-  import.meta.url,
-)
 const losslessFixtureUrl = new URL(
-  '../benchmark/corpus/files/webp-lossless-rose-400x301.webp',
+  '../benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   import.meta.url,
 )
-const rgbaFixtureUrl = new URL('../benchmark/corpus/files/odd-rgba-257x193.png', import.meta.url)
 
 const artifacts = [
   { kind: 'scalar', url: scalarArtifactUrl },
@@ -61,27 +55,48 @@ const decode = async (codec: ImageCodec, input: Uint8Array): Promise<Uint8Array>
   return decodedPixels(decoder)
 }
 
+interface RgbaFixture {
+  data: Uint8Array
+  height: number
+  width: number
+}
+
+const createRgbaFixture = (): RgbaFixture => {
+  const width = 17
+  const height = 13
+  const data = new Uint8Array(width * height * 4)
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 4
+      data[offset] = (x * 17 + y * 3) & 0xff
+      data[offset + 1] = (x * 5 + y * 19) & 0xff
+      data[offset + 2] = (x * 11 + y * 7) & 0xff
+      data[offset + 3] = (x * 13 + y * 23) & 0xff
+    }
+  }
+  return { data, height, width }
+}
+
 const encode = async (
   codec: ImageCodec,
-  input: Uint8Array,
+  input: RgbaFixture,
   lossless: boolean,
 ): Promise<Uint8Array> => {
-  const png = PNG.sync.read(Buffer.from(input))
   const sink = new Uint8ArraySink()
   const encoder = await codec.createEncoder?.(sink, {
-    height: png.height,
+    height: input.height,
     metadata: {},
     options: lossless ? { lossless: true } : { quality: 80 },
     pixelFormat: 'rgba8',
-    width: png.width,
+    width: input.width,
   })
   if (!encoder) throw new Error('WebP encoder is unavailable')
   await encoder.write({
-    data: png.data,
+    data: input.data,
     format: 'rgba8',
-    height: png.height,
-    stride: png.width * 4,
-    width: png.width,
+    height: input.height,
+    stride: input.width * 4,
+    width: input.width,
     x: 0,
     y: 0,
   })
@@ -128,8 +143,11 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
     'decodes lossy VP8 and lossless VP8L exactly through the $kind artifact',
     async ({ kind, url }) => {
       const accelerated = codecWithArtifact(kind, url)
-      for (const fixture of [lossyFixtureUrl, losslessFixtureUrl]) {
-        const input = await readFile(fixture)
+      const fixtures = [
+        await encode(webpCodec, createRgbaFixture(), false),
+        await readFile(losslessFixtureUrl),
+      ]
+      for (const input of fixtures) {
         expect(await decode(accelerated, input)).toEqual(await decode(webpCodec, input))
       }
     },
@@ -139,7 +157,7 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
     'encodes exact lossy and lossless bitstreams through the $kind artifact',
     async ({ kind, url }) => {
       const accelerated = codecWithArtifact(kind, url)
-      const input = await readFile(rgbaFixtureUrl)
+      const input = createRgbaFixture()
       for (const lossless of [false, true]) {
         const expected = await encode(webpCodec, input, lossless)
         const actual = await encode(accelerated, input, lossless)
@@ -160,7 +178,7 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
         },
       })
       await decode(accelerated, await readFile(losslessFixtureUrl))
-      expect(operations.filter((operation) => operation === 'vp8l-inverse-row').length).toBe(301)
+      expect(operations.filter((operation) => operation === 'vp8l-inverse-row').length).toBe(395)
       expect(operations).not.toContain('vp8l-inverse-color')
       expect(operations).not.toContain('vp8l-inverse-predictor')
       expect(operations).not.toContain('vp8l-inverse-subtract-green')
@@ -175,7 +193,7 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
   })
 
   it('falls back to TypeScript when both module variants fail to load', async () => {
-    const input = await readFile(lossyFixtureUrl)
+    const input = await encode(webpCodec, createRgbaFixture(), false)
     let loads = 0
     const reject = (): Promise<WebAssembly.Instance> => {
       loads += 1
