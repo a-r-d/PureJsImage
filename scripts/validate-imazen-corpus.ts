@@ -110,7 +110,25 @@ interface PngExpectedError {
 interface ParsedCli {
   readonly corpusDirectory: string
   readonly outputDirectory: string
+  readonly baselineDirectory: string | null
   readonly settings: ImazenCommandSettings
+}
+
+export interface ImazenBaselineRecord {
+  readonly relativeFilename: string
+  readonly actualOutcome: ImazenOutcome
+  readonly lastCompletedStage: ImazenWorkerStage
+  readonly structuredErrorCode: string | null
+  readonly sanitizedErrorMessage: string | null
+  readonly childExitCode: number | null
+  readonly childSignal: string | null
+}
+
+export interface ImazenBaseline {
+  readonly schemaVersion: 1
+  readonly format: ImazenFormat
+  readonly codecCorpusGitCommit: string
+  readonly records: readonly ImazenBaselineRecord[]
 }
 
 interface ReportEnvironment {
@@ -154,6 +172,7 @@ const argumentValue = (arguments_: readonly string[], index: number, name: strin
 export const parseImazenCli = (arguments_: readonly string[]): ParsedCli => {
   let corpusDirectory: string | undefined
   let outputDirectory = 'benchmark/results'
+  let baselineDirectory: string | undefined
   let format: ImazenFormatSelection = 'all'
   let timeoutMs = 30_000
   let memoryMb = 512
@@ -175,6 +194,9 @@ export const parseImazenCli = (arguments_: readonly string[]): ParsedCli => {
       index += 1
     } else if (argument === '--output') {
       outputDirectory = argumentValue(arguments_, index, argument)
+      index += 1
+    } else if (argument === '--baseline') {
+      baselineDirectory = argumentValue(arguments_, index, argument)
       index += 1
     } else if (argument === '--timeout-ms') {
       timeoutMs = positiveInteger(Number(argumentValue(arguments_, index, argument)), argument)
@@ -198,13 +220,18 @@ export const parseImazenCli = (arguments_: readonly string[]): ParsedCli => {
 
   if (!corpusDirectory) {
     throw new Error(
-      `Usage: npm run corpus:imazen -- --corpus <path> --format ${imazenFormats.join('|')}|all [--output <directory>] [--timeout-ms N] [--memory-mb N] [--concurrency N] [--limit N] [--filter substring]`,
+      `Usage: npm run corpus:imazen -- --corpus <path> --format ${imazenFormats.join('|')}|all [--output <directory>] [--baseline <directory>] [--timeout-ms N] [--memory-mb N] [--concurrency N] [--limit N] [--filter substring]`,
     )
+  }
+
+  if (baselineDirectory && resolve(baselineDirectory) === resolve(outputDirectory)) {
+    throw new Error('--baseline and --output must use different directories')
   }
 
   return {
     corpusDirectory,
     outputDirectory,
+    baselineDirectory: baselineDirectory ?? null,
     settings: {
       corpus: reportPath(corpusDirectory, '<corpus-path>'),
       format,
@@ -1132,6 +1159,162 @@ export const writeImazenReports = async (
   return paths
 }
 
+const isImazenOutcome = (value: unknown): value is ImazenOutcome =>
+  value === 'pass' ||
+  value === 'unsupported' ||
+  value === 'decode-failure' ||
+  value === 'invalid-output' ||
+  value === 'rejected-safely' ||
+  value === 'accepted' ||
+  value === 'raw-exception' ||
+  value === 'timeout' ||
+  value === 'process-crash' ||
+  value === 'out-of-memory'
+
+const isImazenWorkerStage = (value: unknown): value is ImazenWorkerStage =>
+  value === 'start' ||
+  value === 'open' ||
+  value === 'metadata' ||
+  value === 'decode-and-encode-png' ||
+  value === 'reopen-png' ||
+  value === 'output-metadata' ||
+  value === 'verify-output'
+
+const isStringOrNull = (value: unknown): value is string | null =>
+  value === null || typeof value === 'string'
+
+const isSafeIntegerOrNull = (value: unknown): value is number | null =>
+  value === null || (typeof value === 'number' && Number.isSafeInteger(value))
+
+export const parseImazenBaseline = (
+  parsed: unknown,
+  source = 'Imazen baseline',
+): ImazenBaseline => {
+  if (
+    typeof parsed !== 'object' ||
+    parsed === null ||
+    !('schemaVersion' in parsed) ||
+    parsed.schemaVersion !== 1 ||
+    !('format' in parsed) ||
+    typeof parsed.format !== 'string' ||
+    !isImazenFormat(parsed.format) ||
+    !('codecCorpusGitCommit' in parsed) ||
+    typeof parsed.codecCorpusGitCommit !== 'string' ||
+    !('records' in parsed) ||
+    !Array.isArray(parsed.records)
+  ) {
+    throw new Error(`${source} does not match the Imazen report schema`)
+  }
+
+  const records: ImazenBaselineRecord[] = []
+  const filenames = new Set<string>()
+  for (const [index, record] of parsed.records.entries()) {
+    if (
+      typeof record !== 'object' ||
+      record === null ||
+      !('relativeFilename' in record) ||
+      typeof record.relativeFilename !== 'string' ||
+      !('actualOutcome' in record) ||
+      !isImazenOutcome(record.actualOutcome) ||
+      !('lastCompletedStage' in record) ||
+      !isImazenWorkerStage(record.lastCompletedStage) ||
+      !('structuredErrorCode' in record) ||
+      !isStringOrNull(record.structuredErrorCode) ||
+      !('sanitizedErrorMessage' in record) ||
+      !isStringOrNull(record.sanitizedErrorMessage) ||
+      !('childExitCode' in record) ||
+      !isSafeIntegerOrNull(record.childExitCode) ||
+      !('childSignal' in record) ||
+      !isStringOrNull(record.childSignal)
+    ) {
+      throw new Error(`${source} has an invalid record at index ${index}`)
+    }
+    if (filenames.has(record.relativeFilename)) {
+      throw new Error(`${source} contains duplicate record ${record.relativeFilename}`)
+    }
+    filenames.add(record.relativeFilename)
+    records.push({
+      relativeFilename: record.relativeFilename,
+      actualOutcome: record.actualOutcome,
+      lastCompletedStage: record.lastCompletedStage,
+      structuredErrorCode: record.structuredErrorCode,
+      sanitizedErrorMessage: record.sanitizedErrorMessage,
+      childExitCode: record.childExitCode,
+      childSignal: record.childSignal,
+    })
+  }
+
+  return {
+    schemaVersion: 1,
+    format: parsed.format,
+    codecCorpusGitCommit: parsed.codecCorpusGitCommit,
+    records,
+  }
+}
+
+const printableBaselineValue = (value: unknown): string => JSON.stringify(value) ?? String(value)
+
+export const compareImazenBaseline = (
+  expected: ImazenBaseline,
+  actual: ImazenReport,
+): readonly string[] => {
+  const differences: string[] = []
+  if (expected.format !== actual.format) {
+    differences.push(`format: expected ${expected.format}, received ${actual.format}`)
+  }
+  if (expected.codecCorpusGitCommit !== actual.codecCorpusGitCommit) {
+    differences.push(
+      `codecCorpusGitCommit: expected ${expected.codecCorpusGitCommit}, received ${actual.codecCorpusGitCommit}`,
+    )
+  }
+
+  const expectedByFilename = new Map(
+    expected.records.map((record) => [record.relativeFilename, record] as const),
+  )
+  const actualByFilename = new Map(
+    actual.records.map((record) => [record.relativeFilename, record] as const),
+  )
+  for (const filename of [...expectedByFilename.keys()].sort((left, right) =>
+    left.localeCompare(right),
+  )) {
+    const expectedRecord = expectedByFilename.get(filename)
+    const actualRecord = actualByFilename.get(filename)
+    if (!expectedRecord) continue
+    if (!actualRecord) {
+      differences.push(`${filename}: missing current result`)
+      continue
+    }
+    const compareField = (field: keyof Omit<ImazenBaselineRecord, 'relativeFilename'>): void => {
+      if (expectedRecord[field] !== actualRecord[field]) {
+        differences.push(
+          `${filename}.${field}: expected ${printableBaselineValue(expectedRecord[field])}, received ${printableBaselineValue(actualRecord[field])}`,
+        )
+      }
+    }
+    compareField('actualOutcome')
+    compareField('lastCompletedStage')
+    compareField('structuredErrorCode')
+    compareField('sanitizedErrorMessage')
+    compareField('childExitCode')
+    compareField('childSignal')
+  }
+  for (const filename of [...actualByFilename.keys()].sort((left, right) =>
+    left.localeCompare(right),
+  )) {
+    if (!expectedByFilename.has(filename))
+      differences.push(`${filename}: unexpected current result`)
+  }
+  return differences
+}
+
+const readImazenBaseline = async (
+  baselineDirectory: string,
+  format: ImazenFormat,
+): Promise<ImazenBaseline> => {
+  const path = join(baselineDirectory, `imazen-${format}-conformance.json`)
+  return parseImazenBaseline(JSON.parse(await readFile(path, 'utf8')), path)
+}
+
 const gitRevision = async (directory: string): Promise<string> => {
   const [revision, status] = await Promise.all([
     execFileAsync('git', ['-C', directory, 'rev-parse', 'HEAD'], { encoding: 'utf8' }),
@@ -1157,6 +1340,12 @@ const packageVersion = async (): Promise<string> => {
 const runCli = async (): Promise<void> => {
   const parsed = parseImazenCli(process.argv.slice(2))
   const corpusRoot = resolve(parsed.corpusDirectory)
+  const formats: readonly ImazenFormat[] =
+    parsed.settings.format === 'all' ? imazenFormats : [parsed.settings.format]
+  const baselineDirectory = parsed.baselineDirectory
+  const baselines = baselineDirectory
+    ? await Promise.all(formats.map((format) => readImazenBaseline(baselineDirectory, format)))
+    : []
   const entries = await discoverImazenCorpus(
     corpusRoot,
     parsed.settings.format,
@@ -1191,12 +1380,15 @@ const runCli = async (): Promise<void> => {
     platform: `${process.platform}-${process.arch}`,
     generatedAt: new Date().toISOString(),
   }
-  const formats: readonly ImazenFormat[] =
-    parsed.settings.format === 'all' ? imazenFormats : [parsed.settings.format]
   const reports = formats.map((format) =>
     buildImazenReport(format, records, parsed.settings, environment),
   )
   const paths = await writeImazenReports(parsed.outputDirectory, reports)
+  const differences = reports.flatMap((report) => {
+    const baseline = baselines.find(({ format }) => format === report.format)
+    if (!baseline) return []
+    return compareImazenBaseline(baseline, report)
+  })
   console.log(
     JSON.stringify(
       {
@@ -1206,11 +1398,21 @@ const runCli = async (): Promise<void> => {
           selected: report.records.length,
           outcomes: report.totalsByOutcome,
         })),
+        baseline: parsed.baselineDirectory
+          ? { directory: portablePath(parsed.baselineDirectory), differences: differences.length }
+          : null,
       },
       undefined,
       2,
     ),
   )
+  if (differences.length > 0) {
+    const displayed = differences.slice(0, 50)
+    const omitted = differences.length - displayed.length
+    throw new Error(
+      `Imazen baseline comparison failed with ${differences.length} difference(s):\n${displayed.map((difference) => `- ${difference}`).join('\n')}${omitted > 0 ? `\n- ... ${omitted} more difference(s)` : ''}`,
+    )
+  }
 }
 
 const entrypoint = process.argv[1]

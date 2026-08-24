@@ -8,12 +8,15 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   bmpFeatureGroup,
   buildImazenReport,
+  compareImazenBaseline,
   discoverImazenCorpus,
   gifFeatureGroup,
   type ImazenCommandSettings,
   type ImazenCorpusEntry,
   type ImazenFormat,
   type ImazenResultRecord,
+  parseImazenBaseline,
+  parseImazenCli,
   pngFeatureGroup,
   renderImazenMarkdown,
   runIsolatedFile,
@@ -321,5 +324,89 @@ describe('Imazen corpus discovery and reports', () => {
       'jpeg-conformance/valid/a.jpg',
       'jpeg-conformance/valid/z.jpg',
     ])
+  })
+
+  it('compares deterministic per-file behavior while ignoring run metadata and timing', () => {
+    const expected = buildImazenReport(
+      'jpeg',
+      [resultRecord('jpeg', 'pass')],
+      settings,
+      environment,
+    )
+    const baseline = parseImazenBaseline(JSON.parse(serializeImazenJson(expected)))
+    const actualRecord = { ...resultRecord('jpeg', 'pass'), elapsedMs: 999 }
+    const actual = buildImazenReport('jpeg', [actualRecord], settings, {
+      ...environment,
+      pureJsImageGitCommit: 'different-repository-commit',
+      generatedAt: '2026-08-24T00:00:00.000Z',
+    })
+
+    expect(compareImazenBaseline(baseline, actual)).toEqual([])
+  })
+
+  it('reports changed, missing, and unexpected per-file behavior', () => {
+    const expected = buildImazenReport(
+      'jpeg',
+      [resultRecord('jpeg', 'pass')],
+      settings,
+      environment,
+    )
+    const baseline = parseImazenBaseline(JSON.parse(serializeImazenJson(expected)))
+    const changed: ImazenResultRecord = {
+      ...resultRecord('jpeg', 'decode-failure'),
+      structuredErrorCode: 'TRUNCATED_INPUT',
+      sanitizedErrorMessage: 'Changed diagnostic',
+    }
+    const differences = compareImazenBaseline(
+      baseline,
+      buildImazenReport('jpeg', [changed], settings, {
+        ...environment,
+        codecCorpusGitCommit: 'different-corpus-commit',
+      }),
+    )
+
+    expect(differences).toContain(
+      'codecCorpusGitCommit: expected corpus-commit, received different-corpus-commit',
+    )
+    expect(differences).toContain(
+      'jpeg-conformance/valid/a.jpg.actualOutcome: expected "pass", received "decode-failure"',
+    )
+    expect(differences).toContain(
+      'jpeg-conformance/valid/a.jpg.structuredErrorCode: expected null, received "TRUNCATED_INPUT"',
+    )
+
+    const unexpected = { ...resultRecord('jpeg', 'pass'), relativeFilename: 'new.jpg' }
+    const fileDifferences = compareImazenBaseline(
+      baseline,
+      buildImazenReport('jpeg', [unexpected], settings, environment),
+    )
+    expect(fileDifferences).toEqual([
+      'jpeg-conformance/valid/a.jpg: missing current result',
+      'new.jpg: unexpected current result',
+    ])
+  })
+
+  it('parses a separate baseline directory without allowing it to be overwritten', () => {
+    const parsed = parseImazenCli([
+      '--corpus',
+      '../codec-corpus',
+      '--format',
+      'jpeg',
+      '--output',
+      'benchmark/.tmp/imazen-jpeg',
+      '--baseline',
+      'benchmark/results',
+    ])
+    expect(parsed.baselineDirectory).toBe('benchmark/results')
+    expect(() =>
+      parseImazenCli([
+        '--corpus',
+        '../codec-corpus',
+        '--output',
+        'benchmark/results',
+        '--baseline',
+        'benchmark/results',
+      ]),
+    ).toThrow('--baseline and --output must use different directories')
   })
 })

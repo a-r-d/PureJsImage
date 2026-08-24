@@ -10,7 +10,8 @@ crate-type = ["cdylib"]
 
 [features]
 default = []
-simd = []
+aan = []
+simd = ["aan"]
 
 [profile.release]
 codegen-units = 1

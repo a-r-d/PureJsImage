@@ -8,7 +8,7 @@ const WASM_PAGE_BYTES: u64 = 65_536;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo<'_>) -> ! {
-    loop {}
+    core::arch::wasm32::unreachable()
 }
 
 #[derive(Clone, Copy)]

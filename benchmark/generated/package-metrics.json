@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.16.0",
-    "unpackedPackageBytes": 6599852,
+    "unpackedPackageBytes": 6598145,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -2060,12 +2060,12 @@
           "version": "1.1.0"
         },
         {
-          "name": "@img/sharp-darwin-arm64",
-          "version": "0.35.3"
+          "name": "@img/sharp-libvips-linux-x64",
+          "version": "1.3.2"
         },
         {
-          "name": "@img/sharp-libvips-darwin-arm64",
-          "version": "1.3.2"
+          "name": "@img/sharp-linux-x64",
+          "version": "0.35.3"
         },
         {
           "name": "detect-libc",
@@ -2087,51 +2087,51 @@
   ],
   "wasmAssets": [
     {
-      "brotliBytes": 6497,
-      "gzipBytes": 7639,
+      "brotliBytes": 6540,
+      "gzipBytes": 7762,
       "id": "jpeg-decoder",
       "name": "JPEG decoder WASM",
-      "rawBytes": 31104,
+      "rawBytes": 31516,
       "sourceEntry": "src/accelerator-entries/jpeg-decoder.wasm"
     },
     {
-      "brotliBytes": 6661,
-      "gzipBytes": 7794,
+      "brotliBytes": 6696,
+      "gzipBytes": 7861,
       "id": "jpeg-decoder-simd",
       "name": "JPEG decoder SIMD WASM",
-      "rawBytes": 30947,
+      "rawBytes": 31366,
       "sourceEntry": "src/accelerator-entries/jpeg-decoder-simd.wasm"
     },
     {
-      "brotliBytes": 5618,
-      "gzipBytes": 7037,
+      "brotliBytes": 5674,
+      "gzipBytes": 7170,
       "id": "jpeg-encoder",
       "name": "JPEG encoder WASM",
-      "rawBytes": 39105,
+      "rawBytes": 39265,
       "sourceEntry": "src/accelerator-entries/jpeg-encoder.wasm"
     },
     {
-      "brotliBytes": 7283,
-      "gzipBytes": 9035,
+      "brotliBytes": 7310,
+      "gzipBytes": 8964,
       "id": "jpeg-encoder-simd",
       "name": "JPEG encoder SIMD WASM",
-      "rawBytes": 48877,
+      "rawBytes": 46190,
       "sourceEntry": "src/accelerator-entries/jpeg-encoder-simd.wasm"
     },
     {
-      "brotliBytes": 1451,
-      "gzipBytes": 1664,
+      "brotliBytes": 1456,
+      "gzipBytes": 1658,
       "id": "png-codec",
       "name": "PNG codec WASM",
-      "rawBytes": 3884,
+      "rawBytes": 3879,
       "sourceEntry": "src/accelerator-entries/png-codec.wasm"
     },
     {
-      "brotliBytes": 2577,
-      "gzipBytes": 3025,
+      "brotliBytes": 2560,
+      "gzipBytes": 3020,
       "id": "png-codec-simd",
       "name": "PNG codec SIMD WASM",
-      "rawBytes": 7293,
+      "rawBytes": 7287,
       "sourceEntry": "src/accelerator-entries/png-codec-simd.wasm"
     }
   ]

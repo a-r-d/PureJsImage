@@ -125,6 +125,12 @@ const summary = (engine: Measurement['engine'], profile: Measurement['profile'])
   }
 }
 const result = {
+  generatedAt: new Date().toISOString(),
+  revision: {
+    gitRevision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
+    workingTreeDirty:
+      spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).stdout.trim().length > 0,
+  },
   fixture: {
     path: inputPath,
     bytes: input.byteLength,

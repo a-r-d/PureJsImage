@@ -1,0 +1,70 @@
+name: Imazen codec corpus
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: ${{ matrix.format }} corpus
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        format:
+          - jpeg
+          - png
+          - webp
+          - tiff
+          - gif
+          - bmp
+
+    steps:
+      - name: Checkout PureJsImage
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned Imazen codec corpus
+        uses: actions/checkout@v7
+        with:
+          repository: imazen/codec-corpus
+          ref: 28205bbc5cf40364d012c462240ba28143373d67
+          path: codec-corpus
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate corpus behavior against checked-in baseline
+        run: >-
+          npm run corpus:imazen --
+          --corpus codec-corpus
+          --format "${{ matrix.format }}"
+          --output "$RUNNER_TEMP/imazen-${{ matrix.format }}"
+          --baseline benchmark/results
+          --timeout-ms 30000
+          --memory-mb 512
+          --concurrency 2
+
+      - name: Upload corpus report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imazen-${{ matrix.format }}-corpus-report
+          path: ${{ runner.temp }}/imazen-${{ matrix.format }}/
+          if-no-files-found: warn
+          retention-days: 30

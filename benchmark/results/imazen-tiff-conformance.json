@@ -501,7 +501,7 @@
       ],
       "upstreamExpectation": "Must reject safely",
       "actualOutcome": "rejected-safely",
-      "lastCompletedStage": "open",
+      "lastCompletedStage": "metadata",
       "structuredErrorCode": "TRUNCATED_INPUT",
       "sanitizedErrorMessage": "TIFF segment 0 exceeds the input",
       "elapsedMs": 200,
@@ -2915,7 +2915,7 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF compression 32809 is unsupported",
+      "sanitizedErrorMessage": "TIFF compression 32809 (ThunderScan) is unsupported",
       "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null

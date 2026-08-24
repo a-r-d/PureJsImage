@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-08-24T15:41:44.306Z",
+  "revision": {
+    "gitRevision": "67f5c4bda1775b1c07119be679922f23f1f77988",
+    "workingTreeDirty": true
+  },
+  "fixture": {
+    "path": "benchmark/corpus/files/tundra-4000x3000.jpg",
+    "bytes": 4768216,
+    "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+    "dimensions": "4000x3000"
+  },
+  "artifact": {
+    "scalarBytes": 31516,
+    "scalarGzipBytes": 7762,
+    "scalarBrotliBytes": 6540,
+    "simdBytes": 31366,
+    "simdGzipBytes": 7861,
+    "simdBrotliBytes": 6696,
+    "wasmMemoryBytes": 5373952
+  },
+  "outputSha256": "f63be628feb9f3a0b6b6be517c8f7b238f082bf46f1fb889de0b56fb7af161fc",
+  "copy": {
+    "inputMilliseconds": 0.5707340000008116,
+    "outputMilliseconds": 0.7279159999998228,
+    "totalMilliseconds": 1.2986500000006345
+  },
+  "cold": {
+    "javascript": {
+      "milliseconds": 770.686766,
+      "maximumRssBytes": 107925504,
+      "initializationMilliseconds": 0
+    },
+    "scalar": {
+      "milliseconds": 473.991349,
+      "maximumRssBytes": 107839488,
+      "initializationMilliseconds": 0.25037100000000123
+    },
+    "simd": {
+      "milliseconds": 416.22944800000005,
+      "maximumRssBytes": 107630592,
+      "initializationMilliseconds": 0.294706000000005
+    }
+  },
+  "warm": {
+    "javascript": {
+      "milliseconds": 768.0268699999999,
+      "maximumRssBytes": 114565120,
+      "initializationMilliseconds": 0
+    },
+    "scalar": {
+      "milliseconds": 456.15370599999983,
+      "maximumRssBytes": 108634112,
+      "initializationMilliseconds": 0.22491600000000744
+    },
+    "simd": {
+      "milliseconds": 391.555163,
+      "maximumRssBytes": 108892160,
+      "initializationMilliseconds": 0.22828400000000215
+    }
+  }
+}

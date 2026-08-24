@@ -67,6 +67,66 @@ Minimize `unsafe`. Document and test any required `unsafe` block.
 
 Return explicit error/status values rather than using panics as the normal JS-facing error path.
 
+## Validation
+
+Build every changed artifact before testing it:
+
+```sh
+npm run wasm:build:jpeg
+npm run wasm:build:png
+```
+
+Run the reference JPEG and PNG validation corpora into ignored directories so historical reports
+remain unchanged:
+
+```sh
+npm run corpus:imazen -- --corpus ../codec-corpus --format jpeg --output benchmark/.tmp/imazen-reference-jpeg --baseline benchmark/results --timeout-ms 30000 --memory-mb 512 --concurrency 2
+npm run corpus:imazen -- --corpus ../codec-corpus --format png --output benchmark/.tmp/imazen-reference-png --baseline benchmark/results --timeout-ms 30000 --memory-mb 512 --concurrency 2
+```
+
+These commands currently register the plain TypeScript codecs in
+`scripts/validate-imazen-worker.ts`; they do not exercise a WASM accelerator. Use them to protect
+the reference codec and fallback behavior, never as evidence that scalar or SIMD WASM ran. The
+Imazen workflow verifies decode, PNG encode and reopen, dimensions, and process safety. It does not
+prove exact pixel parity.
+
+A WASM corpus lane must:
+
+* explicitly register scalar and SIMD loaders in separate runs;
+* set `minimumPixels: 1` and `minimumEncodePixels: 1` so small corpus files do not silently skip
+  WASM;
+* count or otherwise assert loader and accelerator use for every eligible operation;
+* compare exact decoded pixels or hashes with the TypeScript reference for supported valid inputs;
+* compare metadata, dimensions, output bytes where deterministic, structured errors, and strict and
+  tolerant decoding behavior;
+* preserve isolated per-file time and memory limits; and
+* fail on unexpected fallback, traps, crashes, timeouts, out-of-memory failures, raw exceptions,
+  invalid output, or a valid-file behavior change.
+
+Do not rely on the public accelerator's automatic selection for this gate because it may choose
+SIMD or transparently fall back. If the repository has no reusable corpus runner with explicit
+engine selection and accelerator-use assertions, add one or report the missing coverage. Do not
+claim full WASM corpus validation from an ad hoc run that cannot prove which path executed.
+
+Pass `--baseline benchmark/results` to make the Imazen CLI fail when a generated report differs
+from the checked-in baseline per file. The comparison includes outcome, last completed stage,
+structured error code, diagnostic, child exit code, and signal. Without `--baseline`, the CLI only
+writes reports. Do not rely only on aggregate totals. Compare current WASM with the previous WASM
+artifact as well as the TypeScript reference: safe acceptance differences for invalid or flexible
+inputs may be established tolerant behavior, but must remain explicit.
+
+If every isolated corpus record reports `process-crash` at `start`, check whether the sandbox blocked
+child Node processes. Rerun with child-process permission before attributing the result to a codec.
+
+After corpus validation, run focused WASM tests, real-browser scalar/SIMD selection and fallback
+coverage, then the full repository gate:
+
+```sh
+npx vitest run tests/wasm-jpeg.test.ts tests/wasm-png.test.ts
+npx playwright test browser-tests/compatibility.pw.ts --grep 'JPEG|PNG'
+npm run check
+```
+
 ## Acceptance rule
 
 Do not introduce WASM merely because a kernel benchmark is faster.

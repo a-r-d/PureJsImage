@@ -4,6 +4,29 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added a pull-request-only Imazen corpus workflow for JPEG, PNG, WebP, TIFF, GIF, and BMP. The
+  workflow checks out the corpus at a pinned commit, runs every file in an isolated process, fails
+  on per-file behavior changes, and uploads the generated reports for review.
+
+### Changed
+
+- The optional Rust/WASM JPEG encoder now uses a separable f32 AAN transform, precomputed
+  reciprocal quantization factors, and four-pixel SIMD RGB and RGBA compositing and color
+  conversion. Unused SIMD scratch arrays were removed. Seven paired end-to-end trials reduced the
+  `png-to-jpeg` workflow median by 24.58% with the output quality, size, and correctness gates
+  unchanged.
+- The optional Rust/WASM JPEG decoder now skips the full IDCT for DC-only blocks. Seven paired
+  end-to-end trials reduced the `jpeg-to-png` workflow median by 5.64% with exact output
+  correctness and a 0.46% peak RSS reduction.
+- Rust/WASM JPEG and PNG builds now reserve a bounded 128 KiB stack, trap on unexpected panics,
+  and reject out-of-bounds or overlapping JPEG buffers before reading or writing memory. Initial
+  accelerator memory remains within four WebAssembly pages.
+- The Imazen corpus command now accepts `--baseline <directory>` and exits with an error when a
+  file changes outcome, completed stage, structured error, diagnostic, child exit code, or signal.
+  Timing and machine metadata remain outside the comparison.
+
 ## [0.16.0] - 2026-08-21
 
 ### Added

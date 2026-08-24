@@ -42,6 +42,24 @@ const instantiateArtifact = async (url: URL): Promise<WebAssembly.Instance> => {
   return result.instance
 }
 
+type WasmNumberFunction = (...arguments_: readonly number[]) => number
+
+const numberExport = (instance: WebAssembly.Instance, name: string): WasmNumberFunction => {
+  const value: unknown = instance.exports[name]
+  if (typeof value !== 'function') throw new Error(`Missing WASM export ${name}`)
+  return (...arguments_: readonly number[]): number => {
+    const result: unknown = Reflect.apply(value, undefined, arguments_)
+    if (typeof result !== 'number') throw new Error(`WASM export ${name} returned no number`)
+    return result
+  }
+}
+
+const memoryExport = (instance: WebAssembly.Instance): WebAssembly.Memory => {
+  const value: unknown = instance.exports.memory
+  if (!(value instanceof WebAssembly.Memory)) throw new Error('Missing WASM memory export')
+  return value
+}
+
 const decoderPixels = async (
   decoder: ImageDecoder,
   request: DecodeRequest = {},
@@ -147,6 +165,39 @@ const decodedPsnr = async (
 }
 
 describe('Rust/WASM JPEG accelerator', () => {
+  it.each([
+    ['decoder scalar', artifactUrl] as const,
+    ['decoder SIMD', simdDecoderArtifactUrl] as const,
+    ['encoder scalar', scalarEncoderArtifactUrl] as const,
+    ['encoder SIMD', simdEncoderArtifactUrl] as const,
+  ])('keeps the initial %s memory within four WASM pages', async (_kind, url) => {
+    const instance = await instantiateArtifact(url)
+    expect(memoryExport(instance).buffer.byteLength).toBeLessThanOrEqual(4 * 65_536)
+  })
+
+  it('rejects decoder input that aliases its static scratch storage', async () => {
+    const instance = await instantiate()
+    const scratchPointer = numberExport(instance, 'jpeg_decoder_quantization_ptr')()
+    const start = numberExport(instance, 'jpeg_decoder_start')
+
+    expect(start(scratchPointer, 1, 0, 30, 0, 1, 0, 3, 0, 1, 1, 1, 1, 1, 1, 0, 0)).toBe(10)
+  })
+
+  it('rejects out-of-bounds and overlapping encoder buffers without trapping', async () => {
+    const instance = await instantiateArtifact(scalarEncoderArtifactUrl)
+    const memory = memoryExport(instance)
+    const start = numberExport(instance, 'jpeg_encoder_start')
+    const write = numberExport(instance, 'jpeg_encoder_write')
+    const initialBytes = memory.buffer.byteLength
+
+    expect(start(16, 16, 3, 80, 1, 0, 0xff_ff_ff, initialBytes - 8, 1024)).toBe(10)
+
+    memory.grow(1)
+    expect(start(16, 16, 3, 80, 1, 0, 0xff_ff_ff, initialBytes, 4096)).toBe(0)
+    expect(write(memory.buffer.byteLength - 4, 768, 48, 16)).toBe(11)
+    expect(write(initialBytes, 768, 48, 16)).toBe(11)
+  })
+
   it('keeps multiple JPEG providers in explicit registration order', async () => {
     const calls: string[] = []
     const unavailable = (name: string): JpegDecodeAcceleration => ({

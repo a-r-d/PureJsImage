@@ -9,7 +9,14 @@ const ERROR_CONFIGURATION: u32 = 10;
 const ERROR_INPUT: u32 = 11;
 const ERROR_CAPACITY: u32 = 12;
 const ERROR_STATE: u32 = 13;
+#[cfg(not(feature = "aan"))]
 const BLOCK_VALUES: usize = 64;
+const WASM_PAGE_BYTES: u64 = 65_536;
+
+#[cfg(feature = "aan")]
+type Sample = f32;
+#[cfg(not(feature = "aan"))]
+type Sample = f64;
 
 const ZIG_ZAG: [usize; 64] = [
     0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
@@ -52,6 +59,7 @@ const CHROMINANCE_AC_VALUES: [u8; 162] = [
     230, 231, 232, 233, 234, 242, 243, 244, 245, 246, 247, 248, 249, 250,
 ];
 
+#[cfg(not(feature = "aan"))]
 const DCT_BASIS: [f64; BLOCK_VALUES] = [
     0.35355339059327379,
     0.35355339059327379,
@@ -147,6 +155,8 @@ struct State {
     previous_cr: i32,
     luminance_table: [u8; 64],
     chrominance_table: [u8; 64],
+    luminance_reciprocals: [f32; 64],
+    chrominance_reciprocals: [f32; 64],
     luminance_dc_values: [u16; 256],
     luminance_dc_lengths: [u8; 256],
     luminance_ac_values: [u16; 256],
@@ -186,6 +196,8 @@ impl State {
             previous_cr: 0,
             luminance_table: [0; 64],
             chrominance_table: [0; 64],
+            luminance_reciprocals: [0.0; 64],
+            chrominance_reciprocals: [0.0; 64],
             luminance_dc_values: [0; 256],
             luminance_dc_lengths: [0; 256],
             luminance_ac_values: [0; 256],
@@ -201,17 +213,15 @@ impl State {
 #[repr(C, align(16))]
 struct Scratch {
     state: State,
-    luminance_samples: [f64; 64],
-    blue_difference_samples: [f64; 64],
-    red_difference_samples: [f64; 64],
-    luminance_plane: [f64; 256],
-    red_plane: [f64; 256],
-    green_plane: [f64; 256],
-    blue_plane: [f64; 256],
+    luminance_samples: [Sample; 64],
+    blue_difference_samples: [Sample; 64],
+    red_difference_samples: [Sample; 64],
+    luminance_plane: [Sample; 256],
+    red_plane: [Sample; 256],
+    green_plane: [Sample; 256],
+    blue_plane: [Sample; 256],
     intermediate: [f64; 64],
-    simd_basis: [f32; 64],
-    simd_samples: [f32; 64],
-    simd_intermediate: [f32; 64],
+    aan_samples: [f32; 64],
     coefficients: [i32; 64],
 }
 
@@ -227,18 +237,41 @@ static SCRATCH: SharedScratch = SharedScratch(UnsafeCell::new(Scratch {
     green_plane: [0.0; 256],
     blue_plane: [0.0; 256],
     intermediate: [0.0; 64],
+    aan_samples: [0.0; 64],
     coefficients: [0; 64],
-    simd_basis: [0.0; 64],
-    simd_samples: [0.0; 64],
-    simd_intermediate: [0.0; 64],
 }));
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo<'_>) -> ! {
-    loop {}
+    core::arch::wasm32::unreachable()
 }
 fn scratch() -> &'static mut Scratch {
     unsafe { &mut *SCRATCH.0.get() }
+}
+
+#[derive(Clone, Copy)]
+struct Region {
+    start: u64,
+    end: u64,
+}
+
+fn external_region(pointer: u32, length: u32) -> Option<Region> {
+    if pointer == 0 || length == 0 {
+        return None;
+    }
+    let start = u64::from(pointer);
+    let end = start.checked_add(u64::from(length))?;
+    let memory_bytes = (core::arch::wasm32::memory_size::<0>() as u64) * WASM_PAGE_BYTES;
+    let scratch_start = SCRATCH.0.get() as usize as u64;
+    let scratch_end = scratch_start.checked_add(core::mem::size_of::<Scratch>() as u64)?;
+    if end > memory_bytes || (start < scratch_end && scratch_start < end) {
+        return None;
+    }
+    Some(Region { start, end })
+}
+
+fn regions_overlap(left: Region, right: Region) -> bool {
+    left.start < right.end && right.start < left.end
 }
 
 struct Writer<'a> {
@@ -456,15 +489,15 @@ fn rgb<const RGBA: bool, const CLAMP: bool>(
     stride: usize,
     row: usize,
     x: usize,
-) -> (f64, f64, f64) {
+) -> (Sample, Sample, Sample) {
     let x = if CLAMP { x.min(state.width - 1) } else { x };
     let offset = row * stride + x * state.channels;
     if !RGBA {
         return unsafe {
             (
-                validated_input_byte(pointer, offset) as f64,
-                validated_input_byte(pointer, offset + 1) as f64,
-                validated_input_byte(pointer, offset + 2) as f64,
+                validated_input_byte(pointer, offset) as Sample,
+                validated_input_byte(pointer, offset + 1) as Sample,
+                validated_input_byte(pointer, offset + 2) as Sample,
             )
         };
     }
@@ -482,7 +515,7 @@ fn rgb<const RGBA: bool, const CLAMP: bool>(
         + state.background[2] as u32 * inverse
         + 127)
         / 255;
-    (red as f64, green as f64, blue as f64)
+    (red as Sample, green as Sample, blue as Sample)
 }
 
 fn fill_gray(
@@ -490,27 +523,27 @@ fn fill_gray(
     pointer: usize,
     stride: usize,
     origin_x: usize,
-    output: &mut [f64; 64],
+    output: &mut [Sample; 64],
 ) {
     for y in 0..8 {
         for x in 0..8 {
             output[y * 8 + x] = unsafe {
                 validated_input_byte(pointer, y * stride + (origin_x + x).min(state.width - 1))
-            } as f64
+            } as Sample
                 - 128.0;
         }
     }
 }
 #[inline(always)]
 fn store_color(
-    red: f64,
-    green: f64,
-    blue: f64,
+    red: Sample,
+    green: Sample,
+    blue: Sample,
     index: usize,
-    luminance: &mut [f64; 256],
-    red_plane: &mut [f64; 256],
-    green_plane: &mut [f64; 256],
-    blue_plane: &mut [f64; 256],
+    luminance: &mut [Sample; 256],
+    red_plane: &mut [Sample; 256],
+    green_plane: &mut [Sample; 256],
+    blue_plane: &mut [Sample; 256],
 ) {
     luminance[index] = 0.299 * red + 0.587 * green + 0.114 * blue - 128.0;
     red_plane[index] = red;
@@ -523,10 +556,10 @@ fn fill_color_planes_inner<const RGBA: bool, const CLAMP: bool>(
     pointer: usize,
     stride: usize,
     origin_x: usize,
-    luminance: &mut [f64; 256],
-    red_plane: &mut [f64; 256],
-    green_plane: &mut [f64; 256],
-    blue_plane: &mut [f64; 256],
+    luminance: &mut [Sample; 256],
+    red_plane: &mut [Sample; 256],
+    green_plane: &mut [Sample; 256],
+    blue_plane: &mut [Sample; 256],
 ) {
     for y in 0..state.row_height {
         for x in 0..state.mcu_width {
@@ -550,10 +583,10 @@ fn fill_color_planes_format<const RGBA: bool>(
     pointer: usize,
     stride: usize,
     origin_x: usize,
-    luminance: &mut [f64; 256],
-    red_plane: &mut [f64; 256],
-    green_plane: &mut [f64; 256],
-    blue_plane: &mut [f64; 256],
+    luminance: &mut [Sample; 256],
+    red_plane: &mut [Sample; 256],
+    green_plane: &mut [Sample; 256],
+    blue_plane: &mut [Sample; 256],
 ) {
     if origin_x + state.mcu_width <= state.width {
         fill_color_planes_inner::<RGBA, false>(
@@ -580,17 +613,160 @@ fn fill_color_planes_format<const RGBA: bool>(
     }
 }
 
+#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+#[target_feature(enable = "simd128")]
+unsafe fn fill_rgb_planes_simd(
+    state: &State,
+    pointer: usize,
+    stride: usize,
+    origin_x: usize,
+    luminance: &mut [Sample; 256],
+    red_plane: &mut [Sample; 256],
+    green_plane: &mut [Sample; 256],
+    blue_plane: &mut [Sample; 256],
+) {
+    use core::arch::wasm32::*;
+    for y in 0..state.row_height {
+        for x in (0..state.mcu_width).step_by(4) {
+            let source = y * stride + (origin_x + x) * 3;
+            let red = f32x4(
+                unsafe { validated_input_byte(pointer, source) } as f32,
+                unsafe { validated_input_byte(pointer, source + 3) } as f32,
+                unsafe { validated_input_byte(pointer, source + 6) } as f32,
+                unsafe { validated_input_byte(pointer, source + 9) } as f32,
+            );
+            let green = f32x4(
+                unsafe { validated_input_byte(pointer, source + 1) } as f32,
+                unsafe { validated_input_byte(pointer, source + 4) } as f32,
+                unsafe { validated_input_byte(pointer, source + 7) } as f32,
+                unsafe { validated_input_byte(pointer, source + 10) } as f32,
+            );
+            let blue = f32x4(
+                unsafe { validated_input_byte(pointer, source + 2) } as f32,
+                unsafe { validated_input_byte(pointer, source + 5) } as f32,
+                unsafe { validated_input_byte(pointer, source + 8) } as f32,
+                unsafe { validated_input_byte(pointer, source + 11) } as f32,
+            );
+            let target = y * state.mcu_width + x;
+            unsafe {
+                v128_store(red_plane.as_mut_ptr().add(target) as *mut v128, red);
+                v128_store(green_plane.as_mut_ptr().add(target) as *mut v128, green);
+                v128_store(blue_plane.as_mut_ptr().add(target) as *mut v128, blue);
+                let value = f32x4_sub(
+                    f32x4_add(
+                        f32x4_add(
+                            f32x4_mul(red, f32x4_splat(0.299)),
+                            f32x4_mul(green, f32x4_splat(0.587)),
+                        ),
+                        f32x4_mul(blue, f32x4_splat(0.114)),
+                    ),
+                    f32x4_splat(128.0),
+                );
+                v128_store(luminance.as_mut_ptr().add(target) as *mut v128, value);
+            }
+        }
+    }
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+#[target_feature(enable = "simd128")]
+unsafe fn fill_rgba_planes_simd(
+    state: &State,
+    pointer: usize,
+    stride: usize,
+    origin_x: usize,
+    luminance: &mut [Sample; 256],
+    red_plane: &mut [Sample; 256],
+    green_plane: &mut [Sample; 256],
+    blue_plane: &mut [Sample; 256],
+) {
+    use core::arch::wasm32::*;
+    let zero = i32x4_splat(0);
+    let maximum = i32x4_splat(255);
+    for y in 0..state.row_height {
+        for x in (0..state.mcu_width).step_by(4) {
+            let source = y * stride + (origin_x + x) * 4;
+            let pixels = unsafe { v128_load((pointer + source) as *const v128) };
+            let red = i8x16_shuffle::<0, 16, 16, 16, 4, 16, 16, 16, 8, 16, 16, 16, 12, 16, 16, 16>(
+                pixels, zero,
+            );
+            let green = i8x16_shuffle::<1, 16, 16, 16, 5, 16, 16, 16, 9, 16, 16, 16, 13, 16, 16, 16>(
+                pixels, zero,
+            );
+            let blue = i8x16_shuffle::<2, 16, 16, 16, 6, 16, 16, 16, 10, 16, 16, 16, 14, 16, 16, 16>(
+                pixels, zero,
+            );
+            let alpha = i8x16_shuffle::<3, 16, 16, 16, 7, 16, 16, 16, 11, 16, 16, 16, 15, 16, 16, 16>(
+                pixels, zero,
+            );
+            let inverse = i32x4_sub(maximum, alpha);
+            let composite = |channel: v128, background: u8| {
+                let numerator = i32x4_add(
+                    i32x4_add(
+                        i32x4_mul(channel, alpha),
+                        i32x4_mul(i32x4_splat(i32::from(background)), inverse),
+                    ),
+                    i32x4_splat(127),
+                );
+                i32x4_shr(
+                    i32x4_add(
+                        i32x4_add(numerator, i32x4_splat(1)),
+                        i32x4_shr(numerator, 8),
+                    ),
+                    8,
+                )
+            };
+            let red = f32x4_convert_i32x4(composite(red, state.background[0]));
+            let green = f32x4_convert_i32x4(composite(green, state.background[1]));
+            let blue = f32x4_convert_i32x4(composite(blue, state.background[2]));
+            let target = y * state.mcu_width + x;
+            unsafe {
+                v128_store(red_plane.as_mut_ptr().add(target) as *mut v128, red);
+                v128_store(green_plane.as_mut_ptr().add(target) as *mut v128, green);
+                v128_store(blue_plane.as_mut_ptr().add(target) as *mut v128, blue);
+                let value = f32x4_sub(
+                    f32x4_add(
+                        f32x4_add(
+                            f32x4_mul(red, f32x4_splat(0.299)),
+                            f32x4_mul(green, f32x4_splat(0.587)),
+                        ),
+                        f32x4_mul(blue, f32x4_splat(0.114)),
+                    ),
+                    f32x4_splat(128.0),
+                );
+                v128_store(luminance.as_mut_ptr().add(target) as *mut v128, value);
+            }
+        }
+    }
+}
+
 fn fill_color_planes(
     state: &State,
     pointer: usize,
     stride: usize,
     origin_x: usize,
-    luminance: &mut [f64; 256],
-    red_plane: &mut [f64; 256],
-    green_plane: &mut [f64; 256],
-    blue_plane: &mut [f64; 256],
+    luminance: &mut [Sample; 256],
+    red_plane: &mut [Sample; 256],
+    green_plane: &mut [Sample; 256],
+    blue_plane: &mut [Sample; 256],
 ) {
     if state.format == 4 {
+        #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+        if origin_x + state.mcu_width <= state.width {
+            unsafe {
+                fill_rgba_planes_simd(
+                    state,
+                    pointer,
+                    stride,
+                    origin_x,
+                    luminance,
+                    red_plane,
+                    green_plane,
+                    blue_plane,
+                );
+            }
+            return;
+        }
         fill_color_planes_format::<true>(
             state,
             pointer,
@@ -602,6 +778,22 @@ fn fill_color_planes(
             blue_plane,
         );
     } else {
+        #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+        if origin_x + state.mcu_width <= state.width {
+            unsafe {
+                fill_rgb_planes_simd(
+                    state,
+                    pointer,
+                    stride,
+                    origin_x,
+                    luminance,
+                    red_plane,
+                    green_plane,
+                    blue_plane,
+                );
+            }
+            return;
+        }
         fill_color_planes_format::<false>(
             state,
             pointer,
@@ -616,11 +808,11 @@ fn fill_color_planes(
 }
 
 fn copy_luminance_block(
-    plane: &[f64; 256],
+    plane: &[Sample; 256],
     plane_width: usize,
     block_x: usize,
     block_y: usize,
-    output: &mut [f64; 64],
+    output: &mut [Sample; 64],
 ) {
     for y in 0..8 {
         let source = (block_y * 8 + y) * plane_width + block_x * 8;
@@ -629,11 +821,11 @@ fn copy_luminance_block(
 }
 
 fn downsample_chroma_inner<const HORIZONTAL: usize, const VERTICAL: usize>(
-    red_plane: &[f64; 256],
-    green_plane: &[f64; 256],
-    blue_plane: &[f64; 256],
-    blue: &mut [f64; 64],
-    red: &mut [f64; 64],
+    red_plane: &[Sample; 256],
+    green_plane: &[Sample; 256],
+    blue_plane: &[Sample; 256],
+    blue: &mut [Sample; 64],
+    red: &mut [Sample; 64],
 ) {
     let (cb_red, cb_green, cb_blue, cr_red, cr_green, cr_blue) = match HORIZONTAL * VERTICAL {
         4 => (-0.042184, -0.082816, 0.125, 0.125, -0.104672, -0.020328),
@@ -661,11 +853,11 @@ fn downsample_chroma_inner<const HORIZONTAL: usize, const VERTICAL: usize>(
 
 fn downsample_chroma(
     state: &State,
-    red_plane: &[f64; 256],
-    green_plane: &[f64; 256],
-    blue_plane: &[f64; 256],
-    blue: &mut [f64; 64],
-    red: &mut [f64; 64],
+    red_plane: &[Sample; 256],
+    green_plane: &[Sample; 256],
+    blue_plane: &[Sample; 256],
+    blue: &mut [Sample; 64],
+    red: &mut [Sample; 64],
 ) {
     if state.luminance_vertical == 2 {
         downsample_chroma_inner::<2, 2>(red_plane, green_plane, blue_plane, blue, red);
@@ -687,9 +879,9 @@ fn round_like_javascript(value: f64) -> i32 {
     }
 }
 
-#[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+#[cfg(not(feature = "aan"))]
 fn quantize_scalar(
-    samples: &[f64; 64],
+    samples: &[Sample; 64],
     table: &[u8; 64],
     intermediate: &mut [f64; 64],
     output: &mut [i32; 64],
@@ -715,7 +907,7 @@ fn quantize_scalar(
     }
 }
 
-#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+#[cfg(feature = "aan")]
 const AAN_SCALE: [f32; 8] = [
     1.0,
     1.387039845,
@@ -727,7 +919,7 @@ const AAN_SCALE: [f32; 8] = [
     0.275899379,
 ];
 
-#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+#[cfg(feature = "aan")]
 fn aan_row(data: &mut [f32; 64], offset: usize) {
     let tmp0 = data[offset] + data[offset + 7];
     let tmp7 = data[offset] - data[offset + 7];
@@ -743,7 +935,7 @@ fn aan_row(data: &mut [f32; 64], offset: usize) {
     let tmp12 = tmp1 - tmp2;
     data[offset] = tmp10 + tmp11;
     data[offset + 4] = tmp10 - tmp11;
-    let z1 = (tmp12 + tmp13) * 0.707106781;
+    let z1 = (tmp12 + tmp13) * core::f32::consts::FRAC_1_SQRT_2;
     data[offset + 2] = tmp13 + z1;
     data[offset + 6] = tmp13 - z1;
     let tmp10 = tmp4 + tmp5;
@@ -752,13 +944,49 @@ fn aan_row(data: &mut [f32; 64], offset: usize) {
     let z5 = (tmp10 - tmp12) * 0.382683433;
     let z2 = 0.541196100 * tmp10 + z5;
     let z4 = 1.306562965 * tmp12 + z5;
-    let z3 = tmp11 * 0.707106781;
+    let z3 = tmp11 * core::f32::consts::FRAC_1_SQRT_2;
     let z11 = tmp7 + z3;
     let z13 = tmp7 - z3;
     data[offset + 5] = z13 + z2;
     data[offset + 3] = z13 - z2;
     data[offset + 1] = z11 + z4;
     data[offset + 7] = z11 - z4;
+}
+
+#[cfg(all(feature = "aan", not(all(target_arch = "wasm32", feature = "simd"))))]
+fn aan_columns_scalar(data: &mut [f32; 64]) {
+    for column in 0..8 {
+        let tmp0 = data[column] + data[56 + column];
+        let tmp7 = data[column] - data[56 + column];
+        let tmp1 = data[8 + column] + data[48 + column];
+        let tmp6 = data[8 + column] - data[48 + column];
+        let tmp2 = data[16 + column] + data[40 + column];
+        let tmp5 = data[16 + column] - data[40 + column];
+        let tmp3 = data[24 + column] + data[32 + column];
+        let tmp4 = data[24 + column] - data[32 + column];
+        let tmp10 = tmp0 + tmp3;
+        let tmp13 = tmp0 - tmp3;
+        let tmp11 = tmp1 + tmp2;
+        let tmp12 = tmp1 - tmp2;
+        data[column] = tmp10 + tmp11;
+        data[32 + column] = tmp10 - tmp11;
+        let z1 = (tmp12 + tmp13) * core::f32::consts::FRAC_1_SQRT_2;
+        data[16 + column] = tmp13 + z1;
+        data[48 + column] = tmp13 - z1;
+        let tmp10 = tmp4 + tmp5;
+        let tmp11 = tmp5 + tmp6;
+        let tmp12 = tmp6 + tmp7;
+        let z5 = (tmp10 - tmp12) * 0.382683433;
+        let z2 = 0.541196100 * tmp10 + z5;
+        let z4 = 1.306562965 * tmp12 + z5;
+        let z3 = tmp11 * core::f32::consts::FRAC_1_SQRT_2;
+        let z11 = tmp7 + z3;
+        let z13 = tmp7 - z3;
+        data[40 + column] = z13 + z2;
+        data[24 + column] = z13 - z2;
+        data[8 + column] = z11 + z4;
+        data[56 + column] = z11 - z4;
+    }
 }
 
 #[cfg(all(target_arch = "wasm32", feature = "simd"))]
@@ -796,7 +1024,10 @@ unsafe fn aan_columns(data: &mut [f32; 64]) {
                 data.as_mut_ptr().add(32 + column) as *mut v128,
                 f32x4_sub(tmp10, tmp11),
             );
-            let z1 = f32x4_mul(f32x4_add(tmp12, tmp13), f32x4_splat(0.707106781));
+            let z1 = f32x4_mul(
+                f32x4_add(tmp12, tmp13),
+                f32x4_splat(core::f32::consts::FRAC_1_SQRT_2),
+            );
             v128_store(
                 data.as_mut_ptr().add(16 + column) as *mut v128,
                 f32x4_add(tmp13, z1),
@@ -811,7 +1042,7 @@ unsafe fn aan_columns(data: &mut [f32; 64]) {
             let z5 = f32x4_mul(f32x4_sub(tmp10, tmp12), f32x4_splat(0.382683433));
             let z2 = f32x4_add(f32x4_mul(tmp10, f32x4_splat(0.541196100)), z5);
             let z4 = f32x4_add(f32x4_mul(tmp12, f32x4_splat(1.306562965)), z5);
-            let z3 = f32x4_mul(tmp11, f32x4_splat(0.707106781));
+            let z3 = f32x4_mul(tmp11, f32x4_splat(core::f32::consts::FRAC_1_SQRT_2));
             let z11 = f32x4_add(tmp7, z3);
             let z13 = f32x4_sub(tmp7, z3);
             v128_store(
@@ -836,12 +1067,10 @@ unsafe fn aan_columns(data: &mut [f32; 64]) {
 
 #[cfg(all(target_arch = "wasm32", feature = "simd"))]
 #[target_feature(enable = "simd128")]
-unsafe fn quantize_simd(
-    samples: &[f64; 64],
-    table: &[u8; 64],
-    _basis: &[f32; 64],
+unsafe fn quantize_aan(
+    samples: &[Sample; 64],
+    reciprocals: &[f32; 64],
     converted: &mut [f32; 64],
-    _intermediate: &mut [f32; 64],
     output: &mut [i32; 64],
 ) {
     for index in 0..64 {
@@ -851,42 +1080,52 @@ unsafe fn quantize_simd(
         aan_row(converted, row * 8);
     }
     unsafe { aan_columns(converted) };
-    for vertical in 0..8 {
-        for horizontal in 0..8 {
-            let index = vertical * 8 + horizontal;
-            let divisor = table[index] as f32 * AAN_SCALE[vertical] * AAN_SCALE[horizontal] * 8.0;
-            output[index] = round_like_javascript(converted[index] as f64 / divisor as f64);
-        }
+    for index in 0..64 {
+        output[index] = round_like_javascript(converted[index] as f64 * reciprocals[index] as f64);
+    }
+}
+
+#[cfg(all(feature = "aan", not(all(target_arch = "wasm32", feature = "simd"))))]
+fn quantize_aan(
+    samples: &[Sample; 64],
+    reciprocals: &[f32; 64],
+    converted: &mut [f32; 64],
+    output: &mut [i32; 64],
+) {
+    for index in 0..64 {
+        converted[index] = samples[index] as f32;
+    }
+    for row in 0..8 {
+        aan_row(converted, row * 8);
+    }
+    aan_columns_scalar(converted);
+    for index in 0..64 {
+        output[index] = round_like_javascript(converted[index] as f64 * reciprocals[index] as f64);
     }
 }
 
 fn quantize(
-    samples: &[f64; 64],
+    samples: &[Sample; 64],
     table: &[u8; 64],
+    reciprocals: &[f32; 64],
     intermediate: &mut [f64; 64],
     output: &mut [i32; 64],
-    simd_basis: &[f32; 64],
-    simd_samples: &mut [f32; 64],
-    simd_intermediate: &mut [f32; 64],
+    aan_samples: &mut [f32; 64],
 ) {
-    #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+    #[cfg(not(feature = "aan"))]
     {
-        let _ = (simd_basis, simd_samples, simd_intermediate);
+        let _ = (aan_samples, reciprocals);
         quantize_scalar(samples, table, intermediate, output);
     }
-    #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+    #[cfg(feature = "aan")]
     {
-        let _ = intermediate;
+        let _ = (intermediate, table);
+        #[cfg(all(target_arch = "wasm32", feature = "simd"))]
         unsafe {
-            quantize_simd(
-                samples,
-                table,
-                simd_basis,
-                simd_samples,
-                simd_intermediate,
-                output,
-            );
+            quantize_aan(samples, reciprocals, aan_samples, output);
         }
+        #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+        quantize_aan(samples, reciprocals, aan_samples, output);
     }
 }
 
@@ -1025,11 +1264,10 @@ fn encode_rows(scratch: &mut Scratch, pointer: usize, stride: usize) -> Result<(
             quantize(
                 &scratch.luminance_samples,
                 &state.luminance_table,
+                &state.luminance_reciprocals,
                 &mut scratch.intermediate,
                 &mut scratch.coefficients,
-                &scratch.simd_basis,
-                &mut scratch.simd_samples,
-                &mut scratch.simd_intermediate,
+                &mut scratch.aan_samples,
             );
             state.previous_y =
                 encode_block::<false>(state, &scratch.coefficients, state.previous_y)?;
@@ -1058,11 +1296,10 @@ fn encode_rows(scratch: &mut Scratch, pointer: usize, stride: usize) -> Result<(
                 quantize(
                     &scratch.luminance_samples,
                     &state.luminance_table,
+                    &state.luminance_reciprocals,
                     &mut scratch.intermediate,
                     &mut scratch.coefficients,
-                    &scratch.simd_basis,
-                    &mut scratch.simd_samples,
-                    &mut scratch.simd_intermediate,
+                    &mut scratch.aan_samples,
                 );
                 state.previous_y =
                     encode_block::<false>(state, &scratch.coefficients, state.previous_y)?;
@@ -1079,21 +1316,19 @@ fn encode_rows(scratch: &mut Scratch, pointer: usize, stride: usize) -> Result<(
         quantize(
             &scratch.blue_difference_samples,
             &state.chrominance_table,
+            &state.chrominance_reciprocals,
             &mut scratch.intermediate,
             &mut scratch.coefficients,
-            &scratch.simd_basis,
-            &mut scratch.simd_samples,
-            &mut scratch.simd_intermediate,
+            &mut scratch.aan_samples,
         );
         state.previous_cb = encode_block::<true>(state, &scratch.coefficients, state.previous_cb)?;
         quantize(
             &scratch.red_difference_samples,
             &state.chrominance_table,
+            &state.chrominance_reciprocals,
             &mut scratch.intermediate,
             &mut scratch.coefficients,
-            &scratch.simd_basis,
-            &mut scratch.simd_samples,
-            &mut scratch.simd_intermediate,
+            &mut scratch.aan_samples,
         );
         state.previous_cr = encode_block::<true>(state, &scratch.coefficients, state.previous_cr)?;
         state.mcu += 1;
@@ -1130,6 +1365,9 @@ pub extern "C" fn jpeg_encoder_start(
     output_pointer: u32,
     output_capacity: u32,
 ) -> u32 {
+    let Some(_output_region) = external_region(output_pointer, output_capacity) else {
+        return ERROR_CONFIGURATION;
+    };
     if width == 0
         || height == 0
         || width > 65535
@@ -1160,9 +1398,6 @@ pub extern "C" fn jpeg_encoder_start(
     };
     let scratch = scratch();
     scratch.state = State::new();
-    for index in 0..64 {
-        scratch.simd_basis[index] = DCT_BASIS[index] as f32;
-    }
     let state = &mut scratch.state;
     state.active = true;
     state.width = width as usize;
@@ -1188,6 +1423,17 @@ pub extern "C" fn jpeg_encoder_start(
         quality,
         &mut state.chrominance_table,
     );
+    #[cfg(feature = "aan")]
+    for vertical in 0..8 {
+        for horizontal in 0..8 {
+            let index = vertical * 8 + horizontal;
+            let scale = AAN_SCALE[vertical] * AAN_SCALE[horizontal] * 8.0;
+            state.luminance_reciprocals[index] =
+                1.0 / (state.luminance_table[index] as f32 * scale);
+            state.chrominance_reciprocals[index] =
+                1.0 / (state.chrominance_table[index] as f32 * scale);
+        }
+    }
     build_codes(
         &LUMINANCE_DC_COUNTS,
         &LUMINANCE_DC_VALUES,
@@ -1245,6 +1491,16 @@ pub extern "C" fn jpeg_encoder_write(
         None => return ERROR_INPUT,
     };
     if required > input_length as usize {
+        return ERROR_INPUT;
+    }
+    let Some(input_region) = external_region(input_pointer, input_length) else {
+        return ERROR_INPUT;
+    };
+    let output_region = Region {
+        start: state.output_pointer as u64,
+        end: state.output_pointer as u64 + state.output_capacity as u64,
+    };
+    if regions_overlap(input_region, output_region) {
         return ERROR_INPUT;
     }
     let remaining = state.height - state.received_rows;

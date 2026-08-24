@@ -349,7 +349,7 @@ Generated for purejsimage 0.16.0. The README keeps only the major entry points; 
 | Core + scientific platform | `purejsimage/scientific` | 159.8 KiB | 46.1 KiB | 39.2 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1231.6 KiB | 356.2 KiB | 284.3 KiB |
 
-The extracted npm package is 6.3 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 157.4 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 6.3 MiB and has 1 production package. The six optional JPEG and PNG accelerator assets total 155.8 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

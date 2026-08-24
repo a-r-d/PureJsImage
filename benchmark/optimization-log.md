@@ -700,3 +700,47 @@ npm run bench:hillclimb -- --suite web --workload jpeg-resize-1200 --goal speed 
 
 Each new attempt should get the next stable `JPEG-*` ID and an entry here even
 when it is rejected or reverted.
+
+## JPEG Rust/WASM SIMD campaign - 2026-08-24
+
+The campaign used the explicit Rust/WASM artifacts and retained the TypeScript
+codec as the correctness oracle. Decoder output had to remain byte-identical.
+Encoder AAN changes had to keep scalar-AAN and SIMD-AAN byte-identical, stay
+within 0.05 dB decoded PSNR and 1% output size of the matrix-DCT reference, and
+show a measured gain.
+
+| ID | Hypothesis / change | Representative result | Verdict | Disposition |
+| --- | --- | --- | --- | --- |
+| JPEG-WASM-001 | Skip the full IDCT for DC-only blocks. | Tundra 396.62 -> 391.24 ms (-1.36%); Earthrise 115.45 -> 102.48 ms (-11.2%). Exact RGB hashes. | material on low-entropy input | Retained. |
+| JPEG-WASM-002 | Convert four YCbCr pixels with `f32x4` instead of two with `f64x2`. | Tundra 395.84 -> 395.32 ms (-0.13%). Exact RGB hash. | neutral | Reverted. Lane extraction and interleaved stores consumed the arithmetic gain. |
+| JPEG-WASM-003 | Use an `f32x4` basis-matrix IDCT. | Spot check 394.20 -> 365.67 ms, but output SHA-256 changed. | invalid | Reverted before timing acceptance. |
+| JPEG-WASM-004 | Precompute AAN reciprocal quantization factors and multiply instead of dividing each coefficient. | 2048x1536 high-entropy 4:2:0 SIMD 85.72 -> 74.41 ms (-13.2%). Output hash unchanged. | material | Retained. |
+| JPEG-WASM-005 | Keep AAN samples and planes in f32 and fill four RGB pixels with explicit SIMD. | Three worker medians 71.45 -> 68.53 ms (-4.1%) on 2048x1536 high-entropy 4:2:0. Output hash unchanged. | material | Retained. |
+| JPEG-WASM-006 | Downsample four chroma outputs with explicit SIMD shuffles and sums. | Three worker medians 70.41 -> 70.55 ms (+0.2%). Output hash unchanged. | neutral | Reverted. |
+| JPEG-WASM-007 | Composite four RGBA pixels and produce RGB/luma planes with integer and f32 SIMD. | 2048x1536 high-entropy 4:2:0 75.46 -> 65.48 ms (-13.2%). Output hash unchanged. | material | Retained. |
+
+The refreshed full encoder matrix separates algorithm and SIMD effects with a
+scalar AAN control. At 1024x768, scalar AAN reduced matrix-DCT time by
+19.5%-22.0%, while SIMD reduced the same AAN path by another 4.2%-11.4%.
+At 2048x1536 4:2:0, SIMD reduced scalar-AAN time by 19.5% on low-entropy input
+and 14.4% on high-entropy input. Scalar-AAN and SIMD-AAN hashes matched in
+every benchmark group.
+
+Retained implementation cleanup removed the unused `simd_basis` and
+`simd_intermediate` arrays. The build now emits a benchmark-only scalar AAN
+artifact under `benchmark/.tmp/wasm/` so future reports cannot conflate the
+AAN algorithm change with SIMD lane speedup.
+
+Evidence:
+
+- Encoder matrix: `benchmark/results/jpeg-wasm-encoder-2026-08-24.json` and
+  `benchmark/results/jpeg-wasm-encoder-2026-08-24.md`
+- Decoder matrix: `benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.json`
+  and `benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.md`
+- Seven-pair `purejsimage-wasm` decoder workflow: `jpeg-to-png` 254.10 ->
+  239.76 ms (-5.64%), peak RSS -0.46%, exact correctness and protected
+  metrics. Artifact: `.tmp/hillclimb/2026-08-24T15-43-18-379Z/comparison.md`.
+- Seven-pair `purejsimage-wasm` encoder workflow: `png-to-jpeg` 16.80 ->
+  12.67 ms (-24.58%), peak RSS -0.35%, exact correctness and protected
+  metrics. Artifact: `.tmp/hillclimb/2026-08-24T15-44-10-400Z/comparison.md`.
+- Focused correctness: `npx vitest run tests/wasm-jpeg.test.ts`

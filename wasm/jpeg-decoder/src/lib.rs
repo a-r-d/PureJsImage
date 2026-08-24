@@ -231,7 +231,7 @@ static SCRATCH: SharedScratch = SharedScratch(UnsafeCell::new(Scratch {
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo<'_>) -> ! {
-    loop {}
+    core::arch::wasm32::unreachable()
 }
 
 fn scratch() -> &'static mut Scratch {
@@ -538,7 +538,7 @@ fn restart(scratch: &mut Scratch) -> Result<u8, u32> {
     Err(ERROR_ENTROPY)
 }
 
-fn decode_block(scratch: &mut Scratch, component: usize) -> Result<(), u32> {
+fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
     scratch.coefficients.fill(0);
     let dc_length = decode_huffman(scratch, component, false)?;
     let difference = receive_and_extend(scratch, dc_length)?;
@@ -549,6 +549,7 @@ fn decode_block(scratch: &mut Scratch, component: usize) -> Result<(), u32> {
     scratch.coefficients[0] = predictor;
 
     let mut index = 1usize;
+    let mut has_ac = false;
     while index < BLOCK_VALUES {
         let symbol = decode_huffman(scratch, component, true)?;
         let zeroes = usize::from(symbol >> 4);
@@ -570,9 +571,10 @@ fn decode_block(scratch: &mut Scratch, component: usize) -> Result<(), u32> {
             44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63,
         ];
         scratch.coefficients[ZIG_ZAG[index]] = receive_and_extend(scratch, length)?;
+        has_ac = true;
         index += 1;
     }
-    Ok(())
+    Ok(has_ac)
 }
 
 #[inline(always)]
@@ -703,7 +705,22 @@ fn inverse_dct(
     buffer: usize,
     block_x: usize,
     block_y: usize,
+    has_ac: bool,
 ) {
+    let stride = scratch.state.plane_widths[component];
+    let plane_offset = scratch.state.plane_offsets[component];
+    if !has_ac {
+        let scaled = f64::from(scratch.coefficients[0])
+            * f64::from(scratch.quantization[component * BLOCK_VALUES]);
+        let sample = idct_sample(scaled * 0.125);
+        for y in 0..BLOCK {
+            let target = plane_offset + (1 + block_y * BLOCK + y) * stride + block_x * BLOCK;
+            for x in 0..BLOCK {
+                set_plane_byte(scratch, buffer, target + x, sample);
+            }
+        }
+        return;
+    }
     let mut active_row_count = 0usize;
     let quantization_offset = component * BLOCK_VALUES;
     for vertical in 0..BLOCK {
@@ -738,8 +755,6 @@ fn inverse_dct(
         }
     }
 
-    let stride = scratch.state.plane_widths[component];
-    let plane_offset = scratch.state.plane_offsets[component];
     for y in 0..BLOCK {
         let target = plane_offset + (1 + block_y * BLOCK + y) * stride + block_x * BLOCK;
         render_idct_row(scratch, buffer, target, y, active_row_count);
@@ -783,12 +798,13 @@ fn decode_mcu_row(scratch: &mut Scratch, row: usize, buffer: usize) -> Result<()
                 for block_y in 0..vertical {
                     for block_x in 0..horizontal {
                         match decode_block(scratch, component) {
-                            Ok(()) => inverse_dct(
+                            Ok(has_ac) => inverse_dct(
                                 scratch,
                                 component,
                                 buffer,
                                 mcu_x * horizontal + block_x,
                                 block_y,
+                                has_ac,
                             ),
                             Err(INTERNAL_UNEXPECTED_RESTART) => {
                                 recovered_restart = true;
@@ -1422,6 +1438,10 @@ pub extern "C" fn jpeg_decoder_start(
     let pointer = input_pointer as usize;
     let length = input_length as usize;
     let memory_bytes = core::arch::wasm32::memory_size(0) * PAGE_BYTES;
+    let scratch_start = SCRATCH.0.get() as usize;
+    let Some(scratch_end) = scratch_start.checked_add(core::mem::size_of::<Scratch>()) else {
+        return ERROR_ARITHMETIC;
+    };
     let Some(input_end) = pointer.checked_add(length) else {
         return ERROR_ARITHMETIC;
     };
@@ -1462,6 +1482,7 @@ pub extern "C" fn jpeg_decoder_start(
         return ERROR_ARITHMETIC;
     };
     if length == 0
+        || pointer < scratch_end
         || input_end > memory_bytes
         || map_pointer < input_end
         || map_pointer & 3 != 0

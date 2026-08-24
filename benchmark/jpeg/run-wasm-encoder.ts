@@ -7,7 +7,7 @@ interface Measurement {
   readonly arrayBuffersBytes: number
   readonly baselineRssBytes: number
   readonly dimensions: string
-  readonly engine: 'javascript' | 'scalar' | 'simd'
+  readonly engine: 'javascript' | 'scalar' | 'aan' | 'simd'
   readonly entropy: 'low' | 'high'
   readonly externalBytes: number
   readonly hash: string
@@ -52,7 +52,7 @@ const parseMeasurement = (text: string): Measurement => {
   const hash: unknown = Reflect.get(value, 'hash')
   const samples: unknown = Reflect.get(value, 'samples')
   if (
-    (engine !== 'javascript' && engine !== 'scalar' && engine !== 'simd') ||
+    (engine !== 'javascript' && engine !== 'scalar' && engine !== 'aan' && engine !== 'simd') ||
     (entropy !== 'low' && entropy !== 'high') ||
     (mode !== 'gray' && mode !== '420' && mode !== '422' && mode !== '444') ||
     (profile !== 'cold' && profile !== 'warm') ||
@@ -100,7 +100,7 @@ for (const size of [64, 128, 256, 512, 1_024]) {
 const worker = fileURLToPath(new URL('./wasm-encoder-worker.ts', import.meta.url))
 const measurements: Measurement[] = []
 for (const benchmarkCase of cases) {
-  for (const engine of ['javascript', 'scalar', 'simd'] as const) {
+  for (const engine of ['javascript', 'scalar', 'aan', 'simd'] as const) {
     const child = spawnSync(
       process.execPath,
       [
@@ -131,12 +131,16 @@ for (const measurement of measurements) {
 for (const [key, group] of qualityGroups) {
   const javascript = group.find(({ engine }) => engine === 'javascript')
   const scalar = group.find(({ engine }) => engine === 'scalar')
+  const aan = group.find(({ engine }) => engine === 'aan')
   const simd = group.find(({ engine }) => engine === 'simd')
-  if (!javascript || !scalar || !simd) {
+  if (!javascript || !scalar || !aan || !simd) {
     throw new Error(`JPEG WASM encoder benchmark group is incomplete for ${key}`)
   }
   if (javascript.hash !== scalar.hash) {
     throw new Error(`Scalar JPEG WASM output parity failed for ${key}`)
+  }
+  if (aan.hash !== simd.hash) {
+    throw new Error(`Scalar and SIMD AAN JPEG output parity failed for ${key}`)
   }
   const psnrDifference = Math.abs(javascript.psnr - simd.psnr)
   const sizeDifference =
@@ -149,6 +153,7 @@ for (const [key, group] of qualityGroups) {
 }
 
 const scalarArtifact = await readFile('src/accelerator-entries/jpeg-encoder.wasm')
+const aanArtifact = await readFile('benchmark/.tmp/wasm/jpeg-encoder-aan.wasm')
 const simdArtifact = await readFile('src/accelerator-entries/jpeg-encoder-simd.wasm')
 const artifacts = {
   scalar: {
@@ -156,23 +161,36 @@ const artifacts = {
     bytes: scalarArtifact.byteLength,
     gzipBytes: gzipSync(scalarArtifact, { level: 9 }).byteLength,
   },
+  aan: {
+    brotliBytes: brotliCompressSync(aanArtifact).byteLength,
+    bytes: aanArtifact.byteLength,
+    gzipBytes: gzipSync(aanArtifact, { level: 9 }).byteLength,
+  },
   simd: {
     brotliBytes: brotliCompressSync(simdArtifact).byteLength,
     bytes: simdArtifact.byteLength,
     gzipBytes: gzipSync(simdArtifact, { level: 9 }).byteLength,
   },
 }
-const result = { artifacts, measurements }
+const gitRevision = spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim()
+const workingTreeDirty =
+  spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).stdout.trim().length > 0
+const result = {
+  generatedAt: new Date().toISOString(),
+  revision: { gitRevision, workingTreeDirty },
+  artifacts,
+  measurements,
+}
 const json = `${JSON.stringify(result, undefined, 2)}\n`
 const outputIndex = process.argv.indexOf('--output')
 const markdownIndex = process.argv.indexOf('--markdown')
 const outputPath =
   outputIndex < 0
-    ? 'benchmark/results/jpeg-wasm-encoder-2026-08-09.json'
+    ? 'benchmark/results/jpeg-wasm-encoder-2026-08-24.json'
     : process.argv[outputIndex + 1]
 const markdownPath =
   markdownIndex < 0
-    ? 'benchmark/results/jpeg-wasm-encoder-2026-08-09.md'
+    ? 'benchmark/results/jpeg-wasm-encoder-2026-08-24.md'
     : process.argv[markdownIndex + 1]
 if (!outputPath || !markdownPath) throw new Error('JPEG WASM encoder output path is missing')
 await writeFile(outputPath, json)
@@ -210,16 +228,22 @@ const scalarCoverageGains = coverageModes.map((mode) =>
 )
 const simdCoverageGains = coverageModes.map((mode) =>
   percentageReduction(
-    measurementTime('1024x768', mode, 'high', 'warm', 'scalar'),
+    measurementTime('1024x768', mode, 'high', 'warm', 'aan'),
     measurementTime('1024x768', mode, 'high', 'warm', 'simd'),
   ),
 )
+const aanCoverageGains = coverageModes.map((mode) =>
+  percentageReduction(
+    measurementTime('1024x768', mode, 'high', 'warm', 'scalar'),
+    measurementTime('1024x768', mode, 'high', 'warm', 'aan'),
+  ),
+)
 const largeLowGain = percentageReduction(
-  measurementTime('2048x1536', '420', 'low', 'warm', 'scalar'),
+  measurementTime('2048x1536', '420', 'low', 'warm', 'aan'),
   measurementTime('2048x1536', '420', 'low', 'warm', 'simd'),
 )
 const largeHighGain = percentageReduction(
-  measurementTime('2048x1536', '420', 'high', 'warm', 'scalar'),
+  measurementTime('2048x1536', '420', 'high', 'warm', 'aan'),
   measurementTime('2048x1536', '420', 'high', 'warm', 'simd'),
 )
 const coldDimensions = ['64x64', '128x128', '256x256', '512x512', '1024x1024']
@@ -233,14 +257,16 @@ const coldSummary = simdWonEveryColdSize
   : 'Cold SIMD did not beat TypeScript at every measured size.'
 const thresholdSimd = measurementTime('256x256', '420', 'high', 'cold', 'simd')
 const thresholdJavaScript = measurementTime('256x256', '420', 'high', 'cold', 'javascript')
-const markdown = `# JPEG WASM encoder benchmark — 2026-08-09
+const markdown = `# JPEG WASM encoder benchmark — 2026-08-24
 
-Correctness gate: scalar WASM output is byte-identical to the TypeScript reference. The alternative SIMD AAN FDCT must remain within 0.05 dB decoded PSNR and 1% output size for every matching workload before timings are accepted.
+Correctness gate: scalar WASM output is byte-identical to the TypeScript reference. Scalar and SIMD AAN outputs are byte-identical to each other. The alternative AAN FDCT must remain within 0.05 dB decoded PSNR and 1% output size for every matching workload before timings are accepted.
 
+- Source revision: ${gitRevision} (${workingTreeDirty ? 'dirty working tree with the reviewed WASM changes' : 'clean'}).
 - Scalar artifact: ${artifacts.scalar.bytes} bytes (${artifacts.scalar.gzipBytes} gzip, ${artifacts.scalar.brotliBytes} brotli).
+- Scalar AAN control artifact: ${artifacts.aan.bytes} bytes (${artifacts.aan.gzipBytes} gzip, ${artifacts.aan.brotliBytes} brotli).
 - SIMD artifact: ${artifacts.simd.bytes} bytes (${artifacts.simd.gzipBytes} gzip, ${artifacts.simd.brotliBytes} brotli).
-- On 1024x768 high-entropy mode coverage, scalar WASM reduced warm time by ${Math.min(...scalarCoverageGains).toFixed(1)}%-${Math.max(...scalarCoverageGains).toFixed(1)}% versus TypeScript. SIMD reduced scalar time by another ${Math.min(...simdCoverageGains).toFixed(1)}%-${Math.max(...simdCoverageGains).toFixed(1)}%.
-- On 2048x1536 4:2:0, SIMD reduced scalar warm time by ${largeLowGain.toFixed(1)}% for low entropy and ${largeHighGain.toFixed(1)}% for high entropy.
+- On 1024x768 high-entropy mode coverage, scalar WASM reduced warm time by ${Math.min(...scalarCoverageGains).toFixed(1)}%-${Math.max(...scalarCoverageGains).toFixed(1)}% versus TypeScript. Scalar AAN then changed matrix-DCT time by ${Math.min(...aanCoverageGains).toFixed(1)}%-${Math.max(...aanCoverageGains).toFixed(1)}%. SIMD changed the same AAN algorithm by ${Math.min(...simdCoverageGains).toFixed(1)}%-${Math.max(...simdCoverageGains).toFixed(1)}%.
+- On 2048x1536 4:2:0, SIMD reduced scalar AAN warm time by ${largeLowGain.toFixed(1)}% for low entropy and ${largeHighGain.toFixed(1)}% for high entropy.
 - ${coldSummary} The production selector uses a conservative 65,536-pixel minimum based on the 256x256 result (${thresholdSimd.toFixed(2)} ms versus ${thresholdJavaScript.toFixed(2)} ms).
 - The SIMD artifact adds ${artifacts.simd.bytes - artifacts.scalar.bytes} raw bytes and ${artifacts.simd.gzipBytes - artifacts.scalar.gzipBytes} gzip bytes over scalar.
 - Warm rows report the median of five measured encodes after two warmups. Cold rows include lazy module read, compile, instantiate, and the first encode.
