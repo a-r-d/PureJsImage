@@ -1,0 +1,48 @@
+CHANGELOG.md
+  s_5d3857b1b6a91f::t_e901df7d876474 7-8,1206-1207
+CITATION.cff
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 10-11,29
+codemeta.json
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 32-33,38,40-41
+benchmark/generated/package-metrics.json
+  s_5d3857b1b6a91f::t_862e571eb6741f 178
+package.json
+  s_5d3857b1b6a91f::t_e901df7d876474 3
+docs-astro/src/pages/demo.astro
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 433,435
+tests/tiff-competitor-harness.test.ts
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 57
+docs-astro/src/pages/tiff-comparison.astro
+  s_5d3857b1b6a91f::t_9c1add01eb180b 84-85
+benchmark/results/tiff-competitor-conformance.json
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 18
+docs-astro/src/data/documentation-data.json
+  s_5d3857b1b6a91f::t_52542bea6f9043 132
+README.md
+  s_5d3857b1b6a91f::t_862e571eb6741f 361
+  s_5d3857b1b6a91f::t_52542bea6f9043 73
+docs-astro/src/data/package-metrics.json
+  s_5d3857b1b6a91f::t_862e571eb6741f 178
+docs-astro/src/data/library-comparison.ts
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 235
+benchmark/results/tiff-competitor-conformance.md
+  s_5d3857b1b6a91f::t_6babdae0ac3b64 11
+package-lock.json
+  s_5d3857b1b6a91f::t_2b697237a512ae 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "a54e64572e51e85cc194246a14edadf479698af7",
+  "prompts": {},
+  "sessions": {
+    "s_5d3857b1b6a91f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0344e-0392-7e00-b4c8-8f847ba87912",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
