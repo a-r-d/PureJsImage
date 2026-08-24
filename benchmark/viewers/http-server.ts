@@ -137,8 +137,10 @@ const writeJson = (response: ServerResponse, value: unknown): void => {
 
 const sleep = async (milliseconds: number): Promise<void> => {
   if (!Number.isFinite(milliseconds) || milliseconds <= 0) return
-  const boundedMilliseconds = Math.min(milliseconds, maximumSleepMilliseconds)
-  await new Promise<void>((resolveSleep) => setTimeout(resolveSleep, boundedMilliseconds))
+  if (milliseconds > maximumSleepMilliseconds) {
+    throw new Error(`Requested delay exceeds ${maximumSleepMilliseconds} milliseconds`)
+  }
+  await new Promise<void>((resolveSleep) => setTimeout(resolveSleep, milliseconds))
 }
 
 const parseLatency = (value: string | null): ViewerLatencyProfile => {
