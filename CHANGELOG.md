@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-08-24
+
 ### Added
 
 - Added an explicit optional Rust/WASM WebP accelerator with scalar and SIMD modules for VP8 row
@@ -1201,4 +1203,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.14.0]: https://github.com/a-r-d/PureJsImage/compare/v0.13.0...v0.14.0
 [0.15.0]: https://github.com/a-r-d/PureJsImage/compare/v0.14.0...v0.15.0
 [0.16.0]: https://github.com/a-r-d/PureJsImage/compare/v0.15.0...v0.16.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.16.0...HEAD
+[0.17.0]: https://github.com/a-r-d/PureJsImage/compare/v0.16.0...v0.17.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.17.0...HEAD

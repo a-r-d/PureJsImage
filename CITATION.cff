@@ -7,8 +7,8 @@ authors:
     given-names: "Aaron"
     website: "https://www.ard.ninja"
 abstract: "Portable image codecs and low-memory raster processing in strict TypeScript for Node.js and modern browsers."
-version: "0.16.0"
-date-released: "2026-08-21"
+version: "0.17.0"
+date-released: "2026-08-24"
 doi: "10.5281/zenodo.22071815"
 keywords:
   - "image codecs"
@@ -26,5 +26,5 @@ keywords:
   - "GeoTIFF"
 license: MIT
 repository-code: "https://github.com/a-r-d/PureJsImage"
-repository-artifact: "https://www.npmjs.com/package/purejsimage/v/0.16.0"
+repository-artifact: "https://www.npmjs.com/package/purejsimage/v/0.17.0"
 url: "https://purejsimage.com/"
