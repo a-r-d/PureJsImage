@@ -3,6 +3,7 @@ import { invalidInput } from '../errors.ts'
 import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
+import type { WebpKernel } from './webp-acceleration.ts'
 import { vp8lDistanceMap } from './webp-lossless.ts'
 
 interface BitOutput {
@@ -508,13 +509,30 @@ const applyPredictorTransform = (
   modeWidth: number,
   previousRow: Uint32Array,
   currentRow: Uint32Array,
+  kernel?: WebpKernel,
 ): void => {
   const height = pixels.length / width
   for (let y = 0; y < height; y += 1) {
+    const rowOffset = y * width
+    currentRow.set(pixels.subarray(rowOffset, rowOffset + width))
+    if (
+      kernel?.vp8lForwardPredictor(
+        currentRow,
+        y === 0 ? undefined : previousRow,
+        modes,
+        (y >>> predictorSizeBits) * modeWidth,
+        modeWidth,
+        predictorSizeBits,
+        y,
+        pixels.subarray(rowOffset, rowOffset + width),
+      )
+    ) {
+      previousRow.set(currentRow)
+      continue
+    }
     for (let x = 0; x < width; x += 1) {
       const position = y * width + x
-      const color = pixels[position] ?? 0
-      currentRow[x] = color
+      const color = currentRow[x] ?? 0
       let predicted: number
       if (position === 0) predicted = 0xff000000
       else if (y === 0) predicted = currentRow[x - 1] ?? 0
@@ -1075,9 +1093,14 @@ const restorePaletteEncoding = (pixels: Uint32Array, encoding: PaletteEncoding):
   }
 }
 
-const applySubtractGreen = (pixels: Uint32Array): void => {
-  for (let index = 0; index < pixels.length; index += 1) {
-    pixels[index] = subtractGreen(pixels[index] ?? 0)
+const applySubtractGreen = (pixels: Uint32Array, kernel?: WebpKernel): void => {
+  const batchPixels = 16_384
+  for (let offset = 0; offset < pixels.length; offset += batchPixels) {
+    const batch = pixels.subarray(offset, Math.min(pixels.length, offset + batchPixels))
+    if (kernel?.vp8lForwardSubtractGreen(batch)) continue
+    for (let index = 0; index < batch.length; index += 1) {
+      batch[index] = subtractGreen(batch[index] ?? 0)
+    }
   }
 }
 
@@ -1186,14 +1209,29 @@ const applyColorTransform = (
   pixels: Uint32Array,
   width: number,
   plan: ColorTransformPlan,
+  kernel?: WebpKernel,
 ): void => {
-  for (let position = 0; position < pixels.length; position += 1) {
-    const x = position % width
-    const y = Math.floor(position / width)
-    const element =
-      plan.elements[(y >>> colorTransformSizeBits) * plan.width + (x >>> colorTransformSizeBits)] ??
-      0
-    pixels[position] = transformedColor(pixels[position] ?? 0, element)
+  const height = pixels.length / width
+  for (let y = 0; y < height; y += 1) {
+    const row = pixels.subarray(y * width, (y + 1) * width)
+    if (
+      kernel?.vp8lForwardColor(
+        row,
+        plan.elements,
+        (y >>> colorTransformSizeBits) * plan.width,
+        plan.width,
+        colorTransformSizeBits,
+      )
+    ) {
+      continue
+    }
+    for (let x = 0; x < width; x += 1) {
+      const element =
+        plan.elements[
+          (y >>> colorTransformSizeBits) * plan.width + (x >>> colorTransformSizeBits)
+        ] ?? 0
+      row[x] = transformedColor(row[x] ?? 0, element)
+    }
   }
 }
 const applyNearLossless = (pixels: Uint32Array, quality: number): void => {
@@ -1402,13 +1440,20 @@ class LosslessWebpEncoder implements ImageEncoder {
   readonly #exif: Uint8Array | undefined
   readonly #effort: number
   readonly #nearLossless: number
+  readonly #kernel: WebpKernel | undefined
   #pixels: Uint32Array | undefined
   #previousRow: Uint32Array
   #currentRow: Uint32Array
   #expectedY = 0
   #finished = false
 
-  constructor(sink: ImageSink, request: EncodeRequest, effort: number, nearLossless: number) {
+  constructor(
+    sink: ImageSink,
+    request: EncodeRequest,
+    effort: number,
+    nearLossless: number,
+    kernel?: WebpKernel,
+  ) {
     this.#sink = sink
     this.#width = request.width
     this.#height = request.height
@@ -1418,6 +1463,7 @@ class LosslessWebpEncoder implements ImageEncoder {
     this.#exif = request.metadata?.exif
     this.#effort = effort
     this.#nearLossless = nearLossless
+    this.#kernel = kernel
     this.#pixels = new Uint32Array(request.width * request.height)
     this.#previousRow = new Uint32Array(request.width)
     this.#currentRow = new Uint32Array(request.width)
@@ -1485,12 +1531,13 @@ class LosslessWebpEncoder implements ImageEncoder {
       predictor.width,
       this.#previousRow,
       this.#currentRow,
+      this.#kernel,
     )
     const colorTransform =
       this.#effort >= 3 ? selectColorTransform(pixels, this.#width, this.#height) : undefined
     const deepSearch = this.#effort >= 2 && !simpleEncoding
-    if (colorTransform) applyColorTransform(pixels, this.#width, colorTransform)
-    else applySubtractGreen(pixels)
+    if (colorTransform) applyColorTransform(pixels, this.#width, colorTransform, this.#kernel)
+    else applySubtractGreen(pixels, this.#kernel)
     const predictiveBits = encodeImageBits(
       pixels,
       this.#width,
@@ -1559,6 +1606,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 export const createLosslessWebpEncoder = async (
   sink: ImageSink,
   request: EncodeRequest,
+  kernel?: WebpKernel,
 ): Promise<ImageEncoder> => {
   if (
     !Number.isSafeInteger(request.width) ||
@@ -1593,5 +1641,5 @@ export const createLosslessWebpEncoder = async (
   if (icc && iccColorSpace(icc) !== 'rgb') {
     throw invalidInput('Preserved ICC profile does not match WebP RGB output pixels')
   }
-  return new LosslessWebpEncoder(sink, request, effort, nearLossless)
+  return new LosslessWebpEncoder(sink, request, effort, nearLossless, kernel)
 }

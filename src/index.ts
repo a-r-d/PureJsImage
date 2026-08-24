@@ -23,10 +23,13 @@ export type {
 export { CodecRegistry } from './codec.ts'
 export type { ImageErrorCode } from './errors.ts'
 export { ImageError } from './errors.ts'
-export type { Image, ImageLibrary, ImageOpenOptions } from './image.ts'
+export type { Image, ImageLibrary, ImageOpenOptions, NodeImageLibraryOptions } from './image.ts'
 export { createImageLibrary } from './image.ts'
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
+export { BufferSink, FileSink } from './node-sink.ts'
+export type { ImageInput } from './node-source.ts'
+export { FileSource } from './node-source.ts'
 export type {
   AvifEncodeOptions,
   Background,
@@ -58,8 +61,5 @@ export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.t
 export { BufferPool } from './pixel.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
-export { BufferSink, FileSink } from './node-sink.ts'
-export type { ImageInput } from './node-source.ts'
-export { FileSource } from './node-source.ts'
 export type { ImageSource, ImageSourceReadOptions } from './source.ts'
 export { BlobSource, MemorySource } from './source.ts'

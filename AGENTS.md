@@ -89,6 +89,12 @@
   browser File/Blob, Uint8Array/Blob output, CompressionStream, and origin-private storage behavior
   behind the browser adapters. Do not duplicate codec or pixel-processing implementations between
   runtimes.
+- Temporary-file use must be off by default and require an explicit public opt-in. Document the
+  memory, process-RSS, storage-capacity, and performance tradeoffs wherever the option is exposed.
+  Before consuming input rows, probe file creation, writing, reading, and truncation. If opt-in
+  setup or writing fails, continue with the memory implementation and preserve the same output.
+  Report failures that prevent recovery of already-written bytes as structured `ImageError`s, and
+  clean up every created file or directory.
 - Browsers cannot open arbitrary local path strings. Browser inputs should use File/Blob,
   ArrayBuffer, Uint8Array, fetched bytes, or an explicit `ImageSource`; browser outputs should use
   Uint8Array, Blob, or an explicit `ImageSink`.

@@ -11,6 +11,7 @@ const cargo = (() => {
 
 const manifest = 'wasm/png-codec/Cargo.toml'
 const output = 'wasm/png-codec/target/wasm32-unknown-unknown/release/purejsimage_png_codec.wasm'
+const stackRustflags = '-C link-arg=-zstack-size=131072 -C link-arg=--export-memory'
 
 const build = async (destination: string, features?: string, rustflags?: string): Promise<void> => {
   const arguments_ = [
@@ -33,9 +34,9 @@ const build = async (destination: string, features?: string, rustflags?: string)
   await copyFile(output, destination)
 }
 
-await build('src/accelerator-entries/png-codec.wasm')
+await build('src/accelerator-entries/png-codec.wasm', undefined, stackRustflags)
 await build(
   'src/accelerator-entries/png-codec-simd.wasm',
   'simd',
-  '-C target-feature=+simd128 -C link-arg=--export-memory',
+  `${stackRustflags} -C target-feature=+simd128`,
 )

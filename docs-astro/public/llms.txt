@@ -702,7 +702,7 @@ detector arrays. Neither format is registered as a photographic image codec.
 
 Use `purejsimage/pathology` for `openAperioSvs()` and the generic `WholeSlideImage` contract. `slide.readRegion({ level, x, y, width, height, signal })` reads an arbitrary rectangle. `slide.levels[level].tile(column, row, { signal })` reads one native tile by zero-based tile coordinates; padded edge tiles return only their valid image region. Associated-image reads and profile opening also accept `{ signal }`. TIFF profile code must bound all private metadata reads and validate metadata-to-IFD mappings before decoding.
 
-## Optional JPEG and PNG WASM
+## Optional JPEG, PNG, and WebP WASM
 
 The root, browser, and codec imports never load WASM automatically. Register explicit first-party accelerators; unsupported or ineligible work falls back to TypeScript.
 
@@ -711,10 +711,11 @@ import { createImageLibrary } from 'purejsimage'
 import { allCodecs } from 'purejsimage/codecs/all'
 import { wasmJpegAccelerator } from 'purejsimage/accelerators/wasm/jpeg'
 import { wasmPngAccelerator } from 'purejsimage/accelerators/wasm/png'
+import { wasmWebpAccelerator } from 'purejsimage/accelerators/wasm/webp'
 
 const images = createImageLibrary({
   codecs: allCodecs,
-  accelerators: [wasmJpegAccelerator, wasmPngAccelerator],
+  accelerators: [wasmJpegAccelerator, wasmPngAccelerator, wasmWebpAccelerator],
 })
 ```
 

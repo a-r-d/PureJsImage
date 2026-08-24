@@ -4,6 +4,7 @@ import {
   defaultCoefficientProbabilities,
   keyframeBlockModeProbabilities,
 } from './vp8-tables.ts'
+import type { WebpKernel } from './webp-acceleration.ts'
 
 export interface DecodedVp8Rows {
   readonly y: number
@@ -1156,7 +1157,27 @@ const convertVp8Rows = (
   vPlane: Plane,
   width: number,
   height: number,
+  kernel?: WebpKernel,
 ): Uint32Array => {
+  const chromaWidth = Math.ceil(width / 2)
+  const chromaHeight = Math.ceil(height / 2)
+  const accelerated = kernel?.vp8ToArgb(
+    yPlane.data.subarray(yPlane.origin, yPlane.origin + (height - 1) * yPlane.stride + width),
+    yPlane.stride,
+    uPlane.data.subarray(
+      uPlane.origin,
+      uPlane.origin + (chromaHeight - 1) * uPlane.stride + chromaWidth,
+    ),
+    uPlane.stride,
+    vPlane.data.subarray(
+      vPlane.origin,
+      vPlane.origin + (chromaHeight - 1) * vPlane.stride + chromaWidth,
+    ),
+    vPlane.stride,
+    width,
+    height,
+  )
+  if (accelerated) return accelerated
   const pixels = new Uint32Array(width * height)
   const yData = yPlane.data
   const uData = uPlane.data
@@ -1192,6 +1213,7 @@ export const decodeVp8 = (
   offset: number,
   length: number,
   validateDimensions: (width: number, height: number) => void,
+  kernel?: WebpKernel,
 ): DecodedVp8 => {
   if (length < 10 || offset < 0 || offset + length > data.byteLength) {
     throw truncatedInput('VP8 key frame is truncated')
@@ -1349,7 +1371,7 @@ export const decodeVp8 = (
           yield {
             y: outputY,
             height: outputHeight,
-            pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight),
+            pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight, kernel),
           }
           copyPlaneMacroblockRow(yPlane, 16)
           copyPlaneMacroblockRow(uPlane, 8)
@@ -1362,7 +1384,7 @@ export const decodeVp8 = (
       yield {
         y: outputY,
         height: outputHeight,
-        pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight),
+        pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight, kernel),
       }
     },
   }

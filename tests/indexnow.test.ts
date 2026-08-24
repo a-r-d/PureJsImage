@@ -19,9 +19,14 @@ describe('IndexNow deployment support', () => {
         <urlset>
           <url><loc>https://purejsimage.com/</loc></url>
           <url><loc>https://purejsimage.com/guides/?a=1&amp;b=2</loc></url>
+          <url><loc>https://purejsimage.com/guides/?literal=&amp;lt;</loc></url>
         </urlset>
       `),
-    ).toEqual(['https://purejsimage.com/', 'https://purejsimage.com/guides/?a=1&b=2'])
+    ).toEqual([
+      'https://purejsimage.com/',
+      'https://purejsimage.com/guides/?a=1&b=2',
+      'https://purejsimage.com/guides/?literal=&lt;',
+    ])
   })
 
   it('builds a deduplicated same-host batch with a root key file', () => {

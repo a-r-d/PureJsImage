@@ -122,6 +122,7 @@ const fixtures: Readonly<Record<string, ViewerFixture>> = Object.freeze({
 
 const logs: MutableRequestLog[] = []
 let nextLogId = 1
+const maximumSleepMilliseconds = 60_000
 
 const writeJson = (response: ServerResponse, value: unknown): void => {
   const body = JSON.stringify(value)
@@ -135,7 +136,10 @@ const writeJson = (response: ServerResponse, value: unknown): void => {
 }
 
 const sleep = async (milliseconds: number): Promise<void> => {
-  if (milliseconds <= 0) return
+  if (!Number.isFinite(milliseconds) || milliseconds <= 0) return
+  if (milliseconds > maximumSleepMilliseconds) {
+    throw new Error(`Requested delay exceeds ${maximumSleepMilliseconds} milliseconds`)
+  }
   await new Promise<void>((resolveSleep) => setTimeout(resolveSleep, milliseconds))
 }
 

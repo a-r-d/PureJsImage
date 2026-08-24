@@ -88,7 +88,7 @@ const renderBundle = (metrics: PackageMetricsDocument): string => {
         `| ${target.name} | \`${target.entry.packageExports?.join('; ') ?? target.entry.sourceEntries?.join(' + ') ?? '—'}\` | ${formatKibibytes(target.minifiedJsBytes)} | ${formatKibibytes(target.gzipBytes)} | ${formatKibibytes(target.brotliBytes)} |`,
     ),
     '',
-    `The extracted npm package is ${formatMebibytes(installed.unpackedPackageBytes)} and has ${installed.productionPackageCount} production package. The six optional JPEG and PNG accelerator assets total ${formatKibibytes(wasmRawBytes)} raw WASM and are loaded only through explicit accelerator imports.`,
+    `The extracted npm package is ${formatMebibytes(installed.unpackedPackageBytes)} and has ${installed.productionPackageCount} production package. The eight optional JPEG, PNG, and WebP accelerator assets total ${formatKibibytes(wasmRawBytes)} raw WASM and are loaded only through explicit accelerator imports.`,
     '',
     '[Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)',
   ].join('\n')

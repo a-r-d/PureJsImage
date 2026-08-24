@@ -17,8 +17,9 @@ const width = Number(process.argv[4])
 const height = Number(process.argv[5])
 const profile = process.argv[6]
 const entropy = process.argv[7]
-if (engine !== 'javascript' && engine !== 'scalar' && engine !== 'simd') {
-  throw new Error('JPEG WASM encoder engine must be javascript, scalar, or simd')
+const inputFormat = process.argv[9] ?? 'rgb'
+if (engine !== 'javascript' && engine !== 'scalar' && engine !== 'aan' && engine !== 'simd') {
+  throw new Error('JPEG WASM encoder engine must be javascript, scalar, aan, or simd')
 }
 if (mode !== 'gray' && mode !== '420' && mode !== '422' && mode !== '444') {
   throw new Error('JPEG WASM encoder mode must be gray, 420, 422, or 444')
@@ -32,10 +33,14 @@ if (profile !== 'cold' && profile !== 'warm') {
 if (entropy !== 'low' && entropy !== 'high') {
   throw new Error('JPEG WASM encoder entropy must be low or high')
 }
+if (inputFormat !== 'rgb' && inputFormat !== 'rgba') {
+  throw new Error('JPEG WASM encoder input format must be rgb or rgba')
+}
 
 const grayscale = mode === 'gray'
-const pixelFormat: PixelFormat = grayscale ? 'gray8' : 'rgb8'
-const channels = grayscale ? 1 : 3
+if (grayscale && inputFormat === 'rgba') throw new Error('Grayscale input cannot use RGBA')
+const pixelFormat: PixelFormat = grayscale ? 'gray8' : inputFormat === 'rgba' ? 'rgba8' : 'rgb8'
+const channels = grayscale ? 1 : inputFormat === 'rgba' ? 4 : 3
 const source = new Uint8Array(width * height * channels)
 let random = 0x6d2b79f5
 for (let y = 0; y < height; y += 1) {
@@ -51,6 +56,7 @@ for (let y = 0; y < height; y += 1) {
     if (!grayscale) {
       source[offset + 1] = (value >>> 8) & 255
       source[offset + 2] = (value >>> 16) & 255
+      if (channels === 4) source[offset + 3] = (value >>> 24) & 255
     }
   }
 }
@@ -60,7 +66,9 @@ const artifactPath =
   new URL(
     engine === 'simd'
       ? '../../src/accelerator-entries/jpeg-encoder-simd.wasm'
-      : '../../src/accelerator-entries/jpeg-encoder.wasm',
+      : engine === 'aan'
+        ? '../.tmp/wasm/jpeg-encoder-aan.wasm'
+        : '../../src/accelerator-entries/jpeg-encoder.wasm',
     import.meta.url,
   )
 let initializationMilliseconds = 0
@@ -157,8 +165,18 @@ if (decoded.width !== width || decoded.height !== height) {
 let squaredError = 0
 for (let pixel = 0; pixel < width * height; pixel += 1) {
   for (let channel = 0; channel < 3; channel += 1) {
-    const sourceIndex = grayscale ? pixel : pixel * 3 + channel
-    const difference = (source[sourceIndex] ?? 0) - (decoded.data[pixel * 3 + channel] ?? 0)
+    const sourceIndex = grayscale ? pixel : pixel * channels + channel
+    const sourceValue = source[sourceIndex] ?? 0
+    const expected =
+      channels === 4
+        ? Math.floor(
+            (sourceValue * (source[pixel * 4 + 3] ?? 0) +
+              255 * (255 - (source[pixel * 4 + 3] ?? 0)) +
+              127) /
+              255,
+          )
+        : sourceValue
+    const difference = expected - (decoded.data[pixel * 3 + channel] ?? 0)
     squaredError += difference * difference
   }
 }
@@ -176,6 +194,7 @@ console.log(
     entropy,
     externalBytes: usage.external,
     hash: createHash('sha256').update(output).digest('hex'),
+    inputFormat,
     initializationMilliseconds,
     maximumRssBytes: process.resourceUsage().maxRSS * 1024,
     medianMilliseconds,

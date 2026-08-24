@@ -1,15 +1,14 @@
 import { readFile } from 'node:fs/promises'
 
 import { describe, expect, it } from 'vitest'
-
-import type { DecoderOptions, DecodeRequest, ImageCodec, ImageDecoder } from '../src/codec.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-node.ts'
-import { decodeBaselineJpeg } from '../src/codecs/jpeg-baseline.ts'
-import { accelerateJpegCodec, type JpegDecodeAcceleration, jpegCodec } from '../src/codecs/jpeg.ts'
 import {
   createWasmJpegAcceleratorWithLoader,
   createWasmJpegAcceleratorWithLoaders,
 } from '../src/accelerators/wasm/jpeg.ts'
+import type { DecodeRequest, DecoderOptions, ImageCodec, ImageDecoder } from '../src/codec.ts'
+import { accelerateJpegCodec, type JpegDecodeAcceleration, jpegCodec } from '../src/codecs/jpeg.ts'
+import { decodeBaselineJpeg } from '../src/codecs/jpeg-baseline.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -40,6 +39,24 @@ const instantiate = async (): Promise<WebAssembly.Instance> => {
 const instantiateArtifact = async (url: URL): Promise<WebAssembly.Instance> => {
   const result = await WebAssembly.instantiate(await readFile(url))
   return result.instance
+}
+
+type WasmNumberFunction = (...arguments_: readonly number[]) => number
+
+const numberExport = (instance: WebAssembly.Instance, name: string): WasmNumberFunction => {
+  const value: unknown = instance.exports[name]
+  if (typeof value !== 'function') throw new Error(`Missing WASM export ${name}`)
+  return (...arguments_: readonly number[]): number => {
+    const result: unknown = Reflect.apply(value, undefined, arguments_)
+    if (typeof result !== 'number') throw new Error(`WASM export ${name} returned no number`)
+    return result
+  }
+}
+
+const memoryExport = (instance: WebAssembly.Instance): WebAssembly.Memory => {
+  const value: unknown = instance.exports.memory
+  if (!(value instanceof WebAssembly.Memory)) throw new Error('Missing WASM memory export')
+  return value
 }
 
 const decoderPixels = async (
@@ -147,6 +164,39 @@ const decodedPsnr = async (
 }
 
 describe('Rust/WASM JPEG accelerator', () => {
+  it.each([
+    ['decoder scalar', artifactUrl] as const,
+    ['decoder SIMD', simdDecoderArtifactUrl] as const,
+    ['encoder scalar', scalarEncoderArtifactUrl] as const,
+    ['encoder SIMD', simdEncoderArtifactUrl] as const,
+  ])('keeps the initial %s memory within four WASM pages', async (_kind, url) => {
+    const instance = await instantiateArtifact(url)
+    expect(memoryExport(instance).buffer.byteLength).toBeLessThanOrEqual(4 * 65_536)
+  })
+
+  it('rejects decoder input that aliases its static scratch storage', async () => {
+    const instance = await instantiate()
+    const scratchPointer = numberExport(instance, 'jpeg_decoder_quantization_ptr')()
+    const start = numberExport(instance, 'jpeg_decoder_start')
+
+    expect(start(scratchPointer, 1, 0, 30, 0, 1, 0, 3, 0, 1, 1, 1, 1, 1, 1, 0, 0)).toBe(10)
+  })
+
+  it('rejects out-of-bounds and overlapping encoder buffers without trapping', async () => {
+    const instance = await instantiateArtifact(scalarEncoderArtifactUrl)
+    const memory = memoryExport(instance)
+    const start = numberExport(instance, 'jpeg_encoder_start')
+    const write = numberExport(instance, 'jpeg_encoder_write')
+    const initialBytes = memory.buffer.byteLength
+
+    expect(start(16, 16, 3, 80, 1, 0, 0xff_ff_ff, initialBytes - 8, 1024)).toBe(10)
+
+    memory.grow(1)
+    expect(start(16, 16, 3, 80, 1, 0, 0xff_ff_ff, initialBytes, 4096)).toBe(0)
+    expect(write(memory.buffer.byteLength - 4, 768, 48, 16)).toBe(11)
+    expect(write(initialBytes, 768, 48, 16)).toBe(11)
+  })
+
   it('keeps multiple JPEG providers in explicit registration order', async () => {
     const calls: string[] = []
     const unavailable = (name: string): JpegDecodeAcceleration => ({
@@ -465,6 +515,109 @@ describe('Rust/WASM JPEG accelerator', () => {
       expect(hasRestartMarker).toBe(true)
     }
     expect(loads).toBe(1)
+  })
+
+  it('matches JavaScript rounding immediately below a positive half-integer', async () => {
+    const red = Uint8Array.of(
+      55,
+      52,
+      52,
+      55,
+      55,
+      52,
+      53,
+      57,
+      52,
+      56,
+      56,
+      53,
+      53,
+      56,
+      57,
+      53,
+      52,
+      56,
+      56,
+      53,
+      53,
+      56,
+      56,
+      53,
+      55,
+      51,
+      51,
+      54,
+      55,
+      52,
+      52,
+      56,
+      56,
+      52,
+      50,
+      53,
+      55,
+      53,
+      53,
+      57,
+      54,
+      56,
+      54,
+      51,
+      53,
+      58,
+      59,
+      56,
+      53,
+      55,
+      54,
+      52,
+      55,
+      60,
+      60,
+      56,
+      54,
+      50,
+      50,
+      56,
+      60,
+      57,
+      56,
+      58,
+    )
+    const input = new Uint8Array(8 * 8 * 3)
+    for (let pixel = 0; pixel < red.byteLength; pixel += 1) {
+      const value = red[pixel] ?? 0
+      input[pixel * 3] = value
+      input[pixel * 3 + 1] = value + 50
+      input[pixel * 3 + 2] = value + 29
+    }
+    const encode = async (codec: ImageCodec): Promise<Uint8Array> => {
+      const sink = new Uint8ArraySink()
+      const encoder = await codec.createEncoder?.(sink, {
+        height: 8,
+        options: { chromaSubsampling: '444', quality: 80 },
+        pixelFormat: 'rgb8',
+        width: 8,
+      })
+      if (!encoder) throw new Error('JPEG encoder is unavailable')
+      await encoder.write({
+        data: input,
+        format: 'rgb8',
+        height: 8,
+        stride: 24,
+        width: 8,
+        x: 0,
+        y: 0,
+      })
+      await encoder.finish()
+      return sink.toUint8Array()
+    }
+    const accelerated = createWasmJpegAcceleratorWithLoaders(
+      { encoder: () => instantiateArtifact(scalarEncoderArtifactUrl) },
+      { minimumEncodePixels: 1 },
+    ).accelerate(jpegCodec)
+
+    await expect(encode(accelerated)).resolves.toEqual(await encode(jpegCodec))
   })
 
   it('selects the measured default decoder threshold at 256x256', async () => {

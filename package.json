@@ -405,6 +405,13 @@
       "import": "./dist/accelerator-entries/wasm-png-node.js",
       "default": "./dist/accelerator-entries/wasm-png-node.js"
     },
+    "./accelerators/wasm/webp": {
+      "browser": "./dist/accelerator-entries/wasm-webp-browser.js",
+      "types": "./dist/accelerator-entries/wasm-webp-node.d.ts",
+      "node": "./dist/accelerator-entries/wasm-webp-node.js",
+      "import": "./dist/accelerator-entries/wasm-webp-node.js",
+      "default": "./dist/accelerator-entries/wasm-webp-node.js"
+    },
     "./codecs/all": {
       "types": "./dist/codec-entries/all.d.ts",
       "import": "./dist/codec-entries/all.js",
@@ -511,6 +518,7 @@
     "bench:geo:write": "node benchmark/geo/run.ts --write && biome format --write benchmark/generated/geo-benchmark.json",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
     "wasm:build:png": "node scripts/build-wasm-png.ts",
+    "wasm:build:webp": "node scripts/build-wasm-webp.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
@@ -603,6 +611,10 @@
     "fuzz:release": "PUREJSIMAGE_FUZZ_RELEASE=1 PUREJSIMAGE_FUZZ_CASES=512 PUREJSIMAGE_FUZZ_SEED=1592598566 PUREJSIMAGE_FUZZ_CRASH_DIR=artifacts/fuzz-crashes vitest run tests/corruption-fuzz.test.ts",
     "corpus:exercise": "node scripts/exercise-corpus.ts",
     "corpus:imazen": "node scripts/validate-imazen-corpus.ts",
+    "corpus:imazen:wasm": "node scripts/validate-webp-wasm-corpus.ts",
+    "corpus:imazen:jpeg-wasm": "node scripts/validate-webp-wasm-corpus.ts --format jpeg",
+    "corpus:imazen:png-wasm": "node scripts/validate-webp-wasm-corpus.ts --format png",
+    "corpus:imazen:webp-wasm": "node scripts/validate-webp-wasm-corpus.ts",
     "corpus:tiff:matrix": "node scripts/analyze-tiff-dependencies.ts",
     "corpus:tiff:competitors": "node scripts/compare-tiff-competitors.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
@@ -672,6 +684,7 @@
     "bench:jpeg:wasm": "npm run build && node benchmark/jpeg/run-wasm-decoder.ts",
     "bench:jpeg:wasm:encode": "npm run build && node benchmark/jpeg/run-wasm-encoder.ts",
     "bench:png:wasm": "node benchmark/png/run-wasm.ts",
+    "bench:webp:wasm": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm --profile webp",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts",
     "bench:lambda:assets": "npm run build && npm run fixtures:prepare -- tundra-4000x3000 rgba-gradient-4000x3000 && node benchmark/aws-lambda/build-assets.ts",
     "bench:lambda:deploy": "npm run bench:lambda:assets && node benchmark/aws-lambda/stage-assets.ts && cdk deploy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --require-approval never --method direct",

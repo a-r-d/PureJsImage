@@ -382,6 +382,8 @@ const wasmFiles: readonly (readonly [string, string])[] = [
   ['src/accelerator-entries/jpeg-encoder-simd.wasm', 'jpeg-encoder-simd.wasm'],
   ['src/accelerator-entries/png-codec.wasm', 'png-codec.wasm'],
   ['src/accelerator-entries/png-codec-simd.wasm', 'png-codec-simd.wasm'],
+  ['src/accelerator-entries/webp-codec.wasm', 'webp-codec.wasm'],
+  ['src/accelerator-entries/webp-codec-simd.wasm', 'webp-codec-simd.wasm'],
   ['node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm', 'mozjpeg_dec.wasm'],
   ['node_modules/@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm', 'mozjpeg_enc.wasm'],
   ['node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm', 'squoosh_png_bg.wasm'],
@@ -803,8 +805,9 @@ const server = createServer(async (request, response) => {
     const data = await readFile(path)
     const range = request.headers.range?.match(/^bytes=(\d+)-(\d+)$/)
     if (range) {
-      const rangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
-      if (Number.isFinite(rangeDelay) && rangeDelay > 0 && rangeDelay <= 1_000) {
+      const requestedRangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
+      if (Number.isFinite(requestedRangeDelay) && requestedRangeDelay > 0) {
+        const rangeDelay = Math.min(requestedRangeDelay, 1_000)
         await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, rangeDelay))
       }
       const start = Number(range[1])

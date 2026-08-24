@@ -163,17 +163,17 @@ output validation and must cover the complete operation, including JavaScript/WA
 inflate or deflate. Passing this gate changes which implementation may execute eligible work; it does
 not expand the PNG formats or operations supported by the TypeScript reference.
 
-## Results recorded 2026-08-09
+## Results refreshed 2026-08-24
 
-The first bounded-row scalar and SIMD implementations passed exact decode-pixel and encoded-byte
-gates across the deterministic benchmark matrix. On 1920x1080 inputs, warm SIMD decode was
-28.4%-46.9% faster than TypeScript. Warm SIMD encode was 39.0%-52.2% faster for high-entropy RGB and
-RGBA input; smooth-image encode improved by 10.8%-22.2% because native deflate dominates those highly
+The bounded-row scalar and SIMD implementations passed exact decode-pixel and encoded-byte gates
+across the deterministic benchmark matrix. On 1920x1080 inputs, warm SIMD decode improved by 14.6%
+to 32.8%. Warm SIMD encode improved by 20.3% to 31.1% for high-entropy RGB and RGBA input. Smooth
+RGB and RGBA encode improved by 12.4% and 11.4% because native deflate dominates these highly
 compressible cases.
 
-The representative high-entropy RGBA workload improved 32.1% for complete decode and 39.0% for
-complete encode, satisfying the initial gate in both directions without replacing platform zlib.
-Scalar and SIMD artifacts are 3,884 and 7,293 raw bytes; their Brotli sizes are 1,451 and 2,577 bytes.
-Large-workload WASM linear-memory high-water marks were 1.44-1.56 MiB, and median initialization was
-0.34-0.66 ms. See `benchmark/results/png-wasm-2026-08-09.md` and its machine-readable JSON for the
-full cold/warm, RSS, copy-inclusive timing, artifact-hash, and correctness evidence.
+The representative high-entropy RGBA workload improved by 14.6% for complete decode and 20.3% for
+complete encode without replacing platform zlib. Scalar and SIMD artifacts are 3,879 and 7,287 raw
+bytes; their Brotli sizes are 1,456 and 2,560 bytes. Large-workload WASM linear-memory high-water
+marks were 589,824 bytes for RGB8 and 720,896 bytes for RGBA8. See
+`benchmark/results/png-wasm-2026-08-24.md` and its machine-readable JSON for the full cold and warm
+RSS, copy-inclusive timing, artifact-hash, and correctness evidence.

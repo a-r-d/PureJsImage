@@ -700,3 +700,149 @@ npm run bench:hillclimb -- --suite web --workload jpeg-resize-1200 --goal speed 
 
 Each new attempt should get the next stable `JPEG-*` ID and an entry here even
 when it is rejected or reverted.
+
+## JPEG Rust/WASM SIMD campaign - 2026-08-24
+
+The campaign used the explicit Rust/WASM artifacts and retained the TypeScript
+codec as the correctness oracle. Decoder output had to remain byte-identical.
+Encoder AAN changes had to keep scalar-AAN and SIMD-AAN byte-identical, stay
+within 0.05 dB decoded PSNR and 1% output size of the matrix-DCT reference, and
+show a measured gain.
+
+| ID | Hypothesis / change | Representative result | Verdict | Disposition |
+| --- | --- | --- | --- | --- |
+| JPEG-WASM-001 | Skip the full IDCT for DC-only blocks. | Tundra 396.62 -> 391.24 ms (-1.36%); Earthrise 115.45 -> 102.48 ms (-11.2%). Exact RGB hashes. | material on low-entropy input | Retained. |
+| JPEG-WASM-002 | Convert four YCbCr pixels with `f32x4` instead of two with `f64x2`. | Tundra 395.84 -> 395.32 ms (-0.13%). Exact RGB hash. | neutral | Reverted. Lane extraction and interleaved stores consumed the arithmetic gain. |
+| JPEG-WASM-003 | Use an `f32x4` basis-matrix IDCT. | Spot check 394.20 -> 365.67 ms, but output SHA-256 changed. | invalid | Reverted before timing acceptance. |
+| JPEG-WASM-004 | Precompute AAN reciprocal quantization factors and multiply instead of dividing each coefficient. | 2048x1536 high-entropy 4:2:0 SIMD 85.72 -> 74.41 ms (-13.2%). Output hash unchanged. | material | Retained. |
+| JPEG-WASM-005 | Keep AAN samples and planes in f32 and fill four RGB pixels with explicit SIMD. | Three worker medians 71.45 -> 68.53 ms (-4.1%) on 2048x1536 high-entropy 4:2:0. Output hash unchanged. | material | Retained. |
+| JPEG-WASM-006 | Downsample four chroma outputs with explicit SIMD shuffles and sums. | Three worker medians 70.41 -> 70.55 ms (+0.2%). Output hash unchanged. | neutral | Reverted. |
+| JPEG-WASM-007 | Composite four RGBA pixels and produce RGB/luma planes with integer and f32 SIMD. | 2048x1536 high-entropy 4:2:0 75.46 -> 65.48 ms (-13.2%). Output hash unchanged. | material | Retained. |
+
+The refreshed full encoder matrix separates algorithm and SIMD effects with a
+scalar AAN control. At 1024x768, scalar AAN reduced matrix-DCT time by
+19.5%-22.0%, while SIMD reduced the same AAN path by another 4.2%-11.4%.
+At 2048x1536 4:2:0, SIMD reduced scalar-AAN time by 19.5% on low-entropy input
+and 14.4% on high-entropy input. Scalar-AAN and SIMD-AAN hashes matched in
+every benchmark group.
+
+Retained implementation cleanup removed the unused `simd_basis` and
+`simd_intermediate` arrays. The build now emits a benchmark-only scalar AAN
+artifact under `benchmark/.tmp/wasm/` so future reports cannot conflate the
+AAN algorithm change with SIMD lane speedup.
+
+Evidence:
+
+- Encoder matrix: `benchmark/results/jpeg-wasm-encoder-2026-08-24.json` and
+  `benchmark/results/jpeg-wasm-encoder-2026-08-24.md`
+- Decoder matrix: `benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.json`
+  and `benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.md`
+- Seven-pair `purejsimage-wasm` decoder workflow: `jpeg-to-png` 254.10 ->
+  239.76 ms (-5.64%), peak RSS -0.46%, exact correctness and protected
+  metrics. Artifact: `.tmp/hillclimb/2026-08-24T15-43-18-379Z/comparison.md`.
+- Seven-pair `purejsimage-wasm` encoder workflow: `png-to-jpeg` 16.80 ->
+  12.67 ms (-24.58%), peak RSS -0.35%, exact correctness and protected
+  metrics. Artifact: `.tmp/hillclimb/2026-08-24T15-44-10-400Z/comparison.md`.
+- Focused correctness: `npx vitest run tests/wasm-jpeg.test.ts`
+
+## WebP Rust/WASM campaign - 2026-08-24
+
+The retained optional module accelerates bounded VP8 YUV row conversion, VP8 input conversion to
+YUV420 blocks, and VP8L predictor, color, and subtract-green transforms. JavaScript still owns the
+RIFF container, entropy coding, validation, metadata, and row or block orchestration. Scalar and
+SIMD artifacts use the same ABI and fall back to the TypeScript operation on load or kernel failure.
+The existing paired-row TypeScript `rgb8` input conversion remains selected because a five-sample
+end-to-end trial measured it at 563.8 ms versus 584.0 ms through WASM. Lossy `rgba8` and `gray8`
+inputs remain eligible for WASM.
+
+The correctness gate forced each artifact separately with one-pixel thresholds across all 225
+Imazen WebP files. Both variants produced 223 exact pixel and deterministic encode-byte matches and
+the same 2 structured unsupported results as the TypeScript reference. Every file ran in an
+isolated process with a 30-second timeout and 512 MiB heap limit. The reference corpus also matched
+all 225 checked-in baseline records.
+
+The three-sample isolated end-to-end profile passed all 13 workflows. Representative median wall
+changes were:
+
+| Workflow | TypeScript | WASM SIMD | Change |
+| --- | ---: | ---: | ---: |
+| 1600x2000 lossy WebP resize to JPEG | 338.7 ms | 306.0 ms | -9.7% |
+| 4000x3000 lossy memory resize | 782.5 ms | 743.3 ms | -5.0% |
+| 4000x3000 lossless memory resize | 602.3 ms | 595.1 ms | -1.2% |
+| Lossy photo decode to PNG | 169.6 ms | 152.9 ms | -9.8% |
+| Lossy alpha decode to PNG | 107.4 ms | 90.5 ms | -15.7% |
+| Lossless alpha decode to PNG | 50.8 ms | 45.5 ms | -10.5% |
+| PNG to lossless WebP | 123.4 ms | 110.8 ms | -10.2% |
+| RGBA logo to lossy WebP | 65.7 ms | 50.2 ms | -23.6% |
+
+Before the SIMD hillclimb, the scalar artifact was 8,091 bytes and 3,319 gzip bytes. The SIMD artifact was 9,544 bytes and 3,895
+gzip bytes. Package import was 83.2 ms for TypeScript and 85.5 ms for the WASM engine; RSS after
+import was 110.1 and 110.4 MiB. The general startup probe measures the combined optional WASM
+engine, so it is not a WebP-only cold-instantiation microbenchmark.
+
+Evidence:
+
+- End-to-end profile:
+  `benchmark/results/2026-08-24T17-28-01-383Z-purejsimage-purejsimage-wasm-webp.json`
+- Readable report:
+  `benchmark/results/2026-08-24T17-28-01-383Z-purejsimage-purejsimage-wasm-webp.md`
+- Forced corpus commands: `npm run corpus:imazen:webp-wasm -- --corpus ../codec-corpus --variant
+  scalar` and the same command with `--variant simd`
+
+### WebP Rust/WASM SIMD hillclimb
+
+The incremental baseline is the uncommitted, validated WebP accelerator snapshot represented by
+temporary commit object `6a62c0e6c46d4042bdd2938a6a538361d8ad7a1e`. This object exists only so the
+paired runner can compare later dirty experiments against the exact pre-hillclimb tree. It does not
+move the branch or the working index.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base -> candidate (ms) | Paired speed delta | Peak RSS delta | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| WEBP-WASM-001 | 2026-08-24 17:37 | No-change seven-pair control on `webp-large-resize-jpeg` using the SIMD-enabled WASM engine. | 310.09 -> 306.91 (-1.03%) | -0.31%, 4/7 candidate pairs faster | -0.25% | neutral | Control only. Candidate MAD was 5.25 ms versus 2.09 ms for the base; use paired evidence and confirmation for small later gains. Artifact: `.tmp/hillclimb/2026-08-24T17-37-41-189Z/comparison.md`. |
+| WEBP-WASM-002 | 2026-08-24 17:40 | Convert four VP8 YUV pixels per `i32x4` SIMD operation while retaining the exact fixed-point formula and scalar tail. | 303.40 -> 302.83 (-0.19%) | -2.09%, 4/7 candidate pairs faster | +2.78% | neutral | Reverted. Correct output, but the median was inside control noise, candidate MAD rose to 6.08 ms, SIMD artifact size grew from 9,544 to 10,919 bytes, and RSS increased. Artifact: `.tmp/hillclimb/2026-08-24T17-40-08-081Z/comparison.md`. |
+| WEBP-WASM-003 | 2026-08-24 17:43 | Replace `TypedArray.from` result copies with same-type constructor copies at the JS/WASM boundary. | 307.87 -> 312.64 (+1.55%) | +1.18%, 3/7 candidate pairs faster | +2.14% | rejected | Reverted. Exact output, but both runtime and RSS moved in the wrong direction and candidate MAD rose to 9.70 ms. Artifact: `.tmp/hillclimb/2026-08-24T17-43-27-520Z/comparison.md`. |
+| WEBP-WASM-004 | 2026-08-24 17:44 | No-change control on the small `webp-lossless-alpha-png` workflow. | 48.50 -> 46.18 (-4.79%) | -3.04%, 5/7 candidate pairs faster | -0.19% | inconclusive | Control only. Identical code crossed the material threshold, demonstrating that this 120k-pixel end-to-end workflow is too noisy for incremental VP8L decisions without a larger fixture or more trials. Artifact: `.tmp/hillclimb/2026-08-24T17-44-32-056Z/comparison.md`. |
+| WEBP-WASM-005 | 2026-08-24 17:47 | No-change control on the 4000x3000 `webp-memory-lossless-resize-jpeg` workflow. | 620.75 -> 613.34 (-1.19%) | -1.76%, 6/7 candidate pairs faster | +0.14% | neutral | Control only. This larger workflow has a more useful roughly 1% median noise floor for VP8L experiments. Artifact: `.tmp/hillclimb/2026-08-24T17-47-12-906Z/comparison.md`. |
+| WEBP-WASM-006 | 2026-08-24 17:49 | Vectorize four VP8L color-transform pixels when the transform block size permits, preserving exact signed-byte arithmetic and scalar tails. | 603.95 -> 581.61 (-3.70%) | -3.01%, 5/7 candidate pairs faster | +0.18% | material | Retained. Exact output; candidate CV 2.22%. SIMD artifact grew from 9,544 to 10,280 bytes. Artifact: `.tmp/hillclimb/2026-08-24T17-49-34-488Z/comparison.md`. |
+| WEBP-WASM-007 | 2026-08-24 17:54 | Fuse the common inverse color -> predictor -> subtract-green row sequence into one WASM boundary call. | n/a | n/a | n/a | rejected | First draft rejected before timing. Scalar and SIMD agreed with each other but not the TypeScript hash because it saved predictor history after subtract-green instead of immediately after prediction. Correct reference hash `d06797de8b764c392270ae7eee6eca0b16aa745bd9ae0124776602641e82a998` was restored before measurement. |
+| WEBP-WASM-008 | 2026-08-24 18:02 | Correct fused VP8L inverse row ABI returns the pre-subtract-green predictor state separately, reducing three calls and seven row copies to one call and three row copies. | 634.42 -> 576.05 (-9.20% cumulative) | -8.90%, 7/7 candidate pairs faster | +0.90% | material | Retained with WEBP-WASM-006. Exact scalar/SIMD/reference hash and all 10 accelerator tests passed. Compared with the color-only 581.61 ms median, fusion contributes roughly another 1% on this host snapshot; the deterministic boundary-copy reduction is larger than RSS noise. Artifacts: `.tmp/hillclimb/2026-08-24T18-02-54-401Z/comparison.md`. |
+| WEBP-WASM-009 | 2026-08-24 18:04 | Detect uniform VP8L predictor mode 11 once per mode row and run a dedicated select loop without per-pixel table lookup or 14-way dispatch. | 617.90 -> 518.50 (-16.09% cumulative) | -15.29%, 7/7 candidate pairs faster | -2.00% | material | Retained. Exact 4000x3000 scalar/SIMD/reference hash; candidate CV 1.59%. Artifact: `.tmp/hillclimb/2026-08-24T18-04-43-447Z/comparison.md`. |
+| WEBP-WASM-010 | 2026-08-24 18:06 | Compute the four mode-11 channel distances with byte-lane SIMD and pairwise horizontal sums. | 629.13 -> 520.02 (-17.34% cumulative) | -17.80%, 7/7 versus the original base | -1.51% | neutral | Reverted. Candidate median was slower than the retained WEBP-WASM-009 stack (520.02 versus 518.50 ms), so the apparently larger cumulative delta came from a slower base sample rather than an incremental win. Artifact: `.tmp/hillclimb/2026-08-24T18-06-39-662Z/comparison.md`. |
+| WEBP-WASM-011 | 2026-08-24 18:09 | Process two VP8 Y pixels together and reuse their shared 4:2:0 chroma loads and matrix products. | 319.24 -> 312.31 (-2.17%) at 7 pairs; 307.51 -> 313.96 (+2.10%) at 15 pairs | -0.48%, 8/15 candidate pairs faster in confirmation | +1.21% | rejected | Reverted. The first run was promising at 6/7 wins, but confirmation had 12.35% candidate CV, a slower candidate median, and only a negligible paired gain. Artifacts: `.tmp/hillclimb/2026-08-24T18-08-54-981Z/comparison.md`, `.tmp/hillclimb/2026-08-24T18-09-41-034Z/comparison.md`. |
+| WEBP-WASM-012 | 2026-08-24 18:12 | Measure the retained SIMD color transform on `png-to-webp-lossless` before a forward-predictor experiment. | 114.09 -> 110.72 (-2.95% cumulative) | -4.31%, 6/7 candidate pairs faster | -0.05% | promising | Retained stack control. Candidate CV 1.29%; no additional source change. Artifact: `.tmp/hillclimb/2026-08-24T18-12-10-013Z/comparison.md`. |
+| WEBP-WASM-013 | 2026-08-24 18:13 | SIMD forward predictor for first-row or uniform-left mode using four packed `u8x16_sub` residuals. | 115.53 -> 115.31 (-0.19% cumulative) | +0.61%, 2/7 candidate pairs faster | +0.11% | neutral | Reverted. Exact scalar/SIMD bitstreams, but it did not improve the representative PNG-to-lossless-WebP workflow and grew the SIMD artifact. Artifact: `.tmp/hillclimb/2026-08-24T18-13-37-872Z/comparison.md`. |
+
+Final retained state: the seven-pair 4000x3000 lossless WebP comparison improved from 617.90 to
+518.50 ms (-16.09%), with 7/7 candidate pairs faster, exact output, and a 2.00% peak RSS reduction.
+The final 13-workflow profile reports 605.6 to 529.6 ms (-12.5%) for that workflow. The scalar
+artifact is 9,329 bytes, 3,800 gzip bytes, and 3,238 Brotli bytes. The SIMD artifact is 11,845
+bytes, 4,667 gzip bytes, and 3,955 Brotli bytes. Forced scalar and SIMD Imazen corpus runs each
+accepted all 225 inputs: 223 decodes passed and two expected structured errors matched.
+
+## Node temporary storage comparison - 2026-08-24
+
+Seven alternating isolated-process pairs compared the filesystem-backed Node temporary store with
+the bounded 1 MiB-chunk memory store. Both modes received the same deterministic streamed RGBA
+blocks. Full output SHA-256 hashes, dimensions, row counts, and byte counts matched in every pair.
+The benchmark included EXIF orientation 6, where temporary storage is the main cost, and arbitrary
+17-degree rotation, where interpolation also contributes substantial work.
+
+| Workload | Tile spool | File wall | Memory wall | Memory speed change | File peak RSS | Memory peak RSS | Memory RSS change |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Orientation 6, 1024x768 RGBA | 3.00 MiB | 78.67 ms | 59.32 ms | -24.6% | 88.74 MiB | 94.46 MiB | +5.71 MiB |
+| Orientation 6, 2048x1536 RGBA | 12.00 MiB | 265.70 ms | 190.64 ms | -28.3% | 89.91 MiB | 110.61 MiB | +20.70 MiB |
+| Orientation 6, 4000x3000 RGBA | 45.90 MiB | 820.48 ms | 654.72 ms | -20.2% | 90.90 MiB | 147.69 MiB | +56.79 MiB |
+| Rotate 17 degrees, 1024x768 RGBA | 3.00 MiB | 274.46 ms | 207.79 ms | -24.3% | 95.80 MiB | 104.89 MiB | +9.09 MiB |
+| Rotate 17 degrees, 2048x1536 RGBA | 12.00 MiB | 905.70 ms | 667.65 ms | -26.3% | 102.86 MiB | 116.00 MiB | +13.14 MiB |
+
+The host mounted `/tmp` as `tmpfs`. The spool therefore remained RAM-backed but outside process
+RSS. For example, the 12 MP orientation row used a 45.90 MiB tmpfs file, so its rough combined live
+RAM was about 136.80 MiB before filesystem metadata, versus 147.69 MiB for the memory-store process.
+The process-RSS reduction is still useful where that metric sets the runtime limit, but it must not
+be presented as an equal reduction in total host memory on tmpfs systems.
+
+Verdict: retain the guarded file store as an explicit opt-in rather than remove it. It materially
+reduces large-transform process RSS, while memory is safer across runtimes and materially faster in
+all measured rows. The default policy therefore uses lazy chunked memory without the previous 64
+MiB Node ceiling. Opt-in file setup and later write failures fall back to memory. Local harness:
+`.tmp/temporary-storage-benchmark/{run.ts,worker.ts}`.

@@ -17,3 +17,8 @@ await copyFile(
   'src/accelerator-entries/png-codec-simd.wasm',
   `${outputDirectory}/png-codec-simd.wasm`,
 )
+await copyFile('src/accelerator-entries/webp-codec.wasm', `${outputDirectory}/webp-codec.wasm`)
+await copyFile(
+  'src/accelerator-entries/webp-codec-simd.wasm',
+  `${outputDirectory}/webp-codec-simd.wasm`,
+)

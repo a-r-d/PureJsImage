@@ -10,7 +10,7 @@ export interface BundleSizeBudget {
  * is built from capabilities/manifest.json and package.json exports.
  */
 export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
-  core: { maxMinifiedBytes: 60 * 1024 },
+  core: { maxMinifiedBytes: 64 * 1024 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 187_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

@@ -4,6 +4,54 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added an explicit optional Rust/WASM WebP accelerator with scalar and SIMD modules for VP8 row
+  color conversion, VP8L predictor and color transforms, lossless encode transforms, and lossy
+  RGBA or gray to YUV420 conversion. Measured RGB input keeps the existing paired-row TypeScript
+  conversion because it is faster end to end. The TypeScript codec still owns RIFF parsing, entropy
+  coding, limits, metadata, and bounded row orchestration. Module or kernel failures fall back to
+  the TypeScript path. The pull-request corpus workflow now forces scalar and SIMD WebP runs and
+  checks exact decode pixels, deterministic encode bytes, and actual kernel use.
+- Added a pull-request-only Imazen corpus workflow for JPEG, PNG, WebP, TIFF, GIF, and BMP. The
+  workflow checks out the corpus at a pinned commit, runs every file in an isolated process, fails
+  on per-file behavior changes, and uploads the generated reports for review.
+- Added forced scalar and SIMD Imazen lanes for JPEG, PNG, and WebP. Eligible inputs must execute
+  the selected WASM kernels. JPEG and PNG decode pixels remain exact, deterministic scalar and PNG
+  encoders require byte parity, and the SIMD JPEG AAN encoder keeps its existing PSNR and size gate.
+
+### Changed
+
+- Refreshed the stable-codec, cross-library web-codec, JPEG, PNG, and WebP WASM benchmarks, package
+  metrics, result index, README charts, website charts, and accelerator benchmark pages after the
+  current codec and runtime work.
+- Node orientation and rotation now use lazy chunked memory by default. Pass
+  `{ temporaryFiles: true }` as the second argument to `createImageLibrary()` to opt into a lower
+  process-RSS file spool. The opt-in path probes file creation, writing, reading, and truncation
+  before consuming image rows. Failed setup or later file writes fall back to memory. The previous
+  64 MiB Node memory fallback ceiling has been removed; normal image limits still apply.
+- The optional WebP WASM accelerator now uses four-pixel SIMD for VP8L color transforms, fuses the
+  common inverse color, predictor, and subtract-green row sequence into one call, and specializes
+  uniform mode-11 prediction. Seven paired 4000x3000 lossless WebP trials reduced the median from
+  617.90 ms to 518.50 ms, with exact output and a 2.00% peak RSS reduction.
+- The optional Rust/WASM JPEG encoder now uses a separable f32 AAN transform, precomputed
+  reciprocal quantization factors, and four-pixel SIMD RGB and RGBA compositing and color
+  conversion. Unused SIMD scratch arrays were removed. Seven paired end-to-end trials reduced the
+  `png-to-jpeg` workflow median by 24.58% with the output quality, size, and correctness gates
+  unchanged.
+- The optional Rust/WASM JPEG decoder now skips the full IDCT for DC-only blocks. Seven paired
+  end-to-end trials reduced the `jpeg-to-png` workflow median by 5.64% with exact output
+  correctness and a 0.46% peak RSS reduction.
+- JPEG WASM exactness now covers DC-only inverse-transform half-integer boundaries and scalar
+  encoder values immediately below a positive half-integer. The Rust decoder now validates the
+  end-of-scan marker after its final MCU while still allowing legal bytes after EOI.
+- Rust/WASM JPEG and PNG builds now reserve a bounded 128 KiB stack, trap on unexpected panics,
+  and reject out-of-bounds or overlapping JPEG buffers before reading or writing memory. Initial
+  accelerator memory remains within four WebAssembly pages.
+- The Imazen corpus command now accepts `--baseline <directory>` and exits with an error when a
+  file changes outcome, completed stage, structured error, diagnostic, child exit code, or signal.
+  Timing and machine metadata remain outside the comparison.
+
 ## [0.16.0] - 2026-08-21
 
 ### Added

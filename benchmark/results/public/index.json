@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-18T01:13:09.040Z",
-  "sourceResultIndex": "benchmark/results/result-index-2026-08-16T21-32-38-092Z.json",
+  "generatedAt": "2026-08-24T21:17:25.384Z",
+  "sourceResultIndex": "benchmark/results/result-index-2026-08-24T21-17-25-198Z.json",
   "results": [
     {
       "commit": "a2f0ba6",
@@ -37,12 +37,12 @@
       "sourceValidationStatus": "passed"
     },
     {
-      "commit": "1abd15dfe188638e3c713efde1a1777e50c4bd04",
-      "date": "2026-08-18T01:10:00.015Z",
+      "commit": "865611a4dfdf0b49db0c8fc67fc01386c1a0b91c",
+      "date": "2026-08-24T20:51:40.120Z",
       "eligibleForDocumentationHeadlines": true,
       "engineVersions": {
-        "purejsimage": "0.11.0 (workspace)",
-        "purejsimage-wasm": "0.11.0 (workspace WASM)",
+        "purejsimage": "0.16.0 (workspace)",
+        "purejsimage-wasm": "0.16.0 (workspace WASM)",
         "jimp": "1.6.0",
         "sharp": "0.35.3",
         "sharp-single-thread": "0.35.3",
@@ -55,17 +55,17 @@
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
       "resultPaths": [
-        "benchmark/results/public/web-codecs-2026-08-18T01-10-00-015Z.json",
-        "benchmark/results/public/web-codecs-2026-08-18T01-10-00-015Z.md"
+        "benchmark/results/public/web-codecs-2026-08-24T20-51-40-120Z.json",
+        "benchmark/results/public/web-codecs-2026-08-24T20-51-40-120Z.md"
       ],
       "sha256": {
-        "json": "f7e2dcc851080651349d25f11a409683cf101f6da9d922ce4618957b7eccffd0",
-        "markdown": "8b7d2c224edbfecb096d169f9e41430d21b683d4b552698fb75734751428739d"
+        "json": "0655ce6a393cc2025edbcdacf7394a17969acd7c9939defee7867a1097caba1f",
+        "markdown": "5042636fba06ed8194c051ec32bf468b39c13af05fb39dc552da01afdf60289d"
       },
       "sourceEligibilityForDocumentationHeadlines": true,
       "sourceResultPaths": [
-        "benchmark/results/2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
-        "benchmark/results/2026-08-18T01-10-00-015Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
+        "benchmark/results/2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
+        "benchmark/results/2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
       ],
       "sourceValidationStatus": "passed"
     },
@@ -76,8 +76,8 @@
       "engineVersions": {
         "purejsimage-scientific": "0.10.0"
       },
-      "environmentFingerprint": "e60474dd69a8ee71039369635121d2cac3e6b36c5b37dce5a616531e9555bc24",
-      "fixtureManifestHash": "1827e630d5874faa9af7e9f569a8041a771bb9b2756039947b7fec74b58ad996",
+      "environmentFingerprint": "9be8693c303e4a3a0ebe5ff2948e4f4444c5d8cc3485bfdfe86de22e07b2643b",
+      "fixtureManifestHash": "adf40fe2afa5e8d8804541ec102364c6416b37caf3808d914d2a4c7dc76d7070",
       "profile": "scientific-readers-baseline",
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
@@ -97,56 +97,56 @@
       "sourceValidationStatus": "passed"
     },
     {
-      "commit": "da7c9b5c0e3d918220de01ed06cbf7e631ba2578",
-      "date": "2026-08-16T21:30:06.952Z",
+      "commit": "326fa6cfe8a9e3ea71e2a159ba6cecb084a64d09",
+      "date": "2026-08-17T23:14:03.564Z",
       "eligibleForDocumentationHeadlines": true,
       "engineVersions": {
         "purejsimage-scientific": "0.10.0"
       },
-      "environmentFingerprint": "e60474dd69a8ee71039369635121d2cac3e6b36c5b37dce5a616531e9555bc24",
-      "fixtureManifestHash": "1e96724d185725bb675a00c9f4c23adfcf088b611b4353663a690cbc9d685db6",
+      "environmentFingerprint": "8a536db188ee8aac9fae0f22267d67a412b8a1a9a66b772e8f46ad9a8f9c085f",
+      "fixtureManifestHash": "8d86d0b4274b388208714bc3a295caabc015a9763593bab01f5ad05ab3000956",
       "profile": "scientific-readers-scaling",
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
       "resultPaths": [
-        "benchmark/results/public/scientific-readers-scaling-2026-08-16T21-30-06-952Z.json",
-        "benchmark/results/public/scientific-readers-scaling-2026-08-16T21-30-06-952Z.md"
+        "benchmark/results/public/scientific-readers-scaling-2026-08-17T23-14-03-564Z.json",
+        "benchmark/results/public/scientific-readers-scaling-2026-08-17T23-14-03-564Z.md"
       ],
       "sha256": {
-        "json": "624d736564ffa39368c53049259cd438d60245ee1e33ec6c3a1afbf486b23671",
-        "markdown": "57cfcfac57a3eeef92bfb2b214764108990a28caf98927a4714c80f8e2ee5747"
+        "json": "e532ce130360f839adafd686e3ecade7266068cd32084cf8743e56964e1c1177",
+        "markdown": "5ce748788540d1e94e96454e657c038827a3de29c052981136e7ef6bcafd813d"
       },
       "sourceEligibilityForDocumentationHeadlines": true,
       "sourceResultPaths": [
-        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T213006952Z-scaling.json",
-        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T213006952Z-scaling.md"
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-17T231403564Z-scaling.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-17T231403564Z-scaling.md"
       ],
       "sourceValidationStatus": "passed"
     },
     {
-      "commit": "da7c9b5c0e3d918220de01ed06cbf7e631ba2578",
-      "date": "2026-08-16T21:27:56.863Z",
+      "commit": "326fa6cfe8a9e3ea71e2a159ba6cecb084a64d09",
+      "date": "2026-08-17T23:07:11.065Z",
       "eligibleForDocumentationHeadlines": false,
       "engineVersions": {
         "purejsimage-scientific": "0.10.0"
       },
-      "environmentFingerprint": "e60474dd69a8ee71039369635121d2cac3e6b36c5b37dce5a616531e9555bc24",
-      "fixtureManifestHash": "44b6f04fe0d187fa3afec7a51d17b58524d6b85f990cf5deb209ea3daa96f6a0",
+      "environmentFingerprint": "7281e15661e5ab20e9e2bc00aad91cec29d84dde0e6913933c6ddfdeadf560ba",
+      "fixtureManifestHash": "af402c8e9173de8d81a4120b1c7216df23e2bd0a1cddc094b9572cbbc615b59c",
       "profile": "scientific-readers-range",
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
       "resultPaths": [
-        "benchmark/results/public/scientific-readers-range-2026-08-16T21-27-56-863Z.json",
-        "benchmark/results/public/scientific-readers-range-2026-08-16T21-27-56-863Z.md"
+        "benchmark/results/public/scientific-readers-range-2026-08-17T23-07-11-065Z.json",
+        "benchmark/results/public/scientific-readers-range-2026-08-17T23-07-11-065Z.md"
       ],
       "sha256": {
-        "json": "b63bde6ee61e04c8796ced091c8bd835e38c46f85d43bbc6cafd41778d22cc15",
-        "markdown": "89cebabcd57906192bd3d9eec695ffd59f960258b21ba4821fae5331d7a78e1c"
+        "json": "408eb1a429a7dda751052d8bbb883f760c57fde8ec8424a19842a36c2d0c192a",
+        "markdown": "16ee7949bb004d6468ae976cce689bfdcc079b9a67c883e91bdb25b23817afb0"
       },
-      "sourceEligibilityForDocumentationHeadlines": false,
+      "sourceEligibilityForDocumentationHeadlines": true,
       "sourceResultPaths": [
-        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T212756863Z-range.json",
-        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-16T212756863Z-range.md"
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-17T230711065Z-range.json",
+        "benchmark/scientific-readers/results/artifacts/scientific-readers/2026-08-17T230711065Z-range.md"
       ],
       "sourceValidationStatus": "passed"
     },

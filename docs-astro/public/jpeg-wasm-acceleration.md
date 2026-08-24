@@ -167,7 +167,7 @@ Work in benchmark order rather than assuming every numeric stage needs SIMD.
 - [x] Remove bounds checks, branches, and helper boundaries from hot loops only when the validated
   memory layout makes the replacement safe and the complete benchmark improves.
 
-## Results recorded 2026-08-09
+## Results refreshed 2026-08-24
 
 The encoder now has separate first-party scalar and SIMD artifacts with one ABI. The bounded encoder
 accepts one MCU row at a time, reuses fixed scratch planes, and returns compressed chunks to
@@ -178,21 +178,21 @@ Huffman and amplitude bit writes, specializes entropy tables, input formats, rig
 and chroma sampling before hot loops, and moves redundant per-pixel input bounds checks to the
 validated MCU-row boundary.
 
-On 1024x768 high-entropy coverage, scalar WASM reduced warm complete-encode time by 61.7%-66.0%
-versus TypeScript; SIMD reduced scalar time by another 8.1%-10.6%. On 2048x1536 4:2:0, SIMD reduced
-scalar time by 15.8% for low entropy and 11.1% for high entropy. The conservative production selector
-uses a 65,536-pixel minimum based on the measured 256x256 crossover. See
-`benchmark/results/jpeg-wasm-encoder-2026-08-09.md`.
+On 1024x768 high-entropy coverage, scalar WASM reduced warm complete-encode time by 26.1% to 30.8%
+versus TypeScript. Scalar AAN then reduced time by another 17.2% to 24.5%, and SIMD reduced the same
+AAN algorithm by 20.8% to 25.2%. On 2048x1536 high-entropy 4:2:0 input, SIMD reduced scalar AAN time
+by 24.1%. The low-entropy control was 2.0% slower than scalar AAN and remains visible in the report.
+The conservative production selector uses a 65,536-pixel minimum based on the measured 256x256
+crossover. See `benchmark/results/jpeg-wasm-encoder-2026-08-24.md`.
 
-The decoder now has a separate ABI-compatible SIMD artifact with explicit two-lane IDCT accumulation,
+The decoder has a separate ABI-compatible SIMD artifact with explicit two-lane IDCT accumulation,
 paired chroma sampling, and two-pixel YCbCr conversion. An eight-bit Huffman prefix table retains the
 scalar fallback for long codes while removing most bit-by-bit entropy reads. Both artifacts preserve
-the exact TypeScript RGB hash on the pinned 4000x3000 fixture. Warm scalar decode was 492.17 ms:
-55.5% faster than TypeScript. Warm SIMD decode was 460.81 ms: 6.4% faster than scalar WASM and 58.4%
-faster than TypeScript. On deterministic 2048x1536 inputs, SIMD improved scalar 4:2:0, 4:2:2, and
-4:4:4 time by 20.9%, 16.1%, and 21.6%. The 179-byte brotli size increase, 0.28 ms instantiation, and
-unchanged 6 MiB linear-memory high-water mark make the measured gain useful. See
-`benchmark/results/jpeg-wasm-decoder-simd-2026-08-09.md`.
+the exact TypeScript RGB hash on the pinned 4000x3000 fixture. Warm scalar decode was 445.44 ms,
+40.1% faster than TypeScript. Warm SIMD decode was 388.56 ms, 12.8% faster than scalar WASM and 47.7%
+faster than TypeScript. The bounded linear-memory high-water mark was 5.125 MiB, and median warm
+instantiation was 0.23 ms for scalar and 0.22 ms for SIMD. See
+`benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.md`.
 
 ## Phase 4: selection and workload coverage
 

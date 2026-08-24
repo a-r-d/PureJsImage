@@ -179,6 +179,14 @@ test('selects SIMD and preserves scalar PNG decode and encode fallback in a real
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('matched exact public output')
 })
+test('selects SIMD and preserves scalar WebP decode and encode fallback in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.wasmWebp())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('Scalar and SIMD WebP')
+})
 
 test('encodes and decodes a refinement-based progressive JPEG', async ({ page }) => {
   await harness(page)

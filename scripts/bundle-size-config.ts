@@ -75,6 +75,16 @@ export const wasmAssetTargets: readonly WasmAssetTarget[] = [
     name: 'PNG codec SIMD WASM',
     sourceEntry: 'src/accelerator-entries/png-codec-simd.wasm',
   },
+  {
+    id: 'webp-codec',
+    name: 'WebP codec WASM',
+    sourceEntry: 'src/accelerator-entries/webp-codec.wasm',
+  },
+  {
+    id: 'webp-codec-simd',
+    name: 'WebP codec SIMD WASM',
+    sourceEntry: 'src/accelerator-entries/webp-codec-simd.wasm',
+  },
 ]
 
 const exportsFrom = (entries: readonly string[]): string =>

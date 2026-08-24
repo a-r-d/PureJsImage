@@ -1,0 +1,1248 @@
+{
+  "schemaVersion": 1,
+  "profile": "web-codecs",
+  "publicationValidationStatus": "passed",
+  "validationStatus": "passed",
+  "source": {
+    "eligibleForDocumentationHeadlines": true,
+    "resultIndex": "benchmark/results/result-index-2026-08-24T21-02-56-981Z.json",
+    "resultPaths": [
+      "benchmark/results/2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
+      "benchmark/results/2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
+    ],
+    "validationStatus": "passed"
+  },
+  "data": {
+    "charts": {
+      "speed": "benchmark/results/web-codecs-speed-2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+      "quality": "benchmark/results/web-codecs-quality-2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg",
+      "memory": "benchmark/results/web-codecs-memory-2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg"
+    },
+    "createdAt": "2026-08-24T20:51:40.120Z",
+    "engines": [
+      {
+        "id": "purejsimage",
+        "kind": "pure-javascript",
+        "version": "0.16.0 (workspace)"
+      },
+      {
+        "id": "purejsimage-wasm",
+        "kind": "webassembly",
+        "version": "0.16.0 (workspace WASM)"
+      },
+      {
+        "id": "jimp",
+        "kind": "pure-javascript",
+        "version": "1.6.0"
+      },
+      {
+        "id": "sharp",
+        "kind": "native",
+        "version": "0.35.3"
+      },
+      {
+        "id": "sharp-single-thread",
+        "kind": "native-single-thread",
+        "version": "0.35.3"
+      },
+      {
+        "id": "image-js",
+        "kind": "pure-javascript",
+        "version": "1.7.0"
+      },
+      {
+        "id": "jsquash",
+        "kind": "webassembly",
+        "version": "avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
+      }
+    ],
+    "environment": {
+      "architecture": "x64",
+      "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "fingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
+      "node": "v24.16.0",
+      "os": "Linux 6.17.0-41-generic",
+      "runner": "local",
+      "v8": "13.6.233.17-node.49"
+    },
+    "fixtureManifestHash": "20d9b39e77da4238954d00e85fb649e9bc6cf68fc599f1f60fc6e4ae33796bb6",
+    "results": [
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 139853824,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.15419399999998973,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 179830784,
+        "quality": 30.018769500775054,
+        "status": "pass",
+        "wallMilliseconds": 518.2144159999999,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 190607360,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 746.178447,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 177008640,
+        "quality": 36.615180454527334,
+        "status": "pass",
+        "wallMilliseconds": 504.75290599999994,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 193773568,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 397.72201700000005,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 149753856,
+        "quality": 48.389019642147474,
+        "status": "pass",
+        "wallMilliseconds": 65.68858999999998,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 239218688,
+        "quality": 56.207048334047485,
+        "status": "pass",
+        "wallMilliseconds": 448.063906,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 148090880,
+        "quality": 40.383860868222584,
+        "status": "pass",
+        "wallMilliseconds": 37.24178999999998,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 199188480,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 328.597132,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 146378752,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 520.5725160000001,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 123805696,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.28393299999999044,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 187514880,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 691.1048369999999,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 170704896,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 523.0517199999999,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 164966400,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 433.520979,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 160727040,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 938.918684,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 211402752,
+        "quality": 30.175760677864417,
+        "status": "pass",
+        "wallMilliseconds": 787.4948440000001,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 247267328,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 150.5125,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 178569216,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 344.8442130000001,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 134127616,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 53.10405499999996,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 159842304,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 575.8124310000001,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 209461248,
+        "quality": 57.84251982752234,
+        "status": "pass",
+        "wallMilliseconds": 1297.5047200000001,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 140308480,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.1558909999999969,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 179470336,
+        "quality": 30.01876670585417,
+        "status": "pass",
+        "wallMilliseconds": 473.74843999999996,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 186806272,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 722.5135290000001,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 176640000,
+        "quality": 36.615180454527334,
+        "status": "pass",
+        "wallMilliseconds": 475.4061099999999,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 210022400,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 435.32472900000005,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 150863872,
+        "quality": 48.389019642147474,
+        "status": "pass",
+        "wallMilliseconds": 65.253425,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 212971520,
+        "quality": 56.207048334047485,
+        "status": "pass",
+        "wallMilliseconds": 256.02230699999996,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 147927040,
+        "quality": 40.383860868222584,
+        "status": "pass",
+        "wallMilliseconds": 16.906699000000003,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 201228288,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 185.61889799999994,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 149676032,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 467.3070509999999,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 126210048,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.2802599999999984,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 188858368,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 653.969885,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 169570304,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 503.04293699999994,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 167038976,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 405.011841,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 160509952,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 939.5169000000001,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 212586496,
+        "quality": 30.175760677864417,
+        "status": "pass",
+        "wallMilliseconds": 687.8817530000001,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 239575040,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 114.30197700000002,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 176381952,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 314.08229900000003,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 131289088,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 44.515976999999964,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 159723520,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 570.954771,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 217522176,
+        "quality": 57.84251982752234,
+        "status": "pass",
+        "wallMilliseconds": 1364.767374,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1242472448,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2443.680219,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 624398336,
+        "quality": 32.5984634580715,
+        "status": "pass",
+        "wallMilliseconds": 1455.8391040000001,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1246838784,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3961.267487000001,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1256849408,
+        "quality": 37.8092067000936,
+        "status": "pass",
+        "wallMilliseconds": 3021.329809,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 317198336,
+        "quality": 76.83243505222757,
+        "status": "pass",
+        "wallMilliseconds": 891.1275779999999,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 132190208,
+        "quality": 98.8592297156444,
+        "status": "pass",
+        "wallMilliseconds": 73.51042799999999,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 343490560,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 665.3650080000002,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 184881152,
+        "quality": 43.96470403934611,
+        "status": "pass",
+        "wallMilliseconds": 213.32809100000003,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 363548672,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 613.5672220000001,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 651923456,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 1413.3191749999999,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 577073152,
+        "quality": 32.75769067009807,
+        "status": "pass",
+        "wallMilliseconds": 1581.5446239999999,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 379998208,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 667.8593659999999,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 1338101760,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 3921.834632,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 119959552,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.8287429999999745,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 175972352,
+        "quality": 30.154621368764136,
+        "status": "pass",
+        "wallMilliseconds": 70.21277700000002,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 241680384,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 436.1675640000001,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 184541184,
+        "quality": 36.62935802309811,
+        "status": "pass",
+        "wallMilliseconds": 259.396754,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 180002816,
+        "quality": 41.110131959948504,
+        "status": "pass",
+        "wallMilliseconds": 269.385247,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 124035072,
+        "quality": 47.43317417594233,
+        "status": "pass",
+        "wallMilliseconds": 12.200883000000005,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 207843328,
+        "quality": 55.0482941742397,
+        "status": "pass",
+        "wallMilliseconds": 66.40781099999998,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 133652480,
+        "quality": 40.168218278614304,
+        "status": "pass",
+        "wallMilliseconds": 6.965882999999991,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 209690624,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 30.58146800000003,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 137818112,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 68.21958700000002,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 103153664,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.42854900000000384,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 161820672,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 78.219698,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 161751040,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 48.56876199999999,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 146124800,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 44.055127,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 184061952,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2129.605835,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 244781056,
+        "quality": 30.291013484622248,
+        "status": "pass",
+        "wallMilliseconds": 140.71857000000006,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 206700544,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 43.618762999999944,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 162553856,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 52.959839999999986,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 111607808,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 8.602941999999985,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 144551936,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 197.86061700000005,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 228749312,
+        "quality": 54.63252298886131,
+        "status": "pass",
+        "wallMilliseconds": 712.7969290000001,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 120561664,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.793262999999996,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 175149056,
+        "quality": 30.154621368764136,
+        "status": "pass",
+        "wallMilliseconds": 73.333526,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 240590848,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 449.1366240000001,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 185073664,
+        "quality": 36.62935802309811,
+        "status": "pass",
+        "wallMilliseconds": 247.18912600000004,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 179212288,
+        "quality": 41.110131959948504,
+        "status": "pass",
+        "wallMilliseconds": 269.85942700000004,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 123568128,
+        "quality": 47.43317417594233,
+        "status": "pass",
+        "wallMilliseconds": 11.692859999999996,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 206774272,
+        "quality": 55.0482941742397,
+        "status": "pass",
+        "wallMilliseconds": 63.53916099999998,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 134688768,
+        "quality": 40.168218278614304,
+        "status": "pass",
+        "wallMilliseconds": 6.8536670000000015,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 209969152,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 30.492470000000026,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 137281536,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 69.12803399999999,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 103174144,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 0.46389400000001046,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 161972224,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 78.686035,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 161894400,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 49.00060099999999,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 146243584,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 45.43866999999997,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 157708288,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2155.2358960000006,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 244125696,
+        "quality": 30.291013484622248,
+        "status": "pass",
+        "wallMilliseconds": 143.19558600000005,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 206876672,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 42.17717600000003,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 161955840,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 53.928179,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 111112192,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 8.707650000000001,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 144097280,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 193.31516,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 228581376,
+        "quality": 54.63252298886131,
+        "status": "pass",
+        "wallMilliseconds": 707.057953,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1252667392,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2517.322618,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 575754240,
+        "quality": 20.364665293959362,
+        "status": "pass",
+        "wallMilliseconds": 1092.024183,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1341140992,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3285.0384630000003,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1263669248,
+        "quality": 29.76133768299252,
+        "status": "pass",
+        "wallMilliseconds": 2704.7266430000004,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 304619520,
+        "quality": 23.46294430987202,
+        "status": "pass",
+        "wallMilliseconds": 732.331148,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 136171520,
+        "quality": 31.9372994809595,
+        "status": "pass",
+        "wallMilliseconds": 81.28119000000004,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 395546624,
+        "quality": "exact",
+        "status": "pass",
+        "wallMilliseconds": 1300.8342789999997,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 605241344,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 1272.3482279999998,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 549253120,
+        "quality": 20.342369982586472,
+        "status": "pass",
+        "wallMilliseconds": 1225.2923590000003,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 273952768,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 160.25771500000008,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "image-js",
+        "peakRssBytes": 1338408960,
+        "quality": 31.632998852072905,
+        "status": "pass",
+        "wallMilliseconds": 1907.3262849999999,
+        "workflow": "stress-100mp-downscale"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "metadata-jpeg-large"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 638906368,
+        "quality": 28.652180330821242,
+        "status": "pass",
+        "wallMilliseconds": 1114.439317,
+        "workflow": "jpeg-resize-1200"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "northstar-photo-pipeline"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "jpeg-crop-resize"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 552419328,
+        "quality": 36.67341276773452,
+        "status": "pass",
+        "wallMilliseconds": 822.5820920000001,
+        "workflow": "png-resize-1000"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 137658368,
+        "quality": 47.73296083698841,
+        "status": "pass",
+        "wallMilliseconds": 63.644632,
+        "workflow": "png-alpha-resize"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 307191808,
+        "quality": 55.0482941742397,
+        "status": "pass",
+        "wallMilliseconds": 94.19973100000004,
+        "workflow": "jpeg-to-png"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "png-to-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 253218816,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 396.22457099999997,
+        "workflow": "auto-orient-6"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 585854976,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 971.719227,
+        "workflow": "lambda-twilio-mms-jpeg-1024"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-metadata"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 186015744,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 135.64186500000005,
+        "workflow": "avif-fox-full-png"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 213635072,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 320.2893969999999,
+        "workflow": "avif-fox-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "avif-fox-crop-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 621604864,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 1548.5342660000001,
+        "workflow": "jpeg-to-avif"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 667512832,
+        "quality": 28.707084089743958,
+        "status": "pass",
+        "wallMilliseconds": 1180.9370479999998,
+        "workflow": "jpeg-progressive-resize-1200"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "tiff-large-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 294404096,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 499.634827,
+        "workflow": "webp-large-resize-jpeg"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 109584384,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 4.641748000000007,
+        "workflow": "webp-lossless-alpha-png"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 609705984,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 1062.9348209999998,
+        "workflow": "jpeg-to-webp-lossy"
+      },
+      {
+        "engine": "jsquash",
+        "peakRssBytes": 3147943936,
+        "quality": 40.26307313240616,
+        "status": "pass",
+        "wallMilliseconds": 6936.970774,
+        "workflow": "stress-100mp-downscale"
+      }
+    ]
+  }
+}

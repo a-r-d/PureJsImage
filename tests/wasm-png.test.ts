@@ -484,6 +484,17 @@ const transparentRgbRows = (width: number, height: number): Uint8Array => {
 }
 
 describe('Rust/WASM PNG accelerator', () => {
+  it.each(artifactCases)(
+    'keeps the initial $kind memory within four WASM pages',
+    async ({ url }) => {
+      const instance = await instantiateArtifact(url)
+      const memory: unknown = instance.exports.memory
+      expect(memory).toBeInstanceOf(WebAssembly.Memory)
+      if (!(memory instanceof WebAssembly.Memory)) throw new Error('Missing WASM memory export')
+      expect(memory.buffer.byteLength).toBeLessThanOrEqual(4 * 65_536)
+    },
+  )
+
   it.each(
     artifactCases.flatMap((artifact) =>
       supportedFormats.flatMap((format) =>

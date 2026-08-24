@@ -9,9 +9,11 @@ import { workflowsForProfile } from '../workflows.ts'
 import { compareHillclimbTrials, type HillclimbGoal, type HillclimbTrial } from './compare.ts'
 
 type Suite = 'scientific' | 'web'
+type WebEngine = 'purejsimage' | 'purejsimage-wasm'
 
 interface Options {
   readonly suite: Suite
+  readonly engine: WebEngine
   readonly goal: HillclimbGoal
   readonly workload: string | undefined
   readonly baseRef: string
@@ -80,8 +82,16 @@ const parseOptions = (): Options => {
     throw new Error('--suite must be web or scientific')
   const goal = argument('goal') ?? 'speed'
   if (goal !== 'speed' && goal !== 'memory') throw new Error('--goal must be speed or memory')
+  const engine = argument('engine') ?? 'purejsimage'
+  if (engine !== 'purejsimage' && engine !== 'purejsimage-wasm') {
+    throw new Error('--engine must be purejsimage or purejsimage-wasm')
+  }
+  if (suite === 'scientific' && engine !== 'purejsimage') {
+    throw new Error('--engine purejsimage-wasm is only available for the web suite')
+  }
   return Object.freeze({
     suite,
+    engine,
     goal,
     workload: argument('workload'),
     baseRef: argument('base-ref') ?? 'origin/main',
@@ -232,10 +242,11 @@ const canonicalScientificFixtures = (report: Readonly<Record<string, unknown>>):
 const parseWebTrial = (
   report: Readonly<Record<string, unknown>>,
   workload: string,
+  engine: WebEngine,
   label: 'base' | 'candidate',
 ): HillclimbTrial => {
   const resultValue = array(report.results, 'web.results').find(
-    (value) => isRecord(value) && value.engine === 'purejsimage' && value.workflow === workload,
+    (value) => isRecord(value) && value.engine === engine && value.workflow === workload,
   )
   const result = record(resultValue, `web result ${workload}`)
   const sample = record(array(result.samples, 'web.samples')[0], 'web.sample')
@@ -265,7 +276,7 @@ const parseWebTrial = (
       bytes: output.bytes,
       sha256: output.sha256,
     }),
-    operationSignature: hash({ suite: 'web', profile: report.profile, workload }),
+    operationSignature: hash({ suite: 'web', engine, profile: report.profile, workload }),
     wallMilliseconds: number(sample.wallMilliseconds, 'web.wallMilliseconds'),
     peakRssBytes: number(sample.peakRssBytes, 'web.peakRssBytes'),
     protectedMetrics: Object.freeze(protectedMetrics),
@@ -329,7 +340,7 @@ const harnessArguments = (options: Options, workload: string, stem: string): rea
     ? [
         'benchmark/run.ts',
         '--engines',
-        'purejsimage',
+        options.engine,
         '--profile',
         'web-codecs',
         '--workflow',
@@ -381,7 +392,7 @@ const runTrial = async (
     const report: unknown = JSON.parse(await readFile(path, 'utf8'))
     parsed =
       options.suite === 'web'
-        ? parseWebTrial(record(report, path), workload, context.label)
+        ? parseWebTrial(record(report, path), workload, options.engine, context.label)
         : parseScientificTrial(record(report, path), workload, context.label)
   } catch (error) {
     throw new HillclimbRunError(
@@ -462,7 +473,7 @@ const freshWorkload = async (
       if (!isRecord(value)) return []
       if (options.suite === 'web') {
         if (
-          value.engine !== 'purejsimage' ||
+          value.engine !== options.engine ||
           !isRecord(value.summary) ||
           value.summary.status !== 'pass'
         )
@@ -586,7 +597,7 @@ const markdownReport = (report: Readonly<Record<string, unknown>>): string => {
   const speedCandidate = record(speed.candidate, 'comparison.speed.candidate')
   const memoryBase = record(memory.base, 'comparison.memory.base')
   const memoryCandidate = record(memory.candidate, 'comparison.memory.candidate')
-  return `# Benchmark hillclimb comparison\n\n- Suite: ${String(report.suite)}\n- Workload: ${String(report.workload)}\n- Selection: ${String(report.selectionReason)}\n- Goal: ${String(report.goal)}\n- Base revision: ${String(report.baseRevision)}\n- Candidate revision: ${String(report.candidateRevision)} (${report.candidateDirty === true ? 'dirty' : 'clean'})\n- Verdict: **${String(comparison.verdict)}**\n\n| Metric | Base median | Candidate median | Delta | Base MAD | Candidate MAD |\n| --- | ---: | ---: | ---: | ---: | ---: |\n| Wall ms | ${format(number(speedBase.median, 'speed base'))} | ${format(number(speedCandidate.median, 'speed candidate'))} | ${format(number(speed.medianDeltaPercent, 'speed delta'))}% | ${format(number(speedBase.mad, 'speed base MAD'))} | ${format(number(speedCandidate.mad, 'speed candidate MAD'))} |\n| Peak RSS bytes | ${format(number(memoryBase.median, 'memory base'))} | ${format(number(memoryCandidate.median, 'memory candidate'))} | ${format(number(memory.medianDeltaPercent, 'memory delta'))}% | ${format(number(memoryBase.mad, 'memory base MAD'))} | ${format(number(memoryCandidate.mad, 'memory candidate MAD'))} |\n\n## Decision\n\n${array(
+  return `# Benchmark hillclimb comparison\n\n- Suite: ${String(report.suite)}\n- Engine: ${String(report.engine)}\n- Workload: ${String(report.workload)}\n- Selection: ${String(report.selectionReason)}\n- Goal: ${String(report.goal)}\n- Base revision: ${String(report.baseRevision)}\n- Candidate revision: ${String(report.candidateRevision)} (${report.candidateDirty === true ? 'dirty' : 'clean'})\n- Verdict: **${String(comparison.verdict)}**\n\n| Metric | Base median | Candidate median | Delta | Base MAD | Candidate MAD |\n| --- | ---: | ---: | ---: | ---: | ---: |\n| Wall ms | ${format(number(speedBase.median, 'speed base'))} | ${format(number(speedCandidate.median, 'speed candidate'))} | ${format(number(speed.medianDeltaPercent, 'speed delta'))}% | ${format(number(speedBase.mad, 'speed base MAD'))} | ${format(number(speedCandidate.mad, 'speed candidate MAD'))} |\n| Peak RSS bytes | ${format(number(memoryBase.median, 'memory base'))} | ${format(number(memoryCandidate.median, 'memory candidate'))} | ${format(number(memory.medianDeltaPercent, 'memory delta'))}% | ${format(number(memoryBase.mad, 'memory base MAD'))} | ${format(number(memoryCandidate.mad, 'memory candidate MAD'))} |\n\n## Decision\n\n${array(
     comparison.reasons,
     'comparison.reasons',
   )
@@ -683,10 +694,11 @@ const main = async (): Promise<void> => {
       schemaVersion: 1,
       createdAt,
       suite: options.suite,
+      engine: options.engine,
       workload: selection.workload,
       selectionReason: selection.reason,
       goal: options.goal,
-      reproductionCommand: `npm run bench:hillclimb -- --suite ${options.suite} --workload ${selection.workload} --goal ${options.goal} --base-ref ${options.baseRef}`,
+      reproductionCommand: `npm run bench:hillclimb -- --suite ${options.suite} --engine ${options.engine} --workload ${selection.workload} --goal ${options.goal} --base-ref ${options.baseRef}`,
       baseRef: options.baseRef,
       baseRevision,
       candidateRevision,

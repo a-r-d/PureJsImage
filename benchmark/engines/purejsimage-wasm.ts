@@ -13,5 +13,9 @@ export const engine = await createPureJsImageEngine({
       path: './accelerator-entries/wasm-png-node.js',
       exportName: 'wasmPngAccelerator',
     },
+    {
+      path: './accelerator-entries/wasm-webp-node.js',
+      exportName: 'wasmWebpAccelerator',
+    },
   ],
 })

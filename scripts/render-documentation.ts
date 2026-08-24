@@ -1143,7 +1143,7 @@ const documentation = {
 const summaryBlock = [
   '## Current package surface',
   '',
-  `PureJsImage ${packageMetrics.package.version} is a zero-runtime-dependency strict TypeScript image-processing package for Node.js and modern browsers. The default path uses portable TypeScript implementations; optional JPEG and PNG WASM accelerators require explicit registration.`,
+  `PureJsImage ${packageMetrics.package.version} is a zero-runtime-dependency strict TypeScript image-processing package for Node.js and modern browsers. The default path uses portable TypeScript implementations; optional JPEG, PNG, and WebP WASM accelerators require explicit registration.`,
   '',
   `**${stableCodecs.length} stable ordinary codecs:** ${stableCodecs.map(({ name }) => name).join(', ')}.`,
   '',

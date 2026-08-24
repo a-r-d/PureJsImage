@@ -1,7 +1,9 @@
 import { spawnSync } from 'node:child_process'
-import { copyFile } from 'node:fs/promises'
+import { copyFile, mkdir } from 'node:fs/promises'
 
 const cargo = process.env.CARGO ?? 'cargo'
+const stackRustflags = '-C link-arg=-zstack-size=131072 -C link-arg=--export-memory'
+const simdRustflags = `${stackRustflags} -C target-feature=+simd128`
 
 const build = async (
   manifest: string,
@@ -34,23 +36,35 @@ await build(
   'wasm/jpeg-decoder/Cargo.toml',
   'wasm/jpeg-decoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_decoder.wasm',
   'src/accelerator-entries/jpeg-decoder.wasm',
+  undefined,
+  stackRustflags,
 )
 await build(
   'wasm/jpeg-decoder/Cargo.toml',
   'wasm/jpeg-decoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_decoder.wasm',
   'src/accelerator-entries/jpeg-decoder-simd.wasm',
   'simd',
-  '-C target-feature=+simd128 -C link-arg=--export-memory',
+  simdRustflags,
 )
 await build(
   'wasm/jpeg-encoder/Cargo.toml',
   'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
   'src/accelerator-entries/jpeg-encoder.wasm',
+  undefined,
+  stackRustflags,
+)
+await mkdir('benchmark/.tmp/wasm', { recursive: true })
+await build(
+  'wasm/jpeg-encoder/Cargo.toml',
+  'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
+  'benchmark/.tmp/wasm/jpeg-encoder-aan.wasm',
+  'aan',
+  stackRustflags,
 )
 await build(
   'wasm/jpeg-encoder/Cargo.toml',
   'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
   'src/accelerator-entries/jpeg-encoder-simd.wasm',
   'simd',
-  '-C target-feature=+simd128 -C link-arg=--export-memory',
+  simdRustflags,
 )

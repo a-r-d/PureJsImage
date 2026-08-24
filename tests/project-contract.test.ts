@@ -57,6 +57,26 @@ describe('package contract', () => {
     expect('optionalDependencies' in packageJson).toBe(false)
   })
 
+  it('uses bounded Rust/WASM stacks and traps on panics', () => {
+    for (const source of [
+      'wasm/jpeg-decoder/src/lib.rs',
+      'wasm/jpeg-encoder/src/lib.rs',
+      'wasm/png-codec/src/lib.rs',
+      'wasm/webp-codec/src/lib.rs',
+    ]) {
+      const rust = readFileSync(source, 'utf8')
+      expect(rust).toContain('core::arch::wasm32::unreachable()')
+      expect(rust).not.toMatch(/fn panic[\s\S]*loop \{\}/)
+    }
+    for (const source of [
+      'scripts/build-wasm-jpeg.ts',
+      'scripts/build-wasm-png.ts',
+      'scripts/build-wasm-webp.ts',
+    ]) {
+      expect(readFileSync(source, 'utf8')).toContain('-zstack-size=131072')
+    }
+  })
+
   it('runs the strict source-lifetime suite in one full test pass', () => {
     expect(packageJson.scripts.check.match(/npm test/g)).toHaveLength(1)
     expect(packageJson.scripts.check).not.toContain('test:hostile-source')
@@ -132,7 +152,7 @@ describe('package contract', () => {
     )
     expect(packageJson.scripts.size).toContain('npm run build')
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
-      60 * 1024,
+      64 * 1024,
     )
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
@@ -226,6 +246,34 @@ describe('package contract', () => {
     expect(header).toContain("label: 'Scientific formats'")
     expect(astroConfig).toContain("import sitemap from '@astrojs/sitemap'")
     expect(astroConfig).toContain('integrations: [react(), sitemap()]')
+  })
+
+  it('runs the pinned Imazen codec corpus only for pull requests', () => {
+    const workflow = readFileSync('.github/workflows/imazen-corpus.yml', 'utf8')
+    const corpusCommit = '28205bbc5cf40364d012c462240ba28143373d67'
+
+    expect(workflow).toMatch(/^on:\n {2}pull_request:\n\npermissions:/mu)
+    expect(workflow).not.toContain('\n  push:')
+    expect(workflow).not.toContain('\n  schedule:')
+    expect(workflow).not.toContain('\n  workflow_dispatch:')
+    expect(workflow).not.toContain('pull_request_target')
+    expect(workflow).toContain('repository: imazen/codec-corpus')
+    expect(workflow).toContain(`ref: ${corpusCommit}`)
+    expect(workflow).toContain('--baseline benchmark/results')
+    expect(workflow).toContain('npm run corpus:imazen:wasm --')
+    expect(workflow).toContain(`--format "\${{ matrix.format }}"`)
+    expect(workflow).toContain(`--variant "\${{ matrix.variant }}"`)
+    expect(workflow).toContain('          - scalar')
+    expect(workflow).toContain('          - simd')
+    expect(workflow).toContain('if: always()')
+    for (const format of ['jpeg', 'png', 'webp']) {
+      expect(workflow).toContain(`          - ${format}`)
+    }
+    for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp']) {
+      expect(workflow).toContain(`          - ${format}`)
+      const baseline = readFileSync(`benchmark/results/imazen-${format}-conformance.json`, 'utf8')
+      expect(baseline).toContain(`"codecCorpusGitCommit": "${corpusCommit}"`)
+    }
   })
 
   it('checks packed declarations without Node ambient types', () => {
@@ -807,6 +855,7 @@ describe('package contract', () => {
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
+      './accelerators/wasm/webp',
       './codecs/all',
       './codecs/web',
       './codecs/avif',

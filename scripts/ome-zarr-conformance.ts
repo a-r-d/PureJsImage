@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile, stat } from 'node:fs/promises'
+import { open } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { validateOmeZarr05Attributes } from '../src/scientific/formats/ome-zarr.ts'
@@ -23,16 +23,25 @@ if (input === undefined || input === process.argv[1]) {
   await writeOutput({ valid: false, message: 'Missing conformance input path' })
 } else {
   try {
-    const metadata = await stat(input)
-    if (metadata.isDirectory()) {
-      const context = await createScientificPathContext(join(input, 'zarr.json'))
-      const document = await createOmeZarrReader({ metadataValidation: 'strict' }).open(context)
-      if (document.datasets.length === 0) throw new Error('OME-Zarr hierarchy contains no datasets')
-    } else {
-      const parsed: unknown = JSON.parse(await readFile(input, 'utf8'))
-      if (!isRecord(parsed)) throw new Error('OME-Zarr attributes must be an object')
-      const { _conformance: _ignored, ...attributes } = parsed
-      validateOmeZarr05Attributes(attributes, 'strict')
+    const handle = await open(input, 'r')
+    let handleClosed = false
+    try {
+      const metadata = await handle.stat()
+      if (metadata.isDirectory()) {
+        await handle.close()
+        handleClosed = true
+        const context = await createScientificPathContext(join(input, 'zarr.json'))
+        const document = await createOmeZarrReader({ metadataValidation: 'strict' }).open(context)
+        if (document.datasets.length === 0)
+          throw new Error('OME-Zarr hierarchy contains no datasets')
+      } else {
+        const parsed: unknown = JSON.parse(await handle.readFile('utf8'))
+        if (!isRecord(parsed)) throw new Error('OME-Zarr attributes must be an object')
+        const { _conformance: _ignored, ...attributes } = parsed
+        validateOmeZarr05Attributes(attributes, 'strict')
+      }
+    } finally {
+      if (!handleClosed) await handle.close()
     }
     await writeOutput({ valid: true })
   } catch (cause) {

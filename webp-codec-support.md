@@ -196,3 +196,6 @@ source because lossless WebP can be larger than PNG on photographic content.
   decompression-bomb fuzzing with strict allocation limits
 - [x] Complete the 225-file Imazen WebP corpus decode-to-PNG baseline with 223
   successful static decodes and two structured animated-input rejections
+- [x] Keep opt-in scalar and SIMD Rust/WASM VP8 row conversion and VP8L decode
+  and encode transforms at exact TypeScript parity, with bounded row or block
+  copies and transparent TypeScript fallback after setup or kernel failures

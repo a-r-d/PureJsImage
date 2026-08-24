@@ -1,9 +1,9 @@
-import { brotliCompressSync, gzipSync } from 'node:zlib'
-import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
+import { brotliCompressSync, gzipSync } from 'node:zlib'
 
 interface Measurement {
   readonly arrayBuffersBytes: number
@@ -125,6 +125,16 @@ const summary = (engine: Measurement['engine'], profile: Measurement['profile'])
   }
 }
 const result = {
+  generatedAt: new Date().toISOString(),
+  revision: {
+    gitRevision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
+    workingTreeDirty:
+      spawnSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).stdout.trim().length > 0,
+  },
+  correctness: {
+    passed: true,
+    gate: 'JavaScript, scalar WASM, and SIMD WASM decoded pixel SHA-256 values are identical.',
+  },
   fixture: {
     path: inputPath,
     bytes: input.byteLength,
