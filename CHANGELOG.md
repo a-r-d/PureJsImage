@@ -4,6 +4,20 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Streaming resize now skips the Lanczos resample stage when the exact-integer box shrink already
+  lands on the requested geometry, uses a specialized unrolled integer kernel for the common rgb8
+  factor-4 shrink, and consumes decoder blocks directly instead of an async per-row iterator.
+  Output bytes are unchanged. Seven paired isolated-process trials of the 4000x3000 TIFF to 1000px
+  JPEG benchmark improved the wall median from 68.29 ms to 37.51 ms (-45.1%) and peak RSS from
+  280 MiB to 214 MiB (-23.7%); the 4000x3000 PNG resize improved by 8.8% and the 1600x2000 WebP to
+  JPEG conversion by 7.7% with identical outputs.
+- The TIFF decoder no longer makes an intermediate whole-span copy when prefetching encoded
+  segments, and uncompressed segments reuse the cache-owned buffer directly unless fill-order
+  reversal or a predictor mutates rows in place. Imazen TIFF corpus outcomes are unchanged
+  (148 pass / 2 unsupported / 4 rejected-safely, zero failures).
+
 ## [0.17.0] - 2026-08-24
 
 ### Added

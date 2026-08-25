@@ -7,6 +7,14 @@ repeat a dead end without new evidence.
 
 ## Current state
 
+- TIFF campaign 2026-08-25 (`tiff-large-resize-jpeg`): retained TIFF-001 identity-resample
+  bypass, TIFF-002 prefetch span-copy removal, TIFF-003 uncompressed segment aliasing,
+  TIFF-005 unrolled rgb8 factor-4 box-shrink kernels, TIFF-006 block-direct box shrink.
+  Cumulative 68.29 → 37.51 ms (−45.08%), peak RSS 280 → 214 MiB (−23.68%), byte-identical
+  output. Neighbors: `png-resize-1000` −8.84%, `webp-large-resize-jpeg` −7.68%,
+  `stress-100mp-downscale` and `png-alpha-resize` neutral. See the TIFF large-resize
+  campaign section at the bottom of this file.
+
 - Primary workload: `png-resize-1000` — 4000x3000 RGBA PNG to 1000px PNG 6.
   Official 522 vs Sharp 263 ms. Goal is end-to-end speed.
 - Profile: `#decodeTypeScript` ~45% (unfilter + per-pixel `convertRow`), CRC-32 ~10%,
@@ -846,3 +854,55 @@ reduces large-transform process RSS, while memory is safer across runtimes and m
 all measured rows. The default policy therefore uses lazy chunked memory without the previous 64
 MiB Node ceiling. Opt-in file setup and later write failures fall back to memory. Local harness:
 `.tmp/temporary-storage-benchmark/{run.ts,worker.ts}`.
+
+## TIFF large-resize campaign - 2026-08-25
+
+Workload: `tiff-large-resize-jpeg` — 4000x3000 uncompressed stripped RGB TIFF (32-row
+strips), resize to 1000x750, JPEG quality 80. Goal is end-to-end speed. This is the
+TIFF representative in the hillclimb `web-codecs` profile; the TIFF family had no prior
+campaign. CPU profile of the official pipeline: resize box-shrink `accumulateBoxRow`
+~36%, `resizedBlocks` vertical accumulate ~9%, JPEG encoder `quantize` ~11% (already
+campaigned), `writeBoxRow` ~5%, `writeContent` ~4%, TIFF `prefetch`/`decode`/
+`decodeSegment` ~9%. Peak ArrayBuffer diagnostics showed ~174 MiB of buffer churn for
+the 36 MiB source: prefetch span copy + per-segment cache slice + uncompressed
+`Uint8Array.from` + block conversion outputs.
+
+| ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Peak RSS Δ | Verdict | Disposition |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- |
+| TIFF-000 | 2026-08-25 04:36 | No-change control: clean `origin/main` against itself. | 68.32 → 68.71 | +0.56% | +7.08% | inconclusive | Control; runner printed rejected on RSS jitter alone (control RSS MAD 10-16 MiB on a ~290 MiB median). Speed MAD 0.29/0.74 ms. Artifact `.tmp/hillclimb/2026-08-25T04-36-23-267Z/`. |
+| TIFF-001 | 2026-08-25 04:38 | Skip the Lanczos resample stage when the box shrink lands exactly on the requested geometry (scale-1 axes collapse to single weight-1.0 samples under the 1e-12 cutoff, so the stage is byte-exact identity). | 67.98 → 57.97 | **-14.73%** | +10.25% | promising | Retained pending RSS diagnosis. 7/7 pairs faster; output JPEG SHA-256 byte-identical to base. Candidate RSS consistently ~+30 MiB (MAD ~1-2 MiB): isolated diagnostics show identical decode allocations but peak ArrayBuffers 132.9 → 174.3 MiB because the faster run garbage-collects less often. Follow-up experiments target the underlying TIFF copy churn. Artifact `.tmp/hillclimb/2026-08-25T04-38-15-180Z/`. |
+| TIFF-002 | 2026-08-25 04:43 | Drop the intermediate whole-span `Uint8Array.from` copy in the TIFF encoded-segment `prefetch`; the per-segment `slice` already copies into cache-owned buffers. | 67.57 → 52.88 | **-21.73%** | **-11.67%** | material | Retained (cumulative with TIFF-001 vs origin/main). 7/7 pairs faster, paired median -22.41% (MAD 0.16%); candidate RSS 243-253 MiB vs base 256-295 MiB. 79 TIFF tests passed. Artifact `.tmp/hillclimb/2026-08-25T04-43-47-963Z/`. |
+| TIFF-003 | 2026-08-25 04:44 | Return the cache-owned buffer directly for uncompressed TIFF segments; copy only when fill-order reversal or a predictor mutates in place. | 67.81 → 51.24 | **-24.43%** | **-19.07%** | material | Retained (cumulative 001+002+003 vs origin/main). 7/7 pairs faster, paired median -25.29%; RSS 268 → 217 MiB. 92 TIFF+resize tests passed. Artifact `.tmp/hillclimb/2026-08-25T04-44-52-559Z/`. |
+| TIFF-004 | 2026-08-25 04:47 | Generic integer box-shrink accumulate (Uint32 sums, running offsets, dynamic inner trip count) behind a `factorX * factorY <= 65536` guard. | 68.49 → 51.26 | -25.15% cumulative (~0% vs TIFF-003 stack) | -23.60% | neutral | Reverted. Candidate median 51.26 vs prior stack 51.24 ms; warm loop unchanged. Micro-benchmark showed the generic int loop is slower than the Float64 loop (20.7 vs 15.0 ms/image); the win needs a constant trip count. Artifact `.tmp/hillclimb/2026-08-25T04-47-14-453Z/`, micro `.tmp/profile/box-micro.mjs`. |
+| TIFF-005 | 2026-08-25 04:51 | Specialized monomorphic rgb8 factor-4 box-shrink kernels: fully unrolled 12-byte accumulate into Uint32 sums plus a matching write kernel. Micro-benchmark 14.8 → 11.6 ms/image vs the generic float kernel; generic/polymorphic variants regressed. | 67.59 → 38.07 | **-43.68%** | **-22.87%** | material | Retained (cumulative 001+002+003+005 vs origin/main). 7/7 pairs faster; output JPEG SHA-256 byte-identical; 92 TIFF+resize tests passed. Artifact `.tmp/hillclimb/2026-08-25T04-51-09-670Z/`. |
+| TIFF-006 | 2026-08-25 04:53 | Iterate input blocks directly in `boxShrinkBlocks` and process rows synchronously, removing the per-row async iterator (one microtask hop per source row). | 68.29 → 37.51 | **-45.08%** | **-23.68%** | promising | Retained (cumulative vs origin/main). Incremental vs TIFF-005 stack ~-1.5% (candidate medians 38.07 → 37.51, MAD 0.16 both runs); 7/7 pairs faster vs base; 104 resize+TIFF+PNG tests passed. Artifact `.tmp/hillclimb/2026-08-25T04-53-40-533Z/`. |
+
+### TIFF campaign validation and current state
+
+- Cumulative retained stack (TIFF-001+002+003+005+006) vs `origin/main` a54e645:
+  `tiff-large-resize-jpeg` wall median 68.29 → 37.51 ms (**-45.08%**), paired median
+  -45.07% (7/7 pairs), peak RSS 280 → 214 MiB (**-23.68%**). Output JPEG SHA-256 is
+  byte-identical to base. Artifact `.tmp/hillclimb/2026-08-25T04-53-40-533Z/`.
+- Neighbor `png-resize-1000`: 250.5 → 228.3 ms (-8.84%), RSS -3.87%, 7/7 pairs,
+  accepted; the identity-resample bypass also applies to the rgba8 factor-4 shrink.
+  Artifact `.tmp/hillclimb/2026-08-25T04-57-10-096Z/`.
+- Neighbor `stress-100mp-downscale`: 665.0 → 663.6 ms (-0.22%), RSS +0.10%, neutral;
+  its factor-8 shrink stays on the unchanged generic float kernels.
+  Artifact `.tmp/hillclimb/2026-08-25T04-57-39-115Z/`.
+- Neighbor `webp-large-resize-jpeg`: 192.6 → 177.8 ms (-7.68%), RSS -0.41%, 7/7
+  pairs, accepted; 1600x2000 → 800 is an exact factor-2 shrink, so the bypass applies.
+  Artifact `.tmp/hillclimb/2026-08-25T04-58-33-103Z/`.
+- Neighbor `png-alpha-resize`: 34.9 → 34.8 ms (-0.24%), RSS -0.44%, neutral.
+  Artifact `.tmp/hillclimb/2026-08-25T04-58-50-387Z/`.
+- Imazen TIFF corpus: 154 files, 148 pass / 2 unsupported / 4 rejected-safely, zero
+  decode failures, invalid outputs, raw exceptions, timeouts, crashes, or OOM. Per-file
+  outcomes identical between base and candidate runs (`.tmp/imazen-tiff-base/`,
+  `.tmp/imazen-tiff-large-resize/`).
+- Focused tests added: exact rgb8/rgba8 integral box averages through the bypass,
+  group straddling across input blocks with release accounting, truncated-source
+  errors, and repeat uncompressed TIFF strip decodes without copying or source
+  mutation.
+- Remaining profile after the stack: `accumulateBoxRowRgb8x4` ~19%, JPEG encoder
+  `quantize` ~28% combined (already covered by the JPEG campaign, JPEG-036),
+  TIFF `prefetch`/`decode` ~8%. No untried credible TIFF hotspot above ~5% remains
+  for this workload.

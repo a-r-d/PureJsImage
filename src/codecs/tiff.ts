@@ -3162,9 +3162,10 @@ class TiffEncodedCacheSource implements ImageSource {
         spanEnd = nextEnd
         last += 1
       }
-      const span = Uint8Array.from(
-        await readExactly(this.#source, spanStart, spanEnd - spanStart, options),
-      )
+      // readExactly may return a view into the source's memory; the per-item
+      // slice below already copies into cache-owned buffers, so no
+      // intermediate whole-span copy is needed.
+      const span = await readExactly(this.#source, spanStart, spanEnd - spanStart, options)
       for (let spanIndex = index; spanIndex <= last; spanIndex += 1) {
         const item = pending[spanIndex]
         if (item === undefined) continue
@@ -3313,7 +3314,13 @@ const decodeSegment = async (
         `TIFF uncompressed strip has ${encoded.byteLength}, expected ${expectedBytes} bytes`,
       )
     }
-    decoded = Uint8Array.from(encoded)
+    // Copy only when a later in-place step (fill-order reversal or predictor)
+    // would mutate the cached encoded bytes. Conversion reads planes without
+    // writing to them, so the cache-owned buffer can be used directly.
+    decoded =
+      description.fillOrder === 2 || description.predictor === 2 || description.predictor === 3
+        ? Uint8Array.from(encoded)
+        : encoded
   } else if (description.compression === compressionPackBits) {
     decoded = decodePackBits(encoded, expectedBytes)
   } else if (description.compression === compressionLzw) {

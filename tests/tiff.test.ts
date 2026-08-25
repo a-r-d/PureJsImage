@@ -1807,6 +1807,29 @@ describe('TIFF codec', () => {
     })
   })
 
+  it('repeats uncompressed strip decodes without copying or mutating source bytes', async () => {
+    const pixels = Uint8Array.of(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
+    const input = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      rowsPerStrip: 1,
+      strips: [pixels.subarray(0, 6), pixels.subarray(6, 12)],
+    })
+    const original = Uint8Array.from(input)
+    if (!tiffCodec.createDecoder) throw new Error('TIFF decoder is unavailable')
+    const source = new MemorySource(input)
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const decoder = await tiffCodec.createDecoder(source, defaultImageLimits)
+      const decoded: number[] = []
+      for await (const block of decoder.decode()) decoded.push(...block.data)
+      expect(Uint8Array.from(decoded)).toEqual(pixels)
+    }
+    expect(input).toEqual(original)
+  })
+
   it('decodes 16-bit palette indices directly to RGB rows', async () => {
     const colors = 65_536
     const colorMap = new Array<number>(colors * 3).fill(0)

@@ -238,4 +238,160 @@ describe('streaming resize', () => {
 
     expect({ width: output.width, height: output.height }).toEqual({ width: 4, height: 2 })
   })
+
+  it('produces exact box averages for an integral rgb8 downscale', async () => {
+    const width = 16
+    const height = 8
+    const value = (x: number, y: number, channel: number): number =>
+      (x * 31 + y * 17 + channel * 5) % 256
+    const data = new Uint8Array(width * height * 3)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          data[(y * width + x) * 3 + channel] = value(x, y, channel)
+        }
+      }
+    }
+    const source = async function* (): AsyncGenerator<PixelBlock> {
+      yield { x: 0, y: 0, width, height, stride: width * 3, format: 'rgb8', data }
+    }
+    const transform = createResizeTransform(width, height, 'rgb8', { width: 4 })
+    expect({ width: transform.width, height: transform.height }).toEqual({ width: 4, height: 2 })
+
+    const blocks: PixelBlock[] = []
+    for await (const block of transform.apply(source())) blocks.push(block)
+    expect(blocks).toHaveLength(1)
+    const output = blocks[0]
+    expect(output?.format).toBe('rgb8')
+    for (let outputY = 0; outputY < 2; outputY += 1) {
+      for (let outputX = 0; outputX < 4; outputX += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          let sum = 0
+          for (let y = outputY * 4; y < outputY * 4 + 4; y += 1) {
+            for (let x = outputX * 4; x < outputX * 4 + 4; x += 1) {
+              sum += value(x, y, channel)
+            }
+          }
+          expect(output?.data[(outputY * 4 + outputX) * 3 + channel]).toBe(Math.round(sum / 16))
+        }
+      }
+    }
+  })
+
+  it('box-shrinks groups that straddle input blocks and releases every block', async () => {
+    const width = 8
+    const height = 8
+    const value = (x: number, y: number, channel: number): number =>
+      (x * 13 + y * 29 + channel * 7) % 256
+    const rowsOf = (firstY: number, rows: number): Uint8Array => {
+      const data = new Uint8Array(width * rows * 3)
+      for (let y = 0; y < rows; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+          for (let channel = 0; channel < 3; channel += 1) {
+            data[(y * width + x) * 3 + channel] = value(x, firstY + y, channel)
+          }
+        }
+      }
+      return data
+    }
+    let releases = 0
+    const release = (): void => {
+      releases += 1
+    }
+    const source = async function* (): AsyncGenerator<PixelBlock> {
+      yield {
+        x: 0,
+        y: 0,
+        width,
+        height: 3,
+        stride: width * 3,
+        format: 'rgb8',
+        data: rowsOf(0, 3),
+        release,
+      }
+      yield {
+        x: 0,
+        y: 3,
+        width,
+        height: 5,
+        stride: width * 3,
+        format: 'rgb8',
+        data: rowsOf(3, 5),
+        release,
+      }
+    }
+    const transform = createResizeTransform(width, height, 'rgb8', { width: 2 })
+    const blocks: PixelBlock[] = []
+    for await (const block of transform.apply(source())) blocks.push(block)
+    expect(releases).toBe(2)
+    expect(blocks).toHaveLength(1)
+    const output = blocks[0]
+    for (let outputY = 0; outputY < 2; outputY += 1) {
+      for (let outputX = 0; outputX < 2; outputX += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          let sum = 0
+          for (let y = outputY * 4; y < outputY * 4 + 4; y += 1) {
+            for (let x = outputX * 4; x < outputX * 4 + 4; x += 1) {
+              sum += value(x, y, channel)
+            }
+          }
+          expect(output?.data[(outputY * 2 + outputX) * 3 + channel]).toBe(Math.round(sum / 16))
+        }
+      }
+    }
+  })
+
+  it('produces exact premultiplied box averages for an integral rgba8 downscale', async () => {
+    const value = (x: number, y: number, channel: number): number =>
+      (x * 19 + y * 23 + channel * 11) % 256
+    const output = await execute(
+      png(8, 8, (x, y) => [value(x, y, 0), value(x, y, 1), value(x, y, 2), value(x, y, 3)]),
+      { width: 2 },
+    )
+    expect({ width: output.width, height: output.height }).toEqual({ width: 2, height: 2 })
+    for (let outputY = 0; outputY < 2; outputY += 1) {
+      for (let outputX = 0; outputX < 2; outputX += 1) {
+        let redAlpha = 0
+        let greenAlpha = 0
+        let blueAlpha = 0
+        let alpha = 0
+        for (let y = outputY * 4; y < outputY * 4 + 4; y += 1) {
+          for (let x = outputX * 4; x < outputX * 4 + 4; x += 1) {
+            const sourceAlpha = value(x, y, 3)
+            redAlpha += value(x, y, 0) * sourceAlpha
+            greenAlpha += value(x, y, 1) * sourceAlpha
+            blueAlpha += value(x, y, 2) * sourceAlpha
+            alpha += sourceAlpha
+          }
+        }
+        expect(pixelAt(output, outputX, outputY)).toEqual([
+          Math.round(redAlpha / alpha),
+          Math.round(greenAlpha / alpha),
+          Math.round(blueAlpha / alpha),
+          Math.round(alpha / 16),
+        ])
+      }
+    }
+  })
+
+  it('reports truncated input when a box-shrunk source ends early', async () => {
+    const source = async function* (): AsyncGenerator<PixelBlock> {
+      yield {
+        x: 0,
+        y: 0,
+        width: 8,
+        height: 4,
+        stride: 24,
+        format: 'rgb8',
+        data: new Uint8Array(8 * 4 * 3),
+      }
+    }
+    const transform = createResizeTransform(8, 8, 'rgb8', { width: 2 })
+    const drain = async (): Promise<void> => {
+      for await (const block of transform.apply(source())) void block
+    }
+    await expect(drain()).rejects.toMatchObject({
+      message: 'Resize received 4 of 8 rows',
+    })
+  })
 })
