@@ -299,6 +299,58 @@ const boxShrinkFactor = (sourceSize: number, scaledSize: number, kernel: ResizeK
   return factor
 }
 
+// Specialized monomorphic kernel for the common rgb8 factor-4 box shrink.
+// The box factor always divides the source width, so every output pixel
+// reads exactly twelve bytes. Integer sums are exact and match the generic
+// Float64 accumulation byte for byte; the caller guards factorY so
+// 255 * 4 * factorY stays inside Uint32 range.
+const accumulateBoxRowRgb8x4 = (
+  source: Uint8Array,
+  outputWidth: number,
+  sums: Uint32Array,
+): void => {
+  let sourceOffset = 0
+  for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+    const target = outputX * 3
+    sums[target] =
+      (sums[target] ?? 0) +
+      (source[sourceOffset] ?? 0) +
+      (source[sourceOffset + 3] ?? 0) +
+      (source[sourceOffset + 6] ?? 0) +
+      (source[sourceOffset + 9] ?? 0)
+    sums[target + 1] =
+      (sums[target + 1] ?? 0) +
+      (source[sourceOffset + 1] ?? 0) +
+      (source[sourceOffset + 4] ?? 0) +
+      (source[sourceOffset + 7] ?? 0) +
+      (source[sourceOffset + 10] ?? 0)
+    sums[target + 2] =
+      (sums[target + 2] ?? 0) +
+      (source[sourceOffset + 2] ?? 0) +
+      (source[sourceOffset + 5] ?? 0) +
+      (source[sourceOffset + 8] ?? 0) +
+      (source[sourceOffset + 11] ?? 0)
+    sourceOffset += 12
+  }
+}
+
+const writeBoxRowRgb8x4 = (
+  sums: Uint32Array,
+  outputWidth: number,
+  sourceRows: number,
+  output: Uint8Array,
+  outputOffset: number,
+): void => {
+  const area = 4 * sourceRows
+  for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+    const sourceOffset = outputX * 3
+    const target = outputOffset + sourceOffset
+    output[target] = byte((sums[sourceOffset] ?? 0) / area)
+    output[target + 1] = byte((sums[sourceOffset + 1] ?? 0) / area)
+    output[target + 2] = byte((sums[sourceOffset + 2] ?? 0) / area)
+  }
+}
+
 const accumulateBoxRow = (
   source: Uint8Array,
   format: PixelFormat,
@@ -418,67 +470,110 @@ const boxShrinkBlocks = async function* (
   const channelCount = channels(format)
   const outputStride = outputWidth * channelCount
   const blockCapacity = Math.min(outputBlockRows, outputHeight)
-  const sourceRows = rows(input, sourceWidth, sourceHeight, format)[Symbol.asyncIterator]()
-  const sums = new Float64Array(outputStride)
+  const rowBytes = sourceWidth * channelCount
+  // 255 * 4 * factorY must stay inside Uint32 for exact integer sums; 65536
+  // is far beyond any realistic vertical box factor.
+  const rgb8x4 = format === 'rgb8' && factorX === 4 && factorY <= 65_536
+  const integerSums = rgb8x4 ? new Uint32Array(outputStride) : undefined
+  const sums = rgb8x4 ? undefined : new Float64Array(outputStride)
   let block = new Uint8Array(outputStride * blockCapacity)
   let sourceY = 0
+  let rowsInGroup = 0
   let blockHeight = 0
   let blockY = 0
 
-  try {
-    while (sourceY < sourceHeight) {
-      const rowsInGroup = Math.min(factorY, sourceHeight - sourceY)
-      sums.fill(0)
-      for (let row = 0; row < rowsInGroup; row += 1) {
-        const next = await sourceRows.next()
-        if (next.done) throw truncatedInput(`Resize input ended before row ${sourceY + row}`)
-        accumulateBoxRow(next.value, format, sourceWidth, factorX, sums)
+  // Iterating input blocks directly keeps the per-row work synchronous; an
+  // async row iterator costs one microtask hop per source row.
+  for await (const inputBlock of input) {
+    try {
+      if (
+        inputBlock.x !== 0 ||
+        inputBlock.y !== sourceY ||
+        inputBlock.width !== sourceWidth ||
+        inputBlock.height < 1 ||
+        inputBlock.format !== format ||
+        inputBlock.stride < rowBytes ||
+        inputBlock.data.byteLength < inputBlock.stride * (inputBlock.height - 1) + rowBytes
+      ) {
+        throw invalidInput('Resize requires ordered, full-width pixel blocks')
       }
-      writeBoxRow(
-        sums,
-        format,
-        sourceWidth,
-        factorX,
-        rowsInGroup,
-        block,
-        blockHeight * outputStride,
-      )
-      sourceY += rowsInGroup
-      blockHeight += 1
-
-      if (blockHeight === blockCapacity) {
-        yield {
-          x: 0,
-          y: blockY,
-          width: outputWidth,
-          height: blockHeight,
-          stride: outputStride,
-          format,
-          data: block,
+      if (sourceY + inputBlock.height > sourceHeight) {
+        throw invalidInput('Resize requires ordered, full-width pixel blocks')
+      }
+      for (let row = 0; row < inputBlock.height; row += 1) {
+        const source = inputBlock.data.subarray(
+          row * inputBlock.stride,
+          row * inputBlock.stride + rowBytes,
+        )
+        if (rowsInGroup === 0) {
+          integerSums?.fill(0)
+          sums?.fill(0)
         }
-        blockY += blockHeight
-        blockHeight = 0
-        const remaining = outputHeight - blockY
-        if (remaining > 0) block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
-      }
-    }
+        if (integerSums !== undefined) {
+          accumulateBoxRowRgb8x4(source, outputWidth, integerSums)
+        } else if (sums !== undefined) {
+          accumulateBoxRow(source, format, sourceWidth, factorX, sums)
+        }
+        sourceY += 1
+        rowsInGroup += 1
+        if (rowsInGroup < factorY && sourceY < sourceHeight) continue
 
-    while (!(await sourceRows.next()).done) {
-      // Drain the decoder so compressed input and checksums are fully validated.
-    }
-    if (blockHeight > 0) {
-      yield {
-        x: 0,
-        y: blockY,
-        width: outputWidth,
-        height: blockHeight,
-        stride: outputStride,
-        format,
-        data: block.subarray(0, outputStride * blockHeight),
+        if (integerSums !== undefined) {
+          writeBoxRowRgb8x4(
+            integerSums,
+            outputWidth,
+            rowsInGroup,
+            block,
+            blockHeight * outputStride,
+          )
+        } else if (sums !== undefined) {
+          writeBoxRow(
+            sums,
+            format,
+            sourceWidth,
+            factorX,
+            rowsInGroup,
+            block,
+            blockHeight * outputStride,
+          )
+        }
+        rowsInGroup = 0
+        blockHeight += 1
+
+        if (blockHeight === blockCapacity) {
+          yield {
+            x: 0,
+            y: blockY,
+            width: outputWidth,
+            height: blockHeight,
+            stride: outputStride,
+            format,
+            data: block,
+          }
+          blockY += blockHeight
+          blockHeight = 0
+          const remaining = outputHeight - blockY
+          if (remaining > 0)
+            block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
+        }
       }
+    } finally {
+      inputBlock.release?.()
     }
-  } finally {
-    await sourceRows.return?.(undefined)
+  }
+  if (sourceY !== sourceHeight) {
+    throw truncatedInput(`Resize received ${sourceY} of ${sourceHeight} rows`)
+  }
+  if (blockHeight > 0) {
+    yield {
+      x: 0,
+      y: blockY,
+      width: outputWidth,
+      height: blockHeight,
+      stride: outputStride,
+      format,
+      data: block.subarray(0, outputStride * blockHeight),
+    }
   }
 }
 
@@ -789,6 +884,26 @@ const resizedBlocks = async function* (
   }
 }
 
+const boxShrinkCompletesPlan = (
+  plan: ResizePlan,
+  shrunkWidth: number,
+  shrunkHeight: number,
+  sourceFormat: PixelFormat,
+  outputFormat: PixelFormat,
+): boolean =>
+  plan.scaledWidth === shrunkWidth &&
+  plan.scaledHeight === shrunkHeight &&
+  plan.cropX === 0 &&
+  plan.cropY === 0 &&
+  plan.contentWidth === shrunkWidth &&
+  plan.contentHeight === shrunkHeight &&
+  plan.padX === 0 &&
+  plan.padY === 0 &&
+  plan.canvasWidth === shrunkWidth &&
+  plan.canvasHeight === shrunkHeight &&
+  plan.background === undefined &&
+  outputFormat === sourceFormat
+
 export const createResizeTransform = (
   width: number,
   height: number,
@@ -801,6 +916,14 @@ export const createResizeTransform = (
   const factorY = boxShrinkFactor(height, plan.scaledHeight, plan.kernel)
   const resizedWidth = width / factorX
   const resizedHeight = height / factorY
+  // When the box shrink lands exactly on the requested geometry, the Lanczos
+  // pass would resample at scale 1, where every axis collapses to one
+  // weight-1.0 sample per output pixel (integer-offset lanczos weights fall
+  // under the 1e-12 cutoff). Skipping it is byte-exact and avoids a full
+  // extra traversal of the shrunk image.
+  const shrinkCompletesPlan =
+    (factorX > 1 || factorY > 1) &&
+    boxShrinkCompletesPlan(plan, resizedWidth, resizedHeight, pixelFormat, format)
   return {
     width: plan.canvasWidth,
     height: plan.canvasHeight,
@@ -810,6 +933,7 @@ export const createResizeTransform = (
         factorX === 1 && factorY === 1
           ? blocks
           : boxShrinkBlocks(blocks, width, height, pixelFormat, factorX, factorY)
+      if (shrinkCompletesPlan) return shrunk
       return resizedBlocks(shrunk, resizedWidth, resizedHeight, pixelFormat, plan, format)
     },
   }
