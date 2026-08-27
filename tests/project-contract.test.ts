@@ -712,6 +712,8 @@ describe('package contract', () => {
     expect(header).not.toContain('Open App')
     expect(header).not.toContain('.html')
     expect(layout).not.toContain('<base ')
+    expect(layout).toContain('https://www.googletagmanager.com/gtag/js?id=G-XHT55R2H3N')
+    expect(layout).toContain("gtag('config', 'G-XHT55R2H3N')")
     expect(notFound).not.toContain('/PureJsImage')
     expect(astroConfig).toContain("site: 'https://purejsimage.com'")
     expect(astroConfig).not.toContain('base:')
