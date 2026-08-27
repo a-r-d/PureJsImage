@@ -75,12 +75,19 @@ const assetBase = base.endsWith('/') ? base : `${base}/`
         localStorage.getItem('purejsimage-theme') ||
         (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light')
     </script>
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-XHT55R2H3N"></script>
     <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XHT55R2H3N');
+      if (location.hostname === 'purejsimage.com') {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+        window.gtag('js', new Date());
+        window.gtag('config', 'G-XHT55R2H3N');
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-XHT55R2H3N';
+        document.head.appendChild(script);
+      }
     </script>
   </head>
   <body class={bodyClass}>
