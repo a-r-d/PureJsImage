@@ -1,0 +1,21 @@
+docs-astro/src/layouts/SiteLayout.astro
+  s_d3dc22001e81bf::t_c9dbe596e38432 79-90
+tests/project-contract.test.ts
+  s_d3dc22001e81bf::t_87a1c4f2201e83 715,717-720
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "3a1b9936037b308181840a8db65cf4476e70e737",
+  "prompts": {},
+  "sessions": {
+    "s_d3dc22001e81bf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a040e2-99f0-7422-b89a-aa07809a51b3",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
