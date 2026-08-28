@@ -34,6 +34,8 @@ export interface IsobmffItemInfo {
   readonly id: number
   readonly protectionIndex: number
   readonly type: string
+  readonly contentType?: string
+  readonly contentEncoding?: string
 }
 
 export interface IsobmffItemExtent {
@@ -498,10 +500,37 @@ const parseItemInfo = async <Property>(
     if (id === 0 || data.indexOf(0, offset) === -1) {
       throw invalidInput(`${reader.context} item info is malformed`)
     }
+    let contentType: string | undefined
+    let contentEncoding: string | undefined
+    if (type === 'mime') {
+      offset = data.indexOf(0, offset) + 1
+      const typeEnd = data.indexOf(0, offset)
+      if (typeEnd === -1) {
+        throw invalidInput(`${reader.context} MIME item has no content type`)
+      }
+      contentType = ascii(data, offset, typeEnd - offset)
+      if (contentType.length === 0) {
+        throw invalidInput(`${reader.context} MIME item has an empty content type`)
+      }
+      offset = typeEnd + 1
+      if (offset < data.byteLength) {
+        const encodingEnd = data.indexOf(0, offset)
+        if (encodingEnd === -1) {
+          throw invalidInput(`${reader.context} MIME item content encoding is malformed`)
+        }
+        contentEncoding = ascii(data, offset, encodingEnd - offset)
+      }
+    }
     if (meta.items.has(id)) {
       throw invalidInput(`${reader.context} contains duplicate item ID ${id}`)
     }
-    meta.items.set(id, { id, protectionIndex, type })
+    meta.items.set(id, {
+      id,
+      protectionIndex,
+      type,
+      ...(contentType === undefined ? {} : { contentType }),
+      ...(contentEncoding ? { contentEncoding } : {}),
+    })
   }
 }
 

@@ -142,6 +142,7 @@ export interface ImageEncoder {
 export interface PreservedMetadata {
   readonly exif?: Uint8Array
   readonly icc?: Uint8Array
+  readonly xmp?: Uint8Array
 }
 
 export interface DecoderOptions extends AbortOptions {
@@ -154,6 +155,7 @@ export interface DecoderOptions extends AbortOptions {
 export interface MetadataPreservationOptions extends AbortOptions {
   readonly exif: boolean
   readonly icc: boolean
+  readonly xmp?: boolean
   readonly frame?: number
   readonly resolutionLevel?: number
 }

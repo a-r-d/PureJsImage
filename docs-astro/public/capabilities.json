@@ -4677,11 +4677,15 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Experimental opt-in common intra-only HEVC still subsets; excluded from the default allCodecs set; no auxiliary alpha or encoding",
-      "description": "Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. It is not registered by the default allCodecs set.",
-      "memory": "Explicitly registered grid workflows decode requested tile rows; large compatible inputs remain explicitly measured",
+      "boundary": "Experimental opt-in common intra-only HEVC still subsets plus common uncompressed stills; excluded from the default allCodecs set; auxiliary alpha including mismatched sizes and matching grids; no encoding",
+      "description": "Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque, same-dimension, and mismatched-size alpha Main, Main Still Picture, selected Main 10 YUV 4:2:0, and 8-bit Range Extension YUV 4:4:4 intra stills, direct images, identity-derived primaries, grid primaries including matching grid alpha, and common uncompressed unci stills including packed RGB and zlib or deflate generic compression. Native HEIF transforms take precedence over EXIF orientation. Bounded XMP MIME items can be parsed without pixel decode. It is not registered by the default allCodecs set.",
+      "memory": "Explicitly registered grid workflows decode requested tile rows; uncompressed stills materialize a full RGBA buffer; large compatible inputs remain explicitly measured",
       "recommendation": "Evaluate compatibility and applicable HEVC patent licensing obligations before opting in, especially for commercial distribution or services.",
-      "evidence": ["tests/heif.test.ts"],
+      "evidence": [
+        "tests/heif.test.ts",
+        "tests/hevc-picture.test.ts",
+        "tests/hevc-residual.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",
@@ -4802,8 +4806,8 @@
           "text": "Decode grid tiles directly into the requested crop/resize workflow rather than first assembling a source-sized RGBA canvas"
         },
         {
-          "status": "planned",
-          "text": "Support multiple slices and tiles within one coded HEVC picture"
+          "status": "supported",
+          "text": "Reconstruct independent raster-order slice segments within one coded HEVC picture"
         },
         {
           "status": "supported",
@@ -4818,7 +4822,7 @@
           "text": "Return display dimensions after clean-aperture and orientation transforms"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Define and test precedence between native HEIF transforms and EXIF orientation so a photo is never rotated twice"
         },
         {
@@ -4870,8 +4874,12 @@
           "text": "Deblocking and sample-adaptive offset filtering before releasing pixels"
         },
         {
+          "status": "supported",
+          "text": "Parse `transform_skip_flag` only for 4x4 transform blocks, matching the default `Log2MaxTransformSkipSize` of 2"
+        },
+        {
           "status": "planned",
-          "text": "Constrained intra prediction, transform skip, PCM, and other tools that valid target-profile still images can signal"
+          "text": "Constrained intra prediction, PCM, and other tools that valid target-profile still images can signal"
         },
         {
           "status": "supported",
@@ -4891,7 +4899,7 @@
         },
         {
           "status": "supported",
-          "text": "Reject profiles outside Main, Main 10, and Main Still Picture, non-IDR random-access pictures, and SPS/PPS range, multilayer, 3D, screen-content, or unspecified extensions explicitly in the inspection path"
+          "text": "Reject profiles outside Main, Main 10, Main Still Picture, and 8-bit Range Extension 4:4:4, non-IDR random-access pictures, and SPS/PPS multilayer, 3D, screen-content, or unspecified extensions explicitly in the inspection path"
         },
         {
           "status": "supported",
@@ -4903,7 +4911,7 @@
         },
         {
           "status": "supported",
-          "text": "Resolve matching explicit nclx/VUI matrices, and resolve absent or unspecified matrices only for the pinned SDR/ICC Main or Main Still Picture 4:2:0 HEVC-family evidence policy; reject conflicts and ambiguity explicitly"
+          "text": "Resolve matching explicit nclx/VUI matrices, and resolve absent or unspecified matrices only for the pinned SDR/ICC Main, Main Still Picture, or 8-bit Range Extension 4:2:0/4:4:4 HEVC-family evidence policy; reject conflicts and ambiguity explicitly"
         },
         {
           "status": "supported",
@@ -4914,8 +4922,8 @@
           "text": "Match the Main 10/PQ displayed SDR oracle at 0.001007 normalized RMSE using signaled-matrix conversion, nearest 4:2:0 chroma, 8-bit rounding, and hard clipping while preserving PQ code values"
         },
         {
-          "status": "planned",
-          "text": "Preserve opaque, binary-alpha, and partial-alpha values when a supported auxiliary alpha item is present"
+          "status": "supported",
+          "text": "Preserve opaque, binary-alpha, and partial-alpha values when a supported same-dimension auxiliary alpha item is present"
         },
         {
           "status": "supported",
@@ -4934,7 +4942,7 @@
           "text": "Parse bounded EXIF item extents and expose the metadata fields supported by PureJsImage"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Parse bounded XMP MIME items without making XMP parsing necessary for pixel decode"
         },
         {
@@ -4946,20 +4954,32 @@
           "text": "Preserve compatible EXIF and ICC metadata according to explicit caller options and output-codec support, with stripping as the default"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Preserve XMP metadata when explicitly requested"
         },
         {
-          "status": "planned",
-          "text": "Auxiliary alpha images, including independent dimensions and grid alpha"
+          "status": "supported",
+          "text": "Same-dimension auxiliary alpha for a directly coded `hvc1` primary, including monochrome HEVC alpha items"
+        },
+        {
+          "status": "supported",
+          "text": "Independent-dimension auxiliary alpha and matching grid auxiliary alpha; a grid alpha item on a direct primary stays unsupported"
         },
         {
           "status": "planned",
           "text": "Thumbnail (`thmb`) relationships and an explicit thumbnail-selection API"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Identity-derived images (`iden`) without recursive-reference loops"
+        },
+        {
+          "status": "supported",
+          "text": "Uncompressed `unci` stills for 8-bit and packed sub-byte RGB with component, pixel, mixed, row, and packed interleave"
+        },
+        {
+          "status": "supported",
+          "text": "zlib and deflate generic compression for uncompressed stills, including tiled icef extents; brotli and compressed unit type 3 stay unsupported"
         },
         {
           "status": "planned",
@@ -4990,7 +5010,7 @@
           "text": "Multiple top-level still images with explicit index selection while retaining primary-image decode as the default"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Metadata-only inspection without parsing or allocating HEVC coefficient or sample state"
         },
         {
@@ -5018,8 +5038,16 @@
           "text": "Overlay-derived images (`iovl`)"
         },
         {
+          "status": "supported",
+          "text": "HEVC Range Extension 8-bit 4:4:4 intra stills"
+        },
+        {
           "status": "planned",
-          "text": "HEVC Range Extension 4:2:2 and 4:4:4 chroma formats"
+          "text": "HEVC Range Extension 4:2:2 chroma formats"
+        },
+        {
+          "status": "planned",
+          "text": "HEIF Mini (`mini`) compact still bitstream expansion"
         },
         {
           "status": "planned",

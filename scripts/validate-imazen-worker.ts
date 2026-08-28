@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url'
-
+import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { bmpCodec } from '../src/codecs/bmp.ts'
 import { gifCodec } from '../src/codecs/gif.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
@@ -49,6 +49,7 @@ const imageLibrary = createNodeImageLibrary([
   tiffCodec,
   gifCodec,
   bmpCodec,
+  experimentalHeifCodec,
 ])
 const stagePrefix = 'PUREJSIMAGE_IMAZEN_STAGE '
 
@@ -120,11 +121,12 @@ export const validateImage = async (options: WorkerOptions): Promise<ImazenWorke
     const metadata = await image.metadata()
     lastCompletedStage = 'metadata'
     process.stderr.write(`${stagePrefix}${lastCompletedStage}\n`)
-    if (metadata.format !== options.format) {
+    const expectedFormat = options.format === 'heic' ? 'heif' : options.format
+    if (metadata.format !== expectedFormat) {
       return failureMessage(
         'invalid-output',
         lastCompletedStage,
-        new Error(`Expected ${options.format} input metadata, received ${metadata.format}`),
+        new Error(`Expected ${expectedFormat} input metadata, received ${metadata.format}`),
         options.file,
       )
     }

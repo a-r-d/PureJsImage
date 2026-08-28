@@ -1,0 +1,3218 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-28T16:41:45.264Z",
+  "pureJsImageVersion": "0.17.0",
+  "pureJsImageGitCommit": "3a1b9936037b308181840a8db65cf4476e70e737-dirty",
+  "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
+  "nodeVersion": "v24.16.0",
+  "platform": "linux-x64",
+  "format": "heic",
+  "commandSettings": {
+    "corpus": "<corpus-path>",
+    "format": "heic",
+    "output": "<output-path>",
+    "timeoutMs": 30000,
+    "memoryMb": 512,
+    "concurrency": 2,
+    "limit": null,
+    "filter": null
+  },
+  "totalsByCorpusCategory": [
+    {
+      "category": "edge-cases/edge-cases",
+      "total": 5,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 5,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/invalid",
+      "total": 8,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 7,
+        "accepted": 1,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/device-exif",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/libheif-examples",
+      "total": 2,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 1,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/nokia-alpha",
+      "total": 2,
+      "outcomes": {
+        "pass": 2,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/nokia-grid",
+      "total": 5,
+      "outcomes": {
+        "pass": 5,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/nokia-miaf",
+      "total": 7,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 3,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/nokia-multilayer",
+      "total": 5,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 4,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/nokia-sequence",
+      "total": 10,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 10,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/nokia-still",
+      "total": 34,
+      "outcomes": {
+        "pass": 29,
+        "unsupported": 5,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/uncompressed",
+      "total": 85,
+      "outcomes": {
+        "pass": 83,
+        "unsupported": 2,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    }
+  ],
+  "totalsByOutcome": {
+    "pass": 129,
+    "unsupported": 25,
+    "decode-failure": 0,
+    "invalid-output": 0,
+    "rejected-safely": 12,
+    "accepted": 1,
+    "raw-exception": 0,
+    "timeout": 0,
+    "process-crash": 0,
+    "out-of-memory": 0
+  },
+  "records": [
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/edge-cases/avif_brand.heif",
+      "expectedCategory": "non-conformant",
+      "corpusCategory": "edge-cases/edge-cases",
+      "testGroup": "edge-cases",
+      "features": [
+        "edge-cases"
+      ],
+      "upstreamExpectation": "Successful decode or structured rejection is acceptable",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "AVIF input was recognized, but its codec is not registered",
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/edge-cases/double_ftyp.heic",
+      "expectedCategory": "non-conformant",
+      "corpusCategory": "edge-cases/edge-cases",
+      "testGroup": "edge-cases",
+      "features": [
+        "edge-cases"
+      ],
+      "upstreamExpectation": "Successful decode or structured rejection is acceptable",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF requires ftyp and meta boxes",
+      "elapsedMs": 245,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/edge-cases/heix_brand.heic",
+      "expectedCategory": "non-conformant",
+      "corpusCategory": "edge-cases/edge-cases",
+      "testGroup": "edge-cases",
+      "features": [
+        "edge-cases"
+      ],
+      "upstreamExpectation": "Successful decode or structured rejection is acceptable",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF/HEIC input was recognized, but the registered codec rejected its header",
+      "elapsedMs": 259,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/edge-cases/many_brands.heic",
+      "expectedCategory": "non-conformant",
+      "corpusCategory": "edge-cases/edge-cases",
+      "testGroup": "edge-cases",
+      "features": [
+        "edge-cases"
+      ],
+      "upstreamExpectation": "Successful decode or structured rejection is acceptable",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF requires ftyp and meta boxes",
+      "elapsedMs": 271,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/edge-cases/minimal_ftyp_only.heic",
+      "expectedCategory": "non-conformant",
+      "corpusCategory": "edge-cases/edge-cases",
+      "testGroup": "edge-cases",
+      "features": [
+        "edge-cases"
+      ],
+      "upstreamExpectation": "Successful decode or structured rejection is acceptable",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF/HEIC input was recognized, but the registered codec rejected its header",
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/bad_ftyp_magic.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 247,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/bitflip_c002.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "HEVC slice segmentation does not match the coded picture at CTB 231",
+      "elapsedMs": 860,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/corrupt_after_ftyp.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF m\u001dt box extends beyond its parent",
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/oversized_box.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF ftyp box extends beyond its parent",
+      "elapsedMs": 241,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/truncated_100bytes.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF meta box extends beyond its parent",
+      "elapsedMs": 289,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/truncated_1k.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "HEIF moov box extends beyond its parent",
+      "elapsedMs": 299,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/wrong_format.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "accepted",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": "Expected heif input metadata, received jpeg",
+      "elapsedMs": 302,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/invalid/zero_length.heic",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid",
+      "testGroup": "invalid",
+      "features": [
+        "invalid"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 287,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/dsoprea-exif/image1.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/device-exif",
+      "testGroup": "device-exif",
+      "features": [
+        "device-exif"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 15281,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/dsoprea-exif/image2.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/device-exif",
+      "testGroup": "device-exif",
+      "features": [
+        "device-exif"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 9622,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/dsoprea-exif/image3.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/device-exif",
+      "testGroup": "device-exif",
+      "features": [
+        "device-exif"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 14234,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/dsoprea-exif/image4.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/device-exif",
+      "testGroup": "device-exif",
+      "features": [
+        "device-exif"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 628,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/example.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/libheif-examples",
+      "testGroup": "libheif-examples",
+      "features": [
+        "libheif-examples"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1504,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/lightning_mini.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/libheif-examples",
+      "testGroup": "libheif-examples",
+      "features": [
+        "libheif-examples"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "HEIF Mini bitstream is unsupported",
+      "elapsedMs": 228,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/rgb_generic_compressed_brotli.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "HEIF brotli generic compression is unsupported",
+      "elapsedMs": 241,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/rgb_generic_compressed_defl.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 272,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/rgb_generic_compressed_tile_deflate.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 266,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/rgb_generic_compressed_zlib_rows.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Unsupported HEIF compressed unit type 3",
+      "elapsedMs": 235,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/rgb_generic_compressed_zlib_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/rgb_generic_compressed_zlib.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 263,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_ABGR_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 272,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_ABGR.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 246,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_B16R16G16_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_B16R16G16.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 246,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_M_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 246,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_M.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 245,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_R5G6B5_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 267,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_R7+1G7+1B7+1_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 277,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_R7G7+1B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_R7G7B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_RGB_tiled_row_tile_align.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_RGB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 287,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_RGB.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 275,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_RGxB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 261,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_RGxB.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 249,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_VUY_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_VUY_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 261,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_Y16U16V16_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 240,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_Y16U16V16_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_YUV_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 259,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_YUV_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 258,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_YUV_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 272,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_YVU_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 263,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_comp_YVU_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 265,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_VUY_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_VUY_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 275,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_Y16U16V16_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_Y16U16V16_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 259,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_YUV_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 261,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_YUV_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 252,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_YVU_420.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 263,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_mix_YVU_422.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 253,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_ABGR_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_ABGR.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 262,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_B16R16G16_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 278,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_B16R16G16.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 249,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_M_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 269,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_M.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R5G6B5_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R7+1G7+1B7+1_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 270,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R7G7+1B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 266,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R7G7B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 256,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R8G8B8_bsz0_psz10_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R8G8B8_bsz0_psz5_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 256,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R8G8B8A8_bsz0_psz10_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 277,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_R8G8B8A8_bsz0_psz5_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_RGB_tiled_row_tile_align.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 272,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_RGB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 272,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_RGB.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 256,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_RGxB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_RGxB.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_pix_YUV_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 268,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_ABGR_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 258,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_ABGR.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_B16R16G16_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 263,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_B16R16G16.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_M_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 260,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_M.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 259,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_R5G6B5_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_R7+1G7+1B7+1_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_R7G7+1B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_R7G7B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 247,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_RGB_tiled_row_tile_align.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 266,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_RGB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 247,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_RGB.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 249,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_RGxB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 247,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_RGxB.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 262,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_row_YUV_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 257,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_ABGR_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_B16R16G16_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_M_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_R5G6B5_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_R7+1G7+1B7+1_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 253,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_R7G7+1B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 252,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_R7G7B7_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 278,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_RGB_tiled_row_tile_align.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 249,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_RGB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 266,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_RGxB_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/libheif-testdata/uncompressed_tile_YUV_tiled.heif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/uncompressed",
+      "testGroup": "uncompressed",
+      "features": [
+        "uncompressed"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 258,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C001.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 233,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C002.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1419,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C003.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1498,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C004.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1203,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C005.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 307,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C006.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-alpha",
+      "testGroup": "nokia-alpha",
+      "features": [
+        "nokia-alpha"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1579,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C007.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-grid",
+      "testGroup": "nokia-grid",
+      "features": [
+        "nokia-grid"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 3844,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C008.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C009.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1383,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C010.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1390,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C011.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1463,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C012.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1234,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C013.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1049,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C014.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 859,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C015.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1462,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C016.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1407,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C017.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 616,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C018.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 632,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C019.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 585,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C020.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 557,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C021.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1465,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C022.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-grid",
+      "testGroup": "nokia-grid",
+      "features": [
+        "nokia-grid"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 2774,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C023.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-grid",
+      "testGroup": "nokia-grid",
+      "features": [
+        "nokia-grid"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1206,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C024.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-grid",
+      "testGroup": "nokia-grid",
+      "features": [
+        "nokia-grid"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1454,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C025.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-grid",
+      "testGroup": "nokia-grid",
+      "features": [
+        "nokia-grid"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 303,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C026.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 261,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C027.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C028.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C029.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 234,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C030.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 237,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C031.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 247,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C032.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 240,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C034.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1453,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C036.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C037.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 245,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C038.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-sequence",
+      "testGroup": "nokia-sequence",
+      "features": [
+        "nokia-sequence"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 245,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C039.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1039,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C040.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 956,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C041.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 252,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C042.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1422,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C043.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1341,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C044.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Inter-predicted HEIF item 1004 is unsupported",
+      "elapsedMs": 243,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C045.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1105,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C046.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C047.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1395,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C048.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 241,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C049.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 2480,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C050.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1682,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C051.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1422,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C052.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-alpha",
+      "testGroup": "nokia-alpha",
+      "features": [
+        "nokia-alpha"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1588,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/C053.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-still",
+      "testGroup": "nokia-still",
+      "features": [
+        "nokia-still"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 896,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF001.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1425,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF002.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "HEIF item 1002 uses an unsupported HEVC profile, chroma format, or bit depth",
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF003.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 4908,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF004.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1412,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF005.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 249,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF006.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 248,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/MIAF007.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-miaf",
+      "testGroup": "nokia-miaf",
+      "features": [
+        "nokia-miaf"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1078,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/multilayer001.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-multilayer",
+      "testGroup": "nokia-multilayer",
+      "features": [
+        "nokia-multilayer"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 262,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/multilayer002.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-multilayer",
+      "testGroup": "nokia-multilayer",
+      "features": [
+        "nokia-multilayer"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 247,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/multilayer003.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-multilayer",
+      "testGroup": "nokia-multilayer",
+      "features": [
+        "nokia-multilayer"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 916,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/multilayer004.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-multilayer",
+      "testGroup": "nokia-multilayer",
+      "features": [
+        "nokia-multilayer"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 252,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "heic",
+      "relativeFilename": "heic-conformance/valid/nokia-conformance/multilayer005.heic",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/nokia-multilayer",
+      "testGroup": "nokia-multilayer",
+      "features": [
+        "nokia-multilayer"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Timed HEIF image sequences are unsupported",
+      "elapsedMs": 227,
+      "childExitCode": 0,
+      "childSignal": null
+    }
+  ]
+}

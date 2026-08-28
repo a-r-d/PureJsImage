@@ -6,7 +6,7 @@ import { promisify } from 'node:util'
 
 import type { ImazenWorkerMessage, ImazenWorkerStage } from './validate-imazen-worker.ts'
 
-export const imazenFormats = ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp'] as const
+export const imazenFormats = ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp', 'heic'] as const
 export type ImazenFormat = (typeof imazenFormats)[number]
 export type ImazenFormatSelection = ImazenFormat | 'all'
 export const isImazenFormat = (value: string): value is ImazenFormat =>
@@ -472,6 +472,73 @@ export const bmpFeatureGroup = (filename: string): string => {
   return 'general'
 }
 
+export const heicFeatureGroup = (relativeFilename: string): string => {
+  const path = relativeFilename.toLowerCase()
+  const filename = path.split('/').at(-1) ?? path
+  if (path.includes('/invalid/')) return 'invalid'
+  if (path.includes('/edge-cases/')) return 'edge-cases'
+  if (path.includes('dsoprea')) return 'device-exif'
+  if (filename.includes('uncompressed') || filename.includes('rgb_generic')) return 'uncompressed'
+  if (filename.startsWith('multilayer')) return 'nokia-multilayer'
+  if (filename.startsWith('miaf')) return 'nokia-miaf'
+  if (/^c0(26|27|28|29|30|31|32|36|37|38)/u.test(filename)) return 'nokia-sequence'
+  if (filename === 'c006.heic' || filename === 'c052.heic') return 'nokia-alpha'
+  if (filename === 'c007.heic' || /^c0(22|23|24|25)/u.test(filename)) return 'nokia-grid'
+  if (path.includes('nokia')) return 'nokia-still'
+  if (filename === 'example.heic' || filename === 'lightning_mini.heif') return 'libheif-examples'
+  return 'general'
+}
+
+const heicEntry = (corpusRoot: string, absolutePath: string): ImazenCorpusEntry => {
+  const relativeFilename = portablePath(relative(corpusRoot, absolutePath))
+  const parts = relativeFilename.split('/')
+  const category = parts[1]
+  if (parts[0] !== 'heic-conformance' || !category) {
+    throw new Error(`Unexpected HEIC corpus path: ${relativeFilename}`)
+  }
+  const testGroup = heicFeatureGroup(relativeFilename)
+  if (category === 'valid') {
+    return {
+      format: 'heic',
+      absolutePath,
+      relativeFilename,
+      expectedCategory: 'valid',
+      expectation: 'valid',
+      corpusCategory: `${category}/${testGroup}`,
+      testGroup,
+      features: [testGroup],
+      upstreamExpectation: 'Must decode successfully',
+    }
+  }
+  if (category === 'invalid') {
+    return {
+      format: 'heic',
+      absolutePath,
+      relativeFilename,
+      expectedCategory: 'invalid',
+      expectation: 'invalid',
+      corpusCategory: `${category}/${testGroup}`,
+      testGroup,
+      features: [testGroup],
+      upstreamExpectation: 'Must reject safely',
+    }
+  }
+  if (category === 'edge-cases') {
+    return {
+      format: 'heic',
+      absolutePath,
+      relativeFilename,
+      expectedCategory: 'non-conformant',
+      expectation: 'flexible',
+      corpusCategory: `${category}/${testGroup}`,
+      testGroup,
+      features: [testGroup],
+      upstreamExpectation: 'Successful decode or structured rejection is acceptable',
+    }
+  }
+  throw new Error(`Unknown HEIC corpus category: ${relativeFilename}`)
+}
+
 const directoryEntry = (
   corpusRoot: string,
   absolutePath: string,
@@ -563,6 +630,12 @@ export const discoverImazenCorpus = async (
       if (/\.bmp$/iu.test(path)) {
         entries.push(directoryEntry(corpusRoot, path, 'bmp', 'bmp-conformance', bmpFeatureGroup))
       }
+    }
+  }
+  if (selection === 'heic' || selection === 'all') {
+    const heicRoot = join(corpusRoot, 'heic-conformance')
+    for (const path of await filesRecursively(heicRoot)) {
+      if (/\.hei[cf]$/iu.test(path)) entries.push(heicEntry(corpusRoot, path))
     }
   }
 

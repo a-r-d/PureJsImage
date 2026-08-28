@@ -11,6 +11,7 @@ import {
   compareImazenBaseline,
   discoverImazenCorpus,
   gifFeatureGroup,
+  heicFeatureGroup,
   type ImazenCommandSettings,
   type ImazenCorpusEntry,
   type ImazenFormat,
@@ -220,6 +221,9 @@ describe('Imazen corpus discovery and reports', () => {
       mkdir(join(root, 'pngsuite'), { recursive: true }),
       mkdir(join(root, 'tiff-conformance', 'edge-cases'), { recursive: true }),
       mkdir(join(root, 'tiff-conformance', 'robustness'), { recursive: true }),
+      mkdir(join(root, 'heic-conformance', 'edge-cases'), { recursive: true }),
+      mkdir(join(root, 'heic-conformance', 'invalid'), { recursive: true }),
+      mkdir(join(root, 'heic-conformance', 'valid', 'nokia-conformance'), { recursive: true }),
       mkdir(join(root, 'tiff-conformance', 'valid'), { recursive: true }),
       mkdir(join(root, 'webp-conformance', 'valid'), { recursive: true }),
     ])
@@ -240,6 +244,9 @@ describe('Imazen corpus discovery and reports', () => {
       writeFile(join(root, 'tiff-conformance', 'robustness', 'sample-get-lzw-stuck.tiff'), ''),
       writeFile(join(root, 'tiff-conformance', 'valid', 'tiled-rgb-u8.tif'), ''),
       writeFile(join(root, 'webp-conformance', 'valid', 'lossy_alpha.webp'), ''),
+      writeFile(join(root, 'heic-conformance', 'edge-cases', 'avif_brand.heif'), ''),
+      writeFile(join(root, 'heic-conformance', 'invalid', 'zero_length.heic'), ''),
+      writeFile(join(root, 'heic-conformance', 'valid', 'nokia-conformance', 'C006.heic'), ''),
       writeFile(
         join(root, 'expected_errors.json'),
         JSON.stringify({
@@ -260,6 +267,9 @@ describe('Imazen corpus discovery and reports', () => {
       ['gif', 'edge-cases/extensions'],
       ['gif', 'invalid/static'],
       ['gif', 'valid/animation'],
+      ['heic', 'edge-cases/edge-cases'],
+      ['heic', 'invalid/invalid'],
+      ['heic', 'valid/nokia-alpha'],
       ['jpeg', 'crash-repro/zune-jpeg'],
       ['jpeg', 'invalid'],
       ['jpeg', 'non-conformant/truncated'],
@@ -278,11 +288,21 @@ describe('Imazen corpus discovery and reports', () => {
     expect(tiffFeatureGroup('quad-jpeg.tif')).toBe('compression-jpeg')
     expect(gifFeatureGroup('dispose_previous.gif')).toBe('disposal')
     expect(bmpFeatureGroup('g08rle.bmp')).toBe('rle')
+    expect(heicFeatureGroup('heic-conformance/valid/nokia-conformance/C006.heic')).toBe(
+      'nokia-alpha',
+    )
+    expect(
+      heicFeatureGroup('heic-conformance/valid/libheif-testdata/uncompressed_pix_RGB.heif'),
+    ).toBe('uncompressed')
+    expect(heicFeatureGroup('heic-conformance/edge-cases/avif_brand.heif')).toBe('edge-cases')
+    expect(heicFeatureGroup('heic-conformance/valid/nokia-conformance/C026.heic')).toBe(
+      'nokia-sequence',
+    )
   })
 
   it('writes separate JSON and Markdown reports for every format', async () => {
     const root = await temporaryDirectory()
-    const reports = (['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp'] as const).map((format) =>
+    const reports = (['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp', 'heic'] as const).map((format) =>
       buildImazenReport(format, [resultRecord(format, 'pass')], settings, environment),
     )
 
@@ -293,6 +313,8 @@ describe('Imazen corpus discovery and reports', () => {
       'imazen-bmp-conformance.md',
       'imazen-gif-conformance.json',
       'imazen-gif-conformance.md',
+      'imazen-heic-conformance.json',
+      'imazen-heic-conformance.md',
       'imazen-jpeg-conformance.json',
       'imazen-jpeg-conformance.md',
       'imazen-png-conformance.json',
@@ -302,7 +324,7 @@ describe('Imazen corpus discovery and reports', () => {
       'imazen-webp-conformance.json',
       'imazen-webp-conformance.md',
     ])
-    for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp'] as const) {
+    for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp', 'heic'] as const) {
       expect(
         JSON.parse(await readFile(join(root, `imazen-${format}-conformance.json`), 'utf8')),
       ).toMatchObject({ format })

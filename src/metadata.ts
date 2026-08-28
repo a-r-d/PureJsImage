@@ -14,6 +14,33 @@ const read32 = (data: Uint8Array, offset: number, littleEndian: boolean): number
   return littleEndian ? first + second * 65_536 : first * 65_536 + second
 }
 
+export const exifOrientation = (exif: Uint8Array): number | undefined => {
+  const littleEndian = exif[0] === 0x49 && exif[1] === 0x49
+  const bigEndian = exif[0] === 0x4d && exif[1] === 0x4d
+  if (!littleEndian && !bigEndian) return undefined
+  if (read16(exif, 2, littleEndian) !== 42) return undefined
+  const relativeIfd = read32(exif, 4, littleEndian)
+  if (relativeIfd === undefined || relativeIfd + 2 > exif.byteLength) return undefined
+  const entries = read16(exif, relativeIfd, littleEndian)
+  if (entries === undefined || entries > 4_096) return undefined
+  for (let index = 0; index < entries; index += 1) {
+    const entry = relativeIfd + 2 + index * 12
+    if (entry + 12 > exif.byteLength) return undefined
+    if (
+      read16(exif, entry, littleEndian) !== 0x0112 ||
+      read16(exif, entry + 2, littleEndian) !== 3 ||
+      read32(exif, entry + 4, littleEndian) !== 1
+    ) {
+      continue
+    }
+    const orientation = read16(exif, entry + 8, littleEndian)
+    return orientation !== undefined && orientation >= 1 && orientation <= 8
+      ? orientation
+      : undefined
+  }
+  return undefined
+}
+
 export const normalizeExifOrientation = (exif: Uint8Array): Uint8Array => {
   const output = Uint8Array.from(exif)
   const littleEndian = output[0] === 0x49 && output[1] === 0x49

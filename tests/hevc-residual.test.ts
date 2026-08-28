@@ -111,4 +111,21 @@ describe('HEVC residual syntax', () => {
     expect(decoder.decisionContexts[3]).toBe(contexts.significantCoefficient[29])
     expect(decoder.decisionContexts[4]).toBe(contexts.significantCoefficient[27])
   })
+
+  it('parses transform skip only for 4x4 transform blocks', () => {
+    const four = new ScriptedCabac([0, 0, 0, 0], [0])
+    const fourContexts = new HevcIntraCabacContexts(26)
+    decodeHevcResidual(four, fourContexts, { ...options, transformSkipEnabled: true })
+    expect(four.decisionContexts[0]).toBe(fourContexts.transformSkip[0])
+
+    const eight = new ScriptedCabac(new Array(16).fill(0), new Array(8).fill(0))
+    const eightContexts = new HevcIntraCabacContexts(26)
+    decodeHevcResidual(eight, eightContexts, {
+      ...options,
+      log2Size: 3,
+      transformSkipEnabled: true,
+    })
+    expect(eight.decisionContexts[0]).toBe(eightContexts.lastSignificantX[3])
+    expect(eight.decisionContexts[0]).not.toBe(eightContexts.transformSkip[0])
+  })
 })

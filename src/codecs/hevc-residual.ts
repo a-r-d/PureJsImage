@@ -178,6 +178,7 @@ export const decodeHevcResidual = (
   const transformSkipped =
     options.transformSkipEnabled &&
     !transquantBypass &&
+    log2Size <= 2 &&
     decoder.decodeDecision(
       contexts.context(contexts.transformSkip, component === 0 ? 0 : 1, 'transform skip'),
     ) === 1

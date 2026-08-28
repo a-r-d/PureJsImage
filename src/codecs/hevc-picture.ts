@@ -1,5 +1,10 @@
 import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
-import { type HevcPpsInspection, type HevcSpsInspection, readHevcSliceData } from './hevc.ts'
+import {
+  type HevcPpsInspection,
+  type HevcSliceData,
+  type HevcSpsInspection,
+  readHevcSliceData,
+} from './hevc.ts'
 import { HevcCabacDecoder } from './hevc-cabac.ts'
 import { HevcIntraCabacContexts } from './hevc-contexts.ts'
 import { applyHevcDeblocking, type HevcDeblockEdges } from './hevc-deblock.ts'
@@ -23,7 +28,7 @@ type SamplePlane = {
 
 export interface DecodedHevcPicture {
   readonly bitDepth: 8 | 10
-  readonly chromaFormat: 1
+  readonly chromaFormat: 0 | 1 | 3
   readonly height: number
   readonly u: Uint16Array
   readonly v: Uint16Array
@@ -68,29 +73,113 @@ const chromaQp = (lumaQp: number, offset: number, bitDepth: 8 | 10): number => {
   return mapped + depthOffset
 }
 
+const hevcTileSpans = (
+  count: number,
+  total: number,
+  uniform: boolean,
+  explicit: readonly number[],
+): readonly number[] => {
+  if (count <= 0) throw invalidInput('HEVC tile count is invalid')
+  if (uniform) {
+    const spans: number[] = []
+    for (let index = 0; index < count; index += 1) {
+      spans.push(Math.floor(((index + 1) * total) / count) - Math.floor((index * total) / count))
+    }
+    if (spans.some((span) => span <= 0)) throw invalidInput('HEVC uniform tile spacing is empty')
+    return spans
+  }
+  if (explicit.length !== count - 1) throw invalidInput('HEVC tile spacing list is incomplete')
+  let used = 0
+  for (const span of explicit) {
+    if (span <= 0) throw invalidInput('HEVC tile spacing is invalid')
+    used += span
+  }
+  const last = total - used
+  if (last <= 0) throw invalidInput('HEVC tile spacing exceeds the picture')
+  return [...explicit, last]
+}
+
+export const hevcTileScanOrder = (
+  sps: { readonly ctbCount: number; readonly ctbHeight: number; readonly ctbWidth: number },
+  pps: Pick<
+    HevcPpsInspection,
+    | 'tileColumnWidths'
+    | 'tileColumns'
+    | 'tileRowHeights'
+    | 'tileRows'
+    | 'tilesEnabled'
+    | 'uniformTileSpacing'
+  >,
+): {
+  readonly lastInTile: Uint8Array
+  readonly raster: Int32Array
+  readonly tileIndex: Int32Array
+} => {
+  const columns = pps.tilesEnabled ? pps.tileColumns : 1
+  const rows = pps.tilesEnabled ? pps.tileRows : 1
+  const columnWidths = hevcTileSpans(
+    columns,
+    sps.ctbWidth,
+    pps.uniformTileSpacing,
+    pps.tileColumnWidths,
+  )
+  const rowHeights = hevcTileSpans(rows, sps.ctbHeight, pps.uniformTileSpacing, pps.tileRowHeights)
+  const raster = new Int32Array(sps.ctbCount)
+  const lastInTile = new Uint8Array(sps.ctbCount)
+  const tileIndex = new Int32Array(sps.ctbCount)
+  let scan = 0
+  let tile = 0
+  let rowStart = 0
+  for (let tileRow = 0; tileRow < rows; tileRow += 1) {
+    const rowHeight = rowHeights[tileRow]
+    if (rowHeight === undefined) throw invalidInput('HEVC tile row height is missing')
+    let columnStart = 0
+    for (let tileColumn = 0; tileColumn < columns; tileColumn += 1) {
+      const columnWidth = columnWidths[tileColumn]
+      if (columnWidth === undefined) throw invalidInput('HEVC tile column width is missing')
+      for (let y = 0; y < rowHeight; y += 1) {
+        for (let x = 0; x < columnWidth; x += 1) {
+          if (scan >= sps.ctbCount) throw invalidInput('HEVC tile scan exceeds the picture')
+          raster[scan] = (rowStart + y) * sps.ctbWidth + (columnStart + x)
+          tileIndex[scan] = tile
+          scan += 1
+        }
+      }
+      lastInTile[scan - 1] = 1
+      tile += 1
+      columnStart += columnWidth
+    }
+    rowStart += rowHeight
+  }
+  if (scan !== sps.ctbCount) throw invalidInput('HEVC tile layout does not cover the picture')
+  return { lastInTile, raster, tileIndex }
+}
+
 class RestrictedHevcPictureDecoder {
   #cabac: HevcCabacDecoder
   #contexts: HevcIntraCabacContexts
   readonly #ctDepth: Int8Array
-  readonly #cbQpOffset: number
-  readonly #crQpOffset: number
-  readonly #deblockingDisabled: boolean
+  #cbQpOffset: number
+  #crQpOffset: number
+  #deblockingDisabled: boolean
   readonly #deblockEdges: HevcDeblockEdges
-  readonly #deblockBetaOffset: number
-  readonly #deblockTcOffset: number
+  #deblockBetaOffset: number
+  #deblockTcOffset: number
   readonly #depthWidth: number
   readonly #lumaModes: Int8Array
   readonly #modeWidth: number
   readonly #pps: HevcPpsInspection
   readonly #qpMap: Int16Array
   readonly #qpWidth: number
-  readonly #saoChroma: boolean
-  readonly #saoLuma: boolean
+  #saoChroma: boolean
+  #saoLuma: boolean
   readonly #saoParameters: HevcSaoCtb[]
-  readonly #sliceQp: number
+  #sliceIndex = 0
+  #sliceQp: number
+  readonly #slices: readonly HevcSliceData[]
   readonly #sps: HevcSpsInspection
-  readonly #substreamByteOffsets: readonly number[]
-  readonly #sliceRbsp: Uint8Array
+  #substreamByteOffsets: readonly number[]
+  #sliceRbsp: Uint8Array
   readonly #u: SamplePlane
   readonly #v: SamplePlane
   readonly #y: SamplePlane
@@ -98,55 +187,80 @@ class RestrictedHevcPictureDecoder {
   #previousQp: number
   #qpDeltaCoded = false
   #wppSyncContexts: HevcIntraCabacContexts | undefined
+  readonly #lastInTile: Uint8Array
+  #sliceFirstTileScan = 0
+  readonly #tileIndex: Int32Array
+  readonly #tileRaster: Int32Array
 
   constructor(
-    nalUnit: Uint8Array,
-    nalUnitType: number,
+    nals: readonly { readonly data: Uint8Array; readonly type: number }[],
     sps: HevcSpsInspection,
     pps: HevcPpsInspection,
   ) {
-    const slice = readHevcSliceData(nalUnit, nalUnitType, { pps: [pps], sps: [sps] })
-    if (!slice.firstInPicture || slice.address !== 0 || slice.dependent) {
+    if (nals.length === 0) throw invalidInput('HEVC picture has no coded slices')
+    if (
+      (sps.chromaFormat !== 0 && sps.chromaFormat !== 1 && sps.chromaFormat !== 3) ||
+      sps.separateColorPlane
+    ) {
       throw unsupportedOperation(
-        'HEVC picture decode currently requires one independent leading slice',
+        'HEVC picture decode currently supports YUV 4:4:4, 4:2:0, and monochrome only',
       )
-    }
-    if (slice.sliceQp === undefined) throw invalidInput('HEVC intra slice has no quantizer')
-    if (sps.chromaFormat !== 1 || sps.separateColorPlane) {
-      throw unsupportedOperation('HEVC picture decode currently supports YUV 4:2:0 only')
     }
     if (sps.bitDepth !== 8 && sps.bitDepth !== 10) {
       throw unsupportedOperation(`Unsupported HEVC picture bit depth: ${sps.bitDepth}`)
     }
-    if (pps.tilesEnabled) {
-      throw unsupportedOperation('HEVC tiles inside a coded picture are not decoded yet')
+    if (pps.tilesEnabled && pps.entropyCodingSynchronization) {
+      throw unsupportedOperation(
+        'HEVC tiles combined with wavefront parallel processing are not decoded yet',
+      )
     }
-    if (
-      pps.entropyCodingSynchronization &&
-      (sps.ctbWidth < 2 || slice.entryPointOffsets !== sps.ctbHeight - 1)
-    ) {
-      throw invalidInput('HEVC WPP entry points do not match the CTB rows')
+    const slices = nals.map((nal) =>
+      readHevcSliceData(nal.data, nal.type, { pps: [pps], sps: [sps] }),
+    )
+    const first = slices[0]
+    if (!first || !first.firstInPicture || first.address !== 0 || first.dependent) {
+      throw unsupportedOperation(
+        'HEVC picture decode currently requires one independent leading slice',
+      )
     }
-    if (!pps.entropyCodingSynchronization && slice.entryPointOffsets !== 0) {
-      throw invalidInput('HEVC slice has entry points without tiles or WPP')
+    if (pps.entropyCodingSynchronization && slices.length !== 1) {
+      throw unsupportedOperation('HEVC WPP with multiple slice segments is unsupported')
+    }
+    for (let index = 1; index < slices.length; index += 1) {
+      const slice = slices[index]
+      const previous = slices[index - 1]
+      if (!slice || !previous) throw invalidInput('HEVC slice list is incomplete')
+      if (slice.firstInPicture) throw invalidInput('HEVC picture has multiple first slices')
+      if (slice.dependent) {
+        throw unsupportedOperation('HEVC dependent slice segments are not decoded yet')
+      }
+      if (slice.address <= previous.address || slice.ppsId !== first.ppsId) {
+        throw invalidInput('HEVC slice-segment addresses or PPS IDs are inconsistent')
+      }
     }
     this.#sps = sps
     this.#pps = pps
-    this.#sliceRbsp = slice.rbsp
-    this.#substreamByteOffsets = slice.substreamByteOffsets
-    this.#sliceQp = slice.sliceQp
-    this.#currentQp = slice.sliceQp
-    this.#previousQp = slice.sliceQp
-    this.#cbQpOffset = slice.cbQpOffset
-    this.#crQpOffset = slice.crQpOffset
-    this.#deblockingDisabled = slice.deblockingFilterDisabled
-    this.#deblockBetaOffset = slice.betaOffset
-    this.#deblockTcOffset = slice.tcOffset
-    this.#saoLuma = slice.sampleAdaptiveOffsetLuma
-    this.#saoChroma = slice.sampleAdaptiveOffsetChroma
-    if ((this.#saoLuma || this.#saoChroma) && pps.transquantBypassEnabled) {
-      throw unsupportedOperation('HEVC SAO with transquant-bypass coding units is not decoded yet')
-    }
+    const tileLayout = hevcTileScanOrder(sps, pps)
+    this.#tileRaster = tileLayout.raster
+    this.#lastInTile = tileLayout.lastInTile
+    this.#tileIndex = tileLayout.tileIndex
+    this.#sliceFirstTileScan = 0
+    this.#slices = slices
+    this.#sliceQp = first.sliceQp ?? 0
+    this.#currentQp = this.#sliceQp
+    this.#previousQp = this.#sliceQp
+    this.#cbQpOffset = first.cbQpOffset
+    this.#crQpOffset = first.crQpOffset
+    this.#deblockingDisabled = first.deblockingFilterDisabled
+    this.#deblockBetaOffset = first.betaOffset
+    this.#deblockTcOffset = first.tcOffset
+    this.#saoLuma = first.sampleAdaptiveOffsetLuma
+    this.#saoChroma = first.sampleAdaptiveOffsetChroma
+    this.#sliceRbsp = first.rbsp
+    this.#substreamByteOffsets = first.substreamByteOffsets
+    this.#cabac = new HevcCabacDecoder(first.rbsp, first.cabacBitOffset)
+    this.#contexts = new HevcIntraCabacContexts(this.#sliceQp)
+    this.#bindSlice(first, true)
     const noSao: HevcSaoComponent = {
       bandPosition: 0,
       edgeClass: 0,
@@ -156,8 +270,6 @@ class RestrictedHevcPictureDecoder {
     this.#saoParameters = Array.from({ length: sps.ctbCount }, () => ({
       components: [noSao, noSao, noSao],
     }))
-    this.#cabac = new HevcCabacDecoder(slice.rbsp, slice.cabacBitOffset)
-    this.#contexts = new HevcIntraCabacContexts(slice.sliceQp)
     this.#depthWidth = Math.ceil(sps.codedWidth / 2 ** sps.log2MinCodingBlockSize)
     this.#ctDepth = new Int8Array(
       this.#depthWidth * Math.ceil(sps.codedHeight / 2 ** sps.log2MinCodingBlockSize),
@@ -179,14 +291,59 @@ class RestrictedHevcPictureDecoder {
     this.#lumaModes = new Int8Array(this.#modeWidth * Math.ceil(sps.codedHeight / 4))
     this.#lumaModes.fill(-1)
     this.#y = createPlane(sps.codedWidth, sps.codedHeight)
-    this.#u = createPlane(Math.ceil(sps.codedWidth / 2), Math.ceil(sps.codedHeight / 2))
-    this.#v = createPlane(Math.ceil(sps.codedWidth / 2), Math.ceil(sps.codedHeight / 2))
+    const chromaWidth = sps.chromaFormat === 3 ? sps.codedWidth : Math.ceil(sps.codedWidth / 2)
+    const chromaHeight = sps.chromaFormat === 3 ? sps.codedHeight : Math.ceil(sps.codedHeight / 2)
+    this.#u = createPlane(chromaWidth, chromaHeight)
+    this.#v = createPlane(chromaWidth, chromaHeight)
+  }
+
+  #bindSlice(slice: HevcSliceData, firstSlice: boolean): void {
+    if (slice.sliceQp === undefined) throw invalidInput('HEVC intra slice has no quantizer')
+    if (
+      this.#pps.entropyCodingSynchronization &&
+      (this.#sps.ctbWidth < 2 || slice.entryPointOffsets !== this.#sps.ctbHeight - 1)
+    ) {
+      throw invalidInput('HEVC WPP entry points do not match the CTB rows')
+    }
+    if (!this.#pps.entropyCodingSynchronization && slice.entryPointOffsets !== 0) {
+      throw invalidInput('HEVC slice has entry points without tiles or WPP')
+    }
+    if (
+      (slice.sampleAdaptiveOffsetLuma || slice.sampleAdaptiveOffsetChroma) &&
+      this.#pps.transquantBypassEnabled
+    ) {
+      throw unsupportedOperation('HEVC SAO with transquant-bypass coding units is not decoded yet')
+    }
+    if (
+      !firstSlice &&
+      (slice.deblockingFilterDisabled !== this.#deblockingDisabled ||
+        slice.betaOffset !== this.#deblockBetaOffset ||
+        slice.tcOffset !== this.#deblockTcOffset)
+    ) {
+      throw unsupportedOperation('HEVC slices with different deblocking control are unsupported')
+    }
+    this.#sliceQp = slice.sliceQp
+    this.#currentQp = slice.sliceQp
+    this.#previousQp = slice.sliceQp
+    this.#cbQpOffset = slice.cbQpOffset
+    this.#crQpOffset = slice.crQpOffset
+    this.#deblockingDisabled = slice.deblockingFilterDisabled
+    this.#deblockBetaOffset = slice.betaOffset
+    this.#deblockTcOffset = slice.tcOffset
+    this.#saoLuma = slice.sampleAdaptiveOffsetLuma
+    this.#saoChroma = slice.sampleAdaptiveOffsetChroma
+    this.#sliceRbsp = slice.rbsp
+    this.#substreamByteOffsets = slice.substreamByteOffsets
+    this.#cabac = new HevcCabacDecoder(slice.rbsp, slice.cabacBitOffset)
+    this.#contexts = new HevcIntraCabacContexts(slice.sliceQp)
+    this.#qpDeltaCoded = false
+    this.#wppSyncContexts = undefined
   }
 
   decode(): DecodedHevcPicture {
     const ctbSize = 1 << this.#sps.log2CtbSize
-    let address = 0
-    while (address < this.#sps.ctbCount) {
+    for (let tileScan = 0; tileScan < this.#sps.ctbCount; tileScan += 1) {
+      const address = this.#tileRaster[tileScan] ?? tileScan
       const ctbX = address % this.#sps.ctbWidth
       const ctbY = Math.floor(address / this.#sps.ctbWidth)
       if (this.#pps.entropyCodingSynchronization && ctbX === 0 && ctbY > 0) {
@@ -216,13 +373,37 @@ class RestrictedHevcPictureDecoder {
         snapshot.copyFrom(this.#contexts)
         this.#wppSyncContexts = snapshot
       }
-      address += 1
       const ended = this.#cabac.decodeTerminate() === 1
-      const expectedEnd = address === this.#sps.ctbCount
-      if (ended !== expectedEnd) {
-        throw unsupportedOperation(
-          `HEVC slice segmentation does not match the coded picture at CTB ${address - 1}`,
-        )
+      const nextScan = tileScan + 1
+      if (ended) {
+        if (nextScan === this.#sps.ctbCount) break
+        this.#sliceIndex += 1
+        const next = this.#slices[this.#sliceIndex]
+        if (!next) {
+          throw unsupportedOperation(
+            `HEVC slice segmentation does not match the coded picture at CTB ${address}`,
+          )
+        }
+        const nextAddress = this.#tileRaster[nextScan] ?? nextScan
+        if (next.address !== nextAddress) {
+          throw invalidInput(
+            `HEVC slice-segment address ${next.address} does not match CTB ${nextAddress}`,
+          )
+        }
+        this.#bindSlice(next, false)
+        this.#sliceFirstTileScan = nextScan
+      } else if (nextScan === this.#sps.ctbCount) {
+        throw invalidInput('HEVC picture is missing the final slice-segment end flag')
+      } else if (this.#pps.tilesEnabled && this.#lastInTile[tileScan] === 1) {
+        const firstTile = this.#tileIndex[this.#sliceFirstTileScan] ?? 0
+        const nextTile = this.#tileIndex[nextScan]
+        if (nextTile === undefined) throw invalidInput('HEVC next tile index is missing')
+        const byteOffset = this.#substreamByteOffsets[nextTile - firstTile]
+        if (byteOffset === undefined) {
+          throw invalidInput(`HEVC tile ${nextTile} is missing an entry-point offset`)
+        }
+        this.#cabac = new HevcCabacDecoder(this.#sliceRbsp, byteOffset * 8)
+        this.#contexts = new HevcIntraCabacContexts(this.#sliceQp)
       }
       if (
         this.#pps.entropyCodingSynchronization &&
@@ -236,6 +417,9 @@ class RestrictedHevcPictureDecoder {
           )
         }
       }
+    }
+    if (this.#sliceIndex !== this.#slices.length - 1) {
+      throw invalidInput('HEVC picture has unused trailing slice segments')
     }
     const bitDepth = this.#sps.bitDepth === 10 ? 10 : 8
     if (!this.#deblockingDisabled) {
@@ -269,7 +453,7 @@ class RestrictedHevcPictureDecoder {
           this.#saoParameters,
         )
       : this.#y.data
-    const chromaCtbSize = ctbSize >> 1
+    const chromaCtbSize = this.#sps.chromaFormat === 3 ? ctbSize : ctbSize >> 1
     const u = this.#saoChroma
       ? applyHevcSao(
           this.#u.data,
@@ -298,7 +482,7 @@ class RestrictedHevcPictureDecoder {
       : this.#v.data
     return {
       bitDepth,
-      chromaFormat: 1,
+      chromaFormat: this.#sps.chromaFormat === 0 ? 0 : this.#sps.chromaFormat === 3 ? 3 : 1,
       height: this.#sps.codedHeight,
       u,
       v,
@@ -578,13 +762,15 @@ class RestrictedHevcPictureDecoder {
       lumaModes.push(mode)
       this.#setMode(position[0], position[1], predictionSize, mode)
     }
-    let codedChromaMode = 4
-    const derivedFlag =
-      this.#cabac.decodeDecision(
-        this.#contexts.context(this.#contexts.intraChromaPredictionMode, 0, 'intra chroma mode'),
-      ) === 0
-    if (!derivedFlag) codedChromaMode = this.#cabac.decodeBypassBits(2)
-    const chromaMode = deriveHevcChromaMode(codedChromaMode, lumaModes[0] ?? 1)
+    let chromaMode = 4
+    if (this.#sps.chromaFormat !== 0) {
+      const derivedFlag =
+        this.#cabac.decodeDecision(
+          this.#contexts.context(this.#contexts.intraChromaPredictionMode, 0, 'intra chroma mode'),
+        ) === 0
+      if (!derivedFlag) chromaMode = this.#cabac.decodeBypassBits(2)
+      chromaMode = deriveHevcChromaMode(chromaMode, lumaModes[0] ?? 1)
+    }
     this.#transformTree(
       x,
       y,
@@ -630,7 +816,7 @@ class RestrictedHevcPictureDecoder {
     }
     let cbfCb = parentCbfCb
     let cbfCr = parentCbfCr
-    if (log2Size > 2) {
+    if (this.#sps.chromaFormat !== 0 && log2Size > 2) {
       cbfCb =
         parentCbfCb &&
         this.#cabac.decodeDecision(
@@ -641,6 +827,9 @@ class RestrictedHevcPictureDecoder {
         this.#cabac.decodeDecision(
           this.#contexts.context(this.#contexts.chromaCbf, depth, 'Cr coded block'),
         ) === 1
+    } else if (this.#sps.chromaFormat === 0) {
+      cbfCb = false
+      cbfCr = false
     }
     if (split) {
       const half = 1 << (log2Size - 1)
@@ -721,10 +910,11 @@ class RestrictedHevcPictureDecoder {
       this.#currentQp + 6 * (this.#sps.bitDepth - 8),
     )
 
-    if (log2Size > 2) {
-      const chromaLog2 = log2Size - 1
-      const chromaX = x >> 1
-      const chromaY = y >> 1
+    if (this.#sps.chromaFormat !== 0 && (log2Size > 2 || this.#sps.chromaFormat === 3)) {
+      const chromaShift = this.#sps.chromaFormat === 3 ? 0 : 1
+      const chromaLog2 = log2Size - chromaShift
+      const chromaX = x >> chromaShift
+      const chromaY = y >> chromaShift
       const qpCb = chromaQp(this.#currentQp, this.#cbQpOffset, this.#sps.bitDepth === 10 ? 10 : 8)
       const qpCr = chromaQp(this.#currentQp, this.#crQpOffset, this.#sps.bitDepth === 10 ? 10 : 8)
       this.#reconstructBlock(
@@ -749,7 +939,7 @@ class RestrictedHevcPictureDecoder {
         transquantBypass,
         qpCr,
       )
-    } else if (blockIndex === 3) {
+    } else if (this.#sps.chromaFormat === 1 && blockIndex === 3) {
       const qpCb = chromaQp(this.#currentQp, this.#cbQpOffset, this.#sps.bitDepth === 10 ? 10 : 8)
       const qpCr = chromaQp(this.#currentQp, this.#crQpOffset, this.#sps.bitDepth === 10 ? 10 : 8)
       this.#reconstructBlock(
@@ -875,6 +1065,22 @@ class RestrictedHevcPictureDecoder {
   }
 }
 
+export const decodeHevcIntraSlices = (
+  nals: readonly { readonly data: Uint8Array; readonly type: number }[],
+  parameterSets: {
+    readonly pps: readonly HevcPpsInspection[]
+    readonly sps: readonly HevcSpsInspection[]
+  },
+): DecodedHevcPicture => {
+  const first = nals[0]
+  if (!first) throw invalidInput('HEVC picture has no coded slices')
+  const slice = readHevcSliceData(first.data, first.type, parameterSets)
+  const pps = parameterSets.pps.find((candidate) => candidate.id === slice.ppsId)
+  const sps = parameterSets.sps.find((candidate) => candidate.id === slice.spsId)
+  if (!pps || !sps) throw invalidInput('HEVC picture parameter sets are missing')
+  return new RestrictedHevcPictureDecoder(nals, sps, pps).decode()
+}
+
 export const decodeHevcIntraPicture = (
   nalUnit: Uint8Array,
   nalUnitType: number,
@@ -882,10 +1088,5 @@ export const decodeHevcIntraPicture = (
     readonly pps: readonly HevcPpsInspection[]
     readonly sps: readonly HevcSpsInspection[]
   },
-): DecodedHevcPicture => {
-  const slice = readHevcSliceData(nalUnit, nalUnitType, parameterSets)
-  const pps = parameterSets.pps.find((candidate) => candidate.id === slice.ppsId)
-  const sps = parameterSets.sps.find((candidate) => candidate.id === slice.spsId)
-  if (!pps || !sps) throw invalidInput('HEVC picture parameter sets are missing')
-  return new RestrictedHevcPictureDecoder(nalUnit, nalUnitType, sps, pps).decode()
-}
+): DecodedHevcPicture =>
+  decodeHevcIntraSlices([{ data: nalUnit, type: nalUnitType }], parameterSets)

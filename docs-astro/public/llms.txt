@@ -579,9 +579,9 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { experimentalHeicCodec, experimentalHeifCodec } from 'purejsimage/codecs/experimental/heic'`
 - Decode: Experimental (`limited`)
 - Encode: No (`unsupported`)
-- Implemented scope: Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. It is not registered by the default allCodecs set.
-- Primary boundary: Experimental opt-in common intra-only HEVC still subsets; excluded from the default allCodecs set; no auxiliary alpha or encoding
-- Memory model: Explicitly registered grid workflows decode requested tile rows; large compatible inputs remain explicitly measured
+- Implemented scope: Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque, same-dimension, and mismatched-size alpha Main, Main Still Picture, selected Main 10 YUV 4:2:0, and 8-bit Range Extension YUV 4:4:4 intra stills, direct images, identity-derived primaries, grid primaries including matching grid alpha, and common uncompressed unci stills including packed RGB and zlib or deflate generic compression. Native HEIF transforms take precedence over EXIF orientation. Bounded XMP MIME items can be parsed without pixel decode. It is not registered by the default allCodecs set.
+- Primary boundary: Experimental opt-in common intra-only HEVC still subsets plus common uncompressed stills; excluded from the default allCodecs set; auxiliary alpha including mismatched sizes and matching grids; no encoding
+- Memory model: Explicitly registered grid workflows decode requested tile rows; uncompressed stills materialize a full RGBA buffer; large compatible inputs remain explicitly measured
 - Recommended output use: Evaluate compatibility and applicable HEVC patent licensing obligations before opting in, especially for commercial distribution or services.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md
 

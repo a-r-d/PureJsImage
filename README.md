@@ -81,8 +81,8 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Current measured surface | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 63.6 KiB | 20.0 KiB | 17.6 KiB |
-| Common web codecs | 613.5 KiB | 226.5 KiB | 190.0 KiB |
-| All stable codecs | 876.4 KiB | 308.4 KiB | 254.1 KiB |
+| Common web codecs | 613.9 KiB | 226.7 KiB | 189.8 KiB |
+| All stable codecs | 876.9 KiB | 308.6 KiB | 254.0 KiB |
 | Scientific platform | 163.5 KiB | 47.1 KiB | 40.0 KiB |
 | All scientific readers | 1233.9 KiB | 357.0 KiB | 284.8 KiB |
 | Geo raster platform | 136.9 KiB | 37.1 KiB | 31.7 KiB |
@@ -363,8 +363,8 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 | Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API | `purejsimage` | 63.6 KiB | 20.0 KiB | 17.6 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 613.5 KiB | 226.5 KiB | 190.0 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 876.4 KiB | 308.4 KiB | 254.1 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 613.9 KiB | 226.7 KiB | 189.8 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 876.9 KiB | 308.6 KiB | 254.0 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 163.5 KiB | 47.1 KiB | 40.0 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1233.9 KiB | 357.0 KiB | 284.8 KiB |
 

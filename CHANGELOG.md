@@ -4,7 +4,37 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Experimental HEIF/HEIC reconstructs auxiliary alpha for a directly coded or
+  grid primary, including monochrome HEVC alpha items and alpha planes that do
+  not match the primary size. Limited-range alpha luma uses the same nclx/VUI
+  range rule as color. Direct primaries with a grid alpha item stay unsupported.
+- Experimental HEIF/HEIC now decodes common uncompressed `unci` stills, including
+  packed sub-byte RGB and zlib or deflate generic compression with tiled icef
+  extents. Brotli, compressed unit type 3, and HEIF Mini stay unsupported.
+- Experimental HEIF/HEIC now reconstructs 8-bit HEVC Range Extension 4:4:4 intra
+  stills. 4:2:2, 10-bit Range Extension, and inter-predicted items stay unsupported.
+- The Imazen codec-corpus runner now includes `heic-conformance` through the
+  experimental HEIF decoder. Valid HEVC stills and common uncompressed stills can
+  pass. Timed sequences, Mini, brotli, and inter-predicted items stay unsupported,
+  and decoder-dependent edge cases are flexible.
+- Experimental HEIF/HEIC now reconstructs independent raster-order HEVC slice
+  segments in one coded picture. `transform_skip_flag` is parsed only for 4x4
+  transform blocks, which was the CABAC desync behind the Nokia winter/autumn
+  "slice segmentation" failures. In-picture tiles can be scanned, but tiles
+  combined with WPP and dependent slices stay unsupported.
+- Experimental HEIF/HEIC decode now accepts identity-derived (`iden`) primaries, parses bounded
+  XMP MIME items without needing them for pixels, and prefers native `irot`/`imir` transforms over
+  a conflicting EXIF orientation so auto-orient cannot rotate a photo twice. Metadata inspection
+  still does not reconstruct HEVC sample state.
+
 ### Changed
+
+- Experimental HEIF/HEIC displayed 8-bit 4:2:0 conversion now uses nearest
+  chroma samples, matching the Main 10/PQ path. Against ImageMagick/libheif, the
+  libheif example still is 0.034652 normalized sRGB RMSE after the existing
+  1024px comparison resize.
 
 - Streaming resize now skips the Lanczos resample stage when the exact-integer box shrink already
   lands on the requested geometry, uses a specialized unrolled integer kernel for the common rgb8

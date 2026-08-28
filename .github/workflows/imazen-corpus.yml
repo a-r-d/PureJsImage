@@ -25,6 +25,7 @@ jobs:
           - tiff
           - gif
           - bmp
+          - heic
 
     steps:
       - name: Checkout PureJsImage

@@ -150,11 +150,11 @@ not every auxiliary asset stored beside it.
   geometry, edge crop, and final canvas extent
 - [x] Decode grid tiles directly into the requested crop/resize workflow rather
   than first assembling a source-sized RGBA canvas
-- [ ] Support multiple slices and tiles within one coded HEVC picture
+- [x] Reconstruct independent raster-order slice segments within one coded HEVC picture
 - [x] Apply `irot`, `imir`, and `clap` in the defined order
 - [x] Independently validate displayed real-world `imir` and `clap` pixels
 - [x] Return display dimensions after clean-aperture and orientation transforms
-- [ ] Define and test precedence between native HEIF transforms and EXIF
+- [x] Define and test precedence between native HEIF transforms and EXIF
   orientation so a photo is never rotated twice
 
 ### Common HEVC profiles and samples
@@ -180,8 +180,10 @@ not every auxiliary asset stored beside it.
   residual reconstruction for supported transform sizes
 - [x] Default and signaled scaling lists used by the target profiles
 - [x] Deblocking and sample-adaptive offset filtering before releasing pixels
-- [ ] Constrained intra prediction, transform skip, PCM, and other tools that
-  valid target-profile still images can signal
+- [x] Parse `transform_skip_flag` only for 4x4 transform blocks, matching the
+  default `Log2MaxTransformSkipSize` of 2
+- [ ] Constrained intra prediction, PCM, and other tools that valid
+  target-profile still images can signal
 - [x] Entropy-coding synchronization and WPP entry-point offsets used by Apple
   Main Still Picture tiles
 - [ ] Tiles within a coded picture, dependent slice segments, and their
@@ -190,9 +192,10 @@ not every auxiliary asset stored beside it.
   without off-by-one reads or color-plane shifts
 - [x] Reject inter-predicted pictures and multilayer NAL units explicitly in the
   still-image inspection path
-- [x] Reject profiles outside Main, Main 10, and Main Still Picture, non-IDR
-  random-access pictures, and SPS/PPS range, multilayer, 3D, screen-content, or
-  unspecified extensions explicitly in the inspection path
+- [x] Reject profiles outside Main, Main 10, Main Still Picture, and 8-bit
+  Range Extension 4:4:4, non-IDR random-access pictures, and SPS/PPS
+  multilayer, 3D, screen-content, or unspecified extensions explicitly in the
+  inspection path
 
 ### Color and output
 
@@ -201,15 +204,16 @@ not every auxiliary asset stored beside it.
 - [x] Correctly render the compatible sRGB and Display P3 cases to the
   pipeline's declared output color space
 - [x] Resolve matching explicit nclx/VUI matrices, and resolve absent or
-  unspecified matrices only for the pinned SDR/ICC Main or Main Still Picture
-  4:2:0 HEVC-family evidence policy; reject conflicts and ambiguity explicitly
+  unspecified matrices only for the pinned SDR/ICC Main, Main Still Picture,
+  or 8-bit Range Extension 4:2:0/4:4:4 HEVC-family evidence policy; reject
+  conflicts and ambiguity explicitly
 - [x] Convert 8-bit YUV to pipeline pixel blocks without a duplicate full-frame
   RGB or RGBA allocation
 - [x] Match the Main 10/PQ displayed SDR oracle at 0.001007 normalized RMSE
   using signaled-matrix conversion, nearest 4:2:0 chroma, 8-bit rounding, and
   hard clipping while preserving PQ code values
-- [ ] Preserve opaque, binary-alpha, and partial-alpha values when a supported
-  auxiliary alpha item is present
+- [x] Preserve opaque, binary-alpha, and partial-alpha values when a supported
+  same-dimension auxiliary alpha item is present
 - [x] Decode a valid SDR base image even when unsupported depth, matte, or gain
   map auxiliary items are also present, with invalid auxiliary payloads proving
   that `pitm` primary selection wins
@@ -222,22 +226,29 @@ not every auxiliary asset stored beside it.
 
 - [x] Parse bounded EXIF item extents and expose the metadata fields supported
   by PureJsImage
-- [ ] Parse bounded XMP MIME items without making XMP parsing necessary for
+- [x] Parse bounded XMP MIME items without making XMP parsing necessary for
   pixel decode
 - [x] Ignore unknown non-essential metadata and auxiliary items safely while
   decoding a valid SDR primary
 - [x] Preserve compatible EXIF and ICC metadata according to explicit caller
   options and output-codec support, with stripping as the default
-- [ ] Preserve XMP metadata when explicitly requested
+- [x] Preserve XMP metadata when explicitly requested
 
 ## Group 2: common compatibility improvements — should have
 
 These features are regularly encountered, but a correct primary SDR image can
 ship before all of them are complete.
 
-- [ ] Auxiliary alpha images, including independent dimensions and grid alpha
+- [x] Same-dimension auxiliary alpha for a directly coded `hvc1` primary,
+  including monochrome HEVC alpha items
+- [x] Independent-dimension auxiliary alpha and matching grid auxiliary alpha;
+  a grid alpha item on a direct primary stays unsupported
 - [ ] Thumbnail (`thmb`) relationships and an explicit thumbnail-selection API
-- [ ] Identity-derived images (`iden`) without recursive-reference loops
+- [x] Identity-derived images (`iden`) without recursive-reference loops
+- [x] Uncompressed `unci` stills for 8-bit and packed sub-byte RGB with
+  component, pixel, mixed, row, and packed interleave
+- [x] zlib and deflate generic compression for uncompressed stills, including
+  tiled icef extents; brotli and compressed unit type 3 stay unsupported
 - [ ] Pixel aspect ratio (`pasp`) and additional display-aperture behavior
 - [x] PQ 10-bit inputs with a documented libheif-compatible 8-bit display
   policy: preserve PQ code values, apply the signaled YCbCr matrix with nearest
@@ -250,7 +261,7 @@ ship before all of them are complete.
 - [ ] Additional MIAF-conformant brands and constraints
 - [ ] Multiple top-level still images with explicit index selection while
   retaining primary-image decode as the default
-- [ ] Metadata-only inspection without parsing or allocating HEVC coefficient
+- [x] Metadata-only inspection without parsing or allocating HEVC coefficient
   or sample state
 
 ## Group 3: nice to have later
@@ -265,7 +276,9 @@ required for the normal upload-to-resize workflow.
 - [ ] Auxiliary depth and disparity image discovery and opt-in extraction
 - [ ] Portrait-effects, semantic-segmentation, and other auxiliary matte access
 - [ ] Overlay-derived images (`iovl`)
-- [ ] HEVC Range Extension 4:2:2 and 4:4:4 chroma formats
+- [x] HEVC Range Extension 8-bit 4:4:4 intra stills
+- [ ] HEVC Range Extension 4:2:2 chroma formats
+- [ ] HEIF Mini (`mini`) compact still bitstream expansion
 - [ ] Twelve-bit and higher-precision HEVC still images
 - [ ] Lossless HEVC still-image modes
 - [ ] Region-of-interest APIs for independently addressable tiles

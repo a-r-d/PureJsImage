@@ -217,7 +217,11 @@
       "experimental": true,
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/heif.test.ts"],
+      "evidence": [
+        "tests/heif.test.ts",
+        "tests/hevc-picture.test.ts",
+        "tests/hevc-residual.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",

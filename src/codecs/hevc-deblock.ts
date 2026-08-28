@@ -194,8 +194,9 @@ export const applyHevcDeblocking = (
   edges: HevcDeblockEdges,
   options: HevcDeblockOptions,
 ): void => {
-  const chromaWidth = Math.ceil(width / 2)
-  const chromaHeight = Math.ceil(height / 2)
+  const fourFourFour = uPlane.length === width * height && vPlane.length === width * height
+  const chromaWidth = fourFourFour ? width : Math.ceil(width / 2)
+  const chromaHeight = fourFourFour ? height : Math.ceil(height / 2)
   if (
     yPlane.length !== width * height ||
     uPlane.length !== chromaWidth * chromaHeight ||
@@ -231,8 +232,8 @@ export const applyHevcDeblocking = (
           filterLumaEdge(yPlane, width, edgeX, edgeY, direction, beta, tc, maximum)
         }
         if ((edge & 15) !== 0 || (along & 7) !== 0) continue
-        const chromaEdgeX = edgeX >> 1
-        const chromaEdgeY = edgeY >> 1
+        const chromaEdgeX = fourFourFour ? edgeX : edgeX >> 1
+        const chromaEdgeY = fourFourFour ? edgeY : edgeY >> 1
         const qPiCb = clip(options.qp + options.cbQpOffset, 0, 57)
         const qPiCr = clip(options.qp + options.crQpOffset, 0, 57)
         const chromaTc = (componentQp: number): number =>

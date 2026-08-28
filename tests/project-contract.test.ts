@@ -269,7 +269,7 @@ describe('package contract', () => {
     for (const format of ['jpeg', 'png', 'webp']) {
       expect(workflow).toContain(`          - ${format}`)
     }
-    for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp']) {
+    for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp', 'heic']) {
       expect(workflow).toContain(`          - ${format}`)
       const baseline = readFileSync(`benchmark/results/imazen-${format}-conformance.json`, 'utf8')
       expect(baseline).toContain(`"codecCorpusGitCommit": "${corpusCommit}"`)

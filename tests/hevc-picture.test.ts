@@ -1,7 +1,11 @@
 import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import { inspectHevcPps, inspectHevcSps } from '../src/codecs/hevc.ts'
-import { decodeHevcIntraPicture } from '../src/codecs/hevc-picture.ts'
+import {
+  decodeHevcIntraPicture,
+  decodeHevcIntraSlices,
+  hevcTileScanOrder,
+} from '../src/codecs/hevc-picture.ts'
 
 const bytes = (base64: string): Uint8Array => Uint8Array.from(Buffer.from(base64, 'base64'))
 
@@ -37,6 +41,21 @@ describe('restricted HEVC intra-picture reconstruction', () => {
       'ddde086a6b5565eea61390bd612d5998f358d9232a5ad9d64cf32b238ff7cc81',
     )
     expect(picture).toMatchObject({ width: 32, height: 32, bitDepth: 8, chromaFormat: 1 })
+  })
+
+  it('rejects a leftover trailing slice after the picture is complete', () => {
+    const sps = inspectHevcSps(bytes('QgEBBAgAAAMAn6gAAAMAAB6gQghZbp5MLwFoCAAAAwAIAAADAAhA'))
+    const pps = inspectHevcPps(bytes('RAHBcYGkgA=='))
+    const nal = bytes('KAGsfOk6FoCJZBiPsF7C3iika9NAeA==')
+    expect(() =>
+      decodeHevcIntraSlices(
+        [
+          { data: nal, type: 20 },
+          { data: nal, type: 20 },
+        ],
+        { pps: [pps], sps: [sps] },
+      ),
+    ).toThrow(/multiple first slices|unused trailing slice/)
   })
 
   it('exactly reconstructs an independently encoded Main 10 picture', () => {
@@ -97,5 +116,39 @@ describe('restricted HEVC intra-picture reconstruction', () => {
       'b413c309b3a007953c26837f392f4398ee4ab614289ae1dbd253b77fedfe04af',
     )
     expect(picture).toMatchObject({ width: 128, height: 128, bitDepth: 8 })
+  })
+})
+
+describe('HEVC in-picture tile scan order', () => {
+  it('covers a uniform 2x2 tile grid in tile-scan order', () => {
+    const layout = hevcTileScanOrder(
+      { ctbWidth: 4, ctbHeight: 4, ctbCount: 16 },
+      {
+        tileColumnWidths: [],
+        tileColumns: 2,
+        tileRowHeights: [],
+        tileRows: 2,
+        tilesEnabled: true,
+        uniformTileSpacing: true,
+      },
+    )
+    expect([...layout.raster]).toEqual([0, 1, 4, 5, 2, 3, 6, 7, 8, 9, 12, 13, 10, 11, 14, 15])
+    expect([...layout.tileIndex]).toEqual([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3])
+    expect([...layout.lastInTile]).toEqual([0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1])
+  })
+
+  it('keeps raster order when tiles are disabled', () => {
+    const layout = hevcTileScanOrder(
+      { ctbWidth: 3, ctbHeight: 2, ctbCount: 6 },
+      {
+        tileColumnWidths: [],
+        tileColumns: 1,
+        tileRowHeights: [],
+        tileRows: 1,
+        tilesEnabled: false,
+        uniformTileSpacing: true,
+      },
+    )
+    expect([...layout.raster]).toEqual([0, 1, 2, 3, 4, 5])
   })
 })

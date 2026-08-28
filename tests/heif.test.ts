@@ -1,19 +1,21 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
-
-import { inspectHeifBitstream, resolveHeifColorMatrix } from '../src/codecs/heif.ts'
+import { allCodecs } from '../src/codec-entries/all.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
-import { allCodecs } from '../src/codec-entries/all.ts'
+import { inspectHeifBitstream, resolveHeifColorMatrix } from '../src/codecs/heif.ts'
+import { decodeUncompressedRgba, parseIcef, parseUncC } from '../src/codecs/heif-uncompressed.ts'
 import {
   inspectHevcPps,
   inspectHevcSlice,
   inspectHevcSps,
   readHevcSliceData,
 } from '../src/codecs/hevc.ts'
+import { decodeHevcIntraPicture } from '../src/codecs/hevc-picture.ts'
+
 import { defaultImageLimits, MemorySource } from '../src/index.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { createTestImageLibrary } from './image-library.ts'
@@ -568,6 +570,8 @@ const decodedHeifFixture = (
   iccProfile?: Uint8Array,
   displayP3 = false,
   auxiliaryTypes: readonly string[] = [],
+  mismatchedAlpha = false,
+  gridAlpha = false,
 ): Uint8Array => {
   const vps = base64Bytes('QAEMAf//AWAAAAMAkAAAAwAAAwAelZgJ')
   const sps = base64Bytes('QgEBAWAAAAMAkAAAAwAAAwAeoCCBBZZWaSTK8BaAgAAAAwCAAAADAIQ=')
@@ -609,13 +613,23 @@ const decodedHeifFixture = (
     ...ascii('mif1'),
   ])
   if (asGrid) {
+    const alphaItems = gridAlpha ? [6, 7, 8, 9, 10] : []
+    const itemCount = 5 + alphaItems.length
     const itemInfo = fullBox('iinf', [
       0,
-      5,
+      itemCount,
       ...fullBox('infe', [0, 1, 0, 0, ...ascii('grid'), 0], 2),
       ...[2, 3, 4, 5].flatMap((itemId) =>
         fullBox('infe', [0, itemId, 0, 0, ...ascii('hvc1'), 0], 2),
       ),
+      ...(gridAlpha
+        ? [
+            ...fullBox('infe', [0, 6, 0, 0, ...ascii('grid'), 0], 2),
+            ...[7, 8, 9, 10].flatMap((itemId) =>
+              fullBox('infe', [0, itemId, 0, 0, ...ascii('hvc1'), 0], 2),
+            ),
+          ]
+        : []),
     ])
     const properties = [
       fullBox('ispe', [...bytes32(100), ...bytes32(90)]),
@@ -628,20 +642,39 @@ const decodedHeifFixture = (
           ? [...ascii('prof'), ...iccProfile]
           : [...ascii('nclx'), 0, displayP3 ? 12 : 1, 0, 13, 0, 6, 0],
       ),
+      ...(gridAlpha ? [fullBox('auxC', [...ascii('urn:mpeg:hevc:2015:auxid:1'), 0])] : []),
     ]
     const associations = fullBox('ipma', [
-      ...bytes32(5),
+      ...bytes32(itemCount),
       0,
       1,
       2,
       1,
       5,
       ...[2, 3, 4, 5].flatMap((itemId) => [0, itemId, 3, 2, 3, 4]),
+      ...(gridAlpha
+        ? [0, 6, 2, 1, 6, ...[7, 8, 9, 10].flatMap((itemId) => [0, itemId, 3, 2, 3, 4])]
+        : []),
     ])
-    const references = fullBox('iref', box('dimg', [0, 1, 0, 4, 0, 2, 0, 3, 0, 4, 0, 5]))
+    const references = fullBox('iref', [
+      ...box('dimg', [0, 1, 0, 4, 0, 2, 0, 3, 0, 4, 0, 5]),
+      ...(gridAlpha
+        ? [
+            ...box('dimg', [0, 6, 0, 4, 0, 7, 0, 8, 0, 9, 0, 10]),
+            ...box('auxl', [0, 6, 0, 1, 0, 1]),
+          ]
+        : []),
+    ])
     const gridPayload = [0, 0, 1, 1, 0, 100, 0, 90]
     const tilePayload = lengthPrefixedNal(slice)
-    const payloads = [gridPayload, tilePayload, tilePayload, tilePayload, tilePayload]
+    const payloads = [
+      gridPayload,
+      tilePayload,
+      tilePayload,
+      tilePayload,
+      tilePayload,
+      ...(gridAlpha ? [gridPayload, tilePayload, tilePayload, tilePayload, tilePayload] : []),
+    ]
     const locations = (firstOffset: number): readonly number[] => {
       let offset = firstOffset
       const entries = payloads.flatMap((payload, index) => {
@@ -689,6 +722,82 @@ const decodedHeifFixture = (
       : []),
     ...(rotation === undefined ? [] : [box('irot', [rotation])]),
   ]
+  if (mismatchedAlpha) {
+    const alphaType = auxiliaryTypes[0]
+    if (!alphaType) throw new Error('mismatched alpha fixture requires an auxiliary type')
+    const alphaVps = base64Bytes('QAEMAf//AiAAAAMAkAAAAwAAAwAekoCQ')
+    const alphaSps = base64Bytes('QgEBAiAAAAMAkAAAAwAAAwAeoEIITZZKuTC8BahIgEggAAADACAAAAMAIQ==')
+    const alphaPps = base64Bytes('RAHBcaGkgA==')
+    const alphaSlice = base64Bytes(
+      'KAGtwCNGBl0lp1HvS4/wcZzXmuUtHUA/o3vHJ+gpBpIZd4Z+CHeJCRjbOdvpwooNEzM/IT7lyQbvAsDVdVNBshoohnOIjwrH6czmINr7Z7D6aXz//8/gLZglLCknsJowtSw57pL0kg5bOZjl3cbBdXeeBPZpqggAF+UJCTXRNWm1bDnsxe1ByKixfwxXhYTLELSfhtHiaW5SJje21FEBxSoPcnbcxEHNJ4QD0neBRcfW8AlfJRv75+ebNlQ3WZa/vTe+xgRvhJgL90Zkhgo9gImQi5KsH4IitkcwLe4c3RU9Z/WYbAN79wmDWBBjzGiqcJdickqZowHCkSS4ZoKHtxATDbEt28jORaIOhsbMBsJb8pVHrTB5LX28H/olM/kFpNrcjvBnyLd5mGU+LSmLY3i2kMqyXGUkkX9OuU09sej1MdGddXnr/946SB6+23jCV3uwKexwYZNXDsFC8U1ZBjcR2YNmDP5vOTiZv0xVZiYbBQO+C3WbI0R0utTuIRAMsj6GxJyeJEIA+GykmipVv8slhigPo7Bg',
+    )
+    const alphaConfiguration = [
+      1,
+      2,
+      ...new Array<number>(10).fill(0),
+      30,
+      0xf0,
+      0,
+      0xfc,
+      0xfd,
+      0xfa,
+      0xfa,
+      0,
+      0,
+      7,
+      3,
+      ...parameterArrayFromNal(32, alphaVps),
+      ...parameterArrayFromNal(33, alphaSps),
+      ...parameterArrayFromNal(34, alphaPps),
+    ]
+    const alphaProperties = [
+      fullBox('ispe', [...bytes32(32), ...bytes32(32)]),
+      fullBox('pixi', [3, 10, 10, 10]),
+      box('hvcC', alphaConfiguration),
+      fullBox('auxC', [...ascii(alphaType), 0]),
+    ]
+    const properties = [...primaryProperties, ...alphaProperties]
+    const itemInfo = fullBox('iinf', [
+      0,
+      2,
+      ...fullBox('infe', [0, 1, 0, 0, ...ascii('hvc1'), 0], 2),
+      ...fullBox('infe', [0, 2, 0, 0, ...ascii('hvc1'), 0], 2),
+    ])
+    const payloads = [lengthPrefixedNal(slice), lengthPrefixedNal(alphaSlice)]
+    const locations = (firstOffset: number): readonly number[] => {
+      let offset = firstOffset
+      const entries = payloads.flatMap((payload, index) => {
+        const entry = [0, index + 1, 0, 0, 0, 1, ...bytes32(offset), ...bytes32(payload.length)]
+        offset += payload.length
+        return entry
+      })
+      return fullBox('iloc', [0x44, 0, 0, payloads.length, ...entries])
+    }
+    const associations = fullBox('ipma', [
+      ...bytes32(2),
+      0,
+      1,
+      primaryProperties.length,
+      ...primaryProperties.map((_property, index) => index + 1),
+      0,
+      2,
+      alphaProperties.length,
+      ...alphaProperties.map((_property, index) => primaryProperties.length + index + 1),
+    ])
+    const references = fullBox('iref', box('auxl', [0, 2, 0, 1, 0, 1]))
+    const metadata = (firstOffset: number): readonly number[] =>
+      fullBox('meta', [
+        ...fullBox('pitm', [0, 1]),
+        ...itemInfo,
+        ...locations(firstOffset),
+        ...box('iprp', [...box('ipco', properties.flat()), ...associations]),
+        ...references,
+      ])
+    const provisionalMetadata = metadata(0)
+    const firstOffset = fileType.length + provisionalMetadata.length + 8
+    return Uint8Array.from([...fileType, ...metadata(firstOffset), ...box('mdat', payloads.flat())])
+  }
+
   const properties = [
     ...primaryProperties,
     ...auxiliaryTypes.map((type) => fullBox('auxC', [...ascii(type), 0])),
@@ -700,10 +809,7 @@ const decodedHeifFixture = (
       fullBox('infe', [0, itemId, 0, 0, ...ascii('hvc1'), 0], 2),
     ),
   ])
-  const payloads = [
-    lengthPrefixedNal(slice),
-    ...auxiliaryTypes.map(() => lengthPrefixedNal(Uint8Array.of(0))),
-  ]
+  const payloads = [lengthPrefixedNal(slice), ...auxiliaryTypes.map(() => lengthPrefixedNal(slice))]
   const locations = (firstOffset: number): readonly number[] => {
     let offset = firstOffset
     const entries = payloads.flatMap((payload, index) => {
@@ -897,6 +1003,266 @@ const heifGridFixture = ({
   return Uint8Array.from([...fileType, ...metadata(firstOffset), ...box('mdat', payloads.flat())])
 }
 
+const tiffOrientation = (orientation: number): readonly number[] => [
+  0x4d,
+  0x4d,
+  0,
+  0x2a,
+  0,
+  0,
+  0,
+  8,
+  0,
+  1,
+  0x01,
+  0x12,
+  0,
+  3,
+  0,
+  0,
+  0,
+  1,
+  0,
+  orientation,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+]
+
+const heifExifPayload = (orientation: number): readonly number[] => [
+  0,
+  0,
+  0,
+  0,
+  ...tiffOrientation(orientation),
+]
+
+const decodedHevcConfiguration = (): {
+  readonly configuration: readonly number[]
+  readonly slice: readonly number[]
+} => {
+  const vps = base64Bytes('QAEMAf//AWAAAAMAkAAAAwAAAwAelZgJ')
+  const sps = base64Bytes('QgEBAWAAAAMAkAAAAwAAAwAeoCCBBZZWaSTK8BaAgAAAAwCAAAADAIQ=')
+  const pps = base64Bytes('RAHBcaES')
+  const slice = base64Bytes(
+    'KAGvLpQdSZY47HVNRR1H+qRYfo/4VfDD+a8z6v94yOQOTu5XAumEQ+E017fKnEFKFJnArxcwX8xxt8Gtg12WQfdrkHlYNMguGfBa/HqfbsJ+RD//fXmGkFQ5hveQFWBK+98fOkraWGRPyQLMVkS1SPdB+8ZOqklLrkNZK1aBcoqqdG6eAkCLtdoM31YFsc194IxN+oX+EeUfXBCEESlw72eha39NYXMYHMr9Bru7s1oMQMsE+cTWw4RrpWGb9h/Vb5Xabxkn7Oo9ABu+s06ZaMRyHtRIwXjUM9w9c8AvLdHW/ESAqUZeeoqo1VZAzns2oYG2zryOLbgWc0VzXlN9d5mK879KJxsk47JOzc9bGKIY4Dp3ia2yCS8dTEJVvwSvVcRgOfZPQ32r9f9Oq6h8KsuEhu/dK5ktzfcCaNsx3BR3NYdRStb3EdgqnYsP+MDMMKLFisPQdyN8LTv5kLelnc36h4H5MTieHYQ/DyAXldMY+n+GbHm01pcNifw/MRZRScxwSXhadCEOX5nuB1hrwlW7Q5j29RuNVpwXet13TiEXJ+ekxtOMivHmBuhNR5nY2wrmSU70G0w18eomPgh9eIYrRV2oADKdrE2NqQZifX1JdI0ByMNMpLxEXfxh7VbWZfI5ONGTSh63PVv6PrWPb5vLGVxu5ozrEjrqcsTmijcxBIt/9/PhngZjTWeG1WVw4g/9DJHC6fvHGldtctoFB8t9zc2/kq7Nwjq6JtqUhgGX/v33mjFiVhjZtXZR7XeFchOx8Pu3/lHEBOLrB0nKymbvjr6wgZcELrNzjb7LgX1iQNaLn1pPZKieLaab6xGP4OjxLpCz+xA2coFXZ4LCStYtiSCzEvET1tupwmDeXxTMkKQjEkUN8gCk6jwkH/FCMYgeadWuWL9vtYEdEcLw/Wb6xh6+YhC0HF1xAa/lnr2VRJBox3RnQcEYkfnRH7daf34SndLnF1AsaleP7BEWgX0FxIdAiZhshxFEnA48YHGhHiWN1e3jedXSKgenxUMYu2brN/sbVhJgfgbnnufLdiBo/ZHUuCR/2v9V/ebMUZyPHKsLYRsTJNAtmRrLY/mvHYazJ6N4AYH+n2lX6PpUZyTiSID41hDZe1jwkaVSqaFcJ1cMKBc5PwcS7Drjkk4A3+3W4mEdy3icjoMrz9YolOZzeWV1K+FFQIZ3V4yYexfq/dohOdOqi/ltzpvEK4QBSpAVrWB+XInAZdg2gfnDYfQomdaCkMlSSNHWqIcIdiGBVPfAZ0PSGJg2P7ntrUTuqiys7LanfWNyCmD1S1CYjSVh7Jljm4a4Dr8pGqvucF/ACWKk1sft2hQ7O8Ma8pIErRGrSCgpMPuWc/+3zUlA22fG6ERlgws8UHkT/psWIJkOEQa8w0t2l+mznrn5wyP3T/p81zxUkloxtNqc+oDzKaLAi+rMsfs8XjMD36f/hEiv/j70ThTObqsMAETA3YyL0mNUuQlhWuD3OhUds3+Mbywijqf+dhzlsoFgZ7vUNQrL6VJy56q72+qToRtiSmQIjWPqMJiE79kn+jOrHALQo2mOTWkCycUz8v/aiV7jqaOr+5wfVz06yfsfDN+f3pJJRvWDnapAFLzzAKcjm12urJIKaLNVBLTgpK9Pih+DhUhFMQqKoYaksmDhfH2E0DI6kxusNMWbpzV4Gbf5E5cW1EpFA8IfvahnjXZxwDl//gaL68BAdFJXWP0j9Fxa+fvW+UtA',
+  )
+  const parameterArrayFromNal = (type: number, nal: Uint8Array): readonly number[] => [
+    0x40 | type,
+    0,
+    1,
+    (nal.length >>> 8) & 0xff,
+    nal.length & 0xff,
+    ...nal,
+  ]
+  return {
+    configuration: [
+      1,
+      1,
+      ...new Array<number>(10).fill(0),
+      30,
+      0xf0,
+      0,
+      0xfc,
+      0xfd,
+      0xf8,
+      0xf8,
+      0,
+      0,
+      7,
+      3,
+      ...parameterArrayFromNal(32, vps),
+      ...parameterArrayFromNal(33, sps),
+      ...parameterArrayFromNal(34, pps),
+    ],
+    slice: lengthPrefixedNal(slice),
+  }
+}
+
+const heifStillContainer = ({
+  decoded = false,
+  exifOrientation,
+  identity = false,
+  identityLoop = false,
+  rotation,
+  xmp,
+  xmpEncoding,
+}: {
+  decoded?: boolean
+  exifOrientation?: number
+  identity?: boolean
+  identityLoop?: boolean
+  rotation?: 0 | 1 | 2 | 3
+  xmp?: string
+  xmpEncoding?: string
+} = {}): Uint8Array => {
+  const width = decoded ? 64 : 4032
+  const height = decoded ? 64 : 3024
+  const coded = decoded
+    ? decodedHevcConfiguration()
+    : {
+        configuration: hevcConfiguration(undefined, width, height),
+        slice: lengthPrefixedNal(
+          sliceNal({ ctbCount: Math.ceil(width / 64) * Math.ceil(height / 64) }),
+        ),
+      }
+  const fileType = box('ftyp', [
+    ...ascii('heic'),
+    ...bytes32(0),
+    ...ascii('heic'),
+    ...ascii('mif1'),
+  ])
+  const entries: {
+    readonly id: number
+    readonly infe: readonly number[]
+    readonly payload?: readonly number[]
+  }[] = identityLoop
+    ? [
+        {
+          id: 1,
+          infe: fullBox('infe', [0, 1, 0, 0, ...ascii('iden'), 0], 2),
+        },
+        {
+          id: 2,
+          infe: fullBox('infe', [0, 2, 0, 0, ...ascii('iden'), 0], 2),
+        },
+      ]
+    : identity
+      ? [
+          {
+            id: 1,
+            infe: fullBox('infe', [0, 1, 0, 0, ...ascii('iden'), 0], 2),
+          },
+          {
+            id: 2,
+            infe: fullBox('infe', [0, 2, 0, 0, ...ascii('hvc1'), 0], 2),
+            payload: coded.slice,
+          },
+        ]
+      : [
+          {
+            id: 1,
+            infe: fullBox('infe', [0, 1, 0, 0, ...ascii('hvc1'), 0], 2),
+            payload: coded.slice,
+          },
+        ]
+  if (exifOrientation !== undefined) {
+    const id = entries.length + 1
+    entries.push({
+      id,
+      infe: fullBox('infe', [0, id, 0, 0, ...ascii('Exif'), 0], 2),
+      payload: heifExifPayload(exifOrientation),
+    })
+  }
+  if (xmp !== undefined) {
+    const id = entries.length + 1
+    entries.push({
+      id,
+      infe: fullBox(
+        'infe',
+        [
+          0,
+          id,
+          0,
+          0,
+          ...ascii('mime'),
+          0,
+          ...ascii('application/rdf+xml'),
+          0,
+          ...(xmpEncoding === undefined ? [] : [...ascii(xmpEncoding), 0]),
+        ],
+        2,
+      ),
+      payload: [...ascii(xmp)],
+    })
+  }
+  const itemInfo = fullBox('iinf', [0, entries.length, ...entries.flatMap((entry) => entry.infe)])
+  const properties = [
+    fullBox('ispe', [...bytes32(width), ...bytes32(height)]),
+    fullBox('pixi', [3, 8, 8, 8]),
+    box('hvcC', coded.configuration),
+    box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, decoded ? 0 : 0x80]),
+    ...(rotation === undefined ? [] : [box('irot', [rotation])]),
+  ]
+  const codedItemId = identity || identityLoop ? 2 : 1
+  const primaryPropertyIndexes = identity
+    ? [1, ...(rotation === undefined ? [] : [5])]
+    : [...[1, 2, 3, 4], ...(rotation === undefined ? [] : [5])]
+  const associations = fullBox('ipma', [
+    ...bytes32(identityLoop ? 2 : identity ? 2 : 1),
+    ...(identityLoop
+      ? [0, 1, 1, 1, 0, 2, 1, 1]
+      : identity
+        ? [
+            0,
+            1,
+            primaryPropertyIndexes.length,
+            ...primaryPropertyIndexes,
+            0,
+            codedItemId,
+            4,
+            1,
+            2,
+            3,
+            4,
+          ]
+        : [0, 1, primaryPropertyIndexes.length, ...primaryPropertyIndexes]),
+  ])
+  const references = [
+    ...(identityLoop
+      ? [box('dimg', [0, 1, 0, 1, 0, 2]), box('dimg', [0, 2, 0, 1, 0, 1])]
+      : identity
+        ? [box('dimg', [0, 1, 0, 1, 0, 2])]
+        : []),
+    ...(exifOrientation === undefined
+      ? []
+      : [box('cdsc', [0, identity || identityLoop ? 3 : 2, 0, 1, 0, 1])]),
+    ...(xmp === undefined
+      ? []
+      : [
+          box('cdsc', [
+            0,
+            (identity || identityLoop ? 3 : 2) + (exifOrientation === undefined ? 0 : 1),
+            0,
+            1,
+            0,
+            1,
+          ]),
+        ]),
+  ]
+  const payloads = entries.flatMap((entry) => (entry.payload === undefined ? [] : [entry.payload]))
+  const located = entries.filter((entry) => entry.payload !== undefined)
+  const locations = (firstOffset: number): readonly number[] => {
+    if (located.length === 0) return []
+    let offset = firstOffset
+    const rows = located.flatMap((entry) => {
+      const payload = entry.payload ?? []
+      const row = [0, entry.id, 0, 0, 0, 1, ...bytes32(offset), ...bytes32(payload.length)]
+      offset += payload.length
+      return row
+    })
+    return fullBox('iloc', [0x44, 0, 0, located.length, ...rows])
+  }
+  const metadata = (firstOffset: number): readonly number[] =>
+    fullBox('meta', [
+      ...fullBox('pitm', [0, 1]),
+      ...itemInfo,
+      ...locations(firstOffset),
+      ...box('iprp', [...box('ipco', properties.flat()), ...associations]),
+      ...(references.length === 0 ? [] : fullBox('iref', references.flat())),
+    ])
+  const provisionalMetadata = metadata(0)
+  const firstOffset = fileType.length + provisionalMetadata.length + (payloads.length === 0 ? 0 : 8)
+  return Uint8Array.from([
+    ...fileType,
+    ...metadata(firstOffset),
+    ...(payloads.length === 0 ? [] : box('mdat', payloads.flat())),
+  ])
+}
+
 describe('HEIF metadata and registration', () => {
   it('detects HEIC as the shared HEIF codec and reports HEVC metadata', async () => {
     const image = await Image.open(heifFixture({ rotation: 3 }))
@@ -1018,6 +1384,110 @@ describe('HEIF metadata and registration', () => {
   })
 })
 
+describe('HEIF container completeness', () => {
+  it('inspects HEIF metadata without reconstructing HEVC sample state', async () => {
+    const source = heifFixture()
+    await expect((await Image.open(source)).metadata()).resolves.toMatchObject({
+      format: 'heif',
+      width: 4032,
+      height: 3024,
+    })
+    await expect(
+      (async () => {
+        const decoder = await heifCodec.createDecoder?.(
+          new MemorySource(source),
+          defaultImageLimits,
+        )
+        if (!decoder) throw new Error('HEIF decoder is unavailable')
+        for await (const _block of decoder.decode()) {
+          // Exhaust reconstruction so the stub slice fails.
+        }
+      })(),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('prefers HEIF transforms over a conflicting EXIF orientation', async () => {
+    await expect(
+      (await Image.open(heifStillContainer({ rotation: 3, exifOrientation: 3 }))).metadata(),
+    ).resolves.toMatchObject({ orientation: 6 })
+  })
+
+  it('uses EXIF orientation when HEIF has no transformative properties', async () => {
+    await expect(
+      (await Image.open(heifStillContainer({ exifOrientation: 6 }))).metadata(),
+    ).resolves.toMatchObject({ orientation: 6, width: 4032, height: 3024 })
+  })
+
+  it('auto-orients from EXIF without applying a second HEIF rotation', async () => {
+    const heifRotated = heifStillContainer({ decoded: true, rotation: 3 })
+    const exifOnly = heifStillContainer({ decoded: true, exifOrientation: 6 })
+    const both = heifStillContainer({ decoded: true, rotation: 3, exifOrientation: 3 })
+    const fromHeif = await (await Image.open(heifRotated)).autoOrient().png().toBuffer()
+    const fromExif = await (await Image.open(exifOnly)).autoOrient().png().toBuffer()
+    const fromBoth = await (await Image.open(both)).autoOrient().png().toBuffer()
+    expect(fromExif).toEqual(fromHeif)
+    expect(fromBoth).toEqual(fromHeif)
+
+    const jpeg = await (await Image.open(both)).autoOrient().keepExif().jpeg().toBuffer()
+    await expect((await Image.open(jpeg)).metadata()).resolves.toMatchObject({ orientation: 1 })
+  })
+
+  it('parses bounded XMP MIME items without using them for pixel decode', async () => {
+    const packet =
+      '<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""/></rdf:RDF></x:xmpmeta><?xpacket end="w"?>'
+    const withXmp = heifStillContainer({ decoded: true, xmp: packet })
+    const reference = await (await Image.open(decodedHeifFixture())).png().toBuffer()
+    const output = await (await Image.open(withXmp)).png().toBuffer()
+    expect(output).toEqual(reference)
+    await expect(
+      heifCodec.preservedMetadata?.(new MemorySource(withXmp), defaultImageLimits),
+    ).resolves.toEqual({})
+    await expect(
+      heifCodec.preservedMetadata?.(new MemorySource(withXmp), defaultImageLimits, {
+        exif: false,
+        icc: false,
+        xmp: true,
+      }),
+    ).resolves.toEqual({ xmp: Uint8Array.from(ascii(packet)) })
+  })
+
+  it('rejects compressed HEIF XMP metadata explicitly', async () => {
+    await expect(
+      heifCodec.preservedMetadata?.(
+        new MemorySource(heifStillContainer({ decoded: true, xmp: '<x/>', xmpEncoding: 'gzip' })),
+        defaultImageLimits,
+        { exif: false, icc: false, xmp: true },
+      ),
+    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+  })
+
+  it('decodes an identity-derived primary that references one HEVC still', async () => {
+    const input = heifStillContainer({ decoded: true, identity: true, rotation: 1 })
+    await expect(inspectHeifBitstream(new MemorySource(input))).resolves.toMatchObject({
+      primaryItemId: 1,
+      primaryItemType: 'iden',
+      codedImages: [{ itemId: 2 }],
+    })
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      width: 64,
+      height: 64,
+      orientation: 8,
+    })
+    const identity = await (await Image.open(input)).autoOrient().png().toBuffer()
+    const direct = await (await Image.open(decodedHeifFixture(false, false, 1)))
+      .autoOrient()
+      .png()
+      .toBuffer()
+    expect(identity).toEqual(direct)
+  })
+
+  it('rejects identity-derived images that loop', async () => {
+    await expect(
+      (await Image.open(heifStillContainer({ identityLoop: true }))).metadata(),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+})
+
 describe('HEIF HEVC bitstream inspection', () => {
   it('reports the HEVC conformance-window origin in luma samples', () => {
     expect(
@@ -1059,6 +1529,14 @@ describe('HEIF HEVC bitstream inspection', () => {
         profile: 3,
       }),
     ).toBe(6)
+    expect(
+      resolveHeifColorMatrix({
+        ...compatibilityEvidence,
+        chromaSubsampling: '444',
+        profile: 4,
+      }),
+    ).toBe(6)
+
     expect(() =>
       resolveHeifColorMatrix({
         ...compatibilityEvidence,
@@ -1166,6 +1644,15 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(inspection.codedImages[0]?.slices.map((slice) => slice.sliceType)).toEqual([2, 2, 2])
   })
 
+  it('reconstructs independent slice NALs instead of rejecting multi-slice pictures', async () => {
+    const input = heifFixture({ sliceAddresses: [0, 20, 200] })
+    await expect(
+      heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits),
+    ).rejects.not.toMatchObject({
+      message: 'HEIF multi-slice picture reconstruction is not implemented yet',
+    })
+  })
+
   it('rejects duplicate or decreasing slice-segment addresses', async () => {
     await expect(
       inspectHeifBitstream(new MemorySource(heifFixture({ sliceAddresses: [0, 200, 20] }))),
@@ -1184,9 +1671,9 @@ describe('HEIF HEVC bitstream inspection', () => {
     ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
   })
 
-  it('rejects profiles outside Main, Main 10, and Main Still Picture explicitly', async () => {
+  it('rejects HEVC profiles outside Main, Main 10, Main Still Picture, and RExt', async () => {
     await expect(
-      inspectHeifBitstream(new MemorySource(heifFixture({ configurationProfile: 4 }))),
+      inspectHeifBitstream(new MemorySource(heifFixture({ configurationProfile: 5 }))),
     ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
   })
 
@@ -1242,7 +1729,7 @@ describe('HEIF HEVC bitstream inspection', () => {
   it('exactly decodes a real independently encoded Main-profile HEIF picture', async () => {
     // x265 4.1 encoded this 64x64 testsrc2 picture. The decoded YUV planes are
     // checked byte-for-byte against FFmpeg in the HEVC picture tests; this hash
-    // pins the public HEIF container, chroma-upsample, and RGBA conversion path.
+    // pins the public HEIF container, nearest 4:2:0 chroma, and RGBA conversion.
     const decoder = await heifCodec.createDecoder?.(
       new MemorySource(decodedHeifFixture()),
       defaultImageLimits,
@@ -1257,15 +1744,13 @@ describe('HEIF HEVC bitstream inspection', () => {
       rgba.set(block.data, offset)
       offset += block.data.length
     }
-
-    expect(decoder).toMatchObject({ width: 64, height: 64, pixelFormat: 'rgba8' })
+    expect(createHash('sha256').update(rgba).digest('hex')).toBe(
+      'bf40ffb4b7925e1ffab9b32d700af6ca2dbac71108c713b70a51d68330556f02',
+    )
     expect(blocks.map((block) => [block.y, block.height])).toEqual([
       [0, 32],
       [32, 32],
     ])
-    expect(createHash('sha256').update(rgba).digest('hex')).toBe(
-      '16eef67ea16196265e393967205ded7ee45415c314125ff6cf5ce3cd8268ac89',
-    )
   })
 
   it('decodes the declared HEIC primary instead of gain-map and portrait auxiliaries', async () => {
@@ -1325,18 +1810,70 @@ describe('HEIF HEVC bitstream inspection', () => {
     const hlg = []
     for await (const block of hlgDecoder.decode()) hlg.push(...block.data)
     expect(createHash('sha256').update(Uint8Array.from(hlg)).digest('hex')).toBe(
-      'd448f14948c8193f6bc1d0bf1d5e94403d41c780c0fd37fab514d262b76246e9',
+      'af62714938678bd43d91518dafb9ac12ff99e2b08a07557022690093a282479e',
     )
   })
 
-  it('rejects linked HEIF auxiliary alpha before emitting opaque pixels', async () => {
-    const input = decodedHeifFixture(false, false, undefined, undefined, false, [
+  it('reconstructs linked auxiliary alpha from the HEVC luma plane', async () => {
+    const opaque = decodedHeifFixture()
+    const withAlpha = decodedHeifFixture(false, false, undefined, undefined, false, [
       'urn:mpeg:hevc:2015:auxid:1',
     ])
+    await expect((await Image.open(withAlpha)).metadata()).resolves.toMatchObject({
+      hasAlpha: true,
+      width: 64,
+      height: 64,
+    })
+    const opaquePixels = await (await Image.open(opaque)).png().toBuffer()
+    const alphaImage = await Image.open(withAlpha)
+    const decoder = await heifCodec.createDecoder?.(new MemorySource(withAlpha), defaultImageLimits)
+    if (!decoder) throw new Error('HEIF decoder is unavailable')
+    const pixels: number[] = []
+    for await (const block of decoder.decode()) pixels.push(...block.data)
+    expect(pixels.some((value, index) => index % 4 === 3 && value !== 255)).toBe(true)
+    const png = await alphaImage.png().toBuffer()
+    expect(png.subarray(0, 8)).toEqual(opaquePixels.subarray(0, 8))
+  })
 
-    await expect(
-      heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+  it('reconstructs auxiliary alpha when the alpha item is a different size', async () => {
+    const input = decodedHeifFixture(
+      false,
+      false,
+      undefined,
+      undefined,
+      false,
+      ['urn:mpeg:hevc:2015:auxid:1'],
+      true,
+    )
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      hasAlpha: true,
+      width: 64,
+      height: 64,
+    })
+    const decoder = await heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('HEIF decoder is unavailable')
+    const pixels: number[] = []
+    for await (const block of decoder.decode()) pixels.push(...block.data)
+    expect(pixels.length).toBe(64 * 64 * 4)
+    expect(pixels.some((value, index) => index % 4 === 3 && value !== 255)).toBe(true)
+    expect(pixels.some((value, index) => index % 4 === 3 && value !== 0)).toBe(true)
+  })
+
+  it('reconstructs grid primaries with matching grid auxiliary alpha', async () => {
+    const input = decodedHeifFixture(false, true, undefined, undefined, false, [], false, true)
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      hasAlpha: true,
+      width: 100,
+      height: 90,
+    })
+    const decoder = await heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('HEIF decoder is unavailable')
+    const pixels: number[] = []
+    for await (const block of decoder.decode({ x: 60, y: 60, width: 8, height: 8 })) {
+      pixels.push(...block.data)
+    }
+    expect(pixels.length).toBe(8 * 8 * 4)
+    expect(pixels.some((value, index) => index % 4 === 3 && value !== 255)).toBe(true)
   })
 
   it('parses HEIF prof transforms and rejects corrupt embedded profiles', async () => {
@@ -1570,5 +2107,35 @@ describe('HEVC parameter-set safety', () => {
     const data = readHevcSliceData(tiledSliceNal(), 19, { sps: [sps], pps: [pps] })
     expect(data.substreamByteOffsets[0]).toBe(data.headerBytes)
     expect(data.substreamByteOffsets[1]).toBeLessThan(data.headerBytes + 4)
+  })
+
+  it('rejects picture decode when tiles are combined with WPP', () => {
+    const sps = inspectHevcSps(richSpsNal())
+    const pps = inspectHevcPps(tiledPpsNal())
+    expect(() => decodeHevcIntraPicture(tiledSliceNal(), 19, { sps: [sps], pps: [pps] })).toThrow(
+      /tiles combined with wavefront parallel processing/,
+    )
+  })
+})
+
+describe('HEIF uncompressed stills', () => {
+  it('decodes packed 5:6:5 component samples into 8-bit RGB', async () => {
+    const header = new Uint8Array(12 + 5 * 3 + 24)
+    header.set([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3], 0)
+    header.set([0, 0, 4, 0, 0], 12)
+    header.set([0, 1, 5, 0, 0], 17)
+    header.set([0, 2, 4, 0, 0], 22)
+    header.set([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 27)
+    const config = parseUncC(header, [4, 5, 6])
+    const packed = new Uint8Array([0xff, 0xff])
+    const pixels = await decodeUncompressedRgba(packed, config, 1, 1)
+    expect([...pixels]).toEqual([248, 252, 248, 255])
+  })
+
+  it('parses icef 8-bit tiled compressed extents after reserved fields', () => {
+    expect(
+      parseIcef(Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0, 8, 40, 42, 29, 37, 43, 42, 40, 39])),
+    ).toEqual([40, 42, 29, 37, 43, 42, 40, 39])
+    expect(parseIcef(Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 0, 0]))).toEqual([])
   })
 })

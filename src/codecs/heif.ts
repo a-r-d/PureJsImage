@@ -1,19 +1,28 @@
 import type {
   ChromaSubsampling,
-  DecoderOptions,
   DecodeRequest,
+  DecoderOptions,
   ImageCodec,
   ImageDecoder,
   ImageMetadata,
   MetadataPreservationOptions,
   PreservedMetadata,
 } from '../codec.ts'
-import { invalidInput, unsupportedOperation } from '../errors.ts'
+import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
+import { exifOrientation } from '../metadata.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
+import {
+  decodeUncompressedRgba,
+  parseCmpC,
+  parseCmpd,
+  parseIcef,
+  parseUncC,
+  type UncompressedConfig,
+} from './heif-uncompressed.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import type {
   HevcPpsInspection,
@@ -22,7 +31,7 @@ import type {
   HevcVpsInspection,
 } from './hevc.ts'
 import { inspectHevcPps, inspectHevcSlice, inspectHevcSps, inspectHevcVps } from './hevc.ts'
-import { decodeHevcIntraPicture, type DecodedHevcPicture } from './hevc-picture.ts'
+import { type DecodedHevcPicture, decodeHevcIntraSlices } from './hevc-picture.ts'
 import {
   ColorManagedDecoder,
   createDisplayP3Transform,
@@ -41,14 +50,20 @@ import {
 } from './isobmff.ts'
 
 const HEVC_BRANDS = new Set(['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx', 'hevm', 'hevs'])
-const GENERIC_HEIF_BRANDS = new Set(['mif1', 'miaf'])
+const GENERIC_HEIF_BRANDS = new Set(['mif1', 'mif3', 'miaf'])
 const SEQUENCE_BRANDS = new Set(['heis', 'hevs', 'msf1'])
+const ALPHA_AUXILIARY_TYPES = new Set([
+  'urn:mpeg:mpegB:cicp:systems:auxiliary:alpha',
+  'urn:mpeg:hevc:2015:auxid:1',
+])
 const AVIF_BRANDS = new Set(['avif', 'avis'])
 const MAX_CONFIGURATION_BYTES = 1024 * 1024
 const MAX_ITEM_BYTES = 128 * 1024 * 1024
 const MAX_NAL_UNITS = 16_384
 const MAX_NAL_BYTES = 32 * 1024 * 1024
 const MAX_PRESERVED_METADATA_BYTES = 16 * 1024 * 1024
+const MAX_IDENTITY_DEPTH = 16
+const XMP_CONTENT_TYPE = 'application/rdf+xml'
 
 export interface HevcNalUnit {
   readonly data: Uint8Array
@@ -87,11 +102,21 @@ type Property =
       readonly nclx?: NclxColor
       readonly colorTransform?: RgbIccTransform
     }
+  | {
+      readonly type: 'cmpC'
+      readonly compression: UncompressedConfig['compression']
+      readonly compressedUnit: 0 | 1 | 2
+    }
+  | { readonly type: 'cmpd'; readonly componentTypes: readonly number[] }
   | { readonly type: 'hvcC'; readonly configuration: HevcConfiguration }
+  | { readonly type: 'icef'; readonly sizes: readonly number[] }
   | { readonly type: 'imir'; readonly axis: 0 | 1 }
   | { readonly type: 'irot'; readonly angle: number }
   | { readonly type: 'ispe'; readonly width: number; readonly height: number }
+  | { readonly type: 'pasp' }
   | { readonly type: 'pixi'; readonly bitDepth: number }
+  | { readonly type: 'rref'; readonly referenceTypes: readonly string[] }
+  | { readonly type: 'uncC'; readonly data: Uint8Array }
   | { readonly type: 'unknown' }
 
 interface Rational {
@@ -426,6 +451,42 @@ const parseProperty = async (reader: IsobmffReader, box: IsobmffBox): Promise<Pr
     }
     return { type: 'clap', aperture }
   }
+  if (box.type === 'pasp') {
+    await reader.payload(box, 8)
+    return { type: 'pasp' }
+  }
+  if (box.type === 'rref') {
+    const data = await reader.payload(box, 256)
+    const header = parseFullBox(data, box.type, 'HEIF')
+    if (header.version !== 0 || data.byteLength < 8)
+      throw invalidInput('HEIF rref property is malformed')
+    const count = uint32BigEndian(data, 4)
+    const referenceTypes: string[] = []
+    let offset = 8
+    for (let index = 0; index < count; index += 1) {
+      if (offset + 4 > data.byteLength) throw invalidInput('HEIF rref property is truncated')
+      referenceTypes.push(ascii(data, offset, 4))
+      offset += 4
+    }
+    return { type: 'rref', referenceTypes }
+  }
+  if (box.type === 'cmpd') {
+    return { type: 'cmpd', componentTypes: parseCmpd(await reader.payload(box, 256)) }
+  }
+  if (box.type === 'uncC') {
+    return { type: 'uncC', data: await reader.payload(box, 4096) }
+  }
+  if (box.type === 'cmpC') {
+    const parsed = parseCmpC(await reader.payload(box, 64))
+    return {
+      type: 'cmpC',
+      compression: parsed.compression,
+      compressedUnit: parsed.compressedUnit ?? 0,
+    }
+  }
+  if (box.type === 'icef') {
+    return { type: 'icef', sizes: parseIcef(await reader.payload(box, 64 * 1024)) }
+  }
   return { type: 'unknown' }
 }
 
@@ -613,6 +674,11 @@ interface GridDescription {
   readonly width: number
 }
 
+interface UncompressedImage {
+  readonly config: UncompressedConfig
+  readonly itemId: number
+}
+
 interface GridLayout extends GridDescription {
   readonly tileHeight: number
   readonly tileWidth: number
@@ -658,9 +724,10 @@ interface ParsedHeif {
   readonly grid: GridLayout | undefined
   readonly meta: MetaDescription
   readonly primaryItemId: number
-  readonly primaryItemType: 'grid' | 'hvc1'
+  readonly primaryItemType: 'grid' | 'hvc1' | 'iden' | 'unci'
   readonly properties: readonly Property[]
   readonly reader: IsobmffReader
+  readonly uncompressed: UncompressedImage | undefined
 }
 
 const codedImageDescription = (meta: MetaDescription, itemId: number): CodedImageDescription => {
@@ -690,12 +757,122 @@ const codedImageDescription = (meta: MetaDescription, itemId: number): CodedImag
   return { itemId, configuration, dimensions, properties }
 }
 
+const codedGridFromItem = async (
+  reader: IsobmffReader,
+  meta: MetaDescription,
+  itemId: number,
+): Promise<{
+  readonly codedImages: readonly CodedImageDescription[]
+  readonly grid: GridLayout
+}> => {
+  const gridItem = itemRanges(reader, meta, itemId)
+  if (gridItem.length > 12) throw invalidInput('HEIF grid item is unreasonably large')
+  const grid = parseGrid(await readAcrossRanges(reader.source, gridItem.ranges, 0, gridItem.length))
+  const tileItemIds = dimgInputs(meta, itemId)
+  if (tileItemIds.length !== grid.rows * grid.columns) {
+    throw invalidInput('HEIF grid dimensions do not match its tile references')
+  }
+  if (new Set(tileItemIds).size !== tileItemIds.length) {
+    throw invalidInput('HEIF grid contains duplicate tile references')
+  }
+  for (const tileItemId of tileItemIds) {
+    if (hasTransformativeProperties(meta, tileItemId)) {
+      throw invalidInput('HEIF grid input tiles must not have transformative properties')
+    }
+  }
+  const codedImages = tileItemIds.map((tileItemId) => codedImageDescription(meta, tileItemId))
+  const firstTile = codedImages[0]
+  if (!firstTile) throw invalidInput('HEIF grid has no coded tiles')
+  for (const tile of codedImages) {
+    if (
+      tile.dimensions.width !== firstTile.dimensions.width ||
+      tile.dimensions.height !== firstTile.dimensions.height
+    ) {
+      throw invalidInput('HEIF grid tiles have inconsistent dimensions')
+    }
+    if (
+      tile.configuration.profile !== firstTile.configuration.profile ||
+      tile.configuration.tier !== firstTile.configuration.tier ||
+      tile.configuration.level !== firstTile.configuration.level ||
+      tile.configuration.bitDepth !== firstTile.configuration.bitDepth ||
+      tile.configuration.chromaSubsampling !== firstTile.configuration.chromaSubsampling ||
+      tile.configuration.lengthSize !== firstTile.configuration.lengthSize
+    ) {
+      throw invalidInput('HEIF grid tiles have inconsistent HEVC configurations')
+    }
+    const firstColor = oneProperty(firstTile.properties, 'colr')?.colorSpace
+    const tileColor = oneProperty(tile.properties, 'colr')?.colorSpace
+    if (tileColor !== firstColor) {
+      throw invalidInput('HEIF grid tiles have inconsistent color descriptions')
+    }
+  }
+  if (
+    grid.width <= firstTile.dimensions.width * (grid.columns - 1) ||
+    grid.width > firstTile.dimensions.width * grid.columns ||
+    grid.height <= firstTile.dimensions.height * (grid.rows - 1) ||
+    grid.height > firstTile.dimensions.height * grid.rows
+  ) {
+    throw invalidInput('HEIF grid canvas is inconsistent with its tile geometry')
+  }
+  return {
+    codedImages,
+    grid: {
+      ...grid,
+      tileWidth: firstTile.dimensions.width,
+      tileHeight: firstTile.dimensions.height,
+    },
+  }
+}
+
+const dimgInputs = (meta: MetaDescription, itemId: number): readonly number[] =>
+  meta.references
+    .filter((reference) => reference.type === 'dimg' && reference.fromItemId === itemId)
+    .flatMap((reference) => reference.toItemIds)
+
+const hasTransformativeProperties = (meta: MetaDescription, itemId: number): boolean =>
+  propertiesFor(meta, itemId).some(
+    (property) => property.type === 'clap' || property.type === 'imir' || property.type === 'irot',
+  )
+
+const resolveCodedPrimary = (
+  meta: MetaDescription,
+  primaryItemId: number,
+): { readonly itemId: number; readonly type: 'grid' | 'hvc1' | 'unci' } => {
+  const visited = new Set<number>()
+  let itemId = primaryItemId
+  for (let depth = 0; depth <= MAX_IDENTITY_DEPTH; depth += 1) {
+    const item = meta.items.get(itemId)
+    if (!item) throw invalidInput(`HEIF item ${itemId} has no item information`)
+    if (item.protectionIndex !== 0) {
+      throw unsupportedOperation('Protected HEIF items are unsupported')
+    }
+    if (item.type === 'hvc1' || item.type === 'grid' || item.type === 'unci') {
+      return { itemId, type: item.type }
+    }
+    if (item.type !== 'iden') {
+      throw unsupportedOperation(`Unsupported HEIF primary item type: ${item.type}`)
+    }
+    if (visited.has(itemId)) {
+      throw invalidInput('HEIF identity derived image contains a reference loop')
+    }
+    visited.add(itemId)
+    const inputs = dimgInputs(meta, itemId)
+    const inputId = inputs[0]
+    if (inputs.length !== 1 || inputId === undefined) {
+      throw invalidInput('HEIF identity derived image must reference exactly one input')
+    }
+    itemId = inputId
+  }
+  throw invalidInput('HEIF identity derived image is nested too deeply')
+}
+
 const parseHeif = async (source: ImageSource): Promise<ParsedHeif> => {
   const reader = createIsobmffReader(source, 'HEIF')
   const topLevel = await reader.boxes(0, source.size)
   const fileType = topLevel.find((box) => box.type === 'ftyp')
   const metaBox = topLevel.find((box) => box.type === 'meta')
-  if (!fileType || !metaBox) throw invalidInput('HEIF requires ftyp and meta boxes')
+  const movieBox = topLevel.find((box) => box.type === 'moov')
+  if (!fileType) throw invalidInput('HEIF requires an ftyp box')
   const brands = parseBrands(await reader.payload(fileType, 4096), 'HEIF')
   if (brands.some((brand) => AVIF_BRANDS.has(brand))) {
     throw unsupportedOperation('AV1-coded AVIF must be opened through the AVIF codec')
@@ -703,9 +880,19 @@ const parseHeif = async (source: ImageSource): Promise<ParsedHeif> => {
   if (!brands.some((brand) => HEVC_BRANDS.has(brand) || GENERIC_HEIF_BRANDS.has(brand))) {
     throw invalidInput('File does not declare a supported HEIF brand')
   }
+  if (!metaBox) {
+    if (topLevel.some((box) => box.type === 'mini')) {
+      throw unsupportedOperation('HEIF Mini bitstream is unsupported')
+    }
+    if (movieBox || brands.some((brand) => SEQUENCE_BRANDS.has(brand))) {
+      throw unsupportedOperation('Timed HEIF image sequences are unsupported')
+    }
+    throw invalidInput('HEIF requires ftyp and meta boxes')
+  }
   if (brands.some((brand) => SEQUENCE_BRANDS.has(brand))) {
     throw unsupportedOperation('Timed HEIF image sequences are unsupported')
   }
+
   const meta = await parseIsobmffMeta(reader, metaBox, parseProperty)
   if ([...meta.locations.values()].some((location) => location.dataReferenceIndex !== 0)) {
     throw unsupportedOperation('HEIF external item data references are unsupported')
@@ -715,84 +902,48 @@ const parseHeif = async (source: ImageSource): Promise<ParsedHeif> => {
   const item = meta.items.get(primaryItemId)
   if (!item) throw invalidInput('HEIF primary item has no item information')
   if (item.protectionIndex !== 0) throw unsupportedOperation('Protected HEIF items are unsupported')
-  if (item.type !== 'hvc1' && item.type !== 'grid') {
-    throw unsupportedOperation(`Unsupported HEIF primary item type: ${item.type}`)
-  }
+  const codedPrimary = resolveCodedPrimary(meta, primaryItemId)
   const properties = propertiesFor(meta, primaryItemId)
   validateTransformProperties(properties)
   const dimensions = oneProperty(properties, 'ispe')
   if (!dimensions) throw invalidInput('HEIF primary item has no spatial extents')
-  let codedImages: readonly CodedImageDescription[]
+  let codedImages: readonly CodedImageDescription[] = []
   let gridLayout: GridLayout | undefined
-  if (item.type === 'hvc1') {
-    codedImages = [codedImageDescription(meta, primaryItemId)]
+  let uncompressed: UncompressedImage | undefined
+  if (codedPrimary.type === 'hvc1') {
+    codedImages = [codedImageDescription(meta, codedPrimary.itemId)]
+    const coded = codedImages[0]
+    if (
+      item.type === 'iden' &&
+      coded &&
+      (coded.dimensions.width !== dimensions.width || coded.dimensions.height !== dimensions.height)
+    ) {
+      throw invalidInput('HEIF identity derived image extents do not match its input')
+    }
+  } else if (codedPrimary.type === 'unci') {
+    const unciProperties = propertiesFor(meta, codedPrimary.itemId)
+    const types = oneProperty(unciProperties, 'cmpd')?.componentTypes ?? []
+    const uncC = oneProperty(unciProperties, 'uncC')
+    if (!uncC) throw invalidInput('HEIF uncompressed item has no uncC property')
+    let config = parseUncC(uncC.data, types)
+    const cmpC = oneProperty(unciProperties, 'cmpC')
+    const icef = oneProperty(unciProperties, 'icef')
+    if (cmpC) {
+      config = {
+        ...config,
+        compression: cmpC.compression,
+        compressedUnit: cmpC.compressedUnit,
+        ...(icef ? { compressedExtents: icef.sizes } : {}),
+      }
+    }
+    uncompressed = { config, itemId: codedPrimary.itemId }
   } else {
-    const gridItem = itemRanges(reader, meta, primaryItemId)
-    if (gridItem.length > 12) throw invalidInput('HEIF grid item is unreasonably large')
-    const grid = parseGrid(
-      await readAcrossRanges(reader.source, gridItem.ranges, 0, gridItem.length),
-    )
-    if (grid.width !== dimensions.width || grid.height !== dimensions.height) {
+    const derived = await codedGridFromItem(reader, meta, codedPrimary.itemId)
+    if (derived.grid.width !== dimensions.width || derived.grid.height !== dimensions.height) {
       throw invalidInput('HEIF grid dimensions do not match its spatial extents')
     }
-    const tileItemIds = meta.references
-      .filter((reference) => reference.type === 'dimg' && reference.fromItemId === primaryItemId)
-      .flatMap((reference) => reference.toItemIds)
-    if (tileItemIds.length !== grid.rows * grid.columns) {
-      throw invalidInput('HEIF grid dimensions do not match its tile references')
-    }
-    if (new Set(tileItemIds).size !== tileItemIds.length) {
-      throw invalidInput('HEIF grid contains duplicate tile references')
-    }
-    for (const tileItemId of tileItemIds) {
-      if (
-        propertiesFor(meta, tileItemId).some(
-          (property) =>
-            property.type === 'clap' || property.type === 'imir' || property.type === 'irot',
-        )
-      ) {
-        throw invalidInput('HEIF grid input tiles must not have transformative properties')
-      }
-    }
-    codedImages = tileItemIds.map((itemId) => codedImageDescription(meta, itemId))
-    const firstTile = codedImages[0]
-    if (!firstTile) throw invalidInput('HEIF grid has no coded tiles')
-    for (const tile of codedImages) {
-      if (
-        tile.dimensions.width !== firstTile.dimensions.width ||
-        tile.dimensions.height !== firstTile.dimensions.height
-      ) {
-        throw invalidInput('HEIF grid tiles have inconsistent dimensions')
-      }
-      if (
-        tile.configuration.profile !== firstTile.configuration.profile ||
-        tile.configuration.tier !== firstTile.configuration.tier ||
-        tile.configuration.level !== firstTile.configuration.level ||
-        tile.configuration.bitDepth !== firstTile.configuration.bitDepth ||
-        tile.configuration.chromaSubsampling !== firstTile.configuration.chromaSubsampling ||
-        tile.configuration.lengthSize !== firstTile.configuration.lengthSize
-      ) {
-        throw invalidInput('HEIF grid tiles have inconsistent HEVC configurations')
-      }
-      const firstColor = oneProperty(firstTile.properties, 'colr')?.colorSpace
-      const tileColor = oneProperty(tile.properties, 'colr')?.colorSpace
-      if (tileColor !== firstColor) {
-        throw invalidInput('HEIF grid tiles have inconsistent color descriptions')
-      }
-    }
-    if (
-      dimensions.width <= firstTile.dimensions.width * (grid.columns - 1) ||
-      dimensions.width > firstTile.dimensions.width * grid.columns ||
-      dimensions.height <= firstTile.dimensions.height * (grid.rows - 1) ||
-      dimensions.height > firstTile.dimensions.height * grid.rows
-    ) {
-      throw invalidInput('HEIF grid canvas is inconsistent with its tile geometry')
-    }
-    gridLayout = {
-      ...grid,
-      tileWidth: firstTile.dimensions.width,
-      tileHeight: firstTile.dimensions.height,
-    }
+    codedImages = derived.codedImages
+    gridLayout = derived.grid
   }
   return {
     brands,
@@ -801,9 +952,10 @@ const parseHeif = async (source: ImageSource): Promise<ParsedHeif> => {
     grid: gridLayout,
     meta,
     primaryItemId,
-    primaryItemType: item.type,
+    primaryItemType: item.type === 'iden' ? 'iden' : codedPrimary.type,
     properties,
     reader,
+    uncompressed,
   }
 }
 
@@ -835,33 +987,82 @@ const colorPropertiesFor = (parsed: ParsedHeif): readonly Property[] =>
     ? parsed.properties
     : (parsed.codedImages[0]?.properties ?? parsed.properties)
 
-const hasLinkedAlphaAuxiliary = (parsed: ParsedHeif): boolean => {
-  const isAlphaAuxiliary = (property: Property): boolean =>
-    property.type === 'auxC' && property.auxiliaryType.endsWith('auxid:1')
-  const hasAlphaProperty = parsed.meta.properties.some((property) => isAlphaAuxiliary(property))
-  if (!hasAlphaProperty) return false
-  const alphaItemIds = new Set(
-    [...parsed.meta.items.keys()].filter((itemId) =>
-      propertiesFor(parsed.meta, itemId).some((property) => isAlphaAuxiliary(property)),
-    ),
+const isAlphaAuxiliary = (property: Property): boolean =>
+  property.type === 'auxC' && ALPHA_AUXILIARY_TYPES.has(property.auxiliaryType)
+
+const findHeifAlphaItemId = (parsed: ParsedHeif): number | undefined => {
+  const alphaItemIds = [...parsed.meta.items.keys()].filter((itemId) =>
+    propertiesFor(parsed.meta, itemId).some(isAlphaAuxiliary),
   )
-  return (
-    parsed.meta.references.some(
-      (reference) =>
-        reference.type === 'auxl' &&
-        ((reference.fromItemId === parsed.primaryItemId &&
-          reference.toItemIds.some((itemId) => alphaItemIds.has(itemId))) ||
-          (alphaItemIds.has(reference.fromItemId) &&
-            reference.toItemIds.includes(parsed.primaryItemId))),
-    ) || alphaItemIds.size > 0
+  const linked = parsed.meta.references.flatMap((reference) => {
+    if (reference.type !== 'auxl') return []
+    if (
+      alphaItemIds.includes(reference.fromItemId) &&
+      reference.toItemIds.includes(parsed.primaryItemId)
+    ) {
+      return [reference.fromItemId]
+    }
+    if (
+      reference.fromItemId === parsed.primaryItemId &&
+      reference.toItemIds.some((itemId) => alphaItemIds.includes(itemId))
+    ) {
+      return reference.toItemIds.filter((itemId) => alphaItemIds.includes(itemId))
+    }
+    return []
+  })
+  const unique = [...new Set(linked.length > 0 ? linked : alphaItemIds)]
+  if (unique.length > 1) throw invalidInput('HEIF primary image has multiple alpha auxiliary items')
+  return unique[0]
+}
+
+const heifAlphaIsPremultiplied = (parsed: ParsedHeif, alphaItemId: number): boolean =>
+  parsed.meta.references.some(
+    (reference) =>
+      reference.type === 'prem' &&
+      ((reference.fromItemId === parsed.primaryItemId &&
+        reference.toItemIds.includes(alphaItemId)) ||
+        (reference.fromItemId === alphaItemId &&
+          reference.toItemIds.includes(parsed.primaryItemId))),
   )
+
+type HeifAlphaSource =
+  | { readonly coded: CodedImageDescription; readonly itemId: number; readonly kind: 'direct' }
+  | {
+      readonly codedImages: readonly CodedImageDescription[]
+      readonly grid: GridLayout
+      readonly itemId: number
+      readonly kind: 'grid'
+    }
+
+const resolveHeifAlphaSource = async (parsed: ParsedHeif): Promise<HeifAlphaSource | undefined> => {
+  const alphaItemId = findHeifAlphaItemId(parsed)
+  if (alphaItemId === undefined) return undefined
+  const coded = resolveCodedPrimary(parsed.meta, alphaItemId)
+  if (coded.type === 'grid') {
+    const derived = await codedGridFromItem(parsed.reader, parsed.meta, coded.itemId)
+    return {
+      kind: 'grid',
+      itemId: alphaItemId,
+      codedImages: derived.codedImages,
+      grid: derived.grid,
+    }
+  }
+  return {
+    kind: 'direct',
+    itemId: alphaItemId,
+    coded: codedImageDescription(parsed.meta, coded.itemId),
+  }
 }
 
 const metadataItem = (
   parsed: ParsedHeif,
-  type: string,
-): { readonly id: number; readonly protectionIndex: number } | undefined => {
-  const candidates = [...parsed.meta.items.values()].filter((item) => item.type === type)
+  match: string | ((item: { readonly contentType?: string; readonly type: string }) => boolean),
+):
+  | { readonly contentEncoding?: string; readonly id: number; readonly protectionIndex: number }
+  | undefined => {
+  const candidates = [...parsed.meta.items.values()].filter((item) =>
+    typeof match === 'string' ? item.type === match : match(item),
+  )
   const linked = candidates.filter((item) =>
     parsed.meta.references.some(
       (reference) =>
@@ -871,9 +1072,16 @@ const metadataItem = (
     ),
   )
   const usable = linked.length > 0 ? linked : candidates
-  if (usable.length > 1) throw invalidInput(`HEIF contains multiple ${type} metadata items`)
+  const label = typeof match === 'string' ? match : 'XMP'
+  if (usable.length > 1) throw invalidInput(`HEIF contains multiple ${label} metadata items`)
   const item = usable[0]
-  return item ? { id: item.id, protectionIndex: item.protectionIndex } : undefined
+  return item
+    ? {
+        id: item.id,
+        protectionIndex: item.protectionIndex,
+        ...(item.contentEncoding === undefined ? {} : { contentEncoding: item.contentEncoding }),
+      }
+    : undefined
 }
 
 const readMetadataItem = async (parsed: ParsedHeif, itemId: number): Promise<Uint8Array> => {
@@ -904,6 +1112,23 @@ const preservedExif = async (parsed: ParsedHeif): Promise<Uint8Array | undefined
   return data.slice(tiffOffset)
 }
 
+const preservedXmp = async (parsed: ParsedHeif): Promise<Uint8Array | undefined> => {
+  const item = metadataItem(
+    parsed,
+    (candidate) => candidate.type === 'mime' && candidate.contentType === XMP_CONTENT_TYPE,
+  )
+  if (!item) return undefined
+  if (item.protectionIndex !== 0) {
+    throw unsupportedOperation('Protected HEIF XMP metadata is unsupported')
+  }
+  if (item.contentEncoding) {
+    throw unsupportedOperation('Compressed HEIF XMP metadata is unsupported')
+  }
+  const data = await readMetadataItem(parsed, item.id)
+  if (data.byteLength === 0) throw invalidInput('HEIF XMP item is empty')
+  return data
+}
+
 const preservedHeifMetadata = async (
   source: ImageSource,
   limits: ImageLimits,
@@ -913,11 +1138,14 @@ const preservedHeifMetadata = async (
   validateImageDimensions(parsed.dimensions.width, parsed.dimensions.height, 1, limits)
   const keepExif = options?.exif ?? true
   const keepIcc = options?.icc ?? true
+  const keepXmp = options?.xmp === true
   const exif = keepExif ? await preservedExif(parsed) : undefined
   const icc = keepIcc ? oneProperty(colorPropertiesFor(parsed), 'colr')?.icc : undefined
+  const xmp = keepXmp ? await preservedXmp(parsed) : undefined
   return {
     ...(exif === undefined ? {} : { exif }),
     ...(icc === undefined ? {} : { icc }),
+    ...(xmp === undefined ? {} : { xmp }),
   }
 }
 
@@ -938,12 +1166,34 @@ export interface HeifCodedImageInspection {
 export interface HeifBitstreamInspection {
   readonly codedImages: readonly HeifCodedImageInspection[]
   readonly primaryItemId: number
-  readonly primaryItemType: 'grid' | 'hvc1'
+  readonly primaryItemType: 'grid' | 'hvc1' | 'iden' | 'unci'
 }
 
-const inspectParsedHeifBitstream = async (parsed: ParsedHeif): Promise<HeifBitstreamInspection> => {
+const hevcStillImageSupported = (
+  configuration: HevcConfiguration,
+  role: 'alpha' | 'color',
+): boolean => {
+  if (configuration.bitDepth > 10) return false
+  const profile = configuration.profile
+  const allowedProfile = profile === 1 || profile === 2 || profile === 3 || profile === 4
+  if (!allowedProfile) return false
+  const tenBit = profile === 2 && configuration.bitDepth === 10
+  const eightBit = configuration.bitDepth === 8
+  if (!eightBit && !tenBit) return false
+  if (profile === 4 && !eightBit) return false
+  if (role === 'alpha' && configuration.chromaSubsampling === '400') return true
+  if (configuration.chromaSubsampling === '420') return true
+  if (configuration.chromaSubsampling === '444' && eightBit) return true
+  return false
+}
+
+const inspectHeifCodedImages = async (
+  parsed: ParsedHeif,
+  images: readonly CodedImageDescription[],
+  role: 'alpha' | 'color',
+): Promise<readonly HeifCodedImageInspection[]> => {
   const codedImages: HeifCodedImageInspection[] = []
-  for (const coded of parsed.codedImages) {
+  for (const coded of images) {
     const item = itemRanges(parsed.reader, parsed.meta, coded.itemId)
     if (item.length === 0) throw invalidInput(`HEIF item ${coded.itemId} payload is empty`)
     const nalUnits: HevcNalUnit[] = []
@@ -988,12 +1238,7 @@ const inspectParsedHeifBitstream = async (parsed: ParsedHeif): Promise<HeifBitst
         `Multilayer or multi-sublayer HEIF item ${coded.itemId} is unsupported`,
       )
     }
-    if (
-      ![1, 2, 3].includes(coded.configuration.profile) ||
-      coded.configuration.chromaSubsampling !== '420' ||
-      (coded.configuration.profile !== 2 && coded.configuration.bitDepth !== 8) ||
-      coded.configuration.bitDepth > 10
-    ) {
+    if (!hevcStillImageSupported(coded.configuration, role)) {
       throw unsupportedOperation(
         `HEIF item ${coded.itemId} uses an unsupported HEVC profile, chroma format, or bit depth`,
       )
@@ -1035,8 +1280,12 @@ const inspectParsedHeifBitstream = async (parsed: ParsedHeif): Promise<HeifBitst
       slices,
     })
   }
+  return codedImages
+}
+
+const inspectParsedHeifBitstream = async (parsed: ParsedHeif): Promise<HeifBitstreamInspection> => {
   return {
-    codedImages,
+    codedImages: await inspectHeifCodedImages(parsed, parsed.codedImages, 'color'),
     primaryItemId: parsed.primaryItemId,
     primaryItemType: parsed.primaryItemType,
   }
@@ -1054,22 +1303,43 @@ const inspectHeifMetadata = async (
   for (const codedImage of parsed.codedImages) {
     validateImageDimensions(codedImage.dimensions.width, codedImage.dimensions.height, 1, limits)
   }
+  const uncompressed = parsed.uncompressed
   const configuration = parsed.codedImages[0]?.configuration
-  if (!configuration) throw invalidInput('HEIF image has no coded image configuration')
+  if (!configuration && !uncompressed)
+    throw invalidInput('HEIF image has no coded image configuration')
   const color = oneProperty(parsed.properties, 'colr')
   const aperture = oneProperty(parsed.properties, 'clap')?.aperture
   const dimensions = cleanApertureRegion(parsed.dimensions, aperture)
-  const orientation = orientationFor(parsed.properties)
+  let orientation = orientationFor(parsed.properties)
+  if (orientation === undefined) {
+    try {
+      const exif = await preservedExif(parsed)
+      orientation = exif === undefined ? undefined : exifOrientation(exif)
+    } catch (error) {
+      if (!(error instanceof ImageError)) throw error
+      orientation = undefined
+    }
+  }
+  const bitDepth = configuration?.bitDepth ?? uncompressed?.config.components[0]?.bitDepth ?? 8
+  const chromaSubsampling =
+    configuration?.chromaSubsampling ??
+    (uncompressed?.config.sampling === 2
+      ? '420'
+      : uncompressed?.config.sampling === 1
+        ? '422'
+        : '444')
   return {
     format: 'heif',
     mimeType: 'image/heif',
     width: dimensions.width,
     height: dimensions.height,
-    hasAlpha: false,
+    hasAlpha:
+      findHeifAlphaItemId(parsed) !== undefined ||
+      (uncompressed?.config.components.some((component) => component.type === 7) ?? false),
     frames: 1,
-    bitDepth: configuration.bitDepth,
-    chromaSubsampling: configuration.chromaSubsampling,
-    codecProfile: configuration.profile,
+    bitDepth: bitDepth === 10 ? 10 : 8,
+    chromaSubsampling,
+    ...(configuration ? { codecProfile: configuration.profile } : {}),
     ...(color ? { colorSpace: color.colorSpace } : {}),
     ...(color?.icc
       ? {
@@ -1164,10 +1434,13 @@ export const resolveHeifColorMatrix = (evidence: HeifColorMatrixEvidence): 1 | 5
     evidence.transferCharacteristics === undefined ||
     evidence.transferCharacteristics === 2 ||
     evidence.transferCharacteristics === 13
-  const compatibleProfile = evidence.profile === 1 || evidence.profile === 3
+  const compatibleProfile =
+    evidence.profile === 1 || evidence.profile === 3 || evidence.profile === 4
   const hevcStillImageBrand = evidence.brands.some((brand) => HEVC_BRANDS.has(brand))
+  const compatibleChroma =
+    evidence.chromaSubsampling === '420' || evidence.chromaSubsampling === '444'
   if (
-    evidence.chromaSubsampling === '420' &&
+    compatibleChroma &&
     compatibleProfile &&
     hevcStillImageBrand &&
     (evidence.hasIcc || (sdrPrimaries && sdrTransfer))
@@ -1224,24 +1497,29 @@ const sampleHevcChroma = (
   height: number,
   x: number,
   y: number,
+  _location: HeifColorConversion['chromaLocation'],
+): number => plane[Math.min(height - 1, y >>> 1) * width + Math.min(width - 1, x >>> 1)] ?? 0
+
+const samplePictureChroma = (
+  picture: DecodedHevcPicture,
+  plane: Uint16Array,
+  x: number,
+  y: number,
   location: HeifColorConversion['chromaLocation'],
 ): number => {
-  const horizontalOffset = location === 1 || location === 3 || location === 5 ? 0.5 : 0
-  const verticalOffset = location <= 1 ? 0.5 : location <= 3 ? 0 : 1
-  const sourceX = (x - horizontalOffset) / 2
-  const sourceY = (y - verticalOffset) / 2
-  const left = Math.floor(sourceX)
-  const top = Math.floor(sourceY)
-  const xWeight = sourceX - left
-  const yWeight = sourceY - top
-  const at = (sampleX: number, sampleY: number): number => {
-    const boundedX = Math.max(0, Math.min(width - 1, sampleX))
-    const boundedY = Math.max(0, Math.min(height - 1, sampleY))
-    return plane[boundedY * width + boundedX] ?? 0
+  if (picture.chromaFormat === 3) {
+    return (
+      plane[Math.min(picture.height - 1, y) * picture.width + Math.min(picture.width - 1, x)] ?? 0
+    )
   }
-  const topSample = at(left, top) * (1 - xWeight) + at(left + 1, top) * xWeight
-  const bottomSample = at(left, top + 1) * (1 - xWeight) + at(left + 1, top + 1) * xWeight
-  return topSample * (1 - yWeight) + bottomSample * yWeight
+  return sampleHevcChroma(
+    plane,
+    Math.ceil(picture.width / 2),
+    Math.ceil(picture.height / 2),
+    x,
+    y,
+    location,
+  )
 }
 
 interface HeifRgbaCoefficients {
@@ -1333,14 +1611,12 @@ const writeHevcRgbaPixel = (
   data: Uint8Array,
   target: number,
 ): void => {
-  const chromaWidth = Math.ceil(picture.width / 2)
-  const chromaHeight = Math.ceil(picture.height / 2)
   const luma = picture.y[sourceY * picture.width + sourceX] ?? 0
   const cb =
-    sampleHevcChroma(picture.u, chromaWidth, chromaHeight, sourceX, sourceY, color.chromaLocation) -
+    samplePictureChroma(picture, picture.u, sourceX, sourceY, color.chromaLocation) -
     coefficients.chromaCenter
   const cr =
-    sampleHevcChroma(picture.v, chromaWidth, chromaHeight, sourceX, sourceY, color.chromaLocation) -
+    samplePictureChroma(picture, picture.v, sourceX, sourceY, color.chromaLocation) -
     coefficients.chromaCenter
   const adjustedLuma = (luma - coefficients.lumaOffset) / coefficients.lumaRange
   const adjustedCb = cb / coefficients.chromaRange
@@ -1442,6 +1718,87 @@ const writeHevcPqDisplayRgbaPixel = (
   data[target + 3] = 255
 }
 
+interface HeifAlphaPlane {
+  readonly fullRange: boolean
+  readonly originX: number
+  readonly originY: number
+  readonly picture: DecodedHevcPicture
+  readonly premultiplied: boolean
+  readonly sampleHeight: number
+  readonly sampleWidth: number
+}
+
+const mapHeifAlphaCoordinate = (source: number, sourceSize: number, destSize: number): number => {
+  if (sourceSize <= 0 || destSize <= 0) return 0
+  if (sourceSize === destSize) return source
+  return Math.min(destSize - 1, Math.floor((source * destSize) / sourceSize))
+}
+
+const sampleHeifAlpha = (
+  picture: DecodedHevcPicture,
+  x: number,
+  y: number,
+  fullRange: boolean,
+): number => {
+  const boundedX = Math.max(0, Math.min(picture.width - 1, x | 0))
+  const boundedY = Math.max(0, Math.min(picture.height - 1, y | 0))
+  const luma = picture.y[boundedY * picture.width + boundedX] ?? 0
+  if (fullRange && picture.bitDepth === 8) return luma
+  const shift = picture.bitDepth - 8
+  const minimum = fullRange ? 0 : 16 << shift
+  const range = fullRange ? (1 << picture.bitDepth) - 1 : 219 << shift
+  return clampByte(((luma - minimum) * 255) / range)
+}
+
+const overlayHeifAlpha = (
+  data: Uint8Array,
+  alpha: HeifAlphaPlane,
+  displayWidth: number,
+  displayHeight: number,
+  regionX: number,
+  regionY: number,
+  rowStart: number,
+  blockHeight: number,
+  regionWidth: number,
+): void => {
+  const sameSize = alpha.sampleWidth === displayWidth && alpha.sampleHeight === displayHeight
+  for (let row = 0; row < blockHeight; row += 1) {
+    const displayY = regionY + rowStart + row
+    for (let x = 0; x < regionWidth; x += 1) {
+      const displayX = regionX + x
+      const alphaX = sameSize
+        ? alpha.originX + displayX
+        : alpha.originX + mapHeifAlphaCoordinate(displayX, displayWidth, alpha.sampleWidth)
+      const alphaY = sameSize
+        ? alpha.originY + displayY
+        : alpha.originY + mapHeifAlphaCoordinate(displayY, displayHeight, alpha.sampleHeight)
+      data[(row * regionWidth + x) * 4 + 3] = sampleHeifAlpha(
+        alpha.picture,
+        alphaX,
+        alphaY,
+        alpha.fullRange,
+      )
+    }
+  }
+  if (alpha.premultiplied) unpremultiplyRgba(data)
+}
+
+const unpremultiplyRgba = (pixels: Uint8Array): void => {
+  for (let offset = 0; offset < pixels.byteLength; offset += 4) {
+    const alpha = pixels[offset + 3] ?? 0
+    if (alpha === 255) continue
+    if (alpha === 0) {
+      pixels[offset] = 0
+      pixels[offset + 1] = 0
+      pixels[offset + 2] = 0
+      continue
+    }
+    pixels[offset] = Math.min(255, Math.round(((pixels[offset] ?? 0) * 255) / alpha))
+    pixels[offset + 1] = Math.min(255, Math.round(((pixels[offset + 1] ?? 0) * 255) / alpha))
+    pixels[offset + 2] = Math.min(255, Math.round(((pixels[offset + 2] ?? 0) * 255) / alpha))
+  }
+}
+
 class HeifPixelDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -1458,14 +1815,21 @@ class HeifPixelDecoder implements ImageDecoder {
   readonly #picture: DecodedHevcPicture
   readonly #pqDisplay: boolean
   readonly #hlgDisplay: HeifHlgDisplayMap | undefined
+  readonly #alpha: HeifAlphaPlane | undefined
 
-  constructor(picture: DecodedHevcPicture, aperture: PixelRegion, color: HeifColorConversion) {
+  constructor(
+    picture: DecodedHevcPicture,
+    aperture: PixelRegion,
+    color: HeifColorConversion,
+    alpha?: HeifAlphaPlane,
+  ) {
     this.#picture = picture
     this.#aperture = aperture
     this.#color = color
     this.#coefficients = rgbaCoefficients(color, picture.bitDepth)
     this.#pqDisplay = picture.bitDepth === 10 && color.transferCharacteristics === 16
     this.#hlgDisplay = createHeifHlgDisplayMap(color, picture.bitDepth)
+    this.#alpha = alpha
     this.width = aperture.width
     this.height = aperture.height
   }
@@ -1517,6 +1881,19 @@ class HeifPixelDecoder implements ImageDecoder {
           }
         }
       }
+      if (this.#alpha) {
+        overlayHeifAlpha(
+          data,
+          this.#alpha,
+          this.width,
+          this.height,
+          region.x,
+          region.y,
+          rowStart,
+          blockHeight,
+          region.width,
+        )
+      }
       yield {
         x: 0,
         y: rowStart,
@@ -1532,12 +1909,11 @@ class HeifPixelDecoder implements ImageDecoder {
 
 const decodeCodedHeifPicture = (coded: HeifCodedImageInspection): DecodedHevcPicture => {
   const pictureNalUnits = coded.nalUnits.filter((nal) => nal.type <= 31)
-  if (pictureNalUnits.length !== 1) {
-    throw unsupportedOperation('HEIF multi-slice picture reconstruction is not implemented yet')
-  }
-  const pictureNal = pictureNalUnits[0]
-  if (!pictureNal) throw invalidInput('HEIF image has no coded picture slice')
-  return decodeHevcIntraPicture(pictureNal.data, pictureNal.type, coded.configuration)
+  if (pictureNalUnits.length === 0) throw invalidInput('HEIF image has no coded picture slice')
+  return decodeHevcIntraSlices(
+    pictureNalUnits.map((nal) => ({ data: nal.data, type: nal.type })),
+    coded.configuration,
+  )
 }
 
 class HeifGridPixelDecoder implements ImageDecoder {
@@ -1557,17 +1933,34 @@ class HeifGridPixelDecoder implements ImageDecoder {
   readonly #grid: GridLayout
   readonly #pqDisplay: boolean
   readonly #hlgDisplay: HeifHlgDisplayMap | undefined
+  readonly #alphaCodedImages: readonly HeifCodedImageInspection[] | undefined
+  readonly #alphaFullRange: boolean
+  readonly #alphaGrid: GridLayout | undefined
+  readonly #alphaPicture: HeifAlphaPlane | undefined
+  readonly #alphaPremultiplied: boolean
 
   constructor(
     codedImages: readonly HeifCodedImageInspection[],
     grid: GridLayout,
     aperture: PixelRegion,
     color: HeifColorConversion,
+    alpha?: {
+      readonly codedImages?: readonly HeifCodedImageInspection[]
+      readonly fullRange?: boolean
+      readonly grid?: GridLayout
+      readonly picture?: HeifAlphaPlane
+      readonly premultiplied?: boolean
+    },
   ) {
     this.#codedImages = codedImages
     this.#grid = grid
     this.#aperture = aperture
     this.#color = color
+    this.#alphaCodedImages = alpha?.codedImages
+    this.#alphaGrid = alpha?.grid
+    this.#alphaPicture = alpha?.picture
+    this.#alphaFullRange = alpha?.fullRange ?? true
+    this.#alphaPremultiplied = alpha?.premultiplied ?? false
     const bitDepth = codedImages[0]?.configuration.bitDepth
     if (bitDepth !== 8 && bitDepth !== 10) {
       throw unsupportedOperation(`Unsupported HEIF grid bit depth: ${bitDepth ?? 'none'}`)
@@ -1597,6 +1990,7 @@ class HeifGridPixelDecoder implements ImageDecoder {
     )
     for (let tileRow = firstTileRow; tileRow <= lastTileRow; tileRow += 1) {
       const pictures = new Map<number, DecodedHevcPicture>()
+      const alphaPictures = new Map<number, DecodedHevcPicture>()
       for (let tileColumn = firstTileColumn; tileColumn <= lastTileColumn; tileColumn += 1) {
         const coded = this.#codedImages[tileRow * this.#grid.columns + tileColumn]
         if (!coded) throw invalidInput('HEIF grid tile is missing during reconstruction')
@@ -1605,6 +1999,11 @@ class HeifGridPixelDecoder implements ImageDecoder {
           throw invalidInput('HEIF decoded grid tile dimensions are inconsistent')
         }
         pictures.set(tileColumn, picture)
+        const alphaCoded =
+          this.#alphaCodedImages?.[
+            tileRow * (this.#alphaGrid?.columns ?? this.#grid.columns) + tileColumn
+          ]
+        if (alphaCoded) alphaPictures.set(tileColumn, decodeCodedHeifPicture(alphaCoded))
       }
       const firstPicture = pictures.get(firstTileColumn)
       if (!firstPicture) throw invalidInput('HEIF grid row has no decoded tiles')
@@ -1669,6 +2068,40 @@ class HeifGridPixelDecoder implements ImageDecoder {
             }
           }
         }
+        if (this.#alphaPicture) {
+          overlayHeifAlpha(
+            data,
+            this.#alphaPicture,
+            this.width,
+            this.height,
+            region.x,
+            region.y,
+            sourceRow - sourceRegion.y,
+            blockHeight,
+            sourceRegion.width,
+          )
+        } else if (this.#alphaCodedImages) {
+          for (let row = 0; row < blockHeight; row += 1) {
+            const sourceY = sourceRow + row
+            for (let x = 0; x < sourceRegion.width; x += 1) {
+              const sourceX = sourceRegion.x + x
+              const tileColumn = Math.floor(sourceX / this.#grid.tileWidth)
+              const alphaPicture = alphaPictures.get(tileColumn)
+              if (!alphaPicture) {
+                throw invalidInput('HEIF grid alpha tile is missing during output')
+              }
+              const localX = sourceX - tileColumn * this.#grid.tileWidth
+              const localY = sourceY - tileRow * this.#grid.tileHeight
+              data[(row * sourceRegion.width + x) * 4 + 3] = sampleHeifAlpha(
+                alphaPicture,
+                mapHeifAlphaCoordinate(localX, this.#grid.tileWidth, alphaPicture.width),
+                mapHeifAlphaCoordinate(localY, this.#grid.tileHeight, alphaPicture.height),
+                this.#alphaFullRange,
+              )
+            }
+          }
+          if (this.#alphaPremultiplied) unpremultiplyRgba(data)
+        }
         yield {
           x: 0,
           y: sourceRow - sourceRegion.y,
@@ -1683,6 +2116,81 @@ class HeifGridPixelDecoder implements ImageDecoder {
   }
 }
 
+const heifAlphaIsFullRange = (coded: CodedImageDescription, sequence: HevcSpsInspection): boolean =>
+  oneProperty(coded.properties, 'colr')?.nclx?.fullRange ?? sequence.vui?.fullRange ?? false
+
+const decodeHeifAlphaPlane = (
+  parsed: ParsedHeif,
+  coded: CodedImageDescription,
+  inspection: HeifCodedImageInspection,
+  originX: number,
+  originY: number,
+  alphaItemId: number,
+): HeifAlphaPlane => {
+  const picture = decodeCodedHeifPicture(inspection)
+  const sequence = coded.configuration.sps[0]
+  if (!sequence) throw invalidInput('HEIF alpha image has no sequence parameter set')
+  if (picture.width !== sequence.codedWidth || picture.height !== sequence.codedHeight) {
+    throw invalidInput('HEIF decoded alpha dimensions do not match its spatial extents')
+  }
+  return {
+    picture,
+    originX: originX + sequence.conformanceX,
+    originY: originY + sequence.conformanceY,
+    sampleWidth: coded.dimensions.width,
+    sampleHeight: coded.dimensions.height,
+    fullRange: heifAlphaIsFullRange(coded, sequence),
+    premultiplied: heifAlphaIsPremultiplied(parsed, alphaItemId),
+  }
+}
+
+class HeifUncompressedPixelDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgba8' as const
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: true,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #pixels: Uint8Array
+  readonly #aperture: PixelRegion
+  readonly #imageWidth: number
+
+  constructor(pixels: Uint8Array, imageWidth: number, aperture: PixelRegion) {
+    this.#pixels = pixels
+    this.#imageWidth = imageWidth
+    this.#aperture = aperture
+    this.width = aperture.width
+    this.height = aperture.height
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const region = decodeRegion(this.width, this.height, request)
+    const stride = region.width * 4
+    for (let rowStart = 0; rowStart < region.height; rowStart += 32) {
+      const blockHeight = Math.min(32, region.height - rowStart)
+      const data = new Uint8Array(stride * blockHeight)
+      for (let row = 0; row < blockHeight; row += 1) {
+        const sourceY = this.#aperture.y + region.y + rowStart + row
+        const sourceX = this.#aperture.x + region.x
+        const start = (sourceY * this.#imageWidth + sourceX) * 4
+        data.set(this.#pixels.subarray(start, start + stride), row * stride)
+      }
+      yield {
+        x: 0,
+        y: rowStart,
+        width: region.width,
+        height: blockHeight,
+        stride,
+        format: this.pixelFormat,
+        data,
+      }
+    }
+  }
+}
+
 const createHeifDecoder = async (
   source: ImageSource,
   limits: ImageLimits,
@@ -1690,9 +2198,32 @@ const createHeifDecoder = async (
 ): Promise<ImageDecoder> => {
   const parsed = await parseHeif(source)
   validateImageDimensions(parsed.dimensions.width, parsed.dimensions.height, 1, limits)
-  if (hasLinkedAlphaAuxiliary(parsed)) {
-    throw unsupportedOperation('HEIF auxiliary alpha reconstruction is unsupported')
+  if (parsed.uncompressed) {
+    const item = itemRanges(parsed.reader, parsed.meta, parsed.uncompressed.itemId)
+    const payload = await readAcrossRanges(parsed.reader.source, item.ranges, 0, item.length)
+    const nclx = oneProperty(parsed.properties, 'colr')?.nclx
+    const pixels = await decodeUncompressedRgba(
+      payload,
+      parsed.uncompressed.config,
+      parsed.dimensions.width,
+      parsed.dimensions.height,
+      nclx?.fullRange ?? true,
+    )
+    const aperture = cleanApertureRegion(
+      parsed.dimensions,
+      oneProperty(parsed.properties, 'clap')?.aperture,
+    )
+    const decoder: ImageDecoder = new HeifUncompressedPixelDecoder(
+      pixels,
+      parsed.dimensions.width,
+      aperture,
+    )
+    const colorTransform = oneProperty(parsed.properties, 'colr')?.colorTransform
+    return colorTransform && !options.preserveIcc
+      ? new ColorManagedDecoder(decoder, colorTransform)
+      : decoder
   }
+  const alphaSource = await resolveHeifAlphaSource(parsed)
   const inspection = await inspectParsedHeifBitstream(parsed)
   const coded = inspection.codedImages[0]
   if (!coded) throw invalidInput('HEIF image has no coded image')
@@ -1700,21 +2231,90 @@ const createHeifDecoder = async (
     parsed.dimensions,
     oneProperty(parsed.properties, 'clap')?.aperture,
   )
+
   const sequence = coded.configuration.sps[0]
   if (!sequence) throw invalidInput('HEIF image has no sequence parameter set')
   const colorProperties = colorPropertiesFor(parsed)
   const color = colorConversionFor(colorProperties, sequence, coded.configuration, parsed.brands)
   let decoder: ImageDecoder
-  if (parsed.primaryItemType === 'grid') {
-    if (!parsed.grid) throw invalidInput('HEIF grid layout is missing')
-    decoder = new HeifGridPixelDecoder(inspection.codedImages, parsed.grid, aperture, color)
+  if (parsed.grid) {
+    let gridAlpha:
+      | {
+          readonly codedImages?: readonly HeifCodedImageInspection[]
+          readonly fullRange?: boolean
+          readonly grid?: GridLayout
+          readonly picture?: HeifAlphaPlane
+          readonly premultiplied?: boolean
+        }
+      | undefined
+    if (alphaSource?.kind === 'grid') {
+      if (
+        alphaSource.grid.rows !== parsed.grid.rows ||
+        alphaSource.grid.columns !== parsed.grid.columns
+      ) {
+        throw unsupportedOperation('HEIF grid alpha layout does not match the primary grid')
+      }
+      const alphaInspection = await inspectHeifCodedImages(parsed, alphaSource.codedImages, 'alpha')
+      const firstAlpha = alphaSource.codedImages[0]
+      const firstAlphaSequence = firstAlpha?.configuration.sps[0]
+      if (!firstAlpha || !firstAlphaSequence) {
+        throw invalidInput('HEIF grid alpha has no sequence parameter set')
+      }
+      gridAlpha = {
+        codedImages: alphaInspection,
+        grid: alphaSource.grid,
+        fullRange: heifAlphaIsFullRange(firstAlpha, firstAlphaSequence),
+        premultiplied: heifAlphaIsPremultiplied(parsed, alphaSource.itemId),
+      }
+    } else if (alphaSource?.kind === 'direct') {
+      const alphaInspection = await inspectHeifCodedImages(parsed, [alphaSource.coded], 'alpha')
+      const alphaCodedImage = alphaInspection[0]
+      if (!alphaCodedImage) throw invalidInput('HEIF alpha auxiliary item is not coded')
+      gridAlpha = {
+        picture: decodeHeifAlphaPlane(
+          parsed,
+          alphaSource.coded,
+          alphaCodedImage,
+          0,
+          0,
+          alphaSource.itemId,
+        ),
+      }
+    }
+    decoder = new HeifGridPixelDecoder(
+      inspection.codedImages,
+      parsed.grid,
+      aperture,
+      color,
+      gridAlpha,
+    )
   } else {
     if (inspection.codedImages.length !== 1) {
       throw invalidInput('Direct HEIF primary image has multiple coded items')
     }
+    if (alphaSource?.kind === 'grid') {
+      throw unsupportedOperation('HEIF grid auxiliary alpha on a direct primary is unsupported')
+    }
     const picture = decodeCodedHeifPicture(coded)
     if (picture.width !== sequence.codedWidth || picture.height !== sequence.codedHeight) {
       throw invalidInput('HEIF decoded picture dimensions do not match its spatial extents')
+    }
+    let alpha: HeifAlphaPlane | undefined
+    if (alphaSource?.kind === 'direct') {
+      const alphaInspection = await inspectHeifCodedImages(parsed, [alphaSource.coded], 'alpha')
+      const alphaCodedImage = alphaInspection[0]
+      if (!alphaCodedImage) throw invalidInput('HEIF alpha auxiliary item is not coded')
+      const sameDisplay =
+        alphaSource.coded.dimensions.width === aperture.width &&
+        alphaSource.coded.dimensions.height === aperture.height
+      alpha = decodeHeifAlphaPlane(
+        parsed,
+        alphaSource.coded,
+        alphaCodedImage,
+        sameDisplay ? aperture.x : 0,
+        sameDisplay ? aperture.y : 0,
+        alphaSource.itemId,
+      )
     }
     decoder = new HeifPixelDecoder(
       picture,
@@ -1724,6 +2324,7 @@ const createHeifDecoder = async (
         y: aperture.y + sequence.conformanceY,
       },
       color,
+      alpha,
     )
   }
   const colorTransform = oneProperty(colorProperties, 'colr')?.colorTransform
