@@ -114,6 +114,25 @@ describe('execution evidence', () => {
     ])
   })
 
+  it('rejects invalid final status and all collector reuse after finalization', () => {
+    const session = createEvidenceSession({ mode: 'trace' })
+    const lease = session.context.allocate('working-row', 16)
+    expect(() => Reflect.apply(session.finalize, undefined, ['invalid'])).toThrow(
+      'status must be complete, cancelled, or failed',
+    )
+
+    session.finalize()
+
+    expect(() => session.context.nowMicroseconds()).toThrow('already finalized')
+    expect(() => session.context.child('late-work')).toThrow('already finalized')
+    expect(() => session.context.operation({ operationId: 'late-work', phase: 'start' })).toThrow(
+      'already finalized',
+    )
+    expect(() => lease.release()).toThrow('already finalized')
+    expect(() => session.subscribe(() => undefined)).toThrow('already finalized')
+    expect(() => session.finalize()).toThrow('already finalized')
+  })
+
   it('bounds trace events while aggregate counters continue', async () => {
     const session = createEvidenceSession({ mode: 'trace', limits: { maxEvents: 1 } })
     const source = instrumentImageSource(new MemorySource(Uint8Array.of(1, 2, 3)), session.context)

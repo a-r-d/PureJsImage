@@ -582,6 +582,10 @@ class EvidenceCollector {
     this.includeSourceNames = options.includeSourceNames === true
   }
 
+  assertActive(): void {
+    if (this.#finalized) throw invalidInput('Evidence session was already finalized')
+  }
+
   time(): number {
     const value = this.clock.now()
     if (!Number.isFinite(value) || value < this.started)
@@ -590,6 +594,7 @@ class EvidenceCollector {
   }
 
   scope(parentId: number, label: string): number {
+    this.assertActive()
     if (label.length === 0 || label.length > 96)
       throw invalidInput('Evidence child scope label is invalid')
     if (this.#nextScope > this.limits.maxChildSpans) {
@@ -677,7 +682,10 @@ class EvidenceCollector {
     return Object.freeze({
       mode: this.mode,
       scopeId,
-      nowMicroseconds: () => this.time(),
+      nowMicroseconds: () => {
+        this.assertActive()
+        return this.time()
+      },
       child: (label: string) => this.context(this.scope(scopeId, label)),
       source: (identity: SourceIdentity) => this.addSource(identity),
       logicalRead: (input: Parameters<EvidenceContext['logicalRead']>[0]) =>
@@ -699,7 +707,7 @@ class EvidenceCollector {
   }
 
   addSource(identity: SourceIdentity): void {
-    if (this.#finalized) return
+    this.assertActive()
     if (this.seenSources.has(identity)) return
     this.seenSources.add(identity)
     if (this.sources.length >= 64) {
@@ -729,6 +737,7 @@ class EvidenceCollector {
     scopeId: number,
     input: Parameters<EvidenceContext['logicalRead']>[0],
   ): string | undefined {
+    this.assertActive()
     nonNegativeInteger(input.offset, 'Logical read offset')
     nonNegativeInteger(input.requestedBytes, 'Logical requested bytes')
     nonNegativeInteger(input.returnedBytes, 'Logical returned bytes')
@@ -764,6 +773,7 @@ class EvidenceCollector {
     scopeId: number,
     input: Parameters<EvidenceContext['physicalTransfer']>[0],
   ): string | undefined {
+    this.assertActive()
     nonNegativeInteger(input.start, 'Physical transfer start')
     nonNegativeInteger(input.end, 'Physical transfer end')
     nonNegativeInteger(input.transferredBytes, 'Physical transfer bytes')
@@ -811,6 +821,7 @@ class EvidenceCollector {
   }
 
   recordCache(scopeId: number, input: Parameters<EvidenceContext['cache']>[0]): string | undefined {
+    this.assertActive()
     if (input.start !== undefined) nonNegativeInteger(input.start, 'Cache range start')
     if (input.end !== undefined) nonNegativeInteger(input.end, 'Cache range end')
     if (input.bytes !== undefined) nonNegativeInteger(input.bytes, 'Cache bytes')
@@ -824,6 +835,7 @@ class EvidenceCollector {
   }
 
   operation(scopeId: number, input: Parameters<EvidenceContext['operation']>[0]): void {
+    this.assertActive()
     boundedString(input.operationId, 'Evidence operation id')
     if (input.detail !== undefined) boundedString(input.detail, 'Evidence operation detail', 1_024)
     if (input.failureCode !== undefined) {
@@ -867,6 +879,7 @@ class EvidenceCollector {
   }
 
   block(scopeId: number, input: Parameters<EvidenceContext['block']>[0]): void {
+    this.assertActive()
     boundedString(input.blockId, 'Evidence block id')
     nonNegativeInteger(input.width, 'Evidence block width')
     nonNegativeInteger(input.height, 'Evidence block height')
@@ -888,6 +901,7 @@ class EvidenceCollector {
   }
 
   dependency(scopeId: number, input: Parameters<EvidenceContext['dependency']>[0]): void {
+    this.assertActive()
     boundedString(input.outputId, 'Evidence dependency output id')
     const retainedInputIds = input.inputIds.slice(0, 256)
     if (input.inputIds.length > 256) {
@@ -912,6 +926,7 @@ class EvidenceCollector {
   }
 
   provider(scopeId: number, input: Parameters<EvidenceContext['provider']>[0]): void {
+    this.assertActive()
     boundedString(input.operationId, 'Evidence provider operation id')
     nonNegativeInteger(input.semanticVersion, 'Evidence provider semantic version')
     boundedString(input.providerId, 'Evidence provider id')
@@ -940,6 +955,7 @@ class EvidenceCollector {
   }
 
   cancellation(scopeId: number, target: string): void {
+    this.assertActive()
     const retainedTarget = boundedString(target, 'Evidence cancellation target')
     const key = `${scopeId}\0${retainedTarget}`
     const previous = this.cancellationSummaries.get(key)
@@ -965,6 +981,7 @@ class EvidenceCollector {
     bytes: number,
     kind: EvidenceManagedAllocationKind = 'buffer',
   ): EvidenceManagedLease {
+    this.assertActive()
     if (!Number.isSafeInteger(bytes) || bytes < 0)
       throw invalidInput('Managed allocation bytes must be a non-negative safe integer')
     if (category.length === 0 || category.length > 96)
@@ -1003,6 +1020,7 @@ class EvidenceCollector {
       bytes,
       category,
       release: (): void => {
+        this.assertActive()
         if (released) throw invalidInput(`Managed allocation ${id ?? category} was released twice`)
         released = true
         this.releaseCount += 1
@@ -1025,7 +1043,9 @@ class EvidenceCollector {
   }
 
   finalize(status: EvidenceStatus): ExecutionEvidenceReport {
-    if (this.#finalized) throw invalidInput('Evidence session was already finalized')
+    this.assertActive()
+    if (status !== 'complete' && status !== 'cancelled' && status !== 'failed')
+      throw invalidInput('Evidence session status must be complete, cancelled, or failed')
     this.#finalized = true
     if (this.currentBytes > 0)
       this.warn('live-managed-leases', 'Managed allocations remain live at finalization')
@@ -1153,6 +1173,7 @@ export const createEvidenceSession = (
   return Object.freeze({
     context: collector.context(0),
     subscribe: (listener: (event: EvidenceEvent) => void): (() => void) => {
+      collector.assertActive()
       if (collector.subscribers.size >= collector.limits.maxSubscribers)
         throw invalidInput('Evidence subscriber limit reached')
       collector.subscribers.add(listener)
