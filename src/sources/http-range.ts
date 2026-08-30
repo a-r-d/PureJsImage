@@ -552,6 +552,7 @@ export class HttpRangeSource implements ImageSource {
   #recordAbortedConsumer(signal: AbortSignal | undefined): void {
     if (signal?.aborted !== true) return
     this.#abortedConsumers += 1
+    this.#evidence?.cache({ action: 'abort' })
     this.#evidence?.cancellation('http-range-consumer')
     throwIfAborted(signal)
   }

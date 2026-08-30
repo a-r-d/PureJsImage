@@ -73,6 +73,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- The PR #32 hardening pass now rejects explicitly premultiplied RGBA input before resize or pixel
+  storage conversion, counts aborted shared-range consumers without mislabeling the surviving
+  physical transfer, keeps managed-allocation overflow categories separate from caller labels,
+  preserves safe 4D-STEM navigation indices above the uint32 range, and validates complete worker
+  messages before updating the linked explorer.
+
 - Experimental HEIF/HEIC displayed 8-bit 4:2:0 conversion now uses nearest
   chroma samples, matching the Main 10/PQ path. Against ImageMagick/libheif, the
   libheif example still is 0.034652 normalized sRGB RMSE after the existing

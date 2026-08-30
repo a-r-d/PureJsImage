@@ -351,6 +351,30 @@ describe('native precision resize and conversion', () => {
     ).toEqual([0, 0, 0, 0, 255, 255, 128, 0])
   })
 
+  it('rejects explicitly premultiplied input before resize or pixel conversion', () => {
+    const premultiplied = Object.freeze({ ...semantics, alpha: 'premultiplied' as const })
+    expect(() =>
+      createResizeTransform(
+        2,
+        1,
+        'rgba16',
+        { width: 1, height: 1, fit: 'fill', kernel: 'bilinear' },
+        premultiplied,
+      ),
+    ).toThrow('premultiplied alpha')
+    expect(() =>
+      describePrecisionExecution({
+        width: 1,
+        height: 1,
+        pixelFormat: 'rgba16',
+        colorSemantics: premultiplied,
+        operations: [{ type: 'convertPixelFormat', options: { format: 'rgba8' } }],
+        encoderFormat: 'png',
+        encoderPixelFormats: ['rgba8'],
+      }),
+    ).toThrow('premultiplied alpha')
+  })
+
   it('propagates non-finite float samples', async () => {
     const transform = createResizeTransform(2, 1, 'grayf32', {
       width: 1,

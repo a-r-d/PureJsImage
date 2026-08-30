@@ -905,12 +905,12 @@ const navigationPositions = (
   roi: NavigationRoi,
   bounds: PixelBounds,
   maximum: number,
-): Uint32Array => {
+): Float64Array => {
   const boundedPixels = bounds.width * bounds.height
   if (!Number.isSafeInteger(boundedPixels) || boundedPixels > maximum) {
     throw limitExceeded('Navigation ROI bounds exceed maxRoiPixels')
   }
-  const positions = new Uint32Array(boundedPixels * 2)
+  const positions = new Float64Array(boundedPixels * 2)
   let positionCount = 0
   for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
     for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {

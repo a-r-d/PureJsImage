@@ -34,9 +34,9 @@ import { BlobSource, MemorySource } from '../../../src/source.ts'
 import type {
   FourDStemEvidenceSnapshot,
   FourDStemRenderedView,
-  FourDStemWorkerRequest,
   FourDStemWorkerResponse,
 } from './four-d-stem-types.ts'
+import { isFourDStemWorkerRequest } from './four-d-stem-types.ts'
 
 interface WorkerScope {
   addEventListener(type: 'message', listener: (event: MessageEvent<unknown>) => void): void
@@ -489,92 +489,8 @@ const reducedDiffraction = async (
   }
 }
 
-const isRequest = (value: unknown): value is FourDStemWorkerRequest => {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
-  if (
-    !('version' in value) ||
-    value.version !== 1 ||
-    !('type' in value) ||
-    typeof value.type !== 'string'
-  )
-    return false
-  if (
-    !('sequence' in value) ||
-    typeof value.sequence !== 'number' ||
-    !Number.isSafeInteger(value.sequence)
-  )
-    return false
-  if (value.type === 'open-fixture' || value.type === 'cancel' || value.type === 'close')
-    return true
-  if (value.type === 'open-mib') {
-    return (
-      'mib' in value &&
-      value.mib instanceof File &&
-      (!('hdr' in value) || value.hdr instanceof File)
-    )
-  }
-  if (value.type === 'cursor') {
-    return (
-      'scanX' in value &&
-      typeof value.scanX === 'number' &&
-      Number.isSafeInteger(value.scanX) &&
-      'scanY' in value &&
-      typeof value.scanY === 'number' &&
-      Number.isSafeInteger(value.scanY)
-    )
-  }
-  const validRoi = (roi: unknown, allowAnnulus: boolean): boolean => {
-    if (roi === null || typeof roi !== 'object' || Array.isArray(roi)) return false
-    if (!('kind' in roi) || typeof roi.kind !== 'string') return false
-    if (!('x' in roi) || typeof roi.x !== 'number' || !Number.isFinite(roi.x)) return false
-    if (!('y' in roi) || typeof roi.y !== 'number' || !Number.isFinite(roi.y)) return false
-    if (roi.kind === 'point') return true
-    if (roi.kind === 'rectangle') {
-      return (
-        'width' in roi &&
-        typeof roi.width === 'number' &&
-        Number.isFinite(roi.width) &&
-        roi.width > 0 &&
-        'height' in roi &&
-        typeof roi.height === 'number' &&
-        Number.isFinite(roi.height) &&
-        roi.height > 0
-      )
-    }
-    if (roi.kind === 'circle') {
-      return (
-        'radius' in roi &&
-        typeof roi.radius === 'number' &&
-        Number.isFinite(roi.radius) &&
-        roi.radius > 0
-      )
-    }
-    return (
-      allowAnnulus &&
-      roi.kind === 'annulus' &&
-      'innerRadius' in roi &&
-      typeof roi.innerRadius === 'number' &&
-      Number.isFinite(roi.innerRadius) &&
-      roi.innerRadius >= 0 &&
-      'outerRadius' in roi &&
-      typeof roi.outerRadius === 'number' &&
-      Number.isFinite(roi.outerRadius) &&
-      roi.outerRadius > roi.innerRadius
-    )
-  }
-  if (value.type === 'detector-roi' || value.type === 'scan-roi') {
-    return (
-      'reduction' in value &&
-      (value.reduction === 'sum' || value.reduction === 'mean') &&
-      'roi' in value &&
-      validRoi(value.roi, value.type === 'detector-roi')
-    )
-  }
-  return false
-}
-
 scope.addEventListener('message', (event: MessageEvent<unknown>) => {
-  if (!isRequest(event.data)) {
+  if (!isFourDStemWorkerRequest(event.data)) {
     post({
       version: 1,
       type: 'error',

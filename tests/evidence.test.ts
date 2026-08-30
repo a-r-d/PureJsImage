@@ -279,6 +279,20 @@ describe('execution evidence', () => {
     expect(report.session.warnings).toContain('label-limit: Evidence label limit reached')
   })
 
+  it('does not let a caller category collide with an overflow category', () => {
+    const session = createEvidenceSession({ mode: 'summary', limits: { maxLabels: 1 } })
+    const caller = session.context.allocate('[other-cache]', 4, 'buffer')
+    const overflow = session.context.allocate('second-category', 8, 'cache')
+    caller.release()
+    overflow.release()
+    const report = session.finalize()
+    expect(report.managedMemory.currentLiveBytes).toBe(0)
+    expect(report.managedMemory.categories['[other-cache]']).toMatchObject({ kind: 'buffer' })
+    expect(Object.values(report.managedMemory.categories)).toContainEqual(
+      expect.objectContaining({ kind: 'cache', peakBytes: 8 }),
+    )
+  })
+
   it('redacts signed URL queries and local paths by default', () => {
     const session = createEvidenceSession({ mode: 'summary' })
     session.context.source({
@@ -455,6 +469,52 @@ describe('execution evidence', () => {
     })
     expect(report.managedMemory.retainedCacheBytes).toBe(0)
     expect(JSON.stringify(report)).not.toContain('token=secret')
+  })
+
+  it('counts an aborted shared-read consumer without aborting the physical transfer', async () => {
+    let finishBlock: ((response: Response) => void) | undefined
+    const fetcher: typeof fetch = async (_input, init) => {
+      const range = new Headers(init?.headers).get('range')
+      if (range === 'bytes=0-0') {
+        return new Response(Uint8Array.of(0), {
+          status: 206,
+          headers: { 'content-range': 'bytes 0-0/32' },
+        })
+      }
+      return new Promise<Response>((resolve) => {
+        finishBlock = resolve
+      })
+    }
+    const session = createEvidenceSession({ mode: 'trace' })
+    const source = await HttpRangeSource.open('https://example.test/shared.bin', {
+      blockBytes: 16,
+      fetch: fetcher,
+      evidence: session.context,
+    })
+    const firstController = new AbortController()
+    const first = source.read(16, 2, { signal: firstController.signal })
+    const second = source.read(18, 2)
+    await Promise.resolve()
+    firstController.abort()
+    await expect(first).rejects.toMatchObject({ name: 'AbortError' })
+    finishBlock?.(
+      new Response(
+        Uint8Array.from({ length: 16 }, (_value, index) => 16 + index),
+        {
+          status: 206,
+          headers: { 'content-range': 'bytes 16-31/32' },
+        },
+      ),
+    )
+    await expect(second).resolves.toEqual(Uint8Array.of(18, 19))
+    source.clearCache()
+    const report = session.finalize()
+    expect(report.physicalTransfers).toMatchObject({
+      coalescedConsumers: 1,
+      abortedConsumers: 1,
+      requestCount: 2,
+    })
+    expect(report.physicalTransfers.statusClasses.successful).toBe(2)
   })
 
   it('keeps failed transfer and validator evidence visible without retaining response data', async () => {

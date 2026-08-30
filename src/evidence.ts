@@ -104,7 +104,7 @@ export interface EvidencePhysicalTransferEvent extends EvidenceEventBase {
 
 export interface EvidenceCacheEvent extends EvidenceEventBase {
   readonly type: 'cache'
-  readonly action: 'hit' | 'miss' | 'join' | 'evict'
+  readonly action: 'hit' | 'miss' | 'join' | 'evict' | 'abort'
   readonly start?: number
   readonly end?: number
   readonly bytes?: number
@@ -515,6 +515,7 @@ class EvidenceCollector {
       peakBytes: number
     }
   >()
+  readonly overflowCategories = new Map<EvidenceManagedAllocationKind, string>()
   readonly operationSummaries = new Map<string, EvidenceOperationSummary>()
   readonly providerSummaries = new Map<string, EvidenceProviderSummary>()
   readonly cancellationSummaries = new Map<string, EvidenceCancellationSummary>()
@@ -802,7 +803,6 @@ class EvidenceCollector {
     else if (input.status < 400) this.physicalStatusClasses.redirection += 1
     else if (input.status < 500) this.physicalStatusClasses.clientError += 1
     else this.physicalStatusClasses.serverError += 1
-    if (input.outcome === 'aborted') this.abortedConsumers += 1
     if (input.retry === true) this.retries += 1
     if (input.validatorFailure === true) this.validatorFailures += 1
     if (input.transferredBytes > 0) {
@@ -830,6 +830,7 @@ class EvidenceCollector {
     if (input.action === 'hit') this.cacheHits += 1
     if (input.action === 'miss') this.cacheMisses += 1
     if (input.action === 'join') this.coalescedConsumers += 1
+    if (input.action === 'abort') this.abortedConsumers += 1
     const id = this.emit(scopeId, { type: 'cache', ...input })
     return id === undefined ? undefined : `cache:${id}`
   }
@@ -988,7 +989,7 @@ class EvidenceCollector {
       throw invalidInput('Managed allocation category is invalid')
     if (kind !== 'buffer' && kind !== 'cache' && kind !== 'temporary-storage')
       throw invalidInput('Managed allocation kind is invalid')
-    const retainedCategory = this.retainLabel(category) ?? `[other-${kind}]`
+    const retainedCategory = this.retainLabel(category) ?? this.overflowCategory(kind)
     this.allocationCount += 1
     this.currentBytes += bytes
     this.peakBytes = Math.max(this.peakBytes, this.currentBytes)
@@ -1040,6 +1041,19 @@ class EvidenceCollector {
         }
       },
     })
+  }
+
+  overflowCategory(kind: EvidenceManagedAllocationKind): string {
+    const retained = this.overflowCategories.get(kind)
+    if (retained !== undefined) return retained
+    let suffix = 0
+    let candidate = `[other-${kind}]`
+    while (this.categories.has(candidate)) {
+      suffix += 1
+      candidate = `[other-${kind}-${suffix}]`
+    }
+    this.overflowCategories.set(kind, candidate)
+    return candidate
   }
 
   finalize(status: EvidenceStatus): ExecutionEvidenceReport {

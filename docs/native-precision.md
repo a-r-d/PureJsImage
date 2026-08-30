@@ -23,7 +23,9 @@ Resize has native kernels for these formats:
 Nearest, bilinear, and Lanczos 3 use the existing geometry and fit options.
 RGBA16 filtering uses premultiplied color internally and returns straight
 alpha. Float resize propagates NaN and infinity. It does not replace them with
-zero.
+zero. RGBA input that explicitly declares premultiplied alpha is rejected
+before resampling. The current resize kernels accept straight-alpha input or
+the existing unspecified-alpha compatibility path.
 
 Planar YUV and arbitrary-angle high-depth rotation remain unsupported. An
 unsupported transform returns `UNSUPPORTED_OPERATION` before pixel decoding
@@ -59,6 +61,8 @@ const output = await image
 Adding alpha requires an explicit normalized `alpha` value. Removing alpha
 requires either `{ mode: 'discard' }` or an explicit `#RRGGBB` background.
 Conversion is row-streaming. It never infers a float range from one block.
+Explicitly premultiplied RGBA input is rejected because conversion does not
+currently include an unpremultiply policy.
 
 ## Default and linear-light resize
 

@@ -49,7 +49,9 @@ bounded, and are not used as source names.
 
 An instrumented `ImageSource` records logical requested and returned bytes. `HttpRangeSource`
 records physical response bytes, response ranges, cache hits, misses, and in-flight joins. Unique
-bytes are interval unions. Status classes and transfer durations are measured. Time to first byte
+bytes are interval unions. A consumer that leaves a shared in-flight read is counted separately
+from the physical transfer, which may still complete for another consumer. Status classes and
+transfer durations are measured. Time to first byte
 is measured from the first response-body chunk and remains unavailable when a source cannot expose
 that boundary. Local sources report physical transfers as unavailable. Overfetch is the physical
 unique coverage outside the logical range union.

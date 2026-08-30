@@ -78,7 +78,7 @@ There is no global registry and no registration side effect.
 | Crop | All fixed-width interleaved formats | Not applicable | Planar YUV |
 | Horizontal and vertical flip | All fixed-width interleaved formats | Not applicable | Planar YUV |
 | EXIF orientations and 90/180/270 degree rotation | All fixed-width interleaved formats | Not applicable | Planar YUV |
-| Resize, nearest/bilinear/Lanczos3 | No | gray16, rgb16, rgba16, grayf32, rgbf32 plus existing 8-bit formats | Other storage formats |
+| Resize, nearest/bilinear/Lanczos3 | No | gray16, rgb16, rgba16, grayf32, rgbf32 plus existing 8-bit formats | Other storage formats and explicitly premultiplied RGBA input |
 | Arbitrary-angle rotation | No | Existing 8-bit formats | High-depth and floating-point input without an explicit conversion |
 | LUT and window | No | Existing declared formats | Mismatched input format |
 | Pixel-format conversion | No | Declared source and destination pairs | Missing float range or alpha policy |
@@ -103,6 +103,8 @@ terminal encoder requirement recorded by the plan.
   domain.
 - RGBA to RGB requires an explicit background or an explicit discard policy.
   Fully transparent source color cannot leak through background composition.
+- Explicitly premultiplied RGBA input is rejected before resize or storage
+  conversion. Those paths do not currently expose an unpremultiply policy.
 - A storage conversion does not reinterpret encoded RGB as linear RGB.
 
 Conversion is row-streaming and preserves release, cancellation, and bounded

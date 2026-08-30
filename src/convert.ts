@@ -108,6 +108,11 @@ export const convertedPixelColorSemantics = (
   outputFormat: PixelFormat,
 ): PixelColorSemantics | undefined => {
   if (semantics === undefined) return undefined
+  if (semantics.alpha === 'premultiplied') {
+    throw unsupportedOperation(
+      'Pixel format conversion does not support explicitly premultiplied alpha input',
+    )
+  }
   return Object.freeze({
     ...semantics,
     family: outputFormat.startsWith('gray') ? 'gray' : 'rgb',

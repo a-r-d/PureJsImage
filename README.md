@@ -85,12 +85,12 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Current measured surface | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 19.1 KiB | 6.5 KiB | 5.8 KiB |
-| Common web codecs | 638.1 KiB | 234.7 KiB | 195.2 KiB |
-| All stable codecs | 901.3 KiB | 316.9 KiB | 259.3 KiB |
-| Scientific platform | 190.1 KiB | 53.8 KiB | 45.4 KiB |
+| Common web codecs | 638.3 KiB | 234.8 KiB | 195.2 KiB |
+| All stable codecs | 901.6 KiB | 316.9 KiB | 259.7 KiB |
+| Scientific platform | 190.3 KiB | 53.9 KiB | 45.5 KiB |
 | All scientific readers | 1237.7 KiB | 358.0 KiB | 285.5 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 619.6 KiB | 187.6 KiB | 151.9 KiB |
+| All Geo readers | 619.7 KiB | 187.6 KiB | 151.7 KiB |
 
 The extracted npm package is 6.6 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -367,9 +367,9 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 | Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 19.1 KiB | 6.5 KiB | 5.8 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 638.1 KiB | 234.7 KiB | 195.2 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 901.3 KiB | 316.9 KiB | 259.3 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 190.1 KiB | 53.8 KiB | 45.4 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 638.3 KiB | 234.8 KiB | 195.2 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 901.6 KiB | 316.9 KiB | 259.7 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 190.3 KiB | 53.9 KiB | 45.5 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1237.7 KiB | 358.0 KiB | 285.5 KiB |
 
 The extracted npm package is 6.6 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.

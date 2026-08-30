@@ -1547,6 +1547,9 @@ export const createResizeTransform = (
 ): ResizeTransform => {
   const plan = resizePlan(width, height, options)
   const format = resultFormat(pixelFormat, plan.background)
+  if (pixelFormat.startsWith('rgba') && colorSemantics?.alpha === 'premultiplied') {
+    throw unsupportedOperation('Resize does not support explicitly premultiplied alpha input')
+  }
   if (options.colorSpace === 'linear-light') {
     const transfer = validateLinearLightSemantics(pixelFormat, colorSemantics)
     return {

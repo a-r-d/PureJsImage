@@ -2,8 +2,11 @@ import type {
   FourDStemEvidenceSnapshot,
   FourDStemRenderedView,
   FourDStemWorkerRequest,
-  FourDStemWorkerResponse,
   FourDStemWorkerRoi,
+} from './four-d-stem-types.ts'
+import {
+  isCurrentFourDStemWorkerResponseSequence,
+  isFourDStemWorkerResponse,
 } from './four-d-stem-types.ts'
 
 type FourDStemRequestPayload = FourDStemWorkerRequest extends infer Request
@@ -22,17 +25,6 @@ const requiredElement = <ElementType extends Element>(
   if (!(value instanceof Constructor)) throw new Error(`4D-STEM element #${id} is missing`)
   return value
 }
-
-const isResponse = (value: unknown): value is FourDStemWorkerResponse =>
-  value !== null &&
-  typeof value === 'object' &&
-  !Array.isArray(value) &&
-  'version' in value &&
-  value.version === 1 &&
-  'type' in value &&
-  typeof value.type === 'string' &&
-  'sequence' in value &&
-  typeof value.sequence === 'number'
 
 const formatBytes = (bytes: number): string =>
   bytes < 1_024
@@ -141,7 +133,6 @@ export const startFourDStemExplorer = (): void => {
     type: 'module',
   })
   let sequence = 0
-  let latestAccepted = 0
   let scanSize: readonly [number, number] = Object.freeze([1, 1])
   let cursor: readonly [number, number] = Object.freeze([0, 0])
   let latestEvidence: FourDStemEvidenceSnapshot | undefined
@@ -198,13 +189,12 @@ export const startFourDStemExplorer = (): void => {
     `${view.range[0].toLocaleString(undefined, { maximumSignificantDigits: 6 })} to ${view.range[1].toLocaleString(undefined, { maximumSignificantDigits: 6 })}`
 
   worker.addEventListener('message', (event: MessageEvent<unknown>) => {
-    if (!isResponse(event.data)) {
+    if (!isFourDStemWorkerResponse(event.data)) {
       status.textContent = 'The worker returned an invalid response. Reload the application.'
       return
     }
     const response = event.data
-    if (response.sequence < latestAccepted) return
-    latestAccepted = response.sequence
+    if (!isCurrentFourDStemWorkerResponseSequence(response.sequence, sequence)) return
     if (response.type === 'error') {
       status.textContent = response.message
       return

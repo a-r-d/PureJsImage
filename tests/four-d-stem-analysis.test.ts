@@ -128,6 +128,75 @@ const uint64Dataset = (samples: readonly bigint[]): DirectNumericTileDataset => 
   })
 }
 
+const largeNavigationCoordinateDataset = (): {
+  readonly dataset: DirectNumericTileDataset
+  readonly selectedScanX: number[]
+} => {
+  const largeScanX = 0x1_0000_0000
+  const descriptor = normalizeScientificDatasetDescriptor({
+    schemaVersion: 1,
+    axes: [
+      { id: 'kx', kind: 'reciprocal-space', length: 1, coordinates: { type: 'index' } },
+      { id: 'ky', kind: 'reciprocal-space', length: 1, coordinates: { type: 'index' } },
+      {
+        id: 'scanX',
+        kind: 'space',
+        length: largeScanX + 1,
+        coordinates: { type: 'index' },
+      },
+      { id: 'scanY', kind: 'space', length: 1, coordinates: { type: 'index' } },
+    ],
+    sampleType: 'uint8',
+    components: [{ id: 'intensity', kind: 'intensity' }],
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [['kx', 'ky']] },
+    },
+  })
+  const selectedScanX: number[] = []
+  const numericTileSource = Object.freeze({
+    descriptor,
+    directSemantics: Object.freeze({
+      sourceSampleType: 'uint8' as const,
+      nativeSampleType: 'uint8' as const,
+      componentCount: 1,
+      layout: 'interleaved' as const,
+      supportedTargetSampleTypes: Object.freeze(['uint8'] as const),
+    }),
+    async *readNumericTiles(
+      request: Readonly<NumericTileReadRequest>,
+    ): AsyncGenerator<NumericTile> {
+      const normalized = normalizeScientificPlaneReadRequest(descriptor, request)
+      selectedScanX.push(
+        normalized.fixedIndices.find(({ axisId }) => axisId === 'scanX')?.index ?? -1,
+      )
+      yield Object.freeze({
+        x: normalized.x,
+        y: normalized.y,
+        width: normalized.width,
+        height: normalized.height,
+        sampleType: 'uint8' as const,
+        componentCount: 1,
+        layout: 'interleaved' as const,
+        rowStrideElements: normalized.width,
+        data: new Uint8Array(normalized.width * normalized.height).fill(1),
+        release() {},
+      })
+    },
+  })
+  return Object.freeze({
+    selectedScanX,
+    dataset: Object.freeze({
+      descriptor,
+      numericTileSource,
+      readPlane() {
+        throw new Error('The direct large-coordinate dataset should use numeric tiles')
+      },
+    }),
+  })
+}
+
 const isDataset = (value: unknown): value is ScientificDataset =>
   value !== null &&
   typeof value === 'object' &&
@@ -471,6 +540,24 @@ describe('explicit 4D-STEM analysis bundle', () => {
     } finally {
       await unsafe.release()
       unsafe.clear()
+    }
+  })
+
+  it('preserves safe navigation coordinates above the uint32 range', async () => {
+    const source = largeNavigationCoordinateDataset()
+    const scanX = 0x1_0000_0000
+    const result = await execute(
+      source.dataset,
+      scanDiffractionReductionOperationId,
+      { kind: 'point', x: scanX, y: 0 },
+      'sum',
+    )
+    try {
+      expect(await values(result.dataset)).toEqual([1])
+      expect(source.selectedScanX).toEqual([scanX])
+    } finally {
+      await result.release()
+      result.clear()
     }
   })
 })
