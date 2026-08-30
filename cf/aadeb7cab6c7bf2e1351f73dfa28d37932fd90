@@ -1,0 +1,44 @@
+src/codecs/png.ts
+  s_ce394ddfeaeeea::t_e8ae77abb79734 198-246,248-251,253-255,257-262,400-406,420-425,427-434,645-651,677
+  s_ce394ddfeaeeea::t_e3e1c1036d76bb 67,399,426
+browser-tests/ome-zarr.pw.ts
+  s_ce394ddfeaeeea::t_b8bac73a65a678 389-393,398
+  s_ce394ddfeaeeea::t_154552df5d962c 418,420-422,427-429
+  s_ce394ddfeaeeea::t_020aa1fe7f0ac5 419
+  s_ce394ddfeaeeea::t_76747054db6af0 387
+  s_ce394ddfeaeeea::t_440c42938114c0 385-386,388
+  s_ce394ddfeaeeea::t_6a160689af4d6f 423-426
+  s_ce394ddfeaeeea::t_0bd9ee6f9cf81c 432
+  s_ce394ddfeaeeea::t_9098e22860c794 399-406
+benchmark/generated/package-metrics.json
+  s_ce394ddfeaeeea::t_96b430c80a12e3 179,586,589,592,841,844,847,1201,1204,1207,1231,1234,1237,1306,1309,1312,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+README.md
+  s_ce394ddfeaeeea::t_96b430c80a12e3 370-371,373
+  s_ce394ddfeaeeea::t_167cf1c3b4bb07 88-89,91,93
+docs-astro/src/data/documentation-data.json
+  s_ce394ddfeaeeea::t_167cf1c3b4bb07 99-101,104-106,109-111,114-116,129
+docs-astro/src/data/package-metrics.json
+  s_ce394ddfeaeeea::t_96b430c80a12e3 179,586,589,592,841,844,847,1201,1204,1207,1231,1234,1237,1306,1309,1312,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+tests/png.test.ts
+  s_ce394ddfeaeeea::t_6a160689af4d6f 260
+  s_ce394ddfeaeeea::t_154552df5d962c 91-112,233-259,261-288
+  s_ce394ddfeaeeea::t_591006f4f87733 289-290
+docs-astro/src/scripts/ome-zarr-viewer.ts
+  s_ce394ddfeaeeea::t_d8aafe0940e6b9 958,1405-1408
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "cfaadeb7cab6c7bf2e1351f73dfa28d37932fd90",
+  "prompts": {},
+  "sessions": {
+    "s_ce394ddfeaeeea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0503b-7043-73b3-a0da-dfa82d798508",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
