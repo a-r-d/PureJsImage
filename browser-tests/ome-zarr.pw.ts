@@ -382,12 +382,28 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 40_000 })
   await expect(page.locator('#ome-zarr-stat-in-flight')).toHaveText('0', { timeout: 20_000 })
 
-  await page.locator('#ome-zarr-zoom-in').click()
+  await page.locator('#ome-zarr-label').selectOption('labels/segmentation')
+  await expect(page.locator('#ome-zarr-label-opacity')).toBeEnabled()
+  await expect(page.locator('.wsi-request-state.pending').first()).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 40_000 })
+  await page.locator('#ome-zarr-zoom-in').evaluate((element) => {
+    if (!(element instanceof HTMLButtonElement)) throw new Error('Zoom control is not a button')
+    element.click()
+    element.click()
+  })
   await expect(page.locator('.wsi-request-state.pending').first()).toBeVisible({ timeout: 10_000 })
   const reset = page.locator('#ome-zarr-reset')
   const previousEpoch = Number(await reset.getAttribute('data-measurement-epoch'))
   expect(Number.isSafeInteger(previousEpoch)).toBe(true)
-  await reset.click()
+  await page.evaluate(() => {
+    const opacity = document.querySelector('#ome-zarr-label-opacity')
+    const resetControl = document.querySelector('#ome-zarr-reset')
+    if (!(opacity instanceof HTMLInputElement)) throw new Error('Label opacity control is missing')
+    if (!(resetControl instanceof HTMLButtonElement)) throw new Error('Reset control is missing')
+    opacity.value = '63'
+    opacity.dispatchEvent(new Event('input', { bubbles: true }))
+    resetControl.click()
+  })
   await expect(reset).toHaveAttribute('data-measurement-epoch', String(previousEpoch + 1), {
     timeout: 40_000,
   })
@@ -399,10 +415,21 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await expect(page.locator('#ome-zarr-measured-bytes')).toHaveText('0 B')
   await expect(page.locator('#ome-zarr-stat-decoded')).toHaveText('0')
 
-  await page.locator('[data-axis-id="z"]').fill('0')
-  await page.locator('[data-axis-id="z"]').dispatchEvent('change')
+  const canvas = page.locator('#ome-zarr-canvas')
+  await canvas.scrollIntoViewIfNeeded()
+  const canvasBounds = await canvas.boundingBox()
+  expect(canvasBounds).not.toBeNull()
+  if (canvasBounds === null) return
+  await page.mouse.move(
+    canvasBounds.x + canvasBounds.width / 2,
+    canvasBounds.y + canvasBounds.height / 2,
+  )
+  await page.mouse.down()
+  await page.mouse.move(canvasBounds.x + 40, canvasBounds.y + canvasBounds.height / 2, { steps: 4 })
+  await page.mouse.up()
   await expect(page.locator('#ome-zarr-stat-bytes')).not.toHaveText('0 B', { timeout: 30_000 })
   await expect(page.locator('#ome-zarr-stat-decoded')).not.toHaveText('0', { timeout: 30_000 })
+  expect(new URL(page.url()).searchParams.get('opacity')).not.toBe('0.63')
   expect(externalRequests).toEqual([])
 })
 

@@ -955,6 +955,7 @@ const requestConfiguration = (next: OmeZarrRenderConfiguration, delay = 0): void
   if (configureTimer !== undefined) window.clearTimeout(configureTimer)
   configureTimer = window.setTimeout(() => {
     configureTimer = undefined
+    if (pendingResetEpoch !== undefined) return
     generation += 1
     const updated = { ...next, generation }
     configuration = updated
@@ -1401,6 +1402,10 @@ for (const button of sampleButtons) {
 }
 resetButton.addEventListener('click', () => {
   if (pendingResetEpoch !== undefined) return
+  if (configureTimer !== undefined) {
+    window.clearTimeout(configureTimer)
+    configureTimer = undefined
+  }
   cancelAllRequests()
   cacheHits = 0
   requestVisuals.length = 0

@@ -64,10 +64,7 @@ interface PngDescription {
   readonly idat: readonly ChunkRange[]
   readonly colorTransform: RgbIccTransform | undefined
   readonly grayTransform: Uint8Array | undefined
-  readonly encodedGamma: number | undefined
-  readonly hasChromaticities: boolean
-  readonly srgbIntent: number | undefined
-  readonly cicp: PngCicp | undefined
+  readonly colorSignal: PngEffectiveColorSignal
   readonly iccProfile: Uint8Array | undefined
   readonly exif: Uint8Array | undefined
 }
@@ -198,52 +195,71 @@ const pngRenderingIntent = (value: number): (typeof pngRenderingIntents)[number]
 }
 
 const pngColorSemantics = (description: PngDescription): PixelColorSemantics => {
+  const signal = description.colorSignal
+  const common = {
+    family: outputFormat(description).startsWith('gray') ? ('gray' as const) : ('rgb' as const),
+    matrix: 'identity' as const,
+    range: 'full' as const,
+    alpha: description.hasAlpha ? ('straight' as const) : ('none' as const),
+  }
+  if (signal.kind === 'icc') {
+    return Object.freeze({
+      ...common,
+      primaries: 'source-profile',
+      transfer: Object.freeze({ kind: 'source-profile' as const }),
+      provenance: 'icc',
+      icc: Object.freeze({ relevance: 'source' as const }),
+    })
+  }
+  if (signal.kind === 'srgb') {
+    return Object.freeze({
+      ...common,
+      primaries: 'srgb',
+      transfer: Object.freeze({ kind: 'srgb' as const }),
+      provenance: 'container-signaled',
+      renderingIntent: pngRenderingIntent(signal.intent),
+    })
+  }
+  if (signal.kind === 'gamma') {
+    return Object.freeze({
+      ...common,
+      primaries: 'unspecified',
+      transfer: Object.freeze({ kind: 'gamma' as const, exponent: 100_000 / signal.encoded }),
+      provenance: 'container-signaled',
+    })
+  }
+  if (signal.kind === 'chromaticities') {
+    return Object.freeze({
+      ...common,
+      primaries: 'source-profile',
+      transfer: Object.freeze({ kind: 'source-profile' as const }),
+      provenance: 'container-signaled',
+    })
+  }
+  if (signal.kind === 'unspecified') {
+    return Object.freeze({
+      ...common,
+      primaries: 'unspecified',
+      transfer: Object.freeze({ kind: 'unspecified' as const }),
+      provenance: 'unspecified',
+    })
+  }
   const standardizedCicp =
-    description.cicp?.[1] === 13 &&
-    description.cicp[2] === 0 &&
-    description.cicp[3] === 1 &&
-    (description.cicp[0] === 1 || description.cicp[0] === 12)
-  const hasSourceProfile =
-    description.iccProfile !== undefined ||
-    description.hasChromaticities ||
-    (description.cicp !== undefined && !standardizedCicp)
-  const hasSrgb = description.srgbIntent !== undefined || description.cicp?.[0] === 1
-  const hasDisplayP3 = description.cicp?.[0] === 12
-  const encodedGamma = description.encodedGamma
+    signal.value[1] === 13 &&
+    signal.value[2] === 0 &&
+    signal.value[3] === 1 &&
+    (signal.value[0] === 1 || signal.value[0] === 12)
   return Object.freeze({
-    family: outputFormat(description).startsWith('gray') ? 'gray' : 'rgb',
-    primaries: hasSourceProfile
-      ? 'source-profile'
-      : hasSrgb
+    ...common,
+    primaries: standardizedCicp
+      ? signal.value[0] === 1
         ? 'srgb'
-        : hasDisplayP3
-          ? 'display-p3'
-          : 'unspecified',
-    transfer: hasSourceProfile
-      ? Object.freeze({ kind: 'source-profile' as const })
-      : hasSrgb || hasDisplayP3
-        ? Object.freeze({ kind: 'srgb' as const })
-        : encodedGamma === undefined
-          ? Object.freeze({ kind: 'unspecified' as const })
-          : Object.freeze({ kind: 'gamma' as const, exponent: 100_000 / encodedGamma }),
-    matrix: 'identity',
-    range: 'full',
-    alpha: description.hasAlpha ? 'straight' : 'none',
-    provenance:
-      description.iccProfile !== undefined
-        ? 'icc'
-        : description.srgbIntent !== undefined ||
-            description.cicp !== undefined ||
-            description.encodedGamma !== undefined ||
-            description.hasChromaticities
-          ? 'container-signaled'
-          : 'unspecified',
-    ...(description.srgbIntent === undefined
-      ? {}
-      : { renderingIntent: pngRenderingIntent(description.srgbIntent) }),
-    ...(description.iccProfile === undefined
-      ? {}
-      : { icc: Object.freeze({ relevance: 'source' as const }) }),
+        : 'display-p3'
+      : 'source-profile',
+    transfer: standardizedCicp
+      ? Object.freeze({ kind: 'srgb' as const })
+      : Object.freeze({ kind: 'source-profile' as const }),
+    provenance: 'container-signaled',
   })
 }
 
@@ -380,6 +396,14 @@ const parseChromaticities = (data: Uint8Array): RgbChromaticities => {
 
 type PngCicp = readonly [primaries: number, transfer: number, matrix: number, fullRange: number]
 
+type PngEffectiveColorSignal =
+  | { readonly kind: 'cicp'; readonly value: PngCicp }
+  | { readonly kind: 'icc' }
+  | { readonly kind: 'srgb'; readonly intent: number }
+  | { readonly kind: 'chromaticities' }
+  | { readonly kind: 'gamma'; readonly encoded: number }
+  | { readonly kind: 'unspecified' }
+
 const parseCicp = (data: Uint8Array): PngCicp => {
   if (data.byteLength !== 4) throw invalidInput('PNG cICP chunk must contain four bytes')
   const primaries = data[0] ?? 0
@@ -391,6 +415,21 @@ const parseCicp = (data: Uint8Array): PngCicp => {
     throw invalidInput('PNG cICP full-range flag must be zero or one')
   }
   return [primaries, transfer, matrix, fullRange]
+}
+
+const effectivePngColorSignal = (
+  cicp: PngCicp | undefined,
+  iccProfile: Uint8Array | undefined,
+  srgbIntent: number | undefined,
+  chromaticities: RgbChromaticities | undefined,
+  encodedGamma: number | undefined,
+): PngEffectiveColorSignal => {
+  if (cicp !== undefined) return { kind: 'cicp', value: cicp }
+  if (iccProfile !== undefined) return { kind: 'icc' }
+  if (srgbIntent !== undefined) return { kind: 'srgb', intent: srgbIntent }
+  if (chromaticities !== undefined) return { kind: 'chromaticities' }
+  if (encodedGamma !== undefined) return { kind: 'gamma', encoded: encodedGamma }
+  return { kind: 'unspecified' }
 }
 
 const cicpColorTransform = (
@@ -603,6 +642,13 @@ const parsePng = async (
   let grayTransform: Uint8Array | undefined
   let iccProfile: Uint8Array | undefined
   if (compressedIcc) iccProfile = await inflateIccProfile(compressedIcc)
+  const colorSignal = effectivePngColorSignal(
+    cicp,
+    iccProfile,
+    srgbIntent,
+    chromaticities,
+    encodedGamma,
+  )
   if (cicp) {
     colorTransform = cicpColorTransform(cicp, rawColorType)
   } else if (iccProfile) {
@@ -628,10 +674,7 @@ const parsePng = async (
     idat,
     colorTransform,
     grayTransform,
-    encodedGamma,
-    hasChromaticities: chromaticities !== undefined,
-    srgbIntent,
-    cicp,
+    colorSignal,
     iccProfile,
     exif,
   }

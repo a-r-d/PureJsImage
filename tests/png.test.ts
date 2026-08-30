@@ -88,6 +88,28 @@ const unfilteredSinglePngRow = (png: Uint8Array, bytesPerPixel: number): Uint8Ar
   return output
 }
 
+const pngGamma = (value: number): Buffer => {
+  const gamma = Buffer.alloc(4)
+  gamma.writeUInt32BE(value)
+  return gamma
+}
+
+const srgbChromaticities = (): Buffer => {
+  const chromaticities = Buffer.alloc(32)
+  const values = [31_270, 32_900, 64_000, 33_000, 30_000, 60_000, 15_000, 6_000]
+  for (let index = 0; index < values.length; index += 1) {
+    chromaticities.writeUInt32BE(values[index] ?? 0, index * 4)
+  }
+  return chromaticities
+}
+
+const displayP3IccChunk = (): Buffer =>
+  Buffer.concat([
+    Buffer.from('Display P3\0', 'latin1'),
+    Buffer.from([0]),
+    deflateSync(displayP3RgbProfile()),
+  ])
+
 describe('PNG pixel pipeline', () => {
   it('converts a Display-P3 iCCP profile to sRGB without changing alpha', async () => {
     const profileData = Buffer.concat([
@@ -206,6 +228,64 @@ describe('PNG pixel pipeline', () => {
     expect(cicpOffset).toBeGreaterThan(0)
     expect(p3Output.subarray(cicpOffset + 4, cicpOffset + 8)).toEqual(Buffer.from([12, 13, 0, 1]))
     expect(unfilteredSinglePngRow(p3Output, 6)).toEqual(samples.subarray(1))
+  })
+
+  it('uses PNG color-chunk precedence for native 16-bit pixels', async () => {
+    const samples = Uint8Array.of(0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc)
+    const fallbackChunks = [
+      pngChunk('gAMA', pngGamma(45_455)),
+      pngChunk('cHRM', srgbChromaticities()),
+    ]
+
+    const srgbInput = specializedPng(1, 1, 16, 2, samples, undefined, [
+      ...fallbackChunks,
+      pngChunk('sRGB', Uint8Array.of(1)),
+    ])
+    const srgbOutput = Buffer.from(await (await Image.open(srgbInput)).png().toBuffer())
+    const srgbOffset = srgbOutput.indexOf(Buffer.from('sRGB'))
+    expect(srgbOffset).toBeGreaterThan(0)
+    expect(srgbOutput[srgbOffset + 4]).toBe(1)
+    expect(srgbOutput.includes(Buffer.from('gAMA'))).toBe(false)
+    expect(srgbOutput.includes(Buffer.from('cHRM'))).toBe(false)
+    expect(unfilteredSinglePngRow(srgbOutput, 6)).toEqual(samples.subarray(1))
+
+    const cicpInput = specializedPng(1, 1, 16, 2, samples, undefined, [
+      ...fallbackChunks,
+      pngChunk('sRGB', Uint8Array.of(0)),
+      pngChunk('cICP', Uint8Array.of(12, 13, 0, 1)),
+    ])
+    const cicpOutput = Buffer.from(await (await Image.open(cicpInput)).png().toBuffer())
+    const cicpOffset = cicpOutput.indexOf(Buffer.from('cICP'))
+    expect(cicpOffset).toBeGreaterThan(0)
+    expect(cicpOutput.subarray(cicpOffset + 4, cicpOffset + 8)).toEqual(Buffer.from([12, 13, 0, 1]))
+    expect(cicpOutput.includes(Buffer.from('sRGB'))).toBe(false)
+    expect(cicpOutput.includes(Buffer.from('cHRM'))).toBe(false)
+    expect(unfilteredSinglePngRow(cicpOutput, 6)).toEqual(samples.subarray(1))
+
+    const cicpWithIccInput = specializedPng(1, 1, 16, 2, samples, undefined, [
+      pngChunk('iCCP', displayP3IccChunk()),
+      pngChunk('cICP', Uint8Array.of(12, 13, 0, 1)),
+    ])
+    const cicpWithIccOutput = Buffer.from(
+      await (await Image.open(cicpWithIccInput)).png().toBuffer(),
+    )
+    expect(cicpWithIccOutput.includes(Buffer.from('cICP'))).toBe(true)
+    expect(cicpWithIccOutput.includes(Buffer.from('iCCP'))).toBe(false)
+    expect(unfilteredSinglePngRow(cicpWithIccOutput, 6)).toEqual(samples.subarray(1))
+
+    const iccInput = specializedPng(1, 1, 16, 2, samples, undefined, [
+      ...fallbackChunks,
+      pngChunk('iCCP', displayP3IccChunk()),
+    ])
+    await expect((await Image.open(iccInput)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'PNG source-profile pixels require an explicitly preserved ICC profile',
+    })
+    const iccOutput = Buffer.from(await (await Image.open(iccInput)).keepIcc().png().toBuffer())
+    expect(iccOutput.includes(Buffer.from('iCCP'))).toBe(true)
+    expect(iccOutput.includes(Buffer.from('gAMA'))).toBe(false)
+    expect(iccOutput.includes(Buffer.from('cHRM'))).toBe(false)
+    expect(unfilteredSinglePngRow(iccOutput, 6)).toEqual(samples.subarray(1))
   })
 
   it('preserves native gAMA when 16-bit color-key transparency expands to RGBA', async () => {
