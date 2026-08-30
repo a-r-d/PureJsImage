@@ -99,6 +99,12 @@ uses this API in a browser worker. Shared scientific reader, document, dataset, 
 source-block, and conversion boundaries emit compact block dependencies for OME-Zarr, WSI, and Geo
 without replacing their useful format-specific counters.
 
+Phase 3 is in progress. The flagship now has an explicit 4D-STEM analysis bundle, a deterministic
+processed MIB acquisition, a linked browser workspace, and a generated generic browser reader
+catalog with bounded probing. Remaining work is limited to final validation and release-authorized
+hardening. The detailed acceptance checklist lives in
+`docs/architecture/flagship-scientific-explorer.md`.
+
 ### 4. Make the reference engine fast and measurable
 
 - Prefer TypedArrays, monomorphic kernels, reusable scratch buffers, and

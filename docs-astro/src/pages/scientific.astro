@@ -34,16 +34,17 @@ const readerLabel = (id: string): string => {
       <div class="container scientific-hero-grid">
         <div>
           <p class="eyebrow">Scientific readers and browser explorer</p>
-          <h1>Native scientific data in TypeScript. The live explorer covers a few formats.</h1>
+          <h1>Native scientific data in TypeScript, with bounded reader discovery.</h1>
           <p class="scientific-lede">The package exposes {documentation.support.scientificReaderCount} explicit readers across microscopy, whole-slide, AFM and surface metrology, medical volumes, spectroscopy, detector, and raw numeric interchange. Numeric samples remain separate from RGB display pixels; range selection, palettes, slices, projections, and relief are explicit operations.</p>
         </div>
-        <div class="scientific-local-card"><strong>Explorer scope is smaller than package scope</strong><span>The UI below currently wires GSF, ENVI, FITS, MRC, and CBF. It does not claim to open every package reader. Local files stay in the browser tab and large inputs use bounded Blob reads.</span></div>
+        <div class="scientific-local-card"><strong>All readers stay explicit</strong><span>The generic tab builds its catalog from the capability manifest and package exports, loads likely reader chunks from safe hints, then probes bytes under fixed limits. The five curated modes remain for richer format-specific examples. Local files stay in the browser tab.</span></div>
       </div>
     </section>
 
     <section class="scientific-workspace" aria-labelledby="scientific-workspace-title">
       <div class="container">
         <div class="scientific-mode-tabs" role="tablist" aria-label="Scientific raster mode" data-scroll-region="tabs">
+          <button id="scientific-mode-generic" type="button" role="tab" aria-selected="false">All package readers</button>
           <button id="scientific-mode-surface" type="button" role="tab" aria-selected="true">AFM / surface</button>
           <button id="scientific-mode-hyperspectral" type="button" role="tab" aria-selected="false">ENVI raster</button>
           <button id="scientific-mode-fits" type="button" role="tab" aria-selected="false">FITS image arrays</button>
@@ -55,6 +56,13 @@ const readerLabel = (id: string): string => {
           <aside class="scientific-sidebar">
             <section class="scientific-panel" aria-labelledby="scientific-open-title">
               <header><span>01</span><div><p>Source</p><h2 id="scientific-open-title">Open a scientific raster</h2></div></header>
+              <div id="scientific-generic-source" hidden>
+                <label class="scientific-file-label">Local files and companions<input id="scientific-generic-files" type="file" multiple></label>
+                <label>Primary file<select id="scientific-generic-primary" disabled><option>Select files first</option></select></label>
+                <label>Reader<select id="scientific-generic-reader"><option value="">Automatic bounded probing</option>{packageMetrics.scientificReaders.map((reader) => <option value={reader.id}>{reader.format} · {reader.id}</option>)}</select></label>
+                <button class="button secondary small" id="scientific-open-generic" type="button" disabled>Open selected files</button>
+                <p class="scientific-quant-note">Companion files are resolved only from this selected set. OME-Zarr is directory-like: use the browser OME-Zarr HTTP store API for remote stores or pass an application-owned object store. The file picker does not pretend one chunk is a complete Zarr store.</p>
+              </div>
               <div id="scientific-surface-source">
                 <button class="button small" id="scientific-sample-surface" type="button">Load synthetic GSF</button>
                 <label class="scientific-file-label">Your .gsf file<input id="scientific-gsf-file" type="file" accept=".gsf"></label>
@@ -76,11 +84,19 @@ const readerLabel = (id: string): string => {
               <div id="scientific-cbf-source" hidden>
                 <label class="scientific-file-label">CBF or imgCIF file<input id="scientific-cbf-file" type="file" accept=".cbf,.img,application/octet-stream"></label>
               </div>
-              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop GSF, FITS, MRC, or CBF, or an ENVI header and binary pair</div>
+              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop local scientific files. Known demo formats open directly; other files use bounded reader discovery.</div>
             </section>
 
             <section class="scientific-panel" aria-labelledby="scientific-display-title">
               <header><span>02</span><div><p>Mapping</p><h2 id="scientific-display-title">Display numeric data</h2></div></header>
+              <label id="scientific-dataset-field" hidden>Dataset<select id="scientific-dataset"></select></label>
+              <div id="scientific-generic-axis-controls" hidden>
+                <div class="scientific-inline-fields">
+                  <label>Horizontal axis<select id="scientific-generic-axis-x"></select></label>
+                  <label>Vertical axis<select id="scientific-generic-axis-y"></select></label>
+                </div>
+                <div id="scientific-generic-fixed-axes"></div>
+              </div>
               <label id="scientific-display-mode-field" hidden>Hyperspectral view<select id="scientific-display-mode"><option value="band">Single band</option><option value="composite">False-color RGB</option></select></label>
               <label>Palette<select id="scientific-palette"><option>viridis</option><option>grayscale</option><option>magma</option><option>inferno</option><option>plasma</option></select></label>
               <label>Range<select id="scientific-range-mode"><option value="percentile">Percentile</option><option value="dataset">Dataset min/max</option><option value="explicit">Explicit min/max</option></select></label>

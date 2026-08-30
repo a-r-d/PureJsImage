@@ -2417,3 +2417,13 @@ to own only generic descriptors, definitions, providers, and registries.
       dependency events through shared scientific, OME-Zarr, WSI, and Geo paths. Their existing
       format-specific object, shard, chunk, and viewport counters remain supported and are not
       flattened into misleading byte units.
+
+### Phase 3: flagship scientific explorer
+
+- [x] Reconcile the flagship with the released application-platform and execution-evidence
+      boundaries, choose a focused `/4d-stem/` docs application, and record the accepted design in
+      `docs/architecture/flagship-scientific-explorer.md`.
+- [x] Add and validate the explicit first-party 4D-STEM analysis bundle.
+- [x] Add the deterministic fixture, worker-owned linked application, evidence UI, focused browser
+      coverage, bounded-I/O benchmark, real-data provenance, and public documentation.
+- [x] Pass the Phase 3 acceptance gates recorded in the flagship architecture document.

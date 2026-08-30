@@ -18,11 +18,17 @@ const requiredElement = <ElementType extends Element>(
 }
 
 export const startScientificExplorer = (): void => {
+  const modeGeneric = requiredElement('scientific-mode-generic', HTMLButtonElement)
   const modeSurface = requiredElement('scientific-mode-surface', HTMLButtonElement)
   const modeHyperspectral = requiredElement('scientific-mode-hyperspectral', HTMLButtonElement)
   const modeFits = requiredElement('scientific-mode-fits', HTMLButtonElement)
   const modeMrc = requiredElement('scientific-mode-mrc', HTMLButtonElement)
   const modeCbf = requiredElement('scientific-mode-cbf', HTMLButtonElement)
+  const genericSource = requiredElement('scientific-generic-source', HTMLElement)
+  const genericFiles = requiredElement('scientific-generic-files', HTMLInputElement)
+  const genericPrimary = requiredElement('scientific-generic-primary', HTMLSelectElement)
+  const genericReader = requiredElement('scientific-generic-reader', HTMLSelectElement)
+  const openGeneric = requiredElement('scientific-open-generic', HTMLButtonElement)
   const surfaceSource = requiredElement('scientific-surface-source', HTMLElement)
   const enviSource = requiredElement('scientific-envi-source', HTMLElement)
   const fitsSource = requiredElement('scientific-fits-source', HTMLElement)
@@ -44,6 +50,12 @@ export const startScientificExplorer = (): void => {
   const cbfFile = requiredElement('scientific-cbf-file', HTMLInputElement)
   const fitsHduField = requiredElement('scientific-fits-hdu-field', HTMLElement)
   const fitsHdu = requiredElement('scientific-fits-hdu', HTMLSelectElement)
+  const datasetField = requiredElement('scientific-dataset-field', HTMLElement)
+  const dataset = requiredElement('scientific-dataset', HTMLSelectElement)
+  const genericAxisControls = requiredElement('scientific-generic-axis-controls', HTMLElement)
+  const genericAxisX = requiredElement('scientific-generic-axis-x', HTMLSelectElement)
+  const genericAxisY = requiredElement('scientific-generic-axis-y', HTMLSelectElement)
+  const genericFixedAxes = requiredElement('scientific-generic-fixed-axes', HTMLElement)
   const volumeControls = requiredElement('scientific-volume-controls', HTMLElement)
   const sliceAxis = requiredElement('scientific-slice-axis', HTMLSelectElement)
   const projection = requiredElement('scientific-projection', HTMLSelectElement)
@@ -103,6 +115,7 @@ export const startScientificExplorer = (): void => {
   let renderSequence = 0
   let renderTimer: number | undefined
   let openedMetadata: ScientificOpenedMetadata | undefined
+  const genericFixedInputs = new Map<string, HTMLInputElement>()
 
   const formatBytes = (bytes: number): string =>
     bytes < 1_024
@@ -161,6 +174,12 @@ export const startScientificExplorer = (): void => {
         ? projection.value
         : 'none',
     sliceIndex: numeric(sliceIndex),
+    genericDisplayAxes: [genericAxisX.value, genericAxisY.value],
+    genericFixedIndices: Object.freeze(
+      [...genericFixedInputs].map(([axisId, input]) =>
+        Object.freeze({ axisId, index: numeric(input) }),
+      ),
+    ),
   })
 
   const updateSliceControl = (): void => {
@@ -202,7 +221,8 @@ export const startScientificExplorer = (): void => {
     const hyperspectral = mode === 'hyperspectral'
     const classification = openedMetadata?.enviFileType === 'ENVI Classification'
     const fits = mode === 'fits'
-    const volume = fits || mode === 'mrc'
+    const volume =
+      fits || mode === 'mrc' || (mode === 'generic' && (openedMetadata?.sizeZ ?? 1) > 1)
     const composite = hyperspectral && !classification && displayMode.value === 'composite'
     displayModeField.hidden = !hyperspectral || classification
     bandControls.hidden = !hyperspectral || classification || composite
@@ -212,6 +232,8 @@ export const startScientificExplorer = (): void => {
     scale.closest('label')?.toggleAttribute('hidden', classification)
     reliefControls.hidden = mode !== 'surface'
     fitsHduField.hidden = !fits
+    datasetField.hidden = (openedMetadata?.datasets.length ?? 0) < 2 || fits
+    genericAxisControls.hidden = mode !== 'generic'
     volumeControls.hidden = !volume
     updateSliceControl()
     percentileFields.hidden = classification || rangeMode.value !== 'percentile'
@@ -222,11 +244,13 @@ export const startScientificExplorer = (): void => {
     mode = next
     opened = false
     openedMetadata = undefined
+    modeGeneric.setAttribute('aria-selected', String(next === 'generic'))
     modeSurface.setAttribute('aria-selected', String(next === 'surface'))
     modeHyperspectral.setAttribute('aria-selected', String(next === 'hyperspectral'))
     modeFits.setAttribute('aria-selected', String(next === 'fits'))
     modeMrc.setAttribute('aria-selected', String(next === 'mrc'))
     modeCbf.setAttribute('aria-selected', String(next === 'cbf'))
+    genericSource.hidden = next !== 'generic'
     surfaceSource.hidden = next !== 'surface'
     enviSource.hidden = next !== 'hyperspectral'
     fitsSource.hidden = next !== 'fits'
@@ -237,15 +261,17 @@ export const startScientificExplorer = (): void => {
     selection.hidden = true
     updateControlVisibility()
     status.textContent =
-      next === 'surface'
-        ? 'Load a GSF surface.'
-        : next === 'hyperspectral'
-          ? 'Load a paired ENVI header and binary raster.'
-          : next === 'fits'
-            ? 'Load a FITS image array.'
-            : next === 'mrc'
-              ? 'Load an MRC2014 or CCP4 volume.'
-              : 'Load a CBF or imgCIF detector frame.'
+      next === 'generic'
+        ? 'Choose local files, a primary file, and optional explicit reader.'
+        : next === 'surface'
+          ? 'Load a GSF surface.'
+          : next === 'hyperspectral'
+            ? 'Load a paired ENVI header and binary raster.'
+            : next === 'fits'
+              ? 'Load a FITS image array.'
+              : next === 'mrc'
+                ? 'Load an MRC2014 or CCP4 volume.'
+                : 'Load a CBF or imgCIF detector frame.'
   }
 
   const fetchBytes = async (url: string): Promise<ArrayBuffer> => {
@@ -353,10 +379,73 @@ export const startScientificExplorer = (): void => {
     updateSpectralOutputs()
   }
 
+  const replaceAxisOptions = (
+    select: HTMLSelectElement,
+    ids: readonly string[],
+    metadata: ScientificOpenedMetadata,
+  ): void => {
+    const previous = select.value
+    select.replaceChildren(
+      ...ids.map((id) => {
+        const axis = metadata.axes.find((entry) => entry.id === id)
+        const option = document.createElement('option')
+        option.value = id
+        option.textContent = `${axis?.name ?? id} · ${axis?.kind ?? 'other'} · ${axis?.length ?? 0}`
+        option.selected = id === previous
+        return option
+      }),
+    )
+  }
+
+  const rebuildGenericFixedAxes = (metadata: ScientificOpenedMetadata): void => {
+    genericFixedInputs.clear()
+    const controls = metadata.axes
+      .filter(({ id }) => id !== genericAxisX.value && id !== genericAxisY.value)
+      .map((axis) => {
+        const label = document.createElement('label')
+        label.textContent = `${axis.name} index (0 to ${axis.length - 1})`
+        const input = document.createElement('input')
+        input.type = 'number'
+        input.min = '0'
+        input.max = String(axis.length - 1)
+        input.step = '1'
+        input.value = '0'
+        input.addEventListener('input', scheduleRender)
+        genericFixedInputs.set(axis.id, input)
+        label.append(input)
+        return label
+      })
+    genericFixedAxes.replaceChildren(...controls)
+  }
+
+  const rebuildGenericAxisY = (metadata: ScientificOpenedMetadata): void => {
+    const vertical = metadata.displayAxisPairs
+      .filter(([horizontal]) => horizontal === genericAxisX.value)
+      .map(([, axisId]) => axisId)
+    replaceAxisOptions(genericAxisY, vertical, metadata)
+    rebuildGenericFixedAxes(metadata)
+  }
+
+  const setGenericAxes = (metadata: ScientificOpenedMetadata): void => {
+    const horizontal = [...new Set(metadata.displayAxisPairs.map(([axisId]) => axisId))]
+    replaceAxisOptions(genericAxisX, horizontal, metadata)
+    rebuildGenericAxisY(metadata)
+  }
+
   const showOpened = (metadata: ScientificOpenedMetadata): void => {
     opened = true
     mode = metadata.mode
     openedMetadata = metadata
+    if (metadata.mode === 'generic') setGenericAxes(metadata)
+    dataset.replaceChildren(
+      ...metadata.datasets.map((entry) => {
+        const option = document.createElement('option')
+        option.value = entry.id
+        option.textContent = entry.name
+        option.selected = entry.id === metadata.datasetId
+        return option
+      }),
+    )
     updateControlVisibility()
     metricName.textContent = metadata.title ? `${metadata.title} · ${metadata.name}` : metadata.name
     metricDimensions.textContent = `${metadata.width} × ${metadata.height}${(metadata.mode === 'fits' || metadata.mode === 'mrc') && (metadata.sizeZ ?? 1) > 1 ? ` × ${metadata.sizeZ}` : metadata.bands > 1 ? ` × ${metadata.bands}` : ''}`
@@ -412,7 +501,7 @@ export const startScientificExplorer = (): void => {
       metricDetail.textContent = `MRC MODE ${metadata.mrcMode} · ${metadata.byteOrder}`
       sliceIndex.value = '0'
       updateSliceControl()
-    } else {
+    } else if (metadata.mode === 'cbf') {
       metricPhysical.textContent = metadata.detectorName ?? 'Detector not declared'
       metricDetail.textContent =
         [
@@ -425,6 +514,14 @@ export const startScientificExplorer = (): void => {
         ]
           .filter((value): value is string => value !== undefined)
           .join(' · ') || 'Native detector counts'
+    } else {
+      metricPhysical.textContent = `${metadata.readerFormat} · ${metadata.readerId}`
+      metricDetail.textContent = metadata.axes
+        .map(
+          (entry) =>
+            `${entry.name}: ${entry.length}${entry.unit === undefined ? '' : ` ${entry.unit}`}`,
+        )
+        .join(' · ')
     }
     status.textContent = 'Metadata parsed. Rendering display pixels…'
     render()
@@ -478,6 +575,7 @@ export const startScientificExplorer = (): void => {
     selection.textContent = response.selectionLabel ?? ''
   }
 
+  modeGeneric.addEventListener('click', () => setMode('generic'))
   modeSurface.addEventListener('click', () => setMode('surface'))
   modeHyperspectral.addEventListener('click', () => setMode('hyperspectral'))
   modeFits.addEventListener('click', () => setMode('fits'))
@@ -537,6 +635,43 @@ export const startScientificExplorer = (): void => {
   cbfFile.addEventListener('change', () => {
     const file = cbfFile.files?.[0]
     if (file) openLocalCbf(file)
+  })
+  const updateGenericFiles = (): void => {
+    const files = Array.from(genericFiles.files ?? [])
+    genericPrimary.replaceChildren(
+      ...files.map((file, index) => {
+        const option = document.createElement('option')
+        option.value = String(index)
+        option.textContent = file.name
+        return option
+      }),
+    )
+    genericPrimary.disabled = files.length === 0
+    openGeneric.disabled = files.length === 0
+  }
+  genericFiles.addEventListener('change', updateGenericFiles)
+  openGeneric.addEventListener('click', () => {
+    const files = Array.from(genericFiles.files ?? [])
+    if (files.length === 0) return
+    worker.postMessage({
+      type: 'open-generic',
+      primaryIndex: Number(genericPrimary.value),
+      files,
+      ...(genericReader.value.length === 0 ? {} : { readerId: genericReader.value }),
+    })
+  })
+  dataset.addEventListener('change', () => {
+    worker.postMessage({ type: 'select-dataset', id: dataset.value })
+  })
+  genericAxisX.addEventListener('change', () => {
+    if (openedMetadata?.mode !== 'generic') return
+    rebuildGenericAxisY(openedMetadata)
+    scheduleRender()
+  })
+  genericAxisY.addEventListener('change', () => {
+    if (openedMetadata?.mode !== 'generic') return
+    rebuildGenericFixedAxes(openedMetadata)
+    scheduleRender()
   })
   fitsHdu.addEventListener('change', () => {
     worker.postMessage({ type: 'select-fits-hdu', index: Number(fitsHdu.value) })
@@ -615,8 +750,12 @@ export const startScientificExplorer = (): void => {
       openLocalEnvi(header, data)
       return
     }
-    status.textContent =
-      'Drop one GSF, FITS, MRC, or CBF file, or an ENVI header with its binary raster.'
+    if (files.length > 0) {
+      setMode('generic')
+      worker.postMessage({ type: 'open-generic', primaryIndex: 0, files })
+      return
+    }
+    status.textContent = 'Drop at least one local scientific file.'
   })
 
   setMode('surface')

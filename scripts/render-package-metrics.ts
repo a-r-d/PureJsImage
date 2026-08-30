@@ -60,7 +60,7 @@ const renderScientificReaders = (metrics: PackageMetricsDocument): string => {
     '',
     'The complete per-reader imports and support boundaries remain on the [scientific format reference](https://purejsimage.com/scientific-formats/), the [API reference](https://purejsimage.com/api/#scientific), and the machine-readable [capability manifest](capabilities/manifest.json).',
     '',
-    `The live browser explorer currently wires the smaller demo set: ${demoReaders.join(', ')}. The explorer does **not** claim to open every reader in the package surface; applications can register any explicit reader export.`,
+    `The live browser explorer provides curated samples for ${demoReaders.join(', ')}. Its generic tab builds a reader catalog from this same inventory, loads likely explicit reader chunks from safe filename and media-type hints, and confirms the format with bounded byte probing or explicit user selection.`,
     '',
     'The raster APIs preserve native numeric data instead of forcing every source through RGB. The full reader surface includes scientific images and volumes, spectroscopy and instrument data, microscopy and whole-slide data, surface and metrology formats, and ordinary image adapters.',
   ].join('\n')

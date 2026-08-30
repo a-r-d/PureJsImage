@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
+import { createGeneratedFourDStemFixture } from '../benchmark/four-d-stem/generated-fixture.ts'
 
 const canvasSignature = async (page: Page): Promise<number> =>
   page.locator('#scientific-canvas').evaluate((element) => {
@@ -165,4 +166,50 @@ test('opens, maps, and locally reloads GSF, ENVI, FITS, and MRC rasters', async 
   const download = await downloadPromise
   expect(download.suggestedFilename()).toBe('purejsimage-scientific-display.png')
   expect(externalRequests).toEqual([])
+})
+
+test('opens a local file through the generated generic reader catalog', async ({ page }) => {
+  const mutatingRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.method() !== 'GET' && request.method() !== 'HEAD') {
+      mutatingRequests.push(`${request.method()} ${request.url()}`)
+    }
+  })
+  const localGsf = await readFile('docs-astro/public/demo-data/scientific/synthetic-afm.gsf')
+  await page.goto('/scientific/')
+  await page.getByRole('tab', { name: 'All package readers' }).click()
+  await page.locator('#scientific-generic-files').setInputFiles({
+    name: 'catalog-surface.gsf',
+    mimeType: 'application/octet-stream',
+    buffer: localGsf,
+  })
+  await expect(page.locator('#scientific-generic-primary')).toBeEnabled()
+  await page.locator('#scientific-open-generic').click()
+  await expect(page.locator('#scientific-metric-name')).toContainText('catalog-surface.gsf')
+  await expect(page.locator('#scientific-status')).toHaveText(
+    'Rendered locally from native numeric samples.',
+  )
+  await expect(page.locator('#scientific-metric-physical')).toContainText(
+    'Gwyddion Simple Field · purejsimage/gsf',
+  )
+  await expect(page.locator('#scientific-generic-axis-controls')).toBeVisible()
+
+  const fixture = createGeneratedFourDStemFixture()
+  await page.locator('#scientific-generic-files').setInputFiles([
+    {
+      name: 'fixture.mib',
+      mimeType: 'application/x-merlin-mib',
+      buffer: Buffer.from(fixture.mib),
+    },
+    { name: 'fixture.hdr', mimeType: 'text/plain', buffer: Buffer.from(fixture.hdr) },
+  ])
+  await page.locator('#scientific-open-generic').click()
+  await expect(page.locator('#scientific-metric-physical')).toContainText(
+    'Quantum Detectors Merlin MIB · purejsimage/mib',
+  )
+  await expect(page.locator('#scientific-generic-axis-x')).toHaveValue('kx')
+  await expect(page.locator('#scientific-generic-axis-y')).toHaveValue('ky')
+  await expect(page.locator('#scientific-generic-fixed-axes')).toContainText('Scan X index')
+  await expect(page.locator('#scientific-generic-fixed-axes')).toContainText('Scan Y index')
+  expect(mutatingRequests).toEqual([])
 })

@@ -351,6 +351,11 @@
       "import": "./dist/analysis/index.js",
       "default": "./dist/analysis/index.js"
     },
+    "./analysis/4d-stem": {
+      "types": "./dist/analysis/four-d-stem.d.ts",
+      "import": "./dist/analysis/four-d-stem.js",
+      "default": "./dist/analysis/four-d-stem.js"
+    },
     "./analysis/results": {
       "types": "./dist/analysis/results.d.ts",
       "import": "./dist/analysis/results.js",
@@ -510,7 +515,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run bench:geo:check && npm run comparison:check && npm run analysis:api:check && npm run size:check && npm run package-metrics:check && npm run documentation:check && npm run docs:build && npm run typecheck && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm run dicom:dictionary:check && npm test",
+    "check": "npm run capabilities:check && npm run scientific:reader-catalog:check && npm run bench:geo:check && npm run comparison:check && npm run analysis:api:check && npm run size:check && npm run package-metrics:check && npm run documentation:check && npm run docs:build && npm run typecheck && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm run dicom:dictionary:check && npm test",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
@@ -521,6 +526,7 @@
     "bench:geo": "node benchmark/geo/run.ts",
     "bench:geo:check": "node benchmark/geo/run.ts",
     "bench:geo:write": "node benchmark/geo/run.ts --write && biome format --write benchmark/generated/geo-benchmark.json",
+    "bench:4d-stem": "node benchmark/four-d-stem/run.ts",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
     "wasm:build:png": "node scripts/build-wasm-png.ts",
     "wasm:build:webp": "node scripts/build-wasm-webp.ts",
@@ -530,6 +536,8 @@
     "format:check": "biome format .",
     "capabilities:generate": "node scripts/render-capabilities.ts && node scripts/render-tiff-cog-support.ts && node scripts/render-geo-capabilities.ts && biome format --write docs-astro/public/capabilities.json docs-astro/public/geo-capabilities.json docs-astro/src/data/geo-capabilities.json tests/generated/capability-expectations.json tests/generated/geo-capability-expectations.json",
     "capabilities:check": "node scripts/render-capabilities.ts --check && node scripts/render-tiff-cog-support.ts --check && node scripts/render-geo-capabilities.ts --check",
+    "scientific:reader-catalog:generate": "node scripts/render-scientific-browser-reader-catalog.ts",
+    "scientific:reader-catalog:check": "node scripts/render-scientific-browser-reader-catalog.ts --check",
     "comparison:generate": "node scripts/render-library-comparison.ts",
     "comparison:check": "node scripts/render-library-comparison.ts --check",
     "analysis:api:generate": "node scripts/check-analysis-api-manifest.ts --write",

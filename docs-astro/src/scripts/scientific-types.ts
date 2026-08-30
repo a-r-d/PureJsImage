@@ -1,6 +1,6 @@
 import type { ScientificDisplayScale, ScientificPalette } from '../../../src/scientific/index.ts'
 
-export type ScientificDemoMode = 'surface' | 'hyperspectral' | 'fits' | 'mrc' | 'cbf'
+export type ScientificDemoMode = 'generic' | 'surface' | 'hyperspectral' | 'fits' | 'mrc' | 'cbf'
 export type ScientificDemoRangeMode = 'dataset' | 'percentile' | 'explicit'
 export type ScientificDemoDisplayMode = 'band' | 'composite'
 
@@ -25,6 +25,8 @@ export interface ScientificDemoRenderSettings {
   readonly sliceAxis: 'xy' | 'xz' | 'yz'
   readonly projection: 'none' | 'max' | 'min' | 'mean'
   readonly sliceIndex: number
+  readonly genericDisplayAxes: readonly [string, string]
+  readonly genericFixedIndices: readonly { readonly axisId: string; readonly index: number }[]
 }
 
 export interface ScientificFitsHduOption {
@@ -34,6 +36,12 @@ export interface ScientificFitsHduOption {
 }
 
 export type ScientificWorkerRequest =
+  | {
+      readonly type: 'open-generic'
+      readonly primaryIndex: number
+      readonly files: readonly File[]
+      readonly readerId?: string
+    }
   | { readonly type: 'open-gsf'; readonly name: string; readonly data: ArrayBuffer | File }
   | {
       readonly type: 'open-envi'
@@ -46,6 +54,7 @@ export type ScientificWorkerRequest =
   | { readonly type: 'open-mrc'; readonly name: string; readonly data: ArrayBuffer | File }
   | { readonly type: 'open-cbf'; readonly name: string; readonly data: ArrayBuffer | File }
   | { readonly type: 'select-fits-hdu'; readonly index: number }
+  | { readonly type: 'select-dataset'; readonly id: string }
   | { readonly type: 'download-png' }
   | {
       readonly type: 'render'
@@ -76,6 +85,18 @@ export interface ScientificOpenedMetadata {
   readonly dataMin?: number
   readonly dataMax?: number
   readonly sourceBytes: number
+  readonly readerId: string
+  readonly readerFormat: string
+  readonly datasetId: string
+  readonly datasets: readonly { readonly id: string; readonly name: string }[]
+  readonly axes: readonly {
+    readonly id: string
+    readonly name: string
+    readonly kind: string
+    readonly length: number
+    readonly unit?: string
+  }[]
+  readonly displayAxisPairs: readonly (readonly [string, string])[]
   readonly sizeZ?: number
   readonly sliceAxes: readonly ('xy' | 'xz' | 'yz')[]
   readonly fitsHdus?: readonly ScientificFitsHduOption[]

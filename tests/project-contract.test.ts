@@ -576,8 +576,10 @@ describe('package contract', () => {
 
     expect(readme).toContain('https://purejsimage.com/api/#scientific')
     expect(readme).toContain('https://purejsimage.com/scientific/')
-    expect(page).toContain('The UI below currently wires GSF, ENVI, FITS, MRC, and CBF')
-    expect(page).toContain('It does not claim to open every package reader')
+    expect(page).toContain('The generic tab builds its catalog from the capability manifest')
+    expect(page).toContain('Automatic bounded probing')
+    expect(page).toContain('OME-Zarr is directory-like')
+    expect(worker).toContain('loadCandidateScientificBrowserReaders')
     expect(page).toContain(
       "import { startScientificExplorer } from '../scripts/scientific-explorer.ts'",
     )
@@ -854,6 +856,7 @@ describe('package contract', () => {
       './geo/conventions/geozarr',
       './operations',
       './analysis',
+      './analysis/4d-stem',
       './analysis/results',
       './analysis/roi',
       './analysis/runtime',

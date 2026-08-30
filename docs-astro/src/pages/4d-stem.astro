@@ -1,0 +1,210 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout
+  title="Interactive 4D-STEM explorer | PureJsImage"
+  description="Explore linked scan and diffraction space, create virtual detector maps, reduce scan regions, and inspect live execution evidence entirely in your browser."
+  canonical="https://purejsimage.com/4d-stem/"
+  bodyClass="stem-page"
+  current="4d-stem/"
+  skipLabel="Skip to the 4D-STEM workspace"
+  openGraph={{
+    title: 'Interactive 4D-STEM explorer | PureJsImage',
+    description:
+      'A client-side linked scan and diffraction explorer with bounded analysis and live execution evidence.',
+    url: 'https://purejsimage.com/4d-stem/',
+    image: 'https://purejsimage.com/assets/4d-stem-explorer.png',
+  }}
+  twitterCard="summary_large_image"
+>
+  <main id="main">
+    <section class="stem-hero">
+      <div class="container stem-hero-grid">
+        <div>
+          <p class="eyebrow">Flagship scientific explorer</p>
+          <h1>See scan space and diffraction space together.</h1>
+          <p class="stem-lede">Open the built-in processed MIB acquisition, move through scan positions, draw a detector ROI to make a virtual image, or draw a scan ROI to reduce diffraction patterns. The reader, analysis graph, tile cache, and evidence collector all run locally in one dedicated browser worker.</p>
+          <div class="stem-hero-actions">
+            <button class="button" id="stem-load-fixture" type="button">Reload built-in 4D-STEM</button>
+            <a class="button secondary" href="../scientific/">Open the general scientific explorer</a>
+          </div>
+        </div>
+        <aside class="stem-quick-answer">
+          <strong>Quick answer</strong>
+          <p>The left view is the scan map. The right view is detector intensity. Click the scan map to move the detector cursor. Drag on either view to calculate a bounded reduction. Use the zoom control or wheel, Shift plus arrow keys to pan, and Fit views to reset.</p>
+          <p>No file is uploaded. The demonstration uses native uint16 counts until the explicit float64 reduction output.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="stem-workspace" aria-labelledby="stem-workspace-title">
+      <div class="container">
+        <header class="stem-workspace-heading">
+          <div>
+            <p class="eyebrow">Linked workspace</p>
+            <h2 id="stem-workspace-title">Interactive 4D-STEM microscope</h2>
+          </div>
+          <p id="stem-status" aria-live="polite">Opening the deterministic MIB fixture…</p>
+        </header>
+
+        <div class="stem-source-bar">
+          <div>
+            <strong>Local processed MIB</strong>
+            <span>MIB navigation needs an HDR sidecar with a valid rectangular frame count.</span>
+          </div>
+          <label>MIB file<input id="stem-mib-file" type="file" accept=".mib,application/x-merlin-mib" /></label>
+          <label>Optional HDR<input id="stem-hdr-file" type="file" accept=".hdr,text/plain" /></label>
+          <button class="button small" id="stem-open-mib" type="button" disabled>Open local MIB</button>
+        </div>
+        <p id="stem-source-summary" class="stem-source-summary">Preparing source and descriptor…</p>
+        <div class="stem-action-bar">
+          <button class="button secondary small" id="stem-download-navigation" type="button">Export navigation PNG</button>
+          <button class="button secondary small" id="stem-download-diffraction" type="button">Export diffraction PNG</button>
+          <button class="button secondary small" id="stem-export-evidence" type="button">Export evidence JSON</button>
+          <label>Zoom <input id="stem-view-zoom" type="range" min="0.5" max="8" value="1" step="0.1" /></label>
+          <button class="button secondary small" id="stem-fit-views" type="button">Fit views</button>
+          <button class="button secondary small" id="stem-close" type="button">Close dataset</button>
+        </div>
+
+        <div class="stem-linked-grid">
+          <article class="stem-view-card">
+            <header>
+              <div><span>Navigation space</span><h3>Virtual detector map</h3></div>
+              <p id="stem-cursor-summary">Scan 1, 1</p>
+            </header>
+            <div class="stem-canvas-shell">
+              <canvas
+                id="stem-navigation"
+                width="7"
+                height="5"
+                tabindex="0"
+                aria-label="4D-STEM scan navigation map. Click or use arrow keys to move the scan cursor. Drag to reduce a scan region."
+              ></canvas>
+            </div>
+            <div class="stem-controls">
+              <label>Scan ROI<select id="stem-scan-shape"><option value="point">Point</option><option value="rectangle" selected>Rectangle</option><option value="circle">Circle</option></select></label>
+              <label>Detector reduction<select id="stem-scan-reduction"><option value="mean" selected>Mean</option><option value="sum">Sum</option></select></label>
+            </div>
+            <p>Display range: <strong id="stem-navigation-range">Measuring…</strong></p>
+          </article>
+
+          <article class="stem-view-card">
+            <header>
+              <div><span>Detector space</span><h3>Diffraction pattern</h3></div>
+              <p>Native counts</p>
+            </header>
+            <div class="stem-canvas-shell">
+              <canvas
+                id="stem-diffraction"
+                width="17"
+                height="15"
+                tabindex="0"
+                aria-label="4D-STEM diffraction pattern. Drag to create a virtual detector ROI."
+              ></canvas>
+            </div>
+            <div class="stem-controls">
+              <label>Detector ROI<select id="stem-detector-shape"><option value="point">Point</option><option value="rectangle">Rectangle</option><option value="circle">Circle</option><option value="annulus" selected>Annulus</option></select></label>
+              <label>Navigation reduction<select id="stem-detector-reduction"><option value="sum" selected>Sum</option><option value="mean">Mean</option></select></label>
+              <label>Center X<input id="stem-detector-x" type="number" value="8.5" min="0" step="0.5" /></label>
+              <label>Center Y<input id="stem-detector-y" type="number" value="7.5" min="0" step="0.5" /></label>
+              <label>Inner radius<input id="stem-detector-inner" type="number" value="3.5" min="0" step="0.5" /></label>
+              <label>Outer radius<input id="stem-detector-outer" type="number" value="6" min="0.5" step="0.5" /></label>
+              <button class="button secondary small" id="stem-apply-detector-roi" type="button">Apply numeric ROI</button>
+            </div>
+            <p>Display range: <strong id="stem-diffraction-range">Measuring…</strong></p>
+          </article>
+        </div>
+
+        <section class="stem-evidence" aria-labelledby="stem-evidence-title">
+          <header>
+            <div><p class="eyebrow">Observed session</p><h3 id="stem-evidence-title">Live execution evidence</h3></div>
+            <p>These values describe work that occurred in this browser tab. They are not estimates from the source size.</p>
+          </header>
+          <dl>
+            <div><dt>Source coverage</dt><dd id="stem-evidence-coverage">0 B of 0 B</dd></div>
+            <div><dt>Logical source reads</dt><dd id="stem-evidence-reads">0 reads · 0 B</dd></div>
+            <div><dt>Physical transfers</dt><dd id="stem-evidence-transfers">Local source · no network transfer</dd></div>
+            <div><dt>Tile cache</dt><dd id="stem-evidence-cache">0 hits · 0 misses</dd></div>
+            <div><dt>Decoded blocks</dt><dd id="stem-evidence-blocks">0</dd></div>
+            <div><dt>Managed memory</dt><dd id="stem-evidence-memory">0 B live · 0 B peak</dd></div>
+            <div><dt>Cancelled work</dt><dd id="stem-evidence-cancellations">0</dd></div>
+            <div><dt>Tiles</dt><dd id="stem-evidence-tiles">0 native · 0 derived</dd></div>
+            <div><dt>First tile</dt><dd id="stem-evidence-latency">Not observed</dd></div>
+            <div><dt>Operation</dt><dd id="stem-evidence-operation">Opening dataset</dd></div>
+            <div><dt>Provider</dt><dd id="stem-evidence-provider">Not selected</dd></div>
+          </dl>
+          <details><summary>Recent evidence timeline</summary><ol id="stem-evidence-timeline"></ol></details>
+        </section>
+      </div>
+    </section>
+
+    <section class="stem-explainer">
+      <div class="container stem-explainer-grid">
+        <div>
+          <p class="eyebrow">One dataset model</p>
+          <h2>The reader describes axes. The application composes behavior.</h2>
+        </div>
+        <ol>
+          <li><strong>MIB reader</strong><span>Valid HDR metadata exposes scanX, scanY, kx, and ky without storing UI state in the reader.</span></li>
+          <li><strong>Analysis controller</strong><span>Two explicit operation descriptors select the first-party TypeScript provider.</span></li>
+          <li><strong>Bounded tile runtime</strong><span>Detector bounding regions and requested output tiles are retained under explicit limits.</span></li>
+          <li><strong>Evidence session</strong><span>Source reads, provider choice, cache ownership, releases, and cancellations remain observable.</span></li>
+        </ol>
+      </div>
+    </section>
+  </main>
+</SiteLayout>
+
+<script>
+  import { startFourDStemExplorer } from '../scripts/four-d-stem-explorer.ts'
+  startFourDStemExplorer()
+</script>
+
+<style>
+  .stem-hero { padding: 5rem 0 3.5rem; background: radial-gradient(circle at 80% 10%, rgba(236, 72, 153, .15), transparent 34%), linear-gradient(145deg, #090b16, #171125 65%, #0b1220); color: #f8fafc; }
+  .stem-hero-grid, .stem-explainer-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(18rem, .65fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .stem-hero h1 { max-width: 14ch; margin: .35rem 0 1rem; font-size: clamp(2.7rem, 7vw, 5.7rem); line-height: .94; letter-spacing: -.055em; }
+  .stem-lede { max-width: 64rem; color: #cbd5e1; font-size: clamp(1.05rem, 2vw, 1.3rem); line-height: 1.7; }
+  .stem-hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.7rem; }
+  .stem-quick-answer { padding: 1.5rem; border: 1px solid rgba(255,255,255,.18); border-radius: 1rem; background: rgba(15,23,42,.68); box-shadow: 0 1.25rem 4rem rgba(0,0,0,.24); }
+  .stem-quick-answer strong { color: #f9a8d4; text-transform: uppercase; letter-spacing: .12em; }
+  .stem-quick-answer p { color: #dbeafe; line-height: 1.6; }
+  .stem-workspace { padding: 3.5rem 0 4rem; background: #eef1f5; color: #101827; }
+  .stem-workspace-heading, .stem-evidence > header { display: flex; justify-content: space-between; gap: 2rem; align-items: end; }
+  .stem-workspace-heading h2, .stem-explainer h2 { margin: .2rem 0; font-size: clamp(2rem, 4vw, 3.6rem); letter-spacing: -.04em; }
+  #stem-status { max-width: 34rem; padding: .75rem 1rem; border-radius: .7rem; background: #fff; color: #475569; }
+  .stem-source-bar { display: grid; grid-template-columns: minmax(14rem, 1fr) repeat(3, auto); gap: 1rem; align-items: end; margin-top: 1.5rem; padding: 1rem; border: 1px solid #d5dae2; border-radius: .9rem; background: #fff; }
+  .stem-action-bar { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1rem 0; }
+  .stem-source-bar div, .stem-source-bar label { display: grid; gap: .3rem; }
+  .stem-source-bar span, .stem-source-summary { color: #64748b; }
+  .stem-source-bar input { max-width: 15rem; }
+  .stem-linked-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; margin-top: 1.25rem; }
+  .stem-view-card { overflow: hidden; border: 1px solid #d5dae2; border-radius: 1rem; background: #fff; box-shadow: 0 .8rem 2.5rem rgba(15,23,42,.08); }
+  .stem-view-card > header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.1rem; border-bottom: 1px solid #e2e8f0; }
+  .stem-view-card header span { color: #9d174d; font-size: .74rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+  .stem-view-card h3 { margin: .15rem 0 0; font-size: 1.35rem; }
+  .stem-view-card > p { margin: .8rem 1.1rem 1.1rem; color: #64748b; }
+  .stem-canvas-shell { display: grid; min-height: 25rem; place-items: center; padding: 1rem; background: #06070c; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 18px 18px; }
+  .stem-canvas-shell canvas { width: min(100%, 34rem); max-height: 32rem; aspect-ratio: var(--stem-aspect, auto); image-rendering: pixelated; object-fit: contain; cursor: crosshair; border: 1px solid #334155; border-radius: .3rem; box-shadow: 0 0 3rem rgba(244,63,94,.15); }
+  .stem-canvas-shell canvas:focus-visible { outline: 3px solid #38bdf8; outline-offset: 4px; }
+  .stem-controls { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; padding: 1rem 1.1rem 0; }
+  .stem-controls label { display: grid; gap: .35rem; color: #475569; font-size: .86rem; font-weight: 700; }
+  .stem-controls select, .stem-controls input { min-height: 2.6rem; padding: .45rem; border: 1px solid #cbd5e1; border-radius: .45rem; background: #fff; color: #0f172a; }
+  .stem-evidence { margin-top: 1.25rem; padding: 1.3rem; border-radius: 1rem; background: #111827; color: #f8fafc; }
+  .stem-evidence header p { max-width: 38rem; color: #94a3b8; }
+  .stem-evidence h3 { margin: .15rem 0; font-size: 1.7rem; }
+  .stem-evidence dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1rem 0 0; }
+  .stem-evidence dl div { padding: .9rem; border: 1px solid #334155; border-radius: .65rem; background: #0b1220; }
+  .stem-evidence dt { color: #94a3b8; font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
+  .stem-evidence dd { margin: .4rem 0 0; font-weight: 750; }
+  .stem-evidence details { margin-top: 1rem; color: #cbd5e1; }
+  .stem-evidence ol { max-height: 13rem; overflow: auto; font-family: ui-monospace, monospace; font-size: .8rem; }
+  .stem-explainer { padding: 4rem 0 5rem; }
+  .stem-explainer ol { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; counter-reset: stem; }
+  .stem-explainer li { display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; padding: 1rem; border-top: 1px solid #d8dee8; counter-increment: stem; }
+  .stem-explainer li span { color: #64748b; line-height: 1.55; }
+  @media (max-width: 900px) { .stem-hero-grid, .stem-explainer-grid, .stem-linked-grid { grid-template-columns: 1fr; } .stem-source-bar { grid-template-columns: 1fr 1fr; } .stem-evidence dl { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .stem-source-bar, .stem-controls, .stem-evidence dl { grid-template-columns: 1fr; } .stem-workspace-heading, .stem-evidence > header { align-items: start; flex-direction: column; } .stem-canvas-shell { min-height: 18rem; } .stem-explainer li { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .stem-page * { scroll-behavior: auto !important; transition: none !important; } }
+</style>

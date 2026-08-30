@@ -22,6 +22,17 @@ export {
   OmeZarrHttpStore,
   resolveOmeZarrObjectUrl,
 } from './ome-zarr-http.ts'
+export type {
+  ScientificBrowserReaderCatalogEntry,
+  ScientificBrowserReaderHints,
+  ScientificBrowserResourceModel,
+} from './browser-reader-catalog.ts'
+export {
+  candidateScientificBrowserReaders,
+  loadCandidateScientificBrowserReaders,
+  loadScientificBrowserReader,
+  scientificBrowserReaderCatalog,
+} from './browser-reader-catalog.ts'
 
 const fileRelativeName = (file: File): string => {
   const relativePath = file.webkitRelativePath

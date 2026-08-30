@@ -19,6 +19,7 @@
   <a href="https://purejsimage.com/">Documentation</a> ·
   <a href="https://purejsimage.com/demo/"><strong>Image demo</strong></a> ·
   <a href="https://purejsimage.com/scientific/"><strong>Scientific explorer</strong></a> ·
+  <a href="https://purejsimage.com/4d-stem/"><strong>4D-STEM explorer</strong></a> ·
    <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
    <a href="https://purejsimage.com/ome-zarr/"><strong>OME-Zarr demo</strong></a> ·
    <a href="https://purejsimage.com/xray/"><strong>Raster X-Ray</strong></a> ·
@@ -229,9 +230,9 @@ region, a spectrum, a volume plane, or a whole-slide tile. This includes workflo
 DM4, TIA SER and EMI, NCEM and Velox EMD, NIfTI, NRRD, MRC, OME-TIFF, Aperio SVS, AFM and surface
 metrology, and 4D-STEM data.
 
-The live Scientific Raster Explorer currently wires only its smaller demo set. It does not claim
-to open every package reader. Applications and PureJsImage Lab can register the explicit reader
-exports they need.
+The live Scientific Raster Explorer has five curated sample modes and a generated generic reader
+catalog. The generic path loads likely explicit reader chunks from safe hints, probes file bytes
+under fixed limits, and asks for an explicit reader when detection is ambiguous.
 
 [Scientific format reference →](https://purejsimage.com/scientific-formats/) ·
 [Scientific API reference →](https://purejsimage.com/api/#scientific) ·
@@ -315,7 +316,7 @@ The package currently exposes **33 scientific readers** through explicit purejsi
 
 The complete per-reader imports and support boundaries remain on the [scientific format reference](https://purejsimage.com/scientific-formats/), the [API reference](https://purejsimage.com/api/#scientific), and the machine-readable [capability manifest](capabilities/manifest.json).
 
-The live browser explorer currently wires the smaller demo set: Gwyddion Simple Field (`purejsimage/scientific/readers/gsf`), ENVI (`purejsimage/scientific/readers/envi`), FITS (`purejsimage/scientific/readers/fits`), MRC/CCP4 (`purejsimage/scientific/readers/mrc`), CBF/imgCIF (`purejsimage/scientific/readers/cbf`). The explorer does **not** claim to open every reader in the package surface; applications can register any explicit reader export.
+The live browser explorer provides curated samples for Gwyddion Simple Field (`purejsimage/scientific/readers/gsf`), ENVI (`purejsimage/scientific/readers/envi`), FITS (`purejsimage/scientific/readers/fits`), MRC/CCP4 (`purejsimage/scientific/readers/mrc`), CBF/imgCIF (`purejsimage/scientific/readers/cbf`). Its generic tab builds a reader catalog from this same inventory, loads likely explicit reader chunks from safe filename and media-type hints, and confirms the format with bounded byte probing or explicit user selection.
 
 The raster APIs preserve native numeric data instead of forcing every source through RGB. The full reader surface includes scientific images and volumes, spectroscopy and instrument data, microscopy and whole-slide data, surface and metrology formats, and ordinary image adapters.
 <!-- package-metrics:scientific-readers:end -->

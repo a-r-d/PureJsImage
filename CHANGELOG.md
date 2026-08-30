@@ -6,6 +6,20 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Began the Phase 3 flagship at `/4d-stem/`. The client-side worker opens a deterministic processed
+  Merlin MIB acquisition, links scan and diffraction views, produces virtual detector maps and
+  scan-region reductions through the explicit `purejsimage/analysis/4d-stem` provider bundle, and
+  reports observed source reads, tile-cache activity, cancellation, decoded blocks, and managed
+  memory. The generated CC0 fixture has odd scan and detector dimensions and exact operation tests.
+
+- Added a generated browser reader catalog for all explicit scientific reader exports. The generic
+  explorer accepts a primary file and selected companions, loads likely reader chunks from safe
+  hints, keeps bounded byte probing authoritative, supports explicit reader and dataset selection,
+  and explains the separate directory-like OME-Zarr path. The linked 4D-STEM workspace now uses
+  conservative semantic axis-role recognition, exports display PNGs and evidence JSON, exposes
+  numeric annulus controls, reports unique source coverage and retained cache state, and closes its
+  worker-owned resources explicitly.
+
 - Added the explicit `purejsimage/evidence` entry with bounded summary and trace sessions, logical
   and physical source-byte accounting, redacted source identity, managed lease accounting, analysis
   provider and tile evidence, live event subscribers, and JSON-safe version 1 reports. The ordinary
