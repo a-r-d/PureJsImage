@@ -1,4 +1,5 @@
 import type { DecodeRequest, DecoderCapabilities, ImageDecoder } from '../codec.ts'
+import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 
@@ -1243,6 +1244,7 @@ export class ColorManagedDecoder implements ImageDecoder {
   readonly height: number
   readonly pixelFormat: PixelFormat
   readonly capabilities: DecoderCapabilities
+  readonly colorSemantics: PixelColorSemantics
   readonly #decoder: ImageDecoder
   readonly #transform: RgbIccTransform
 
@@ -1253,6 +1255,15 @@ export class ColorManagedDecoder implements ImageDecoder {
     this.height = decoder.height
     this.pixelFormat = decoder.pixelFormat
     this.capabilities = decoder.capabilities
+    this.colorSemantics = Object.freeze({
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: Object.freeze({ kind: 'srgb' }),
+      matrix: 'identity',
+      range: 'full',
+      alpha: decoder.pixelFormat.startsWith('rgba') ? 'straight' : 'none',
+      provenance: 'decoder-converted',
+    })
   }
 
   async *decode(request?: DecodeRequest): AsyncGenerator<PixelBlock> {
@@ -1268,6 +1279,15 @@ export class GrayColorManagedDecoder implements ImageDecoder {
   readonly height: number
   readonly pixelFormat: PixelFormat
   readonly capabilities: DecoderCapabilities
+  readonly colorSemantics = Object.freeze({
+    family: 'gray',
+    primaries: 'srgb',
+    transfer: Object.freeze({ kind: 'srgb' as const }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: 'none',
+    provenance: 'decoder-converted',
+  } as const)
   readonly #decoder: ImageDecoder
   readonly #transform: Uint8Array
 

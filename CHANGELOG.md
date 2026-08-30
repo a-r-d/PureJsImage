@@ -6,6 +6,19 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added native-precision ordinary pipelines. Fixed-width interleaved formats now keep exact sample
+  bytes through crop, flip, EXIF orientation, and quarter turns. `gray16`, `rgb16`, `rgba16`,
+  `grayf32`, and `rgbf32` resize directly with nearest, bilinear, and Lanczos 3 kernels.
+- Added `convertPixelFormat()` for explicit integer and float storage conversion with defined
+  ranges, nearest rounding, and required alpha-add or alpha-removal policies. Added opt-in
+  linear-light resize for declared sRGB or linear 8-bit and 16-bit RGB and RGBA pixels.
+- PNG now emits and accepts native `gray16`, `rgb16`, and `rgba16` blocks. Legal 16-bit grayscale,
+  truecolor, grayscale-alpha, RGBA, color-key transparency, and Adam7 inputs retain their low sample
+  bytes through supported transforms and streaming 16-bit PNG output.
+- The ordinary output path now loads its portable execution engine on first use. The measured
+  initial core chunk is 24,421 minified bytes and the execution chunk is 58,715 bytes. Each has a
+  separate 64 KiB ceiling, so the existing core size limit remains unchanged.
+
 - Experimental HEIF/HEIC reconstructs auxiliary alpha for a directly coded or
   grid primary, including monochrome HEVC alpha items and alpha planes that do
   not match the primary size. Limited-range alpha luma uses the same nclx/VUI

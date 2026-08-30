@@ -684,6 +684,7 @@
     "bench:jpeg:wasm": "npm run build && node benchmark/jpeg/run-wasm-decoder.ts",
     "bench:jpeg:wasm:encode": "npm run build && node benchmark/jpeg/run-wasm-encoder.ts",
     "bench:png:wasm": "node benchmark/png/run-wasm.ts",
+    "bench:precision": "node benchmark/precision/run.ts",
     "bench:webp:wasm": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm --profile webp",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts",
     "bench:lambda:assets": "npm run build && npm run fixtures:prepare -- tundra-4000x3000 rgba-gradient-4000x3000 && node benchmark/aws-lambda/build-assets.ts",

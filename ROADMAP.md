@@ -83,6 +83,15 @@ explicitly outside that subset, and expand against pinned real-world fixtures.
 Transforms should be fused or pushed into codecs when that reduces decoded
 work, copies, or peak memory.
 
+Native sample precision is now part of the ordinary pipeline contract. Crop,
+flip, EXIF orientation, and quarter turns preserve every fixed-width
+interleaved pixel format byte for byte. Resize operates directly on priority
+16-bit and float32 formats, and 16-bit PNG can remain native through supported
+transforms and PNG output. Precision reduction uses `convertPixelFormat()` or
+an encoder-attributed terminal conversion. Next work in this area is planar
+YUV transform support, high-depth arbitrary-angle rotation, and reducing the
+compact retained state needed by Adam7 decode.
+
 ### 4. Make the reference engine fast and measurable
 
 - Prefer TypedArrays, monomorphic kernels, reusable scratch buffers, and

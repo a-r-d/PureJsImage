@@ -1,5 +1,6 @@
 import type { AbortOptions } from './abort.ts'
 import { throwIfAborted } from './abort.ts'
+import type { PixelColorSemantics } from './color.ts'
 import { invalidInput } from './errors.ts'
 
 export type PixelFormat =
@@ -41,8 +42,71 @@ export interface PixelBlock {
   readonly stride: number
   readonly format: PixelFormat
   readonly data: Uint8Array
+  readonly colorSemantics?: PixelColorSemantics
   readonly displayRanges?: readonly PixelSampleDisplayRange[]
   readonly release?: () => void
+}
+
+export interface PixelStorageDescriptor {
+  readonly format: PixelFormat
+  readonly layout: 'interleaved' | 'planar'
+  readonly sampleType: 'unsigned-integer' | 'signed-integer' | 'floating-point'
+  readonly channels: 1 | 3 | 4
+  readonly bytesPerSample: 1 | 2 | 4 | 8
+  readonly endianness: 'not-applicable' | 'big-endian'
+}
+
+const storage = (
+  format: PixelFormat,
+  layout: PixelStorageDescriptor['layout'],
+  sampleType: PixelStorageDescriptor['sampleType'],
+  channels: PixelStorageDescriptor['channels'],
+  bytesPerSample: PixelStorageDescriptor['bytesPerSample'],
+): PixelStorageDescriptor =>
+  Object.freeze({
+    format,
+    layout,
+    sampleType,
+    channels,
+    bytesPerSample,
+    endianness: bytesPerSample === 1 ? 'not-applicable' : 'big-endian',
+  })
+
+export const pixelStorage = (format: PixelFormat): PixelStorageDescriptor => {
+  if (format === 'gray8') return storage(format, 'interleaved', 'unsigned-integer', 1, 1)
+  if (format === 'rgb8') return storage(format, 'interleaved', 'unsigned-integer', 3, 1)
+  if (format === 'rgba8') return storage(format, 'interleaved', 'unsigned-integer', 4, 1)
+  if (format === 'gray16') return storage(format, 'interleaved', 'unsigned-integer', 1, 2)
+  if (format === 'rgb16') return storage(format, 'interleaved', 'unsigned-integer', 3, 2)
+  if (format === 'rgba16') return storage(format, 'interleaved', 'unsigned-integer', 4, 2)
+  if (format === 'gray32') return storage(format, 'interleaved', 'unsigned-integer', 1, 4)
+  if (format === 'rgb32') return storage(format, 'interleaved', 'unsigned-integer', 3, 4)
+  if (format === 'gray64') return storage(format, 'interleaved', 'unsigned-integer', 1, 8)
+  if (format === 'rgb64') return storage(format, 'interleaved', 'unsigned-integer', 3, 8)
+  if (format === 'grayi8') return storage(format, 'interleaved', 'signed-integer', 1, 1)
+  if (format === 'rgbi8') return storage(format, 'interleaved', 'signed-integer', 3, 1)
+  if (format === 'grayi16') return storage(format, 'interleaved', 'signed-integer', 1, 2)
+  if (format === 'rgbi16') return storage(format, 'interleaved', 'signed-integer', 3, 2)
+  if (format === 'grayf16') return storage(format, 'interleaved', 'floating-point', 1, 2)
+  if (format === 'rgbf16') return storage(format, 'interleaved', 'floating-point', 3, 2)
+  if (format === 'grayf32' || format === 'yf32') {
+    return storage(format, 'interleaved', 'floating-point', 1, 4)
+  }
+  if (format === 'rgbf32' || format === 'xyzf32') {
+    return storage(format, 'interleaved', 'floating-point', 3, 4)
+  }
+  if (format === 'grayf64') return storage(format, 'interleaved', 'floating-point', 1, 8)
+  if (format === 'rgbf64') return storage(format, 'interleaved', 'floating-point', 3, 8)
+  if (format === 'yuv420p8') return storage(format, 'planar', 'unsigned-integer', 3, 1)
+  return storage(format, 'planar', 'unsigned-integer', 3, 2)
+}
+
+export const pixelBytesPerPixel = (format: PixelFormat): number => {
+  const descriptor = pixelStorage(format)
+  if (descriptor.layout !== 'interleaved') {
+    throw invalidInput(`${format} does not have a fixed interleaved bytes-per-pixel value`)
+  }
+  return descriptor.channels * descriptor.bytesPerSample
 }
 export const resumePixelBlocks = async function* (
   blocks: AsyncIterable<PixelBlock>,

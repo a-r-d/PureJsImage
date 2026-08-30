@@ -3,12 +3,12 @@ import { throwIfAborted } from './abort.ts'
 import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
-import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
 import type {
   AvifEncodeOptions,
   BmpEncodeOptions,
+  ConvertPixelFormatOptions,
   CropOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
@@ -32,6 +32,7 @@ import type {
 import {
   createAvifEncodeOperation,
   createBmpEncodeOperation,
+  createConvertPixelFormatOperation,
   createCropOperation,
   createHdrEncodeOperation,
   createJpegEncodeOperation,
@@ -196,6 +197,10 @@ export class Image<Input, Output extends Uint8Array> {
   }
   window(options: WindowOptions): Image<Input, Output> {
     return this.#append(createWindowOperation(options))
+  }
+
+  convertPixelFormat(options: ConvertPixelFormatOptions): Image<Input, Output> {
+    return this.#append(createConvertPixelFormatOperation(options))
   }
 
   lut(options: LutOptions): Image<Input, Output> {
@@ -462,9 +467,10 @@ export class Image<Input, Output extends Uint8Array> {
 
   async toSink(sink: ImageSink, options: Readonly<AbortOptions> = {}): Promise<void> {
     const source = bindImageSourceSignal(this.#context.source, options.signal)
-    await withSourceSession(source, () =>
-      executePipeline({ ...this.#context, source }, this.#operations, sink, options),
-    )
+    await withSourceSession(source, async () => {
+      const { executePipeline } = await import('./executor.ts')
+      await executePipeline({ ...this.#context, source }, this.#operations, sink, options)
+    })
   }
 
   async toFile(path: string, options: Readonly<AbortOptions> = {}): Promise<void> {

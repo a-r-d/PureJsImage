@@ -75,15 +75,15 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 
 | Current measured surface | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 63.6 KiB | 20.0 KiB | 17.6 KiB |
-| Common web codecs | 613.9 KiB | 226.7 KiB | 189.8 KiB |
-| All stable codecs | 876.9 KiB | 308.6 KiB | 254.0 KiB |
-| Scientific platform | 163.5 KiB | 47.1 KiB | 40.0 KiB |
-| All scientific readers | 1233.9 KiB | 357.0 KiB | 284.8 KiB |
+| Core API | 23.8 KiB | 7.8 KiB | 7.0 KiB |
+| Common web codecs | 635.1 KiB | 233.6 KiB | 193.9 KiB |
+| All stable codecs | 898.2 KiB | 315.7 KiB | 258.8 KiB |
+| Scientific platform | 181.9 KiB | 51.8 KiB | 44.1 KiB |
+| All scientific readers | 1236.5 KiB | 357.7 KiB | 285.2 KiB |
 | Geo raster platform | 136.9 KiB | 37.1 KiB | 31.7 KiB |
-| All Geo readers | 612.5 KiB | 185.5 KiB | 150.2 KiB |
+| All Geo readers | 615.2 KiB | 186.2 KiB | 150.8 KiB |
 
-The extracted npm package is 6.4 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 6.5 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 ## Install
@@ -357,13 +357,13 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 
 | Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API | `purejsimage` | 63.6 KiB | 20.0 KiB | 17.6 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 613.9 KiB | 226.7 KiB | 189.8 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 876.9 KiB | 308.6 KiB | 254.0 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 163.5 KiB | 47.1 KiB | 40.0 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1233.9 KiB | 357.0 KiB | 284.8 KiB |
+| Core API initial chunk | `purejsimage` | 23.8 KiB | 7.8 KiB | 7.0 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 635.1 KiB | 233.6 KiB | 193.9 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 898.2 KiB | 315.7 KiB | 258.8 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 181.9 KiB | 51.8 KiB | 44.1 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1236.5 KiB | 357.7 KiB | 285.2 KiB |
 
-The extracted npm package is 6.4 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 6.5 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

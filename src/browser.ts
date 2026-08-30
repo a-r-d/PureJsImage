@@ -1,11 +1,23 @@
 export type { AbortOptions } from './abort.ts'
+export type {
+  PixelAlphaSemantics,
+  PixelColorFamily,
+  PixelColorPrimaries,
+  PixelColorProvenance,
+  PixelColorSemantics,
+  PixelIccSemantics,
+  PixelMatrixCoefficients,
+  PixelRange,
+  PixelTransferFunction,
+} from './color.ts'
+
 import type { ImageLibraryRegistration } from './accelerator.ts'
+import { browserPlatform } from './browser-platform.ts'
 import {
   createImageLibraryForPlatform,
   type Image as RuntimeImage,
   type ImageLibrary as RuntimeImageLibrary,
 } from './image-core.ts'
-import { browserPlatform } from './browser-platform.ts'
 import type { ImageInput } from './source.ts'
 
 export type {
@@ -38,9 +50,12 @@ export type ImageLibrary = RuntimeImageLibrary<ImageInput, Uint8Array>
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
 export type {
+  AlphaRemoval,
   AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
+  ConvertiblePixelFormat,
+  ConvertPixelFormatOptions,
   CropOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
@@ -51,6 +66,7 @@ export type {
   PbmEncodeOptions,
   PfmEncodeOptions,
   PgmEncodeOptions,
+  PixelConversionRange,
   PngEncodeOptions,
   PpmEncodeOptions,
   QoiEncodeOptions,
@@ -64,8 +80,13 @@ export type {
   WebpEncodeOptions,
   WindowOptions,
 } from './pipeline.ts'
-export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.ts'
-export { BufferPool } from './pixel.ts'
+export type {
+  PixelBlock,
+  PixelFormat,
+  PixelSampleDisplayRange,
+  PixelStorageDescriptor,
+} from './pixel.ts'
+export { BufferPool, pixelBytesPerPixel, pixelStorage } from './pixel.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
 export type { ImageInput, ImageSource, ImageSourceReadOptions } from './source.ts'

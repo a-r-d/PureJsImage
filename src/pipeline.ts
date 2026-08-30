@@ -1,4 +1,6 @@
 import type { ImageMetadata } from './codec.ts'
+import type { ConvertPixelFormatOptions } from './convert.ts'
+import { validateConvertPixelFormatOptions } from './convert.ts'
 import { invalidInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
@@ -15,6 +17,8 @@ interface ResizeBase {
   background?: Background
   withoutEnlargement?: boolean
   kernel?: ResizeKernel
+  /** Opt-in transfer-aware resampling. The default keeps historical encoded-sample behavior. */
+  colorSpace?: 'encoded' | 'linear-light'
 }
 
 export type ResizeOptions = ResizeBase &
@@ -31,6 +35,12 @@ export interface WindowOptions {
   readonly width: number
 }
 
+export type {
+  AlphaRemoval,
+  ConvertiblePixelFormat,
+  ConvertPixelFormatOptions,
+  PixelConversionRange,
+} from './convert.ts'
 export type { LutOptions, LutPixelFormat } from './lut.ts'
 
 export interface RotateOptions {
@@ -134,6 +144,7 @@ export type PipelineOperation =
   | ({ readonly type: 'crop' } & Readonly<CropOptions>)
   | ({ readonly type: 'resize' } & Readonly<ResizeOptions>)
   | { readonly type: 'window'; readonly options: Readonly<WindowOptions> }
+  | { readonly type: 'convertPixelFormat'; readonly options: Readonly<ConvertPixelFormatOptions> }
   | { readonly type: 'lut'; readonly options: Readonly<LutOptions> }
   | {
       readonly type: 'encode'
@@ -229,6 +240,21 @@ export const createWindowOperation = (options: WindowOptions): PipelineOperation
   }
   return Object.freeze({ type: 'window', options: Object.freeze({ ...options }) })
 }
+export const createConvertPixelFormatOperation = (
+  options: ConvertPixelFormatOptions,
+): PipelineOperation => {
+  validateConvertPixelFormatOptions(options)
+  return Object.freeze({
+    type: 'convertPixelFormat',
+    options: Object.freeze({
+      ...options,
+      ...(options.range === undefined ? {} : { range: Object.freeze({ ...options.range }) }),
+      ...(options.alphaRemoval === undefined
+        ? {}
+        : { alphaRemoval: Object.freeze({ ...options.alphaRemoval }) }),
+    }),
+  })
+}
 
 export const createLutOperation = (options: LutOptions): PipelineOperation => {
   const channels: Readonly<Record<LutPixelFormat, number>> = {
@@ -280,6 +306,13 @@ export const createResizeOperation = (options: ResizeOptions): PipelineOperation
     options.kernel !== 'lanczos3'
   ) {
     throw invalidInput('Resize kernel must be nearest, bilinear, or lanczos3')
+  }
+  if (
+    options.colorSpace !== undefined &&
+    options.colorSpace !== 'encoded' &&
+    options.colorSpace !== 'linear-light'
+  ) {
+    throw invalidInput('Resize colorSpace must be encoded or linear-light')
   }
   if (options.width === undefined && options.height === undefined) {
     throw invalidInput('Resize requires a width or height')
@@ -552,6 +585,18 @@ export const planMetadata = (
       }
       continue
     }
+    if (operation.type === 'convertPixelFormat') {
+      const format = operation.options.format
+      metadata = {
+        ...metadata,
+        bitDepth: format.endsWith('16') ? 16 : format.endsWith('f32') ? 32 : 8,
+        sampleFormat: format.endsWith('f32') ? 'floating-point' : 'unsigned-integer',
+        channels: format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3,
+        hasAlpha: format.startsWith('rgba'),
+        colorSpace: format.startsWith('gray') ? 'gray' : 'rgb',
+      }
+      continue
+    }
     if (operation.type === 'lut') {
       metadata = {
         ...metadata,
@@ -668,7 +713,12 @@ export const planMetadata = (
       operation.format === 'jpeg'
         ? { ...metadata, format: 'jpeg', mimeType: 'image/jpeg', hasAlpha: false, bitDepth: 8 }
         : operation.format === 'png'
-          ? { ...metadata, format: 'png', mimeType: 'image/png', bitDepth: 8 }
+          ? {
+              ...metadata,
+              format: 'png',
+              mimeType: 'image/png',
+              bitDepth: (metadata.bitDepth ?? 8) > 8 ? 16 : 8,
+            }
           : { ...metadata, format: 'webp', mimeType: 'image/webp', bitDepth: 8 }
   }
 

@@ -1,9 +1,9 @@
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { deflateSync } from 'node:zlib'
-import { afterEach, describe, expect, it } from 'vitest'
+import { deflateSync, inflateSync } from 'node:zlib'
 import { PNG } from 'pngjs'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import { crc32 } from '../src/codecs/crc32.ts'
 import { displayP3RgbProfile } from './icc-fixtures.ts'
@@ -62,6 +62,19 @@ const specializedPng = (
   ])
 }
 
+const uncompressedPngScanlines = (png: Uint8Array): Uint8Array => {
+  const idat: Uint8Array[] = []
+  let offset = 8
+  while (offset < png.byteLength) {
+    const view = new DataView(png.buffer, png.byteOffset + offset, 4)
+    const length = view.getUint32(0, false)
+    const type = String.fromCharCode(...png.subarray(offset + 4, offset + 8))
+    if (type === 'IDAT') idat.push(png.subarray(offset + 8, offset + 8 + length))
+    offset += length + 12
+  }
+  return inflateSync(Buffer.concat(idat))
+}
+
 describe('PNG pixel pipeline', () => {
   it('converts a Display-P3 iCCP profile to sRGB without changing alpha', async () => {
     const profileData = Buffer.concat([
@@ -81,6 +94,39 @@ describe('PNG pixel pipeline', () => {
     const decoded = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
 
     expect(Array.from(decoded.data)).toEqual([193, 95, 14, 77, 85, 111, 132, 201])
+  })
+
+  it('does not silently drop color signaling from native 16-bit pixels', async () => {
+    const profileData = Buffer.concat([
+      Buffer.from('Display P3\0', 'latin1'),
+      Buffer.from([0]),
+      deflateSync(displayP3RgbProfile()),
+    ])
+    const profiled = specializedPng(
+      1,
+      1,
+      16,
+      2,
+      Uint8Array.of(0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc),
+      undefined,
+      [pngChunk('iCCP', profileData)],
+    )
+    await expect((await Image.open(profiled)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'PNG source-profile pixels require an explicitly preserved ICC profile',
+    })
+    const preserved = await (await Image.open(profiled)).keepIcc().png().toBuffer()
+    expect(Buffer.from(preserved).includes(Buffer.from('iCCP'))).toBe(true)
+
+    const gamma = Buffer.alloc(4)
+    gamma.writeUInt32BE(100_000)
+    const signaled = specializedPng(1, 1, 16, 0, Uint8Array.of(0, 0x80, 0), undefined, [
+      pngChunk('gAMA', gamma),
+    ])
+    await expect((await Image.open(signaled)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'PNG source-profile pixels require an explicitly preserved ICC profile',
+    })
   })
 
   it('applies PNG gAMA and cHRM only when no higher-precedence sRGB chunk exists', async () => {
@@ -203,7 +249,7 @@ describe('PNG pixel pipeline', () => {
     }
   })
 
-  it('keeps 16-bit RGBA on the high-byte path instead of copying packed samples', async () => {
+  it('preserves 16-bit RGBA sample bytes through PNG re-encoding', async () => {
     const input = specializedPng(
       2,
       1,
@@ -229,10 +275,15 @@ describe('PNG pixel pipeline', () => {
         0x08,
       ),
     )
-    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const encoded = await (await Image.open(input)).png({ compressionLevel: 0 }).toBuffer()
+    const output = PNG.sync.read(encoded)
 
+    expect(encoded[24]).toBe(16)
     expect(Array.from(output.data)).toEqual([0x12, 0x56, 0x9a, 0xde, 0x01, 0x03, 0x05, 0x07])
-    expect(Array.from(output.data)).not.toEqual([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0])
+    expect(Array.from(uncompressedPngScanlines(encoded))).toEqual([
+      0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+      0x08,
+    ])
   })
 
   it('decodes palette and 16-bit grayscale PNG variants', async () => {
@@ -252,7 +303,7 @@ describe('PNG pixel pipeline', () => {
       Uint8Array.of(0, 0, 0, 0x12, 0x34, 0, 0xab, 0xcd, 0xff, 0xff),
     )
 
-    for (const input of [palette, gray16]) {
+    for (const input of [palette]) {
       const reference = PNG.sync.read(input)
       const pipeline = (await Image.open(input)).png()
       const output = PNG.sync.read(await pipeline.toBuffer())
@@ -263,6 +314,71 @@ describe('PNG pixel pipeline', () => {
       })
       expect(output.data).toEqual(reference.data)
     }
+    const pipeline = (await Image.open(gray16)).png({ compressionLevel: 0 })
+    const encoded = await pipeline.toBuffer()
+    await expect(pipeline.metadata()).resolves.toMatchObject({ bitDepth: 16 })
+    expect(encoded[24]).toBe(16)
+    expect(Array.from(uncompressedPngScanlines(encoded))).toEqual([
+      0, 0x00, 0x00, 0x12, 0x34, 0, 0xab, 0xcd, 0xff, 0xff,
+    ])
+  })
+
+  it('keeps low 16-bit grayscale bytes through crop, rotation, resize, and PNG output', async () => {
+    const sample = (value: number): readonly [number, number] => [value >>> 8, value & 0xff]
+    const values = [0x0001, 0x0102, 0x0203, 0x0304, 0x0405, 0x0506, 0x0607, 0x0708, 0x0809]
+    const scanlines = Uint8Array.from([
+      0,
+      ...values.slice(0, 3).flatMap(sample),
+      0,
+      ...values.slice(3, 6).flatMap(sample),
+      0,
+      ...values.slice(6, 9).flatMap(sample),
+    ])
+    const input = specializedPng(3, 3, 16, 0, scanlines)
+    const output = await (await Image.open(input))
+      .crop({ x: 1, y: 0, width: 2, height: 3 })
+      .rotate(90)
+      .resize({ width: 3, height: 2, fit: 'fill', kernel: 'nearest' })
+      .png({ compressionLevel: 0 })
+      .toBuffer()
+
+    expect(output[24]).toBe(16)
+    expect(Array.from(uncompressedPngScanlines(output))).toEqual([
+      0,
+      ...[0x0708, 0x0405, 0x0102].flatMap(sample),
+      0,
+      ...[0x0809, 0x0506, 0x0203].flatMap(sample),
+    ])
+  })
+
+  it('preserves 16-bit grayscale alpha and truecolor color-key transparency', async () => {
+    const grayAlpha = specializedPng(
+      2,
+      1,
+      16,
+      4,
+      Uint8Array.of(0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0),
+    )
+    const grayOutput = await (await Image.open(grayAlpha)).png({ compressionLevel: 0 }).toBuffer()
+    expect(Array.from(uncompressedPngScanlines(grayOutput))).toEqual([
+      0, 0x12, 0x34, 0x12, 0x34, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0x9a, 0xbc, 0x9a, 0xbc, 0xde,
+      0xf0,
+    ])
+
+    const transparency = Uint8Array.of(0x11, 0x12, 0x21, 0x22, 0x31, 0x32)
+    const truecolor = specializedPng(
+      2,
+      1,
+      16,
+      2,
+      Uint8Array.of(0, 0x11, 0x12, 0x21, 0x22, 0x31, 0x32, 0x11, 0x13, 0x21, 0x22, 0x31, 0x32),
+      undefined,
+      [pngChunk('tRNS', transparency)],
+    )
+    const colorOutput = await (await Image.open(truecolor)).png({ compressionLevel: 0 }).toBuffer()
+    expect(Array.from(uncompressedPngScanlines(colorOutput))).toEqual([
+      0, 0x11, 0x12, 0x21, 0x22, 0x31, 0x32, 0, 0, 0x11, 0x13, 0x21, 0x22, 0x31, 0x32, 0xff, 0xff,
+    ])
   })
 
   it('streams PNG output to a file and honors compression level', async () => {

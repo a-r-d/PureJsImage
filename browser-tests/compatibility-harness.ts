@@ -1456,6 +1456,126 @@ const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.byteLength,
   }
 }
+
+const nativePngPrecision = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = Uint8Array.of(
+    137,
+    80,
+    78,
+    71,
+    13,
+    10,
+    26,
+    10,
+    0,
+    0,
+    0,
+    13,
+    73,
+    72,
+    68,
+    82,
+    0,
+    0,
+    0,
+    3,
+    0,
+    0,
+    0,
+    3,
+    16,
+    0,
+    0,
+    0,
+    0,
+    35,
+    211,
+    54,
+    32,
+    0,
+    0,
+    0,
+    29,
+    73,
+    68,
+    65,
+    84,
+    120,
+    156,
+    99,
+    96,
+    96,
+    100,
+    100,
+    98,
+    98,
+    102,
+    96,
+    102,
+    97,
+    97,
+    101,
+    101,
+    99,
+    96,
+    99,
+    103,
+    231,
+    224,
+    224,
+    4,
+    0,
+    2,
+    79,
+    0,
+    82,
+    220,
+    141,
+    233,
+    78,
+    0,
+    0,
+    0,
+    0,
+    73,
+    69,
+    78,
+    68,
+    174,
+    66,
+    96,
+    130,
+  )
+  const output = await (await images.open(bytes))
+    .crop({ x: 1, y: 0, width: 2, height: 3 })
+    .rotate(90)
+    .resize({ width: 3, height: 2, fit: 'fill', kernel: 'nearest' })
+    .png()
+    .toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.width !== 3 || metadata.height !== 2 || metadata.bitDepth !== 16) {
+    throw new Error(
+      `Native PNG browser output was ${metadata.width}x${metadata.height} at ${metadata.bitDepth ?? 0} bits`,
+    )
+  }
+  const decoder = await pngCodec.createDecoder?.(new MemorySource(output), defaultImageLimits)
+  if (decoder?.pixelFormat !== 'gray16') {
+    throw new Error(`Native PNG browser decoder emitted ${decoder?.pixelFormat ?? 'nothing'}`)
+  }
+  const samples: number[] = []
+  for await (const block of decoder.decode()) samples.push(...block.data)
+  const expected = [7, 8, 4, 5, 1, 2, 8, 9, 5, 6, 2, 3]
+  if (
+    samples.length !== expected.length ||
+    samples.some((value, index) => value !== expected[index])
+  ) {
+    throw new Error(`Native PNG browser samples changed: ${samples.join(',')}`)
+  }
+  return {
+    detail: '16-bit PNG crop, quarter-turn, resize, and encode preserved low sample bytes',
+    outputBytes: output.byteLength,
+  }
+}
 const tiffEncodePipeline = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/benchmark-input.png')
   const encoded = await (await images.open(input))
@@ -5034,6 +5154,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   scientificOneDimensionalSeries,
   scientificOrdinaryCodecFallbacks,
   pngAlphaPipeline,
+  nativePngPrecision,
   progressiveJpeg,
   resizeDefaultKernel,
   tiffEncodePipeline,

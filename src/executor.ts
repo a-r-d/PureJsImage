@@ -1,22 +1,24 @@
 import type { AbortOptions } from './abort.ts'
 import { throwIfAborted } from './abort.ts'
 import type { CodecRegistry, ImageCodec, ImageEncoder } from './codec.ts'
+import { convertedPixelColorSemantics, convertPixelBlocks } from './convert.ts'
 import { cropPixelBlocks } from './crop.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
+import { applyLutPixelBlocks } from './lut.ts'
 import { normalizeExifOrientation } from './metadata.ts'
 import { createOrientationTransform, type ExifOrientation } from './orient.ts'
-import { applyLutPixelBlocks } from './lut.ts'
 import {
   calculateResizeDimensions,
   normalizedRotation,
   type PipelineOperation,
 } from './pipeline.ts'
-import { normalizePixelBlocks, normalizedPixelFormat, type PixelBlock } from './pixel.ts'
-import type { ImageRuntime } from './runtime.ts'
+import { normalizedPixelFormat, normalizePixelBlocks, type PixelBlock } from './pixel.ts'
+import { describePrecisionExecution, transformAcceptsPixelFormat } from './precision-plan.ts'
 import { createResizeTransform } from './resize.ts'
 import { createRotationTransform } from './rotate.ts'
+import type { ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
@@ -305,6 +307,22 @@ export const executePipeline = async (
       throw unsupportedOperation(`Window input must be grayscale, received ${sourcePixelFormat}`)
     }
     let pixelFormat = sourcePixelFormat
+    let colorSemantics = decoder.colorSemantics
+    describePrecisionExecution({
+      width,
+      height,
+      pixelFormat,
+      ...(colorSemantics === undefined ? {} : { colorSemantics }),
+      operations: [...(output.window === undefined ? [] : [output.window]), ...output.stages],
+      encoderFormat: output.format,
+      ...(outputCodec.encoderPixelFormats === undefined
+        ? {}
+        : { encoderPixelFormats: outputCodec.encoderPixelFormats }),
+      ...(outputCodec.acceptsColorSemantics === undefined
+        ? {}
+        : { encoderAcceptsColorSemantics: outputCodec.acceptsColorSemantics }),
+      sourceOrientation,
+    })
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
         ? {
@@ -320,29 +338,29 @@ export const executePipeline = async (
             ...(options.signal === undefined ? {} : { signal: options.signal }),
           },
     )
-    const normalizeForTransforms = output.stages.some(
-      (operation) => operation.type !== 'encode' && operation.type !== 'window',
-    )
-    const normalizeForEncoder = !outputCodec.encoderPixelFormats?.includes(sourcePixelFormat)
-    if (normalizeForTransforms || normalizeForEncoder) {
+    if (output.window) {
       blocks = normalizePixelBlocks(blocks, sourcePixelFormat, {
         ...(options.signal === undefined ? {} : { signal: options.signal }),
-        ...(output.window === undefined
-          ? {}
-          : {
-              displayRanges: [
-                {
-                  black: output.window.options.center - output.window.options.width / 2,
-                  white: output.window.options.center + output.window.options.width / 2,
-                },
-              ],
-            }),
+        displayRanges: [
+          {
+            black: output.window.options.center - output.window.options.width / 2,
+            white: output.window.options.center + output.window.options.width / 2,
+          },
+        ],
       })
       pixelFormat = normalizedPixelFormat(sourcePixelFormat)
+      colorSemantics = undefined
     }
     for (const operation of output.stages) {
       if (operation.type === 'encode' || operation.type === 'window') continue
-      if (operation.type === 'lut') {
+      if (!transformAcceptsPixelFormat(operation, pixelFormat)) {
+        throw unsupportedOperation(`${operation.type} does not support ${pixelFormat} pixels`)
+      }
+      if (operation.type === 'convertPixelFormat') {
+        blocks = convertPixelBlocks(blocks, pixelFormat, operation.options, options)
+        pixelFormat = operation.options.format
+        colorSemantics = convertedPixelColorSemantics(colorSemantics, pixelFormat)
+      } else if (operation.type === 'lut') {
         blocks = applyLutPixelBlocks(blocks, pixelFormat, operation.options, options)
         pixelFormat = operation.options.format
       } else if (operation.type === 'crop') {
@@ -351,7 +369,7 @@ export const executePipeline = async (
         width = operation.width
         height = operation.height
       } else if (operation.type === 'resize') {
-        const resize = createResizeTransform(width, height, pixelFormat, operation)
+        const resize = createResizeTransform(width, height, pixelFormat, operation, colorSemantics)
         width = resize.width
         height = resize.height
         pixelFormat = resize.pixelFormat
@@ -410,10 +428,28 @@ export const executePipeline = async (
     }
     validateImageDimensions(width, height, 1, context.limits)
 
+    if (!outputCodec.encoderPixelFormats?.includes(pixelFormat)) {
+      const inputFormat = pixelFormat
+      blocks = normalizePixelBlocks(blocks, inputFormat, {
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+      })
+      pixelFormat = normalizedPixelFormat(inputFormat)
+      colorSemantics = undefined
+    }
+    if (
+      colorSemantics !== undefined &&
+      outputCodec.acceptsColorSemantics?.(colorSemantics) === false
+    ) {
+      throw unsupportedOperation(
+        `${output.format} encoder does not accept the current pixel color semantics`,
+      )
+    }
+
     encoder = await outputCodec.createEncoder(sink, {
       width,
       height,
       pixelFormat,
+      ...(colorSemantics === undefined ? {} : { colorSemantics }),
       options: output.options,
       runtime: context.runtime,
       limits: context.limits,

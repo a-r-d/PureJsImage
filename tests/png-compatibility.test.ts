@@ -251,6 +251,7 @@ const chunkType = (chunk: Buffer): string => chunk.toString('ascii', 4, 8)
 const compareWithOracle = async (input: Buffer, tolerance = 0): Promise<void> => {
   const reference = PNG.sync.read(input)
   const output = await (await Image.open(input)).png().toBuffer()
+  if (input[24] === 16) expect(output[24]).toBe(16)
   const decoded = PNG.sync.read(output)
   expect({ width: decoded.width, height: decoded.height }).toEqual({
     width: reference.width,

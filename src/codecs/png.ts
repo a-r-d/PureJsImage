@@ -1,6 +1,6 @@
 import type {
-  DecoderOptions,
   DecodeRequest,
+  DecoderOptions,
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
@@ -8,6 +8,7 @@ import type {
   ImageMetadata,
   PreservedMetadata,
 } from '../codec.ts'
+import type { PixelColorSemantics } from '../color.ts'
 import {
   ImageError,
   invalidInput,
@@ -27,11 +28,11 @@ import { crc32, updateCrc32 } from './crc32.ts'
 import { ascii, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
-  GrayColorManagedDecoder,
-  MAX_ICC_PROFILE_BYTES,
   createDisplayP3Transform,
   createPngColorTransform,
   createPngGrayTransform,
+  GrayColorManagedDecoder,
+  MAX_ICC_PROFILE_BYTES,
   parseRgbIccTransform,
   type RgbChromaticities,
   type RgbIccTransform,
@@ -162,6 +163,11 @@ const channelsForColorType = (colorType: PngColorType): number => {
 }
 
 const outputFormat = (description: PngDescription): PixelFormat => {
+  if (description.bitDepth === 16) {
+    if (description.colorType === 0 && !description.hasAlpha) return 'gray16'
+    if (description.colorType === 2 && !description.hasAlpha) return 'rgb16'
+    return 'rgba16'
+  }
   if (description.colorType === 0 && !description.hasAlpha) return 'gray8'
   if ((description.colorType === 2 || description.colorType === 3) && !description.hasAlpha) {
     return 'rgb8'
@@ -173,8 +179,38 @@ const bytesPerPixel = (format: PixelFormat): number => {
   if (format === 'gray8') return 1
   if (format === 'rgb8') return 3
   if (format === 'rgba8') return 4
+  if (format === 'gray16') return 2
+  if (format === 'rgb16') return 6
+  if (format === 'rgba16') return 8
   throw invalidInput(`PNG does not support ${format} encoder input`)
 }
+
+const pngColorSemantics = (description: PngDescription): PixelColorSemantics =>
+  Object.freeze({
+    family: outputFormat(description).startsWith('gray') ? 'gray' : 'rgb',
+    primaries:
+      description.colorTransform !== undefined || description.iccProfile !== undefined
+        ? 'source-profile'
+        : 'unspecified',
+    transfer: Object.freeze({
+      kind:
+        description.colorTransform !== undefined || description.grayTransform !== undefined
+          ? 'source-profile'
+          : 'unspecified',
+    }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: description.hasAlpha ? 'straight' : 'none',
+    provenance:
+      description.iccProfile !== undefined
+        ? 'icc'
+        : description.colorTransform !== undefined || description.grayTransform !== undefined
+          ? 'container-signaled'
+          : 'unspecified',
+    ...(description.iccProfile === undefined
+      ? {}
+      : { icc: Object.freeze({ relevance: 'source' as const }) }),
+  })
 
 const checkedChunkEnd = (offset: number, length: number, size: number, type: string): number => {
   const end = offset + length + 12
@@ -820,6 +856,61 @@ const convertRow = (
   outputOffset: number,
 ): void => {
   const { bitDepth, colorType, palette, transparency } = description
+  if (bitDepth === 16) {
+    if (colorType === 0 && transparency === undefined) {
+      output.set(row.subarray(cropX * 2, (cropX + width) * 2), outputOffset)
+      return
+    }
+    if (colorType === 2 && transparency === undefined) {
+      output.set(row.subarray(cropX * 6, (cropX + width) * 6), outputOffset)
+      return
+    }
+    if (colorType === 6) {
+      output.set(row.subarray(cropX * 8, (cropX + width) * 8), outputOffset)
+      return
+    }
+    let nativeTarget = outputOffset
+    for (let x = cropX; x < cropX + width; x += 1) {
+      if (colorType === 0) {
+        const source = x * 2
+        const gray = uint16(row, source)
+        output[nativeTarget++] = row[source] ?? 0
+        output[nativeTarget++] = row[source + 1] ?? 0
+        output[nativeTarget++] = row[source] ?? 0
+        output[nativeTarget++] = row[source + 1] ?? 0
+        output[nativeTarget++] = row[source] ?? 0
+        output[nativeTarget++] = row[source + 1] ?? 0
+        const transparent = gray === uint16(transparency ?? new Uint8Array(), 0)
+        output[nativeTarget++] = transparent ? 0 : 0xff
+        output[nativeTarget++] = transparent ? 0 : 0xff
+        continue
+      }
+      if (colorType === 2) {
+        const source = x * 6
+        output.set(row.subarray(source, source + 6), nativeTarget)
+        nativeTarget += 6
+        const transparent =
+          uint16(row, source) === uint16(transparency ?? new Uint8Array(), 0) &&
+          uint16(row, source + 2) === uint16(transparency ?? new Uint8Array(), 2) &&
+          uint16(row, source + 4) === uint16(transparency ?? new Uint8Array(), 4)
+        output[nativeTarget++] = transparent ? 0 : 0xff
+        output[nativeTarget++] = transparent ? 0 : 0xff
+        continue
+      }
+      if (colorType === 4) {
+        const source = x * 4
+        output[nativeTarget++] = row[source] ?? 0
+        output[nativeTarget++] = row[source + 1] ?? 0
+        output[nativeTarget++] = row[source] ?? 0
+        output[nativeTarget++] = row[source + 1] ?? 0
+        output[nativeTarget++] = row[source] ?? 0
+        output[nativeTarget++] = row[source + 1] ?? 0
+        output[nativeTarget++] = row[source + 2] ?? 0
+        output[nativeTarget++] = row[source + 3] ?? 0
+      }
+    }
+    return
+  }
   if (bitDepth === 8 && colorType === 6 && transparency === undefined) {
     output.set(row.subarray(cropX * 4, (cropX + width) * 4), outputOffset)
     return
@@ -914,6 +1005,7 @@ class PngDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat
+  readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: false,
@@ -938,6 +1030,7 @@ class PngDecoder implements ImageDecoder {
     this.width = description.width
     this.height = description.height
     this.pixelFormat = outputFormat(description)
+    this.colorSemantics = pngColorSemantics(description)
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -1514,10 +1607,23 @@ const createPngEncoder = async (
   ) {
     throw invalidInput(`Invalid PNG output dimensions: ${request.width}x${request.height}`)
   }
-  const channels = bytesPerPixel(request.pixelFormat)
+  bytesPerPixel(request.pixelFormat)
   const level = compressionLevel(request.options)
   const runtime = request.runtime
   if (!runtime) throw unsupportedOperation('PNG encoding requires a runtime compression provider')
+  const semantics = request.colorSemantics
+  const sourceProfilePixels =
+    semantics?.primaries === 'source-profile' || semantics?.transfer.kind === 'source-profile'
+  if (sourceProfilePixels && (semantics.provenance !== 'icc' || !request.metadata?.icc)) {
+    throw unsupportedOperation(
+      'PNG source-profile pixels require an explicitly preserved ICC profile',
+    )
+  }
+  if (semantics?.provenance === 'icc' && !request.metadata?.icc) {
+    throw unsupportedOperation(
+      'PNG ICC pixel semantics require an explicitly preserved ICC profile',
+    )
+  }
 
   let acceleratedFilter: PngRowFilter | undefined
   for (const acceleration of accelerations) {
@@ -1537,8 +1643,15 @@ const createPngEncoder = async (
     const view = new DataView(header.buffer)
     view.setUint32(0, request.width)
     view.setUint32(4, request.height)
-    header[8] = 8
-    header[9] = channels === 1 ? 0 : channels === 3 ? 2 : 6
+    const bitDepth = request.pixelFormat.endsWith('16') ? 16 : 8
+    const storageChannels =
+      request.pixelFormat === 'gray8' || request.pixelFormat === 'gray16'
+        ? 1
+        : request.pixelFormat === 'rgb8' || request.pixelFormat === 'rgb16'
+          ? 3
+          : 4
+    header[8] = bitDepth
+    header[9] = storageChannels === 1 ? 0 : storageChannels === 3 ? 2 : 6
     await writeChunk(sink, 'IHDR', header)
 
     const icc = request.metadata?.icc
@@ -1546,8 +1659,11 @@ const createPngEncoder = async (
       const colorSpace = iccColorSpace(icc)
       if (
         colorSpace === 'other' ||
-        (request.pixelFormat === 'gray8' && colorSpace !== 'gray') ||
-        (request.pixelFormat !== 'gray8' && colorSpace !== 'rgb')
+        ((request.pixelFormat === 'gray8' || request.pixelFormat === 'gray16') &&
+          colorSpace !== 'gray') ||
+        (request.pixelFormat !== 'gray8' &&
+          request.pixelFormat !== 'gray16' &&
+          colorSpace !== 'rgb')
       ) {
         throw invalidInput('Preserved ICC profile does not match PNG output pixels')
       }
@@ -1603,6 +1719,7 @@ const decodePng = async (
   const description = await parsePng(source, limits, true)
   const decoder = new PngDecoder(source, description, limits, accelerations)
   if (options.preserveIcc === true && description.iccProfile) return decoder
+  if (description.bitDepth === 16) return decoder
   if (description.colorTransform)
     return new ColorManagedDecoder(decoder, description.colorTransform)
   return description.grayTransform
@@ -1614,6 +1731,12 @@ export const pngCodec: ImageCodec = {
   format: 'png',
   mimeTypes: ['image/png'],
   minimumBytes: signature.length,
+  encoderPixelFormats: ['gray8', 'rgb8', 'rgba8', 'gray16', 'rgb16', 'rgba16'],
+  acceptsColorSemantics: (semantics) =>
+    (semantics.family === 'gray' || semantics.family === 'rgb') &&
+    semantics.matrix === 'identity' &&
+    semantics.range === 'full' &&
+    (semantics.alpha === 'none' || semantics.alpha === 'straight'),
   detect: isPng,
   async metadata(source: ImageSource, limits: ImageLimits): Promise<ImageMetadata> {
     const description = await parsePng(source, limits, false)

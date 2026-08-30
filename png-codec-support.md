@@ -41,10 +41,9 @@ have focused fixture or benchmark coverage.
 - [x] Palette alpha through `tRNS`
 - [x] Grayscale and truecolor color-key transparency through `tRNS`
 - [x] Packed sub-byte sample extraction and expansion to 8-bit output
-- [x] 16-bit sample normalization to the most-significant 8 bits
-- [x] Output as `gray8`, `rgb8`, or `rgba8` according to decoded alpha needs
-- [ ] Exact 16-bit-per-channel pipeline output without reducing samples to
-  8 bits
+- [x] Exact big-endian 16-bit sample output without display normalization
+- [x] Output as `gray8`, `rgb8`, `rgba8`, `gray16`, `rgb16`, or `rgba16`
+  according to decoded depth and alpha needs
 - [ ] Optional lower-bit-depth or indexed output preservation for workflows
   that do not need expanded pixels
 
@@ -91,6 +90,9 @@ have focused fixture or benchmark coverage.
 - [x] 8-bit grayscale output from `gray8` input
 - [x] 8-bit truecolor RGB output from `rgb8` input
 - [x] 8-bit truecolor RGBA output from `rgba8` input
+- [x] 16-bit grayscale output from `gray16` input
+- [x] 16-bit truecolor RGB output from `rgb16` input
+- [x] 16-bit truecolor RGBA output from `rgba16` input
 - [x] Exact alpha preservation
 - [x] Zlib compression levels 0-9
 - [x] Adaptive per-row selection across filters 0-4 when compression is enabled
@@ -104,7 +106,6 @@ have focused fixture or benchmark coverage.
 
 - [ ] Indexed palette output with deterministic color quantization
 - [ ] 1-, 2-, and 4-bit grayscale or indexed output when the source permits it
-- [ ] 16-bit grayscale, RGB, grayscale-alpha, and RGBA output
 - [ ] Grayscale-alpha output without expanding grayscale to RGBA
 - [ ] Adam7 interlaced output
 - [ ] APNG encoding
@@ -126,6 +127,8 @@ have focused fixture or benchmark coverage.
 - [x] Verify representative RGBA round trips against an independent PNG decoder
 - [x] Verify an indexed 8-bit PNG and a 16-bit grayscale PNG against an
   independent PNG decoder
+- [x] Verify exact low-byte retention for 16-bit grayscale, RGB, RGBA,
+  grayscale-alpha, color-key transparency, Adam7, and transformed round trips
 - [x] Verify exact crop pixels and alpha preservation
 - [x] Verify adaptive filtering reduces representative smooth-image output size
 - [x] Benchmark large, transparent, indexed, cropped, resized, high-entropy, and
