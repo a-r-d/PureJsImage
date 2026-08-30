@@ -344,7 +344,7 @@ An item is complete only after its stated focused evidence passes.
       changelog, navigation, sitemap, and public metadata.
 - [x] Run every focused, fixture, oracle, benchmark, package, browser, generated, docs, diff, and
       full repository gate.
-- [ ] Commit and push the feature branch, then verify required exact-commit remote workflows.
+- [x] Commit and push the feature branch, then verify required exact-commit remote workflows.
 
 ## 22. Public sources used
 
