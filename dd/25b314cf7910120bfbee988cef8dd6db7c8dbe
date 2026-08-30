@@ -1,0 +1,173 @@
+docs/architecture/application-platform.md
+  s_ce394ddfeaeeea::t_990b02002491af 2429
+  s_ce394ddfeaeeea::t_1abca906c16faa 2420-2425
+  s_ce394ddfeaeeea::t_7be4a59134a49e 2427-2428
+  s_ce394ddfeaeeea::t_375ae58ae16385 2426
+benchmark/generated/package-metrics.json
+  s_ce394ddfeaeeea::t_96e4b01bc25239 179
+docs-astro/src/scripts/four-d-stem-explorer.ts
+  s_ce394ddfeaeeea::t_149d0c62f44b21 112-119,121-122,134-139,147-148,170,177,182-194,212-214,217-219,225,266-330,332-338,340-342,347-348,352,354
+  s_ce394ddfeaeeea::t_dec02f9ccd6c2f 1-8,15-57,66-111,123-133,140-146,151-162,164-169,172-176,178-180,195-211,220-224,226-229,232-265,353,355,358-361,364-396,407-427
+  s_ce394ddfeaeeea::t_b1512b502eb1df 9-14,163
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 58-65,230-231,356-357,362-363
+  s_ce394ddfeaeeea::t_5903d4045c41e1 120,149-150,331,339,343-346,349-351,397-406
+  s_ce394ddfeaeeea::t_05ffe871dd7f74 171,181
+  s_ce394ddfeaeeea::t_76c438d75a769b 215-216
+scripts/check-package-types.ts
+  s_ce394ddfeaeeea::t_0ddc2f34183cf6 208,372-373
+browser-tests/responsive-containment.pw.ts
+  s_ce394ddfeaeeea::t_b57e441349fb66 12
+docs-astro/src/scripts/scientific-worker.ts
+  s_ce394ddfeaeeea::t_9c936f25eb8ca6 20,63,160-162,167,228-246,300,318-323,326,337-338,340-349,355-364,366,393,395-396,411,721-723,730
+  s_ce394ddfeaeeea::t_adbbd880fe0a5a 586
+  s_ce394ddfeaeeea::t_7b396df7f143fa 41,170,176,302,335,339,365,400-407,529
+  s_ce394ddfeaeeea::t_d10309ca863c31 631-635
+  s_ce394ddfeaeeea::t_09d5d4a10c61e8 209-219,247,528,530-538,639
+  s_ce394ddfeaeeea::t_900e6df8b7b92a 350-354
+  s_ce394ddfeaeeea::t_55964d3f6289ed 412
+package.json
+  s_ce394ddfeaeeea::t_d50970efcd1419 354-358
+  s_ce394ddfeaeeea::t_63c54dccd3331f 518,540
+  s_ce394ddfeaeeea::t_ba93963521d1c3 529
+  s_ce394ddfeaeeea::t_41638dc0d3935d 539
+docs-astro/src/pages/4d-stem.astro
+  s_ce394ddfeaeeea::t_d55590ef585557 61-64,66-68,109-113,125,132-135,137,178,193,201-202
+  s_ce394ddfeaeeea::t_e1d11ea27df669 1-34,36-60,69-108,114-124,126-131,136,138-177,179-192,194-200,203-210
+  s_ce394ddfeaeeea::t_79152149caa203 35,65
+browser-tests/scientific.pw.ts
+  s_ce394ddfeaeeea::t_84a82a48e4ad49 170-194,214-215
+  s_ce394ddfeaeeea::t_fa48d63e56473f 4,195-213
+benchmark/four-d-stem/run.ts
+  s_ce394ddfeaeeea::t_ba93963521d1c3 1-18,24-69,73-101,103-118,126-127,129-143,150-179,187,189-190,192,201-222,228-237,249-270,275,279-286,288-292,294-300
+  s_ce394ddfeaeeea::t_adbbd880fe0a5a 240-243
+  s_ce394ddfeaeeea::t_2f4ab49eb0bfbc 125,128,180-186,188,191,194-200,238-239,244-248,276-278,287
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 19-23,70-72,102,119-124,144-149,223-227,271-274
+  s_ce394ddfeaeeea::t_642b127ece9265 193
+  s_ce394ddfeaeeea::t_a57b507651978d 293
+docs-astro/src/scripts/four-d-stem-types.ts
+  s_ce394ddfeaeeea::t_ff78f59c8ed7db 1-59,61-62,66-67,69-70,73,77-79,88-106,113-140
+  s_ce394ddfeaeeea::t_05ffe871dd7f74 63,74-76
+  s_ce394ddfeaeeea::t_342ffc12fc14c2 60,64-65,68,71-72,80-87,107-112
+ROADMAP.md
+  s_ce394ddfeaeeea::t_375ae58ae16385 106-107
+  s_ce394ddfeaeeea::t_ab0636c0583560 102-105
+tests/project-contract.test.ts
+  s_ce394ddfeaeeea::t_0da136e8994c45 579-582
+  s_ce394ddfeaeeea::t_7b848ac32b5af8 859
+CHANGELOG.md
+  s_ce394ddfeaeeea::t_375ae58ae16385 9-14
+  s_ce394ddfeaeeea::t_ab0636c0583560 15-22
+tests/four-d-stem-analysis.test.ts
+  s_ce394ddfeaeeea::t_a4b4aa167b9732 224-229
+  s_ce394ddfeaeeea::t_3eaa942591f988 1-5,7,9-15,20,32-66,131-147,151-193,195-209,213-214,219-223,230-301,363-435,443-445,475-476
+  s_ce394ddfeaeeea::t_ec9b6c75150cfa 194
+  s_ce394ddfeaeeea::t_d85648819a41e1 6,8
+  s_ce394ddfeaeeea::t_72098d0ed87036 302-362
+  s_ce394ddfeaeeea::t_25fd83ca6b1270 28-31,71-77,101-105,109-112,116
+  s_ce394ddfeaeeea::t_b7ff9146522106 21-27,67-70,78-100,106-108,113-115,117-130,446-474
+  s_ce394ddfeaeeea::t_7ab33b2065e332 148-150,210-212,217
+  s_ce394ddfeaeeea::t_246097be4d9429 215-216
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 16-19,436-442
+  s_ce394ddfeaeeea::t_fddb486ea3c336 218
+docs-astro/src/scripts/scientific-types.ts
+  s_ce394ddfeaeeea::t_6770daa8c0e5f9 3,39-44,57,88-98
+  s_ce394ddfeaeeea::t_77a24e0ec03345 28-29,99
+tests/mib-flagship.test.ts
+  s_ce394ddfeaeeea::t_3c714ad44dc6f6 67,129-137,156-158
+  s_ce394ddfeaeeea::t_9155f631d43879 1-66,68-128,138-155,159-189
+docs/architecture/flagship-scientific-explorer.md
+  s_ce394ddfeaeeea::t_1abca906c16faa 1-40,44-147,152-154,157-164,166-168,173-200,203,206,209,211,218
+  s_ce394ddfeaeeea::t_990b02002491af 219
+  s_ce394ddfeaeeea::t_ed01935f65eece 148-151,155-156
+  s_ce394ddfeaeeea::t_375ae58ae16385 201-202,204-205,207
+  s_ce394ddfeaeeea::t_a57b507651978d 213,215-217
+  s_ce394ddfeaeeea::t_d418c31c485a18 41-43,165,169-172,208,210,212,214
+docs-astro/src/scripts/four-d-stem-worker.ts
+  s_ce394ddfeaeeea::t_ff78f59c8ed7db 1-4,6-8,10-11,16-24,30-40,49-56,59-63,66-67,69-70,72-75,79-80,82-83,86,88-89,92-93,95-96,98-101,107-111,146-147,172-177,183-185,187-189,193-194,196-197,199-206,213-220,222-225,231-243,247-249,251-262,265-280,282,285-294,296-304,316-318,321-338,343-350,352-407,410-423,425-430,432,435-453,461-479,487-493,574-577,585-589,594-596,602-603,608-613,620-627,636-648,650-660,662,669-683,693-725
+  s_ce394ddfeaeeea::t_7ab33b2065e332 41-42,47-48,81,85,424
+  s_ce394ddfeaeeea::t_f23e0f2914b578 597-601
+  s_ce394ddfeaeeea::t_c725ee347c4d12 226-230,661
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 12-15,25-29,43-46,339-342,408-409,494-508,510-514,578-584,684-692
+  s_ce394ddfeaeeea::t_b04a6e9bb42207 5,9,57-58,64-65,68,71,76-78,87,90-91,94,97,102-106,113-120,125-133,137-145,148-171,181-182,186,190-192,195,198,207-212,283-284,305-314,351,431,433-434,454-460,480-486,628-635,649,663-668
+  s_ce394ddfeaeeea::t_05ffe871dd7f74 84,112,121,134-136,178-180,244-246,250,315
+  s_ce394ddfeaeeea::t_76c438d75a769b 122-124
+  s_ce394ddfeaeeea::t_b57e441349fb66 509,515-573,590-593,604-607
+  s_ce394ddfeaeeea::t_246097be4d9429 614-615,617-619
+  s_ce394ddfeaeeea::t_1b4f5d5826cc34 221,263-264,281,295,319-320
+  s_ce394ddfeaeeea::t_a4b4aa167b9732 616
+scripts/render-package-metrics.ts
+  s_ce394ddfeaeeea::t_ab0636c0583560 63
+biome.json
+  s_ce394ddfeaeeea::t_93c4084787686f 21
+scripts/render-scientific-browser-reader-catalog.ts
+  s_ce394ddfeaeeea::t_ded13393abf4f4 56
+  s_ce394ddfeaeeea::t_45ea83656ac5e4 1-55,57-61,63-77,87-94,96-106
+  s_ce394ddfeaeeea::t_e2cbe0fff0885d 62,78-86
+  s_ce394ddfeaeeea::t_c2b8997622f0e3 95
+browser-tests/four-d-stem.pw.ts
+  s_ce394ddfeaeeea::t_3c714ad44dc6f6 89-91
+  s_ce394ddfeaeeea::t_b57e441349fb66 1-6,8,10-19,24-47,49-63,72,74-80,84-86,119
+  s_ce394ddfeaeeea::t_b3ea86ad71d463 7,9,20-23,87-88,92-118
+  s_ce394ddfeaeeea::t_a79966406d320c 64-71,73
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 48,81-83
+docs-astro/src/data/package-metrics.json
+  s_ce394ddfeaeeea::t_96e4b01bc25239 179
+tests/scientific-browser-reader-catalog.test.ts
+  s_ce394ddfeaeeea::t_95fdeb2143bfc2 27-29
+  s_ce394ddfeaeeea::t_d85648819a41e1 1-26,30-57
+src/analysis/four-d-stem.ts
+  s_ce394ddfeaeeea::t_f23e0f2914b578 908-914,918-921,924-925,961-962,964-965,986
+  s_ce394ddfeaeeea::t_d50970efcd1419 1-18,24-41,43-44,46,49-56,166-247,249-295,302-464,468-492,496-520,525-550,553-625,631-713,716-721,725-843,846-847,852-907,915-917,922-923,926-941,946-960,963,966-985,987,991-997,999-1036,1038-1048,1050-1056,1060-1103,1107-1128
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 19-23,45,248,296-301,465-467,493-495,521-524,626-630,714-715,722-724,844-845,848-851,942-945,988-990,1104-1106
+  s_ce394ddfeaeeea::t_8a28c96bd5fd7f 57-79,87-165
+  s_ce394ddfeaeeea::t_95fdeb2143bfc2 80-86
+  s_ce394ddfeaeeea::t_738de55adc4536 551-552,998
+  s_ce394ddfeaeeea::t_ec9b6c75150cfa 47-48
+  s_ce394ddfeaeeea::t_9ed1dfc331cca3 42,1037,1049,1057-1059
+docs-astro/src/scripts/scientific-explorer.ts
+  s_ce394ddfeaeeea::t_85250b03056fa3 21,27-31,53-54,235,247,253,264-266,440-448,504,517-524,578,639-664,675,753-758
+  s_ce394ddfeaeeea::t_e3506d6081d5b9 55-58,118,177-182,236,382-434,439,665-674
+  s_ce394ddfeaeeea::t_9d4edc7a204262 224-225,267-274
+src/scientific/browser-reader-catalog.ts
+  s_ce394ddfeaeeea::t_45ea83656ac5e4 1-115
+docs/four-d-stem-explorer.md
+  s_ce394ddfeaeeea::t_d418c31c485a18 19-21,108-109
+  s_ce394ddfeaeeea::t_a57b507651978d 110-121
+  s_ce394ddfeaeeea::t_375ae58ae16385 1-18,22-107
+docs-astro/src/pages/scientific.astro
+  s_ce394ddfeaeeea::t_ab0636c0583560 37,40
+  s_ce394ddfeaeeea::t_38516ab4e13d27 47,59-65,87,92
+  s_ce394ddfeaeeea::t_77a24e0ec03345 93-99
+benchmark/four-d-stem/generated-fixture.ts
+  s_ce394ddfeaeeea::t_7ab33b2065e332 95-96
+  s_ce394ddfeaeeea::t_de1db98362f7cf 1-85,89-94,97-106
+  s_ce394ddfeaeeea::t_e68dc84c7060c4 86-88
+docs-astro/src/data/documentation-data.json
+  s_ce394ddfeaeeea::t_60ce41d87a7b86 129
+README.md
+  s_ce394ddfeaeeea::t_ab0636c0583560 233-235
+  s_ce394ddfeaeeea::t_375ae58ae16385 22
+  s_ce394ddfeaeeea::t_96e4b01bc25239 319
+src/scientific/browser.ts
+  s_ce394ddfeaeeea::t_45ea83656ac5e4 25-35
+docs-astro/src/components/SiteHeader.astro
+  s_ce394ddfeaeeea::t_375ae58ae16385 21
+src/scientific/browser-reader-catalog.generated.ts
+  s_ce394ddfeaeeea::t_ae98c8a63480f1 1-718
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "dd25b314cf7910120bfbee988cef8dd6db7c8dbe",
+  "prompts": {},
+  "sessions": {
+    "s_ce394ddfeaeeea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0503b-7043-73b3-a0da-dfa82d798508",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
