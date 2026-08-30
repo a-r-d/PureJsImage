@@ -3,7 +3,7 @@ import { throwIfAborted } from './abort.ts'
 import type { CodecRegistry, ImageCodec, ImageEncoder } from './codec.ts'
 import { convertedPixelColorSemantics, convertPixelBlocks } from './convert.ts'
 import { cropPixelBlocks } from './crop.ts'
-import { invalidInput, unsupportedOperation } from './errors.ts'
+import { ImageError, invalidInput, unsupportedOperation } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
 import { applyLutPixelBlocks } from './lut.ts'
@@ -20,9 +20,10 @@ import { createResizeTransform } from './resize.ts'
 import { createRotationTransform } from './rotate.ts'
 import type { ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
-import type { ImageSource } from './source.ts'
+import { drainSourceEvidenceDependencies, type ImageSource } from './source.ts'
+import type { EvidenceContext } from './evidence.ts'
 
-interface ExecutionContext {
+export interface ExecutionContext {
   readonly source: ImageSource
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
@@ -33,14 +34,14 @@ interface ExecutionContext {
   readonly runtime: ImageRuntime
 }
 
-interface Region {
+export interface Region {
   readonly x: number
   readonly y: number
   readonly width: number
   readonly height: number
 }
 
-interface OutputPlan {
+export interface OutputPlan {
   readonly format: string
   readonly options: unknown
   readonly decoderRegion: Region
@@ -48,9 +49,13 @@ interface OutputPlan {
   readonly window?: Extract<PipelineOperation, { type: 'window' }>
 }
 
-type DecodeScaleDenominator = 1 | 2 | 4 | 8
+export interface PipelineExecutionOptions extends AbortOptions {
+  readonly evidence?: EvidenceContext
+}
 
-const containingAlignedRegion = (
+export type DecodeScaleDenominator = 1 | 2 | 4 | 8
+
+export const containingAlignedRegion = (
   region: Region,
   sourceWidth: number,
   sourceHeight: number,
@@ -87,7 +92,7 @@ export const selectDecodeScaleDenominator = (
   return 1
 }
 
-const orientationValue = (value: number | undefined): ExifOrientation => {
+export const orientationValue = (value: number | undefined): ExifOrientation => {
   if (
     value === 2 ||
     value === 3 ||
@@ -102,7 +107,7 @@ const orientationValue = (value: number | undefined): ExifOrientation => {
   return 1
 }
 
-const planOutput = (
+export const planOutput = (
   width: number,
   height: number,
   inputFormat: string,
@@ -181,13 +186,83 @@ const validateCrop = (
   }
 }
 
+const executionFailureCode = (error: unknown): string =>
+  error instanceof ImageError ? error.code : 'UNKNOWN'
+
+const instrumentDecodedBlocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+  source: ImageSource,
+  evidence: EvidenceContext,
+  decodedIds: string[],
+): AsyncIterable<PixelBlock> {
+  evidence.operation({ operationId: 'decode', phase: 'start' })
+  let blockIndex = 0
+  try {
+    for await (const block of blocks) {
+      const decodedBlockId = `decoded-block:${blockIndex}`
+      const sourceDependencies = source[drainSourceEvidenceDependencies]?.() ?? []
+      evidence.dependency({
+        outputId: decodedBlockId,
+        inputIds: sourceDependencies,
+        granularity: 'block',
+      })
+      evidence.block({
+        stage: 'decoded',
+        blockId: decodedBlockId,
+        width: block.width,
+        height: block.height,
+      })
+      if (decodedIds.length < 255) decodedIds.push(decodedBlockId)
+      evidence.operation({
+        operationId: blockIndex === 0 ? 'first-decoded-block' : 'decoded-block',
+        phase: 'complete',
+        detail: `${block.width}x${block.height} ${block.format}`,
+      })
+      blockIndex += 1
+      yield block
+    }
+    evidence.operation({
+      operationId: 'decode',
+      phase: 'complete',
+      detail: `${blockIndex} blocks`,
+    })
+  } catch (error) {
+    evidence.operation({
+      operationId: 'decode',
+      phase: 'failed',
+      failureCode: executionFailureCode(error),
+    })
+    throw error
+  }
+}
+
+const instrumentOperationBlocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+  evidence: EvidenceContext,
+  operationId: string,
+): AsyncIterable<PixelBlock> {
+  evidence.operation({ operationId, phase: 'start' })
+  try {
+    yield* blocks
+    evidence.operation({ operationId, phase: 'complete' })
+  } catch (error) {
+    evidence.operation({
+      operationId,
+      phase: 'failed',
+      failureCode: executionFailureCode(error),
+    })
+    throw error
+  }
+}
+
 export const executePipeline = async (
   context: ExecutionContext,
   operations: readonly PipelineOperation[],
   sink: ImageSink,
-  options: Readonly<AbortOptions> = {},
+  options: Readonly<PipelineExecutionOptions> = {},
 ): Promise<void> => {
   let encoder: ImageEncoder | undefined
+  options.evidence?.operation({ operationId: 'pipeline', phase: 'start' })
   try {
     throwIfAborted(options.signal)
     if (!context.codec.createDecoder) {
@@ -238,6 +313,7 @@ export const executePipeline = async (
           ).orientation,
         )
       : 1
+    options.evidence?.operation({ operationId: 'decoder-open', phase: 'start' })
     const decoder = await context.codec.createDecoder(context.source, context.limits, {
       preserveIcc: icc !== undefined,
       tolerantDecoding: context.tolerantDecoding,
@@ -247,6 +323,7 @@ export const executePipeline = async (
         ? {}
         : { resolutionLevel: context.resolutionLevel }),
     })
+    options.evidence?.operation({ operationId: 'decoder-open', phase: 'complete' })
     const plannedOutput = planOutput(
       decoder.width,
       decoder.height,
@@ -300,6 +377,18 @@ export const executePipeline = async (
         decoder.height,
         scaleDenominator,
       ) ?? output.decoderRegion
+    options.evidence?.operation({
+      operationId: 'pipeline',
+      phase: 'planned',
+      detail: `${context.codec.format}->${output.format}`,
+    })
+    if (!decoder.capabilities.regionDecode && !isFullFrame) {
+      options.evidence?.operation({
+        operationId: 'decode',
+        phase: 'fallback',
+        detail: 'decoder does not support region decoding',
+      })
+    }
     let width = decoderRegion.width / scaleDenominator
     let height = decoderRegion.height / scaleDenominator
     const sourcePixelFormat = decoder.pixelFormat
@@ -308,7 +397,7 @@ export const executePipeline = async (
     }
     let pixelFormat = sourcePixelFormat
     let colorSemantics = decoder.colorSemantics
-    describePrecisionExecution({
+    const precisionPlan = describePrecisionExecution({
       width,
       height,
       pixelFormat,
@@ -323,6 +412,14 @@ export const executePipeline = async (
         : { encoderAcceptsColorSemantics: outputCodec.acceptsColorSemantics }),
       sourceOrientation,
     })
+    for (const stage of precisionPlan.stages) {
+      options.evidence?.operation({
+        operationId: stage.operation,
+        phase: 'planned',
+        ...(stage.precisionLossReason === undefined ? {} : { detail: stage.precisionLossReason }),
+      })
+    }
+    const decodedIds: string[] | undefined = options.evidence === undefined ? undefined : []
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
         ? {
@@ -338,6 +435,9 @@ export const executePipeline = async (
             ...(options.signal === undefined ? {} : { signal: options.signal }),
           },
     )
+    if (options.evidence !== undefined && decodedIds !== undefined) {
+      blocks = instrumentDecodedBlocks(blocks, context.source, options.evidence, decodedIds)
+    }
     if (output.window) {
       blocks = normalizePixelBlocks(blocks, sourcePixelFormat, {
         ...(options.signal === undefined ? {} : { signal: options.signal }),
@@ -350,6 +450,8 @@ export const executePipeline = async (
       })
       pixelFormat = normalizedPixelFormat(sourcePixelFormat)
       colorSemantics = undefined
+      if (options.evidence !== undefined)
+        blocks = instrumentOperationBlocks(blocks, options.evidence, 'window')
     }
     for (const operation of output.stages) {
       if (operation.type === 'encode' || operation.type === 'window') continue
@@ -423,6 +525,8 @@ export const executePipeline = async (
           blocks = rotation.apply(blocks)
         }
       }
+      if (options.evidence !== undefined)
+        blocks = instrumentOperationBlocks(blocks, options.evidence, operation.type)
       throwIfAborted(options.signal)
       validateImageDimensions(width, height, 1, context.limits)
     }
@@ -435,6 +539,8 @@ export const executePipeline = async (
       })
       pixelFormat = normalizedPixelFormat(inputFormat)
       colorSemantics = undefined
+      if (options.evidence !== undefined)
+        blocks = instrumentOperationBlocks(blocks, options.evidence, 'encoder-input-conversion')
     }
     if (
       colorSemantics !== undefined &&
@@ -445,6 +551,7 @@ export const executePipeline = async (
       )
     }
 
+    options.evidence?.operation({ operationId: 'encoder-open', phase: 'start' })
     encoder = await outputCodec.createEncoder(sink, {
       width,
       height,
@@ -463,19 +570,51 @@ export const executePipeline = async (
             },
           }),
     })
+    options.evidence?.operation({ operationId: 'encoder-open', phase: 'complete' })
+    let blockIndex = 0
     for await (const block of blocks) {
+      const lease = options.evidence?.allocate('decoded-pixel-block', block.data.byteLength)
       try {
         throwIfAborted(options.signal)
         await encoder.write(block)
+        options.evidence?.dependency({
+          outputId: `encoded-block:${blockIndex}`,
+          inputIds: Object.freeze([...(decodedIds ?? []), 'operation:pipeline']),
+          granularity: 'block',
+        })
+        options.evidence?.block({
+          stage: 'encoded',
+          blockId: `encoded-block:${blockIndex}`,
+          width: block.width,
+          height: block.height,
+        })
+        options.evidence?.operation({
+          operationId: blockIndex === 0 ? 'first-output-block' : 'encoded-block',
+          phase: 'complete',
+          detail: `${block.width}x${block.height} ${block.format}`,
+        })
         throwIfAborted(options.signal)
       } finally {
+        lease?.release()
         block.release?.()
       }
+      blockIndex += 1
     }
     await encoder.finish()
     throwIfAborted(options.signal)
     await sink.close()
+    options.evidence?.operation({ operationId: 'pipeline', phase: 'complete' })
   } catch (error) {
+    if (options.signal?.aborted === true) {
+      options.evidence?.cancellation('pipeline')
+      options.evidence?.operation({ operationId: 'pipeline', phase: 'cancelled' })
+    } else {
+      options.evidence?.operation({
+        operationId: 'pipeline',
+        phase: 'failed',
+        failureCode: executionFailureCode(error),
+      })
+    }
     try {
       await encoder?.abort?.(error)
     } finally {

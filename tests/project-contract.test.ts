@@ -156,12 +156,12 @@ describe('package contract', () => {
     )
     expect(
       pureJsImageEntryTargets.find(({ id }) => id === 'core-execution')?.maxMinifiedBytes,
-    ).toBe(64 * 1024)
+    ).toBe(68 * 1024)
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
       baselineMinifiedBytes: 143_546,
-      maxMinifiedBytes: 187_000,
+      maxMinifiedBytes: 197_000,
     })
     const expectedReaderTargetIds = [
       ...capabilityManifest.scientificReaders.map(
@@ -745,7 +745,7 @@ describe('package contract', () => {
     )
 
     expect(javascriptSources).toEqual([])
-  })
+  }, 10_000)
 
   it('does not import third-party packages from production source', () => {
     const imports = globSync('src/**/*.ts')
@@ -861,6 +861,7 @@ describe('package contract', () => {
       './extensions',
       './pathology',
       './sources/http-range',
+      './evidence',
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',

@@ -19,9 +19,10 @@
   <a href="https://purejsimage.com/">Documentation</a> ·
   <a href="https://purejsimage.com/demo/"><strong>Image demo</strong></a> ·
   <a href="https://purejsimage.com/scientific/"><strong>Scientific explorer</strong></a> ·
-  <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
-  <a href="https://purejsimage.com/ome-zarr/"><strong>OME-Zarr demo</strong></a> ·
-  <a href="https://lab.purejsimage.com/"><strong>PureJsImage Lab</strong></a>
+   <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
+   <a href="https://purejsimage.com/ome-zarr/"><strong>OME-Zarr demo</strong></a> ·
+   <a href="https://purejsimage.com/xray/"><strong>Raster X-Ray</strong></a> ·
+   <a href="https://lab.purejsimage.com/"><strong>PureJsImage Lab</strong></a>
 </p>
 
 <p >
@@ -37,6 +38,13 @@
   </a>
 </p>
 <p align="center"><em>Measured HTTP Range session from the live browser viewer: only the visible pyramid tiles were read.</em></p>
+
+<p align="center">
+  <a href="https://purejsimage.com/xray/">
+    <img src="docs-astro/public/assets/ome-zarr-open-graph.png" alt="Raster X-Ray execution evidence for an OME-Zarr image" width="100%">
+  </a>
+</p>
+<p align="center"><em>Raster X-Ray connects a bounded output block or tile to its recorded logical reads and physical ranges.</em></p>
 
 
 
@@ -75,15 +83,15 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 
 | Current measured surface | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 23.8 KiB | 7.8 KiB | 7.0 KiB |
-| Common web codecs | 635.1 KiB | 233.6 KiB | 193.9 KiB |
-| All stable codecs | 898.2 KiB | 315.7 KiB | 258.8 KiB |
-| Scientific platform | 181.9 KiB | 51.8 KiB | 44.1 KiB |
-| All scientific readers | 1236.5 KiB | 357.7 KiB | 285.2 KiB |
-| Geo raster platform | 136.9 KiB | 37.1 KiB | 31.7 KiB |
-| All Geo readers | 615.2 KiB | 186.2 KiB | 150.8 KiB |
+| Core API | 19.1 KiB | 6.5 KiB | 5.8 KiB |
+| Common web codecs | 638.1 KiB | 234.7 KiB | 195.2 KiB |
+| All stable codecs | 901.3 KiB | 316.9 KiB | 259.3 KiB |
+| Scientific platform | 190.1 KiB | 53.8 KiB | 45.4 KiB |
+| All scientific readers | 1237.7 KiB | 358.0 KiB | 285.5 KiB |
+| Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
+| All Geo readers | 619.6 KiB | 187.6 KiB | 151.9 KiB |
 
-The extracted npm package is 6.5 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 6.6 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 ## Install
@@ -357,19 +365,20 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 
 | Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API initial chunk | `purejsimage` | 23.8 KiB | 7.8 KiB | 7.0 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 635.1 KiB | 233.6 KiB | 193.9 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 898.2 KiB | 315.7 KiB | 258.8 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 181.9 KiB | 51.8 KiB | 44.1 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1236.5 KiB | 357.7 KiB | 285.2 KiB |
+| Core API initial chunk | `purejsimage` | 19.1 KiB | 6.5 KiB | 5.8 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 638.1 KiB | 234.7 KiB | 195.2 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 901.3 KiB | 316.9 KiB | 259.3 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 190.1 KiB | 53.8 KiB | 45.4 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1237.7 KiB | 358.0 KiB | 285.5 KiB |
 
-The extracted npm package is 6.5 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 6.6 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->
 
 ## Evidence and methodology
 
+- [Execution evidence and Raster X-Ray](docs/execution-evidence.md)
 - [Benchmark methodology and current charts](https://purejsimage.com/performance/)
 - [Date-stamped benchmark results and indexes](benchmark/results/)
 - [Machine-readable package metrics](benchmark/generated/package-metrics.json)

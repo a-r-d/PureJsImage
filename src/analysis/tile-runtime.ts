@@ -17,6 +17,7 @@ import { getScientificDatasetIdentity } from '../scientific/reader.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { normalizeSourceIdentity } from '../source-identity.ts'
 import { canonicalJson, hashCanonicalJson } from './canonical-json.ts'
+import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
 
 export type TileCacheClass = 'source' | 'derived'
 export type TilePriority = 'visible' | 'near-visible' | 'background'
@@ -1120,6 +1121,7 @@ export interface TileInvalidation {
 export interface TileRuntimeOptions {
   readonly limits?: Readonly<TileRuntimeLimits>
   readonly metrics?: boolean
+  readonly evidence?: EvidenceContext
 }
 
 export interface OperationWorkingMemoryScope {
@@ -1169,6 +1171,7 @@ const staleScopeInjectors = new WeakMap<TileRuntime, (bytes: number, label?: str
 export class TileRuntime {
   readonly limits: ResolvedTileRuntimeLimits
   readonly #metricsEnabled: boolean
+  readonly #evidence: EvidenceContext | undefined
   #startedAt = performance.now()
   #metrics = newMutableMetrics()
   #cache: TileCache
@@ -1189,6 +1192,7 @@ export class TileRuntime {
   constructor(options: Readonly<TileRuntimeOptions> = {}) {
     this.limits = resolveTileRuntimeLimits(options.limits)
     this.#metricsEnabled = options.metrics !== false
+    this.#evidence = options.evidence
     this.#cache = new TileCache(this.limits, this.#metrics, this.#metricsEnabled)
     this.#scheduler = new TileScheduler(this.limits, this.#metrics, this.#metricsEnabled)
     staleScopeInjectors.set(this, (bytes, label) => {
@@ -1222,10 +1226,13 @@ export class TileRuntime {
     const cached = this.#cache.get(key)
     if (cached !== undefined) {
       if (this.#metricsEnabled) this.#metrics.hits += 1
+      this.#evidence?.cache({ action: 'hit', bytes: numericTileRetainedBytes(cached) })
       return Promise.resolve(cached)
     }
     if (this.#metricsEnabled) this.#metrics.misses += 1
+    this.#evidence?.cache({ action: 'miss' })
     let state = this.#inFlight.get(key)
+    if (state !== undefined) this.#evidence?.cache({ action: 'join' })
     if (state === undefined) {
       const estimate = this.#estimateTile(source, request)
       const estimatedBytes = Math.max(
@@ -1708,6 +1715,11 @@ export class TileRuntime {
   }
 
   #managedTile(tile: NumericTile, retainedBytes: number): ManagedTile {
+    const evidenceLease: EvidenceManagedLease | undefined = this.#evidence?.allocate(
+      'tile-runtime-cache',
+      retainedBytes,
+      'cache',
+    )
     return new ManagedTile(
       tile,
       () => {
@@ -1724,6 +1736,7 @@ export class TileRuntime {
       },
       () => {
         this.#managedBytes -= retainedBytes
+        evidenceLease?.release()
       },
     )
   }

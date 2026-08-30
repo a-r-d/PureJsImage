@@ -211,6 +211,8 @@ try {
     'dist/analysis/runtime.js',
     'dist/extensions/index.js',
     'dist/sources/http-range.js',
+    'dist/evidence.js',
+    'dist/evidence.d.ts',
   ]) {
     if (!files.includes(expected)) throw new Error(`Packed package omitted ${expected}`)
   }
@@ -379,6 +381,8 @@ export { createOmeZarrHttpContext, createScientificFileContext } from 'purejsima
 export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
+export { createEvidenceSession, explainImage, instrumentImageSource } from 'purejsimage/evidence'
+export type { EvidenceContext, ExecutionEvidenceReport, ImageExecutionPlanDescription } from 'purejsimage/evidence'
 export { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 }
 export type { AnalysisProjectV1 }
 

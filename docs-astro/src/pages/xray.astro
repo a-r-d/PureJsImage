@@ -1,0 +1,33 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Raster X-Ray | PureJsImage" description="Inspect image source reads, HTTP byte ranges, pipeline plans, and PureJsImage-managed memory in your browser." canonical="https://purejsimage.com/xray/" bodyClass="xray-page" current="xray/">
+  <main id="main" class="container" style="padding:3rem 0 5rem">
+    <p class="eyebrow">Execution evidence</p>
+    <h1>Raster X-Ray</h1>
+    <p>Inspect an image locally. Files stay in this browser tab. Remote sources require CORS and HTTP Range support.</p>
+    <section class="xray-inputs" aria-label="Image source">
+      <label><strong>Local file</strong><input id="xray-file" type="file" accept="image/*,.avif,.jp2,.svs,.tif,.tiff" /></label>
+      <label><strong>Remote URL</strong><span><input id="xray-url" type="url" placeholder="https://example.com/image.tif" /><button id="xray-open-url" type="button">Inspect URL</button></span></label>
+    </section>
+    <button id="xray-cancel" type="button" disabled>Cancel inspection</button>
+    <button id="xray-sample" type="button">Try safe sample</button>
+    <p id="xray-status" role="status">Choose a local file or enter a remote URL.</p>
+    <section class="xray-grid">
+      <article><h2>Source summary</h2><p id="xray-summary">No source open.</p><div class="xray-coverage-track" aria-label="Unique source byte coverage"><span id="xray-coverage"></span></div></article>
+      <article><h2>Managed memory</h2><p id="xray-memory">No managed allocations recorded.</p><p><small>Managed bytes are not process RSS or total JavaScript memory.</small></p></article>
+      <article><h2>I/O and cache</h2><p id="xray-io">No source activity.</p></article>
+      <article><h2>Measured and estimated</h2><p id="xray-measurement">No measurements.</p></article>
+      <article><h2>Execution plan</h2><pre id="xray-plan">No plan.</pre></article>
+      <article><h2>Block or tile dependencies</h2><label for="xray-dependency-select">Recorded output</label><select id="xray-dependency-select" disabled><option>No dependency events</option></select><pre id="xray-dependency">No block or tile dependency was recorded.</pre></article>
+      <article><h2>Bounded timeline</h2><pre id="xray-events">No events.</pre></article>
+    </section>
+    <button id="xray-download" type="button">Export trace JSON</button>
+    <p><small>Measured values come from source and runtime events. Working-memory classes in the plan are estimates. Block dependencies are reported only when the producing runtime records them.</small></p>
+  </main>
+  <script type="module" src="/assets/xray.js"></script>
+  <style>
+    .xray-inputs,.xray-grid{display:grid;gap:1rem}.xray-inputs{grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));margin:2rem 0}.xray-inputs label{display:grid;gap:.5rem;padding:1rem;border:1px solid var(--border-color,#ccc);border-radius:.75rem}.xray-inputs label span{display:flex;gap:.5rem}.xray-inputs input{min-width:0;width:100%}.xray-grid{grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));margin:1.5rem 0}.xray-grid article{min-width:0;padding:1rem;border:1px solid var(--border-color,#ccc);border-radius:.75rem}.xray-grid pre{max-height:24rem;overflow:auto;font-size:.75rem;white-space:pre-wrap}.xray-coverage-track{height:.75rem;background:#dfe5e8;border-radius:1rem;overflow:hidden}.xray-coverage-track span{display:block;width:0;height:100%;background:#0b7b6c;transition:width .2s}
+  </style>
+</SiteLayout>

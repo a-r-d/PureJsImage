@@ -6,6 +6,21 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the explicit `purejsimage/evidence` entry with bounded summary and trace sessions, logical
+  and physical source-byte accounting, redacted source identity, managed lease accounting, analysis
+  provider and tile evidence, live event subscribers, and JSON-safe version 1 reports. The ordinary
+  pipeline can explain crop pushdown, scaled decode, precision conversion, remaining stages, and
+  full-frame fallbacks without decoding pixels. `HttpRangeSource` also has an optional bounded
+  adaptive policy; fixed blocks remain the default.
+- Added the client-side Raster X-Ray page for local files and CORS-enabled HTTP Range sources, plus
+  a deterministic six-workflow evidence matrix and seven-workload range-policy benchmark. Raster
+  X-Ray covers ordinary PNG and JPEG, TIFF/COG, AVIF, JP2, and a bounded OME-Zarr preview tile with
+  selectable block-to-range dependencies.
+- The lazy core execution chunk is 65.1 KiB and the shared scientific entry is 190.1 KiB minified
+  after adding opt-in pipeline, reader, dataset, plane, series, block, conversion, and dependency
+  evidence. Their checked ceilings are 68 KiB and 192.4 KiB. Importing either entry still creates no
+  evidence session or collector.
+
 - Added native-precision ordinary pipelines. Fixed-width interleaved formats now keep exact sample
   bytes through crop, flip, EXIF orientation, and quarter turns. `gray16`, `rgb16`, `rgba16`,
   `grayf32`, and `rgbf32` resize directly with nearest, bilinear, and Lanczos 3 kernels.

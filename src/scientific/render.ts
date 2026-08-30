@@ -1,4 +1,5 @@
 import { combineAbortSignals } from '../abort.ts'
+import type { EvidenceContext } from '../evidence.ts'
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type {
@@ -62,6 +63,7 @@ export interface ScientificPlaneSelection {
 export interface ScientificPlaneRenderOptions
   extends Omit<LegacyScientificPlaneRenderOptions, 'plane'> {
   readonly plane: ScientificPlaneSelection
+  readonly evidence?: EvidenceContext
 }
 
 /** Options for resolving a quantitative display range without producing display pixels. */
@@ -83,6 +85,7 @@ export interface LegacyScientificPlaneMeasureOptions {
 export interface ScientificPlaneMeasureOptions
   extends Omit<LegacyScientificPlaneMeasureOptions, 'plane'> {
   readonly plane: ScientificPlaneSelection
+  readonly evidence?: EvidenceContext
 }
 
 export interface ScientificStatisticsRequest {
@@ -179,11 +182,15 @@ interface ResolvedScalarPlane {
   read(): AsyncIterable<NumericTile>
 }
 
-const numericSource = (dataset: ScientificDataset): NumericTileSource =>
+const numericSource = (
+  dataset: ScientificDataset,
+  evidence: EvidenceContext | undefined,
+): NumericTileSource =>
   resolveNumericTileSource(dataset, {
     ...(dataset.descriptor.sampleType === 'uint64' || dataset.descriptor.sampleType === 'int64'
       ? { targetSampleType: 'float64' }
       : {}),
+    ...(evidence === undefined ? {} : { evidence }),
   })
 
 const isScientificPlaneOptions = (
@@ -274,7 +281,7 @@ const resolveScientificPlane = (
     ...(options.height === undefined ? {} : { height: options.height }),
   }
   const normalized = normalizeScientificPlaneReadRequest(dataset.descriptor, request)
-  const source = numericSource(dataset)
+  const source = numericSource(dataset, options.evidence)
   return {
     x: normalized.x,
     y: normalized.y,

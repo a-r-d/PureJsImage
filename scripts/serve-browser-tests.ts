@@ -328,6 +328,8 @@ await build({
     'ome-zarr-worker': 'docs-astro/src/scripts/ome-zarr-worker.ts',
     'geo-showcase': 'docs-astro/src/scripts/geo-showcase.ts',
     'geo-showcase-worker': 'docs-astro/src/scripts/geo-showcase-worker.ts',
+    xray: 'docs-astro/src/scripts/xray.ts',
+    'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',

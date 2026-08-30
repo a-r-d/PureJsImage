@@ -1,0 +1,761 @@
+{
+  "schemaVersion": 2,
+  "workflowResults": [
+    {
+      "workload": "jpeg-resize",
+      "modes": [
+        {
+          "mode": "off",
+          "wallMilliseconds": 57.29508599999997,
+          "outputHash": "a05063068b4c8ee6c676155dce0af8b10caf0b52559062df00d11e026e54c23c",
+          "outputBytes": 13091,
+          "sourceReads": 2,
+          "firstMeaningfulMilliseconds": 57.29140999999993,
+          "eventCount": 0,
+          "serializedReportBytes": 0,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 161370112,
+          "externalBytes": 17283275,
+          "arrayBufferBytes": 4614017,
+          "wallSamplesMilliseconds": [
+            70.26681699999995,
+            57.29508599999997,
+            56.817605999999955
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            70.26489000000004,
+            57.29140999999993,
+            56.81568899999991
+          ]
+        },
+        {
+          "mode": "summary",
+          "wallMilliseconds": 61.06239900000003,
+          "outputHash": "a05063068b4c8ee6c676155dce0af8b10caf0b52559062df00d11e026e54c23c",
+          "outputBytes": 13091,
+          "sourceReads": 2,
+          "firstMeaningfulMilliseconds": 61.060588999999936,
+          "eventCount": 0,
+          "serializedReportBytes": 4466,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 46080,
+          "retainedCacheBytes": 0,
+          "rssBytes": 173166592,
+          "externalBytes": 22501139,
+          "arrayBufferBytes": 9831881,
+          "wallSamplesMilliseconds": [
+            60.616947000000096,
+            61.06239900000003,
+            61.16475300000002
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            60.61169400000006,
+            61.060588999999936,
+            61.16326600000002
+          ]
+        },
+        {
+          "mode": "trace",
+          "wallMilliseconds": 59.18073000000004,
+          "outputHash": "a05063068b4c8ee6c676155dce0af8b10caf0b52559062df00d11e026e54c23c",
+          "outputBytes": 13091,
+          "sourceReads": 2,
+          "firstMeaningfulMilliseconds": 59.179014999999936,
+          "eventCount": 543,
+          "serializedReportBytes": 148448,
+          "retainedTraceBytes": 97975,
+          "droppedEvents": 0,
+          "peakManagedBytes": 46080,
+          "retainedCacheBytes": 0,
+          "rssBytes": 183259136,
+          "externalBytes": 26414537,
+          "arrayBufferBytes": 13745279,
+          "wallSamplesMilliseconds": [
+            59.18073000000004,
+            59.20048799999995,
+            57.33045100000004
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            59.179014999999936,
+            59.19942900000001,
+            57.32910800000013
+          ]
+        }
+      ]
+    },
+    {
+      "workload": "png-resize",
+      "modes": [
+        {
+          "mode": "off",
+          "wallMilliseconds": 24.367142999999942,
+          "outputHash": "103ef141e7e29ee2f2163b5e486dbe820f848ed8002a52baa9425e8f2f94d20f",
+          "outputBytes": 7502,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 24.36553099999992,
+          "eventCount": 0,
+          "serializedReportBytes": 0,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 185987072,
+          "externalBytes": 19679119,
+          "arrayBufferBytes": 6802115,
+          "wallSamplesMilliseconds": [
+            25.886224999999968,
+            24.367142999999942,
+            23.62821699999995
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            25.88490200000001,
+            24.36553099999992,
+            23.626621999999998
+          ]
+        },
+        {
+          "mode": "summary",
+          "wallMilliseconds": 23.67854299999999,
+          "outputHash": "103ef141e7e29ee2f2163b5e486dbe820f848ed8002a52baa9425e8f2f94d20f",
+          "outputBytes": 7502,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 23.67722700000013,
+          "eventCount": 0,
+          "serializedReportBytes": 4008,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 40960,
+          "retainedCacheBytes": 0,
+          "rssBytes": 182874112,
+          "externalBytes": 19847798,
+          "arrayBufferBytes": 6972099,
+          "wallSamplesMilliseconds": [
+            23.528553999999986,
+            23.69854700000019,
+            23.67854299999999
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            23.526861999999937,
+            23.69752900000003,
+            23.67722700000013
+          ]
+        },
+        {
+          "mode": "trace",
+          "wallMilliseconds": 23.48295199999984,
+          "outputHash": "103ef141e7e29ee2f2163b5e486dbe820f848ed8002a52baa9425e8f2f94d20f",
+          "outputBytes": 7502,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 23.481714999999895,
+          "eventCount": 79,
+          "serializedReportBytes": 18742,
+          "retainedTraceBytes": 11314,
+          "droppedEvents": 0,
+          "peakManagedBytes": 40960,
+          "retainedCacheBytes": 0,
+          "rssBytes": 185888768,
+          "externalBytes": 14461130,
+          "arrayBufferBytes": 1586666,
+          "wallSamplesMilliseconds": [
+            24.386271999999963,
+            23.48295199999984,
+            20.985891000000038
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            24.384706999999935,
+            23.481714999999895,
+            20.984755999999834
+          ]
+        }
+      ]
+    },
+    {
+      "workload": "tiff-cog-viewport",
+      "modes": [
+        {
+          "mode": "off",
+          "wallMilliseconds": 1.7872299999999086,
+          "outputHash": "1830d9a782e346a6fd68e597e58d0eae694d14bb3c6d2e5a0e633dc4a9ea6456",
+          "outputBytes": 189,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 1.7864560000000438,
+          "eventCount": 0,
+          "serializedReportBytes": 0,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 186413056,
+          "externalBytes": 13882254,
+          "arrayBufferBytes": 1010226,
+          "wallSamplesMilliseconds": [
+            3.901508000000149,
+            1.7872299999999086,
+            1.4259920000001785
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            3.900086999999985,
+            1.7864560000000438,
+            1.425286000000142
+          ]
+        },
+        {
+          "mode": "summary",
+          "wallMilliseconds": 1.6844880000001012,
+          "outputHash": "1830d9a782e346a6fd68e597e58d0eae694d14bb3c6d2e5a0e633dc4a9ea6456",
+          "outputBytes": 189,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 1.6829239999999572,
+          "eventCount": 0,
+          "serializedReportBytes": 3629,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 384,
+          "retainedCacheBytes": 0,
+          "rssBytes": 186544128,
+          "externalBytes": 14238486,
+          "arrayBufferBytes": 1369706,
+          "wallSamplesMilliseconds": [
+            1.404406999999992,
+            1.6844880000001012,
+            1.921346000000085
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            1.4033380000000761,
+            1.6829239999999572,
+            1.9203769999999167
+          ]
+        },
+        {
+          "mode": "trace",
+          "wallMilliseconds": 1.3560560000000805,
+          "outputHash": "1830d9a782e346a6fd68e597e58d0eae694d14bb3c6d2e5a0e633dc4a9ea6456",
+          "outputBytes": 189,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 1.3551810000001296,
+          "eventCount": 27,
+          "serializedReportBytes": 7743,
+          "retainedTraceBytes": 3459,
+          "droppedEvents": 0,
+          "peakManagedBytes": 384,
+          "retainedCacheBytes": 0,
+          "rssBytes": 186544128,
+          "externalBytes": 14505660,
+          "arrayBufferBytes": 1639316,
+          "wallSamplesMilliseconds": [
+            1.3560560000000805,
+            1.2812179999998534,
+            1.4498479999999745
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            1.3551810000001296,
+            1.2801150000000234,
+            1.449055000000044
+          ]
+        }
+      ]
+    },
+    {
+      "workload": "ome-zarr-viewport",
+      "modes": [
+        {
+          "mode": "off",
+          "wallMilliseconds": 4.779952999999978,
+          "outputHash": "0ed66cf86071ee0147ae57994310398f3a2de08954a2f6d9c5a3edfe1f569c33",
+          "outputBytes": 1600,
+          "sourceReads": 27,
+          "firstMeaningfulMilliseconds": 4.5840619999999035,
+          "eventCount": 0,
+          "serializedReportBytes": 0,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 192004096,
+          "externalBytes": 16164476,
+          "arrayBufferBytes": 1928800,
+          "wallSamplesMilliseconds": [
+            6.1220740000001115,
+            4.627601000000141,
+            4.779952999999978
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            5.653283000000101,
+            4.443447000000106,
+            4.5840619999999035
+          ]
+        },
+        {
+          "mode": "summary",
+          "wallMilliseconds": 4.381370000000061,
+          "outputHash": "0ed66cf86071ee0147ae57994310398f3a2de08954a2f6d9c5a3edfe1f569c33",
+          "outputBytes": 1600,
+          "sourceReads": 27,
+          "firstMeaningfulMilliseconds": 4.184801000000107,
+          "eventCount": 0,
+          "serializedReportBytes": 7147,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 5992,
+          "retainedCacheBytes": 0,
+          "rssBytes": 194584576,
+          "externalBytes": 16246085,
+          "arrayBufferBytes": 2010409,
+          "wallSamplesMilliseconds": [
+            4.683557999999948,
+            4.381370000000061,
+            4.377594999999928
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            4.49474599999985,
+            4.184801000000107,
+            4.191812000000027
+          ]
+        },
+        {
+          "mode": "trace",
+          "wallMilliseconds": 4.7266420000000835,
+          "outputHash": "0ed66cf86071ee0147ae57994310398f3a2de08954a2f6d9c5a3edfe1f569c33",
+          "outputBytes": 1600,
+          "sourceReads": 27,
+          "firstMeaningfulMilliseconds": 4.450931999999966,
+          "eventCount": 162,
+          "serializedReportBytes": 30704,
+          "retainedTraceBytes": 22936,
+          "droppedEvents": 0,
+          "peakManagedBytes": 5992,
+          "retainedCacheBytes": 0,
+          "rssBytes": 194846720,
+          "externalBytes": 16327694,
+          "arrayBufferBytes": 2092018,
+          "wallSamplesMilliseconds": [
+            4.7266420000000835,
+            4.769482000000153,
+            4.450707000000193
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            4.450931999999966,
+            4.300874000000022,
+            4.185963000000129
+          ]
+        }
+      ]
+    },
+    {
+      "workload": "scientific-plane-render",
+      "modes": [
+        {
+          "mode": "off",
+          "wallMilliseconds": 3.5711690000000544,
+          "outputHash": "846da917ade079f3b2ea380e08f159e3dcafb8b8de561abf0ecb1885bce3fb47",
+          "outputBytes": 36864,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 2.5247739999999794,
+          "eventCount": 0,
+          "serializedReportBytes": 0,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 195108864,
+          "externalBytes": 17377716,
+          "arrayBufferBytes": 3142040,
+          "wallSamplesMilliseconds": [
+            4.446190999999999,
+            3.5711690000000544,
+            2.0449780000001283
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            2.3326549999999315,
+            2.5247739999999794,
+            1.332642000000078
+          ]
+        },
+        {
+          "mode": "summary",
+          "wallMilliseconds": 2.9959080000000995,
+          "outputHash": "846da917ade079f3b2ea380e08f159e3dcafb8b8de561abf0ecb1885bce3fb47",
+          "outputBytes": 36864,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 1.5917759999999817,
+          "eventCount": 0,
+          "serializedReportBytes": 4226,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 16384,
+          "retainedCacheBytes": 0,
+          "rssBytes": 195108864,
+          "externalBytes": 16596258,
+          "arrayBufferBytes": 2360582,
+          "wallSamplesMilliseconds": [
+            2.9959080000000995,
+            3.616215000000011,
+            2.748722999999927
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            1.5917759999999817,
+            2.2229650000001584,
+            2.109610999999859
+          ]
+        },
+        {
+          "mode": "trace",
+          "wallMilliseconds": 3.0916910000000826,
+          "outputHash": "846da917ade079f3b2ea380e08f159e3dcafb8b8de561abf0ecb1885bce3fb47",
+          "outputBytes": 36864,
+          "sourceReads": 1,
+          "firstMeaningfulMilliseconds": 1.5263760000000275,
+          "eventCount": 55,
+          "serializedReportBytes": 13821,
+          "retainedTraceBytes": 7498,
+          "droppedEvents": 0,
+          "peakManagedBytes": 16384,
+          "retainedCacheBytes": 0,
+          "rssBytes": 196288512,
+          "externalBytes": 18255618,
+          "arrayBufferBytes": 4019942,
+          "wallSamplesMilliseconds": [
+            1.7950200000000223,
+            3.0916910000000826,
+            3.61835300000007
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            1.1501929999999447,
+            1.5263760000000275,
+            2.3536699999999655
+          ]
+        }
+      ]
+    },
+    {
+      "workload": "analysis-graph-execution",
+      "modes": [
+        {
+          "mode": "off",
+          "wallMilliseconds": 0.8768800000000283,
+          "outputHash": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+          "outputBytes": 2,
+          "sourceReads": 0,
+          "firstMeaningfulMilliseconds": 0.8537610000000768,
+          "eventCount": 0,
+          "serializedReportBytes": 0,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 199565312,
+          "externalBytes": 18624228,
+          "arrayBufferBytes": 4364150,
+          "wallSamplesMilliseconds": [
+            0.9714369999999235,
+            0.7980949999998757,
+            0.8768800000000283
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            0.9479010000000017,
+            0.7733999999998105,
+            0.8537610000000768
+          ]
+        },
+        {
+          "mode": "summary",
+          "wallMilliseconds": 0.8036970000000565,
+          "outputHash": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+          "outputBytes": 2,
+          "sourceReads": 0,
+          "firstMeaningfulMilliseconds": 0.7609160000001793,
+          "eventCount": 0,
+          "serializedReportBytes": 2256,
+          "retainedTraceBytes": 0,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 200351744,
+          "externalBytes": 18633960,
+          "arrayBufferBytes": 4373402,
+          "wallSamplesMilliseconds": [
+            1.252087999999958,
+            0.8036970000000565,
+            0.6398900000001504
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            1.2226489999998194,
+            0.7609160000001793,
+            0.6168040000000019
+          ]
+        },
+        {
+          "mode": "trace",
+          "wallMilliseconds": 0.5344689999999446,
+          "outputHash": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+          "outputBytes": 2,
+          "sourceReads": 0,
+          "firstMeaningfulMilliseconds": 0.5149209999999584,
+          "eventCount": 6,
+          "serializedReportBytes": 3296,
+          "retainedTraceBytes": 862,
+          "droppedEvents": 0,
+          "peakManagedBytes": 0,
+          "retainedCacheBytes": 0,
+          "rssBytes": 201007104,
+          "externalBytes": 18646936,
+          "arrayBufferBytes": 4385738,
+          "wallSamplesMilliseconds": [
+            0.6913110000000415,
+            0.5344689999999446,
+            0.5035580000001119
+          ],
+          "firstMeaningfulSamplesMilliseconds": [
+            0.6651560000000245,
+            0.5149209999999584,
+            0.4863199999999779
+          ]
+        }
+      ]
+    }
+  ],
+  "rangeResults": [
+    {
+      "workload": "low-latency-high-throughput",
+      "policy": "fixed",
+      "wallMilliseconds": 8.67134800000008,
+      "requests": 7,
+      "logicalBytes": 98304,
+      "uniqueLogicalBytes": 98304,
+      "transferBytes": 98305,
+      "uniqueBytes": 98304,
+      "overfetchBytes": 0,
+      "cacheHits": 6,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 0.721561999999949,
+      "viewportMilliseconds": 8.67134800000008,
+      "outputHash": "32eaa03d11ad52b318af445c56ce5fc31232e00ea2fbd49370eeb211140feab0"
+    },
+    {
+      "workload": "low-latency-high-throughput",
+      "policy": "adaptive",
+      "wallMilliseconds": 7.837859999999864,
+      "requests": 7,
+      "logicalBytes": 98304,
+      "uniqueLogicalBytes": 98304,
+      "transferBytes": 229377,
+      "uniqueBytes": 131072,
+      "overfetchBytes": 32768,
+      "cacheHits": 6,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 1.5080740000000787,
+      "viewportMilliseconds": 7.837859999999864,
+      "outputHash": "32eaa03d11ad52b318af445c56ce5fc31232e00ea2fbd49370eeb211140feab0"
+    },
+    {
+      "workload": "high-latency-high-throughput",
+      "policy": "fixed",
+      "wallMilliseconds": 50.69021799999996,
+      "requests": 7,
+      "logicalBytes": 98304,
+      "uniqueLogicalBytes": 98304,
+      "transferBytes": 98305,
+      "uniqueBytes": 98304,
+      "overfetchBytes": 0,
+      "cacheHits": 6,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 8.478325999999925,
+      "viewportMilliseconds": 50.69021799999996,
+      "outputHash": "32eaa03d11ad52b318af445c56ce5fc31232e00ea2fbd49370eeb211140feab0"
+    },
+    {
+      "workload": "high-latency-high-throughput",
+      "policy": "adaptive",
+      "wallMilliseconds": 50.96352400000001,
+      "requests": 7,
+      "logicalBytes": 98304,
+      "uniqueLogicalBytes": 98304,
+      "transferBytes": 229377,
+      "uniqueBytes": 131072,
+      "overfetchBytes": 32768,
+      "cacheHits": 6,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 8.456414999999879,
+      "viewportMilliseconds": 50.96352400000001,
+      "outputHash": "32eaa03d11ad52b318af445c56ce5fc31232e00ea2fbd49370eeb211140feab0"
+    },
+    {
+      "workload": "high-latency-low-throughput",
+      "policy": "fixed",
+      "wallMilliseconds": 97.49601000000007,
+      "requests": 7,
+      "logicalBytes": 98304,
+      "uniqueLogicalBytes": 98304,
+      "transferBytes": 98305,
+      "uniqueBytes": 98304,
+      "overfetchBytes": 0,
+      "cacheHits": 6,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 16.435729000000038,
+      "viewportMilliseconds": 97.49601000000007,
+      "outputHash": "32eaa03d11ad52b318af445c56ce5fc31232e00ea2fbd49370eeb211140feab0"
+    },
+    {
+      "workload": "high-latency-low-throughput",
+      "policy": "adaptive",
+      "wallMilliseconds": 162.76835399999982,
+      "requests": 7,
+      "logicalBytes": 98304,
+      "uniqueLogicalBytes": 98304,
+      "transferBytes": 229377,
+      "uniqueBytes": 131072,
+      "overfetchBytes": 32768,
+      "cacheHits": 6,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 16.426271000000042,
+      "viewportMilliseconds": 162.76835399999982,
+      "outputHash": "32eaa03d11ad52b318af445c56ce5fc31232e00ea2fbd49370eeb211140feab0"
+    },
+    {
+      "workload": "overlapping-concurrent-reads",
+      "policy": "fixed",
+      "wallMilliseconds": 13.265626000000339,
+      "requests": 5,
+      "logicalBytes": 147456,
+      "uniqueLogicalBytes": 57344,
+      "transferBytes": 65537,
+      "uniqueBytes": 65536,
+      "overfetchBytes": 8192,
+      "cacheHits": 0,
+      "coalescedConsumers": 14,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 6.587552000000414,
+      "viewportMilliseconds": 13.265626000000339,
+      "outputHash": "355e25d1d2013ef16a89aa1f47728f86deb5fab68e665949087615a2778d1a5d"
+    },
+    {
+      "workload": "overlapping-concurrent-reads",
+      "policy": "adaptive",
+      "wallMilliseconds": 13.362427000000025,
+      "requests": 5,
+      "logicalBytes": 147456,
+      "uniqueLogicalBytes": 57344,
+      "transferBytes": 65537,
+      "uniqueBytes": 65536,
+      "overfetchBytes": 8192,
+      "cacheHits": 0,
+      "coalescedConsumers": 14,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 5.583488999999645,
+      "viewportMilliseconds": 13.362427000000025,
+      "outputHash": "355e25d1d2013ef16a89aa1f47728f86deb5fab68e665949087615a2778d1a5d"
+    },
+    {
+      "workload": "sparse-random-reads",
+      "policy": "fixed",
+      "wallMilliseconds": 50.50254099999984,
+      "requests": 7,
+      "logicalBytes": 6144,
+      "uniqueLogicalBytes": 6144,
+      "transferBytes": 98305,
+      "uniqueBytes": 98304,
+      "overfetchBytes": 92160,
+      "cacheHits": 0,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 8.43037299999969,
+      "viewportMilliseconds": 50.50254099999984,
+      "outputHash": "55dffcd47bae0cc8ba104659eafe64e35c1634f48a5fa1e38f58fb126adb3b57"
+    },
+    {
+      "workload": "sparse-random-reads",
+      "policy": "adaptive",
+      "wallMilliseconds": 50.495640000000094,
+      "requests": 7,
+      "logicalBytes": 6144,
+      "uniqueLogicalBytes": 6144,
+      "transferBytes": 98305,
+      "uniqueBytes": 98304,
+      "overfetchBytes": 92160,
+      "cacheHits": 0,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 8.382351000000199,
+      "viewportMilliseconds": 50.495640000000094,
+      "outputHash": "55dffcd47bae0cc8ba104659eafe64e35c1634f48a5fa1e38f58fb126adb3b57"
+    },
+    {
+      "workload": "sequential-metadata-reads",
+      "policy": "fixed",
+      "wallMilliseconds": 12.984810999999809,
+      "requests": 4,
+      "logicalBytes": 6144,
+      "uniqueLogicalBytes": 6144,
+      "transferBytes": 49153,
+      "uniqueBytes": 49152,
+      "overfetchBytes": 43008,
+      "cacheHits": 9,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 4.384862999999768,
+      "viewportMilliseconds": 12.984810999999809,
+      "outputHash": "55dffcd47bae0cc8ba104659eafe64e35c1634f48a5fa1e38f58fb126adb3b57"
+    },
+    {
+      "workload": "sequential-metadata-reads",
+      "policy": "adaptive",
+      "wallMilliseconds": 12.996394000000237,
+      "requests": 4,
+      "logicalBytes": 6144,
+      "uniqueLogicalBytes": 6144,
+      "transferBytes": 49153,
+      "uniqueBytes": 49152,
+      "overfetchBytes": 43008,
+      "cacheHits": 9,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 4.309316000000308,
+      "viewportMilliseconds": 12.996394000000237,
+      "outputHash": "55dffcd47bae0cc8ba104659eafe64e35c1634f48a5fa1e38f58fb126adb3b57"
+    },
+    {
+      "workload": "viewport-tile-reads",
+      "policy": "fixed",
+      "wallMilliseconds": 8.098304999999982,
+      "requests": 9,
+      "logicalBytes": 131072,
+      "uniqueLogicalBytes": 131072,
+      "transferBytes": 131073,
+      "uniqueBytes": 131072,
+      "overfetchBytes": 0,
+      "cacheHits": 0,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 7.467951000000085,
+      "viewportMilliseconds": 8.098304999999982,
+      "outputHash": "b092d699d0bf56a4f179ee34d97ad70d40496fbaea1ff134c5fa3f776f823790"
+    },
+    {
+      "workload": "viewport-tile-reads",
+      "policy": "adaptive",
+      "wallMilliseconds": 8.25557200000003,
+      "requests": 9,
+      "logicalBytes": 131072,
+      "uniqueLogicalBytes": 131072,
+      "transferBytes": 131073,
+      "uniqueBytes": 131072,
+      "overfetchBytes": 0,
+      "cacheHits": 0,
+      "coalescedConsumers": 0,
+      "abortedConsumers": 0,
+      "firstPixelMilliseconds": 7.557785999999851,
+      "viewportMilliseconds": 8.25557200000003,
+      "outputHash": "b092d699d0bf56a4f179ee34d97ad70d40496fbaea1ff134c5fa3f776f823790"
+    }
+  ]
+}

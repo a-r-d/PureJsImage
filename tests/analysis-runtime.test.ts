@@ -15,6 +15,7 @@ import {
   createValueTypeRegistry,
 } from '../src/operations/index.ts'
 import type { OperationProviderKind } from '../src/operations/index.ts'
+import { createEvidenceSession } from '../src/evidence.ts'
 
 const numberType = createValueTypeDefinition({
   descriptor: { id: 'example.value.number', version: 1, title: 'Number' },
@@ -508,9 +509,11 @@ describe('analysis planning and execution', () => {
       providers: [reference],
       bindings: { source: { value: 2 } },
     })
+    const evidence = createEvidenceSession({ mode: 'trace' })
     const task = executeGraph({
       plan: planned,
       library: { version: '0.9.0', buildFingerprint: 'test-build' },
+      evidence: evidence.context,
     })
     const result = await task.result
     expect(Object.isFrozen(result.outputs)).toBe(true)
@@ -538,6 +541,29 @@ describe('analysis planning and execution', () => {
     expect(result.provenance.timingScope).toContain('Graph invocation only')
     await result.release()
     await result.release()
+    const report = evidence.finalize()
+    expect(report.events?.filter((event) => event.type === 'provider')).toEqual([
+      expect.objectContaining({
+        operationId: 'example.number.multiply',
+        providerId: 'example.reference',
+        buildFingerprint: 'example.reference-build-1',
+        reproducibilityClass: 'bit-exact',
+      }),
+      expect.objectContaining({
+        operationId: 'example.number.multiply',
+        providerId: 'example.reference',
+        buildFingerprint: 'example.reference-build-1',
+        reproducibilityClass: 'bit-exact',
+      }),
+    ])
+    expect(report.events).toContainEqual(
+      expect.objectContaining({
+        type: 'dependency',
+        outputId: 'node\u0000second\u0000result',
+        inputIds: ['node\u0000first\u0000result'],
+        granularity: 'tile',
+      }),
+    )
     expect(releases).toEqual([4, 12])
     expect(result.outputs.size).toBe(0)
     await planned.dispose()

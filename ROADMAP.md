@@ -92,6 +92,13 @@ an encoder-attributed terminal conversion. Next work in this area is planar
 YUV transform support, high-depth arbitrary-angle rotation, and reducing the
 compact retained state needed by Adam7 decode.
 
+Execution evidence is now an explicit package entry. Summary and trace sessions distinguish
+logical reads from physical range transfers, expose ordinary pipeline plans, record analysis
+providers and tile-runtime cache ownership, and report only PureJsImage-managed bytes. Raster X-Ray
+uses this API in a browser worker. Shared scientific reader, document, dataset, plane, series,
+source-block, and conversion boundaries emit compact block dependencies for OME-Zarr, WSI, and Geo
+without replacing their useful format-specific counters.
+
 ### 4. Make the reference engine fast and measurable
 
 - Prefer TypedArrays, monomorphic kernels, reusable scratch buffers, and

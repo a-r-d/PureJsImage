@@ -9,6 +9,7 @@ import type {
 } from './dataset.ts'
 import { normalizeScientificPlaneReadRequest } from './dataset.ts'
 import { validateRasterBlock } from './samples.ts'
+import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
 
 export type NumericArray =
   | Uint8Array
@@ -65,6 +66,7 @@ export interface RasterBlockToNumericTileOptions extends AbortOptions {
   /** Reusable caller-owned destination. It must have the exact requested typed-array class. */
   readonly destination?: NumericArray
   readonly allocator?: NumericTileAllocator
+  readonly evidence?: EvidenceContext
 }
 
 export interface ValidatedNumericTileLayout {
@@ -593,6 +595,8 @@ export const rasterBlockToNumericTile = (
 ): NumericTile => {
   const releaseBlock = once(block.release)
   let releaseStorage: (() => void) | undefined
+  let storageLease: EvidenceManagedLease | undefined
+  options.evidence?.operation({ operationId: 'canonical-to-native-tile', phase: 'start' })
   try {
     throwIfAborted(options.signal)
     const rasterLayout = validateRasterBlock(block)
@@ -626,6 +630,16 @@ export const rasterBlockToNumericTile = (
         release: releaseBlock,
       }
       validateNumericTile(tile)
+      options.evidence?.operation({
+        operationId: 'canonical-to-native-tile',
+        phase: 'eliminated',
+        detail: 'native storage view reused canonical bytes',
+      })
+      options.evidence?.dependency({
+        outputId: `numeric-tile:${block.x}:${block.y}`,
+        inputIds: Object.freeze(['scientific-canonical-block']),
+        granularity: 'tile',
+      })
       return Object.freeze(tile)
     }
     const storage = acquireStorage(target, minimumElements, options)
@@ -651,6 +665,19 @@ export const rasterBlockToNumericTile = (
       )
     }
     releaseBlock()
+    if (options.destination === undefined && options.allocator === undefined) {
+      storageLease = options.evidence?.allocate(
+        'scientific-native-numeric-tile',
+        storage.data.buffer.byteLength,
+      )
+    }
+    const releaseTile = once(() => {
+      try {
+        releaseStorage?.()
+      } finally {
+        storageLease?.release()
+      }
+    })
     const tile: NumericTile = {
       x: block.x,
       y: block.y,
@@ -662,13 +689,26 @@ export const rasterBlockToNumericTile = (
       rowStrideElements: strides.row,
       ...(strides.plane === undefined ? {} : { planeStrideElements: strides.plane }),
       data: storage.data,
-      release: releaseStorage,
+      release: releaseTile,
     }
     validateNumericTile(tile)
+    options.evidence?.operation({ operationId: 'canonical-to-native-tile', phase: 'complete' })
+    options.evidence?.dependency({
+      outputId: `numeric-tile:${block.x}:${block.y}`,
+      inputIds: Object.freeze(['scientific-canonical-block', 'operation:canonical-to-native-tile']),
+      granularity: 'tile',
+    })
     return Object.freeze(tile)
   } catch (error) {
     releaseStorage?.()
+    storageLease?.release()
     releaseBlock()
+    if (options.signal?.aborted === true) {
+      options.evidence?.cancellation('canonical-to-native-tile')
+      options.evidence?.operation({ operationId: 'canonical-to-native-tile', phase: 'cancelled' })
+    } else {
+      options.evidence?.operation({ operationId: 'canonical-to-native-tile', phase: 'failed' })
+    }
     throw error
   }
 }
@@ -711,12 +751,14 @@ export interface DirectNumericTileDataset extends ScientificDataset {
 
 export interface ScientificDatasetNumericTileAdapterOptions {
   readonly allocator?: NumericTileAllocator
+  readonly evidence?: EvidenceContext
 }
 
 class DatasetNumericTileSource implements NumericTileSource {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #dataset: ScientificDataset
   readonly #allocator: NumericTileAllocator | undefined
+  readonly #evidence: EvidenceContext | undefined
 
   constructor(
     dataset: ScientificDataset,
@@ -725,6 +767,7 @@ class DatasetNumericTileSource implements NumericTileSource {
     this.#dataset = dataset
     this.descriptor = dataset.descriptor
     this.#allocator = options.allocator
+    this.#evidence = options.evidence
   }
 
   async *readNumericTiles(request: Readonly<NumericTileReadRequest>): AsyncGenerator<NumericTile> {
@@ -735,6 +778,7 @@ class DatasetNumericTileSource implements NumericTileSource {
         ...(targetSampleType === undefined ? {} : { targetSampleType }),
         ...(this.#allocator === undefined ? {} : { allocator: this.#allocator }),
         ...(request.signal === undefined ? {} : { signal: request.signal }),
+        ...(this.#evidence === undefined ? {} : { evidence: this.#evidence }),
       })
     }
   }

@@ -57,6 +57,22 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           <div class="callout warning"><strong>Experimental and opt-in.</strong> HEIC commonly contains HEVC/H.265 image data that may be subject to third-party patent rights. PureJsImage's MIT license covers this implementation's copyright and grants no third-party patent rights. Users and distributors are responsible for determining whether their use requires additional licenses, particularly for commercial products, services, or high-volume distribution. The codec is shipped in the package but is never loaded by the root entry, <code>allCodecs</code>, or the default browser demo. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">experimental HEIF/HEIC contract</a>.</div>
         </section>
 
+        <section id="entry-evidence" data-search-item>
+          <h2><code>purejsimage/evidence</code> <span class="pill">alpha</span></h2>
+          <p>Creates a caller-owned, opt-in execution evidence session. Summary mode retains bounded counters, merged source ranges, and PureJsImage-managed byte totals. Trace mode adds bounded events, child scopes, dependency IDs, cache activity, and allocation leases. Importing the root package does not create a collector or include the Raster X-Ray interface.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">import</span> &#123; createEvidenceSession, explainImage, instrumentImageSource &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/evidence'</span>
+
+<span class="tok-key">const</span> evidence = createEvidenceSession(&#123; mode: <span class="tok-string">'trace'</span> &#125;)
+<span class="tok-key">const</span> source = instrumentImageSource(inputSource, evidence.context)
+<span class="tok-key">const</span> image = <span class="tok-key">await</span> images.open(source)
+<span class="tok-key">const</span> plan = <span class="tok-key">await</span> explainImage(image.resize(&#123; width: 800 &#125;).png())
+<span class="tok-key">const</span> output = <span class="tok-key">await</span> image.resize(&#123; width: 800 &#125;).png().toBuffer(&#123;
+  evidence: evidence.context,
+&#125;)
+<span class="tok-key">const</span> report = evidence.finalize()</code></pre></div>
+          <p>Reports are versioned, immutable, and JSON safe. Source names are excluded by default. Managed bytes cover only allocations explicitly owned and accounted by PureJsImage, not process RSS or total browser memory. See the <a href="../xray/">Raster X-Ray browser inspector</a> and the <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/execution-evidence.md">execution evidence guide</a>.</p>
+        </section>
+
         <section id="application-entrypoints" data-search-item>
           <h2>Application-platform package entries</h2>
           <p>The application platform is an <strong>alpha API introduced in PureJsImage 0.10.0</strong>. Provider and trusted-extension APIs are <strong>experimental</strong>. The ordinary <code>purejsimage</code> codec pipeline remains the established path: these opt-in entries do not change <code>resize().jpeg()</code> behavior or load analysis code into the root entry.</p>

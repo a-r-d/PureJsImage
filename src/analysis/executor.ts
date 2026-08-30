@@ -1,11 +1,12 @@
 import { combineAbortSignals } from '../abort.ts'
-import { invalidInput } from '../errors.ts'
+import { ImageError, invalidInput } from '../errors.ts'
 import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
 import type { OperationExecutionRequest, OperationOwnedOutput } from '../operations/provider.ts'
 import { validateOperationOwnedOutputs } from '../operations/provider.ts'
 import type { AnalysisLimits, AnalysisValueReference } from './graph.ts'
 import { resolveAnalysisLimits } from './graph.ts'
 import type { PreparedAnalysisPlan } from './planner.ts'
+import type { EvidenceContext } from '../evidence.ts'
 
 export interface AnalysisLibraryBuild extends OperationJsonObject {
   readonly version: string
@@ -75,6 +76,7 @@ export interface ExecuteGraphOptions {
   readonly library: AnalysisLibraryBuild
   readonly limits?: Readonly<AnalysisLimits>
   readonly signal?: AbortSignal
+  readonly evidence?: EvidenceContext
 }
 
 export interface AnalysisExecutionTask {
@@ -110,6 +112,13 @@ const sourceKey = (source: AnalysisValueReference): string =>
     ? `input\u0000${source.input}`
     : `node\u0000${source.nodeId}\u0000${source.output}`
 
+const analysisFailureCode = (error: unknown): string =>
+  error instanceof ImageError
+    ? error.code
+    : error instanceof AnalysisNodeExecutionError
+      ? 'ANALYSIS_NODE_EXECUTION'
+      : 'UNKNOWN'
+
 const scientificDatasetValueTypeId = 'purejsimage.scientific.dataset'
 
 const releaseOwned = async (outputs: Iterable<OperationOwnedOutput>): Promise<void> => {
@@ -144,6 +153,7 @@ const executePrepared = async (
   const limits = resolveAnalysisLimits(options.limits)
   const startedAt = new Date()
   const startTime = performance.now()
+  options.evidence?.operation({ operationId: 'analysis-graph', phase: 'start' })
   const nodeById = new Map(plan.graph.nodes.map((node) => [node.id, node]))
   const order = plan.validation.nodeOrder ?? []
   const depth = new Map<string, number>()
@@ -225,6 +235,14 @@ const executePrepared = async (
       selection,
       signal: taskSignal,
     }
+    options.evidence?.provider({
+      operationId: node.operation.id,
+      semanticVersion: node.operation.version,
+      providerId: selection.provider.descriptor.id,
+      buildFingerprint: selection.provider.descriptor.buildFingerprint,
+      reproducibilityClass: definition.descriptor.reproducibility.class,
+    })
+    options.evidence?.operation({ operationId: node.operation.id, phase: 'start' })
     const inputOwnershipIdentities: object[] = []
     for (const input of node.inputs) {
       if (input.source.kind !== 'node') continue
@@ -243,6 +261,16 @@ const executePrepared = async (
       }
       validateOperationOwnedOutputs(outputs, request.inputs, inputOwnershipIdentities)
     } catch (cause) {
+      if (taskSignal.aborted) {
+        options.evidence?.cancellation(node.operation.id)
+        options.evidence?.operation({ operationId: node.operation.id, phase: 'cancelled' })
+      } else {
+        options.evidence?.operation({
+          operationId: node.operation.id,
+          phase: 'failed',
+          failureCode: analysisFailureCode(cause),
+        })
+      }
       if (outputs !== undefined) {
         try {
           await releaseOwned(outputs)
@@ -272,7 +300,16 @@ const executePrepared = async (
         await output.release()
       }
     }
+    const inputIds = node.inputs.map((input) => sourceKey(input.source))
     for (const input of node.inputs) await releaseInput(input.source)
+    options.evidence?.operation({ operationId: node.operation.id, phase: 'complete' })
+    for (const output of definition.descriptor.outputs) {
+      options.evidence?.dependency({
+        outputId: sourceKey({ kind: 'node', nodeId, output: output.name }),
+        inputIds,
+        granularity: 'tile',
+      })
+    }
   }
   const lease = plan.acquireExecutionLease()
   let leaseReleased = false
@@ -338,6 +375,7 @@ const executePrepared = async (
       )
     }
     let released = false
+    options.evidence?.operation({ operationId: 'analysis-graph', phase: 'complete' })
     return Object.freeze({
       outputs: outputView,
       provenance: Object.freeze({
@@ -373,6 +411,16 @@ const executePrepared = async (
       },
     })
   } catch (error) {
+    if (taskSignal.aborted) {
+      options.evidence?.cancellation('analysis-graph')
+      options.evidence?.operation({ operationId: 'analysis-graph', phase: 'cancelled' })
+    } else {
+      options.evidence?.operation({
+        operationId: 'analysis-graph',
+        phase: 'failed',
+        failureCode: analysisFailureCode(error),
+      })
+    }
     try {
       await releaseOwned(allOwned)
     } catch {

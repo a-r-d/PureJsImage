@@ -34,7 +34,13 @@ export type {
 } from './color.ts'
 export type { ImageErrorCode } from './errors.ts'
 export { ImageError } from './errors.ts'
-export type { Image, ImageLibrary, ImageOpenOptions, NodeImageLibraryOptions } from './image.ts'
+export type {
+  Image,
+  ImageExecutionOptions,
+  ImageLibrary,
+  ImageOpenOptions,
+  NodeImageLibraryOptions,
+} from './image.ts'
 export { createImageLibrary } from './image.ts'
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
