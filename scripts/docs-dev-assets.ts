@@ -18,6 +18,8 @@ const scriptEntries: Readonly<Record<string, string>> = {
   '/assets/ome-zarr-worker.js': 'docs-astro/src/scripts/ome-zarr-worker.ts',
   '/assets/geo-showcase.js': 'docs-astro/src/scripts/geo-showcase.ts',
   '/assets/geo-showcase-worker.js': 'docs-astro/src/scripts/geo-showcase-worker.ts',
+  '/assets/hdr-surgery.js': 'docs-astro/src/scripts/hdr-surgery.ts',
+  '/assets/hdr-surgery-worker.js': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
 }
 
 const binaryAssets: Readonly<Record<string, string>> = {

@@ -73,6 +73,7 @@ const assertPortableBundle = async (
   options: Readonly<{
     readonly requiredPackageInputs?: readonly RegExp[]
     readonly rejectPrivateGeoInputs?: boolean
+    readonly rejectHdrInputs?: boolean
   }> = {},
 ): Promise<number> => {
   const result = await build({
@@ -104,6 +105,12 @@ const assertPortableBundle = async (
     inputs.some((input) => /node_modules\/purejsimage\/src\//u.test(input))
   ) {
     throw new Error(`Packed browser bundle ${entryPoint} contains a private Geo implementation`)
+  }
+  if (
+    options.rejectHdrInputs === true &&
+    inputs.some((input) => /node_modules\/purejsimage\/dist\/hdr\//u.test(input))
+  ) {
+    throw new Error(`Packed browser bundle ${entryPoint} contains the opt-in HDR entry`)
   }
   for (const required of options.requiredPackageInputs ?? []) {
     if (!inputs.some((input) => required.test(input))) {
@@ -148,6 +155,8 @@ try {
   for (const expected of [
     'dist/index.js',
     'dist/browser.js',
+    'dist/hdr/index.js',
+    'dist/hdr/index.d.ts',
     'dist/codec-entries/web.js',
     'dist/scientific/index.js',
     'dist/scientific/node.js',
@@ -221,6 +230,7 @@ try {
     throw new Error('Packed package must not expose source files')
   }
   for (const entry of [
+    './hdr',
     './geo',
     './geo/browser',
     './geo/readers/geotiff',
@@ -279,6 +289,7 @@ try {
           'index.ts',
           'runtime.ts',
           'browser.ts',
+          'hdr.ts',
           'worker.ts',
           'geo-showcase.ts',
           'geo-showcase-data.ts',
@@ -627,6 +638,12 @@ export const openScientific = async () => {
 }
 `,
   )
+  await writeFile(
+    join(consumerDirectory, 'hdr.ts'),
+    `export { inspectGainMapImage, normalizeGainMapMetadata, openGainMapImage } from 'purejsimage/hdr'
+export type { GainMapMetadata, GainMapProbeInspection, OpenedGainMapImage } from 'purejsimage/hdr'
+`,
+  )
 
   for (const name of [
     'runtime.ts',
@@ -665,8 +682,13 @@ export const openScientific = async () => {
     environment,
   )
 
-  const browserBytes = await assertPortableBundle('browser.ts', consumerDirectory)
+  const browserBytes = await assertPortableBundle('browser.ts', consumerDirectory, {
+    rejectHdrInputs: true,
+  })
   const workerBytes = await assertPortableBundle('worker.ts', consumerDirectory)
+  const hdrBytes = await assertPortableBundle('hdr.ts', consumerDirectory, {
+    requiredPackageInputs: [/node_modules\/purejsimage\/dist\/hdr\/index\.js$/u],
+  })
   const geoWorkerBytes = await assertPortableBundle('geo-showcase-worker.ts', consumerDirectory, {
     requiredPackageInputs: [
       /node_modules\/purejsimage\/dist\/geo\/index\.js$/u,
@@ -766,7 +788,7 @@ export const openScientific = async () => {
   }
 
   console.log(
-    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
+    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; HDR ${hdrBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
   )
 } finally {
   await rm(temporaryDirectory, { force: true, recursive: true })

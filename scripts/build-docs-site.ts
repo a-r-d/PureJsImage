@@ -208,6 +208,8 @@ const viewerBuild = await build({
     'geo-showcase-worker': 'docs-astro/src/scripts/geo-showcase-worker.ts',
     xray: 'docs-astro/src/scripts/xray.ts',
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
+    'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
+    'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',

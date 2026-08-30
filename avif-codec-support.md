@@ -80,6 +80,8 @@ coverage.
 - [ ] Pixel-aspect-ratio and other transformative item properties
 - [x] ISO 21496-1 gain-map metadata, `dimg` relationships, and preferred
   alternative selection through `altr` entity groups
+- [x] Explicit `purejsimage/hdr` exact-rational inspection, item extraction,
+  SDR-base and HDR-base caller-selected linear gain-map rendering, and paired transforms
 - [ ] Depth maps, thumbnails, overlays, derived images other than grids and
   compatible gain maps, and other auxiliary-image semantics
 - [x] EXIF item discovery and opt-in preservation through `keepExif()`
@@ -304,6 +306,9 @@ byte. The full-size tolerance remains zero.
 - [x] Reject widths above 4,096 pixels, heights above 65,536 pixels, and
   padded single-tile areas above 4,096 by 2,304 pixels
 - [x] Deterministic valid output accepted by independent AVIF decoders
+- [x] Explicit constrained gain-map output with an opaque sRGB SDR base, one
+  independently coded one-channel map, one ISO tone-map item, `dimg`, `altr`,
+  mandatory `ispe`, exact rationals, and avifgainmaputil 1.3.0 validation
 - [ ] Output-size and perceptual-quality benchmarks against libaom, rav1e, and
   SVT-AV1
 

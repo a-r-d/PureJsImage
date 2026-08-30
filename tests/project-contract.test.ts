@@ -802,6 +802,7 @@ describe('package contract', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
       './browser',
+      './hdr',
       './tiff',
       './scientific',
       './scientific/node',

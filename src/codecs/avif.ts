@@ -14,6 +14,8 @@ import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
+import { gainMapHeadroomWeight } from '../gain-map-math.ts'
+import type { GainMapExactIsoMetadata } from '../hdr/model.ts'
 import {
   type Av1Obu,
   type Av1SequenceHeader,
@@ -83,7 +85,7 @@ interface Av1Configuration {
   readonly profile: number
   readonly tier: number
 }
-interface NclxColor {
+export interface NclxColor {
   readonly fullRange: boolean
   readonly matrixCoefficients: number
   readonly primaries: number
@@ -95,6 +97,11 @@ interface Rational {
 }
 
 export interface AvifGainMapMetadata {
+  readonly baseRendition: 'sdr' | 'hdr'
+  readonly channelCount: 1 | 3
+  readonly exactIso: GainMapExactIsoMetadata
+  readonly minimumVersion: 0
+  readonly writerVersion: number
   readonly alternateHdrHeadroom: Rational
   readonly alternateOffset: readonly [Rational, Rational, Rational]
   readonly baseHdrHeadroom: Rational
@@ -1195,7 +1202,29 @@ const parseGainMapMetadata = (data: Uint8Array): AvifGainMapMetadata => {
   validateGainMapChannel(first)
   validateGainMapChannel(second)
   validateGainMapChannel(third)
+  const baseRendition =
+    rationalValue(alternateHdrHeadroom) < rationalValue(baseHdrHeadroom) ? 'hdr' : 'sdr'
+  const baseOffsets = [first.baseOffset, second.baseOffset, third.baseOffset] as const
+  const alternateOffsets = [
+    first.alternateOffset,
+    second.alternateOffset,
+    third.alternateOffset,
+  ] as const
+  const exactIso = Object.freeze<GainMapExactIsoMetadata>({
+    minimum: [first.minimum, second.minimum, third.minimum],
+    maximum: [first.maximum, second.maximum, third.maximum],
+    gamma: [first.gamma, second.gamma, third.gamma],
+    offsetSdr: baseRendition === 'sdr' ? baseOffsets : alternateOffsets,
+    offsetHdr: baseRendition === 'sdr' ? alternateOffsets : baseOffsets,
+    capacityMinimum: baseRendition === 'sdr' ? baseHdrHeadroom : alternateHdrHeadroom,
+    capacityMaximum: baseRendition === 'sdr' ? alternateHdrHeadroom : baseHdrHeadroom,
+  })
   return {
+    minimumVersion: 0,
+    writerVersion,
+    channelCount,
+    baseRendition,
+    exactIso,
     useBaseColorSpace: (flags & 0x40) !== 0,
     baseHdrHeadroom,
     alternateHdrHeadroom,
@@ -1854,9 +1883,7 @@ const isHdrTransfer = (transferCharacteristics: number): boolean =>
 const gainMapWeight = (metadata: AvifGainMapMetadata, hdrHeadroom = 0): number => {
   const base = rationalValue(metadata.baseHdrHeadroom)
   const alternate = rationalValue(metadata.alternateHdrHeadroom)
-  if (base === alternate) return 0
-  const interpolation = Math.max(0, Math.min(1, (hdrHeadroom - base) / (alternate - base)))
-  return alternate < base ? -interpolation : interpolation
+  return gainMapHeadroomWeight(base, alternate, 2 ** hdrHeadroom)
 }
 
 const validateHdrNclxMatrix = (color: NclxColor): void => {
@@ -3307,6 +3334,86 @@ const createGainMapGridAvifDecoder = (
     ),
     workingBytes,
   }
+}
+
+export interface AvifGainMapDecoderComponents {
+  readonly inspection: AvifBitstreamInspection
+  readonly baseDecoder: ImageDecoder
+  readonly gainMapDecoder: ImageDecoder
+  readonly baseItem?: Uint8Array
+  readonly gainMapItem?: Uint8Array
+}
+
+export const createAvifGainMapDecoderComponents = async (
+  source: ImageSource,
+  limits: ImageLimits,
+): Promise<AvifGainMapDecoderComponents> => {
+  const topLevel = await childBoxes(source, 0, source.size)
+  const metaBox = topLevel.find((box) => box.type === 'meta')
+  if (!metaBox) throw invalidInput('AVIF requires a meta box')
+  const meta = await parseMeta(source, metaBox)
+  const inspection = await inspectAvifBitstreams(source)
+  const gainMap = inspection.gainMap
+  if (!gainMap) throw unsupportedOperation('AVIF does not contain a supported gain map')
+  let base: AvifDecoderWorkingSet
+  if (inspection.primaryItemType === 'grid') {
+    const grid = inspection.grid
+    if (!grid) throw invalidInput('AVIF grid description is missing')
+    base = createGridAvifDecoder(
+      {
+        grid,
+        itemIds: inspection.colorItemIds,
+        codedImages: inspection.codedImages,
+        alphaAssociations: inspection.alphaAssociations,
+        displayRegion: inspection.displayRegion,
+        mirroring: inspection.mirroring,
+        color: inspection.nclx,
+        premultipliedAlpha: inspection.premultipliedAlpha,
+        rotation: inspection.rotation,
+      },
+      limits,
+    )
+  } else {
+    base = createSingleAvifDecoder(inspection, limits)
+  }
+  let gain: AvifDecoderWorkingSet
+  if (gainMap.gainMapItemType === 'grid') {
+    const grid = gainMap.grid
+    if (!grid) throw invalidInput('AVIF gain-map grid description is missing')
+    const color =
+      grid.nclx ??
+      inspection.codedImages.find(
+        (image) => image.itemId === grid.itemIds[0] && image.role === 'gain-map',
+      )?.nclx
+    gain = createGainMapGridAvifDecoder(grid, inspection.codedImages, color, limits)
+  } else {
+    const coded = inspection.codedImages.find(
+      (image) => image.itemId === gainMap.gainMapItemId && image.role === 'gain-map',
+    )
+    if (!coded) throw invalidInput('AVIF gain-map image is not coded')
+    gain = createCodedAvifDecoder(
+      coded,
+      { x: 0, y: 0, width: coded.width, height: coded.height },
+      coded.nclx,
+      limits,
+    )
+  }
+  validateAvifWorkingBytes(base.workingBytes + gain.workingBytes)
+  const baseItem =
+    inspection.primaryItemType === 'av01'
+      ? await readItemPayload(source, meta, inspection.primaryItemId)
+      : undefined
+  const gainMapItem =
+    gainMap.gainMapItemType === 'av01'
+      ? await readItemPayload(source, meta, gainMap.gainMapItemId)
+      : undefined
+  return Object.freeze({
+    inspection,
+    baseDecoder: base.decoder,
+    gainMapDecoder: gain.decoder,
+    ...(baseItem ? { baseItem: Uint8Array.from(baseItem) } : {}),
+    ...(gainMapItem ? { gainMapItem: Uint8Array.from(gainMapItem) } : {}),
+  })
 }
 
 const createAvifDecoder = async (

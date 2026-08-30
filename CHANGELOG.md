@@ -6,6 +6,15 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
+  AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,
+  encoded child extraction, caller-selected linear `rgbf32` or `rgbaf32` rendering, paired crop,
+  flip, orientation, quarter-turn, and resize operations, dual or single-representation compound
+  JPEG output, and a constrained opaque sRGB one-channel gain-map AVIF writer. Ordinary JPEG decode
+  still returns the SDR primary. The local HDR Surgery workbench runs the same code in a validated
+  browser worker. Paired transforms and re-encoding use an explicit caller-limited full-frame
+  fallback; untransformed rendering stays bounded by rows.
+
 - Began the Phase 3 flagship at `/4d-stem/`. The client-side worker opens a deterministic processed
   Merlin MIB acquisition, links scan and diffraction views, produces virtual detector maps and
   scan-region reductions through the explicit `purejsimage/analysis/4d-stem` provider bundle, and

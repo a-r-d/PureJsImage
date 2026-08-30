@@ -1,0 +1,67 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="HDR Surgery | PureJsImage" description="Inspect, render, and repack gain-map HDR JPEGs locally in your browser." canonical="https://purejsimage.com/hdr-surgery/" bodyClass="hdr-surgery-page" current="hdr-surgery/">
+  <main id="main" class="hdr-shell">
+    <header class="hdr-hero">
+      <div>
+        <p class="eyebrow">Gain-map HDR workbench</p>
+        <h1>HDR Surgery</h1>
+        <p class="hdr-lede">Inspect, transform, and re-encode gain-map HDR images without silently discarding the HDR rendition.</p>
+      </div>
+      <div class="hdr-local"><strong>Local processing</strong><span>No image is uploaded to an application server.</span></div>
+    </header>
+
+    <p id="hdr-display" class="hdr-display"></p>
+    <section class="hdr-result" aria-label="HDR previews">
+      <article class="hdr-view"><div class="hdr-view-heading"><h2>Adapted rendition</h2><span>SDR tone-mapped canvas</span></div><canvas id="hdr-adapted" aria-label="Software-rendered adapted rendition"></canvas><p id="hdr-probe">Move over the image to inspect linear RGB.</p></article>
+      <article class="hdr-view"><div class="hdr-view-heading"><h2>Highlight map</h2><span>False color for SDR displays</span></div><canvas id="hdr-false-color" aria-label="False-color HDR luminance visualization"></canvas></article>
+      <article class="hdr-view"><div class="hdr-view-heading"><h2>SDR primary</h2><span>Backward-compatible JPEG</span></div><img id="hdr-base" alt="SDR primary image" /></article>
+      <article class="hdr-view"><div class="hdr-view-heading"><h2>Encoded gain map</h2><span>Displayed as ordinary JPEG</span></div><img id="hdr-gain" alt="Gain-map image" /></article>
+    </section>
+
+    <section class="hdr-workspace">
+      <aside class="hdr-controls" aria-label="HDR Surgery controls">
+        <h2>Source and display</h2>
+        <label>Local JPEG<input id="hdr-file" type="file" accept="image/jpeg,.jpg,.jpeg" /></label>
+        <label>Remote URL<span class="hdr-inline"><input id="hdr-url" type="url" placeholder="https://example.com/photo.jpg" /><button id="hdr-open-url" type="button">Open</button></span></label>
+        <label>Display boost <output id="hdr-boost-value" for="hdr-boost">4.00×</output><input id="hdr-boost" type="range" min="1" max="16" step="0.25" value="4" /></label>
+
+        <details>
+          <summary>Paired geometry</summary>
+          <div class="hdr-fields"><label>X<input id="hdr-crop-x" type="number" value="0" min="0" /></label><label>Y<input id="hdr-crop-y" type="number" value="0" min="0" /></label><label>Width<input id="hdr-crop-width" type="number" min="1" /></label><label>Height<input id="hdr-crop-height" type="number" min="1" /></label></div>
+          <div class="hdr-fields"><label>Output width<input id="hdr-output-width" type="number" min="1" /></label><label>Output height<input id="hdr-output-height" type="number" min="1" /></label></div>
+          <label>Resize kernel<select id="hdr-kernel"><option value="lanczos3">Lanczos3</option><option value="bilinear">Bilinear</option><option value="nearest">Nearest</option></select></label>
+          <div class="hdr-button-row"><button id="hdr-auto-orient" type="button">Auto-orient</button><button id="hdr-flip-h" type="button">Flip H</button><button id="hdr-flip-v" type="button">Flip V</button><button id="hdr-rotate" type="button">Rotate 90°</button></div>
+          <p class="hdr-note">Geometry is applied to the SDR primary and the encoded gain field over the same normalized image region.</p>
+        </details>
+
+        <h2>Output</h2>
+        <div class="hdr-fields"><label>Base quality<input id="hdr-base-quality" type="number" min="1" max="100" value="90" /></label><label>Map quality<input id="hdr-map-quality" type="number" min="1" max="100" value="90" /></label></div>
+        <label>Metadata<select id="hdr-metadata-mode"><option value="dual">Dual, recommended</option><option value="iso">ISO 21496-1</option><option value="ultra-hdr">Ultra HDR XMP</option></select></label>
+        <div class="hdr-button-row"><button id="hdr-jpeg" type="button" disabled>Generate JPEG</button><button id="hdr-avif" type="button" disabled>Generate AVIF</button></div>
+        <div class="hdr-button-row"><button id="hdr-cancel" type="button" disabled>Cancel</button><button id="hdr-reset" type="button">Reset sample</button><button id="hdr-export" type="button">Export trace</button></div>
+        <p id="hdr-status" role="status">Loading the deterministic sample…</p>
+      </aside>
+
+      <div class="hdr-details">
+        <article><h2>Native generated JPEG</h2><p>The browser decides whether this image uses native HDR. The software canvases above remain separate.</p><img id="hdr-native" alt="Native browser rendering of generated HDR JPEG" /></article>
+        <article><h2>Source ranges</h2><div id="hdr-ranges" class="hdr-ranges" aria-label="Primary and gain-map byte ranges"></div></article>
+        <article><h2>Metadata summary</h2><pre id="hdr-metadata">Waiting for inspection.</pre></article>
+        <article><h2>Execution evidence</h2><pre id="hdr-evidence">Waiting for execution.</pre></article>
+        <article><h2>Public API</h2><pre><code>{`import { openGainMapImage } from 'purejsimage/hdr'
+
+const image = await openGainMapImage(bytes)
+for await (const block of image.render({ displayBoost: 4 })) {
+  // block.data contains linear Float32 RGB values.
+}
+image.close()`}</code></pre></article>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/assets/hdr-surgery.js"></script>
+  <style>
+    .hdr-shell{width:min(1440px,calc(100% - 2rem));margin:0 auto;padding:2.5rem 0 5rem}.hdr-hero{display:flex;justify-content:space-between;gap:2rem;align-items:end;margin-bottom:1rem}.hdr-hero h1{font-size:clamp(2.6rem,7vw,5.8rem);line-height:.9;margin:.25rem 0 1rem}.hdr-lede{max-width:48rem;font-size:clamp(1.05rem,2vw,1.35rem)}.hdr-local{display:grid;gap:.2rem;max-width:20rem;padding:1rem;border:1px solid var(--border-color,#cad3d8);border-radius:1rem;background:color-mix(in srgb,#0b7b6c 8%,transparent)}.hdr-display{padding:.75rem 1rem;border-left:4px solid #0b7b6c;background:color-mix(in srgb,#0b7b6c 7%,transparent)}.hdr-result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.25rem 0}.hdr-view,.hdr-details article{min-width:0;border:1px solid var(--border-color,#cad3d8);border-radius:1rem;background:var(--surface,#fff);overflow:hidden}.hdr-view-heading{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;padding:.8rem 1rem}.hdr-view-heading h2{font-size:1rem;margin:0}.hdr-view-heading span{font-size:.75rem;opacity:.7}.hdr-view canvas,.hdr-view img,#hdr-native{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:repeating-conic-gradient(#e8ecee 0 25%,#f7f8f8 0 50%) 50%/20px 20px}.hdr-view p{padding:0 1rem .8rem;margin:.7rem 0 0;font:500 .75rem/1.4 ui-monospace,monospace}.hdr-workspace{display:grid;grid-template-columns:minmax(17rem,24rem) minmax(0,1fr);gap:1rem;align-items:start}.hdr-controls{position:sticky;top:1rem;display:grid;gap:.8rem;padding:1rem;border:1px solid var(--border-color,#cad3d8);border-radius:1rem}.hdr-controls h2{font-size:1rem;margin:.5rem 0 0}.hdr-controls label{display:grid;gap:.35rem;font-size:.84rem;font-weight:650}.hdr-controls input,.hdr-controls select,.hdr-controls button{font:inherit;padding:.6rem;border:1px solid var(--border-color,#aab7be);border-radius:.55rem;background:var(--surface,#fff);color:inherit}.hdr-controls button:not(:disabled){cursor:pointer}.hdr-controls button:focus-visible,.hdr-controls input:focus-visible,.hdr-controls select:focus-visible{outline:3px solid #16a394;outline-offset:2px}.hdr-inline,.hdr-button-row{display:flex;gap:.5rem;flex-wrap:wrap}.hdr-inline input{min-width:0;flex:1}.hdr-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin:.7rem 0}.hdr-note{font-size:.78rem;line-height:1.4}.hdr-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.hdr-details article{padding:1rem}.hdr-details article:first-child,.hdr-details article:nth-child(3),.hdr-details article:nth-child(4){grid-column:1/-1}.hdr-details h2{font-size:1.05rem}.hdr-details pre{max-height:24rem;overflow:auto;white-space:pre-wrap;font-size:.72rem}.hdr-ranges{display:flex;min-height:3rem;border-radius:.5rem;overflow:hidden;background:#dde4e7}.hdr-ranges span{display:grid;place-items:center;min-width:4rem;padding:.4rem;font-size:.75rem}.range-base{background:#2d7068;color:white}.range-map{background:#d6a637;color:#1c1a12}@media(max-width:900px){.hdr-workspace{grid-template-columns:1fr}.hdr-controls{position:static}.hdr-hero{align-items:start;flex-direction:column}.hdr-details{grid-template-columns:1fr}.hdr-details article{grid-column:auto!important}}@media(max-width:560px){.hdr-shell{width:min(100% - 1rem,1440px);padding-top:1rem}.hdr-result{grid-template-columns:1fr}.hdr-fields{grid-template-columns:1fr}.hdr-view-heading{align-items:start;flex-direction:column;gap:.25rem}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</SiteLayout>
