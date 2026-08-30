@@ -4,7 +4,7 @@ import { createNodeImageLibrary } from './node-image.ts'
 import type { NodeImageLibraryOptions } from './node-options.ts'
 import type { ImageInput } from './node-source.ts'
 
-export type { ImageOpenOptions } from './image-core.ts'
+export type { ImageExecutionOptions, ImageOpenOptions } from './image-core.ts'
 export type { NodeImageLibraryOptions } from './node-options.ts'
 
 export type Image = RuntimeImage<ImageInput, Uint8Array>

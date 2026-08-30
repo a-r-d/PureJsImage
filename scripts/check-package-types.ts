@@ -205,12 +205,15 @@ try {
     'dist/geo/conventions/geozarr/index.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
+    'dist/analysis/four-d-stem.js',
     'dist/analysis/project-entry.js',
     'dist/analysis/results.js',
     'dist/analysis/roi-entry.js',
     'dist/analysis/runtime.js',
     'dist/extensions/index.js',
     'dist/sources/http-range.js',
+    'dist/evidence.js',
+    'dist/evidence.d.ts',
   ]) {
     if (!files.includes(expected)) throw new Error(`Packed package omitted ${expected}`)
   }
@@ -366,6 +369,8 @@ import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
 import { analysisGaussianBlurOperationId, createAnalysisController, createBuiltInAnalysisBundle, createNormalizedDifferencePlan, createRasterTargetGridPlan, hashAnalysisGraph, normalizeRoi, summarizeResult } from 'purejsimage/analysis'
 import type { AnalysisGraph, AnalysisProjectV1, NumericRasterGrid, RasterCoordinateTransformDescriptor, Roi } from 'purejsimage/analysis'
+export { createFourDStemAnalysisBundle, fourDStemOperationParameters, scanDiffractionReductionOperationId, virtualDetectorMapOperationId } from 'purejsimage/analysis/4d-stem'
+export type { DetectorRoi, FourDStemAxisRoles, NavigationRoi } from 'purejsimage/analysis/4d-stem'
 import { canonicalTileKey, createTileRuntime } from 'purejsimage/analysis/runtime'
 import type { TileRequest, TileSource } from 'purejsimage/analysis/runtime'
 import { createAnalysisResultValueTypeRegistry, validateScalarResult } from 'purejsimage/analysis/results'
@@ -379,6 +384,8 @@ export { createOmeZarrHttpContext, createScientificFileContext } from 'purejsima
 export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
+export { createEvidenceSession, explainImage, instrumentImageSource } from 'purejsimage/evidence'
+export type { EvidenceContext, ExecutionEvidenceReport, ImageExecutionPlanDescription } from 'purejsimage/evidence'
 export { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 }
 export type { AnalysisProjectV1 }
 

@@ -491,8 +491,8 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { pngCodec } from 'purejsimage/codecs/png'`
 - Decode: Yes (`supported`)
 - Encode: Yes (`supported`)
-- Implemented scope: Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Encodes streaming 8-bit grayscale, RGB, or RGBA PNG with adaptive filters and opt-in EXIF and compatible ICC preservation.
-- Primary boundary: No APNG frame decode or indexed/16-bit output
+- Implemented scope: Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Legal 16-bit input remains gray16, rgb16, or rgba16 through supported pipeline transforms. Encodes streaming 8-bit or 16-bit grayscale, RGB, or RGBA PNG with adaptive filters, exact representable native color signaling, and opt-in EXIF and compatible ICC preservation.
+- Primary boundary: No APNG frame decode, indexed output, or grayscale-alpha output without RGBA expansion
 - Memory model: Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples
 - Recommended output use: Exact alpha, screenshots, graphics, and lossless round trips.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md

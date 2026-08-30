@@ -10,11 +10,19 @@ import {
   inheritImageSourceIdentity,
 } from './source-identity-contract.ts'
 
-export interface ImageSourceReadOptions extends AbortOptions {}
+/** Internal portable correlation hook used by explicit execution-evidence wrappers. */
+export const sourceReadEvidenceDependencies = Symbol('purejsimage.sourceReadEvidenceDependencies')
+/** Internal drain used by single-stream executors to attach completed reads to output blocks. */
+export const drainSourceEvidenceDependencies = Symbol('purejsimage.drainSourceEvidenceDependencies')
+
+export interface ImageSourceReadOptions extends AbortOptions {
+  readonly [sourceReadEvidenceDependencies]?: (ids: readonly string[]) => void
+}
 
 export interface ImageSource {
   readonly size: number
   readonly [imageSourceIdentity]?: () => SourceIdentity | Promise<SourceIdentity>
+  readonly [drainSourceEvidenceDependencies]?: () => readonly string[]
   /**
    * Return exactly min(length, size - offset) bytes for an in-range read.
    * Returned bytes must remain valid until the next read starts. Consumers that
@@ -258,6 +266,10 @@ class SignalBoundSource implements ImageSource {
     if (isSessionManagedSource(this.source)) await this.source[sourceSessionEnd]()
   }
 
+  [drainSourceEvidenceDependencies](): readonly string[] {
+    return this.source[drainSourceEvidenceDependencies]?.() ?? []
+  }
+
   read(
     offset: number,
     length: number,
@@ -265,7 +277,7 @@ class SignalBoundSource implements ImageSource {
   ): Promise<Uint8Array> {
     const signal = combineAbortSignals(this.#signal, options.signal)
     throwIfAborted(signal)
-    return this.source.read(offset, length, { signal })
+    return this.source.read(offset, length, { ...options, signal })
   }
 }
 
@@ -287,7 +299,7 @@ class StableSignalBoundSource extends SignalBoundSource implements StableBufferS
   ): Promise<Uint8Array<ArrayBuffer>> {
     const signal = combineAbortSignals(this.#signal, options.signal)
     throwIfAborted(signal)
-    return this.#stableSource.read(offset, length, { signal })
+    return this.#stableSource.read(offset, length, { ...options, signal })
   }
 }
 

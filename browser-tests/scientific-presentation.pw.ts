@@ -36,7 +36,14 @@ test('keeps the scientific explorer screenshot and mode tabs inside the page', a
   expect(imageWidth).toBeGreaterThan(figureWidth * 0.8)
 
   const tabs = page.getByRole('tablist', { name: 'Scientific raster mode' })
-  await expect(tabs.getByRole('tab')).toHaveCount(5)
+  await expect(tabs.getByRole('tab')).toHaveText([
+    'All package readers',
+    'AFM / surface',
+    'ENVI raster',
+    'FITS image arrays',
+    'MRC volumes',
+    'CBF detector',
+  ])
   await boxInsideViewport(page, '.scientific-mode-tabs', 1440)
 
   await tabs.getByRole('tab', { name: 'ENVI raster' }).press('Enter')

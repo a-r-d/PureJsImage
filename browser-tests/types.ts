@@ -79,6 +79,7 @@ export interface BrowserCompatibilityHarness {
   progressiveJpeg(): Promise<BrowserWorkflowResult>
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
+  nativePngPrecision(): Promise<BrowserWorkflowResult>
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
   scientificTiffDocument(): Promise<BrowserWorkflowResult>
   scientificDigitalMicrograph(): Promise<BrowserWorkflowResult>

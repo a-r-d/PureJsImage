@@ -1,4 +1,5 @@
 import type { AbortOptions } from './abort.ts'
+import type { PixelColorSemantics } from './color.ts'
 import { invalidInput, unsupportedFormat, unsupportedOperation } from './errors.ts'
 import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
@@ -108,6 +109,8 @@ export interface ImageMetadata {
   storageOrientation?: string
   /** Short textual image identifier carried by the source format. */
   imageId?: string
+  /** Semantics of decoded pixels. This is separate from preserved source metadata. */
+  colorSemantics?: PixelColorSemantics
 }
 
 export interface DecoderCapabilities {
@@ -129,6 +132,7 @@ export interface ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat
+  readonly colorSemantics?: PixelColorSemantics
   readonly capabilities: DecoderCapabilities
   decode(request?: DecodeRequest): AsyncIterable<PixelBlock>
 }
@@ -164,6 +168,7 @@ export interface EncodeRequest extends AbortOptions {
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat
+  readonly colorSemantics?: PixelColorSemantics
   readonly options: unknown
   readonly metadata?: Readonly<PreservedMetadata>
   readonly runtime?: ImageRuntime
@@ -179,6 +184,7 @@ export interface ImageCodec {
    * remain native only when no transform requires display normalization.
    */
   readonly encoderPixelFormats?: readonly PixelFormat[]
+  readonly acceptsColorSemantics?: (semantics: PixelColorSemantics) => boolean
   readonly selection?: {
     readonly frames: boolean
     readonly resolutionLevels: boolean

@@ -1,7 +1,12 @@
 import { combineAbortSignals, throwIfAborted, waitForPromise } from '../abort.ts'
 import { ImageError, invalidInput } from '../errors.ts'
+import type { EvidenceContext } from '../evidence.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../source.ts'
-import { stableSourceBuffers } from '../source.ts'
+import {
+  drainSourceEvidenceDependencies,
+  sourceReadEvidenceDependencies,
+  stableSourceBuffers,
+} from '../source.ts'
 import type { RemoteSourceIdentity } from '../source-identity.ts'
 import { createSessionSourceIdentity, imageSourceIdentity } from '../source-identity.ts'
 import { HttpRangeSource, type HttpRangeSourceStats } from '../sources/http-range.ts'
@@ -36,6 +41,8 @@ export interface ZarrHttpStoreOptions {
   readonly maxOpenSources?: number
   readonly blockBytes?: number
   readonly maxCacheBytesPerSource?: number
+  /** Optional caller-owned normalized execution evidence. */
+  readonly evidence?: EvidenceContext
 }
 
 /** Root-scoped identity evidence. This is not a version claim for every object in the store. */
@@ -141,11 +148,20 @@ class TrackedHttpRangeSource implements ImageSource {
   readonly [stableSourceBuffers] = true
   readonly #source: HttpRangeSource
   readonly #record: (delta: Readonly<SourceTotals>) => void
+  readonly #evidence: EvidenceContext | undefined
+  readonly #completedReadIds: string[]
   #last = emptySourceTotals()
 
-  constructor(source: HttpRangeSource, record: (delta: Readonly<SourceTotals>) => void) {
+  constructor(
+    source: HttpRangeSource,
+    record: (delta: Readonly<SourceTotals>) => void,
+    evidence: EvidenceContext | undefined,
+    completedReadIds: string[],
+  ) {
     this.#source = source
     this.#record = record
+    this.#evidence = evidence
+    this.#completedReadIds = completedReadIds
     this.#sync()
   }
 
@@ -162,16 +178,68 @@ class TrackedHttpRangeSource implements ImageSource {
     return this.#source[imageSourceIdentity]()
   }
 
+  [drainSourceEvidenceDependencies](): readonly string[] {
+    const ids = Object.freeze([...this.#completedReadIds])
+    this.#completedReadIds.length = 0
+    return ids
+  }
+
   async read(
     offset: number,
     length: number,
     options: Readonly<ImageSourceReadOptions> = {},
   ): Promise<Uint8Array<ArrayBuffer>> {
+    const dependencies: string[] = []
+    const originalReceiver = options[sourceReadEvidenceDependencies]
+    const readOptions: Readonly<ImageSourceReadOptions> = {
+      ...options,
+      [sourceReadEvidenceDependencies]: (ids: readonly string[]): void => {
+        dependencies.push(...ids)
+        originalReceiver?.(ids)
+      },
+    }
     try {
-      return await this.#source.read(offset, length, options)
+      const bytes = await this.#source.read(offset, length, readOptions)
+      const id = this.#evidence?.logicalRead({
+        offset,
+        requestedBytes: length,
+        returnedBytes: bytes.byteLength,
+        outcome: 'complete',
+        ...(dependencies.length === 0
+          ? {}
+          : { physicalTransferIds: Object.freeze([...new Set(dependencies)]) }),
+      })
+      if (id !== undefined) {
+        this.#completedReadIds.push(id)
+        originalReceiver?.([id])
+      }
+      return bytes
+    } catch (error) {
+      const aborted = options.signal?.aborted === true
+      const id = this.#evidence?.logicalRead({
+        offset,
+        requestedBytes: length,
+        returnedBytes: 0,
+        outcome: aborted ? 'aborted' : 'failed',
+        ...(dependencies.length === 0
+          ? {}
+          : { physicalTransferIds: Object.freeze([...new Set(dependencies)]) }),
+      })
+      if (id !== undefined) this.#completedReadIds.push(id)
+      if (aborted) this.#evidence?.cancellation('zarr-object-read')
+      throw error
     } finally {
       this.#sync()
     }
+  }
+
+  close(): void {
+    this.#source.clearCache()
+  }
+
+  async quiesce(): Promise<void> {
+    await this.#source.quiesce()
+    this.#sync()
   }
 
   #sync(): void {
@@ -198,6 +266,8 @@ export class ZarrHttpObjectStore implements ZarrObjectStore {
   readonly #maxOpenSources: number
   readonly #blockBytes: number
   readonly #maxCacheBytesPerSource: number
+  readonly #evidence: EvidenceContext | undefined
+  readonly #completedReadIds: string[] = []
   readonly #sources = new Map<string, TrackedHttpRangeSource>()
   readonly #pending = new Map<string, Promise<TrackedHttpRangeSource | undefined>>()
   readonly #sourceTotals = emptySourceTotals()
@@ -232,6 +302,7 @@ export class ZarrHttpObjectStore implements ZarrObjectStore {
       options.maxCacheBytesPerSource ?? 2_097_152,
       'HTTP source cache size',
     )
+    this.#evidence = options.evidence
     if (this.#maxCacheBytesPerSource < this.#blockBytes) {
       throw invalidInput('HTTP source cache size must hold at least one range block')
     }
@@ -304,6 +375,19 @@ export class ZarrHttpObjectStore implements ZarrObjectStore {
     this.#baseline = this.#rawStats()
   }
 
+  async quiesce(): Promise<void> {
+    const opening = [...this.#pending.values()]
+    await Promise.all(
+      opening.map((promise) =>
+        promise.then(
+          () => undefined,
+          () => undefined,
+        ),
+      ),
+    )
+    await Promise.all([...this.#sources.values()].map((source) => source.quiesce()))
+  }
+
   /** Return JSON-safe evidence for the selected root metadata object. */
   identitySummary(): ZarrHttpStoreIdentitySummary {
     const root = this.#rootMetadata
@@ -323,6 +407,7 @@ export class ZarrHttpObjectStore implements ZarrObjectStore {
   close(): void {
     this.#externalSignal?.removeEventListener('abort', this.#externalAbort)
     if (!this.#lifetime.signal.aborted) this.#lifetime.abort()
+    for (const source of this.#sources.values()) source.close()
     this.#sources.clear()
     this.#pending.clear()
   }
@@ -352,27 +437,55 @@ export class ZarrHttpObjectStore implements ZarrObjectStore {
   }
 
   async #openSource(name: string): Promise<TrackedHttpRangeSource | undefined> {
+    const evidence = this.#evidence?.child('zarr-object')
+    evidence?.operation({ operationId: 'zarr-object-open', phase: 'start' })
     const url = resolveZarrObjectUrl(this.normalized.storeRootUrl, name)
-    const remoteSource = await HttpRangeSource.open(url, {
-      allowNotFound: true,
-      allowHeadSizeFallback: true,
-      blockBytes: this.#blockBytes,
-      fetch: this.#fetch,
-      lifetimeSignal: this.#lifetime.signal,
-      maxCacheBytes: this.#maxCacheBytesPerSource,
-      openSignal: this.#lifetime.signal,
-    })
-    if (remoteSource === undefined) return undefined
+    let remoteSource: HttpRangeSource | undefined
+    try {
+      remoteSource = await HttpRangeSource.open(url, {
+        allowNotFound: true,
+        allowHeadSizeFallback: true,
+        blockBytes: this.#blockBytes,
+        fetch: this.#fetch,
+        lifetimeSignal: this.#lifetime.signal,
+        maxCacheBytes: this.#maxCacheBytesPerSource,
+        openSignal: this.#lifetime.signal,
+        ...(evidence === undefined ? {} : { evidence }),
+      })
+    } catch (error) {
+      if (this.#lifetime.signal.aborted) {
+        evidence?.cancellation('zarr-object-open')
+        evidence?.operation({ operationId: 'zarr-object-open', phase: 'cancelled' })
+      } else {
+        evidence?.operation({ operationId: 'zarr-object-open', phase: 'failed' })
+      }
+      throw error
+    }
+    if (remoteSource === undefined) {
+      evidence?.operation({ operationId: 'zarr-object-open', phase: 'fallback' })
+      return undefined
+    }
     const metadataObject = /(?:^|\/)(?:zarr\.json|\.zgroup|\.zattrs|\.zarray)$/u.test(name)
-    const source = new TrackedHttpRangeSource(remoteSource, (delta) => {
-      addSourceStats(this.#sourceTotals, delta)
-      addSourceStats(metadataObject ? this.#metadataSourceTotals : this.#arraySourceTotals, delta)
+    const source = new TrackedHttpRangeSource(
+      remoteSource,
+      (delta) => {
+        addSourceStats(this.#sourceTotals, delta)
+        addSourceStats(metadataObject ? this.#metadataSourceTotals : this.#arraySourceTotals, delta)
+      },
+      evidence,
+      this.#completedReadIds,
+    )
+    evidence?.operation({
+      operationId: metadataObject ? 'zarr-metadata-object-open' : 'zarr-array-object-open',
+      phase: 'complete',
     })
+    evidence?.operation({ operationId: 'zarr-object-open', phase: 'complete' })
     this.#objectsOpened += 1
     this.#sources.set(name, source)
     while (this.#sources.size > this.#maxOpenSources) {
       const oldest = this.#sources.entries().next().value
       if (oldest === undefined) break
+      oldest[1].close()
       this.#sources.delete(oldest[0])
     }
     return source

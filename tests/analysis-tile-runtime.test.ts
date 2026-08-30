@@ -14,6 +14,7 @@ import type {
 } from '../src/analysis/tile-runtime.ts'
 import type { NumericTile } from '../src/scientific/index.ts'
 import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
+import { createEvidenceSession } from '../src/evidence.ts'
 
 class Deferred<Value> {
   readonly promise: Promise<Value>
@@ -153,8 +154,10 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const reads: number[] = []
     const source = immediateSource(releases, reads)
+    const evidence = createEvidenceSession({ mode: 'trace' })
     const runtime = createTileRuntime({
       limits: { maxCacheBytes: 8, maxCacheEntries: 2, maxConcurrency: 1 },
+      evidence: evidence.context,
     })
     const first = await runtime.request(source, request(0))
     first.release()
@@ -186,6 +189,14 @@ describe('bounded tile runtime cache and scheduler', () => {
     expect(releases.sort((left, right) => left - right)).toEqual([0, 0, 2, 4])
     expect(runtime.metrics().cache).toMatchObject({ currentBytes: 0, currentEntries: 0 })
     expect(reads).toEqual([0, 2, 4])
+    const report = evidence.finalize()
+    expect(report.physicalTransfers).toMatchObject({ cacheHits: 1, cacheMisses: 3 })
+    expect(report.managedMemory).toMatchObject({
+      currentLiveBytes: 0,
+      peakLiveBytes: 12,
+      stillLiveLeases: 0,
+      categories: { 'tile-runtime-cache': { currentBytes: 0, peakBytes: 12 } },
+    })
   })
 
   it('accounts declared auxiliary bytes and cleanly rejects oversized ownership transfer', () => {

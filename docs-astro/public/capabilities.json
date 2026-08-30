@@ -400,8 +400,8 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "No APNG frame decode or indexed/16-bit output",
-      "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Encodes streaming 8-bit grayscale, RGB, or RGBA PNG with adaptive filters and opt-in EXIF and compatible ICC preservation.",
+      "boundary": "No APNG frame decode, indexed output, or grayscale-alpha output without RGBA expansion",
+      "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Legal 16-bit input remains gray16, rgb16, or rgba16 through supported pipeline transforms. Encodes streaming 8-bit or 16-bit grayscale, RGB, or RGBA PNG with adaptive filters, exact representable native color signaling, and opt-in EXIF and compatible ICC preservation.",
       "memory": "Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples",
       "recommendation": "Exact alpha, screenshots, graphics, and lossless round trips.",
       "evidence": [
@@ -513,15 +513,11 @@
         },
         {
           "status": "supported",
-          "text": "16-bit sample normalization to the most-significant 8 bits"
+          "text": "Exact big-endian 16-bit sample output without display normalization"
         },
         {
           "status": "supported",
-          "text": "Output as `gray8`, `rgb8`, or `rgba8` according to decoded alpha needs"
-        },
-        {
-          "status": "planned",
-          "text": "Exact 16-bit-per-channel pipeline output without reducing samples to 8 bits"
+          "text": "Output as `gray8`, `rgb8`, `rgba8`, `gray16`, `rgb16`, or `rgba16` according to decoded depth and alpha needs"
         },
         {
           "status": "planned",
@@ -621,6 +617,18 @@
         },
         {
           "status": "supported",
+          "text": "16-bit grayscale output from `gray16` input"
+        },
+        {
+          "status": "supported",
+          "text": "16-bit truecolor RGB output from `rgb16` input"
+        },
+        {
+          "status": "supported",
+          "text": "16-bit truecolor RGBA output from `rgba16` input"
+        },
+        {
+          "status": "supported",
           "text": "Exact alpha preservation"
         },
         {
@@ -661,10 +669,6 @@
         },
         {
           "status": "planned",
-          "text": "16-bit grayscale, RGB, grayscale-alpha, and RGBA output"
-        },
-        {
-          "status": "planned",
           "text": "Grayscale-alpha output without expanding grayscale to RGBA"
         },
         {
@@ -688,8 +692,12 @@
           "text": "Compatible ICC and EXIF metadata writing when explicitly preserved"
         },
         {
+          "status": "supported",
+          "text": "Exact representable `gAMA`, `sRGB`, and supported full-range RGB `cICP` signaling for native 16-bit output"
+        },
+        {
           "status": "planned",
-          "text": "sRGB, gamma, chromaticity, physical-dimension, and text metadata writing"
+          "text": "Chromaticity, physical-dimension, and text metadata writing"
         },
         {
           "status": "supported",
@@ -714,6 +722,10 @@
         {
           "status": "supported",
           "text": "Verify an indexed 8-bit PNG and a 16-bit grayscale PNG against an independent PNG decoder"
+        },
+        {
+          "status": "supported",
+          "text": "Verify exact low-byte retention for 16-bit grayscale, RGB, RGBA, grayscale-alpha, color-key transparency, Adam7, and transformed round trips"
         },
         {
           "status": "supported",

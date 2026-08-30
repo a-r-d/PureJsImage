@@ -336,6 +336,13 @@ test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   expect(result.detail).toContain('preserved alpha')
 })
 
+test('preserves native 16-bit PNG precision in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.nativePngPrecision())
+  expect(result.outputBytes).toBeGreaterThan(60)
+  expect(result.detail).toContain('preserved low sample bytes')
+})
+
 test('encodes tiled BigTIFF and a structured TIFF document in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.tiffEncodePipeline())

@@ -2397,3 +2397,36 @@ to own only generic descriptors, definitions, providers, and registries.
     KiB aggregate scientific-reader entry remain within their recorded ceilings. Lab Viewer
     registration, public Velox sparse spectra, NanoScope, JPK/OZX, EDAX, and BCF remain explicit
     follow-up work rather than claims of this branch.
+
+### Phase 2: execution evidence
+
+- [x] Add the low-level caller-owned `purejsimage/evidence` contract without reversing source,
+      scientific, analysis, or application dependencies.
+- [x] Add bounded summary and trace reports, monotonic relative timing, explicit child scopes,
+      privacy defaults, overflow warnings, and exactly-once managed leases.
+- [x] Instrument logical source reads, physical `HttpRangeSource` transfers, cache behavior,
+      analysis provider selection, graph operations, tile-runtime cache ownership, and block or tile
+      dependency IDs.
+- [x] Expose ordinary pipeline explanation from the executor's existing crop, scaled-decode, and
+      native-precision planning functions without decoding pixels.
+- [x] Add an explicit bounded adaptive range policy while preserving fixed blocks as the default;
+      retain deterministic crossover evidence instead of making a universal performance claim.
+- [x] Add the client-side Raster X-Ray worker and page with local and remote inputs, source coverage,
+      plan, timeline, managed bytes, and redacted JSON export.
+- [x] Extend common reader, document, dataset, plane, series, source-block, conversion, and
+      dependency events through shared scientific, OME-Zarr, WSI, and Geo paths. Their existing
+      format-specific object, shard, chunk, and viewport counters remain supported and are not
+      flattened into misleading byte units.
+- [x] Validate the Raster X-Ray and OME-Zarr worker request protocols at runtime. Give every
+      OME-Zarr request and response a measurement epoch, quiesce older work before reset
+      acknowledgement, and ignore stale responses in the viewer.
+
+### Phase 3: flagship scientific explorer
+
+- [x] Reconcile the flagship with the released application-platform and execution-evidence
+      boundaries, choose a focused `/4d-stem/` docs application, and record the accepted design in
+      `docs/architecture/flagship-scientific-explorer.md`.
+- [x] Add and validate the explicit first-party 4D-STEM analysis bundle.
+- [x] Add the deterministic fixture, worker-owned linked application, evidence UI, focused browser
+      coverage, bounded-I/O benchmark, real-data provenance, and public documentation.
+- [x] Pass the Phase 3 acceptance gates recorded in the flagship architecture document.

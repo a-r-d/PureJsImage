@@ -21,6 +21,7 @@
       "purejsimage/analysis/roi": ["./src/analysis/roi-entry.ts"],
       "purejsimage/analysis/runtime": ["./src/analysis/runtime.ts"],
       "purejsimage/extensions": ["./src/extensions/index.ts"],
+      "purejsimage/evidence": ["./src/evidence.ts"],
       "purejsimage/geo": ["./src/geo/index.ts"],
       "purejsimage/geo/readers": ["./src/geo/readers/index.ts"],
       "purejsimage/geo/readers/all": ["./src/geo/readers/all.ts"],

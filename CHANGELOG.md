@@ -6,6 +6,48 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Began the Phase 3 flagship at `/4d-stem/`. The client-side worker opens a deterministic processed
+  Merlin MIB acquisition, links scan and diffraction views, produces virtual detector maps and
+  scan-region reductions through the explicit `purejsimage/analysis/4d-stem` provider bundle, and
+  reports observed source reads, tile-cache activity, cancellation, decoded blocks, and managed
+  memory. The generated CC0 fixture has odd scan and detector dimensions and exact operation tests.
+
+- Added a generated browser reader catalog for all explicit scientific reader exports. The generic
+  explorer accepts a primary file and selected companions, loads likely reader chunks from safe
+  hints, keeps bounded byte probing authoritative, supports explicit reader and dataset selection,
+  and explains the separate directory-like OME-Zarr path. The linked 4D-STEM workspace now uses
+  conservative semantic axis-role recognition, exports display PNGs and evidence JSON, exposes
+  numeric annulus controls, reports unique source coverage and retained cache state, and closes its
+  worker-owned resources explicitly.
+
+- Added the explicit `purejsimage/evidence` entry with bounded summary and trace sessions, logical
+  and physical source-byte accounting, redacted source identity, managed lease accounting, analysis
+  provider and tile evidence, live event subscribers, and JSON-safe version 1 reports. The ordinary
+  pipeline can explain crop pushdown, scaled decode, precision conversion, remaining stages, and
+  full-frame fallbacks without decoding pixels. `HttpRangeSource` also has an optional bounded
+  adaptive policy; fixed blocks remain the default.
+- Added the client-side Raster X-Ray page for local files and CORS-enabled HTTP Range sources, plus
+  a deterministic six-workflow evidence matrix and seven-workload range-policy benchmark. Raster
+  X-Ray covers ordinary PNG and JPEG, TIFF/COG, AVIF, JP2, and a bounded OME-Zarr preview tile with
+  selectable block-to-range dependencies.
+- The lazy core execution chunk is 65.1 KiB and the shared scientific entry is 190.1 KiB minified
+  after adding opt-in pipeline, reader, dataset, plane, series, block, conversion, and dependency
+  evidence. Their checked ceilings are 68 KiB and 192.4 KiB. Importing either entry still creates no
+  evidence session or collector.
+
+- Added native-precision ordinary pipelines. Fixed-width interleaved formats now keep exact sample
+  bytes through crop, flip, EXIF orientation, and quarter turns. `gray16`, `rgb16`, `rgba16`,
+  `grayf32`, and `rgbf32` resize directly with nearest, bilinear, and Lanczos 3 kernels.
+- Added `convertPixelFormat()` for explicit integer and float storage conversion with defined
+  ranges, nearest rounding, and required alpha-add or alpha-removal policies. Added opt-in
+  linear-light resize for declared sRGB or linear 8-bit and 16-bit RGB and RGBA pixels.
+- PNG now emits and accepts native `gray16`, `rgb16`, and `rgba16` blocks. Legal 16-bit grayscale,
+  truecolor, grayscale-alpha, RGBA, color-key transparency, and Adam7 inputs retain their low sample
+  bytes through supported transforms and streaming 16-bit PNG output.
+- The ordinary output path now loads its portable execution engine on first use. The measured
+  initial core chunk is 24,421 minified bytes and the execution chunk is 58,715 bytes. Each has a
+  separate 64 KiB ceiling, so the existing core size limit remains unchanged.
+
 - Experimental HEIF/HEIC reconstructs auxiliary alpha for a directly coded or
   grid primary, including monochrome HEVC alpha items and alpha planes that do
   not match the primary size. Limited-range alpha luma uses the same nclx/VUI
@@ -30,6 +72,12 @@ All notable changes to PureJsImage are documented in this file.
   still does not reconstruct HEVC sample state.
 
 ### Changed
+
+- The PR #32 hardening pass now rejects explicitly premultiplied RGBA input before resize or pixel
+  storage conversion, counts aborted shared-range consumers without mislabeling the surviving
+  physical transfer, keeps managed-allocation overflow categories separate from caller labels,
+  preserves safe 4D-STEM navigation indices above the uint32 range, and validates complete worker
+  messages before updating the linked explorer.
 
 - Experimental HEIF/HEIC displayed 8-bit 4:2:0 conversion now uses nearest
   chroma samples, matching the Main 10/PQ path. Against ImageMagick/libheif, the

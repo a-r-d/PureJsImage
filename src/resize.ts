@@ -1,7 +1,8 @@
-import { invalidInput, truncatedInput } from './errors.ts'
+import type { PixelColorSemantics } from './color.ts'
+import { invalidInput, truncatedInput, unsupportedOperation } from './errors.ts'
 import type { ResizeKernel, ResizeOptions } from './pipeline.ts'
 import { calculateResizeDimensions } from './pipeline.ts'
-import type { PixelBlock, PixelFormat } from './pixel.ts'
+import { type PixelBlock, type PixelFormat, pixelBytesPerPixel, pixelStorage } from './pixel.ts'
 
 interface AxisCoefficients {
   readonly offsets: Uint32Array
@@ -256,8 +257,641 @@ const resultFormat = (
   background: ResizePlan['background'],
 ): PixelFormat => {
   if (background === undefined) return sourceFormat
+  if (sourceFormat === 'gray16' || sourceFormat === 'rgb16' || sourceFormat === 'rgba16') {
+    if (sourceFormat === 'rgba16' || background[3] < 255) return 'rgba16'
+    return 'rgb16'
+  }
+  if (sourceFormat === 'grayf32' || sourceFormat === 'rgbf32') {
+    throw invalidInput('Float32 contain resize requires an explicit pixel conversion for padding')
+  }
   if (sourceFormat === 'rgba8' || background[3] < 255) return 'rgba8'
   return 'rgb8'
+}
+
+const nativeResizeFormat = (format: PixelFormat): boolean =>
+  format === 'gray16' ||
+  format === 'rgb16' ||
+  format === 'rgba16' ||
+  format === 'grayf32' ||
+  format === 'rgbf32'
+
+export const decodeSrgbSample = (encoded: number): number =>
+  encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
+
+export const encodeSrgbSample = (linear: number): number =>
+  linear <= 0.0031308 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055
+
+const srgb8ToLinear = Float64Array.from({ length: 256 }, (_value, index) =>
+  decodeSrgbSample(index / 255),
+)
+
+const linearLightFormat = (format: PixelFormat): boolean =>
+  format === 'rgb8' || format === 'rgba8' || format === 'rgb16' || format === 'rgba16'
+
+const validateLinearLightSemantics = (
+  format: PixelFormat,
+  semantics: PixelColorSemantics | undefined,
+): 'srgb' | 'linear' => {
+  if (!linearLightFormat(format)) {
+    throw unsupportedOperation(`Linear-light resize does not support ${format} pixels`)
+  }
+  if (
+    semantics?.family !== 'rgb' ||
+    (semantics.transfer.kind !== 'srgb' && semantics.transfer.kind !== 'linear')
+  ) {
+    throw unsupportedOperation(
+      'Linear-light resize requires RGB pixels with known sRGB or linear transfer semantics',
+    )
+  }
+  if (format.startsWith('rgba') && semantics.alpha !== 'straight') {
+    throw unsupportedOperation('Linear-light RGBA resize requires straight alpha semantics')
+  }
+  return semantics.transfer.kind
+}
+
+const horizontalLinearLight = (
+  source: Uint8Array,
+  outputWidth: number,
+  axis: AxisCoefficients,
+  output: Float64Array,
+  format: PixelFormat,
+  transfer: 'srgb' | 'linear',
+): void => {
+  const descriptor = pixelStorage(format)
+  const maximum = descriptor.bytesPerSample === 1 ? 255 : 65_535
+  const hasAlpha = descriptor.channels === 4
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    let alpha = 0
+    for (let index = first; index < last; index += 1) {
+      const sourceOffset =
+        (axis.indices[index] ?? 0) * descriptor.channels * descriptor.bytesPerSample
+      const weight = axis.weights[index] ?? 0
+      const redSample =
+        descriptor.bytesPerSample === 1
+          ? (source[sourceOffset] ?? 0)
+          : uint16Sample(source, sourceOffset)
+      const greenSample =
+        descriptor.bytesPerSample === 1
+          ? (source[sourceOffset + 1] ?? 0)
+          : uint16Sample(source, sourceOffset + 2)
+      const blueSample =
+        descriptor.bytesPerSample === 1
+          ? (source[sourceOffset + 2] ?? 0)
+          : uint16Sample(source, sourceOffset + 4)
+      const alphaSample = hasAlpha
+        ? descriptor.bytesPerSample === 1
+          ? (source[sourceOffset + 3] ?? 0)
+          : uint16Sample(source, sourceOffset + 6)
+        : maximum
+      const sourceAlpha = alphaSample / maximum
+      const linearRed =
+        transfer === 'linear'
+          ? redSample / maximum
+          : maximum === 255
+            ? (srgb8ToLinear[redSample] ?? 0)
+            : decodeSrgbSample(redSample / maximum)
+      const linearGreen =
+        transfer === 'linear'
+          ? greenSample / maximum
+          : maximum === 255
+            ? (srgb8ToLinear[greenSample] ?? 0)
+            : decodeSrgbSample(greenSample / maximum)
+      const linearBlue =
+        transfer === 'linear'
+          ? blueSample / maximum
+          : maximum === 255
+            ? (srgb8ToLinear[blueSample] ?? 0)
+            : decodeSrgbSample(blueSample / maximum)
+      red += linearRed * sourceAlpha * weight
+      green += linearGreen * sourceAlpha * weight
+      blue += linearBlue * sourceAlpha * weight
+      alpha += sourceAlpha * weight
+    }
+    const target = x * descriptor.channels
+    output[target] = red
+    output[target + 1] = green
+    output[target + 2] = blue
+    if (hasAlpha) output[target + 3] = alpha
+  }
+}
+
+const writeLinearLightContent = (
+  source: Float64Array,
+  sourceFormat: PixelFormat,
+  output: Uint8Array,
+  outputOffset: number,
+  width: number,
+  outputFormat: PixelFormat,
+  transfer: 'srgb' | 'linear',
+): void => {
+  const sourceDescriptor = pixelStorage(sourceFormat)
+  const outputDescriptor = pixelStorage(outputFormat)
+  const maximum = outputDescriptor.bytesPerSample === 1 ? 255 : 65_535
+  const outputSample = (target: number, linear: number): void => {
+    const encoded = transfer === 'linear' ? linear : encodeSrgbSample(Math.max(0, linear))
+    if (maximum === 255) output[target] = clamp(Math.round(encoded * 255), 0, 255)
+    else writeUint16(output, target, encoded * 65_535)
+  }
+  for (let x = 0; x < width; x += 1) {
+    const sourceOffset = x * sourceDescriptor.channels
+    const target = outputOffset + x * outputDescriptor.channels * outputDescriptor.bytesPerSample
+    const alpha = sourceDescriptor.channels === 4 ? clamp(source[sourceOffset + 3] ?? 0, 0, 1) : 1
+    const unpremultiply = alpha > 0 ? 1 / alpha : 0
+    outputSample(target, (source[sourceOffset] ?? 0) * unpremultiply)
+    outputSample(
+      target + outputDescriptor.bytesPerSample,
+      (source[sourceOffset + 1] ?? 0) * unpremultiply,
+    )
+    outputSample(
+      target + outputDescriptor.bytesPerSample * 2,
+      (source[sourceOffset + 2] ?? 0) * unpremultiply,
+    )
+    if (outputDescriptor.channels === 4) {
+      const alphaTarget = target + outputDescriptor.bytesPerSample * 3
+      if (maximum === 255) output[alphaTarget] = Math.round(alpha * 255)
+      else writeUint16(output, alphaTarget, alpha * 65_535)
+    }
+  }
+}
+
+const resizedLinearLightBlocks = async function* (
+  input: AsyncIterable<PixelBlock>,
+  sourceWidth: number,
+  sourceHeight: number,
+  sourceFormat: PixelFormat,
+  plan: ResizePlan,
+  outputFormat: PixelFormat,
+  transfer: 'srgb' | 'linear',
+): AsyncGenerator<PixelBlock> {
+  const horizontal = coefficients(
+    sourceWidth,
+    plan.scaledWidth,
+    plan.cropX,
+    plan.contentWidth,
+    plan.kernel,
+  )
+  const vertical = coefficients(
+    sourceHeight,
+    plan.scaledHeight,
+    plan.cropY,
+    plan.contentHeight,
+    plan.kernel,
+  )
+  const sourceRows = nativeRows(input, sourceWidth, sourceHeight, sourceFormat)[
+    Symbol.asyncIterator
+  ]()
+  const sourceChannels = pixelStorage(sourceFormat).channels
+  const requiredSourceRows = new Uint8Array(sourceHeight)
+  for (const sourceRow of vertical.indices) requiredSourceRows[sourceRow] = 1
+  const ringCapacity = verticalRingCapacity(vertical, plan.contentHeight)
+  const retainedSourceRows = new Int32Array(ringCapacity)
+  retainedSourceRows.fill(-1)
+  const retainedRows: (Float64Array | undefined)[] = new Array(ringCapacity)
+  const outputBytesPerPixel = pixelBytesPerPixel(outputFormat)
+  const outputStride = plan.canvasWidth * outputBytesPerPixel
+  const blockCapacity = Math.min(outputBlockRows, plan.canvasHeight)
+  let block = new Uint8Array(outputStride * blockCapacity)
+  const accumulated = new Float64Array(plan.contentWidth * sourceChannels)
+  let loadedRows = 0
+  let blockHeight = 0
+  let blockY = 0
+  try {
+    for (let canvasY = 0; canvasY < plan.canvasHeight; canvasY += 1) {
+      const blockOffset = blockHeight * outputStride
+      if (plan.background) {
+        if (outputFormat.endsWith('16')) {
+          fillNativeBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
+        } else {
+          fillBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
+        }
+      }
+      const contentY = canvasY - plan.padY
+      if (contentY >= 0 && contentY < plan.contentHeight) {
+        const first = vertical.offsets[contentY] ?? 0
+        const last = vertical.offsets[contentY + 1] ?? first
+        const maximumSourceRow = vertical.indices[last - 1]
+        if (maximumSourceRow === undefined)
+          throw invalidInput('Resize vertical coefficients are empty')
+        while (loadedRows <= maximumSourceRow) {
+          const next = await sourceRows.next()
+          if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
+          if (requiredSourceRows[loadedRows] !== 0) {
+            const slot = loadedRows % ringCapacity
+            const row = retainedRows[slot] ?? new Float64Array(accumulated.length)
+            horizontalLinearLight(
+              next.value,
+              plan.contentWidth,
+              horizontal,
+              row,
+              sourceFormat,
+              transfer,
+            )
+            retainedRows[slot] = row
+            retainedSourceRows[slot] = loadedRows
+          }
+          loadedRows += 1
+        }
+        accumulated.fill(0)
+        for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+          const sourceY = vertical.indices[sampleIndex]
+          const weight = vertical.weights[sampleIndex]
+          const slot = sourceY === undefined ? -1 : sourceY % ringCapacity
+          const row =
+            slot >= 0 && retainedSourceRows[slot] === sourceY ? retainedRows[slot] : undefined
+          if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
+          for (let index = 0; index < accumulated.length; index += 1) {
+            accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
+          }
+        }
+        writeLinearLightContent(
+          accumulated,
+          sourceFormat,
+          block,
+          blockOffset + plan.padX * outputBytesPerPixel,
+          plan.contentWidth,
+          outputFormat,
+          transfer,
+        )
+      }
+      blockHeight += 1
+      if (blockHeight === blockCapacity) {
+        yield {
+          x: 0,
+          y: blockY,
+          width: plan.canvasWidth,
+          height: blockHeight,
+          stride: outputStride,
+          format: outputFormat,
+          data: block,
+        }
+        blockY += blockHeight
+        blockHeight = 0
+        const remaining = plan.canvasHeight - blockY
+        if (remaining > 0) block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
+      }
+    }
+    while (!(await sourceRows.next()).done) {}
+    if (blockHeight > 0) {
+      yield {
+        x: 0,
+        y: blockY,
+        width: plan.canvasWidth,
+        height: blockHeight,
+        stride: outputStride,
+        format: outputFormat,
+        data: block.subarray(0, outputStride * blockHeight),
+      }
+    }
+  } finally {
+    await sourceRows.return?.(undefined)
+  }
+}
+
+type NativeHorizontalKernel = (
+  source: Uint8Array,
+  outputWidth: number,
+  axis: AxisCoefficients,
+  output: Float64Array,
+) => void
+
+const uint16Sample = (source: Uint8Array, offset: number): number =>
+  (source[offset] ?? 0) * 256 + (source[offset + 1] ?? 0)
+
+const horizontalGray16: NativeHorizontalKernel = (source, outputWidth, axis, output): void => {
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let gray = 0
+    for (let index = first; index < last; index += 1) {
+      gray += uint16Sample(source, (axis.indices[index] ?? 0) * 2) * (axis.weights[index] ?? 0)
+    }
+    output[x] = gray
+  }
+}
+
+const horizontalRgb16: NativeHorizontalKernel = (source, outputWidth, axis, output): void => {
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    for (let index = first; index < last; index += 1) {
+      const offset = (axis.indices[index] ?? 0) * 6
+      const weight = axis.weights[index] ?? 0
+      red += uint16Sample(source, offset) * weight
+      green += uint16Sample(source, offset + 2) * weight
+      blue += uint16Sample(source, offset + 4) * weight
+    }
+    const target = x * 3
+    output[target] = red
+    output[target + 1] = green
+    output[target + 2] = blue
+  }
+}
+
+const horizontalRgba16: NativeHorizontalKernel = (source, outputWidth, axis, output): void => {
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    let alpha = 0
+    for (let index = first; index < last; index += 1) {
+      const offset = (axis.indices[index] ?? 0) * 8
+      const weight = axis.weights[index] ?? 0
+      const sourceAlpha = uint16Sample(source, offset + 6)
+      const premultiply = sourceAlpha / 65_535
+      red += uint16Sample(source, offset) * premultiply * weight
+      green += uint16Sample(source, offset + 2) * premultiply * weight
+      blue += uint16Sample(source, offset + 4) * premultiply * weight
+      alpha += sourceAlpha * weight
+    }
+    const target = x * 4
+    output[target] = red
+    output[target + 1] = green
+    output[target + 2] = blue
+    output[target + 3] = alpha
+  }
+}
+
+const horizontalGrayF32: NativeHorizontalKernel = (source, outputWidth, axis, output): void => {
+  const view = new DataView(source.buffer, source.byteOffset, source.byteLength)
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let gray = 0
+    for (let index = first; index < last; index += 1) {
+      gray += view.getFloat32((axis.indices[index] ?? 0) * 4, false) * (axis.weights[index] ?? 0)
+    }
+    output[x] = gray
+  }
+}
+
+const horizontalRgbF32: NativeHorizontalKernel = (source, outputWidth, axis, output): void => {
+  const view = new DataView(source.buffer, source.byteOffset, source.byteLength)
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    for (let index = first; index < last; index += 1) {
+      const offset = (axis.indices[index] ?? 0) * 12
+      const weight = axis.weights[index] ?? 0
+      red += view.getFloat32(offset, false) * weight
+      green += view.getFloat32(offset + 4, false) * weight
+      blue += view.getFloat32(offset + 8, false) * weight
+    }
+    const target = x * 3
+    output[target] = red
+    output[target + 1] = green
+    output[target + 2] = blue
+  }
+}
+
+const nativeHorizontalKernel = (format: PixelFormat): NativeHorizontalKernel => {
+  if (format === 'gray16') return horizontalGray16
+  if (format === 'rgb16') return horizontalRgb16
+  if (format === 'rgba16') return horizontalRgba16
+  if (format === 'grayf32') return horizontalGrayF32
+  if (format === 'rgbf32') return horizontalRgbF32
+  throw invalidInput(`Resize does not support ${format} pixels natively`)
+}
+
+const nativeRows = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+  width: number,
+  height: number,
+  format: PixelFormat,
+): AsyncGenerator<Uint8Array> {
+  const rowBytes = width * pixelBytesPerPixel(format)
+  let expectedY = 0
+  for await (const block of blocks) {
+    try {
+      if (
+        block.x !== 0 ||
+        block.y !== expectedY ||
+        block.width !== width ||
+        block.height < 1 ||
+        block.y + block.height > height ||
+        block.format !== format ||
+        block.stride < rowBytes ||
+        block.data.byteLength < block.stride * (block.height - 1) + rowBytes
+      ) {
+        throw invalidInput('Resize requires ordered, full-width pixel blocks')
+      }
+      for (let row = 0; row < block.height; row += 1) {
+        yield block.data.subarray(row * block.stride, row * block.stride + rowBytes)
+        expectedY += 1
+      }
+    } finally {
+      block.release?.()
+    }
+  }
+  if (expectedY !== height) throw truncatedInput(`Resize received ${expectedY} of ${height} rows`)
+}
+
+const nativeInteger = (value: number): number => clamp(Math.round(value), 0, 65_535)
+
+const writeUint16 = (output: Uint8Array, offset: number, value: number): void => {
+  const rounded = nativeInteger(value)
+  output[offset] = rounded >>> 8
+  output[offset + 1] = rounded & 0xff
+}
+
+const fillNativeBackground = (
+  output: Uint8Array,
+  offset: number,
+  width: number,
+  format: PixelFormat,
+  background: readonly [number, number, number, number],
+): void => {
+  const descriptor = pixelStorage(format)
+  if (descriptor.bytesPerSample !== 2 || descriptor.sampleType !== 'unsigned-integer') {
+    throw invalidInput('Native float resize does not support a background canvas')
+  }
+  for (let x = 0; x < width; x += 1) {
+    const target = offset + x * descriptor.channels * 2
+    writeUint16(output, target, background[0] * 257)
+    if (descriptor.channels > 1) {
+      writeUint16(output, target + 2, background[1] * 257)
+      writeUint16(output, target + 4, background[2] * 257)
+      if (descriptor.channels === 4) writeUint16(output, target + 6, background[3] * 257)
+    }
+  }
+}
+
+const writeNativeContent = (
+  source: Float64Array,
+  sourceFormat: PixelFormat,
+  output: Uint8Array,
+  outputOffset: number,
+  width: number,
+  outputFormat: PixelFormat,
+): void => {
+  const sourceDescriptor = pixelStorage(sourceFormat)
+  const outputDescriptor = pixelStorage(outputFormat)
+  if (sourceDescriptor.sampleType === 'floating-point') {
+    const view = new DataView(output.buffer, output.byteOffset, output.byteLength)
+    for (let index = 0; index < width * sourceDescriptor.channels; index += 1) {
+      view.setFloat32(outputOffset + index * 4, source[index] ?? Number.NaN, false)
+    }
+    return
+  }
+  for (let x = 0; x < width; x += 1) {
+    const sourceOffset = x * sourceDescriptor.channels
+    const target = outputOffset + x * outputDescriptor.channels * 2
+    if (sourceFormat === 'gray16') {
+      const gray = source[sourceOffset] ?? 0
+      writeUint16(output, target, gray)
+      if (outputDescriptor.channels > 1) {
+        writeUint16(output, target + 2, gray)
+        writeUint16(output, target + 4, gray)
+        if (outputDescriptor.channels === 4) writeUint16(output, target + 6, 65_535)
+      }
+    } else if (sourceFormat === 'rgb16') {
+      writeUint16(output, target, source[sourceOffset] ?? 0)
+      writeUint16(output, target + 2, source[sourceOffset + 1] ?? 0)
+      writeUint16(output, target + 4, source[sourceOffset + 2] ?? 0)
+      if (outputDescriptor.channels === 4) writeUint16(output, target + 6, 65_535)
+    } else {
+      const alphaValue = clamp(source[sourceOffset + 3] ?? 0, 0, 65_535)
+      const unpremultiply = alphaValue > 0 ? 65_535 / alphaValue : 0
+      writeUint16(output, target, (source[sourceOffset] ?? 0) * unpremultiply)
+      writeUint16(output, target + 2, (source[sourceOffset + 1] ?? 0) * unpremultiply)
+      writeUint16(output, target + 4, (source[sourceOffset + 2] ?? 0) * unpremultiply)
+      writeUint16(output, target + 6, alphaValue)
+    }
+  }
+}
+
+const resizedNativeBlocks = async function* (
+  input: AsyncIterable<PixelBlock>,
+  sourceWidth: number,
+  sourceHeight: number,
+  sourceFormat: PixelFormat,
+  plan: ResizePlan,
+  outputFormat: PixelFormat,
+): AsyncGenerator<PixelBlock> {
+  const horizontal = coefficients(
+    sourceWidth,
+    plan.scaledWidth,
+    plan.cropX,
+    plan.contentWidth,
+    plan.kernel,
+  )
+  const vertical = coefficients(
+    sourceHeight,
+    plan.scaledHeight,
+    plan.cropY,
+    plan.contentHeight,
+    plan.kernel,
+  )
+  const sourceRows = nativeRows(input, sourceWidth, sourceHeight, sourceFormat)[
+    Symbol.asyncIterator
+  ]()
+  const sourceChannels = pixelStorage(sourceFormat).channels
+  const requiredSourceRows = new Uint8Array(sourceHeight)
+  for (const sourceRow of vertical.indices) requiredSourceRows[sourceRow] = 1
+  const ringCapacity = verticalRingCapacity(vertical, plan.contentHeight)
+  const retainedSourceRows = new Int32Array(ringCapacity)
+  retainedSourceRows.fill(-1)
+  const retainedRows: (Float64Array | undefined)[] = new Array(ringCapacity)
+  const resizeHorizontal = nativeHorizontalKernel(sourceFormat)
+  const outputBytesPerPixel = pixelBytesPerPixel(outputFormat)
+  const outputStride = plan.canvasWidth * outputBytesPerPixel
+  const blockCapacity = Math.min(outputBlockRows, plan.canvasHeight)
+  let block = new Uint8Array(outputStride * blockCapacity)
+  const accumulated = new Float64Array(plan.contentWidth * sourceChannels)
+  let loadedRows = 0
+  let blockHeight = 0
+  let blockY = 0
+
+  try {
+    for (let canvasY = 0; canvasY < plan.canvasHeight; canvasY += 1) {
+      const blockOffset = blockHeight * outputStride
+      if (plan.background) {
+        fillNativeBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
+      }
+      const contentY = canvasY - plan.padY
+      if (contentY >= 0 && contentY < plan.contentHeight) {
+        const first = vertical.offsets[contentY] ?? 0
+        const last = vertical.offsets[contentY + 1] ?? first
+        const maximumSourceRow = vertical.indices[last - 1]
+        if (maximumSourceRow === undefined)
+          throw invalidInput('Resize vertical coefficients are empty')
+        while (loadedRows <= maximumSourceRow) {
+          const next = await sourceRows.next()
+          if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
+          if (requiredSourceRows[loadedRows] !== 0) {
+            const slot = loadedRows % ringCapacity
+            const resizedRow = retainedRows[slot] ?? new Float64Array(accumulated.length)
+            resizeHorizontal(next.value, plan.contentWidth, horizontal, resizedRow)
+            retainedRows[slot] = resizedRow
+            retainedSourceRows[slot] = loadedRows
+          }
+          loadedRows += 1
+        }
+        accumulated.fill(0)
+        for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+          const sourceY = vertical.indices[sampleIndex]
+          const weight = vertical.weights[sampleIndex]
+          const slot = sourceY === undefined ? -1 : sourceY % ringCapacity
+          const row =
+            slot >= 0 && retainedSourceRows[slot] === sourceY ? retainedRows[slot] : undefined
+          if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
+          for (let index = 0; index < accumulated.length; index += 1) {
+            accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
+          }
+        }
+        writeNativeContent(
+          accumulated,
+          sourceFormat,
+          block,
+          blockOffset + plan.padX * outputBytesPerPixel,
+          plan.contentWidth,
+          outputFormat,
+        )
+      }
+      blockHeight += 1
+      if (blockHeight === blockCapacity) {
+        yield {
+          x: 0,
+          y: blockY,
+          width: plan.canvasWidth,
+          height: blockHeight,
+          stride: outputStride,
+          format: outputFormat,
+          data: block,
+        }
+        blockY += blockHeight
+        blockHeight = 0
+        const remaining = plan.canvasHeight - blockY
+        if (remaining > 0) block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
+      }
+    }
+    while (!(await sourceRows.next()).done) {}
+    if (blockHeight > 0) {
+      yield {
+        x: 0,
+        y: blockY,
+        width: plan.canvasWidth,
+        height: blockHeight,
+        stride: outputStride,
+        format: outputFormat,
+        data: block.subarray(0, outputStride * blockHeight),
+      }
+    }
+  } finally {
+    await sourceRows.return?.(undefined)
+  }
 }
 
 const rows = async function* (
@@ -909,9 +1543,32 @@ export const createResizeTransform = (
   height: number,
   pixelFormat: PixelFormat,
   options: ResizeOptions,
+  colorSemantics?: PixelColorSemantics,
 ): ResizeTransform => {
   const plan = resizePlan(width, height, options)
   const format = resultFormat(pixelFormat, plan.background)
+  if (pixelFormat.startsWith('rgba') && colorSemantics?.alpha === 'premultiplied') {
+    throw unsupportedOperation('Resize does not support explicitly premultiplied alpha input')
+  }
+  if (options.colorSpace === 'linear-light') {
+    const transfer = validateLinearLightSemantics(pixelFormat, colorSemantics)
+    return {
+      width: plan.canvasWidth,
+      height: plan.canvasHeight,
+      pixelFormat: format,
+      apply: (blocks) =>
+        resizedLinearLightBlocks(blocks, width, height, pixelFormat, plan, format, transfer),
+    }
+  }
+  if (nativeResizeFormat(pixelFormat)) {
+    return {
+      width: plan.canvasWidth,
+      height: plan.canvasHeight,
+      pixelFormat: format,
+      apply: (blocks) => resizedNativeBlocks(blocks, width, height, pixelFormat, plan, format),
+    }
+  }
+  channels(pixelFormat)
   const factorX = boxShrinkFactor(width, plan.scaledWidth, plan.kernel)
   const factorY = boxShrinkFactor(height, plan.scaledHeight, plan.kernel)
   const resizedWidth = width / factorX

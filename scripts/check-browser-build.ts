@@ -79,6 +79,7 @@ const applicationPlatformResult = await build({
       export * from './src/analysis/roi-entry.ts'
       export * from './src/analysis/runtime.ts'
       export * from './src/extensions/index.ts'
+      export * from './src/evidence.ts'
     `,
     loader: 'ts',
     resolveDir: process.cwd(),

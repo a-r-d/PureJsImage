@@ -21,9 +21,26 @@ export type {
   PreservedMetadata,
 } from './codec.ts'
 export { CodecRegistry } from './codec.ts'
+export type {
+  PixelAlphaSemantics,
+  PixelColorFamily,
+  PixelColorPrimaries,
+  PixelColorProvenance,
+  PixelColorSemantics,
+  PixelIccSemantics,
+  PixelMatrixCoefficients,
+  PixelRange,
+  PixelTransferFunction,
+} from './color.ts'
 export type { ImageErrorCode } from './errors.ts'
 export { ImageError } from './errors.ts'
-export type { Image, ImageLibrary, ImageOpenOptions, NodeImageLibraryOptions } from './image.ts'
+export type {
+  Image,
+  ImageExecutionOptions,
+  ImageLibrary,
+  ImageOpenOptions,
+  NodeImageLibraryOptions,
+} from './image.ts'
 export { createImageLibrary } from './image.ts'
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
@@ -31,9 +48,12 @@ export { BufferSink, FileSink } from './node-sink.ts'
 export type { ImageInput } from './node-source.ts'
 export { FileSource } from './node-source.ts'
 export type {
+  AlphaRemoval,
   AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
+  ConvertiblePixelFormat,
+  ConvertPixelFormatOptions,
   CropOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
@@ -44,6 +64,7 @@ export type {
   PbmEncodeOptions,
   PfmEncodeOptions,
   PgmEncodeOptions,
+  PixelConversionRange,
   PngEncodeOptions,
   PpmEncodeOptions,
   QoiEncodeOptions,
@@ -57,8 +78,13 @@ export type {
   WebpEncodeOptions,
   WindowOptions,
 } from './pipeline.ts'
-export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.ts'
-export { BufferPool } from './pixel.ts'
+export type {
+  PixelBlock,
+  PixelFormat,
+  PixelSampleDisplayRange,
+  PixelStorageDescriptor,
+} from './pixel.ts'
+export { BufferPool, pixelBytesPerPixel, pixelStorage } from './pixel.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
 export type { ImageSource, ImageSourceReadOptions } from './source.ts'

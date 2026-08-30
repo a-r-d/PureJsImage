@@ -1,8 +1,9 @@
 import type { AbortOptions } from '../abort.ts'
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
-import { invalidInput, limitExceeded, unsupportedFormat } from '../errors.ts'
+import { ImageError, invalidInput, limitExceeded, unsupportedFormat } from '../errors.ts'
 import {
   bindImageSourceSignal,
+  drainSourceEvidenceDependencies,
   type ImageSource,
   type ImageSourceReadOptions,
   sourceSessionEnd,
@@ -13,10 +14,15 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificMetadataObject,
+  ScientificPlaneReadRequest,
+  ScientificSeriesBlock,
+  ScientificSeriesReadRequest,
 } from './dataset.ts'
 import { normalizeScientificMetadataObject } from './dataset.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { getImageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
+import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
+import type { RasterBlock } from '../raster.ts'
 
 /** One named input resource used by a scientific reader. */
 export interface ScientificResource {
@@ -76,6 +82,8 @@ export interface ScientificOpenContext extends AbortOptions {
   /** Disambiguate explicitly registered versions of one reader ID. */
   readonly readerVersion?: string
   readonly probeLimits?: ScientificProbeLimitOptions
+  /** Optional caller-owned execution evidence. No collector is created by default. */
+  readonly evidence?: EvidenceContext
 }
 
 export interface ScientificReaderDescriptor {
@@ -227,6 +235,9 @@ const requiredString = (value: unknown, label: string): string => {
 
 const optionalString = (value: unknown, label: string): string | undefined =>
   value === undefined ? undefined : requiredString(value, label)
+
+const evidenceFailureCode = (error: unknown): string =>
+  error instanceof ImageError ? error.code : 'UNKNOWN'
 
 const positiveInteger = (value: unknown, label: string): number => {
   if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) {
@@ -537,6 +548,7 @@ const normalizeContext = (
     ...(readerVersion === undefined ? {} : { readerVersion }),
     probeLimits,
     ...(context.signal === undefined ? {} : { signal: context.signal }),
+    ...(context.evidence === undefined ? {} : { evidence: context.evidence }),
   })
 }
 
@@ -561,6 +573,179 @@ const normalizeProbeResult = (
 
 const readerKey = (descriptor: ScientificReaderDescriptor): string =>
   `${descriptor.id}\0${descriptor.version}`
+
+const evidenceRasterBlock = (
+  block: RasterBlock,
+  evidence: EvidenceContext,
+  category: string,
+): RasterBlock => {
+  if (block.release === undefined) return block
+  const lease: EvidenceManagedLease = evidence.allocate(category, block.data.byteLength)
+  let released = false
+  return Object.freeze({
+    ...block,
+    release: (): void => {
+      if (released) return
+      released = true
+      try {
+        block.release?.()
+      } finally {
+        lease.release()
+      }
+    },
+  })
+}
+
+const evidenceSeriesBlock = (
+  block: ScientificSeriesBlock,
+  evidence: EvidenceContext,
+  category: string,
+): ScientificSeriesBlock => {
+  if (block.release === undefined) return block
+  const lease: EvidenceManagedLease = evidence.allocate(category, block.data.byteLength)
+  let released = false
+  return Object.freeze({
+    ...block,
+    release: (): void => {
+      if (released) return
+      released = true
+      try {
+        block.release?.()
+      } finally {
+        lease.release()
+      }
+    },
+  })
+}
+
+const evidenceDataset = (
+  dataset: ScientificDataset,
+  source: ImageSource,
+  evidence: EvidenceContext,
+): ScientificDataset => {
+  const scope = evidence.child('scientific-dataset')
+  scope.operation({
+    operationId: 'scientific-dataset-selection',
+    phase: 'planned',
+  })
+  const wrapped: ScientificDataset = {
+    descriptor: dataset.descriptor,
+    async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock> {
+      const plane = scope.child('scientific-plane')
+      plane.operation({ operationId: 'scientific-plane-read', phase: 'start' })
+      let blockIndex = 0
+      try {
+        for await (const block of dataset.readPlane(request)) {
+          const outputId = `scientific-plane-block:${blockIndex}`
+          const inputIds = source[drainSourceEvidenceDependencies]?.() ?? []
+          plane.operation({ operationId: 'scientific-source-block', phase: 'complete' })
+          plane.dependency({ outputId, inputIds, granularity: 'block' })
+          blockIndex += 1
+          yield evidenceRasterBlock(block, plane, 'scientific-canonical-block')
+        }
+        plane.operation({ operationId: 'scientific-plane-read', phase: 'complete' })
+      } catch (error) {
+        if (request.signal?.aborted === true) {
+          plane.cancellation('scientific-plane-read')
+          plane.operation({ operationId: 'scientific-plane-read', phase: 'cancelled' })
+        } else {
+          plane.operation({
+            operationId: 'scientific-plane-read',
+            phase: 'failed',
+            failureCode: evidenceFailureCode(error),
+          })
+        }
+        throw error
+      }
+    },
+    ...(dataset.readSeries === undefined
+      ? {}
+      : {
+          async *readSeries(
+            request: Readonly<ScientificSeriesReadRequest>,
+          ): AsyncIterable<ScientificSeriesBlock> {
+            const series = scope.child('scientific-series')
+            series.operation({ operationId: 'scientific-series-read', phase: 'start' })
+            let blockIndex = 0
+            try {
+              for await (const block of dataset.readSeries?.(request) ?? []) {
+                const outputId = `scientific-series-block:${blockIndex}`
+                const inputIds = source[drainSourceEvidenceDependencies]?.() ?? []
+                series.operation({ operationId: 'scientific-source-block', phase: 'complete' })
+                series.dependency({ outputId, inputIds, granularity: 'block' })
+                blockIndex += 1
+                yield evidenceSeriesBlock(block, series, 'scientific-canonical-block')
+              }
+              series.operation({ operationId: 'scientific-series-read', phase: 'complete' })
+            } catch (error) {
+              if (request.signal?.aborted === true) {
+                series.cancellation('scientific-series-read')
+                series.operation({ operationId: 'scientific-series-read', phase: 'cancelled' })
+              } else {
+                series.operation({
+                  operationId: 'scientific-series-read',
+                  phase: 'failed',
+                  failureCode: evidenceFailureCode(error),
+                })
+              }
+              throw error
+            }
+          },
+        }),
+  }
+  const identity = getScientificDatasetIdentity(dataset)
+  return identity === undefined
+    ? Object.freeze(wrapped)
+    : identifyScientificDataset(wrapped, identity)
+}
+
+const evidenceDocument = (
+  document: ScientificDocument,
+  source: ImageSource,
+  evidence: EvidenceContext,
+): ScientificDocument => {
+  const scope = evidence.child('scientific-document')
+  return Object.freeze({
+    reader: document.reader,
+    format: document.format,
+    metadata: document.metadata,
+    datasets: document.datasets,
+    async openDataset(
+      id: string,
+      options: Readonly<AbortOptions> = {},
+    ): Promise<ScientificDataset> {
+      const datasetScope = scope.child('scientific-dataset-open')
+      datasetScope.operation({
+        operationId: 'scientific-dataset-open',
+        phase: 'start',
+      })
+      try {
+        const dataset = await document.openDataset(id, options)
+        datasetScope.operation({
+          operationId: 'scientific-dataset-open',
+          phase: 'complete',
+        })
+        return evidenceDataset(dataset, source, datasetScope)
+      } catch (error) {
+        if (options.signal?.aborted === true) {
+          datasetScope.cancellation('scientific-dataset-open')
+          datasetScope.operation({
+            operationId: 'scientific-dataset-open',
+            phase: 'cancelled',
+          })
+        } else {
+          datasetScope.operation({
+            operationId: 'scientific-dataset-open',
+            phase: 'failed',
+            failureCode: evidenceFailureCode(error),
+          })
+        }
+        throw error
+      }
+    },
+    ...(document.close === undefined ? {} : { close: () => document.close?.() }),
+  })
+}
 
 /** Explicit caller-owned scientific reader registry. Construction has no global side effects. */
 export class ScientificReaderRegistry {
@@ -683,19 +868,69 @@ export class ScientificReaderRegistry {
   }
 
   async detect(context: Readonly<ScientificOpenContext>): Promise<ScientificReaderDetection> {
-    return (await this.#detectImplementation(context)).detection
+    const evidence = context.evidence?.child('scientific-reader-detection')
+    evidence?.operation({ operationId: 'scientific-reader-detection', phase: 'start' })
+    try {
+      const detection = (await this.#detectImplementation(context)).detection
+      evidence?.operation({
+        operationId: 'scientific-reader-selection',
+        phase: 'complete',
+        detail: `${detection.reader.id}@${detection.reader.version}`,
+      })
+      evidence?.operation({ operationId: 'scientific-reader-detection', phase: 'complete' })
+      return detection
+    } catch (error) {
+      if (context.signal?.aborted === true) {
+        evidence?.cancellation('scientific-reader-detection')
+        evidence?.operation({ operationId: 'scientific-reader-detection', phase: 'cancelled' })
+      } else {
+        evidence?.operation({
+          operationId: 'scientific-reader-detection',
+          phase: 'failed',
+          failureCode: evidenceFailureCode(error),
+        })
+      }
+      throw error
+    }
   }
 
   async open(context: Readonly<ScientificOpenContext>): Promise<ScientificDocument> {
-    const selected = await this.#detectImplementation(context)
-    const openContext = normalizeContext({
-      ...context,
-      readerId: selected.registered.descriptor.id,
-      readerVersion: selected.registered.descriptor.version,
-    })
-    throwIfAborted(openContext.signal)
-    return withSourceSession(openContext.primary.source, () =>
-      selected.registered.implementation.open(openContext),
-    )
+    const evidence = context.evidence?.child('scientific-document-open')
+    evidence?.operation({ operationId: 'scientific-reader-detection', phase: 'start' })
+    try {
+      const selected = await this.#detectImplementation(context)
+      evidence?.operation({
+        operationId: 'scientific-reader-selection',
+        phase: 'complete',
+        detail: `${selected.registered.descriptor.id}@${selected.registered.descriptor.version}`,
+      })
+      evidence?.operation({ operationId: 'scientific-reader-detection', phase: 'complete' })
+      const openContext = normalizeContext({
+        ...context,
+        readerId: selected.registered.descriptor.id,
+        readerVersion: selected.registered.descriptor.version,
+      })
+      throwIfAborted(openContext.signal)
+      evidence?.operation({ operationId: 'scientific-document-open', phase: 'start' })
+      const document = await withSourceSession(openContext.primary.source, () =>
+        selected.registered.implementation.open(openContext),
+      )
+      evidence?.operation({ operationId: 'scientific-document-open', phase: 'complete' })
+      return evidence === undefined
+        ? document
+        : evidenceDocument(document, openContext.primary.source, evidence)
+    } catch (error) {
+      if (context.signal?.aborted === true) {
+        evidence?.cancellation('scientific-document-open')
+        evidence?.operation({ operationId: 'scientific-document-open', phase: 'cancelled' })
+      } else {
+        evidence?.operation({
+          operationId: 'scientific-document-open',
+          phase: 'failed',
+          failureCode: evidenceFailureCode(error),
+        })
+      }
+      throw error
+    }
   }
 }

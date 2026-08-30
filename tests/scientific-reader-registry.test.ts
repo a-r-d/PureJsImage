@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { createEvidenceSession, instrumentImageSource } from '../src/evidence.ts'
 import type { RasterBlock } from '../src/raster.ts'
 import {
   MemorySource,
@@ -483,6 +484,44 @@ describe('scientific reader lifecycle', () => {
     await expect(document.openDataset('image-0')).resolves.toBe(dataset)
     expect(dataset.reads).toBe(0)
     expect(opens).toBe(1)
+  })
+
+  it('records normalized reader, dataset, plane, block, and dependency evidence', async () => {
+    const reader = mockReader({ id: 'test/evidence', confidence: 1 })
+    const session = createEvidenceSession({ mode: 'trace' })
+    const source = instrumentImageSource(
+      new MemorySource(Uint8Array.of(1, 2, 3, 4)),
+      session.context,
+    )
+    const document = await new ScientificReaderRegistry([reader]).open(
+      context(source, { evidence: session.context }),
+    )
+    const dataset = await document.openDataset('image-0')
+    const blocks: RasterBlock[] = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [],
+    })) {
+      blocks.push(block)
+      block.release?.()
+    }
+    const report = session.finalize()
+    expect(blocks).toHaveLength(1)
+    expect(report.operations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          operationId: 'scientific-reader-selection',
+          phase: 'complete',
+        }),
+        expect.objectContaining({ operationId: 'scientific-document-open', phase: 'complete' }),
+        expect.objectContaining({ operationId: 'scientific-dataset-open', phase: 'complete' }),
+        expect.objectContaining({ operationId: 'scientific-plane-read', phase: 'complete' }),
+        expect.objectContaining({ operationId: 'scientific-source-block', phase: 'complete' }),
+      ]),
+    )
+    expect(report.dependencies).toEqual([
+      expect.objectContaining({ outputId: 'scientific-plane-block:0', granularity: 'block' }),
+    ])
   })
 
   it('preserves exact sidecar calibration evidence and contributing resource identity', async () => {

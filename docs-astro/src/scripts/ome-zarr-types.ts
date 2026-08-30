@@ -157,37 +157,55 @@ export interface OmeZarrStats {
 }
 
 export type OmeZarrWorkerRequest =
-  | { readonly type: 'open'; readonly url: string; readonly publishedStoreBytes?: number }
-  | { readonly type: 'select-dataset'; readonly datasetId: string; readonly generation: number }
-  | { readonly type: 'configure'; readonly configuration: OmeZarrRenderConfiguration }
+  | {
+      readonly type: 'open'
+      readonly epoch: number
+      readonly url: string
+      readonly publishedStoreBytes?: number
+    }
+  | {
+      readonly type: 'select-dataset'
+      readonly epoch: number
+      readonly datasetId: string
+      readonly generation: number
+    }
+  | {
+      readonly type: 'configure'
+      readonly epoch: number
+      readonly configuration: OmeZarrRenderConfiguration
+    }
   | {
       readonly type: 'tile'
+      readonly epoch: number
       readonly requestId: number
       readonly generation: number
       readonly level: number
       readonly column: number
       readonly row: number
     }
-  | { readonly type: 'cancel'; readonly requestId: number }
-  | { readonly type: 'reset' }
-  | { readonly type: 'stats' }
+  | { readonly type: 'cancel'; readonly epoch: number; readonly requestId: number }
+  | { readonly type: 'reset'; readonly epoch: number }
+  | { readonly type: 'stats'; readonly epoch: number }
 
 export type OmeZarrWorkerResponse =
-  | { readonly type: 'opening'; readonly message: string }
+  | { readonly type: 'opening'; readonly epoch: number; readonly message: string }
   | {
       readonly type: 'opened'
+      readonly epoch: number
       readonly metadata: OmeZarrMetadata
       readonly configuration: OmeZarrRenderConfiguration
       readonly stats: OmeZarrStats
     }
   | {
       readonly type: 'configured'
+      readonly epoch: number
       readonly metadata: OmeZarrMetadata
       readonly configuration: OmeZarrRenderConfiguration
       readonly stats: OmeZarrStats
     }
   | {
       readonly type: 'tile'
+      readonly epoch: number
       readonly requestId: number
       readonly generation: number
       readonly level: number
@@ -202,15 +220,125 @@ export type OmeZarrWorkerResponse =
     }
   | {
       readonly type: 'tile-cancelled'
+      readonly epoch: number
       readonly requestId: number
       readonly generation: number
       readonly stats: OmeZarrStats
     }
   | {
       readonly type: 'error'
+      readonly epoch: number
       readonly requestId?: number
       readonly generation?: number
       readonly message: string
       readonly stats?: OmeZarrStats
     }
-  | { readonly type: 'stats'; readonly stats: OmeZarrStats }
+  | { readonly type: 'stats'; readonly epoch: number; readonly stats: OmeZarrStats }
+  | { readonly type: 'reset'; readonly epoch: number; readonly stats: OmeZarrStats }
+
+type UnknownRecord = Readonly<Record<string, unknown>>
+
+const isRecord = (value: unknown): value is UnknownRecord =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const exactKeys = (
+  value: UnknownRecord,
+  required: readonly string[],
+  optional: readonly string[] = [],
+): boolean => {
+  const allowed = new Set([...required, ...optional])
+  const keys = Object.keys(value)
+  return required.every((key) => keys.includes(key)) && keys.every((key) => allowed.has(key))
+}
+
+const integer = (value: unknown, minimum = 0): value is number =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= minimum
+
+const finite = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value)
+
+const isAxisIndex = (value: unknown): value is OmeZarrAxisIndexConfiguration =>
+  isRecord(value) &&
+  exactKeys(value, ['axisId', 'index']) &&
+  typeof value.axisId === 'string' &&
+  value.axisId.length > 0 &&
+  integer(value.index)
+
+const isChannel = (value: unknown): value is OmeZarrChannelConfiguration =>
+  isRecord(value) &&
+  exactKeys(value, [
+    'index',
+    'enabled',
+    'color',
+    'minimum',
+    'maximum',
+    'gamma',
+    'coefficient',
+    'inverted',
+  ]) &&
+  integer(value.index) &&
+  typeof value.enabled === 'boolean' &&
+  integer(value.color) &&
+  finite(value.minimum) &&
+  finite(value.maximum) &&
+  finite(value.gamma) &&
+  finite(value.coefficient) &&
+  typeof value.inverted === 'boolean'
+
+const isLabel = (value: unknown): value is OmeZarrLabelConfiguration =>
+  isRecord(value) &&
+  exactKeys(value, ['datasetId', 'opacity']) &&
+  typeof value.datasetId === 'string' &&
+  value.datasetId.length > 0 &&
+  finite(value.opacity)
+
+const isConfiguration = (value: unknown): value is OmeZarrRenderConfiguration =>
+  isRecord(value) &&
+  exactKeys(value, ['generation', 'datasetId', 'fixedIndices', 'channels'], ['label']) &&
+  integer(value.generation, 1) &&
+  typeof value.datasetId === 'string' &&
+  value.datasetId.length > 0 &&
+  Array.isArray(value.fixedIndices) &&
+  value.fixedIndices.every(isAxisIndex) &&
+  Array.isArray(value.channels) &&
+  value.channels.every(isChannel) &&
+  (value.label === undefined || isLabel(value.label))
+
+export const isOmeZarrWorkerRequest = (value: unknown): value is OmeZarrWorkerRequest => {
+  if (!isRecord(value) || !integer(value.epoch, 1) || typeof value.type !== 'string') return false
+  if (value.type === 'open') {
+    return (
+      exactKeys(value, ['type', 'epoch', 'url'], ['publishedStoreBytes']) &&
+      typeof value.url === 'string' &&
+      value.url.trim().length > 0 &&
+      (value.publishedStoreBytes === undefined || integer(value.publishedStoreBytes, 1))
+    )
+  }
+  if (value.type === 'select-dataset') {
+    return (
+      exactKeys(value, ['type', 'epoch', 'datasetId', 'generation']) &&
+      typeof value.datasetId === 'string' &&
+      value.datasetId.length > 0 &&
+      integer(value.generation, 1)
+    )
+  }
+  if (value.type === 'configure') {
+    return (
+      exactKeys(value, ['type', 'epoch', 'configuration']) && isConfiguration(value.configuration)
+    )
+  }
+  if (value.type === 'tile') {
+    return (
+      exactKeys(value, ['type', 'epoch', 'requestId', 'generation', 'level', 'column', 'row']) &&
+      integer(value.requestId, 1) &&
+      integer(value.generation, 1) &&
+      integer(value.level) &&
+      integer(value.column) &&
+      integer(value.row)
+    )
+  }
+  if (value.type === 'cancel') {
+    return exactKeys(value, ['type', 'epoch', 'requestId']) && integer(value.requestId, 1)
+  }
+  return (value.type === 'reset' || value.type === 'stats') && exactKeys(value, ['type', 'epoch'])
+}

@@ -1,5 +1,5 @@
+import { type BundleSizeBudget, bundleSizeBudgets } from './bundle-size-budgets.ts'
 import type { CapabilityManifest, CodecCapability } from './capability-manifest.ts'
-import { bundleSizeBudgets, type BundleSizeBudget } from './bundle-size-budgets.ts'
 
 export type BundleCodec = string
 
@@ -26,6 +26,8 @@ export interface BundleTarget {
   readonly packageName: string
   readonly packageNames?: readonly string[]
   readonly sourceEntries?: readonly string[]
+  /** Selects one side of an ESM split build for a lazily loaded public entry. */
+  readonly splitOutput?: 'entry' | 'chunks'
 }
 
 export interface CompetitorBundleTarget extends BundleTarget {
@@ -114,6 +116,7 @@ const sourceTarget = ({
   packageExport,
   packageName = 'purejsimage',
   sourceEntries,
+  splitOutput,
 }: {
   readonly category?: BundleTargetCategory
   readonly codecs?: readonly BundleCodec[]
@@ -123,6 +126,7 @@ const sourceTarget = ({
   readonly packageExport?: string
   readonly packageName?: string
   readonly sourceEntries: readonly string[]
+  readonly splitOutput?: BundleTarget['splitOutput']
 }): BundleTarget =>
   budgeted({
     category,
@@ -134,6 +138,7 @@ const sourceTarget = ({
     ...(packageExport === undefined ? {} : { packageExport }),
     packageName,
     sourceEntries,
+    ...(splitOutput === undefined ? {} : { splitOutput }),
   })
 
 const packageTarget = ({
@@ -217,9 +222,18 @@ const staticPureJsImageTargets = (): readonly BundleTarget[] => [
   sourceTarget({
     id: 'core',
     implementation: 'package-core',
-    name: 'Core API',
+    name: 'Core API initial chunk',
     packageExport: 'purejsimage',
     sourceEntries: ['./src/index.ts'],
+    splitOutput: 'entry',
+  }),
+  sourceTarget({
+    id: 'core-execution',
+    implementation: 'package-core',
+    name: 'Core execution chunk',
+    packageExport: 'purejsimage',
+    sourceEntries: ['./src/index.ts'],
+    splitOutput: 'chunks',
   }),
   sourceTarget({
     id: 'scientific',

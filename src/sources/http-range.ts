@@ -1,6 +1,12 @@
 import { combineAbortSignals, throwIfAborted, waitForPromise } from '../abort.ts'
 import { ImageError, invalidInput, truncatedInput } from '../errors.ts'
-import { stableSourceBuffers, type ImageSource, type ImageSourceReadOptions } from '../source.ts'
+import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
+import {
+  sourceReadEvidenceDependencies,
+  stableSourceBuffers,
+  type ImageSource,
+  type ImageSourceReadOptions,
+} from '../source.ts'
 import type { RemoteSourceIdentity } from '../source-identity.ts'
 import { imageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
 
@@ -49,6 +55,16 @@ export interface HttpRangeSourceOptions {
   readonly allowHeadSizeFallback?: boolean
   /** Return `undefined` when the initial range probe receives HTTP 404 or 410. */
   readonly allowNotFound?: boolean
+  /** Optional caller-owned execution evidence. No collector is created by default. */
+  readonly evidence?: EvidenceContext
+  /** Explicit bounded policy. Fixed remains the default. */
+  readonly rangePolicy?:
+    | { readonly kind: 'fixed' }
+    | {
+        readonly kind: 'adaptive'
+        readonly maxBlockBytes?: number
+        readonly sequentialReadsBeforeGrowth?: number
+      }
 }
 
 export interface HttpRangeSourceStats {
@@ -70,6 +86,8 @@ export interface HttpRangeSourceStats {
 interface HttpRangeBlock {
   readonly data: Uint8Array<ArrayBuffer>
   readonly start: number
+  readonly evidenceIds: readonly string[]
+  readonly evidenceLease?: EvidenceManagedLease
 }
 
 interface CoverageRange {
@@ -130,6 +148,7 @@ const exactResponseBytes = async (
   label: string,
   expected: number,
   signal: AbortSignal | undefined,
+  onBytes?: (bytes: number) => void,
 ): Promise<Uint8Array<ArrayBuffer>> => {
   const rawContentLength = response.headers.get('content-length')
   if (rawContentLength !== null) {
@@ -152,6 +171,7 @@ const exactResponseBytes = async (
     }
     try {
       const buffered = new Uint8Array(await response.arrayBuffer())
+      onBytes?.(buffered.byteLength)
       throwIfAborted(signal)
       if (buffered.byteLength !== expected) {
         throw truncatedInput(`${label} returned ${buffered.byteLength} of ${expected} bytes`)
@@ -195,6 +215,7 @@ const exactResponseBytes = async (
       }
       output.set(result.value, received)
       received += result.value.byteLength
+      onBytes?.(result.value.byteLength)
     }
   } catch (cause) {
     throwIfAborted(signal)
@@ -246,9 +267,16 @@ export class HttpRangeSource implements ImageSource {
   readonly #maxCacheBytes: number
   readonly #allowMissingContentRange: boolean
   readonly #cache = new Map<number, HttpRangeBlock>()
-  readonly #pending = new Map<number, InflightBlock>()
+  readonly #pending = new Map<string, InflightBlock>()
   readonly #validator: HttpRangeValidator | undefined
   readonly #identity: RemoteSourceIdentity
+  readonly #evidence: EvidenceContext | undefined
+  readonly #rangePolicy: 'fixed' | 'adaptive'
+  readonly #maxAdaptiveBlockBytes: number
+  readonly #sequentialReadsBeforeGrowth: number
+  #adaptiveBlockBytes: number
+  #previousReadEnd = -1
+  #sequentialReads = 0
   #covered: CoverageRange[] = []
   #cacheBytes = 0
   #requests = 0
@@ -274,6 +302,17 @@ export class HttpRangeSource implements ImageSource {
     this.#maxCacheBytes = options.maxCacheBytes ?? defaultBufferBytes * defaultBufferSlots
     this.#allowMissingContentRange = allowMissingContentRange
     this.#validator = validator
+    this.#evidence = options.evidence
+    this.#rangePolicy = options.rangePolicy?.kind ?? 'fixed'
+    this.#maxAdaptiveBlockBytes =
+      options.rangePolicy?.kind === 'adaptive'
+        ? (options.rangePolicy.maxBlockBytes ?? Math.min(this.#maxCacheBytes, this.#blockBytes * 4))
+        : this.#blockBytes
+    this.#sequentialReadsBeforeGrowth =
+      options.rangePolicy?.kind === 'adaptive'
+        ? (options.rangePolicy.sequentialReadsBeforeGrowth ?? 2)
+        : 2
+    this.#adaptiveBlockBytes = this.#blockBytes
     const identityValidator =
       validator === undefined
         ? undefined
@@ -319,6 +358,25 @@ export class HttpRangeSource implements ImageSource {
         'HTTP range cache size must be a safe integer at least as large as one block',
       )
     }
+    if (options.rangePolicy?.kind === 'adaptive') {
+      const maxAdaptive =
+        options.rangePolicy.maxBlockBytes ?? Math.min(maxCacheBytes, blockBytes * 4)
+      const growthReads = options.rangePolicy.sequentialReadsBeforeGrowth ?? 2
+      if (
+        !Number.isSafeInteger(maxAdaptive) ||
+        maxAdaptive < blockBytes ||
+        maxAdaptive > maxCacheBytes
+      ) {
+        throw invalidInput(
+          'Adaptive HTTP range maxBlockBytes must be between blockBytes and maxCacheBytes',
+        )
+      }
+      if (!Number.isSafeInteger(growthReads) || growthReads < 1 || growthReads > 64) {
+        throw invalidInput(
+          'Adaptive HTTP range sequentialReadsBeforeGrowth must be an integer from 1 to 64',
+        )
+      }
+    }
     const configuredFetch = options.fetch ?? globalThis.fetch
     if (typeof configuredFetch !== 'function') throw unsupportedFetch()
     // Calling a native browser fetch after storing it as an object field gives it the object as
@@ -328,6 +386,7 @@ export class HttpRangeSource implements ImageSource {
     const href = String(url)
     const openSignal = resolveOpenSignal(options)
     let response: Response
+    const probeStarted = options.evidence?.nowMicroseconds() ?? 0
     try {
       throwIfAborted(openSignal)
       const headers = new Headers(options.headers)
@@ -399,7 +458,15 @@ export class HttpRangeSource implements ImageSource {
       cancelResponse(response)
       throw invalidInput('HTTP range response is missing a valid Content-Range header')
     }
-    await exactResponseBytes(response, 'HTTP range probe', 1, openSignal)
+    let probeFirstByte: number | undefined
+    const probeEvidence = options.evidence
+    const recordProbeBytes =
+      probeEvidence === undefined
+        ? undefined
+        : (): void => {
+            probeFirstByte ??= Math.max(0, probeEvidence.nowMicroseconds() - probeStarted)
+          }
+    await exactResponseBytes(response, 'HTTP range probe', 1, openSignal, recordProbeBytes)
     const etag = response.headers.get('etag')
     const lastModified = response.headers.get('last-modified')
     const rawVersionId = response.headers.get('x-amz-version-id')
@@ -426,6 +493,16 @@ export class HttpRangeSource implements ImageSource {
     source.#requests = 1 + headRequests
     source.#transferBytes = 1
     source.#cover(0, 1)
+    options.evidence?.source(source.#identity)
+    options.evidence?.physicalTransfer({
+      start: 0,
+      end: 1,
+      transferredBytes: 1,
+      status: response.status,
+      durationMicroseconds: Math.max(0, options.evidence.nowMicroseconds() - probeStarted),
+      ...(probeFirstByte === undefined ? {} : { firstByteMicroseconds: probeFirstByte }),
+      outcome: 'complete',
+    })
     return source
   }
 
@@ -447,6 +524,35 @@ export class HttpRangeSource implements ImageSource {
     return this.#validator === undefined ? undefined : Object.freeze({ ...this.#validator })
   }
 
+  /** Abort and await every physical block transfer without discarding completed cache entries. */
+  async quiesce(): Promise<void> {
+    const pending = [...new Set([...this.#pending.values()])]
+    for (const inflight of pending) inflight.abort.abort()
+    await Promise.all(
+      pending.map(({ promise }) =>
+        promise.then(
+          () => undefined,
+          () => undefined,
+        ),
+      ),
+    )
+  }
+
+  /** Release retained cache accounting and drop cached response blocks. */
+  clearCache(): void {
+    for (const block of this.#cache.values()) {
+      block.evidenceLease?.release()
+      this.#evidence?.cache({
+        action: 'evict',
+        start: block.start,
+        end: block.start + block.data.byteLength,
+        bytes: block.data.byteLength,
+      })
+    }
+    this.#cache.clear()
+    this.#cacheBytes = 0
+  }
+
   [imageSourceIdentity](): RemoteSourceIdentity {
     return this.#identity
   }
@@ -460,59 +566,106 @@ export class HttpRangeSource implements ImageSource {
   #recordAbortedConsumer(signal: AbortSignal | undefined): void {
     if (signal?.aborted !== true) return
     this.#abortedConsumers += 1
+    this.#evidence?.cache({ action: 'abort' })
+    this.#evidence?.cancellation('http-range-consumer')
     throwIfAborted(signal)
   }
 
-  #store(block: HttpRangeBlock): void {
+  #store(block: HttpRangeBlock): HttpRangeBlock {
     const previous = this.#cache.get(block.start)
-    if (previous) this.#cacheBytes -= previous.data.byteLength
+    if (previous) {
+      this.#cacheBytes -= previous.data.byteLength
+      previous.evidenceLease?.release()
+      this.#evidence?.cache({
+        action: 'evict',
+        start: previous.start,
+        end: previous.start + previous.data.byteLength,
+        bytes: previous.data.byteLength,
+      })
+    }
     this.#cache.delete(block.start)
-    this.#cache.set(block.start, block)
-    this.#cacheBytes += block.data.byteLength
+    const evidenceLease = this.#evidence?.allocate(
+      'http-range-source-cache',
+      block.data.byteLength,
+      'cache',
+    )
+    const stored: HttpRangeBlock = Object.freeze({
+      ...block,
+      ...(evidenceLease === undefined ? {} : { evidenceLease }),
+    })
+    this.#cache.set(block.start, stored)
+    this.#cacheBytes += stored.data.byteLength
     while (this.#cacheBytes > this.#maxCacheBytes) {
       const oldestStart = this.#cache.keys().next().value
       if (typeof oldestStart !== 'number') break
       const oldest = this.#cache.get(oldestStart)
       this.#cache.delete(oldestStart)
-      this.#cacheBytes -= oldest?.data.byteLength ?? 0
+      if (oldest !== undefined) {
+        this.#cacheBytes -= oldest.data.byteLength
+        oldest.evidenceLease?.release()
+        this.#evidence?.cache({
+          action: 'evict',
+          start: oldest.start,
+          end: oldest.start + oldest.data.byteLength,
+          bytes: oldest.data.byteLength,
+        })
+      }
     }
+    return stored
   }
 
-  async #load(start: number, consumerSignal: AbortSignal | undefined): Promise<HttpRangeBlock> {
+  async #load(
+    start: number,
+    blockBytes: number,
+    consumerSignal: AbortSignal | undefined,
+    dependencies: ((ids: readonly string[]) => void) | undefined,
+  ): Promise<HttpRangeBlock> {
     this.#recordAbortedConsumer(this.#lifetimeSignal)
     this.#recordAbortedConsumer(consumerSignal)
     const cached = this.#cache.get(start)
-    if (cached) {
+    const expectedBytes = Math.min(this.size - start, blockBytes)
+    if (cached && cached.data.byteLength >= expectedBytes) {
       this.#cacheHits += 1
+      this.#evidence?.cache({
+        action: 'hit',
+        start,
+        end: start + cached.data.byteLength,
+        bytes: cached.data.byteLength,
+      })
       this.#cache.delete(start)
       this.#cache.set(start, cached)
+      dependencies?.(cached.evidenceIds)
       return cached
     }
     const waitSignal = combineAbortSignals(this.#lifetimeSignal, consumerSignal)
-    let inflight = this.#pending.get(start)
+    const pendingKey = `${start}:${blockBytes}`
+    let inflight = this.#pending.get(pendingKey)
     if (inflight) {
       this.#coalescedConsumers += 1
+      this.#evidence?.cache({ action: 'join', start })
       inflight.consumers += 1
     } else {
+      this.#evidence?.cache({ action: 'miss', start })
       const abort = new AbortController()
       const fetchSignal = combineAbortSignals(this.#lifetimeSignal, abort.signal)
-      const promise = this.#fetchBlock(start, fetchSignal).then((block) => {
-        this.#store(block)
-        this.#cover(start, start + block.data.byteLength)
-        return block
+      const promise = this.#fetchBlock(start, blockBytes, fetchSignal).then((block) => {
+        const stored = this.#store(block)
+        this.#cover(start, start + stored.data.byteLength)
+        return stored
       })
       void promise.catch(() => {
         // Waiters observe the rejection through waitForPromise. This listener prevents an
         // unhandled rejection when the last consumer already aborted.
       })
       inflight = { promise, abort, consumers: 1 }
-      this.#pending.set(start, inflight)
+      this.#pending.set(pendingKey, inflight)
     }
     const current = inflight
     try {
       const block = await waitForPromise(current.promise, waitSignal)
       this.#recordAbortedConsumer(this.#lifetimeSignal)
       this.#recordAbortedConsumer(consumerSignal)
+      dependencies?.(block.evidenceIds)
       return block
     } catch (error) {
       this.#recordAbortedConsumer(this.#lifetimeSignal)
@@ -520,19 +673,30 @@ export class HttpRangeSource implements ImageSource {
       throw error
     } finally {
       current.consumers -= 1
-      if (current.consumers === 0 && this.#pending.get(start) === current) {
-        this.#pending.delete(start)
+      if (current.consumers === 0 && this.#pending.get(pendingKey) === current) {
+        this.#pending.delete(pendingKey)
         current.abort.abort()
+        await current.promise.then(
+          () => undefined,
+          () => undefined,
+        )
       }
     }
   }
 
-  async #fetchBlock(start: number, signal: AbortSignal | undefined): Promise<HttpRangeBlock> {
+  async #fetchBlock(
+    start: number,
+    blockBytes: number,
+    signal: AbortSignal | undefined,
+  ): Promise<HttpRangeBlock> {
     throwIfAborted(signal)
-    const end = Math.min(this.size, start + this.#blockBytes) - 1
+    const end = Math.min(this.size, start + blockBytes) - 1
     const headers = new Headers(this.#headers)
     headers.set('range', `bytes=${start}-${end}`)
     let response: Response
+    const started = this.#evidence?.nowMicroseconds() ?? 0
+    let transferredBytes = 0
+    let firstByteMicroseconds: number | undefined
     try {
       this.#requests += 1
       response = await this.#fetch(this.#url, {
@@ -541,37 +705,104 @@ export class HttpRangeSource implements ImageSource {
         ...(signal === undefined ? {} : { signal }),
       })
     } catch (cause) {
+      this.#evidence?.physicalTransfer({
+        start,
+        end: end + 1,
+        transferredBytes,
+        status: 0,
+        durationMicroseconds: Math.max(0, (this.#evidence?.nowMicroseconds() ?? 0) - started),
+        ...(firstByteMicroseconds === undefined ? {} : { firstByteMicroseconds }),
+        outcome: signal?.aborted === true ? 'aborted' : 'failed',
+        policy: this.#rangePolicy,
+      })
       throwIfAborted(signal)
       throw new ImageError('INVALID_INPUT', `HTTP range request failed for bytes ${start}-${end}`, {
         cause,
       })
     }
+    const recordFailedTransfer = (validatorFailure = false): void => {
+      this.#evidence?.physicalTransfer({
+        start,
+        end: end + 1,
+        transferredBytes: 0,
+        status: response.status,
+        durationMicroseconds: Math.max(0, (this.#evidence?.nowMicroseconds() ?? 0) - started),
+        outcome: signal?.aborted === true ? 'aborted' : 'failed',
+        policy: this.#rangePolicy,
+        ...(validatorFailure ? { validatorFailure: true } : {}),
+      })
+    }
     if (response.status !== 206) {
+      recordFailedTransfer()
       cancelResponse(response)
       throw invalidInput(`HTTP range request returned status ${response.status}`)
     }
     const rawContentRange = response.headers.get('content-range')
-    const responseSize =
-      rawContentRange === null && this.#allowMissingContentRange
-        ? this.size
-        : parseContentRange(response, start, end)
+    let responseSize: number
+    try {
+      responseSize =
+        rawContentRange === null && this.#allowMissingContentRange
+          ? this.size
+          : parseContentRange(response, start, end)
+    } catch (error) {
+      recordFailedTransfer()
+      cancelResponse(response)
+      throw error
+    }
     if (responseSize !== this.size) {
+      recordFailedTransfer()
       cancelResponse(response)
       throw invalidInput(`HTTP range source size changed from ${this.size} to ${responseSize}`)
     }
     const contentEncoding = response.headers.get('content-encoding')
     if (contentEncoding !== null && contentEncoding.toLowerCase() !== 'identity') {
+      recordFailedTransfer()
       cancelResponse(response)
       throw invalidInput('HTTP range source does not support content-encoded responses')
     }
     if (this.#validator && response.headers.get(this.#validator.header) !== this.#validator.value) {
+      recordFailedTransfer(true)
       cancelResponse(response)
       throw invalidInput(`HTTP range source ${this.#validator.header} changed during reading`)
     }
     const expected = end - start + 1
-    const data = await exactResponseBytes(response, 'HTTP range response', expected, signal)
+    let data: Uint8Array<ArrayBuffer>
+    try {
+      const evidence = this.#evidence
+      const recordResponseBytes =
+        evidence === undefined
+          ? undefined
+          : (bytes: number): void => {
+              transferredBytes += bytes
+              firstByteMicroseconds ??= Math.max(0, evidence.nowMicroseconds() - started)
+            }
+      data = await exactResponseBytes(
+        response,
+        'HTTP range response',
+        expected,
+        signal,
+        recordResponseBytes,
+      )
+    } catch (error) {
+      recordFailedTransfer()
+      throw error
+    }
     this.#transferBytes += data.byteLength
-    return Object.freeze({ start, data })
+    const evidenceId = this.#evidence?.physicalTransfer({
+      start,
+      end: end + 1,
+      transferredBytes: data.byteLength,
+      status: response.status,
+      durationMicroseconds: Math.max(0, (this.#evidence?.nowMicroseconds() ?? 0) - started),
+      ...(firstByteMicroseconds === undefined ? {} : { firstByteMicroseconds }),
+      outcome: 'complete',
+      policy: this.#rangePolicy,
+    })
+    return Object.freeze({
+      start,
+      data,
+      evidenceIds: Object.freeze(evidenceId === undefined ? [] : [evidenceId]),
+    })
   }
 
   async read(
@@ -583,19 +814,23 @@ export class HttpRangeSource implements ImageSource {
     this.#recordAbortedConsumer(options.signal)
     const available = readLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
-    const firstBlock = Math.floor(offset / this.#blockBytes) * this.#blockBytes
-    const lastBlock = Math.floor((offset + available - 1) / this.#blockBytes) * this.#blockBytes
+    const dependencies = options[sourceReadEvidenceDependencies]
+    const blockBytes = this.#adaptiveBlockBytes
+    const firstBlock = Math.floor(offset / blockBytes) * blockBytes
+    const lastBlock = Math.floor((offset + available - 1) / blockBytes) * blockBytes
     if (firstBlock === lastBlock) {
-      const block = await this.#load(firstBlock, options.signal)
+      const block = await this.#load(firstBlock, blockBytes, options.signal, dependencies)
       const blockOffset = offset - firstBlock
-      return block.data.subarray(blockOffset, blockOffset + available)
+      const result = block.data.subarray(blockOffset, blockOffset + available)
+      this.#observeRead(offset, available)
+      return result
     }
     const output = new Uint8Array(available)
     let outputOffset = 0
-    for (let start = firstBlock; start <= lastBlock; start += this.#blockBytes) {
+    for (let start = firstBlock; start <= lastBlock; start += blockBytes) {
       this.#recordAbortedConsumer(this.#lifetimeSignal)
       this.#recordAbortedConsumer(options.signal)
-      const block = await this.#load(start, options.signal)
+      const block = await this.#load(start, blockBytes, options.signal, dependencies)
       const sourceStart = Math.max(offset, start)
       const sourceEnd = Math.min(offset + available, start + block.data.byteLength)
       const amount = sourceEnd - sourceStart
@@ -607,7 +842,28 @@ export class HttpRangeSource implements ImageSource {
     }
     this.#recordAbortedConsumer(this.#lifetimeSignal)
     this.#recordAbortedConsumer(options.signal)
+    this.#observeRead(offset, available)
     return output
+  }
+
+  #observeRead(offset: number, returnedBytes: number): void {
+    if (this.#rangePolicy !== 'adaptive') return
+    if (offset === this.#previousReadEnd) this.#sequentialReads += 1
+    else this.#sequentialReads = 0
+    this.#previousReadEnd = offset + returnedBytes
+    if (
+      this.#sequentialReads >= this.#sequentialReadsBeforeGrowth &&
+      this.#adaptiveBlockBytes < this.#maxAdaptiveBlockBytes
+    ) {
+      const previous = this.#adaptiveBlockBytes
+      this.#adaptiveBlockBytes = Math.min(this.#maxAdaptiveBlockBytes, previous * 2)
+      this.#sequentialReads = 0
+      this.#evidence?.operation({
+        operationId: 'http-range-policy',
+        phase: 'planned',
+        detail: `sequential reads increased block bytes from ${previous} to ${this.#adaptiveBlockBytes}`,
+      })
+    }
   }
 }
 

@@ -83,6 +83,28 @@ explicitly outside that subset, and expand against pinned real-world fixtures.
 Transforms should be fused or pushed into codecs when that reduces decoded
 work, copies, or peak memory.
 
+Native sample precision is now part of the ordinary pipeline contract. Crop,
+flip, EXIF orientation, and quarter turns preserve every fixed-width
+interleaved pixel format byte for byte. Resize operates directly on priority
+16-bit and float32 formats, and 16-bit PNG can remain native through supported
+transforms and PNG output. Precision reduction uses `convertPixelFormat()` or
+an encoder-attributed terminal conversion. Next work in this area is planar
+YUV transform support, high-depth arbitrary-angle rotation, and reducing the
+compact retained state needed by Adam7 decode.
+
+Execution evidence is now an explicit package entry. Summary and trace sessions distinguish
+logical reads from physical range transfers, expose ordinary pipeline plans, record analysis
+providers and tile-runtime cache ownership, and report only PureJsImage-managed bytes. Raster X-Ray
+uses this API in a browser worker. Shared scientific reader, document, dataset, plane, series,
+source-block, and conversion boundaries emit compact block dependencies for OME-Zarr, WSI, and Geo
+without replacing their useful format-specific counters.
+
+Phase 3 is in progress. The flagship now has an explicit 4D-STEM analysis bundle, a deterministic
+processed MIB acquisition, a linked browser workspace, and a generated generic browser reader
+catalog with bounded probing. Remaining work is limited to final validation and release-authorized
+hardening. The detailed acceptance checklist lives in
+`docs/architecture/flagship-scientific-explorer.md`.
+
 ### 4. Make the reference engine fast and measurable
 
 - Prefer TypedArrays, monomorphic kernels, reusable scratch buffers, and

@@ -17,11 +17,7 @@ import {
   type ScientificRange,
   type ScientificResource,
 } from '../../../src/scientific/index.ts'
-import { cbfReader } from '../../../src/scientific/readers/cbf.ts'
-import { enviReader, renderEnviClassification } from '../../../src/scientific/readers/envi.ts'
-import { fitsReader } from '../../../src/scientific/readers/fits.ts'
-import { gsfReader } from '../../../src/scientific/readers/gsf.ts'
-import { mrcReader } from '../../../src/scientific/readers/mrc.ts'
+import { loadCandidateScientificBrowserReaders } from '../../../src/scientific/browser.ts'
 import { BlobSource, MemorySource } from '../../../src/source.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import type {
@@ -37,14 +33,12 @@ interface WorkerScope {
   postMessage(message: ScientificWorkerResponse, transfer?: readonly Transferable[]): void
 }
 
-const library = createScientificLibrary({
-  readers: [gsfReader, enviReader, fitsReader, mrcReader, cbfReader],
-})
 const scope = globalThis as unknown as WorkerScope
 let dataset: ScientificDataset | undefined
 let document: ScientificDocument | undefined
 let documentName = ''
 let sourceBytes = 0
+let genericDocument = false
 let latestSequence = 0
 let generation = 0
 let latestDisplay:
@@ -66,6 +60,7 @@ const inputResource = (id: string, name: string, input: ArrayBuffer | File): Sci
   Object.freeze({
     id,
     name,
+    ...(input instanceof File && input.type.length > 0 ? { mediaType: input.type } : {}),
     source: input instanceof File ? new BlobSource(input) : new MemorySource(input),
   })
 
@@ -162,19 +157,23 @@ const modeForReader = (readerId: string): ScientificDemoMode =>
         ? 'fits'
         : readerId === 'purejsimage/mrc'
           ? 'mrc'
-          : 'cbf'
+          : readerId === 'purejsimage/cbf'
+            ? 'cbf'
+            : 'generic'
 
 const openedMetadata = (
   active: ScientificDataset,
   openedDocument: ScientificDocument,
+  datasetId: string,
   name: string,
   bytes: number,
+  generic: boolean,
 ): ScientificOpenedMetadata => {
   const x = horizontalAxis(active)
   const y = verticalAxis(active)
   const channels = channelAxis(active)
   const volume = volumeAxis(active)
-  const mode = modeForReader(openedDocument.reader.id)
+  const mode = generic ? 'generic' : modeForReader(openedDocument.reader.id)
   const spectralCenters = channels?.entries?.map((entry) => entry.spectral?.center ?? null)
   const actualCenters = spectralCenters?.filter((value): value is number => value !== null) ?? []
   const envi = formatMetadata(active, 'purejsimage:envi')
@@ -207,6 +206,17 @@ const openedMetadata = (
             : undefined,
         ].filter((value): value is 'xy' | 'xz' | 'yz' => value !== undefined),
   )
+  const displayAxisPairs: (readonly [string, string])[] = []
+  for (const horizontal of active.descriptor.axes) {
+    for (const vertical of active.descriptor.axes) {
+      if (
+        horizontal.id !== vertical.id &&
+        supportsScientificPlaneRead(active.descriptor, [horizontal.id, vertical.id])
+      ) {
+        displayAxisPairs.push(Object.freeze([horizontal.id, vertical.id]))
+      }
+    }
+  }
   return {
     mode,
     name,
@@ -215,6 +225,26 @@ const openedMetadata = (
     bands: channels?.length ?? 1,
     sampleType: active.descriptor.sampleType,
     sourceBytes: bytes,
+    readerId: openedDocument.reader.id,
+    readerFormat: openedDocument.format,
+    datasetId,
+    datasets: Object.freeze(
+      openedDocument.datasets.map((summary) =>
+        Object.freeze({ id: summary.id, name: summary.name ?? summary.id }),
+      ),
+    ),
+    axes: Object.freeze(
+      active.descriptor.axes.map((entry) =>
+        Object.freeze({
+          id: entry.id,
+          name: entry.name ?? entry.id,
+          kind: entry.kind,
+          length: entry.length,
+          ...(entry.unit === undefined ? {} : { unit: entry.unit }),
+        }),
+      ),
+    ),
+    displayAxisPairs: Object.freeze(displayAxisPairs),
     sliceAxes,
     ...(openedDocument.reader.id !== 'purejsimage/gsf' || channels?.entries?.[0]?.name === undefined
       ? {}
@@ -267,8 +297,9 @@ const openDocument = async (
   name: string,
   bytes: number,
   primary: ScientificResource,
-  readerId: string,
+  readerId?: string,
   companions?: readonly ScientificResource[],
+  generic = false,
 ): Promise<void> => {
   const companionResolver =
     companions === undefined
@@ -284,9 +315,15 @@ const openDocument = async (
             return companions.find((resource) => resource.name === request.name)
           },
         })
+  const readers = await loadCandidateScientificBrowserReaders({
+    ...(primary.name === undefined ? {} : { name: primary.name }),
+    ...(primary.mediaType === undefined ? {} : { mediaType: primary.mediaType }),
+    ...(readerId === undefined ? {} : { readerId }),
+  })
+  const library = createScientificLibrary({ readers })
   const openedDocument = await library.open({
     primary,
-    readerId,
+    ...(readerId === undefined ? {} : { readerId }),
     ...(companionResolver === undefined ? {} : { companions: companionResolver }),
   })
   const first = openedDocument.datasets[0]
@@ -295,8 +332,38 @@ const openDocument = async (
   await document?.close?.()
   document = openedDocument
   documentName = name
+  genericDocument = generic
   beginDataset(opened, bytes)
-  post({ type: 'opened', metadata: openedMetadata(opened, openedDocument, name, bytes) })
+  post({
+    type: 'opened',
+    metadata: openedMetadata(opened, openedDocument, first.id, name, bytes, generic),
+  })
+}
+
+const openGenericFiles = async (
+  files: readonly File[],
+  primaryIndex: number,
+  readerId?: string,
+): Promise<void> => {
+  const primaryFile = files[primaryIndex]
+  if (primaryFile === undefined) throw new Error('Choose a primary scientific file')
+  const names = new Set<string>()
+  for (const file of files) {
+    if (names.has(file.name)) throw new Error(`Companion file name is ambiguous: ${file.name}`)
+    names.add(file.name)
+  }
+  post({ type: 'opening', message: 'Loading likely reader chunks and probing bounded metadata…' })
+  const resources = files.map((file, index) => inputResource(`file-${index}`, file.name, file))
+  const primary = resources[primaryIndex]
+  if (primary === undefined) throw new Error('The primary scientific file is unavailable')
+  await openDocument(
+    primaryFile.name,
+    files.reduce((total, file) => total + file.size, 0),
+    primary,
+    readerId,
+    resources,
+    true,
+  )
 }
 
 const openGsfFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
@@ -323,18 +390,25 @@ const openEnviFiles = async (
   )
 }
 
-const selectFitsHdu = async (index: number): Promise<void> => {
+const selectDataset = async (id: string): Promise<void> => {
   const openedDocument = document
-  if (openedDocument?.reader.id !== 'purejsimage/fits') {
-    throw new Error('Open a FITS document before selecting an HDU')
-  }
-  const opened = await openedDocument.openDataset(`hdu-${index}`)
+  if (openedDocument === undefined) throw new Error('Open a scientific document first')
+  const opened = await openedDocument.openDataset(id)
   beginDataset(opened, sourceBytes)
   post({
     type: 'opened',
-    metadata: openedMetadata(opened, openedDocument, documentName, sourceBytes),
+    metadata: openedMetadata(
+      opened,
+      openedDocument,
+      id,
+      documentName,
+      sourceBytes,
+      genericDocument,
+    ),
   })
 }
+
+const selectFitsHdu = (index: number): Promise<void> => selectDataset(`hdu-${index}`)
 
 const openFitsFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
   post({ type: 'opening', message: 'Parsing FITS Header/Data Units…' })
@@ -451,7 +525,17 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
   let displayed = active
   let displayAxes: readonly [string, string] = [x.id, y.id]
   let viewKey = ''
-  if (depth !== undefined) {
+  let genericIndices: Readonly<Record<string, number>> = {}
+  if (genericDocument) {
+    displayAxes = settings.genericDisplayAxes
+    if (!supportsScientificPlaneRead(active.descriptor, displayAxes)) {
+      throw new Error('The selected ordered axis pair is not readable')
+    }
+    genericIndices = Object.fromEntries(
+      settings.genericFixedIndices.map(({ axisId, index }) => [axisId, index]),
+    )
+    viewKey = `generic:${displayAxes.join('/')}:${JSON.stringify(genericIndices)}`
+  } else if (depth !== undefined) {
     if (settings.projection === 'none') {
       const requestedSliceAxes =
         settings.sliceAxis === 'xz'
@@ -499,6 +583,7 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
     openedDocument.reader.id === 'purejsimage/envi' &&
     metadataString(envi, 'fileType') === 'ENVI Classification'
   ) {
+    const { renderEnviClassification } = await import('../../../src/scientific/readers/envi.ts')
     const image = renderEnviClassification(active, { maxWidth: 1_280, maxHeight: 1_280 })
     displayWidth = image.width
     displayHeight = image.height
@@ -543,10 +628,15 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
       .join('; ')
   } else {
     const channel = openedDocument.reader.id === 'purejsimage/envi' ? settings.channel : 0
+    const selectedIndices = genericDocument
+      ? genericIndices
+      : channelId === undefined
+        ? {}
+        : { [channelId]: channel }
     const rendered = await renderChannel(
       displayed,
       displayAxes,
-      channelId === undefined ? {} : { [channelId]: channel },
+      selectedIndices,
       settings,
       settings.palette,
       openedDocument.reader.id === 'purejsimage/gsf',
@@ -628,13 +718,16 @@ const downloadPng = async (): Promise<void> => {
 scope.onmessage = (event): void => {
   const request = event.data
   let operation: Promise<void>
-  if (request.type === 'open-gsf') operation = openGsfFile(request.name, request.data)
+  if (request.type === 'open-generic') {
+    operation = openGenericFiles(request.files, request.primaryIndex, request.readerId)
+  } else if (request.type === 'open-gsf') operation = openGsfFile(request.name, request.data)
   else if (request.type === 'open-envi') {
     operation = openEnviFiles(request.headerName, request.dataName, request.header, request.data)
   } else if (request.type === 'open-fits') operation = openFitsFile(request.name, request.data)
   else if (request.type === 'open-mrc') operation = openMrcFile(request.name, request.data)
   else if (request.type === 'open-cbf') operation = openCbfFile(request.name, request.data)
   else if (request.type === 'select-fits-hdu') operation = selectFitsHdu(request.index)
+  else if (request.type === 'select-dataset') operation = selectDataset(request.id)
   else if (request.type === 'download-png') operation = downloadPng()
   else operation = render(request.sequence, request.settings)
   void operation.catch((cause: unknown) => post({ type: 'error', message: errorMessage(cause) }))

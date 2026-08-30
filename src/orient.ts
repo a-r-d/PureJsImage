@@ -1,5 +1,6 @@
+import type { PixelColorSemantics } from './color.ts'
 import { ImageError, invalidInput, truncatedInput } from './errors.ts'
-import type { PixelBlock, PixelFormat } from './pixel.ts'
+import { type PixelBlock, type PixelFormat, pixelBytesPerPixel } from './pixel.ts'
 import type { ImageRuntime, TemporaryStore } from './runtime.ts'
 
 export type ExifOrientation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
@@ -8,13 +9,6 @@ export interface OrientationTransform {
   readonly width: number
   readonly height: number
   apply(blocks: AsyncIterable<PixelBlock>): AsyncIterable<PixelBlock>
-}
-
-const channels = (format: PixelFormat): number => {
-  if (format === 'gray8') return 1
-  if (format === 'rgb8') return 3
-  if (format === 'rgba8') return 4
-  throw invalidInput(`Orientation does not support ${format} pixels`)
 }
 
 const tileSize = 32
@@ -80,34 +74,45 @@ const flipHorizontal = async function* (
   height: number,
   format: PixelFormat,
 ): AsyncGenerator<PixelBlock> {
-  const channelCount = channels(format)
-  const stride = width * channelCount
+  const bytesPerPixel = pixelBytesPerPixel(format)
+  const stride = width * bytesPerPixel
   let receivedRows = 0
   for await (const block of blocks) {
-    if (
-      block.x !== 0 ||
-      block.y !== receivedRows ||
-      block.width !== width ||
-      block.height < 1 ||
-      block.y + block.height > height ||
-      block.format !== format ||
-      block.stride < stride ||
-      block.data.byteLength < block.stride * (block.height - 1) + stride
-    ) {
-      throw invalidInput('Orientation requires ordered, full-width pixel blocks')
-    }
-    const data = new Uint8Array(stride * block.height)
-    for (let row = 0; row < block.height; row += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const sourceOffset = row * block.stride + (width - 1 - x) * channelCount
-        const outputOffset = row * stride + x * channelCount
-        for (let channel = 0; channel < channelCount; channel += 1) {
-          data[outputOffset + channel] = block.data[sourceOffset + channel] ?? 0
+    try {
+      if (
+        block.x !== 0 ||
+        block.y !== receivedRows ||
+        block.width !== width ||
+        block.height < 1 ||
+        block.y + block.height > height ||
+        block.format !== format ||
+        block.stride < stride ||
+        block.data.byteLength < block.stride * (block.height - 1) + stride
+      ) {
+        throw invalidInput('Orientation requires ordered, full-width pixel blocks')
+      }
+      const data = new Uint8Array(stride * block.height)
+      for (let row = 0; row < block.height; row += 1) {
+        for (let x = 0; x < width; x += 1) {
+          const sourceOffset = row * block.stride + (width - 1 - x) * bytesPerPixel
+          const outputOffset = row * stride + x * bytesPerPixel
+          data.set(block.data.subarray(sourceOffset, sourceOffset + bytesPerPixel), outputOffset)
         }
       }
+      yield {
+        x: 0,
+        y: block.y,
+        width,
+        height: block.height,
+        stride,
+        format,
+        data,
+        ...(block.colorSemantics === undefined ? {} : { colorSemantics: block.colorSemantics }),
+      }
+      receivedRows += block.height
+    } finally {
+      block.release?.()
     }
-    yield { x: 0, y: block.y, width, height: block.height, stride, format, data }
-    receivedRows += block.height
   }
   if (receivedRows !== height) {
     throw truncatedInput(`Orientation received ${receivedRows} of ${height} rows`)
@@ -120,54 +125,68 @@ const spoolTiles = async (
   width: number,
   height: number,
   format: PixelFormat,
-  channelCount: number,
-): Promise<{ readonly tilesAcross: number; readonly tileBytes: number }> => {
-  const stride = width * channelCount
-  const tileStride = tileSize * channelCount
+  bytesPerPixel: number,
+): Promise<{
+  readonly tilesAcross: number
+  readonly tileBytes: number
+  readonly colorSemantics?: PixelColorSemantics
+}> => {
+  const stride = width * bytesPerPixel
+  const tileStride = tileSize * bytesPerPixel
   const tileBytes = tileStride * tileSize
   const tilesAcross = Math.ceil(width / tileSize)
   const tileRow = new Uint8Array(tilesAcross * tileBytes)
   let receivedRows = 0
   let tileY = 0
+  let colorSemantics: PixelColorSemantics | undefined
 
   for await (const block of blocks) {
-    if (
-      block.x !== 0 ||
-      block.y !== receivedRows ||
-      block.width !== width ||
-      block.height < 1 ||
-      block.y + block.height > height ||
-      block.format !== format ||
-      block.stride < stride ||
-      block.data.byteLength < block.stride * (block.height - 1) + stride
-    ) {
-      throw invalidInput('Orientation requires ordered, full-width pixel blocks')
-    }
-    for (let row = 0; row < block.height; row += 1) {
-      const tileRowY = receivedRows % tileSize
-      for (let tileX = 0; tileX < tilesAcross; tileX += 1) {
-        const sourceX = tileX * tileSize
-        const pixels = Math.min(tileSize, width - sourceX)
-        const sourceOffset = row * block.stride + sourceX * channelCount
-        const targetOffset = tileX * tileBytes + tileRowY * tileStride
-        tileRow.set(
-          block.data.subarray(sourceOffset, sourceOffset + pixels * channelCount),
-          targetOffset,
-        )
+    try {
+      if (
+        block.x !== 0 ||
+        block.y !== receivedRows ||
+        block.width !== width ||
+        block.height < 1 ||
+        block.y + block.height > height ||
+        block.format !== format ||
+        block.stride < stride ||
+        block.data.byteLength < block.stride * (block.height - 1) + stride
+      ) {
+        throw invalidInput('Orientation requires ordered, full-width pixel blocks')
       }
-      receivedRows += 1
-      if (receivedRows % tileSize === 0) {
-        await writeAll(store, tileRow, tileY * tileRow.byteLength)
-        tileRow.fill(0)
-        tileY += 1
+      colorSemantics ??= block.colorSemantics
+      for (let row = 0; row < block.height; row += 1) {
+        const tileRowY = receivedRows % tileSize
+        for (let tileX = 0; tileX < tilesAcross; tileX += 1) {
+          const sourceX = tileX * tileSize
+          const pixels = Math.min(tileSize, width - sourceX)
+          const sourceOffset = row * block.stride + sourceX * bytesPerPixel
+          const targetOffset = tileX * tileBytes + tileRowY * tileStride
+          tileRow.set(
+            block.data.subarray(sourceOffset, sourceOffset + pixels * bytesPerPixel),
+            targetOffset,
+          )
+        }
+        receivedRows += 1
+        if (receivedRows % tileSize === 0) {
+          await writeAll(store, tileRow, tileY * tileRow.byteLength)
+          tileRow.fill(0)
+          tileY += 1
+        }
       }
+    } finally {
+      block.release?.()
     }
   }
   if (receivedRows !== height) {
     throw truncatedInput(`Orientation received ${receivedRows} of ${height} rows`)
   }
   if (receivedRows % tileSize !== 0) await writeAll(store, tileRow, tileY * tileRow.byteLength)
-  return { tilesAcross, tileBytes }
+  return {
+    tilesAcross,
+    tileBytes,
+    ...(colorSemantics === undefined ? {} : { colorSemantics }),
+  }
 }
 
 const orientedBlocks = async function* (
@@ -178,13 +197,13 @@ const orientedBlocks = async function* (
   orientation: ExifOrientation,
   runtime: ImageRuntime,
 ): AsyncGenerator<PixelBlock> {
-  const channelCount = channels(format)
+  const bytesPerPixel = pixelBytesPerPixel(format)
   const outputWidth = orientation >= 5 ? height : width
   const outputHeight = orientation >= 5 ? width : height
-  const outputStride = outputWidth * channelCount
+  const outputStride = outputWidth * bytesPerPixel
   const tilesAcross = Math.ceil(width / tileSize)
   const tileRows = Math.ceil(height / tileSize)
-  const tileBytes = tileSize * tileSize * channelCount
+  const tileBytes = tileSize * tileSize * bytesPerPixel
   let store: TemporaryStore | undefined
   let operationFailed = false
   let operationError: unknown
@@ -199,7 +218,7 @@ const orientedBlocks = async function* (
     } catch (error) {
       throw temporaryStorageError('setup', error)
     }
-    const spooled = await spoolTiles(store, blocks, width, height, format, channelCount)
+    const spooled = await spoolTiles(store, blocks, width, height, format, bytesPerPixel)
     for (let outputY = 0; outputY < outputHeight; outputY += tileSize) {
       const blockHeight = Math.min(tileSize, outputHeight - outputY)
       const data = new Uint8Array(outputStride * blockHeight)
@@ -218,11 +237,9 @@ const orientedBlocks = async function* (
             cachedTiles.set(tileIndex, tile)
           }
           const sourceOffset =
-            ((sourceY % tileSize) * tileSize + (sourceX % tileSize)) * channelCount
-          const outputOffset = row * outputStride + x * channelCount
-          for (let channel = 0; channel < channelCount; channel += 1) {
-            data[outputOffset + channel] = tile[sourceOffset + channel] ?? 0
-          }
+            ((sourceY % tileSize) * tileSize + (sourceX % tileSize)) * bytesPerPixel
+          const outputOffset = row * outputStride + x * bytesPerPixel
+          data.set(tile.subarray(sourceOffset, sourceOffset + bytesPerPixel), outputOffset)
         }
       }
       yield {
@@ -233,6 +250,7 @@ const orientedBlocks = async function* (
         stride: outputStride,
         format,
         data,
+        ...(spooled.colorSemantics === undefined ? {} : { colorSemantics: spooled.colorSemantics }),
       }
     }
   } catch (error) {
@@ -258,7 +276,7 @@ export const createOrientationTransform = (
   orientation: ExifOrientation,
   runtime: ImageRuntime,
 ): OrientationTransform => {
-  channels(format)
+  pixelBytesPerPixel(format)
   return {
     width: orientation >= 5 ? height : width,
     height: orientation >= 5 ? width : height,

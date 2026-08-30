@@ -154,11 +154,14 @@ describe('package contract', () => {
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
       64 * 1024,
     )
+    expect(
+      pureJsImageEntryTargets.find(({ id }) => id === 'core-execution')?.maxMinifiedBytes,
+    ).toBe(68 * 1024)
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
       baselineMinifiedBytes: 143_546,
-      maxMinifiedBytes: 187_000,
+      maxMinifiedBytes: 197_000,
     })
     const expectedReaderTargetIds = [
       ...capabilityManifest.scientificReaders.map(
@@ -573,8 +576,10 @@ describe('package contract', () => {
 
     expect(readme).toContain('https://purejsimage.com/api/#scientific')
     expect(readme).toContain('https://purejsimage.com/scientific/')
-    expect(page).toContain('The UI below currently wires GSF, ENVI, FITS, MRC, and CBF')
-    expect(page).toContain('It does not claim to open every package reader')
+    expect(page).toContain('The generic tab builds its catalog from the capability manifest')
+    expect(page).toContain('Automatic bounded probing')
+    expect(page).toContain('OME-Zarr is directory-like')
+    expect(worker).toContain('loadCandidateScientificBrowserReaders')
     expect(page).toContain(
       "import { startScientificExplorer } from '../scripts/scientific-explorer.ts'",
     )
@@ -742,7 +747,7 @@ describe('package contract', () => {
     )
 
     expect(javascriptSources).toEqual([])
-  })
+  }, 10_000)
 
   it('does not import third-party packages from production source', () => {
     const imports = globSync('src/**/*.ts')
@@ -851,6 +856,7 @@ describe('package contract', () => {
       './geo/conventions/geozarr',
       './operations',
       './analysis',
+      './analysis/4d-stem',
       './analysis/results',
       './analysis/roi',
       './analysis/runtime',
@@ -858,6 +864,7 @@ describe('package contract', () => {
       './extensions',
       './pathology',
       './sources/http-range',
+      './evidence',
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',

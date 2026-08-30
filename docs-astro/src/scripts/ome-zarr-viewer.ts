@@ -227,6 +227,8 @@ const emptyStats = (): OmeZarrStats => ({
   lastDecodeMilliseconds: 0,
 })
 let stats = emptyStats()
+let measurementEpoch = 0
+let pendingResetEpoch: number | undefined
 let cacheHits = 0
 let previousVisibleKeys = new Set<string>()
 let loadingVisibleKeys = new Set<string>()
@@ -625,6 +627,7 @@ const draw = (): void => {
 }
 
 const requestTile = (tile: VisibleTile): void => {
+  if (pendingResetEpoch !== undefined) return
   const request: RequestedTile = {
     requestId: nextRequestId,
     key: tile.key,
@@ -639,6 +642,7 @@ const requestTile = (tile: VisibleTile): void => {
   addRequestVisual(request)
   send({
     type: 'tile',
+    epoch: measurementEpoch,
     requestId: request.requestId,
     generation,
     level: request.level,
@@ -648,7 +652,8 @@ const requestTile = (tile: VisibleTile): void => {
 }
 
 const updateRequests = (): void => {
-  if (metadata === undefined || configuration === undefined) return
+  if (metadata === undefined || configuration === undefined || pendingResetEpoch !== undefined)
+    return
   const chosen = selectLevel()
   const coarsest = metadata.levels.at(-1)
   if (chosen === undefined || coarsest === undefined) return
@@ -665,7 +670,7 @@ const updateRequests = (): void => {
     pendingByKey.delete(request.key)
     pendingById.delete(request.requestId)
     setRequestVisual(request.requestId, 'cancelled')
-    send({ type: 'cancel', requestId: request.requestId })
+    send({ type: 'cancel', epoch: measurementEpoch, requestId: request.requestId })
   }
   for (const tile of desiredTiles) {
     const cached = cache.has(tile.key)
@@ -819,7 +824,7 @@ document.addEventListener('fullscreenchange', () => {
 const cancelAllRequests = (): void => {
   for (const request of pendingByKey.values()) {
     setRequestVisual(request.requestId, 'cancelled')
-    send({ type: 'cancel', requestId: request.requestId })
+    send({ type: 'cancel', epoch: measurementEpoch, requestId: request.requestId })
   }
   pendingByKey.clear()
   pendingById.clear()
@@ -946,14 +951,16 @@ const axisCoordinate = (axisId: string, index: number): string => {
 }
 
 const requestConfiguration = (next: OmeZarrRenderConfiguration, delay = 0): void => {
+  if (pendingResetEpoch !== undefined) return
   if (configureTimer !== undefined) window.clearTimeout(configureTimer)
   configureTimer = window.setTimeout(() => {
     configureTimer = undefined
+    if (pendingResetEpoch !== undefined) return
     generation += 1
     const updated = { ...next, generation }
     configuration = updated
     invalidateRendering()
-    send({ type: 'configure', configuration: updated })
+    send({ type: 'configure', epoch: measurementEpoch, configuration: updated })
     scheduleUrlUpdate()
   }, delay)
 }
@@ -1126,7 +1133,12 @@ const renderControls = (): void => {
 datasetSelect.addEventListener('change', () => {
   generation += 1
   invalidateRendering()
-  send({ type: 'select-dataset', datasetId: datasetSelect.value, generation })
+  send({
+    type: 'select-dataset',
+    epoch: measurementEpoch,
+    datasetId: datasetSelect.value,
+    generation,
+  })
 })
 labelSelect.addEventListener('change', () => {
   if (configuration === undefined) return
@@ -1214,7 +1226,7 @@ const restoreConfigurationFromUrl = (): void => {
   ) {
     generation += 1
     invalidateRendering()
-    send({ type: 'select-dataset', datasetId: desiredDataset, generation })
+    send({ type: 'select-dataset', epoch: measurementEpoch, datasetId: desiredDataset, generation })
     return
   }
   let next = configuration
@@ -1309,6 +1321,8 @@ const openUrl = (): void => {
       urlFrame = undefined
     }
     cancelAllRequests()
+    measurementEpoch = Math.max(measurementEpoch, pendingResetEpoch ?? 0) + 1
+    pendingResetEpoch = undefined
     clearCache()
     failedKeys.clear()
     previousVisibleKeys.clear()
@@ -1352,6 +1366,7 @@ const openUrl = (): void => {
     window.history.replaceState(null, '', nextUrl)
     send({
       type: 'open',
+      epoch: measurementEpoch,
       url: parsed.href,
       ...(publishedBytes === undefined ? {} : { publishedStoreBytes: publishedBytes }),
     })
@@ -1386,10 +1401,19 @@ for (const button of sampleButtons) {
   })
 }
 resetButton.addEventListener('click', () => {
+  if (pendingResetEpoch !== undefined) return
+  if (configureTimer !== undefined) {
+    window.clearTimeout(configureTimer)
+    configureTimer = undefined
+  }
+  cancelAllRequests()
   cacheHits = 0
   requestVisuals.length = 0
   scheduleRequestStripUpdate()
-  send({ type: 'reset' })
+  pendingResetEpoch = measurementEpoch + 1
+  resetButton.disabled = true
+  setViewerControlsEnabled(false)
+  send({ type: 'reset', epoch: pendingResetEpoch })
 })
 
 const acceptMetadata = (
@@ -1406,6 +1430,7 @@ const acceptMetadata = (
   openButton.textContent = 'Open store'
   openButton.removeAttribute('aria-busy')
   resetButton.disabled = false
+  resetButton.dataset.measurementEpoch = String(measurementEpoch)
   setViewerControlsEnabled(true)
   loadingPhase = 'viewport'
   delete statusElement.dataset.error
@@ -1417,6 +1442,23 @@ const acceptMetadata = (
 
 worker.onmessage = (event: MessageEvent<OmeZarrWorkerResponse>): void => {
   const message = event.data
+  if (message.type === 'reset') {
+    if (message.epoch !== pendingResetEpoch) return
+    measurementEpoch = message.epoch
+    pendingResetEpoch = undefined
+    stats = message.stats
+    resetButton.disabled = false
+    resetButton.dataset.measurementEpoch = String(measurementEpoch)
+    setViewerControlsEnabled(true)
+    statusElement.textContent = 'Measurement counters reset. Move or zoom to start a new epoch.'
+    renderStats()
+    return
+  }
+  if (message.type === 'tile' && message.epoch !== measurementEpoch) {
+    message.bitmap.close()
+    return
+  }
+  if (message.epoch !== measurementEpoch || pendingResetEpoch !== undefined) return
   if (message.type === 'opening') {
     loadingMessage = message.message
     statusElement.textContent = message.message
@@ -1512,7 +1554,9 @@ worker.onerror = (event): void => {
 }
 
 window.addEventListener('resize', scheduleUpdate)
-window.setInterval(() => send({ type: 'stats' }), 250)
+window.setInterval(() => {
+  if (pendingResetEpoch === undefined) send({ type: 'stats', epoch: measurementEpoch })
+}, 250)
 updateRequestStrip()
 renderHistogram()
 resizeCanvas()

@@ -487,6 +487,7 @@ const measureBundle = async (
   target: BundleTarget,
   repositoryDirectory: string,
 ): Promise<{ brotliBytes: number; gzipBytes: number; minifiedBytes: number }> => {
+  const split = target.splitOutput !== undefined
   const result = await build({
     bundle: true,
     charset: 'utf8',
@@ -494,6 +495,14 @@ const measureBundle = async (
     legalComments: 'none',
     logLevel: 'silent',
     minify: true,
+    ...(split
+      ? {
+          chunkNames: 'chunks/[name]-[hash]',
+          entryNames: 'entry',
+          outdir: 'bundle-size',
+          splitting: true,
+        }
+      : {}),
     platform: 'node',
     stdin: {
       contents: target.contents,
@@ -506,14 +515,29 @@ const measureBundle = async (
     treeShaking: true,
     write: false,
   })
-  const output = result.outputFiles[0]?.contents
-  if (!output) throw new Error(`esbuild produced no output for ${target.name}`)
+  const selected = split
+    ? result.outputFiles.filter((file) =>
+        target.splitOutput === 'entry'
+          ? file.path.endsWith('/entry.js')
+          : file.path.includes('/chunks/'),
+      )
+    : result.outputFiles
+  const minifiedBytes = selected.reduce((sum, file) => sum + file.contents.byteLength, 0)
+  if (selected.length === 0 || minifiedBytes === 0) {
+    throw new Error(`esbuild produced no selected output for ${target.name}`)
+  }
+  const output = new Uint8Array(minifiedBytes)
+  let offset = 0
+  for (const file of selected) {
+    output.set(file.contents, offset)
+    offset += file.contents.byteLength
+  }
   return {
     brotliBytes: brotliCompressSync(output, {
       params: { [constants.BROTLI_PARAM_QUALITY]: 11 },
     }).byteLength,
     gzipBytes: gzipSync(output, { level: 9 }).byteLength,
-    minifiedBytes: output.byteLength,
+    minifiedBytes,
   }
 }
 

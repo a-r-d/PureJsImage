@@ -16,6 +16,7 @@ import {
   type ZarrHttpStoreOptions,
   type ZarrHttpStoreStats,
 } from '../zarr/http-store.ts'
+import type { EvidenceContext } from '../evidence.ts'
 
 export type NormalizedOmeZarrStoreUrl = NormalizedZarrStoreUrl
 export type OmeZarrNetworkStats = ZarrHttpStoreStats
@@ -58,9 +59,11 @@ const requestedName = (request: Readonly<ScientificCompanionRequest>): string =>
 /** OME-Zarr compatibility adapter over the generic HTTP object store. */
 export class OmeZarrHttpStore implements ScientificCompanionResolver {
   readonly #store: ZarrHttpObjectStore
+  readonly #evidence: EvidenceContext | undefined
 
   constructor(input: string | URL, options: Readonly<OmeZarrHttpStoreOptions> = {}) {
     this.#store = new ZarrHttpObjectStore(input, options)
+    this.#evidence = options.evidence
   }
 
   get normalized(): NormalizedOmeZarrStoreUrl {
@@ -78,6 +81,7 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
       companions: this,
       readerId: 'purejsimage/ome-zarr',
       signal: this.#store.signal,
+      ...(this.#evidence === undefined ? {} : { evidence: this.#evidence }),
     })
   }
 
@@ -95,6 +99,10 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
 
   resetStats(): void {
     this.#store.resetStats()
+  }
+
+  async quiesce(): Promise<void> {
+    await this.#store.quiesce()
   }
 
   identitySummary(

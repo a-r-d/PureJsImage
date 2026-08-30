@@ -9,6 +9,7 @@ const documentationRoutes = [
   '/wsi/',
   '/ome-zarr/',
   '/scientific/',
+  '/4d-stem/',
   '/scientific-formats/',
   '/guides/',
   '/api/',

@@ -3,12 +3,12 @@ import { throwIfAborted } from './abort.ts'
 import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
-import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
 import type {
   AvifEncodeOptions,
   BmpEncodeOptions,
+  ConvertPixelFormatOptions,
   CropOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
@@ -32,6 +32,7 @@ import type {
 import {
   createAvifEncodeOperation,
   createBmpEncodeOperation,
+  createConvertPixelFormatOperation,
   createCropOperation,
   createHdrEncodeOperation,
   createJpegEncodeOperation,
@@ -50,6 +51,13 @@ import {
 import type { CollectedOutput, ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
 import { bindImageSourceSignal, type ImageSource, withSourceSession } from './source.ts'
+import type { EvidenceContext } from './evidence.ts'
+import { imageExecutionPlanInput } from './execution-plan-contract.ts'
+
+export interface ImageExecutionOptions extends AbortOptions {
+  /** Explicit caller-owned evidence context. Omit for the allocation-free default path. */
+  readonly evidence?: EvidenceContext
+}
 
 export interface ImageOpenOptions extends AbortOptions {
   readonly limits?: ImageLimitOptions
@@ -196,6 +204,10 @@ export class Image<Input, Output extends Uint8Array> {
   }
   window(options: WindowOptions): Image<Input, Output> {
     return this.#append(createWindowOperation(options))
+  }
+
+  convertPixelFormat(options: ConvertPixelFormatOptions): Image<Input, Output> {
+    return this.#append(createConvertPixelFormatOperation(options))
   }
 
   lut(options: LutOptions): Image<Input, Output> {
@@ -439,18 +451,25 @@ export class Image<Input, Output extends Uint8Array> {
     return this.#append(createTiffEncodeOperation(options))
   }
 
-  async toBuffer(options: Readonly<AbortOptions> = {}): Promise<Output> {
+  [imageExecutionPlanInput](): {
+    readonly context: ImageContext<Input, Output>
+    readonly operations: readonly PipelineOperation[]
+  } {
+    return Object.freeze({ context: this.#context, operations: this.#operations })
+  }
+
+  async toBuffer(options: Readonly<ImageExecutionOptions> = {}): Promise<Output> {
     const output = this.#context.platform.createCollectedOutput()
     await this.toSink(output.sink, options)
     throwIfAborted(options.signal)
     return output.result()
   }
 
-  async toUint8Array(options: Readonly<AbortOptions> = {}): Promise<Uint8Array> {
+  async toUint8Array(options: Readonly<ImageExecutionOptions> = {}): Promise<Uint8Array> {
     return this.toBuffer(options)
   }
 
-  async toBlob(options: Readonly<AbortOptions> = {}): Promise<Blob> {
+  async toBlob(options: Readonly<ImageExecutionOptions> = {}): Promise<Blob> {
     const metadata = await this.metadata(options)
     const mimeType = this.#context.registry.get(metadata.format)?.mimeTypes[0]
     const output = await this.toBuffer(options)
@@ -460,14 +479,15 @@ export class Image<Input, Output extends Uint8Array> {
     })
   }
 
-  async toSink(sink: ImageSink, options: Readonly<AbortOptions> = {}): Promise<void> {
+  async toSink(sink: ImageSink, options: Readonly<ImageExecutionOptions> = {}): Promise<void> {
     const source = bindImageSourceSignal(this.#context.source, options.signal)
-    await withSourceSession(source, () =>
-      executePipeline({ ...this.#context, source }, this.#operations, sink, options),
-    )
+    await withSourceSession(source, async () => {
+      const { executePipeline } = await import('./executor.ts')
+      await executePipeline({ ...this.#context, source }, this.#operations, sink, options)
+    })
   }
 
-  async toFile(path: string, options: Readonly<AbortOptions> = {}): Promise<void> {
+  async toFile(path: string, options: Readonly<ImageExecutionOptions> = {}): Promise<void> {
     const createFileSink = this.#context.platform.createFileSink
     if (!createFileSink) {
       throw unsupportedOperation('File path output is not available in this runtime')
