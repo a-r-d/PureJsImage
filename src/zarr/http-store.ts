@@ -237,6 +237,11 @@ class TrackedHttpRangeSource implements ImageSource {
     this.#source.clearCache()
   }
 
+  async quiesce(): Promise<void> {
+    await this.#source.quiesce()
+    this.#sync()
+  }
+
   #sync(): void {
     const current = this.#source.stats
     const delta = {
@@ -368,6 +373,19 @@ export class ZarrHttpObjectStore implements ZarrObjectStore {
 
   resetStats(): void {
     this.#baseline = this.#rawStats()
+  }
+
+  async quiesce(): Promise<void> {
+    const opening = [...this.#pending.values()]
+    await Promise.all(
+      opening.map((promise) =>
+        promise.then(
+          () => undefined,
+          () => undefined,
+        ),
+      ),
+    )
+    await Promise.all([...this.#sources.values()].map((source) => source.quiesce()))
   }
 
   /** Return JSON-safe evidence for the selected root metadata object. */

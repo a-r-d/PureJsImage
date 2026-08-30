@@ -524,6 +524,20 @@ export class HttpRangeSource implements ImageSource {
     return this.#validator === undefined ? undefined : Object.freeze({ ...this.#validator })
   }
 
+  /** Abort and await every physical block transfer without discarding completed cache entries. */
+  async quiesce(): Promise<void> {
+    const pending = [...new Set([...this.#pending.values()])]
+    for (const inflight of pending) inflight.abort.abort()
+    await Promise.all(
+      pending.map(({ promise }) =>
+        promise.then(
+          () => undefined,
+          () => undefined,
+        ),
+      ),
+    )
+  }
+
   /** Release retained cache accounting and drop cached response blocks. */
   clearCache(): void {
     for (const block of this.#cache.values()) {
@@ -662,6 +676,10 @@ export class HttpRangeSource implements ImageSource {
       if (current.consumers === 0 && this.#pending.get(pendingKey) === current) {
         this.#pending.delete(pendingKey)
         current.abort.abort()
+        await current.promise.then(
+          () => undefined,
+          () => undefined,
+        )
       }
     }
   }

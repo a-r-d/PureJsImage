@@ -164,6 +164,7 @@ export const convertPixelBlocks = async function* (
 
   for await (const block of blocks) {
     try {
+      const colorSemantics = convertedPixelColorSemantics(block.colorSemantics, options.format)
       throwIfAborted(abort.signal)
       const inputRowBytes = block.width * inputBytesPerPixel
       if (
@@ -219,7 +220,6 @@ export const convertPixelBlocks = async function* (
           }
         }
       }
-      const colorSemantics = convertedPixelColorSemantics(block.colorSemantics, options.format)
       yield {
         x: block.x,
         y: block.y,

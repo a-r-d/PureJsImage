@@ -10,6 +10,37 @@ export type XrayRequest =
   | { readonly type: 'open-ome-zarr'; readonly url: string }
   | { readonly type: 'cancel' }
 
+const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const hasExactKeys = (
+  value: Readonly<Record<string, unknown>>,
+  expected: readonly string[],
+): boolean => {
+  const keys = Object.keys(value)
+  return keys.length === expected.length && expected.every((key) => keys.includes(key))
+}
+
+export const isXrayRequest = (value: unknown): value is XrayRequest => {
+  if (!isRecord(value) || typeof value.type !== 'string') return false
+  if (value.type === 'cancel') return hasExactKeys(value, ['type'])
+  if (value.type === 'open-local') {
+    return (
+      hasExactKeys(value, ['type', 'file']) &&
+      typeof File !== 'undefined' &&
+      value.file instanceof File
+    )
+  }
+  if (value.type === 'open-remote' || value.type === 'open-ome-zarr') {
+    return (
+      hasExactKeys(value, ['type', 'url']) &&
+      typeof value.url === 'string' &&
+      value.url.trim().length > 0
+    )
+  }
+  return false
+}
+
 export interface XrayScientificPlan {
   readonly kind: 'scientific-tile'
   readonly reader: string

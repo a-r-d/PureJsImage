@@ -1,4 +1,4 @@
-import { deflateSync } from 'node:zlib'
+import { deflateSync, inflateSync } from 'node:zlib'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
@@ -28,6 +28,7 @@ interface FixtureOptions {
   readonly interlace?: boolean
   readonly splitIdat?: boolean
   readonly transparency?: Uint8Array
+  readonly encodedGamma?: number
 }
 
 const formats: readonly PngFormat[] = [
@@ -227,6 +228,19 @@ const pngFixture = (format: PngFormat, options: FixtureOptions = {}): Buffer => 
   return Buffer.concat([
     signature,
     pngChunk('IHDR', header),
+    ...(options.encodedGamma === undefined
+      ? []
+      : [
+          pngChunk(
+            'gAMA',
+            Uint8Array.of(
+              options.encodedGamma >>> 24,
+              options.encodedGamma >>> 16,
+              options.encodedGamma >>> 8,
+              options.encodedGamma,
+            ),
+          ),
+        ]),
     ...(paletteData ? [pngChunk('PLTE', paletteData)] : []),
     ...(options.transparency ? [pngChunk('tRNS', options.transparency)] : []),
     ...idat,
@@ -247,6 +261,43 @@ const chunks = (png: Buffer): Buffer[] => {
 }
 
 const chunkType = (chunk: Buffer): string => chunk.toString('ascii', 4, 8)
+
+const chunkData = (chunk: Buffer): Buffer => chunk.subarray(8, chunk.byteLength - 4)
+
+const unfilteredRows = (png: Buffer, width: number, height: number, format: PngFormat): Buffer => {
+  const compressed = chunks(png)
+    .filter((chunk) => chunkType(chunk) === 'IDAT')
+    .map(chunkData)
+  const data = inflateSync(Buffer.concat(compressed))
+  const bytesPerPixel = (channels(format.colorType) * format.bitDepth) / 8
+  const rowBytes = width * bytesPerPixel
+  const output = Buffer.alloc(rowBytes * height)
+  let offset = 0
+  for (let y = 0; y < height; y += 1) {
+    const filter = data[offset] ?? 0
+    offset += 1
+    for (let x = 0; x < rowBytes; x += 1) {
+      const encoded = data[offset + x] ?? 0
+      const left = x >= bytesPerPixel ? (output[y * rowBytes + x - bytesPerPixel] ?? 0) : 0
+      const above = y > 0 ? (output[(y - 1) * rowBytes + x] ?? 0) : 0
+      const upperLeft =
+        y > 0 && x >= bytesPerPixel ? (output[(y - 1) * rowBytes + x - bytesPerPixel] ?? 0) : 0
+      const predictor =
+        filter === 0
+          ? 0
+          : filter === 1
+            ? left
+            : filter === 2
+              ? above
+              : filter === 3
+                ? Math.floor((left + above) / 2)
+                : paeth(left, above, upperLeft)
+      output[y * rowBytes + x] = (encoded + predictor) & 0xff
+    }
+    offset += rowBytes
+  }
+  return output
+}
 
 const compareWithOracle = async (input: Buffer, tolerance = 0): Promise<void> => {
   const reference = PNG.sync.read(input)
@@ -340,6 +391,48 @@ describe('PNG Adam7 compatibility', () => {
     const image = await images.open(input, { limits: { maxDecodedBytes: 700 } })
     await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
   })
+})
+
+describe('PNG native color signaling', () => {
+  const nativeFormats = formats.filter(
+    (format) => format.bitDepth === 16 && format.colorType !== 3 && format.colorType !== 4,
+  )
+  const cases = nativeFormats.flatMap((format) =>
+    [false, true].flatMap((interlace) =>
+      [100_000, 35_000, 45_455].map((encodedGamma) => ({
+        format,
+        interlace,
+        encodedGamma,
+      })),
+    ),
+  )
+
+  it.each(cases)(
+    'preserves gAMA $encodedGamma and exact $format.label samples (Adam7: $interlace)',
+    async ({ format, interlace, encodedGamma }) => {
+      const width = 13
+      const height = 11
+      const input = pngFixture(format, { width, height, interlace, encodedGamma })
+      const output = Buffer.from(await (await Image.open(input)).png().toBuffer())
+      const outputChunks = chunks(output)
+      const gammaIndex = outputChunks.findIndex((chunk) => chunkType(chunk) === 'gAMA')
+      const imageDataIndex = outputChunks.findIndex((chunk) => chunkType(chunk) === 'IDAT')
+      expect(gammaIndex).toBeGreaterThan(0)
+      expect(gammaIndex).toBeLessThan(imageDataIndex)
+      const gammaChunk = outputChunks[gammaIndex]
+      expect(gammaChunk).toBeDefined()
+      if (gammaChunk === undefined) return
+      expect(chunkData(gammaChunk).readUInt32BE(0)).toBe(encodedGamma)
+      expect(crc32(gammaChunk.subarray(4, 8), chunkData(gammaChunk))).toBe(
+        gammaChunk.readUInt32BE(gammaChunk.byteLength - 4),
+      )
+
+      const expected = Buffer.concat(
+        Array.from({ length: height }, (_unused, y) => rawRow(width, y, format)),
+      )
+      expect(unfilteredRows(output, width, height, format)).toEqual(expected)
+    },
+  )
 })
 
 describe('PNG parser hardening', () => {

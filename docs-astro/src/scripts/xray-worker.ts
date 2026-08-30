@@ -10,13 +10,14 @@ import { HttpRangeSource } from '../../../src/sources/http-range.ts'
 import { createOmeZarrHttpContext } from '../../../src/scientific/ome-zarr-http.ts'
 import { omeZarrReader } from '../../../src/scientific/readers/ome-zarr.ts'
 import { ScientificReaderRegistry } from '../../../src/scientific/reader.ts'
-import type { XrayRequest, XrayResponse } from './xray-types.ts'
+import { isXrayRequest, type XrayResponse } from './xray-types.ts'
 
 const images = createImageLibrary(allCodecs)
 const post = (message: XrayResponse): void => self.postMessage(message)
 let activeAbort: AbortController | undefined
 
-self.addEventListener('message', (event: MessageEvent<XrayRequest>) => {
+self.addEventListener('message', (event: MessageEvent<unknown>) => {
+  if (!isXrayRequest(event.data)) return
   const request = event.data
   if (request.type === 'cancel') {
     activeAbort?.abort(new DOMException('Raster inspection cancelled', 'AbortError'))

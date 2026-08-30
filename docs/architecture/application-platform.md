@@ -2417,6 +2417,9 @@ to own only generic descriptors, definitions, providers, and registries.
       dependency events through shared scientific, OME-Zarr, WSI, and Geo paths. Their existing
       format-specific object, shard, chunk, and viewport counters remain supported and are not
       flattened into misleading byte units.
+- [x] Validate the Raster X-Ray and OME-Zarr worker request protocols at runtime. Give every
+      OME-Zarr request and response a measurement epoch, quiesce older work before reset
+      acknowledgement, and ignore stale responses in the viewer.
 
 ### Phase 3: flagship scientific explorer
 

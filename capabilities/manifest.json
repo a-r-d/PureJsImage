@@ -791,7 +791,7 @@
         "label": "Yes"
       },
       "boundary": "No APNG frame decode, indexed output, or grayscale-alpha output without RGBA expansion",
-      "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Legal 16-bit input remains gray16, rgb16, or rgba16 through supported pipeline transforms. Encodes streaming 8-bit or 16-bit grayscale, RGB, or RGBA PNG with adaptive filters and opt-in EXIF and compatible ICC preservation.",
+      "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Legal 16-bit input remains gray16, rgb16, or rgba16 through supported pipeline transforms. Encodes streaming 8-bit or 16-bit grayscale, RGB, or RGBA PNG with adaptive filters, exact representable native color signaling, and opt-in EXIF and compatible ICC preservation.",
       "memory": "Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples",
       "recommendation": "Exact alpha, screenshots, graphics, and lossless round trips.",
       "lossyPixelValidation": {
@@ -920,7 +920,9 @@
         "- [ ] Additional Deflate strategy and memory controls where they improve Lambda",
         "  peak RSS or output size",
         "- [x] Compatible ICC and EXIF metadata writing when explicitly preserved",
-        "- [ ] sRGB, gamma, chromaticity, physical-dimension, and text metadata writing",
+        "- [x] Exact representable `gAMA`, `sRGB`, and supported full-range RGB `cICP`",
+        "  signaling for native 16-bit output",
+        "- [ ] Chromaticity, physical-dimension, and text metadata writing",
         "- [x] Explicit control over ICC and EXIF stripping versus preservation",
         "",
         "## Correctness and safety contract",

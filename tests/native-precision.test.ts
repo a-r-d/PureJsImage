@@ -490,6 +490,32 @@ describe('native precision resize and conversion', () => {
     ).rejects.toMatchObject({ name: 'AbortError' })
     expect(releases).toBe(1)
   })
+
+  it('rejects premultiplied blocks before conversion and releases them exactly once', async () => {
+    let releases = 0
+    let outputs = 0
+    const input = async function* (): AsyncGenerator<PixelBlock> {
+      yield {
+        x: 0,
+        y: 0,
+        width: 1,
+        height: 1,
+        stride: 4,
+        format: 'rgba8',
+        data: Uint8Array.of(128, 0, 0, 128),
+        colorSemantics: Object.freeze({ ...semantics, alpha: 'premultiplied' as const }),
+        release: () => releases++,
+      }
+    }
+    const converted = convertPixelBlocks(input(), 'rgba8', { format: 'rgba8' })
+    const consume = async (): Promise<void> => {
+      for await (const _block of converted) outputs += 1
+    }
+
+    await expect(consume()).rejects.toThrow('premultiplied alpha')
+    expect(outputs).toBe(0)
+    expect(releases).toBe(1)
+  })
 })
 
 describe('precision-aware planning', () => {

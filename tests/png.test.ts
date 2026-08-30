@@ -75,6 +75,19 @@ const uncompressedPngScanlines = (png: Uint8Array): Uint8Array => {
   return inflateSync(Buffer.concat(idat))
 }
 
+const unfilteredSinglePngRow = (png: Uint8Array, bytesPerPixel: number): Uint8Array => {
+  const filtered = uncompressedPngScanlines(png)
+  const filter = filtered[0] ?? 0
+  const output = new Uint8Array(filtered.byteLength - 1)
+  for (let index = 0; index < output.byteLength; index += 1) {
+    const left = index >= bytesPerPixel ? (output[index - bytesPerPixel] ?? 0) : 0
+    const encoded = filtered[index + 1] ?? 0
+    output[index] = (encoded + (filter === 1 ? left : 0)) & 0xff
+  }
+  expect([0, 1]).toContain(filter)
+  return output
+}
+
 describe('PNG pixel pipeline', () => {
   it('converts a Display-P3 iCCP profile to sRGB without changing alpha', async () => {
     const profileData = Buffer.concat([
@@ -123,10 +136,20 @@ describe('PNG pixel pipeline', () => {
     const signaled = specializedPng(1, 1, 16, 0, Uint8Array.of(0, 0x80, 0), undefined, [
       pngChunk('gAMA', gamma),
     ])
-    await expect((await Image.open(signaled)).png().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: 'PNG source-profile pixels require an explicitly preserved ICC profile',
-    })
+    const preservedGamma = Buffer.from(await (await Image.open(signaled)).png().toBuffer())
+    expect(preservedGamma[24]).toBe(16)
+    expect(uncompressedPngScanlines(preservedGamma)).toEqual(Buffer.from([0, 0x80, 0]))
+    const gammaOffset = preservedGamma.indexOf(Buffer.from('gAMA'))
+    const idatOffset = preservedGamma.indexOf(Buffer.from('IDAT'))
+    expect(gammaOffset).toBeGreaterThan(0)
+    expect(gammaOffset).toBeLessThan(idatOffset)
+    expect(preservedGamma.readUInt32BE(gammaOffset + 4)).toBe(100_000)
+    expect(
+      crc32(
+        preservedGamma.subarray(gammaOffset, gammaOffset + 4),
+        preservedGamma.subarray(gammaOffset + 4, gammaOffset + 8),
+      ),
+    ).toBe(preservedGamma.readUInt32BE(gammaOffset + 8))
   })
 
   it('applies PNG gAMA and cHRM only when no higher-precedence sRGB chunk exists', async () => {
@@ -162,6 +185,59 @@ describe('PNG pixel pipeline', () => {
     ])
     const srgbDecoded = PNG.sync.read(await (await Image.open(srgbInput)).png().toBuffer())
     expect(Array.from(srgbDecoded.data)).toEqual([128, 128, 128, 91])
+  })
+
+  it('preserves standardized native 16-bit sRGB and Display P3 signaling', async () => {
+    const samples = Uint8Array.of(0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc)
+    const srgbInput = specializedPng(1, 1, 16, 2, samples, undefined, [
+      pngChunk('sRGB', Uint8Array.of(2)),
+    ])
+    const srgbOutput = Buffer.from(await (await Image.open(srgbInput)).png().toBuffer())
+    const srgbOffset = srgbOutput.indexOf(Buffer.from('sRGB'))
+    expect(srgbOffset).toBeGreaterThan(0)
+    expect(srgbOutput[srgbOffset + 4]).toBe(2)
+    expect(unfilteredSinglePngRow(srgbOutput, 6)).toEqual(samples.subarray(1))
+
+    const p3Input = specializedPng(1, 1, 16, 2, samples, undefined, [
+      pngChunk('cICP', Uint8Array.of(12, 13, 0, 1)),
+    ])
+    const p3Output = Buffer.from(await (await Image.open(p3Input)).png().toBuffer())
+    const cicpOffset = p3Output.indexOf(Buffer.from('cICP'))
+    expect(cicpOffset).toBeGreaterThan(0)
+    expect(p3Output.subarray(cicpOffset + 4, cicpOffset + 8)).toEqual(Buffer.from([12, 13, 0, 1]))
+    expect(unfilteredSinglePngRow(p3Output, 6)).toEqual(samples.subarray(1))
+  })
+
+  it('preserves native gAMA when 16-bit color-key transparency expands to RGBA', async () => {
+    const gamma = Buffer.alloc(4)
+    gamma.writeUInt32BE(35_000)
+    const input = specializedPng(2, 1, 16, 0, Uint8Array.of(0, 0x12, 0x34, 0xab, 0xcd), undefined, [
+      pngChunk('gAMA', gamma),
+      pngChunk('tRNS', Uint8Array.of(0x12, 0x34)),
+    ])
+    const output = Buffer.from(await (await Image.open(input)).png().toBuffer())
+    const gammaOffset = output.indexOf(Buffer.from('gAMA'))
+    expect(output.readUInt32BE(gammaOffset + 4)).toBe(35_000)
+    expect(unfilteredSinglePngRow(output, 8)).toEqual(
+      Uint8Array.of(
+        0x12,
+        0x34,
+        0x12,
+        0x34,
+        0x12,
+        0x34,
+        0,
+        0,
+        0xab,
+        0xcd,
+        0xab,
+        0xcd,
+        0xab,
+        0xcd,
+        0xff,
+        0xff,
+      ),
+    )
   })
 
   it('rejects corrupt ICC data and color-manages common full-range cICP signaling', async () => {

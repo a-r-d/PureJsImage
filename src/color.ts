@@ -16,6 +16,7 @@ export type PixelColorProvenance =
   | 'icc'
   | 'assumed-default'
   | 'unspecified'
+export type PixelRenderingIntent = 'perceptual' | 'relative' | 'saturation' | 'absolute'
 export type PixelTransferFunction =
   | { readonly kind: 'srgb' | 'linear' | 'source-profile' | 'unspecified' }
   | { readonly kind: 'gamma'; readonly exponent: number }
@@ -33,6 +34,7 @@ export interface PixelColorSemantics {
   readonly range: PixelRange
   readonly alpha: PixelAlphaSemantics
   readonly provenance: PixelColorProvenance
+  readonly renderingIntent?: PixelRenderingIntent
   readonly icc?: PixelIccSemantics
 }
 
@@ -59,6 +61,12 @@ const provenances = new Set<PixelColorProvenance>([
   'icc',
   'assumed-default',
   'unspecified',
+])
+const renderingIntents = new Set<PixelRenderingIntent>([
+  'perceptual',
+  'relative',
+  'saturation',
+  'absolute',
 ])
 const transferKinds = new Set(['srgb', 'linear', 'source-profile', 'unspecified', 'gamma'])
 
@@ -131,6 +139,7 @@ export const normalizePixelColorSemantics = (value: unknown): PixelColorSemantic
     'range',
     'alpha',
     'provenance',
+    'renderingIntent',
     'icc',
   ])
   const icc = normalizeIcc(value.icc)
@@ -142,6 +151,11 @@ export const normalizePixelColorSemantics = (value: unknown): PixelColorSemantic
     range: enumValue(value.range, ranges, 'range'),
     alpha: enumValue(value.alpha, alphas, 'alpha semantics'),
     provenance: enumValue(value.provenance, provenances, 'provenance'),
+    ...(value.renderingIntent === undefined
+      ? {}
+      : {
+          renderingIntent: enumValue(value.renderingIntent, renderingIntents, 'rendering intent'),
+        }),
     ...(icc === undefined ? {} : { icc }),
   }
   if (normalized.provenance === 'icc' && normalized.icc === undefined) {

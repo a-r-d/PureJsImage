@@ -25,28 +25,29 @@ import {
   omeZarrLabelColor,
   overlayOmeZarrLabel,
 } from './ome-zarr-render.ts'
-import type {
-  OmeZarrAxisMetadata,
-  OmeZarrChannelConfiguration,
-  OmeZarrChannelHistogram,
-  OmeZarrChannelMetadata,
-  OmeZarrDatasetMetadata,
-  OmeZarrLabelColor,
-  OmeZarrLabelMetadata,
-  OmeZarrLevelMetadata,
-  OmeZarrMetadata,
-  OmeZarrRenderConfiguration,
-  OmeZarrStats,
-  OmeZarrWorkerRequest,
-  OmeZarrWorkerResponse,
+import {
+  isOmeZarrWorkerRequest,
+  type OmeZarrAxisMetadata,
+  type OmeZarrChannelConfiguration,
+  type OmeZarrChannelHistogram,
+  type OmeZarrChannelMetadata,
+  type OmeZarrDatasetMetadata,
+  type OmeZarrLabelColor,
+  type OmeZarrLabelMetadata,
+  type OmeZarrLevelMetadata,
+  type OmeZarrMetadata,
+  type OmeZarrRenderConfiguration,
+  type OmeZarrStats,
+  type OmeZarrWorkerResponse,
 } from './ome-zarr-types.ts'
 
 interface WorkerScope {
-  onmessage: ((event: MessageEvent<OmeZarrWorkerRequest>) => void) | null
+  onmessage: ((event: MessageEvent<unknown>) => void) | null
   postMessage(message: OmeZarrWorkerResponse, transfer?: readonly Transferable[]): void
 }
 
 interface TileJob {
+  readonly epoch: number
   readonly requestId: number
   readonly generation: number
   readonly level: number
@@ -89,6 +90,10 @@ const maximumViewerTileDimension = 1_024
 const maximumMixedChannels = 3
 const histogramBins = 64
 let activeDecodes = 0
+let activeControlOperations = 0
+let measurementEpoch = 0
+let resetInProgress = false
+const decodeQuiescenceWaiters: Array<() => void> = []
 let store: OmeZarrHttpStore | undefined
 let document: ScientificDocument | undefined
 let dataset: ScientificDataset | undefined
@@ -109,6 +114,16 @@ let lastDecodeMilliseconds = 0
 const post = (message: OmeZarrWorkerResponse, transfer: readonly Transferable[] = []): void => {
   scope.postMessage(message, transfer)
 }
+
+const resolveDecodeQuiescence = (): void => {
+  if (activeDecodes !== 0 || activeControlOperations !== 0) return
+  for (const resolve of decodeQuiescenceWaiters.splice(0)) resolve()
+}
+
+const waitForDecodeQuiescence = (): Promise<void> =>
+  activeDecodes === 0 && activeControlOperations === 0
+    ? Promise.resolve()
+    : new Promise<void>((resolve) => decodeQuiescenceWaiters.push(resolve))
 
 const errorMessage = (cause: unknown): string => {
   if (!(cause instanceof Error)) return 'Unknown OME-Zarr viewer error'
@@ -591,7 +606,13 @@ const closeCurrent = (): void => {
   configuration = undefined
 }
 
-const openStore = async (url: string, nextPublishedStoreBytes?: number): Promise<void> => {
+const openStore = async (
+  url: string,
+  epoch: number,
+  nextPublishedStoreBytes?: number,
+): Promise<void> => {
+  measurementEpoch = epoch
+  resetInProgress = false
   openSerial += 1
   configureSerial += 1
   const serial = openSerial
@@ -608,7 +629,7 @@ const openStore = async (url: string, nextPublishedStoreBytes?: number): Promise
     nextPublishedStoreBytes > 0
       ? nextPublishedStoreBytes
       : undefined
-  post({ type: 'opening', message: 'Reading OME-NGFF metadata and array layouts…' })
+  post({ type: 'opening', epoch, message: 'Reading OME-NGFF metadata and array layouts…' })
   let nextStore: OmeZarrHttpStore | undefined
   try {
     const context = await createOmeZarrHttpContext(url, {
@@ -635,7 +656,7 @@ const openStore = async (url: string, nextPublishedStoreBytes?: number): Promise
       axes,
       opened,
     )
-    if (serial !== openSerial) {
+    if (serial !== openSerial || epoch !== measurementEpoch) {
       opened.close?.()
       nextStore.close()
       return
@@ -645,12 +666,12 @@ const openStore = async (url: string, nextPublishedStoreBytes?: number): Promise
     displayAxes = axes
     metadata = openedMetadata
     configuration = defaultConfiguration(openedMetadata, axes)
-    post({ type: 'opened', metadata: openedMetadata, configuration, stats: currentStats() })
+    post({ type: 'opened', epoch, metadata: openedMetadata, configuration, stats: currentStats() })
   } catch (cause) {
-    if (serial !== openSerial || isAbortError(cause)) return
+    if (serial !== openSerial || epoch !== measurementEpoch || isAbortError(cause)) return
     nextStore?.close()
     if (store === nextStore) store = undefined
-    post({ type: 'error', message: errorMessage(cause), stats: currentStats() })
+    post({ type: 'error', epoch, message: errorMessage(cause), stats: currentStats() })
   }
 }
 
@@ -678,7 +699,7 @@ const validateChannelConfiguration = (
   }
 }
 
-const configureViewer = async (next: OmeZarrRenderConfiguration): Promise<void> => {
+const configureViewer = async (next: OmeZarrRenderConfiguration, epoch: number): Promise<void> => {
   const opened = document
   if (opened === undefined) throw invalidInput('Open a store before configuring the viewer')
   if (!Number.isSafeInteger(next.generation) || next.generation < 1) {
@@ -748,7 +769,7 @@ const configureViewer = async (next: OmeZarrRenderConfiguration): Promise<void> 
       metadata: labelMetadata,
     }
   }
-  if (serial !== configureSerial) return
+  if (serial !== configureSerial || epoch !== measurementEpoch) return
   dataset = nextDataset
   displayAxes = axes
   metadata = nextMetadata
@@ -759,10 +780,14 @@ const configureViewer = async (next: OmeZarrRenderConfiguration): Promise<void> 
     ...(next.label === undefined ? {} : { label: Object.freeze({ ...next.label }) }),
   })
   activeLabel = nextLabel
-  post({ type: 'configured', metadata: nextMetadata, configuration, stats: currentStats() })
+  post({ type: 'configured', epoch, metadata: nextMetadata, configuration, stats: currentStats() })
 }
 
-const selectViewerDataset = async (datasetId: string, generation: number): Promise<void> => {
+const selectViewerDataset = async (
+  datasetId: string,
+  generation: number,
+  epoch: number,
+): Promise<void> => {
   const opened = document
   if (opened === undefined) throw invalidInput('Open a store before selecting a dataset')
   configureSerial += 1
@@ -775,7 +800,7 @@ const selectViewerDataset = async (datasetId: string, generation: number): Promi
     throw invalidInput(`OME-Zarr image dataset ${datasetId} is not displayable`)
   }
   const selected = await opened.openDataset(summary.id)
-  if (serial !== configureSerial) return
+  if (serial !== configureSerial || epoch !== measurementEpoch) return
   const axes = selectDisplayAxes(selected.descriptor)
   const selectedMetadata = buildMetadata(
     summary.id,
@@ -785,7 +810,7 @@ const selectViewerDataset = async (datasetId: string, generation: number): Promi
     opened,
   )
   const defaults = defaultConfiguration(selectedMetadata, axes)
-  await configureViewer({ ...defaults, generation })
+  await configureViewer({ ...defaults, generation }, epoch)
 }
 
 const histogramFor = (channel: OmeZarrChannelConfiguration): OmeZarrChannelHistogram => ({
@@ -979,6 +1004,10 @@ const decodeTile = async (job: TileJob): Promise<void> => {
   const axes = displayAxes
   const activeConfiguration = configuration
   const level = activeMetadata?.levels[job.level]
+  if (job.epoch !== measurementEpoch) {
+    controllers.delete(job.requestId)
+    return
+  }
   if (
     activeDataset === undefined ||
     activeMetadata === undefined ||
@@ -990,6 +1019,7 @@ const decodeTile = async (job: TileJob): Promise<void> => {
     controllers.delete(job.requestId)
     post({
       type: 'tile-cancelled',
+      epoch: job.epoch,
       requestId: job.requestId,
       generation: job.generation,
       stats: currentStats(),
@@ -1004,6 +1034,7 @@ const decodeTile = async (job: TileJob): Promise<void> => {
     controllers.delete(job.requestId)
     post({
       type: 'error',
+      epoch: job.epoch,
       requestId: job.requestId,
       generation: job.generation,
       message: 'Viewport tile is outside the level',
@@ -1053,6 +1084,7 @@ const decodeTile = async (job: TileJob): Promise<void> => {
     controllers.delete(job.requestId)
     if (
       job.openSerial !== openSerial ||
+      job.epoch !== measurementEpoch ||
       job.generation !== configuration?.generation ||
       job.controller.signal.aborted
     ) {
@@ -1065,6 +1097,7 @@ const decodeTile = async (job: TileJob): Promise<void> => {
     post(
       {
         type: 'tile',
+        epoch: job.epoch,
         requestId: job.requestId,
         generation: job.generation,
         level: job.level,
@@ -1081,11 +1114,12 @@ const decodeTile = async (job: TileJob): Promise<void> => {
     )
   } catch (cause) {
     controllers.delete(job.requestId)
-    if (job.openSerial !== openSerial) return
+    if (job.openSerial !== openSerial || job.epoch !== measurementEpoch) return
     if (isAbortError(cause)) {
       viewportTilesCancelled += 1
       post({
         type: 'tile-cancelled',
+        epoch: job.epoch,
         requestId: job.requestId,
         generation: job.generation,
         stats: currentStats(),
@@ -1095,6 +1129,7 @@ const decodeTile = async (job: TileJob): Promise<void> => {
     viewportTilesFailed += 1
     post({
       type: 'error',
+      epoch: job.epoch,
       requestId: job.requestId,
       generation: job.generation,
       message: errorMessage(cause),
@@ -1104,49 +1139,94 @@ const decodeTile = async (job: TileJob): Promise<void> => {
 }
 
 const pumpTileQueue = (): void => {
-  while (activeDecodes < maximumConcurrentDecodes && tileQueue.length > 0) {
+  while (!resetInProgress && activeDecodes < maximumConcurrentDecodes && tileQueue.length > 0) {
     const job = tileQueue.shift()
     if (job === undefined) break
     activeDecodes += 1
     void decodeTile(job).finally(() => {
       activeDecodes -= 1
+      resolveDecodeQuiescence()
       pumpTileQueue()
     })
   }
 }
 
+const resetMeasurement = async (epoch: number): Promise<void> => {
+  if (epoch <= measurementEpoch) return
+  measurementEpoch = epoch
+  resetInProgress = true
+  openSerial += 1
+  configureSerial += 1
+  invalidateJobs()
+  await waitForDecodeQuiescence()
+  if (epoch !== measurementEpoch) return
+  await store?.quiesce()
+  if (epoch !== measurementEpoch) return
+  store?.resetStats()
+  viewportTilesDecoded = 0
+  viewportTilesCancelled = 0
+  viewportTilesFailed = 0
+  decodeMillisecondsTotal = 0
+  lastDecodeMilliseconds = 0
+  resetInProgress = false
+  post({ type: 'reset', epoch, stats: currentStats() })
+  pumpTileQueue()
+}
+
 scope.onmessage = (event): void => {
+  if (!isOmeZarrWorkerRequest(event.data)) return
   const message = event.data
   if (message.type === 'open') {
-    void openStore(message.url, message.publishedStoreBytes)
+    if (message.epoch <= measurementEpoch) return
+    void openStore(message.url, message.epoch, message.publishedStoreBytes)
     return
   }
+  if (message.type === 'reset') {
+    void resetMeasurement(message.epoch)
+    return
+  }
+  if (message.epoch !== measurementEpoch || resetInProgress) return
   if (message.type === 'configure') {
-    void configureViewer(message.configuration).catch((cause: unknown) => {
-      post({
-        type: 'error',
-        generation: message.configuration.generation,
-        message: errorMessage(cause),
-        stats: currentStats(),
+    activeControlOperations += 1
+    void configureViewer(message.configuration, message.epoch)
+      .catch((cause: unknown) => {
+        post({
+          type: 'error',
+          epoch: message.epoch,
+          generation: message.configuration.generation,
+          message: errorMessage(cause),
+          stats: currentStats(),
+        })
       })
-    })
+      .finally(() => {
+        activeControlOperations -= 1
+        resolveDecodeQuiescence()
+      })
     return
   }
   if (message.type === 'select-dataset') {
-    void selectViewerDataset(message.datasetId, message.generation).catch((cause: unknown) => {
-      post({
-        type: 'error',
-        generation: message.generation,
-        message: errorMessage(cause),
-        stats: currentStats(),
+    activeControlOperations += 1
+    void selectViewerDataset(message.datasetId, message.generation, message.epoch)
+      .catch((cause: unknown) => {
+        post({
+          type: 'error',
+          epoch: message.epoch,
+          generation: message.generation,
+          message: errorMessage(cause),
+          stats: currentStats(),
+        })
       })
-    })
+      .finally(() => {
+        activeControlOperations -= 1
+        resolveDecodeQuiescence()
+      })
     return
   }
   if (message.type === 'tile') {
     const controller = new AbortController()
     controllers.set(message.requestId, controller)
     tileQueue.push({
+      epoch: message.epoch,
       requestId: message.requestId,
       generation: message.generation,
       level: message.level,
@@ -1162,15 +1242,5 @@ scope.onmessage = (event): void => {
     controllers.get(message.requestId)?.abort()
     return
   }
-  if (message.type === 'reset') {
-    store?.resetStats()
-    viewportTilesDecoded = 0
-    viewportTilesCancelled = 0
-    viewportTilesFailed = 0
-    decodeMillisecondsTotal = 0
-    lastDecodeMilliseconds = 0
-    post({ type: 'stats', stats: currentStats() })
-    return
-  }
-  post({ type: 'stats', stats: currentStats() })
+  post({ type: 'stats', epoch: message.epoch, stats: currentStats() })
 }

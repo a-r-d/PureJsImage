@@ -114,7 +114,9 @@ have focused fixture or benchmark coverage.
 - [ ] Additional Deflate strategy and memory controls where they improve Lambda
   peak RSS or output size
 - [x] Compatible ICC and EXIF metadata writing when explicitly preserved
-- [ ] sRGB, gamma, chromaticity, physical-dimension, and text metadata writing
+- [x] Exact representable `gAMA`, `sRGB`, and supported full-range RGB `cICP`
+  signaling for native 16-bit output
+- [ ] Chromaticity, physical-dimension, and text metadata writing
 - [x] Explicit control over ICC and EXIF stripping versus preservation
 
 ## Correctness and safety contract

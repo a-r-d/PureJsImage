@@ -64,6 +64,10 @@ interface PngDescription {
   readonly idat: readonly ChunkRange[]
   readonly colorTransform: RgbIccTransform | undefined
   readonly grayTransform: Uint8Array | undefined
+  readonly encodedGamma: number | undefined
+  readonly hasChromaticities: boolean
+  readonly srgbIntent: number | undefined
+  readonly cicp: PngCicp | undefined
   readonly iccProfile: Uint8Array | undefined
   readonly exif: Uint8Array | undefined
 }
@@ -185,32 +189,63 @@ const bytesPerPixel = (format: PixelFormat): number => {
   throw invalidInput(`PNG does not support ${format} encoder input`)
 }
 
-const pngColorSemantics = (description: PngDescription): PixelColorSemantics =>
-  Object.freeze({
+const pngRenderingIntents = ['perceptual', 'relative', 'saturation', 'absolute'] as const
+
+const pngRenderingIntent = (value: number): (typeof pngRenderingIntents)[number] => {
+  const intent = pngRenderingIntents[value]
+  if (intent === undefined) throw invalidInput('PNG sRGB rendering intent is invalid')
+  return intent
+}
+
+const pngColorSemantics = (description: PngDescription): PixelColorSemantics => {
+  const standardizedCicp =
+    description.cicp?.[1] === 13 &&
+    description.cicp[2] === 0 &&
+    description.cicp[3] === 1 &&
+    (description.cicp[0] === 1 || description.cicp[0] === 12)
+  const hasSourceProfile =
+    description.iccProfile !== undefined ||
+    description.hasChromaticities ||
+    (description.cicp !== undefined && !standardizedCicp)
+  const hasSrgb = description.srgbIntent !== undefined || description.cicp?.[0] === 1
+  const hasDisplayP3 = description.cicp?.[0] === 12
+  const encodedGamma = description.encodedGamma
+  return Object.freeze({
     family: outputFormat(description).startsWith('gray') ? 'gray' : 'rgb',
-    primaries:
-      description.colorTransform !== undefined || description.iccProfile !== undefined
-        ? 'source-profile'
-        : 'unspecified',
-    transfer: Object.freeze({
-      kind:
-        description.colorTransform !== undefined || description.grayTransform !== undefined
-          ? 'source-profile'
+    primaries: hasSourceProfile
+      ? 'source-profile'
+      : hasSrgb
+        ? 'srgb'
+        : hasDisplayP3
+          ? 'display-p3'
           : 'unspecified',
-    }),
+    transfer: hasSourceProfile
+      ? Object.freeze({ kind: 'source-profile' as const })
+      : hasSrgb || hasDisplayP3
+        ? Object.freeze({ kind: 'srgb' as const })
+        : encodedGamma === undefined
+          ? Object.freeze({ kind: 'unspecified' as const })
+          : Object.freeze({ kind: 'gamma' as const, exponent: 100_000 / encodedGamma }),
     matrix: 'identity',
     range: 'full',
     alpha: description.hasAlpha ? 'straight' : 'none',
     provenance:
       description.iccProfile !== undefined
         ? 'icc'
-        : description.colorTransform !== undefined || description.grayTransform !== undefined
+        : description.srgbIntent !== undefined ||
+            description.cicp !== undefined ||
+            description.encodedGamma !== undefined ||
+            description.hasChromaticities
           ? 'container-signaled'
           : 'unspecified',
+    ...(description.srgbIntent === undefined
+      ? {}
+      : { renderingIntent: pngRenderingIntent(description.srgbIntent) }),
     ...(description.iccProfile === undefined
       ? {}
       : { icc: Object.freeze({ relevance: 'source' as const }) }),
   })
+}
 
 const checkedChunkEnd = (offset: number, length: number, size: number, type: string): number => {
   const end = offset + length + 12
@@ -429,7 +464,9 @@ const parsePng = async (
   let compressedIcc: Uint8Array | undefined
   let exif: Uint8Array | undefined
   let gamma: number | undefined
+  let encodedGamma: number | undefined
   let chromaticities: RgbChromaticities | undefined
+  let srgbIntent: number | undefined
   let cicp: PngCicp | undefined
   let imageDataState: 'before' | 'inside' | 'after' = 'before'
 
@@ -459,7 +496,7 @@ const parsePng = async (
       if (imageDataState !== 'before' || foundPalette)
         throw invalidInput('PNG gAMA must precede the palette and image data')
       if (length !== 4) throw invalidInput('PNG gAMA chunk must contain four bytes')
-      const encodedGamma = uint32BigEndian(await readExactly(source, dataOffset, length), 0)
+      encodedGamma = uint32BigEndian(await readExactly(source, dataOffset, length), 0)
       if (encodedGamma === 0) throw invalidInput('PNG gAMA value must be positive')
       gamma = encodedGamma / 100_000
       foundGamma = true
@@ -476,6 +513,7 @@ const parsePng = async (
       const intent = await readExactly(source, dataOffset, length)
       if (length !== 1 || (intent[0] ?? 4) > 3)
         throw invalidInput('PNG sRGB rendering intent is invalid')
+      srgbIntent = intent[0]
       foundSrgb = true
     } else if (type === 'cICP') {
       if (foundCicp) throw invalidInput('PNG contains multiple cICP chunks')
@@ -590,6 +628,10 @@ const parsePng = async (
     idat,
     colorTransform,
     grayTransform,
+    encodedGamma,
+    hasChromaticities: chromaticities !== undefined,
+    srgbIntent,
+    cicp,
     iccProfile,
     exif,
   }
@@ -1355,6 +1397,64 @@ const writeChunk = async (sink: ImageSink, type: string, data: Uint8Array): Prom
   await sink.write(uint32Bytes(crc32(encodedType, data)))
 }
 
+interface PngColorSignal {
+  readonly type: 'gAMA' | 'sRGB' | 'cICP'
+  readonly data: Uint8Array
+}
+
+const pngRenderingIntentCode = (intent: PixelColorSemantics['renderingIntent']): number => {
+  if (intent === undefined || intent === 'perceptual') return 0
+  if (intent === 'relative') return 1
+  if (intent === 'saturation') return 2
+  return 3
+}
+
+const nativePngColorSignal = (
+  semantics: PixelColorSemantics | undefined,
+): PngColorSignal | undefined => {
+  if (semantics === undefined) return undefined
+  if (semantics.primaries === 'srgb' && semantics.transfer.kind === 'srgb') {
+    return {
+      type: 'sRGB',
+      data: Uint8Array.of(pngRenderingIntentCode(semantics.renderingIntent)),
+    }
+  }
+  if (
+    semantics.family === 'rgb' &&
+    semantics.primaries === 'display-p3' &&
+    semantics.transfer.kind === 'srgb' &&
+    semantics.renderingIntent === undefined
+  ) {
+    return { type: 'cICP', data: Uint8Array.of(12, 13, 0, 1) }
+  }
+  if (
+    semantics.primaries === 'unspecified' &&
+    semantics.transfer.kind === 'gamma' &&
+    semantics.renderingIntent === undefined
+  ) {
+    const encoded = Math.round(100_000 / semantics.transfer.exponent)
+    if (
+      encoded < 1 ||
+      encoded > 0xffffffff ||
+      !Number.isSafeInteger(encoded) ||
+      100_000 / encoded !== semantics.transfer.exponent
+    ) {
+      throw unsupportedOperation('PNG cannot represent the exact pixel gamma exponent')
+    }
+    const data = new Uint8Array(4)
+    new DataView(data.buffer).setUint32(0, encoded)
+    return { type: 'gAMA', data }
+  }
+  if (
+    semantics.primaries === 'unspecified' &&
+    semantics.transfer.kind === 'unspecified' &&
+    semantics.renderingIntent === undefined
+  ) {
+    return undefined
+  }
+  throw unsupportedOperation('PNG cannot represent the native pixel color semantics exactly')
+}
+
 const filteredMagnitudeTable = Uint8Array.from({ length: 256 }, (_entry, value) =>
   Math.min(value, 256 - value),
 )
@@ -1624,6 +1724,10 @@ const createPngEncoder = async (
       'PNG ICC pixel semantics require an explicitly preserved ICC profile',
     )
   }
+  const nativeColorSignal =
+    request.pixelFormat.endsWith('16') && request.metadata?.icc === undefined
+      ? nativePngColorSignal(semantics)
+      : undefined
 
   let acceleratedFilter: PngRowFilter | undefined
   for (const acceleration of accelerations) {
@@ -1687,6 +1791,8 @@ const createPngEncoder = async (
       payload.set(name)
       payload.set(compressed, name.byteLength)
       await writeChunk(sink, 'iCCP', payload)
+    } else if (nativeColorSignal !== undefined) {
+      await writeChunk(sink, nativeColorSignal.type, nativeColorSignal.data)
     }
     if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
     return new PngEncoder(

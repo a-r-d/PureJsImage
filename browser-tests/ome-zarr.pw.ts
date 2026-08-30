@@ -382,12 +382,27 @@ test('opens, measures, navigates, cancels, and resets a local sharded OME-Zarr W
   await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 40_000 })
   await expect(page.locator('#ome-zarr-stat-in-flight')).toHaveText('0', { timeout: 20_000 })
 
-  await page.locator('#ome-zarr-reset').click()
+  await page.locator('#ome-zarr-zoom-in').click()
+  await expect(page.locator('.wsi-request-state.pending').first()).toBeVisible({ timeout: 10_000 })
+  const reset = page.locator('#ome-zarr-reset')
+  const previousEpoch = Number(await reset.getAttribute('data-measurement-epoch'))
+  expect(Number.isSafeInteger(previousEpoch)).toBe(true)
+  await reset.click()
+  await expect(reset).toHaveAttribute('data-measurement-epoch', String(previousEpoch + 1), {
+    timeout: 40_000,
+  })
+  await expect(reset).toBeEnabled()
+  await expect(page.locator('#ome-zarr-status')).toContainText('Measurement counters reset')
   await expect(page.locator('#ome-zarr-stat-object-requests')).toHaveText('0')
   await expect(page.locator('#ome-zarr-stat-range-requests')).toHaveText('0')
   await expect(page.locator('#ome-zarr-stat-bytes')).toHaveText('0 B')
   await expect(page.locator('#ome-zarr-measured-bytes')).toHaveText('0 B')
   await expect(page.locator('#ome-zarr-stat-decoded')).toHaveText('0')
+
+  await page.locator('[data-axis-id="z"]').fill('0')
+  await page.locator('[data-axis-id="z"]').dispatchEvent('change')
+  await expect(page.locator('#ome-zarr-stat-bytes')).not.toHaveText('0 B', { timeout: 30_000 })
+  await expect(page.locator('#ome-zarr-stat-decoded')).not.toHaveText('0', { timeout: 30_000 })
   expect(externalRequests).toEqual([])
 })
 

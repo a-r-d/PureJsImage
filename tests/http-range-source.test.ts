@@ -23,6 +23,47 @@ const immediateFetch: typeof fetch = async (_input, init) => {
 }
 
 describe('HttpRangeSource cancellation scopes', () => {
+  it('quiesces pending physical reads before a measurement baseline changes', async () => {
+    let started: (() => void) | undefined
+    let cancelled = false
+    const readStarted = new Promise<void>((resolve) => {
+      started = resolve
+    })
+    const fetchRange: typeof fetch = async (_input, init) => {
+      const range = parseRange(init)
+      if (range === undefined) return new Response(null, { status: 416 })
+      if (range.start === 0 && range.end === 0) return rangeResponse(0, 0)
+      return new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(Uint8Array.of(range.start))
+            started?.()
+          },
+          cancel() {
+            cancelled = true
+          },
+        }),
+        {
+          status: 206,
+          headers: {
+            'content-length': String(range.end - range.start + 1),
+            'content-range': `bytes ${range.start}-${range.end}/100`,
+          },
+        },
+      )
+    }
+    const source = await HttpRangeSource.open('https://example.test/quiesce.bin', {
+      blockBytes: 16,
+      fetch: fetchRange,
+    })
+    const read = source.read(16, 1)
+    await readStarted
+    await source.quiesce()
+
+    await expect(read).rejects.toMatchObject({ name: 'AbortError' })
+    expect(cancelled).toBe(true)
+  })
+
   it('uses an opt-in HEAD size fallback when Content-Range is hidden by CORS', async () => {
     const methods: string[] = []
     const fetchRange: typeof fetch = async (_input, init) => {

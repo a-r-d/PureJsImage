@@ -101,6 +101,10 @@ export class OmeZarrHttpStore implements ScientificCompanionResolver {
     this.#store.resetStats()
   }
 
+  async quiesce(): Promise<void> {
+    await this.#store.quiesce()
+  }
+
   identitySummary(
     document?: Pick<ScientificDocument, 'reader' | 'metadata'>,
   ): OmeZarrHttpStoreIdentitySummary {
