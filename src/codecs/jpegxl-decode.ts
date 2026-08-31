@@ -166,12 +166,12 @@ interface JpegXlColorEncoding {
   readonly metadataColorSpace: 'gray' | 'linear-gray' | 'srgb' | 'linear-rgb'
 }
 
-interface JpegXlSection {
+export interface JpegXlSection {
   readonly offset: number
   readonly length: number
 }
 
-interface JpegXlHeader {
+export interface JpegXlFrameStructure {
   readonly width: number
   readonly height: number
   readonly bitDepth: number
@@ -181,12 +181,20 @@ interface JpegXlHeader {
   readonly metadataColorSpace: JpegXlColorEncoding['metadataColorSpace']
   readonly orientation: number
   readonly encoding: 'modular' | 'vardct'
+  readonly frameFlags: number
+  readonly colorTransform: 'xyb' | 'none' | 'ycbcr'
+  readonly chromaSubsampling: readonly [number, number, number]
+  readonly passCount: number
+  readonly gaborish: boolean
+  readonly epfIterations: number
   readonly groupDimension: number
   readonly groupsAcross: number
   readonly groupsDown: number
   readonly dcGroupCount: number
   readonly sections: readonly JpegXlSection[]
 }
+
+type JpegXlHeader = JpegXlFrameStructure
 
 const readSize = (reader: JpegXlBitReader): { readonly width: number; readonly height: number } => {
   const small = reader.readBits(1) !== 0
@@ -286,7 +294,8 @@ const readHeader = (
       requireValue(reader.readBits(1) !== 0, false, 'premultiplied alpha')
     }
   }
-  requireValue(reader.readBits(1) !== 0, false, 'XYB color encoding')
+  const xybEncoded = reader.readBits(1) !== 0
+  requireValue(xybEncoded, false, 'XYB color encoding')
   const colorEncoding = readColorEncoding(reader)
   const channelCount = channelCountFor(colorEncoding.colorChannels, extraChannels)
   requireValue(readU64(reader), 0, 'image-metadata extensions')
@@ -299,26 +308,17 @@ const readHeader = (
   if (encoding === 'vardct' && !allowVarDct) {
     throw unsupportedOperation('JPEG XL VarDCT frames are outside the implemented decode subset')
   }
-  if (encoding === 'vardct') {
-    return Object.freeze({
-      width,
-      height,
-      bitDepth,
-      alphaBitDepth,
-      colorChannels: colorEncoding.colorChannels,
-      channelCount,
-      metadataColorSpace: colorEncoding.metadataColorSpace,
-      orientation: 1,
-      encoding,
-      groupDimension: 256,
-      groupsAcross: Math.ceil(width / 256),
-      groupsDown: Math.ceil(height / 256),
-      dcGroupCount: Math.ceil(width / 2_048) * Math.ceil(height / 2_048),
-      sections: Object.freeze([]),
-    })
+  const frameFlags = readU64(reader)
+  if ((frameFlags & ~0xb3) !== 0) {
+    throw unsupportedOperation('JPEG XL frame uses reserved flags')
   }
-  requireValue(readU64(reader), 0, 'frame flags')
-  requireValue(reader.readBits(1) !== 0, false, 'YCbCr color transform')
+  const colorTransform = xybEncoded ? 'xyb' : reader.readBits(1) !== 0 ? 'ycbcr' : 'none'
+  const chromaSubsampling = [0, 0, 0] as [number, number, number]
+  if (colorTransform === 'ycbcr' && (frameFlags & 0x20) === 0) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      chromaSubsampling[channel] = reader.readBits(2)
+    }
+  }
   requireValue(readU32(reader, [value(1), value(2), value(4), value(8)]), 1, 'color upsampling')
   for (let index = 0; index < extraChannels; index += 1) {
     requireValue(
@@ -327,8 +327,35 @@ const readHeader = (
       'extra-channel upsampling',
     )
   }
-  const groupSizeShift = reader.readBits(2)
-  requireValue(readU32(reader, [value(1), value(2), value(3), bits(3, 4)]), 1, 'progressive passes')
+  const groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
+  if (encoding === 'vardct' && colorTransform === 'xyb') {
+    reader.readBits(3)
+    reader.readBits(3)
+  }
+  const passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
+  if (passCount !== 1) {
+    const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
+    if (downsampleCount > passCount) {
+      throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
+    }
+    for (let index = 0; index < passCount - 1; index += 1) reader.readBits(2)
+    let previousDownsample = 9
+    for (let index = 0; index < downsampleCount; index += 1) {
+      const downsample = readU32(reader, [value(1), value(2), value(4), value(8)])
+      if (downsample >= previousDownsample) {
+        throw invalidInput('JPEG XL progressive downsample factors are not decreasing')
+      }
+      previousDownsample = downsample
+    }
+    let previousPass = -1
+    for (let index = 0; index < downsampleCount; index += 1) {
+      const lastPass = readU32(reader, [value(0), value(1), value(2), bits(3)])
+      if (lastPass <= previousPass || lastPass >= passCount) {
+        throw invalidInput('JPEG XL progressive pass boundary is invalid')
+      }
+      previousPass = lastPass
+    }
+  }
   requireValue(reader.readBits(1) !== 0, false, 'partial frames')
   requireValue(readU32(reader, [value(0), value(1), value(2), bits(2, 3)]), 0, 'frame blending')
   for (let index = 0; index < extraChannels; index += 1) {
@@ -340,13 +367,27 @@ const readHeader = (
   }
   requireValue(reader.readBits(1) !== 0, true, 'multiple frames')
   readName(reader)
-  requireValue(reader.readBits(1) !== 0, false, 'default loop filtering')
-  requireValue(reader.readBits(1) !== 0, false, 'Gaborish filtering')
-  requireValue(reader.readBits(2), 0, 'edge-preserving filtering')
+  const defaultLoopFilter = reader.readBits(1) !== 0
+  let gaborish = true
+  let epfIterations = 2
+  if (!defaultLoopFilter) {
+    gaborish = reader.readBits(1) !== 0
+    if (gaborish) {
+      requireValue(reader.readBits(1) !== 0, false, 'custom Gaborish filtering')
+    }
+    epfIterations = reader.readBits(2)
+    if (epfIterations > 0) {
+      if (encoding === 'vardct') {
+        requireValue(reader.readBits(1) !== 0, false, 'custom EPF sharpness')
+      }
+      requireValue(reader.readBits(1) !== 0, false, 'custom EPF weights')
+      requireValue(reader.readBits(1) !== 0, false, 'custom EPF sigma')
+    }
+  }
   requireValue(readU64(reader), 0, 'loop-filter extensions')
   requireValue(readU64(reader), 0, 'frame extensions')
 
-  const groupDimension = 128 * 2 ** groupSizeShift
+  const groupDimension = encoding === 'modular' ? 128 * 2 ** groupSizeShift : 256
   const groupsAcross = Math.ceil(width / groupDimension)
   const groupsDown = Math.ceil(height / groupDimension)
   const groupCount = groupsAcross * groupsDown
@@ -362,7 +403,8 @@ const readHeader = (
       )
     }
   }
-  const sectionCount = groupCount === 1 ? 1 : 2 + dcGroupCount + groupCount
+  const sectionCount =
+    groupCount === 1 && passCount === 1 ? 1 : 2 + dcGroupCount + groupCount * passCount
   if (sectionCount > 65_536) throw limitExceeded('JPEG XL frame has too many sections')
   const permutation = reader.readBits(1) !== 0 ? readPermutation(reader, sectionCount) : undefined
   alignWithZeroPadding(reader)
@@ -403,6 +445,12 @@ const readHeader = (
     metadataColorSpace: colorEncoding.metadataColorSpace,
     orientation: 1,
     encoding,
+    frameFlags,
+    colorTransform,
+    chromaSubsampling: Object.freeze(chromaSubsampling),
+    passCount,
+    gaborish,
+    epfIterations,
     groupDimension,
     groupsAcross,
     groupsDown,
@@ -411,7 +459,7 @@ const readHeader = (
   })
 }
 
-interface ModularLeaf {
+export interface JpegXlModularLeaf {
   readonly kind: 'leaf'
   readonly predictor: number
   readonly offset: number
@@ -419,7 +467,7 @@ interface ModularLeaf {
   readonly context: number
 }
 
-interface ModularBranch {
+export interface JpegXlModularBranch {
   readonly kind: 'branch'
   readonly property: number
   readonly split: number
@@ -427,7 +475,9 @@ interface ModularBranch {
   readonly lessOrEqual: number
 }
 
-type ModularNode = ModularLeaf | ModularBranch
+export type JpegXlModularNode = JpegXlModularLeaf | JpegXlModularBranch
+type ModularLeaf = JpegXlModularLeaf
+type ModularNode = JpegXlModularNode
 
 const unpackSigned = (packed: number): number => (packed >>> 1) ^ -(packed & 1)
 
@@ -489,6 +539,8 @@ const readTree = (
   if (!symbols.hasValidFinalState()) throw invalidInput('JPEG XL Modular tree ANS state is invalid')
   return Object.freeze({ nodes: Object.freeze(nodes), leaves })
 }
+
+export const readJpegXlModularTree = readTree
 
 interface ModularChannelLayout {
   readonly width: number
@@ -847,6 +899,94 @@ const readModularProgram = (
     metaChannelCount,
     prefixPlanes: Object.freeze([]),
     groupId: 0,
+  })
+}
+
+export interface JpegXlStandaloneModularResult {
+  readonly planes: readonly Int32Array<ArrayBufferLike>[]
+  readonly endingBitPosition: number
+}
+
+export interface JpegXlModularGlobalCode {
+  readonly nodes: readonly JpegXlModularNode[]
+  readonly leaves: number
+  readonly pixelCode: JpegXlEntropyCode
+}
+
+export const decodeJpegXlStandaloneModular = (
+  section: Uint8Array,
+  startingBitPosition: number,
+  channelLayoutsInput: readonly Readonly<ModularChannelLayout>[],
+  groupId: number,
+  globalCode?: Readonly<JpegXlModularGlobalCode>,
+): JpegXlStandaloneModularResult => {
+  if (
+    !Number.isSafeInteger(startingBitPosition) ||
+    startingBitPosition < 0 ||
+    startingBitPosition > section.byteLength * 8
+  ) {
+    throw invalidInput('JPEG XL Modular starting bit position is invalid')
+  }
+  if (!Number.isSafeInteger(groupId) || groupId < 0) {
+    throw invalidInput('JPEG XL Modular group identifier is invalid')
+  }
+  if (
+    channelLayoutsInput.length > 1_024 ||
+    channelLayoutsInput.some(
+      ({ width, height }) =>
+        !Number.isSafeInteger(width) ||
+        !Number.isSafeInteger(height) ||
+        width < 0 ||
+        height < 0 ||
+        width * height > 67_108_864,
+    )
+  ) {
+    throw limitExceeded('JPEG XL standalone Modular channel geometry is too large')
+  }
+  const reader = new JpegXlBitReader(section, startingBitPosition)
+  const useGlobalTree = reader.readBits(1) !== 0
+  if (useGlobalTree && !globalCode) {
+    throw invalidInput('JPEG XL standalone Modular stream references a missing global tree')
+  }
+  const weightedPredictor = readWeightedPredictor(reader)
+  requireValue(
+    readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)]),
+    0,
+    'standalone Modular transforms',
+  )
+  const tree = useGlobalTree ? globalCode : readTree(reader)
+  if (!tree) throw invalidInput('JPEG XL standalone Modular tree is missing')
+  const pixelCode =
+    useGlobalTree && globalCode ? globalCode.pixelCode : readJpegXlEntropyCode(reader, tree.leaves)
+  const usesWeightedPrediction = tree.nodes.some(
+    (node) =>
+      (node.kind === 'leaf' && node.predictor === 6) ||
+      (node.kind === 'branch' && node.property === 15),
+  )
+  const channelLayouts = Object.freeze(
+    channelLayoutsInput.map(({ width, height }) => Object.freeze({ width, height })),
+  )
+  const decoded = decodeModularPlanesWithPosition(
+    Object.freeze({
+      nodes: tree.nodes,
+      section,
+      residualBitPosition: reader.bitPosition,
+      pixelCode,
+      weightedPredictor,
+      usesWeightedPrediction,
+      channelLayouts,
+      transforms: Object.freeze([]),
+      metaChannelCount: 0,
+      groupId,
+      prefixPlanes: Object.freeze([]),
+    }),
+    0,
+    undefined,
+    false,
+  )
+  return Object.freeze({
+    planes: Object.freeze(decoded.planes),
+    endingBitPosition: decoded.endingBitPosition,
   })
 }
 
@@ -1280,11 +1420,17 @@ const requireZeroSectionPadding = (reader: JpegXlBitReader): void => {
   }
 }
 
-const decodeModularPlanes = (
+interface DecodedModularPlanes {
+  readonly planes: Int32Array<ArrayBufferLike>[]
+  readonly endingBitPosition: number
+}
+
+const decodeModularPlanesWithPosition = (
   program: ModularProgram,
   firstChannel: number,
   signal?: AbortSignal,
-): Int32Array<ArrayBufferLike>[] => {
+  requirePadding = true,
+): DecodedModularPlanes => {
   const decodedLayouts = program.channelLayouts.slice(firstChannel)
   const symbolCount = decodedLayouts.reduce((sum, layout) => sum + layout.width * layout.height, 0)
   const distanceMultiplier = decodedLayouts.reduce(
@@ -1379,9 +1525,16 @@ const decodeModularPlanes = (
   if (!symbols.hasValidFinalState()) {
     throw invalidInput('JPEG XL Modular residual ANS state is invalid')
   }
-  requireZeroSectionPadding(reader)
-  return planes
+  if (requirePadding) requireZeroSectionPadding(reader)
+  return Object.freeze({ planes, endingBitPosition: reader.bitPosition })
 }
+
+const decodeModularPlanes = (
+  program: ModularProgram,
+  firstChannel: number,
+  signal?: AbortSignal,
+): Int32Array<ArrayBufferLike>[] =>
+  decodeModularPlanesWithPosition(program, firstChannel, signal).planes
 const inverseRct = (
   firstInput: number,
   secondInput: number,
@@ -2251,6 +2404,14 @@ export const readJpegXlSourceInspectionMetadata = async (
   const header = await readHeaderFromSource(source, limits, options, maximumHeaderBytes, true)
   return Object.freeze({ metadata: metadataForHeader(header), encoding: header.encoding })
 }
+
+export const readJpegXlSourceFrameStructure = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+  maximumHeaderBytes = 4_194_304,
+): Promise<JpegXlFrameStructure> =>
+  readHeaderFromSource(source, limits, options, maximumHeaderBytes, true)
 
 export const decodeJpegXlSource = async (
   source: ImageSource,

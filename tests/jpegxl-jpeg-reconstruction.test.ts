@@ -14,6 +14,8 @@ import { resolveJpegXlLimits } from '../src/codecs/jpegxl-limits.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { MemorySource } from '../src/source.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { reconstructJpegFromJpegXl } from '../src/jpegxl.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
 
 const fixture = new Uint8Array(
   readFileSync('benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl'),
@@ -186,6 +188,24 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     )
     expect(reconstructed).toEqual(original)
     expect(sha256(reconstructed)).toBe(entry.sourceSha256)
+  })
+
+  it('reconstructs the pinned JPEG exactly from JPEG XL coefficients', async () => {
+    const entry = manifest.fixtures[0]
+    if (!entry) throw new Error('Pinned JPEG reconstruction manifest is empty')
+    const original = new Uint8Array(readFileSync(entry.source))
+    const sink = new Uint8ArraySink()
+    const reconstructed = await reconstructJpegFromJpegXl(fixture, { sink })
+
+    expect(reconstructed).toEqual(original)
+    expect(sink.toUint8Array()).toEqual(original)
+    expect(sha256(reconstructed)).toBe(entry.sourceSha256)
+  })
+
+  it('enforces the public reconstruction output limit', async () => {
+    await expect(
+      reconstructJpegFromJpegXl(fixture, { limits: { maxReconstructedJpegBytes: 64 } }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
   })
 
   it('fails closed when exact reconstruction inputs do not agree', async () => {

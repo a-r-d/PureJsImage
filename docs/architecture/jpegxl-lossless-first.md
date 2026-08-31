@@ -420,9 +420,12 @@ boundaries.
 Progress note: the bounded `jbrd` structural header, marker order, table descriptors, scan script,
 padding metadata, and direct Exif or XMP size references are parsed and validated. A bounded
 first-party Brotli subset decodes the uncompressed opaque marker payload in the pinned libjxl file.
-The coefficient-domain writer recreates that JPEG byte for byte when given its independently parsed
-source coefficients. JPEG XL VarDCT coefficient extraction and general Brotli-compressed marker
-payloads remain incomplete, so the reconstruction acceptance items stay unchecked.
+The JPEG-derived YCbCr VarDCT path now decodes LF global state, custom block contexts, DC groups,
+AC metadata, the raw DCT8 quantization table, custom coefficient orders, and AC groups. The public
+`reconstructJpegFromJpegXl()` path recreates the pinned progressive 4:2:0 JPEG byte for byte and with
+the recorded SHA-256 without reading source-JPEG coefficients. Broader sampling, grayscale, restart,
+metadata, multi-group, compressed Brotli, and cross-encoder corpus gates remain incomplete, so the
+full reconstruction acceptance items stay unchecked.
 
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.

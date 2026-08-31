@@ -158,7 +158,7 @@ export const inspectJpegXl = async (
       'animation',
       'preview decode',
       'Level 10 pixel decode',
-      'exact JPEG reconstruction',
+      ...(reconstructionBox ? [] : ['exact JPEG reconstruction']),
     ]),
   })
 }

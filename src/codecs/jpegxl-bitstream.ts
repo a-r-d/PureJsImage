@@ -606,11 +606,16 @@ const buildAliasTable = (
   })
 }
 
-const readContextMap = (
+export interface JpegXlContextMap {
+  readonly contextMap: readonly number[]
+  readonly histogramCount: number
+}
+
+export const readJpegXlContextMap = (
   reader: JpegXlBitReader,
   contexts: number,
-  recursionDepth: number,
-): { readonly contextMap: readonly number[]; readonly histogramCount: number } => {
+  recursionDepth = 0,
+): JpegXlContextMap => {
   if (reader.readBits(1) !== 0) {
     const bitsPerEntry = reader.readBits(2)
     const contextMap = Array.from({ length: contexts }, () => reader.readBits(bitsPerEntry))
@@ -653,7 +658,7 @@ export const readJpegXlEntropyCode = (
       })
   const mapped =
     contexts + (lz77Fields.enabled ? 1 : 0) > 1
-      ? readContextMap(reader, contexts + (lz77Fields.enabled ? 1 : 0), recursionDepth)
+      ? readJpegXlContextMap(reader, contexts + (lz77Fields.enabled ? 1 : 0), recursionDepth)
       : Object.freeze({ contextMap: Object.freeze([0]), histogramCount: 1 })
   const usePrefixCode = reader.readBits(1) !== 0
   const logAlphabetSize = usePrefixCode ? 15 : reader.readBits(2) + 5
