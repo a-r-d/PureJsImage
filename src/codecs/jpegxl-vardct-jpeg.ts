@@ -68,6 +68,7 @@ export interface JpegXlJpegLfGlobal {
   readonly globalScale: number
   readonly quantDc: number
   readonly globalModularCode: JpegXlModularGlobalCode
+  readonly endingBitPosition: number
 }
 
 export interface JpegXlJpegColorCorrelation {
@@ -89,7 +90,7 @@ export interface JpegXlJpegDcGroupOptions {
 export interface JpegXlJpegDcGroup {
   readonly blockWidth: number
   readonly blockHeight: number
-  readonly dcCoefficients: readonly Int32Array<ArrayBufferLike>[]
+  readonly dcCoefficients: readonly Float64Array<ArrayBufferLike>[]
   readonly extraPrecision: number
   readonly quantization: Int32Array<ArrayBufferLike>
   readonly sharpness: Int32Array<ArrayBufferLike>
@@ -128,6 +129,7 @@ export interface JpegXlJpegAcGroupOptions {
 }
 
 export interface JpegXlJpegAcGroup {
+  readonly vardctCoefficients: readonly Int32Array<ArrayBufferLike>[]
   readonly componentCoefficients: readonly Int32Array<ArrayBufferLike>[]
   readonly componentBlockWidths: readonly [number, number, number]
   readonly componentBlockHeights: readonly [number, number, number]
@@ -194,7 +196,7 @@ const readColorCorrelation = (reader: JpegXlBitReader): JpegXlJpegColorCorrelati
     return Object.freeze({
       colorFactor: 84,
       baseCorrelationX: 0,
-      baseCorrelationB: 0,
+      baseCorrelationB: 1,
       yToXDc: 0,
       yToBDc: 0,
     })
@@ -242,6 +244,8 @@ export const decodeJpegXlJpegDcGroup = (
   section: Uint8Array,
   options: Readonly<JpegXlJpegDcGroupOptions>,
   globalCode: Readonly<JpegXlModularGlobalCode>,
+  startBit = 0,
+  requireComplete = true,
 ): JpegXlJpegDcGroup => {
   const { blockWidth, blockHeight, chromaSubsampling, groupId, dcGroupCount } = options
   if (
@@ -257,7 +261,7 @@ export const decodeJpegXlJpegDcGroup = (
   ) {
     throw invalidInput('JPEG-derived JPEG XL DC group geometry is invalid')
   }
-  const reader = new JpegXlBitReader(section)
+  const reader = new JpegXlBitReader(section, startBit)
   const extraPrecision = reader.readBits(2)
   const shifts = subsamplingShifts(chromaSubsampling)
   const layoutForJxlChannel = (channel: number): Readonly<{ width: number; height: number }> => {
@@ -282,11 +286,11 @@ export const decodeJpegXlJpegDcGroup = (
   )
   const divisor = 2 ** extraPrecision
   const dcCoefficients = decodedDc.planes.map((plane) => {
-    const output = new Int32Array(plane.length)
+    const output = new Float64Array(plane.length)
     for (let index = 0; index < plane.length; index += 1) {
       const encoded = plane[index]
-      if (encoded === undefined || encoded % divisor !== 0) {
-        throw invalidInput('JPEG-derived JPEG XL DC coefficient is not integral')
+      if (encoded === undefined) {
+        throw invalidInput('JPEG XL DC coefficient is missing')
       }
       output[index] = encoded / divisor
     }
@@ -333,7 +337,9 @@ export const decodeJpegXlJpegDcGroup = (
     }
     quantization[index] = Math.max(0, Math.min(255, rawQuantization)) + 1
   }
-  requireZeroPadding(section, metadata.endingBitPosition, 'JPEG XL DC group section')
+  if (requireComplete) {
+    requireZeroPadding(section, metadata.endingBitPosition, 'JPEG XL DC group section')
+  }
   const colorCorrelationX = metadata.planes[0]
   const colorCorrelationB = metadata.planes[1]
   if (!colorCorrelationX || !colorCorrelationB) {
@@ -384,7 +390,7 @@ const dcContextPlane = (
 ): Uint8Array<ArrayBufferLike> => {
   const output = new Uint8Array(dcGroup.blockWidth * dcGroup.blockHeight)
   if (blockContexts.dcContextCount === 1) return output
-  const planeForChannel = (channel: number): Int32Array<ArrayBufferLike> => {
+  const planeForChannel = (channel: number): Float64Array<ArrayBufferLike> => {
     const plane = dcGroup.dcCoefficients[channel < 2 ? channel ^ 1 : channel]
     if (!plane) throw invalidInput('JPEG-derived JPEG XL DC plane is missing')
     return plane
@@ -451,6 +457,8 @@ export const decodeJpegXlJpegAcGroup = (
   lfGlobal: Readonly<JpegXlJpegLfGlobal>,
   hfPass: Readonly<JpegXlJpegHfPass>,
   dcGroup: Readonly<JpegXlJpegDcGroup>,
+  startBit = 0,
+  requireComplete = true,
 ): JpegXlJpegAcGroup => {
   const {
     blockX,
@@ -478,7 +486,7 @@ export const decodeJpegXlJpegAcGroup = (
     throw invalidInput('JPEG-derived JPEG XL AC group geometry is invalid')
   }
   const shifts = subsamplingShifts(chromaSubsampling)
-  const reader = new JpegXlBitReader(section)
+  const reader = new JpegXlBitReader(section, startBit)
   const selectorBits = jpegXlCeilLog2(histogramCount)
   const histogram = selectorBits === 0 ? 0 : reader.readBits(selectorBits)
   if (histogram >= histogramCount) {
@@ -486,7 +494,7 @@ export const decodeJpegXlJpegAcGroup = (
   }
   const maximumBlocks = blockWidth * blockHeight * 3
   const symbols =
-    section.byteLength === 0
+    reader.remainingBits === 0
       ? undefined
       : new JpegXlEntropySymbolReader(hfPass.coefficientCode, maximumBlocks * 64)
   const dcContexts = dcContextPlane(dcGroup, shifts, lfGlobal.blockContexts)
@@ -574,7 +582,9 @@ export const decodeJpegXlJpegAcGroup = (
   if (symbols && !symbols.hasValidFinalState()) {
     throw invalidInput('JPEG-derived JPEG XL AC ANS state is invalid')
   }
-  requireZeroPadding(section, reader.bitPosition, 'JPEG XL AC group section')
+  if (requireComplete) {
+    requireZeroPadding(section, reader.bitPosition, 'JPEG XL AC group section')
+  }
 
   const jpegComponents: Int32Array<ArrayBufferLike>[] = []
   const jpegChannelOrder = colorTransform === 'ycbcr' ? [1, 0, 2] : [0, 1, 2]
@@ -603,7 +613,12 @@ export const decodeJpegXlJpegAcGroup = (
           output[base + position] = coefficient
         }
         const dcCoefficient = dc[(dcY + y) * dcWidth + dcX + x]
-        if (dcCoefficient === undefined || dcCoefficient < -2047 || dcCoefficient > 2047) {
+        if (
+          dcCoefficient === undefined ||
+          !Number.isInteger(dcCoefficient) ||
+          dcCoefficient < -2047 ||
+          dcCoefficient > 2047
+        ) {
           throw invalidInput('JPEG-derived JPEG XL DC coefficient is out of JPEG range')
         }
         output[base] = dcCoefficient
@@ -612,6 +627,7 @@ export const decodeJpegXlJpegAcGroup = (
     jpegComponents.push(output)
   }
   return Object.freeze({
+    vardctCoefficients: Object.freeze(internalCoefficients),
     componentCoefficients: Object.freeze(jpegComponents),
     componentBlockWidths: Object.freeze([
       internalWidths[jpegChannelOrder[0] ?? 0] ?? 0,
@@ -718,6 +734,8 @@ export const decodeJpegXlJpegHfGlobal = (
   section: Uint8Array,
   options: Readonly<JpegXlJpegHfGlobalOptions>,
   lfGlobal: Readonly<JpegXlJpegLfGlobal>,
+  startBit = 0,
+  requireComplete = true,
 ): JpegXlJpegHfGlobal => {
   const { dcGroupCount, groupCount, passCount } = options
   if (
@@ -731,7 +749,7 @@ export const decodeJpegXlJpegHfGlobal = (
   ) {
     throw invalidInput('JPEG-derived JPEG XL HF global geometry is invalid')
   }
-  const reader = new JpegXlBitReader(section)
+  const reader = new JpegXlBitReader(section, startBit)
   const allDefaultQuantization = reader.readBits(1) !== 0
   let dct8QuantizationDenominator: number | undefined
   let dct8Quantization: readonly Int32Array<ArrayBufferLike>[] | undefined
@@ -788,7 +806,9 @@ export const decodeJpegXlJpegHfGlobal = (
     const coefficientCode = readJpegXlEntropyCode(reader, histogramCount * contextsPerHistogram)
     passes.push(Object.freeze({ coefficientOrders, coefficientCode }))
   }
-  requireZeroPadding(section, reader.bitPosition, 'JPEG XL HF global section')
+  if (requireComplete) {
+    requireZeroPadding(section, reader.bitPosition, 'JPEG XL HF global section')
+  }
   return Object.freeze({
     dct8QuantizationDenominator,
     dct8Quantization,
@@ -798,9 +818,13 @@ export const decodeJpegXlJpegHfGlobal = (
   })
 }
 
-export const decodeJpegXlJpegLfGlobal = (section: Uint8Array): JpegXlJpegLfGlobal => {
-  const reader = new JpegXlBitReader(section)
-  const dcQuantization: [number, number, number] = [1, 1, 1]
+export const decodeJpegXlJpegLfGlobal = (
+  section: Uint8Array,
+  startBit = 0,
+  requireComplete = true,
+): JpegXlJpegLfGlobal => {
+  const reader = new JpegXlBitReader(section, startBit)
+  const dcQuantization: [number, number, number] = [1 / 4096, 1 / 512, 1 / 256]
   if (reader.readBits(1) === 0) {
     for (let channel = 0; channel < dcQuantization.length; channel += 1) {
       const quantization = readF16(reader) / 128
@@ -825,7 +849,7 @@ export const decodeJpegXlJpegLfGlobal = (section: Uint8Array): JpegXlJpegLfGloba
   const tree: Readonly<{ readonly nodes: readonly JpegXlModularNode[]; readonly leaves: number }> =
     readJpegXlModularTree(reader)
   const pixelCode: JpegXlEntropyCode = readJpegXlEntropyCode(reader, tree.leaves)
-  requireZeroRemainder(reader, 'JPEG XL LF global section')
+  if (requireComplete) requireZeroRemainder(reader, 'JPEG XL LF global section')
   return Object.freeze({
     dcQuantization: Object.freeze(dcQuantization),
     blockContexts,
@@ -833,5 +857,6 @@ export const decodeJpegXlJpegLfGlobal = (section: Uint8Array): JpegXlJpegLfGloba
     globalScale,
     quantDc,
     globalModularCode: Object.freeze({ nodes: tree.nodes, leaves: tree.leaves, pixelCode }),
+    endingBitPosition: reader.bitPosition,
   })
 }

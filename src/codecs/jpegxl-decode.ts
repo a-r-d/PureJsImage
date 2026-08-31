@@ -184,6 +184,8 @@ export interface JpegXlFrameStructure {
   readonly frameFlags: number
   readonly colorTransform: 'xyb' | 'none' | 'ycbcr'
   readonly chromaSubsampling: readonly [number, number, number]
+  readonly xQuantizationScale: number
+  readonly bQuantizationScale: number
   readonly passCount: number
   readonly gaborish: boolean
   readonly epfIterations: number
@@ -332,9 +334,11 @@ const readHeader = (
     )
   }
   const groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
+  let xQuantizationScale = 2
+  let bQuantizationScale = 2
   if (encoding === 'vardct' && colorTransform === 'xyb') {
-    reader.readBits(3)
-    reader.readBits(3)
+    xQuantizationScale = reader.readBits(3)
+    bQuantizationScale = reader.readBits(3)
   }
   const passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
   if (passCount !== 1) {
@@ -452,6 +456,8 @@ const readHeader = (
     frameFlags,
     colorTransform,
     chromaSubsampling: Object.freeze(chromaSubsampling),
+    xQuantizationScale,
+    bQuantizationScale,
     passCount,
     gaborish,
     epfIterations,

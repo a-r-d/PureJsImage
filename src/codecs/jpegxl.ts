@@ -16,7 +16,7 @@ import {
 } from './jpegxl-decode.ts'
 import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
-import { createJpegDerivedJpegXlDecoder } from './jpegxl-vardct.ts'
+import { createJpegXlVarDctDecoder } from './jpegxl-vardct.ts'
 
 export type {
   JpegXlBoxSummary,
@@ -75,7 +75,7 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       logical.limits.maxHeaderBytes,
     )
     if (inspection.encoding === 'vardct') {
-      return createJpegDerivedJpegXlDecoder(source, limits, options)
+      return createJpegXlVarDctDecoder(source, limits, options)
     }
     return (
       await decodeJpegXlSource(logical.source, limits, options, logical.limits.maxHeaderBytes)

@@ -13,6 +13,7 @@ interface VarDctDefinition {
   readonly oracleExtension: 'pgm' | 'ppm'
   readonly features: readonly string[]
   readonly options: readonly string[]
+  readonly expectedPureJsImageBehavior: 'supported' | 'unsupported'
 }
 
 const definitions: readonly VarDctDefinition[] = Object.freeze([
@@ -26,6 +27,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'single pass', 'odd dimensions']),
     options: Object.freeze(['--distance=1', '--effort=1']),
+    expectedPureJsImageBehavior: 'supported',
   }),
   Object.freeze({
     id: 'rgb8-distance1-effort7',
@@ -37,6 +39,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'effort 7', 'odd dimensions']),
     options: Object.freeze(['--distance=1', '--effort=7']),
+    expectedPureJsImageBehavior: 'unsupported',
   }),
   Object.freeze({
     id: 'rgb8-distance2-progressive',
@@ -48,6 +51,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'progressive passes', 'odd dimensions']),
     options: Object.freeze(['--distance=2', '--effort=9', '--progressive']),
+    expectedPureJsImageBehavior: 'unsupported',
   }),
   Object.freeze({
     id: 'rgb8-distance4-noise',
@@ -59,6 +63,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'synthetic noise', 'odd dimensions']),
     options: Object.freeze(['--distance=4', '--effort=5', '--photon_noise_iso=100']),
+    expectedPureJsImageBehavior: 'unsupported',
   }),
   Object.freeze({
     id: 'gray8-distance1-effort3',
@@ -70,6 +75,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'pgm',
     features: Object.freeze(['VarDCT', 'grayscale', 'single pass', 'odd dimensions']),
     options: Object.freeze(['--distance=1', '--effort=3']),
+    expectedPureJsImageBehavior: 'supported',
   }),
 ])
 
@@ -126,7 +132,7 @@ for (const definition of definitions) {
       restorationFilters: Object.freeze(['Gaborish default', 'EPF default']),
       extraChannels: Object.freeze([]),
       jpegReconstruction: false,
-      expectedPureJsImageBehavior: 'unsupported',
+      expectedPureJsImageBehavior: definition.expectedPureJsImageBehavior,
       features: definition.features,
       options: Object.freeze(encoderOptions),
       inputSha256: sha256(sourceBytes),

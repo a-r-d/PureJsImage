@@ -1,12 +1,16 @@
 import { throwIfAborted } from '../abort.ts'
 import type { DecoderOptions, DecodeRequest, ImageDecoder } from '../codec.ts'
-import { invalidInput } from '../errors.ts'
+import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { ImageSource } from '../source.ts'
+import { readExactly, type ImageSource } from '../source.ts'
 import { decodeJpegCoefficientImage, type JpegRegion } from './jpeg-baseline.ts'
 import type { JpegCoefficientImage } from './jpeg-coefficients.ts'
+import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.ts'
+import { readJpegXlSourceFrameStructure } from './jpegxl-decode.ts'
 import { decodeJpegXlJpegReconstruction } from './jpegxl-jpeg-reconstruct-source.ts'
+import { resolveJpegXlLimits } from './jpegxl-limits.ts'
+import { decodeJpegXlDct8Section, type JpegXlVarDctPixels } from './jpegxl-vardct-render.ts'
 
 const scaleDenominator = (request: Readonly<DecodeRequest>): 1 | 2 | 4 | 8 => {
   const scale = request.scaleDenominator ?? 1
@@ -87,4 +91,78 @@ export const createJpegDerivedJpegXlDecoder = async (
     ...(options.signal ? { signal: options.signal } : {}),
   })
   return new JpegDerivedJpegXlDecoder(decoded.image, options.signal)
+}
+
+class VarDctJpegXlDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: 'gray8' | 'rgb8'
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: true,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #pixels: JpegXlVarDctPixels
+  readonly #signal: AbortSignal | undefined
+
+  constructor(pixels: JpegXlVarDctPixels, signal: AbortSignal | undefined) {
+    this.width = pixels.width
+    this.height = pixels.height
+    this.pixelFormat = pixels.format
+    this.#pixels = pixels
+    this.#signal = signal
+  }
+
+  async *decode(request: Readonly<DecodeRequest> = {}): AsyncGenerator<PixelBlock> {
+    if ((request.scaleDenominator ?? 1) !== 1) {
+      throw unsupportedOperation('JPEG XL VarDCT scaled decode is not supported yet')
+    }
+    const region = decodeRegion(this.width, this.height, request)
+    throwIfAborted(this.#signal)
+    throwIfAborted(request.signal)
+    const channels = this.pixelFormat === 'gray8' ? 1 : 3
+    const stride = region.width * channels
+    const data = new Uint8Array(stride * region.height)
+    const sourceStride = this.width * channels
+    for (let row = 0; row < region.height; row += 1) {
+      const sourceOffset = (region.y + row) * sourceStride + region.x * channels
+      data.set(this.#pixels.data.subarray(sourceOffset, sourceOffset + stride), row * stride)
+    }
+    yield Object.freeze({
+      x: region.x,
+      y: region.y,
+      width: region.width,
+      height: region.height,
+      stride,
+      format: this.pixelFormat,
+      data,
+    })
+  }
+}
+
+export const createJpegXlVarDctDecoder = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+): Promise<ImageDecoder> => {
+  const jpegXlLimits = resolveJpegXlLimits()
+  const structure = await inspectJpegXlSource(source, jpegXlLimits, options)
+  if (structure.metadataBoxes.some(({ type }) => type === 'jbrd')) {
+    return createJpegDerivedJpegXlDecoder(source, limits, options)
+  }
+  const logical = new JpegXlCodestreamSource(source, structure)
+  const frame = await readJpegXlSourceFrameStructure(
+    logical,
+    limits,
+    options,
+    jpegXlLimits.maxHeaderBytes,
+  )
+  const section = frame.sections[0]
+  if (!section) throw invalidInput('JPEG XL VarDCT section is missing')
+  const data = await readExactly(logical, section.offset, section.length, options)
+  return new VarDctJpegXlDecoder(
+    decodeJpegXlDct8Section(data, frame, limits),
+    options.signal,
+  )
 }
