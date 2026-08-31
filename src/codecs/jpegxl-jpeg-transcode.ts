@@ -1,11 +1,13 @@
 import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
+import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
 import type { ImageSink } from '../sink.ts'
 import { Uint8ArraySink } from '../sink.ts'
 import { createImageSource, type ImageInput, MemorySource, readExactly } from '../source.ts'
 import { jpegCodec } from './jpeg.ts'
-import { parseJpegCoefficientImage, type JpegCoefficientImage } from './jpeg-coefficients.ts'
+import { type JpegCoefficientImage, parseJpegCoefficientImage } from './jpeg-coefficients.ts'
+import { jpegxlCodec } from './jpegxl.ts'
 import { parseJpegReconstructionData } from './jpegxl-jpeg-data.ts'
 import { encodeJpegCoefficientImageAsJpegXl } from './jpegxl-jpeg-encode.ts'
 import { reconstructJpegFromCoefficientImage } from './jpegxl-jpeg-reconstruct.ts'
@@ -13,7 +15,6 @@ import { reconstructJpegFromJpegXl } from './jpegxl-jpeg-reconstruct-source.ts'
 import { encodeJpegXlJpegReconstruction } from './jpegxl-jpeg-reconstruction.ts'
 import type { JpegXlLimitOptions } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
-import { jpegxlCodec } from './jpegxl.ts'
 
 export type JpegReconstructionPolicy = 'required' | 'prefer' | 'disabled'
 export type JpegTranscodeFallback = 'reject' | 'pixel-lossless'
@@ -26,6 +27,7 @@ export interface TranscodeJpegToJpegXlOptions {
   readonly signal?: AbortSignal
   readonly limits?: Readonly<ImageLimitOptions & JpegXlLimitOptions>
   readonly sink?: ImageSink
+  readonly evidence?: EvidenceContext
 }
 
 export interface JpegTranscodeSourceProfile {
@@ -80,8 +82,7 @@ const sourceProfile = (image: JpegCoefficientImage): JpegTranscodeSourceProfile 
     components: image.components.length,
     sampling: Object.freeze(
       image.components.map(
-        ({ horizontalSampling, verticalSampling }) =>
-          `${horizontalSampling}x${verticalSampling}`,
+        ({ horizontalSampling, verticalSampling }) => `${horizontalSampling}x${verticalSampling}`,
       ),
     ),
     scans: image.scans.length,
@@ -156,7 +157,7 @@ const encodeExact = async (
 const encodePixelLossless = async (
   input: Uint8Array,
   options: Readonly<TranscodeJpegToJpegXlOptions>,
-): Promise<Readonly<{ data: Uint8Array; image: JpegCoefficientImage }>> => {
+): Promise<Readonly<{ data: Uint8Array; profile: JpegTranscodeSourceProfile }>> => {
   const limits = resolveLimits(options.limits)
   const source = new MemorySource(input)
   const decoder = await jpegCodec.createDecoder?.(source, limits, {
@@ -192,12 +193,31 @@ const encodePixelLossless = async (
     await encoder.abort?.(error)
     throw error
   }
-  return Object.freeze({ data: sink.toUint8Array(), image: await parseCoefficients(input, options) })
+  const components = decoder.pixelFormat === 'gray8' ? 1 : decoder.pixelFormat === 'rgb8' ? 3 : 4
+  return Object.freeze({
+    data: sink.toUint8Array(),
+    profile: Object.freeze({
+      width: decoder.width,
+      height: decoder.height,
+      progressive: decoder.capabilities.progressive,
+      colorTransform: components === 1 ? 'gray' : 'components',
+      components,
+      sampling: Object.freeze(Array.from({ length: components }, () => 'decoded-pixels')),
+      scans: 0,
+    }),
+  })
 }
+
+const evidenceFailureCode = (error: unknown): string =>
+  error instanceof ImageError ? error.code : 'UNKNOWN'
 
 const validateOptions = (
   options: Readonly<TranscodeJpegToJpegXlOptions>,
-): Readonly<Required<Pick<TranscodeJpegToJpegXlOptions, 'reconstruction' | 'fallback' | 'effort' | 'onlyIfSmaller'>>> => {
+): Readonly<
+  Required<
+    Pick<TranscodeJpegToJpegXlOptions, 'reconstruction' | 'fallback' | 'effort' | 'onlyIfSmaller'>
+  >
+> => {
   const reconstruction = options.reconstruction ?? 'required'
   const fallback = options.fallback ?? 'reject'
   const effort = options.effort ?? 1
@@ -256,73 +276,120 @@ export const transcodeJpegToJpegXl = async (
 ): Promise<JpegTranscodeResult> => {
   const start = performance.now()
   const policy = validateOptions(options)
-  const bytes = await readInput(input, options)
-  let exactReconstruction = false
-  let mode: JpegTranscodeResult['mode'] = 'exact-jpeg'
-  let data: Uint8Array
-  let image: JpegCoefficientImage
-  let metadata: JpegTranscodeMetadataSummary
-  const warnings: string[] = []
+  const evidence = options.evidence?.child('jpegxl-jpeg-transcode')
+  const leases: EvidenceManagedLease[] = []
+  const retain = (lease: EvidenceManagedLease | undefined): void => {
+    if (lease) leases.push(lease)
+  }
+  evidence?.operation({ operationId: 'jpeg-to-jxl', phase: 'start' })
+  try {
+    const bytes = await readInput(input, options)
+    retain(evidence?.allocate('jpeg-transcode-input', bytes.byteLength))
+    let exactReconstruction = false
+    let mode: JpegTranscodeResult['mode'] = 'exact-jpeg'
+    let data: Uint8Array
+    let profile: JpegTranscodeSourceProfile
+    let coefficientBytes = 0
+    let metadata: JpegTranscodeMetadataSummary
+    const warnings: string[] = []
 
-  if (policy.reconstruction === 'disabled') {
-    const fallback = await encodePixelLossless(bytes, options)
-    data = fallback.data
-    image = fallback.image
-    mode = 'pixel-lossless'
-    metadata = Object.freeze({ appMarkers: 0, comments: 0, opaqueBytes: 0, tailBytes: 0 })
-    warnings.push('Exact JPEG reconstruction was disabled; output preserves decoded pixels only.')
-  } else {
-    image = await parseCoefficients(bytes, options)
-    try {
-      const exact = await encodeExact(bytes, image, options)
-      data = exact.data
-      metadata = exact.metadata
-      exactReconstruction = true
-    } catch (error) {
-      if (
-        policy.reconstruction === 'required' ||
-        policy.fallback !== 'pixel-lossless' ||
-        !(error instanceof ImageError) ||
-        error.code !== 'UNSUPPORTED_OPERATION'
-      ) {
-        throw error
-      }
+    if (policy.reconstruction === 'disabled') {
+      const fallbackEvidence = evidence?.child('pixel-lossless-fallback')
+      fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'start' })
       const fallback = await encodePixelLossless(bytes, options)
+      fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'complete' })
       data = fallback.data
-      image = fallback.image
+      profile = fallback.profile
       mode = 'pixel-lossless'
       metadata = Object.freeze({ appMarkers: 0, comments: 0, opaqueBytes: 0, tailBytes: 0 })
-      warnings.push(`Exact JPEG reconstruction was unavailable: ${error.message}`)
+      warnings.push('Exact JPEG reconstruction was disabled; output preserves decoded pixels only.')
+    } else {
+      try {
+        const exactEvidence = evidence?.child('exact-coefficient-transcode')
+        exactEvidence?.operation({ operationId: 'exact-coefficient-transcode', phase: 'start' })
+        const image = await parseCoefficients(bytes, options)
+        coefficientBytes = image.coefficientBytes
+        retain(evidence?.allocate('jpeg-transcode-coefficients', coefficientBytes))
+        profile = sourceProfile(image)
+        const exact = await encodeExact(bytes, image, options)
+        exactEvidence?.operation({ operationId: 'exact-coefficient-transcode', phase: 'complete' })
+        data = exact.data
+        metadata = exact.metadata
+        exactReconstruction = true
+      } catch (error) {
+        evidence?.operation({
+          operationId: 'exact-coefficient-transcode',
+          phase: 'failed',
+          failureCode: evidenceFailureCode(error),
+        })
+        if (
+          policy.reconstruction === 'required' ||
+          policy.fallback !== 'pixel-lossless' ||
+          !(error instanceof ImageError) ||
+          error.code !== 'UNSUPPORTED_OPERATION'
+        ) {
+          throw error
+        }
+        evidence?.operation({
+          operationId: 'exact-coefficient-transcode',
+          phase: 'fallback',
+          failureCode: error.code,
+        })
+        const fallbackEvidence = evidence?.child('pixel-lossless-fallback')
+        fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'start' })
+        const fallback = await encodePixelLossless(bytes, options)
+        fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'complete' })
+        data = fallback.data
+        profile = fallback.profile
+        mode = 'pixel-lossless'
+        metadata = Object.freeze({ appMarkers: 0, comments: 0, opaqueBytes: 0, tailBytes: 0 })
+        warnings.push(`Exact JPEG reconstruction was unavailable: ${error.message}`)
+      }
     }
-  }
 
-  if (policy.onlyIfSmaller && data.byteLength >= bytes.byteLength) {
-    throw unsupportedOperation(
-      `JPEG XL output has ${data.byteLength} bytes and is not smaller than the ${bytes.byteLength}-byte JPEG`,
-    )
+    retain(evidence?.allocate('jpeg-transcode-output', data.byteLength))
+    if (policy.onlyIfSmaller && data.byteLength >= bytes.byteLength) {
+      throw unsupportedOperation(
+        `JPEG XL output has ${data.byteLength} bytes and is not smaller than the ${bytes.byteLength}-byte JPEG`,
+      )
+    }
+    if (options.sink) {
+      await options.sink.write(data)
+      await options.sink.close()
+    }
+    const savingsBytes = bytes.byteLength - data.byteLength
+    evidence?.operation({
+      operationId: 'jpeg-to-jxl',
+      phase: 'complete',
+      detail: `${mode} ${bytes.byteLength}->${data.byteLength} bytes`,
+    })
+    return Object.freeze({
+      data,
+      mode,
+      exactReconstruction,
+      inputBytes: bytes.byteLength,
+      outputBytes: data.byteLength,
+      savingsBytes,
+      savingsPercentage: bytes.byteLength === 0 ? 0 : (savingsBytes / bytes.byteLength) * 100,
+      sourceProfile: profile,
+      preservedMetadata: metadata,
+      warnings: Object.freeze(warnings),
+      outputStructure: Object.freeze({
+        kind: 'container',
+        organization: 'jxlc',
+        reconstruction: exactReconstruction ? 'available' : 'unavailable',
+      }),
+      elapsedMilliseconds: performance.now() - start,
+      managedPeakBytes: coefficientBytes + bytes.byteLength + data.byteLength,
+    })
+  } catch (error) {
+    evidence?.operation({
+      operationId: 'jpeg-to-jxl',
+      phase: 'failed',
+      failureCode: evidenceFailureCode(error),
+    })
+    throw error
+  } finally {
+    for (let index = leases.length - 1; index >= 0; index -= 1) leases[index]?.release()
   }
-  if (options.sink) {
-    await options.sink.write(data)
-    await options.sink.close()
-  }
-  const savingsBytes = bytes.byteLength - data.byteLength
-  return Object.freeze({
-    data,
-    mode,
-    exactReconstruction,
-    inputBytes: bytes.byteLength,
-    outputBytes: data.byteLength,
-    savingsBytes,
-    savingsPercentage: bytes.byteLength === 0 ? 0 : (savingsBytes / bytes.byteLength) * 100,
-    sourceProfile: sourceProfile(image),
-    preservedMetadata: metadata,
-    warnings: Object.freeze(warnings),
-    outputStructure: Object.freeze({
-      kind: 'container',
-      organization: 'jxlc',
-      reconstruction: exactReconstruction ? 'available' : 'unavailable',
-    }),
-    elapsedMilliseconds: performance.now() - start,
-    managedPeakBytes: image.coefficientBytes + bytes.byteLength + data.byteLength,
-  })
 }

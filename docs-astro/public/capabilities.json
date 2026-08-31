@@ -5500,23 +5500,26 @@
         "label": "Limited"
       },
       "write": {
-        "status": "unsupported",
-        "label": "No"
+        "status": "limited",
+        "label": "Experimental"
       },
-      "boundary": "Decodes independently verified lossless Modular subsets: native 8/10/12/16-bit grayscale and RGB, 8/16-bit straight-alpha RGBA, official native 9/12-bit RGBA, ordinary and delta Palette transforms, palette-index prediction, reversible color transforms, and horizontal, vertical, multi-channel, and odd-size Squeeze transforms. Compatible multi-group 8-bit grayscale uses unshifted group channels. Supports raw, jxlc, ordered jxlp, and file-format-version-1 out-of-order jxlp logical codestreams without whole-codestream concatenation. Premultiplied alpha, custom color encodings, shifted/DC group channels, VarDCT, multiple frames, encoding, and JPEG reconstruction remain unsupported",
-      "description": "Recognizes raw codestreams and containers, validates jxlc or jxlp ranges, exposes bounded inspection through the explicit purejsimage/jpegxl entry, and decodes the documented pinned lossless Modular subsets. Native grayscale emits gray8 or big-endian gray16; RGB emits rgb8 or big-endian rgb16; RGBA emits rgba8 or big-endian rgba16. Each native format retains its original display range. Compatible multi-group decode reads the frame header and global state first, fetches only crop-intersecting group sections, stitches ordered output rows across group boundaries, and releases completed group bands. The exact libjxl v0.12.0 matrix records 29 exact decodes, zero mismatches, and four explicit unsupported results. Unsupported JPEG XL syntax fails explicitly.",
-      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Header reads grow within a 4 MiB default limit, declared entropy sections are read separately, and multi-group crops fetch only intersecting group sections. The single-group path retains compact signed channel planes. Compatible multi-group crops retain one intersecting group-row band, account grouped planes against maxDecodedBytes, and release the band after output. Both paths emit one bounded native output row without allocating a second source-sized RGBA bitmap.",
-      "recommendation": "Use native gray8/gray16, rgb8/rgb16, or rgba8/rgba16 decoder blocks for workflows within the documented lossless Modular subset. Multi-group grayscale crops are group-aware and bounded by the intersecting band, including files with permuted table-of-contents entries and per-group local MA trees. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.",
+      "boundary": "Decodes the pinned lossless Modular and common static VarDCT subsets, including final progressive images and JPEG-derived DCT8 image data. The experimental effort-1 Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16. The explicit purejsimage/jpegxl entry inspects files, transcodes eligible 8-bit Huffman JPEG coefficients without RGB, and reconstructs the original JPEG bytes. Multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT strategies, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
+      "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, common static DCT8 and adaptive VarDCT fixtures, final progressive VarDCT, and JPEG-derived RGB or YCbCr coefficients. Encodes six native pixel formats as deterministic mathematically lossless Modular JPEG XL. The separate coefficient-domain API transcodes the pinned progressive and baseline JPEG subset, verifies the resulting JXL by exact reconstruction before returning, and never silently substitutes a pixel path.",
+      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Declared entropy sections are read separately. Compatible Modular crops retain one intersecting group-row band. VarDCT retains compact coefficient and filter state rather than a full float RGBA frame. The experimental Modular encoder and exact transcoder currently retain bounded full input and output buffers; this is documented and included in their managed-byte estimates.",
+      "recommendation": "Use the decoder for files within the checked static corpus. Treat lossless Modular encoding and coefficient-domain JPEG transcode as experimental until the fixed compression, broader oracle, browser, and memory gates pass. Use reconstruction: required for exact JPEG work, and enable pixel-lossless fallback explicitly when original JPEG bytes are not required.",
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
         "tests/jpegxl-corpus.test.ts",
+        "tests/jpegxl-jpeg-reconstruction.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/library.test.ts"
       ],
       "lossyPixelValidation": {
-        "status": "not-applicable",
-        "rationale": "The implemented JPEG XL pixel subset is lossless Modular only; lossy VarDCT remains unsupported"
+        "status": "independent-oracle",
+        "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
+        "tolerance": "Common static VarDCT fixtures stay within one sample with RMSE below 0.5; JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "claims": [
         {
@@ -5528,11 +5531,11 @@
           "text": "Decode bare JPEG XL codestreams and single-`jxlc` box-based containers for the implemented Modular subset"
         },
         {
-          "status": "planned",
-          "text": "Implement both Modular and VarDCT decoding; neither mode alone covers the common lossless and lossy image set"
+          "status": "supported",
+          "text": "Implement both Modular and VarDCT decoding for the checked static subset; neither mode alone covers the common lossless and lossy image set"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Decode JPEG-lossless-transcode codestreams to pixels without requiring bit-exact reconstruction of the original `.jpg` file"
         },
         {
@@ -5552,11 +5555,11 @@
           "text": "Implement production decoding in this repository without a runtime codec dependency, native library, WebAssembly module, or copied third-party code"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Add a constrained pixel-lossless Modular encoder through the normal pipeline"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs"
         },
         {
@@ -5728,63 +5731,63 @@
           "text": "Support native 8/10/12/16-bit lossless grayscale and the documented RGB/RGBA subset"
         },
         {
-          "status": "planned",
-          "text": "Support Modular sub-images used by VarDCT for low-frequency and control data"
+          "status": "supported",
+          "text": "Support the pinned Modular sub-images used by VarDCT for low-frequency and control data"
         },
         {
           "status": "supported",
           "text": "Verify the implemented mathematically lossless Modular fixture with exact samples"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Parse LF global data, LF groups, HF global data, HF passes, and pass-group sections with validated sizes and dependencies"
         },
         {
-          "status": "planned",
-          "text": "Decode quantizer fields, dequantization matrices, block strategies, coefficient orders, context models, and chroma-from-luma factors"
+          "status": "supported",
+          "text": "Decode the checked quantizer fields, dequantization matrices, block strategies, coefficient orders, context models, and chroma-from-luma factors"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Reconstruct DC and low-frequency images before dependent high-frequency groups"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Decode progressive high-frequency passes and accumulate coefficients in the correct order"
         },
         {
-          "status": "planned",
-          "text": "Implement every transform strategy required by the common corpus, including square DCT, rectangular DCT, AFV, and Hornuss families"
+          "status": "supported",
+          "text": "Implement every transform strategy required by the pinned common corpus, including square DCT, rectangular DCT, AFV, and Hornuss families"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Apply inverse transforms, coefficient scaling, quantization bias, and block placement with defined numeric precision"
         },
         {
-          "status": "planned",
-          "text": "Reconstruct XYB samples and perform the inverse opsin transform"
+          "status": "supported",
+          "text": "Reconstruct the pinned XYB samples and perform the inverse opsin transform"
         },
         {
           "status": "planned",
           "text": "Decode valid chroma subsampling and upsampling modes"
         },
         {
-          "status": "planned",
-          "text": "Implement Gaborish and edge-preserving restoration filters with the required group-boundary halo"
+          "status": "supported",
+          "text": "Implement pinned single-group Gaborish and edge-preserving restoration filters; the multi-group halo remains unsupported"
         },
         {
           "status": "planned",
           "text": "Decode and render patches, splines, and synthetic noise when signaled by a valid static image"
         },
         {
-          "status": "planned",
-          "text": "Decode VarDCT images created from ordinary lossy sources"
+          "status": "supported",
+          "text": "Decode the pinned VarDCT images created from ordinary lossy sources"
         },
         {
-          "status": "planned",
-          "text": "Decode the image pixels of JPEG-lossless-transcode codestreams"
+          "status": "supported",
+          "text": "Decode the image pixels of pinned JPEG-lossless-transcode codestreams"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Compare lossy output with conformance references using documented numeric tolerances"
         },
         {
@@ -5876,12 +5879,12 @@
           "text": "Coalesced first-frame output for animated inputs without claiming full animation support"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Out-of-order `jxlp` fragments permitted by newer container versions"
         },
         {
-          "status": "planned",
-          "text": "JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file"
+          "status": "supported",
+          "text": "JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file for the checked subset"
         },
         {
           "status": "planned",

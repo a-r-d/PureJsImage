@@ -2,28 +2,29 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import manifest from '../benchmark/jpegxl/jpeg-reconstruction-manifest.json' with { type: 'json' }
-import { inspectJpegXlSource } from '../src/codecs/jpegxl-container.ts'
-import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
+import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
-import { reconstructJpegFromCoefficientImage } from '../src/codecs/jpegxl-jpeg-reconstruct.ts'
+import { inspectJpegXlSource } from '../src/codecs/jpegxl-container.ts'
 import { parseJpegReconstructionData } from '../src/codecs/jpegxl-jpeg-data.ts'
+import { reconstructJpegFromCoefficientImage } from '../src/codecs/jpegxl-jpeg-reconstruct.ts'
 import {
   decodeJpegXlJpegReconstructionBlobs,
   encodeJpegXlJpegReconstruction,
   parseJpegXlJpegReconstructionHeader,
 } from '../src/codecs/jpegxl-jpeg-reconstruction.ts'
-import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
 import { resolveJpegXlLimits } from '../src/codecs/jpegxl-limits.ts'
+import { createEvidenceSession } from '../src/evidence.ts'
 import {
   inspectJpegReconstructionEligibility,
   inspectJpegXl,
+  reconstructJpegFromJpegXl,
   transcodeJpegToJpegXl,
 } from '../src/jpegxl.ts'
-import { MemorySource } from '../src/source.ts'
 import { defaultImageLimits } from '../src/limits.ts'
-import { reconstructJpegFromJpegXl } from '../src/jpegxl.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
+import { MemorySource } from '../src/source.ts'
 
 const primaryEntry = manifest.fixtures[0]
 if (!primaryEntry) throw new Error('Pinned JPEG reconstruction manifest is empty')
@@ -382,6 +383,41 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     await expect(transcodeJpegToJpegXl(source, { onlyIfSmaller: true })).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
     })
+  })
+
+  it('keeps exact output identical across evidence modes and releases managed bytes', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const withoutEvidence = await transcodeJpegToJpegXl(source)
+    const summarySession = createEvidenceSession({ mode: 'summary' })
+    const summary = await transcodeJpegToJpegXl(source, { evidence: summarySession.context })
+    const summaryReport = summarySession.finalize()
+    const traceSession = createEvidenceSession({ mode: 'trace' })
+    const trace = await transcodeJpegToJpegXl(source, { evidence: traceSession.context })
+    const traceReport = traceSession.finalize()
+
+    expect(summary.data).toEqual(withoutEvidence.data)
+    expect(trace.data).toEqual(withoutEvidence.data)
+    expect(summaryReport.events).toBeUndefined()
+    expect(traceReport.events?.length).toBeGreaterThan(0)
+    for (const report of [summaryReport, traceReport]) {
+      expect(report.scopes.map(({ label }) => label)).toEqual(
+        expect.arrayContaining(['jpegxl-jpeg-transcode', 'exact-coefficient-transcode']),
+      )
+      expect(report.operations).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ operationId: 'jpeg-to-jxl', phase: 'complete' }),
+          expect.objectContaining({
+            operationId: 'exact-coefficient-transcode',
+            phase: 'complete',
+          }),
+        ]),
+      )
+      expect(report.managedMemory).toMatchObject({
+        currentLiveBytes: 0,
+        stillLiveLeases: 0,
+      })
+      expect(report.managedMemory.peakLiveBytes).toBe(withoutEvidence.managedPeakBytes)
+    }
   })
 
   it('enforces the public reconstruction output limit', async () => {

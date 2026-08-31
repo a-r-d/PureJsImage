@@ -421,7 +421,7 @@ explicitly.
 - [x] Decode the pinned common static VarDCT corpus to fixed oracle tolerances.
 - [ ] Cover required transforms, XYB, upsampling, restoration, patches, splines, and noise.
 - [x] Decode final progressive images.
-- [ ] Decode JPEG-derived JXL image data to the original JPEG oracle pixels.
+- [x] Decode JPEG-derived JXL image data to the original JPEG oracle pixels.
 - [ ] Keep animation and unsupported color or extra-channel syntax explicit.
 
 ### Exact JPEG reconstruction and transcode
@@ -473,7 +473,7 @@ and sequential-output gates remain open.
 
 ### Evidence, benchmark, browser, docs, and package
 
-- [ ] Add JPEG XL evidence scopes and off/summary/trace parity tests.
+- [x] Add JPEG XL evidence scopes and off/summary/trace parity tests.
 - [ ] Add `npm run bench:jpegxl` with correctness-gated isolated RSS workloads.
 - [ ] Run the JPEG XL benchmark hillclimb and log every retained or rejected attempt.
 - [ ] Add the local-only `/jpeg-xl/` worker workbench and real-browser coverage.

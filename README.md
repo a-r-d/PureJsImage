@@ -294,7 +294,7 @@ under fixed limits, and asks for an explicit reader when detection is ambiguous.
 | ICO | Yes | No |
 | JPEG 2000 / JP2 | Yes | No |
 | AVIF | Yes | Limited |
-| JPEG XL | Limited | No |
+| JPEG XL | Limited | Experimental |
 | Radiance HDR / RGBE | Yes | Yes |
 | QOI | Yes | Yes |
 | Netpbm and PFM | Yes | Yes |

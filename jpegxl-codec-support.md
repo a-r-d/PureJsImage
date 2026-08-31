@@ -1,8 +1,8 @@
 <!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # JPEG XL lossless-first support plan
 
-This document is the implementation plan and eventual capability contract for
-PureJsImage's first-party JPEG XL project has separate targets for static pixel
+This document is the capability contract for PureJsImage's first-party JPEG XL
+project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
@@ -16,24 +16,19 @@ without concatenating compressed data. Raw, single-`jxlc`, ordered `jxlp`, and
 file-format-version-1 out-of-order `jxlp` codestreams can enter the implemented
 pixel subset through one logical segmented source.
 
-The current pixel milestone decodes pinned native 8/10/12/16-bit grayscale, 8-bit
-grayscale with alpha, 8-bit RGB, and official 9-bit and 12-bit RGBA lossless Modular
-fixtures. It parses image and frame headers, global or local MA trees, prefix and ANS
-entropy, bounded LZ77 including group-aware special distances, adaptive properties,
-nonzero residuals, the documented Modular predictors, reversible color transforms,
-ordinary and delta palettes, palette-index prediction, and horizontal, vertical,
-multi-channel, and odd-size squeeze transforms in reverse dependency order.
-Compatible multi-group grayscale validates
-ordered or permuted table-of-contents entries and dependencies, supports shared global or
-per-group local MA trees, decodes only crop-intersecting groups, supports crops crossing
-group boundaries, and releases each completed group-row band. The decoder emits native
-`gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` rows with per-channel display
-ranges. The pinned multi-group 8-bit fixtures and native grayscale matrix match exact
-independent `djxl` pixels; official high-bit RGBA fixtures retain their documented exact or
-one-sample tolerance. The exact libjxl v0.12.0 matrix records 29 exact decodes, zero
-mismatches, and four explicit unsupported results. Premultiplied alpha, shifted or DC
-group channels, custom color descriptions, multiple frames, and all VarDCT syntax remain
-explicit unsupported operations.
+The decoder covers the checked lossless Modular subset plus pinned common static
+VarDCT. That includes DCT8 and selected adaptive block strategies, Gaborish, EPF,
+adaptive smoothing, synthetic noise, final progressive reconstruction, and JPEG-derived
+RGB or YCbCr DCT coefficients. Each checked lossy fixture has a pinned independent
+`djxl` tolerance. Unsupported strategies, patches, splines, broad color syntax, extra
+channels, and multiple visible frames fail explicitly.
+
+The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
+gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
+but the encoder remains experimental until its fixed compression and broader decoder
+matrix gates pass. The separate `purejsimage/jpegxl` API transcodes eligible baseline
+and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
+reconstructs and compares every source byte before exact-mode success.
 
 A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in deferred groups do not block
@@ -45,9 +40,9 @@ and independently validated.
 - [x] Prioritize static `image/jxl` decode for upload-processing workflows
 - [x] Decode bare JPEG XL codestreams and single-`jxlc` box-based containers for
   the implemented Modular subset
-- [ ] Implement both Modular and VarDCT decoding; neither mode alone covers the
+- [x] Implement both Modular and VarDCT decoding for the checked static subset; neither mode alone covers the
   common lossless and lossy image set
-- [ ] Decode JPEG-lossless-transcode codestreams to pixels without requiring
+- [x] Decode JPEG-lossless-transcode codestreams to pixels without requiring
   bit-exact reconstruction of the original `.jpg` file
 - [x] Make one full-canvas still image the first public milestone
 - [ ] Apply orientation and color conversion during the pipeline rather than
@@ -56,12 +51,12 @@ and independently validated.
   development-only references and oracles
 - [x] Implement production decoding in this repository without a runtime codec
   dependency, native library, WebAssembly module, or copied third-party code
-- [ ] Add a constrained pixel-lossless Modular encoder through the normal pipeline
-- [ ] Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs
+- [x] Add a constrained pixel-lossless Modular encoder through the normal pipeline
+- [x] Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs
 
 ## Planned lossless-first output boundary
 
-The planned ordinary encoder is a constrained mathematically lossless Modular
+The ordinary encoder is a constrained mathematically lossless Modular
 pixel encoder. It will not claim original-file reconstruction. Exact JPEG
 recompression is a separate coefficient-domain API with byte-equality gates.
 A general-purpose lossy VarDCT encoder is outside this project.
@@ -169,33 +164,33 @@ losslessly transcoded JPEG files.
 - [x] Support single-group and compatible multi-group Modular images with shared
   global or per-group local MA trees and unshifted grouped channels
 - [x] Support native 8/10/12/16-bit lossless grayscale and the documented RGB/RGBA subset
-- [ ] Support Modular sub-images used by VarDCT for low-frequency and control
+- [x] Support the pinned Modular sub-images used by VarDCT for low-frequency and control
   data
 - [x] Verify the implemented mathematically lossless Modular fixture with exact samples
 
 ### VarDCT mode
 
-- [ ] Parse LF global data, LF groups, HF global data, HF passes, and pass-group
+- [x] Parse LF global data, LF groups, HF global data, HF passes, and pass-group
   sections with validated sizes and dependencies
-- [ ] Decode quantizer fields, dequantization matrices, block strategies,
+- [x] Decode the checked quantizer fields, dequantization matrices, block strategies,
   coefficient orders, context models, and chroma-from-luma factors
-- [ ] Reconstruct DC and low-frequency images before dependent high-frequency
+- [x] Reconstruct DC and low-frequency images before dependent high-frequency
   groups
-- [ ] Decode progressive high-frequency passes and accumulate coefficients in
+- [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [ ] Implement every transform strategy required by the common corpus,
+- [x] Implement every transform strategy required by the pinned common corpus,
   including square DCT, rectangular DCT, AFV, and Hornuss families
-- [ ] Apply inverse transforms, coefficient scaling, quantization bias, and
+- [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision
-- [ ] Reconstruct XYB samples and perform the inverse opsin transform
+- [x] Reconstruct the pinned XYB samples and perform the inverse opsin transform
 - [ ] Decode valid chroma subsampling and upsampling modes
-- [ ] Implement Gaborish and edge-preserving restoration filters with the
-  required group-boundary halo
+- [x] Implement pinned single-group Gaborish and edge-preserving restoration filters;
+  the multi-group halo remains unsupported
 - [ ] Decode and render patches, splines, and synthetic noise when signaled by a
   valid static image
-- [ ] Decode VarDCT images created from ordinary lossy sources
-- [ ] Decode the image pixels of JPEG-lossless-transcode codestreams
-- [ ] Compare lossy output with conformance references using documented numeric
+- [x] Decode the pinned VarDCT images created from ordinary lossy sources
+- [x] Decode the image pixels of pinned JPEG-lossless-transcode codestreams
+- [x] Compare lossy output with conformance references using documented numeric
   tolerances
 
 ### Static frame and output
@@ -239,8 +234,8 @@ decoder can ship before all of them are complete.
 - [ ] Frame crops, reference slots, save-as-reference behavior, and blend modes
 - [ ] Coalesced first-frame output for animated inputs without claiming full
   animation support
-- [ ] Out-of-order `jxlp` fragments permitted by newer container versions
-- [ ] JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file
+- [x] Out-of-order `jxlp` fragments permitted by newer container versions
+- [x] JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file for the checked subset
 - [ ] HDR inputs using PQ, HLG, linear-light, and floating-point samples
 - [ ] Tone-mapping metadata, intensity target, luminance range, and a documented
   SDR conversion policy
