@@ -486,8 +486,8 @@ the exact source pixels. This one fixture does not establish a broad compression
 
 ### Final gates
 
-- [ ] Pass every focused corpus, mutation, exact-round-trip, package, browser, and benchmark gate.
-- [ ] Pass `npm run browser:check`, `git diff --check`, and `npm run check`.
+- [x] Pass every focused corpus, mutation, exact-round-trip, package, browser, and benchmark gate.
+- [x] Pass `npm run browser:check`, `git diff --check`, and `npm run check`.
 - [ ] Create coherent commits and push the dedicated feature branch.
 - [ ] Verify required workflows on the exact pushed SHA without merging or publishing.
 

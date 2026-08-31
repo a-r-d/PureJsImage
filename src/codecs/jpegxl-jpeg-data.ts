@@ -32,7 +32,12 @@ const uint16 = (data: Uint8Array, offset: number): number =>
 const markerSegment = (data: Uint8Array, markerOffset: number): ParsedJpegSegment => {
   const marker = byte(data, markerOffset + 1)
   if (marker === 0xd9) {
-    return Object.freeze({ marker, markerOffset, payloadOffset: markerOffset + 2, end: markerOffset + 2 })
+    return Object.freeze({
+      marker,
+      markerOffset,
+      payloadOffset: markerOffset + 2,
+      end: markerOffset + 2,
+    })
   }
   const length = uint16(data, markerOffset + 2)
   if (length < 2) throw invalidInput('JPEG reconstruction segment length is invalid')
@@ -84,7 +89,8 @@ const terminalHuffmanTable = (
   let available = 1
   for (let bits = 1; bits <= 16; bits += 1) {
     available = available * 2 - (counts[bits] ?? 0)
-    if (available < 0) throw invalidInput('JPEG Huffman table cannot accept reconstruction terminal')
+    if (available < 0)
+      throw invalidInput('JPEG Huffman table cannot accept reconstruction terminal')
   }
   return Object.freeze({
     kind,
@@ -103,7 +109,7 @@ const parseHuffmanMarker = (
   let offset = segment.payloadOffset
   while (offset < segment.end) {
     const descriptor = byte(data, offset++)
-    const kind = (descriptor >>> 4) === 0 ? 'dc' : (descriptor >>> 4) === 1 ? 'ac' : undefined
+    const kind = descriptor >>> 4 === 0 ? 'dc' : descriptor >>> 4 === 1 ? 'ac' : undefined
     const slot = descriptor & 15
     if (!kind || slot > 3) throw invalidInput('JPEG Huffman table descriptor is invalid')
     const counts = Array.from({ length: 16 }, () => byte(data, offset++))
@@ -132,7 +138,13 @@ const parseQuantizationMarker = (
     }
     offset += precision === 0 ? 64 : 128
     if (offset > segment.end) throw invalidInput('JPEG quantization table is truncated')
-    tables.push(Object.freeze({ precision: precision === 0 ? 8 : 16, index, lastInMarker: offset === segment.end }))
+    tables.push(
+      Object.freeze({
+        precision: precision === 0 ? 8 : 16,
+        index,
+        lastInMarker: offset === segment.end,
+      }),
+    )
   }
   if (offset !== segment.end) throw invalidInput('JPEG quantization marker length is inconsistent')
   return Object.freeze(tables)
@@ -159,7 +171,10 @@ const parseFrameComponents = (
     quantizationTables.push(byte(data, segment.payloadOffset + 8 + index * 3))
   }
   if (new Set(ids).size !== ids.length) throw invalidInput('JPEG component identifiers repeat')
-  return Object.freeze({ ids: Object.freeze(ids), quantizationTables: Object.freeze(quantizationTables) })
+  return Object.freeze({
+    ids: Object.freeze(ids),
+    quantizationTables: Object.freeze(quantizationTables),
+  })
 }
 
 const parseScan = (
@@ -168,7 +183,11 @@ const parseScan = (
   componentIds: readonly number[],
 ): JpegXlJpegScan => {
   const count = byte(data, segment.payloadOffset)
-  if (count < 1 || count > componentIds.length || segment.payloadOffset + 1 + count * 2 + 3 !== segment.end) {
+  if (
+    count < 1 ||
+    count > componentIds.length ||
+    segment.payloadOffset + 1 + count * 2 + 3 !== segment.end
+  ) {
     throw invalidInput('JPEG scan header is malformed')
   }
   const components = Array.from({ length: count }, (_, index) => {
@@ -205,8 +224,14 @@ const checkCoefficientAgreement = (
   }
   for (let index = 0; index < image.components.length; index += 1) {
     const component = image.components[index]
-    if (!component || component.id !== componentIds[index] || component.quantizationTable !== quantizationTables[index]) {
-      throw invalidInput('JPEG reconstruction component descriptors disagree with decoded coefficients')
+    if (
+      !component ||
+      component.id !== componentIds[index] ||
+      component.quantizationTable !== quantizationTables[index]
+    ) {
+      throw invalidInput(
+        'JPEG reconstruction component descriptors disagree with decoded coefficients',
+      )
     }
   }
 }
@@ -222,7 +247,9 @@ export const parseJpegReconstructionData = (
   limits: Readonly<JpegXlLimits>,
 ): ParsedJpegReconstructionData => {
   if (data.byteLength > limits.maxReconstructedJpegBytes) {
-    throw limitExceeded(`JPEG input has ${data.byteLength} bytes; maxReconstructedJpegBytes is ${limits.maxReconstructedJpegBytes}`)
+    throw limitExceeded(
+      `JPEG input has ${data.byteLength} bytes; maxReconstructedJpegBytes is ${limits.maxReconstructedJpegBytes}`,
+    )
   }
   if (data.byteLength < 4 || uint16(data, 0) !== 0xffd8) {
     throw invalidInput('JPEG start marker is missing')
@@ -268,12 +295,14 @@ export const parseJpegReconstructionData = (
       componentIds = components.ids
       componentQuantizationTables = components.quantizationTables
     } else if (segment.marker === 0xdd) {
-      if (segment.end - segment.payloadOffset !== 2) throw invalidInput('JPEG restart interval is malformed')
+      if (segment.end - segment.payloadOffset !== 2)
+        throw invalidInput('JPEG restart interval is malformed')
       restartInterval = uint16(data, segment.payloadOffset)
     } else if (segment.marker === 0xda) {
       if (!componentIds) throw invalidInput('JPEG scan appears before its frame')
       scans.push(parseScan(data, segment, componentIds))
-      if (scans.length > limits.maxJpegScans) throw limitExceeded(`JPEG has more than ${limits.maxJpegScans} scans`)
+      if (scans.length > limits.maxJpegScans)
+        throw limitExceeded(`JPEG has more than ${limits.maxJpegScans} scans`)
       offset = nextMarkerOffset(data, segment.end)
       continue
     } else if (segment.marker === 0xd9) {
@@ -281,12 +310,19 @@ export const parseJpegReconstructionData = (
       offset = data.byteLength
       continue
     } else {
-      throw unsupportedOperation(`JPEG marker 0x${segment.marker.toString(16).padStart(2, '0')} is unsupported by exact transcode`)
+      throw unsupportedOperation(
+        `JPEG marker 0x${segment.marker.toString(16).padStart(2, '0')} is unsupported by exact transcode`,
+      )
     }
     offset = segment.end
   }
 
-  if (markerOrder.at(-1) !== 0xd9 || !componentIds || !componentQuantizationTables || scans.length === 0) {
+  if (
+    markerOrder.at(-1) !== 0xd9 ||
+    !componentIds ||
+    !componentQuantizationTables ||
+    scans.length === 0
+  ) {
     throw invalidInput('JPEG reconstruction structure is incomplete')
   }
   if (huffmanTables.length > limits.maxJpegHuffmanTables) {
@@ -296,9 +332,14 @@ export const parseJpegReconstructionData = (
     throw unsupportedOperation('Exact JPEG transcode requires one to three quantization tables')
   }
   checkCoefficientAgreement(componentIds, componentQuantizationTables, image)
-  const decodedBytes = [...unknownAppMarkers, ...comments, tail].reduce((sum, bytes) => sum + bytes.byteLength, 0)
+  const decodedBytes = [...unknownAppMarkers, ...comments, tail].reduce(
+    (sum, bytes) => sum + bytes.byteLength,
+    0,
+  )
   if (decodedBytes > limits.maxMetadataBytes) {
-    throw limitExceeded(`JPEG reconstruction metadata has ${decodedBytes} bytes; maxMetadataBytes is ${limits.maxMetadataBytes}`)
+    throw limitExceeded(
+      `JPEG reconstruction metadata has ${decodedBytes} bytes; maxMetadataBytes is ${limits.maxMetadataBytes}`,
+    )
   }
   return Object.freeze({
     header: Object.freeze({

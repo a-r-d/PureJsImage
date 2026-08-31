@@ -97,8 +97,7 @@ class JpegXlReconstructionBitWriter {
     for (let index = 0; index < count; index += 1) {
       const position = this.#bitPosition + index
       if ((Math.floor(value / 2 ** index) & 1) !== 0) {
-        this.#bytes[position >>> 3] =
-          (this.#bytes[position >>> 3] ?? 0) | (1 << (position & 7))
+        this.#bytes[position >>> 3] = (this.#bytes[position >>> 3] ?? 0) | (1 << (position & 7))
       }
     }
     this.#bitPosition += count
@@ -569,7 +568,8 @@ export const encodeJpegXlJpegReconstruction = (
     writer.writeBits(table.kind === 'dc' ? 0 : 1, 1)
     writer.writeBits(table.slot, 2)
     writer.writeBits(table.lastInMarker ? 1 : 0, 1)
-    if (table.counts.length !== 17) throw invalidInput('JPEG XL reconstruction Huffman counts are incomplete')
+    if (table.counts.length !== 17)
+      throw invalidInput('JPEG XL reconstruction Huffman counts are incomplete')
     for (const count of table.counts) {
       writeU32(writer, count, [value(0), value(1), bits(3, 2), bits(8)])
     }
@@ -601,7 +601,8 @@ export const encodeJpegXlJpegReconstruction = (
     for (const extra of scan.extraZeroRuns) {
       writeU32(writer, extra.runs, [value(1), bits(2, 2), bits(4, 5), bits(8, 20)])
       const delta = extra.block - previous - 1
-      if (delta < 0) throw invalidInput('JPEG XL reconstruction zero-run indexes are not increasing')
+      if (delta < 0)
+        throw invalidInput('JPEG XL reconstruction zero-run indexes are not increasing')
       writeU32(writer, delta, [value(0), bits(3, 1), bits(5, 9), bits(28, 41)])
       previous = extra.block
     }
@@ -611,7 +612,9 @@ export const encodeJpegXlJpegReconstruction = (
   writer.writeBits(header.paddingBits.length === 0 ? 0 : 1, 1)
   if (header.paddingBits.length !== 0) {
     if (header.paddingBits.length > limits.maxJpegPaddingBits) {
-      throw limitExceeded(`JPEG XL reconstruction has more than ${limits.maxJpegPaddingBits} padding bits`)
+      throw limitExceeded(
+        `JPEG XL reconstruction has more than ${limits.maxJpegPaddingBits} padding bits`,
+      )
     }
     writer.writeBits(header.paddingBits.length, 24)
     for (const bit of header.paddingBits) writer.writeBits(bit, 1)
@@ -628,7 +631,9 @@ export const encodeJpegXlJpegReconstruction = (
   }
   const encoded = concatenate([writer.finish(), encodeUncompressedBrotli(opaque)])
   if (encoded.byteLength > limits.maxMetadataBytes) {
-    throw limitExceeded(`JPEG XL jbrd has ${encoded.byteLength} bytes; maxMetadataBytes is ${limits.maxMetadataBytes}`)
+    throw limitExceeded(
+      `JPEG XL jbrd has ${encoded.byteLength} bytes; maxMetadataBytes is ${limits.maxMetadataBytes}`,
+    )
   }
   return encoded
 }

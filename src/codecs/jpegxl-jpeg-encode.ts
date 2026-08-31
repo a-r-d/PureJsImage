@@ -71,11 +71,13 @@ const writePlanes = (
 }
 
 const collectPlanes = (frequencies: Uint32Array, planes: readonly Plane[]): void => {
-  for (const plane of planes) visitPlaneResiduals(plane, (value) => addFrequency(frequencies, value))
+  for (const plane of planes)
+    visitPlaneResiduals(plane, (value) => addFrequency(frequencies, value))
 }
 
 const transpose = (table: Int32Array): Int32Array => {
-  if (table.length !== 64) throw unsupportedOperation('Exact JPEG transcode requires 8x8 quantization tables')
+  if (table.length !== 64)
+    throw unsupportedOperation('Exact JPEG transcode requires 8x8 quantization tables')
   const output = new Int32Array(64)
   for (let position = 0; position < 64; position += 1) {
     output[position] = table[(position & 7) * 8 + (position >>> 3)] ?? 0
@@ -90,7 +92,9 @@ const samplingExponent = (maximum: number, value: number): number => {
   const ratio = maximum / value
   const exponent = Math.log2(ratio)
   if (!Number.isInteger(exponent) || exponent < 0 || exponent > 1) {
-    throw unsupportedOperation('Exact JPEG transcode initially supports 4:4:4, 4:2:2, or 4:2:0 sampling')
+    throw unsupportedOperation(
+      'Exact JPEG transcode initially supports 4:4:4, 4:2:2, or 4:2:0 sampling',
+    )
   }
   return exponent
 }
@@ -104,8 +108,13 @@ const subsamplingMode = (horizontal: number, vertical: number): number => {
 }
 
 const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
-  if (image.components.length !== 3 || (image.colorTransform !== 'ycbcr' && image.colorTransform !== 'rgb')) {
-    throw unsupportedOperation('Exact JPEG transcode initially requires RGB or YCbCr three-component JPEG')
+  if (
+    image.components.length !== 3 ||
+    (image.colorTransform !== 'ycbcr' && image.colorTransform !== 'rgb')
+  ) {
+    throw unsupportedOperation(
+      'Exact JPEG transcode initially requires RGB or YCbCr three-component JPEG',
+    )
   }
   const colorTransform = image.colorTransform === 'ycbcr' ? 'ycbcr' : 'none'
   const componentShifts = image.components.map((component) =>
@@ -142,7 +151,8 @@ const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
     Object.freeze([maximumRawX - horizontal, maximumRawY - vertical] as const),
   )
   const fullBlockWidth = Math.ceil(Math.ceil(image.width / 8) / 2 ** maximumRawX) * 2 ** maximumRawX
-  const fullBlockHeight = Math.ceil(Math.ceil(image.height / 8) / 2 ** maximumRawY) * 2 ** maximumRawY
+  const fullBlockHeight =
+    Math.ceil(Math.ceil(image.height / 8) / 2 ** maximumRawY) * 2 ** maximumRawY
   const dcPlaneIndexes = colorTransform === 'ycbcr' ? [0, 1, 2] : [1, 0, 2]
   const dcPlaneComponents = dcPlaneIndexes.map((index) => image.components[index])
   if (dcPlaneComponents.some((component) => component === undefined)) {
@@ -186,7 +196,6 @@ const componentDcPlane = (
 }
 
 const dcGroupPlanes = (
-  image: JpegCoefficientImage,
   geometry: Readonly<JpegDerivedGeometry>,
   group: number,
 ): readonly Plane[] => {
@@ -202,7 +211,8 @@ const dcGroupPlanes = (
     const quantization = geometry.quantization[internalChannel]
     if (!shift || !quantization) throw invalidInput('JPEG DC channel geometry is missing')
     const rgbOffset = geometry.colorTransform === 'none' ? 1024 / (quantization[0] ?? 0) : 0
-    if (!Number.isInteger(rgbOffset)) throw unsupportedOperation('Exact JPEG RGB DC level shift is not integral')
+    if (!Number.isInteger(rgbOffset))
+      throw unsupportedOperation('Exact JPEG RGB DC level shift is not integral')
     return componentDcPlane(
       component,
       blockX >> shift[0],
@@ -215,14 +225,26 @@ const dcGroupPlanes = (
   const correlationWidth = Math.ceil(blockWidth / 8)
   const correlationHeight = Math.ceil(blockHeight / 8)
   const metadata = [
-    Object.freeze({ width: correlationWidth, height: correlationHeight, values: new Int32Array(correlationWidth * correlationHeight) }),
-    Object.freeze({ width: correlationWidth, height: correlationHeight, values: new Int32Array(correlationWidth * correlationHeight) }),
+    Object.freeze({
+      width: correlationWidth,
+      height: correlationHeight,
+      values: new Int32Array(correlationWidth * correlationHeight),
+    }),
+    Object.freeze({
+      width: correlationWidth,
+      height: correlationHeight,
+      values: new Int32Array(correlationWidth * correlationHeight),
+    }),
     Object.freeze({
       width: blockWidth * blockHeight,
       height: 2,
       values: new Int32Array(blockWidth * blockHeight * 2),
     }),
-    Object.freeze({ width: blockWidth, height: blockHeight, values: new Int32Array(blockWidth * blockHeight) }),
+    Object.freeze({
+      width: blockWidth,
+      height: blockHeight,
+      values: new Int32Array(blockWidth * blockHeight),
+    }),
   ]
   return Object.freeze([...dcPlanes, ...metadata])
 }
@@ -241,7 +263,8 @@ const writeDcGroup = (
 }
 
 const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
-  if (!Number.isFinite(value) || value < 0) throw invalidInput('JPEG XL half-precision value is invalid')
+  if (!Number.isFinite(value) || value < 0)
+    throw invalidInput('JPEG XL half-precision value is invalid')
   if (value === 0) {
     writer.writeBits(0, 16)
     return
@@ -337,7 +360,13 @@ const visitAcGroup = (
       for (const channel of [1, 0, 2]) {
         const shift = geometry.shifts[channel]
         const component = geometry.internalComponents[channel]
-        if (!shift || !component || (x & (2 ** shift[0] - 1)) !== 0 || (y & (2 ** shift[1] - 1)) !== 0) continue
+        if (
+          !shift ||
+          !component ||
+          (x & (2 ** shift[0] - 1)) !== 0 ||
+          (y & (2 ** shift[1] - 1)) !== 0
+        )
+          continue
         const componentX = (blockX + x) >> shift[0]
         const componentY = (blockY + y) >> shift[1]
         const base = (componentY * component.blocksPerLineForMcu + componentX) * 64
@@ -356,7 +385,9 @@ const visitAcGroup = (
           const position = transposed(order[scan] ?? 0)
           const coefficient = component.coefficients[base + position] ?? 0
           if (coefficient < -4_095 || coefficient > 4_095) {
-            throw unsupportedOperation('Exact JPEG transcode AC coefficient exceeds the JPEG XL subset')
+            throw unsupportedOperation(
+              'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
+            )
           }
           visit(packSigned(coefficient))
         }
@@ -398,13 +429,12 @@ const finishSection = (write: (writer: JpegXlBitWriter) => void): Uint8Array => 
   return writer.finish()
 }
 
-const encodeSections = (
-  image: JpegCoefficientImage,
-  geometry: Readonly<JpegDerivedGeometry>,
-): readonly Uint8Array[] => {
+const encodeSections = (geometry: Readonly<JpegDerivedGeometry>): readonly Uint8Array[] => {
   const dcGroupCount = geometry.dcGroupsAcross * geometry.dcGroupsDown
   const groupCount = geometry.groupsAcross * geometry.groupsDown
-  const dcPlanes = Array.from({ length: dcGroupCount }, (_, group) => dcGroupPlanes(image, geometry, group))
+  const dcPlanes = Array.from({ length: dcGroupCount }, (_, group) =>
+    dcGroupPlanes(geometry, group),
+  )
   const modularFrequencies = new Uint32Array(512)
   for (const planes of dcPlanes) collectPlanes(modularFrequencies, planes)
   collectPlanes(modularFrequencies, quantizationPlanes(geometry))
@@ -416,11 +446,7 @@ const encodeSections = (
   if (groupCount === 1) {
     return Object.freeze([
       finishSection((writer) => {
-        const modularEncoding = writeLfGlobal(
-          writer,
-          modularFrequencies,
-          geometry.colorTransform,
-        )
+        const modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry.colorTransform)
         writeDcGroup(writer, dcPlanes[0] ?? [], modularEncoding)
         const acEncoding = writeHfGlobal(writer, geometry, modularEncoding, acFrequencies)
         writeAcGroup(writer, geometry, 0, acEncoding)
@@ -514,7 +540,12 @@ const codestreamFor = (
   writer.writeBits(0, 1)
   writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
   writer.writeBits(1, 1)
-  writeU32(writer, 0, [{ value: 0 }, { bits: 4, offset: 0 }, { bits: 5, offset: 16 }, { bits: 10, offset: 48 }])
+  writeU32(writer, 0, [
+    { value: 0 },
+    { bits: 4, offset: 0 },
+    { bits: 5, offset: 16 },
+    { bits: 10, offset: 48 },
+  ])
   writer.writeBits(0, 1)
   writer.writeBits(0, 1)
   writer.writeBits(0, 2)
@@ -552,10 +583,12 @@ export const encodeJpegCoefficientImageAsJpegXl = (
   limits: Readonly<JpegXlLimits>,
 ): Uint8Array => {
   const geometry = geometryFor(image)
-  const sections = encodeSections(image, geometry)
+  const sections = encodeSections(geometry)
   const codestream = codestreamFor(image, geometry, sections)
   if (codestream.byteLength > limits.maxCodestreamBytes) {
-    throw limitExceeded(`JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`)
+    throw limitExceeded(
+      `JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`,
+    )
   }
   return concatenate([
     Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),

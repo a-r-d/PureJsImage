@@ -169,7 +169,6 @@ const buildCoefficientImage = (
   const maximumHorizontalSampling = 2 ** Math.max(...raw.map(([horizontal]) => horizontal))
   const maximumVerticalSampling = 2 ** Math.max(...raw.map(([, vertical]) => vertical))
   const shifts = actualShifts(chromaSubsampling)
-  const [fullBlockWidth, fullBlockHeight] = paddedBlockDimensions(width, height, chromaSubsampling)
   const mcusPerLine = Math.ceil(width / (maximumHorizontalSampling * 8))
   const mcusPerColumn = Math.ceil(height / (maximumVerticalSampling * 8))
   const components: JpegCoefficientComponent[] = []
@@ -318,9 +317,7 @@ export const decodeJpegXlJpegReconstruction = async (
           dcGroupCount: frame.dcGroupCount,
         },
         lfGlobal.globalModularCode,
-        combinedSection && group === 0
-          ? lfGlobal.endingBitPosition
-          : 0,
+        combinedSection && group === 0 ? lfGlobal.endingBitPosition : 0,
         !combinedSection,
       ),
     )
