@@ -73,6 +73,7 @@ const assertPortableBundle = async (
   options: Readonly<{
     readonly requiredPackageInputs?: readonly RegExp[]
     readonly rejectPrivateGeoInputs?: boolean
+    readonly rejectHdrInputs?: boolean
   }> = {},
 ): Promise<number> => {
   const result = await build({
@@ -104,6 +105,12 @@ const assertPortableBundle = async (
     inputs.some((input) => /node_modules\/purejsimage\/src\//u.test(input))
   ) {
     throw new Error(`Packed browser bundle ${entryPoint} contains a private Geo implementation`)
+  }
+  if (
+    options.rejectHdrInputs === true &&
+    inputs.some((input) => /node_modules\/purejsimage\/dist\/hdr\//u.test(input))
+  ) {
+    throw new Error(`Packed browser bundle ${entryPoint} contains the opt-in HDR entry`)
   }
   for (const required of options.requiredPackageInputs ?? []) {
     if (!inputs.some((input) => required.test(input))) {
@@ -148,6 +155,8 @@ try {
   for (const expected of [
     'dist/index.js',
     'dist/browser.js',
+    'dist/hdr/index.js',
+    'dist/hdr/index.d.ts',
     'dist/codec-entries/web.js',
     'dist/scientific/index.js',
     'dist/scientific/node.js',
@@ -221,6 +230,7 @@ try {
     throw new Error('Packed package must not expose source files')
   }
   for (const entry of [
+    './hdr',
     './geo',
     './geo/browser',
     './geo/readers/geotiff',
@@ -279,6 +289,7 @@ try {
           'index.ts',
           'runtime.ts',
           'browser.ts',
+          'hdr.ts',
           'worker.ts',
           'geo-showcase.ts',
           'geo-showcase-data.ts',
@@ -627,6 +638,77 @@ export const openScientific = async () => {
 }
 `,
   )
+  await writeFile(
+    join(consumerDirectory, 'hdr.ts'),
+    `import { assembleGainMapJpeg, inspectGainMapImage, normalizeGainMapMetadata, openGainMapImage } from 'purejsimage/hdr'
+import type { GainMapComponentPreview, GainMapMetadata, GainMapProbeInspection, OpenedGainMapImage } from 'purejsimage/hdr'
+
+export { inspectGainMapImage, normalizeGainMapMetadata, openGainMapImage }
+export type { GainMapComponentPreview, GainMapMetadata, GainMapProbeInspection, OpenedGainMapImage }
+
+export const exerciseHdrTypes = async (input: Uint8Array): Promise<Readonly<{
+  originalBase: Uint8Array
+  originalGainMap: Uint8Array
+  preview: GainMapComponentPreview
+  jpeg: Uint8Array
+  avif: Uint8Array
+  renderedBytes: number
+}>> => {
+  await inspectGainMapImage(input)
+  const image = await openGainMapImage(input)
+  try {
+    const transformed = image.autoOrient().crop({ x: 0, y: 0, width: 1, height: 1 })
+    const [originalBase, originalGainMap, preview] = await Promise.all([
+      transformed.extractOriginalBase(),
+      transformed.extractOriginalGainMap(),
+      transformed.previewTransformedComponents(),
+    ])
+    let renderedBytes = 0
+    for await (const block of transformed.render({ displayBoost: 4 })) {
+      renderedBytes += block.data.byteLength
+      block.release?.()
+    }
+    const jpeg = await transformed.jpeg({ metadataMode: 'dual' })
+    const avif = await transformed.avif()
+    await assembleGainMapJpeg({
+      baseJpeg: originalBase,
+      gainMapJpeg: originalGainMap,
+      metadata: image.inspection().metadata,
+    })
+    return { originalBase, originalGainMap, preview, jpeg, avif, renderedBytes }
+  } finally {
+    image.close()
+  }
+}
+
+export const browserHdrDownload = async (file: File): Promise<Blob> => {
+  const image = await openGainMapImage(file)
+  try {
+    const bytes = await image.jpeg({ metadataMode: 'dual' })
+    const copy = new ArrayBuffer(bytes.byteLength)
+    new Uint8Array(copy).set(bytes)
+    return new Blob([copy], { type: 'image/jpeg' })
+  } finally {
+    image.close()
+  }
+}
+`,
+  )
+  await writeFile(
+    join(consumerDirectory, 'hdr-node.ts'),
+    `import { readFile, writeFile } from 'node:fs/promises'
+import { openGainMapImage } from 'purejsimage/hdr'
+
+export const transformHdrFile = async (input: string, output: string): Promise<void> => {
+  const image = await openGainMapImage(new Uint8Array(await readFile(input)))
+  try {
+    await writeFile(output, await image.resize({ width: 1200, height: 800 }).jpeg())
+  } finally {
+    image.close()
+  }
+}
+`,
+  )
 
   for (const name of [
     'runtime.ts',
@@ -665,8 +747,13 @@ export const openScientific = async () => {
     environment,
   )
 
-  const browserBytes = await assertPortableBundle('browser.ts', consumerDirectory)
+  const browserBytes = await assertPortableBundle('browser.ts', consumerDirectory, {
+    rejectHdrInputs: true,
+  })
   const workerBytes = await assertPortableBundle('worker.ts', consumerDirectory)
+  const hdrBytes = await assertPortableBundle('hdr.ts', consumerDirectory, {
+    requiredPackageInputs: [/node_modules\/purejsimage\/dist\/hdr\/index\.js$/u],
+  })
   const geoWorkerBytes = await assertPortableBundle('geo-showcase-worker.ts', consumerDirectory, {
     requiredPackageInputs: [
       /node_modules\/purejsimage\/dist\/geo\/index\.js$/u,
@@ -766,7 +853,7 @@ export const openScientific = async () => {
   }
 
   console.log(
-    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
+    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; HDR ${hdrBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
   )
 } finally {
   await rm(temporaryDirectory, { force: true, recursive: true })

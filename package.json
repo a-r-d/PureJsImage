@@ -25,6 +25,12 @@
     "tiff",
     "gif",
     "hdr",
+    "ultra-hdr",
+    "gain-map",
+    "jpeg-r",
+    "jpegr",
+    "iso-21496-1",
+    "hdr-image",
     "qoi",
     "netpbm",
     "tga",
@@ -80,6 +86,11 @@
       "types": "./dist/browser.d.ts",
       "import": "./dist/browser.js",
       "default": "./dist/browser.js"
+    },
+    "./hdr": {
+      "types": "./dist/hdr/index.d.ts",
+      "import": "./dist/hdr/index.js",
+      "default": "./dist/hdr/index.js"
     },
     "./tiff": {
       "types": "./dist/tiff/index.d.ts",
@@ -613,6 +624,9 @@
     "fixtures:heif": "node benchmark/heif/verify-corpus.ts && node benchmark/heif/compatibility/verify.ts",
     "fixtures:ico": "node benchmark/ico/verify-corpus.ts",
     "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts && vitest run tests/jpeg-reference-fixtures.test.ts tests/jpeg-reference-parity.test.ts",
+    "fixtures:hdr-surgery": "node benchmark/hdr-surgery/verify-fixtures.ts",
+    "fixtures:hdr-surgery:prepare": "node benchmark/hdr-surgery/prepare-fixtures.ts",
+    "fixtures:hdr-surgery:oracles": "node benchmark/hdr-surgery/verify-oracles.ts",
     "fixtures:jpeg:prepare": "node benchmark/jpeg/prepare-reference-fixtures.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
     "fixtures:jpegxl:prepare": "node benchmark/jpegxl/prepare-corpus.ts",
@@ -699,6 +713,7 @@
     "bench:png:wasm": "node benchmark/png/run-wasm.ts",
     "bench:precision": "node benchmark/precision/run.ts",
     "bench:evidence": "node benchmark/evidence/run.ts",
+    "bench:hdr-surgery": "node benchmark/hdr-surgery/run.ts",
     "bench:webp:wasm": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm --profile webp",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts",
     "bench:lambda:assets": "npm run build && npm run fixtures:prepare -- tundra-4000x3000 rgba-gradient-4000x3000 && node benchmark/aws-lambda/build-assets.ts",

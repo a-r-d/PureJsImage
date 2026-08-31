@@ -23,6 +23,7 @@
    <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
    <a href="https://purejsimage.com/ome-zarr/"><strong>OME-Zarr demo</strong></a> ·
    <a href="https://purejsimage.com/xray/"><strong>Raster X-Ray</strong></a> ·
+   <a href="https://purejsimage.com/hdr-surgery/"><strong>HDR Surgery</strong></a> ·
    <a href="https://lab.purejsimage.com/"><strong>PureJsImage Lab</strong></a>
 </p>
 
@@ -85,14 +86,14 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Current measured surface | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 19.1 KiB | 6.5 KiB | 5.8 KiB |
-| Common web codecs | 640.4 KiB | 235.3 KiB | 195.4 KiB |
-| All stable codecs | 903.6 KiB | 317.5 KiB | 259.9 KiB |
+| Common web codecs | 641.4 KiB | 235.6 KiB | 195.6 KiB |
+| All stable codecs | 904.6 KiB | 317.8 KiB | 260.8 KiB |
 | Scientific platform | 190.3 KiB | 53.9 KiB | 45.5 KiB |
 | All scientific readers | 1239.7 KiB | 358.5 KiB | 286.2 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
 | All Geo readers | 621.9 KiB | 188.2 KiB | 152.3 KiB |
 
-The extracted npm package is 6.6 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 6.9 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 ## Install
@@ -155,6 +156,37 @@ const webImages = createImageLibrary(allWebCodecs);
 TIFF remains an explicit `purejsimage/codecs/tiff` import because including it would substantially
 increase the web-focused bundle. Use `purejsimage/codecs/all` only when the complete stable codec
 aggregate is appropriate.
+
+## Gain-map HDR images
+
+Use the separate `purejsimage/hdr` entry for Ultra HDR and ISO 21496-1 gain-map JPEG or AVIF
+workflows. Ordinary JPEG decode continues to return the SDR primary.
+
+```ts
+import { openGainMapImage } from "purejsimage/hdr";
+
+const image = await openGainMapImage(input);
+try {
+  for await (const block of image.render({ displayBoost: 4 })) {
+    consumeLinearHdrBlock(block);
+  }
+
+  const output = await image
+    .crop({ x: 100, y: 50, width: 1200, height: 800 })
+    .resize({ width: 600, height: 400, kernel: "lanczos3" })
+    .jpeg({ metadataMode: "dual", baseQuality: 90, gainMapQuality: 92 });
+} finally {
+  image.close();
+}
+```
+
+The renderer returns independently owned linear `rgbf32` or `rgbaf32` row blocks and preserves
+values above SDR white. Transformed rendering keeps the decoded and transformed 8-bit component
+rasters inside one caller-selected aggregate materialization budget. It does not allocate a complete
+adapted Float32 image. JPEG gain-map input is limited to an SDR primary. Re-encoded JPEG primaries
+carry PureJsImage's deterministic sRGB ICC profile. The first gain-map AVIF writer is limited to an
+opaque sRGB SDR base and one-channel semantic map. See the [gain-map HDR guide](docs/hdr-surgery.md) and the local
+[HDR Surgery browser workbench](https://purejsimage.com/hdr-surgery/).
 
 ## Scientific datasets
 
@@ -367,12 +399,12 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 | Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 19.1 KiB | 6.5 KiB | 5.8 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 640.4 KiB | 235.3 KiB | 195.4 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 903.6 KiB | 317.5 KiB | 259.9 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 641.4 KiB | 235.6 KiB | 195.6 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 904.6 KiB | 317.8 KiB | 260.8 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 190.3 KiB | 53.9 KiB | 45.5 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1239.7 KiB | 358.5 KiB | 286.2 KiB |
 
-The extracted npm package is 6.6 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
+The extracted npm package is 6.9 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

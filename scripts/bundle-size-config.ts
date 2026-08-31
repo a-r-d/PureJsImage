@@ -236,6 +236,13 @@ const staticPureJsImageTargets = (): readonly BundleTarget[] => [
     splitOutput: 'chunks',
   }),
   sourceTarget({
+    id: 'hdr',
+    implementation: 'pure-javascript',
+    name: 'HDR Surgery',
+    packageExport: 'purejsimage/hdr',
+    sourceEntries: ['./src/hdr/index.ts'],
+  }),
+  sourceTarget({
     id: 'scientific',
     implementation: 'package-core',
     name: 'Core + scientific platform',

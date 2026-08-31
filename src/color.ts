@@ -18,7 +18,7 @@ export type PixelColorProvenance =
   | 'unspecified'
 export type PixelRenderingIntent = 'perceptual' | 'relative' | 'saturation' | 'absolute'
 export type PixelTransferFunction =
-  | { readonly kind: 'srgb' | 'linear' | 'source-profile' | 'unspecified' }
+  | { readonly kind: 'srgb' | 'linear' | 'pq' | 'hlg' | 'source-profile' | 'unspecified' }
   | { readonly kind: 'gamma'; readonly exponent: number }
 
 export interface PixelIccSemantics {
@@ -68,7 +68,15 @@ const renderingIntents = new Set<PixelRenderingIntent>([
   'saturation',
   'absolute',
 ])
-const transferKinds = new Set(['srgb', 'linear', 'source-profile', 'unspecified', 'gamma'])
+const transferKinds = new Set([
+  'srgb',
+  'linear',
+  'pq',
+  'hlg',
+  'source-profile',
+  'unspecified',
+  'gamma',
+])
 
 const record = (value: unknown): value is Readonly<Record<string, unknown>> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -104,7 +112,14 @@ const normalizeTransfer = (value: unknown): PixelTransferFunction => {
   if (value.exponent !== undefined) {
     throw invalidInput('Pixel color transfer exponent requires kind: gamma')
   }
-  if (kind !== 'srgb' && kind !== 'linear' && kind !== 'source-profile' && kind !== 'unspecified') {
+  if (
+    kind !== 'srgb' &&
+    kind !== 'linear' &&
+    kind !== 'pq' &&
+    kind !== 'hlg' &&
+    kind !== 'source-profile' &&
+    kind !== 'unspecified'
+  ) {
     throw invalidInput('Pixel color transfer function is invalid')
   }
   return Object.freeze({ kind })

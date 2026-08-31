@@ -73,10 +73,12 @@ supported until its output is independently validated.
   misreading their appended secondary images
 - [x] Header-only MPF image-count inspection; the pinned Apple gain-map fixture
   reports its two constituent images
-- [ ] Ultra HDR / JPEG_R and ISO 21496-1:2025 gain-map discovery, HDR
-  reconstruction, encoding, and preservation
-- [ ] Multi-Picture Format (`MPF` / `MPO`) secondary-image enumeration and
-  selection for gain maps, depth maps, stereo pairs, bursts, and other
+- [x] Explicit `purejsimage/hdr` Ultra HDR XMP and ISO 21496-1:2025 gain-map
+  discovery, exact metadata normalization, caller-selected linear HDR
+  reconstruction, extraction, paired transforms, and compound JPEG output
+- [x] Bounded MPF image enumeration and exact range validation for supported
+  gain-map relationships, including GContainer length cross-checks
+- [ ] General MPO selection for depth maps, stereo pairs, bursts, and other
   auxiliary images
 - [ ] Motion Photo XMP and appended-video discovery, extraction, and
   preservation

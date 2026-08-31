@@ -57,6 +57,38 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           <div class="callout warning"><strong>Experimental and opt-in.</strong> HEIC commonly contains HEVC/H.265 image data that may be subject to third-party patent rights. PureJsImage's MIT license covers this implementation's copyright and grants no third-party patent rights. Users and distributors are responsible for determining whether their use requires additional licenses, particularly for commercial products, services, or high-volume distribution. The codec is shipped in the package but is never loaded by the root entry, <code>allCodecs</code>, or the default browser demo. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">experimental HEIF/HEIC contract</a>.</div>
         </section>
 
+        <section id="entry-hdr" data-search-item>
+          <h2><code>purejsimage/hdr</code> <span class="pill">provisional</span></h2>
+          <p>Explicit gain-map HDR inspection, extraction, caller-selected linear rendering, paired geometry, and constrained JPEG or AVIF output. Importing the root package, browser entry, or ordinary JPEG and AVIF codec entries does not load this subsystem. Ordinary JPEG decode continues to return the SDR primary.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><button class="code-copy" type="button" data-copy="hdr-code">Copy</button><pre><code id="hdr-code"><span class="tok-key">import</span> &#123; openGainMapImage &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/hdr'</span>
+
+<span class="tok-key">const</span> image = <span class="tok-key">await</span> <span class="tok-method">openGainMapImage</span>(input)
+<span class="tok-key">try</span> &#123;
+  <span class="tok-key">for await</span> (<span class="tok-key">const</span> block <span class="tok-key">of</span> image.<span class="tok-method">render</span>(&#123; displayBoost: <span class="tok-number">4</span> &#125;)) &#123;
+    <span class="tok-comment">// Linear rgbf32 or rgbaf32. Values above 1 are retained.</span>
+  &#125;
+
+  <span class="tok-key">const</span> jpeg = <span class="tok-key">await</span> image
+    .<span class="tok-method">crop</span>(&#123; x: <span class="tok-number">100</span>, y: <span class="tok-number">50</span>, width: <span class="tok-number">1200</span>, height: <span class="tok-number">800</span> &#125;)
+    .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">600</span>, height: <span class="tok-number">400</span>, kernel: <span class="tok-string">'lanczos3'</span> &#125;)
+    .<span class="tok-method">jpeg</span>(&#123; metadataMode: <span class="tok-string">'dual'</span> &#125;)
+&#125; <span class="tok-key">finally</span> &#123;
+  image.<span class="tok-method">close</span>()
+&#125;</code></pre></div>
+          <div class="api-list">
+            <article class="api-item" data-search-item><h3>inspectGainMapImage(input, options?)</h3><p>Cheap JPEG gain-map probe. Reports valid, absent, unsupported, or invalid without entropy-decoding either child image.</p><span class="returns">returns Promise&lt;GainMapProbeInspection&gt;</span></article>
+            <article class="api-item" data-search-item><h3>openGainMapImage(input, options?)</h3><p>Opens a validated Ultra HDR or ISO 21496-1 JPEG or AVIF relationship. ISO metadata wins when matching ISO and Ultra HDR representations are present.</p><span class="returns">returns Promise&lt;OpenedGainMapImage&gt;</span></article>
+            <article class="api-item" data-search-item><h3>inspection()</h3><p>Returns immutable normalized metadata, exact ISO rationals where available, dimensions, color semantics, representation selection, and validated JPEG ranges.</p><span class="returns">returns GainMapImageInspection</span></article>
+            <article class="api-item" data-search-item><h3>extractOriginalBase() and extractOriginalGainMap()</h3><p>Copies the original validated encoded JPEG range or AV1 item payload without decoding pixels. The names distinguish original bytes from transformed inspection and preview state.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
+            <article class="api-item" data-search-item><h3>previewTransformedComponents(options?)</h3><p>Returns caller-limited current SDR base and encoded gain-map samples with transformed dimensions and channel counts.</p><span class="returns">returns Promise&lt;GainMapComponentPreview&gt;</span></article>
+            <article class="api-item" data-search-item><h3>render(&#123; displayBoost &#125;)</h3><p>Applies gain in linear light and emits ordered <code>rgbf32</code> or <code>rgbaf32</code> blocks. Base alpha is copied unchanged.</p><span class="returns">returns AsyncIterable&lt;GainMapRenderedBlock&gt;</span></article>
+            <article class="api-item" data-search-item><h3>autoOrient(), crop(), flipHorizontal(), flipVertical(), rotate(), resize()</h3><p>Returns a fluent view whose base and encoded gain map receive the same normalized geometry.</p><span class="returns">returns OpenedGainMapImage</span></article>
+            <article class="api-item" data-search-item><h3>jpeg(options?)</h3><p>Writes dual, ISO-only, or Ultra-HDR-only compound JPEG output with independent base and map quality. The sRGB primary carries the generated PureJsImage sRGB ICC profile. Adapted Float32 rendering remains block-bounded.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
+            <article class="api-item" data-search-item><h3>avif(options?)</h3><p>Writes the first constrained ISO gain-map AVIF subset: opaque sRGB SDR base, one-channel map, and no grids or animation.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
+          </div>
+          <p>See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/hdr-surgery.md" target="_blank" rel="noreferrer">gain-map HDR guide</a> and the <a href="../hdr-surgery/">local browser workbench</a>.</p>
+        </section>
+
         <section id="entry-evidence" data-search-item>
           <h2><code>purejsimage/evidence</code> <span class="pill">alpha</span></h2>
           <p>Creates a caller-owned, opt-in execution evidence session. Summary mode retains bounded counters, merged source ranges, and PureJsImage-managed byte totals. Trace mode adds bounded events, child scopes, dependency IDs, cache activity, and allocation leases. Importing the root package does not create a collector or include the Raster X-Ray interface.</p>
@@ -485,7 +517,7 @@ console.log(report.likelyCog, report.directories, report.issues)</code></pre></d
         </section>
         <div class="empty-search" data-search-empty>No API entries match that filter.</div>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#library">ImageLibrary</a><a href="#application-entrypoints">Application entries</a><a href="#entry-scientific">Scientific</a><a href="#entry-operations">Operations</a><a href="#entry-analysis">Analysis</a><a href="#entry-extensions">Extensions</a><a href="#image">Image</a><a href="#options">Operation options</a><a href="#scientific">Scientific rasters</a><a href="#sources">Inputs &amp; sources</a><a href="#limits">Safety limits</a><a href="#errors">ImageError</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#library">ImageLibrary</a><a href="#entry-hdr">Gain-map HDR</a><a href="#application-entrypoints">Application entries</a><a href="#entry-scientific">Scientific</a><a href="#entry-operations">Operations</a><a href="#entry-analysis">Analysis</a><a href="#entry-extensions">Extensions</a><a href="#image">Image</a><a href="#options">Operation options</a><a href="#scientific">Scientific rasters</a><a href="#sources">Inputs &amp; sources</a><a href="#limits">Safety limits</a><a href="#errors">ImageError</a></aside>
     </div>
   </main>
 </SiteLayout>

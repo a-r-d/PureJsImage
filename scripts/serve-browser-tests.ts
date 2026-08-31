@@ -16,6 +16,14 @@ import { createImageLibrary } from '../src/index.ts'
 const outputDirectory = resolve('benchmark/.tmp/browser-tests')
 const fixtureDirectory = resolve(outputDirectory, 'fixtures')
 const port = Number(process.env.PUREJSIMAGE_BROWSER_PORT ?? '4173')
+const hdrSampleNames = [
+  'hdr-surgery-synthetic-dual.jpg',
+  'hdr-surgery-synthetic-xmp.jpg',
+  'hdr-surgery-synthetic-iso.jpg',
+  'hdr-surgery-synthetic-rgb-progressive.jpg',
+  'hdr-surgery-synthetic-odd-scale.jpg',
+  'hdr-surgery-synthetic-12mp.jpg',
+] as const
 
 const benchmarkEntries = {
   compatibility: 'browser-tests/compatibility-harness.ts',
@@ -330,6 +338,8 @@ await build({
     'geo-showcase-worker': 'docs-astro/src/scripts/geo-showcase-worker.ts',
     xray: 'docs-astro/src/scripts/xray.ts',
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
+    'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
+    'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
@@ -410,6 +420,13 @@ await writeFile(resolve(fixtureDirectory, 'alpha.png'), alphaFixture())
 await writeFile(resolve(fixtureDirectory, 'webp-graphic.png'), webpGraphicFixture())
 await writeFile(resolve(fixtureDirectory, 'animated.gif'), animatedGifFixture())
 await writeFile(resolve(fixtureDirectory, 'main10-pq.heic'), main10PqFixture())
+await mkdir(resolve(outputDirectory, 'demo-data'), { recursive: true })
+for (const name of hdrSampleNames) {
+  await copyFile(
+    resolve('benchmark/corpus/files', name),
+    resolve(outputDirectory, 'demo-data', name),
+  )
+}
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   resolve(fixtureDirectory, 'benchmark-input.webp'),

@@ -6,6 +6,20 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
+  AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,
+  encoded child extraction, caller-selected linear `rgbf32` or `rgbaf32` rendering, paired crop,
+  flip, orientation, quarter-turn, and resize operations, dual or single-representation compound
+  JPEG output, and a constrained opaque sRGB one-channel gain-map AVIF writer. Ordinary JPEG decode
+  still returns the SDR primary. The local HDR Surgery workbench runs the same code in a validated
+  browser worker. The provisional extraction API now names original encoded children explicitly and
+  exposes a separate transformed-component preview. Transformed rendering emits independently owned
+  row blocks without a complete adapted Float32 image. Its caller limit covers the retained decoded,
+  transformed, aligned-map, encoded-artifact, and output staging buffers as one aggregate budget.
+  JPEG input is limited to SDR primaries, transformed JPEG primaries carry a deterministic sRGB ICC
+  profile, JPEG marker ordering preserves JFIF first, rounded map geometry is accepted within one map
+  pixel, and AVIF gain-map coded images signal primaries and transfer characteristics 2.
+
 - Began the Phase 3 flagship at `/4d-stem/`. The client-side worker opens a deterministic processed
   Merlin MIB acquisition, links scan and diffraction views, produces virtual detector maps and
   scan-region reductions through the explicit `purejsimage/analysis/4d-stem` provider bundle, and
@@ -72,6 +86,12 @@ All notable changes to PureJsImage are documented in this file.
   still does not reconstruct HEVC sample state.
 
 ### Changed
+
+- HDR gain-map rendering now reports the emitted linear RGB space instead of retaining container
+  YUV matrix and range labels. It rejects base and alternate primary mismatches until a float gamut
+  conversion is available, validates exact ISO rationals against normalized values, keeps pending
+  EXIF orientation composable through paired transforms, rejects transformed output until pending
+  orientation is applied, propagates AVIF open cancellation, and closes or aborts AVIF output sinks.
 
 - The PR #32 hardening pass now rejects explicitly premultiplied RGBA input before resize or pixel
   storage conversion, counts aborted shared-range consumers without mislabeling the surviving

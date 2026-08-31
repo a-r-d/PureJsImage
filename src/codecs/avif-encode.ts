@@ -159,7 +159,25 @@ const obu = (type: number, payload: Uint8Array): Uint8Array =>
 
 const bitWidth = (value: number): number => Math.max(1, Math.ceil(Math.log2(value)))
 
-const sequenceHeader = (width: number, height: number): Uint8Array => {
+export interface AvifInternalColorConfiguration {
+  readonly colorPrimaries: number
+  readonly transferCharacteristics: number
+  readonly matrixCoefficients: number
+  readonly fullRange: boolean
+}
+
+const defaultColorConfiguration = Object.freeze<AvifInternalColorConfiguration>({
+  colorPrimaries: 1,
+  transferCharacteristics: 13,
+  matrixCoefficients: 1,
+  fullRange: true,
+})
+
+const sequenceHeader = (
+  width: number,
+  height: number,
+  color: Readonly<AvifInternalColorConfiguration>,
+): Uint8Array => {
   const writer = new BitWriter()
   const widthBits = bitWidth(width)
   const heightBits = bitWidth(height)
@@ -180,10 +198,10 @@ const sequenceHeader = (width: number, height: number): Uint8Array => {
   writer.write(0, 1)
   writer.write(0, 1)
   writer.write(1, 1)
-  writer.write(1, 8)
-  writer.write(13, 8)
-  writer.write(1, 8)
-  writer.write(1, 1)
+  writer.write(color.colorPrimaries, 8)
+  writer.write(color.transferCharacteristics, 8)
+  writer.write(color.matrixCoefficients, 8)
+  writer.write(color.fullRange ? 1 : 0, 1)
   writer.write(0, 2)
   writer.write(0, 1)
   writer.write(0, 1)
@@ -331,7 +349,11 @@ class ConstrainedAv1Encoder {
     this.#chromaDc = [new Uint8Array(chromaContexts), new Uint8Array(chromaContexts)]
   }
 
-  finish(width: number, height: number): Uint8Array {
+  finish(
+    width: number,
+    height: number,
+    color: Readonly<AvifInternalColorConfiguration>,
+  ): Uint8Array {
     for (let row = 0; row < this.#miRows; row += 16) {
       for (let column = 0; column < this.#miColumns; column += 16) {
         this.#encodePartition(row, column, 64)
@@ -339,7 +361,7 @@ class ConstrainedAv1Encoder {
     }
     const tile = this.#symbols.finish()
     const frame = concatenate([frameHeader(width, height), tile])
-    return concatenate([obu(1, sequenceHeader(width, height)), obu(6, frame)])
+    return concatenate([obu(1, sequenceHeader(width, height, color)), obu(6, frame)])
   }
 
   #encodePartition(row: number, column: number, size: number): void {
@@ -523,6 +545,7 @@ const avifMetadata = (
   itemOffset: number,
   itemLength: number,
   metadata: Readonly<PreservedMetadata> | undefined,
+  color: Readonly<AvifInternalColorConfiguration>,
 ): Uint8Array => {
   const handler = fullBox(
     'hdlr',
@@ -570,7 +593,21 @@ const avifMetadata = (
   )
   const colorProperty = metadata?.icc
     ? box('colr', ascii('prof'), metadata.icc)
-    : box('colr', concatenate([ascii('nclx'), Uint8Array.of(0, 1, 0, 13, 0, 1, 0x80)]))
+    : box(
+        'colr',
+        concatenate([
+          ascii('nclx'),
+          Uint8Array.of(
+            color.colorPrimaries >>> 8,
+            color.colorPrimaries,
+            color.transferCharacteristics >>> 8,
+            color.transferCharacteristics,
+            color.matrixCoefficients >>> 8,
+            color.matrixCoefficients,
+            color.fullRange ? 0x80 : 0,
+          ),
+        ]),
+      )
   const properties = box(
     'iprp',
     box(
@@ -622,12 +659,18 @@ class AvifEncoder implements ImageEncoder {
   readonly #chromaSumU: Float64Array
   readonly #chromaSumV: Float64Array
   readonly #metadata: Readonly<PreservedMetadata> | undefined
+  readonly #color: Readonly<AvifInternalColorConfiguration>
   readonly #chromaCounts: Uint8Array
   #receivedRows = 0
   #chromaRows = 0
   #finished = false
 
-  constructor(sink: ImageSink, request: EncodeRequest, options: Readonly<AvifEncodeOptions>) {
+  constructor(
+    sink: ImageSink,
+    request: EncodeRequest,
+    options: Readonly<AvifEncodeOptions>,
+    color: Readonly<AvifInternalColorConfiguration> = defaultColorConfiguration,
+  ) {
     this.#sink = sink
     this.#width = request.width
     this.#height = request.height
@@ -636,6 +679,7 @@ class AvifEncoder implements ImageEncoder {
     this.#background = parseBackground(options.background)
     this.#signal = request.signal
     this.#metadata = request.metadata
+    this.#color = color
     if (request.metadata?.exif && request.metadata.exif.byteLength > 16 * 1024 * 1024) {
       throw invalidInput('Preserved AVIF EXIF data exceeds 16 MiB')
     }
@@ -718,7 +762,11 @@ class AvifEncoder implements ImageEncoder {
     }
     if ((this.#height & 1) === 1) this.#flushChromaRow()
     this.#padPlanes()
-    const av1 = new ConstrainedAv1Encoder(this.#planes).finish(this.#width, this.#height)
+    const av1 = new ConstrainedAv1Encoder(this.#planes).finish(
+      this.#width,
+      this.#height,
+      this.#color,
+    )
     const exifPayload = this.#metadata?.exif
       ? concatenate([bytes32(0), this.#metadata.exif])
       : undefined
@@ -728,6 +776,7 @@ class AvifEncoder implements ImageEncoder {
       0,
       av1.byteLength,
       this.#metadata,
+      this.#color,
     )
     const itemOffset = fileType.byteLength + provisionalMetadata.byteLength + 8
     const metadata = avifMetadata(
@@ -736,6 +785,7 @@ class AvifEncoder implements ImageEncoder {
       itemOffset,
       av1.byteLength,
       this.#metadata,
+      this.#color,
     )
     const mediaDataLength = 8 + av1.byteLength + (exifPayload?.byteLength ?? 0)
     await this.#sink.write(fileType)
@@ -837,3 +887,10 @@ export const createAvifEncoder = async (
   sink: ImageSink,
   request: EncodeRequest,
 ): Promise<ImageEncoder> => new AvifEncoder(sink, request, resolveOptions(request.options))
+
+export const createAvifEncoderWithColorConfiguration = async (
+  sink: ImageSink,
+  request: EncodeRequest,
+  color: Readonly<AvifInternalColorConfiguration>,
+): Promise<ImageEncoder> =>
+  new AvifEncoder(sink, request, resolveOptions(request.options), Object.freeze({ ...color }))

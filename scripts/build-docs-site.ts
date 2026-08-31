@@ -26,6 +26,19 @@ const outputSimdWebpWasm = join(outputDirectory, 'assets/webp-codec-simd.wasm')
 
 await buildAstro({ root: sourceDirectory })
 
+const hdrSampleNames = [
+  'hdr-surgery-synthetic-dual.jpg',
+  'hdr-surgery-synthetic-xmp.jpg',
+  'hdr-surgery-synthetic-iso.jpg',
+  'hdr-surgery-synthetic-rgb-progressive.jpg',
+  'hdr-surgery-synthetic-odd-scale.jpg',
+  'hdr-surgery-synthetic-12mp.jpg',
+] as const
+await mkdir(join(outputDirectory, 'demo-data'), { recursive: true })
+for (const name of hdrSampleNames) {
+  await copyFile(join('benchmark/corpus/files', name), join(outputDirectory, 'demo-data', name))
+}
+
 const geoFixtureDirectory = join(outputDirectory, 'fixtures/geo/geozarr-cube')
 for (const resource of geoShowcaseZarrResources()) {
   const target = join(geoFixtureDirectory, resource.name)
@@ -79,6 +92,50 @@ for (const page of await builtIndexPages(outputDirectory)) {
   }
 }
 if (sitemap.includes('/llms.txt')) throw new Error('Generated sitemap includes non-HTML llms.txt')
+
+const hdrPage = await readFile(join(outputDirectory, 'hdr-surgery', 'index.html'), 'utf8')
+for (const required of [
+  '<title>Ultra HDR JPEG Editor and Gain Map Inspector for JavaScript | PureJsImage</title>',
+  'name="description" content="Inspect, render, crop, resize, and re-encode Ultra HDR (JPEG_R/JPEGR) and ISO 21496-1 gain-map images in JavaScript and TypeScript for browsers and Node.js."',
+  'rel="canonical" href="https://purejsimage.com/hdr-surgery/"',
+  'property="og:image:width" content="1200"',
+  'property="og:image:height" content="630"',
+  'name="twitter:title"',
+  'Quick answer',
+  'Interactive workbench',
+  'How Ultra HDR JPEG gain maps work',
+  'FAQ',
+]) {
+  if (!hdrPage.includes(required)) throw new Error(`Generated HDR Surgery page omits ${required}`)
+}
+if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>/u.test(hdrPage)) {
+  throw new Error('Generated HDR Surgery page omits its required H1')
+}
+const hdrJsonLd = [
+  ...hdrPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
+]
+  .map(
+    (match) =>
+      JSON.parse(match[1] ?? '{}') as {
+        readonly '@graph'?: readonly { readonly '@type'?: string }[]
+      },
+  )
+  .flatMap((value) => value['@graph'] ?? [])
+for (const type of ['WebApplication', 'TechArticle', 'BreadcrumbList']) {
+  if (!hdrJsonLd.some((value) => value['@type'] === type)) {
+    throw new Error(`Generated HDR Surgery JSON-LD omits ${type}`)
+  }
+}
+const llms = await readFile(join(outputDirectory, 'llms.txt'), 'utf8')
+for (const required of [
+  '/hdr-surgery/',
+  'docs/hdr-surgery.md',
+  'purejsimage/hdr',
+  'openGainMapImage',
+  'inspectGainMapImage',
+]) {
+  if (!llms.includes(required)) throw new Error(`Generated llms.txt omits ${required}`)
+}
 
 const homePage = await readFile(join(outputDirectory, 'index.html'), 'utf8')
 const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -208,6 +265,8 @@ const viewerBuild = await build({
     'geo-showcase-worker': 'docs-astro/src/scripts/geo-showcase-worker.ts',
     xray: 'docs-astro/src/scripts/xray.ts',
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
+    'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
+    'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
