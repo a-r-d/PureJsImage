@@ -243,6 +243,13 @@ const staticPureJsImageTargets = (): readonly BundleTarget[] => [
     sourceEntries: ['./src/hdr/index.ts'],
   }),
   sourceTarget({
+    id: 'jpegxl-specialized',
+    implementation: 'pure-javascript',
+    name: 'JPEG XL specialized APIs',
+    packageExport: 'purejsimage/jpegxl',
+    sourceEntries: ['./src/jpegxl.ts'],
+  }),
+  sourceTarget({
     id: 'scientific',
     implementation: 'package-core',
     name: 'Core + scientific platform',

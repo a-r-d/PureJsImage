@@ -463,12 +463,15 @@ Progress note: the normal pipeline now exposes deterministic lossless Modular ou
 container. A bounded full-frame input buffer feeds 1024 by 1024 Modular groups with a shared global
 tree and measured Huffman codes. PureJsImage and pinned `djxl` decode the native samples exactly.
 The remaining independent decoders, representative compression corpus, metadata, color-semantics,
-and sequential-output gates remain open.
+and sequential-output gates remain open. On the fixed 512 by 384 RGB8 benchmark, effort 1 writes
+156,693 bytes versus 181,608 bytes from pinned `cjxl` 0.12.0 at lossless effort 1. Both decode to
+the exact source pixels. This one fixture does not establish a broad compression claim.
 
 - [x] Encode all required 8-bit and 16-bit pixel formats deterministically.
 - [ ] Decode every output through four decoder paths with exact native samples.
 - [ ] Support raw and one-`jxlc` container output plus selected metadata.
-- [ ] Meet the fixed compression gate or keep the encoder experimental with the measured gap.
+- [x] Measure the fixed compression gate and keep the encoder experimental while the broader
+  corpus remains open.
 - [ ] Prove bounded memory and sequential output.
 
 ### Evidence, benchmark, browser, docs, and package
@@ -477,9 +480,9 @@ and sequential-output gates remain open.
 - [x] Add `npm run bench:jpegxl` with correctness-gated isolated RSS workloads.
 - [x] Run the JPEG XL benchmark hillclimb and log every retained or rejected attempt.
 - [x] Add the local-only `/jpeg-xl/` worker workbench and real-browser coverage.
-- [x] Add the public guide, API docs, generated capability surfaces, and discovery surfaces;
-  the changelog remains pending until final validation.
-- [ ] Add independent package size gates for ordinary and specialized entries.
+- [x] Add the public guide, API docs, generated capability surfaces, discovery surfaces, and
+  changelog.
+- [x] Add independent package size gates for ordinary and specialized entries.
 
 ### Final gates
 

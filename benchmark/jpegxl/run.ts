@@ -73,6 +73,16 @@ const median = (values: readonly number[]): number => {
   return ordered[Math.floor(ordered.length / 2)] ?? 0
 }
 
+const ppmSamples = (ppm: Uint8Array): Uint8Array => {
+  const marker = new TextEncoder().encode('255\n')
+  for (let index = 0; index <= ppm.byteLength - marker.byteLength; index += 1) {
+    if (marker.every((value, markerIndex) => ppm[index + markerIndex] === value)) {
+      return ppm.subarray(index + marker.byteLength)
+    }
+  }
+  throw new Error('JPEG XL benchmark PPM output has no sample payload')
+}
+
 const worker = fileURLToPath(new URL('./benchmark-worker.ts', import.meta.url))
 const workloads = ['encode-rgb8', 'transcode-progressive-yuv420'] as const
 const runs: WorkerResult[] = []
@@ -129,14 +139,26 @@ const oracleDirectory =
   process.env.PUREJSIMAGE_JPEGXL_ORACLE_DIR ??
   '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
 const temporary = await mkdtemp(join(tmpdir(), 'purejsimage-jpegxl-benchmark-'))
-let independentOracle: Readonly<{ available: boolean; decoder: string; exactPixels?: boolean }>
+let independentOracle: Readonly<{
+  available: boolean
+  decoder: string
+  exactPixels?: boolean
+  pureJsBytes?: number
+  libjxlBytes?: number
+  sizeGapBytes?: number
+  sizeRatio?: number
+}>
 try {
   const encoded = join(temporary, 'encoder-rgb8.jxl')
+  const sourcePpm = join(temporary, 'encoder-rgb8-source.ppm')
   const decoded = join(temporary, 'encoder-rgb8.ppm')
-  const workerRun = spawnSync(process.execPath, ['--expose-gc', worker, 'encode-rgb8', encoded], {
-    encoding: 'utf8',
-    maxBuffer: 4 * 1_024 * 1_024,
-  })
+  const oracleEncoded = join(temporary, 'encoder-rgb8-libjxl.jxl')
+  const oracleDecoded = join(temporary, 'encoder-rgb8-libjxl.ppm')
+  const workerRun = spawnSync(
+    process.execPath,
+    ['--expose-gc', worker, 'encode-rgb8', encoded, sourcePpm],
+    { encoding: 'utf8', maxBuffer: 4 * 1_024 * 1_024 },
+  )
   if (workerRun.error || workerRun.status !== 0) {
     throw new Error(workerRun.error?.message ?? workerRun.stderr.trim())
   }
@@ -148,24 +170,40 @@ try {
     independentOracle = Object.freeze({ available: false, decoder: 'djxl not found' })
   } else {
     if (oracle.status !== 0) throw new Error(`djxl failed: ${oracle.stderr.trim()}`)
-    const ppm = new Uint8Array(await readFile(decoded))
-    const marker = new TextEncoder().encode('255\n')
-    let offset = -1
-    for (let index = 0; index <= ppm.byteLength - marker.byteLength; index += 1) {
-      if (marker.every((value, markerIndex) => ppm[index + markerIndex] === value)) {
-        offset = index + marker.byteLength
-        break
-      }
+    const encoderOracle = spawnSync(
+      join(oracleDirectory, 'cjxl'),
+      [sourcePpm, oracleEncoded, '--distance=0', '--effort=1'],
+      { encoding: 'utf8', maxBuffer: 4 * 1_024 * 1_024 },
+    )
+    if (encoderOracle.status !== 0) {
+      throw new Error(`cjxl failed: ${encoderOracle.stderr.trim()}`)
     }
-    if (offset < 0) throw new Error('djxl RGB8 oracle output has no PPM sample payload')
+    const decoderOracle = spawnSync(join(oracleDirectory, 'djxl'), [oracleEncoded, oracleDecoded], {
+      encoding: 'utf8',
+      maxBuffer: 4 * 1_024 * 1_024,
+    })
+    if (decoderOracle.status !== 0) {
+      throw new Error(`djxl failed for cjxl output: ${decoderOracle.stderr.trim()}`)
+    }
+    const ppm = new Uint8Array(await readFile(decoded))
+    const oraclePpm = new Uint8Array(await readFile(oracleDecoded))
     const expected = workerResult(JSON.parse(workerRun.stdout.trim())).inputSha256
     const { createHash } = await import('node:crypto')
-    const actual = createHash('sha256').update(ppm.subarray(offset)).digest('hex')
+    const actual = createHash('sha256').update(ppmSamples(ppm)).digest('hex')
     if (actual !== expected) throw new Error('djxl output differs from the RGB8 source pixels')
+    const oraclePixels = createHash('sha256').update(ppmSamples(oraclePpm)).digest('hex')
+    if (oraclePixels !== expected)
+      throw new Error('cjxl lossless output differs from source pixels')
+    const pureJsBytes = (await readFile(encoded)).byteLength
+    const libjxlBytes = (await readFile(oracleEncoded)).byteLength
     independentOracle = Object.freeze({
       available: true,
-      decoder: `${join(oracleDirectory, 'djxl')} 0.12.0`,
+      decoder: `${join(oracleDirectory, 'cjxl and djxl')} 0.12.0`,
       exactPixels: true,
+      pureJsBytes,
+      libjxlBytes,
+      sizeGapBytes: pureJsBytes - libjxlBytes,
+      sizeRatio: pureJsBytes / libjxlBytes,
     })
   }
 } finally {

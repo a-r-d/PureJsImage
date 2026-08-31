@@ -25,8 +25,9 @@ channels, and multiple visible frames fail explicitly.
 
 The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
 gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
-but the encoder remains experimental until its fixed compression and broader decoder
-matrix gates pass. The separate `purejsimage/jpegxl` API transcodes eligible baseline
+and the fixed RGB8 benchmark is smaller than pinned `cjxl` 0.12.0. The encoder remains
+experimental until its broader compression and decoder matrix gates pass. The separate
+`purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
 reconstructs and compares every source byte before exact-mode success.
 

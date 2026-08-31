@@ -117,6 +117,14 @@ const wallMilliseconds = performance.now() - startedAt
 const peak = snapshot()
 const outputPath = process.argv[3]
 if (outputPath) await writeFile(outputPath, result.output)
+const sourcePath = process.argv[4]
+if (sourcePath && workload === 'encode-rgb8') {
+  const header = new TextEncoder().encode('P6\n512 384\n255\n')
+  const ppm = new Uint8Array(header.byteLength + result.input.byteLength)
+  ppm.set(header)
+  ppm.set(result.input, header.byteLength)
+  await writeFile(sourcePath, ppm)
+}
 console.log(
   JSON.stringify({
     workload,
