@@ -2342,7 +2342,7 @@ const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
           ? [header.bitDepth, header.bitDepth, header.bitDepth]
           : [header.bitDepth, header.bitDepth, header.bitDepth, header.alphaBitDepth],
     ),
-    lossless: true,
+    lossless: header.encoding === 'modular',
   })
 
 export const readJpegXlCodestreamMetadata = (
@@ -2388,7 +2388,7 @@ export const readJpegXlSourceMetadata = async (
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
 ): Promise<ImageMetadata> =>
-  metadataForHeader(await readHeaderFromSource(source, limits, options, maximumHeaderBytes))
+  metadataForHeader(await readHeaderFromSource(source, limits, options, maximumHeaderBytes, true))
 
 export interface JpegXlInspectionMetadata {
   readonly metadata: ImageMetadata

@@ -10,6 +10,12 @@
       "sourceSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
       "jxl": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
       "jxlSha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
+      "pixelOracle": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-yuv420-exif.oracle.ppm",
+      "pixelOracleSha256": "097e46d63a1a4fd724d6f9a174a2c7fdc72fd88324ff9112e64b515103b849e4",
+      "pixelOracleTolerance": {
+        "maximumAbsoluteError": 24,
+        "maximumRmse": 0.86
+      },
       "reconstructedJpegSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
       "profile": "progressive 8-bit YCbCr 4:2:0 with Exif",
       "exact": true
@@ -20,6 +26,12 @@
       "sourceSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
       "jxl": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-rgb-exif.jxl",
       "jxlSha256": "ce8430c1571c2d226bcc2333f0ef4ab60d6a825c16533d20c34d374ae93987e2",
+      "pixelOracle": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-rgb-exif.oracle.ppm",
+      "pixelOracleSha256": "7a3e03fd31bb56fd3a9ce7a851040d239468657c4be921569df81d81ee75a6b1",
+      "pixelOracleTolerance": {
+        "maximumAbsoluteError": 1,
+        "maximumRmse": 0.27
+      },
       "reconstructedJpegSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
       "profile": "progressive 8-bit RGB 4:4:4 with Exif and refinement scans",
       "exact": true

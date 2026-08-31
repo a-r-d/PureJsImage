@@ -409,6 +409,15 @@ boundaries.
 
 ### VarDCT and JPEG-derived pixel decode
 
+Progress note: the normal registered codec now decodes final RGB8 pixels from the bounded DCT8
+coefficient path when validated reconstruction metadata is present. The two pinned progressive RGB
+and YCbCr files match the PureJsImage decode of their source JPEGs exactly. Against pinned `djxl`
+0.12.0 PPM output, RGB stays within one sample value with RMSE below 0.27. The YCbCr fixture stays
+below RMSE 0.86, but sharp chroma edges reach an absolute difference of 24 because the temporary
+path uses JPEG chroma reconstruction instead of the JPEG XL upsampling kernel. Files without
+`jbrd`, ordinary XYB VarDCT, and the JPEG XL upsampling and restoration path remain unsupported, so
+the pixel-decode acceptance item stays unchecked.
+
 - [ ] Decode the pinned common static VarDCT corpus to fixed oracle tolerances.
 - [ ] Cover required transforms, XYB, upsampling, restoration, patches, splines, and noise.
 - [ ] Decode final progressive images.

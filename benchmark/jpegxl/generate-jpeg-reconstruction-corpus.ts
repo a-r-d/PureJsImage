@@ -7,7 +7,10 @@ interface FixtureDefinition {
   readonly id: string
   readonly source: string
   readonly output: string
+  readonly pixelOracle: string
   readonly profile: string
+  readonly maximumAbsoluteError: number
+  readonly maximumRmse: number
 }
 
 const fixtures: readonly FixtureDefinition[] = Object.freeze([
@@ -15,13 +18,21 @@ const fixtures: readonly FixtureDefinition[] = Object.freeze([
     id: 'progressive-yuv420-exif',
     source: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
     output: 'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl',
+    pixelOracle:
+      'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-yuv420-exif.oracle.ppm',
     profile: 'progressive 8-bit YCbCr 4:2:0 with Exif',
+    maximumAbsoluteError: 24,
+    maximumRmse: 0.86,
   }),
   Object.freeze({
     id: 'progressive-rgb-exif',
     source: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg',
     output: 'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-rgb-exif.jxl',
+    pixelOracle:
+      'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-rgb-exif.oracle.ppm',
     profile: 'progressive 8-bit RGB 4:4:4 with Exif and refinement scans',
+    maximumAbsoluteError: 1,
+    maximumRmse: 0.27,
   }),
 ])
 
@@ -52,8 +63,14 @@ for (const fixture of fixtures) {
     '--compress_boxes=0',
     '--effort=1',
   ])
+  await run(join(binaryDirectory, 'djxl'), [
+    fixture.output,
+    fixture.pixelOracle,
+    '--bits_per_sample=8',
+  ])
   const source = await readFile(fixture.source)
   const output = await readFile(fixture.output)
+  const pixelOracle = await readFile(fixture.pixelOracle)
   entries.push(
     Object.freeze({
       id: fixture.id,
@@ -61,6 +78,12 @@ for (const fixture of fixtures) {
       sourceSha256: sha256(source),
       jxl: fixture.output,
       jxlSha256: sha256(output),
+      pixelOracle: fixture.pixelOracle,
+      pixelOracleSha256: sha256(pixelOracle),
+      pixelOracleTolerance: Object.freeze({
+        maximumAbsoluteError: fixture.maximumAbsoluteError,
+        maximumRmse: fixture.maximumRmse,
+      }),
       reconstructedJpegSha256: sha256(source),
       profile: fixture.profile,
       exact: true,

@@ -9,9 +9,14 @@ import {
   jpegXlRawSignature,
   type JpegXlStructure,
 } from './jpegxl-container.ts'
-import { decodeJpegXlSource, readJpegXlSourceMetadata } from './jpegxl-decode.ts'
+import {
+  decodeJpegXlSource,
+  readJpegXlSourceInspectionMetadata,
+  readJpegXlSourceMetadata,
+} from './jpegxl-decode.ts'
 import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
+import { createJpegDerivedJpegXlDecoder } from './jpegxl-vardct.ts'
 
 export type {
   JpegXlBoxSummary,
@@ -63,6 +68,15 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
     options: Readonly<DecoderOptions> = {},
   ) {
     const logical = await codestreamSource(source, resolveJpegXlLimits())
+    const inspection = await readJpegXlSourceInspectionMetadata(
+      logical.source,
+      limits,
+      options,
+      logical.limits.maxHeaderBytes,
+    )
+    if (inspection.encoding === 'vardct') {
+      return createJpegDerivedJpegXlDecoder(source, limits, options)
+    }
     return (
       await decodeJpegXlSource(logical.source, limits, options, logical.limits.maxHeaderBytes)
     ).decoder

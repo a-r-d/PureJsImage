@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest'
 import manifest from '../benchmark/jpegxl/jpeg-reconstruction-manifest.json' with { type: 'json' }
 import { inspectJpegXlSource } from '../src/codecs/jpegxl-container.ts'
 import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
+import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { reconstructJpegFromCoefficientImage } from '../src/codecs/jpegxl-jpeg-reconstruct.ts'
 import {
   decodeJpegXlJpegReconstructionBlobs,
@@ -22,6 +24,40 @@ if (!primaryEntry) throw new Error('Pinned JPEG reconstruction manifest is empty
 const fixture = new Uint8Array(readFileSync(primaryEntry.jxl))
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
+
+const decodeRgb = async (
+  codec: typeof jpegCodec | typeof jpegxlCodec,
+  input: Uint8Array,
+): Promise<Uint8Array> => {
+  const decoder = await codec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+  if (!decoder) throw new Error(`${codec.format} decoder is unavailable`)
+  const output = new Uint8Array(decoder.width * decoder.height * 3)
+  for await (const block of decoder.decode()) {
+    if (block.format !== 'rgb8') throw new Error(`${codec.format} decoder did not return RGB8`)
+    for (let row = 0; row < block.height; row += 1) {
+      const sourceStart = row * block.stride
+      output.set(
+        block.data.subarray(sourceStart, sourceStart + block.width * 3),
+        ((block.y + row) * decoder.width + block.x) * 3,
+      )
+    }
+    block.release?.()
+  }
+  return output
+}
+
+const ppmPixels = (data: Uint8Array): Uint8Array => {
+  const marker = new TextEncoder().encode('255\n')
+  let start = -1
+  for (let offset = 0; offset <= data.byteLength - marker.byteLength; offset += 1) {
+    if (marker.every((value, index) => data[offset + index] === value)) {
+      start = offset + marker.byteLength
+      break
+    }
+  }
+  if (start < 0) throw new Error('Pinned PPM oracle has no sample payload')
+  return data.subarray(start)
+}
 
 const readJbrd = async (): Promise<Uint8Array> => {
   const source = new MemorySource(fixture)
@@ -202,6 +238,34 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
       expect(reconstructed).toEqual(original)
       expect(sink.toUint8Array()).toEqual(original)
       expect(sha256(reconstructed)).toBe(entry.sourceSha256)
+    },
+  )
+
+  it.each(manifest.fixtures)(
+    'decodes $id pixels against the source JPEG and pinned djxl oracle',
+    async (entry) => {
+      const source = new Uint8Array(readFileSync(entry.source))
+      const encoded = new Uint8Array(readFileSync(entry.jxl))
+      const oracleFile = new Uint8Array(readFileSync(entry.pixelOracle))
+      expect(sha256(oracleFile)).toBe(entry.pixelOracleSha256)
+      const oracle = ppmPixels(oracleFile)
+      const sourcePixels = await decodeRgb(jpegCodec, source)
+      const actual = await decodeRgb(jpegxlCodec, encoded)
+
+      expect(actual).toEqual(sourcePixels)
+      expect(actual.byteLength).toBe(oracle.byteLength)
+      let maximumAbsoluteError = 0
+      let squaredError = 0
+      for (let index = 0; index < oracle.byteLength; index += 1) {
+        const difference = Math.abs((actual[index] ?? 0) - (oracle[index] ?? 0))
+        maximumAbsoluteError = Math.max(maximumAbsoluteError, difference)
+        squaredError += difference * difference
+      }
+      const rmse = Math.sqrt(squaredError / oracle.byteLength)
+      expect(maximumAbsoluteError).toBeLessThanOrEqual(
+        entry.pixelOracleTolerance.maximumAbsoluteError,
+      )
+      expect(rmse).toBeLessThanOrEqual(entry.pixelOracleTolerance.maximumRmse)
     },
   )
 

@@ -2381,6 +2381,19 @@ interface ProgressiveFrameComponent extends RenderComponent {
   readonly successiveBits: Int8Array
 }
 
+export interface JpegCoefficientRenderComponent extends RenderComponent {
+  readonly blocksPerLineForMcu: number
+  readonly quantization: Int32Array
+  readonly coefficients: Int16Array
+}
+
+export interface JpegCoefficientRenderImage extends RenderJpeg {
+  readonly width: number
+  readonly height: number
+  readonly components: readonly JpegCoefficientRenderComponent[]
+  readonly mcusPerColumn: number
+}
+
 interface ProgressiveComponent extends ProgressiveFrameComponent {
   readonly quantization: Int32Array
 }
@@ -2450,7 +2463,7 @@ interface ProgressiveState {
 }
 
 const coefficientOffset = (
-  component: ProgressiveFrameComponent,
+  component: Readonly<{ readonly blocksPerLineForMcu: number }>,
   blockX: number,
   blockY: number,
 ): number => (blockY * component.blocksPerLineForMcu + blockX) * 64
@@ -3241,8 +3254,8 @@ export const parseCoefficientJpegSource = async (
   throw truncatedInput('JPEG is missing its end marker')
 }
 
-export const decodeProgressiveJpeg = async function* (
-  jpeg: ProgressiveJpeg,
+export const decodeJpegCoefficientImage = async function* (
+  jpeg: JpegCoefficientRenderImage,
   region: JpegRegion,
   scaleDenominator: JpegScaleDenominator = 1,
 ): AsyncGenerator<PixelBlock> {
@@ -3336,3 +3349,5 @@ export const decodeProgressiveJpeg = async function* (
     },
   }
 }
+
+export const decodeProgressiveJpeg = decodeJpegCoefficientImage
