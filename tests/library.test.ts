@@ -103,6 +103,22 @@ describe('configured image library', () => {
     await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
   })
 
+  it('encodes pixel-lossless JPEG XL through the normal pipeline', async () => {
+    const images = createImageLibrary(allCodecs)
+    const output = await (await images.open(pngFixture())).jpegxl({ effort: 1 }).toBuffer()
+    expect([...output.subarray(0, 12)]).toEqual([...ascii('\0\0\0\fJXL \r\n\u0087\n')])
+
+    const decoded = await images.open(output)
+    await expect(decoded.metadata()).resolves.toMatchObject({
+      width: 4,
+      height: 3,
+      format: 'jpegxl',
+      hasAlpha: true,
+      bitDepth: 8,
+      lossless: true,
+    })
+  })
+
   it.each([
     ['HTML with inline SVG', ascii('<!doctype html><html><body><svg></svg></body></html>')],
     ['JSON mentioning SVG', ascii('{"markup":"<svg viewBox=\\"0 0 1 1\\"></svg>"}')],

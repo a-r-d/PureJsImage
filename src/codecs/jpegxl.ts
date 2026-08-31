@@ -5,9 +5,9 @@ import { createImageSource, type ImageInput, type ImageSource } from '../source.
 import {
   inspectJpegXlSource,
   JpegXlCodestreamSource,
+  type JpegXlStructure,
   jpegXlContainerSignature,
   jpegXlRawSignature,
-  type JpegXlStructure,
 } from './jpegxl-container.ts'
 import {
   decodeJpegXlSource,
@@ -16,6 +16,7 @@ import {
 } from './jpegxl-decode.ts'
 import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
+import { createJpegXlModularEncoder } from './jpegxl-modular-encode.ts'
 import { createJpegXlVarDctDecoder } from './jpegxl-vardct.ts'
 
 export type {
@@ -55,6 +56,7 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
   format: 'jpegxl',
   mimeTypes: ['image/jxl'],
   minimumBytes: jpegXlRawSignature.byteLength,
+  encoderPixelFormats: ['gray8', 'gray16', 'rgb8', 'rgb16', 'rgba8', 'rgba16'] as const,
   detect(header: Uint8Array): boolean {
     return startsWith(header, jpegXlRawSignature) || startsWith(header, jpegXlContainerSignature)
   },
@@ -81,4 +83,5 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       await decodeJpegXlSource(logical.source, limits, options, logical.limits.maxHeaderBytes)
     ).decoder
   },
+  createEncoder: createJpegXlModularEncoder,
 })

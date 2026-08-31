@@ -3,6 +3,8 @@ import { throwIfAborted } from './abort.ts'
 import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
+import type { EvidenceContext } from './evidence.ts'
+import { imageExecutionPlanInput } from './execution-plan-contract.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
 import type {
@@ -12,6 +14,7 @@ import type {
   CropOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
+  JpegXlEncodeOptions,
   LutOptions,
   NetpbmEncodeOptions,
   PamEncodeOptions,
@@ -36,6 +39,7 @@ import {
   createCropOperation,
   createHdrEncodeOperation,
   createJpegEncodeOperation,
+  createJpegXlEncodeOperation,
   createLutOperation,
   createNetpbmEncodeOperation,
   createPngEncodeOperation,
@@ -51,8 +55,6 @@ import {
 import type { CollectedOutput, ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
 import { bindImageSourceSignal, type ImageSource, withSourceSession } from './source.ts'
-import type { EvidenceContext } from './evidence.ts'
-import { imageExecutionPlanInput } from './execution-plan-contract.ts'
 
 export interface ImageExecutionOptions extends AbortOptions {
   /** Explicit caller-owned evidence context. Omit for the allocation-free default path. */
@@ -230,6 +232,7 @@ export class Image<Input, Output extends Uint8Array> {
   encode(format: 'bmp', options?: BmpEncodeOptions): Image<Input, Output>
   encode(format: 'hdr', options?: HdrEncodeOptions): Image<Input, Output>
   encode(format: 'jpeg', options?: JpegEncodeOptions): Image<Input, Output>
+  encode(format: 'jpegxl', options?: JpegXlEncodeOptions): Image<Input, Output>
   encode(format: 'netpbm', options?: NetpbmEncodeOptions): Image<Input, Output>
   encode(format: 'png', options?: PngEncodeOptions): Image<Input, Output>
   encode(format: 'qoi', options?: QoiEncodeOptions): Image<Input, Output>
@@ -237,12 +240,24 @@ export class Image<Input, Output extends Uint8Array> {
   encode(format: 'tiff', options?: TiffEncodeOptions): Image<Input, Output>
   encode(format: 'webp', options?: WebpEncodeOptions): Image<Input, Output>
   encode(
-    format: 'avif' | 'bmp' | 'hdr' | 'jpeg' | 'netpbm' | 'png' | 'qoi' | 'tga' | 'tiff' | 'webp',
+    format:
+      | 'avif'
+      | 'bmp'
+      | 'hdr'
+      | 'jpeg'
+      | 'jpegxl'
+      | 'netpbm'
+      | 'png'
+      | 'qoi'
+      | 'tga'
+      | 'tiff'
+      | 'webp',
     options:
       | AvifEncodeOptions
       | BmpEncodeOptions
       | HdrEncodeOptions
       | JpegEncodeOptions
+      | JpegXlEncodeOptions
       | NetpbmEncodeOptions
       | PngEncodeOptions
       | QoiEncodeOptions
@@ -284,6 +299,17 @@ export class Image<Input, Output extends Uint8Array> {
             : {}),
           ...('restartInterval' in options && options.restartInterval !== undefined
             ? { restartInterval: options.restartInterval }
+            : {}),
+        }),
+      )
+    }
+    if (format === 'jpegxl') {
+      return this.#append(
+        createJpegXlEncodeOperation({
+          ...('mode' in options && options.mode !== undefined ? { mode: options.mode } : {}),
+          ...('effort' in options && options.effort === 1 ? { effort: options.effort } : {}),
+          ...('container' in options && options.container !== undefined
+            ? { container: options.container }
             : {}),
         }),
       )
@@ -397,6 +423,10 @@ export class Image<Input, Output extends Uint8Array> {
 
   jpeg(options: JpegEncodeOptions = {}): Image<Input, Output> {
     return this.#append(createJpegEncodeOperation(options))
+  }
+
+  jpegxl(options: JpegXlEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createJpegXlEncodeOperation(options))
   }
 
   png(options: PngEncodeOptions = {}): Image<Input, Output> {

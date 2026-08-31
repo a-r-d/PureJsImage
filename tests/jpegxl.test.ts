@@ -4,8 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { inspectJpegXlStructure, jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
-import { MemorySource } from '../src/source.ts'
+import type { PixelFormat } from '../src/pixel.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
+import { MemorySource } from '../src/source.ts'
 
 const ascii = (value: string): Uint8Array =>
   Uint8Array.from(value, (character) => character.charCodeAt(0))
@@ -136,15 +138,143 @@ class CountingSource implements ImageSource {
   }
 }
 
+const encodeLosslessJpegXl = async (
+  format: PixelFormat,
+  width: number,
+  height: number,
+  pixels: Uint8Array,
+  container: boolean,
+): Promise<Uint8Array> => {
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: format,
+    options: { mode: 'lossless', effort: 1, container },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+  const channels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
+  const rowBytes = width * channels * (format.endsWith('16') ? 2 : 1)
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: rowBytes,
+    format,
+    data: pixels,
+  })
+  await encoder.finish()
+  return sink.toUint8Array()
+}
+
+const decodeJpegXlPixels = async (
+  input: Uint8Array,
+): Promise<Readonly<{ format: PixelFormat; pixels: Uint8Array }>> => {
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+  if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+  const chunks: Uint8Array[] = []
+  let length = 0
+  for await (const block of decoder.decode()) {
+    chunks.push(block.data)
+    length += block.data.byteLength
+  }
+  const pixels = new Uint8Array(length)
+  let offset = 0
+  for (const chunk of chunks) {
+    pixels.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  return Object.freeze({ format: decoder.pixelFormat, pixels })
+}
+
+const losslessEncoderFormats = [
+  { format: 'gray8', channels: 1, bytesPerSample: 1, container: false },
+  { format: 'gray16', channels: 1, bytesPerSample: 2, container: true },
+  { format: 'rgb8', channels: 3, bytesPerSample: 1, container: false },
+  { format: 'rgb16', channels: 3, bytesPerSample: 2, container: true },
+  { format: 'rgba8', channels: 4, bytesPerSample: 1, container: false },
+  { format: 'rgba16', channels: 4, bytesPerSample: 2, container: true },
+] as const
+
 describe('JPEG XL probing and lossless Modular decoding', () => {
   it('exposes a registered decoder for raw codestreams and containers', () => {
     expect(jpegxlCodec.format).toBe('jpegxl')
     expect(jpegxlCodec.mimeTypes).toEqual(['image/jxl'])
     expect(jpegxlCodec.createDecoder).toBeTypeOf('function')
-    expect(jpegxlCodec.createEncoder).toBeUndefined()
+    expect(jpegxlCodec.createEncoder).toBeTypeOf('function')
+    expect(jpegxlCodec.encoderPixelFormats).toEqual([
+      'gray8',
+      'gray16',
+      'rgb8',
+      'rgb16',
+      'rgba8',
+      'rgba16',
+    ])
     expect(jpegxlCodec.detect(Uint8Array.of(0xff, 0x0a))).toBe(true)
     expect(jpegxlCodec.detect(signature)).toBe(true)
     expect(jpegxlCodec.detect(Uint8Array.of(0xff, 0x0b))).toBe(false)
+  })
+
+  it.each(losslessEncoderFormats)(
+    'round-trips deterministic $format samples through $container container output',
+    async ({ format, channels, bytesPerSample, container }) => {
+      const width = 7
+      const height = 5
+      const pixels = Uint8Array.from(
+        { length: width * height * channels * bytesPerSample },
+        (_, index) => (index * 37 + 11) & 255,
+      )
+      const first = await encodeLosslessJpegXl(format, width, height, pixels, container)
+      const second = await encodeLosslessJpegXl(format, width, height, pixels, container)
+      expect(first).toEqual(second)
+      expect(await inspectJpegXlStructure(first)).toMatchObject({
+        kind: container ? 'container' : 'raw-codestream',
+        organization: container ? 'jxlc' : 'raw',
+      })
+      await expect(inspectJpegXl(first)).resolves.toMatchObject({
+        width,
+        height,
+        bitDepth: bytesPerSample === 1 ? 8 : 16,
+        encoding: 'modular',
+        expectedPixelFormat: format,
+      })
+      const decoded = await decodeJpegXlPixels(first)
+      expect(decoded.format).toBe(format)
+      expect(decoded.pixels).toEqual(pixels)
+    },
+  )
+
+  it('rejects unsupported lossless encoder options and incomplete pixel input', async () => {
+    await expect(
+      jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+        width: 1,
+        height: 1,
+        pixelFormat: 'rgb8',
+        options: { effort: 2 },
+        limits: defaultImageLimits,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+
+    const encoder = await jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+      width: 2,
+      height: 2,
+      pixelFormat: 'gray8',
+      options: { mode: 'lossless' },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 1,
+      stride: 2,
+      format: 'gray8',
+      data: Uint8Array.of(1, 2),
+    })
+    await expect(encoder.finish()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
   })
 
   it('decodes the pinned 12-bit lossless RGBA conformance image exactly', async () => {

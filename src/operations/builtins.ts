@@ -4,6 +4,7 @@ import type {
   BmpEncodeOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
+  JpegXlEncodeOptions,
   NetpbmEncodeOptions,
   PipelineOperation,
   PngEncodeOptions,
@@ -21,6 +22,7 @@ import {
   createCropOperation,
   createHdrEncodeOperation,
   createJpegEncodeOperation,
+  createJpegXlEncodeOperation,
   createLutOperation,
   createNetpbmEncodeOperation,
   createPngEncodeOperation,
@@ -41,13 +43,13 @@ import type {
   ParameterSchema,
 } from './descriptor.ts'
 import { coreValueTypeDescriptors } from './descriptor.ts'
+import type { OperationDefinition } from './registry.ts'
 import {
   createOperationDefinition,
   createOperationRegistry,
   createValueTypeDefinition,
   createValueTypeRegistry,
 } from './registry.ts'
-import type { OperationDefinition } from './registry.ts'
 
 type ParameterRecord = Readonly<Record<string, OperationJsonValue>>
 
@@ -291,6 +293,18 @@ const lowerJpeg = (value: ParameterRecord): PipelineOperation => {
   return createJpegEncodeOperation(options)
 }
 
+const lowerJpegXl = (value: ParameterRecord): PipelineOperation => {
+  const options: JpegXlEncodeOptions = {}
+  const mode = enumParameter(value, 'mode', ['lossless'])
+  const effort = numberParameter(value, 'effort')
+  const container = booleanParameter(value, 'container')
+  if (mode !== undefined) options.mode = mode
+  if (effort === 1) options.effort = effort
+  else if (effort !== undefined) throw invalidInput('JPEG XL effort must be 1')
+  if (container !== undefined) options.container = container
+  return createJpegXlEncodeOperation(options)
+}
+
 const lowerPng = (value: ParameterRecord): PipelineOperation => {
   const options: PngEncodeOptions = {}
   const compressionLevel = numberParameter(value, 'compressionLevel')
@@ -516,6 +530,15 @@ const pipelineOperationDefinitions: readonly OperationDefinition<PipelineOperati
         restartInterval: { type: 'integer', minimum: 0, maximum: 65_535 },
       }),
       lowerJpeg,
+    ),
+    encodeDefinition(
+      'jpegxl',
+      objectSchema({
+        mode: { type: 'enum', values: ['lossless'] },
+        effort: { type: 'integer', minimum: 1, maximum: 1 },
+        container: booleanSchema,
+      }),
+      lowerJpegXl,
     ),
     encodeDefinition(
       'png',
