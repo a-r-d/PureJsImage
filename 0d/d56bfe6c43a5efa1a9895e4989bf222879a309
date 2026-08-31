@@ -1,0 +1,52 @@
+jpegxl-codec-support.md
+  s_6006332bb8a489::t_eda6af01a8493c 4-5,19-31,43,45,54-55,59,167,173,175,177,179,181,183,185,187-188,191-193,237-238
+tests/generated/capability-expectations.json
+  s_6006332bb8a489::t_eda6af01a8493c 248,253,258-261
+tests/jpegxl-jpeg-reconstruction.test.ts
+  s_6006332bb8a489::t_fa2054d26f5b4f 5,7,9,11,18,22,27
+  s_6006332bb8a489::t_60cde696383be2 388-420
+  s_6006332bb8a489::t_2c61d0731d5c58 421-422
+capabilities/manifest.json
+  s_6006332bb8a489::t_dd1a6568e94617 3812,3818,3820,3822,3824,3826,3828,3830,3832,3836-3838,3882-3883
+  s_6006332bb8a489::t_322a7880297e1b 3649-3650,3664-3676,3688,3690,3699-3700,3704
+  s_6006332bb8a489::t_b3939f4c3eff27 3833
+  s_6006332bb8a489::t_9eecf6a72a5307 3622-3623,3625-3628,3630-3636,3642
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_7327923e680a75 424
+  s_6006332bb8a489::t_ef72f78236e47c 476
+scripts/render-capabilities.ts
+  s_6006332bb8a489::t_d9f25eedf9f791 104-106,270
+  s_6006332bb8a489::t_fa2054d26f5b4f 5,7
+  s_6006332bb8a489::t_840310c0f004a7 269
+  s_6006332bb8a489::t_7327923e680a75 259,273-274
+docs-astro/public/llms.txt
+  s_6006332bb8a489::t_eda6af01a8493c 91,596-600
+src/codecs/jpegxl-jpeg-transcode.ts
+  s_6006332bb8a489::t_fa2054d26f5b4f 9-10,85,216-220
+  s_6006332bb8a489::t_13f990da2b7dcc 203
+  s_6006332bb8a489::t_a8a5ac4d2c8120 2,30,160,196-202,204-208,211-213,279-280,284-286,288-294,296-298,300,302,305-311,313-319,325-347,351-393
+  s_6006332bb8a489::t_7327923e680a75 281-283,287,312,320-324,350
+docs-astro/src/pages/codecs.astro
+  s_6006332bb8a489::t_840310c0f004a7 40,58
+  s_6006332bb8a489::t_eda6af01a8493c 33,95,114,126
+README.md
+  s_6006332bb8a489::t_eda6af01a8493c 297
+docs-astro/public/capabilities.json
+  s_6006332bb8a489::t_eda6af01a8493c 5503-5504,5506-5509,5514,5519-5522,5534-5535,5538,5558,5562,5734-5735,5742,5746-5747,5750,5754,5758-5759,5762,5766-5767,5774-5775,5782-5783,5786-5787,5790,5882,5886-5887
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0dd56bfe6c43a5efa1a9895e4989bf222879a309",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
