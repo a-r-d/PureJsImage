@@ -23,11 +23,19 @@ export class JpegXlBitWriter {
       throw invalidInput('JPEG XL output bit field is invalid')
     }
     this.#ensure(this.#bitPosition + count)
-    for (let index = 0; index < count; index += 1) {
-      const position = this.#bitPosition + index
-      if ((Math.floor(value / 2 ** index) & 1) !== 0) {
-        this.#bytes[position >>> 3] = (this.#bytes[position >>> 3] ?? 0) | (1 << (position & 7))
-      }
+    let remaining = count
+    let position = this.#bitPosition
+    let source = value
+    while (remaining > 0) {
+      const bitOffset = position & 7
+      const chunkBits = Math.min(remaining, 8 - bitOffset)
+      const mask = 2 ** chunkBits - 1
+      const byteOffset = position >>> 3
+      this.#bytes[byteOffset] =
+        (this.#bytes[byteOffset] ?? 0) | ((Math.floor(source) & mask) << bitOffset)
+      source = Math.floor(source / 2 ** chunkBits)
+      position += chunkBits
+      remaining -= chunkBits
     }
     this.#bitPosition += count
   }
@@ -185,18 +193,15 @@ const writeFixedPrefixCode = (writer: JpegXlBitWriter, contexts: number): Prefix
   return canonicalEncoding(new Uint8Array(512).fill(9))
 }
 
-const hybridToken = (
-  value: number,
-): Readonly<{ readonly token: number; readonly extra: number; readonly extraBits: number }> => {
+const validateHybridValue = (value: number): void => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 131_071) {
     throw invalidInput('JPEG XL Modular residual is outside the supported encoder range')
   }
-  if (value < 256) {
-    return Object.freeze({ token: value, extra: 0, extraBits: 0 })
-  }
-  const extraBits = Math.floor(Math.log2(value))
-  const token = 256 + extraBits - 8
-  return Object.freeze({ token, extra: value - 2 ** extraBits, extraBits })
+}
+
+const hybridToken = (value: number): number => {
+  validateHybridValue(value)
+  return value < 256 ? value : 248 + Math.floor(Math.log2(value))
 }
 
 export const writeHybridUint = (
@@ -204,18 +209,21 @@ export const writeHybridUint = (
   value: number,
   encoding: Readonly<PrefixEncoding>,
 ): void => {
-  const hybrid = hybridToken(value)
-  const length = encoding.lengths[hybrid.token]
-  const key = encoding.keys[hybrid.token]
+  const token = hybridToken(value)
+  const length = encoding.lengths[token]
+  const key = encoding.keys[token]
   if (
     length === undefined ||
     key === undefined ||
-    (length === 0 && encoding.singleSymbol !== hybrid.token)
+    (length === 0 && encoding.singleSymbol !== token)
   ) {
     throw invalidInput('JPEG XL Modular entropy token is missing from its prefix code')
   }
   writer.writeBits(key, length)
-  writer.writeBits(hybrid.extra, hybrid.extraBits)
+  if (value >= 256) {
+    const extraBits = token - 248
+    writer.writeBits(value - 2 ** extraBits, extraBits)
+  }
 }
 
 export const packSigned = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
@@ -430,7 +438,7 @@ const modularFrequencies = (
     height,
     format,
     (packedResidual) => {
-      const token = hybridToken(packedResidual).token
+      const token = hybridToken(packedResidual)
       frequencies[token] = (frequencies[token] ?? 0) + 1
     },
   )

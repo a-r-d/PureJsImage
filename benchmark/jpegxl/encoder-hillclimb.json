@@ -1,0 +1,40 @@
+{
+  "status": "complete",
+  "baseRevision": "e68cfafc3773b913899330ebf12956b617c72264",
+  "workload": "512x384 deterministic RGB8 effort-1 Modular encode and exact decode",
+  "baseline": {
+    "medianWallMilliseconds": 196.939,
+    "outputBytes": 156693,
+    "outputSha256": "100ee3ff3fbc587404532d6a4b64ec1e8ca9c227945fd3f4c923c355fc368fb3"
+  },
+  "attempts": [
+    {
+      "id": "residual-token-scalars",
+      "hypothesis": "Replacing one frozen hybrid-token object per residual with scalar token math will reduce allocation and dispatch cost.",
+      "outcome": "retained",
+      "medianWallMilliseconds": 168.306,
+      "changeFromPriorPercent": -14.539,
+      "outputBytes": 156693,
+      "correctness": "PureJsImage exact pixels and pinned djxl 0.12.0 exact pixels"
+    },
+    {
+      "id": "duplicate-residual-traversals",
+      "hypothesis": "Duplicating frequency and write traversals to remove the residual callback will make the hot loop more JIT friendly.",
+      "outcome": "rejected",
+      "medianWallMilliseconds": 434.083,
+      "changeFromPriorPercent": 157.913,
+      "outputBytes": 156693,
+      "correctness": "Exact output retained, but wall time regressed materially"
+    },
+    {
+      "id": "byte-chunked-bit-writer",
+      "hypothesis": "Writing at most one partial byte per iteration instead of one bit per iteration will reduce output-loop work.",
+      "outcome": "retained",
+      "medianWallMilliseconds": 146.153,
+      "changeFromPriorPercent": -13.162,
+      "cumulativeChangeFromBaselinePercent": -25.788,
+      "outputBytes": 156693,
+      "correctness": "PureJsImage exact pixels and pinned djxl 0.12.0 exact pixels"
+    }
+  ]
+}

@@ -30,3 +30,16 @@ effort, distance, grayscale, progressive passes, and synthetic noise. The manife
 bitstream features marked as unknown until the first-party parser proves them. The progressive
 entry currently uses a legal internal frame sequence that bounded inspection still rejects, so it
 remains explicit unsupported evidence.
+
+Run the correctness-gated encoder and JPEG transcode benchmark with:
+
+```sh
+npm run bench:jpegxl
+```
+
+The command uses three fresh Node.js processes per workload. It records absolute peak RSS, the
+post-GC baseline, external and ArrayBuffer memory, wall time, output size, and output hashes. The
+encoder output is decoded to exact native pixels by PureJsImage and, when the pinned local tool is
+available, by `djxl` 0.12.0. The transcode output must reconstruct the exact source JPEG bytes.
+Set `PUREJSIMAGE_JPEGXL_ORACLE_DIR` to a directory containing `djxl` when the pinned local path is
+not present.
