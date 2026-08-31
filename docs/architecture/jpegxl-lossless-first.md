@@ -409,16 +409,15 @@ boundaries.
 
 ### VarDCT and JPEG-derived pixel decode
 
-Progress note: the normal registered codec now decodes final RGB8 pixels from the bounded DCT8
-coefficient path when validated reconstruction metadata is present. The two pinned progressive RGB
-and YCbCr files match the PureJsImage decode of their source JPEGs exactly. Against pinned `djxl`
-0.12.0 PPM output, RGB stays within one sample value with RMSE below 0.27. The YCbCr fixture stays
-below RMSE 0.86, but sharp chroma edges reach an absolute difference of 24 because the temporary
-path uses JPEG chroma reconstruction instead of the JPEG XL upsampling kernel. Files without
-`jbrd`, ordinary XYB VarDCT, and the JPEG XL upsampling and restoration path remain unsupported, so
-the pixel-decode acceptance item stays unchecked.
+Progress note: the registered codec decodes the four pinned static single-group XYB VarDCT files.
+The matrix covers gray and RGB DCT8, DCT2, DCT8x4, AFV1, AFV3, DCT32x32, DCT16x8, and DCT8x16,
+plus default Gaborish, all three default EPF stages, adaptive DC smoothing, and deterministic
+synthetic noise. Every static file stays within one sample value of pinned `djxl` 0.12.0 output,
+with RMSE below 0.5. The two JPEG-derived reconstruction fixtures also decode through the normal
+codec. Progressive frames, multiple VarDCT groups, chroma upsampling, patches, splines, alpha, and
+unsupported color syntax still fail explicitly.
 
-- [ ] Decode the pinned common static VarDCT corpus to fixed oracle tolerances.
+- [x] Decode the pinned common static VarDCT corpus to fixed oracle tolerances.
 - [ ] Cover required transforms, XYB, upsampling, restoration, patches, splines, and noise.
 - [ ] Decode final progressive images.
 - [ ] Decode JPEG-derived JXL image data to the original JPEG oracle pixels.

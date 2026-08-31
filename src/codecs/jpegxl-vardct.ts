@@ -161,8 +161,5 @@ export const createJpegXlVarDctDecoder = async (
   const section = frame.sections[0]
   if (!section) throw invalidInput('JPEG XL VarDCT section is missing')
   const data = await readExactly(logical, section.offset, section.length, options)
-  return new VarDctJpegXlDecoder(
-    decodeJpegXlDct8Section(data, frame, limits),
-    options.signal,
-  )
+  return new VarDctJpegXlDecoder(decodeJpegXlDct8Section(data, frame, limits), options.signal)
 }

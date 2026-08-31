@@ -23,25 +23,12 @@
       "patches": "unknown",
       "splines": "unknown",
       "noise": false,
-      "restorationFilters": [
-        "Gaborish default",
-        "EPF default"
-      ],
+      "restorationFilters": ["Gaborish default", "EPF default"],
       "extraChannels": [],
       "jpegReconstruction": false,
       "expectedPureJsImageBehavior": "supported",
-      "features": [
-        "VarDCT",
-        "default XYB",
-        "single pass",
-        "odd dimensions"
-      ],
-      "options": [
-        "--modular=0",
-        "--num_threads=1",
-        "--distance=1",
-        "--effort=1"
-      ],
+      "features": ["VarDCT", "default XYB", "single pass", "odd dimensions"],
+      "options": ["--modular=0", "--num_threads=1", "--distance=1", "--effort=1"],
       "inputSha256": "15f6d17bc7b6aac4fb87256d0ec5faeb42081f0b59eac08db5eb61764b312447",
       "jxl": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort1.jxl",
       "jxlSha256": "d76fb97d372285dbfd47f1b70d3ab18d13fdf315ff560facfe3b674e1e3f9ef6",
@@ -69,25 +56,12 @@
       "patches": "unknown",
       "splines": "unknown",
       "noise": false,
-      "restorationFilters": [
-        "Gaborish default",
-        "EPF default"
-      ],
+      "restorationFilters": ["Gaborish default", "EPF default"],
       "extraChannels": [],
       "jpegReconstruction": false,
       "expectedPureJsImageBehavior": "supported",
-      "features": [
-        "VarDCT",
-        "default XYB",
-        "effort 7",
-        "odd dimensions"
-      ],
-      "options": [
-        "--modular=0",
-        "--num_threads=1",
-        "--distance=1",
-        "--effort=7"
-      ],
+      "features": ["VarDCT", "default XYB", "effort 7", "odd dimensions"],
+      "options": ["--modular=0", "--num_threads=1", "--distance=1", "--effort=7"],
       "inputSha256": "15f6d17bc7b6aac4fb87256d0ec5faeb42081f0b59eac08db5eb61764b312447",
       "jxl": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort7.jxl",
       "jxlSha256": "0781875047d2665a6d6f2efc8c0f67fbcfbe20f4e013c0465026f44f3a62d7bf",
@@ -115,26 +89,12 @@
       "patches": "unknown",
       "splines": "unknown",
       "noise": false,
-      "restorationFilters": [
-        "Gaborish default",
-        "EPF default"
-      ],
+      "restorationFilters": ["Gaborish default", "EPF default"],
       "extraChannels": [],
       "jpegReconstruction": false,
       "expectedPureJsImageBehavior": "unsupported",
-      "features": [
-        "VarDCT",
-        "default XYB",
-        "progressive passes",
-        "odd dimensions"
-      ],
-      "options": [
-        "--modular=0",
-        "--num_threads=1",
-        "--distance=2",
-        "--effort=9",
-        "--progressive"
-      ],
+      "features": ["VarDCT", "default XYB", "progressive passes", "odd dimensions"],
+      "options": ["--modular=0", "--num_threads=1", "--distance=2", "--effort=9", "--progressive"],
       "inputSha256": "15f6d17bc7b6aac4fb87256d0ec5faeb42081f0b59eac08db5eb61764b312447",
       "jxl": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance2-progressive.jxl",
       "jxlSha256": "9fe91c79eb4862c4d4f6c4cd8d3bb565cc0598982c5d89ee94a056b008ac67d1",
@@ -162,19 +122,11 @@
       "patches": "unknown",
       "splines": "unknown",
       "noise": true,
-      "restorationFilters": [
-        "Gaborish default",
-        "EPF default"
-      ],
+      "restorationFilters": ["Gaborish default", "EPF default"],
       "extraChannels": [],
       "jpegReconstruction": false,
-      "expectedPureJsImageBehavior": "unsupported",
-      "features": [
-        "VarDCT",
-        "default XYB",
-        "synthetic noise",
-        "odd dimensions"
-      ],
+      "expectedPureJsImageBehavior": "supported",
+      "features": ["VarDCT", "default XYB", "synthetic noise", "odd dimensions"],
       "options": [
         "--modular=0",
         "--num_threads=1",
@@ -209,25 +161,12 @@
       "patches": "unknown",
       "splines": "unknown",
       "noise": false,
-      "restorationFilters": [
-        "Gaborish default",
-        "EPF default"
-      ],
+      "restorationFilters": ["Gaborish default", "EPF default"],
       "extraChannels": [],
       "jpegReconstruction": false,
       "expectedPureJsImageBehavior": "supported",
-      "features": [
-        "VarDCT",
-        "grayscale",
-        "single pass",
-        "odd dimensions"
-      ],
-      "options": [
-        "--modular=0",
-        "--num_threads=1",
-        "--distance=1",
-        "--effort=3"
-      ],
+      "features": ["VarDCT", "grayscale", "single pass", "odd dimensions"],
+      "options": ["--modular=0", "--num_threads=1", "--distance=1", "--effort=3"],
       "inputSha256": "16526528d0ea4acc602b496758008761df328650a01fe5d13bf3e026f1060f78",
       "jxl": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/gray8-distance1-effort3.jxl",
       "jxlSha256": "5eff6ea35198b9f022bdd4b678d02a1b84fffa58641a2a09d79aea05d1ac16f0",

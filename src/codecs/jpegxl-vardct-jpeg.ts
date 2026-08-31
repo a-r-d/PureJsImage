@@ -62,6 +62,7 @@ const requireZeroRemainder = (reader: JpegXlBitReader, label: string): void => {
 }
 
 export interface JpegXlJpegLfGlobal {
+  readonly noiseLut: readonly number[] | undefined
   readonly dcQuantization: readonly [number, number, number]
   readonly blockContexts: JpegXlJpegBlockContexts
   readonly colorCorrelation: JpegXlJpegColorCorrelation
@@ -108,10 +109,7 @@ export interface JpegXlJpegHfGlobalOptions {
 }
 
 export interface JpegXlJpegHfPass {
-  readonly coefficientOrders: readonly (
-    | readonly Uint32Array<ArrayBufferLike>[]
-    | undefined
-  )[]
+  readonly coefficientOrders: readonly (readonly Uint32Array<ArrayBufferLike>[] | undefined)[]
   readonly coefficientCode: JpegXlEntropyCode
 }
 
@@ -135,10 +133,18 @@ export interface JpegXlJpegAcGroupOptions {
 
 export interface JpegXlJpegAcGroup {
   readonly vardctCoefficients: readonly Int32Array<ArrayBufferLike>[]
+  readonly vardctBlocks: readonly (JpegXlVarDctBlock | undefined)[]
   readonly componentCoefficients: readonly Int32Array<ArrayBufferLike>[]
   readonly componentBlockWidths: readonly [number, number, number]
   readonly componentBlockHeights: readonly [number, number, number]
   readonly endingBitPosition: number
+}
+
+export interface JpegXlVarDctBlock {
+  readonly strategy: number
+  readonly blockWidth: number
+  readonly blockHeight: number
+  readonly coefficients: readonly Int32Array<ArrayBufferLike>[]
 }
 
 export interface JpegXlJpegBlockContexts {
@@ -555,6 +561,7 @@ export const decodeJpegXlJpegAcGroup = (
   const internalCoefficients: Int32Array<ArrayBufferLike>[] = []
   const internalWidths: number[] = []
   const internalHeights: number[] = []
+  const vardctBlockChannels: (Int32Array<ArrayBufferLike>[] | undefined)[] = []
   for (let channel = 0; channel < 3; channel += 1) {
     const shift = shifts[channel]
     if (!shift || blockX % 2 ** shift[0] !== 0 || blockY % 2 ** shift[1] !== 0) {
@@ -591,12 +598,19 @@ export const decodeJpegXlJpegAcGroup = (
         const strategyWidth = strategyBlockWidths[strategy]
         const strategyHeight = strategyBlockHeights[strategy]
         const orderIndex = strategyOrders[strategy]
-        if (strategyWidth === undefined || strategyHeight === undefined || orderIndex === undefined) {
+        if (
+          strategyWidth === undefined ||
+          strategyHeight === undefined ||
+          orderIndex === undefined
+        ) {
           throw invalidInput('JPEG-derived JPEG XL AC strategy is invalid')
         }
-        if (strategyWidth * strategyHeight !== 1) {
-          throw unsupportedOperation('JPEG XL multi-block VarDCT coefficient groups are not supported yet')
+        const coveredBlocks = strategyWidth * strategyHeight
+        const log2CoveredBlocks = Math.log2(coveredBlocks)
+        if (!Number.isInteger(log2CoveredBlocks)) {
+          throw invalidInput('JPEG XL VarDCT strategy area is invalid')
         }
+        const coefficientCount = coveredBlocks * 64
         const order = hfPass.coefficientOrders[orderIndex]?.[channel]
         if (!width || !nonzeroPlane || !coefficients || !order) {
           throw invalidInput('JPEG-derived JPEG XL AC channel is missing')
@@ -619,15 +633,25 @@ export const decodeJpegXlJpegAcGroup = (
         const nonzeroContext =
           contextOffset + nonzeroBucket * lfGlobal.blockContexts.contextCount + context
         let nonzero = symbols?.readHybridUint(nonzeroContext, reader) ?? 0
-        if (nonzero > 63) throw invalidInput('JPEG-derived JPEG XL AC nonzero count is invalid')
-        nonzeroPlane[localY * width + localX] = nonzero
+        if (nonzero > coefficientCount - coveredBlocks) {
+          throw invalidInput('JPEG-derived JPEG XL AC nonzero count is invalid')
+        }
+        const distributedNonzero = (nonzero + coveredBlocks - 1) >> log2CoveredBlocks
+        for (let coveredY = 0; coveredY < strategyHeight; coveredY += 1) {
+          for (let coveredX = 0; coveredX < strategyWidth; coveredX += 1) {
+            nonzeroPlane[(localY + coveredY) * width + localX + coveredX] = distributedNonzero
+          }
+        }
         const coefficientBase = (localY * width + localX) * 64
+        const blockCoefficients = new Int32Array(coefficientCount)
         const densityOffset =
           contextOffset + lfGlobal.blockContexts.contextCount * 37 + 458 * context
-        let previous = nonzero > 4 ? 0 : 1
-        for (let scan = 1; scan < 64 && nonzero !== 0; scan += 1) {
-          const remainingContext = coefficientNonzeroContext[nonzero]
-          const frequencyContext = coefficientFrequencyContext[scan]
+        let previous = nonzero > coefficientCount / 16 ? 0 : 1
+        for (let scan = coveredBlocks; scan < coefficientCount && nonzero !== 0; scan += 1) {
+          const scaledNonzero = (nonzero + coveredBlocks - 1) >> log2CoveredBlocks
+          const scaledScan = scan >> log2CoveredBlocks
+          const remainingContext = coefficientNonzeroContext[scaledNonzero]
+          const frequencyContext = coefficientFrequencyContext[scaledScan]
           if (remainingContext === undefined || frequencyContext === undefined) {
             throw invalidInput('JPEG-derived JPEG XL AC coefficient context is invalid')
           }
@@ -642,13 +666,18 @@ export const decodeJpegXlJpegAcGroup = (
           if (position === undefined) {
             throw invalidInput('JPEG-derived JPEG XL coefficient order is incomplete')
           }
-          coefficients[coefficientBase + position] = coefficient
+          blockCoefficients[position] = coefficient
+          if (coveredBlocks === 1) coefficients[coefficientBase + position] = coefficient
           previous = encoded === 0 ? 0 : 1
           nonzero -= previous
         }
         if (nonzero !== 0) {
           throw invalidInput('JPEG-derived JPEG XL AC nonzero count exceeds its block')
         }
+        const blockIndex = fullY * dcGroup.blockWidth + fullX
+        const channels = vardctBlockChannels[blockIndex] ?? []
+        channels[channel] = blockCoefficients
+        vardctBlockChannels[blockIndex] = channels
       }
     }
   }
@@ -703,6 +732,20 @@ export const decodeJpegXlJpegAcGroup = (
   }
   return Object.freeze({
     vardctCoefficients: Object.freeze(internalCoefficients),
+    vardctBlocks: Object.freeze(
+      vardctBlockChannels.map((channels, index) => {
+        if (!channels) return undefined
+        const strategy = dcGroup.strategies[index]
+        if (strategy === undefined) throw invalidInput('JPEG XL VarDCT block strategy is missing')
+        if (!channels[0] || !channels[1] || !channels[2]) return undefined
+        return Object.freeze({
+          strategy,
+          blockWidth: strategyBlockWidths[strategy] ?? 0,
+          blockHeight: strategyBlockHeights[strategy] ?? 0,
+          coefficients: Object.freeze(channels),
+        })
+      }),
+    ),
     componentCoefficients: Object.freeze(jpegComponents),
     componentBlockWidths: Object.freeze([
       internalWidths[jpegChannelOrder[0] ?? 0] ?? 0,
@@ -902,7 +945,8 @@ export const decodeJpegXlJpegHfGlobal = (
   const passes: JpegXlJpegHfPass[] = []
   for (let pass = 0; pass < passCount; pass += 1) {
     const usedOrders = readU32(reader, [value(0x5f), value(0x13), value(0), bits(13)])
-    if ((usedOrders & ~0x1fff) !== 0) throw invalidInput('JPEG XL coefficient-order mask is invalid')
+    if ((usedOrders & ~0x1fff) !== 0)
+      throw invalidInput('JPEG XL coefficient-order mask is invalid')
     const coefficientOrders = readCoefficientOrders(reader, usedOrders)
     const coefficientCode = readJpegXlEntropyCode(reader, histogramCount * contextsPerHistogram)
     passes.push(Object.freeze({ coefficientOrders, coefficientCode }))
@@ -923,8 +967,13 @@ export const decodeJpegXlJpegLfGlobal = (
   section: Uint8Array,
   startBit = 0,
   requireComplete = true,
+  frameFlags = 0,
 ): JpegXlJpegLfGlobal => {
   const reader = new JpegXlBitReader(section, startBit)
+  const noiseLut =
+    (frameFlags & 1) === 0
+      ? undefined
+      : Object.freeze(Array.from({ length: 8 }, () => reader.readBits(10) / 1_024))
   const dcQuantization: [number, number, number] = [1 / 4096, 1 / 512, 1 / 256]
   if (reader.readBits(1) === 0) {
     for (let channel = 0; channel < dcQuantization.length; channel += 1) {
@@ -952,6 +1001,7 @@ export const decodeJpegXlJpegLfGlobal = (
   const pixelCode: JpegXlEntropyCode = readJpegXlEntropyCode(reader, tree.leaves)
   if (requireComplete) requireZeroRemainder(reader, 'JPEG XL LF global section')
   return Object.freeze({
+    noiseLut,
     dcQuantization: Object.freeze(dcQuantization),
     blockContexts,
     colorCorrelation,
