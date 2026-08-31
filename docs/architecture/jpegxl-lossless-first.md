@@ -446,7 +446,14 @@ the full reconstruction acceptance items stay unchecked.
 
 ### Pixel-lossless encoder
 
-- [ ] Encode all required 8-bit and 16-bit pixel formats deterministically.
+Progress note: the normal pipeline now exposes deterministic lossless Modular output for `gray8`,
+`gray16`, `rgb8`, `rgb16`, `rgba8`, and `rgba16`, as either a raw codestream or one `jxlc`
+container. A bounded full-frame input buffer feeds 1024 by 1024 Modular groups with a shared global
+tree and measured Huffman codes. PureJsImage and pinned `djxl` decode the native samples exactly.
+The remaining independent decoders, representative compression corpus, metadata, color-semantics,
+and sequential-output gates remain open.
+
+- [x] Encode all required 8-bit and 16-bit pixel formats deterministically.
 - [ ] Decode every output through four decoder paths with exact native samples.
 - [ ] Support raw and one-`jxlc` container output plus selected metadata.
 - [ ] Meet the fixed compression gate or keep the encoder experimental with the measured gap.

@@ -246,6 +246,28 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     },
   )
 
+  it('encodes multiple Modular groups and decodes a cross-group crop exactly', async () => {
+    const width = 1_100
+    const height = 7
+    const pixels = Uint8Array.from(
+      { length: width * height },
+      (_, index) => ((index % width) * 3 + Math.floor(index / width) * 5) & 255,
+    )
+    const output = await encodeLosslessJpegXl('gray8', width, height, pixels, false)
+    const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(output), defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+    const decoded: number[] = []
+    for await (const block of decoder.decode({ x: 1_020, y: 2, width: 12, height: 3 })) {
+      decoded.push(...block.data)
+    }
+    expect(decoded).toEqual(
+      Array.from(
+        { length: 12 * 3 },
+        (_, index) => ((1_020 + (index % 12)) * 3 + (2 + Math.floor(index / 12)) * 5) & 255,
+      ),
+    )
+  })
+
   it('rejects unsupported lossless encoder options and incomplete pixel input', async () => {
     await expect(
       jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {

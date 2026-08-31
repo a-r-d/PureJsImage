@@ -101,12 +101,10 @@ const writeName = (writer: JpegXlBitWriter): void =>
     { bits: 10, offset: 48 },
   ])
 
-const reverseBits = (value: number, count: number): number => {
-  let reversed = 0
-  for (let index = 0; index < count; index += 1) {
-    reversed = reversed * 2 + ((value >>> index) & 1)
-  }
-  return reversed
+const nextHuffmanKey = (key: number, length: number): number => {
+  let step = 2 ** (length - 1)
+  while ((key & step) !== 0) step >>>= 1
+  return (key & (step - 1)) + step
 }
 
 const writeVarUint16 = (writer: JpegXlBitWriter, value: number): void => {
@@ -128,15 +126,27 @@ const writeVarUint16 = (writer: JpegXlBitWriter, value: number): void => {
 const codeLengthStatic = new Map<number, Readonly<{ key: number; bits: number }>>([
   [0, Object.freeze({ key: 0, bits: 2 })],
   [1, Object.freeze({ key: 7, bits: 4 })],
+  [4, Object.freeze({ key: 1, bits: 2 })],
+  [5, Object.freeze({ key: 15, bits: 4 })],
 ])
 
-const writeCodeLengthStaticSymbol = (writer: JpegXlBitWriter, symbol: 0 | 1): void => {
+const writeCodeLengthStaticSymbol = (writer: JpegXlBitWriter, symbol: 0 | 1 | 4 | 5): void => {
   const code = codeLengthStatic.get(symbol)
   if (!code) throw invalidInput('JPEG XL code-length symbol is unavailable')
   writer.writeBits(code.key, code.bits)
 }
 
-const writeFixedPrefixCode = (writer: JpegXlBitWriter, contexts: number): void => {
+interface PrefixEncoding {
+  readonly keys: Uint16Array
+  readonly lengths: Uint8Array
+  readonly singleSymbol?: number
+}
+
+const writeEntropyHeader = (
+  writer: JpegXlBitWriter,
+  contexts: number,
+  alphabetSize: number,
+): void => {
   writer.writeBits(0, 1)
   if (contexts > 1) {
     writer.writeBits(1, 1)
@@ -146,7 +156,25 @@ const writeFixedPrefixCode = (writer: JpegXlBitWriter, contexts: number): void =
   writer.writeBits(8, 4)
   writer.writeBits(0, 4)
   writer.writeBits(0, 4)
-  writeVarUint16(writer, 511)
+  writeVarUint16(writer, alphabetSize - 1)
+}
+
+const canonicalEncoding = (lengths: Uint8Array): PrefixEncoding => {
+  const keys = new Uint16Array(lengths.length)
+  const maximumBits = lengths.reduce((maximum, length) => Math.max(maximum, length), 0)
+  let key = 0
+  for (let bits = 1; bits <= maximumBits; bits += 1) {
+    for (let symbol = 0; symbol < lengths.length; symbol += 1) {
+      if (lengths[symbol] !== bits) continue
+      keys[symbol] = key
+      key = nextHuffmanKey(key, bits)
+    }
+  }
+  return Object.freeze({ keys, lengths })
+}
+
+const writeFixedPrefixCode = (writer: JpegXlBitWriter, contexts: number): PrefixEncoding => {
+  writeEntropyHeader(writer, contexts, 512)
   writer.writeBits(0, 2)
 
   for (let index = 0; index < 8; index += 1) writeCodeLengthStaticSymbol(writer, 0)
@@ -154,64 +182,394 @@ const writeFixedPrefixCode = (writer: JpegXlBitWriter, contexts: number): void =
   for (let index = 0; index < 2; index += 1) writeCodeLengthStaticSymbol(writer, 0)
   writeCodeLengthStaticSymbol(writer, 1)
   for (let symbol = 0; symbol < 512; symbol += 1) writer.writeBits(0, 1)
+  return canonicalEncoding(new Uint8Array(512).fill(9))
 }
 
-const writeHybridUint = (writer: JpegXlBitWriter, value: number): void => {
+const hybridToken = (
+  value: number,
+): Readonly<{ readonly token: number; readonly extra: number; readonly extraBits: number }> => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 131_071) {
     throw invalidInput('JPEG XL Modular residual is outside the supported encoder range')
   }
   if (value < 256) {
-    writer.writeBits(reverseBits(value, 9), 9)
-    return
+    return Object.freeze({ token: value, extra: 0, extraBits: 0 })
   }
   const extraBits = Math.floor(Math.log2(value))
   const token = 256 + extraBits - 8
-  writer.writeBits(reverseBits(token, 9), 9)
-  writer.writeBits(value - 2 ** extraBits, extraBits)
+  return Object.freeze({ token, extra: value - 2 ** extraBits, extraBits })
+}
+
+const writeHybridUint = (
+  writer: JpegXlBitWriter,
+  value: number,
+  encoding: Readonly<PrefixEncoding>,
+): void => {
+  const hybrid = hybridToken(value)
+  const length = encoding.lengths[hybrid.token]
+  const key = encoding.keys[hybrid.token]
+  if (
+    length === undefined ||
+    key === undefined ||
+    (length === 0 && encoding.singleSymbol !== hybrid.token)
+  ) {
+    throw invalidInput('JPEG XL Modular entropy token is missing from its prefix code')
+  }
+  writer.writeBits(key, length)
+  writer.writeBits(hybrid.extra, hybrid.extraBits)
 }
 
 const packSigned = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
 
-const encodeModularSection = (
+const writeModularTree = (writer: JpegXlBitWriter): void => {
+  const frequencies = new Uint32Array(2)
+  frequencies[0] = 4
+  frequencies[1] = 1
+  const encoding = writePrefixCode(writer, 6, frequencies)
+  for (const symbol of [0, 1, 0, 0, 0]) writeHybridUint(writer, symbol, encoding)
+}
+
+const huffmanLengths = (frequencies: Uint32Array): Uint8Array | undefined => {
+  interface Node {
+    readonly weight: number
+    readonly minimumSymbol: number
+    readonly symbol?: number
+    readonly left?: Node
+    readonly right?: Node
+  }
+  const nodes: Node[] = []
+  for (let symbol = 0; symbol < frequencies.length; symbol += 1) {
+    const weight = frequencies[symbol] ?? 0
+    if (weight > 0) nodes.push({ weight, minimumSymbol: symbol, symbol })
+  }
+  if (nodes.length < 2) return undefined
+  while (nodes.length > 1) {
+    nodes.sort(
+      (left, right) => left.weight - right.weight || left.minimumSymbol - right.minimumSymbol,
+    )
+    const left = nodes.shift()
+    const right = nodes.shift()
+    if (!left || !right) throw invalidInput('JPEG XL Huffman tree is incomplete')
+    nodes.push({
+      weight: left.weight + right.weight,
+      minimumSymbol: Math.min(left.minimumSymbol, right.minimumSymbol),
+      left,
+      right,
+    })
+  }
+  const lengths = new Uint8Array(frequencies.length)
+  const visit = (node: Readonly<Node>, depth: number): void => {
+    if (node.symbol !== undefined) {
+      if (depth > 15) throw limitExceeded('JPEG XL Huffman code exceeds 15 bits')
+      lengths[node.symbol] = depth
+      return
+    }
+    if (!node.left || !node.right) throw invalidInput('JPEG XL Huffman node is incomplete')
+    visit(node.left, depth + 1)
+    visit(node.right, depth + 1)
+  }
+  visit(nodes[0] as Node, 0)
+  return lengths
+}
+
+const codeLengthOrder = [1, 2, 3, 4, 0, 5, 17, 6, 16, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+const codeLengthEncoding = (): PrefixEncoding => {
+  const lengths = new Uint8Array(18)
+  for (let index = 0; index < codeLengthOrder.length; index += 1) {
+    const symbol = codeLengthOrder[index]
+    if (symbol === undefined) throw invalidInput('JPEG XL code-length order is incomplete')
+    lengths[symbol] = index < 14 ? 4 : 5
+  }
+  return canonicalEncoding(lengths)
+}
+
+const writeComplexHuffmanCode = (writer: JpegXlBitWriter, lengths: Uint8Array): void => {
+  writer.writeBits(0, 2)
+  for (let index = 0; index < codeLengthOrder.length; index += 1) {
+    writeCodeLengthStaticSymbol(writer, index < 14 ? 4 : 5)
+  }
+  const encoding = codeLengthEncoding()
+  for (const length of lengths) {
+    writer.writeBits(encoding.keys[length] ?? 0, encoding.lengths[length] ?? 0)
+  }
+}
+
+const writeSimpleHuffmanCode = (
+  writer: JpegXlBitWriter,
+  alphabetSize: number,
+  symbols: readonly number[],
+  frequencies: Uint32Array,
+): PrefixEncoding => {
+  writer.writeBits(1, 2)
+  writer.writeBits(symbols.length - 1, 2)
+  const symbolBits = Math.ceil(Math.log2(alphabetSize))
+  const ordered =
+    symbols.length === 3
+      ? [
+          [...symbols].sort(
+            (left, right) => (frequencies[right] ?? 0) - (frequencies[left] ?? 0) || left - right,
+          )[0] ?? 0,
+          ...[...symbols]
+            .sort(
+              (left, right) => (frequencies[right] ?? 0) - (frequencies[left] ?? 0) || left - right,
+            )
+            .slice(1)
+            .sort((left, right) => left - right),
+        ]
+      : [...symbols]
+  for (const symbol of ordered) writer.writeBits(symbol, symbolBits)
+  if (symbols.length === 4) writer.writeBits(0, 1)
+  const lengths = new Uint8Array(alphabetSize)
+  if (symbols.length === 1) {
+    lengths[ordered[0] ?? 0] = 0
+  } else if (symbols.length === 2) {
+    for (const symbol of [...ordered].sort((left, right) => left - right)) lengths[symbol] = 1
+  } else if (symbols.length === 3) {
+    lengths[ordered[0] ?? 0] = 1
+    lengths[ordered[1] ?? 0] = 2
+    lengths[ordered[2] ?? 0] = 2
+  } else {
+    for (const symbol of [...ordered].sort((left, right) => left - right)) lengths[symbol] = 2
+  }
+  const encoding = canonicalEncoding(lengths)
+  return symbols.length === 1
+    ? Object.freeze({ ...encoding, singleSymbol: ordered[0] ?? 0 })
+    : encoding
+}
+
+const writePrefixCode = (
+  writer: JpegXlBitWriter,
+  contexts: number,
+  frequencies: Uint32Array,
+): PrefixEncoding => {
+  let maximumSymbol = frequencies.length - 1
+  while (maximumSymbol > 0 && frequencies[maximumSymbol] === 0) maximumSymbol -= 1
+  const alphabetSize = maximumSymbol + 1
+  if (alphabetSize === 1) {
+    writeEntropyHeader(writer, contexts, alphabetSize)
+    return Object.freeze({
+      keys: new Uint16Array(1),
+      lengths: Uint8Array.of(0),
+      singleSymbol: 0,
+    })
+  }
+  const symbols: number[] = []
+  for (let symbol = 0; symbol < alphabetSize; symbol += 1) {
+    if ((frequencies[symbol] ?? 0) > 0) symbols.push(symbol)
+  }
+  if (symbols.length <= 4) {
+    writeEntropyHeader(writer, contexts, alphabetSize)
+    return writeSimpleHuffmanCode(writer, alphabetSize, symbols, frequencies)
+  }
+  let lengths: Uint8Array
+  try {
+    const candidate = huffmanLengths(frequencies.subarray(0, alphabetSize))
+    if (!candidate) throw invalidInput('JPEG XL Huffman frequencies are empty')
+    lengths = candidate
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes('exceeds 15 bits')) throw error
+    return writeFixedPrefixCode(writer, contexts)
+  }
+  writeEntropyHeader(writer, contexts, alphabetSize)
+  writeComplexHuffmanCode(writer, lengths)
+  return canonicalEncoding(lengths)
+}
+
+const visitModularResiduals = (
+  pixels: Uint8Array,
+  imageWidth: number,
+  originX: number,
+  originY: number,
+  width: number,
+  height: number,
+  format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
+  visit: (packedResidual: number) => void,
+): void => {
+  const highDepth = format.endsWith('16')
+  const channels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
+  const bytesPerSample = highDepth ? 2 : 1
+  const bytesPerPixel = channels * bytesPerSample
+  for (let channel = 0; channel < channels; channel += 1) {
+    for (let y = 0; y < height; y += 1) {
+      let left = 0
+      for (let x = 0; x < width; x += 1) {
+        const position =
+          ((originY + y) * imageWidth + originX + x) * bytesPerPixel + channel * bytesPerSample
+        const sample = highDepth
+          ? (pixels[position] ?? 0) * 256 + (pixels[position + 1] ?? 0)
+          : (pixels[position] ?? 0)
+        if (x === 0 && y > 0) {
+          const top =
+            ((originY + y - 1) * imageWidth + originX + x) * bytesPerPixel +
+            channel * bytesPerSample
+          left = highDepth ? (pixels[top] ?? 0) * 256 + (pixels[top + 1] ?? 0) : (pixels[top] ?? 0)
+        }
+        visit(packSigned(sample - left))
+        left = sample
+      }
+    }
+  }
+}
+
+const modularFrequencies = (
+  pixels: Uint8Array,
+  imageWidth: number,
+  originX: number,
+  originY: number,
+  width: number,
+  height: number,
+  format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
+): Uint32Array => {
+  const frequencies = new Uint32Array(512)
+  visitModularResiduals(
+    pixels,
+    imageWidth,
+    originX,
+    originY,
+    width,
+    height,
+    format,
+    (packedResidual) => {
+      const token = hybridToken(packedResidual).token
+      frequencies[token] = (frequencies[token] ?? 0) + 1
+    },
+  )
+  return frequencies
+}
+
+const writeModularPixels = (
+  writer: JpegXlBitWriter,
+  pixels: Uint8Array,
+  imageWidth: number,
+  originX: number,
+  originY: number,
+  width: number,
+  height: number,
+  format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
+  encoding: Readonly<PrefixEncoding>,
+): void =>
+  visitModularResiduals(
+    pixels,
+    imageWidth,
+    originX,
+    originY,
+    width,
+    height,
+    format,
+    (packedResidual) => writeHybridUint(writer, packedResidual, encoding),
+  )
+
+const writeModularHeader = (writer: JpegXlBitWriter, useGlobalTree: boolean): void => {
+  writer.writeBits(useGlobalTree ? 1 : 0, 1)
+  writer.writeBits(1, 1)
+  writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { bits: 4, offset: 2 }, { bits: 8, offset: 18 }])
+}
+
+const encodeSingleGroupSection = (
   pixels: Uint8Array,
   width: number,
   height: number,
   format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
 ): Uint8Array => {
   const writer = new JpegXlBitWriter()
-  const highDepth = format.endsWith('16')
-  const channels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
-  const bytesPerSample = highDepth ? 2 : 1
-  const bytesPerPixel = channels * bytesPerSample
-
   writer.writeBits(1, 1)
   writer.writeBits(0, 1)
-  writer.writeBits(0, 1)
+  writeModularHeader(writer, false)
+  writeModularTree(writer)
+  const encoding = writePrefixCode(
+    writer,
+    1,
+    modularFrequencies(pixels, width, 0, 0, width, height, format),
+  )
+  writeModularPixels(writer, pixels, width, 0, 0, width, height, format, encoding)
+  return writer.finish()
+}
+
+const encodeGlobalSection = (
+  frequencies: Uint32Array,
+): Readonly<{ readonly section: Uint8Array; readonly encoding: PrefixEncoding }> => {
+  const writer = new JpegXlBitWriter()
   writer.writeBits(1, 1)
-  writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { bits: 4, offset: 2 }, { bits: 8, offset: 18 }])
+  writer.writeBits(1, 1)
+  writeModularTree(writer)
+  const encoding = writePrefixCode(writer, 1, frequencies)
+  writeModularHeader(writer, true)
+  return Object.freeze({ section: writer.finish(), encoding })
+}
 
-  writeFixedPrefixCode(writer, 6)
-  for (const symbol of [0, 1, 0, 0, 0]) writeHybridUint(writer, symbol)
-  writeFixedPrefixCode(writer, 1)
+const encodeGroupSection = (
+  pixels: Uint8Array,
+  imageWidth: number,
+  originX: number,
+  originY: number,
+  width: number,
+  height: number,
+  format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
+  encoding: Readonly<PrefixEncoding>,
+): Uint8Array => {
+  const writer = new JpegXlBitWriter()
+  writeModularHeader(writer, true)
+  writeModularPixels(writer, pixels, imageWidth, originX, originY, width, height, format, encoding)
+  return writer.finish()
+}
 
-  for (let channel = 0; channel < channels; channel += 1) {
-    for (let y = 0; y < height; y += 1) {
-      let left = 0
-      for (let x = 0; x < width; x += 1) {
-        const position = (y * width + x) * bytesPerPixel + channel * bytesPerSample
-        const sample = highDepth
-          ? (pixels[position] ?? 0) * 256 + (pixels[position + 1] ?? 0)
-          : (pixels[position] ?? 0)
-        if (x === 0 && y > 0) {
-          const top = ((y - 1) * width + x) * bytesPerPixel + channel * bytesPerSample
-          left = highDepth ? (pixels[top] ?? 0) * 256 + (pixels[top + 1] ?? 0) : (pixels[top] ?? 0)
-        }
-        writeHybridUint(writer, packSigned(sample - left))
-        left = sample
+const encodeFrameSections = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
+): readonly Uint8Array[] => {
+  const groupDimension = 1_024
+  const groupsAcross = Math.ceil(width / groupDimension)
+  const groupsDown = Math.ceil(height / groupDimension)
+  const groupCount = groupsAcross * groupsDown
+  if (groupCount === 1) {
+    return Object.freeze([encodeSingleGroupSection(pixels, width, height, format)])
+  }
+  const dcGroupDimension = groupDimension * 8
+  const dcGroupCount = Math.ceil(width / dcGroupDimension) * Math.ceil(height / dcGroupDimension)
+  const frequencies = new Uint32Array(512)
+  for (let groupY = 0; groupY < groupsDown; groupY += 1) {
+    for (let groupX = 0; groupX < groupsAcross; groupX += 1) {
+      const originX = groupX * groupDimension
+      const originY = groupY * groupDimension
+      const groupFrequencies = modularFrequencies(
+        pixels,
+        width,
+        originX,
+        originY,
+        Math.min(groupDimension, width - originX),
+        Math.min(groupDimension, height - originY),
+        format,
+      )
+      for (let token = 0; token < frequencies.length; token += 1) {
+        frequencies[token] = (frequencies[token] ?? 0) + (groupFrequencies[token] ?? 0)
       }
     }
   }
-  return writer.finish()
+  const global = encodeGlobalSection(frequencies)
+  const sections: Uint8Array[] = [global.section, new Uint8Array(0)]
+  for (let index = 0; index < dcGroupCount; index += 1) sections.push(new Uint8Array(0))
+  for (let groupY = 0; groupY < groupsDown; groupY += 1) {
+    for (let groupX = 0; groupX < groupsAcross; groupX += 1) {
+      const originX = groupX * groupDimension
+      const originY = groupY * groupDimension
+      sections.push(
+        encodeGroupSection(
+          pixels,
+          width,
+          originX,
+          originY,
+          Math.min(groupDimension, width - originX),
+          Math.min(groupDimension, height - originY),
+          format,
+          global.encoding,
+        ),
+      )
+    }
+  }
+  if (sections.length > 65_536) throw limitExceeded('JPEG XL output has too many sections')
+  return Object.freeze(sections)
 }
 
 const concatenate = (parts: readonly Uint8Array[]): Uint8Array => {
@@ -250,7 +608,7 @@ const encodeCodestream = (
   height: number,
   format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
 ): Uint8Array => {
-  const section = encodeModularSection(pixels, width, height, format)
+  const sections = encodeFrameSections(pixels, width, height, format)
   const writer = new JpegXlBitWriter()
   const highDepth = format.endsWith('16')
   const hasAlpha = format.startsWith('rgba')
@@ -350,14 +708,16 @@ const encodeCodestream = (
   writeZeroU64(writer)
   writer.writeBits(0, 1)
   writer.alignToByte()
-  writeU32(writer, section.byteLength, [
-    { bits: 10, offset: 0 },
-    { bits: 14, offset: 1_024 },
-    { bits: 22, offset: 17_408 },
-    { bits: 30, offset: 4_211_712 },
-  ])
+  for (const section of sections) {
+    writeU32(writer, section.byteLength, [
+      { bits: 10, offset: 0 },
+      { bits: 14, offset: 1_024 },
+      { bits: 22, offset: 17_408 },
+      { bits: 30, offset: 4_211_712 },
+    ])
+  }
   writer.alignToByte()
-  return concatenate([writer.finish(), section])
+  return concatenate([writer.finish(), ...sections])
 }
 
 const supportedFormat = (
@@ -487,11 +847,6 @@ export const createJpegXlModularEncoder = async (
   }
   const limits = request.limits
   if (limits) validateImageDimensions(request.width, request.height, 1, limits)
-  if (request.width > 1_024 || request.height > 1_024) {
-    throw unsupportedOperation(
-      'JPEG XL initial lossless encoder is limited to one 1024-pixel group',
-    )
-  }
   const channels = request.pixelFormat.startsWith('gray')
     ? 1
     : request.pixelFormat.startsWith('rgba')
