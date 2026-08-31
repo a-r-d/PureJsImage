@@ -1,0 +1,203 @@
+benchmark/hdr-surgery/worker.ts
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 171-174,177-181
+  s_029a5c7c9ea47d::t_b268560a37474b 20,110-112,159-170,175-176,182-216,239
+tests/hdr-jpeg.test.ts
+  s_029a5c7c9ea47d::t_59d8cb9be3eb6a 358-371
+  s_029a5c7c9ea47d::t_32a7606bf51f97 406-423
+  s_029a5c7c9ea47d::t_dd289aec11dec2 357,389-405
+src/hdr/index.ts
+  s_029a5c7c9ea47d::t_90f260a08a39a6 73
+docs-astro/public/capabilities.json
+  s_029a5c7c9ea47d::t_a61ea56a6aee84 17-19
+docs-astro/src/layouts/SiteLayout.astro
+  s_029a5c7c9ea47d::t_aea610bc026789 66-67
+tests/hdr-avif-output.test.ts
+  s_029a5c7c9ea47d::t_3ca3cac3fe81b4 44-59
+  s_029a5c7c9ea47d::t_2112797d3dc3e3 6,13-29
+src/hdr/open.ts
+  s_029a5c7c9ea47d::t_e6a950e80eb764 425,727-729
+  s_029a5c7c9ea47d::t_19712fca18861e 163,166-169,951
+  s_029a5c7c9ea47d::t_7524b2b57ae689 453,511
+  s_029a5c7c9ea47d::t_0a22027a14e450 679
+  s_029a5c7c9ea47d::t_e558cb9aa46c36 71,452
+  s_029a5c7c9ea47d::t_0012f5f68eef90 80-94,97-99,101,103-108,341,358,375-404,411-424
+  s_029a5c7c9ea47d::t_6b2d13b06283ee 176-178,180,192-197,260-267,445,474-476,481-484,486-490,495,526,572-576,676,696
+  s_029a5c7c9ea47d::t_f5a27cf499b8d2 699-702
+  s_029a5c7c9ea47d::t_ad18e08c0e6e58 405-410
+  s_029a5c7c9ea47d::t_f0dae848a2fec6 426
+src/hdr/xml.ts
+  s_029a5c7c9ea47d::t_59d8cb9be3eb6a 84-100,117,119,123,125,172
+docs/architecture/hdr-surgery.md
+  s_029a5c7c9ea47d::t_52fa3ce20be05f 152-154
+  s_029a5c7c9ea47d::t_73156f514e6f23 264-266
+  s_029a5c7c9ea47d::t_ae42b24458bb3a 267-272
+tests/hdr-open.test.ts
+  s_029a5c7c9ea47d::t_79baf4e5c215e6 179-180
+  s_029a5c7c9ea47d::t_7524b2b57ae689 177-178,181,183,190-199
+docs/hdr-surgery.md
+  s_029a5c7c9ea47d::t_dd2c5db4e451a7 33-111
+  s_029a5c7c9ea47d::t_73156f514e6f23 118-120,174-175,203-210,217,224-225
+  s_029a5c7c9ea47d::t_52fa3ce20be05f 130-132
+  s_029a5c7c9ea47d::t_ae42b24458bb3a 176-181
+docs-astro/src/scripts/hdr-surgery-worker.ts
+  s_029a5c7c9ea47d::t_b268560a37474b 29-30,205-212
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 56
+  s_029a5c7c9ea47d::t_23db029de7cfbb 19-20,57-70,131,134-135,231-232,239-240,258-259,261-267
+  s_029a5c7c9ea47d::t_aea610bc026789 96-106,108-109
+browser-tests/hdr-surgery-og.pw.ts
+  s_029a5c7c9ea47d::t_0b77964affc400 1-33
+benchmark/generated/package-metrics.json
+  s_029a5c7c9ea47d::t_b451c6dafd3819 179
+  s_029a5c7c9ea47d::t_bed75716536da7 556,559,562,1351,1354,1357,1457,1460,1463,1488,1491,1494,1533,1536,1539
+tests/hdr-jpeg-output.test.ts
+  s_029a5c7c9ea47d::t_e67b811ded7086 58
+  s_029a5c7c9ea47d::t_80015b1e95f424 132-136,139-159,206-217
+  s_029a5c7c9ea47d::t_6da1a7e094cb35 180-182
+  s_029a5c7c9ea47d::t_fb0ef159c83f58 179
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 15,70-95,137-138,223-256,300-304
+  s_029a5c7c9ea47d::t_b25d94c90cd910 17,59-69,96-106,220-222,257-299,305-319,321-323
+  s_029a5c7c9ea47d::t_394f0126704bcd 4,16,218-219,320
+  s_029a5c7c9ea47d::t_56a3b8f5a1fe5a 324
+scripts/build-docs-site.ts
+  s_029a5c7c9ea47d::t_135cf34f736426 29-40
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 113-121,129-135
+  s_029a5c7c9ea47d::t_eaaec8b9a1a3bc 95-108,112,122-128,136-138
+  s_029a5c7c9ea47d::t_36a71fe0845a66 109-111
+scripts/check-package-types.ts
+  s_029a5c7c9ea47d::t_dd2c5db4e451a7 643,673-677,679-686,691-705
+  s_029a5c7c9ea47d::t_d13681493657c8 687-690
+  s_029a5c7c9ea47d::t_90f260a08a39a6 644-672,678,706-709
+docs-astro/public/llms.txt
+  s_029a5c7c9ea47d::t_a61ea56a6aee84 487-489
+  s_029a5c7c9ea47d::t_1167f6a4a3532f 13-14,58
+  s_029a5c7c9ea47d::t_840d934edee064 59
+tests/hdr-geometry.test.ts
+  s_029a5c7c9ea47d::t_d760a2ef6557a1 10-25
+benchmark/hdr-surgery/fixture-manifest.json
+  s_029a5c7c9ea47d::t_7ce5f3483347db 87,106,125,144,163,201,220
+  s_029a5c7c9ea47d::t_10845f8807d8df 158,166,172,174
+  s_029a5c7c9ea47d::t_e165f5713542fd 173
+docs-astro/src/data/documentation-data.json
+  s_029a5c7c9ea47d::t_9614d85865fefb 109-111,114-116
+  s_029a5c7c9ea47d::t_b451c6dafd3819 129
+README.md
+  s_029a5c7c9ea47d::t_9614d85865fefb 89-90,96
+  s_029a5c7c9ea47d::t_90f260a08a39a6 183-188
+  s_029a5c7c9ea47d::t_37319559924bdc 402-403,407
+CHANGELOG.md
+  s_029a5c7c9ea47d::t_90f260a08a39a6 15-21
+docs-astro/src/data/package-metrics.json
+  s_029a5c7c9ea47d::t_b451c6dafd3819 179
+  s_029a5c7c9ea47d::t_2b050777c346ba 556,559,562,1351,1354,1357,1457,1460,1463,1488,1491,1494,1533,1536,1539
+tests/hdr-model.test.ts
+  s_029a5c7c9ea47d::t_54890e01f0af9b 51-65
+  s_029a5c7c9ea47d::t_f4b7774832b480 127
+src/hdr/transform.ts
+  s_029a5c7c9ea47d::t_1d564a76aeaec3 282-283,291-296
+  s_029a5c7c9ea47d::t_b19f5fa124051f 607-757,759-799,801-804,806-829,831-843
+  s_029a5c7c9ea47d::t_9ab858ad9a341f 758,800,805,830
+  s_029a5c7c9ea47d::t_3fa53e0e1199ae 149-158,161-168,258-266,546,553-559
+  s_029a5c7c9ea47d::t_d143ca724a5a61 13-18,63-64,66-81
+  s_029a5c7c9ea47d::t_96e959fd1991fb 170-179,181-241
+  s_029a5c7c9ea47d::t_ab26fa86a82bd3 9,34,865,874
+  s_029a5c7c9ea47d::t_eeaf56e057d1e5 65,169,911
+  s_029a5c7c9ea47d::t_62f4f461ef3341 560-603,605-606,844-854
+  s_029a5c7c9ea47d::t_7524b2b57ae689 139,142-143
+  s_029a5c7c9ea47d::t_0a22027a14e450 898,912-918,920-922
+  s_029a5c7c9ea47d::t_45550d38ed3959 864,866,868,892,910,919,923-949
+  s_029a5c7c9ea47d::t_41cedf25db1e1f 6,536-540
+  s_029a5c7c9ea47d::t_e558cb9aa46c36 138,141,147-148,159-160,180
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 547-550
+  s_029a5c7c9ea47d::t_f785ef958800f2 12
+  s_029a5c7c9ea47d::t_36ba3179112009 82-83
+  s_029a5c7c9ea47d::t_4b7d088bc2a217 267-268
+tests/hdr-transform.test.ts
+  s_029a5c7c9ea47d::t_a1c3d5af7663ee 101-111
+  s_029a5c7c9ea47d::t_06c0784d1f5af3 145-167
+  s_029a5c7c9ea47d::t_ed32ad3cebb72f 112-132
+src/hdr/geometry.ts
+  s_029a5c7c9ea47d::t_54890e01f0af9b 3,72
+  s_029a5c7c9ea47d::t_5f8fd78269fb2d 73-75
+src/hdr/avif-output.ts
+  s_029a5c7c9ea47d::t_4884f5a1a07bdd 333-380
+  s_029a5c7c9ea47d::t_7a89fa721e523e 9
+  s_029a5c7c9ea47d::t_73c2abb9359f5a 2,78-83,323-326
+  s_029a5c7c9ea47d::t_f5a27cf499b8d2 4,23,312-313,393-394
+  s_029a5c7c9ea47d::t_954f7c96da6e9d 272
+  s_029a5c7c9ea47d::t_74ca92707f70db 7-8,10-11,13-17,21,77,84-85,113,115,120-122,125-136,139,297-304,308,310-311,314,320-322,327-331,396-416,428-430,432-434
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 86-96,222
+  s_029a5c7c9ea47d::t_b73ac583379dcf 116-119,315-319
+  s_029a5c7c9ea47d::t_41425da0219290 332,381-384
+benchmark/hdr-surgery/run.ts
+  s_029a5c7c9ea47d::t_b268560a37474b 11,54-65
+docs-astro/src/scripts/hdr-surgery.ts
+  s_029a5c7c9ea47d::t_135cf34f736426 249-250,255,385-386,530-538,540-541,548-549,575
+  s_029a5c7c9ea47d::t_d13aa81c814c5d 501,529,568-570
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 150-153,301-306,318-323,527,542-547,550-566,571-573
+  s_029a5c7c9ea47d::t_d96b48323d4bf3 297,314
+  s_029a5c7c9ea47d::t_23db029de7cfbb 51-52,67-69,83,85-87,266-267,276-278,298-300,315-317,350-357
+  s_029a5c7c9ea47d::t_c7826c5cafaafd 63-64,272-273,389,500,519-526,528,567,574
+  s_029a5c7c9ea47d::t_aea610bc026789 104-149,154-155,349,458-471
+  s_029a5c7c9ea47d::t_474b1678e86065 502,539
+  s_029a5c7c9ea47d::t_f6fc1db1d394b8 472
+scripts/serve-browser-tests.ts
+  s_029a5c7c9ea47d::t_135cf34f736426 19-25,422-428
+codemeta.json
+  s_029a5c7c9ea47d::t_338098abad597b 70-75
+src/hdr/srgb-icc.ts
+  s_029a5c7c9ea47d::t_394f0126704bcd 99-101
+  s_029a5c7c9ea47d::t_ab26fa86a82bd3 1-98
+src/codecs/avif-encode.ts
+  s_029a5c7c9ea47d::t_73c2abb9359f5a 162-180,201-204,352-356,364,548,596-610,662,668-673,682,765-769,779,788,890-896
+docs-astro/src/pages/hdr-surgery.astro
+  s_029a5c7c9ea47d::t_135cf34f736426 53
+  s_029a5c7c9ea47d::t_8bb761f1c4453c 3-4,7-11,34-35,38-39,41,43,45-52,54-58,60-61,64-75,79-82
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 5-6,12-33
+src/hdr/jpeg.ts
+  s_029a5c7c9ea47d::t_dd289aec11dec2 834,849
+  s_029a5c7c9ea47d::t_ed057a8f2fa037 751-757,759-769,984-987,989
+  s_029a5c7c9ea47d::t_020f03e4b0e08a 758
+  s_029a5c7c9ea47d::t_32a7606bf51f97 833,835-848,850
+src/hdr/model.ts
+  s_029a5c7c9ea47d::t_54890e01f0af9b 402-412,422-425
+docs-astro/src/scripts/hdr-surgery-types.ts
+  s_029a5c7c9ea47d::t_23db029de7cfbb 53-54,69-70,254-255,263-264,279-280
+capabilities/manifest.json
+  s_029a5c7c9ea47d::t_32cda2838e48a0 578
+  s_029a5c7c9ea47d::t_eb4126017d636a 576-577
+docs-astro/src/pages/api.astro
+  s_029a5c7c9ea47d::t_32cda2838e48a0 82-83,86
+docs-astro/src/pages/codecs.astro
+  s_029a5c7c9ea47d::t_a61ea56a6aee84 23,48,85
+browser-tests/hdr-surgery.pw.ts
+  s_029a5c7c9ea47d::t_93ab6c4beb85c5 6-10,26-31,75-87
+benchmark/hdr-surgery/prepare-fixtures.ts
+  s_029a5c7c9ea47d::t_10845f8807d8df 75-76
+src/hdr/jpeg-output.ts
+  s_029a5c7c9ea47d::t_b19f5fa124051f 369-474
+  s_029a5c7c9ea47d::t_0a22027a14e450 3,30,366-367,485-486
+  s_029a5c7c9ea47d::t_39e3bb1a509237 8-12,73,100,106,348,355-360,362-364,488-501,511-519
+  s_029a5c7c9ea47d::t_3d63d17ef66249 118-141,144-146,151
+  s_029a5c7c9ea47d::t_5d2dc362fc50cd 368,475-477
+package.json
+  s_029a5c7c9ea47d::t_1167f6a4a3532f 28-33
+src/hdr/materialization.ts
+  s_029a5c7c9ea47d::t_c79ca9ee8d1be6 1-100,108-127
+  s_029a5c7c9ea47d::t_a1c3d5af7663ee 101-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e183ef9532e706f7975ff3c75abecfbc00c5ba09",
+  "prompts": {},
+  "sessions": {
+    "s_029a5c7c9ea47d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a054bb-34f4-7110-8f14-0e59500e8c41",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
