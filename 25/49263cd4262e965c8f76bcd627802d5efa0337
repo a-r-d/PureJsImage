@@ -1,0 +1,38 @@
+benchmark/jpegxl/benchmark-worker.ts
+  s_6006332bb8a489::t_79c5a41c52586b 68
+  s_6006332bb8a489::t_6f6721ab2b4df4 4,7
+  s_6006332bb8a489::t_52c800f4740c17 1-3,5-6,8-67,69-133
+benchmark/jpegxl/encoder-hillclimb.json
+  s_6006332bb8a489::t_9f77d40f6078b8 2-3,5-39
+  s_6006332bb8a489::t_52c800f4740c17 1,4,40
+src/codecs/jpegxl-modular-encode.ts
+  s_6006332bb8a489::t_c7adebcb4f80c9 26-38
+  s_6006332bb8a489::t_78e6ae73b64ddc 441
+  s_6006332bb8a489::t_a9e7195a7c4fae 196,200-204,212-214,218,223-226
+package.json
+  s_6006332bb8a489::t_52c800f4740c17 709
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_9f77d40f6078b8 477-478
+benchmark/jpegxl/run.ts
+  s_6006332bb8a489::t_6f6721ab2b4df4 45,116-118,136-139
+  s_6006332bb8a489::t_52c800f4740c17 1-44,46-84,89-115,119-135,143-203
+  s_6006332bb8a489::t_79c5a41c52586b 85-88,140-142
+benchmark/jpegxl/README.md
+  s_6006332bb8a489::t_9f77d40f6078b8 33-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2549263cd4262e965c8f76bcd627802d5efa0337",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
