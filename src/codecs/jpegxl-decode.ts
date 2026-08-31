@@ -469,13 +469,34 @@ interface ModularChannelLayout {
   readonly height: number
 }
 
+interface ModularRctTransform {
+  readonly kind: 'rct'
+  readonly beginChannel: number
+  readonly type: number
+}
+
 interface ModularPaletteTransform {
+  readonly kind: 'palette'
   readonly beginChannel: number
   readonly channelCount: number
   readonly colorCount: number
   readonly deltaCount: number
   readonly predictor: number
 }
+
+interface ModularSqueezeParameters {
+  readonly horizontal: boolean
+  readonly inPlace: boolean
+  readonly beginChannel: number
+  readonly channelCount: number
+}
+
+interface ModularSqueezeTransform {
+  readonly kind: 'squeeze'
+  readonly parameters: readonly ModularSqueezeParameters[]
+}
+
+type ModularTransform = ModularRctTransform | ModularPaletteTransform | ModularSqueezeTransform
 
 interface WeightedPredictorParameters {
   readonly p1: number
@@ -520,17 +541,150 @@ const readWeightedPredictor = (reader: JpegXlBitReader): WeightedPredictorParame
 
 interface ModularProgram {
   readonly nodes: readonly ModularNode[]
-  readonly rctBegin: number
-  readonly rctType: number
   readonly section: Uint8Array
   readonly residualBitPosition: number
   readonly pixelCode: JpegXlEntropyCode
   readonly weightedPredictor: WeightedPredictorParameters
   readonly usesWeightedPrediction: boolean
   readonly channelLayouts: readonly ModularChannelLayout[]
-  readonly palette: ModularPaletteTransform | undefined
+  readonly transforms: readonly ModularTransform[]
+  readonly metaChannelCount: number
   readonly groupId: number
   readonly prefixPlanes: readonly Int32Array<ArrayBufferLike>[]
+}
+
+const sameLayout = (first: ModularChannelLayout, second: ModularChannelLayout): boolean =>
+  first.width === second.width && first.height === second.height
+
+const validateTransformRange = (
+  layouts: readonly ModularChannelLayout[],
+  metaChannelCount: number,
+  beginChannel: number,
+  channelCount: number,
+  name: string,
+): void => {
+  const endChannel = beginChannel + channelCount - 1
+  if (
+    channelCount < 1 ||
+    beginChannel < 0 ||
+    endChannel >= layouts.length ||
+    (beginChannel < metaChannelCount && endChannel >= metaChannelCount)
+  ) {
+    throw invalidInput(`JPEG XL ${name} channel range is invalid`)
+  }
+}
+
+const defaultSqueezeParameters = (
+  layouts: readonly ModularChannelLayout[],
+  metaChannelCount: number,
+): readonly ModularSqueezeParameters[] => {
+  const normalChannelCount = layouts.length - metaChannelCount
+  const first = layouts[metaChannelCount]
+  if (!first || normalChannelCount < 1) {
+    throw invalidInput('JPEG XL default Squeeze has no normal channels')
+  }
+  let width = first.width
+  let height = first.height
+  const parameters: ModularSqueezeParameters[] = []
+  const second = layouts[metaChannelCount + 1]
+  if (normalChannelCount > 2 && second && sameLayout(first, second)) {
+    parameters.push(
+      Object.freeze({
+        horizontal: true,
+        inPlace: false,
+        beginChannel: metaChannelCount + 1,
+        channelCount: 2,
+      }),
+      Object.freeze({
+        horizontal: false,
+        inPlace: false,
+        beginChannel: metaChannelCount + 1,
+        channelCount: 2,
+      }),
+    )
+  }
+  const wide = width > height
+  if (!wide && height > 8) {
+    parameters.push(
+      Object.freeze({
+        horizontal: false,
+        inPlace: true,
+        beginChannel: metaChannelCount,
+        channelCount: normalChannelCount,
+      }),
+    )
+    height = Math.ceil(height / 2)
+  }
+  while (width > 8 || height > 8) {
+    if (width > 8) {
+      parameters.push(
+        Object.freeze({
+          horizontal: true,
+          inPlace: true,
+          beginChannel: metaChannelCount,
+          channelCount: normalChannelCount,
+        }),
+      )
+      width = Math.ceil(width / 2)
+    }
+    if (height > 8) {
+      parameters.push(
+        Object.freeze({
+          horizontal: false,
+          inPlace: true,
+          beginChannel: metaChannelCount,
+          channelCount: normalChannelCount,
+        }),
+      )
+      height = Math.ceil(height / 2)
+    }
+  }
+  return Object.freeze(parameters)
+}
+
+const applySqueezeLayouts = (
+  layouts: ModularChannelLayout[],
+  initialMetaChannelCount: number,
+  parameters: readonly ModularSqueezeParameters[],
+): number => {
+  let metaChannelCount = initialMetaChannelCount
+  for (const parameter of parameters) {
+    validateTransformRange(
+      layouts,
+      metaChannelCount,
+      parameter.beginChannel,
+      parameter.channelCount,
+      'Squeeze',
+    )
+    const endChannel = parameter.beginChannel + parameter.channelCount - 1
+    if (parameter.beginChannel < metaChannelCount) {
+      if (!parameter.inPlace) {
+        throw invalidInput('JPEG XL meta-channel Squeeze must store residuals in place')
+      }
+      metaChannelCount += parameter.channelCount
+    }
+    const residualOffset = parameter.inPlace ? endChannel + 1 : layouts.length
+    for (let channel = parameter.beginChannel; channel <= endChannel; channel += 1) {
+      const layout = layouts[channel]
+      if (!layout || layout.width < 1 || layout.height < 1) {
+        throw invalidInput('JPEG XL Squeeze channel dimensions are invalid')
+      }
+      const average = Object.freeze({
+        width: parameter.horizontal ? Math.ceil(layout.width / 2) : layout.width,
+        height: parameter.horizontal ? layout.height : Math.ceil(layout.height / 2),
+      })
+      const residual = Object.freeze({
+        width: parameter.horizontal ? Math.floor(layout.width / 2) : layout.width,
+        height: parameter.horizontal ? layout.height : Math.floor(layout.height / 2),
+      })
+      layouts[channel] = average
+      layouts.splice(residualOffset + channel - parameter.beginChannel, 0, residual)
+      if (layouts.length > 1_024) {
+        throw limitExceeded('JPEG XL Modular transforms create too many channels')
+      }
+    }
+  }
+  return metaChannelCount
 }
 
 const readModularProgram = (
@@ -550,63 +704,93 @@ const readModularProgram = (
   }
   const weightedPredictor = readWeightedPredictor(reader)
   const transformCount = readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)])
-  if (transformCount > 1) {
-    throw unsupportedOperation('JPEG XL multiple Modular transforms are not supported')
+  if (transformCount > 256) {
+    throw limitExceeded('JPEG XL Modular transform count exceeds 256')
   }
-  let rctBegin = 0
-  let rctType = 0
   const channelLayouts: ModularChannelLayout[] = Array.from({ length: channelCount }, () => ({
     width,
     height,
   }))
-  let palette: ModularPaletteTransform | undefined
-  if (transformCount === 1) {
+  const transforms: ModularTransform[] = []
+  let metaChannelCount = 0
+  for (let transformIndex = 0; transformIndex < transformCount; transformIndex += 1) {
     const transform = readU32(reader, [value(0), value(1), value(2), value(3)])
     if (transform === 0) {
-      rctBegin = readU32(reader, [bits(3), bits(6, 8), bits(10, 72), bits(13, 1_096)])
-      rctType = readU32(reader, [value(6), bits(2), bits(4, 2), bits(6, 10)])
-      if (rctBegin + 2 >= channelCount || rctType >= 42) {
+      const beginChannel = readU32(reader, [bits(3), bits(6, 8), bits(10, 72), bits(13, 1_096)])
+      const type = readU32(reader, [value(6), bits(2), bits(4, 2), bits(6, 10)])
+      validateTransformRange(channelLayouts, metaChannelCount, beginChannel, 3, 'RCT')
+      const firstLayout = channelLayouts[beginChannel]
+      if (
+        type >= 42 ||
+        !firstLayout ||
+        channelLayouts
+          .slice(beginChannel, beginChannel + 3)
+          .some((layout) => !sameLayout(firstLayout, layout))
+      ) {
         throw invalidInput('JPEG XL RCT parameters are invalid')
       }
+      transforms.push(Object.freeze({ kind: 'rct', beginChannel, type }))
     } else if (transform === 1) {
       const beginChannel = readU32(reader, [bits(3), bits(6, 8), bits(10, 72), bits(13, 1_096)])
       const paletteChannelCount = readU32(reader, [value(1), value(3), value(4), bits(13, 1)])
       const colorCount = readU32(reader, [bits(8), bits(10, 256), bits(12, 1_280), bits(16, 5_376)])
       const deltaCount = readU32(reader, [value(0), bits(8, 1), bits(10, 257), bits(16, 1_281)])
       const predictor = reader.readBits(4)
-      if (
-        predictor > 13 ||
-        paletteChannelCount < 1 ||
-        beginChannel + paletteChannelCount > channelLayouts.length ||
-        colorCount < 1
-      ) {
+      if (predictor > 13 || colorCount + deltaCount < 1) {
         throw invalidInput('JPEG XL Palette transform is invalid')
       }
+      validateTransformRange(
+        channelLayouts,
+        metaChannelCount,
+        beginChannel,
+        paletteChannelCount,
+        'Palette',
+      )
       const firstLayout = channelLayouts[beginChannel]
       if (
         !firstLayout ||
         channelLayouts
           .slice(beginChannel, beginChannel + paletteChannelCount)
-          .some(
-            (layout) => layout.width !== firstLayout.width || layout.height !== firstLayout.height,
-          )
+          .some((layout) => !sameLayout(firstLayout, layout))
       ) {
         throw invalidInput('JPEG XL Palette channel dimensions do not match')
       }
+      if (beginChannel >= metaChannelCount) metaChannelCount += 1
+      else metaChannelCount += 2 - paletteChannelCount
       channelLayouts.splice(beginChannel + 1, paletteChannelCount - 1)
       channelLayouts.unshift({ width: colorCount + deltaCount, height: paletteChannelCount })
-      palette = Object.freeze({
-        beginChannel,
-        channelCount: paletteChannelCount,
-        colorCount,
-        deltaCount,
-        predictor,
-      })
+      transforms.push(
+        Object.freeze({
+          kind: 'palette',
+          beginChannel,
+          channelCount: paletteChannelCount,
+          colorCount,
+          deltaCount,
+          predictor,
+        }),
+      )
     } else if (transform === 2) {
       const squeezeCount = readU32(reader, [value(0), bits(4, 1), bits(6, 9), bits(8, 41)])
-      if (squeezeCount !== 0 || width > 8 || height > 8) {
-        throw unsupportedOperation('JPEG XL Squeeze Modular transforms are not supported')
+      if (squeezeCount > 256) {
+        throw limitExceeded('JPEG XL Squeeze parameter count exceeds 256')
       }
+      const explicitParameters: ModularSqueezeParameters[] = []
+      for (let index = 0; index < squeezeCount; index += 1) {
+        explicitParameters.push(
+          Object.freeze({
+            horizontal: reader.readBits(1) !== 0,
+            inPlace: reader.readBits(1) !== 0,
+            beginChannel: readU32(reader, [bits(3), bits(6, 8), bits(10, 72), bits(13, 1_096)]),
+            channelCount: readU32(reader, [value(1), value(2), value(3), bits(4, 4)]),
+          }),
+        )
+      }
+      const parameters =
+        explicitParameters.length === 0
+          ? defaultSqueezeParameters(channelLayouts, metaChannelCount)
+          : Object.freeze(explicitParameters)
+      metaChannelCount = applySqueezeLayouts(channelLayouts, metaChannelCount, parameters)
+      transforms.push(Object.freeze({ kind: 'squeeze', parameters }))
     } else {
       throw invalidInput('JPEG XL Modular transform is invalid')
     }
@@ -627,15 +811,14 @@ const readModularProgram = (
   )
   return Object.freeze({
     nodes: tree.nodes,
-    rctBegin,
-    rctType,
     section,
     residualBitPosition: reader.bitPosition,
     pixelCode,
     weightedPredictor,
     usesWeightedPrediction,
     channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
-    palette,
+    transforms: Object.freeze(transforms),
+    metaChannelCount,
     prefixPlanes: Object.freeze([]),
     groupId: 0,
   })
@@ -675,6 +858,11 @@ const readMultiGroupFoundation = (
     header.width,
     header.height,
   )
+  if (globalProgram.transforms.some((transform) => transform.kind !== 'rct')) {
+    throw unsupportedOperation(
+      'JPEG XL multi-group global Palette and Squeeze transforms are not supported',
+    )
+  }
   const firstGroupedChannel = globalProgram.channelLayouts.findIndex(
     (layout) => layout.width > header.groupDimension || layout.height > header.groupDimension,
   )
@@ -766,15 +954,14 @@ const readModularGroup = (
     height,
     program: Object.freeze({
       nodes: tree,
-      rctBegin: foundation.globalProgram.rctBegin,
-      rctType: foundation.globalProgram.rctType,
       section: groupData,
       residualBitPosition: reader.bitPosition,
       pixelCode,
       weightedPredictor,
       usesWeightedPrediction,
       channelLayouts,
-      palette: foundation.globalProgram.palette,
+      transforms: foundation.globalProgram.transforms,
+      metaChannelCount: foundation.globalProgram.metaChannelCount,
       groupId: 1 + 3 * header.dcGroupCount + JPEG_XL_QUANT_TABLES + groupId,
       prefixPlanes: foundation.prefixPlanes,
     }),
@@ -910,12 +1097,11 @@ class JpegXlWeightedPredictor {
     const topLeftError = this.#errors[topLeftPosition] ?? 0
     const topRightError = this.#errors[topRightPosition] ?? 0
     const topAndLeftError = topError + leftError
-    properties[15] = Math.max(
-      Math.abs(leftError),
-      Math.abs(topError),
-      Math.abs(topLeftError),
-      Math.abs(topRightError),
-    )
+    let errorProperty = leftError
+    if (Math.abs(topError) > Math.abs(errorProperty)) errorProperty = topError
+    if (Math.abs(topLeftError) > Math.abs(errorProperty)) errorProperty = topLeftError
+    if (Math.abs(topRightError) > Math.abs(errorProperty)) errorProperty = topRightError
+    properties[15] = errorProperty
 
     this.#predictions[0] = scaledLeft + scaledTopRight - scaledTop
     this.#predictions[1] =
@@ -1061,7 +1247,9 @@ const requireZeroSectionPadding = (reader: JpegXlBitReader): void => {
   while (reader.remainingBits > 0) {
     const count = Math.min(32, reader.remainingBits)
     if (reader.readBits(count) !== 0) {
-      throw invalidInput('JPEG XL Modular section padding is nonzero')
+      throw invalidInput(
+        `JPEG XL Modular section has nonzero trailing data with ${reader.remainingBits} bits unread`,
+      )
     }
   }
 }
@@ -1217,14 +1405,59 @@ const writeUint16BigEndian = (output: Uint8Array, offset: number, sample: number
   output[offset + 1] = sample
 }
 
+const implicitPaletteDeltas = new Int16Array([
+  0, 0, 0, 4, 4, 4, 11, 0, 0, 0, 0, -13, 0, -12, 0, -10, -10, -10, -18, -18, -18, -27, -27, -27,
+  -18, -18, 0, 0, 0, -32, -32, 0, 0, -37, -37, -37, 0, -32, -32, 24, 24, 45, 50, 50, 50, -45, -24,
+  -24, -24, -45, -45, 0, -24, -24, -34, -34, 0, -24, 0, -24, -45, -45, -24, 64, 64, 64, -32, 0, -32,
+  0, -32, 0, -32, 0, 32, -24, -45, -24, 45, 24, 45, 24, -24, -45, -45, -24, 24, 80, 80, 80, 64, 0,
+  0, 0, 0, -64, 0, -64, -64, -24, -24, 45, 96, 96, 96, 64, 64, 0, 45, -24, -24, 34, -34, 0, 112,
+  112, 112, 24, -45, -45, 45, 45, -24, 0, -32, 32, 24, -24, 45, 0, 96, 96, 45, -24, 24, 24, -45,
+  -24, -24, -45, 24, 0, -64, 0, 96, 0, 0, 128, 128, 128, 64, 0, 64, 144, 144, 144, 96, 96, 0, -36,
+  -36, 36, 45, -24, -45, 45, -45, -24, 0, 0, -96, 0, 128, 128, 0, 96, 0, 45, 24, -45, -128, 0, 0,
+  24, -45, 24, -45, 24, -45, 64, 0, -64, 64, -64, -64, 96, 0, 96, 45, -45, 24, 24, 45, -45, 64, 64,
+  -64, 128, 128, 0, 0, 0, -128, -24, 45, -45,
+])
+
+const paletteValue = (
+  palette: Int32Array<ArrayBufferLike>,
+  indexValue: number,
+  channel: number,
+  paletteWidth: number,
+  bitDepth: number,
+): number => {
+  let index = indexValue
+  if (index < 0) {
+    if (channel >= 3) return 0
+    index = -(index + 1)
+    index %= 143
+    const multiplier = (index & 1) === 0 ? -1 : 1
+    const delta = implicitPaletteDeltas[((index + 1) >> 1) * 3 + channel] ?? 0
+    return delta * multiplier * (bitDepth > 8 ? 2 ** (bitDepth - 8) : 1)
+  }
+  const maximum = 2 ** bitDepth - 1
+  if (index >= paletteWidth && index < paletteWidth + 64) {
+    if (channel >= 3) return 0
+    index -= paletteWidth
+    index >>>= channel * 2
+    return (((index & 3) * maximum) >> 2) + 2 ** Math.max(0, bitDepth - 3)
+  }
+  if (index >= paletteWidth + 64) {
+    if (channel >= 3) return 0
+    index -= paletteWidth + 64
+    if (channel === 1) index = Math.floor(index / 5)
+    else if (channel === 2) index = Math.floor(index / 25)
+    return ((index % 5) * maximum) >> 2
+  }
+  return palette[channel * paletteWidth + index] ?? 0
+}
+
 const inversePalette = (
   encodedPlanes: readonly Int32Array[],
   transform: ModularPaletteTransform,
   bitDepth: number,
+  weightedPredictorParameters: WeightedPredictorParameters,
+  width: number,
 ): Int32Array[] => {
-  if (transform.deltaCount !== 0 || transform.predictor !== 0) {
-    throw unsupportedOperation('JPEG XL delta Palette transforms are not supported')
-  }
   const palette = encodedPlanes[0]
   const indexPosition = transform.beginChannel + 1
   const indices = encodedPlanes[indexPosition]
@@ -1234,29 +1467,305 @@ const inversePalette = (
   const channels: Int32Array[] = []
   for (let channel = 0; channel < transform.channelCount; channel += 1) {
     const output = new Int32Array(indices.length)
-    const paletteRow = channel * paletteWidth
+    const weightedPredictor =
+      transform.predictor === 6
+        ? new JpegXlWeightedPredictor(width, weightedPredictorParameters)
+        : undefined
+    const properties = new Int32Array(16)
     for (let position = 0; position < indices.length; position += 1) {
       const index = indices[position] ?? 0
-      let sample: number
-      if (index < 0) {
-        throw unsupportedOperation(`JPEG XL negative Palette index ${index} is not supported`)
+      let sample = paletteValue(palette, index, channel, paletteWidth, bitDepth)
+      if (index < transform.deltaCount) {
+        const x = position % width
+        const y = Math.floor(position / width)
+        const row = y * width
+        const previous = row - width
+        const beforePrevious = previous - width
+        const left = x > 0 ? (output[position - 1] ?? 0) : y > 0 ? (output[previous + x] ?? 0) : 0
+        const top = y > 0 ? (output[previous + x] ?? 0) : left
+        const topLeft = x > 0 && y > 0 ? (output[previous + x - 1] ?? 0) : left
+        const topRight = x + 1 < width && y > 0 ? (output[previous + x + 1] ?? 0) : top
+        const topRightRight = x + 2 < width && y > 0 ? (output[previous + x + 2] ?? 0) : topRight
+        const topTop = y > 1 ? (output[beforePrevious + x] ?? 0) : top
+        const leftLeft = x > 1 ? (output[position - 2] ?? 0) : left
+        const weightedPrediction =
+          weightedPredictor?.predict(
+            x,
+            y,
+            width,
+            top,
+            left,
+            topRight,
+            topLeft,
+            topTop,
+            properties,
+          ) ?? 0
+        sample += modularPrediction(
+          transform.predictor,
+          left,
+          top,
+          topTop,
+          topLeft,
+          topRight,
+          topRightRight,
+          leftLeft,
+          weightedPrediction,
+        )
       }
-      if (index < transform.colorCount) {
-        sample = palette[paletteRow + index] ?? 0
-      } else if (index < transform.colorCount + 64) {
-        const component = (index - transform.colorCount) >>> (channel * 2)
-        sample =
-          Math.floor(((component & 3) * (2 ** bitDepth - 1)) / 4) + 2 ** Math.max(0, bitDepth - 3)
-      } else {
-        const component = Math.floor((index - transform.colorCount - 64) / 5 ** channel)
-        sample = Math.floor(((component % 5) * (2 ** bitDepth - 1)) / 4)
-      }
-      output[position] = sample
+      output[position] = requireModularSample(sample)
+      weightedPredictor?.update(sample, position % width, Math.floor(position / width))
     }
     channels.push(output)
   }
   restored.splice(transform.beginChannel, 1, ...channels)
   return restored
+}
+
+const smoothSqueezeTendency = (previous: number, average: number, next: number): number => {
+  let difference = 0
+  if (previous >= average && average >= next) {
+    difference = Math.trunc((4 * previous - 3 * next - average + 6) / 12)
+    if (difference - (difference & 1) > 2 * (previous - average)) {
+      difference = 2 * (previous - average) + 1
+    }
+    if (difference + (difference & 1) > 2 * (average - next)) {
+      difference = 2 * (average - next)
+    }
+  } else if (previous <= average && average <= next) {
+    difference = Math.trunc((4 * previous - 3 * next - average - 6) / 12)
+    if (difference + (difference & 1) < 2 * (previous - average)) {
+      difference = 2 * (previous - average) - 1
+    }
+    if (difference - (difference & 1) < 2 * (average - next)) {
+      difference = 2 * (average - next)
+    }
+  }
+  return difference
+}
+
+const requireModularSample = (sample: number): number => {
+  if (!Number.isSafeInteger(sample) || sample < -2_147_483_648 || sample > 2_147_483_647) {
+    throw invalidInput('JPEG XL inverse Modular transform exceeds the signed 32-bit range')
+  }
+  return sample
+}
+
+const inverseHorizontalSqueeze = (
+  average: Int32Array<ArrayBufferLike>,
+  averageLayout: ModularChannelLayout,
+  residual: Int32Array<ArrayBufferLike>,
+  residualLayout: ModularChannelLayout,
+): { readonly plane: Int32Array; readonly layout: ModularChannelLayout } => {
+  if (
+    averageLayout.height !== residualLayout.height ||
+    averageLayout.width < residualLayout.width ||
+    averageLayout.width - residualLayout.width > 1 ||
+    average.length !== averageLayout.width * averageLayout.height ||
+    residual.length !== residualLayout.width * residualLayout.height
+  ) {
+    throw invalidInput('JPEG XL horizontal Squeeze channel geometry is invalid')
+  }
+  const outputWidth = averageLayout.width + residualLayout.width
+  const output = new Int32Array(outputWidth * averageLayout.height)
+  for (let y = 0; y < averageLayout.height; y += 1) {
+    const averageRow = y * averageLayout.width
+    const residualRow = y * residualLayout.width
+    const outputRow = y * outputWidth
+    for (let x = 0; x < residualLayout.width; x += 1) {
+      const currentAverage = average[averageRow + x] ?? 0
+      const nextAverage = average[averageRow + Math.min(x + 1, averageLayout.width - 1)] ?? 0
+      const previous = x === 0 ? currentAverage : (output[outputRow + 2 * x - 1] ?? 0)
+      const difference =
+        (residual[residualRow + x] ?? 0) +
+        smoothSqueezeTendency(previous, currentAverage, nextAverage)
+      const first = requireModularSample(currentAverage + Math.trunc(difference / 2))
+      output[outputRow + 2 * x] = first
+      output[outputRow + 2 * x + 1] = requireModularSample(first - difference)
+    }
+    if ((outputWidth & 1) !== 0) {
+      output[outputRow + outputWidth - 1] = average[averageRow + averageLayout.width - 1] ?? 0
+    }
+  }
+  return Object.freeze({
+    plane: output,
+    layout: Object.freeze({ width: outputWidth, height: averageLayout.height }),
+  })
+}
+
+const inverseVerticalSqueeze = (
+  average: Int32Array<ArrayBufferLike>,
+  averageLayout: ModularChannelLayout,
+  residual: Int32Array<ArrayBufferLike>,
+  residualLayout: ModularChannelLayout,
+): { readonly plane: Int32Array; readonly layout: ModularChannelLayout } => {
+  if (
+    averageLayout.width !== residualLayout.width ||
+    averageLayout.height < residualLayout.height ||
+    averageLayout.height - residualLayout.height > 1 ||
+    average.length !== averageLayout.width * averageLayout.height ||
+    residual.length !== residualLayout.width * residualLayout.height
+  ) {
+    throw invalidInput('JPEG XL vertical Squeeze channel geometry is invalid')
+  }
+  const outputHeight = averageLayout.height + residualLayout.height
+  const output = new Int32Array(averageLayout.width * outputHeight)
+  for (let y = 0; y < residualLayout.height; y += 1) {
+    const averageRow = y * averageLayout.width
+    const nextAverageRow = Math.min(y + 1, averageLayout.height - 1) * averageLayout.width
+    const residualRow = y * residualLayout.width
+    const outputRow = 2 * y * averageLayout.width
+    const nextOutputRow = outputRow + averageLayout.width
+    const previousOutputRow = y === 0 ? -1 : outputRow - averageLayout.width
+    for (let x = 0; x < averageLayout.width; x += 1) {
+      const currentAverage = average[averageRow + x] ?? 0
+      const nextAverage = average[nextAverageRow + x] ?? 0
+      const previous = previousOutputRow < 0 ? currentAverage : (output[previousOutputRow + x] ?? 0)
+      const difference =
+        (residual[residualRow + x] ?? 0) +
+        smoothSqueezeTendency(previous, currentAverage, nextAverage)
+      const first = requireModularSample(currentAverage + Math.trunc(difference / 2))
+      output[outputRow + x] = first
+      output[nextOutputRow + x] = requireModularSample(first - difference)
+    }
+  }
+  if ((outputHeight & 1) !== 0) {
+    output.set(
+      average.subarray((averageLayout.height - 1) * averageLayout.width),
+      (outputHeight - 1) * averageLayout.width,
+    )
+  }
+  return Object.freeze({
+    plane: output,
+    layout: Object.freeze({ width: averageLayout.width, height: outputHeight }),
+  })
+}
+
+const inverseSqueeze = (
+  planes: Int32Array<ArrayBufferLike>[],
+  layouts: ModularChannelLayout[],
+  initialMetaChannelCount: number,
+  transform: ModularSqueezeTransform,
+): number => {
+  let metaChannelCount = initialMetaChannelCount
+  for (let index = transform.parameters.length - 1; index >= 0; index -= 1) {
+    const parameter = transform.parameters[index]
+    if (!parameter) throw invalidInput('JPEG XL Squeeze parameter is missing')
+    validateTransformRange(
+      layouts,
+      metaChannelCount,
+      parameter.beginChannel,
+      parameter.channelCount,
+      'inverse Squeeze',
+    )
+    const endChannel = parameter.beginChannel + parameter.channelCount - 1
+    const residualOffset = parameter.inPlace
+      ? endChannel + 1
+      : planes.length + parameter.beginChannel - endChannel - 1
+    if (parameter.beginChannel < metaChannelCount) {
+      metaChannelCount -= parameter.channelCount
+    }
+    for (let channel = parameter.beginChannel; channel <= endChannel; channel += 1) {
+      const residualChannel = residualOffset + channel - parameter.beginChannel
+      const average = planes[channel]
+      const averageLayout = layouts[channel]
+      const residual = planes[residualChannel]
+      const residualLayout = layouts[residualChannel]
+      if (!average || !averageLayout || !residual || !residualLayout) {
+        throw invalidInput('JPEG XL Squeeze channel is missing')
+      }
+      const restored = parameter.horizontal
+        ? inverseHorizontalSqueeze(average, averageLayout, residual, residualLayout)
+        : inverseVerticalSqueeze(average, averageLayout, residual, residualLayout)
+      planes[channel] = restored.plane
+      layouts[channel] = restored.layout
+    }
+    planes.splice(residualOffset, parameter.channelCount)
+    layouts.splice(residualOffset, parameter.channelCount)
+  }
+  return metaChannelCount
+}
+
+const inverseRctPlanes = (
+  planes: Int32Array<ArrayBufferLike>[],
+  layouts: readonly ModularChannelLayout[],
+  transform: ModularRctTransform,
+): void => {
+  const first = planes[transform.beginChannel]
+  const second = planes[transform.beginChannel + 1]
+  const third = planes[transform.beginChannel + 2]
+  const firstLayout = layouts[transform.beginChannel]
+  if (
+    !first ||
+    !second ||
+    !third ||
+    !firstLayout ||
+    !sameLayout(firstLayout, layouts[transform.beginChannel + 1] ?? { width: -1, height: -1 }) ||
+    !sameLayout(firstLayout, layouts[transform.beginChannel + 2] ?? { width: -1, height: -1 })
+  ) {
+    throw invalidInput('JPEG XL inverse RCT channels are invalid')
+  }
+  const restored = new Int32Array(3)
+  for (let position = 0; position < first.length; position += 1) {
+    inverseRct(
+      first[position] ?? 0,
+      second[position] ?? 0,
+      third[position] ?? 0,
+      transform.type,
+      restored,
+    )
+    first[position] = restored[0] ?? 0
+    second[position] = restored[1] ?? 0
+    third[position] = restored[2] ?? 0
+  }
+}
+
+const inverseModularTransforms = (
+  encodedPlanes: Int32Array<ArrayBufferLike>[],
+  program: ModularProgram,
+  bitDepth: number,
+): Int32Array<ArrayBufferLike>[] => {
+  let planes = encodedPlanes
+  const layouts = program.channelLayouts.map((layout) => ({ ...layout }))
+  let metaChannelCount = program.metaChannelCount
+  for (let index = program.transforms.length - 1; index >= 0; index -= 1) {
+    const transform = program.transforms[index]
+    if (!transform) throw invalidInput('JPEG XL Modular transform is missing')
+    if (transform.kind === 'rct') {
+      inverseRctPlanes(planes, layouts, transform)
+      continue
+    }
+    if (transform.kind === 'squeeze') {
+      metaChannelCount = inverseSqueeze(planes, layouts, metaChannelCount, transform)
+      continue
+    }
+    const indexLayout = layouts[transform.beginChannel + 1]
+    if (!indexLayout || metaChannelCount < 1) {
+      throw invalidInput('JPEG XL inverse Palette layout is invalid')
+    }
+    planes = inversePalette(
+      planes,
+      transform,
+      bitDepth,
+      program.weightedPredictor,
+      indexLayout.width,
+    )
+    const restoredLayouts = layouts.slice(1)
+    restoredLayouts.splice(
+      transform.beginChannel,
+      1,
+      ...Array.from({ length: transform.channelCount }, () => ({ ...indexLayout })),
+    )
+    layouts.splice(0, layouts.length, ...restoredLayouts)
+    const indexChannel = transform.beginChannel + 1
+    metaChannelCount =
+      indexChannel >= metaChannelCount
+        ? metaChannelCount - 1
+        : metaChannelCount - (2 - transform.channelCount)
+  }
+  if (metaChannelCount !== 0) {
+    throw invalidInput('JPEG XL Modular transforms leave unresolved meta channels')
+  }
+  return planes
 }
 
 class JpegXlModularDecoder implements ImageDecoder {
@@ -1334,14 +1843,11 @@ class JpegXlModularDecoder implements ImageDecoder {
     ) {
       throw invalidInput('JPEG XL decode region is invalid')
     }
-    let planes = decodeModularPlanes(
+    const planes = inverseModularTransforms(
+      decodeModularPlanes(this.#program, this.#program.prefixPlanes.length, request.signal),
       this.#program,
-      this.#program.prefixPlanes.length,
-      request.signal,
+      this.#header.bitDepth,
     )
-    if (this.#program.palette) {
-      planes = inversePalette(planes, this.#program.palette, this.#header.bitDepth)
-    }
 
     const firstPlane = planes[0]
     if (!firstPlane) throw invalidInput('JPEG XL color channel buffer is missing')
@@ -1380,7 +1886,6 @@ class JpegXlModularDecoder implements ImageDecoder {
     if (!grayscaleWithAlpha && (!secondPlane || !thirdPlane)) {
       throw invalidInput('JPEG XL color channel buffer is missing')
     }
-    const transformed = new Int32Array(3)
     const alphaMaximum =
       this.#header.alphaBitDepth === undefined ? 65_535 : 2 ** this.#header.alphaBitDepth - 1
     for (let y = regionY; y < regionY + regionHeight; y += 1) {
@@ -1392,28 +1897,10 @@ class JpegXlModularDecoder implements ImageDecoder {
         for (let localX = 0; localX < regionWidth; localX += 1) {
           const x = regionX + localX
           const position = y * this.width + x
-          if (!grayscaleWithAlpha) {
-            inverseRct(
-              planes[this.#program.rctBegin]?.[position] ?? 0,
-              planes[this.#program.rctBegin + 1]?.[position] ?? 0,
-              planes[this.#program.rctBegin + 2]?.[position] ?? 0,
-              this.#program.rctType,
-              transformed,
-            )
-          }
-          let red = firstPlane[position] ?? 0
-          let green = grayscaleWithAlpha ? red : (secondPlane?.[position] ?? 0)
-          let blue = grayscaleWithAlpha ? red : (thirdPlane?.[position] ?? 0)
-          let alpha = alphaPlane?.[position] ?? 0
-          if (!grayscaleWithAlpha && this.#program.rctBegin === 0) {
-            red = transformed[0] ?? 0
-            green = transformed[1] ?? 0
-            blue = transformed[2] ?? 0
-          } else if (!grayscaleWithAlpha) {
-            green = transformed[0] ?? 0
-            blue = transformed[1] ?? 0
-            alpha = transformed[2] ?? 0
-          }
+          const red = firstPlane[position] ?? 0
+          const green = grayscaleWithAlpha ? red : (secondPlane?.[position] ?? 0)
+          const blue = grayscaleWithAlpha ? red : (thirdPlane?.[position] ?? 0)
+          const alpha = alphaPlane?.[position] ?? 0
           const target = localX * bytesPerPixel
           writeUint16BigEndian(output, target, clampSample(red, colorMaximum))
           writeUint16BigEndian(output, target + 2, clampSample(green, colorMaximum))
@@ -1440,28 +1927,10 @@ class JpegXlModularDecoder implements ImageDecoder {
       for (let localX = 0; localX < regionWidth; localX += 1) {
         const x = regionX + localX
         const position = y * this.width + x
-        if (!grayscaleWithAlpha) {
-          inverseRct(
-            planes[this.#program.rctBegin]?.[position] ?? 0,
-            planes[this.#program.rctBegin + 1]?.[position] ?? 0,
-            planes[this.#program.rctBegin + 2]?.[position] ?? 0,
-            this.#program.rctType,
-            transformed,
-          )
-        }
-        let red = firstPlane[position] ?? 0
-        let green = grayscaleWithAlpha ? red : (secondPlane?.[position] ?? 0)
-        let blue = grayscaleWithAlpha ? red : (thirdPlane?.[position] ?? 0)
-        let alpha = alphaPlane?.[position] ?? 0
-        if (!grayscaleWithAlpha && this.#program.rctBegin === 0) {
-          red = transformed[0] ?? 0
-          green = transformed[1] ?? 0
-          blue = transformed[2] ?? 0
-        } else if (!grayscaleWithAlpha) {
-          green = transformed[0] ?? 0
-          blue = transformed[1] ?? 0
-          alpha = transformed[2] ?? 0
-        }
+        const red = firstPlane[position] ?? 0
+        const green = grayscaleWithAlpha ? red : (secondPlane?.[position] ?? 0)
+        const blue = grayscaleWithAlpha ? red : (thirdPlane?.[position] ?? 0)
+        const alpha = alphaPlane?.[position] ?? 0
         const target = localX * bytesPerPixel
         output[target] = toByte(red, this.#header.bitDepth)
         output[target + 1] = toByte(green, this.#header.bitDepth)

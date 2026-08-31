@@ -23,6 +23,7 @@ interface ManifestFixture {
 interface Manifest {
   readonly oracle: string
   readonly revision: string
+  readonly sourceArchiveSha256: string
   readonly fixtures: readonly ManifestFixture[]
 }
 
@@ -68,6 +69,7 @@ const readManifest = (value: unknown): Manifest => {
     !isRecord(value) ||
     typeof value.oracle !== 'string' ||
     typeof value.revision !== 'string' ||
+    typeof value.sourceArchiveSha256 !== 'string' ||
     !Array.isArray(value.fixtures)
   ) {
     throw new Error('JPEG XL generated manifest is invalid')
@@ -75,6 +77,7 @@ const readManifest = (value: unknown): Manifest => {
   return Object.freeze({
     oracle: value.oracle,
     revision: value.revision,
+    sourceArchiveSha256: value.sourceArchiveSha256,
     fixtures: Object.freeze(value.fixtures.map(readFixture)),
   })
 }
@@ -169,6 +172,7 @@ for (const fixture of manifest.fixtures) {
 const summary = {
   oracle: manifest.oracle,
   revision: manifest.revision,
+  sourceArchiveSha256: manifest.sourceArchiveSha256,
   measuredAt: new Date().toISOString(),
   totals: {
     exact: rows.filter((row) => row.status === 'exact').length,

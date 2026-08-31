@@ -31,8 +31,9 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
 
   it('pins deterministic libjxl lossless generator outputs and taxonomy', () => {
     expect(generatedLossless.revision).toMatch(/^[0-9a-f]{40}$/u)
-    expect(generatedLossless.fixtures).toHaveLength(30)
-    expect(new Set(generatedLossless.fixtures.map(({ id }) => id)).size).toBe(30)
+    expect(generatedLossless.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
+    expect(generatedLossless.fixtures).toHaveLength(33)
+    expect(new Set(generatedLossless.fixtures.map(({ id }) => id)).size).toBe(33)
     for (const fixture of generatedLossless.fixtures) {
       expect(fixture.generator).toBe('benchmark/jpegxl/generate-lossless-corpus.ts')
       expect(fixture.jxlSha256).toMatch(/^[0-9a-f]{64}$/u)

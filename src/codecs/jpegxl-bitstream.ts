@@ -624,6 +624,9 @@ const readContextMap = (
   const sink = readJpegXlEntropyCode(reader, 1, recursionDepth + 1)
   const symbolReader = new JpegXlEntropySymbolReader(sink)
   const contextMap = Array.from({ length: contexts }, () => symbolReader.readHybridUint(0, reader))
+  if (!symbolReader.hasValidFinalState()) {
+    throw invalidInput('JPEG XL context map ANS state is invalid')
+  }
   if (useMoveToFront) inverseMoveToFront(contextMap)
   return Object.freeze({
     contextMap: Object.freeze(contextMap),

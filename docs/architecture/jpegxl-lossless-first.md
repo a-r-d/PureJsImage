@@ -333,6 +333,11 @@ Initial development pins:
 | imazen/jxl-encoder | `v0.3.1`, `d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b` | Independent encoder fixtures and comparison |
 | jxltran | `5d7ae715e9e83014cbf88ab5c6f6985ece2715c1` | JPEG transcode development oracle |
 
+The lossless Modular generator verifies the SHA-256 of the libjxl v0.12.0 source archive before it
+labels any output with that revision. The pinned archive hash is
+`818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29`. The current 33-case
+matrix records 29 exact decodes, zero pixel mismatches, and four explicit unsupported results.
+
 ## 20. Browser demo architecture
 
 The `/jpeg-xl/` route uses the existing Astro and worker boundaries. All codec work runs locally in
@@ -384,7 +389,7 @@ boundaries.
 - [x] Record the current focused JPEG XL baseline: 6 test files and 62 tests pass.
 - [x] Write the first complete architecture checkpoint before broad implementation.
 - [ ] Add the complete typed corpus taxonomy and pinned oracle manifest.
-- [ ] Run the starting capability matrix against every available pinned fixture.
+- [x] Run the starting capability matrix against every available pinned fixture.
 
 ### Segmented source and inspection
 
@@ -397,9 +402,9 @@ boundaries.
 ### Modular decode
 
 - [x] Complete required predictors and weighted prediction against the 14-predictor libjxl matrix.
-- [ ] Complete delta palette and palette-index prediction.
-- [ ] Complete horizontal, vertical, multi-channel, and odd-size squeeze.
-- [ ] Complete 8/10/12/16-bit gray, RGB, and RGBA with exact native samples.
+- [x] Complete delta palette and palette-index prediction.
+- [x] Complete horizontal, vertical, multi-channel, and odd-size squeeze.
+- [x] Complete 8/10/12/16-bit gray, RGB, and RGBA with exact native samples.
 - [ ] Complete alpha, color, ICC, orientation, group crop, and row release gates.
 
 ### VarDCT and JPEG-derived pixel decode

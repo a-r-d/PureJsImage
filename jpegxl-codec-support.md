@@ -20,16 +20,19 @@ The current pixel milestone decodes pinned native 8/10/12/16-bit grayscale, 8-bi
 grayscale with alpha, 8-bit RGB, and official 9-bit and 12-bit RGBA lossless Modular
 fixtures. It parses image and frame headers, global or local MA trees, prefix and ANS
 entropy, bounded LZ77 including group-aware special distances, adaptive properties,
-nonzero residuals, the documented Modular predictors, one reversible color transform,
-and a compatible non-delta Palette transform. Compatible multi-group grayscale validates
+nonzero residuals, the documented Modular predictors, reversible color transforms,
+ordinary and delta palettes, palette-index prediction, and horizontal, vertical,
+multi-channel, and odd-size squeeze transforms in reverse dependency order.
+Compatible multi-group grayscale validates
 ordered or permuted table-of-contents entries and dependencies, supports shared global or
 per-group local MA trees, decodes only crop-intersecting groups, supports crops crossing
 group boundaries, and releases each completed group-row band. The decoder emits native
 `gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` rows with per-channel display
 ranges. The pinned multi-group 8-bit fixtures and native grayscale matrix match exact
 independent `djxl` pixels; official high-bit RGBA fixtures retain their documented exact or
-one-sample tolerance. Delta Palette, Squeeze, shifted or DC group
-channels, custom color descriptions, multiple frames, and all VarDCT syntax remain
+one-sample tolerance. The exact libjxl v0.12.0 matrix records 29 exact decodes, zero
+mismatches, and four explicit unsupported results. Premultiplied alpha, shifted or DC
+group channels, custom color descriptions, multiple frames, and all VarDCT syntax remain
 explicit unsupported operations.
 
 A checked implementation item is already present and tested in the repository.
@@ -156,13 +159,13 @@ losslessly transcoded JPEG files.
   and its state updates
 - [x] Decode residuals through the selected predictor and reconstruct signed
   channel samples without overflow
-- [ ] Complete palette transforms, including delta palettes and palette-index
+- [x] Complete palette transforms, including delta palettes and palette-index
   prediction
 - [x] Implement and independently verify the pinned fixture's reversible color
   transform
-- [ ] Implement squeeze transforms for horizontal, vertical, and multi-channel
+- [x] Implement squeeze transforms for horizontal, vertical, and multi-channel
   reconstruction, including odd dimensions
-- [ ] Apply inverse Modular transforms in the exact reverse dependency order
+- [x] Apply inverse Modular transforms in the exact reverse dependency order
 - [x] Support single-group and compatible multi-group Modular images with shared
   global or per-group local MA trees and unshifted grouped channels
 - [x] Support native 8/10/12/16-bit lossless grayscale and the documented RGB/RGBA subset
@@ -333,7 +336,7 @@ JPEG XL v1.
 
 ## Reference implementations and conformance
 
-- [ ] Pin `libjxl` and its `djxl`/`jxlinfo` tools at an exact development-oracle
+- [x] Pin `libjxl` and its `djxl`/`jxlinfo` tools at an exact development-oracle
   version
 - [ ] Study libjxl's module boundaries, supported features, test taxonomy,
   low-memory behavior, and security history without copying or mechanically

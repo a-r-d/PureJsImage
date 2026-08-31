@@ -31,6 +31,8 @@ const sourceDefinitions: readonly SourceDefinition[] = Object.freeze([
   Object.freeze({ id: 'rgb12-odd', kind: 'rgb', width: 45, height: 37, bitDepth: 12 }),
   Object.freeze({ id: 'rgb16-odd', kind: 'rgb', width: 47, height: 39, bitDepth: 16 }),
   Object.freeze({ id: 'rgba8-transparent', kind: 'rgba', width: 37, height: 31, bitDepth: 8 }),
+  Object.freeze({ id: 'rgba10-transparent', kind: 'rgba', width: 39, height: 33, bitDepth: 10 }),
+  Object.freeze({ id: 'rgba12-transparent', kind: 'rgba', width: 41, height: 35, bitDepth: 12 }),
   Object.freeze({ id: 'rgba16-transparent', kind: 'rgba', width: 35, height: 33, bitDepth: 16 }),
   Object.freeze({ id: 'gray8-groups', kind: 'gray', width: 775, height: 643, bitDepth: 8 }),
   Object.freeze({ id: 'rgb8-groups', kind: 'rgb', width: 769, height: 641, bitDepth: 8 }),
@@ -83,18 +85,31 @@ const encodeDefinitions: readonly EncodeDefinition[] = Object.freeze([
     options: Object.freeze(['--effort=7', '--premultiply=1', '--keep_invisible=1']),
     outputFormat: 'pam',
   }),
-  Object.freeze({
-    id: 'rgba16-straight',
-    source: 'rgba16-transparent',
-    features: Object.freeze(['16-bit RGBA', 'straight alpha', 'transparent colors']),
-    options: Object.freeze(['--effort=7', '--premultiply=0', '--keep_invisible=1']),
-    outputFormat: 'pam',
-  }),
+  ...([10, 12, 16] as const).map((bitDepth) =>
+    Object.freeze({
+      id: `rgba${bitDepth}-straight`,
+      source: `rgba${bitDepth}-transparent`,
+      features: Object.freeze([`${bitDepth}-bit RGBA`, 'straight alpha', 'transparent colors']),
+      options: Object.freeze(['--effort=7', '--premultiply=0', '--keep_invisible=1']),
+      outputFormat: 'pam' as const,
+    }),
+  ),
   Object.freeze({
     id: 'rgb8-palette',
     source: 'rgb8-odd',
     features: Object.freeze(['ordinary Palette transform']),
     options: Object.freeze(['--effort=9', '--modular_palette_colors=256']),
+  }),
+  Object.freeze({
+    id: 'rgb8-delta-palette',
+    source: 'rgb8-odd',
+    features: Object.freeze(['delta Palette transform', 'palette-index prediction']),
+    options: Object.freeze([
+      '--effort=9',
+      '--modular_colorspace=0',
+      '--modular_lossy_palette',
+      '--modular_palette_colors=0',
+    ]),
   }),
   Object.freeze({
     id: 'rgb8-squeeze',
@@ -213,9 +228,21 @@ const run = async (
     })
   })
 
-const root = process.env.PUREJSIMAGE_LIBJXL_ROOT ?? '.tmp/jpegxl-oracles/libjxl-v0.12.0/root'
-const binaryDirectory = join(root, 'usr', 'bin')
-const libraryDirectory = join(root, 'usr', 'lib', 'x86_64-linux-gnu')
+const libjxlRevision = 'a7a9c787341cf703dede03c2009fa460cae5e5df'
+const libjxlSourceArchiveSha256 = '818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29'
+const oracleDirectory = process.env.PUREJSIMAGE_LIBJXL_ROOT ?? '.tmp/jpegxl-oracles/libjxl-v0.12.0'
+const binaryDirectory =
+  process.env.PUREJSIMAGE_LIBJXL_BIN ?? join(oracleDirectory, 'source', 'build-pinned', 'tools')
+const libraryDirectory =
+  process.env.PUREJSIMAGE_LIBJXL_LIB ?? join(oracleDirectory, 'source', 'build-pinned', 'lib')
+const sourceArchivePath =
+  process.env.PUREJSIMAGE_LIBJXL_SOURCE_ARCHIVE ?? join(oracleDirectory, 'source-a7a9c787.tar.gz')
+const sourceArchiveSha256 = digest(await readFile(sourceArchivePath))
+if (sourceArchiveSha256 !== libjxlSourceArchiveSha256) {
+  throw new Error(
+    `Pinned libjxl source archive checksum mismatch: expected ${libjxlSourceArchiveSha256}, received ${sourceArchiveSha256}`,
+  )
+}
 const outputDirectory = join('benchmark', 'fixtures', 'jpegxl', 'generated-lossless-v0.12.0')
 const inputDirectory = join(outputDirectory, 'input')
 await mkdir(inputDirectory, { recursive: true })
@@ -230,6 +257,7 @@ for (const definition of sourceDefinitions) {
 const report: {
   oracle: string
   revision: string
+  sourceArchiveSha256: string
   license: string
   redistribution: string
   fixtures: {
@@ -264,7 +292,8 @@ const report: {
   }[]
 } = {
   oracle: 'libjxl cjxl and djxl v0.12.0',
-  revision: 'a7a9c787341cf703dede03c2009fa460cae5e5df',
+  revision: libjxlRevision,
+  sourceArchiveSha256,
   license: 'BSD-3-Clause development oracle; generated pixel patterns are CC0',
   redistribution: 'Generated fixtures may be redistributed; binaries are prepared on demand',
   fixtures: [],

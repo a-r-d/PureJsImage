@@ -74,6 +74,9 @@ const grayscaleAlpha = hexadecimal(`
 // cjxl 0.11.1, lossless Modular effort 2, from a 600x530 PGM whose sample at
 // (x, y) is (3x + 5y) mod 256. djxl 0.11.1 independently produced the digest below.
 const multiGroupGray = new Uint8Array(readFileSync('tests/fixtures/jpegxl/multi-group-gray8.jxl'))
+const adaptiveMultiGroupGray = new Uint8Array(
+  readFileSync('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/gray8-multiple-groups.jxl'),
+)
 
 // cjxl 0.11.1, lossless Modular effort 2, from a 4096x4096 PGM whose sample at
 // (x, y) is (3x + 5y) mod 256. Exercises a permuted TOC and per-group local MA trees.
@@ -344,6 +347,28 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     expect(cropRows).toBe(16)
     expect(cropDigest.digest('hex')).toBe(
       '06eecf33e3dbfa73b7f180a24d4da80e31ddb87a8f312e540a8dab544e59489d',
+    )
+  })
+
+  it('uses the signed weighted-predictor error property in learned group trees', async () => {
+    expect(createHash('sha256').update(adaptiveMultiGroupGray).digest('hex')).toBe(
+      '327bfea984d854f18902c53d4414eb480d2cfbdf7eed34d736525280a55da52a',
+    )
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(adaptiveMultiGroupGray),
+      defaultImageLimits,
+    )
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+
+    const digest = createHash('sha256')
+    let rows = 0
+    for await (const block of decoder.decode()) {
+      digest.update(block.data)
+      rows += block.height
+    }
+    expect(rows).toBe(643)
+    expect(digest.digest('hex')).toBe(
+      'baef35d99d2f58c9015c2c4670ebf672e10e66e1dfdfb831eab973c3b3317cd6',
     )
   })
 
