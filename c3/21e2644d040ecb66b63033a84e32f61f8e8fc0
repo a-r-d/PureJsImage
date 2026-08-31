@@ -1,0 +1,53 @@
+src/codec-entries/jpegxl.ts
+  s_6006332bb8a489::t_868a12514b8225 6
+  s_6006332bb8a489::t_d5cc5b6c6cad6c 8
+tests/jpegxl.test.ts
+  s_6006332bb8a489::t_3b95110f674106 7-8,141-200,206-214,220-278
+  s_6006332bb8a489::t_c4acf48103368e 10
+  s_6006332bb8a489::t_06e46125eaf5f1 279
+src/pipeline.ts
+  s_6006332bb8a489::t_1fbe3603f99b34 62-67,175-178,377-388,736-742
+  s_6006332bb8a489::t_0fe82f1f246011 376
+  s_6006332bb8a489::t_a407dececf1ee9 179,743-746
+src/index.ts
+  s_6006332bb8a489::t_d5cc5b6c6cad6c 60
+src/image-core.ts
+  s_6006332bb8a489::t_0fe82f1f246011 6-7
+  s_6006332bb8a489::t_1fbe3603f99b34 17,42,235,243-254,260,306-309,311-316,428-429
+  s_6006332bb8a489::t_517bf2e8c9451d 310
+  s_6006332bb8a489::t_b56412a268e513 430-431
+src/browser.ts
+  s_6006332bb8a489::t_d5cc5b6c6cad6c 62
+src/operations/builtins.ts
+  s_6006332bb8a489::t_1fbe3603f99b34 7,25,296-307,534-541
+  s_6006332bb8a489::t_0fe82f1f246011 46
+  s_6006332bb8a489::t_ba3c5cef0242be 542
+src/codecs/jpegxl.ts
+  s_6006332bb8a489::t_07f3c5315ef30c 59
+  s_6006332bb8a489::t_f5a323d50b2383 8
+  s_6006332bb8a489::t_6da8eaea01e044 19,86
+src/codecs/jpegxl-modular-encode.ts
+  s_6006332bb8a489::t_0fe82f1f246011 6
+  s_6006332bb8a489::t_1fbe3603f99b34 5
+  s_6006332bb8a489::t_26fa3c4fd07200 189
+  s_6006332bb8a489::t_f5a323d50b2383 93,191,207,285,491-493,501-502
+  s_6006332bb8a489::t_40b7a0eb7369aa 1-4,7-92,94-188,190,192-206,208-284,286-490,494-500,503-509
+tests/library.test.ts
+  s_6006332bb8a489::t_d5cc5b6c6cad6c 106-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c321e2644d040ecb66b63033a84e32f61f8e8fc0",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
