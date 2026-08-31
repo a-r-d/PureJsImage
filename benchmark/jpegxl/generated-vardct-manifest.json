@@ -75,7 +75,7 @@
       ],
       "extraChannels": [],
       "jpegReconstruction": false,
-      "expectedPureJsImageBehavior": "unsupported",
+      "expectedPureJsImageBehavior": "supported",
       "features": [
         "VarDCT",
         "default XYB",

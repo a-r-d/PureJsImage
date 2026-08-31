@@ -39,7 +39,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'effort 7', 'odd dimensions']),
     options: Object.freeze(['--distance=1', '--effort=7']),
-    expectedPureJsImageBehavior: 'unsupported',
+    expectedPureJsImageBehavior: 'supported',
   }),
   Object.freeze({
     id: 'rgb8-distance2-progressive',

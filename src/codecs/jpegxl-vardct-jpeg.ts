@@ -92,6 +92,8 @@ export interface JpegXlJpegDcGroup {
   readonly blockHeight: number
   readonly dcCoefficients: readonly Float64Array<ArrayBufferLike>[]
   readonly extraPrecision: number
+  readonly strategies: Uint8Array<ArrayBufferLike>
+  readonly strategyFirstBlocks: Uint8Array<ArrayBufferLike>
   readonly quantization: Int32Array<ArrayBufferLike>
   readonly sharpness: Int32Array<ArrayBufferLike>
   readonly colorCorrelationX: Int32Array<ArrayBufferLike>
@@ -106,7 +108,10 @@ export interface JpegXlJpegHfGlobalOptions {
 }
 
 export interface JpegXlJpegHfPass {
-  readonly coefficientOrders: readonly Uint8Array<ArrayBufferLike>[]
+  readonly coefficientOrders: readonly (
+    | readonly Uint32Array<ArrayBufferLike>[]
+    | undefined
+  )[]
   readonly coefficientCode: JpegXlEntropyCode
 }
 
@@ -148,6 +153,17 @@ const defaultBlockContextMap = Object.freeze([
   0, 1, 2, 2, 3, 3, 4, 5, 6, 6, 6, 6, 6, 7, 8, 9, 9, 10, 11, 12, 13, 14, 14, 14, 14, 14, 7, 8, 9, 9,
   10, 11, 12, 13, 14, 14, 14, 14, 14,
 ])
+
+const strategyBlockWidths = Object.freeze([
+  1, 1, 1, 1, 2, 4, 1, 2, 1, 4, 2, 4, 1, 1, 1, 1, 1, 1, 8, 4, 8, 16, 8, 16, 32, 16, 32,
+])
+const strategyBlockHeights = Object.freeze([
+  1, 1, 1, 1, 2, 4, 2, 1, 4, 1, 4, 2, 1, 1, 1, 1, 1, 1, 8, 8, 4, 16, 16, 8, 32, 32, 16,
+])
+const strategyOrders = Object.freeze([
+  0, 1, 1, 1, 2, 3, 4, 4, 5, 5, 6, 6, 1, 1, 1, 1, 1, 1, 7, 8, 8, 9, 10, 10, 11, 12, 12,
+])
+const orderRepresentativeStrategies = Object.freeze([0, 1, 4, 5, 6, 8, 10, 18, 19, 21, 22, 24, 25])
 
 const readBlockContexts = (reader: JpegXlBitReader): JpegXlJpegBlockContexts => {
   if (reader.readBits(1) !== 0) {
@@ -319,23 +335,55 @@ export const decodeJpegXlJpegDcGroup = (
   if (!strategiesAndQuantization || !sharpness) {
     throw invalidInput('JPEG-derived JPEG XL AC metadata planes are missing')
   }
-  if (count !== blockCount) {
-    throw unsupportedOperation('JPEG-derived JPEG XL non-DCT8 AC strategies are not supported')
-  }
+  const strategies = new Uint8Array(blockCount)
+  strategies.fill(255)
+  const strategyFirstBlocks = new Uint8Array(blockCount)
   const quantization = new Int32Array(blockCount)
-  for (let index = 0; index < blockCount; index += 1) {
-    if (strategiesAndQuantization[index] !== 0) {
-      throw unsupportedOperation('JPEG-derived JPEG XL non-DCT8 AC strategies are not supported')
+  let strategyIndex = 0
+  for (let y = 0; y < blockHeight; y += 1) {
+    for (let x = 0; x < blockWidth; x += 1) {
+      const index = y * blockWidth + x
+      if (strategies[index] !== 255) continue
+      if (strategyIndex >= count) throw invalidInput('JPEG XL AC strategy map is truncated')
+      const strategy = strategiesAndQuantization[strategyIndex]
+      const strategyWidth = strategy === undefined ? undefined : strategyBlockWidths[strategy]
+      const strategyHeight = strategy === undefined ? undefined : strategyBlockHeights[strategy]
+      if (
+        strategy === undefined ||
+        strategyWidth === undefined ||
+        strategyHeight === undefined ||
+        x + strategyWidth > blockWidth ||
+        y + strategyHeight > blockHeight
+      ) {
+        throw invalidInput('JPEG XL AC strategy is invalid for its block geometry')
+      }
+      const rawQuantization = strategiesAndQuantization[count + strategyIndex]
+      if (rawQuantization === undefined) {
+        throw invalidInput('JPEG XL AC quantization map is truncated')
+      }
+      const quantizationValue = Math.max(0, Math.min(255, rawQuantization)) + 1
+      for (let strategyY = 0; strategyY < strategyHeight; strategyY += 1) {
+        for (let strategyX = 0; strategyX < strategyWidth; strategyX += 1) {
+          const coveredIndex = (y + strategyY) * blockWidth + x + strategyX
+          strategies[coveredIndex] = strategy
+          quantization[coveredIndex] = quantizationValue
+        }
+      }
+      strategyFirstBlocks[index] = 1
+      strategyIndex += 1
     }
-    const rawQuantization = strategiesAndQuantization[count + index]
+  }
+  if (strategyIndex !== count || strategies.some((strategy) => strategy === 255)) {
+    throw invalidInput('JPEG XL AC strategy map has inconsistent coverage')
+  }
+  for (let index = 0; index < blockCount; index += 1) {
     const sharpnessValue = sharpness[index]
-    if (rawQuantization === undefined || sharpnessValue === undefined) {
+    if (sharpnessValue === undefined) {
       throw invalidInput('JPEG-derived JPEG XL AC metadata is truncated')
     }
     if (sharpnessValue < 0 || sharpnessValue > 7) {
       throw invalidInput('JPEG-derived JPEG XL EPF sharpness is invalid')
     }
-    quantization[index] = Math.max(0, Math.min(255, rawQuantization)) + 1
   }
   if (requireComplete) {
     requireZeroPadding(section, metadata.endingBitPosition, 'JPEG XL DC group section')
@@ -350,6 +398,8 @@ export const decodeJpegXlJpegDcGroup = (
     blockHeight,
     dcCoefficients: Object.freeze(dcCoefficients),
     extraPrecision,
+    strategies,
+    strategyFirstBlocks,
     quantization,
     sharpness,
     colorCorrelationX,
@@ -429,6 +479,7 @@ const blockContext = (
   contexts: Readonly<JpegXlJpegBlockContexts>,
   dcIndex: number,
   quantization: number,
+  order: number,
   channel: number,
 ): number => {
   let quantizationIndex = 0
@@ -436,7 +487,7 @@ const blockContext = (
     if (quantization > threshold) quantizationIndex += 1
   }
   const mappedChannel = channel < 2 ? channel ^ 1 : 2
-  let index = mappedChannel * 13
+  let index = mappedChannel * 13 + order
   index *= contexts.quantizationThresholds.length + 1
   index += quantizationIndex
   index *= contexts.dcContextCount
@@ -459,6 +510,7 @@ export const decodeJpegXlJpegAcGroup = (
   dcGroup: Readonly<JpegXlJpegDcGroup>,
   startBit = 0,
   requireComplete = true,
+  requireJpegCompatibleDc = true,
 ): JpegXlJpegAcGroup => {
   const {
     blockX,
@@ -528,19 +580,40 @@ export const decodeJpegXlJpegAcGroup = (
         const width = internalWidths[channel]
         const nonzeroPlane = nonzeroPlanes[channel]
         const coefficients = internalCoefficients[channel]
-        const order = hfPass.coefficientOrders[channel]
+        const fullX = blockX + x
+        const fullY = blockY + y
+        const strategy = dcGroup.strategies[fullY * dcGroup.blockWidth + fullX]
+        const firstBlock = dcGroup.strategyFirstBlocks[fullY * dcGroup.blockWidth + fullX]
+        if (strategy === undefined || firstBlock === undefined) {
+          throw invalidInput('JPEG-derived JPEG XL AC strategy metadata is missing')
+        }
+        if (firstBlock === 0) continue
+        const strategyWidth = strategyBlockWidths[strategy]
+        const strategyHeight = strategyBlockHeights[strategy]
+        const orderIndex = strategyOrders[strategy]
+        if (strategyWidth === undefined || strategyHeight === undefined || orderIndex === undefined) {
+          throw invalidInput('JPEG-derived JPEG XL AC strategy is invalid')
+        }
+        if (strategyWidth * strategyHeight !== 1) {
+          throw unsupportedOperation('JPEG XL multi-block VarDCT coefficient groups are not supported yet')
+        }
+        const order = hfPass.coefficientOrders[orderIndex]?.[channel]
         if (!width || !nonzeroPlane || !coefficients || !order) {
           throw invalidInput('JPEG-derived JPEG XL AC channel is missing')
         }
         const predicted = predictNonzeroCount(nonzeroPlane, width, localX, localY)
-        const fullX = blockX + x
-        const fullY = blockY + y
         const dcIndex = dcContexts[fullY * dcGroup.blockWidth + fullX]
         const quantization = dcGroup.quantization[fullY * dcGroup.blockWidth + fullX]
         if (dcIndex === undefined || quantization === undefined) {
           throw invalidInput('JPEG-derived JPEG XL AC block metadata is missing')
         }
-        const context = blockContext(lfGlobal.blockContexts, dcIndex, quantization, channel)
+        const context = blockContext(
+          lfGlobal.blockContexts,
+          dcIndex,
+          quantization,
+          orderIndex,
+          channel,
+        )
         const nonzeroBucket =
           predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
         const nonzeroContext =
@@ -613,15 +686,17 @@ export const decodeJpegXlJpegAcGroup = (
           output[base + position] = coefficient
         }
         const dcCoefficient = dc[(dcY + y) * dcWidth + dcX + x]
-        if (
-          dcCoefficient === undefined ||
-          !Number.isInteger(dcCoefficient) ||
-          dcCoefficient < -2047 ||
-          dcCoefficient > 2047
-        ) {
-          throw invalidInput('JPEG-derived JPEG XL DC coefficient is out of JPEG range')
+        if (requireJpegCompatibleDc) {
+          if (
+            dcCoefficient === undefined ||
+            !Number.isInteger(dcCoefficient) ||
+            dcCoefficient < -2047 ||
+            dcCoefficient > 2047
+          ) {
+            throw invalidInput('JPEG-derived JPEG XL DC coefficient is out of JPEG range')
+          }
+          output[base] = dcCoefficient
         }
-        output[base] = dcCoefficient
       }
     }
     jpegComponents.push(output)
@@ -643,25 +718,46 @@ export const decodeJpegXlJpegAcGroup = (
   })
 }
 
-const naturalDct8Order = (): Uint8Array<ArrayBufferLike> => {
-  const order = new Uint8Array(64)
-  let position = 0
-  for (let diagonal = 0; diagonal <= 14; diagonal += 1) {
-    const start = Math.max(0, diagonal - 7)
-    const end = Math.min(7, diagonal)
-    if ((diagonal & 1) === 0) {
-      for (let x = start; x <= end; x += 1) {
-        const y = diagonal - x
-        order[position] = y * 8 + x
-        position += 1
-      }
-    } else {
-      for (let x = end; x >= start; x -= 1) {
-        const y = diagonal - x
-        order[position] = y * 8 + x
-        position += 1
+const naturalCoefficientOrder = (strategy: number): Uint32Array<ArrayBufferLike> => {
+  let columns = strategyBlockWidths[strategy]
+  let rows = strategyBlockHeights[strategy]
+  if (columns === undefined || rows === undefined) {
+    throw invalidInput('JPEG XL coefficient-order strategy is invalid')
+  }
+  if (rows > columns) [rows, columns] = [columns, rows]
+  const rowScale = columns / rows
+  const rowMask = rowScale - 1
+  const rowShift = Math.log2(rowScale)
+  const size = rows * columns * 64
+  const order = new Uint32Array(size)
+  let nextHighFrequency = rows * columns
+  for (let diagonal = 0; diagonal < columns * 8; diagonal += 1) {
+    for (let step = 0; step <= diagonal; step += 1) {
+      let x = step
+      let y = diagonal - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      if ((y & rowMask) !== 0) continue
+      y >>= rowShift
+      const scanIndex = x < columns && y < rows ? y * columns + x : nextHighFrequency++
+      if (scanIndex < size) order[scanIndex] = y * columns * 8 + x
+    }
+  }
+  for (let reverse = columns * 8 - 1; reverse > 0; reverse -= 1) {
+    const diagonal = reverse - 1
+    for (let step = 0; step <= diagonal; step += 1) {
+      let x = columns * 8 - 1 - (diagonal - step)
+      let y = columns * 8 - 1 - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      if ((y & rowMask) !== 0) continue
+      y >>= rowShift
+      if (nextHighFrequency < size) {
+        order[nextHighFrequency] = y * columns * 8 + x
+        nextHighFrequency += 1
       }
     }
+  }
+  if (nextHighFrequency !== size) {
+    throw invalidInput('JPEG XL natural coefficient order is incomplete')
   }
   return order
 }
@@ -669,9 +765,9 @@ const naturalDct8Order = (): Uint8Array<ArrayBufferLike> => {
 const coefficientOrderContext = (value: number): number =>
   Math.min(value === 0 ? 0 : Math.floor(Math.log2(value)) + 1, 7)
 
-const decodeLehmerPermutation = (code: readonly number[]): Uint8Array<ArrayBufferLike> => {
+const decodeLehmerPermutation = (code: readonly number[]): Uint32Array<ArrayBufferLike> => {
   const available = Array.from({ length: code.length }, (_, index) => index)
-  const permutation = new Uint8Array(code.length)
+  const permutation = new Uint32Array(code.length)
   for (let index = 0; index < code.length; index += 1) {
     const position = code[index]
     if (position === undefined || position < 0 || position >= available.length) {
@@ -686,42 +782,51 @@ const decodeLehmerPermutation = (code: readonly number[]): Uint8Array<ArrayBuffe
   return permutation
 }
 
-const readDct8CoefficientOrders = (
+const readCoefficientOrders = (
   reader: JpegXlBitReader,
-  customized: boolean,
-): readonly Uint8Array<ArrayBufferLike>[] => {
-  const natural = naturalDct8Order()
-  if (!customized) {
-    return Object.freeze([natural.slice(), natural.slice(), natural.slice()])
-  }
-  const code = readJpegXlEntropyCode(reader, 8)
-  const symbols = new JpegXlEntropySymbolReader(code, 192)
-  const orders: Uint8Array<ArrayBufferLike>[] = []
-  for (let channel = 0; channel < 3; channel += 1) {
-    const lehmer = new Array<number>(64).fill(0)
-    const end = symbols.readHybridUint(coefficientOrderContext(64), reader) + 1
-    if (end > 64) throw invalidInput('JPEG XL coefficient-order extent is invalid')
-    let previous = 0
-    for (let index = 1; index < end; index += 1) {
-      const encoded = symbols.readHybridUint(coefficientOrderContext(previous), reader)
-      if (encoded >= 64 - index) {
-        throw invalidInput('JPEG XL coefficient-order Lehmer value is invalid')
+  usedOrders: number,
+): readonly (readonly Uint32Array<ArrayBufferLike>[] | undefined)[] => {
+  const code = usedOrders === 0 ? undefined : readJpegXlEntropyCode(reader, 8)
+  const symbols = code === undefined ? undefined : new JpegXlEntropySymbolReader(code)
+  const orders: (readonly Uint32Array<ArrayBufferLike>[] | undefined)[] = []
+  for (let orderIndex = 0; orderIndex < orderRepresentativeStrategies.length; orderIndex += 1) {
+    const strategy = orderRepresentativeStrategies[orderIndex]
+    if (strategy === undefined) throw invalidInput('JPEG XL coefficient-order strategy is missing')
+    const natural = naturalCoefficientOrder(strategy)
+    const skip = (strategyBlockWidths[strategy] ?? 0) * (strategyBlockHeights[strategy] ?? 0)
+    const channelOrders: Uint32Array<ArrayBufferLike>[] = []
+    for (let channel = 0; channel < 3; channel += 1) {
+      if ((usedOrders & (1 << orderIndex)) === 0) {
+        channelOrders.push(natural.slice())
+        continue
       }
-      lehmer[index] = encoded
-      previous = encoded
-    }
-    const permutation = decodeLehmerPermutation(lehmer)
-    const order = new Uint8Array(64)
-    for (let index = 0; index < order.length; index += 1) {
-      const naturalIndex = permutation[index]
-      if (naturalIndex === undefined) {
-        throw invalidInput('JPEG XL coefficient-order permutation is incomplete')
+      if (!symbols) throw invalidInput('JPEG XL coefficient-order entropy code is missing')
+      const lehmer = new Array<number>(natural.length).fill(0)
+      const end = symbols.readHybridUint(coefficientOrderContext(natural.length), reader) + skip
+      if (end > natural.length) throw invalidInput('JPEG XL coefficient-order extent is invalid')
+      let previous = 0
+      for (let index = skip; index < end; index += 1) {
+        const encoded = symbols.readHybridUint(coefficientOrderContext(previous), reader)
+        if (encoded >= natural.length - index) {
+          throw invalidInput('JPEG XL coefficient-order Lehmer value is invalid')
+        }
+        lehmer[index] = encoded
+        previous = encoded
       }
-      order[index] = natural[naturalIndex] ?? 0
+      const permutation = decodeLehmerPermutation(lehmer)
+      const order = new Uint32Array(natural.length)
+      for (let index = 0; index < order.length; index += 1) {
+        const naturalIndex = permutation[index]
+        if (naturalIndex === undefined) {
+          throw invalidInput('JPEG XL coefficient-order permutation is incomplete')
+        }
+        order[index] = natural[naturalIndex] ?? 0
+      }
+      channelOrders.push(order)
     }
-    orders.push(order)
+    orders.push(Object.freeze(channelOrders))
   }
-  if (!symbols.hasValidFinalState()) {
+  if (symbols && !symbols.hasValidFinalState()) {
     throw invalidInput('JPEG XL coefficient-order ANS state is invalid')
   }
   return Object.freeze(orders)
@@ -797,12 +902,8 @@ export const decodeJpegXlJpegHfGlobal = (
   const passes: JpegXlJpegHfPass[] = []
   for (let pass = 0; pass < passCount; pass += 1) {
     const usedOrders = readU32(reader, [value(0x5f), value(0x13), value(0), bits(13)])
-    if ((usedOrders & ~1) !== 0) {
-      throw unsupportedOperation(
-        'JPEG-derived JPEG XL non-DCT8 coefficient orders are not supported',
-      )
-    }
-    const coefficientOrders = readDct8CoefficientOrders(reader, (usedOrders & 1) !== 0)
+    if ((usedOrders & ~0x1fff) !== 0) throw invalidInput('JPEG XL coefficient-order mask is invalid')
+    const coefficientOrders = readCoefficientOrders(reader, usedOrders)
     const coefficientCode = readJpegXlEntropyCode(reader, histogramCount * contextsPerHistogram)
     passes.push(Object.freeze({ coefficientOrders, coefficientCode }))
   }
