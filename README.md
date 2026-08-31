@@ -86,12 +86,12 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Current measured surface | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 19.1 KiB | 6.5 KiB | 5.8 KiB |
-| Common web codecs | 641.4 KiB | 235.6 KiB | 195.6 KiB |
-| All stable codecs | 917.3 KiB | 321.6 KiB | 263.4 KiB |
+| Common web codecs | 641.8 KiB | 235.7 KiB | 196.0 KiB |
+| All stable codecs | 917.6 KiB | 321.7 KiB | 263.6 KiB |
 | Scientific platform | 190.3 KiB | 53.9 KiB | 45.5 KiB |
-| All scientific readers | 1239.7 KiB | 358.5 KiB | 286.2 KiB |
+| All scientific readers | 1240.1 KiB | 358.6 KiB | 286.2 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 621.9 KiB | 188.2 KiB | 152.3 KiB |
+| All Geo readers | 622.3 KiB | 188.3 KiB | 152.5 KiB |
 
 The extracted npm package is 6.9 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -399,10 +399,10 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 | Surface | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 19.1 KiB | 6.5 KiB | 5.8 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 641.4 KiB | 235.6 KiB | 195.6 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 917.3 KiB | 321.6 KiB | 263.4 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 641.8 KiB | 235.7 KiB | 196.0 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 917.6 KiB | 321.7 KiB | 263.6 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 190.3 KiB | 53.9 KiB | 45.5 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1239.7 KiB | 358.5 KiB | 286.2 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1240.1 KiB | 358.6 KiB | 286.2 KiB |
 
 The extracted npm package is 6.9 MiB and has 1 production package. The eight optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports.
 

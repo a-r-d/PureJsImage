@@ -424,7 +424,7 @@ acceptance item stays unchecked.
 
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.
-- [ ] Extract a reusable bounded JPEG coefficient and scan representation.
+- [x] Extract a reusable bounded JPEG coefficient and scan representation.
 - [ ] Transcode the eligible baseline and progressive JPEG subset without RGB.
 - [ ] Enforce reconstruction, fallback, and `onlyIfSmaller` policies without silent mode changes.
 

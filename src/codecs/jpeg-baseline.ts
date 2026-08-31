@@ -2391,6 +2391,23 @@ export interface ProgressiveJpeg extends RenderJpeg {
   readonly components: readonly ProgressiveComponent[]
   readonly mcusPerColumn: number
   readonly progressive: boolean
+  readonly restartInterval: number
+  readonly scans: readonly JpegCoefficientScan[]
+}
+
+export interface JpegCoefficientScanComponent {
+  readonly component: number
+  readonly id: number
+  readonly dcTable: number
+  readonly acTable: number
+}
+
+export interface JpegCoefficientScan {
+  readonly components: readonly JpegCoefficientScanComponent[]
+  readonly spectralStart: number
+  readonly spectralEnd: number
+  readonly successiveHigh: number
+  readonly successiveLow: number
 }
 
 interface ProgressiveScanComponent {
@@ -2398,6 +2415,8 @@ interface ProgressiveScanComponent {
   readonly componentIndex: number
   readonly dcTable?: HuffmanTable
   readonly acTable?: HuffmanTable
+  readonly dcTableId: number
+  readonly acTableId: number
 }
 
 interface ProgressiveScan {
@@ -2407,6 +2426,24 @@ interface ProgressiveScan {
   readonly successiveHigh: number
   readonly successiveLow: number
 }
+
+const coefficientScan = (scan: ProgressiveScan): JpegCoefficientScan =>
+  Object.freeze({
+    components: Object.freeze(
+      scan.components.map(({ component, componentIndex, dcTableId, acTableId }) =>
+        Object.freeze({
+          component: componentIndex,
+          id: component.id,
+          dcTable: dcTableId,
+          acTable: acTableId,
+        }),
+      ),
+    ),
+    spectralStart: scan.spectralStart,
+    spectralEnd: scan.spectralEnd,
+    successiveHigh: scan.successiveHigh,
+    successiveLow: scan.successiveLow,
+  })
 
 interface ProgressiveState {
   eobRun: number
@@ -2726,6 +2763,7 @@ export const parseProgressiveJpeg = (
   let mcusPerColumn = 0
   let restartInterval = 0
   let sawScan = false
+  const scans: JpegCoefficientScan[] = []
   let offset = 2
 
   while (offset < data.byteLength) {
@@ -2755,6 +2793,8 @@ export const parseProgressiveJpeg = (
         mcusPerLine,
         mcusPerColumn,
         progressive: true,
+        restartInterval,
+        scans: Object.freeze(scans),
       }
     }
     if (marker === 0x00 || (marker >= 0xd0 && marker <= 0xd8))
@@ -2822,6 +2862,8 @@ export const parseProgressiveJpeg = (
         selected.push({
           component,
           componentIndex,
+          dcTableId: tables >>> 4,
+          acTableId: tables & 15,
           ...(dcTable ? { dcTable } : {}),
           ...(acTable ? { acTable } : {}),
         })
@@ -2835,6 +2877,7 @@ export const parseProgressiveJpeg = (
         successiveHigh: successive >>> 4,
         successiveLow: successive & 15,
       }
+      scans.push(coefficientScan(scan))
       offset = decodeProgressiveScan(data, end, scan, mcusPerLine, mcusPerColumn, restartInterval)
       sawScan = true
       continue
@@ -3033,6 +3076,7 @@ export const parseCoefficientJpegSource = async (
   let restartInterval = 0
   let scanCount = 0
   let recoveredProgressiveScan = false
+  const scans: JpegCoefficientScan[] = []
   const sequentialSeen = new Set<number>()
 
   while (reader.position < source.size) {
@@ -3077,6 +3121,8 @@ export const parseCoefficientJpegSource = async (
         mcusPerLine,
         mcusPerColumn,
         progressive,
+        restartInterval,
+        scans: Object.freeze(scans),
       }
     }
     const payload = await sourceSegment(reader)
@@ -3148,6 +3194,8 @@ export const parseCoefficientJpegSource = async (
         selected.push({
           component,
           componentIndex,
+          dcTableId: tables >>> 4,
+          acTableId: tables & 15,
           ...(dcTable ? { dcTable } : {}),
           ...(acTable ? { acTable } : {}),
         })
@@ -3161,6 +3209,7 @@ export const parseCoefficientJpegSource = async (
         successiveHigh: successive >>> 4,
         successiveLow: successive & 15,
       }
+      scans.push(coefficientScan(scan))
       let nextOffset: number
       if (progressive) {
         const result = await decodeProgressiveSourceScan(

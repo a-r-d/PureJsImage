@@ -96,24 +96,24 @@
   },
   "sizes": {
     "allGeoReaders": {
-      "brotliBytes": 155958,
-      "gzipBytes": 192690,
-      "minifiedBytes": 636840
+      "brotliBytes": 156148,
+      "gzipBytes": 192801,
+      "minifiedBytes": 637231
     },
     "allReaders": {
-      "brotliBytes": 293054,
-      "gzipBytes": 367143,
-      "minifiedBytes": 1269474
+      "brotliBytes": 293060,
+      "gzipBytes": 367245,
+      "minifiedBytes": 1269871
     },
     "allStableCodecs": {
-      "brotliBytes": 269723,
-      "gzipBytes": 329287,
-      "minifiedBytes": 939267
+      "brotliBytes": 269895,
+      "gzipBytes": 329433,
+      "minifiedBytes": 939662
     },
     "commonWebCodecs": {
-      "brotliBytes": 200255,
-      "gzipBytes": 241218,
-      "minifiedBytes": 656808
+      "brotliBytes": 200731,
+      "gzipBytes": 241332,
+      "minifiedBytes": 657203
     },
     "core": {
       "brotliBytes": 5971,
@@ -126,7 +126,7 @@
       "minifiedBytes": 141415
     },
     "installedPackage": {
-      "bytes": 7265865,
+      "bytes": 7270319,
       "productionPackageCount": 1
     },
     "packageVersion": "0.17.0",
