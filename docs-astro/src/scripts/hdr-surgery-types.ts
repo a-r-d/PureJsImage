@@ -50,8 +50,8 @@ export type HdrSurgeryResponse =
       readonly generation: number
       readonly name: string
       readonly inspection: GainMapImageInspection
-      readonly baseJpeg: ArrayBuffer
-      readonly gainMapJpeg: ArrayBuffer
+      readonly basePreviewRgba: ArrayBuffer
+      readonly gainPreviewRgba: ArrayBuffer
       readonly linearRgb: ArrayBuffer
       readonly previewRgba: ArrayBuffer
       readonly falseColorRgba: ArrayBuffer
@@ -66,6 +66,8 @@ export type HdrSurgeryResponse =
       readonly falseColorRgba: ArrayBuffer
       readonly report: ExecutionEvidenceReport
       readonly inspection: GainMapImageInspection
+      readonly basePreviewRgba: ArrayBuffer
+      readonly gainPreviewRgba: ArrayBuffer
     }
   | {
       readonly type: 'repacked'
@@ -249,6 +251,8 @@ export const isHdrSurgeryResponse = (value: unknown): value is HdrSurgeryRespons
     'falseColorRgba',
     'report',
     'inspection',
+    'basePreviewRgba',
+    'gainPreviewRgba',
   ]
   if (value.type === 'rendered') {
     return (
@@ -256,6 +260,8 @@ export const isHdrSurgeryResponse = (value: unknown): value is HdrSurgeryRespons
       value.linearRgb instanceof ArrayBuffer &&
       value.previewRgba instanceof ArrayBuffer &&
       value.falseColorRgba instanceof ArrayBuffer &&
+      value.basePreviewRgba instanceof ArrayBuffer &&
+      value.gainPreviewRgba instanceof ArrayBuffer &&
       record(value.report) &&
       record(value.inspection)
     )
@@ -267,13 +273,11 @@ export const isHdrSurgeryResponse = (value: unknown): value is HdrSurgeryRespons
         'type',
         'name',
         'inspection',
-        'baseJpeg',
-        'gainMapJpeg',
       ]) &&
       typeof value.name === 'string' &&
       record(value.inspection) &&
-      value.baseJpeg instanceof ArrayBuffer &&
-      value.gainMapJpeg instanceof ArrayBuffer &&
+      value.basePreviewRgba instanceof ArrayBuffer &&
+      value.gainPreviewRgba instanceof ArrayBuffer &&
       value.linearRgb instanceof ArrayBuffer &&
       value.previewRgba instanceof ArrayBuffer &&
       value.falseColorRgba instanceof ArrayBuffer &&

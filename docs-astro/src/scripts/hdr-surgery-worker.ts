@@ -16,8 +16,8 @@ interface StoredImage {
 
 interface RenderedImage {
   readonly inspection: GainMapImageInspection
-  readonly baseJpeg: Uint8Array
-  readonly gainMapJpeg: Uint8Array
+  readonly basePreviewRgba: Uint8ClampedArray
+  readonly gainPreviewRgba: Uint8ClampedArray
   readonly linearRgb: Float32Array
   readonly previewRgba: Uint8ClampedArray
   readonly falseColorRgba: Uint8ClampedArray
@@ -26,6 +26,8 @@ interface RenderedImage {
 
 let stored: StoredImage | undefined
 let activeAbort: AbortController | undefined
+let activeGeneration = -1
+let activeRequestId = -1
 
 const post = (message: HdrSurgeryResponse, transfer: Transferable[] = []): void => {
   self.postMessage(message, { transfer })
@@ -49,6 +51,21 @@ const falseColor = (value: number): readonly [number, number, number] => {
   const green = Math.max(0, Math.min(1, 1.5 - Math.abs(4 * normalized - 2)))
   const blue = Math.max(0, Math.min(1, 1.5 - Math.abs(4 * normalized - 1)))
   return [Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255)]
+}
+
+const componentRgba = (data: Uint8Array, channels: 1 | 3 | 4): Uint8ClampedArray => {
+  const pixels = data.byteLength / channels
+  const output = new Uint8ClampedArray(pixels * 4)
+  for (let pixel = 0; pixel < pixels; pixel += 1) {
+    const source = pixel * channels
+    const target = pixel * 4
+    const red = data[source] ?? 0
+    output[target] = red
+    output[target + 1] = channels === 1 ? red : (data[source + 1] ?? 0)
+    output[target + 2] = channels === 1 ? red : (data[source + 2] ?? 0)
+    output[target + 3] = channels === 4 ? (data[source + 3] ?? 0) : 255
+  }
+  return output
 }
 
 const renderStored = async (
@@ -76,16 +93,20 @@ const renderStored = async (
     }
     const linearRgb = new Float32Array(pixels * 3)
     for await (const block of image.render({ displayBoost, signal })) {
-      if (block.pixelFormat === 'rgbf32') {
-        linearRgb.set(block.data, block.y * block.width * 3)
-      } else {
-        for (let pixel = 0; pixel < block.width * block.height; pixel += 1) {
-          const sourceOffset = pixel * 4
-          const targetOffset = block.y * block.width * 3 + pixel * 3
-          linearRgb[targetOffset] = block.data[sourceOffset] ?? 0
-          linearRgb[targetOffset + 1] = block.data[sourceOffset + 1] ?? 0
-          linearRgb[targetOffset + 2] = block.data[sourceOffset + 2] ?? 0
+      try {
+        if (block.pixelFormat === 'rgbf32') {
+          linearRgb.set(block.data, block.y * block.width * 3)
+        } else {
+          for (let pixel = 0; pixel < block.width * block.height; pixel += 1) {
+            const sourceOffset = pixel * 4
+            const targetOffset = block.y * block.width * 3 + pixel * 3
+            linearRgb[targetOffset] = block.data[sourceOffset] ?? 0
+            linearRgb[targetOffset + 1] = block.data[sourceOffset + 1] ?? 0
+            linearRgb[targetOffset + 2] = block.data[sourceOffset + 2] ?? 0
+          }
         }
+      } finally {
+        block.release?.()
       }
     }
     const previewRgba = new Uint8ClampedArray(pixels * 4)
@@ -107,14 +128,11 @@ const renderStored = async (
       falseColorRgba[targetOffset + 2] = falseBlue
       falseColorRgba[targetOffset + 3] = 255
     }
-    const [baseJpeg, gainMapJpeg] = await Promise.all([
-      image.extractBase({ signal }),
-      image.extractGainMap({ signal }),
-    ])
+    const components = await image.previewTransformedComponents({ signal })
     return {
       inspection,
-      baseJpeg,
-      gainMapJpeg,
+      basePreviewRgba: componentRgba(components.base.data, components.base.channels),
+      gainPreviewRgba: componentRgba(components.gainMap.data, components.gainMap.channels),
       linearRgb,
       previewRgba,
       falseColorRgba,
@@ -184,6 +202,14 @@ const avifStored = async (
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
   if (!isHdrSurgeryRequest(event.data)) return
   const request = event.data
+  if (
+    request.generation < activeGeneration ||
+    (request.generation === activeGeneration && request.requestId < activeRequestId)
+  ) {
+    return
+  }
+  activeGeneration = request.generation
+  activeRequestId = request.requestId
   if (request.type === 'cancel') {
     activeAbort?.abort(new DOMException('HDR Surgery cancelled', 'AbortError'))
     return
@@ -202,16 +228,16 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           generation: request.generation,
           name: request.name,
           inspection: rendered.inspection,
-          baseJpeg: copyBuffer(rendered.baseJpeg),
-          gainMapJpeg: copyBuffer(rendered.gainMapJpeg),
+          basePreviewRgba: copyBuffer(rendered.basePreviewRgba),
+          gainPreviewRgba: copyBuffer(rendered.gainPreviewRgba),
           linearRgb: copyBuffer(rendered.linearRgb),
           previewRgba: copyBuffer(rendered.previewRgba),
           falseColorRgba: copyBuffer(rendered.falseColorRgba),
           report: rendered.report,
         } satisfies HdrSurgeryResponse
         post(response, [
-          response.baseJpeg,
-          response.gainMapJpeg,
+          response.basePreviewRgba,
+          response.gainPreviewRgba,
           response.linearRgb,
           response.previewRgba,
           response.falseColorRgba,
@@ -229,8 +255,16 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           falseColorRgba: copyBuffer(rendered.falseColorRgba),
           report: rendered.report,
           inspection: rendered.inspection,
+          basePreviewRgba: copyBuffer(rendered.basePreviewRgba),
+          gainPreviewRgba: copyBuffer(rendered.gainPreviewRgba),
         } satisfies HdrSurgeryResponse
-        post(response, [response.linearRgb, response.previewRgba, response.falseColorRgba])
+        post(response, [
+          response.linearRgb,
+          response.previewRgba,
+          response.falseColorRgba,
+          response.basePreviewRgba,
+          response.gainPreviewRgba,
+        ])
         return
       }
       if (request.type === 'avif') {

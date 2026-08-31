@@ -174,16 +174,29 @@ describe('openGainMapImage', () => {
     })
     const source = instrumentImageSource(new MemorySource(compound().input), session.context)
     const image = await openGainMapImage(source, { evidence: session.context })
-    await image.extractBase()
-    for await (const block of image.render({ displayBoost: 2 }))
+    await image.extractOriginalBase()
+    const transformed = image
+      .crop({ x: 0, y: 0, width: 6, height: 4 })
+      .resize({ width: 4, height: 2, kernel: 'bilinear' })
+    for await (const block of transformed.render({ displayBoost: 2 }))
       expect(block.height).toBeGreaterThan(0)
+    await transformed.jpeg()
     image.close()
     const report = session.finalize()
     expect(report.scopes.map((scope) => scope.label)).toEqual(
       expect.arrayContaining([
         'compound JPEG inspection',
         'base extraction',
-        'gain-map composition',
+        'primary decode',
+        'gain-map decode',
+        'primary transform',
+        'map source-region resampling',
+        'map resize',
+        'selected-boost composition',
+        'primary encode',
+        'map encode',
+        'JPEG metadata and MPF assembly',
+        'bit-preserving repack',
       ]),
     )
     expect(report.execution.decodedPixels).toBeGreaterThan(0)

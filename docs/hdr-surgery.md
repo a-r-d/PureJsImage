@@ -30,15 +30,94 @@ try {
 `render()` returns linear light values. Values above `1` are preserved. An 8-bit tone-mapped canvas
 is an SDR preview and is not an HDR pixel result.
 
+## Minimal Node.js and browser examples
+
+Node.js can read and write files at the application boundary while the HDR API receives portable
+bytes:
+
+```ts
+import { readFile, writeFile } from 'node:fs/promises'
+import { openGainMapImage } from 'purejsimage/hdr'
+
+const image = await openGainMapImage(new Uint8Array(await readFile('input.jpg')))
+try {
+  await writeFile('output.jpg', await image.resize({ width: 1200, height: 800 }).jpeg())
+} finally {
+  image.close()
+}
+```
+
+A browser can open a `File` and offer the result as a `Blob` download:
+
+```ts
+import { openGainMapImage } from 'purejsimage/hdr'
+
+async function downloadEditedHdr(file: File): Promise<void> {
+  const image = await openGainMapImage(file)
+  try {
+    const bytes = await image.jpeg({ metadataMode: 'dual' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([bytes], { type: 'image/jpeg' }))
+    link.download = 'edited-ultra-hdr.jpg'
+    link.click()
+    URL.revokeObjectURL(link.href)
+  } finally {
+    image.close()
+  }
+}
+```
+
+Cheap JPEG inspection does not entropy-decode either child:
+
+```ts
+import { inspectGainMapImage } from 'purejsimage/hdr'
+
+const probe = await inspectGainMapImage(bytes)
+if (probe.status === 'valid') console.log(probe.baseDimensions, probe.gainMapDimensions)
+```
+
+Selected-boost rendering yields caller-releasable Float32 row blocks:
+
+```ts
+for await (const block of image.render({ displayBoost: 8 })) {
+  try {
+    consumeLinearHdrBlock(block)
+  } finally {
+    block.release?.()
+  }
+}
+```
+
+Source-child extraction stays separate from transformed output and supports a bit-preserving repack:
+
+```ts
+import { assembleGainMapJpeg } from 'purejsimage/hdr'
+
+const repacked = await assembleGainMapJpeg({
+  baseJpeg: await image.extractOriginalBase(),
+  gainMapJpeg: await image.extractOriginalGainMap(),
+  metadata: image.inspection().metadata,
+})
+```
+
+The constrained AVIF writer accepts an opaque sRGB SDR base and one semantic gain channel. It
+rejects alpha, RGB maps, Display P3, HDR-base output, and unsupported dimensions:
+
+```ts
+const avif = await image.autoOrient().resize({ width: 640, height: 360 }).avif()
+```
+
+Every opened image and its derived fluent objects share one lifecycle. Call `close()` in `finally`.
+
 ## Supported input
 
 The explicit HDR entry supports these relationships:
 
 | Container | Metadata | Base direction | Gain channels |
 | --- | --- | --- | --- |
-| JPEG | Ultra HDR XMP | SDR or HDR | 1 or 3 |
-| JPEG | ISO 21496-1 | SDR or HDR | 1 or 3 |
-| JPEG | Matching ISO and Ultra HDR metadata | SDR or HDR | 1 or 3 |
+| JPEG | Ultra HDR XMP | SDR | 1 or 3 |
+| JPEG | ISO 21496-1 | SDR | 1 or 3 |
+| JPEG | Matching ISO and Ultra HDR metadata | SDR | 1 or 3 |
 | AVIF | ISO 21496-1 `tmap` relationship | SDR or HDR | 1 or 3 |
 
 Valid ISO metadata takes precedence when both JPEG representations are present. PureJsImage also
@@ -48,7 +127,9 @@ open operation. The regular JPEG decoder can still return the primary SDR image.
 `inspectGainMapImage()` is the cheap JPEG probe. It reports `valid`, `not-present`, `unsupported`,
 or `invalid` without decoding entropy-coded pixels. On a valid MPF file with adjacent images, it
 uses the declared ranges and reads only headers and boundary bytes. A malformed legacy range may
-require a bounded JPEG boundary scan.
+require a bounded JPEG boundary scan. The only size-mismatch compatibility case is a primary
+over-declaration of at most 65,535 bytes whose independently scanned EOI lands exactly on the first
+secondary offset. Under-declarations and other contradictions fail.
 
 ## Rendering
 
@@ -90,10 +171,14 @@ orientation. Crop, flip, rotate, and resize retain that pending orientation so a
 `autoOrient()` still applies it exactly once. Transformed encoding fails instead of silently
 dropping an unapplied orientation.
 
-The current paired-transform and re-encode path is an explicit full-frame fallback. It enforces
-`maxMaterializedBytes`, which defaults to 256 MiB. This limit covers each managed raster allocation,
-while the benchmark records process RSS separately. Untransformed rendering remains the bounded-row
-path.
+The current paired-transform and re-encode path retains one 8-bit base raster and one smaller encoded
+gain raster. Adapted Float32 output is emitted in independent 32-row blocks and never exists as a
+complete Float32 image. `maxMaterializedBytes`, which defaults to 256 MiB, is one aggregate ledger for
+library-owned decoded and transformed rasters, an aligned map when needed, retained encoded artifacts,
+and live Float32 blocks. Each allocation is reserved before it is created. Its reservation is released
+when a raster is replaced, an encoded staging buffer is copied or handed to the caller, or a rendered
+block is released. The limit does not describe process RSS. The benchmark records RSS, external
+memory, and ArrayBuffer memory separately.
 
 ## JPEG output
 
@@ -115,21 +200,29 @@ The primary child is a complete ordinary JPEG. A reader that stops at its EOI ma
 image. MPF offsets, GContainer length, XMP, ISO metadata, and both child ranges are recalculated and
 validated before bytes are returned.
 
-Use `extractBase()` and `extractGainMap()` with `assembleGainMapJpeg()` for a bit-preserving metadata
-repack. That path copies both child JPEG codestreams without decoding pixels.
+Use `extractOriginalBase()` and `extractOriginalGainMap()` with `assembleGainMapJpeg()` for a
+bit-preserving metadata repack. Those names always mean the byte-exact source children. Use
+`previewTransformedComponents()` for current transformed base and map samples.
+
+Re-encoded primary pixels use sRGB and carry a deterministic first-party matrix-shaper ICC profile.
+It uses the ICC sRGB D50 colorants and IEC 61966-2-1 transfer curve. Its SHA-256 is
+`85f1616e233eb429b3517a97ed4151b4ae74a79eca58fd5c7c22bf44c24610a9`.
+Gain-map ICC and EXIF orientation metadata do not alter encoded map samples.
 
 ## AVIF output
 
 `avif()` writes a narrow ISO gain-map subset:
 
 - an opaque 8-bit sRGB SDR base;
-- one independently coded one-channel 8-bit gain map;
+- one semantic gain channel encoded as an achromatic YUV AV1 image;
 - one ISO tone-map metadata item;
 - compatible base and map aspect ratios;
 - `dimg`, `altr`, NCLX, `ispe`, and exact ISO rational metadata.
 
 Alpha, RGB gain maps, Display P3 output, HDR-base output, grids, animation, external item data, and
 unknown auxiliary items are rejected. This boundary keeps the first writer small and testable.
+The map AV1 sequence header and item NCLX signal unspecified primaries and transfer values 2 and 2.
+The base AV1 item remains sRGB.
 
 ## Limits and lifecycle
 

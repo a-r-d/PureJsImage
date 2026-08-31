@@ -399,8 +399,17 @@ const warningList = (value: unknown, maxWarnings: number): readonly string[] => 
   )
 }
 
-const aspectRatiosMatch = (base: GainMapDimensions, map: GainMapDimensions): boolean =>
-  BigInt(base.width) * BigInt(map.height) === BigInt(base.height) * BigInt(map.width)
+export const gainMapDimensionsAreCompatible = (
+  base: GainMapDimensions,
+  map: GainMapDimensions,
+): boolean => {
+  if (BigInt(base.width) * BigInt(map.height) === BigInt(base.height) * BigInt(map.width)) {
+    return true
+  }
+  const widthError = Math.abs(map.width - (base.width * map.height) / base.height)
+  const heightError = Math.abs(map.height - (base.height * map.width) / base.width)
+  return widthError <= 1 && heightError <= 1
+}
 
 export const normalizeGainMapMetadata = (
   value: unknown,
@@ -410,8 +419,10 @@ export const normalizeGainMapMetadata = (
   const limits = resolveLimits(limitOptions)
   const baseDimensions = dimensions(value.baseDimensions, 'Base image', limits)
   const gainMapDimensions = dimensions(value.gainMapDimensions, 'Gain-map image', limits)
-  if (!aspectRatiosMatch(baseDimensions, gainMapDimensions)) {
-    throw invalidInput('Base and gain-map dimensions must have the same exact aspect ratio')
+  if (!gainMapDimensionsAreCompatible(baseDimensions, gainMapDimensions)) {
+    throw invalidInput(
+      'Base and gain-map dimensions must have the same aspect ratio within one gain-map pixel',
+    )
   }
   if (value.baseRendition !== 'sdr' && value.baseRendition !== 'hdr') {
     throw invalidInput('baseRendition must be sdr or hdr')

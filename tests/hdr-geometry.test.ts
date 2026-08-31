@@ -7,6 +7,22 @@ import {
 } from '../src/hdr/index.ts'
 
 describe('paired gain-map geometry', () => {
+  it('accepts floor-rounded gain-map geometry within one map pixel', () => {
+    const plan = planGainMapResize(
+      { base: { width: 4031, height: 3023 }, gainMap: { width: 1007, height: 755 } },
+      { width: 1600, height: 1200 },
+    )
+    expect(plan.base).toEqual({ width: 1600, height: 1200 })
+  })
+
+  it('rejects materially stretched gain-map geometry', () => {
+    expect(() =>
+      planGainMapResize(
+        { base: { width: 4031, height: 3023 }, gainMap: { width: 1007, height: 700 } },
+        { width: 1600, height: 1200 },
+      ),
+    ).toThrow(/aspect ratio/u)
+  })
   it('keeps fractional crop edges exact for a non-integral scale', () => {
     const plan = planGainMapCrop(
       { base: { width: 319, height: 187 }, gainMap: { width: 87, height: 51 } },

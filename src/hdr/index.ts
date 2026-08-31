@@ -70,6 +70,7 @@ export type {
   GainMapImageInspection,
   AvifGainMapImageInspection,
   JpegGainMapImageInspection,
+  GainMapComponentPreview,
   GainMapRenderedBlock,
   GainMapRenderRequest,
   OpenedGainMapImage,

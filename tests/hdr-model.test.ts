@@ -48,6 +48,21 @@ const metadata = (overrides: Readonly<Record<string, unknown>> = {}): GainMapMet
   })
 
 describe('gain-map metadata', () => {
+  it('accepts one-map-pixel rounded geometry and rejects material stretching', () => {
+    expect(
+      metadata({
+        baseDimensions: { width: 319, height: 187 },
+        gainMapDimensions: { width: 79, height: 46 },
+      }).gainMapDimensions,
+    ).toEqual({ width: 79, height: 46 })
+    expect(() =>
+      metadata({
+        baseDimensions: { width: 319, height: 187 },
+        gainMapDimensions: { width: 79, height: 40 },
+      }),
+    ).toThrow(/within one gain-map pixel/u)
+  })
+
   it('expands scalar values and preserves exact source forms', () => {
     const result = metadata({
       minimum: [-1],
@@ -109,7 +124,7 @@ describe('gain-map metadata', () => {
     [{ minimum: 3, maximum: 2 }, 'minimum'],
     [{ capacityMinimum: 2, capacityMaximum: 2 }, 'capacity'],
     [{ offsetSdr: -1 }, 'offset'],
-    [{ baseDimensions: { width: 3, height: 2 } }, 'aspect ratio'],
+    [{ baseDimensions: { width: 10, height: 1 } }, 'aspect ratio'],
     [{ exactIso: { minimum: [] } }, 'exactIso'],
     [{ ultraHdrLexical: { minimum: ['not-a-number'] } }, 'ultraHdrLexical'],
     [{ ultraHdrLexical: { maximum: ['3'] } }, 'ultraHdrLexical conflict'],

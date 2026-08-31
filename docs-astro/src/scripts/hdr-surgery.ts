@@ -48,8 +48,8 @@ const metadata = element('hdr-metadata')
 const ranges = element('hdr-ranges')
 const evidence = element('hdr-evidence')
 const probe = element('hdr-probe')
-const baseImage = image('hdr-base')
-const gainImage = image('hdr-gain')
+const basePreview = canvas('hdr-base')
+const gainPreview = canvas('hdr-gain')
 const nativeImage = image('hdr-native')
 const adapted = canvas('hdr-adapted')
 const falseColor = canvas('hdr-false-color')
@@ -60,10 +60,13 @@ let requestId = 0
 let inspection: GainMapImageInspection | undefined
 let report: ExecutionEvidenceReport | undefined
 let linearRgb: Float32Array | undefined
+let basePreviewRgba: Uint8ClampedArray | undefined
+let gainPreviewRgba: Uint8ClampedArray | undefined
 let sourceName = 'sample'
-let baseUrl: string | undefined
-let gainUrl: string | undefined
 let nativeUrl: string | undefined
+let generatedBytes: ArrayBuffer | undefined
+let generatedMime = 'image/jpeg'
+let generatedFilename = 'purejsimage-hdr-surgery.jpg'
 let renderTimer: number | undefined
 let autoOrient = false
 let flipHorizontal = false
@@ -76,20 +79,12 @@ const revoke = (value: string | undefined): void => {
 
 const replaceImageUrl = (
   target: HTMLImageElement,
-  kind: 'base' | 'gain' | 'native',
   bytes: ArrayBuffer,
+  mime = 'image/jpeg',
 ): void => {
-  const url = URL.createObjectURL(new Blob([bytes], { type: 'image/jpeg' }))
-  if (kind === 'base') {
-    revoke(baseUrl)
-    baseUrl = url
-  } else if (kind === 'gain') {
-    revoke(gainUrl)
-    gainUrl = url
-  } else {
-    revoke(nativeUrl)
-    nativeUrl = url
-  }
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime }))
+  revoke(nativeUrl)
+  nativeUrl = url
   target.src = url
 }
 
@@ -104,6 +99,58 @@ const draw = (
   const context = target.getContext('2d')
   if (!context) throw new Error('Canvas 2D is unavailable')
   context.putImageData(new ImageData(new Uint8ClampedArray(bytes), width, height), 0, 0)
+}
+
+const updateOutputCard = (
+  filename: string,
+  bytes: number,
+  mode: string,
+  boundary: string,
+): void => {
+  const dimensions = inspection?.metadata.baseDimensions
+  element('hdr-output-name').textContent = filename
+  element('hdr-output-bytes').textContent = bytes.toLocaleString()
+  element('hdr-output-dimensions').textContent = dimensions
+    ? `${dimensions.width} × ${dimensions.height}`
+    : 'Unknown'
+  element('hdr-output-mode').textContent = mode
+  element('hdr-output-boundary').textContent = boundary
+  element('hdr-output-card').hidden = false
+}
+
+const updateHumanSummary = (): void => {
+  if (!inspection) return
+  const value = inspection.metadata
+  const rangeText =
+    inspection.container === 'jpeg'
+      ? `${inspection.primary.start}-${inspection.primary.end}; ${inspection.gainMap.start}-${inspection.gainMap.end}`
+      : 'ISOBMFF item extents'
+  const entries = [
+    ['Container', inspection.container.toUpperCase()],
+    ['Selected metadata', value.selectedRepresentation],
+    ['Representations', value.representations.join(', ')],
+    ['Base dimensions', `${value.baseDimensions.width} × ${value.baseDimensions.height}`],
+    ['Map dimensions', `${value.gainMapDimensions.width} × ${value.gainMapDimensions.height}`],
+    ['Map channels', String(value.channelCount)],
+    ['Base rendition', value.baseRendition.toUpperCase()],
+    ['Content gain', `${value.minimum.join('/')} to ${value.maximum.join('/')} log2`],
+    ['Display capacity', `${value.capacityMinimum} to ${value.capacityMaximum} log2`],
+    ['Orientation', String(value.orientation)],
+    ['Child ranges', rangeText],
+  ]
+  element('hdr-summary').innerHTML = entries
+    .map(([label, content]) => `<div><dt>${label}</dt><dd>${content}</dd></div>`)
+    .join('')
+  const minimumBoost = 2 ** value.capacityMinimum
+  const maximumBoost = 2 ** value.capacityMaximum
+  boost.min = '1'
+  boost.max = String(Math.max(1, Math.ceil(maximumBoost)))
+  const current = Number(boost.value)
+  const span = value.capacityMaximum - value.capacityMinimum
+  const weight =
+    span === 0 ? 1 : Math.max(0, Math.min(1, (Math.log2(current) - value.capacityMinimum) / span))
+  element('hdr-boost-details').textContent =
+    `1× SDR · capacity minimum ${minimumBoost.toFixed(2)}× · full map ${maximumBoost.toFixed(2)}× · current ${Math.log2(current).toFixed(3)} log2 · weight ${weight.toFixed(3)}`
 }
 
 const setBusy = (message: string): void => {
@@ -199,13 +246,13 @@ const resetTransformState = (): void => {
   button('hdr-rotate').textContent = 'Rotate 90°'
 }
 
-const openSample = (): void => {
-  void fetch('/demo-data/hdr-surgery-synthetic-dual.jpg')
+const openSample = (name = 'hdr-surgery-synthetic-dual.jpg'): void => {
+  void fetch(`/demo-data/${name}`)
     .then((response) => {
       if (!response.ok) throw new Error(`Sample returned HTTP ${response.status}`)
       return response.arrayBuffer()
     })
-    .then((bytes) => openBytes('hdr-surgery-synthetic-dual.jpg', bytes))
+    .then((bytes) => openBytes(name, bytes))
     .catch((cause: unknown) => {
       status.textContent = cause instanceof Error ? cause.message : String(cause)
     })
@@ -216,12 +263,19 @@ const updateRendered = (
   preview: ArrayBuffer,
   color: ArrayBuffer,
   nextReport: ExecutionEvidenceReport,
+  nextBasePreview: ArrayBuffer,
+  nextGainPreview: ArrayBuffer,
 ): void => {
   if (!inspection) return
   const { width, height } = inspection.metadata.baseDimensions
   linearRgb = new Float32Array(nextLinear)
+  basePreviewRgba = new Uint8ClampedArray(nextBasePreview)
+  gainPreviewRgba = new Uint8ClampedArray(nextGainPreview)
   draw(adapted, preview, width, height)
   draw(falseColor, color, width, height)
+  draw(basePreview, nextBasePreview, width, height)
+  const map = inspection.metadata.gainMapDimensions
+  draw(gainPreview, nextGainPreview, map.width, map.height)
   report = nextReport
   evidence.textContent = JSON.stringify(nextReport, null, 2)
   status.textContent = `${sourceName}: software preview rendered at ${Number(boost.value).toFixed(2)}×. The canvas is tone mapped for SDR; linear values remain available to the pixel probe.`
@@ -240,7 +294,16 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     return
   }
   if (message.type === 'repacked') {
-    replaceImageUrl(nativeImage, 'native', message.bytes)
+    replaceImageUrl(nativeImage, message.bytes)
+    generatedBytes = message.bytes
+    generatedMime = 'image/jpeg'
+    generatedFilename = 'purejsimage-hdr-surgery.jpg'
+    updateOutputCard(
+      generatedFilename,
+      message.bytes.byteLength,
+      message.metadataMode,
+      'Ultra HDR JPEG',
+    )
     status.textContent = `${message.metadataMode} JPEG generated locally. The native image element may show HDR only when this browser, operating system, and display support it.`
     button('hdr-cancel').disabled = true
     button('hdr-jpeg').disabled = false
@@ -248,12 +311,16 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     return
   }
   if (message.type === 'avif') {
-    const url = URL.createObjectURL(new Blob([message.bytes], { type: 'image/avif' }))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'purejsimage-hdr-surgery.avif'
-    link.click()
-    URL.revokeObjectURL(url)
+    replaceImageUrl(nativeImage, message.bytes, 'image/avif')
+    generatedBytes = message.bytes
+    generatedMime = 'image/avif'
+    generatedFilename = 'purejsimage-hdr-surgery.avif'
+    updateOutputCard(
+      generatedFilename,
+      message.bytes.byteLength,
+      'ISO 21496-1',
+      'Constrained gain-map AVIF',
+    )
     status.textContent = 'ISO gain-map AVIF generated locally.'
     button('hdr-cancel').disabled = true
     button('hdr-jpeg').disabled = false
@@ -262,8 +329,6 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
   }
   if (message.type === 'result') {
     inspection = message.inspection
-    replaceImageUrl(baseImage, 'base', message.baseJpeg)
-    replaceImageUrl(gainImage, 'gain', message.gainMapJpeg)
     metadata.textContent = JSON.stringify(message.inspection, null, 2)
     if (message.inspection.container === 'jpeg') {
       const total = message.inspection.gainMap.end
@@ -281,7 +346,15 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     inspection = message.inspection
     metadata.textContent = JSON.stringify(message.inspection, null, 2)
   }
-  updateRendered(message.linearRgb, message.previewRgba, message.falseColorRgba, message.report)
+  updateHumanSummary()
+  updateRendered(
+    message.linearRgb,
+    message.previewRgba,
+    message.falseColorRgba,
+    message.report,
+    message.basePreviewRgba,
+    message.gainPreviewRgba,
+  )
 })
 
 file.addEventListener('change', () => {
@@ -309,8 +382,11 @@ button('hdr-open-url').addEventListener('click', () => {
   }
 })
 
+button('hdr-open-sample').addEventListener('click', () => openSample(select('hdr-sample').value))
+
 boost.addEventListener('input', () => {
   boostValue.textContent = `${Number(boost.value).toFixed(2)}×`
+  updateHumanSummary()
   scheduleRender()
 })
 
@@ -379,6 +455,21 @@ button('hdr-avif').addEventListener('click', () => {
   } satisfies HdrSurgeryRequest)
 })
 
+button('hdr-output-download').addEventListener('click', () => {
+  if (!generatedBytes) return
+  const url = URL.createObjectURL(new Blob([generatedBytes], { type: generatedMime }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = generatedFilename
+  link.click()
+  URL.revokeObjectURL(url)
+})
+
+button('hdr-output-reopen').addEventListener('click', () => {
+  if (!generatedBytes) return
+  openBytes(generatedFilename, generatedBytes.slice(0))
+})
+
 button('hdr-cancel').addEventListener('click', () => {
   worker.postMessage({ type: 'cancel', ...nextIdentity() } satisfies HdrSurgeryRequest)
   status.textContent = 'Operation cancelled.'
@@ -406,7 +497,9 @@ button('hdr-export').addEventListener('click', () => {
 })
 
 adapted.addEventListener('pointermove', (event) => {
-  if (!inspection || !linearRgb) return
+  if (!inspection || !linearRgb || !basePreviewRgba || !gainPreviewRgba) return
+  const currentInspection = inspection
+  const currentGainPreview = gainPreviewRgba
   const bounds = adapted.getBoundingClientRect()
   const x = Math.max(
     0,
@@ -423,7 +516,63 @@ adapted.addEventListener('pointermove', (event) => {
     ),
   )
   const offset = (y * adapted.width + x) * 3
-  probe.textContent = `(${x}, ${y}) adapted linear RGB ${[
+  const baseOffset = (y * adapted.width + x) * 4
+  const encoded = [
+    basePreviewRgba[baseOffset] ?? 0,
+    basePreviewRgba[baseOffset + 1] ?? 0,
+    basePreviewRgba[baseOffset + 2] ?? 0,
+  ]
+  const linearBase = encoded.map((value) => {
+    const normalized = value / 255
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
+  })
+  const mapDimensions = currentInspection.metadata.gainMapDimensions
+  const sourceX = ((x + 0.5) * mapDimensions.width) / adapted.width - 0.5
+  const sourceY = ((y + 0.5) * mapDimensions.height) / adapted.height - 0.5
+  const left = Math.floor(sourceX)
+  const top = Math.floor(sourceY)
+  const fractionX = sourceX - left
+  const fractionY = sourceY - top
+  const mapSample = (sampleX: number, sampleY: number, channel: number): number => {
+    const clampedX = Math.max(0, Math.min(mapDimensions.width - 1, sampleX))
+    const clampedY = Math.max(0, Math.min(mapDimensions.height - 1, sampleY))
+    return currentGainPreview[(clampedY * mapDimensions.width + clampedX) * 4 + channel] ?? 0
+  }
+  const sampleChannel = (channel: number): number => {
+    const upper =
+      mapSample(left, top, channel) * (1 - fractionX) +
+      mapSample(left + 1, top, channel) * fractionX
+    const lower =
+      mapSample(left, top + 1, channel) * (1 - fractionX) +
+      mapSample(left + 1, top + 1, channel) * fractionX
+    return upper * (1 - fractionY) + lower * fractionY
+  }
+  const samples =
+    currentInspection.metadata.channelCount === 1
+      ? [sampleChannel(0)]
+      : [sampleChannel(0), sampleChannel(1), sampleChannel(2)]
+  const capacitySpan =
+    currentInspection.metadata.capacityMaximum - currentInspection.metadata.capacityMinimum
+  const displayWeight =
+    capacitySpan === 0
+      ? 1
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            (Math.log2(Number(boost.value)) - currentInspection.metadata.capacityMinimum) /
+              capacitySpan,
+          ),
+        )
+  const logGain = samples.map((sample, channel) => {
+    const index = currentInspection.metadata.channelCount === 1 ? 0 : channel
+    const recovery = (sample / 255) ** (1 / (currentInspection.metadata.gamma[index] ?? 1))
+    const minimum = currentInspection.metadata.minimum[index] ?? 0
+    return (
+      minimum * (1 - recovery) + (currentInspection.metadata.maximum[index] ?? minimum) * recovery
+    )
+  })
+  probe.textContent = `(${x}, ${y}) base encoded RGB ${encoded.join(', ')} · base linear RGB ${linearBase.map((value) => value.toFixed(4)).join(', ')} · bilinear gain sample ${samples.map((value) => value.toFixed(2)).join(', ')} · interpolated log2 gain ${logGain.map((value) => value.toFixed(4)).join(', ')} · display weight ${displayWeight.toFixed(4)} · adapted linear RGB ${[
     linearRgb[offset] ?? 0,
     linearRgb[offset + 1] ?? 0,
     linearRgb[offset + 2] ?? 0,
@@ -439,8 +588,6 @@ element('hdr-display').textContent = highDynamicRange
 
 window.addEventListener('pagehide', () => {
   worker.terminate()
-  revoke(baseUrl)
-  revoke(gainUrl)
   revoke(nativeUrl)
 })
 

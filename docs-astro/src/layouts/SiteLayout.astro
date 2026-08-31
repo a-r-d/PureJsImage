@@ -63,6 +63,8 @@ const assetBase = base.endsWith('/') ? base : `${base}/`
           {openGraph.imageHeight && <meta property="og:image:height" content={openGraph.imageHeight} />}
           {openGraph.image && <meta name="twitter:image" content={openGraph.image} />}
           {openGraph.imageAlt && <meta name="twitter:image:alt" content={openGraph.imageAlt} />}
+          <meta name="twitter:title" content={openGraph.title} />
+          <meta name="twitter:description" content={openGraph.description} />
         </>
       )
     }

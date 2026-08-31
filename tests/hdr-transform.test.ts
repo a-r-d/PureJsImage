@@ -98,6 +98,38 @@ describe('paired gain-map transforms', () => {
     opened.close()
   })
 
+  test('counts retained encoded artifacts in the transformed materialization budget', async () => {
+    const source = new Uint8Array(await readFile(fixturePath))
+    const opened = await openGainMapImage(source)
+    await expect(
+      opened.jpeg({
+        maxMaterializedBytes: 180_000,
+      }),
+    ).rejects.toThrow(/maxMaterializedBytes/u)
+    opened.close()
+  })
+
+  test('renders transformed pixels as independently releasable bounded blocks', async () => {
+    const source = new Uint8Array(await readFile(fixturePath))
+    const opened = await openGainMapImage(source)
+    const iterator = opened
+      .flipHorizontal()
+      .render({ displayBoost: 4, maxMaterializedBytes: 512 * 1024 })
+      [Symbol.asyncIterator]()
+
+    const first = await iterator.next()
+    expect(first.done).toBe(false)
+    if (!first.done) {
+      expect(first.value.height).toBeLessThanOrEqual(32)
+      expect(first.value.data.byteLength).toBeLessThanOrEqual(320 * 32 * 3 * 4)
+      expect(first.value.release).toBeTypeOf('function')
+      first.value.release?.()
+      first.value.release?.()
+    }
+    await iterator.return?.()
+    opened.close()
+  })
+
   test('does not start a deferred transformed decode after close', async () => {
     const opened = await openGainMapImage(
       new Uint8Array(await readFile('benchmark/corpus/files/hdr-surgery-synthetic-dual.jpg')),
@@ -108,6 +140,29 @@ describe('paired gain-map transforms', () => {
       [Symbol.asyncIterator]()
     opened.close()
     await expect(iterator.next()).rejects.toThrow(/closed/u)
+  })
+
+  test('keeps original extraction separate from transformed component previews', async () => {
+    const source = new Uint8Array(await readFile(fixturePath))
+    const opened = await openGainMapImage(source)
+    const transformed = opened.crop({ x: 40, y: 30, width: 240, height: 120 }).resize({
+      width: 120,
+      height: 60,
+      kernel: 'bilinear',
+    })
+
+    const originalBase = await transformed.extractOriginalBase()
+    const originalGainMap = await transformed.extractOriginalGainMap()
+    expect(originalBase).toEqual(await opened.extractOriginalBase())
+    expect(originalGainMap).toEqual(await opened.extractOriginalGainMap())
+
+    const preview = await transformed.previewTransformedComponents()
+    expect(preview.base).toMatchObject({ width: 120, height: 60, channels: 3 })
+    expect(preview.gainMap).toMatchObject({ width: 30, height: 15, channels: 1 })
+    expect(preview.base.data.byteLength).toBe(120 * 60 * 3)
+    expect(preview.gainMap.data.byteLength).toBe(30 * 15)
+    opened.close()
+    await expect(transformed.previewTransformedComponents()).rejects.toThrow(/closed/u)
   })
 
   test('preserves straight base alpha through paired transforms and HDR rendering', async () => {

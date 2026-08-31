@@ -640,8 +640,73 @@ export const openScientific = async () => {
   )
   await writeFile(
     join(consumerDirectory, 'hdr.ts'),
-    `export { inspectGainMapImage, normalizeGainMapMetadata, openGainMapImage } from 'purejsimage/hdr'
-export type { GainMapMetadata, GainMapProbeInspection, OpenedGainMapImage } from 'purejsimage/hdr'
+    `import { assembleGainMapJpeg, inspectGainMapImage, normalizeGainMapMetadata, openGainMapImage } from 'purejsimage/hdr'
+import type { GainMapComponentPreview, GainMapMetadata, GainMapProbeInspection, OpenedGainMapImage } from 'purejsimage/hdr'
+
+export { inspectGainMapImage, normalizeGainMapMetadata, openGainMapImage }
+export type { GainMapComponentPreview, GainMapMetadata, GainMapProbeInspection, OpenedGainMapImage }
+
+export const exerciseHdrTypes = async (input: Uint8Array): Promise<Readonly<{
+  originalBase: Uint8Array
+  originalGainMap: Uint8Array
+  preview: GainMapComponentPreview
+  jpeg: Uint8Array
+  avif: Uint8Array
+  renderedBytes: number
+}>> => {
+  await inspectGainMapImage(input)
+  const image = await openGainMapImage(input)
+  try {
+    const transformed = image.autoOrient().crop({ x: 0, y: 0, width: 1, height: 1 })
+    const [originalBase, originalGainMap, preview] = await Promise.all([
+      transformed.extractOriginalBase(),
+      transformed.extractOriginalGainMap(),
+      transformed.previewTransformedComponents(),
+    ])
+    let renderedBytes = 0
+    for await (const block of transformed.render({ displayBoost: 4 })) {
+      renderedBytes += block.data.byteLength
+      block.release?.()
+    }
+    const jpeg = await transformed.jpeg({ metadataMode: 'dual' })
+    const avif = await transformed.avif()
+    await assembleGainMapJpeg({
+      baseJpeg: originalBase,
+      gainMapJpeg: originalGainMap,
+      metadata: image.inspection().metadata,
+    })
+    return { originalBase, originalGainMap, preview, jpeg, avif, renderedBytes }
+  } finally {
+    image.close()
+  }
+}
+
+export const browserHdrDownload = async (file: File): Promise<Blob> => {
+  const image = await openGainMapImage(file)
+  try {
+    const bytes = await image.jpeg({ metadataMode: 'dual' })
+    const copy = new ArrayBuffer(bytes.byteLength)
+    new Uint8Array(copy).set(bytes)
+    return new Blob([copy], { type: 'image/jpeg' })
+  } finally {
+    image.close()
+  }
+}
+`,
+  )
+  await writeFile(
+    join(consumerDirectory, 'hdr-node.ts'),
+    `import { readFile, writeFile } from 'node:fs/promises'
+import { openGainMapImage } from 'purejsimage/hdr'
+
+export const transformHdrFile = async (input: string, output: string): Promise<void> => {
+  const image = await openGainMapImage(new Uint8Array(await readFile(input)))
+  try {
+    await writeFile(output, await image.resize({ width: 1200, height: 800 }).jpeg())
+  } finally {
+    image.close()
+  }
+}
 `,
   )
 

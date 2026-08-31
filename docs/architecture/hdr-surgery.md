@@ -149,7 +149,9 @@ explicit HDR opening. Ordinary SDR decode remains available.
 The JPEG adapter performs bounded marker inspection, standard and extended XMP assembly, a small
 RDF/XML subset parse, GContainer directory resolution, MPF image enumeration, and ISO 21496-1
 metadata parsing. A valid adjacent MPF relationship uses declared ranges plus SOI and EOI boundary
-reads. A malformed or padded legacy primary range falls back to bounded entropy-aware EOI scanning.
+reads. A compatibility case accepts a primary size over-declared by at most 65,535 bytes only when
+an independent entropy-aware EOI scan ends exactly at the first secondary offset. Under-declarations,
+larger differences, and every other contradictory primary range fail.
 The adapter returns source ranges and normalized metadata without entropy-decoding either child.
 
 ### AVIF
@@ -259,9 +261,15 @@ source. Rendering uses bounded base rows, required gain rows, lookup tables, and
 does not retain complete decoded RGBA base and map images together.
 
 The current paired crop, flip, orientation, quarter-turn, resize, and re-encode path is an explicit
-full-frame fallback with a caller-controlled `maxMaterializedBytes` limit. It retains one 8-bit base
-raster and one smaller encoded gain raster, not a decoded RGBA pair. Encoded assembly may retain
-bounded compressed artifacts. Untransformed selected-boost rendering remains the bounded-row path.
+full-frame 8-bit fallback with a caller-controlled aggregate `maxMaterializedBytes` limit. It retains
+one base raster and one smaller encoded gain raster. Transformed selected-boost rendering resamples
+the map once and emits independent 32-row Float32 blocks. It never retains a complete linear base or
+adapted Float32 image. One reservation ledger covers decoded source rasters, replacement transformed
+rasters while both versions are live, base-resolution map alignment, retained JPEG or AVIF artifacts,
+encoded assembly staging, and the live Float32 input and output blocks. The implementation reserves
+before allocation and releases when replacement or staging state is no longer library-owned. Process
+RSS, V8 external memory, and ArrayBuffer memory are measured separately and are not charged to this
+managed-byte limit.
 
 ## 16. Execution evidence
 

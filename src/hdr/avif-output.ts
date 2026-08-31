@@ -1,15 +1,26 @@
 import { throwIfAborted } from '../abort.ts'
-import { avifCodec } from '../codecs/avif.ts'
+import { createAvifEncoderWithColorConfiguration } from '../codecs/avif-encode.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import type { EvidenceContext } from '../evidence.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
-import { Uint8ArraySink } from '../sink.ts'
+import {
+  MaterializedUint8ArraySink,
+  type HdrMaterializationBudget,
+  type MaterializedBytes,
+} from './materialization.ts'
 import type { GainMapRational } from './model.ts'
-import type { GainMapRaster8, GainMapTransformedRasters } from './transform.ts'
+import {
+  gainMapMaterializationBudget,
+  type GainMapRaster8,
+  type GainMapTransformedRasters,
+} from './transform.ts'
 
 export interface GainMapAvifEncodeOptions {
   readonly maxOutputBytes?: number
+  readonly maxMaterializedBytes?: number
   readonly signal?: AbortSignal
+  readonly evidence?: EvidenceContext
 }
 
 const bytes32 = (value: number): Uint8Array => {
@@ -63,16 +74,26 @@ const fileType = box(
 const standaloneAv1 = async (
   raster: GainMapRaster8,
   signal: AbortSignal | undefined,
-): Promise<Uint8Array> => {
-  if (!avifCodec.createEncoder) throw unsupportedOperation('AVIF encoding is unavailable')
-  const sink = new Uint8ArraySink()
-  const encoder = await avifCodec.createEncoder(sink, {
-    width: raster.width,
-    height: raster.height,
-    pixelFormat: raster.channels === 1 ? 'gray8' : 'rgb8',
-    options: {},
-    ...(signal === undefined ? {} : { signal }),
-  })
+  budget: HdrMaterializationBudget,
+  color: Readonly<{
+    readonly colorPrimaries: number
+    readonly transferCharacteristics: number
+    readonly matrixCoefficients: number
+    readonly fullRange: boolean
+  }>,
+): Promise<MaterializedBytes> => {
+  const sink = new MaterializedUint8ArraySink(budget)
+  const encoder = await createAvifEncoderWithColorConfiguration(
+    sink,
+    {
+      width: raster.width,
+      height: raster.height,
+      pixelFormat: raster.channels === 1 ? 'gray8' : 'rgb8',
+      options: {},
+      ...(signal === undefined ? {} : { signal }),
+    },
+    color,
+  )
   const block: PixelBlock = {
     x: 0,
     y: 0,
@@ -89,17 +110,33 @@ const standaloneAv1 = async (
     await encoder.abort?.(error)
     throw error
   }
-  const avif = sink.toUint8Array()
+  const avif = sink.toMaterializedUint8Array()
   let offset = 0
-  while (offset + 8 <= avif.byteLength) {
-    const size = new DataView(avif.buffer, avif.byteOffset + offset, 4).getUint32(0, false)
-    const type = String.fromCharCode(...avif.subarray(offset + 4, offset + 8))
-    if (size < 8 || offset + size > avif.byteLength) {
+  while (offset + 8 <= avif.data.byteLength) {
+    const size = new DataView(avif.data.buffer, avif.data.byteOffset + offset, 4).getUint32(
+      0,
+      false,
+    )
+    const type = String.fromCharCode(...avif.data.subarray(offset + 4, offset + 8))
+    if (size < 8 || offset + size > avif.data.byteLength) {
+      avif.reservation.release()
       throw invalidInput('Standalone AVIF encoder produced an invalid box')
     }
-    if (type === 'mdat') return Uint8Array.from(avif.subarray(offset + 8, offset + size))
+    if (type === 'mdat') {
+      const reservation = budget.reserve(size - 8)
+      try {
+        const data = Uint8Array.from(avif.data.subarray(offset + 8, offset + size))
+        avif.reservation.release()
+        return Object.freeze({ data, reservation })
+      } catch (error) {
+        reservation.release()
+        avif.reservation.release()
+        throw error
+      }
+    }
     offset += size
   }
+  avif.reservation.release()
   throw invalidInput('Standalone AVIF encoder produced no media data')
 }
 
@@ -182,6 +219,7 @@ const pixi = (channels: number): Uint8Array =>
 
 const av1c = box('av1C', Uint8Array.of(0x81, 0, 0x0c, 0))
 const srgbNclx = box('colr', concatenate([ascii('nclx'), Uint8Array.of(0, 1, 0, 13, 0, 1, 0x80)]))
+const gainMapNclx = box('colr', concatenate([ascii('nclx'), Uint8Array.of(0, 2, 0, 2, 0, 1, 0x80)]))
 
 const association = (itemId: number, properties: readonly number[]): Uint8Array =>
   Uint8Array.of(itemId >>> 8, itemId, properties.length, ...properties)
@@ -231,7 +269,7 @@ const metadataBox = (
       ispe(rasters.gainMap.width, rasters.gainMap.height),
       pixi(3),
       av1c,
-      srgbNclx,
+      gainMapNclx,
       ispe(rasters.base.width, rasters.base.height),
       srgbNclx,
     ),
@@ -256,43 +294,95 @@ const metadataBox = (
   )
 }
 
+interface PreparedGainMapAvif {
+  readonly metadata: Uint8Array
+  readonly base: Uint8Array
+  readonly gainMap: Uint8Array
+  readonly toneMap: Uint8Array
+  release(): void
+}
+
 const prepare = async (
   rasters: GainMapTransformedRasters,
   options: Readonly<GainMapAvifEncodeOptions>,
-): Promise<readonly [Uint8Array, Uint8Array, Uint8Array, Uint8Array]> => {
+): Promise<PreparedGainMapAvif> => {
   const toneMap = toneMapPayload(rasters)
-  const [base, gainMap] = await Promise.all([
-    standaloneAv1(rasters.base, options.signal),
-    standaloneAv1(rasters.gainMap, options.signal),
-  ])
-  const provisional = metadataBox(
-    rasters,
-    { base: 0, gainMap: 0, toneMap: 0 },
-    { base: base.byteLength, gainMap: gainMap.byteLength, toneMap: toneMap.byteLength },
-  )
-  const mediaStart = fileType.byteLength + provisional.byteLength + 8
-  const metadata = metadataBox(
-    rasters,
-    {
-      base: mediaStart,
-      gainMap: mediaStart + base.byteLength,
-      toneMap: mediaStart + base.byteLength + gainMap.byteLength,
-    },
-    { base: base.byteLength, gainMap: gainMap.byteLength, toneMap: toneMap.byteLength },
-  )
-  const outputBytes =
-    fileType.byteLength +
-    metadata.byteLength +
-    8 +
-    base.byteLength +
-    gainMap.byteLength +
-    toneMap.byteLength
-  const maximum = options.maxOutputBytes ?? 256 * 1024 * 1024
-  if (!Number.isSafeInteger(maximum) || maximum < 1) {
-    throw invalidInput('Gain-map AVIF maxOutputBytes must be a positive safe integer')
+  const maximum = options.maxMaterializedBytes ?? 256 * 1024 * 1024
+  const budget = gainMapMaterializationBudget(rasters, maximum)
+  const codedEvidence = options.evidence?.child('AVIF coded-item assembly')
+  codedEvidence?.operation({ operationId: 'hdr-avif-coded-items', phase: 'start' })
+  const base = await standaloneAv1(rasters.base, options.signal, budget, {
+    colorPrimaries: 1,
+    transferCharacteristics: 13,
+    matrixCoefficients: 1,
+    fullRange: true,
+  })
+  let gainMap: MaterializedBytes
+  try {
+    gainMap = await standaloneAv1(rasters.gainMap, options.signal, budget, {
+      colorPrimaries: 2,
+      transferCharacteristics: 2,
+      matrixCoefficients: 1,
+      fullRange: true,
+    })
+  } catch (error) {
+    base.reservation.release()
+    throw error
   }
-  if (outputBytes > maximum) throw limitExceeded('Gain-map AVIF output exceeds maxOutputBytes')
-  return [metadata, base, gainMap, toneMap]
+  try {
+    codedEvidence?.operation({ operationId: 'hdr-avif-coded-items', phase: 'complete' })
+    const provisional = metadataBox(
+      rasters,
+      { base: 0, gainMap: 0, toneMap: 0 },
+      {
+        base: base.data.byteLength,
+        gainMap: gainMap.data.byteLength,
+        toneMap: toneMap.byteLength,
+      },
+    )
+    const mediaStart = fileType.byteLength + provisional.byteLength + 8
+    const metadata = metadataBox(
+      rasters,
+      {
+        base: mediaStart,
+        gainMap: mediaStart + base.data.byteLength,
+        toneMap: mediaStart + base.data.byteLength + gainMap.data.byteLength,
+      },
+      {
+        base: base.data.byteLength,
+        gainMap: gainMap.data.byteLength,
+        toneMap: toneMap.byteLength,
+      },
+    )
+    const outputBytes =
+      fileType.byteLength +
+      metadata.byteLength +
+      8 +
+      base.data.byteLength +
+      gainMap.data.byteLength +
+      toneMap.byteLength
+    const outputMaximum = options.maxOutputBytes ?? 256 * 1024 * 1024
+    if (!Number.isSafeInteger(outputMaximum) || outputMaximum < 1) {
+      throw invalidInput('Gain-map AVIF maxOutputBytes must be a positive safe integer')
+    }
+    if (outputBytes > outputMaximum) {
+      throw limitExceeded('Gain-map AVIF output exceeds maxOutputBytes')
+    }
+    return Object.freeze({
+      metadata,
+      base: base.data,
+      gainMap: gainMap.data,
+      toneMap,
+      release: (): void => {
+        base.reservation.release()
+        gainMap.reservation.release()
+      },
+    })
+  } catch (error) {
+    base.reservation.release()
+    gainMap.reservation.release()
+    throw error
+  }
 }
 
 export const writeGainMapAvif = async (
@@ -300,22 +390,31 @@ export const writeGainMapAvif = async (
   rasters: GainMapTransformedRasters,
   options: Readonly<GainMapAvifEncodeOptions> = {},
 ): Promise<void> => {
+  const containerEvidence = options.evidence?.child('AVIF container assembly')
+  containerEvidence?.operation({ operationId: 'hdr-avif-container', phase: 'start' })
   try {
-    const [metadata, base, gainMap, toneMap] = await prepare(rasters, options)
-    const chunks = [
-      fileType,
-      metadata,
-      bytes32(8 + base.byteLength + gainMap.byteLength + toneMap.byteLength),
-      ascii('mdat'),
-      base,
-      gainMap,
-      toneMap,
-    ]
-    for (const chunk of chunks) {
-      throwIfAborted(options.signal)
-      await sink.write(chunk)
+    const prepared = await prepare(rasters, options)
+    try {
+      const chunks = [
+        fileType,
+        prepared.metadata,
+        bytes32(
+          8 + prepared.base.byteLength + prepared.gainMap.byteLength + prepared.toneMap.byteLength,
+        ),
+        ascii('mdat'),
+        prepared.base,
+        prepared.gainMap,
+        prepared.toneMap,
+      ]
+      for (const chunk of chunks) {
+        throwIfAborted(options.signal)
+        await sink.write(chunk)
+      }
+      await sink.close()
+      containerEvidence?.operation({ operationId: 'hdr-avif-container', phase: 'complete' })
+    } finally {
+      prepared.release()
     }
-    await sink.close()
   } catch (error) {
     await sink.abort(error)
     throw error
@@ -326,7 +425,11 @@ export const assembleGainMapAvif = async (
   rasters: GainMapTransformedRasters,
   options: Readonly<GainMapAvifEncodeOptions> = {},
 ): Promise<Uint8Array> => {
-  const sink = new Uint8ArraySink()
+  const maximum = options.maxMaterializedBytes ?? 256 * 1024 * 1024
+  const budget = gainMapMaterializationBudget(rasters, maximum)
+  const sink = new MaterializedUint8ArraySink(budget)
   await writeGainMapAvif(sink, rasters, options)
-  return sink.toUint8Array()
+  const output = sink.toMaterializedUint8Array()
+  output.reservation.release()
+  return output.data
 }

@@ -1,9 +1,15 @@
 import { throwIfAborted } from '../abort.ts'
 import { invalidInput, limitExceeded } from '../errors.ts'
+import type { EvidenceContext } from '../evidence.ts'
 import type { ImageSink } from '../sink.ts'
 import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../source.ts'
 import { encodeIsoGainMapMetadata } from './iso.ts'
 import { findJpegEnd, inspectHdrJpeg, inspectHdrJpegHeader } from './jpeg.ts'
+import {
+  hdrMaterializationBudget,
+  type InternalMaterializationOptions,
+  type MaterializationReservation,
+} from './materialization.ts'
 import type {
   GainMapExactIsoMetadata,
   GainMapMetadata,
@@ -21,6 +27,7 @@ export interface AssembleGainMapJpegOptions {
   readonly metadataMode?: GainMapJpegMetadataMode
   readonly maxOutputBytes?: number
   readonly signal?: AbortSignal
+  readonly evidence?: EvidenceContext
 }
 
 export interface GainMapJpegArtifacts {
@@ -63,6 +70,7 @@ const stripHdrMetadata = (jpeg: Uint8Array): Uint8Array => {
   const pieces: Uint8Array[] = [jpeg.subarray(0, 2)]
   let position = 2
   let keptStart = 2
+  let removed = false
   while (position < jpeg.byteLength) {
     const markerStart = position
     if (jpeg[position++] !== 0xff) throw invalidInput('JPEG marker prefix is missing before SOS')
@@ -89,11 +97,13 @@ const stripHdrMetadata = (jpeg: Uint8Array): Uint8Array => {
     const isHdrApp2 =
       marker === 0xe2 && (asciiPrefix(payload, 'MPF\0') || asciiPrefix(payload, ISO_HEADER))
     if (isHdrXmp || isHdrApp2) {
+      removed = true
       if (keptStart < markerStart) pieces.push(jpeg.subarray(keptStart, markerStart))
       keptStart = end
     }
     position = end
   }
+  if (!removed) return jpeg
   pieces.push(jpeg.subarray(keptStart))
   const length = pieces.reduce((total, piece) => total + piece.byteLength, 0)
   const output = new Uint8Array(length)
@@ -105,16 +115,40 @@ const stripHdrMetadata = (jpeg: Uint8Array): Uint8Array => {
   return output
 }
 
-const injectAfterSoi = (jpeg: Uint8Array, segments: readonly Uint8Array[]): Uint8Array => {
+const metadataPreambleEnd = (jpeg: Uint8Array): number => {
+  let position = 2
+  while (position + 4 <= jpeg.byteLength && jpeg[position] === 0xff) {
+    const marker = jpeg[position + 1]
+    if (marker !== 0xe0 && marker !== 0xe1 && marker !== 0xe2) break
+    const length = (jpeg[position + 2] ?? 0) * 256 + (jpeg[position + 3] ?? 0)
+    if (length < 2 || position + length + 2 > jpeg.byteLength) {
+      throw invalidInput('JPEG metadata preamble is truncated')
+    }
+    const payload = jpeg.subarray(position + 4, position + length + 2)
+    const keepBeforeHdr =
+      (marker === 0xe0 && (asciiPrefix(payload, 'JFIF\0') || asciiPrefix(payload, 'JFXX\0'))) ||
+      (marker === 0xe1 && asciiPrefix(payload, 'Exif\0\0')) ||
+      (marker === 0xe2 && asciiPrefix(payload, 'ICC_PROFILE\0'))
+    if (!keepBeforeHdr) break
+    position += length + 2
+  }
+  return position
+}
+
+const injectAfterMetadataPreamble = (
+  jpeg: Uint8Array,
+  segments: readonly Uint8Array[],
+): Uint8Array => {
   const extra = segments.reduce((total, segment) => total + segment.byteLength, 0)
   const output = new Uint8Array(jpeg.byteLength + extra)
-  output.set(jpeg.subarray(0, 2))
-  let offset = 2
+  const insertion = metadataPreambleEnd(jpeg)
+  output.set(jpeg.subarray(0, insertion))
+  let offset = insertion
   for (const segment of segments) {
     output.set(segment, offset)
     offset += segment.byteLength
   }
-  output.set(jpeg.subarray(2), offset)
+  output.set(jpeg.subarray(insertion), offset)
   return output
 }
 
@@ -311,106 +345,160 @@ interface PreparedGainMapJpeg {
   readonly primary: Uint8Array
   readonly gainMap: Uint8Array
   readonly outputBytes: number
+  release(): void
 }
 
 const prepareGainMapJpeg = async (
   artifacts: Readonly<GainMapJpegArtifacts>,
   options: Readonly<AssembleGainMapJpegOptions> = {},
 ): Promise<PreparedGainMapJpeg> => {
-  throwIfAborted(options.signal)
-  const mode = options.metadataMode ?? 'dual'
-  if (mode !== 'dual' && mode !== 'iso' && mode !== 'ultra-hdr') {
-    throw invalidInput('HDR JPEG metadataMode is invalid')
+  const budget = (options as Readonly<AssembleGainMapJpegOptions & InternalMaterializationOptions>)[
+    hdrMaterializationBudget
+  ]
+  const reservations: MaterializationReservation[] = []
+  const reserve = (bytes: number): void => {
+    if (budget) reservations.push(budget.reserve(bytes))
   }
-  const base = stripHdrMetadata(artifacts.baseJpeg)
-  const gain = stripHdrMetadata(artifacts.gainMapJpeg)
-  const signalOptions = options.signal === undefined ? {} : { signal: options.signal }
-  const [baseHeader, gainHeader, baseEnd, gainEnd] = await Promise.all([
-    inspectHdrJpegHeader(new MemorySource(base), 0, signalOptions),
-    inspectHdrJpegHeader(new MemorySource(gain), 0, signalOptions),
-    findJpegEnd(new MemorySource(base), 0, signalOptions),
-    findJpegEnd(new MemorySource(gain), 0, signalOptions),
-  ])
-  if (baseEnd !== base.byteLength || gainEnd !== gain.byteLength) {
-    throw invalidInput('HDR JPEG child inputs must contain exactly one JPEG')
+  const release = (): void => {
+    for (const reservation of reservations) reservation.release()
+    reservations.length = 0
   }
-  if (
-    baseHeader.dimensions.width !== artifacts.metadata.baseDimensions.width ||
-    baseHeader.dimensions.height !== artifacts.metadata.baseDimensions.height ||
-    gainHeader.dimensions.width !== artifacts.metadata.gainMapDimensions.width ||
-    gainHeader.dimensions.height !== artifacts.metadata.gainMapDimensions.height
-  ) {
-    throw invalidInput('HDR JPEG child dimensions conflict with gain-map metadata')
+  const assemblyEvidence = options.evidence?.child('JPEG metadata and MPF assembly')
+  assemblyEvidence?.operation({ operationId: 'hdr-jpeg-metadata-assembly', phase: 'start' })
+  try {
+    throwIfAborted(options.signal)
+    const mode = options.metadataMode ?? 'dual'
+    if (mode !== 'dual' && mode !== 'iso' && mode !== 'ultra-hdr') {
+      throw invalidInput('HDR JPEG metadataMode is invalid')
+    }
+    const base = stripHdrMetadata(artifacts.baseJpeg)
+    const gain = stripHdrMetadata(artifacts.gainMapJpeg)
+    const signalOptions = options.signal === undefined ? {} : { signal: options.signal }
+    const [baseHeader, gainHeader, baseEnd, gainEnd] = await Promise.all([
+      inspectHdrJpegHeader(new MemorySource(base), 0, signalOptions),
+      inspectHdrJpegHeader(new MemorySource(gain), 0, signalOptions),
+      findJpegEnd(new MemorySource(base), 0, signalOptions),
+      findJpegEnd(new MemorySource(gain), 0, signalOptions),
+    ])
+    if (baseEnd !== base.byteLength || gainEnd !== gain.byteLength) {
+      throw invalidInput('HDR JPEG child inputs must contain exactly one JPEG')
+    }
+    if (
+      baseHeader.dimensions.width !== artifacts.metadata.baseDimensions.width ||
+      baseHeader.dimensions.height !== artifacts.metadata.baseDimensions.height ||
+      gainHeader.dimensions.width !== artifacts.metadata.gainMapDimensions.width ||
+      gainHeader.dimensions.height !== artifacts.metadata.gainMapDimensions.height
+    ) {
+      throw invalidInput('HDR JPEG child dimensions conflict with gain-map metadata')
+    }
+    const expectedChannels = gainHeader.dimensions.components === 1 ? 1 : 3
+    if (gainHeader.dimensions.components !== 1 && gainHeader.dimensions.components !== 3) {
+      throw invalidInput('HDR JPEG gain map must contain one or three components')
+    }
+    if (artifacts.metadata.channelCount !== expectedChannels) {
+      throw invalidInput('HDR JPEG gain-map component count conflicts with metadata')
+    }
+    const isoData =
+      mode === 'ultra-hdr'
+        ? undefined
+        : encodeIsoGainMapMetadata({
+            channelCount: artifacts.metadata.channelCount,
+            baseRendition: artifacts.metadata.baseRendition,
+            useBaseColorSpace: artifacts.metadata.useBaseColorSpace,
+            exact: exactIso(artifacts.metadata),
+          })
+    const gainSegments: Uint8Array[] = []
+    if (mode !== 'iso') {
+      gainSegments.push(jpegSegment(0xe1, appPayload(XMP_HEADER, gainMapXmp(artifacts.metadata))))
+    }
+    if (isoData) gainSegments.push(jpegSegment(0xe2, appPayload(ISO_HEADER, isoData)))
+    reserve(
+      gain.byteLength + gainSegments.reduce((total, segment) => total + segment.byteLength, 0),
+    )
+    let gainOutput: Uint8Array
+    try {
+      gainOutput = injectAfterMetadataPreamble(gain, gainSegments)
+    } catch (error) {
+      release()
+      throw error
+    }
+    const primaryXmpSegment = jpegSegment(
+      0xe1,
+      appPayload(XMP_HEADER, primaryXmp(gainOutput.length)),
+    )
+    const primaryIsoSegment = isoData
+      ? jpegSegment(0xe2, appPayload(ISO_HEADER, new Uint8Array(4)))
+      : undefined
+    const fixedBeforeMpf =
+      metadataPreambleEnd(base) + primaryXmpSegment.length + (primaryIsoSegment?.length ?? 0)
+    const provisionalMpf = mpfSegment(0, gainOutput.length, 0)
+    const primaryLength =
+      base.length +
+      primaryXmpSegment.length +
+      (primaryIsoSegment?.length ?? 0) +
+      provisionalMpf.length
+    const tiffOffset = fixedBeforeMpf + 8
+    const mpf = mpfSegment(primaryLength, gainOutput.length, primaryLength - tiffOffset)
+    const primarySegments = primaryIsoSegment
+      ? [primaryXmpSegment, primaryIsoSegment, mpf]
+      : [primaryXmpSegment, mpf]
+    reserve(
+      base.byteLength + primarySegments.reduce((total, segment) => total + segment.byteLength, 0),
+    )
+    let primaryOutput: Uint8Array
+    try {
+      primaryOutput = injectAfterMetadataPreamble(base, primarySegments)
+    } catch (error) {
+      release()
+      throw error
+    }
+    const outputBytes = primaryOutput.length + gainOutput.length
+    if (
+      !Number.isSafeInteger(outputBytes) ||
+      outputBytes > checkedOutputLimit(options.maxOutputBytes)
+    ) {
+      throw limitExceeded('HDR JPEG output exceeds maxOutputBytes')
+    }
+    const inspection = await inspectHdrJpeg(
+      new JpegArtifactSource(primaryOutput, gainOutput),
+      signalOptions,
+    )
+    if (
+      inspection.primary.end !== primaryOutput.length ||
+      inspection.gainMap?.start !== primaryOutput.length ||
+      inspection.gainMap.end !== outputBytes
+    ) {
+      throw invalidInput('Generated HDR JPEG ranges did not validate')
+    }
+    assemblyEvidence?.operation({ operationId: 'hdr-jpeg-metadata-assembly', phase: 'complete' })
+    return Object.freeze({ primary: primaryOutput, gainMap: gainOutput, outputBytes, release })
+  } catch (error) {
+    release()
+    throw error
   }
-  const expectedChannels = gainHeader.dimensions.components === 1 ? 1 : 3
-  if (gainHeader.dimensions.components !== 1 && gainHeader.dimensions.components !== 3) {
-    throw invalidInput('HDR JPEG gain map must contain one or three components')
-  }
-  if (artifacts.metadata.channelCount !== expectedChannels) {
-    throw invalidInput('HDR JPEG gain-map component count conflicts with metadata')
-  }
-  const isoData =
-    mode === 'ultra-hdr'
-      ? undefined
-      : encodeIsoGainMapMetadata({
-          channelCount: artifacts.metadata.channelCount,
-          baseRendition: artifacts.metadata.baseRendition,
-          useBaseColorSpace: artifacts.metadata.useBaseColorSpace,
-          exact: exactIso(artifacts.metadata),
-        })
-  const gainSegments: Uint8Array[] = []
-  if (mode !== 'iso') {
-    gainSegments.push(jpegSegment(0xe1, appPayload(XMP_HEADER, gainMapXmp(artifacts.metadata))))
-  }
-  if (isoData) gainSegments.push(jpegSegment(0xe2, appPayload(ISO_HEADER, isoData)))
-  const gainOutput = injectAfterSoi(gain, gainSegments)
-  const primaryXmpSegment = jpegSegment(0xe1, appPayload(XMP_HEADER, primaryXmp(gainOutput.length)))
-  const primaryIsoSegment = isoData
-    ? jpegSegment(0xe2, appPayload(ISO_HEADER, new Uint8Array(4)))
-    : undefined
-  const fixedBeforeMpf = 2 + primaryXmpSegment.length + (primaryIsoSegment?.length ?? 0)
-  const provisionalMpf = mpfSegment(0, gainOutput.length, 0)
-  const primaryLength =
-    base.length +
-    primaryXmpSegment.length +
-    (primaryIsoSegment?.length ?? 0) +
-    provisionalMpf.length
-  const tiffOffset = fixedBeforeMpf + 8
-  const mpf = mpfSegment(primaryLength, gainOutput.length, primaryLength - tiffOffset)
-  const primarySegments = primaryIsoSegment
-    ? [primaryXmpSegment, primaryIsoSegment, mpf]
-    : [primaryXmpSegment, mpf]
-  const primaryOutput = injectAfterSoi(base, primarySegments)
-  const outputBytes = primaryOutput.length + gainOutput.length
-  if (
-    !Number.isSafeInteger(outputBytes) ||
-    outputBytes > checkedOutputLimit(options.maxOutputBytes)
-  ) {
-    throw limitExceeded('HDR JPEG output exceeds maxOutputBytes')
-  }
-  const inspection = await inspectHdrJpeg(
-    new JpegArtifactSource(primaryOutput, gainOutput),
-    signalOptions,
-  )
-  if (
-    inspection.primary.end !== primaryOutput.length ||
-    inspection.gainMap?.start !== primaryOutput.length ||
-    inspection.gainMap.end !== outputBytes
-  ) {
-    throw invalidInput('Generated HDR JPEG ranges did not validate')
-  }
-  return Object.freeze({ primary: primaryOutput, gainMap: gainOutput, outputBytes })
 }
 
 export const assembleGainMapJpeg = async (
   artifacts: Readonly<GainMapJpegArtifacts>,
   options: Readonly<AssembleGainMapJpegOptions> = {},
 ): Promise<Uint8Array> => {
+  const repackEvidence = options.evidence?.child('bit-preserving repack')
+  repackEvidence?.operation({ operationId: 'hdr-bit-preserving-repack', phase: 'start' })
   const prepared = await prepareGainMapJpeg(artifacts, options)
-  const output = new Uint8Array(prepared.outputBytes)
-  output.set(prepared.primary)
-  output.set(prepared.gainMap, prepared.primary.byteLength)
-  return output
+  const budget = (options as Readonly<AssembleGainMapJpegOptions & InternalMaterializationOptions>)[
+    hdrMaterializationBudget
+  ]
+  const outputReservation = budget?.reserve(prepared.outputBytes)
+  try {
+    const output = new Uint8Array(prepared.outputBytes)
+    output.set(prepared.primary)
+    output.set(prepared.gainMap, prepared.primary.byteLength)
+    repackEvidence?.operation({ operationId: 'hdr-bit-preserving-repack', phase: 'complete' })
+    return output
+  } finally {
+    prepared.release()
+    outputReservation?.release()
+  }
 }
 
 export const writeGainMapJpeg = async (
@@ -420,11 +508,15 @@ export const writeGainMapJpeg = async (
 ): Promise<void> => {
   try {
     const prepared = await prepareGainMapJpeg(artifacts, options)
-    throwIfAborted(options.signal)
-    await sink.write(prepared.primary)
-    throwIfAborted(options.signal)
-    await sink.write(prepared.gainMap)
-    await sink.close()
+    try {
+      throwIfAborted(options.signal)
+      await sink.write(prepared.primary)
+      throwIfAborted(options.signal)
+      await sink.write(prepared.gainMap)
+      await sink.close()
+    } finally {
+      prepared.release()
+    }
   } catch (error) {
     await sink.abort(error)
     throw error

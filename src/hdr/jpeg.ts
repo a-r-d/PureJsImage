@@ -748,6 +748,25 @@ const isoPackets = (segments: readonly HdrJpegApplicationSegment[]): readonly Ui
   return packets
 }
 
+const isHdrMetadataSegment = (segment: HdrJpegApplicationSegment): boolean =>
+  (segment.marker === 0xe1 &&
+    (asciiPrefix(segment.payload, XMP_HEADER) ||
+      asciiPrefix(segment.payload, EXTENDED_XMP_HEADER))) ||
+  (segment.marker === 0xe2 &&
+    (asciiPrefix(segment.payload, 'MPF\0') || asciiPrefix(segment.payload, ISO_HEADER)))
+
+const sortedUniqueRanges = (ranges: readonly JpegByteRange[]): readonly JpegByteRange[] => {
+  const sorted = [...ranges].sort((left, right) => left.start - right.start || left.end - right.end)
+  const result: JpegByteRange[] = []
+  for (const candidate of sorted) {
+    const previous = result.at(-1)
+    if (!previous || previous.start !== candidate.start || previous.end !== candidate.end) {
+      result.push(candidate)
+    }
+  }
+  return Object.freeze(result)
+}
+
 const closeNumber = (left: number, right: number): boolean =>
   Math.abs(left - right) <= 1e-5 * Math.max(1, Math.abs(left), Math.abs(right))
 
@@ -811,10 +830,24 @@ export const inspectHdrJpeg = async (
         earliest === undefined || image.range.start < earliest.range.start ? image : earliest,
       undefined,
     )
-  const primary =
-    declaredPrimary && firstSecondary && declaredPrimary.end === firstSecondary.range.start
-      ? declaredPrimary
-      : range(0, await findJpegEnd(source, 0, options), 'JPEG primary')
+  let primary = declaredPrimary
+  if (declaredPrimary && firstSecondary && declaredPrimary.end !== firstSecondary.range.start) {
+    const scannedPrimaryEnd = await findJpegEnd(source, 0, options)
+    const boundedOverDeclaration = declaredPrimary.end - firstSecondary.range.start
+    if (
+      scannedPrimaryEnd !== firstSecondary.range.start ||
+      boundedOverDeclaration < 1 ||
+      boundedOverDeclaration > 65_535
+    ) {
+      throw invalidInput(
+        'MPF declared primary size must end where the first secondary image begins',
+      )
+    }
+    // Some Apple gain-map files over-declare the primary by a small APP-segment-sized amount.
+    // Accept only when an independent EOI scan proves the exact secondary boundary.
+    primary = range(0, scannedPrimaryEnd, 'JPEG primary')
+  }
+  primary ??= range(0, await findJpegEnd(source, 0, options), 'JPEG primary')
   await validateJpegRange(source, primary)
   if (mpf) {
     for (const image of mpf.images.slice(1)) {
@@ -948,10 +981,11 @@ export const inspectHdrJpeg = async (
     ...(iso ? { iso } : {}),
     representations,
     xmpPackets: Object.freeze([...primaryPackets, ...gainPackets]),
-    metadataRanges: Object.freeze(
-      header.applicationSegments
-        .filter((segment) => segment.marker === 0xe1 || asciiPrefix(segment.payload, 'MPF\0'))
+    metadataRanges: sortedUniqueRanges([
+      ...header.applicationSegments.filter(isHdrMetadataSegment).map((segment) => segment.range),
+      ...(selectedGain?.header.applicationSegments ?? [])
+        .filter(isHdrMetadataSegment)
         .map((segment) => segment.range),
-    ),
+    ]),
   })
 }

@@ -1,6 +1,6 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
 import type { CropOptions, ResizeKernel } from '../pipeline.ts'
-import type { GainMapDimensions } from './model.ts'
+import { gainMapDimensionsAreCompatible, type GainMapDimensions } from './model.ts'
 
 export interface GainMapFraction {
   readonly numerator: number
@@ -69,8 +69,10 @@ const dimensions = (value: GainMapDimensions, label: string): GainMapDimensions 
 const validateState = (state: GainMapGeometryState): GainMapGeometryState => {
   const base = dimensions(state.base, 'Base')
   const gainMap = dimensions(state.gainMap, 'Gain-map')
-  if (BigInt(base.width) * BigInt(gainMap.height) !== BigInt(base.height) * BigInt(gainMap.width)) {
-    throw invalidInput('Base and gain-map geometry must have the same exact aspect ratio')
+  if (!gainMapDimensionsAreCompatible(base, gainMap)) {
+    throw invalidInput(
+      'Base and gain-map geometry must have the same aspect ratio within one gain-map pixel',
+    )
   }
   return Object.freeze({ base, gainMap })
 }

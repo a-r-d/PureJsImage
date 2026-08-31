@@ -354,6 +354,21 @@ describe('HDR JPEG structure', () => {
     })
   })
 
+  it.each(['&#;', '&#x;', '&#12garbage;', '&#xD800;', '&#0;', '&#x110000;'])(
+    'rejects invalid XML numeric entity %s through HDR XMP parsing',
+    async (entity) => {
+      await expect(
+        inspectHdrJpeg(
+          new MemorySource(
+            compound(false, {
+              metadataAttributes: `g:Version="1.0" g:GainMapMax="${entity}" g:HDRCapacityMax="2"`,
+            }),
+          ),
+        ),
+      ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    },
+  )
+
   it('rejects overlapping and out-of-source MPF ranges', async () => {
     const input = compound()
     const corrupted = Uint8Array.from(input)
@@ -370,5 +385,40 @@ describe('HDR JPEG structure', () => {
     await expect(inspectHdrJpeg(new MemorySource(corrupted))).rejects.toMatchObject({
       code: 'INVALID_INPUT',
     })
+  })
+
+  it('rejects a contradictory MPF declared primary size instead of silently scanning to EOI', async () => {
+    const corrupted = Uint8Array.from(compound())
+    const signature = new TextEncoder().encode('MPF\0')
+    let mpf = -1
+    for (let index = 0; index <= corrupted.length - signature.length; index += 1) {
+      if (signature.every((value, offset) => corrupted[index + offset] === value)) {
+        mpf = index
+        break
+      }
+    }
+    expect(mpf).toBeGreaterThan(0)
+    const view = new DataView(corrupted.buffer)
+    view.setUint32(mpf + 58, view.getUint32(mpf + 58, false) - 1, false)
+    await expect(inspectHdrJpeg(new MemorySource(corrupted))).rejects.toThrow(
+      /declared primary size/u,
+    )
+  })
+
+  it('accepts only a bounded primary over-declaration when EOI proves the secondary boundary', async () => {
+    const compatible = Uint8Array.from(compound())
+    const signature = new TextEncoder().encode('MPF\0')
+    let mpf = -1
+    for (let index = 0; index <= compatible.length - signature.length; index += 1) {
+      if (signature.every((value, offset) => compatible[index + offset] === value)) {
+        mpf = index
+        break
+      }
+    }
+    expect(mpf).toBeGreaterThan(0)
+    const view = new DataView(compatible.buffer)
+    view.setUint32(mpf + 58, view.getUint32(mpf + 58, false) + 1, false)
+    const inspection = await inspectHdrJpeg(new MemorySource(compatible))
+    expect(inspection.primary.end).toBe(inspection.gainMap?.start)
   })
 })

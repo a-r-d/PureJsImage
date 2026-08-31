@@ -81,6 +81,23 @@ const readName = (text: string, start: number, maxLength: number): readonly [str
   return [text.slice(start, end), end]
 }
 
+const validXmlCodePoint = (code: number): boolean =>
+  code === 0x09 ||
+  code === 0x0a ||
+  code === 0x0d ||
+  (code >= 0x20 && code <= 0xd7ff) ||
+  (code >= 0xe000 && code <= 0xfffd) ||
+  (code >= 0x10000 && code <= 0x10ffff)
+
+const assertXmlCharacters = (value: string): void => {
+  for (const character of value) {
+    const code = character.codePointAt(0)
+    if (code === undefined || !validXmlCodePoint(code)) {
+      throw invalidInput('XMP XML contains a forbidden character')
+    }
+  }
+}
+
 const decodeEntities = (value: string): string => {
   let output = ''
   for (let index = 0; index < value.length; index += 1) {
@@ -97,15 +114,15 @@ const decodeEntities = (value: string): string => {
     else if (entity === 'gt') output += '>'
     else if (entity === 'quot') output += '"'
     else if (entity === 'apos') output += "'"
-    else if (entity.startsWith('#x')) {
+    else if (/^#x[0-9A-Fa-f]+$/u.test(entity)) {
       const code = Number.parseInt(entity.slice(2), 16)
-      if (!Number.isSafeInteger(code) || code < 0 || code > 0x10ffff) {
+      if (!Number.isSafeInteger(code) || !validXmlCodePoint(code)) {
         throw invalidInput('XMP XML numeric entity is invalid')
       }
       output += String.fromCodePoint(code)
-    } else if (entity.startsWith('#')) {
+    } else if (/^#[0-9]+$/u.test(entity)) {
       const code = Number.parseInt(entity.slice(1), 10)
-      if (!Number.isSafeInteger(code) || code < 0 || code > 0x10ffff) {
+      if (!Number.isSafeInteger(code) || !validXmlCodePoint(code)) {
         throw invalidInput('XMP XML numeric entity is invalid')
       }
       output += String.fromCodePoint(code)
@@ -152,6 +169,7 @@ export const parseBoundedXml = (
   } catch {
     throw invalidInput('XMP XML is not valid UTF-8')
   }
+  assertXmlCharacters(text)
   const upper = text.toUpperCase()
   if (upper.includes('<!DOCTYPE') || upper.includes('<!ENTITY')) {
     throw invalidInput('XMP XML document types and entity declarations are forbidden')

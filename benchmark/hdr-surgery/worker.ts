@@ -17,6 +17,7 @@ const workloads = [
   'render-12mp-1x',
   'render-12mp-2x',
   'render-12mp-8x',
+  'transform-render-24mp',
   'crop-resize-24mp',
   'quarter-resize-24mp',
   'jpeg-reencode',
@@ -106,6 +107,9 @@ interface WorkResult {
   readonly maximumManagedBlockBytes: number
   readonly compressedArtifactBytes: number
   readonly firstAdaptedBlockMs?: number
+  readonly managedMaterializationPeakBytes?: number
+  readonly outputBlockMaximumBytes?: number
+  readonly fullAdaptedFloatImageAllocated?: boolean
   readonly fullFrameFallback: boolean
   readonly correctness: string
 }
@@ -152,6 +156,64 @@ const render = async (
   }
 }
 
+const renderTransformed24Mp = async (): Promise<WorkResult> => {
+  const input = await fixture('hdr-surgery-synthetic-24mp.jpg')
+  const counting = new CountingSource(input)
+  const opened = await openGainMapImage(counting)
+  const image = opened.flipHorizontal()
+  const metadata = image.inspection().metadata
+  const hash = createHash('sha256')
+  let outputBytes = 0
+  let maximumBlock = 0
+  let firstAdaptedBlockMs: number | undefined
+  const start = performance.now()
+  try {
+    for await (const block of image.render({
+      displayBoost: 4,
+      maxMaterializedBytes: 256 * 1024 * 1024,
+    })) {
+      try {
+        if (firstAdaptedBlockMs === undefined) firstAdaptedBlockMs = performance.now() - start
+        const bytes = new Uint8Array(
+          block.data.buffer,
+          block.data.byteOffset,
+          block.data.byteLength,
+        )
+        hash.update(bytes)
+        outputBytes += bytes.byteLength
+        maximumBlock = Math.max(maximumBlock, bytes.byteLength)
+      } finally {
+        block.release?.()
+      }
+    }
+  } finally {
+    opened.close()
+  }
+  const decodedBaseBytes = metadata.baseDimensions.width * metadata.baseDimensions.height * 3
+  const decodedMapBytes = metadata.gainMapDimensions.width * metadata.gainMapDimensions.height
+  const transformedBasePeak = decodedBaseBytes * 2 + decodedMapBytes
+  const alignedMapBytes = metadata.baseDimensions.width * metadata.baseDimensions.height
+  const floatBlockBytes = metadata.baseDimensions.width * 32 * 3 * 4
+  const renderPeak = decodedBaseBytes + decodedMapBytes + alignedMapBytes + floatBlockBytes * 2
+  return {
+    outputBytes,
+    outputHash: hash.digest('hex'),
+    sourceReads: counting.reads,
+    sourceBytes: counting.bytes,
+    uniqueSourceBytes: counting.uniqueBytes(),
+    decodedBasePixels: metadata.baseDimensions.width * metadata.baseDimensions.height,
+    decodedGainMapPixels: metadata.gainMapDimensions.width * metadata.gainMapDimensions.height,
+    maximumManagedBlockBytes: Math.max(transformedBasePeak, renderPeak),
+    managedMaterializationPeakBytes: Math.max(transformedBasePeak, renderPeak),
+    outputBlockMaximumBytes: maximumBlock,
+    compressedArtifactBytes: 0,
+    ...(firstAdaptedBlockMs === undefined ? {} : { firstAdaptedBlockMs }),
+    fullFrameFallback: true,
+    fullAdaptedFloatImageAllocated: false,
+    correctness: `rows=${metadata.baseDimensions.height};fullAdaptedFloatImage=false`,
+  }
+}
+
 const execute = async (): Promise<WorkResult> => {
   if (workload === 'inspect-24mp') {
     const input = await fixture('hdr-surgery-synthetic-24mp.jpg')
@@ -174,6 +236,7 @@ const execute = async (): Promise<WorkResult> => {
   if (workload === 'render-12mp-1x') return render('hdr-surgery-synthetic-12mp.jpg', 1)
   if (workload === 'render-12mp-2x') return render('hdr-surgery-synthetic-12mp.jpg', 2)
   if (workload === 'render-12mp-8x') return render('hdr-surgery-synthetic-12mp.jpg', 8)
+  if (workload === 'transform-render-24mp') return renderTransformed24Mp()
   if (workload === 'evidence-off') return render('hdr-surgery-synthetic-dual.jpg', 4)
   if (workload === 'evidence-summary') return render('hdr-surgery-synthetic-dual.jpg', 4, 'summary')
   if (workload === 'evidence-trace') return render('hdr-surgery-synthetic-dual.jpg', 4, 'trace')

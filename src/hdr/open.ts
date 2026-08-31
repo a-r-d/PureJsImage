@@ -68,6 +68,7 @@ export interface GainMapRenderedBlock {
   readonly pixelFormat: 'rgbf32' | 'rgbaf32'
   readonly colorSemantics: PixelColorSemantics
   readonly data: Float32Array
+  readonly release?: () => void
 }
 
 export interface GainMapRenderRequest {
@@ -76,10 +77,35 @@ export interface GainMapRenderRequest {
   readonly maxMaterializedBytes?: number
 }
 
+export interface GainMapComponentPreview {
+  readonly base: Readonly<{
+    readonly width: number
+    readonly height: number
+    readonly channels: 3 | 4
+    readonly data: Uint8Array
+  }>
+  readonly gainMap: Readonly<{
+    readonly width: number
+    readonly height: number
+    readonly channels: 1 | 3
+    readonly data: Uint8Array
+  }>
+}
+
 export interface OpenedGainMapImage {
   inspection(): GainMapImageInspection
+  extractOriginalBase(options?: Readonly<{ readonly signal?: AbortSignal }>): Promise<Uint8Array>
+  extractOriginalGainMap(options?: Readonly<{ readonly signal?: AbortSignal }>): Promise<Uint8Array>
+  /** @deprecated Use extractOriginalBase(). */
   extractBase(options?: Readonly<{ readonly signal?: AbortSignal }>): Promise<Uint8Array>
+  /** @deprecated Use extractOriginalGainMap(). */
   extractGainMap(options?: Readonly<{ readonly signal?: AbortSignal }>): Promise<Uint8Array>
+  previewTransformedComponents(
+    options?: Readonly<{
+      readonly signal?: AbortSignal
+      readonly maxMaterializedBytes?: number
+    }>,
+  ): Promise<GainMapComponentPreview>
   render(request: Readonly<GainMapRenderRequest>): AsyncIterable<GainMapRenderedBlock>
   autoOrient(): OpenedGainMapImage
   crop(options: Readonly<CropOptions>): OpenedGainMapImage
@@ -134,16 +160,24 @@ const createDecoder = async (
   source: ImageSource,
   limits: ReturnType<typeof resolveLimits>,
   signal: AbortSignal | undefined,
+  preserveEncodedSamples = false,
 ): Promise<ImageDecoder> => {
   if (!jpegCodec.createDecoder) throw unsupportedOperation('JPEG decoding is unavailable')
-  return jpegCodec.createDecoder(source, limits, signal === undefined ? {} : { signal })
+  return jpegCodec.createDecoder(source, limits, {
+    ...(signal === undefined ? {} : { signal }),
+    ...(preserveEncodedSamples ? { preserveIcc: true } : {}),
+  })
 }
 
 const alignedRgbBlocks = async function* (
   blocks: AsyncIterable<PixelBlock>,
   width: number,
   outputChannels: 3 | 4 = 3,
+  evidence?: EvidenceContext,
+  operationId = 'hdr-decode',
+  blockPrefix = 'hdr-decoded',
 ): AsyncGenerator<PixelBlock> {
+  evidence?.operation({ operationId, phase: 'start' })
   let expectedY = 0
   let blockY = 0
   let rows = 0
@@ -155,6 +189,12 @@ const alignedRgbBlocks = async function* (
       if (result.done) break
       const block = result.value
       try {
+        evidence?.block({
+          stage: 'decoded',
+          blockId: `${blockPrefix}:${block.y}`,
+          width: block.width,
+          height: block.height,
+        })
         const inputChannels = block.format === 'rgb8' ? 3 : block.format === 'rgba8' ? 4 : 0
         if (
           block.x !== 0 ||
@@ -217,6 +257,14 @@ const alignedRgbBlocks = async function* (
         data: output.subarray(0, rows * width * outputChannels),
       }
     }
+    evidence?.operation({ operationId, phase: 'complete' })
+  } catch (error) {
+    evidence?.operation({
+      operationId,
+      phase: 'failed',
+      failureCode: error instanceof Error ? error.name : 'unknown',
+    })
+    throw error
   } finally {
     await iterator.return?.()
   }
@@ -290,7 +338,7 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
     })
   }
 
-  async extractBase(
+  async extractOriginalBase(
     options: Readonly<{ readonly signal?: AbortSignal }> = {},
   ): Promise<Uint8Array> {
     this.#assertOpen()
@@ -307,7 +355,7 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
     return output
   }
 
-  async extractGainMap(
+  async extractOriginalGainMap(
     options: Readonly<{ readonly signal?: AbortSignal }> = {},
   ): Promise<Uint8Array> {
     this.#assertOpen()
@@ -322,6 +370,58 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
           })()
     evidence?.operation({ operationId: 'hdr-gain-map-extract', phase: 'complete' })
     return output
+  }
+
+  extractBase(options: Readonly<{ readonly signal?: AbortSignal }> = {}): Promise<Uint8Array> {
+    return this.extractOriginalBase(options)
+  }
+
+  extractGainMap(options: Readonly<{ readonly signal?: AbortSignal }> = {}): Promise<Uint8Array> {
+    return this.extractOriginalGainMap(options)
+  }
+
+  async previewTransformedComponents(
+    options: Readonly<{
+      readonly signal?: AbortSignal
+      readonly maxMaterializedBytes?: number
+    }> = {},
+  ): Promise<GainMapComponentPreview> {
+    this.#assertOpen()
+    throwIfAborted(options.signal)
+    const transformed = await transformGainMapRasters(
+      this.#baseDecoder,
+      this.#gainDecoder,
+      this.#inspection.metadata,
+      this.#operations,
+      {
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+        ...(options.maxMaterializedBytes === undefined
+          ? {}
+          : { maxMaterializedBytes: options.maxMaterializedBytes }),
+      },
+    )
+    this.#assertOpen()
+    throwIfAborted(options.signal)
+    if (transformed.base.channels !== 3 && transformed.base.channels !== 4) {
+      throw invalidInput('Transformed HDR base preview must contain RGB or RGBA pixels')
+    }
+    if (transformed.gainMap.channels !== 1 && transformed.gainMap.channels !== 3) {
+      throw invalidInput('Transformed HDR gain-map preview must contain gray or RGB samples')
+    }
+    return Object.freeze({
+      base: Object.freeze({
+        width: transformed.base.width,
+        height: transformed.base.height,
+        channels: transformed.base.channels,
+        data: transformed.base.data,
+      }),
+      gainMap: Object.freeze({
+        width: transformed.gainMap.width,
+        height: transformed.gainMap.height,
+        channels: transformed.gainMap.channels,
+        data: transformed.gainMap.data,
+      }),
+    })
   }
 
   render(request: Readonly<GainMapRenderRequest>): AsyncIterable<GainMapRenderedBlock> {
@@ -342,12 +442,15 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
               ...(request.maxMaterializedBytes === undefined
                 ? {}
                 : { maxMaterializedBytes: request.maxMaterializedBytes }),
+              ...(owner.#evidence === undefined ? {} : { evidence: owner.#evidence }),
             },
           )
           yield* renderTransformedGainMapRasters(
             transformed,
             request.displayBoost,
             request.maxMaterializedBytes,
+            request.signal,
+            owner.#evidence,
           )
         },
       }
@@ -368,15 +471,28 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
           owner.#baseDecoder.decode(request.signal === undefined ? {} : { signal: request.signal }),
           owner.#baseDecoder.width,
           baseChannels,
+          owner.#evidence?.child('primary decode'),
+          'hdr-primary-decode',
+          'hdr-primary',
         )
         let gainBlocks: AsyncIterable<PixelBlock> = alignedRgbBlocks(
           owner.#gainDecoder.decode(request.signal === undefined ? {} : { signal: request.signal }),
           owner.#gainDecoder.width,
+          3,
+          owner.#evidence?.child('gain-map decode'),
+          'hdr-gain-map-decode',
+          'hdr-gain-map',
         )
+        const mapResizeEvidence =
+          owner.#gainDecoder.width !== owner.#baseDecoder.width ||
+          owner.#gainDecoder.height !== owner.#baseDecoder.height
+            ? owner.#evidence?.child('map resize')
+            : undefined
         if (
           owner.#gainDecoder.width !== owner.#baseDecoder.width ||
           owner.#gainDecoder.height !== owner.#baseDecoder.height
         ) {
+          mapResizeEvidence?.operation({ operationId: 'hdr-map-resize', phase: 'start' })
           gainBlocks = createResizeTransform(
             owner.#gainDecoder.width,
             owner.#gainDecoder.height,
@@ -392,7 +508,7 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
         const alignedGain = alignedRgbBlocks(gainBlocks, owner.#baseDecoder.width)
         const baseIterator = baseBlocks[Symbol.asyncIterator]()
         const gainIterator = alignedGain[Symbol.asyncIterator]()
-        const evidence = owner.#evidence?.child('gain-map composition')
+        const evidence = owner.#evidence?.child('selected-boost composition')
         evidence?.operation({ operationId: 'hdr-gain-map-compose', phase: 'start' })
         try {
           while (true) {
@@ -407,6 +523,7 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
                 throw invalidInput('Base and gain-map JPEG rows ended at different positions')
               }
               evidence?.operation({ operationId: 'hdr-gain-map-compose', phase: 'complete' })
+              mapResizeEvidence?.operation({ operationId: 'hdr-map-resize', phase: 'complete' })
               return
             }
             const base = baseResult.value
@@ -451,6 +568,11 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
               blockId: `hdr-output:${base.y}`,
               width: base.width,
               height: base.height,
+            })
+            evidence?.dependency({
+              outputId: `hdr-output:${base.y}`,
+              inputIds: [`hdr-primary:${base.y}`, `hdr-gain-map:${gain.y}`],
+              granularity: 'block',
             })
             yield Object.freeze({
               x: 0,
@@ -551,9 +673,10 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
         ...(options.maxMaterializedBytes === undefined
           ? {}
           : { maxMaterializedBytes: options.maxMaterializedBytes }),
+        ...(this.#evidence === undefined ? {} : { evidence: this.#evidence }),
       },
     )
-    return encodeTransformedGainMapJpeg(transformed, options)
+    return encodeTransformedGainMapJpeg(transformed, options, this.#evidence)
   }
 
   async avif(
@@ -570,9 +693,13 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
         ...(options.maxMaterializedBytes === undefined
           ? {}
           : { maxMaterializedBytes: options.maxMaterializedBytes }),
+        ...(this.#evidence === undefined ? {} : { evidence: this.#evidence }),
       },
     )
-    return assembleGainMapAvif(transformed, options)
+    return assembleGainMapAvif(
+      transformed,
+      this.#evidence === undefined ? options : { ...options, evidence: this.#evidence },
+    )
   }
 
   close(): void {
@@ -597,6 +724,9 @@ const jpegGainMapMetadata = (
   const orientation = primaryMetadata.orientation ?? 1
   const selected = iso ?? xmp
   if (!selected) throw unsupportedOperation('JPEG gain-map metadata is missing')
+  if (selected.baseRendition !== 'sdr') {
+    throw unsupportedOperation('JPEG gain-map HDR opening requires an SDR base rendition')
+  }
   const channelValues = (values: readonly number[]): readonly number[] =>
     channelCount === 1 ? Object.freeze([values[0] ?? 0]) : values
   return normalizeGainMapMetadata({
@@ -818,7 +948,7 @@ export const openGainMapImage = async (
   })
   const [baseDecoder, gainDecoder] = await Promise.all([
     createDecoder(baseSource, limits, options.signal),
-    createDecoder(gainSource, limits, options.signal),
+    createDecoder(gainSource, limits, options.signal, true),
   ])
   return new OpenedGainMapImageImplementation(
     source,

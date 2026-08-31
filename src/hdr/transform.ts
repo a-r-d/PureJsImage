@@ -3,11 +3,19 @@ import type { ImageDecoder } from '../codec.ts'
 import { jpegCodec } from '../codecs/jpeg.ts'
 import { cropPixelBlocks } from '../crop.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import type { EvidenceContext } from '../evidence.ts'
 import type { CropOptions, ResizeKernel } from '../pipeline.ts'
 import type { PixelBlock } from '../pixel.ts'
+import type { PreservedMetadata } from '../codec.ts'
 import { createResizeTransform } from '../resize.ts'
-import { Uint8ArraySink } from '../sink.ts'
 import { assembleGainMapJpeg, type AssembleGainMapJpegOptions } from './jpeg-output.ts'
+import {
+  hdrMaterializationBudget,
+  HdrMaterializationBudget,
+  MaterializedUint8ArraySink,
+  type MaterializationReservation,
+  type MaterializedBytes,
+} from './materialization.ts'
 import {
   planGainMapCrop,
   planGainMapOrientation,
@@ -23,6 +31,7 @@ import {
   gainMapLinearOutputSemantics,
 } from './math.ts'
 import type { GainMapRenderedBlock } from './open.ts'
+import { createPureJsImageSrgbIcc } from './srgb-icc.ts'
 
 export type GainMapTransformOperation =
   | { readonly type: 'auto-orient' }
@@ -49,6 +58,27 @@ export interface GainMapTransformedRasters {
   readonly base: GainMapRaster8
   readonly gainMap: GainMapRaster8
   readonly metadata: GainMapMetadata
+}
+
+const transformedBudgets = new WeakMap<GainMapTransformedRasters, HdrMaterializationBudget>()
+
+export const gainMapMaterializationBudget = (
+  rasters: GainMapTransformedRasters,
+  maximum: number,
+): HdrMaterializationBudget => {
+  const existing = transformedBudgets.get(rasters)
+  if (existing) {
+    if (maximum > existing.maximum) return existing
+    if (existing.current > maximum) {
+      throw limitExceeded('Transformed HDR aggregate working set exceeds maxMaterializedBytes')
+    }
+    return existing
+  }
+  const budget = new HdrMaterializationBudget(maximum)
+  budget.reserve(rasters.base.data.byteLength)
+  budget.reserve(rasters.gainMap.data.byteLength)
+  transformedBudgets.set(rasters, budget)
+  return budget
 }
 
 export const planTransformedGainMapMetadata = (
@@ -105,44 +135,110 @@ export const renderTransformedGainMapRasters = async function* (
   rasters: GainMapTransformedRasters,
   displayBoost: number,
   maxMaterializedBytes = 256 * 1024 * 1024,
+  signal?: AbortSignal,
+  evidence?: EvidenceContext,
 ): AsyncGenerator<GainMapRenderedBlock> {
-  const gainMap = await resizeRaster(
-    rasters.gainMap,
-    { width: rasters.base.width, height: rasters.base.height },
-    'bilinear',
-    maxMaterializedBytes,
-  )
+  throwIfAborted(signal)
+  const compositionEvidence = evidence?.child('selected-boost composition')
+  compositionEvidence?.operation({ operationId: 'hdr-gain-map-compose', phase: 'start' })
   const baseChannels = rasters.base.channels === 4 ? 4 : 3
-  const baseLinear = decodeBaseRgb8ToLinearF32(rasters.base.data, rasters.metadata, baseChannels)
-  const output = composeGainMapLinearF32(
-    baseLinear,
-    gainMap.data,
-    rasters.metadata,
-    { displayBoost },
-    baseChannels,
-  )
   const outputSemantics = gainMapLinearOutputSemantics(rasters.metadata)
   const rowsPerBlock = 32
-  for (let y = 0; y < rasters.base.height; y += rowsPerBlock) {
-    const height = Math.min(rowsPerBlock, rasters.base.height - y)
-    const start = y * rasters.base.width * baseChannels
-    const end = start + height * rasters.base.width * baseChannels
-    yield Object.freeze({
-      x: 0,
-      y,
-      width: rasters.base.width,
-      height,
-      stride: rasters.base.width * baseChannels,
-      pixelFormat: baseChannels === 4 ? 'rgbaf32' : 'rgbf32',
-      colorSemantics:
-        baseChannels === 4
-          ? Object.freeze({
-              ...outputSemantics,
-              alpha: rasters.metadata.baseColor.alpha,
-            })
-          : outputSemantics,
-      data: output.subarray(start, end),
-    })
+  const baseBytes = rasters.base.data.byteLength
+  const sourceGainBytes = rasters.gainMap.data.byteLength
+  const needsGainAlignment =
+    rasters.gainMap.width !== rasters.base.width || rasters.gainMap.height !== rasters.base.height
+  const alignedGainBytes = needsGainAlignment
+    ? checkedBytes(
+        rasters.base.width,
+        rasters.base.height,
+        rasters.gainMap.channels,
+        maxMaterializedBytes,
+      )
+    : 0
+  const maximumRows = Math.min(rowsPerBlock, rasters.base.height)
+  const floatBlockBytes = rasters.base.width * maximumRows * baseChannels * 4
+  ensureAggregateBudget(
+    maxMaterializedBytes,
+    baseBytes,
+    sourceGainBytes,
+    alignedGainBytes,
+    floatBlockBytes,
+    floatBlockBytes,
+  )
+  const budget = gainMapMaterializationBudget(rasters, maxMaterializedBytes)
+  const effectiveMaximum = Math.min(maxMaterializedBytes, budget.maximum)
+  const alignedReservation = needsGainAlignment
+    ? budget.reserve(alignedGainBytes, effectiveMaximum)
+    : undefined
+  try {
+    const gainMap = await resizeRaster(
+      rasters.gainMap,
+      { width: rasters.base.width, height: rasters.base.height },
+      'bilinear',
+      maxMaterializedBytes,
+    )
+    for (let y = 0; y < rasters.base.height; y += rowsPerBlock) {
+      throwIfAborted(signal)
+      const height = Math.min(rowsPerBlock, rasters.base.height - y)
+      const baseStart = y * rasters.base.width * baseChannels
+      const baseEnd = baseStart + height * rasters.base.width * baseChannels
+      const gainStart = y * rasters.base.width * gainMap.channels
+      const gainEnd = gainStart + height * rasters.base.width * gainMap.channels
+      const blockBytes = rasters.base.width * height * baseChannels * 4
+      const baseLinearReservation = budget.reserve(blockBytes, effectiveMaximum)
+      let outputReservation: MaterializationReservation | undefined
+      try {
+        const baseLinear = decodeBaseRgb8ToLinearF32(
+          rasters.base.data.subarray(baseStart, baseEnd),
+          rasters.metadata,
+          baseChannels,
+        )
+        outputReservation = budget.reserve(blockBytes, effectiveMaximum)
+        const output = composeGainMapLinearF32(
+          baseLinear,
+          gainMap.data.subarray(gainStart, gainEnd),
+          rasters.metadata,
+          { displayBoost },
+          baseChannels,
+        )
+        baseLinearReservation.release()
+        let released = false
+        const release = (): void => {
+          if (released) return
+          released = true
+          outputReservation?.release()
+        }
+        try {
+          yield Object.freeze({
+            x: 0,
+            y,
+            width: rasters.base.width,
+            height,
+            stride: rasters.base.width * baseChannels,
+            pixelFormat: baseChannels === 4 ? 'rgbaf32' : 'rgbf32',
+            colorSemantics:
+              baseChannels === 4
+                ? Object.freeze({
+                    ...outputSemantics,
+                    alpha: rasters.metadata.baseColor.alpha,
+                  })
+                : outputSemantics,
+            data: output,
+            release,
+          })
+        } finally {
+          release()
+        }
+      } catch (error) {
+        baseLinearReservation.release()
+        outputReservation?.release()
+        throw error
+      }
+    }
+    compositionEvidence?.operation({ operationId: 'hdr-gain-map-compose', phase: 'complete' })
+  } finally {
+    alignedReservation?.release()
   }
 }
 
@@ -159,6 +255,17 @@ const checkedBytes = (
   return Number(result)
 }
 
+const ensureAggregateBudget = (maximum: number, ...allocations: readonly number[]): number => {
+  let total = 0
+  for (const bytes of allocations) {
+    if (!Number.isSafeInteger(bytes) || bytes < 0 || total > maximum - bytes) {
+      throw limitExceeded('Transformed HDR aggregate working set exceeds maxMaterializedBytes')
+    }
+    total += bytes
+  }
+  return total
+}
+
 const validateQuality = (value: number | undefined, fallback: number, label: string): number => {
   const result = value ?? fallback
   if (!Number.isInteger(result) || result < 1 || result > 100) {
@@ -172,6 +279,8 @@ const decodeRaster = async (
   channels: 1 | 3 | 4,
   maxBytes: number,
   signal: AbortSignal | undefined,
+  evidence?: EvidenceContext,
+  blockPrefix = 'hdr-decoded',
 ): Promise<GainMapRaster8> => {
   const bytes = checkedBytes(decoder.width, decoder.height, channels, maxBytes)
   const data = new Uint8Array(bytes)
@@ -179,6 +288,12 @@ const decodeRaster = async (
   for await (const block of decoder.decode(signal === undefined ? {} : { signal })) {
     try {
       throwIfAborted(signal)
+      evidence?.block({
+        stage: 'decoded',
+        blockId: `${blockPrefix}:${block.y}`,
+        width: block.width,
+        height: block.height,
+      })
       if (
         block.x !== 0 ||
         block.y !== expectedY ||
@@ -418,74 +533,327 @@ export const transformGainMapRasters = async (
   gainDecoder: ImageDecoder,
   metadata: GainMapMetadata,
   operations: readonly GainMapTransformOperation[],
-  options: Readonly<{ readonly maxMaterializedBytes?: number; readonly signal?: AbortSignal }> = {},
+  options: Readonly<{
+    readonly maxMaterializedBytes?: number
+    readonly signal?: AbortSignal
+    readonly evidence?: EvidenceContext
+  }> = {},
 ): Promise<GainMapTransformedRasters> => {
   const maxBytes = options.maxMaterializedBytes ?? 256 * 1024 * 1024
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1) {
     throw invalidInput('maxMaterializedBytes must be a positive safe integer')
   }
-  let base = await decodeRaster(
-    baseDecoder,
-    metadata.baseColor.alpha === 'none' ? 3 : 4,
+  const baseChannels = metadata.baseColor.alpha === 'none' ? 3 : 4
+  const initialBaseBytes = checkedBytes(
+    baseDecoder.width,
+    baseDecoder.height,
+    baseChannels,
     maxBytes,
-    options.signal,
   )
-  let gainMap = await decodeRaster(gainDecoder, metadata.channelCount, maxBytes, options.signal)
-  let currentMetadata = metadata
-  for (const operation of operations) {
-    throwIfAborted(options.signal)
-    const state = {
-      base: { width: base.width, height: base.height },
-      gainMap: { width: gainMap.width, height: gainMap.height },
+  const initialGainBytes = checkedBytes(
+    gainDecoder.width,
+    gainDecoder.height,
+    metadata.channelCount,
+    maxBytes,
+  )
+  ensureAggregateBudget(maxBytes, initialBaseBytes, initialGainBytes)
+  const budget = new HdrMaterializationBudget(maxBytes)
+  let currentBaseReservation = budget.reserve(initialBaseBytes)
+  let gainMapReservation = budget.reserve(initialGainBytes)
+  let completed = false
+  try {
+    const baseDecodeEvidence = options.evidence?.child('primary decode')
+    baseDecodeEvidence?.operation({ operationId: 'hdr-primary-decode', phase: 'start' })
+    const base = await decodeRaster(
+      baseDecoder,
+      baseChannels,
+      maxBytes,
+      options.signal,
+      baseDecodeEvidence,
+      'hdr-primary',
+    )
+    baseDecodeEvidence?.operation({ operationId: 'hdr-primary-decode', phase: 'complete' })
+    let currentBase = base
+    const gainDecodeEvidence = options.evidence?.child('gain-map decode')
+    gainDecodeEvidence?.operation({ operationId: 'hdr-gain-map-decode', phase: 'start' })
+    let gainMap = await decodeRaster(
+      gainDecoder,
+      metadata.channelCount,
+      maxBytes,
+      options.signal,
+      gainDecodeEvidence,
+      'hdr-gain-map',
+    )
+    gainDecodeEvidence?.operation({ operationId: 'hdr-gain-map-decode', phase: 'complete' })
+    const replaceRaster = async (
+      current: GainMapRaster8,
+      reservation: MaterializationReservation,
+      nextBytes: number,
+      create: () => GainMapRaster8 | Promise<GainMapRaster8>,
+    ): Promise<Readonly<{ raster: GainMapRaster8; reservation: MaterializationReservation }>> => {
+      if (nextBytes === 0) return { raster: current, reservation }
+      const nextReservation = budget.reserve(nextBytes)
+      try {
+        const raster = await create()
+        reservation.release()
+        return { raster, reservation: nextReservation }
+      } catch (error) {
+        nextReservation.release()
+        throw error
+      }
     }
-    let orientation = currentMetadata.orientation
-    if (operation.type === 'auto-orient') {
-      planGainMapOrientation(state, currentMetadata.orientation)
-      base = orientRaster(base, currentMetadata.orientation, maxBytes)
-      gainMap = orientRaster(gainMap, currentMetadata.orientation, maxBytes)
-      orientation = 1
-    } else if (operation.type === 'crop') {
-      const plan = planGainMapCrop(state, operation)
-      base = await cropRaster(base, plan.baseCrop, maxBytes)
-      gainMap = resampleRegion(
-        gainMap,
-        {
-          left: fractionValue(plan.gainMapSourceRegion.left),
-          top: fractionValue(plan.gainMapSourceRegion.top),
-          right: fractionValue(plan.gainMapSourceRegion.right),
-          bottom: fractionValue(plan.gainMapSourceRegion.bottom),
-        },
-        plan.gainMap,
-        maxBytes,
-      )
-    } else if (operation.type === 'flip-horizontal') {
-      base = orientRaster(base, 2, maxBytes)
-      gainMap = orientRaster(gainMap, 2, maxBytes)
-    } else if (operation.type === 'flip-vertical') {
-      base = orientRaster(base, 4, maxBytes)
-      gainMap = orientRaster(gainMap, 4, maxBytes)
-    } else if (operation.type === 'rotate') {
-      planGainMapQuarterTurn(state, operation.degrees)
-      const turnOrientation = operation.degrees === 90 ? 6 : operation.degrees === 180 ? 3 : 8
-      base = orientRaster(base, turnOrientation, maxBytes)
-      gainMap = orientRaster(gainMap, turnOrientation, maxBytes)
-    } else {
-      const plan = planGainMapResize(
-        state,
-        { width: operation.width, height: operation.height },
-        {
-          kernel: operation.kernel,
-          ...(operation.gainMapDimensions
-            ? { gainMapDimensions: operation.gainMapDimensions }
-            : {}),
-        },
-      )
-      base = await resizeRaster(base, plan.base, plan.kernel, maxBytes)
-      gainMap = await resizeRaster(gainMap, plan.gainMap, plan.kernel, maxBytes)
+    let currentMetadata = metadata
+    for (let operationIndex = 0; operationIndex < operations.length; operationIndex += 1) {
+      const operation = operations[operationIndex]
+      if (operation === undefined) continue
+      throwIfAborted(options.signal)
+      const transformEvidence = options.evidence?.child('primary transform')
+      const transformOperationId = `hdr-primary-transform:${operationIndex}:${operation.type}`
+      transformEvidence?.operation({ operationId: transformOperationId, phase: 'start' })
+      const state = {
+        base: { width: currentBase.width, height: currentBase.height },
+        gainMap: { width: gainMap.width, height: gainMap.height },
+      }
+      let orientation = currentMetadata.orientation
+      if (operation.type === 'auto-orient') {
+        planGainMapOrientation(state, currentMetadata.orientation)
+        const baseOrientationBytes =
+          currentMetadata.orientation === 1 ? 0 : currentBase.data.byteLength
+        const mapOrientationBytes = currentMetadata.orientation === 1 ? 0 : gainMap.data.byteLength
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          baseOrientationBytes,
+        )
+        let replacement = await replaceRaster(
+          currentBase,
+          currentBaseReservation,
+          baseOrientationBytes,
+          () => orientRaster(currentBase, currentMetadata.orientation, maxBytes),
+        )
+        currentBase = replacement.raster
+        currentBaseReservation = replacement.reservation
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          mapOrientationBytes,
+        )
+        replacement = await replaceRaster(gainMap, gainMapReservation, mapOrientationBytes, () =>
+          orientRaster(gainMap, currentMetadata.orientation, maxBytes),
+        )
+        gainMap = replacement.raster
+        gainMapReservation = replacement.reservation
+        orientation = 1
+      } else if (operation.type === 'crop') {
+        const plan = planGainMapCrop(state, operation)
+        const nextBaseBytes = checkedBytes(
+          plan.base.width,
+          plan.base.height,
+          currentBase.channels,
+          maxBytes,
+        )
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          nextBaseBytes,
+        )
+        let replacement = await replaceRaster(
+          currentBase,
+          currentBaseReservation,
+          nextBaseBytes,
+          () => cropRaster(currentBase, plan.baseCrop, maxBytes),
+        )
+        currentBase = replacement.raster
+        currentBaseReservation = replacement.reservation
+        const nextGainBytes = checkedBytes(
+          plan.gainMap.width,
+          plan.gainMap.height,
+          gainMap.channels,
+          maxBytes,
+        )
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          nextGainBytes,
+        )
+        const mapResampleEvidence = options.evidence?.child('map source-region resampling')
+        mapResampleEvidence?.operation({
+          operationId: 'hdr-map-source-region-resample',
+          phase: 'start',
+        })
+        replacement = await replaceRaster(gainMap, gainMapReservation, nextGainBytes, () =>
+          resampleRegion(
+            gainMap,
+            {
+              left: fractionValue(plan.gainMapSourceRegion.left),
+              top: fractionValue(plan.gainMapSourceRegion.top),
+              right: fractionValue(plan.gainMapSourceRegion.right),
+              bottom: fractionValue(plan.gainMapSourceRegion.bottom),
+            },
+            plan.gainMap,
+            maxBytes,
+          ),
+        )
+        gainMap = replacement.raster
+        gainMapReservation = replacement.reservation
+        mapResampleEvidence?.operation({
+          operationId: 'hdr-map-source-region-resample',
+          phase: 'complete',
+        })
+      } else if (operation.type === 'flip-horizontal') {
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          currentBase.data.byteLength,
+        )
+        let replacement = await replaceRaster(
+          currentBase,
+          currentBaseReservation,
+          currentBase.data.byteLength,
+          () => orientRaster(currentBase, 2, maxBytes),
+        )
+        currentBase = replacement.raster
+        currentBaseReservation = replacement.reservation
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          gainMap.data.byteLength,
+        )
+        replacement = await replaceRaster(
+          gainMap,
+          gainMapReservation,
+          gainMap.data.byteLength,
+          () => orientRaster(gainMap, 2, maxBytes),
+        )
+        gainMap = replacement.raster
+        gainMapReservation = replacement.reservation
+      } else if (operation.type === 'flip-vertical') {
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          currentBase.data.byteLength,
+        )
+        let replacement = await replaceRaster(
+          currentBase,
+          currentBaseReservation,
+          currentBase.data.byteLength,
+          () => orientRaster(currentBase, 4, maxBytes),
+        )
+        currentBase = replacement.raster
+        currentBaseReservation = replacement.reservation
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          gainMap.data.byteLength,
+        )
+        replacement = await replaceRaster(
+          gainMap,
+          gainMapReservation,
+          gainMap.data.byteLength,
+          () => orientRaster(gainMap, 4, maxBytes),
+        )
+        gainMap = replacement.raster
+        gainMapReservation = replacement.reservation
+      } else if (operation.type === 'rotate') {
+        planGainMapQuarterTurn(state, operation.degrees)
+        const turnOrientation = operation.degrees === 90 ? 6 : operation.degrees === 180 ? 3 : 8
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          currentBase.data.byteLength,
+        )
+        let replacement = await replaceRaster(
+          currentBase,
+          currentBaseReservation,
+          currentBase.data.byteLength,
+          () => orientRaster(currentBase, turnOrientation, maxBytes),
+        )
+        currentBase = replacement.raster
+        currentBaseReservation = replacement.reservation
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          gainMap.data.byteLength,
+        )
+        replacement = await replaceRaster(
+          gainMap,
+          gainMapReservation,
+          gainMap.data.byteLength,
+          () => orientRaster(gainMap, turnOrientation, maxBytes),
+        )
+        gainMap = replacement.raster
+        gainMapReservation = replacement.reservation
+      } else {
+        const plan = planGainMapResize(
+          state,
+          { width: operation.width, height: operation.height },
+          {
+            kernel: operation.kernel,
+            ...(operation.gainMapDimensions
+              ? { gainMapDimensions: operation.gainMapDimensions }
+              : {}),
+          },
+        )
+        const nextBaseBytes =
+          plan.base.width === currentBase.width && plan.base.height === currentBase.height
+            ? 0
+            : checkedBytes(plan.base.width, plan.base.height, currentBase.channels, maxBytes)
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          nextBaseBytes,
+        )
+        let replacement = await replaceRaster(
+          currentBase,
+          currentBaseReservation,
+          nextBaseBytes,
+          () => resizeRaster(currentBase, plan.base, plan.kernel, maxBytes),
+        )
+        currentBase = replacement.raster
+        currentBaseReservation = replacement.reservation
+        const nextGainBytes =
+          plan.gainMap.width === gainMap.width && plan.gainMap.height === gainMap.height
+            ? 0
+            : checkedBytes(plan.gainMap.width, plan.gainMap.height, gainMap.channels, maxBytes)
+        ensureAggregateBudget(
+          maxBytes,
+          currentBase.data.byteLength,
+          gainMap.data.byteLength,
+          nextGainBytes,
+        )
+        const mapResizeEvidence = options.evidence?.child('map resize')
+        mapResizeEvidence?.operation({ operationId: 'hdr-map-resize', phase: 'start' })
+        replacement = await replaceRaster(gainMap, gainMapReservation, nextGainBytes, () =>
+          resizeRaster(gainMap, plan.gainMap, plan.kernel, maxBytes),
+        )
+        gainMap = replacement.raster
+        gainMapReservation = replacement.reservation
+        mapResizeEvidence?.operation({ operationId: 'hdr-map-resize', phase: 'complete' })
+      }
+      currentMetadata = transformedMetadata(currentMetadata, currentBase, gainMap, orientation)
+      transformEvidence?.operation({ operationId: transformOperationId, phase: 'complete' })
     }
-    currentMetadata = transformedMetadata(currentMetadata, base, gainMap, orientation)
+    const result = Object.freeze({ base: currentBase, gainMap, metadata: currentMetadata })
+    transformedBudgets.set(result, budget)
+    completed = true
+    return result
+  } finally {
+    if (!completed) {
+      currentBaseReservation.release()
+      gainMapReservation.release()
+    }
   }
-  return Object.freeze({ base, gainMap, metadata: currentMetadata })
 }
 
 const encodeJpeg = async (
@@ -493,14 +861,17 @@ const encodeJpeg = async (
   quality: number,
   chromaSubsampling: '420' | '422' | '444',
   signal: AbortSignal | undefined,
-): Promise<Uint8Array> => {
+  budget: HdrMaterializationBudget,
+  metadata?: Readonly<PreservedMetadata>,
+): Promise<MaterializedBytes> => {
   if (!jpegCodec.createEncoder) throw unsupportedOperation('JPEG encoding is unavailable')
-  const sink = new Uint8ArraySink()
+  const sink = new MaterializedUint8ArraySink(budget)
   const encoder = await jpegCodec.createEncoder(sink, {
     width: raster.width,
     height: raster.height,
     pixelFormat: raster.channels === 1 ? 'gray8' : 'rgb8',
     options: { quality, chromaSubsampling },
+    ...(metadata === undefined ? {} : { metadata }),
     ...(signal === undefined ? {} : { signal }),
   })
   try {
@@ -518,12 +889,13 @@ const encodeJpeg = async (
     await encoder.abort?.(error)
     throw error
   }
-  return sink.toUint8Array()
+  return sink.toMaterializedUint8Array()
 }
 
 export const encodeTransformedGainMapJpeg = async (
   rasters: GainMapTransformedRasters,
   options: Readonly<GainMapJpegEncodeOptions> = {},
+  evidence?: EvidenceContext,
 ): Promise<Uint8Array> => {
   if (rasters.metadata.orientation !== 1) {
     throw unsupportedOperation(
@@ -535,9 +907,44 @@ export const encodeTransformedGainMapJpeg = async (
   }
   const baseQuality = validateQuality(options.baseQuality, 90, 'baseQuality')
   const gainMapQuality = validateQuality(options.gainMapQuality, 90, 'gainMapQuality')
-  const [baseJpeg, gainMapJpeg] = await Promise.all([
-    encodeJpeg(rasters.base, baseQuality, options.baseChromaSubsampling ?? '420', options.signal),
-    encodeJpeg(rasters.gainMap, gainMapQuality, '444', options.signal),
-  ])
-  return assembleGainMapJpeg({ baseJpeg, gainMapJpeg, metadata: rasters.metadata }, options)
+  const maximum = options.maxMaterializedBytes ?? 256 * 1024 * 1024
+  const budget = gainMapMaterializationBudget(rasters, maximum)
+  const primaryEncodeEvidence = evidence?.child('primary encode')
+  primaryEncodeEvidence?.operation({ operationId: 'hdr-primary-encode', phase: 'start' })
+  const baseJpeg = await encodeJpeg(
+    rasters.base,
+    baseQuality,
+    options.baseChromaSubsampling ?? '420',
+    options.signal,
+    budget,
+    { icc: createPureJsImageSrgbIcc() },
+  )
+  primaryEncodeEvidence?.operation({ operationId: 'hdr-primary-encode', phase: 'complete' })
+  try {
+    const mapEncodeEvidence = evidence?.child('map encode')
+    mapEncodeEvidence?.operation({ operationId: 'hdr-map-encode', phase: 'start' })
+    const gainMapJpeg = await encodeJpeg(
+      rasters.gainMap,
+      gainMapQuality,
+      '444',
+      options.signal,
+      budget,
+    )
+    mapEncodeEvidence?.operation({ operationId: 'hdr-map-encode', phase: 'complete' })
+    try {
+      const assemblyOptions = {
+        ...options,
+        ...(evidence === undefined ? {} : { evidence }),
+        [hdrMaterializationBudget]: budget,
+      }
+      return await assembleGainMapJpeg(
+        { baseJpeg: baseJpeg.data, gainMapJpeg: gainMapJpeg.data, metadata: rasters.metadata },
+        assemblyOptions,
+      )
+    } finally {
+      gainMapJpeg.reservation.release()
+    }
+  } finally {
+    baseJpeg.reservation.release()
+  }
 }

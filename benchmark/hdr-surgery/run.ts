@@ -8,6 +8,7 @@ const workloads = [
   'render-12mp-1x',
   'render-12mp-2x',
   'render-12mp-8x',
+  'transform-render-24mp',
   'crop-resize-24mp',
   'quarter-resize-24mp',
   'jpeg-reencode',
@@ -50,7 +51,18 @@ const run = (workload: string): unknown => {
 
 const results: unknown[] = []
 for (const workload of selected) {
-  const result = run(workload)
+  const result =
+    workload === 'transform-render-24mp'
+      ? (() => {
+          const repetitions = [run(workload), run(workload), run(workload)] as Array<
+            Readonly<Record<string, unknown>>
+          >
+          repetitions.sort((left, right) => Number(left.wallMs) - Number(right.wallMs))
+          const median = repetitions[1]
+          if (median === undefined) throw new Error('Missing transformed-render median result')
+          return { ...median, medianWallMs: median.wallMs, repetitions: repetitions.length }
+        })()
+      : run(workload)
   results.push(result)
   console.log(JSON.stringify(result))
 }

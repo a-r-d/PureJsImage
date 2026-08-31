@@ -3,12 +3,30 @@ import { readFile } from 'node:fs/promises'
 import { describe, expect, test } from 'vitest'
 
 import { avifCodec, inspectAvifBitstreams } from '../src/codecs/avif.ts'
+import { createEvidenceSession } from '../src/evidence.ts'
 import { normalizeGainMapMetadata, openGainMapImage, writeGainMapAvif } from '../src/hdr/index.ts'
 import { resolveLimits } from '../src/limits.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
 
 describe('constrained ISO gain-map AVIF output', () => {
+  test('reports bounded coded-item and container assembly evidence', async () => {
+    const session = createEvidenceSession({ mode: 'summary' })
+    const opened = await openGainMapImage(
+      new Uint8Array(await readFile('benchmark/corpus/files/hdr-surgery-synthetic-dual.jpg')),
+      { evidence: session.context },
+    )
+    try {
+      await opened.resize({ width: 64, height: 36 }).avif()
+    } finally {
+      opened.close()
+    }
+    const report = session.finalize()
+    expect(report.scopes.map((scope) => scope.label)).toEqual(
+      expect.arrayContaining(['AVIF coded-item assembly', 'AVIF container assembly']),
+    )
+  })
+
   test('writes one base, one gain-map, and one preferred tone-map item', async () => {
     const jpeg = new Uint8Array(
       await readFile('benchmark/corpus/files/hdr-surgery-synthetic-dual.jpg'),
@@ -23,7 +41,22 @@ describe('constrained ISO gain-map AVIF output', () => {
     })
     expect(inspection.displayRegion).toMatchObject({ width: 64, height: 36 })
     const gain = inspection.codedImages.find((image) => image.role === 'gain-map')
-    expect(gain).toMatchObject({ width: 16, height: 9 })
+    expect(gain).toMatchObject({
+      width: 16,
+      height: 9,
+      nclx: {
+        primaries: 2,
+        transferCharacteristics: 2,
+        matrixCoefficients: 1,
+        fullRange: true,
+      },
+      sequence: {
+        colorPrimaries: 2,
+        transferCharacteristics: 2,
+        matrixCoefficients: 1,
+        fullRange: true,
+      },
+    })
 
     if (!avifCodec.createDecoder) throw new Error('AVIF decoder is unavailable')
     const decoder = await avifCodec.createDecoder(new MemorySource(avif), resolveLimits({}))

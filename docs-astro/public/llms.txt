@@ -10,6 +10,8 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - Source: https://github.com/a-r-d/PureJsImage
 - Getting started: https://purejsimage.com/guides/
 - API reference: https://purejsimage.com/api/
+- Ultra HDR JPEG workbench: https://purejsimage.com/hdr-surgery/
+- HDR Surgery developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/hdr-surgery.md
 - Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Scientific Raster Explorer: https://purejsimage.com/scientific/
 - Scientific reader benchmarks: https://purejsimage.com/scientific/benchmarks/
@@ -52,6 +54,8 @@ npm install purejsimage
 ```
 
 The package is ESM and includes TypeScript declarations.
+
+Use `purejsimage/hdr` for explicit Ultra HDR JPEG and ISO 21496-1 gain-map work. `inspectGainMapImage()` inspects JPEG metadata and child ranges without decoding pixels. `openGainMapImage()` renders a selected display boost, transforms both images together, writes compound JPEG with `.jpeg()`, and writes the constrained gain-map AVIF subset with `.avif()`. `extractOriginalBase()` and `extractOriginalGainMap()` return the exact source children.
 
 Node.js 22+:
 
@@ -480,9 +484,9 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { jpegCodec } from 'purejsimage/codecs/jpeg'`
 - Decode: Yes (`supported`)
 - Encode: Yes (`supported`)
-- Implemented scope: Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation, plus AVI1/MJPEG baseline frames that use omitted standard Huffman tables. Encodes baseline and scan-optimized refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers. The opt-in purejsimage/hdr entry discovers, extracts, renders, transforms, and writes one-channel and three-channel Ultra HDR and ISO gain-map JPEGs while ordinary JPEG decode continues to return the SDR primary.
-- Primary boundary: Static 8-bit Huffman JPEG, including AVI1/MJPEG frames with omitted standard tables. The explicit purejsimage/hdr entry adds bounded Ultra HDR XMP and ISO 21496-1 gain-map inspection, selected-boost rendering, paired transforms, and compound JPEG output. Arithmetic, lossless, 12-bit, omitted nonstandard external tables, unrelated SDR/HDR synthesis, and general MPO selection remain unsupported.
-- Memory model: Ordinary decode uses incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes. HDR inspection reads bounded metadata and validated range boundaries, and untransformed HDR composition retains bounded rows. Paired pixel transforms and re-encoding use an explicit caller-limited full-frame fallback and do not retain a decoded RGBA pair.
+- Implemented scope: Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation, plus AVI1/MJPEG baseline frames that use omitted standard Huffman tables. Encodes baseline and scan-optimized refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers. The opt-in purejsimage/hdr entry discovers, extracts, renders, transforms, and writes one-channel and three-channel SDR-base Ultra HDR and ISO gain-map JPEGs while ordinary JPEG decode continues to return the SDR primary.
+- Primary boundary: Static 8-bit Huffman JPEG, including AVI1/MJPEG frames with omitted standard tables. The explicit purejsimage/hdr entry adds bounded SDR-base Ultra HDR XMP and ISO 21496-1 gain-map inspection, selected-boost rendering, paired transforms, and compound JPEG output with an sRGB ICC primary. HDR-base JPEG gain-map relationships, arithmetic, lossless, 12-bit, omitted nonstandard external tables, unrelated SDR/HDR synthesis, and general MPO selection remain unsupported.
+- Memory model: Ordinary decode uses incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes. HDR inspection reads bounded metadata and validated range boundaries, and untransformed HDR composition retains bounded rows. Paired transforms retain caller-limited 8-bit base and encoded-map rasters. Transformed adapted output uses independent 32-row Float32 blocks and never retains a complete linear base or adapted Float32 image.
 - Recommended output use: Photographs and broadly compatible lossy output.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpeg-codec-support.md
 
