@@ -1,0 +1,50 @@
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_447bc74f58c032 423-430
+benchmark/jpegxl/jpeg-reconstruction-manifest.json
+  s_6006332bb8a489::t_eb7652e5dbaf54 8,16-24
+  s_6006332bb8a489::t_f9bb7ef23a2bf8 25
+src/codecs/jpegxl-jpeg-reconstruct.ts
+  s_6006332bb8a489::t_9b05d76d327e9a 252-253
+  s_6006332bb8a489::t_fc35f4cbed4e3a 189-193,260-263,422-425
+  s_6006332bb8a489::t_65fee13b1a6819 325-326,333,335,338,340-355,375-377,390,432,435-474
+src/codecs/jpegxl-vardct-jpeg.ts
+  s_6006332bb8a489::t_1be2ca5edd912c 127,455-463,580-581,617-619,622-624
+  s_6006332bb8a489::t_6937f6749be100 488-491,540,555-557,574
+src/codecs/jpegxl-jpeg-reconstruct-source.ts
+  s_6006332bb8a489::t_4517fb5c46c917 125-127,179-181
+  s_6006332bb8a489::t_0eea011b7e24f1 102-112,212
+  s_6006332bb8a489::t_fd09d63302f3ce 172
+  s_6006332bb8a489::t_9b05d76d327e9a 245-271,273-310,316-317,319-390,392-396,399-413,415-440
+  s_6006332bb8a489::t_87a3a18be0ca6f 397
+  s_6006332bb8a489::t_394b4b38e77a2f 100-101,120,122,124,163,176,178,225
+  s_6006332bb8a489::t_d3b2f992d43c45 15-17,21-22,40-46,237,240,244,441-448,450-454
+  s_6006332bb8a489::t_28c90be3c540f5 76-91,191-192,196-198
+  s_6006332bb8a489::t_78502ce3a1cc41 99
+  s_6006332bb8a489::t_eb653d14869525 14,47
+benchmark/jpegxl/generate-jpeg-reconstruction-corpus.ts
+  s_6006332bb8a489::t_0feb14be22bddd 17
+  s_6006332bb8a489::t_e5de8656b1a61e 1-16,18-82
+tests/jpegxl-jpeg-reconstruction.test.ts
+  s_6006332bb8a489::t_c84197a0717e93 20-22,39-41,43-50,194-206
+benchmark/jpegxl/run-jpeg-reconstruction-matrix.ts
+  s_6006332bb8a489::t_0952fc9d51b658 1-91,96-116
+  s_6006332bb8a489::t_9b05d76d327e9a 92-95
+src/codecs/jpegxl-bitstream.ts
+  s_6006332bb8a489::t_15f63d17d7c674 434-440
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5d4e9a5a429fe3b6d42c8a0c2f6e0f1b591d97b9",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
