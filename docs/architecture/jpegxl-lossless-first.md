@@ -429,6 +429,11 @@ explicitly.
 Progress note: the bounded `jbrd` structural header, marker order, table descriptors, scan script,
 padding metadata, and direct Exif or XMP size references are parsed and validated. A bounded
 first-party Brotli subset decodes the uncompressed opaque marker payload in the pinned libjxl file.
+The inverse path now extracts the exact marker layout, Huffman and quantization table grouping,
+progressive scan script, opaque APP and COM bytes, and trailing bytes from eligible 8-bit JPEGs. It
+writes a bounded first-party `jbrd` payload. Both pinned progressive JPEG sources round-trip through
+that new writer and the existing reconstruction parser byte for byte before any JXL output is
+accepted. The initial subset rejects inter-marker fill data and non-canonical entropy streams.
 The JPEG-derived VarDCT path now decodes LF global state, custom block contexts, DC groups, AC
 metadata, raw DCT8 quantization tables, custom coefficient orders, RGB and YCbCr channel layouts,
 and AC groups. The public `reconstructJpegFromJpegXl()` path recreates the pinned progressive RGB

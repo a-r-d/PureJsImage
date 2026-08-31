@@ -7,8 +7,10 @@ import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { reconstructJpegFromCoefficientImage } from '../src/codecs/jpegxl-jpeg-reconstruct.ts'
+import { parseJpegReconstructionData } from '../src/codecs/jpegxl-jpeg-data.ts'
 import {
   decodeJpegXlJpegReconstructionBlobs,
+  encodeJpegXlJpegReconstruction,
   parseJpegXlJpegReconstructionHeader,
 } from '../src/codecs/jpegxl-jpeg-reconstruction.ts'
 import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
@@ -226,6 +228,37 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     expect(reconstructed).toEqual(original)
     expect(sha256(reconstructed)).toBe(entry.sourceSha256)
   })
+
+  it.each(manifest.fixtures)(
+    'extracts and re-encodes exact reconstruction data from $id',
+    async (entry) => {
+      const limits = resolveJpegXlLimits()
+      const original = new Uint8Array(readFileSync(entry.source))
+      const coefficients = await parseJpegCoefficientImage(
+        new MemorySource(original),
+        defaultImageLimits,
+        16 * 1_024 * 1_024,
+      )
+      if (!coefficients) throw new Error('Pinned JPEG coefficients were rejected')
+      const parsed = parseJpegReconstructionData(original, coefficients, limits)
+      const payload = encodeJpegXlJpegReconstruction(parsed.header, parsed.blobs, limits)
+      const header = parseJpegXlJpegReconstructionHeader(payload, limits)
+      const blobs = decodeJpegXlJpegReconstructionBlobs(payload, header, limits)
+
+      expect(header.markerOrder).toEqual(parsed.header.markerOrder)
+      expect(header.scans).toEqual(parsed.header.scans)
+      expect(header.huffmanTables).toEqual(parsed.header.huffmanTables)
+      expect(
+        reconstructJpegFromCoefficientImage(
+          header,
+          blobs,
+          coefficients,
+          {},
+          limits.maxReconstructedJpegBytes,
+        ),
+      ).toEqual(original)
+    },
+  )
 
   it.each(manifest.fixtures)(
     'reconstructs $id exactly from JPEG XL coefficients',
