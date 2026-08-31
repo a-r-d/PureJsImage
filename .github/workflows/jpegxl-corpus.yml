@@ -1,0 +1,128 @@
+name: JPEG XL pinned corpus
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/jpegxl-corpus.yml'
+      - 'benchmark/jpegxl/**'
+      - 'benchmark/fixtures/jpegxl/**'
+      - 'browser-tests/jpegxl-workbench.pw.ts'
+      - 'capabilities/manifest.json'
+      - 'docs/architecture/jpegxl-lossless-first.md'
+      - 'jpegxl-codec-support.md'
+      - 'src/**/jpegxl*.ts'
+      - 'tests/**/jpegxl*.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  corpus:
+    name: Pinned corpus and exact reconstruction
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build pinned libjxl tools
+        env:
+          LIBJXL_REVISION: a7a9c787341cf703dede03c2009fa460cae5e5df
+          LIBJXL_ROOT: .tmp/jpegxl-oracles/libjxl-v0.12.0/source
+        run: |
+          mkdir -p "$LIBJXL_ROOT"
+          git -C "$LIBJXL_ROOT" init
+          git -C "$LIBJXL_ROOT" remote add origin https://github.com/libjxl/libjxl.git
+          git -C "$LIBJXL_ROOT" fetch --depth 1 origin "$LIBJXL_REVISION"
+          git -C "$LIBJXL_ROOT" checkout --detach FETCH_HEAD
+          test "$(git -C "$LIBJXL_ROOT" rev-parse HEAD)" = "$LIBJXL_REVISION"
+          git -C "$LIBJXL_ROOT" submodule update --init --recursive --depth 1
+          cmake -S "$LIBJXL_ROOT" -B "$LIBJXL_ROOT/build-pinned" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DJPEGXL_ENABLE_BENCHMARK=OFF \
+            -DJPEGXL_ENABLE_EXAMPLES=OFF \
+            -DJPEGXL_ENABLE_JPEGLI=OFF \
+            -DJPEGXL_ENABLE_MANPAGES=OFF \
+            -DJPEGXL_ENABLE_PLUGINS=OFF \
+            -DJPEGXL_ENABLE_TESTS=OFF \
+            -DJPEGXL_ENABLE_TOOLS=ON
+          cmake --build "$LIBJXL_ROOT/build-pinned" --target cjxl djxl jxlinfo --parallel 2
+
+      - name: Verify pinned official conformance inputs
+        run: npm run fixtures:jpegxl:prepare
+
+      - name: Run focused JPEG XL and neighboring JPEG tests
+        run: >-
+          npx vitest run
+          tests/jpegxl.test.ts
+          tests/jpegxl-jpeg-reconstruction.test.ts
+          tests/jpeg.test.ts
+          tests/capability-manifest.test.ts
+
+      - name: Run pinned lossless matrix
+        run: npm run fixtures:jpegxl:matrix
+
+      - name: Run exact JPEG reconstruction matrix
+        run: >-
+          node benchmark/jpegxl/run-jpeg-reconstruction-matrix.ts
+          .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+
+      - name: Run correctness-gated JPEG XL benchmark
+        run: npm run bench:jpegxl
+        env:
+          PUREJSIMAGE_JPEGXL_ORACLE_DIR: .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+
+  browser:
+    name: Workbench ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001 --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Run local-only JPEG XL workbench tests
+        run: >-
+          npx playwright test browser-tests/jpegxl-workbench.pw.ts
+          --project=${{ matrix.browser }}
+          --retries=0
