@@ -295,7 +295,11 @@ const readHeader = (
     }
   }
   const xybEncoded = reader.readBits(1) !== 0
-  requireValue(xybEncoded, false, 'XYB color encoding')
+  if (xybEncoded && !allowVarDct) {
+    throw unsupportedOperation(
+      'JPEG XL XYB color encoding is outside the implemented decode subset',
+    )
+  }
   const colorEncoding = readColorEncoding(reader)
   const channelCount = channelCountFor(colorEncoding.colorChannels, extraChannels)
   requireValue(readU64(reader), 0, 'image-metadata extensions')
