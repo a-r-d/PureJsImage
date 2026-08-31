@@ -1,0 +1,38 @@
+src/codecs/jpegxl.ts
+  s_6006332bb8a489::t_79bc635543b7d6 12-16,19,71-79
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_23b407950c3df7 412-420
+src/codecs/jpegxl-vardct.ts
+  s_6006332bb8a489::t_3263575a50ad71 7
+  s_6006332bb8a489::t_dc8bcb0929cdbd 1-6,8-84,89-90
+  s_6006332bb8a489::t_b8908d0d115a24 85-88
+src/codecs/jpegxl-decode.ts
+  s_6006332bb8a489::t_79bc635543b7d6 2391
+  s_6006332bb8a489::t_8009a00389ffb4 2345
+src/codecs/jpeg-baseline.ts
+  s_6006332bb8a489::t_b8908d0d115a24 2466
+  s_6006332bb8a489::t_2a21a475dc741e 2384-2396,3257-3258,3352-3353
+benchmark/jpegxl/jpeg-reconstruction-manifest.json
+  s_6006332bb8a489::t_dc4210f758b38c 13-18,29-34
+benchmark/jpegxl/generate-jpeg-reconstruction-corpus.ts
+  s_6006332bb8a489::t_1f9bdec53bb331 10,12-13,21-22,24-25,31-32,34-35,66-70,73,81-86
+tests/jpegxl-jpeg-reconstruction.test.ts
+  s_6006332bb8a489::t_8009a00389ffb4 7-8,28-61,244-268
+  s_6006332bb8a489::t_cef2764b2c41f2 269-271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d7b1c4b3143c73877825a4ca96608fb63daf0ba6",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
