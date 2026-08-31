@@ -19,6 +19,7 @@ export {
   decodeTransfer,
   gainMapDisplayWeight,
   gainMapHeadroomWeight,
+  gainMapLinearOutputSemantics,
   gainMapLinearF32ToRgba16,
 } from './math.ts'
 export { ImageSourceRange } from './source-slice.ts'

@@ -1,3 +1,4 @@
+import { throwIfAborted } from '../abort.ts'
 import { avifCodec } from '../codecs/avif.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
@@ -125,6 +126,11 @@ const encodedRational = (value: GainMapRational, signed: boolean): Uint8Array =>
 
 const toneMapPayload = (rasters: GainMapTransformedRasters): Uint8Array => {
   const metadata = rasters.metadata
+  if (metadata.orientation !== 1) {
+    throw unsupportedOperation(
+      'Gain-map AVIF output requires autoOrient() when source orientation is pending',
+    )
+  }
   if (metadata.baseRendition !== 'sdr') {
     throw unsupportedOperation('Constrained gain-map AVIF output requires an SDR base rendition')
   }
@@ -294,14 +300,26 @@ export const writeGainMapAvif = async (
   rasters: GainMapTransformedRasters,
   options: Readonly<GainMapAvifEncodeOptions> = {},
 ): Promise<void> => {
-  const [metadata, base, gainMap, toneMap] = await prepare(rasters, options)
-  await sink.write(fileType)
-  await sink.write(metadata)
-  await sink.write(bytes32(8 + base.byteLength + gainMap.byteLength + toneMap.byteLength))
-  await sink.write(ascii('mdat'))
-  await sink.write(base)
-  await sink.write(gainMap)
-  await sink.write(toneMap)
+  try {
+    const [metadata, base, gainMap, toneMap] = await prepare(rasters, options)
+    const chunks = [
+      fileType,
+      metadata,
+      bytes32(8 + base.byteLength + gainMap.byteLength + toneMap.byteLength),
+      ascii('mdat'),
+      base,
+      gainMap,
+      toneMap,
+    ]
+    for (const chunk of chunks) {
+      throwIfAborted(options.signal)
+      await sink.write(chunk)
+    }
+    await sink.close()
+  } catch (error) {
+    await sink.abort(error)
+    throw error
+  }
 }
 
 export const assembleGainMapAvif = async (

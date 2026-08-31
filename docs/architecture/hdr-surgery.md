@@ -185,9 +185,10 @@ encoded values. One gain channel applies to RGB. Three gain channels apply indep
 copied and never multiplied.
 
 The first output semantics are linear sRGB or linear Display P3 where the container relationship
-proves the primaries. Source-profile and unknown primaries fail unless an existing decoder has
-already converted them to declared output pixels. An SDR preview is an explicit display mapping and
-is not reported as a true HDR pixel result.
+proves matching base and alternate primaries. A relationship that needs conversion between primary
+spaces fails explicitly. Source-profile and unknown primaries fail unless an existing decoder has
+already converted them to declared output pixels. Float output uses an identity RGB matrix and full
+range. An SDR preview is an explicit display mapping and is not reported as a true HDR pixel result.
 
 ## 11. Reconstruction math
 
@@ -229,9 +230,12 @@ vertical flip, EXIF auto-orientation, 90, 180, and 270 degree rotation, and near
 Lanczos3 resize are supported. Metadata gain values do not change for these operations. Scalar maps
 remain scalar and RGB maps remain RGB.
 
-The primary orientation applies exactly once to the relationship. Gain-map EXIF orientation is
-ignored where the container contract requires it. Output pixels are normalized to orientation 1.
-Arbitrary-angle rotation and edits that change only one rendition remain unsupported.
+Calling `autoOrient()` applies the primary orientation exactly once to the relationship. Other
+geometry operations retain a pending primary orientation so a later `autoOrient()` can still apply
+it. Gain-map EXIF orientation is ignored where the container contract requires it. Transformed
+encoding fails until pending orientation has been applied because these output paths do not preserve
+an orientation tag. Arbitrary-angle rotation and edits that change only one rendition remain
+unsupported.
 
 ## 14. Encoded output assembly
 
@@ -334,6 +338,8 @@ An item is complete only after its stated focused evidence passes.
 - [x] Add Ultra HDR JPEG encode and reopen tests for dual, ISO, and XMP modes.
 - [x] Add bit-preserving repack and prove zero decoded pixels plus exact child bytes.
 - [x] Add constrained ISO gain-map AVIF output and independent decode evidence.
+- [x] Self-review linear output semantics, cross-primary rejection, exact ISO consistency, pending
+  orientation composition and output rejection, AVIF open cancellation, and output-sink cleanup.
 - [x] Add caller-owned HDR evidence scopes, summaries, trace bounds, and explain output.
 - [x] Add the fixture manifest, deterministic generators, mutation suite, and pinned oracles.
 - [x] Add `bench:hdr-surgery`, isolated RSS work, neighboring benchmarks, and baseline comparison.

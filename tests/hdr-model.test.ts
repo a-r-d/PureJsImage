@@ -4,6 +4,7 @@ import {
   composeGainMapLinearF32,
   decodeBaseRgb8ToLinearF32,
   gainMapDisplayWeight,
+  gainMapLinearOutputSemantics,
   gainMapLinearF32ToRgba16,
   ImageSourceRange,
   normalizeGainMapMetadata,
@@ -110,9 +111,53 @@ describe('gain-map metadata', () => {
     [{ offsetSdr: -1 }, 'offset'],
     [{ baseDimensions: { width: 3, height: 2 } }, 'aspect ratio'],
     [{ exactIso: { minimum: [] } }, 'exactIso'],
+    [{ ultraHdrLexical: { minimum: ['not-a-number'] } }, 'ultraHdrLexical'],
+    [{ ultraHdrLexical: { maximum: ['3'] } }, 'ultraHdrLexical conflict'],
     [{ channelCount: 1, minimum: [0, 0, 0] }, 'one-channel'],
   ])('rejects malformed metadata containing %s', (overrides, _label) => {
     expect(() => metadata(overrides)).toThrow()
+  })
+
+  it('rejects exact ISO values that conflict with normalized metadata', () => {
+    const valid = metadata({
+      exactIso: {
+        minimum: Array.from({ length: 3 }, () => ({ numerator: 0, denominator: 1 })),
+        maximum: Array.from({ length: 3 }, () => ({ numerator: 2, denominator: 1 })),
+        gamma: Array.from({ length: 3 }, () => ({ numerator: 1, denominator: 1 })),
+        offsetSdr: Array.from({ length: 3 }, () => ({ numerator: 0, denominator: 1 })),
+        offsetHdr: Array.from({ length: 3 }, () => ({ numerator: 0, denominator: 1 })),
+        capacityMinimum: { numerator: 0, denominator: 1 },
+        capacityMaximum: { numerator: 2, denominator: 1 },
+      },
+    })
+    expect(() =>
+      normalizeGainMapMetadata({
+        ...valid,
+        exactIso: {
+          ...valid.exactIso,
+          capacityMaximum: { numerator: 3, denominator: 1 },
+        },
+      }),
+    ).toThrow(/conflicts with normalized metadata/u)
+  })
+
+  it('declares linear output in the proved primary space and rejects cross-primary rendering', () => {
+    const displayP3 = metadata({
+      baseColor: { ...color, primaries: 'display-p3', transfer: { kind: 'pq' } },
+      alternateColor: { ...color, primaries: 'display-p3' },
+    })
+    expect(gainMapLinearOutputSemantics(displayP3)).toMatchObject({
+      family: 'rgb',
+      primaries: 'display-p3',
+      transfer: { kind: 'linear' },
+      matrix: 'identity',
+      range: 'full',
+    })
+    expect(() =>
+      gainMapLinearOutputSemantics(
+        metadata({ alternateColor: { ...color, primaries: 'display-p3' } }),
+      ),
+    ).toThrow(/different base and alternate primaries/u)
   })
 })
 

@@ -82,6 +82,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- HDR gain-map rendering now reports the emitted linear RGB space instead of retaining container
+  YUV matrix and range labels. It rejects base and alternate primary mismatches until a float gamut
+  conversion is available, validates exact ISO rationals against normalized values, keeps pending
+  EXIF orientation composable through paired transforms, rejects transformed output until pending
+  orientation is applied, propagates AVIF open cancellation, and closes or aborts AVIF output sinks.
+
 - The PR #32 hardening pass now rejects explicitly premultiplied RGBA input before resize or pixel
   storage conversion, counts aborted shared-range consumers without mislabeling the surviving
   physical transfer, keeps managed-allocation overflow categories separate from caller labels,

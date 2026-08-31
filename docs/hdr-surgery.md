@@ -61,9 +61,11 @@ for await (const block of image.render({ displayBoost: 8 })) {
 ```
 
 The renderer decodes the base transfer function before applying gain. It supports sRGB, linear,
-PQ, and HLG signals where the container supplies supported color semantics. One-channel maps apply
-the same gain to red, green, and blue. Three-channel maps apply independent values. A base alpha
-channel is copied unchanged and is never multiplied by the gain map.
+PQ, and HLG signals where the container supplies supported color semantics. The base and alternate
+must use the same declared sRGB or Display P3 primaries. Relationships that need a gamut conversion
+fail explicitly. Output blocks describe linear RGB pixels with an identity matrix and full range.
+One-channel maps apply the same gain to red, green, and blue. Three-channel maps apply independent
+values. A base alpha channel is copied unchanged and is never multiplied by the gain map.
 
 Untransformed output is emitted in bounded row blocks and does not retain decoded full-frame base
 and map images. Use `gainMapLinearF32ToRgba16()` when an integer HDR boundary needs explicit scaling
@@ -82,6 +84,11 @@ The fluent object applies each geometry operation to the base and the encoded ga
 Base and map pixel edges share normalized coordinates. A crop can therefore map to fractional gain
 coordinates. PureJsImage resamples that exact region instead of rounding two unrelated integer
 crops. Scalar gain maps stay scalar.
+
+Call `autoOrient()` before transformed JPEG or AVIF output when the source has a pending EXIF
+orientation. Crop, flip, rotate, and resize retain that pending orientation so a later
+`autoOrient()` still applies it exactly once. Transformed encoding fails instead of silently
+dropping an unapplied orientation.
 
 The current paired-transform and re-encode path is an explicit full-frame fallback. It enforces
 `maxMaterializedBytes`, which defaults to 256 MiB. This limit covers each managed raster allocation,

@@ -15,12 +15,12 @@ import { resolveLimits } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { CropOptions, ResizeKernel } from '../pipeline.ts'
 import { createResizeTransform } from '../resize.ts'
-import type { ImageInput, ImageSource } from '../source.ts'
+import type { ImageInput, ImageSource, ImageSourceReadOptions } from '../source.ts'
 import { createImageSource, readExactly } from '../source.ts'
 import { inspectHdrJpeg, type HdrJpegInspection, type HdrJpegLimits } from './jpeg.ts'
 import type { GainMapMetadata } from './model.ts'
 import { normalizeGainMapMetadata } from './model.ts'
-import { decodeTransfer, gainMapDisplayWeight } from './math.ts'
+import { decodeTransfer, gainMapDisplayWeight, gainMapLinearOutputSemantics } from './math.ts'
 import { ImageSourceRange } from './source-slice.ts'
 import {
   encodeTransformedGainMapJpeg,
@@ -119,15 +119,10 @@ const sRgbDecodedSemantics = Object.freeze<PixelColorSemantics>({
   provenance: 'decoder-converted',
 })
 
-const linearSrgbSemantics = Object.freeze<PixelColorSemantics>({
-  ...sRgbDecodedSemantics,
-  transfer: Object.freeze({ kind: 'linear' }),
-})
-
 const gainSemantics = (channels: 1 | 3): PixelColorSemantics =>
   Object.freeze({
     family: channels === 1 ? 'gray' : 'rgb',
-    primaries: channels === 1 ? 'unspecified' : 'srgb',
+    primaries: 'unspecified',
     transfer: Object.freeze({ kind: 'linear' }),
     matrix: 'identity',
     range: 'full',
@@ -335,6 +330,8 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
     if (this.#operations.length > 0) {
       return {
         async *[Symbol.asyncIterator](): AsyncGenerator<GainMapRenderedBlock> {
+          owner.#assertOpen()
+          throwIfAborted(request.signal)
           const transformed = await transformGainMapRasters(
             owner.#baseDecoder,
             owner.#gainDecoder,
@@ -361,6 +358,7 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
         throwIfAborted(request.signal)
         const metadata = owner.#inspection.metadata
         const baseChannels = metadata.baseColor.alpha === 'none' ? 3 : 4
+        const outputSemantics = gainMapLinearOutputSemantics(metadata)
         const multipliers = gainMultipliers(metadata, request.displayBoost)
         const baseOffset =
           metadata.baseRendition === 'hdr' ? metadata.offsetHdr : metadata.offsetSdr
@@ -463,8 +461,8 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
               pixelFormat: baseChannels === 4 ? 'rgbaf32' : 'rgbf32',
               colorSemantics:
                 baseChannels === 4
-                  ? Object.freeze({ ...linearSrgbSemantics, alpha: metadata.baseColor.alpha })
-                  : linearSrgbSemantics,
+                  ? Object.freeze({ ...outputSemantics, alpha: metadata.baseColor.alpha })
+                  : outputSemantics,
               data: output,
             })
           }
@@ -618,7 +616,10 @@ const jpegGainMapMetadata = (
     capacityMaximum: selected.capacityMaximum,
     useBaseColorSpace: iso?.useBaseColorSpace ?? true,
     baseColor: sRgbDecodedSemantics,
-    alternateColor: linearSrgbSemantics,
+    alternateColor: Object.freeze({
+      ...sRgbDecodedSemantics,
+      transfer: Object.freeze({ kind: 'linear' }),
+    }),
     gainMapColor: gainSemantics(channelCount),
     container: 'jpeg',
     representations: inspection.representations,
@@ -673,20 +674,12 @@ const nclxSemantics = (
           : color.transferCharacteristics === 18
             ? { kind: 'hlg' }
             : { kind: 'unspecified' }
-  const matrix: PixelColorSemantics['matrix'] =
-    color.matrixCoefficients === 0
-      ? 'identity'
-      : color.matrixCoefficients === 1 || color.matrixCoefficients === 6
-        ? 'bt709'
-        : color.matrixCoefficients === 9
-          ? 'bt2020-ncl'
-          : 'unspecified'
   return Object.freeze({
     family: 'rgb',
     primaries,
     transfer: Object.freeze(transfer),
-    matrix,
-    range: color.fullRange ? 'full' : 'limited',
+    matrix: 'identity',
+    range: 'full',
     alpha,
     provenance: 'decoder-converted',
   })
@@ -705,7 +698,7 @@ const avifGainMapMetadata = (
     metadata.channelCount === 1
       ? Object.freeze([rationalValue(items[0])])
       : Object.freeze(items.map(rationalValue))
-  return normalizeGainMapMetadata({
+  const normalized = normalizeGainMapMetadata({
     baseRendition: metadata.baseRendition,
     channelCount: metadata.channelCount,
     baseDimensions: {
@@ -739,6 +732,25 @@ const avifGainMapMetadata = (
     exactIso: metadata.exactIso,
     warnings: [],
   })
+  gainMapLinearOutputSemantics(normalized)
+  return normalized
+}
+
+const sourceWithSignal = (source: ImageSource, signal: AbortSignal | undefined): ImageSource => {
+  if (signal === undefined) return source
+  return Object.freeze({
+    size: source.size,
+    async read(
+      offset: number,
+      length: number,
+      options: Readonly<ImageSourceReadOptions> = {},
+    ): Promise<Uint8Array> {
+      throwIfAborted(signal)
+      const result = await source.read(offset, length, { ...options, signal })
+      throwIfAborted(signal)
+      return result
+    },
+  })
 }
 
 export const openGainMapImage = async (
@@ -749,7 +761,10 @@ export const openGainMapImage = async (
   const source = await createImageSource(input, limits, options)
   const header = await source.read(0, Math.min(source.size, 64), options)
   if (avifCodec.detect(header)) {
-    const components = await createAvifGainMapDecoderComponents(source, limits)
+    const components = await createAvifGainMapDecoderComponents(
+      sourceWithSignal(source, options.signal),
+      limits,
+    )
     const metadata = avifGainMapMetadata(components)
     const publicInspection: AvifGainMapImageInspection = Object.freeze({
       container: 'avif',

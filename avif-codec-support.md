@@ -81,7 +81,8 @@ coverage.
 - [x] ISO 21496-1 gain-map metadata, `dimg` relationships, and preferred
   alternative selection through `altr` entity groups
 - [x] Explicit `purejsimage/hdr` exact-rational inspection, item extraction,
-  SDR-base and HDR-base caller-selected linear gain-map rendering, and paired transforms
+  SDR-base and HDR-base caller-selected linear gain-map rendering for matching declared
+  sRGB or Display P3 primaries, paired transforms, and explicit cross-primary rejection
 - [ ] Depth maps, thumbnails, overlays, derived images other than grids and
   compatible gain maps, and other auxiliary-image semantics
 - [x] EXIF item discovery and opt-in preservation through `keepExif()`

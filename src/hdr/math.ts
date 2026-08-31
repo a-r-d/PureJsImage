@@ -1,5 +1,10 @@
-import type { PixelTransferFunction } from '../color.ts'
-import { invalidInput } from '../errors.ts'
+import type {
+  PixelAlphaSemantics,
+  PixelColorPrimaries,
+  PixelColorSemantics,
+  PixelTransferFunction,
+} from '../color.ts'
+import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { gainMapHeadroomWeight } from '../gain-map-math.ts'
 import type { GainMapMetadata, GainMapTriplet } from './model.ts'
 
@@ -7,6 +12,46 @@ export { gainMapHeadroomWeight } from '../gain-map-math.ts'
 
 export interface GainMapRenderOptions {
   readonly displayBoost: number
+}
+
+const renderablePrimaries = new Set<PixelColorPrimaries>(['srgb', 'display-p3'])
+const renderableTransfers = new Set<PixelTransferFunction['kind']>([
+  'srgb',
+  'linear',
+  'pq',
+  'hlg',
+  'gamma',
+])
+
+export const gainMapLinearOutputSemantics = (
+  metadata: GainMapMetadata,
+  alpha: PixelAlphaSemantics = metadata.baseColor.alpha,
+): PixelColorSemantics => {
+  const base = metadata.baseColor
+  const alternate = metadata.alternateColor
+  if (base.family !== 'rgb' || alternate.family !== 'rgb') {
+    throw unsupportedOperation('Gain-map rendering requires RGB base and alternate semantics')
+  }
+  if (!renderableTransfers.has(base.transfer.kind)) {
+    throw unsupportedOperation('Gain-map rendering requires a supported base transfer function')
+  }
+  if (!renderablePrimaries.has(base.primaries) || !renderablePrimaries.has(alternate.primaries)) {
+    throw unsupportedOperation('Gain-map rendering requires declared supported RGB primaries')
+  }
+  if (base.primaries !== alternate.primaries) {
+    throw unsupportedOperation(
+      'Gain-map rendering with different base and alternate primaries is not supported',
+    )
+  }
+  return Object.freeze({
+    family: 'rgb',
+    primaries: alternate.primaries,
+    transfer: Object.freeze({ kind: 'linear' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha,
+    provenance: 'decoder-converted',
+  })
 }
 
 export const gainMapDisplayWeight = (metadata: GainMapMetadata, displayBoost: number): number => {

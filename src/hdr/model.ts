@@ -248,13 +248,50 @@ const exactIso = (value: unknown, maxMagnitude: number): GainMapExactIsoMetadata
   })
 }
 
+const validateExactIsoValues = (
+  exact: GainMapExactIsoMetadata,
+  values: Readonly<{
+    minimum: GainMapTriplet
+    maximum: GainMapTriplet
+    gamma: GainMapTriplet
+    offsetSdr: GainMapTriplet
+    offsetHdr: GainMapTriplet
+    capacityMinimum: number
+    capacityMaximum: number
+  }>,
+): void => {
+  const fields = ['minimum', 'maximum', 'gamma', 'offsetSdr', 'offsetHdr'] as const
+  for (const field of fields) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const source = exact[field][channel]
+      if (!source) throw invalidInput(`exactIso.${field} is missing a channel`)
+      if (source.numerator / source.denominator !== values[field][channel]) {
+        throw invalidInput(`exactIso.${field} conflicts with normalized metadata`)
+      }
+    }
+  }
+  if (
+    exact.capacityMinimum.numerator / exact.capacityMinimum.denominator !==
+      values.capacityMinimum ||
+    exact.capacityMaximum.numerator / exact.capacityMaximum.denominator !== values.capacityMaximum
+  ) {
+    throw invalidInput('exactIso capacity conflicts with normalized metadata')
+  }
+}
+
 const lexicalArray = (value: unknown, label: string): readonly string[] | undefined => {
   if (value === undefined) return undefined
   if (!Array.isArray(value) || (value.length !== 1 && value.length !== 3)) {
     throw invalidInput(`${label} must contain one or three decimal strings`)
   }
   const output = value.map((item) => {
-    if (typeof item !== 'string' || item.length < 1 || item.length > 64) {
+    if (
+      typeof item !== 'string' ||
+      item.length < 1 ||
+      item.length > 64 ||
+      !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u.test(item) ||
+      !Number.isFinite(Number(item))
+    ) {
       throw invalidInput(`${label} contains an invalid decimal string`)
     }
     return item
@@ -264,10 +301,53 @@ const lexicalArray = (value: unknown, label: string): readonly string[] | undefi
 
 const lexicalScalar = (value: unknown, label: string): string | undefined => {
   if (value === undefined) return undefined
-  if (typeof value !== 'string' || value.length < 1 || value.length > 64) {
+  if (
+    typeof value !== 'string' ||
+    value.length < 1 ||
+    value.length > 64 ||
+    !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u.test(value) ||
+    !Number.isFinite(Number(value))
+  ) {
     throw invalidInput(`${label} must be a bounded decimal string`)
   }
   return value
+}
+
+const closeNumber = (left: number, right: number): boolean =>
+  Math.abs(left - right) <= 1e-5 * Math.max(1, Math.abs(left), Math.abs(right))
+
+const validateLexicalValues = (
+  lexical: GainMapUltraHdrLexicalMetadata,
+  values: Readonly<{
+    minimum: GainMapTriplet
+    maximum: GainMapTriplet
+    gamma: GainMapTriplet
+    offsetSdr: GainMapTriplet
+    offsetHdr: GainMapTriplet
+    capacityMinimum: number
+    capacityMaximum: number
+  }>,
+): void => {
+  const fields = ['minimum', 'maximum', 'gamma', 'offsetSdr', 'offsetHdr'] as const
+  for (const field of fields) {
+    const source = lexical[field]
+    if (!source) continue
+    for (let channel = 0; channel < 3; channel += 1) {
+      const item = source.length === 1 ? source[0] : source[channel]
+      const target = values[field][channel]
+      if (item === undefined || target === undefined || !closeNumber(Number(item), target)) {
+        throw invalidInput(`ultraHdrLexical.${field} conflicts with normalized metadata`)
+      }
+    }
+  }
+  if (
+    (lexical.capacityMinimum !== undefined &&
+      !closeNumber(Number(lexical.capacityMinimum), values.capacityMinimum)) ||
+    (lexical.capacityMaximum !== undefined &&
+      !closeNumber(Number(lexical.capacityMaximum), values.capacityMaximum))
+  ) {
+    throw invalidInput('ultraHdrLexical capacity conflicts with normalized metadata')
+  }
 }
 
 const ultraHdrLexical = (value: unknown): GainMapUltraHdrLexicalMetadata | undefined => {
@@ -428,6 +508,28 @@ export const normalizeGainMapMetadata = (
   }
   const normalizedExactIso = exactIso(value.exactIso, limits.maxRationalMagnitude)
   const normalizedLexical = ultraHdrLexical(value.ultraHdrLexical)
+  if (normalizedExactIso) {
+    validateExactIsoValues(normalizedExactIso, {
+      minimum: minimum.value,
+      maximum: maximum.value,
+      gamma: gamma.value,
+      offsetSdr: offsetSdr.value,
+      offsetHdr: offsetHdr.value,
+      capacityMinimum,
+      capacityMaximum,
+    })
+  }
+  if (normalizedLexical) {
+    validateLexicalValues(normalizedLexical, {
+      minimum: minimum.value,
+      maximum: maximum.value,
+      gamma: gamma.value,
+      offsetSdr: offsetSdr.value,
+      offsetHdr: offsetHdr.value,
+      capacityMinimum,
+      capacityMaximum,
+    })
+  }
   return Object.freeze({
     baseRendition: value.baseRendition,
     channelCount: value.channelCount,

@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.17.0",
-    "unpackedPackageBytes": 7154419,
+    "unpackedPackageBytes": 7160138,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -553,13 +553,13 @@
         "packageExports": ["purejsimage/hdr"],
         "sourceEntries": ["./src/hdr/index.ts"]
       },
-      "gzipBytes": 211456,
+      "gzipBytes": 212157,
       "id": "hdr",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 580323,
+      "minifiedJsBytes": 582855,
       "name": "HDR Surgery",
       "recordedBaselineMinifiedBytes": 580322,
-      "brotliBytes": 178290
+      "brotliBytes": 178558
     },
     {
       "category": "purejsimage-entry",

@@ -17,7 +17,11 @@ import {
 } from './geometry.ts'
 import type { GainMapDimensions, GainMapMetadata } from './model.ts'
 import { normalizeGainMapMetadata } from './model.ts'
-import { composeGainMapLinearF32, decodeBaseRgb8ToLinearF32 } from './math.ts'
+import {
+  composeGainMapLinearF32,
+  decodeBaseRgb8ToLinearF32,
+  gainMapLinearOutputSemantics,
+} from './math.ts'
 import type { GainMapRenderedBlock } from './open.ts'
 
 export type GainMapTransformOperation =
@@ -65,7 +69,6 @@ export const planTransformedGainMapMetadata = (
       state = { base: plan.base, gainMap: plan.gainMap }
     } else if (operation.type === 'rotate') {
       state = planGainMapQuarterTurn(state, operation.degrees)
-      orientation = 1
     } else if (operation.type === 'resize') {
       const plan = planGainMapResize(
         state,
@@ -118,6 +121,7 @@ export const renderTransformedGainMapRasters = async function* (
     { displayBoost },
     baseChannels,
   )
+  const outputSemantics = gainMapLinearOutputSemantics(rasters.metadata)
   const rowsPerBlock = 32
   for (let y = 0; y < rasters.base.height; y += rowsPerBlock) {
     const height = Math.min(rowsPerBlock, rasters.base.height - y)
@@ -133,10 +137,10 @@ export const renderTransformedGainMapRasters = async function* (
       colorSemantics:
         baseChannels === 4
           ? Object.freeze({
-              ...rasters.metadata.alternateColor,
+              ...outputSemantics,
               alpha: rasters.metadata.baseColor.alpha,
             })
-          : rasters.metadata.alternateColor,
+          : outputSemantics,
       data: output.subarray(start, end),
     })
   }
@@ -397,6 +401,7 @@ const transformedMetadata = (
   metadata: GainMapMetadata,
   base: GainMapRaster8,
   gainMap: GainMapRaster8,
+  orientation: GainMapMetadata['orientation'],
 ): GainMapMetadata =>
   normalizeGainMapMetadata({
     ...metadata,
@@ -405,7 +410,7 @@ const transformedMetadata = (
     baseRange: undefined,
     gainMapRange: undefined,
     metadataRanges: [],
-    orientation: 1,
+    orientation,
   })
 
 export const transformGainMapRasters = async (
@@ -433,10 +438,12 @@ export const transformGainMapRasters = async (
       base: { width: base.width, height: base.height },
       gainMap: { width: gainMap.width, height: gainMap.height },
     }
+    let orientation = currentMetadata.orientation
     if (operation.type === 'auto-orient') {
       planGainMapOrientation(state, currentMetadata.orientation)
       base = orientRaster(base, currentMetadata.orientation, maxBytes)
       gainMap = orientRaster(gainMap, currentMetadata.orientation, maxBytes)
+      orientation = 1
     } else if (operation.type === 'crop') {
       const plan = planGainMapCrop(state, operation)
       base = await cropRaster(base, plan.baseCrop, maxBytes)
@@ -459,9 +466,9 @@ export const transformGainMapRasters = async (
       gainMap = orientRaster(gainMap, 4, maxBytes)
     } else if (operation.type === 'rotate') {
       planGainMapQuarterTurn(state, operation.degrees)
-      const orientation = operation.degrees === 90 ? 6 : operation.degrees === 180 ? 3 : 8
-      base = orientRaster(base, orientation, maxBytes)
-      gainMap = orientRaster(gainMap, orientation, maxBytes)
+      const turnOrientation = operation.degrees === 90 ? 6 : operation.degrees === 180 ? 3 : 8
+      base = orientRaster(base, turnOrientation, maxBytes)
+      gainMap = orientRaster(gainMap, turnOrientation, maxBytes)
     } else {
       const plan = planGainMapResize(
         state,
@@ -476,7 +483,7 @@ export const transformGainMapRasters = async (
       base = await resizeRaster(base, plan.base, plan.kernel, maxBytes)
       gainMap = await resizeRaster(gainMap, plan.gainMap, plan.kernel, maxBytes)
     }
-    currentMetadata = transformedMetadata(currentMetadata, base, gainMap)
+    currentMetadata = transformedMetadata(currentMetadata, base, gainMap, orientation)
   }
   return Object.freeze({ base, gainMap, metadata: currentMetadata })
 }
@@ -518,6 +525,11 @@ export const encodeTransformedGainMapJpeg = async (
   rasters: GainMapTransformedRasters,
   options: Readonly<GainMapJpegEncodeOptions> = {},
 ): Promise<Uint8Array> => {
+  if (rasters.metadata.orientation !== 1) {
+    throw unsupportedOperation(
+      'Gain-map JPEG output requires autoOrient() when source orientation is pending',
+    )
+  }
   if (rasters.base.channels !== 3) {
     throw unsupportedOperation('Gain-map JPEG output does not support base alpha')
   }
