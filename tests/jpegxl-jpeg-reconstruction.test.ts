@@ -17,9 +17,9 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { reconstructJpegFromJpegXl } from '../src/jpegxl.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 
-const fixture = new Uint8Array(
-  readFileSync('benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl'),
-)
+const primaryEntry = manifest.fixtures[0]
+if (!primaryEntry) throw new Error('Pinned JPEG reconstruction manifest is empty')
+const fixture = new Uint8Array(readFileSync(primaryEntry.jxl))
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
@@ -36,17 +36,18 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
   it('pins a byte-exact independent libjxl reconstruction fixture', () => {
     expect(manifest.revision).toMatch(/^[0-9a-f]{40}$/u)
     expect(manifest.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
-    expect(manifest.fixtures).toEqual([
-      expect.objectContaining({
-        id: 'baseline-yuv420',
-        sourceSha256: manifest.fixtures[0]?.reconstructedJpegSha256,
-        exact: true,
-      }),
+    expect(manifest.fixtures.map(({ id }) => id)).toEqual([
+      'progressive-yuv420-exif',
+      'progressive-rgb-exif',
     ])
-    const entry = manifest.fixtures[0]
-    if (!entry) throw new Error('Pinned JPEG reconstruction manifest is empty')
-    expect(sha256(fixture)).toBe(entry.jxlSha256)
-    expect(sha256(new Uint8Array(readFileSync(entry.source)))).toBe(entry.sourceSha256)
+    for (const entry of manifest.fixtures) {
+      expect(entry).toMatchObject({
+        sourceSha256: entry.reconstructedJpegSha256,
+        exact: true,
+      })
+      expect(sha256(new Uint8Array(readFileSync(entry.jxl)))).toBe(entry.jxlSha256)
+      expect(sha256(new Uint8Array(readFileSync(entry.source)))).toBe(entry.sourceSha256)
+    }
   })
 
   it('parses the bounded jbrd header without decoding image coefficients', async () => {
@@ -190,17 +191,19 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     expect(sha256(reconstructed)).toBe(entry.sourceSha256)
   })
 
-  it('reconstructs the pinned JPEG exactly from JPEG XL coefficients', async () => {
-    const entry = manifest.fixtures[0]
-    if (!entry) throw new Error('Pinned JPEG reconstruction manifest is empty')
-    const original = new Uint8Array(readFileSync(entry.source))
-    const sink = new Uint8ArraySink()
-    const reconstructed = await reconstructJpegFromJpegXl(fixture, { sink })
+  it.each(manifest.fixtures)(
+    'reconstructs $id exactly from JPEG XL coefficients',
+    async (entry) => {
+      const original = new Uint8Array(readFileSync(entry.source))
+      const encoded = new Uint8Array(readFileSync(entry.jxl))
+      const sink = new Uint8ArraySink()
+      const reconstructed = await reconstructJpegFromJpegXl(encoded, { sink })
 
-    expect(reconstructed).toEqual(original)
-    expect(sink.toUint8Array()).toEqual(original)
-    expect(sha256(reconstructed)).toBe(entry.sourceSha256)
-  })
+      expect(reconstructed).toEqual(original)
+      expect(sink.toUint8Array()).toEqual(original)
+      expect(sha256(reconstructed)).toBe(entry.sourceSha256)
+    },
+  )
 
   it('enforces the public reconstruction output limit', async () => {
     await expect(

@@ -186,6 +186,11 @@ const magnitudeBits = (value: number): number =>
 const magnitudeValue = (value: number, bits: number): number =>
   value < 0 ? value + 2 ** bits - 1 : value
 
+const successiveApproximationValue = (value: number, low: number): number => {
+  const magnitude = Math.abs(value) >> low
+  return value < 0 ? -magnitude : magnitude
+}
+
 const componentFor = (image: JpegCoefficientImage, index: number): JpegCoefficientComponent => {
   const component = image.components[index]
   if (!component) throw invalidInput('JPEG reconstruction scan component is missing')
@@ -244,14 +249,18 @@ const writeAcBlock = (
   let lastNonzero = scan.spectralEnd
   while (
     lastNonzero >= scan.spectralStart &&
-    coefficient(component, block, lastNonzero) >> scan.successiveLow === 0
+    successiveApproximationValue(coefficient(component, block, lastNonzero), scan.successiveLow) ===
+      0
   ) {
     lastNonzero -= 1
   }
   if (lastNonzero < scan.spectralStart) return true
   let zeros = 0
   for (let zigZag = scan.spectralStart; zigZag <= lastNonzero; zigZag += 1) {
-    const value = coefficient(component, block, zigZag) >> scan.successiveLow
+    const value = successiveApproximationValue(
+      coefficient(component, block, zigZag),
+      scan.successiveLow,
+    )
     if (value === 0) {
       zeros += 1
       continue
@@ -310,24 +319,40 @@ const encodeScan = (
   paddingBits: readonly number[],
   paddingPosition: number,
 ): number => {
-  if (scan.successiveHigh !== 0) {
-    throw unsupportedOperation('JPEG reconstruction progressive refinement scans are not supported')
-  }
   const entropy = new JpegEntropyWriter(output, paddingBits, paddingPosition)
   const predictors = new Int32Array(image.components.length)
   let pendingEob = 0
+  let pendingRefinementBits: number[] = []
+  let pendingAcTable: ReadonlyMap<number, HuffmanCode> | undefined
   let blockIndex = 0
   let previousMcu = -1
   let restart = 0
   let resetPosition = 0
   let extraZeroPosition = 0
 
-  const flushPending = (selected: (typeof scan.components)[number]): void => {
+  const flushPending = (selected?: (typeof scan.components)[number]): void => {
     if (pendingEob === 0) return
-    const table = acTables.get(selected.acTable)
+    const table = pendingAcTable ?? (selected ? acTables.get(selected.acTable) : undefined)
     if (!table) throw invalidInput('JPEG reconstruction AC Huffman table is missing')
     flushEobRun(entropy, table, pendingEob)
+    for (const bit of pendingRefinementBits) entropy.writeBits(bit, 1)
     pendingEob = 0
+    pendingRefinementBits = []
+    pendingAcTable = undefined
+  }
+
+  const bufferEndOfBand = (
+    table: ReadonlyMap<number, HuffmanCode>,
+    refinementBits: readonly number[] = [],
+  ): void => {
+    if (pendingEob === 0) pendingAcTable = table
+    else if (pendingAcTable !== table) {
+      flushPending()
+      pendingAcTable = table
+    }
+    pendingEob += 1
+    pendingRefinementBits.push(...refinementBits)
+    if (pendingEob === 32_767) flushPending()
   }
 
   scanBlockIndexes(image, scan, (componentIndex, block, mcu) => {
@@ -347,7 +372,9 @@ const encodeScan = (
       resetPosition += 1
     }
     const component = componentFor(image, componentIndex)
-    if (scan.spectralStart === 0) {
+    if (scan.successiveHigh !== 0 && scan.spectralStart === 0) {
+      entropy.writeBits((coefficient(component, block, 0) >> scan.successiveLow) & 1, 1)
+    } else if (scan.spectralStart === 0) {
       const dcTable = dcTables.get(selected.dcTable)
       if (!dcTable) throw invalidInput('JPEG reconstruction DC Huffman table is missing')
       writeDcFirst(
@@ -360,7 +387,7 @@ const encodeScan = (
         dcTable,
       )
     }
-    if (scan.spectralEnd > 0) {
+    if (scan.spectralEnd > 0 && scan.successiveHigh === 0) {
       const acTable = acTables.get(selected.acTable)
       if (!acTable) throw invalidInput('JPEG reconstruction AC Huffman table is missing')
       if (scan.spectralStart === 0 && scan.spectralEnd === 63 && scan.successiveLow === 0) {
@@ -392,16 +419,58 @@ const encodeScan = (
         let lastNonzero = scan.spectralEnd
         while (
           lastNonzero >= scan.spectralStart &&
-          coefficient(component, block, lastNonzero) >> scan.successiveLow === 0
+          successiveApproximationValue(
+            coefficient(component, block, lastNonzero),
+            scan.successiveLow,
+          ) === 0
         ) {
           lastNonzero -= 1
         }
         if (lastNonzero >= scan.spectralStart) flushPending(selected)
         const buffersEndOfBand = writeAcBlock(entropy, component, block, scan, acTable)
         if (buffersEndOfBand) {
-          pendingEob += 1
-          if (pendingEob === 32_767) flushPending(selected)
+          bufferEndOfBand(acTable)
         }
+      }
+    } else if (scan.spectralEnd > 0) {
+      const acTable = acTables.get(selected.acTable)
+      if (!acTable) throw invalidInput('JPEG reconstruction AC Huffman table is missing')
+      const absoluteValues = new Int32Array(64)
+      let endOfBand = 0
+      for (let zigZag = scan.spectralStart; zigZag <= scan.spectralEnd; zigZag += 1) {
+        const absolute = Math.abs(coefficient(component, block, zigZag)) >> scan.successiveLow
+        absoluteValues[zigZag] = absolute
+        if (absolute === 1) endOfBand = zigZag
+      }
+      let zeros = 0
+      let refinementBits: number[] = []
+      for (let zigZag = scan.spectralStart; zigZag <= scan.spectralEnd; zigZag += 1) {
+        const absolute = absoluteValues[zigZag] ?? 0
+        if (absolute === 0) {
+          zeros += 1
+          continue
+        }
+        while (zeros > 15 && zigZag <= endOfBand) {
+          flushPending(selected)
+          writeHuffmanSymbol(entropy, acTable, 0xf0)
+          zeros -= 16
+          for (const bit of refinementBits) entropy.writeBits(bit, 1)
+          refinementBits = []
+        }
+        if (absolute > 1) {
+          refinementBits.push(absolute & 1)
+          continue
+        }
+        flushPending(selected)
+        writeHuffmanSymbol(entropy, acTable, (zeros << 4) | 1)
+        entropy.writeBits(coefficient(component, block, zigZag) < 0 ? 0 : 1, 1)
+        for (const bit of refinementBits) entropy.writeBits(bit, 1)
+        refinementBits = []
+        zeros = 0
+      }
+      if (zeros > 0 || refinementBits.length > 0) {
+        bufferEndOfBand(acTable, refinementBits)
+        if (scan.spectralStart === 0) flushPending(selected)
       }
     }
     blockIndex += 1

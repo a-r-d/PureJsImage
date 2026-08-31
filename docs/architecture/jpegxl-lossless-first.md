@@ -420,12 +420,14 @@ boundaries.
 Progress note: the bounded `jbrd` structural header, marker order, table descriptors, scan script,
 padding metadata, and direct Exif or XMP size references are parsed and validated. A bounded
 first-party Brotli subset decodes the uncompressed opaque marker payload in the pinned libjxl file.
-The JPEG-derived YCbCr VarDCT path now decodes LF global state, custom block contexts, DC groups,
-AC metadata, the raw DCT8 quantization table, custom coefficient orders, and AC groups. The public
-`reconstructJpegFromJpegXl()` path recreates the pinned progressive 4:2:0 JPEG byte for byte and with
-the recorded SHA-256 without reading source-JPEG coefficients. Broader sampling, grayscale, restart,
-metadata, multi-group, compressed Brotli, and cross-encoder corpus gates remain incomplete, so the
-full reconstruction acceptance items stay unchecked.
+The JPEG-derived VarDCT path now decodes LF global state, custom block contexts, DC groups, AC
+metadata, raw DCT8 quantization tables, custom coefficient orders, RGB and YCbCr channel layouts,
+and AC groups. The public `reconstructJpegFromJpegXl()` path recreates the pinned progressive RGB
+4:4:4 and YCbCr 4:2:0 JPEGs byte for byte and with the recorded SHA-256 without reading source-JPEG
+coefficients. The reproducible local matrix also passes byte-exact 12 MP multi-group baseline 4:2:2
+and progressive 4:2:0 camera JPEGs, including successive-approximation refinement scans. Grayscale,
+restart, broader metadata, compressed Brotli, and cross-encoder corpus gates remain incomplete, so
+the full reconstruction acceptance items stay unchecked.
 
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.

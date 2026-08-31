@@ -124,6 +124,7 @@ export interface JpegXlJpegAcGroupOptions {
   readonly blockHeight: number
   readonly chromaSubsampling: readonly [number, number, number]
   readonly histogramCount: number
+  readonly colorTransform: 'none' | 'ycbcr'
 }
 
 export interface JpegXlJpegAcGroup {
@@ -451,7 +452,15 @@ export const decodeJpegXlJpegAcGroup = (
   hfPass: Readonly<JpegXlJpegHfPass>,
   dcGroup: Readonly<JpegXlJpegDcGroup>,
 ): JpegXlJpegAcGroup => {
-  const { blockX, blockY, blockWidth, blockHeight, chromaSubsampling, histogramCount } = options
+  const {
+    blockX,
+    blockY,
+    blockWidth,
+    blockHeight,
+    chromaSubsampling,
+    histogramCount,
+    colorTransform,
+  } = options
   if (
     !Number.isSafeInteger(blockX) ||
     !Number.isSafeInteger(blockY) ||
@@ -476,7 +485,10 @@ export const decodeJpegXlJpegAcGroup = (
     throw invalidInput('JPEG-derived JPEG XL histogram selector is invalid')
   }
   const maximumBlocks = blockWidth * blockHeight * 3
-  const symbols = new JpegXlEntropySymbolReader(hfPass.coefficientCode, maximumBlocks * 64)
+  const symbols =
+    section.byteLength === 0
+      ? undefined
+      : new JpegXlEntropySymbolReader(hfPass.coefficientCode, maximumBlocks * 64)
   const dcContexts = dcContextPlane(dcGroup, shifts, lfGlobal.blockContexts)
   const contextOffset = histogram * lfGlobal.blockContexts.contextCount * (37 + 458)
   const nonzeroPlanes: Int32Array<ArrayBufferLike>[] = []
@@ -525,7 +537,7 @@ export const decodeJpegXlJpegAcGroup = (
           predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
         const nonzeroContext =
           contextOffset + nonzeroBucket * lfGlobal.blockContexts.contextCount + context
-        let nonzero = symbols.readHybridUint(nonzeroContext, reader)
+        let nonzero = symbols?.readHybridUint(nonzeroContext, reader) ?? 0
         if (nonzero > 63) throw invalidInput('JPEG-derived JPEG XL AC nonzero count is invalid')
         nonzeroPlane[localY * width + localX] = nonzero
         const coefficientBase = (localY * width + localX) * 64
@@ -540,6 +552,9 @@ export const decodeJpegXlJpegAcGroup = (
           }
           const coefficientContext =
             densityOffset + (remainingContext + frequencyContext) * 2 + previous
+          if (!symbols) {
+            throw invalidInput('JPEG-derived JPEG XL empty AC group declares nonzero coefficients')
+          }
           const encoded = symbols.readHybridUint(coefficientContext, reader)
           const coefficient = unpackCoefficient(encoded)
           const position = order[scan]
@@ -556,13 +571,14 @@ export const decodeJpegXlJpegAcGroup = (
       }
     }
   }
-  if (!symbols.hasValidFinalState()) {
+  if (symbols && !symbols.hasValidFinalState()) {
     throw invalidInput('JPEG-derived JPEG XL AC ANS state is invalid')
   }
   requireZeroPadding(section, reader.bitPosition, 'JPEG XL AC group section')
 
   const jpegComponents: Int32Array<ArrayBufferLike>[] = []
-  for (const channel of [1, 0, 2]) {
+  const jpegChannelOrder = colorTransform === 'ycbcr' ? [1, 0, 2] : [0, 1, 2]
+  for (const channel of jpegChannelOrder) {
     const width = internalWidths[channel]
     const height = internalHeights[channel]
     const encoded = internalCoefficients[channel]
@@ -598,14 +614,14 @@ export const decodeJpegXlJpegAcGroup = (
   return Object.freeze({
     componentCoefficients: Object.freeze(jpegComponents),
     componentBlockWidths: Object.freeze([
-      internalWidths[1] ?? 0,
-      internalWidths[0] ?? 0,
-      internalWidths[2] ?? 0,
+      internalWidths[jpegChannelOrder[0] ?? 0] ?? 0,
+      internalWidths[jpegChannelOrder[1] ?? 0] ?? 0,
+      internalWidths[jpegChannelOrder[2] ?? 0] ?? 0,
     ] as [number, number, number]),
     componentBlockHeights: Object.freeze([
-      internalHeights[1] ?? 0,
-      internalHeights[0] ?? 0,
-      internalHeights[2] ?? 0,
+      internalHeights[jpegChannelOrder[0] ?? 0] ?? 0,
+      internalHeights[jpegChannelOrder[1] ?? 0] ?? 0,
+      internalHeights[jpegChannelOrder[2] ?? 0] ?? 0,
     ] as [number, number, number]),
     endingBitPosition: reader.bitPosition,
   })

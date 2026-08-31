@@ -431,10 +431,13 @@ const histogramLogCountEntries = [
 ] as const
 
 const readHistogramLogCount = (reader: JpegXlBitReader): number => {
-  for (const entry of histogramLogCountEntries) {
-    if (reader.peekBits(entry.bits) !== entry.key) continue
-    reader.skipBits(entry.bits)
-    return entry.value - 1
+  let key = 0
+  for (let bits = 1; bits <= 7; bits += 1) {
+    key |= reader.readBits(1) << (bits - 1)
+    const entry = histogramLogCountEntries.find(
+      (candidate) => candidate.bits === bits && candidate.key === key,
+    )
+    if (entry) return entry.value - 1
   }
   throw invalidInput('JPEG XL ANS histogram is invalid')
 }
