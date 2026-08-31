@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install libjxl tool build dependencies
+        run: sudo apt-get update && sudo apt-get install --yes libjpeg-dev libpng-dev ninja-build
+
       - name: Build pinned libjxl tools
         env:
           LIBJXL_REVISION: a7a9c787341cf703dede03c2009fa460cae5e5df
@@ -55,6 +58,7 @@ jobs:
           test "$(git -C "$LIBJXL_ROOT" rev-parse HEAD)" = "$LIBJXL_REVISION"
           git -C "$LIBJXL_ROOT" submodule update --init --recursive --depth 1
           cmake -S "$LIBJXL_ROOT" -B "$LIBJXL_ROOT/build-pinned" -G Ninja \
+            -DBUILD_TESTING=OFF \
             -DCMAKE_BUILD_TYPE=Release \
             -DJPEGXL_ENABLE_BENCHMARK=OFF \
             -DJPEGXL_ENABLE_EXAMPLES=OFF \
@@ -118,6 +122,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Prepare pinned HDF5 browser fixture
+        run: npm run fixtures:hdf5:prepare
+
+      - name: Install pinned scientific browser competitors
+        run: npm ci --prefix benchmark/competitors-js --no-fund --no-audit
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
