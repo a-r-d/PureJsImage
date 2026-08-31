@@ -92,7 +92,7 @@
       "restorationFilters": ["Gaborish default", "EPF default"],
       "extraChannels": [],
       "jpegReconstruction": false,
-      "expectedPureJsImageBehavior": "unsupported",
+      "expectedPureJsImageBehavior": "supported",
       "features": ["VarDCT", "default XYB", "progressive passes", "odd dimensions"],
       "options": ["--modular=0", "--num_threads=1", "--distance=2", "--effort=9", "--progressive"],
       "inputSha256": "15f6d17bc7b6aac4fb87256d0ec5faeb42081f0b59eac08db5eb61764b312447",

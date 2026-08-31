@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto'
 import { spawn } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
@@ -51,7 +51,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'progressive passes', 'odd dimensions']),
     options: Object.freeze(['--distance=2', '--effort=9', '--progressive']),
-    expectedPureJsImageBehavior: 'unsupported',
+    expectedPureJsImageBehavior: 'supported',
   }),
   Object.freeze({
     id: 'rgb8-distance4-noise',
@@ -63,7 +63,7 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     oracleExtension: 'ppm',
     features: Object.freeze(['VarDCT', 'default XYB', 'synthetic noise', 'odd dimensions']),
     options: Object.freeze(['--distance=4', '--effort=5', '--photon_noise_iso=100']),
-    expectedPureJsImageBehavior: 'unsupported',
+    expectedPureJsImageBehavior: 'supported',
   }),
   Object.freeze({
     id: 'gray8-distance1-effort3',

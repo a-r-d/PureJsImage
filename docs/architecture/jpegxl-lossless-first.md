@@ -409,17 +409,18 @@ boundaries.
 
 ### VarDCT and JPEG-derived pixel decode
 
-Progress note: the registered codec decodes the four pinned static single-group XYB VarDCT files.
+Progress note: the registered codec decodes all five pinned single-group XYB VarDCT files.
 The matrix covers gray and RGB DCT8, DCT2, DCT8x4, AFV1, AFV3, DCT32x32, DCT16x8, and DCT8x16,
 plus default Gaborish, all three default EPF stages, adaptive DC smoothing, and deterministic
-synthetic noise. Every static file stays within one sample value of pinned `djxl` 0.12.0 output,
-with RMSE below 0.5. The two JPEG-derived reconstruction fixtures also decode through the normal
-codec. Progressive frames, multiple VarDCT groups, chroma upsampling, patches, splines, alpha, and
-unsupported color syntax still fail explicitly.
+synthetic noise. The progressive file uses a level-1 Modular DC frame and three shifted AC passes.
+Every file stays within one sample value of pinned `djxl` 0.12.0 output, with RMSE below 0.5. The
+two JPEG-derived reconstruction fixtures also decode through the normal codec. Multiple VarDCT
+groups, chroma upsampling, patches, splines, alpha, and unsupported color syntax still fail
+explicitly.
 
 - [x] Decode the pinned common static VarDCT corpus to fixed oracle tolerances.
 - [ ] Cover required transforms, XYB, upsampling, restoration, patches, splines, and noise.
-- [ ] Decode final progressive images.
+- [x] Decode final progressive images.
 - [ ] Decode JPEG-derived JXL image data to the original JPEG oracle pixels.
 - [ ] Keep animation and unsupported color or extra-channel syntax explicit.
 

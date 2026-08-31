@@ -7,6 +7,7 @@ import {
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegHfGlobal,
   decodeJpegXlJpegLfGlobal,
+  type JpegXlJpegAcGroup,
   type JpegXlJpegColorCorrelation,
 } from './jpegxl-vardct-jpeg.ts'
 
@@ -461,7 +462,9 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
     }
     return table
   })
-  output.set(13, Object.freeze(dct4x8))
+  const frozenDct4x8 = Object.freeze(dct4x8)
+  output.set(12, frozenDct4x8)
+  output.set(13, frozenDct4x8)
 
   const dct4x4Weights = dct4x4Bands.map((bands) => distanceWeights(4, 4, bands))
   const afv = afvSpecialWeights.map((special, channel) => {
@@ -797,6 +800,35 @@ const inverseDct8x4 = (
       destinationWidth,
       destinationX + half * 4,
       destinationY,
+    )
+  }
+}
+
+const inverseDct4x8 = (
+  coefficients: Float64Array,
+  destination: Float32Array,
+  destinationWidth: number,
+  destinationX: number,
+  destinationY: number,
+): void => {
+  const dc0 = coefficients[0] ?? 0
+  const dc1 = coefficients[8] ?? 0
+  for (let half = 0; half < 2; half += 1) {
+    const block = new Float64Array(32)
+    block[0] = half === 0 ? dc0 + dc1 : dc0 - dc1
+    for (let y = 0; y < 4; y += 1) {
+      for (let x = 0; x < 8; x += 1) {
+        if (x !== 0 || y !== 0) block[y * 8 + x] = coefficients[(half + y * 2) * 8 + x] ?? 0
+      }
+    }
+    inverseDctRectangle(
+      block,
+      8,
+      4,
+      destination,
+      destinationWidth,
+      destinationX,
+      destinationY + half * 4,
     )
   }
 }
@@ -1255,24 +1287,63 @@ const writeRgb = (
   )
 }
 
+const mergeProgressiveAcGroup = (
+  target: Readonly<JpegXlJpegAcGroup>,
+  additional: Readonly<JpegXlJpegAcGroup>,
+): void => {
+  if (target.vardctBlocks.length !== additional.vardctBlocks.length) {
+    throw invalidInput('JPEG XL progressive AC block count is inconsistent')
+  }
+  for (let blockIndex = 0; blockIndex < target.vardctBlocks.length; blockIndex += 1) {
+    const targetBlock = target.vardctBlocks[blockIndex]
+    const additionalBlock = additional.vardctBlocks[blockIndex]
+    if (!targetBlock || !additionalBlock || targetBlock.strategy !== additionalBlock.strategy) {
+      throw invalidInput('JPEG XL progressive AC block strategy is inconsistent')
+    }
+    for (let channel = 0; channel < 3; channel += 1) {
+      const targetCoefficients = targetBlock.coefficients[channel]
+      const additionalCoefficients = additionalBlock.coefficients[channel]
+      if (
+        !targetCoefficients ||
+        !additionalCoefficients ||
+        targetCoefficients.length !== additionalCoefficients.length
+      ) {
+        throw invalidInput('JPEG XL progressive AC coefficient plane is inconsistent')
+      }
+      for (let position = 0; position < targetCoefficients.length; position += 1) {
+        const coefficient =
+          (targetCoefficients[position] ?? 0) + (additionalCoefficients[position] ?? 0)
+        if (coefficient < -2_147_483_648 || coefficient > 2_147_483_647) {
+          throw invalidInput('JPEG XL progressive AC coefficient exceeds the signed 32-bit range')
+        }
+        targetCoefficients[position] = coefficient
+      }
+    }
+  }
+}
+
 export const decodeJpegXlDct8Section = (
   section: Uint8Array,
   frame: Readonly<JpegXlFrameStructure>,
   limits: Readonly<ImageLimits>,
+  continuationSections?: readonly Uint8Array[],
+  externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
 ): JpegXlVarDctPixels => {
+  const separatedSections = continuationSections !== undefined
   if (
     frame.encoding !== 'vardct' ||
     frame.colorTransform !== 'xyb' ||
     frame.bitDepth !== 8 ||
     frame.alphaBitDepth !== undefined ||
-    frame.passCount !== 1 ||
     frame.groupsAcross !== 1 ||
     frame.groupsDown !== 1 ||
     frame.dcGroupCount !== 1 ||
-    frame.sections.length !== 1
+    (separatedSections
+      ? continuationSections.length + 1 !== 3 + frame.passCount
+      : frame.passCount !== 1 || frame.sections.length !== 1)
   ) {
     throw unsupportedOperation(
-      'Common VarDCT decode currently requires one single-pass 8-bit XYB group without alpha',
+      'Common VarDCT decode currently requires one bounded 8-bit XYB group without alpha',
     )
   }
   const blockWidth = Math.ceil(frame.width / 8)
@@ -1288,9 +1359,12 @@ export const decodeJpegXlDct8Section = (
     )
   }
 
-  const lfGlobal = decodeJpegXlJpegLfGlobal(section, 0, false, frame.frameFlags)
+  const allSections = separatedSections ? [section, ...continuationSections] : [section]
+  const lfGlobal = decodeJpegXlJpegLfGlobal(section, 0, separatedSections, frame.frameFlags)
+  const dcSection = separatedSections ? allSections[1] : section
+  if (!dcSection) throw invalidInput('JPEG XL VarDCT DC group section is missing')
   const dcGroup = decodeJpegXlJpegDcGroup(
-    section,
+    dcSection,
     {
       blockWidth,
       blockHeight,
@@ -1299,39 +1373,50 @@ export const decodeJpegXlDct8Section = (
       dcGroupCount: 1,
     },
     lfGlobal.globalModularCode,
-    lfGlobal.endingBitPosition,
-    false,
+    separatedSections ? 0 : lfGlobal.endingBitPosition,
+    separatedSections,
+    externalDcPlanes,
   )
+  const hfSection = separatedSections ? allSections[2] : section
+  if (!hfSection) throw invalidInput('JPEG XL VarDCT HF global section is missing')
   const hfGlobal = decodeJpegXlJpegHfGlobal(
-    section,
-    { dcGroupCount: 1, groupCount: 1, passCount: 1 },
+    hfSection,
+    { dcGroupCount: 1, groupCount: 1, passCount: frame.passCount },
     lfGlobal,
-    dcGroup.endingBitPosition,
-    false,
+    separatedSections ? 0 : dcGroup.endingBitPosition,
+    separatedSections,
   )
   if (hfGlobal.dct8Quantization !== undefined) {
     throw unsupportedOperation('Common VarDCT custom quantization tables are not supported yet')
   }
-  const pass = hfGlobal.passes[0]
-  if (!pass) throw invalidInput('JPEG XL VarDCT pass is missing')
-  const acGroup = decodeJpegXlJpegAcGroup(
-    section,
-    {
-      blockX: 0,
-      blockY: 0,
-      blockWidth,
-      blockHeight,
-      chromaSubsampling: frame.chromaSubsampling,
-      histogramCount: hfGlobal.histogramCount,
-      colorTransform: 'none',
-    },
-    lfGlobal,
-    pass,
-    dcGroup,
-    hfGlobal.endingBitPosition,
-    true,
-    false,
-  )
+  let acGroup: JpegXlJpegAcGroup | undefined
+  for (let passIndex = 0; passIndex < frame.passCount; passIndex += 1) {
+    const pass = hfGlobal.passes[passIndex]
+    const acSection = separatedSections ? allSections[3 + passIndex] : section
+    if (!pass || !acSection) throw invalidInput('JPEG XL VarDCT pass is missing')
+    const decoded = decodeJpegXlJpegAcGroup(
+      acSection,
+      {
+        blockX: 0,
+        blockY: 0,
+        blockWidth,
+        blockHeight,
+        chromaSubsampling: frame.chromaSubsampling,
+        histogramCount: hfGlobal.histogramCount,
+        colorTransform: 'none',
+      },
+      lfGlobal,
+      pass,
+      dcGroup,
+      separatedSections ? 0 : hfGlobal.endingBitPosition,
+      true,
+      false,
+      frame.passShifts[passIndex] ?? 0,
+    )
+    if (acGroup) mergeProgressiveAcGroup(acGroup, decoded)
+    else acGroup = decoded
+  }
+  if (!acGroup) throw invalidInput('JPEG XL VarDCT AC group is missing')
 
   const planes = [
     new Float32Array(paddedWidth * paddedHeight),
@@ -1360,32 +1445,37 @@ export const decodeJpegXlDct8Section = (
     dcGroup.dcCoefficients[0],
     dcGroup.dcCoefficients[2],
   ] as const
-  const dcPlanes = [
-    new Float64Array(blockWidth * blockHeight),
-    new Float64Array(blockWidth * blockHeight),
-    new Float64Array(blockWidth * blockHeight),
-  ] as const
-  for (let channel = 0; channel < 3; channel += 1) {
-    const source = rawDcPlanes[channel]
-    const destination = dcPlanes[channel]
-    const factor = dcFactors[channel]
-    if (!source || !destination || factor === undefined) {
-      throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
-    }
-    for (let index = 0; index < destination.length; index += 1) {
-      destination[index] = (source[index] ?? 0) * factor
-    }
+  if (((frame.frameFlags & 32) !== 0) !== (externalDcPlanes !== undefined)) {
+    throw invalidInput('JPEG XL VarDCT external DC frame dependency is inconsistent')
   }
-  const yDcPlane = dcPlanes[1]
-  for (const channel of [0, 2] as const) {
-    const destination = dcPlanes[channel]
-    const ratio = dcCorrelationRatio(lfGlobal.colorCorrelation, channel)
-    for (let index = 0; index < destination.length; index += 1) {
-      destination[index] = (destination[index] ?? 0) + (yDcPlane[index] ?? 0) * ratio
+  const dcPlanes: readonly [Float64Array, Float64Array, Float64Array] = externalDcPlanes ?? [
+    new Float64Array(blockWidth * blockHeight),
+    new Float64Array(blockWidth * blockHeight),
+    new Float64Array(blockWidth * blockHeight),
+  ]
+  if (!externalDcPlanes) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const source = rawDcPlanes[channel]
+      const destination = dcPlanes[channel]
+      const factor = dcFactors[channel]
+      if (!source || !destination || factor === undefined) {
+        throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
+      }
+      for (let index = 0; index < destination.length; index += 1) {
+        destination[index] = (source[index] ?? 0) * factor
+      }
     }
-  }
-  if ((frame.frameFlags & 128) === 0) {
-    applyAdaptiveDcSmoothing(dcPlanes, blockWidth, blockHeight, dcFactors)
+    const yDcPlane = dcPlanes[1]
+    for (const channel of [0, 2] as const) {
+      const destination = dcPlanes[channel]
+      const ratio = dcCorrelationRatio(lfGlobal.colorCorrelation, channel)
+      for (let index = 0; index < destination.length; index += 1) {
+        destination[index] = (destination[index] ?? 0) + (yDcPlane[index] ?? 0) * ratio
+      }
+    }
+    if ((frame.frameFlags & 128) === 0) {
+      applyAdaptiveDcSmoothing(dcPlanes, blockWidth, blockHeight, dcFactors)
+    }
   }
 
   for (let blockY = 0; blockY < blockHeight; blockY += 1) {
@@ -1482,9 +1572,11 @@ export const decodeJpegXlDct8Section = (
             blockX * 8,
             blockY * 8,
           )
+        } else if (strategy === 12) {
+          inverseDct4x8(values, plane, paddedWidth, blockX * 8, blockY * 8)
         } else if (strategy === 13) {
           inverseDct8x4(values, plane, paddedWidth, blockX * 8, blockY * 8)
-        } else if (strategy === 15 || strategy === 17) {
+        } else if (strategy >= 14 && strategy <= 17) {
           inverseAfv(values, strategy - 14, plane, paddedWidth, blockX * 8, blockY * 8)
         } else {
           throw unsupportedOperation(

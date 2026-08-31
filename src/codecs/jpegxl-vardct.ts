@@ -1,13 +1,16 @@
 import { throwIfAborted } from '../abort.ts'
-import type { DecoderOptions, DecodeRequest, ImageDecoder } from '../codec.ts'
+import type { DecodeRequest, DecoderOptions, ImageDecoder } from '../codec.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
-import { readExactly, type ImageSource } from '../source.ts'
+import { type ImageSource, readExactly } from '../source.ts'
 import { decodeJpegCoefficientImage, type JpegRegion } from './jpeg-baseline.ts'
 import type { JpegCoefficientImage } from './jpeg-coefficients.ts'
 import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.ts'
-import { readJpegXlSourceFrameStructure } from './jpegxl-decode.ts'
+import {
+  decodeJpegXlModularDcFrameSection,
+  readJpegXlSourceFrameStructures,
+} from './jpegxl-decode.ts'
 import { decodeJpegXlJpegReconstruction } from './jpegxl-jpeg-reconstruct-source.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import { decodeJpegXlDct8Section, type JpegXlVarDctPixels } from './jpegxl-vardct-render.ts'
@@ -152,14 +155,51 @@ export const createJpegXlVarDctDecoder = async (
     return createJpegDerivedJpegXlDecoder(source, limits, options)
   }
   const logical = new JpegXlCodestreamSource(source, structure)
-  const frame = await readJpegXlSourceFrameStructure(
+  const frames = await readJpegXlSourceFrameStructures(
     logical,
     limits,
     options,
     jpegXlLimits.maxHeaderBytes,
   )
-  const section = frame.sections[0]
-  if (!section) throw invalidInput('JPEG XL VarDCT section is missing')
-  const data = await readExactly(logical, section.offset, section.length, options)
-  return new VarDctJpegXlDecoder(decodeJpegXlDct8Section(data, frame, limits), options.signal)
+  const frame = frames.at(-1)
+  if (frame?.frameType !== 'regular') {
+    throw unsupportedOperation('JPEG XL static VarDCT final frame is missing')
+  }
+  if (frames.length === 1) {
+    const section = frame.sections[0]
+    if (!section) throw invalidInput('JPEG XL VarDCT section is missing')
+    const data = await readExactly(logical, section.offset, section.length, options)
+    return new VarDctJpegXlDecoder(decodeJpegXlDct8Section(data, frame, limits), options.signal)
+  }
+  const dcFrame = frames[0]
+  if (
+    frames.length !== 2 ||
+    !dcFrame ||
+    dcFrame.frameType !== 'dc' ||
+    dcFrame.encoding !== 'modular' ||
+    dcFrame.dcLevel !== 1 ||
+    (frame.frameFlags & 32) === 0
+  ) {
+    throw unsupportedOperation('JPEG XL internal frame dependency is not supported')
+  }
+  const dcSection = dcFrame.sections[0]
+  if (!dcSection || dcFrame.sections.slice(1).some(({ length }) => length !== 0)) {
+    throw unsupportedOperation('JPEG XL progressive DC frame section layout is not supported')
+  }
+  const dcData = await readExactly(logical, dcSection.offset, dcSection.length, options)
+  const dcPlanes = decodeJpegXlModularDcFrameSection(
+    dcData,
+    Math.ceil(frame.width / 8),
+    Math.ceil(frame.height / 8),
+    options.signal,
+  )
+  const sections = await Promise.all(
+    frame.sections.map((section) => readExactly(logical, section.offset, section.length, options)),
+  )
+  const firstSection = sections[0]
+  if (!firstSection) throw invalidInput('JPEG XL VarDCT global section is missing')
+  return new VarDctJpegXlDecoder(
+    decodeJpegXlDct8Section(firstSection, frame, limits, sections.slice(1), dcPlanes),
+    options.signal,
+  )
 }

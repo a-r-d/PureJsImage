@@ -1,18 +1,18 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { jpegXlConformanceCommit, jpegXlCorpus } from '../benchmark/jpegxl/corpus.ts'
 import generatedLossless from '../benchmark/jpegxl/generated-lossless-manifest.json' with {
   type: 'json',
 }
 import generatedVarDct from '../benchmark/jpegxl/generated-vardct-manifest.json' with {
   type: 'json',
 }
-import { jpegXlCorpus, jpegXlConformanceCommit } from '../benchmark/jpegxl/corpus.ts'
 import { jpegXlOracles } from '../benchmark/jpegxl/oracles.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
-import { inspectJpegXl } from '../src/jpegxl.ts'
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
@@ -100,20 +100,15 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
       expect(oracle.byteLength).toBe(fixture.oracleBytes)
       expect(sha256(encoded)).toBe(fixture.jxlSha256)
       expect(sha256(oracle)).toBe(fixture.oracleSha256)
-      if (fixture.progressive) {
-        await expect(inspectJpegXl(encoded)).rejects.toMatchObject({
-          code: 'UNSUPPORTED_OPERATION',
-        })
-      } else {
-        await expect(inspectJpegXl(encoded)).resolves.toMatchObject({
-          width: fixture.width,
-          height: fixture.height,
-          bitDepth: fixture.bitDepth,
-          encoding: 'vardct',
-          jpegReconstruction: 'unavailable',
-          expectedPixelFormat: fixture.colorEncoding.startsWith('grayscale') ? 'gray8' : 'rgb8',
-        })
-      }
+      await expect(inspectJpegXl(encoded)).resolves.toMatchObject({
+        width: fixture.width,
+        height: fixture.height,
+        bitDepth: fixture.bitDepth,
+        encoding: 'vardct',
+        progressivePasses: fixture.progressive ? 3 : 1,
+        jpegReconstruction: 'unavailable',
+        expectedPixelFormat: fixture.colorEncoding.startsWith('grayscale') ? 'gray8' : 'rgb8',
+      })
       if (fixture.expectedPureJsImageBehavior === 'supported') {
         const decoder = await jpegxlCodec.createDecoder?.(
           new MemorySource(encoded),
@@ -135,7 +130,7 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
         const comparison = comparePixels(block.data, pnmPixels(oracle))
         expect(comparison.maximumError).toBeLessThanOrEqual(1)
         expect(comparison.rmse).toBeLessThan(0.5)
-      } else if (!fixture.progressive) {
+      } else {
         await expect(
           jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits),
         ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })

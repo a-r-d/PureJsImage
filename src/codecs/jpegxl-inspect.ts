@@ -6,9 +6,9 @@ import { resolveLimits } from '../limits.ts'
 import { createImageSource, type ImageInput, readExactly } from '../source.ts'
 import {
   inspectJpegXlSource,
-  JpegXlCodestreamSource,
   type JpegXlBoxSummary,
   type JpegXlCodestreamSegment,
+  JpegXlCodestreamSource,
 } from './jpegxl-container.ts'
 import { readJpegXlSourceInspectionMetadata } from './jpegxl-decode.ts'
 import { parseJpegXlJpegReconstructionHeader } from './jpegxl-jpeg-reconstruction.ts'
@@ -50,7 +50,7 @@ export interface JpegXlInspection {
   readonly preview: false
   readonly frameCount: 1
   readonly level: 5 | 10 | undefined
-  readonly progressivePasses: 1
+  readonly progressivePasses: number
   readonly jpegReconstruction: 'unavailable' | 'metadata-valid'
   readonly exactReconstructionEligibility: 'unavailable' | 'requires-coefficient-validation'
   readonly expectedPixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
@@ -142,7 +142,7 @@ export const inspectJpegXl = async (
     preview: false,
     frameCount: 1,
     level: structure.level,
-    progressivePasses: 1,
+    progressivePasses: header.progressivePasses,
     jpegReconstruction: reconstructionBox ? 'metadata-valid' : 'unavailable',
     exactReconstructionEligibility: reconstructionBox
       ? 'requires-coefficient-validation'

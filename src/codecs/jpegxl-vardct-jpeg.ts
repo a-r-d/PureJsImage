@@ -1,17 +1,17 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import {
   JpegXlBitReader,
+  type JpegXlEntropyCode,
   JpegXlEntropySymbolReader,
   jpegXlCeilLog2,
   readJpegXlContextMap,
   readJpegXlEntropyCode,
-  type JpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
 import {
   decodeJpegXlStandaloneModular,
-  readJpegXlModularTree,
   type JpegXlModularGlobalCode,
   type JpegXlModularNode,
+  readJpegXlModularTree,
 } from './jpegxl-decode.ts'
 
 interface DistributionValue {
@@ -268,6 +268,7 @@ export const decodeJpegXlJpegDcGroup = (
   globalCode: Readonly<JpegXlModularGlobalCode>,
   startBit = 0,
   requireComplete = true,
+  externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
 ): JpegXlJpegDcGroup => {
   const { blockWidth, blockHeight, chromaSubsampling, groupId, dcGroupCount } = options
   if (
@@ -284,7 +285,7 @@ export const decodeJpegXlJpegDcGroup = (
     throw invalidInput('JPEG-derived JPEG XL DC group geometry is invalid')
   }
   const reader = new JpegXlBitReader(section, startBit)
-  const extraPrecision = reader.readBits(2)
+  const extraPrecision = externalDcPlanes ? 0 : reader.readBits(2)
   const shifts = subsamplingShifts(chromaSubsampling)
   const layoutForJxlChannel = (channel: number): Readonly<{ width: number; height: number }> => {
     const shift = shifts[channel]
@@ -299,27 +300,40 @@ export const decodeJpegXlJpegDcGroup = (
   const cb = layoutForJxlChannel(0)
   const y = layoutForJxlChannel(1)
   const cr = layoutForJxlChannel(2)
-  const decodedDc = decodeJpegXlStandaloneModular(
-    section,
-    reader.bitPosition,
-    [y, cb, cr],
-    1 + groupId,
-    globalCode,
-  )
-  const divisor = 2 ** extraPrecision
-  const dcCoefficients = decodedDc.planes.map((plane) => {
-    const output = new Float64Array(plane.length)
-    for (let index = 0; index < plane.length; index += 1) {
-      const encoded = plane[index]
-      if (encoded === undefined) {
-        throw invalidInput('JPEG XL DC coefficient is missing')
-      }
-      output[index] = encoded / divisor
+  let dcCoefficients: readonly Float64Array[]
+  let metadataBitPosition: number
+  if (externalDcPlanes) {
+    if (externalDcPlanes.some((plane) => plane.length !== blockWidth * blockHeight)) {
+      throw invalidInput('JPEG XL external DC frame dimensions do not match the VarDCT frame')
     }
-    return output
-  })
+    dcCoefficients = Object.freeze([externalDcPlanes[1], externalDcPlanes[0], externalDcPlanes[2]])
+    metadataBitPosition = reader.bitPosition
+  } else {
+    const decodedDc = decodeJpegXlStandaloneModular(
+      section,
+      reader.bitPosition,
+      [y, cb, cr],
+      1 + groupId,
+      globalCode,
+    )
+    const divisor = 2 ** extraPrecision
+    dcCoefficients = Object.freeze(
+      decodedDc.planes.map((plane) => {
+        const output = new Float64Array(plane.length)
+        for (let index = 0; index < plane.length; index += 1) {
+          const encoded = plane[index]
+          if (encoded === undefined) {
+            throw invalidInput('JPEG XL DC coefficient is missing')
+          }
+          output[index] = encoded / divisor
+        }
+        return output
+      }),
+    )
+    metadataBitPosition = decodedDc.endingBitPosition
+  }
 
-  const metadataReader = new JpegXlBitReader(section, decodedDc.endingBitPosition)
+  const metadataReader = new JpegXlBitReader(section, metadataBitPosition)
   const blockCount = blockWidth * blockHeight
   const count = metadataReader.readBits(jpegXlCeilLog2(blockCount)) + 1
   const correlationWidth = Math.ceil(blockWidth / 8)
@@ -517,6 +531,7 @@ export const decodeJpegXlJpegAcGroup = (
   startBit = 0,
   requireComplete = true,
   requireJpegCompatibleDc = true,
+  coefficientShift = 0,
 ): JpegXlJpegAcGroup => {
   const {
     blockX,
@@ -539,7 +554,10 @@ export const decodeJpegXlJpegAcGroup = (
     blockX + blockWidth > dcGroup.blockWidth ||
     blockY + blockHeight > dcGroup.blockHeight ||
     !Number.isSafeInteger(histogramCount) ||
-    histogramCount < 1
+    histogramCount < 1 ||
+    !Number.isSafeInteger(coefficientShift) ||
+    coefficientShift < 0 ||
+    coefficientShift > 3
   ) {
     throw invalidInput('JPEG-derived JPEG XL AC group geometry is invalid')
   }
@@ -661,7 +679,7 @@ export const decodeJpegXlJpegAcGroup = (
             throw invalidInput('JPEG-derived JPEG XL empty AC group declares nonzero coefficients')
           }
           const encoded = symbols.readHybridUint(coefficientContext, reader)
-          const coefficient = unpackCoefficient(encoded)
+          const coefficient = unpackCoefficient(encoded) * 2 ** coefficientShift
           const position = order[scan]
           if (position === undefined) {
             throw invalidInput('JPEG-derived JPEG XL coefficient order is incomplete')
