@@ -488,8 +488,8 @@ the exact source pixels. This one fixture does not establish a broad compression
 
 - [x] Pass every focused corpus, mutation, exact-round-trip, package, browser, and benchmark gate.
 - [x] Pass `npm run browser:check`, `git diff --check`, and `npm run check`.
-- [ ] Create coherent commits and push the dedicated feature branch.
-- [ ] Verify required workflows on the exact pushed SHA without merging or publishing.
+- [x] Create coherent commits and push the dedicated feature branch.
+- [x] Verify required workflows on the exact pushed SHA without merging or publishing.
 
 An item is complete only after its stated evidence passes. Locally implemented behavior is not a
 public capability until the manifest and generated surfaces match that evidence.
