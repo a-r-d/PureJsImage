@@ -5503,13 +5503,14 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Decodes independently verified lossless Modular subsets: single-group 8-bit RGB/RGBA, native 8/10/12/16-bit grayscale, native 9/12-bit RGBA, 8-bit grayscale with alpha, and compatible multi-group 8-bit grayscale with unshifted group channels and a shared non-delta palette. Supports global or local MA trees, prefix or ANS residuals, bounded LZ77 with group-aware special distances, the documented predictors, zero or one RCT, permuted or ordered table-of-contents entries, and group-aware crops. Custom color encodings, delta palettes, Squeeze and shifted/DC group channels, VarDCT, multiple frames, and fragmented jxlp pixel decode remain unsupported",
-      "description": "Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the documented pinned lossless Modular subsets. Native grayscale emits gray8 or big-endian gray16 with its original display range; RGB/RGBA emits rgba8 or big-endian rgba16. Compatible multi-group decode validates ordered or permuted table-of-contents entries and dependencies, supports global or per-group local MA trees, reconstructs only crop-intersecting groups, stitches ordered output rows across group boundaries, and releases completed group bands. Unsupported JPEG XL syntax fails explicitly.",
-      "memory": "The single-group path retains compact signed channel planes. Compatible multi-group crops retain only the intersecting groups in one group-row band, share global Palette state, size each LZ77 ring to its bounded entropy stream, account grouped planes against maxDecodedBytes, and release the band after output. Both paths emit one bounded native output row without allocating a second source-sized RGBA bitmap. A checksum-pinned 4096x4096 permuted-TOC fixture records isolated full-decode and 64x64 crop memory.",
-      "recommendation": "Use native gray8/gray16 or rgba16 decoder blocks for scientific workflows within the documented lossless Modular subset. Multi-group grayscale crops are group-aware and bounded by the intersecting band, including files with permuted table-of-contents entries and per-group local MA trees. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.",
+      "boundary": "Decodes independently verified lossless Modular subsets: single-group 8-bit RGB/RGBA, native 8/10/12/16-bit grayscale, native 9/12-bit RGBA, 8-bit grayscale with alpha, and compatible multi-group 8-bit grayscale with unshifted group channels and a shared non-delta palette. Supports raw, jxlc, ordered jxlp, and file-format-version-1 out-of-order jxlp logical codestreams without whole-codestream concatenation. Custom color encodings, delta palettes, Squeeze and shifted/DC group channels, VarDCT, multiple frames, encoding, and JPEG reconstruction remain unsupported",
+      "description": "Recognizes raw codestreams and containers, validates jxlc or jxlp ranges, exposes bounded inspection through the explicit purejsimage/jpegxl entry, and decodes the documented pinned lossless Modular subsets. Native grayscale emits gray8 or big-endian gray16; RGB emits rgb8 or big-endian rgb16; RGBA emits rgba8 or big-endian rgba16. Each native format retains its original display range. Compatible multi-group decode reads the frame header and global state first, fetches only crop-intersecting group sections, stitches ordered output rows across group boundaries, and releases completed group bands. Unsupported JPEG XL syntax fails explicitly.",
+      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Header reads grow within a 4 MiB default limit, declared entropy sections are read separately, and multi-group crops fetch only intersecting group sections. The single-group path retains compact signed channel planes. Compatible multi-group crops retain one intersecting group-row band, account grouped planes against maxDecodedBytes, and release the band after output. Both paths emit one bounded native output row without allocating a second source-sized RGBA bitmap.",
+      "recommendation": "Use native gray8/gray16, rgb8/rgb16, or rgba8/rgba16 decoder blocks for workflows within the documented lossless Modular subset. Multi-group grayscale crops are group-aware and bounded by the intersecting band, including files with permuted table-of-contents entries and per-group local MA trees. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.",
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
+        "tests/jpegxl-corpus.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/library.test.ts"
       ],
@@ -5551,8 +5552,12 @@
           "text": "Implement production decoding in this repository without a runtime codec dependency, native library, WebAssembly module, or copied third-party code"
         },
         {
-          "status": "supported",
-          "text": "Do not implement JPEG XL encoding, container writing, or a public `.jxl()` output API"
+          "status": "planned",
+          "text": "Add a constrained pixel-lossless Modular encoder through the normal pipeline"
+        },
+        {
+          "status": "planned",
+          "text": "Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs"
         },
         {
           "status": "supported",
@@ -5591,16 +5596,16 @@
           "text": "Read one complete codestream from a `jxlc` box without copying it"
         },
         {
-          "status": "planned",
-          "text": "Reassemble normally ordered `jxlp` partial-codestream boxes through a bounded segmented reader rather than concatenating them"
+          "status": "supported",
+          "text": "Reassemble ordered and file-format-version-1 out-of-order `jxlp` boxes through a bounded segmented reader rather than concatenating them"
         },
         {
           "status": "supported",
           "text": "Validate `jxlp` indexes, final-fragment signaling, uniqueness, ordering, and total compressed-byte limits"
         },
         {
-          "status": "planned",
-          "text": "Parse JPEG XL level (`jxll`) and frame-index (`jxli`) boxes sufficiently to validate and skip them safely"
+          "status": "supported",
+          "text": "Parse JPEG XL level (`jxll`) and bound frame-index (`jxli`) boxes sufficiently to validate and skip them safely"
         },
         {
           "status": "supported",
@@ -5633,6 +5638,10 @@
         {
           "status": "supported",
           "text": "Parse basic image information without entropy-decoding image groups for the implemented subset"
+        },
+        {
+          "status": "supported",
+          "text": "Expose bounded immutable inspection for the implemented Modular subset with structure, dimensions, orientation, bit depth, channels, alpha, color, level, metadata sizes, expected output format, and resource estimates"
         },
         {
           "status": "planned",
@@ -5687,7 +5696,7 @@
           "text": "Decode meta-adaptive trees with bounded depth, node count, property ranges, and context count"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Implement the required Modular predictors, including weighted prediction and its state updates"
         },
         {
@@ -5696,7 +5705,7 @@
         },
         {
           "status": "planned",
-          "text": "Implement palette transforms, including delta palettes and palette-index prediction"
+          "text": "Complete palette transforms, including delta palettes and palette-index prediction"
         },
         {
           "status": "supported",
@@ -5800,7 +5809,7 @@
         },
         {
           "status": "supported",
-          "text": "Emit bounded, ordered `gray8`, big-endian `gray16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset"
+          "text": "Emit bounded, ordered `gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset"
         },
         {
           "status": "planned",
@@ -5811,8 +5820,8 @@
           "text": "Native integer grayscale at 8, 10, 12, and 16 bits per sample"
         },
         {
-          "status": "planned",
-          "text": "Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample"
+          "status": "supported",
+          "text": "Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample for the current single-group Modular boundary"
         },
         {
           "status": "supported",
@@ -5987,7 +5996,7 @@
           "text": "Use checked arithmetic for canvas and group geometry, channel shifts, strides, sample counts, coefficient counts, section sizes, patch extents, spline points, LZ77 copies, and allocations"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Read `jxlc` and `jxlp` through segmented views without duplicating the compressed codestream"
         },
         {

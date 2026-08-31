@@ -488,6 +488,11 @@
       "import": "./dist/codec-entries/jpegxl.js",
       "default": "./dist/codec-entries/jpegxl.js"
     },
+    "./jpegxl": {
+      "types": "./dist/jpegxl.d.ts",
+      "import": "./dist/jpegxl.js",
+      "default": "./dist/jpegxl.js"
+    },
     "./codecs/netpbm": {
       "types": "./dist/codec-entries/netpbm.d.ts",
       "import": "./dist/codec-entries/netpbm.js",
@@ -630,6 +635,8 @@
     "fixtures:jpeg:prepare": "node benchmark/jpeg/prepare-reference-fixtures.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
     "fixtures:jpegxl:prepare": "node benchmark/jpegxl/prepare-corpus.ts",
+    "fixtures:jpegxl:generate": "node benchmark/jpegxl/generate-lossless-corpus.ts",
+    "fixtures:jpegxl:matrix": "node benchmark/jpegxl/run-lossless-matrix.ts",
     "fixtures:mrc:prepare": "node benchmark/mrc/prepare-official-sample.ts",
     "fixtures:cbf:prepare": "node benchmark/cbf/prepare-compatibility-sample.ts",
     "fixtures:tiff:encode": "npm run build && node benchmark/scripts/verify-tiff-encode.ts",

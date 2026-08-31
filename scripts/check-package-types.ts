@@ -309,6 +309,8 @@ import type { NodeImageLibraryOptions } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
 import { allWebCodecs } from 'purejsimage/codecs/web'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+import { inspectJpegXl } from 'purejsimage/jpegxl'
+import type { JpegXlInspection } from 'purejsimage/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { defaultTiffCalibrationProfiles, digitalMicrographTiffCalibrationProfile, geoTiffProfile, imageJTiffCalibrationProfile, inspectCog, standardTiffCalibrationProfile, tiffCompressionCapabilities } from 'purejsimage/tiff'
 export type { CogInspection, TiffCalibrationProfileValue, TiffCompressionCapability } from 'purejsimage/tiff'
@@ -403,6 +405,8 @@ export type { AnalysisProjectV1 }
 const nodeOptions: NodeImageLibraryOptions = { temporaryFiles: true }
 const nodeImages = createImageLibrary([pngCodec, jpegxlCodec], nodeOptions)
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
+export const inspectJpegXlInput = (input: Uint8Array): Promise<JpegXlInspection> =>
+  inspectJpegXl(input)
 export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })
 export type GeoConsumerContracts = {

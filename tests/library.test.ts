@@ -99,8 +99,8 @@ describe('configured image library', () => {
 
     expect(images.formats()).toContain('jpegxl')
     expect(jpegxlCodec.detect(input)).toBe(true)
-    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
-    await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+    await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
   })
 
   it.each([

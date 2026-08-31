@@ -2,8 +2,10 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { inspectJpegXlStructure, jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
+import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
 
 const ascii = (value: string): Uint8Array =>
   Uint8Array.from(value, (character) => character.charCodeAt(0))
@@ -101,13 +103,34 @@ const box = (type: string, payload: Uint8Array, extended = false): Uint8Array =>
 }
 
 const signature = box('JXL ', Uint8Array.of(0x0d, 0x0a, 0x87, 0x0a))
-const fileType = (brand = 'jxl '): Uint8Array =>
-  box('ftyp', concatenate(ascii(brand), Uint8Array.of(0, 0, 0, 0), ascii('jxl ')))
+const fileType = (brand = 'jxl ', version: 0 | 1 = 0): Uint8Array =>
+  box('ftyp', concatenate(ascii(brand), Uint8Array.of(0, 0, 0, version), ascii('jxl ')))
 
 const fragment = (index: number, final: boolean, payload: Uint8Array): Uint8Array => {
   const header = new Uint8Array(4)
   new DataView(header.buffer).setUint32(0, index | (final ? 0x8000_0000 : 0))
   return box('jxlp', concatenate(header, payload))
+}
+
+class CountingSource implements ImageSource {
+  readonly size: number
+  readonly reads: { readonly offset: number; readonly length: number }[] = []
+  readonly #data: Uint8Array
+
+  constructor(data: Uint8Array) {
+    this.#data = data
+    this.size = data.byteLength
+  }
+
+  async read(
+    offset: number,
+    length: number,
+    _options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const available = offset >= this.size ? 0 : Math.min(length, this.size - offset)
+    this.reads.push({ offset, length: available })
+    return this.#data.subarray(offset, offset + available)
+  }
 }
 
 describe('JPEG XL probing and lossless Modular decoding', () => {
@@ -353,6 +376,22 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     )
   })
 
+  it('fetches only crop-intersecting Modular group sections after decoder creation', async () => {
+    const source = new CountingSource(permutedLargeGray)
+    const decoder = await jpegxlCodec.createDecoder?.(source, defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+    source.reads.length = 0
+
+    let rows = 0
+    for await (const block of decoder.decode({ x: 2_030, y: 2_040, width: 31, height: 29 })) {
+      rows += block.height
+    }
+
+    expect(rows).toBe(29)
+    expect(source.reads).toHaveLength(4)
+    expect(source.reads.reduce((sum, read) => sum + read.length, 0)).toBeLessThan(source.size / 20)
+  })
+
   it('decodes RGB local-tree ANS residuals, crop requests, and aborts', async () => {
     const source = new MemorySource(localTreeRgb)
     const metadata = await jpegxlCodec.metadata(source, defaultImageLimits)
@@ -371,7 +410,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     const digest = createHash('sha256')
     for await (const block of decoder.decode()) digest.update(block.data)
     expect(digest.digest('hex')).toBe(
-      '1aa7f08f4eb3fb29bfa6652683093b8f48319084a30959ab59c5434065382e36',
+      'afa150de7f85974c5a5e512f543555aa521c538ddaf0a4f9da9e210173789a1b',
     )
 
     const cropped: number[] = []
@@ -379,8 +418,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       cropped.push(...block.data)
     }
     expect(cropped).toEqual([
-      43, 43, 65, 255, 60, 50, 96, 255, 77, 57, 127, 255, 52, 72, 68, 255, 69, 79, 99, 255, 86, 86,
-      130, 255,
+      43, 43, 65, 60, 50, 96, 77, 57, 127, 52, 72, 68, 69, 79, 99, 86, 86, 130,
     ])
 
     const controller = new AbortController()
@@ -413,6 +451,9 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     const structure = await inspectJpegXlStructure(Uint8Array.of(0xff, 0x0a, 1, 2, 3))
     expect(structure).toEqual({
       kind: 'raw-codestream',
+      organization: 'raw',
+      containerVersion: undefined,
+      level: undefined,
       codestreamBytes: 5,
       codestreamSegments: [{ offset: 0, length: 5, index: 0 }],
       boxes: [],
@@ -443,10 +484,93 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     )
     const structure = await inspectJpegXlStructure(input)
     expect(structure.codestreamBytes).toBe(6)
+    expect(structure.organization).toBe('jxlp')
     expect(structure.codestreamSegments.map(({ index, length }) => ({ index, length }))).toEqual([
       { index: 0, length: 3 },
       { index: 1, length: 3 },
     ])
+  })
+
+  it('decodes an implemented Modular codestream across ordered jxlp fragments', async () => {
+    const split = 37
+    const input = concatenate(
+      signature,
+      fileType(),
+      box('jxll', Uint8Array.of(5)),
+      fragment(0, false, localTreeRgb.subarray(0, split)),
+      fragment(1, true, localTreeRgb.subarray(split)),
+    )
+    const source = new MemorySource(input)
+    const structure = await inspectJpegXlStructure(source)
+    expect(structure).toMatchObject({
+      kind: 'container',
+      organization: 'jxlp',
+      level: 5,
+      codestreamBytes: localTreeRgb.byteLength,
+    })
+
+    const metadata = await jpegxlCodec.metadata(source, defaultImageLimits)
+    expect(metadata).toMatchObject({ width: 8, height: 5, bitDepth: 8 })
+    const decoder = await jpegxlCodec.createDecoder?.(source, defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+    const digest = createHash('sha256')
+    for await (const block of decoder.decode()) digest.update(block.data)
+    expect(digest.digest('hex')).toBe(
+      'afa150de7f85974c5a5e512f543555aa521c538ddaf0a4f9da9e210173789a1b',
+    )
+  })
+
+  it('reorders version 1 jxlp fragments by logical index before decode', async () => {
+    const split = 37
+    const input = concatenate(
+      signature,
+      fileType('jxl ', 1),
+      fragment(1, true, localTreeRgb.subarray(split)),
+      fragment(0, false, localTreeRgb.subarray(0, split)),
+    )
+    const source = new MemorySource(input)
+    const structure = await inspectJpegXlStructure(source)
+    expect(structure).toMatchObject({
+      organization: 'jxlp',
+      containerVersion: 1,
+      codestreamSegments: [{ index: 0 }, { index: 1 }],
+    })
+
+    const decoder = await jpegxlCodec.createDecoder?.(source, defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+    const digest = createHash('sha256')
+    for await (const block of decoder.decode()) digest.update(block.data)
+    expect(digest.digest('hex')).toBe(
+      'afa150de7f85974c5a5e512f543555aa521c538ddaf0a4f9da9e210173789a1b',
+    )
+  })
+
+  it('inspects implemented metadata without reading a complete large codestream', async () => {
+    const padded = new Uint8Array(1_048_576)
+    padded.set(localTreeRgb)
+    const source = new CountingSource(padded)
+    const inspection = await inspectJpegXl(source)
+
+    expect(inspection).toMatchObject({
+      kind: 'raw-codestream',
+      organization: 'raw',
+      width: 8,
+      height: 5,
+      displayWidth: 8,
+      displayHeight: 5,
+      orientation: 1,
+      bitDepth: 8,
+      colorChannels: 3,
+      extraChannels: 0,
+      alpha: 'none',
+      encoding: 'modular',
+      imageKind: 'static',
+      expectedPixelFormat: 'rgb8',
+      jpegReconstruction: 'unavailable',
+    })
+    const returnedBytes = source.reads.reduce((sum, read) => sum + read.length, 0)
+    expect(returnedBytes).toBeLessThan(source.size)
+    expect(Math.max(...source.reads.map(({ length }) => length))).toBeLessThan(source.size)
   })
 
   it('rejects lookalikes, invalid brands, malformed extents, and missing codestreams', async () => {

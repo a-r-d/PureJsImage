@@ -1,4 +1,4 @@
-import { invalidInput } from '../errors.ts'
+import { invalidInput, truncatedInput } from '../errors.ts'
 
 export class JpegXlBitReader {
   readonly #data: Uint8Array
@@ -22,13 +22,13 @@ export class JpegXlBitReader {
       throw invalidInput('JPEG XL bit width is invalid')
     }
     if (this.#bitPosition + count > this.#data.byteLength * 8) {
-      throw invalidInput('JPEG XL codestream is truncated')
+      throw truncatedInput('JPEG XL codestream is truncated')
     }
     let value = 0
     for (let index = 0; index < count; index += 1) {
       const position = this.#bitPosition + index
       const byte = this.#data[position >>> 3]
-      if (byte === undefined) throw invalidInput('JPEG XL codestream is truncated')
+      if (byte === undefined) throw truncatedInput('JPEG XL codestream is truncated')
       value += ((byte >>> (position & 7)) & 1) * 2 ** index
     }
     this.#bitPosition += count

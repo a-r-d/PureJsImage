@@ -249,6 +249,7 @@
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
+        "tests/jpegxl-corpus.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/library.test.ts"
       ],

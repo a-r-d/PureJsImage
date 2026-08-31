@@ -6,6 +6,31 @@ export interface JpegXlCorpusEntry {
   readonly bytes: number
   readonly width: number
   readonly height: number
+  readonly bitDepth: number
+  readonly colorEncoding: string
+  readonly alpha: 'none' | 'straight' | 'premultiplied' | 'unknown'
+  readonly coding: 'modular' | 'vardct' | 'jpeg-derived' | 'unknown'
+  readonly level: 5 | 10 | 'unknown'
+  readonly encoder: Readonly<{
+    readonly id: string
+    readonly revision: string
+    readonly options: readonly string[]
+  }>
+  readonly container: 'raw' | 'jxlc' | 'jxlp'
+  readonly preview: boolean | 'unknown'
+  readonly progressive: boolean | 'unknown'
+  readonly patches: boolean | 'unknown'
+  readonly splines: boolean | 'unknown'
+  readonly noise: boolean | 'unknown'
+  readonly restorationFilters: readonly string[] | 'unknown'
+  readonly extraChannels: readonly string[]
+  readonly jpegReconstruction: boolean | 'unknown'
+  readonly expectedPureJsImageBehavior: 'exact-decode' | 'lossy-decode' | 'unsupported'
+  readonly oracleOutput: Readonly<{
+    readonly oracle: string
+    readonly kind: 'native-samples-sha256' | 'tolerance' | 'unsupported'
+    readonly value: string
+  }>
   readonly features: readonly string[]
 }
 
@@ -23,6 +48,31 @@ export const jpegXlCorpus: readonly JpegXlCorpusEntry[] = Object.freeze([
     bytes: 1_069,
     width: 200,
     height: 200,
+    bitDepth: 8,
+    colorEncoding: 'embedded ICC, exact profile classification pending',
+    alpha: 'none',
+    coding: 'vardct',
+    level: 'unknown',
+    encoder: Object.freeze({
+      id: 'libjxl-conformance',
+      revision: conformanceCommit,
+      options: Object.freeze(['source encoder options not recorded by the conformance case']),
+    }),
+    container: 'raw',
+    preview: 'unknown',
+    progressive: 'unknown',
+    patches: 'unknown',
+    splines: 'unknown',
+    noise: 'unknown',
+    restorationFilters: 'unknown',
+    extraChannels: Object.freeze([]),
+    jpegReconstruction: false,
+    expectedPureJsImageBehavior: 'unsupported',
+    oracleOutput: Object.freeze({
+      oracle: 'libjxl-conformance',
+      kind: 'unsupported',
+      value: 'VarDCT and embedded ICC are outside the starting decoder subset',
+    }),
     features: Object.freeze(['raw codestream', 'still image', 'lossy', '8-bit grayscale', 'ICC']),
   }),
   Object.freeze({
@@ -33,6 +83,31 @@ export const jpegXlCorpus: readonly JpegXlCorpusEntry[] = Object.freeze([
     bytes: 30,
     width: 1_024,
     height: 1_024,
+    bitDepth: 12,
+    colorEncoding: 'sRGB',
+    alpha: 'straight',
+    coding: 'modular',
+    level: 'unknown',
+    encoder: Object.freeze({
+      id: 'libjxl-conformance',
+      revision: conformanceCommit,
+      options: Object.freeze(['source encoder options not recorded by the conformance case']),
+    }),
+    container: 'raw',
+    preview: false,
+    progressive: false,
+    patches: false,
+    splines: false,
+    noise: false,
+    restorationFilters: Object.freeze([]),
+    extraChannels: Object.freeze(['alpha']),
+    jpegReconstruction: false,
+    expectedPureJsImageBehavior: 'exact-decode',
+    oracleOutput: Object.freeze({
+      oracle: 'official ref.png converted to native 12-bit samples',
+      kind: 'native-samples-sha256',
+      value: 'dcad2498d282253d5a0cc6228a557663f83e5547e196d4da472c2658a89b26b9',
+    }),
     features: Object.freeze([
       'raw codestream',
       'still image',
@@ -49,6 +124,31 @@ export const jpegXlCorpus: readonly JpegXlCorpusEntry[] = Object.freeze([
     bytes: 61,
     width: 1_024,
     height: 1_024,
+    bitDepth: 9,
+    colorEncoding: 'sRGB',
+    alpha: 'straight',
+    coding: 'modular',
+    level: 'unknown',
+    encoder: Object.freeze({
+      id: 'libjxl-conformance',
+      revision: conformanceCommit,
+      options: Object.freeze(['source encoder options not recorded by the conformance case']),
+    }),
+    container: 'raw',
+    preview: false,
+    progressive: false,
+    patches: false,
+    splines: false,
+    noise: false,
+    restorationFilters: Object.freeze([]),
+    extraChannels: Object.freeze(['alpha']),
+    jpegReconstruction: false,
+    expectedPureJsImageBehavior: 'exact-decode',
+    oracleOutput: Object.freeze({
+      oracle: 'official 16-bit ref.png at the declared tolerance',
+      kind: 'native-samples-sha256',
+      value: 'f9eee8a5b5f1e9209a1a82e590fcab10518ad4feb4cd550d4394dcc53cb35422',
+    }),
     features: Object.freeze([
       'raw codestream',
       'still image',
