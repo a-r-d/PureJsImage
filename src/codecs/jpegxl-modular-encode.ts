@@ -7,7 +7,7 @@ import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 
-class JpegXlBitWriter {
+export class JpegXlBitWriter {
   #bytes = new Uint8Array(256)
   #bitPosition = 0
 
@@ -53,7 +53,7 @@ class JpegXlBitWriter {
   }
 }
 
-const writeU32 = (
+export const writeU32 = (
   writer: JpegXlBitWriter,
   value: number,
   distributions: readonly (
@@ -136,7 +136,7 @@ const writeCodeLengthStaticSymbol = (writer: JpegXlBitWriter, symbol: 0 | 1 | 4 
   writer.writeBits(code.key, code.bits)
 }
 
-interface PrefixEncoding {
+export interface PrefixEncoding {
   readonly keys: Uint16Array
   readonly lengths: Uint8Array
   readonly singleSymbol?: number
@@ -199,7 +199,7 @@ const hybridToken = (
   return Object.freeze({ token, extra: value - 2 ** extraBits, extraBits })
 }
 
-const writeHybridUint = (
+export const writeHybridUint = (
   writer: JpegXlBitWriter,
   value: number,
   encoding: Readonly<PrefixEncoding>,
@@ -218,9 +218,9 @@ const writeHybridUint = (
   writer.writeBits(hybrid.extra, hybrid.extraBits)
 }
 
-const packSigned = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
+export const packSigned = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
 
-const writeModularTree = (writer: JpegXlBitWriter): void => {
+export const writeModularTree = (writer: JpegXlBitWriter): void => {
   const frequencies = new Uint32Array(2)
   frequencies[0] = 4
   frequencies[1] = 1
@@ -337,7 +337,7 @@ const writeSimpleHuffmanCode = (
     : encoding
 }
 
-const writePrefixCode = (
+export const writePrefixCode = (
   writer: JpegXlBitWriter,
   contexts: number,
   frequencies: Uint32Array,
@@ -459,7 +459,7 @@ const writeModularPixels = (
     (packedResidual) => writeHybridUint(writer, packedResidual, encoding),
   )
 
-const writeModularHeader = (writer: JpegXlBitWriter, useGlobalTree: boolean): void => {
+export const writeModularHeader = (writer: JpegXlBitWriter, useGlobalTree: boolean): void => {
   writer.writeBits(useGlobalTree ? 1 : 0, 1)
   writer.writeBits(1, 1)
   writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { bits: 4, offset: 2 }, { bits: 8, offset: 18 }])

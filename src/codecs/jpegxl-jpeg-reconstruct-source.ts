@@ -276,7 +276,8 @@ export const decodeJpegXlJpegReconstruction = async (
   )
   const lfSection = sections[0]
   if (!lfSection) throw invalidInput('JPEG XL LF global section is missing')
-  const lfGlobal = decodeJpegXlJpegLfGlobal(lfSection)
+  const combinedSection = sections.length === 1
+  const lfGlobal = decodeJpegXlJpegLfGlobal(lfSection, 0, !combinedSection)
   const correlation = lfGlobal.colorCorrelation
   if (
     correlation.colorFactor !== 84 ||
@@ -304,7 +305,7 @@ export const decodeJpegXlJpegReconstruction = async (
     const groupY = Math.floor(group / dcGroupsAcross)
     const blockWidth = Math.min(256, fullBlockWidth - groupX * 256)
     const blockHeight = Math.min(256, fullBlockHeight - groupY * 256)
-    const section = sections[1 + group]
+    const section = combinedSection ? lfSection : sections[1 + group]
     if (!section) throw invalidInput('JPEG XL DC group section is missing')
     dcGroups.push(
       decodeJpegXlJpegDcGroup(
@@ -317,16 +318,22 @@ export const decodeJpegXlJpegReconstruction = async (
           dcGroupCount: frame.dcGroupCount,
         },
         lfGlobal.globalModularCode,
+        combinedSection && group === 0
+          ? lfGlobal.endingBitPosition
+          : 0,
+        !combinedSection,
       ),
     )
   }
-  const hfSection = sections[1 + frame.dcGroupCount]
+  const hfSection = combinedSection ? lfSection : sections[1 + frame.dcGroupCount]
   if (!hfSection) throw invalidInput('JPEG XL HF global section is missing')
   const groupCount = frame.groupsAcross * frame.groupsDown
   const hfGlobal = decodeJpegXlJpegHfGlobal(
     hfSection,
     { dcGroupCount: frame.dcGroupCount, groupCount, passCount: frame.passCount },
     lfGlobal,
+    combinedSection ? (dcGroups.at(-1)?.endingBitPosition ?? 0) : 0,
+    !combinedSection,
   )
   if (
     hfGlobal.dct8QuantizationDenominator === undefined ||
@@ -370,7 +377,7 @@ export const decodeJpegXlJpegReconstruction = async (
     const dcGroupY = Math.floor(globalBlockY / 256)
     const dcGroupIndex = dcGroupY * dcGroupsAcross + dcGroupX
     const dcGroup = dcGroups[dcGroupIndex]
-    const section = sections[2 + frame.dcGroupCount + group]
+    const section = combinedSection ? lfSection : sections[2 + frame.dcGroupCount + group]
     if (!dcGroup || !section) throw invalidInput('JPEG XL AC group data is missing')
     const decoded = decodeJpegXlJpegAcGroup(
       section,
@@ -386,6 +393,8 @@ export const decodeJpegXlJpegReconstruction = async (
       lfGlobal,
       hfPass,
       dcGroup,
+      combinedSection && group === 0 ? hfGlobal.endingBitPosition : 0,
+      true,
     )
     mergeAcGroup(
       coefficients,

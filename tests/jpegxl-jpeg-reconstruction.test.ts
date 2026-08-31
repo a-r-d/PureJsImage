@@ -15,7 +15,11 @@ import {
 } from '../src/codecs/jpegxl-jpeg-reconstruction.ts'
 import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
 import { resolveJpegXlLimits } from '../src/codecs/jpegxl-limits.ts'
-import { inspectJpegXl } from '../src/jpegxl.ts'
+import {
+  inspectJpegReconstructionEligibility,
+  inspectJpegXl,
+  transcodeJpegToJpegXl,
+} from '../src/jpegxl.ts'
 import { MemorySource } from '../src/source.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { reconstructJpegFromJpegXl } from '../src/jpegxl.ts'
@@ -301,6 +305,84 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
       expect(rmse).toBeLessThanOrEqual(entry.pixelOracleTolerance.maximumRmse)
     },
   )
+
+  it.each(manifest.fixtures)(
+    'transcodes $id without RGB and reconstructs it exactly',
+    async (entry) => {
+      const source = new Uint8Array(readFileSync(entry.source))
+      await expect(inspectJpegReconstructionEligibility(source)).resolves.toMatchObject({
+        eligible: true,
+        sourceProfile: {
+          progressive: true,
+          components: 3,
+        },
+      })
+
+      const result = await transcodeJpegToJpegXl(source)
+      expect(result).toMatchObject({
+        mode: 'exact-jpeg',
+        exactReconstruction: true,
+        inputBytes: source.byteLength,
+        outputBytes: result.data.byteLength,
+        sourceProfile: {
+          width: 320,
+          height: 240,
+          progressive: true,
+        },
+        outputStructure: {
+          kind: 'container',
+          organization: 'jxlc',
+          reconstruction: 'available',
+        },
+      })
+      expect(await reconstructJpegFromJpegXl(result.data)).toEqual(source)
+      expect(await decodeRgb(jpegxlCodec, result.data)).toEqual(await decodeRgb(jpegCodec, source))
+    },
+  )
+
+  it('transcodes a one-group progressive JPEG exactly', async () => {
+    const source = new Uint8Array(
+      readFileSync('benchmark/corpus/files/jpeg-reference/generated-progressive.jpg'),
+    )
+    const result = await transcodeJpegToJpegXl(source)
+    expect(result.sourceProfile).toMatchObject({
+      width: 37,
+      height: 23,
+      progressive: true,
+      colorTransform: 'ycbcr',
+    })
+    expect(await reconstructJpegFromJpegXl(result.data)).toEqual(source)
+  })
+
+  it.each([
+    'benchmark/corpus/files/jpeg-reference/generated-sof1-8bit.jpg',
+    'benchmark/corpus/files/jpeg-reference/generated-sequential-multiscan.jpg',
+  ])('transcodes the baseline coefficient subset exactly: %s', async (file) => {
+    const source = new Uint8Array(readFileSync(file))
+    const result = await transcodeJpegToJpegXl(source)
+    expect(result.sourceProfile.progressive).toBe(false)
+    expect(await reconstructJpegFromJpegXl(result.data)).toEqual(source)
+  })
+
+  it('enforces explicit fallback and only-if-smaller policies', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    await expect(
+      transcodeJpegToJpegXl(source, { reconstruction: 'disabled' }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    const fallback = await transcodeJpegToJpegXl(source, {
+      reconstruction: 'disabled',
+      fallback: 'pixel-lossless',
+    })
+    expect(fallback).toMatchObject({
+      mode: 'pixel-lossless',
+      exactReconstruction: false,
+      outputStructure: { reconstruction: 'unavailable' },
+    })
+    expect(await decodeRgb(jpegxlCodec, fallback.data)).toEqual(await decodeRgb(jpegCodec, source))
+    await expect(transcodeJpegToJpegXl(source, { onlyIfSmaller: true })).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+  })
 
   it('enforces the public reconstruction output limit', async () => {
     await expect(

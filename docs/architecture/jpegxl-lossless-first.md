@@ -434,6 +434,13 @@ progressive scan script, opaque APP and COM bytes, and trailing bytes from eligi
 writes a bounded first-party `jbrd` payload. Both pinned progressive JPEG sources round-trip through
 that new writer and the existing reconstruction parser byte for byte before any JXL output is
 accepted. The initial subset rejects inter-marker fill data and non-canonical entropy streams.
+The specialized transcoder now emits original first-party JPEG-derived VarDCT with DCT8 blocks,
+natural coefficient order, raw quantization tables, one shared prefix histogram, and explicit
+`jbrd`. It accepts the pinned progressive RGB 4:4:4 and YCbCr 4:2:0 sources plus one-group
+progressive, SOF1 sequential, and sequential multiscan reference JPEGs. The required path verifies
+the final JXL by reconstructing and comparing every source byte before returning. Disabled and
+prefer policies use the Modular pixel encoder only when `pixel-lossless` is explicit, and
+`onlyIfSmaller` rejects a non-beneficial result instead of discarding the input.
 The JPEG-derived VarDCT path now decodes LF global state, custom block contexts, DC groups, AC
 metadata, raw DCT8 quantization tables, custom coefficient orders, RGB and YCbCr channel layouts,
 and AC groups. The public `reconstructJpegFromJpegXl()` path recreates the pinned progressive RGB
@@ -446,8 +453,8 @@ the full reconstruction acceptance items stay unchecked.
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.
 - [x] Extract a reusable bounded JPEG coefficient and scan representation.
-- [ ] Transcode the eligible baseline and progressive JPEG subset without RGB.
-- [ ] Enforce reconstruction, fallback, and `onlyIfSmaller` policies without silent mode changes.
+- [x] Transcode the eligible baseline and progressive JPEG subset without RGB.
+- [x] Enforce reconstruction, fallback, and `onlyIfSmaller` policies without silent mode changes.
 
 ### Pixel-lossless encoder
 
