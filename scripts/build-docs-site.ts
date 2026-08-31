@@ -34,9 +34,22 @@ const hdrSampleNames = [
   'hdr-surgery-synthetic-odd-scale.jpg',
   'hdr-surgery-synthetic-12mp.jpg',
 ] as const
+const jpegXlSamples = [
+  {
+    source: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
+    name: 'jpegxl-progressive-yuv420.jpg',
+  },
+  {
+    source: 'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl',
+    name: 'jpegxl-progressive-yuv420.jxl',
+  },
+] as const
 await mkdir(join(outputDirectory, 'demo-data'), { recursive: true })
 for (const name of hdrSampleNames) {
   await copyFile(join('benchmark/corpus/files', name), join(outputDirectory, 'demo-data', name))
+}
+for (const sample of jpegXlSamples) {
+  await copyFile(sample.source, join(outputDirectory, 'demo-data', sample.name))
 }
 
 const geoFixtureDirectory = join(outputDirectory, 'fixtures/geo/geozarr-cube')
@@ -111,6 +124,17 @@ for (const required of [
 if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>/u.test(hdrPage)) {
   throw new Error('Generated HDR Surgery page omits its required H1')
 }
+const jpegXlPage = await readFile(join(outputDirectory, 'jpeg-xl', 'index.html'), 'utf8')
+for (const required of [
+  '<title>JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage</title>',
+  'rel="canonical" href="https://purejsimage.com/jpeg-xl/"',
+  'Quick answer',
+  'Interactive workbench',
+  'Transcode eligible JPEG coefficients',
+  'Current limits',
+]) {
+  if (!jpegXlPage.includes(required)) throw new Error(`Generated JPEG XL page omits ${required}`)
+}
 const hdrJsonLd = [
   ...hdrPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
 ]
@@ -133,6 +157,9 @@ for (const required of [
   'purejsimage/hdr',
   'openGainMapImage',
   'inspectGainMapImage',
+  '/jpeg-xl/',
+  'docs/jpeg-xl.md',
+  'transcodeJpegToJpegXl',
 ]) {
   if (!llms.includes(required)) throw new Error(`Generated llms.txt omits ${required}`)
 }
@@ -267,6 +294,8 @@ const viewerBuild = await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+    'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
+    'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',

@@ -1,0 +1,68 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+
+const title = 'JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage'
+const description =
+  'Inspect and decode JPEG XL, try the experimental lossless Modular encoder, and verify exact coefficient-domain JPEG transcoding in a local browser worker.'
+const canonical = 'https://purejsimage.com/jpeg-xl/'
+---
+
+<SiteLayout title={title} description={description} canonical={canonical} bodyClass="jxl-page" current="jpeg-xl/">
+  <main id="main" class="jxl-shell">
+    <header class="jxl-hero">
+      <div><p class="eyebrow">JPEG XL</p><h1>Decode JPEG XL and verify exact JPEG transcoding in JavaScript</h1><p class="lede">PureJsImage implements a checked static JPEG XL subset in first-party TypeScript. This workbench runs in a browser worker and keeps local files on your device.</p></div>
+      <aside><strong>Local-only processing</strong><span>No selected image is uploaded to an application server.</span></aside>
+    </header>
+
+    <section class="jxl-card quick"><h2>Quick answer</h2><p>PureJsImage decodes the documented lossless Modular and common static VarDCT subsets. Its experimental effort-1 encoder writes mathematically lossless Modular images. A separate API transcodes eligible baseline or progressive JPEG coefficients and verifies byte-exact JPEG reconstruction before success.</p><p>These are three different contracts. Pixel-lossless JPEG XL does not preserve the original JPEG bytes. Exact JPEG transcode never silently falls back to decoded pixels.</p></section>
+
+    <section class="workbench" aria-labelledby="jxl-workbench-heading">
+      <div class="workbench-heading"><div><p class="eyebrow">Interactive workbench</p><h2 id="jxl-workbench-heading">Open, inspect, transcode, and reconstruct</h2></div><p id="jxl-status" role="status">Loading a deterministic JPEG sample…</p></div>
+      <div class="jxl-grid">
+        <aside class="jxl-card controls">
+          <h3>Open</h3>
+          <button id="jxl-open-jpeg" type="button">Open eligible JPEG sample</button>
+          <button id="jxl-open-jxl" type="button">Open reconstructed JPEG XL sample</button>
+          <label>Local JPEG or JPEG XL<input id="jxl-file" type="file" accept="image/jpeg,image/jxl,.jpg,.jpeg,.jxl" /></label>
+          <h3>Run</h3>
+          <button id="jxl-transcode" type="button" disabled>Exact JPEG to JPEG XL</button>
+          <button id="jxl-reconstruct" type="button" disabled>Reconstruct original JPEG</button>
+          <button id="jxl-download" type="button" disabled>Download latest output</button>
+          <p class="note">The exact path transfers quantized DCT coefficients and reconstruction metadata. It does not decode RGB before writing JPEG XL.</p>
+        </aside>
+        <div class="results">
+          <article class="jxl-card preview"><h3>Decoded preview</h3><canvas id="jxl-preview" aria-label="Decoded JPEG or JPEG XL preview"></canvas></article>
+          <article class="jxl-card"><h3>Result summary</h3><dl id="jxl-summary"><div><dt>Status</dt><dd>Waiting</dd></div></dl></article>
+          <details class="jxl-card"><summary>Inspection and execution evidence</summary><pre id="jxl-details">Waiting for local inspection.</pre></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="jxl-card copy"><h2>Use the ordinary pixel pipeline</h2><pre><code>{`import { createImageLibrary } from 'purejsimage'
+import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+
+const images = createImageLibrary([jpegxlCodec])
+const output = await images.open(input)
+  .jpegxl({ mode: 'lossless', effort: 1, container: true })
+  .toUint8Array()`}</code></pre><p>The encoder currently accepts native gray8, gray16, rgb8, rgb16, rgba8, and rgba16 input. It is experimental because the fixed compression, broader independent decoder, metadata, and sequential-output gates remain open.</p></section>
+
+    <section class="jxl-card copy"><h2>Transcode eligible JPEG coefficients</h2><pre><code>{`import {
+  transcodeJpegToJpegXl,
+  reconstructJpegFromJpegXl,
+} from 'purejsimage/jpegxl'
+
+const result = await transcodeJpegToJpegXl(jpegBytes, {
+  reconstruction: 'required',
+  onlyIfSmaller: false,
+})
+const originalJpeg = await reconstructJpegFromJpegXl(result.data)`}</code></pre><p>The default policy requires exact reconstruction and verifies every byte before returning. Use <code>reconstruction: 'prefer'</code> with <code>fallback: 'pixel-lossless'</code> only when preserving decoded pixels is acceptable and preserving the original JPEG file is not required.</p></section>
+
+    <section class="jxl-card copy"><h2>Current limits</h2><ul><li>Static images only. Multiple visible frames and animation are unsupported.</li><li>The VarDCT decoder covers the checked corpus, not every transform, color encoding, patch, spline, or extra-channel combination.</li><li>The exact JPEG path covers the checked 8-bit Huffman baseline and progressive subset. Unsupported JPEG syntax fails explicitly.</li><li>The encoder and transcoder retain bounded full input and output buffers today. They report managed-byte estimates and remain experimental.</li><li>No runtime library, native addon, external binary, or automatically selected WebAssembly implementation is used.</li></ul></section>
+  </main>
+  <script type="module" src="/assets/jpegxl-workbench.js"></script>
+</SiteLayout>
+
+<style>
+  .jxl-shell{width:min(1180px,calc(100% - 2rem));margin:0 auto;padding:3rem 0 5rem}.jxl-hero{display:flex;justify-content:space-between;align-items:end;gap:2rem;margin-bottom:1.5rem}.jxl-hero h1{font-size:clamp(2.3rem,6vw,4.8rem);line-height:.98;max-width:18ch;margin:.25rem 0 1rem}.lede{font-size:1.15rem;max-width:55rem}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:#6f43c0}.jxl-hero aside,.jxl-card{border:1px solid var(--border-color,#cad3d8);border-radius:1rem;background:var(--surface,#fff)}.jxl-hero aside{display:grid;gap:.3rem;max-width:19rem;padding:1rem}.jxl-card{padding:1.1rem}.quick{border-left:6px solid #6f43c0;margin-bottom:2rem}.workbench{margin:2rem 0}.workbench-heading{display:flex;align-items:end;justify-content:space-between;gap:1rem}.workbench-heading h2{margin:.2rem 0;font-size:clamp(1.7rem,4vw,2.7rem)}#jxl-status{padding:.7rem 1rem;border-left:4px solid #6f43c0;background:color-mix(in srgb,#6f43c0 8%,transparent);max-width:30rem}.jxl-grid{display:grid;grid-template-columns:minmax(15rem,21rem) minmax(0,1fr);gap:1rem;align-items:start}.controls{display:grid;gap:.75rem;position:sticky;top:1rem}.controls label{display:grid;gap:.35rem;font-weight:650}.controls button,.controls input{font:inherit;padding:.65rem;border:1px solid var(--border-color,#aab7be);border-radius:.55rem;background:var(--surface,#fff);color:inherit}.controls button:not(:disabled){cursor:pointer}.controls :focus-visible{outline:3px solid #8a5bd2;outline-offset:2px}.note{font-size:.82rem;line-height:1.5}.results{display:grid;gap:1rem}.preview canvas{display:block;width:100%;height:auto;max-height:34rem;object-fit:contain;background:repeating-conic-gradient(#e8ecee 0 25%,#f7f8f8 0 50%) 50%/20px 20px}#jxl-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}#jxl-summary div{padding:.65rem;background:color-mix(in srgb,#6f43c0 7%,transparent);border-radius:.5rem}#jxl-summary dt{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}#jxl-summary dd{margin:.2rem 0 0;font-weight:700;overflow-wrap:anywhere}.jxl-card pre{overflow:auto;max-height:30rem;font-size:.78rem}.copy{margin:1rem 0}.copy li{margin:.45rem 0}@media(max-width:800px){.jxl-hero,.workbench-heading{align-items:start;flex-direction:column}.jxl-grid{grid-template-columns:1fr}.controls{position:static}}@media(max-width:520px){.jxl-shell{width:calc(100% - 1rem);padding-top:1rem}#jxl-summary{grid-template-columns:1fr}}
+</style>
+

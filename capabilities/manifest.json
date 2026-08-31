@@ -3630,10 +3630,7 @@
         "status": "independent-oracle",
         "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
         "tolerance": "Common static VarDCT fixtures stay within one sample with RMSE below 0.5; JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
-        "evidence": [
-          "tests/jpegxl-corpus.test.ts",
-          "tests/jpegxl-jpeg-reconstruction.test.ts"
-        ]
+        "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "evidence": [
         "tests/jpegxl.test.ts",
@@ -3641,6 +3638,7 @@
         "tests/jpegxl-corpus.test.ts",
         "tests/jpegxl-jpeg-reconstruction.test.ts",
         "browser-tests/compatibility.pw.ts",
+        "browser-tests/jpegxl-workbench.pw.ts",
         "tests/library.test.ts"
       ],
       "document": [

@@ -12,6 +12,8 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - API reference: https://purejsimage.com/api/
 - Ultra HDR JPEG workbench: https://purejsimage.com/hdr-surgery/
 - HDR Surgery developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/hdr-surgery.md
+- JPEG XL workbench: https://purejsimage.com/jpeg-xl/
+- JPEG XL developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/jpeg-xl.md
 - Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Scientific Raster Explorer: https://purejsimage.com/scientific/
 - Scientific reader benchmarks: https://purejsimage.com/scientific/benchmarks/
@@ -56,6 +58,8 @@ npm install purejsimage
 The package is ESM and includes TypeScript declarations.
 
 Use `purejsimage/hdr` for explicit Ultra HDR JPEG and ISO 21496-1 gain-map work. `inspectGainMapImage()` inspects JPEG metadata and child ranges without decoding pixels. `openGainMapImage()` renders a selected display boost, transforms both images together, writes compound JPEG with `.jpeg()`, and writes the constrained gain-map AVIF subset with `.avif()`. `extractOriginalBase()` and `extractOriginalGainMap()` return the exact source children.
+
+Use `purejsimage/jpegxl` for explicit JPEG XL inspection and JPEG reconstruction work. `transcodeJpegToJpegXl()` transfers eligible JPEG coefficients without RGB and verifies byte-exact reconstruction. `reconstructJpegFromJpegXl()` returns the original JPEG for the checked reconstruction subset.
 
 Node.js 22+:
 

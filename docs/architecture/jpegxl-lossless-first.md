@@ -476,8 +476,9 @@ and sequential-output gates remain open.
 - [x] Add JPEG XL evidence scopes and off/summary/trace parity tests.
 - [ ] Add `npm run bench:jpegxl` with correctness-gated isolated RSS workloads.
 - [ ] Run the JPEG XL benchmark hillclimb and log every retained or rejected attempt.
-- [ ] Add the local-only `/jpeg-xl/` worker workbench and real-browser coverage.
-- [ ] Add the public guide, API docs, generated capability surfaces, discovery surfaces, and changelog.
+- [x] Add the local-only `/jpeg-xl/` worker workbench and real-browser coverage.
+- [x] Add the public guide, API docs, generated capability surfaces, and discovery surfaces;
+  the changelog remains pending until final validation.
 - [ ] Add independent package size gates for ordinary and specialized entries.
 
 ### Final gates

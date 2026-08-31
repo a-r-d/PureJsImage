@@ -20,6 +20,15 @@ const scriptEntries: Readonly<Record<string, string>> = {
   '/assets/geo-showcase-worker.js': 'docs-astro/src/scripts/geo-showcase-worker.ts',
   '/assets/hdr-surgery.js': 'docs-astro/src/scripts/hdr-surgery.ts',
   '/assets/hdr-surgery-worker.js': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+  '/assets/jpegxl-workbench.js': 'docs-astro/src/scripts/jpegxl-workbench.ts',
+  '/assets/jpegxl-workbench-worker.js': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
+}
+
+const jpegXlDemoAssets: Readonly<Record<string, string>> = {
+  '/demo-data/jpegxl-progressive-yuv420.jpg':
+    'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
+  '/demo-data/jpegxl-progressive-yuv420.jxl':
+    'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl',
 }
 
 const binaryAssets: Readonly<Record<string, string>> = {
@@ -97,6 +106,14 @@ export const loadDocsDevAsset = async (pathname: string): Promise<DocsDevAsset |
   if (featureTourAsset !== undefined) return featureTourAsset
   const geoFixtureAsset = await loadGeoFixtureAsset(pathname)
   if (geoFixtureAsset !== undefined) return geoFixtureAsset
+
+  const jpegXlDemoAsset = jpegXlDemoAssets[pathname]
+  if (jpegXlDemoAsset !== undefined) {
+    return {
+      body: await readFile(resolve(repositoryRoot, jpegXlDemoAsset)),
+      contentType: pathname.endsWith('.jpg') ? 'image/jpeg' : 'image/jxl',
+    }
+  }
 
   const scriptEntry = scriptEntries[pathname]
   if (scriptEntry !== undefined) {

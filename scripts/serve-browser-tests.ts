@@ -7,11 +7,11 @@ import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
 import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
-import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
-import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createImageLibrary } from '../src/index.ts'
+import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
+import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 
 const outputDirectory = resolve('benchmark/.tmp/browser-tests')
 const fixtureDirectory = resolve(outputDirectory, 'fixtures')
@@ -23,6 +23,16 @@ const hdrSampleNames = [
   'hdr-surgery-synthetic-rgb-progressive.jpg',
   'hdr-surgery-synthetic-odd-scale.jpg',
   'hdr-surgery-synthetic-12mp.jpg',
+] as const
+const jpegXlSamples = [
+  {
+    source: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
+    name: 'jpegxl-progressive-yuv420.jpg',
+  },
+  {
+    source: 'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl',
+    name: 'jpegxl-progressive-yuv420.jxl',
+  },
 ] as const
 
 const benchmarkEntries = {
@@ -340,6 +350,8 @@ await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+    'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
+    'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
@@ -426,6 +438,9 @@ for (const name of hdrSampleNames) {
     resolve('benchmark/corpus/files', name),
     resolve(outputDirectory, 'demo-data', name),
   )
+}
+for (const sample of jpegXlSamples) {
+  await copyFile(sample.source, resolve(outputDirectory, 'demo-data', sample.name))
 }
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
