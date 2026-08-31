@@ -819,17 +819,19 @@ const jpegXlLossless = async (): Promise<BrowserWorkflowResult> => {
   if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
   const cropped: number[] = []
   for await (const block of decoder.decode({ x: 2, y: 1, width: 3, height: 2 })) {
+    if (block.format !== 'rgb8') {
+      throw new Error(`Browser JPEG XL native output was ${block.format}, not rgb8`)
+    }
     cropped.push(...block.data)
   }
-  const expected = [
-    43, 43, 65, 255, 60, 50, 96, 255, 77, 57, 127, 255, 52, 72, 68, 255, 69, 79, 99, 255, 86, 86,
-    130, 255,
-  ]
+  const expected = [43, 43, 65, 60, 50, 96, 77, 57, 127, 52, 72, 68, 69, 79, 99, 86, 86, 130]
   if (
     cropped.length !== expected.length ||
     cropped.some((value, index) => value !== expected[index])
   ) {
-    throw new Error('Browser JPEG XL crop did not match the djxl pixel oracle')
+    throw new Error(
+      `Browser JPEG XL crop did not match the djxl pixel oracle: ${cropped.join(',')}`,
+    )
   }
 
   const output = await image.crop({ x: 2, y: 1, width: 3, height: 2 }).png().toUint8Array()
