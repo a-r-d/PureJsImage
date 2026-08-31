@@ -1,0 +1,60 @@
+tests/brotli.test.ts
+  s_6006332bb8a489::t_dba7ff4c6d8f45 1-2,4-41,63-68
+  s_6006332bb8a489::t_cc67f128ed8077 3,42-62
+src/codecs/jpegxl-jpeg-reconstruct.ts
+  s_6006332bb8a489::t_4b164b3e7b1278 1-20,24-26,28-71,73-188,190-194,200-244,249-250,252-267,269-391,405-412,417-421,423-465,469-527,530-588,591-649
+  s_6006332bb8a489::t_07c77a4548ad84 251,268,392-404
+  s_6006332bb8a489::t_07e7850a4635ee 21-23,27,72,189,195-199,245-248,413-416,422,466-468,528-529,589-590
+src/codecs/jpegxl-limits.ts
+  s_6006332bb8a489::t_4b164b3e7b1278 13,28,75-77
+  s_2ec244cc8606c0::t_3aecb7c98b16a1 78
+README.md
+  s_6006332bb8a489::t_54a16a3529973f 403,407
+  s_6006332bb8a489::t_a09f0acc769a08 90,96
+docs-astro/src/data/package-metrics.json
+  s_6006332bb8a489::t_54a16a3529973f 179,1381,1384,1387,1488,1491,1494,1533,1536,1539
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_be00e6165aaf6b 421-425
+docs-astro/src/data/documentation-data.json
+  s_6006332bb8a489::t_a09f0acc769a08 109-111,129
+tests/jpegxl-jpeg-reconstruction.test.ts
+  s_6006332bb8a489::t_9f688271e9dd59 189,191-203,212-225,227-232,234-238
+  s_6006332bb8a489::t_74cd266274f90d 129,133-134,152-154
+  s_6006332bb8a489::t_66aee22267c0f2 8-12,92-95,113-119,121-128,130-131
+  s_6006332bb8a489::t_f81a8271b9f351 204-211,226,233
+  s_6006332bb8a489::t_4b164b3e7b1278 6-7,16,155-188
+  s_6006332bb8a489::t_03f6fb5ef287ec 96-112,120
+  s_6006332bb8a489::t_14f385cb8ea134 132,135-151
+  s_6006332bb8a489::t_acce38c880ebb5 190
+src/codecs/brotli.ts
+  s_6006332bb8a489::t_dba7ff4c6d8f45 1-190
+benchmark/generated/package-metrics.json
+  s_6006332bb8a489::t_54a16a3529973f 179,1381,1384,1387,1488,1491,1494,1533,1536,1539
+src/codecs/jpegxl-jpeg-reconstruction.ts
+  s_6006332bb8a489::t_03f6fb5ef287ec 469-472,491
+  s_6006332bb8a489::t_66aee22267c0f2 2,66-73,413-468,473-490,492
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "95a4dd224f048238a03dd0ce0aee535f3da36197",
+  "prompts": {},
+  "sessions": {
+    "s_2ec244cc8606c0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a048bd-ab38-7a82-b1d9-eb0f59af00f9",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
