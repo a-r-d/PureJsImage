@@ -79,6 +79,12 @@ jobs:
       - name: Verify pinned official conformance inputs
         run: npm run fixtures:jpegxl:prepare
 
+      - name: Prepare pinned JPEG reconstruction inputs
+        run: >-
+          npm run fixtures:prepare --
+          tundra-4000x3000
+          tundra-4000x3000-progressive
+
       - name: Run focused JPEG XL and neighboring JPEG tests
         run: >-
           npx vitest run
