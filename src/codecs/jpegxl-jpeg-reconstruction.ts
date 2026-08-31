@@ -1,4 +1,5 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
+import { decodeUncompressedBrotli } from './brotli.ts'
 import { JpegXlBitReader } from './jpegxl-bitstream.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 
@@ -60,6 +61,14 @@ export interface JpegXlJpegReconstructionHeader {
   readonly paddingBits: readonly number[]
   readonly compressedDataOffset: number
   readonly compressedDataBytes: number
+}
+
+export interface JpegXlJpegReconstructionBlobs {
+  readonly unknownAppMarkers: readonly Uint8Array[]
+  readonly comments: readonly Uint8Array[]
+  readonly interMarkerData: readonly Uint8Array[]
+  readonly tail: Uint8Array
+  readonly decodedBytes: number
 }
 
 type U32Distribution =
@@ -399,5 +408,85 @@ export const parseJpegXlJpegReconstructionHeader = (
     paddingBits,
     compressedDataOffset,
     compressedDataBytes: payload.byteLength - compressedDataOffset,
+  })
+}
+
+const checkedTotal = (values: readonly number[], limit: number): number => {
+  let total = 0
+  for (const value of values) {
+    if (!Number.isSafeInteger(value) || value < 0 || total > limit - value) {
+      throw limitExceeded(
+        `JPEG XL reconstruction opaque data exceeds the ${limit}-byte metadata limit`,
+      )
+    }
+    total += value
+  }
+  return total
+}
+
+const takeBlobs = (
+  decoded: Uint8Array,
+  lengths: readonly number[],
+  offset: number,
+): { readonly blobs: readonly Uint8Array[]; readonly offset: number } => {
+  const blobs: Uint8Array[] = []
+  let next = offset
+  for (const length of lengths) {
+    const end = next + length
+    if (!Number.isSafeInteger(end) || end > decoded.byteLength) {
+      throw invalidInput('JPEG XL reconstruction opaque data is truncated')
+    }
+    blobs.push(decoded.slice(next, end))
+    next = end
+  }
+  return Object.freeze({ blobs: Object.freeze(blobs), offset: next })
+}
+
+export const decodeJpegXlJpegReconstructionBlobs = (
+  payload: Uint8Array,
+  header: JpegXlJpegReconstructionHeader,
+  limits: JpegXlLimits,
+): JpegXlJpegReconstructionBlobs => {
+  if (
+    header.compressedDataOffset < 0 ||
+    header.compressedDataBytes < 0 ||
+    header.compressedDataOffset + header.compressedDataBytes !== payload.byteLength
+  ) {
+    throw invalidInput('JPEG XL reconstruction compressed-data extent is invalid')
+  }
+  const unknownAppLengths = header.appMarkers
+    .filter(({ type }) => type === 'unknown')
+    .map(({ byteLength }) => byteLength)
+  const expectedBytes = checkedTotal(
+    [
+      ...unknownAppLengths,
+      ...header.commentByteLengths,
+      ...header.interMarkerByteLengths,
+      header.tailByteLength,
+    ],
+    limits.maxMetadataBytes,
+  )
+  const decoded = decodeUncompressedBrotli(payload.subarray(header.compressedDataOffset), {
+    maxOutputBytes: expectedBytes,
+    maxMetadataBytes: limits.maxMetadataBytes,
+  })
+  if (decoded.byteLength !== expectedBytes) {
+    throw invalidInput(
+      `JPEG XL reconstruction opaque data has ${decoded.byteLength} bytes; expected ${expectedBytes}`,
+    )
+  }
+  const apps = takeBlobs(decoded, unknownAppLengths, 0)
+  const comments = takeBlobs(decoded, header.commentByteLengths, apps.offset)
+  const interMarker = takeBlobs(decoded, header.interMarkerByteLengths, comments.offset)
+  const tailEnd = interMarker.offset + header.tailByteLength
+  if (tailEnd !== decoded.byteLength) {
+    throw invalidInput('JPEG XL reconstruction opaque data length is inconsistent')
+  }
+  return Object.freeze({
+    unknownAppMarkers: apps.blobs,
+    comments: comments.blobs,
+    interMarkerData: interMarker.blobs,
+    tail: decoded.slice(interMarker.offset, tailEnd),
+    decodedBytes: decoded.byteLength,
   })
 }

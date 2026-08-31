@@ -418,9 +418,11 @@ boundaries.
 ### Exact JPEG reconstruction and transcode
 
 Progress note: the bounded `jbrd` structural header, marker order, table descriptors, scan script,
-padding metadata, and direct Exif or XMP size references are parsed and validated. Coefficient
-validation, Brotli-backed opaque marker payloads, and exact JPEG output remain incomplete, so the
-acceptance item stays unchecked.
+padding metadata, and direct Exif or XMP size references are parsed and validated. A bounded
+first-party Brotli subset decodes the uncompressed opaque marker payload in the pinned libjxl file.
+The coefficient-domain writer recreates that JPEG byte for byte when given its independently parsed
+source coefficients. JPEG XL VarDCT coefficient extraction and general Brotli-compressed marker
+payloads remain incomplete, so the reconstruction acceptance items stay unchecked.
 
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.

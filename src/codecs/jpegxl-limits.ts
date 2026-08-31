@@ -10,6 +10,7 @@ export interface JpegXlLimits {
   readonly maxJpegScans: number
   readonly maxJpegHuffmanTables: number
   readonly maxJpegPaddingBits: number
+  readonly maxReconstructedJpegBytes: number
 }
 
 export type JpegXlLimitOptions = Partial<JpegXlLimits>
@@ -24,6 +25,7 @@ export const defaultJpegXlLimits: Readonly<JpegXlLimits> = Object.freeze({
   maxJpegScans: 4_096,
   maxJpegHuffmanTables: 512,
   maxJpegPaddingBits: 16_777_216,
+  maxReconstructedJpegBytes: 268_435_456,
 })
 
 const positiveSafeInteger = (name: keyof JpegXlLimits, value: number): number => {
@@ -69,5 +71,9 @@ export const resolveJpegXlLimits = (
     maxJpegPaddingBits: positiveSafeInteger(
       'maxJpegPaddingBits',
       options.maxJpegPaddingBits ?? defaultJpegXlLimits.maxJpegPaddingBits,
+    ),
+    maxReconstructedJpegBytes: positiveSafeInteger(
+      'maxReconstructedJpegBytes',
+      options.maxReconstructedJpegBytes ?? defaultJpegXlLimits.maxReconstructedJpegBytes,
     ),
   })
