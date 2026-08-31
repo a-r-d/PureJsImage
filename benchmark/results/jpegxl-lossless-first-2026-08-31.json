@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-31T22:29:14.507Z",
+  "revision": "4e630c6c9ff9bf1044922f3f2d56de8be3869001",
+  "node": "v24.16.0",
+  "platform": "linux/x64",
+  "runsPerWorkload": 3,
+  "validation": {
+    "passed": true,
+    "policy": "Every encode run decoded to exact native pixels; every transcode run reconstructed the exact source JPEG bytes.",
+    "independentOracle": {
+      "available": true,
+      "decoder": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl and djxl 0.12.0",
+      "exactPixels": true,
+      "pureJsBytes": 156693,
+      "libjxlBytes": 181608,
+      "sizeGapBytes": -24915,
+      "sizeRatio": 0.8628089070966036
+    }
+  },
+  "summaries": [
+    {
+      "workload": "encode-rgb8",
+      "validation": "exact-pixels",
+      "inputBytes": 589824,
+      "inputSha256": "1575ebbb694664b6b163566456f64dc7f564cb4fb9a42ab445936ba021201c41",
+      "outputBytes": 156693,
+      "outputSha256": "100ee3ff3fbc587404532d6a4b64ec1e8ca9c227945fd3f4c923c355fc368fb3",
+      "medianWallMilliseconds": 143.783,
+      "medianMaximumRssBytes": 120057856,
+      "medianPeakRssDeltaBytes": 12689408,
+      "medianExternalDeltaBytes": 5357499,
+      "medianArrayBufferDeltaBytes": 5296953
+    },
+    {
+      "workload": "transcode-progressive-yuv420",
+      "validation": "exact-jpeg-bytes",
+      "inputBytes": 1006,
+      "inputSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+      "outputBytes": 1896,
+      "outputSha256": "d5150a3c5288fe517b5f69e2924f6404ec46d6f9c75c7b6d7048f130138f68d4",
+      "medianWallMilliseconds": 92.537,
+      "medianMaximumRssBytes": 122884096,
+      "medianPeakRssDeltaBytes": 16838656,
+      "medianExternalDeltaBytes": 5397781,
+      "medianArrayBufferDeltaBytes": 5337235
+    }
+  ],
+  "hillclimb": {
+    "status": "complete",
+    "baseRevision": "e68cfafc3773b913899330ebf12956b617c72264",
+    "workload": "512x384 deterministic RGB8 effort-1 Modular encode and exact decode",
+    "baseline": {
+      "medianWallMilliseconds": 196.939,
+      "outputBytes": 156693,
+      "outputSha256": "100ee3ff3fbc587404532d6a4b64ec1e8ca9c227945fd3f4c923c355fc368fb3"
+    },
+    "attempts": [
+      {
+        "id": "residual-token-scalars",
+        "hypothesis": "Replacing one frozen hybrid-token object per residual with scalar token math will reduce allocation and dispatch cost.",
+        "outcome": "retained",
+        "medianWallMilliseconds": 168.306,
+        "changeFromPriorPercent": -14.539,
+        "outputBytes": 156693,
+        "correctness": "PureJsImage exact pixels and pinned djxl 0.12.0 exact pixels"
+      },
+      {
+        "id": "duplicate-residual-traversals",
+        "hypothesis": "Duplicating frequency and write traversals to remove the residual callback will make the hot loop more JIT friendly.",
+        "outcome": "rejected",
+        "medianWallMilliseconds": 434.083,
+        "changeFromPriorPercent": 157.913,
+        "outputBytes": 156693,
+        "correctness": "Exact output retained, but wall time regressed materially"
+      },
+      {
+        "id": "byte-chunked-bit-writer",
+        "hypothesis": "Writing at most one partial byte per iteration instead of one bit per iteration will reduce output-loop work.",
+        "outcome": "retained",
+        "medianWallMilliseconds": 146.153,
+        "changeFromPriorPercent": -13.162,
+        "cumulativeChangeFromBaselinePercent": -25.788,
+        "outputBytes": 156693,
+        "correctness": "PureJsImage exact pixels and pinned djxl 0.12.0 exact pixels"
+      }
+    ]
+  }
+}
