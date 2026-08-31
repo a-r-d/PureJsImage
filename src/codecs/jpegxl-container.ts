@@ -240,6 +240,9 @@ const inspectContainer = async (
 
   const metadataTypes = new Set(['Exif', 'xml ', 'jumb', 'jbrd', 'brob'])
   const metadataBoxes = boxes.filter(({ type }) => metadataTypes.has(type)).map(summary)
+  if (metadataBoxes.filter(({ type }) => type === 'jbrd').length > 1) {
+    throw invalidInput('JPEG XL container repeats the jbrd box')
+  }
   const metadataBytes = metadataBoxes.reduce((sum, box) => sum + box.payloadBytes, 0)
   if (!Number.isSafeInteger(metadataBytes)) throw invalidInput('JPEG XL metadata size overflows')
   if (metadataBytes > limits.maxMetadataBytes) {

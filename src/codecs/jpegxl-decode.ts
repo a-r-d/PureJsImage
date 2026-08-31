@@ -180,6 +180,7 @@ interface JpegXlHeader {
   readonly channelCount: JpegXlChannelCount
   readonly metadataColorSpace: JpegXlColorEncoding['metadataColorSpace']
   readonly orientation: number
+  readonly encoding: 'modular' | 'vardct'
   readonly groupDimension: number
   readonly groupsAcross: number
   readonly groupsDown: number
@@ -245,6 +246,7 @@ const readHeader = (
   codestream: Uint8Array,
   codestreamBytes: number,
   limits: ImageLimits,
+  allowVarDct = false,
 ): JpegXlHeader => {
   if (codestream[0] !== 0xff || codestream[1] !== 0x0a) {
     throw invalidInput('JPEG XL codestream signature is missing')
@@ -293,7 +295,28 @@ const readHeader = (
 
   requireValue(reader.readBits(1) !== 0, false, 'default VarDCT frame header')
   requireValue(readU32(reader, [value(0), value(1), value(2), value(3)]), 0, 'non-regular frames')
-  requireValue(reader.readBits(1) !== 0, true, 'VarDCT frames')
+  const encoding = reader.readBits(1) !== 0 ? 'modular' : 'vardct'
+  if (encoding === 'vardct' && !allowVarDct) {
+    throw unsupportedOperation('JPEG XL VarDCT frames are outside the implemented decode subset')
+  }
+  if (encoding === 'vardct') {
+    return Object.freeze({
+      width,
+      height,
+      bitDepth,
+      alphaBitDepth,
+      colorChannels: colorEncoding.colorChannels,
+      channelCount,
+      metadataColorSpace: colorEncoding.metadataColorSpace,
+      orientation: 1,
+      encoding,
+      groupDimension: 256,
+      groupsAcross: Math.ceil(width / 256),
+      groupsDown: Math.ceil(height / 256),
+      dcGroupCount: Math.ceil(width / 2_048) * Math.ceil(height / 2_048),
+      sections: Object.freeze([]),
+    })
+  }
   requireValue(readU64(reader), 0, 'frame flags')
   requireValue(reader.readBits(1) !== 0, false, 'YCbCr color transform')
   requireValue(readU32(reader, [value(1), value(2), value(4), value(8)]), 1, 'color upsampling')
@@ -329,13 +352,15 @@ const readHeader = (
   const groupCount = groupsAcross * groupsDown
   const dcGroupDimension = groupDimension * 8
   const dcGroupCount = Math.ceil(width / dcGroupDimension) * Math.ceil(height / dcGroupDimension)
-  const workingWidth = groupCount === 1 ? width : Math.min(width, groupDimension)
-  const workingHeight = groupCount === 1 ? height : Math.min(height, groupDimension)
-  const planeBytes = BigInt(workingWidth) * BigInt(workingHeight) * BigInt(channelCount) * 4n
-  if (planeBytes > BigInt(limits.maxDecodedBytes)) {
-    throw limitExceeded(
-      `JPEG XL Modular working planes require ${planeBytes} bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,
-    )
+  if (encoding === 'modular') {
+    const workingWidth = groupCount === 1 ? width : Math.min(width, groupDimension)
+    const workingHeight = groupCount === 1 ? height : Math.min(height, groupDimension)
+    const planeBytes = BigInt(workingWidth) * BigInt(workingHeight) * BigInt(channelCount) * 4n
+    if (planeBytes > BigInt(limits.maxDecodedBytes)) {
+      throw limitExceeded(
+        `JPEG XL Modular working planes require ${planeBytes} bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,
+      )
+    }
   }
   const sectionCount = groupCount === 1 ? 1 : 2 + dcGroupCount + groupCount
   if (sectionCount > 65_536) throw limitExceeded('JPEG XL frame has too many sections')
@@ -377,6 +402,7 @@ const readHeader = (
     channelCount,
     metadataColorSpace: colorEncoding.metadataColorSpace,
     orientation: 1,
+    encoding,
     groupDimension,
     groupsAcross,
     groupsDown,
@@ -2176,6 +2202,7 @@ const readHeaderFromSource = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
+  allowVarDct = false,
 ): Promise<JpegXlHeader> => {
   if (!Number.isSafeInteger(maximumHeaderBytes) || maximumHeaderBytes < 1) {
     throw invalidInput('JPEG XL maximum header bytes is invalid')
@@ -2186,7 +2213,7 @@ const readHeaderFromSource = async (
     throwIfAborted(options.signal)
     const header = await readExactly(source, 0, headerBytes, options)
     try {
-      return readHeader(header, source.size, limits)
+      return readHeader(header, source.size, limits, allowVarDct)
     } catch (error) {
       if (!(error instanceof ImageError) || error.code !== 'TRUNCATED_INPUT') throw error
       if (headerBytes >= headerLimit) {
@@ -2209,6 +2236,21 @@ export const readJpegXlSourceMetadata = async (
   maximumHeaderBytes = 4_194_304,
 ): Promise<ImageMetadata> =>
   metadataForHeader(await readHeaderFromSource(source, limits, options, maximumHeaderBytes))
+
+export interface JpegXlInspectionMetadata {
+  readonly metadata: ImageMetadata
+  readonly encoding: 'modular' | 'vardct'
+}
+
+export const readJpegXlSourceInspectionMetadata = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+  maximumHeaderBytes = 4_194_304,
+): Promise<JpegXlInspectionMetadata> => {
+  const header = await readHeaderFromSource(source, limits, options, maximumHeaderBytes, true)
+  return Object.freeze({ metadata: metadataForHeader(header), encoding: header.encoding })
+}
 
 export const decodeJpegXlSource = async (
   source: ImageSource,

@@ -1,15 +1,17 @@
 import type { AbortOptions } from '../abort.ts'
 import type { ImageMetadata } from '../codec.ts'
+import { invalidInput } from '../errors.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
-import { createImageSource, type ImageInput } from '../source.ts'
+import { createImageSource, type ImageInput, readExactly } from '../source.ts'
 import {
   inspectJpegXlSource,
   JpegXlCodestreamSource,
   type JpegXlBoxSummary,
   type JpegXlCodestreamSegment,
 } from './jpegxl-container.ts'
-import { readJpegXlSourceMetadata } from './jpegxl-decode.ts'
+import { readJpegXlSourceInspectionMetadata } from './jpegxl-decode.ts'
+import { parseJpegXlJpegReconstructionHeader } from './jpegxl-jpeg-reconstruction.ts'
 import type { JpegXlLimitOptions } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 
@@ -43,14 +45,14 @@ export interface JpegXlInspection {
   readonly alpha: 'none' | 'straight'
   readonly encodedColor: string
   readonly icc: Readonly<{ readonly present: boolean; readonly decodedBytes: undefined }>
-  readonly encoding: 'modular'
+  readonly encoding: 'modular' | 'vardct'
   readonly imageKind: 'static'
   readonly preview: false
   readonly frameCount: 1
   readonly level: 5 | 10 | undefined
   readonly progressivePasses: 1
-  readonly jpegReconstruction: 'unavailable' | 'present-unvalidated'
-  readonly exactReconstructionEligibility: 'unavailable' | 'requires-validation'
+  readonly jpegReconstruction: 'unavailable' | 'metadata-valid'
+  readonly exactReconstructionEligibility: 'unavailable' | 'requires-coefficient-validation'
   readonly expectedPixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
   readonly resourceEstimates: JpegXlResourceEstimates
   readonly unsupportedFeatures: readonly string[]
@@ -72,18 +74,46 @@ export const inspectJpegXl = async (
   const source = await createImageSource(input, imageLimits, options)
   const structure = await inspectJpegXlSource(source, jpegXlLimits, options)
   const logical = new JpegXlCodestreamSource(source, structure)
-  const metadata = await readJpegXlSourceMetadata(
+  const header = await readJpegXlSourceInspectionMetadata(
     logical,
     imageLimits,
     options,
     jpegXlLimits.maxHeaderBytes,
   )
+  const metadata = header.metadata
   const colorChannels = metadata.colorSpace?.includes('gray') ? 1 : 3
   const channels = metadata.channels ?? colorChannels
   const metadataBytes = structure.metadataBoxes.reduce((sum, box) => sum + box.payloadBytes, 0)
   const bytesPerSample = (metadata.bitDepth ?? 8) > 8 ? 2 : 1
   const nativeSampleBytes = metadata.width * metadata.height * channels * bytesPerSample
-  const reconstructionPresent = structure.metadataBoxes.some(({ type }) => type === 'jbrd')
+  const reconstructionBox = structure.metadataBoxes.find(({ type }) => type === 'jbrd')
+  if (reconstructionBox) {
+    const contentStart =
+      reconstructionBox.offset + reconstructionBox.length - reconstructionBox.payloadBytes
+    const payload = await readExactly(source, contentStart, reconstructionBox.payloadBytes, options)
+    const reconstruction = parseJpegXlJpegReconstructionHeader(payload, jpegXlLimits)
+    const exifMarkers = reconstruction.appMarkers.filter(({ type }) => type === 'exif')
+    const xmpMarkers = reconstruction.appMarkers.filter(({ type }) => type === 'xmp')
+    if (exifMarkers.length > 1 || xmpMarkers.length > 1) {
+      throw invalidInput('JPEG XL reconstruction metadata repeats Exif or XMP references')
+    }
+    const exifBox = structure.metadataBoxes.find(({ type }) => type === 'Exif')
+    const xmpBox = structure.metadataBoxes.find(({ type }) => type === 'xml ')
+    const exifMarker = exifMarkers[0]
+    const xmpMarker = xmpMarkers[0]
+    if ((exifMarker === undefined) !== (exifBox === undefined)) {
+      throw invalidInput('JPEG XL reconstruction Exif reference does not match the container')
+    }
+    if (exifMarker && exifBox && exifBox.payloadBytes !== exifMarker.byteLength - 5) {
+      throw invalidInput('JPEG XL reconstruction Exif size does not match the container')
+    }
+    if ((xmpMarker === undefined) !== (xmpBox === undefined)) {
+      throw invalidInput('JPEG XL reconstruction XMP reference does not match the container')
+    }
+    if (xmpMarker && xmpBox && xmpBox.payloadBytes !== xmpMarker.byteLength - 32) {
+      throw invalidInput('JPEG XL reconstruction XMP size does not match the container')
+    }
+  }
   return Object.freeze({
     kind: structure.kind,
     organization: structure.organization,
@@ -107,14 +137,16 @@ export const inspectJpegXl = async (
       present: metadata.colorProfile?.kind === 'icc',
       decodedBytes: undefined,
     }),
-    encoding: 'modular',
+    encoding: header.encoding,
     imageKind: 'static',
     preview: false,
     frameCount: 1,
     level: structure.level,
     progressivePasses: 1,
-    jpegReconstruction: reconstructionPresent ? 'present-unvalidated' : 'unavailable',
-    exactReconstructionEligibility: reconstructionPresent ? 'requires-validation' : 'unavailable',
+    jpegReconstruction: reconstructionBox ? 'metadata-valid' : 'unavailable',
+    exactReconstructionEligibility: reconstructionBox
+      ? 'requires-coefficient-validation'
+      : 'unavailable',
     expectedPixelFormat: expectedPixelFormat(metadata),
     resourceEstimates: Object.freeze({
       codestreamBytes: structure.codestreamBytes,
@@ -122,7 +154,7 @@ export const inspectJpegXl = async (
       nativeSampleBytes,
     }),
     unsupportedFeatures: Object.freeze([
-      'VarDCT',
+      ...(header.encoding === 'vardct' ? ['VarDCT pixel decode'] : []),
       'animation',
       'preview decode',
       'Level 10 pixel decode',
