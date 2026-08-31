@@ -6,8 +6,15 @@ import {
   type GainMapTransformOperation,
   type OpenedGainMapImage,
 } from '../../../src/hdr/index.ts'
+import { materializeOpenedGainMapImageForInternalUse } from '../../../src/hdr/open.ts'
+import { renderTransformedGainMapRasters } from '../../../src/hdr/transform.ts'
 import { MemorySource } from '../../../src/source.ts'
-import { isHdrSurgeryRequest, type HdrSurgeryResponse } from './hdr-surgery-types.ts'
+import {
+  isHdrSurgeryRequest,
+  planHdrSurgeryPreview,
+  type HdrSurgeryDimensions,
+  type HdrSurgeryResponse,
+} from './hdr-surgery-types.ts'
 
 interface StoredImage {
   readonly name: string
@@ -16,6 +23,10 @@ interface StoredImage {
 
 interface RenderedImage {
   readonly inspection: GainMapImageInspection
+  readonly logicalDimensions: HdrSurgeryDimensions
+  readonly previewDimensions: HdrSurgeryDimensions
+  readonly previewGainMapDimensions: HdrSurgeryDimensions
+  readonly previewScaled: boolean
   readonly basePreviewRgba: Uint8ClampedArray
   readonly gainPreviewRgba: Uint8ClampedArray
   readonly linearRgb: Float32Array
@@ -73,7 +84,7 @@ const renderStored = async (
   operations: readonly GainMapTransformOperation[],
   signal: AbortSignal,
 ): Promise<RenderedImage> => {
-  if (!stored) throw new Error('Open an HDR JPEG before rendering')
+  if (!stored) throw new Error('Open a gain-map JPEG or AVIF before rendering')
   const session = createEvidenceSession({
     mode: 'summary',
     limits: { maxEvents: 256, maxSerializedBytes: 256 * 1024, maxSourceRanges: 128 },
@@ -86,13 +97,20 @@ const renderStored = async (
   const image = transformedImage(opened, operations)
   try {
     const inspection = image.inspection()
-    const pixels =
-      inspection.metadata.baseDimensions.width * inspection.metadata.baseDimensions.height
-    if (pixels > 4_194_304) {
-      throw new Error('Browser preview is limited to 4,194,304 pixels; crop or resize first')
-    }
+    const previewPlan = planHdrSurgeryPreview(inspection.metadata.baseDimensions)
+    const previewImage = previewPlan.scaled
+      ? image.resize({ ...previewPlan.previewDimensions, kernel: 'bilinear' })
+      : image
+    const rasters = await materializeOpenedGainMapImageForInternalUse(previewImage, { signal })
+    const pixels = rasters.base.width * rasters.base.height
     const linearRgb = new Float32Array(pixels * 3)
-    for await (const block of image.render({ displayBoost, signal })) {
+    for await (const block of renderTransformedGainMapRasters(
+      rasters,
+      displayBoost,
+      256 * 1024 * 1024,
+      signal,
+      session.context,
+    )) {
       try {
         if (block.pixelFormat === 'rgbf32') {
           linearRgb.set(block.data, block.y * block.width * 3)
@@ -128,11 +146,17 @@ const renderStored = async (
       falseColorRgba[targetOffset + 2] = falseBlue
       falseColorRgba[targetOffset + 3] = 255
     }
-    const components = await image.previewTransformedComponents({ signal })
     return {
       inspection,
-      basePreviewRgba: componentRgba(components.base.data, components.base.channels),
-      gainPreviewRgba: componentRgba(components.gainMap.data, components.gainMap.channels),
+      logicalDimensions: previewPlan.logicalDimensions,
+      previewDimensions: previewPlan.previewDimensions,
+      previewGainMapDimensions: Object.freeze({
+        width: rasters.gainMap.width,
+        height: rasters.gainMap.height,
+      }),
+      previewScaled: previewPlan.scaled,
+      basePreviewRgba: componentRgba(rasters.base.data, rasters.base.channels),
+      gainPreviewRgba: componentRgba(rasters.gainMap.data, rasters.gainMap.channels),
       linearRgb,
       previewRgba,
       falseColorRgba,
@@ -169,7 +193,7 @@ const repackStored = async (
   gainMapQuality: number,
   signal: AbortSignal,
 ): Promise<Uint8Array> => {
-  if (!stored) throw new Error('Open an HDR JPEG before generating output')
+  if (!stored) throw new Error('Open a gain-map JPEG or AVIF before generating output')
   const opened = await openGainMapImage(stored.bytes, { signal })
   try {
     const output = await transformedImage(opened, operations).jpeg({
@@ -190,7 +214,7 @@ const avifStored = async (
   operations: readonly GainMapTransformOperation[],
   signal: AbortSignal,
 ): Promise<Uint8Array> => {
-  if (!stored) throw new Error('Open an HDR JPEG before generating output')
+  if (!stored) throw new Error('Open a gain-map JPEG or AVIF before generating output')
   const opened = await openGainMapImage(stored.bytes, { signal })
   try {
     return transformedImage(opened, operations).avif({ signal })
@@ -234,6 +258,10 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           previewRgba: copyBuffer(rendered.previewRgba),
           falseColorRgba: copyBuffer(rendered.falseColorRgba),
           report: rendered.report,
+          logicalDimensions: rendered.logicalDimensions,
+          previewDimensions: rendered.previewDimensions,
+          previewGainMapDimensions: rendered.previewGainMapDimensions,
+          previewScaled: rendered.previewScaled,
         } satisfies HdrSurgeryResponse
         post(response, [
           response.basePreviewRgba,
@@ -257,6 +285,10 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           inspection: rendered.inspection,
           basePreviewRgba: copyBuffer(rendered.basePreviewRgba),
           gainPreviewRgba: copyBuffer(rendered.gainPreviewRgba),
+          logicalDimensions: rendered.logicalDimensions,
+          previewDimensions: rendered.previewDimensions,
+          previewGainMapDimensions: rendered.previewGainMapDimensions,
+          previewScaled: rendered.previewScaled,
         } satisfies HdrSurgeryResponse
         post(response, [
           response.linearRgb,

@@ -131,6 +131,10 @@ require a bounded JPEG boundary scan. The only size-mismatch compatibility case 
 over-declaration of at most 65,535 bytes whose independently scanned EOI lands exactly on the first
 secondary offset. Under-declarations and other contradictions fail.
 
+JPEG input and output require an SDR base rendition. The probe reports a structurally valid HDR-base
+JPEG as unsupported. Opening, assembly, streaming writes, transformed encoding, and conversion from
+an HDR-base AVIF to JPEG reject before JPEG encoding or output writes begin.
+
 ## Rendering
 
 Pass the linear display boost to `render()`:
@@ -165,6 +169,12 @@ The fluent object applies each geometry operation to the base and the encoded ga
 Base and map pixel edges share normalized coordinates. A crop can therefore map to fractional gain
 coordinates. PureJsImage resamples that exact region instead of rounding two unrelated integer
 crops. Scalar gain maps stay scalar.
+
+Default output map dimensions preserve the source map density. The planner tests the floor, round,
+and ceiling values around each ideal dimension, filters them through the one-map-pixel aspect rule,
+and uses the smallest normalized density error with deterministic ties. Explicit dimensions use the
+same compatibility rule. For example, a 1,200 by 675 resize of a 320 by 180 base with an 80 by 45 map
+produces a 300 by 169 map.
 
 Call `autoOrient()` before transformed JPEG or AVIF output when the source has a pending EXIF
 orientation. Crop, flip, rotate, and resize retain that pending orientation so a later
@@ -204,9 +214,13 @@ Use `extractOriginalBase()` and `extractOriginalGainMap()` with `assembleGainMap
 bit-preserving metadata repack. Those names always mean the byte-exact source children. Use
 `previewTransformedComponents()` for current transformed base and map samples.
 
-Re-encoded primary pixels use sRGB and carry a deterministic first-party matrix-shaper ICC profile.
-It uses the ICC sRGB D50 colorants and IEC 61966-2-1 transfer curve. Its SHA-256 is
-`85f1616e233eb429b3517a97ed4151b4ae74a79eca58fd5c7c22bf44c24610a9`.
+Re-encoded primary pixels use sRGB and carry a deterministic first-party ICC v4.3 matrix-shaper
+display profile. It uses the ICC sRGB D50 colorants, Bradford chromatic adaptation, and IEC
+61966-2-1 transfer curve. The required tags are `desc`, `cprt`, `wtpt`, `chad`, `rXYZ`, `gXYZ`,
+`bXYZ`, `rTRC`, `gTRC`, and `bTRC`. Its profile ID is
+`3b1a5e27decd22cd7e4cf5e72976be35` and its SHA-256 is
+`3101ea6d31a871d6611a7fd840aee348c654d46705603d1f2b78aa6f56d2d881`. Pinned iccDEV 2.3.2.3
+and Little CMS 2.16 validate the standalone profile and the profile extracted from an assembled JPEG.
 Gain-map ICC and EXIF orientation metadata do not alter encoded map samples.
 
 ## AVIF output

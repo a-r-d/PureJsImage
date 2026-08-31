@@ -9,6 +9,8 @@ const workloads = [
   'render-12mp-2x',
   'render-12mp-8x',
   'transform-render-24mp',
+  'geometry-coprime-density',
+  'geometry-resize-density',
   'crop-resize-24mp',
   'quarter-resize-24mp',
   'jpeg-reencode',

@@ -21,7 +21,7 @@ export interface ValidGainMapImageInspection {
   readonly channelCount: 1 | 3
   readonly baseRange: JpegByteRange
   readonly gainMapRange: JpegByteRange
-  readonly baseRendition: 'sdr' | 'hdr'
+  readonly baseRendition: 'sdr'
   readonly minimum: GainMapTriplet
   readonly maximum: GainMapTriplet
   readonly gamma: GainMapTriplet
@@ -86,6 +86,16 @@ export const inspectGainMapImage = async (
         error: Object.freeze({
           code: 'UNSUPPORTED_OPERATION' as const,
           message: 'Gain-map JPEG must contain one or three components',
+        }),
+      })
+    }
+    if (selected.baseRendition !== 'sdr') {
+      return Object.freeze({
+        container: 'jpeg',
+        status: 'unsupported',
+        error: Object.freeze({
+          code: 'UNSUPPORTED_OPERATION' as const,
+          message: 'Gain-map JPEG output and opening require an SDR base rendition',
         }),
       })
     }

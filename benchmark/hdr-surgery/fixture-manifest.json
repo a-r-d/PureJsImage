@@ -12,7 +12,11 @@
       "avifgainmaputil printmetadata generated.avif",
       "avifgainmaputil tonemap generated.avif output.png --headroom 3"
     ],
-    "avifOracle": "avifgainmaputil 1.3.0 with libaom 3.12.1 and dav1d 1.5.1"
+    "avifOracle": "avifgainmaputil 1.3.0 with libaom 3.12.1 and dav1d 1.5.1",
+    "iccOracle": "InternationalColorConsortium/iccDEV v2.3.2.3 commit 9f1707e2c42ca7d286fea3dfdf8c08c27d7e43cf",
+    "colorTransformOracle": "Little CMS 2.16 transicc",
+    "cicpOracle": "AOMediaCodec/libavif v1.3.0 commit 1aadfad932c98c069a1204261b1856f81f3bc199 development-only probe",
+    "developmentOnly": "Oracle binaries, headers, and implementations are not copied into or shipped with PureJsImage."
   },
   "generatedCases": [
     {

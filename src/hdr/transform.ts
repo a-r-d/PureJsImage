@@ -11,8 +11,10 @@ import { createResizeTransform } from '../resize.ts'
 import { assembleGainMapJpeg, type AssembleGainMapJpegOptions } from './jpeg-output.ts'
 import {
   hdrMaterializationBudget,
+  hdrMaterializationMaximum,
   HdrMaterializationBudget,
   MaterializedUint8ArraySink,
+  type HdrMaterializationSnapshot,
   type MaterializationReservation,
   type MaterializedBytes,
 } from './materialization.ts'
@@ -66,6 +68,9 @@ export const gainMapMaterializationBudget = (
   rasters: GainMapTransformedRasters,
   maximum: number,
 ): HdrMaterializationBudget => {
+  if (!Number.isSafeInteger(maximum) || maximum < 1) {
+    throw invalidInput('maxMaterializedBytes must be a positive safe integer')
+  }
   const existing = transformedBudgets.get(rasters)
   if (existing) {
     if (maximum > existing.maximum) return existing
@@ -75,10 +80,18 @@ export const gainMapMaterializationBudget = (
     return existing
   }
   const budget = new HdrMaterializationBudget(maximum)
-  budget.reserve(rasters.base.data.byteLength)
-  budget.reserve(rasters.gainMap.data.byteLength)
+  budget.reserve(rasters.base.data.byteLength, maximum, 'retained-raster')
+  budget.reserve(rasters.gainMap.data.byteLength, maximum, 'retained-raster')
   transformedBudgets.set(rasters, budget)
   return budget
+}
+
+export const getGainMapMaterializationSnapshot = (
+  rasters: GainMapTransformedRasters,
+): HdrMaterializationSnapshot => {
+  const budget = transformedBudgets.get(rasters)
+  if (!budget) throw invalidInput('HDR transformed rasters are not registered for accounting')
+  return budget.snapshot()
 }
 
 export const planTransformedGainMapMetadata = (
@@ -169,7 +182,7 @@ export const renderTransformedGainMapRasters = async function* (
   const budget = gainMapMaterializationBudget(rasters, maxMaterializedBytes)
   const effectiveMaximum = Math.min(maxMaterializedBytes, budget.maximum)
   const alignedReservation = needsGainAlignment
-    ? budget.reserve(alignedGainBytes, effectiveMaximum)
+    ? budget.reserve(alignedGainBytes, effectiveMaximum, 'aligned-gain-map')
     : undefined
   try {
     const gainMap = await resizeRaster(
@@ -186,7 +199,11 @@ export const renderTransformedGainMapRasters = async function* (
       const gainStart = y * rasters.base.width * gainMap.channels
       const gainEnd = gainStart + height * rasters.base.width * gainMap.channels
       const blockBytes = rasters.base.width * height * baseChannels * 4
-      const baseLinearReservation = budget.reserve(blockBytes, effectiveMaximum)
+      const baseLinearReservation = budget.reserve(
+        blockBytes,
+        effectiveMaximum,
+        'float-input-block',
+      )
       let outputReservation: MaterializationReservation | undefined
       try {
         const baseLinear = decodeBaseRgb8ToLinearF32(
@@ -194,7 +211,7 @@ export const renderTransformedGainMapRasters = async function* (
           rasters.metadata,
           baseChannels,
         )
-        outputReservation = budget.reserve(blockBytes, effectiveMaximum)
+        outputReservation = budget.reserve(blockBytes, effectiveMaximum, 'float-output-block')
         const output = composeGainMapLinearF32(
           baseLinear,
           gainMap.data.subarray(gainStart, gainEnd),
@@ -558,8 +575,8 @@ export const transformGainMapRasters = async (
   )
   ensureAggregateBudget(maxBytes, initialBaseBytes, initialGainBytes)
   const budget = new HdrMaterializationBudget(maxBytes)
-  let currentBaseReservation = budget.reserve(initialBaseBytes)
-  let gainMapReservation = budget.reserve(initialGainBytes)
+  let currentBaseReservation = budget.reserve(initialBaseBytes, maxBytes, 'retained-raster')
+  let gainMapReservation = budget.reserve(initialGainBytes, maxBytes, 'retained-raster')
   let completed = false
   try {
     const baseDecodeEvidence = options.evidence?.child('primary decode')
@@ -592,7 +609,7 @@ export const transformGainMapRasters = async (
       create: () => GainMapRaster8 | Promise<GainMapRaster8>,
     ): Promise<Readonly<{ raster: GainMapRaster8; reservation: MaterializationReservation }>> => {
       if (nextBytes === 0) return { raster: current, reservation }
-      const nextReservation = budget.reserve(nextBytes)
+      const nextReservation = budget.reserve(nextBytes, maxBytes, 'retained-raster')
       try {
         const raster = await create()
         reservation.release()
@@ -862,10 +879,11 @@ const encodeJpeg = async (
   chromaSubsampling: '420' | '422' | '444',
   signal: AbortSignal | undefined,
   budget: HdrMaterializationBudget,
+  maximum: number,
   metadata?: Readonly<PreservedMetadata>,
 ): Promise<MaterializedBytes> => {
   if (!jpegCodec.createEncoder) throw unsupportedOperation('JPEG encoding is unavailable')
-  const sink = new MaterializedUint8ArraySink(budget)
+  const sink = new MaterializedUint8ArraySink(budget, maximum)
   const encoder = await jpegCodec.createEncoder(sink, {
     width: raster.width,
     height: raster.height,
@@ -897,6 +915,9 @@ export const encodeTransformedGainMapJpeg = async (
   options: Readonly<GainMapJpegEncodeOptions> = {},
   evidence?: EvidenceContext,
 ): Promise<Uint8Array> => {
+  if (rasters.metadata.baseRendition !== 'sdr') {
+    throw unsupportedOperation('Gain-map JPEG output requires an SDR base rendition')
+  }
   if (rasters.metadata.orientation !== 1) {
     throw unsupportedOperation(
       'Gain-map JPEG output requires autoOrient() when source orientation is pending',
@@ -917,6 +938,7 @@ export const encodeTransformedGainMapJpeg = async (
     options.baseChromaSubsampling ?? '420',
     options.signal,
     budget,
+    Math.min(maximum, budget.maximum),
     { icc: createPureJsImageSrgbIcc() },
   )
   primaryEncodeEvidence?.operation({ operationId: 'hdr-primary-encode', phase: 'complete' })
@@ -929,6 +951,7 @@ export const encodeTransformedGainMapJpeg = async (
       '444',
       options.signal,
       budget,
+      Math.min(maximum, budget.maximum),
     )
     mapEncodeEvidence?.operation({ operationId: 'hdr-map-encode', phase: 'complete' })
     try {
@@ -936,6 +959,7 @@ export const encodeTransformedGainMapJpeg = async (
         ...options,
         ...(evidence === undefined ? {} : { evidence }),
         [hdrMaterializationBudget]: budget,
+        [hdrMaterializationMaximum]: Math.min(maximum, budget.maximum),
       }
       return await assembleGainMapJpeg(
         { baseJpeg: baseJpeg.data, gainMapJpeg: gainMapJpeg.data, metadata: rasters.metadata },

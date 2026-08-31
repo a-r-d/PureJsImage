@@ -119,6 +119,7 @@ describe('constrained ISO gain-map AVIF output', () => {
     }
     expect(rows).toBe(300)
     expect(maximum).toBeGreaterThan(sdrMaximum)
+    await expect(opened.jpeg()).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
     opened.close()
   })
 

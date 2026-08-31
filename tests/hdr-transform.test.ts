@@ -82,7 +82,7 @@ describe('paired gain-map transforms', () => {
     expect(reopened.inspection().metadata.sourceCardinality).toBe('scalar')
     expect(reopened.inspection().metadata.baseDimensions).toEqual({ width: 317, height: 185 })
     const map = reopened.inspection().metadata.gainMapDimensions
-    expect(BigInt(map.width) * 185n).toBe(BigInt(map.height) * 317n)
+    expect(map).toEqual({ width: 79, height: 46 })
     reopened.close()
     opened.close()
   })

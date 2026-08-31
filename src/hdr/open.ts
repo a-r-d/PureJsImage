@@ -28,6 +28,7 @@ import {
   renderTransformedGainMapRasters,
   transformGainMapRasters,
   type GainMapJpegEncodeOptions,
+  type GainMapTransformedRasters,
   type GainMapTransformOperation,
 } from './transform.ts'
 import type { GainMapQuarterTurn } from './geometry.ts'
@@ -386,22 +387,7 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
       readonly maxMaterializedBytes?: number
     }> = {},
   ): Promise<GainMapComponentPreview> {
-    this.#assertOpen()
-    throwIfAborted(options.signal)
-    const transformed = await transformGainMapRasters(
-      this.#baseDecoder,
-      this.#gainDecoder,
-      this.#inspection.metadata,
-      this.#operations,
-      {
-        ...(options.signal === undefined ? {} : { signal: options.signal }),
-        ...(options.maxMaterializedBytes === undefined
-          ? {}
-          : { maxMaterializedBytes: options.maxMaterializedBytes }),
-      },
-    )
-    this.#assertOpen()
-    throwIfAborted(options.signal)
+    const transformed = await this.materializeTransformedRastersForInternalUse(options)
     if (transformed.base.channels !== 3 && transformed.base.channels !== 4) {
       throw invalidInput('Transformed HDR base preview must contain RGB or RGBA pixels')
     }
@@ -422,6 +408,31 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
         data: transformed.gainMap.data,
       }),
     })
+  }
+
+  async materializeTransformedRastersForInternalUse(
+    options: Readonly<{
+      readonly signal?: AbortSignal
+      readonly maxMaterializedBytes?: number
+    }> = {},
+  ): Promise<GainMapTransformedRasters> {
+    this.#assertOpen()
+    throwIfAborted(options.signal)
+    const transformed = await transformGainMapRasters(
+      this.#baseDecoder,
+      this.#gainDecoder,
+      this.#inspection.metadata,
+      this.#operations,
+      {
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+        ...(options.maxMaterializedBytes === undefined
+          ? {}
+          : { maxMaterializedBytes: options.maxMaterializedBytes }),
+      },
+    )
+    this.#assertOpen()
+    throwIfAborted(options.signal)
+    return transformed
   }
 
   render(request: Readonly<GainMapRenderRequest>): AsyncIterable<GainMapRenderedBlock> {
@@ -663,6 +674,9 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
 
   async jpeg(options: Readonly<GainMapJpegEncodeOptions> = {}): Promise<Uint8Array> {
     this.#assertOpen()
+    if (this.#inspection.metadata.baseRendition !== 'sdr') {
+      throw unsupportedOperation('Gain-map JPEG output requires an SDR base rendition')
+    }
     const transformed = await transformGainMapRasters(
       this.#baseDecoder,
       this.#gainDecoder,
@@ -705,6 +719,19 @@ class OpenedGainMapImageImplementation implements OpenedGainMapImage {
   close(): void {
     this.#owner.closed = true
   }
+}
+
+export const materializeOpenedGainMapImageForInternalUse = (
+  image: OpenedGainMapImage,
+  options: Readonly<{
+    readonly signal?: AbortSignal
+    readonly maxMaterializedBytes?: number
+  }> = {},
+): Promise<GainMapTransformedRasters> => {
+  if (!(image instanceof OpenedGainMapImageImplementation)) {
+    throw invalidInput('Unsupported internal gain-map image implementation')
+  }
+  return image.materializeTransformedRastersForInternalUse(options)
 }
 
 const jpegGainMapMetadata = (

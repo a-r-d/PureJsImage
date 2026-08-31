@@ -1,5 +1,5 @@
 import { throwIfAborted } from '../abort.ts'
-import { invalidInput, limitExceeded } from '../errors.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageSink } from '../sink.ts'
 import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../source.ts'
@@ -7,6 +7,7 @@ import { encodeIsoGainMapMetadata } from './iso.ts'
 import { findJpegEnd, inspectHdrJpeg, inspectHdrJpegHeader } from './jpeg.ts'
 import {
   hdrMaterializationBudget,
+  hdrMaterializationMaximum,
   type InternalMaterializationOptions,
   type MaterializationReservation,
 } from './materialization.ts'
@@ -352,12 +353,21 @@ const prepareGainMapJpeg = async (
   artifacts: Readonly<GainMapJpegArtifacts>,
   options: Readonly<AssembleGainMapJpegOptions> = {},
 ): Promise<PreparedGainMapJpeg> => {
+  if (artifacts.metadata.baseRendition !== 'sdr') {
+    throw unsupportedOperation('Gain-map JPEG output requires an SDR base rendition')
+  }
   const budget = (options as Readonly<AssembleGainMapJpegOptions & InternalMaterializationOptions>)[
     hdrMaterializationBudget
   ]
+  const maximum =
+    (options as Readonly<AssembleGainMapJpegOptions & InternalMaterializationOptions>)[
+      hdrMaterializationMaximum
+    ] ?? budget?.maximum
   const reservations: MaterializationReservation[] = []
   const reserve = (bytes: number): void => {
-    if (budget) reservations.push(budget.reserve(bytes))
+    if (budget && maximum !== undefined) {
+      reservations.push(budget.reserve(bytes, maximum, 'assembly-staging'))
+    }
   }
   const release = (): void => {
     for (const reservation of reservations) reservation.release()
@@ -488,7 +498,14 @@ export const assembleGainMapJpeg = async (
   const budget = (options as Readonly<AssembleGainMapJpegOptions & InternalMaterializationOptions>)[
     hdrMaterializationBudget
   ]
-  const outputReservation = budget?.reserve(prepared.outputBytes)
+  const maximum =
+    (options as Readonly<AssembleGainMapJpegOptions & InternalMaterializationOptions>)[
+      hdrMaterializationMaximum
+    ] ?? budget?.maximum
+  const outputReservation =
+    budget && maximum !== undefined
+      ? budget.reserve(prepared.outputBytes, maximum, 'final-output')
+      : undefined
   try {
     const output = new Uint8Array(prepared.outputBytes)
     output.set(prepared.primary)

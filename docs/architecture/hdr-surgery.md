@@ -220,10 +220,12 @@ Base and map pixel edges share normalized coordinates. A base edge at `x / baseW
 region and resamples it to the selected integer output map geometry. It does not independently round
 two integer crops.
 
-The default output map density follows the source map density and produces dimensions with the same
-final aspect ratio as the base. Callers may select explicit compatible map dimensions. Different
-map resolution uses bilinear or Lanczos3 sampling. Tests cover odd sizes, non-integral ratios,
-fractional crop edges, and one-pixel boundaries.
+The default output map density follows the source map density. The planner searches floor, round,
+and ceiling candidates around the ideal width and height, keeps candidates within the one-map-pixel
+aspect tolerance, and selects the smallest normalized density error with deterministic ties. Callers
+may select explicit dimensions under the same compatibility rule. Different map resolution uses
+bilinear or Lanczos3 sampling. Tests cover odd sizes, co-prime crops, non-integral ratios, fractional
+crop edges, explicit rounded dimensions, and one-pixel boundaries.
 
 ## 13. Transformation semantics
 
@@ -296,9 +298,18 @@ linear RGBA16F output matches the constant-map analytic fixture with maximum abs
 ISO metadata and writes a tone-mapped PNG at three stops of headroom. Browsers are additional
 container and application checks. Lossless extraction is byte exact.
 
+iccDEV v2.3.2.3 at commit `9f1707e2c42ca7d286fea3dfdf8c08c27d7e43cf` validates the generated
+ICC v4.3 profile and the profile extracted from a generated JPEG. Little CMS 2.16 opens both and
+passes representative sRGB to XYZ round trips. A development-only probe compiled against libavif
+v1.3.0 at commit `1aadfad932c98c069a1204261b1856f81f3bc199` reports the generated AVIF base as
+primaries 1, transfer 13, matrix 1, full range, and the gain map as 2, 2, 1, full range.
+
 The 24 MP inspection workload reads 32,772 unique bytes in six reads from a 1,169,698-byte source,
 decodes zero pixels, and uses no full-frame fallback. The 12 MP 2x render emits 144,000,000 bytes of
-linear RGB in bounded blocks with a 192,622,592-byte absolute peak RSS in the latest full run.
+linear RGB in bounded blocks with a 151,371,776-byte absolute peak RSS in the latest full run. The
+24 MP transformed render records a 145,500,000-byte managed peak, a 73,500,000-byte retained state,
+a 2,304,000-byte maximum Float32 output block, no full adapted Float32 image, and a 329,162,752-byte
+absolute peak RSS.
 
 ## 18. Browser application architecture
 
@@ -306,6 +317,11 @@ linear RGB in bounded blocks with a 192,622,592-byte absolute peak RSS in the la
 protocol. The worker receives closed-schema `unknown` messages, request IDs, and generations.
 Buffers transfer rather than clone. Stale results and image bitmaps are closed. Reset and page
 teardown terminate workers, revoke object URLs, close opened images, and cancel active work.
+
+User-selected crop, orientation, and resize operations remain the logical export plan. If that plan
+exceeds 4,194,304 pixels, the worker appends one preview-only bilinear fit. It materializes and renders
+that preview state once, reports logical and preview dimensions separately, and keeps export controls
+at logical dimensions. All four canvases and the pixel probe use the same preview coordinates.
 
 All image processing remains local. A remote URL is fetched only when CORS permits it. The page does
 not upload source bytes. The native `<img>` result is separate from the software SDR preview and

@@ -5,6 +5,53 @@ import type {
   GainMapTransformOperation,
 } from '../../../src/hdr/index.ts'
 
+export interface HdrSurgeryDimensions {
+  readonly width: number
+  readonly height: number
+}
+
+export interface HdrSurgeryPreviewPlan {
+  readonly logicalDimensions: HdrSurgeryDimensions
+  readonly previewDimensions: HdrSurgeryDimensions
+  readonly scaled: boolean
+}
+
+export const planHdrSurgeryPreview = (
+  logicalDimensions: Readonly<HdrSurgeryDimensions>,
+  maximumPixels = 4_194_304,
+): HdrSurgeryPreviewPlan => {
+  if (
+    !Number.isSafeInteger(logicalDimensions.width) ||
+    !Number.isSafeInteger(logicalDimensions.height) ||
+    logicalDimensions.width < 1 ||
+    logicalDimensions.height < 1 ||
+    !Number.isSafeInteger(maximumPixels) ||
+    maximumPixels < 1
+  ) {
+    throw new Error('HDR Surgery preview dimensions are invalid')
+  }
+  const logical = Object.freeze({
+    width: logicalDimensions.width,
+    height: logicalDimensions.height,
+  })
+  if (logical.width * logical.height <= maximumPixels) {
+    return Object.freeze({ logicalDimensions: logical, previewDimensions: logical, scaled: false })
+  }
+  const scale = Math.sqrt(maximumPixels / (logical.width * logical.height))
+  const preview = Object.freeze({
+    width: Math.max(1, Math.floor(logical.width * scale)),
+    height: Math.max(1, Math.floor(logical.height * scale)),
+  })
+  return Object.freeze({ logicalDimensions: logical, previewDimensions: preview, scaled: true })
+}
+
+interface HdrSurgeryPreviewGeometry {
+  readonly logicalDimensions: HdrSurgeryDimensions
+  readonly previewDimensions: HdrSurgeryDimensions
+  readonly previewGainMapDimensions: HdrSurgeryDimensions
+  readonly previewScaled: boolean
+}
+
 export type HdrSurgeryRequest =
   | {
       readonly type: 'open'
@@ -44,7 +91,7 @@ export type HdrSurgeryRequest =
     }
 
 export type HdrSurgeryResponse =
-  | {
+  | ({
       readonly type: 'result'
       readonly requestId: number
       readonly generation: number
@@ -56,8 +103,8 @@ export type HdrSurgeryResponse =
       readonly previewRgba: ArrayBuffer
       readonly falseColorRgba: ArrayBuffer
       readonly report: ExecutionEvidenceReport
-    }
-  | {
+    } & HdrSurgeryPreviewGeometry)
+  | ({
       readonly type: 'rendered'
       readonly requestId: number
       readonly generation: number
@@ -68,7 +115,7 @@ export type HdrSurgeryResponse =
       readonly inspection: GainMapImageInspection
       readonly basePreviewRgba: ArrayBuffer
       readonly gainPreviewRgba: ArrayBuffer
-    }
+    } & HdrSurgeryPreviewGeometry)
   | {
       readonly type: 'repacked'
       readonly requestId: number
@@ -103,6 +150,14 @@ const identity = (value: Readonly<Record<string, unknown>>): boolean =>
   Number.isSafeInteger(value.generation) &&
   Number(value.requestId) >= 0 &&
   Number(value.generation) >= 0
+
+const dimensions = (value: unknown): value is HdrSurgeryDimensions =>
+  record(value) &&
+  exactKeys(value, ['width', 'height']) &&
+  Number.isSafeInteger(value.width) &&
+  Number(value.width) > 0 &&
+  Number.isSafeInteger(value.height) &&
+  Number(value.height) > 0
 
 const transformOperations = (value: unknown): value is readonly GainMapTransformOperation[] => {
   if (!Array.isArray(value) || value.length > 32) return false
@@ -253,6 +308,10 @@ export const isHdrSurgeryResponse = (value: unknown): value is HdrSurgeryRespons
     'inspection',
     'basePreviewRgba',
     'gainPreviewRgba',
+    'logicalDimensions',
+    'previewDimensions',
+    'previewGainMapDimensions',
+    'previewScaled',
   ]
   if (value.type === 'rendered') {
     return (
@@ -262,6 +321,10 @@ export const isHdrSurgeryResponse = (value: unknown): value is HdrSurgeryRespons
       value.falseColorRgba instanceof ArrayBuffer &&
       value.basePreviewRgba instanceof ArrayBuffer &&
       value.gainPreviewRgba instanceof ArrayBuffer &&
+      dimensions(value.logicalDimensions) &&
+      dimensions(value.previewDimensions) &&
+      dimensions(value.previewGainMapDimensions) &&
+      typeof value.previewScaled === 'boolean' &&
       record(value.report) &&
       record(value.inspection)
     )
@@ -281,6 +344,10 @@ export const isHdrSurgeryResponse = (value: unknown): value is HdrSurgeryRespons
       value.linearRgb instanceof ArrayBuffer &&
       value.previewRgba instanceof ArrayBuffer &&
       value.falseColorRgba instanceof ArrayBuffer &&
+      dimensions(value.logicalDimensions) &&
+      dimensions(value.previewDimensions) &&
+      dimensions(value.previewGainMapDimensions) &&
+      typeof value.previewScaled === 'boolean' &&
       record(value.report)
     )
   }

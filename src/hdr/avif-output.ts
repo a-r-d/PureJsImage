@@ -75,6 +75,7 @@ const standaloneAv1 = async (
   raster: GainMapRaster8,
   signal: AbortSignal | undefined,
   budget: HdrMaterializationBudget,
+  maximum: number,
   color: Readonly<{
     readonly colorPrimaries: number
     readonly transferCharacteristics: number
@@ -82,7 +83,7 @@ const standaloneAv1 = async (
     readonly fullRange: boolean
   }>,
 ): Promise<MaterializedBytes> => {
-  const sink = new MaterializedUint8ArraySink(budget)
+  const sink = new MaterializedUint8ArraySink(budget, maximum)
   const encoder = await createAvifEncoderWithColorConfiguration(
     sink,
     {
@@ -123,7 +124,7 @@ const standaloneAv1 = async (
       throw invalidInput('Standalone AVIF encoder produced an invalid box')
     }
     if (type === 'mdat') {
-      const reservation = budget.reserve(size - 8)
+      const reservation = budget.reserve(size - 8, maximum, 'encoded-artifact')
       try {
         const data = Uint8Array.from(avif.data.subarray(offset + 8, offset + size))
         avif.reservation.release()
@@ -309,9 +310,10 @@ const prepare = async (
   const toneMap = toneMapPayload(rasters)
   const maximum = options.maxMaterializedBytes ?? 256 * 1024 * 1024
   const budget = gainMapMaterializationBudget(rasters, maximum)
+  const effectiveMaximum = Math.min(maximum, budget.maximum)
   const codedEvidence = options.evidence?.child('AVIF coded-item assembly')
   codedEvidence?.operation({ operationId: 'hdr-avif-coded-items', phase: 'start' })
-  const base = await standaloneAv1(rasters.base, options.signal, budget, {
+  const base = await standaloneAv1(rasters.base, options.signal, budget, effectiveMaximum, {
     colorPrimaries: 1,
     transferCharacteristics: 13,
     matrixCoefficients: 1,
@@ -319,7 +321,7 @@ const prepare = async (
   })
   let gainMap: MaterializedBytes
   try {
-    gainMap = await standaloneAv1(rasters.gainMap, options.signal, budget, {
+    gainMap = await standaloneAv1(rasters.gainMap, options.signal, budget, effectiveMaximum, {
       colorPrimaries: 2,
       transferCharacteristics: 2,
       matrixCoefficients: 1,
@@ -427,7 +429,7 @@ export const assembleGainMapAvif = async (
 ): Promise<Uint8Array> => {
   const maximum = options.maxMaterializedBytes ?? 256 * 1024 * 1024
   const budget = gainMapMaterializationBudget(rasters, maximum)
-  const sink = new MaterializedUint8ArraySink(budget)
+  const sink = new MaterializedUint8ArraySink(budget, Math.min(maximum, budget.maximum))
   await writeGainMapAvif(sink, rasters, options)
   const output = sink.toMaterializedUint8Array()
   output.reservation.release()

@@ -5,7 +5,21 @@ import type { ImageDecoder } from '../../src/codec.ts'
 import { avifCodec } from '../../src/codecs/avif.ts'
 import { jpegCodec } from '../../src/codecs/jpeg.ts'
 import { createEvidenceSession, instrumentImageSource } from '../../src/evidence.ts'
-import { assembleGainMapJpeg, inspectHdrJpeg, openGainMapImage } from '../../src/hdr/index.ts'
+import {
+  assembleGainMapAvif,
+  assembleGainMapJpeg,
+  encodeTransformedGainMapJpeg,
+  inspectHdrJpeg,
+  openGainMapImage,
+  type GainMapMetadata,
+  type GainMapTransformedRasters,
+} from '../../src/hdr/index.ts'
+import { planGainMapCrop, planGainMapResize } from '../../src/hdr/geometry.ts'
+import { materializeOpenedGainMapImageForInternalUse } from '../../src/hdr/open.ts'
+import {
+  getGainMapMaterializationSnapshot,
+  renderTransformedGainMapRasters,
+} from '../../src/hdr/transform.ts'
 import { resolveLimits } from '../../src/limits.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../../src/source.ts'
 import { MemorySource } from '../../src/source.ts'
@@ -18,6 +32,8 @@ const workloads = [
   'render-12mp-2x',
   'render-12mp-8x',
   'transform-render-24mp',
+  'geometry-coprime-density',
+  'geometry-resize-density',
   'crop-resize-24mp',
   'quarter-resize-24mp',
   'jpeg-reencode',
@@ -108,10 +124,56 @@ interface WorkResult {
   readonly compressedArtifactBytes: number
   readonly firstAdaptedBlockMs?: number
   readonly managedMaterializationPeakBytes?: number
+  readonly managedMaterializationCurrentBytes?: number
+  readonly encodedArtifactPeakBytes?: number
   readonly outputBlockMaximumBytes?: number
   readonly fullAdaptedFloatImageAllocated?: boolean
   readonly fullFrameFallback: boolean
+  readonly sourceBasePixels?: number
+  readonly sourceMapPixels?: number
+  readonly outputBasePixels?: number
+  readonly outputMapPixels?: number
+  readonly mapDensityRatio?: number
   readonly correctness: string
+}
+
+const materializationFields = (
+  rasters: GainMapTransformedRasters,
+  sourceMetadata: GainMapMetadata,
+): Pick<
+  WorkResult,
+  | 'maximumManagedBlockBytes'
+  | 'managedMaterializationPeakBytes'
+  | 'managedMaterializationCurrentBytes'
+  | 'encodedArtifactPeakBytes'
+  | 'outputBlockMaximumBytes'
+  | 'fullAdaptedFloatImageAllocated'
+  | 'sourceBasePixels'
+  | 'sourceMapPixels'
+  | 'outputBasePixels'
+  | 'outputMapPixels'
+  | 'mapDensityRatio'
+> => {
+  const snapshot = getGainMapMaterializationSnapshot(rasters)
+  const sourceBasePixels =
+    sourceMetadata.baseDimensions.width * sourceMetadata.baseDimensions.height
+  const sourceMapPixels =
+    sourceMetadata.gainMapDimensions.width * sourceMetadata.gainMapDimensions.height
+  const outputBasePixels = rasters.base.width * rasters.base.height
+  const outputMapPixels = rasters.gainMap.width * rasters.gainMap.height
+  return {
+    maximumManagedBlockBytes: snapshot.peakBytes,
+    managedMaterializationPeakBytes: snapshot.peakBytes,
+    managedMaterializationCurrentBytes: snapshot.currentBytes,
+    encodedArtifactPeakBytes: snapshot.encodedArtifactPeakBytes,
+    outputBlockMaximumBytes: snapshot.outputBlockMaximumBytes,
+    fullAdaptedFloatImageAllocated: snapshot.fullAdaptedFloatImageAllocated,
+    sourceBasePixels,
+    sourceMapPixels,
+    outputBasePixels,
+    outputMapPixels,
+    mapDensityRatio: outputMapPixels / outputBasePixels / (sourceMapPixels / sourceBasePixels),
+  }
 }
 
 const render = async (
@@ -164,14 +226,13 @@ const renderTransformed24Mp = async (): Promise<WorkResult> => {
   const metadata = image.inspection().metadata
   const hash = createHash('sha256')
   let outputBytes = 0
-  let maximumBlock = 0
   let firstAdaptedBlockMs: number | undefined
   const start = performance.now()
   try {
-    for await (const block of image.render({
-      displayBoost: 4,
+    const rasters = await materializeOpenedGainMapImageForInternalUse(image, {
       maxMaterializedBytes: 256 * 1024 * 1024,
-    })) {
+    })
+    for await (const block of renderTransformedGainMapRasters(rasters, 4, 256 * 1024 * 1024)) {
       try {
         if (firstAdaptedBlockMs === undefined) firstAdaptedBlockMs = performance.now() - start
         const bytes = new Uint8Array(
@@ -181,40 +242,77 @@ const renderTransformed24Mp = async (): Promise<WorkResult> => {
         )
         hash.update(bytes)
         outputBytes += bytes.byteLength
-        maximumBlock = Math.max(maximumBlock, bytes.byteLength)
       } finally {
         block.release?.()
       }
     }
+    const snapshot = getGainMapMaterializationSnapshot(rasters)
+    const sourceBasePixels = metadata.baseDimensions.width * metadata.baseDimensions.height
+    const sourceMapPixels = metadata.gainMapDimensions.width * metadata.gainMapDimensions.height
+    const outputBasePixels = rasters.base.width * rasters.base.height
+    const outputMapPixels = rasters.gainMap.width * rasters.gainMap.height
+    return {
+      outputBytes,
+      outputHash: hash.digest('hex'),
+      sourceReads: counting.reads,
+      sourceBytes: counting.bytes,
+      uniqueSourceBytes: counting.uniqueBytes(),
+      decodedBasePixels: sourceBasePixels,
+      decodedGainMapPixels: sourceMapPixels,
+      maximumManagedBlockBytes: snapshot.peakBytes,
+      managedMaterializationPeakBytes: snapshot.peakBytes,
+      managedMaterializationCurrentBytes: snapshot.currentBytes,
+      encodedArtifactPeakBytes: snapshot.encodedArtifactPeakBytes,
+      outputBlockMaximumBytes: snapshot.outputBlockMaximumBytes,
+      compressedArtifactBytes: 0,
+      sourceBasePixels,
+      sourceMapPixels,
+      outputBasePixels,
+      outputMapPixels,
+      mapDensityRatio: outputMapPixels / outputBasePixels / (sourceMapPixels / sourceBasePixels),
+      ...(firstAdaptedBlockMs === undefined ? {} : { firstAdaptedBlockMs }),
+      fullFrameFallback: true,
+      fullAdaptedFloatImageAllocated: snapshot.fullAdaptedFloatImageAllocated,
+      correctness: `rows=${metadata.baseDimensions.height};fullAdaptedFloatImage=${String(snapshot.fullAdaptedFloatImageAllocated)}`,
+    }
   } finally {
     opened.close()
-  }
-  const decodedBaseBytes = metadata.baseDimensions.width * metadata.baseDimensions.height * 3
-  const decodedMapBytes = metadata.gainMapDimensions.width * metadata.gainMapDimensions.height
-  const transformedBasePeak = decodedBaseBytes * 2 + decodedMapBytes
-  const alignedMapBytes = metadata.baseDimensions.width * metadata.baseDimensions.height
-  const floatBlockBytes = metadata.baseDimensions.width * 32 * 3 * 4
-  const renderPeak = decodedBaseBytes + decodedMapBytes + alignedMapBytes + floatBlockBytes * 2
-  return {
-    outputBytes,
-    outputHash: hash.digest('hex'),
-    sourceReads: counting.reads,
-    sourceBytes: counting.bytes,
-    uniqueSourceBytes: counting.uniqueBytes(),
-    decodedBasePixels: metadata.baseDimensions.width * metadata.baseDimensions.height,
-    decodedGainMapPixels: metadata.gainMapDimensions.width * metadata.gainMapDimensions.height,
-    maximumManagedBlockBytes: Math.max(transformedBasePeak, renderPeak),
-    managedMaterializationPeakBytes: Math.max(transformedBasePeak, renderPeak),
-    outputBlockMaximumBytes: maximumBlock,
-    compressedArtifactBytes: 0,
-    ...(firstAdaptedBlockMs === undefined ? {} : { firstAdaptedBlockMs }),
-    fullFrameFallback: true,
-    fullAdaptedFloatImageAllocated: false,
-    correctness: `rows=${metadata.baseDimensions.height};fullAdaptedFloatImage=false`,
   }
 }
 
 const execute = async (): Promise<WorkResult> => {
+  if (workload === 'geometry-coprime-density' || workload === 'geometry-resize-density') {
+    const source =
+      workload === 'geometry-coprime-density'
+        ? { base: { width: 319, height: 187 }, gainMap: { width: 79, height: 46 } }
+        : { base: { width: 320, height: 180 }, gainMap: { width: 80, height: 45 } }
+    const plan =
+      workload === 'geometry-coprime-density'
+        ? planGainMapCrop(source, { x: 1, y: 1, width: 317, height: 185 })
+        : planGainMapResize(source, { width: 1200, height: 675 })
+    const sourceBasePixels = source.base.width * source.base.height
+    const sourceMapPixels = source.gainMap.width * source.gainMap.height
+    const outputBasePixels = plan.base.width * plan.base.height
+    const outputMapPixels = plan.gainMap.width * plan.gainMap.height
+    return {
+      outputBytes: 0,
+      outputHash: sha256(new TextEncoder().encode(JSON.stringify(plan.gainMap))),
+      sourceReads: 0,
+      sourceBytes: 0,
+      uniqueSourceBytes: 0,
+      decodedBasePixels: 0,
+      decodedGainMapPixels: 0,
+      maximumManagedBlockBytes: 0,
+      compressedArtifactBytes: 0,
+      sourceBasePixels,
+      sourceMapPixels,
+      outputBasePixels,
+      outputMapPixels,
+      mapDensityRatio: outputMapPixels / outputBasePixels / (sourceMapPixels / sourceBasePixels),
+      fullFrameFallback: false,
+      correctness: `${plan.base.width}x${plan.base.height} map=${plan.gainMap.width}x${plan.gainMap.height}`,
+    }
+  }
   if (workload === 'inspect-24mp') {
     const input = await fixture('hdr-surgery-synthetic-24mp.jpg')
     const source = new CountingSource(input)
@@ -298,10 +396,11 @@ const execute = async (): Promise<WorkResult> => {
       }
     }
     if (workload === 'crop-resize-24mp') {
-      const output = await opened
+      const image = opened
         .crop({ x: 1000, y: 500, width: 4000, height: 3000 })
         .resize({ width: 1200, height: 900, kernel: 'lanczos3' })
-        .jpeg()
+      const rasters = await materializeOpenedGainMapImageForInternalUse(image)
+      const output = await encodeTransformedGainMapJpeg(rasters)
       return {
         outputBytes: output.byteLength,
         outputHash: sha256(output),
@@ -310,14 +409,16 @@ const execute = async (): Promise<WorkResult> => {
         uniqueSourceBytes: source.uniqueBytes(),
         decodedBasePixels: 24_000_000,
         decodedGainMapPixels: 1_500_000,
-        maximumManagedBlockBytes: 72_000_000,
+        ...materializationFields(rasters, metadata),
         compressedArtifactBytes: output.byteLength,
         fullFrameFallback: true,
         correctness: 'reopened by focused transform tests',
       }
     }
     if (workload === 'quarter-resize-24mp') {
-      const output = await opened.rotate(90).resize({ width: 800, height: 1200 }).jpeg()
+      const image = opened.rotate(90).resize({ width: 800, height: 1200 })
+      const rasters = await materializeOpenedGainMapImageForInternalUse(image)
+      const output = await encodeTransformedGainMapJpeg(rasters)
       return {
         outputBytes: output.byteLength,
         outputHash: sha256(output),
@@ -326,14 +427,15 @@ const execute = async (): Promise<WorkResult> => {
         uniqueSourceBytes: source.uniqueBytes(),
         decodedBasePixels: 24_000_000,
         decodedGainMapPixels: 1_500_000,
-        maximumManagedBlockBytes: 72_000_000,
+        ...materializationFields(rasters, metadata),
         compressedArtifactBytes: output.byteLength,
         fullFrameFallback: true,
         correctness: 'quarter-turn dimensions validated',
       }
     }
     if (workload === 'jpeg-reencode') {
-      const output = await opened.jpeg()
+      const rasters = await materializeOpenedGainMapImageForInternalUse(opened)
+      const output = await encodeTransformedGainMapJpeg(rasters)
       return {
         outputBytes: output.byteLength,
         outputHash: sha256(output),
@@ -342,8 +444,7 @@ const execute = async (): Promise<WorkResult> => {
         uniqueSourceBytes: source.uniqueBytes(),
         decodedBasePixels: metadata.baseDimensions.width * metadata.baseDimensions.height,
         decodedGainMapPixels: metadata.gainMapDimensions.width * metadata.gainMapDimensions.height,
-        maximumManagedBlockBytes:
-          metadata.baseDimensions.width * metadata.baseDimensions.height * 3,
+        ...materializationFields(rasters, metadata),
         compressedArtifactBytes: output.byteLength,
         fullFrameFallback: true,
         correctness: 'deterministic dual JPEG',
@@ -367,7 +468,10 @@ const execute = async (): Promise<WorkResult> => {
       }
     }
     if (workload === 'avif-gain-map-encode') {
-      const output = await opened.resize({ width: 64, height: 36 }).avif()
+      const rasters = await materializeOpenedGainMapImageForInternalUse(
+        opened.resize({ width: 64, height: 36 }),
+      )
+      const output = await assembleGainMapAvif(rasters)
       return {
         outputBytes: output.byteLength,
         outputHash: sha256(output),
@@ -376,7 +480,7 @@ const execute = async (): Promise<WorkResult> => {
         uniqueSourceBytes: source.uniqueBytes(),
         decodedBasePixels: 57_600,
         decodedGainMapPixels: 3_600,
-        maximumManagedBlockBytes: 172_800,
+        ...materializationFields(rasters, metadata),
         compressedArtifactBytes: output.byteLength,
         fullFrameFallback: true,
         correctness: 'PureJsImage AVIF inspector and decoder passed',

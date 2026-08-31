@@ -88,10 +88,7 @@ const compatibleMapDimensions = (
   }
   if (explicit) {
     const result = dimensions(explicit, 'Output gain-map')
-    if (
-      BigInt(result.width) * BigInt(outputBase.height) !==
-      BigInt(result.height) * BigInt(outputBase.width)
-    ) {
+    if (!gainMapDimensionsAreCompatible(outputBase, result)) {
       throw invalidInput('Explicit output gain-map dimensions have an incompatible aspect ratio')
     }
     if (BigInt(result.width) * BigInt(result.height) > BigInt(maxGainMapPixels)) {
@@ -99,24 +96,50 @@ const compatibleMapDimensions = (
     }
     return result
   }
-  const divisor = gcd(outputBase.width, outputBase.height)
-  const unitWidth = outputBase.width / divisor
-  const unitHeight = outputBase.height / divisor
-  const horizontalScale =
-    (outputBase.width * source.gainMap.width) / (source.base.width * unitWidth)
-  const verticalScale =
-    (outputBase.height * source.gainMap.height) / (source.base.height * unitHeight)
-  const multiplier = Math.max(1, Math.round((horizontalScale + verticalScale) / 2))
-  const width = unitWidth * multiplier
-  const height = unitHeight * multiplier
-  if (
-    !Number.isSafeInteger(width) ||
-    !Number.isSafeInteger(height) ||
-    BigInt(width) * BigInt(height) > BigInt(maxGainMapPixels)
-  ) {
+  const idealWidth = (outputBase.width * source.gainMap.width) / source.base.width
+  const idealHeight = (outputBase.height * source.gainMap.height) / source.base.height
+  const roundedCandidates = (value: number): readonly number[] =>
+    [...new Set([Math.floor(value), Math.round(value), Math.ceil(value)])]
+      .map((candidate) => Math.max(1, candidate))
+      .sort((left, right) => left - right)
+  const candidates: Array<{
+    readonly dimensions: GainMapDimensions
+    readonly maximumRelativeError: number
+    readonly totalRelativeError: number
+  }> = []
+  let compatibleCandidateExceededLimit = false
+  for (const width of roundedCandidates(idealWidth)) {
+    for (const height of roundedCandidates(idealHeight)) {
+      const candidate = Object.freeze({ width, height })
+      if (!gainMapDimensionsAreCompatible(outputBase, candidate)) continue
+      if (BigInt(width) * BigInt(height) > BigInt(maxGainMapPixels)) {
+        compatibleCandidateExceededLimit = true
+        continue
+      }
+      const widthError = Math.abs(width - idealWidth) / idealWidth
+      const heightError = Math.abs(height - idealHeight) / idealHeight
+      candidates.push({
+        dimensions: candidate,
+        maximumRelativeError: Math.max(widthError, heightError),
+        totalRelativeError: widthError + heightError,
+      })
+    }
+  }
+  candidates.sort(
+    (left, right) =>
+      left.maximumRelativeError - right.maximumRelativeError ||
+      left.totalRelativeError - right.totalRelativeError ||
+      left.dimensions.width * left.dimensions.height -
+        right.dimensions.width * right.dimensions.height ||
+      left.dimensions.width - right.dimensions.width ||
+      left.dimensions.height - right.dimensions.height,
+  )
+  const selected = candidates[0]
+  if (selected) return selected.dimensions
+  if (compatibleCandidateExceededLimit) {
     throw limitExceeded('Output gain-map pixels exceed maxGainMapPixels')
   }
-  return Object.freeze({ width, height })
+  throw invalidInput('Output gain-map dimensions have an incompatible aspect ratio')
 }
 
 export const planGainMapCrop = (

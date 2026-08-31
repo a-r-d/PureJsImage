@@ -18,13 +18,33 @@ const xyz = (values: readonly [number, number, number]): Uint8Array => {
   return output
 }
 
-const description = (): Uint8Array => {
-  const label = 'PureJsImage sRGB\0'
-  const output = new Uint8Array(90 + label.length)
+const multiLocalizedUnicode = (value: string): Uint8Array => {
+  const encodedLength = value.length * 2
+  const output = new Uint8Array(28 + encodedLength)
   const view = new DataView(output.buffer)
-  ascii(output, 0, 'desc')
-  view.setUint32(8, label.length, false)
-  ascii(output, 12, label)
+  ascii(output, 0, 'mluc')
+  view.setUint32(8, 1, false)
+  view.setUint32(12, 12, false)
+  ascii(output, 16, 'enUS')
+  view.setUint32(20, encodedLength, false)
+  view.setUint32(24, 28, false)
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint16(28 + index * 2, value.charCodeAt(index), false)
+  }
+  return output
+}
+
+const chromaticAdaptation = (): Uint8Array => {
+  const output = new Uint8Array(44)
+  const view = new DataView(output.buffer)
+  ascii(output, 0, 'sf32')
+  const values = [
+    1.0478112, 0.0228866, -0.050127, 0.0295424, 0.9904844, -0.0170491, -0.0092345, 0.0150436,
+    0.7521316,
+  ] as const
+  for (let index = 0; index < values.length; index += 1) {
+    fixed(view, 8 + index * 4, values[index] ?? 0)
+  }
   return output
 }
 
@@ -40,29 +60,40 @@ const transferCurve = (): Uint8Array => {
   return output
 }
 
+const decodeHex = (value: string): Uint8Array => {
+  const output = new Uint8Array(value.length / 2)
+  for (let index = 0; index < output.length; index += 1) {
+    output[index] = Number.parseInt(value.slice(index * 2, index * 2 + 2), 16)
+  }
+  return output
+}
+
+export const PUREJSIMAGE_SRGB_ICC_PROFILE_ID = '3b1a5e27decd22cd7e4cf5e72976be35'
+
 /**
- * Deterministic first-party matrix-shaper sRGB display profile.
+ * Deterministic first-party ICC v4.3 matrix-shaper sRGB display profile.
  *
- * The colorants use the ICC sRGB D50 matrix, and the parametric curve is the
- * IEC 61966-2-1 sRGB transfer function. No third-party profile bytes are used.
+ * The colorants and Bradford adaptation use the ICC sRGB D50 values. The
+ * parametric curve is the IEC 61966-2-1 sRGB transfer function.
  */
 export const createPureJsImageSrgbIcc = (): Uint8Array => {
+  const curve = transferCurve()
   const tags = [
-    ['desc', description()],
+    ['desc', multiLocalizedUnicode('PureJsImage sRGB')],
+    ['cprt', multiLocalizedUnicode('Copyright 2026 PureJsImage. MIT License.')],
     ['wtpt', xyz([0.9642, 1, 0.8249])],
+    ['chad', chromaticAdaptation()],
     ['rXYZ', xyz([0.4360747, 0.2225045, 0.0139322])],
     ['gXYZ', xyz([0.3850649, 0.7168786, 0.0971045])],
     ['bXYZ', xyz([0.1430804, 0.0606169, 0.7141733])],
   ] as const
-  const curve = transferCurve()
   const tagCount = tags.length + 3
   const dataStart = 128 + 4 + tagCount * 12
   const dataBytes = tags.reduce((total, [, data]) => total + data.byteLength, 0) + curve.byteLength
   const output = new Uint8Array(dataStart + dataBytes)
   const view = new DataView(output.buffer)
   view.setUint32(0, output.byteLength, false)
-  ascii(output, 4, 'PJSI')
-  view.setUint32(8, 0x0210_0000, false)
+  view.setUint32(8, 0x0430_0000, false)
   ascii(output, 12, 'mntr')
   ascii(output, 16, 'RGB ')
   ascii(output, 20, 'XYZ ')
@@ -70,11 +101,11 @@ export const createPureJsImageSrgbIcc = (): Uint8Array => {
     view.setUint16(24 + index * 2, value, false)
   }
   ascii(output, 36, 'acsp')
-  ascii(output, 40, 'PJSI')
+  view.setUint32(64, 1, false)
   fixed(view, 68, 0.9642)
   fixed(view, 72, 1)
   fixed(view, 76, 0.8249)
-  ascii(output, 80, 'PJSI')
+  output.set(decodeHex(PUREJSIMAGE_SRGB_ICC_PROFILE_ID), 84)
   view.setUint32(128, tagCount, false)
 
   let entry = 132
@@ -98,4 +129,4 @@ export const createPureJsImageSrgbIcc = (): Uint8Array => {
 }
 
 export const PUREJSIMAGE_SRGB_ICC_SHA256 =
-  '85f1616e233eb429b3517a97ed4151b4ae74a79eca58fd5c7c22bf44c24610a9'
+  '3101ea6d31a871d6611a7fd840aee348c654d46705603d1f2b78aa6f56d2d881'

@@ -9,10 +9,15 @@ import {
   normalizeGainMapMetadata,
   openGainMapImage,
   type GainMapJpegMetadataMode,
+  writeGainMapJpeg,
 } from '../src/hdr/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
-import { createPureJsImageSrgbIcc, PUREJSIMAGE_SRGB_ICC_SHA256 } from '../src/hdr/srgb-icc.ts'
+import {
+  createPureJsImageSrgbIcc,
+  PUREJSIMAGE_SRGB_ICC_PROFILE_ID,
+  PUREJSIMAGE_SRGB_ICC_SHA256,
+} from '../src/hdr/srgb-icc.ts'
 import { createHash } from 'node:crypto'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 
@@ -128,7 +133,89 @@ const metadata = normalizeGainMapMetadata({
   warnings: [],
 })
 
+const hdrBaseIsoJpeg = async (): Promise<Uint8Array> => {
+  const output = Uint8Array.from(
+    await assembleGainMapJpeg(
+      { baseJpeg: base, gainMapJpeg: gain, metadata },
+      { metadataMode: 'iso' },
+    ),
+  )
+  const marker = new TextEncoder().encode('urn:iso:std:iso:ts:21496:-1\0')
+  let bodyOffset = -1
+  for (let offset = 0; offset <= output.byteLength - marker.byteLength; offset += 1) {
+    if (marker.every((value, index) => output[offset + index] === value)) {
+      bodyOffset = offset + marker.byteLength
+    }
+  }
+  if (bodyOffset < 0 || bodyOffset + 17 > output.byteLength) {
+    throw new Error('ISO gain-map payload was not found')
+  }
+  const view = new DataView(output.buffer, output.byteOffset)
+  output[bodyOffset + 4] = (output[bodyOffset + 4] ?? 0) | 0x04
+  const baseHeadroom = view.getUint32(bodyOffset + 9, false)
+  const alternateHeadroom = view.getUint32(bodyOffset + 13, false)
+  view.setUint32(bodyOffset + 9, alternateHeadroom, false)
+  view.setUint32(bodyOffset + 13, baseHeadroom, false)
+  return output
+}
+
 describe('HDR JPEG assembly', () => {
+  it('builds an aligned ICC v4.3 display profile with a valid profile ID', () => {
+    const profile = createPureJsImageSrgbIcc()
+    const view = new DataView(profile.buffer, profile.byteOffset, profile.byteLength)
+    const signature = (offset: number): string =>
+      String.fromCharCode(...profile.subarray(offset, offset + 4))
+    expect(profile.byteLength % 4).toBe(0)
+    expect(view.getUint32(0, false)).toBe(profile.byteLength)
+    expect(view.getUint32(8, false)).toBe(0x0430_0000)
+    expect(signature(12)).toBe('mntr')
+    expect(signature(16)).toBe('RGB ')
+    expect(signature(20)).toBe('XYZ ')
+    expect(signature(36)).toBe('acsp')
+    expect(profile.subarray(4, 8)).toEqual(new Uint8Array(4))
+    expect(profile.subarray(40, 44)).toEqual(new Uint8Array(4))
+    expect(profile.subarray(48, 64)).toEqual(new Uint8Array(16))
+    expect(profile.subarray(80, 84)).toEqual(new Uint8Array(4))
+    expect(profile.subarray(100, 128)).toEqual(new Uint8Array(28))
+
+    const expectedTypes = new Map([
+      ['desc', 'mluc'],
+      ['cprt', 'mluc'],
+      ['wtpt', 'XYZ '],
+      ['chad', 'sf32'],
+      ['rXYZ', 'XYZ '],
+      ['gXYZ', 'XYZ '],
+      ['bXYZ', 'XYZ '],
+      ['rTRC', 'para'],
+      ['gTRC', 'para'],
+      ['bTRC', 'para'],
+    ])
+    expect(view.getUint32(128, false)).toBe(expectedTypes.size)
+    const found = new Set<string>()
+    for (let index = 0; index < expectedTypes.size; index += 1) {
+      const entry = 132 + index * 12
+      const tag = signature(entry)
+      const offset = view.getUint32(entry + 4, false)
+      const length = view.getUint32(entry + 8, false)
+      found.add(tag)
+      expect(offset % 4, `${tag} offset`).toBe(0)
+      expect(length % 4, `${tag} length`).toBe(0)
+      expect(offset + length).toBeLessThanOrEqual(profile.byteLength)
+      expect(signature(offset)).toBe(expectedTypes.get(tag))
+      expect(profile.subarray(offset + 4, offset + 8)).toEqual(new Uint8Array(4))
+    }
+    expect(found).toEqual(new Set(expectedTypes.keys()))
+
+    const profileId = Buffer.from(profile.subarray(84, 100)).toString('hex')
+    expect(profileId).toBe(PUREJSIMAGE_SRGB_ICC_PROFILE_ID)
+    const idInput = profile.slice()
+    idInput.fill(0, 44, 48)
+    idInput.fill(0, 64, 68)
+    idInput.fill(0, 84, 100)
+    expect(createHash('md5').update(idInput).digest('hex')).toBe(profileId)
+    expect(createHash('sha256').update(profile).digest('hex')).toBe(PUREJSIMAGE_SRGB_ICC_SHA256)
+  })
+
   const markerOrder = (input: Uint8Array): readonly string[] => {
     const result: string[] = []
     let offset = 2
@@ -357,4 +444,51 @@ describe('HDR JPEG assembly', () => {
       error: { code: 'INVALID_INPUT' },
     })
   })
+
+  it('reports a structurally valid HDR-base JPEG relationship as unsupported', async () => {
+    const output = await hdrBaseIsoJpeg()
+    expect(await inspectHdrJpeg(new MemorySource(output))).toMatchObject({
+      iso: { baseRendition: 'hdr' },
+    })
+    expect(await inspectGainMapImage(output)).toMatchObject({
+      container: 'jpeg',
+      status: 'unsupported',
+      error: { code: 'UNSUPPORTED_OPERATION' },
+    })
+    await expect(openGainMapImage(output)).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+  })
+
+  it.each(['dual', 'iso', 'ultra-hdr'] as const)(
+    'rejects HDR-base %s JPEG assembly before writing output',
+    async (metadataMode) => {
+      const hdrMetadata = normalizeGainMapMetadata({ ...metadata, baseRendition: 'hdr' })
+      await expect(
+        assembleGainMapJpeg(
+          { baseJpeg: base, gainMapJpeg: gain, metadata: hdrMetadata },
+          { metadataMode },
+        ),
+      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+      let writes = 0
+      let aborts = 0
+      await expect(
+        writeGainMapJpeg(
+          { baseJpeg: base, gainMapJpeg: gain, metadata: hdrMetadata },
+          {
+            async write(): Promise<void> {
+              writes += 1
+            },
+            async close(): Promise<void> {
+              throw new Error('HDR-base JPEG sink must not close')
+            },
+            async abort(): Promise<void> {
+              aborts += 1
+            },
+          },
+          { metadataMode },
+        ),
+      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+      expect(writes).toBe(0)
+      expect(aborts).toBe(1)
+    },
+  )
 })

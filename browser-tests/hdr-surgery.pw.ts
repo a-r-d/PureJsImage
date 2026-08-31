@@ -86,3 +86,26 @@ test('HDR Surgery exposes and opens each representative sample class', async ({ 
   await expect(page.locator('#hdr-status')).toContainText('hdr-surgery-synthetic-odd-scale.jpg')
   await expect(page.locator('#hdr-status')).toContainText('software preview rendered')
 })
+
+test('HDR Surgery fits a 12 MP source for preview without changing logical output geometry', async ({
+  page,
+}) => {
+  await page.goto('/hdr-surgery/')
+  await expect(page.locator('#hdr-status')).toContainText('software preview rendered')
+
+  await page.locator('#hdr-jpeg').click()
+  await expect(page.locator('#hdr-output-card')).toBeVisible()
+  await page.locator('#hdr-sample').selectOption('hdr-surgery-synthetic-12mp.jpg')
+  await page.locator('#hdr-open-sample').click()
+
+  await expect(page.locator('#hdr-status')).toContainText('hdr-surgery-synthetic-12mp.jpg')
+  await expect(page.locator('#hdr-status')).toContainText('preview scaled', { timeout: 30_000 })
+  await expect(page.locator('#hdr-output-card')).toBeHidden()
+  await expect(page.locator('#hdr-output-width')).toHaveValue('4000')
+  await expect(page.locator('#hdr-output-height')).toHaveValue('3000')
+  const previewPixels = await page
+    .locator('#hdr-adapted')
+    .evaluate((canvas: HTMLCanvasElement) => canvas.width * canvas.height)
+  expect(previewPixels).toBeLessThanOrEqual(4_194_304)
+  expect(previewPixels).toBeLessThan(12_000_000)
+})

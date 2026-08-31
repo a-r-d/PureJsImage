@@ -2,9 +2,23 @@ import { describe, expect, it } from 'vitest'
 import {
   isHdrSurgeryRequest,
   isHdrSurgeryResponse,
+  planHdrSurgeryPreview,
 } from '../docs-astro/src/scripts/hdr-surgery-types.ts'
 
 describe('HDR Surgery worker protocol', () => {
+  it('fits a 12 MP logical image into the preview ceiling deterministically', () => {
+    expect(planHdrSurgeryPreview({ width: 4000, height: 3000 })).toEqual({
+      logicalDimensions: { width: 4000, height: 3000 },
+      previewDimensions: { width: 2364, height: 1773 },
+      scaled: true,
+    })
+    expect(planHdrSurgeryPreview({ width: 320, height: 180 })).toEqual({
+      logicalDimensions: { width: 320, height: 180 },
+      previewDimensions: { width: 320, height: 180 },
+      scaled: false,
+    })
+  })
+
   it('accepts the closed request schema and rejects extra or malformed fields', () => {
     expect(
       isHdrSurgeryRequest({
@@ -69,5 +83,23 @@ describe('HDR Surgery worker protocol', () => {
         stack: 'private',
       }),
     ).toBe(false)
+    expect(
+      isHdrSurgeryResponse({
+        type: 'rendered',
+        requestId: 5,
+        generation: 2,
+        linearRgb: new ArrayBuffer(12),
+        previewRgba: new ArrayBuffer(16),
+        falseColorRgba: new ArrayBuffer(16),
+        report: {},
+        inspection: {},
+        basePreviewRgba: new ArrayBuffer(16),
+        gainPreviewRgba: new ArrayBuffer(4),
+        logicalDimensions: { width: 4000, height: 3000 },
+        previewDimensions: { width: 2364, height: 1773 },
+        previewGainMapDimensions: { width: 591, height: 443 },
+        previewScaled: true,
+      }),
+    ).toBe(true)
   })
 })

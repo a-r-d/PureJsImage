@@ -4,12 +4,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { jpegCodec } from '../../src/codecs/jpeg.ts'
+import { createPureJsImageSrgbIcc } from '../../src/hdr/srgb-icc.ts'
 import {
   assembleGainMapJpeg,
   normalizeGainMapMetadata,
   openGainMapImage,
 } from '../../src/hdr/index.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
+import { defaultImageLimits } from '../../src/limits.ts'
+import { MemorySource } from '../../src/source.ts'
 
 interface CommandResult {
   readonly stdout: string
@@ -143,14 +146,82 @@ if (!libultrahdr) {
   )
 }
 const avifgainmaputil = process.env.PUREJSIMAGE_AVIF_GAIN_MAP_UTIL ?? 'avifgainmaputil'
+const iccDumpProfile = process.env.PUREJSIMAGE_ICC_DUMP_PROFILE
+const transicc = process.env.PUREJSIMAGE_TRANSICC
+const libavifInclude = process.env.PUREJSIMAGE_LIBAVIF_INCLUDE
+const libavifLibrary = process.env.PUREJSIMAGE_LIBAVIF_LIBRARY
+if (!iccDumpProfile) {
+  throw new Error(
+    'Set PUREJSIMAGE_ICC_DUMP_PROFILE to iccDEV v2.3.2.3 commit 9f1707e iccDumpProfile',
+  )
+}
+if (!transicc) throw new Error('Set PUREJSIMAGE_TRANSICC to Little CMS 2.16 transicc')
+if (!libavifInclude || !libavifLibrary) {
+  throw new Error(
+    'Set PUREJSIMAGE_LIBAVIF_INCLUDE and PUREJSIMAGE_LIBAVIF_LIBRARY for libavif v1.3.0',
+  )
+}
 const temporary = await mkdtemp(join(tmpdir(), 'purejsimage-hdr-oracle-'))
 
+const validateIcc = (path: string, label: string): void => {
+  const validation = run(iccDumpProfile, ['-v', '100', path, 'ALL']).stdout
+  if (
+    !validation.includes('IccProfLib version 2.3.2.3+9f1707e') ||
+    !validation.includes('Profile is valid for version 4.30')
+  ) {
+    throw new Error(`iccDEV rejected the ${label} ICC profile\n${validation}`)
+  }
+}
+
+const validateLittleCms = async (path: string, label: string): Promise<void> => {
+  const input = join(temporary, `${label}-rgb.txt`)
+  const xyz = join(temporary, `${label}-xyz.txt`)
+  const roundTrip = join(temporary, `${label}-roundtrip.txt`)
+  await writeFile(
+    input,
+    'CGATS.17\nNUMBER_OF_FIELDS 4\nBEGIN_DATA_FORMAT\nSAMPLE_ID RGB_R RGB_G RGB_B\nEND_DATA_FORMAT\nNUMBER_OF_SETS 5\nBEGIN_DATA\nblack 0 0 0\nred 255 0 0\ngreen 0 255 0\nblue 0 0 255\nmixed 64 128 192\nEND_DATA\n',
+  )
+  const forward = run(transicc, ['-v1', '-n', `-i${path}`, '-o*XYZ', input, xyz])
+  if (!`${forward.stdout}${forward.stderr}`.includes('LittleCMS 2.16')) {
+    throw new Error('Little CMS oracle version is not 2.16')
+  }
+  run(transicc, ['-v1', '-n', '-i*XYZ', `-o${path}`, xyz, roundTrip])
+  const text = await readFile(roundTrip, 'utf8')
+  const mixed = /^\s*mixed\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)/mu.exec(text)
+  if (!mixed) throw new Error(`Little CMS did not emit the ${label} round-trip sample`)
+  for (const [index, expected] of [64, 128, 192].entries()) {
+    requireClose(Number(mixed[index + 1]), expected, `${label} round-trip channel ${index}`, 0.001)
+  }
+}
+
 try {
+  const standaloneIccPath = join(temporary, 'purejsimage-srgb-v43.icc')
+  await writeFile(standaloneIccPath, createPureJsImageSrgbIcc())
+  validateIcc(standaloneIccPath, 'standalone')
+  await validateLittleCms(standaloneIccPath, 'standalone')
+
   const opened = await openGainMapImage(new Uint8Array(await readFile(fixture)))
   const metadata = opened.inspection().metadata
   const jpeg = await opened.jpeg({ metadataMode: 'dual', baseQuality: 95, gainMapQuality: 95 })
   const jpegPath = join(temporary, 'purejsimage-dual.jpg')
   await writeFile(jpegPath, jpeg)
+  const reopenedJpeg = await openGainMapImage(jpeg)
+  const primaryJpeg = await reopenedJpeg.extractOriginalBase()
+  reopenedJpeg.close()
+  const embeddedMetadata = await jpegCodec.preservedMetadata?.(
+    new MemorySource(primaryJpeg),
+    defaultImageLimits,
+    { exif: false, icc: true },
+  )
+  const embeddedIcc = embeddedMetadata?.icc
+  if (!embeddedIcc) throw new Error('Generated HDR JPEG primary has no embedded ICC profile')
+  if (!embeddedIcc.every((value, index) => createPureJsImageSrgbIcc()[index] === value)) {
+    throw new Error('Generated HDR JPEG primary ICC differs from the pinned profile')
+  }
+  const embeddedIccPath = join(temporary, 'purejsimage-embedded-srgb-v43.icc')
+  await writeFile(embeddedIccPath, embeddedIcc)
+  validateIcc(embeddedIccPath, 'embedded JPEG primary')
+  await validateLittleCms(embeddedIccPath, 'embedded')
 
   const probe = run(libultrahdr, ['-m', '1', '-j', jpegPath, '-P']).stdout
   if (!probe.includes('Ultra HDR Image: Yes')) {
@@ -244,6 +315,18 @@ try {
   }
   const avifBytes = (await stat(avifPath)).size
   const pngBytes = (await stat(toneMappedPath)).size
+
+  const probeSource = join(temporary, 'libavif-cicp-probe.c')
+  const probeBinary = join(temporary, 'libavif-cicp-probe')
+  await writeFile(
+    probeSource,
+    `#include <stdio.h>\n#include <avif/avif.h>\nint main(int argc, char **argv) {\n  if (argc != 2) return 2;\n  avifDecoder *decoder = avifDecoderCreate();\n  avifImage *image = avifImageCreateEmpty();\n  if (!decoder || !image) return 3;\n  decoder->imageContentToDecode = AVIF_IMAGE_CONTENT_ALL;\n  avifResult result = avifDecoderReadFile(decoder, image, argv[1]);\n  if (result != AVIF_RESULT_OK || !image->gainMap || !image->gainMap->image) {\n    fprintf(stderr, "%s\\n", avifResultToString(result));\n    return 4;\n  }\n  avifImage *gain = image->gainMap->image;\n  printf("libavif=%s base=%d/%d/%d/%d gain=%d/%d/%d/%d\\n", avifVersion(),\n         image->colorPrimaries, image->transferCharacteristics, image->matrixCoefficients, image->yuvRange,\n         gain->colorPrimaries, gain->transferCharacteristics, gain->matrixCoefficients, gain->yuvRange);\n  avifImageDestroy(image);\n  avifDecoderDestroy(decoder);\n  return 0;\n}\n`,
+  )
+  run('cc', ['-std=c11', '-I', libavifInclude, probeSource, libavifLibrary, '-o', probeBinary])
+  const cicp = run(probeBinary, [avifPath]).stdout.trim()
+  if (cicp !== 'libavif=1.3.0 base=1/13/1/1 gain=2/2/1/1') {
+    throw new Error(`Pinned libavif CICP probe disagrees: ${cicp}`)
+  }
   opened.close()
 
   console.log('HDR Surgery independent oracles passed')
@@ -253,6 +336,9 @@ try {
   console.log(
     `avifgainmaputil: 1.3.0 parsed ${avifBytes} byte AVIF and wrote ${pngBytes} byte tone-mapped PNG`,
   )
+  console.log('iccDEV: 2.3.2.3+9f1707e validated standalone and embedded ICC v4.30 profiles')
+  console.log('Little CMS: 2.16 opened both profiles and passed sRGB to XYZ round trips')
+  console.log(`libavif CICP: ${cicp}`)
 } finally {
   await rm(temporary, { recursive: true, force: true })
 }

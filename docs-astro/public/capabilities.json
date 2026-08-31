@@ -32,6 +32,9 @@
         "tests/hdr-jpeg-output.test.ts",
         "tests/hdr-open.test.ts",
         "tests/hdr-transform.test.ts",
+        "tests/hdr-materialization.test.ts",
+        "tests/hdr-geometry.test.ts",
+        "tests/hdr-worker-protocol.test.ts",
         "browser-tests/hdr-surgery.pw.ts",
         "browser-tests/compatibility.pw.ts"
       ],

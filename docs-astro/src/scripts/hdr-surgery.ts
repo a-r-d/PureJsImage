@@ -1,6 +1,14 @@
 import type { ExecutionEvidenceReport } from '../../../src/evidence.ts'
-import type { GainMapImageInspection, GainMapTransformOperation } from '../../../src/hdr/index.ts'
-import { isHdrSurgeryResponse, type HdrSurgeryRequest } from './hdr-surgery-types.ts'
+import {
+  gainMapDisplayWeight,
+  type GainMapImageInspection,
+  type GainMapTransformOperation,
+} from '../../../src/hdr/index.ts'
+import {
+  isHdrSurgeryResponse,
+  type HdrSurgeryDimensions,
+  type HdrSurgeryRequest,
+} from './hdr-surgery-types.ts'
 
 const element = (id: string): HTMLElement => {
   const value = document.getElementById(id)
@@ -62,6 +70,9 @@ let report: ExecutionEvidenceReport | undefined
 let linearRgb: Float32Array | undefined
 let basePreviewRgba: Uint8ClampedArray | undefined
 let gainPreviewRgba: Uint8ClampedArray | undefined
+let previewDimensions: HdrSurgeryDimensions | undefined
+let previewGainMapDimensions: HdrSurgeryDimensions | undefined
+let previewScaled = false
 let sourceName = 'sample'
 let nativeUrl: string | undefined
 let generatedBytes: ArrayBuffer | undefined
@@ -86,6 +97,16 @@ const replaceImageUrl = (
   revoke(nativeUrl)
   nativeUrl = url
   target.src = url
+}
+
+const clearGeneratedOutput = (): void => {
+  revoke(nativeUrl)
+  nativeUrl = undefined
+  nativeImage.removeAttribute('src')
+  generatedBytes = undefined
+  generatedMime = 'image/jpeg'
+  generatedFilename = 'purejsimage-hdr-surgery.jpg'
+  element('hdr-output-card').hidden = true
 }
 
 const draw = (
@@ -131,6 +152,12 @@ const updateHumanSummary = (): void => {
     ['Representations', value.representations.join(', ')],
     ['Base dimensions', `${value.baseDimensions.width} × ${value.baseDimensions.height}`],
     ['Map dimensions', `${value.gainMapDimensions.width} × ${value.gainMapDimensions.height}`],
+    [
+      'Software preview',
+      previewDimensions
+        ? `${previewDimensions.width} × ${previewDimensions.height}${previewScaled ? ' (scaled for display)' : ''}`
+        : 'Pending',
+    ],
     ['Map channels', String(value.channelCount)],
     ['Base rendition', value.baseRendition.toUpperCase()],
     ['Content gain', `${value.minimum.join('/')} to ${value.maximum.join('/')} log2`],
@@ -146,9 +173,7 @@ const updateHumanSummary = (): void => {
   boost.min = '1'
   boost.max = String(Math.max(1, Math.ceil(maximumBoost)))
   const current = Number(boost.value)
-  const span = value.capacityMaximum - value.capacityMinimum
-  const weight =
-    span === 0 ? 1 : Math.max(0, Math.min(1, (Math.log2(current) - value.capacityMinimum) / span))
+  const weight = gainMapDisplayWeight(value, current)
   element('hdr-boost-details').textContent =
     `1× SDR · capacity minimum ${minimumBoost.toFixed(2)}× · full map ${maximumBoost.toFixed(2)}× · current ${Math.log2(current).toFixed(3)} log2 · weight ${weight.toFixed(3)}`
 }
@@ -205,6 +230,14 @@ const nextIdentity = (): Pick<HdrSurgeryRequest, 'requestId' | 'generation'> => 
 const openBytes = (name: string, bytes: ArrayBuffer): void => {
   generation += 1
   sourceName = name
+  clearGeneratedOutput()
+  inspection = undefined
+  linearRgb = undefined
+  basePreviewRgba = undefined
+  gainPreviewRgba = undefined
+  previewDimensions = undefined
+  previewGainMapDimensions = undefined
+  previewScaled = false
   resetTransformState()
   setBusy(`Opening ${name} locally in the browser worker…`)
   const request: HdrSurgeryRequest = {
@@ -265,20 +298,29 @@ const updateRendered = (
   nextReport: ExecutionEvidenceReport,
   nextBasePreview: ArrayBuffer,
   nextGainPreview: ArrayBuffer,
+  nextPreviewDimensions: HdrSurgeryDimensions,
+  nextPreviewGainMapDimensions: HdrSurgeryDimensions,
+  nextPreviewScaled: boolean,
 ): void => {
   if (!inspection) return
-  const { width, height } = inspection.metadata.baseDimensions
+  const { width, height } = nextPreviewDimensions
+  previewDimensions = nextPreviewDimensions
+  previewGainMapDimensions = nextPreviewGainMapDimensions
+  previewScaled = nextPreviewScaled
   linearRgb = new Float32Array(nextLinear)
   basePreviewRgba = new Uint8ClampedArray(nextBasePreview)
   gainPreviewRgba = new Uint8ClampedArray(nextGainPreview)
   draw(adapted, preview, width, height)
   draw(falseColor, color, width, height)
   draw(basePreview, nextBasePreview, width, height)
-  const map = inspection.metadata.gainMapDimensions
+  const map = nextPreviewGainMapDimensions
   draw(gainPreview, nextGainPreview, map.width, map.height)
   report = nextReport
   evidence.textContent = JSON.stringify(nextReport, null, 2)
-  status.textContent = `${sourceName}: software preview rendered at ${Number(boost.value).toFixed(2)}×. The canvas is tone mapped for SDR; linear values remain available to the pixel probe.`
+  const fit = nextPreviewScaled
+    ? ` The preview scaled to ${width} × ${height} from logical ${inspection.metadata.baseDimensions.width} × ${inspection.metadata.baseDimensions.height}.`
+    : ''
+  status.textContent = `${sourceName}: software preview rendered at ${Number(boost.value).toFixed(2)}×.${fit} The canvas is tone mapped for SDR; linear values remain available to the pixel probe.`
   button('hdr-cancel').disabled = true
   button('hdr-jpeg').disabled = false
   button('hdr-avif').disabled = false
@@ -346,7 +388,6 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     inspection = message.inspection
     metadata.textContent = JSON.stringify(message.inspection, null, 2)
   }
-  updateHumanSummary()
   updateRendered(
     message.linearRgb,
     message.previewRgba,
@@ -354,7 +395,11 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     message.report,
     message.basePreviewRgba,
     message.gainPreviewRgba,
+    message.previewDimensions,
+    message.previewGainMapDimensions,
+    message.previewScaled,
   )
+  updateHumanSummary()
 })
 
 file.addEventListener('change', () => {
@@ -526,7 +571,8 @@ adapted.addEventListener('pointermove', (event) => {
     const normalized = value / 255
     return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
   })
-  const mapDimensions = currentInspection.metadata.gainMapDimensions
+  const mapDimensions = previewGainMapDimensions
+  if (!mapDimensions) return
   const sourceX = ((x + 0.5) * mapDimensions.width) / adapted.width - 0.5
   const sourceY = ((y + 0.5) * mapDimensions.height) / adapted.height - 0.5
   const left = Math.floor(sourceX)
@@ -551,19 +597,7 @@ adapted.addEventListener('pointermove', (event) => {
     currentInspection.metadata.channelCount === 1
       ? [sampleChannel(0)]
       : [sampleChannel(0), sampleChannel(1), sampleChannel(2)]
-  const capacitySpan =
-    currentInspection.metadata.capacityMaximum - currentInspection.metadata.capacityMinimum
-  const displayWeight =
-    capacitySpan === 0
-      ? 1
-      : Math.max(
-          0,
-          Math.min(
-            1,
-            (Math.log2(Number(boost.value)) - currentInspection.metadata.capacityMinimum) /
-              capacitySpan,
-          ),
-        )
+  const displayWeight = gainMapDisplayWeight(currentInspection.metadata, Number(boost.value))
   const logGain = samples.map((sample, channel) => {
     const index = currentInspection.metadata.channelCount === 1 ? 0 : channel
     const recovery = (sample / 255) ** (1 / (currentInspection.metadata.gamma[index] ?? 1))
@@ -572,7 +606,7 @@ adapted.addEventListener('pointermove', (event) => {
       minimum * (1 - recovery) + (currentInspection.metadata.maximum[index] ?? minimum) * recovery
     )
   })
-  probe.textContent = `(${x}, ${y}) base encoded RGB ${encoded.join(', ')} · base linear RGB ${linearBase.map((value) => value.toFixed(4)).join(', ')} · bilinear gain sample ${samples.map((value) => value.toFixed(2)).join(', ')} · interpolated log2 gain ${logGain.map((value) => value.toFixed(4)).join(', ')} · display weight ${displayWeight.toFixed(4)} · adapted linear RGB ${[
+  probe.textContent = `Preview (${x}, ${y}) base encoded RGB ${encoded.join(', ')} · base linear RGB ${linearBase.map((value) => value.toFixed(4)).join(', ')} · bilinear gain sample ${samples.map((value) => value.toFixed(2)).join(', ')} · interpolated log2 gain ${logGain.map((value) => value.toFixed(4)).join(', ')} · display weight ${displayWeight.toFixed(4)} · adapted linear RGB ${[
     linearRgb[offset] ?? 0,
     linearRgb[offset + 1] ?? 0,
     linearRgb[offset + 2] ?? 0,

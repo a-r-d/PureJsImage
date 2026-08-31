@@ -32,6 +32,7 @@ const hdrSampleNames = [
   'hdr-surgery-synthetic-iso.jpg',
   'hdr-surgery-synthetic-rgb-progressive.jpg',
   'hdr-surgery-synthetic-odd-scale.jpg',
+  'hdr-surgery-synthetic-12mp.jpg',
 ] as const
 await mkdir(join(outputDirectory, 'demo-data'), { recursive: true })
 for (const name of hdrSampleNames) {
