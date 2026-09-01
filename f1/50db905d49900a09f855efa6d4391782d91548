@@ -1,0 +1,21 @@
+.github/workflows/ci.yml
+  s_7d348c739afcf2::t_b0adaeaec4e162 79-81
+.github/workflows/jpegxl-corpus.yml
+  s_7d348c739afcf2::t_b0adaeaec4e162 236-238
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "f150db905d49900a09f855efa6d4391782d91548",
+  "prompts": {},
+  "sessions": {
+    "s_7d348c739afcf2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05e14-c899-7c12-a202-69c7e0176d08",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
