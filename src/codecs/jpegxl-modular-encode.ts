@@ -1,5 +1,6 @@
 import { throwIfAborted } from '../abort.ts'
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
+import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { JpegXlEncodeOptions } from '../pipeline.ts'
@@ -760,14 +761,39 @@ const readOptions = (value: unknown): Readonly<Required<JpegXlEncodeOptions>> =>
   return Object.freeze({ mode: 'lossless', effort: 1, container: options.container ?? true })
 }
 
+export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boolean =>
+  (semantics.family === 'gray' || semantics.family === 'rgb') &&
+  semantics.primaries === 'srgb' &&
+  semantics.transfer.kind === 'srgb' &&
+  semantics.matrix === 'identity' &&
+  semantics.range === 'full' &&
+  (semantics.alpha === 'none' || semantics.alpha === 'straight') &&
+  semantics.icc === undefined
+
+const validateColorSemantics = (request: EncodeRequest): void => {
+  const semantics = request.colorSemantics
+  if (!semantics) return
+  const grayscale = request.pixelFormat.startsWith('gray')
+  const alpha = request.pixelFormat.startsWith('rgba')
+  if (
+    !acceptsJpegXlColorSemantics(semantics) ||
+    semantics.family !== (grayscale ? 'gray' : 'rgb') ||
+    semantics.alpha !== (alpha ? 'straight' : 'none')
+  ) {
+    throw unsupportedOperation(
+      'JPEG XL encoding supports full-range sRGB or sRGB grayscale pixels with straight alpha only',
+    )
+  }
+}
+
 class JpegXlModularEncoder implements ImageEncoder {
   readonly #sink: ImageSink
   readonly #request: EncodeRequest
   readonly #options: Readonly<Required<JpegXlEncodeOptions>>
-  readonly #pixels: Uint8Array
+  #pixels: Uint8Array | undefined
   readonly #rowBytes: number
   #nextY = 0
-  #finished = false
+  #state: 'open' | 'finishing' | 'finished' | 'aborted' = 'open'
 
   constructor(
     sink: ImageSink,
@@ -788,58 +814,85 @@ class JpegXlModularEncoder implements ImageEncoder {
   }
 
   async write(block: PixelBlock): Promise<void> {
-    if (this.#finished) throw invalidInput('Cannot write to a finished JPEG XL encoder')
-    throwIfAborted(this.#request.signal)
-    if (
-      block.x !== 0 ||
-      block.y !== this.#nextY ||
-      block.width !== this.#request.width ||
-      block.height < 1 ||
-      block.y + block.height > this.#request.height ||
-      block.format !== this.#request.pixelFormat ||
-      block.stride < this.#rowBytes ||
-      block.data.byteLength < block.stride * (block.height - 1) + this.#rowBytes
-    ) {
-      throw invalidInput('JPEG XL encoder requires ordered, full-width pixel blocks')
+    if (this.#state !== 'open') throw invalidInput('Cannot write to a closed JPEG XL encoder')
+    try {
+      throwIfAborted(this.#request.signal)
+      if (
+        block.x !== 0 ||
+        block.y !== this.#nextY ||
+        block.width !== this.#request.width ||
+        block.height < 1 ||
+        block.y + block.height > this.#request.height ||
+        block.format !== this.#request.pixelFormat ||
+        block.stride < this.#rowBytes ||
+        block.data.byteLength < block.stride * (block.height - 1) + this.#rowBytes
+      ) {
+        throw invalidInput('JPEG XL encoder requires ordered, full-width pixel blocks')
+      }
+      const pixels = this.#pixels
+      if (!pixels) throw invalidInput('JPEG XL encoder pixel storage is unavailable')
+      for (let row = 0; row < block.height; row += 1) {
+        const source = row * block.stride
+        pixels.set(
+          block.data.subarray(source, source + this.#rowBytes),
+          (this.#nextY + row) * this.#rowBytes,
+        )
+      }
+      this.#nextY += block.height
+    } catch (error) {
+      await this.abort(error)
+      throw error
     }
-    for (let row = 0; row < block.height; row += 1) {
-      const source = row * block.stride
-      this.#pixels.set(
-        block.data.subarray(source, source + this.#rowBytes),
-        (this.#nextY + row) * this.#rowBytes,
-      )
-    }
-    this.#nextY += block.height
   }
 
   async finish(): Promise<void> {
-    if (this.#finished) throw invalidInput('JPEG XL encoder is already finished')
-    this.#finished = true
-    if (this.#nextY !== this.#request.height) {
-      throw truncatedInput(
-        `JPEG XL encoder received ${this.#nextY} of ${this.#request.height} rows`,
+    if (this.#state !== 'open') throw invalidInput('JPEG XL encoder is already closed')
+    this.#state = 'finishing'
+    try {
+      if (this.#nextY !== this.#request.height) {
+        throw truncatedInput(
+          `JPEG XL encoder received ${this.#nextY} of ${this.#request.height} rows`,
+        )
+      }
+      throwIfAborted(this.#request.signal)
+      if (!supportedFormat(this.#request.pixelFormat)) {
+        throw unsupportedOperation(
+          `JPEG XL encoding does not support ${this.#request.pixelFormat} pixels`,
+        )
+      }
+      const pixels = this.#pixels
+      if (!pixels) throw invalidInput('JPEG XL encoder pixel storage is unavailable')
+      const codestream = encodeCodestream(
+        pixels,
+        this.#request.width,
+        this.#request.height,
+        this.#request.pixelFormat,
       )
+      const output = this.#options.container ? wrapContainer(codestream) : codestream
+      const jpegXlLimits = resolveJpegXlLimits()
+      if (output.byteLength > jpegXlLimits.maxCodestreamBytes) {
+        throw limitExceeded(
+          `JPEG XL output requires ${output.byteLength} bytes; maxCodestreamBytes is ${jpegXlLimits.maxCodestreamBytes}`,
+        )
+      }
+      await this.#sink.write(output)
+      this.#pixels = undefined
+      this.#state = 'finished'
+    } catch (error) {
+      await this.abort(error)
+      throw error
     }
-    throwIfAborted(this.#request.signal)
-    if (!supportedFormat(this.#request.pixelFormat)) {
-      throw unsupportedOperation(
-        `JPEG XL encoding does not support ${this.#request.pixelFormat} pixels`,
-      )
+  }
+
+  async abort(reason: unknown): Promise<void> {
+    if (this.#state === 'aborted' || this.#state === 'finished') return
+    this.#state = 'aborted'
+    this.#pixels = undefined
+    try {
+      await this.#sink.abort(reason)
+    } catch {
+      // Preserve the failure that caused the encoder to abort.
     }
-    const codestream = encodeCodestream(
-      this.#pixels,
-      this.#request.width,
-      this.#request.height,
-      this.#request.pixelFormat,
-    )
-    const output = this.#options.container ? wrapContainer(codestream) : codestream
-    const jpegXlLimits = resolveJpegXlLimits()
-    if (output.byteLength > jpegXlLimits.maxCodestreamBytes) {
-      throw limitExceeded(
-        `JPEG XL output requires ${output.byteLength} bytes; maxCodestreamBytes is ${jpegXlLimits.maxCodestreamBytes}`,
-      )
-    }
-    await this.#sink.write(output)
   }
 }
 
@@ -850,6 +903,7 @@ export const createJpegXlModularEncoder = async (
   if (!supportedFormat(request.pixelFormat)) {
     throw unsupportedOperation(`JPEG XL encoding does not support ${request.pixelFormat} pixels`)
   }
+  validateColorSemantics(request)
   if (request.metadata?.exif || request.metadata?.icc || request.metadata?.xmp) {
     throw unsupportedOperation('JPEG XL metadata preservation is not supported by this encoder yet')
   }

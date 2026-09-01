@@ -16,7 +16,7 @@ import {
 } from './jpegxl-decode.ts'
 import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
-import { createJpegXlModularEncoder } from './jpegxl-modular-encode.ts'
+import { acceptsJpegXlColorSemantics, createJpegXlModularEncoder } from './jpegxl-modular-encode.ts'
 import { createJpegXlVarDctDecoder } from './jpegxl-vardct.ts'
 
 export type {
@@ -57,6 +57,7 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
   mimeTypes: ['image/jxl'],
   minimumBytes: jpegXlRawSignature.byteLength,
   encoderPixelFormats: ['gray8', 'gray16', 'rgb8', 'rgb16', 'rgba8', 'rgba16'] as const,
+  acceptsColorSemantics: acceptsJpegXlColorSemantics,
   detect(header: Uint8Array): boolean {
     return startsWith(header, jpegXlRawSignature) || startsWith(header, jpegXlContainerSignature)
   },

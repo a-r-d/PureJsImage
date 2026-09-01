@@ -4,12 +4,17 @@
 
 PureJsImage has three separate JPEG XL paths:
 
-1. A static decoder for the checked lossless Modular and common VarDCT subsets.
+1. A static decoder for the checked lossless Modular subset and selected 8-bit single-group XYB
+   VarDCT fixtures.
 2. An experimental effort-1 Modular encoder for mathematically lossless pixels.
 3. An explicit coefficient-domain JPEG transcoder that verifies byte-exact JPEG reconstruction.
 
 The encoder and transcoder are experimental. Unsupported syntax fails with an `ImageError`. Exact
 JPEG transcode never silently becomes a pixel transcode.
+
+The representative compression matrix is an explicit reason the encoder remains Experimental. Its
+current median and worst size ratios do not meet the documented stable gate, even though the output
+passes the independent exact-sample checks.
 
 ## Decode or encode pixels
 
@@ -26,9 +31,11 @@ const output = await images
   .toUint8Array()
 ```
 
-The encoder accepts `gray8`, `gray16`, `rgb8`, `rgb16`, `rgba8`, and `rgba16`. It writes either a
-raw codestream or a container with one `jxlc` box. It currently retains bounded full input and
-output buffers.
+The encoder accepts `gray8`, `gray16`, `rgb8`, `rgb16`, `rgba8`, and `rgba16`. Pixels must use
+full-range sRGB gray or RGB semantics, with no alpha or straight alpha. Linear RGB, Display P3,
+unknown transfer or primaries, source-profile pixels, arbitrary ICC encoding, and premultiplied
+alpha are rejected. The encoder writes either a raw codestream or a container with one `jxlc` box.
+It currently retains bounded full input and output buffers.
 
 ## Transcode a JPEG without decoding RGB
 
@@ -48,6 +55,7 @@ const result = await transcodeJpegToJpegXl(jpegBytes, {
   reconstruction: 'required',
   onlyIfSmaller: false,
 })
+if (result.data === undefined) throw new Error('Memory-mode transcode did not return data')
 const originalJpeg = await reconstructJpegFromJpegXl(result.data)
 ```
 
@@ -65,11 +73,20 @@ The exact boundary is generated in [jpegxl-codec-support.md](../jpegxl-codec-sup
 limits include:
 
 - Static images only.
-- A checked VarDCT corpus rather than every JPEG XL transform and color mode.
-- A checked 8-bit Huffman baseline and progressive JPEG reconstruction subset.
+- Selected 8-bit single-group XYB VarDCT fixtures, with no alpha or orientation extra fields.
+- Selected-subset VarDCT materializes the full frame and applies crop afterward. It does not
+  advertise region pushdown.
+- A checked three-component 8-bit Huffman baseline and progressive JPEG reconstruction subset.
+  Grayscale, CMYK, and YCCK exact transcode are unsupported.
 - No general lossy JPEG XL encoder.
 - Bounded full input and output retention in the experimental encoder and transcoder.
 
-The browser workbench at `/jpeg-xl/` runs the same first-party TypeScript implementation in a Web
-Worker. Local files stay in the browser.
+Pixel-lossless encoding preserves decoded samples. Exact JPEG transcode preserves the original
+JPEG byte stream. These guarantees are not interchangeable. In memory mode the transcoder returns
+`data`. When a sink is supplied, it writes to that sink and returns `data: undefined` so the caller
+does not retain a second complete output.
 
+The browser workbench at `/jpeg-xl/` runs the same first-party TypeScript implementation in a Web
+Worker. Local files stay in the browser. It presents pixel-lossless PNG or TIFF encode, exact JPEG
+transcode, and JPEG XL inspect/decode as separate operations. The local pixel check is labeled
+`byte-exact local round trip`; independent verification refers only to the pinned external matrix.

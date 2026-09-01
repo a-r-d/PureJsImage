@@ -16,17 +16,18 @@ without concatenating compressed data. Raw, single-`jxlc`, ordered `jxlp`, and
 file-format-version-1 out-of-order `jxlp` codestreams can enter the implemented
 pixel subset through one logical segmented source.
 
-The decoder covers the checked lossless Modular subset plus pinned common static
-VarDCT. That includes DCT8 and selected adaptive block strategies, Gaborish, EPF,
+The decoder covers the checked lossless Modular subset plus selected 8-bit single-group
+XYB VarDCT fixtures. That includes DCT8 and selected adaptive block strategies, Gaborish, EPF,
 adaptive smoothing, synthetic noise, final progressive reconstruction, and JPEG-derived
 RGB or YCbCr DCT coefficients. Each checked lossy fixture has a pinned independent
 `djxl` tolerance. Unsupported strategies, patches, splines, broad color syntax, extra
-channels, and multiple visible frames fail explicitly.
+channels, orientation extra fields, and multiple visible frames fail explicitly. This
+VarDCT path materializes the selected full frame before applying a crop and serving rows.
 
 The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
 gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
-and the fixed RGB8 benchmark is smaller than pinned `cjxl` 0.12.0. The encoder remains
-experimental until its broader compression and decoder matrix gates pass. The separate
+and the six-format output matrix is exact through pinned `djxl` and jxl-rs. The corpus
+compression gate remains below the stable threshold, so the encoder stays Experimental. The separate
 `purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
 reconstructs and compares every source byte before exact-mode success.
@@ -104,7 +105,7 @@ A general-purpose lossy VarDCT encoder is outside this project.
   contents by default
 - [ ] Define explicit metadata preservation and stripping behavior for
   JXL-to-other-codec pipelines
-- [ ] Keep JPEG bitstream reconstruction data independent from image pixel
+- [x] Keep JPEG bitstream reconstruction data independent from image pixel
   decode
 
 ### Metadata-only inspection

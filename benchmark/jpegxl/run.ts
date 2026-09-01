@@ -5,8 +5,14 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import hillclimb from './encoder-hillclimb.json' with { type: 'json' }
 
+type Workload =
+  | 'encode-rgb8'
+  | 'transcode-progressive-yuv420'
+  | 'transcode-baseline-12mp'
+  | 'transcode-progressive-12mp'
+
 interface WorkerResult {
-  readonly workload: 'encode-rgb8' | 'transcode-progressive-yuv420'
+  readonly workload: Workload
   readonly validation: 'exact-pixels' | 'exact-jpeg-bytes'
   readonly baseline: Readonly<{
     readonly arrayBuffersBytes: number
@@ -21,6 +27,7 @@ interface WorkerResult {
   readonly outputBytes: number
   readonly outputSha256: string
   readonly wallMilliseconds: number
+  readonly managedPeakBytes: number
 }
 
 const record = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -29,7 +36,10 @@ const record = (value: unknown): value is Readonly<Record<string, unknown>> =>
 const workerResult = (value: unknown): WorkerResult => {
   if (
     !record(value) ||
-    (value.workload !== 'encode-rgb8' && value.workload !== 'transcode-progressive-yuv420') ||
+    (value.workload !== 'encode-rgb8' &&
+      value.workload !== 'transcode-progressive-yuv420' &&
+      value.workload !== 'transcode-baseline-12mp' &&
+      value.workload !== 'transcode-progressive-12mp') ||
     (value.validation !== 'exact-pixels' && value.validation !== 'exact-jpeg-bytes') ||
     !record(value.baseline) ||
     !record(value.peak) ||
@@ -38,7 +48,8 @@ const workerResult = (value: unknown): WorkerResult => {
     typeof value.inputSha256 !== 'string' ||
     typeof value.outputBytes !== 'number' ||
     typeof value.outputSha256 !== 'string' ||
-    typeof value.wallMilliseconds !== 'number'
+    typeof value.wallMilliseconds !== 'number' ||
+    typeof value.managedPeakBytes !== 'number'
   ) {
     throw new Error('JPEG XL benchmark worker returned invalid output')
   }
@@ -65,6 +76,7 @@ const workerResult = (value: unknown): WorkerResult => {
     outputBytes: value.outputBytes,
     outputSha256: value.outputSha256,
     wallMilliseconds: value.wallMilliseconds,
+    managedPeakBytes: value.managedPeakBytes,
   }
 }
 
@@ -84,7 +96,12 @@ const ppmSamples = (ppm: Uint8Array): Uint8Array => {
 }
 
 const worker = fileURLToPath(new URL('./benchmark-worker.ts', import.meta.url))
-const workloads = ['encode-rgb8', 'transcode-progressive-yuv420'] as const
+const workloads = [
+  'encode-rgb8',
+  'transcode-progressive-yuv420',
+  'transcode-baseline-12mp',
+  'transcode-progressive-12mp',
+] as const
 const runs: WorkerResult[] = []
 for (const workload of workloads) {
   for (let iteration = 0; iteration < 3; iteration += 1) {
@@ -132,6 +149,7 @@ const summaries = workloads.map((workload) => {
         Math.max(0, peak.arrayBuffersBytes - baseline.arrayBuffersBytes),
       ),
     ),
+    medianManagedPeakBytes: median(selected.map(({ managedPeakBytes }) => managedPeakBytes)),
   })
 })
 

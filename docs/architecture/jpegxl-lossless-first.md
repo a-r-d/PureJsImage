@@ -318,8 +318,11 @@ decoders. VarDCT output records maximum absolute error, RMSE, and one fixed disp
 metric against high-precision oracle output.
 
 The encoder corpus decodes every PureJsImage output through PureJsImage, `djxl`, jxl-rs, and
-jxl-oxide. Exact JPEG corpus entries record pixel-decode eligibility and reconstruction eligibility
-separately. Eligible entries require byte equality and SHA-256 equality.
+jxl-oxide. PureJsImage, `djxl`, and jxl-rs return exact native samples for the six advertised
+formats. The pinned jxl-oxide revision returns exact 8-bit samples but clamps Modular 16-bit values
+above 32767 because it treats them as signed. Those failures stay in the matrix as a pinned decoder
+limitation. Exact JPEG corpus entries record pixel-decode eligibility and reconstruction
+eligibility separately. Eligible entries require byte equality and SHA-256 equality.
 
 Initial development pins:
 
@@ -418,7 +421,7 @@ two JPEG-derived reconstruction fixtures also decode through the normal codec. M
 groups, chroma upsampling, patches, splines, alpha, and unsupported color syntax still fail
 explicitly.
 
-- [x] Decode the pinned common static VarDCT corpus to fixed oracle tolerances.
+- [x] Decode the pinned selected 8-bit single-group XYB VarDCT corpus to fixed oracle tolerances.
 - [ ] Cover required transforms, XYB, upsampling, restoration, patches, splines, and noise.
 - [x] Decode final progressive images.
 - [x] Decode JPEG-derived JXL image data to the original JPEG oracle pixels.
@@ -449,6 +452,12 @@ coefficients. The reproducible local matrix also passes byte-exact 12 MP multi-g
 and progressive 4:2:0 camera JPEGs, including successive-approximation refinement scans. Grayscale,
 restart, broader metadata, compressed Brotli, and cross-encoder corpus gates remain incomplete, so
 the full reconstruction acceptance items stay unchecked.
+
+The reverse matrix also proves PureJsImage output through pinned `jxlinfo` and `djxl`, including
+byte-exact reconstruction and pixel equality with pinned `cjxl` output. Ordinary JPEG-derived pixel
+decode now obtains image coefficients without parsing `jbrd`. Malformed or unsupported byte-layout
+metadata does not block valid checked-subset pixels, while the explicit reconstruction API still
+requires and validates `jbrd`.
 
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.
@@ -486,10 +495,10 @@ the exact source pixels. This one fixture does not establish a broad compression
 
 ### Final gates
 
-- [x] Pass every focused corpus, mutation, exact-round-trip, package, browser, and benchmark gate.
-- [x] Pass `npm run browser:check`, `git diff --check`, and `npm run check`.
-- [x] Create coherent commits and push the dedicated feature branch.
-- [x] Verify required workflows on the exact pushed SHA without merging or publishing.
+- [ ] Pass every focused corpus, mutation, exact-round-trip, package, browser, and benchmark gate.
+- [ ] Pass `npm run browser:check`, `git diff --check`, and `npm run check`.
+- [ ] Create coherent commits and push the dedicated feature branch.
+- [ ] Verify required workflows on the exact pushed SHA without merging or publishing.
 
 An item is complete only after its stated evidence passes. Locally implemented behavior is not a
 public capability until the manifest and generated surfaces match that evidence.

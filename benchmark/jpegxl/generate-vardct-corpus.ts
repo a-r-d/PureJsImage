@@ -77,6 +77,23 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     options: Object.freeze(['--distance=1', '--effort=3']),
     expectedPureJsImageBehavior: 'supported',
   }),
+  Object.freeze({
+    id: 'rgb8-distance1-single-group-255',
+    source: 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/input/rgb8-255x255.pnm',
+    width: 255,
+    height: 255,
+    bitDepth: 8,
+    colorEncoding: 'RGB D65 sRGB',
+    oracleExtension: 'ppm',
+    features: Object.freeze([
+      'VarDCT',
+      'default XYB',
+      'near-boundary single group',
+      'memory evidence',
+    ]),
+    options: Object.freeze(['--distance=1', '--effort=1']),
+    expectedPureJsImageBehavior: 'supported',
+  }),
 ])
 
 const run = async (command: string, arguments_: readonly string[]): Promise<void> =>
@@ -91,6 +108,22 @@ const run = async (command: string, arguments_: readonly string[]): Promise<void
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
+const createRgb8Pnm = (width: number, height: number): Uint8Array => {
+  const header = new TextEncoder().encode(`P6\n${width} ${height}\n255\n`)
+  const output = new Uint8Array(header.byteLength + width * height * 3)
+  output.set(header)
+  let offset = header.byteLength
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      output[offset] = (x * 13 + y * 3 + ((x >>> 3) ^ (y >>> 3)) * 17) & 255
+      output[offset + 1] = (x * 5 + y * 11 + ((x + y) >>> 2)) & 255
+      output[offset + 2] = (x * 7 + y * 19 + (x >>> 4) * (y >>> 4)) & 255
+      offset += 3
+    }
+  }
+  return output
+}
+
 const binaryDirectory = process.argv[2]
 if (!binaryDirectory) {
   throw new Error('Usage: node generate-vardct-corpus.ts <libjxl-tools-directory>')
@@ -98,6 +131,8 @@ if (!binaryDirectory) {
 
 const outputDirectory = 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0'
 await mkdir(outputDirectory, { recursive: true })
+await mkdir(join(outputDirectory, 'input'), { recursive: true })
+await writeFile(join(outputDirectory, 'input', 'rgb8-255x255.pnm'), createRgb8Pnm(255, 255))
 const entries = []
 for (const definition of definitions) {
   const output = join(outputDirectory, `${definition.id}.jxl`)

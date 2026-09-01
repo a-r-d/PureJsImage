@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
+import { jpegXlWorkbenchPng } from '../benchmark/jpegxl/workbench-fixture.ts'
 import { assertGeoShowcaseSourceInputs, geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 
@@ -51,6 +52,7 @@ for (const name of hdrSampleNames) {
 for (const sample of jpegXlSamples) {
   await copyFile(sample.source, join(outputDirectory, 'demo-data', sample.name))
 }
+await writeFile(join(outputDirectory, 'demo-data/jpegxl-pixel-lossless.png'), jpegXlWorkbenchPng())
 
 const geoFixtureDirectory = join(outputDirectory, 'fixtures/geo/geozarr-cube')
 for (const resource of geoShowcaseZarrResources()) {

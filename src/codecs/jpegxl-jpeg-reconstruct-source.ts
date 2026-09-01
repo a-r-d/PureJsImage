@@ -45,6 +45,14 @@ export interface DecodedJpegXlJpegReconstruction {
   readonly maximumOutputBytes: number
 }
 
+interface DecodedJpegXlJpegCoefficientImage {
+  readonly reconstruction: JpegXlJpegReconstructionHeader | undefined
+  readonly blobs: JpegXlJpegReconstructionBlobs | undefined
+  readonly image: JpegCoefficientImage
+  readonly metadata: JpegXlJpegReconstructionMetadata
+  readonly maximumOutputBytes: number
+}
+
 const payloadForBox = async (
   source: Awaited<ReturnType<typeof createImageSource>>,
   box: Readonly<JpegXlBoxSummary>,
@@ -233,26 +241,31 @@ const buildCoefficientImage = (
   })
 }
 
-export const decodeJpegXlJpegReconstruction = async (
+const decodeJpegXlJpegCoefficientData = async (
   input: ImageInput,
-  options: Readonly<ReconstructJpegFromJpegXlOptions> = {},
-): Promise<DecodedJpegXlJpegReconstruction> => {
+  options: Readonly<ReconstructJpegFromJpegXlOptions>,
+  requireReconstruction: boolean,
+): Promise<DecodedJpegXlJpegCoefficientImage> => {
   const imageLimits = resolveLimits(options.limits)
   const jpegXlLimits = resolveJpegXlLimits(options.limits)
   const source = await createImageSource(input, imageLimits, options)
   throwIfAborted(options.signal)
   const structure = await inspectJpegXlSource(source, jpegXlLimits, options)
   const reconstructionBox = structure.metadataBoxes.find(({ type }) => type === 'jbrd')
-  if (!reconstructionBox) {
+  if (requireReconstruction && !reconstructionBox) {
     throw unsupportedOperation('JPEG XL file has no exact JPEG reconstruction data')
   }
-  const reconstructionPayload = await payloadForBox(source, reconstructionBox, options)
-  const reconstruction = parseJpegXlJpegReconstructionHeader(reconstructionPayload, jpegXlLimits)
-  const blobs = decodeJpegXlJpegReconstructionBlobs(
-    reconstructionPayload,
-    reconstruction,
-    jpegXlLimits,
-  )
+  const reconstructionPayload =
+    requireReconstruction && reconstructionBox
+      ? await payloadForBox(source, reconstructionBox, options)
+      : undefined
+  const reconstruction = reconstructionPayload
+    ? parseJpegXlJpegReconstructionHeader(reconstructionPayload, jpegXlLimits)
+    : undefined
+  const blobs =
+    reconstructionPayload && reconstruction
+      ? decodeJpegXlJpegReconstructionBlobs(reconstructionPayload, reconstruction, jpegXlLimits)
+      : undefined
   const logical = new JpegXlCodestreamSource(source, structure)
   const frame = await readJpegXlSourceFrameStructure(
     logical,
@@ -270,9 +283,11 @@ export const decodeJpegXlJpegReconstruction = async (
       'Exact JPEG reconstruction currently requires single-pass 8-bit JPEG-derived VarDCT',
     )
   }
-  const sections = await Promise.all(
-    frame.sections.map(({ offset, length }) => readExactly(logical, offset, length, options)),
-  )
+  const sections: Uint8Array[] = []
+  for (const section of frame.sections) {
+    throwIfAborted(options.signal)
+    sections.push(await readExactly(logical, section.offset, section.length, options))
+  }
   const lfSection = sections[0]
   if (!lfSection) throw invalidInput('JPEG XL LF global section is missing')
   const combinedSection = sections.length === 1
@@ -410,10 +425,10 @@ export const decodeJpegXlJpegReconstruction = async (
         internalChannel === undefined ? undefined : hfGlobal.dct8Quantization[internalChannel]
       const plane = coefficients[component]
       const dcQuantization = table?.[0]
-      if (!plane || !dcQuantization || 1024 % dcQuantization !== 0) {
-        throw unsupportedOperation('JPEG XL RGB DC level shift is not integral')
+      if (!plane || !dcQuantization) {
+        throw unsupportedOperation('JPEG XL RGB DC level shift is unavailable')
       }
-      const offset = 1024 / dcQuantization
+      const offset = Math.floor(1024 / dcQuantization)
       for (let block = 0; block < plane.length / 64; block += 1) {
         plane[block * 64] = checkedInt16((plane[block * 64] ?? 0) - offset)
       }
@@ -423,12 +438,12 @@ export const decodeJpegXlJpegReconstruction = async (
     frame.width,
     frame.height,
     frame.chromaSubsampling,
-    reconstruction.componentIds,
-    reconstruction.componentQuantizationTables,
+    reconstruction?.componentIds ?? Object.freeze([1, 2, 3]),
+    reconstruction?.componentQuantizationTables ?? Object.freeze([0, 1, 2]),
     hfGlobal.dct8Quantization,
     coefficients,
-    reconstruction.restartInterval ?? 0,
-    reconstruction.markerOrder.includes(0xc2),
+    reconstruction?.restartInterval ?? 0,
+    reconstruction?.markerOrder.includes(0xc2) ?? false,
     frame.colorTransform,
   )
   const exifBox = structure.metadataBoxes.find(({ type }) => type === 'Exif')
@@ -443,6 +458,29 @@ export const decodeJpegXlJpegReconstruction = async (
     image,
     metadata: Object.freeze(metadata),
     maximumOutputBytes: jpegXlLimits.maxReconstructedJpegBytes,
+  })
+}
+
+export const decodeJpegXlJpegCoefficientImage = async (
+  input: ImageInput,
+  options: Readonly<ReconstructJpegFromJpegXlOptions> = {},
+): Promise<JpegCoefficientImage> =>
+  (await decodeJpegXlJpegCoefficientData(input, options, false)).image
+
+export const decodeJpegXlJpegReconstruction = async (
+  input: ImageInput,
+  options: Readonly<ReconstructJpegFromJpegXlOptions> = {},
+): Promise<DecodedJpegXlJpegReconstruction> => {
+  const decoded = await decodeJpegXlJpegCoefficientData(input, options, true)
+  if (!decoded.reconstruction || !decoded.blobs) {
+    throw unsupportedOperation('JPEG XL file has no exact JPEG reconstruction data')
+  }
+  return Object.freeze({
+    reconstruction: decoded.reconstruction,
+    blobs: decoded.blobs,
+    image: decoded.image,
+    metadata: decoded.metadata,
+    maximumOutputBytes: decoded.maximumOutputBytes,
   })
 }
 

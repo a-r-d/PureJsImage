@@ -154,7 +154,6 @@ export const inspectJpegXl = async (
       nativeSampleBytes,
     }),
     unsupportedFeatures: Object.freeze([
-      ...(header.encoding === 'vardct' ? ['VarDCT pixel decode'] : []),
       'animation',
       'preview decode',
       'Level 10 pixel decode',

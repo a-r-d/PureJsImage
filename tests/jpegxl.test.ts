@@ -2,9 +2,11 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { inspectJpegXlStructure, jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import type { PixelColorSemantics } from '../src/color.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelFormat } from '../src/pixel.ts'
+import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
@@ -198,6 +200,37 @@ const losslessEncoderFormats = [
   { format: 'rgba16', channels: 4, bytesPerSample: 2, container: true },
 ] as const
 
+const srgbSemantics = (alpha: PixelColorSemantics['alpha']): PixelColorSemantics =>
+  Object.freeze({
+    family: 'rgb',
+    primaries: 'srgb',
+    transfer: Object.freeze({ kind: 'srgb' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha,
+    provenance: 'decoder-converted',
+  })
+
+class RecordingSink implements ImageSink {
+  readonly abortReasons: unknown[] = []
+  writes = 0
+  closes = 0
+  failWrite = false
+
+  async write(_chunk: Uint8Array): Promise<void> {
+    this.writes += 1
+    if (this.failWrite) throw new Error('sink write failed')
+  }
+
+  async close(): Promise<void> {
+    this.closes += 1
+  }
+
+  async abort(reason: unknown): Promise<void> {
+    this.abortReasons.push(reason)
+  }
+}
+
 describe('JPEG XL probing and lossless Modular decoding', () => {
   it('exposes a registered decoder for raw codestreams and containers', () => {
     expect(jpegxlCodec.format).toBe('jpegxl')
@@ -297,6 +330,120 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       data: Uint8Array.of(1, 2),
     })
     await expect(encoder.finish()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+  })
+
+  it('accepts only the encoder color and alpha semantics it signals', async () => {
+    const straight = srgbSemantics('straight')
+    expect(jpegxlCodec.acceptsColorSemantics?.(srgbSemantics('none'))).toBe(true)
+    expect(jpegxlCodec.acceptsColorSemantics?.(straight)).toBe(true)
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({
+        ...straight,
+        transfer: { kind: 'linear' },
+      }),
+    ).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, primaries: 'display-p3' })).toBe(
+      false,
+    )
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({
+        ...straight,
+        primaries: 'source-profile',
+        transfer: { kind: 'source-profile' },
+        provenance: 'icc',
+        icc: { relevance: 'emitted-pixels' },
+      }),
+    ).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, alpha: 'premultiplied' })).toBe(false)
+
+    await expect(
+      jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+        width: 1,
+        height: 1,
+        pixelFormat: 'rgba8',
+        colorSemantics: { ...straight, alpha: 'premultiplied' },
+        options: { mode: 'lossless' },
+        limits: defaultImageLimits,
+      }),
+    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+  })
+
+  it('aborts encoder state and its sink deterministically', async () => {
+    const sink = new RecordingSink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: 1,
+      height: 1,
+      pixelFormat: 'gray8',
+      options: { mode: 'lossless' },
+      limits: defaultImageLimits,
+    })
+    if (!encoder?.abort) throw new Error('JPEG XL encoder abort is unavailable')
+    const cause = new Error('caller cancelled')
+    await encoder.abort(cause)
+    await encoder.abort(new Error('later abort'))
+    expect(sink.abortReasons).toEqual([cause])
+    await expect(
+      encoder.write({
+        x: 0,
+        y: 0,
+        width: 1,
+        height: 1,
+        stride: 1,
+        format: 'gray8',
+        data: Uint8Array.of(1),
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    await expect(encoder.finish()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('aborts the encoder sink when output writing fails', async () => {
+    const sink = new RecordingSink()
+    sink.failWrite = true
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: 1,
+      height: 1,
+      pixelFormat: 'gray8',
+      options: { mode: 'lossless' },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+      stride: 1,
+      format: 'gray8',
+      data: Uint8Array.of(1),
+    })
+    await expect(encoder.finish()).rejects.toThrow('sink write failed')
+    expect(sink.abortReasons).toHaveLength(1)
+    expect(sink.abortReasons[0]).toMatchObject({ message: 'sink write failed' })
+  })
+
+  it('does not abort an encoder sink after successful completion', async () => {
+    const sink = new RecordingSink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: 1,
+      height: 1,
+      pixelFormat: 'gray8',
+      options: { mode: 'lossless' },
+      limits: defaultImageLimits,
+    })
+    if (!encoder?.abort) throw new Error('JPEG XL encoder abort is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+      stride: 1,
+      format: 'gray8',
+      data: Uint8Array.of(1),
+    })
+    await encoder.finish()
+    await encoder.abort(new Error('too late'))
+    expect(sink.writes).toBe(1)
+    expect(sink.abortReasons).toEqual([])
   })
 
   it('decodes the pinned 12-bit lossless RGBA conformance image exactly', async () => {

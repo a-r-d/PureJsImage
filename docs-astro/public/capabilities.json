@@ -5503,9 +5503,9 @@
         "status": "limited",
         "label": "Experimental"
       },
-      "boundary": "Decodes the pinned lossless Modular and common static VarDCT subsets, including final progressive images and JPEG-derived DCT8 image data. The experimental effort-1 Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16. The explicit purejsimage/jpegxl entry inspects files, transcodes eligible 8-bit Huffman JPEG coefficients without RGB, and reconstructs the original JPEG bytes. Multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT strategies, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
-      "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, common static DCT8 and adaptive VarDCT fixtures, final progressive VarDCT, and JPEG-derived RGB or YCbCr coefficients. Encodes six native pixel formats as deterministic mathematically lossless Modular JPEG XL. The separate coefficient-domain API transcodes the pinned progressive and baseline JPEG subset, verifies the resulting JXL by exact reconstruction before returning, and never silently substitutes a pixel path.",
-      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Declared entropy sections are read separately. Compatible Modular crops retain one intersecting group-row band. VarDCT retains compact coefficient and filter state rather than a full float RGBA frame. The experimental Modular encoder and exact transcoder currently retain bounded full input and output buffers; this is documented and included in their managed-byte estimates.",
+      "boundary": "Decodes the pinned lossless Modular subset, selected 8-bit single-group XYB VarDCT fixtures without alpha or orientation extra fields, and the checked JPEG-derived DCT8 image subset. Selected-subset VarDCT crop is applied after full-frame decode. The experimental effort-1 Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 only with full-range sRGB gray or RGB semantics and no alpha or straight alpha. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Grayscale exact transcode, CMYK or YCCK, multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
+      "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, selected 8-bit single-group XYB VarDCT fixtures, final progressive fixtures, and checked JPEG-derived RGB or YCbCr coefficients. Encodes six native storage formats as deterministic pixel-lossless Modular JPEG XL within the documented sRGB and straight-alpha boundary. The separate coefficient-domain API transcodes the pinned eligible JPEG subset, verifies byte-exact reconstruction before returning, and never silently substitutes a pixel path.",
+      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Compatible Modular crops retain one intersecting group-row band. Selected-subset VarDCT materializes full-frame sections, coefficients, Float32 restoration planes, and output before serving bounded rows; crop is not decoder pushdown. A conservative preflight rejects over-budget selected VarDCT before section allocation, and a live ledger measures managed peak bytes. The experimental Modular encoder retains bounded full input and output buffers. The exact transcoder tracks input, coefficient tables and planes, metadata, reconstruction payload, encoded sections, codestream, container output, and verification bytes by live lifetime. Sink-mode transcode does not return duplicate output bytes.",
       "recommendation": "Use the decoder for files within the checked static corpus. Treat lossless Modular encoding and coefficient-domain JPEG transcode as experimental until the broader compression, decoder, metadata, and sequential-output gates pass. Use reconstruction: required for exact JPEG work, and enable pixel-lossless fallback explicitly when original JPEG bytes are not required.",
       "evidence": [
         "tests/jpegxl.test.ts",
@@ -5519,7 +5519,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
-        "tolerance": "Common static VarDCT fixtures stay within one sample with RMSE below 0.5; JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "tolerance": "Selected 8-bit single-group XYB VarDCT fixtures stay within one sample with RMSE below 0.5; JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "claims": [
@@ -5636,7 +5636,7 @@
           "text": "Define explicit metadata preservation and stripping behavior for JXL-to-other-codec pipelines"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Keep JPEG bitstream reconstruction data independent from image pixel decode"
         },
         {

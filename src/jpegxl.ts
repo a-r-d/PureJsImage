@@ -12,10 +12,13 @@ export {
   inspectJpegReconstructionEligibility,
   transcodeJpegToJpegXl,
   type JpegReconstructionEligibility,
+  type JpegReconstructionIneligibilityCode,
   type JpegReconstructionPolicy,
   type JpegTranscodeFallback,
   type JpegTranscodeMetadataSummary,
   type JpegTranscodeResult,
+  type JpegTranscodeMemoryResult,
+  type JpegTranscodeSinkResult,
   type JpegTranscodeSourceProfile,
   type TranscodeJpegToJpegXlOptions,
 } from './codecs/jpegxl-jpeg-transcode.ts'

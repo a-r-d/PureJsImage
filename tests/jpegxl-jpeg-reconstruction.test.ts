@@ -6,6 +6,7 @@ import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { pipeDecoderToJpegXlEncoder } from '../src/codecs/jpegxl-jpeg-transcode.ts'
 import { inspectJpegXlSource } from '../src/codecs/jpegxl-container.ts'
 import { parseJpegReconstructionData } from '../src/codecs/jpegxl-jpeg-data.ts'
 import { reconstructJpegFromCoefficientImage } from '../src/codecs/jpegxl-jpeg-reconstruct.ts'
@@ -76,6 +77,67 @@ const readJbrd = async (): Promise<Uint8Array> => {
 }
 
 describe('JPEG XL JPEG reconstruction metadata', () => {
+  it('releases pixel-fallback blocks and closes the decoder iterator after encoder failure', async () => {
+    let releases = 0
+    let iteratorReturns = 0
+    const failure = new Error('encoder write failed')
+    const abortReasons: unknown[] = []
+    const decoder = {
+      width: 1,
+      height: 2,
+      pixelFormat: 'rgb8' as const,
+      capabilities: Object.freeze({
+        sequential: true,
+        regionDecode: false,
+        scaledDecode: false,
+        progressive: false,
+      }),
+      async *decode() {
+        try {
+          yield Object.freeze({
+            x: 0,
+            y: 0,
+            width: 1,
+            height: 1,
+            stride: 3,
+            format: 'rgb8' as const,
+            data: Uint8Array.of(1, 2, 3),
+            release: () => {
+              releases += 1
+            },
+          })
+          yield Object.freeze({
+            x: 0,
+            y: 1,
+            width: 1,
+            height: 1,
+            stride: 3,
+            format: 'rgb8' as const,
+            data: Uint8Array.of(4, 5, 6),
+          })
+        } finally {
+          iteratorReturns += 1
+        }
+      },
+    }
+    const encoder = {
+      async write(): Promise<void> {
+        throw failure
+      },
+      async finish(): Promise<void> {
+        throw new Error('finish must not run')
+      },
+      async abort(reason: unknown): Promise<void> {
+        abortReasons.push(reason)
+      },
+    }
+
+    await expect(pipeDecoderToJpegXlEncoder(decoder, encoder)).rejects.toBe(failure)
+    expect(releases).toBe(1)
+    expect(iteratorReturns).toBe(1)
+    expect(abortReasons).toEqual([failure])
+  })
+
   it('pins a byte-exact independent libjxl reconstruction fixture', () => {
     expect(manifest.revision).toMatch(/^[0-9a-f]{40}$/u)
     expect(manifest.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
@@ -133,6 +195,21 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
       jpegReconstruction: 'metadata-valid',
       exactReconstructionEligibility: 'requires-coefficient-validation',
     })
+  })
+
+  it('decodes valid JPEG-derived pixels without trusting malformed reconstruction metadata', async () => {
+    const damaged = fixture.slice()
+    const source = new MemorySource(damaged)
+    const structure = await inspectJpegXlSource(source, resolveJpegXlLimits())
+    const box = structure.metadataBoxes.find(({ type }) => type === 'jbrd')
+    if (!box) throw new Error('Pinned JPEG reconstruction fixture has no jbrd box')
+    const contentStart = box.offset + box.length - box.payloadBytes
+    damaged.fill(0xff, contentStart, Math.min(contentStart + 16, damaged.byteLength))
+
+    await expect(decodeRgb(jpegxlCodec, damaged)).resolves.toEqual(
+      await decodeRgb(jpegxlCodec, fixture),
+    )
+    await expect(reconstructJpegFromJpegXl(damaged)).rejects.toThrow()
   })
 
   it('decodes and partitions bounded first-party opaque reconstruction data', async () => {
@@ -383,6 +460,143 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     await expect(transcodeJpegToJpegXl(source, { onlyIfSmaller: true })).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
     })
+  })
+
+  it('hands sink-mode output to the sink without returning duplicate bytes', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const expected = await transcodeJpegToJpegXl(source)
+    const sink = new Uint8ArraySink()
+    const result = await transcodeJpegToJpegXl(source, { sink })
+    expect(result.data).toBeUndefined()
+    expect(sink.toUint8Array()).toEqual(expected.data)
+  })
+
+  it('aborts a caller sink and preserves its write failure', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const failure = new Error('transcode sink write failed')
+    const abortReasons: unknown[] = []
+    const sink = {
+      async write(): Promise<void> {
+        throw failure
+      },
+      async close(): Promise<void> {
+        throw new Error('close must not run')
+      },
+      async abort(reason: unknown): Promise<void> {
+        abortReasons.push(reason)
+      },
+    }
+    await expect(transcodeJpegToJpegXl(source, { sink })).rejects.toBe(failure)
+    expect(abortReasons).toEqual([failure])
+  })
+
+  it('aborts a caller sink and preserves its close failure', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const failure = new Error('transcode sink close failed')
+    const abortReasons: unknown[] = []
+    let writes = 0
+    const sink = {
+      async write(): Promise<void> {
+        writes += 1
+      },
+      async close(): Promise<void> {
+        throw failure
+      },
+      async abort(reason: unknown): Promise<void> {
+        abortReasons.push(reason)
+      },
+    }
+    await expect(transcodeJpegToJpegXl(source, { sink })).rejects.toBe(failure)
+    expect(writes).toBe(1)
+    expect(abortReasons).toEqual([failure])
+  })
+
+  it('determines only-if-smaller before writing caller output', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const abortReasons: unknown[] = []
+    let writes = 0
+    const sink = {
+      async write(): Promise<void> {
+        writes += 1
+      },
+      async close(): Promise<void> {
+        throw new Error('close must not run')
+      },
+      async abort(reason: unknown): Promise<void> {
+        abortReasons.push(reason)
+      },
+    }
+    await expect(
+      transcodeJpegToJpegXl(source, { sink, onlyIfSmaller: true }),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+    expect(writes).toBe(0)
+    expect(abortReasons).toHaveLength(1)
+  })
+
+  it.each([
+    ['parse', 'jpeg-transcode-input'],
+    ['encode', 'jpeg-transcode-reconstruction-payload'],
+    ['verify', 'jpeg-transcode-output'],
+  ] as const)(
+    'cancels during the %s stage and releases every managed lease',
+    async (_stage, category) => {
+      const source = new Uint8Array(readFileSync(primaryEntry.source))
+      const controller = new AbortController()
+      const reason = new Error(`cancel at ${category}`)
+      const session = createEvidenceSession({ mode: 'trace' })
+      session.subscribe((event) => {
+        if (event.type === 'allocation' && event.category === category) controller.abort(reason)
+      })
+      await expect(
+        transcodeJpegToJpegXl(source, {
+          signal: controller.signal,
+          evidence: session.context,
+        }),
+      ).rejects.toBe(reason)
+      const report = session.finalize('cancelled')
+      expect(report.managedMemory).toMatchObject({ currentLiveBytes: 0, stillLiveLeases: 0 })
+      expect(report.operations).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ operationId: 'jpeg-to-jxl', phase: 'cancelled' }),
+        ]),
+      )
+      expect(report.cancellations).toEqual(
+        expect.arrayContaining([expect.objectContaining({ target: 'jpeg-to-jxl' })]),
+      )
+    },
+  )
+
+  it('cancels after sink write, skips close, aborts the sink, and releases managed bytes', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const controller = new AbortController()
+    const reason = new Error('cancel during sink write')
+    const abortReasons: unknown[] = []
+    let closes = 0
+    const session = createEvidenceSession({ mode: 'trace' })
+    const sink = {
+      async write(): Promise<void> {
+        controller.abort(reason)
+      },
+      async close(): Promise<void> {
+        closes += 1
+      },
+      async abort(error: unknown): Promise<void> {
+        abortReasons.push(error)
+      },
+    }
+    await expect(
+      transcodeJpegToJpegXl(source, {
+        sink,
+        signal: controller.signal,
+        evidence: session.context,
+      }),
+    ).rejects.toBe(reason)
+    const report = session.finalize('cancelled')
+    expect(closes).toBe(0)
+    expect(abortReasons).toEqual([reason])
+    expect(report.managedMemory).toMatchObject({ currentLiveBytes: 0, stillLiveLeases: 0 })
   })
 
   it('keeps exact output identical across evidence modes and releases managed bytes', async () => {

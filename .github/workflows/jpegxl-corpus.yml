@@ -25,7 +25,7 @@ jobs:
   corpus:
     name: Pinned corpus and exact reconstruction
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
@@ -41,6 +41,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Prepare evidence directory
+        run: mkdir -p .tmp/jpegxl-evidence
 
       - name: Install libjxl tool build dependencies
         run: sudo apt-get update && sudo apt-get install --yes libjpeg-dev libpng-dev ninja-build
@@ -76,6 +79,57 @@ jobs:
             -DJPEGXL_ENABLE_TOOLS=ON
           cmake --build "$LIBJXL_ROOT/build-pinned" --target cjxl djxl jxlinfo --parallel 2
 
+      - name: Build pinned independent Rust decoders
+        env:
+          JXL_OXIDE_REVISION: c0cc4c7ea57c1207f38ff2970d94757470613be4
+          JXL_RS_REVISION: 07ab48fcccde0a73c384b4011520fec67e5e09cd
+        run: |
+          rustup toolchain install 1.89.0 --profile minimal
+          rustup override set 1.89.0
+          mkdir -p .tmp/jpegxl-oracles/jxl-rs-07ab48f
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f init
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f remote add origin https://github.com/libjxl/jxl-rs.git
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f fetch --depth 1 origin "$JXL_RS_REVISION"
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f rev-parse HEAD)" = "$JXL_RS_REVISION"
+          cargo build --release --locked \
+            --manifest-path .tmp/jpegxl-oracles/jxl-rs-07ab48f/jxl_cli/Cargo.toml
+          mkdir -p .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 init
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 remote add origin https://github.com/tirr-c/jxl-oxide.git
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 fetch --depth 1 origin "$JXL_OXIDE_REVISION"
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 rev-parse HEAD)" = "$JXL_OXIDE_REVISION"
+          cargo build --release --locked \
+            --manifest-path .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7/Cargo.toml \
+            -p jxl-oxide-cli --bin jxl-oxide
+
+      - name: Build pinned comparison encoders
+        env:
+          IMAZEN_LOCK_SHA256: 69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040
+          IMAZEN_REVISION: d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b
+          SIMPLE_REVISION: 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf
+        run: |
+          mkdir -p .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f init
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f remote add origin https://github.com/libjxl/simple-lossless-encoder.git
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f fetch --depth 1 origin "$SIMPLE_REVISION"
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f rev-parse HEAD)" = "$SIMPLE_REVISION"
+          make -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f
+          mkdir -p .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 init
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 remote add origin https://github.com/imazen/jxl-encoder.git
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 fetch --depth 1 origin "$IMAZEN_REVISION"
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 rev-parse HEAD)" = "$IMAZEN_REVISION"
+          cargo generate-lockfile \
+            --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml
+          echo "$IMAZEN_LOCK_SHA256  .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.lock" | sha256sum --check
+          cargo build --release --locked \
+            --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml \
+            -p jxl-encoder-cli
+
       - name: Verify pinned official conformance inputs
         run: npm run fixtures:jpegxl:prepare
 
@@ -104,10 +158,48 @@ jobs:
           node benchmark/jpegxl/run-jpeg-reconstruction-matrix.ts
           .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
 
+      - name: Run PureJsImage reverse exact-transcode matrix
+        run: >-
+          node benchmark/jpegxl/run-purejsimage-reverse-matrix.ts
+          .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+          --output .tmp/jpegxl-evidence/reverse.json
+
+      - name: Run PureJsImage pixel encoder matrix
+        run: >-
+          npm run fixtures:jpegxl:encoder-matrix --
+          --output .tmp/jpegxl-evidence/encoder.json
+
+      - name: Run lossless compression gate
+        run: >-
+          npm run bench:jpegxl:compression --
+          --output .tmp/jpegxl-evidence/compression.json
+
       - name: Run correctness-gated JPEG XL benchmark
-        run: npm run bench:jpegxl
+        run: >-
+          npm run bench:jpegxl --
+          --output .tmp/jpegxl-evidence/benchmark.json
         env:
           PUREJSIMAGE_JPEGXL_ORACLE_DIR: .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+
+      - name: Run JPEG XL memory benchmarks
+        run: |
+          node benchmark/jpegxl/run-memory.ts --output .tmp/jpegxl-evidence/memory.json
+          node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-evidence/vardct-memory.json
+
+      - name: Build final JPEG XL evidence
+        run: >-
+          npm run bench:jpegxl:evidence --
+          --input-dir .tmp/jpegxl-evidence
+          --output .tmp/jpegxl-evidence/jpegxl-release-hardening.json
+
+      - name: Upload final JPEG XL evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: jpegxl-release-hardening-${{ github.sha }}
+          path: |
+            .tmp/jpegxl-evidence/jpegxl-release-hardening.json
+            .tmp/jpegxl-evidence/jpegxl-release-hardening.md
+          if-no-files-found: error
 
   browser:
     name: Workbench ${{ matrix.browser }}

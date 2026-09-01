@@ -210,9 +210,8 @@ const dcGroupPlanes = (
     const shift = geometry.shifts[internalChannel]
     const quantization = geometry.quantization[internalChannel]
     if (!shift || !quantization) throw invalidInput('JPEG DC channel geometry is missing')
-    const rgbOffset = geometry.colorTransform === 'none' ? 1024 / (quantization[0] ?? 0) : 0
-    if (!Number.isInteger(rgbOffset))
-      throw unsupportedOperation('Exact JPEG RGB DC level shift is not integral')
+    const rgbOffset =
+      geometry.colorTransform === 'none' ? Math.floor(1024 / (quantization[0] ?? 0)) : 0
     return componentDcPlane(
       component,
       blockX >> shift[0],
@@ -285,13 +284,14 @@ const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
 const writeLfGlobal = (
   writer: JpegXlBitWriter,
   frequencies: Uint32Array,
-  colorTransform: JpegDerivedGeometry['colorTransform'],
+  geometry: Readonly<JpegDerivedGeometry>,
 ): PrefixEncoding => {
   writer.writeBits(0, 1)
-  const dcQuantization = colorTransform === 'ycbcr' ? 128 / 255 : 16 / 255
-  writeF16(writer, dcQuantization)
-  writeF16(writer, dcQuantization)
-  writeF16(writer, dcQuantization)
+  for (const quantization of geometry.quantization) {
+    const dc = quantization[0]
+    if (!dc || dc < 1) throw invalidInput('JPEG DC quantization value is invalid')
+    writeF16(writer, (dc * 16) / 255)
+  }
   writeU32(writer, 65_536, [
     { bits: 11, offset: 1 },
     { bits: 11, offset: 2_049 },
@@ -446,7 +446,7 @@ const encodeSections = (geometry: Readonly<JpegDerivedGeometry>): readonly Uint8
   if (groupCount === 1) {
     return Object.freeze([
       finishSection((writer) => {
-        const modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry.colorTransform)
+        const modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry)
         writeDcGroup(writer, dcPlanes[0] ?? [], modularEncoding)
         const acEncoding = writeHfGlobal(writer, geometry, modularEncoding, acFrequencies)
         writeAcGroup(writer, geometry, 0, acEncoding)
@@ -455,7 +455,7 @@ const encodeSections = (geometry: Readonly<JpegDerivedGeometry>): readonly Uint8
   }
   let modularEncoding: PrefixEncoding | undefined
   const lf = finishSection((writer) => {
-    modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry.colorTransform)
+    modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry)
   })
   if (!modularEncoding) throw invalidInput('JPEG XL Modular encoding was not initialized')
   const dc = dcPlanes.map((planes) =>
@@ -577,23 +577,50 @@ const box = (type: string, payload: Uint8Array): Uint8Array => {
   return concatenate([uint32(size), ascii(type), payload])
 }
 
+export interface JpegXlJpegEncodeMemoryLease {
+  release(): void
+}
+
+export interface JpegXlJpegEncodeMemoryLedger {
+  allocate(category: string, bytes: number): JpegXlJpegEncodeMemoryLease
+}
+
 export const encodeJpegCoefficientImageAsJpegXl = (
   image: JpegCoefficientImage,
   reconstructionPayload: Uint8Array,
   limits: Readonly<JpegXlLimits>,
+  memory?: JpegXlJpegEncodeMemoryLedger,
 ): Uint8Array => {
   const geometry = geometryFor(image)
   const sections = encodeSections(geometry)
-  const codestream = codestreamFor(image, geometry, sections)
-  if (codestream.byteLength > limits.maxCodestreamBytes) {
-    throw limitExceeded(
-      `JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`,
-    )
+  const sectionLease = memory?.allocate(
+    'jpeg-transcode-jxl-sections',
+    sections.reduce((total, section) => total + section.byteLength, 0),
+  )
+  let codestreamLease: JpegXlJpegEncodeMemoryLease | undefined
+  let outputLease: JpegXlJpegEncodeMemoryLease | undefined
+  try {
+    const codestream = codestreamFor(image, geometry, sections)
+    codestreamLease = memory?.allocate('jpeg-transcode-jxl-codestream', codestream.byteLength)
+    sectionLease?.release()
+    if (codestream.byteLength > limits.maxCodestreamBytes) {
+      throw limitExceeded(
+        `JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`,
+      )
+    }
+    const output = concatenate([
+      Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
+      box('ftyp', concatenate([ascii('jxl '), uint32(0), ascii('jxl ')])),
+      box('jbrd', reconstructionPayload),
+      box('jxlc', codestream),
+    ])
+    outputLease = memory?.allocate('jpeg-transcode-output', output.byteLength)
+    codestreamLease?.release()
+    return output
+  } catch (error) {
+    sectionLease?.release()
+    codestreamLease?.release()
+    outputLease?.release()
+    throw error
   }
-  return concatenate([
-    Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
-    box('ftyp', concatenate([ascii('jxl '), uint32(0), ascii('jxl ')])),
-    box('jbrd', reconstructionPayload),
-    box('jxlc', codestream),
-  ])
 }

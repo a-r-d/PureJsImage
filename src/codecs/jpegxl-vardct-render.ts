@@ -3,6 +3,11 @@ import type { ImageLimits } from '../limits.ts'
 import { linearToSrgb } from './icc.ts'
 import type { JpegXlFrameStructure } from './jpegxl-decode.ts'
 import {
+  type JpegXlVarDctMemoryLedger,
+  retainedTypedArrayBytes,
+  type JpegXlVarDctMemoryLease,
+} from './jpegxl-vardct-memory.ts'
+import {
   decodeJpegXlJpegAcGroup,
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegHfGlobal,
@@ -16,6 +21,8 @@ export interface JpegXlVarDctPixels {
   readonly height: number
   readonly format: 'gray8' | 'rgb8'
   readonly data: Uint8Array
+  readonly managedPeakBytes: number
+  release(): void
 }
 
 const defaultDistanceBands = Object.freeze([
@@ -1326,6 +1333,7 @@ export const decodeJpegXlDct8Section = (
   section: Uint8Array,
   frame: Readonly<JpegXlFrameStructure>,
   limits: Readonly<ImageLimits>,
+  memory: JpegXlVarDctMemoryLedger,
   continuationSections?: readonly Uint8Array[],
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
 ): JpegXlVarDctPixels => {
@@ -1361,6 +1369,10 @@ export const decodeJpegXlDct8Section = (
 
   const allSections = separatedSections ? [section, ...continuationSections] : [section]
   const lfGlobal = decodeJpegXlJpegLfGlobal(section, 0, separatedSections, frame.frameFlags)
+  const lfGlobalLease = memory.retain(
+    'jpegxl-vardct-lf-metadata',
+    retainedTypedArrayBytes(lfGlobal),
+  )
   const dcSection = separatedSections ? allSections[1] : section
   if (!dcSection) throw invalidInput('JPEG XL VarDCT DC group section is missing')
   const dcGroup = decodeJpegXlJpegDcGroup(
@@ -1377,6 +1389,12 @@ export const decodeJpegXlDct8Section = (
     separatedSections,
     externalDcPlanes,
   )
+  const externalDcBytes =
+    externalDcPlanes?.reduce((total, plane) => total + plane.byteLength, 0) ?? 0
+  const dcGroupLease = memory.retain(
+    'jpegxl-vardct-dc-planes-and-metadata',
+    retainedTypedArrayBytes(dcGroup) - externalDcBytes,
+  )
   const hfSection = separatedSections ? allSections[2] : section
   if (!hfSection) throw invalidInput('JPEG XL VarDCT HF global section is missing')
   const hfGlobal = decodeJpegXlJpegHfGlobal(
@@ -1386,10 +1404,15 @@ export const decodeJpegXlDct8Section = (
     separatedSections ? 0 : dcGroup.endingBitPosition,
     separatedSections,
   )
+  const hfGlobalLease = memory.retain(
+    'jpegxl-vardct-hf-metadata',
+    retainedTypedArrayBytes(hfGlobal),
+  )
   if (hfGlobal.dct8Quantization !== undefined) {
     throw unsupportedOperation('Common VarDCT custom quantization tables are not supported yet')
   }
   let acGroup: JpegXlJpegAcGroup | undefined
+  let acGroupLease: JpegXlVarDctMemoryLease | undefined
   for (let passIndex = 0; passIndex < frame.passCount; passIndex += 1) {
     const pass = hfGlobal.passes[passIndex]
     const acSection = separatedSections ? allSections[3 + passIndex] : section
@@ -1413,16 +1436,33 @@ export const decodeJpegXlDct8Section = (
       false,
       frame.passShifts[passIndex] ?? 0,
     )
-    if (acGroup) mergeProgressiveAcGroup(acGroup, decoded)
-    else acGroup = decoded
+    const decodedLease = memory.retain(
+      `jpegxl-vardct-coefficients-pass-${passIndex}`,
+      retainedTypedArrayBytes(decoded),
+    )
+    if (acGroup) {
+      mergeProgressiveAcGroup(acGroup, decoded)
+      decodedLease.release()
+    } else {
+      acGroup = decoded
+      acGroupLease = decodedLease
+    }
   }
   if (!acGroup) throw invalidInput('JPEG XL VarDCT AC group is missing')
 
+  const primaryPlanesLease = memory.retain(
+    'jpegxl-vardct-primary-float32-planes',
+    paddedWidth * paddedHeight * 3 * 4,
+  )
   const planes = [
     new Float32Array(paddedWidth * paddedHeight),
     new Float32Array(paddedWidth * paddedHeight),
     new Float32Array(paddedWidth * paddedHeight),
   ] as const
+  const transformScratchLease = memory.retain(
+    'jpegxl-vardct-transform-scratch',
+    3 * 1_024 * 8 + 3 * 16 * 8,
+  )
   const blockCoefficients = [
     new Float64Array(1_024),
     new Float64Array(1_024),
@@ -1448,6 +1488,9 @@ export const decodeJpegXlDct8Section = (
   if (((frame.frameFlags & 32) !== 0) !== (externalDcPlanes !== undefined)) {
     throw invalidInput('JPEG XL VarDCT external DC frame dependency is inconsistent')
   }
+  const renderDcLease = externalDcPlanes
+    ? undefined
+    : memory.retain('jpegxl-vardct-render-dc-planes', blockWidth * blockHeight * 3 * 8)
   const dcPlanes: readonly [Float64Array, Float64Array, Float64Array] = externalDcPlanes ?? [
     new Float64Array(blockWidth * blockHeight),
     new Float64Array(blockWidth * blockHeight),
@@ -1588,9 +1631,15 @@ export const decodeJpegXlDct8Section = (
   }
 
   if (frame.gaborish) {
+    const scratch = memory.retain('jpegxl-vardct-gaborish-scratch', paddedWidth * frame.height * 4)
     applyDefaultGaborish(planes, paddedWidth, frame.width, frame.height)
+    scratch.release()
   }
   if (frame.epfIterations >= 3) {
+    const scratch = memory.retain(
+      'jpegxl-vardct-epf-stage-0-output',
+      frame.width * frame.height * 3 * 4,
+    )
     applyDefaultEpfStage(
       planes,
       paddedWidth,
@@ -1602,8 +1651,13 @@ export const decodeJpegXlDct8Section = (
       lfGlobal.globalScale,
       0,
     )
+    scratch.release()
   }
   if (frame.epfIterations >= 1) {
+    const scratch = memory.retain(
+      'jpegxl-vardct-epf-stage-1-output',
+      frame.width * frame.height * 3 * 4,
+    )
     applyDefaultEpfStage(
       planes,
       paddedWidth,
@@ -1615,8 +1669,13 @@ export const decodeJpegXlDct8Section = (
       lfGlobal.globalScale,
       1,
     )
+    scratch.release()
   }
   if (frame.epfIterations >= 2) {
+    const scratch = memory.retain(
+      'jpegxl-vardct-epf-stage-2-output',
+      frame.width * frame.height * 3 * 4,
+    )
     applyDefaultEpfStage(
       planes,
       paddedWidth,
@@ -1628,8 +1687,13 @@ export const decodeJpegXlDct8Section = (
       lfGlobal.globalScale,
       2,
     )
+    scratch.release()
   }
   if (lfGlobal.noiseLut) {
+    const scratch = memory.retain(
+      'jpegxl-vardct-synthetic-noise-and-convolution',
+      frame.width * frame.height * 4 * 4,
+    )
     applyNoise(
       planes,
       paddedWidth,
@@ -1638,9 +1702,14 @@ export const decodeJpegXlDct8Section = (
       lfGlobal.noiseLut,
       lfGlobal.colorCorrelation,
     )
+    scratch.release()
   }
 
   const format = frame.colorChannels === 1 ? 'gray8' : 'rgb8'
+  const outputLease = memory.retain(
+    'jpegxl-vardct-output-pixels',
+    frame.width * frame.height * outputChannels,
+  )
   const output = new Uint8Array(frame.width * frame.height * outputChannels)
   const rgb = new Uint8Array(3)
   for (let y = 0; y < frame.height; y += 1) {
@@ -1658,5 +1727,19 @@ export const decodeJpegXlDct8Section = (
       else output.set(rgb, outputIndex)
     }
   }
-  return Object.freeze({ width: frame.width, height: frame.height, format, data: output })
+  primaryPlanesLease.release()
+  transformScratchLease.release()
+  renderDcLease?.release()
+  acGroupLease?.release()
+  hfGlobalLease.release()
+  dcGroupLease.release()
+  lfGlobalLease.release()
+  return Object.freeze({
+    width: frame.width,
+    height: frame.height,
+    format,
+    data: output,
+    managedPeakBytes: memory.peakBytes,
+    release: outputLease.release,
+  })
 }

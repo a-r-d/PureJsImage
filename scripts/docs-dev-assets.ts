@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
+import { jpegXlWorkbenchPng } from '../benchmark/jpegxl/workbench-fixture.ts'
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const featureTourPrefix = '/fixtures/ome-zarr-feature-tour/'
@@ -106,6 +107,10 @@ export const loadDocsDevAsset = async (pathname: string): Promise<DocsDevAsset |
   if (featureTourAsset !== undefined) return featureTourAsset
   const geoFixtureAsset = await loadGeoFixtureAsset(pathname)
   if (geoFixtureAsset !== undefined) return geoFixtureAsset
+
+  if (pathname === '/demo-data/jpegxl-pixel-lossless.png') {
+    return { body: jpegXlWorkbenchPng(), contentType: 'image/png' }
+  }
 
   const jpegXlDemoAsset = jpegXlDemoAssets[pathname]
   if (jpegXlDemoAsset !== undefined) {

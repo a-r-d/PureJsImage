@@ -6,7 +6,11 @@ import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import { MemorySource } from '../../src/source.ts'
 
-type Workload = 'encode-rgb8' | 'transcode-progressive-yuv420'
+type Workload =
+  | 'encode-rgb8'
+  | 'transcode-progressive-yuv420'
+  | 'transcode-baseline-12mp'
+  | 'transcode-progressive-12mp'
 
 interface MemorySnapshot {
   readonly arrayBuffersBytes: number
@@ -87,11 +91,26 @@ const encodeRgb = async (): Promise<Readonly<{ input: Uint8Array; output: Uint8A
   return Object.freeze({ input: fixture.pixels, output })
 }
 
-const transcodeJpeg = async (): Promise<Readonly<{ input: Uint8Array; output: Uint8Array }>> => {
-  const input = new Uint8Array(
-    await readFile('benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg'),
-  )
-  if (sha256(input) !== '226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e') {
+const transcodeJpeg = async (
+  selected: Exclude<Workload, 'encode-rgb8'>,
+): Promise<Readonly<{ input: Uint8Array; output: Uint8Array; managedPeakBytes: number }>> => {
+  const fixture =
+    selected === 'transcode-progressive-yuv420'
+      ? {
+          path: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
+          sha256: '226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e',
+        }
+      : selected === 'transcode-baseline-12mp'
+        ? {
+            path: 'benchmark/corpus/files/tundra-4000x3000.jpg',
+            sha256: 'af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6',
+          }
+        : {
+            path: 'benchmark/corpus/files/tundra-4000x3000-progressive.jpg',
+            sha256: '680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e',
+          }
+  const input = new Uint8Array(await readFile(fixture.path))
+  if (sha256(input) !== fixture.sha256) {
     throw new Error('JPEG XL transcode benchmark source checksum changed')
   }
   const result = await transcodeJpegToJpegXl(input)
@@ -99,12 +118,19 @@ const transcodeJpeg = async (): Promise<Readonly<{ input: Uint8Array; output: Ui
   if (sha256(reconstructed) !== sha256(input) || reconstructed.byteLength !== input.byteLength) {
     throw new Error('JPEG XL transcode benchmark reconstruction differs from the source JPEG')
   }
-  return Object.freeze({ input, output: result.data })
+  return Object.freeze({ input, output: result.data, managedPeakBytes: result.managedPeakBytes })
 }
 
 const workload = process.argv[2] as Workload | undefined
-if (workload !== 'encode-rgb8' && workload !== 'transcode-progressive-yuv420') {
-  throw new Error('Usage: benchmark-worker.ts <encode-rgb8|transcode-progressive-yuv420> [output]')
+if (
+  workload !== 'encode-rgb8' &&
+  workload !== 'transcode-progressive-yuv420' &&
+  workload !== 'transcode-baseline-12mp' &&
+  workload !== 'transcode-progressive-12mp'
+) {
+  throw new Error(
+    'Usage: benchmark-worker.ts <encode-rgb8|transcode-progressive-yuv420|transcode-baseline-12mp|transcode-progressive-12mp> [output]',
+  )
 }
 for (let turn = 0; turn < 5; turn += 1) {
   globalThis.gc?.()
@@ -112,7 +138,7 @@ for (let turn = 0; turn < 5; turn += 1) {
 }
 const baseline = snapshot()
 const startedAt = performance.now()
-const result = workload === 'encode-rgb8' ? await encodeRgb() : await transcodeJpeg()
+const result = workload === 'encode-rgb8' ? await encodeRgb() : await transcodeJpeg(workload)
 const wallMilliseconds = performance.now() - startedAt
 const peak = snapshot()
 const outputPath = process.argv[3]
@@ -136,6 +162,7 @@ console.log(
     inputSha256: sha256(result.input),
     outputBytes: result.output.byteLength,
     outputSha256: sha256(result.output),
+    managedPeakBytes: 'managedPeakBytes' in result ? result.managedPeakBytes : 0,
     wallMilliseconds: Number(wallMilliseconds.toFixed(3)),
   }),
 )

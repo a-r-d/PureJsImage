@@ -115,7 +115,9 @@ const summaries = (['crop', 'full'] as const).map((mode) => {
   }
 })
 const result = {
+  schemaVersion: 1,
   generatedAt: new Date().toISOString(),
+  revision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
   validation: {
     passed: true,
     policy: 'Every isolated run matched the checksum-pinned native gray8 output.',

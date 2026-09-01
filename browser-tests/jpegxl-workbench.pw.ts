@@ -46,3 +46,51 @@ test('JPEG XL workbench opens a reconstruction file and enables exact output', a
   await expect(page.locator('#jxl-summary')).toContainText('Metadata present')
   await expect(page.locator('#jxl-reconstruct')).toBeEnabled()
 })
+
+test('JPEG XL workbench pixel-losslessly encodes and reopens the checked PNG', async ({ page }) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+
+  await page.locator('#jxl-open-png').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'jpegxl-pixel-lossless.png inspected and decoded locally',
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('rgba8')
+  await expect(page.locator('#jxl-summary')).toContainText('Experimental')
+  await expect(page.locator('#jxl-encode')).toBeEnabled()
+
+  await page.locator('#jxl-encode').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'Pixel-lossless JPEG XL byte-exact local round trip verified',
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('byte-exact local round trip')
+  await expect(page.locator('#jxl-summary')).toContainText('Compression comparison')
+  const download = page.waitForEvent('download')
+  await page.locator('#jxl-download').click()
+  expect((await download).suggestedFilename()).toBe('jpegxl-pixel-lossless.jxl')
+
+  await page.locator('#jxl-reopen').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'jpegxl-pixel-lossless.jxl inspected and decoded locally',
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('JPEG XL')
+})
+
+test('JPEG XL workbench scales a 12 MP preview without changing logical dimensions', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+
+  await page.locator('#jxl-file').setInputFiles('benchmark/corpus/files/tundra-4000x3000.jpg')
+  await expect(page.locator('#jxl-summary')).toContainText('tundra-4000x3000.jpg', {
+    timeout: 30_000,
+  })
+  await expect(page.locator('#jxl-status')).toContainText(
+    'tundra-4000x3000.jpg inspected and decoded locally',
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('4000 × 3000')
+  await expect(page.locator('#jxl-summary')).toContainText('2364 × 1773 scaled locally')
+  await expect(page.locator('#jxl-preview')).toHaveAttribute('width', '2364')
+  await expect(page.locator('#jxl-preview')).toHaveAttribute('height', '1773')
+})

@@ -10,6 +10,9 @@ import generatedVarDct from '../benchmark/jpegxl/generated-vardct-manifest.json'
 }
 import { jpegXlOracles } from '../benchmark/jpegxl/oracles.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
+import { estimateJpegXlVarDctWorkingMemory } from '../src/codecs/jpegxl-vardct-memory.ts'
+import { createEvidenceSession } from '../src/evidence.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
@@ -17,13 +20,19 @@ import { MemorySource } from '../src/source.ts'
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
 const pnmPixels = (data: Uint8Array): Uint8Array => {
-  const marker = Uint8Array.of(0x32, 0x35, 0x35, 0x0a)
-  for (let offset = 0; offset <= data.length - marker.length; offset += 1) {
-    if (marker.every((value, index) => data[offset + index] === value)) {
-      return data.subarray(offset + marker.length)
+  let offset = 0
+  let tokens = 0
+  while (offset < data.byteLength && tokens < 4) {
+    while (offset < data.byteLength && (data[offset] ?? 0) <= 0x20) offset += 1
+    if (data[offset] === 0x23) {
+      while (offset < data.byteLength && data[offset] !== 0x0a) offset += 1
+      continue
     }
+    while (offset < data.byteLength && (data[offset] ?? 0) > 0x20) offset += 1
+    tokens += 1
   }
-  throw new Error('PNM maximum sample marker is missing')
+  if (tokens !== 4 || offset >= data.byteLength) throw new Error('PNM header is invalid')
+  return data.subarray(offset + 1)
 }
 
 const comparePixels = (
@@ -86,8 +95,8 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
   it('pins a common static VarDCT development matrix with pixel oracles', async () => {
     expect(generatedVarDct.revision).toMatch(/^[0-9a-f]{40}$/u)
     expect(generatedVarDct.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
-    expect(generatedVarDct.fixtures).toHaveLength(5)
-    expect(new Set(generatedVarDct.fixtures.map(({ id }) => id)).size).toBe(5)
+    expect(generatedVarDct.fixtures).toHaveLength(6)
+    expect(new Set(generatedVarDct.fixtures.map(({ id }) => id)).size).toBe(6)
     for (const fixture of generatedVarDct.fixtures) {
       expect(fixture.generator).toBe('benchmark/jpegxl/generate-vardct-corpus.ts')
       expect(fixture.coding).toBe('vardct')
@@ -108,6 +117,7 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
         progressivePasses: fixture.progressive ? 3 : 1,
         jpegReconstruction: 'unavailable',
         expectedPixelFormat: fixture.colorEncoding.startsWith('grayscale') ? 'gray8' : 'rgb8',
+        unsupportedFeatures: expect.not.arrayContaining(['VarDCT pixel decode']),
       })
       if (fixture.expectedPureJsImageBehavior === 'supported') {
         const decoder = await jpegxlCodec.createDecoder?.(
@@ -115,19 +125,27 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
           defaultImageLimits,
         )
         if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+        expect(decoder.capabilities).toMatchObject({ regionDecode: false, scaledDecode: false })
         const blocks = []
         for await (const block of decoder.decode()) blocks.push(block)
-        expect(blocks).toHaveLength(1)
-        const block = blocks[0]
-        if (!block) throw new Error('JPEG XL VarDCT block is missing')
-        expect(block).toMatchObject({
-          x: 0,
-          y: 0,
-          width: fixture.width,
-          height: fixture.height,
-          format: fixture.colorEncoding.startsWith('grayscale') ? 'gray8' : 'rgb8',
-        })
-        const comparison = comparePixels(block.data, pnmPixels(oracle))
+        expect(blocks).toHaveLength(fixture.height)
+        expect(
+          blocks.every(
+            (block, row) =>
+              block.x === 0 &&
+              block.y === row &&
+              block.width === fixture.width &&
+              block.height === 1 &&
+              block.data.byteLength <= fixture.width * 3,
+          ),
+        ).toBe(true)
+        const pixels = new Uint8Array(blocks.reduce((sum, block) => sum + block.data.byteLength, 0))
+        let offset = 0
+        for (const block of blocks) {
+          pixels.set(block.data, offset)
+          offset += block.data.byteLength
+        }
+        const comparison = comparePixels(pixels, pnmPixels(oracle))
         expect(comparison.maximumError).toBeLessThanOrEqual(1)
         expect(comparison.rmse).toBeLessThan(0.5)
       } else {
@@ -136,5 +154,172 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
         ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
       }
     }
+  })
+
+  it('preflights every selected VarDCT large allocation before decode', async () => {
+    const supported = generatedVarDct.fixtures.filter(
+      ({ expectedPureJsImageBehavior }) => expectedPureJsImageBehavior === 'supported',
+    )
+    const estimates = []
+    for (const fixture of supported) {
+      const encoded = new Uint8Array(readFileSync(fixture.jxl))
+      const frames = await readJpegXlSourceFrameStructures(
+        new MemorySource(encoded),
+        defaultImageLimits,
+      )
+      const frame = frames.at(-1)
+      if (!frame) throw new Error('Selected VarDCT fixture has no display frame')
+      const estimate = estimateJpegXlVarDctWorkingMemory(frame)
+      estimates.push({ fixture, encoded, estimate })
+
+      expect(estimate).toMatchObject({
+        retainedCompressedSectionsBytes: expect.any(BigInt),
+        dcPlanesBytes: expect.any(BigInt),
+        lfAndHfMetadataBytes: expect.any(BigInt),
+        coefficientBlocksBytes: expect.any(BigInt),
+        primaryPlanesBytes: expect.any(BigInt),
+        gaborishScratchBytes: expect.any(BigInt),
+        epfOutputPlaneSetsBytes: expect.any(BigInt),
+        syntheticNoiseAndConvolutionBytes: expect.any(BigInt),
+        outputBytes: expect.any(BigInt),
+        rowBlockCopyBytes: expect.any(BigInt),
+        progressiveAccumulationBytes: expect.any(BigInt),
+        externalDcFrameStateBytes: expect.any(BigInt),
+      })
+      expect(estimate.requiredBytes).toBeLessThan(BigInt(defaultImageLimits.maxDecodedBytes))
+      expect(estimate.primaryPlanesBytes).toBeGreaterThan(0n)
+      expect(estimate.syntheticNoiseAndConvolutionBytes).toBeGreaterThan(0n)
+    }
+
+    const progressive = estimates.find(({ fixture }) => fixture.progressive)
+    expect(progressive?.estimate.progressiveAccumulationBytes).toBeGreaterThan(0n)
+    const boundary = estimates[0]
+    if (!boundary) throw new Error('Selected VarDCT fixture matrix is empty')
+    const acceptedLimit = Number(boundary.estimate.requiredBytes)
+    const accepted = await jpegxlCodec.createDecoder?.(new MemorySource(boundary.encoded), {
+      ...defaultImageLimits,
+      maxDecodedBytes: acceptedLimit,
+    })
+    expect(accepted).toBeDefined()
+    await expect(
+      jpegxlCodec.createDecoder?.(new MemorySource(boundary.encoded), {
+        ...defaultImageLimits,
+        maxDecodedBytes: acceptedLimit - 1,
+      }),
+    ).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+      message: expect.stringContaining('conservative working-memory preflight'),
+    })
+  })
+
+  it.each(['summary', 'trace'] as const)(
+    'reports selected VarDCT managed memory in %s evidence mode',
+    async (mode) => {
+      const fixture = generatedVarDct.fixtures.find(({ id }) => id === 'rgb8-distance4-noise')
+      if (!fixture) throw new Error('Selected VarDCT noise fixture is missing')
+      const encoded = new Uint8Array(readFileSync(fixture.jxl))
+      const oracle = pnmPixels(new Uint8Array(readFileSync(fixture.oracle)))
+      const session = createEvidenceSession({ mode })
+      const decoder = await jpegxlCodec.createDecoder?.(
+        new MemorySource(encoded),
+        defaultImageLimits,
+        { evidence: session.context },
+      )
+      if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+      const rows: Uint8Array[] = []
+      let outputBytes = 0
+      for await (const block of decoder.decode()) {
+        rows.push(block.data.slice())
+        outputBytes += block.data.byteLength
+        block.release?.()
+      }
+      const report = session.finalize()
+      const managedPeakBytes =
+        'managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
+          ? decoder.managedPeakBytes
+          : 0
+
+      const pixels = new Uint8Array(outputBytes)
+      let outputOffset = 0
+      for (const row of rows) {
+        pixels.set(row, outputOffset)
+        outputOffset += row.byteLength
+      }
+      const comparison = comparePixels(pixels, oracle)
+      expect(comparison.maximumError).toBeLessThanOrEqual(1)
+      expect(comparison.rmse).toBeLessThan(0.5)
+      expect(managedPeakBytes).toBeGreaterThan(0)
+      expect(report.managedMemory).toMatchObject({
+        currentLiveBytes: 0,
+        stillLiveLeases: 0,
+        peakLiveBytes: managedPeakBytes,
+      })
+      expect(Object.keys(report.managedMemory.categories)).toEqual(
+        expect.arrayContaining([
+          'jpegxl-vardct-compressed-section',
+          'jpegxl-vardct-coefficients-pass-0',
+          'jpegxl-vardct-primary-float32-planes',
+          'jpegxl-vardct-gaborish-scratch',
+          'jpegxl-vardct-epf-stage-1-output',
+          'jpegxl-vardct-synthetic-noise-and-convolution',
+          'jpegxl-vardct-output-pixels',
+          'jpegxl-vardct-row-block-copy',
+        ]),
+      )
+      if (mode === 'summary') expect(report.events).toBeUndefined()
+      else {
+        expect(report.events).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ type: 'allocation' }),
+            expect.objectContaining({ type: 'release' }),
+          ]),
+        )
+      }
+    },
+  )
+
+  it('releases selected VarDCT output on early return and cancellation', async () => {
+    const fixture = generatedVarDct.fixtures.find(({ id }) => id === 'rgb8-distance1-effort1')
+    if (!fixture) throw new Error('Selected VarDCT fixture is missing')
+    const encoded = new Uint8Array(readFileSync(fixture.jxl))
+
+    const earlySession = createEvidenceSession({ mode: 'summary' })
+    const earlyDecoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { evidence: earlySession.context },
+    )
+    if (!earlyDecoder) throw new Error('JPEG XL decoder is unavailable')
+    const earlyIterator = earlyDecoder.decode()[Symbol.asyncIterator]()
+    const first = await earlyIterator.next()
+    if (first.done) throw new Error('Selected VarDCT fixture emitted no rows')
+    first.value.release?.()
+    await earlyIterator.return?.()
+    expect(earlySession.finalize('cancelled').managedMemory).toMatchObject({
+      currentLiveBytes: 0,
+      stillLiveLeases: 0,
+    })
+
+    const cancelSession = createEvidenceSession({ mode: 'trace' })
+    const cancelDecoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { evidence: cancelSession.context },
+    )
+    if (!cancelDecoder) throw new Error('JPEG XL decoder is unavailable')
+    const controller = new AbortController()
+    const cancelIterator = cancelDecoder
+      .decode({ signal: controller.signal })
+      [Symbol.asyncIterator]()
+    const emitted = await cancelIterator.next()
+    if (emitted.done) throw new Error('Selected VarDCT fixture emitted no rows')
+    emitted.value.release?.()
+    controller.abort()
+    await expect(cancelIterator.next()).rejects.toMatchObject({ name: 'AbortError' })
+    const cancelled = cancelSession.finalize('cancelled')
+    expect(cancelled.managedMemory).toMatchObject({ currentLiveBytes: 0, stillLiveLeases: 0 })
+    expect(cancelled.cancellations).toEqual(
+      expect.arrayContaining([expect.objectContaining({ target: 'selected-vardct-row-emission' })]),
+    )
   })
 })

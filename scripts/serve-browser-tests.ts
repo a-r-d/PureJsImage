@@ -6,6 +6,7 @@ import { build } from 'esbuild'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
 import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
+import { jpegXlWorkbenchPng } from '../benchmark/jpegxl/workbench-fixture.ts'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
@@ -442,6 +443,10 @@ for (const name of hdrSampleNames) {
 for (const sample of jpegXlSamples) {
   await copyFile(sample.source, resolve(outputDirectory, 'demo-data', sample.name))
 }
+await writeFile(
+  resolve(outputDirectory, 'demo-data/jpegxl-pixel-lossless.png'),
+  jpegXlWorkbenchPng(),
+)
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   resolve(fixtureDirectory, 'benchmark-input.webp'),

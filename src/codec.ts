@@ -5,6 +5,7 @@ import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageRuntime } from './runtime.ts'
+import type { EvidenceContext } from './evidence.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
@@ -154,6 +155,8 @@ export interface DecoderOptions extends AbortOptions {
   readonly resolutionLevel?: number
   readonly preserveIcc?: boolean
   readonly tolerantDecoding?: boolean
+  /** Explicit caller-owned evidence context. Omit for the allocation-free default path. */
+  readonly evidence?: EvidenceContext
 }
 
 export interface MetadataPreservationOptions extends AbortOptions {
