@@ -32,6 +32,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -195,7 +197,7 @@ jobs:
       - name: Upload final JPEG XL evidence
         uses: actions/upload-artifact@v6
         with:
-          name: jpegxl-release-hardening-${{ github.sha }}
+          name: jpegxl-release-hardening-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             .tmp/jpegxl-evidence/jpegxl-release-hardening.json
             .tmp/jpegxl-evidence/jpegxl-release-hardening.md
@@ -221,6 +223,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7

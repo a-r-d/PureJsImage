@@ -40,6 +40,10 @@ const reports = Object.freeze({
 
 const revision = spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim()
 if (!/^[0-9a-f]{40}$/u.test(revision)) throw new Error('Could not resolve the Git revision')
+const checkedOutBranch = spawnSync('git', ['branch', '--show-current'], {
+  encoding: 'utf8',
+}).stdout.trim()
+const branch = checkedOutBranch || process.env.GITHUB_HEAD_REF?.trim() || ''
 for (const [label, report] of Object.entries(reports)) {
   if (report.revision !== revision) {
     throw new Error(`${label} was generated for ${String(report.revision)}, expected ${revision}`)
@@ -51,7 +55,7 @@ const result = Object.freeze({
   schemaVersion: 1,
   generatedAt: new Date().toISOString(),
   revision,
-  branch: spawnSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).stdout.trim(),
+  branch,
   status: 'Experimental',
   validation: Object.freeze({
     passed: true,
