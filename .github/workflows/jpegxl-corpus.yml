@@ -233,6 +233,9 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
+      - name: Prepare pinned JPEG XL workbench input
+        run: npm run fixtures:prepare -- tundra-4000x3000
+
       - name: Prepare pinned HDF5 browser fixture
         run: npm run fixtures:hdf5:prepare
 
