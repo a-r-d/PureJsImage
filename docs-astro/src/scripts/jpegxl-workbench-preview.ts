@@ -34,6 +34,50 @@ export const isJpegXlWorkbenchPreviewPixelFormat = (
   format === 'rgba8' ||
   format === 'rgba16'
 
+interface EffectiveDisplayRange {
+  readonly black: number
+  readonly inverseWidth: number
+}
+
+export type JpegXlWorkbenchPreviewRanges = readonly [
+  EffectiveDisplayRange,
+  EffectiveDisplayRange,
+  EffectiveDisplayRange,
+  EffectiveDisplayRange,
+]
+
+const channelCount = (format: PixelBlock['format']): 1 | 3 | 4 =>
+  format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
+
+export const jpegXlWorkbenchPreviewRanges = (block: PixelBlock): JpegXlWorkbenchPreviewRanges => {
+  if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
+    throw new Error(`Workbench preview does not support ${block.format}`)
+  }
+  const channels = channelCount(block.format)
+  const storageWhite = block.format.endsWith('16') ? 65_535 : 255
+  const fallback = Object.freeze({ black: 0, inverseWidth: 1 / storageWhite })
+  if (block.displayRanges !== undefined) {
+    if (
+      block.displayRanges.length !== channels ||
+      block.displayRanges.some(
+        ({ black, white }) => !Number.isFinite(black) || !Number.isFinite(white) || white <= black,
+      )
+    ) {
+      throw new Error('Workbench preview display ranges are invalid')
+    }
+  }
+  const range = (channel: number): EffectiveDisplayRange => {
+    const selected = block.displayRanges?.[channels === 1 ? 0 : channel]
+    return selected === undefined
+      ? fallback
+      : Object.freeze({
+          black: selected.black,
+          inverseWidth: 1 / (selected.white - selected.black),
+        })
+  }
+  return Object.freeze([range(0), range(1), range(2), range(3)])
+}
+
 const sample = (block: PixelBlock, sourceX: number, sourceY: number, channel: number): number => {
   if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
     throw new Error(`Workbench preview does not support ${block.format}`)
@@ -55,17 +99,19 @@ export const jpegXlWorkbenchPreviewPixel = (
   sourceX: number,
   sourceY: number,
   mode: JpegXlWorkbenchPreviewMode,
+  ranges: JpegXlWorkbenchPreviewRanges = jpegXlWorkbenchPreviewRanges(block),
 ): readonly [number, number, number, number] => {
   if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
     throw new Error(`Workbench preview does not support ${block.format}`)
   }
-  const maximum = block.format.endsWith('16') ? 65_535 : 255
+  const normalize = (value: number, range: EffectiveDisplayRange): number =>
+    Math.max(0, Math.min(1, (value - range.black) * range.inverseWidth))
   const display = (channel: number): number => {
-    const value = sample(block, sourceX, sourceY, channel)
-    return mode === 'linear'
-      ? linearJpegXlWorkbenchPreviewByte(value / maximum)
-      : Math.round((value * 255) / maximum)
+    const value = normalize(sample(block, sourceX, sourceY, channel), ranges[channel] ?? ranges[0])
+    return mode === 'linear' ? linearJpegXlWorkbenchPreviewByte(value) : Math.round(value * 255)
   }
-  const alpha = Math.round((sample(block, sourceX, sourceY, 3) * 255) / maximum)
+  const alpha = block.format.startsWith('rgba')
+    ? Math.round(normalize(sample(block, sourceX, sourceY, 3), ranges[3]) * 255)
+    : 255
   return Object.freeze([display(0), display(1), display(2), alpha])
 }

@@ -87,6 +87,13 @@ const encodeDefinitions: readonly EncodeDefinition[] = Object.freeze([
     colorEncoding: 'linear-rgb',
   }),
   Object.freeze({
+    id: 'rgb10-linear',
+    source: 'rgb10-odd',
+    features: Object.freeze(['10-bit RGB', 'linear sRGB transfer', 'odd dimensions']),
+    options: Object.freeze(['--effort=7']),
+    colorEncoding: 'linear-rgb',
+  }),
+  Object.freeze({
     id: 'rgba8-straight',
     source: 'rgba8-transparent',
     features: Object.freeze(['8-bit RGBA', 'straight alpha', 'transparent colors']),

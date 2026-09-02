@@ -81,7 +81,9 @@ test('JPEG XL workbench opens a reconstruction file and enables exact output', a
   await expect(page.locator('#jxl-reconstruct')).toBeEnabled()
 })
 
-test('JPEG XL workbench converts linear RGB samples for canvas display', async ({ page }) => {
+test('JPEG XL workbench converts linear samples and honors lower-depth display ranges', async ({
+  page,
+}) => {
   await page.goto('/jpeg-xl/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
@@ -112,6 +114,21 @@ test('JPEG XL workbench converts linear RGB samples for canvas display', async (
     return Array.from(context.getImageData(1, 0, 1, 1).data)
   })
   expect(grayPixel).toEqual([98, 98, 98, 255])
+
+  await page
+    .locator('#jxl-file')
+    .setInputFiles('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb10-linear.jxl')
+  await expect(page.locator('#jxl-status')).toContainText(
+    'rgb10-linear.jxl inspected and decoded locally',
+  )
+  const lowerDepthPixel = await page.locator('#jxl-preview').evaluate((canvas) => {
+    if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Preview is not a canvas')
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('Canvas 2D is unavailable')
+    return Array.from(context.getImageData(0, 0, 1, 1).data)
+  })
+  expect(lowerDepthPixel).toEqual([0, 137, 187, 255])
+  expect(lowerDepthPixel).not.toEqual([0, 13, 22, 255])
 })
 
 test('JPEG XL workbench pixel-losslessly encodes and reopens the checked PNG', async ({ page }) => {

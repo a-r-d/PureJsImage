@@ -12,7 +12,7 @@ import {
   transcodeJpegToJpegXl,
 } from '../../../src/jpegxl.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
-import { normalizePixelBlocks, type PixelFormat } from '../../../src/pixel.ts'
+import type { PixelFormat } from '../../../src/pixel.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import { MemorySource } from '../../../src/source.ts'
 import {
@@ -27,6 +27,7 @@ import {
   isJpegXlWorkbenchPreviewPixelFormat,
   jpegXlWorkbenchPreviewMode,
   jpegXlWorkbenchPreviewPixel,
+  jpegXlWorkbenchPreviewRanges,
 } from './jpegxl-workbench-preview.ts'
 
 interface StoredInput {
@@ -143,10 +144,7 @@ const preview = async (
     decoder.colorSemantics === undefined && codec.format === 'jpeg'
       ? 'srgb'
       : jpegXlWorkbenchPreviewMode(decoder.colorSemantics)
-  const blocks =
-    mode === 'srgb'
-      ? normalizePixelBlocks(decoder.decode({ signal }), decoder.pixelFormat)
-      : decoder.decode({ signal })
+  const blocks = decoder.decode({ signal })
   const iterator = blocks[Symbol.asyncIterator]()
   try {
     while (true) {
@@ -158,6 +156,7 @@ const preview = async (
         if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
           throw new Error(`Workbench preview does not support ${block.format}`)
         }
+        const ranges = jpegXlWorkbenchPreviewRanges(block)
         for (let y = 0; y < plan.height; y += 1) {
           const sourceY = Math.min(
             decoder.height - 1,
@@ -172,7 +171,7 @@ const preview = async (
             )
             if (sourceX < block.x || sourceX >= block.x + block.width) continue
             const target = (y * plan.width + x) * 4
-            const pixel = jpegXlWorkbenchPreviewPixel(block, sourceX, sourceY, mode)
+            const pixel = jpegXlWorkbenchPreviewPixel(block, sourceX, sourceY, mode, ranges)
             rgba[target] = pixel[0]
             rgba[target + 1] = pixel[1]
             rgba[target + 2] = pixel[2]
