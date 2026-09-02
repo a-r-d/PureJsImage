@@ -18,6 +18,7 @@ import { MemorySource } from '../../../src/source.ts'
 import {
   isJpegXlWorkbenchRequest,
   jpegXlWorkbenchMaximumOutputBytes,
+  planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
   type JpegXlWorkbenchPreview,
   type JpegXlWorkbenchResponse,
@@ -90,9 +91,9 @@ const nativePixels = async (
     throw new Error(`Pixel-lossless JPEG XL encode does not support ${decoder.pixelFormat}`)
   }
   const format = decoder.pixelFormat
+  const memoryPlan = planJpegXlWorkbenchNativeMemory(decoder.width, decoder.height, format)
   const sampleBytes = format.endsWith('16') ? 2 : 1
-  const rowBytes = decoder.width * channelCount(format) * sampleBytes
-  const pixels = new Uint8Array(rowBytes * decoder.height)
+  const pixels = new Uint8Array(memoryPlan.nativePixelBytes)
   for await (const block of decoder.decode({ signal })) {
     try {
       throwIfAborted(signal)
@@ -145,6 +146,9 @@ const preview = async (
     signal,
   })
   if (!decoder) throw new Error(`${codec.format} decoder is unavailable`)
+  if (encoderPixelFormat(decoder.pixelFormat)) {
+    planJpegXlWorkbenchNativeMemory(decoder.width, decoder.height, decoder.pixelFormat)
+  }
   const plan = planJpegXlWorkbenchPreview(decoder.width, decoder.height)
   const rgba = new Uint8ClampedArray(plan.width * plan.height * 4)
   const blocks = normalizePixelBlocks(decoder.decode({ signal }), decoder.pixelFormat)
@@ -295,7 +299,7 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
         const codec = input.kind === 'png' ? pngCodec : tiffCodec
         const source = await nativePixels(codec, input.bytes, abort.signal)
         const semantics = source.decoder.colorSemantics
-        if (semantics && jpegxlCodec.acceptsColorSemantics?.(semantics) !== true) {
+        if (!semantics || jpegxlCodec.acceptsColorSemantics?.(semantics) !== true) {
           throw new Error(
             'Pixel-lossless JPEG XL encode does not support the source color semantics',
           )
@@ -305,7 +309,7 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           width: source.width,
           height: source.height,
           pixelFormat: source.format,
-          ...(semantics ? { colorSemantics: semantics } : {}),
+          colorSemantics: semantics,
           options: { mode: 'lossless', effort: 1, container: true },
           limits: defaultImageLimits,
           signal: abort.signal,
@@ -367,6 +371,7 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
         try {
           const result = await transcodeJpegToJpegXl(input.bytes, {
             reconstruction: 'required',
+            onlyIfSmaller: request.onlyIfSmaller,
             signal: abort.signal,
             evidence: session.context,
           })

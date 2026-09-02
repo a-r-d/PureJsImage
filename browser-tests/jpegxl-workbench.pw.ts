@@ -1,4 +1,28 @@
+import { deflateSync } from 'node:zlib'
 import { expect, test } from '@playwright/test'
+import { crc32 } from '../src/codecs/crc32.ts'
+
+const pngChunk = (type: string, payload: Uint8Array): Buffer => {
+  const encodedType = Buffer.from(type, 'ascii')
+  const length = Buffer.alloc(4)
+  length.writeUInt32BE(payload.byteLength)
+  const checksum = Buffer.alloc(4)
+  checksum.writeUInt32BE(crc32(encodedType, payload))
+  return Buffer.concat([length, encodedType, payload, checksum])
+}
+
+const oversizedPng = (): Buffer => {
+  const header = Buffer.alloc(13)
+  header.writeUInt32BE(16_000, 0)
+  header.writeUInt32BE(16_000, 4)
+  header.set([8, 6, 0, 0, 0], 8)
+  return Buffer.concat([
+    Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10),
+    pngChunk('IHDR', header),
+    pngChunk('IDAT', deflateSync(new Uint8Array())),
+    pngChunk('IEND', new Uint8Array()),
+  ])
+}
 
 test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', async ({ page }) => {
   await page.goto('/jpeg-xl/')
@@ -19,6 +43,14 @@ test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', as
   )
   await expect(page.locator('#jxl-summary')).toContainText('exact-jpeg')
   await expect(page.locator('#jxl-summary')).toContainText('Verified')
+  await expect(page.locator('#jxl-summary')).toContainText('Source JPEG')
+  await expect(page.locator('#jxl-summary')).toContainText('JPEG XL output')
+  await expect(page.locator('#jxl-summary')).toContainText('Signed savings')
+  await expect(page.locator('#jxl-summary')).toContainText('Output/source ratio')
+  await expect(page.locator('#jxl-summary')).toContainText('JPEG XL is larger by 890 bytes')
+  await expect(page.locator('#jxl-summary')).toContainText('Smaller than source')
+  await expect(page.locator('#jxl-summary')).toContainText('Experimental')
+  await expect(page.locator('#jxl-summary')).toContainText('Off')
   await expect(page.locator('#jxl-details')).toContainText('jpegxl-jpeg-transcode')
   const jxlDownload = page.waitForEvent('download')
   await page.locator('#jxl-download').click()
@@ -93,4 +125,26 @@ test('JPEG XL workbench scales a 12 MP preview without changing logical dimensio
   await expect(page.locator('#jxl-summary')).toContainText('2364 × 1773 scaled locally')
   await expect(page.locator('#jxl-preview')).toHaveAttribute('width', '2364')
   await expect(page.locator('#jxl-preview')).toHaveAttribute('height', '1773')
+})
+
+test('JPEG XL workbench rejects native pixel materialization before allocation and cleans state', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+
+  await page.locator('#jxl-file').setInputFiles({
+    name: 'oversized.png',
+    mimeType: 'image/png',
+    buffer: oversizedPng(),
+  })
+  await expect(page.locator('#jxl-status')).toContainText('before pixel allocation')
+  await expect(page.locator('#jxl-encode')).toBeDisabled()
+  await expect(page.locator('#jxl-transcode')).toBeDisabled()
+  await expect(page.locator('#jxl-reconstruct')).toBeDisabled()
+  await expect(page.locator('#jxl-download')).toBeDisabled()
+
+  await page.locator('#jxl-open-jpeg').click()
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+  await expect(page.locator('#jxl-transcode')).toBeEnabled()
 })

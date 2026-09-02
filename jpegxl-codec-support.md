@@ -17,9 +17,9 @@ file-format-version-1 out-of-order `jxlp` codestreams can enter the implemented
 pixel subset through one logical segmented source.
 
 The decoder covers the checked lossless Modular subset plus selected 8-bit single-group
-XYB VarDCT fixtures. That includes DCT8 and selected adaptive block strategies, Gaborish, EPF,
+XYB VarDCT fixtures. That includes raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, Gaborish, EPF,
 adaptive smoothing, synthetic noise, final progressive reconstruction, and JPEG-derived
-RGB or YCbCr DCT coefficients. Each checked lossy fixture has a pinned independent
+RGB or YCbCr DCT coefficients. Raw strategy 1 Hornuss is unsupported. Each checked lossy fixture has a pinned independent
 `djxl` tolerance. Unsupported strategies, patches, splines, broad color syntax, extra
 channels, orientation extra fields, and multiple visible frames fail explicitly. This
 VarDCT path materializes the selected full frame before applying a crop and serving rows.
@@ -30,7 +30,8 @@ and the six-format output matrix is exact through pinned `djxl` and jxl-rs. The 
 compression gate remains below the stable threshold, so the encoder stays Experimental. The separate
 `purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
-reconstructs and compares every source byte before exact-mode success.
+reconstructs and compares every source byte before exact-mode success. Exact transcode
+requires Exif orientation absent or 1 and no ICC or the checked deterministic sRGB ICC.
 
 A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in deferred groups do not block
@@ -180,8 +181,9 @@ losslessly transcoded JPEG files.
   groups
 - [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [x] Implement every transform strategy required by the pinned common corpus,
-  including square DCT, rectangular DCT, AFV, and Hornuss families
+- [x] Implement pinned raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17,
+  covering checked square DCT, rectangular DCT, and AFV families
+- [ ] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
 - [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision
 - [x] Reconstruct the pinned XYB samples and perform the inverse opsin transform
@@ -214,8 +216,8 @@ losslessly transcoded JPEG files.
 - [x] One alpha extra channel with independent precision
 - [ ] Unassociated and premultiplied alpha with correct unpremultiplication or
   preservation behavior
-- [ ] Parse the encoded color encoding: color space, white point, primaries,
-  transfer function, and rendering intent
+- [x] Parse and report the checked sRGB and linear-sRGB gray or RGB encoding
+  with matching metadata and decoder pixel semantics
 - [ ] Decode compressed embedded ICC profiles with strict decoded-size limits
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
@@ -223,8 +225,8 @@ losslessly transcoded JPEG files.
 - [ ] Handle XYB codestream color representations
 - [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
   display ranges, normalizing only when an 8-bit transform or encoder requires it
-- [ ] Reject unsupported color encodings or extra-channel semantics rather than
-  treating their samples as sRGB or alpha
+- [x] Reject unsupported color encodings or extra-channel semantics rather than
+  treating their samples as sRGB or alpha for the checked subset
 
 ## Group 2: common compatibility improvements — should have
 

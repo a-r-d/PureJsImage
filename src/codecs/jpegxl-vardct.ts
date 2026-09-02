@@ -1,5 +1,6 @@
 import { throwIfAborted } from '../abort.ts'
 import type { DecodeRequest, DecoderOptions, ImageDecoder } from '../codec.ts'
+import type { PixelColorSemantics } from '../color.ts'
 import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageLimits } from '../limits.ts'
@@ -10,6 +11,7 @@ import type { JpegCoefficientImage } from './jpeg-coefficients.ts'
 import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.ts'
 import {
   decodeJpegXlModularDcFrameSection,
+  jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
 import { decodeJpegXlJpegCoefficientImage } from './jpegxl-jpeg-reconstruct-source.ts'
@@ -59,6 +61,15 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgb8' as const
+  readonly colorSemantics = Object.freeze<PixelColorSemantics>({
+    family: 'rgb',
+    primaries: 'srgb',
+    transfer: Object.freeze({ kind: 'srgb' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: 'none',
+    provenance: 'decoder-converted',
+  })
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: true,
@@ -106,6 +117,7 @@ class VarDctJpegXlDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat: 'gray8' | 'rgb8'
+  readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: false,
@@ -119,6 +131,7 @@ class VarDctJpegXlDecoder implements ImageDecoder {
 
   constructor(
     pixels: JpegXlVarDctPixels,
+    colorSemantics: PixelColorSemantics,
     signal: AbortSignal | undefined,
     memory: JpegXlVarDctMemoryLedger,
     evidence: EvidenceContext | undefined,
@@ -126,6 +139,7 @@ class VarDctJpegXlDecoder implements ImageDecoder {
     this.width = pixels.width
     this.height = pixels.height
     this.pixelFormat = pixels.format
+    this.colorSemantics = colorSemantics
     this.#pixels = pixels
     this.#signal = signal
     this.#memory = memory
@@ -242,7 +256,13 @@ export const createJpegXlVarDctDecoder = async (
         phase: 'complete',
         detail: `managed peak ${memory.peakBytes} bytes`,
       })
-      return new VarDctJpegXlDecoder(pixels, options.signal, memory, evidence)
+      return new VarDctJpegXlDecoder(
+        pixels,
+        jpegXlPixelColorSemantics(frame),
+        options.signal,
+        memory,
+        evidence,
+      )
     }
     const dcFrame = frames[0]
     if (
@@ -300,7 +320,13 @@ export const createJpegXlVarDctDecoder = async (
       phase: 'complete',
       detail: `managed peak ${memory.peakBytes} bytes`,
     })
-    return new VarDctJpegXlDecoder(pixels, options.signal, memory, evidence)
+    return new VarDctJpegXlDecoder(
+      pixels,
+      jpegXlPixelColorSemantics(frame),
+      options.signal,
+      memory,
+      evidence,
+    )
   } catch (error) {
     memory.releaseAll()
     evidence?.operation({

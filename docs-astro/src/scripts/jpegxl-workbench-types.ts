@@ -9,6 +9,24 @@ export const jpegXlWorkbenchMaximumInputBytes = 64 * 1024 * 1024
 export const jpegXlWorkbenchMaximumOutputBytes = 128 * 1024 * 1024
 export const jpegXlWorkbenchMaximumPreviewPixels = 4_194_304
 export const jpegXlWorkbenchMaximumNameLength = 512
+export const jpegXlWorkbenchMaximumNativePixelBytes = 96 * 1024 * 1024
+export const jpegXlWorkbenchMaximumSimultaneousBytes = 192 * 1024 * 1024
+
+export type JpegXlWorkbenchNativePixelFormat =
+  | 'gray8'
+  | 'gray16'
+  | 'rgb8'
+  | 'rgb16'
+  | 'rgba8'
+  | 'rgba16'
+
+export interface JpegXlWorkbenchNativeMemoryPlan {
+  readonly nativePixelBytes: number
+  readonly previewBytes: number
+  readonly encoderRetainedBytes: number
+  readonly estimatedOutputBytes: number
+  readonly estimatedSimultaneousBytes: number
+}
 
 export interface JpegXlWorkbenchPreviewPlan {
   readonly logicalWidth: number
@@ -52,6 +70,42 @@ export const planJpegXlWorkbenchPreview = (
   })
 }
 
+export const planJpegXlWorkbenchNativeMemory = (
+  width: number,
+  height: number,
+  format: JpegXlWorkbenchNativePixelFormat,
+): JpegXlWorkbenchNativeMemoryPlan => {
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) {
+    throw new Error('JPEG XL workbench native dimensions are invalid')
+  }
+  const channels = format.startsWith('gray') ? 1n : format.startsWith('rgba') ? 4n : 3n
+  const sampleBytes = format.endsWith('16') ? 2n : 1n
+  const nativePixelBytes = BigInt(width) * BigInt(height) * channels * sampleBytes
+  const preview = planJpegXlWorkbenchPreview(width, height)
+  const previewBytes = BigInt(preview.width) * BigInt(preview.height) * 4n
+  const estimatedOutputBytes = nativePixelBytes + nativePixelBytes / 2n + BigInt(1024 * 1024)
+  const boundedOutputBytes =
+    estimatedOutputBytes > BigInt(jpegXlWorkbenchMaximumOutputBytes)
+      ? BigInt(jpegXlWorkbenchMaximumOutputBytes)
+      : estimatedOutputBytes
+  const estimatedSimultaneousBytes = nativePixelBytes * 2n + previewBytes + boundedOutputBytes
+  if (
+    nativePixelBytes > BigInt(jpegXlWorkbenchMaximumNativePixelBytes) ||
+    estimatedSimultaneousBytes > BigInt(jpegXlWorkbenchMaximumSimultaneousBytes)
+  ) {
+    throw new Error(
+      `Image exceeds the JPEG XL workbench memory limit before pixel allocation (${nativePixelBytes} native bytes; ${estimatedSimultaneousBytes} estimated simultaneous bytes)`,
+    )
+  }
+  return Object.freeze({
+    nativePixelBytes: Number(nativePixelBytes),
+    previewBytes: Number(previewBytes),
+    encoderRetainedBytes: Number(nativePixelBytes),
+    estimatedOutputBytes: Number(boundedOutputBytes),
+    estimatedSimultaneousBytes: Number(estimatedSimultaneousBytes),
+  })
+}
+
 interface JpegXlWorkbenchIdentity {
   readonly requestId: number
   readonly generation: number
@@ -63,7 +117,7 @@ export type JpegXlWorkbenchRequest =
       readonly name: string
       readonly bytes: ArrayBuffer
     })
-  | (JpegXlWorkbenchIdentity & { readonly type: 'transcode' })
+  | (JpegXlWorkbenchIdentity & { readonly type: 'transcode'; readonly onlyIfSmaller: boolean })
   | (JpegXlWorkbenchIdentity & { readonly type: 'encode' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'reconstruct' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'cancel' })
@@ -74,7 +128,7 @@ export interface JpegXlWorkbenchPreview extends JpegXlWorkbenchPreviewPlan {
 
 export interface JpegXlWorkbenchPixelSource {
   readonly container: 'PNG' | 'TIFF'
-  readonly pixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
+  readonly pixelFormat: JpegXlWorkbenchNativePixelFormat
   readonly color: string
   readonly alpha: 'none' | 'straight'
 }
@@ -280,6 +334,8 @@ const sourceProfile = (value: unknown): boolean =>
     'components',
     'sampling',
     'scans',
+    'orientation',
+    'colorProfile',
   ]) &&
   positiveInteger(value.width) &&
   positiveInteger(value.height) &&
@@ -288,7 +344,9 @@ const sourceProfile = (value: unknown): boolean =>
   positiveInteger(value.components) &&
   Array.isArray(value.sampling) &&
   value.sampling.every((entry) => typeof entry === 'string') &&
-  positiveInteger(value.scans)
+  nonnegativeInteger(value.scans) &&
+  value.orientation === 1 &&
+  (value.colorProfile === 'none' || value.colorProfile === 'srgb')
 
 const eligibility = (value: unknown): value is JpegReconstructionEligibility => {
   if (!record(value)) return false
@@ -380,12 +438,13 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
 
 export const isJpegXlWorkbenchRequest = (value: unknown): value is JpegXlWorkbenchRequest => {
   if (!record(value) || typeof value.type !== 'string' || !identity(value)) return false
-  if (
-    value.type === 'transcode' ||
-    value.type === 'encode' ||
-    value.type === 'reconstruct' ||
-    value.type === 'cancel'
-  ) {
+  if (value.type === 'transcode') {
+    return (
+      exactKeys(value, ['type', 'requestId', 'generation', 'onlyIfSmaller']) &&
+      typeof value.onlyIfSmaller === 'boolean'
+    )
+  }
+  if (value.type === 'encode' || value.type === 'reconstruct' || value.type === 'cancel') {
     return exactKeys(value, ['type', 'requestId', 'generation'])
   }
   return (

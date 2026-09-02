@@ -12,6 +12,10 @@ import { jpegXlOracles } from '../benchmark/jpegxl/oracles.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { estimateJpegXlVarDctWorkingMemory } from '../src/codecs/jpegxl-vardct-memory.ts'
+import {
+  jpegXlSupportedVarDctStrategyIds,
+  supportsJpegXlVarDctStrategy,
+} from '../src/codecs/jpegxl-vardct-render.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -51,6 +55,13 @@ const comparePixels = (
 }
 
 describe('JPEG XL corpus and development-oracle manifest', () => {
+  it('keeps raw strategy 1 Hornuss outside the selected VarDCT subset', () => {
+    expect(jpegXlSupportedVarDctStrategyIds).toEqual([0, 2, 5, 6, 7, 12, 13, 14, 15, 16, 17])
+    expect(generatedVarDct.testedStrategyIds).toEqual(jpegXlSupportedVarDctStrategyIds)
+    expect(generatedVarDct.unsupportedStrategyIds).toContain(1)
+    expect(supportsJpegXlVarDctStrategy(1)).toBe(false)
+  })
+
   it('pins unique external oracle revisions and roles', () => {
     expect(new Set(jpegXlOracles.map(({ id }) => id)).size).toBe(jpegXlOracles.length)
     for (const oracle of jpegXlOracles) {
@@ -77,8 +88,8 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
   it('pins deterministic libjxl lossless generator outputs and taxonomy', () => {
     expect(generatedLossless.revision).toMatch(/^[0-9a-f]{40}$/u)
     expect(generatedLossless.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
-    expect(generatedLossless.fixtures).toHaveLength(33)
-    expect(new Set(generatedLossless.fixtures.map(({ id }) => id)).size).toBe(33)
+    expect(generatedLossless.fixtures).toHaveLength(35)
+    expect(new Set(generatedLossless.fixtures.map(({ id }) => id)).size).toBe(35)
     for (const fixture of generatedLossless.fixtures) {
       expect(fixture.generator).toBe('benchmark/jpegxl/generate-lossless-corpus.ts')
       expect(fixture.jxlSha256).toMatch(/^[0-9a-f]{64}$/u)
@@ -91,6 +102,49 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
       expect(['raw', 'jxlc', 'jxlp']).toContain(fixture.container)
     }
   })
+
+  it.each(['gray8-linear', 'rgb8-linear'] as const)(
+    'preserves exact samples and truthful semantics for %s',
+    async (id) => {
+      const fixture = generatedLossless.fixtures.find((candidate) => candidate.id === id)
+      if (!fixture) throw new Error(`Pinned JPEG XL fixture ${id} is missing`)
+      const directory = 'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0'
+      const encoded = new Uint8Array(readFileSync(`${directory}/${id}.jxl`))
+      const source = new Uint8Array(readFileSync(`${directory}/input/${fixture.source}.pnm`))
+      const oracle = new Uint8Array(readFileSync(`${directory}/${id}.oracle.pnm`))
+      expect(sha256(encoded)).toBe(fixture.jxlSha256)
+      expect(sha256(source)).toBe(fixture.inputSha256)
+      expect(sha256(oracle)).toBe(fixture.djxlOutputSha256)
+
+      const metadata = await jpegxlCodec.metadata(new MemorySource(encoded), defaultImageLimits)
+      const decoder = await jpegxlCodec.createDecoder?.(
+        new MemorySource(encoded),
+        defaultImageLimits,
+      )
+      if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+      const expectedFamily = id.startsWith('gray') ? 'gray' : 'rgb'
+      expect(metadata.colorSemantics).toEqual({
+        family: expectedFamily,
+        primaries: 'srgb',
+        transfer: { kind: 'linear' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'container-signaled',
+      })
+      expect(decoder.colorSemantics).toEqual(metadata.colorSemantics)
+      const rows: Uint8Array[] = []
+      for await (const block of decoder.decode()) rows.push(block.data.slice())
+      const pixels = new Uint8Array(rows.reduce((sum, row) => sum + row.byteLength, 0))
+      let offset = 0
+      for (const row of rows) {
+        pixels.set(row, offset)
+        offset += row.byteLength
+      }
+      expect(pixels).toEqual(pnmPixels(source))
+      expect(pixels).toEqual(pnmPixels(oracle))
+    },
+  )
 
   it('pins a common static VarDCT development matrix with pixel oracles', async () => {
     expect(generatedVarDct.revision).toMatch(/^[0-9a-f]{40}$/u)
@@ -125,6 +179,15 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
           defaultImageLimits,
         )
         if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+        expect(decoder.colorSemantics).toMatchObject({
+          family: fixture.colorEncoding.startsWith('grayscale') ? 'gray' : 'rgb',
+          primaries: 'srgb',
+          transfer: { kind: 'srgb' },
+          matrix: 'identity',
+          range: 'full',
+          alpha: 'none',
+          provenance: 'decoder-converted',
+        })
         expect(decoder.capabilities).toMatchObject({ regionDecode: false, scaledDecode: false })
         const blocks = []
         for await (const block of decoder.decode()) blocks.push(block)

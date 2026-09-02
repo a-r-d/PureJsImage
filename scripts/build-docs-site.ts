@@ -129,13 +129,32 @@ if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>
 const jpegXlPage = await readFile(join(outputDirectory, 'jpeg-xl', 'index.html'), 'utf8')
 for (const required of [
   '<title>JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage</title>',
+  'name="description" content="Inspect and decode JPEG XL, try the experimental lossless Modular encoder, and verify exact coefficient-domain JPEG transcoding in a local browser worker."',
   'rel="canonical" href="https://purejsimage.com/jpeg-xl/"',
+  'property="og:image" content="https://purejsimage.com/assets/jpeg-xl-og.png"',
+  'property="og:image:width" content="1200"',
+  'property="og:image:height" content="630"',
+  'name="twitter:card" content="summary_large_image"',
   'Quick answer',
   'Interactive workbench',
   'Transcode eligible JPEG coefficients',
   'Current limits',
+  'What is JPEG XL?',
+  'Can JavaScript decode JXL?',
+  'What does pixel-lossless mean?',
+  'Can PureJsImage reconstruct the original JPEG byte for byte?',
+  'Why can an exact JXL be larger than its source JPEG?',
+  'Which JPEG files are currently eligible?',
+  'Are Exif orientation and non-sRGB ICC supported by exact transcode?',
+  'Does PureJsImage have a general lossy JPEG XL encoder?',
+  'Does this work in Node.js and browsers?',
 ]) {
   if (!jpegXlPage.includes(required)) throw new Error(`Generated JPEG XL page omits ${required}`)
+}
+if (
+  !/<h1[^>]*>Decode JPEG XL and verify exact JPEG transcoding in JavaScript<\/h1>/u.test(jpegXlPage)
+) {
+  throw new Error('Generated JPEG XL page omits its required H1')
 }
 const hdrJsonLd = [
   ...hdrPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
@@ -150,6 +169,21 @@ const hdrJsonLd = [
 for (const type of ['WebApplication', 'TechArticle', 'BreadcrumbList']) {
   if (!hdrJsonLd.some((value) => value['@type'] === type)) {
     throw new Error(`Generated HDR Surgery JSON-LD omits ${type}`)
+  }
+}
+const jpegXlJsonLd = [
+  ...jpegXlPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
+]
+  .map(
+    (match) =>
+      JSON.parse(match[1] ?? '{}') as {
+        readonly '@graph'?: readonly { readonly '@type'?: string }[]
+      },
+  )
+  .flatMap((value) => value['@graph'] ?? [])
+for (const type of ['WebApplication', 'TechArticle', 'BreadcrumbList']) {
+  if (!jpegXlJsonLd.some((value) => value['@type'] === type)) {
+    throw new Error(`Generated JPEG XL JSON-LD omits ${type}`)
   }
 }
 const llms = await readFile(join(outputDirectory, 'llms.txt'), 'utf8')

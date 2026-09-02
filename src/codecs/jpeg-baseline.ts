@@ -432,13 +432,17 @@ const colorTransform = (
   throw invalidInput(`Adobe transform ${adobeTransform} is invalid for a four-component JPEG`)
 }
 
-interface IccChunk {
+export interface JpegIccChunk {
   readonly sequence: number
   readonly count: number
   readonly data: Uint8Array
 }
 
-const parseIccChunk = (data: Uint8Array, start: number, end: number): IccChunk | undefined => {
+export const parseJpegIccChunk = (
+  data: Uint8Array,
+  start: number,
+  end: number,
+): JpegIccChunk | undefined => {
   const name = 'ICC_PROFILE\0'
   if (end - start < 14) return undefined
   for (let index = 0; index < name.length; index += 1) {
@@ -452,7 +456,10 @@ const parseIccChunk = (data: Uint8Array, start: number, end: number): IccChunk |
   return { sequence, count, data: data.slice(start + 14, end) }
 }
 
-const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined => {
+export const assembleJpegIccProfile = (
+  chunks: readonly JpegIccChunk[],
+  maximumBytes = 16 * 1024 * 1024,
+): Uint8Array | undefined => {
   if (chunks.length === 0) return undefined
   const count = chunks[0]?.count ?? 0
   if (count !== chunks.length || chunks.some((chunk) => chunk.count !== count)) {
@@ -464,7 +471,9 @@ const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined
     if (ordered[chunk.sequence - 1]) throw invalidInput('JPEG ICC profile repeats a chunk')
     ordered[chunk.sequence - 1] = chunk.data
     bytes += chunk.data.byteLength
-    if (bytes > 16 * 1024 * 1024) throw invalidInput('JPEG ICC profile exceeds 16 MiB')
+    if (bytes > maximumBytes) {
+      throw limitExceeded(`JPEG ICC profile exceeds ${maximumBytes} bytes`)
+    }
   }
   const profile = new Uint8Array(bytes)
   let offset = 0
@@ -477,10 +486,10 @@ const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined
 }
 
 const createIccTransform = (
-  chunks: readonly IccChunk[],
+  chunks: readonly JpegIccChunk[],
   jpegColorTransform: JpegColorTransform,
 ): JpegIccTransform | undefined => {
-  const profile = assembleIccProfile(chunks)
+  const profile = assembleJpegIccProfile(chunks)
   if (!profile) return undefined
   const transform = parseJpegIccTransform(profile)
   const fourComponent = jpegColorTransform === 'cmyk' || jpegColorTransform === 'ycck'
@@ -605,7 +614,7 @@ export const parseBaselineJpeg = (
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let restartInterval = 0
   let motionJpeg = false
   let offset = 2
@@ -625,7 +634,7 @@ export const parseBaselineJpeg = (
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
     else if (marker === 0xe0) motionJpeg ||= isAvi1Segment(data, start, end)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(data, start, end)
+      const chunk = parseJpegIccChunk(data, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
@@ -755,7 +764,7 @@ export const parseBaselineJpegSource = async (
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let restartInterval = 0
   let motionJpeg = false
 
@@ -769,7 +778,7 @@ export const parseBaselineJpegSource = async (
     else if (marker === 0xc4) parseHuffmanTables(payload, start, end, dcTables, acTables)
     else if (marker === 0xe0) motionJpeg ||= isAvi1Segment(payload, start, end)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(payload, start, end)
+      const chunk = parseJpegIccChunk(payload, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(payload, start, end) ?? adobeTransform
@@ -2768,7 +2777,7 @@ export const parseProgressiveJpeg = (
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let components: ProgressiveFrameComponent[] | undefined
   let maximumHorizontalSampling = 1
   let maximumVerticalSampling = 1
@@ -2818,7 +2827,7 @@ export const parseProgressiveJpeg = (
     if (marker === 0xdb) parseQuantizationTables(data, start, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(data, start, end)
+      const chunk = parseJpegIccChunk(data, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
@@ -3080,7 +3089,7 @@ export const parseCoefficientJpegSource = async (
   let frame: ParsedFrame | undefined
   let progressive = false
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let components: ProgressiveFrameComponent[] | undefined
   let maximumHorizontalSampling = 1
   let maximumVerticalSampling = 1
@@ -3143,7 +3152,7 @@ export const parseCoefficientJpegSource = async (
     if (marker === 0xdb) parseQuantizationTables(payload, 0, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(payload, 0, end, dcTables, acTables)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(payload, 0, end)
+      const chunk = parseJpegIccChunk(payload, 0, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(payload, 0, end) ?? adobeTransform

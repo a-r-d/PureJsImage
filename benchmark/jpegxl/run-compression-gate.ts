@@ -7,7 +7,6 @@ import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import type { PixelFormat } from '../../src/pixel.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
-import { MemorySource } from '../../src/source.ts'
 
 type ImageClass = 'line-art' | 'gradient' | 'alpha-heavy' | 'photo-like' | 'noise'
 
@@ -130,6 +129,15 @@ const encodePureJsImage = async (
     width: entry.width,
     height: entry.height,
     pixelFormat: format,
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: format === 'rgba8' ? 'straight' : 'none',
+      provenance: 'assumed-default',
+    },
     options: { mode: 'lossless', effort: 1, container: true },
     limits: defaultImageLimits,
   })

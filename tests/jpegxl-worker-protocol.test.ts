@@ -3,6 +3,7 @@ import {
   isJpegXlWorkbenchRequest,
   isJpegXlWorkbenchResponse,
   jpegXlWorkbenchMaximumInputBytes,
+  planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
 } from '../docs-astro/src/scripts/jpegxl-workbench-types.ts'
 
@@ -22,6 +23,18 @@ describe('JPEG XL workbench worker protocol', () => {
       height: 180,
       scaled: false,
     })
+  })
+
+  it('rejects oversized native materialization before allocating a full raster', () => {
+    expect(planJpegXlWorkbenchNativeMemory(4_000, 3_000, 'rgb8')).toMatchObject({
+      nativePixelBytes: 36_000_000,
+      encoderRetainedBytes: 36_000_000,
+      previewBytes: 16_765_488,
+      estimatedSimultaneousBytes: expect.any(Number),
+    })
+    expect(() => planJpegXlWorkbenchNativeMemory(20_000, 20_000, 'rgba16')).toThrow(
+      'before pixel allocation',
+    )
   })
 
   it('accepts closed requests and rejects malformed identities, extra keys, and oversized input', () => {
@@ -60,7 +73,14 @@ describe('JPEG XL workbench worker protocol', () => {
         type: 'transcode',
         requestId: 4,
         generation: 2,
-        trusted: true,
+        onlyIfSmaller: false,
+      }),
+    ).toBe(true)
+    expect(
+      isJpegXlWorkbenchRequest({
+        type: 'transcode',
+        requestId: 4,
+        generation: 2,
       }),
     ).toBe(false)
     expect(

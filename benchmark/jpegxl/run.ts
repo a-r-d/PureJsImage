@@ -27,7 +27,8 @@ interface WorkerResult {
   readonly outputBytes: number
   readonly outputSha256: string
   readonly wallMilliseconds: number
-  readonly managedPeakBytes: number
+  readonly managedPeakBytes: number | null
+  readonly managedMemoryMeasurement: 'measured' | 'unavailable'
 }
 
 const record = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -49,7 +50,9 @@ const workerResult = (value: unknown): WorkerResult => {
     typeof value.outputBytes !== 'number' ||
     typeof value.outputSha256 !== 'string' ||
     typeof value.wallMilliseconds !== 'number' ||
-    typeof value.managedPeakBytes !== 'number'
+    (value.managedPeakBytes !== null && typeof value.managedPeakBytes !== 'number') ||
+    (value.managedMemoryMeasurement !== 'measured' &&
+      value.managedMemoryMeasurement !== 'unavailable')
   ) {
     throw new Error('JPEG XL benchmark worker returned invalid output')
   }
@@ -77,12 +80,18 @@ const workerResult = (value: unknown): WorkerResult => {
     outputSha256: value.outputSha256,
     wallMilliseconds: value.wallMilliseconds,
     managedPeakBytes: value.managedPeakBytes,
+    managedMemoryMeasurement: value.managedMemoryMeasurement,
   }
 }
 
 const median = (values: readonly number[]): number => {
   const ordered = [...values].sort((left, right) => left - right)
   return ordered[Math.floor(ordered.length / 2)] ?? 0
+}
+
+const medianAvailable = (values: readonly (number | null)[]): number | null => {
+  const available = values.filter((value): value is number => value !== null)
+  return available.length === 0 ? null : median(available)
 }
 
 const ppmSamples = (ppm: Uint8Array): Uint8Array => {
@@ -149,7 +158,14 @@ const summaries = workloads.map((workload) => {
         Math.max(0, peak.arrayBuffersBytes - baseline.arrayBuffersBytes),
       ),
     ),
-    medianManagedPeakBytes: median(selected.map(({ managedPeakBytes }) => managedPeakBytes)),
+    medianManagedPeakBytes: medianAvailable(
+      selected.map(({ managedPeakBytes }) => managedPeakBytes),
+    ),
+    managedMemoryMeasurement: selected.every(
+      ({ managedMemoryMeasurement }) => managedMemoryMeasurement === 'measured',
+    )
+      ? 'measured'
+      : 'unavailable',
   })
 })
 

@@ -95,6 +95,15 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- JPEG XL exact transcode now rejects Exif orientation other than 1 and non-sRGB or malformed ICC
+  before coefficient work, so byte-exact reconstruction cannot hide incorrect display semantics.
+  Modular decode reports checked sRGB or linear-sRGB semantics consistently on metadata and decoder
+  output. Selected XYB and JPEG-derived output report decoder-converted sRGB. The experimental
+  encoder requires explicit supported sRGB semantics, and unmeasured encoder managed memory is
+  reported as unavailable instead of zero. Raw VarDCT strategy 1 Hornuss is no longer claimed. The
+  local workbench preflights native browser memory and reports signed size changes, exact
+  verification, and the optional smaller-output policy.
+
 - HDR gain-map rendering now reports the emitted linear RGB space instead of retaining container
   YUV matrix and range labels. It rejects base and alternate primary mismatches until a float gamut
   conversion is available, validates exact ISO rationals against normalized values, keeps pending

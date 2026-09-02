@@ -152,6 +152,7 @@ const encodeLosslessJpegXl = async (
     width,
     height,
     pixelFormat: format,
+    colorSemantics: jpegXlSemanticsFor(format),
     options: { mode: 'lossless', effort: 1, container },
     limits: defaultImageLimits,
   })
@@ -209,6 +210,12 @@ const srgbSemantics = (alpha: PixelColorSemantics['alpha']): PixelColorSemantics
     range: 'full',
     alpha,
     provenance: 'decoder-converted',
+  })
+
+const jpegXlSemanticsFor = (format: PixelFormat): PixelColorSemantics =>
+  Object.freeze({
+    ...srgbSemantics(format.startsWith('rgba') ? 'straight' : 'none'),
+    family: format.startsWith('gray') ? 'gray' : 'rgb',
   })
 
 class RecordingSink implements ImageSink {
@@ -307,6 +314,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         width: 1,
         height: 1,
         pixelFormat: 'rgb8',
+        colorSemantics: jpegXlSemanticsFor('rgb8'),
         options: { effort: 2 },
         limits: defaultImageLimits,
       }),
@@ -316,6 +324,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       width: 2,
       height: 2,
       pixelFormat: 'gray8',
+      colorSemantics: jpegXlSemanticsFor('gray8'),
       options: { mode: 'lossless' },
       limits: defaultImageLimits,
     })
@@ -355,6 +364,15 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       }),
     ).toBe(false)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, alpha: 'premultiplied' })).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, family: 'unspecified' })).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, primaries: 'unspecified' })).toBe(
+      false,
+    )
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({ ...straight, transfer: { kind: 'unspecified' } }),
+    ).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, range: 'unspecified' })).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, range: 'limited' })).toBe(false)
 
     await expect(
       jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
@@ -366,6 +384,19 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         limits: defaultImageLimits,
       }),
     ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+
+    await expect(
+      jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+        width: 1,
+        height: 1,
+        pixelFormat: 'rgb8',
+        options: { mode: 'lossless' },
+        limits: defaultImageLimits,
+      }),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('explicit'),
+    })
   })
 
   it('aborts encoder state and its sink deterministically', async () => {
@@ -374,6 +405,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       width: 1,
       height: 1,
       pixelFormat: 'gray8',
+      colorSemantics: jpegXlSemanticsFor('gray8'),
       options: { mode: 'lossless' },
       limits: defaultImageLimits,
     })
@@ -403,6 +435,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       width: 1,
       height: 1,
       pixelFormat: 'gray8',
+      colorSemantics: jpegXlSemanticsFor('gray8'),
       options: { mode: 'lossless' },
       limits: defaultImageLimits,
     })
@@ -427,6 +460,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       width: 1,
       height: 1,
       pixelFormat: 'gray8',
+      colorSemantics: jpegXlSemanticsFor('gray8'),
       options: { mode: 'lossless' },
       limits: defaultImageLimits,
     })
@@ -730,7 +764,17 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       components: 3,
       channels: 3,
       channelBitDepths: [8, 8, 8],
+      colorSemantics: {
+        family: 'rgb',
+        primaries: 'srgb',
+        transfer: { kind: 'srgb' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'assumed-default',
+      },
     })
+    expect(decoder.colorSemantics).toEqual(metadata.colorSemantics)
     const digest = createHash('sha256')
     for await (const block of decoder.decode()) digest.update(block.data)
     expect(digest.digest('hex')).toBe(

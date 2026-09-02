@@ -768,11 +768,16 @@ export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boo
   semantics.matrix === 'identity' &&
   semantics.range === 'full' &&
   (semantics.alpha === 'none' || semantics.alpha === 'straight') &&
+  (semantics.provenance === 'assumed-default' ||
+    semantics.provenance === 'container-signaled' ||
+    semantics.provenance === 'decoder-converted') &&
   semantics.icc === undefined
 
 const validateColorSemantics = (request: EncodeRequest): void => {
   const semantics = request.colorSemantics
-  if (!semantics) return
+  if (!semantics) {
+    throw unsupportedOperation('JPEG XL encoding requires explicit sRGB pixel color semantics')
+  }
   const grayscale = request.pixelFormat.startsWith('gray')
   const alpha = request.pixelFormat.startsWith('rgba')
   if (

@@ -17,6 +17,10 @@ const canvas = element('jxl-preview')
 if (!(canvas instanceof HTMLCanvasElement)) throw new Error('#jxl-preview is not a canvas')
 const file = element('jxl-file')
 if (!(file instanceof HTMLInputElement)) throw new Error('#jxl-file is not an input')
+const onlyIfSmaller = element('jxl-only-if-smaller')
+if (!(onlyIfSmaller instanceof HTMLInputElement)) {
+  throw new Error('#jxl-only-if-smaller is not an input')
+}
 
 const status = element('jxl-status')
 const summary = element('jxl-summary')
@@ -57,6 +61,9 @@ const beginOpen = (): number => {
   output = undefined
   button('jxl-download').disabled = true
   button('jxl-reopen').disabled = true
+  button('jxl-encode').disabled = true
+  button('jxl-transcode').disabled = true
+  button('jxl-reconstruct').disabled = true
   return generation
 }
 
@@ -193,13 +200,32 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     button('jxl-reconstruct').disabled = true
     status.textContent = 'Pixel-lossless JPEG XL byte-exact local round trip verified.'
   } else if (response.action === 'transcode') {
+    const transcode = response.transcode
+    const savings = transcode?.savingsBytes ?? 0
+    const ratio =
+      transcode && transcode.inputBytes > 0 ? transcode.outputBytes / transcode.inputBytes : 0
+    const sizeResult =
+      savings >= 0
+        ? `+${savings.toLocaleString()} bytes saved (${(transcode?.savingsPercentage ?? 0).toFixed(2)}%)`
+        : `-${Math.abs(savings).toLocaleString()} bytes; JPEG XL is larger by ${Math.abs(savings).toLocaleString()} bytes`
     rows([
       ['Output', response.name],
-      ['Mode', response.transcode?.mode ?? 'unknown'],
-      ['Exact reconstruction', response.transcode?.exactReconstruction ? 'Verified' : 'No'],
-      ['Bytes', response.bytes.byteLength.toLocaleString()],
+      ['Status', 'Experimental'],
+      ['Mode', transcode?.mode ?? 'unknown'],
+      ['Source JPEG', `${(transcode?.inputBytes ?? 0).toLocaleString()} bytes`],
+      ['JPEG XL output', `${(transcode?.outputBytes ?? 0).toLocaleString()} bytes`],
+      ['Signed savings', sizeResult],
+      ['Output/source ratio', `${ratio.toFixed(3)}×`],
+      ['Smaller than source', savings > 0 ? 'Yes' : 'No'],
+      ['Exact reconstruction', transcode?.exactReconstruction ? 'Verified byte-for-byte' : 'No'],
+      ['Size requirement', onlyIfSmaller.checked ? 'Required' : 'Off'],
       ['Dimensions', `${response.preview.logicalWidth} × ${response.preview.logicalHeight}`],
-      ['Managed peak', (response.transcode?.managedPeakBytes ?? 0).toLocaleString()],
+      [
+        'Managed peak',
+        transcode?.managedPeakBytes === undefined
+          ? 'Measurement unavailable'
+          : `${transcode.managedPeakBytes.toLocaleString()} bytes`,
+      ],
     ])
     details.textContent = JSON.stringify(
       {
@@ -252,7 +278,9 @@ file.addEventListener('change', () => {
     request({ type: 'open', name: selected.name, bytes }, openGeneration)
   })
 })
-button('jxl-transcode').addEventListener('click', () => request({ type: 'transcode' }))
+button('jxl-transcode').addEventListener('click', () =>
+  request({ type: 'transcode', onlyIfSmaller: onlyIfSmaller.checked }),
+)
 button('jxl-encode').addEventListener('click', () => request({ type: 'encode' }))
 button('jxl-reconstruct').addEventListener('click', () => request({ type: 'reconstruct' }))
 button('jxl-reopen').addEventListener('click', () => {

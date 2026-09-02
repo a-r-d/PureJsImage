@@ -1,4 +1,5 @@
 import { PNG } from 'pngjs'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { allCodecs } from '../src/codec-entries/all.ts'
@@ -8,6 +9,7 @@ import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
+import { defaultImageLimits } from '../src/limits.ts'
 import {
   CodecRegistry,
   createImageLibrary,
@@ -131,6 +133,27 @@ describe('configured image library', () => {
       hasAlpha: true,
       bitDepth: 8,
       lossless: true,
+    })
+  })
+
+  it('does not silently relabel linear JPEG XL pixels as sRGB', async () => {
+    const input = new Uint8Array(
+      readFileSync('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-linear.jxl'),
+    )
+    const images = createImageLibrary(allCodecs)
+    const image = await images.open(input)
+    await expect(image.jpegxl().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+
+    const preserved = await image.convertPixelFormat({ format: 'rgb16' }).png().toBuffer()
+    const decoder = await pngCodec.createDecoder?.(new MemorySource(preserved), defaultImageLimits)
+    expect(decoder?.colorSemantics).toMatchObject({
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'linear' },
+      matrix: 'identity',
+      range: 'full',
     })
   })
 

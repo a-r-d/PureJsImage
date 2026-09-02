@@ -520,6 +520,15 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
 
 const strategyDequantization = makeStrategyDequantization()
 
+export const jpegXlSupportedVarDctStrategyIds = Object.freeze([
+  0, 2, 5, 6, 7, 12, 13, 14, 15, 16, 17,
+] as const)
+
+export const supportsJpegXlVarDctStrategy = (strategy: number): boolean =>
+  jpegXlSupportedVarDctStrategyIds.includes(
+    strategy as (typeof jpegXlSupportedVarDctStrategyIds)[number],
+  )
+
 const dctBasis = Float64Array.from({ length: 64 }, (_, index) => {
   const frequency = Math.floor(index / 8)
   const position = index & 7
@@ -1538,7 +1547,7 @@ export const decodeJpegXlDct8Section = (
         throw invalidInput('JPEG XL VarDCT block quantization is invalid')
       }
       if (firstBlock === 0) continue
-      if (!dequantizationForStrategy) {
+      if (!supportsJpegXlVarDctStrategy(strategy) || !dequantizationForStrategy) {
         throw unsupportedOperation(
           `Common VarDCT transform strategy ${strategy} is not supported yet`,
         )

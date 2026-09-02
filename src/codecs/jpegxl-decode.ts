@@ -1,5 +1,6 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecodeRequest, DecoderOptions, ImageDecoder, ImageMetadata } from '../codec.ts'
+import type { PixelColorSemantics } from '../color.ts'
 import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
@@ -174,6 +175,7 @@ type JpegXlChannelCount = 1 | 2 | 3 | 4
 interface JpegXlColorEncoding {
   readonly colorChannels: 1 | 3
   readonly metadataColorSpace: 'gray' | 'linear-gray' | 'srgb' | 'linear-rgb'
+  readonly provenance: 'assumed-default' | 'container-signaled'
 }
 
 export interface JpegXlSection {
@@ -189,6 +191,7 @@ export interface JpegXlFrameStructure {
   readonly colorChannels: 1 | 3
   readonly channelCount: JpegXlChannelCount
   readonly metadataColorSpace: JpegXlColorEncoding['metadataColorSpace']
+  readonly colorProvenance: JpegXlColorEncoding['provenance']
   readonly orientation: number
   readonly encoding: 'modular' | 'vardct'
   readonly frameType: 'regular' | 'dc'
@@ -232,7 +235,13 @@ const readEnum = (reader: JpegXlBitReader): number =>
 
 const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
   const allDefault = reader.readBits(1) !== 0
-  if (allDefault) return Object.freeze({ colorChannels: 3, metadataColorSpace: 'srgb' })
+  if (allDefault) {
+    return Object.freeze({
+      colorChannels: 3,
+      metadataColorSpace: 'srgb',
+      provenance: 'assumed-default',
+    })
+  }
 
   requireValue(reader.readBits(1) !== 0, false, 'embedded ICC color encoding')
   const colorSpace = readEnum(reader)
@@ -254,11 +263,13 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
     return Object.freeze({
       colorChannels: 1,
       metadataColorSpace: transferFunction === 8 ? 'linear-gray' : 'gray',
+      provenance: 'container-signaled',
     })
   }
   return Object.freeze({
     colorChannels: 3,
     metadataColorSpace: transferFunction === 8 ? 'linear-rgb' : 'srgb',
+    provenance: 'container-signaled',
   })
 }
 
@@ -294,6 +305,7 @@ const readHeader = (
     colorEncoding = Object.freeze({
       colorChannels: previousFrame.colorChannels,
       metadataColorSpace: previousFrame.metadataColorSpace,
+      provenance: previousFrame.colorProvenance,
     })
     channelCount = previousFrame.channelCount
   } else {
@@ -520,6 +532,7 @@ const readHeader = (
     colorChannels: colorEncoding.colorChannels,
     channelCount,
     metadataColorSpace: colorEncoding.metadataColorSpace,
+    colorProvenance: colorEncoding.provenance,
     orientation: 1,
     encoding,
     frameType,
@@ -2094,6 +2107,7 @@ class JpegXlModularDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
+  readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: true,
@@ -2121,6 +2135,7 @@ class JpegXlModularDecoder implements ImageDecoder {
           : highDepth
             ? 'rgba16'
             : 'rgba8'
+    this.colorSemantics = jpegXlPixelColorSemantics(header)
     this.#header = header
     this.#program = program
     const colorMaximum = 2 ** header.bitDepth - 1
@@ -2289,6 +2304,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
+  readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: true,
@@ -2316,6 +2332,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
           : highDepth
             ? 'rgba16'
             : 'rgba8'
+    this.colorSemantics = jpegXlPixelColorSemantics(header)
     this.#header = header
     this.#loadGroup = loadGroup
     this.#limits = limits
@@ -2462,6 +2479,21 @@ export interface JpegXlDecodedDescription {
   readonly decoder: ImageDecoder
 }
 
+export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
+  const xybConverted = header.colorTransform === 'xyb'
+  const linear =
+    header.metadataColorSpace === 'linear-gray' || header.metadataColorSpace === 'linear-rgb'
+  return Object.freeze({
+    family: header.colorChannels === 1 ? 'gray' : 'rgb',
+    primaries: 'srgb',
+    transfer: Object.freeze({ kind: xybConverted ? 'srgb' : linear ? 'linear' : 'srgb' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: header.alphaBitDepth === undefined ? 'none' : 'straight',
+    provenance: xybConverted ? 'decoder-converted' : header.colorProvenance,
+  })
+}
+
 const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
   Object.freeze({
     width: header.width,
@@ -2471,6 +2503,7 @@ const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
     hasAlpha: header.alphaBitDepth !== undefined,
     orientation: header.orientation,
     colorSpace: header.metadataColorSpace,
+    colorSemantics: jpegXlPixelColorSemantics(header),
     bitDepth: header.bitDepth,
     sampleFormat: 'unsigned-integer',
     frames: 1,

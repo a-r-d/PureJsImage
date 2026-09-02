@@ -187,7 +187,9 @@ const pnmPixels = (data: Uint8Array): Uint8Array => {
 }
 
 const decodeSharpRgb = async (data: Uint8Array): Promise<Uint8Array> =>
-  new Uint8Array(await sharp(data).removeAlpha().raw().toBuffer())
+  new Uint8Array(
+    await sharp(data).autoOrient().toColourspace('srgb').removeAlpha().raw().toBuffer(),
+  )
 
 const decodePureJsImageRgb = async (data: Uint8Array): Promise<Uint8Array> => {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(data), defaultImageLimits)
@@ -332,7 +334,7 @@ try {
     schemaVersion: 1,
     revision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
     oracle: 'libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)',
-    jpegOracle: 'sharp-0.35.3',
+    jpegOracle: 'sharp-0.35.3 autoOrient and sRGB output',
     results,
   })
   if (output) await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)

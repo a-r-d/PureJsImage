@@ -13,6 +13,10 @@ import {
   readExactly,
 } from '../source.ts'
 import { jpegCodec } from './jpeg.ts'
+import {
+  inspectJpegExactTranscodeDisplaySemantics,
+  type JpegExactTranscodeDisplaySemantics,
+} from './jpeg-display-semantics.ts'
 import { type JpegCoefficientImage, parseJpegCoefficientImage } from './jpeg-coefficients.ts'
 import { jpegxlCodec } from './jpegxl.ts'
 import { parseJpegReconstructionData } from './jpegxl-jpeg-data.ts'
@@ -45,6 +49,8 @@ export interface JpegTranscodeSourceProfile {
   readonly components: number
   readonly sampling: readonly string[]
   readonly scans: number
+  readonly orientation: 1
+  readonly colorProfile: 'none' | 'srgb'
 }
 
 export interface JpegTranscodeMetadataSummary {
@@ -100,6 +106,9 @@ export type JpegReconstructionIneligibilityCode =
   | 'unsupported-sampling'
   | 'coefficient-range'
   | 'unsupported-marker-or-tail-layout'
+  | 'unsupported-display-orientation'
+  | 'unsupported-color-profile'
+  | 'malformed-color-profile'
   | 'metadata-limit'
   | 'reconstruction-mismatch'
   | 'output-not-smaller'
@@ -133,7 +142,10 @@ class ManagedMemoryLedger {
   }
 }
 
-const sourceProfile = (image: JpegCoefficientImage): JpegTranscodeSourceProfile =>
+const sourceProfile = (
+  image: JpegCoefficientImage,
+  display: JpegExactTranscodeDisplaySemantics,
+): JpegTranscodeSourceProfile =>
   Object.freeze({
     width: image.width,
     height: image.height,
@@ -146,6 +158,8 @@ const sourceProfile = (image: JpegCoefficientImage): JpegTranscodeSourceProfile 
       ),
     ),
     scans: image.scans.length,
+    orientation: display.orientation,
+    colorProfile: display.colorProfile,
   })
 
 const exactBytesEqual = (left: Uint8Array, right: Uint8Array): boolean =>
@@ -260,6 +274,7 @@ const encodeExact = async (
 const encodePixelLossless = async (
   input: Uint8Array,
   options: Readonly<TranscodeJpegToJpegXlOptions>,
+  display: JpegExactTranscodeDisplaySemantics,
 ): Promise<Readonly<{ data: Uint8Array; profile: JpegTranscodeSourceProfile }>> => {
   const limits = resolveLimits(options.limits)
   const source = new MemorySource(input)
@@ -275,11 +290,23 @@ const encodePixelLossless = async (
     throw unsupportedOperation(`JPEG pixel fallback format ${decoder.pixelFormat} is unsupported`)
   }
   const sink = new Uint8ArraySink()
+  const colorSemantics = Object.freeze({
+    family: decoder.pixelFormat === 'gray8' ? ('gray' as const) : ('rgb' as const),
+    primaries: 'srgb' as const,
+    transfer: Object.freeze({ kind: 'srgb' as const }),
+    matrix: 'identity' as const,
+    range: 'full' as const,
+    alpha: decoder.pixelFormat === 'rgba8' ? ('straight' as const) : ('none' as const),
+    provenance:
+      display.colorProfile === 'srgb'
+        ? ('decoder-converted' as const)
+        : ('assumed-default' as const),
+  })
   const encoder = await jpegxlCodec.createEncoder?.(sink, {
     width: decoder.width,
     height: decoder.height,
     pixelFormat: decoder.pixelFormat,
-    ...(decoder.colorSemantics ? { colorSemantics: decoder.colorSemantics } : {}),
+    colorSemantics,
     options: Object.freeze({ mode: 'lossless', effort: 1, container: true }),
     ...(options.signal ? { signal: options.signal } : {}),
     limits,
@@ -297,6 +324,8 @@ const encodePixelLossless = async (
       components,
       sampling: Object.freeze(Array.from({ length: components }, () => 'decoded-pixels')),
       scans: 0,
+      orientation: display.orientation,
+      colorProfile: display.colorProfile,
     }),
   })
 }
@@ -336,6 +365,9 @@ const evidenceFailureCode = (error: unknown): string =>
 
 const eligibilityReasonCode = (error: ImageError): JpegReconstructionIneligibilityCode => {
   const message = error.message.toLowerCase()
+  if (message.includes('orientation')) return 'unsupported-display-orientation'
+  if (message.includes('icc color profile is malformed')) return 'malformed-color-profile'
+  if (message.includes('color profile')) return 'unsupported-color-profile'
   if (message.includes('8-bit jpeg')) return '12-bit'
   if (message.includes('arithmetic')) return 'arithmetic-coding'
   if (message.includes('lossless jpeg') || message.includes('lossless process')) {
@@ -390,13 +422,17 @@ export const inspectJpegReconstructionEligibility = async (
 ): Promise<JpegReconstructionEligibility> => {
   try {
     const bytes = await readInput(input, options)
+    const display = inspectJpegExactTranscodeDisplaySemantics(
+      bytes,
+      resolveJpegXlLimits(options.limits).maxMetadataBytes,
+    )
     const image = await parseCoefficients(bytes, options)
     if (image.components.length === 1) {
       return Object.freeze({
         eligible: false,
         reasonCodes: Object.freeze(['grayscale'] as const),
         reasons: Object.freeze(['Grayscale exact JPEG transcode is not implemented']),
-        sourceProfile: sourceProfile(image),
+        sourceProfile: sourceProfile(image, display),
       })
     }
     if (image.components.length !== 3) {
@@ -404,7 +440,7 @@ export const inspectJpegReconstructionEligibility = async (
         eligible: false,
         reasonCodes: Object.freeze(['cmyk-or-ycck'] as const),
         reasons: Object.freeze(['CMYK and YCCK exact JPEG transcode are not implemented']),
-        sourceProfile: sourceProfile(image),
+        sourceProfile: sourceProfile(image, display),
       })
     }
     const limits = resolveJpegXlLimits(options.limits)
@@ -421,14 +457,14 @@ export const inspectJpegReconstructionEligibility = async (
         eligible: false,
         reasonCodes: Object.freeze(['reconstruction-mismatch'] as const),
         reasons: Object.freeze(['JPEG entropy stream requires unsupported exactness metadata']),
-        sourceProfile: sourceProfile(image),
+        sourceProfile: sourceProfile(image, display),
       })
     }
     return Object.freeze({
       eligible: true,
       reasonCodes: Object.freeze([]),
       reasons: Object.freeze([]),
-      sourceProfile: sourceProfile(image),
+      sourceProfile: sourceProfile(image, display),
     })
   } catch (error) {
     if (!(error instanceof ImageError)) throw error
@@ -480,6 +516,10 @@ export async function transcodeJpegToJpegXl(
   evidence?.operation({ operationId: 'jpeg-to-jxl', phase: 'start' })
   try {
     const bytes = await readInput(input, options)
+    const display = inspectJpegExactTranscodeDisplaySemantics(
+      bytes,
+      resolveJpegXlLimits(options.limits).maxMetadataBytes,
+    )
     retain('jpeg-transcode-input', bytes.byteLength)
     let exactReconstruction = false
     let mode: JpegTranscodeResult['mode'] = 'exact-jpeg'
@@ -491,7 +531,7 @@ export async function transcodeJpegToJpegXl(
     if (policy.reconstruction === 'disabled') {
       const fallbackEvidence = evidence?.child('pixel-lossless-fallback')
       fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'start' })
-      const fallback = await encodePixelLossless(bytes, options)
+      const fallback = await encodePixelLossless(bytes, options, display)
       fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'complete' })
       data = fallback.data
       retain('jpeg-transcode-output', data.byteLength)
@@ -512,7 +552,7 @@ export async function transcodeJpegToJpegXl(
         let exact: Awaited<ReturnType<typeof encodeExact>>
         try {
           throwIfAborted(options.signal)
-          profile = sourceProfile(image)
+          profile = sourceProfile(image, display)
           exact = await encodeExact(bytes, image, options, retain)
         } finally {
           coefficientLease.release()
@@ -542,7 +582,7 @@ export async function transcodeJpegToJpegXl(
         })
         const fallbackEvidence = evidence?.child('pixel-lossless-fallback')
         fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'start' })
-        const fallback = await encodePixelLossless(bytes, options)
+        const fallback = await encodePixelLossless(bytes, options, display)
         fallbackEvidence?.operation({ operationId: 'pixel-lossless-fallback', phase: 'complete' })
         data = fallback.data
         retain('jpeg-transcode-output', data.byteLength)

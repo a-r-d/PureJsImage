@@ -21,6 +21,7 @@ interface EncodeDefinition {
   readonly features: readonly string[]
   readonly options: readonly string[]
   readonly outputFormat?: 'pam'
+  readonly colorEncoding?: 'linear-gray' | 'linear-rgb'
 }
 
 const sourceDefinitions: readonly SourceDefinition[] = Object.freeze([
@@ -63,6 +64,13 @@ const encodeDefinitions: readonly EncodeDefinition[] = Object.freeze([
     features: Object.freeze(['16-bit grayscale', 'local MA tree', 'odd dimensions']),
     options: Object.freeze(['--effort=7']),
   }),
+  Object.freeze({
+    id: 'gray8-linear',
+    source: 'gray8-odd',
+    features: Object.freeze(['8-bit grayscale', 'linear sRGB transfer', 'odd dimensions']),
+    options: Object.freeze(['--effort=7']),
+    colorEncoding: 'linear-gray',
+  }),
   ...([8, 10, 12, 16] as const).map((bitDepth) =>
     Object.freeze({
       id: `rgb${bitDepth}-default`,
@@ -71,6 +79,13 @@ const encodeDefinitions: readonly EncodeDefinition[] = Object.freeze([
       options: Object.freeze(['--effort=7']),
     }),
   ),
+  Object.freeze({
+    id: 'rgb8-linear',
+    source: 'rgb8-odd',
+    features: Object.freeze(['8-bit RGB', 'linear sRGB transfer', 'odd dimensions']),
+    options: Object.freeze(['--effort=7']),
+    colorEncoding: 'linear-rgb',
+  }),
   Object.freeze({
     id: 'rgba8-straight',
     source: 'rgba8-transparent',
@@ -319,6 +334,11 @@ for (const definition of encodeDefinitions) {
       '--distance=0',
       '--modular=1',
       '--num_threads=0',
+      ...(definition.colorEncoding === 'linear-gray'
+        ? ['-x', 'color_space=Gra_D65_Rel_Lin']
+        : definition.colorEncoding === 'linear-rgb'
+          ? ['-x', 'color_space=RGB_D65_SRG_Rel_Lin']
+          : []),
       ...definition.options,
     ],
     libraryDirectory,
@@ -351,7 +371,14 @@ for (const definition of encodeDefinitions) {
     width: source.width,
     height: source.height,
     bitDepth: source.bitDepth,
-    colorEncoding: source.kind === 'gray' ? 'Gray D65 sRGB' : 'RGB D65 sRGB',
+    colorEncoding:
+      definition.colorEncoding === 'linear-gray'
+        ? 'Gray D65 linear sRGB'
+        : definition.colorEncoding === 'linear-rgb'
+          ? 'RGB D65 linear sRGB'
+          : source.kind === 'gray'
+            ? 'Gray D65 sRGB'
+            : 'RGB D65 sRGB',
     alpha: source.kind === 'rgba' ? (premultiplied ? 'premultiplied' : 'straight') : 'none',
     coding: 'modular',
     level: structure.level ?? 'unknown',
@@ -370,6 +397,11 @@ for (const definition of encodeDefinitions) {
       '--distance=0',
       '--modular=1',
       '--num_threads=0',
+      ...(definition.colorEncoding === 'linear-gray'
+        ? ['-x', 'color_space=Gra_D65_Rel_Lin']
+        : definition.colorEncoding === 'linear-rgb'
+          ? ['-x', 'color_space=RGB_D65_SRG_Rel_Lin']
+          : []),
       ...definition.options,
     ]),
     inputSha256: digest(input),

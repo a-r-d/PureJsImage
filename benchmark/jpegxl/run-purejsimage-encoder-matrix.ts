@@ -172,6 +172,15 @@ const encode = async (definition: MatrixCase, pixels: Uint8Array): Promise<Uint8
     width: definition.width,
     height: definition.height,
     pixelFormat: definition.format,
+    colorSemantics: {
+      family: definition.format.startsWith('gray') ? 'gray' : 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: definition.format.startsWith('rgba') ? 'straight' : 'none',
+      provenance: 'assumed-default',
+    },
     options: { mode: 'lossless', effort: 1, container: definition.container },
     limits: defaultImageLimits,
   })
@@ -397,7 +406,7 @@ try {
     })
   }
 } finally {
-  if (process.env['PUREJSIMAGE_KEEP_JPEGXL_MATRIX_TEMP'] === '1') {
+  if (process.env.PUREJSIMAGE_KEEP_JPEGXL_MATRIX_TEMP === '1') {
     console.error(`Retained matrix files at ${temporaryDirectory}`)
   } else {
     await rm(temporaryDirectory, { recursive: true, force: true })

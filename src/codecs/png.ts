@@ -244,21 +244,26 @@ const pngColorSemantics = (description: PngDescription): PixelColorSemantics => 
       provenance: 'unspecified',
     })
   }
-  const standardizedCicp =
+  const standardizedSrgbCicp =
     signal.value[1] === 13 &&
     signal.value[2] === 0 &&
     signal.value[3] === 1 &&
     (signal.value[0] === 1 || signal.value[0] === 12)
+  const standardizedLinearSrgbCicp =
+    signal.value[0] === 1 && signal.value[1] === 8 && signal.value[2] === 0 && signal.value[3] === 1
   return Object.freeze({
     ...common,
-    primaries: standardizedCicp
-      ? signal.value[0] === 1
-        ? 'srgb'
-        : 'display-p3'
-      : 'source-profile',
-    transfer: standardizedCicp
+    primaries:
+      standardizedSrgbCicp || standardizedLinearSrgbCicp
+        ? signal.value[0] === 1
+          ? 'srgb'
+          : 'display-p3'
+        : 'source-profile',
+    transfer: standardizedSrgbCicp
       ? Object.freeze({ kind: 'srgb' as const })
-      : Object.freeze({ kind: 'source-profile' as const }),
+      : standardizedLinearSrgbCicp
+        ? Object.freeze({ kind: 'linear' as const })
+        : Object.freeze({ kind: 'source-profile' as const }),
     provenance: 'container-signaled',
   })
 }
@@ -437,13 +442,13 @@ const cicpColorTransform = (
   colorType: PngColorType,
 ): RgbIccTransform | undefined => {
   const [primaries, transfer, , fullRange] = cicp
-  if (colorType === 0 || colorType === 4) {
-    throw unsupportedOperation('PNG cICP color management for grayscale pixels is not implemented')
-  }
   if (fullRange !== 1) {
     throw unsupportedOperation('PNG cICP narrow-range color management is not implemented')
   }
-  if (transfer === 13 && primaries === 1) return undefined
+  if (primaries === 1 && (transfer === 8 || transfer === 13)) return undefined
+  if (colorType === 0 || colorType === 4) {
+    throw unsupportedOperation('PNG cICP color management for grayscale pixels is not implemented')
+  }
   if (transfer === 13 && primaries === 12) return createDisplayP3Transform()
   throw unsupportedOperation(
     `PNG cICP primaries ${primaries} and transfer ${transfer} are not implemented`,
@@ -1461,6 +1466,16 @@ const nativePngColorSignal = (
       type: 'sRGB',
       data: Uint8Array.of(pngRenderingIntentCode(semantics.renderingIntent)),
     }
+  }
+  if (
+    (semantics.family === 'rgb' || semantics.family === 'gray') &&
+    semantics.primaries === 'srgb' &&
+    semantics.transfer.kind === 'linear' &&
+    semantics.matrix === 'identity' &&
+    semantics.range === 'full' &&
+    semantics.renderingIntent === undefined
+  ) {
+    return { type: 'cICP', data: Uint8Array.of(1, 8, 0, 1) }
   }
   if (
     semantics.family === 'rgb' &&

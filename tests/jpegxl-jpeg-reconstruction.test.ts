@@ -17,6 +17,7 @@ import {
 } from '../src/codecs/jpegxl-jpeg-reconstruction.ts'
 import { resolveJpegXlLimits } from '../src/codecs/jpegxl-limits.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
+import { createPureJsImageSrgbIcc } from '../src/hdr/srgb-icc.ts'
 import {
   inspectJpegReconstructionEligibility,
   inspectJpegXl,
@@ -26,12 +27,63 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
+import { displayP3RgbProfile } from './icc-fixtures.ts'
 
 const primaryEntry = manifest.fixtures[0]
 if (!primaryEntry) throw new Error('Pinned JPEG reconstruction manifest is empty')
 const fixture = new Uint8Array(readFileSync(primaryEntry.jxl))
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
+
+const concatenate = (...parts: readonly Uint8Array[]): Uint8Array => {
+  const output = new Uint8Array(parts.reduce((sum, part) => sum + part.byteLength, 0))
+  let offset = 0
+  for (const part of parts) {
+    output.set(part, offset)
+    offset += part.byteLength
+  }
+  return output
+}
+
+const jpegSegment = (marker: number, payload: Uint8Array): Uint8Array => {
+  const output = new Uint8Array(payload.byteLength + 4)
+  output[0] = 0xff
+  output[1] = marker
+  new DataView(output.buffer).setUint16(2, payload.byteLength + 2, false)
+  output.set(payload, 4)
+  return output
+}
+
+const withLeadingMarker = (jpeg: Uint8Array, marker: Uint8Array): Uint8Array =>
+  concatenate(jpeg.subarray(0, 2), marker, jpeg.subarray(2))
+
+const exifOrientationMarker = (orientation: number): Uint8Array => {
+  const payload = new Uint8Array(32)
+  payload.set(Uint8Array.of(0x45, 0x78, 0x69, 0x66), 0)
+  const view = new DataView(payload.buffer)
+  payload[6] = 0x49
+  payload[7] = 0x49
+  view.setUint16(8, 42, true)
+  view.setUint32(10, 8, true)
+  view.setUint16(14, 1, true)
+  view.setUint16(16, 0x0112, true)
+  view.setUint16(18, 3, true)
+  view.setUint32(20, 1, true)
+  view.setUint16(24, orientation, true)
+  return jpegSegment(0xe1, payload)
+}
+
+const iccMarker = (profile: Uint8Array): Uint8Array =>
+  jpegSegment(
+    0xe2,
+    concatenate(new TextEncoder().encode('ICC_PROFILE\0'), Uint8Array.of(1, 1), profile),
+  )
+
+const numberedIccMarker = (profile: Uint8Array, sequence: number, count: number): Uint8Array =>
+  jpegSegment(
+    0xe2,
+    concatenate(new TextEncoder().encode('ICC_PROFILE\0'), Uint8Array.of(sequence, count), profile),
+  )
 
 const decodeRgb = async (
   codec: typeof jpegCodec | typeof jpegxlCodec,
@@ -77,6 +129,81 @@ const readJbrd = async (): Promise<Uint8Array> => {
 }
 
 describe('JPEG XL JPEG reconstruction metadata', () => {
+  it('restricts exact transcode to display-equivalent Exif orientation and ICC semantics', async () => {
+    const source = new Uint8Array(
+      readFileSync('benchmark/corpus/files/jpeg-reference/generated-progressive.jpg'),
+    )
+    const orientationSix = withLeadingMarker(source, exifOrientationMarker(6))
+    await expect(inspectJpegReconstructionEligibility(orientationSix)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-display-orientation'],
+    })
+    await expect(transcodeJpegToJpegXl(orientationSix)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('orientation'),
+    })
+
+    const canonicalSrgb = withLeadingMarker(source, iccMarker(createPureJsImageSrgbIcc()))
+    await expect(inspectJpegReconstructionEligibility(canonicalSrgb)).resolves.toMatchObject({
+      eligible: true,
+      sourceProfile: { orientation: 1, colorProfile: 'srgb' },
+    })
+
+    const nonSrgb = withLeadingMarker(source, iccMarker(displayP3RgbProfile()))
+    await expect(inspectJpegReconstructionEligibility(nonSrgb)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-color-profile'],
+    })
+    await expect(transcodeJpegToJpegXl(nonSrgb)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('color profile'),
+    })
+
+    const malformed = withLeadingMarker(source, iccMarker(Uint8Array.of(1, 2, 3, 4)))
+    await expect(inspectJpegReconstructionEligibility(malformed)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['malformed-color-profile'],
+    })
+    await expect(
+      transcodeJpegToJpegXl(malformed, {
+        reconstruction: 'disabled',
+        fallback: 'pixel-lossless',
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('rejects conflicting Exif and incomplete or duplicate ICC display metadata', async () => {
+    const source = new Uint8Array(
+      readFileSync('benchmark/corpus/files/jpeg-reference/generated-progressive.jpg'),
+    )
+    const conflictingOrientation = withLeadingMarker(
+      withLeadingMarker(source, exifOrientationMarker(1)),
+      exifOrientationMarker(6),
+    )
+    await expect(
+      inspectJpegReconstructionEligibility(conflictingOrientation),
+    ).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-display-orientation'],
+    })
+
+    const profile = createPureJsImageSrgbIcc()
+    const incomplete = withLeadingMarker(source, numberedIccMarker(profile, 1, 2))
+    await expect(inspectJpegReconstructionEligibility(incomplete)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['malformed-color-profile'],
+    })
+
+    const duplicate = withLeadingMarker(
+      withLeadingMarker(source, numberedIccMarker(profile, 1, 2)),
+      numberedIccMarker(profile, 1, 2),
+    )
+    await expect(inspectJpegReconstructionEligibility(duplicate)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['malformed-color-profile'],
+    })
+  })
+
   it('releases pixel-fallback blocks and closes the decoder iterator after encoder failure', async () => {
     let releases = 0
     let iteratorReturns = 0
@@ -365,6 +492,20 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
       expect(sha256(oracleFile)).toBe(entry.pixelOracleSha256)
       const oracle = ppmPixels(oracleFile)
       const sourcePixels = await decodeRgb(jpegCodec, source)
+      const decoder = await jpegxlCodec.createDecoder?.(
+        new MemorySource(encoded),
+        defaultImageLimits,
+      )
+      if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+      expect(decoder.colorSemantics).toEqual({
+        family: 'rgb',
+        primaries: 'srgb',
+        transfer: { kind: 'srgb' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'decoder-converted',
+      })
       const actual = await decodeRgb(jpegxlCodec, encoded)
 
       expect(actual).toEqual(sourcePixels)

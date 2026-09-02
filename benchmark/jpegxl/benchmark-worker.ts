@@ -53,6 +53,15 @@ const encodeRgb = async (): Promise<Readonly<{ input: Uint8Array; output: Uint8A
     width: fixture.width,
     height: fixture.height,
     pixelFormat: 'rgb8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+    },
     options: { mode: 'lossless', effort: 1, container: true },
     limits: defaultImageLimits,
   })
@@ -162,7 +171,8 @@ console.log(
     inputSha256: sha256(result.input),
     outputBytes: result.output.byteLength,
     outputSha256: sha256(result.output),
-    managedPeakBytes: 'managedPeakBytes' in result ? result.managedPeakBytes : 0,
+    managedPeakBytes: 'managedPeakBytes' in result ? result.managedPeakBytes : null,
+    managedMemoryMeasurement: 'managedPeakBytes' in result ? 'measured' : 'unavailable',
     wallMilliseconds: Number(wallMilliseconds.toFixed(3)),
   }),
 )
