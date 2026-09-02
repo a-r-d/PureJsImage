@@ -57,7 +57,7 @@ const comparePixels = (
 describe('JPEG XL corpus and development-oracle manifest', () => {
   it('keeps raw strategy 1 Hornuss outside the selected VarDCT subset', () => {
     expect(jpegXlSupportedVarDctStrategyIds).toEqual([0, 2, 5, 6, 7, 12, 13, 14, 15, 16, 17])
-    expect(generatedVarDct.testedStrategyIds).toEqual(jpegXlSupportedVarDctStrategyIds)
+    expect(generatedVarDct.implementedStrategyIds).toEqual(jpegXlSupportedVarDctStrategyIds)
     expect(generatedVarDct.unsupportedStrategyIds).toContain(1)
     expect(supportsJpegXlVarDctStrategy(1)).toBe(false)
   })
@@ -131,6 +131,7 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
         range: 'full',
         alpha: 'none',
         provenance: 'container-signaled',
+        renderingIntent: 'relative',
       })
       expect(decoder.colorSemantics).toEqual(metadata.colorSemantics)
       const rows: Uint8Array[] = []

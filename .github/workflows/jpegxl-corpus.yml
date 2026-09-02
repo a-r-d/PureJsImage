@@ -144,8 +144,12 @@ jobs:
       - name: Run focused JPEG XL and neighboring JPEG tests
         run: >-
           npx vitest run
+          tests/jpeg-marker-walk.test.ts
           tests/jpegxl.test.ts
+          tests/jpegxl-corpus.test.ts
           tests/jpegxl-jpeg-reconstruction.test.ts
+          tests/jpegxl-workbench-preview.test.ts
+          tests/jpegxl-worker-protocol.test.ts
           tests/jpeg.test.ts
           tests/capability-manifest.test.ts
 

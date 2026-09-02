@@ -180,6 +180,7 @@ const encode = async (definition: MatrixCase, pixels: Uint8Array): Promise<Uint8
       range: 'full',
       alpha: definition.format.startsWith('rgba') ? 'straight' : 'none',
       provenance: 'assumed-default',
+      renderingIntent: 'relative',
     },
     options: { mode: 'lossless', effort: 1, container: definition.container },
     limits: defaultImageLimits,

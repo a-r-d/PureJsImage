@@ -47,7 +47,9 @@ test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', as
   await expect(page.locator('#jxl-summary')).toContainText('JPEG XL output')
   await expect(page.locator('#jxl-summary')).toContainText('Signed savings')
   await expect(page.locator('#jxl-summary')).toContainText('Output/source ratio')
-  await expect(page.locator('#jxl-summary')).toContainText('JPEG XL is larger by 890 bytes')
+  await expect(page.locator('#jxl-summary')).toContainText(
+    '890 bytes larger (+88.47% versus source)',
+  )
   await expect(page.locator('#jxl-summary')).toContainText('Smaller than source')
   await expect(page.locator('#jxl-summary')).toContainText('Experimental')
   await expect(page.locator('#jxl-summary')).toContainText('Off')
@@ -77,6 +79,39 @@ test('JPEG XL workbench opens a reconstruction file and enables exact output', a
   )
   await expect(page.locator('#jxl-summary')).toContainText('Metadata present')
   await expect(page.locator('#jxl-reconstruct')).toBeEnabled()
+})
+
+test('JPEG XL workbench converts linear RGB samples for canvas display', async ({ page }) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+
+  await page
+    .locator('#jxl-file')
+    .setInputFiles('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-linear.jxl')
+  await expect(page.locator('#jxl-status')).toContainText(
+    'rgb8-linear.jxl inspected and decoded locally',
+  )
+  const firstPixel = await page.locator('#jxl-preview').evaluate((canvas) => {
+    if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Preview is not a canvas')
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('Canvas 2D is unavailable')
+    return Array.from(context.getImageData(0, 0, 1, 1).data)
+  })
+  expect(firstPixel).toEqual([0, 136, 187, 255])
+
+  await page
+    .locator('#jxl-file')
+    .setInputFiles('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/gray8-linear.jxl')
+  await expect(page.locator('#jxl-status')).toContainText(
+    'gray8-linear.jxl inspected and decoded locally',
+  )
+  const grayPixel = await page.locator('#jxl-preview').evaluate((canvas) => {
+    if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Preview is not a canvas')
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('Canvas 2D is unavailable')
+    return Array.from(context.getImageData(1, 0, 1, 1).data)
+  })
+  expect(grayPixel).toEqual([98, 98, 98, 255])
 })
 
 test('JPEG XL workbench pixel-losslessly encodes and reopens the checked PNG', async ({ page }) => {

@@ -210,6 +210,7 @@ const srgbSemantics = (alpha: PixelColorSemantics['alpha']): PixelColorSemantics
     range: 'full',
     alpha,
     provenance: 'decoder-converted',
+    renderingIntent: 'relative',
   })
 
 const jpegXlSemanticsFor = (format: PixelFormat): PixelColorSemantics =>
@@ -343,8 +344,19 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
 
   it('accepts only the encoder color and alpha semantics it signals', async () => {
     const straight = srgbSemantics('straight')
+    const { renderingIntent: _renderingIntent, ...withoutRenderingIntent } = straight
     expect(jpegxlCodec.acceptsColorSemantics?.(srgbSemantics('none'))).toBe(true)
     expect(jpegxlCodec.acceptsColorSemantics?.(straight)).toBe(true)
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'perceptual' }),
+    ).toBe(false)
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'saturation' }),
+    ).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'absolute' })).toBe(
+      false,
+    )
+    expect(jpegxlCodec.acceptsColorSemantics?.(withoutRenderingIntent)).toBe(false)
     expect(
       jpegxlCodec.acceptsColorSemantics?.({
         ...straight,
@@ -373,6 +385,19 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     ).toBe(false)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, range: 'unspecified' })).toBe(false)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, range: 'limited' })).toBe(false)
+
+    for (const renderingIntent of ['perceptual', 'saturation', 'absolute'] as const) {
+      await expect(
+        jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+          width: 1,
+          height: 1,
+          pixelFormat: 'rgb8',
+          colorSemantics: { ...straight, alpha: 'none', renderingIntent },
+          options: { mode: 'lossless' },
+          limits: defaultImageLimits,
+        }),
+      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    }
 
     await expect(
       jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
@@ -772,6 +797,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         range: 'full',
         alpha: 'none',
         provenance: 'assumed-default',
+        renderingIntent: 'relative',
       },
     })
     expect(decoder.colorSemantics).toEqual(metadata.colorSemantics)

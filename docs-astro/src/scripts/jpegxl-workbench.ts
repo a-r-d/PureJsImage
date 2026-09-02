@@ -207,7 +207,7 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     const sizeResult =
       savings >= 0
         ? `+${savings.toLocaleString()} bytes saved (${(transcode?.savingsPercentage ?? 0).toFixed(2)}%)`
-        : `-${Math.abs(savings).toLocaleString()} bytes; JPEG XL is larger by ${Math.abs(savings).toLocaleString()} bytes`
+        : `${Math.abs(savings).toLocaleString()} bytes larger (+${Math.abs(transcode?.savingsPercentage ?? 0).toFixed(2)}% versus source)`
     rows([
       ['Output', response.name],
       ['Status', 'Experimental'],

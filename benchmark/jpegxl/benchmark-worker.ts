@@ -61,6 +61,7 @@ const encodeRgb = async (): Promise<Readonly<{ input: Uint8Array; output: Uint8A
       range: 'full',
       alpha: 'none',
       provenance: 'assumed-default',
+      renderingIntent: 'relative',
     },
     options: { mode: 'lossless', effort: 1, container: true },
     limits: defaultImageLimits,

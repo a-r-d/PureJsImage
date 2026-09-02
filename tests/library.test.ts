@@ -9,7 +9,6 @@ import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
-import { defaultImageLimits } from '../src/limits.ts'
 import {
   CodecRegistry,
   createImageLibrary,
@@ -22,7 +21,7 @@ import { jpegFixture } from './fixtures.ts'
 const pngFixture = (): Uint8Array => {
   const encoded = PNG.sync.write(new PNG({ width: 4, height: 3 }))
   const type = ascii('sRGB')
-  const payload = Uint8Array.of(0)
+  const payload = Uint8Array.of(1)
   const chunk = new Uint8Array(13)
   new DataView(chunk.buffer).setUint32(0, payload.byteLength)
   chunk.set(type, 4)
@@ -136,7 +135,7 @@ describe('configured image library', () => {
     })
   })
 
-  it('does not silently relabel linear JPEG XL pixels as sRGB', async () => {
+  it('does not silently relabel linear JPEG XL pixels or discard rendering intent', async () => {
     const input = new Uint8Array(
       readFileSync('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-linear.jxl'),
     )
@@ -146,14 +145,11 @@ describe('configured image library', () => {
       code: 'UNSUPPORTED_OPERATION',
     })
 
-    const preserved = await image.convertPixelFormat({ format: 'rgb16' }).png().toBuffer()
-    const decoder = await pngCodec.createDecoder?.(new MemorySource(preserved), defaultImageLimits)
-    expect(decoder?.colorSemantics).toMatchObject({
-      family: 'rgb',
-      primaries: 'srgb',
-      transfer: { kind: 'linear' },
-      matrix: 'identity',
-      range: 'full',
+    await expect(
+      image.convertPixelFormat({ format: 'rgb16' }).png().toBuffer(),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('color semantics'),
     })
   })
 

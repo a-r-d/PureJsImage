@@ -32,9 +32,10 @@ const output = await images
 ```
 
 The encoder accepts `gray8`, `gray16`, `rgb8`, `rgb16`, `rgba8`, and `rgba16`. Pixels must use
-full-range sRGB gray or RGB semantics, with no alpha or straight alpha. Linear RGB, Display P3,
+full-range sRGB gray or RGB semantics, relative rendering intent, and no alpha or straight alpha. Linear RGB, Display P3,
 missing or unknown transfer or primaries, source-profile pixels, arbitrary ICC encoding, and
-premultiplied alpha are rejected. Internal and low-level callers must provide explicit semantics.
+premultiplied alpha are rejected. Perceptual, saturation, absolute, missing, and unspecified
+rendering intent are also rejected. Internal and low-level callers must provide explicit semantics.
 The encoder writes either a raw codestream or a container with one `jxlc` box. It currently retains
 bounded full input and output buffers. Encoder benchmark reports use `null` and `unavailable` when
 a managed peak was not measured, and `measured` only for live ledger output. They never report an
@@ -66,9 +67,11 @@ const originalJpeg = await reconstructJpegFromJpegXl(result.data)
 JPEG-derived VarDCT plus `jbrd`, reconstructs the JPEG from the finished JPEG XL file, and compares
 every byte before returning.
 
-Exact eligibility also protects the displayed JPEG XL image. Exif orientation must be absent or 1.
-ICC must be absent or match the checked deterministic sRGB profile. Exif orientation 2 through 8,
-non-sRGB ICC, malformed ICC, incomplete ICC chunks, and conflicting display metadata are rejected.
+Exact eligibility also protects the displayed JPEG XL image. It walks APP metadata before, between,
+and after scans through EOI. Exif orientation must be absent or 1. Exif color must be absent or
+explicitly sRGB. ICC must be absent or match the checked deterministic sRGB profile. Exif
+orientation 2 through 8, non-sRGB or malformed Exif color, non-sRGB ICC, malformed ICC, incomplete
+ICC chunks, and conflicting display metadata are rejected.
 The opaque `jbrd` reconstruction payload can preserve original JPEG bytes, but it is not the JPEG
 XL display orientation or color description.
 
@@ -83,13 +86,15 @@ limits include:
 
 - Static images only.
 - Selected 8-bit single-group XYB VarDCT fixtures, with no alpha or orientation extra fields.
-- Raw VarDCT strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17. Raw strategy 1 Hornuss is
-  unsupported.
+- Implemented raw VarDCT strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17. The six pinned
+  fixtures validate complete images but do not isolate every strategy branch. Raw strategy 1
+  Hornuss is unsupported.
 - Selected-subset VarDCT materializes the full frame and applies crop afterward. It does not
   advertise region pushdown.
 - A checked three-component 8-bit Huffman baseline and progressive JPEG reconstruction subset.
-  Exif orientation must be absent or 1. ICC must be absent or the checked sRGB profile. Grayscale,
-  CMYK, YCCK, non-sRGB ICC, and malformed ICC exact transcode are unsupported.
+  Exif orientation must be absent or 1. Exif color must be absent or explicitly sRGB. ICC must be
+  absent or the checked sRGB profile. Grayscale, CMYK, YCCK, non-sRGB or malformed Exif color,
+  non-sRGB ICC, and malformed ICC exact transcode are unsupported.
 - No general lossy JPEG XL encoder.
 - Bounded full input and output retention in the experimental encoder and transcoder.
 
@@ -113,5 +118,8 @@ The decoder reports the same `PixelColorSemantics` on image metadata and the dec
 Checked Modular sRGB and linear-sRGB files retain their signaled transfer function and gray or RGB
 family. Default signaling uses `assumed-default`; explicit signaling uses `container-signaled`.
 Selected XYB VarDCT is converted to 8-bit sRGB and reports `decoder-converted`. JPEG-derived output
-also reports the restricted decoder-converted sRGB contract. Linear JPEG XL input cannot enter the
-fixed-sRGB JPEG XL encoder without an explicit supported conversion.
+also reports the restricted decoder-converted sRGB contract. Inspection, metadata, and decoder
+instances retain the parsed rendering intent. The encoder emits relative intent and accepts only
+matching relative input. The browser workbench converts checked linear sRGB gray and RGB samples to
+sRGB before drawing them to canvas. Linear JPEG XL input cannot enter the fixed-sRGB JPEG XL encoder
+without an explicit supported conversion.

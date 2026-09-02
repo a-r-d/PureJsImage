@@ -108,7 +108,10 @@ export type JpegReconstructionIneligibilityCode =
   | 'unsupported-marker-or-tail-layout'
   | 'unsupported-display-orientation'
   | 'unsupported-color-profile'
+  | 'unsupported-exif-color-space'
   | 'malformed-color-profile'
+  | 'malformed-color-metadata'
+  | 'conflicting-color-metadata'
   | 'metadata-limit'
   | 'reconstruction-mismatch'
   | 'output-not-smaller'
@@ -216,7 +219,7 @@ const encodeExact = async (
 > => {
   const limits = resolveJpegXlLimits(options.limits)
   throwIfAborted(options.signal)
-  const reconstruction = parseJpegReconstructionData(input, image, limits)
+  const reconstruction = parseJpegReconstructionData(input, image, limits, options.signal)
   const metadataLease = retain(
     'jpeg-transcode-metadata-and-tail',
     reconstruction.blobs.decodedBytes,
@@ -301,6 +304,7 @@ const encodePixelLossless = async (
       display.colorProfile === 'srgb'
         ? ('decoder-converted' as const)
         : ('assumed-default' as const),
+    renderingIntent: 'relative' as const,
   })
   const encoder = await jpegxlCodec.createEncoder?.(sink, {
     width: decoder.width,
@@ -366,6 +370,9 @@ const evidenceFailureCode = (error: unknown): string =>
 const eligibilityReasonCode = (error: ImageError): JpegReconstructionIneligibilityCode => {
   const message = error.message.toLowerCase()
   if (message.includes('orientation')) return 'unsupported-display-orientation'
+  if (message.includes('conflicting exif')) return 'conflicting-color-metadata'
+  if (message.includes('exif color space')) return 'unsupported-exif-color-space'
+  if (message.includes('exif') && message.includes('malformed')) return 'malformed-color-metadata'
   if (message.includes('icc color profile is malformed')) return 'malformed-color-profile'
   if (message.includes('color profile')) return 'unsupported-color-profile'
   if (message.includes('8-bit jpeg')) return '12-bit'
@@ -425,6 +432,10 @@ export const inspectJpegReconstructionEligibility = async (
     const display = inspectJpegExactTranscodeDisplaySemantics(
       bytes,
       resolveJpegXlLimits(options.limits).maxMetadataBytes,
+      {
+        maximumMarkerCount: resolveJpegXlLimits(options.limits).maxJpegMarkers,
+        ...(options.signal ? { signal: options.signal } : {}),
+      },
     )
     const image = await parseCoefficients(bytes, options)
     if (image.components.length === 1) {
@@ -444,7 +455,7 @@ export const inspectJpegReconstructionEligibility = async (
       })
     }
     const limits = resolveJpegXlLimits(options.limits)
-    const reconstruction = parseJpegReconstructionData(bytes, image, limits)
+    const reconstruction = parseJpegReconstructionData(bytes, image, limits, options.signal)
     const rebuilt = reconstructJpegFromCoefficientImage(
       reconstruction.header,
       reconstruction.blobs,
@@ -519,6 +530,10 @@ export async function transcodeJpegToJpegXl(
     const display = inspectJpegExactTranscodeDisplaySemantics(
       bytes,
       resolveJpegXlLimits(options.limits).maxMetadataBytes,
+      {
+        maximumMarkerCount: resolveJpegXlLimits(options.limits).maxJpegMarkers,
+        ...(options.signal ? { signal: options.signal } : {}),
+      },
     )
     retain('jpeg-transcode-input', bytes.byteLength)
     let exactReconstruction = false

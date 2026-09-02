@@ -1,6 +1,6 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecodeRequest, DecoderOptions, ImageDecoder, ImageMetadata } from '../codec.ts'
-import type { PixelColorSemantics } from '../color.ts'
+import type { PixelColorSemantics, PixelRenderingIntent } from '../color.ts'
 import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
@@ -176,6 +176,7 @@ interface JpegXlColorEncoding {
   readonly colorChannels: 1 | 3
   readonly metadataColorSpace: 'gray' | 'linear-gray' | 'srgb' | 'linear-rgb'
   readonly provenance: 'assumed-default' | 'container-signaled'
+  readonly renderingIntent: PixelRenderingIntent
 }
 
 export interface JpegXlSection {
@@ -192,6 +193,7 @@ export interface JpegXlFrameStructure {
   readonly channelCount: JpegXlChannelCount
   readonly metadataColorSpace: JpegXlColorEncoding['metadataColorSpace']
   readonly colorProvenance: JpegXlColorEncoding['provenance']
+  readonly renderingIntent: PixelRenderingIntent
   readonly orientation: number
   readonly encoding: 'modular' | 'vardct'
   readonly frameType: 'regular' | 'dc'
@@ -240,6 +242,7 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
       colorChannels: 3,
       metadataColorSpace: 'srgb',
       provenance: 'assumed-default',
+      renderingIntent: 'relative',
     })
   }
 
@@ -258,18 +261,23 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
   }
   const renderingIntent = readEnum(reader)
   if (renderingIntent > 3) throw invalidInput('JPEG XL rendering intent is invalid')
+  const renderingIntents = ['perceptual', 'relative', 'saturation', 'absolute'] as const
+  const parsedRenderingIntent = renderingIntents[renderingIntent]
+  if (!parsedRenderingIntent) throw invalidInput('JPEG XL rendering intent is invalid')
 
   if (colorSpace === 1) {
     return Object.freeze({
       colorChannels: 1,
       metadataColorSpace: transferFunction === 8 ? 'linear-gray' : 'gray',
       provenance: 'container-signaled',
+      renderingIntent: parsedRenderingIntent,
     })
   }
   return Object.freeze({
     colorChannels: 3,
     metadataColorSpace: transferFunction === 8 ? 'linear-rgb' : 'srgb',
     provenance: 'container-signaled',
+    renderingIntent: parsedRenderingIntent,
   })
 }
 
@@ -306,6 +314,7 @@ const readHeader = (
       colorChannels: previousFrame.colorChannels,
       metadataColorSpace: previousFrame.metadataColorSpace,
       provenance: previousFrame.colorProvenance,
+      renderingIntent: previousFrame.renderingIntent,
     })
     channelCount = previousFrame.channelCount
   } else {
@@ -533,6 +542,7 @@ const readHeader = (
     channelCount,
     metadataColorSpace: colorEncoding.metadataColorSpace,
     colorProvenance: colorEncoding.provenance,
+    renderingIntent: colorEncoding.renderingIntent,
     orientation: 1,
     encoding,
     frameType,
@@ -2491,6 +2501,7 @@ export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelCo
     range: 'full',
     alpha: header.alphaBitDepth === undefined ? 'none' : 'straight',
     provenance: xybConverted ? 'decoder-converted' : header.colorProvenance,
+    renderingIntent: header.renderingIntent,
   })
 }
 

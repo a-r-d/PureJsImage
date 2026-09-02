@@ -61,15 +61,7 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgb8' as const
-  readonly colorSemantics = Object.freeze<PixelColorSemantics>({
-    family: 'rgb',
-    primaries: 'srgb',
-    transfer: Object.freeze({ kind: 'srgb' }),
-    matrix: 'identity',
-    range: 'full',
-    alpha: 'none',
-    provenance: 'decoder-converted',
-  })
+  readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: true,
@@ -79,9 +71,14 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
   readonly #image: JpegCoefficientImage
   readonly #signal: AbortSignal | undefined
 
-  constructor(image: JpegCoefficientImage, signal: AbortSignal | undefined) {
+  constructor(
+    image: JpegCoefficientImage,
+    colorSemantics: PixelColorSemantics,
+    signal: AbortSignal | undefined,
+  ) {
     this.width = image.width
     this.height = image.height
+    this.colorSemantics = colorSemantics
     this.#image = image
     this.#signal = signal
   }
@@ -103,14 +100,25 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
 
 export const createJpegDerivedJpegXlDecoder = async (
   source: ImageSource,
+  logical: ImageSource,
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
 ): Promise<ImageDecoder> => {
+  const frames = await readJpegXlSourceFrameStructures(logical, limits, options)
+  const displayFrame = frames.at(-1)
+  if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
   const image = await decodeJpegXlJpegCoefficientImage(source, {
     limits,
     ...(options.signal ? { signal: options.signal } : {}),
   })
-  return new JpegDerivedJpegXlDecoder(image, options.signal)
+  return new JpegDerivedJpegXlDecoder(
+    image,
+    Object.freeze({
+      ...jpegXlPixelColorSemantics(displayFrame),
+      provenance: 'decoder-converted',
+    }),
+    options.signal,
+  )
 }
 
 class VarDctJpegXlDecoder implements ImageDecoder {
@@ -226,7 +234,12 @@ export const createJpegXlVarDctDecoder = async (
   const jpegXlLimits = resolveJpegXlLimits()
   const structure = await inspectJpegXlSource(source, jpegXlLimits, options)
   if (structure.metadataBoxes.some(({ type }) => type === 'jbrd')) {
-    return createJpegDerivedJpegXlDecoder(source, limits, options)
+    return createJpegDerivedJpegXlDecoder(
+      source,
+      new JpegXlCodestreamSource(source, structure),
+      limits,
+      options,
+    )
   }
   const logical = new JpegXlCodestreamSource(source, structure)
   const frames = await readJpegXlSourceFrameStructures(

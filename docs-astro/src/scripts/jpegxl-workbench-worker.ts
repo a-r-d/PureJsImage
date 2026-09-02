@@ -12,7 +12,7 @@ import {
   transcodeJpegToJpegXl,
 } from '../../../src/jpegxl.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
-import { normalizePixelBlocks, type PixelBlock, type PixelFormat } from '../../../src/pixel.ts'
+import { normalizePixelBlocks, type PixelFormat } from '../../../src/pixel.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import { MemorySource } from '../../../src/source.ts'
 import {
@@ -23,6 +23,11 @@ import {
   type JpegXlWorkbenchPreview,
   type JpegXlWorkbenchResponse,
 } from './jpegxl-workbench-types.ts'
+import {
+  isJpegXlWorkbenchPreviewPixelFormat,
+  jpegXlWorkbenchPreviewMode,
+  jpegXlWorkbenchPreviewPixel,
+} from './jpegxl-workbench-preview.ts'
 
 interface StoredInput {
   readonly generation: number
@@ -120,23 +125,6 @@ const sameBytes = (left: Uint8Array, right: Uint8Array): boolean => {
   return true
 }
 
-const pixelValue = (
-  block: PixelBlock,
-  sourceX: number,
-  sourceY: number,
-  channel: number,
-): number => {
-  if (!block) return 0
-  const channels = block.format === 'gray8' ? 1 : block.format === 'rgb8' ? 3 : 4
-  const localX = sourceX - block.x
-  const localY = sourceY - block.y
-  if (localX < 0 || localY < 0 || localX >= block.width || localY >= block.height) return 0
-  const source = localY * block.stride + localX * channels
-  if (channel === 3) return channels === 4 ? (block.data[source + 3] ?? 0) : 255
-  if (channels === 1) return block.data[source] ?? 0
-  return block.data[source + channel] ?? 0
-}
-
 const preview = async (
   codec: ImageCodec,
   data: Uint8Array,
@@ -151,7 +139,14 @@ const preview = async (
   }
   const plan = planJpegXlWorkbenchPreview(decoder.width, decoder.height)
   const rgba = new Uint8ClampedArray(plan.width * plan.height * 4)
-  const blocks = normalizePixelBlocks(decoder.decode({ signal }), decoder.pixelFormat)
+  const mode =
+    decoder.colorSemantics === undefined && codec.format === 'jpeg'
+      ? 'srgb'
+      : jpegXlWorkbenchPreviewMode(decoder.colorSemantics)
+  const blocks =
+    mode === 'srgb'
+      ? normalizePixelBlocks(decoder.decode({ signal }), decoder.pixelFormat)
+      : decoder.decode({ signal })
   const iterator = blocks[Symbol.asyncIterator]()
   try {
     while (true) {
@@ -160,7 +155,7 @@ const preview = async (
       if (next.done) break
       const block = next.value
       try {
-        if (block.format !== 'gray8' && block.format !== 'rgb8' && block.format !== 'rgba8') {
+        if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
           throw new Error(`Workbench preview does not support ${block.format}`)
         }
         for (let y = 0; y < plan.height; y += 1) {
@@ -177,10 +172,11 @@ const preview = async (
             )
             if (sourceX < block.x || sourceX >= block.x + block.width) continue
             const target = (y * plan.width + x) * 4
-            rgba[target] = pixelValue(block, sourceX, sourceY, 0)
-            rgba[target + 1] = pixelValue(block, sourceX, sourceY, 1)
-            rgba[target + 2] = pixelValue(block, sourceX, sourceY, 2)
-            rgba[target + 3] = pixelValue(block, sourceX, sourceY, 3)
+            const pixel = jpegXlWorkbenchPreviewPixel(block, sourceX, sourceY, mode)
+            rgba[target] = pixel[0]
+            rgba[target + 1] = pixel[1]
+            rgba[target + 2] = pixel[2]
+            rgba[target + 3] = pixel[3]
           }
         }
       } finally {

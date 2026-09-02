@@ -273,6 +273,7 @@ const inspection = (value: unknown): value is JpegXlInspection => {
       'extraChannels',
       'alpha',
       'encodedColor',
+      'renderingIntent',
       'icc',
       'encoding',
       'imageKind',
@@ -312,6 +313,10 @@ const inspection = (value: unknown): value is JpegXlInspection => {
     (value.encoding === 'modular' || value.encoding === 'vardct') &&
     (value.alpha === 'none' || value.alpha === 'straight') &&
     typeof value.encodedColor === 'string' &&
+    (value.renderingIntent === 'perceptual' ||
+      value.renderingIntent === 'relative' ||
+      value.renderingIntent === 'saturation' ||
+      value.renderingIntent === 'absolute') &&
     record(value.icc) &&
     exactKeys(value.icc, ['present', 'decodedBytes']) &&
     typeof value.icc.present === 'boolean' &&

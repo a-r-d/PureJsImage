@@ -5503,7 +5503,7 @@
         "status": "limited",
         "label": "Experimental"
       },
-      "boundary": "Decodes the pinned lossless Modular subset, selected 8-bit single-group XYB VarDCT fixtures without alpha or orientation extra fields, and the checked JPEG-derived DCT8 image subset. Selected-subset VarDCT crop is applied after full-frame decode. Supported raw VarDCT strategy IDs are 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17; raw strategy 1 Hornuss is unsupported. The experimental effort-1 Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 only with explicit full-range sRGB gray or RGB semantics and no alpha or straight alpha. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Exact transcode requires Exif orientation absent or 1 and no ICC or the checked deterministic sRGB ICC. Grayscale exact transcode, CMYK or YCCK, non-sRGB or malformed ICC, multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
+      "boundary": "Decodes the pinned lossless Modular subset, selected 8-bit single-group XYB VarDCT fixtures without alpha or orientation extra fields, and the checked JPEG-derived DCT8 image subset. Selected-subset VarDCT crop is applied after full-frame decode. Implemented raw VarDCT strategy IDs are 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17; the six pinned VarDCT fixtures validate complete images but do not isolate every implemented strategy branch. Raw strategy 1 Hornuss is unsupported. The experimental effort-1 Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 only with explicit full-range sRGB gray or RGB semantics, relative rendering intent, and no alpha or straight alpha. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Exact transcode walks rendering metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC. Grayscale exact transcode, CMYK or YCCK, non-sRGB or malformed Exif or ICC color metadata, multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
       "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, selected 8-bit single-group XYB VarDCT fixtures, final progressive fixtures, and checked JPEG-derived RGB or YCbCr coefficients. Encodes six native storage formats as deterministic pixel-lossless Modular JPEG XL within the documented sRGB and straight-alpha boundary. The separate coefficient-domain API transcodes the pinned eligible JPEG subset, verifies byte-exact reconstruction before returning, and never silently substitutes a pixel path.",
       "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Compatible Modular crops retain one intersecting group-row band. Selected-subset VarDCT materializes full-frame sections, coefficients, Float32 restoration planes, and output before serving bounded rows; crop is not decoder pushdown. A conservative preflight rejects over-budget selected VarDCT before section allocation, and a live ledger measures managed peak bytes. The experimental Modular encoder retains bounded full input and output buffers. The exact transcoder tracks input, coefficient tables and planes, metadata, reconstruction payload, encoded sections, codestream, container output, and verification bytes by live lifetime. Sink-mode transcode does not return duplicate output bytes.",
       "recommendation": "Use the decoder for files within the checked static corpus. Treat lossless Modular encoding and coefficient-domain JPEG transcode as experimental until the broader compression, decoder, metadata, and sequential-output gates pass. Use reconstruction: required for exact JPEG work, and enable pixel-lossless fallback explicitly when original JPEG bytes are not required.",
@@ -5757,7 +5757,7 @@
         },
         {
           "status": "supported",
-          "text": "Implement pinned raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, covering checked square DCT, rectangular DCT, and AFV families"
+          "text": "Implement raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, with six full-image fixtures covering selected square DCT, rectangular DCT, and AFV combinations"
         },
         {
           "status": "planned",
@@ -5841,7 +5841,7 @@
         },
         {
           "status": "supported",
-          "text": "Parse and report the checked sRGB and linear-sRGB gray or RGB encoding with matching metadata and decoder pixel semantics"
+          "text": "Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent with matching metadata and decoder pixel semantics"
         },
         {
           "status": "planned",

@@ -28,7 +28,9 @@ npm run fixtures:jpegxl:generate-vardct -- \
 This writes six raw codestreams and matching `djxl` PNM pixel references. The matrix varies effort,
 distance, grayscale, progressive passes, synthetic noise, and a 255 by 255 near-boundary selected
 single-group image. The selected 8-bit single-group XYB entries decode within the fixed maximum
-error and RMSE limits. Unsupported VarDCT syntax remains explicit.
+error and RMSE limits. The manifest records `implementedStrategyIds`; the six fixtures validate
+complete outputs but do not claim isolated coverage of every strategy branch. Unsupported VarDCT
+syntax remains explicit.
 
 Run the PureJsImage encoder interoperability matrix after building the pinned libjxl, jxl-rs, and
 jxl-oxide tools:
@@ -77,4 +79,5 @@ npm run bench:jpegxl:evidence
 
 The combined report rejects inputs generated from a different Git revision. It records the exact
 branch SHA, pinned tool revisions, commands, output hashes, unsupported classifications, and the
-reason the encoder remains Experimental.
+reason the encoder remains Experimental. Committed dated reports are historical snapshots. The CI
+artifact for the exact pushed SHA is the current review evidence.

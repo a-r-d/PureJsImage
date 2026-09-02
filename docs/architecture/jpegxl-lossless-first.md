@@ -181,7 +181,8 @@ coefficient storage is retained only through the final dependent pass and restor
 The implementation must cover the block strategies, coefficient orders, quantization matrices,
 chroma-from-luma paths, inverse transforms, XYB conversion, upsampling, Gaborish, EPF, patches,
 splines, and noise exercised by the pinned common static corpus. Parser acceptance alone is not
-evidence. Each strategy requires image-level comparison with independent decoders.
+evidence. The manifest names the raw strategy IDs implemented by the renderer. Its six fixtures
+validate complete decoded images but do not claim isolated coverage of every strategy branch.
 
 Full-frame float RGB or RGBA is not the normal boundary. Any compact full-frame LF, coefficient,
 patch, or filter state is recorded as a distinct memory class and budgeted before allocation.
@@ -222,8 +223,9 @@ linear-sRGB gray or RGB output retains the signaled transfer function. XYB is co
 inverse opsin transform and the current renderer's linear-to-sRGB conversion before 8-bit RGB
 output. Metadata and decoder instances report the same complete semantics. Default signaling uses
 `assumed-default`, explicit signaling uses `container-signaled`, and transformed XYB or
-JPEG-derived output uses `decoder-converted`. Unsupported color conversions fail instead of
-labeling unknown values as sRGB.
+JPEG-derived output uses `decoder-converted`. The parsed rendering intent is retained on inspection,
+metadata, and decoder instances. Unsupported color conversions fail instead of labeling unknown
+values as sRGB.
 
 One alpha channel is supported first. Its bit depth and straight or premultiplied association are
 explicit. Decoding either preserves valid association semantics or performs a documented conversion.
@@ -236,9 +238,11 @@ metadata do not rotate decoded JPEG XL pixels.
 Embedded ICC decode has separate compressed and decoded byte limits. ICC bytes never enter evidence
 records.
 
-The exact JPEG transcoder accepts no ICC or the exact checked deterministic sRGB ICC. It rejects
-non-sRGB, malformed, duplicate, incomplete, or conflicting display profiles. The `jbrd` box is used
-to reconstruct original JPEG bytes and is never treated as the JPEG XL display color description.
+The exact JPEG transcoder walks APP metadata before, between, and after scans through EOI. It accepts
+Exif color only when absent or explicitly sRGB, and accepts no ICC or the exact checked deterministic
+sRGB ICC. It rejects non-sRGB, malformed, duplicate, incomplete, or conflicting display metadata.
+The `jbrd` box is used to reconstruct original JPEG bytes and is never treated as the JPEG XL
+display color description.
 
 ## 14. Metadata preservation policy
 
@@ -429,8 +433,9 @@ two JPEG-derived reconstruction fixtures also decode through the normal codec. M
 groups, chroma upsampling, patches, splines, alpha, and unsupported color syntax still fail
 explicitly.
 
-The selected renderer supports raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17.
-Raw strategy 1 Hornuss remains unsupported and is not claimed by the capability manifest.
+The selected renderer implements raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17.
+The six fixtures validate complete decoded images but do not isolate every implemented strategy
+branch. Raw strategy 1 Hornuss remains unsupported and is not claimed by the capability manifest.
 
 - [x] Decode the pinned selected 8-bit single-group XYB VarDCT corpus to fixed oracle tolerances.
 - [ ] Cover required transforms, XYB, upsampling, restoration, patches, splines, and noise.
@@ -470,11 +475,12 @@ decode now obtains image coefficients without parsing `jbrd`. Malformed or unsup
 metadata does not block valid checked-subset pixels, while the explicit reconstruction API still
 requires and validates `jbrd`.
 
-Exact eligibility now also validates display semantics before coefficient work. Source Exif
-orientation must be absent or 1, and ICC must be absent or the checked deterministic sRGB profile.
-Inspection and every reconstruction policy use the same bounded validation. This prevents exact
-byte reconstruction from hiding a JPEG XL codestream that would display with a different
-orientation or color meaning.
+Exact eligibility now also validates display semantics before coefficient work. One shared bounded
+marker walk covers APP metadata before, between, and after scans through EOI. Source Exif orientation
+must be absent or 1, Exif color must be absent or explicitly sRGB, and ICC must be absent or the
+checked deterministic sRGB profile. Inspection and every reconstruction policy use the same
+validation. This prevents exact byte reconstruction from hiding a JPEG XL codestream that would
+display with a different orientation or color meaning.
 
 - [ ] Parse and validate `jbrd` and every required referenced metadata box.
 - [ ] Reconstruct eligible JPEG corpus entries byte for byte and by SHA-256.
@@ -493,10 +499,11 @@ and sequential-output gates remain open. On the fixed 512 by 384 RGB8 benchmark,
 156,693 bytes versus 181,608 bytes from pinned `cjxl` 0.12.0 at lossless effort 1. Both decode to
 the exact source pixels. This one fixture does not establish a broad compression claim.
 
-The encoder now requires explicit full-range sRGB gray or RGB semantics. Missing, unspecified,
-linear, source-profile, ICC-backed, limited-range, and premultiplied semantics fail with
-`UNSUPPORTED_OPERATION`. Encoder benchmarks report managed memory as unavailable when no live
-ledger measurement exists rather than using a false zero.
+The encoder now requires explicit full-range sRGB gray or RGB semantics with relative rendering
+intent. Missing, unspecified, linear, source-profile, ICC-backed, limited-range, premultiplied, or
+non-relative semantics fail with `UNSUPPORTED_OPERATION`. Encoder benchmarks report managed memory
+as unavailable when no live ledger measurement exists rather than using a false zero. The browser
+workbench converts checked linear sRGB gray and RGB samples to sRGB before drawing them to canvas.
 
 - [x] Encode all required 8-bit and 16-bit pixel formats deterministically.
 - [ ] Decode every output through four decoder paths with exact native samples.

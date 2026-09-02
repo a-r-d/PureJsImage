@@ -771,6 +771,7 @@ export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boo
   (semantics.provenance === 'assumed-default' ||
     semantics.provenance === 'container-signaled' ||
     semantics.provenance === 'decoder-converted') &&
+  semantics.renderingIntent === 'relative' &&
   semantics.icc === undefined
 
 const validateColorSemantics = (request: EncodeRequest): void => {
@@ -786,7 +787,7 @@ const validateColorSemantics = (request: EncodeRequest): void => {
     semantics.alpha !== (alpha ? 'straight' : 'none')
   ) {
     throw unsupportedOperation(
-      'JPEG XL encoding supports full-range sRGB or sRGB grayscale pixels with straight alpha only',
+      'JPEG XL encoding supports full-range sRGB or sRGB grayscale pixels with relative rendering intent and straight alpha only',
     )
   }
 }

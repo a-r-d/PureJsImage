@@ -137,6 +137,7 @@ const encodePureJsImage = async (
       range: 'full',
       alpha: format === 'rgba8' ? 'straight' : 'none',
       provenance: 'assumed-default',
+      renderingIntent: 'relative',
     },
     options: { mode: 'lossless', effort: 1, container: true },
     limits: defaultImageLimits,

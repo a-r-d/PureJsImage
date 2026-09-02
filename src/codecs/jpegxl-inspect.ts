@@ -1,5 +1,6 @@
 import type { AbortOptions } from '../abort.ts'
 import type { ImageMetadata } from '../codec.ts'
+import type { PixelRenderingIntent } from '../color.ts'
 import { invalidInput } from '../errors.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
@@ -44,6 +45,7 @@ export interface JpegXlInspection {
   readonly extraChannels: number
   readonly alpha: 'none' | 'straight'
   readonly encodedColor: string
+  readonly renderingIntent: PixelRenderingIntent
   readonly icc: Readonly<{ readonly present: boolean; readonly decodedBytes: undefined }>
   readonly encoding: 'modular' | 'vardct'
   readonly imageKind: 'static'
@@ -114,6 +116,8 @@ export const inspectJpegXl = async (
       throw invalidInput('JPEG XL reconstruction XMP size does not match the container')
     }
   }
+  const renderingIntent = metadata.colorSemantics?.renderingIntent
+  if (!renderingIntent) throw invalidInput('JPEG XL rendering intent metadata is missing')
   return Object.freeze({
     kind: structure.kind,
     organization: structure.organization,
@@ -133,6 +137,7 @@ export const inspectJpegXl = async (
     extraChannels: Math.max(0, channels - colorChannels),
     alpha: metadata.hasAlpha ? 'straight' : 'none',
     encodedColor: metadata.colorSpace ?? 'unspecified',
+    renderingIntent,
     icc: Object.freeze({
       present: metadata.colorProfile?.kind === 'icc',
       decodedBytes: undefined,

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import manifest from '../benchmark/jpegxl/jpeg-reconstruction-manifest.json' with { type: 'json' }
 import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { inspectJpegExactTranscodeDisplaySemantics } from '../src/codecs/jpeg-display-semantics.ts'
 import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { pipeDecoderToJpegXlEncoder } from '../src/codecs/jpegxl-jpeg-transcode.ts'
@@ -57,6 +58,52 @@ const jpegSegment = (marker: number, payload: Uint8Array): Uint8Array => {
 const withLeadingMarker = (jpeg: Uint8Array, marker: Uint8Array): Uint8Array =>
   concatenate(jpeg.subarray(0, 2), marker, jpeg.subarray(2))
 
+const jpegMarkerOffsets = (jpeg: Uint8Array, selectedMarker: number): readonly number[] => {
+  const offsets: number[] = []
+  let offset = 2
+  while (offset + 1 < jpeg.byteLength) {
+    if (jpeg[offset] !== 0xff) throw new Error('JPEG test fixture marker prefix is missing')
+    const markerOffset = offset
+    while (jpeg[offset] === 0xff) offset += 1
+    const marker = jpeg[offset]
+    if (marker === undefined) throw new Error('JPEG test fixture marker is truncated')
+    offset += 1
+    if (marker === selectedMarker) offsets.push(markerOffset)
+    if (marker === 0xd9) break
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue
+    const high = jpeg[offset]
+    const low = jpeg[offset + 1]
+    if (high === undefined || low === undefined) {
+      throw new Error('JPEG test fixture marker length is truncated')
+    }
+    const length = high * 256 + low
+    if (length < 2 || offset + length > jpeg.byteLength) {
+      throw new Error('JPEG test fixture marker length is invalid')
+    }
+    offset += length
+    if (marker !== 0xda) continue
+    while (offset + 1 < jpeg.byteLength) {
+      if (jpeg[offset] !== 0xff) {
+        offset += 1
+        continue
+      }
+      const following = jpeg[offset + 1]
+      if (
+        following === 0x00 ||
+        (following !== undefined && following >= 0xd0 && following <= 0xd7)
+      ) {
+        offset += 2
+        continue
+      }
+      break
+    }
+  }
+  return Object.freeze(offsets)
+}
+
+const withMarkerAt = (jpeg: Uint8Array, marker: Uint8Array, offset: number): Uint8Array =>
+  concatenate(jpeg.subarray(0, offset), marker, jpeg.subarray(offset))
+
 const exifOrientationMarker = (orientation: number): Uint8Array => {
   const payload = new Uint8Array(32)
   payload.set(Uint8Array.of(0x45, 0x78, 0x69, 0x66), 0)
@@ -70,6 +117,59 @@ const exifOrientationMarker = (orientation: number): Uint8Array => {
   view.setUint16(18, 3, true)
   view.setUint32(20, 1, true)
   view.setUint16(24, orientation, true)
+  return jpegSegment(0xe1, payload)
+}
+
+const exifColorMarker = (
+  options: Readonly<{
+    colorSpace?: number
+    interoperability?: 'R98' | 'R03'
+    colorSpaceType?: number
+    colorSpaceCount?: number
+  }>,
+): Uint8Array => {
+  const payload = new Uint8Array(92)
+  payload.set(Uint8Array.of(0x45, 0x78, 0x69, 0x66), 0)
+  const view = new DataView(payload.buffer)
+  const tiff = 6
+  payload[tiff] = 0x49
+  payload[tiff + 1] = 0x49
+  view.setUint16(tiff + 2, 42, true)
+  view.setUint32(tiff + 4, 8, true)
+  const ifd0 = tiff + 8
+  view.setUint16(ifd0, 2, true)
+  view.setUint16(ifd0 + 2, 0x0112, true)
+  view.setUint16(ifd0 + 4, 3, true)
+  view.setUint32(ifd0 + 6, 1, true)
+  view.setUint16(ifd0 + 10, 1, true)
+  view.setUint16(ifd0 + 14, 0x8769, true)
+  view.setUint16(ifd0 + 16, 4, true)
+  view.setUint32(ifd0 + 18, 1, true)
+  view.setUint32(ifd0 + 22, 38, true)
+  const exifIfd = tiff + 38
+  const exifEntryCount =
+    Number(options.colorSpace !== undefined) + Number(options.interoperability !== undefined)
+  view.setUint16(exifIfd, exifEntryCount, true)
+  let entry = exifIfd + 2
+  if (options.colorSpace !== undefined) {
+    view.setUint16(entry, 0xa001, true)
+    view.setUint16(entry + 2, options.colorSpaceType ?? 3, true)
+    view.setUint32(entry + 4, options.colorSpaceCount ?? 1, true)
+    view.setUint16(entry + 8, options.colorSpace, true)
+    entry += 12
+  }
+  if (options.interoperability !== undefined) {
+    view.setUint16(entry, 0xa005, true)
+    view.setUint16(entry + 2, 4, true)
+    view.setUint32(entry + 4, 1, true)
+    view.setUint32(entry + 8, 68, true)
+    const interoperabilityIfd = tiff + 68
+    view.setUint16(interoperabilityIfd, 1, true)
+    view.setUint16(interoperabilityIfd + 2, 0x0001, true)
+    view.setUint16(interoperabilityIfd + 4, 2, true)
+    view.setUint32(interoperabilityIfd + 6, 4, true)
+    payload.set(new TextEncoder().encode(`${options.interoperability}\0`), interoperabilityIfd + 10)
+  }
   return jpegSegment(0xe1, payload)
 }
 
@@ -202,6 +302,140 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
       eligible: false,
       reasonCodes: ['malformed-color-profile'],
     })
+  })
+
+  it('accepts only explicit sRGB Exif color declarations for exact transcode', async () => {
+    const source = new Uint8Array(
+      readFileSync('benchmark/corpus/files/jpeg-reference/generated-progressive.jpg'),
+    )
+    const explicitSrgb = withLeadingMarker(source, exifColorMarker({ colorSpace: 1 }))
+    await expect(inspectJpegReconstructionEligibility(explicitSrgb)).resolves.toMatchObject({
+      eligible: true,
+      sourceProfile: { colorProfile: 'none' },
+    })
+
+    const uncalibrated = withLeadingMarker(source, exifColorMarker({ colorSpace: 0xffff }))
+    await expect(inspectJpegReconstructionEligibility(uncalibrated)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-exif-color-space'],
+    })
+
+    const adobeRgb = withLeadingMarker(source, exifColorMarker({ interoperability: 'R03' }))
+    await expect(inspectJpegReconstructionEligibility(adobeRgb)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-exif-color-space'],
+    })
+
+    const malformed = withLeadingMarker(
+      source,
+      exifColorMarker({ colorSpace: 1, colorSpaceType: 4 }),
+    )
+    await expect(inspectJpegReconstructionEligibility(malformed)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['malformed-color-metadata'],
+    })
+
+    const conflictingExif = withLeadingMarker(
+      withLeadingMarker(source, exifColorMarker({ colorSpace: 1 })),
+      exifColorMarker({ interoperability: 'R03' }),
+    )
+    await expect(inspectJpegReconstructionEligibility(conflictingExif)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['conflicting-color-metadata'],
+    })
+
+    const conflictingIcc = withLeadingMarker(
+      withLeadingMarker(source, iccMarker(createPureJsImageSrgbIcc())),
+      exifColorMarker({ interoperability: 'R03' }),
+    )
+    await expect(inspectJpegReconstructionEligibility(conflictingIcc)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['conflicting-color-metadata'],
+    })
+  })
+
+  it('does not let rendering metadata bypass exact-transcode policy after the first scan', async () => {
+    const source = new Uint8Array(
+      readFileSync('benchmark/corpus/files/jpeg-reference/generated-progressive.jpg'),
+    )
+    const scanOffsets = jpegMarkerOffsets(source, 0xda)
+    const eoiOffset = jpegMarkerOffsets(source, 0xd9)[0]
+    const secondScanOffset = scanOffsets[1]
+    if (secondScanOffset === undefined || eoiOffset === undefined) {
+      throw new Error('Progressive JPEG fixture does not expose the required marker boundaries')
+    }
+
+    const lateOrientation = withMarkerAt(source, exifOrientationMarker(6), secondScanOffset)
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(lateOrientation, 16 * 1_024 * 1_024),
+    ).toThrow('orientation')
+    await expect(inspectJpegReconstructionEligibility(lateOrientation)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-display-orientation'],
+    })
+    await expect(transcodeJpegToJpegXl(lateOrientation)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('orientation'),
+    })
+
+    const postScanOrientation = withMarkerAt(source, exifOrientationMarker(6), eoiOffset)
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(postScanOrientation, 16 * 1_024 * 1_024),
+    ).toThrow('orientation')
+
+    const lateNonSrgb = withMarkerAt(source, iccMarker(displayP3RgbProfile()), secondScanOffset)
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(lateNonSrgb, 16 * 1_024 * 1_024),
+    ).toThrow('color profile')
+    await expect(inspectJpegReconstructionEligibility(lateNonSrgb)).resolves.toMatchObject({
+      eligible: false,
+      reasonCodes: ['unsupported-color-profile'],
+    })
+
+    const profile = createPureJsImageSrgbIcc()
+    const midpoint = Math.ceil(profile.byteLength / 2)
+    const splitAcrossScans = withMarkerAt(
+      withLeadingMarker(source, numberedIccMarker(profile.subarray(0, midpoint), 1, 2)),
+      numberedIccMarker(profile.subarray(midpoint), 2, 2),
+      secondScanOffset + numberedIccMarker(profile.subarray(0, midpoint), 1, 2).byteLength,
+    )
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(splitAcrossScans, 16 * 1_024 * 1_024),
+    ).not.toThrow()
+    await expect(inspectJpegReconstructionEligibility(splitAcrossScans)).resolves.toMatchObject({
+      eligible: true,
+      sourceProfile: { colorProfile: 'srgb' },
+    })
+
+    const conflictingOrientation = withMarkerAt(
+      withLeadingMarker(source, exifOrientationMarker(1)),
+      exifOrientationMarker(6),
+      secondScanOffset + exifOrientationMarker(1).byteLength,
+    )
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(conflictingOrientation, 16 * 1_024 * 1_024),
+    ).toThrow('conflicting')
+
+    const duplicateIcc = withMarkerAt(
+      withLeadingMarker(source, numberedIccMarker(profile, 1, 1)),
+      numberedIccMarker(profile, 1, 1),
+      secondScanOffset + numberedIccMarker(profile, 1, 1).byteLength,
+    )
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(duplicateIcc, 16 * 1_024 * 1_024),
+    ).toThrow('malformed')
+
+    const malformedIcc = withMarkerAt(
+      source,
+      jpegSegment(
+        0xe2,
+        concatenate(new TextEncoder().encode('ICC_PROFILE\0'), Uint8Array.of(0, 1)),
+      ),
+      secondScanOffset,
+    )
+    expect(() =>
+      inspectJpegExactTranscodeDisplaySemantics(malformedIcc, 16 * 1_024 * 1_024),
+    ).toThrow('ICC')
   })
 
   it('releases pixel-fallback blocks and closes the decoder iterator after encoder failure', async () => {
@@ -505,6 +739,7 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
         range: 'full',
         alpha: 'none',
         provenance: 'decoder-converted',
+        renderingIntent: 'relative',
       })
       const actual = await decodeRgb(jpegxlCodec, encoded)
 

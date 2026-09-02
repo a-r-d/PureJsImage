@@ -51,7 +51,7 @@ export const jpegXlWorkbenchPng = (): Uint8Array => {
   return concatenate([
     Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10),
     chunk('IHDR', header),
-    chunk('sRGB', Uint8Array.of(0)),
+    chunk('sRGB', Uint8Array.of(1)),
     chunk('IDAT', new Uint8Array(deflateSync(rows, { level: 9 }))),
     chunk('IEND', new Uint8Array()),
   ])
