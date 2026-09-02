@@ -27,6 +27,7 @@ import {
   parseCoefficientJpegSource,
 } from './jpeg-baseline.ts'
 import { createBaselineJpegEncoder } from './jpeg-encode.ts'
+import { parseJpegExifOrientation } from './jpeg-metadata.ts'
 
 const startOfFrameMarkers = new Set([
   0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf,
@@ -37,56 +38,6 @@ const standaloneMarkers = new Set([
 
 const isJpeg = (header: Uint8Array): boolean =>
   header[0] === 0xff && header[1] === 0xd8 && header[2] === 0xff
-
-const exifOrientation = (segment: Uint8Array): number | undefined => {
-  if (
-    segment.byteLength < 14 ||
-    segment[0] !== 0x45 ||
-    segment[1] !== 0x78 ||
-    segment[2] !== 0x69 ||
-    segment[3] !== 0x66 ||
-    segment[4] !== 0 ||
-    segment[5] !== 0
-  ) {
-    return undefined
-  }
-
-  const tiff = 6
-  const littleEndian = segment[tiff] === 0x49 && segment[tiff + 1] === 0x49
-  const bigEndian = segment[tiff] === 0x4d && segment[tiff + 1] === 0x4d
-  if (!littleEndian && !bigEndian) return undefined
-
-  const read16 = (offset: number): number | undefined => {
-    const first = segment[offset]
-    const second = segment[offset + 1]
-    if (first === undefined || second === undefined) return undefined
-    return littleEndian ? first + second * 256 : first * 256 + second
-  }
-  const read32 = (offset: number): number | undefined => {
-    const first = read16(offset)
-    const second = read16(offset + 2)
-    if (first === undefined || second === undefined) return undefined
-    return littleEndian ? first + second * 65_536 : first * 65_536 + second
-  }
-
-  if (read16(tiff + 2) !== 42) return undefined
-  const relativeIfd = read32(tiff + 4)
-  if (relativeIfd === undefined) return undefined
-  const ifd = tiff + relativeIfd
-  const entries = read16(ifd)
-  if (entries === undefined || entries > 4_096) return undefined
-
-  for (let index = 0; index < entries; index += 1) {
-    const entry = ifd + 2 + index * 12
-    if (entry + 12 > segment.byteLength) return undefined
-    if (read16(entry) !== 0x0112 || read16(entry + 2) !== 3 || read32(entry + 4) !== 1) continue
-    const orientation = read16(entry + 8)
-    return orientation !== undefined && orientation >= 1 && orientation <= 8
-      ? orientation
-      : undefined
-  }
-  return undefined
-}
 
 interface JpegFrameMetadata {
   readonly components: number
@@ -508,7 +459,7 @@ export const jpegCodec: ImageCodec = {
         break
       }
       if (marker === 0xe1 && orientation === undefined) {
-        orientation = exifOrientation(await reader.read(payloadLength))
+        orientation = parseJpegExifOrientation(await reader.read(payloadLength))
         continue
       }
       if (marker === 0xe2 && frames === undefined) {

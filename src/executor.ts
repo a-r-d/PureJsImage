@@ -322,6 +322,7 @@ export const executePipeline = async (
       ...(context.resolutionLevel === undefined
         ? {}
         : { resolutionLevel: context.resolutionLevel }),
+      ...(options.evidence === undefined ? {} : { evidence: options.evidence }),
     })
     options.evidence?.operation({ operationId: 'decoder-open', phase: 'complete' })
     const plannedOutput = planOutput(

@@ -1,0 +1,259 @@
+name: JPEG XL pinned corpus
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/jpegxl-corpus.yml'
+      - 'benchmark/jpegxl/**'
+      - 'benchmark/fixtures/jpegxl/**'
+      - 'browser-tests/jpegxl-workbench.pw.ts'
+      - 'capabilities/manifest.json'
+      - 'docs/architecture/jpegxl-lossless-first.md'
+      - 'jpegxl-codec-support.md'
+      - 'src/**/jpegxl*.ts'
+      - 'tests/**/jpegxl*.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  corpus:
+    name: Pinned corpus and exact reconstruction
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare evidence directory
+        run: mkdir -p .tmp/jpegxl-evidence
+
+      - name: Install libjxl tool build dependencies
+        run: sudo apt-get update && sudo apt-get install --yes libjpeg-dev libpng-dev ninja-build
+
+      - name: Build pinned libjxl tools
+        env:
+          LIBJXL_ARCHIVE_SHA256: 818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29
+          LIBJXL_ORACLE_ROOT: .tmp/jpegxl-oracles/libjxl-v0.12.0
+          LIBJXL_REVISION: a7a9c787341cf703dede03c2009fa460cae5e5df
+          LIBJXL_ROOT: .tmp/jpegxl-oracles/libjxl-v0.12.0/source
+        run: |
+          mkdir -p "$LIBJXL_ORACLE_ROOT"
+          curl --fail --location \
+            "https://github.com/libjxl/libjxl/archive/$LIBJXL_REVISION.tar.gz" \
+            --output "$LIBJXL_ORACLE_ROOT/source-a7a9c787.tar.gz"
+          echo "$LIBJXL_ARCHIVE_SHA256  $LIBJXL_ORACLE_ROOT/source-a7a9c787.tar.gz" | sha256sum --check
+          mkdir -p "$LIBJXL_ROOT"
+          git -C "$LIBJXL_ROOT" init
+          git -C "$LIBJXL_ROOT" remote add origin https://github.com/libjxl/libjxl.git
+          git -C "$LIBJXL_ROOT" fetch --depth 1 origin "$LIBJXL_REVISION"
+          git -C "$LIBJXL_ROOT" checkout --detach FETCH_HEAD
+          test "$(git -C "$LIBJXL_ROOT" rev-parse HEAD)" = "$LIBJXL_REVISION"
+          git -C "$LIBJXL_ROOT" submodule update --init --recursive --depth 1
+          cmake -S "$LIBJXL_ROOT" -B "$LIBJXL_ROOT/build-pinned" -G Ninja \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DJPEGXL_ENABLE_BENCHMARK=OFF \
+            -DJPEGXL_ENABLE_EXAMPLES=OFF \
+            -DJPEGXL_ENABLE_JPEGLI=OFF \
+            -DJPEGXL_ENABLE_MANPAGES=OFF \
+            -DJPEGXL_ENABLE_PLUGINS=OFF \
+            -DJPEGXL_ENABLE_TESTS=OFF \
+            -DJPEGXL_ENABLE_TOOLS=ON
+          cmake --build "$LIBJXL_ROOT/build-pinned" --target cjxl djxl jxlinfo --parallel 2
+
+      - name: Build pinned independent Rust decoders
+        env:
+          JXL_OXIDE_REVISION: c0cc4c7ea57c1207f38ff2970d94757470613be4
+          JXL_RS_REVISION: 07ab48fcccde0a73c384b4011520fec67e5e09cd
+        run: |
+          rustup toolchain install 1.89.0 --profile minimal
+          rustup override set 1.89.0
+          mkdir -p .tmp/jpegxl-oracles/jxl-rs-07ab48f
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f init
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f remote add origin https://github.com/libjxl/jxl-rs.git
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f fetch --depth 1 origin "$JXL_RS_REVISION"
+          git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/jxl-rs-07ab48f rev-parse HEAD)" = "$JXL_RS_REVISION"
+          cargo build --release --locked \
+            --manifest-path .tmp/jpegxl-oracles/jxl-rs-07ab48f/jxl_cli/Cargo.toml
+          mkdir -p .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 init
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 remote add origin https://github.com/tirr-c/jxl-oxide.git
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 fetch --depth 1 origin "$JXL_OXIDE_REVISION"
+          git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7 rev-parse HEAD)" = "$JXL_OXIDE_REVISION"
+          cargo build --release --locked \
+            --manifest-path .tmp/jpegxl-oracles/jxl-oxide-c0cc4c7/Cargo.toml \
+            -p jxl-oxide-cli --bin jxl-oxide
+
+      - name: Build pinned comparison encoders
+        env:
+          IMAZEN_LOCK_SHA256: 69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040
+          IMAZEN_REVISION: d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b
+          SIMPLE_REVISION: 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf
+        run: |
+          mkdir -p .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f init
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f remote add origin https://github.com/libjxl/simple-lossless-encoder.git
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f fetch --depth 1 origin "$SIMPLE_REVISION"
+          git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f rev-parse HEAD)" = "$SIMPLE_REVISION"
+          make -C .tmp/jpegxl-oracles/simple-lossless-encoder-7b9f14f
+          mkdir -p .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 init
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 remote add origin https://github.com/imazen/jxl-encoder.git
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 fetch --depth 1 origin "$IMAZEN_REVISION"
+          git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 checkout --detach FETCH_HEAD
+          test "$(git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 rev-parse HEAD)" = "$IMAZEN_REVISION"
+          cargo generate-lockfile \
+            --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml
+          echo "$IMAZEN_LOCK_SHA256  .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.lock" | sha256sum --check
+          cargo build --release --locked \
+            --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml \
+            -p jxl-encoder-cli
+
+      - name: Verify pinned official conformance inputs
+        run: npm run fixtures:jpegxl:prepare
+
+      - name: Prepare pinned JPEG reconstruction inputs
+        run: >-
+          npm run fixtures:prepare --
+          tundra-4000x3000
+          tundra-4000x3000-progressive
+
+      - name: Run focused JPEG XL and neighboring JPEG tests
+        run: >-
+          npx vitest run
+          tests/jpeg-marker-walk.test.ts
+          tests/jpegxl.test.ts
+          tests/jpegxl-corpus.test.ts
+          tests/jpegxl-jpeg-reconstruction.test.ts
+          tests/jpegxl-workbench-preview.test.ts
+          tests/jpegxl-worker-protocol.test.ts
+          tests/jpeg.test.ts
+          tests/capability-manifest.test.ts
+
+      - name: Generate the pinned lossless matrix
+        run: npm run fixtures:jpegxl:generate
+
+      - name: Run pinned lossless matrix
+        run: npm run fixtures:jpegxl:matrix
+
+      - name: Run exact JPEG reconstruction matrix
+        run: >-
+          node benchmark/jpegxl/run-jpeg-reconstruction-matrix.ts
+          .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+
+      - name: Run PureJsImage reverse exact-transcode matrix
+        run: >-
+          node benchmark/jpegxl/run-purejsimage-reverse-matrix.ts
+          .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+          --output .tmp/jpegxl-evidence/reverse.json
+
+      - name: Run PureJsImage pixel encoder matrix
+        run: >-
+          npm run fixtures:jpegxl:encoder-matrix --
+          --output .tmp/jpegxl-evidence/encoder.json
+
+      - name: Run lossless compression gate
+        run: >-
+          npm run bench:jpegxl:compression --
+          --output .tmp/jpegxl-evidence/compression.json
+
+      - name: Run correctness-gated JPEG XL benchmark
+        run: >-
+          npm run bench:jpegxl --
+          --output .tmp/jpegxl-evidence/benchmark.json
+        env:
+          PUREJSIMAGE_JPEGXL_ORACLE_DIR: .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+
+      - name: Run JPEG XL memory benchmarks
+        run: |
+          node benchmark/jpegxl/run-memory.ts --output .tmp/jpegxl-evidence/memory.json
+          node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-evidence/vardct-memory.json
+
+      - name: Build final JPEG XL evidence
+        run: >-
+          npm run bench:jpegxl:evidence --
+          --input-dir .tmp/jpegxl-evidence
+          --output .tmp/jpegxl-evidence/jpegxl-release-hardening.json
+
+      - name: Upload final JPEG XL evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: jpegxl-release-hardening-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            .tmp/jpegxl-evidence/jpegxl-release-hardening.json
+            .tmp/jpegxl-evidence/jpegxl-release-hardening.md
+          if-no-files-found: error
+
+  browser:
+    name: Workbench ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001 --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Prepare pinned JPEG XL workbench input
+        run: npm run fixtures:prepare -- tundra-4000x3000
+
+      - name: Prepare pinned HDF5 browser fixture
+        run: npm run fixtures:hdf5:prepare
+
+      - name: Install pinned scientific browser competitors
+        run: npm ci --prefix benchmark/competitors-js --no-fund --no-audit
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Run local-only JPEG XL workbench tests
+        run: >-
+          npx playwright test browser-tests/jpegxl-workbench.pw.ts
+          --project=${{ matrix.browser }}
+          --retries=0

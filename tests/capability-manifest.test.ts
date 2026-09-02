@@ -160,13 +160,13 @@ describe('generated codec capability contract', () => {
     }
   })
 
-  it('lists the registered limited JPEG XL pixel decoder without claiming broader support', async () => {
+  it('lists the registered limited JPEG XL decoder and experimental encoder', async () => {
     const manifest = await readCapabilityManifest()
     const jpegxl = manifest.codecs.find(({ id }) => id === 'jpegxl')
     if (!jpegxl) throw new Error('Missing JPEG XL capability manifest')
 
     expect(jpegxl.packageFormat).toBe('jpegxl')
-    expect(readFileSync('README.md', 'utf8')).toContain('| JPEG XL | Limited | No |')
+    expect(readFileSync('README.md', 'utf8')).toContain('| JPEG XL | Limited | Experimental |')
     expect(readFileSync('docs-astro/src/pages/codecs.astro', 'utf8')).toContain(
       '<strong>JPEG XL</strong>',
     )
@@ -175,7 +175,7 @@ describe('generated codec capability contract', () => {
     expect(llmsGuide).toContain('### JPEG XL')
     expect(llmsGuide).toContain("from 'purejsimage/codecs/jpegxl'")
     expect(codecCapabilityExpectations.codecs).toContainEqual(
-      expect.objectContaining({ id: 'jpegxl', format: 'jpegxl', decoder: true, encoder: false }),
+      expect.objectContaining({ id: 'jpegxl', format: 'jpegxl', decoder: true, encoder: true }),
     )
   })
 

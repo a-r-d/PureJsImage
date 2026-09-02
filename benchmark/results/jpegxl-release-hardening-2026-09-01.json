@@ -1,0 +1,1609 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-01T21:44:41.213Z",
+  "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+  "branch": "jpeg-xl-revamp",
+  "status": "Experimental",
+  "validation": {
+    "passed": true,
+    "encoderCases": 7,
+    "reverseTranscodeCases": 10,
+    "benchmarkWorkloads": 4,
+    "modularMemoryWorkloads": 2,
+    "varDctMemoryWorkloads": 8,
+    "policy": "Every advertised encoder format passed exact native-sample validation through applicable pinned decoders. Every eligible reverse-transcode case reconstructed exact JPEG bytes. Memory and compression results remain correctness-gated."
+  },
+  "oracleRevisions": {
+    "libjxl": "a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)",
+    "jxlRs": "07ab48fcccde0a73c384b4011520fec67e5e09cd",
+    "jxlOxide": "c0cc4c7ea57c1207f38ff2970d94757470613be4",
+    "simpleLosslessEncoder": "7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+    "imazenJxlEncoder": "d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
+    "imazenResolvedCargoLockSha256": "69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040",
+    "independentJpegDecoder": "sharp 0.35.3"
+  },
+  "commands": [
+    "node benchmark/jpegxl/run-purejsimage-reverse-matrix.ts .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools --output .tmp/jpegxl-evidence/reverse.json",
+    "npm run fixtures:jpegxl:encoder-matrix -- --output .tmp/jpegxl-evidence/encoder.json",
+    "npm run bench:jpegxl:compression -- --output .tmp/jpegxl-evidence/compression.json",
+    "PUREJSIMAGE_JPEGXL_ORACLE_DIR=.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools npm run bench:jpegxl -- --output .tmp/jpegxl-evidence/benchmark.json",
+    "node benchmark/jpegxl/run-memory.ts --output .tmp/jpegxl-evidence/memory.json",
+    "node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-evidence/vardct-memory.json"
+  ],
+  "unsupportedClassifications": [
+    "general lossy VarDCT encoding",
+    "complete multi-group VarDCT photo decode",
+    "animation",
+    "Level 10 pixel decode",
+    "arbitrary extra-channel extraction",
+    "universal ICC support",
+    "CMYK or YCCK exact JPEG transcode",
+    "universal exact JPEG eligibility",
+    "jxl-oxide unsigned 16-bit Modular samples above 32767 at the pinned revision"
+  ],
+  "compressionDecision": "The encoder remains Experimental because its corpus compression distribution does not meet the stable threshold.",
+  "reports": {
+    "encoderMatrix": {
+      "schemaVersion": 1,
+      "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+      "revisions": {
+        "libjxl": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxlOxide": "c0cc4c7ea57c1207f38ff2970d94757470613be4",
+        "jxlRs": "07ab48fcccde0a73c384b4011520fec67e5e09cd"
+      },
+      "validation": "exact native samples",
+      "cases": [
+        {
+          "id": "gray8-line-art-odd",
+          "imageClass": "line-art",
+          "width": 9,
+          "height": 7,
+          "format": "gray8",
+          "container": false,
+          "inputBytes": 63,
+          "inputSha256": "443369d783fc715f6445f9634a6c045c9437f0c43edadd4b38b66c48a4e063c9",
+          "outputBytes": 65,
+          "outputSha256": "b3d0efb206801ba98e9b17ee309ba7dcf612d3509da10e807216dac56246dc70",
+          "inspection": {
+            "kind": "raw-codestream",
+            "organization": "raw",
+            "codestreamBytes": 65,
+            "codestreamSegments": [
+              {
+                "offset": 0,
+                "length": 65,
+                "index": 0
+              }
+            ],
+            "boxes": [],
+            "metadataBoxes": [],
+            "width": 9,
+            "height": 7,
+            "displayWidth": 9,
+            "displayHeight": 7,
+            "orientation": 1,
+            "bitDepth": 8,
+            "exponentBits": 0,
+            "colorChannels": 1,
+            "extraChannels": 0,
+            "alpha": "none",
+            "encodedColor": "gray",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "gray8",
+            "resourceEstimates": {
+              "codestreamBytes": 65,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 63
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL image, 9x7, (possibly) lossless, 8-bit Grayscale\nColor space: Grayscale\nWhite point: D65\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "gray8",
+              "outputSha256": "443369d783fc715f6445f9634a6c045c9437f0c43edadd4b38b66c48a4e063c9",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n9 x 7, 0.152 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "gray8",
+              "outputSha256": "443369d783fc715f6445f9634a6c045c9437f0c43edadd4b38b66c48a4e063c9",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "exact-native-samples",
+              "pixelFormat": "gray8",
+              "outputSha256": "443369d783fc715f6445f9634a6c045c9437f0c43edadd4b38b66c48a4e063c9",
+              "diagnostic": ""
+            }
+          }
+        },
+        {
+          "id": "gray16-gradient-odd",
+          "imageClass": "gradient",
+          "width": 11,
+          "height": 5,
+          "format": "gray16",
+          "container": true,
+          "inputBytes": 110,
+          "inputSha256": "1763aabe45ccdb6683907bc53f2d4201a1cf64c3202aae6750d768323512d798",
+          "outputBytes": 163,
+          "outputSha256": "ff74f53571665b2fbf24ec1cd865f2506be755262d70ac9e9d5aa8ad73d0bd19",
+          "inspection": {
+            "kind": "container",
+            "organization": "jxlc",
+            "containerVersion": 0,
+            "codestreamBytes": 123,
+            "codestreamSegments": [
+              {
+                "offset": 40,
+                "length": 123,
+                "index": 0
+              }
+            ],
+            "boxes": [
+              {
+                "type": "JXL ",
+                "offset": 0,
+                "length": 12,
+                "payloadBytes": 4
+              },
+              {
+                "type": "ftyp",
+                "offset": 12,
+                "length": 20,
+                "payloadBytes": 12
+              },
+              {
+                "type": "jxlc",
+                "offset": 32,
+                "length": 131,
+                "payloadBytes": 123
+              }
+            ],
+            "metadataBoxes": [],
+            "width": 11,
+            "height": 5,
+            "displayWidth": 11,
+            "displayHeight": 5,
+            "orientation": 1,
+            "bitDepth": 16,
+            "exponentBits": 0,
+            "colorChannels": 1,
+            "extraChannels": 0,
+            "alpha": "none",
+            "encodedColor": "gray",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "gray16",
+            "resourceEstimates": {
+              "codestreamBytes": 123,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 110
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL file format container (ISO/IEC 18181-2)\nJPEG XL image, 11x5, (possibly) lossless, 16-bit Grayscale\nColor space: Grayscale\nWhite point: D65\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "gray16",
+              "outputSha256": "1763aabe45ccdb6683907bc53f2d4201a1cf64c3202aae6750d768323512d798",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n11 x 5, 0.169 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "gray16",
+              "outputSha256": "1763aabe45ccdb6683907bc53f2d4201a1cf64c3202aae6750d768323512d798",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "pinned-decoder-limitation-signed-16-bit-modular",
+              "pixelFormat": "gray16",
+              "outputSha256": "53c28847730320806082057b3b400ec7d5b0d638293b776b2e6ad6c9b973e939",
+              "affectedSamples": 23,
+              "totalSamples": 55,
+              "diagnostic": ""
+            }
+          }
+        },
+        {
+          "id": "rgb8-photo-like-odd",
+          "imageClass": "photo-like",
+          "width": 13,
+          "height": 9,
+          "format": "rgb8",
+          "container": false,
+          "inputBytes": 351,
+          "inputSha256": "b9a0cc44a2ac5a778b6d9cf40779e3b84222809689327c56c9dabc6e3b2e3e0c",
+          "outputBytes": 384,
+          "outputSha256": "ab29d7cebde7fd5d6c68163952761198424b18f905ac5366de45436c067948b5",
+          "inspection": {
+            "kind": "raw-codestream",
+            "organization": "raw",
+            "codestreamBytes": 384,
+            "codestreamSegments": [
+              {
+                "offset": 0,
+                "length": 384,
+                "index": 0
+              }
+            ],
+            "boxes": [],
+            "metadataBoxes": [],
+            "width": 13,
+            "height": 9,
+            "displayWidth": 13,
+            "displayHeight": 9,
+            "orientation": 1,
+            "bitDepth": 8,
+            "exponentBits": 0,
+            "colorChannels": 3,
+            "extraChannels": 0,
+            "alpha": "none",
+            "encodedColor": "srgb",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "rgb8",
+            "resourceEstimates": {
+              "codestreamBytes": 384,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 351
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL image, 13x9, (possibly) lossless, 8-bit RGB\nColor space: RGB\nWhite point: D65\nPrimaries: sRGB\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb8",
+              "outputSha256": "b9a0cc44a2ac5a778b6d9cf40779e3b84222809689327c56c9dabc6e3b2e3e0c",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n13 x 9, 0.364 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb8",
+              "outputSha256": "b9a0cc44a2ac5a778b6d9cf40779e3b84222809689327c56c9dabc6e3b2e3e0c",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb8",
+              "outputSha256": "b9a0cc44a2ac5a778b6d9cf40779e3b84222809689327c56c9dabc6e3b2e3e0c",
+              "diagnostic": ""
+            }
+          }
+        },
+        {
+          "id": "rgb16-gradient-odd",
+          "imageClass": "gradient",
+          "width": 7,
+          "height": 11,
+          "format": "rgb16",
+          "container": true,
+          "inputBytes": 462,
+          "inputSha256": "72b8f75189f66142aed48ab04356a8bfa82ac029b9c7270e2a8f1e1c57aaa150",
+          "outputBytes": 612,
+          "outputSha256": "f9528fd6aeb03643fb7271f2eb6982d3b62e3d2ed63494578c5f846783c44c64",
+          "inspection": {
+            "kind": "container",
+            "organization": "jxlc",
+            "containerVersion": 0,
+            "codestreamBytes": 572,
+            "codestreamSegments": [
+              {
+                "offset": 40,
+                "length": 572,
+                "index": 0
+              }
+            ],
+            "boxes": [
+              {
+                "type": "JXL ",
+                "offset": 0,
+                "length": 12,
+                "payloadBytes": 4
+              },
+              {
+                "type": "ftyp",
+                "offset": 12,
+                "length": 20,
+                "payloadBytes": 12
+              },
+              {
+                "type": "jxlc",
+                "offset": 32,
+                "length": 580,
+                "payloadBytes": 572
+              }
+            ],
+            "metadataBoxes": [],
+            "width": 7,
+            "height": 11,
+            "displayWidth": 7,
+            "displayHeight": 11,
+            "orientation": 1,
+            "bitDepth": 16,
+            "exponentBits": 0,
+            "colorChannels": 3,
+            "extraChannels": 0,
+            "alpha": "none",
+            "encodedColor": "srgb",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "rgb16",
+            "resourceEstimates": {
+              "codestreamBytes": 572,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 462
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL file format container (ISO/IEC 18181-2)\nJPEG XL image, 7x11, (possibly) lossless, 16-bit RGB\nColor space: RGB\nWhite point: D65\nPrimaries: sRGB\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb16",
+              "outputSha256": "72b8f75189f66142aed48ab04356a8bfa82ac029b9c7270e2a8f1e1c57aaa150",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n7 x 11, 0.235 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb16",
+              "outputSha256": "72b8f75189f66142aed48ab04356a8bfa82ac029b9c7270e2a8f1e1c57aaa150",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "pinned-decoder-limitation-signed-16-bit-modular",
+              "pixelFormat": "rgb16",
+              "outputSha256": "d8df4a03eeb745fa1818a5dcfe5b8879b3a0eeddd31bc23fd53e161f108a732e",
+              "affectedSamples": 135,
+              "totalSamples": 231,
+              "diagnostic": ""
+            }
+          }
+        },
+        {
+          "id": "rgba8-alpha-heavy-odd",
+          "imageClass": "alpha-heavy",
+          "width": 15,
+          "height": 9,
+          "format": "rgba8",
+          "container": false,
+          "inputBytes": 540,
+          "inputSha256": "73efb374666350cfd9b66eca8623d5e0bb3dbfc29383056862d00cc74fb3b6b4",
+          "outputBytes": 534,
+          "outputSha256": "98eb166858ce11987bc0b7add81d45d94e2c8e696dde8c49bde6dbcfe238d46f",
+          "inspection": {
+            "kind": "raw-codestream",
+            "organization": "raw",
+            "codestreamBytes": 534,
+            "codestreamSegments": [
+              {
+                "offset": 0,
+                "length": 534,
+                "index": 0
+              }
+            ],
+            "boxes": [],
+            "metadataBoxes": [],
+            "width": 15,
+            "height": 9,
+            "displayWidth": 15,
+            "displayHeight": 9,
+            "orientation": 1,
+            "bitDepth": 8,
+            "exponentBits": 0,
+            "colorChannels": 3,
+            "extraChannels": 1,
+            "alpha": "straight",
+            "encodedColor": "srgb",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "rgba8",
+            "resourceEstimates": {
+              "codestreamBytes": 534,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 540
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL image, 15x9, (possibly) lossless, 8-bit RGB+Alpha\nColor space: RGB\nWhite point: D65\nPrimaries: sRGB\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgba8",
+              "outputSha256": "73efb374666350cfd9b66eca8623d5e0bb3dbfc29383056862d00cc74fb3b6b4",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n15 x 9, 0.374 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgba8",
+              "outputSha256": "73efb374666350cfd9b66eca8623d5e0bb3dbfc29383056862d00cc74fb3b6b4",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgba8",
+              "outputSha256": "73efb374666350cfd9b66eca8623d5e0bb3dbfc29383056862d00cc74fb3b6b4",
+              "diagnostic": ""
+            }
+          }
+        },
+        {
+          "id": "rgba16-alpha-heavy-odd",
+          "imageClass": "alpha-heavy",
+          "width": 9,
+          "height": 13,
+          "format": "rgba16",
+          "container": true,
+          "inputBytes": 936,
+          "inputSha256": "1dbde2387271832afa28401bf4dffbdc2fa367e4361ba4c30df542727ef79b73",
+          "outputBytes": 1044,
+          "outputSha256": "510409a56d91308892787e068e765e39d9077469155fa483f37d2c53eb6fdea3",
+          "inspection": {
+            "kind": "container",
+            "organization": "jxlc",
+            "containerVersion": 0,
+            "codestreamBytes": 1004,
+            "codestreamSegments": [
+              {
+                "offset": 40,
+                "length": 1004,
+                "index": 0
+              }
+            ],
+            "boxes": [
+              {
+                "type": "JXL ",
+                "offset": 0,
+                "length": 12,
+                "payloadBytes": 4
+              },
+              {
+                "type": "ftyp",
+                "offset": 12,
+                "length": 20,
+                "payloadBytes": 12
+              },
+              {
+                "type": "jxlc",
+                "offset": 32,
+                "length": 1012,
+                "payloadBytes": 1004
+              }
+            ],
+            "metadataBoxes": [],
+            "width": 9,
+            "height": 13,
+            "displayWidth": 9,
+            "displayHeight": 13,
+            "orientation": 1,
+            "bitDepth": 16,
+            "exponentBits": 0,
+            "colorChannels": 3,
+            "extraChannels": 1,
+            "alpha": "straight",
+            "encodedColor": "srgb",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "rgba16",
+            "resourceEstimates": {
+              "codestreamBytes": 1004,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 936
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL file format container (ISO/IEC 18181-2)\nJPEG XL image, 9x13, (possibly) lossless, 16-bit RGB+Alpha\nColor space: RGB\nWhite point: D65\nPrimaries: sRGB\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgba16",
+              "outputSha256": "1dbde2387271832afa28401bf4dffbdc2fa367e4361ba4c30df542727ef79b73",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n9 x 13, 0.316 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgba16",
+              "outputSha256": "1dbde2387271832afa28401bf4dffbdc2fa367e4361ba4c30df542727ef79b73",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "pinned-decoder-limitation-signed-16-bit-modular",
+              "pixelFormat": "rgba16",
+              "outputSha256": "ebff7f87147cb9b546e1e8633da8bbb8febbfd571783b4a47971935dbcd05bbe",
+              "affectedSamples": 173,
+              "totalSamples": 468,
+              "diagnostic": ""
+            }
+          }
+        },
+        {
+          "id": "rgb8-photo-like-multigroup",
+          "imageClass": "photo-like",
+          "width": 1031,
+          "height": 7,
+          "format": "rgb8",
+          "container": true,
+          "inputBytes": 21651,
+          "inputSha256": "39bd8e29bc12cb815d7b682bf36e8b88f29103b2c73318498881a2d78bbf1188",
+          "outputBytes": 13163,
+          "outputSha256": "b93fc485d85b3920a676058bad2abf1d838d804d61498a0cc06bf0dcaae343fe",
+          "inspection": {
+            "kind": "container",
+            "organization": "jxlc",
+            "containerVersion": 0,
+            "codestreamBytes": 13123,
+            "codestreamSegments": [
+              {
+                "offset": 40,
+                "length": 13123,
+                "index": 0
+              }
+            ],
+            "boxes": [
+              {
+                "type": "JXL ",
+                "offset": 0,
+                "length": 12,
+                "payloadBytes": 4
+              },
+              {
+                "type": "ftyp",
+                "offset": 12,
+                "length": 20,
+                "payloadBytes": 12
+              },
+              {
+                "type": "jxlc",
+                "offset": 32,
+                "length": 13131,
+                "payloadBytes": 13123
+              }
+            ],
+            "metadataBoxes": [],
+            "width": 1031,
+            "height": 7,
+            "displayWidth": 1031,
+            "displayHeight": 7,
+            "orientation": 1,
+            "bitDepth": 8,
+            "exponentBits": 0,
+            "colorChannels": 3,
+            "extraChannels": 0,
+            "alpha": "none",
+            "encodedColor": "srgb",
+            "icc": {
+              "present": false
+            },
+            "encoding": "modular",
+            "imageKind": "static",
+            "preview": false,
+            "frameCount": 1,
+            "progressivePasses": 1,
+            "jpegReconstruction": "unavailable",
+            "exactReconstructionEligibility": "unavailable",
+            "expectedPixelFormat": "rgb8",
+            "resourceEstimates": {
+              "codestreamBytes": 13123,
+              "metadataBytes": 0,
+              "nativeSampleBytes": 21651
+            },
+            "unsupportedFeatures": [
+              "animation",
+              "preview decode",
+              "Level 10 pixel decode",
+              "exact JPEG reconstruction"
+            ]
+          },
+          "jxlinfo": "JPEG XL file format container (ISO/IEC 18181-2)\nJPEG XL image, 1031x7, (possibly) lossless, 8-bit RGB\nColor space: RGB\nWhite point: D65\nPrimaries: sRGB\nTransfer function: sRGB\nRendering intent: Relative",
+          "decoders": {
+            "djxl": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb8",
+              "outputSha256": "39bd8e29bc12cb815d7b682bf36e8b88f29103b2c73318498881a2d78bbf1188",
+              "diagnostic": "JPEG XL decoder v0.12.0 8cb67e2 [_AVX2_,SSE4,SSE2] {GNU 15.2.0}\nDecoded to pixels.\n1031 x 7, 11.135 MP/s, 16 threads."
+            },
+            "jxl-rs": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb8",
+              "outputSha256": "39bd8e29bc12cb815d7b682bf36e8b88f29103b2c73318498881a2d78bbf1188",
+              "diagnostic": ""
+            },
+            "jxl-oxide": {
+              "status": "exact-native-samples",
+              "pixelFormat": "rgb8",
+              "outputSha256": "39bd8e29bc12cb815d7b682bf36e8b88f29103b2c73318498881a2d78bbf1188",
+              "diagnostic": ""
+            }
+          }
+        }
+      ]
+    },
+    "reverseTranscodeMatrix": {
+      "schemaVersion": 1,
+      "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+      "oracle": "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)",
+      "jpegOracle": "sharp-0.35.3",
+      "results": [
+        {
+          "id": "baseline-yuv420",
+          "profile": "baseline YCbCr 4:2:0 with generated quantization and Huffman tables",
+          "sourceBytes": 1311,
+          "jxlBytes": 1563,
+          "sourceSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+          "jxlSha256": "f76cec63be2f8c73506692981984b76111932f2a52042f630fcd2142c95530ec",
+          "reconstructedSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 5,
+            "rmse": 1.0513639882557413
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.7455311437166584
+          }
+        },
+        {
+          "id": "baseline-yuv422-camera",
+          "profile": "baseline YCbCr 4:2:2 camera JPEG",
+          "sourceBytes": 4768216,
+          "jxlBytes": 9244031,
+          "sourceSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+          "jxlSha256": "e00f7e77399bd1e1b21c63abf2a8c84bbdb18cb546d3455f811c792eef959745",
+          "reconstructedSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 18,
+            "rmse": 0.8128437563408002
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 5,
+            "rmse": 0.7875110228505448
+          }
+        },
+        {
+          "id": "baseline-rgb444",
+          "profile": "baseline RGB 4:4:4 with Adobe marker",
+          "sourceBytes": 1416,
+          "jxlBytes": 1665,
+          "sourceSha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+          "jxlSha256": "ee2c37a7356a5195a0e21a6213a15a7aff3f6606d0780c034dc3a70fe2488af3",
+          "reconstructedSha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 3,
+            "rmse": 0.5986667521593383
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 1,
+            "rmse": 0.10472578110646295
+          }
+        },
+        {
+          "id": "progressive-yuv420-exif",
+          "profile": "progressive YCbCr 4:2:0 with Exif",
+          "sourceBytes": 1006,
+          "jxlBytes": 1896,
+          "sourceSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+          "jxlSha256": "d5150a3c5288fe517b5f69e2924f6404ec46d6f9c75c7b6d7048f130138f68d4",
+          "reconstructedSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 23,
+            "rmse": 0.832121514730738
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.14820980343193677
+          }
+        },
+        {
+          "id": "progressive-rgb-exif",
+          "profile": "progressive RGB 4:4:4 with Exif",
+          "sourceBytes": 1242,
+          "jxlBytes": 1422,
+          "sourceSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+          "jxlSha256": "bf594f520dea06da686b5e46310059cc87244e902fee1c05ea2b64f6f083ecd9",
+          "reconstructedSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 1,
+            "rmse": 0.2658597818608733
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 0,
+            "rmse": 0
+          }
+        },
+        {
+          "id": "progressive-custom-scans",
+          "profile": "progressive YCbCr with successive approximation refinement",
+          "sourceBytes": 1064,
+          "jxlBytes": 1268,
+          "sourceSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+          "jxlSha256": "fd43270a245b6f3ef2fbbb6a00e9785cb7b0bae2bc9f6dc4e8c9bf2d5252b317",
+          "reconstructedSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 5,
+            "rmse": 1.0513639882557413
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.7455311437166584
+          }
+        },
+        {
+          "id": "sequential-multiscan",
+          "profile": "baseline YCbCr with separate component scans",
+          "sourceBytes": 1320,
+          "jxlBytes": 1572,
+          "sourceSha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+          "jxlSha256": "1eaa30ba87bff89d3905352b271e544fe63151fd6fa6ebd620f8dbd51ef67abd",
+          "reconstructedSha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 5,
+            "rmse": 1.0513639882557413
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.7455311437166584
+          }
+        },
+        {
+          "id": "progressive-yuv420-camera",
+          "profile": "large progressive YCbCr 4:2:0 camera JPEG",
+          "sourceBytes": 2855050,
+          "jxlBytes": 7826678,
+          "sourceSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+          "jxlSha256": "a731c0b239c605144304714395078418c04b86832bdd2a2292a84815d8de46bc",
+          "reconstructedSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 17,
+            "rmse": 0.8803911693736547
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 4,
+            "rmse": 0.7659722579832771
+          }
+        },
+        {
+          "id": "baseline-yuv420-metadata-markers",
+          "profile": "baseline YCbCr 4:2:0 with ICC, XMP, COM, and bounded unknown APP15 markers",
+          "sourceBytes": 2110,
+          "jxlBytes": 2370,
+          "sourceSha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+          "jxlSha256": "37871a935c383dab08a682010a3e5708b6682b8dba6eb1e7ae374fa117ec117e",
+          "reconstructedSha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 5,
+            "rmse": 1.0513639882557413
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.7455311437166584
+          }
+        },
+        {
+          "id": "baseline-yuv420-restart-interval",
+          "profile": "baseline YCbCr 4:2:0 with a DRI segment and ordered restart markers",
+          "sourceBytes": 497,
+          "jxlBytes": 566,
+          "sourceSha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+          "jxlSha256": "a7f1614d5ab850e5891a22e888477058c52a5bf9e4dea1065d4a1196a754b4fd",
+          "reconstructedSha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+          "exact": true,
+          "djxlPixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.6867104051603963
+          },
+          "pureJsImagePixelComparison": {
+            "maximumAbsoluteError": 2,
+            "rmse": 0.6263873490988712
+          }
+        }
+      ]
+    },
+    "compressionGate": {
+      "schemaVersion": 1,
+      "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+      "status": "experimental-thresholds-not-promoted",
+      "managedMemoryNote": "The compared CLIs and the current Modular encoder do not expose a common managed-memory ledger. null is reported instead of substituting process RSS.",
+      "revisions": {
+        "libjxl": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "simpleLosslessEncoder": "7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+        "imazenJxlEncoder": "d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
+        "imazenResolvedCargoLockSha256": "69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040"
+      },
+      "files": [
+        {
+          "id": "line-art",
+          "imageClass": "line-art",
+          "width": 257,
+          "height": 193,
+          "channels": 3,
+          "nativeBytes": 148803,
+          "encoders": {
+            "png": {
+              "bytes": 563,
+              "milliseconds": 3.3260270000000105,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "webpLossless": {
+              "bytes": 72,
+              "milliseconds": 2.4129520000000184,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "pureJsImage": {
+              "bytes": 29130,
+              "milliseconds": 16.92038500000001,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort1": {
+              "bytes": 724,
+              "milliseconds": 4.172208000000012,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort7": {
+              "bytes": 100,
+              "milliseconds": 13.056488000000002,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "simpleLossless": {
+              "bytes": 1415,
+              "milliseconds": 64.88243700000004,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "imazen": {
+              "bytes": 157,
+              "milliseconds": 47.60437099999996,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            }
+          }
+        },
+        {
+          "id": "gradient",
+          "imageClass": "gradient",
+          "width": 320,
+          "height": 181,
+          "channels": 3,
+          "nativeBytes": 173760,
+          "encoders": {
+            "png": {
+              "bytes": 1688,
+              "milliseconds": 3.9459149999999568,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "webpLossless": {
+              "bytes": 1356,
+              "milliseconds": 103.07752799999997,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "pureJsImage": {
+              "bytes": 31275,
+              "milliseconds": 13.019094999999993,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort1": {
+              "bytes": 41320,
+              "milliseconds": 3.835047999999972,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort7": {
+              "bytes": 217,
+              "milliseconds": 28.829124000000036,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "simpleLossless": {
+              "bytes": 41318,
+              "milliseconds": 41.543693000000076,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "imazen": {
+              "bytes": 639,
+              "milliseconds": 75.84441200000003,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            }
+          }
+        },
+        {
+          "id": "alpha-heavy",
+          "imageClass": "alpha-heavy",
+          "width": 257,
+          "height": 257,
+          "channels": 4,
+          "nativeBytes": 264196,
+          "encoders": {
+            "png": {
+              "bytes": 117518,
+              "milliseconds": 27.701948000000016,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "webpLossless": {
+              "status": "not-applicable-hidden-rgb-is-not-native-sample-exact",
+              "bytes": null,
+              "milliseconds": null,
+              "exactNativeSamples": false,
+              "managedPeakBytes": null
+            },
+            "pureJsImage": {
+              "bytes": 191292,
+              "milliseconds": 28.536076999999977,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort1": {
+              "bytes": 213107,
+              "milliseconds": 5.256530999999995,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort7": {
+              "bytes": 65202,
+              "milliseconds": 83.41795599999989,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "simpleLossless": {
+              "bytes": 214645,
+              "milliseconds": 27.82698000000005,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "imazen": {
+              "bytes": 23173,
+              "milliseconds": 489.91975200000013,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            }
+          }
+        },
+        {
+          "id": "photo-like",
+          "imageClass": "photo-like",
+          "width": 640,
+          "height": 360,
+          "channels": 3,
+          "nativeBytes": 691200,
+          "encoders": {
+            "png": {
+              "bytes": 48423,
+              "milliseconds": 50.816986999999926,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "webpLossless": {
+              "bytes": 5488,
+              "milliseconds": 405.27853300000015,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "pureJsImage": {
+              "bytes": 292294,
+              "milliseconds": 38.84153400000014,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort1": {
+              "bytes": 380160,
+              "milliseconds": 6.426641000000018,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort7": {
+              "bytes": 67186,
+              "milliseconds": 123.0530839999999,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "simpleLossless": {
+              "bytes": 400834,
+              "milliseconds": 37.97394800000029,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "imazen": {
+              "bytes": 59546,
+              "milliseconds": 877.8279389999998,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            }
+          }
+        },
+        {
+          "id": "noise",
+          "imageClass": "noise",
+          "width": 255,
+          "height": 255,
+          "channels": 3,
+          "nativeBytes": 195075,
+          "encoders": {
+            "png": {
+              "bytes": 195750,
+              "milliseconds": 6.664354000000003,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "webpLossless": {
+              "bytes": 102122,
+              "milliseconds": 300.5970619999998,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "pureJsImage": {
+              "bytes": 211444,
+              "milliseconds": 23.61733699999968,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort1": {
+              "bytes": 221572,
+              "milliseconds": 4.771520000000237,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "libjxlEffort7": {
+              "bytes": 176244,
+              "milliseconds": 104.90071799999987,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "simpleLossless": {
+              "bytes": 222932,
+              "milliseconds": 39.11139099999991,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            },
+            "imazen": {
+              "bytes": 113981,
+              "milliseconds": 460.414444,
+              "exactNativeSamples": true,
+              "managedPeakBytes": null
+            }
+          }
+        }
+      ],
+      "summaries": {
+        "pureJsImage": {
+          "ratioToPng": {
+            "median": 6.03626375895752,
+            "p90": 51.740674955595026,
+            "worst": 51.740674955595026
+          },
+          "byClass": {
+            "line-art": 51.740674955595026,
+            "gradient": 18.527843601895736,
+            "alpha-heavy": 1.6277676611242533,
+            "photo-like": 6.03626375895752,
+            "noise": 1.0801736909323116
+          }
+        },
+        "libjxlEffort1": {
+          "ratioToPng": {
+            "median": 1.8133987984819346,
+            "p90": 24.47867298578199,
+            "worst": 24.47867298578199
+          },
+          "byClass": {
+            "line-art": 1.285968028419183,
+            "gradient": 24.47867298578199,
+            "alpha-heavy": 1.8133987984819346,
+            "photo-like": 7.850814695495942,
+            "noise": 1.1319131545338441
+          }
+        },
+        "libjxlEffort7": {
+          "ratioToPng": {
+            "median": 0.554825643731173,
+            "p90": 1.387481155649175,
+            "worst": 1.387481155649175
+          },
+          "byClass": {
+            "line-art": 0.17761989342806395,
+            "gradient": 0.12855450236966826,
+            "alpha-heavy": 0.554825643731173,
+            "photo-like": 1.387481155649175,
+            "noise": 0.9003524904214559
+          }
+        },
+        "simpleLossless": {
+          "ratioToPng": {
+            "median": 2.5133214920071048,
+            "p90": 24.47748815165877,
+            "worst": 24.47748815165877
+          },
+          "byClass": {
+            "line-art": 2.5133214920071048,
+            "gradient": 24.47748815165877,
+            "alpha-heavy": 1.8264861553123777,
+            "photo-like": 8.27776056832497,
+            "noise": 1.1388607918263092
+          }
+        },
+        "imazen": {
+          "ratioToPng": {
+            "median": 0.37855450236966826,
+            "p90": 1.2297048923032443,
+            "worst": 1.2297048923032443
+          },
+          "byClass": {
+            "line-art": 0.27886323268206037,
+            "gradient": 0.37855450236966826,
+            "alpha-heavy": 0.19718681393488657,
+            "photo-like": 1.2297048923032443,
+            "noise": 0.5822784163473819
+          }
+        },
+        "png": {
+          "ratioToPng": {
+            "median": 1,
+            "p90": 1,
+            "worst": 1
+          },
+          "byClass": {
+            "line-art": 1,
+            "gradient": 1,
+            "alpha-heavy": 1,
+            "photo-like": 1,
+            "noise": 1
+          }
+        },
+        "webpLossless": {
+          "ratioToPng": {
+            "median": 0.12788632326820604,
+            "p90": 0.8033175355450237,
+            "worst": 0.8033175355450237
+          },
+          "byClass": {
+            "line-art": 0.12788632326820604,
+            "gradient": 0.8033175355450237,
+            "photo-like": 0.11333457241393553,
+            "noise": 0.5216960408684547
+          }
+        }
+      }
+    },
+    "benchmark": {
+      "schemaVersion": 1,
+      "generatedAt": "2026-09-01T21:44:04.990Z",
+      "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+      "node": "v24.16.0",
+      "platform": "linux/x64",
+      "runsPerWorkload": 3,
+      "validation": {
+        "passed": true,
+        "policy": "Every encode run decoded to exact native pixels; every transcode run reconstructed the exact source JPEG bytes.",
+        "independentOracle": {
+          "available": true,
+          "decoder": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl and djxl 0.12.0",
+          "exactPixels": true,
+          "pureJsBytes": 156693,
+          "libjxlBytes": 181608,
+          "sizeGapBytes": -24915,
+          "sizeRatio": 0.8628089070966036
+        }
+      },
+      "summaries": [
+        {
+          "workload": "encode-rgb8",
+          "validation": "exact-pixels",
+          "inputBytes": 589824,
+          "inputSha256": "1575ebbb694664b6b163566456f64dc7f564cb4fb9a42ab445936ba021201c41",
+          "outputBytes": 156693,
+          "outputSha256": "100ee3ff3fbc587404532d6a4b64ec1e8ca9c227945fd3f4c923c355fc368fb3",
+          "medianWallMilliseconds": 135.859,
+          "medianMaximumRssBytes": 118984704,
+          "medianPeakRssDeltaBytes": 13541376,
+          "medianExternalDeltaBytes": 4767675,
+          "medianArrayBufferDeltaBytes": 4707129,
+          "medianManagedPeakBytes": 0
+        },
+        {
+          "workload": "transcode-progressive-yuv420",
+          "validation": "exact-jpeg-bytes",
+          "inputBytes": 1006,
+          "inputSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+          "outputBytes": 1896,
+          "outputSha256": "d5150a3c5288fe517b5f69e2924f6404ec46d6f9c75c7b6d7048f130138f68d4",
+          "medianWallMilliseconds": 72.658,
+          "medianMaximumRssBytes": 122556416,
+          "medianPeakRssDeltaBytes": 15126528,
+          "medianExternalDeltaBytes": 5396775,
+          "medianArrayBufferDeltaBytes": 5336229,
+          "medianManagedPeakBytes": 235662
+        },
+        {
+          "workload": "transcode-baseline-12mp",
+          "validation": "exact-jpeg-bytes",
+          "inputBytes": 4768216,
+          "inputSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+          "outputBytes": 9244031,
+          "outputSha256": "e00f7e77399bd1e1b21c63abf2a8c84bbdb18cb546d3455f811c792eef959745",
+          "medianWallMilliseconds": 69853.55,
+          "medianMaximumRssBytes": 472137728,
+          "medianPeakRssDeltaBytes": 364580864,
+          "medianExternalDeltaBytes": 102492753,
+          "medianArrayBufferDeltaBytes": 102434747,
+          "medianManagedPeakBytes": 71256742
+        },
+        {
+          "workload": "transcode-progressive-12mp",
+          "validation": "exact-jpeg-bytes",
+          "inputBytes": 2855050,
+          "inputSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+          "outputBytes": 7826678,
+          "outputSha256": "a731c0b239c605144304714395078418c04b86832bdd2a2292a84815d8de46bc",
+          "medianWallMilliseconds": 65183.777,
+          "medianMaximumRssBytes": 415698944,
+          "medianPeakRssDeltaBytes": 309596160,
+          "medianExternalDeltaBytes": 68260012,
+          "medianArrayBufferDeltaBytes": 68202006,
+          "medianManagedPeakBytes": 54604870
+        }
+      ],
+      "hillclimb": {
+        "status": "complete",
+        "baseRevision": "e68cfafc3773b913899330ebf12956b617c72264",
+        "workload": "512x384 deterministic RGB8 effort-1 Modular encode and exact decode",
+        "baseline": {
+          "medianWallMilliseconds": 196.939,
+          "outputBytes": 156693,
+          "outputSha256": "100ee3ff3fbc587404532d6a4b64ec1e8ca9c227945fd3f4c923c355fc368fb3"
+        },
+        "attempts": [
+          {
+            "id": "residual-token-scalars",
+            "hypothesis": "Replacing one frozen hybrid-token object per residual with scalar token math will reduce allocation and dispatch cost.",
+            "outcome": "retained",
+            "medianWallMilliseconds": 168.306,
+            "changeFromPriorPercent": -14.539,
+            "outputBytes": 156693,
+            "correctness": "PureJsImage exact pixels and pinned djxl 0.12.0 exact pixels"
+          },
+          {
+            "id": "duplicate-residual-traversals",
+            "hypothesis": "Duplicating frequency and write traversals to remove the residual callback will make the hot loop more JIT friendly.",
+            "outcome": "rejected",
+            "medianWallMilliseconds": 434.083,
+            "changeFromPriorPercent": 157.913,
+            "outputBytes": 156693,
+            "correctness": "Exact output retained, but wall time regressed materially"
+          },
+          {
+            "id": "byte-chunked-bit-writer",
+            "hypothesis": "Writing at most one partial byte per iteration instead of one bit per iteration will reduce output-loop work.",
+            "outcome": "retained",
+            "medianWallMilliseconds": 146.153,
+            "changeFromPriorPercent": -13.162,
+            "cumulativeChangeFromBaselinePercent": -25.788,
+            "outputBytes": 156693,
+            "correctness": "PureJsImage exact pixels and pinned djxl 0.12.0 exact pixels"
+          }
+        ]
+      }
+    },
+    "modularMemory": {
+      "schemaVersion": 1,
+      "generatedAt": "2026-09-01T21:44:22.671Z",
+      "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+      "validation": {
+        "passed": true,
+        "policy": "Every isolated run matched the checksum-pinned native gray8 output."
+      },
+      "node": "v24.16.0",
+      "platform": "linux/x64",
+      "encoder": "cjxl 0.11.1, lossless Modular effort 2",
+      "runsPerConfiguration": 3,
+      "notes": {
+        "fixture": "Checksum-pinned 4096x4096 gray8 scientific pattern with a permuted TOC and per-group local MA trees.",
+        "baseline": "Captured after input load and five explicit GC/event-loop turns in a fresh process.",
+        "correctness": "Every run hashes all native gray8 output rows."
+      },
+      "summaries": [
+        {
+          "mode": "crop",
+          "dimensions": "64x64 crop from 4096x4096",
+          "inputBytes": 254824,
+          "outputBytes": 4096,
+          "outputSha256": "373b5353c7c035df56ee86a4527824220bf2b688f5144c54560734ea8e3be1c5",
+          "medianMaximumRssBytes": 103108608,
+          "medianPeakRssDeltaBytes": 786432,
+          "medianPeakExternalDeltaBytes": 597218,
+          "medianPeakArrayBuffersDeltaBytes": 536672,
+          "medianWallMilliseconds": 57.332
+        },
+        {
+          "mode": "full",
+          "dimensions": "4096x4096 full decode",
+          "inputBytes": 254824,
+          "outputBytes": 16777216,
+          "outputSha256": "8fff1a309e8b2f8677e0265bf4b41b29a4c81d3cd9dc3cbbe5c25a01e1a96aac",
+          "medianMaximumRssBytes": 177512448,
+          "medianPeakRssDeltaBytes": 74579968,
+          "medianPeakExternalDeltaBytes": 25560450,
+          "medianPeakArrayBuffersDeltaBytes": 21281024,
+          "medianWallMilliseconds": 2881.808
+        }
+      ]
+    },
+    "varDctMemory": {
+      "schemaVersion": 1,
+      "generatedAt": "2026-09-01T21:44:37.388Z",
+      "revision": "d7243f58d95ed120d048d9d6d6333bc76738eec0",
+      "node": "v24.16.0",
+      "platform": "linux/x64",
+      "runsPerWorkload": 3,
+      "validation": {
+        "passed": true,
+        "policy": "Every accepted run stayed within max error 1 and RMSE below 0.5; the rejected large run failed preflight with LIMIT_EXCEEDED."
+      },
+      "notes": {
+        "managedPeak": "PureJsImage live managed allocation leases; separate from process RSS.",
+        "preflight": "Conservative upper bound checked before large selected-VarDCT allocations."
+      },
+      "summaries": [
+        {
+          "workload": "gaborish-epf",
+          "fixtureId": "rgb8-distance1-effort1",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 2546,
+          "inputSha256": "d76fb97d372285dbfd47f1b70d3ab18d13fdf315ff560facfe3b674e1e3f9ef6",
+          "outputBytes": 4515,
+          "outputSha256": "9d367823c197e11e32b8ac10fd7a61d22693bda43ddc39df8657bb03a4b6e54a",
+          "maximumError": 1,
+          "rmse": 0.4872687002753158,
+          "preflightBytes": 1794635,
+          "medianManagedPeakBytes": 1715395,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 115953664,
+          "medianPeakRssDeltaBytes": 10878976,
+          "medianPeakExternalDeltaBytes": 2040257,
+          "medianPeakArrayBuffersDeltaBytes": 1966166,
+          "medianWallMilliseconds": 33.946
+        },
+        {
+          "workload": "noise",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 118190080,
+          "medianPeakRssDeltaBytes": 12320768,
+          "medianPeakExternalDeltaBytes": 2098888,
+          "medianPeakArrayBuffersDeltaBytes": 2038342,
+          "medianWallMilliseconds": 112.221
+        },
+        {
+          "workload": "progressive",
+          "fixtureId": "rgb8-distance2-progressive",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 1893,
+          "inputSha256": "9fe91c79eb4862c4d4f6c4cd8d3bb565cc0598982c5d89ee94a056b008ac67d1",
+          "outputBytes": 4515,
+          "outputSha256": "8b8f53ca900f6d5cde09d3d642510bf830e18b1db720c5c2f0ec70b8a9c70f42",
+          "maximumError": 1,
+          "rmse": 0.47762795216214077,
+          "preflightBytes": 5007677,
+          "medianManagedPeakBytes": 4868821,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 119136256,
+          "medianPeakRssDeltaBytes": 13283328,
+          "medianPeakExternalDeltaBytes": 5790649,
+          "medianPeakArrayBuffersDeltaBytes": 5186438,
+          "medianWallMilliseconds": 33.361
+        },
+        {
+          "workload": "large-single-group",
+          "fixtureId": "rgb8-distance1-single-group-255",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 50683,
+          "inputSha256": "8f9a25c90a36ae1440ab663e477d6a7055bf0e388ca80183f219253f0b5efe54",
+          "outputBytes": 195075,
+          "outputSha256": "4c2d9bc716b05204ac01bd11a184e946ffdda4589233448ee336f72a78b446bb",
+          "maximumError": 1,
+          "rmse": 0.48122510154771153,
+          "preflightBytes": 7374559,
+          "medianManagedPeakBytes": 5637111,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 129867776,
+          "medianPeakRssDeltaBytes": 23986176,
+          "medianPeakExternalDeltaBytes": 5476756,
+          "medianPeakArrayBuffersDeltaBytes": 5416210,
+          "medianWallMilliseconds": 238.587
+        },
+        {
+          "workload": "large-preflight-rejection",
+          "fixtureId": "rgb8-distance1-single-group-255",
+          "validation": "preflight-rejection",
+          "evidenceMode": "off",
+          "inputBytes": 50683,
+          "inputSha256": "8f9a25c90a36ae1440ab663e477d6a7055bf0e388ca80183f219253f0b5efe54",
+          "outputBytes": 0,
+          "outputSha256": "",
+          "maximumError": 0,
+          "rmse": 0,
+          "preflightBytes": 7374559,
+          "rejectionCode": "LIMIT_EXCEEDED",
+          "medianManagedPeakBytes": 0,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 106541056,
+          "medianPeakRssDeltaBytes": 393216,
+          "medianPeakExternalDeltaBytes": 60546,
+          "medianPeakArrayBuffersDeltaBytes": 0,
+          "medianWallMilliseconds": 1.169
+        },
+        {
+          "workload": "evidence-off",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 120389632,
+          "medianPeakRssDeltaBytes": 14462976,
+          "medianPeakExternalDeltaBytes": 2068596,
+          "medianPeakArrayBuffersDeltaBytes": 2008050,
+          "medianWallMilliseconds": 114.208
+        },
+        {
+          "workload": "evidence-summary",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "summary",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 1719686,
+          "medianMaximumRssBytes": 121569280,
+          "medianPeakRssDeltaBytes": 14716928,
+          "medianPeakExternalDeltaBytes": 2098888,
+          "medianPeakArrayBuffersDeltaBytes": 2038342,
+          "medianWallMilliseconds": 120.855
+        },
+        {
+          "workload": "evidence-trace",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "trace",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 1719686,
+          "medianMaximumRssBytes": 122494976,
+          "medianPeakRssDeltaBytes": 17731584,
+          "medianPeakExternalDeltaBytes": 2098888,
+          "medianPeakArrayBuffersDeltaBytes": 2038342,
+          "medianWallMilliseconds": 122.298
+        }
+      ]
+    }
+  }
+}

@@ -881,6 +881,7 @@ describe('package contract', () => {
       './codecs/jpeg',
       './codecs/jpeg2000',
       './codecs/jpegxl',
+      './jpegxl',
       './codecs/netpbm',
       './codecs/png',
       './codecs/qoi',

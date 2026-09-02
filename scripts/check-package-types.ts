@@ -157,6 +157,10 @@ try {
     'dist/browser.js',
     'dist/hdr/index.js',
     'dist/hdr/index.d.ts',
+    'dist/codec-entries/jpegxl.js',
+    'dist/codec-entries/jpegxl.d.ts',
+    'dist/jpegxl.js',
+    'dist/jpegxl.d.ts',
     'dist/codec-entries/web.js',
     'dist/scientific/index.js',
     'dist/scientific/node.js',
@@ -231,6 +235,8 @@ try {
   }
   for (const entry of [
     './hdr',
+    './codecs/jpegxl',
+    './jpegxl',
     './geo',
     './geo/browser',
     './geo/readers/geotiff',
@@ -290,6 +296,8 @@ try {
           'runtime.ts',
           'browser.ts',
           'hdr.ts',
+          'jpegxl-codec.ts',
+          'jpegxl-specialized.ts',
           'worker.ts',
           'geo-showcase.ts',
           'geo-showcase-data.ts',
@@ -309,6 +317,8 @@ import type { NodeImageLibraryOptions } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
 import { allWebCodecs } from 'purejsimage/codecs/web'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+import { inspectJpegXl } from 'purejsimage/jpegxl'
+import type { JpegXlInspection } from 'purejsimage/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { defaultTiffCalibrationProfiles, digitalMicrographTiffCalibrationProfile, geoTiffProfile, imageJTiffCalibrationProfile, inspectCog, standardTiffCalibrationProfile, tiffCompressionCapabilities } from 'purejsimage/tiff'
 export type { CogInspection, TiffCalibrationProfileValue, TiffCompressionCapability } from 'purejsimage/tiff'
@@ -403,6 +413,8 @@ export type { AnalysisProjectV1 }
 const nodeOptions: NodeImageLibraryOptions = { temporaryFiles: true }
 const nodeImages = createImageLibrary([pngCodec, jpegxlCodec], nodeOptions)
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
+export const inspectJpegXlInput = (input: Uint8Array): Promise<JpegXlInspection> =>
+  inspectJpegXl(input)
 export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })
 export type GeoConsumerContracts = {
@@ -709,6 +721,29 @@ export const transformHdrFile = async (input: string, output: string): Promise<v
 }
 `,
   )
+  await writeFile(
+    join(consumerDirectory, 'jpegxl-codec.ts'),
+    `import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+export const jpegXlCodecFormat = jpegxlCodec.format
+export const jpegXlEncoderFormats = jpegxlCodec.encoderPixelFormats
+`,
+  )
+  await writeFile(
+    join(consumerDirectory, 'jpegxl-specialized.ts'),
+    `import { inspectJpegReconstructionEligibility, inspectJpegXl, reconstructJpegFromJpegXl, transcodeJpegToJpegXl } from 'purejsimage/jpegxl'
+import type { JpegReconstructionEligibility, JpegTranscodeResult, JpegXlInspection, TranscodeJpegToJpegXlOptions } from 'purejsimage/jpegxl'
+
+export const inspectJpegXlInput = (input: Uint8Array): Promise<JpegXlInspection> => inspectJpegXl(input)
+export const inspectJpegInput = (input: Uint8Array): Promise<JpegReconstructionEligibility> =>
+  inspectJpegReconstructionEligibility(input)
+export const transcodeJpeg = (
+  input: Uint8Array,
+  options: Readonly<TranscodeJpegToJpegXlOptions> = { reconstruction: 'required' },
+): Promise<JpegTranscodeResult> => transcodeJpegToJpegXl(input, options)
+export const reconstructJpeg = (input: Uint8Array): Promise<Uint8Array> =>
+  reconstructJpegFromJpegXl(input)
+`,
+  )
 
   for (const name of [
     'runtime.ts',
@@ -754,6 +789,16 @@ export const transformHdrFile = async (input: string, output: string): Promise<v
   const hdrBytes = await assertPortableBundle('hdr.ts', consumerDirectory, {
     requiredPackageInputs: [/node_modules\/purejsimage\/dist\/hdr\/index\.js$/u],
   })
+  const jpegXlCodecBytes = await assertPortableBundle('jpegxl-codec.ts', consumerDirectory, {
+    requiredPackageInputs: [/node_modules\/purejsimage\/dist\/codec-entries\/jpegxl\.js$/u],
+  })
+  const jpegXlSpecializedBytes = await assertPortableBundle(
+    'jpegxl-specialized.ts',
+    consumerDirectory,
+    {
+      requiredPackageInputs: [/node_modules\/purejsimage\/dist\/jpegxl\.js$/u],
+    },
+  )
   const geoWorkerBytes = await assertPortableBundle('geo-showcase-worker.ts', consumerDirectory, {
     requiredPackageInputs: [
       /node_modules\/purejsimage\/dist\/geo\/index\.js$/u,
@@ -853,7 +898,7 @@ export const transformHdrFile = async (input: string, output: string): Promise<v
   }
 
   console.log(
-    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; HDR ${hdrBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
+    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes; HDR ${hdrBytes.toLocaleString()} bytes; JPEG XL codec ${jpegXlCodecBytes.toLocaleString()} bytes; JPEG XL specialized ${jpegXlSpecializedBytes.toLocaleString()} bytes; Geo worker ${geoWorkerBytes.toLocaleString()} bytes)`,
   )
 } finally {
   await rm(temporaryDirectory, { force: true, recursive: true })

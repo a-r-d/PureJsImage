@@ -245,16 +245,21 @@
       "format": "jpegxl",
       "experimental": false,
       "decoder": true,
-      "encoder": false,
+      "encoder": true,
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
+        "tests/jpegxl-corpus.test.ts",
+        "tests/jpegxl-jpeg-reconstruction.test.ts",
         "browser-tests/compatibility.pw.ts",
+        "browser-tests/jpegxl-workbench.pw.ts",
         "tests/library.test.ts"
       ],
       "lossyPixelValidation": {
-        "status": "not-applicable",
-        "rationale": "The implemented JPEG XL pixel subset is lossless Modular only; lossy VarDCT remains unsupported"
+        "status": "independent-oracle",
+        "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
+        "tolerance": "Selected 8-bit single-group XYB VarDCT fixtures stay within one sample with RMSE below 0.5; JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       }
     },
     {

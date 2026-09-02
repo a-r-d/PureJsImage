@@ -1,11 +1,10 @@
 <!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
-# JPEG XL decode support plan
+# JPEG XL lossless-first support plan
 
-This document is the implementation plan and eventual capability contract for
-PureJsImage's first-party JPEG XL codec. The practical target is decoding static
-`.jxl` uploads received as `image/jxl` and converting them through the existing
-crop, resize, JPEG, PNG, WebP, TIFF, and eventual AVIF pipelines. JPEG XL
-encoding and container writing are not planned.
+This document is the capability contract for PureJsImage's first-party JPEG XL
+project. It has separate targets for static pixel
+decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
+with exact JPEG reconstruction. Only the checked items below are implemented.
 
 ## Current implementation note
 
@@ -13,24 +12,26 @@ A JPEG XL input is either a raw codestream beginning with its two-byte signature
 box container beginning with the fixed signature box. The container then carries an
 `ftyp` box and either one `jxlc` codestream box or indexed `jxlp` fragments. The
 first-party codec validates these structures and returns bounded source ranges
-without concatenating compressed data. Raw and single-`jxlc` codestreams can enter
-the implemented pixel subset directly.
+without concatenating compressed data. Raw, single-`jxlc`, ordered `jxlp`, and
+file-format-version-1 out-of-order `jxlp` codestreams can enter the implemented
+pixel subset through one logical segmented source.
 
-The current pixel milestone decodes pinned native 8/10/12/16-bit grayscale, 8-bit
-grayscale with alpha, 8-bit RGB, and official 9-bit and 12-bit RGBA lossless Modular
-fixtures. It parses image and frame headers, global or local MA trees, prefix and ANS
-entropy, bounded LZ77 including group-aware special distances, adaptive properties,
-nonzero residuals, the documented Modular predictors, one reversible color transform,
-and a compatible non-delta Palette transform. Compatible multi-group grayscale validates
-ordered or permuted table-of-contents entries and dependencies, supports shared global or
-per-group local MA trees, decodes only crop-intersecting groups, supports crops crossing
-group boundaries, and releases each completed group-row band. The decoder emits native
-`gray8`, big-endian `gray16`, `rgba8`, or big-endian `rgba16` rows with per-channel display
-ranges. The pinned multi-group 8-bit fixtures and native grayscale matrix match exact
-independent `djxl` pixels; official high-bit RGBA fixtures retain their documented exact or
-one-sample tolerance. Delta Palette, Squeeze, shifted or DC group
-channels, custom color descriptions, multiple frames, and all VarDCT syntax remain
-explicit unsupported operations.
+The decoder covers the checked lossless Modular subset plus selected 8-bit single-group
+XYB VarDCT fixtures. The implementation includes raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, Gaborish, EPF,
+adaptive smoothing, synthetic noise, final progressive reconstruction, and JPEG-derived
+RGB or YCbCr DCT coefficients. The six pinned fixtures validate complete decoded images but do not isolate every implemented strategy branch. Raw strategy 1 Hornuss is unsupported. Each checked lossy fixture has a pinned independent
+`djxl` tolerance. Unsupported strategies, patches, splines, broad color syntax, extra
+channels, orientation extra fields, and multiple visible frames fail explicitly. This
+VarDCT path materializes the selected full frame before applying a crop and serving rows.
+
+The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
+gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
+and the six-format output matrix is exact through pinned `djxl` and jxl-rs. The corpus
+compression gate remains below the stable threshold, so the encoder stays Experimental. The separate
+`purejsimage/jpegxl` API transcodes eligible baseline
+and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
+reconstructs and compares every source byte before exact-mode success. Exact transcode
+walks APP metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC.
 
 A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in deferred groups do not block
@@ -42,9 +43,9 @@ and independently validated.
 - [x] Prioritize static `image/jxl` decode for upload-processing workflows
 - [x] Decode bare JPEG XL codestreams and single-`jxlc` box-based containers for
   the implemented Modular subset
-- [ ] Implement both Modular and VarDCT decoding; neither mode alone covers the
+- [x] Implement both Modular and VarDCT decoding for the checked static subset; neither mode alone covers the
   common lossless and lossy image set
-- [ ] Decode JPEG-lossless-transcode codestreams to pixels without requiring
+- [x] Decode JPEG-lossless-transcode codestreams to pixels without requiring
   bit-exact reconstruction of the original `.jpg` file
 - [x] Make one full-canvas still image the first public milestone
 - [ ] Apply orientation and color conversion during the pipeline rather than
@@ -53,15 +54,15 @@ and independently validated.
   development-only references and oracles
 - [x] Implement production decoding in this repository without a runtime codec
   dependency, native library, WebAssembly module, or copied third-party code
-- [x] Do not implement JPEG XL encoding, container writing, or a public `.jxl()`
-  output API
+- [x] Add a constrained pixel-lossless Modular encoder through the normal pipeline
+- [x] Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs
 
-## Encoding is not planned
+## Planned lossless-first output boundary
 
-JPEG XL encoding is a non-goal, not a later phase of this plan. PureJsImage will
-not expose JPEG XL output, container writing, transcoding-to-JXL, or a JPEG XL
-encoder. Decoded JPEG XL uploads can instead be written with an existing JPEG,
-PNG, WebP, TIFF, or eventual AVIF encoder.
+The ordinary encoder is a constrained mathematically lossless Modular
+pixel encoder. It will not claim original-file reconstruction. Exact JPEG
+recompression is a separate coefficient-domain API with byte-equality gates.
+A general-purpose lossy VarDCT encoder is outside this project.
 
 ## Group 0: detection, container, and metadata — required for v1
 
@@ -85,11 +86,11 @@ PNG, WebP, TIFF, or eventual AVIF encoder.
 - [x] Parse the signature and file type (`ftyp`) boxes and validate the JPEG XL
   brand and supported file-format version
 - [x] Read one complete codestream from a `jxlc` box without copying it
-- [ ] Reassemble normally ordered `jxlp` partial-codestream boxes through a
+- [x] Reassemble ordered and file-format-version-1 out-of-order `jxlp` boxes through a
   bounded segmented reader rather than concatenating them
 - [x] Validate `jxlp` indexes, final-fragment signaling, uniqueness, ordering,
   and total compressed-byte limits
-- [ ] Parse JPEG XL level (`jxll`) and frame-index (`jxli`) boxes sufficiently to
+- [x] Parse JPEG XL level (`jxll`) and bound frame-index (`jxli`) boxes sufficiently to
   validate and skip them safely
 - [x] Skip unknown non-essential boxes by validated extent
 - [x] Reject conflicting `jxlc`/`jxlp` representations, missing codestream data,
@@ -105,12 +106,15 @@ PNG, WebP, TIFF, or eventual AVIF encoder.
   contents by default
 - [ ] Define explicit metadata preservation and stripping behavior for
   JXL-to-other-codec pipelines
-- [ ] Keep JPEG bitstream reconstruction data independent from image pixel
+- [x] Keep JPEG bitstream reconstruction data independent from image pixel
   decode
 
 ### Metadata-only inspection
 
 - [x] Parse basic image information without entropy-decoding image groups for the implemented subset
+- [x] Expose bounded immutable inspection for the implemented Modular subset with
+  structure, dimensions, orientation, bit depth, channels, alpha, color, level,
+  metadata sizes, expected output format, and resource estimates
 - [ ] Report width, height, orientation, bit depth, exponent bits, color channel
   count, extra channels, alpha, animation, preview, intrinsic dimensions, color
   description, frame count, and codec level
@@ -149,47 +153,48 @@ losslessly transcoded JPEG files.
   section dependencies, and stream identifiers required by compatible multi-group Modular images
 - [x] Decode meta-adaptive trees with bounded depth, node count, property
   ranges, and context count
-- [ ] Implement the required Modular predictors, including weighted prediction
+- [x] Implement the required Modular predictors, including weighted prediction
   and its state updates
 - [x] Decode residuals through the selected predictor and reconstruct signed
   channel samples without overflow
-- [ ] Implement palette transforms, including delta palettes and palette-index
+- [x] Complete palette transforms, including delta palettes and palette-index
   prediction
 - [x] Implement and independently verify the pinned fixture's reversible color
   transform
-- [ ] Implement squeeze transforms for horizontal, vertical, and multi-channel
+- [x] Implement squeeze transforms for horizontal, vertical, and multi-channel
   reconstruction, including odd dimensions
-- [ ] Apply inverse Modular transforms in the exact reverse dependency order
+- [x] Apply inverse Modular transforms in the exact reverse dependency order
 - [x] Support single-group and compatible multi-group Modular images with shared
   global or per-group local MA trees and unshifted grouped channels
 - [x] Support native 8/10/12/16-bit lossless grayscale and the documented RGB/RGBA subset
-- [ ] Support Modular sub-images used by VarDCT for low-frequency and control
+- [x] Support the pinned Modular sub-images used by VarDCT for low-frequency and control
   data
 - [x] Verify the implemented mathematically lossless Modular fixture with exact samples
 
 ### VarDCT mode
 
-- [ ] Parse LF global data, LF groups, HF global data, HF passes, and pass-group
+- [x] Parse LF global data, LF groups, HF global data, HF passes, and pass-group
   sections with validated sizes and dependencies
-- [ ] Decode quantizer fields, dequantization matrices, block strategies,
+- [x] Decode the checked quantizer fields, dequantization matrices, block strategies,
   coefficient orders, context models, and chroma-from-luma factors
-- [ ] Reconstruct DC and low-frequency images before dependent high-frequency
+- [x] Reconstruct DC and low-frequency images before dependent high-frequency
   groups
-- [ ] Decode progressive high-frequency passes and accumulate coefficients in
+- [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [ ] Implement every transform strategy required by the common corpus,
-  including square DCT, rectangular DCT, AFV, and Hornuss families
-- [ ] Apply inverse transforms, coefficient scaling, quantization bias, and
+- [x] Implement raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17,
+  with six full-image fixtures covering selected square DCT, rectangular DCT, and AFV combinations
+- [ ] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
+- [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision
-- [ ] Reconstruct XYB samples and perform the inverse opsin transform
+- [x] Reconstruct the pinned XYB samples and perform the inverse opsin transform
 - [ ] Decode valid chroma subsampling and upsampling modes
-- [ ] Implement Gaborish and edge-preserving restoration filters with the
-  required group-boundary halo
+- [x] Implement pinned single-group Gaborish and edge-preserving restoration filters;
+  the multi-group halo remains unsupported
 - [ ] Decode and render patches, splines, and synthetic noise when signaled by a
   valid static image
-- [ ] Decode VarDCT images created from ordinary lossy sources
-- [ ] Decode the image pixels of JPEG-lossless-transcode codestreams
-- [ ] Compare lossy output with conformance references using documented numeric
+- [x] Decode the pinned VarDCT images created from ordinary lossy sources
+- [x] Decode the image pixels of pinned JPEG-lossless-transcode codestreams
+- [x] Compare lossy output with conformance references using documented numeric
   tolerances
 
 ### Static frame and output
@@ -200,19 +205,19 @@ losslessly transcoded JPEG files.
   frame dependencies, and partial-canvas frame composition until Group 2
 - [ ] Apply all eight orientation values exactly once
 - [ ] Return display dimensions after orientation
-- [x] Emit bounded, ordered `gray8`, big-endian `gray16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset
+- [x] Emit bounded, ordered `gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset
 - [ ] Support JXL-to-JPEG, JXL-to-PNG, JXL-to-WebP, crop, resize, and
   resize-plus-encode workflows
 
 ### Common samples, alpha, and color
 
 - [x] Native integer grayscale at 8, 10, 12, and 16 bits per sample
-- [ ] Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample
+- [x] Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample for the current single-group Modular boundary
 - [x] One alpha extra channel with independent precision
 - [ ] Unassociated and premultiplied alpha with correct unpremultiplication or
   preservation behavior
-- [ ] Parse the encoded color encoding: color space, white point, primaries,
-  transfer function, and rendering intent
+- [x] Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent
+  with matching metadata and decoder pixel semantics
 - [ ] Decode compressed embedded ICC profiles with strict decoded-size limits
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
@@ -220,8 +225,8 @@ losslessly transcoded JPEG files.
 - [ ] Handle XYB codestream color representations
 - [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
   display ranges, normalizing only when an 8-bit transform or encoder requires it
-- [ ] Reject unsupported color encodings or extra-channel semantics rather than
-  treating their samples as sRGB or alpha
+- [x] Reject unsupported color encodings or extra-channel semantics rather than
+  treating their samples as sRGB or alpha for the checked subset
 
 ## Group 2: common compatibility improvements — should have
 
@@ -233,8 +238,8 @@ decoder can ship before all of them are complete.
 - [ ] Frame crops, reference slots, save-as-reference behavior, and blend modes
 - [ ] Coalesced first-frame output for animated inputs without claiming full
   animation support
-- [ ] Out-of-order `jxlp` fragments permitted by newer container versions
-- [ ] JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file
+- [x] Out-of-order `jxlp` fragments permitted by newer container versions
+- [x] JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file for the checked subset
 - [ ] HDR inputs using PQ, HLG, linear-light, and floating-point samples
 - [ ] Tone-mapping metadata, intensity target, luminance range, and a documented
   SDR conversion policy
@@ -288,7 +293,7 @@ JPEG XL v1.
 - [ ] Use checked arithmetic for canvas and group geometry, channel shifts,
   strides, sample counts, coefficient counts, section sizes, patch extents,
   spline points, LZ77 copies, and allocations
-- [ ] Read `jxlc` and `jxlp` through segmented views without duplicating the
+- [x] Read `jxlc` and `jxlp` through segmented views without duplicating the
   compressed codestream
 - [x] Decode compatible Modular groups in dependency order, retaining only crop-intersecting
   groups in one group-row band and releasing the band after output
@@ -330,7 +335,7 @@ JPEG XL v1.
 
 ## Reference implementations and conformance
 
-- [ ] Pin `libjxl` and its `djxl`/`jxlinfo` tools at an exact development-oracle
+- [x] Pin `libjxl` and its `djxl`/`jxlinfo` tools at an exact development-oracle
   version
 - [ ] Study libjxl's module boundaries, supported features, test taxonomy,
   low-memory behavior, and security history without copying or mechanically

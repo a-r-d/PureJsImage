@@ -12,6 +12,8 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - API reference: https://purejsimage.com/api/
 - Ultra HDR JPEG workbench: https://purejsimage.com/hdr-surgery/
 - HDR Surgery developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/hdr-surgery.md
+- JPEG XL workbench: https://purejsimage.com/jpeg-xl/
+- JPEG XL developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/jpeg-xl.md
 - Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Scientific Raster Explorer: https://purejsimage.com/scientific/
 - Scientific reader benchmarks: https://purejsimage.com/scientific/benchmarks/
@@ -57,6 +59,8 @@ The package is ESM and includes TypeScript declarations.
 
 Use `purejsimage/hdr` for explicit Ultra HDR JPEG and ISO 21496-1 gain-map work. `inspectGainMapImage()` inspects JPEG metadata and child ranges without decoding pixels. `openGainMapImage()` renders a selected display boost, transforms both images together, writes compound JPEG with `.jpeg()`, and writes the constrained gain-map AVIF subset with `.avif()`. `extractOriginalBase()` and `extractOriginalGainMap()` return the exact source children.
 
+Use `purejsimage/jpegxl` for explicit JPEG XL inspection and JPEG reconstruction work. `transcodeJpegToJpegXl()` transfers eligible JPEG coefficients without RGB and verifies byte-exact reconstruction. `reconstructJpegFromJpegXl()` returns the original JPEG for the checked reconstruction subset.
+
 Node.js 22+:
 
 ```ts
@@ -88,7 +92,7 @@ import { allCodecs } from 'purejsimage/codecs/all'
 const images = createImageLibrary(allCodecs)
 ```
 
-`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.
+`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL codec. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented static subset fail explicitly.
 
 ## Scientific application platform (alpha in 0.10.0)
 
@@ -593,11 +597,11 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 
 - Import: `import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'`
 - Decode: Limited (`limited`)
-- Encode: No (`unsupported`)
-- Implemented scope: Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the documented pinned lossless Modular subsets. Native grayscale emits gray8 or big-endian gray16 with its original display range; RGB/RGBA emits rgba8 or big-endian rgba16. Compatible multi-group decode validates ordered or permuted table-of-contents entries and dependencies, supports global or per-group local MA trees, reconstructs only crop-intersecting groups, stitches ordered output rows across group boundaries, and releases completed group bands. Unsupported JPEG XL syntax fails explicitly.
-- Primary boundary: Decodes independently verified lossless Modular subsets: single-group 8-bit RGB/RGBA, native 8/10/12/16-bit grayscale, native 9/12-bit RGBA, 8-bit grayscale with alpha, and compatible multi-group 8-bit grayscale with unshifted group channels and a shared non-delta palette. Supports global or local MA trees, prefix or ANS residuals, bounded LZ77 with group-aware special distances, the documented predictors, zero or one RCT, permuted or ordered table-of-contents entries, and group-aware crops. Custom color encodings, delta palettes, Squeeze and shifted/DC group channels, VarDCT, multiple frames, and fragmented jxlp pixel decode remain unsupported
-- Memory model: The single-group path retains compact signed channel planes. Compatible multi-group crops retain only the intersecting groups in one group-row band, share global Palette state, size each LZ77 ring to its bounded entropy stream, account grouped planes against maxDecodedBytes, and release the band after output. Both paths emit one bounded native output row without allocating a second source-sized RGBA bitmap. A checksum-pinned 4096x4096 permuted-TOC fixture records isolated full-decode and 64x64 crop memory.
-- Recommended output use: Use native gray8/gray16 or rgba16 decoder blocks for scientific workflows within the documented lossless Modular subset. Multi-group grayscale crops are group-aware and bounded by the intersecting band, including files with permuted table-of-contents entries and per-group local MA trees. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.
+- Encode: Experimental (`limited`)
+- Implemented scope: Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, selected 8-bit single-group XYB VarDCT fixtures, final progressive fixtures, and checked JPEG-derived RGB or YCbCr coefficients. Encodes six native storage formats as deterministic pixel-lossless Modular JPEG XL within the documented sRGB and straight-alpha boundary. The separate coefficient-domain API transcodes the pinned eligible JPEG subset, verifies byte-exact reconstruction before returning, and never silently substitutes a pixel path.
+- Primary boundary: Decodes the pinned lossless Modular subset, selected 8-bit single-group XYB VarDCT fixtures without alpha or orientation extra fields, and the checked JPEG-derived DCT8 image subset. Selected-subset VarDCT crop is applied after full-frame decode. Implemented raw VarDCT strategy IDs are 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17; the six pinned VarDCT fixtures validate complete images but do not isolate every implemented strategy branch. Raw strategy 1 Hornuss is unsupported. The experimental effort-1 Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 only with explicit full-range sRGB gray or RGB semantics, relative rendering intent, and no alpha or straight alpha. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Exact transcode walks rendering metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC. Grayscale exact transcode, CMYK or YCCK, non-sRGB or malformed Exif or ICC color metadata, multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT, a general lossy encoder, and universal JPEG reconstruction remain unsupported.
+- Memory model: Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Compatible Modular crops retain one intersecting group-row band. Selected-subset VarDCT materializes full-frame sections, coefficients, Float32 restoration planes, and output before serving bounded rows; crop is not decoder pushdown. A conservative preflight rejects over-budget selected VarDCT before section allocation, and a live ledger measures managed peak bytes. The experimental Modular encoder retains bounded full input and output buffers. The exact transcoder tracks input, coefficient tables and planes, metadata, reconstruction payload, encoded sections, codestream, container output, and verification bytes by live lifetime. Sink-mode transcode does not return duplicate output bytes.
+- Recommended output use: Use the decoder for files within the checked static corpus. Treat lossless Modular encoding and coefficient-domain JPEG transcode as experimental until the broader compression, decoder, metadata, and sequential-output gates pass. Use reconstruction: required for exact JPEG work, and enable pixel-lossless fallback explicitly when original JPEG bytes are not required.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md
 
 ### Radiance HDR / RGBE

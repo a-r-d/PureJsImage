@@ -432,13 +432,17 @@ const colorTransform = (
   throw invalidInput(`Adobe transform ${adobeTransform} is invalid for a four-component JPEG`)
 }
 
-interface IccChunk {
+export interface JpegIccChunk {
   readonly sequence: number
   readonly count: number
   readonly data: Uint8Array
 }
 
-const parseIccChunk = (data: Uint8Array, start: number, end: number): IccChunk | undefined => {
+export const parseJpegIccChunk = (
+  data: Uint8Array,
+  start: number,
+  end: number,
+): JpegIccChunk | undefined => {
   const name = 'ICC_PROFILE\0'
   if (end - start < 14) return undefined
   for (let index = 0; index < name.length; index += 1) {
@@ -452,7 +456,10 @@ const parseIccChunk = (data: Uint8Array, start: number, end: number): IccChunk |
   return { sequence, count, data: data.slice(start + 14, end) }
 }
 
-const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined => {
+export const assembleJpegIccProfile = (
+  chunks: readonly JpegIccChunk[],
+  maximumBytes = 16 * 1024 * 1024,
+): Uint8Array | undefined => {
   if (chunks.length === 0) return undefined
   const count = chunks[0]?.count ?? 0
   if (count !== chunks.length || chunks.some((chunk) => chunk.count !== count)) {
@@ -464,7 +471,9 @@ const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined
     if (ordered[chunk.sequence - 1]) throw invalidInput('JPEG ICC profile repeats a chunk')
     ordered[chunk.sequence - 1] = chunk.data
     bytes += chunk.data.byteLength
-    if (bytes > 16 * 1024 * 1024) throw invalidInput('JPEG ICC profile exceeds 16 MiB')
+    if (bytes > maximumBytes) {
+      throw limitExceeded(`JPEG ICC profile exceeds ${maximumBytes} bytes`)
+    }
   }
   const profile = new Uint8Array(bytes)
   let offset = 0
@@ -477,10 +486,10 @@ const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined
 }
 
 const createIccTransform = (
-  chunks: readonly IccChunk[],
+  chunks: readonly JpegIccChunk[],
   jpegColorTransform: JpegColorTransform,
 ): JpegIccTransform | undefined => {
-  const profile = assembleIccProfile(chunks)
+  const profile = assembleJpegIccProfile(chunks)
   if (!profile) return undefined
   const transform = parseJpegIccTransform(profile)
   const fourComponent = jpegColorTransform === 'cmyk' || jpegColorTransform === 'ycck'
@@ -605,7 +614,7 @@ export const parseBaselineJpeg = (
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let restartInterval = 0
   let motionJpeg = false
   let offset = 2
@@ -625,7 +634,7 @@ export const parseBaselineJpeg = (
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
     else if (marker === 0xe0) motionJpeg ||= isAvi1Segment(data, start, end)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(data, start, end)
+      const chunk = parseJpegIccChunk(data, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
@@ -755,7 +764,7 @@ export const parseBaselineJpegSource = async (
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let restartInterval = 0
   let motionJpeg = false
 
@@ -769,7 +778,7 @@ export const parseBaselineJpegSource = async (
     else if (marker === 0xc4) parseHuffmanTables(payload, start, end, dcTables, acTables)
     else if (marker === 0xe0) motionJpeg ||= isAvi1Segment(payload, start, end)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(payload, start, end)
+      const chunk = parseJpegIccChunk(payload, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(payload, start, end) ?? adobeTransform
@@ -2381,6 +2390,19 @@ interface ProgressiveFrameComponent extends RenderComponent {
   readonly successiveBits: Int8Array
 }
 
+export interface JpegCoefficientRenderComponent extends RenderComponent {
+  readonly blocksPerLineForMcu: number
+  readonly quantization: Int32Array
+  readonly coefficients: Int16Array
+}
+
+export interface JpegCoefficientRenderImage extends RenderJpeg {
+  readonly width: number
+  readonly height: number
+  readonly components: readonly JpegCoefficientRenderComponent[]
+  readonly mcusPerColumn: number
+}
+
 interface ProgressiveComponent extends ProgressiveFrameComponent {
   readonly quantization: Int32Array
 }
@@ -2391,6 +2413,23 @@ export interface ProgressiveJpeg extends RenderJpeg {
   readonly components: readonly ProgressiveComponent[]
   readonly mcusPerColumn: number
   readonly progressive: boolean
+  readonly restartInterval: number
+  readonly scans: readonly JpegCoefficientScan[]
+}
+
+export interface JpegCoefficientScanComponent {
+  readonly component: number
+  readonly id: number
+  readonly dcTable: number
+  readonly acTable: number
+}
+
+export interface JpegCoefficientScan {
+  readonly components: readonly JpegCoefficientScanComponent[]
+  readonly spectralStart: number
+  readonly spectralEnd: number
+  readonly successiveHigh: number
+  readonly successiveLow: number
 }
 
 interface ProgressiveScanComponent {
@@ -2398,6 +2437,8 @@ interface ProgressiveScanComponent {
   readonly componentIndex: number
   readonly dcTable?: HuffmanTable
   readonly acTable?: HuffmanTable
+  readonly dcTableId: number
+  readonly acTableId: number
 }
 
 interface ProgressiveScan {
@@ -2408,12 +2449,30 @@ interface ProgressiveScan {
   readonly successiveLow: number
 }
 
+const coefficientScan = (scan: ProgressiveScan): JpegCoefficientScan =>
+  Object.freeze({
+    components: Object.freeze(
+      scan.components.map(({ component, componentIndex, dcTableId, acTableId }) =>
+        Object.freeze({
+          component: componentIndex,
+          id: component.id,
+          dcTable: dcTableId,
+          acTable: acTableId,
+        }),
+      ),
+    ),
+    spectralStart: scan.spectralStart,
+    spectralEnd: scan.spectralEnd,
+    successiveHigh: scan.successiveHigh,
+    successiveLow: scan.successiveLow,
+  })
+
 interface ProgressiveState {
   eobRun: number
 }
 
 const coefficientOffset = (
-  component: ProgressiveFrameComponent,
+  component: Readonly<{ readonly blocksPerLineForMcu: number }>,
   blockX: number,
   blockY: number,
 ): number => (blockY * component.blocksPerLineForMcu + blockX) * 64
@@ -2718,7 +2777,7 @@ export const parseProgressiveJpeg = (
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let components: ProgressiveFrameComponent[] | undefined
   let maximumHorizontalSampling = 1
   let maximumVerticalSampling = 1
@@ -2726,6 +2785,7 @@ export const parseProgressiveJpeg = (
   let mcusPerColumn = 0
   let restartInterval = 0
   let sawScan = false
+  const scans: JpegCoefficientScan[] = []
   let offset = 2
 
   while (offset < data.byteLength) {
@@ -2755,6 +2815,8 @@ export const parseProgressiveJpeg = (
         mcusPerLine,
         mcusPerColumn,
         progressive: true,
+        restartInterval,
+        scans: Object.freeze(scans),
       }
     }
     if (marker === 0x00 || (marker >= 0xd0 && marker <= 0xd8))
@@ -2765,7 +2827,7 @@ export const parseProgressiveJpeg = (
     if (marker === 0xdb) parseQuantizationTables(data, start, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(data, start, end)
+      const chunk = parseJpegIccChunk(data, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
@@ -2822,6 +2884,8 @@ export const parseProgressiveJpeg = (
         selected.push({
           component,
           componentIndex,
+          dcTableId: tables >>> 4,
+          acTableId: tables & 15,
           ...(dcTable ? { dcTable } : {}),
           ...(acTable ? { acTable } : {}),
         })
@@ -2835,6 +2899,7 @@ export const parseProgressiveJpeg = (
         successiveHigh: successive >>> 4,
         successiveLow: successive & 15,
       }
+      scans.push(coefficientScan(scan))
       offset = decodeProgressiveScan(data, end, scan, mcusPerLine, mcusPerColumn, restartInterval)
       sawScan = true
       continue
@@ -3024,7 +3089,7 @@ export const parseCoefficientJpegSource = async (
   let frame: ParsedFrame | undefined
   let progressive = false
   let adobeTransform: number | undefined
-  const iccChunks: IccChunk[] = []
+  const iccChunks: JpegIccChunk[] = []
   let components: ProgressiveFrameComponent[] | undefined
   let maximumHorizontalSampling = 1
   let maximumVerticalSampling = 1
@@ -3033,6 +3098,7 @@ export const parseCoefficientJpegSource = async (
   let restartInterval = 0
   let scanCount = 0
   let recoveredProgressiveScan = false
+  const scans: JpegCoefficientScan[] = []
   const sequentialSeen = new Set<number>()
 
   while (reader.position < source.size) {
@@ -3077,6 +3143,8 @@ export const parseCoefficientJpegSource = async (
         mcusPerLine,
         mcusPerColumn,
         progressive,
+        restartInterval,
+        scans: Object.freeze(scans),
       }
     }
     const payload = await sourceSegment(reader)
@@ -3084,7 +3152,7 @@ export const parseCoefficientJpegSource = async (
     if (marker === 0xdb) parseQuantizationTables(payload, 0, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(payload, 0, end, dcTables, acTables)
     else if (marker === 0xe2) {
-      const chunk = parseIccChunk(payload, 0, end)
+      const chunk = parseJpegIccChunk(payload, 0, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(payload, 0, end) ?? adobeTransform
@@ -3148,6 +3216,8 @@ export const parseCoefficientJpegSource = async (
         selected.push({
           component,
           componentIndex,
+          dcTableId: tables >>> 4,
+          acTableId: tables & 15,
           ...(dcTable ? { dcTable } : {}),
           ...(acTable ? { acTable } : {}),
         })
@@ -3161,6 +3231,7 @@ export const parseCoefficientJpegSource = async (
         successiveHigh: successive >>> 4,
         successiveLow: successive & 15,
       }
+      scans.push(coefficientScan(scan))
       let nextOffset: number
       if (progressive) {
         const result = await decodeProgressiveSourceScan(
@@ -3192,8 +3263,8 @@ export const parseCoefficientJpegSource = async (
   throw truncatedInput('JPEG is missing its end marker')
 }
 
-export const decodeProgressiveJpeg = async function* (
-  jpeg: ProgressiveJpeg,
+export const decodeJpegCoefficientImage = async function* (
+  jpeg: JpegCoefficientRenderImage,
   region: JpegRegion,
   scaleDenominator: JpegScaleDenominator = 1,
 ): AsyncGenerator<PixelBlock> {
@@ -3287,3 +3358,5 @@ export const decodeProgressiveJpeg = async function* (
     },
   }
 }
+
+export const decodeProgressiveJpeg = decodeJpegCoefficientImage

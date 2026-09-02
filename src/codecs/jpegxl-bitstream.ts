@@ -1,4 +1,4 @@
-import { invalidInput } from '../errors.ts'
+import { invalidInput, truncatedInput } from '../errors.ts'
 
 export class JpegXlBitReader {
   readonly #data: Uint8Array
@@ -22,13 +22,13 @@ export class JpegXlBitReader {
       throw invalidInput('JPEG XL bit width is invalid')
     }
     if (this.#bitPosition + count > this.#data.byteLength * 8) {
-      throw invalidInput('JPEG XL codestream is truncated')
+      throw truncatedInput('JPEG XL codestream is truncated')
     }
     let value = 0
     for (let index = 0; index < count; index += 1) {
       const position = this.#bitPosition + index
       const byte = this.#data[position >>> 3]
-      if (byte === undefined) throw invalidInput('JPEG XL codestream is truncated')
+      if (byte === undefined) throw truncatedInput('JPEG XL codestream is truncated')
       value += ((byte >>> (position & 7)) & 1) * 2 ** index
     }
     this.#bitPosition += count
@@ -431,10 +431,13 @@ const histogramLogCountEntries = [
 ] as const
 
 const readHistogramLogCount = (reader: JpegXlBitReader): number => {
-  for (const entry of histogramLogCountEntries) {
-    if (reader.peekBits(entry.bits) !== entry.key) continue
-    reader.skipBits(entry.bits)
-    return entry.value - 1
+  let key = 0
+  for (let bits = 1; bits <= 7; bits += 1) {
+    key |= reader.readBits(1) << (bits - 1)
+    const entry = histogramLogCountEntries.find(
+      (candidate) => candidate.bits === bits && candidate.key === key,
+    )
+    if (entry) return entry.value - 1
   }
   throw invalidInput('JPEG XL ANS histogram is invalid')
 }
@@ -606,11 +609,16 @@ const buildAliasTable = (
   })
 }
 
-const readContextMap = (
+export interface JpegXlContextMap {
+  readonly contextMap: readonly number[]
+  readonly histogramCount: number
+}
+
+export const readJpegXlContextMap = (
   reader: JpegXlBitReader,
   contexts: number,
-  recursionDepth: number,
-): { readonly contextMap: readonly number[]; readonly histogramCount: number } => {
+  recursionDepth = 0,
+): JpegXlContextMap => {
   if (reader.readBits(1) !== 0) {
     const bitsPerEntry = reader.readBits(2)
     const contextMap = Array.from({ length: contexts }, () => reader.readBits(bitsPerEntry))
@@ -624,6 +632,9 @@ const readContextMap = (
   const sink = readJpegXlEntropyCode(reader, 1, recursionDepth + 1)
   const symbolReader = new JpegXlEntropySymbolReader(sink)
   const contextMap = Array.from({ length: contexts }, () => symbolReader.readHybridUint(0, reader))
+  if (!symbolReader.hasValidFinalState()) {
+    throw invalidInput('JPEG XL context map ANS state is invalid')
+  }
   if (useMoveToFront) inverseMoveToFront(contextMap)
   return Object.freeze({
     contextMap: Object.freeze(contextMap),
@@ -650,7 +661,7 @@ export const readJpegXlEntropyCode = (
       })
   const mapped =
     contexts + (lz77Fields.enabled ? 1 : 0) > 1
-      ? readContextMap(reader, contexts + (lz77Fields.enabled ? 1 : 0), recursionDepth)
+      ? readJpegXlContextMap(reader, contexts + (lz77Fields.enabled ? 1 : 0), recursionDepth)
       : Object.freeze({ contextMap: Object.freeze([0]), histogramCount: 1 })
   const usePrefixCode = reader.readBits(1) !== 0
   const logAlphabetSize = usePrefixCode ? 15 : reader.readBits(2) + 5

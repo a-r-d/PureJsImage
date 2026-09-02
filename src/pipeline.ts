@@ -59,6 +59,12 @@ export interface JpegEncodeOptions {
   restartInterval?: number
 }
 
+export interface JpegXlEncodeOptions {
+  mode?: 'lossless'
+  effort?: 1
+  container?: boolean
+}
+
 export interface PngEncodeOptions {
   compressionLevel?: number
 }
@@ -165,6 +171,11 @@ export type PipelineOperation =
       readonly type: 'encode'
       readonly format: 'jpeg'
       readonly options: Readonly<JpegEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'jpegxl'
+      readonly options: Readonly<JpegXlEncodeOptions>
     }
   | {
       readonly type: 'encode'
@@ -360,6 +371,19 @@ export const createJpegEncodeOperation = (options: JpegEncodeOptions): PipelineO
   }
   validBackground(options.background)
   return Object.freeze({ type: 'encode', format: 'jpeg', options: Object.freeze({ ...options }) })
+}
+
+export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): PipelineOperation => {
+  if (options.mode !== undefined && options.mode !== 'lossless') {
+    throw invalidInput('JPEG XL mode must be lossless')
+  }
+  if (options.effort !== undefined && options.effort !== 1) {
+    throw invalidInput('JPEG XL effort must be 1')
+  }
+  if (options.container !== undefined && typeof options.container !== 'boolean') {
+    throw invalidInput('JPEG XL container must be a boolean')
+  }
+  return Object.freeze({ type: 'encode', format: 'jpegxl', options: Object.freeze({ ...options }) })
 }
 
 export const createPngEncodeOperation = (options: PngEncodeOptions): PipelineOperation => {
@@ -705,6 +729,17 @@ export const planMetadata = (
         bitDepth: 8,
         chromaSubsampling: '420',
         codecProfile: 0,
+      }
+      continue
+    }
+
+    if (operation.format === 'jpegxl') {
+      metadata = {
+        ...metadata,
+        format: 'jpegxl',
+        mimeType: 'image/jxl',
+        bitDepth: (metadata.bitDepth ?? 8) > 8 ? 16 : 8,
+        lossless: true,
       }
       continue
     }

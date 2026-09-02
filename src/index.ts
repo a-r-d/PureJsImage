@@ -57,6 +57,7 @@ export type {
   CropOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
+  JpegXlEncodeOptions,
   LutOptions,
   LutPixelFormat,
   NetpbmEncodeOptions,

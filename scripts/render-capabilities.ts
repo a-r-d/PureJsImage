@@ -1,10 +1,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import {
-  capabilityClaims,
-  type CapabilityManifest,
   type CapabilityLevel,
+  type CapabilityManifest,
   type CodecCapability,
+  capabilityClaims,
   readCapabilityManifest,
 } from './capability-manifest.ts'
 
@@ -101,6 +101,9 @@ const cardStatus = (
 ): { readonly className: string; readonly label: string } => {
   if (codec.write.status === 'supported') return { className: 'stable', label: 'Decode + encode' }
   if (codec.write.status === 'limited') {
+    if (codec.write.label === 'Experimental') {
+      return { className: 'expanding', label: 'Decode + experimental encode' }
+    }
     return { className: 'stable', label: 'Decode + limited encode' }
   }
   if (codec.read.status === 'supported') return { className: 'decode', label: 'Decode only' }
@@ -253,7 +256,7 @@ outputs.set(
 let llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
 llmsGuide = llmsGuide.replace(
   /`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and [^\n]+/,
-  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.',
+  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL codec. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented static subset fail explicitly.',
 )
 outputs.set('docs-astro/public/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
 
@@ -263,12 +266,12 @@ codecPage = replaceRegion(codecPage, 'cards', cardsBlock(codecs))
 codecPage = replaceRegion(codecPage, 'memory', memoryBlock(codecs))
 codecPage = replaceRegion(codecPage, 'outputs', outputsBlock(codecs))
 codecPage = codecPage.replace(
-  /The registered JPEG XL entry validates structure, but metadata and pixel decoding remain explicitly unsupported\./,
-  `JPEG XL is registered for limited decode: ${jpegxl.boundary}.`,
+  / {10}<div class="callout"><strong>Detection is separate from support\.<\/strong>.*?<\/div>/s,
+  `          <div class="callout"><strong>Detection is separate from support.</strong> Recognizable PDF, SVG, CUR, or unregistered codec input gets a specific error instead of being mistaken for unknown bytes. JPEG XL is registered for limited decode: ${jpegxl.boundary}</div>`,
 )
 codecPage = codecPage.replace(
-  /CUR is not a current codec entry point\. JPEG XL now has .*? The linked scope documents describe possible implementation subsets; unchecked items are not current capability claims or release commitments\./,
-  'CUR is not a current codec entry point. JPEG XL has a limited lossless Modular decoder; broader syntax remains planned. The linked scope documents define the exact implemented and unsupported boundaries.',
+  /CUR is not a current codec entry point\. JPEG XL has .*? The linked scope documents define the exact implemented and unsupported boundaries\./,
+  'CUR is not a current codec entry point. JPEG XL has a limited static decoder plus experimental pixel-lossless encoding and exact JPEG transcode subsets. The linked scope documents define the exact implemented and unsupported boundaries.',
 )
 outputs.set('docs-astro/src/pages/codecs.astro', codecPage)
 

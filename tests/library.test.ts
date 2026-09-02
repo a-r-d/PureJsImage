@@ -1,4 +1,5 @@
 import { PNG } from 'pngjs'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { allCodecs } from '../src/codec-entries/all.ts'
@@ -7,6 +8,7 @@ import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
+import { crc32 } from '../src/codecs/crc32.ts'
 import {
   CodecRegistry,
   createImageLibrary,
@@ -16,7 +18,21 @@ import {
 } from '../src/index.ts'
 import { jpegFixture } from './fixtures.ts'
 
-const pngFixture = (): Uint8Array => PNG.sync.write(new PNG({ width: 4, height: 3 }))
+const pngFixture = (): Uint8Array => {
+  const encoded = PNG.sync.write(new PNG({ width: 4, height: 3 }))
+  const type = ascii('sRGB')
+  const payload = Uint8Array.of(1)
+  const chunk = new Uint8Array(13)
+  new DataView(chunk.buffer).setUint32(0, payload.byteLength)
+  chunk.set(type, 4)
+  chunk.set(payload, 8)
+  new DataView(chunk.buffer).setUint32(9, crc32(type, payload))
+  const output = new Uint8Array(encoded.byteLength + chunk.byteLength)
+  output.set(encoded.subarray(0, 33))
+  output.set(chunk, 33)
+  output.set(encoded.subarray(33), 33 + chunk.byteLength)
+  return output
+}
 
 const ascii = (value: string): Uint8Array =>
   Uint8Array.from(value, (character) => character.charCodeAt(0))
@@ -99,8 +115,42 @@ describe('configured image library', () => {
 
     expect(images.formats()).toContain('jpegxl')
     expect(jpegxlCodec.detect(input)).toBe(true)
-    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
-    await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+    await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+  })
+
+  it('encodes pixel-lossless JPEG XL through the normal pipeline', async () => {
+    const images = createImageLibrary(allCodecs)
+    const output = await (await images.open(pngFixture())).jpegxl({ effort: 1 }).toBuffer()
+    expect([...output.subarray(0, 12)]).toEqual([...ascii('\0\0\0\fJXL \r\n\u0087\n')])
+
+    const decoded = await images.open(output)
+    await expect(decoded.metadata()).resolves.toMatchObject({
+      width: 4,
+      height: 3,
+      format: 'jpegxl',
+      hasAlpha: true,
+      bitDepth: 8,
+      lossless: true,
+    })
+  })
+
+  it('does not silently relabel linear JPEG XL pixels or discard rendering intent', async () => {
+    const input = new Uint8Array(
+      readFileSync('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-linear.jxl'),
+    )
+    const images = createImageLibrary(allCodecs)
+    const image = await images.open(input)
+    await expect(image.jpegxl().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+
+    await expect(
+      image.convertPixelFormat({ format: 'rgb16' }).png().toBuffer(),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('color semantics'),
+    })
   })
 
   it.each([

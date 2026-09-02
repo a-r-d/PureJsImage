@@ -6,6 +6,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Expanded the first-party JPEG XL codec with checked static VarDCT and progressive decode,
+  JPEG-derived pixel decode, a deterministic experimental lossless Modular encoder for six native
+  pixel formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. Eligible
+  8-bit Huffman baseline and progressive JPEGs are verified by byte-exact reconstruction before
+  success. Pixel-lossless fallback is explicit and never silently replaces the exact path. The new
+  local `/jpeg-xl/` worker workbench, public guide, capability contract, browser tests, package
+  checks, and correctness-gated benchmark keep the experimental boundary visible.
+
 - Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
   AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,
   encoded child extraction, caller-selected linear `rgbf32` or `rgbaf32` rendering, paired crop,
@@ -86,6 +94,15 @@ All notable changes to PureJsImage are documented in this file.
   still does not reconstruct HEVC sample state.
 
 ### Changed
+
+- JPEG XL exact transcode now rejects Exif orientation other than 1 and non-sRGB or malformed ICC
+  before coefficient work, so byte-exact reconstruction cannot hide incorrect display semantics.
+  Modular decode reports checked sRGB or linear-sRGB semantics consistently on metadata and decoder
+  output. Selected XYB and JPEG-derived output report decoder-converted sRGB. The experimental
+  encoder requires explicit supported sRGB semantics, and unmeasured encoder managed memory is
+  reported as unavailable instead of zero. Raw VarDCT strategy 1 Hornuss is no longer claimed. The
+  local workbench preflights native browser memory and reports signed size changes, exact
+  verification, and the optional smaller-output policy.
 
 - HDR gain-map rendering now reports the emitted linear RGB space instead of retaining container
   YUV matrix and range labels. It rejects base and alternate primary mismatches until a float gamut

@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
+import { jpegXlWorkbenchPng } from '../benchmark/jpegxl/workbench-fixture.ts'
 import { assertGeoShowcaseSourceInputs, geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
 
@@ -34,10 +35,24 @@ const hdrSampleNames = [
   'hdr-surgery-synthetic-odd-scale.jpg',
   'hdr-surgery-synthetic-12mp.jpg',
 ] as const
+const jpegXlSamples = [
+  {
+    source: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
+    name: 'jpegxl-progressive-yuv420.jpg',
+  },
+  {
+    source: 'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl',
+    name: 'jpegxl-progressive-yuv420.jxl',
+  },
+] as const
 await mkdir(join(outputDirectory, 'demo-data'), { recursive: true })
 for (const name of hdrSampleNames) {
   await copyFile(join('benchmark/corpus/files', name), join(outputDirectory, 'demo-data', name))
 }
+for (const sample of jpegXlSamples) {
+  await copyFile(sample.source, join(outputDirectory, 'demo-data', sample.name))
+}
+await writeFile(join(outputDirectory, 'demo-data/jpegxl-pixel-lossless.png'), jpegXlWorkbenchPng())
 
 const geoFixtureDirectory = join(outputDirectory, 'fixtures/geo/geozarr-cube')
 for (const resource of geoShowcaseZarrResources()) {
@@ -111,6 +126,36 @@ for (const required of [
 if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>/u.test(hdrPage)) {
   throw new Error('Generated HDR Surgery page omits its required H1')
 }
+const jpegXlPage = await readFile(join(outputDirectory, 'jpeg-xl', 'index.html'), 'utf8')
+for (const required of [
+  '<title>JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage</title>',
+  'name="description" content="Inspect and decode JPEG XL, try the experimental lossless Modular encoder, and verify exact coefficient-domain JPEG transcoding in a local browser worker."',
+  'rel="canonical" href="https://purejsimage.com/jpeg-xl/"',
+  'property="og:image" content="https://purejsimage.com/assets/jpeg-xl-og.png"',
+  'property="og:image:width" content="1200"',
+  'property="og:image:height" content="630"',
+  'name="twitter:card" content="summary_large_image"',
+  'Quick answer',
+  'Interactive workbench',
+  'Transcode eligible JPEG coefficients',
+  'Current limits',
+  'What is JPEG XL?',
+  'Can JavaScript decode JXL?',
+  'What does pixel-lossless mean?',
+  'Can PureJsImage reconstruct the original JPEG byte for byte?',
+  'Why can an exact JXL be larger than its source JPEG?',
+  'Which JPEG files are currently eligible?',
+  'Are Exif orientation and non-sRGB ICC supported by exact transcode?',
+  'Does PureJsImage have a general lossy JPEG XL encoder?',
+  'Does this work in Node.js and browsers?',
+]) {
+  if (!jpegXlPage.includes(required)) throw new Error(`Generated JPEG XL page omits ${required}`)
+}
+if (
+  !/<h1[^>]*>Decode JPEG XL and verify exact JPEG transcoding in JavaScript<\/h1>/u.test(jpegXlPage)
+) {
+  throw new Error('Generated JPEG XL page omits its required H1')
+}
 const hdrJsonLd = [
   ...hdrPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
 ]
@@ -126,6 +171,21 @@ for (const type of ['WebApplication', 'TechArticle', 'BreadcrumbList']) {
     throw new Error(`Generated HDR Surgery JSON-LD omits ${type}`)
   }
 }
+const jpegXlJsonLd = [
+  ...jpegXlPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
+]
+  .map(
+    (match) =>
+      JSON.parse(match[1] ?? '{}') as {
+        readonly '@graph'?: readonly { readonly '@type'?: string }[]
+      },
+  )
+  .flatMap((value) => value['@graph'] ?? [])
+for (const type of ['WebApplication', 'TechArticle', 'BreadcrumbList']) {
+  if (!jpegXlJsonLd.some((value) => value['@type'] === type)) {
+    throw new Error(`Generated JPEG XL JSON-LD omits ${type}`)
+  }
+}
 const llms = await readFile(join(outputDirectory, 'llms.txt'), 'utf8')
 for (const required of [
   '/hdr-surgery/',
@@ -133,6 +193,9 @@ for (const required of [
   'purejsimage/hdr',
   'openGainMapImage',
   'inspectGainMapImage',
+  '/jpeg-xl/',
+  'docs/jpeg-xl.md',
+  'transcodeJpegToJpegXl',
 ]) {
   if (!llms.includes(required)) throw new Error(`Generated llms.txt omits ${required}`)
 }
@@ -267,6 +330,8 @@ const viewerBuild = await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+    'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
+    'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
