@@ -19,8 +19,8 @@
         "Chromium, Firefox, and WebKit with retries disabled",
         "no capability promotion"
       ],
-      "status": "in progress",
-      "pr": null,
+      "status": "PR open",
+      "pr": 35,
       "startRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
       "finalRevision": null,
       "localCommands": [

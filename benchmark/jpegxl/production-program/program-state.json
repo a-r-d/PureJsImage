@@ -4,9 +4,9 @@
   "currentTarget": "A",
   "milestones": {
     "M0": {
-      "status": "in progress",
+      "status": "PR open",
       "branch": "codex/jpegxl-m00-program-baseline",
-      "pr": null,
+      "pr": 35,
       "startRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
       "finalRevision": null,
       "localCommands": [

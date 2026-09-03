@@ -9,7 +9,7 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Current target: A
 - Active milestone: M0
 - Active branch: `codex/jpegxl-m00-program-baseline`
-- Pull request: pending
+- Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
 - Starting revision: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Final revision: pending review and merge
 - Capability change: none. Reading remains Limited and writing remains Experimental.
@@ -27,7 +27,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 
 | ID | Target | Status | Branch | PR | Start SHA | Final SHA | Stable gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| M0 | A | in progress | `codex/jpegxl-m00-program-baseline` | pending | `1cd965dfeba27865c920c4e27bd44dbb4ea0404b` | pending | no promotion permitted |
+| M0 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `1cd965dfeba27865c920c4e27bd44dbb4ea0404b` | pending | no promotion permitted |
 | M1 | A | not started | `codex/jpegxl-m01-jpeg-recompression` | pending | pending | pending | not passed |
 | M2 | A | not started | `codex/jpegxl-m02-lossless-encoder` | pending | pending | pending | not passed |
 | M3 | A | not started | `codex/jpegxl-m03-common-vardct` | pending | pending | pending | not passed |
@@ -103,7 +103,7 @@ npm run check
 git diff --check
 ```
 
-The exact remote workflow run is pending until the pull request is open. The required workflow is `.github/workflows/jpegxl-corpus.yml`; it runs weekly and on relevant pull requests.
+The exact remote workflow run is pending. The required workflow is `.github/workflows/jpegxl-corpus.yml`; it runs weekly and on relevant pull requests.
 
 ### Accepted limitations and deferred work
 
