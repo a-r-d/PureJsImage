@@ -24,10 +24,12 @@ RGB or YCbCr DCT coefficients. The six pinned fixtures validate complete decoded
 channels, orientation extra fields, and multiple visible frames fail explicitly. This
 VarDCT path materializes the selected full frame before applying a crop and serving rows.
 
-The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
-gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
-and the six-format output matrix is exact through pinned `djxl` and jxl-rs. The corpus
-compression gate remains below the stable threshold, so the pixel encoder stays Experimental. The separate stable
+The normal pipeline exposes a stable deterministic Modular encoder for gray8, gray16,
+rgb8, rgb16, rgba8, and rgba16 at effort 1, 3, 5, or 7. Explicit color and alpha
+precision can be declared from 8 through 16 bits when samples use 16-bit storage.
+The 163-case matrix is exact through PureJsImage, pinned `djxl`, jxl-rs, and jxl-oxide
+where applicable. The 156-case extended corpus passes the fixed effort-1, effort-7,
+PNG, speed, and managed-memory gates. The separate stable
 `purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
 reconstructs and compares every source byte before exact-mode success. Its 250-file real JPEG archive, compression, speed, bounded sink-verification, and browser parity gates pass. Exact transcode

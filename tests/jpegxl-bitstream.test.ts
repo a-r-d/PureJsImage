@@ -61,6 +61,43 @@ describe('JPEG XL entropy decoding', () => {
     expect(symbols.hasValidFinalState()).toBe(true)
   })
 
+  it('round-trips a broad ANS histogram through serialized frequencies and alias entries', () => {
+    const config = Object.freeze({ splitExponent: 4, msbInToken: 2, lsbInToken: 0 })
+    const values = Uint32Array.from({ length: 1_000 }, (_, index) => (index * 17) % 511)
+    const contexts = new Uint16Array(values.length)
+    const frequencies = [new Uint32Array(256)]
+    for (const value of values) {
+      const token = hybridTokenForEncoding(value, config)
+      frequencies[0]?.set([1 + (frequencies[0]?.[token] ?? 0)], token)
+    }
+    const writer = new JpegXlBitWriter()
+    const encoding = writeAnsCode(writer, Uint8Array.of(0), frequencies, config)
+    writeAnsValues(writer, values, contexts, values.length, encoding)
+
+    const reader = new JpegXlBitReader(writer.finish())
+    const symbols = new JpegXlEntropySymbolReader(readJpegXlEntropyCode(reader, 1), values.length)
+    expect(Array.from(values, () => symbols.readHybridUint(0, reader))).toEqual(Array.from(values))
+    expect(symbols.hasValidFinalState()).toBe(true)
+  })
+
+  it('omits hybrid fields when the ANS split exponent equals the alphabet size', () => {
+    const config = Object.freeze({ splitExponent: 8, msbInToken: 0, lsbInToken: 0 })
+    const values = Uint32Array.from({ length: 257 }, (_, index) => index & 255)
+    const contexts = new Uint16Array(values.length)
+    const frequencies = [new Uint32Array(256)]
+    for (const value of values) {
+      frequencies[0]?.set([1 + (frequencies[0]?.[value] ?? 0)], value)
+    }
+    const writer = new JpegXlBitWriter()
+    const encoding = writeAnsCode(writer, Uint8Array.of(0), frequencies, config)
+    writeAnsValues(writer, values, contexts, values.length, encoding)
+
+    const reader = new JpegXlBitReader(writer.finish())
+    const symbols = new JpegXlEntropySymbolReader(readJpegXlEntropyCode(reader, 1), values.length)
+    expect(Array.from(values, () => symbols.readHybridUint(0, reader))).toEqual(Array.from(values))
+    expect(symbols.hasValidFinalState()).toBe(true)
+  })
+
   it('round-trips an ANS code with a compressed context map', () => {
     const config = Object.freeze({ splitExponent: 4, msbInToken: 2, lsbInToken: 0 })
     const values = Uint32Array.from({ length: 32 }, (_, index) => index & 15)

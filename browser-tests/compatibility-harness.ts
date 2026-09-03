@@ -840,6 +840,67 @@ const jpegXlLossless = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.byteLength,
   }
 }
+const jpegXlLosslessEncode = async (): Promise<BrowserWorkflowResult> => {
+  const width = 13
+  const height = 9
+  const maximum = 1_023
+  const pixels = new Uint8Array(width * height * 3 * 2)
+  for (let offset = 0; offset < pixels.byteLength; offset += 2) {
+    const sample = (offset * 37 + Math.floor(offset / 6) * 19) & maximum
+    pixels[offset] = sample >>> 8
+    pixels[offset + 1] = sample
+  }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgb16',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: {
+      mode: 'lossless',
+      effort: 7,
+      container: true,
+      sampleBitDepth: 10,
+    },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('Browser JPEG XL encoder is unavailable')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 6,
+    format: 'rgb16',
+    data: pixels,
+  })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  const decoded: number[] = []
+  for await (const block of decoder.decode()) decoded.push(...block.data)
+  if (
+    decoder.pixelFormat !== 'rgb16' ||
+    decoded.length !== pixels.byteLength ||
+    decoded.some((value, index) => value !== pixels[index])
+  ) {
+    throw new Error('Browser JPEG XL effort-7 encode did not preserve declared 10-bit samples')
+  }
+  return {
+    detail: 'lossless JPEG XL effort-7 browser encode preserved declared 10-bit RGB samples',
+    outputBytes: encoded.byteLength,
+  }
+}
 const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/jpegxl-alpha-12bit.jxl')
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
@@ -5138,6 +5199,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   jpegPipeline,
   jpeg2000Decode,
   jpegXlLossless,
+  jpegXlLosslessEncode,
   jpegXlHighBit,
   jpegXlMultiGroup,
   unsupportedJpegBoundaries,

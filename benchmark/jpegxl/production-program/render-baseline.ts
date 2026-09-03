@@ -76,11 +76,20 @@ if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
 if (writeCapability.status !== 'limited') {
   throw new Error('JPEG XL write capability no longer matches the recorded limited boundary')
 }
-if (writeCapability.label === 'Stable exact transcode') {
+if (
+  writeCapability.label === 'Stable exact transcode' ||
+  writeCapability.label === 'Stable lossless and exact transcode'
+) {
   const milestones = record(programState.milestones, 'programState.milestones')
   const milestone1 = record(milestones.M1, 'programState.milestones.M1')
   if (milestone1.stablePromotionGatePassed !== true) {
     throw new Error('Stable exact transcode requires the Milestone 1 promotion gate')
+  }
+  if (writeCapability.label === 'Stable lossless and exact transcode') {
+    const milestone2 = record(milestones.M2, 'programState.milestones.M2')
+    if (milestone2.stablePromotionGatePassed !== true) {
+      throw new Error('Stable lossless encoding requires the Milestone 2 promotion gate')
+    }
   }
 } else if (writeCapability.label !== 'Experimental') {
   throw new Error('JPEG XL write capability has an unrecognized label')

@@ -7,17 +7,17 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Current merged main: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Package version: `0.17.0`
 - Current target: A
-- Active milestone: M1
+- Active milestone: M2
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
-- Starting revision: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
+- Starting revision: `548a30321dbd149c7d71e17c37db0a4933d9c5de`
 - Final revision: pending review and merge
-- Capability change: none. Reading remains Limited and writing remains Experimental.
-- Stable promotion gate: not passed and not eligible in M0
+- Capability change: the lossless Modular encoder is being promoted to Stable for its documented subset.
+- Stable promotion gate: passed locally
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
-operator explicitly directed M1 work to continue on the existing M0 branch and pull request. This
-ledger records that exception without treating M0 as merged.
+operator explicitly directed M1 and M2 work to continue on the existing M0 branch and pull request.
+This ledger records that exception without treating the earlier milestones as merged.
 
 ## Production targets
 
@@ -32,8 +32,8 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | ID | Target | Status | Branch | PR | Start SHA | Final SHA | Stable gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | M0 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `1cd965dfeba27865c920c4e27bd44dbb4ea0404b` | pending | no promotion permitted |
-| M1 | A | in progress | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | not passed |
-| M2 | A | not started | `codex/jpegxl-m02-lossless-encoder` | pending | pending | pending | not passed |
+| M1 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | passed locally |
+| M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
 | M3 | A | not started | `codex/jpegxl-m03-common-vardct` | pending | pending | pending | not passed |
 | M4 | A | not started | `codex/jpegxl-m04-color-alpha-metadata` | pending | pending | pending | not passed |
 | M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
@@ -164,8 +164,8 @@ without allocating a duplicate JPEG. Sink cancellation aborts the sink and relea
 The 10-case reverse matrix remains the syntax regression set. Tiny generated files in that matrix
 can grow because fixed container and model overhead dominate. `onlyIfSmaller` returns a structured
 error before writing a non-smaller output. The stable exact-transcode contract remains limited to
-the documented three-component 8-bit Huffman subset. The pixel-lossless Modular encoder remains
-Experimental. M2 has not begun.
+the documented three-component 8-bit Huffman subset. M2 now extends and independently gates the
+pixel-lossless Modular encoder below.
 
 The profiling report is `benchmark/results/jpegxl-m1-profile-2026-09-03.json`. The syntax regression
 report is `benchmark/results/jpegxl-m1-recompression-2026-09-03.json`. The promotion corpus and
@@ -183,3 +183,48 @@ performance reports are `benchmark/results/jpegxl-m1-real-corpus-2026-09-03.json
 - [x] `onlyIfSmaller`, sink memory, and cancellation behavior
 - [x] Chromium, Firefox, and WebKit locally with retries disabled
 - [x] Full `npm run check`
+
+## M2 competitive lossless Modular encoder progress
+
+M2 began from `548a30321dbd149c7d71e17c37db0a4933d9c5de` on the existing pull request by
+explicit operator instruction. The normal pipeline now accepts deterministic effort 1, 3, 5, and
+7. Its native input boundary remains gray8, gray16, rgb8, rgb16, rgba8, and rgba16 with explicit
+full-range sRGB gray or RGB semantics and no alpha or straight alpha. Callers using 16-bit storage
+can declare color precision from 8 through 16 bits and independent straight-alpha precision from 8
+through 16 bits. The encoder does not infer precision from sample maxima.
+
+The encoder selects reversible color transforms, fixed and weighted prediction, per-channel MA-tree
+leaves and entropy contexts, static and delta palettes, horizontal, vertical, and multi-channel
+squeeze transforms, bounded LZ77 matches, and clustered ANS histograms outside pixel emission loops.
+Large multi-group images keep the bounded global group model. Sink output is emitted as a container
+prefix, codestream header, and individual sections without a duplicate complete sink output.
+
+The deterministic correctness matrix contains 163 cases across the 12 required image classes, all
+six storage formats, all effort tiers, explicit 9 through 15-bit precision, independent alpha
+precision, raw codestreams, and containers. PureJsImage, pinned `djxl`, pinned jxl-rs, and pinned
+jxl-oxide decode exact declared samples where applicable. The pinned jxl-oxide signed 16-bit Modular
+rendering limitation remains separately classified.
+
+The extended compression corpus contains 156 deterministic legal cases across the same 12 classes.
+At effort 1, the median size ratio is 1.0457 and the median wall-time ratio is 2.3392 versus pinned
+libjxl effort 1. At effort 7, the median size ratio is 0.8901, p90 is 1.2921, and the worst case is
+1.7349 versus pinned libjxl effort 7. The effort-7 median is 0.6023 of PNG, 89.74% of files are no
+larger than PNG, and the worst image-class median is 1.2581. The effort-7 median wall-time ratio is
+7.4691 versus pinned libjxl effort 7. These results clear the fixed M2 thresholds without changing
+their tolerances.
+
+The representative 24 MP effort-1 encode completed in 3.851 seconds, emitted 27 sink writes, and
+reported a 106,050,518-byte managed peak. The core plus JPEG XL entry is 266,448 minified bytes. The
+expanded specialized JPEG XL entry is 308,718 minified bytes against its recorded 315,000-byte M2
+ceiling.
+
+### M2 gate checklist
+
+- [x] Six native storage formats and explicit 8 through 16-bit color and alpha precision
+- [x] Deterministic effort 1, 3, 5, and 7 output
+- [x] 163-case four-decoder correctness matrix across all required image classes
+- [x] 156-case effort-1 and effort-7 compression thresholds
+- [x] Bounded section output, measured managed peak, and abort or failure cleanup coverage
+- [x] Representative 24 MP effort-1 final performance rerun
+- [x] Chromium, Firefox, and WebKit with retries disabled
+- [x] Full `npm run check` with 2,443 tests passed, 3 skipped; 202 files passed, 1 skipped

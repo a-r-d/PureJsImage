@@ -7,13 +7,15 @@ All notable changes to PureJsImage are documented in this file.
 ### Added
 
 - Expanded the first-party JPEG XL codec with checked static VarDCT and progressive decode,
-  JPEG-derived pixel decode, a deterministic experimental lossless Modular encoder for six native
-  pixel formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. Eligible
+  JPEG-derived pixel decode, a deterministic stable lossless Modular encoder for six native pixel
+  formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. The Modular
+  encoder supports effort 1, 3, 5, and 7 plus explicit 8 through 16-bit color and independent
+  straight-alpha precision in 16-bit storage. Eligible
   8-bit Huffman baseline and progressive JPEGs are verified by byte-exact reconstruction before
   success. Pixel-lossless fallback is explicit and never silently replaces the exact path. The new
   local `/jpeg-xl/` worker workbench, public guide, capability contract, browser tests, package
-  checks, and correctness-gated benchmark keep each capability boundary visible. Exact JPEG
-  transcode is stable for its documented subset. The pixel encoder remains experimental.
+  checks, and correctness-gated benchmark keep each capability boundary visible. Both exact JPEG
+  transcode and lossless Modular encoding are stable for their documented subsets.
 
 - Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
   AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,

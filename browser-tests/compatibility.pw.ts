@@ -118,6 +118,12 @@ test('decodes lossless JPEG XL local-tree ANS pixels in a real browser', async (
   expect(result.outputBytes).toBeGreaterThan(50)
   expect(result.detail).toContain('matched djxl RGB pixels')
 })
+test('encodes declared high-bit JPEG XL samples in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlLosslessEncode())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('effort-7 browser encode')
+})
 test('preserves native high-bit JPEG XL samples in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlHighBit())

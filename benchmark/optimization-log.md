@@ -214,6 +214,33 @@ Measurement artifacts:
 - Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T20-33-45-188Z/comparison.md`
 - Profiles: `.tmp/cpu-northstar-speed/`
 
+## JPEG XL Modular encoder campaign
+
+The 2026-09-03 campaign used exact native-sample decode as a mandatory correctness guard. Early
+five-class measurements were used to reject or retain individual coding tools. The final decision
+used 156 deterministic legal cases across the 12 M2 classes and pinned libjxl 0.12.0.
+
+| ID | Hypothesis / change | Evidence | Verdict | Disposition |
+| --- | --- | --- | --- | --- |
+| JXLMOD-001 | Replace one fixed prefix model with ANS, per-channel fixed predictor selection, and channel contexts. | The line-art case fell from 13,405 to 523 bytes, but the five-case median was still 4.597 times libjxl effort 7. | promising | Retained as the adaptive foundation. |
+| JXLMOD-002 | Add an ordinary exact palette for low-color RGB and RGBA images. | Line art fell from 523 to 386 bytes. The five-case libjxl median improved to 3.860. | promising | Retained. |
+| JXLMOD-003 | Repeatedly squeeze all channels before entropy coding. | Median PNG ratio regressed to 1.768 and median time ratio rose to 43.76. | rejected | Reworked into bounded candidates chosen against unsqueezed output. |
+| JXLMOD-004 | Use only same-value LZ77 matches. | It did not solve structured residual runs and was superseded by general hash matching. | rejected | Replaced. |
+| JXLMOD-005 | Add exact delta palettes for repeated predictor residual tuples. | Five-case median PNG ratio improved to 0.944 and the gradient case fell to 1,299 bytes. | material | Retained. |
+| JXLMOD-006 | Add bounded hash-based LZ77 match search. | Five-case median PNG ratio improved to 0.764 and the photo-like case fell to about 217 KiB. | material | Retained. |
+| JXLMOD-007 | Compare raw and reversible-color candidates. | Five-case median PNG ratio improved to 0.686; photo-like and noise output fell to about 65 KiB and 138 KiB. | material | Retained despite higher effort-7 analysis time. |
+| JXLMOD-008 | Keep four bounded match histories and encode common row distances with JPEG XL special distance codes. | The five-case effort-7 PNG p90 reached 1.109. | material | Retained for effort 7. |
+| JXLMOD-009 | Serialize long zero-frequency histogram runs with the JPEG XL repeat symbol. | The line-art case fell from 327 to 202 bytes and the fixed five-class size gates passed except its small-sample p90. | material | Retained. |
+| JXLMOD-010 | Reuse one predictor tree when clustered transformed planes share a model. | The line-art case fell from 202 to 199 bytes without changing decoded samples. | promising | Retained. |
+| JXLMOD-011 | Keep the effort-1 residual traversal monomorphic and compare its prefix section with a simple ANS section using a fixed reversible color transform. | On 156 cases, median size was 1.0457 times libjxl effort 1 and median wall time was 2.3392 times libjxl effort 1. | material | Retained. |
+| JXLMOD-012 | Add default weighted prediction and bounded horizontal, vertical, and multi-channel squeeze candidates at higher efforts. | The 163-case four-decoder matrix remained exact after the change. Final extended compression and performance reruns are recorded in the M2 evidence reports. | material | Retained only with unsqueezed and no-LZ candidates available. |
+
+Final effort-7 results on 156 cases were 0.8901 median, 1.2921 p90, and 1.7349 worst
+size ratio to pinned libjxl effort 7 before the final exact-head rerun. Median output was 0.6023 of
+PNG, 89.74% of files were no larger than PNG, every image-class median was at most 1.2581 times PNG,
+and median wall time was 7.4691 times libjxl effort 7. The tracked final reports live under
+`benchmark/results/jpegxl-m2-*`.
+
 ## JPEG speed campaign
 
 | ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Paired speed Δ | Peak RSS Δ | Verdict | Disposition |

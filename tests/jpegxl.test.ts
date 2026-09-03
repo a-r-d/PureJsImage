@@ -5,6 +5,7 @@ import { inspectJpegXlStructure, jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import type { PixelColorSemantics } from '../src/color.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import type { JpegXlEncodeOptions } from '../src/pipeline.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -146,6 +147,7 @@ const encodeLosslessJpegXl = async (
   height: number,
   pixels: Uint8Array,
   container: boolean,
+  options: Readonly<JpegXlEncodeOptions> = {},
 ): Promise<Uint8Array> => {
   const sink = new Uint8ArraySink()
   const encoder = await jpegxlCodec.createEncoder?.(sink, {
@@ -153,7 +155,7 @@ const encodeLosslessJpegXl = async (
     height,
     pixelFormat: format,
     colorSemantics: jpegXlSemanticsFor(format),
-    options: { mode: 'lossless', effort: 1, container },
+    options: { mode: 'lossless', effort: 1, container, ...options },
     limits: defaultImageLimits,
   })
   if (!encoder) throw new Error('JPEG XL encoder is unavailable')
@@ -221,12 +223,14 @@ const jpegXlSemanticsFor = (format: PixelFormat): PixelColorSemantics =>
 
 class RecordingSink implements ImageSink {
   readonly abortReasons: unknown[] = []
+  readonly chunkBytes: number[] = []
   writes = 0
   closes = 0
   failWrite = false
 
-  async write(_chunk: Uint8Array): Promise<void> {
+  async write(chunk: Uint8Array): Promise<void> {
     this.writes += 1
+    this.chunkBytes.push(chunk.byteLength)
     if (this.failWrite) throw new Error('sink write failed')
   }
 
@@ -286,6 +290,91 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       expect(decoded.pixels).toEqual(pixels)
     },
   )
+
+  it.each([1, 3, 5, 7] as const)(
+    'round-trips deterministic RGB8 samples at effort $s',
+    async (effort) => {
+      const width = 41
+      const height = 29
+      const pixels = Uint8Array.from({ length: width * height * 3 }, (_, index) => {
+        const x = Math.floor(index / 3) % width
+        const y = Math.floor(index / 3 / width)
+        return (x * 11 + y * 7 + (index % 3) * 19) & 255
+      })
+      const first = await encodeLosslessJpegXl('rgb8', width, height, pixels, true, { effort })
+      const second = await encodeLosslessJpegXl('rgb8', width, height, pixels, true, { effort })
+      expect(first).toEqual(second)
+      await expect(decodeJpegXlPixels(first)).resolves.toEqual({ format: 'rgb8', pixels })
+    },
+  )
+
+  it.each([9, 10, 11, 12, 13, 14, 15] as const)(
+    'preserves explicitly declared $s-bit RGB samples in rgb16 storage',
+    async (sampleBitDepth) => {
+      const width = 7
+      const height = 5
+      const maximum = 2 ** sampleBitDepth - 1
+      const pixels = new Uint8Array(width * height * 6)
+      for (let offset = 0; offset < pixels.byteLength; offset += 2) {
+        const sample = (offset * 37 + 11) & maximum
+        pixels[offset] = sample >>> 8
+        pixels[offset + 1] = sample
+      }
+      const output = await encodeLosslessJpegXl('rgb16', width, height, pixels, false, {
+        effort: 3,
+        sampleBitDepth,
+      })
+      await expect(inspectJpegXl(output)).resolves.toMatchObject({ bitDepth: sampleBitDepth })
+      await expect(decodeJpegXlPixels(output)).resolves.toEqual({ format: 'rgb16', pixels })
+    },
+  )
+
+  it('preserves independent straight-alpha precision and reports managed peak bytes', async () => {
+    const width = 9
+    const height = 6
+    const pixels = new Uint8Array(width * height * 8)
+    for (let offset = 0; offset < pixels.byteLength; offset += 8) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        const sample = (offset * 13 + channel * 71) & 4_095
+        pixels[offset + channel * 2] = sample >>> 8
+        pixels[offset + channel * 2 + 1] = sample
+      }
+      const alpha = (offset * 17 + 5) & 511
+      pixels[offset + 6] = alpha >>> 8
+      pixels[offset + 7] = alpha
+    }
+    const sink = new RecordingSink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: 'rgba16',
+      colorSemantics: jpegXlSemanticsFor('rgba16'),
+      options: { mode: 'lossless', effort: 7, sampleBitDepth: 12, alphaBitDepth: 9 },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * 8,
+      format: 'rgba16',
+      data: pixels,
+    })
+    await encoder.finish()
+    expect(sink.writes).toBeGreaterThan(1)
+    expect('managedPeakBytes' in encoder ? encoder.managedPeakBytes : 0).toBeGreaterThan(0)
+  })
+
+  it('rejects samples outside an explicitly declared depth', async () => {
+    await expect(
+      encodeLosslessJpegXl('gray16', 1, 1, Uint8Array.of(0x04, 0x00), false, {
+        effort: 3,
+        sampleBitDepth: 10,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
 
   it('encodes multiple Modular groups and decodes a cross-group crop exactly', async () => {
     const width = 1_100
@@ -501,7 +590,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     })
     await encoder.finish()
     await encoder.abort(new Error('too late'))
-    expect(sink.writes).toBe(1)
+    expect(sink.writes).toBeGreaterThan(1)
     expect(sink.abortReasons).toEqual([])
   })
 

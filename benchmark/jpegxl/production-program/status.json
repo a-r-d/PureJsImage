@@ -149,7 +149,7 @@
     {
       "id": "M2",
       "goal": "Competitive lossless Modular encoder",
-      "branch": "codex/jpegxl-m02-lossless-encoder",
+      "branch": "codex/jpegxl-m00-program-baseline",
       "target": "A",
       "requiredGates": [
         "four-decoder exactness",
@@ -157,27 +157,67 @@
         "performance thresholds",
         "bounded output and cancellation"
       ],
-      "status": "not started",
-      "pr": null,
-      "startRevision": null,
+      "status": "PR open",
+      "pr": 35,
+      "startRevision": "548a30321dbd149c7d71e17c37db0a4933d9c5de",
       "finalRevision": null,
-      "localCommands": [],
+      "localCommands": [
+        "npm run fixtures:jpegxl:encoder-matrix -- --output benchmark/results/jpegxl-m2-encoder-matrix-2026-09-03.json",
+        "npm run bench:jpegxl:compression -- --effort 1 --output benchmark/results/jpegxl-m2-compression-e1-2026-09-03.json",
+        "npm run bench:jpegxl:compression -- --effort 7 --output benchmark/results/jpegxl-m2-compression-e7-2026-09-03.json",
+        "npm run jpegxl:m2:performance -- --output benchmark/results/jpegxl-m2-performance-2026-09-03.json",
+        "npx vitest run tests/jpegxl.test.ts tests/jpegxl-bitstream.test.ts tests/jpegxl-production-program.test.ts tests/capability-manifest.test.ts",
+        "npx tsc -p tsconfig.json --noEmit",
+        "npm run capabilities:check",
+        "npm run package:types",
+        "npm run browser:check",
+        "npx playwright test browser-tests/compatibility.pw.ts --grep 'JPEG XL' --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run check",
+        "git diff --check"
+      ],
       "remoteWorkflowRuns": [],
-      "measuredResults": [],
-      "corpusVersions": [],
-      "oracleRevisions": [],
-      "benchmarkReportPath": null,
-      "capabilityChanges": [],
-      "capabilityPromotions": [],
-      "acceptedLimitations": [],
-      "deferredWork": [],
-      "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "four-decoder exactness",
-        "effort-tier compression thresholds",
-        "performance thresholds",
-        "bounded output and cancellation"
-      ]
+      "measuredResults": [
+        "Independent encoder matrix: 163 deterministic cases across 12 classes and all four effort tiers decode exactly through PureJsImage, pinned djxl, pinned jxl-rs, and pinned jxl-oxide where applicable",
+        "Effort 1 extended corpus: 156 cases, 1.0456 median size ratio and 2.3391 median wall-time ratio to pinned libjxl effort 1",
+        "Effort 7 extended corpus: 156 cases, 0.8901 median, 1.2921 p90, and 1.7349 worst size ratio to pinned libjxl effort 7",
+        "Effort 7 PNG comparison: 0.6023 median ratio, 89.74% no larger than PNG, and 1.2581 worst class median",
+        "Effort 7 median wall-time ratio: 7.4691 times pinned libjxl effort 7",
+        "Representative 24 MP effort-1 encode: 3.851 seconds, 27 sink writes, and 106050518 reported managed peak bytes",
+        "Focused browser acceptance: 12 JPEG XL compatibility tests and 18 workbench tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "Package size: core plus JPEG XL is 266448 minified bytes; JPEG XL specialized APIs are 308718 minified bytes",
+        "Full repository gate: 2443 tests passed, 3 skipped; 202 files passed, 1 skipped"
+      ],
+      "corpusVersions": [
+        "Deterministic M2 encoder matrix: 163 cases across 12 required image classes",
+        "Deterministic M2 extended compression corpus: 156 cases across 12 required image classes"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-rs 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4",
+        "simple-lossless-encoder 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+        "imazen-jxl-encoder d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b"
+      ],
+      "benchmarkReportPath": "benchmark/results/jpegxl-m2-compression-e7-2026-09-03.json",
+      "capabilityChanges": [
+        "The normal lossless Modular encoder accepts effort 1, 3, 5, and 7.",
+        "Explicit sample precision covers 8 through 16 bits with independent straight-alpha precision.",
+        "Sink output is emitted as a container prefix, codestream header, and bounded sections without a duplicate complete output buffer."
+      ],
+      "capabilityPromotions": [
+        "Lossless Modular encoding is Stable for the documented six-format, sRGB, straight-alpha, and explicit 8 through 16-bit precision subset."
+      ],
+      "acceptedLimitations": [
+        "The encoder remains limited to static full-range sRGB gray or RGB and straight alpha, with no metadata preservation.",
+        "Images larger than one 1024 by 1024 Modular group use the bounded global effort-1 group model at every effort tier.",
+        "Pinned jxl-oxide has a classified signed 16-bit Modular rendering limitation; PureJsImage, djxl, and jxl-rs remain exact for those cases."
+      ],
+      "deferredWork": [
+        "General lossy VarDCT encoding remains Milestone 7 work.",
+        "Broader color, orientation, metadata, animation, and extra-channel encoding remain later milestone work."
+      ],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review, remote workflows, and merge remain external."]
     },
     {
       "id": "M3",

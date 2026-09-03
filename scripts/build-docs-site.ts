@@ -129,7 +129,7 @@ if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>
 const jpegXlPage = await readFile(join(outputDirectory, 'jpeg-xl', 'index.html'), 'utf8')
 for (const required of [
   '<title>JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage</title>',
-  'name="description" content="Inspect and decode JPEG XL, try the experimental lossless Modular encoder, and verify exact coefficient-domain JPEG transcoding in a local browser worker."',
+  'name="description" content="Inspect and decode JPEG XL, use the stable lossless Modular encoder, and verify exact coefficient-domain JPEG transcoding in a local browser worker."',
   'rel="canonical" href="https://purejsimage.com/jpeg-xl/"',
   'property="og:image" content="https://purejsimage.com/assets/jpeg-xl-og.png"',
   'property="og:image:width" content="1200"',

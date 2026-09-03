@@ -694,7 +694,7 @@ interface WeightedPredictorParameters {
   readonly weights: readonly [number, number, number, number]
 }
 
-const defaultWeightedPredictor = Object.freeze({
+export const defaultJpegXlWeightedPredictor = Object.freeze({
   p1: 16,
   p2: 10,
   p3a: 7,
@@ -706,7 +706,7 @@ const defaultWeightedPredictor = Object.freeze({
 })
 
 const readWeightedPredictor = (reader: JpegXlBitReader): WeightedPredictorParameters => {
-  if (reader.readBits(1) !== 0) return defaultWeightedPredictor
+  if (reader.readBits(1) !== 0) return defaultJpegXlWeightedPredictor
   return Object.freeze({
     p1: reader.readBits(5),
     p2: reader.readBits(5),
@@ -1296,7 +1296,7 @@ const weightedDivision = Uint32Array.from({ length: 64 }, (_, index) =>
   Math.floor(16_777_216 / (index + 1)),
 )
 
-class JpegXlWeightedPredictor {
+export class JpegXlWeightedPredictor {
   readonly #predictions = new Int32Array(4)
   readonly #predictionErrors: readonly Uint32Array[]
   readonly #errors: Int32Array
