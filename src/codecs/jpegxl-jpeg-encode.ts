@@ -62,7 +62,12 @@ const visitPlaneResiduals = (plane: Readonly<Plane>, visit: (value: number) => v
             ? (plane.values[index - plane.width] ?? 0)
             : 0
       const top = y > 0 ? (plane.values[index - plane.width] ?? 0) : left
-      visit(packSigned(sample - Math.trunc((left + top) / 2)))
+      const topLeft = x > 0 && y > 0 ? (plane.values[index - plane.width - 1] ?? 0) : left
+      const gradient = Math.max(
+        Math.min(left, top),
+        Math.min(Math.max(left, top), left + top - topLeft),
+      )
+      visit(packSigned(sample - gradient))
     }
   }
 }
@@ -310,6 +315,19 @@ const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
   writer.writeBits((encodedExponent << 10) | mantissa, 16)
 }
 
+const writeComponentBlockContexts = (writer: JpegXlBitWriter): void => {
+  writer.writeBits(0, 1)
+  for (let channel = 0; channel < 3; channel += 1) writer.writeBits(0, 4)
+  writer.writeBits(0, 4)
+  writer.writeBits(1, 1)
+  writer.writeBits(2, 2)
+  for (let channel = 0; channel < 3; channel += 1) {
+    for (let order = 0; order < 13; order += 1) {
+      writer.writeBits(channel, 2)
+    }
+  }
+}
+
 const writeLfGlobal = (
   writer: JpegXlBitWriter,
   frequencies: Uint32Array,
@@ -334,7 +352,7 @@ const writeLfGlobal = (
     { bits: 8, offset: 1 },
     { bits: 16, offset: 1 },
   ])
-  writer.writeBits(1, 1)
+  writeComponentBlockContexts(writer)
   writer.writeBits(0, 1)
   writeU32(writer, 84, [
     { value: 84 },
@@ -347,7 +365,7 @@ const writeLfGlobal = (
   writer.writeBits(128, 8)
   writer.writeBits(128, 8)
   writer.writeBits(1, 1)
-  writeModularTree(writer, 3)
+  writeModularTree(writer, 5)
   return useAns
     ? Object.freeze({
         kind: 'ans',
@@ -426,45 +444,101 @@ const predictNonzeroCount = (plane: Int32Array, width: number, x: number, y: num
   return Math.floor(((plane[(y - 1) * width + x] ?? 32) + left + 1) / 2)
 }
 
-const acContextMap = (): Uint8Array => {
-  const map = new Uint8Array(15 * (37 + 458))
-  for (let context = 0; context < map.length; context += 1) {
-    if (context < 15 * 37) {
-      const predictedBucket = Math.floor(context / 15)
-      const blockContext = context % 15
-      const predictionCluster = Math.min(7, Math.floor(predictedBucket / 5))
-      map[context] = (blockContext === 0 ? 0 : 8) + predictionCluster
-      continue
-    }
-    const coefficientContext = context - 15 * 37
-    const blockContext = Math.floor(coefficientContext / 458)
-    const withinBlockContext = coefficientContext % 458
-    const previous = withinBlockContext & 1
-    const densityAndFrequency = withinBlockContext >>> 1
-    const densityBucket = Math.min(59, Math.floor(densityAndFrequency / 4))
-    const componentBucket = blockContext === 0 ? 0 : 1
-    map[context] = 16 + componentBucket * 120 + previous * 60 + densityBucket
-  }
-  const remapped = new Uint8Array(map.length)
-  const compactIndexes = new Map<number, number>()
-  let next = 0
-  for (let context = 0; context < map.length; context += 1) {
-    const cluster = map[context] ?? 0
-    let compact = compactIndexes.get(cluster)
-    if (compact === undefined) {
-      compact = next
-      compactIndexes.set(cluster, compact)
-      next += 1
-    }
-    remapped[context] = compact
-  }
-  return remapped
-}
+const acContextCount = 3 * (37 + 458)
+const acHybridConfig = Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 })
 
-const clusteredAcContextMap = acContextMap()
-const clusteredAcHistogramCount =
-  clusteredAcContextMap.reduce((maximum, histogram) => Math.max(maximum, histogram), 0) + 1
-const acHybridConfig = Object.freeze({ splitExponent: 4, msbInToken: 2, lsbInToken: 0 })
+const compactAcHistograms = (
+  frequencies: readonly Uint32Array[],
+  targetHistogramCount: number,
+): Readonly<{ contextMap: Uint8Array; frequencies: readonly Uint32Array[] }> => {
+  const target = Math.min(targetHistogramCount, frequencies.length)
+  const assignments = new Uint8Array(frequencies.length)
+  const active: number[] = []
+  for (let histogram = 0; histogram < frequencies.length; histogram += 1) {
+    const values = frequencies[histogram]
+    if (!values || !values.some((frequency) => frequency !== 0)) continue
+    active.push(histogram)
+    assignments[histogram] = Math.min(
+      target - 1,
+      Math.floor((histogram * target) / frequencies.length),
+    )
+  }
+  if (active.length === 0) {
+    throw invalidInput('JPEG XL AC frequencies contain no symbols')
+  }
+  let compact: Uint32Array[] = []
+  for (let iteration = 0; iteration < 6; iteration += 1) {
+    compact = Array.from({ length: target }, () => new Uint32Array(512))
+    for (const histogram of active) {
+      const destination = compact[assignments[histogram] ?? 0]
+      const values = frequencies[histogram]
+      if (!destination || !values) throw invalidInput('JPEG XL AC cluster is missing')
+      for (let symbol = 0; symbol < destination.length; symbol += 1) {
+        destination[symbol] = (destination[symbol] ?? 0) + (values[symbol] ?? 0)
+      }
+    }
+    if (iteration === 5) break
+    const totals = compact.map((values) =>
+      values.reduce((total, frequency) => total + frequency, 0),
+    )
+    for (const histogram of active) {
+      const values = frequencies[histogram]
+      if (!values) throw invalidInput('JPEG XL AC frequency histogram is missing')
+      let bestCluster = assignments[histogram] ?? 0
+      let bestCost = Number.POSITIVE_INFINITY
+      for (let cluster = 0; cluster < compact.length; cluster += 1) {
+        const centroid = compact[cluster]
+        const total = totals[cluster] ?? 0
+        if (!centroid || total === 0) continue
+        const denominator = total + 128
+        let cost = 0
+        for (let symbol = 0; symbol < values.length; symbol += 1) {
+          const count = values[symbol] ?? 0
+          if (count !== 0) {
+            cost -= count * Math.log2(((centroid[symbol] ?? 0) + 0.5) / denominator)
+          }
+        }
+        if (cost < bestCost) {
+          bestCost = cost
+          bestCluster = cluster
+        }
+      }
+      assignments[histogram] = bestCluster
+    }
+  }
+  const remap = new Int16Array(compact.length)
+  remap.fill(-1)
+  const populated: Uint32Array[] = []
+  for (let cluster = 0; cluster < compact.length; cluster += 1) {
+    const values = compact[cluster]
+    if (!values || !values.some((frequency) => frequency !== 0)) continue
+    remap[cluster] = populated.length
+    populated.push(values)
+  }
+  const clusteredContextMap = Uint8Array.from({ length: frequencies.length }, (_, histogram) => {
+    const mapped = remap[assignments[histogram] ?? 0]
+    return mapped === undefined || mapped < 0 ? 0 : mapped
+  })
+  const canonicalIndexes = new Int16Array(populated.length)
+  canonicalIndexes.fill(-1)
+  const canonicalFrequencies: Uint32Array[] = []
+  const contextMap = Uint8Array.from(clusteredContextMap, (histogram) => {
+    let canonical = canonicalIndexes[histogram]
+    if (canonical === undefined) throw invalidInput('JPEG XL AC histogram index is invalid')
+    if (canonical < 0) {
+      canonical = canonicalFrequencies.length
+      canonicalIndexes[histogram] = canonical
+      const values = populated[histogram]
+      if (!values) throw invalidInput('JPEG XL AC histogram is missing')
+      canonicalFrequencies.push(values)
+    }
+    return canonical
+  })
+  return Object.freeze({
+    contextMap,
+    frequencies: Object.freeze(canonicalFrequencies),
+  })
+}
 
 type AcEncoding =
   | Readonly<{ readonly kind: 'prefix'; readonly encoding: PrefixEncoding }>
@@ -508,10 +582,12 @@ const visitAcGroup = (
         const localY = y >> shift[1]
         const localWidth = blockWidth >> shift[0]
         const nonzeroPlane = nonzeroPlanes[channel]
-        const coefficientOrder = coefficientOrders[channel]
-        if (!nonzeroPlane || !coefficientOrder) {
+        if (!nonzeroPlane) {
           throw invalidInput('JPEG XL AC channel model is missing')
         }
+        const blockContext = channel === 1 ? 0 : channel === 0 ? 1 : 2
+        const coefficientOrder = coefficientOrders[channel]
+        if (!coefficientOrder) throw invalidInput('JPEG XL AC coefficient order is missing')
         let lastNonzero = 0
         for (let scan = 1; scan < 64; scan += 1) {
           const position = coefficientOrder[scan] ?? 0
@@ -523,10 +599,9 @@ const visitAcGroup = (
           if ((component.coefficients[base + position] ?? 0) !== 0) nonzero += 1
         }
         const predicted = predictNonzeroCount(nonzeroPlane, localWidth, localX, localY)
-        const blockContext = channel === 1 ? 0 : 7
         const nonzeroBucket =
           predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
-        visit(nonzero, nonzeroBucket * 15 + blockContext)
+        visit(nonzero, nonzeroBucket * 3 + blockContext)
         nonzeroPlane[localY * localWidth + localX] = nonzero
         let remainingNonzero = nonzero
         let previous = nonzero > 4 ? 0 : 1
@@ -544,7 +619,7 @@ const visitAcGroup = (
             throw invalidInput('JPEG XL AC coefficient context is invalid')
           }
           const coefficientContext =
-            15 * 37 + 458 * blockContext + (remainingContext + frequencyContext) * 2 + previous
+            3 * 37 + 458 * blockContext + (remainingContext + frequencyContext) * 2 + previous
           visit(packSigned(coefficient), coefficientContext)
           previous = coefficient === 0 ? 0 : 1
           remainingNonzero -= previous
@@ -560,6 +635,7 @@ const writeHfGlobal = (
   coefficientOrders: readonly Uint32Array[],
   useClusteredAns: boolean,
   modularEncoding: Readonly<ModularEncoding>,
+  acContextMap: Uint8Array,
   acFrequencies: readonly Uint32Array[],
 ): AcEncoding => {
   writer.writeBits(0, 1)
@@ -616,12 +692,12 @@ const writeHfGlobal = (
     }
     return Object.freeze({
       kind: 'prefix',
-      encoding: writePrefixCode(writer, 15 * (37 + 458), combined),
+      encoding: writePrefixCode(writer, 3 * (37 + 458), combined),
     })
   }
   return Object.freeze({
     kind: 'ans',
-    encoding: writeAnsCode(writer, clusteredAcContextMap, acFrequencies, acHybridConfig),
+    encoding: writeAnsCode(writer, acContextMap, acFrequencies, acHybridConfig),
   })
 }
 
@@ -664,7 +740,7 @@ const encodeSections = (
   const dcGroupCount = geometry.dcGroupsAcross * geometry.dcGroupsDown
   const groupCount = geometry.groupsAcross * geometry.groupsDown
   const useClusteredAns =
-    groupCount > 1 && geometry.fullBlockWidth * geometry.fullBlockHeight >= 4_096
+    groupCount > 1 && geometry.fullBlockWidth * geometry.fullBlockHeight >= 1_024
   const coefficientOrders = !useClusteredAns
     ? Object.freeze([naturalJpegXlOrder, naturalJpegXlOrder, naturalJpegXlOrder])
     : optimizedCoefficientOrders(geometry)
@@ -685,12 +761,12 @@ const encodeSections = (
   )
   started = performance.now()
   const acFrequencies = Array.from(
-    { length: useClusteredAns ? clusteredAcHistogramCount : 1 },
+    { length: useClusteredAns ? acContextCount : 1 },
     () => new Uint32Array(512),
   )
   for (let group = 0; group < groupCount; group += 1) {
     visitAcGroup(geometry, coefficientOrders, group, (value, context) => {
-      const histogram = useClusteredAns ? clusteredAcContextMap[context] : 0
+      const histogram = useClusteredAns ? context : 0
       const frequencies = histogram === undefined ? undefined : acFrequencies[histogram]
       if (!frequencies) throw invalidInput('JPEG XL AC frequency cluster is missing')
       if (!useClusteredAns) {
@@ -701,7 +777,14 @@ const encodeSections = (
       }
     })
   }
-  profiler?.record('ac-statistics', performance.now() - started, acFrequencies.length * 512 * 4)
+  const compactAc = useClusteredAns
+    ? compactAcHistograms(acFrequencies, 192)
+    : Object.freeze({ contextMap: Uint8Array.of(0), frequencies: acFrequencies })
+  profiler?.record(
+    'ac-statistics',
+    performance.now() - started,
+    compactAc.frequencies.length * 512 * 4,
+  )
 
   if (groupCount === 1) {
     started = performance.now()
@@ -714,7 +797,8 @@ const encodeSections = (
         coefficientOrders,
         useClusteredAns,
         modularEncoding,
-        acFrequencies,
+        compactAc.contextMap,
+        compactAc.frequencies,
       )
       writeAcGroup(writer, geometry, coefficientOrders, 0, acEncoding)
     })
@@ -746,7 +830,8 @@ const encodeSections = (
       coefficientOrders,
       useClusteredAns,
       modularEncoding as ModularEncoding,
-      acFrequencies,
+      compactAc.contextMap,
+      compactAc.frequencies,
     )
   })
   profiler?.record('hf-global', performance.now() - started, hf.byteLength)

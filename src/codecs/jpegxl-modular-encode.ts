@@ -651,13 +651,21 @@ export const writeAnsCode = (
     for (const histogram of contextMap) writer.writeBits(histogram, histogramBits)
   } else {
     writer.writeBits(0, 1)
-    writer.writeBits(0, 1)
-    const mapFrequencies = new Uint32Array(frequencies.length)
-    for (const histogram of contextMap) {
+    writer.writeBits(1, 1)
+    const alphabet = Array.from({ length: 256 }, (_, index) => index)
+    const encodedContextMap = Uint8Array.from(contextMap, (histogram) => {
+      const position = alphabet.indexOf(histogram)
+      if (position < 0) throw invalidInput('JPEG XL ANS context map is invalid')
+      alphabet.splice(position, 1)
+      alphabet.unshift(histogram)
+      return position
+    })
+    const mapFrequencies = new Uint32Array(256)
+    for (const histogram of encodedContextMap) {
       mapFrequencies[histogram] = (mapFrequencies[histogram] ?? 0) + 1
     }
     const mapEncoding = writePrefixCode(writer, 1, mapFrequencies)
-    for (const histogram of contextMap) writeHybridUint(writer, histogram, mapEncoding)
+    for (const histogram of encodedContextMap) writeHybridUint(writer, histogram, mapEncoding)
   }
   writer.writeBits(0, 1)
   writer.writeBits(3, 2)

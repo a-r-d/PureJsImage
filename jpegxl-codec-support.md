@@ -27,10 +27,10 @@ VarDCT path materializes the selected full frame before applying a crop and serv
 The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
 gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
 and the six-format output matrix is exact through pinned `djxl` and jxl-rs. The corpus
-compression gate remains below the stable threshold, so the encoder stays Experimental. The separate
+compression gate remains below the stable threshold, so the pixel encoder stays Experimental. The separate stable
 `purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
-reconstructs and compares every source byte before exact-mode success. Exact transcode
+reconstructs and compares every source byte before exact-mode success. Its 250-file real JPEG archive, compression, speed, bounded sink-verification, and browser parity gates pass. Exact transcode
 walks APP metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC.
 
 A checked implementation item is already present and tested in the repository.
@@ -56,6 +56,7 @@ and independently validated.
   dependency, native library, WebAssembly module, or copied third-party code
 - [x] Add a constrained pixel-lossless Modular encoder through the normal pipeline
 - [x] Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs
+- [x] Pass the 250-file exact JPEG compression, 12 MP performance, bounded verification, and browser parity gates for the documented subset
 
 ## Planned lossless-first output boundary
 

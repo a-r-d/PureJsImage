@@ -210,7 +210,7 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
         : `${Math.abs(savings).toLocaleString()} bytes larger (+${Math.abs(transcode?.savingsPercentage ?? 0).toFixed(2)}% versus source)`
     rows([
       ['Output', response.name],
-      ['Status', 'Experimental'],
+      ['Status', 'Stable exact transcode'],
       ['Mode', transcode?.mode ?? 'unknown'],
       ['Source JPEG', `${(transcode?.inputBytes ?? 0).toLocaleString()} bytes`],
       ['JPEG XL output', `${(transcode?.outputBytes ?? 0).toLocaleString()} bytes`],

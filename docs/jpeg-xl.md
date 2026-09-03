@@ -7,17 +7,18 @@ PureJsImage has three separate JPEG XL paths:
 1. A static decoder for the checked lossless Modular subset and selected 8-bit single-group XYB
    VarDCT fixtures.
 2. An experimental effort-1 Modular encoder for mathematically lossless pixels.
-3. An explicit coefficient-domain JPEG transcoder that verifies byte-exact JPEG reconstruction.
+3. A stable coefficient-domain JPEG transcoder for the documented eligible subset that verifies
+   byte-exact JPEG reconstruction.
 
-The encoder and transcoder are experimental. Unsupported syntax fails with an `ImageError`. Exact
-JPEG transcode never silently becomes a pixel transcode.
+The pixel encoder remains experimental. Unsupported syntax fails with an `ImageError`. Exact JPEG
+transcode never silently becomes a pixel transcode.
 
-The exact transcoder now uses deterministic contextual ANS coding and custom coefficient orders for
-larger coefficient sets. On the checked 12 MP baseline and progressive camera files, it saves 12.75%
-and 7.79% and finishes in 5.26 and 6.25 seconds on the recorded development machine. Both files are
-slightly smaller than pinned libjxl effort-1 output. The mixed ten-case matrix still fails the stable
-compression gate because small generated files grow, and the required 250-file real JPEG archive is
-not complete. Exact transcode therefore remains Experimental.
+The exact transcoder uses bounded Brotli reconstruction payloads, deterministic contextual ANS
+coding, move-to-front context maps, spatial DC prediction, and custom coefficient orders for larger
+coefficient sets. The pinned 250-file COCO archive cohort reconstructs every eligible JPEG exactly.
+Every output is smaller, median savings are above 12%, and the output-size percentiles pass the
+pinned libjxl effort-1 limits. Small JPEGs can still grow, so use `onlyIfSmaller: true` when size is a
+hard requirement.
 
 ## Decode or encode pixels
 
@@ -99,12 +100,13 @@ limits include:
   absent or the checked sRGB profile. Grayscale, CMYK, YCCK, non-sRGB or malformed Exif color,
   non-sRGB ICC, and malformed ICC exact transcode are unsupported.
 - No general lossy JPEG XL encoder.
-- Bounded full input and output retention in the experimental encoder and transcoder.
+- Bounded full input and output retention in the experimental pixel encoder and exact transcoder.
 
 Pixel-lossless encoding preserves decoded samples. Exact JPEG transcode preserves the original
 JPEG byte stream. These guarantees are not interchangeable. In memory mode the transcoder returns
 `data`. When a sink is supplied, it writes to that sink and returns `data: undefined` so the caller
-does not retain a second complete output.
+does not retain a second complete output. Exact verification compares reconstructed bytes directly
+with the caller input and does not allocate a second reconstructed JPEG.
 
 The browser workbench at `/jpeg-xl/` runs the same first-party TypeScript implementation in a Web
 Worker. Local files stay in the browser. It presents pixel-lossless PNG or TIFF encode, exact JPEG

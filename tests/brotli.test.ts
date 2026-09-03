@@ -1,11 +1,42 @@
 import { brotliDecompressSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
-import { decodeUncompressedBrotli, encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
+import {
+  decodeBrotli,
+  decodeUncompressedBrotli,
+  encodeBrotli,
+  encodeUncompressedBrotli,
+} from '../src/codecs/brotli.ts'
 
 const pattern = (bytes: number): Uint8Array =>
   Uint8Array.from({ length: bytes }, (_, index) => (index * 37 + Math.floor(index / 251)) & 255)
 
 describe('bounded first-party Brotli subset', () => {
+  it.each([1, 17, 65_535, 65_536, 65_537, 131_089])(
+    'round trips %i compressed bytes and agrees with the Node oracle',
+    (bytes) => {
+      const input = pattern(bytes)
+      const encoded = encodeBrotli(input)
+      expect(new Uint8Array(brotliDecompressSync(encoded))).toEqual(input)
+      expect(decodeBrotli(encoded, { maxOutputBytes: bytes })).toEqual(input)
+    },
+  )
+
+  it('uses a backward copy to actually compress repeated metadata', () => {
+    const input = Uint8Array.from({ length: 4096 }, (_, index) => index & 3)
+    const encoded = encodeBrotli(input)
+
+    expect(encoded.byteLength).toBeLessThan(input.byteLength)
+    expect(new Uint8Array(brotliDecompressSync(encoded))).toEqual(input)
+    expect(decodeBrotli(encoded, { maxOutputBytes: input.byteLength })).toEqual(input)
+  })
+
+  it('bounds compressed output before decoding literals', () => {
+    const encoded = encodeBrotli(pattern(17))
+    expect(() => decodeBrotli(encoded, { maxOutputBytes: 16 })).toThrowError(
+      expect.objectContaining({ code: 'LIMIT_EXCEEDED' }),
+    )
+  })
+
   it.each([0, 1, 17, 65_535, 65_536, 65_537, 131_089])(
     'round trips %i uncompressed bytes and agrees with the Node oracle',
     (bytes) => {

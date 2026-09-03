@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "purpose": "JPEG XL Milestone 1 measured 12 MP exact-transcode performance gate",
+  "oracle": "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)",
+  "timingPolicy": "PureJsImage includes its in-process exactness check. The libjxl reference includes cjxl encoding, djxl JPEG reconstruction, and reading the reconstructed bytes.",
+  "warmupRunsPerCase": 1,
+  "measuredRunsPerCase": 3,
+  "m0FastestLargePhotoMilliseconds": 69600,
+  "results": [
+    {
+      "id": "baseline-12mp",
+      "sourceBytes": 4768216,
+      "outputBytes": 4151718,
+      "libjxlBytes": 4192034,
+      "exact": true,
+      "pureJsImageMilliseconds": [
+        3157.1947849999997,
+        3116.859703,
+        2956.805475000001
+      ],
+      "pureJsImageMedianMilliseconds": 3116.859703,
+      "libjxlExactWorkflowMilliseconds": [
+        367.3730889999997,
+        365.98716199999944,
+        371.9349820000007
+      ],
+      "libjxlExactWorkflowMedianMilliseconds": 367.3730889999997
+    },
+    {
+      "id": "progressive-12mp",
+      "sourceBytes": 2855050,
+      "outputBytes": 2613099,
+      "libjxlBytes": 2663287,
+      "exact": true,
+      "pureJsImageMilliseconds": [
+        3310.122901999999,
+        3323.0337580000014,
+        3333.8266430000003
+      ],
+      "pureJsImageMedianMilliseconds": 3323.0337580000014,
+      "libjxlExactWorkflowMilliseconds": [
+        505.78949400000056,
+        518.8985979999998,
+        518.2101250000014
+      ],
+      "libjxlExactWorkflowMedianMilliseconds": 518.2101250000014
+    }
+  ],
+  "milestone1PerformanceGate": {
+    "passed": true,
+    "exactCases": 2,
+    "totalCases": 2,
+    "slowestLargePhotoMedianMilliseconds": 3323.0337580000014,
+    "maximumLargePhotoMilliseconds": 3333.8266430000003,
+    "speedupFromM0FastestLargePhoto": 20.94471650564555,
+    "pureJsImageMedianMilliseconds": 3233.6588434999994,
+    "libjxlExactWorkflowMedianMilliseconds": 438.8622380000006,
+    "medianRatioToLibjxlExactWorkflow": 7.36827770426672
+  }
+}

@@ -9,48 +9,48 @@
       "height": 23,
       "progressive": false,
       "sourceBytes": 1311,
-      "outputBytes": 1566,
-      "savingsPercentage": -19.450800915331808,
+      "outputBytes": 1579,
+      "savingsPercentage": -20.442410373760488,
       "sourceSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
-      "outputSha256": "917c1196567cbcdb58a0663b0d9b4e630531438a0526d7ce22383cb2854a8b44",
-      "reconstructionPayloadBytes": 473,
+      "outputSha256": "d653f75ba0048f4b8b739bb05c5291ff7fb71e92f5897ca59607d3b42ac7c39c",
+      "reconstructionPayloadBytes": 481,
       "opaqueReconstructionBytes": 17,
       "timings": {
-        "coefficientParseMilliseconds": 3.0466930000000048,
-        "reconstructionParseMilliseconds": 1.3657460000000015,
-        "sourceExactnessCheckMilliseconds": 3.1001119999999958,
-        "jbrdAssemblyMilliseconds": 1.6688899999999762,
-        "exactVerificationMilliseconds": 22.043114000000003,
+        "coefficientParseMilliseconds": 2.6976290000000063,
+        "reconstructionParseMilliseconds": 1.3360769999999889,
+        "sourceExactnessCheckMilliseconds": 2.124222000000003,
+        "jbrdAssemblyMilliseconds": 1.9051439999999786,
+        "exactVerificationMilliseconds": 22.271653000000015,
         "encoderStages": [
           {
             "stage": "geometry",
-            "milliseconds": 0.3659849999999949,
+            "milliseconds": 0.37163900000001604,
             "bytes": 0
           },
           {
             "stage": "dc-representation",
-            "milliseconds": 0.39896000000001663,
+            "milliseconds": 0.4596290000000067,
             "bytes": 440
           },
           {
             "stage": "ac-statistics",
-            "milliseconds": 0.5445750000000089,
+            "milliseconds": 0.5904350000000136,
             "bytes": 2048
           },
           {
             "stage": "ac-groups",
-            "milliseconds": 2.71983800000001,
-            "bytes": 1031
+            "milliseconds": 2.8854390000000194,
+            "bytes": 1036
           },
           {
             "stage": "codestream-assembly",
-            "milliseconds": 0.20074999999999932,
-            "bytes": 1045
+            "milliseconds": 0.28251299999999446,
+            "bytes": 1050
           },
           {
             "stage": "container-assembly",
-            "milliseconds": 0.11427000000000476,
-            "bytes": 1566
+            "milliseconds": 0.14547500000000468,
+            "bytes": 1579
           }
         ]
       },
@@ -724,63 +724,63 @@
       "height": 3000,
       "progressive": false,
       "sourceBytes": 4768216,
-      "outputBytes": 4160078,
-      "savingsPercentage": 12.75399436602704,
+      "outputBytes": 4151718,
+      "savingsPercentage": 12.929321993802295,
       "sourceSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
-      "outputSha256": "4dcca99c26dc2b0f8fc1e1018f9a71d6ab9808bd779139669f0de44ab3f2a793",
-      "reconstructionPayloadBytes": 658412,
+      "outputSha256": "36b328d7335ad6b23ee66082e4b8436a4fde341694f10a0d0fc1577e3a7d6d45",
+      "reconstructionPayloadBytes": 658393,
       "opaqueReconstructionBytes": 657920,
       "timings": {
-        "coefficientParseMilliseconds": 249.40700999999999,
-        "reconstructionParseMilliseconds": 15.856910000000028,
-        "sourceExactnessCheckMilliseconds": 684.3692209999999,
-        "jbrdAssemblyMilliseconds": 0.5615119999999933,
-        "exactVerificationMilliseconds": 2545.457927,
+        "coefficientParseMilliseconds": 237.688986,
+        "reconstructionParseMilliseconds": 14.894281999999976,
+        "sourceExactnessCheckMilliseconds": 667.232745,
+        "jbrdAssemblyMilliseconds": 28.41842500000007,
+        "exactVerificationMilliseconds": 2715.3003739999995,
         "encoderStages": [
           {
             "stage": "geometry",
-            "milliseconds": 0.06639800000016294,
+            "milliseconds": 0.06937399999992522,
             "bytes": 0
           },
           {
             "stage": "dc-representation",
-            "milliseconds": 48.38708600000018,
+            "milliseconds": 57.13622200000009,
             "bytes": 3773688
           },
           {
             "stage": "ac-statistics",
-            "milliseconds": 526.920822,
-            "bytes": 507904
+            "milliseconds": 815.711106,
+            "bytes": 131072
           },
           {
             "stage": "lf-global",
-            "milliseconds": 1.0329859999999371,
-            "bytes": 61
+            "milliseconds": 0.965302999999949,
+            "bytes": 59
           },
           {
             "stage": "dc-groups",
-            "milliseconds": 104.55721199999994,
-            "bytes": 365647
+            "milliseconds": 112.06512299999986,
+            "bytes": 371521
           },
           {
             "stage": "hf-global",
-            "milliseconds": 14.358254999999872,
-            "bytes": 10444
+            "milliseconds": 6.689813999999842,
+            "bytes": 1731
           },
           {
             "stage": "ac-groups",
-            "milliseconds": 1074.792605,
-            "bytes": 3124943
+            "milliseconds": 1149.3230389999999,
+            "bytes": 3119444
           },
           {
             "stage": "codestream-assembly",
-            "milliseconds": 1.6104620000000978,
-            "bytes": 3501618
+            "milliseconds": 1.5435550000001967,
+            "bytes": 3493277
           },
           {
             "stage": "container-assembly",
-            "milliseconds": 2.4197049999997944,
-            "bytes": 4160078
+            "milliseconds": 2.531080999999631,
+            "bytes": 4151718
           }
         ]
       },
@@ -1454,63 +1454,63 @@
       "height": 3000,
       "progressive": true,
       "sourceBytes": 2855050,
-      "outputBytes": 2632504,
-      "savingsPercentage": 7.7948197054342305,
+      "outputBytes": 2613099,
+      "savingsPercentage": 8.474492565804452,
       "sourceSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
-      "outputSha256": "b59b73be64f275ed4efc1967eb1c78ec399aa2c6af54edf31765073db5419dc0",
+      "outputSha256": "09d77ef91de4bde9b63a540725cdf82a2f19c767ef4d810234f9447b894b3485",
       "reconstructionPayloadBytes": 415,
       "opaqueReconstructionBytes": 0,
       "timings": {
-        "coefficientParseMilliseconds": 373.60089400000015,
-        "reconstructionParseMilliseconds": 16.905439000000115,
-        "sourceExactnessCheckMilliseconds": 1514.739168,
-        "jbrdAssemblyMilliseconds": 0.5649330000005648,
-        "exactVerificationMilliseconds": 2932.929873000001,
+        "coefficientParseMilliseconds": 361.60874800000056,
+        "reconstructionParseMilliseconds": 16.824075999999877,
+        "sourceExactnessCheckMilliseconds": 1492.0081109999992,
+        "jbrdAssemblyMilliseconds": 0.8603710000006686,
+        "exactVerificationMilliseconds": 2962.7669800000003,
         "encoderStages": [
           {
             "stage": "geometry",
-            "milliseconds": 0.3238099999998667,
+            "milliseconds": 0.3167089999988093,
             "bytes": 0
           },
           {
             "stage": "dc-representation",
-            "milliseconds": 39.2847670000001,
+            "milliseconds": 43.94363500000145,
             "bytes": 3407688
           },
           {
             "stage": "ac-statistics",
-            "milliseconds": 430.28867399999945,
-            "bytes": 507904
+            "milliseconds": 672.4808589999993,
+            "bytes": 129024
           },
           {
             "stage": "lf-global",
-            "milliseconds": 0.4910060000001977,
-            "bytes": 56
+            "milliseconds": 0.48163000000022294,
+            "bytes": 57
           },
           {
             "stage": "dc-groups",
-            "milliseconds": 80.65318099999968,
-            "bytes": 268164
+            "milliseconds": 90.66939699999966,
+            "bytes": 272727
           },
           {
             "stage": "hf-global",
-            "milliseconds": 12.120636000001468,
-            "bytes": 10079
+            "milliseconds": 5.9184949999998935,
+            "bytes": 1701
           },
           {
             "stage": "ac-groups",
-            "milliseconds": 837.2028580000006,
-            "bytes": 2353296
+            "milliseconds": 876.417379999999,
+            "bytes": 2337708
           },
           {
             "stage": "codestream-assembly",
-            "milliseconds": 0.5361850000008417,
-            "bytes": 2632041
+            "milliseconds": 0.506532999999763,
+            "bytes": 2612636
           },
           {
             "stage": "container-assembly",
-            "milliseconds": 0.3982510000005277,
-            "bytes": 2632504
+            "milliseconds": 0.3839490000009391,
+            "bytes": 2613099
           }
         ]
       },

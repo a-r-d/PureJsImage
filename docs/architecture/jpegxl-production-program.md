@@ -143,23 +143,43 @@ above overrides the usual branch boundary for the M1 work below.
 ## M1 exact JPEG recompression progress
 
 M1 began from `16eca4041e572da4f4c69a7fec392da66e5bd9ff` on the existing branch by explicit
-operator instruction. The implementation now uses byte-chunk bit reads, bounded Huffman lookup,
-spatial DC prediction, observed coefficient orders, and clustered ANS contexts for larger
-coefficient sets. Small images keep the lower-overhead prefix path.
+operator instruction. The implementation uses a first-party bounded Brotli encoder and decoder,
+spatial gradient DC prediction, observed coefficient orders, clustered component and frequency ANS
+contexts, and move-to-front context maps. Small images keep the lower-overhead prefix path.
 
-The checked reverse matrix reconstructs all 10 eligible JPEGs byte-for-byte through pinned `djxl`.
-The 12 MP baseline camera JPEG shrinks from 4,768,216 to 4,160,078 bytes in 5.256 seconds. The 12 MP
-progressive camera JPEG shrinks from 2,855,050 to 2,632,504 bytes in 6.253 seconds. The outputs are
-0.9924 and 0.9884 times their pinned libjxl effort-1 reference sizes. Compared with the recorded M0
-69.6 to 71.5 second range, the slower new result is still at least 11.1 times faster.
+The pinned COCO validation cohort contains 250 real JPEGs selected before encoding from 357 eligible
+files of at least 224 KiB. It records source hashes, dimensions, URLs, and all eight COCO license
+classes. Images stay in the ignored local corpus directory. Pinned `djxl` reconstructs all 250
+outputs byte-for-byte. Every output is smaller, median savings are 12.065%, and p10 savings are
+10.694%. The median output ratio to pinned libjxl effort 1 is 0.9624, p90 is 0.9777, the worst ratio
+is 1.0411, and there are no unexplained outliers above 1.35.
 
-The milestone is not complete. Across the mixed 10-case PR matrix, only 20% of cases shrink, median
-savings are -19.451%, p10 savings are -98.068%, the median libjxl ratio is 1.1264, the p90 ratio is
-1.8039, and the worst ratio is 3.8022. Most misses are tiny generated files where container and
-entropy-model overhead dominate. The archive also contains only 3 real JPEGs instead of the required
-250. Bounded compressed Brotli support for reconstruction data remains open. Exact transcode stays
-Experimental, and M2 must not begin.
+The repeated 12 MP performance gate measures the public PureJsImage call against an equivalent
+pinned libjxl workflow that includes `cjxl`, `djxl`, and reading the reconstructed JPEG. The slower
+PureJsImage case has a 3.323 second median and the maximum recorded call is 3.334 seconds. The
+combined median is 7.369 times libjxl. This is 20.94 times faster than the fastest recorded 69.6
+second M0 large-photo result. Exact verification compares reconstructed bytes with caller input
+without allocating a duplicate JPEG. Sink cancellation aborts the sink and releases managed bytes.
 
-The profiling report is `benchmark/results/jpegxl-m1-profile-2026-09-03.json`. The exactness,
-compression, timing, and pinned libjxl comparison report is
-`benchmark/results/jpegxl-m1-recompression-2026-09-03.json`.
+The 10-case reverse matrix remains the syntax regression set. Tiny generated files in that matrix
+can grow because fixed container and model overhead dominate. `onlyIfSmaller` returns a structured
+error before writing a non-smaller output. The stable exact-transcode contract remains limited to
+the documented three-component 8-bit Huffman subset. The pixel-lossless Modular encoder remains
+Experimental. M2 has not begun.
+
+The profiling report is `benchmark/results/jpegxl-m1-profile-2026-09-03.json`. The syntax regression
+report is `benchmark/results/jpegxl-m1-recompression-2026-09-03.json`. The promotion corpus and
+performance reports are `benchmark/results/jpegxl-m1-real-corpus-2026-09-03.json` and
+`benchmark/results/jpegxl-m1-performance-2026-09-03.json`.
+
+### M1 gate checklist
+
+- [x] Bounded first-party compressed Brotli reconstruction payloads
+- [x] Deterministic spatial DC, AC, and clustered entropy modeling
+- [x] 250 checksum-pinned real JPEGs with recorded licenses
+- [x] 250 of 250 byte-exact reconstructions through pinned `djxl`
+- [x] Compression and pinned libjxl size percentiles
+- [x] Repeated 12 MP absolute time, M0 speedup, and libjxl workflow ratio
+- [x] `onlyIfSmaller`, sink memory, and cancellation behavior
+- [x] Chromium, Firefox, and WebKit locally with retries disabled
+- [x] Full `npm run check`

@@ -26,7 +26,7 @@ const digest = async (path: string): Promise<string> =>
     .digest('hex')
 
 describe('JPEG XL production program baseline', () => {
-  test('tracks every milestone deterministically without a Stable promotion', async () => {
+  test('tracks every milestone deterministically with only the approved M1 promotion', async () => {
     const status = await json(`${root}/status.json`)
     const milestones = array(status.milestones, 'status.milestones').map((value) =>
       record(value, 'milestone'),
@@ -45,9 +45,19 @@ describe('JPEG XL production program baseline', () => {
       'M10',
     ])
     expect(['in progress', 'PR open']).toContain(milestones[0]?.status)
-    expect(
-      milestones.every(({ stablePromotionGatePassed }) => stablePromotionGatePassed === false),
-    ).toBe(true)
+    expect(milestones.map(({ stablePromotionGatePassed }) => stablePromotionGatePassed)).toEqual([
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ])
 
     const capabilities = await json('capabilities/manifest.json')
     const jpegXl = array(capabilities.codecs, 'capabilities.codecs')
@@ -57,7 +67,7 @@ describe('JPEG XL production program baseline', () => {
     expect(record(jpegXl?.read, 'jpegxl.read')).toEqual({ status: 'limited', label: 'Limited' })
     expect(record(jpegXl?.write, 'jpegxl.write')).toEqual({
       status: 'limited',
-      label: 'Experimental',
+      label: 'Stable exact transcode',
     })
   })
 
@@ -66,10 +76,13 @@ describe('JPEG XL production program baseline', () => {
     const generated = await json(`${root}/corpora/generated-features.json`)
     const realImages = await json(`${root}/corpora/real-images.json`)
     const jpegArchive = await json(`${root}/corpora/jpeg-archive.json`)
+    const realJpegArchive = await json(`${root}/corpora/jpeg-archive-coco-val2017.json`)
 
     expect(array(conformance.cases, 'conformance.cases')).toHaveLength(39)
     expect(array(realImages.images, 'realImages.images')).toHaveLength(10)
     expect(array(jpegArchive.cases, 'jpegArchive.cases')).toHaveLength(10)
+    expect(array(realJpegArchive.cases, 'realJpegArchive.cases')).toHaveLength(250)
+    expect(jpegArchive.currentRealJpegCount).toBe(250)
 
     for (const value of array(conformance.cases, 'conformance.cases')) {
       const fixture = record(value, 'conformance fixture')
@@ -86,6 +99,13 @@ describe('JPEG XL production program baseline', () => {
       expect(image.license).toEqual(expect.any(String))
       expect(image.sha256).toMatch(/^[0-9a-f]{64}$/u)
     }
+    for (const value of array(realJpegArchive.cases, 'realJpegArchive.cases')) {
+      const image = record(value, 'real JPEG archive entry')
+      const license = record(image.license, 'real JPEG archive license')
+      expect(license.name).toEqual(expect.any(String))
+      expect(license.url).toEqual(expect.any(String))
+      expect(image.sha256).toMatch(/^[0-9a-f]{64}$/u)
+    }
     for (const value of array(generated.fixtureManifests, 'generated.fixtureManifests')) {
       const manifest = record(value, 'component manifest')
       const path = String(manifest.path)
@@ -93,6 +113,36 @@ describe('JPEG XL production program baseline', () => {
       expect(manifest.license).toEqual(expect.any(String))
       expect(manifest.revision).toMatch(/^[0-9a-f]{40}$/u)
     }
+  })
+
+  test('records passing Milestone 1 compression and performance gates', async () => {
+    const compressionReport = await json('benchmark/results/jpegxl-m1-real-corpus-2026-09-03.json')
+    const compression = record(
+      compressionReport.milestone1CompressionGate,
+      'milestone1CompressionGate',
+    )
+    expect(compression).toMatchObject({
+      passed: true,
+      exactCases: 250,
+      totalCases: 250,
+      unexplainedOutliers: [],
+    })
+    expect(compression.smallerRate).toBeGreaterThanOrEqual(0.9)
+    expect(compression.medianSavingsPercentage).toBeGreaterThanOrEqual(12)
+    expect(compression.p10SavingsPercentage).toBeGreaterThanOrEqual(0)
+    expect(compression.medianRatioToLibjxl).toBeLessThanOrEqual(1.1)
+    expect(compression.p90RatioToLibjxl).toBeLessThanOrEqual(1.2)
+    expect(compression.worstRatioToLibjxl).toBeLessThanOrEqual(1.35)
+
+    const performanceReport = await json('benchmark/results/jpegxl-m1-performance-2026-09-03.json')
+    const performance = record(
+      performanceReport.milestone1PerformanceGate,
+      'milestone1PerformanceGate',
+    )
+    expect(performance).toMatchObject({ passed: true, exactCases: 2, totalCases: 2 })
+    expect(performance.slowestLargePhotoMedianMilliseconds).toBeLessThanOrEqual(15_000)
+    expect(performance.speedupFromM0FastestLargePhoto).toBeGreaterThanOrEqual(5)
+    expect(performance.medianRatioToLibjxlExactWorkflow).toBeLessThanOrEqual(8)
   })
 
   test('classifies every official conformance case without incorrect output', async () => {

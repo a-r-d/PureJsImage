@@ -14,6 +14,7 @@ import { readJpegXlSourceFrameStructure } from './jpegxl-decode.ts'
 import {
   reconstructJpegFromCoefficientImage,
   type JpegXlJpegReconstructionMetadata,
+  verifyJpegFromCoefficientImage,
 } from './jpegxl-jpeg-reconstruct.ts'
 import {
   decodeJpegXlJpegReconstructionBlobs,
@@ -506,4 +507,20 @@ export const reconstructJpegFromJpegXl = async (
     await options.sink?.abort(error)
     throw error
   }
+}
+
+export const verifyJpegReconstructionFromJpegXl = async (
+  input: ImageInput,
+  expected: Uint8Array,
+  options: Readonly<Omit<ReconstructJpegFromJpegXlOptions, 'sink'>> = {},
+): Promise<void> => {
+  const decoded = await decodeJpegXlJpegReconstruction(input, options)
+  verifyJpegFromCoefficientImage(
+    decoded.reconstruction,
+    decoded.blobs,
+    decoded.image,
+    decoded.metadata,
+    decoded.maximumOutputBytes,
+    expected,
+  )
 }

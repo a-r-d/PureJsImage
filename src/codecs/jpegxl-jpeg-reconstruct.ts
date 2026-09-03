@@ -28,15 +28,17 @@ const xmpPrefix = Uint8Array.from('http://ns.adobe.com/xap/1.0/\0', (value) => v
 
 class BoundedJpegWriter {
   readonly #maximumBytes: number
+  readonly #expected: Uint8Array | undefined
   #data: Uint8Array
   #length = 0
 
-  constructor(maximumBytes: number) {
+  constructor(maximumBytes: number, expected?: Uint8Array) {
     if (!Number.isSafeInteger(maximumBytes) || maximumBytes < 1) {
       throw invalidInput('JPEG reconstruction output limit must be a positive safe integer')
     }
     this.#maximumBytes = maximumBytes
-    this.#data = new Uint8Array(Math.min(maximumBytes, 4_096))
+    this.#expected = expected
+    this.#data = expected ? new Uint8Array() : new Uint8Array(Math.min(maximumBytes, 4_096))
   }
 
   get length(): number {
@@ -45,13 +47,27 @@ class BoundedJpegWriter {
 
   writeByte(value: number): void {
     this.#reserve(1)
-    this.#data[this.#length] = value
+    if (this.#expected) {
+      if (this.#expected[this.#length] !== (value & 255)) {
+        throw invalidInput('JPEG reconstruction differs from the expected source')
+      }
+    } else {
+      this.#data[this.#length] = value
+    }
     this.#length += 1
   }
 
   writeBytes(value: Uint8Array): void {
     this.#reserve(value.byteLength)
-    this.#data.set(value, this.#length)
+    if (this.#expected) {
+      for (let index = 0; index < value.byteLength; index += 1) {
+        if (this.#expected[this.#length + index] !== value[index]) {
+          throw invalidInput('JPEG reconstruction differs from the expected source')
+        }
+      }
+    } else {
+      this.#data.set(value, this.#length)
+    }
     this.#length += value.byteLength
   }
 
@@ -64,6 +80,12 @@ class BoundedJpegWriter {
   }
 
   finish(): Uint8Array {
+    if (this.#expected) {
+      if (this.#length !== this.#expected.byteLength) {
+        throw invalidInput('JPEG reconstruction length differs from the expected source')
+      }
+      return new Uint8Array()
+    }
     return this.#data.slice(0, this.#length)
   }
 
@@ -72,6 +94,12 @@ class BoundedJpegWriter {
       throw limitExceeded(`JPEG reconstruction exceeds the ${this.#maximumBytes}-byte output limit`)
     }
     const required = this.#length + bytes
+    if (this.#expected) {
+      if (required > this.#expected.byteLength) {
+        throw invalidInput('JPEG reconstruction exceeds the expected source length')
+      }
+      return
+    }
     if (required <= this.#data.byteLength) return
     let capacity = Math.max(1, this.#data.byteLength)
     while (capacity < required) capacity = Math.min(this.#maximumBytes, capacity * 2)
@@ -516,12 +544,13 @@ const createMetadataMarker = (
   return output
 }
 
-export const reconstructJpegFromCoefficientImage = (
+const reconstructJpegFromCoefficientImageInternal = (
   header: JpegXlJpegReconstructionHeader,
   blobs: JpegXlJpegReconstructionBlobs,
   image: JpegCoefficientImage,
   metadata: Readonly<JpegXlJpegReconstructionMetadata>,
   maximumOutputBytes: number,
+  expected?: Uint8Array,
 ): Uint8Array => {
   if (image.components.length !== header.componentIds.length) {
     throw invalidInput('JPEG reconstruction component count does not match image coefficients')
@@ -538,7 +567,7 @@ export const reconstructJpegFromCoefficientImage = (
     }
   }
 
-  const output = new BoundedJpegWriter(maximumOutputBytes)
+  const output = new BoundedJpegWriter(maximumOutputBytes, expected)
   writeMarker(output, 0xd8)
   const installedDc = new Map<number, ReadonlyMap<number, HuffmanCode>>()
   const installedAc = new Map<number, ReadonlyMap<number, HuffmanCode>>()
@@ -715,4 +744,31 @@ export const reconstructJpegFromCoefficientImage = (
     throw invalidInput('JPEG reconstruction descriptors were not consumed exactly')
   }
   return output.finish()
+}
+
+export const reconstructJpegFromCoefficientImage = (
+  header: JpegXlJpegReconstructionHeader,
+  blobs: JpegXlJpegReconstructionBlobs,
+  image: JpegCoefficientImage,
+  metadata: Readonly<JpegXlJpegReconstructionMetadata>,
+  maximumOutputBytes: number,
+): Uint8Array =>
+  reconstructJpegFromCoefficientImageInternal(header, blobs, image, metadata, maximumOutputBytes)
+
+export const verifyJpegFromCoefficientImage = (
+  header: JpegXlJpegReconstructionHeader,
+  blobs: JpegXlJpegReconstructionBlobs,
+  image: JpegCoefficientImage,
+  metadata: Readonly<JpegXlJpegReconstructionMetadata>,
+  maximumOutputBytes: number,
+  expected: Uint8Array,
+): void => {
+  reconstructJpegFromCoefficientImageInternal(
+    header,
+    blobs,
+    image,
+    metadata,
+    maximumOutputBytes,
+    expected,
+  )
 }

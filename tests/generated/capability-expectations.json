@@ -251,6 +251,7 @@
         "tests/jpegxl-bitstream.test.ts",
         "tests/jpegxl-corpus.test.ts",
         "tests/jpegxl-jpeg-reconstruction.test.ts",
+        "tests/jpegxl-production-program.test.ts",
         "browser-tests/compatibility.pw.ts",
         "browser-tests/jpegxl-workbench.pw.ts",
         "tests/library.test.ts"

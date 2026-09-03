@@ -118,7 +118,7 @@
       "readLabel": "Limited",
       "readStatus": "limited",
       "targetId": "codec-jpegxl",
-      "writeLabel": "Experimental",
+      "writeLabel": "Stable exact transcode",
       "writeStatus": "limited"
     },
     {
@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.17.0",
-    "unpackedPackageBytes": 7622587,
+    "unpackedPackageBytes": 7648817,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -568,13 +568,13 @@
         "packageExports": ["purejsimage/jpegxl"],
         "sourceEntries": ["./src/jpegxl.ts"]
       },
-      "gzipBytes": 90957,
+      "gzipBytes": 93405,
       "id": "jpegxl-specialized",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 285060,
+      "minifiedJsBytes": 293565,
       "name": "JPEG XL specialized APIs",
       "recordedBaselineMinifiedBytes": 255489,
-      "brotliBytes": 73783
+      "brotliBytes": 75856
     },
     {
       "category": "purejsimage-entry",
@@ -1393,13 +1393,13 @@
         "packageExports": ["purejsimage/codecs/jpegxl"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/jpegxl.ts"]
       },
-      "gzipBytes": 76142,
+      "gzipBytes": 77512,
       "id": "codec-jpegxl",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 241693,
+      "minifiedJsBytes": 246364,
       "name": "Core + JPEG XL",
       "recordedBaselineMinifiedBytes": 233093,
-      "brotliBytes": 63389
+      "brotliBytes": 64554
     },
     {
       "category": "purejsimage-entry",
@@ -1500,13 +1500,13 @@
         "packageExports": ["purejsimage/codecs/all"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
       },
-      "gzipBytes": 356904,
+      "gzipBytes": 358390,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 1024595,
+      "minifiedJsBytes": 1029264,
       "name": "Core + all stable codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 290953
+      "brotliBytes": 291889
     },
     {
       "category": "competitor",
@@ -1545,13 +1545,13 @@
       "entry": {
         "packageExports": ["purejsimage/codecs/all"]
       },
-      "gzipBytes": 356904,
+      "gzipBytes": 358390,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 1024595,
+      "minifiedJsBytes": 1029264,
       "name": "PureJsImage (all stable codecs)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 290953
+      "brotliBytes": 291889
     },
     {
       "category": "competitor",

@@ -1,0 +1,4772 @@
+{
+  "schemaVersion": 1,
+  "kind": "jpegxl-m1-real-jpeg-corpus",
+  "source": {
+    "dataset": "COCO 2017 validation images",
+    "datasetUrl": "https://cocodataset.org/#download",
+    "imageArchiveUrl": "http://images.cocodataset.org/zips/val2017.zip",
+    "imageArchiveSha256": "4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
+    "annotationsArchiveUrl": "http://images.cocodataset.org/annotations/annotations_trainval2017.zip",
+    "annotationsArchiveSha256": "113a836d90195ee1f884e704da6304dfaaecff1f023f49b6ca93c4aaae470268"
+  },
+  "selectionPolicy": {
+    "order": "250 evenly spaced records across ascending COCO image id",
+    "licenses": [1, 2, 3, 4, 5, 6, 7, 8],
+    "minimumSourceBytes": 229376,
+    "eligibleCandidateCount": 357,
+    "eligibility": "PureJsImage exact JPEG reconstruction eligibility",
+    "count": 250
+  },
+  "cases": [
+    {
+      "id": "coco-val2017-000000001000",
+      "fileName": "000000001000.jpg",
+      "sourcePath": "val2017/000000001000.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000001000.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4115/4906536419_6113bd7de4_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "24bb77a31928404e45a0454b06f6a0bd54a8db103590c9d7917288a1e0269f05",
+      "bytes": 321136,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000002685",
+      "fileName": "000000002685.jpg",
+      "sourcePath": "val2017/000000002685.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000002685.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8535/8710326856_2aac3d36fb_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "2430b9bffb5ff52dfbaf7b922ac8018547e233a5996a6b017bd1a206a46c5bdb",
+      "bytes": 272650,
+      "width": 640,
+      "height": 555,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000006954",
+      "fileName": "000000006954.jpg",
+      "sourcePath": "val2017/000000006954.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000006954.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4116/4876846589_a7bd6f3a47_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "59471a9bed5c28ac2f3ad56af1799340d6acb90f7c87d1f60360d1a9466e89ea",
+      "bytes": 266595,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000009448",
+      "fileName": "000000009448.jpg",
+      "sourcePath": "val2017/000000009448.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000009448.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5255/5389014889_0c50cf03cf_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "bd6ac1c94ef4599bd7f9d0f43ba0dab52b0afc34a872ee3acc83a20c8e8a6f3f",
+      "bytes": 339450,
+      "width": 551,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000009769",
+      "fileName": "000000009769.jpg",
+      "sourcePath": "val2017/000000009769.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000009769.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7031/6692874313_fcd3117f7f_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "f5e6d63081ba8fbb2a59770144d7c2350de6a1a8288e15565df7dd1bd87d85bf",
+      "bytes": 327350,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000012639",
+      "fileName": "000000012639.jpg",
+      "sourcePath": "val2017/000000012639.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000012639.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4102/4795012771_81c0b6b502_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "fb055f9572e8e059559a950b626a7a731683844f875b66523cbd8d29605d903f",
+      "bytes": 276515,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000016451",
+      "fileName": "000000016451.jpg",
+      "sourcePath": "val2017/000000016451.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000016451.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7460/9050893513_1fb9508000_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "83fade2162445d292c33005ad31d9ad05de5a4691489b0762bc81ec401cb2cbc",
+      "bytes": 230063,
+      "width": 612,
+      "height": 612,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000020571",
+      "fileName": "000000020571.jpg",
+      "sourcePath": "val2017/000000020571.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000020571.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3817/9480557162_281c81c07b_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "ee40916130fd5be75f3357c910c392b8bdda7f494078992472f67587d62b50a4",
+      "bytes": 242431,
+      "width": 539,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000022589",
+      "fileName": "000000022589.jpg",
+      "sourcePath": "val2017/000000022589.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000022589.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4072/4569416948_52d65ff8f6_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "a613ba4b6d895c6844d151efe922430660ef602ae40d4e16e1762f06b2d17335",
+      "bytes": 244843,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000023034",
+      "fileName": "000000023034.jpg",
+      "sourcePath": "val2017/000000023034.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000023034.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7454/9437230333_38c84fae2e_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "2a571a9358b1d8096bad1d317fa81c179d1137feae2b6688881e9b286f0b7c1f",
+      "bytes": 250952,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000024243",
+      "fileName": "000000024243.jpg",
+      "sourcePath": "val2017/000000024243.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000024243.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7229/7230881318_e8066a21cb_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "d5149ccbf5243f035138d8c982bcef0db2cf20e93cf249c73183957b9cff10ff",
+      "bytes": 266102,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000028993",
+      "fileName": "000000028993.jpg",
+      "sourcePath": "val2017/000000028993.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000028993.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5006/5355925412_5e33918131_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "9d582d15dc1a53b419f8c32253d4eb1bbe0fa20ada973e4d24e72af55b880a83",
+      "bytes": 266552,
+      "width": 612,
+      "height": 612,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000041888",
+      "fileName": "000000041888.jpg",
+      "sourcePath": "val2017/000000041888.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000041888.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2838/9552386421_f1ccb033d6_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "a53fa56864d2c170551c0584813aa5a39b586f100bc16dc26010e9af88f16cea",
+      "bytes": 282914,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000042178",
+      "fileName": "000000042178.jpg",
+      "sourcePath": "val2017/000000042178.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000042178.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3753/9912134186_857c6e5690_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "a93b3e69c542397170396ea0a1805ff740924aedee8deb336b82fa9277b82b48",
+      "bytes": 268445,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000046804",
+      "fileName": "000000046804.jpg",
+      "sourcePath": "val2017/000000046804.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000046804.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5441/7197037998_02eb094ccc_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "88b4672b1228dc5cb2d770a7c78ede27384a1f5bb8c429d5220f46d91f25f293",
+      "bytes": 302533,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000047571",
+      "fileName": "000000047571.jpg",
+      "sourcePath": "val2017/000000047571.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000047571.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3771/10008328626_e50e829f0b_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "0398da07fb61f7dd096005253c01a669358c81507ac913c2d86fdd8ca396853a",
+      "bytes": 289436,
+      "width": 639,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000048153",
+      "fileName": "000000048153.jpg",
+      "sourcePath": "val2017/000000048153.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000048153.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1253/1295520037_fb738a75ca_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "b83b9e68be063e9049ed73374e3c52ef6d401fa3bcefc38d8c49c9ac82a64d49",
+      "bytes": 230132,
+      "width": 500,
+      "height": 375,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000049259",
+      "fileName": "000000049259.jpg",
+      "sourcePath": "val2017/000000049259.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000049259.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4109/5607932075_8588a5787a_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "75deea304839610c4f1d2312046b8c7d01ba6f350512a507d95abf2c7859ba7f",
+      "bytes": 268677,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000056127",
+      "fileName": "000000056127.jpg",
+      "sourcePath": "val2017/000000056127.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000056127.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7143/6733520559_6b2fda0df8_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "14c77b33e28f12794669c699498bed38dbe6f34a43868152d806529e97288196",
+      "bytes": 262721,
+      "width": 580,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000057244",
+      "fileName": "000000057244.jpg",
+      "sourcePath": "val2017/000000057244.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000057244.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3698/9471835052_bbc3a5c8dc_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "8817d222a7fa6bdb7bc61aaf5245c547ffa69ff748706ed7a572965bf596f19c",
+      "bytes": 234615,
+      "width": 640,
+      "height": 425,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000057725",
+      "fileName": "000000057725.jpg",
+      "sourcePath": "val2017/000000057725.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000057725.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8049/8401424062_0c29be398a_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "d660e0aa68834a35a45348a1ef40e0d5c5321aea7ac74b36a53fbe7abc63ed60",
+      "bytes": 233505,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000060823",
+      "fileName": "000000060823.jpg",
+      "sourcePath": "val2017/000000060823.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000060823.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5008/5240497381_4f7d56566f_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "14c5d41fd1b2673c7d2697ead475b106d65dd9ae3ff6d089cf7b35a99e76fc26",
+      "bytes": 269927,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000062353",
+      "fileName": "000000062353.jpg",
+      "sourcePath": "val2017/000000062353.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000062353.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4072/4661821477_88c710afdd_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "088b152a4e5c411aacc4898820b7f1ff45cecf29e7f43f369692e33559a0ecff",
+      "bytes": 382910,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000064495",
+      "fileName": "000000064495.jpg",
+      "sourcePath": "val2017/000000064495.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000064495.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5014/5438937895_4f1492f2d9_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "57c99cd4703a6c54282dde37cb83c05e08619776beb766c3b06f9acdff0357b8",
+      "bytes": 251532,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000066038",
+      "fileName": "000000066038.jpg",
+      "sourcePath": "val2017/000000066038.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000066038.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8467/8148834743_f079cc001a_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "6ffd3baefa47644f7bf33604d7c1be20c6012950ecbc5dc328d2be9d5833db12",
+      "bytes": 260722,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000067616",
+      "fileName": "000000067616.jpg",
+      "sourcePath": "val2017/000000067616.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000067616.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7214/6861986830_34473988c3_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "824b722f5251918066fa4e2689167145918aa77cb8094a9fb2f2d70fd85d1ca1",
+      "bytes": 246355,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000076416",
+      "fileName": "000000076416.jpg",
+      "sourcePath": "val2017/000000076416.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000076416.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8478/8225218510_04ff392494_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "f21eb87831efba38ef9ccea8a5699b222b614fddf716e1486653ce79ffaef463",
+      "bytes": 241984,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000076468",
+      "fileName": "000000076468.jpg",
+      "sourcePath": "val2017/000000076468.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000076468.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8166/7527342832_6488e6ea6a_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "ffc672262fe65dfaa7c8ffd499dbb40b06e699aafdf041db3ec50f615fd33436",
+      "bytes": 240880,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000080274",
+      "fileName": "000000080274.jpg",
+      "sourcePath": "val2017/000000080274.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000080274.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5512/9284062967_3156b448dc_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "5959931fc8486dec496c32739dbb14666050b5830473dcb68a6796fd0b5fa8ca",
+      "bytes": 290994,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000080666",
+      "fileName": "000000080666.jpg",
+      "sourcePath": "val2017/000000080666.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000080666.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4030/4681451054_bf9bdd10db_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "c1c33295c945f7cfe7c5ca6dbcbedbbdb1eb72fc152240c05f1f693b67f53103",
+      "bytes": 326543,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000081394",
+      "fileName": "000000081394.jpg",
+      "sourcePath": "val2017/000000081394.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000081394.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8256/8615065722_b57e53b1a8_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "0ece3434b584ed5deb58f902633b449bd79bf464ce5fd9859d74dbe908e78325",
+      "bytes": 237701,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000082846",
+      "fileName": "000000082846.jpg",
+      "sourcePath": "val2017/000000082846.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000082846.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8481/8187720838_8ff0c02dbd_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "2466395940f413b9b526ad6874a9db7a11722ac83a8ca9cf811878ff4f5efac5",
+      "bytes": 260525,
+      "width": 640,
+      "height": 454,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000083113",
+      "fileName": "000000083113.jpg",
+      "sourcePath": "val2017/000000083113.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000083113.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3373/4600247394_f71c8745c3_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "7b1ee2a4a38edc0247d08f645a4c65ed3184a9035198e5e0b4f00e735aa807b0",
+      "bytes": 286975,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000088848",
+      "fileName": "000000088848.jpg",
+      "sourcePath": "val2017/000000088848.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000088848.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5062/5650110354_9eedebe1a3_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "b919218033c7e8beb8621a0d3ebf9e3460a06c6c7f0f2690433fe4be88d0dd64",
+      "bytes": 327440,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000090003",
+      "fileName": "000000090003.jpg",
+      "sourcePath": "val2017/000000090003.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000090003.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6160/6217629834_9375312717_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "0094c1f7d4d69e9dbaeee856da8df1771a84848d65b1240ef202500935804912",
+      "bytes": 295396,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000091500",
+      "fileName": "000000091500.jpg",
+      "sourcePath": "val2017/000000091500.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000091500.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2775/4518345389_57a4fecbb9_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "0ec62e31db905b4f6f4d52acad57f10008c95999d9c709b855bd214d63445c06",
+      "bytes": 235600,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000094185",
+      "fileName": "000000094185.jpg",
+      "sourcePath": "val2017/000000094185.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000094185.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8115/8863191321_9dff99e5df_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "ff696bc5002b5a7b5d7085a8393683ca15060a9a23d03373bd6c407a98620f8e",
+      "bytes": 230696,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000094871",
+      "fileName": "000000094871.jpg",
+      "sourcePath": "val2017/000000094871.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000094871.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8503/8282824777_4495950c61_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "568808faf0e3ca50a66434ac7b053c6f493e48a45bf986e8bdcc7c48e3ee74eb",
+      "bytes": 243675,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000097585",
+      "fileName": "000000097585.jpg",
+      "sourcePath": "val2017/000000097585.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000097585.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5302/5551645195_7fb6085fae_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "2c741618578dd3a7b1e62de447e6a3d0ae7c7b34a927e51081038e857b65fe71",
+      "bytes": 263276,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000097988",
+      "fileName": "000000097988.jpg",
+      "sourcePath": "val2017/000000097988.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000097988.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3776/8915831253_be956c6851_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "1d8288339c7cdfdc5dc57881aadbbf0319657138058880d60eb8daa521995389",
+      "bytes": 281549,
+      "width": 612,
+      "height": 612,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000101022",
+      "fileName": "000000101022.jpg",
+      "sourcePath": "val2017/000000101022.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000101022.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8507/8595154673_d11a7de0ff_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "0962336a1c3f6e1598c88577eeffc50a20b2c00ef14cf70dccc70b9d0d511528",
+      "bytes": 233394,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000103548",
+      "fileName": "000000103548.jpg",
+      "sourcePath": "val2017/000000103548.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000103548.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6164/6226663431_ca115964df_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "648b0a9ebc1f0ed502380ddf6843867c987e2ddeeda6f1d2b97d94f0e829ae9d",
+      "bytes": 273081,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000104455",
+      "fileName": "000000104455.jpg",
+      "sourcePath": "val2017/000000104455.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000104455.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5534/9113082226_292a454cb3_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "473efb2c1120a924d4d5abdcbd3245940bec8272e091a9bf37be01b5aab04d85",
+      "bytes": 291001,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000104603",
+      "fileName": "000000104603.jpg",
+      "sourcePath": "val2017/000000104603.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000104603.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7110/7578347712_6693e227d9_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "0d3201f8c72d862661c6a940cd17d9383a971dcc7acd2b0395fbde6ede7d8895",
+      "bytes": 266655,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000105014",
+      "fileName": "000000105014.jpg",
+      "sourcePath": "val2017/000000105014.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000105014.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7068/6933079123_192a8798bf_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "f35e364bb8237ad5609f4e3a11220996b8417bd5241216aae82510f8ea368c14",
+      "bytes": 304002,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000106563",
+      "fileName": "000000106563.jpg",
+      "sourcePath": "val2017/000000106563.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000106563.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8402/9026524897_0b18f5f44d_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7cf94a76241a0c6d22d0c7b83420130d9fdf991d27d8ad091179fe42affb5bea",
+      "bytes": 246724,
+      "width": 612,
+      "height": 612,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000109900",
+      "fileName": "000000109900.jpg",
+      "sourcePath": "val2017/000000109900.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000109900.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7147/6541724635_02a7d2572f_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "72ea2b53ec449ad79e309dadae27b80e58fa25d64579799e90a3d2a790b3421b",
+      "bytes": 279626,
+      "width": 640,
+      "height": 478,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000112634",
+      "fileName": "000000112634.jpg",
+      "sourcePath": "val2017/000000112634.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000112634.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4007/4501382041_3f4aa22df3_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "72745f191067274f5d022836a2e0f1e5b1b71a0d0fd4c750ce62584fd2ccc173",
+      "bytes": 248449,
+      "width": 640,
+      "height": 443,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000113354",
+      "fileName": "000000113354.jpg",
+      "sourcePath": "val2017/000000113354.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000113354.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1345/4731755506_b87b3c57e5_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "e61aad3b31d1e16e1bcbcf44835bd0be85085e86878104f96cf34f19831d0933",
+      "bytes": 306458,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000115118",
+      "fileName": "000000115118.jpg",
+      "sourcePath": "val2017/000000115118.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000115118.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8237/8596485436_c72cb2de81_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "b06ca28dfcc37c0bf29da0386aaf83c75a6671f8b117512185be780162de8a1e",
+      "bytes": 303072,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000116479",
+      "fileName": "000000116479.jpg",
+      "sourcePath": "val2017/000000116479.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000116479.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8463/8142492504_fc66c0ba1f_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "420baef9b67e572036be48387c31d7223e618a74b79de5ecc2ac154ad1aa3b0a",
+      "bytes": 234986,
+      "width": 411,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000118209",
+      "fileName": "000000118209.jpg",
+      "sourcePath": "val2017/000000118209.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000118209.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4104/4953441455_a1b9200a62_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "ceae3f93b17268cf155a5733f7858fc59803ad17c7d7f06a0deed244bbb9556f",
+      "bytes": 229571,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000124636",
+      "fileName": "000000124636.jpg",
+      "sourcePath": "val2017/000000124636.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000124636.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6179/6186207005_4c1eca67e8_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "55b77b7f71837b167505931989f68f88bd728ae64e2ff920de881b1cd288b44a",
+      "bytes": 283248,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000125211",
+      "fileName": "000000125211.jpg",
+      "sourcePath": "val2017/000000125211.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000125211.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5268/5616414260_106febb605_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "c6705a4c67e66c2c0da9f3f290cd0cb2b3995b4cec97afc794bb062a17d7a309",
+      "bytes": 254022,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000129113",
+      "fileName": "000000129113.jpg",
+      "sourcePath": "val2017/000000129113.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000129113.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4100/4892593807_a2859652de_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "7afcf3b9fe07b838a808faf6cf1ba83e1527ad4e63fa79173f8a339bc3114d0d",
+      "bytes": 294374,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000129756",
+      "fileName": "000000129756.jpg",
+      "sourcePath": "val2017/000000129756.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000129756.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4030/4657806497_615438e3cc_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "46c0e8721b27741971feadc7eb37aa3d710e50294a3b27dbe8b522e3eab3295f",
+      "bytes": 334431,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000133778",
+      "fileName": "000000133778.jpg",
+      "sourcePath": "val2017/000000133778.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000133778.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8481/8196665872_54969ddafa_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "cdb93a269a84fd38fbe1081efe715586bd4d693bfa11d7f8c9a38ead4996d093",
+      "bytes": 234118,
+      "width": 640,
+      "height": 483,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000134882",
+      "fileName": "000000134882.jpg",
+      "sourcePath": "val2017/000000134882.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000134882.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8249/8643440732_42cbe68c0f_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "d2a42fe606563d125e105246e6cd473f098338364b51f085da8a97d5943876c5",
+      "bytes": 261857,
+      "width": 640,
+      "height": 639,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000135902",
+      "fileName": "000000135902.jpg",
+      "sourcePath": "val2017/000000135902.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000135902.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3816/9633747725_f29478b70a_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "fa86b4cfa8c271862e2f1b2e235a94a7a2362a1ba03d75185007439f3344a21f",
+      "bytes": 242115,
+      "width": 640,
+      "height": 425,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000139883",
+      "fileName": "000000139883.jpg",
+      "sourcePath": "val2017/000000139883.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000139883.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4133/5021540004_c42ee94f97_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "9fad971b935bef0756c704a577e70cc456baf4f8065fad32cfd4caa7807bfbd7",
+      "bytes": 297267,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000140420",
+      "fileName": "000000140420.jpg",
+      "sourcePath": "val2017/000000140420.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000140420.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4078/4912512028_7aed39571e_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "6129582d906698ca9785642983c58adc22b8e4d32a5be24396d6c4f8369dea5f",
+      "bytes": 286244,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000142620",
+      "fileName": "000000142620.jpg",
+      "sourcePath": "val2017/000000142620.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000142620.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7375/9756491185_311b0b2b7d_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "0f3dd713a8c98734879b3108ac6a160877b031831048330a0fc09cedfdf1dd80",
+      "bytes": 267317,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000143572",
+      "fileName": "000000143572.jpg",
+      "sourcePath": "val2017/000000143572.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000143572.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6078/6107512609_48fe33ae34_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "fe3203e5b883c416d43c1b8edfcb052767e07a0e0f7576c9479f1994dccb9799",
+      "bytes": 289590,
+      "width": 640,
+      "height": 424,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000148707",
+      "fileName": "000000148707.jpg",
+      "sourcePath": "val2017/000000148707.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000148707.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8121/8646074716_77307960e6_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "65cad59294282125ccfec8acd572381af824b3307d995f031d2a61b923660ff3",
+      "bytes": 286463,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000148719",
+      "fileName": "000000148719.jpg",
+      "sourcePath": "val2017/000000148719.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000148719.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4138/4781344883_9b115de575_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "dc5224344a70a6bb7bda0d21dddeac70f599aeaa35b2ce1fa3620821c6de4bf0",
+      "bytes": 283112,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000149406",
+      "fileName": "000000149406.jpg",
+      "sourcePath": "val2017/000000149406.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000149406.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7010/6776542849_2dedcc64f1_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "bb5adc5c3916aec1e6024432e428c6f6b216ab97c02c58590bbf80a5f6fe24bb",
+      "bytes": 302174,
+      "width": 640,
+      "height": 638,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000151962",
+      "fileName": "000000151962.jpg",
+      "sourcePath": "val2017/000000151962.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000151962.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5214/5385420876_e0e5c968b1_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "bd6a7a400217fc2cd53ba26f466c2af6030f8538ff4e5f70dcbf18a266a99280",
+      "bytes": 242997,
+      "width": 640,
+      "height": 479,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000152465",
+      "fileName": "000000152465.jpg",
+      "sourcePath": "val2017/000000152465.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000152465.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7302/8985286701_c0a5fa6bd6_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "53830b0ab3a58d26508cb96fafa374d4f1cc1856f4e788a325ffe4a83e58657c",
+      "bytes": 285417,
+      "width": 640,
+      "height": 516,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000153782",
+      "fileName": "000000153782.jpg",
+      "sourcePath": "val2017/000000153782.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000153782.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5075/7066000485_798aa59567_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "aa9f9f447da5bf2fdec5da1526cd316ba028c12eacd52a6c3544a378279c7040",
+      "bytes": 268341,
+      "width": 416,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000155571",
+      "fileName": "000000155571.jpg",
+      "sourcePath": "val2017/000000155571.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000155571.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6234/6297879282_ee0d0743f4_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "d7f93778697b4e70e1f483cc2828a5fc0ac45c0c801122a50cd88470e2ac55d7",
+      "bytes": 264766,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000156292",
+      "fileName": "000000156292.jpg",
+      "sourcePath": "val2017/000000156292.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000156292.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8032/7985089105_9dcf1a314e_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "0d54e1fa3bf3de937c56321dcf4f4a8ca1c9af6a939133cb4552483a66dcbaac",
+      "bytes": 261052,
+      "width": 428,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000158548",
+      "fileName": "000000158548.jpg",
+      "sourcePath": "val2017/000000158548.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000158548.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8030/7965301600_bae4984c9f_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "8b8662687f8a639949f622da9ccec56bff0e0569b4eb498aa77f0520a19605b1",
+      "bytes": 298181,
+      "width": 640,
+      "height": 482,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000163746",
+      "fileName": "000000163746.jpg",
+      "sourcePath": "val2017/000000163746.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000163746.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7293/9743305726_b79113eff6_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "1a6a36f8e88b5ff69228ddd0e9ace1484d075de3dfe55f73be3e658b5ab5b726",
+      "bytes": 252867,
+      "width": 640,
+      "height": 488,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000166642",
+      "fileName": "000000166642.jpg",
+      "sourcePath": "val2017/000000166642.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000166642.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7203/6977687239_3a57ee90d8_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "7505cf2fe933b1652e652b8c7fb5600a9fef255b7ef06f0ad7e41e3465287738",
+      "bytes": 331367,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000169356",
+      "fileName": "000000169356.jpg",
+      "sourcePath": "val2017/000000169356.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000169356.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7298/9444351194_66d294013f_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "acd7784c7a33da47014e5c55118789be664617e8028a8d89ada6b59b9212db25",
+      "bytes": 240278,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000172977",
+      "fileName": "000000172977.jpg",
+      "sourcePath": "val2017/000000172977.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000172977.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2751/5719822970_84357ed931_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "f33f8a6defdd89c71f469b3d069b9833a9fdd2ccdcfb81ff323b61adf46567cb",
+      "bytes": 307867,
+      "width": 640,
+      "height": 486,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000173004",
+      "fileName": "000000173004.jpg",
+      "sourcePath": "val2017/000000173004.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000173004.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5135/5585650249_cb428bb571_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "8a95f13ac967348425eaf8a9b0d965e0197637ca107cce5c6383724ec8fb2350",
+      "bytes": 237258,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000176606",
+      "fileName": "000000176606.jpg",
+      "sourcePath": "val2017/000000176606.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000176606.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8293/7747168158_e56e2cd2c6_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "f04bdd313c6a9d75b3cc70d37191a99ac0bd1097eec19cee5094990bef49ea82",
+      "bytes": 308127,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000177065",
+      "fileName": "000000177065.jpg",
+      "sourcePath": "val2017/000000177065.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000177065.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7325/9899385706_ba38416932_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "443418dd6b1bc5a650c53d427c93538dd0f48f3c9cd9083c54ce3af0138821e0",
+      "bytes": 378061,
+      "width": 640,
+      "height": 564,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000179174",
+      "fileName": "000000179174.jpg",
+      "sourcePath": "val2017/000000179174.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000179174.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8146/7611201536_977fc818b9_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "db596b78008223a6d9d85f972d4ebd2afd74537eff9de803e93c4cf63de8de07",
+      "bytes": 229545,
+      "width": 428,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000183675",
+      "fileName": "000000183675.jpg",
+      "sourcePath": "val2017/000000183675.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000183675.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3101/5836249800_9e8f07b294_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "8426c054e2f6642692aa90364c3f5bcf987c3dae401a3caed7721375c69c4b11",
+      "bytes": 250044,
+      "width": 640,
+      "height": 412,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000185250",
+      "fileName": "000000185250.jpg",
+      "sourcePath": "val2017/000000185250.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000185250.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7040/6810762896_6429b482b6_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "6b92c69bab355b6355112014b745db91f09ecd591e0bf7d9f8da5fe40e1e03d7",
+      "bytes": 243408,
+      "width": 399,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000188296",
+      "fileName": "000000188296.jpg",
+      "sourcePath": "val2017/000000188296.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000188296.jpg",
+      "originalUrl": "http://farm1.staticflickr.com/90/276732942_6351f0a8cf_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "fcb23cbab168a4ce784173658a630910ed1110b418ef492dfaf2f61febfcb351",
+      "bytes": 248122,
+      "width": 640,
+      "height": 609,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000188439",
+      "fileName": "000000188439.jpg",
+      "sourcePath": "val2017/000000188439.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000188439.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8213/8448450899_567efc882a_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "0d0f70784139740ad6616d02d462d9a0e1610a8c7d83b825fea6ff21ce408506",
+      "bytes": 281335,
+      "width": 640,
+      "height": 408,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000191580",
+      "fileName": "000000191580.jpg",
+      "sourcePath": "val2017/000000191580.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000191580.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4092/4987532314_ac508c6b1c_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "0662cd9ecb3847debfd8279b97548e38cf0a2d4ddce1dd682ffa49f9886327ae",
+      "bytes": 254676,
+      "width": 478,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000192607",
+      "fileName": "000000192607.jpg",
+      "sourcePath": "val2017/000000192607.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000192607.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5529/9298728158_2ff276583a_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "df1cfbabe293d62e1ad29ebf0e79699de8c1cef2a09177c5192255846a756974",
+      "bytes": 266559,
+      "width": 640,
+      "height": 425,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000192716",
+      "fileName": "000000192716.jpg",
+      "sourcePath": "val2017/000000192716.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000192716.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3674/9012908466_2b84e6d18e_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "9a3223f94d7aaf079d3831b10c07ee5a84f36071c55c633394dd5c93a67c9c07",
+      "bytes": 234619,
+      "width": 518,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000203294",
+      "fileName": "000000203294.jpg",
+      "sourcePath": "val2017/000000203294.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000203294.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8398/8686137020_2ca292f1dd_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "c5d43fb94e11fae1e3bf97b08bebb4a96d7735bb92a6bab8bf8618000208ef9c",
+      "bytes": 241482,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000206994",
+      "fileName": "000000206994.jpg",
+      "sourcePath": "val2017/000000206994.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000206994.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5329/8923586921_5a834c23bc_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "f4bb253bede1c8423ba7ab05d74c8317f6f4f391c06e44a33673413dfefccd10",
+      "bytes": 253982,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000210520",
+      "fileName": "000000210520.jpg",
+      "sourcePath": "val2017/000000210520.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000210520.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5335/9648405451_cc7697f651_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "3df27397165b945a4e394864d094d0f485d2bf27af499105faa6ec0dea7e18a6",
+      "bytes": 247535,
+      "width": 612,
+      "height": 612,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000211069",
+      "fileName": "000000211069.jpg",
+      "sourcePath": "val2017/000000211069.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000211069.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8200/8210566586_87f10cd626_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "8877792747394689425715a1fffae9580c5d05e4a03fbfbc0b9a97ee7e4ee131",
+      "bytes": 250875,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000213830",
+      "fileName": "000000213830.jpg",
+      "sourcePath": "val2017/000000213830.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000213830.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8281/7741938430_0dec5bb283_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "e21e9d8f2f8200cd7b75def323b82b6a0fa031bba5836a969068f4d1511ee978",
+      "bytes": 229985,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000215245",
+      "fileName": "000000215245.jpg",
+      "sourcePath": "val2017/000000215245.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000215245.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5187/5699107573_2059b4c0e1_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "8f26d81db7cb960105b0dbfdd5e2846a4aace8d2fb352b0698f00afb3fe6ebb4",
+      "bytes": 238646,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000217614",
+      "fileName": "000000217614.jpg",
+      "sourcePath": "val2017/000000217614.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000217614.jpg",
+      "originalUrl": "http://farm1.staticflickr.com/185/375003840_1d8992f9a6_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "4e7a609d4ca18d5f71cfac3ca16e3689d29a873d108af7a9de8b5dbe5e436992",
+      "bytes": 264968,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000217957",
+      "fileName": "000000217957.jpg",
+      "sourcePath": "val2017/000000217957.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000217957.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2828/9376972910_53d926732a_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "6a52648c51cf7465f1290920b5d9a48ba467f75c6a6bd3b4fe584f7862d8c27a",
+      "bytes": 284917,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000218424",
+      "fileName": "000000218424.jpg",
+      "sourcePath": "val2017/000000218424.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000218424.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3058/5699138741_9ed119dea1_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "d9571422156535c2c0f8eda0816f545af4958da1dd1a45179e09424cbf350fae",
+      "bytes": 321557,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000221017",
+      "fileName": "000000221017.jpg",
+      "sourcePath": "val2017/000000221017.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000221017.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3285/5820848683_fe30a044ed_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "9df309b4f44e343c4f322da786fdbef28d7290d4d919e826473eb119f1e791d5",
+      "bytes": 237858,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000221213",
+      "fileName": "000000221213.jpg",
+      "sourcePath": "val2017/000000221213.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000221213.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5548/10220811593_9471e23b87_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "5173d00c40689ab58be23757a9dcc71c6eca158b1ef5ccef08104fb0bed7f793",
+      "bytes": 244143,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000227187",
+      "fileName": "000000227187.jpg",
+      "sourcePath": "val2017/000000227187.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000227187.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5106/5687812547_1363172f7c_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "3f99b1de07362d40264170cea285e33162c661c27ae9b16a11415fe172b5bbe9",
+      "bytes": 292606,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000227898",
+      "fileName": "000000227898.jpg",
+      "sourcePath": "val2017/000000227898.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000227898.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8266/8631107019_c1ea0e6f73_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "6169122c7fd64b036eb85598a7f1085a4f25c7ffb57f0e1ac61e0e2ea52196d0",
+      "bytes": 238782,
+      "width": 640,
+      "height": 424,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000230166",
+      "fileName": "000000230166.jpg",
+      "sourcePath": "val2017/000000230166.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000230166.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7271/7534507590_7aa14e6069_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7ea597cbad14789435e8df0ab919bd0ec43715dec13c1b44ec0fd174637967ab",
+      "bytes": 229562,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000233033",
+      "fileName": "000000233033.jpg",
+      "sourcePath": "val2017/000000233033.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000233033.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7365/9223244847_92cbb3549b_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "e44f3ae9876c9dbd2bd22efa55e502a444e4999634efa95a71d6b1d99a128ad3",
+      "bytes": 255198,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000233567",
+      "fileName": "000000233567.jpg",
+      "sourcePath": "val2017/000000233567.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000233567.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5460/8978459928_e40a404bd4_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "0f2deb33a988bbf55dd0c42d66e9b085356b0fe5609bbb7597b382c065c9e39e",
+      "bytes": 272420,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000234757",
+      "fileName": "000000234757.jpg",
+      "sourcePath": "val2017/000000234757.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000234757.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8480/8224578886_5716b9a1ff_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "bf4c36daca41208fe9b7c3ae1cd37aade17f6aaf76b716a4b240171990458d74",
+      "bytes": 284223,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000235857",
+      "fileName": "000000235857.jpg",
+      "sourcePath": "val2017/000000235857.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000235857.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8325/8117923354_1381eaa26f_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7682054b9d4649b1bc46ab6d78fd55c50dc9ddece5341ea69259000a94e3c0de",
+      "bytes": 283118,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000238039",
+      "fileName": "000000238039.jpg",
+      "sourcePath": "val2017/000000238039.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000238039.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5327/9128626433_506e875423_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "9dbed30a67aea1316d5c5d584f1b34469fd5e7fd0628ebd9a39d80f607ad9558",
+      "bytes": 248330,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000239274",
+      "fileName": "000000239274.jpg",
+      "sourcePath": "val2017/000000239274.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000239274.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7416/10079494584_8dd76f48cb_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "b509de8e812983a3fc0d0d271281321c2a248a1d57d9722f4dcfd542d500e747",
+      "bytes": 372636,
+      "width": 581,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000241677",
+      "fileName": "000000241677.jpg",
+      "sourcePath": "val2017/000000241677.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000241677.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5045/5292909555_76693cc72c_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "d6276b498971527152122e444a0463ff73eda4465b212ed143103ec541fa89d8",
+      "bytes": 296892,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000249219",
+      "fileName": "000000249219.jpg",
+      "sourcePath": "val2017/000000249219.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000249219.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8080/8349093393_7d27562e6e_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "141d3cf96e4324705add1db8eba08c16be30aed16e927f4dae0bfc60d9a265d0",
+      "bytes": 288896,
+      "width": 640,
+      "height": 479,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000251537",
+      "fileName": "000000251537.jpg",
+      "sourcePath": "val2017/000000251537.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000251537.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8477/8229949842_b1e720d17f_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "3d7655f8f3306f7f442ae0ca8e2107138ba4d9c7332774aa3a8a98dc64ea8973",
+      "bytes": 244549,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000256192",
+      "fileName": "000000256192.jpg",
+      "sourcePath": "val2017/000000256192.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000256192.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5038/7051498615_f2777fb4c3_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "3c5e87db0892374361a26acca550d37f682ebde12e75707d5819a073031b3499",
+      "bytes": 263458,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000256195",
+      "fileName": "000000256195.jpg",
+      "sourcePath": "val2017/000000256195.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000256195.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8266/8662686723_b86f620611_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "32a11ca1abc9a41f0acae9d5229c67503d22d4fc1ccb1b2c3bd08f3a43d02d91",
+      "bytes": 259829,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000262487",
+      "fileName": "000000262487.jpg",
+      "sourcePath": "val2017/000000262487.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000262487.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4028/4556603459_e9a7fb0422_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7525f3c0ab2654ac3e766966e84a4501cb5f3c0134aec18daaab62f77abc1441",
+      "bytes": 305003,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000263796",
+      "fileName": "000000263796.jpg",
+      "sourcePath": "val2017/000000263796.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000263796.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5089/5207248875_b15e56b122_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "b21ad33c378d82789710784e7082538f1795699fdb555bf9dd4ac9444b6d0cc7",
+      "bytes": 276910,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000264535",
+      "fileName": "000000264535.jpg",
+      "sourcePath": "val2017/000000264535.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000264535.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8465/8102550190_11b2996e33_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "85c6121926cd8232a483e207109bf97f585cbb83861867771d87fc04e52c7c20",
+      "bytes": 276981,
+      "width": 612,
+      "height": 612,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000267191",
+      "fileName": "000000267191.jpg",
+      "sourcePath": "val2017/000000267191.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000267191.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1259/5147292542_cf7b954fa8_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "9b5b98c08f74f60097be6b7d1d0cee0976c2e76c390955d481b629ebf76825ec",
+      "bytes": 272356,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000267434",
+      "fileName": "000000267434.jpg",
+      "sourcePath": "val2017/000000267434.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000267434.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6227/6254813749_f144a6edbe_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "e5b949f8c7b245b0773bca53db98fa08a33c197ac95124287e9394393c65f907",
+      "bytes": 277887,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000273617",
+      "fileName": "000000273617.jpg",
+      "sourcePath": "val2017/000000273617.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000273617.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5297/5423117552_03ec730998_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "18aa7679ef4aa6919c278e7028a381f9a8b6824f77a79c2ffef32da2deaa8795",
+      "bytes": 337017,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000275058",
+      "fileName": "000000275058.jpg",
+      "sourcePath": "val2017/000000275058.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000275058.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5311/6909917932_25ee0a8ab8_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "cffdab202c9cc07314e225c6a85caaed78e2f49d54480ec0f3409eedddd81f3e",
+      "bytes": 279661,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000275791",
+      "fileName": "000000275791.jpg",
+      "sourcePath": "val2017/000000275791.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000275791.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7201/6818027040_142c620b61_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "84cc0e75770f49df4ef6ba2abb374870ee8ad54d95f5f1d08dc94012191edf26",
+      "bytes": 244474,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000277005",
+      "fileName": "000000277005.jpg",
+      "sourcePath": "val2017/000000277005.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000277005.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6233/6315596287_a690deabd9_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "3cfea124dbcca946c927f9fefe4314b1a41ff8374adb316bdd969aca100b3d85",
+      "bytes": 247722,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000278353",
+      "fileName": "000000278353.jpg",
+      "sourcePath": "val2017/000000278353.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000278353.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6095/6366176437_b0672bc6e8_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "6634b59efc6fa95c1d72903144b1f671a32ec3d538f859f15e55669feb688fc7",
+      "bytes": 387671,
+      "width": 596,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000279927",
+      "fileName": "000000279927.jpg",
+      "sourcePath": "val2017/000000279927.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000279927.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7214/7392604632_6e5e3447a9_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "7b93a53ec3c3b64f60e8fc54bdf918e43ef75abfc72083756184f9ae083d90a5",
+      "bytes": 323477,
+      "width": 640,
+      "height": 442,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000281179",
+      "fileName": "000000281179.jpg",
+      "sourcePath": "val2017/000000281179.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000281179.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7152/6526348027_90e74a2673_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "9bebf9c6951cac29455119ea6f67b396c562e879a0cf5edb036b04c021d3ca2c",
+      "bytes": 231974,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000283520",
+      "fileName": "000000283520.jpg",
+      "sourcePath": "val2017/000000283520.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000283520.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4002/4509187424_dcc08316ed_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "631a6472e729f091315113046e821686b1cace4b7d63f6d4d097b481af546665",
+      "bytes": 265028,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000284445",
+      "fileName": "000000284445.jpg",
+      "sourcePath": "val2017/000000284445.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000284445.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5247/5327232397_160df9c196_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "9732ca80b67ae329663412a88a5a2bcd0a9332c0821a433bd6b5d74fd943c3e4",
+      "bytes": 230774,
+      "width": 640,
+      "height": 594,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000286182",
+      "fileName": "000000286182.jpg",
+      "sourcePath": "val2017/000000286182.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000286182.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8109/8486923405_c6e0905f81_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "916af45e543c1d1aac91807328a1d0437b28dcab1652fe89666cb43e8c188301",
+      "bytes": 256689,
+      "width": 478,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000286503",
+      "fileName": "000000286503.jpg",
+      "sourcePath": "val2017/000000286503.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000286503.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2752/5806020422_c2170c73cc_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "2e0dbdf43bf41ab9bcfae1b7bad2ca0eda3b17f6257fd927199debbf59b4db9f",
+      "bytes": 257275,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000288685",
+      "fileName": "000000288685.jpg",
+      "sourcePath": "val2017/000000288685.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000288685.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4120/4893125270_c1ff5128b5_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "cd33f1aae3ea110b6de7b35f2225bce018cf30248a78652955678d67b4c19a21",
+      "bytes": 235712,
+      "width": 640,
+      "height": 436,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000289938",
+      "fileName": "000000289938.jpg",
+      "sourcePath": "val2017/000000289938.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000289938.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8481/8166884831_fd9c86108c_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "f6c60eada61cc6c2358599ba213e8c196eb37ce4a3bd12fdfb10932e524233cb",
+      "bytes": 236234,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000290592",
+      "fileName": "000000290592.jpg",
+      "sourcePath": "val2017/000000290592.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000290592.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7245/7027103163_ac1b3446f5_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "c434ed7d3391af0ec5db9425cfb0f0e661972fcd21b720a7da33d0042e051bbe",
+      "bytes": 287685,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000290833",
+      "fileName": "000000290833.jpg",
+      "sourcePath": "val2017/000000290833.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000290833.jpg",
+      "originalUrl": "http://farm1.staticflickr.com/71/169854910_5afb94edb5_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "79ad81b31814f88c4431f96f18fbbbb0a4a95ed00075161745eac0498c519f09",
+      "bytes": 272274,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000292155",
+      "fileName": "000000292155.jpg",
+      "sourcePath": "val2017/000000292155.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000292155.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1355/5131100237_f2270c9018_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "8accc983a1c3ac517785a20902da382e25197536bf2d14761c2a1f4a9f6e142c",
+      "bytes": 294083,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000293390",
+      "fileName": "000000293390.jpg",
+      "sourcePath": "val2017/000000293390.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000293390.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8517/8498607902_95fa4dbf2d_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "c86d4f74ba0b56409fe4532020b54d68fc0958d2a73ebbb0b811e2e9e58d31f7",
+      "bytes": 241373,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000296657",
+      "fileName": "000000296657.jpg",
+      "sourcePath": "val2017/000000296657.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000296657.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6110/6263248693_4373fd0a45_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "ac48b0d2c8a9dd00737b3ad1aadc59e96f2721a6d64719b881a6f6acdb46d3c8",
+      "bytes": 296227,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000298994",
+      "fileName": "000000298994.jpg",
+      "sourcePath": "val2017/000000298994.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000298994.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7090/7250359726_946ca04a0b_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "c107dea74d7019734fd0738ded9e86797f30ce0aa754f7c410490d719c2d37ef",
+      "bytes": 289965,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000300155",
+      "fileName": "000000300155.jpg",
+      "sourcePath": "val2017/000000300155.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000300155.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8337/8253697103_661512e834_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "ba12d2b7734c617540944d47ff68c89b94938d8d1962b4072f97d96a14a1d961",
+      "bytes": 267339,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000301135",
+      "fileName": "000000301135.jpg",
+      "sourcePath": "val2017/000000301135.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000301135.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4135/4856973633_60deb1c609_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "cb645e1fd3db446a1edca77892935a2d3c4140fa9eb813630dfb1179c16440ba",
+      "bytes": 267834,
+      "width": 428,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000303893",
+      "fileName": "000000303893.jpg",
+      "sourcePath": "val2017/000000303893.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000303893.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7378/9383802677_0dc943b387_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "e809831e253ff07b4f8f810445c39cab27eab15e1d2a86f90189e35084538468",
+      "bytes": 241253,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000304291",
+      "fileName": "000000304291.jpg",
+      "sourcePath": "val2017/000000304291.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000304291.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8118/8646645387_c3ecd82a2e_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "059e4ae569ffb5dc2cf55bdd435b4dd7b80ed5b8a079f573066a5a189183650c",
+      "bytes": 256645,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000306582",
+      "fileName": "000000306582.jpg",
+      "sourcePath": "val2017/000000306582.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000306582.jpg",
+      "originalUrl": "http://farm1.staticflickr.com/125/377040578_c63a14c390_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "41d9a42ac94af761807a7d097b08c9445f995d8e561c7a821701c9d4523cb8e2",
+      "bytes": 232028,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000308631",
+      "fileName": "000000308631.jpg",
+      "sourcePath": "val2017/000000308631.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000308631.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7222/7292942242_8b08139e5f_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "65be0c7d51b9ff262cfcac4592f5a3643cbda23a5fd571eee701c2dafd43e2d4",
+      "bytes": 253749,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000312586",
+      "fileName": "000000312586.jpg",
+      "sourcePath": "val2017/000000312586.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000312586.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8159/7578348138_5c0ecbdaf4_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "1aaea56776b53e55899b583ff6f5d716280a2cc1e9e5d9280d6c2899a6fddaea",
+      "bytes": 314753,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000313588",
+      "fileName": "000000313588.jpg",
+      "sourcePath": "val2017/000000313588.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000313588.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8209/8253725562_84e76ed5e9_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "4635596b77228a330bebea2dba69c6c96f33febfeb4047f5e74f34a85692387b",
+      "bytes": 233858,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000314034",
+      "fileName": "000000314034.jpg",
+      "sourcePath": "val2017/000000314034.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000314034.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8313/8063248628_69b80d44c1_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "a7e855c1b2c2c25d7563764369cdf182ae86d4c5c40ec1b0a7bb017eb8d6f932",
+      "bytes": 274082,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000315001",
+      "fileName": "000000315001.jpg",
+      "sourcePath": "val2017/000000315001.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000315001.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7182/6891255705_fa27391117_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "8a3e026e332441aaac87c2c260ef467caa77cfa99517b6124210121fab371d5c",
+      "bytes": 284557,
+      "width": 640,
+      "height": 639,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000317024",
+      "fileName": "000000317024.jpg",
+      "sourcePath": "val2017/000000317024.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000317024.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7318/8905591727_1987579c32_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "9c7f90d13e4d37e9030f1632c2f3fbf54d593c63dedeac604dce20c2e85ac62f",
+      "bytes": 246354,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000321557",
+      "fileName": "000000321557.jpg",
+      "sourcePath": "val2017/000000321557.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000321557.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8043/8113787467_31a6ee0ecf_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "eb9287cd59c1a6105e9dd468dfd70a5a3e76493e8b89b8d707bc477ea7428453",
+      "bytes": 233200,
+      "width": 547,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000322829",
+      "fileName": "000000322829.jpg",
+      "sourcePath": "val2017/000000322829.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000322829.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4073/4923653485_e2b1549eb2_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "2794b1a61bda419edf111b0b4a4114b96d22b923bbdff49286a37c8bb04bb34f",
+      "bytes": 234597,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000323828",
+      "fileName": "000000323828.jpg",
+      "sourcePath": "val2017/000000323828.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000323828.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8408/8746828106_e394e8fc99_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "8b28635ae5e851fafc08602792e27f2ad72a665976c553c53358657693e98ef1",
+      "bytes": 236457,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000325031",
+      "fileName": "000000325031.jpg",
+      "sourcePath": "val2017/000000325031.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000325031.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4044/4669803057_38a4f451a0_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "c2893983c1cebcd97160b00afb5b0f64b7468d4cc22db6210f8279be6ff66022",
+      "bytes": 320430,
+      "width": 640,
+      "height": 608,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000327890",
+      "fileName": "000000327890.jpg",
+      "sourcePath": "val2017/000000327890.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000327890.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3753/9577665459_f56dac03f1_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "92b54b3e01c17d1a8d2b2b9d6995eb1a1a43c6cce9dd491d38e7078030a7d4f4",
+      "bytes": 236569,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000341196",
+      "fileName": "000000341196.jpg",
+      "sourcePath": "val2017/000000341196.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000341196.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7203/6875404039_13a6becb60_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "e52e592ba38fec51c3df751bbc7ec2cbbf4b43726da1a4e1bc9a556e7cf8e748",
+      "bytes": 240697,
+      "width": 640,
+      "height": 451,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000341921",
+      "fileName": "000000341921.jpg",
+      "sourcePath": "val2017/000000341921.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000341921.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5184/5615933755_b24f4bdc42_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "40ec6e7a9b261979db6c8294b0cd9c0228541ed6647d3aaf129a6e6915bfe267",
+      "bytes": 261909,
+      "width": 640,
+      "height": 478,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000344816",
+      "fileName": "000000344816.jpg",
+      "sourcePath": "val2017/000000344816.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000344816.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7412/8805703672_a7c2507144_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "091feaf5dbb6a28c71f83d0d91756aac8d176e7c3d31b766c484252440772457",
+      "bytes": 289171,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000344888",
+      "fileName": "000000344888.jpg",
+      "sourcePath": "val2017/000000344888.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000344888.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7447/9602225228_ebd6fda5e5_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "a85d62e7aaef096fa645f659a7203dc8d9ba61e32dbd0696900234e1a24da6ea",
+      "bytes": 283615,
+      "width": 640,
+      "height": 416,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000354547",
+      "fileName": "000000354547.jpg",
+      "sourcePath": "val2017/000000354547.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000354547.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6163/6196902217_9007a0675e_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "66e2d244941cdd93809b59dc90adb0b3ed1ade231a949d9925fe721f5108e387",
+      "bytes": 276784,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000356968",
+      "fileName": "000000356968.jpg",
+      "sourcePath": "val2017/000000356968.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000356968.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4040/5079168442_a06e49f57a_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "9333220ec9888b5a061bcda890b953de3fdfff025285cbaa5b909b5e0b35c78f",
+      "bytes": 336712,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000357501",
+      "fileName": "000000357501.jpg",
+      "sourcePath": "val2017/000000357501.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000357501.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4143/4913709490_69ea74c205_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "875de71a2c80883bdc8d7fe411a1a0e4e796c76998e15b230430e869d44a1fa3",
+      "bytes": 266789,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000363072",
+      "fileName": "000000363072.jpg",
+      "sourcePath": "val2017/000000363072.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000363072.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3771/10198355025_29191f8b8a_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "68ea39b2f7a4e31b6b0015350cd15e36025eea450fcef6e80a15cf252627500c",
+      "bytes": 264532,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000364322",
+      "fileName": "000000364322.jpg",
+      "sourcePath": "val2017/000000364322.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000364322.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8253/8665048529_079f677dfc_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "22d1769462508223c3894de1b2c2992eec5873f8cbef31509f2a09143435f8a1",
+      "bytes": 291961,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000369771",
+      "fileName": "000000369771.jpg",
+      "sourcePath": "val2017/000000369771.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000369771.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7238/7250057624_e38c0d9517_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "8ed9962ca66e9a4d548d512729653ca38de8cba46bed1a37be61b65736d90ce0",
+      "bytes": 254812,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000370486",
+      "fileName": "000000370486.jpg",
+      "sourcePath": "val2017/000000370486.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000370486.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3823/9173218034_5fef21a1e0_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "30df28745b0b675a6b7d00556dd516a4ad5afacb9a7a92bbb4fa638ea9753274",
+      "bytes": 235294,
+      "width": 421,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000372260",
+      "fileName": "000000372260.jpg",
+      "sourcePath": "val2017/000000372260.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000372260.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5350/9918453144_050959b8b5_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "48ae887c9520533893d3f7afa853f20db4bc3376def97692b0bd410e715f674c",
+      "bytes": 254015,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000375763",
+      "fileName": "000000375763.jpg",
+      "sourcePath": "val2017/000000375763.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000375763.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5015/5481649653_ca1c8e2a58_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "911372d5ede0d0ffff25ab466f94e3f69fb9dbc4ea8b8ad0840cd77946799cc3",
+      "bytes": 257408,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000376093",
+      "fileName": "000000376093.jpg",
+      "sourcePath": "val2017/000000376093.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000376093.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8063/8192729628_8675b6ba5d_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "fa66e91ef2d1370f2ddaf69fb3f41383dbd79f970b0382f21b3c336f1d1c8e3b",
+      "bytes": 238962,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000376856",
+      "fileName": "000000376856.jpg",
+      "sourcePath": "val2017/000000376856.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000376856.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6162/6251239449_c1080b30b4_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "fa1981ada37a8f122ae998a64adcdaac58708a272f16045a8c9e4bd3e75e00d3",
+      "bytes": 232396,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000377368",
+      "fileName": "000000377368.jpg",
+      "sourcePath": "val2017/000000377368.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000377368.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5293/5538913095_e3c5a908bc_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "37858dad24b3e4ffc50abe1d8bfca6037b6a371ef7511963e6cb63526ac8f21d",
+      "bytes": 258391,
+      "width": 640,
+      "height": 481,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000379800",
+      "fileName": "000000379800.jpg",
+      "sourcePath": "val2017/000000379800.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000379800.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6002/5961981073_80aa5344c2_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "3f4a4f14981c3bca97393ced16eadf72f295d9e05c3253e7da7e3a6f8dc8f3fc",
+      "bytes": 291234,
+      "width": 640,
+      "height": 493,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000381639",
+      "fileName": "000000381639.jpg",
+      "sourcePath": "val2017/000000381639.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000381639.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8028/7308566732_7b519875e8_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "bc465a20b1eca9900919e9948da70ab4590d1436ac80763dbafa8bf9f12da630",
+      "bytes": 287598,
+      "width": 584,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000389812",
+      "fileName": "000000389812.jpg",
+      "sourcePath": "val2017/000000389812.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000389812.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5209/5324496767_e91279d366_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "5faf03376e4da84ebcf9b029ccf5199d42f2956e118f27dcce743c358399b147",
+      "bytes": 268253,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000390301",
+      "fileName": "000000390301.jpg",
+      "sourcePath": "val2017/000000390301.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000390301.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2134/1799252043_d628ee027c_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "aff669a1bd807ab6373aa6c3679458dfb751463641c6bf6d10b9a48507c38f56",
+      "bytes": 250482,
+      "width": 500,
+      "height": 364,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000391722",
+      "fileName": "000000391722.jpg",
+      "sourcePath": "val2017/000000391722.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000391722.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8096/8525142487_280d6ae156_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7497952624c45939e99c4da70299eaac2ee03adf25608b77a06b89f82209fc4f",
+      "bytes": 265084,
+      "width": 635,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000394206",
+      "fileName": "000000394206.jpg",
+      "sourcePath": "val2017/000000394206.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000394206.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3833/10168054123_eed5d06422_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "cb60fc19f46338204ec9fdbf45bf9b0da41bb6b406e77a29a42d46cbc92c8fae",
+      "bytes": 249418,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000396274",
+      "fileName": "000000396274.jpg",
+      "sourcePath": "val2017/000000396274.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000396274.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4115/4934710564_ca62c05d23_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "42b1b4b73603d0b5b089eacfa8a16bf5b3edbddca46b705cc941a3d745b19cc0",
+      "bytes": 299165,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000396863",
+      "fileName": "000000396863.jpg",
+      "sourcePath": "val2017/000000396863.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000396863.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6141/6017526843_2cbec9c29c_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "6d63ebaeede867676d7087efbe6ddfc778cb5868524539ff187420e2b594c807",
+      "bytes": 282245,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000397681",
+      "fileName": "000000397681.jpg",
+      "sourcePath": "val2017/000000397681.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000397681.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2404/2103090834_2088ec317d_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "2d0a0055517147f3a0be7a13ab375f2ad3d41194f8a9d33fb510ca058c5e4662",
+      "bytes": 278522,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000401862",
+      "fileName": "000000401862.jpg",
+      "sourcePath": "val2017/000000401862.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000401862.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8540/8698627837_6d1fb59ce4_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "82e64d65eb79042a20684d83a09c4aa90b98dd4616eab25c8bb1d40d45fa4cef",
+      "bytes": 244329,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000402615",
+      "fileName": "000000402615.jpg",
+      "sourcePath": "val2017/000000402615.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000402615.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7284/8740791736_b9e7f80101_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "870b74cbc65a7dce64ddacc0b8a1641bca728bf3aa6e9599541fe5932e22098b",
+      "bytes": 278636,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000402992",
+      "fileName": "000000402992.jpg",
+      "sourcePath": "val2017/000000402992.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000402992.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6135/5922506927_b60c053513_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "b9cc1890060b933404595e43d5f8001fa2e3bfb4da2903f363d384c6a92c1bba",
+      "bytes": 353895,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000407574",
+      "fileName": "000000407574.jpg",
+      "sourcePath": "val2017/000000407574.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000407574.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8446/7857456044_401a257790_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "0518c35b7359ef5fb2d882dd2c61d95898f413a93307dcd240fe010b3ed771b4",
+      "bytes": 239922,
+      "width": 478,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000408830",
+      "fileName": "000000408830.jpg",
+      "sourcePath": "val2017/000000408830.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000408830.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7381/8988900555_5ca5393141_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "a74acfa520a4671317fab07f68c63abf714dce2e438788c20119689f31714276",
+      "bytes": 280402,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000410456",
+      "fileName": "000000410456.jpg",
+      "sourcePath": "val2017/000000410456.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000410456.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8336/8438575589_a01a6990e2_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "d2dd4d77bad4f711f6d2f1ec9359c2d35cb406030f6a42ab40f8a2d4ec5d4aa2",
+      "bytes": 243603,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000410934",
+      "fileName": "000000410934.jpg",
+      "sourcePath": "val2017/000000410934.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000410934.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5005/5373623366_cca735dd7e_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "00216d5dab636b6ca7603009a7efa54784d43670a6606d478abd8a88627b78a6",
+      "bytes": 267445,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000415536",
+      "fileName": "000000415536.jpg",
+      "sourcePath": "val2017/000000415536.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000415536.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8193/8395338258_0f5e408112_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "a02be69d9dbaf2ebb1e21950d1a0c54238ea6b479b8200c46fd3330de5863236",
+      "bytes": 281463,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000416170",
+      "fileName": "000000416170.jpg",
+      "sourcePath": "val2017/000000416170.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000416170.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4084/5431709496_86fbc8af7c_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "a10cd4ca3fe91c84be1a6dee21ffc4c2df620effa4a5662195060163d79321e6",
+      "bytes": 317956,
+      "width": 424,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000416837",
+      "fileName": "000000416837.jpg",
+      "sourcePath": "val2017/000000416837.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000416837.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6210/6076000352_33c4523167_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "3f86b8f0da89b3cbd163eaae02cdd1523c95f6c427901d58c9308ef9f97dbd7b",
+      "bytes": 267691,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000426836",
+      "fileName": "000000426836.jpg",
+      "sourcePath": "val2017/000000426836.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000426836.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8034/7928260964_a7a5ea38c7_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "58226343a8196f38f86225c5025e7dd6d72327eb97a558da39198837639ce103",
+      "bytes": 282616,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000429623",
+      "fileName": "000000429623.jpg",
+      "sourcePath": "val2017/000000429623.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000429623.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7390/9234090660_ffc5a968b0_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "2cb147fefa5e4a7fea0e2a87d0564864105df1b6c4d8adfa6b45ca9a74740bda",
+      "bytes": 262267,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000431568",
+      "fileName": "000000431568.jpg",
+      "sourcePath": "val2017/000000431568.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000431568.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7090/7051254711_fe644696ac_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "dd512a1a074f3fb53301620de090c2f0fa22f6b34cd7e3177e465edaaf86245b",
+      "bytes": 269994,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000433243",
+      "fileName": "000000433243.jpg",
+      "sourcePath": "val2017/000000433243.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000433243.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5446/7370172300_1a54449619_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "be8fdf37a86022b4f81c20035eee76c145a22e6a18389de49bda581e75c9b96d",
+      "bytes": 263903,
+      "width": 640,
+      "height": 424,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000435880",
+      "fileName": "000000435880.jpg",
+      "sourcePath": "val2017/000000435880.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000435880.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4073/4930877922_1fab517ac9_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "2d58fc1e5f143011c23d9109326053f79d9e8b237122a3250003b114aba79f10",
+      "bytes": 279540,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000437331",
+      "fileName": "000000437331.jpg",
+      "sourcePath": "val2017/000000437331.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000437331.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5082/5223240716_ed4186b046_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "83de4876d54ab1495a2d319c4dfcaf1bdc34a856c044c85d78e05bad9aa40ba0",
+      "bytes": 229790,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000438304",
+      "fileName": "000000438304.jpg",
+      "sourcePath": "val2017/000000438304.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000438304.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5124/5333311458_e88df6ffe4_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "64ab6a5556b022cbd398d98cd5bb243a4ee6e4ea6e3285f433eb78b76b53fd4e",
+      "bytes": 269177,
+      "width": 464,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000440508",
+      "fileName": "000000440508.jpg",
+      "sourcePath": "val2017/000000440508.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000440508.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3806/9779255862_a4c3e98f41_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "b1fc6a5ff2046ced060ffcdb073069ce70310da6fb0178a74937a2c6b3141989",
+      "bytes": 237608,
+      "width": 640,
+      "height": 424,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000442306",
+      "fileName": "000000442306.jpg",
+      "sourcePath": "val2017/000000442306.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000442306.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3785/9771725551_51ca96beee_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "8cae3a123b9cd5076110ba7c2f5311a207ccd095e57f1ad080c5d7d1602d5851",
+      "bytes": 514818,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000445439",
+      "fileName": "000000445439.jpg",
+      "sourcePath": "val2017/000000445439.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000445439.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8514/8522957675_62c002ec69_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "f28f7d19dce4902779403bb5100d87bce431e3d568907bbaca99971a1a51acab",
+      "bytes": 277647,
+      "width": 640,
+      "height": 425,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000445675",
+      "fileName": "000000445675.jpg",
+      "sourcePath": "val2017/000000445675.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000445675.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8532/8453200511_c07c126d66_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "daea523eb0eec8e335184d878994b2e486220fb2d753075781702be4044227fb",
+      "bytes": 236976,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000447342",
+      "fileName": "000000447342.jpg",
+      "sourcePath": "val2017/000000447342.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000447342.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8467/8147569622_663a28196d_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "199402bfe3e935cf8c52e59271a9d5a0e2a20a7aa264472d7bcd0936b7c15d97",
+      "bytes": 296961,
+      "width": 640,
+      "height": 416,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000447917",
+      "fileName": "000000447917.jpg",
+      "sourcePath": "val2017/000000447917.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000447917.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5548/9448296519_50caff6b5e_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "dbaa52b9ecc59b899500db9200ce65b17aa8b87172c8c70de585fa27c80e7ad1",
+      "bytes": 238442,
+      "width": 640,
+      "height": 362,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000451571",
+      "fileName": "000000451571.jpg",
+      "sourcePath": "val2017/000000451571.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000451571.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2849/9413705750_5144fcff2f_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "501c4119054a0ee3110f260afa17f205289de089b9747d18a81b61348b512712",
+      "bytes": 292613,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000453341",
+      "fileName": "000000453341.jpg",
+      "sourcePath": "val2017/000000453341.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000453341.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6138/6020349692_744a1e57cc_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "703bb682af684144d492dcd45f65cea99fe5e65312f93b03d54ee90a3be24553",
+      "bytes": 281432,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000453981",
+      "fileName": "000000453981.jpg",
+      "sourcePath": "val2017/000000453981.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000453981.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5345/9421978388_8a342a8b4b_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7fc26bc90042e328c75150fede14d67bf6ddfe8a663efc2eac9ab21c9b58e20c",
+      "bytes": 237222,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000455937",
+      "fileName": "000000455937.jpg",
+      "sourcePath": "val2017/000000455937.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000455937.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5024/5642140110_5beb8ef4b4_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "1010b85b88a9ca6b84856f7850b018e114a024b782f43cae0f5a1d4ada68a5b2",
+      "bytes": 249838,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000457078",
+      "fileName": "000000457078.jpg",
+      "sourcePath": "val2017/000000457078.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000457078.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8033/7967347560_c74c6bc261_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "499deb8ae25e2796c2eedc2485dfa76c42485772240bd54a6ef6f65a82a6bcf5",
+      "bytes": 238378,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000458755",
+      "fileName": "000000458755.jpg",
+      "sourcePath": "val2017/000000458755.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000458755.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5119/5878453277_eea657a01d_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "a46fe4379f6edc9e2d8652b0f929fe92851ff2b1c470c5fa355135323fa60774",
+      "bytes": 289406,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000459437",
+      "fileName": "000000459437.jpg",
+      "sourcePath": "val2017/000000459437.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000459437.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8031/7909370418_6274c75247_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "36a1eff30f63e8ade3ee536119ae273452f27215afcac00f06c258228e71380e",
+      "bytes": 277666,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000460160",
+      "fileName": "000000460160.jpg",
+      "sourcePath": "val2017/000000460160.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000460160.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7445/9345977086_006679cb85_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "db7eaafa6ddf4785e56e99f0e3724a6eb9c68d4a21a5f6cbb320e0cece8c1ce3",
+      "bytes": 246968,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000464824",
+      "fileName": "000000464824.jpg",
+      "sourcePath": "val2017/000000464824.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000464824.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2886/9474428857_7f6880c660_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "6e88bef9ae20e5146c0537e39b0195f62681b5d4248df7c48d5635495fdac7aa",
+      "bytes": 245095,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000464872",
+      "fileName": "000000464872.jpg",
+      "sourcePath": "val2017/000000464872.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000464872.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4066/4525259509_e7910cd154_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "99220d61e21c0a7d6c6b946659bd9286b781165189a39fc59fad977d701311e5",
+      "bytes": 242151,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000467776",
+      "fileName": "000000467776.jpg",
+      "sourcePath": "val2017/000000467776.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000467776.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8008/7431019606_49a4d52edd_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "08403aeefdb8eba3746bb284544f102ac4f316169513b11f32e1af39d8021de3",
+      "bytes": 263452,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000470773",
+      "fileName": "000000470773.jpg",
+      "sourcePath": "val2017/000000470773.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000470773.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3746/9561784432_35a837bb19_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "48aac88bc3071da216a2a5ebe08ea7792b825edea1f4ed5039a20d302fb16560",
+      "bytes": 324171,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000472030",
+      "fileName": "000000472030.jpg",
+      "sourcePath": "val2017/000000472030.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000472030.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3340/3570719653_be3552d961_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "4eb37c42ff7d660d06c753bdd5f441fb4a5e086afb8bc5e0685ea834c6306d61",
+      "bytes": 241664,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000475223",
+      "fileName": "000000475223.jpg",
+      "sourcePath": "val2017/000000475223.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000475223.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3797/9506103461_60550f5b1d_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "6011f15191913e73a622572caf5a621a9b2f2daea055dfe45b4672129dc058ef",
+      "bytes": 249691,
+      "width": 640,
+      "height": 438,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000478721",
+      "fileName": "000000478721.jpg",
+      "sourcePath": "val2017/000000478721.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000478721.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7283/8744021186_d8e0d0b628_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "e3c8cdfe51d598c74a760009a489ebf59a5672e97475dcce9268e846f2f64cc6",
+      "bytes": 247680,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000479099",
+      "fileName": "000000479099.jpg",
+      "sourcePath": "val2017/000000479099.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000479099.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5226/5791374148_f4e99e57a9_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "5c237332390d380fdc0ca82d0fb0fec54f59ed3bb6100517119a8fd9edfd53e7",
+      "bytes": 391541,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000480944",
+      "fileName": "000000480944.jpg",
+      "sourcePath": "val2017/000000480944.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000480944.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7062/6774987268_25b081373c_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "d93e279fe681bff9f79cda02129731ce9abf2596a573aed2dbb3f2c237d9c7e2",
+      "bytes": 241992,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000482275",
+      "fileName": "000000482275.jpg",
+      "sourcePath": "val2017/000000482275.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000482275.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8035/8025419960_b469e95438_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "8a54cfc95bc473b48e9dea2fa3ac0784216fd359c7dc735d9696cc571d7c4a80",
+      "bytes": 304739,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000484296",
+      "fileName": "000000484296.jpg",
+      "sourcePath": "val2017/000000484296.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000484296.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4100/4743702630_a1047200ee_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "e721612148abd0e23e645f818c987e020fa5c9be3ec4b07974d366eea463d9bd",
+      "bytes": 337796,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000488385",
+      "fileName": "000000488385.jpg",
+      "sourcePath": "val2017/000000488385.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000488385.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6052/6243499475_cb67152d17_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "3e710ac2f09c96f1cb1011ea17988d2e0b50c8fc62387490c239f6fa99c575cf",
+      "bytes": 268509,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000488736",
+      "fileName": "000000488736.jpg",
+      "sourcePath": "val2017/000000488736.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000488736.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8405/8633559080_d22799eb42_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "b2eee8c0e4cc6cdec6f57577a3f165400a98e936280670c70152b48046dd2234",
+      "bytes": 309036,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000492878",
+      "fileName": "000000492878.jpg",
+      "sourcePath": "val2017/000000492878.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000492878.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4074/4853968972_dfb8b372ed_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "cd77b71fa218eea179e9a94733b0b6c353617952198f20fdd63ab47b88ba7792",
+      "bytes": 271783,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000503855",
+      "fileName": "000000503855.jpg",
+      "sourcePath": "val2017/000000503855.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000503855.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7423/8718554993_bf40de9dd2_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "6ed91b6f613307e43f26c70a60065e5e8d2d41afe965911283f0f32ffa570153",
+      "bytes": 267838,
+      "width": 640,
+      "height": 361,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000504635",
+      "fileName": "000000504635.jpg",
+      "sourcePath": "val2017/000000504635.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000504635.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5282/5254597443_d5be8939fb_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "69b2a7836504256ae05af5338ecb49b5149308369817f988a2b21bfb66e650a6",
+      "bytes": 239488,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000509656",
+      "fileName": "000000509656.jpg",
+      "sourcePath": "val2017/000000509656.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000509656.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1055/526812480_2580fc504d_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "35999246ea14f79b4f19825a38b428955f3456a389c3a0aa2301067cc9141d40",
+      "bytes": 229614,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000510095",
+      "fileName": "000000510095.jpg",
+      "sourcePath": "val2017/000000510095.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000510095.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4073/4849673524_4f92d7482c_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "40eea5adaa2072c80f28e81c22546c7610bfafef193732da6b4639b1bc5f1add",
+      "bytes": 331900,
+      "width": 640,
+      "height": 428,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000514376",
+      "fileName": "000000514376.jpg",
+      "sourcePath": "val2017/000000514376.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000514376.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2842/8750726399_6f14b42d73_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "951d0f6e435a5cafbdc7fa40f8e5f42467c0ecb2259576c7ffc2eb784e3193a7",
+      "bytes": 398683,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000518213",
+      "fileName": "000000518213.jpg",
+      "sourcePath": "val2017/000000518213.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000518213.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8012/7141255773_d59892c817_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "d81a1c3fe417a733809f1e966dce989a1906c04a8bbd9188757d60a909402974",
+      "bytes": 292838,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000521231",
+      "fileName": "000000521231.jpg",
+      "sourcePath": "val2017/000000521231.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000521231.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7215/7184941145_7d6930bdf2_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "dfb17c8c42970275c3ec18d7cb7746d801b50782bcb02f6c13ba36226e85a190",
+      "bytes": 275978,
+      "width": 424,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000527215",
+      "fileName": "000000527215.jpg",
+      "sourcePath": "val2017/000000527215.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000527215.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6208/6118912613_183765a80e_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "7d403827fdf85b5639fbf53832be1e92129ee259c99d89a30ac70aad7dc1a8f7",
+      "bytes": 249144,
+      "width": 640,
+      "height": 426,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000529105",
+      "fileName": "000000529105.jpg",
+      "sourcePath": "val2017/000000529105.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000529105.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3576/3682341767_51b97e44e6_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "fab846995fd7673d717375077be43f09f139c423af1ceb6446904c464f235657",
+      "bytes": 238043,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000530466",
+      "fileName": "000000530466.jpg",
+      "sourcePath": "val2017/000000530466.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000530466.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5468/8854334236_272d9f2ef5_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "9d1b80aefa9950e11bb2fa73e2e8dc590b3267e453f47c466b30cf78a222d7a1",
+      "bytes": 245637,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000531036",
+      "fileName": "000000531036.jpg",
+      "sourcePath": "val2017/000000531036.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000531036.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7288/8740762571_0849912a06_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "79be9c405b3ce4d2eea61fc29b0e1e633504fbeebee6483d64dfb38b1dd844a5",
+      "bytes": 307853,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000535156",
+      "fileName": "000000535156.jpg",
+      "sourcePath": "val2017/000000535156.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000535156.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7077/7355684452_9f9312dc27_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "24ff901415cee970585ccd0da5c13bbe2646d3a675dcbfe9e22daa281f439ee0",
+      "bytes": 236066,
+      "width": 640,
+      "height": 505,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000535578",
+      "fileName": "000000535578.jpg",
+      "sourcePath": "val2017/000000535578.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000535578.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6236/6211535644_0ed2ac3b74_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "24d70ca8f5760938bb45611d54d2d9fbdfc3f9d291b54b81fa3b732284cabb2f",
+      "bytes": 329268,
+      "width": 427,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000537964",
+      "fileName": "000000537964.jpg",
+      "sourcePath": "val2017/000000537964.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000537964.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2799/4360903003_32fc3de643_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "4d335e04f5873c0040fb8001577e0588ab942355b4e1a017cf552c9dc7494736",
+      "bytes": 284501,
+      "width": 640,
+      "height": 430,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000540414",
+      "fileName": "000000540414.jpg",
+      "sourcePath": "val2017/000000540414.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000540414.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8327/8395092894_bc8081f393_z.jpg",
+      "license": {
+        "id": 5,
+        "name": "Attribution-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "sha256": "fcde3d391e5ff8ca3df743484effef4c13e1cf5f3aa548af815b777a23adc365",
+      "bytes": 263719,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000544565",
+      "fileName": "000000544565.jpg",
+      "sourcePath": "val2017/000000544565.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000544565.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8385/8637201534_da86391cc8_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "2ac6b4e9e1b53277db20fab701366dbfa6271d5f0749fade0c3b8cf115d085bf",
+      "bytes": 240328,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000547502",
+      "fileName": "000000547502.jpg",
+      "sourcePath": "val2017/000000547502.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000547502.jpg",
+      "originalUrl": "http://farm7.staticflickr.com/6102/6266896443_5f6a86ea64_z.jpg",
+      "license": {
+        "id": 2,
+        "name": "Attribution-NonCommercial License",
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+      },
+      "sha256": "68735c6af6391d2598b050bc6e7a7c229eb00c71ec2a375f5d2e8b889c954e64",
+      "bytes": 323088,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000551794",
+      "fileName": "000000551794.jpg",
+      "sourcePath": "val2017/000000551794.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000551794.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5024/5612666049_00de8214e4_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "4742da4db578ed6cdcb557661c7cff1e53e974d6c43762b324d904ba64e05a5d",
+      "bytes": 243460,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000559956",
+      "fileName": "000000559956.jpg",
+      "sourcePath": "val2017/000000559956.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000559956.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1409/5114750279_e6d104eb67_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "6ab5c1accd150f89bbadf27485c48c15a39088e3f6619a523cb0b6499e460d6d",
+      "bytes": 239735,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000560474",
+      "fileName": "000000560474.jpg",
+      "sourcePath": "val2017/000000560474.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000560474.jpg",
+      "originalUrl": "http://farm3.staticflickr.com/2882/9199779291_d2d706e1f8_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "6c04067b47b2bb2cd73f043f845d08d923e42ad8c08c6917ed5602f880b6d1d2",
+      "bytes": 252952,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000561679",
+      "fileName": "000000561679.jpg",
+      "sourcePath": "val2017/000000561679.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000561679.jpg",
+      "originalUrl": "http://farm2.staticflickr.com/1143/5097674701_293bfba2cd_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "8a530a10cc409d05c1fffb9931cbec4752c3c446ee211fca16d040da9c3e2d84",
+      "bytes": 236048,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000562197",
+      "fileName": "000000562197.jpg",
+      "sourcePath": "val2017/000000562197.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000562197.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5055/5447381940_70f0c8a0da_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "ecbe85cfbd9d41ad80a6724b5841876e35134b195d116881c550cdf7f61545d8",
+      "bytes": 299018,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000562229",
+      "fileName": "000000562229.jpg",
+      "sourcePath": "val2017/000000562229.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000562229.jpg",
+      "originalUrl": "http://farm4.staticflickr.com/3747/9517469514_97e2299f45_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "7b3125aca812637401c46dde5b098f0434728479f9523d0c91dd4a2350823038",
+      "bytes": 327662,
+      "width": 640,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000565607",
+      "fileName": "000000565607.jpg",
+      "sourcePath": "val2017/000000565607.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000565607.jpg",
+      "originalUrl": "http://farm6.staticflickr.com/5104/5652212374_c170b86206_z.jpg",
+      "license": {
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/"
+      },
+      "sha256": "e3366c34e1cf236d03219c82b7548dc7198d3f21346c7b364f9d72a94c3c9b2f",
+      "bytes": 298587,
+      "width": 640,
+      "height": 313,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000567740",
+      "fileName": "000000567740.jpg",
+      "sourcePath": "val2017/000000567740.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000567740.jpg",
+      "originalUrl": "http://farm9.staticflickr.com/8238/8569670192_106a170c8b_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "7d5540f44438a85c429ed48e16f2d561384d20dd18f8efd589de54602141a48a",
+      "bytes": 240840,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000569565",
+      "fileName": "000000569565.jpg",
+      "sourcePath": "val2017/000000569565.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000569565.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7353/9164606678_de1b984a13_z.jpg",
+      "license": {
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License",
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+      },
+      "sha256": "4a41348021140c4a9d58ce601e3c4f8ae1116c71aac77531c336e6d2d549de48",
+      "bytes": 255697,
+      "width": 640,
+      "height": 427,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000569917",
+      "fileName": "000000569917.jpg",
+      "sourcePath": "val2017/000000569917.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000569917.jpg",
+      "originalUrl": "http://farm5.staticflickr.com/4083/5210018208_510a7c90fc_z.jpg",
+      "license": {
+        "id": 4,
+        "name": "Attribution License",
+        "url": "http://creativecommons.org/licenses/by/2.0/"
+      },
+      "sha256": "a3115bd6b2d9e14b9805482da784c35eeca0a2dd628ac18c59b1a69a21d40277",
+      "bytes": 232993,
+      "width": 480,
+      "height": 640,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "coco-val2017-000000573391",
+      "fileName": "000000573391.jpg",
+      "sourcePath": "val2017/000000573391.jpg",
+      "cocoUrl": "http://images.cocodataset.org/val2017/000000573391.jpg",
+      "originalUrl": "http://farm8.staticflickr.com/7223/7050877267_0697e5e461_z.jpg",
+      "license": {
+        "id": 6,
+        "name": "Attribution-NoDerivs License",
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/"
+      },
+      "sha256": "37d17c01486562f58831ba1e0357f3ac79d37ebb34ae93882ab99662f7793ca0",
+      "bytes": 384362,
+      "width": 640,
+      "height": 480,
+      "progressive": false,
+      "sampling": ["1x1", "1x1", "1x1"],
+      "expected": "eligible-exact"
+    }
+  ]
+}

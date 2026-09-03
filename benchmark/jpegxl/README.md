@@ -118,7 +118,21 @@ Run the pinned exact reconstruction and libjxl comparison matrix with:
 npm run jpegxl:m1:reverse -- --output benchmark/results/jpegxl-m1-recompression-2026-09-03.json
 ```
 
-The reports record parse, coefficient, section, reconstruction, and verification work. They also
-record coefficient sparsity and the full compression gate. The current implementation clears the
-large-photo time and size checks, but the mixed PR matrix and 250-real-JPEG promotion gates remain
-open. This evidence does not promote exact transcode from Experimental.
+Prepare the pinned local-only COCO cohort, then run its exact compression gate with:
+
+```sh
+npm run jpegxl:m1:corpus:prepare
+npm run jpegxl:m1:corpus
+```
+
+Run the repeated 12 MP performance comparison with:
+
+```sh
+npm run jpegxl:m1:performance
+```
+
+The reports record parse, coefficient, section, reconstruction, verification, output size, and
+pinned libjxl comparisons. The 250-file cohort passes the exact reconstruction and compression
+percentiles. The repeated 12 MP run passes the absolute time, M0 speedup, and equivalent exact
+libjxl workflow ratio gates. Exact transcode is stable for the documented eligible subset. The
+pixel encoder remains Experimental.

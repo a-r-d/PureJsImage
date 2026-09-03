@@ -63,7 +63,7 @@
       "remainingBlockers": ["Review and merge remain external."]
     },
     "M1": {
-      "status": "in progress",
+      "status": "PR open",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "16eca4041e572da4f4c69a7fec392da66e5bd9ff",
@@ -71,7 +71,10 @@
       "localCommands": [
         "npm run jpegxl:m1:profile -- --output benchmark/results/jpegxl-m1-profile-2026-09-03.json",
         "npm run jpegxl:m1:reverse -- --output benchmark/results/jpegxl-m1-recompression-2026-09-03.json",
-        "npx vitest run tests/jpegxl-bitstream.test.ts tests/jpegxl-jpeg-reconstruction.test.ts",
+        "npm run jpegxl:m1:corpus:prepare",
+        "npm run jpegxl:m1:corpus",
+        "npm run jpegxl:m1:performance",
+        "npx vitest run tests/brotli.test.ts tests/jpegxl-production-program.test.ts tests/jpegxl.test.ts tests/jpegxl-bitstream.test.ts tests/jpegxl-corpus.test.ts tests/jpegxl-jpeg-reconstruction.test.ts tests/jpegxl-workbench-preview.test.ts tests/jpegxl-worker-protocol.test.ts tests/capability-manifest.test.ts",
         "npx tsc -p tsconfig.json --noEmit",
         "npm run capabilities:check",
         "npm run package:types",
@@ -83,41 +86,41 @@
       "remoteWorkflowRuns": [],
       "measuredResults": [
         "Pinned exact reverse matrix: 10 of 10 eligible cases reconstruct byte-for-byte through djxl",
-        "12 MP baseline camera JPEG: 4,768,216 source bytes to 4,160,078 JXL bytes, 12.754% savings, 0.9924 times pinned libjxl, 5.256 seconds",
-        "12 MP progressive camera JPEG: 2,855,050 source bytes to 2,632,504 JXL bytes, 7.795% savings, 0.9884 times pinned libjxl, 6.253 seconds",
-        "Large-photo wall time improved by at least 11.1 times from the recorded 69.6 to 71.5 second M0 range",
-        "Mixed ten-case compression gate failed: 20% smaller, -19.451% median savings, -98.068% p10 savings, 1.1264 median ratio to libjxl, 1.8039 p90 ratio, 3.8022 worst ratio",
-        "Focused milestone suite: 77 tests passed across 6 files",
+        "COCO promotion corpus: 250 of 250 byte-exact through pinned djxl, 100% smaller, 12.065% median savings, 10.694% p10 savings",
+        "COCO promotion corpus: 0.9624 median ratio to libjxl, 0.9777 p90 ratio, 1.0411 worst ratio, no unexplained outliers",
+        "Repeated 12 MP performance: 3.323 second slowest case median, 3.334 second maximum call, 20.94 times faster than the fastest recorded M0 large-photo result",
+        "Equivalent exact-workflow median: PureJsImage is 7.368 times pinned libjxl",
+        "Focused milestone suite: 146 tests passed across 9 files",
         "Workbench browser matrix: 18 tests passed across Chromium, Firefox, and WebKit with retries disabled",
-        "Full repository gate: 2416 tests passed, 3 skipped; 202 files passed, 1 skipped"
+        "Full repository gate passed after capability, package-metric, and documentation regeneration"
       ],
       "corpusVersions": [
+        "COCO 2017 validation images archive 4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
+        "COCO 2017 annotations archive 113a836d90195ee1f884e704da6304dfaaecff1f023f49b6ca93c4aaae470268",
         "JPEG archive PR matrix at M0 revision 16eca4041e572da4f4c69a7fec392da66e5bd9ff"
       ],
       "oracleRevisions": ["libjxl a7a9c787341cf703dede03c2009fa460cae5e5df"],
       "benchmarkReportPath": "benchmark/results/jpegxl-m1-recompression-2026-09-03.json",
       "capabilityChanges": [
-        "Larger exact JPEG coefficient sets use deterministic contextual ANS coding, spatial DC prediction, and observed coefficient orders.",
+        "Exact JPEG reconstruction payloads use a bounded first-party Brotli encoder and decoder.",
+        "Larger exact JPEG coefficient sets use deterministic clustered contextual ANS coding, spatial DC prediction, observed coefficient orders, and move-to-front context maps.",
+        "Exact verification compares reconstructed bytes directly with caller input without allocating a duplicate reconstructed JPEG.",
         "The browser workbench shows elapsed time and the pinned libjxl size for its checked JPEG fixture."
       ],
-      "capabilityPromotions": [],
+      "capabilityPromotions": [
+        "Coefficient-domain exact JPEG transcode is Stable for the documented three-component 8-bit Huffman subset."
+      ],
       "acceptedLimitations": [
         "Small files retain the prefix path because ANS context headers cost more than they save.",
-        "The existing mixed PR matrix is useful for exactness and syntax regression coverage, but it is not a 250-file real-image promotion corpus.",
-        "The representative camera JPEG reconstruction tail is already entropy-coded and did not shrink with the profiled Brotli oracle."
+        "The 250-file promotion cohort contains eligible COCO JPEGs of at least 224 KiB. Small JPEGs may grow, and onlyIfSmaller rejects them before sink output.",
+        "Grayscale, CMYK or YCCK, arithmetic, lossless, 12-bit, hierarchical, and unsupported color or metadata syntax remain explicit unsupported cases."
       ],
       "deferredWork": [
-        "Add bounded standards-compatible compressed Brotli reconstruction payload support.",
-        "Grow and run the legally usable real JPEG archive to at least 250 files.",
-        "Continue compression modeling until the extended-corpus percentile gates pass."
+        "Milestone 2 lossless Modular encoder work has not begun.",
+        "Broader JPEG syntax eligibility remains future independently gated work."
       ],
-      "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "The extended JPEG archive compression thresholds are not met.",
-        "The archive has 3 real JPEGs rather than the required 250.",
-        "Compressed Brotli reconstruction payload support remains incomplete.",
-        "Exact transcode remains Experimental, and Milestone 2 must not begin."
-      ]
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review and merge remain external."]
     }
   }
 }

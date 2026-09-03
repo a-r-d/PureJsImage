@@ -2,7 +2,8 @@
   "schemaVersion": 1,
   "kind": "jpegxl-jpeg-archive",
   "minimumRealJpegsForStablePromotion": 250,
-  "currentRealJpegCount": 3,
+  "currentRealJpegCount": 250,
+  "extendedRealCorpus": "benchmark/jpegxl/production-program/corpora/jpeg-archive-coco-val2017.json",
   "cases": [
     {
       "id": "baseline-yuv420",

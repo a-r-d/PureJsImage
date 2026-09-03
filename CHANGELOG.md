@@ -12,7 +12,8 @@ All notable changes to PureJsImage are documented in this file.
   8-bit Huffman baseline and progressive JPEGs are verified by byte-exact reconstruction before
   success. Pixel-lossless fallback is explicit and never silently replaces the exact path. The new
   local `/jpeg-xl/` worker workbench, public guide, capability contract, browser tests, package
-  checks, and correctness-gated benchmark keep the experimental boundary visible.
+  checks, and correctness-gated benchmark keep each capability boundary visible. Exact JPEG
+  transcode is stable for its documented subset. The pixel encoder remains experimental.
 
 - Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
   AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,
@@ -96,10 +97,11 @@ All notable changes to PureJsImage are documented in this file.
 ### Changed
 
 - JPEG XL exact JPEG transcode now uses deterministic clustered ANS contexts, spatial DC
-  prediction, and observed coefficient orders for large coefficient sets. The checked 12 MP
-  baseline and progressive camera files reconstruct byte-for-byte, finish within the Milestone 1
-  time limit, and are smaller than their source JPEGs and pinned libjxl effort-1 outputs. The
-  broader compression and 250-real-file gates remain open, so the capability stays Experimental.
+  prediction, observed coefficient orders, move-to-front context maps, and bounded Brotli
+  reconstruction payloads. All 250 files in the pinned real JPEG cohort reconstruct byte-for-byte
+  through `djxl`. The size percentiles and 12 MP performance gates pass, so exact transcode is
+  stable for its documented three-component 8-bit Huffman subset. The pixel encoder remains
+  experimental.
 
 - JPEG XL exact transcode now rejects Exif orientation other than 1 and non-sRGB or malformed ICC
   before coefficient work, so byte-exact reconstruction cannot hide incorrect display semantics.
