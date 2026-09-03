@@ -232,13 +232,13 @@ used 156 deterministic legal cases across the 12 M2 classes and pinned libjxl 0.
 | JXLMOD-008 | Keep four bounded match histories and encode common row distances with JPEG XL special distance codes. | The five-case effort-7 PNG p90 reached 1.109. | material | Retained for effort 7. |
 | JXLMOD-009 | Serialize long zero-frequency histogram runs with the JPEG XL repeat symbol. | The line-art case fell from 327 to 202 bytes and the fixed five-class size gates passed except its small-sample p90. | material | Retained. |
 | JXLMOD-010 | Reuse one predictor tree when clustered transformed planes share a model. | The line-art case fell from 202 to 199 bytes without changing decoded samples. | promising | Retained. |
-| JXLMOD-011 | Keep the effort-1 residual traversal monomorphic and compare its prefix section with a simple ANS section using a fixed reversible color transform. | On 156 cases, median size was 1.0457 times libjxl effort 1 and median wall time was 2.3392 times libjxl effort 1. | material | Retained. |
+| JXLMOD-011 | Keep the effort-1 residual traversal monomorphic and compare its prefix section with a simple ANS section using a fixed reversible color transform. | On the exact implementation revision across 156 cases, median size was 1.0354 times libjxl effort 1 and median wall time was 2.2434 times libjxl effort 1. | material | Retained. |
 | JXLMOD-012 | Add default weighted prediction and bounded horizontal, vertical, and multi-channel squeeze candidates at higher efforts. | The 163-case four-decoder matrix remained exact after the change. Final extended compression and performance reruns are recorded in the M2 evidence reports. | material | Retained only with unsqueezed and no-LZ candidates available. |
 
 Final effort-7 results on 156 cases were 0.8901 median, 1.2921 p90, and 1.7349 worst
 size ratio to pinned libjxl effort 7 before the final exact-head rerun. Median output was 0.6023 of
 PNG, 89.74% of files were no larger than PNG, every image-class median was at most 1.2581 times PNG,
-and median wall time was 7.4691 times libjxl effort 7. The tracked final reports live under
+and median wall time was 7.3197 times libjxl effort 7. The tracked final reports live under
 `benchmark/results/jpegxl-m2-*`.
 
 ## JPEG speed campaign

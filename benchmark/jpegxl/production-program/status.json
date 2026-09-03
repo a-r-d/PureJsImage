@@ -178,11 +178,11 @@
       "remoteWorkflowRuns": [],
       "measuredResults": [
         "Independent encoder matrix: 163 deterministic cases across 12 classes and all four effort tiers decode exactly through PureJsImage, pinned djxl, pinned jxl-rs, and pinned jxl-oxide where applicable",
-        "Effort 1 extended corpus: 156 cases, 1.0456 median size ratio and 2.3391 median wall-time ratio to pinned libjxl effort 1",
+        "Effort 1 extended corpus: 156 cases, 1.0354 median size ratio and 2.2434 median wall-time ratio to pinned libjxl effort 1",
         "Effort 7 extended corpus: 156 cases, 0.8901 median, 1.2921 p90, and 1.7349 worst size ratio to pinned libjxl effort 7",
         "Effort 7 PNG comparison: 0.6023 median ratio, 89.74% no larger than PNG, and 1.2581 worst class median",
-        "Effort 7 median wall-time ratio: 7.4691 times pinned libjxl effort 7",
-        "Representative 24 MP effort-1 encode: 3.851 seconds, 27 sink writes, and 106050518 reported managed peak bytes",
+        "Effort 7 median wall-time ratio: 7.3197 times pinned libjxl effort 7",
+        "Representative 24 MP effort-1 encode: 3.819 seconds, 27 sink writes, and 106050518 reported managed peak bytes",
         "Focused browser acceptance: 12 JPEG XL compatibility tests and 18 workbench tests passed across Chromium, Firefox, and WebKit with retries disabled",
         "Package size: core plus JPEG XL is 266448 minified bytes; JPEG XL specialized APIs are 308718 minified bytes",
         "Full repository gate: 2443 tests passed, 3 skipped; 202 files passed, 1 skipped"

@@ -206,14 +206,14 @@ jxl-oxide decode exact declared samples where applicable. The pinned jxl-oxide s
 rendering limitation remains separately classified.
 
 The extended compression corpus contains 156 deterministic legal cases across the same 12 classes.
-At effort 1, the median size ratio is 1.0457 and the median wall-time ratio is 2.3392 versus pinned
+At effort 1, the median size ratio is 1.0354 and the median wall-time ratio is 2.2434 versus pinned
 libjxl effort 1. At effort 7, the median size ratio is 0.8901, p90 is 1.2921, and the worst case is
 1.7349 versus pinned libjxl effort 7. The effort-7 median is 0.6023 of PNG, 89.74% of files are no
 larger than PNG, and the worst image-class median is 1.2581. The effort-7 median wall-time ratio is
-7.4691 versus pinned libjxl effort 7. These results clear the fixed M2 thresholds without changing
+7.3197 versus pinned libjxl effort 7. These results clear the fixed M2 thresholds without changing
 their tolerances.
 
-The representative 24 MP effort-1 encode completed in 3.851 seconds, emitted 27 sink writes, and
+The representative 24 MP effort-1 encode completed in 3.819 seconds, emitted 27 sink writes, and
 reported a 106,050,518-byte managed peak. The core plus JPEG XL entry is 266,448 minified bytes. The
 expanded specialized JPEG XL entry is 308,718 minified bytes against its recorded 315,000-byte M2
 ceiling.
