@@ -1,0 +1,21 @@
+benchmark/jpegxl/production-program/render-baseline.ts
+  s_7f9203a11702d4::t_db8543ca6275ed 47,73-86
+benchmark/jpegxl/production-program/baseline.json
+  s_7f9203a11702d4::t_99a8e931a339fa 241
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "548a30321dbd149c7d71e17c37db0a4933d9c5de",
+  "prompts": {},
+  "sessions": {
+    "s_7f9203a11702d4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06774-7c4f-71c2-96d8-1394688c783b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
