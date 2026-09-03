@@ -3,8 +3,12 @@ import type { JpegCoefficientComponent, JpegCoefficientImage } from './jpeg-coef
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   JpegXlBitWriter,
+  type AnsEncoding,
+  hybridTokenForEncoding,
   packSigned,
   type PrefixEncoding,
+  writeAnsCode,
+  writeAnsValues,
   writeHybridUint,
   writeModularHeader,
   writeModularTree,
@@ -47,14 +51,18 @@ const addFrequency = (frequencies: Uint32Array, value: number): void => {
 
 const visitPlaneResiduals = (plane: Readonly<Plane>, visit: (value: number) => void): void => {
   for (let y = 0; y < plane.height; y += 1) {
-    let left = 0
     for (let x = 0; x < plane.width; x += 1) {
       const index = y * plane.width + x
       const sample = plane.values[index]
       if (sample === undefined) throw invalidInput('JPEG-derived JPEG XL plane is incomplete')
-      if (x === 0 && y > 0) left = plane.values[index - plane.width] ?? 0
-      visit(packSigned(sample - left))
-      left = sample
+      const left =
+        x > 0
+          ? (plane.values[index - 1] ?? 0)
+          : y > 0
+            ? (plane.values[index - plane.width] ?? 0)
+            : 0
+      const top = y > 0 ? (plane.values[index - plane.width] ?? 0) : left
+      visit(packSigned(sample - Math.trunc((left + top) / 2)))
     }
   }
 }
@@ -62,17 +70,38 @@ const visitPlaneResiduals = (plane: Readonly<Plane>, visit: (value: number) => v
 const writePlanes = (
   writer: JpegXlBitWriter,
   planes: readonly Plane[],
-  encoding: Readonly<PrefixEncoding>,
+  encoding: Readonly<ModularEncoding>,
 ): void => {
   writeModularHeader(writer, true)
-  for (const plane of planes) {
-    visitPlaneResiduals(plane, (value) => writeHybridUint(writer, value, encoding))
+  if (encoding.kind === 'prefix') {
+    for (const plane of planes) {
+      visitPlaneResiduals(plane, (value) => writeHybridUint(writer, value, encoding.encoding))
+    }
+    return
   }
+  const count = planes.reduce((total, plane) => total + plane.values.length, 0)
+  const values = new Uint32Array(count)
+  const contexts = new Uint16Array(count)
+  let offset = 0
+  for (const plane of planes) {
+    visitPlaneResiduals(plane, (value) => {
+      values[offset] = value
+      offset += 1
+    })
+  }
+  writeAnsValues(writer, values, contexts, count, encoding.encoding)
 }
 
-const collectPlanes = (frequencies: Uint32Array, planes: readonly Plane[]): void => {
+const collectPlanes = (frequencies: Uint32Array, planes: readonly Plane[], ans = false): void => {
   for (const plane of planes)
-    visitPlaneResiduals(plane, (value) => addFrequency(frequencies, value))
+    visitPlaneResiduals(plane, (value) => {
+      if (ans) {
+        const token = hybridTokenForEncoding(value, acHybridConfig)
+        frequencies[token] = (frequencies[token] ?? 0) + 1
+      } else {
+        addFrequency(frequencies, value)
+      }
+    })
 }
 
 const transpose = (table: Int32Array): Int32Array => {
@@ -251,7 +280,7 @@ const dcGroupPlanes = (
 const writeDcGroup = (
   writer: JpegXlBitWriter,
   planes: readonly Plane[],
-  encoding: Readonly<PrefixEncoding>,
+  encoding: Readonly<ModularEncoding>,
 ): void => {
   writer.writeBits(0, 2)
   writePlanes(writer, planes.slice(0, 3), encoding)
@@ -285,7 +314,8 @@ const writeLfGlobal = (
   writer: JpegXlBitWriter,
   frequencies: Uint32Array,
   geometry: Readonly<JpegDerivedGeometry>,
-): PrefixEncoding => {
+  useAns: boolean,
+): ModularEncoding => {
   writer.writeBits(0, 1)
   for (const quantization of geometry.quantization) {
     const dc = quantization[0]
@@ -317,8 +347,13 @@ const writeLfGlobal = (
   writer.writeBits(128, 8)
   writer.writeBits(128, 8)
   writer.writeBits(1, 1)
-  writeModularTree(writer)
-  return writePrefixCode(writer, 1, frequencies)
+  writeModularTree(writer, 3)
+  return useAns
+    ? Object.freeze({
+        kind: 'ans',
+        encoding: writeAnsCode(writer, Uint8Array.of(0), [frequencies], acHybridConfig),
+      })
+    : Object.freeze({ kind: 'prefix', encoding: writePrefixCode(writer, 1, frequencies) })
 }
 
 const quantizationPlanes = (geometry: Readonly<JpegDerivedGeometry>): readonly Plane[] =>
@@ -343,11 +378,105 @@ const naturalOrder = (): Uint32Array => {
 
 const order = naturalOrder()
 const transposed = (position: number): number => (position & 7) * 8 + (position >>> 3)
+const naturalJpegXlOrder = Uint32Array.from(order, transposed)
+
+const optimizedCoefficientOrders = (
+  geometry: Readonly<JpegDerivedGeometry>,
+): readonly Uint32Array[] =>
+  Object.freeze(
+    geometry.internalComponents.map((component) => {
+      const nonzero = new Uint32Array(64)
+      const blocks = component.blocksPerLineForMcu * component.blocksPerColumnForMcu
+      for (let block = 0; block < blocks; block += 1) {
+        const base = block * 64
+        for (let scan = 1; scan < 64; scan += 1) {
+          const position = naturalJpegXlOrder[scan] ?? 0
+          if ((component.coefficients[base + position] ?? 0) !== 0) {
+            nonzero[position] = (nonzero[position] ?? 0) + 1
+          }
+        }
+      }
+      const positions = Array.from({ length: 63 }, (_, index) => index + 1)
+      positions.sort(
+        (left, right) =>
+          (nonzero[right] ?? 0) - (nonzero[left] ?? 0) ||
+          naturalJpegXlOrder.indexOf(left) - naturalJpegXlOrder.indexOf(right),
+      )
+      return Uint32Array.from([0, ...positions])
+    }),
+  )
+
+const coefficientFrequencyContext = new Uint16Array([
+  0xbad, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19,
+  20, 20, 21, 21, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 26, 27, 27,
+  27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 30, 30, 30, 30,
+])
+
+const coefficientNonzeroContext = new Uint16Array([
+  0xbad, 0, 31, 62, 62, 93, 93, 93, 93, 123, 123, 123, 123, 152, 152, 152, 152, 152, 152, 152, 152,
+  180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 206, 206, 206, 206, 206, 206, 206,
+  206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
+  206, 206, 206, 206, 206,
+])
+
+const predictNonzeroCount = (plane: Int32Array, width: number, x: number, y: number): number => {
+  if (x === 0) return y === 0 ? 32 : (plane[(y - 1) * width] ?? 32)
+  const left = plane[y * width + x - 1] ?? 32
+  if (y === 0) return left
+  return Math.floor(((plane[(y - 1) * width + x] ?? 32) + left + 1) / 2)
+}
+
+const acContextMap = (): Uint8Array => {
+  const map = new Uint8Array(15 * (37 + 458))
+  for (let context = 0; context < map.length; context += 1) {
+    if (context < 15 * 37) {
+      const predictedBucket = Math.floor(context / 15)
+      const blockContext = context % 15
+      const predictionCluster = Math.min(7, Math.floor(predictedBucket / 5))
+      map[context] = (blockContext === 0 ? 0 : 8) + predictionCluster
+      continue
+    }
+    const coefficientContext = context - 15 * 37
+    const blockContext = Math.floor(coefficientContext / 458)
+    const withinBlockContext = coefficientContext % 458
+    const previous = withinBlockContext & 1
+    const densityAndFrequency = withinBlockContext >>> 1
+    const densityBucket = Math.min(59, Math.floor(densityAndFrequency / 4))
+    const componentBucket = blockContext === 0 ? 0 : 1
+    map[context] = 16 + componentBucket * 120 + previous * 60 + densityBucket
+  }
+  const remapped = new Uint8Array(map.length)
+  const compactIndexes = new Map<number, number>()
+  let next = 0
+  for (let context = 0; context < map.length; context += 1) {
+    const cluster = map[context] ?? 0
+    let compact = compactIndexes.get(cluster)
+    if (compact === undefined) {
+      compact = next
+      compactIndexes.set(cluster, compact)
+      next += 1
+    }
+    remapped[context] = compact
+  }
+  return remapped
+}
+
+const clusteredAcContextMap = acContextMap()
+const clusteredAcHistogramCount =
+  clusteredAcContextMap.reduce((maximum, histogram) => Math.max(maximum, histogram), 0) + 1
+const acHybridConfig = Object.freeze({ splitExponent: 4, msbInToken: 2, lsbInToken: 0 })
+
+type AcEncoding =
+  | Readonly<{ readonly kind: 'prefix'; readonly encoding: PrefixEncoding }>
+  | Readonly<{ readonly kind: 'ans'; readonly encoding: AnsEncoding }>
+
+type ModularEncoding = AcEncoding
 
 const visitAcGroup = (
   geometry: Readonly<JpegDerivedGeometry>,
+  coefficientOrders: readonly Uint32Array[],
   group: number,
-  visit: (value: number) => void,
+  visit: (value: number, context: number) => void,
 ): void => {
   const groupX = group % geometry.groupsAcross
   const groupY = Math.floor(group / geometry.groupsAcross)
@@ -355,6 +484,11 @@ const visitAcGroup = (
   const blockY = groupY * 32
   const blockWidth = Math.min(32, geometry.fullBlockWidth - blockX)
   const blockHeight = Math.min(32, geometry.fullBlockHeight - blockY)
+  const nonzeroPlanes = geometry.internalComponents.map((_, channel) => {
+    const shift = geometry.shifts[channel]
+    if (!shift) throw invalidInput('JPEG XL AC channel geometry is missing')
+    return new Int32Array((blockWidth >> shift[0]) * (blockHeight >> shift[1]))
+  })
   for (let y = 0; y < blockHeight; y += 1) {
     for (let x = 0; x < blockWidth; x += 1) {
       for (const channel of [1, 0, 2]) {
@@ -370,26 +504,50 @@ const visitAcGroup = (
         const componentX = (blockX + x) >> shift[0]
         const componentY = (blockY + y) >> shift[1]
         const base = (componentY * component.blocksPerLineForMcu + componentX) * 64
+        const localX = x >> shift[0]
+        const localY = y >> shift[1]
+        const localWidth = blockWidth >> shift[0]
+        const nonzeroPlane = nonzeroPlanes[channel]
+        const coefficientOrder = coefficientOrders[channel]
+        if (!nonzeroPlane || !coefficientOrder) {
+          throw invalidInput('JPEG XL AC channel model is missing')
+        }
         let lastNonzero = 0
         for (let scan = 1; scan < 64; scan += 1) {
-          const position = transposed(order[scan] ?? 0)
+          const position = coefficientOrder[scan] ?? 0
           if ((component.coefficients[base + position] ?? 0) !== 0) lastNonzero = scan
         }
         let nonzero = 0
         for (let scan = 1; scan <= lastNonzero; scan += 1) {
-          const position = transposed(order[scan] ?? 0)
+          const position = coefficientOrder[scan] ?? 0
           if ((component.coefficients[base + position] ?? 0) !== 0) nonzero += 1
         }
-        visit(nonzero)
+        const predicted = predictNonzeroCount(nonzeroPlane, localWidth, localX, localY)
+        const blockContext = channel === 1 ? 0 : 7
+        const nonzeroBucket =
+          predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
+        visit(nonzero, nonzeroBucket * 15 + blockContext)
+        nonzeroPlane[localY * localWidth + localX] = nonzero
+        let remainingNonzero = nonzero
+        let previous = nonzero > 4 ? 0 : 1
         for (let scan = 1; scan <= lastNonzero; scan += 1) {
-          const position = transposed(order[scan] ?? 0)
+          const position = coefficientOrder[scan] ?? 0
           const coefficient = component.coefficients[base + position] ?? 0
           if (coefficient < -4_095 || coefficient > 4_095) {
             throw unsupportedOperation(
               'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
             )
           }
-          visit(packSigned(coefficient))
+          const remainingContext = coefficientNonzeroContext[remainingNonzero]
+          const frequencyContext = coefficientFrequencyContext[scan]
+          if (remainingContext === undefined || frequencyContext === undefined) {
+            throw invalidInput('JPEG XL AC coefficient context is invalid')
+          }
+          const coefficientContext =
+            15 * 37 + 458 * blockContext + (remainingContext + frequencyContext) * 2 + previous
+          visit(packSigned(coefficient), coefficientContext)
+          previous = coefficient === 0 ? 0 : 1
+          remainingNonzero -= previous
         }
       }
     }
@@ -399,9 +557,11 @@ const visitAcGroup = (
 const writeHfGlobal = (
   writer: JpegXlBitWriter,
   geometry: Readonly<JpegDerivedGeometry>,
-  modularEncoding: Readonly<PrefixEncoding>,
-  acFrequencies: Uint32Array,
-): PrefixEncoding => {
+  coefficientOrders: readonly Uint32Array[],
+  useClusteredAns: boolean,
+  modularEncoding: Readonly<ModularEncoding>,
+  acFrequencies: readonly Uint32Array[],
+): AcEncoding => {
   writer.writeBits(0, 1)
   for (let table = 0; table < 17; table += 1) {
     writer.writeBits(table === 0 ? 7 : 0, 3)
@@ -412,16 +572,84 @@ const writeHfGlobal = (
   const groupCount = geometry.groupsAcross * geometry.groupsDown
   const histogramBits = Math.ceil(Math.log2(groupCount))
   if (histogramBits !== 0) writer.writeBits(0, histogramBits)
-  writeU32(writer, 0, [{ value: 0x5f }, { value: 0x13 }, { value: 0 }, { bits: 13, offset: 0 }])
-  return writePrefixCode(writer, 15 * (37 + 458), acFrequencies)
+  if (!useClusteredAns) {
+    writeU32(writer, 0, [{ value: 0x5f }, { value: 0x13 }, { value: 0 }, { bits: 13, offset: 0 }])
+  } else {
+    writeU32(writer, 1, [{ value: 0x5f }, { value: 0x13 }, { value: 0 }, { bits: 13, offset: 0 }])
+    const inverseNatural = new Uint8Array(64)
+    for (let index = 0; index < naturalJpegXlOrder.length; index += 1) {
+      inverseNatural[naturalJpegXlOrder[index] ?? 0] = index
+    }
+    const lehmerCodes = coefficientOrders.map((coefficientOrder) => {
+      const available = Array.from({ length: 64 }, (_, index) => index)
+      const codes = new Uint8Array(64)
+      for (let index = 0; index < coefficientOrder.length; index += 1) {
+        const naturalIndex = inverseNatural[coefficientOrder[index] ?? 0] ?? 0
+        const selected = available.indexOf(naturalIndex)
+        if (selected < 0) throw invalidInput('JPEG XL coefficient order is not a permutation')
+        codes[index] = selected
+        available.splice(selected, 1)
+      }
+      return codes
+    })
+    const orderFrequencies = new Uint32Array(512)
+    for (const codes of lehmerCodes) {
+      for (let index = 1; index < codes.length; index += 1) {
+        addFrequency(orderFrequencies, codes[index] ?? 0)
+      }
+      addFrequency(orderFrequencies, codes.length - 1)
+    }
+    const orderEncoding = writePrefixCode(writer, 8, orderFrequencies)
+    for (const codes of lehmerCodes) {
+      writeHybridUint(writer, codes.length - 1, orderEncoding)
+      for (let index = 1; index < codes.length; index += 1) {
+        writeHybridUint(writer, codes[index] ?? 0, orderEncoding)
+      }
+    }
+  }
+  if (!useClusteredAns) {
+    const combined = new Uint32Array(512)
+    for (const frequencies of acFrequencies) {
+      for (let token = 0; token < combined.length; token += 1) {
+        combined[token] = (combined[token] ?? 0) + (frequencies[token] ?? 0)
+      }
+    }
+    return Object.freeze({
+      kind: 'prefix',
+      encoding: writePrefixCode(writer, 15 * (37 + 458), combined),
+    })
+  }
+  return Object.freeze({
+    kind: 'ans',
+    encoding: writeAnsCode(writer, clusteredAcContextMap, acFrequencies, acHybridConfig),
+  })
 }
 
 const writeAcGroup = (
   writer: JpegXlBitWriter,
   geometry: Readonly<JpegDerivedGeometry>,
+  coefficientOrders: readonly Uint32Array[],
   group: number,
-  encoding: Readonly<PrefixEncoding>,
-): void => visitAcGroup(geometry, group, (value) => writeHybridUint(writer, value, encoding))
+  encoding: Readonly<AcEncoding>,
+): void => {
+  if (encoding.kind === 'prefix') {
+    visitAcGroup(geometry, coefficientOrders, group, (value) =>
+      writeHybridUint(writer, value, encoding.encoding),
+    )
+    return
+  }
+  const maximumValues = 3 * 64 * 32 * 32
+  const values = new Uint32Array(maximumValues)
+  const contexts = new Uint16Array(maximumValues)
+  let count = 0
+  visitAcGroup(geometry, coefficientOrders, group, (value, context) => {
+    if (count >= maximumValues) throw invalidInput('JPEG XL AC group exceeds its token bound')
+    values[count] = value
+    contexts[count] = context
+    count += 1
+  })
+  writeAnsValues(writer, values, contexts, count, encoding.encoding)
+}
 
 const finishSection = (write: (writer: JpegXlBitWriter) => void): Uint8Array => {
   const writer = new JpegXlBitWriter()
@@ -429,45 +657,110 @@ const finishSection = (write: (writer: JpegXlBitWriter) => void): Uint8Array => 
   return writer.finish()
 }
 
-const encodeSections = (geometry: Readonly<JpegDerivedGeometry>): readonly Uint8Array[] => {
+const encodeSections = (
+  geometry: Readonly<JpegDerivedGeometry>,
+  profiler?: JpegXlJpegEncodeProfiler,
+): readonly Uint8Array[] => {
   const dcGroupCount = geometry.dcGroupsAcross * geometry.dcGroupsDown
   const groupCount = geometry.groupsAcross * geometry.groupsDown
+  const useClusteredAns =
+    groupCount > 1 && geometry.fullBlockWidth * geometry.fullBlockHeight >= 4_096
+  const coefficientOrders = !useClusteredAns
+    ? Object.freeze([naturalJpegXlOrder, naturalJpegXlOrder, naturalJpegXlOrder])
+    : optimizedCoefficientOrders(geometry)
+  let started = performance.now()
   const dcPlanes = Array.from({ length: dcGroupCount }, (_, group) =>
     dcGroupPlanes(geometry, group),
   )
   const modularFrequencies = new Uint32Array(512)
-  for (const planes of dcPlanes) collectPlanes(modularFrequencies, planes)
-  collectPlanes(modularFrequencies, quantizationPlanes(geometry))
-  const acFrequencies = new Uint32Array(512)
+  for (const planes of dcPlanes) collectPlanes(modularFrequencies, planes, useClusteredAns)
+  collectPlanes(modularFrequencies, quantizationPlanes(geometry), useClusteredAns)
+  profiler?.record(
+    'dc-representation',
+    performance.now() - started,
+    dcPlanes.reduce(
+      (total, planes) => total + planes.reduce((sum, plane) => sum + plane.values.byteLength, 0),
+      0,
+    ),
+  )
+  started = performance.now()
+  const acFrequencies = Array.from(
+    { length: useClusteredAns ? clusteredAcHistogramCount : 1 },
+    () => new Uint32Array(512),
+  )
   for (let group = 0; group < groupCount; group += 1) {
-    visitAcGroup(geometry, group, (value) => addFrequency(acFrequencies, value))
+    visitAcGroup(geometry, coefficientOrders, group, (value, context) => {
+      const histogram = useClusteredAns ? clusteredAcContextMap[context] : 0
+      const frequencies = histogram === undefined ? undefined : acFrequencies[histogram]
+      if (!frequencies) throw invalidInput('JPEG XL AC frequency cluster is missing')
+      if (!useClusteredAns) {
+        addFrequency(frequencies, value)
+      } else {
+        const token = hybridTokenForEncoding(value, acHybridConfig)
+        frequencies[token] = (frequencies[token] ?? 0) + 1
+      }
+    })
   }
+  profiler?.record('ac-statistics', performance.now() - started, acFrequencies.length * 512 * 4)
 
   if (groupCount === 1) {
-    return Object.freeze([
-      finishSection((writer) => {
-        const modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry)
-        writeDcGroup(writer, dcPlanes[0] ?? [], modularEncoding)
-        const acEncoding = writeHfGlobal(writer, geometry, modularEncoding, acFrequencies)
-        writeAcGroup(writer, geometry, 0, acEncoding)
-      }),
-    ])
+    started = performance.now()
+    const section = finishSection((writer) => {
+      const modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry, useClusteredAns)
+      writeDcGroup(writer, dcPlanes[0] ?? [], modularEncoding)
+      const acEncoding = writeHfGlobal(
+        writer,
+        geometry,
+        coefficientOrders,
+        useClusteredAns,
+        modularEncoding,
+        acFrequencies,
+      )
+      writeAcGroup(writer, geometry, coefficientOrders, 0, acEncoding)
+    })
+    profiler?.record('ac-groups', performance.now() - started, section.byteLength)
+    return Object.freeze([section])
   }
-  let modularEncoding: PrefixEncoding | undefined
+  let modularEncoding: ModularEncoding | undefined
+  started = performance.now()
   const lf = finishSection((writer) => {
-    modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry)
+    modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry, useClusteredAns)
   })
+  profiler?.record('lf-global', performance.now() - started, lf.byteLength)
   if (!modularEncoding) throw invalidInput('JPEG XL Modular encoding was not initialized')
+  started = performance.now()
   const dc = dcPlanes.map((planes) =>
-    finishSection((writer) => writeDcGroup(writer, planes, modularEncoding as PrefixEncoding)),
+    finishSection((writer) => writeDcGroup(writer, planes, modularEncoding as ModularEncoding)),
   )
-  let acEncoding: PrefixEncoding | undefined
+  profiler?.record(
+    'dc-groups',
+    performance.now() - started,
+    dc.reduce((total, section) => total + section.byteLength, 0),
+  )
+  let acEncoding: AcEncoding | undefined
+  started = performance.now()
   const hf = finishSection((writer) => {
-    acEncoding = writeHfGlobal(writer, geometry, modularEncoding as PrefixEncoding, acFrequencies)
+    acEncoding = writeHfGlobal(
+      writer,
+      geometry,
+      coefficientOrders,
+      useClusteredAns,
+      modularEncoding as ModularEncoding,
+      acFrequencies,
+    )
   })
+  profiler?.record('hf-global', performance.now() - started, hf.byteLength)
   if (!acEncoding) throw invalidInput('JPEG XL AC encoding was not initialized')
+  started = performance.now()
   const ac = Array.from({ length: groupCount }, (_, group) =>
-    finishSection((writer) => writeAcGroup(writer, geometry, group, acEncoding as PrefixEncoding)),
+    finishSection((writer) =>
+      writeAcGroup(writer, geometry, coefficientOrders, group, acEncoding as AcEncoding),
+    ),
+  )
+  profiler?.record(
+    'ac-groups',
+    performance.now() - started,
+    ac.reduce((total, section) => total + section.byteLength, 0),
   )
   return Object.freeze([lf, ...dc, hf, ...ac])
 }
@@ -585,14 +878,32 @@ export interface JpegXlJpegEncodeMemoryLedger {
   allocate(category: string, bytes: number): JpegXlJpegEncodeMemoryLease
 }
 
+export type JpegXlJpegEncodeStage =
+  | 'geometry'
+  | 'dc-representation'
+  | 'ac-statistics'
+  | 'lf-global'
+  | 'dc-groups'
+  | 'hf-global'
+  | 'ac-groups'
+  | 'codestream-assembly'
+  | 'container-assembly'
+
+export interface JpegXlJpegEncodeProfiler {
+  record(stage: JpegXlJpegEncodeStage, milliseconds: number, bytes: number): void
+}
+
 export const encodeJpegCoefficientImageAsJpegXl = (
   image: JpegCoefficientImage,
   reconstructionPayload: Uint8Array,
   limits: Readonly<JpegXlLimits>,
   memory?: JpegXlJpegEncodeMemoryLedger,
+  profiler?: JpegXlJpegEncodeProfiler,
 ): Uint8Array => {
+  let started = performance.now()
   const geometry = geometryFor(image)
-  const sections = encodeSections(geometry)
+  profiler?.record('geometry', performance.now() - started, 0)
+  const sections = encodeSections(geometry, profiler)
   const sectionLease = memory?.allocate(
     'jpeg-transcode-jxl-sections',
     sections.reduce((total, section) => total + section.byteLength, 0),
@@ -600,7 +911,9 @@ export const encodeJpegCoefficientImageAsJpegXl = (
   let codestreamLease: JpegXlJpegEncodeMemoryLease | undefined
   let outputLease: JpegXlJpegEncodeMemoryLease | undefined
   try {
+    started = performance.now()
     const codestream = codestreamFor(image, geometry, sections)
+    profiler?.record('codestream-assembly', performance.now() - started, codestream.byteLength)
     codestreamLease = memory?.allocate('jpeg-transcode-jxl-codestream', codestream.byteLength)
     sectionLease?.release()
     if (codestream.byteLength > limits.maxCodestreamBytes) {
@@ -608,12 +921,14 @@ export const encodeJpegCoefficientImageAsJpegXl = (
         `JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`,
       )
     }
+    started = performance.now()
     const output = concatenate([
       Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
       box('ftyp', concatenate([ascii('jxl '), uint32(0), ascii('jxl ')])),
       box('jbrd', reconstructionPayload),
       box('jxlc', codestream),
     ])
+    profiler?.record('container-assembly', performance.now() - started, output.byteLength)
     outputLease = memory?.allocate('jpeg-transcode-output', output.byteLength)
     codestreamLease?.release()
     return output

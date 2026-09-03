@@ -144,6 +144,24 @@ export interface JpegXlWorkbenchEncodeSummary {
   readonly outputToInputRatio: number
 }
 
+export type JpegXlWorkbenchTranscodeSummary = Pick<
+  JpegTranscodeResult,
+  | 'mode'
+  | 'exactReconstruction'
+  | 'inputBytes'
+  | 'outputBytes'
+  | 'savingsBytes'
+  | 'savingsPercentage'
+  | 'sourceProfile'
+  | 'preservedMetadata'
+  | 'warnings'
+  | 'outputStructure'
+  | 'managedPeakBytes'
+  | 'elapsedMilliseconds'
+> & {
+  readonly libjxlReferenceBytes: number | null
+}
+
 export type JpegXlWorkbenchResponse =
   | (JpegXlWorkbenchIdentity & {
       readonly type: 'opened'
@@ -162,20 +180,7 @@ export type JpegXlWorkbenchResponse =
       readonly bytes: ArrayBuffer
       readonly preview: JpegXlWorkbenchPreview
       readonly inspection?: JpegXlInspection
-      readonly transcode?: Pick<
-        JpegTranscodeResult,
-        | 'mode'
-        | 'exactReconstruction'
-        | 'inputBytes'
-        | 'outputBytes'
-        | 'savingsBytes'
-        | 'savingsPercentage'
-        | 'sourceProfile'
-        | 'preservedMetadata'
-        | 'warnings'
-        | 'outputStructure'
-        | 'managedPeakBytes'
-      >
+      readonly transcode?: JpegXlWorkbenchTranscodeSummary
       readonly encode?: JpegXlWorkbenchEncodeSummary
       readonly evidence?: ExecutionEvidenceReport
     })
@@ -382,6 +387,8 @@ const transcode = (value: unknown): boolean =>
     'warnings',
     'outputStructure',
     'managedPeakBytes',
+    'elapsedMilliseconds',
+    'libjxlReferenceBytes',
   ]) &&
   (value.mode === 'exact-jpeg' || value.mode === 'pixel-lossless') &&
   typeof value.exactReconstruction === 'boolean' &&
@@ -400,7 +407,10 @@ const transcode = (value: unknown): boolean =>
   value.outputStructure.organization === 'jxlc' &&
   (value.outputStructure.reconstruction === 'available' ||
     value.outputStructure.reconstruction === 'unavailable') &&
-  nonnegativeInteger(value.managedPeakBytes)
+  nonnegativeInteger(value.managedPeakBytes) &&
+  Number.isFinite(value.elapsedMilliseconds) &&
+  Number(value.elapsedMilliseconds) >= 0 &&
+  (value.libjxlReferenceBytes === null || nonnegativeInteger(value.libjxlReferenceBytes))
 
 const encoderPixelFormat = (value: unknown): value is JpegXlWorkbenchPixelSource['pixelFormat'] =>
   value === 'gray8' ||

@@ -7,13 +7,17 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Current merged main: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Package version: `0.17.0`
 - Current target: A
-- Active milestone: M0
+- Active milestone: M1
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
 - Starting revision: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Final revision: pending review and merge
 - Capability change: none. Reading remains Limited and writing remains Experimental.
 - Stable promotion gate: not passed and not eligible in M0
+
+The program normally uses one milestone branch and pull request at a time. For this run, the
+operator explicitly directed M1 work to continue on the existing M0 branch and pull request. This
+ledger records that exception without treating M0 as merged.
 
 ## Production targets
 
@@ -28,7 +32,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | ID | Target | Status | Branch | PR | Start SHA | Final SHA | Stable gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | M0 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `1cd965dfeba27865c920c4e27bd44dbb4ea0404b` | pending | no promotion permitted |
-| M1 | A | not started | `codex/jpegxl-m01-jpeg-recompression` | pending | pending | pending | not passed |
+| M1 | A | in progress | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | not passed |
 | M2 | A | not started | `codex/jpegxl-m02-lossless-encoder` | pending | pending | pending | not passed |
 | M3 | A | not started | `codex/jpegxl-m03-common-vardct` | pending | pending | pending | not passed |
 | M4 | A | not started | `codex/jpegxl-m04-color-alpha-metadata` | pending | pending | pending | not passed |
@@ -133,4 +137,29 @@ The required JPEG XL workflow is `.github/workflows/jpegxl-corpus.yml`; it runs 
 - [x] No capability promotion
 - [x] Exact remote pull-request workflow run recorded
 
-M0 is ready for review. Review and merge remain external, and M1 must not begin on this branch.
+M0 is ready for review, and review and merge remain external. The operator instruction recorded
+above overrides the usual branch boundary for the M1 work below.
+
+## M1 exact JPEG recompression progress
+
+M1 began from `16eca4041e572da4f4c69a7fec392da66e5bd9ff` on the existing branch by explicit
+operator instruction. The implementation now uses byte-chunk bit reads, bounded Huffman lookup,
+spatial DC prediction, observed coefficient orders, and clustered ANS contexts for larger
+coefficient sets. Small images keep the lower-overhead prefix path.
+
+The checked reverse matrix reconstructs all 10 eligible JPEGs byte-for-byte through pinned `djxl`.
+The 12 MP baseline camera JPEG shrinks from 4,768,216 to 4,160,078 bytes in 5.256 seconds. The 12 MP
+progressive camera JPEG shrinks from 2,855,050 to 2,632,504 bytes in 6.253 seconds. The outputs are
+0.9924 and 0.9884 times their pinned libjxl effort-1 reference sizes. Compared with the recorded M0
+69.6 to 71.5 second range, the slower new result is still at least 11.1 times faster.
+
+The milestone is not complete. Across the mixed 10-case PR matrix, only 20% of cases shrink, median
+savings are -19.451%, p10 savings are -98.068%, the median libjxl ratio is 1.1264, the p90 ratio is
+1.8039, and the worst ratio is 3.8022. Most misses are tiny generated files where container and
+entropy-model overhead dominate. The archive also contains only 3 real JPEGs instead of the required
+250. Bounded compressed Brotli support for reconstruction data remains open. Exact transcode stays
+Experimental, and M2 must not begin.
+
+The profiling report is `benchmark/results/jpegxl-m1-profile-2026-09-03.json`. The exactness,
+compression, timing, and pinned libjxl comparison report is
+`benchmark/results/jpegxl-m1-recompression-2026-09-03.json`.

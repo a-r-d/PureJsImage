@@ -215,10 +215,17 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
       ['Source JPEG', `${(transcode?.inputBytes ?? 0).toLocaleString()} bytes`],
       ['JPEG XL output', `${(transcode?.outputBytes ?? 0).toLocaleString()} bytes`],
       ['Signed savings', sizeResult],
+      [
+        'Pinned libjxl reference',
+        transcode?.libjxlReferenceBytes === null || transcode?.libjxlReferenceBytes === undefined
+          ? 'Not available for this local file'
+          : `${transcode.libjxlReferenceBytes.toLocaleString()} bytes`,
+      ],
       ['Output/source ratio', `${ratio.toFixed(3)}×`],
       ['Smaller than source', savings > 0 ? 'Yes' : 'No'],
       ['Exact reconstruction', transcode?.exactReconstruction ? 'Verified byte-for-byte' : 'No'],
       ['Size requirement', onlyIfSmaller.checked ? 'Required' : 'Off'],
+      ['Time', `${(transcode?.elapsedMilliseconds ?? 0).toFixed(1)} ms`],
       ['Dimensions', `${response.preview.logicalWidth} × ${response.preview.logicalHeight}`],
       [
         'Managed peak',

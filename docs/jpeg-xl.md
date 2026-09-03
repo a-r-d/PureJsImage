@@ -12,9 +12,12 @@ PureJsImage has three separate JPEG XL paths:
 The encoder and transcoder are experimental. Unsupported syntax fails with an `ImageError`. Exact
 JPEG transcode never silently becomes a pixel transcode.
 
-The representative compression matrix is an explicit reason the encoder remains Experimental. Its
-current median and worst size ratios do not meet the documented stable gate, even though the output
-passes the independent exact-sample checks.
+The exact transcoder now uses deterministic contextual ANS coding and custom coefficient orders for
+larger coefficient sets. On the checked 12 MP baseline and progressive camera files, it saves 12.75%
+and 7.79% and finishes in 5.26 and 6.25 seconds on the recorded development machine. Both files are
+slightly smaller than pinned libjxl effort-1 output. The mixed ten-case matrix still fails the stable
+compression gate because small generated files grow, and the required 250-file real JPEG archive is
+not complete. Exact transcode therefore remains Experimental.
 
 ## Decode or encode pixels
 
@@ -105,7 +108,9 @@ does not retain a second complete output.
 
 The browser workbench at `/jpeg-xl/` runs the same first-party TypeScript implementation in a Web
 Worker. Local files stay in the browser. It presents pixel-lossless PNG or TIFF encode, exact JPEG
-transcode, and JPEG XL inspect/decode as separate operations. The local pixel check is labeled
+transcode, and JPEG XL inspect/decode as separate operations. For the checked demo JPEG it also
+shows the pinned libjxl reference size. Other local files report that no reference is available. The
+local pixel check is labeled
 `byte-exact local round trip`; independent verification refers only to the pinned external matrix.
 Before native pixel materialization it checks logical pixels, native bytes, preview bytes, retained
 encoder input, bounded output, and estimated simultaneous browser working bytes. Exact transcode

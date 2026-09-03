@@ -231,6 +231,16 @@ const compare = (
   })
 }
 
+const percentile = (values: readonly number[], percentileValue: number): number => {
+  if (values.length === 0) throw new Error('Cannot calculate a percentile without values')
+  const sorted = [...values].sort((left, right) => left - right)
+  const index = Math.min(
+    sorted.length - 1,
+    Math.max(0, Math.ceil(percentileValue * sorted.length) - 1),
+  )
+  return sorted[index] ?? 0
+}
+
 const binaryDirectory = process.argv[2]
 if (!binaryDirectory) {
   throw new Error('Usage: node run-purejsimage-reverse-matrix.ts <libjxl-tools-directory>')
@@ -294,6 +304,7 @@ try {
       referenceDecodedPath,
       '--bits_per_sample=8',
     ])
+    const reference = new Uint8Array(await readFile(referencePath))
     const djxlPixels = pnmPixels(new Uint8Array(await readFile(decodedPath)))
     const referencePixels = pnmPixels(new Uint8Array(await readFile(referenceDecodedPath)))
     if (sha256(djxlPixels) !== sha256(referencePixels)) {
@@ -321,6 +332,10 @@ try {
         profile: definition.profile,
         sourceBytes: source.byteLength,
         jxlBytes: encoded.data.byteLength,
+        libjxlBytes: reference.byteLength,
+        savingsPercentage: encoded.savingsPercentage,
+        ratioToLibjxl: encoded.data.byteLength / reference.byteLength,
+        elapsedMilliseconds: encoded.elapsedMilliseconds,
         sourceSha256: definition.sourceSha256,
         jxlSha256: sha256(encoded.data),
         reconstructedSha256: sha256(reconstructed),
@@ -330,12 +345,32 @@ try {
       }),
     )
   }
+  const savings = results.map(({ savingsPercentage }) => savingsPercentage)
+  const ratios = results.map(({ ratioToLibjxl }) => ratioToLibjxl)
+  const smallerCases = savings.filter((value) => value > 0).length
   const report = Object.freeze({
-    schemaVersion: 1,
-    revision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
+    schemaVersion: 2,
+    baseRevision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
     oracle: 'libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)',
     jpegOracle: 'sharp-0.35.3 autoOrient and sRGB output',
     results,
+    milestone1CompressionGate: Object.freeze({
+      passed:
+        smallerCases / results.length >= 0.9 &&
+        percentile(savings, 0.5) >= 12 &&
+        percentile(savings, 0.1) >= 0 &&
+        percentile(ratios, 0.5) <= 1.1 &&
+        percentile(ratios, 0.9) <= 1.2 &&
+        Math.max(...ratios) <= 1.35,
+      exactCases: results.filter(({ exact }) => exact).length,
+      totalCases: results.length,
+      smallerRate: smallerCases / results.length,
+      medianSavingsPercentage: percentile(savings, 0.5),
+      p10SavingsPercentage: percentile(savings, 0.1),
+      medianRatioToLibjxl: percentile(ratios, 0.5),
+      p90RatioToLibjxl: percentile(ratios, 0.9),
+      worstRatioToLibjxl: Math.max(...ratios),
+    }),
   })
   if (output) await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
   console.log(JSON.stringify(report, undefined, 2))

@@ -63,6 +63,17 @@ const copyBuffer = (data: Uint8Array | Uint8ClampedArray): ArrayBuffer => {
 
 const isJpeg = (data: Uint8Array): boolean => data[0] === 0xff && data[1] === 0xd8
 
+const pinnedLibjxlReferenceBytes = new Map<string, number>([
+  ['226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e', 1_081],
+])
+
+const libjxlReferenceBytes = async (data: Uint8Array): Promise<number | null> => {
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', copyBuffer(data)))
+  let hash = ''
+  for (const byte of digest) hash += byte.toString(16).padStart(2, '0')
+  return pinnedLibjxlReferenceBytes.get(hash) ?? null
+}
+
 const inputCodec = (
   data: Uint8Array,
 ): Readonly<{ readonly kind: StoredInput['kind']; readonly codec: ImageCodec }> => {
@@ -394,6 +405,8 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
             warnings: result.warnings,
             outputStructure: result.outputStructure,
             managedPeakBytes: result.managedPeakBytes,
+            elapsedMilliseconds: result.elapsedMilliseconds,
+            libjxlReferenceBytes: await libjxlReferenceBytes(input.bytes),
           })
           const response = {
             type: 'output',

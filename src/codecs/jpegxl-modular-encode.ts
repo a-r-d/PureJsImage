@@ -229,12 +229,15 @@ export const writeHybridUint = (
 
 export const packSigned = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
 
-export const writeModularTree = (writer: JpegXlBitWriter): void => {
-  const frequencies = new Uint32Array(2)
-  frequencies[0] = 4
-  frequencies[1] = 1
+export const writeModularTree = (writer: JpegXlBitWriter, predictor = 1): void => {
+  if (!Number.isSafeInteger(predictor) || predictor < 0 || predictor > 13) {
+    throw invalidInput('JPEG XL Modular predictor is invalid')
+  }
+  const frequencies = new Uint32Array(Math.max(2, predictor + 1))
+  frequencies[0] = predictor === 0 ? 5 : 4
+  if (predictor !== 0) frequencies[predictor] = 1
   const encoding = writePrefixCode(writer, 6, frequencies)
-  for (const symbol of [0, 1, 0, 0, 0]) writeHybridUint(writer, symbol, encoding)
+  for (const symbol of [0, predictor, 0, 0, 0]) writeHybridUint(writer, symbol, encoding)
 }
 
 const huffmanLengths = (frequencies: Uint32Array): Uint8Array | undefined => {
@@ -382,6 +385,344 @@ export const writePrefixCode = (
   writeEntropyHeader(writer, contexts, alphabetSize)
   writeComplexHuffmanCode(writer, lengths)
   return canonicalEncoding(lengths)
+}
+
+export interface HybridUintEncoding {
+  readonly splitExponent: number
+  readonly msbInToken: number
+  readonly lsbInToken: number
+}
+
+const encodeHybridUintPacked = (value: number, config: Readonly<HybridUintEncoding>): number => {
+  validateHybridValue(value)
+  const splitToken = 2 ** config.splitExponent
+  if (value < splitToken) return value
+  const lowMask = 2 ** config.lsbInToken - 1
+  const low = value & lowMask
+  const shifted = Math.floor(value / 2 ** config.lsbInToken)
+  const extraBitCount = Math.floor(Math.log2(shifted)) - config.msbInToken
+  const high = Math.floor(shifted / 2 ** extraBitCount)
+  const tokenPayload =
+    (extraBitCount - (config.splitExponent - config.msbInToken - config.lsbInToken)) *
+      2 ** (config.msbInToken + config.lsbInToken) +
+    (high - 2 ** config.msbInToken) * 2 ** config.lsbInToken +
+    low
+  const token = splitToken + tokenPayload
+  const extraBits = shifted - high * 2 ** extraBitCount
+  return token + extraBitCount * 256 + extraBits * 8_192
+}
+
+export const hybridTokenForEncoding = (
+  value: number,
+  config: Readonly<HybridUintEncoding>,
+): number => encodeHybridUintPacked(value, config) & 255
+
+const writeVarUint8 = (writer: JpegXlBitWriter, value: number): void => {
+  if (!Number.isSafeInteger(value) || value < 0 || value > 255) {
+    throw invalidInput('JPEG XL ANS histogram integer is invalid')
+  }
+  if (value === 0) {
+    writer.writeBits(0, 1)
+    return
+  }
+  writer.writeBits(1, 1)
+  if (value === 1) {
+    writer.writeBits(0, 3)
+    return
+  }
+  const bits = Math.floor(Math.log2(value))
+  writer.writeBits(bits, 3)
+  writer.writeBits(value - 2 ** bits, bits)
+}
+
+const histogramLogCodes = new Map<
+  number,
+  Readonly<{ readonly key: number; readonly bits: number }>
+>([
+  [-1, Object.freeze({ key: 17, bits: 5 })],
+  [0, Object.freeze({ key: 11, bits: 4 })],
+  [1, Object.freeze({ key: 15, bits: 4 })],
+  [2, Object.freeze({ key: 3, bits: 4 })],
+  [3, Object.freeze({ key: 9, bits: 4 })],
+  [4, Object.freeze({ key: 7, bits: 4 })],
+  [5, Object.freeze({ key: 4, bits: 3 })],
+  [6, Object.freeze({ key: 2, bits: 3 })],
+  [7, Object.freeze({ key: 5, bits: 3 })],
+  [8, Object.freeze({ key: 6, bits: 3 })],
+  [9, Object.freeze({ key: 0, bits: 3 })],
+  [10, Object.freeze({ key: 33, bits: 6 })],
+  [11, Object.freeze({ key: 1, bits: 7 })],
+])
+
+const normalizedAnsFrequencies = (counts: Uint32Array): Uint16Array => {
+  let maximumSymbol = counts.length - 1
+  while (maximumSymbol > 0 && counts[maximumSymbol] === 0) maximumSymbol -= 1
+  const output = new Uint16Array(Math.max(3, maximumSymbol + 1))
+  const present: number[] = []
+  let total = 0
+  let omitted = 0
+  for (let symbol = 0; symbol <= maximumSymbol; symbol += 1) {
+    const count = counts[symbol] ?? 0
+    if (count === 0) continue
+    present.push(symbol)
+    total += count
+    if (count > (counts[omitted] ?? 0)) omitted = symbol
+  }
+  if (present.length === 0) {
+    output[0] = 4_096
+    return output
+  }
+  if (present.length === 1) {
+    output[present[0] ?? 0] = 4_096
+    return output
+  }
+  if (present.length === 2) {
+    const first = present[0] ?? 0
+    const frequency = Math.max(
+      1,
+      Math.min(4_095, Math.round(((counts[first] ?? 0) * 4_096) / total)),
+    )
+    output[first] = frequency
+    output[present[1] ?? 0] = 4_096 - frequency
+    return output
+  }
+  let assigned = 0
+  for (const symbol of present) {
+    const frequency = Math.max(1, Math.floor(((counts[symbol] ?? 0) * 4_096) / total))
+    output[symbol] = frequency
+    assigned += frequency
+  }
+  if (assigned > 4_096) {
+    let excess = assigned - 4_096
+    for (const symbol of present) {
+      if (symbol === omitted || excess === 0) continue
+      const available = Math.max(0, (output[symbol] ?? 0) - 1)
+      const reduction = Math.min(available, excess)
+      output[symbol] = (output[symbol] ?? 0) - reduction
+      excess -= reduction
+    }
+    if (excess !== 0) throw invalidInput('JPEG XL ANS histogram cannot be normalized')
+  } else {
+    output[omitted] = (output[omitted] ?? 0) + 4_096 - assigned
+  }
+  for (const symbol of present) {
+    if (symbol === omitted || (output[symbol] ?? 0) < 2_048) continue
+    const excess = (output[symbol] ?? 0) - 2_047
+    output[symbol] = 2_047
+    output[omitted] = (output[omitted] ?? 0) + excess
+  }
+  return output
+}
+
+const writeAnsHistogram = (writer: JpegXlBitWriter, frequencies: Uint16Array): void => {
+  const symbols: number[] = []
+  for (let symbol = 0; symbol < frequencies.length; symbol += 1) {
+    if ((frequencies[symbol] ?? 0) !== 0) symbols.push(symbol)
+  }
+  if (symbols.length <= 2) {
+    writer.writeBits(1, 1)
+    writer.writeBits(symbols.length - 1, 1)
+    for (const symbol of symbols) writeVarUint8(writer, symbol)
+    if (symbols.length === 2) writer.writeBits(frequencies[symbols[0] ?? 0] ?? 0, 12)
+    return
+  }
+  writer.writeBits(0, 1)
+  writer.writeBits(0, 1)
+  writer.writeBits(1, 1)
+  writer.writeBits(1, 1)
+  writer.writeBits(1, 1)
+  writer.writeBits(6, 3)
+  writeVarUint8(writer, frequencies.length - 3)
+  let omitted = 0
+  for (let symbol = 1; symbol < frequencies.length; symbol += 1) {
+    if ((frequencies[symbol] ?? 0) > (frequencies[omitted] ?? 0)) omitted = symbol
+  }
+  const logCounts = new Int8Array(frequencies.length)
+  for (let symbol = 0; symbol < frequencies.length; symbol += 1) {
+    const frequency = frequencies[symbol] ?? 0
+    const logCount =
+      symbol === omitted ? 11 : frequency === 0 ? -1 : Math.floor(Math.log2(frequency))
+    logCounts[symbol] = logCount
+    const code = histogramLogCodes.get(logCount)
+    if (!code) throw invalidInput('JPEG XL ANS log-count code is unavailable')
+    writer.writeBits(code.key, code.bits)
+  }
+  for (let symbol = 0; symbol < frequencies.length; symbol += 1) {
+    const frequency = frequencies[symbol] ?? 0
+    const logCount = logCounts[symbol] ?? -1
+    if (symbol !== omitted && frequency > 1) {
+      const precision = Math.max(0, Math.min(logCount, 13 - ((12 - logCount) >>> 1)))
+      writer.writeBits(
+        Math.floor((frequency - 2 ** logCount) / 2 ** (logCount - precision)),
+        precision,
+      )
+    }
+  }
+}
+
+interface AnsHistogramEncoding {
+  readonly frequencies: Uint16Array
+  readonly residuals: readonly (Uint16Array | undefined)[]
+}
+
+const ansHistogramEncoding = (frequencies: Uint16Array): AnsHistogramEncoding => {
+  const tableSize = 256
+  const entrySize = 16
+  const cutoff = new Uint16Array(tableSize)
+  const rightSymbol = new Uint16Array(tableSize)
+  const rightOffset = new Int32Array(tableSize)
+  const singleSymbol = frequencies.indexOf(4_096)
+  if (singleSymbol < 0) {
+    const underfull: number[] = []
+    const overfull: number[] = []
+    for (let index = 0; index < tableSize; index += 1) {
+      cutoff[index] = frequencies[index] ?? 0
+      if ((cutoff[index] ?? 0) > entrySize) overfull.push(index)
+      else if ((cutoff[index] ?? 0) < entrySize) underfull.push(index)
+    }
+    while (overfull.length > 0) {
+      const over = overfull.pop()
+      const under = underfull.pop()
+      if (over === undefined || under === undefined) {
+        throw invalidInput('JPEG XL ANS alias table is invalid')
+      }
+      const missing = entrySize - (cutoff[under] ?? 0)
+      cutoff[over] = (cutoff[over] ?? 0) - missing
+      rightSymbol[under] = over
+      rightOffset[under] = (cutoff[over] ?? 0) - (cutoff[under] ?? 0)
+      if ((cutoff[over] ?? 0) < entrySize) underfull.push(over)
+      else if ((cutoff[over] ?? 0) > entrySize) overfull.push(over)
+    }
+  }
+  const residuals: (Uint16Array | undefined)[] = Array.from(frequencies, (frequency) =>
+    frequency === 0 ? undefined : new Uint16Array(frequency),
+  )
+  for (let residual = 0; residual < 4_096; residual += 1) {
+    const index = residual >>> 4
+    const position = residual & 15
+    let symbol: number
+    let offset: number
+    if (singleSymbol >= 0) {
+      symbol = singleSymbol
+      offset = residual
+    } else if (position >= (cutoff[index] ?? 0)) {
+      symbol = rightSymbol[index] ?? 0
+      offset = position + (rightOffset[index] ?? 0)
+    } else {
+      symbol = index
+      offset = position
+    }
+    const table = residuals[symbol]
+    if (!table || offset < 0 || offset >= table.length) {
+      throw invalidInput('JPEG XL ANS encoding table is invalid')
+    }
+    table[offset] = residual
+  }
+  return Object.freeze({ frequencies, residuals: Object.freeze(residuals) })
+}
+
+export interface AnsEncoding {
+  readonly contextMap: Uint8Array
+  readonly config: HybridUintEncoding
+  readonly histograms: readonly AnsHistogramEncoding[]
+}
+
+export const writeAnsCode = (
+  writer: JpegXlBitWriter,
+  contextMap: Uint8Array,
+  frequencies: readonly Uint32Array[],
+  config: Readonly<HybridUintEncoding>,
+): AnsEncoding => {
+  if (
+    contextMap.length < 1 ||
+    frequencies.length < 1 ||
+    frequencies.length > 256 ||
+    (contextMap.length === 1 && frequencies.length !== 1)
+  ) {
+    throw invalidInput('JPEG XL ANS encoding shape is invalid')
+  }
+  writer.writeBits(0, 1)
+  if (contextMap.length === 1) {
+    if (contextMap[0] !== 0) throw invalidInput('JPEG XL single ANS context is invalid')
+  } else if (frequencies.length <= 8) {
+    const histogramBits = Math.ceil(Math.log2(frequencies.length))
+    writer.writeBits(1, 1)
+    writer.writeBits(histogramBits, 2)
+    for (const histogram of contextMap) writer.writeBits(histogram, histogramBits)
+  } else {
+    writer.writeBits(0, 1)
+    writer.writeBits(0, 1)
+    const mapFrequencies = new Uint32Array(frequencies.length)
+    for (const histogram of contextMap) {
+      mapFrequencies[histogram] = (mapFrequencies[histogram] ?? 0) + 1
+    }
+    const mapEncoding = writePrefixCode(writer, 1, mapFrequencies)
+    for (const histogram of contextMap) writeHybridUint(writer, histogram, mapEncoding)
+  }
+  writer.writeBits(0, 1)
+  writer.writeBits(3, 2)
+  for (let histogram = 0; histogram < frequencies.length; histogram += 1) {
+    writer.writeBits(config.splitExponent, 4)
+    writer.writeBits(config.msbInToken, Math.ceil(Math.log2(config.splitExponent + 1)))
+    writer.writeBits(
+      config.lsbInToken,
+      Math.ceil(Math.log2(config.splitExponent - config.msbInToken + 1)),
+    )
+  }
+  const normalized = frequencies.map(normalizedAnsFrequencies)
+  for (const histogram of normalized) writeAnsHistogram(writer, histogram)
+  return Object.freeze({
+    contextMap,
+    config: Object.freeze({ ...config }),
+    histograms: Object.freeze(normalized.map(ansHistogramEncoding)),
+  })
+}
+
+export const writeAnsValues = (
+  writer: JpegXlBitWriter,
+  values: Uint32Array,
+  contexts: Uint16Array,
+  count: number,
+  encoding: Readonly<AnsEncoding>,
+): void => {
+  if (count < 1 || count > values.length || count > contexts.length) {
+    throw invalidInput('JPEG XL ANS token count is invalid')
+  }
+  const renormalizedWords = new Int32Array(count)
+  renormalizedWords.fill(-1)
+  const packedValues = new Uint32Array(count)
+  for (let index = 0; index < count; index += 1) {
+    packedValues[index] = encodeHybridUintPacked(values[index] ?? 0, encoding.config)
+  }
+  let state = 0x13_0000
+  for (let index = count - 1; index >= 0; index -= 1) {
+    const context = contexts[index]
+    const histogramIndex = context === undefined ? undefined : encoding.contextMap[context]
+    const histogram = histogramIndex === undefined ? undefined : encoding.histograms[histogramIndex]
+    const value = values[index]
+    if (!histogram || value === undefined) throw invalidInput('JPEG XL ANS token is incomplete')
+    const token = (packedValues[index] ?? 0) & 255
+    const frequency = histogram.frequencies[token] ?? 0
+    const residuals = histogram.residuals[token]
+    if (frequency === 0 || !residuals) throw invalidInput('JPEG XL ANS token has zero frequency')
+    if (state >= frequency * 1_048_576) {
+      renormalizedWords[index] = state & 0xffff
+      state = Math.floor(state / 65_536)
+    }
+    const offset = state % frequency
+    const residual = residuals[offset]
+    if (residual === undefined) throw invalidInput('JPEG XL ANS residual is missing')
+    state = 4_096 * Math.floor(state / frequency) + residual
+  }
+  writer.writeBits(state >>> 0, 32)
+  for (let index = 0; index < count; index += 1) {
+    const word = renormalizedWords[index]
+    if (word !== undefined && word >= 0) writer.writeBits(word, 16)
+    const value = values[index]
+    if (value === undefined) throw invalidInput('JPEG XL ANS value is missing')
+    const packed = packedValues[index] ?? 0
+    writer.writeBits(packed >>> 13, (packed >>> 8) & 31)
+  }
 }
 
 const visitModularResiduals = (

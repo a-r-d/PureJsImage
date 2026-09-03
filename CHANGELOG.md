@@ -95,6 +95,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- JPEG XL exact JPEG transcode now uses deterministic clustered ANS contexts, spatial DC
+  prediction, and observed coefficient orders for large coefficient sets. The checked 12 MP
+  baseline and progressive camera files reconstruct byte-for-byte, finish within the Milestone 1
+  time limit, and are smaller than their source JPEGs and pinned libjxl effort-1 outputs. The
+  broader compression and 250-real-file gates remain open, so the capability stays Experimental.
+
 - JPEG XL exact transcode now rejects Exif orientation other than 1 and non-sRGB or malformed ICC
   before coefficient work, so byte-exact reconstruction cannot hide incorrect display semantics.
   Modular decode reports checked sRGB or linear-sRGB semantics consistently on metadata and decoder

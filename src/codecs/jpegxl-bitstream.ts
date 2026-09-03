@@ -25,13 +25,21 @@ export class JpegXlBitReader {
       throw truncatedInput('JPEG XL codestream is truncated')
     }
     let value = 0
-    for (let index = 0; index < count; index += 1) {
-      const position = this.#bitPosition + index
+    let outputShift = 0
+    let position = this.#bitPosition
+    let remaining = count
+    while (remaining > 0) {
       const byte = this.#data[position >>> 3]
       if (byte === undefined) throw truncatedInput('JPEG XL codestream is truncated')
-      value += ((byte >>> (position & 7)) & 1) * 2 ** index
+      const bitOffset = position & 7
+      const chunkBits = Math.min(remaining, 8 - bitOffset)
+      const mask = 2 ** chunkBits - 1
+      value += ((byte >>> bitOffset) & mask) * 2 ** outputShift
+      position += chunkBits
+      outputShift += chunkBits
+      remaining -= chunkBits
     }
-    this.#bitPosition += count
+    this.#bitPosition = position
     return value >>> 0
   }
 
@@ -140,23 +148,53 @@ interface HuffmanEntry {
 
 export class JpegXlHuffmanCode {
   readonly #entries: readonly HuffmanEntry[]
+  readonly #entriesByLength: readonly (ReadonlyMap<number, number> | undefined)[]
+  readonly #fastBits: number
+  readonly #fastSymbols: Uint32Array
+  readonly #fastLengths: Uint8Array
   readonly #maximumBits: number
 
   constructor(entries: readonly HuffmanEntry[]) {
     if (entries.length === 0) throw invalidInput('JPEG XL Huffman code is empty')
     this.#entries = entries
     this.#maximumBits = entries.reduce((maximum, entry) => Math.max(maximum, entry.bits), 0)
+    this.#fastBits = Math.min(this.#maximumBits, 10)
+    this.#fastSymbols = new Uint32Array(2 ** this.#fastBits)
+    this.#fastLengths = new Uint8Array(2 ** this.#fastBits)
+    const entriesByLength: (Map<number, number> | undefined)[] = []
+    for (const entry of entries) {
+      const byKey = entriesByLength[entry.bits] ?? new Map<number, number>()
+      byKey.set(entry.key, entry.symbol)
+      entriesByLength[entry.bits] = byKey
+      if (entry.bits === 0 || entry.bits > this.#fastBits) continue
+      const step = 2 ** entry.bits
+      for (let index = entry.key; index < this.#fastSymbols.length; index += step) {
+        this.#fastSymbols[index] = entry.symbol + 1
+        this.#fastLengths[index] = entry.bits
+      }
+    }
+    this.#entriesByLength = entriesByLength
   }
 
   readSymbol(reader: JpegXlBitReader): number {
     if (this.#maximumBits === 0) return this.#entries[0]?.symbol ?? 0
-    let key = 0
-    for (let bits = 1; bits <= this.#maximumBits; bits += 1) {
-      key |= reader.readBits(1) << (bits - 1)
-      const entry = this.#entries.find(
-        (candidate) => candidate.bits === bits && candidate.key === key,
-      )
-      if (entry) return entry.symbol
+    const availableFastBits = Math.min(this.#fastBits, reader.remainingBits)
+    if (availableFastBits > 0) {
+      const prefix = reader.peekBits(availableFastBits)
+      const length = this.#fastLengths[prefix] ?? 0
+      if (length !== 0 && length <= availableFastBits) {
+        reader.skipBits(length)
+        return (this.#fastSymbols[prefix] ?? 1) - 1
+      }
+    }
+    if (reader.remainingBits < this.#fastBits) {
+      throw truncatedInput('JPEG XL Huffman symbol is truncated')
+    }
+    let key = reader.readBits(this.#fastBits)
+    for (let bits = this.#fastBits + 1; bits <= this.#maximumBits; bits += 1) {
+      key += reader.readBits(1) * 2 ** (bits - 1)
+      const symbol = this.#entriesByLength[bits]?.get(key)
+      if (symbol !== undefined) return symbol
     }
     throw invalidInput('JPEG XL Huffman symbol is invalid')
   }

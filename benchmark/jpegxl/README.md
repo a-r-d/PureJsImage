@@ -103,3 +103,22 @@ The conformance command verifies every input checksum before decoding. Its five 
 pass, expected unsupported, malformed and safely rejected, incorrect output, and unexpected
 failure. A changed classification fails the command. The weekly JPEG XL corpus workflow runs this
 full matrix; pull requests retain a small feature-focused set for fast local checks.
+
+## Milestone 1 exact JPEG recompression
+
+Profile the checked small and 12 MP JPEGs with:
+
+```sh
+npm run jpegxl:m1:profile -- --output benchmark/results/jpegxl-m1-profile-2026-09-03.json
+```
+
+Run the pinned exact reconstruction and libjxl comparison matrix with:
+
+```sh
+npm run jpegxl:m1:reverse -- --output benchmark/results/jpegxl-m1-recompression-2026-09-03.json
+```
+
+The reports record parse, coefficient, section, reconstruction, and verification work. They also
+record coefficient sparsity and the full compression gate. The current implementation clears the
+large-photo time and size checks, but the mixed PR matrix and 250-real-JPEG promotion gates remain
+open. This evidence does not promote exact transcode from Experimental.

@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 2,
+  "baseRevision": "16eca4041e572da4f4c69a7fec392da66e5bd9ff",
+  "oracle": "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)",
+  "jpegOracle": "sharp-0.35.3 autoOrient and sRGB output",
+  "results": [
+    {
+      "id": "baseline-yuv420",
+      "profile": "baseline YCbCr 4:2:0 with generated quantization and Huffman tables",
+      "sourceBytes": 1311,
+      "jxlBytes": 1566,
+      "libjxlBytes": 1392,
+      "savingsPercentage": -19.450800915331808,
+      "ratioToLibjxl": 1.125,
+      "elapsedMilliseconds": 34.819815000000006,
+      "sourceSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+      "jxlSha256": "917c1196567cbcdb58a0663b0d9b4e630531438a0526d7ce22383cb2854a8b44",
+      "reconstructedSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 5,
+        "rmse": 1.0513639882557413
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.7455311437166584
+      }
+    },
+    {
+      "id": "baseline-yuv422-camera",
+      "profile": "baseline YCbCr 4:2:2 camera JPEG",
+      "sourceBytes": 4768216,
+      "jxlBytes": 4160078,
+      "libjxlBytes": 4192034,
+      "savingsPercentage": 12.75399436602704,
+      "ratioToLibjxl": 0.9923769702249552,
+      "elapsedMilliseconds": 5255.685308,
+      "sourceSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+      "jxlSha256": "4dcca99c26dc2b0f8fc1e1018f9a71d6ab9808bd779139669f0de44ab3f2a793",
+      "reconstructedSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 18,
+        "rmse": 0.8128437563408002
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 5,
+        "rmse": 0.7875110228505448
+      }
+    },
+    {
+      "id": "baseline-rgb444",
+      "profile": "baseline RGB 4:4:4 with Adobe marker",
+      "sourceBytes": 1416,
+      "jxlBytes": 1667,
+      "libjxlBytes": 1549,
+      "savingsPercentage": -17.725988700564972,
+      "ratioToLibjxl": 1.0761781794706262,
+      "elapsedMilliseconds": 8.538888999999472,
+      "sourceSha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+      "jxlSha256": "732c541543b62eefb68161835126a8b229e0037624affd2a73c3c14781203d83",
+      "reconstructedSha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 3,
+        "rmse": 0.5986667521593383
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 1,
+        "rmse": 0.10472578110646295
+      }
+    },
+    {
+      "id": "progressive-yuv420-exif",
+      "profile": "progressive YCbCr 4:2:0 with Exif",
+      "sourceBytes": 1006,
+      "jxlBytes": 1950,
+      "libjxlBytes": 1081,
+      "savingsPercentage": -93.83697813121272,
+      "ratioToLibjxl": 1.8038852913968548,
+      "elapsedMilliseconds": 22.625152000000526,
+      "sourceSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+      "jxlSha256": "60e8e5302e88f0ed5ff32965148c658bd5bdc3c470ac88ea8902e3dea656a4af",
+      "reconstructedSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 23,
+        "rmse": 0.832121514730738
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.14820980343193677
+      }
+    },
+    {
+      "id": "progressive-rgb-exif",
+      "profile": "progressive RGB 4:4:4 with Exif",
+      "sourceBytes": 1242,
+      "jxlBytes": 2460,
+      "libjxlBytes": 647,
+      "savingsPercentage": -98.06763285024155,
+      "ratioToLibjxl": 3.8021638330757344,
+      "elapsedMilliseconds": 52.31738000000041,
+      "sourceSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+      "jxlSha256": "ced64e02438d9d8aad413f1f04dfb0b6aa0e8e18cd252d218b384d36e968c4d6",
+      "reconstructedSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 1,
+        "rmse": 0.2658597818608733
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 0,
+        "rmse": 0
+      }
+    },
+    {
+      "id": "progressive-custom-scans",
+      "profile": "progressive YCbCr with successive approximation refinement",
+      "sourceBytes": 1064,
+      "jxlBytes": 1271,
+      "libjxlBytes": 1097,
+      "savingsPercentage": -19.454887218045116,
+      "ratioToLibjxl": 1.1586144029170464,
+      "elapsedMilliseconds": 5.4315090000000055,
+      "sourceSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+      "jxlSha256": "203523727ad14ae99e5c467c0a25a924f744c1187963d9fce7bbcee9e09c87e4",
+      "reconstructedSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 5,
+        "rmse": 1.0513639882557413
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.7455311437166584
+      }
+    },
+    {
+      "id": "sequential-multiscan",
+      "profile": "baseline YCbCr with separate component scans",
+      "sourceBytes": 1320,
+      "jxlBytes": 1577,
+      "libjxlBytes": 1400,
+      "savingsPercentage": -19.46969696969697,
+      "ratioToLibjxl": 1.1264285714285713,
+      "elapsedMilliseconds": 4.813105999999607,
+      "sourceSha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+      "jxlSha256": "b8ef12ae3d49fbe1fa711d20b49e073607e5e8516afc61a4630235327fa77466",
+      "reconstructedSha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 5,
+        "rmse": 1.0513639882557413
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.7455311437166584
+      }
+    },
+    {
+      "id": "progressive-yuv420-camera",
+      "profile": "large progressive YCbCr 4:2:0 camera JPEG",
+      "sourceBytes": 2855050,
+      "jxlBytes": 2632504,
+      "libjxlBytes": 2663287,
+      "savingsPercentage": 7.7948197054342305,
+      "ratioToLibjxl": 0.9884417263329112,
+      "elapsedMilliseconds": 6252.5922249999985,
+      "sourceSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+      "jxlSha256": "b59b73be64f275ed4efc1967eb1c78ec399aa2c6af54edf31765073db5419dc0",
+      "reconstructedSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 17,
+        "rmse": 0.8803911693736547
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 4,
+        "rmse": 0.7659722579832771
+      }
+    },
+    {
+      "id": "baseline-yuv420-metadata-markers",
+      "profile": "baseline YCbCr 4:2:0 with ICC, XMP, COM, and bounded unknown APP15 markers",
+      "sourceBytes": 2110,
+      "jxlBytes": 2373,
+      "libjxlBytes": 1808,
+      "savingsPercentage": -12.464454976303317,
+      "ratioToLibjxl": 1.3125,
+      "elapsedMilliseconds": 9.399008999997022,
+      "sourceSha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+      "jxlSha256": "bc97860288c88a81bcf5726668b8f30c0e746fd47455d6412600b589c981d74b",
+      "reconstructedSha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 5,
+        "rmse": 1.0513639882557413
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.7455311437166584
+      }
+    },
+    {
+      "id": "baseline-yuv420-restart-interval",
+      "profile": "baseline YCbCr 4:2:0 with a DRI segment and ordered restart markers",
+      "sourceBytes": 497,
+      "jxlBytes": 592,
+      "libjxlBytes": 417,
+      "savingsPercentage": -19.114688128772634,
+      "ratioToLibjxl": 1.419664268585132,
+      "elapsedMilliseconds": 3.7002639999991516,
+      "sourceSha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+      "jxlSha256": "24d48343af77e663f2eb522dae18518ba2d5afe15411368da6510031522fcfec",
+      "reconstructedSha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+      "exact": true,
+      "djxlPixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.6867104051603963
+      },
+      "pureJsImagePixelComparison": {
+        "maximumAbsoluteError": 2,
+        "rmse": 0.6263873490988712
+      }
+    }
+  ],
+  "milestone1CompressionGate": {
+    "passed": false,
+    "exactCases": 10,
+    "totalCases": 10,
+    "smallerRate": 0.2,
+    "medianSavingsPercentage": -19.450800915331808,
+    "p10SavingsPercentage": -98.06763285024155,
+    "medianRatioToLibjxl": 1.1264285714285713,
+    "p90RatioToLibjxl": 1.8038852913968548,
+    "worstRatioToLibjxl": 3.8021638330757344
+  }
+}

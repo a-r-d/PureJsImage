@@ -46,9 +46,12 @@ test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', as
   await expect(page.locator('#jxl-summary')).toContainText('Source JPEG')
   await expect(page.locator('#jxl-summary')).toContainText('JPEG XL output')
   await expect(page.locator('#jxl-summary')).toContainText('Signed savings')
+  await expect(page.locator('#jxl-summary')).toContainText('Pinned libjxl reference')
+  await expect(page.locator('#jxl-summary')).toContainText('1,081 bytes')
+  await expect(page.locator('#jxl-summary')).toContainText('Time')
   await expect(page.locator('#jxl-summary')).toContainText('Output/source ratio')
   await expect(page.locator('#jxl-summary')).toContainText(
-    '890 bytes larger (+88.47% versus source)',
+    '944 bytes larger (+93.84% versus source)',
   )
   await expect(page.locator('#jxl-summary')).toContainText('Smaller than source')
   await expect(page.locator('#jxl-summary')).toContainText('Experimental')
