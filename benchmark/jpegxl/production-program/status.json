@@ -34,7 +34,12 @@
         "npm run check",
         "git diff --check"
       ],
-      "remoteWorkflowRuns": [],
+      "remoteWorkflowRuns": [
+        "CI success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236347",
+        "CodeQL success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236336",
+        "Imazen codec corpus success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236377",
+        "JPEG XL pinned corpus success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236426"
+      ],
       "measuredResults": [
         "Official conformance baseline: 2 pass, 36 expected unsupported, 0 incorrect output, 1 explained unexpected failure",
         "Pinned release-hardening evidence: 7 encoder cases, 10 exact reverse-transcode cases, 4 benchmark workloads, 2 Modular memory workloads, 8 VarDCT memory workloads",
@@ -69,7 +74,7 @@
         "Grow the JPEG archive to at least 250 real files during Milestone 1."
       ],
       "stablePromotionGatePassed": false,
-      "remainingBlockers": ["Exact remote pull-request workflow conclusions are not yet recorded."]
+      "remainingBlockers": ["Review and merge remain external."]
     },
     {
       "id": "M1",

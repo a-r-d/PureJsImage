@@ -103,7 +103,14 @@ npm run check
 git diff --check
 ```
 
-The exact remote workflow run is pending. The required workflow is `.github/workflows/jpegxl-corpus.yml`; it runs weekly and on relevant pull requests.
+The exact remote workflows passed for revision `14596426179e5c3cd62aa79c3a12e3c61c87c102`:
+
+- [CI](https://github.com/a-r-d/PureJsImage/actions/runs/33766236347)
+- [CodeQL](https://github.com/a-r-d/PureJsImage/actions/runs/33766236336)
+- [Imazen codec corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33766236377)
+- [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33766236426), including the complete pinned matrix and all three browsers with retries disabled
+
+The required JPEG XL workflow is `.github/workflows/jpegxl-corpus.yml`; it runs weekly and on relevant pull requests.
 
 ### Accepted limitations and deferred work
 
@@ -124,6 +131,6 @@ The exact remote workflow run is pending. The required workflow is `.github/work
 - [x] `npm run check`
 - [x] Chromium, Firefox, and WebKit locally with retries disabled
 - [x] No capability promotion
-- [ ] Exact remote pull-request workflow run recorded
+- [x] Exact remote pull-request workflow run recorded
 
-M0 remains in progress until the exact remote pull-request workflow passes. M1 must not begin on this branch.
+M0 is ready for review. Review and merge remain external, and M1 must not begin on this branch.
