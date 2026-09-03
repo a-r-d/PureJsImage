@@ -1,0 +1,23 @@
+docs/architecture/jpegxl-production-program.md
+  s_7f9203a11702d4::t_03bb64bbde0f02 233-241
+benchmark/jpegxl/production-program/status.json
+  s_7f9203a11702d4::t_6b646ff0120918 178-183
+benchmark/jpegxl/production-program/program-state.json
+  s_7f9203a11702d4::t_b6a1c412dd1c94 145-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "32d5a438e23486b1a46f8ad7269505b5c93034bc",
+  "prompts": {},
+  "sessions": {
+    "s_7f9203a11702d4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06774-7c4f-71c2-96d8-1394688c783b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
