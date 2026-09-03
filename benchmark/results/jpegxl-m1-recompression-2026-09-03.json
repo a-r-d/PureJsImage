@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "baseRevision": "16eca4041e572da4f4c69a7fec392da66e5bd9ff",
+  "revision": "5645815271f8968b8b05572d3906b465932edeea",
   "oracle": "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)",
   "jpegOracle": "sharp-0.35.3 autoOrient and sRGB output",
   "results": [

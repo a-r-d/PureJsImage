@@ -350,7 +350,7 @@ try {
   const smallerCases = savings.filter((value) => value > 0).length
   const report = Object.freeze({
     schemaVersion: 2,
-    baseRevision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
+    revision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
     oracle: 'libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)',
     jpegOracle: 'sharp-0.35.3 autoOrient and sRGB output',
     results,
