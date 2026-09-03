@@ -230,3 +230,12 @@ ceiling.
 - [x] Representative 24 MP effort-1 final performance rerun
 - [x] Chromium, Firefox, and WebKit with retries disabled
 - [x] Full `npm run check` with 2,444 tests passed, 3 skipped; 202 files passed, 1 skipped
+- [x] Exact remote pull-request workflows recorded
+
+The exact remote workflows passed for revision `a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8`:
+
+- [CI](https://github.com/a-r-d/PureJsImage/actions/runs/33808860739)
+- [CodeQL](https://github.com/a-r-d/PureJsImage/actions/runs/33808860757)
+- [Imazen codec corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33808860562)
+- [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33808860771), including the complete
+  pinned matrices and all three workbench browsers with retries disabled

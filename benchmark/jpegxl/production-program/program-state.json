@@ -142,7 +142,12 @@
         "npm run check",
         "git diff --check"
       ],
-      "remoteWorkflowRuns": [],
+      "remoteWorkflowRuns": [
+        "CI success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860739",
+        "CodeQL success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860757",
+        "Imazen codec corpus success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860562",
+        "JPEG XL pinned corpus success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860771"
+      ],
       "measuredResults": [
         "Independent encoder matrix: 163 deterministic cases across 12 classes and all four effort tiers decode exactly through PureJsImage, pinned djxl, pinned jxl-rs, and pinned jxl-oxide where applicable",
         "Effort 1 extended corpus: 156 cases, 1.0354 median size ratio and 2.2434 median wall-time ratio to pinned libjxl effort 1",
