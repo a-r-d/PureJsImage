@@ -147,8 +147,8 @@ jobs:
           git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 fetch --depth 1 origin "$IMAZEN_REVISION"
           git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 checkout --detach FETCH_HEAD
           test "$(git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 rev-parse HEAD)" = "$IMAZEN_REVISION"
-          cargo generate-lockfile \
-            --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml
+          cp benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock \
+            .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.lock
           echo "$IMAZEN_LOCK_SHA256  .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.lock" | sha256sum --check
           cargo build --release --locked \
             --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml \

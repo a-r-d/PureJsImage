@@ -203,4 +203,14 @@ describe('JPEG XL production program baseline', () => {
     await expect(access(`${root}/baseline.md`)).resolves.toBeUndefined()
     await expect(access(`${root}/oracle-tools.json`)).resolves.toBeUndefined()
   })
+
+  test('pins the resolved Imazen oracle dependency graph', async () => {
+    const manifest = await json(`${root}/oracle-tools.json`)
+    const imazen = array(manifest.tools, 'oracleTools.tools')
+      .map((value) => record(value, 'oracle tool'))
+      .find(({ id }) => id === 'imazen-jxl-encoder')
+    expect(imazen).toBeDefined()
+    const lockfile = String(imazen?.resolvedCargoLock)
+    await expect(digest(lockfile)).resolves.toBe(imazen?.resolvedCargoLockSha256)
+  })
 })

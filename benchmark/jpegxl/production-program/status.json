@@ -185,7 +185,7 @@
         "Representative 24 MP effort-1 encode: 3.819 seconds, 27 sink writes, and 106050518 reported managed peak bytes",
         "Focused browser acceptance: 12 JPEG XL compatibility tests and 18 workbench tests passed across Chromium, Firefox, and WebKit with retries disabled",
         "Package size: core plus JPEG XL is 266448 minified bytes; JPEG XL specialized APIs are 308718 minified bytes",
-        "Full repository gate: 2443 tests passed, 3 skipped; 202 files passed, 1 skipped"
+        "Full repository gate: 2444 tests passed, 3 skipped; 202 files passed, 1 skipped"
       ],
       "corpusVersions": [
         "Deterministic M2 encoder matrix: 163 cases across 12 required image classes",

@@ -62,7 +62,9 @@ The baseline starts from the exact remote main revision above and inventories 19
 
 The four corpus manifests live under `benchmark/jpegxl/production-program/corpora`. They separate official conformance, generated feature, real image, and JPEG archive inputs. Each entry has an explicit license and checksum or refers to a checksum-pinned component manifest. The generated-feature PR set contains 14 fixtures. The scheduled workflow runs the complete pinned matrices.
 
-Oracle source acquisition, exact build commands, lock checksum, and reference-machine binary checksums are recorded in `benchmark/jpegxl/production-program/oracle-tools.json`. These tools are development oracles only.
+Oracle source acquisition, exact build commands, the checked-in resolved Imazen oracle lockfile and
+its checksum, and reference-machine binary checksums are recorded in
+`benchmark/jpegxl/production-program/oracle-tools.json`. These tools are development oracles only.
 
 ### Measured results
 
@@ -227,4 +229,4 @@ ceiling.
 - [x] Bounded section output, measured managed peak, and abort or failure cleanup coverage
 - [x] Representative 24 MP effort-1 final performance rerun
 - [x] Chromium, Firefox, and WebKit with retries disabled
-- [x] Full `npm run check` with 2,443 tests passed, 3 skipped; 202 files passed, 1 skipped
+- [x] Full `npm run check` with 2,444 tests passed, 3 skipped; 202 files passed, 1 skipped

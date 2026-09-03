@@ -70,8 +70,9 @@
       "repository": "https://github.com/imazen/jxl-encoder",
       "revision": "d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
       "sourceAcquisition": "git fetch --depth 1 origin d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
+      "resolvedCargoLock": "benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock",
       "resolvedCargoLockSha256": "69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040",
-      "buildCommand": "cargo generate-lockfile --manifest-path <source>/Cargo.toml && cargo +1.89.0 build --release --locked --manifest-path <source>/Cargo.toml -p jxl-encoder-cli",
+      "buildCommand": "cp benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock <source>/Cargo.lock && cargo +1.89.0 build --release --locked --manifest-path <source>/Cargo.toml -p jxl-encoder-cli",
       "referenceBinaries": [
         {
           "name": "cjxl-rs",
