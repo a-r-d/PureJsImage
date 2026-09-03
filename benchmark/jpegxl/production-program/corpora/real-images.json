@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "kind": "jpegxl-real-image-sources",
+  "sourceManifest": {
+    "path": "benchmark/corpus/manifest.json",
+    "sha256": "20d9b39e77da4238954d00e85fb649e9bc6cf68fc599f1f60fc6e4ae33796bb6"
+  },
+  "images": [
+    {
+      "id": "tundra-4000x3000",
+      "path": "benchmark/corpus/files/tundra-4000x3000.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Tundra_Landscape_(31354285547).jpg",
+      "license": "Public domain, United States Department of Agriculture",
+      "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+      "bytes": 4768216,
+      "width": 4000,
+      "height": 3000,
+      "sampleClass": "camera-photograph"
+    },
+    {
+      "id": "portrait-2400x3000",
+      "path": "benchmark/corpus/files/portrait-2400x3000.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Janet_Yellen_official_portrait.jpg",
+      "license": "Public domain, Board of Governors of the Federal Reserve System",
+      "sha256": "2fe7a8ff672e9bbf5ffc63acc2f3c55946cf687e7a2db14d686b7494ad0c4679",
+      "bytes": 4546317,
+      "width": 2400,
+      "height": 3000,
+      "sampleClass": "portrait-photograph"
+    },
+    {
+      "id": "earthrise-2400x2400",
+      "path": "benchmark/corpus/files/earthrise-2400x2400.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg",
+      "license": "Public domain, National Aeronautics and Space Administration",
+      "sha256": "24fd2a4f833534ca6741ed96d03b028ac1d8fda2cd129ded4d208535f541d4da",
+      "bytes": 311263,
+      "width": 2400,
+      "height": 2400,
+      "sampleClass": "high-contrast-photograph"
+    },
+    {
+      "id": "pngsuite-palette-8",
+      "path": "benchmark/corpus/files/pngsuite-palette-8.png",
+      "source": "https://go.googlesource.com/go/+/go1.24.0/src/image/png/testdata/pngsuite/README.original",
+      "license": "Permission to use, copy, and distribute for any purpose and without fee",
+      "sha256": "eca1db90338a8481e4d3f2469befa06d7564534e9323b6a8040ed0cdd281d952",
+      "bytes": 1286,
+      "width": 32,
+      "height": 32,
+      "sampleClass": "icon-and-line-art"
+    },
+    {
+      "id": "pngsuite-gray-16",
+      "path": "benchmark/corpus/files/pngsuite-gray-16.png",
+      "source": "https://go.googlesource.com/go/+/go1.24.0/src/image/png/testdata/pngsuite/README.original",
+      "license": "Permission to use, copy, and distribute for any purpose and without fee",
+      "sha256": "f26eb27e99300829c42c0832acd26fa499e0f317cb4d6f165e6663024b16bf6c",
+      "bytes": 167,
+      "width": 32,
+      "height": 32,
+      "sampleClass": "high-bit-grayscale"
+    },
+    {
+      "id": "rgba-gradient-4000x3000",
+      "path": "benchmark/corpus/files/rgba-gradient-4000x3000.png",
+      "source": "benchmark/scripts/prepare-corpus.ts",
+      "license": "Public domain generated image file",
+      "sha256": "3cb67d0ce361dbbf1d44b8e280db8a7bb68fe4e33566837ddfe64809d38e60c5",
+      "bytes": 9392362,
+      "width": 4000,
+      "height": 3000,
+      "sampleClass": "transparent-gradient"
+    },
+    {
+      "id": "noise-2048x2048",
+      "path": "benchmark/corpus/files/noise-2048x2048.png",
+      "source": "benchmark/scripts/prepare-corpus.ts",
+      "license": "Public domain generated image file",
+      "sha256": "ef00cda1adac48e3bf40925a0de7b77e601210ab2c21c8de0d2ff96218372797",
+      "bytes": 14346740,
+      "width": 2048,
+      "height": 2048,
+      "sampleClass": "noise"
+    },
+    {
+      "id": "transparent-logo-1200x480",
+      "path": "benchmark/corpus/files/transparent-logo-1200x480.png",
+      "source": "benchmark/scripts/prepare-corpus.ts",
+      "license": "Public domain generated image file",
+      "sha256": "9c8a0d21e5094ca6080068ddc0bed3d2b0b660b4ad11535605a82b8086340d4b",
+      "bytes": 26794,
+      "width": 1200,
+      "height": 480,
+      "sampleClass": "transparent-graphic"
+    },
+    {
+      "id": "potsdamer-platz-hdr",
+      "path": "benchmark/corpus/files/small-codec-potsdamer.pfm",
+      "source": "https://polyhaven.com/a/potsdamer_platz",
+      "license": "CC0",
+      "sha256": "5f7af3f9b2b7e70180d725842b14572e95903f82eb023e14ba74443e694528a5",
+      "bytes": 6291478,
+      "width": 1024,
+      "height": 512,
+      "sampleClass": "hdr-float"
+    },
+    {
+      "id": "abandoned-greenhouse-hdr",
+      "path": "benchmark/corpus/files/small-codec-greenhouse.pfm",
+      "source": "https://polyhaven.com/a/abandoned_greenhouse",
+      "license": "CC0",
+      "sha256": "b4251b37e333972f0575be001a8458d79efa7511792a788eb101bab89baa5898",
+      "bytes": 6291478,
+      "width": 1024,
+      "height": 512,
+      "sampleClass": "hdr-float"
+    }
+  ],
+  "coverageGaps": [
+    "text-heavy UI screenshot with redistribution permission",
+    "scanned document",
+    "wide-gamut Display P3 source with redistribution permission",
+    "high-bit RGB source larger than the PR corpus"
+  ],
+  "preparation": "Use the existing benchmark corpus preparation commands. Scheduled JPEG XL jobs encode these sources with pinned tools and do not commit large derived files."
+}

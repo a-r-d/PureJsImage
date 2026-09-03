@@ -81,3 +81,25 @@ The combined report rejects inputs generated from a different Git revision. It r
 branch SHA, pinned tool revisions, commands, output hashes, unsupported classifications, and the
 reason the encoder remains Experimental. Committed dated reports are historical snapshots. The CI
 artifact for the exact pushed SHA is the current review evidence.
+
+## Production program baseline
+
+The staged production program is tracked in `docs/architecture/jpegxl-production-program.md`.
+Verify its deterministic feature inventory, status, JSON baseline, and Markdown summary with:
+
+```sh
+npm run jpegxl:program:baseline
+```
+
+To classify the complete pinned official conformance checkout, use:
+
+```sh
+npm run jpegxl:program:conformance -- \
+  --corpus-root /path/to/libjxl-conformance \
+  --output /tmp/jpegxl-conformance.json
+```
+
+The conformance command verifies every input checksum before decoding. Its five result classes are
+pass, expected unsupported, malformed and safely rejected, incorrect output, and unexpected
+failure. A changed classification fails the command. The weekly JPEG XL corpus workflow runs this
+full matrix; pull requests retain a small feature-focused set for fast local checks.

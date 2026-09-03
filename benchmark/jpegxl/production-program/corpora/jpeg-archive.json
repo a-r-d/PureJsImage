@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "kind": "jpegxl-jpeg-archive",
+  "minimumRealJpegsForStablePromotion": 250,
+  "currentRealJpegCount": 3,
+  "cases": [
+    {
+      "id": "baseline-yuv420",
+      "path": "benchmark/corpus/files/jpeg-reference/generated-sof1-8bit.jpg",
+      "source": "benchmark/jpeg/prepare-reference-fixtures.ts",
+      "license": "MIT",
+      "sha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+      "bytes": 1311,
+      "profile": "sequential SOF1 YCbCr 4:2:0 with generated quantization and Huffman tables",
+      "provenance": "deterministic",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "baseline-yuv422-camera",
+      "path": "benchmark/corpus/files/tundra-4000x3000.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Tundra_Landscape_(31354285547).jpg",
+      "license": "Public domain, United States Department of Agriculture",
+      "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+      "bytes": 4768216,
+      "profile": "baseline YCbCr 4:2:2 camera JPEG",
+      "provenance": "real",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "baseline-rgb444",
+      "path": "benchmark/corpus/files/jpeg-reference/generated-adobe-rgb.jpg",
+      "source": "benchmark/jpeg/prepare-reference-fixtures.ts",
+      "license": "MIT",
+      "sha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+      "bytes": 1416,
+      "profile": "baseline RGB 4:4:4 with Adobe marker",
+      "provenance": "deterministic",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "progressive-yuv420-exif",
+      "path": "benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg",
+      "source": "https://github.com/web-platform-tests/wpt/blob/7e755825e0b5c6f631cb862afd5fc451e6825441/webcodecs/four-colors-limited-range-420-8bpc.jpg",
+      "license": "BSD-3-Clause",
+      "sha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+      "bytes": 1006,
+      "profile": "progressive YCbCr 4:2:0 with Exif",
+      "provenance": "real-tool-output",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "progressive-rgb-exif",
+      "path": "benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg",
+      "source": "https://github.com/web-platform-tests/wpt/blob/7e755825e0b5c6f631cb862afd5fc451e6825441/webcodecs/four-colors.jpg",
+      "license": "BSD-3-Clause",
+      "sha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+      "bytes": 1242,
+      "profile": "progressive RGB 4:4:4 with Exif",
+      "provenance": "real-tool-output",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "progressive-custom-scans",
+      "path": "benchmark/corpus/files/jpeg-reference/generated-progressive.jpg",
+      "source": "benchmark/jpeg/prepare-reference-fixtures.ts",
+      "license": "MIT",
+      "sha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+      "bytes": 1064,
+      "profile": "progressive YCbCr with successive approximation refinement",
+      "provenance": "deterministic",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "sequential-multiscan",
+      "path": "benchmark/corpus/files/jpeg-reference/generated-sequential-multiscan.jpg",
+      "source": "benchmark/jpeg/prepare-reference-fixtures.ts",
+      "license": "MIT",
+      "sha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+      "bytes": 1320,
+      "profile": "baseline YCbCr with separate component scans",
+      "provenance": "deterministic",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "progressive-yuv420-camera",
+      "path": "benchmark/corpus/files/tundra-4000x3000-progressive.jpg",
+      "source": "benchmark/scripts/prepare-corpus.ts from tundra-4000x3000",
+      "license": "Public domain, United States Department of Agriculture",
+      "sha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+      "bytes": 2855050,
+      "profile": "large progressive YCbCr 4:2:0 camera JPEG",
+      "provenance": "real-derived",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "baseline-yuv420-metadata-markers",
+      "path": "generated during the reverse matrix",
+      "source": "benchmark/jpegxl/run-purejsimage-reverse-matrix.ts",
+      "license": "MIT",
+      "sha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+      "bytes": 2110,
+      "profile": "baseline YCbCr 4:2:0 with ICC, XMP, COM, and APP15",
+      "provenance": "deterministic",
+      "expected": "eligible-exact"
+    },
+    {
+      "id": "baseline-yuv420-restart-interval",
+      "path": "generated during the reverse matrix",
+      "source": "benchmark/jpegxl/run-purejsimage-reverse-matrix.ts",
+      "license": "MIT",
+      "sha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+      "bytes": 497,
+      "profile": "baseline YCbCr 4:2:0 with DRI and ordered restart markers",
+      "provenance": "deterministic",
+      "expected": "eligible-exact"
+    }
+  ],
+  "coverageGaps": [
+    "at least 247 more legally usable real JPEGs",
+    "grayscale",
+    "YCbCr 4:4:4",
+    "custom table diversity",
+    "multiple camera and phone models",
+    "editor and optimizer outputs",
+    "jpegli outputs",
+    "legal tail-data diversity",
+    "explicit arithmetic, lossless, 12-bit, hierarchical, CMYK, and YCCK ineligible cases"
+  ],
+  "promotionBoundary": "The exact transcoder remains Experimental until the 250-real-JPEG correctness, compression, performance, and browser gates pass."
+}

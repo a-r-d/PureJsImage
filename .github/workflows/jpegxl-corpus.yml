@@ -1,6 +1,8 @@
 name: JPEG XL pinned corpus
 
 on:
+  schedule:
+    - cron: '17 6 * * 1'
   pull_request:
     paths:
       - '.github/workflows/jpegxl-corpus.yml'
@@ -9,6 +11,7 @@ on:
       - 'browser-tests/jpegxl-workbench.pw.ts'
       - 'capabilities/manifest.json'
       - 'docs/architecture/jpegxl-lossless-first.md'
+      - 'docs/architecture/jpegxl-production-program.md'
       - 'jpegxl-codec-support.md'
       - 'src/**/jpegxl*.ts'
       - 'tests/**/jpegxl*.ts'
@@ -46,6 +49,25 @@ jobs:
 
       - name: Prepare evidence directory
         run: mkdir -p .tmp/jpegxl-evidence
+
+      - name: Verify deterministic production-program baseline
+        run: npm run jpegxl:program:baseline
+
+      - name: Run pinned official conformance classification
+        env:
+          CONFORMANCE_ARCHIVE_SHA256: 1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd
+          CONFORMANCE_REVISION: 4bf053529c7cefd2951be453475bb3dccc7e7be8
+        run: |
+          mkdir -p .tmp/jpegxl-conformance
+          curl --fail --location \
+            "https://github.com/libjxl/conformance/archive/$CONFORMANCE_REVISION.tar.gz" \
+            --output .tmp/jpegxl-conformance.tar.gz
+          echo "$CONFORMANCE_ARCHIVE_SHA256  .tmp/jpegxl-conformance.tar.gz" | sha256sum --check
+          tar --extract --gzip --file .tmp/jpegxl-conformance.tar.gz \
+            --directory .tmp/jpegxl-conformance --strip-components=1
+          npm run jpegxl:program:conformance -- \
+            --corpus-root .tmp/jpegxl-conformance \
+            --output .tmp/jpegxl-evidence/conformance.json
 
       - name: Install libjxl tool build dependencies
         run: sudo apt-get update && sudo apt-get install --yes libjpeg-dev libpng-dev ninja-build
@@ -145,6 +167,7 @@ jobs:
         run: >-
           npx vitest run
           tests/jpeg-marker-walk.test.ts
+          tests/jpegxl-production-program.test.ts
           tests/jpegxl.test.ts
           tests/jpegxl-corpus.test.ts
           tests/jpegxl-jpeg-reconstruction.test.ts
@@ -205,6 +228,7 @@ jobs:
           path: |
             .tmp/jpegxl-evidence/jpegxl-release-hardening.json
             .tmp/jpegxl-evidence/jpegxl-release-hardening.md
+            .tmp/jpegxl-evidence/conformance.json
           if-no-files-found: error
 
   browser:

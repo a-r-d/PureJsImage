@@ -1,0 +1,61 @@
+{
+  "currentMainSha": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+  "packageVersion": "0.17.0",
+  "currentTarget": "A",
+  "milestones": {
+    "M0": {
+      "status": "in progress",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": null,
+      "startRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+      "finalRevision": null,
+      "localCommands": [
+        "npm run jpegxl:program:baseline",
+        "npm run jpegxl:program:conformance -- --corpus-root /tmp/jpegxl-conformance-4bf0535 --output /tmp/jpegxl-m00-conformance-check.json",
+        "npx vitest run tests/jpegxl-production-program.test.ts tests/jpegxl.test.ts tests/jpegxl-bitstream.test.ts tests/jpegxl-corpus.test.ts tests/jpegxl-jpeg-reconstruction.test.ts tests/jpegxl-workbench-preview.test.ts tests/jpegxl-worker-protocol.test.ts tests/capability-manifest.test.ts",
+        "npm run capabilities:check",
+        "npm run package:types",
+        "npm run browser:check",
+        "npx playwright test browser-tests/jpegxl-workbench.pw.ts --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run check",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [
+        "Official conformance baseline: 2 pass, 36 expected unsupported, 0 incorrect output, 1 explained unexpected failure",
+        "Pinned release-hardening evidence: 7 encoder cases, 10 exact reverse-transcode cases, 4 benchmark workloads, 2 Modular memory workloads, 8 VarDCT memory workloads",
+        "Focused JPEG XL suite: 120 tests passed across 8 files",
+        "Workbench browser matrix: 18 tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "Full repository gate: 2412 tests passed, 3 skipped; 202 files passed, 1 skipped"
+      ],
+      "corpusVersions": [
+        "libjxl conformance 4bf053529c7cefd2951be453475bb3dccc7e7be8",
+        "libjxl 0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-rs 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-rs 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4",
+        "simple-lossless-encoder 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+        "imazen-jxl-encoder d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/baseline.json",
+      "capabilityChanges": [
+        "None. JPEG XL reading remains Limited and writing remains Experimental."
+      ],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [
+        "The official delta_palette case reaches INVALID_INPUT and is recorded as an explained unexpected failure.",
+        "Performance values remain reference-machine snapshots and are not PR CI thresholds."
+      ],
+      "deferredWork": [
+        "Expand the real-image source set with a redistributable UI screenshot, scanned document, and wide-gamut source.",
+        "Grow the JPEG archive to at least 250 real files during Milestone 1."
+      ],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": ["Exact remote pull-request workflow conclusions are not yet recorded."]
+    }
+  }
+}

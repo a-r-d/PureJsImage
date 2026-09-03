@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "baselineMainRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+  "packageVersion": "0.17.0",
+  "environment": {
+    "cpu": "Intel Core i7-10700, 8 cores, 16 threads",
+    "memoryBytes": 64924504064,
+    "operatingSystem": "Linux 6.17.0-41-generic x86_64",
+    "node": "v24.16.0",
+    "playwright": "1.62.1",
+    "browsers": {
+      "chromium": "151.0.7922.34, Playwright revision 1234",
+      "firefox": "153.0, Playwright revision 1538",
+      "webkit": "26.5, Playwright revision 2336"
+    },
+    "powerMode": "Linux CPU scaling governor powersave",
+    "benchmarkThreadCount": 1
+  },
+  "modules": [
+    {
+      "path": "src/codec-entries/jpegxl.ts",
+      "responsibility": "Ordinary explicit codec package entry"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "responsibility": "Codec detection, structure inspection, decoder and encoder wiring"
+    },
+    {
+      "path": "src/jpegxl.ts",
+      "responsibility": "Specialized inspection, exact transcode, and reconstruction package entry"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "responsibility": "Bounded bit, prefix, ANS, hybrid integer, and LZ77 primitives"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "responsibility": "Raw codestream, jxlc, jxlp, and metadata-box structure"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "responsibility": "Header, frame, Modular program, group, and row decode"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "responsibility": "Bounded public JPEG XL inspection"
+    },
+    { "path": "src/codecs/jpegxl-limits.ts", "responsibility": "JPEG XL resource limits" },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "responsibility": "Experimental deterministic effort-1 lossless Modular encoder"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "responsibility": "Selected VarDCT and JPEG-derived decoder coordination"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "responsibility": "JPEG-derived and selected VarDCT LF, DC, HF, and AC parsing"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "responsibility": "Selected VarDCT transforms, restoration, noise, and pixel output"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-memory.ts",
+      "responsibility": "VarDCT preflight and live managed-memory accounting"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "responsibility": "Bounded JPEG reconstruction metadata parsing"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "responsibility": "JPEG coefficients to JPEG XL codestream assembly"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "responsibility": "jbrd structural parsing and bounded first-party Brotli subset"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+      "responsibility": "Coefficient-domain JPEG byte reconstruction"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "responsibility": "Public JPEG XL source reconstruction coordination"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "responsibility": "Eligibility, exact JPEG transcode, fallback, sink, and evidence policy"
+    }
+  ],
+  "publicApi": [
+    {
+      "packageExport": "purejsimage/codecs/jpegxl",
+      "symbols": ["jpegxlCodec", "inspectJpegXlStructure", "JpegXlEncodeOptions"]
+    },
+    {
+      "packageExport": "purejsimage/jpegxl",
+      "symbols": [
+        "inspectJpegXl",
+        "inspectJpegReconstructionEligibility",
+        "transcodeJpegToJpegXl",
+        "reconstructJpegFromJpegXl"
+      ]
+    },
+    { "packageExport": "purejsimage", "symbols": ["Image.jpegxl", "Image.encode('jpegxl')"] }
+  ],
+  "capabilityMatrix": [
+    {
+      "surface": "structure inspection",
+      "status": "limited",
+      "boundary": "raw codestream, jxlc, and validated jxlp containers"
+    },
+    {
+      "surface": "lossless Modular decode",
+      "status": "limited",
+      "boundary": "pinned 8, 9, 10, 12, and 16-bit gray, RGB, and straight-alpha subset"
+    },
+    {
+      "surface": "VarDCT decode",
+      "status": "limited",
+      "boundary": "selected 8-bit single-group XYB fixtures and checked JPEG-derived DCT8 images"
+    },
+    {
+      "surface": "lossless Modular encode",
+      "status": "experimental",
+      "boundary": "effort 1 gray8, gray16, rgb8, rgb16, rgba8, and rgba16 with explicit sRGB semantics"
+    },
+    {
+      "surface": "exact JPEG recompression",
+      "status": "experimental",
+      "boundary": "documented eligible three-component 8-bit Huffman baseline and progressive JPEG subset"
+    },
+    {
+      "surface": "progressive output",
+      "status": "unsupported",
+      "boundary": "final reconstruction only"
+    },
+    { "surface": "animation", "status": "unsupported", "boundary": "single visible static frame" },
+    {
+      "surface": "broad ICC, wide color, and HDR",
+      "status": "unsupported",
+      "boundary": "checked sRGB and linear-sRGB semantics only"
+    },
+    {
+      "surface": "Level 10",
+      "status": "unsupported",
+      "boundary": "recognition is not a pixel-decode claim"
+    },
+    {
+      "surface": "general lossy encoding",
+      "status": "unsupported",
+      "boundary": "no public VarDCT photo encoder"
+    }
+  ],
+  "claimCoverage": [
+    {
+      "claim": "raw, jxlc, and jxlp structure and bounded source behavior",
+      "evidence": ["tests/jpegxl.test.ts", "tests/jpegxl-bitstream.test.ts"]
+    },
+    {
+      "claim": "pinned lossless Modular sample decode",
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "tests/jpegxl-corpus.test.ts",
+        "benchmark/jpegxl/generated-lossless-manifest.json"
+      ]
+    },
+    {
+      "claim": "selected VarDCT output within fixed tolerance",
+      "evidence": ["tests/jpegxl-corpus.test.ts", "benchmark/jpegxl/generated-vardct-manifest.json"]
+    },
+    {
+      "claim": "experimental six-format Modular encoder",
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "benchmark/results/jpegxl-release-hardening-2026-09-01.json"
+      ]
+    },
+    {
+      "claim": "exact JPEG reconstruction for the documented eligible subset",
+      "evidence": [
+        "tests/jpegxl-jpeg-reconstruction.test.ts",
+        "benchmark/results/jpegxl-release-hardening-2026-09-01.json"
+      ]
+    },
+    {
+      "claim": "caller-owned evidence and bounded memory accounting",
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "tests/jpegxl-corpus.test.ts",
+        "benchmark/results/jpegxl-release-hardening-2026-09-01.json"
+      ]
+    },
+    {
+      "claim": "local browser workbench with validated worker protocol and previews",
+      "evidence": [
+        "tests/jpegxl-worker-protocol.test.ts",
+        "tests/jpegxl-workbench-preview.test.ts",
+        "browser-tests/jpegxl-workbench.pw.ts"
+      ]
+    },
+    {
+      "claim": "ordinary and specialized package exports",
+      "evidence": ["scripts/check-package-types.ts", "scripts/bundle-size-config.ts"]
+    }
+  ],
+  "packageSize": [
+    {
+      "id": "codec-jpegxl",
+      "minifiedBytes": 240492,
+      "gzipBytes": 75801,
+      "brotliBytes": 63039,
+      "ceilingMinifiedBytes": 270000
+    },
+    {
+      "id": "jpegxl-specialized",
+      "minifiedBytes": 274559,
+      "gzipBytes": 87609,
+      "brotliBytes": 71198,
+      "ceilingMinifiedBytes": 295000
+    }
+  ],
+  "knownUnsupported": [
+    "common multi-group VarDCT breadth and Hornuss",
+    "chroma upsampling, patches, and splines",
+    "all codestream orientations",
+    "broad ICC, wide color, and HDR",
+    "ordinary published transform and output workflows",
+    "reduced-resolution and progressive output",
+    "competitive lossless compression and general lossy encoding",
+    "animation and uncommon extra channels",
+    "Level 10 pixel decode"
+  ],
+  "knownBaselineDefects": [
+    "The official delta_palette conformance case reaches INVALID_INPUT. It is a valid case outside the proven subset and should eventually become either a pass or UNSUPPORTED_OPERATION."
+  ]
+}

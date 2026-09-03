@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "kind": "jpegxl-generated-features",
+  "fixtureManifests": [
+    {
+      "id": "libjxl-lossless-modular",
+      "path": "benchmark/jpegxl/generated-lossless-manifest.json",
+      "sha256": "7c2d4fe4bc9cd759609d3f921deb55f402954be3f82b90132bf5ab8479c85568",
+      "fixtures": 36,
+      "generator": "benchmark/jpegxl/generate-lossless-corpus.ts",
+      "oracle": "libjxl 0.12.0",
+      "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+      "license": "Generated pixel patterns are CC0; libjxl is a BSD-3-Clause development oracle"
+    },
+    {
+      "id": "libjxl-vardct",
+      "path": "benchmark/jpegxl/generated-vardct-manifest.json",
+      "sha256": "6c8489c3ddc6175948b448a1698ae5de98211151d584816e8fc61e2ad3d1810c",
+      "fixtures": 6,
+      "generator": "benchmark/jpegxl/generate-vardct-corpus.ts",
+      "oracle": "libjxl 0.12.0",
+      "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+      "license": "Generated pixel patterns are CC0; libjxl is a BSD-3-Clause development oracle"
+    },
+    {
+      "id": "libjxl-jpeg-reconstruction",
+      "path": "benchmark/jpegxl/jpeg-reconstruction-manifest.json",
+      "sha256": "6d9a580bb8ade77a1a1df6223577a308927f9a68ac1adabf8bcca4a46b86e476",
+      "fixtures": 2,
+      "generator": "benchmark/jpegxl/generate-jpeg-reconstruction-corpus.ts",
+      "oracle": "libjxl 0.12.0",
+      "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+      "license": "Source licenses are recorded in benchmark/corpus/manifest.json; libjxl is a BSD-3-Clause development oracle"
+    }
+  ],
+  "requiredPerFixtureFields": [
+    "source",
+    "license",
+    "checksum",
+    "encoder",
+    "encoderRevision",
+    "options",
+    "dimensions",
+    "level",
+    "encoding",
+    "strategyIds",
+    "groupCount",
+    "lfGroupCount",
+    "passes",
+    "colorEncoding",
+    "bitDepth",
+    "alpha",
+    "extraChannels",
+    "patches",
+    "splines",
+    "noise",
+    "restoration",
+    "orientation",
+    "preview",
+    "animation",
+    "expectedResult",
+    "oracleResult"
+  ],
+  "featureInventory": "benchmark/jpegxl/production-program/feature-inventory.json",
+  "prCorpus": [
+    "conformance-alpha-nonpremultiplied",
+    "conformance-alpha-triangles",
+    "gray8-linear",
+    "gray8-multiple-groups",
+    "rgb8-linear",
+    "rgb10-linear",
+    "gray8-distance1-effort3",
+    "rgb8-distance1-effort1",
+    "rgb8-distance1-effort7",
+    "rgb8-distance2-progressive",
+    "rgb8-distance4-noise",
+    "rgb8-distance1-single-group-255",
+    "progressive-yuv420-exif",
+    "progressive-rgb-exif"
+  ],
+  "extendedCorpusPolicy": "Generate every fixture from the three pinned manifests before the scheduled matrix. Do not commit on-demand large outputs."
+}
