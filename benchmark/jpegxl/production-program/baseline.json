@@ -238,7 +238,7 @@
     },
     "jpegArchive": {
       "path": "benchmark/jpegxl/production-program/corpora/jpeg-archive.json",
-      "sha256": "09e71691e829791cae3af72f495094d854df9230ede2b7562caedf4412fb175a",
+      "sha256": "ca52016513f079e56d3b80d22feec635acd39b1a6a78bd8840b836951a9c3c42",
       "entries": 10,
       "revision": null
     }

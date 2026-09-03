@@ -44,6 +44,7 @@ const measurements = await parseJson(join(directory, 'reference-measurements.jso
 const features = await parseJson(join(directory, 'feature-inventory.json'))
 const packageJson = await parseJson('package.json')
 const capabilityManifest = await parseJson(join('capabilities', 'manifest.json'))
+const programState = await parseJson(join(directory, 'program-state.json'))
 
 const baselineMainRevision = string(source.baselineMainRevision, 'baselineMainRevision')
 const packageVersion = string(source.packageVersion, 'packageVersion')
@@ -69,13 +70,20 @@ const jpegXlCapability = formats
 if (!jpegXlCapability) throw new Error('capabilities/manifest.json has no jpegxl format')
 const readCapability = record(jpegXlCapability.read, 'jpegxl.read')
 const writeCapability = record(jpegXlCapability.write, 'jpegxl.write')
-if (
-  readCapability.status !== 'limited' ||
-  readCapability.label !== 'Limited' ||
-  writeCapability.status !== 'limited' ||
-  writeCapability.label !== 'Experimental'
-) {
-  throw new Error('Milestone 0 must not promote the JPEG XL capability')
+if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
+  throw new Error('JPEG XL read capability no longer matches the recorded limited boundary')
+}
+if (writeCapability.status !== 'limited') {
+  throw new Error('JPEG XL write capability no longer matches the recorded limited boundary')
+}
+if (writeCapability.label === 'Stable exact transcode') {
+  const milestones = record(programState.milestones, 'programState.milestones')
+  const milestone1 = record(milestones.M1, 'programState.milestones.M1')
+  if (milestone1.stablePromotionGatePassed !== true) {
+    throw new Error('Stable exact transcode requires the Milestone 1 promotion gate')
+  }
+} else if (writeCapability.label !== 'Experimental') {
+  throw new Error('JPEG XL write capability has an unrecognized label')
 }
 
 const corpusDefinitions = [
