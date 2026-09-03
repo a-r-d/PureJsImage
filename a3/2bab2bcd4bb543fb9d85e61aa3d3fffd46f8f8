@@ -1,0 +1,32 @@
+benchmark/jpegxl/production-program/status.json
+  s_7f9203a11702d4::t_6e1f6f6926b236 188
+.github/workflows/jpegxl-corpus.yml
+  s_7f9203a11702d4::t_04861cf0a26f12 150-151
+docs/architecture/jpegxl-production-program.md
+  s_7f9203a11702d4::t_cd59c1e5c5c227 232
+  s_7f9203a11702d4::t_04861cf0a26f12 65-67
+benchmark/jpegxl/production-program/program-state.json
+  s_7f9203a11702d4::t_cd59c1e5c5c227 155
+benchmark/jpegxl/production-program/oracle-tools.json
+  s_7f9203a11702d4::t_04861cf0a26f12 73,75
+tests/jpegxl-production-program.test.ts
+  s_7f9203a11702d4::t_9e860f5c7d92f3 206-215
+benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock
+  s_7f9203a11702d4::t_3ce9191d403f89 1-2268
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8",
+  "prompts": {},
+  "sessions": {
+    "s_7f9203a11702d4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06774-7c4f-71c2-96d8-1394688c783b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
