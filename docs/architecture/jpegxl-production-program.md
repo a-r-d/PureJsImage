@@ -13,7 +13,7 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Starting revision: `eb0d1697132a81a2dcc9eb6822b384e09c781bec`
 - M4 implementation revision: `88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302`
 - Capability change: common static color and HDR, independent alpha, bounded ICC and metadata, and structured lossless encoding.
-- Stable promotion gate: passed locally for the documented M4 boundary.
+- Stable promotion gate: passed locally and remotely for the documented M4 boundary.
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
 operator explicitly directed M1, M2, M3, and M4 work to continue on the existing M0 branch and pull request.
@@ -35,7 +35,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M1 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | passed locally |
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
 | M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
-| M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302` | passed locally |
+| M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `d61e238814018b8f234c806e57282d07dda39357` | passed |
 | M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
 | M7 | B | not started | `codex/jpegxl-m07-lossy-encoder` | pending | pending | pending | not passed |
@@ -316,7 +316,7 @@ channels, Level 10, and general lossy encoding remain outside this milestone.
 M4 continues on the existing branch and PR 35 at the operator's request. It adds checked
 structured color, all eight orientations, straight and premultiplied alpha, bounded ICC,
 explicit HDR output, and metadata preservation. The implementation is complete for the common
-static boundary. Local handoff gates pass; exact remote checks are pending.
+static boundary. Local and exact-revision remote handoff gates pass.
 
 The checked fixtures contain 56 structured RGB and grayscale cases, 40 independent-alpha cases,
 18 high-depth VarDCT color cases, eight VarDCT alpha-upsample cases, and a two-alpha fixture.
@@ -366,7 +366,7 @@ m4-m3-performance.json. The M4 package ceilings are 365000 bytes for core plus J
 - [x] Focused Chromium, Firefox, and WebKit acceptance with retries disabled
 - [x] Memory, collection, preflight rejection, and cancellation regression coverage
 - [x] Full repository and browser handoff gates
-- [ ] Exact remote pull-request workflows
+- [x] Exact remote pull-request workflows
 
 Advanced grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha,
 floating-point encoded inputs, unavailable high-depth ICC and custom-chromaticity transforms,
@@ -384,3 +384,14 @@ identical corrected coefficients. The old path fails JXL pixel validation with m
 of 21 and 43. The new path stays within one sample, with warm measured decode-and-comparison
 times of 232 versus 205 ms and 768 versus 617 ms. Correct JXL reconstruction costs more work
 than intermediate JPEG component clipping; the failed old output is not a valid speed score.
+
+M4 is complete for the documented common static boundary. The exact remote workflows passed
+for revision `d61e238814018b8f234c806e57282d07dda39357`:
+
+- [CI](https://github.com/a-r-d/PureJsImage/actions/runs/33917200500)
+- [CodeQL](https://github.com/a-r-d/PureJsImage/actions/runs/33917200599)
+- [Imazen codec corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33917200721)
+- [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33917200496)
+
+The following ledger commit records those results without changing implementation or fixtures.
+PR 35 remains open; review and merge are external. M5 has not begun.

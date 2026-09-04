@@ -266,7 +266,7 @@
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "eb0d1697132a81a2dcc9eb6822b384e09c781bec",
-      "finalRevision": "88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302",
+      "finalRevision": "d61e238814018b8f234c806e57282d07dda39357",
       "localCommands": [
         "node benchmark/jpegxl/generate-m4-color-corpus.ts",
         "node benchmark/jpegxl/generate-m4-alpha-corpus.ts",
@@ -284,7 +284,12 @@
         "npm run jpegxl:program:baseline",
         "git diff --check"
       ],
-      "remoteWorkflowRuns": [],
+      "remoteWorkflowRuns": [
+        "CI success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200500",
+        "CodeQL success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200599",
+        "Imazen codec corpus success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200721",
+        "JPEG XL pinned corpus success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200496"
+      ],
       "measuredResults": [
         "56 exact structured RGB and grayscale decode/re-encode cases through pinned djxl",
         "40 exact independent-alpha cases, 18 high-depth VarDCT color cases, 8 VarDCT alpha-upsample cases, and both channels of a distinct multiple-alpha fixture pass independent references",
@@ -329,9 +334,7 @@
       ],
       "deferredWork": ["M5 pipeline integration and later milestones have not begun."],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": [
-        "Exact remote pull-request workflows are pending; review and merge remain external."
-      ]
+      "remainingBlockers": ["Review and merge remain external."]
     }
   }
 }
