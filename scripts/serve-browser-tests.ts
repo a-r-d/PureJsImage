@@ -865,10 +865,12 @@ const server = createServer(async (request, response) => {
     const data = await readFile(path)
     const range = request.headers.range?.match(/^bytes=(\d+)-(\d+)$/)
     if (range) {
-      const requestedRangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
-      if (Number.isFinite(requestedRangeDelay) && requestedRangeDelay > 0) {
-        const rangeDelay = Math.min(requestedRangeDelay, 1_000)
-        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, rangeDelay))
+      const requestedRangeDelay = requestUrl.searchParams.get('rangeDelay')
+      // Only the fixed delays used by the cancellation fixtures are available.
+      if (requestedRangeDelay === '200') {
+        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 200))
+      } else if (requestedRangeDelay === '400') {
+        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 400))
       }
       const start = Number(range[1])
       const requestedEnd = Number(range[2])

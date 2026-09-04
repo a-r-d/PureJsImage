@@ -513,3 +513,11 @@ M5 is complete at code revision `71ee81cdf3c9c8433daba7968ddc46a2c7191739`. All 
 
 The following documentation-only commit records these results. PR 35 remains open for review;
 M6, merge, version changes and publication are outside this change.
+
+Final PR check review also inspected CodeQL's separate alert status, which reported the test
+server's already capped delay and the dedicated worker's message handler. The follow-up restricts
+fixture delays to the two constants used by cancellation tests and checks browser-delivered
+dedicated-worker events before reading requests. These changes do not alter codec behavior.
+The full local gate passes 2706 tests with three existing skips. All 51 focused workbench,
+pipeline and affected cancellation browser tests pass across Chromium, Firefox and WebKit
+with retries disabled. The PR description records the follow-up revision and final remote checks.

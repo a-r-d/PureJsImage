@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isJpegXlWorkbenchRequest,
   isJpegXlWorkbenchResponse,
+  isJpegXlWorkbenchWorkerEvent,
   jpegXlWorkbenchMaximumInputBytes,
   planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
@@ -10,6 +11,20 @@ import {
 import { inspectJpegXl } from '../src/jpegxl.ts'
 
 describe('JPEG XL workbench worker protocol', () => {
+  it('accepts only browser-delivered dedicated-worker events', () => {
+    const event = { isTrusted: true, origin: '', source: null }
+    expect(isJpegXlWorkbenchWorkerEvent(event)).toBe(true)
+    expect(isJpegXlWorkbenchWorkerEvent({ ...event, isTrusted: false })).toBe(false)
+    expect(isJpegXlWorkbenchWorkerEvent({ ...event, origin: 'https://example.com' })).toBe(false)
+    const channel = new MessageChannel()
+    try {
+      expect(isJpegXlWorkbenchWorkerEvent({ ...event, source: channel.port1 })).toBe(false)
+    } finally {
+      channel.port1.close()
+      channel.port2.close()
+    }
+  })
+
   it('bounds transform dimensions and accepts only literal fit and output choices', () => {
     const request = {
       type: 'transform',

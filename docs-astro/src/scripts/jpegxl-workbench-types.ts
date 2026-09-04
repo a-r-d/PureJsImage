@@ -499,6 +499,12 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
   Number.isFinite(value.outputToInputRatio) &&
   Number(value.outputToInputRatio) > 0
 
+// Dedicated-worker messages use an empty origin and a null source. Window-origin
+// checks do not apply to this private channel; reject synthetic events as well.
+export const isJpegXlWorkbenchWorkerEvent = (
+  event: Pick<MessageEvent<unknown>, 'isTrusted' | 'origin' | 'source'>,
+): boolean => event.isTrusted && event.origin === '' && event.source === null
+
 export const isJpegXlWorkbenchRequest = (value: unknown): value is JpegXlWorkbenchRequest => {
   if (!record(value) || typeof value.type !== 'string' || !identity(value)) return false
   if (value.type === 'transform')

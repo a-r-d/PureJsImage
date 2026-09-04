@@ -24,6 +24,7 @@ import {
 } from './jpegxl-workbench-preview.ts'
 import {
   isJpegXlWorkbenchRequest,
+  isJpegXlWorkbenchWorkerEvent,
   type JpegXlWorkbenchPreview,
   type JpegXlWorkbenchResponse,
   jpegXlWorkbenchMaximumOutputBytes,
@@ -243,6 +244,7 @@ const isCurrent = (generation: number, requestId: number, abort: AbortController
   !abort.signal.aborted
 
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
+  if (!isJpegXlWorkbenchWorkerEvent(event)) return
   if (!isJpegXlWorkbenchRequest(event.data)) return
   const request = event.data
   if (
