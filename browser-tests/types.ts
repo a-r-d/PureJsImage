@@ -70,6 +70,7 @@ export interface BrowserCompatibilityHarness {
   jpegXlLosslessEncode(): Promise<BrowserWorkflowResult>
   jpegXlHighBit(): Promise<BrowserWorkflowResult>
   jpegXlMultiGroup(): Promise<BrowserWorkflowResult>
+  jpegXlMultiGroupProgressive(): Promise<BrowserWorkflowResult>
   legacyTiffAndBmp(): Promise<BrowserWorkflowResult>
   unsupportedJpegBoundaries(): Promise<BrowserWorkflowResult>
   tolerantJpegRestartRecovery(): Promise<BrowserWorkflowResult>

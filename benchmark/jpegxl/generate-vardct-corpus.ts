@@ -94,6 +94,90 @@ const definitions: readonly VarDctDefinition[] = Object.freeze([
     options: Object.freeze(['--distance=1', '--effort=1']),
     expectedPureJsImageBehavior: 'supported',
   }),
+  Object.freeze({
+    id: 'rgb8-distance1-multi-group-odd',
+    source: 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/input/rgb8-513x385.pnm',
+    width: 513,
+    height: 385,
+    bitDepth: 8,
+    colorEncoding: 'RGB D65 sRGB',
+    oracleExtension: 'ppm',
+    features: Object.freeze([
+      'VarDCT',
+      'default XYB',
+      'multiple groups',
+      'odd dimensions',
+      'group-boundary restoration',
+    ]),
+    options: Object.freeze(['--distance=1', '--effort=1']),
+    expectedPureJsImageBehavior: 'supported',
+  }),
+  Object.freeze({
+    id: 'rgb8-distance1-large-transform',
+    source: 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/input/rgb8-513x385-gradient.pnm',
+    width: 513,
+    height: 385,
+    bitDepth: 8,
+    colorEncoding: 'RGB D65 sRGB',
+    oracleExtension: 'ppm',
+    features: Object.freeze([
+      'VarDCT',
+      'default XYB',
+      'multiple groups',
+      'large transform strategy',
+      'smooth gradient',
+    ]),
+    options: Object.freeze(['--distance=1', '--effort=5']),
+    expectedPureJsImageBehavior: 'supported',
+  }),
+  Object.freeze({
+    id: 'rgb8-distance1-hornuss',
+    source: 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/input/rgb8-513x385.pnm',
+    width: 513,
+    height: 385,
+    bitDepth: 8,
+    colorEncoding: 'RGB D65 sRGB',
+    oracleExtension: 'ppm',
+    features: Object.freeze(['VarDCT', 'default XYB', 'Hornuss', 'multiple groups']),
+    options: Object.freeze(['--distance=1', '--effort=5']),
+    expectedPureJsImageBehavior: 'supported',
+  }),
+  Object.freeze({
+    id: 'rgb8-distance1-strategy-mix',
+    source: 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/input/rgb8-513x385-blocks.pnm',
+    width: 513,
+    height: 385,
+    bitDepth: 8,
+    colorEncoding: 'RGB D65 sRGB',
+    oracleExtension: 'ppm',
+    features: Object.freeze([
+      'VarDCT',
+      'default XYB',
+      'rectangular strategies',
+      'large transform strategies',
+      'multiple groups',
+    ]),
+    options: Object.freeze(['--distance=1', '--effort=5']),
+    expectedPureJsImageBehavior: 'supported',
+  }),
+  Object.freeze({
+    id: 'rgb8-distance1-multi-group-progressive',
+    source: 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/input/rgb8-513x385.pnm',
+    width: 513,
+    height: 385,
+    bitDepth: 8,
+    colorEncoding: 'RGB D65 sRGB',
+    oracleExtension: 'ppm',
+    features: Object.freeze([
+      'VarDCT',
+      'default XYB',
+      'multiple groups',
+      'progressive passes',
+      'local DC group transforms',
+    ]),
+    options: Object.freeze(['--distance=1', '--effort=9', '--progressive']),
+    expectedPureJsImageBehavior: 'supported',
+  }),
 ])
 
 const run = async (command: string, arguments_: readonly string[]): Promise<void> =>
@@ -124,6 +208,43 @@ const createRgb8Pnm = (width: number, height: number): Uint8Array => {
   return output
 }
 
+const createRgb8GradientPnm = (width: number, height: number): Uint8Array => {
+  const header = new TextEncoder().encode(`P6\n${width} ${height}\n255\n`)
+  const output = new Uint8Array(header.byteLength + width * height * 3)
+  output.set(header)
+  let offset = header.byteLength
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      output[offset] = Math.round(16 + (224 * x) / (width - 1))
+      output[offset + 1] = Math.round(32 + (160 * y) / (height - 1))
+      output[offset + 2] = Math.round(64 + (128 * (x + y)) / (width + height - 2))
+      offset += 3
+    }
+  }
+  return output
+}
+
+const createRgb8BlocksPnm = (width: number, height: number): Uint8Array => {
+  const header = new TextEncoder().encode(`P6\n${width} ${height}\n255\n`)
+  const output = new Uint8Array(header.byteLength + width * height * 3)
+  output.set(header)
+  let offset = header.byteLength
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let color: readonly [number, number, number] = [128, 128, 128]
+      if (x <= 240 && y <= 180) color = [32, 48, 80]
+      else if (x >= 270 && y <= 190) color = [208, 176, 112]
+      else if (x <= 250 && y >= 210) color = [64, 96, 48]
+      else if (x >= 280 && y >= 220) color = [112, 64, 96]
+      output[offset] = color[0]
+      output[offset + 1] = color[1]
+      output[offset + 2] = color[2]
+      offset += 3
+    }
+  }
+  return output
+}
+
 const binaryDirectory = process.argv[2]
 if (!binaryDirectory) {
   throw new Error('Usage: node generate-vardct-corpus.ts <libjxl-tools-directory>')
@@ -133,6 +254,15 @@ const outputDirectory = 'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0'
 await mkdir(outputDirectory, { recursive: true })
 await mkdir(join(outputDirectory, 'input'), { recursive: true })
 await writeFile(join(outputDirectory, 'input', 'rgb8-255x255.pnm'), createRgb8Pnm(255, 255))
+await writeFile(join(outputDirectory, 'input', 'rgb8-513x385.pnm'), createRgb8Pnm(513, 385))
+await writeFile(
+  join(outputDirectory, 'input', 'rgb8-513x385-gradient.pnm'),
+  createRgb8GradientPnm(513, 385),
+)
+await writeFile(
+  join(outputDirectory, 'input', 'rgb8-513x385-blocks.pnm'),
+  createRgb8BlocksPnm(513, 385),
+)
 const entries = []
 for (const definition of definitions) {
   const output = join(outputDirectory, `${definition.id}.jxl`)
@@ -186,8 +316,10 @@ const manifest = Object.freeze({
   revision: 'a7a9c787341cf703dede03c2009fa460cae5e5df',
   sourceArchiveSha256: '818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29',
   license: 'BSD-3-Clause development oracle; generated pixel patterns are CC0',
-  implementedStrategyIds: Object.freeze([0, 2, 5, 6, 7, 12, 13, 14, 15, 16, 17]),
-  unsupportedStrategyIds: Object.freeze([1]),
+  implementedStrategyIds: Object.freeze([
+    0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  ]),
+  unsupportedStrategyIds: Object.freeze([3, 8, 9, 21, 22, 23, 24, 25, 26]),
   fixtures: Object.freeze(entries),
 })
 

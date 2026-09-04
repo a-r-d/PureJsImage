@@ -368,117 +368,116 @@ const readHeader = (
     alignWithZeroPadding(reader)
   }
 
-  requireValue(reader.readBits(1) !== 0, false, 'default VarDCT frame header')
-  const frameTypeCode = readU32(reader, [value(0), value(1), value(2), value(3)])
-  if (frameTypeCode !== 0 && frameTypeCode !== 1) {
-    throw unsupportedOperation('JPEG XL reference and skip-progressive frames are not supported')
-  }
-  const frameType = frameTypeCode === 0 ? 'regular' : 'dc'
-  const encoding = reader.readBits(1) !== 0 ? 'modular' : 'vardct'
-  if (encoding === 'vardct' && !allowVarDct) {
-    throw unsupportedOperation('JPEG XL VarDCT frames are outside the implemented decode subset')
-  }
-  const frameFlags = readU64(reader)
-  if ((frameFlags & ~0xb3) !== 0) {
-    throw unsupportedOperation('JPEG XL frame uses reserved flags')
-  }
-  const colorTransform = xybEncoded ? 'xyb' : reader.readBits(1) !== 0 ? 'ycbcr' : 'none'
+  const allDefaultFrameHeader = reader.readBits(1) !== 0
+  let frameType: 'regular' | 'dc' = 'regular'
+  let encoding: 'modular' | 'vardct' = 'vardct'
+  let frameFlags = 0
+  let colorTransform: 'xyb' | 'ycbcr' | 'none' = xybEncoded ? 'xyb' : 'none'
   const chromaSubsampling = [0, 0, 0] as [number, number, number]
-  if (colorTransform === 'ycbcr' && (frameFlags & 0x20) === 0) {
-    for (let channel = 0; channel < 3; channel += 1) {
-      chromaSubsampling[channel] = reader.readBits(2)
-    }
-  }
-  if ((frameFlags & 0x20) === 0) {
-    requireValue(readU32(reader, [value(1), value(2), value(4), value(8)]), 1, 'color upsampling')
-    for (let index = 0; index < extraChannels; index += 1) {
-      requireValue(
-        readU32(reader, [value(1), value(2), value(4), value(8)]),
-        1,
-        'extra-channel upsampling',
-      )
-    }
-  }
-  const groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
-  let xQuantizationScale = 2
+  let groupSizeShift = 1
+  let xQuantizationScale = xybEncoded ? 3 : 2
   let bQuantizationScale = 2
-  if (encoding === 'vardct' && colorTransform === 'xyb') {
-    xQuantizationScale = reader.readBits(3)
-    bQuantizationScale = reader.readBits(3)
-  }
-  const passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
-  const passShifts = new Array<number>(passCount).fill(0)
-  if (passCount !== 1) {
-    const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
-    if (downsampleCount > passCount) {
-      throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
-    }
-    for (let index = 0; index < passCount - 1; index += 1) {
-      passShifts[index] = reader.readBits(2)
-    }
-    let previousDownsample = 9
-    for (let index = 0; index < downsampleCount; index += 1) {
-      const downsample = readU32(reader, [value(1), value(2), value(4), value(8)])
-      if (downsample >= previousDownsample) {
-        throw invalidInput('JPEG XL progressive downsample factors are not decreasing')
-      }
-      previousDownsample = downsample
-    }
-    let previousPass = -1
-    for (let index = 0; index < downsampleCount; index += 1) {
-      const lastPass = readU32(reader, [value(0), value(1), value(2), bits(3)])
-      if (lastPass <= previousPass || lastPass >= passCount) {
-        throw invalidInput('JPEG XL progressive pass boundary is invalid')
-      }
-      previousPass = lastPass
-    }
-  }
-  const dcLevel = frameType === 'dc' ? readU32(reader, [value(1), value(2), value(3), value(4)]) : 0
-  let isLast = false
-  if (frameType === 'regular') {
-    requireValue(reader.readBits(1) !== 0, false, 'partial frames')
-    requireValue(readU32(reader, [value(0), value(1), value(2), bits(2, 3)]), 0, 'frame blending')
-    for (let index = 0; index < extraChannels; index += 1) {
-      requireValue(
-        readU32(reader, [value(0), value(1), value(2), bits(2, 3)]),
-        0,
-        'extra-channel blending',
-      )
-    }
-    isLast = reader.readBits(1) !== 0
-    if (!isLast) {
-      throw unsupportedOperation('JPEG XL non-final regular frames are not supported')
-    }
-  }
-  readName(reader)
-  const defaultLoopFilter = reader.readBits(1) !== 0
+  let passCount = 1
+  let passShifts: number[] = [0]
+  let dcLevel = 0
+  let isLast = true
   let gaborish = true
   let epfIterations = 2
-  if (!defaultLoopFilter) {
-    gaborish = reader.readBits(1) !== 0
-    if (gaborish) {
-      requireValue(reader.readBits(1) !== 0, false, 'custom Gaborish filtering')
+  if (!allDefaultFrameHeader) {
+    const frameTypeCode = readU32(reader, [value(0), value(1), value(2), value(3)])
+    if (frameTypeCode !== 0 && frameTypeCode !== 1) {
+      throw unsupportedOperation('JPEG XL reference and skip-progressive frames are not supported')
     }
-    epfIterations = reader.readBits(2)
-    if (epfIterations > 0) {
-      if (encoding === 'vardct') {
-        requireValue(reader.readBits(1) !== 0, false, 'custom EPF sharpness')
-      }
-      requireValue(reader.readBits(1) !== 0, false, 'custom EPF weights')
-      requireValue(reader.readBits(1) !== 0, false, 'custom EPF sigma')
-      if (encoding === 'modular') {
-        const modularSigma = readF16(reader)
-        if (modularSigma < 1e-8) throw invalidInput('JPEG XL Modular EPF sigma is too small')
+    frameType = frameTypeCode === 0 ? 'regular' : 'dc'
+    encoding = reader.readBits(1) !== 0 ? 'modular' : 'vardct'
+    frameFlags = readU64(reader)
+    if ((frameFlags & ~0xb3) !== 0) throw unsupportedOperation('JPEG XL frame uses reserved flags')
+    colorTransform = xybEncoded ? 'xyb' : reader.readBits(1) !== 0 ? 'ycbcr' : 'none'
+    if (colorTransform === 'ycbcr' && (frameFlags & 0x20) === 0) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        chromaSubsampling[channel] = reader.readBits(2)
       }
     }
-    const loopFilterExtensions = readU64(reader)
-    requireValue(loopFilterExtensions, 0, 'loop-filter extensions')
+    if ((frameFlags & 0x20) === 0) {
+      requireValue(readU32(reader, [value(1), value(2), value(4), value(8)]), 1, 'color upsampling')
+      for (let index = 0; index < extraChannels; index += 1) {
+        requireValue(
+          readU32(reader, [value(1), value(2), value(4), value(8)]),
+          1,
+          'extra-channel upsampling',
+        )
+      }
+    }
+    groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
+    xQuantizationScale = 2
+    if (encoding === 'vardct' && colorTransform === 'xyb') {
+      xQuantizationScale = reader.readBits(3)
+      bQuantizationScale = reader.readBits(3)
+    }
+    passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
+    passShifts = new Array<number>(passCount).fill(0)
+    if (passCount !== 1) {
+      const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
+      if (downsampleCount > passCount)
+        throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
+      for (let index = 0; index < passCount - 1; index += 1) passShifts[index] = reader.readBits(2)
+      let previousDownsample = 9
+      for (let index = 0; index < downsampleCount; index += 1) {
+        const downsample = readU32(reader, [value(1), value(2), value(4), value(8)])
+        if (downsample >= previousDownsample)
+          throw invalidInput('JPEG XL progressive downsample factors are not decreasing')
+        previousDownsample = downsample
+      }
+      let previousPass = -1
+      for (let index = 0; index < downsampleCount; index += 1) {
+        const lastPass = readU32(reader, [value(0), value(1), value(2), bits(3)])
+        if (lastPass <= previousPass || lastPass >= passCount)
+          throw invalidInput('JPEG XL progressive pass boundary is invalid')
+        previousPass = lastPass
+      }
+    }
+    dcLevel = frameType === 'dc' ? readU32(reader, [value(1), value(2), value(3), value(4)]) : 0
+    isLast = false
+    if (frameType === 'regular') {
+      requireValue(reader.readBits(1) !== 0, false, 'partial frames')
+      requireValue(readU32(reader, [value(0), value(1), value(2), bits(2, 3)]), 0, 'frame blending')
+      for (let index = 0; index < extraChannels; index += 1) {
+        requireValue(
+          readU32(reader, [value(0), value(1), value(2), bits(2, 3)]),
+          0,
+          'extra-channel blending',
+        )
+      }
+      isLast = reader.readBits(1) !== 0
+      if (!isLast) throw unsupportedOperation('JPEG XL non-final regular frames are not supported')
+    }
+    readName(reader)
+    const defaultLoopFilter = reader.readBits(1) !== 0
+    if (!defaultLoopFilter) {
+      gaborish = reader.readBits(1) !== 0
+      if (gaborish) requireValue(reader.readBits(1) !== 0, false, 'custom Gaborish filtering')
+      epfIterations = reader.readBits(2)
+      if (epfIterations > 0) {
+        if (encoding === 'vardct')
+          requireValue(reader.readBits(1) !== 0, false, 'custom EPF sharpness')
+        requireValue(reader.readBits(1) !== 0, false, 'custom EPF weights')
+        requireValue(reader.readBits(1) !== 0, false, 'custom EPF sigma')
+        if (encoding === 'modular') {
+          const modularSigma = readF16(reader)
+          if (modularSigma < 1e-8) throw invalidInput('JPEG XL Modular EPF sigma is too small')
+        }
+      }
+      requireValue(readU64(reader), 0, 'loop-filter extensions')
+    }
+    const frameExtensions = readU64(reader)
+    if (frameExtensions !== 0)
+      throw unsupportedOperation(
+        `JPEG XL frame extensions ${frameExtensions} are outside the implemented decode subset`,
+      )
   }
-  const frameExtensions = readU64(reader)
-  if (frameExtensions !== 0) {
-    throw unsupportedOperation(
-      `JPEG XL frame extensions ${frameExtensions} are outside the implemented decode subset`,
-    )
+
+  if (encoding === 'vardct' && !allowVarDct) {
+    throw unsupportedOperation('JPEG XL VarDCT frames are outside the implemented decode subset')
   }
 
   const frameScale = 2 ** (3 * dcLevel)
@@ -873,40 +872,17 @@ const applySqueezeLayouts = (
   return metaChannelCount
 }
 
-const readJpegXlModularProgram = (
-  section: Uint8Array,
-  channelCount: JpegXlChannelCount,
-  width: number,
-  height: number,
-): ModularProgram => {
-  const reader = new JpegXlBitReader(section)
-  const defaultDcQuantization = reader.readBits(1) !== 0
-  const dcQuantization: [number, number, number] = [1 / 4_096, 1 / 512, 1 / 256]
-  if (!defaultDcQuantization) {
-    for (let channel = 0; channel < 3; channel += 1) {
-      const quantization = readF16(reader) / 128
-      if (quantization < 1e-8) throw invalidInput('JPEG XL DC quantization is too small')
-      dcQuantization[channel] = quantization
-    }
-  }
-  const hasGlobalTree = reader.readBits(1) !== 0
-  const globalTree = hasGlobalTree ? readTree(reader) : undefined
-  const globalPixelCode = globalTree ? readJpegXlEntropyCode(reader, globalTree.leaves) : undefined
-  const useGlobalTree = reader.readBits(1) !== 0
-  if (useGlobalTree && (!globalTree || !globalPixelCode)) {
-    throw invalidInput('JPEG XL Modular group references a missing global tree')
-  }
-  const weightedPredictor = readWeightedPredictor(reader)
+const readModularTransforms = (
+  reader: JpegXlBitReader,
+  channelLayouts: ModularChannelLayout[],
+  initialMetaChannelCount: number,
+): Readonly<{ transforms: readonly ModularTransform[]; metaChannelCount: number }> => {
   const transformCount = readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)])
   if (transformCount > 256) {
     throw limitExceeded('JPEG XL Modular transform count exceeds 256')
   }
-  const channelLayouts: ModularChannelLayout[] = Array.from({ length: channelCount }, () => ({
-    width,
-    height,
-  }))
   const transforms: ModularTransform[] = []
-  let metaChannelCount = 0
+  let metaChannelCount = initialMetaChannelCount
   for (let transformIndex = 0; transformIndex < transformCount; transformIndex += 1) {
     const transform = readU32(reader, [value(0), value(1), value(2), value(3)])
     if (transform === 0) {
@@ -989,6 +965,38 @@ const readJpegXlModularProgram = (
       throw invalidInput('JPEG XL Modular transform is invalid')
     }
   }
+  return Object.freeze({ transforms: Object.freeze(transforms), metaChannelCount })
+}
+
+const readJpegXlModularProgram = (
+  section: Uint8Array,
+  channelCount: JpegXlChannelCount,
+  width: number,
+  height: number,
+): ModularProgram => {
+  const reader = new JpegXlBitReader(section)
+  const defaultDcQuantization = reader.readBits(1) !== 0
+  const dcQuantization: [number, number, number] = [1 / 4_096, 1 / 512, 1 / 256]
+  if (!defaultDcQuantization) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const quantization = readF16(reader) / 128
+      if (quantization < 1e-8) throw invalidInput('JPEG XL DC quantization is too small')
+      dcQuantization[channel] = quantization
+    }
+  }
+  const hasGlobalTree = reader.readBits(1) !== 0
+  const globalTree = hasGlobalTree ? readTree(reader) : undefined
+  const globalPixelCode = globalTree ? readJpegXlEntropyCode(reader, globalTree.leaves) : undefined
+  const useGlobalTree = reader.readBits(1) !== 0
+  if (useGlobalTree && (!globalTree || !globalPixelCode)) {
+    throw invalidInput('JPEG XL Modular group references a missing global tree')
+  }
+  const weightedPredictor = readWeightedPredictor(reader)
+  const channelLayouts: ModularChannelLayout[] = Array.from({ length: channelCount }, () => ({
+    width,
+    height,
+  }))
+  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
   const tree = useGlobalTree ? globalTree : readTree(reader)
   if (!tree) throw invalidInput('JPEG XL Modular tree is missing')
   const pixelCode = useGlobalTree ? globalPixelCode : readJpegXlEntropyCode(reader, tree.leaves)
@@ -1066,11 +1074,8 @@ export const decodeJpegXlStandaloneModular = (
     throw invalidInput('JPEG XL standalone Modular stream references a missing global tree')
   }
   const weightedPredictor = readWeightedPredictor(reader)
-  requireValue(
-    readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)]),
-    0,
-    'standalone Modular transforms',
-  )
+  const channelLayouts = channelLayoutsInput.map(({ width, height }) => ({ width, height }))
+  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
   const tree = useGlobalTree ? globalCode : readTree(reader)
   if (!tree) throw invalidInput('JPEG XL standalone Modular tree is missing')
   const pixelCode =
@@ -1080,29 +1085,22 @@ export const decodeJpegXlStandaloneModular = (
       (node.kind === 'leaf' && node.predictor === 6) ||
       (node.kind === 'branch' && node.property === 15),
   )
-  const channelLayouts = Object.freeze(
-    channelLayoutsInput.map(({ width, height }) => Object.freeze({ width, height })),
-  )
-  const decoded = decodeModularPlanesWithPosition(
-    Object.freeze({
-      nodes: tree.nodes,
-      section,
-      residualBitPosition: reader.bitPosition,
-      pixelCode,
-      weightedPredictor,
-      usesWeightedPrediction,
-      channelLayouts,
-      transforms: Object.freeze([]),
-      metaChannelCount: 0,
-      groupId,
-      prefixPlanes: Object.freeze([]),
-    }),
-    0,
-    undefined,
-    false,
-  )
+  const program = Object.freeze({
+    nodes: tree.nodes,
+    section,
+    residualBitPosition: reader.bitPosition,
+    pixelCode,
+    weightedPredictor,
+    usesWeightedPrediction,
+    channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
+    transforms,
+    metaChannelCount,
+    groupId,
+    prefixPlanes: Object.freeze([]),
+  })
+  const decoded = decodeModularPlanesWithPosition(program, 0, undefined, false)
   return Object.freeze({
-    planes: Object.freeze(decoded.planes),
+    planes: Object.freeze(inverseModularTransforms(decoded.planes, program, 8)),
     endingBitPosition: decoded.endingBitPosition,
   })
 }

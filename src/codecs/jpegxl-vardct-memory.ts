@@ -93,7 +93,7 @@ export const retainedTypedArrayBytes = (value: unknown): number => {
 
 // The selected decoder materializes every order for all 13 VarDCT strategy families.
 const hfCoefficientOrderBytesPerPass = 1_563_648n
-const transformScratchBytes = 65_536n
+const transformScratchBytes = 132_608n
 
 /**
  * Conservative selected-VarDCT preflight. Every item is derived from parsed frame geometry or
@@ -126,30 +126,35 @@ export const estimateJpegXlVarDctWorkingMemory = (
     blockCount * 64n +
     correlationTiles * 8n
 
-  // One decoded pass retains the entropy coefficient planes, per-strategy coefficient blocks,
-  // and component coefficient planes. A later progressive pass temporarily retains a second set.
-  const coefficientBlocksBytes = blockCount * 64n * 4n * 3n * 3n
+  // AC groups are decoded and rendered one at a time. One group covers at most 32 by 32 blocks.
+  // A later progressive pass temporarily retains a second coefficient set for that same group.
+  const activeGroupBlocks =
+    (blockWidth < 32n ? blockWidth : 32n) * (blockHeight < 32n ? blockHeight : 32n)
+  const coefficientBlocksBytes = activeGroupBlocks * 64n * 4n * 3n * 3n
   const progressiveAccumulationBytes = frame.passCount > 1 ? coefficientBlocksBytes : 0n
   const primaryPlanesBytes = paddedPixels * 3n * 4n
   const gaborishScratchBytes = frame.gaborish ? blockWidth * 8n * BigInt(frame.height) * 4n : 0n
-  const epfOutputPlaneSetsBytes = pixels * 3n * 4n * BigInt(frame.epfIterations)
+  const epfOutputPlaneSetsBytes = frame.epfIterations > 0 ? pixels * 3n * 4n : 0n
   const syntheticNoiseAndConvolutionBytes = pixels * 4n * 4n
   const outputBytes = pixels * channels
   const rowBlockCopyBytes = BigInt(frame.width) * channels
-  const requiredBytes =
+  const retainedFrameState =
     retainedCompressedSectionsBytes +
     dcPlanesBytes +
     lfAndHfMetadataBytes +
-    coefficientBlocksBytes +
     primaryPlanesBytes +
-    gaborishScratchBytes +
-    epfOutputPlaneSetsBytes +
-    syntheticNoiseAndConvolutionBytes +
-    outputBytes +
-    rowBlockCopyBytes +
-    progressiveAccumulationBytes +
-    externalDcFrameStateBytes +
-    transformScratchBytes
+    externalDcFrameStateBytes
+  // Coefficients, restoration outputs, noise scratch, and byte output are sequential phases.
+  // The preflight therefore adds the largest concurrent phase instead of summing scratch that is
+  // released before the next phase starts.
+  const activePhaseBytes = [
+    coefficientBlocksBytes + progressiveAccumulationBytes + transformScratchBytes,
+    gaborishScratchBytes,
+    epfOutputPlaneSetsBytes,
+    syntheticNoiseAndConvolutionBytes,
+    outputBytes + rowBlockCopyBytes,
+  ].reduce((maximum, bytes) => (bytes > maximum ? bytes : maximum), 0n)
+  const requiredBytes = retainedFrameState + activePhaseBytes
 
   return Object.freeze({
     retainedCompressedSectionsBytes,

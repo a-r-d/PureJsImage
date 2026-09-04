@@ -258,12 +258,23 @@ export const createJpegXlVarDctDecoder = async (
   try {
     if (frames.length === 1) {
       preflightJpegXlVarDctWorkingMemory(frame, limits)
-      const section = frame.sections[0]
-      if (!section) throw invalidInput('JPEG XL VarDCT section is missing')
-      const sectionLease = memory.retain('jpegxl-vardct-compressed-section', section.length)
-      const data = await readExactly(logical, section.offset, section.length, options)
-      const pixels = decodeJpegXlDct8Section(data, frame, limits, memory)
-      sectionLease.release()
+      const sections: Uint8Array[] = []
+      const sectionLeases = []
+      for (const section of frame.sections) {
+        throwIfAborted(options.signal)
+        sectionLeases.push(memory.retain('jpegxl-vardct-compressed-section', section.length))
+        sections.push(await readExactly(logical, section.offset, section.length, options))
+      }
+      const firstSection = sections[0]
+      if (!firstSection) throw invalidInput('JPEG XL VarDCT section is missing')
+      const pixels = decodeJpegXlDct8Section(
+        firstSection,
+        frame,
+        limits,
+        memory,
+        sections.length === 1 ? undefined : sections.slice(1),
+      )
+      for (const lease of sectionLeases) lease.release()
       evidence?.operation({
         operationId: 'selected-vardct-materialization',
         phase: 'complete',

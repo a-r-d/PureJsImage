@@ -11,14 +11,14 @@ import {
   type JpegXlFrameStructure,
   readJpegXlSourceFrameStructures,
 } from '../../../src/codecs/jpegxl-decode.ts'
+import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
 import {
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegLfGlobal,
 } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
-import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
 import { inspectJpegXl } from '../../../src/jpegxl.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
-import { MemorySource, readExactly, type ImageSource } from '../../../src/source.ts'
+import { type ImageSource, MemorySource, readExactly } from '../../../src/source.ts'
 
 interface FixtureSource {
   readonly id: string
@@ -168,9 +168,7 @@ const extractStrategyIds = async (
   frames: readonly JpegXlFrameStructure[],
 ): Promise<readonly number[]> => {
   const frame = frames.at(-1)
-  if (frame?.encoding !== 'vardct' || frame.dcGroupCount !== 1) {
-    return Object.freeze([])
-  }
+  if (frame?.encoding !== 'vardct') return Object.freeze([])
   const blockWidth = Math.ceil(frame.width / 8)
   const blockHeight = Math.ceil(frame.height / 8)
   if (frame.sections.length === 1) {
@@ -194,10 +192,8 @@ const extractStrategyIds = async (
     return Object.freeze(uniqueStrategies(frame, dc.strategies))
   }
   const lfSection = frame.sections[0]
-  const dcSection = frame.sections[1]
-  if (!lfSection || !dcSection) throw new Error('JPEG XL separated VarDCT sections are missing')
+  if (!lfSection) throw new Error('JPEG XL separated VarDCT LF section is missing')
   const lfBytes = await readExactly(logical, lfSection.offset, lfSection.length)
-  const dcBytes = await readExactly(logical, dcSection.offset, dcSection.length)
   const lf = decodeJpegXlJpegLfGlobal(lfBytes, 0, true, frame.frameFlags)
   let externalDcPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
   const dcFrame = frames.length === 2 ? frames[0] : undefined
@@ -207,21 +203,58 @@ const extractStrategyIds = async (
     const bytes = await readExactly(logical, section.offset, section.length)
     externalDcPlanes = decodeJpegXlModularDcFrameSection(bytes, blockWidth, blockHeight)
   }
-  const dc = decodeJpegXlJpegDcGroup(
-    dcBytes,
-    {
-      blockWidth,
-      blockHeight,
-      chromaSubsampling: frame.chromaSubsampling,
-      groupId: 0,
-      dcGroupCount: 1,
-    },
-    lf.globalModularCode,
-    0,
-    true,
-    externalDcPlanes,
-  )
-  return Object.freeze(uniqueStrategies(frame, dc.strategies))
+  const strategyIds = new Set<number>()
+  const dcGroupBlockDimension = frame.groupDimension
+  const dcGroupsAcross = Math.ceil(blockWidth / dcGroupBlockDimension)
+  for (let groupId = 0; groupId < frame.dcGroupCount; groupId += 1) {
+    const dcSection = frame.sections[1 + groupId]
+    if (!dcSection) throw new Error('JPEG XL separated VarDCT DC section is missing')
+    const groupX = (groupId % dcGroupsAcross) * dcGroupBlockDimension
+    const groupY = Math.floor(groupId / dcGroupsAcross) * dcGroupBlockDimension
+    const groupWidth = Math.min(dcGroupBlockDimension, blockWidth - groupX)
+    const groupHeight = Math.min(dcGroupBlockDimension, blockHeight - groupY)
+    let externalGroupPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
+    if (externalDcPlanes) {
+      const slices = externalDcPlanes.map((plane) => {
+        const output = new Float64Array(groupWidth * groupHeight)
+        for (let y = 0; y < groupHeight; y += 1) {
+          output.set(
+            plane.subarray(
+              (groupY + y) * blockWidth + groupX,
+              (groupY + y) * blockWidth + groupX + groupWidth,
+            ),
+            y * groupWidth,
+          )
+        }
+        return output
+      })
+      const first = slices[0]
+      const second = slices[1]
+      const third = slices[2]
+      if (!first || !second || !third) throw new Error('JPEG XL external DC plane is missing')
+      externalGroupPlanes = Object.freeze([first, second, third])
+    }
+    const dcBytes = await readExactly(logical, dcSection.offset, dcSection.length)
+    const dc = decodeJpegXlJpegDcGroup(
+      dcBytes,
+      {
+        blockWidth: groupWidth,
+        blockHeight: groupHeight,
+        chromaSubsampling: frame.chromaSubsampling,
+        groupId,
+        dcGroupCount: frame.dcGroupCount,
+      },
+      lf.globalModularCode,
+      0,
+      true,
+      externalGroupPlanes,
+    )
+    const localFrame = { ...frame, width: groupWidth * 8, height: groupHeight * 8 }
+    for (const strategy of uniqueStrategies(localFrame, dc.strategies)) {
+      strategyIds.add(strategy)
+    }
+  }
+  return Object.freeze([...strategyIds].sort((left, right) => left - right))
 }
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
@@ -288,12 +321,15 @@ for (const fixture of sources.sort((left, right) => left.id.localeCompare(right.
       groupCount: frame.groupsAcross * frame.groupsDown,
       lfGroupCount: frame.dcGroupCount,
       passes: frame.passCount,
+      chromaShifts: frame.chromaSubsampling,
       colorEncoding: frame.metadataColorSpace,
       bitDepth: frame.bitDepth,
       alpha: inspected.alpha,
       extraChannels: inspected.extraChannels,
       patches: (frame.frameFlags & 2) !== 0,
+      patchCount: (frame.frameFlags & 2) === 0 ? 0 : null,
       splines: (frame.frameFlags & 16) !== 0,
+      splineCount: (frame.frameFlags & 16) === 0 ? 0 : null,
       noise: (frame.frameFlags & 1) !== 0,
       restoration: Object.freeze({ gaborish: frame.gaborish, epfIterations: frame.epfIterations }),
       orientation: frame.orientation,

@@ -5503,9 +5503,9 @@
         "status": "limited",
         "label": "Stable lossless and exact transcode"
       },
-      "boundary": "Decodes the pinned lossless Modular subset, selected 8-bit single-group XYB VarDCT fixtures without alpha or orientation extra fields, and the checked JPEG-derived DCT8 image subset. Selected-subset VarDCT crop is applied after full-frame decode. Implemented raw VarDCT strategy IDs are 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17; the six pinned VarDCT fixtures validate complete images but do not isolate every implemented strategy branch. Raw strategy 1 Hornuss is unsupported. The stable lossless Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 with deterministic effort 1, 3, 5, or 7. Callers may explicitly declare 8 through 16-bit color precision and independent 8 through 16-bit straight-alpha precision for 16-bit storage. It requires full-range sRGB gray or RGB semantics, relative rendering intent, and no alpha or straight alpha. It does not preserve metadata. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Exact transcode walks rendering metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC. Grayscale exact transcode, CMYK or YCCK, non-sRGB or malformed Exif or ICC color metadata, multiple visible frames, arbitrary extra channels, broad color syntax, broad VarDCT, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
-      "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, selected 8-bit single-group XYB VarDCT fixtures, final progressive fixtures, and checked JPEG-derived RGB or YCbCr coefficients. Encodes six native storage formats as deterministic stable pixel-lossless Modular JPEG XL at four effort tiers within the documented sRGB and straight-alpha boundary. The stable coefficient-domain API transcodes the documented eligible JPEG subset, uses bounded Brotli reconstruction payloads and deterministic contextual ANS coding, verifies byte-exact reconstruction before returning, and never silently substitutes a pixel path.",
-      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Compatible Modular crops retain one intersecting group-row band. Selected-subset VarDCT materializes full-frame sections, coefficients, Float32 restoration planes, and output before serving bounded rows; crop is not decoder pushdown. A conservative preflight rejects over-budget selected VarDCT before section allocation, and a live ledger measures managed peak bytes. The Modular encoder retains the bounded full input raster and its active analysis state, then emits the container prefix, codestream header, and bounded sections without allocating a duplicate complete sink output. Its reported managed peak is a conservative upper bound over tracked encoder allocations. The exact transcoder tracks input, coefficient tables and planes, metadata, reconstruction payload, encoded sections, codestream, and container output by live lifetime. Exact verification compares reconstruction bytes directly with the caller input. Sink mode does not allocate a duplicate reconstructed JPEG or return duplicate output bytes.",
+      "boundary": "Decodes the pinned lossless Modular subset, selected 8-bit single-group and multi-group XYB VarDCT fixtures without alpha or orientation extra fields, and the checked JPEG-derived DCT8 image subset. Selected-subset VarDCT crop is applied after full-frame decode. Implemented raw VarDCT strategy IDs are 0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, and 20. Eleven pinned VarDCT fixtures validate complete images, including Hornuss, rectangular and large transforms, multiple groups, local transformed DC groups, and final progressive reconstruction. They do not prove the full common-static boundary. The stable lossless Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 with deterministic effort 1, 3, 5, or 7. Callers may explicitly declare 8 through 16-bit color precision and independent 8 through 16-bit straight-alpha precision for 16-bit storage. It requires full-range sRGB gray or RGB semantics, relative rendering intent, and no alpha or straight alpha. It does not preserve metadata. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Exact transcode walks rendering metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC. Grayscale exact transcode, CMYK or YCCK, non-sRGB or malformed Exif or ICC color metadata, multiple visible frames, arbitrary extra channels, broad color syntax, unvalidated common-static VarDCT features, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
+      "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes the documented lossless Modular corpus, selected 8-bit single-group and multi-group XYB VarDCT fixtures, final progressive fixtures, and checked JPEG-derived RGB or YCbCr coefficients. Encodes six native storage formats as deterministic stable pixel-lossless Modular JPEG XL at four effort tiers within the documented sRGB and straight-alpha boundary. The stable coefficient-domain API transcodes the documented eligible JPEG subset, uses bounded Brotli reconstruction payloads and deterministic contextual ANS coding, verifies byte-exact reconstruction before returning, and never silently substitutes a pixel path.",
+      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Compatible Modular crops retain one intersecting group-row band. Selected-subset VarDCT decodes and releases one AC group at a time, but still materializes full-frame sections, Float32 restoration planes, and output before serving bounded rows; crop is not decoder pushdown. A conservative preflight rejects over-budget selected VarDCT before section allocation, and a live ledger measures managed peak bytes. The Modular encoder retains the bounded full input raster and its active analysis state, then emits the container prefix, codestream header, and bounded sections without allocating a duplicate complete sink output. Its reported managed peak is a conservative upper bound over tracked encoder allocations. The exact transcoder tracks input, coefficient tables and planes, metadata, reconstruction payload, encoded sections, codestream, and container output by live lifetime. Exact verification compares reconstruction bytes directly with the caller input. Sink mode does not allocate a duplicate reconstructed JPEG or return duplicate output bytes.",
       "recommendation": "Use the decoder for files within the checked static corpus. Use the stable Modular encoder for exact supported pixels and explicit effort or sample precision. Use the stable coefficient-domain transcoder for eligible JPEG files when original byte reconstruction matters, with reconstruction: required for exact work and onlyIfSmaller when output size is a hard requirement.",
       "evidence": [
         "tests/jpegxl.test.ts",
@@ -5520,7 +5520,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
-        "tolerance": "Selected 8-bit single-group XYB VarDCT fixtures stay within one sample with RMSE below 0.5; JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "tolerance": "Selected 8-bit single-group and multi-group XYB VarDCT fixtures stay within one sample with RMSE below 0.5. Pinned jxl-oxide confirms that the approximately 0.5 RMSE against djxl is an 8-bit output-rounding difference for the checked multi-LF-group case. JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "claims": [
@@ -5762,10 +5762,10 @@
         },
         {
           "status": "supported",
-          "text": "Implement raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, with six full-image fixtures covering selected square DCT, rectangular DCT, and AFV combinations"
+          "text": "Implement raw strategy IDs 0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, and 20, with full-image fixtures covering Hornuss, square DCT, rectangular DCT, large transforms, and AFV combinations"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Implement raw strategy 1 Hornuss with pinned independent fixture evidence"
         },
         {
@@ -5782,11 +5782,15 @@
         },
         {
           "status": "supported",
-          "text": "Implement pinned single-group Gaborish and edge-preserving restoration filters; the multi-group halo remains unsupported"
+          "text": "Implement pinned single-group and multi-group Gaborish and edge-preserving restoration filters"
         },
         {
           "status": "planned",
-          "text": "Decode and render patches, splines, and synthetic noise when signaled by a valid static image"
+          "text": "Decode and render patches and splines when signaled by a valid static image"
+        },
+        {
+          "status": "supported",
+          "text": "Decode and render the pinned synthetic-noise fixtures"
         },
         {
           "status": "supported",

@@ -13,7 +13,7 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 68 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 270_000 },
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 275_000 },
   'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 315_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 197_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },

@@ -1,7 +1,5 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-
-import generatedVarDct from './generated-vardct-manifest.json' with { type: 'json' }
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../../src/codecs/jpegxl-decode.ts'
 import { estimateJpegXlVarDctWorkingMemory } from '../../src/codecs/jpegxl-vardct-memory.ts'
@@ -9,6 +7,7 @@ import { ImageError } from '../../src/errors.ts'
 import { createEvidenceSession, type EvidenceMode } from '../../src/evidence.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { MemorySource } from '../../src/source.ts'
+import generatedVarDct from './generated-vardct-manifest.json' with { type: 'json' }
 
 type Workload =
   | 'gaborish-epf'
@@ -66,7 +65,9 @@ const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).d
 const configuration = (
   workload: Workload,
 ): Readonly<{ fixtureId: string; evidence?: EvidenceMode }> => {
-  if (workload === 'progressive') return Object.freeze({ fixtureId: 'rgb8-distance2-progressive' })
+  if (workload === 'progressive') {
+    return Object.freeze({ fixtureId: 'rgb8-distance1-multi-group-progressive' })
+  }
   if (workload === 'large-single-group' || workload === 'large-preflight-rejection') {
     return Object.freeze({ fixtureId: 'rgb8-distance1-single-group-255' })
   }

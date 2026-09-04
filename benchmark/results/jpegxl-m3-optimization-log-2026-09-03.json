@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "milestone": "M3",
+  "baseRevision": "32d5a438e23486b1a46f8ad7269505b5c93034bc",
+  "branch": "codex/jpegxl-m00-program-baseline",
+  "machine": "local linux/x64 reference machine",
+  "attempts": [
+    {
+      "id": "group-at-a-time-vardct",
+      "status": "accepted",
+      "workload": "513x385 generated high-frequency RGB fixture, six AC groups",
+      "before": "unsupported multi-group frame",
+      "after": "max error 1 and RMSE below 0.5 against pinned djxl",
+      "reason": "Decodes and releases each AC group separately while retaining only the shared restoration planes."
+    },
+    {
+      "id": "separable-rectangular-idct",
+      "status": "accepted",
+      "workload": "generated strategy fixture with rectangular and large transforms",
+      "before": "direct two-dimensional inverse transform",
+      "after": "image-level oracle agreement with less repeated transform work",
+      "reason": "The separable implementation removes repeated cosine products and reuses cached bases."
+    },
+    {
+      "id": "separable-dct8-scratch-reuse",
+      "status": "accepted for allocation reduction",
+      "workload": "513x385 generated high-frequency RGB fixture",
+      "before": "one row-major coefficient allocation for every block",
+      "after": "reused decoder scratch with unchanged oracle pixels",
+      "reason": "The benchmark did not show a material isolated wall-time win, but the change removes hot-loop garbage."
+    },
+    {
+      "id": "epf-interior-fast-path",
+      "status": "accepted",
+      "workload": "513x385 generated high-frequency RGB fixture, one warm local decode",
+      "beforeMilliseconds": 648,
+      "afterMilliseconds": 322,
+      "relativeImprovement": 0.503,
+      "afterProfileMilliseconds": {
+        "epf": 82.7,
+        "acDecode": 28,
+        "inverseDct8": 14,
+        "output": 17
+      },
+      "reason": "Interior EPF pixels no longer call mirrored-index helpers for every neighbor. Edge handling remains unchanged."
+    }
+  ],
+  "limitations": [
+    "These are development measurements for the first M3 slice, not the M3 promotion benchmark.",
+    "The required repeated 12 MP, 24 MP, group-scaling, and pinned-djxl ratio gates remain pending."
+  ]
+}

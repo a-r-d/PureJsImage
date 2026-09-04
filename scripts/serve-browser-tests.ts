@@ -464,6 +464,14 @@ await copyFile(
   resolve(fixtureDirectory, 'jpegxl-permuted-large-gray8.jxl'),
 )
 await copyFile(
+  'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+  resolve(fixtureDirectory, 'jpegxl-multi-group-progressive.jxl'),
+)
+await copyFile(
+  'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.oracle.ppm',
+  resolve(fixtureDirectory, 'jpegxl-multi-group-progressive.oracle.ppm'),
+)
+await copyFile(
   'tests/fixtures/bluemarble_256_256_3_byte.lerc2',
   resolve(fixtureDirectory, 'bluemarble_256_256_3_byte.lerc2'),
 )

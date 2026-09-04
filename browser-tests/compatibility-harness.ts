@@ -962,6 +962,53 @@ const jpegXlMultiGroup = async (): Promise<BrowserWorkflowResult> => {
     outputBytes,
   }
 }
+const pnmPixels = (data: Uint8Array): Uint8Array => {
+  let offset = 0
+  let tokens = 0
+  while (offset < data.byteLength && tokens < 4) {
+    while (offset < data.byteLength && (data[offset] ?? 0) <= 0x20) offset += 1
+    if (data[offset] === 0x23) {
+      while (offset < data.byteLength && data[offset] !== 0x0a) offset += 1
+      continue
+    }
+    while (offset < data.byteLength && (data[offset] ?? 0) > 0x20) offset += 1
+    tokens += 1
+  }
+  if (tokens !== 4 || offset >= data.byteLength) throw new Error('Browser PNM oracle is invalid')
+  return data.subarray(offset + 1)
+}
+const jpegXlMultiGroupProgressive = async (): Promise<BrowserWorkflowResult> => {
+  const [bytes, oracleFile] = await Promise.all([
+    fetchBytes('/fixtures/jpegxl-multi-group-progressive.jxl'),
+    fetchBytes('/fixtures/jpegxl-multi-group-progressive.oracle.ppm'),
+  ])
+  const oracle = pnmPixels(oracleFile)
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL VarDCT decoder is unavailable')
+  let offset = 0
+  let maximumError = 0
+  let squaredError = 0
+  for await (const block of decoder.decode()) {
+    if (block.format !== 'rgb8') throw new Error('Browser JPEG XL VarDCT output is not rgb8')
+    for (const sample of block.data) {
+      const difference = Math.abs(sample - (oracle[offset] ?? -1))
+      maximumError = Math.max(maximumError, difference)
+      squaredError += difference * difference
+      offset += 1
+    }
+    block.release?.()
+  }
+  const rmse = Math.sqrt(squaredError / offset)
+  if (offset !== oracle.byteLength || maximumError > 1 || rmse >= 0.5) {
+    throw new Error(
+      `Browser JPEG XL VarDCT oracle mismatch: ${offset}/${oracle.byteLength}, ${maximumError}/${rmse}`,
+    )
+  }
+  return {
+    detail: 'lossy JPEG XL decode matched djxl across six groups and three progressive passes',
+    outputBytes: offset,
+  }
+}
 const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
   const source = await fetchBytes('/fixtures/benchmark-input.jpg')
   let frame = -1
@@ -5202,6 +5249,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   jpegXlLosslessEncode,
   jpegXlHighBit,
   jpegXlMultiGroup,
+  jpegXlMultiGroupProgressive,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,

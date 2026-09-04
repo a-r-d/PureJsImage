@@ -68,7 +68,7 @@ export interface JpegXlJpegLfGlobal {
   readonly colorCorrelation: JpegXlJpegColorCorrelation
   readonly globalScale: number
   readonly quantDc: number
-  readonly globalModularCode: JpegXlModularGlobalCode
+  readonly globalModularCode: JpegXlModularGlobalCode | undefined
   readonly endingBitPosition: number
 }
 
@@ -265,7 +265,7 @@ const requireZeroPadding = (section: Uint8Array, bitPosition: number, label: str
 export const decodeJpegXlJpegDcGroup = (
   section: Uint8Array,
   options: Readonly<JpegXlJpegDcGroupOptions>,
-  globalCode: Readonly<JpegXlModularGlobalCode>,
+  globalCode: Readonly<JpegXlModularGlobalCode> | undefined,
   startBit = 0,
   requireComplete = true,
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
@@ -1011,12 +1011,16 @@ export const decodeJpegXlJpegLfGlobal = (
   const quantDc = readU32(reader, [value(16), bits(5, 1), bits(8, 1), bits(16, 1)])
   const blockContexts = readBlockContexts(reader)
   const colorCorrelation = readColorCorrelation(reader)
-  if (reader.readBits(1) === 0) {
-    throw invalidInput('JPEG-derived JPEG XL global Modular tree is missing')
-  }
-  const tree: Readonly<{ readonly nodes: readonly JpegXlModularNode[]; readonly leaves: number }> =
-    readJpegXlModularTree(reader)
-  const pixelCode: JpegXlEntropyCode = readJpegXlEntropyCode(reader, tree.leaves)
+  const useGlobalTree = reader.readBits(1) !== 0
+  const tree:
+    | Readonly<{
+        readonly nodes: readonly JpegXlModularNode[]
+        readonly leaves: number
+      }>
+    | undefined = useGlobalTree ? readJpegXlModularTree(reader) : undefined
+  const pixelCode: JpegXlEntropyCode | undefined = tree
+    ? readJpegXlEntropyCode(reader, tree.leaves)
+    : undefined
   if (requireComplete) requireZeroRemainder(reader, 'JPEG XL LF global section')
   return Object.freeze({
     noiseLut,
@@ -1025,7 +1029,10 @@ export const decodeJpegXlJpegLfGlobal = (
     colorCorrelation,
     globalScale,
     quantDc,
-    globalModularCode: Object.freeze({ nodes: tree.nodes, leaves: tree.leaves, pixelCode }),
+    globalModularCode:
+      tree && pixelCode
+        ? Object.freeze({ nodes: tree.nodes, leaves: tree.leaves, pixelCode })
+        : undefined,
     endingBitPosition: reader.bitPosition,
   })
 }

@@ -55,11 +55,14 @@ const comparePixels = (
 }
 
 describe('JPEG XL corpus and development-oracle manifest', () => {
-  it('keeps raw strategy 1 Hornuss outside the selected VarDCT subset', () => {
-    expect(jpegXlSupportedVarDctStrategyIds).toEqual([0, 2, 5, 6, 7, 12, 13, 14, 15, 16, 17])
+  it('keeps the VarDCT strategy manifest aligned with independently checked renderers', () => {
+    expect(jpegXlSupportedVarDctStrategyIds).toEqual([
+      0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    ])
     expect(generatedVarDct.implementedStrategyIds).toEqual(jpegXlSupportedVarDctStrategyIds)
-    expect(generatedVarDct.unsupportedStrategyIds).toContain(1)
-    expect(supportsJpegXlVarDctStrategy(1)).toBe(false)
+    expect(generatedVarDct.unsupportedStrategyIds).toEqual([3, 8, 9, 21, 22, 23, 24, 25, 26])
+    expect(supportsJpegXlVarDctStrategy(1)).toBe(true)
+    expect(supportsJpegXlVarDctStrategy(3)).toBe(false)
   })
 
   it('pins unique external oracle revisions and roles', () => {
@@ -150,8 +153,8 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
   it('pins a common static VarDCT development matrix with pixel oracles', async () => {
     expect(generatedVarDct.revision).toMatch(/^[0-9a-f]{40}$/u)
     expect(generatedVarDct.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
-    expect(generatedVarDct.fixtures).toHaveLength(6)
-    expect(new Set(generatedVarDct.fixtures.map(({ id }) => id)).size).toBe(6)
+    expect(generatedVarDct.fixtures).toHaveLength(11)
+    expect(new Set(generatedVarDct.fixtures.map(({ id }) => id)).size).toBe(11)
     for (const fixture of generatedVarDct.fixtures) {
       expect(fixture.generator).toBe('benchmark/jpegxl/generate-vardct-corpus.ts')
       expect(fixture.coding).toBe('vardct')
@@ -218,7 +221,7 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
         ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
       }
     }
-  })
+  }, 15_000)
 
   it('preflights every selected VarDCT large allocation before decode', async () => {
     const supported = generatedVarDct.fixtures.filter(
@@ -342,8 +345,10 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
     },
   )
 
-  it('releases selected VarDCT output on early return and cancellation', async () => {
-    const fixture = generatedVarDct.fixtures.find(({ id }) => id === 'rgb8-distance1-effort1')
+  it('releases multi-group progressive VarDCT output on early return and cancellation', async () => {
+    const fixture = generatedVarDct.fixtures.find(
+      ({ id }) => id === 'rgb8-distance1-multi-group-progressive',
+    )
     if (!fixture) throw new Error('Selected VarDCT fixture is missing')
     const encoded = new Uint8Array(readFileSync(fixture.jxl))
 

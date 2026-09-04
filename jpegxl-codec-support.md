@@ -17,9 +17,9 @@ file-format-version-1 out-of-order `jxlp` codestreams can enter the implemented
 pixel subset through one logical segmented source.
 
 The decoder covers the checked lossless Modular subset plus selected 8-bit single-group
-XYB VarDCT fixtures. The implementation includes raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, Gaborish, EPF,
+and multi-group XYB VarDCT fixtures. The implementation includes raw strategy IDs 0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, and 20, Gaborish, EPF,
 adaptive smoothing, synthetic noise, final progressive reconstruction, and JPEG-derived
-RGB or YCbCr DCT coefficients. The six pinned fixtures validate complete decoded images but do not isolate every implemented strategy branch. Raw strategy 1 Hornuss is unsupported. Each checked lossy fixture has a pinned independent
+RGB or YCbCr DCT coefficients. Eleven pinned fixtures validate complete decoded images, including Hornuss, rectangular and large transforms, multiple groups, transformed local DC groups, and final progressive reconstruction. The fixtures do not prove the full common-static boundary. Each checked lossy fixture has a pinned independent
 `djxl` tolerance. Unsupported strategies, patches, splines, broad color syntax, extra
 channels, orientation extra fields, and multiple visible frames fail explicitly. This
 VarDCT path materializes the selected full frame before applying a crop and serving rows.
@@ -184,17 +184,16 @@ losslessly transcoded JPEG files.
   groups
 - [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [x] Implement raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17,
-  with six full-image fixtures covering selected square DCT, rectangular DCT, and AFV combinations
-- [ ] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
+- [x] Implement raw strategy IDs 0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, and 20,
+  with full-image fixtures covering Hornuss, square DCT, rectangular DCT, large transforms, and AFV combinations
+- [x] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
 - [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision
 - [x] Reconstruct the pinned XYB samples and perform the inverse opsin transform
 - [ ] Decode valid chroma subsampling and upsampling modes
-- [x] Implement pinned single-group Gaborish and edge-preserving restoration filters;
-  the multi-group halo remains unsupported
-- [ ] Decode and render patches, splines, and synthetic noise when signaled by a
-  valid static image
+- [x] Implement pinned single-group and multi-group Gaborish and edge-preserving restoration filters
+- [ ] Decode and render patches and splines when signaled by a valid static image
+- [x] Decode and render the pinned synthetic-noise fixtures
 - [x] Decode the pinned VarDCT images created from ordinary lossy sources
 - [x] Decode the image pixels of pinned JPEG-lossless-transcode codestreams
 - [x] Compare lossy output with conformance references using documented numeric

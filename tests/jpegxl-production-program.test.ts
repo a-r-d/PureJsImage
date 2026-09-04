@@ -177,12 +177,23 @@ describe('JPEG XL production program baseline', () => {
     const fixtures = array(inventory.fixtures, 'feature inventory fixtures').map((value) =>
       record(value, 'feature fixture'),
     )
-    expect(fixtures).toHaveLength(14)
+    expect(fixtures).toHaveLength(19)
     for (const fixture of fixtures) {
       for (const field of required) expect(fixture).toHaveProperty(field)
     }
     expect(fixtures.find(({ id }) => id === 'rgb8-distance2-progressive')).toMatchObject({
       strategyIds: [0, 2, 12, 13, 14, 15, 16, 17],
+    })
+    expect(
+      fixtures.find(({ id }) => id === 'rgb8-distance1-multi-group-progressive'),
+    ).toMatchObject({
+      groupCount: 6,
+      lfGroupCount: 1,
+      passes: 3,
+      chromaShifts: [0, 0, 0],
+      patchCount: 0,
+      splineCount: 0,
+      strategyIds: [0, 1, 2, 7, 12, 13, 14, 15, 16, 17],
     })
   })
 
