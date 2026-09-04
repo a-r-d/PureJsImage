@@ -1,0 +1,44 @@
+docs-astro/src/data/documentation-data.json
+  s_c01e159bb27990::t_2249b0da81b31f 109-111,114-116,119-120,129,134-136
+benchmark/jpegxl/production-program/measure-m5-conversion.ts
+  s_c01e159bb27990::t_50c8b00fe4c27f 1-30
+  s_c01e159bb27990::t_35ba4f7475ad7b 31-51
+tests/jpegxl-m5-pipeline.test.ts
+  s_c01e159bb27990::t_bd1492ce162ffa 313
+benchmark/jpegxl/production-program/m5-pipelines.json
+  s_c01e159bb27990::t_2edbd2d09062cd 751,753,755,760-762,766,780,782-784,789-793,795,809,811-813,818-822,824,838,840-842,847-851,853
+README.md
+  s_c01e159bb27990::t_2249b0da81b31f 88-91
+  s_c01e159bb27990::t_a39cf674d9750a 401-404
+benchmark/jpegxl/production-program/status.json
+  s_c01e159bb27990::t_322c9b7f93efcc 427-430
+src/convert.ts
+  s_c01e159bb27990::t_ae6307774707e8 159-164,212
+  s_c01e159bb27990::t_7c378c054eced5 222
+docs/architecture/jpegxl-production-program.md
+  s_c01e159bb27990::t_09b9ba07207cb8 488-490,497-503
+benchmark/jpegxl/production-program/m5-conversion.json
+  s_c01e159bb27990::t_50c8b00fe4c27f 1-58
+benchmark/generated/package-metrics.json
+  s_c01e159bb27990::t_348b642b0c4d62 179,526,532,541,544,547,586,589,592,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+benchmark/jpegxl/production-program/program-state.json
+  s_c01e159bb27990::t_83ffaa16920765 367-370
+docs-astro/src/data/package-metrics.json
+  s_c01e159bb27990::t_58d5d91d85e5aa 179,526,532,541,544,547,586,589,592,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "71ee81cdf3c9c8433daba7968ddc46a2c7191739",
+  "prompts": {},
+  "sessions": {
+    "s_c01e159bb27990": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dcd-d305-7f70-bd91-3120b07298ef",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
