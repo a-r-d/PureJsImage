@@ -1,7 +1,7 @@
 import { limitExceeded } from '../errors.ts'
 import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
 import type { ImageLimits } from '../limits.ts'
-import type { JpegXlFrameStructure } from './jpegxl-decode.ts'
+import { jpegXlXybOutputIsLinear, type JpegXlFrameStructure } from './jpegxl-decode.ts'
 
 export interface JpegXlVarDctWorkingMemoryEstimate {
   readonly retainedCompressedSectionsBytes: bigint
@@ -13,6 +13,7 @@ export interface JpegXlVarDctWorkingMemoryEstimate {
   readonly epfOutputPlaneSetsBytes: bigint
   readonly syntheticNoiseAndConvolutionBytes: bigint
   readonly outputBytes: bigint
+  readonly alphaWorkingBytes: bigint
   readonly rowBlockCopyBytes: bigint
   readonly progressiveAccumulationBytes: bigint
   readonly externalDcFrameStateBytes: bigint
@@ -109,7 +110,18 @@ export const estimateJpegXlVarDctWorkingMemory = (
   const blockCount = blockWidth * blockHeight
   const paddedPixels = blockCount * 64n
   const pixels = BigInt(frame.width) * BigInt(frame.height)
-  const channels = BigInt(frame.colorChannels === 1 ? 1 : 3)
+  const channels = BigInt(
+    (frame.alphaBitDepth !== undefined
+      ? 4
+      : frame.colorChannels === 1 && !jpegXlXybOutputIsLinear(frame)
+        ? 1
+        : 3) *
+      (jpegXlXybOutputIsLinear(frame)
+        ? 4
+        : Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8
+          ? 2
+          : 1),
+  )
   const retainedCompressedSectionsBytes =
     frame.sections.reduce((total, section) => total + BigInt(section.length), 0n) +
     BigInt(externalDcSectionBytes)
@@ -137,12 +149,20 @@ export const estimateJpegXlVarDctWorkingMemory = (
   const epfOutputPlaneSetsBytes = frame.epfIterations > 0 ? pixels * 3n * 4n : 0n
   const syntheticNoiseAndConvolutionBytes = pixels * 4n * 4n
   const outputBytes = pixels * channels
+  const alphaWorkingBytes = frame.extraChannels.reduce((total, channel, index) => {
+    const factor = (frame.extraChannelUpsampling[index] ?? frame.upsampling) * 2 ** channel.dimShift
+    return (
+      total +
+      BigInt(Math.ceil(frame.width / factor)) * BigInt(Math.ceil(frame.height / factor)) * 12n
+    )
+  }, 0n)
   const rowBlockCopyBytes = BigInt(frame.width) * channels
   const retainedFrameState =
     retainedCompressedSectionsBytes +
     dcPlanesBytes +
     lfAndHfMetadataBytes +
     primaryPlanesBytes +
+    alphaWorkingBytes +
     externalDcFrameStateBytes
   // Coefficients, restoration outputs, noise scratch, and byte output are sequential phases.
   // The preflight therefore adds the largest concurrent phase instead of summing scratch that is
@@ -166,6 +186,7 @@ export const estimateJpegXlVarDctWorkingMemory = (
     epfOutputPlaneSetsBytes,
     syntheticNoiseAndConvolutionBytes,
     outputBytes,
+    alphaWorkingBytes,
     rowBlockCopyBytes,
     progressiveAccumulationBytes,
     externalDcFrameStateBytes,

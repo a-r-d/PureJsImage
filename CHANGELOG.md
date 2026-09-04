@@ -6,6 +6,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added JPEG XL structured color, all eight orientations, independent straight and premultiplied
+  alpha, compressed ICC, high-depth and float HDR output, and bounded metadata preservation.
+  The lossless encoder preserves the supported color and alpha semantics, with explicit intrinsic
+  size and tone-mapping options. Native and float output is checked against pinned libjxl; SDR
+  tone mapping is explicit. Unsupported color conversions fail instead of relabeling pixels.
+
 - Expanded the first-party JPEG XL codec with checked static VarDCT and progressive decode,
   JPEG-derived pixel decode, a deterministic stable lossless Modular encoder for six native pixel
   formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. The Modular

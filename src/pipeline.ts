@@ -65,8 +65,19 @@ export interface JpegXlEncodeOptions {
   container?: boolean
   /** Intended native color sample depth. Required for 9 through 15-bit data in 16-bit blocks. */
   sampleBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
-  /** Intended straight-alpha depth when it differs from the color sample depth. */
+  /** Intended alpha depth when it differs from the color sample depth. */
   alphaBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
+  /** EXIF-compatible display orientation stored in the JPEG XL image header. */
+  orientation?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+  /** Source intrinsic dimensions, independent of stored pixel dimensions. */
+  intrinsicSize?: Readonly<{ width: number; height: number }>
+  /** Luminance metadata; numeric fields are encoded with finite half precision. */
+  toneMapping?: Readonly<{
+    intensityTarget: number
+    minNits: number
+    relativeToMaxDisplay: boolean
+    linearBelow: number
+  }>
 }
 
 export interface PngEncodeOptions {

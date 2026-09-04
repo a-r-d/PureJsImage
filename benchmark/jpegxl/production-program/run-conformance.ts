@@ -22,6 +22,7 @@ interface ConformanceCase {
   readonly levels: readonly (5 | 10)[]
   readonly baselineClassification: Classification
   readonly outputSha256?: string
+  readonly colorOutput?: 'preserve'
   readonly boundary?: string
   readonly expectedErrorCode?: string
 }
@@ -82,10 +83,13 @@ const parseCase = (value: unknown, index: number): ConformanceCase => {
   if (!Number.isSafeInteger(value.bytes) || Number(value.bytes) < 1) {
     throw new Error(`Conformance case ${index} bytes must be a positive integer`)
   }
+  if (value.colorOutput !== undefined && value.colorOutput !== 'preserve')
+    throw new Error(`Conformance case ${index} has invalid colorOutput`)
   return Object.freeze({
     id: requiredString(value.id, `cases[${index}].id`),
     sha256: requiredString(value.sha256, `cases[${index}].sha256`),
     bytes: Number(value.bytes),
+    ...(value.colorOutput === 'preserve' ? { colorOutput: 'preserve' as const } : {}),
     license: requiredString(value.license, `cases[${index}].license`),
     levels: Object.freeze(levels.map((level) => (level === 5 ? 5 : 10))),
     baselineClassification: classification(
@@ -158,6 +162,7 @@ for (const definition of manifest.cases) {
     const decoder = await jpegxlCodec.createDecoder?.(
       new MemorySource(encoded),
       Object.freeze({ ...defaultImageLimits, maxDecodedBytes: 256 * 1_024 * 1_024 }),
+      definition.colorOutput === undefined ? {} : { colorOutput: definition.colorOutput },
     )
     if (!decoder) throw new Error('JPEG XL decoder is unavailable')
     const outputDigest = createHash('sha256')

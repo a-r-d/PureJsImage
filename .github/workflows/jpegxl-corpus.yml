@@ -169,6 +169,7 @@ jobs:
           tests/jpeg-marker-walk.test.ts
           tests/jpegxl-production-program.test.ts
           tests/jpegxl.test.ts
+          tests/jpegxl-m4-color.test.ts
           tests/jpegxl-corpus.test.ts
           tests/jpegxl-jpeg-reconstruction.test.ts
           tests/jpegxl-workbench-preview.test.ts
@@ -178,6 +179,18 @@ jobs:
 
       - name: Generate the pinned lossless matrix
         run: npm run fixtures:jpegxl:generate
+
+      - name: Verify M4 color, alpha, HDR, and official profile pixels
+        run: |
+          node benchmark/jpegxl/generate-m4-color-corpus.ts
+          node benchmark/jpegxl/generate-m4-alpha-corpus.ts
+          node benchmark/jpegxl/generate-m4-vardct-color-corpus.ts
+          node benchmark/jpegxl/generate-m4-vardct-alpha-corpus.ts
+          node benchmark/jpegxl/generate-m4-multiple-alpha.ts
+          node benchmark/jpegxl/production-program/verify-m4-conformance.ts
+          node benchmark/jpegxl/production-program/verify-m4-memory.ts
+          node benchmark/jpegxl/production-program/verify-m4-jpeg-render.ts
+          npx vitest run tests/jpegxl-m4-color.test.ts
 
       - name: Run pinned lossless matrix
         run: npm run fixtures:jpegxl:matrix
@@ -229,6 +242,9 @@ jobs:
             .tmp/jpegxl-evidence/jpegxl-release-hardening.json
             .tmp/jpegxl-evidence/jpegxl-release-hardening.md
             .tmp/jpegxl-evidence/conformance.json
+            benchmark/jpegxl/production-program/m4-conformance-validation.json
+            benchmark/jpegxl/production-program/m4-memory.json
+            benchmark/jpegxl/production-program/m4-jpeg-render.json
           if-no-files-found: error
 
   browser:
@@ -278,6 +294,6 @@ jobs:
 
       - name: Run local-only JPEG XL workbench tests
         run: >-
-          npx playwright test browser-tests/jpegxl-workbench.pw.ts
+          npx playwright test browser-tests/jpegxl-workbench.pw.ts browser-tests/jpegxl-color.pw.ts
           --project=${{ matrix.browser }}
           --retries=0

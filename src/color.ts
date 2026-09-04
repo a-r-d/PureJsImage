@@ -26,6 +26,16 @@ export interface PixelIccSemantics {
   readonly description?: string
 }
 
+export interface PixelChromaticity {
+  readonly x: number
+  readonly y: number
+}
+
+export interface PixelChromaticities {
+  readonly whitePoint: PixelChromaticity
+  readonly primaries?: readonly [PixelChromaticity, PixelChromaticity, PixelChromaticity]
+}
+
 export interface PixelColorSemantics {
   readonly family: PixelColorFamily
   readonly primaries: PixelColorPrimaries
@@ -36,6 +46,7 @@ export interface PixelColorSemantics {
   readonly provenance: PixelColorProvenance
   readonly renderingIntent?: PixelRenderingIntent
   readonly icc?: PixelIccSemantics
+  readonly chromaticities?: PixelChromaticities
 }
 
 const families = new Set<PixelColorFamily>(['gray', 'rgb', 'yuv', 'xyz', 'unspecified'])
@@ -144,6 +155,40 @@ const normalizeIcc = (value: unknown): PixelIccSemantics | undefined => {
   })
 }
 
+const normalizeChromaticity = (value: unknown): PixelChromaticity => {
+  if (!record(value)) throw invalidInput('Pixel chromaticity must be an object')
+  allowedKeys(value, ['x', 'y'])
+  if (
+    typeof value.x !== 'number' ||
+    typeof value.y !== 'number' ||
+    !Number.isFinite(value.x) ||
+    !Number.isFinite(value.y) ||
+    Math.abs(value.x) >= 4 ||
+    Math.abs(value.y) >= 4
+  ) {
+    throw invalidInput('Pixel chromaticity coordinates must be finite and bounded by four')
+  }
+  return Object.freeze({ x: value.x, y: value.y })
+}
+
+const normalizeChromaticities = (value: unknown): PixelChromaticities | undefined => {
+  if (value === undefined) return undefined
+  if (!record(value)) throw invalidInput('Pixel chromaticities must be an object')
+  allowedKeys(value, ['whitePoint', 'primaries'])
+  const whitePoint = normalizeChromaticity(value.whitePoint)
+  if (value.primaries === undefined) return Object.freeze({ whitePoint })
+  if (!Array.isArray(value.primaries) || value.primaries.length !== 3)
+    throw invalidInput('Pixel primaries require three chromaticities')
+  return Object.freeze({
+    whitePoint,
+    primaries: Object.freeze([
+      normalizeChromaticity(value.primaries[0]),
+      normalizeChromaticity(value.primaries[1]),
+      normalizeChromaticity(value.primaries[2]),
+    ] as const),
+  })
+}
+
 export const normalizePixelColorSemantics = (value: unknown): PixelColorSemantics => {
   if (!record(value)) throw invalidInput('Pixel color semantics must be an object')
   allowedKeys(value, [
@@ -156,8 +201,10 @@ export const normalizePixelColorSemantics = (value: unknown): PixelColorSemantic
     'provenance',
     'renderingIntent',
     'icc',
+    'chromaticities',
   ])
   const icc = normalizeIcc(value.icc)
+  const chromaticities = normalizeChromaticities(value.chromaticities)
   const normalized: PixelColorSemantics = {
     family: enumValue(value.family, families, 'family'),
     primaries: enumValue(value.primaries, primaries, 'primaries'),
@@ -172,6 +219,7 @@ export const normalizePixelColorSemantics = (value: unknown): PixelColorSemantic
           renderingIntent: enumValue(value.renderingIntent, renderingIntents, 'rendering intent'),
         }),
     ...(icc === undefined ? {} : { icc }),
+    ...(chromaticities === undefined ? {} : { chromaticities }),
   }
   if (normalized.provenance === 'icc' && normalized.icc === undefined) {
     throw invalidInput('ICC pixel provenance requires ICC semantics')

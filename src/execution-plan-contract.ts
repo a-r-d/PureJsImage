@@ -14,6 +14,10 @@ export interface ImageExecutionPlanContext {
   readonly frame: number | undefined
   readonly resolutionLevel: number | undefined
   readonly tolerantDecoding: boolean
+  readonly alphaChannel: number | undefined
+  readonly alphaOutput: 'preserve' | 'straight' | undefined
+  readonly hdrOutput: 'encoded' | 'linear-float' | 'tone-map-srgb' | undefined
+  readonly colorOutput: 'preserve' | 'srgb' | undefined
   readonly limits: ImageLimits
   readonly runtime: ImageRuntime
 }

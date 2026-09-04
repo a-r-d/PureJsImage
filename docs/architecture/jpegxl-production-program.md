@@ -7,16 +7,16 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Current merged main: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Package version: `0.17.0`
 - Current target: A
-- Active milestone: M3
+- Active milestone: M4
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
-- Starting revision: `32d5a438e23486b1a46f8ad7269505b5c93034bc`
-- Final revision: `13e1e36c521eae0894df53e38134a0c7b5b5d7bb`
-- Capability change: common static 8-bit sRGB JPEG XL photograph decoding passed the local M3 gate.
-- Stable promotion gate: passed locally
+- Starting revision: `eb0d1697132a81a2dcc9eb6822b384e09c781bec`
+- Final revision: pending for M4
+- Capability change: common static color and HDR, independent alpha, bounded ICC and metadata, and structured lossless encoding.
+- Stable promotion gate: passed locally for the documented M4 boundary.
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
-operator explicitly directed M1, M2, and M3 work to continue on the existing M0 branch and pull request.
+operator explicitly directed M1, M2, M3, and M4 work to continue on the existing M0 branch and pull request.
 This ledger records that exception without treating the earlier milestones as merged.
 
 ## Production targets
@@ -35,7 +35,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M1 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | passed locally |
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
 | M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
-| M4 | A | not started | `codex/jpegxl-m04-color-alpha-metadata` | pending | pending | pending | not passed |
+| M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | pending | passed locally |
 | M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
 | M7 | B | not started | `codex/jpegxl-m07-lossy-encoder` | pending | pending | pending | not passed |
@@ -310,3 +310,77 @@ The exact remote workflows passed for revision `13e1e36c521eae0894df53e38134a0c7
 The local capability wording is promoted to common static sRGB JPEG XL photograph decoding. Broad
 ICC and HDR color, orientation transforms, animation, multiple visible frames, uncommon extra
 channels, Level 10, and general lossy encoding remain outside this milestone.
+
+## M4 color, orientation, alpha, HDR, and metadata
+
+M4 continues on the existing branch and PR 35 at the operator's request. It adds checked
+structured color, all eight orientations, straight and premultiplied alpha, bounded ICC,
+explicit HDR output, and metadata preservation. The implementation is complete for the common
+static boundary. Local handoff gates pass; exact remote checks are pending.
+
+The checked fixtures contain 56 structured RGB and grayscale cases, 40 independent-alpha cases,
+18 high-depth VarDCT color cases, eight VarDCT alpha-upsample cases, and a two-alpha fixture.
+Modular samples are exact through pinned djxl in both directions. VarDCT comparisons retain
+the independently approved M3 tolerance: maximum normalized error 1/255 and RMSE 0.55/255.
+The generator scripts and fixture manifests record reproducible options, hashes, and oracle revision.
+
+HDR XYB reconstruction emits linear sRGB float samples without clipping highlights or negative
+gamut values. HDR float reference white is 203 cd/m2. Modular PQ and HLG retain native encoded
+samples by default; explicit float and SDR tone-map options also handle grayscale and alpha.
+Alpha uses its own precision and display range. The encoder defaults to 10000 nits for PQ and
+1000 for HLG, and accepts explicit tone mapping and intrinsic size. Custom white points,
+primaries, gamma, and rendering intent are preserved when representable.
+
+The official conformance report now records 13 passes, 25 explicit unsupported cases, no
+incorrect output, and the pre-existing delta_palette failure. Nine new passing entries represent
+five distinct inputs. Their native source-profile samples or declared sRGB output were compared
+independently with djxl before recording hashes. JPEG-derived chroma-from-luma restoration now
+matches original JPEG coefficients exactly, and pixels match the JXL rendering tolerance. The
+patches_lossless input is rejected as unsupported Modular reference-frame composition before
+attempting a canvas-sized decode.
+
+All four extracted ICC profiles match djxl byte-for-byte. Little CMS 2.16 verifies the checked
+RGB matrix/TRC conversion. ICC iccDEV v2.3.2.3 reports legacy profile warnings and a bad checksum
+ID in the original cafe profile. These are source findings, recorded in m4-icc-validation.json;
+no ICC payload enters evidence. Structural validation and supported conversion remain separate
+from checksum metadata. Unsupported explicit conversions fail, and native unknown profiles
+retain source-profile semantics.
+
+The high-depth and float VarDCT fallback retains full-frame working planes and is preflighted
+against maxDecodedBytes. The ordinary M3 sRGB path keeps bounded restoration bands. Isolated
+512-square and 1024-square HDR cold and warm runs match independent float references, peak at
+132.5 to 185.3 MiB process RSS, and return ArrayBuffer usage to baseline after collection. The
+12 MP and 24 MP M3 performance regression gate passes. Reports are in m4-memory.json and
+m4-m3-performance.json. The M4 package ceilings are 365000 bytes for core plus JPEG XL and
+402000 for the specialized entry; unrelated ceilings are unchanged.
+
+### M4 gate checklist
+
+- [x] Structured RGB, grayscale, custom chromaticity, gamma, and rendering-intent coverage
+- [x] All eight orientations, display dimensions, crop planning, and copied Exif normalization
+- [x] Straight and premultiplied alpha, independent precision, upsampling, explicit selection
+- [x] Bounded ICC reconstruction and independent profile and conversion validation
+- [x] Common static high-depth and HDR output with explicit SDR conversion
+- [x] Intrinsic size, density, timestamps, Exif, XMP, JUMBF, and common brob preservation
+- [x] Independent official conformance reclassification with no incorrect output
+- [x] Focused Chromium, Firefox, and WebKit acceptance with retries disabled
+- [x] Memory, collection, preflight rejection, and cancellation regression coverage
+- [x] Full repository and browser handoff gates
+- [ ] Exact remote pull-request workflows
+
+Advanced grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha,
+floating-point encoded inputs, unavailable high-depth ICC and custom-chromaticity transforms,
+general ICC encoding, animation, and general lossy encoding remain explicit unsupported cases.
+Exact original-JPEG reconstruction retains its M1 eligibility boundary. M5 has not begun.
+
+The final local gate passed with 2590 unit tests and three existing skips. The clean full browser
+run passed 752 tests with 12 existing skips across Chromium, Firefox, and WebKit, retries disabled.
+An earlier concurrent build/browser run hit a Firefox JPEG WASM timeout; the sequential full run
+passed without a test change. Pinned jxlinfo independently confirms the encoder intrinsic size,
+rendering intent, intensity target, minimum luminance, relative-display flag, and linear threshold.
+
+The renderer comparison in m4-jpeg-render.json isolates the replaced component rendering on
+identical corrected coefficients. The old path fails JXL pixel validation with maximum errors
+of 21 and 43. The new path stays within one sample, with warm measured decode-and-comparison
+times of 232 versus 205 ms and 768 versus 617 ms. Correct JXL reconstruction costs more work
+than intermediate JPEG component clipping; the failed old output is not a valid speed score.

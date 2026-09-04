@@ -5497,15 +5497,15 @@
       "packageFormat": "jpegxl",
       "read": {
         "status": "supported",
-        "label": "Common static sRGB"
+        "label": "Common static color and HDR"
       },
       "write": {
         "status": "limited",
         "label": "Stable lossless and exact transcode"
       },
-      "boundary": "Common static sRGB JPEG XL photograph decoding is supported for the checked 8-bit XYB VarDCT boundary. It includes raw strategies 0 through 7 and 10 through 20, quantization modes used by the pinned encoders, progressive passes and internal DC frames, 2x/4x/8x resampling, straight alpha, patches, splines, Gaborish, EPF, adaptive smoothing, synthetic noise, reference slots, and common static frame blending. The 300-file real-photo matrix decodes 299 files correctly and rejects one unsupported previous-channel Modular tree form before output. Selected-subset VarDCT crop is applied after full decode. The stable lossless Modular encoder accepts gray8, gray16, rgb8, rgb16, rgba8, and rgba16 with deterministic effort 1, 3, 5, or 7. Callers may declare 8 through 16-bit color precision and independent 8 through 16-bit straight-alpha precision for 16-bit storage. It requires full-range sRGB gray or RGB semantics and relative rendering intent. It does not preserve metadata. The explicit purejsimage/jpegxl entry transcodes eligible three-component 8-bit Huffman JPEG coefficients without RGB and reconstructs original JPEG bytes. Broad ICC and HDR color, orientation transforms, animation, multiple visible frames, uncommon extra channels, Level 10, a general lossy encoder, and universal JPEG reconstruction remain unsupported.",
-      "description": "Recognizes raw codestreams and jxlc or jxlp containers through bounded segmented sources. Decodes common static 8-bit sRGB VarDCT photographs, the documented lossless Modular corpus, and checked JPEG-derived RGB or YCbCr coefficients. Encodes six native storage formats as deterministic stable pixel-lossless Modular JPEG XL at four effort tiers within the documented sRGB and straight-alpha boundary. The stable coefficient-domain API transcodes the documented eligible JPEG subset, uses bounded Brotli reconstruction payloads and deterministic contextual ANS coding, verifies byte-exact reconstruction before returning, and never silently substitutes a pixel path.",
-      "memory": "Raw, jxlc, and jxlp inputs use a logical segmented ImageSource. Compatible Modular crops retain one intersecting group-row band. Common VarDCT photographs decode one group-row band with restoration halos, bounded coefficient arenas, and reusable filter scratch. AC groups and progressive pass state are released after final use. This path does not retain source-sized Float32 color planes or a second complete output. Alpha, patches, splines, noise, and reference composition use an explicit conservative full-frame fallback. Crop is not decoder pushdown. A conservative preflight rejects over-budget VarDCT before section allocation, and a live ledger measures managed peak bytes. The Modular encoder emits bounded sections without allocating a duplicate complete sink output. The exact transcoder tracks live input, coefficient, metadata, reconstruction, and output storage. Sink mode does not allocate a duplicate reconstructed JPEG or return duplicate output bytes.",
+      "boundary": "Common static JPEG XL decoding covers the checked Modular and VarDCT boundary, all eight orientations, structured sRGB, linear sRGB, Display P3, Rec. 2020, grayscale, PQ, HLG, bounded gamma, and representable custom chromaticities. Native Modular integer samples and associated alpha remain exact. VarDCT supports 10, 12, and 16-bit sRGB output and preserves linear wide-gamut and HDR values in RGB or RGBA float rows. Alpha supports independent precision, straight or premultiplied semantics, 2x/4x/8x VarDCT upsampling, and explicit selection between multiple alpha channels. Compressed ICC reconstruction is bounded; supported 8-bit matrix/TRC profiles can convert to sRGB, and unavailable conversions retain source-profile semantics or reject an explicit request. Exif, XMP, JUMBF, common brob metadata, intrinsic size, density, and timestamps are bounded. HDR-to-SDR conversion is explicit. The stable lossless Modular encoder accepts six integer pixel formats, effort 1/3/5/7, structured color, independent alpha precision, orientation, intrinsic size, tone mapping, and metadata. Exact JPEG transcode remains limited to the independently proven three-component 8-bit Huffman subset. Float-encoded input, grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha, general ICC encoding, unavailable high-depth ICC conversion, animation, multiple visible frames, uncommon extra channels, and general lossy encoding remain unsupported.",
+      "description": "First-party static JPEG XL decoding with structured color, ICC, HDR, orientation, and alpha; deterministic lossless Modular encoding and exact JPEG coefficient transcode for documented subsets.",
+      "memory": "Common 8-bit sRGB VarDCT photographs use bounded group-row restoration bands. High-depth and float VarDCT, alpha, patches, splines, noise, and reference composition use an explicit full-frame fallback with aggregate memory preflight. JPEG-derived pixels retain compact coefficients and bounded component rows. Modular decode retains bounded groups; ICC and metadata have separate byte limits.",
       "recommendation": "Use the decoder for common static 8-bit sRGB JPEG XL photographs and files within the checked lossless Modular subset. Use the stable Modular encoder for exact supported pixels and explicit effort or sample precision. Use the stable coefficient-domain transcoder for eligible JPEG files when original byte reconstruction matters, with reconstruction: required for exact work and onlyIfSmaller when output size is a hard requirement.",
       "evidence": [
         "tests/jpegxl.test.ts",
@@ -5515,7 +5515,9 @@
         "tests/jpegxl-production-program.test.ts",
         "browser-tests/compatibility.pw.ts",
         "browser-tests/jpegxl-workbench.pw.ts",
-        "tests/library.test.ts"
+        "tests/library.test.ts",
+        "tests/jpegxl-m4-color.test.ts",
+        "browser-tests/jpegxl-color.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -5524,6 +5526,30 @@
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "claims": [
+        {
+          "status": "supported",
+          "text": "Exact Modular RGB and gray samples in sRGB, linear sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma, and custom chromaticities at 8, 10, 12, and 16 bits"
+        },
+        {
+          "status": "supported",
+          "text": "All eight codestream orientations through `autoOrient()`, display dimensions, and normalized copied Exif orientation"
+        },
+        {
+          "status": "supported",
+          "text": "Straight and premultiplied alpha with independent precision, VarDCT upsampling, explicit multiple-alpha selection, and zero-alpha handling"
+        },
+        {
+          "status": "supported",
+          "text": "Bounded compressed ICC reconstruction, profile validation, supported first-party conversion, and source-profile preservation"
+        },
+        {
+          "status": "supported",
+          "text": "High-depth VarDCT and linear RGB/RGBA float output without clipping HDR to SDR"
+        },
+        {
+          "status": "supported",
+          "text": "Bounded Exif, XMP/XML, JUMBF, common brob, intrinsic dimensions, density, and timestamp metadata"
+        },
         {
           "status": "supported",
           "text": "Prioritize static `image/jxl` decode for upload-processing workflows"
@@ -5821,11 +5847,11 @@
           "text": "Reject animation, multiple visible frames, and unsupported blend modes until Group 2"
         },
         {
-          "status": "planned",
-          "text": "Apply all eight orientation values exactly once"
+          "status": "supported",
+          "text": "Apply all eight orientation values exactly once through explicit autoOrient()"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Return display dimensions after orientation"
         },
         {
@@ -5853,7 +5879,7 @@
           "text": "Decode the checked common VarDCT straight-alpha form"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Premultiplied alpha with correct unpremultiplication or preservation behavior"
         },
         {
@@ -5861,7 +5887,7 @@
           "text": "Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent with matching metadata and decoder pixel semantics"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Decode compressed embedded ICC profiles with strict decoded-size limits"
         },
         {
@@ -5909,11 +5935,15 @@
           "text": "JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file for the checked subset"
         },
         {
-          "status": "planned",
-          "text": "HDR inputs using PQ, HLG, linear-light, and floating-point samples"
+          "status": "supported",
+          "text": "Common static PQ, HLG, and linear-light integer inputs with float output"
         },
         {
           "status": "planned",
+          "text": "Floating-point encoded input samples"
+        },
+        {
+          "status": "supported",
           "text": "Tone-mapping metadata, intensity target, luminance range, and a documented SDR conversion policy"
         },
         {
@@ -5929,19 +5959,19 @@
           "text": "Spot-color, selection-mask, depth, and black extra-channel discovery and opt-in extraction"
         },
         {
-          "status": "planned",
-          "text": "Multiple alpha channels with explicit caller selection"
+          "status": "supported",
+          "text": "Multiple alpha channels with explicit caller selection for the documented layouts"
         },
         {
-          "status": "planned",
-          "text": "Intrinsic-size and pixel-density metadata"
+          "status": "supported",
+          "text": "Intrinsic-size, pixel-density, and bounded timestamp metadata"
         },
         {
-          "status": "planned",
-          "text": "Metadata decode for EXIF, XMP/XML, and JUMBF"
+          "status": "supported",
+          "text": "Bounded metadata preservation for Exif, XMP/XML, and JUMBF"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Bounded first-party decompression of `brob` metadata boxes"
         },
         {

@@ -5,6 +5,8 @@ export interface JpegXlLimits {
   readonly maxCodestreamBytes: number
   readonly maxHeaderBytes: number
   readonly maxMetadataBytes: number
+  readonly maxIccCompressedBytes: number
+  readonly maxIccBytes: number
   readonly maxSegments: number
   readonly maxJpegMarkers: number
   readonly maxJpegScans: number
@@ -20,6 +22,8 @@ export const defaultJpegXlLimits: Readonly<JpegXlLimits> = Object.freeze({
   maxCodestreamBytes: 134_217_728,
   maxHeaderBytes: 4_194_304,
   maxMetadataBytes: 16_777_216,
+  maxIccCompressedBytes: 4_194_304,
+  maxIccBytes: 16_777_216,
   maxSegments: 65_536,
   maxJpegMarkers: 16_384,
   maxJpegScans: 4_096,
@@ -51,6 +55,14 @@ export const resolveJpegXlLimits = (
     maxMetadataBytes: positiveSafeInteger(
       'maxMetadataBytes',
       options.maxMetadataBytes ?? defaultJpegXlLimits.maxMetadataBytes,
+    ),
+    maxIccCompressedBytes: positiveSafeInteger(
+      'maxIccCompressedBytes',
+      options.maxIccCompressedBytes ?? defaultJpegXlLimits.maxIccCompressedBytes,
+    ),
+    maxIccBytes: positiveSafeInteger(
+      'maxIccBytes',
+      options.maxIccBytes ?? defaultJpegXlLimits.maxIccBytes,
     ),
     maxSegments: positiveSafeInteger(
       'maxSegments',

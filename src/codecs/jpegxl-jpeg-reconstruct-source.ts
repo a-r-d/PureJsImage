@@ -47,6 +47,7 @@ export interface DecodedJpegXlJpegReconstruction {
 }
 
 interface DecodedJpegXlJpegCoefficientImage {
+  readonly colorMaps: readonly [Int32Array, Int32Array]
   readonly reconstruction: JpegXlJpegReconstructionHeader | undefined
   readonly blobs: JpegXlJpegReconstructionBlobs | undefined
   readonly image: JpegCoefficientImage
@@ -409,6 +410,52 @@ const decodeJpegXlJpegCoefficientData = async (
       combinedSection && group === 0 ? hfGlobal.endingBitPosition : 0,
       true,
     )
+    // JPEG-compatible VarDCT can decorrelate quantized chroma AC from luminance.
+    // Restore this before handing coefficients to either the JPEG writer or pixel renderer.
+    for (const component of [1, 2]) {
+      const internalChannel = channelOrder[component]
+      if (internalChannel === undefined) throw invalidInput('JPEG XL chroma channel is missing')
+      const shift = shifts[internalChannel]
+      const chroma = decoded.componentCoefficients[component]
+      const luma = decoded.componentCoefficients[0]
+      const chromaQuantization = hfGlobal.dct8Quantization[internalChannel]
+      const lumaQuantization = hfGlobal.dct8Quantization[1]
+      if (!shift || !chroma || !luma || !chromaQuantization || !lumaQuantization)
+        throw invalidInput('JPEG XL chroma correlation data is missing')
+      if (shift[0] !== 0 || shift[1] !== 0) continue
+      for (let y = 0; y < blockHeight; y += 1)
+        for (let x = 0; x < blockWidth; x += 1) {
+          const mapIndex =
+            Math.floor((globalBlockY - dcGroupY * 256 + y) / 8) *
+              Math.ceil(dcGroup.blockWidth / 8) +
+            Math.floor((globalBlockX - dcGroupX * 256 + x) / 8)
+          const local =
+            (internalChannel === 0 ? dcGroup.colorCorrelationX : dcGroup.colorCorrelationB)[
+              mapIndex
+            ] ?? 0
+          const ratio =
+            (internalChannel === 0 ? correlation.baseCorrelationX : correlation.baseCorrelationB) +
+            local / correlation.colorFactor
+          if (ratio === 0) continue
+          const base = (y * blockWidth + x) * 64
+          for (let coefficient = 1; coefficient < 64; coefficient += 1) {
+            const transposed = (coefficient & 7) * 8 + (coefficient >>> 3)
+            const quantizationRatio = Math.trunc(
+              (2048 * (lumaQuantization[transposed] ?? 0)) / (chromaQuantization[transposed] ?? 1),
+            )
+            const colorRatio = Math.trunc((local * 2048) / correlation.colorFactor)
+            // JPEG reconstruction quantizes the two ratios to eleven fractional bits before
+            // composing the coefficient predictor. Rounding the final real ratio is not equivalent.
+            const coefficientRatio = Math.floor((quantizationRatio * colorRatio + 1024) / 2048)
+            const prediction = Math.floor(
+              ((luma[base + coefficient] ?? 0) * coefficientRatio + 1024) / 2048,
+            )
+            chroma[base + coefficient] = checkedInt16(
+              (chroma[base + coefficient] ?? 0) + prediction,
+            )
+          }
+        }
+    }
     mergeAcGroup(
       coefficients,
       componentWidths,
@@ -435,6 +482,28 @@ const decodeJpegXlJpegCoefficientData = async (
       }
     }
   }
+  const colorTileWidth = Math.ceil(fullBlockWidth / 8)
+  const colorMaps = [
+    new Int32Array(colorTileWidth * Math.ceil(fullBlockHeight / 8)),
+    new Int32Array(colorTileWidth * Math.ceil(fullBlockHeight / 8)),
+  ] as const
+  for (let index = 0; index < dcGroups.length; index += 1) {
+    const group = dcGroups[index]
+    if (!group) throw invalidInput('JPEG XL DC color map is missing')
+    const x = (index % dcGroupsAcross) * 32
+    const y = Math.floor(index / dcGroupsAcross) * 32
+    const tileWidth = Math.ceil(group.blockWidth / 8)
+    for (let row = 0; row < Math.ceil(group.blockHeight / 8); row += 1) {
+      colorMaps[0].set(
+        group.colorCorrelationX.subarray(row * tileWidth, (row + 1) * tileWidth),
+        (y + row) * colorTileWidth + x,
+      )
+      colorMaps[1].set(
+        group.colorCorrelationB.subarray(row * tileWidth, (row + 1) * tileWidth),
+        (y + row) * colorTileWidth + x,
+      )
+    }
+  }
   const image = buildCoefficientImage(
     frame.width,
     frame.height,
@@ -457,9 +526,20 @@ const decodeJpegXlJpegCoefficientData = async (
     reconstruction,
     blobs,
     image,
+    colorMaps,
     metadata: Object.freeze(metadata),
     maximumOutputBytes: jpegXlLimits.maxReconstructedJpegBytes,
   })
+}
+
+export const decodeJpegXlJpegPixelImage = async (
+  input: ImageInput,
+  options: Readonly<ReconstructJpegFromJpegXlOptions> = {},
+): Promise<
+  Readonly<{ image: JpegCoefficientImage; colorMaps: readonly [Int32Array, Int32Array] }>
+> => {
+  const decoded = await decodeJpegXlJpegCoefficientData(input, options, false)
+  return Object.freeze({ image: decoded.image, colorMaps: decoded.colorMaps })
 }
 
 export const decodeJpegXlJpegCoefficientImage = async (

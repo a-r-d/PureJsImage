@@ -1,10 +1,10 @@
-import { throwIfAborted } from '../abort.ts'
+import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecodeRequest, DecoderOptions, ImageDecoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
+import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageLimits } from '../limits.ts'
-import type { PixelBlock } from '../pixel.ts'
+import { pixelBytesPerPixel, type PixelBlock } from '../pixel.ts'
 import { type ImageSource, readExactly } from '../source.ts'
 import { decodeJpegCoefficientImage, type JpegRegion } from './jpeg-baseline.ts'
 import type { JpegCoefficientImage } from './jpeg-coefficients.ts'
@@ -15,7 +15,8 @@ import {
   jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
-import { decodeJpegXlJpegCoefficientImage } from './jpegxl-jpeg-reconstruct-source.ts'
+import { decodeJpegXlJpegPixelImage } from './jpegxl-jpeg-reconstruct-source.ts'
+import { decodeJpegXlJpegPixels } from './jpegxl-jpeg-pixels.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   JpegXlVarDctMemoryLedger,
@@ -65,7 +66,7 @@ const decodeRegion = (
 class JpegDerivedJpegXlDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
-  readonly pixelFormat = 'rgb8' as const
+  readonly pixelFormat: 'rgb8' | 'gray8'
   readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
@@ -73,18 +74,25 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
     scaledDecode: true,
     progressive: false,
   })
+  readonly #colorMaps: readonly [Int32Array, Int32Array]
   readonly #image: JpegCoefficientImage
   readonly #signal: AbortSignal | undefined
 
   constructor(
     image: JpegCoefficientImage,
+    colorMaps: readonly [Int32Array, Int32Array],
     colorSemantics: PixelColorSemantics,
     signal: AbortSignal | undefined,
+    grayscale = false,
   ) {
+    this.#colorMaps = colorMaps
     this.width = image.width
     this.height = image.height
     this.colorSemantics = colorSemantics
-    this.#image = image
+    this.pixelFormat = grayscale || image.components.length === 1 ? 'gray8' : 'rgb8'
+    this.#image = grayscale
+      ? { ...image, colorTransform: 'gray', components: image.components.slice(0, 1) }
+      : image
     this.#signal = signal
   }
 
@@ -95,10 +103,34 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
     const region = decodeRegion(outputWidth, outputHeight, request)
     throwIfAborted(this.#signal)
     throwIfAborted(request.signal)
+    if (scale === 1) {
+      const signal = combineAbortSignals(this.#signal, request.signal)
+      yield* decodeJpegXlJpegPixels(
+        this.#image,
+        { ...region, ...(signal ? { signal } : {}) },
+        this.#colorMaps,
+      )
+      return
+    }
     for await (const block of decodeJpegCoefficientImage(this.#image, region, scale)) {
       throwIfAborted(this.#signal)
       throwIfAborted(request.signal)
-      yield block
+      if (this.pixelFormat === 'gray8') {
+        const data = new Uint8Array(block.width * block.height)
+        for (let y = 0; y < block.height; y += 1)
+          for (let x = 0; x < block.width; x += 1)
+            data[y * block.width + x] = block.data[y * block.stride + x * 3] ?? 0
+        block.release?.()
+        yield {
+          x: block.x,
+          y: block.y,
+          width: block.width,
+          height: block.height,
+          data,
+          format: 'gray8',
+          stride: block.width,
+        }
+      } else yield block
     }
   }
 }
@@ -109,27 +141,42 @@ export const createJpegDerivedJpegXlDecoder = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
 ): Promise<ImageDecoder> => {
-  const frames = await readJpegXlSourceFrameStructures(logical, limits, options)
+  const jpegXlLimits = resolveJpegXlLimits()
+  const frames = await readJpegXlSourceFrameStructures(
+    logical,
+    limits,
+    options,
+    jpegXlLimits.maxHeaderBytes,
+    jpegXlLimits,
+  )
   const displayFrame = frames.at(-1)
   if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
-  const image = await decodeJpegXlJpegCoefficientImage(source, {
+  const { image, colorMaps } = await decodeJpegXlJpegPixelImage(source, {
     limits,
     ...(options.signal ? { signal: options.signal } : {}),
   })
+  const rowWorkingBytes = image.width * (3 * (16 * 4 + 12 + 4) + 3)
+  if (
+    image.coefficientBytes + colorMaps[0].byteLength + colorMaps[1].byteLength + rowWorkingBytes >
+    limits.maxDecodedBytes
+  )
+    throw limitExceeded('JPEG XL JPEG coefficient and row working storage exceeds maxDecodedBytes')
   return new JpegDerivedJpegXlDecoder(
     image,
+    colorMaps,
     Object.freeze({
       ...jpegXlPixelColorSemantics(displayFrame),
       provenance: 'decoder-converted',
     }),
     options.signal,
+    displayFrame.colorChannels === 1,
   )
 }
 
 class VarDctJpegXlDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
-  readonly pixelFormat: 'gray8' | 'rgb8' | 'rgba8'
+  readonly pixelFormat: JpegXlVarDctPixels['format']
   readonly colorSemantics: PixelColorSemantics
   readonly capabilities = Object.freeze({
     sequential: true,
@@ -137,6 +184,7 @@ class VarDctJpegXlDecoder implements ImageDecoder {
     scaledDecode: false,
     progressive: false,
   })
+  readonly #displayRanges: readonly { readonly black: number; readonly white: number }[]
   #pixels: JpegXlVarDctPixels | undefined
   readonly #signal: AbortSignal | undefined
   readonly #memory: JpegXlVarDctMemoryLedger
@@ -148,11 +196,28 @@ class VarDctJpegXlDecoder implements ImageDecoder {
     signal: AbortSignal | undefined,
     memory: JpegXlVarDctMemoryLedger,
     evidence: EvidenceContext | undefined,
+    bitDepth = 8,
+    alphaBitDepth?: number,
+    floatPeak = 1,
   ) {
     this.width = pixels.width
     this.height = pixels.height
     this.pixelFormat = pixels.format
     this.colorSemantics = colorSemantics
+    this.#displayRanges = Object.freeze(
+      Array.from(
+        { length: pixels.format.startsWith('gray') ? 1 : pixels.format.startsWith('rgba') ? 4 : 3 },
+        (_, index) =>
+          Object.freeze({
+            black: 0,
+            white: pixels.format.endsWith('f32')
+              ? index === 3
+                ? 1
+                : floatPeak
+              : 2 ** (index === 3 ? (alphaBitDepth ?? bitDepth) : bitDepth) - 1,
+          }),
+      ),
+    )
     this.#pixels = pixels
     this.#signal = signal
     this.#memory = memory
@@ -172,7 +237,7 @@ class VarDctJpegXlDecoder implements ImageDecoder {
     if (!pixels) {
       throw unsupportedOperation('JPEG XL selected VarDCT decoder output was already consumed')
     }
-    const channels = this.pixelFormat === 'gray8' ? 1 : this.pixelFormat === 'rgb8' ? 3 : 4
+    const channels = pixelBytesPerPixel(this.pixelFormat)
     const stride = region.width * channels
     const sourceStride = this.width * channels
     let complete = false
@@ -206,6 +271,10 @@ class VarDctJpegXlDecoder implements ImageDecoder {
           stride,
           format: this.pixelFormat,
           data,
+          colorSemantics: this.colorSemantics,
+          ...(this.pixelFormat.endsWith('16') || this.pixelFormat.endsWith('f32')
+            ? { displayRanges: this.#displayRanges }
+            : {}),
           release: rowLease.release,
         })
       }
@@ -252,6 +321,7 @@ export const createJpegXlVarDctDecoder = async (
     limits,
     options,
     jpegXlLimits.maxHeaderBytes,
+    jpegXlLimits,
   )
   const frame = frames.at(-1)
   if (frame?.frameType !== 'regular') {
@@ -416,6 +486,11 @@ export const createJpegXlVarDctDecoder = async (
       options.signal,
       memory,
       evidence,
+      frame.bitDepth,
+      frame.alphaBitDepth,
+      frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
+        ? Math.max(1, frame.toneMapping.intensityTarget / 203)
+        : 1,
     )
   } catch (error) {
     memory.releaseAll()

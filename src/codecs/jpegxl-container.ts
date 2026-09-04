@@ -1,8 +1,11 @@
 import type { AbortOptions } from '../abort.ts'
 import { throwIfAborted } from '../abort.ts'
+import type { MetadataPreservationOptions, PreservedMetadata } from '../codec.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { normalizeExifOrientation } from '../metadata.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../source.ts'
 import { readExactly } from '../source.ts'
+import { decodeBrotli } from './brotli.ts'
 import { ascii, uint32BigEndian } from './helpers.ts'
 import { createIsobmffReader, type IsobmffBox } from './isobmff.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
@@ -302,6 +305,78 @@ export const inspectJpegXlSource = async (
     throw invalidInput('JPEG XL container signature is malformed')
   }
   throw unsupportedOperation('Input is not a JPEG XL codestream or container')
+}
+
+const boxContentStart = (box: JpegXlBoxSummary): number =>
+  box.offset + box.length - box.payloadBytes
+
+const decodedMetadataBoxes = async (
+  source: ImageSource,
+  structure: JpegXlStructure,
+  limits: JpegXlLimits,
+  options: Readonly<MetadataPreservationOptions>,
+): Promise<ReadonlyMap<string, Uint8Array>> => {
+  const decoded = new Map<string, Uint8Array>()
+  const requested = (type: string): boolean =>
+    (type === 'Exif' && options.exif) ||
+    (type === 'xml ' && options.xmp === true) ||
+    (type === 'jumb' && options.jumbf === true)
+  let decodedBytes = 0
+  for (const box of structure.metadataBoxes) {
+    throwIfAborted(options.signal)
+    let type = box.type
+    if (type === 'brob') {
+      if (box.payloadBytes < 5) throw invalidInput('JPEG XL brob metadata is truncated')
+      type = ascii(await readExactly(source, boxContentStart(box), 4, options), 0, 4)
+      if (type.startsWith('jxl') || type === 'brob' || type === 'jbrd') {
+        throw invalidInput(`JPEG XL brob cannot contain ${type}`)
+      }
+    }
+    if (!requested(type)) continue
+    if (decoded.has(type)) throw invalidInput(`JPEG XL repeats the ${type} metadata payload`)
+    const payload = await readExactly(source, boxContentStart(box), box.payloadBytes, options)
+    let contents = payload
+    if (box.type === 'brob') {
+      contents = decodeBrotli(payload.subarray(4), {
+        maxOutputBytes: limits.maxMetadataBytes - decodedBytes,
+        maxMetadataBytes: limits.maxMetadataBytes,
+      })
+    }
+    decodedBytes += contents.byteLength
+    if (decodedBytes > limits.maxMetadataBytes) {
+      throw limitExceeded(`JPEG XL ${type} metadata exceeds maxMetadataBytes`)
+    }
+    decoded.set(type, contents)
+  }
+  return decoded
+}
+
+export const readJpegXlPreservedMetadata = async (
+  source: ImageSource,
+  structure: JpegXlStructure,
+  limits: JpegXlLimits,
+  options: Readonly<MetadataPreservationOptions>,
+): Promise<Readonly<PreservedMetadata>> => {
+  if (structure.kind === 'raw-codestream') return Object.freeze({})
+  const decoded = await decodedMetadataBoxes(source, structure, limits, options)
+  const exifBox = options.exif ? decoded.get('Exif') : undefined
+  let exif: Uint8Array | undefined
+  if (exifBox) {
+    if (exifBox.byteLength < 12) throw invalidInput('JPEG XL Exif metadata is truncated')
+    const tiffOffset = uint32BigEndian(exifBox, 0)
+    const start = 4 + tiffOffset
+    if (start + 8 > exifBox.byteLength) throw invalidInput('JPEG XL Exif TIFF offset is invalid')
+    exif = Uint8Array.from(exifBox.subarray(start))
+    // Validate the TIFF header and first IFD without altering the preserved payload.
+    normalizeExifOrientation(exif)
+  }
+  const xmp = options.xmp ? decoded.get('xml ') : undefined
+  const jumbf = options.jumbf ? decoded.get('jumb') : undefined
+  return Object.freeze({
+    ...(exif === undefined ? {} : { exif }),
+    ...(xmp === undefined ? {} : { xmp: Uint8Array.from(xmp) }),
+    ...(jumbf === undefined ? {} : { jumbf: Uint8Array.from(jumbf) }),
+  })
 }
 
 interface LogicalSegment extends JpegXlCodestreamSegment {

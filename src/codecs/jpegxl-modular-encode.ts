@@ -3,6 +3,7 @@ import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
 import { validateImageDimensions } from '../limits.ts'
+import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import { defaultJpegXlWeightedPredictor, JpegXlWeightedPredictor } from './jpegxl-decode.ts'
@@ -106,6 +107,108 @@ interface ResolvedJpegXlEncodeOptions {
   readonly container: boolean
   readonly sampleBitDepth: JpegXlSampleBitDepth
   readonly alphaBitDepth?: JpegXlSampleBitDepth
+  readonly orientation: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+  readonly colorSemantics: PixelColorSemantics
+  readonly toneMapping: Readonly<{
+    intensityTarget: number
+    minNits: number
+    relativeToMaxDisplay: boolean
+    linearBelow: number
+  }>
+  readonly intrinsicSize?: Readonly<{ width: number; height: number }>
+}
+
+const writePositiveF16 = (writer: JpegXlBitWriter, value: number): void => {
+  if (value === 0) {
+    writer.writeBits(0, 16)
+    return
+  }
+  const exponent = Math.floor(Math.log2(value))
+  const encoded =
+    exponent < -14
+      ? Math.round(value * 2 ** 24)
+      : (exponent + 15) * 1024 + Math.round((value / 2 ** exponent - 1) * 1024)
+  if (encoded <= 0 || encoded >= 0x7c00)
+    throw invalidInput('JPEG XL tone mapping value is outside finite positive half precision')
+  writer.writeBits(encoded, 16)
+}
+
+const enumDistribution = [
+  { value: 0 },
+  { value: 1 },
+  { bits: 4, offset: 2 },
+  { bits: 6, offset: 18 },
+] as const
+
+const writeEnum = (writer: JpegXlBitWriter, value: number): void =>
+  writeU32(writer, value, enumDistribution)
+
+const writeChromaticity = (
+  writer: JpegXlBitWriter,
+  point: Readonly<{ x: number; y: number }>,
+): void => {
+  for (const coordinate of [point.x, point.y]) {
+    const integer = Math.round(coordinate * 1_000_000)
+    const packed = integer < 0 ? -integer * 2 - 1 : integer * 2
+    writeU32(writer, packed, [
+      { bits: 19, offset: 0 },
+      { bits: 19, offset: 524_288 },
+      { bits: 20, offset: 1_048_576 },
+      { bits: 21, offset: 2_097_152 },
+    ])
+  }
+}
+
+const writeColorEncoding = (writer: JpegXlBitWriter, semantics: PixelColorSemantics): void => {
+  const allDefault =
+    semantics.family === 'rgb' &&
+    semantics.primaries === 'srgb' &&
+    semantics.transfer.kind === 'srgb' &&
+    semantics.renderingIntent === 'relative' &&
+    semantics.chromaticities === undefined
+  writer.writeBits(allDefault ? 1 : 0, 1)
+  if (allDefault) return
+  writer.writeBits(0, 1)
+  writeEnum(writer, semantics.family === 'gray' ? 1 : 0)
+  const coordinates = semantics.chromaticities
+  writeEnum(writer, coordinates === undefined ? 1 : 2)
+  if (coordinates) writeChromaticity(writer, coordinates.whitePoint)
+  if (semantics.family === 'rgb') {
+    writeEnum(
+      writer,
+      coordinates?.primaries
+        ? 2
+        : semantics.primaries === 'srgb'
+          ? 1
+          : semantics.primaries === 'rec2020'
+            ? 9
+            : 11,
+    )
+  }
+  if (coordinates?.primaries)
+    for (const point of coordinates.primaries) writeChromaticity(writer, point)
+  if (semantics.transfer.kind === 'gamma') {
+    writer.writeBits(1, 1)
+    const encoded = Math.round(10_000_000 / semantics.transfer.exponent)
+    writer.writeBits(encoded, 24)
+  } else {
+    writer.writeBits(0, 1)
+    writeEnum(
+      writer,
+      semantics.transfer.kind === 'linear'
+        ? 8
+        : semantics.transfer.kind === 'pq'
+          ? 16
+          : semantics.transfer.kind === 'hlg'
+            ? 18
+            : 13,
+    )
+  }
+  const intent = semantics.renderingIntent
+  writeEnum(
+    writer,
+    intent === 'perceptual' ? 0 : intent === 'saturation' ? 2 : intent === 'absolute' ? 3 : 1,
+  )
 }
 
 const writeBitDepth = (writer: JpegXlBitWriter, bitDepth: JpegXlSampleBitDepth): void => {
@@ -1975,6 +2078,62 @@ const containerPrefix = (codestreamBytes: number): Uint8Array =>
     boxHeader('jxlc', codestreamBytes),
   ])
 
+const encodedMetadataBoxes = (
+  request: EncodeRequest,
+  container: boolean,
+): readonly Uint8Array[] => {
+  const metadata = request.metadata
+  if (!metadata) return Object.freeze([])
+  if (metadata.icc) {
+    throw unsupportedOperation('JPEG XL ICC profiles must be encoded in the codestream')
+  }
+  if (!metadata.exif && !metadata.xmp && !metadata.jumbf) return Object.freeze([])
+  if (!container) {
+    throw unsupportedOperation('JPEG XL metadata requires container output')
+  }
+  const inputBytes =
+    (metadata.exif?.byteLength ?? 0) +
+    (metadata.xmp?.byteLength ?? 0) +
+    (metadata.jumbf?.byteLength ?? 0) +
+    (metadata.exif ? 12 : 0) +
+    (metadata.xmp ? 8 : 0) +
+    (metadata.jumbf ? 8 : 0)
+  if (inputBytes > resolveJpegXlLimits().maxMetadataBytes) {
+    throw limitExceeded('JPEG XL preserved metadata exceeds maxMetadataBytes')
+  }
+  const boxes: Uint8Array[] = []
+  if (metadata.exif) {
+    const littleEndian = metadata.exif[0] === 0x49 && metadata.exif[1] === 0x49
+    const bigEndian = metadata.exif[0] === 0x4d && metadata.exif[1] === 0x4d
+    const magic = littleEndian
+      ? (metadata.exif[2] ?? 0) + (metadata.exif[3] ?? 0) * 256
+      : (metadata.exif[2] ?? 0) * 256 + (metadata.exif[3] ?? 0)
+    if (metadata.exif.byteLength < 8 || (!littleEndian && !bigEndian) || magic !== 42) {
+      throw invalidInput('JPEG XL Exif metadata requires a valid TIFF header')
+    }
+    normalizeExifOrientation(metadata.exif)
+    const orientation = exifOrientation(metadata.exif)
+    if (orientation !== undefined && orientation !== 1) {
+      throw unsupportedOperation(
+        'JPEG XL Exif orientation must be normalized; use the codestream orientation option',
+      )
+    }
+    const payload = concatenate([Uint8Array.of(0, 0, 0, 0), metadata.exif])
+    boxes.push(concatenate([boxHeader('Exif', payload.byteLength), payload]))
+  }
+  if (metadata.xmp) {
+    boxes.push(concatenate([boxHeader('xml ', metadata.xmp.byteLength), metadata.xmp]))
+  }
+  if (metadata.jumbf) {
+    boxes.push(concatenate([boxHeader('jumb', metadata.jumbf.byteLength), metadata.jumbf]))
+  }
+  const metadataBytes = boxes.reduce((sum, box) => sum + box.byteLength, 0)
+  if (metadataBytes > resolveJpegXlLimits().maxMetadataBytes) {
+    throw limitExceeded('JPEG XL preserved metadata exceeds maxMetadataBytes')
+  }
+  return Object.freeze(boxes)
+}
+
 interface EncodedJpegXlCodestream {
   readonly header: Uint8Array
   readonly sections: readonly Uint8Array[]
@@ -1991,7 +2150,6 @@ const encodeCodestream = (
   const sections = encodeFrameSections(pixels, width, height, format, options.effort)
   const writer = new JpegXlBitWriter()
   const hasAlpha = format.startsWith('rgba')
-  const grayscale = format.startsWith('gray')
 
   writer.writeBits(0xff, 8)
   writer.writeBits(0x0a, 8)
@@ -2000,7 +2158,27 @@ const encodeCodestream = (
   writer.writeBits(0, 3)
   writeDimension(writer, width)
   writer.writeBits(0, 1)
-  writer.writeBits(0, 1)
+  const tone = options.toneMapping
+  const defaultTone =
+    tone.intensityTarget === 255 &&
+    tone.minNits === 0 &&
+    !tone.relativeToMaxDisplay &&
+    tone.linearBelow === 0
+  const extraFields =
+    options.orientation !== 1 || options.intrinsicSize !== undefined || !defaultTone
+  writer.writeBits(extraFields ? 1 : 0, 1)
+  if (extraFields) {
+    writer.writeBits(options.orientation - 1, 3)
+    writer.writeBits(options.intrinsicSize === undefined ? 0 : 1, 1)
+    if (options.intrinsicSize) {
+      writer.writeBits(0, 1)
+      writeDimension(writer, options.intrinsicSize.height)
+      writer.writeBits(0, 3)
+      writeDimension(writer, options.intrinsicSize.width)
+    }
+    writer.writeBits(0, 1)
+    writer.writeBits(0, 1)
+  }
   writeBitDepth(writer, options.sampleBitDepth)
   writer.writeBits(1, 1)
   writeU32(writer, hasAlpha ? 1 : 0, [
@@ -2021,42 +2199,29 @@ const encodeCodestream = (
       writeBitDepth(writer, options.alphaBitDepth ?? options.sampleBitDepth)
       writeU32(writer, 0, [{ value: 0 }, { value: 3 }, { value: 4 }, { bits: 3, offset: 1 }])
       writeName(writer)
-      writer.writeBits(0, 1)
+      writer.writeBits(options.colorSemantics.alpha === 'premultiplied' ? 1 : 0, 1)
     } else {
-      writer.writeBits(1, 1)
+      if (options.colorSemantics.alpha === 'straight') writer.writeBits(1, 1)
+      else {
+        writer.writeBits(0, 1)
+        writeEnum(writer, 0)
+        writeBitDepth(writer, 8)
+        writeU32(writer, 0, [{ value: 0 }, { value: 3 }, { value: 4 }, { bits: 3, offset: 1 }])
+        writeName(writer)
+        writer.writeBits(1, 1)
+      }
     }
   }
   writer.writeBits(0, 1)
-  if (grayscale) {
-    writer.writeBits(0, 1)
-    writer.writeBits(0, 1)
-    writeU32(writer, 1, [
-      { value: 0 },
-      { value: 1 },
-      { bits: 4, offset: 2 },
-      { bits: 6, offset: 18 },
-    ])
-    writeU32(writer, 1, [
-      { value: 0 },
-      { value: 1 },
-      { bits: 4, offset: 2 },
-      { bits: 6, offset: 18 },
-    ])
-    writer.writeBits(0, 1)
-    writeU32(writer, 13, [
-      { value: 0 },
-      { value: 1 },
-      { bits: 4, offset: 2 },
-      { bits: 6, offset: 18 },
-    ])
-    writeU32(writer, 1, [
-      { value: 0 },
-      { value: 1 },
-      { bits: 4, offset: 2 },
-      { bits: 6, offset: 18 },
-    ])
-  } else {
-    writer.writeBits(1, 1)
+  writeColorEncoding(writer, options.colorSemantics)
+  if (extraFields) {
+    writer.writeBits(defaultTone ? 1 : 0, 1)
+    if (!defaultTone) {
+      writePositiveF16(writer, tone.intensityTarget)
+      writePositiveF16(writer, tone.minNits)
+      writer.writeBits(tone.relativeToMaxDisplay ? 1 : 0, 1)
+      writePositiveF16(writer, tone.linearBelow)
+    }
   }
   writeZeroU64(writer)
   writer.writeBits(1, 1)
@@ -2125,6 +2290,7 @@ const sampleBitDepth = (name: string, value: unknown): JpegXlSampleBitDepth | un
 const readOptions = (
   value: unknown,
   format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
+  colorSemantics: PixelColorSemantics,
 ): Readonly<ResolvedJpegXlEncodeOptions> => {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw invalidInput('JPEG XL encoder options must be an object')
@@ -2136,7 +2302,10 @@ const readOptions = (
       key !== 'effort' &&
       key !== 'container' &&
       key !== 'sampleBitDepth' &&
-      key !== 'alphaBitDepth'
+      key !== 'alphaBitDepth' &&
+      key !== 'orientation' &&
+      key !== 'toneMapping' &&
+      key !== 'intrinsicSize'
     ) {
       throw invalidInput(`Unknown JPEG XL encoder option: ${key}`)
     }
@@ -2156,12 +2325,85 @@ const readOptions = (
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidInput('JPEG XL encoder container must be a boolean')
   }
+  if (
+    options.orientation !== undefined &&
+    (typeof options.orientation !== 'number' ||
+      !Number.isInteger(options.orientation) ||
+      options.orientation < 1 ||
+      options.orientation > 8)
+  ) {
+    throw invalidInput('JPEG XL encoder orientation must be an integer from 1 to 8')
+  }
   const declaredColorDepth = sampleBitDepth('sampleBitDepth', options.sampleBitDepth)
+  let intrinsicSize: Readonly<{ width: number; height: number }> | undefined
+  if (options.intrinsicSize !== undefined) {
+    const size = options.intrinsicSize
+    if (
+      typeof size !== 'object' ||
+      size === null ||
+      !('width' in size) ||
+      !('height' in size) ||
+      Object.keys(size).some((key) => key !== 'width' && key !== 'height') ||
+      typeof size.width !== 'number' ||
+      typeof size.height !== 'number' ||
+      !Number.isSafeInteger(size.width) ||
+      !Number.isSafeInteger(size.height) ||
+      size.width < 1 ||
+      size.height < 1 ||
+      size.width > 1_073_741_824 ||
+      size.height > 1_073_741_824
+    )
+      throw invalidInput('JPEG XL intrinsicSize requires positive bounded width and height')
+    intrinsicSize = Object.freeze({ width: size.width, height: size.height })
+  }
+  let toneMapping: ResolvedJpegXlEncodeOptions['toneMapping'] = Object.freeze({
+    intensityTarget:
+      colorSemantics.transfer.kind === 'pq'
+        ? 10000
+        : colorSemantics.transfer.kind === 'hlg'
+          ? 1000
+          : 255,
+    minNits: 0,
+    relativeToMaxDisplay: false,
+    linearBelow: 0,
+  })
+  if (options.toneMapping !== undefined) {
+    const tone = options.toneMapping
+    if (
+      typeof tone !== 'object' ||
+      tone === null ||
+      !('intensityTarget' in tone) ||
+      !('minNits' in tone) ||
+      !('relativeToMaxDisplay' in tone) ||
+      !('linearBelow' in tone) ||
+      Object.keys(tone).some(
+        (key) =>
+          !['intensityTarget', 'minNits', 'relativeToMaxDisplay', 'linearBelow'].includes(key),
+      ) ||
+      typeof tone.intensityTarget !== 'number' ||
+      typeof tone.minNits !== 'number' ||
+      typeof tone.relativeToMaxDisplay !== 'boolean' ||
+      typeof tone.linearBelow !== 'number' ||
+      ![tone.intensityTarget, tone.minNits, tone.linearBelow].every(
+        (value) => Number.isFinite(value) && value >= 0 && value <= 65504,
+      ) ||
+      tone.intensityTarget <= 0 ||
+      tone.minNits > tone.intensityTarget ||
+      (tone.relativeToMaxDisplay && tone.linearBelow > 1)
+    )
+      throw invalidInput('JPEG XL toneMapping is invalid')
+    toneMapping = Object.freeze({
+      intensityTarget: tone.intensityTarget,
+      minNits: tone.minNits,
+      relativeToMaxDisplay: tone.relativeToMaxDisplay,
+      linearBelow: tone.linearBelow,
+    })
+  }
   const declaredAlphaDepth = sampleBitDepth('alphaBitDepth', options.alphaBitDepth)
   const highStorage = format.endsWith('16')
   const hasAlpha = format.startsWith('rgba')
   const resolvedColorDepth = declaredColorDepth ?? (highStorage ? 16 : 8)
-  if (highStorage ? resolvedColorDepth < 9 : resolvedColorDepth !== 8) {
+  if (!highStorage && resolvedColorDepth !== 8) {
     throw invalidInput(
       highStorage
         ? 'JPEG XL 16-bit storage sampleBitDepth must be from 9 to 16'
@@ -2181,6 +2423,10 @@ const readOptions = (
     container: options.container ?? true,
     sampleBitDepth: resolvedColorDepth,
     ...(resolvedAlphaDepth === undefined ? {} : { alphaBitDepth: resolvedAlphaDepth }),
+    orientation: (options.orientation ?? 1) as ResolvedJpegXlEncodeOptions['orientation'],
+    colorSemantics,
+    toneMapping,
+    ...(intrinsicSize === undefined ? {} : { intrinsicSize }),
   })
 }
 
@@ -2208,32 +2454,56 @@ const validateDeclaredSamples = (
 }
 
 export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boolean =>
+  (semantics.chromaticities === undefined ||
+    ((semantics.family !== 'gray' || semantics.chromaticities.primaries === undefined) &&
+      [semantics.chromaticities.whitePoint, ...(semantics.chromaticities.primaries ?? [])].every(
+        (point) =>
+          [point.x, point.y].every(
+            (value) => Number.isFinite(value) && Math.abs(value) <= 2.097151,
+          ),
+      ))) &&
   (semantics.family === 'gray' || semantics.family === 'rgb') &&
-  semantics.primaries === 'srgb' &&
-  semantics.transfer.kind === 'srgb' &&
+  (semantics.family === 'gray' ||
+    semantics.primaries === 'srgb' ||
+    semantics.primaries === 'display-p3' ||
+    semantics.primaries === 'rec2020' ||
+    (semantics.primaries === 'unspecified' && semantics.chromaticities?.primaries !== undefined)) &&
+  (semantics.transfer.kind === 'srgb' ||
+    semantics.transfer.kind === 'linear' ||
+    semantics.transfer.kind === 'pq' ||
+    semantics.transfer.kind === 'hlg' ||
+    (semantics.transfer.kind === 'gamma' &&
+      semantics.transfer.exponent >= 1 &&
+      semantics.transfer.exponent <= 8_192)) &&
   semantics.matrix === 'identity' &&
   semantics.range === 'full' &&
-  (semantics.alpha === 'none' || semantics.alpha === 'straight') &&
+  (semantics.alpha === 'none' ||
+    semantics.alpha === 'straight' ||
+    semantics.alpha === 'premultiplied') &&
   (semantics.provenance === 'assumed-default' ||
     semantics.provenance === 'container-signaled' ||
     semantics.provenance === 'decoder-converted') &&
-  semantics.renderingIntent === 'relative' &&
+  semantics.renderingIntent !== undefined &&
   semantics.icc === undefined
 
 const validateColorSemantics = (request: EncodeRequest): void => {
   const semantics = request.colorSemantics
   if (!semantics) {
-    throw unsupportedOperation('JPEG XL encoding requires explicit sRGB pixel color semantics')
+    throw unsupportedOperation(
+      'JPEG XL encoding requires explicit structured pixel color semantics',
+    )
   }
   const grayscale = request.pixelFormat.startsWith('gray')
   const alpha = request.pixelFormat.startsWith('rgba')
   if (
     !acceptsJpegXlColorSemantics(semantics) ||
     semantics.family !== (grayscale ? 'gray' : 'rgb') ||
-    semantics.alpha !== (alpha ? 'straight' : 'none')
+    (alpha
+      ? semantics.alpha !== 'straight' && semantics.alpha !== 'premultiplied'
+      : semantics.alpha !== 'none')
   ) {
     throw unsupportedOperation(
-      'JPEG XL encoding supports full-range sRGB or sRGB grayscale pixels with relative rendering intent and straight alpha only',
+      'JPEG XL encoding supports structured gray or RGB pixels with matching alpha semantics',
     )
   }
 }
@@ -2343,7 +2613,9 @@ class JpegXlModularEncoder implements ImageEncoder {
           (advancedSingleGroup ? sampleCount * 32 : 4_096),
       )
       const prefix = this.#options.container ? containerPrefix(codestream.byteLength) : undefined
-      const outputBytes = codestream.byteLength + (prefix?.byteLength ?? 0)
+      const metadataBoxes = encodedMetadataBoxes(this.#request, this.#options.container)
+      const metadataBytes = metadataBoxes.reduce((sum, box) => sum + box.byteLength, 0)
+      const outputBytes = codestream.byteLength + (prefix?.byteLength ?? 0) + metadataBytes
       const jpegXlLimits = resolveJpegXlLimits()
       if (outputBytes > jpegXlLimits.maxCodestreamBytes) {
         throw limitExceeded(
@@ -2362,6 +2634,10 @@ class JpegXlModularEncoder implements ImageEncoder {
       for (const section of codestream.sections) {
         throwIfAborted(this.#request.signal)
         if (section.byteLength > 0) await this.#sink.write(section)
+      }
+      for (const box of metadataBoxes) {
+        throwIfAborted(this.#request.signal)
+        await this.#sink.write(box)
       }
       this.#release(sectionBytes)
       this.#state = 'finished'
@@ -2405,9 +2681,6 @@ export const createJpegXlModularEncoder = async (
     throw unsupportedOperation(`JPEG XL encoding does not support ${request.pixelFormat} pixels`)
   }
   validateColorSemantics(request)
-  if (request.metadata?.exif || request.metadata?.icc || request.metadata?.xmp) {
-    throw unsupportedOperation('JPEG XL metadata preservation is not supported by this encoder yet')
-  }
   const limits = request.limits
   if (limits) validateImageDimensions(request.width, request.height, 1, limits)
   const channels = request.pixelFormat.startsWith('gray')
@@ -2423,5 +2696,10 @@ export const createJpegXlModularEncoder = async (
       `JPEG XL encoder pixels require ${workingBytes} bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,
     )
   }
-  return new JpegXlModularEncoder(sink, request, readOptions(request.options, request.pixelFormat))
+  const semantics = request.colorSemantics
+  if (!semantics) throw unsupportedOperation('JPEG XL encoding requires color semantics')
+  const options = readOptions(request.options, request.pixelFormat, semantics)
+  if (limits && options.intrinsicSize)
+    validateImageDimensions(options.intrinsicSize.width, options.intrinsicSize.height, 1, limits)
+  return new JpegXlModularEncoder(sink, request, options)
 }

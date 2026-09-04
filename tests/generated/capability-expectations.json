@@ -254,7 +254,9 @@
         "tests/jpegxl-production-program.test.ts",
         "browser-tests/compatibility.pw.ts",
         "browser-tests/jpegxl-workbench.pw.ts",
-        "tests/library.test.ts"
+        "tests/library.test.ts",
+        "tests/jpegxl-m4-color.test.ts",
+        "browser-tests/jpegxl-color.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

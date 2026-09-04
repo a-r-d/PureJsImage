@@ -1,6 +1,8 @@
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
+import { linearToSrgb } from './icc.ts'
 import {
+  jpegXlXybOutputIsLinear,
   decodeJpegXlStandaloneModular,
   readJpegXlStandaloneModularHeader,
   type JpegXlFrameStructure,
@@ -28,7 +30,7 @@ import {
 export interface JpegXlVarDctPixels {
   readonly width: number
   readonly height: number
-  readonly format: 'gray8' | 'rgb8' | 'rgba8'
+  readonly format: 'gray8' | 'rgb8' | 'rgba8' | 'gray16' | 'rgb16' | 'rgba16' | 'rgbf32' | 'rgbaf32'
   readonly data: Uint8Array
   readonly managedPeakBytes: number
   readonly dcPlanes?: readonly [Float64Array, Float64Array, Float64Array]
@@ -3350,23 +3352,32 @@ export const decodeJpegXlDct8Section = (
   if (
     frame.encoding !== 'vardct' ||
     frame.colorTransform !== 'xyb' ||
-    frame.bitDepth !== 8 ||
-    (frame.alphaBitDepth !== undefined && frame.alphaBitDepth !== 8) ||
+    frame.bitDepth > 16 ||
+    (frame.alphaBitDepth !== undefined && frame.alphaBitDepth > 16) ||
     (separatedSections
       ? continuationSections.length + 1 !==
         2 + frame.dcGroupCount + frame.groupsAcross * frame.groupsDown * frame.passCount
       : frame.passCount !== 1 || frame.sections.length !== 1)
   ) {
     throw unsupportedOperation(
-      'Common VarDCT decode currently requires bounded 8-bit XYB groups with optional 8-bit alpha',
+      'Common VarDCT decode requires bounded integer XYB groups with up to 16-bit color and alpha',
     )
   }
-  if (
-    frame.alphaBitDepth !== undefined &&
-    (frame.extraChannelUpsampling[0] ?? 1) !== frame.upsampling
-  ) {
-    throw unsupportedOperation('Common VarDCT alpha requires matching color and alpha upsampling')
-  }
+  const alphaLayouts = frame.extraChannels.map((channel, index) => {
+    const factor = (frame.extraChannelUpsampling[index] ?? 1) * 2 ** channel.dimShift
+    if (factor !== 1 && factor !== 2 && factor !== 4 && factor !== 8)
+      throw unsupportedOperation('JPEG XL alpha upsampling factor exceeds eight')
+    return {
+      width: Math.ceil(frame.width / factor),
+      height: Math.ceil(frame.height / factor),
+      factor,
+    } as const
+  })
+  const selectedAlpha =
+    frame.selectedAlphaChannel === undefined ? undefined : alphaLayouts[frame.selectedAlphaChannel]
+  const alphaUpsampling = selectedAlpha?.factor ?? 1
+  const alphaWidth = selectedAlpha?.width ?? frame.codedWidth
+  const alphaHeight = selectedAlpha?.height ?? frame.codedHeight
   if (frame.upsampling !== 1 && (frame.frameFlags & 1) !== 0) {
     throw unsupportedOperation('Common VarDCT noise with frame upsampling is not supported yet')
   }
@@ -3377,14 +3388,24 @@ export const decodeJpegXlDct8Section = (
   const paddedWidth = blockWidth * 8
   const paddedHeight = blockHeight * 8
   const planeBytes = BigInt(paddedWidth) * BigInt(paddedHeight) * 3n * 4n
-  const outputChannels = frame.alphaBitDepth === undefined ? (frame.colorChannels === 1 ? 1 : 3) : 4
-  const outputBytes = BigInt(frame.width) * BigInt(frame.height) * BigInt(outputChannels)
+  const linearOutput = jpegXlXybOutputIsLinear(frame)
+  const outputChannels =
+    frame.alphaBitDepth === undefined ? (frame.colorChannels === 1 && !linearOutput ? 1 : 3) : 4
+  const highDepth = Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8
+  const bytesPerSample = linearOutput ? 4 : highDepth ? 2 : 1
+  const outputBytes =
+    BigInt(frame.width) * BigInt(frame.height) * BigInt(outputChannels * bytesPerSample)
   if (planeBytes + outputBytes > BigInt(limits.maxDecodedBytes)) {
     throw limitExceeded(
       `JPEG XL VarDCT working data requires ${planeBytes + outputBytes} bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,
     )
   }
 
+  const alphaWorkingBytes = alphaLayouts.reduce(
+    (total, layout) => total + layout.width * layout.height * 12,
+    0,
+  )
+  const alphaLease = memory.retain('jpegxl-alpha-working-planes', alphaWorkingBytes)
   const allSections = separatedSections ? [section, ...continuationSections] : [section]
   const lfGlobal = decodeJpegXlJpegLfGlobal(
     section,
@@ -3393,7 +3414,7 @@ export const decodeJpegXlDct8Section = (
     frame.frameFlags,
     frame.codedWidth,
     frame.codedHeight,
-    frame.alphaBitDepth === undefined ? 0 : 1,
+    frame.extraChannels.length,
   )
   const lfGlobalLease = memory.retain(
     'jpegxl-vardct-lf-metadata',
@@ -3403,9 +3424,13 @@ export const decodeJpegXlDct8Section = (
   let alphaPlane: Int32Array<ArrayBufferLike> | undefined
   const groupedAlpha =
     frame.alphaBitDepth !== undefined &&
-    (codedWidth > frame.groupDimension || codedHeight > frame.groupDimension)
+    (alphaWidth > frame.groupDimension || alphaHeight > frame.groupDimension)
   if (frame.alphaBitDepth !== undefined) {
     if (groupedAlpha) {
+      if (alphaLayouts.length !== 1 || alphaUpsampling !== frame.upsampling)
+        throw unsupportedOperation(
+          'JPEG XL grouped alpha requires one channel with matching upsampling',
+        )
       globalSectionEnd = readJpegXlStandaloneModularHeader(section, globalSectionEnd, [
         { width: codedWidth, height: codedHeight },
       ])
@@ -3414,11 +3439,11 @@ export const decodeJpegXlDct8Section = (
       const decodedAlpha = decodeJpegXlStandaloneModular(
         section,
         globalSectionEnd,
-        [{ width: codedWidth, height: codedHeight }],
+        alphaLayouts,
         0,
         lfGlobal.globalModularCode,
       )
-      const decodedPlane = decodedAlpha.planes[0]
+      const decodedPlane = decodedAlpha.planes[frame.selectedAlphaChannel ?? 0]
       if (!decodedPlane) throw invalidInput('JPEG XL VarDCT global alpha plane is missing')
       alphaPlane = decodedPlane
       globalSectionEnd = decodedAlpha.endingBitPosition
@@ -3454,6 +3479,8 @@ export const decodeJpegXlDct8Section = (
   )
   if (
     separatedSections &&
+    !highDepth &&
+    !linearOutput &&
     frame.groupsDown > 1 &&
     frame.alphaBitDepth === undefined &&
     frame.upsampling === 1 &&
@@ -3463,6 +3490,7 @@ export const decodeJpegXlDct8Section = (
     lfGlobal.splines.length === 0 &&
     lfGlobal.noiseLut === undefined
   ) {
+    alphaLease.release()
     return decodeJpegXlDct8Striped(
       allSections,
       frame,
@@ -3906,6 +3934,7 @@ export const decodeJpegXlDct8Section = (
     hfGlobalLease.release()
     dcGroupLease.release()
     lfGlobalLease.release()
+    alphaLease.release()
     return Object.freeze({
       width: codedWidth,
       height: codedHeight,
@@ -3917,14 +3946,116 @@ export const decodeJpegXlDct8Section = (
     })
   }
 
-  const format =
-    frame.alphaBitDepth !== undefined ? 'rgba8' : frame.colorChannels === 1 ? 'gray8' : 'rgb8'
+  const format = linearOutput
+    ? outputChannels === 4
+      ? 'rgbaf32'
+      : 'rgbf32'
+    : frame.alphaBitDepth !== undefined
+      ? highDepth
+        ? 'rgba16'
+        : 'rgba8'
+      : frame.colorChannels === 1
+        ? highDepth
+          ? 'gray16'
+          : 'gray8'
+        : highDepth
+          ? 'rgb16'
+          : 'rgb8'
   const outputLease = memory.retain(
     'jpegxl-vardct-output-pixels',
-    frame.width * frame.height * outputChannels,
+    frame.width * frame.height * outputChannels * bytesPerSample,
   )
-  const output = new Uint8Array(frame.width * frame.height * outputChannels)
-  if (format === 'gray8') {
+  const output = new Uint8Array(frame.width * frame.height * outputChannels * bytesPerSample)
+  if (highDepth || linearOutput) {
+    const view = new DataView(output.buffer)
+    const maximum = 2 ** frame.bitDepth - 1
+    const linearScale =
+      frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
+        ? 255 / 203
+        : 1
+    const alphaMaximum = 2 ** (frame.alphaBitDepth ?? frame.bitDepth) - 1
+    const alphaFloat = alphaPlane === undefined ? undefined : Float32Array.from(alphaPlane)
+    for (let y = 0; y < frame.height; y += 1) {
+      for (let x = 0; x < frame.width; x += 1) {
+        const index = y * paddedWidth + x
+        const opsinX =
+          frame.upsampling === 1
+            ? (planes[0][index] ?? 0)
+            : upsampleSample(
+                planes[0],
+                paddedWidth,
+                codedWidth,
+                codedHeight,
+                x,
+                y,
+                frame.upsampling,
+              )
+        const opsinY =
+          frame.upsampling === 1
+            ? (planes[1][index] ?? 0)
+            : upsampleSample(
+                planes[1],
+                paddedWidth,
+                codedWidth,
+                codedHeight,
+                x,
+                y,
+                frame.upsampling,
+              )
+        const opsinB =
+          frame.upsampling === 1
+            ? (planes[2][index] ?? 0)
+            : upsampleSample(
+                planes[2],
+                paddedWidth,
+                codedWidth,
+                codedHeight,
+                x,
+                y,
+                frame.upsampling,
+              )
+        const gammaRed = opsinY + opsinX + opsinBiasCubeRoot
+        const gammaGreen = opsinY - opsinX + opsinBiasCubeRoot
+        const gammaBlue = opsinB + opsinBiasCubeRoot
+        const mixedRed = gammaRed ** 3 - opsinBias
+        const mixedGreen = gammaGreen ** 3 - opsinBias
+        const mixedBlue = gammaBlue ** 3 - opsinBias
+        const offset = (y * frame.width + x) * outputChannels * bytesPerSample
+        for (let channel = 0; channel < (outputChannels === 1 ? 1 : 3); channel += 1) {
+          const linear =
+            (inverseOpsinMatrix[channel * 3] ?? 0) * mixedRed +
+            (inverseOpsinMatrix[channel * 3 + 1] ?? 0) * mixedGreen +
+            (inverseOpsinMatrix[channel * 3 + 2] ?? 0) * mixedBlue
+          if (linearOutput) view.setFloat32(offset + channel * 4, linear * linearScale, false)
+          else
+            view.setUint16(
+              offset + channel * 2,
+              Math.round(Math.max(0, Math.min(1, linearToSrgb(linear))) * maximum),
+              false,
+            )
+        }
+        if (alphaFloat) {
+          const alpha = upsampleSample(
+            alphaFloat,
+            alphaWidth,
+            alphaWidth,
+            alphaHeight,
+            x,
+            y,
+            alphaUpsampling,
+          )
+          if (linearOutput)
+            view.setFloat32(offset + 12, Math.max(0, Math.min(1, alpha / alphaMaximum)), false)
+          else
+            view.setUint16(
+              offset + 6,
+              Math.max(0, Math.min(alphaMaximum, Math.round(alpha))),
+              false,
+            )
+        }
+      }
+    }
+  } else if (format === 'gray8') {
     const rgb = new Uint8Array(3)
     for (let y = 0; y < frame.height; y += 1) {
       for (let x = 0; x < frame.width; x += 1) {
@@ -3979,7 +4110,7 @@ export const decodeJpegXlDct8Section = (
         outputIndex += 3
       }
     }
-  } else if (frame.upsampling === 1) {
+  } else if (frame.upsampling === 1 && alphaUpsampling === 1) {
     if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
     for (let y = 0; y < frame.height; y += 1) {
       let outputIndex = y * frame.width * 4
@@ -4019,12 +4150,12 @@ export const decodeJpegXlDct8Section = (
             Math.round(
               upsampleSample(
                 alphaFloat,
-                codedWidth,
-                codedWidth,
-                codedHeight,
+                alphaWidth,
+                alphaWidth,
+                alphaHeight,
                 x,
                 y,
-                frame.upsampling,
+                alphaUpsampling,
               ),
             ),
           ),
@@ -4039,6 +4170,7 @@ export const decodeJpegXlDct8Section = (
   hfGlobalLease.release()
   dcGroupLease.release()
   lfGlobalLease.release()
+  alphaLease.release()
   return Object.freeze({
     width: frame.width,
     height: frame.height,

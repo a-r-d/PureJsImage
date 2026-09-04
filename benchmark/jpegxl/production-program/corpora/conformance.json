@@ -30,7 +30,7 @@
       "license": "CC0",
       "levels": [10],
       "baselineClassification": "expected-unsupported",
-      "boundary": "premultiplied alpha"
+      "boundary": "Level 10 global Squeeze transform for grouped alpha"
     },
     {
       "id": "alpha_triangles",
@@ -92,8 +92,10 @@
       "bytes": 184341,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "orientation and broad color"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "colorOutput": "preserve"
     },
     {
       "id": "bench_oriented_brg_5",
@@ -101,8 +103,10 @@
       "bytes": 184341,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "orientation and broad color"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "colorOutput": "preserve"
     },
     {
       "id": "bicycles",
@@ -155,8 +159,10 @@
       "bytes": 381505,
       "license": "ITU-T T.24",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "embedded ICC"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "colorOutput": "preserve"
     },
     {
       "id": "cafe_5",
@@ -164,8 +170,10 @@
       "bytes": 381505,
       "license": "ITU-T T.24",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "embedded ICC"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "colorOutput": "preserve"
     },
     {
       "id": "cmyk_layers",
@@ -192,8 +200,10 @@
       "bytes": 1069,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "embedded ICC"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+      "colorOutput": "preserve"
     },
     {
       "id": "grayscale_5",
@@ -201,8 +211,10 @@
       "bytes": 1069,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "embedded ICC"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+      "colorOutput": "preserve"
     },
     {
       "id": "grayscale_jpeg",
@@ -210,8 +222,10 @@
       "bytes": 7799,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "grayscale JPEG reconstruction and embedded ICC"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+      "colorOutput": "preserve"
     },
     {
       "id": "grayscale_jpeg_5",
@@ -219,8 +233,10 @@
       "bytes": 7799,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "grayscale JPEG reconstruction and embedded ICC"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+      "colorOutput": "preserve"
     },
     {
       "id": "grayscale_public_university",
@@ -246,8 +262,10 @@
       "bytes": 103540,
       "license": "CC0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "custom gamma"
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "653dd385329335314ef80321948463cc9d3db0b779fe716c6266f7646555ed90",
+      "colorOutput": "preserve"
     },
     {
       "id": "noise",

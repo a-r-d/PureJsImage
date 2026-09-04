@@ -64,6 +64,10 @@ const explainImageInSession = async (
     ...(options.signal === undefined ? {} : { signal: options.signal }),
     ...(context.frame === undefined ? {} : { frame: context.frame }),
     ...(context.resolutionLevel === undefined ? {} : { resolutionLevel: context.resolutionLevel }),
+    ...(context.alphaChannel === undefined ? {} : { alphaChannel: context.alphaChannel }),
+    ...(context.alphaOutput === undefined ? {} : { alphaOutput: context.alphaOutput }),
+    ...(context.hdrOutput === undefined ? {} : { hdrOutput: context.hdrOutput }),
+    ...(context.colorOutput === undefined ? {} : { colorOutput: context.colorOutput }),
   })
   const planned = planOutput(
     decoder.width,

@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "methodology": "Isolated processes, one warmup for warm cases followed by three collections. Both renderers receive corrected identical coefficients. Timings include decode, row emission, and oracle comparison. Incorrect old JXL pixels are failed benchmark results, regardless of speed.",
+  "results": [
+    {
+      "id": "bench_oriented_brg",
+      "renderer": "before",
+      "mode": "cold",
+      "inputHash": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "baseline": {
+        "rss": 108646400,
+        "heapTotal": 20590592,
+        "heapUsed": 10742864,
+        "external": 12723628,
+        "arrayBuffers": 1433728
+      },
+      "milliseconds": 185.61827,
+      "maximumError": 21,
+      "rmse": 1.7212059885456767,
+      "correct": false,
+      "outputHash": "e881bb8fb3aafb19d6f40fcdfeb21e1f0cb833b7b77684d52f82657269011094",
+      "peak": {
+        "rss": 127447040,
+        "heapTotal": 21901312,
+        "heapUsed": 16280560,
+        "external": 20880772,
+        "arrayBuffers": 9550388
+      },
+      "absoluteProcessPeakRss": 127447040
+    },
+    {
+      "id": "bench_oriented_brg",
+      "renderer": "before",
+      "mode": "warm",
+      "inputHash": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "baseline": {
+        "rss": 136040448,
+        "heapTotal": 30027776,
+        "heapUsed": 11646288,
+        "external": 12764636,
+        "arrayBuffers": 1434252
+      },
+      "milliseconds": 204.73246700000004,
+      "maximumError": 21,
+      "rmse": 1.7212059885456767,
+      "correct": false,
+      "outputHash": "e881bb8fb3aafb19d6f40fcdfeb21e1f0cb833b7b77684d52f82657269011094",
+      "peak": {
+        "rss": 145477632,
+        "heapTotal": 30814208,
+        "heapUsed": 21060128,
+        "external": 22917756,
+        "arrayBuffers": 11587372
+      },
+      "absoluteProcessPeakRss": 145477632
+    },
+    {
+      "id": "bench_oriented_brg",
+      "renderer": "after",
+      "mode": "cold",
+      "inputHash": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "baseline": {
+        "rss": 107401216,
+        "heapTotal": 20590592,
+        "heapUsed": 10743688,
+        "external": 12723628,
+        "arrayBuffers": 1433728
+      },
+      "milliseconds": 242.767046,
+      "maximumError": 1,
+      "rmse": 0.4969079308575935,
+      "correct": true,
+      "outputHash": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "peak": {
+        "rss": 126988288,
+        "heapTotal": 22163456,
+        "heapUsed": 17271224,
+        "external": 20880772,
+        "arrayBuffers": 9550388
+      },
+      "absoluteProcessPeakRss": 126988288
+    },
+    {
+      "id": "bench_oriented_brg",
+      "renderer": "after",
+      "mode": "warm",
+      "inputHash": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "baseline": {
+        "rss": 135782400,
+        "heapTotal": 29503488,
+        "heapUsed": 11539104,
+        "external": 12764636,
+        "arrayBuffers": 1434252
+      },
+      "milliseconds": 232.04736199999996,
+      "maximumError": 1,
+      "rmse": 0.4969079308575935,
+      "correct": true,
+      "outputHash": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "peak": {
+        "rss": 142336000,
+        "heapTotal": 30289920,
+        "heapUsed": 21116736,
+        "external": 22817668,
+        "arrayBuffers": 11487284
+      },
+      "absoluteProcessPeakRss": 142336000
+    },
+    {
+      "id": "cafe",
+      "renderer": "before",
+      "mode": "cold",
+      "inputHash": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "baseline": {
+        "rss": 120193024,
+        "heapTotal": 20328448,
+        "heapUsed": 10770744,
+        "external": 19900792,
+        "arrayBuffers": 8610892
+      },
+      "milliseconds": 685.861973,
+      "maximumError": 43,
+      "rmse": 1.56673176948066,
+      "correct": false,
+      "outputHash": "cec49e2668658896bb2a9d1adbf5418a43f4f5b41c05c96b5ab2db66cf627599",
+      "peak": {
+        "rss": 174555136,
+        "heapTotal": 30289920,
+        "heapUsed": 14773928,
+        "external": 42093416,
+        "arrayBuffers": 30519320
+      },
+      "absoluteProcessPeakRss": 174555136
+    },
+    {
+      "id": "cafe",
+      "renderer": "before",
+      "mode": "warm",
+      "inputHash": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "baseline": {
+        "rss": 141754368,
+        "heapTotal": 30552064,
+        "heapUsed": 11681648,
+        "external": 19941288,
+        "arrayBuffers": 8610904
+      },
+      "milliseconds": 617.0067880000001,
+      "maximumError": 43,
+      "rmse": 1.56673176948066,
+      "correct": false,
+      "outputHash": "cec49e2668658896bb2a9d1adbf5418a43f4f5b41c05c96b5ab2db66cf627599",
+      "peak": {
+        "rss": 154632192,
+        "heapTotal": 26566656,
+        "heapUsed": 15345072,
+        "external": 35232360,
+        "arrayBuffers": 23901976
+      },
+      "absoluteProcessPeakRss": 158990336
+    },
+    {
+      "id": "cafe",
+      "renderer": "after",
+      "mode": "cold",
+      "inputHash": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "baseline": {
+        "rss": 118132736,
+        "heapTotal": 20590592,
+        "heapUsed": 10770608,
+        "external": 19900792,
+        "arrayBuffers": 8610892
+      },
+      "milliseconds": 778.2522260000001,
+      "maximumError": 1,
+      "rmse": 0.4756978152759726,
+      "correct": true,
+      "outputHash": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "peak": {
+        "rss": 175849472,
+        "heapTotal": 30289920,
+        "heapUsed": 20868000,
+        "external": 41966440,
+        "arrayBuffers": 30632216
+      },
+      "absoluteProcessPeakRss": 175849472
+    },
+    {
+      "id": "cafe",
+      "renderer": "after",
+      "mode": "warm",
+      "inputHash": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "baseline": {
+        "rss": 183177216,
+        "heapTotal": 30027776,
+        "heapUsed": 11574616,
+        "external": 19941288,
+        "arrayBuffers": 8610904
+      },
+      "milliseconds": 768.352873,
+      "maximumError": 1,
+      "rmse": 0.4756978152759726,
+      "correct": true,
+      "outputHash": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "peak": {
+        "rss": 184094720,
+        "heapTotal": 30289920,
+        "heapUsed": 20779656,
+        "external": 35526760,
+        "arrayBuffers": 24192536
+      },
+      "absoluteProcessPeakRss": 198623232
+    }
+  ]
+}

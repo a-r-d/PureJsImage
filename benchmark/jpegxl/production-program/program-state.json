@@ -260,6 +260,78 @@
       ],
       "stablePromotionGatePassed": true,
       "remainingBlockers": ["Review and merge remain external."]
+    },
+    "M4": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "eb0d1697132a81a2dcc9eb6822b384e09c781bec",
+      "finalRevision": null,
+      "localCommands": [
+        "node benchmark/jpegxl/generate-m4-color-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-alpha-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-vardct-color-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-vardct-alpha-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-multiple-alpha.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-conformance.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-icc.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-memory.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-jpeg-render.ts",
+        "node benchmark/jpegxl/production-program/run-conformance.ts --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m4-conformance.json",
+        "npm run jpegxl:m3:performance -- --output benchmark/jpegxl/production-program/m4-m3-performance.json",
+        "npm run check",
+        "npx playwright test --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run jpegxl:program:baseline",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [
+        "56 exact structured RGB and grayscale decode/re-encode cases through pinned djxl",
+        "40 exact independent-alpha cases, 18 high-depth VarDCT color cases, 8 VarDCT alpha-upsample cases, and both channels of a distinct multiple-alpha fixture pass independent references",
+        "Official conformance: 13 pass, 25 expected unsupported, zero incorrect output, one pre-existing explained delta_palette failure",
+        "Four ICC profiles match djxl bytes exactly; ICC validator warnings and the source cafe checksum mismatch are classified; Little CMS 2.16 five-color conversion agrees within one sample",
+        "Focused browsers: 24 tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "512 and 1024 square HDR cold/warm memory cases pass independent float references; absolute process peak RSS is 132.5 to 185.3 MiB and retained ArrayBuffer usage returns to baseline",
+        "M3 DCT8 performance regression gate passes at 12 and 24 MP",
+        "Full repository gate: 2590 tests passed, 3 skipped; 203 files passed, 1 skipped",
+        "Full Chromium, Firefox, and WebKit suite: 752 tests passed, 12 skipped; retries disabled",
+        "Core plus JPEG XL: 357995 minified bytes; specialized entry: 394885 bytes",
+        "JPEG-derived renderer comparison: old component clipping fails JXL oracle checks with maximum errors 21 and 43; new output has maximum error 1. Warm measured times are 232 vs 205 ms and 768 vs 617 ms, including decode and comparison."
+      ],
+      "corpusVersions": [
+        "tests/fixtures/jpegxl/m4-color/manifest.json",
+        "tests/fixtures/jpegxl/m4-color/alpha-manifest.json",
+        "tests/fixtures/jpegxl/m4-color/vardct-manifest.json",
+        "tests/fixtures/jpegxl/m4-color/vardct-alpha-manifest.json",
+        "libjxl conformance 4bf053529c7cefd2951be453475bb3dccc7e7be8"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "Little CMS 2.16",
+        "ICC iccDEV v2.3.2.3, revision 9f1707e"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m4-memory.json",
+      "capabilityChanges": [
+        "Structured RGB and grayscale color, representable custom chromaticities, all eight orientations, and independent alpha semantics",
+        "Bounded ICC, explicit high-depth and HDR output, intrinsic size, tone mapping, density, timestamps, and Exif/XMP/JUMBF/brob metadata",
+        "JPEG-derived float component reconstruction and fixed-point chroma-from-luma restore match independent oracles"
+      ],
+      "capabilityPromotions": [
+        "Common static color and HDR decoding, structured lossless encoding, and bounded metadata pass the M4 local gate for their documented subsets."
+      ],
+      "acceptedLimitations": [
+        "Existing M0 branch and PR 35 continue at operator request.",
+        "Advanced grouped subsampled or multiple VarDCT alpha and Level 10 global Squeeze alpha remain outside the common boundary.",
+        "Float-encoded input, unavailable high-depth ICC/custom-chromaticity conversions, and general ICC encoding remain explicit unsupported operations.",
+        "High-depth and float VarDCT output uses the measured full-frame fallback; ordinary M3 sRGB retains bounded restoration bands.",
+        "The cafe ICC source checksum is invalid; exact source bytes and the independent validator finding are preserved.",
+        "The pre-existing official delta_palette INVALID_INPUT failure remains outside M4."
+      ],
+      "deferredWork": ["M5 pipeline integration and later milestones have not begun."],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": [
+        "Exact remote pull-request workflows are pending; review and merge remain external."
+      ]
     }
   }
 }

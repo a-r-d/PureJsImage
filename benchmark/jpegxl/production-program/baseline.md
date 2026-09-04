@@ -4,7 +4,7 @@ This report records the Milestone 0 baseline. It does not promote a codec capabi
 
 - Starting main revision: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Package version: `0.17.0`
-- Official conformance: 4 pass, 34 expected unsupported, 0 malformed and safely rejected, 0 incorrect output, 1 explained unexpected failure
+- Official conformance: 13 pass, 25 expected unsupported, 0 malformed and safely rejected, 0 incorrect output, 1 explained unexpected failure
 - Extracted PR feature fixtures: 27
 - Exact JPEG reconstruction: 10/10 eligible baseline cases
 - Exact JPEG median JXL/source size ratio: 1.1917293233082706

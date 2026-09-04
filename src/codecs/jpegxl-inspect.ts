@@ -1,5 +1,6 @@
 import type { AbortOptions } from '../abort.ts'
 import type { ImageMetadata } from '../codec.ts'
+import { pixelBytesPerPixel } from '../pixel.ts'
 import type { PixelRenderingIntent } from '../color.ts'
 import { invalidInput } from '../errors.ts'
 import type { ImageLimitOptions } from '../limits.ts'
@@ -11,7 +12,7 @@ import {
   type JpegXlCodestreamSegment,
   JpegXlCodestreamSource,
 } from './jpegxl-container.ts'
-import { readJpegXlSourceInspectionMetadata } from './jpegxl-decode.ts'
+import { jpegXlXybOutputIsLinear, readJpegXlSourceInspectionMetadata } from './jpegxl-decode.ts'
 import { parseJpegXlJpegReconstructionHeader } from './jpegxl-jpeg-reconstruction.ts'
 import type { JpegXlLimitOptions } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
@@ -40,13 +41,22 @@ export interface JpegXlInspection {
   readonly displayHeight: number
   readonly orientation: number
   readonly bitDepth: number
-  readonly exponentBits: 0
+  readonly exponentBits: number
   readonly colorChannels: 1 | 3
   readonly extraChannels: number
-  readonly alpha: 'none' | 'straight'
+  readonly alpha: 'none' | 'straight' | 'premultiplied'
+  readonly alphaChannels: number
   readonly encodedColor: string
   readonly renderingIntent: PixelRenderingIntent
-  readonly icc: Readonly<{ readonly present: boolean; readonly decodedBytes: undefined }>
+  readonly toneMapping: Readonly<{
+    readonly intensityTarget: number
+    readonly minNits: number
+    readonly relativeToMaxDisplay: boolean
+    readonly linearBelow: number
+  }>
+  readonly intrinsicWidth: number | undefined
+  readonly intrinsicHeight: number | undefined
+  readonly icc: Readonly<{ readonly present: boolean; readonly decodedBytes: number | undefined }>
   readonly encoding: 'modular' | 'vardct'
   readonly imageKind: 'static'
   readonly preview: false
@@ -55,13 +65,21 @@ export interface JpegXlInspection {
   readonly progressivePasses: number
   readonly jpegReconstruction: 'unavailable' | 'metadata-valid'
   readonly exactReconstructionEligibility: 'unavailable' | 'requires-coefficient-validation'
-  readonly expectedPixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
+  readonly expectedPixelFormat:
+    | 'gray8'
+    | 'gray16'
+    | 'rgb8'
+    | 'rgb16'
+    | 'rgba8'
+    | 'rgba16'
+    | 'rgbf32'
+    | 'rgbaf32'
   readonly resourceEstimates: JpegXlResourceEstimates
   readonly unsupportedFeatures: readonly string[]
 }
 
 const expectedPixelFormat = (metadata: ImageMetadata): JpegXlInspection['expectedPixelFormat'] => {
-  const highDepth = (metadata.bitDepth ?? 8) > 8
+  const highDepth = Math.max(metadata.bitDepth ?? 8, ...(metadata.channelBitDepths ?? [])) > 8
   if (!metadata.hasAlpha && metadata.components === 1) return highDepth ? 'gray16' : 'gray8'
   if (!metadata.hasAlpha) return highDepth ? 'rgb16' : 'rgb8'
   return highDepth ? 'rgba16' : 'rgba8'
@@ -81,13 +99,18 @@ export const inspectJpegXl = async (
     imageLimits,
     options,
     jpegXlLimits.maxHeaderBytes,
+    jpegXlLimits,
   )
   const metadata = header.metadata
-  const colorChannels = metadata.colorSpace?.includes('gray') ? 1 : 3
-  const channels = metadata.channels ?? colorChannels
+  const frame = header.frame
+  const colorChannels = frame.colorChannels
   const metadataBytes = structure.metadataBoxes.reduce((sum, box) => sum + box.payloadBytes, 0)
-  const bytesPerSample = (metadata.bitDepth ?? 8) > 8 ? 2 : 1
-  const nativeSampleBytes = metadata.width * metadata.height * channels * bytesPerSample
+  const outputPixelFormat = jpegXlXybOutputIsLinear(header.frame)
+    ? metadata.hasAlpha
+      ? 'rgbaf32'
+      : 'rgbf32'
+    : expectedPixelFormat(metadata)
+  const nativeSampleBytes = metadata.width * metadata.height * pixelBytesPerPixel(outputPixelFormat)
   const reconstructionBox = structure.metadataBoxes.find(({ type }) => type === 'jbrd')
   if (reconstructionBox) {
     const contentStart =
@@ -128,19 +151,23 @@ export const inspectJpegXl = async (
     metadataBoxes: structure.metadataBoxes,
     width: metadata.width,
     height: metadata.height,
-    displayWidth: metadata.width,
-    displayHeight: metadata.height,
+    displayWidth: (metadata.orientation ?? 1) >= 5 ? metadata.height : metadata.width,
+    displayHeight: (metadata.orientation ?? 1) >= 5 ? metadata.width : metadata.height,
     orientation: metadata.orientation ?? 1,
     bitDepth: metadata.bitDepth ?? 8,
-    exponentBits: 0,
+    exponentBits: frame.exponentBits,
     colorChannels,
-    extraChannels: Math.max(0, channels - colorChannels),
-    alpha: metadata.hasAlpha ? 'straight' : 'none',
+    extraChannels: frame.extraChannels.length,
+    alpha: metadata.hasAlpha ? (frame.alphaAssociated ? 'premultiplied' : 'straight') : 'none',
+    alphaChannels: frame.extraChannels.filter(({ type }) => type === 0).length,
     encodedColor: metadata.colorSpace ?? 'unspecified',
     renderingIntent,
+    toneMapping: frame.toneMapping,
+    intrinsicWidth: frame.intrinsicWidth,
+    intrinsicHeight: frame.intrinsicHeight,
     icc: Object.freeze({
       present: metadata.colorProfile?.kind === 'icc',
-      decodedBytes: undefined,
+      decodedBytes: frame.iccProfile?.byteLength,
     }),
     encoding: header.encoding,
     imageKind: 'static',
@@ -152,7 +179,7 @@ export const inspectJpegXl = async (
     exactReconstructionEligibility: reconstructionBox
       ? 'requires-coefficient-validation'
       : 'unavailable',
-    expectedPixelFormat: expectedPixelFormat(metadata),
+    expectedPixelFormat: outputPixelFormat,
     resourceEstimates: Object.freeze({
       codestreamBytes: structure.codestreamBytes,
       metadataBytes,

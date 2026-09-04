@@ -277,6 +277,10 @@ const inspection = (value: unknown): value is JpegXlInspection => {
       'colorChannels',
       'extraChannels',
       'alpha',
+      'alphaChannels',
+      'toneMapping',
+      'intrinsicWidth',
+      'intrinsicHeight',
       'encodedColor',
       'renderingIntent',
       'icc',
@@ -316,7 +320,43 @@ const inspection = (value: unknown): value is JpegXlInspection => {
       value.containerVersion === 0 ||
       value.containerVersion === 1) &&
     (value.encoding === 'modular' || value.encoding === 'vardct') &&
-    (value.alpha === 'none' || value.alpha === 'straight') &&
+    (value.expectedPixelFormat === undefined ||
+      value.expectedPixelFormat === 'gray8' ||
+      value.expectedPixelFormat === 'gray16' ||
+      value.expectedPixelFormat === 'rgb8' ||
+      value.expectedPixelFormat === 'rgb16' ||
+      value.expectedPixelFormat === 'rgba8' ||
+      value.expectedPixelFormat === 'rgba16' ||
+      value.expectedPixelFormat === 'rgbf32' ||
+      value.expectedPixelFormat === 'rgbaf32') &&
+    (value.alpha === 'none' || value.alpha === 'straight' || value.alpha === 'premultiplied') &&
+    nonnegativeInteger(value.alphaChannels) &&
+    Number(value.alphaChannels) <= 16 &&
+    positiveInteger(value.orientation) &&
+    Number(value.orientation) <= 8 &&
+    nonnegativeInteger(value.exponentBits) &&
+    Number(value.exponentBits) <= 8 &&
+    (value.intrinsicWidth === undefined || positiveInteger(value.intrinsicWidth)) &&
+    (value.intrinsicHeight === undefined || positiveInteger(value.intrinsicHeight)) &&
+    record(value.toneMapping) &&
+    exactKeys(value.toneMapping, [
+      'intensityTarget',
+      'minNits',
+      'relativeToMaxDisplay',
+      'linearBelow',
+    ]) &&
+    typeof value.toneMapping.intensityTarget === 'number' &&
+    Number.isFinite(value.toneMapping.intensityTarget) &&
+    value.toneMapping.intensityTarget > 0 &&
+    typeof value.toneMapping.minNits === 'number' &&
+    Number.isFinite(value.toneMapping.minNits) &&
+    value.toneMapping.minNits >= 0 &&
+    value.toneMapping.minNits <= value.toneMapping.intensityTarget &&
+    typeof value.toneMapping.relativeToMaxDisplay === 'boolean' &&
+    typeof value.toneMapping.linearBelow === 'number' &&
+    Number.isFinite(value.toneMapping.linearBelow) &&
+    value.toneMapping.linearBelow >= 0 &&
+    (!value.toneMapping.relativeToMaxDisplay || value.toneMapping.linearBelow <= 1) &&
     typeof value.encodedColor === 'string' &&
     (value.renderingIntent === 'perceptual' ||
       value.renderingIntent === 'relative' ||
@@ -325,7 +365,8 @@ const inspection = (value: unknown): value is JpegXlInspection => {
     record(value.icc) &&
     exactKeys(value.icc, ['present', 'decodedBytes']) &&
     typeof value.icc.present === 'boolean' &&
-    value.icc.decodedBytes === undefined &&
+    (value.icc.decodedBytes === undefined ||
+      (positiveInteger(value.icc.decodedBytes) && Number(value.icc.decodedBytes) <= 16_777_216)) &&
     record(value.resourceEstimates) &&
     exactKeys(value.resourceEstimates, ['codestreamBytes', 'metadataBytes', 'nativeSampleBytes']) &&
     nonnegativeInteger(value.resourceEstimates.codestreamBytes) &&

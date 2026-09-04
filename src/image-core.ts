@@ -66,6 +66,10 @@ export interface ImageOpenOptions extends AbortOptions {
   readonly frame?: number
   readonly resolutionLevel?: number
   readonly tolerantDecoding?: boolean
+  readonly alphaChannel?: number
+  readonly alphaOutput?: 'preserve' | 'straight'
+  readonly hdrOutput?: 'encoded' | 'linear-float' | 'tone-map-srgb'
+  readonly colorOutput?: 'preserve' | 'srgb'
 }
 
 export interface ImagePlatform<Input, Output extends Uint8Array> {
@@ -92,6 +96,10 @@ interface ImageContext<Input, Output extends Uint8Array> {
   readonly frame: number | undefined
   readonly resolutionLevel: number | undefined
   readonly tolerantDecoding: boolean
+  readonly alphaChannel: number | undefined
+  readonly alphaOutput: 'preserve' | 'straight' | undefined
+  readonly hdrOutput: 'encoded' | 'linear-float' | 'tone-map-srgb' | undefined
+  readonly colorOutput: 'preserve' | 'srgb' | undefined
   readonly platform: ImagePlatform<Input, Output>
   readonly runtime: ImageRuntime
   metadataPromise: Promise<ImageMetadata> | undefined
@@ -152,6 +160,10 @@ export class Image<Input, Output extends Uint8Array> {
       frame: options.frame,
       resolutionLevel: options.resolutionLevel,
       tolerantDecoding: options.tolerantDecoding ?? true,
+      alphaChannel: options.alphaChannel,
+      alphaOutput: options.alphaOutput,
+      hdrOutput: options.hdrOutput,
+      colorOutput: options.colorOutput,
       registry,
       limits,
       platform,
@@ -170,6 +182,9 @@ export class Image<Input, Output extends Uint8Array> {
           ...(this.#context.resolutionLevel === undefined
             ? {}
             : { resolutionLevel: this.#context.resolutionLevel }),
+          ...(this.#context.alphaChannel === undefined
+            ? {}
+            : { alphaChannel: this.#context.alphaChannel }),
         }),
       )
     }

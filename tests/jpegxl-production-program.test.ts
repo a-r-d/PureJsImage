@@ -26,7 +26,7 @@ const digest = async (path: string): Promise<string> =>
     .digest('hex')
 
 describe('JPEG XL production program baseline', () => {
-  test('tracks every milestone deterministically with the approved M1 through M3 promotions', async () => {
+  test('tracks every milestone deterministically with the approved M1 through M4 promotions', async () => {
     const status = await json(`${root}/status.json`)
     const milestones = array(status.milestones, 'status.milestones').map((value) =>
       record(value, 'milestone'),
@@ -50,7 +50,7 @@ describe('JPEG XL production program baseline', () => {
       true,
       true,
       true,
-      false,
+      true,
       false,
       false,
       false,
@@ -66,7 +66,7 @@ describe('JPEG XL production program baseline', () => {
     expect(jpegXl).toBeDefined()
     expect(record(jpegXl?.read, 'jpegxl.read')).toEqual({
       status: 'supported',
-      label: 'Common static sRGB',
+      label: 'Common static color and HDR',
     })
     expect(record(jpegXl?.write, 'jpegxl.write')).toEqual({
       status: 'limited',
@@ -191,7 +191,7 @@ describe('JPEG XL production program baseline', () => {
       malformed: count('malformed-safely-rejected'),
       incorrect: count('incorrect-output'),
       unexpected: count('unexpected-failure'),
-    }).toEqual({ pass: 4, unsupported: 34, malformed: 0, incorrect: 0, unexpected: 1 })
+    }).toEqual({ pass: 13, unsupported: 25, malformed: 0, incorrect: 0, unexpected: 1 })
     expect(cases.filter(({ id }) => id === 'upsampling' || id === 'upsampling_5')).toEqual([
       expect.objectContaining({ baselineClassification: 'pass' }),
       expect.objectContaining({ baselineClassification: 'pass' }),

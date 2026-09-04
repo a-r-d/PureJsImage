@@ -79,6 +79,14 @@ export type ColorProfile =
     }
 
 export interface ImageMetadata {
+  /** Source intrinsic dimensions, before orientation. */
+  intrinsicWidth?: number
+  intrinsicHeight?: number
+  /** Source pixel density. Orientation transforms do not modify preserved metadata bytes. */
+  pixelDensity?: Readonly<{ x: number; y: number; unit: 'inch' | 'centimeter' }>
+  /** Bounded source Exif timestamps, with no inferred timezone. */
+  timestamps?: Readonly<{ modified?: string; original?: string; digitized?: string }>
+
   width: number
   height: number
   format: string
@@ -148,11 +156,20 @@ export interface PreservedMetadata {
   readonly exif?: Uint8Array
   readonly icc?: Uint8Array
   readonly xmp?: Uint8Array
+  readonly jumbf?: Uint8Array
 }
 
 export interface DecoderOptions extends AbortOptions {
   readonly frame?: number
   readonly resolutionLevel?: number
+  /** Zero-based alpha extra-channel selection for formats that can carry more than one alpha. */
+  readonly alphaChannel?: number
+  /** Preserve associated alpha or explicitly return straight color samples. */
+  readonly alphaOutput?: 'preserve' | 'straight'
+  /** JPEG XL HDR output is never tone mapped unless this is explicitly requested. */
+  readonly hdrOutput?: 'encoded' | 'linear-float' | 'tone-map-srgb'
+  /** Preserve structured source samples or explicitly render supported color spaces to sRGB. */
+  readonly colorOutput?: 'preserve' | 'srgb'
   readonly preserveIcc?: boolean
   readonly tolerantDecoding?: boolean
   /** Explicit caller-owned evidence context. Omit for the allocation-free default path. */
@@ -163,6 +180,7 @@ export interface MetadataPreservationOptions extends AbortOptions {
   readonly exif: boolean
   readonly icc: boolean
   readonly xmp?: boolean
+  readonly jumbf?: boolean
   readonly frame?: number
   readonly resolutionLevel?: number
 }

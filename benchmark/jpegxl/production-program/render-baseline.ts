@@ -71,10 +71,20 @@ if (!jpegXlCapability) throw new Error('capabilities/manifest.json has no jpegxl
 const readCapability = record(jpegXlCapability.read, 'jpegxl.read')
 const writeCapability = record(jpegXlCapability.write, 'jpegxl.write')
 const milestones = record(programState.milestones, 'programState.milestones')
-if (readCapability.status === 'supported' && readCapability.label === 'Common static sRGB') {
+if (
+  readCapability.status === 'supported' &&
+  (readCapability.label === 'Common static sRGB' ||
+    readCapability.label === 'Common static color and HDR')
+) {
   const milestone3 = record(milestones.M3, 'programState.milestones.M3')
   if (milestone3.stablePromotionGatePassed !== true) {
     throw new Error('Supported common static decoding requires the Milestone 3 promotion gate')
+  }
+  if (
+    readCapability.label === 'Common static color and HDR' &&
+    record(milestones.M4, 'programState.milestones.M4').stablePromotionGatePassed !== true
+  ) {
+    throw new Error('Supported color and HDR requires the Milestone 4 local promotion gate')
   }
 } else if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
   throw new Error('JPEG XL read capability has an unrecognized boundary')

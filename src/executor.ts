@@ -4,6 +4,7 @@ import type { CodecRegistry, ImageCodec, ImageEncoder } from './codec.ts'
 import { convertedPixelColorSemantics, convertPixelBlocks } from './convert.ts'
 import { cropPixelBlocks } from './crop.ts'
 import { ImageError, invalidInput, unsupportedOperation } from './errors.ts'
+import type { EvidenceContext } from './evidence.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
 import { applyLutPixelBlocks } from './lut.ts'
@@ -21,7 +22,6 @@ import { createRotationTransform } from './rotate.ts'
 import type { ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
 import { drainSourceEvidenceDependencies, type ImageSource } from './source.ts'
-import type { EvidenceContext } from './evidence.ts'
 
 export interface ExecutionContext {
   readonly source: ImageSource
@@ -30,6 +30,10 @@ export interface ExecutionContext {
   readonly frame: number | undefined
   readonly resolutionLevel: number | undefined
   readonly tolerantDecoding: boolean
+  readonly alphaChannel: number | undefined
+  readonly alphaOutput: 'preserve' | 'straight' | undefined
+  readonly hdrOutput: 'encoded' | 'linear-float' | 'tone-map-srgb' | undefined
+  readonly colorOutput: 'preserve' | 'srgb' | undefined
   readonly limits: ImageLimits
   readonly runtime: ImageRuntime
 }
@@ -309,6 +313,7 @@ export const executePipeline = async (
               ...(context.resolutionLevel === undefined
                 ? {}
                 : { resolutionLevel: context.resolutionLevel }),
+              ...(context.alphaChannel === undefined ? {} : { alphaChannel: context.alphaChannel }),
             })
           ).orientation,
         )
@@ -322,6 +327,10 @@ export const executePipeline = async (
       ...(context.resolutionLevel === undefined
         ? {}
         : { resolutionLevel: context.resolutionLevel }),
+      ...(context.alphaChannel === undefined ? {} : { alphaChannel: context.alphaChannel }),
+      ...(context.alphaOutput === undefined ? {} : { alphaOutput: context.alphaOutput }),
+      ...(context.hdrOutput === undefined ? {} : { hdrOutput: context.hdrOutput }),
+      ...(context.colorOutput === undefined ? {} : { colorOutput: context.colorOutput }),
       ...(options.evidence === undefined ? {} : { evidence: options.evidence }),
     })
     options.evidence?.operation({ operationId: 'decoder-open', phase: 'complete' })

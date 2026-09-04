@@ -167,7 +167,7 @@ describe('generated codec capability contract', () => {
 
     expect(jpegxl.packageFormat).toBe('jpegxl')
     expect(readFileSync('README.md', 'utf8')).toContain(
-      '| JPEG XL | Common static sRGB | Stable lossless and exact transcode |',
+      '| JPEG XL | Common static color and HDR | Stable lossless and exact transcode |',
     )
     expect(readFileSync('docs-astro/src/pages/codecs.astro', 'utf8')).toContain(
       '<strong>JPEG XL</strong>',

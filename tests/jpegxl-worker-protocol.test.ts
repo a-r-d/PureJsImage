@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   isJpegXlWorkbenchRequest,
@@ -6,6 +7,7 @@ import {
   planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
 } from '../docs-astro/src/scripts/jpegxl-workbench-types.ts'
+import { inspectJpegXl } from '../src/jpegxl.ts'
 
 describe('JPEG XL workbench worker protocol', () => {
   it('caps a 12 MP preview without changing logical dimensions', () => {
@@ -92,6 +94,37 @@ describe('JPEG XL workbench worker protocol', () => {
         bytes: new ArrayBuffer(jpegXlWorkbenchMaximumInputBytes + 1),
       }),
     ).toBe(false)
+  })
+
+  it('accepts current inspection fields and rejects hostile ICC or HDR fields', async () => {
+    const input = new Uint8Array(readFileSync('tests/fixtures/jpegxl/m4-color/pq-10.jxl'))
+    const inspection = await inspectJpegXl(input)
+    const response = {
+      type: 'opened',
+      requestId: 6,
+      generation: 2,
+      name: 'sample.jxl',
+      sourceKind: 'jpegxl',
+      inputBytes: input.length,
+      inspection,
+      preview: {
+        logicalWidth: 7,
+        logicalHeight: 5,
+        width: 7,
+        height: 5,
+        scaled: false,
+        rgba: new ArrayBuffer(140),
+      },
+    }
+    expect(isJpegXlWorkbenchResponse(response)).toBe(true)
+    for (const changed of [
+      { ...inspection, toneMapping: { ...inspection.toneMapping, intensityTarget: Number.NaN } },
+      { ...inspection, icc: { present: true, decodedBytes: 16_777_217 } },
+      { ...inspection, icc: { present: true, decodedBytes: 1024, payload: new ArrayBuffer(1024) } },
+      { ...inspection, orientation: 9 },
+      { ...inspection, alphaChannels: -1 },
+    ])
+      expect(isJpegXlWorkbenchResponse({ ...response, inspection: changed })).toBe(false)
   })
 
   it('validates worker responses before UI code reads them', () => {

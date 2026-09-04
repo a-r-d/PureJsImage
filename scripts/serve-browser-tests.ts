@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { dirname, extname, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
@@ -38,6 +38,7 @@ const jpegXlSamples = [
 
 const benchmarkEntries = {
   compatibility: 'browser-tests/compatibility-harness.ts',
+  'jpegxl-color': 'browser-tests/jpegxl-color-harness.ts',
   benchmark: 'browser-tests/benchmark-harness.ts',
   'purejsimage-jpeg': 'browser-tests/benchmark/purejsimage-jpeg.ts',
   'purejsimage-png': 'browser-tests/benchmark/purejsimage-png.ts',
@@ -416,6 +417,13 @@ const wasmFiles: readonly (readonly [string, string])[] = [
   ['node_modules/@jsquash/webp/codec/enc/webp_enc.wasm', 'webp_enc.wasm'],
   ['node_modules/@jsquash/webp/codec/enc/webp_enc_simd.wasm', 'webp_enc_simd.wasm'],
 ]
+for (const name of await readdir('tests/fixtures/jpegxl/m4-color')) {
+  await copyFile(
+    `tests/fixtures/jpegxl/m4-color/${name}`,
+    resolve(fixtureDirectory, `jpegxl-m4-${name}`),
+  )
+}
+
 for (const [source, name] of wasmFiles) await copyFile(source, resolve(outputDirectory, name))
 
 const png = benchmarkPng()

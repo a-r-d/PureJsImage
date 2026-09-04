@@ -11,6 +11,7 @@ export type ConvertiblePixelFormat =
   | 'rgb8'
   | 'rgb16'
   | 'rgbf32'
+  | 'rgbaf32'
   | 'rgba8'
   | 'rgba16'
 
@@ -38,6 +39,7 @@ const sourceSupported = (format: PixelFormat): format is ConvertiblePixelFormat 
   format === 'rgb8' ||
   format === 'rgb16' ||
   format === 'rgbf32' ||
+  format === 'rgbaf32' ||
   format === 'rgba8' ||
   format === 'rgba16'
 
