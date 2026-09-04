@@ -924,10 +924,28 @@ const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
   }
   const output = await (await images.open(bytes))
     .crop({ x: 0, y: 0, width: 2, height: 1 })
+    .convertPixelFormat({ format: 'rgba16' })
     .png()
     .toUint8Array()
+  const png = await pngCodec.createDecoder?.(new MemorySource(output), defaultImageLimits)
+  if (png?.pixelFormat !== 'rgba16') throw new Error('PNG lost explicit 16-bit storage')
+  const converted: number[] = []
+  for await (const block of png.decode()) {
+    try {
+      converted.push(...block.data)
+    } finally {
+      block.release?.()
+    }
+  }
+  const expectedPng = [0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 64, 0, 64, 0, 0]
+  if (
+    converted.length !== expectedPng.length ||
+    converted.some((value, index) => value !== expectedPng[index])
+  )
+    throw new Error('PNG samples do not match explicit 12-to-16-bit range conversion')
   return {
-    detail: 'lossless JPEG XL preserved native 12-bit RGBA samples and normalized through PNG',
+    detail:
+      'lossless JPEG XL preserved native 12-bit RGBA samples and explicitly converted to 16-bit PNG',
     outputBytes: output.byteLength,
   }
 }

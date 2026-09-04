@@ -7,16 +7,16 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Current merged main: `1cd965dfeba27865c920c4e27bd44dbb4ea0404b`
 - Package version: `0.17.0`
 - Current target: A
-- Active milestone: M4
+- Active milestone: M5
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
-- Starting revision: `eb0d1697132a81a2dcc9eb6822b384e09c781bec`
-- M4 implementation revision: `88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302`
-- Capability change: common static color and HDR, independent alpha, bounded ICC and metadata, and structured lossless encoding.
-- Stable promotion gate: passed locally and remotely for the documented M4 boundary.
+- Starting revision: `a57fbd548c1317af457636a2ddad4563e8bad330`
+- M5 implementation revision: pending
+- Capability change: complete static processing, explicit precision negotiation, planner reporting and browser transform/export.
+- Stable promotion gate: M5 common-static local acceptance passed; final exact-head remote checks pending.
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
-operator explicitly directed M1, M2, M3, and M4 work to continue on the existing M0 branch and pull request.
+operator explicitly directed M1, M2, M3, M4, and M5 work to continue on the existing M0 branch and pull request.
 This ledger records that exception without treating the earlier milestones as merged.
 
 ## Production targets
@@ -36,7 +36,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
 | M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
 | M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `d61e238814018b8f234c806e57282d07dda39357` | passed |
-| M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
+| M5 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `a57fbd548c1317af457636a2ddad4563e8bad330` | pending | passed locally |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
 | M7 | B | not started | `codex/jpegxl-m07-lossy-encoder` | pending | pending | pending | not passed |
 | M8 | B | not started | `codex/jpegxl-m08-level5-breadth` | pending | pending | pending | not passed |
@@ -371,7 +371,7 @@ m4-m3-performance.json. The M4 package ceilings are 365000 bytes for core plus J
 Advanced grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha,
 floating-point encoded inputs, unavailable high-depth ICC and custom-chromaticity transforms,
 general ICC encoding, animation, and general lossy encoding remain explicit unsupported cases.
-Exact original-JPEG reconstruction retains its M1 eligibility boundary. M5 has not begun.
+Exact original-JPEG reconstruction retains its M1 eligibility boundary. M5 had not begun at M4 closure.
 
 The final local gate passed with 2590 unit tests and three existing skips. The clean full browser
 run passed 752 tests with 12 existing skips across Chromium, Firefox, and WebKit, retries disabled.
@@ -394,4 +394,103 @@ for revision `d61e238814018b8f234c806e57282d07dda39357`:
 - [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33917200496)
 
 The following ledger commit records those results without changing implementation or fixtures.
-PR 35 remains open; review and merge are external. M5 has not begun.
+PR 35 remains open; review and merge are external. M5 began after this M4 closure.
+
+## M5 static pipelines
+
+M5 continues on PR 35 at the operator’s request. Common-static local acceptance passes; exact-head remote checks remain pending. M6 is outside this change.
+
+The public pipeline exports supported static JPEG XL to JPEG, PNG, WebP, AVIF and TIFF.
+Crop, resize, contain, cover, orientation, selected color/HDR conversion, metadata keep/strip,
+exact JPEG reconstruction and pixel-lossless JPEG XL encoding retain their documented input
+boundaries. JPEG XL re-encoding inherits native color and alpha sample depths, orientation,
+intrinsic size when geometry is unchanged, and compatible tone-mapping metadata.
+
+Encoder negotiation rejects implicit high-depth normalization. An explicit
+`convertPixelFormat` scales declared integer sample precision to the target storage range.
+A 12-bit RGB source therefore needs `convertPixelFormat({ format: "rgb16" })` before PNG
+encoding, or `rgb8` for an explicitly quantized output. Conversion preserves color semantics;
+it does not convert primaries or transfer functions. Display window hints do not change native
+integer resize or storage conversion. Independent alpha precision remains separate from color.
+
+Float RGB and RGBA can resize in native linear light before explicit integer conversion.
+Alpha-aware filtering preserves highlights and negative RGB values. PNG writes representable
+8-bit color signals; source ICC is retained only on request. Unavailable high-depth ICC,
+custom-chromaticity and other unsupported conversions return explicit errors.
+
+`explainImage()` reports native and emitted formats, sample precision, color, orientation,
+pushed crop/scale, conversions, precision loss, encoder options, alpha composition and memory.
+Opening VarDCT can decode pixels, and `io.pixelDecode` records that work. Eligible JPEG-derived
+resizes use a floating-point reduced IDCT; nearest and linear-light filters bypass reduction.
+The independent nearest reference caught incorrect old reduced output on the JPEG-derived
+case. Its old maximum error of 167 is a failed baseline, not a valid speed comparison.
+
+Memory remains explicit: VarDCT retains the full output frame, with bounded restoration bands
+for eligible 8-bit photos; high-depth and other fallback cases retain working planes.
+Single-group Modular retains complete channel planes. Grouped Modular reads intersecting
+groups in bounded bands. Planner estimates exclude process/runtime overhead. The six isolated
+24 MP/JPEG-derived cold and warm measurements in `m5-large-pipelines.json` record absolute
+RSS, post-GC baseline, external/ArrayBuffer usage, wall time and independent pixel error.
+`m5-before-after.json` compares against M4 revision `a57fbd5`. Timing varies with host load;
+M5 makes no performance-win claim.
+
+The browser workbench exposes width, height, contain/cover/fill and JPEG/PNG export, with an
+explicit notice about display conversion. Browser coverage exercises native depth, P3, PQ,
+HLG, alpha, VarDCT, native float processing, cancellation/reuse, and real HTTP Range reads
+across a segmented `jxlp` container. M6 progressive delivery and range-aware scheduling have
+not begun.
+
+The complete common-static verifier passes 299 of 300 inputs (99.67%), with one known
+unsupported case, 1495 complete workflows and zero incorrect output. It uses the pinned M3
+source hashes and djxl PPM references.
+PNG, lossless WebP and TIFF retain the existing maximum-one-sample/RMSE-0.55 oracle gate.
+JPEG and AVIF are compared, after independent libvips decoding, against equivalent encodes
+of the already oracle-checked PNG thumbnail. These target inputs are identical: a permitted
+one-sample source rounding difference must not be amplified through a lossy quantizer and
+misclassified as a pipeline failure. This checks integration without making new target-codec
+quality claims. Exact JPEG reconstruction retains its separate byte-equality matrix.
+
+Reproduction commands:
+
+```sh
+node benchmark/jpegxl/generate-m5-segmented.ts
+npx vitest run tests/jpegxl-m5-pipeline.test.ts
+node benchmark/jpegxl/production-program/verify-m5-common-static.ts
+node benchmark/jpegxl/production-program/verify-m5-pipelines.ts
+node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --large
+node benchmark/jpegxl/production-program/compare-m5-base.ts /tmp/jpegxl-m5-base
+npm run capabilities:generate
+npm run jpegxl:program:baseline:write
+npm run size
+npm run documentation:write
+npm run check
+npx playwright test --project=chromium --project=firefox --project=webkit --retries=0
+```
+
+The common-static input cache is prepared by the M3 corpus run. The before/after comparison
+uses an archived M4 checkout at `/tmp/jpegxl-m5-base`, the same workflow worker, and the current
+development dependencies. No third-party codec implementation enters the published package.
+
+- [x] Native precision, sample ranges, alpha and encoder negotiation
+- [x] Planner color, orientation, conversion and memory reporting
+- [x] Independent complete workflow corpus and cancellation gates
+- [x] Browser workbench transform and export
+- [x] Package examples, capability generation and full local gate
+- [ ] Exact-head remote gates
+
+
+The first full local gate passed 2704 unit tests with three existing skips. A subsequent worker
+protocol regression rejects nonliteral fit values. The full browser run passed 770 tests with 12
+existing skips; three high-depth examples still used implicit PNG normalization. Those examples
+now explicitly convert 12-bit samples to 16-bit PNG and assert the output samples. Their focused
+rerun passes in all three browsers. The focused M5 browser file passes 21 tests with retries off.
+
+Core execution grows from 68095 to 72316 minified bytes, and the scientific entry from 196485
+to 200750 because both share the precision pipeline. Their ceilings increase to 74752 and
+204000. Core plus JPEG XL is 349338 bytes, down from 357995 after removing the old JPEG pixel
+renderer dependency. The specialized entry is 398202 bytes, up from 394885. Both retain their
+existing 365000 and 402000 ceilings. These are package measurements, not execution speed claims.
+
+The final local `npm run check` passes 2705 tests with three existing skips, across 204 passing
+files and one skipped file. The committed candidate promotes the documented common-static
+decoder to Stable; remote workflow acceptance is still pending.

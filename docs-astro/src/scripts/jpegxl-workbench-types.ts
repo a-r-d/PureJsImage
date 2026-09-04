@@ -118,6 +118,13 @@ export type JpegXlWorkbenchRequest =
       readonly bytes: ArrayBuffer
     })
   | (JpegXlWorkbenchIdentity & { readonly type: 'transcode'; readonly onlyIfSmaller: boolean })
+  | (JpegXlWorkbenchIdentity & {
+      readonly type: 'transform'
+      readonly width: number
+      readonly height: number
+      readonly fit: 'contain' | 'cover' | 'fill'
+      readonly format: 'png' | 'jpeg'
+    })
   | (JpegXlWorkbenchIdentity & { readonly type: 'encode' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'reconstruct' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'cancel' })
@@ -175,7 +182,7 @@ export type JpegXlWorkbenchResponse =
     })
   | (JpegXlWorkbenchIdentity & {
       readonly type: 'output'
-      readonly action: 'transcode' | 'encode' | 'reconstruct'
+      readonly action: 'transcode' | 'encode' | 'reconstruct' | 'transform'
       readonly name: string
       readonly bytes: ArrayBuffer
       readonly preview: JpegXlWorkbenchPreview
@@ -494,6 +501,16 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
 
 export const isJpegXlWorkbenchRequest = (value: unknown): value is JpegXlWorkbenchRequest => {
   if (!record(value) || typeof value.type !== 'string' || !identity(value)) return false
+  if (value.type === 'transform')
+    return (
+      exactKeys(value, ['type', 'requestId', 'generation', 'width', 'height', 'fit', 'format']) &&
+      positiveInteger(value.width) &&
+      positiveInteger(value.height) &&
+      Number(value.width) <= 4096 &&
+      Number(value.height) <= 4096 &&
+      (value.fit === 'contain' || value.fit === 'cover' || value.fit === 'fill') &&
+      (value.format === 'png' || value.format === 'jpeg')
+    )
   if (value.type === 'transcode') {
     return (
       exactKeys(value, ['type', 'requestId', 'generation', 'onlyIfSmaller']) &&
@@ -555,7 +572,7 @@ export const isJpegXlWorkbenchResponse = (value: unknown): value is JpegXlWorkbe
     value.bytes.byteLength > 0 &&
     value.bytes.byteLength <= jpegXlWorkbenchMaximumOutputBytes &&
     preview(value.preview)
-  if (value.action === 'reconstruct') {
+  if (value.action === 'reconstruct' || value.action === 'transform') {
     return (
       exactKeys(value, ['type', 'requestId', 'generation', 'action', 'name', 'bytes', 'preview']) &&
       common

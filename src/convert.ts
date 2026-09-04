@@ -127,6 +127,7 @@ export const convertPixelBlocks = async function* (
   inputFormat: PixelFormat,
   options: Readonly<ConvertPixelFormatOptions>,
   abort: Readonly<AbortOptions> = {},
+  sampleBitDepths?: readonly number[],
 ): AsyncGenerator<PixelBlock> {
   validateConvertPixelFormatOptions(options)
   if (!sourceSupported(inputFormat)) {
@@ -202,7 +203,13 @@ export const convertPixelBlocks = async function* (
           if (!Number.isFinite(second) || !Number.isFinite(third) || !Number.isFinite(fourth)) {
             throw invalidInput('Pixel conversion input must be finite')
           }
-          const sourceAlpha = fourth / inputMaximum
+          const sourceAlpha =
+            fourth /
+            (inputFloat
+              ? 1
+              : sampleBitDepths?.[3] === undefined
+                ? inputMaximum
+                : 2 ** sampleBitDepths[3] - 1)
           for (let channel = 0; channel < output.channels; channel += 1) {
             let value: number
             if (channel === 3) {
@@ -212,7 +219,10 @@ export const convertPixelBlocks = async function* (
               const normalized = inputFloat
                 ? (sourceValue - (range?.minimum ?? 0)) /
                   ((range?.maximum ?? 1) - (range?.minimum ?? 0))
-                : sourceValue / inputMaximum
+                : sourceValue /
+                  (sampleBitDepths?.[input.channels === 1 ? 0 : channel] === undefined
+                    ? inputMaximum
+                    : 2 ** (sampleBitDepths[input.channels === 1 ? 0 : channel] ?? 8) - 1)
               value = normalized * outputMaximum
               if (input.channels === 4 && output.channels < 4 && backgroundValues) {
                 value = value * sourceAlpha + (backgroundValues[channel] ?? 0) * (1 - sourceAlpha)

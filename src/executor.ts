@@ -15,9 +15,18 @@ import {
   normalizedRotation,
   type PipelineOperation,
 } from './pipeline.ts'
-import { normalizedPixelFormat, normalizePixelBlocks, type PixelBlock } from './pixel.ts'
-import { describePrecisionExecution, transformAcceptsPixelFormat } from './precision-plan.ts'
-import { createResizeTransform } from './resize.ts'
+import {
+  normalizedPixelFormat,
+  normalizePixelBlocks,
+  type PixelBlock,
+  pixelStorage,
+} from './pixel.ts'
+import {
+  describePrecisionExecution,
+  negotiateEncoderOptions,
+  transformAcceptsPixelFormat,
+} from './precision-plan.ts'
+import { createResizeTransform, resizedPixelColorSemantics } from './resize.ts'
 import { createRotationTransform } from './rotate.ts'
 import type { ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
@@ -82,7 +91,13 @@ export const selectDecodeScaleDenominator = (
   scaledDecode: boolean,
 ): DecodeScaleDenominator => {
   const firstStage = stages[0]
-  if (!scaledDecode || firstStage?.type !== 'resize') return 1
+  if (
+    !scaledDecode ||
+    firstStage?.type !== 'resize' ||
+    firstStage.kernel === 'nearest' ||
+    firstStage.colorSpace === 'linear-light'
+  )
+    return 1
   const target = calculateResizeDimensions(decoderRegion.width, decoderRegion.height, firstStage)
   for (const denominator of [8, 4, 2] as const) {
     const region = containingAlignedRegion(decoderRegion, sourceWidth, sourceHeight, denominator)
@@ -407,12 +422,15 @@ export const executePipeline = async (
     }
     let pixelFormat = sourcePixelFormat
     let colorSemantics = decoder.colorSemantics
+    let sampleBitDepths = decoder.execution?.sampleBitDepths
     const precisionPlan = describePrecisionExecution({
       width,
       height,
       pixelFormat,
       ...(colorSemantics === undefined ? {} : { colorSemantics }),
       operations: [...(output.window === undefined ? [] : [output.window]), ...output.stages],
+      requireExplicitConversion: context.codec.format === 'jpegxl',
+      ...(decoder.execution ? { decoderExecution: decoder.execution } : {}),
       encoderFormat: output.format,
       ...(outputCodec.encoderPixelFormats === undefined
         ? {}
@@ -422,6 +440,14 @@ export const executePipeline = async (
         : { encoderAcceptsColorSemantics: outputCodec.acceptsColorSemantics }),
       sourceOrientation,
     })
+    const encoderOptions = negotiateEncoderOptions(
+      decoder,
+      outputCodec,
+      operations,
+      output.options,
+      icc !== undefined,
+      precisionPlan.outputFormat,
+    )
     for (const stage of precisionPlan.stages) {
       options.evidence?.operation({
         operationId: stage.operation,
@@ -460,6 +486,7 @@ export const executePipeline = async (
       })
       pixelFormat = normalizedPixelFormat(sourcePixelFormat)
       colorSemantics = undefined
+      sampleBitDepths = undefined
       if (options.evidence !== undefined)
         blocks = instrumentOperationBlocks(blocks, options.evidence, 'window')
     }
@@ -469,22 +496,48 @@ export const executePipeline = async (
         throw unsupportedOperation(`${operation.type} does not support ${pixelFormat} pixels`)
       }
       if (operation.type === 'convertPixelFormat') {
-        blocks = convertPixelBlocks(blocks, pixelFormat, operation.options, options)
+        blocks = convertPixelBlocks(
+          blocks,
+          pixelFormat,
+          operation.options,
+          options,
+          sampleBitDepths,
+        )
         pixelFormat = operation.options.format
+        sampleBitDepths = undefined
         colorSemantics = convertedPixelColorSemantics(colorSemantics, pixelFormat)
       } else if (operation.type === 'lut') {
         blocks = applyLutPixelBlocks(blocks, pixelFormat, operation.options, options)
         pixelFormat = operation.options.format
+        sampleBitDepths = undefined
       } else if (operation.type === 'crop') {
         validateCrop(width, height, operation)
         blocks = cropPixelBlocks(blocks, width, height, pixelFormat, operation)
         width = operation.width
         height = operation.height
       } else if (operation.type === 'resize') {
-        const resize = createResizeTransform(width, height, pixelFormat, operation, colorSemantics)
+        const resize = createResizeTransform(
+          width,
+          height,
+          pixelFormat,
+          operation,
+          colorSemantics,
+          sampleBitDepths,
+        )
         width = resize.width
         height = resize.height
+        if (sampleBitDepths && resize.pixelFormat !== pixelFormat) {
+          const depths = sampleBitDepths
+          const sourceGray = pixelFormat.startsWith('gray')
+          const storage = pixelStorage(resize.pixelFormat)
+          sampleBitDepths = Array.from({ length: storage.channels }, (_, channel) =>
+            channel === 3
+              ? storage.bytesPerSample * 8
+              : (depths[sourceGray ? 0 : channel] ?? storage.bytesPerSample * 8),
+          )
+        }
         pixelFormat = resize.pixelFormat
+        colorSemantics = resizedPixelColorSemantics(colorSemantics, pixelFormat)
         blocks = resize.apply(blocks)
       } else if (operation.type === 'autoOrient') {
         const orientation = createOrientationTransform(
@@ -549,6 +602,7 @@ export const executePipeline = async (
       })
       pixelFormat = normalizedPixelFormat(inputFormat)
       colorSemantics = undefined
+      sampleBitDepths = undefined
       if (options.evidence !== undefined)
         blocks = instrumentOperationBlocks(blocks, options.evidence, 'encoder-input-conversion')
     }
@@ -562,12 +616,24 @@ export const executePipeline = async (
     }
 
     options.evidence?.operation({ operationId: 'encoder-open', phase: 'start' })
-    encoder = await outputCodec.createEncoder(sink, {
+    const encoderSink: ImageSink =
+      options.signal === undefined
+        ? sink
+        : {
+            async write(chunk) {
+              throwIfAborted(options.signal)
+              await sink.write(chunk)
+              throwIfAborted(options.signal)
+            },
+            close: () => sink.close(),
+            abort: (reason) => sink.abort(reason),
+          }
+    encoder = await outputCodec.createEncoder(encoderSink, {
       width,
       height,
       pixelFormat,
       ...(colorSemantics === undefined ? {} : { colorSemantics }),
-      options: output.options,
+      options: encoderOptions,
       runtime: context.runtime,
       limits: context.limits,
       ...(options.signal === undefined ? {} : { signal: options.signal }),

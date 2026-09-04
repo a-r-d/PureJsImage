@@ -383,14 +383,14 @@
         "The cafe ICC source checksum is invalid; exact source bytes and the independent validator finding are preserved.",
         "The pre-existing official delta_palette INVALID_INPUT failure remains outside M4."
       ],
-      "deferredWork": ["M5 pipeline integration and later milestones have not begun."],
+      "deferredWork": ["M5 began after M4 closure; later milestones remain deferred."],
       "stablePromotionGatePassed": true,
       "remainingBlockers": ["Review and merge remain external."]
     },
     {
       "id": "M5",
       "goal": "Production static pipeline integration",
-      "branch": "codex/jpegxl-m05-static-pipeline",
+      "branch": "codex/jpegxl-m00-program-baseline",
       "target": "A",
       "requiredGates": [
         "listed transform and output workflows",
@@ -398,26 +398,62 @@
         "Node and browser agreement",
         "package examples"
       ],
-      "status": "not started",
-      "pr": null,
-      "startRevision": null,
+      "status": "PR open",
+      "pr": 35,
+      "startRevision": "a57fbd548c1317af457636a2ddad4563e8bad330",
       "finalRevision": null,
-      "localCommands": [],
+      "localCommands": [
+        "node benchmark/jpegxl/generate-m5-segmented.ts",
+        "npx vitest run tests/jpegxl-m5-pipeline.test.ts",
+        "node benchmark/jpegxl/production-program/verify-m5-common-static.ts",
+        "node benchmark/jpegxl/production-program/verify-m5-pipelines.ts",
+        "node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --large",
+        "node benchmark/jpegxl/production-program/compare-m5-base.ts /tmp/jpegxl-m5-base",
+        "npm run capabilities:generate",
+        "npm run jpegxl:program:baseline:write",
+        "npm run size",
+        "npm run documentation:write",
+        "npm run check",
+        "npx playwright test --project=chromium --project=firefox --project=webkit --retries=0"
+      ],
       "remoteWorkflowRuns": [],
-      "measuredResults": [],
-      "corpusVersions": [],
-      "oracleRevisions": [],
-      "benchmarkReportPath": null,
-      "capabilityChanges": [],
-      "capabilityPromotions": [],
-      "acceptedLimitations": [],
-      "deferredWork": [],
-      "stablePromotionGatePassed": false,
+      "measuredResults": [
+        "Common-static acceptance: 299 of 300 inputs (99.67 percent), one known unsupported case, 1495 complete workflows, zero incorrect output.",
+        "114 focused M5 tests pass, including 96 exact re-encode cases against independent native samples.",
+        "105 complete workflows agree between Node, Chromium, Firefox and WebKit.",
+        "21 focused browser tests pass, including native float processing, real HTTP Range, cancellation/reuse and workbench export.",
+        "Six isolated cold/warm workflows pass pinned djxl references at maximum error 1 and RMSE below 0.55. 24 MP process peak RSS is 409.9 to 424.8 MiB.",
+        "Before/after uses M4 a57fbd5; the JPEG-derived nearest baseline fails correctness with maximum error 167. No performance-win claim is made.",
+        "Full browser run: 770 pass, 12 existing skips, three old implicit-normalization cases fail as expected under M5. All three pass after explicit 16-bit conversion and output pixel assertions.",
+        "Core execution 72316 bytes (ceiling 74752); scientific 200750 (204000); core plus JPEG XL 349338 (365000); specialized JPEG XL 398202 (402000).",
+        "Final npm run check: 2705 tests pass, three existing skips; 204 files pass, one skipped. Includes package types, browser graph, capabilities, docs, lint, format and size gates."
+      ],
+      "corpusVersions": [
+        "M3 300-file checksum-pinned common-static corpus",
+        "M4 pinned color and alpha fixtures",
+        "M5 segmented copy of M4 srgb-12 codestream"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "sharp 0.35.3 libvips development oracle"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m5-large-pipelines.json",
+      "capabilityChanges": [
+        "Explicit precision negotiation, sample range propagation, float RGBA resize, native re-encode defaults, PNG color signaling, planner memory and conversion reporting, workbench transform/export"
+      ],
+      "capabilityPromotions": [
+        "Stable common static decode for the documented M0-M5 boundary; Target A still requires M6."
+      ],
+      "acceptedLimitations": [
+        "VarDCT opens can decode pixels; planner reports this cost.",
+        "VarDCT output remains full-frame with bounded restoration bands for eligible 8-bit inputs.",
+        "Unsupported color transforms and float JPEG XL encoding remain explicit errors.",
+        "Single-group Modular retains complete channel planes; grouped Modular retains intersecting group bands."
+      ],
+      "deferredWork": ["M6 progressive and range-aware decoding is outside this PR."],
+      "stablePromotionGatePassed": true,
       "remainingBlockers": [
-        "listed transform and output workflows",
-        "planner evidence",
-        "Node and browser agreement",
-        "package examples"
+        "Exact-head remote workflows are pending. Review and merge remain external."
       ]
     },
     {

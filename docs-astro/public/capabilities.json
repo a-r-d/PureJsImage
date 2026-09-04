@@ -420,7 +420,9 @@
         "tests/png.test.ts",
         "tests/png-compatibility.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/wasm-png.test.ts"
+        "tests/wasm-png.test.ts",
+        "tests/jpegxl-m5-pipeline.test.ts",
+        "browser-tests/jpegxl-pipeline.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "not-applicable",
@@ -774,6 +776,14 @@
         {
           "status": "planned",
           "text": "Add malformed chunk-order, CRC, Deflate, palette, transparency, and decompression-bomb fuzzing with strict allocation limits"
+        },
+        {
+          "status": "supported",
+          "text": "Preserve representable sRGB, linear and structured signals for 8-bit as well as 16-bit encoder input"
+        },
+        {
+          "status": "supported",
+          "text": "Preserve requested compatible source ICC bytes through orientation and reject unrepresentable color semantics"
         }
       ]
     },
@@ -5497,16 +5507,16 @@
       "packageFormat": "jpegxl",
       "read": {
         "status": "supported",
-        "label": "Common static color and HDR"
+        "label": "Stable common static"
       },
       "write": {
         "status": "limited",
         "label": "Stable lossless and exact transcode"
       },
-      "boundary": "Common static JPEG XL decoding covers the checked Modular and VarDCT boundary, all eight orientations, structured sRGB, linear sRGB, Display P3, Rec. 2020, grayscale, PQ, HLG, bounded gamma, and representable custom chromaticities. Native Modular integer samples and associated alpha remain exact. VarDCT supports 10, 12, and 16-bit sRGB output and preserves linear wide-gamut and HDR values in RGB or RGBA float rows. Alpha supports independent precision, straight or premultiplied semantics, 2x/4x/8x VarDCT upsampling, and explicit selection between multiple alpha channels. Compressed ICC reconstruction is bounded; supported 8-bit matrix/TRC profiles can convert to sRGB, and unavailable conversions retain source-profile semantics or reject an explicit request. Exif, XMP, JUMBF, common brob metadata, intrinsic size, density, and timestamps are bounded. HDR-to-SDR conversion is explicit. The stable lossless Modular encoder accepts six integer pixel formats, effort 1/3/5/7, structured color, independent alpha precision, orientation, intrinsic size, tone mapping, and metadata. Exact JPEG transcode remains limited to the independently proven three-component 8-bit Huffman subset. Float-encoded input, grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha, general ICC encoding, unavailable high-depth ICC conversion, animation, multiple visible frames, uncommon extra channels, and general lossy encoding remain unsupported.",
-      "description": "First-party static JPEG XL decoding with structured color, ICC, HDR, orientation, and alpha; deterministic lossless Modular encoding and exact JPEG coefficient transcode for documented subsets.",
-      "memory": "Common 8-bit sRGB VarDCT photographs use bounded group-row restoration bands. High-depth and float VarDCT, alpha, patches, splines, noise, and reference composition use an explicit full-frame fallback with aggregate memory preflight. JPEG-derived pixels retain compact coefficients and bounded component rows. Modular decode retains bounded groups; ICC and metadata have separate byte limits.",
-      "recommendation": "Use the decoder for common static 8-bit sRGB JPEG XL photographs and files within the checked lossless Modular subset. Use the stable Modular encoder for exact supported pixels and explicit effort or sample precision. Use the stable coefficient-domain transcoder for eligible JPEG files when original byte reconstruction matters, with reconstruction: required for exact work and onlyIfSmaller when output size is a hard requirement.",
+      "boundary": "Common static JPEG XL decoding covers the checked Modular and VarDCT boundary, all eight orientations, structured sRGB, linear sRGB, Display P3, Rec. 2020, grayscale, PQ, HLG, bounded gamma, and representable custom chromaticities. Native Modular integer samples and associated alpha remain exact. VarDCT supports 10, 12, and 16-bit sRGB output and preserves linear wide-gamut and HDR values in RGB or RGBA float rows. Alpha supports independent precision, straight or premultiplied semantics, 2x/4x/8x VarDCT upsampling, and explicit selection between multiple alpha channels. Compressed ICC reconstruction is bounded; supported 8-bit matrix/TRC profiles can convert to sRGB, and unavailable conversions retain source-profile semantics or reject an explicit request. Exif, XMP, JUMBF, common brob metadata, intrinsic size, density, and timestamps are bounded. HDR-to-SDR conversion is explicit. The stable lossless Modular encoder accepts six integer pixel formats, effort 1/3/5/7, structured color, independent alpha precision, orientation, intrinsic size, tone mapping, and metadata. Exact JPEG transcode remains limited to the independently proven three-component 8-bit Huffman subset. Float-encoded input, grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha, general ICC encoding, unavailable high-depth ICC conversion, animation, multiple visible frames, uncommon extra channels, and general lossy encoding remain unsupported. Native crop, orientation, integer and float RGBA resize preserve sample meaning. JPEG XL re-encode inherits native depths and luminance metadata. Outputs that cannot retain native precision require explicit pixel conversion; unsupported color conversions fail explicitly.",
+      "description": "First-party common static JPEG XL decode and processing, with explicit precision, color and HDR handling; lossless Modular encoding and exact JPEG coefficient transcode for documented subsets.",
+      "memory": "VarDCT retains a full output frame. Common 8-bit sRGB photographs use bounded group-row restoration bands. High-depth and float VarDCT, alpha, patches, splines, noise, and reference composition retain full working planes with aggregate memory preflight. JPEG-derived pixels retain compact coefficients and bounded component rows. Single-group Modular retains complete channel planes; grouped Modular retains intersecting group bands. ICC and metadata have separate byte limits.",
+      "recommendation": "Use the stable common-static decoder for the documented Modular, VarDCT, color, alpha and HDR boundary. Choose explicit pixel conversion when an output cannot preserve native precision. Use the stable Modular encoder for exact supported pixels and explicit effort or sample precision. Use the stable coefficient-domain transcoder for eligible JPEG files when original byte reconstruction matters, with reconstruction: required for exact work and onlyIfSmaller when output size is a hard requirement.",
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
@@ -5517,7 +5527,9 @@
         "browser-tests/jpegxl-workbench.pw.ts",
         "tests/library.test.ts",
         "tests/jpegxl-m4-color.test.ts",
-        "browser-tests/jpegxl-color.pw.ts"
+        "browser-tests/jpegxl-color.pw.ts",
+        "tests/jpegxl-m5-pipeline.test.ts",
+        "browser-tests/jpegxl-pipeline.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -5526,6 +5538,54 @@
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "claims": [
+        {
+          "status": "supported",
+          "text": "JPEG XL to JPEG, PNG, WebP, AVIF and TIFF through the public pipeline"
+        },
+        {
+          "status": "supported",
+          "text": "Crop, resize, contain, cover, orientation normalization and explicit metadata preservation or stripping"
+        },
+        {
+          "status": "supported",
+          "text": "Native 8-16-bit crop and resize, independent alpha ranges, and float RGBA resize with bounded row buffers"
+        },
+        {
+          "status": "supported",
+          "text": "Linear-light sRGB resize uses the actual source sample range; float linear RGB and RGBA retain highlights"
+        },
+        {
+          "status": "supported",
+          "text": "Pixel-lossless JPEG XL re-encode inherits color and alpha precision, orientation and luminance metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit pixel conversion is required before an encoder that cannot retain JPEG XL sample precision"
+        },
+        {
+          "status": "supported",
+          "text": "Known 8-bit PNG color signals are preserved; incompatible or unavailable color conversions fail explicitly"
+        },
+        {
+          "status": "supported",
+          "text": "Planner reports native format, sample depths, color semantics, source orientation, pushed crop and scale, conversions, encoder options and decoder working storage"
+        },
+        {
+          "status": "supported",
+          "text": "Planner reports full-frame VarDCT output and any decode performed while opening the decoder"
+        },
+        {
+          "status": "supported",
+          "text": "Nearest and linear-light filters bypass coefficient reduction; other eligible JPEG-derived resizes use reduced floating-point IDCT"
+        },
+        {
+          "status": "supported",
+          "text": "Bounded HTTP Range reads across segmented jxlp, operation cancellation and source reuse"
+        },
+        {
+          "status": "supported",
+          "text": "Browser workbench opens, inspects, resizes and exports representative native-depth, P3 and HDR inputs"
+        },
         {
           "status": "supported",
           "text": "Exact Modular RGB and gray samples in sRGB, linear sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma, and custom chromaticities at 8, 10, 12, and 16 bits"
@@ -5904,7 +5964,7 @@
         },
         {
           "status": "supported",
-          "text": "Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel display ranges, normalizing only when an 8-bit transform or encoder requires it"
+          "text": "Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel display ranges; pipeline normalization requires an explicit pixel conversion"
         },
         {
           "status": "supported",

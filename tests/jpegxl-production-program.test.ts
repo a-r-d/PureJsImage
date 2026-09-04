@@ -26,7 +26,7 @@ const digest = async (path: string): Promise<string> =>
     .digest('hex')
 
 describe('JPEG XL production program baseline', () => {
-  test('tracks every milestone deterministically with the approved M1 through M4 promotions', async () => {
+  test('tracks every milestone deterministically with the approved M1 through M5 promotions', async () => {
     const status = await json(`${root}/status.json`)
     const milestones = array(status.milestones, 'status.milestones').map((value) =>
       record(value, 'milestone'),
@@ -51,7 +51,7 @@ describe('JPEG XL production program baseline', () => {
       true,
       true,
       true,
-      false,
+      true,
       false,
       false,
       false,
@@ -66,7 +66,7 @@ describe('JPEG XL production program baseline', () => {
     expect(jpegXl).toBeDefined()
     expect(record(jpegXl?.read, 'jpegxl.read')).toEqual({
       status: 'supported',
-      label: 'Common static color and HDR',
+      label: 'Stable common static',
     })
     expect(record(jpegXl?.write, 'jpegxl.write')).toEqual({
       status: 'limited',

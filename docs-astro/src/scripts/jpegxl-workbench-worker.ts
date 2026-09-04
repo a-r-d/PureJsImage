@@ -1,4 +1,5 @@
 import { throwIfAborted } from '../../../src/abort.ts'
+import { createImageLibrary } from '../../../src/browser.ts'
 import type { ImageCodec, ImageDecoder } from '../../../src/codec.ts'
 import { jpegCodec } from '../../../src/codecs/jpeg.ts'
 import { jpegxlCodec } from '../../../src/codecs/jpegxl.ts'
@@ -16,19 +17,19 @@ import type { PixelFormat } from '../../../src/pixel.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import { MemorySource } from '../../../src/source.ts'
 import {
-  isJpegXlWorkbenchRequest,
-  jpegXlWorkbenchMaximumOutputBytes,
-  planJpegXlWorkbenchNativeMemory,
-  planJpegXlWorkbenchPreview,
-  type JpegXlWorkbenchPreview,
-  type JpegXlWorkbenchResponse,
-} from './jpegxl-workbench-types.ts'
-import {
   isJpegXlWorkbenchPreviewPixelFormat,
   jpegXlWorkbenchPreviewMode,
   jpegXlWorkbenchPreviewPixel,
   jpegXlWorkbenchPreviewRanges,
 } from './jpegxl-workbench-preview.ts'
+import {
+  isJpegXlWorkbenchRequest,
+  type JpegXlWorkbenchPreview,
+  type JpegXlWorkbenchResponse,
+  jpegXlWorkbenchMaximumOutputBytes,
+  planJpegXlWorkbenchNativeMemory,
+  planJpegXlWorkbenchPreview,
+} from './jpegxl-workbench-types.ts'
 
 interface StoredInput {
   readonly generation: number
@@ -137,14 +138,36 @@ const sameBytes = (left: Uint8Array, right: Uint8Array): boolean => {
   return true
 }
 
+const displayOptions = async (
+  codec: ImageCodec,
+  data: Uint8Array,
+  signal: AbortSignal,
+  exporting = false,
+) => {
+  if (codec.format !== 'jpegxl') return { signal }
+  const metadata = await codec.metadata(new MemorySource(data), defaultImageLimits, { signal })
+  const color = metadata.colorSemantics
+  return color?.transfer.kind === 'pq' || color?.transfer.kind === 'hlg'
+    ? { signal, hdrOutput: 'tone-map-srgb' as const, alphaOutput: 'straight' as const }
+    : {
+        signal,
+        alphaOutput: 'straight' as const,
+        ...(color?.primaries !== 'srgb' || (exporting && color?.transfer.kind !== 'srgb')
+          ? { colorOutput: 'srgb' as const }
+          : {}),
+      }
+}
+
 const preview = async (
   codec: ImageCodec,
   data: Uint8Array,
   signal: AbortSignal,
 ): Promise<JpegXlWorkbenchPreview> => {
-  const decoder = await codec.createDecoder?.(new MemorySource(data), defaultImageLimits, {
-    signal,
-  })
+  const decoder = await codec.createDecoder?.(
+    new MemorySource(data),
+    defaultImageLimits,
+    await displayOptions(codec, data, signal),
+  )
   if (!decoder) throw new Error(`${codec.format} decoder is unavailable`)
   if (encoderPixelFormat(decoder.pixelFormat)) {
     planJpegXlWorkbenchNativeMemory(decoder.width, decoder.height, decoder.pixelFormat)
@@ -168,6 +191,9 @@ const preview = async (
           throw new Error(`Workbench preview does not support ${block.format}`)
         }
         const ranges = jpegXlWorkbenchPreviewRanges(block)
+        const sampleView = block.format.endsWith('f32')
+          ? new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+          : undefined
         for (let y = 0; y < plan.height; y += 1) {
           const sourceY = Math.min(
             decoder.height - 1,
@@ -182,7 +208,14 @@ const preview = async (
             )
             if (sourceX < block.x || sourceX >= block.x + block.width) continue
             const target = (y * plan.width + x) * 4
-            const pixel = jpegXlWorkbenchPreviewPixel(block, sourceX, sourceY, mode, ranges)
+            const pixel = jpegXlWorkbenchPreviewPixel(
+              block,
+              sourceX,
+              sourceY,
+              mode,
+              ranges,
+              sampleView,
+            )
             rgba[target] = pixel[0]
             rgba[target + 1] = pixel[1]
             rgba[target + 2] = pixel[2]
@@ -297,6 +330,42 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
       const input = stored
       if (!input || input.generation !== request.generation) {
         throw new Error('Open a JPEG, JPEG XL, PNG, or TIFF file first')
+      }
+      if (request.type === 'transform') {
+        const selected = inputCodec(input.bytes)
+        const library = createImageLibrary([jpegxlCodec, pngCodec, jpegCodec, tiffCodec])
+        const openOptions = await displayOptions(selected.codec, input.bytes, abort.signal, true)
+        let image = (await library.open(input.bytes, openOptions)).autoOrient()
+        const metadata = await image.metadata()
+        if ((metadata.bitDepth ?? 8) > 8) {
+          image = image.convertPixelFormat({ format: metadata.hasAlpha ? 'rgba8' : 'rgb8' })
+        }
+        image = image.resize({ width: request.width, height: request.height, fit: request.fit })
+        const encoded = await (request.format === 'png' ? image.png() : image.jpeg()).toUint8Array({
+          signal: abort.signal,
+        })
+        if (encoded.length > jpegXlWorkbenchMaximumOutputBytes)
+          throw new Error('Transformed output exceeds the workbench byte limit')
+        const rendered = await preview(
+          request.format === 'png' ? pngCodec : jpegCodec,
+          encoded,
+          abort.signal,
+        )
+        if (!isCurrent(request.generation, request.requestId, abort)) return
+        const bytes = copyBuffer(encoded)
+        post(
+          {
+            type: 'output',
+            action: 'transform',
+            requestId: request.requestId,
+            generation: request.generation,
+            name: `${input.name.replace(/\.[^.]+$/u, '')}-resized.${request.format === 'jpeg' ? 'jpg' : 'png'}`,
+            bytes,
+            preview: rendered,
+          },
+          [bytes, rendered.rgba],
+        )
+        return
       }
       if (request.type === 'encode') {
         if (input.kind !== 'png' && input.kind !== 'tiff') {

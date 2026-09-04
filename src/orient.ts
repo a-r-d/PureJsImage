@@ -107,6 +107,7 @@ const flipHorizontal = async function* (
         stride,
         format,
         data,
+        ...(block.displayRanges === undefined ? {} : { displayRanges: block.displayRanges }),
         ...(block.colorSemantics === undefined ? {} : { colorSemantics: block.colorSemantics }),
       }
       receivedRows += block.height
@@ -129,6 +130,7 @@ const spoolTiles = async (
 ): Promise<{
   readonly tilesAcross: number
   readonly tileBytes: number
+  readonly displayRanges?: PixelBlock['displayRanges']
   readonly colorSemantics?: PixelColorSemantics
 }> => {
   const stride = width * bytesPerPixel
@@ -138,6 +140,7 @@ const spoolTiles = async (
   const tileRow = new Uint8Array(tilesAcross * tileBytes)
   let receivedRows = 0
   let tileY = 0
+  let displayRanges: PixelBlock['displayRanges']
   let colorSemantics: PixelColorSemantics | undefined
 
   for await (const block of blocks) {
@@ -154,6 +157,7 @@ const spoolTiles = async (
       ) {
         throw invalidInput('Orientation requires ordered, full-width pixel blocks')
       }
+      displayRanges ??= block.displayRanges
       colorSemantics ??= block.colorSemantics
       for (let row = 0; row < block.height; row += 1) {
         const tileRowY = receivedRows % tileSize
@@ -185,6 +189,7 @@ const spoolTiles = async (
   return {
     tilesAcross,
     tileBytes,
+    ...(displayRanges === undefined ? {} : { displayRanges }),
     ...(colorSemantics === undefined ? {} : { colorSemantics }),
   }
 }
@@ -250,6 +255,7 @@ const orientedBlocks = async function* (
         stride: outputStride,
         format,
         data,
+        ...(spooled.displayRanges === undefined ? {} : { displayRanges: spooled.displayRanges }),
         ...(spooled.colorSemantics === undefined ? {} : { colorSemantics: spooled.colorSemantics }),
       }
     }

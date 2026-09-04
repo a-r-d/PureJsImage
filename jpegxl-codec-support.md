@@ -6,6 +6,39 @@ project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
+## M5 static processing
+
+- [x] JPEG XL to JPEG, PNG, WebP, AVIF and TIFF through the public pipeline
+- [x] Crop, resize, contain, cover, orientation normalization and explicit metadata preservation or stripping
+- [x] Native 8-16-bit crop and resize, independent alpha ranges, and float RGBA resize with bounded row buffers
+- [x] Linear-light sRGB resize uses the actual source sample range; float linear RGB and RGBA retain highlights
+- [x] Pixel-lossless JPEG XL re-encode inherits color and alpha precision, orientation and luminance metadata
+- [x] Explicit pixel conversion is required before an encoder that cannot retain JPEG XL sample precision
+- [x] Known 8-bit PNG color signals are preserved; incompatible or unavailable color conversions fail explicitly
+- [x] Planner reports native format, sample depths, color semantics, source orientation, pushed crop and scale, conversions, encoder options and decoder working storage
+- [x] Planner reports full-frame VarDCT output and any decode performed while opening the decoder
+- [x] Nearest and linear-light filters bypass coefficient reduction; other eligible JPEG-derived resizes use reduced floating-point IDCT
+- [x] Bounded HTTP Range reads across segmented jxlp, operation cancellation and source reuse
+- [x] Browser workbench opens, inspects, resizes and exports representative native-depth, P3 and HDR inputs
+
+Use `.jpegxl()` to retain supported native integer samples. To export 10- or 12-bit
+samples to PNG storage, use `.convertPixelFormat({ format: "rgb16" }).png()`.
+That explicit step scales the declared range to all 16 output bits. Use `rgba16` for alpha.
+For display output, choose `rgb8` or `rgba8` explicitly. Pixel conversion changes storage
+and range; it does not change transfer functions or primaries.
+
+Open supported P3 input with `colorOutput: "srgb"` for explicit sRGB conversion.
+Open PQ or HLG with `hdrOutput: "tone-map-srgb"` for explicit SDR rendering.
+Unavailable high-depth ICC, custom-chromaticity and structured integer color transforms
+remain errors. Float-encoded input and float JPEG XL encoding remain unsupported.
+
+VarDCT retains a full output frame. Eligible ordinary 8-bit photographs use bounded
+restoration bands, while high-depth, alpha and other documented fallback cases retain
+full working planes. Planner working-byte estimates exclude runtime and process overhead.
+Calling `explainImage()` can open and decode VarDCT; `io.pixelDecode` reports this cost.
+
+Progressive range-aware processing is M6 and is outside the M5 static boundary.
+
 ## M4 color and metadata
 
 - [x] Exact Modular RGB and gray samples in sRGB, linear sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma, and custom chromaticities at 8, 10, 12, and 16 bits
@@ -243,7 +276,7 @@ losslessly transcoded JPEG files.
 - [x] Handle grayscale and RGB codestream color representations for the compatible Modular subset
 - [x] Handle checked 8-bit sRGB XYB codestream color representations
 - [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
-  display ranges, normalizing only when an 8-bit transform or encoder requires it
+  display ranges; pipeline normalization requires an explicit pixel conversion
 - [x] Reject unsupported color encodings or extra-channel semantics rather than
   treating their samples as sRGB or alpha for the checked subset
 

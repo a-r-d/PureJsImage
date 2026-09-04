@@ -10,6 +10,41 @@ import {
 import { inspectJpegXl } from '../src/jpegxl.ts'
 
 describe('JPEG XL workbench worker protocol', () => {
+  it('bounds transform dimensions and accepts only literal fit and output choices', () => {
+    const request = {
+      type: 'transform',
+      requestId: 1,
+      generation: 1,
+      width: 4,
+      height: 3,
+      fit: 'contain',
+      format: 'png',
+    }
+    expect(isJpegXlWorkbenchRequest(request)).toBe(true)
+    expect(
+      isJpegXlWorkbenchRequest({
+        ...request,
+        width: 4096,
+        height: 4096,
+        fit: 'cover',
+        format: 'jpeg',
+      }),
+    ).toBe(true)
+    for (const change of [
+      { width: 0 },
+      { height: 4097 },
+      { width: 1.5 },
+      { height: Number.NaN },
+      { width: '4' },
+      { fit: ['contain'] },
+      { fit: { toString: () => 'cover' } },
+      { fit: 'inside' },
+      { format: 'webp' },
+      { extra: true },
+    ])
+      expect(isJpegXlWorkbenchRequest({ ...request, ...change })).toBe(false)
+  })
+
   it('caps a 12 MP preview without changing logical dimensions', () => {
     expect(planJpegXlWorkbenchPreview(4000, 3000)).toEqual({
       logicalWidth: 4000,

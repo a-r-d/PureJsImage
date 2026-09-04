@@ -38,6 +38,7 @@ const jpegXlSamples = [
 
 const benchmarkEntries = {
   compatibility: 'browser-tests/compatibility-harness.ts',
+  'jpegxl-pipeline': 'browser-tests/jpegxl-pipeline-harness.ts',
   'jpegxl-color': 'browser-tests/jpegxl-color-harness.ts',
   benchmark: 'browser-tests/benchmark-harness.ts',
   'purejsimage-jpeg': 'browser-tests/benchmark/purejsimage-jpeg.ts',
@@ -417,6 +418,10 @@ const wasmFiles: readonly (readonly [string, string])[] = [
   ['node_modules/@jsquash/webp/codec/enc/webp_enc.wasm', 'webp_enc.wasm'],
   ['node_modules/@jsquash/webp/codec/enc/webp_enc_simd.wasm', 'webp_enc_simd.wasm'],
 ]
+await copyFile(
+  'tests/fixtures/jpegxl/m5-pipeline/segmented.jxl',
+  resolve(fixtureDirectory, 'jpegxl-m5-segmented.jxl'),
+)
 for (const name of await readdir('tests/fixtures/jpegxl/m4-color')) {
   await copyFile(
     `tests/fixtures/jpegxl/m4-color/${name}`,

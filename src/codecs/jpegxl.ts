@@ -1,3 +1,4 @@
+import { throwIfAborted } from '../abort.ts'
 import type {
   DecoderOptions,
   ImageCodec,
@@ -7,12 +8,14 @@ import type {
 import { ImageError, unsupportedOperation } from '../errors.ts'
 import type { ImageLimitOptions, ImageLimits } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
+import type { PixelBlock } from '../pixel.ts'
 import { createImageSource, type ImageInput, type ImageSource } from '../source.ts'
 import {
   ColorManagedDecoder,
   createStructuredGrayTransform,
   createStructuredRgbTransform,
   GrayColorManagedDecoder,
+  linearToSrgb,
   parseGrayIccTransform,
   parseRgbIccTransform,
 } from './icc.ts'
@@ -28,6 +31,8 @@ import {
   configureJpegXlDecoderOutput,
   decodeJpegXlSource,
   type JpegXlFrameStructure,
+  jpegXlPixelColorSemantics,
+  jpegXlXybOutputIsLinear,
   readJpegXlSourceFrameStructure,
   readJpegXlSourceInspectionMetadata,
   readJpegXlSourceMetadata,
@@ -37,6 +42,7 @@ import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import { acceptsJpegXlColorSemantics, createJpegXlModularEncoder } from './jpegxl-modular-encode.ts'
 import { createJpegXlVarDctDecoder } from './jpegxl-vardct.ts'
+import { estimateJpegXlVarDctWorkingMemory } from './jpegxl-vardct-memory.ts'
 
 export type {
   JpegXlBoxSummary,
@@ -71,6 +77,58 @@ const codestreamSource = async (
     limits,
   })
 
+const linearSrgbDecoder = (decoder: ImageDecoder): ImageDecoder => {
+  const channels = decoder.pixelFormat === 'rgbaf32' ? 4 : 3
+  const pixelFormat = channels === 4 ? 'rgba8' : 'rgb8'
+  if (!decoder.colorSemantics)
+    throw unsupportedOperation('Linear sRGB conversion requires known color semantics')
+  const colorSemantics = Object.freeze({
+    ...decoder.colorSemantics,
+    transfer: Object.freeze({ kind: 'srgb' as const }),
+    provenance: 'decoder-converted' as const,
+  })
+  return {
+    width: decoder.width,
+    height: decoder.height,
+    pixelFormat,
+    colorSemantics,
+    capabilities: decoder.capabilities,
+    async *decode(request): AsyncGenerator<PixelBlock> {
+      for await (const block of decoder.decode(request)) {
+        try {
+          const data = new Uint8Array(block.width * block.height * channels)
+          const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+          for (let y = 0; y < block.height; y += 1) {
+            throwIfAborted(request?.signal)
+            for (let x = 0; x < block.width; x += 1) {
+              const source = y * block.stride + x * channels * 4
+              const target = (y * block.width + x) * channels
+              for (let c = 0; c < channels; c += 1) {
+                const sample = view.getFloat32(source + c * 4, false)
+                data[target + c] = Math.round(
+                  Math.max(0, Math.min(1, c === 3 ? sample : linearToSrgb(sample))) * 255,
+                )
+              }
+            }
+          }
+          yield {
+            x: block.x,
+            y: block.y,
+            width: block.width,
+            height: block.height,
+            stride: block.width * channels,
+            format: pixelFormat,
+            data,
+            colorSemantics,
+          }
+        } finally {
+          block.release?.()
+        }
+      }
+    },
+  }
+}
+
 const colorManagedJpegXlDecoder = (
   decoder: ImageDecoder,
   frame: Readonly<JpegXlFrameStructure>,
@@ -83,6 +141,9 @@ const colorManagedJpegXlDecoder = (
   ) {
     throw unsupportedOperation('JPEG XL colorOutput must be preserve or srgb')
   }
+  if (options.colorOutput === 'srgb' && options.preserveIcc) {
+    throw unsupportedOperation('JPEG XL cannot preserve source ICC samples and convert to sRGB')
+  }
   const hdr =
     frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
   if (hdr || frame.colorTransform === 'xyb') {
@@ -90,16 +151,13 @@ const colorManagedJpegXlDecoder = (
       throw unsupportedOperation('JPEG XL HDR to sRGB requires explicit tone-map-srgb output')
     }
     if (!hdr && options.colorOutput === 'srgb' && decoder.pixelFormat.endsWith('f32')) {
-      throw unsupportedOperation(
-        'JPEG XL linear float output requires explicit pixel conversion to sRGB',
+      return linearSrgbDecoder(
+        configureJpegXlDecoderOutput(decoder, frame, { ...options, alphaOutput: 'straight' }),
       )
     }
     return configureJpegXlDecoderOutput(decoder, frame, options)
   }
   const explicitConversion = options.colorOutput === 'srgb'
-  if (explicitConversion && options.preserveIcc) {
-    throw unsupportedOperation('JPEG XL cannot preserve source ICC samples and convert to sRGB')
-  }
   const iccConversion =
     frame.iccProfile !== undefined &&
     options.preserveIcc !== true &&
@@ -149,6 +207,121 @@ const colorManagedJpegXlDecoder = (
     }
     throw error
   }
+}
+
+const describeJpegXlDecoder = (
+  decoder: ImageDecoder,
+  frame: Readonly<JpegXlFrameStructure>,
+  options: Readonly<DecoderOptions>,
+  encoding: 'modular' | 'vardct',
+): ImageDecoder => {
+  const converted = options.hdrOutput === 'tone-map-srgb' || options.colorOutput === 'srgb'
+  const depth = decoder.pixelFormat.endsWith('f32')
+    ? 32
+    : decoder.pixelFormat.endsWith('16')
+      ? frame.bitDepth
+      : 8
+  const channels = decoder.pixelFormat.startsWith('gray')
+    ? 1
+    : decoder.pixelFormat.startsWith('rgba')
+      ? 4
+      : 3
+  const sampleBitDepths = Object.freeze(
+    Array.from({ length: channels }, (_, c) =>
+      c === 3 && decoder.pixelFormat.endsWith('16') ? (frame.alphaBitDepth ?? depth) : depth,
+    ),
+  )
+  const nativeHigh = Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8
+  const nativePixelFormat = jpegXlXybOutputIsLinear(frame)
+    ? frame.alphaBitDepth === undefined
+      ? 'rgbf32'
+      : 'rgbaf32'
+    : frame.alphaBitDepth !== undefined
+      ? nativeHigh
+        ? 'rgba16'
+        : 'rgba8'
+      : frame.colorChannels === 1
+        ? nativeHigh
+          ? 'gray16'
+          : 'gray8'
+        : nativeHigh
+          ? 'rgb16'
+          : 'rgb8'
+  const inputColorSemantics = jpegXlPixelColorSemantics(frame)
+  const execution = Object.freeze({
+    nativePixelFormat,
+    sourceSampleBitDepths: Object.freeze(
+      Array.from({ length: channels }, (_, c) =>
+        c === 3 ? (frame.alphaBitDepth ?? frame.bitDepth) : frame.bitDepth,
+      ),
+    ),
+    inputColorSemantics,
+    precisionLoss:
+      nativePixelFormat !== decoder.pixelFormat ||
+      (decoder.colorSemantics?.provenance === 'decoder-converted' &&
+        inputColorSemantics.provenance !== 'decoder-converted') ||
+      (frame.alphaAssociated && decoder.colorSemantics?.alpha === 'straight'),
+    orientation: frame.orientation,
+    sampleBitDepths,
+    decodeDuringOpen: encoding === 'vardct',
+    fullFrameFallbackReasons: Object.freeze(
+      encoding === 'vardct'
+        ? [
+            decoder.capabilities.scaledDecode
+              ? 'JPEG-derived coefficients retained for the whole image; pixels use bounded rows'
+              : 'VarDCT retains a full output frame; eligible 8-bit images use bounded restoration bands',
+          ]
+        : frame.sections.length === 1
+          ? ['Single-group Modular retains its complete channel planes']
+          : [],
+    ),
+    estimatedWorkingBytes:
+      encoding === 'vardct'
+        ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
+        : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
+          frame.sections.reduce((sum, part) => sum + part.length, 0),
+    conversions: Object.freeze([
+      ...(decoder.colorSemantics?.alpha === 'straight' && frame.alphaAssociated
+        ? ['unpremultiply-alpha']
+        : []),
+      ...(options.hdrOutput && options.hdrOutput !== 'encoded' ? [options.hdrOutput] : []),
+      ...(options.colorOutput === 'srgb' ? ['color-to-srgb'] : []),
+      ...(frame.iccProfile !== undefined &&
+      decoder.colorSemantics?.provenance === 'decoder-converted'
+        ? ['icc-to-srgb']
+        : []),
+    ]),
+    encodingDefaults: Object.freeze({
+      format: 'jpegxl',
+      options: Object.freeze({
+        ...(depth === 32 ? {} : { sampleBitDepth: depth }),
+        ...(channels === 4 && depth !== 32 ? { alphaBitDepth: sampleBitDepths[3] } : {}),
+        orientation: frame.orientation,
+        ...(frame.intrinsicWidth !== undefined && frame.intrinsicHeight !== undefined
+          ? { intrinsicSize: { width: frame.intrinsicWidth, height: frame.intrinsicHeight } }
+          : {}),
+        ...(!converted && depth !== 32 ? { toneMapping: frame.toneMapping } : {}),
+      }),
+    }),
+  })
+  return Object.freeze({
+    width: decoder.width,
+    height: decoder.height,
+    pixelFormat: decoder.pixelFormat,
+    ...(decoder.colorSemantics ? { colorSemantics: decoder.colorSemantics } : {}),
+    capabilities: decoder.capabilities,
+    ...('managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
+      ? {
+          get managedPeakBytes(): number {
+            return 'managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
+              ? decoder.managedPeakBytes
+              : 0
+          },
+        }
+      : {}),
+    execution,
+    decode: (request: Parameters<ImageDecoder['decode']>[0]) => decoder.decode(request),
+  })
 }
 
 /** Registered first-party JPEG XL codec with a bounded lossless Modular subset. */
@@ -239,10 +412,15 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       throw unsupportedOperation('JPEG XL has multiple alpha channels; select one explicitly')
     }
     if (inspection.encoding === 'vardct') {
-      return colorManagedJpegXlDecoder(
-        await createJpegXlVarDctDecoder(source, limits, options),
+      return describeJpegXlDecoder(
+        colorManagedJpegXlDecoder(
+          await createJpegXlVarDctDecoder(source, limits, options),
+          inspection.frame,
+          options,
+        ),
         inspection.frame,
         options,
+        'vardct',
       )
     }
     const decoded = await decodeJpegXlSource(
@@ -252,7 +430,12 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       logical.limits.maxHeaderBytes,
       logical.limits,
     )
-    return colorManagedJpegXlDecoder(decoded.decoder, inspection.frame, options)
+    return describeJpegXlDecoder(
+      colorManagedJpegXlDecoder(decoded.decoder, inspection.frame, options),
+      inspection.frame,
+      options,
+      'modular',
+    )
   },
   createEncoder: createJpegXlModularEncoder,
 })

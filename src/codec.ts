@@ -1,11 +1,11 @@
 import type { AbortOptions } from './abort.ts'
 import type { PixelColorSemantics } from './color.ts'
 import { invalidInput, unsupportedFormat, unsupportedOperation } from './errors.ts'
+import type { EvidenceContext } from './evidence.ts'
 import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageRuntime } from './runtime.ts'
-import type { EvidenceContext } from './evidence.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
@@ -137,7 +137,27 @@ export interface DecodeRequest extends AbortOptions {
   readonly scaleDenominator?: 1 | 2 | 4 | 8
 }
 
+export interface DecoderExecutionDescription {
+  readonly nativePixelFormat: PixelFormat
+  readonly sourceSampleBitDepths: readonly number[]
+  readonly inputColorSemantics: PixelColorSemantics
+  readonly precisionLoss: boolean
+  readonly orientation: number
+  readonly sampleBitDepths: readonly number[]
+  readonly decodeDuringOpen: boolean
+  readonly fullFrameFallbackReasons: readonly string[]
+  /** Conservative working storage estimate, excluding process and runtime overhead. */
+  readonly estimatedWorkingBytes: number
+  readonly conversions: readonly string[]
+  /** Defaults valid only when re-encoding unchanged sample semantics to this format. */
+  readonly encodingDefaults?: Readonly<{
+    format: string
+    options: Readonly<Record<string, unknown>>
+  }>
+}
+
 export interface ImageDecoder {
+  readonly execution?: DecoderExecutionDescription
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat

@@ -46,6 +46,7 @@ const croppedBlocks = async function* (
           stride: outputStride,
           format,
           data,
+          ...(block.displayRanges === undefined ? {} : { displayRanges: block.displayRanges }),
           ...(block.colorSemantics === undefined ? {} : { colorSemantics: block.colorSemantics }),
         }
         outputY += height

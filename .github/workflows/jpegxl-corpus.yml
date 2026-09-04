@@ -192,6 +192,12 @@ jobs:
           node benchmark/jpegxl/production-program/verify-m4-jpeg-render.ts
           npx vitest run tests/jpegxl-m4-color.test.ts
 
+      - name: Verify M5 static workflows and isolated memory
+        run: |
+          node benchmark/jpegxl/generate-m5-segmented.ts
+          npx vitest run tests/jpegxl-m5-pipeline.test.ts
+          node benchmark/jpegxl/production-program/verify-m5-pipelines.ts
+
       - name: Run pinned lossless matrix
         run: npm run fixtures:jpegxl:matrix
 
@@ -245,6 +251,7 @@ jobs:
             benchmark/jpegxl/production-program/m4-conformance-validation.json
             benchmark/jpegxl/production-program/m4-memory.json
             benchmark/jpegxl/production-program/m4-jpeg-render.json
+            benchmark/jpegxl/production-program/m5-pipelines.json
           if-no-files-found: error
 
   browser:
@@ -294,6 +301,6 @@ jobs:
 
       - name: Run local-only JPEG XL workbench tests
         run: >-
-          npx playwright test browser-tests/jpegxl-workbench.pw.ts browser-tests/jpegxl-color.pw.ts
+          npx playwright test browser-tests/jpegxl-workbench.pw.ts browser-tests/jpegxl-color.pw.ts browser-tests/jpegxl-pipeline.pw.ts
           --project=${{ matrix.browser }}
           --retries=0

@@ -261,7 +261,7 @@ const resultFormat = (
     if (sourceFormat === 'rgba16' || background[3] < 255) return 'rgba16'
     return 'rgb16'
   }
-  if (sourceFormat === 'grayf32' || sourceFormat === 'rgbf32') {
+  if (sourceFormat === 'grayf32' || sourceFormat === 'rgbf32' || sourceFormat === 'rgbaf32') {
     throw invalidInput('Float32 contain resize requires an explicit pixel conversion for padding')
   }
   if (sourceFormat === 'rgba8' || background[3] < 255) return 'rgba8'
@@ -273,7 +273,8 @@ const nativeResizeFormat = (format: PixelFormat): boolean =>
   format === 'rgb16' ||
   format === 'rgba16' ||
   format === 'grayf32' ||
-  format === 'rgbf32'
+  format === 'rgbf32' ||
+  format === 'rgbaf32'
 
 export const decodeSrgbSample = (encoded: number): number =>
   encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
@@ -316,9 +317,10 @@ const horizontalLinearLight = (
   output: Float64Array,
   format: PixelFormat,
   transfer: 'srgb' | 'linear',
+  samples: ResizeSamples,
 ): void => {
   const descriptor = pixelStorage(format)
-  const maximum = descriptor.bytesPerSample === 1 ? 255 : 65_535
+  const maximum = samples.colorMaximum
   const hasAlpha = descriptor.channels === 4
   for (let x = 0; x < outputWidth; x += 1) {
     const first = axis.offsets[x] ?? 0
@@ -347,8 +349,8 @@ const horizontalLinearLight = (
         ? descriptor.bytesPerSample === 1
           ? (source[sourceOffset + 3] ?? 0)
           : uint16Sample(source, sourceOffset + 6)
-        : maximum
-      const sourceAlpha = alphaSample / maximum
+        : samples.alphaMaximum
+      const sourceAlpha = alphaSample / samples.alphaMaximum
       const linearRed =
         transfer === 'linear'
           ? redSample / maximum
@@ -388,14 +390,16 @@ const writeLinearLightContent = (
   width: number,
   outputFormat: PixelFormat,
   transfer: 'srgb' | 'linear',
+  samples: ResizeSamples,
 ): void => {
   const sourceDescriptor = pixelStorage(sourceFormat)
   const outputDescriptor = pixelStorage(outputFormat)
-  const maximum = outputDescriptor.bytesPerSample === 1 ? 255 : 65_535
+  const maximum = samples.colorMaximum
   const outputSample = (target: number, linear: number): void => {
     const encoded = transfer === 'linear' ? linear : encodeSrgbSample(Math.max(0, linear))
-    if (maximum === 255) output[target] = clamp(Math.round(encoded * 255), 0, 255)
-    else writeUint16(output, target, encoded * 65_535)
+    if (outputDescriptor.bytesPerSample === 1)
+      output[target] = clamp(Math.round(encoded * maximum), 0, maximum)
+    else writeUint16(output, target, clamp(encoded * maximum, 0, maximum))
   }
   for (let x = 0; x < width; x += 1) {
     const sourceOffset = x * sourceDescriptor.channels
@@ -413,8 +417,9 @@ const writeLinearLightContent = (
     )
     if (outputDescriptor.channels === 4) {
       const alphaTarget = target + outputDescriptor.bytesPerSample * 3
-      if (maximum === 255) output[alphaTarget] = Math.round(alpha * 255)
-      else writeUint16(output, alphaTarget, alpha * 65_535)
+      if (outputDescriptor.bytesPerSample === 1)
+        output[alphaTarget] = Math.round(alpha * samples.alphaMaximum)
+      else writeUint16(output, alphaTarget, alpha * samples.alphaMaximum)
     }
   }
 }
@@ -427,6 +432,7 @@ const resizedLinearLightBlocks = async function* (
   plan: ResizePlan,
   outputFormat: PixelFormat,
   transfer: 'srgb' | 'linear',
+  sampleBitDepths?: readonly number[],
 ): AsyncGenerator<PixelBlock> {
   const horizontal = coefficients(
     sourceWidth,
@@ -442,7 +448,8 @@ const resizedLinearLightBlocks = async function* (
     plan.contentHeight,
     plan.kernel,
   )
-  const sourceRows = nativeRows(input, sourceWidth, sourceHeight, sourceFormat)[
+  const samples = resizeSamples(sourceFormat, sampleBitDepths)
+  const sourceRows = nativeRows(input, sourceWidth, sourceHeight, sourceFormat, samples)[
     Symbol.asyncIterator
   ]()
   const sourceChannels = pixelStorage(sourceFormat).channels
@@ -461,11 +468,19 @@ const resizedLinearLightBlocks = async function* (
   let blockHeight = 0
   let blockY = 0
   try {
+    let pending: IteratorResult<Uint8Array> | undefined = await sourceRows.next()
     for (let canvasY = 0; canvasY < plan.canvasHeight; canvasY += 1) {
       const blockOffset = blockHeight * outputStride
       if (plan.background) {
         if (outputFormat.endsWith('16')) {
-          fillNativeBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
+          fillNativeBackground(
+            block,
+            blockOffset,
+            plan.canvasWidth,
+            outputFormat,
+            plan.background,
+            samples,
+          )
         } else {
           fillBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
         }
@@ -478,7 +493,8 @@ const resizedLinearLightBlocks = async function* (
         if (maximumSourceRow === undefined)
           throw invalidInput('Resize vertical coefficients are empty')
         while (loadedRows <= maximumSourceRow) {
-          const next = await sourceRows.next()
+          const next = pending ?? (await sourceRows.next())
+          pending = undefined
           if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
           if (requiredSourceRows[loadedRows] !== 0) {
             const slot = loadedRows % ringCapacity
@@ -490,6 +506,7 @@ const resizedLinearLightBlocks = async function* (
               row,
               sourceFormat,
               transfer,
+              samples,
             )
             retainedRows[slot] = row
             retainedSourceRows[slot] = loadedRows
@@ -516,6 +533,7 @@ const resizedLinearLightBlocks = async function* (
           plan.contentWidth,
           outputFormat,
           transfer,
+          samples,
         )
       }
       blockHeight += 1
@@ -527,6 +545,7 @@ const resizedLinearLightBlocks = async function* (
           height: blockHeight,
           stride: outputStride,
           format: outputFormat,
+          ...resizeOutputMetadata(samples, outputFormat),
           data: block,
         }
         blockY += blockHeight
@@ -544,6 +563,7 @@ const resizedLinearLightBlocks = async function* (
         height: blockHeight,
         stride: outputStride,
         format: outputFormat,
+        ...resizeOutputMetadata(samples, outputFormat),
         data: block.subarray(0, outputStride * blockHeight),
       }
     }
@@ -656,20 +676,99 @@ const horizontalRgbF32: NativeHorizontalKernel = (source, outputWidth, axis, out
   }
 }
 
+const horizontalRgbaF32: NativeHorizontalKernel = (source, outputWidth, axis, output): void => {
+  const view = new DataView(source.buffer, source.byteOffset, source.byteLength)
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0,
+      green = 0,
+      blue = 0,
+      alpha = 0
+    for (let index = first; index < last; index += 1) {
+      const offset = (axis.indices[index] ?? 0) * 16
+      const weight = axis.weights[index] ?? 0
+      const a = view.getFloat32(offset + 12, false)
+      red += view.getFloat32(offset, false) * a * weight
+      green += view.getFloat32(offset + 4, false) * a * weight
+      blue += view.getFloat32(offset + 8, false) * a * weight
+      alpha += a * weight
+    }
+    output[x * 4] = red
+    output[x * 4 + 1] = green
+    output[x * 4 + 2] = blue
+    output[x * 4 + 3] = alpha
+  }
+}
+
 const nativeHorizontalKernel = (format: PixelFormat): NativeHorizontalKernel => {
   if (format === 'gray16') return horizontalGray16
   if (format === 'rgb16') return horizontalRgb16
   if (format === 'rgba16') return horizontalRgba16
   if (format === 'grayf32') return horizontalGrayF32
   if (format === 'rgbf32') return horizontalRgbF32
+  if (format === 'rgbaf32') return horizontalRgbaF32
   throw invalidInput(`Resize does not support ${format} pixels natively`)
 }
+
+export const resizedPixelColorSemantics = (
+  semantics: PixelColorSemantics | undefined,
+  format: PixelFormat,
+): PixelColorSemantics | undefined =>
+  semantics === undefined
+    ? undefined
+    : Object.freeze({
+        ...semantics,
+        family: format.startsWith('gray') ? 'gray' : 'rgb',
+        alpha: format.startsWith('rgba') ? 'straight' : 'none',
+      })
+
+const resizeOutputMetadata = (samples: ResizeSamples, format: PixelFormat) => {
+  const count = pixelStorage(format).channels
+  const ranges = samples.displayRanges
+  const colorSemantics = resizedPixelColorSemantics(samples.colorSemantics, format)
+  return {
+    ...(ranges === undefined
+      ? {}
+      : {
+          displayRanges:
+            ranges.length === count
+              ? ranges
+              : Array.from({ length: count }, (_, c) =>
+                  c === 3
+                    ? { black: 0, white: samples.alphaMaximum }
+                    : (ranges[ranges.length === 1 ? 0 : c] ?? {
+                        black: 0,
+                        white: samples.colorMaximum,
+                      }),
+                ),
+        }),
+    ...(colorSemantics === undefined ? {} : { colorSemantics }),
+  }
+}
+
+interface ResizeSamples {
+  displayRanges?: PixelBlock['displayRanges']
+  colorSemantics?: PixelColorSemantics | undefined
+  colorMaximum: number
+  alphaMaximum: number
+}
+
+const resizeSamples = (format: PixelFormat, depths?: readonly number[]): ResizeSamples => ({
+  colorMaximum: format.endsWith('f32')
+    ? 1
+    : 2 ** (depths?.[0] ?? pixelStorage(format).bytesPerSample * 8) - 1,
+  alphaMaximum: format.endsWith('f32')
+    ? 1
+    : 2 ** (depths?.[3] ?? pixelStorage(format).bytesPerSample * 8) - 1,
+})
 
 const nativeRows = async function* (
   blocks: AsyncIterable<PixelBlock>,
   width: number,
   height: number,
   format: PixelFormat,
+  samples?: ResizeSamples,
 ): AsyncGenerator<Uint8Array> {
   const rowBytes = width * pixelBytesPerPixel(format)
   let expectedY = 0
@@ -686,6 +785,10 @@ const nativeRows = async function* (
         block.data.byteLength < block.stride * (block.height - 1) + rowBytes
       ) {
         throw invalidInput('Resize requires ordered, full-width pixel blocks')
+      }
+      if (samples) {
+        samples.displayRanges = block.displayRanges
+        samples.colorSemantics = block.colorSemantics
       }
       for (let row = 0; row < block.height; row += 1) {
         yield block.data.subarray(row * block.stride, row * block.stride + rowBytes)
@@ -712,6 +815,7 @@ const fillNativeBackground = (
   width: number,
   format: PixelFormat,
   background: readonly [number, number, number, number],
+  samples: ResizeSamples,
 ): void => {
   const descriptor = pixelStorage(format)
   if (descriptor.bytesPerSample !== 2 || descriptor.sampleType !== 'unsigned-integer') {
@@ -719,11 +823,12 @@ const fillNativeBackground = (
   }
   for (let x = 0; x < width; x += 1) {
     const target = offset + x * descriptor.channels * 2
-    writeUint16(output, target, background[0] * 257)
+    writeUint16(output, target, (background[0] * samples.colorMaximum) / 255)
     if (descriptor.channels > 1) {
-      writeUint16(output, target + 2, background[1] * 257)
-      writeUint16(output, target + 4, background[2] * 257)
-      if (descriptor.channels === 4) writeUint16(output, target + 6, background[3] * 257)
+      writeUint16(output, target + 2, (background[1] * samples.colorMaximum) / 255)
+      writeUint16(output, target + 4, (background[2] * samples.colorMaximum) / 255)
+      if (descriptor.channels === 4)
+        writeUint16(output, target + 6, (background[3] * samples.alphaMaximum) / 255)
     }
   }
 }
@@ -735,9 +840,21 @@ const writeNativeContent = (
   outputOffset: number,
   width: number,
   outputFormat: PixelFormat,
+  samples: ResizeSamples,
 ): void => {
   const sourceDescriptor = pixelStorage(sourceFormat)
   const outputDescriptor = pixelStorage(outputFormat)
+  if (sourceFormat === 'rgbaf32') {
+    const view = new DataView(output.buffer, output.byteOffset, output.byteLength)
+    for (let x = 0; x < width; x += 1) {
+      const alpha = clamp(source[x * 4 + 3] ?? 0, 0, 1)
+      const factor = alpha > 0 ? 1 / alpha : 0
+      for (let c = 0; c < 3; c += 1)
+        view.setFloat32(outputOffset + x * 16 + c * 4, (source[x * 4 + c] ?? 0) * factor, false)
+      view.setFloat32(outputOffset + x * 16 + 12, alpha, false)
+    }
+    return
+  }
   if (sourceDescriptor.sampleType === 'floating-point') {
     const view = new DataView(output.buffer, output.byteOffset, output.byteLength)
     for (let index = 0; index < width * sourceDescriptor.channels; index += 1) {
@@ -745,11 +862,12 @@ const writeNativeContent = (
     }
     return
   }
+  const color = (value: number): number => clamp(value, 0, samples.colorMaximum)
   for (let x = 0; x < width; x += 1) {
     const sourceOffset = x * sourceDescriptor.channels
     const target = outputOffset + x * outputDescriptor.channels * 2
     if (sourceFormat === 'gray16') {
-      const gray = source[sourceOffset] ?? 0
+      const gray = color(source[sourceOffset] ?? 0)
       writeUint16(output, target, gray)
       if (outputDescriptor.channels > 1) {
         writeUint16(output, target + 2, gray)
@@ -757,16 +875,16 @@ const writeNativeContent = (
         if (outputDescriptor.channels === 4) writeUint16(output, target + 6, 65_535)
       }
     } else if (sourceFormat === 'rgb16') {
-      writeUint16(output, target, source[sourceOffset] ?? 0)
-      writeUint16(output, target + 2, source[sourceOffset + 1] ?? 0)
-      writeUint16(output, target + 4, source[sourceOffset + 2] ?? 0)
+      writeUint16(output, target, color(source[sourceOffset] ?? 0))
+      writeUint16(output, target + 2, color(source[sourceOffset + 1] ?? 0))
+      writeUint16(output, target + 4, color(source[sourceOffset + 2] ?? 0))
       if (outputDescriptor.channels === 4) writeUint16(output, target + 6, 65_535)
     } else {
-      const alphaValue = clamp(source[sourceOffset + 3] ?? 0, 0, 65_535)
+      const alphaValue = clamp(source[sourceOffset + 3] ?? 0, 0, samples.alphaMaximum)
       const unpremultiply = alphaValue > 0 ? 65_535 / alphaValue : 0
-      writeUint16(output, target, (source[sourceOffset] ?? 0) * unpremultiply)
-      writeUint16(output, target + 2, (source[sourceOffset + 1] ?? 0) * unpremultiply)
-      writeUint16(output, target + 4, (source[sourceOffset + 2] ?? 0) * unpremultiply)
+      writeUint16(output, target, color((source[sourceOffset] ?? 0) * unpremultiply))
+      writeUint16(output, target + 2, color((source[sourceOffset + 1] ?? 0) * unpremultiply))
+      writeUint16(output, target + 4, color((source[sourceOffset + 2] ?? 0) * unpremultiply))
       writeUint16(output, target + 6, alphaValue)
     }
   }
@@ -779,6 +897,7 @@ const resizedNativeBlocks = async function* (
   sourceFormat: PixelFormat,
   plan: ResizePlan,
   outputFormat: PixelFormat,
+  sampleBitDepths?: readonly number[],
 ): AsyncGenerator<PixelBlock> {
   const horizontal = coefficients(
     sourceWidth,
@@ -794,7 +913,8 @@ const resizedNativeBlocks = async function* (
     plan.contentHeight,
     plan.kernel,
   )
-  const sourceRows = nativeRows(input, sourceWidth, sourceHeight, sourceFormat)[
+  const samples = resizeSamples(sourceFormat, sampleBitDepths)
+  const sourceRows = nativeRows(input, sourceWidth, sourceHeight, sourceFormat, samples)[
     Symbol.asyncIterator
   ]()
   const sourceChannels = pixelStorage(sourceFormat).channels
@@ -815,10 +935,18 @@ const resizedNativeBlocks = async function* (
   let blockY = 0
 
   try {
+    let pending: IteratorResult<Uint8Array> | undefined = await sourceRows.next()
     for (let canvasY = 0; canvasY < plan.canvasHeight; canvasY += 1) {
       const blockOffset = blockHeight * outputStride
       if (plan.background) {
-        fillNativeBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
+        fillNativeBackground(
+          block,
+          blockOffset,
+          plan.canvasWidth,
+          outputFormat,
+          plan.background,
+          samples,
+        )
       }
       const contentY = canvasY - plan.padY
       if (contentY >= 0 && contentY < plan.contentHeight) {
@@ -828,7 +956,8 @@ const resizedNativeBlocks = async function* (
         if (maximumSourceRow === undefined)
           throw invalidInput('Resize vertical coefficients are empty')
         while (loadedRows <= maximumSourceRow) {
-          const next = await sourceRows.next()
+          const next = pending ?? (await sourceRows.next())
+          pending = undefined
           if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
           if (requiredSourceRows[loadedRows] !== 0) {
             const slot = loadedRows % ringCapacity
@@ -858,6 +987,7 @@ const resizedNativeBlocks = async function* (
           blockOffset + plan.padX * outputBytesPerPixel,
           plan.contentWidth,
           outputFormat,
+          samples,
         )
       }
       blockHeight += 1
@@ -869,6 +999,7 @@ const resizedNativeBlocks = async function* (
           height: blockHeight,
           stride: outputStride,
           format: outputFormat,
+          ...resizeOutputMetadata(samples, outputFormat),
           data: block,
         }
         blockY += blockHeight
@@ -886,6 +1017,7 @@ const resizedNativeBlocks = async function* (
         height: blockHeight,
         stride: outputStride,
         format: outputFormat,
+        ...resizeOutputMetadata(samples, outputFormat),
         data: block.subarray(0, outputStride * blockHeight),
       }
     }
@@ -1544,20 +1676,33 @@ export const createResizeTransform = (
   pixelFormat: PixelFormat,
   options: ResizeOptions,
   colorSemantics?: PixelColorSemantics,
+  sampleBitDepths?: readonly number[],
 ): ResizeTransform => {
   const plan = resizePlan(width, height, options)
   const format = resultFormat(pixelFormat, plan.background)
   if (pixelFormat.startsWith('rgba') && colorSemantics?.alpha === 'premultiplied') {
     throw unsupportedOperation('Resize does not support explicitly premultiplied alpha input')
   }
-  if (options.colorSpace === 'linear-light') {
+  if (
+    options.colorSpace === 'linear-light' &&
+    !(pixelFormat.endsWith('f32') && colorSemantics?.transfer.kind === 'linear')
+  ) {
     const transfer = validateLinearLightSemantics(pixelFormat, colorSemantics)
     return {
       width: plan.canvasWidth,
       height: plan.canvasHeight,
       pixelFormat: format,
       apply: (blocks) =>
-        resizedLinearLightBlocks(blocks, width, height, pixelFormat, plan, format, transfer),
+        resizedLinearLightBlocks(
+          blocks,
+          width,
+          height,
+          pixelFormat,
+          plan,
+          format,
+          transfer,
+          sampleBitDepths,
+        ),
     }
   }
   if (nativeResizeFormat(pixelFormat)) {
@@ -1565,7 +1710,8 @@ export const createResizeTransform = (
       width: plan.canvasWidth,
       height: plan.canvasHeight,
       pixelFormat: format,
-      apply: (blocks) => resizedNativeBlocks(blocks, width, height, pixelFormat, plan, format),
+      apply: (blocks) =>
+        resizedNativeBlocks(blocks, width, height, pixelFormat, plan, format, sampleBitDepths),
     }
   }
   channels(pixelFormat)

@@ -1,13 +1,10 @@
+import type { ImageCodec, ImageDecoder } from './codec.ts'
 import type { PixelColorSemantics } from './color.ts'
 import { convertedPixelColorSemantics } from './convert.ts'
 import { unsupportedOperation } from './errors.ts'
-import {
-  calculateResizeDimensions,
-  normalizedRotation,
-  type PipelineOperation,
-  rotationDimensions,
-} from './pipeline.ts'
+import { normalizedRotation, type PipelineOperation, rotationDimensions } from './pipeline.ts'
 import { normalizedPixelFormat, type PixelFormat, pixelStorage } from './pixel.ts'
+import { createResizeTransform, resizedPixelColorSemantics } from './resize.ts'
 
 export type PrecisionPlanMemoryClass = 'streaming-rows' | 'temporary-storage' | 'full-frame'
 export type PrecisionPlanStageReason =
@@ -61,7 +58,8 @@ const nativeResizeFormat = (format: PixelFormat): boolean =>
   format === 'rgb16' ||
   format === 'rgba16' ||
   format === 'grayf32' ||
-  format === 'rgbf32'
+  format === 'rgbf32' ||
+  format === 'rgbaf32'
 
 export const transformAcceptsPixelFormat = (
   operation: PipelineOperation,
@@ -128,6 +126,8 @@ export const describePrecisionExecution = (options: {
   readonly encoderFormat: string
   readonly encoderPixelFormats?: readonly PixelFormat[]
   readonly encoderAcceptsColorSemantics?: (semantics: PixelColorSemantics) => boolean
+  readonly decoderExecution?: ImageDecoder['execution']
+  readonly requireExplicitConversion?: boolean
   readonly sourceOrientation?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 }): PrecisionExecutionPlanDescription => {
   let width = options.width
@@ -142,12 +142,15 @@ export const describePrecisionExecution = (options: {
       height,
       width,
       height,
+      options.decoderExecution?.nativePixelFormat ?? format,
       format,
-      format,
+      options.decoderExecution?.inputColorSemantics ?? semantics,
       semantics,
-      semantics,
-      true,
-      'streaming-rows',
+      options.decoderExecution?.precisionLoss !== true,
+      options.decoderExecution?.fullFrameFallbackReasons.length ? 'full-frame' : 'streaming-rows',
+      options.decoderExecution?.precisionLoss
+        ? 'Requested decoder output changes native numeric or color values'
+        : undefined,
     ),
   ]
 
@@ -170,9 +173,11 @@ export const describePrecisionExecution = (options: {
       width = operation.width
       height = operation.height
     } else if (operation.type === 'resize') {
-      const dimensions = calculateResizeDimensions(width, height, operation)
+      const dimensions = createResizeTransform(width, height, format, operation, semantics)
       width = dimensions.width
       height = dimensions.height
+      format = dimensions.pixelFormat
+      semantics = resizedPixelColorSemantics(semantics, format)
     } else if (operation.type === 'rotate') {
       const dimensions = rotationDimensions(width, height, operation.degrees)
       width = dimensions.width
@@ -228,6 +233,11 @@ export const describePrecisionExecution = (options: {
 
   if (!options.encoderPixelFormats?.includes(format)) {
     const converted = normalizedPixelFormat(format)
+    if (options.requireExplicitConversion && pixelStorage(format).bytesPerSample > 1) {
+      throw unsupportedOperation(
+        `${options.encoderFormat} requires an explicit convertPixelFormat from ${format}; precision is never reduced implicitly`,
+      )
+    }
     stages.push(
       stage(
         `encode:${options.encoderFormat}:conversion`,
@@ -260,4 +270,67 @@ export const describePrecisionExecution = (options: {
     outputFormat: format,
     ...(semantics === undefined ? {} : { outputColorSemantics: semantics }),
   })
+}
+
+/** Negotiate source sample precision before reading transform rows. */
+export const negotiateEncoderOptions = (
+  decoder: ImageDecoder,
+  codec: ImageCodec,
+  operations: readonly PipelineOperation[],
+  requested: unknown,
+  preserveIcc = false,
+  outputFormat = decoder.pixelFormat,
+): unknown => {
+  const execution = decoder.execution
+  if (!execution) return requested
+  const converted = operations.some(
+    (op) => op.type === 'convertPixelFormat' || op.type === 'window',
+  )
+  if (
+    !converted &&
+    codec.format !== execution.encodingDefaults?.format &&
+    execution.sampleBitDepths.some(
+      (depth) => depth !== pixelStorage(decoder.pixelFormat).bytesPerSample * 8,
+    )
+  ) {
+    throw unsupportedOperation(
+      `${codec.format} cannot preserve the source sample ranges; use explicit convertPixelFormat`,
+    )
+  }
+  const semantics = decoder.colorSemantics
+  if (
+    !codec.acceptsColorSemantics &&
+    semantics &&
+    (semantics.primaries !== 'srgb' ||
+      semantics.transfer.kind !== 'srgb' ||
+      (semantics.alpha !== 'none' && semantics.alpha !== 'straight')) &&
+    !(preserveIcc && semantics.icc?.relevance === 'emitted-pixels')
+  ) {
+    throw unsupportedOperation(`${codec.format} requires an explicit color or alpha conversion`)
+  }
+  if (
+    codec.format !== execution.encodingDefaults?.format ||
+    typeof requested !== 'object' ||
+    requested === null ||
+    Array.isArray(requested)
+  )
+    return requested
+  const { intrinsicSize, ...defaults } = execution.encodingDefaults.options
+  const geometryChanged = operations.some(
+    (op) =>
+      op.type === 'crop' ||
+      op.type === 'resize' ||
+      op.type === 'autoOrient' ||
+      op.type === 'rotate',
+  )
+  const oriented = operations.some((op) => op.type === 'autoOrient')
+  return {
+    ...(!converted ? defaults : { orientation: defaults.orientation }),
+    ...(!geometryChanged && intrinsicSize !== undefined ? { intrinsicSize } : {}),
+    ...(oriented ? { orientation: 1 } : {}),
+    ...(!converted && outputFormat.startsWith('rgba') && !decoder.pixelFormat.startsWith('rgba')
+      ? { alphaBitDepth: pixelStorage(outputFormat).bytesPerSample * 8 }
+      : {}),
+    ...requested,
+  }
 }

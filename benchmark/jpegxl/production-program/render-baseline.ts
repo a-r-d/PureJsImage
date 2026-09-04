@@ -74,17 +74,33 @@ const milestones = record(programState.milestones, 'programState.milestones')
 if (
   readCapability.status === 'supported' &&
   (readCapability.label === 'Common static sRGB' ||
-    readCapability.label === 'Common static color and HDR')
+    readCapability.label === 'Common static color and HDR' ||
+    readCapability.label === 'Stable common static')
 ) {
   const milestone3 = record(milestones.M3, 'programState.milestones.M3')
   if (milestone3.stablePromotionGatePassed !== true) {
     throw new Error('Supported common static decoding requires the Milestone 3 promotion gate')
   }
   if (
-    readCapability.label === 'Common static color and HDR' &&
+    readCapability.label !== 'Common static sRGB' &&
     record(milestones.M4, 'programState.milestones.M4').stablePromotionGatePassed !== true
   ) {
     throw new Error('Supported color and HDR requires the Milestone 4 local promotion gate')
+  }
+  if (readCapability.label === 'Stable common static') {
+    const milestone5 = record(milestones.M5, 'programState.milestones.M5')
+    const pipelineCorpus = await parseJson(join(directory, 'm5-common-static.json'))
+    if (
+      milestone5.stablePromotionGatePassed !== true ||
+      pipelineCorpus.passed !== true ||
+      pipelineCorpus.incorrectOutputs !== 0 ||
+      number(pipelineCorpus.decoded, 'M5 decoded') /
+        (number(pipelineCorpus.decoded, 'M5 decoded') +
+          number(pipelineCorpus.unsupported, 'M5 unsupported')) <
+        0.99
+    ) {
+      throw new Error('Stable common static requires the M5 pipeline and corpus promotion gates')
+    }
   }
 } else if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
   throw new Error('JPEG XL read capability has an unrecognized boundary')

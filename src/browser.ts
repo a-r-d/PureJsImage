@@ -32,6 +32,7 @@ export type {
   ColorProfile,
   DecodeRequest,
   DecoderCapabilities,
+  DecoderExecutionDescription,
   DecoderOptions,
   EncodeRequest,
   ImageCodec,

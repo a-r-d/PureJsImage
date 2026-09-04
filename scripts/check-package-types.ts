@@ -406,6 +406,7 @@ export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
 export { createEvidenceSession, explainImage, instrumentImageSource } from 'purejsimage/evidence'
+import { explainImage } from 'purejsimage/evidence'
 export type { EvidenceContext, ExecutionEvidenceReport, ImageExecutionPlanDescription } from 'purejsimage/evidence'
 export { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 }
 export type { AnalysisProjectV1 }
@@ -415,6 +416,12 @@ const nodeImages = createImageLibrary([pngCodec, jpegxlCodec], nodeOptions)
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 export const inspectJpegXlInput = (input: Uint8Array): Promise<JpegXlInspection> =>
   inspectJpegXl(input)
+export const jpegXlNativePipeline = async (input: Uint8Array) =>
+  (await nodeImages.open(input, { colorOutput: 'preserve' })).crop({ x: 0, y: 0, width: 1, height: 1 }).resize({ width: 2, height: 2 }).jpegxl().toBuffer()
+export const jpegXlDisplayPipeline = async (input: Uint8Array) =>
+  (await browserImages.open(input, { hdrOutput: 'tone-map-srgb', alphaOutput: 'straight' })).autoOrient().resize({ width: 320 }).png().toUint8Array()
+export const jpegXlPrecisionPlan = async (input: Uint8Array) =>
+  explainImage((await nodeImages.open(input)).jpegxl())
 export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })
 export type GeoConsumerContracts = {

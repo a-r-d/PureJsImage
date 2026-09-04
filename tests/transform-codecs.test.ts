@@ -2,7 +2,7 @@ import jpeg from 'jpeg-js'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { NodeImage } from '../src/node-image.ts'
-import { createCodecFixtures, type CodecFixture } from './codec-fixtures.ts'
+import { type CodecFixture, createCodecFixtures } from './codec-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const transformedJpeg = (image: NodeImage): Promise<Buffer> =>
@@ -25,9 +25,12 @@ describe('ordered transforms across codecs', () => {
 
   it('matches a lossless normalized reference for every supported decoder', async () => {
     for (const fixture of fixtures) {
-      const normalized = await (await Image.open(fixture.input)).png().toBuffer()
+      const opened = await Image.open(fixture.input)
+      const source =
+        fixture.format === 'jpegxl' ? opened.convertPixelFormat({ format: 'rgba8' }) : opened
+      const normalized = await source.png().toBuffer()
       const [direct, reference] = await Promise.all([
-        transformedJpeg(await Image.open(fixture.input)),
+        transformedJpeg(source),
         transformedJpeg(await Image.open(normalized)),
       ])
       const decoded = jpeg.decode(direct, { formatAsRGBA: true, useTArray: true })

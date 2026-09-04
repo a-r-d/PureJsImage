@@ -4,9 +4,9 @@ import type { PixelColorSemantics } from '../color.ts'
 import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageLimits } from '../limits.ts'
-import { pixelBytesPerPixel, type PixelBlock } from '../pixel.ts'
+import { type PixelBlock, pixelBytesPerPixel } from '../pixel.ts'
 import { type ImageSource, readExactly } from '../source.ts'
-import { decodeJpegCoefficientImage, type JpegRegion } from './jpeg-baseline.ts'
+import type { JpegRegion } from './jpeg-baseline.ts'
 import type { JpegCoefficientImage } from './jpeg-coefficients.ts'
 import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.ts'
 import {
@@ -15,8 +15,8 @@ import {
   jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
-import { decodeJpegXlJpegPixelImage } from './jpegxl-jpeg-reconstruct-source.ts'
 import { decodeJpegXlJpegPixels } from './jpegxl-jpeg-pixels.ts'
+import { decodeJpegXlJpegPixelImage } from './jpegxl-jpeg-reconstruct-source.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   JpegXlVarDctMemoryLedger,
@@ -103,35 +103,12 @@ class JpegDerivedJpegXlDecoder implements ImageDecoder {
     const region = decodeRegion(outputWidth, outputHeight, request)
     throwIfAborted(this.#signal)
     throwIfAborted(request.signal)
-    if (scale === 1) {
-      const signal = combineAbortSignals(this.#signal, request.signal)
-      yield* decodeJpegXlJpegPixels(
-        this.#image,
-        { ...region, ...(signal ? { signal } : {}) },
-        this.#colorMaps,
-      )
-      return
-    }
-    for await (const block of decodeJpegCoefficientImage(this.#image, region, scale)) {
-      throwIfAborted(this.#signal)
-      throwIfAborted(request.signal)
-      if (this.pixelFormat === 'gray8') {
-        const data = new Uint8Array(block.width * block.height)
-        for (let y = 0; y < block.height; y += 1)
-          for (let x = 0; x < block.width; x += 1)
-            data[y * block.width + x] = block.data[y * block.stride + x * 3] ?? 0
-        block.release?.()
-        yield {
-          x: block.x,
-          y: block.y,
-          width: block.width,
-          height: block.height,
-          data,
-          format: 'gray8',
-          stride: block.width,
-        }
-      } else yield block
-    }
+    const signal = combineAbortSignals(this.#signal, request.signal)
+    yield* decodeJpegXlJpegPixels(
+      this.#image,
+      { ...region, scaleDenominator: scale, ...(signal ? { signal } : {}) },
+      this.#colorMaps,
+    )
   }
 }
 
@@ -166,7 +143,7 @@ export const createJpegDerivedJpegXlDecoder = async (
     colorMaps,
     Object.freeze({
       ...jpegXlPixelColorSemantics(displayFrame),
-      provenance: 'decoder-converted',
+      provenance: displayFrame.iccProfile === undefined ? 'decoder-converted' : 'icc',
     }),
     options.signal,
     displayFrame.colorChannels === 1,

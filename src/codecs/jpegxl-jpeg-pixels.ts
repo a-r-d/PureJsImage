@@ -6,18 +6,22 @@ import type { JpegCoefficientComponent, JpegCoefficientImage } from './jpeg-coef
 
 // JPEG XL reconstructs JPEG component samples without the intermediate 8-bit IDCT clip.
 // Keep two block rows per component so chroma interpolation happens before output quantization.
-const basis = Float64Array.from({ length: 64 }, (_, index) => {
-  const frequency = index >>> 3
-  return (
-    0.5 *
-    (frequency === 0 ? Math.SQRT1_2 : 1) *
-    Math.cos(((2 * (index & 7) + 1) * frequency * Math.PI) / 16)
-  )
-})
+const bases = [8, 4, 2, 1].map((size) =>
+  Float64Array.from({ length: size * size }, (_, index) => {
+    const frequency = Math.floor(index / size)
+    return (
+      0.5 *
+      (frequency === 0 ? Math.SQRT1_2 : 1) *
+      Math.cos(((2 * (index % size) + 1) * frequency * Math.PI) / (2 * size))
+    )
+  }),
+)
 
 class ComponentRows {
   readonly width: number
   readonly height: number
+  readonly #size: number
+  readonly #basis: Float64Array
   readonly #image: JpegCoefficientImage
   readonly #channel: number
   readonly #colorMap: Int32Array | undefined
@@ -33,17 +37,24 @@ class ComponentRows {
     image: JpegCoefficientImage,
     channel: number,
     colorMap?: Int32Array,
+    scale: 1 | 2 | 4 | 8 = 1,
   ) {
+    this.#size = 8 / scale
+    const basis = bases[Math.log2(scale)]
+    if (!basis) throw invalidInput('JPEG XL reduced IDCT basis is missing')
+    this.#basis = basis
     this.#image = image
     this.#channel = channel
     this.#colorMap = colorMap
     this.#component = component
     this.width = width
     this.height = height
-    this.#rows = [new Float32Array(width * 8), new Float32Array(width * 8)]
+    this.#rows = [new Float32Array(width * this.#size), new Float32Array(width * this.#size)]
   }
   row(y: number): Float32Array {
-    const blockY = y >>> 3
+    const size = this.#size
+    const basis = this.#basis
+    const blockY = Math.floor(y / size)
     const slot = blockY & 1
     const output = this.#rows[slot]
     if (!output) throw invalidInput('JPEG XL component row storage is missing')
@@ -56,7 +67,7 @@ class ComponentRows {
             ? 0.945349926692846
             : 0.9500648966626563
       const dequantized = this.#dequantized
-      for (let blockX = 0; blockX < Math.ceil(this.width / 8); blockX += 1) {
+      for (let blockX = 0; blockX < Math.ceil(this.width / size); blockX += 1) {
         const coefficientOffset = (blockY * component.blocksPerLineForMcu + blockX) * 64
         const luma = this.#image.components[0]
         const local =
@@ -99,24 +110,24 @@ class ComponentRows {
                   : residual - 0.145 / residual
           dequantized[i] = corrected * q + lumaValue
         }
-        for (let v = 0; v < 8; v += 1)
-          for (let x = 0; x < 8; x += 1) {
+        for (let v = 0; v < size; v += 1)
+          for (let x = 0; x < size; x += 1) {
             let sum = 0
-            for (let u = 0; u < 8; u += 1)
-              sum += (dequantized[v * 8 + u] ?? 0) * (basis[u * 8 + x] ?? 0)
+            for (let u = 0; u < size; u += 1)
+              sum += (dequantized[v * 8 + u] ?? 0) * (basis[u * size + x] ?? 0)
             this.#scratch[v * 8 + x] = sum
           }
-        for (let y = 0; y < 8; y += 1)
-          for (let x = 0; x < 8 && blockX * 8 + x < this.width; x += 1) {
+        for (let y = 0; y < size; y += 1)
+          for (let x = 0; x < size && blockX * size + x < this.width; x += 1) {
             let sum = 0
-            for (let v = 0; v < 8; v += 1)
-              sum += (this.#scratch[v * 8 + x] ?? 0) * (basis[v * 8 + y] ?? 0)
-            output[y * this.width + blockX * 8 + x] = sum + 128
+            for (let v = 0; v < size; v += 1)
+              sum += (this.#scratch[v * 8 + x] ?? 0) * (basis[v * size + y] ?? 0)
+            output[y * this.width + blockX * size + x] = sum + 128
           }
       }
       this.#indices[slot] = blockY
     }
-    return output.subarray((y & 7) * this.width, ((y & 7) + 1) * this.width)
+    return output.subarray((y % size) * this.width, ((y % size) + 1) * this.width)
   }
 }
 
@@ -125,8 +136,9 @@ export async function* decodeJpegXlJpegPixels(
   request: Readonly<DecodeRequest>,
   colorMaps: readonly [Int32Array, Int32Array],
 ): AsyncGenerator<PixelBlock> {
-  const width = request.width ?? image.width
-  const height = request.height ?? image.height
+  const scale = request.scaleDenominator ?? 1
+  const width = request.width ?? Math.ceil(image.width / scale)
+  const height = request.height ?? Math.ceil(image.height / scale)
   const originX = request.x ?? 0
   const originY = request.y ?? 0
   const channels = image.components.length === 1 ? 1 : 3
@@ -136,11 +148,12 @@ export async function* decodeJpegXlJpegPixels(
     const scaleY = component.verticalSampling / image.maximumVerticalSampling
     const rows = new ComponentRows(
       component,
-      Math.ceil(image.width * scaleX),
-      Math.ceil(image.height * scaleY),
+      Math.ceil((image.width * scaleX) / scale),
+      Math.ceil((image.height * scaleY) / scale),
       image,
       index,
       index === 0 ? undefined : colorMaps[index - 1],
+      scale,
     )
     const indices = new Uint32Array(width)
     const right = new Uint32Array(width)

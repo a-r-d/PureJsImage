@@ -156,12 +156,12 @@ describe('package contract', () => {
     )
     expect(
       pureJsImageEntryTargets.find(({ id }) => id === 'core-execution')?.maxMinifiedBytes,
-    ).toBe(68 * 1024)
+    ).toBe(73 * 1024)
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
       baselineMinifiedBytes: 143_546,
-      maxMinifiedBytes: 197_000,
+      maxMinifiedBytes: 204_000,
     })
     const expectedReaderTargetIds = [
       ...capabilityManifest.scientificReaders.map(

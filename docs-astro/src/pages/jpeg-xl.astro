@@ -59,6 +59,12 @@ const structuredData = {
           <label class="check"><input id="jxl-only-if-smaller" type="checkbox" /> Require JPEG XL output to be smaller</label>
           <button id="jxl-transcode" type="button" disabled>Exact JPEG to JPEG XL <span class="badge">Stable</span></button>
           <button id="jxl-reconstruct" type="button" disabled>Reconstruct original JPEG</button>
+          <label>Width <input id="jxl-width" type="number" min="1" max="4096" value="320" /></label>
+          <label>Height <input id="jxl-height" type="number" min="1" max="4096" value="240" /></label>
+          <label>Fit <select id="jxl-fit"><option value="contain">Contain</option><option value="cover">Cover</option><option value="fill">Fill</option></select></label>
+          <label>Export <select id="jxl-format"><option value="png">PNG</option><option value="jpeg">JPEG</option></select></label>
+          <button id="jxl-transform" type="button" disabled>Resize and export sRGB</button>
+          <p>Preview and sRGB export straighten alpha and tone map supported HDR. Export normalizes orientation and converts high-depth samples to 8-bit.</p>
           <button id="jxl-reopen" type="button" disabled>Reopen latest JPEG XL</button>
           <button id="jxl-download" type="button" disabled>Download latest output</button>
           <p class="note">Pixel-lossless encode preserves supported decoded samples. The exact JPEG path transfers quantized DCT coefficients and reconstruction metadata without decoding RGB first. The size requirement is off unless you select it.</p>
