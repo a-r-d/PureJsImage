@@ -64,7 +64,7 @@ if (process.argv.includes('--worker')) {
     : [
         'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
       ]
-  inputs.push('benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-yuv420-exif.jxl')
+  inputs.push('benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl')
   const measurements: unknown[] = []
   for (const [index, input] of inputs.entries()) {
     const referencePath = `${work}/reference-${index}.png`

@@ -798,7 +798,7 @@
       }
     },
     {
-      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-yuv420-exif.jxl",
+      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
       "sha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
       "width": 320,
       "height": 240,
@@ -827,7 +827,7 @@
       }
     },
     {
-      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-yuv420-exif.jxl",
+      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
       "sha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
       "width": 320,
       "height": 240,
