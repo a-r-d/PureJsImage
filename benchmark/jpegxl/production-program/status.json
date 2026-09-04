@@ -317,7 +317,7 @@
       "status": "PR open",
       "pr": 35,
       "startRevision": "eb0d1697132a81a2dcc9eb6822b384e09c781bec",
-      "finalRevision": null,
+      "finalRevision": "88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302",
       "localCommands": [
         "node benchmark/jpegxl/generate-m4-color-corpus.ts",
         "node benchmark/jpegxl/generate-m4-alpha-corpus.ts",

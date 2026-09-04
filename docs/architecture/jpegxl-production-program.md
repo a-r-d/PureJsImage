@@ -11,7 +11,7 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
 - Starting revision: `eb0d1697132a81a2dcc9eb6822b384e09c781bec`
-- Final revision: pending for M4
+- M4 implementation revision: `88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302`
 - Capability change: common static color and HDR, independent alpha, bounded ICC and metadata, and structured lossless encoding.
 - Stable promotion gate: passed locally for the documented M4 boundary.
 
@@ -35,7 +35,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M1 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | passed locally |
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
 | M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
-| M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | pending | passed locally |
+| M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `88a49c476e8ecbcf6ef5d5b42286a48f5b3ae302` | passed locally |
 | M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
 | M7 | B | not started | `codex/jpegxl-m07-lossy-encoder` | pending | pending | pending | not passed |
