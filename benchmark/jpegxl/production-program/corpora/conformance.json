@@ -354,8 +354,8 @@
       "bytes": 10567,
       "license": "CC-BY-SA-3.0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "chroma upsampling"
+      "baselineClassification": "pass",
+      "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985"
     },
     {
       "id": "upsampling_5",
@@ -363,8 +363,8 @@
       "bytes": 10567,
       "license": "CC-BY-SA-3.0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "chroma upsampling"
+      "baselineClassification": "pass",
+      "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985"
     }
   ]
 }

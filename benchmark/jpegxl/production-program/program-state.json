@@ -213,6 +213,7 @@
       "remoteWorkflowRuns": [],
       "measuredResults": [
         "Generated VarDCT matrix: 19 of 19 fixtures pass pinned djxl comparison with maximum error 1",
+        "Official Level 5 and Level 10 4x color-and-alpha upsampling cases pass deterministically with maximum error 1, RGB RMSE at most 0.316, and alpha RMSE 0.0025 against the pinned reference PNG",
         "Real-photo matrix: 299 of 300 files decode correctly, one unsupported previous-channel Modular tree is rejected before output, and there are zero incorrect outputs",
         "The real-photo matrix maximum error is 1 and maximum RMSE is 0.517775; pinned jxl-oxide independently reaches RMSE 0.517758 against djxl on the threshold probe",
         "Twelve matrix files pass the independent pinned jxl-oxide cross-check",

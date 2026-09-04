@@ -251,6 +251,9 @@ set includes quantization modes emitted by the pinned encoders, progressive pass
 frames, 2x, 4x, and 8x resampling, straight alpha, patches, splines, Gaborish, EPF, adaptive
 smoothing, synthetic noise, reference slots, and common static frame blending. The generated
 matrix contains 19 fixtures. Every generated fixture passes its pinned `djxl` oracle.
+The official Level 5 and Level 10 4x color-and-alpha upsampling cases also pass deterministically.
+Compared with their pinned reference PNG, each channel has maximum error 1; RGB RMSE is at most
+0.316 and alpha RMSE is 0.0025.
 
 The real-photo matrix contains 300 files made from 100 COCO validation photographs. It spans 1 to
 24 MP, odd dimensions, libjxl and Imazen, distances 0.5, 1, 2, and 4, efforts 1, 3, 5, 7, and 9,
