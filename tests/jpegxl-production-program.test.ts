@@ -26,7 +26,7 @@ const digest = async (path: string): Promise<string> =>
     .digest('hex')
 
 describe('JPEG XL production program baseline', () => {
-  test('tracks every milestone deterministically with the approved M1 and M2 promotions', async () => {
+  test('tracks every milestone deterministically with the approved M1 through M3 promotions', async () => {
     const status = await json(`${root}/status.json`)
     const milestones = array(status.milestones, 'status.milestones').map((value) =>
       record(value, 'milestone'),
@@ -49,7 +49,7 @@ describe('JPEG XL production program baseline', () => {
       false,
       true,
       true,
-      false,
+      true,
       false,
       false,
       false,
@@ -64,7 +64,10 @@ describe('JPEG XL production program baseline', () => {
       .map((value) => record(value, 'codec'))
       .find(({ id }) => id === 'jpegxl')
     expect(jpegXl).toBeDefined()
-    expect(record(jpegXl?.read, 'jpegxl.read')).toEqual({ status: 'limited', label: 'Limited' })
+    expect(record(jpegXl?.read, 'jpegxl.read')).toEqual({
+      status: 'supported',
+      label: 'Common static sRGB',
+    })
     expect(record(jpegXl?.write, 'jpegxl.write')).toEqual({
       status: 'limited',
       label: 'Stable lossless and exact transcode',
@@ -145,6 +148,36 @@ describe('JPEG XL production program baseline', () => {
     expect(performance.medianRatioToLibjxlExactWorkflow).toBeLessThanOrEqual(8)
   })
 
+  test('records passing Milestone 3 correctness and performance gates', async () => {
+    const corpusReport = await json(`${root}/m3-common-static-report.json`)
+    const corpusAcceptance = record(corpusReport.acceptance, 'M3 corpus acceptance')
+    expect(corpusAcceptance).toMatchObject({
+      passed: true,
+      decoded: 299,
+      failed: 1,
+      incorrectOutputs: 0,
+      explicitUnsupported: 1,
+      maximumError: 1,
+      jxlOxideComparisons: 12,
+    })
+    expect(Number(corpusAcceptance.realDecodeRate)).toBeGreaterThanOrEqual(0.99)
+    expect(Number(corpusAcceptance.maximumRmse)).toBeLessThanOrEqual(
+      Number(corpusAcceptance.rmseThreshold),
+    )
+    expect(Number(corpusAcceptance.medianDjxlRatio)).toBeLessThanOrEqual(10)
+
+    const performanceReport = await json(`${root}/m3-performance-report.json`)
+    const performanceAcceptance = record(performanceReport.acceptance, 'M3 performance acceptance')
+    expect(performanceAcceptance.passed).toBe(true)
+    expect(Number(performanceAcceptance.twelveMegapixelMilliseconds)).toBeLessThanOrEqual(5_000)
+    expect(Number(performanceAcceptance.twentyFourMegapixelMilliseconds)).toBeLessThanOrEqual(
+      12_000,
+    )
+    expect(Number(performanceAcceptance.groupScalingRatio)).toBeLessThanOrEqual(
+      Number(performanceAcceptance.groupScalingLimit),
+    )
+  })
+
   test('classifies every official conformance case without incorrect output', async () => {
     const conformance = await json(`${root}/corpora/conformance.json`)
     const cases = array(conformance.cases, 'conformance.cases').map((value) =>
@@ -177,7 +210,7 @@ describe('JPEG XL production program baseline', () => {
     const fixtures = array(inventory.fixtures, 'feature inventory fixtures').map((value) =>
       record(value, 'feature fixture'),
     )
-    expect(fixtures).toHaveLength(19)
+    expect(fixtures).toHaveLength(27)
     for (const fixture of fixtures) {
       for (const field of required) expect(fixture).toHaveProperty(field)
     }
@@ -194,6 +227,13 @@ describe('JPEG XL production program baseline', () => {
       patchCount: 0,
       splineCount: 0,
       strategyIds: [0, 1, 2, 7, 12, 13, 14, 15, 16, 17],
+    })
+    expect(fixtures.find(({ id }) => id === 'gray8-distance1-patches')).toMatchObject({
+      patchCount: 570,
+      internalFrames: 1,
+    })
+    expect(fixtures.find(({ id }) => id === 'rgb8-static-splines')).toMatchObject({
+      splineCount: 1,
     })
   })
 

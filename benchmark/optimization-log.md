@@ -882,6 +882,31 @@ all measured rows. The default policy therefore uses lazy chunked memory without
 MiB Node ceiling. Opt-in file setup and later write failures fall back to memory. Local harness:
 `.tmp/temporary-storage-benchmark/{run.ts,worker.ts}`.
 
+## JPEG XL M3 common VarDCT campaign - 2026-09-04
+
+Workload: common static 8-bit sRGB VarDCT decode, with pinned `djxl` output checks after each retained
+change. CPU profiles first identified EPF, AC coefficient allocation, Gaborish, adaptive DC
+smoothing, and inverse transforms as the main costs. The initial 300-file checkpoint had a 576 ms
+median and a 13.312x median ratio to pinned single-threaded `djxl`.
+
+| ID | Hypothesis / change | Representative result | Verdict |
+| --- | --- | --- | --- |
+| JXLM3-001 | Store ANS alias fields in typed arrays and bypass LZ77 bookkeeping for streams that disable LZ77. | The 1 MP DCT8 development case moved from about 380 ms to about 290-326 ms warm. | Retained. |
+| JXLM3-002 | Inline the ANS token body into the no-LZ77 public read method. | One progressive libjxl case produced maximum error 255 and RMSE 74.254. | Reverted before the full matrix. |
+| JXLM3-003 | Cache weighted horizontal and vertical differences for EPF stage 1. | The checked DCT8 development case reached 331 ms warm and all 19 generated fixtures stayed within the oracle gate. | Retained. |
+| JXLM3-004 | Process EPF stage 0 by candidate with one reusable difference map, and skip restoration work on band-edge rows that cannot affect emitted rows. | The slow progressive 1 MP probe moved from about 1.12 seconds to 0.78 seconds warm. | Retained. |
+| JXLM3-005 | Replace per-block coefficient buffers with one bounded typed-array arena per channel and local group offsets. | The checked 1 MP DCT8 probe moved from 335 ms to 274 ms warm. | Retained. |
+| JXLM3-006 | Remove per-pixel temporary arrays from adaptive DC smoothing and use fixed channel locals. | The diverse-strategy 1 MP probe moved from 323 ms to 301 ms warm. | Retained. |
+| JXLM3-007 | Cache the complete DC context plane once instead of deriving it inside each AC-group decode. | Repeated development measurements did not show a stable gain. | Reverted. |
+| JXLM3-008 | Rewrite Gaborish as two separable-looking horizontal terms followed by a vertical combine. | The checked warm probe regressed from about 308 ms to 321 ms. | Reverted. The exact 3x3 kernel remains direct. |
+| JXLM3-009 | Specialize the four-neighbor EPF stage 2 kernel and remove coordinate dispatch from interior pixels. | The slow progressive probe moved from 774 ms to 652 ms warm. | Retained. |
+
+Final evidence: 299 of 300 real-photo files decoded, one failed explicitly as unsupported, and no
+file produced incorrect output. The final median was 351.397 ms and 8.963x pinned `djxl`. Repeated
+DCT8 medians were 2.194 seconds at 12.008 MP and 4.696 seconds at 24.003 MP. Normalized time per
+megapixel changed by 1.071x while group count increased from 195 to 391. The 24 MP corpus case
+reported 193,274,053 managed bytes.
+
 ## TIFF large-resize campaign - 2026-08-25
 
 Workload: `tiff-large-resize-jpeg` — 4000x3000 uncompressed stripped RGB TIFF (32-row

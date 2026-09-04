@@ -24,6 +24,15 @@ import { MemorySource } from '../src/source.ts'
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
 const pnmPixels = (data: Uint8Array): Uint8Array => {
+  if (data[0] === 0x50 && data[1] === 0x37) {
+    const marker = new TextEncoder().encode('ENDHDR\n')
+    for (let offset = 0; offset <= data.byteLength - marker.byteLength; offset += 1) {
+      if (marker.every((value, index) => data[offset + index] === value)) {
+        return data.subarray(offset + marker.byteLength)
+      }
+    }
+    throw new Error('PAM header is invalid')
+  }
   let offset = 0
   let tokens = 0
   while (offset < data.byteLength && tokens < 4) {
@@ -57,12 +66,12 @@ const comparePixels = (
 describe('JPEG XL corpus and development-oracle manifest', () => {
   it('keeps the VarDCT strategy manifest aligned with independently checked renderers', () => {
     expect(jpegXlSupportedVarDctStrategyIds).toEqual([
-      0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     ])
     expect(generatedVarDct.implementedStrategyIds).toEqual(jpegXlSupportedVarDctStrategyIds)
-    expect(generatedVarDct.unsupportedStrategyIds).toEqual([3, 8, 9, 21, 22, 23, 24, 25, 26])
+    expect(generatedVarDct.unsupportedStrategyIds).toEqual([8, 9, 21, 22, 23, 24, 25, 26])
     expect(supportsJpegXlVarDctStrategy(1)).toBe(true)
-    expect(supportsJpegXlVarDctStrategy(3)).toBe(false)
+    expect(supportsJpegXlVarDctStrategy(3)).toBe(true)
   })
 
   it('pins unique external oracle revisions and roles', () => {
@@ -153,13 +162,13 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
   it('pins a common static VarDCT development matrix with pixel oracles', async () => {
     expect(generatedVarDct.revision).toMatch(/^[0-9a-f]{40}$/u)
     expect(generatedVarDct.sourceArchiveSha256).toMatch(/^[0-9a-f]{64}$/u)
-    expect(generatedVarDct.fixtures).toHaveLength(11)
-    expect(new Set(generatedVarDct.fixtures.map(({ id }) => id)).size).toBe(11)
+    expect(generatedVarDct.fixtures).toHaveLength(19)
+    expect(new Set(generatedVarDct.fixtures.map(({ id }) => id)).size).toBe(19)
     for (const fixture of generatedVarDct.fixtures) {
       expect(fixture.generator).toBe('benchmark/jpegxl/generate-vardct-corpus.ts')
-      expect(fixture.coding).toBe('vardct')
+      expect(['vardct', 'modular']).toContain(fixture.coding)
       expect(['supported', 'unsupported']).toContain(fixture.expectedPureJsImageBehavior)
-      expect(fixture.options).toContain('--modular=0')
+      if (fixture.coding === 'vardct') expect(fixture.options).toContain('--modular=0')
       expect(fixture.features.length).toBeGreaterThan(0)
       const encoded = new Uint8Array(readFileSync(fixture.jxl))
       const oracle = new Uint8Array(readFileSync(fixture.oracle))
@@ -171,10 +180,15 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
         width: fixture.width,
         height: fixture.height,
         bitDepth: fixture.bitDepth,
-        encoding: 'vardct',
+        encoding: fixture.coding,
         progressivePasses: fixture.progressive ? 3 : 1,
         jpegReconstruction: 'unavailable',
-        expectedPixelFormat: fixture.colorEncoding.startsWith('grayscale') ? 'gray8' : 'rgb8',
+        expectedPixelFormat:
+          fixture.alpha === 'none'
+            ? fixture.colorEncoding.startsWith('grayscale')
+              ? 'gray8'
+              : 'rgb8'
+            : 'rgba8',
         unsupportedFeatures: expect.not.arrayContaining(['VarDCT pixel decode']),
       })
       if (fixture.expectedPureJsImageBehavior === 'supported') {
@@ -189,10 +203,13 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
           transfer: { kind: 'srgb' },
           matrix: 'identity',
           range: 'full',
-          alpha: 'none',
-          provenance: 'decoder-converted',
+          alpha: fixture.alpha === 'none' ? 'none' : 'straight',
+          provenance: fixture.coding === 'vardct' ? 'decoder-converted' : 'assumed-default',
         })
-        expect(decoder.capabilities).toMatchObject({ regionDecode: false, scaledDecode: false })
+        expect(decoder.capabilities).toMatchObject({
+          regionDecode: fixture.coding === 'modular',
+          scaledDecode: false,
+        })
         const blocks = []
         for await (const block of decoder.decode()) blocks.push(block)
         expect(blocks).toHaveLength(fixture.height)
@@ -203,7 +220,7 @@ describe('JPEG XL corpus and development-oracle manifest', () => {
               block.y === row &&
               block.width === fixture.width &&
               block.height === 1 &&
-              block.data.byteLength <= fixture.width * 3,
+              block.data.byteLength <= fixture.width * (fixture.alpha === 'none' ? 3 : 4),
           ),
         ).toBe(true)
         const pixels = new Uint8Array(blocks.reduce((sum, block) => sum + block.data.byteLength, 0))

@@ -375,16 +375,12 @@ export interface JpegXlEntropyCode {
   readonly lz77: JpegXlLz77Config
 }
 
-interface JpegXlAliasEntry {
-  readonly cutoff: number
-  readonly rightSymbol: number
-  readonly leftFrequency: number
-  readonly rightFrequency: number
-  readonly rightOffset: number
-}
-
 interface JpegXlAliasTable {
-  readonly entries: readonly JpegXlAliasEntry[]
+  readonly cutoffs: Uint16Array
+  readonly rightSymbols: Uint16Array
+  readonly leftFrequencies: Uint16Array
+  readonly rightFrequencies: Uint16Array
+  readonly rightOffsets: Int32Array
   readonly logEntrySize: number
   readonly entryMask: number
 }
@@ -585,18 +581,20 @@ const buildAliasTable = (
   const rightOffset = new Array<number>(tableSize).fill(0)
   const singleSymbol = frequencies.indexOf(4_096)
   if (singleSymbol >= 0) {
+    const cutoffs = new Uint16Array(tableSize)
+    const rightSymbols = new Uint16Array(tableSize)
+    const leftFrequencies = new Uint16Array(tableSize)
+    const rightFrequencies = new Uint16Array(tableSize)
+    const rightOffsets = new Int32Array(tableSize)
+    rightSymbols.fill(singleSymbol)
+    rightFrequencies.fill(4_096)
+    for (let index = 0; index < tableSize; index += 1) rightOffsets[index] = entrySize * index
     return Object.freeze({
-      entries: Object.freeze(
-        Array.from({ length: tableSize }, (_, index) =>
-          Object.freeze({
-            cutoff: 0,
-            rightSymbol: singleSymbol,
-            leftFrequency: 0,
-            rightFrequency: 4_096,
-            rightOffset: entrySize * index,
-          }),
-        ),
-      ),
+      cutoffs,
+      rightSymbols,
+      leftFrequencies,
+      rightFrequencies,
+      rightOffsets,
       logEntrySize: 12 - logAlphabetSize,
       entryMask: entrySize - 1,
     })
@@ -620,28 +618,32 @@ const buildAliasTable = (
     if ((cutoff[over] ?? 0) < entrySize) underfull.push(over)
     else if ((cutoff[over] ?? 0) > entrySize) overfull.push(over)
   }
-  const entries = Array.from({ length: tableSize }, (_, index): JpegXlAliasEntry => {
+  const cutoffs = new Uint16Array(tableSize)
+  const rightSymbols = new Uint16Array(tableSize)
+  const leftFrequencies = new Uint16Array(tableSize)
+  const rightFrequencies = new Uint16Array(tableSize)
+  const rightOffsets = new Int32Array(tableSize)
+  for (let index = 0; index < tableSize; index += 1) {
     const currentCutoff = cutoff[index] ?? 0
     if (currentCutoff === entrySize) {
-      return Object.freeze({
-        cutoff: 0,
-        rightSymbol: index,
-        leftFrequency: frequencies[index] ?? 0,
-        rightFrequency: frequencies[index] ?? 0,
-        rightOffset: 0,
-      })
+      rightSymbols[index] = index
+      leftFrequencies[index] = frequencies[index] ?? 0
+      rightFrequencies[index] = frequencies[index] ?? 0
+      continue
     }
     const right = rightSymbol[index] ?? 0
-    return Object.freeze({
-      cutoff: currentCutoff,
-      rightSymbol: right,
-      leftFrequency: frequencies[index] ?? 0,
-      rightFrequency: frequencies[right] ?? 0,
-      rightOffset: (rightOffset[index] ?? 0) - currentCutoff,
-    })
-  })
+    cutoffs[index] = currentCutoff
+    rightSymbols[index] = right
+    leftFrequencies[index] = frequencies[index] ?? 0
+    rightFrequencies[index] = frequencies[right] ?? 0
+    rightOffsets[index] = (rightOffset[index] ?? 0) - currentCutoff
+  }
   return Object.freeze({
-    entries: Object.freeze(entries),
+    cutoffs,
+    rightSymbols,
+    leftFrequencies,
+    rightFrequencies,
+    rightOffsets,
     logEntrySize: 12 - logAlphabetSize,
     entryMask: entrySize - 1,
   })
@@ -795,6 +797,15 @@ export class JpegXlEntropySymbolReader {
       throw invalidInput('JPEG XL entropy stream exceeds its symbol limit')
     }
     this.#symbolsRead += 1
+    if (!this.#code.lz77.enabled) {
+      const histogram = this.#code.contextMap[context]
+      if (histogram === undefined) throw invalidInput('JPEG XL entropy context is invalid')
+      const token = this.#readToken(histogram, reader)
+      const config = this.#code.uintConfigs[histogram]
+      if (!config) throw invalidInput('JPEG XL hybrid integer configuration is missing')
+      if (token < config.splitToken) return token
+      return readJpegXlHybridUint(reader, config, token)
+    }
     return this.#readHybridUint(context, reader)
   }
 
@@ -853,12 +864,13 @@ export class JpegXlEntropySymbolReader {
     const residual = this.#ansState & 4_095
     const index = residual >>> alias.logEntrySize
     const position = residual & alias.entryMask
-    const entry = alias.entries[index]
-    if (!entry) throw invalidInput('JPEG XL ANS state is invalid')
-    const right = position >= entry.cutoff
-    const symbol = right ? entry.rightSymbol : index
-    const frequency = right ? entry.rightFrequency : entry.leftFrequency
-    const offset = position + (right ? entry.rightOffset : 0)
+    if (index >= alias.cutoffs.length) throw invalidInput('JPEG XL ANS state is invalid')
+    const right = position >= (alias.cutoffs[index] ?? 0)
+    const symbol = right ? (alias.rightSymbols[index] ?? 0) : index
+    const frequency = right
+      ? (alias.rightFrequencies[index] ?? 0)
+      : (alias.leftFrequencies[index] ?? 0)
+    const offset = position + (right ? (alias.rightOffsets[index] ?? 0) : 0)
     this.#ansState = (frequency * Math.floor(this.#ansState / 4_096) + offset) >>> 0
     if (this.#ansState < 65_536) {
       this.#ansState = (this.#ansState * 65_536 + reader.readBits(16)) >>> 0

@@ -259,7 +259,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
-        "tolerance": "Selected 8-bit single-group and multi-group XYB VarDCT fixtures stay within one sample with RMSE below 0.5. Pinned jxl-oxide confirms that the approximately 0.5 RMSE against djxl is an 8-bit output-rounding difference for the checked multi-LF-group case. JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "tolerance": "Nineteen generated fixtures and the 300-file common-static matrix stay within one 8-bit sample. The real-photo RMSE limit is 0.55. Pinned jxl-oxide independently reaches RMSE 0.517758 against djxl on the threshold probe while agreeing with PureJsImage within one sample. JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       }
     },

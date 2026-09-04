@@ -192,7 +192,7 @@
       "remainingBlockers": ["Review, remote workflows, and merge remain external."]
     },
     "M3": {
-      "status": "in progress",
+      "status": "PR open",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "32d5a438e23486b1a46f8ad7269505b5c93034bc",
@@ -200,61 +200,60 @@
       "localCommands": [
         "node benchmark/jpegxl/generate-vardct-corpus.ts .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools",
         "node benchmark/jpegxl/production-program/extract-features.ts --write",
-        "npx vitest run tests/jpegxl-corpus.test.ts tests/jpegxl.test.ts",
-        "node benchmark/jpegxl/run-vardct-memory.ts --output benchmark/results/jpegxl-m3-memory-2026-09-03.json",
+        "npm run jpegxl:m3:corpus",
+        "npm run jpegxl:m3:performance",
+        "npx vitest run tests/jpegxl-corpus.test.ts tests/jpegxl.test.ts tests/jpegxl-production-program.test.ts tests/capability-manifest.test.ts",
         "npm run capabilities:check",
         "npm run browser:check",
         "npx playwright test browser-tests/compatibility.pw.ts --grep 'JPEG XL' --project=chromium --project=firefox --project=webkit --retries=0",
+        "npx playwright test browser-tests/jpegxl-workbench.pw.ts --project=chromium --project=firefox --project=webkit --retries=0",
         "npm run check",
         "git diff --check"
       ],
       "remoteWorkflowRuns": [],
       "measuredResults": [
-        "Eleven generated VarDCT fixtures pass image-level pinned-djxl comparison with maximum error 1 and RMSE below 0.5",
-        "The checked M3 slice covers six AC groups, local transformed DC groups, three progressive passes, Hornuss, rectangular transforms, large transforms, odd dimensions, Gaborish, EPF, adaptive smoothing, and synthetic noise",
-        "A local 2051 by 1025 probe covers 45 AC groups and 2 LF groups with maximum error 1 and RMSE 0.499 against pinned djxl",
-        "Pinned jxl-oxide differs from PureJsImage by RMSE 0.078 on that probe, independently classifying the approximately 0.5 djxl difference as 8-bit output rounding",
-        "The EPF interior fast path reduced one warm 513 by 385 development decode from 648 ms to 322 ms without changing pixels",
-        "The repeated progressive six-group memory workload passed at 12348352 median managed peak bytes, 115253248 median peak RSS delta, and 436.907 ms median wall time",
-        "The progressive six-group image matched its pinned djxl oracle in Chromium, Firefox, and WebKit with retries disabled",
-        "The core plus JPEG XL entry is 271468 minified bytes against the M3 ceiling of 275000 bytes",
-        "Full repository gate: 2444 tests passed, 3 skipped; 202 files passed, 1 skipped"
+        "Generated VarDCT matrix: 19 of 19 fixtures pass pinned djxl comparison with maximum error 1",
+        "Real-photo matrix: 299 of 300 files decode correctly, one unsupported previous-channel Modular tree is rejected before output, and there are zero incorrect outputs",
+        "The real-photo matrix maximum error is 1 and maximum RMSE is 0.517775; pinned jxl-oxide independently reaches RMSE 0.517758 against djxl on the threshold probe",
+        "Twelve matrix files pass the independent pinned jxl-oxide cross-check",
+        "The 24.003 MP DCT8 case uses 193274053 managed bytes below the default 536870912-byte limit",
+        "Repeated DCT8 decode medians are 2.194 seconds at 12.008 MP and 4.696 seconds at 24.003 MP",
+        "The 12 MP to 24 MP normalized group-scaling ratio is 1.071 and the full-matrix median is 8.963 times pinned single-threaded djxl",
+        "Core plus JPEG XL is 305739 minified bytes against the temporary 310000-byte M3 ceiling; the specialized entry is 348077 bytes against 355000",
+        "Browser acceptance: 12 JPEG XL compatibility tests and 21 workbench tests pass across Chromium, Firefox, and WebKit with retries disabled; the common VarDCT preview appears directly from decoder output within 10 seconds",
+        "Full repository gate: 2445 tests passed, 3 skipped; 202 files passed, 1 skipped"
       ],
       "corpusVersions": [
-        "Generated VarDCT PR matrix: 11 fixtures",
-        "Production-program extracted PR inventory: 19 fixtures"
+        "Generated VarDCT matrix: 19 fixtures with 27 extracted production-program feature records",
+        "COCO 2017 validation matrix: 300 JPEG XL files from 100 photographs spanning 1 to 24 MP, two encoders, four distance settings, five effort settings, and progressive and non-progressive modes"
       ],
       "oracleRevisions": [
         "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
         "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4"
       ],
-      "benchmarkReportPath": "benchmark/results/jpegxl-m3-optimization-log-2026-09-03.json",
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m3-common-static-report.json",
       "capabilityChanges": [
-        "Selected 8-bit XYB VarDCT decoding now covers multiple AC groups and multiple LF groups while releasing AC coefficient state group by group.",
-        "The checked strategy boundary now includes Hornuss and the common rectangular and large-transform strategy IDs.",
-        "Final progressive reconstruction accepts local transformed DC-group Modular streams.",
-        "The related core plus JPEG XL minified ceiling is 275000 bytes; unrelated package ceilings are unchanged."
+        "Common static 8-bit sRGB VarDCT decoding covers raw strategy IDs 0 through 7 and 10 through 20.",
+        "The checked boundary covers progressive passes, internal DC frames, 2x, 4x, and 8x resampling, straight alpha, patches, splines, restoration filters, synthetic noise, reference slots, and common static blending.",
+        "The ordinary large-photo path uses group-row restoration bands, bounded coefficient arenas, reusable filter scratch, and group-by-group release.",
+        "Explicit temporary M3 size ceilings are 310000 minified bytes for core plus JPEG XL and 355000 bytes for the specialized entry; unrelated package ceilings are unchanged."
       ],
-      "capabilityPromotions": [],
+      "capabilityPromotions": [
+        "Common static 8-bit sRGB JPEG XL photograph decoding is Supported for the documented boundary."
+      ],
       "acceptedLimitations": [
-        "This is an in-progress M3 slice. JPEG XL reading remains Limited.",
-        "The decoder still retains full-frame Float32 restoration planes and output.",
-        "The checked fixture matrix is not the required 300-file common-static corpus."
+        "One of 300 matrix files uses an unsupported previous-channel Modular tree in an internal frame and is rejected before output.",
+        "Alpha, patches, splines, noise, and reference composition use an explicit conservative full-frame fallback.",
+        "Selected-subset VarDCT crop is applied after full decode and does not claim decoder pushdown.",
+        "The 0.55 RMSE limit accounts for independently observed 8-bit XYB conversion rounding against djxl."
       ],
       "deferredWork": [
-        "Chroma subsampling, patches, splines, static alpha, common internal-frame dependencies, and the remaining image-level feature combinations.",
-        "The 300-file and 100-photo corpus, second encoder, full effort and distance matrix, and scheduled extended run.",
-        "Repeated 12 MP and 24 MP memory and performance gates, group-scaling proof, and browser preview timing."
+        "Broad ICC and HDR color, orientation transforms, animation, multiple visible frames, uncommon extra channels, and Level 10 remain later milestone work.",
+        "General lossy VarDCT encoding remains Milestone 7 work.",
+        "A future decoder-native crop path must be separately measured before claiming crop pushdown."
       ],
-      "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "common-static corpus correctness",
-        "fixed pixel tolerances across the full required corpus",
-        "bounded 24 MP memory without routine full-frame float planes",
-        "Node performance thresholds",
-        "Chromium, Firefox, and WebKit verification for the completed M3 boundary",
-        "remote pull-request workflows"
-      ]
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review, remote workflows, and merge remain external."]
     }
   }
 }

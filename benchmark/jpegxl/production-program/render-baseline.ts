@@ -70,8 +70,14 @@ const jpegXlCapability = formats
 if (!jpegXlCapability) throw new Error('capabilities/manifest.json has no jpegxl format')
 const readCapability = record(jpegXlCapability.read, 'jpegxl.read')
 const writeCapability = record(jpegXlCapability.write, 'jpegxl.write')
-if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
-  throw new Error('JPEG XL read capability no longer matches the recorded limited boundary')
+const milestones = record(programState.milestones, 'programState.milestones')
+if (readCapability.status === 'supported' && readCapability.label === 'Common static sRGB') {
+  const milestone3 = record(milestones.M3, 'programState.milestones.M3')
+  if (milestone3.stablePromotionGatePassed !== true) {
+    throw new Error('Supported common static decoding requires the Milestone 3 promotion gate')
+  }
+} else if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
+  throw new Error('JPEG XL read capability has an unrecognized boundary')
 }
 if (writeCapability.status !== 'limited') {
   throw new Error('JPEG XL write capability no longer matches the recorded limited boundary')
@@ -80,7 +86,6 @@ if (
   writeCapability.label === 'Stable exact transcode' ||
   writeCapability.label === 'Stable lossless and exact transcode'
 ) {
-  const milestones = record(programState.milestones, 'programState.milestones')
   const milestone1 = record(milestones.M1, 'programState.milestones.M1')
   if (milestone1.stablePromotionGatePassed !== true) {
     throw new Error('Stable exact transcode requires the Milestone 1 promotion gate')

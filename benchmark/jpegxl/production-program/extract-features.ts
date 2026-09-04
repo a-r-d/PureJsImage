@@ -12,6 +12,9 @@ import {
   readJpegXlSourceFrameStructures,
 } from '../../../src/codecs/jpegxl-decode.ts'
 import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
+import { readJpegXlFrameFeatures } from '../../../src/codecs/jpegxl-frame-features.ts'
+import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
+import { decodeJpegXlDct8Section } from '../../../src/codecs/jpegxl-vardct-render.ts'
 import {
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegLfGlobal,
@@ -155,9 +158,11 @@ const reconstructionFixtures = async (): Promise<readonly FixtureSource[]> => {
 const uniqueStrategies = (frame: Readonly<JpegXlFrameStructure>, values: Uint8Array): number[] => {
   const found = new Set<number>()
   for (let index = 0; index < values.length; index += 1) {
-    const blockX = index % Math.ceil(frame.width / 8)
-    const blockY = Math.floor(index / Math.ceil(frame.width / 8))
-    if (blockX * 8 < frame.width && blockY * 8 < frame.height) found.add(values[index] ?? 255)
+    const blockX = index % Math.ceil(frame.codedWidth / 8)
+    const blockY = Math.floor(index / Math.ceil(frame.codedWidth / 8))
+    if (blockX * 8 < frame.codedWidth && blockY * 8 < frame.codedHeight) {
+      found.add(values[index] ?? 255)
+    }
   }
   found.delete(255)
   return [...found].sort((left, right) => left - right)
@@ -169,13 +174,21 @@ const extractStrategyIds = async (
 ): Promise<readonly number[]> => {
   const frame = frames.at(-1)
   if (frame?.encoding !== 'vardct') return Object.freeze([])
-  const blockWidth = Math.ceil(frame.width / 8)
-  const blockHeight = Math.ceil(frame.height / 8)
+  const blockWidth = Math.ceil(frame.codedWidth / 8)
+  const blockHeight = Math.ceil(frame.codedHeight / 8)
   if (frame.sections.length === 1) {
     const section = frame.sections[0]
     if (!section) throw new Error('JPEG XL integrated VarDCT section is missing')
     const bytes = await readExactly(logical, section.offset, section.length)
-    const lf = decodeJpegXlJpegLfGlobal(bytes, 0, false, frame.frameFlags)
+    const lf = decodeJpegXlJpegLfGlobal(
+      bytes,
+      0,
+      false,
+      frame.frameFlags,
+      frame.codedWidth,
+      frame.codedHeight,
+      frame.alphaBitDepth === undefined ? 0 : 1,
+    )
     const dc = decodeJpegXlJpegDcGroup(
       bytes,
       {
@@ -194,14 +207,43 @@ const extractStrategyIds = async (
   const lfSection = frame.sections[0]
   if (!lfSection) throw new Error('JPEG XL separated VarDCT LF section is missing')
   const lfBytes = await readExactly(logical, lfSection.offset, lfSection.length)
-  const lf = decodeJpegXlJpegLfGlobal(lfBytes, 0, true, frame.frameFlags)
+  const lf = decodeJpegXlJpegLfGlobal(
+    lfBytes,
+    0,
+    frame.alphaBitDepth === undefined,
+    frame.frameFlags,
+    frame.codedWidth,
+    frame.codedHeight,
+    frame.alphaBitDepth === undefined ? 0 : 1,
+  )
   let externalDcPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
-  const dcFrame = frames.length === 2 ? frames[0] : undefined
-  if (dcFrame?.frameType === 'dc') {
-    const section = dcFrame.sections[0]
-    if (!section) throw new Error('JPEG XL external DC frame section is missing')
-    const bytes = await readExactly(logical, section.offset, section.length)
-    externalDcPlanes = decodeJpegXlModularDcFrameSection(bytes, blockWidth, blockHeight)
+  const memory = new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes)
+  for (const dcFrame of frames.slice(0, -1).filter(({ frameType }) => frameType === 'dc')) {
+    const sections = await Promise.all(
+      dcFrame.sections.map((section) => readExactly(logical, section.offset, section.length)),
+    )
+    const first = sections[0]
+    if (!first) throw new Error('JPEG XL external DC frame section is missing')
+    if (dcFrame.encoding === 'modular') {
+      externalDcPlanes = decodeJpegXlModularDcFrameSection(
+        first,
+        dcFrame.codedWidth,
+        dcFrame.codedHeight,
+      )
+    } else {
+      if (!externalDcPlanes) throw new Error('JPEG XL external DC dependency is missing')
+      const decoded = decodeJpegXlDct8Section(
+        first,
+        dcFrame,
+        defaultImageLimits,
+        memory,
+        sections.slice(1),
+        externalDcPlanes,
+        true,
+      )
+      if (!decoded.dcPlanes) throw new Error('JPEG XL external DC frame output is missing')
+      externalDcPlanes = decoded.dcPlanes
+    }
   }
   const strategyIds = new Set<number>()
   const dcGroupBlockDimension = frame.groupDimension
@@ -304,6 +346,23 @@ for (const fixture of sources.sort((left, right) => left.id.localeCompare(right.
   if (!frame) throw new Error(`${fixture.id} has no display frame`)
   const inspected = await inspectJpegXl(encoded)
   const strategyIds = await extractStrategyIds(logical, frames)
+  let patchCount = 0
+  let splineCount = 0
+  if ((frame.frameFlags & (2 | 16)) !== 0) {
+    const lfSection = frame.sections[0]
+    if (!lfSection) throw new Error(`${fixture.id} has no LF global section`)
+    const lfBytes = await readExactly(logical, lfSection.offset, lfSection.length)
+    const features = readJpegXlFrameFeatures(
+      lfBytes,
+      0,
+      frame.frameFlags,
+      frame.codedWidth,
+      frame.codedHeight,
+      frame.alphaBitDepth === undefined ? 0 : 1,
+    )
+    patchCount = features.patches.length
+    splineCount = features.splines.length
+  }
   const regularFrames = frames.filter(({ frameType }) => frameType === 'regular').length
   fixtures.push(
     Object.freeze({
@@ -327,9 +386,9 @@ for (const fixture of sources.sort((left, right) => left.id.localeCompare(right.
       alpha: inspected.alpha,
       extraChannels: inspected.extraChannels,
       patches: (frame.frameFlags & 2) !== 0,
-      patchCount: (frame.frameFlags & 2) === 0 ? 0 : null,
+      patchCount,
       splines: (frame.frameFlags & 16) !== 0,
-      splineCount: (frame.frameFlags & 16) === 0 ? 0 : null,
+      splineCount,
       noise: (frame.frameFlags & 1) !== 0,
       restoration: Object.freeze({ gaborish: frame.gaborish, epfIterations: frame.epfIterations }),
       orientation: frame.orientation,

@@ -15,7 +15,11 @@ All notable changes to PureJsImage are documented in this file.
   success. Pixel-lossless fallback is explicit and never silently replaces the exact path. The new
   local `/jpeg-xl/` worker workbench, public guide, capability contract, browser tests, package
   checks, and correctness-gated benchmark keep each capability boundary visible. Both exact JPEG
-  transcode and lossless Modular encoding are stable for their documented subsets.
+  transcode and lossless Modular encoding are stable for their documented subsets. Common static
+  8-bit sRGB photograph decoding now covers the checked VarDCT strategy, progressive, chroma
+  resampling, alpha, patch, spline, restoration, noise, and internal-frame boundary. Its 300-file
+  real-photo gate has no incorrect output, and the ordinary large-photo path uses bounded
+  restoration bands instead of source-sized float color planes.
 
 - Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
   AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,

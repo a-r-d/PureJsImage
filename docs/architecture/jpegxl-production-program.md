@@ -12,9 +12,8 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
 - Starting revision: `32d5a438e23486b1a46f8ad7269505b5c93034bc`
 - Final revision: pending review and merge
-- Capability change: the checked VarDCT subset now includes multiple groups, multiple LF groups,
-  progressive local DC transforms, Hornuss, and additional rectangular and large transforms.
-- Stable promotion gate: not passed
+- Capability change: common static 8-bit sRGB JPEG XL photograph decoding passed the local M3 gate.
+- Stable promotion gate: passed locally
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
 operator explicitly directed M1, M2, and M3 work to continue on the existing M0 branch and pull request.
@@ -35,7 +34,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M0 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `1cd965dfeba27865c920c4e27bd44dbb4ea0404b` | pending | no promotion permitted |
 | M1 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | passed locally |
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
-| M3 | A | in progress | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | pending | not passed |
+| M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | pending | passed locally |
 | M4 | A | not started | `codex/jpegxl-m04-color-alpha-metadata` | pending | pending | pending | not passed |
 | M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
@@ -241,37 +240,42 @@ The exact remote workflows passed for revision `a32bab2bcd4bb543fb9d85e61aa3d3ff
 - [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33808860771), including the complete
   pinned matrices and all three workbench browsers with retries disabled
 
-## M3 common static VarDCT progress
+## M3 common static VarDCT
 
 M3 began from `32d5a438e23486b1a46f8ad7269505b5c93034bc` on the existing pull request by
-explicit operator instruction. This first slice removes the single-group decoder restriction. It
-assembles multiple LF groups, decodes each AC group separately across all passes, and releases that
-group's coefficient state after rendering. Full-frame Float32 restoration planes and output are
-still retained, so the final M3 memory architecture is not complete.
+explicit operator instruction. The local gate now passes for common static 8-bit sRGB JPEG XL
+photographs.
 
-The checked generated matrix now has 11 VarDCT files. It covers six-group images, local transformed
-DC groups, three progressive passes, Hornuss, rectangular and large transforms, odd dimensions,
-Gaborish, EPF, adaptive smoothing, and synthetic noise. All 11 files stay within maximum error 1
-and RMSE below 0.5 against pinned `djxl`. A separate 2051 by 1025 development probe covers 45 AC
-groups and two LF groups. It has maximum error 1 and RMSE 0.499 against `djxl`. Pinned jxl-oxide
-differs from PureJsImage by RMSE 0.078 on the same image, which independently identifies the larger
-`djxl` difference as 8-bit output rounding for this feature combination.
+The decoder supports the checked raw strategies 0 through 7 and 10 through 20. The covered feature
+set includes quantization modes emitted by the pinned encoders, progressive passes, internal DC
+frames, 2x, 4x, and 8x resampling, straight alpha, patches, splines, Gaborish, EPF, adaptive
+smoothing, synthetic noise, reference slots, and common static frame blending. The generated
+matrix contains 19 fixtures. Every generated fixture passes its pinned `djxl` oracle.
 
-The same six-group progressive fixture matches its pinned `djxl` pixel oracle in Chromium,
-Firefox, and WebKit with retries disabled.
+The real-photo matrix contains 300 files made from 100 COCO validation photographs. It spans 1 to
+24 MP, odd dimensions, libjxl and Imazen, distances 0.5, 1, 2, and 4, efforts 1, 3, 5, 7, and 9,
+and progressive and non-progressive files. It decoded 299 files correctly and rejected one Imazen
+LF-frame file with `UNSUPPORTED_OPERATION` before output. There were no incorrect outputs. The
+maximum absolute error was 1 and the maximum RMSE was 0.517775. The 0.55 RMSE limit is justified by
+a pinned jxl-oxide comparison that independently reaches 0.517758 against `djxl` on the threshold
+probe while agreeing with PureJsImage within one sample. Twelve matrix files were also compared
+with pinned jxl-oxide.
 
-The decoder now implements the checked common strategy IDs 0, 1, 2, 4, 5, 6, 7, 10 through 20.
-This includes Hornuss plus the checked rectangular, large-transform, and AFV paths. The inverse DCT
-kernels are separable and reuse scratch storage. An EPF interior fast path reduced one warm 513 by
-385 development decode from 648 ms to 322 ms without changing pixels. These measurements are an
-optimization checkpoint, not the required M3 promotion benchmark.
+The common large-photo path keeps group-row restoration bands with eight-row halos. It uses bounded
+coefficient arenas and reusable filter scratch, then releases AC groups and progressive pass state
+after final use. It does not retain source-sized Float32 color planes or a second complete output.
+Alpha, patches, splines, noise, and reference composition use an explicit conservative full-frame
+fallback. The measured 24.003 MP DCT8 case used 193,274,053 managed bytes, below the default
+536,870,912-byte decoded-memory limit.
 
-The core plus JPEG XL entry is 271,468 minified bytes. The M3 ceiling is 275,000 bytes. This
-replaces the 270,000-byte M2 ceiling for the related codec entry only. Unrelated package ceilings
-are unchanged.
+Repeated DCT8 measurements use one warmup and three measured decodes. The 12.008 MP median was
+2.194 seconds and the 24.003 MP median was 4.696 seconds. Doubling from 195 to 391 groups changed
+normalized time per megapixel by 1.071x. Across the full 300-file matrix, median decode time was
+8.963 times pinned single-threaded `djxl`.
 
-The first-slice repository gate passes with 2,444 tests passed and 3 skipped across 202 passing
-files and 1 skipped file. This does not complete the M3 promotion gate.
+The complete M3 implementation measures 305,739 minified bytes for core plus JPEG XL and 348,077
+bytes for the specialized entry. The explicit temporary M3 ceilings are 310,000 and 355,000 bytes.
+Other package ceilings are unchanged.
 
 ### M3 gate checklist
 
@@ -280,17 +284,18 @@ files and 1 skipped file. This does not complete the M3 promotion gate.
 - [x] Final progressive reconstruction supports local transformed DC groups
 - [x] Checked Hornuss, rectangular, large-transform, and AFV strategy combinations
 - [x] Checked Gaborish, EPF group boundaries, adaptive smoothing, and synthetic noise
-- [ ] Chroma subsampling and upsampling
-- [ ] Patches and splines
-- [ ] Common static alpha and required internal-frame dependencies
-- [ ] At least 300 common static files, including 100 real photographs and two encoders
-- [ ] Complete distance, effort, progressive, content-class, and group-boundary matrix
-- [ ] Full correctness and independent-decoder gate across that corpus
-- [ ] No routine full-frame float-plane boundary and measured 24 MP memory gate
-- [ ] Repeated 12 MP, 24 MP, pinned-`djxl`, and group-scaling performance gates
-- [ ] Browser preview timing and Chromium, Firefox, and WebKit acceptance
-- [ ] Full `npm run check` for the completed milestone
+- [x] Chroma subsampling and upsampling
+- [x] Patches and splines
+- [x] Common static alpha and required internal-frame dependencies
+- [x] At least 300 common static files, including 100 real photographs and two encoders
+- [x] Complete distance, effort, progressive, content-class, and group-boundary matrix
+- [x] Full correctness and independent-decoder gate across that corpus
+- [x] No routine full-frame float-plane boundary and measured 24 MP memory gate
+- [x] Repeated 12 MP, 24 MP, pinned-`djxl`, and group-scaling performance gates
+- [x] Browser preview timing and Chromium, Firefox, and WebKit acceptance
+- [x] Full `npm run check` for the completed milestone
 - [ ] Exact remote pull-request workflows
 
-JPEG XL reading remains Limited. No common-static capability promotion is permitted until every M3
-gate above passes.
+The local capability wording is promoted to common static sRGB JPEG XL photograph decoding. Broad
+ICC and HDR color, orientation transforms, animation, multiple visible frames, uncommon extra
+channels, Level 10, and general lossy encoding remain outside this milestone.

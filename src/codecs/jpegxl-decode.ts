@@ -13,6 +13,8 @@ import {
   JpegXlEntropySymbolReader,
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
+import { type JpegXlFrameFeatures, readJpegXlFrameFeatures } from './jpegxl-frame-features.ts'
+import { applyJpegXlSplines } from './jpegxl-splines.ts'
 
 interface DistributionValue {
   readonly value: number
@@ -187,6 +189,8 @@ export interface JpegXlSection {
 export interface JpegXlFrameStructure {
   readonly width: number
   readonly height: number
+  readonly codedWidth: number
+  readonly codedHeight: number
   readonly bitDepth: number
   readonly alphaBitDepth: number | undefined
   readonly colorChannels: 1 | 3
@@ -196,12 +200,20 @@ export interface JpegXlFrameStructure {
   readonly renderingIntent: PixelRenderingIntent
   readonly orientation: number
   readonly encoding: 'modular' | 'vardct'
-  readonly frameType: 'regular' | 'dc'
+  readonly frameType: 'regular' | 'dc' | 'reference' | 'skip-progressive'
   readonly dcLevel: number
   readonly isLast: boolean
+  readonly frameOriginX: number
+  readonly frameOriginY: number
+  readonly frameWidth: number
+  readonly frameHeight: number
+  readonly saveAsReference: 0 | 1 | 2 | 3
+  readonly saveBeforeColorTransform: boolean
   readonly frameFlags: number
   readonly colorTransform: 'xyb' | 'none' | 'ycbcr'
   readonly chromaSubsampling: readonly [number, number, number]
+  readonly upsampling: 1 | 2 | 4 | 8
+  readonly extraChannelUpsampling: readonly (1 | 2 | 4 | 8)[]
   readonly xQuantizationScale: number
   readonly bQuantizationScale: number
   readonly passCount: number
@@ -369,11 +381,13 @@ const readHeader = (
   }
 
   const allDefaultFrameHeader = reader.readBits(1) !== 0
-  let frameType: 'regular' | 'dc' = 'regular'
+  let frameType: JpegXlFrameStructure['frameType'] = 'regular'
   let encoding: 'modular' | 'vardct' = 'vardct'
   let frameFlags = 0
   let colorTransform: 'xyb' | 'ycbcr' | 'none' = xybEncoded ? 'xyb' : 'none'
   const chromaSubsampling = [0, 0, 0] as [number, number, number]
+  let upsampling: 1 | 2 | 4 | 8 = 1
+  let extraChannelUpsampling: (1 | 2 | 4 | 8)[] = new Array(extraChannels).fill(1)
   let groupSizeShift = 1
   let xQuantizationScale = xybEncoded ? 3 : 2
   let bQuantizationScale = 2
@@ -381,14 +395,24 @@ const readHeader = (
   let passShifts: number[] = [0]
   let dcLevel = 0
   let isLast = true
+  let frameOriginX = 0
+  let frameOriginY = 0
+  let frameWidth = width
+  let frameHeight = height
+  let saveAsReference: 0 | 1 | 2 | 3 = 0
+  let saveBeforeColorTransform = false
   let gaborish = true
   let epfIterations = 2
   if (!allDefaultFrameHeader) {
     const frameTypeCode = readU32(reader, [value(0), value(1), value(2), value(3)])
-    if (frameTypeCode !== 0 && frameTypeCode !== 1) {
-      throw unsupportedOperation('JPEG XL reference and skip-progressive frames are not supported')
-    }
-    frameType = frameTypeCode === 0 ? 'regular' : 'dc'
+    frameType =
+      frameTypeCode === 0
+        ? 'regular'
+        : frameTypeCode === 1
+          ? 'dc'
+          : frameTypeCode === 2
+            ? 'reference'
+            : 'skip-progressive'
     encoding = reader.readBits(1) !== 0 ? 'modular' : 'vardct'
     frameFlags = readU64(reader)
     if ((frameFlags & ~0xb3) !== 0) throw unsupportedOperation('JPEG XL frame uses reserved flags')
@@ -399,13 +423,18 @@ const readHeader = (
       }
     }
     if ((frameFlags & 0x20) === 0) {
-      requireValue(readU32(reader, [value(1), value(2), value(4), value(8)]), 1, 'color upsampling')
+      upsampling = readU32(reader, [value(1), value(2), value(4), value(8)]) as 1 | 2 | 4 | 8
+      extraChannelUpsampling = []
       for (let index = 0; index < extraChannels; index += 1) {
-        requireValue(
-          readU32(reader, [value(1), value(2), value(4), value(8)]),
-          1,
-          'extra-channel upsampling',
-        )
+        const extraUpsampling = readU32(reader, [value(1), value(2), value(4), value(8)]) as
+          | 1
+          | 2
+          | 4
+          | 8
+        if (extraUpsampling < upsampling) {
+          throw invalidInput('JPEG XL extra-channel upsampling is smaller than color upsampling')
+        }
+        extraChannelUpsampling.push(extraUpsampling)
       }
     }
     groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
@@ -414,9 +443,11 @@ const readHeader = (
       xQuantizationScale = reader.readBits(3)
       bQuantizationScale = reader.readBits(3)
     }
-    passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
-    passShifts = new Array<number>(passCount).fill(0)
-    if (passCount !== 1) {
+    if (frameType !== 'reference') {
+      passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
+      passShifts = new Array<number>(passCount).fill(0)
+    }
+    if (frameType !== 'reference' && passCount !== 1) {
       const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
       if (downsampleCount > passCount)
         throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
@@ -438,8 +469,22 @@ const readHeader = (
     }
     dcLevel = frameType === 'dc' ? readU32(reader, [value(1), value(2), value(3), value(4)]) : 0
     isLast = false
-    if (frameType === 'regular') {
-      requireValue(reader.readBits(1) !== 0, false, 'partial frames')
+    if (frameType !== 'dc') {
+      const customSizeOrOrigin = reader.readBits(1) !== 0
+      if (customSizeOrOrigin) {
+        const frameGeometry = [bits(8), bits(11, 256), bits(14, 2_304), bits(30, 18_688)] as const
+        if (frameType === 'regular' || frameType === 'skip-progressive') {
+          frameOriginX = unpackSigned(readU32(reader, frameGeometry))
+          frameOriginY = unpackSigned(readU32(reader, frameGeometry))
+        }
+        frameWidth = readU32(reader, frameGeometry)
+        frameHeight = readU32(reader, frameGeometry)
+        if (frameWidth < 1 || frameHeight < 1) {
+          throw invalidInput('JPEG XL custom frame dimensions are invalid')
+        }
+      }
+    }
+    if (frameType === 'regular' || frameType === 'skip-progressive') {
       requireValue(readU32(reader, [value(0), value(1), value(2), bits(2, 3)]), 0, 'frame blending')
       for (let index = 0; index < extraChannels; index += 1) {
         requireValue(
@@ -449,7 +494,14 @@ const readHeader = (
         )
       }
       isLast = reader.readBits(1) !== 0
-      if (!isLast) throw unsupportedOperation('JPEG XL non-final regular frames are not supported')
+    }
+    if (frameType !== 'dc' && !isLast) {
+      saveAsReference = readU32(reader, [value(0), value(1), value(2), value(3)]) as 0 | 1 | 2 | 3
+    }
+    if (frameType === 'reference') {
+      saveBeforeColorTransform = reader.readBits(1) !== 0
+    } else if ((frameType === 'regular' || frameType === 'skip-progressive') && !isLast) {
+      saveBeforeColorTransform = reader.readBits(1) !== 0
     }
     readName(reader)
     const defaultLoopFilter = reader.readBits(1) !== 0
@@ -481,18 +533,20 @@ const readHeader = (
   }
 
   const frameScale = 2 ** (3 * dcLevel)
-  const frameWidth = Math.ceil(width / frameScale)
-  const frameHeight = Math.ceil(height / frameScale)
+  const codedFrameWidth = Math.ceil(Math.ceil(frameWidth / frameScale) / upsampling)
+  const codedFrameHeight = Math.ceil(Math.ceil(frameHeight / frameScale) / upsampling)
   const groupDimension = encoding === 'modular' ? 128 * 2 ** groupSizeShift : 256
-  const groupsAcross = Math.ceil(frameWidth / groupDimension)
-  const groupsDown = Math.ceil(frameHeight / groupDimension)
+  const groupsAcross = Math.ceil(codedFrameWidth / groupDimension)
+  const groupsDown = Math.ceil(codedFrameHeight / groupDimension)
   const groupCount = groupsAcross * groupsDown
   const dcGroupDimension = groupDimension * 8
   const dcGroupCount =
-    Math.ceil(frameWidth / dcGroupDimension) * Math.ceil(frameHeight / dcGroupDimension)
+    Math.ceil(codedFrameWidth / dcGroupDimension) * Math.ceil(codedFrameHeight / dcGroupDimension)
   if (encoding === 'modular') {
-    const workingWidth = groupCount === 1 ? frameWidth : Math.min(frameWidth, groupDimension)
-    const workingHeight = groupCount === 1 ? frameHeight : Math.min(frameHeight, groupDimension)
+    const workingWidth =
+      groupCount === 1 ? codedFrameWidth : Math.min(codedFrameWidth, groupDimension)
+    const workingHeight =
+      groupCount === 1 ? codedFrameHeight : Math.min(codedFrameHeight, groupDimension)
     const planeBytes = BigInt(workingWidth) * BigInt(workingHeight) * BigInt(channelCount) * 4n
     if (planeBytes > BigInt(limits.maxDecodedBytes)) {
       throw limitExceeded(
@@ -535,6 +589,8 @@ const readHeader = (
   return Object.freeze({
     width,
     height,
+    codedWidth: codedFrameWidth,
+    codedHeight: codedFrameHeight,
     bitDepth,
     alphaBitDepth,
     colorChannels: colorEncoding.colorChannels,
@@ -547,9 +603,17 @@ const readHeader = (
     frameType,
     dcLevel,
     isLast,
+    frameOriginX,
+    frameOriginY,
+    frameWidth,
+    frameHeight,
+    saveAsReference,
+    saveBeforeColorTransform,
     frameFlags,
     colorTransform,
     chromaSubsampling: Object.freeze(chromaSubsampling),
+    upsampling,
+    extraChannelUpsampling: Object.freeze(extraChannelUpsampling),
     xQuantizationScale,
     bQuantizationScale,
     passCount,
@@ -648,10 +712,12 @@ const readTree = (
 
 export const readJpegXlModularTree = readTree
 
-interface ModularChannelLayout {
+export interface JpegXlModularChannelLayout {
   readonly width: number
   readonly height: number
 }
+
+type ModularChannelLayout = JpegXlModularChannelLayout
 
 interface ModularRctTransform {
   readonly kind: 'rct'
@@ -724,6 +790,7 @@ const readWeightedPredictor = (reader: JpegXlBitReader): WeightedPredictorParame
 }
 
 interface ModularProgram {
+  readonly frameFeatures?: JpegXlFrameFeatures
   readonly dcQuantization?: readonly [number, number, number]
   readonly nodes: readonly ModularNode[]
   readonly section: Uint8Array
@@ -973,8 +1040,18 @@ const readJpegXlModularProgram = (
   channelCount: JpegXlChannelCount,
   width: number,
   height: number,
+  frameFlags = 0,
+  extraChannelCount = 0,
 ): ModularProgram => {
-  const reader = new JpegXlBitReader(section)
+  const frameFeatures = readJpegXlFrameFeatures(
+    section,
+    0,
+    frameFlags,
+    width,
+    height,
+    extraChannelCount,
+  )
+  const reader = new JpegXlBitReader(section, frameFeatures.endingBitPosition)
   const defaultDcQuantization = reader.readBits(1) !== 0
   const dcQuantization: [number, number, number] = [1 / 4_096, 1 / 512, 1 / 256]
   if (!defaultDcQuantization) {
@@ -1012,6 +1089,7 @@ const readJpegXlModularProgram = (
       (node.kind === 'branch' && node.property === 15),
   )
   return Object.freeze({
+    frameFeatures,
     dcQuantization: Object.freeze(dcQuantization),
     nodes: tree.nodes,
     section,
@@ -1030,6 +1108,22 @@ const readJpegXlModularProgram = (
 export interface JpegXlStandaloneModularResult {
   readonly planes: readonly Int32Array<ArrayBufferLike>[]
   readonly endingBitPosition: number
+}
+
+export const readJpegXlStandaloneModularHeader = (
+  section: Uint8Array,
+  startingBitPosition: number,
+  channelLayoutsInput: readonly Readonly<JpegXlModularChannelLayout>[],
+): number => {
+  const reader = new JpegXlBitReader(section, startingBitPosition)
+  reader.readBits(1)
+  readWeightedPredictor(reader)
+  const channelLayouts = channelLayoutsInput.map(({ width, height }) => ({ width, height }))
+  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
+  if (transforms.length !== 0 || metaChannelCount !== 0) {
+    throw unsupportedOperation('Common VarDCT alpha Modular transforms are not supported yet')
+  }
+  return reader.bitPosition
 }
 
 export interface JpegXlModularGlobalCode {
@@ -1138,6 +1232,8 @@ const readMultiGroupFoundation = (
     header.channelCount,
     header.width,
     header.height,
+    header.frameFlags,
+    header.alphaBitDepth === undefined ? 0 : 1,
   )
   if (globalProgram.transforms.some((transform) => transform.kind !== 'rct')) {
     throw unsupportedOperation(
@@ -2111,6 +2207,65 @@ export const decodeJpegXlModularDcFrameSection = (
   return Object.freeze([outputX, outputY, outputB])
 }
 
+export const decodeJpegXlMultiGroupModularDcFrameSections = (
+  sections: readonly Uint8Array[],
+  frame: Readonly<JpegXlFrameStructure>,
+  signal?: AbortSignal,
+): readonly [Float64Array, Float64Array, Float64Array] => {
+  if (frame.passCount !== 1) {
+    throw unsupportedOperation('JPEG XL grouped progressive Modular DC frames are not supported')
+  }
+  const groups = readMultiGroupPrograms(sections, frame)
+  const first = groups[0]
+  if (!first || first.program.prefixPlanes.length !== 0) {
+    throw unsupportedOperation('JPEG XL grouped Modular DC prefix channels are not supported')
+  }
+  const quantization = first.program.dcQuantization
+  if (!quantization) throw invalidInput('JPEG XL grouped Modular DC quantization is missing')
+  const encoded = [
+    new Int32Array(frame.width * frame.height),
+    new Int32Array(frame.width * frame.height),
+    new Int32Array(frame.width * frame.height),
+  ] as const
+  for (const group of groups) {
+    throwIfAborted(signal)
+    const decoded = inverseModularTransforms(
+      decodeModularPlanes(group.program, 0, signal),
+      group.program,
+      8,
+    )
+    if (decoded.length !== 3) {
+      throw unsupportedOperation('JPEG XL grouped Modular DC channel layout is not supported')
+    }
+    for (let channel = 0; channel < 3; channel += 1) {
+      const source = decoded[channel]
+      const destination = encoded[channel]
+      if (!source || !destination || source.length !== group.width * group.height) {
+        throw invalidInput('JPEG XL grouped Modular DC channel data is inconsistent')
+      }
+      for (let row = 0; row < group.height; row += 1) {
+        destination.set(
+          source.subarray(row * group.width, (row + 1) * group.width),
+          (group.y + row) * frame.width + group.x,
+        )
+      }
+    }
+  }
+  const encodedY = encoded[0]
+  const encodedX = encoded[1]
+  const encodedB = encoded[2]
+  const outputX = new Float64Array(encodedX.length)
+  const outputY = new Float64Array(encodedY.length)
+  const outputB = new Float64Array(encodedB.length)
+  for (let index = 0; index < encodedY.length; index += 1) {
+    const y = encodedY[index] ?? 0
+    outputX[index] = (encodedX[index] ?? 0) * quantization[0]
+    outputY[index] = y * quantization[1]
+    outputB[index] = ((encodedB[index] ?? 0) + y) * quantization[2]
+  }
+  return Object.freeze([outputX, outputY, outputB])
+}
+
 class JpegXlModularDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -2193,6 +2348,34 @@ class JpegXlModularDecoder implements ImageDecoder {
       this.#program,
       this.#header.bitDepth,
     )
+
+    const splines = this.#program.frameFeatures?.splines ?? []
+    if (splines.length > 0) {
+      if (this.#header.colorChannels !== 3 || this.#header.colorTransform !== 'none') {
+        throw unsupportedOperation('JPEG XL Modular splines require direct three-channel color')
+      }
+      const maximum = 2 ** this.#header.bitDepth - 1
+      const splinePlanes = planes
+        .slice(0, 3)
+        .map((plane) => Float32Array.from(plane, (sample) => sample / maximum))
+      applyJpegXlSplines(
+        splinePlanes,
+        this.width,
+        this.width,
+        this.height,
+        splines,
+        this.#program.frameFeatures?.splineQuantizationAdjustment ?? 0,
+        { colorFactor: 84, baseCorrelationX: 0, baseCorrelationB: 1 },
+      )
+      for (let channel = 0; channel < 3; channel += 1) {
+        const source = splinePlanes[channel]
+        const destination = planes[channel]
+        if (!source || !destination) throw invalidInput('JPEG XL spline color plane is missing')
+        for (let index = 0; index < source.length; index += 1) {
+          destination[index] = Math.round((source[index] ?? 0) * maximum)
+        }
+      }
+    }
 
     const firstPlane = planes[0]
     if (!firstPlane) throw invalidInput('JPEG XL color channel buffer is missing')
@@ -2670,7 +2853,14 @@ export const decodeJpegXlSource = async (
     const section = header.sections[0]
     if (!section) throw invalidInput('JPEG XL frame section is missing')
     const data = await readExactly(source, section.offset, section.length, options)
-    const program = readJpegXlModularProgram(data, header.channelCount, header.width, header.height)
+    const program = readJpegXlModularProgram(
+      data,
+      header.channelCount,
+      header.width,
+      header.height,
+      header.frameFlags,
+      header.alphaBitDepth === undefined ? 0 : 1,
+    )
     return Object.freeze({
       metadata: metadataForHeader(header),
       decoder: new JpegXlModularDecoder(header, program),
@@ -2719,6 +2909,8 @@ export const decodeJpegXlCodestream = (
       header.channelCount,
       header.width,
       header.height,
+      header.frameFlags,
+      header.alphaBitDepth === undefined ? 0 : 1,
     )
     return Object.freeze({
       metadata: metadataForHeader(header),

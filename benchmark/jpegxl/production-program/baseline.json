@@ -226,7 +226,7 @@
     },
     "generatedFeatures": {
       "path": "benchmark/jpegxl/production-program/corpora/generated-features.json",
-      "sha256": "dcd55689c44d5db8fb9572d67d73c6ba8be1cb5370c4ef3f708e36f06330b3e3",
+      "sha256": "6884e42ef5f87eada1d6cfbfb2d0f9da66eab50c23994de0bed4c6918b1cd15c",
       "entries": 3,
       "revision": null
     },
@@ -245,8 +245,8 @@
   },
   "featureInventory": {
     "path": "benchmark/jpegxl/production-program/feature-inventory.json",
-    "sha256": "c2e3f00c224a25eee77aa657fdbc7eb203e296c59006b47e7e43a9147d9997bc",
-    "fixtures": 19
+    "sha256": "7e0580d19e71c9ec1a5cd81815fe64bf6a9b5baf885debaf7b6181d511e48107",
+    "fixtures": 27
   },
   "conformance": {
     "total": 39,

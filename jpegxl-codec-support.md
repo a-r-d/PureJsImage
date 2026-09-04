@@ -184,15 +184,15 @@ losslessly transcoded JPEG files.
   groups
 - [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [x] Implement raw strategy IDs 0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, and 20,
+- [x] Implement raw strategy IDs 0 through 7 and 10 through 20,
   with full-image fixtures covering Hornuss, square DCT, rectangular DCT, large transforms, and AFV combinations
 - [x] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
 - [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision
 - [x] Reconstruct the pinned XYB samples and perform the inverse opsin transform
-- [ ] Decode valid chroma subsampling and upsampling modes
+- [x] Decode the checked 2x, 4x, and 8x chroma resampling modes
 - [x] Implement pinned single-group and multi-group Gaborish and edge-preserving restoration filters
-- [ ] Decode and render patches and splines when signaled by a valid static image
+- [x] Decode and render checked patches and splines in valid static images
 - [x] Decode and render the pinned synthetic-noise fixtures
 - [x] Decode the pinned VarDCT images created from ordinary lossy sources
 - [x] Decode the image pixels of pinned JPEG-lossless-transcode codestreams
@@ -203,8 +203,8 @@ losslessly transcoded JPEG files.
 
 - [x] Decode one visible full-canvas frame with the default replace behavior
 - [ ] Skip a declared preview and decode the main image by default
-- [ ] Reject animation, multiple visible frames, non-default blending, reference
-  frame dependencies, and partial-canvas frame composition until Group 2
+- [x] Resolve checked internal DC frames, reference slots, partial-canvas frames, and common static blend modes
+- [ ] Reject animation, multiple visible frames, and unsupported blend modes until Group 2
 - [ ] Apply all eight orientation values exactly once
 - [ ] Return display dimensions after orientation
 - [x] Emit bounded, ordered `gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset
@@ -216,15 +216,15 @@ losslessly transcoded JPEG files.
 - [x] Native integer grayscale at 8, 10, 12, and 16 bits per sample
 - [x] Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample for the current single-group Modular boundary
 - [x] One alpha extra channel with independent precision
-- [ ] Unassociated and premultiplied alpha with correct unpremultiplication or
-  preservation behavior
+- [x] Decode the checked common VarDCT straight-alpha form
+- [ ] Premultiplied alpha with correct unpremultiplication or preservation behavior
 - [x] Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent
   with matching metadata and decoder pixel semantics
 - [ ] Decode compressed embedded ICC profiles with strict decoded-size limits
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
 - [x] Handle grayscale and RGB codestream color representations for the compatible Modular subset
-- [ ] Handle XYB codestream color representations
+- [x] Handle checked 8-bit sRGB XYB codestream color representations
 - [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
   display ranges, normalizing only when an 8-bit transform or encoder requires it
 - [x] Reject unsupported color encodings or extra-channel semantics rather than
@@ -236,8 +236,8 @@ These features occur in real JPEG XL files, but a correct single-frame upload
 decoder can ship before all of them are complete.
 
 - [ ] Embedded preview decode and explicit preview selection
-- [ ] Multiple frames required internally by a still image
-- [ ] Frame crops, reference slots, save-as-reference behavior, and blend modes
+- [x] Multiple frames required internally by a checked still image
+- [x] Checked frame crops, reference slots, save-as-reference behavior, and static blend modes
 - [ ] Coalesced first-frame output for animated inputs without claiming full
   animation support
 - [x] Out-of-order `jxlp` fragments permitted by newer container versions

@@ -1,15 +1,23 @@
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
-import { linearToSrgb } from './icc.ts'
-import type { JpegXlFrameStructure } from './jpegxl-decode.ts'
+import {
+  decodeJpegXlStandaloneModular,
+  readJpegXlStandaloneModularHeader,
+  type JpegXlFrameStructure,
+} from './jpegxl-decode.ts'
 import {
   decodeJpegXlJpegAcGroup,
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegHfGlobal,
   decodeJpegXlJpegLfGlobal,
+  jpegXlVarDctStrategyBlockHeights,
+  jpegXlVarDctStrategyBlockWidths,
   type JpegXlJpegAcGroup,
   type JpegXlJpegColorCorrelation,
   type JpegXlJpegDcGroup,
+  type JpegXlJpegHfGlobal,
+  type JpegXlJpegLfGlobal,
+  type JpegXlSpline,
 } from './jpegxl-vardct-jpeg.ts'
 import {
   type JpegXlVarDctMemoryLease,
@@ -20,10 +28,17 @@ import {
 export interface JpegXlVarDctPixels {
   readonly width: number
   readonly height: number
-  readonly format: 'gray8' | 'rgb8'
+  readonly format: 'gray8' | 'rgb8' | 'rgba8'
   readonly data: Uint8Array
   readonly managedPeakBytes: number
+  readonly dcPlanes?: readonly [Float64Array, Float64Array, Float64Array]
   release(): void
+}
+
+export interface JpegXlVarDctReference {
+  readonly width: number
+  readonly height: number
+  readonly planes: readonly [Float64Array, Float64Array, Float64Array]
 }
 
 const defaultDistanceBands = Object.freeze([
@@ -551,6 +566,24 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
   output.set(13, frozenDct4x8)
 
   const dct4x4Weights = dct4x4Bands.map((bands) => distanceWeights(4, 4, bands))
+  output.set(
+    3,
+    Object.freeze(
+      dct4x4Weights.map((weights) => {
+        const table = new Float64Array(64)
+        for (let quadrantY = 0; quadrantY < 2; quadrantY += 1) {
+          for (let quadrantX = 0; quadrantX < 2; quadrantX += 1) {
+            for (let y = 0; y < 4; y += 1) {
+              for (let x = 0; x < 4; x += 1) {
+                table[(quadrantY + y * 2) * 8 + quadrantX + x * 2] = 1 / (weights[y * 4 + x] ?? 1)
+              }
+            }
+          }
+        }
+        return table
+      }),
+    ),
+  )
   const afv = afvSpecialWeights.map((special, channel) => {
     const weights = new Float64Array(64)
     weights[0] = 1
@@ -597,14 +630,242 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
 
 const strategyDequantization = makeStrategyDequantization()
 
+const strategyQuantizationTable = Object.freeze([
+  0, 1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 10, 11, 12, 12, 13, 14, 14, 15, 16, 16,
+])
+
 export const jpegXlSupportedVarDctStrategyIds = Object.freeze([
-  0, 1, 2, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 ] as const)
 
 export const supportsJpegXlVarDctStrategy = (strategy: number): boolean =>
   jpegXlSupportedVarDctStrategyIds.includes(
     strategy as (typeof jpegXlSupportedVarDctStrategyIds)[number],
   )
+
+interface SplinePoint {
+  readonly x: number
+  readonly y: number
+}
+
+const splineErf = (value: number): number => {
+  const sign = value < 0 ? -1 : 1
+  const x = Math.abs(value)
+  const t = 1 / (1 + 0.3275911 * x)
+  const polynomial =
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t
+  return sign * (1 - polynomial * Math.exp(-x * x))
+}
+
+const continuousSplineIdct = (dct: readonly number[], position: number): number => {
+  let sum = 0
+  for (let index = 0; index < 32; index += 1) {
+    sum += Math.SQRT2 * (dct[index] ?? 0) * Math.cos((Math.PI * index * (position + 0.5)) / 32)
+  }
+  return sum
+}
+
+const interpolateSplinePoints = (controlPoints: readonly SplinePoint[]): SplinePoint[] => {
+  if (controlPoints.length <= 1) return [...controlPoints]
+  const points = [
+    {
+      x: 2 * (controlPoints[0]?.x ?? 0) - (controlPoints[1]?.x ?? 0),
+      y: 2 * (controlPoints[0]?.y ?? 0) - (controlPoints[1]?.y ?? 0),
+    },
+    ...controlPoints,
+    {
+      x: 2 * (controlPoints.at(-1)?.x ?? 0) - (controlPoints.at(-2)?.x ?? 0),
+      y: 2 * (controlPoints.at(-1)?.y ?? 0) - (controlPoints.at(-2)?.y ?? 0),
+    },
+  ]
+  const output: SplinePoint[] = []
+  for (let start = 0; start < points.length - 3; start += 1) {
+    const p0 = points[start]
+    const p1 = points[start + 1]
+    const p2 = points[start + 2]
+    const p3 = points[start + 3]
+    if (!p0 || !p1 || !p2 || !p3) throw invalidInput('JPEG XL spline point is missing')
+    output.push(p1)
+    const distances = [
+      Math.sqrt(Math.hypot(p1.x - p0.x, p1.y - p0.y)),
+      Math.sqrt(Math.hypot(p2.x - p1.x, p2.y - p1.y)),
+      Math.sqrt(Math.hypot(p3.x - p2.x, p3.y - p2.y)),
+    ]
+    const times = [0, distances[0] ?? 0]
+    times.push((times[1] ?? 0) + (distances[1] ?? 0))
+    times.push((times[2] ?? 0) + (distances[2] ?? 0))
+    for (let step = 1; step < 16; step += 1) {
+      const time = (distances[0] ?? 0) + (step / 16) * (distances[1] ?? 0)
+      const base = [p0, p1, p2]
+      const next = [p1, p2, p3]
+      const a = base.map((point, index) => {
+        const span = (times[index + 1] ?? 0) - (times[index] ?? 0)
+        const ratio = span === 0 ? 0 : (time - (times[index] ?? 0)) / span
+        return {
+          x: point.x + ratio * ((next[index]?.x ?? point.x) - point.x),
+          y: point.y + ratio * ((next[index]?.y ?? point.y) - point.y),
+        }
+      })
+      const b = [0, 1].map((index) => {
+        const span = (times[index + 2] ?? 0) - (times[index] ?? 0)
+        const ratio = span === 0 ? 0 : (time - (times[index] ?? 0)) / span
+        const first = a[index]
+        const second = a[index + 1]
+        return {
+          x: (first?.x ?? 0) + ratio * ((second?.x ?? 0) - (first?.x ?? 0)),
+          y: (first?.y ?? 0) + ratio * ((second?.y ?? 0) - (first?.y ?? 0)),
+        }
+      })
+      const span = (times[2] ?? 0) - (times[1] ?? 0)
+      const ratio = span === 0 ? 0 : (time - (times[1] ?? 0)) / span
+      output.push({
+        x: (b[0]?.x ?? 0) + ratio * ((b[1]?.x ?? 0) - (b[0]?.x ?? 0)),
+        y: (b[0]?.y ?? 0) + ratio * ((b[1]?.y ?? 0) - (b[0]?.y ?? 0)),
+      })
+    }
+  }
+  const last = controlPoints.at(-1)
+  if (last) output.push(last)
+  return output
+}
+
+const equallySpacedSplinePoints = (
+  points: readonly SplinePoint[],
+): readonly (readonly [SplinePoint, number])[] => {
+  if (points.length === 0) return Object.freeze([])
+  const output: [SplinePoint, number][] = []
+  let current = points[0]
+  if (!current) return Object.freeze([])
+  output.push([current, 1])
+  let nextIndex = 0
+  while (nextIndex < points.length) {
+    let previous: SplinePoint = current
+    let distanceFromPrevious = 0
+    for (;;) {
+      const next = points[nextIndex]
+      if (!next) {
+        output.push([previous, distanceFromPrevious])
+        return Object.freeze(output)
+      }
+      const distance = Math.hypot(next.x - previous.x, next.y - previous.y)
+      if (distanceFromPrevious + distance >= 1) {
+        const ratio = distance === 0 ? 0 : (1 - distanceFromPrevious) / distance
+        current = {
+          x: previous.x + ratio * (next.x - previous.x),
+          y: previous.y + ratio * (next.y - previous.y),
+        }
+        output.push([current, 1])
+        break
+      }
+      distanceFromPrevious += distance
+      previous = next
+      nextIndex += 1
+    }
+  }
+  return Object.freeze(output)
+}
+
+const dequantizeSpline = (
+  spline: Readonly<JpegXlSpline>,
+  quantizationAdjustment: number,
+  yToX: number,
+  yToB: number,
+): Readonly<{
+  controlPoints: readonly SplinePoint[]
+  color: readonly number[][]
+  sigma: readonly number[]
+}> => {
+  const controlPoints: SplinePoint[] = [{ x: spline.startingX, y: spline.startingY }]
+  let x = spline.startingX
+  let y = spline.startingY
+  let deltaX = 0
+  let deltaY = 0
+  for (const delta of spline.controlPointDeltas) {
+    deltaX += delta[0]
+    deltaY += delta[1]
+    x += deltaX
+    y += deltaY
+    controlPoints.push({ x, y })
+  }
+  const inverseQuantization =
+    quantizationAdjustment >= 0
+      ? 1 / (1 + 0.125 * quantizationAdjustment)
+      : 1 - 0.125 * quantizationAdjustment
+  const channelWeights = [0.0042, 0.075, 0.07]
+  const color = spline.colorDct.map((channel, channelIndex) =>
+    channel.map(
+      (value, index) =>
+        value *
+        (index === 0 ? Math.SQRT1_2 : 1) *
+        (channelWeights[channelIndex] ?? 1) *
+        inverseQuantization,
+    ),
+  )
+  for (let index = 0; index < 32; index += 1) {
+    if (color[0]) color[0][index] = (color[0][index] ?? 0) + yToX * (color[1]?.[index] ?? 0)
+    if (color[2]) color[2][index] = (color[2][index] ?? 0) + yToB * (color[1]?.[index] ?? 0)
+  }
+  const sigma = spline.sigmaDct.map(
+    (value, index) => value * (index === 0 ? Math.SQRT1_2 : 1) * 0.3333 * inverseQuantization,
+  )
+  return Object.freeze({ controlPoints: Object.freeze(controlPoints), color, sigma })
+}
+
+const applySplines = (
+  planes: readonly Float32Array[],
+  stride: number,
+  width: number,
+  height: number,
+  splines: readonly JpegXlSpline[],
+  quantizationAdjustment: number,
+  colorCorrelation: Readonly<JpegXlJpegColorCorrelation>,
+): void => {
+  const yToX = correlationRatio(colorCorrelation, 0, 0)
+  const yToB = correlationRatio(colorCorrelation, 2, 0)
+  for (const encoded of splines) {
+    const spline = dequantizeSpline(encoded, quantizationAdjustment, yToX, yToB)
+    const points = equallySpacedSplinePoints(interpolateSplinePoints(spline.controlPoints))
+    if (points.length < 2) continue
+    const arcLength = points.length - 2 + (points.at(-1)?.[1] ?? 0)
+    if (arcLength <= 0) continue
+    for (let pointIndex = 0; pointIndex < points.length; pointIndex += 1) {
+      const point = points[pointIndex]
+      if (!point) continue
+      const progress = Math.min(1, pointIndex / arcLength)
+      const dctPosition = 31 * progress
+      const color = spline.color.map((channel) => continuousSplineIdct(channel, dctPosition))
+      const sigma = continuousSplineIdct(spline.sigma, dctPosition)
+      const intensity = point[1]
+      if (!Number.isFinite(sigma) || sigma === 0 || !Number.isFinite(intensity)) continue
+      let maximumColor = 0.01
+      for (const value of color) maximumColor = Math.max(maximumColor, Math.abs(value * intensity))
+      const maximumDistance = Math.sqrt(
+        -2 * sigma * sigma * (Math.log(0.1) * 3 - Math.log(maximumColor)),
+      )
+      const y0 = Math.max(0, Math.round(point[0].y - maximumDistance))
+      const y1 = Math.min(height, Math.round(point[0].y + maximumDistance) + 1)
+      const x0 = Math.max(0, Math.round(point[0].x - maximumDistance))
+      const x1 = Math.min(width, Math.round(point[0].x + maximumDistance) + 1)
+      for (let localY = y0; localY < y1; localY += 1) {
+        const dy = localY - point[0].y
+        for (let localX = x0; localX < x1; localX += 1) {
+          const distance = Math.hypot(localX - point[0].x, dy)
+          const factor =
+            splineErf((distance * 0.5 + 0.353553391) / sigma) -
+            splineErf((distance * 0.5 - 0.353553391) / sigma)
+          const localIntensity = 0.25 * sigma * intensity * factor * factor
+          const offset = localY * stride + localX
+          for (let channel = 0; channel < 3; channel += 1) {
+            const plane = planes[channel]
+            if (plane) {
+              plane[offset] = (plane[offset] ?? 0) + (color[channel] ?? 0) * localIntensity
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 const dctBasis = Float64Array.from({ length: 64 }, (_, index) => {
   const frequency = Math.floor(index / 8)
@@ -657,6 +918,23 @@ const dcCorrelationRatio = (
 ): number =>
   correlationRatio(correlation, channel, channel === 0 ? correlation.yToXDc : correlation.yToBDc)
 
+const smoothDcAt = (
+  plane: Float64Array,
+  index: number,
+  width: number,
+  centerWeight: number,
+  sideWeight: number,
+  cornerWeight: number,
+): number =>
+  plane[index]! * centerWeight +
+  (plane[index - 1]! + plane[index + 1]! + plane[index - width]! + plane[index + width]!) *
+    sideWeight +
+  (plane[index - width - 1]! +
+    plane[index - width + 1]! +
+    plane[index + width - 1]! +
+    plane[index + width + 1]!) *
+    cornerWeight
+
 const applyAdaptiveDcSmoothing = (
   planes: readonly [Float64Array, Float64Array, Float64Array],
   width: number,
@@ -667,42 +945,35 @@ const applyAdaptiveDcSmoothing = (
   const sideWeight = 0.20345139757231578
   const cornerWeight = 0.0334829185968739
   const centerWeight = 1 - 4 * (sideWeight + cornerWeight)
+  const factor0 = dcFactors[0]
+  const factor1 = dcFactors[1]
+  const factor2 = dcFactors[2]
+  if (factor0 === 0 || factor1 === 0 || factor2 === 0) {
+    throw invalidInput('JPEG XL adaptive DC smoothing metadata is invalid')
+  }
+  const plane0 = planes[0]
+  const plane1 = planes[1]
+  const plane2 = planes[2]
   const smoothed = [planes[0].slice(), planes[1].slice(), planes[2].slice()] as const
   for (let y = 1; y < height - 1; y += 1) {
     for (let x = 1; x < width - 1; x += 1) {
       const index = y * width + x
-      const channelCenters = [0, 0, 0]
-      const channelSmoothed = [0, 0, 0]
-      let gap = 0.5
-      for (let channel = 0; channel < 3; channel += 1) {
-        const plane = planes[channel]
-        const dcFactor = dcFactors[channel]
-        if (!plane || dcFactor === undefined || dcFactor === 0) {
-          throw invalidInput('JPEG XL adaptive DC smoothing metadata is invalid')
-        }
-        const center = plane[index] ?? 0
-        const sides =
-          (plane[index - 1] ?? 0) +
-          (plane[index + 1] ?? 0) +
-          (plane[index - width] ?? 0) +
-          (plane[index + width] ?? 0)
-        const corners =
-          (plane[index - width - 1] ?? 0) +
-          (plane[index - width + 1] ?? 0) +
-          (plane[index + width - 1] ?? 0) +
-          (plane[index + width + 1] ?? 0)
-        const smooth = center * centerWeight + sides * sideWeight + corners * cornerWeight
-        channelCenters[channel] = center
-        channelSmoothed[channel] = smooth
-        gap = Math.max(gap, Math.abs((center - smooth) / dcFactor))
-      }
-      const factor = Math.max(0, 3 - 4 * gap)
-      for (let channel = 0; channel < 3; channel += 1) {
-        const output = smoothed[channel]
-        if (!output) throw invalidInput('JPEG XL adaptive DC smoothing plane is missing')
-        const center = channelCenters[channel] ?? 0
-        output[index] = center + ((channelSmoothed[channel] ?? 0) - center) * factor
-      }
+      const center0 = plane0[index]!
+      const center1 = plane1[index]!
+      const center2 = plane2[index]!
+      const smooth0 = smoothDcAt(plane0, index, width, centerWeight, sideWeight, cornerWeight)
+      const smooth1 = smoothDcAt(plane1, index, width, centerWeight, sideWeight, cornerWeight)
+      const smooth2 = smoothDcAt(plane2, index, width, centerWeight, sideWeight, cornerWeight)
+      const gap = Math.max(
+        0.5,
+        Math.abs((center0 - smooth0) / factor0),
+        Math.abs((center1 - smooth1) / factor1),
+        Math.abs((center2 - smooth2) / factor2),
+      )
+      const mix = Math.max(0, 3 - 4 * gap)
+      smoothed[0][index] = center0 + (smooth0 - center0) * mix
+      smoothed[1][index] = center1 + (smooth1 - center1) * mix
+      smoothed[2][index] = center2 + (smooth2 - center2) * mix
     }
   }
   for (let channel = 0; channel < 3; channel += 1) {
@@ -720,26 +991,78 @@ const inverseDct8Native = (
   destinationWidth: number,
   destinationX: number,
   destinationY: number,
+  activeVertical: Uint16Array,
 ): void => {
+  let activeVerticalCount = 0
   for (let vertical = 0; vertical < 8; vertical += 1) {
-    for (let x = 0; x < 8; x += 1) {
-      let sample = 0
-      for (let horizontal = 0; horizontal < 8; horizontal += 1) {
-        sample +=
-          (coefficients[horizontal * 8 + vertical] ?? 0) * (dctBasis[horizontal * 8 + x] ?? 0)
+    const rowOffset = vertical * 8
+    let active = false
+    for (let horizontal = 0; horizontal < 8; horizontal += 1) {
+      const coefficient = coefficients[horizontal * 8 + vertical] ?? 0
+      if (coefficient === 0) continue
+      const basisOffset = horizontal * 8
+      const value0 = coefficient * (dctBasis[basisOffset] ?? 0)
+      const value1 = coefficient * (dctBasis[basisOffset + 1] ?? 0)
+      const value2 = coefficient * (dctBasis[basisOffset + 2] ?? 0)
+      const value3 = coefficient * (dctBasis[basisOffset + 3] ?? 0)
+      const value4 = coefficient * (dctBasis[basisOffset + 4] ?? 0)
+      const value5 = coefficient * (dctBasis[basisOffset + 5] ?? 0)
+      const value6 = coefficient * (dctBasis[basisOffset + 6] ?? 0)
+      const value7 = coefficient * (dctBasis[basisOffset + 7] ?? 0)
+      if (active) {
+        intermediate[rowOffset] = (intermediate[rowOffset] ?? 0) + value0
+        intermediate[rowOffset + 1] = (intermediate[rowOffset + 1] ?? 0) + value1
+        intermediate[rowOffset + 2] = (intermediate[rowOffset + 2] ?? 0) + value2
+        intermediate[rowOffset + 3] = (intermediate[rowOffset + 3] ?? 0) + value3
+        intermediate[rowOffset + 4] = (intermediate[rowOffset + 4] ?? 0) + value4
+        intermediate[rowOffset + 5] = (intermediate[rowOffset + 5] ?? 0) + value5
+        intermediate[rowOffset + 6] = (intermediate[rowOffset + 6] ?? 0) + value6
+        intermediate[rowOffset + 7] = (intermediate[rowOffset + 7] ?? 0) + value7
+      } else {
+        intermediate[rowOffset] = value0
+        intermediate[rowOffset + 1] = value1
+        intermediate[rowOffset + 2] = value2
+        intermediate[rowOffset + 3] = value3
+        intermediate[rowOffset + 4] = value4
+        intermediate[rowOffset + 5] = value5
+        intermediate[rowOffset + 6] = value6
+        intermediate[rowOffset + 7] = value7
+        activeVertical[activeVerticalCount++] = vertical
+        active = true
       }
-      intermediate[vertical * 8 + x] = sample
     }
   }
   for (let y = 0; y < 8; y += 1) {
-    for (let x = 0; x < 8; x += 1) {
-      let sample = 0
-      for (let vertical = 0; vertical < 8; vertical += 1) {
-        sample += (intermediate[vertical * 8 + x] ?? 0) * (dctBasis[vertical * 8 + y] ?? 0)
-      }
-      // JPEG XL's scaled DCT convention makes a DC coefficient the block's sample value.
-      destination[(destinationY + y) * destinationWidth + destinationX + x] = sample * 8
+    let value0 = 0
+    let value1 = 0
+    let value2 = 0
+    let value3 = 0
+    let value4 = 0
+    let value5 = 0
+    let value6 = 0
+    let value7 = 0
+    for (let activeIndex = 0; activeIndex < activeVerticalCount; activeIndex += 1) {
+      const vertical = activeVertical[activeIndex] ?? 0
+      const rowOffset = vertical * 8
+      const basis = dctBasis[rowOffset + y] ?? 0
+      value0 += basis * (intermediate[rowOffset] ?? 0)
+      value1 += basis * (intermediate[rowOffset + 1] ?? 0)
+      value2 += basis * (intermediate[rowOffset + 2] ?? 0)
+      value3 += basis * (intermediate[rowOffset + 3] ?? 0)
+      value4 += basis * (intermediate[rowOffset + 4] ?? 0)
+      value5 += basis * (intermediate[rowOffset + 5] ?? 0)
+      value6 += basis * (intermediate[rowOffset + 6] ?? 0)
+      value7 += basis * (intermediate[rowOffset + 7] ?? 0)
     }
+    const outputOffset = (destinationY + y) * destinationWidth + destinationX
+    destination[outputOffset] = value0 * 8
+    destination[outputOffset + 1] = value1 * 8
+    destination[outputOffset + 2] = value2 * 8
+    destination[outputOffset + 3] = value3 * 8
+    destination[outputOffset + 4] = value4 * 8
+    destination[outputOffset + 5] = value5 * 8
+    destination[outputOffset + 6] = value6 * 8
+    destination[outputOffset + 7] = value7 * 8
   }
 }
 
@@ -752,29 +1075,39 @@ const inverseDctRectangle = (
   destinationWidth: number,
   destinationX: number,
   destinationY: number,
+  activeVerticalScratch?: Uint16Array,
 ): void => {
   const scale = Math.sqrt(outputWidth * outputHeight)
   const horizontalBasis = rectangularDctBasis(outputWidth)
   const verticalBasis = rectangularDctBasis(outputHeight)
+  const activeVertical = activeVerticalScratch ?? new Uint16Array(outputHeight)
+  let activeVerticalCount = 0
   for (let vertical = 0; vertical < outputHeight; vertical += 1) {
-    for (let x = 0; x < outputWidth; x += 1) {
-      let sample = 0
-      for (let horizontal = 0; horizontal < outputWidth; horizontal += 1) {
-        const coefficientIndex =
-          outputHeight >= outputWidth
-            ? horizontal * outputHeight + vertical
-            : vertical * outputWidth + horizontal
-        sample +=
-          (coefficients[coefficientIndex] ?? 0) *
-          (horizontalBasis[horizontal * outputWidth + x] ?? 0)
+    const intermediateOffset = vertical * outputWidth
+    intermediate.fill(0, intermediateOffset, intermediateOffset + outputWidth)
+    let active = false
+    for (let horizontal = 0; horizontal < outputWidth; horizontal += 1) {
+      const coefficientIndex =
+        outputHeight >= outputWidth
+          ? horizontal * outputHeight + vertical
+          : vertical * outputWidth + horizontal
+      const coefficient = coefficients[coefficientIndex] ?? 0
+      if (coefficient === 0) continue
+      active = true
+      const basisOffset = horizontal * outputWidth
+      for (let x = 0; x < outputWidth; x += 1) {
+        intermediate[intermediateOffset + x] =
+          (intermediate[intermediateOffset + x] ?? 0) +
+          coefficient * (horizontalBasis[basisOffset + x] ?? 0)
       }
-      intermediate[vertical * outputWidth + x] = sample
     }
+    if (active) activeVertical[activeVerticalCount++] = vertical
   }
   for (let y = 0; y < outputHeight; y += 1) {
     for (let x = 0; x < outputWidth; x += 1) {
       let sample = 0
-      for (let vertical = 0; vertical < outputHeight; vertical += 1) {
+      for (let activeIndex = 0; activeIndex < activeVerticalCount; activeIndex += 1) {
+        const vertical = activeVertical[activeIndex] ?? 0
         sample +=
           (intermediate[vertical * outputWidth + x] ?? 0) *
           (verticalBasis[vertical * outputHeight + y] ?? 0)
@@ -797,31 +1130,36 @@ const lowFrequencyResampleScales = (size: number): Float64Array => {
   return scales
 }
 
-const forwardScaledDct = (samples: Float64Array, width: number, height: number): Float64Array => {
-  const coefficients = new Float64Array(width * height)
+const lowFrequencyResampleScaleCache = Object.freeze(
+  Array.from({ length: 9 }, (_, size) =>
+    size === 0 ? new Float64Array() : lowFrequencyResampleScales(size),
+  ),
+)
+
+const forwardScaledDct = (
+  samples: Float64Array,
+  width: number,
+  height: number,
+  coefficients: Float64Array,
+): void => {
   const areaScale = Math.sqrt(width * height)
+  const horizontalBasis = rectangularDctBasis(width)
+  const verticalBasis = rectangularDctBasis(height)
   for (let vertical = 0; vertical < height; vertical += 1) {
-    const verticalScale = vertical === 0 ? Math.SQRT1_2 : 1
     for (let horizontal = 0; horizontal < width; horizontal += 1) {
-      const horizontalScale = horizontal === 0 ? Math.SQRT1_2 : 1
       let coefficient = 0
       for (let y = 0; y < height; y += 1) {
-        const verticalBasis =
-          Math.sqrt(2 / height) *
-          verticalScale *
-          Math.cos(((2 * y + 1) * vertical * Math.PI) / (2 * height))
+        const verticalWeight = verticalBasis[vertical * height + y] ?? 0
         for (let x = 0; x < width; x += 1) {
-          const horizontalBasis =
-            Math.sqrt(2 / width) *
-            horizontalScale *
-            Math.cos(((2 * x + 1) * horizontal * Math.PI) / (2 * width))
-          coefficient += (samples[y * width + x] ?? 0) * horizontalBasis * verticalBasis
+          coefficient +=
+            (samples[y * width + x] ?? 0) *
+            (horizontalBasis[horizontal * width + x] ?? 0) *
+            verticalWeight
         }
       }
       coefficients[vertical * width + horizontal] = coefficient / areaScale
     }
   }
-  return coefficients
 }
 
 const populateLowestFrequencies = (
@@ -829,10 +1167,14 @@ const populateLowestFrequencies = (
   dcSamples: Float64Array,
   blockWidth: number,
   blockHeight: number,
+  frequencyScratch: Float64Array,
 ): void => {
-  const lowFrequencies = forwardScaledDct(dcSamples, blockWidth, blockHeight)
-  const horizontalScales = lowFrequencyResampleScales(blockWidth)
-  const verticalScales = lowFrequencyResampleScales(blockHeight)
+  forwardScaledDct(dcSamples, blockWidth, blockHeight, frequencyScratch)
+  const horizontalScales = lowFrequencyResampleScaleCache[blockWidth]
+  const verticalScales = lowFrequencyResampleScaleCache[blockHeight]
+  if (!horizontalScales || !verticalScales) {
+    throw invalidInput('JPEG XL low-frequency transform dimension is invalid')
+  }
   const outputWidth = blockWidth * 8
   const outputHeight = blockHeight * 8
   for (let vertical = 0; vertical < blockHeight; vertical += 1) {
@@ -842,7 +1184,7 @@ const populateLowestFrequencies = (
           ? horizontal * outputHeight + vertical
           : vertical * outputWidth + horizontal
       values[nativeIndex] =
-        (lowFrequencies[vertical * blockWidth + horizontal] ?? 0) *
+        (frequencyScratch[vertical * blockWidth + horizontal] ?? 0) *
         (horizontalScales[horizontal] ?? 1) *
         (verticalScales[vertical] ?? 1)
     }
@@ -991,6 +1333,50 @@ const inverseDct4x8 = (
   }
 }
 
+const inverseDct4x4 = (
+  coefficients: Float64Array,
+  coefficientScratch: Float64Array,
+  transformScratch: Float64Array,
+  destination: Float32Array,
+  destinationWidth: number,
+  destinationX: number,
+  destinationY: number,
+): void => {
+  const block00 = coefficients[0] ?? 0
+  const block01 = coefficients[1] ?? 0
+  const block10 = coefficients[8] ?? 0
+  const block11 = coefficients[9] ?? 0
+  const dc = [
+    block00 + block01 + block10 + block11,
+    block00 + block01 - block10 - block11,
+    block00 - block01 + block10 - block11,
+    block00 - block01 - block10 + block11,
+  ] as const
+  for (let quadrantY = 0; quadrantY < 2; quadrantY += 1) {
+    for (let quadrantX = 0; quadrantX < 2; quadrantX += 1) {
+      coefficientScratch[0] = dc[quadrantY * 2 + quadrantX] ?? 0
+      for (let y = 0; y < 4; y += 1) {
+        for (let x = 0; x < 4; x += 1) {
+          if (x !== 0 || y !== 0) {
+            coefficientScratch[y * 4 + x] =
+              coefficients[(quadrantY + y * 2) * 8 + quadrantX + x * 2] ?? 0
+          }
+        }
+      }
+      inverseDctRectangle(
+        coefficientScratch,
+        4,
+        4,
+        transformScratch,
+        destination,
+        destinationWidth,
+        destinationX + quadrantX * 4,
+        destinationY + quadrantY * 4,
+      )
+    }
+  }
+}
+
 const inverseAfv = (
   coefficients: Float64Array,
   kind: number,
@@ -1075,6 +1461,7 @@ const applyDefaultGaborish = (
   stride: number,
   width: number,
   height: number,
+  scratch = new Float32Array(stride * height),
 ): void => {
   const adjacent = 1.1 * 0.104699568
   const diagonal = 1.1 * 0.055680538
@@ -1082,31 +1469,69 @@ const applyDefaultGaborish = (
   const centerWeight = normalization
   const adjacentWeight = adjacent * normalization
   const diagonalWeight = diagonal * normalization
-  const scratch = new Float32Array(width * height)
   for (const plane of planes) {
-    for (let y = 0; y < height; y += 1) {
-      const top = y === 0 ? 0 : y - 1
-      const bottom = y === height - 1 ? height - 1 : y + 1
-      for (let x = 0; x < width; x += 1) {
-        const left = x === 0 ? 0 : x - 1
-        const right = x === width - 1 ? width - 1 : x + 1
-        scratch[y * width + x] =
-          (plane[y * stride + x] ?? 0) * centerWeight +
-          ((plane[y * stride + left] ?? 0) +
-            (plane[y * stride + right] ?? 0) +
-            (plane[top * stride + x] ?? 0) +
-            (plane[bottom * stride + x] ?? 0)) *
+    for (let y = 1; y < height - 1; y += 1) {
+      const row = y * stride
+      const top = row - stride
+      const bottom = row + stride
+      for (let x = 1; x < width - 1; x += 1) {
+        const index = row + x
+        scratch[index] =
+          plane[index]! * centerWeight +
+          (plane[index - 1]! + plane[index + 1]! + plane[top + x]! + plane[bottom + x]!) *
             adjacentWeight +
-          ((plane[top * stride + left] ?? 0) +
-            (plane[top * stride + right] ?? 0) +
-            (plane[bottom * stride + left] ?? 0) +
-            (plane[bottom * stride + right] ?? 0)) *
+          (plane[top + x - 1]! +
+            plane[top + x + 1]! +
+            plane[bottom + x - 1]! +
+            plane[bottom + x + 1]!) *
             diagonalWeight
       }
     }
     for (let y = 0; y < height; y += 1) {
-      plane.set(scratch.subarray(y * width, (y + 1) * width), y * stride)
+      if (y !== 0 && y !== height - 1 && width > 2) {
+        const row = y * stride
+        const top = row - stride
+        const bottom = row + stride
+        scratch[row] =
+          plane[row]! * centerWeight +
+          (plane[row]! + plane[row + 1]! + plane[top]! + plane[bottom]!) * adjacentWeight +
+          (plane[top]! + plane[top + 1]! + plane[bottom]! + plane[bottom + 1]!) * diagonalWeight
+        const right = row + width - 1
+        scratch[right] =
+          plane[right]! * centerWeight +
+          (plane[right - 1]! +
+            plane[right]! +
+            plane[top + width - 1]! +
+            plane[bottom + width - 1]!) *
+            adjacentWeight +
+          (plane[top + width - 2]! +
+            plane[top + width - 1]! +
+            plane[bottom + width - 2]! +
+            plane[bottom + width - 1]!) *
+            diagonalWeight
+        continue
+      }
+      const topY = y === 0 ? 0 : y - 1
+      const bottomY = y === height - 1 ? height - 1 : y + 1
+      for (let x = 0; x < width; x += 1) {
+        const leftX = x === 0 ? 0 : x - 1
+        const rightX = x === width - 1 ? width - 1 : x + 1
+        const index = y * stride + x
+        scratch[index] =
+          plane[index]! * centerWeight +
+          (plane[y * stride + leftX]! +
+            plane[y * stride + rightX]! +
+            plane[topY * stride + x]! +
+            plane[bottomY * stride + x]!) *
+            adjacentWeight +
+          (plane[topY * stride + leftX]! +
+            plane[topY * stride + rightX]! +
+            plane[bottomY * stride + leftX]! +
+            plane[bottomY * stride + rightX]!) *
+            diagonalWeight
+      }
     }
+    plane.set(scratch.subarray(0, stride * height))
   }
 }
 
@@ -1129,35 +1554,6 @@ const epfSample = (
   y: number,
 ): number => plane[mirroredIndex(y, height) * stride + mirroredIndex(x, width)] ?? 0
 
-const epfCandidateOffsets = Object.freeze({
-  0: Object.freeze([
-    Object.freeze([-2, 0]),
-    Object.freeze([-1, -1]),
-    Object.freeze([-1, 0]),
-    Object.freeze([-1, 1]),
-    Object.freeze([0, -2]),
-    Object.freeze([0, -1]),
-    Object.freeze([0, 1]),
-    Object.freeze([0, 2]),
-    Object.freeze([1, -1]),
-    Object.freeze([1, 0]),
-    Object.freeze([1, 1]),
-    Object.freeze([2, 0]),
-  ]),
-  1: Object.freeze([
-    Object.freeze([-1, 0]),
-    Object.freeze([0, -1]),
-    Object.freeze([0, 1]),
-    Object.freeze([1, 0]),
-  ]),
-  2: Object.freeze([
-    Object.freeze([-1, 0]),
-    Object.freeze([0, -1]),
-    Object.freeze([0, 1]),
-    Object.freeze([1, 0]),
-  ]),
-})
-
 const epfPatchOffsets = Object.freeze([
   Object.freeze([0, 0]),
   Object.freeze([-1, 0]),
@@ -1166,146 +1562,743 @@ const epfPatchOffsets = Object.freeze([
   Object.freeze([0, 1]),
 ])
 
+const epfCandidateCoordinates = Object.freeze({
+  0: new Int8Array([
+    -2, 0, -1, -1, -1, 0, -1, 1, 0, -2, 0, -1, 0, 1, 0, 2, 1, -1, 1, 0, 1, 1, 2, 0,
+  ]),
+  1: new Int8Array([-1, 0, 0, -1, 0, 1, 1, 0]),
+  2: new Int8Array([-1, 0, 0, -1, 0, 1, 1, 0]),
+})
+
+const applyDefaultEpfStage1EdgePixel = (
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  height: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  blockRowOffset: number,
+  x: number,
+  y: number,
+): void => {
+  const coordinates = epfCandidateCoordinates[1]
+  const scales = [40, 5, 3.5] as const
+  const centerIndex = y * stride + x
+  const inverseSigma = inverseSigmas[(blockRowOffset + (y >>> 3)) * blockWidth + (x >>> 3)] ?? 0
+  if (inverseSigma < -3.9052429175127) {
+    output[0][centerIndex] = planes[0][centerIndex] ?? 0
+    output[1][centerIndex] = planes[1][centerIndex] ?? 0
+    output[2][centerIndex] = planes[2][centerIndex] ?? 0
+    return
+  }
+  const scaledInverseSigma =
+    inverseSigma *
+    1.65 *
+    ((y & 7) === 0 || (y & 7) === 7 || (x & 7) === 0 || (x & 7) === 7 ? 2 / 3 : 1)
+  let sum0 = planes[0][centerIndex] ?? 0
+  let sum1 = planes[1][centerIndex] ?? 0
+  let sum2 = planes[2][centerIndex] ?? 0
+  let totalWeight = 1
+  for (let coordinate = 0; coordinate < coordinates.length; coordinate += 2) {
+    const offsetY = coordinates[coordinate] ?? 0
+    const offsetX = coordinates[coordinate + 1] ?? 0
+    let sad = 0
+    for (let channel = 0; channel < 3; channel += 1) {
+      const plane = planes[channel]!
+      let channelSad = 0
+      for (const patchOffset of epfPatchOffsets) {
+        const patchY = patchOffset[0] ?? 0
+        const patchX = patchOffset[1] ?? 0
+        channelSad += Math.abs(
+          epfSample(plane, stride, width, height, x + patchX, y + patchY) -
+            epfSample(plane, stride, width, height, x + offsetX + patchX, y + offsetY + patchY),
+        )
+      }
+      sad += channelSad * scales[channel]!
+    }
+    const weight = Math.max(0, 1 + sad * scaledInverseSigma)
+    if (weight === 0) continue
+    totalWeight += weight
+    sum0 += weight * epfSample(planes[0], stride, width, height, x + offsetX, y + offsetY)
+    sum1 += weight * epfSample(planes[1], stride, width, height, x + offsetX, y + offsetY)
+    sum2 += weight * epfSample(planes[2], stride, width, height, x + offsetX, y + offsetY)
+  }
+  output[0][centerIndex] = sum0 / totalWeight
+  output[1][centerIndex] = sum1 / totalWeight
+  output[2][centerIndex] = sum2 / totalWeight
+}
+
+const applyDefaultEpfStage1InteriorRow = (
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  blockRowOffset: number,
+  y: number,
+  horizontalDifferences: Float32Array,
+  verticalDifferences: Float32Array,
+): void => {
+  const plane0 = planes[0]
+  const plane1 = planes[1]
+  const plane2 = planes[2]
+  const output0 = output[0]
+  const output1 = output[1]
+  const output2 = output[2]
+  const row = y * stride
+  const blockRow = (blockRowOffset + (y >>> 3)) * blockWidth
+  const yBorder = (y & 7) === 0 || (y & 7) === 7
+  for (let x = 2; x < width - 2; x += 1) {
+    const inverseSigma = inverseSigmas[blockRow + (x >>> 3)] ?? 0
+    const centerIndex = row + x
+    if (inverseSigma < -3.9052429175127) {
+      const end = Math.min(width - 2, x + 8 - (x & 7))
+      for (let copyX = x; copyX < end; copyX += 1) {
+        const index = row + copyX
+        output0[index] = plane0[index]!
+        output1[index] = plane1[index]!
+        output2[index] = plane2[index]!
+      }
+      x = end - 1
+      continue
+    }
+    const xBorder = (x & 7) === 0 || (x & 7) === 7
+    const scaledInverseSigma = inverseSigma * 1.65 * (yBorder || xBorder ? 2 / 3 : 1)
+    const left = centerIndex - 1
+    const right = centerIndex + 1
+    const top = centerIndex - stride
+    const bottom = centerIndex + stride
+    const sadLeft =
+      horizontalDifferences[left]! +
+      horizontalDifferences[left - 1]! +
+      horizontalDifferences[top - 1]! +
+      horizontalDifferences[centerIndex]! +
+      horizontalDifferences[bottom - 1]!
+    const sadTop =
+      verticalDifferences[top]! +
+      verticalDifferences[top - 1]! +
+      verticalDifferences[top - stride]! +
+      verticalDifferences[top + 1]! +
+      verticalDifferences[centerIndex]!
+    const sadRight =
+      horizontalDifferences[centerIndex]! +
+      horizontalDifferences[left]! +
+      horizontalDifferences[top]! +
+      horizontalDifferences[right]! +
+      horizontalDifferences[bottom]!
+    const sadBottom =
+      verticalDifferences[centerIndex]! +
+      verticalDifferences[left]! +
+      verticalDifferences[top]! +
+      verticalDifferences[right]! +
+      verticalDifferences[bottom]!
+    const weightLeft = Math.max(0, 1 + sadLeft * scaledInverseSigma)
+    const weightTop = Math.max(0, 1 + sadTop * scaledInverseSigma)
+    const weightRight = Math.max(0, 1 + sadRight * scaledInverseSigma)
+    const weightBottom = Math.max(0, 1 + sadBottom * scaledInverseSigma)
+    const totalWeight = 1 + weightLeft + weightTop + weightRight + weightBottom
+    output0[centerIndex] =
+      (plane0[centerIndex]! +
+        weightLeft * plane0[centerIndex - 1]! +
+        weightTop * plane0[centerIndex - stride]! +
+        weightRight * plane0[centerIndex + 1]! +
+        weightBottom * plane0[centerIndex + stride]!) /
+      totalWeight
+    output1[centerIndex] =
+      (plane1[centerIndex]! +
+        weightLeft * plane1[centerIndex - 1]! +
+        weightTop * plane1[centerIndex - stride]! +
+        weightRight * plane1[centerIndex + 1]! +
+        weightBottom * plane1[centerIndex + stride]!) /
+      totalWeight
+    output2[centerIndex] =
+      (plane2[centerIndex]! +
+        weightLeft * plane2[centerIndex - 1]! +
+        weightTop * plane2[centerIndex - stride]! +
+        weightRight * plane2[centerIndex + 1]! +
+        weightBottom * plane2[centerIndex + stride]!) /
+      totalWeight
+  }
+}
+
+const applyDefaultEpfStage1 = (
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  height: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  blockRowOffset: number,
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  differences: readonly [Float32Array, Float32Array],
+  imageHeight: number,
+): void => {
+  const horizontalDifferences = differences[0]
+  const verticalDifferences = differences[1]
+  const requiredLength = stride * height
+  if (
+    horizontalDifferences.length < requiredLength ||
+    verticalDifferences.length < requiredLength
+  ) {
+    throw invalidInput('JPEG XL EPF difference scratch is too small')
+  }
+  const plane0 = planes[0]
+  const plane1 = planes[1]
+  const plane2 = planes[2]
+  for (let y = 0; y < height - 1; y += 1) {
+    const row = y * stride
+    for (let x = 0; x < width - 1; x += 1) {
+      const index = row + x
+      const right = index + 1
+      const bottom = index + stride
+      horizontalDifferences[index] =
+        Math.abs(plane0[index]! - plane0[right]!) * 40 +
+        Math.abs(plane1[index]! - plane1[right]!) * 5 +
+        Math.abs(plane2[index]! - plane2[right]!) * 3.5
+      verticalDifferences[index] =
+        Math.abs(plane0[index]! - plane0[bottom]!) * 40 +
+        Math.abs(plane1[index]! - plane1[bottom]!) * 5 +
+        Math.abs(plane2[index]! - plane2[bottom]!) * 3.5
+    }
+    const last = row + width - 1
+    verticalDifferences[last] =
+      Math.abs(plane0[last]! - plane0[last + stride]!) * 40 +
+      Math.abs(plane1[last]! - plane1[last + stride]!) * 5 +
+      Math.abs(plane2[last]! - plane2[last + stride]!) * 3.5
+  }
+  const lastRow = (height - 1) * stride
+  for (let x = 0; x < width - 1; x += 1) {
+    const index = lastRow + x
+    horizontalDifferences[index] =
+      Math.abs(plane0[index]! - plane0[index + 1]!) * 40 +
+      Math.abs(plane1[index]! - plane1[index + 1]!) * 5 +
+      Math.abs(plane2[index]! - plane2[index + 1]!) * 3.5
+  }
+  for (let y = 0; y < height; y += 1) {
+    if (y < 2 || y >= height - 2) {
+      const imageY = blockRowOffset * 8 + y
+      if (imageY >= 2 && imageY < imageHeight - 2) {
+        const row = y * stride
+        output[0].set(planes[0].subarray(row, row + width), row)
+        output[1].set(planes[1].subarray(row, row + width), row)
+        output[2].set(planes[2].subarray(row, row + width), row)
+        continue
+      }
+    }
+    if (y >= 2 && y < height - 2 && width > 4) {
+      applyDefaultEpfStage1InteriorRow(
+        planes,
+        output,
+        stride,
+        width,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        y,
+        horizontalDifferences,
+        verticalDifferences,
+      )
+      applyDefaultEpfStage1EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        0,
+        y,
+      )
+      applyDefaultEpfStage1EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        1,
+        y,
+      )
+      applyDefaultEpfStage1EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        width - 2,
+        y,
+      )
+      applyDefaultEpfStage1EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        width - 1,
+        y,
+      )
+      continue
+    }
+    for (let x = 0; x < width; x += 1) {
+      applyDefaultEpfStage1EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        x,
+        y,
+      )
+    }
+  }
+}
+
+const applyDefaultEpfStage2 = (
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  height: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  blockRowOffset: number,
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  imageHeight: number,
+): void => {
+  const coordinates = epfCandidateCoordinates[2]
+  const stageScale = 6.5 * 1.65
+  const plane0 = planes[0]
+  const plane1 = planes[1]
+  const plane2 = planes[2]
+  const output0 = output[0]
+  const output1 = output[1]
+  const output2 = output[2]
+  for (let y = 0; y < height; y += 1) {
+    if (y === 0 || y === height - 1) {
+      const imageY = blockRowOffset * 8 + y
+      if (imageY > 0 && imageY < imageHeight - 1) {
+        const row = y * stride
+        output0.set(plane0.subarray(row, row + width), row)
+        output1.set(plane1.subarray(row, row + width), row)
+        output2.set(plane2.subarray(row, row + width), row)
+        continue
+      }
+    }
+    const blockRow = (blockRowOffset + (y >>> 3)) * blockWidth
+    const yBorder = (y & 7) === 0 || (y & 7) === 7
+    for (let x = 0; x < width; x += 1) {
+      const inverseSigma = inverseSigmas[blockRow + (x >>> 3)] ?? 0
+      const outputIndex = y * stride + x
+      const centerIndex = y * stride + x
+      const center0 = plane0[centerIndex] ?? 0
+      const center1 = plane1[centerIndex] ?? 0
+      const center2 = plane2[centerIndex] ?? 0
+      if (inverseSigma < -3.9052429175127) {
+        const end = Math.min(width, x + 8 - (x & 7))
+        for (let copyX = x; copyX < end; copyX += 1) {
+          const sourceIndex = y * stride + copyX
+          const targetIndex = y * stride + copyX
+          output0[targetIndex] = plane0[sourceIndex] ?? 0
+          output1[targetIndex] = plane1[sourceIndex] ?? 0
+          output2[targetIndex] = plane2[sourceIndex] ?? 0
+        }
+        x = end - 1
+        continue
+      }
+      const xBorder = (x & 7) === 0 || (x & 7) === 7
+      const scaledInverseSigma = inverseSigma * stageScale * (yBorder || xBorder ? 2 / 3 : 1)
+      const interior = x > 0 && x < width - 1 && y > 0 && y < height - 1
+      if (interior) {
+        const top = centerIndex - stride
+        const left = centerIndex - 1
+        const right = centerIndex + 1
+        const bottom = centerIndex + stride
+        const weightTop = Math.max(
+          0,
+          1 +
+            (Math.abs(plane0[top]! - center0) * 40 +
+              Math.abs(plane1[top]! - center1) * 5 +
+              Math.abs(plane2[top]! - center2) * 3.5) *
+              scaledInverseSigma,
+        )
+        const weightLeft = Math.max(
+          0,
+          1 +
+            (Math.abs(plane0[left]! - center0) * 40 +
+              Math.abs(plane1[left]! - center1) * 5 +
+              Math.abs(plane2[left]! - center2) * 3.5) *
+              scaledInverseSigma,
+        )
+        const weightRight = Math.max(
+          0,
+          1 +
+            (Math.abs(plane0[right]! - center0) * 40 +
+              Math.abs(plane1[right]! - center1) * 5 +
+              Math.abs(plane2[right]! - center2) * 3.5) *
+              scaledInverseSigma,
+        )
+        const weightBottom = Math.max(
+          0,
+          1 +
+            (Math.abs(plane0[bottom]! - center0) * 40 +
+              Math.abs(plane1[bottom]! - center1) * 5 +
+              Math.abs(plane2[bottom]! - center2) * 3.5) *
+              scaledInverseSigma,
+        )
+        const totalWeight = 1 + weightTop + weightLeft + weightRight + weightBottom
+        output0[outputIndex] =
+          (center0 +
+            weightTop * plane0[top]! +
+            weightLeft * plane0[left]! +
+            weightRight * plane0[right]! +
+            weightBottom * plane0[bottom]!) /
+          totalWeight
+        output1[outputIndex] =
+          (center1 +
+            weightTop * plane1[top]! +
+            weightLeft * plane1[left]! +
+            weightRight * plane1[right]! +
+            weightBottom * plane1[bottom]!) /
+          totalWeight
+        output2[outputIndex] =
+          (center2 +
+            weightTop * plane2[top]! +
+            weightLeft * plane2[left]! +
+            weightRight * plane2[right]! +
+            weightBottom * plane2[bottom]!) /
+          totalWeight
+        continue
+      }
+      let sum0 = center0
+      let sum1 = center1
+      let sum2 = center2
+      let totalWeight = 1
+      for (let coordinate = 0; coordinate < coordinates.length; coordinate += 2) {
+        const offsetY = coordinates[coordinate] ?? 0
+        const offsetX = coordinates[coordinate + 1] ?? 0
+        const candidateIndex = centerIndex + offsetY * stride + offsetX
+        const candidate0 = interior
+          ? (plane0[candidateIndex] ?? 0)
+          : epfSample(plane0, stride, width, height, x + offsetX, y + offsetY)
+        const candidate1 = interior
+          ? (plane1[candidateIndex] ?? 0)
+          : epfSample(plane1, stride, width, height, x + offsetX, y + offsetY)
+        const candidate2 = interior
+          ? (plane2[candidateIndex] ?? 0)
+          : epfSample(plane2, stride, width, height, x + offsetX, y + offsetY)
+        const sad =
+          Math.abs(candidate0 - center0) * 40 +
+          Math.abs(candidate1 - center1) * 5 +
+          Math.abs(candidate2 - center2) * 3.5
+        const weight = Math.max(0, 1 + sad * scaledInverseSigma)
+        if (weight === 0) continue
+        totalWeight += weight
+        sum0 += weight * candidate0
+        sum1 += weight * candidate1
+        sum2 += weight * candidate2
+      }
+      output0[outputIndex] = sum0 / totalWeight
+      output1[outputIndex] = sum1 / totalWeight
+      output2[outputIndex] = sum2 / totalWeight
+    }
+  }
+}
+
+const applyDefaultEpfStage0EdgePixel = (
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  height: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  blockRowOffset: number,
+  x: number,
+  y: number,
+): void => {
+  const centerIndex = y * stride + x
+  const inverseSigma = inverseSigmas[(blockRowOffset + (y >>> 3)) * blockWidth + (x >>> 3)] ?? 0
+  if (inverseSigma < -3.9052429175127) {
+    output[0][centerIndex] = planes[0][centerIndex] ?? 0
+    output[1][centerIndex] = planes[1][centerIndex] ?? 0
+    output[2][centerIndex] = planes[2][centerIndex] ?? 0
+    return
+  }
+  const blockBorder = (x & 7) === 0 || (x & 7) === 7 || (y & 7) === 0 || (y & 7) === 7
+  const scaledInverseSigma = inverseSigma * 0.9 * 1.65 * (blockBorder ? 2 / 3 : 1)
+  let sum0 = planes[0][centerIndex] ?? 0
+  let sum1 = planes[1][centerIndex] ?? 0
+  let sum2 = planes[2][centerIndex] ?? 0
+  let totalWeight = 1
+  const coordinates = epfCandidateCoordinates[0]
+  for (let coordinate = 0; coordinate < coordinates.length; coordinate += 2) {
+    const offsetY = coordinates[coordinate] ?? 0
+    const offsetX = coordinates[coordinate + 1] ?? 0
+    let sad = 0
+    for (let channel = 0; channel < 3; channel += 1) {
+      const plane = planes[channel]!
+      const scale = channel === 0 ? 40 : channel === 1 ? 5 : 3.5
+      let channelSad = 0
+      for (const patchOffset of epfPatchOffsets) {
+        const patchY = patchOffset[0] ?? 0
+        const patchX = patchOffset[1] ?? 0
+        channelSad += Math.abs(
+          epfSample(plane, stride, width, height, x + patchX, y + patchY) -
+            epfSample(plane, stride, width, height, x + offsetX + patchX, y + offsetY + patchY),
+        )
+      }
+      sad += channelSad * scale
+    }
+    const weight = Math.max(0, 1 + sad * scaledInverseSigma)
+    if (weight === 0) continue
+    totalWeight += weight
+    sum0 += weight * epfSample(planes[0], stride, width, height, x + offsetX, y + offsetY)
+    sum1 += weight * epfSample(planes[1], stride, width, height, x + offsetX, y + offsetY)
+    sum2 += weight * epfSample(planes[2], stride, width, height, x + offsetX, y + offsetY)
+  }
+  output[0][centerIndex] = sum0 / totalWeight
+  output[1][centerIndex] = sum1 / totalWeight
+  output[2][centerIndex] = sum2 / totalWeight
+}
+
+const applyDefaultEpfStage0 = (
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  height: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  blockRowOffset: number,
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  scratch: readonly [Float32Array, Float32Array],
+  imageHeight: number,
+): void => {
+  const requiredLength = stride * height
+  const differences = scratch[0]
+  const totalWeights = scratch[1]
+  if (differences.length < requiredLength || totalWeights.length < requiredLength) {
+    throw invalidInput('JPEG XL EPF difference scratch is too small')
+  }
+  const plane0 = planes[0]
+  const plane1 = planes[1]
+  const plane2 = planes[2]
+  const output0 = output[0]
+  const output1 = output[1]
+  const output2 = output[2]
+  output0.set(plane0.subarray(0, requiredLength))
+  output1.set(plane1.subarray(0, requiredLength))
+  output2.set(plane2.subarray(0, requiredLength))
+  totalWeights.fill(1, 0, requiredLength)
+  const coordinates = epfCandidateCoordinates[0]
+  for (let coordinate = 0; coordinate < coordinates.length; coordinate += 2) {
+    const offsetY = coordinates[coordinate] ?? 0
+    const offsetX = coordinates[coordinate + 1] ?? 0
+    const startY = Math.max(0, -offsetY)
+    const endY = Math.min(height, height - offsetY)
+    const startX = Math.max(0, -offsetX)
+    const endX = Math.min(width, width - offsetX)
+    for (let y = startY; y < endY; y += 1) {
+      let index = y * stride + startX
+      let candidateIndex = (y + offsetY) * stride + startX + offsetX
+      for (let x = startX; x < endX; x += 1) {
+        differences[index] =
+          Math.abs(plane0[index]! - plane0[candidateIndex]!) * 40 +
+          Math.abs(plane1[index]! - plane1[candidateIndex]!) * 5 +
+          Math.abs(plane2[index]! - plane2[candidateIndex]!) * 3.5
+        index += 1
+        candidateIndex += 1
+      }
+    }
+    for (let y = 3; y < height - 3; y += 1) {
+      const row = y * stride
+      const blockRow = (blockRowOffset + (y >>> 3)) * blockWidth
+      const yBorder = (y & 7) === 0 || (y & 7) === 7
+      for (let x = 3; x < width - 3; x += 1) {
+        const inverseSigma = inverseSigmas[blockRow + (x >>> 3)] ?? 0
+        if (inverseSigma < -3.9052429175127) continue
+        const centerIndex = row + x
+        const sad =
+          differences[centerIndex]! +
+          differences[centerIndex - 1]! +
+          differences[centerIndex + 1]! +
+          differences[centerIndex - stride]! +
+          differences[centerIndex + stride]!
+        const xBorder = (x & 7) === 0 || (x & 7) === 7
+        const scaledInverseSigma = inverseSigma * 0.9 * 1.65 * (yBorder || xBorder ? 2 / 3 : 1)
+        const weight = Math.max(0, 1 + sad * scaledInverseSigma)
+        if (weight === 0) continue
+        const candidateIndex = centerIndex + offsetY * stride + offsetX
+        totalWeights[centerIndex] = totalWeights[centerIndex]! + weight
+        output0[centerIndex] = output0[centerIndex]! + weight * plane0[candidateIndex]!
+        output1[centerIndex] = output1[centerIndex]! + weight * plane1[candidateIndex]!
+        output2[centerIndex] = output2[centerIndex]! + weight * plane2[candidateIndex]!
+      }
+    }
+  }
+  for (let y = 3; y < height - 3; y += 1) {
+    const row = y * stride
+    for (let x = 3; x < width - 3; x += 1) {
+      const index = row + x
+      const weight = totalWeights[index]!
+      output0[index] = output0[index]! / weight
+      output1[index] = output1[index]! / weight
+      output2[index] = output2[index]! / weight
+    }
+  }
+  for (let y = 0; y < height; y += 1) {
+    if (y < 3 || y >= height - 3 || width <= 6) {
+      const imageY = blockRowOffset * 8 + y
+      if (width > 6 && imageY >= 3 && imageY < imageHeight - 3) continue
+      for (let x = 0; x < width; x += 1) {
+        applyDefaultEpfStage0EdgePixel(
+          planes,
+          output,
+          stride,
+          width,
+          height,
+          blockWidth,
+          inverseSigmas,
+          blockRowOffset,
+          x,
+          y,
+        )
+      }
+      continue
+    }
+    for (let x = 0; x < 3; x += 1) {
+      applyDefaultEpfStage0EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        x,
+        y,
+      )
+    }
+    for (let x = width - 3; x < width; x += 1) {
+      applyDefaultEpfStage0EdgePixel(
+        planes,
+        output,
+        stride,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        blockRowOffset,
+        x,
+        y,
+      )
+    }
+  }
+}
+
 const applyDefaultEpfStage = (
   planes: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
   width: number,
   height: number,
   blockWidth: number,
-  quantization: Int32Array<ArrayBufferLike>,
-  sharpness: Int32Array<ArrayBufferLike>,
-  globalScale: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
   stage: 0 | 1 | 2,
+  blockRowOffset = 0,
+  output: readonly [Float32Array, Float32Array, Float32Array] = [
+    new Float32Array(stride * height),
+    new Float32Array(stride * height),
+    new Float32Array(stride * height),
+  ],
+  stage1Differences?: readonly [Float32Array, Float32Array],
+  imageHeight = height,
 ): void => {
-  const offsets = epfCandidateOffsets[stage]
-  const channelScales = [40, 5, 3.5] as const
-  const stageScale = (stage === 0 ? 0.9 : stage === 1 ? 1 : 6.5) * 1.65
-  const output = [
-    new Float32Array(width * height),
-    new Float32Array(width * height),
-    new Float32Array(width * height),
-  ] as const
-  const quantScale = globalScale / 65_536
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const blockIndex = Math.floor(y / 8) * blockWidth + Math.floor(x / 8)
-      const quant = quantization[blockIndex]
-      const sharp = sharpness[blockIndex]
-      if (quant === undefined || sharp === undefined || quant < 1 || sharp < 0 || sharp > 7) {
-        throw invalidInput('JPEG XL EPF block metadata is invalid')
-      }
-      const sigma = Math.min(-1e-4, (0.46 / (quantScale * quant * -1.17157287525381)) * (sharp / 7))
-      const inverseSigma = 1 / sigma
-      const outputIndex = y * width + x
-      if (inverseSigma < -3.9052429175127) {
-        for (let channel = 0; channel < 3; channel += 1) {
-          const filtered = output[channel]
-          if (!filtered) throw invalidInput('JPEG XL EPF output plane is missing')
-          filtered[outputIndex] = epfSample(
-            planes[channel] ?? new Float32Array(),
-            stride,
-            width,
-            height,
-            x,
-            y,
-          )
-        }
-        continue
-      }
-      const blockBorder = (x & 7) === 0 || (x & 7) === 7 || (y & 7) === 0 || (y & 7) === 7
-      const scaledInverseSigma = inverseSigma * stageScale * (blockBorder ? 2 / 3 : 1)
-      const centerIndex = y * stride + x
-      const sums = [
-        planes[0][centerIndex] ?? 0,
-        planes[1][centerIndex] ?? 0,
-        planes[2][centerIndex] ?? 0,
-      ]
-      const margin = stage === 0 ? 3 : stage === 2 ? 1 : 2
-      const interior = x >= margin && x < width - margin && y >= margin && y < height - margin
-      let totalWeight = 1
-      for (const offset of offsets) {
-        const offsetY = offset[0] ?? 0
-        const offsetX = offset[1] ?? 0
-        const candidateIndex = centerIndex + offsetY * stride + offsetX
-        let sad = 0
-        for (let channel = 0; channel < 3; channel += 1) {
-          const plane = planes[channel]
-          if (!plane) throw invalidInput('JPEG XL EPF plane is missing')
-          if (interior && stage === 2) {
-            sad +=
-              Math.abs((plane[candidateIndex] ?? 0) - (plane[centerIndex] ?? 0)) *
-              (channelScales[channel] ?? 1)
-          } else if (interior) {
-            const left = centerIndex - 1
-            const right = centerIndex + 1
-            const top = centerIndex - stride
-            const bottom = centerIndex + stride
-            const candidateLeft = candidateIndex - 1
-            const candidateRight = candidateIndex + 1
-            const candidateTop = candidateIndex - stride
-            const candidateBottom = candidateIndex + stride
-            sad +=
-              (Math.abs((plane[centerIndex] ?? 0) - (plane[candidateIndex] ?? 0)) +
-                Math.abs((plane[left] ?? 0) - (plane[candidateLeft] ?? 0)) +
-                Math.abs((plane[top] ?? 0) - (plane[candidateTop] ?? 0)) +
-                Math.abs((plane[right] ?? 0) - (plane[candidateRight] ?? 0)) +
-                Math.abs((plane[bottom] ?? 0) - (plane[candidateBottom] ?? 0))) *
-              (channelScales[channel] ?? 1)
-          } else if (stage === 2) {
-            sad +=
-              Math.abs(
-                epfSample(plane, stride, width, height, x + offsetX, y + offsetY) -
-                  epfSample(plane, stride, width, height, x, y),
-              ) * (channelScales[channel] ?? 1)
-          } else {
-            let channelSad = 0
-            for (const patchOffset of epfPatchOffsets) {
-              const patchY = patchOffset[0] ?? 0
-              const patchX = patchOffset[1] ?? 0
-              channelSad += Math.abs(
-                epfSample(plane, stride, width, height, x + patchX, y + patchY) -
-                  epfSample(
-                    plane,
-                    stride,
-                    width,
-                    height,
-                    x + offsetX + patchX,
-                    y + offsetY + patchY,
-                  ),
-              )
-            }
-            sad += channelSad * (channelScales[channel] ?? 1)
-          }
-        }
-        const weight = Math.max(0, 1 + sad * scaledInverseSigma)
-        if (weight === 0) continue
-        totalWeight += weight
-        for (let channel = 0; channel < 3; channel += 1) {
-          const plane = planes[channel]
-          if (!plane) throw invalidInput('JPEG XL EPF plane is missing')
-          sums[channel] =
-            (sums[channel] ?? 0) +
-            weight *
-              (interior
-                ? (plane[candidateIndex] ?? 0)
-                : epfSample(plane, stride, width, height, x + offsetX, y + offsetY))
-        }
-      }
-      for (let channel = 0; channel < 3; channel += 1) {
-        const filtered = output[channel]
-        if (!filtered) throw invalidInput('JPEG XL EPF output plane is missing')
-        filtered[outputIndex] = (sums[channel] ?? 0) / totalWeight
-      }
-    }
+  const requiredOutputLength = stride * height
+  if (output.some((plane) => plane.length < requiredOutputLength)) {
+    throw invalidInput('JPEG XL EPF output scratch is too small')
+  }
+  if (stage === 0) {
+    applyDefaultEpfStage0(
+      planes,
+      stride,
+      width,
+      height,
+      blockWidth,
+      inverseSigmas,
+      blockRowOffset,
+      output,
+      stage1Differences ?? [new Float32Array(stride * height), new Float32Array(stride * height)],
+      imageHeight,
+    )
+    planes[0].set(output[0].subarray(0, requiredOutputLength))
+    planes[1].set(output[1].subarray(0, requiredOutputLength))
+    planes[2].set(output[2].subarray(0, requiredOutputLength))
+    return
+  }
+  if (stage === 1) {
+    applyDefaultEpfStage1(
+      planes,
+      stride,
+      width,
+      height,
+      blockWidth,
+      inverseSigmas,
+      blockRowOffset,
+      output,
+      stage1Differences ?? [new Float32Array(stride * height), new Float32Array(stride * height)],
+      imageHeight,
+    )
+  } else if (stage === 2) {
+    applyDefaultEpfStage2(
+      planes,
+      stride,
+      width,
+      height,
+      blockWidth,
+      inverseSigmas,
+      blockRowOffset,
+      output,
+      imageHeight,
+    )
   }
   for (let channel = 0; channel < 3; channel += 1) {
     const plane = planes[channel]
     const filtered = output[channel]
     if (!plane || !filtered) throw invalidInput('JPEG XL EPF output plane is missing')
-    for (let y = 0; y < height; y += 1) {
-      plane.set(filtered.subarray(y * width, (y + 1) * width), y * stride)
-    }
+    plane.set(filtered.subarray(0, stride * height))
   }
+}
+
+const makeEpfInverseSigmas = (
+  quantization: Int32Array<ArrayBufferLike>,
+  sharpness: Int32Array<ArrayBufferLike>,
+  globalScale: number,
+): Float64Array => {
+  const quantScale = globalScale / 65_536
+  const inverseSigmas = new Float64Array(quantization.length)
+  for (let blockIndex = 0; blockIndex < quantization.length; blockIndex += 1) {
+    const quant = quantization[blockIndex]
+    const sharp = sharpness[blockIndex]
+    if (quant === undefined || sharp === undefined || quant < 1 || sharp < 0 || sharp > 7) {
+      throw invalidInput('JPEG XL EPF block metadata is invalid')
+    }
+    const sigma = Math.min(-1e-4, (0.46 / (quantScale * quant * -1.17157287525381)) * (sharp / 7))
+    inverseSigmas[blockIndex] = 1 / sigma
+  }
+  return inverseSigmas
 }
 
 const uint64Mask = (1n << 64n) - 1n
@@ -1442,8 +2435,140 @@ const applyNoise = (
   }
 }
 
-const byteFromLinear = (value: number): number =>
-  Math.max(0, Math.min(255, Math.round(linearToSrgb(value) * 255)))
+const srgbByteThresholds = Float64Array.from({ length: 255 }, (_, byte) => {
+  const encoded = (byte + 0.5) / 255
+  return encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
+})
+
+const linearByteLut = Uint8Array.from({ length: 65_537 }, (_, index) => {
+  const value = index / 65_536
+  let low = 0
+  let high = 255
+  while (low + 1 < high) {
+    const middle = (low + high) >>> 1
+    if (value < (srgbByteThresholds[middle] ?? 1)) high = middle
+    else low = middle
+  }
+  return high
+})
+
+const defaultUpsampling2Weights = Float64Array.from([
+  -0.017162, -0.03452303, -0.04022174, -0.02921014, -0.00624645, 0.14111091, 0.28896755, 0.00278718,
+  -0.01610267, 0.5666155, 0.03777607, -0.01986694, -0.03144731, -0.01185068, -0.00213539,
+])
+
+const defaultUpsampling4Weights = Float64Array.from([
+  -0.02419067, -0.03491987, -0.03693351, -0.03094285, -0.00529785, -0.01663432, -0.03556863,
+  -0.03888905, -0.0351685, -0.00989469, 0.23651958, 0.33392945, -0.01073543, -0.01313181,
+  -0.03556694, 0.13048175, 0.40103025, 0.0395115, -0.02077584, 0.46914198, -0.0020927, -0.01484589,
+  -0.04064806, 0.1894253, 0.56279892, 0.066744, -0.02335494, -0.03551682, -0.0075483, -0.02267919,
+  -0.02363578, 0.00315804, -0.03399098, -0.01359519, -0.00091653, -0.00335467, -0.01163294,
+  -0.01610294, -0.00974088, -0.00191622, -0.01095446, -0.03198464, -0.04455121, -0.0279979,
+  -0.00645912, 0.06390599, 0.22963888, 0.00630981, -0.01897349, 0.67537268, 0.08483369, -0.02534994,
+  -0.02205197, -0.01667999, -0.00384443,
+])
+
+const defaultUpsampling8Weights = Float64Array.from([
+  -0.02928613, -0.03706353, -0.03783812, -0.03324558, -0.00447632, -0.02519406, -0.03752601,
+  -0.03901508, -0.03663285, -0.00646649, -0.02066407, -0.03838633, -0.04002101, -0.03900035,
+  -0.00901973, -0.01626393, -0.03954148, -0.0404662, -0.03979621, -0.01224485, 0.29895328,
+  0.35757708, -0.02447552, -0.01081748, -0.04314594, 0.23903219, 0.41119301, -0.00573046,
+  -0.01450239, -0.04246845, 0.17567618, 0.45220643, 0.02287757, -0.01936783, -0.03583255,
+  0.11572472, 0.47416733, 0.0628444, -0.02685066, 0.4272005, -0.02248939, -0.01155273, -0.04562755,
+  0.28689496, 0.49093869, -0.00007891, -0.01545926, -0.04562659, 0.2123892, 0.53980934, 0.03369474,
+  -0.02070211, -0.03866988, 0.1422955, 0.56593398, 0.08045181, -0.02888298, -0.03680918,
+  -0.00542229, -0.02920477, -0.02788574, -0.0211818, -0.03942402, -0.00775547, -0.02433614,
+  -0.03193943, -0.02030828, -0.04044014, -0.01074016, -0.01930822, -0.03620399, -0.01974125,
+  -0.03919545, -0.01456093, -0.00045072, -0.0036011, -0.01020207, -0.01231907, -0.00638988,
+  -0.00071592, -0.00279122, -0.00957115, -0.01288327, -0.00730937, -0.00107783, -0.00210156,
+  -0.00890705, -0.01317668, -0.00813895, -0.00153491, -0.02128481, -0.04173044, -0.04831487,
+  -0.0329319, -0.0052526, -0.01720322, -0.04052736, -0.05045706, -0.03607317, -0.0073803,
+  -0.01341764, -0.03965629, -0.05151616, -0.03814886, -0.01005819, 0.18968273, 0.33063684,
+  -0.01300105, -0.0137295, -0.04017465, 0.13727832, 0.36402234, 0.0102789, -0.01832107, -0.03365072,
+  0.08734506, 0.38194295, 0.04338228, -0.02525993, 0.56408126, 0.00458352, -0.01648227, -0.04887868,
+  0.24585519, 0.62026135, 0.04314807, -0.02213737, -0.04158014, 0.16637289, 0.65027023, 0.09621636,
+  -0.03101388, -0.04082742, -0.00904519, -0.02790922, -0.02117818, 0.00798662, -0.03995711,
+  -0.01243427, -0.02231705, -0.02946266, 0.00992055, -0.03600283, -0.0168492, -0.00111684,
+  -0.00411204, -0.0129713, -0.01723725, -0.01022545, -0.00165306, -0.0031311, -0.01218016,
+  -0.01763266, -0.0112562, -0.00231663, -0.01374149, -0.0379762, -0.05142937, -0.03117307,
+  -0.00581914, -0.01064003, -0.03608089, -0.05272168, -0.0337567, -0.00795586, 0.09628104,
+  0.27129991, -0.00353779, -0.01734151, -0.03153981, 0.0568623, 0.28500998, 0.02230594, -0.02374955,
+  0.68214326, 0.05018048, -0.02320852, -0.04383616, 0.18459474, 0.71517975, 0.10805613, -0.03263677,
+  -0.03637639, -0.01394373, -0.02511203, -0.01728636, 0.05407331, -0.02867568, -0.01893131,
+  -0.00240854, -0.00446511, -0.01636187, -0.02377053, -0.01522848, -0.00333334, -0.00819975,
+  -0.02964169, -0.04499287, -0.0274535, -0.00612408, 0.02727416, 0.194466, 0.00159832, -0.02232473,
+  0.74982506, 0.1145262, -0.03348048, -0.01605681, -0.02070339, -0.00458223,
+])
+
+const makeUpsamplingKernel = (factor: 2 | 4 | 8, weights: Float64Array): Float64Array => {
+  const kernel = new Float64Array(factor * factor * 25)
+  const half = factor / 2
+  for (let kernelY = 0; kernelY < half; kernelY += 1) {
+    for (let kernelX = 0; kernelX < half; kernelX += 1) {
+      for (let sourceY = 0; sourceY < 5; sourceY += 1) {
+        for (let sourceX = 0; sourceX < 5; sourceX += 1) {
+          const first = 5 * kernelY + sourceY
+          const second = 5 * kernelX + sourceX
+          const low = Math.min(first, second)
+          const high = Math.max(first, second)
+          const weight = weights[5 * half * low - (low * (low - 1)) / 2 + high - low] ?? 0
+          const topLeft = (kernelY * factor + kernelX) * 25
+          const topRight = (kernelY * factor + factor - 1 - kernelX) * 25
+          const bottomLeft = ((factor - 1 - kernelY) * factor + kernelX) * 25
+          const bottomRight = ((factor - 1 - kernelY) * factor + factor - 1 - kernelX) * 25
+          kernel[topLeft + sourceY * 5 + sourceX] = weight
+          kernel[topRight + sourceY * 5 + 4 - sourceX] = weight
+          kernel[bottomLeft + (4 - sourceY) * 5 + sourceX] = weight
+          kernel[bottomRight + (4 - sourceY) * 5 + 4 - sourceX] = weight
+        }
+      }
+    }
+  }
+  return kernel
+}
+
+const upsamplingKernels = Object.freeze({
+  2: makeUpsamplingKernel(2, defaultUpsampling2Weights),
+  4: makeUpsamplingKernel(4, defaultUpsampling4Weights),
+  8: makeUpsamplingKernel(8, defaultUpsampling8Weights),
+})
+
+const upsampleSample = (
+  plane: Float32Array,
+  stride: number,
+  width: number,
+  height: number,
+  x: number,
+  y: number,
+  factor: 1 | 2 | 4 | 8,
+): number => {
+  if (factor === 1) return plane[y * stride + x] ?? 0
+  const sourceX = Math.floor(x / factor)
+  const sourceY = Math.floor(y / factor)
+  const kernelOffset = ((y % factor) * factor + (x % factor)) * 25
+  const kernel = upsamplingKernels[factor]
+  let sum = 0
+  let minimum = Infinity
+  let maximum = -Infinity
+  let weightIndex = kernelOffset
+  for (let offsetY = -2; offsetY <= 2; offsetY += 1) {
+    const row = mirroredIndex(sourceY + offsetY, height) * stride
+    for (let offsetX = -2; offsetX <= 2; offsetX += 1) {
+      const sample = plane[row + mirroredIndex(sourceX + offsetX, width)] ?? 0
+      minimum = Math.min(minimum, sample)
+      maximum = Math.max(maximum, sample)
+      sum += sample * (kernel[weightIndex] ?? 0)
+      weightIndex += 1
+    }
+  }
+  return Math.max(minimum, Math.min(maximum, sum))
+}
+
+const byteFromLinear = (value: number): number => {
+  if (value <= 0) return 0
+  if (value >= 1) return 255
+  return linearByteLut[Math.round(value * 65_536)] ?? 0
+}
 
 const writeRgb = (
   output: Uint8Array,
@@ -1479,34 +2604,31 @@ const mergeProgressiveAcGroup = (
   target: Readonly<JpegXlJpegAcGroup>,
   additional: Readonly<JpegXlJpegAcGroup>,
 ): void => {
-  if (target.vardctBlocks.length !== additional.vardctBlocks.length) {
+  if (target.vardctCoefficientOffsets.length !== additional.vardctCoefficientOffsets.length) {
     throw invalidInput('JPEG XL progressive AC block count is inconsistent')
   }
-  for (let blockIndex = 0; blockIndex < target.vardctBlocks.length; blockIndex += 1) {
-    const targetBlock = target.vardctBlocks[blockIndex]
-    const additionalBlock = additional.vardctBlocks[blockIndex]
-    if (!additionalBlock) continue
-    if (!targetBlock || targetBlock.strategy !== additionalBlock.strategy) {
-      throw invalidInput('JPEG XL progressive AC block strategy is inconsistent')
+  for (let index = 0; index < target.vardctCoefficientOffsets.length; index += 1) {
+    if (target.vardctCoefficientOffsets[index] !== additional.vardctCoefficientOffsets[index]) {
+      throw invalidInput('JPEG XL progressive AC coefficient layout is inconsistent')
     }
-    for (let channel = 0; channel < 3; channel += 1) {
-      const targetCoefficients = targetBlock.coefficients[channel]
-      const additionalCoefficients = additionalBlock.coefficients[channel]
-      if (
-        !targetCoefficients ||
-        !additionalCoefficients ||
-        targetCoefficients.length !== additionalCoefficients.length
-      ) {
-        throw invalidInput('JPEG XL progressive AC coefficient plane is inconsistent')
+  }
+  for (let channel = 0; channel < 3; channel += 1) {
+    const targetCoefficients = target.vardctCoefficientArenas[channel]
+    const additionalCoefficients = additional.vardctCoefficientArenas[channel]
+    if (
+      !targetCoefficients ||
+      !additionalCoefficients ||
+      targetCoefficients.length !== additionalCoefficients.length
+    ) {
+      throw invalidInput('JPEG XL progressive AC coefficient plane is inconsistent')
+    }
+    for (let position = 0; position < targetCoefficients.length; position += 1) {
+      const coefficient =
+        (targetCoefficients[position] ?? 0) + (additionalCoefficients[position] ?? 0)
+      if (coefficient < -2_147_483_648 || coefficient > 2_147_483_647) {
+        throw invalidInput('JPEG XL progressive AC coefficient exceeds the signed 32-bit range')
       }
-      for (let position = 0; position < targetCoefficients.length; position += 1) {
-        const coefficient =
-          (targetCoefficients[position] ?? 0) + (additionalCoefficients[position] ?? 0)
-        if (coefficient < -2_147_483_648 || coefficient > 2_147_483_647) {
-          throw invalidInput('JPEG XL progressive AC coefficient exceeds the signed 32-bit range')
-        }
-        targetCoefficients[position] = coefficient
-      }
+      targetCoefficients[position] = coefficient
     }
   }
 }
@@ -1540,6 +2662,7 @@ const decodeJpegXlVarDctDcGroups = (
   blockHeight: number,
   separatedSections: boolean,
   memory: JpegXlVarDctMemoryLedger,
+  globalSectionEnd: number,
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
 ): Readonly<{ group: JpegXlJpegDcGroup; lease: JpegXlVarDctMemoryLease }> => {
   if (!separatedSections) {
@@ -1553,7 +2676,7 @@ const decodeJpegXlVarDctDcGroups = (
         dcGroupCount: 1,
       },
       lfGlobal.globalModularCode,
-      lfGlobal.endingBitPosition,
+      globalSectionEnd,
       false,
       externalDcPlanes,
     )
@@ -1729,6 +2852,490 @@ const decodeJpegXlVarDctDcGroups = (
   return Object.freeze({ group: Object.freeze(assembled), lease: assembledLease })
 }
 
+interface JpegXlVarDctBand {
+  readonly blockY: number
+  readonly pixelY: number
+  readonly height: number
+  readonly planes: readonly [Float32Array, Float32Array, Float32Array]
+  readonly topEdges: readonly [Float32Array, Float32Array, Float32Array]
+  readonly bottomEdges: readonly [Float32Array, Float32Array, Float32Array]
+  readonly lease: JpegXlVarDctMemoryLease
+}
+
+const decodeJpegXlDct8Striped = (
+  allSections: readonly Uint8Array[],
+  frame: Readonly<JpegXlFrameStructure>,
+  memory: JpegXlVarDctMemoryLedger,
+  lfGlobal: Readonly<JpegXlJpegLfGlobal>,
+  hfGlobal: Readonly<JpegXlJpegHfGlobal>,
+  dcGroup: Readonly<JpegXlJpegDcGroup>,
+  lfGlobalLease: JpegXlVarDctMemoryLease,
+  hfGlobalLease: JpegXlVarDctMemoryLease,
+  dcGroupLease: JpegXlVarDctMemoryLease,
+): JpegXlVarDctPixels => {
+  const codedWidth = frame.codedWidth
+  const codedHeight = frame.codedHeight
+  const blockWidth = Math.ceil(codedWidth / 8)
+  const blockHeight = Math.ceil(codedHeight / 8)
+  const paddedWidth = blockWidth * 8
+  const groupCount = frame.groupsAcross * frame.groupsDown
+  const groupBlockDimension = frame.groupDimension / 8
+  const outputChannels = frame.colorChannels === 1 ? 1 : 3
+  const outputLease = memory.retain(
+    'jpegxl-vardct-output-pixels',
+    frame.width * frame.height * outputChannels,
+  )
+  const output = new Uint8Array(frame.width * frame.height * outputChannels)
+  const transformScratchLease = memory.retain(
+    'jpegxl-vardct-transform-scratch',
+    4 * 4_096 * 8 + 3 * 64 * 8 + 64 * 2,
+  )
+  const blockCoefficients = [
+    new Float64Array(4_096),
+    new Float64Array(4_096),
+    new Float64Array(4_096),
+  ] as const
+  const transformIntermediate = new Float64Array(4_096)
+  const dcSamples = [new Float64Array(64), new Float64Array(64), new Float64Array(64)] as const
+  const dcFrequencyScratch = new Float64Array(64)
+  const activeVerticalScratch = new Uint16Array(64)
+  const inverseSigmas = makeEpfInverseSigmas(
+    dcGroup.quantization,
+    dcGroup.sharpness,
+    lfGlobal.globalScale,
+  )
+  const maximumCombinedHeight = Math.min(codedHeight, frame.groupDimension + 16)
+  const gaborishScratch = new Float32Array(paddedWidth * maximumCombinedHeight)
+  const epfScratch: readonly [Float32Array, Float32Array, Float32Array] = [
+    new Float32Array(paddedWidth * maximumCombinedHeight),
+    new Float32Array(paddedWidth * maximumCombinedHeight),
+    new Float32Array(paddedWidth * maximumCombinedHeight),
+  ]
+  const epfDifferenceScratch: readonly [Float32Array, Float32Array] = [
+    gaborishScratch,
+    new Float32Array(paddedWidth * maximumCombinedHeight),
+  ]
+  const restorationScratchLease = memory.retain(
+    'jpegxl-vardct-restoration-band-scratch',
+    paddedWidth * maximumCombinedHeight * 5 * 4,
+  )
+  const inverseGlobalScale = 65_536 / lfGlobal.globalScale
+  const channelMultipliers = [
+    (1 / 1.25) ** (frame.xQuantizationScale - 2),
+    1,
+    (1 / 1.25) ** (frame.bQuantizationScale - 2),
+  ] as const
+  const dcFactors = [
+    (inverseGlobalScale * (lfGlobal.dcQuantization[0] ?? 1)) / lfGlobal.quantDc,
+    (inverseGlobalScale * (lfGlobal.dcQuantization[1] ?? 1)) / lfGlobal.quantDc,
+    (inverseGlobalScale * (lfGlobal.dcQuantization[2] ?? 1)) / lfGlobal.quantDc,
+  ] as const
+  const rawDcPlanes = [
+    dcGroup.dcCoefficients[1],
+    dcGroup.dcCoefficients[0],
+    dcGroup.dcCoefficients[2],
+  ] as const
+  const renderDcLease = memory.retain(
+    'jpegxl-vardct-render-dc-planes',
+    blockWidth * blockHeight * 3 * 8,
+  )
+  const dcPlanes: readonly [Float64Array, Float64Array, Float64Array] = [
+    new Float64Array(blockWidth * blockHeight),
+    new Float64Array(blockWidth * blockHeight),
+    new Float64Array(blockWidth * blockHeight),
+  ]
+  for (let channel = 0; channel < 3; channel += 1) {
+    const source = rawDcPlanes[channel]
+    const destination = dcPlanes[channel]
+    const factor = dcFactors[channel]
+    if (!source || !destination || factor === undefined) {
+      throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
+    }
+    for (let index = 0; index < destination.length; index += 1) {
+      destination[index] = (source[index] ?? 0) * factor
+    }
+  }
+  const yDcPlane = dcPlanes[1]
+  for (const channel of [0, 2] as const) {
+    const destination = dcPlanes[channel]
+    const ratio = dcCorrelationRatio(lfGlobal.colorCorrelation, channel)
+    for (let index = 0; index < destination.length; index += 1) {
+      destination[index] = (destination[index] ?? 0) + (yDcPlane[index] ?? 0) * ratio
+    }
+  }
+  if ((frame.frameFlags & 128) === 0) {
+    applyAdaptiveDcSmoothing(dcPlanes, blockWidth, blockHeight, dcFactors)
+  }
+
+  const renderBand = (groupY: number): JpegXlVarDctBand => {
+    const restorationHalo = 8
+    const bandBlockY = groupY * groupBlockDimension
+    const bandBlockHeight = Math.min(groupBlockDimension, blockHeight - bandBlockY)
+    const bandHeight = Math.min(bandBlockHeight * 8, codedHeight - bandBlockY * 8)
+    const edgeRows = Math.min(restorationHalo, bandHeight)
+    const lease = memory.retain(
+      `jpegxl-vardct-restoration-band-${groupY}`,
+      paddedWidth * (bandBlockHeight * 8 + restorationHalo * 2 + edgeRows * 2) * 3 * 4,
+    )
+    const planes = [
+      new Float32Array(paddedWidth * (bandBlockHeight * 8 + restorationHalo * 2)),
+      new Float32Array(paddedWidth * (bandBlockHeight * 8 + restorationHalo * 2)),
+      new Float32Array(paddedWidth * (bandBlockHeight * 8 + restorationHalo * 2)),
+    ] as const
+    try {
+      for (let groupX = 0; groupX < frame.groupsAcross; groupX += 1) {
+        const groupId = groupY * frame.groupsAcross + groupX
+        const groupBlockX = groupX * groupBlockDimension
+        const groupBlockWidth = Math.min(groupBlockDimension, blockWidth - groupBlockX)
+        let acGroup: JpegXlJpegAcGroup | undefined
+        let acGroupLease: JpegXlVarDctMemoryLease | undefined
+        for (let passIndex = 0; passIndex < frame.passCount; passIndex += 1) {
+          const pass = hfGlobal.passes[passIndex]
+          const acSection = allSections[2 + frame.dcGroupCount + passIndex * groupCount + groupId]
+          if (!pass || !acSection) throw invalidInput('JPEG XL VarDCT pass group is missing')
+          const decoded = decodeJpegXlJpegAcGroup(
+            acSection,
+            {
+              blockX: groupBlockX,
+              blockY: bandBlockY,
+              blockWidth: groupBlockWidth,
+              blockHeight: bandBlockHeight,
+              chromaSubsampling: frame.chromaSubsampling,
+              histogramCount: hfGlobal.histogramCount,
+              colorTransform: 'none',
+            },
+            lfGlobal,
+            pass,
+            dcGroup,
+            0,
+            true,
+            false,
+            frame.passShifts[passIndex] ?? 0,
+          )
+          const decodedLease = memory.retain(
+            `jpegxl-vardct-coefficients-group-${groupId}-pass-${passIndex}`,
+            decoded.retainedBytes,
+          )
+          if (acGroup) {
+            mergeProgressiveAcGroup(acGroup, decoded)
+            decodedLease.release()
+          } else {
+            acGroup = decoded
+            acGroupLease = decodedLease
+          }
+        }
+        if (!acGroup) throw invalidInput('JPEG XL VarDCT AC group is missing')
+        for (let blockY = bandBlockY; blockY < bandBlockY + bandBlockHeight; blockY += 1) {
+          for (let blockX = groupBlockX; blockX < groupBlockX + groupBlockWidth; blockX += 1) {
+            const blockIndex = blockY * blockWidth + blockX
+            const strategy = dcGroup.strategies[blockIndex]
+            const firstBlock = dcGroup.strategyFirstBlocks[blockIndex]
+            const quantization = dcGroup.quantization[blockIndex]
+            const table = strategy === undefined ? undefined : strategyQuantizationTable[strategy]
+            const dequantization =
+              table === undefined
+                ? undefined
+                : (hfGlobal.quantizationTables[table] ?? strategyDequantization.get(strategy ?? -1))
+            if (
+              strategy === undefined ||
+              firstBlock === undefined ||
+              quantization === undefined ||
+              quantization < 1
+            ) {
+              throw invalidInput('JPEG XL VarDCT block quantization is invalid')
+            }
+            if (firstBlock === 0) continue
+            if (!supportsJpegXlVarDctStrategy(strategy) || !dequantization) {
+              throw unsupportedOperation(
+                `Common VarDCT transform strategy ${strategy} is not supported yet`,
+              )
+            }
+            const localBlockIndex = (blockY - bandBlockY) * groupBlockWidth + (blockX - groupBlockX)
+            const coefficientOffset = acGroup.vardctCoefficientOffsets[localBlockIndex]
+            if (coefficientOffset === undefined || coefficientOffset < 0) {
+              throw invalidInput('JPEG XL VarDCT coefficient block is missing')
+            }
+            const strategyBlockWidth = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
+            const strategyBlockHeight = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
+            const coefficientCount = strategyBlockWidth * strategyBlockHeight * 64
+            for (let channel = 0; channel < 3; channel += 1) {
+              const coefficients = acGroup.vardctCoefficientArenas[channel]
+              const dc = dcPlanes[channel]
+              const matrix = dequantization[channel]
+              const values = blockCoefficients[channel]
+              const channelDc = dcSamples[channel]
+              if (!coefficients || !dc || !matrix || !values || !channelDc) {
+                throw invalidInput('JPEG XL VarDCT channel data is missing')
+              }
+              values.fill(0, 0, coefficientCount)
+              for (let localY = 0; localY < strategyBlockHeight; localY += 1) {
+                for (let localX = 0; localX < strategyBlockWidth; localX += 1) {
+                  channelDc[localY * strategyBlockWidth + localX] =
+                    dc[(blockY + localY) * blockWidth + blockX + localX] ?? 0
+                }
+              }
+              const coefficientScale =
+                (inverseGlobalScale * (channelMultipliers[channel] ?? 1)) / quantization
+              for (let position = 0; position < coefficientCount; position += 1) {
+                const coefficient = coefficients[coefficientOffset + position] ?? 0
+                if (coefficient !== 0) {
+                  values[position] =
+                    adjustQuantizationBias(coefficient, channel) *
+                    coefficientScale *
+                    (matrix[position] ?? 1)
+                }
+              }
+            }
+            const colorTileWidth = Math.ceil(blockWidth / 8)
+            const colorTileIndex = Math.floor(blockY / 8) * colorTileWidth + Math.floor(blockX / 8)
+            const yValues = blockCoefficients[1]
+            for (const channel of [0, 2] as const) {
+              const values = blockCoefficients[channel]
+              const localMap =
+                channel === 0
+                  ? dcGroup.colorCorrelationX[colorTileIndex]
+                  : dcGroup.colorCorrelationB[colorTileIndex]
+              if (localMap === undefined) {
+                throw invalidInput('JPEG XL VarDCT color-correlation tile is missing')
+              }
+              const ratio = correlationRatio(lfGlobal.colorCorrelation, channel, localMap)
+              for (let position = 0; position < coefficientCount; position += 1) {
+                const yValue = yValues[position] ?? 0
+                if (yValue !== 0) values[position] = (values[position] ?? 0) + yValue * ratio
+              }
+            }
+            for (let channel = 0; channel < 3; channel += 1) {
+              const values = blockCoefficients[channel]
+              const channelDc = dcSamples[channel]
+              const plane = planes[channel]
+              if (!values || !channelDc || !plane)
+                throw invalidInput('JPEG XL VarDCT render plane is missing')
+              populateLowestFrequencies(
+                values,
+                channelDc,
+                strategyBlockWidth,
+                strategyBlockHeight,
+                dcFrequencyScratch,
+              )
+              const destinationY = (blockY - bandBlockY) * 8 + restorationHalo
+              if (strategy === 0) {
+                inverseDct8Native(
+                  values,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                  activeVerticalScratch,
+                )
+              } else if (strategy === 1) {
+                inverseHornuss(
+                  values,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                )
+              } else if (strategy === 2) {
+                inverseDct2TopBlock(values, plane, paddedWidth, blockX * 8, destinationY)
+              } else if (strategy === 3) {
+                inverseDct4x4(
+                  values,
+                  dcFrequencyScratch,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                )
+              } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 20)) {
+                inverseDctRectangle(
+                  values,
+                  strategyBlockWidth * 8,
+                  strategyBlockHeight * 8,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                  activeVerticalScratch,
+                )
+              } else if (strategy === 12) {
+                inverseDct4x8(
+                  values,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                )
+              } else if (strategy === 13) {
+                inverseDct8x4(
+                  values,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                )
+              } else if (strategy >= 14 && strategy <= 17) {
+                inverseAfv(
+                  values,
+                  strategy - 14,
+                  transformIntermediate,
+                  plane,
+                  paddedWidth,
+                  blockX * 8,
+                  destinationY,
+                )
+              }
+            }
+          }
+        }
+        acGroupLease?.release()
+      }
+      const topStart = restorationHalo * paddedWidth
+      const bottomStart =
+        (restorationHalo + Math.max(0, bandHeight - restorationHalo)) * paddedWidth
+      const edgeLength = Math.min(restorationHalo, bandHeight) * paddedWidth
+      const topEdges: readonly [Float32Array, Float32Array, Float32Array] = [
+        planes[0].slice(topStart, topStart + edgeLength),
+        planes[1].slice(topStart, topStart + edgeLength),
+        planes[2].slice(topStart, topStart + edgeLength),
+      ]
+      const bottomEdges: readonly [Float32Array, Float32Array, Float32Array] = [
+        planes[0].slice(bottomStart, bottomStart + edgeLength),
+        planes[1].slice(bottomStart, bottomStart + edgeLength),
+        planes[2].slice(bottomStart, bottomStart + edgeLength),
+      ]
+      return Object.freeze({
+        blockY: bandBlockY,
+        pixelY: bandBlockY * 8,
+        height: bandHeight,
+        planes,
+        topEdges: Object.freeze(topEdges),
+        bottomEdges: Object.freeze(bottomEdges),
+        lease,
+      })
+    } catch (error) {
+      lease.release()
+      throw error
+    }
+  }
+
+  const processBand = (
+    center: JpegXlVarDctBand,
+    before: JpegXlVarDctBand | undefined,
+    next: JpegXlVarDctBand | undefined,
+  ): void => {
+    const restorationHalo = 8
+    const topRows = before ? before.bottomEdges[0].length / paddedWidth : 0
+    const bottomRows = next ? next.topEdges[0].length / paddedWidth : 0
+    for (let channel = 0; channel < 3; channel += 1) {
+      const plane = center.planes[channel]
+      if (!plane) throw invalidInput('JPEG XL restoration-band plane is missing')
+      if (before) plane.set(before.bottomEdges[channel] ?? new Float32Array(), 0)
+      if (next) {
+        plane.set(
+          next.topEdges[channel] ?? new Float32Array(),
+          (restorationHalo + center.height) * paddedWidth,
+        )
+      }
+    }
+    const workingStart = (restorationHalo - topRows) * paddedWidth
+    const workingLength = (topRows + center.height + bottomRows) * paddedWidth
+    const combined = [
+      center.planes[0].subarray(workingStart, workingStart + workingLength),
+      center.planes[1].subarray(workingStart, workingStart + workingLength),
+      center.planes[2].subarray(workingStart, workingStart + workingLength),
+    ] as const
+    const combinedHeight = topRows + center.height + bottomRows
+    const combinedStart = center.pixelY - topRows
+    if (frame.gaborish) {
+      applyDefaultGaborish(combined, paddedWidth, codedWidth, combinedHeight, gaborishScratch)
+    }
+    const blockRowOffset = combinedStart >>> 3
+    for (const stage of [0, 1, 2] as const) {
+      const enabled =
+        stage === 0
+          ? frame.epfIterations >= 3
+          : stage === 1
+            ? frame.epfIterations >= 1
+            : frame.epfIterations >= 2
+      if (!enabled) continue
+      applyDefaultEpfStage(
+        combined,
+        paddedWidth,
+        codedWidth,
+        combinedHeight,
+        blockWidth,
+        inverseSigmas,
+        stage,
+        blockRowOffset,
+        epfScratch,
+        epfDifferenceScratch,
+        frame.codedHeight,
+      )
+    }
+    const centerOffsetY = topRows
+    const temporaryRgb = new Uint8Array(3)
+    for (let localY = 0; localY < center.height; localY += 1) {
+      const sourceY = centerOffsetY + localY
+      const outputY = center.pixelY + localY
+      let sourceIndex = sourceY * paddedWidth
+      let outputIndex = outputY * frame.width * outputChannels
+      for (let x = 0; x < frame.width; x += 1) {
+        writeRgb(
+          outputChannels === 3 ? output : temporaryRgb,
+          outputChannels === 3 ? outputIndex : 0,
+          combined[0][sourceIndex] ?? 0,
+          combined[1][sourceIndex] ?? 0,
+          combined[2][sourceIndex] ?? 0,
+        )
+        if (outputChannels === 1) output[outputIndex] = temporaryRgb[0] ?? 0
+        sourceIndex += 1
+        outputIndex += outputChannels
+      }
+    }
+  }
+
+  let before: JpegXlVarDctBand | undefined
+  let center: JpegXlVarDctBand | undefined
+  try {
+    for (let groupY = 0; groupY < frame.groupsDown; groupY += 1) {
+      const next = renderBand(groupY)
+      if (!center) {
+        center = next
+        continue
+      }
+      processBand(center, before, next)
+      before?.lease.release()
+      before = center
+      center = next
+    }
+    if (center) processBand(center, before, undefined)
+  } finally {
+    before?.lease.release()
+    center?.lease.release()
+    transformScratchLease.release()
+    restorationScratchLease.release()
+    renderDcLease.release()
+    hfGlobalLease.release()
+    dcGroupLease.release()
+    lfGlobalLease.release()
+  }
+  const result = Object.freeze({
+    width: frame.width,
+    height: frame.height,
+    format: outputChannels === 1 ? 'gray8' : 'rgb8',
+    data: output,
+    managedPeakBytes: memory.peakBytes,
+    release: outputLease.release,
+  })
+  return result
+}
+
 export const decodeJpegXlDct8Section = (
   section: Uint8Array,
   frame: Readonly<JpegXlFrameStructure>,
@@ -1736,28 +3343,41 @@ export const decodeJpegXlDct8Section = (
   memory: JpegXlVarDctMemoryLedger,
   continuationSections?: readonly Uint8Array[],
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
+  returnDcPlanes = false,
+  references: ReadonlyMap<number, Readonly<JpegXlVarDctReference>> = new Map(),
 ): JpegXlVarDctPixels => {
   const separatedSections = continuationSections !== undefined
   if (
     frame.encoding !== 'vardct' ||
     frame.colorTransform !== 'xyb' ||
     frame.bitDepth !== 8 ||
-    frame.alphaBitDepth !== undefined ||
+    (frame.alphaBitDepth !== undefined && frame.alphaBitDepth !== 8) ||
     (separatedSections
       ? continuationSections.length + 1 !==
         2 + frame.dcGroupCount + frame.groupsAcross * frame.groupsDown * frame.passCount
       : frame.passCount !== 1 || frame.sections.length !== 1)
   ) {
     throw unsupportedOperation(
-      'Common VarDCT decode currently requires bounded 8-bit XYB groups without alpha',
+      'Common VarDCT decode currently requires bounded 8-bit XYB groups with optional 8-bit alpha',
     )
   }
-  const blockWidth = Math.ceil(frame.width / 8)
-  const blockHeight = Math.ceil(frame.height / 8)
+  if (
+    frame.alphaBitDepth !== undefined &&
+    (frame.extraChannelUpsampling[0] ?? 1) !== frame.upsampling
+  ) {
+    throw unsupportedOperation('Common VarDCT alpha requires matching color and alpha upsampling')
+  }
+  if (frame.upsampling !== 1 && (frame.frameFlags & 1) !== 0) {
+    throw unsupportedOperation('Common VarDCT noise with frame upsampling is not supported yet')
+  }
+  const codedWidth = frame.codedWidth
+  const codedHeight = frame.codedHeight
+  const blockWidth = Math.ceil(codedWidth / 8)
+  const blockHeight = Math.ceil(codedHeight / 8)
   const paddedWidth = blockWidth * 8
   const paddedHeight = blockHeight * 8
   const planeBytes = BigInt(paddedWidth) * BigInt(paddedHeight) * 3n * 4n
-  const outputChannels = frame.colorChannels === 1 ? 1 : 3
+  const outputChannels = frame.alphaBitDepth === undefined ? (frame.colorChannels === 1 ? 1 : 3) : 4
   const outputBytes = BigInt(frame.width) * BigInt(frame.height) * BigInt(outputChannels)
   if (planeBytes + outputBytes > BigInt(limits.maxDecodedBytes)) {
     throw limitExceeded(
@@ -1766,11 +3386,44 @@ export const decodeJpegXlDct8Section = (
   }
 
   const allSections = separatedSections ? [section, ...continuationSections] : [section]
-  const lfGlobal = decodeJpegXlJpegLfGlobal(section, 0, separatedSections, frame.frameFlags)
+  const lfGlobal = decodeJpegXlJpegLfGlobal(
+    section,
+    0,
+    separatedSections && frame.alphaBitDepth === undefined,
+    frame.frameFlags,
+    frame.codedWidth,
+    frame.codedHeight,
+    frame.alphaBitDepth === undefined ? 0 : 1,
+  )
   const lfGlobalLease = memory.retain(
     'jpegxl-vardct-lf-metadata',
     retainedTypedArrayBytes(lfGlobal),
   )
+  let globalSectionEnd = lfGlobal.endingBitPosition
+  let alphaPlane: Int32Array<ArrayBufferLike> | undefined
+  const groupedAlpha =
+    frame.alphaBitDepth !== undefined &&
+    (codedWidth > frame.groupDimension || codedHeight > frame.groupDimension)
+  if (frame.alphaBitDepth !== undefined) {
+    if (groupedAlpha) {
+      globalSectionEnd = readJpegXlStandaloneModularHeader(section, globalSectionEnd, [
+        { width: codedWidth, height: codedHeight },
+      ])
+      alphaPlane = new Int32Array(codedWidth * codedHeight)
+    } else {
+      const decodedAlpha = decodeJpegXlStandaloneModular(
+        section,
+        globalSectionEnd,
+        [{ width: codedWidth, height: codedHeight }],
+        0,
+        lfGlobal.globalModularCode,
+      )
+      const decodedPlane = decodedAlpha.planes[0]
+      if (!decodedPlane) throw invalidInput('JPEG XL VarDCT global alpha plane is missing')
+      alphaPlane = decodedPlane
+      globalSectionEnd = decodedAlpha.endingBitPosition
+    }
+  }
   const { group: dcGroup, lease: dcGroupLease } = decodeJpegXlVarDctDcGroups(
     allSections,
     frame,
@@ -1779,6 +3432,7 @@ export const decodeJpegXlDct8Section = (
     blockHeight,
     separatedSections,
     memory,
+    globalSectionEnd,
     externalDcPlanes,
   )
   const hfSection = separatedSections ? allSections[1 + frame.dcGroupCount] : section
@@ -1798,8 +3452,28 @@ export const decodeJpegXlDct8Section = (
     'jpegxl-vardct-hf-metadata',
     retainedTypedArrayBytes(hfGlobal),
   )
-  if (hfGlobal.dct8Quantization !== undefined) {
-    throw unsupportedOperation('Common VarDCT custom quantization tables are not supported yet')
+  if (
+    separatedSections &&
+    frame.groupsDown > 1 &&
+    frame.alphaBitDepth === undefined &&
+    frame.upsampling === 1 &&
+    externalDcPlanes === undefined &&
+    references.size === 0 &&
+    lfGlobal.patches.length === 0 &&
+    lfGlobal.splines.length === 0 &&
+    lfGlobal.noiseLut === undefined
+  ) {
+    return decodeJpegXlDct8Striped(
+      allSections,
+      frame,
+      memory,
+      lfGlobal,
+      hfGlobal,
+      dcGroup,
+      lfGlobalLease,
+      hfGlobalLease,
+      dcGroupLease,
+    )
   }
   const primaryPlanesLease = memory.retain(
     'jpegxl-vardct-primary-float32-planes',
@@ -1821,6 +3495,8 @@ export const decodeJpegXlDct8Section = (
   ] as const
   const transformIntermediate = new Float64Array(4_096)
   const dcSamples = [new Float64Array(64), new Float64Array(64), new Float64Array(64)] as const
+  const dcFrequencyScratch = new Float64Array(64)
+  const activeVerticalScratch = new Uint16Array(64)
   const inverseGlobalScale = 65_536 / lfGlobal.globalScale
   const channelMultipliers = [
     (1 / 1.25) ** (frame.xQuantizationScale - 2),
@@ -1903,15 +3579,41 @@ export const decodeJpegXlDct8Section = (
         pass,
         dcGroup,
         separatedSections ? 0 : hfGlobal.endingBitPosition,
-        separatedSections,
+        separatedSections && (!groupedAlpha || passIndex !== frame.passCount - 1),
         false,
         frame.passShifts[passIndex] ?? 0,
       )
+      if (groupedAlpha && passIndex === frame.passCount - 1) {
+        if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha destination is missing')
+        const groupPixelX = groupBlockX * 8
+        const groupPixelY = groupBlockY * 8
+        const groupPixelWidth = Math.min(frame.groupDimension, codedWidth - groupPixelX)
+        const groupPixelHeight = Math.min(frame.groupDimension, codedHeight - groupPixelY)
+        const alpha = decodeJpegXlStandaloneModular(
+          acSection,
+          decoded.endingBitPosition,
+          [{ width: groupPixelWidth, height: groupPixelHeight }],
+          1 + 3 * frame.dcGroupCount + 17 + passIndex * groupCount + groupId,
+          lfGlobal.globalModularCode,
+        )
+        const sourceAlpha = alpha.planes[0]
+        if (!sourceAlpha) throw invalidInput('JPEG XL VarDCT alpha group is missing')
+        copyPlaneRegion(
+          sourceAlpha,
+          groupPixelWidth,
+          alphaPlane,
+          codedWidth,
+          groupPixelX,
+          groupPixelY,
+          groupPixelWidth,
+          groupPixelHeight,
+        )
+      }
       const decodedLease = memory.retain(
         groupCount === 1
           ? `jpegxl-vardct-coefficients-pass-${passIndex}`
           : `jpegxl-vardct-coefficients-group-${groupId}-pass-${passIndex}`,
-        retainedTypedArrayBytes(decoded),
+        decoded.retainedBytes,
       )
       if (acGroup) {
         mergeProgressiveAcGroup(acGroup, decoded)
@@ -1928,8 +3630,13 @@ export const decodeJpegXlDct8Section = (
         const strategy = dcGroup.strategies[blockIndex]
         const firstBlock = dcGroup.strategyFirstBlocks[blockIndex]
         const quantization = dcGroup.quantization[blockIndex]
+        const quantizationTable =
+          strategy === undefined ? undefined : strategyQuantizationTable[strategy]
         const dequantizationForStrategy =
-          strategy === undefined ? undefined : strategyDequantization.get(strategy)
+          quantizationTable === undefined
+            ? undefined
+            : (hfGlobal.quantizationTables[quantizationTable] ??
+              strategyDequantization.get(strategy ?? -1))
         if (
           strategy === undefined ||
           firstBlock === undefined ||
@@ -1944,14 +3651,17 @@ export const decodeJpegXlDct8Section = (
             `Common VarDCT transform strategy ${strategy} is not supported yet`,
           )
         }
-        const block = acGroup.vardctBlocks[blockIndex]
-        if (!block || block.strategy !== strategy) {
+        const localBlockIndex = (blockY - groupBlockY) * groupBlockWidth + (blockX - groupBlockX)
+        const coefficientOffset = acGroup.vardctCoefficientOffsets[localBlockIndex]
+        if (coefficientOffset === undefined || coefficientOffset < 0) {
           throw invalidInput('JPEG XL VarDCT coefficient block is missing')
         }
-        const coveredBlocks = block.blockWidth * block.blockHeight
+        const strategyBlockWidth = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
+        const strategyBlockHeight = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
+        const coveredBlocks = strategyBlockWidth * strategyBlockHeight
         const coefficientCount = coveredBlocks * 64
         for (let channel = 0; channel < 3; channel += 1) {
-          const coefficients = block.coefficients[channel]
+          const coefficients = acGroup.vardctCoefficientArenas[channel]
           const dc = dcPlanes[channel]
           const dequantization = dequantizationForStrategy[channel]
           const values = blockCoefficients[channel]
@@ -1960,21 +3670,24 @@ export const decodeJpegXlDct8Section = (
             throw invalidInput('JPEG XL VarDCT channel data is missing')
           }
           values.fill(0, 0, coefficientCount)
-          for (let localY = 0; localY < block.blockHeight; localY += 1) {
-            for (let localX = 0; localX < block.blockWidth; localX += 1) {
+          for (let localY = 0; localY < strategyBlockHeight; localY += 1) {
+            for (let localX = 0; localX < strategyBlockWidth; localX += 1) {
               const value = dc[(blockY + localY) * blockWidth + blockX + localX]
               if (value === undefined)
                 throw invalidInput('JPEG XL VarDCT DC coefficient is missing')
-              channelDc[localY * block.blockWidth + localX] = value
+              channelDc[localY * strategyBlockWidth + localX] = value
             }
           }
+          const coefficientScale =
+            (inverseGlobalScale * (channelMultipliers[channel] ?? 1)) / quantization
           for (let position = 0; position < coefficientCount; position += 1) {
-            values[position] =
-              (adjustQuantizationBias(coefficients[position] ?? 0, channel) *
-                inverseGlobalScale *
-                (channelMultipliers[channel] ?? 1) *
-                (dequantization[position] ?? 1)) /
-              quantization
+            const coefficient = coefficients[coefficientOffset + position] ?? 0
+            if (coefficient !== 0) {
+              values[position] =
+                adjustQuantizationBias(coefficient, channel) *
+                coefficientScale *
+                (dequantization[position] ?? 1)
+            }
           }
         }
 
@@ -1992,7 +3705,8 @@ export const decodeJpegXlDct8Section = (
           }
           const ratio = correlationRatio(lfGlobal.colorCorrelation, channel, localMap)
           for (let position = 0; position < coefficientCount; position += 1) {
-            values[position] = (values[position] ?? 0) + (yValues[position] ?? 0) * ratio
+            const yValue = yValues[position] ?? 0
+            if (yValue !== 0) values[position] = (values[position] ?? 0) + yValue * ratio
           }
         }
         for (let channel = 0; channel < 3; channel += 1) {
@@ -2002,7 +3716,13 @@ export const decodeJpegXlDct8Section = (
           if (!values || !channelDc || !plane) {
             throw invalidInput('JPEG XL VarDCT render plane is missing')
           }
-          populateLowestFrequencies(values, channelDc, block.blockWidth, block.blockHeight)
+          populateLowestFrequencies(
+            values,
+            channelDc,
+            strategyBlockWidth,
+            strategyBlockHeight,
+            dcFrequencyScratch,
+          )
           if (strategy === 0) {
             inverseDct8Native(
               values,
@@ -2011,6 +3731,7 @@ export const decodeJpegXlDct8Section = (
               paddedWidth,
               blockX * 8,
               blockY * 8,
+              activeVerticalScratch,
             )
           } else if (strategy === 1) {
             inverseHornuss(
@@ -2023,16 +3744,27 @@ export const decodeJpegXlDct8Section = (
             )
           } else if (strategy === 2) {
             inverseDct2TopBlock(values, plane, paddedWidth, blockX * 8, blockY * 8)
-          } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 20)) {
-            inverseDctRectangle(
+          } else if (strategy === 3) {
+            inverseDct4x4(
               values,
-              block.blockWidth * 8,
-              block.blockHeight * 8,
+              dcFrequencyScratch,
               transformIntermediate,
               plane,
               paddedWidth,
               blockX * 8,
               blockY * 8,
+            )
+          } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 20)) {
+            inverseDctRectangle(
+              values,
+              strategyBlockWidth * 8,
+              strategyBlockHeight * 8,
+              transformIntermediate,
+              plane,
+              paddedWidth,
+              blockX * 8,
+              blockY * 8,
+              activeVerticalScratch,
             )
           } else if (strategy === 12) {
             inverseDct4x8(values, transformIntermediate, plane, paddedWidth, blockX * 8, blockY * 8)
@@ -2060,100 +3792,245 @@ export const decodeJpegXlDct8Section = (
   }
 
   if (frame.gaborish) {
-    const scratch = memory.retain('jpegxl-vardct-gaborish-scratch', paddedWidth * frame.height * 4)
-    applyDefaultGaborish(planes, paddedWidth, frame.width, frame.height)
+    const scratch = memory.retain('jpegxl-vardct-gaborish-scratch', paddedWidth * codedHeight * 4)
+    applyDefaultGaborish(planes, paddedWidth, codedWidth, codedHeight)
     scratch.release()
   }
+  const inverseSigmas = makeEpfInverseSigmas(
+    dcGroup.quantization,
+    dcGroup.sharpness,
+    lfGlobal.globalScale,
+  )
   if (frame.epfIterations >= 3) {
     const scratch = memory.retain(
       'jpegxl-vardct-epf-stage-0-output',
-      frame.width * frame.height * 3 * 4,
+      paddedWidth * codedHeight * 3 * 4,
     )
-    applyDefaultEpfStage(
-      planes,
-      paddedWidth,
-      frame.width,
-      frame.height,
-      blockWidth,
-      dcGroup.quantization,
-      dcGroup.sharpness,
-      lfGlobal.globalScale,
-      0,
-    )
+    applyDefaultEpfStage(planes, paddedWidth, codedWidth, codedHeight, blockWidth, inverseSigmas, 0)
     scratch.release()
   }
   if (frame.epfIterations >= 1) {
     const scratch = memory.retain(
       'jpegxl-vardct-epf-stage-1-output',
-      frame.width * frame.height * 3 * 4,
+      paddedWidth * codedHeight * 3 * 4,
     )
-    applyDefaultEpfStage(
-      planes,
-      paddedWidth,
-      frame.width,
-      frame.height,
-      blockWidth,
-      dcGroup.quantization,
-      dcGroup.sharpness,
-      lfGlobal.globalScale,
-      1,
-    )
+    applyDefaultEpfStage(planes, paddedWidth, codedWidth, codedHeight, blockWidth, inverseSigmas, 1)
     scratch.release()
   }
   if (frame.epfIterations >= 2) {
     const scratch = memory.retain(
       'jpegxl-vardct-epf-stage-2-output',
-      frame.width * frame.height * 3 * 4,
+      paddedWidth * codedHeight * 3 * 4,
     )
-    applyDefaultEpfStage(
+    applyDefaultEpfStage(planes, paddedWidth, codedWidth, codedHeight, blockWidth, inverseSigmas, 2)
+    scratch.release()
+  }
+  for (const patch of lfGlobal.patches) {
+    const reference = references.get(patch.referenceId)
+    if (
+      !reference ||
+      patch.referenceX + patch.width > reference.width ||
+      patch.referenceY + patch.height > reference.height
+    ) {
+      throw invalidInput('JPEG XL patch reference is unavailable or outside its frame')
+    }
+    if (patch.blendMode > 3) {
+      throw unsupportedOperation('JPEG XL alpha-weighted patch blending is not supported yet')
+    }
+    for (let channel = 0; channel < 3; channel += 1) {
+      const destination = planes[channel]
+      const source = reference.planes[channel]
+      if (!destination || !source) throw invalidInput('JPEG XL patch channel is missing')
+      for (let y = 0; y < patch.height; y += 1) {
+        const destinationBase = (patch.y + y) * paddedWidth + patch.x
+        const sourceBase = (patch.referenceY + y) * reference.width + patch.referenceX
+        for (let x = 0; x < patch.width; x += 1) {
+          const sourceValue = source[sourceBase + x] ?? 0
+          const destinationIndex = destinationBase + x
+          if (patch.blendMode === 0) continue
+          if (patch.blendMode === 1) destination[destinationIndex] = sourceValue
+          else if (patch.blendMode === 2) {
+            destination[destinationIndex] = (destination[destinationIndex] ?? 0) + sourceValue
+          } else {
+            destination[destinationIndex] = (destination[destinationIndex] ?? 0) * sourceValue
+          }
+        }
+      }
+    }
+  }
+  if (lfGlobal.splines.length > 0) {
+    applySplines(
       planes,
       paddedWidth,
-      frame.width,
-      frame.height,
-      blockWidth,
-      dcGroup.quantization,
-      dcGroup.sharpness,
-      lfGlobal.globalScale,
-      2,
+      codedWidth,
+      codedHeight,
+      lfGlobal.splines,
+      lfGlobal.splineQuantizationAdjustment,
+      lfGlobal.colorCorrelation,
     )
-    scratch.release()
   }
   if (lfGlobal.noiseLut) {
     const scratch = memory.retain(
       'jpegxl-vardct-synthetic-noise-and-convolution',
-      frame.width * frame.height * 4 * 4,
+      codedWidth * codedHeight * 4 * 4,
     )
     applyNoise(
       planes,
       paddedWidth,
-      frame.width,
-      frame.height,
+      codedWidth,
+      codedHeight,
       lfGlobal.noiseLut,
       lfGlobal.colorCorrelation,
     )
     scratch.release()
   }
 
-  const format = frame.colorChannels === 1 ? 'gray8' : 'rgb8'
+  if (returnDcPlanes) {
+    const copied = planes.map((plane) => {
+      const output = new Float64Array(codedWidth * codedHeight)
+      for (let y = 0; y < codedHeight; y += 1) {
+        for (let x = 0; x < codedWidth; x += 1) {
+          output[y * codedWidth + x] = plane[y * paddedWidth + x] ?? 0
+        }
+      }
+      return output
+    })
+    const first = copied[0]
+    const second = copied[1]
+    const third = copied[2]
+    if (!first || !second || !third) throw invalidInput('JPEG XL VarDCT DC frame plane is missing')
+    const dcPlanes = Object.freeze([first, second, third] as const)
+    primaryPlanesLease.release()
+    transformScratchLease.release()
+    renderDcLease?.release()
+    hfGlobalLease.release()
+    dcGroupLease.release()
+    lfGlobalLease.release()
+    return Object.freeze({
+      width: codedWidth,
+      height: codedHeight,
+      format: 'rgb8',
+      data: new Uint8Array(),
+      dcPlanes,
+      managedPeakBytes: memory.peakBytes,
+      release: (): void => {},
+    })
+  }
+
+  const format =
+    frame.alphaBitDepth !== undefined ? 'rgba8' : frame.colorChannels === 1 ? 'gray8' : 'rgb8'
   const outputLease = memory.retain(
     'jpegxl-vardct-output-pixels',
     frame.width * frame.height * outputChannels,
   )
   const output = new Uint8Array(frame.width * frame.height * outputChannels)
-  const rgb = new Uint8Array(3)
-  for (let y = 0; y < frame.height; y += 1) {
-    for (let x = 0; x < frame.width; x += 1) {
-      const planeIndex = y * paddedWidth + x
-      writeRgb(
-        rgb,
-        0,
-        planes[0][planeIndex] ?? 0,
-        planes[1][planeIndex] ?? 0,
-        planes[2][planeIndex] ?? 0,
-      )
-      const outputIndex = (y * frame.width + x) * outputChannels
-      if (format === 'gray8') output[outputIndex] = rgb[0] ?? 0
-      else output.set(rgb, outputIndex)
+  if (format === 'gray8') {
+    const rgb = new Uint8Array(3)
+    for (let y = 0; y < frame.height; y += 1) {
+      for (let x = 0; x < frame.width; x += 1) {
+        if (frame.upsampling === 1) {
+          const planeIndex = y * paddedWidth + x
+          writeRgb(
+            rgb,
+            0,
+            planes[0][planeIndex] ?? 0,
+            planes[1][planeIndex] ?? 0,
+            planes[2][planeIndex] ?? 0,
+          )
+        } else {
+          writeRgb(
+            rgb,
+            0,
+            upsampleSample(planes[0], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+            upsampleSample(planes[1], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+            upsampleSample(planes[2], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          )
+        }
+        output[y * frame.width + x] = rgb[0] ?? 0
+      }
+    }
+  } else if (format === 'rgb8' && frame.upsampling === 1) {
+    for (let y = 0; y < frame.height; y += 1) {
+      let outputIndex = y * frame.width * 3
+      let planeIndex = y * paddedWidth
+      for (let x = 0; x < frame.width; x += 1) {
+        writeRgb(
+          output,
+          outputIndex,
+          planes[0][planeIndex] ?? 0,
+          planes[1][planeIndex] ?? 0,
+          planes[2][planeIndex] ?? 0,
+        )
+        outputIndex += 3
+        planeIndex += 1
+      }
+    }
+  } else if (format === 'rgb8') {
+    for (let y = 0; y < frame.height; y += 1) {
+      let outputIndex = y * frame.width * 3
+      for (let x = 0; x < frame.width; x += 1) {
+        writeRgb(
+          output,
+          outputIndex,
+          upsampleSample(planes[0], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          upsampleSample(planes[1], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          upsampleSample(planes[2], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+        )
+        outputIndex += 3
+      }
+    }
+  } else if (frame.upsampling === 1) {
+    if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
+    for (let y = 0; y < frame.height; y += 1) {
+      let outputIndex = y * frame.width * 4
+      let planeIndex = y * paddedWidth
+      let alphaIndex = y * codedWidth
+      for (let x = 0; x < frame.width; x += 1) {
+        writeRgb(
+          output,
+          outputIndex,
+          planes[0][planeIndex] ?? 0,
+          planes[1][planeIndex] ?? 0,
+          planes[2][planeIndex] ?? 0,
+        )
+        output[outputIndex + 3] = Math.max(0, Math.min(255, alphaPlane[alphaIndex] ?? 0))
+        outputIndex += 4
+        planeIndex += 1
+        alphaIndex += 1
+      }
+    }
+  } else {
+    if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
+    const alphaFloat = Float32Array.from(alphaPlane)
+    for (let y = 0; y < frame.height; y += 1) {
+      let outputIndex = y * frame.width * 4
+      for (let x = 0; x < frame.width; x += 1) {
+        writeRgb(
+          output,
+          outputIndex,
+          upsampleSample(planes[0], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          upsampleSample(planes[1], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          upsampleSample(planes[2], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+        )
+        output[outputIndex + 3] = Math.max(
+          0,
+          Math.min(
+            255,
+            Math.round(
+              upsampleSample(
+                alphaFloat,
+                codedWidth,
+                codedWidth,
+                codedHeight,
+                x,
+                y,
+                frame.upsampling,
+              ),
+            ),
+          ),
+        )
+        outputIndex += 4
+      }
     }
   }
   primaryPlanesLease.release()

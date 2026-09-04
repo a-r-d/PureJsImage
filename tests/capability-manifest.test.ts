@@ -160,14 +160,14 @@ describe('generated codec capability contract', () => {
     }
   })
 
-  it('lists the limited JPEG XL codec with stable exact transcode', async () => {
+  it('lists common static JPEG XL decoding with stable lossless and exact transcode', async () => {
     const manifest = await readCapabilityManifest()
     const jpegxl = manifest.codecs.find(({ id }) => id === 'jpegxl')
     if (!jpegxl) throw new Error('Missing JPEG XL capability manifest')
 
     expect(jpegxl.packageFormat).toBe('jpegxl')
     expect(readFileSync('README.md', 'utf8')).toContain(
-      '| JPEG XL | Limited | Stable lossless and exact transcode |',
+      '| JPEG XL | Common static sRGB | Stable lossless and exact transcode |',
     )
     expect(readFileSync('docs-astro/src/pages/codecs.astro', 'utf8')).toContain(
       '<strong>JPEG XL</strong>',
