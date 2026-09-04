@@ -1,0 +1,27 @@
+tests/jpegxl-worker-protocol.test.ts
+  s_c01e159bb27990::t_0908eaa99d4e3e 6,14-27
+scripts/serve-browser-tests.ts
+  s_c01e159bb27990::t_0908eaa99d4e3e 868-873
+docs-astro/src/scripts/jpegxl-workbench-types.ts
+  s_c01e159bb27990::t_0908eaa99d4e3e 502-507
+docs-astro/src/scripts/jpegxl-workbench-worker.ts
+  s_c01e159bb27990::t_0908eaa99d4e3e 27,247
+docs/architecture/jpegxl-production-program.md
+  s_c01e159bb27990::t_9511294ce093b8 516-523
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5e130e0b8c8be2493f22229a9c0052012584c645",
+  "prompts": {},
+  "sessions": {
+    "s_c01e159bb27990": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dcd-d305-7f70-bd91-3120b07298ef",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
