@@ -238,7 +238,7 @@
       "status": "PR open",
       "pr": 35,
       "startRevision": "32d5a438e23486b1a46f8ad7269505b5c93034bc",
-      "finalRevision": null,
+      "finalRevision": "13e1e36c521eae0894df53e38134a0c7b5b5d7bb",
       "localCommands": [
         "node benchmark/jpegxl/generate-vardct-corpus.ts .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools",
         "node benchmark/jpegxl/production-program/extract-features.ts --write",
@@ -252,7 +252,12 @@
         "npm run check",
         "git diff --check"
       ],
-      "remoteWorkflowRuns": [],
+      "remoteWorkflowRuns": [
+        "CI success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652654",
+        "CodeQL success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652381",
+        "Imazen codec corpus success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652657",
+        "JPEG XL pinned corpus success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652411"
+      ],
       "measuredResults": [
         "Generated VarDCT matrix: 19 of 19 fixtures pass pinned djxl comparison with maximum error 1",
         "Official Level 5 and Level 10 4x color-and-alpha upsampling cases pass deterministically with maximum error 1, RGB RMSE at most 0.316, and alpha RMSE 0.0025 against the pinned reference PNG",
@@ -296,7 +301,7 @@
         "A future decoder-native crop path must be separately measured before claiming crop pushdown."
       ],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": ["Review, remote workflows, and merge remain external."]
+      "remainingBlockers": ["Review and merge remain external."]
     },
     {
       "id": "M4",

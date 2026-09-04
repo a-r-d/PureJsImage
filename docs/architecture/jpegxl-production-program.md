@@ -11,7 +11,7 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
 - Starting revision: `32d5a438e23486b1a46f8ad7269505b5c93034bc`
-- Final revision: pending review and merge
+- Final revision: `13e1e36c521eae0894df53e38134a0c7b5b5d7bb`
 - Capability change: common static 8-bit sRGB JPEG XL photograph decoding passed the local M3 gate.
 - Stable promotion gate: passed locally
 
@@ -34,7 +34,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M0 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `1cd965dfeba27865c920c4e27bd44dbb4ea0404b` | pending | no promotion permitted |
 | M1 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `16eca4041e572da4f4c69a7fec392da66e5bd9ff` | pending | passed locally |
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
-| M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | pending | passed locally |
+| M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
 | M4 | A | not started | `codex/jpegxl-m04-color-alpha-metadata` | pending | pending | pending | not passed |
 | M5 | A | not started | `codex/jpegxl-m05-static-pipeline` | pending | pending | pending | not passed |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
@@ -297,7 +297,15 @@ Other package ceilings are unchanged.
 - [x] Repeated 12 MP, 24 MP, pinned-`djxl`, and group-scaling performance gates
 - [x] Browser preview timing and Chromium, Firefox, and WebKit acceptance
 - [x] Full `npm run check` for the completed milestone
-- [ ] Exact remote pull-request workflows
+- [x] Exact remote pull-request workflows
+
+The exact remote workflows passed for revision `13e1e36c521eae0894df53e38134a0c7b5b5d7bb`:
+
+- [CI](https://github.com/a-r-d/PureJsImage/actions/runs/33903652654)
+- [CodeQL](https://github.com/a-r-d/PureJsImage/actions/runs/33903652381)
+- [Imazen codec corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33903652657)
+- [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33903652411), including the pinned
+  conformance, reconstruction, compression, correctness, performance, memory, and three-browser gates
 
 The local capability wording is promoted to common static sRGB JPEG XL photograph decoding. Broad
 ICC and HDR color, orientation transforms, animation, multiple visible frames, uncommon extra
