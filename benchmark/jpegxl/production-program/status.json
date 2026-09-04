@@ -401,7 +401,7 @@
       "status": "PR open",
       "pr": 35,
       "startRevision": "a57fbd548c1317af457636a2ddad4563e8bad330",
-      "finalRevision": null,
+      "finalRevision": "71ee81cdf3c9c8433daba7968ddc46a2c7191739",
       "localCommands": [
         "node benchmark/jpegxl/generate-m5-segmented.ts",
         "npx vitest run tests/jpegxl-m5-pipeline.test.ts",
@@ -414,9 +414,15 @@
         "npm run size",
         "npm run documentation:write",
         "npm run check",
-        "npx playwright test --project=chromium --project=firefox --project=webkit --retries=0"
+        "npx playwright test --project=chromium --project=firefox --project=webkit --retries=0 --workers=4",
+        "node --expose-gc benchmark/jpegxl/production-program/measure-m5-conversion.ts"
       ],
-      "remoteWorkflowRuns": [],
+      "remoteWorkflowRuns": [
+        "CI success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901150",
+        "CodeQL success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901083",
+        "Imazen codec corpus success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901031",
+        "JPEG XL pinned corpus success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901001"
+      ],
       "measuredResults": [
         "Common-static acceptance: 299 of 300 inputs (99.67 percent), one known unsupported case, 1495 complete workflows, zero incorrect output.",
         "114 focused M5 tests pass, including 96 exact re-encode cases against independent native samples.",
@@ -427,7 +433,8 @@
         "Core execution 72365 bytes (ceiling 74752); scientific 200793 (204000); core plus JPEG XL 349379 (365000); specialized JPEG XL 398202 (402000).",
         "Final npm run check: 2705 tests pass, three existing skips; 204 files pass, one skipped. Includes package types, browser graph, capabilities, docs, lint, format and size gates.",
         "Clean full browser run: 773 pass, 12 existing skips, retries disabled; all three browsers.",
-        "One-megapixel explicit range conversion retains an independent exact pixel hash; median warm kernel time improves from 195.6 to 87.0 ms after moving bit-depth maxima outside the pixel loop."
+        "One-megapixel explicit range conversion retains an independent exact pixel hash; median warm kernel time improves from 195.6 to 87.0 ms after moving bit-depth maxima outside the pixel loop.",
+        "All four exact-head remote workflows pass for 71ee81cdf3c9c8433daba7968ddc46a2c7191739."
       ],
       "corpusVersions": [
         "M3 300-file checksum-pinned common-static corpus",
@@ -453,9 +460,7 @@
       ],
       "deferredWork": ["M6 progressive and range-aware decoding is outside this PR."],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": [
-        "Exact-head remote workflows are pending. Review and merge remain external."
-      ]
+      "remainingBlockers": ["Review and merge remain external."]
     },
     {
       "id": "M6",

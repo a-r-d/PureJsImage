@@ -11,9 +11,9 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Active branch: `codex/jpegxl-m00-program-baseline`
 - Pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
 - Starting revision: `a57fbd548c1317af457636a2ddad4563e8bad330`
-- M5 implementation revision: pending
+- M5 implementation revision: `71ee81cdf3c9c8433daba7968ddc46a2c7191739`
 - Capability change: complete static processing, explicit precision negotiation, planner reporting and browser transform/export.
-- Stable promotion gate: M5 common-static local acceptance passed; final exact-head remote checks pending.
+- Stable promotion gate: passed locally and remotely for the documented M5 common-static boundary.
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
 operator explicitly directed M1, M2, M3, M4, and M5 work to continue on the existing M0 branch and pull request.
@@ -36,7 +36,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M2 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `548a30321dbd149c7d71e17c37db0a4933d9c5de` | pending | passed locally |
 | M3 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
 | M4 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `d61e238814018b8f234c806e57282d07dda39357` | passed |
-| M5 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `a57fbd548c1317af457636a2ddad4563e8bad330` | pending | passed locally |
+| M5 | A | PR open | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `a57fbd548c1317af457636a2ddad4563e8bad330` | `71ee81cdf3c9c8433daba7968ddc46a2c7191739` | passed |
 | M6 | A | not started | `codex/jpegxl-m06-progressive-range` | pending | pending | pending | not passed |
 | M7 | B | not started | `codex/jpegxl-m07-lossy-encoder` | pending | pending | pending | not passed |
 | M8 | B | not started | `codex/jpegxl-m08-level5-breadth` | pending | pending | pending | not passed |
@@ -398,7 +398,7 @@ PR 35 remains open; review and merge are external. M5 began after this M4 closur
 
 ## M5 static pipelines
 
-M5 continues on PR 35 at the operator’s request. Common-static local acceptance passes; exact-head remote checks remain pending. M6 is outside this change.
+M5 is complete for the documented common-static boundary on PR 35. Local and exact-head remote gates pass. M6 has not begun.
 
 The public pipeline exports supported static JPEG XL to JPEG, PNG, WebP, AVIF and TIFF.
 Crop, resize, contain, cover, orientation, selected color/HDR conversion, metadata keep/strip,
@@ -431,8 +431,8 @@ Single-group Modular retains complete channel planes. Grouped Modular reads inte
 groups in bounded bands. Planner estimates exclude process/runtime overhead. The six isolated
 24 MP/JPEG-derived cold and warm measurements in `m5-large-pipelines.json` record absolute
 RSS, post-GC baseline, external/ArrayBuffer usage, wall time and independent pixel error.
-`m5-before-after.json` compares against M4 revision `a57fbd5`. Timing varies with host load;
-M5 makes no performance-win claim.
+`m5-before-after.json` compares against M4 revision `a57fbd5`. Timing varies with host load.
+No overall JPEG XL speedup is claimed.
 
 The browser workbench exposes width, height, contain/cover/fill and JPEG/PNG export, with an
 explicit notice about display conversion. Browser coverage exercises native depth, P3, PQ,
@@ -476,8 +476,7 @@ development dependencies. No third-party codec implementation enters the publish
 - [x] Independent complete workflow corpus and cancellation gates
 - [x] Browser workbench transform and export
 - [x] Package examples, capability generation and full local gate
-- [ ] Exact-head remote gates
-
+- [x] Exact-head remote gates
 
 The first full local gate passed 2704 unit tests with three existing skips. A subsequent worker
 protocol regression rejects nonliteral fit values. The full browser run passed 770 tests with 12
@@ -493,11 +492,24 @@ existing 365000 and 402000 ceilings. These are package measurements, not executi
 
 The final local `npm run check` passes 2705 tests with three existing skips, across 204 passing
 files and one skipped file. The committed candidate promotes the documented common-static
-decoder to Stable; remote workflow acceptance is still pending.
+decoder to Stable. The exact-head remote workflows below also pass.
 
 Final conversion review moves per-channel bit-depth maxima outside the pixel loop. The paired
 one-megapixel 12-bit RGB / 16-bit alpha benchmark retains the same independently calculated
 pixel hash. Its median warm conversion time falls from 195.6 to 87.0 ms (5.36 to 12.06 MP/s).
 `m5-conversion.json` records all trials and source hashes. This is a conversion-kernel result,
-not an end-to-end JPEG XL speed claim. Run `node --expose-gc
-benchmark/jpegxl/production-program/measure-m5-conversion.ts` to verify the current kernel.
+not an end-to-end JPEG XL speed claim. Run `node --expose-gc benchmark/jpegxl/production-program/measure-m5-conversion.ts` to verify the current kernel.
+
+The clean final browser run passed 773 tests with 12 existing skips and retries disabled.
+After moving sample maxima outside the pixel loop, all 2705 unit tests and all 21 focused M5
+browser tests passed again; the isolated pipeline oracle checks were refreshed successfully.
+
+M5 is complete at code revision `71ee81cdf3c9c8433daba7968ddc46a2c7191739`. All exact-head workflows passed:
+
+- [CI](https://github.com/a-r-d/PureJsImage/actions/runs/33925901150)
+- [CodeQL](https://github.com/a-r-d/PureJsImage/actions/runs/33925901083)
+- [Imazen codec corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33925901031)
+- [JPEG XL pinned corpus](https://github.com/a-r-d/PureJsImage/actions/runs/33925901001)
+
+The following documentation-only commit records these results. PR 35 remains open for review;
+M6, merge, version changes and publication are outside this change.
