@@ -485,12 +485,19 @@ existing skips; three high-depth examples still used implicit PNG normalization.
 now explicitly convert 12-bit samples to 16-bit PNG and assert the output samples. Their focused
 rerun passes in all three browsers. The focused M5 browser file passes 21 tests with retries off.
 
-Core execution grows from 68095 to 72316 minified bytes, and the scientific entry from 196485
-to 200750 because both share the precision pipeline. Their ceilings increase to 74752 and
-204000. Core plus JPEG XL is 349338 bytes, down from 357995 after removing the old JPEG pixel
+Core execution grows from 68095 to 72365 minified bytes, and the scientific entry from 196485
+to 200793 because both share the precision pipeline. Their ceilings increase to 74752 and
+204000. Core plus JPEG XL is 349379 bytes, down from 357995 after removing the old JPEG pixel
 renderer dependency. The specialized entry is 398202 bytes, up from 394885. Both retain their
 existing 365000 and 402000 ceilings. These are package measurements, not execution speed claims.
 
 The final local `npm run check` passes 2705 tests with three existing skips, across 204 passing
 files and one skipped file. The committed candidate promotes the documented common-static
 decoder to Stable; remote workflow acceptance is still pending.
+
+Final conversion review moves per-channel bit-depth maxima outside the pixel loop. The paired
+one-megapixel 12-bit RGB / 16-bit alpha benchmark retains the same independently calculated
+pixel hash. Its median warm conversion time falls from 195.6 to 87.0 ms (5.36 to 12.06 MP/s).
+`m5-conversion.json` records all trials and source hashes. This is a conversion-kernel result,
+not an end-to-end JPEG XL speed claim. Run `node --expose-gc
+benchmark/jpegxl/production-program/measure-m5-conversion.ts` to verify the current kernel.

@@ -424,9 +424,10 @@
         "21 focused browser tests pass, including native float processing, real HTTP Range, cancellation/reuse and workbench export.",
         "Six isolated cold/warm workflows pass pinned djxl references at maximum error 1 and RMSE below 0.55. 24 MP process peak RSS is 409.9 to 424.8 MiB.",
         "Before/after uses M4 a57fbd5; the JPEG-derived nearest baseline fails correctness with maximum error 167. No performance-win claim is made.",
-        "Full browser run: 770 pass, 12 existing skips, three old implicit-normalization cases fail as expected under M5. All three pass after explicit 16-bit conversion and output pixel assertions.",
-        "Core execution 72316 bytes (ceiling 74752); scientific 200750 (204000); core plus JPEG XL 349338 (365000); specialized JPEG XL 398202 (402000).",
-        "Final npm run check: 2705 tests pass, three existing skips; 204 files pass, one skipped. Includes package types, browser graph, capabilities, docs, lint, format and size gates."
+        "Core execution 72365 bytes (ceiling 74752); scientific 200793 (204000); core plus JPEG XL 349379 (365000); specialized JPEG XL 398202 (402000).",
+        "Final npm run check: 2705 tests pass, three existing skips; 204 files pass, one skipped. Includes package types, browser graph, capabilities, docs, lint, format and size gates.",
+        "Clean full browser run: 773 pass, 12 existing skips, retries disabled; all three browsers.",
+        "One-megapixel explicit range conversion retains an independent exact pixel hash; median warm kernel time improves from 195.6 to 87.0 ms after moving bit-depth maxima outside the pixel loop."
       ],
       "corpusVersions": [
         "M3 300-file checksum-pinned common-static corpus",

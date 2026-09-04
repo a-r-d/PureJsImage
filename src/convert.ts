@@ -156,6 +156,12 @@ export const convertPixelBlocks = async function* (
     throw invalidInput('Removing alpha requires an explicit background or discard policy')
   }
   const inputMaximum = inputFloat ? 1 : sampleMaximum(inputFormat)
+  const inputMaxima = new Float64Array(input.channels)
+  for (let channel = 0; channel < input.channels; channel += 1) {
+    const depth = sampleBitDepths?.[channel]
+    inputMaxima[channel] = inputFloat || depth === undefined ? inputMaximum : 2 ** depth - 1
+  }
+  const alphaMaximum = inputMaxima[3] ?? inputMaximum
   const outputMaximum = sampleMaximum(options.format)
   const inputBytesPerPixel = input.channels * input.bytesPerSample
   const outputBytesPerPixel = output.channels * output.bytesPerSample
@@ -203,13 +209,7 @@ export const convertPixelBlocks = async function* (
           if (!Number.isFinite(second) || !Number.isFinite(third) || !Number.isFinite(fourth)) {
             throw invalidInput('Pixel conversion input must be finite')
           }
-          const sourceAlpha =
-            fourth /
-            (inputFloat
-              ? 1
-              : sampleBitDepths?.[3] === undefined
-                ? inputMaximum
-                : 2 ** sampleBitDepths[3] - 1)
+          const sourceAlpha = fourth / alphaMaximum
           for (let channel = 0; channel < output.channels; channel += 1) {
             let value: number
             if (channel === 3) {
@@ -219,10 +219,7 @@ export const convertPixelBlocks = async function* (
               const normalized = inputFloat
                 ? (sourceValue - (range?.minimum ?? 0)) /
                   ((range?.maximum ?? 1) - (range?.minimum ?? 0))
-                : sourceValue /
-                  (sampleBitDepths?.[input.channels === 1 ? 0 : channel] === undefined
-                    ? inputMaximum
-                    : 2 ** (sampleBitDepths[input.channels === 1 ? 0 : channel] ?? 8) - 1)
+                : sourceValue / (inputMaxima[input.channels === 1 ? 0 : channel] ?? inputMaximum)
               value = normalized * outputMaximum
               if (input.channels === 4 && output.channels < 4 && backgroundValues) {
                 value = value * sourceAlpha + (backgroundValues[channel] ?? 0) * (1 - sourceAlpha)

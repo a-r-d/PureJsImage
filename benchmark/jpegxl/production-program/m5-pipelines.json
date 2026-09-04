@@ -748,22 +748,22 @@
       "maximumError": 1,
       "rmse": 0.5035679985529925,
       "measurement": {
-        "milliseconds": 324.82589399999995,
+        "milliseconds": 328.51531099999994,
         "baseline": {
-          "rss": 139456512,
+          "rss": 138510336,
           "heapTotal": 51695616,
-          "heapUsed": 16545464,
+          "heapUsed": 16545392,
           "external": 13622646,
           "arrayBuffers": 649598
         },
         "memory": {
-          "rss": 239284224,
-          "heapTotal": 50331648,
-          "heapUsed": 19937896,
+          "rss": 248500224,
+          "heapTotal": 49545216,
+          "heapUsed": 18487560,
           "external": 23337014,
           "arrayBuffers": 10329675
         },
-        "absolutePeakRss": 248127488,
+        "absolutePeakRss": 248500224,
         "outputBytes": 8783,
         "outputHash": "cc39cdb7e0a767f9c046de3c9497d4ac1fabd0eb25c8ad6a4ff31888e18dbbd6"
       }
@@ -777,22 +777,22 @@
       "maximumError": 1,
       "rmse": 0.5035679985529925,
       "measurement": {
-        "milliseconds": 274.77637400000003,
+        "milliseconds": 279.7249260000001,
         "baseline": {
-          "rss": 254771200,
-          "heapTotal": 50593792,
-          "heapUsed": 13139224,
+          "rss": 228311040,
+          "heapTotal": 49807360,
+          "heapUsed": 13132032,
           "external": 13661385,
           "arrayBuffers": 654086
         },
         "memory": {
-          "rss": 281247744,
-          "heapTotal": 51118080,
-          "heapUsed": 20251032,
-          "external": 26169870,
-          "arrayBuffers": 13162531
+          "rss": 259776512,
+          "heapTotal": 50855936,
+          "heapUsed": 18262752,
+          "external": 47559566,
+          "arrayBuffers": 34552227
         },
-        "absolutePeakRss": 281247744,
+        "absolutePeakRss": 267563008,
         "outputBytes": 8783,
         "outputHash": "cc39cdb7e0a767f9c046de3c9497d4ac1fabd0eb25c8ad6a4ff31888e18dbbd6"
       }
@@ -806,22 +806,22 @@
       "maximumError": 1,
       "rmse": 0.22582795196540417,
       "measurement": {
-        "milliseconds": 63.95789499999995,
+        "milliseconds": 67.70716799999997,
         "baseline": {
-          "rss": 140083200,
-          "heapTotal": 51957760,
-          "heapUsed": 16545232,
+          "rss": 138788864,
+          "heapTotal": 52482048,
+          "heapUsed": 16545464,
           "external": 13474810,
           "arrayBuffers": 501762
         },
         "memory": {
-          "rss": 155025408,
-          "heapTotal": 53006336,
-          "heapUsed": 25686488,
-          "external": 14054240,
-          "arrayBuffers": 1042235
+          "rss": 153133056,
+          "heapTotal": 53530624,
+          "heapUsed": 25454080,
+          "external": 14060960,
+          "arrayBuffers": 1048955
         },
-        "absolutePeakRss": 155025408,
+        "absolutePeakRss": 153133056,
         "outputBytes": 197,
         "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
       }
@@ -835,22 +835,22 @@
       "maximumError": 1,
       "rmse": 0.22582795196540417,
       "measurement": {
-        "milliseconds": 53.605601999999976,
+        "milliseconds": 47.20620300000007,
         "baseline": {
-          "rss": 166592512,
-          "heapTotal": 52744192,
-          "heapUsed": 17500648,
+          "rss": 163381248,
+          "heapTotal": 53530624,
+          "heapUsed": 17535664,
           "external": 13515539,
           "arrayBuffers": 503574
         },
         "memory": {
-          "rss": 168689664,
-          "heapTotal": 53530624,
-          "heapUsed": 30698344,
-          "external": 13954720,
-          "arrayBuffers": 942715
+          "rss": 164429824,
+          "heapTotal": 53792768,
+          "heapUsed": 25279896,
+          "external": 14057440,
+          "arrayBuffers": 1045435
         },
-        "absolutePeakRss": 168689664,
+        "absolutePeakRss": 164429824,
         "outputBytes": 197,
         "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
       }

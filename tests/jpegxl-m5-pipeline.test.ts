@@ -310,9 +310,7 @@ it('cancels after the first encoded write and aborts the sink without closing it
 
 it('keeps nearest and linear-light resize faithful while exposing reduced DCT for other kernels', async () => {
   const input = new Uint8Array(
-    readFileSync(
-      'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl',
-    ),
+    readFileSync('benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl'),
   )
   const image = await Image.open(input)
   for (const options of [{ kernel: 'nearest' as const }, { colorSpace: 'linear-light' as const }]) {
