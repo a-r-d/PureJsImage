@@ -1,0 +1,27 @@
+tests/jpegxl-m5-pipeline.test.ts
+  s_c01e159bb27990::t_4e0311eb45155e 314
+benchmark/jpegxl/production-program/m5-large-pipelines.json
+  s_c01e159bb27990::t_4e0311eb45155e 859,888
+benchmark/jpegxl/production-program/m5-before-after.json
+  s_c01e159bb27990::t_4e0311eb45155e 275,342
+benchmark/jpegxl/production-program/m5-pipelines.json
+  s_c01e159bb27990::t_4e0311eb45155e 801,830
+benchmark/jpegxl/production-program/verify-m5-pipelines.ts
+  s_c01e159bb27990::t_4e0311eb45155e 67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8156cb3594022b620c6316a435c3c241e1c12600",
+  "prompts": {},
+  "sessions": {
+    "s_c01e159bb27990": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dcd-d305-7f70-bd91-3120b07298ef",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
