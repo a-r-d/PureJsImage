@@ -9,8 +9,9 @@ Decode status: Stable common static. Encode status: Stable lossless and exact tr
 <!-- capabilities:jpegxl-summary:end -->
 
 The [capability contract](../jpegxl-codec-support.md) lists the checked syntax and
-unsupported cases. Unsupported operations fail with an `ImageError`. M6, including
-a general lossy encoder, is outside the current implementation.
+unsupported cases. Unsupported operations fail with an `ImageError`. M6 covers
+progressive and range-aware work; general lossy encoding belongs to the later
+M7 work. Both remain outside this PR.
 
 ## Native precision and color
 
@@ -44,16 +45,64 @@ const native = await images.open(highDepthJxl)
 const encoded = await native.jpegxl({ effort: 7 }).toUint8Array()
 ```
 
-Request display conversion and 8-bit PNG explicitly:
+Choose a display recipe with a matching input contract. These examples are
+[executable public API functions](../examples/jpegxl-display.ts).
+
+For opaque SDR input with supported sRGB samples, normalize orientation and
+convert native integer storage (including 10- or 12-bit samples) to 8-bit RGB:
 
 ```ts
-const display = await images.open(input, {
-  colorOutput: 'srgb',
-  hdrOutput: 'tone-map-srgb',
-  alphaOutput: 'straight',
-})
-const png = await display.convertPixelFormat({ format: 'rgba8' }).png().toUint8Array()
+export async function sdrRgbToPng(sdrRgbJxl: Uint8Array): Promise<Uint8Array> {
+  const display = await images.open(sdrRgbJxl, { colorOutput: 'srgb' })
+  return display.autoOrient().convertPixelFormat({ format: 'rgb8' }).png().toUint8Array()
+}
 ```
+
+For supported sRGB input with alpha, preserve that alpha and explicitly
+straighten associated samples before display-oriented RGBA output:
+
+```ts
+export async function sdrRgbaToPng(sdrRgbaJxl: Uint8Array): Promise<Uint8Array> {
+  const display = await images.open(sdrRgbaJxl, {
+    colorOutput: 'srgb',
+    alphaOutput: 'straight',
+  })
+  return display.autoOrient().convertPixelFormat({ format: 'rgba8' }).png().toUint8Array()
+}
+```
+
+For opaque RGB input with supported PQ or HLG signaling, request HDR-to-SDR
+tone mapping and export display-oriented RGB:
+
+```ts
+export async function hdrRgbToPng(hdrRgbJxl: Uint8Array): Promise<Uint8Array> {
+  const display = await images.open(hdrRgbJxl, {
+    colorOutput: 'srgb',
+    hdrOutput: 'tone-map-srgb',
+  })
+  return display.autoOrient().convertPixelFormat({ format: 'rgb8' }).png().toUint8Array()
+}
+```
+
+For supported PQ or HLG input with alpha, request straight-alpha SDR output
+and preserve source alpha in the display-oriented PNG:
+
+```ts
+export async function hdrRgbaToPng(hdrRgbaJxl: Uint8Array): Promise<Uint8Array> {
+  const display = await images.open(hdrRgbaJxl, {
+    colorOutput: 'srgb',
+    hdrOutput: 'tone-map-srgb',
+    alphaOutput: 'straight',
+  })
+  return display.autoOrient().convertPixelFormat({ format: 'rgba8' }).png().toUint8Array()
+}
+```
+
+Storage conversion alone does not convert primaries or transfer functions.
+These recipes use the supported sRGB color conversion explicitly; they do not
+claim arbitrary profile support. When deliberately adding alpha to an opaque
+image, pass a normalized value such as `alpha: 1`; do not apply that override
+indiscriminately to existing-alpha input.
 
 Convert HLG integer storage to the full 16-bit range while preserving the source
 luminance description:

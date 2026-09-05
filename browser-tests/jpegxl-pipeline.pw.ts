@@ -120,3 +120,23 @@ test('encoder budget admission and cleanup match Node in a real browser', async 
   })
   expect(actual).toEqual(expected)
 })
+
+test('copied JPEG XL display recipes preserve pixels, alpha and orientation in the browser', async ({
+  page,
+}) => {
+  const { verifyJpegXlDisplayRecipes } = await import('./jpegxl-pipeline-harness.ts')
+  const expected = await verifyJpegXlDisplayRecipes(
+    async (group, id) =>
+      new Uint8Array(
+        await readFile(`tests/fixtures/jpegxl/${group === 'm4' ? 'm4-color' : group}/${id}.jxl`),
+      ),
+  )
+  expect(expected).toHaveLength(10)
+  for (const result of expected) expect(result.bitDepth).toBe(8)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlDisplayRecipes()
+  })
+  expect(actual).toEqual(expected)
+})

@@ -292,3 +292,81 @@ The new extended downloader was exercised from an empty cache: all 250 files
 match pinned lengths and SHA-256 values. It uses the dataset's S3 HTTPS endpoint
 because the custom image hostname fails certificate validation. No certificate
 checks or checksum requirements were disabled.
+
+## Display recipe correction after the core review
+
+The follow-up reviewed core revision
+`652f3143050fcfee2d158af409ae334a78c512e5` and accepted the codec, allocation,
+and evidence fixes above. This correction changes documentation, executable
+examples, and their checks. Production codec code and resource ceilings stay
+at that accepted revision.
+
+The former generic recipe was exercised through the public API with
+`colorOutput: 'srgb'`, `hdrOutput: 'tone-map-srgb'`, `alphaOutput: 'straight'`,
+and `convertPixelFormat({ format: 'rgba8' })`. Opening the input and configuring
+the pipeline succeeded. Failures occurred when `toUint8Array()` executed it:
+
+| Pinned fixture               | Execution result                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| `m4-color/srgb-8`            | `UNSUPPORTED_OPERATION`: HDR float output requires PQ or HLG transfer metadata |
+| `m4-color/srgb-straight-8-8` | Same non-HDR rejection                                                         |
+| `remediation/gray-alpha-8-8` | Same non-HDR rejection                                                         |
+| `remediation/hlg-12`         | `INVALID_INPUT`: adding alpha requires an explicit normalized value            |
+| `remediation/pq-alpha-12-16` | Success, 117-byte PNG                                                          |
+
+The guide now copies four functions from `examples/jpegxl-display.ts`: opaque
+SDR to RGB8, SDR with alpha to RGBA8, opaque PQ/HLG to SDR RGB8, and PQ/HLG with
+alpha to SDR RGBA8. All apply `autoOrient()`. Alpha recipes request straight
+alpha and preserve its samples. The guide explains deliberate `alpha: 1`
+addition separately. Storage conversion does not imply a color conversion.
+M6 covers progressive/range-aware work; general lossy encoding belongs to M7.
+Both remain outside this PR.
+
+The documentation tests execute those exported functions and require their
+source to appear verbatim in the guide. Package-consumer checks compile the
+same file. Successful cases verify PNG signatures, 8-bit RGB/RGBA encoding,
+displayed dimensions, actual sRGB semantics, and decoded samples through Sharp.
+SDR8/10/12 and independent-alpha cases use pinned native samples. Associated
+SDR alpha is explicitly straightened. PQ and HLG use independently decoded
+libjxl float samples and scalar transfer, primary-conversion, and documented
+tone-map equations. HLG retains the non-default 2000-nit source interpretation.
+Every alpha sample is checked exactly after 8-bit scaling; color uses the
+existing one-byte rounding tolerance. Negative tests retain both strict errors.
+
+The orientation test uses `oriented-icc.jxl`, orientation 5, with displayed
+size 606 by 500. Six pinned reference pixels come from libjxl 0.12.0 using
+`djxl --color_space=RGB_D65_SRG_Rel_SRG` and raw PNG samples, without reapplying
+the source ICC. Browser coverage runs the same four functions on ten fixtures
+and compares decoded pixels and metadata with Node in Chromium, Firefox, and
+WebKit. No new fixture corpus or production conversion was added.
+
+CodeQL alert 36 was inspected at the actual network-to-file sink in
+`benchmark/jpegxl/prepare-pinned-m1-inputs.ts`. The checked-in manifest restricts
+names to `val2017/<digits>.jpg`; downloads use the fixed HTTPS S3 host, reject
+bytes beyond the pinned size, and verify complete length and SHA-256 before
+writing. GitHub confirmed the specific alert as dismissed for a false positive
+on 2026-09-05. No source validation or unrelated rule was suppressed.
+
+The prior core revision's extended run
+[33940245789](https://github.com/a-r-d/PureJsImage/actions/runs/33940245789)
+completed successfully with all 17 evidence gates validated. Its artifact
+`9962268071` has digest
+`sha256:c5cbb6aab056a5a31672918b8916570274bbe4ed642d5ccec7684b43da83ca5f`.
+That run belongs to `652f3143050fcfee2d158af409ae334a78c512e5`. It is historical
+evidence for this documentation correction, not an extended run on its new
+commit. The final PR body records the correction's exact SHA and current PR
+artifact separately. Reference-machine performance experiments were not repeated
+for these example changes.
+
+Validation commands for this correction:
+
+- `npx vitest run tests/jpegxl-documentation.test.ts tests/jpegxl-remediation.test.ts tests/jpegxl-m4-color.test.ts tests/jpegxl-m5-pipeline.test.ts tests/jpegxl-evidence.test.ts`: 342 tests passed, including 21 executable documentation tests.
+- `npm run check`: 2,821 tests passed and three existing skips. Its gates include package-consumer types, browser portability, generated capabilities/discovery, documentation build, strict types, lint, and formatting.
+- `npx playwright test browser-tests/jpegxl-pipeline.pw.ts browser-tests/jpegxl-color.pw.ts browser-tests/jpegxl-workbench.pw.ts --retries=0 --workers=4`: 54 passed across Chromium, Firefox, and WebKit.
+- `git diff --check`: passed.
+
+The browser test build resolves the public package root to `src/browser.ts`,
+matching the published browser condition. This overrides the repository's Node
+TypeScript alias for that build only and tests the copied examples against
+current source. The first browser attempt exposed that alias mismatch before
+any tests ran; the corrected build passed all 54 checks without retries.

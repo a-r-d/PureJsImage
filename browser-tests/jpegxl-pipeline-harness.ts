@@ -1,5 +1,7 @@
+import { hdrRgbaToPng, hdrRgbToPng, sdrRgbaToPng, sdrRgbToPng } from '../examples/jpegxl-display.ts'
 import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
+import { pngCodec } from '../src/codecs/png.ts'
 import { explainImage } from '../src/explain.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
@@ -292,6 +294,50 @@ export const verifyJpegXlEncoderBudgets = async (): Promise<readonly unknown[]> 
         errorCode,
       })
     }
+  }
+  return results
+}
+
+export async function verifyJpegXlDisplayRecipes(
+  load: (group: string, id: string) => Promise<Uint8Array> = async (group, id) => {
+    const response = await fetch(`/fixtures/jpegxl-${group}-${id}.jxl`)
+    if (!response.ok) throw new Error(`Missing display fixture ${id}`)
+    return new Uint8Array(await response.arrayBuffer())
+  },
+) {
+  const results = []
+  for (const [group, id, recipe] of [
+    ['m4', 'srgb-8', sdrRgbToPng],
+    ['m4', 'srgb-12', sdrRgbToPng],
+    ['m4', 'srgb-straight-8-8', sdrRgbaToPng],
+    ['m4', 'srgb-straight-12-16', sdrRgbaToPng],
+    ['m4', 'srgb-premultiplied-12-8', sdrRgbaToPng],
+    ['m4', 'oriented-icc', sdrRgbToPng],
+    ['remediation', 'hlg-12', hdrRgbToPng],
+    ['remediation', 'pq-12', hdrRgbToPng],
+    ['remediation', 'hlg-alpha-12-8', hdrRgbaToPng],
+    ['remediation', 'pq-alpha-12-16', hdrRgbaToPng],
+  ] as const) {
+    const png = await recipe(await load(group, id))
+    const decoder = await pngCodec.createDecoder?.(new MemorySource(png), defaultImageLimits)
+    if (!decoder) throw new Error('Missing PNG decoder')
+    let checksum = 2166136261
+    for await (const block of decoder.decode()) {
+      try {
+        for (const byte of block.data) checksum = Math.imul(checksum ^ byte, 16777619) >>> 0
+      } finally {
+        block.release?.()
+      }
+    }
+    results.push({
+      id,
+      width: decoder.width,
+      height: decoder.height,
+      pixelFormat: decoder.pixelFormat,
+      colorSemantics: decoder.colorSemantics,
+      bitDepth: png[24],
+      checksum,
+    })
   }
   return results
 }

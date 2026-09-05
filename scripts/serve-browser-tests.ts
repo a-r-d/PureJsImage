@@ -328,6 +328,16 @@ await build({
   absWorkingDir: process.cwd(),
   bundle: true,
   entryPoints: benchmarkEntries,
+  plugins: [
+    {
+      name: 'browser-package-root',
+      setup(build) {
+        // The repository tsconfig maps this import to Node. Match the public
+        // package's browser condition while exercising examples against source.
+        build.onResolve({ filter: /^purejsimage$/ }, () => ({ path: resolve('src/browser.ts') }))
+      },
+    },
+  ],
   format: 'esm',
   legalComments: 'none',
   logLevel: 'silent',

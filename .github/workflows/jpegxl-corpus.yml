@@ -11,6 +11,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'browser-tests/**'
+      - 'examples/jpegxl-display.ts'
       - 'scripts/serve-browser-tests.ts'
       - 'benchmark/jpegxl/**'
       - 'benchmark/fixtures/jpegxl/**'
