@@ -25,6 +25,7 @@ export type PixelFormat =
   | 'rgbi16'
   | 'rgbf16'
   | 'rgbf32'
+  | 'rgbaf32'
   | 'rgbf64'
   | 'yuv420p8'
   | 'yuv420p10'
@@ -92,6 +93,7 @@ export const pixelStorage = (format: PixelFormat): PixelStorageDescriptor => {
   if (format === 'grayf32' || format === 'yf32') {
     return storage(format, 'interleaved', 'floating-point', 1, 4)
   }
+  if (format === 'rgbaf32') return storage(format, 'interleaved', 'floating-point', 4, 4)
   if (format === 'rgbf32' || format === 'xyzf32') {
     return storage(format, 'interleaved', 'floating-point', 3, 4)
   }
@@ -158,7 +160,7 @@ const normalizedFormat = (format: PixelFormat): PixelFormat => {
   }
   if (format === 'yf32') return 'gray8'
   if (format === 'xyzf32') return 'rgb8'
-  if (format === 'rgba16') return 'rgba8'
+  if (format === 'rgba16' || format === 'rgbaf32') return 'rgba8'
   return format
 }
 
@@ -209,7 +211,13 @@ const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
         view.getUint32(offset, false) * 4_294_967_296 + view.getUint32(offset + 4, false),
     }
   }
-  const channels = format.startsWith('gray') ? 1 : format.startsWith('rgb') ? 3 : undefined
+  const channels = format.startsWith('gray')
+    ? 1
+    : format === 'rgbaf32'
+      ? 4
+      : format.startsWith('rgb')
+        ? 3
+        : undefined
   if (channels === undefined) return undefined
   if (format === 'grayi8' || format === 'rgbi8') {
     return {
@@ -234,7 +242,7 @@ const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
         halfFloat(((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0)),
     }
   }
-  if (format === 'grayf32' || format === 'rgbf32') {
+  if (format === 'grayf32' || format === 'rgbf32' || format === 'rgbaf32') {
     return {
       channels,
       bytesPerSample: 4,
@@ -266,6 +274,7 @@ const defaultDisplayRange = (format: PixelFormat): PixelSampleDisplayRange => {
     format === 'rgbf16' ||
     format === 'grayf32' ||
     format === 'rgbf32' ||
+    format === 'rgbaf32' ||
     format === 'grayf64' ||
     format === 'rgbf64'
   ) {

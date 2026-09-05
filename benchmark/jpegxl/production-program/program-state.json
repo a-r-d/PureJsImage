@@ -1,0 +1,406 @@
+{
+  "currentMainSha": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+  "packageVersion": "0.17.0",
+  "currentTarget": "A",
+  "milestones": {
+    "M0": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+      "finalRevision": null,
+      "localCommands": [
+        "npm run jpegxl:program:baseline",
+        "npm run jpegxl:program:conformance -- --corpus-root /tmp/jpegxl-conformance-4bf0535 --output /tmp/jpegxl-m00-conformance-check.json",
+        "npx vitest run tests/jpegxl-production-program.test.ts tests/jpegxl.test.ts tests/jpegxl-bitstream.test.ts tests/jpegxl-corpus.test.ts tests/jpegxl-jpeg-reconstruction.test.ts tests/jpegxl-workbench-preview.test.ts tests/jpegxl-worker-protocol.test.ts tests/capability-manifest.test.ts",
+        "npm run capabilities:check",
+        "npm run package:types",
+        "npm run browser:check",
+        "npx playwright test browser-tests/jpegxl-workbench.pw.ts --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run check",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [
+        "CI success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236347",
+        "CodeQL success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236336",
+        "Imazen codec corpus success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236377",
+        "JPEG XL pinned corpus success for 14596426179e5c3cd62aa79c3a12e3c61c87c102: https://github.com/a-r-d/PureJsImage/actions/runs/33766236426"
+      ],
+      "measuredResults": [
+        "Official conformance baseline: 2 pass, 36 expected unsupported, 0 incorrect output, 1 explained unexpected failure",
+        "Pinned release-hardening evidence: 7 encoder cases, 10 exact reverse-transcode cases, 4 benchmark workloads, 2 Modular memory workloads, 8 VarDCT memory workloads",
+        "Focused JPEG XL suite: 120 tests passed across 8 files",
+        "Workbench browser matrix: 18 tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "Full repository gate: 2412 tests passed, 3 skipped; 202 files passed, 1 skipped"
+      ],
+      "corpusVersions": [
+        "libjxl conformance 4bf053529c7cefd2951be453475bb3dccc7e7be8",
+        "libjxl 0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-rs 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-rs 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4",
+        "simple-lossless-encoder 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+        "imazen-jxl-encoder d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/baseline.json",
+      "capabilityChanges": [
+        "None. JPEG XL reading remains Limited and writing remains Experimental."
+      ],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [
+        "The official delta_palette case reaches INVALID_INPUT and is recorded as an explained unexpected failure.",
+        "Performance values remain reference-machine snapshots and are not PR CI thresholds."
+      ],
+      "deferredWork": [
+        "Expand the real-image source set with a redistributable UI screenshot, scanned document, and wide-gamut source.",
+        "Grow the JPEG archive to at least 250 real files during Milestone 1."
+      ],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": ["Review and merge remain external."]
+    },
+    "M1": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "16eca4041e572da4f4c69a7fec392da66e5bd9ff",
+      "finalRevision": null,
+      "localCommands": [
+        "npm run jpegxl:m1:profile -- --output benchmark/results/jpegxl-m1-profile-2026-09-03.json",
+        "npm run jpegxl:m1:reverse -- --output benchmark/results/jpegxl-m1-recompression-2026-09-03.json",
+        "npm run jpegxl:m1:corpus:prepare",
+        "npm run jpegxl:m1:corpus",
+        "npm run jpegxl:m1:performance",
+        "npx vitest run tests/brotli.test.ts tests/jpegxl-production-program.test.ts tests/jpegxl.test.ts tests/jpegxl-bitstream.test.ts tests/jpegxl-corpus.test.ts tests/jpegxl-jpeg-reconstruction.test.ts tests/jpegxl-workbench-preview.test.ts tests/jpegxl-worker-protocol.test.ts tests/capability-manifest.test.ts",
+        "npx tsc -p tsconfig.json --noEmit",
+        "npm run capabilities:check",
+        "npm run package:types",
+        "npm run browser:check",
+        "npx playwright test browser-tests/jpegxl-workbench.pw.ts --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run check",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [
+        "Pinned exact reverse matrix: 10 of 10 eligible cases reconstruct byte-for-byte through djxl",
+        "COCO promotion corpus: 250 of 250 byte-exact through pinned djxl, 100% smaller, 12.065% median savings, 10.694% p10 savings",
+        "COCO promotion corpus: 0.9624 median ratio to libjxl, 0.9777 p90 ratio, 1.0411 worst ratio, no unexplained outliers",
+        "Repeated 12 MP performance: 3.323 second slowest case median, 3.334 second maximum call, 20.94 times faster than the fastest recorded M0 large-photo result",
+        "Equivalent exact-workflow median: PureJsImage is 7.368 times pinned libjxl",
+        "Focused milestone suite: 146 tests passed across 9 files",
+        "Workbench browser matrix: 18 tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "Full repository gate passed after capability, package-metric, and documentation regeneration"
+      ],
+      "corpusVersions": [
+        "COCO 2017 validation images archive 4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
+        "COCO 2017 annotations archive 113a836d90195ee1f884e704da6304dfaaecff1f023f49b6ca93c4aaae470268",
+        "JPEG archive PR matrix at M0 revision 16eca4041e572da4f4c69a7fec392da66e5bd9ff"
+      ],
+      "oracleRevisions": ["libjxl a7a9c787341cf703dede03c2009fa460cae5e5df"],
+      "benchmarkReportPath": "benchmark/results/jpegxl-m1-recompression-2026-09-03.json",
+      "capabilityChanges": [
+        "Exact JPEG reconstruction payloads use a bounded first-party Brotli encoder and decoder.",
+        "Larger exact JPEG coefficient sets use deterministic clustered contextual ANS coding, spatial DC prediction, observed coefficient orders, and move-to-front context maps.",
+        "Exact verification compares reconstructed bytes directly with caller input without allocating a duplicate reconstructed JPEG.",
+        "The browser workbench shows elapsed time and the pinned libjxl size for its checked JPEG fixture."
+      ],
+      "capabilityPromotions": [
+        "Coefficient-domain exact JPEG transcode is Stable for the documented three-component 8-bit Huffman subset."
+      ],
+      "acceptedLimitations": [
+        "Small files retain the prefix path because ANS context headers cost more than they save.",
+        "The 250-file promotion cohort contains eligible COCO JPEGs of at least 224 KiB. Small JPEGs may grow, and onlyIfSmaller rejects them before sink output.",
+        "Grayscale, CMYK or YCCK, arithmetic, lossless, 12-bit, hierarchical, and unsupported color or metadata syntax remain explicit unsupported cases."
+      ],
+      "deferredWork": [
+        "Milestone 2 lossless Modular encoder work has not begun.",
+        "Broader JPEG syntax eligibility remains future independently gated work."
+      ],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review and merge remain external."]
+    },
+    "M2": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "548a30321dbd149c7d71e17c37db0a4933d9c5de",
+      "finalRevision": null,
+      "localCommands": [
+        "npm run fixtures:jpegxl:encoder-matrix -- --output benchmark/results/jpegxl-m2-encoder-matrix-2026-09-03.json",
+        "npm run bench:jpegxl:compression -- --effort 1 --output benchmark/results/jpegxl-m2-compression-e1-2026-09-03.json",
+        "npm run bench:jpegxl:compression -- --effort 7 --output benchmark/results/jpegxl-m2-compression-e7-2026-09-03.json",
+        "npm run jpegxl:m2:performance -- --output benchmark/results/jpegxl-m2-performance-2026-09-03.json",
+        "npx vitest run tests/jpegxl.test.ts tests/jpegxl-bitstream.test.ts tests/jpegxl-production-program.test.ts tests/capability-manifest.test.ts",
+        "npx tsc -p tsconfig.json --noEmit",
+        "npm run capabilities:check",
+        "npm run package:types",
+        "npm run browser:check",
+        "npx playwright test browser-tests/compatibility.pw.ts --grep 'JPEG XL' --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run check",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [
+        "CI success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860739",
+        "CodeQL success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860757",
+        "Imazen codec corpus success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860562",
+        "JPEG XL pinned corpus success for a32bab2bcd4bb543fb9d85e61aa3d3fffd46f8f8: https://github.com/a-r-d/PureJsImage/actions/runs/33808860771"
+      ],
+      "measuredResults": [
+        "Independent encoder matrix: 163 deterministic cases across 12 classes and all four effort tiers decode exactly through PureJsImage, pinned djxl, pinned jxl-rs, and pinned jxl-oxide where applicable",
+        "Effort 1 extended corpus: 156 cases, 1.0354 median size ratio and 2.2434 median wall-time ratio to pinned libjxl effort 1",
+        "Effort 7 extended corpus: 156 cases, 0.8901 median, 1.2921 p90, and 1.7349 worst size ratio to pinned libjxl effort 7",
+        "Effort 7 PNG comparison: 0.6023 median ratio, 89.74% no larger than PNG, and 1.2581 worst class median",
+        "Effort 7 median wall-time ratio: 7.3197 times pinned libjxl effort 7",
+        "Representative 24 MP effort-1 encode: 3.819 seconds, 27 sink writes, and 106050518 reported managed peak bytes",
+        "Focused browser acceptance: 12 JPEG XL compatibility tests and 18 workbench tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "Package size: core plus JPEG XL is 266448 minified bytes; JPEG XL specialized APIs are 308718 minified bytes",
+        "Full repository gate: 2444 tests passed, 3 skipped; 202 files passed, 1 skipped"
+      ],
+      "corpusVersions": [
+        "Deterministic M2 encoder matrix: 163 cases across 12 required image classes",
+        "Deterministic M2 extended compression corpus: 156 cases across 12 required image classes"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-rs 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4",
+        "simple-lossless-encoder 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+        "imazen-jxl-encoder d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b"
+      ],
+      "benchmarkReportPath": "benchmark/results/jpegxl-m2-compression-e7-2026-09-03.json",
+      "capabilityChanges": [
+        "The normal lossless Modular encoder accepts effort 1, 3, 5, and 7.",
+        "Explicit sample precision covers 8 through 16 bits with independent straight-alpha precision.",
+        "Sink output is emitted as a container prefix, codestream header, and bounded sections without a duplicate complete output buffer."
+      ],
+      "capabilityPromotions": [
+        "Lossless Modular encoding is Stable for the documented six-format, sRGB, straight-alpha, and explicit 8 through 16-bit precision subset."
+      ],
+      "acceptedLimitations": [
+        "The encoder remains limited to static full-range sRGB gray or RGB and straight alpha, with no metadata preservation.",
+        "Images larger than one 1024 by 1024 Modular group use the bounded global effort-1 group model at every effort tier.",
+        "Pinned jxl-oxide has a classified signed 16-bit Modular rendering limitation; PureJsImage, djxl, and jxl-rs remain exact for those cases."
+      ],
+      "deferredWork": [
+        "General lossy VarDCT encoding remains Milestone 7 work.",
+        "Broader color, orientation, metadata, animation, and extra-channel encoding remain later milestone work."
+      ],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review, remote workflows, and merge remain external."]
+    },
+    "M3": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "32d5a438e23486b1a46f8ad7269505b5c93034bc",
+      "finalRevision": "13e1e36c521eae0894df53e38134a0c7b5b5d7bb",
+      "localCommands": [
+        "node benchmark/jpegxl/generate-vardct-corpus.ts .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools",
+        "node benchmark/jpegxl/production-program/extract-features.ts --write",
+        "npm run jpegxl:m3:corpus",
+        "npm run jpegxl:m3:performance",
+        "npx vitest run tests/jpegxl-corpus.test.ts tests/jpegxl.test.ts tests/jpegxl-production-program.test.ts tests/capability-manifest.test.ts",
+        "npm run capabilities:check",
+        "npm run browser:check",
+        "npx playwright test browser-tests/compatibility.pw.ts --grep 'JPEG XL' --project=chromium --project=firefox --project=webkit --retries=0",
+        "npx playwright test browser-tests/jpegxl-workbench.pw.ts --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run check",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [
+        "CI success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652654",
+        "CodeQL success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652381",
+        "Imazen codec corpus success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652657",
+        "JPEG XL pinned corpus success for 13e1e36c521eae0894df53e38134a0c7b5b5d7bb: https://github.com/a-r-d/PureJsImage/actions/runs/33903652411"
+      ],
+      "measuredResults": [
+        "Generated VarDCT matrix: 19 of 19 fixtures pass pinned djxl comparison with maximum error 1",
+        "Official Level 5 and Level 10 4x color-and-alpha upsampling cases pass deterministically with maximum error 1, RGB RMSE at most 0.316, and alpha RMSE 0.0025 against the pinned reference PNG",
+        "Real-photo matrix: 299 of 300 files decode correctly, one unsupported previous-channel Modular tree is rejected before output, and there are zero incorrect outputs",
+        "The real-photo matrix maximum error is 1 and maximum RMSE is 0.517775; pinned jxl-oxide independently reaches RMSE 0.517758 against djxl on the threshold probe",
+        "Twelve matrix files pass the independent pinned jxl-oxide cross-check",
+        "The 24.003 MP DCT8 case uses 193274053 managed bytes below the default 536870912-byte limit",
+        "Repeated DCT8 decode medians are 2.194 seconds at 12.008 MP and 4.696 seconds at 24.003 MP",
+        "The 12 MP to 24 MP normalized group-scaling ratio is 1.071 and the full-matrix median is 8.963 times pinned single-threaded djxl",
+        "Core plus JPEG XL is 305739 minified bytes against the temporary 310000-byte M3 ceiling; the specialized entry is 348077 bytes against 355000",
+        "Browser acceptance: 12 JPEG XL compatibility tests and 21 workbench tests pass across Chromium, Firefox, and WebKit with retries disabled; the common VarDCT preview appears directly from decoder output within 10 seconds",
+        "Full repository gate: 2445 tests passed, 3 skipped; 202 files passed, 1 skipped"
+      ],
+      "corpusVersions": [
+        "Generated VarDCT matrix: 19 fixtures with 27 extracted production-program feature records",
+        "COCO 2017 validation matrix: 300 JPEG XL files from 100 photographs spanning 1 to 24 MP, two encoders, four distance settings, five effort settings, and progressive and non-progressive modes"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxl-oxide c0cc4c7ea57c1207f38ff2970d94757470613be4"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m3-common-static-report.json",
+      "capabilityChanges": [
+        "Common static 8-bit sRGB VarDCT decoding covers raw strategy IDs 0 through 7 and 10 through 20.",
+        "The checked boundary covers progressive passes, internal DC frames, 2x, 4x, and 8x resampling, straight alpha, patches, splines, restoration filters, synthetic noise, reference slots, and common static blending.",
+        "The ordinary large-photo path uses group-row restoration bands, bounded coefficient arenas, reusable filter scratch, and group-by-group release.",
+        "Explicit temporary M3 size ceilings are 310000 minified bytes for core plus JPEG XL and 355000 bytes for the specialized entry; unrelated package ceilings are unchanged."
+      ],
+      "capabilityPromotions": [
+        "Common static 8-bit sRGB JPEG XL photograph decoding is Supported for the documented boundary."
+      ],
+      "acceptedLimitations": [
+        "One of 300 matrix files uses an unsupported previous-channel Modular tree in an internal frame and is rejected before output.",
+        "Alpha, patches, splines, noise, and reference composition use an explicit conservative full-frame fallback.",
+        "Selected-subset VarDCT crop is applied after full decode and does not claim decoder pushdown.",
+        "The 0.55 RMSE limit accounts for independently observed 8-bit XYB conversion rounding against djxl."
+      ],
+      "deferredWork": [
+        "Broad ICC and HDR color, orientation transforms, animation, multiple visible frames, uncommon extra channels, and Level 10 remain later milestone work.",
+        "General lossy VarDCT encoding remains Milestone 7 work.",
+        "A future decoder-native crop path must be separately measured before claiming crop pushdown."
+      ],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review and merge remain external."]
+    },
+    "M4": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "eb0d1697132a81a2dcc9eb6822b384e09c781bec",
+      "finalRevision": "d61e238814018b8f234c806e57282d07dda39357",
+      "localCommands": [
+        "node benchmark/jpegxl/generate-m4-color-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-alpha-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-vardct-color-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-vardct-alpha-corpus.ts",
+        "node benchmark/jpegxl/generate-m4-multiple-alpha.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-conformance.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-icc.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-memory.ts",
+        "node benchmark/jpegxl/production-program/verify-m4-jpeg-render.ts",
+        "node benchmark/jpegxl/production-program/run-conformance.ts --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m4-conformance.json",
+        "npm run jpegxl:m3:performance -- --output benchmark/jpegxl/production-program/m4-m3-performance.json",
+        "npm run check",
+        "npx playwright test --project=chromium --project=firefox --project=webkit --retries=0",
+        "npm run jpegxl:program:baseline",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [
+        "CI success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200500",
+        "CodeQL success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200599",
+        "Imazen codec corpus success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200721",
+        "JPEG XL pinned corpus success for d61e238814018b8f234c806e57282d07dda39357: https://github.com/a-r-d/PureJsImage/actions/runs/33917200496"
+      ],
+      "measuredResults": [
+        "56 exact structured RGB and grayscale decode/re-encode cases through pinned djxl",
+        "40 exact independent-alpha cases, 18 high-depth VarDCT color cases, 8 VarDCT alpha-upsample cases, and both channels of a distinct multiple-alpha fixture pass independent references",
+        "Official conformance: 13 pass, 25 expected unsupported, zero incorrect output, one pre-existing explained delta_palette failure",
+        "Four ICC profiles match djxl bytes exactly; ICC validator warnings and the source cafe checksum mismatch are classified; Little CMS 2.16 five-color conversion agrees within one sample",
+        "Focused browsers: 24 tests passed across Chromium, Firefox, and WebKit with retries disabled",
+        "512 and 1024 square HDR cold/warm memory cases pass independent float references; absolute process peak RSS is 132.5 to 185.3 MiB and retained ArrayBuffer usage returns to baseline",
+        "M3 DCT8 performance regression gate passes at 12 and 24 MP",
+        "Full repository gate: 2590 tests passed, 3 skipped; 203 files passed, 1 skipped",
+        "Full Chromium, Firefox, and WebKit suite: 752 tests passed, 12 skipped; retries disabled",
+        "Core plus JPEG XL: 357995 minified bytes; specialized entry: 394885 bytes",
+        "JPEG-derived renderer comparison: old component clipping fails JXL oracle checks with maximum errors 21 and 43; new output has maximum error 1. Warm measured times are 232 vs 205 ms and 768 vs 617 ms, including decode and comparison."
+      ],
+      "corpusVersions": [
+        "tests/fixtures/jpegxl/m4-color/manifest.json",
+        "tests/fixtures/jpegxl/m4-color/alpha-manifest.json",
+        "tests/fixtures/jpegxl/m4-color/vardct-manifest.json",
+        "tests/fixtures/jpegxl/m4-color/vardct-alpha-manifest.json",
+        "libjxl conformance 4bf053529c7cefd2951be453475bb3dccc7e7be8"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "Little CMS 2.16",
+        "ICC iccDEV v2.3.2.3, revision 9f1707e"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m4-memory.json",
+      "capabilityChanges": [
+        "Structured RGB and grayscale color, representable custom chromaticities, all eight orientations, and independent alpha semantics",
+        "Bounded ICC, explicit high-depth and HDR output, intrinsic size, tone mapping, density, timestamps, and Exif/XMP/JUMBF/brob metadata",
+        "JPEG-derived float component reconstruction and fixed-point chroma-from-luma restore match independent oracles"
+      ],
+      "capabilityPromotions": [
+        "Common static color and HDR decoding, structured lossless encoding, and bounded metadata pass the M4 local gate for their documented subsets."
+      ],
+      "acceptedLimitations": [
+        "Existing M0 branch and PR 35 continue at operator request.",
+        "Advanced grouped subsampled or multiple VarDCT alpha and Level 10 global Squeeze alpha remain outside the common boundary.",
+        "Float-encoded input, unavailable high-depth ICC/custom-chromaticity conversions, and general ICC encoding remain explicit unsupported operations.",
+        "High-depth and float VarDCT output uses the measured full-frame fallback; ordinary M3 sRGB retains bounded restoration bands.",
+        "The cafe ICC source checksum is invalid; exact source bytes and the independent validator finding are preserved.",
+        "The pre-existing official delta_palette INVALID_INPUT failure remains outside M4."
+      ],
+      "deferredWork": ["M5 began after M4 closure; later milestones remain deferred."],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review and merge remain external."]
+    },
+    "M5": {
+      "status": "PR open",
+      "branch": "codex/jpegxl-m00-program-baseline",
+      "pr": 35,
+      "startRevision": "a57fbd548c1317af457636a2ddad4563e8bad330",
+      "finalRevision": "71ee81cdf3c9c8433daba7968ddc46a2c7191739",
+      "localCommands": [
+        "node benchmark/jpegxl/generate-m5-segmented.ts",
+        "npx vitest run tests/jpegxl-m5-pipeline.test.ts",
+        "node benchmark/jpegxl/production-program/verify-m5-common-static.ts",
+        "node benchmark/jpegxl/production-program/verify-m5-pipelines.ts",
+        "node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --large",
+        "node benchmark/jpegxl/production-program/compare-m5-base.ts /tmp/jpegxl-m5-base",
+        "npm run capabilities:generate",
+        "npm run jpegxl:program:baseline:write",
+        "npm run size",
+        "npm run documentation:write",
+        "npm run check",
+        "npx playwright test --project=chromium --project=firefox --project=webkit --retries=0 --workers=4",
+        "node --expose-gc benchmark/jpegxl/production-program/measure-m5-conversion.ts"
+      ],
+      "remoteWorkflowRuns": [
+        "CI success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901150",
+        "CodeQL success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901083",
+        "Imazen codec corpus success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901031",
+        "JPEG XL pinned corpus success for 71ee81cdf3c9c8433daba7968ddc46a2c7191739: https://github.com/a-r-d/PureJsImage/actions/runs/33925901001"
+      ],
+      "measuredResults": [
+        "Common-static acceptance: 299 of 300 inputs (99.67 percent), one known unsupported case, 1495 complete workflows, zero incorrect output.",
+        "114 focused M5 tests pass, including 96 exact re-encode cases against independent native samples.",
+        "105 complete workflows agree between Node, Chromium, Firefox and WebKit.",
+        "21 focused browser tests pass, including native float processing, real HTTP Range, cancellation/reuse and workbench export.",
+        "Six isolated cold/warm workflows pass pinned djxl references at maximum error 1 and RMSE below 0.55. 24 MP process peak RSS is 409.9 to 424.8 MiB.",
+        "Before/after uses M4 a57fbd5; the JPEG-derived nearest baseline fails correctness with maximum error 167. No performance-win claim is made.",
+        "Core execution 72365 bytes (ceiling 74752); scientific 200793 (204000); core plus JPEG XL 349379 (365000); specialized JPEG XL 398202 (402000).",
+        "Final npm run check: 2705 tests pass, three existing skips; 204 files pass, one skipped. Includes package types, browser graph, capabilities, docs, lint, format and size gates.",
+        "Clean full browser run: 773 pass, 12 existing skips, retries disabled; all three browsers.",
+        "One-megapixel explicit range conversion retains an independent exact pixel hash; median warm kernel time improves from 195.6 to 87.0 ms after moving bit-depth maxima outside the pixel loop.",
+        "All four exact-head remote workflows pass for 71ee81cdf3c9c8433daba7968ddc46a2c7191739."
+      ],
+      "corpusVersions": [
+        "M3 300-file checksum-pinned common-static corpus",
+        "M4 pinned color and alpha fixtures",
+        "M5 segmented copy of M4 srgb-12 codestream"
+      ],
+      "oracleRevisions": [
+        "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "sharp 0.35.3 libvips development oracle"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m5-large-pipelines.json",
+      "capabilityChanges": [
+        "Explicit precision negotiation, sample range propagation, float RGBA resize, native re-encode defaults, PNG color signaling, planner memory and conversion reporting, workbench transform/export"
+      ],
+      "capabilityPromotions": [
+        "Stable common static decode for the documented M0-M5 boundary; Target A still requires M6."
+      ],
+      "acceptedLimitations": [
+        "VarDCT opens can decode pixels; planner reports this cost.",
+        "VarDCT output remains full-frame with bounded restoration bands for eligible 8-bit inputs.",
+        "Unsupported color transforms and float JPEG XL encoding remain explicit errors.",
+        "Single-group Modular retains complete channel planes; grouped Modular retains intersecting group bands."
+      ],
+      "deferredWork": ["M6 progressive and range-aware decoding is outside this PR."],
+      "stablePromotionGatePassed": true,
+      "remainingBlockers": ["Review and merge remain external."]
+    }
+  }
+}

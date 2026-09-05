@@ -1,18 +1,37 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecodeRequest, DecoderOptions, ImageDecoder, ImageMetadata } from '../codec.ts'
-import type { PixelColorSemantics, PixelRenderingIntent } from '../color.ts'
+import type {
+  PixelChromaticities,
+  PixelColorPrimaries,
+  PixelColorSemantics,
+  PixelRenderingIntent,
+  PixelTransferFunction,
+} from '../color.ts'
 import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
-import type { PixelBlock, PixelSampleDisplayRange } from '../pixel.ts'
+import type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
+import {
+  createNclxHdrToneMap,
+  inspectIccProfile,
+  nclxHdrToLinear,
+  writeNclxHdrToneMappedRgba,
+  writeNclxHdrLinearToneMappedRgba,
+} from './icc.ts'
 import type { JpegXlEntropyCode } from './jpegxl-bitstream.ts'
 import {
   JpegXlBitReader,
   JpegXlEntropySymbolReader,
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
+import { type JpegXlFrameFeatures, readJpegXlFrameFeatures } from './jpegxl-frame-features.ts'
+import { readJpegXlIcc } from './jpegxl-icc.ts'
+import { defaultJpegXlLimits, type JpegXlLimits } from './jpegxl-limits.ts'
+import { applyJpegXlSplines } from './jpegxl-splines.ts'
+
+type JpegXlIccLimits = Pick<JpegXlLimits, 'maxIccCompressedBytes' | 'maxIccBytes'>
 
 interface DistributionValue {
   readonly value: number
@@ -146,13 +165,29 @@ const readName = (reader: JpegXlBitReader): void => {
   reader.skipBits(length * 8)
 }
 
-const readIntegerBitDepth = (reader: JpegXlBitReader): number => {
-  requireValue(reader.readBits(1) !== 0, false, 'floating-point samples')
-  const depth = readU32(reader, [value(8), value(10), value(12), bits(6, 1)])
-  if (depth < 1 || depth > 16) {
-    throw unsupportedOperation('JPEG XL sample depths above 16 bits are not supported')
+interface JpegXlBitDepth {
+  readonly bits: number
+  readonly exponentBits: number
+  readonly sampleFormat: 'unsigned-integer' | 'floating-point'
+}
+
+const readBitDepth = (reader: JpegXlBitReader): JpegXlBitDepth => {
+  const floatingPoint = reader.readBits(1) !== 0
+  const depth = floatingPoint
+    ? readU32(reader, [value(32), value(16), value(24), bits(6, 1)])
+    : readU32(reader, [value(8), value(10), value(12), bits(6, 1)])
+  if (!floatingPoint) {
+    if (depth < 1 || depth > 16) {
+      throw unsupportedOperation('JPEG XL integer sample depths above 16 bits are not supported')
+    }
+    return Object.freeze({ bits: depth, exponentBits: 0, sampleFormat: 'unsigned-integer' })
   }
-  return depth
+  const exponentBits = reader.readBits(4) + 1
+  const mantissaBits = depth - exponentBits - 1
+  if (exponentBits < 2 || exponentBits > 8 || mantissaBits < 2 || mantissaBits > 23) {
+    throw invalidInput('JPEG XL floating-point sample depth is invalid')
+  }
+  return Object.freeze({ bits: depth, exponentBits, sampleFormat: 'floating-point' })
 }
 
 const fixedAspectWidth = (height: number, ratio: number): number => {
@@ -170,13 +205,36 @@ const fixedAspectWidth = (height: number, ratio: number): number => {
   return Math.floor((height * selected[0]) / selected[1])
 }
 
-type JpegXlChannelCount = 1 | 2 | 3 | 4
+interface JpegXlChromaticity {
+  readonly x: number
+  readonly y: number
+}
+
+interface JpegXlToneMapping {
+  readonly intensityTarget: number
+  readonly minNits: number
+  readonly relativeToMaxDisplay: boolean
+  readonly linearBelow: number
+}
+
+export interface JpegXlExtraChannel {
+  readonly index: number
+  readonly type: number
+  readonly bitDepth: JpegXlBitDepth
+  readonly dimShift: number
+  readonly associatedAlpha: boolean
+}
 
 interface JpegXlColorEncoding {
   readonly colorChannels: 1 | 3
-  readonly metadataColorSpace: 'gray' | 'linear-gray' | 'srgb' | 'linear-rgb'
-  readonly provenance: 'assumed-default' | 'container-signaled'
+  readonly metadataColorSpace: string
+  readonly primaries: PixelColorPrimaries
+  readonly transfer: PixelTransferFunction
+  readonly provenance: 'assumed-default' | 'container-signaled' | 'icc'
   readonly renderingIntent: PixelRenderingIntent
+  readonly wantIcc: boolean
+  readonly whitePoint?: JpegXlChromaticity
+  readonly customPrimaries?: readonly [JpegXlChromaticity, JpegXlChromaticity, JpegXlChromaticity]
 }
 
 export interface JpegXlSection {
@@ -187,21 +245,43 @@ export interface JpegXlSection {
 export interface JpegXlFrameStructure {
   readonly width: number
   readonly height: number
+  readonly codedWidth: number
+  readonly codedHeight: number
   readonly bitDepth: number
+  readonly exponentBits: number
+  readonly sampleFormat: 'unsigned-integer' | 'floating-point'
   readonly alphaBitDepth: number | undefined
+  readonly alphaAssociated: boolean
+  readonly selectedAlphaChannel: number | undefined
+  readonly extraChannels: readonly JpegXlExtraChannel[]
   readonly colorChannels: 1 | 3
-  readonly channelCount: JpegXlChannelCount
+  readonly channelCount: number
   readonly metadataColorSpace: JpegXlColorEncoding['metadataColorSpace']
+  readonly colorSemanticsPrimaries: PixelColorPrimaries
+  readonly colorSemanticsTransfer: PixelTransferFunction
+  readonly chromaticities?: PixelChromaticities
   readonly colorProvenance: JpegXlColorEncoding['provenance']
   readonly renderingIntent: PixelRenderingIntent
   readonly orientation: number
+  readonly intrinsicWidth: number | undefined
+  readonly intrinsicHeight: number | undefined
+  readonly toneMapping: JpegXlToneMapping
+  readonly iccProfile: Uint8Array | undefined
   readonly encoding: 'modular' | 'vardct'
-  readonly frameType: 'regular' | 'dc'
+  readonly frameType: 'regular' | 'dc' | 'reference' | 'skip-progressive'
   readonly dcLevel: number
   readonly isLast: boolean
+  readonly frameOriginX: number
+  readonly frameOriginY: number
+  readonly frameWidth: number
+  readonly frameHeight: number
+  readonly saveAsReference: 0 | 1 | 2 | 3
+  readonly saveBeforeColorTransform: boolean
   readonly frameFlags: number
   readonly colorTransform: 'xyb' | 'none' | 'ycbcr'
   readonly chromaSubsampling: readonly [number, number, number]
+  readonly upsampling: 1 | 2 | 4 | 8
+  readonly extraChannelUpsampling: readonly (1 | 2 | 4 | 8)[]
   readonly xQuantizationScale: number
   readonly bQuantizationScale: number
   readonly passCount: number
@@ -235,29 +315,119 @@ const readSize = (reader: JpegXlBitReader): { readonly width: number; readonly h
 const readEnum = (reader: JpegXlBitReader): number =>
   readU32(reader, [value(0), value(1), bits(4, 2), bits(6, 18)])
 
+const unpackSignedInteger = (packed: number): number => (packed >>> 1) ^ -(packed & 1)
+
+const readChromaticity = (reader: JpegXlBitReader): JpegXlChromaticity => {
+  const coordinate = (): number =>
+    unpackSignedInteger(
+      readU32(reader, [bits(19), bits(19, 524_288), bits(20, 1_048_576), bits(21, 2_097_152)]),
+    ) / 1_000_000
+  const x = coordinate()
+  const y = coordinate()
+  if (Math.abs(x) >= 4 || Math.abs(y) >= 4) {
+    throw invalidInput('JPEG XL custom chromaticity is outside its bounded range')
+  }
+  return Object.freeze({ x, y })
+}
+
+const colorSpaceName = (
+  colorSpace: 0 | 1,
+  primaries: PixelColorPrimaries,
+  transfer: PixelTransferFunction,
+): string => {
+  if (colorSpace === 1) {
+    if (transfer.kind === 'srgb') return 'gray'
+    if (transfer.kind === 'linear') return 'linear-gray'
+  }
+  const family = colorSpace === 1 ? 'gray' : primaries
+  if (transfer.kind === 'srgb') return family === 'srgb' ? 'srgb' : `${family}-srgb`
+  if (transfer.kind === 'linear' && family === 'srgb') return 'linear-rgb'
+  if (transfer.kind === 'gamma') return `${family}-gamma-${transfer.exponent}`
+  return `${transfer.kind}-${family}`
+}
+
 const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
   const allDefault = reader.readBits(1) !== 0
   if (allDefault) {
     return Object.freeze({
       colorChannels: 3,
       metadataColorSpace: 'srgb',
+      primaries: 'srgb',
+      transfer: Object.freeze({ kind: 'srgb' }),
       provenance: 'assumed-default',
       renderingIntent: 'relative',
+      wantIcc: false,
     })
   }
 
-  requireValue(reader.readBits(1) !== 0, false, 'embedded ICC color encoding')
+  const wantIcc = reader.readBits(1) !== 0
   const colorSpace = readEnum(reader)
   if (colorSpace !== 0 && colorSpace !== 1) {
     throw unsupportedOperation('JPEG XL non-RGB/gray color encoding is not supported')
   }
-  requireValue(readEnum(reader), 1, 'non-D65 white point')
-  if (colorSpace === 0) requireValue(readEnum(reader), 1, 'non-sRGB primaries')
+  if (wantIcc) {
+    return Object.freeze({
+      colorChannels: colorSpace === 1 ? 1 : 3,
+      metadataColorSpace: 'icc',
+      primaries: 'source-profile',
+      transfer: Object.freeze({ kind: 'source-profile' }),
+      provenance: 'icc',
+      renderingIntent: 'relative',
+      wantIcc: true,
+    })
+  }
 
-  requireValue(reader.readBits(1) !== 0, false, 'custom gamma transfer function')
-  const transferFunction = readEnum(reader)
-  if (transferFunction !== 8 && transferFunction !== 13) {
-    throw unsupportedOperation('JPEG XL transfer function is not supported')
+  const whitePointCode = readEnum(reader)
+  if (
+    whitePointCode !== 1 &&
+    whitePointCode !== 2 &&
+    whitePointCode !== 10 &&
+    whitePointCode !== 11
+  ) {
+    throw invalidInput('JPEG XL white-point enum is invalid')
+  }
+  const whitePoint =
+    whitePointCode === 2
+      ? readChromaticity(reader)
+      : whitePointCode === 10
+        ? Object.freeze({ x: 1 / 3, y: 1 / 3 })
+        : whitePointCode === 11
+          ? Object.freeze({ x: 0.314, y: 0.351 })
+          : undefined
+  let primaries: PixelColorPrimaries = 'srgb'
+  let customPrimaries: JpegXlColorEncoding['customPrimaries']
+  if (colorSpace === 0) {
+    const primariesCode = readEnum(reader)
+    if (primariesCode === 1) primaries = 'srgb'
+    else if (primariesCode === 9) primaries = 'rec2020'
+    else if (primariesCode === 11) primaries = 'display-p3'
+    else if (primariesCode === 2) {
+      primaries = 'unspecified'
+      customPrimaries = Object.freeze([
+        readChromaticity(reader),
+        readChromaticity(reader),
+        readChromaticity(reader),
+      ])
+    } else throw invalidInput('JPEG XL primaries enum is invalid')
+  }
+
+  const haveGamma = reader.readBits(1) !== 0
+  let transfer: PixelTransferFunction
+  if (haveGamma) {
+    const gamma = reader.readBits(24)
+    if (gamma < Math.ceil(10_000_000 / 8_192) || gamma > 10_000_000) {
+      throw invalidInput('JPEG XL custom gamma is outside its bounded range')
+    }
+    transfer = Object.freeze({ kind: 'gamma', exponent: 10_000_000 / gamma })
+  } else {
+    const transferFunction = readEnum(reader)
+    if (transferFunction === 8) transfer = Object.freeze({ kind: 'linear' })
+    else if (transferFunction === 13) transfer = Object.freeze({ kind: 'srgb' })
+    else if (transferFunction === 16) transfer = Object.freeze({ kind: 'pq' })
+    else if (transferFunction === 18) transfer = Object.freeze({ kind: 'hlg' })
+    else if (transferFunction === 17) transfer = Object.freeze({ kind: 'gamma', exponent: 2.6 })
+    else
+      throw unsupportedOperation(`JPEG XL transfer function ${transferFunction} is not supported`)
   }
   const renderingIntent = readEnum(reader)
   if (renderingIntent > 3) throw invalidInput('JPEG XL rendering intent is invalid')
@@ -265,25 +435,47 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
   const parsedRenderingIntent = renderingIntents[renderingIntent]
   if (!parsedRenderingIntent) throw invalidInput('JPEG XL rendering intent is invalid')
 
-  if (colorSpace === 1) {
-    return Object.freeze({
-      colorChannels: 1,
-      metadataColorSpace: transferFunction === 8 ? 'linear-gray' : 'gray',
-      provenance: 'container-signaled',
-      renderingIntent: parsedRenderingIntent,
-    })
-  }
   return Object.freeze({
-    colorChannels: 3,
-    metadataColorSpace: transferFunction === 8 ? 'linear-rgb' : 'srgb',
+    colorChannels: colorSpace === 1 ? 1 : 3,
+    metadataColorSpace:
+      colorSpaceName(colorSpace, primaries, transfer) +
+      (whitePoint === undefined ? '' : '-custom-white'),
+    primaries,
+    transfer,
     provenance: 'container-signaled',
     renderingIntent: parsedRenderingIntent,
+    wantIcc: false,
+    ...(whitePoint === undefined ? {} : { whitePoint }),
+    ...(customPrimaries === undefined ? {} : { customPrimaries }),
   })
 }
 
-const channelCountFor = (colorChannels: 1 | 3, extraChannels: number): JpegXlChannelCount => {
-  if (colorChannels === 1) return extraChannels === 0 ? 1 : 2
-  return extraChannels === 0 ? 3 : 4
+const channelCountFor = (colorChannels: 1 | 3, extraChannels: number): number =>
+  colorChannels + extraChannels
+
+const defaultToneMapping: Readonly<JpegXlToneMapping> = Object.freeze({
+  intensityTarget: 255,
+  minNits: 0,
+  relativeToMaxDisplay: false,
+  linearBelow: 0,
+})
+
+const readToneMapping = (reader: JpegXlBitReader): JpegXlToneMapping => {
+  if (reader.readBits(1) !== 0) return defaultToneMapping
+  const intensityTarget = readF16(reader)
+  const minNits = readF16(reader)
+  const relativeToMaxDisplay = reader.readBits(1) !== 0
+  const linearBelow = readF16(reader)
+  if (
+    intensityTarget <= 0 ||
+    minNits < 0 ||
+    minNits > intensityTarget ||
+    linearBelow < 0 ||
+    (relativeToMaxDisplay && linearBelow > 1)
+  ) {
+    throw invalidInput('JPEG XL tone-mapping metadata is invalid')
+  }
+  return Object.freeze({ intensityTarget, minNits, relativeToMaxDisplay, linearBelow })
 }
 
 const readHeader = (
@@ -291,30 +483,61 @@ const readHeader = (
   codestreamBytes: number,
   limits: ImageLimits,
   allowVarDct = false,
+  decoderOptions: Readonly<DecoderOptions> = {},
   previousFrame?: Readonly<JpegXlHeader>,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): JpegXlHeader => {
   let reader: JpegXlBitReader
   let width: number
   let height: number
   let bitDepth: number
+  let exponentBits: number
+  let sampleFormat: JpegXlFrameStructure['sampleFormat']
   let alphaBitDepth: number | undefined
+  let alphaAssociated: boolean
+  let selectedAlphaChannel: number | undefined
+  let parsedExtraChannels: readonly JpegXlExtraChannel[]
   let extraChannels: number
+  let orientation: number
+  let intrinsicWidth: number | undefined
+  let intrinsicHeight: number | undefined
+  let toneMapping: JpegXlToneMapping
+  let iccProfile: Uint8Array | undefined
   let xybEncoded: boolean
   let colorEncoding: JpegXlColorEncoding
-  let channelCount: JpegXlChannelCount
+  let channelCount: number
   if (previousFrame) {
     reader = new JpegXlBitReader(codestream, previousFrame.codestreamEndOffset * 8)
     width = previousFrame.width
     height = previousFrame.height
     bitDepth = previousFrame.bitDepth
+    exponentBits = previousFrame.exponentBits
+    sampleFormat = previousFrame.sampleFormat
     alphaBitDepth = previousFrame.alphaBitDepth
-    extraChannels = alphaBitDepth === undefined ? 0 : 1
+    alphaAssociated = previousFrame.alphaAssociated
+    selectedAlphaChannel = previousFrame.selectedAlphaChannel
+    parsedExtraChannels = previousFrame.extraChannels
+    extraChannels = parsedExtraChannels.length
+    orientation = previousFrame.orientation
+    intrinsicWidth = previousFrame.intrinsicWidth
+    intrinsicHeight = previousFrame.intrinsicHeight
+    toneMapping = previousFrame.toneMapping
+    iccProfile = previousFrame.iccProfile
     xybEncoded = previousFrame.colorTransform === 'xyb'
     colorEncoding = Object.freeze({
       colorChannels: previousFrame.colorChannels,
       metadataColorSpace: previousFrame.metadataColorSpace,
+      primaries: previousFrame.colorSemanticsPrimaries,
+      transfer: previousFrame.colorSemanticsTransfer,
       provenance: previousFrame.colorProvenance,
       renderingIntent: previousFrame.renderingIntent,
+      wantIcc: previousFrame.colorProvenance === 'icc',
+      ...(previousFrame.chromaticities === undefined
+        ? {}
+        : {
+            whitePoint: previousFrame.chromaticities.whitePoint,
+            customPrimaries: previousFrame.chromaticities.primaries,
+          }),
     })
     channelCount = previousFrame.channelCount
   } else {
@@ -327,34 +550,83 @@ const readHeader = (
 
     requireValue(reader.readBits(1) !== 0, false, 'default XYB metadata')
     const extraFields = reader.readBits(1) !== 0
-    requireValue(extraFields, false, 'orientation, preview, animation, or tone-mapping metadata')
-    bitDepth = readIntegerBitDepth(reader)
+    orientation = 1
+    if (extraFields) {
+      orientation = reader.readBits(3) + 1
+      const haveIntrinsicSize = reader.readBits(1) !== 0
+      if (haveIntrinsicSize) {
+        const intrinsic = readSize(reader)
+        intrinsicWidth = intrinsic.width
+        intrinsicHeight = intrinsic.height
+        validateImageDimensions(intrinsic.width, intrinsic.height, 1, limits)
+      }
+      const havePreview = reader.readBits(1) !== 0
+      if (havePreview) throw unsupportedOperation('JPEG XL preview images are not supported')
+      const haveAnimation = reader.readBits(1) !== 0
+      if (haveAnimation) throw unsupportedOperation('JPEG XL animation is not supported')
+    }
+    const decodedBitDepth = readBitDepth(reader)
+    bitDepth = decodedBitDepth.bits
+    exponentBits = decodedBitDepth.exponentBits
+    sampleFormat = decodedBitDepth.sampleFormat
     reader.readBits(1) // modular_16_bit_buffer_sufficient
     extraChannels = readU32(reader, [value(0), value(1), bits(4, 2), bits(12, 1)])
-    if (extraChannels > 1) {
-      throw unsupportedOperation('JPEG XL multiple extra channels are not supported')
-    }
+    if (extraChannels > 16) throw limitExceeded('JPEG XL extra-channel count exceeds 16')
+    const extras: JpegXlExtraChannel[] = []
     // Extra-channel metadata precedes the color encoding that determines the color plane count.
-    if (extraChannels === 1) {
+    for (let index = 0; index < extraChannels; index += 1) {
       const defaultExtraChannel = reader.readBits(1) !== 0
       if (defaultExtraChannel) {
-        alphaBitDepth = 8
+        extras.push(
+          Object.freeze({
+            index,
+            type: 0,
+            bitDepth: Object.freeze({
+              bits: 8,
+              exponentBits: 0,
+              sampleFormat: 'unsigned-integer',
+            }),
+            dimShift: 0,
+            associatedAlpha: false,
+          }),
+        )
       } else {
-        requireValue(
-          readU32(reader, [value(0), value(1), bits(4, 2), bits(6, 18)]),
-          0,
-          'non-alpha extra channels',
-        )
-        alphaBitDepth = readIntegerBitDepth(reader)
-        requireValue(
-          readU32(reader, [value(0), value(3), value(4), bits(3, 1)]),
-          0,
-          'downsampled alpha',
-        )
+        const type = readU32(reader, [value(0), value(1), bits(4, 2), bits(6, 18)])
+        const extraBitDepth = readBitDepth(reader)
+        const dimShift = readU32(reader, [value(0), value(3), value(4), bits(3, 1)])
         readName(reader)
-        requireValue(reader.readBits(1) !== 0, false, 'premultiplied alpha')
+        const associatedAlpha = type === 0 && reader.readBits(1) !== 0
+        if (type === 2) for (let component = 0; component < 4; component += 1) readF16(reader)
+        if (type === 6) readU32(reader, [value(1), bits(2), bits(4, 3), bits(8, 19)])
+        if (type !== 0) {
+          throw unsupportedOperation(`JPEG XL extra-channel type ${type} is not supported`)
+        }
+        extras.push(
+          Object.freeze({
+            index,
+            type,
+            bitDepth: extraBitDepth,
+            dimShift,
+            associatedAlpha,
+          }),
+        )
       }
     }
+    parsedExtraChannels = Object.freeze(extras)
+    const alphaChannels = parsedExtraChannels.filter(({ type }) => type === 0)
+    const requestedAlpha = decoderOptions.alphaChannel ?? 0
+    if (!Number.isSafeInteger(requestedAlpha) || requestedAlpha < 0) {
+      throw invalidInput('JPEG XL alphaChannel must be a nonnegative safe integer')
+    }
+    const selectedAlpha = alphaChannels[requestedAlpha]
+    if (decoderOptions.alphaChannel !== undefined && !selectedAlpha) {
+      throw invalidInput(
+        `JPEG XL alphaChannel ${decoderOptions.alphaChannel} does not identify an alpha channel`,
+      )
+    }
+    selectedAlphaChannel = selectedAlpha?.index
+    alphaBitDepth = selectedAlpha?.bitDepth.bits
+    alphaAssociated = selectedAlpha?.associatedAlpha ?? false
     xybEncoded = reader.readBits(1) !== 0
     if (xybEncoded && !allowVarDct) {
       throw unsupportedOperation(
@@ -363,137 +635,187 @@ const readHeader = (
     }
     colorEncoding = readColorEncoding(reader)
     channelCount = channelCountFor(colorEncoding.colorChannels, extraChannels)
+    toneMapping = extraFields ? readToneMapping(reader) : defaultToneMapping
     requireValue(readU64(reader), 0, 'image-metadata extensions')
     requireValue(reader.readBits(1) !== 0, true, 'custom transform weights')
+    if (colorEncoding.wantIcc) {
+      iccProfile = readJpegXlIcc(reader, iccLimits.maxIccCompressedBytes, iccLimits.maxIccBytes)
+      inspectIccProfile(iccProfile)
+      const profileSpace = String.fromCharCode(...iccProfile.subarray(16, 20))
+      if (profileSpace !== (colorEncoding.colorChannels === 1 ? 'GRAY' : 'RGB ')) {
+        throw invalidInput('JPEG XL ICC color space conflicts with its color channels')
+      }
+    }
     alignWithZeroPadding(reader)
   }
 
-  requireValue(reader.readBits(1) !== 0, false, 'default VarDCT frame header')
-  const frameTypeCode = readU32(reader, [value(0), value(1), value(2), value(3)])
-  if (frameTypeCode !== 0 && frameTypeCode !== 1) {
-    throw unsupportedOperation('JPEG XL reference and skip-progressive frames are not supported')
+  const allDefaultFrameHeader = reader.readBits(1) !== 0
+  let frameType: JpegXlFrameStructure['frameType'] = 'regular'
+  let encoding: 'modular' | 'vardct' = 'vardct'
+  let frameFlags = 0
+  let colorTransform: 'xyb' | 'ycbcr' | 'none' = xybEncoded ? 'xyb' : 'none'
+  const chromaSubsampling = [0, 0, 0] as [number, number, number]
+  let upsampling: 1 | 2 | 4 | 8 = 1
+  let extraChannelUpsampling: (1 | 2 | 4 | 8)[] = new Array(extraChannels).fill(1)
+  let groupSizeShift = 1
+  let xQuantizationScale = xybEncoded ? 3 : 2
+  let bQuantizationScale = 2
+  let passCount = 1
+  let passShifts: number[] = [0]
+  let dcLevel = 0
+  let isLast = true
+  let frameOriginX = 0
+  let frameOriginY = 0
+  let frameWidth = width
+  let frameHeight = height
+  let saveAsReference: 0 | 1 | 2 | 3 = 0
+  let saveBeforeColorTransform = false
+  let gaborish = true
+  let epfIterations = 2
+  if (!allDefaultFrameHeader) {
+    const frameTypeCode = readU32(reader, [value(0), value(1), value(2), value(3)])
+    frameType =
+      frameTypeCode === 0
+        ? 'regular'
+        : frameTypeCode === 1
+          ? 'dc'
+          : frameTypeCode === 2
+            ? 'reference'
+            : 'skip-progressive'
+    encoding = reader.readBits(1) !== 0 ? 'modular' : 'vardct'
+    frameFlags = readU64(reader)
+    if ((frameFlags & ~0xb3) !== 0) throw unsupportedOperation('JPEG XL frame uses reserved flags')
+    colorTransform = xybEncoded ? 'xyb' : reader.readBits(1) !== 0 ? 'ycbcr' : 'none'
+    if (colorTransform === 'ycbcr' && (frameFlags & 0x20) === 0) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        chromaSubsampling[channel] = reader.readBits(2)
+      }
+    }
+    if ((frameFlags & 0x20) === 0) {
+      upsampling = readU32(reader, [value(1), value(2), value(4), value(8)]) as 1 | 2 | 4 | 8
+      extraChannelUpsampling = []
+      for (let index = 0; index < extraChannels; index += 1) {
+        const extraUpsampling = readU32(reader, [value(1), value(2), value(4), value(8)]) as
+          | 1
+          | 2
+          | 4
+          | 8
+        if (extraUpsampling * 2 ** (parsedExtraChannels[index]?.dimShift ?? 0) < upsampling) {
+          throw invalidInput('JPEG XL extra-channel upsampling is smaller than color upsampling')
+        }
+        extraChannelUpsampling.push(extraUpsampling)
+      }
+    }
+    groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
+    xQuantizationScale = 2
+    if (encoding === 'vardct' && colorTransform === 'xyb') {
+      xQuantizationScale = reader.readBits(3)
+      bQuantizationScale = reader.readBits(3)
+    }
+    if (frameType !== 'reference') {
+      passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
+      passShifts = new Array<number>(passCount).fill(0)
+    }
+    if (frameType !== 'reference' && passCount !== 1) {
+      const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
+      if (downsampleCount > passCount)
+        throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
+      for (let index = 0; index < passCount - 1; index += 1) passShifts[index] = reader.readBits(2)
+      let previousDownsample = 9
+      for (let index = 0; index < downsampleCount; index += 1) {
+        const downsample = readU32(reader, [value(1), value(2), value(4), value(8)])
+        if (downsample >= previousDownsample)
+          throw invalidInput('JPEG XL progressive downsample factors are not decreasing')
+        previousDownsample = downsample
+      }
+      let previousPass = -1
+      for (let index = 0; index < downsampleCount; index += 1) {
+        const lastPass = readU32(reader, [value(0), value(1), value(2), bits(3)])
+        if (lastPass <= previousPass || lastPass >= passCount)
+          throw invalidInput('JPEG XL progressive pass boundary is invalid')
+        previousPass = lastPass
+      }
+    }
+    dcLevel = frameType === 'dc' ? readU32(reader, [value(1), value(2), value(3), value(4)]) : 0
+    isLast = false
+    if (frameType !== 'dc') {
+      const customSizeOrOrigin = reader.readBits(1) !== 0
+      if (customSizeOrOrigin) {
+        const frameGeometry = [bits(8), bits(11, 256), bits(14, 2_304), bits(30, 18_688)] as const
+        if (frameType === 'regular' || frameType === 'skip-progressive') {
+          frameOriginX = unpackSigned(readU32(reader, frameGeometry))
+          frameOriginY = unpackSigned(readU32(reader, frameGeometry))
+        }
+        frameWidth = readU32(reader, frameGeometry)
+        frameHeight = readU32(reader, frameGeometry)
+        if (frameWidth < 1 || frameHeight < 1) {
+          throw invalidInput('JPEG XL custom frame dimensions are invalid')
+        }
+      }
+    }
+    if (frameType === 'regular' || frameType === 'skip-progressive') {
+      requireValue(readU32(reader, [value(0), value(1), value(2), bits(2, 3)]), 0, 'frame blending')
+      for (let index = 0; index < extraChannels; index += 1) {
+        requireValue(
+          readU32(reader, [value(0), value(1), value(2), bits(2, 3)]),
+          0,
+          'extra-channel blending',
+        )
+      }
+      isLast = reader.readBits(1) !== 0
+    }
+    if (frameType !== 'dc' && !isLast) {
+      saveAsReference = readU32(reader, [value(0), value(1), value(2), value(3)]) as 0 | 1 | 2 | 3
+    }
+    if (frameType === 'reference') {
+      saveBeforeColorTransform = reader.readBits(1) !== 0
+    } else if ((frameType === 'regular' || frameType === 'skip-progressive') && !isLast) {
+      saveBeforeColorTransform = reader.readBits(1) !== 0
+    }
+    readName(reader)
+    const defaultLoopFilter = reader.readBits(1) !== 0
+    if (!defaultLoopFilter) {
+      gaborish = reader.readBits(1) !== 0
+      if (gaborish) requireValue(reader.readBits(1) !== 0, false, 'custom Gaborish filtering')
+      epfIterations = reader.readBits(2)
+      if (epfIterations > 0) {
+        if (encoding === 'vardct')
+          requireValue(reader.readBits(1) !== 0, false, 'custom EPF sharpness')
+        requireValue(reader.readBits(1) !== 0, false, 'custom EPF weights')
+        requireValue(reader.readBits(1) !== 0, false, 'custom EPF sigma')
+        if (encoding === 'modular') {
+          const modularSigma = readF16(reader)
+          if (modularSigma < 1e-8) throw invalidInput('JPEG XL Modular EPF sigma is too small')
+        }
+      }
+      requireValue(readU64(reader), 0, 'loop-filter extensions')
+    }
+    const frameExtensions = readU64(reader)
+    if (frameExtensions !== 0)
+      throw unsupportedOperation(
+        `JPEG XL frame extensions ${frameExtensions} are outside the implemented decode subset`,
+      )
   }
-  const frameType = frameTypeCode === 0 ? 'regular' : 'dc'
-  const encoding = reader.readBits(1) !== 0 ? 'modular' : 'vardct'
+
   if (encoding === 'vardct' && !allowVarDct) {
     throw unsupportedOperation('JPEG XL VarDCT frames are outside the implemented decode subset')
   }
-  const frameFlags = readU64(reader)
-  if ((frameFlags & ~0xb3) !== 0) {
-    throw unsupportedOperation('JPEG XL frame uses reserved flags')
-  }
-  const colorTransform = xybEncoded ? 'xyb' : reader.readBits(1) !== 0 ? 'ycbcr' : 'none'
-  const chromaSubsampling = [0, 0, 0] as [number, number, number]
-  if (colorTransform === 'ycbcr' && (frameFlags & 0x20) === 0) {
-    for (let channel = 0; channel < 3; channel += 1) {
-      chromaSubsampling[channel] = reader.readBits(2)
-    }
-  }
-  if ((frameFlags & 0x20) === 0) {
-    requireValue(readU32(reader, [value(1), value(2), value(4), value(8)]), 1, 'color upsampling')
-    for (let index = 0; index < extraChannels; index += 1) {
-      requireValue(
-        readU32(reader, [value(1), value(2), value(4), value(8)]),
-        1,
-        'extra-channel upsampling',
-      )
-    }
-  }
-  const groupSizeShift = encoding === 'modular' ? reader.readBits(2) : 1
-  let xQuantizationScale = 2
-  let bQuantizationScale = 2
-  if (encoding === 'vardct' && colorTransform === 'xyb') {
-    xQuantizationScale = reader.readBits(3)
-    bQuantizationScale = reader.readBits(3)
-  }
-  const passCount = readU32(reader, [value(1), value(2), value(3), bits(3, 4)])
-  const passShifts = new Array<number>(passCount).fill(0)
-  if (passCount !== 1) {
-    const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
-    if (downsampleCount > passCount) {
-      throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
-    }
-    for (let index = 0; index < passCount - 1; index += 1) {
-      passShifts[index] = reader.readBits(2)
-    }
-    let previousDownsample = 9
-    for (let index = 0; index < downsampleCount; index += 1) {
-      const downsample = readU32(reader, [value(1), value(2), value(4), value(8)])
-      if (downsample >= previousDownsample) {
-        throw invalidInput('JPEG XL progressive downsample factors are not decreasing')
-      }
-      previousDownsample = downsample
-    }
-    let previousPass = -1
-    for (let index = 0; index < downsampleCount; index += 1) {
-      const lastPass = readU32(reader, [value(0), value(1), value(2), bits(3)])
-      if (lastPass <= previousPass || lastPass >= passCount) {
-        throw invalidInput('JPEG XL progressive pass boundary is invalid')
-      }
-      previousPass = lastPass
-    }
-  }
-  const dcLevel = frameType === 'dc' ? readU32(reader, [value(1), value(2), value(3), value(4)]) : 0
-  let isLast = false
-  if (frameType === 'regular') {
-    requireValue(reader.readBits(1) !== 0, false, 'partial frames')
-    requireValue(readU32(reader, [value(0), value(1), value(2), bits(2, 3)]), 0, 'frame blending')
-    for (let index = 0; index < extraChannels; index += 1) {
-      requireValue(
-        readU32(reader, [value(0), value(1), value(2), bits(2, 3)]),
-        0,
-        'extra-channel blending',
-      )
-    }
-    isLast = reader.readBits(1) !== 0
-    if (!isLast) {
-      throw unsupportedOperation('JPEG XL non-final regular frames are not supported')
-    }
-  }
-  readName(reader)
-  const defaultLoopFilter = reader.readBits(1) !== 0
-  let gaborish = true
-  let epfIterations = 2
-  if (!defaultLoopFilter) {
-    gaborish = reader.readBits(1) !== 0
-    if (gaborish) {
-      requireValue(reader.readBits(1) !== 0, false, 'custom Gaborish filtering')
-    }
-    epfIterations = reader.readBits(2)
-    if (epfIterations > 0) {
-      if (encoding === 'vardct') {
-        requireValue(reader.readBits(1) !== 0, false, 'custom EPF sharpness')
-      }
-      requireValue(reader.readBits(1) !== 0, false, 'custom EPF weights')
-      requireValue(reader.readBits(1) !== 0, false, 'custom EPF sigma')
-      if (encoding === 'modular') {
-        const modularSigma = readF16(reader)
-        if (modularSigma < 1e-8) throw invalidInput('JPEG XL Modular EPF sigma is too small')
-      }
-    }
-    const loopFilterExtensions = readU64(reader)
-    requireValue(loopFilterExtensions, 0, 'loop-filter extensions')
-  }
-  const frameExtensions = readU64(reader)
-  if (frameExtensions !== 0) {
-    throw unsupportedOperation(
-      `JPEG XL frame extensions ${frameExtensions} are outside the implemented decode subset`,
-    )
-  }
 
   const frameScale = 2 ** (3 * dcLevel)
-  const frameWidth = Math.ceil(width / frameScale)
-  const frameHeight = Math.ceil(height / frameScale)
+  const codedFrameWidth = Math.ceil(Math.ceil(frameWidth / frameScale) / upsampling)
+  const codedFrameHeight = Math.ceil(Math.ceil(frameHeight / frameScale) / upsampling)
   const groupDimension = encoding === 'modular' ? 128 * 2 ** groupSizeShift : 256
-  const groupsAcross = Math.ceil(frameWidth / groupDimension)
-  const groupsDown = Math.ceil(frameHeight / groupDimension)
+  const groupsAcross = Math.ceil(codedFrameWidth / groupDimension)
+  const groupsDown = Math.ceil(codedFrameHeight / groupDimension)
   const groupCount = groupsAcross * groupsDown
   const dcGroupDimension = groupDimension * 8
   const dcGroupCount =
-    Math.ceil(frameWidth / dcGroupDimension) * Math.ceil(frameHeight / dcGroupDimension)
+    Math.ceil(codedFrameWidth / dcGroupDimension) * Math.ceil(codedFrameHeight / dcGroupDimension)
   if (encoding === 'modular') {
-    const workingWidth = groupCount === 1 ? frameWidth : Math.min(frameWidth, groupDimension)
-    const workingHeight = groupCount === 1 ? frameHeight : Math.min(frameHeight, groupDimension)
+    const workingWidth =
+      groupCount === 1 ? codedFrameWidth : Math.min(codedFrameWidth, groupDimension)
+    const workingHeight =
+      groupCount === 1 ? codedFrameHeight : Math.min(codedFrameHeight, groupDimension)
     const planeBytes = BigInt(workingWidth) * BigInt(workingHeight) * BigInt(channelCount) * 4n
     if (planeBytes > BigInt(limits.maxDecodedBytes)) {
       throw limitExceeded(
@@ -536,21 +858,52 @@ const readHeader = (
   return Object.freeze({
     width,
     height,
+    codedWidth: codedFrameWidth,
+    codedHeight: codedFrameHeight,
     bitDepth,
+    exponentBits,
+    sampleFormat,
     alphaBitDepth,
+    alphaAssociated,
+    selectedAlphaChannel,
+    extraChannels: parsedExtraChannels,
     colorChannels: colorEncoding.colorChannels,
     channelCount,
     metadataColorSpace: colorEncoding.metadataColorSpace,
+    colorSemanticsPrimaries: colorEncoding.primaries,
+    ...(colorEncoding.whitePoint === undefined && colorEncoding.customPrimaries === undefined
+      ? {}
+      : {
+          chromaticities: Object.freeze({
+            whitePoint: colorEncoding.whitePoint ?? Object.freeze({ x: 0.3127, y: 0.329 }),
+            ...(colorEncoding.customPrimaries === undefined
+              ? {}
+              : { primaries: colorEncoding.customPrimaries }),
+          }),
+        }),
+    colorSemanticsTransfer: colorEncoding.transfer,
     colorProvenance: colorEncoding.provenance,
     renderingIntent: colorEncoding.renderingIntent,
-    orientation: 1,
+    orientation,
+    intrinsicWidth,
+    intrinsicHeight,
+    toneMapping,
+    iccProfile,
     encoding,
     frameType,
     dcLevel,
     isLast,
+    frameOriginX,
+    frameOriginY,
+    frameWidth,
+    frameHeight,
+    saveAsReference,
+    saveBeforeColorTransform,
     frameFlags,
     colorTransform,
     chromaSubsampling: Object.freeze(chromaSubsampling),
+    upsampling,
+    extraChannelUpsampling: Object.freeze(extraChannelUpsampling),
     xQuantizationScale,
     bQuantizationScale,
     passCount,
@@ -649,10 +1002,12 @@ const readTree = (
 
 export const readJpegXlModularTree = readTree
 
-interface ModularChannelLayout {
+export interface JpegXlModularChannelLayout {
   readonly width: number
   readonly height: number
 }
+
+type ModularChannelLayout = JpegXlModularChannelLayout
 
 interface ModularRctTransform {
   readonly kind: 'rct'
@@ -694,7 +1049,7 @@ interface WeightedPredictorParameters {
   readonly weights: readonly [number, number, number, number]
 }
 
-const defaultWeightedPredictor = Object.freeze({
+export const defaultJpegXlWeightedPredictor = Object.freeze({
   p1: 16,
   p2: 10,
   p3a: 7,
@@ -706,7 +1061,7 @@ const defaultWeightedPredictor = Object.freeze({
 })
 
 const readWeightedPredictor = (reader: JpegXlBitReader): WeightedPredictorParameters => {
-  if (reader.readBits(1) !== 0) return defaultWeightedPredictor
+  if (reader.readBits(1) !== 0) return defaultJpegXlWeightedPredictor
   return Object.freeze({
     p1: reader.readBits(5),
     p2: reader.readBits(5),
@@ -725,6 +1080,7 @@ const readWeightedPredictor = (reader: JpegXlBitReader): WeightedPredictorParame
 }
 
 interface ModularProgram {
+  readonly frameFeatures?: JpegXlFrameFeatures
   readonly dcQuantization?: readonly [number, number, number]
   readonly nodes: readonly ModularNode[]
   readonly section: Uint8Array
@@ -873,40 +1229,17 @@ const applySqueezeLayouts = (
   return metaChannelCount
 }
 
-const readJpegXlModularProgram = (
-  section: Uint8Array,
-  channelCount: JpegXlChannelCount,
-  width: number,
-  height: number,
-): ModularProgram => {
-  const reader = new JpegXlBitReader(section)
-  const defaultDcQuantization = reader.readBits(1) !== 0
-  const dcQuantization: [number, number, number] = [1 / 4_096, 1 / 512, 1 / 256]
-  if (!defaultDcQuantization) {
-    for (let channel = 0; channel < 3; channel += 1) {
-      const quantization = readF16(reader) / 128
-      if (quantization < 1e-8) throw invalidInput('JPEG XL DC quantization is too small')
-      dcQuantization[channel] = quantization
-    }
-  }
-  const hasGlobalTree = reader.readBits(1) !== 0
-  const globalTree = hasGlobalTree ? readTree(reader) : undefined
-  const globalPixelCode = globalTree ? readJpegXlEntropyCode(reader, globalTree.leaves) : undefined
-  const useGlobalTree = reader.readBits(1) !== 0
-  if (useGlobalTree && (!globalTree || !globalPixelCode)) {
-    throw invalidInput('JPEG XL Modular group references a missing global tree')
-  }
-  const weightedPredictor = readWeightedPredictor(reader)
+const readModularTransforms = (
+  reader: JpegXlBitReader,
+  channelLayouts: ModularChannelLayout[],
+  initialMetaChannelCount: number,
+): Readonly<{ transforms: readonly ModularTransform[]; metaChannelCount: number }> => {
   const transformCount = readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)])
   if (transformCount > 256) {
     throw limitExceeded('JPEG XL Modular transform count exceeds 256')
   }
-  const channelLayouts: ModularChannelLayout[] = Array.from({ length: channelCount }, () => ({
-    width,
-    height,
-  }))
   const transforms: ModularTransform[] = []
-  let metaChannelCount = 0
+  let metaChannelCount = initialMetaChannelCount
   for (let transformIndex = 0; transformIndex < transformCount; transformIndex += 1) {
     const transform = readU32(reader, [value(0), value(1), value(2), value(3)])
     if (transform === 0) {
@@ -989,6 +1322,48 @@ const readJpegXlModularProgram = (
       throw invalidInput('JPEG XL Modular transform is invalid')
     }
   }
+  return Object.freeze({ transforms: Object.freeze(transforms), metaChannelCount })
+}
+
+const readJpegXlModularProgram = (
+  section: Uint8Array,
+  channelCount: number,
+  width: number,
+  height: number,
+  frameFlags = 0,
+  extraChannelCount = 0,
+): ModularProgram => {
+  const frameFeatures = readJpegXlFrameFeatures(
+    section,
+    0,
+    frameFlags,
+    width,
+    height,
+    extraChannelCount,
+  )
+  const reader = new JpegXlBitReader(section, frameFeatures.endingBitPosition)
+  const defaultDcQuantization = reader.readBits(1) !== 0
+  const dcQuantization: [number, number, number] = [1 / 4_096, 1 / 512, 1 / 256]
+  if (!defaultDcQuantization) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const quantization = readF16(reader) / 128
+      if (quantization < 1e-8) throw invalidInput('JPEG XL DC quantization is too small')
+      dcQuantization[channel] = quantization
+    }
+  }
+  const hasGlobalTree = reader.readBits(1) !== 0
+  const globalTree = hasGlobalTree ? readTree(reader) : undefined
+  const globalPixelCode = globalTree ? readJpegXlEntropyCode(reader, globalTree.leaves) : undefined
+  const useGlobalTree = reader.readBits(1) !== 0
+  if (useGlobalTree && (!globalTree || !globalPixelCode)) {
+    throw invalidInput('JPEG XL Modular group references a missing global tree')
+  }
+  const weightedPredictor = readWeightedPredictor(reader)
+  const channelLayouts: ModularChannelLayout[] = Array.from({ length: channelCount }, () => ({
+    width,
+    height,
+  }))
+  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
   const tree = useGlobalTree ? globalTree : readTree(reader)
   if (!tree) throw invalidInput('JPEG XL Modular tree is missing')
   const pixelCode = useGlobalTree ? globalPixelCode : readJpegXlEntropyCode(reader, tree.leaves)
@@ -1004,6 +1379,7 @@ const readJpegXlModularProgram = (
       (node.kind === 'branch' && node.property === 15),
   )
   return Object.freeze({
+    frameFeatures,
     dcQuantization: Object.freeze(dcQuantization),
     nodes: tree.nodes,
     section,
@@ -1022,6 +1398,22 @@ const readJpegXlModularProgram = (
 export interface JpegXlStandaloneModularResult {
   readonly planes: readonly Int32Array<ArrayBufferLike>[]
   readonly endingBitPosition: number
+}
+
+export const readJpegXlStandaloneModularHeader = (
+  section: Uint8Array,
+  startingBitPosition: number,
+  channelLayoutsInput: readonly Readonly<JpegXlModularChannelLayout>[],
+): number => {
+  const reader = new JpegXlBitReader(section, startingBitPosition)
+  reader.readBits(1)
+  readWeightedPredictor(reader)
+  const channelLayouts = channelLayoutsInput.map(({ width, height }) => ({ width, height }))
+  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
+  if (transforms.length !== 0 || metaChannelCount !== 0) {
+    throw unsupportedOperation('Common VarDCT alpha Modular transforms are not supported yet')
+  }
+  return reader.bitPosition
 }
 
 export interface JpegXlModularGlobalCode {
@@ -1066,11 +1458,8 @@ export const decodeJpegXlStandaloneModular = (
     throw invalidInput('JPEG XL standalone Modular stream references a missing global tree')
   }
   const weightedPredictor = readWeightedPredictor(reader)
-  requireValue(
-    readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)]),
-    0,
-    'standalone Modular transforms',
-  )
+  const channelLayouts = channelLayoutsInput.map(({ width, height }) => ({ width, height }))
+  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
   const tree = useGlobalTree ? globalCode : readTree(reader)
   if (!tree) throw invalidInput('JPEG XL standalone Modular tree is missing')
   const pixelCode =
@@ -1080,29 +1469,22 @@ export const decodeJpegXlStandaloneModular = (
       (node.kind === 'leaf' && node.predictor === 6) ||
       (node.kind === 'branch' && node.property === 15),
   )
-  const channelLayouts = Object.freeze(
-    channelLayoutsInput.map(({ width, height }) => Object.freeze({ width, height })),
-  )
-  const decoded = decodeModularPlanesWithPosition(
-    Object.freeze({
-      nodes: tree.nodes,
-      section,
-      residualBitPosition: reader.bitPosition,
-      pixelCode,
-      weightedPredictor,
-      usesWeightedPrediction,
-      channelLayouts,
-      transforms: Object.freeze([]),
-      metaChannelCount: 0,
-      groupId,
-      prefixPlanes: Object.freeze([]),
-    }),
-    0,
-    undefined,
-    false,
-  )
+  const program = Object.freeze({
+    nodes: tree.nodes,
+    section,
+    residualBitPosition: reader.bitPosition,
+    pixelCode,
+    weightedPredictor,
+    usesWeightedPrediction,
+    channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
+    transforms,
+    metaChannelCount,
+    groupId,
+    prefixPlanes: Object.freeze([]),
+  })
+  const decoded = decodeModularPlanesWithPosition(program, 0, undefined, false)
   return Object.freeze({
-    planes: Object.freeze(decoded.planes),
+    planes: Object.freeze(inverseModularTransforms(decoded.planes, program, 8)),
     endingBitPosition: decoded.endingBitPosition,
   })
 }
@@ -1140,6 +1522,8 @@ const readMultiGroupFoundation = (
     header.channelCount,
     header.width,
     header.height,
+    header.frameFlags,
+    header.extraChannels.length,
   )
   if (globalProgram.transforms.some((transform) => transform.kind !== 'rct')) {
     throw unsupportedOperation(
@@ -1296,18 +1680,29 @@ const weightedDivision = Uint32Array.from({ length: 64 }, (_, index) =>
   Math.floor(16_777_216 / (index + 1)),
 )
 
-class JpegXlWeightedPredictor {
-  readonly #predictions = new Int32Array(4)
+export class JpegXlWeightedPredictor {
+  readonly #predictions: Int32Array
   readonly #predictionErrors: readonly Uint32Array[]
   readonly #errors: Int32Array
   readonly #parameters: WeightedPredictorParameters
   readonly #rowLength: number
   #prediction = 0
 
-  constructor(width: number, parameters: WeightedPredictorParameters) {
+  constructor(
+    width: number,
+    parameters: WeightedPredictorParameters,
+    storage?: Readonly<{
+      predictions: Int32Array
+      predictionErrors: readonly Uint32Array[]
+      errors: Int32Array
+    }>,
+  ) {
     this.#rowLength = width + 2
-    this.#predictionErrors = Array.from({ length: 4 }, () => new Uint32Array(this.#rowLength * 2))
-    this.#errors = new Int32Array(this.#rowLength * 2)
+    this.#predictions = storage?.predictions ?? new Int32Array(4)
+    this.#predictionErrors =
+      storage?.predictionErrors ??
+      Array.from({ length: 4 }, () => new Uint32Array(this.#rowLength * 2))
+    this.#errors = storage?.errors ?? new Int32Array(this.#rowLength * 2)
     this.#parameters = parameters
   }
 
@@ -2113,6 +2508,65 @@ export const decodeJpegXlModularDcFrameSection = (
   return Object.freeze([outputX, outputY, outputB])
 }
 
+export const decodeJpegXlMultiGroupModularDcFrameSections = (
+  sections: readonly Uint8Array[],
+  frame: Readonly<JpegXlFrameStructure>,
+  signal?: AbortSignal,
+): readonly [Float64Array, Float64Array, Float64Array] => {
+  if (frame.passCount !== 1) {
+    throw unsupportedOperation('JPEG XL grouped progressive Modular DC frames are not supported')
+  }
+  const groups = readMultiGroupPrograms(sections, frame)
+  const first = groups[0]
+  if (!first || first.program.prefixPlanes.length !== 0) {
+    throw unsupportedOperation('JPEG XL grouped Modular DC prefix channels are not supported')
+  }
+  const quantization = first.program.dcQuantization
+  if (!quantization) throw invalidInput('JPEG XL grouped Modular DC quantization is missing')
+  const encoded = [
+    new Int32Array(frame.width * frame.height),
+    new Int32Array(frame.width * frame.height),
+    new Int32Array(frame.width * frame.height),
+  ] as const
+  for (const group of groups) {
+    throwIfAborted(signal)
+    const decoded = inverseModularTransforms(
+      decodeModularPlanes(group.program, 0, signal),
+      group.program,
+      8,
+    )
+    if (decoded.length !== 3) {
+      throw unsupportedOperation('JPEG XL grouped Modular DC channel layout is not supported')
+    }
+    for (let channel = 0; channel < 3; channel += 1) {
+      const source = decoded[channel]
+      const destination = encoded[channel]
+      if (!source || !destination || source.length !== group.width * group.height) {
+        throw invalidInput('JPEG XL grouped Modular DC channel data is inconsistent')
+      }
+      for (let row = 0; row < group.height; row += 1) {
+        destination.set(
+          source.subarray(row * group.width, (row + 1) * group.width),
+          (group.y + row) * frame.width + group.x,
+        )
+      }
+    }
+  }
+  const encodedY = encoded[0]
+  const encodedX = encoded[1]
+  const encodedB = encoded[2]
+  const outputX = new Float64Array(encodedX.length)
+  const outputY = new Float64Array(encodedY.length)
+  const outputB = new Float64Array(encodedB.length)
+  for (let index = 0; index < encodedY.length; index += 1) {
+    const y = encodedY[index] ?? 0
+    outputX[index] = (encodedX[index] ?? 0) * quantization[0]
+    outputY[index] = y * quantization[1]
+    outputB[index] = ((encodedB[index] ?? 0) + y) * quantization[2]
+  }
+  return Object.freeze([outputX, outputY, outputB])
+}
+
 class JpegXlModularDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -2124,11 +2578,13 @@ class JpegXlModularDecoder implements ImageDecoder {
     scaledDecode: false,
     progressive: false,
   })
+  readonly #signal: AbortSignal | undefined
   readonly #header: JpegXlHeader
   readonly #program: ModularProgram
   readonly #displayRanges: readonly PixelSampleDisplayRange[] | undefined
 
-  constructor(header: JpegXlHeader, program: ModularProgram) {
+  constructor(header: JpegXlHeader, program: ModularProgram, signal?: AbortSignal) {
+    this.#signal = signal
     this.width = header.width
     this.height = header.height
     const highDepth =
@@ -2168,6 +2624,8 @@ class JpegXlModularDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const signal = combineAbortSignals(this.#signal, request.signal)
+    if (signal) request = { ...request, signal }
     throwIfAborted(request.signal)
     if ((request.scaleDenominator ?? 1) !== 1) {
       throw unsupportedOperation('JPEG XL subset decoder does not support scaled decode')
@@ -2196,6 +2654,34 @@ class JpegXlModularDecoder implements ImageDecoder {
       this.#header.bitDepth,
     )
 
+    const splines = this.#program.frameFeatures?.splines ?? []
+    if (splines.length > 0) {
+      if (this.#header.colorChannels !== 3 || this.#header.colorTransform !== 'none') {
+        throw unsupportedOperation('JPEG XL Modular splines require direct three-channel color')
+      }
+      const maximum = 2 ** this.#header.bitDepth - 1
+      const splinePlanes = planes
+        .slice(0, 3)
+        .map((plane) => Float32Array.from(plane, (sample) => sample / maximum))
+      applyJpegXlSplines(
+        splinePlanes,
+        this.width,
+        this.width,
+        this.height,
+        splines,
+        this.#program.frameFeatures?.splineQuantizationAdjustment ?? 0,
+        { colorFactor: 84, baseCorrelationX: 0, baseCorrelationB: 1 },
+      )
+      for (let channel = 0; channel < 3; channel += 1) {
+        const source = splinePlanes[channel]
+        const destination = planes[channel]
+        if (!source || !destination) throw invalidInput('JPEG XL spline color plane is missing')
+        for (let index = 0; index < source.length; index += 1) {
+          destination[index] = Math.round((source[index] ?? 0) * maximum)
+        }
+      }
+    }
+
     const firstPlane = planes[0]
     if (!firstPlane) throw invalidInput('JPEG XL color channel buffer is missing')
     const colorMaximum = 2 ** this.#header.bitDepth - 1
@@ -2220,6 +2706,7 @@ class JpegXlModularDecoder implements ImageDecoder {
           stride: output.byteLength,
           format: highDepth ? 'gray16' : 'gray8',
           data: output,
+          colorSemantics: this.colorSemantics,
           ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
         }
       }
@@ -2228,7 +2715,10 @@ class JpegXlModularDecoder implements ImageDecoder {
 
     const secondPlane = planes[1]
     const thirdPlane = planes[2]
-    const alphaPlane = planes[this.#header.colorChannels]
+    const alphaPlane =
+      this.#header.selectedAlphaChannel === undefined
+        ? undefined
+        : planes[this.#header.colorChannels + this.#header.selectedAlphaChannel]
     const grayscaleWithAlpha = this.#header.colorChannels === 1
     if (!grayscaleWithAlpha && (!secondPlane || !thirdPlane)) {
       throw invalidInput('JPEG XL color channel buffer is missing')
@@ -2264,6 +2754,7 @@ class JpegXlModularDecoder implements ImageDecoder {
           stride: output.byteLength,
           format: this.pixelFormat,
           data: output,
+          colorSemantics: this.colorSemantics,
           ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
         }
         continue
@@ -2292,6 +2783,7 @@ class JpegXlModularDecoder implements ImageDecoder {
         stride: output.byteLength,
         format: this.pixelFormat,
         data: output,
+        colorSemantics: this.colorSemantics,
         ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
       }
     }
@@ -2321,11 +2813,18 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
     scaledDecode: false,
     progressive: false,
   })
+  readonly #signal: AbortSignal | undefined
   readonly #header: JpegXlHeader
   readonly #loadGroup: ModularGroupLoader
   readonly #limits: ImageLimits
 
-  constructor(header: JpegXlHeader, loadGroup: ModularGroupLoader, limits: ImageLimits) {
+  constructor(
+    header: JpegXlHeader,
+    loadGroup: ModularGroupLoader,
+    limits: ImageLimits,
+    signal?: AbortSignal,
+  ) {
+    this.#signal = signal
     this.width = header.width
     this.height = header.height
     const highDepth =
@@ -2349,6 +2848,8 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const signal = combineAbortSignals(this.#signal, request.signal)
+    if (signal) request = { ...request, signal }
     throwIfAborted(request.signal)
     if ((request.scaleDenominator ?? 1) !== 1) {
       throw unsupportedOperation('JPEG XL subset decoder does not support scaled decode')
@@ -2474,6 +2975,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
             stride: output.byteLength,
             format: this.pixelFormat,
             data: output,
+            colorSemantics: this.colorSemantics,
             ...(displayRanges === undefined ? {} : { displayRanges }),
           }
         }
@@ -2484,25 +2986,474 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
   }
 }
 
+class JpegXlStraightAlphaDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly colorSemantics: PixelColorSemantics
+  readonly capabilities: ImageDecoder['capabilities']
+  readonly #source: ImageDecoder
+  readonly #colorMaximum: number
+  readonly #alphaMaximum: number
+
+  constructor(source: ImageDecoder, header: Readonly<JpegXlHeader>) {
+    if (
+      source.pixelFormat !== 'rgba8' &&
+      source.pixelFormat !== 'rgba16' &&
+      source.pixelFormat !== 'rgbaf32'
+    ) {
+      throw unsupportedOperation('JPEG XL associated alpha requires RGBA output')
+    }
+    this.width = source.width
+    this.height = source.height
+    this.pixelFormat = source.pixelFormat
+    this.capabilities = source.capabilities
+    this.#source = source
+    this.#colorMaximum = 2 ** header.bitDepth - 1
+    this.#alphaMaximum = 2 ** (header.alphaBitDepth ?? header.bitDepth) - 1
+    this.colorSemantics = Object.freeze({
+      ...(source.colorSemantics ?? jpegXlPixelColorSemantics(header)),
+      alpha: 'straight',
+    })
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    for await (const block of this.#source.decode(request)) {
+      const data = block.data
+      if (block.format === 'rgba8') {
+        for (let offset = 0; offset < data.byteLength; offset += 4) {
+          const alpha = data[offset + 3] ?? 0
+          for (let channel = 0; channel < 3; channel += 1) {
+            const sample = data[offset + channel] ?? 0
+            data[offset + channel] =
+              alpha === 0 ? 0 : Math.min(255, Math.round((sample * 255) / alpha))
+          }
+        }
+      } else if (block.format === 'rgbaf32') {
+        const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+        for (let row = 0; row < block.height; row += 1)
+          for (let x = 0; x < block.width; x += 1) {
+            const offset = row * block.stride + x * 16
+            const alpha = view.getFloat32(offset + 12, false)
+            for (let channel = 0; channel < 3; channel += 1)
+              view.setFloat32(
+                offset + channel * 4,
+                alpha === 0 ? 0 : view.getFloat32(offset + channel * 4, false) / alpha,
+                false,
+              )
+          }
+      } else if (block.format === 'rgba16') {
+        for (let offset = 0; offset < data.byteLength; offset += 8) {
+          const alpha = (data[offset + 6] ?? 0) * 256 + (data[offset + 7] ?? 0)
+          for (let channel = 0; channel < 3; channel += 1) {
+            const sampleOffset = offset + channel * 2
+            const sample = (data[sampleOffset] ?? 0) * 256 + (data[sampleOffset + 1] ?? 0)
+            const straight =
+              alpha === 0
+                ? 0
+                : Math.min(this.#colorMaximum, Math.round((sample * this.#alphaMaximum) / alpha))
+            data[sampleOffset] = straight >>> 8
+            data[sampleOffset + 1] = straight & 255
+          }
+        }
+      }
+      yield Object.freeze({ ...block, data, colorSemantics: this.colorSemantics })
+    }
+  }
+}
+
+const alphaOutputDecoder = (
+  decoder: ImageDecoder,
+  header: Readonly<JpegXlHeader>,
+  options: Readonly<DecoderOptions>,
+): ImageDecoder => {
+  if (
+    options.alphaOutput !== undefined &&
+    options.alphaOutput !== 'preserve' &&
+    options.alphaOutput !== 'straight'
+  ) {
+    throw invalidInput('JPEG XL alphaOutput must be preserve or straight')
+  }
+  return header.alphaAssociated && options.alphaOutput === 'straight'
+    ? new JpegXlStraightAlphaDecoder(decoder, header)
+    : decoder
+}
+
+const primariesCode = (primaries: PixelColorPrimaries): 1 | 9 | 12 => {
+  if (primaries === 'srgb') return 1
+  if (primaries === 'rec2020') return 9
+  if (primaries === 'display-p3') return 12
+  throw unsupportedOperation('JPEG XL HDR output requires known RGB primaries')
+}
+
+const transferCode = (transfer: PixelTransferFunction): 16 | 18 => {
+  if (transfer.kind === 'pq') return 16
+  if (transfer.kind === 'hlg') return 18
+  throw unsupportedOperation('JPEG XL HDR float output requires PQ or HLG transfer metadata')
+}
+
+const jpegXlHdrToneMap = (
+  header: Readonly<JpegXlHeader>,
+): ReturnType<typeof createNclxHdrToneMap> => {
+  const base = createNclxHdrToneMap(
+    primariesCode(header.colorSemanticsPrimaries),
+    transferCode(header.colorSemanticsTransfer),
+  )
+  if (header.colorSemanticsTransfer.kind !== 'hlg') return base
+  return {
+    ...base,
+    sourcePeak: header.toneMapping.intensityTarget / 203,
+    hlgSystemGamma: 1.2 * 1.111 ** Math.log2(header.toneMapping.intensityTarget / 1000),
+  }
+}
+
+class JpegXlHdrFloatDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: 'rgbf32' | 'rgbaf32'
+  readonly colorSemantics: PixelColorSemantics
+  readonly capabilities: ImageDecoder['capabilities']
+  readonly #source: ImageDecoder
+  readonly #maximum: number
+  readonly #alphaMaximum: number
+  readonly #channels: 3 | 4
+  readonly #toneMap: ReturnType<typeof createNclxHdrToneMap>
+
+  constructor(source: ImageDecoder, header: Readonly<JpegXlHeader>) {
+    if (!['gray8', 'gray16', 'rgb8', 'rgb16', 'rgba8', 'rgba16'].includes(source.pixelFormat)) {
+      throw unsupportedOperation(
+        'JPEG XL HDR float output requires integer RGB or grayscale samples',
+      )
+    }
+    this.width = source.width
+    this.height = source.height
+    this.#channels = header.alphaBitDepth === undefined ? 3 : 4
+    this.#alphaMaximum = 2 ** (header.alphaBitDepth ?? header.bitDepth) - 1
+    this.pixelFormat = this.#channels === 4 ? 'rgbaf32' : 'rgbf32'
+    this.capabilities = source.capabilities
+    this.#source = source
+    this.#maximum = 2 ** header.bitDepth - 1
+    this.#toneMap = jpegXlHdrToneMap(header)
+    this.colorSemantics = Object.freeze({
+      family: 'rgb',
+      primaries: header.colorSemanticsPrimaries,
+      transfer: Object.freeze({ kind: 'linear' }),
+      matrix: 'identity',
+      range: 'full',
+      alpha: this.#channels === 4 ? 'straight' : 'none',
+      provenance: 'decoder-converted',
+      renderingIntent: header.renderingIntent,
+    })
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    for await (const block of this.#source.decode(request)) {
+      let output: PixelBlock
+      try {
+        throwIfAborted(request.signal)
+        output = this.#convert(block)
+      } finally {
+        block.release?.()
+      }
+      yield output
+    }
+  }
+
+  #convert(block: PixelBlock): PixelBlock {
+    const bytesPerSample = block.format.endsWith('16') ? 2 : 1
+    const sourceChannels = block.format.startsWith('gray') ? 1 : this.#channels
+    const pixelCount = block.width * block.height
+    const data = new Uint8Array(pixelCount * this.#channels * 4)
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+    for (let pixel = 0; pixel < pixelCount; pixel += 1) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        const offset =
+          Math.floor(pixel / block.width) * block.stride +
+          ((pixel % block.width) * sourceChannels + (sourceChannels === 1 ? 0 : channel)) *
+            bytesPerSample
+        const sample =
+          bytesPerSample === 1
+            ? (block.data[offset] ?? 0)
+            : (block.data[offset] ?? 0) * 256 + (block.data[offset + 1] ?? 0)
+        view.setFloat32(
+          (pixel * this.#channels + channel) * 4,
+          nclxHdrToLinear(this.#toneMap, sample / this.#maximum),
+          false,
+        )
+      }
+      if (this.#channels === 4) {
+        const offset =
+          Math.floor(pixel / block.width) * block.stride +
+          ((pixel % block.width) * 4 + 3) * bytesPerSample
+        const alpha =
+          bytesPerSample === 1
+            ? (block.data[offset] ?? 0)
+            : (block.data[offset] ?? 0) * 256 + (block.data[offset + 1] ?? 0)
+        view.setFloat32((pixel * 4 + 3) * 4, alpha / this.#alphaMaximum, false)
+      }
+      const luma = this.#toneMap.hlgLumaCoefficients
+      if (luma) {
+        const offset = pixel * this.#channels * 4
+        const red = view.getFloat32(offset, false)
+        const green = view.getFloat32(offset + 4, false)
+        const blue = view.getFloat32(offset + 8, false)
+        const luminance = Math.max(0, luma[0] * red + luma[1] * green + luma[2] * blue)
+        const scale =
+          luminance === 0
+            ? 0
+            : luminance ** ((this.#toneMap.hlgSystemGamma ?? 1.2) - 1) * this.#toneMap.sourcePeak
+        view.setFloat32(offset, red * scale, false)
+        view.setFloat32(offset + 4, green * scale, false)
+        view.setFloat32(offset + 8, blue * scale, false)
+      }
+    }
+    return Object.freeze({
+      x: block.x,
+      y: block.y,
+      width: block.width,
+      height: block.height,
+      stride: block.width * this.#channels * 4,
+      format: this.pixelFormat,
+      data,
+      colorSemantics: this.colorSemantics,
+      displayRanges: Object.freeze([
+        Object.freeze({ black: 0, white: this.#toneMap.sourcePeak }),
+        Object.freeze({ black: 0, white: this.#toneMap.sourcePeak }),
+        Object.freeze({ black: 0, white: this.#toneMap.sourcePeak }),
+        ...(this.#channels === 4 ? [Object.freeze({ black: 0, white: 1 })] : []),
+      ]),
+    })
+  }
+}
+
+class JpegXlHdrSdrDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: 'rgb8' | 'rgba8'
+  readonly colorSemantics: PixelColorSemantics
+  readonly capabilities: ImageDecoder['capabilities']
+  readonly #source: ImageDecoder
+  readonly #maximum: number
+  readonly #alphaMaximum: number
+  readonly #channels: 3 | 4
+  readonly #toneMap: ReturnType<typeof createNclxHdrToneMap>
+
+  constructor(source: ImageDecoder, header: Readonly<JpegXlHeader>) {
+    if (
+      !['gray8', 'gray16', 'rgb8', 'rgb16', 'rgba8', 'rgba16', 'rgbf32', 'rgbaf32'].includes(
+        source.pixelFormat,
+      )
+    ) {
+      throw unsupportedOperation(
+        'JPEG XL HDR SDR conversion requires integer RGB or grayscale samples',
+      )
+    }
+    this.width = source.width
+    this.height = source.height
+    this.#channels = header.alphaBitDepth === undefined ? 3 : 4
+    this.#alphaMaximum = 2 ** (header.alphaBitDepth ?? header.bitDepth) - 1
+    this.pixelFormat = this.#channels === 4 ? 'rgba8' : 'rgb8'
+    this.capabilities = source.capabilities
+    this.#source = source
+    this.#maximum = 2 ** header.bitDepth - 1
+    const toneMap = jpegXlHdrToneMap(header)
+    this.#toneMap = source.pixelFormat.endsWith('f32')
+      ? {
+          encodedToLinear: toneMap.encodedToLinear,
+          linearToSrgb: toneMap.linearToSrgb,
+          sourcePeak: toneMap.sourcePeak,
+          sourceToSrgb: Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        }
+      : toneMap
+    this.colorSemantics = Object.freeze({
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: Object.freeze({ kind: 'srgb' }),
+      matrix: 'identity',
+      range: 'full',
+      alpha: this.#channels === 4 ? 'straight' : 'none',
+      provenance: 'decoder-converted',
+      renderingIntent: header.renderingIntent,
+    })
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    for await (const block of this.#source.decode(request)) {
+      let output: PixelBlock
+      try {
+        throwIfAborted(request.signal)
+        output = this.#convert(block)
+      } finally {
+        block.release?.()
+      }
+      yield output
+    }
+  }
+
+  #convert(block: PixelBlock): PixelBlock {
+    const bytesPerSample = block.format.endsWith('16') ? 2 : 1
+    const sourceChannels = block.format.startsWith('gray') ? 1 : this.#channels
+    const pixelCount = block.width * block.height
+    const data = new Uint8Array(pixelCount * this.#channels)
+    const rgba = new Uint8Array(4)
+    if (block.format === 'rgbf32' || block.format === 'rgbaf32') {
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let y = 0; y < block.height; y += 1)
+        for (let x = 0; x < block.width; x += 1) {
+          const source = y * block.stride + x * this.#channels * 4
+          const destination = (y * block.width + x) * this.#channels
+          writeNclxHdrLinearToneMappedRgba(
+            rgba,
+            0,
+            view.getFloat32(source, false),
+            view.getFloat32(source + 4, false),
+            view.getFloat32(source + 8, false),
+            this.#toneMap,
+          )
+          data.set(rgba.subarray(0, this.#channels), destination)
+          if (this.#channels === 4)
+            data[destination + 3] = Math.round(
+              Math.max(0, Math.min(1, view.getFloat32(source + 12, false))) * 255,
+            )
+        }
+      return Object.freeze({
+        x: block.x,
+        y: block.y,
+        width: block.width,
+        height: block.height,
+        stride: block.width * this.#channels,
+        format: this.pixelFormat,
+        data,
+        colorSemantics: this.colorSemantics,
+      })
+    }
+    for (let pixel = 0; pixel < pixelCount; pixel += 1) {
+      const offset =
+        Math.floor(pixel / block.width) * block.stride +
+        (pixel % block.width) * sourceChannels * bytesPerSample
+      const red =
+        bytesPerSample === 1
+          ? (block.data[offset] ?? 0)
+          : (block.data[offset] ?? 0) * 256 + (block.data[offset + 1] ?? 0)
+      const greenOffset = offset + (sourceChannels === 1 ? 0 : bytesPerSample)
+      const green =
+        bytesPerSample === 1
+          ? (block.data[greenOffset] ?? 0)
+          : (block.data[greenOffset] ?? 0) * 256 + (block.data[greenOffset + 1] ?? 0)
+      const blueOffset = greenOffset + (sourceChannels === 1 ? 0 : bytesPerSample)
+      const blue =
+        bytesPerSample === 1
+          ? (block.data[blueOffset] ?? 0)
+          : (block.data[blueOffset] ?? 0) * 256 + (block.data[blueOffset + 1] ?? 0)
+      writeNclxHdrToneMappedRgba(
+        rgba,
+        0,
+        red / this.#maximum,
+        green / this.#maximum,
+        blue / this.#maximum,
+        this.#toneMap,
+      )
+      const outputOffset = pixel * this.#channels
+      data[outputOffset] = rgba[0] ?? 0
+      data[outputOffset + 1] = rgba[1] ?? 0
+      data[outputOffset + 2] = rgba[2] ?? 0
+      if (this.#channels === 4) {
+        const alphaOffset = offset + 3 * bytesPerSample
+        const alpha =
+          bytesPerSample === 1
+            ? (block.data[alphaOffset] ?? 0)
+            : (block.data[alphaOffset] ?? 0) * 256 + (block.data[alphaOffset + 1] ?? 0)
+        data[outputOffset + 3] = Math.round((alpha * 255) / this.#alphaMaximum)
+      }
+    }
+    return Object.freeze({
+      x: block.x,
+      y: block.y,
+      width: block.width,
+      height: block.height,
+      stride: block.width * this.#channels,
+      format: this.pixelFormat,
+      data,
+      colorSemantics: this.colorSemantics,
+    })
+  }
+}
+
+export const configureJpegXlDecoderOutput = (
+  decoder: ImageDecoder,
+  header: Readonly<JpegXlHeader>,
+  options: Readonly<DecoderOptions>,
+): ImageDecoder => {
+  const alphaConfigured = alphaOutputDecoder(
+    decoder,
+    header,
+    options.hdrOutput === 'linear-float' || options.hdrOutput === 'tone-map-srgb'
+      ? { ...options, alphaOutput: 'straight' }
+      : options,
+  )
+  if (options.hdrOutput === undefined || options.hdrOutput === 'encoded') return alphaConfigured
+  if (options.hdrOutput === 'linear-float') {
+    if (alphaConfigured.pixelFormat === 'rgbf32' || alphaConfigured.pixelFormat === 'rgbaf32')
+      return alphaConfigured
+    return new JpegXlHdrFloatDecoder(alphaConfigured, header)
+  }
+  if (options.hdrOutput === 'tone-map-srgb') {
+    return new JpegXlHdrSdrDecoder(alphaConfigured, header)
+  }
+  throw invalidInput('JPEG XL hdrOutput is invalid')
+}
+
 export interface JpegXlDecodedDescription {
   readonly metadata: ImageMetadata
   readonly decoder: ImageDecoder
 }
 
-export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
+export const jpegXlXybOutputIsLinear = (header: Readonly<JpegXlFrameStructure>): boolean =>
+  header.colorTransform === 'xyb' &&
+  (header.colorSemanticsTransfer.kind === 'pq' ||
+    header.colorSemanticsTransfer.kind === 'hlg' ||
+    header.colorSemanticsTransfer.kind === 'linear' ||
+    header.colorSemanticsPrimaries === 'display-p3' ||
+    header.colorSemanticsPrimaries === 'rec2020' ||
+    header.chromaticities !== undefined)
+
+export const jpegXlSourceColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
   const xybConverted = header.colorTransform === 'xyb'
-  const linear =
-    header.metadataColorSpace === 'linear-gray' || header.metadataColorSpace === 'linear-rgb'
   return Object.freeze({
-    family: header.colorChannels === 1 ? 'gray' : 'rgb',
-    primaries: 'srgb',
-    transfer: Object.freeze({ kind: xybConverted ? 'srgb' : linear ? 'linear' : 'srgb' }),
+    family: header.colorChannels === 1 && !jpegXlXybOutputIsLinear(header) ? 'gray' : 'rgb',
+    primaries: xybConverted ? 'srgb' : header.colorSemanticsPrimaries,
+    transfer: xybConverted
+      ? Object.freeze({ kind: jpegXlXybOutputIsLinear(header) ? 'linear' : 'srgb' })
+      : header.colorSemanticsTransfer,
     matrix: 'identity',
     range: 'full',
-    alpha: header.alphaBitDepth === undefined ? 'none' : 'straight',
+    alpha:
+      header.alphaBitDepth === undefined
+        ? 'none'
+        : header.alphaAssociated
+          ? 'premultiplied'
+          : 'straight',
+    ...(!xybConverted && header.chromaticities !== undefined
+      ? { chromaticities: header.chromaticities }
+      : {}),
     provenance: xybConverted ? 'decoder-converted' : header.colorProvenance,
     renderingIntent: header.renderingIntent,
+    ...(header.colorProvenance === 'icc'
+      ? {
+          icc: Object.freeze({
+            relevance: xybConverted ? ('source' as const) : ('emitted-pixels' as const),
+          }),
+        }
+      : {}),
   })
+}
+
+export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
+  const semantics = jpegXlSourceColorSemantics(header)
+  if (semantics.family !== 'gray' || header.alphaBitDepth === undefined) return semantics
+  if (header.colorProvenance === 'icc')
+    throw unsupportedOperation('JPEG XL gray ICC plus alpha requires a profile-aware RGB expansion')
+  return Object.freeze({ ...semantics, family: 'rgb', provenance: 'decoder-converted' })
 }
 
 const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
@@ -2513,10 +3464,26 @@ const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
     mimeType: 'image/jxl',
     hasAlpha: header.alphaBitDepth !== undefined,
     orientation: header.orientation,
+    ...(header.intrinsicWidth === undefined
+      ? {}
+      : {
+          intrinsicWidth: header.intrinsicWidth,
+          ...(header.intrinsicHeight === undefined
+            ? {}
+            : { intrinsicHeight: header.intrinsicHeight }),
+        }),
     colorSpace: header.metadataColorSpace,
-    colorSemantics: jpegXlPixelColorSemantics(header),
+    ...(header.iccProfile === undefined
+      ? {}
+      : {
+          colorProfile: Object.freeze({
+            kind: 'icc' as const,
+            ...inspectIccProfile(header.iccProfile),
+          }),
+        }),
+    colorSemantics: jpegXlSourceColorSemantics(header),
     bitDepth: header.bitDepth,
-    sampleFormat: 'unsigned-integer',
+    sampleFormat: header.sampleFormat,
     frames: 1,
     components: header.channelCount,
     channels: header.channelCount,
@@ -2543,17 +3510,18 @@ const readHeaderFromSource = async (
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
   allowVarDct = false,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<JpegXlHeader> => {
   if (!Number.isSafeInteger(maximumHeaderBytes) || maximumHeaderBytes < 1) {
     throw invalidInput('JPEG XL maximum header bytes is invalid')
   }
   const headerLimit = Math.min(source.size, maximumHeaderBytes)
-  let headerBytes = Math.min(source.size, 4_096)
+  let headerBytes = Math.min(headerLimit, 4_096)
   while (true) {
     throwIfAborted(options.signal)
     const header = await readExactly(source, 0, headerBytes, options)
     try {
-      return readHeader(header, source.size, limits, allowVarDct)
+      return readHeader(header, source.size, limits, allowVarDct, options, undefined, iccLimits)
     } catch (error) {
       if (!(error instanceof ImageError) || error.code !== 'TRUNCATED_INPUT') throw error
       if (headerBytes >= headerLimit) {
@@ -2574,12 +3542,13 @@ const readFrameSequenceFromSource = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions>,
   maximumHeaderBytes: number,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<readonly JpegXlFrameStructure[]> => {
   if (!Number.isSafeInteger(maximumHeaderBytes) || maximumHeaderBytes < 1) {
     throw invalidInput('JPEG XL maximum header bytes is invalid')
   }
   const headerLimit = Math.min(source.size, maximumHeaderBytes)
-  let headerBytes = Math.min(source.size, 4_096)
+  let headerBytes = Math.min(headerLimit, 4_096)
   while (true) {
     throwIfAborted(options.signal)
     const prefix = await readExactly(source, 0, headerBytes, options)
@@ -2588,7 +3557,7 @@ const readFrameSequenceFromSource = async (
       let previous: JpegXlFrameStructure | undefined
       do {
         if (frames.length >= 5) throw limitExceeded('JPEG XL internal frame count exceeds 5')
-        const frame = readHeader(prefix, source.size, limits, true, previous)
+        const frame = readHeader(prefix, source.size, limits, true, options, previous, iccLimits)
         if (previous && frame.codestreamEndOffset <= previous.codestreamEndOffset) {
           throw invalidInput('JPEG XL internal frame extent does not advance')
         }
@@ -2616,8 +3585,15 @@ export const readJpegXlSourceMetadata = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<ImageMetadata> => {
-  const frames = await readFrameSequenceFromSource(source, limits, options, maximumHeaderBytes)
+  const frames = await readFrameSequenceFromSource(
+    source,
+    limits,
+    options,
+    maximumHeaderBytes,
+    iccLimits,
+  )
   const displayFrame = frames.at(-1)
   if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
   return metadataForHeader(displayFrame)
@@ -2627,6 +3603,7 @@ export interface JpegXlInspectionMetadata {
   readonly metadata: ImageMetadata
   readonly encoding: 'modular' | 'vardct'
   readonly progressivePasses: number
+  readonly frame: JpegXlFrameStructure
 }
 
 export const readJpegXlSourceInspectionMetadata = async (
@@ -2634,14 +3611,22 @@ export const readJpegXlSourceInspectionMetadata = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<JpegXlInspectionMetadata> => {
-  const frames = await readFrameSequenceFromSource(source, limits, options, maximumHeaderBytes)
+  const frames = await readFrameSequenceFromSource(
+    source,
+    limits,
+    options,
+    maximumHeaderBytes,
+    iccLimits,
+  )
   const displayFrame = frames.at(-1)
   if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
   return Object.freeze({
     metadata: metadataForHeader(displayFrame),
     encoding: displayFrame.encoding,
     progressivePasses: displayFrame.passCount,
+    frame: displayFrame,
   })
 }
 
@@ -2650,32 +3635,60 @@ export const readJpegXlSourceFrameStructure = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<JpegXlFrameStructure> =>
-  readHeaderFromSource(source, limits, options, maximumHeaderBytes, true)
+  readHeaderFromSource(source, limits, options, maximumHeaderBytes, true, iccLimits)
 
 export const readJpegXlSourceFrameStructures = async (
   source: ImageSource,
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<readonly JpegXlFrameStructure[]> =>
-  readFrameSequenceFromSource(source, limits, options, maximumHeaderBytes)
+  readFrameSequenceFromSource(source, limits, options, maximumHeaderBytes, iccLimits)
 
 export const decodeJpegXlSource = async (
   source: ImageSource,
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   maximumHeaderBytes = 4_194_304,
+  iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): Promise<JpegXlDecodedDescription> => {
-  const header = await readHeaderFromSource(source, limits, options, maximumHeaderBytes)
+  const header = await readHeaderFromSource(
+    source,
+    limits,
+    options,
+    maximumHeaderBytes,
+    false,
+    iccLimits,
+  )
+  if (
+    header.frameType !== 'regular' ||
+    !header.isLast ||
+    header.frameWidth !== header.width ||
+    header.frameHeight !== header.height
+  ) {
+    throw unsupportedOperation('JPEG XL Modular frame composition is not supported')
+  }
   if (header.sections.length === 1) {
     const section = header.sections[0]
     if (!section) throw invalidInput('JPEG XL frame section is missing')
     const data = await readExactly(source, section.offset, section.length, options)
-    const program = readJpegXlModularProgram(data, header.channelCount, header.width, header.height)
+    const program = readJpegXlModularProgram(
+      data,
+      header.channelCount,
+      header.width,
+      header.height,
+      header.frameFlags,
+      header.extraChannels.length,
+    )
+    if ((program.frameFeatures?.patches.length ?? 0) > 0) {
+      throw unsupportedOperation('JPEG XL Modular patches are not supported')
+    }
     return Object.freeze({
       metadata: metadataForHeader(header),
-      decoder: new JpegXlModularDecoder(header, program),
+      decoder: new JpegXlModularDecoder(header, program, options.signal),
     })
   }
   const globalSection = header.sections[0]
@@ -2703,7 +3716,7 @@ export const decodeJpegXlSource = async (
   }
   return Object.freeze({
     metadata: metadataForHeader(header),
-    decoder: new JpegXlMultiGroupModularDecoder(header, loadGroup, limits),
+    decoder: new JpegXlMultiGroupModularDecoder(header, loadGroup, limits, options.signal),
   })
 }
 
@@ -2721,7 +3734,12 @@ export const decodeJpegXlCodestream = (
       header.channelCount,
       header.width,
       header.height,
+      header.frameFlags,
+      header.extraChannels.length,
     )
+    if ((program.frameFeatures?.patches.length ?? 0) > 0) {
+      throw unsupportedOperation('JPEG XL Modular patches are not supported')
+    }
     return Object.freeze({
       metadata: metadataForHeader(header),
       decoder: new JpegXlModularDecoder(header, program),

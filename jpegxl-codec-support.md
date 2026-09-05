@@ -6,6 +6,68 @@ project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
+## M5 static processing
+
+- [x] JPEG XL to JPEG, PNG, WebP, AVIF and TIFF through the public pipeline
+- [x] Crop, resize, contain, cover, orientation normalization and explicit metadata preservation or stripping
+- [x] Native 8-16-bit crop and resize, independent alpha ranges, and float RGBA resize with bounded row buffers
+- [x] Linear-light sRGB resize uses the actual source sample range; float linear RGB and RGBA retain highlights
+- [x] Pixel-lossless JPEG XL re-encode inherits color and alpha precision, orientation and luminance metadata
+- [x] Explicit pixel conversion is required before an encoder that cannot retain JPEG XL sample precision
+- [x] Known 8-bit PNG color signals are preserved; incompatible or unavailable color conversions fail explicitly
+- [x] Planner reports native format, sample depths, color semantics, source orientation, pushed crop and scale, conversions, encoder options and decoder working storage
+- [x] Planner reports full-frame VarDCT output and any decode performed while opening the decoder
+- [x] Nearest and linear-light filters bypass coefficient reduction; other eligible JPEG-derived resizes use reduced floating-point IDCT
+- [x] Bounded HTTP Range reads across segmented jxlp, operation cancellation and source reuse
+- [x] Browser workbench opens, inspects, resizes and exports representative native-depth, P3 and HDR inputs
+
+Use `.jpegxl()` to retain supported native integer samples. To export 10- or 12-bit
+samples to PNG storage, use `.convertPixelFormat({ format: "rgb16" }).png()`.
+That explicit step scales the declared range to all 16 output bits. Use `rgba16` for alpha.
+For display output, choose `rgb8` or `rgba8` explicitly. Pixel conversion changes storage
+and range; it does not change transfer functions or primaries.
+
+Open supported P3 input with `colorOutput: "srgb"` for explicit sRGB conversion.
+Open PQ or HLG with `hdrOutput: "tone-map-srgb"` for explicit SDR rendering.
+Unavailable high-depth ICC, custom-chromaticity and structured integer color transforms
+remain errors. Float-encoded input and float JPEG XL encoding remain unsupported.
+
+VarDCT retains a full output frame. Eligible ordinary 8-bit photographs use bounded
+restoration bands, while high-depth, alpha and other documented fallback cases retain
+full working planes. Planner working-byte estimates exclude runtime and process overhead.
+Calling `explainImage()` can open and decode VarDCT; `io.pixelDecode` reports this cost.
+
+Progressive range-aware processing is M6 and is outside the M5 static boundary.
+
+## PR 35 precision, memory and evidence corrections
+
+- [x] Preserve nondefault PQ and HLG luminance fields through storage-only conversion
+- [x] Keep gray-alpha source descriptors separate from expanded RGBA pixel semantics
+- [x] Reject unavailable gray ICC plus alpha expansion without weakening encoder validation
+- [x] Check actual encoder allocations before construction and release all ownership on failure
+- [x] Validate maxWorkingBytes and maxOutputBytes; keep caller/sink memory and process RSS separate
+
+The nine original holdout assets retain source dimensions and checksums. Every effort-1 and effort-7 pixel result is independently exact, including original 24 MP and 12 MP photographs and two real UI captures. Large photos and screenshots often exceed PNG or libjxl sizes. Advanced effort search is currently single-group; larger inputs use the same left predictor for every requested effort. Two separately selected small eligible WPT JPEGs supplement the original ICC-ineligible small photographic case. No original holdout case was removed.
+
+See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection rules, rounding exception and exact-revision evidence.
+
+## M4 color and metadata
+
+- [x] Exact Modular RGB and gray samples in sRGB, linear sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma, and custom chromaticities at 8, 10, 12, and 16 bits
+- [x] All eight codestream orientations through `autoOrient()`, display dimensions, and normalized copied Exif orientation
+- [x] Straight and premultiplied alpha with independent precision, VarDCT upsampling, explicit multiple-alpha selection, and zero-alpha handling
+- [x] Bounded compressed ICC reconstruction, profile validation, supported first-party conversion, and source-profile preservation
+- [x] High-depth VarDCT and linear RGB/RGBA float output without clipping HDR to SDR
+- [x] Bounded Exif, XMP/XML, JUMBF, common brob, intrinsic dimensions, density, and timestamp metadata
+
+The checked matrix contains 56 structured color cases, 40 independent-alpha cases, 18 high-depth VarDCT color cases, eight VarDCT alpha-upsample cases, and a two-alpha fixture. Pinned libjxl provides independent native or float references. Official conformance has 13 passes, 25 explicit unsupported cases, no incorrect outputs, and the separately recorded pre-existing delta_palette failure. ICC validation records source-profile warnings, including the cafe profile checksum mismatch; extracted profile bytes match djxl exactly.
+
+Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported 8-bit conversions can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. Explicit unavailable high-depth or custom-chromaticity conversions throw `UNSUPPORTED_OPERATION`.
+
+`alphaOutput: "preserve"` retains associated samples. `alphaOutput: "straight"` unpremultiplies and sets zero-alpha color to zero. HDR conversions produce straight alpha. `alphaChannel` is a zero-based index and is required when more than one alpha channel is present. Alpha display range is independent of color.
+
+Container payloads require an explicit metadata preservation request. `metadata()` exposes only bounded density and timestamp summaries in addition to image fields. Exif orientation must be normalized before JPEG XL encoding; the `orientation` encode option owns display orientation. The `intrinsicSize` option accepts width and height. `toneMapping` accepts intensityTarget, minNits, relativeToMaxDisplay, and linearBelow; values use finite half precision. Defaults are 10000 nits for PQ, 1000 for HLG, and 255 otherwise. ICC encoding remains unsupported; source ICC can be preserved into compatible PNG output.
+
 ## Current implementation note
 
 A JPEG XL input is either a raw codestream beginning with its two-byte signature or a
@@ -16,21 +78,23 @@ without concatenating compressed data. Raw, single-`jxlc`, ordered `jxlp`, and
 file-format-version-1 out-of-order `jxlp` codestreams can enter the implemented
 pixel subset through one logical segmented source.
 
-The decoder covers the checked lossless Modular subset plus selected 8-bit single-group
-XYB VarDCT fixtures. The implementation includes raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17, Gaborish, EPF,
-adaptive smoothing, synthetic noise, final progressive reconstruction, and JPEG-derived
-RGB or YCbCr DCT coefficients. The six pinned fixtures validate complete decoded images but do not isolate every implemented strategy branch. Raw strategy 1 Hornuss is unsupported. Each checked lossy fixture has a pinned independent
-`djxl` tolerance. Unsupported strategies, patches, splines, broad color syntax, extra
-channels, orientation extra fields, and multiple visible frames fail explicitly. This
-VarDCT path materializes the selected full frame before applying a crop and serving rows.
+The decoder covers the checked lossless Modular and common static VarDCT boundary. It includes
+raw strategies 0 through 7 and 10 through 20, restoration filters, progressive reconstruction,
+patches, splines, synthetic noise, reference slots, and JPEG-derived RGB or YCbCr coefficients.
+The M3 real-photo corpus contains 300 files: 299 decode correctly and one unsupported internal
+Modular tree fails before output. M4 adds independently checked color, alpha, and HDR cases.
+The ordinary 8-bit sRGB path uses bounded restoration bands. High-depth, float, alpha, and
+composition paths use an explicit full-frame fallback. Selected VarDCT crops follow decode.
 
-The normal pipeline also exposes a deterministic effort-1 Modular encoder for gray8,
-gray16, rgb8, rgb16, rgba8, and rgba16. The output is mathematically pixel-lossless,
-and the six-format output matrix is exact through pinned `djxl` and jxl-rs. The corpus
-compression gate remains below the stable threshold, so the encoder stays Experimental. The separate
+The normal pipeline exposes a stable deterministic Modular encoder for gray8, gray16,
+rgb8, rgb16, rgba8, and rgba16 at effort 1, 3, 5, or 7. Explicit color and alpha
+precision can be declared from 8 through 16 bits when samples use 16-bit storage.
+The 163-case matrix is exact through PureJsImage, pinned `djxl`, jxl-rs, and jxl-oxide
+where applicable. The 156 procedural cases measure the fixed effort-1, effort-7,
+PNG and relative-speed gates. Actual encoder backing-buffer ownership has separate budget and cleanup tests. The separate stable
 `purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
-reconstructs and compares every source byte before exact-mode success. Exact transcode
+reconstructs and compares every source byte before exact-mode success. Its 250-file real JPEG archive, compression, speed, bounded sink-verification, and browser parity gates pass. Exact transcode
 walks APP metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC.
 
 A checked implementation item is already present and tested in the repository.
@@ -56,6 +120,7 @@ and independently validated.
   dependency, native library, WebAssembly module, or copied third-party code
 - [x] Add a constrained pixel-lossless Modular encoder through the normal pipeline
 - [x] Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs
+- [x] Pass the 250-file exact JPEG compression, 12 MP performance, bounded verification, and browser parity gates for the documented subset
 
 ## Planned lossless-first output boundary
 
@@ -181,17 +246,16 @@ losslessly transcoded JPEG files.
   groups
 - [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [x] Implement raw strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17,
-  with six full-image fixtures covering selected square DCT, rectangular DCT, and AFV combinations
-- [ ] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
+- [x] Implement raw strategy IDs 0 through 7 and 10 through 20,
+  with full-image fixtures covering Hornuss, square DCT, rectangular DCT, large transforms, and AFV combinations
+- [x] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
 - [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision
 - [x] Reconstruct the pinned XYB samples and perform the inverse opsin transform
-- [ ] Decode valid chroma subsampling and upsampling modes
-- [x] Implement pinned single-group Gaborish and edge-preserving restoration filters;
-  the multi-group halo remains unsupported
-- [ ] Decode and render patches, splines, and synthetic noise when signaled by a
-  valid static image
+- [x] Decode the checked 2x, 4x, and 8x chroma resampling modes
+- [x] Implement pinned single-group and multi-group Gaborish and edge-preserving restoration filters
+- [x] Decode and render checked patches and splines in valid static images
+- [x] Decode and render the pinned synthetic-noise fixtures
 - [x] Decode the pinned VarDCT images created from ordinary lossy sources
 - [x] Decode the image pixels of pinned JPEG-lossless-transcode codestreams
 - [x] Compare lossy output with conformance references using documented numeric
@@ -201,10 +265,10 @@ losslessly transcoded JPEG files.
 
 - [x] Decode one visible full-canvas frame with the default replace behavior
 - [ ] Skip a declared preview and decode the main image by default
-- [ ] Reject animation, multiple visible frames, non-default blending, reference
-  frame dependencies, and partial-canvas frame composition until Group 2
-- [ ] Apply all eight orientation values exactly once
-- [ ] Return display dimensions after orientation
+- [x] Resolve checked internal DC frames, reference slots, partial-canvas frames, and common static blend modes
+- [ ] Reject animation, multiple visible frames, and unsupported blend modes until Group 2
+- [x] Apply all eight orientation values exactly once through explicit autoOrient()
+- [x] Return display dimensions after orientation
 - [x] Emit bounded, ordered `gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset
 - [ ] Support JXL-to-JPEG, JXL-to-PNG, JXL-to-WebP, crop, resize, and
   resize-plus-encode workflows
@@ -214,17 +278,17 @@ losslessly transcoded JPEG files.
 - [x] Native integer grayscale at 8, 10, 12, and 16 bits per sample
 - [x] Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample for the current single-group Modular boundary
 - [x] One alpha extra channel with independent precision
-- [ ] Unassociated and premultiplied alpha with correct unpremultiplication or
-  preservation behavior
+- [x] Decode the checked common VarDCT straight-alpha form
+- [x] Premultiplied alpha with correct unpremultiplication or preservation behavior
 - [x] Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent
-  with matching metadata and decoder pixel semantics
-- [ ] Decode compressed embedded ICC profiles with strict decoded-size limits
+  with distinct source metadata and emitted pixel semantics
+- [x] Decode compressed embedded ICC profiles with strict decoded-size limits
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
 - [x] Handle grayscale and RGB codestream color representations for the compatible Modular subset
-- [ ] Handle XYB codestream color representations
+- [x] Handle checked 8-bit sRGB XYB codestream color representations
 - [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
-  display ranges, normalizing only when an 8-bit transform or encoder requires it
+  display ranges; pipeline normalization requires an explicit pixel conversion
 - [x] Reject unsupported color encodings or extra-channel semantics rather than
   treating their samples as sRGB or alpha for the checked subset
 
@@ -234,23 +298,24 @@ These features occur in real JPEG XL files, but a correct single-frame upload
 decoder can ship before all of them are complete.
 
 - [ ] Embedded preview decode and explicit preview selection
-- [ ] Multiple frames required internally by a still image
-- [ ] Frame crops, reference slots, save-as-reference behavior, and blend modes
+- [x] Multiple frames required internally by a checked still image
+- [x] Checked frame crops, reference slots, save-as-reference behavior, and static blend modes
 - [ ] Coalesced first-frame output for animated inputs without claiming full
   animation support
 - [x] Out-of-order `jxlp` fragments permitted by newer container versions
 - [x] JPEG bitstream reconstruction from `jbrd` to the exact original JPEG file for the checked subset
-- [ ] HDR inputs using PQ, HLG, linear-light, and floating-point samples
-- [ ] Tone-mapping metadata, intensity target, luminance range, and a documented
+- [x] Common static PQ, HLG, and linear-light integer inputs with float output
+- [ ] Floating-point encoded input samples
+- [x] Tone-mapping metadata, intensity target, luminance range, and a documented
   SDR conversion policy
 - [ ] Wide-gamut Rec. 2020, Adobe RGB, ProPhoto RGB, and uncommon ICC profiles
 - [ ] CMYK through a black extra channel and an applicable color profile
 - [ ] Spot-color, selection-mask, depth, and black extra-channel discovery and
   opt-in extraction
-- [ ] Multiple alpha channels with explicit caller selection
-- [ ] Intrinsic-size and pixel-density metadata
-- [ ] Metadata decode for EXIF, XMP/XML, and JUMBF
-- [ ] Bounded first-party decompression of `brob` metadata boxes
+- [x] Multiple alpha channels with explicit caller selection for the documented layouts
+- [x] Intrinsic-size, pixel-density, and bounded timestamp metadata
+- [x] Bounded metadata preservation for Exif, XMP/XML, and JUMBF
+- [x] Bounded first-party decompression of `brob` metadata boxes
 - [ ] JPEG XL Level 10 features that remain within explicit project limits
 
 ## Group 3: JPEG XL advantages — nice to have

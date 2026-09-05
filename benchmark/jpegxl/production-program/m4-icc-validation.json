@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "validator": "ICC iccDEV v2.3.2.3, revision 9f1707e",
+  "littleCms": "2.16",
+  "littleCmsSamples": [
+    0, 0, 0, 0.0674, -0.0327, 255.0002, 254.9974, 0.0436, -0.0237, 0.0551, 254.9993, -0.0262,
+    127.9996, 192.0011, 63.9969
+  ],
+  "littleCmsMaximumRoundedSampleError": 1,
+  "results": [
+    {
+      "id": "bench_oriented_brg",
+      "profileBytes": 2712,
+      "sha256": "6603ae12a4ac1ac742cacd887e9b35552a12c354ff25a00cae069ad4b932e6cc",
+      "exactDjxlProfile": true,
+      "validatorExitCode": 0,
+      "findings": [
+        "Warning! - Version 2 profile has non-zero reserved data that matches calculated Profile ID"
+      ],
+      "policy": "Source profile warnings are retained in the report; no profile bytes enter evidence."
+    },
+    {
+      "id": "cafe",
+      "profileBytes": 896,
+      "sha256": "bef95ce5cdb139325f2a299b943158e00e39a7ca3cf597ab3dfa3098e42fc707",
+      "exactDjxlProfile": true,
+      "validatorExitCode": 0,
+      "findings": ["NonCompliant! - Bad Profile ID"],
+      "policy": "Source profile has an invalid checksum ID; bytes are preserved exactly. Structural validity and supported color transforms are checked separately."
+    },
+    {
+      "id": "grayscale",
+      "profileBytes": 912,
+      "sha256": "3f62598dfd40d6642ca5fd962559bb6615af15448a57a3972a4089c109e62fbd",
+      "exactDjxlProfile": true,
+      "validatorExitCode": 0,
+      "findings": ["Warning! - OutputTag exclusion test failed."],
+      "policy": "Source profile warnings are retained in the report; no profile bytes enter evidence."
+    },
+    {
+      "id": "grayscale_jpeg",
+      "profileBytes": 912,
+      "sha256": "78001f4bf342ecf417b8dac5e3c7cf8da3ee25701951bc2a7e0868bc6dc81cac",
+      "exactDjxlProfile": true,
+      "validatorExitCode": 0,
+      "findings": ["Warning! - OutputTag exclusion test failed."],
+      "policy": "Source profile warnings are retained in the report; no profile bytes enter evidence."
+    }
+  ]
+}

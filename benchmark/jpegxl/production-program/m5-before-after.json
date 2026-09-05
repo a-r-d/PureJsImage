@@ -1,0 +1,409 @@
+{
+  "schemaVersion": 1,
+  "baseRevision": "a57fbd548c1317af457636a2ddad4563e8bad330",
+  "methodology": "Single isolated cold and warm executions per input. Both use the same worker and nearest resize to 64x48 PNG. Timings are snapshots, not an optimization claim. Invalid baseline JPEG-derived nearest pixels do not count as a speed advantage. Initial after snapshots showed inconsistent host load; repeated isolated after measurements and the initial values are both retained.",
+  "results": [
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-0.jxl",
+      "mode": "cold",
+      "sha256": "b4a1d94d5fdbbcade90bd0ef2c1e4f6281b9aba4d9abeeae2a1855579de2dba2",
+      "baselineCorrect": true,
+      "maximumDifference": 0,
+      "before": {
+        "milliseconds": 5428.823099,
+        "baseline": {
+          "rss": 149872640,
+          "heapTotal": 51695616,
+          "heapUsed": 16499368,
+          "external": 16914513,
+          "arrayBuffers": 3875929
+        },
+        "memory": {
+          "rss": 420290560,
+          "heapTotal": 50593792,
+          "heapUsed": 17626288,
+          "external": 129755261,
+          "arrayBuffers": 116682386
+        },
+        "absolutePeakRss": 420290560,
+        "outputBytes": 8466,
+        "outputHash": "8bf5c904727e37b68aa0b49dcc0bccd7bfc80655a37e858c88d41b426df0dee4"
+      },
+      "after": {
+        "milliseconds": 5043.444523,
+        "baseline": {
+          "rss": 147574784,
+          "heapTotal": 52219904,
+          "heapUsed": 16538672,
+          "external": 16849105,
+          "arrayBuffers": 3876057
+        },
+        "memory": {
+          "rss": 377864192,
+          "heapTotal": 50855936,
+          "heapUsed": 17372824,
+          "external": 126702970,
+          "arrayBuffers": 113695631
+        },
+        "absolutePeakRss": 429858816,
+        "outputBytes": 8479,
+        "outputHash": "90849e5613702507469bbd97e14c567321b35fbb69222ae16e44fbbaa9e522d9"
+      },
+      "initialAfter": {
+        "milliseconds": 10047.35863,
+        "baseline": {
+          "rss": 150646784,
+          "heapTotal": 51695616,
+          "heapUsed": 16539840,
+          "external": 16914641,
+          "arrayBuffers": 3876057
+        },
+        "memory": {
+          "rss": 415592448,
+          "heapTotal": 51118080,
+          "heapUsed": 18037272,
+          "external": 138529409,
+          "arrayBuffers": 125456534
+        },
+        "absolutePeakRss": 428277760,
+        "outputBytes": 8479,
+        "outputHash": "90849e5613702507469bbd97e14c567321b35fbb69222ae16e44fbbaa9e522d9"
+      }
+    },
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-0.jxl",
+      "mode": "warm",
+      "sha256": "b4a1d94d5fdbbcade90bd0ef2c1e4f6281b9aba4d9abeeae2a1855579de2dba2",
+      "baselineCorrect": true,
+      "maximumDifference": 0,
+      "before": {
+        "milliseconds": 5370.008922,
+        "baseline": {
+          "rss": 337694720,
+          "heapTotal": 50069504,
+          "heapUsed": 12955600,
+          "external": 16950564,
+          "arrayBuffers": 3877729
+        },
+        "memory": {
+          "rss": 420474880,
+          "heapTotal": 51642368,
+          "heapUsed": 16570696,
+          "external": 118673198,
+          "arrayBuffers": 105600323
+        },
+        "absolutePeakRss": 420474880,
+        "outputBytes": 8466,
+        "outputHash": "8bf5c904727e37b68aa0b49dcc0bccd7bfc80655a37e858c88d41b426df0dee4"
+      },
+      "after": {
+        "milliseconds": 4969.828315,
+        "baseline": {
+          "rss": 345292800,
+          "heapTotal": 49807360,
+          "heapUsed": 12997992,
+          "external": 16885156,
+          "arrayBuffers": 3877857
+        },
+        "memory": {
+          "rss": 439947264,
+          "heapTotal": 51642368,
+          "heapUsed": 16216584,
+          "external": 115773646,
+          "arrayBuffers": 102766307
+        },
+        "absolutePeakRss": 439947264,
+        "outputBytes": 8479,
+        "outputHash": "90849e5613702507469bbd97e14c567321b35fbb69222ae16e44fbbaa9e522d9"
+      },
+      "initialAfter": {
+        "milliseconds": 9982.201496,
+        "baseline": {
+          "rss": 374513664,
+          "heapTotal": 84410368,
+          "heapUsed": 12988248,
+          "external": 16950692,
+          "arrayBuffers": 3877857
+        },
+        "memory": {
+          "rss": 475373568,
+          "heapTotal": 85721088,
+          "heapUsed": 15957360,
+          "external": 113768720,
+          "arrayBuffers": 100695845
+        },
+        "absolutePeakRss": 487497728,
+        "outputBytes": 8479,
+        "outputHash": "90849e5613702507469bbd97e14c567321b35fbb69222ae16e44fbbaa9e522d9"
+      }
+    },
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-1.jxl",
+      "mode": "cold",
+      "sha256": "61b3c9959427c99118bcd54e36197d637f643ecf20ba0c36441ab5031c03f48f",
+      "baselineCorrect": true,
+      "maximumDifference": 0,
+      "before": {
+        "milliseconds": 7524.138654,
+        "baseline": {
+          "rss": 143302656,
+          "heapTotal": 51957760,
+          "heapUsed": 16500632,
+          "external": 14397337,
+          "arrayBuffers": 1358753
+        },
+        "memory": {
+          "rss": 362205184,
+          "heapTotal": 50069504,
+          "heapUsed": 16391152,
+          "external": 111278072,
+          "arrayBuffers": 98205197
+        },
+        "absolutePeakRss": 438771712,
+        "outputBytes": 8458,
+        "outputHash": "e0032536cf9769c03bf94f1b58a90cb3ab7ca0745c68873b313aaf24f16e27b0"
+      },
+      "after": {
+        "milliseconds": 7303.477063,
+        "baseline": {
+          "rss": 143572992,
+          "heapTotal": 52219904,
+          "heapUsed": 16538528,
+          "external": 14331929,
+          "arrayBuffers": 1358881
+        },
+        "memory": {
+          "rss": 379297792,
+          "heapTotal": 51118080,
+          "heapUsed": 18665312,
+          "external": 133767136,
+          "arrayBuffers": 120759797
+        },
+        "absolutePeakRss": 433577984,
+        "outputBytes": 8471,
+        "outputHash": "3e6ef4485469ae40b986351faf581a6d02e4d674a140f4adf40e85bdce1a7235"
+      },
+      "initialAfter": {
+        "milliseconds": 10425.495896,
+        "baseline": {
+          "rss": 141295616,
+          "heapTotal": 52219904,
+          "heapUsed": 16538576,
+          "external": 14397465,
+          "arrayBuffers": 1358881
+        },
+        "memory": {
+          "rss": 364118016,
+          "heapTotal": 50855936,
+          "heapUsed": 17361616,
+          "external": 123717956,
+          "arrayBuffers": 110645081
+        },
+        "absolutePeakRss": 436047872,
+        "outputBytes": 8471,
+        "outputHash": "3e6ef4485469ae40b986351faf581a6d02e4d674a140f4adf40e85bdce1a7235"
+      }
+    },
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-1.jxl",
+      "mode": "warm",
+      "sha256": "61b3c9959427c99118bcd54e36197d637f643ecf20ba0c36441ab5031c03f48f",
+      "baselineCorrect": true,
+      "maximumDifference": 0,
+      "before": {
+        "milliseconds": 7679.116938,
+        "baseline": {
+          "rss": 268029952,
+          "heapTotal": 51118080,
+          "heapUsed": 13047608,
+          "external": 14477036,
+          "arrayBuffers": 1404201
+        },
+        "memory": {
+          "rss": 453242880,
+          "heapTotal": 52166656,
+          "heapUsed": 18754176,
+          "external": 132593648,
+          "arrayBuffers": 119520773
+        },
+        "absolutePeakRss": 453242880,
+        "outputBytes": 8458,
+        "outputHash": "e0032536cf9769c03bf94f1b58a90cb3ab7ca0745c68873b313aaf24f16e27b0"
+      },
+      "after": {
+        "milliseconds": 8766.565489,
+        "baseline": {
+          "rss": 290455552,
+          "heapTotal": 49807360,
+          "heapUsed": 13147872,
+          "external": 14411628,
+          "arrayBuffers": 1404329
+        },
+        "memory": {
+          "rss": 384720896,
+          "heapTotal": 51118080,
+          "heapUsed": 18755576,
+          "external": 133037383,
+          "arrayBuffers": 120030044
+        },
+        "absolutePeakRss": 445464576,
+        "outputBytes": 8471,
+        "outputHash": "3e6ef4485469ae40b986351faf581a6d02e4d674a140f4adf40e85bdce1a7235"
+      },
+      "initialAfter": {
+        "milliseconds": 7309.201313999999,
+        "baseline": {
+          "rss": 287215616,
+          "heapTotal": 50855936,
+          "heapUsed": 13186176,
+          "external": 14477164,
+          "arrayBuffers": 1404329
+        },
+        "memory": {
+          "rss": 393490432,
+          "heapTotal": 52166656,
+          "heapUsed": 17592152,
+          "external": 123684014,
+          "arrayBuffers": 110611139
+        },
+        "absolutePeakRss": 443359232,
+        "outputBytes": 8471,
+        "outputHash": "3e6ef4485469ae40b986351faf581a6d02e4d674a140f4adf40e85bdce1a7235"
+      }
+    },
+    {
+      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
+      "mode": "cold",
+      "sha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
+      "baselineCorrect": false,
+      "maximumDifference": 170,
+      "before": {
+        "milliseconds": 49.48082599999998,
+        "baseline": {
+          "rss": 140390400,
+          "heapTotal": 52219904,
+          "heapUsed": 16500608,
+          "external": 13540218,
+          "arrayBuffers": 501634
+        },
+        "memory": {
+          "rss": 145895424,
+          "heapTotal": 53006336,
+          "heapUsed": 24195360,
+          "external": 17721556,
+          "arrayBuffers": 4644015
+        },
+        "absolutePeakRss": 145895424,
+        "outputBytes": 315,
+        "outputHash": "4f572498a77c246cb0c4b886df8f5912a0ef36337cdcfdf55c37d3c7320e41e6"
+      },
+      "after": {
+        "milliseconds": 69.325672,
+        "baseline": {
+          "rss": 140963840,
+          "heapTotal": 52482048,
+          "heapUsed": 16538688,
+          "external": 13474810,
+          "arrayBuffers": 501762
+        },
+        "memory": {
+          "rss": 155119616,
+          "heapTotal": 53792768,
+          "heapUsed": 20396424,
+          "external": 13956320,
+          "arrayBuffers": 944315
+        },
+        "absolutePeakRss": 155119616,
+        "outputBytes": 197,
+        "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
+      },
+      "initialAfter": {
+        "milliseconds": 69.97150200000004,
+        "baseline": {
+          "rss": 139698176,
+          "heapTotal": 51957760,
+          "heapUsed": 16538080,
+          "external": 13540346,
+          "arrayBuffers": 501762
+        },
+        "memory": {
+          "rss": 154116096,
+          "heapTotal": 53530624,
+          "heapUsed": 22861032,
+          "external": 14060256,
+          "arrayBuffers": 982715
+        },
+        "absolutePeakRss": 154116096,
+        "outputBytes": 197,
+        "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
+      }
+    },
+    {
+      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
+      "mode": "warm",
+      "sha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
+      "baselineCorrect": false,
+      "maximumDifference": 170,
+      "before": {
+        "milliseconds": 27.86057999999997,
+        "baseline": {
+          "rss": 156266496,
+          "heapTotal": 52744192,
+          "heapUsed": 17492992,
+          "external": 13580947,
+          "arrayBuffers": 503446
+        },
+        "memory": {
+          "rss": 158232576,
+          "heapTotal": 52744192,
+          "heapUsed": 26863960,
+          "external": 17928672,
+          "arrayBuffers": 4851131
+        },
+        "absolutePeakRss": 158232576,
+        "outputBytes": 315,
+        "outputHash": "4f572498a77c246cb0c4b886df8f5912a0ef36337cdcfdf55c37d3c7320e41e6"
+      },
+      "after": {
+        "milliseconds": 64.34827100000007,
+        "baseline": {
+          "rss": 157175808,
+          "heapTotal": 53006336,
+          "heapUsed": 17523064,
+          "external": 13515539,
+          "arrayBuffers": 503574
+        },
+        "memory": {
+          "rss": 159404032,
+          "heapTotal": 53530624,
+          "heapUsed": 29317656,
+          "external": 14068000,
+          "arrayBuffers": 1055995
+        },
+        "absolutePeakRss": 159404032,
+        "outputBytes": 197,
+        "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
+      },
+      "initialAfter": {
+        "milliseconds": 48.62264099999999,
+        "baseline": {
+          "rss": 156835840,
+          "heapTotal": 52744192,
+          "heapUsed": 17578344,
+          "external": 13581075,
+          "arrayBuffers": 503574
+        },
+        "memory": {
+          "rss": 158539776,
+          "heapTotal": 53006336,
+          "heapUsed": 20741808,
+          "external": 13987616,
+          "arrayBuffers": 910075
+        },
+        "absolutePeakRss": 158539776,
+        "outputBytes": 197,
+        "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
+      }
+    }
+  ]
+}

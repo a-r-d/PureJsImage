@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "revision": "b47492d1c05c3d8b2a37ca089c72489aadfc5469",
+  "workload": "deterministic-rgb8-24mp",
+  "width": 6000,
+  "height": 4000,
+  "effort": 1,
+  "milliseconds": 3818.819117,
+  "outputBytes": 17023251,
+  "sinkWrites": 27,
+  "managedPeakBytes": 106050518,
+  "gates": {
+    "under15Seconds": true,
+    "sectionedSink": true,
+    "managedPeakReported": true
+  }
+}

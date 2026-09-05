@@ -1,0 +1,873 @@
+{
+  "schemaVersion": 1,
+  "baselineMainRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+  "packageVersion": "0.17.0",
+  "environment": {
+    "cpu": "Intel Core i7-10700, 8 cores, 16 threads",
+    "memoryBytes": 64924504064,
+    "operatingSystem": "Linux 6.17.0-41-generic x86_64",
+    "node": "v24.16.0",
+    "playwright": "1.62.1",
+    "browsers": {
+      "chromium": "151.0.7922.34, Playwright revision 1234",
+      "firefox": "153.0, Playwright revision 1538",
+      "webkit": "26.5, Playwright revision 2336"
+    },
+    "powerMode": "Linux CPU scaling governor powersave",
+    "benchmarkThreadCount": 1
+  },
+  "moduleInventory": [
+    {
+      "path": "src/codec-entries/jpegxl.ts",
+      "responsibility": "Ordinary explicit codec package entry"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "responsibility": "Codec detection, structure inspection, decoder and encoder wiring"
+    },
+    {
+      "path": "src/jpegxl.ts",
+      "responsibility": "Specialized inspection, exact transcode, and reconstruction package entry"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "responsibility": "Bounded bit, prefix, ANS, hybrid integer, and LZ77 primitives"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "responsibility": "Raw codestream, jxlc, jxlp, and metadata-box structure"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "responsibility": "Header, frame, Modular program, group, and row decode"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "responsibility": "Bounded public JPEG XL inspection"
+    },
+    {
+      "path": "src/codecs/jpegxl-limits.ts",
+      "responsibility": "JPEG XL resource limits"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "responsibility": "Experimental deterministic effort-1 lossless Modular encoder"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "responsibility": "Selected VarDCT and JPEG-derived decoder coordination"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "responsibility": "JPEG-derived and selected VarDCT LF, DC, HF, and AC parsing"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "responsibility": "Selected VarDCT transforms, restoration, noise, and pixel output"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-memory.ts",
+      "responsibility": "VarDCT preflight and live managed-memory accounting"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "responsibility": "Bounded JPEG reconstruction metadata parsing"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "responsibility": "JPEG coefficients to JPEG XL codestream assembly"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "responsibility": "jbrd structural parsing and bounded first-party Brotli subset"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+      "responsibility": "Coefficient-domain JPEG byte reconstruction"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "responsibility": "Public JPEG XL source reconstruction coordination"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "responsibility": "Eligibility, exact JPEG transcode, fallback, sink, and evidence policy"
+    }
+  ],
+  "publicApi": [
+    {
+      "packageExport": "purejsimage/codecs/jpegxl",
+      "symbols": ["jpegxlCodec", "inspectJpegXlStructure", "JpegXlEncodeOptions"]
+    },
+    {
+      "packageExport": "purejsimage/jpegxl",
+      "symbols": [
+        "inspectJpegXl",
+        "inspectJpegReconstructionEligibility",
+        "transcodeJpegToJpegXl",
+        "reconstructJpegFromJpegXl"
+      ]
+    },
+    {
+      "packageExport": "purejsimage",
+      "symbols": ["Image.jpegxl", "Image.encode('jpegxl')"]
+    }
+  ],
+  "capabilityMatrix": [
+    {
+      "surface": "structure inspection",
+      "status": "limited",
+      "boundary": "raw codestream, jxlc, and validated jxlp containers"
+    },
+    {
+      "surface": "lossless Modular decode",
+      "status": "limited",
+      "boundary": "pinned 8, 9, 10, 12, and 16-bit gray, RGB, and straight-alpha subset"
+    },
+    {
+      "surface": "VarDCT decode",
+      "status": "limited",
+      "boundary": "selected 8-bit single-group XYB fixtures and checked JPEG-derived DCT8 images"
+    },
+    {
+      "surface": "lossless Modular encode",
+      "status": "experimental",
+      "boundary": "effort 1 gray8, gray16, rgb8, rgb16, rgba8, and rgba16 with explicit sRGB semantics"
+    },
+    {
+      "surface": "exact JPEG recompression",
+      "status": "experimental",
+      "boundary": "documented eligible three-component 8-bit Huffman baseline and progressive JPEG subset"
+    },
+    {
+      "surface": "progressive output",
+      "status": "unsupported",
+      "boundary": "final reconstruction only"
+    },
+    {
+      "surface": "animation",
+      "status": "unsupported",
+      "boundary": "single visible static frame"
+    },
+    {
+      "surface": "broad ICC, wide color, and HDR",
+      "status": "unsupported",
+      "boundary": "checked sRGB and linear-sRGB semantics only"
+    },
+    {
+      "surface": "Level 10",
+      "status": "unsupported",
+      "boundary": "recognition is not a pixel-decode claim"
+    },
+    {
+      "surface": "general lossy encoding",
+      "status": "unsupported",
+      "boundary": "no public VarDCT photo encoder"
+    }
+  ],
+  "claimCoverage": [
+    {
+      "claim": "raw, jxlc, and jxlp structure and bounded source behavior",
+      "evidence": ["tests/jpegxl.test.ts", "tests/jpegxl-bitstream.test.ts"]
+    },
+    {
+      "claim": "pinned lossless Modular sample decode",
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "tests/jpegxl-corpus.test.ts",
+        "benchmark/jpegxl/generated-lossless-manifest.json"
+      ]
+    },
+    {
+      "claim": "selected VarDCT output within fixed tolerance",
+      "evidence": ["tests/jpegxl-corpus.test.ts", "benchmark/jpegxl/generated-vardct-manifest.json"]
+    },
+    {
+      "claim": "experimental six-format Modular encoder",
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "benchmark/results/jpegxl-release-hardening-2026-09-01.json"
+      ]
+    },
+    {
+      "claim": "exact JPEG reconstruction for the documented eligible subset",
+      "evidence": [
+        "tests/jpegxl-jpeg-reconstruction.test.ts",
+        "benchmark/results/jpegxl-release-hardening-2026-09-01.json"
+      ]
+    },
+    {
+      "claim": "caller-owned evidence and bounded memory accounting",
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "tests/jpegxl-corpus.test.ts",
+        "benchmark/results/jpegxl-release-hardening-2026-09-01.json"
+      ]
+    },
+    {
+      "claim": "local browser workbench with validated worker protocol and previews",
+      "evidence": [
+        "tests/jpegxl-worker-protocol.test.ts",
+        "tests/jpegxl-workbench-preview.test.ts",
+        "browser-tests/jpegxl-workbench.pw.ts"
+      ]
+    },
+    {
+      "claim": "ordinary and specialized package exports",
+      "evidence": ["scripts/check-package-types.ts", "scripts/bundle-size-config.ts"]
+    }
+  ],
+  "corpora": {
+    "conformance": {
+      "path": "benchmark/jpegxl/production-program/corpora/conformance.json",
+      "sha256": "2a3b010a56f21fd0152016a5fe6b49c42f7dd29c6a11e3820b8b3ef7d567cdf0",
+      "entries": 39,
+      "revision": "4bf053529c7cefd2951be453475bb3dccc7e7be8"
+    },
+    "generatedFeatures": {
+      "path": "benchmark/jpegxl/production-program/corpora/generated-features.json",
+      "sha256": "6884e42ef5f87eada1d6cfbfb2d0f9da66eab50c23994de0bed4c6918b1cd15c",
+      "entries": 3,
+      "revision": null
+    },
+    "realImages": {
+      "path": "benchmark/jpegxl/production-program/corpora/real-images.json",
+      "sha256": "f33411df51b652493717aad1763464023cc1c9da4cb1de6a4a4e31163817ac6e",
+      "entries": 10,
+      "revision": null
+    },
+    "jpegArchive": {
+      "path": "benchmark/jpegxl/production-program/corpora/jpeg-archive.json",
+      "sha256": "ca52016513f079e56d3b80d22feec635acd39b1a6a78bd8840b836951a9c3c42",
+      "entries": 10,
+      "revision": null
+    }
+  },
+  "featureInventory": {
+    "path": "benchmark/jpegxl/production-program/feature-inventory.json",
+    "sha256": "7e0580d19e71c9ec1a5cd81815fe64bf6a9b5baf885debaf7b6181d511e48107",
+    "fixtures": 27
+  },
+  "conformance": {
+    "total": 39,
+    "classifications": {
+      "pass": 13,
+      "expected-unsupported": 25,
+      "malformed-safely-rejected": 0,
+      "incorrect-output": 0,
+      "unexpected-failure": 1
+    },
+    "policy": {
+      "pass": "Decoded samples match the pinned expected SHA-256.",
+      "expected-unsupported": "Valid syntax is outside the current public boundary and returns UNSUPPORTED_OPERATION.",
+      "malformed-safely-rejected": "A deliberately malformed input returns INVALID_INPUT or TRUNCATED_INPUT before output.",
+      "incorrect-output": "Decode completes but dimensions, rows, format, or sample SHA-256 differ.",
+      "unexpected-failure": "A valid case fails outside its recorded unsupported boundary or with the wrong error class."
+    }
+  },
+  "measurements": {
+    "schemaVersion": 1,
+    "revision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+    "benchmark": {
+      "validation": {
+        "passed": true,
+        "policy": "Every encode run decoded to exact native pixels; every transcode run reconstructed the exact source JPEG bytes.",
+        "independentOracle": {
+          "available": true,
+          "decoder": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl and djxl 0.12.0",
+          "exactPixels": true,
+          "pureJsBytes": 156693,
+          "libjxlBytes": 181608,
+          "sizeGapBytes": -24915,
+          "sizeRatio": 0.8628089070966036
+        }
+      },
+      "runsPerWorkload": 3,
+      "workloads": 4,
+      "summaries": [
+        {
+          "workload": "encode-rgb8",
+          "validation": "exact-pixels",
+          "inputBytes": 589824,
+          "inputSha256": "1575ebbb694664b6b163566456f64dc7f564cb4fb9a42ab445936ba021201c41",
+          "outputBytes": 156693,
+          "outputSha256": "100ee3ff3fbc587404532d6a4b64ec1e8ca9c227945fd3f4c923c355fc368fb3",
+          "medianWallMilliseconds": 141.716,
+          "medianMaximumRssBytes": 120000512,
+          "medianPeakRssDeltaBytes": 12759040,
+          "medianExternalDeltaBytes": 4767675,
+          "medianArrayBufferDeltaBytes": 4707129,
+          "medianManagedPeakBytes": null,
+          "managedMemoryMeasurement": "unavailable"
+        },
+        {
+          "workload": "transcode-progressive-yuv420",
+          "validation": "exact-jpeg-bytes",
+          "inputBytes": 1006,
+          "inputSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+          "outputBytes": 1896,
+          "outputSha256": "d5150a3c5288fe517b5f69e2924f6404ec46d6f9c75c7b6d7048f130138f68d4",
+          "medianWallMilliseconds": 79.261,
+          "medianMaximumRssBytes": 123424768,
+          "medianPeakRssDeltaBytes": 15650816,
+          "medianExternalDeltaBytes": 5396775,
+          "medianArrayBufferDeltaBytes": 5336229,
+          "medianManagedPeakBytes": 235662,
+          "managedMemoryMeasurement": "measured"
+        },
+        {
+          "workload": "transcode-baseline-12mp",
+          "validation": "exact-jpeg-bytes",
+          "inputBytes": 4768216,
+          "inputSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+          "outputBytes": 9244031,
+          "outputSha256": "e00f7e77399bd1e1b21c63abf2a8c84bbdb18cb546d3455f811c792eef959745",
+          "medianWallMilliseconds": 71457.983,
+          "medianMaximumRssBytes": 477687808,
+          "medianPeakRssDeltaBytes": 370278400,
+          "medianExternalDeltaBytes": 102492753,
+          "medianArrayBufferDeltaBytes": 102434747,
+          "medianManagedPeakBytes": 71256742,
+          "managedMemoryMeasurement": "measured"
+        },
+        {
+          "workload": "transcode-progressive-12mp",
+          "validation": "exact-jpeg-bytes",
+          "inputBytes": 2855050,
+          "inputSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+          "outputBytes": 7826678,
+          "outputSha256": "a731c0b239c605144304714395078418c04b86832bdd2a2292a84815d8de46bc",
+          "medianWallMilliseconds": 69608.706,
+          "medianMaximumRssBytes": 414244864,
+          "medianPeakRssDeltaBytes": 307077120,
+          "medianExternalDeltaBytes": 58817452,
+          "medianArrayBufferDeltaBytes": 58759446,
+          "medianManagedPeakBytes": 54604870,
+          "managedMemoryMeasurement": "measured"
+        }
+      ]
+    },
+    "compression": {
+      "status": "experimental-thresholds-not-promoted",
+      "revisions": {
+        "libjxl": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "simpleLosslessEncoder": "7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+        "imazenJxlEncoder": "d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
+        "imazenResolvedCargoLockSha256": "69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040"
+      },
+      "cases": 5,
+      "pureJsImageMedianRatioToPng": 6.03626375895752,
+      "summaries": {
+        "pureJsImage": {
+          "ratioToPng": {
+            "median": 6.03626375895752,
+            "p90": 51.740674955595026,
+            "worst": 51.740674955595026
+          },
+          "byClass": {
+            "line-art": 51.740674955595026,
+            "gradient": 18.527843601895736,
+            "alpha-heavy": 1.6277676611242533,
+            "photo-like": 6.03626375895752,
+            "noise": 1.0801736909323116
+          }
+        },
+        "libjxlEffort1": {
+          "ratioToPng": {
+            "median": 1.8133987984819346,
+            "p90": 24.47867298578199,
+            "worst": 24.47867298578199
+          },
+          "byClass": {
+            "line-art": 1.285968028419183,
+            "gradient": 24.47867298578199,
+            "alpha-heavy": 1.8133987984819346,
+            "photo-like": 7.850814695495942,
+            "noise": 1.1319131545338441
+          }
+        },
+        "libjxlEffort7": {
+          "ratioToPng": {
+            "median": 0.554825643731173,
+            "p90": 1.387481155649175,
+            "worst": 1.387481155649175
+          },
+          "byClass": {
+            "line-art": 0.17761989342806395,
+            "gradient": 0.12855450236966826,
+            "alpha-heavy": 0.554825643731173,
+            "photo-like": 1.387481155649175,
+            "noise": 0.9003524904214559
+          }
+        },
+        "simpleLossless": {
+          "ratioToPng": {
+            "median": 2.5133214920071048,
+            "p90": 24.47748815165877,
+            "worst": 24.47748815165877
+          },
+          "byClass": {
+            "line-art": 2.5133214920071048,
+            "gradient": 24.47748815165877,
+            "alpha-heavy": 1.8264861553123777,
+            "photo-like": 8.27776056832497,
+            "noise": 1.1388607918263092
+          }
+        },
+        "imazen": {
+          "ratioToPng": {
+            "median": 0.37855450236966826,
+            "p90": 1.2297048923032443,
+            "worst": 1.2297048923032443
+          },
+          "byClass": {
+            "line-art": 0.27886323268206037,
+            "gradient": 0.37855450236966826,
+            "alpha-heavy": 0.19718681393488657,
+            "photo-like": 1.2297048923032443,
+            "noise": 0.5822784163473819
+          }
+        },
+        "png": {
+          "ratioToPng": {
+            "median": 1,
+            "p90": 1,
+            "worst": 1
+          },
+          "byClass": {
+            "line-art": 1,
+            "gradient": 1,
+            "alpha-heavy": 1,
+            "photo-like": 1,
+            "noise": 1
+          }
+        },
+        "webpLossless": {
+          "ratioToPng": {
+            "median": 0.12788632326820604,
+            "p90": 0.8033175355450237,
+            "worst": 0.8033175355450237
+          },
+          "byClass": {
+            "line-art": 0.12788632326820604,
+            "gradient": 0.8033175355450237,
+            "photo-like": 0.11333457241393553,
+            "noise": 0.5216960408684547
+          }
+        }
+      }
+    },
+    "encoder": {
+      "validation": "exact native samples",
+      "cases": 7,
+      "revisions": {
+        "libjxl": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+        "jxlOxide": "c0cc4c7ea57c1207f38ff2970d94757470613be4",
+        "jxlRs": "07ab48fcccde0a73c384b4011520fec67e5e09cd"
+      },
+      "results": [
+        {
+          "id": "gray8-line-art-odd",
+          "format": "gray8",
+          "inputBytes": 63,
+          "outputBytes": 65,
+          "outputSha256": "b3d0efb206801ba98e9b17ee309ba7dcf612d3509da10e807216dac56246dc70"
+        },
+        {
+          "id": "gray16-gradient-odd",
+          "format": "gray16",
+          "inputBytes": 110,
+          "outputBytes": 163,
+          "outputSha256": "ff74f53571665b2fbf24ec1cd865f2506be755262d70ac9e9d5aa8ad73d0bd19"
+        },
+        {
+          "id": "rgb8-photo-like-odd",
+          "format": "rgb8",
+          "inputBytes": 351,
+          "outputBytes": 384,
+          "outputSha256": "ab29d7cebde7fd5d6c68163952761198424b18f905ac5366de45436c067948b5"
+        },
+        {
+          "id": "rgb16-gradient-odd",
+          "format": "rgb16",
+          "inputBytes": 462,
+          "outputBytes": 612,
+          "outputSha256": "f9528fd6aeb03643fb7271f2eb6982d3b62e3d2ed63494578c5f846783c44c64"
+        },
+        {
+          "id": "rgba8-alpha-heavy-odd",
+          "format": "rgba8",
+          "inputBytes": 540,
+          "outputBytes": 534,
+          "outputSha256": "98eb166858ce11987bc0b7add81d45d94e2c8e696dde8c49bde6dbcfe238d46f"
+        },
+        {
+          "id": "rgba16-alpha-heavy-odd",
+          "format": "rgba16",
+          "inputBytes": 936,
+          "outputBytes": 1044,
+          "outputSha256": "510409a56d91308892787e068e765e39d9077469155fa483f37d2c53eb6fdea3"
+        },
+        {
+          "id": "rgb8-photo-like-multigroup",
+          "format": "rgb8",
+          "inputBytes": 21651,
+          "outputBytes": 13163,
+          "outputSha256": "b93fc485d85b3920a676058bad2abf1d838d804d61498a0cc06bf0dcaae343fe"
+        }
+      ]
+    },
+    "exactJpeg": {
+      "oracle": "libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)",
+      "jpegOracle": "sharp-0.35.3 autoOrient and sRGB output",
+      "totalCases": 10,
+      "exactCases": 10,
+      "exactReconstructionRate": 1,
+      "medianJxlToSourceRatio": 1.1917293233082706,
+      "results": [
+        {
+          "id": "baseline-yuv420",
+          "sourceBytes": 1311,
+          "jxlBytes": 1563,
+          "ratio": 1.1922196796338673,
+          "sourceSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+          "reconstructedSha256": "09048d46b313702386605da3eddd6ad0ebbfb104f891901ec17603a00bb25104",
+          "exact": true
+        },
+        {
+          "id": "baseline-yuv422-camera",
+          "sourceBytes": 4768216,
+          "jxlBytes": 9244031,
+          "ratio": 1.9386770649651777,
+          "sourceSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+          "reconstructedSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+          "exact": true
+        },
+        {
+          "id": "baseline-rgb444",
+          "sourceBytes": 1416,
+          "jxlBytes": 1665,
+          "ratio": 1.1758474576271187,
+          "sourceSha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+          "reconstructedSha256": "d075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4",
+          "exact": true
+        },
+        {
+          "id": "progressive-yuv420-exif",
+          "sourceBytes": 1006,
+          "jxlBytes": 1896,
+          "ratio": 1.8846918489065607,
+          "sourceSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+          "reconstructedSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+          "exact": true
+        },
+        {
+          "id": "progressive-rgb-exif",
+          "sourceBytes": 1242,
+          "jxlBytes": 1422,
+          "ratio": 1.144927536231884,
+          "sourceSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+          "reconstructedSha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+          "exact": true
+        },
+        {
+          "id": "progressive-custom-scans",
+          "sourceBytes": 1064,
+          "jxlBytes": 1268,
+          "ratio": 1.1917293233082706,
+          "sourceSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+          "reconstructedSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+          "exact": true
+        },
+        {
+          "id": "sequential-multiscan",
+          "sourceBytes": 1320,
+          "jxlBytes": 1572,
+          "ratio": 1.190909090909091,
+          "sourceSha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+          "reconstructedSha256": "c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279",
+          "exact": true
+        },
+        {
+          "id": "progressive-yuv420-camera",
+          "sourceBytes": 2855050,
+          "jxlBytes": 7826678,
+          "ratio": 2.7413453354582233,
+          "sourceSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+          "reconstructedSha256": "680f4c1ab6fc7e40f0ddf314ad1c6006fddc8519f19b7a613cbd9d8b948bc03e",
+          "exact": true
+        },
+        {
+          "id": "baseline-yuv420-metadata-markers",
+          "sourceBytes": 2110,
+          "jxlBytes": 2370,
+          "ratio": 1.1232227488151658,
+          "sourceSha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+          "reconstructedSha256": "47a70915f689a37a7391d726eb9e25f053a1e25f98bee88c37dfeb7f18362db2",
+          "exact": true
+        },
+        {
+          "id": "baseline-yuv420-restart-interval",
+          "sourceBytes": 497,
+          "jxlBytes": 566,
+          "ratio": 1.1388329979879275,
+          "sourceSha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+          "reconstructedSha256": "efcd7bc88cefe03969e58adb069965981dd76533d8df3223ef0aa210be00a3bf",
+          "exact": true
+        }
+      ]
+    },
+    "memory": {
+      "modularValidation": {
+        "passed": true,
+        "policy": "Every isolated run matched the checksum-pinned native gray8 output."
+      },
+      "modular": [
+        {
+          "mode": "crop",
+          "dimensions": "64x64 crop from 4096x4096",
+          "inputBytes": 254824,
+          "outputBytes": 4096,
+          "outputSha256": "373b5353c7c035df56ee86a4527824220bf2b688f5144c54560734ea8e3be1c5",
+          "medianMaximumRssBytes": 104681472,
+          "medianPeakRssDeltaBytes": 1835008,
+          "medianPeakExternalDeltaBytes": 1109122,
+          "medianPeakArrayBuffersDeltaBytes": 1048576,
+          "medianWallMilliseconds": 66.121
+        },
+        {
+          "mode": "full",
+          "dimensions": "4096x4096 full decode",
+          "inputBytes": 254824,
+          "outputBytes": 16777216,
+          "outputSha256": "8fff1a309e8b2f8677e0265bf4b41b29a4c81d3cd9dc3cbbe5c25a01e1a96aac",
+          "medianMaximumRssBytes": 179810304,
+          "medianPeakRssDeltaBytes": 76414976,
+          "medianPeakExternalDeltaBytes": 25552002,
+          "medianPeakArrayBuffersDeltaBytes": 25450496,
+          "medianWallMilliseconds": 2988.944
+        }
+      ],
+      "varDctValidation": {
+        "passed": true,
+        "policy": "Every accepted run stayed within max error 1 and RMSE below 0.5; the rejected large run failed preflight with LIMIT_EXCEEDED."
+      },
+      "varDct": [
+        {
+          "workload": "gaborish-epf",
+          "fixtureId": "rgb8-distance1-effort1",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 2546,
+          "inputSha256": "d76fb97d372285dbfd47f1b70d3ab18d13fdf315ff560facfe3b674e1e3f9ef6",
+          "outputBytes": 4515,
+          "outputSha256": "9d367823c197e11e32b8ac10fd7a61d22693bda43ddc39df8657bb03a4b6e54a",
+          "maximumError": 1,
+          "rmse": 0.4872687002753158,
+          "preflightBytes": 1794635,
+          "medianManagedPeakBytes": 1715395,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 116977664,
+          "medianPeakRssDeltaBytes": 10616832,
+          "medianPeakExternalDeltaBytes": 2040257,
+          "medianPeakArrayBuffersDeltaBytes": 1966166,
+          "medianWallMilliseconds": 34.592
+        },
+        {
+          "workload": "noise",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 118190080,
+          "medianPeakRssDeltaBytes": 12234752,
+          "medianPeakExternalDeltaBytes": 2098888,
+          "medianPeakArrayBuffersDeltaBytes": 2038342,
+          "medianWallMilliseconds": 117.09
+        },
+        {
+          "workload": "progressive",
+          "fixtureId": "rgb8-distance2-progressive",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 1893,
+          "inputSha256": "9fe91c79eb4862c4d4f6c4cd8d3bb565cc0598982c5d89ee94a056b008ac67d1",
+          "outputBytes": 4515,
+          "outputSha256": "8b8f53ca900f6d5cde09d3d642510bf830e18b1db720c5c2f0ec70b8a9c70f42",
+          "maximumError": 1,
+          "rmse": 0.47762795216214077,
+          "preflightBytes": 5007677,
+          "medianManagedPeakBytes": 4868821,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 121368576,
+          "medianPeakRssDeltaBytes": 14286848,
+          "medianPeakExternalDeltaBytes": 5790649,
+          "medianPeakArrayBuffersDeltaBytes": 5186438,
+          "medianWallMilliseconds": 33.743
+        },
+        {
+          "workload": "large-single-group",
+          "fixtureId": "rgb8-distance1-single-group-255",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 50683,
+          "inputSha256": "8f9a25c90a36ae1440ab663e477d6a7055bf0e388ca80183f219253f0b5efe54",
+          "outputBytes": 195075,
+          "outputSha256": "4c2d9bc716b05204ac01bd11a184e946ffdda4589233448ee336f72a78b446bb",
+          "maximumError": 1,
+          "rmse": 0.48122510154771153,
+          "preflightBytes": 7374559,
+          "medianManagedPeakBytes": 5637111,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 131809280,
+          "medianPeakRssDeltaBytes": 25952256,
+          "medianPeakExternalDeltaBytes": 5476756,
+          "medianPeakArrayBuffersDeltaBytes": 5416210,
+          "medianWallMilliseconds": 260.688
+        },
+        {
+          "workload": "large-preflight-rejection",
+          "fixtureId": "rgb8-distance1-single-group-255",
+          "validation": "preflight-rejection",
+          "evidenceMode": "off",
+          "inputBytes": 50683,
+          "inputSha256": "8f9a25c90a36ae1440ab663e477d6a7055bf0e388ca80183f219253f0b5efe54",
+          "outputBytes": 0,
+          "outputSha256": "",
+          "maximumError": 0,
+          "rmse": 0,
+          "preflightBytes": 7374559,
+          "rejectionCode": "LIMIT_EXCEEDED",
+          "medianManagedPeakBytes": 0,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 106508288,
+          "medianPeakRssDeltaBytes": 393216,
+          "medianPeakExternalDeltaBytes": 60546,
+          "medianPeakArrayBuffersDeltaBytes": 0,
+          "medianWallMilliseconds": 1.275
+        },
+        {
+          "workload": "evidence-off",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "off",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 0,
+          "medianMaximumRssBytes": 118505472,
+          "medianPeakRssDeltaBytes": 12845056,
+          "medianPeakExternalDeltaBytes": 2094373,
+          "medianPeakArrayBuffersDeltaBytes": 2002030,
+          "medianWallMilliseconds": 116.675
+        },
+        {
+          "workload": "evidence-summary",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "summary",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 1719686,
+          "medianMaximumRssBytes": 122667008,
+          "medianPeakRssDeltaBytes": 15896576,
+          "medianPeakExternalDeltaBytes": 2094373,
+          "medianPeakArrayBuffersDeltaBytes": 2008050,
+          "medianWallMilliseconds": 124.866
+        },
+        {
+          "workload": "evidence-trace",
+          "fixtureId": "rgb8-distance4-noise",
+          "validation": "tolerance-pixels",
+          "evidenceMode": "trace",
+          "inputBytes": 817,
+          "inputSha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+          "outputBytes": 4515,
+          "outputSha256": "b7ea3a429ca1994b2fc627304dd492ea78d39a7cb76623feb571ca91f0fffe2c",
+          "maximumError": 1,
+          "rmse": 0.4915678805351962,
+          "preflightBytes": 1821914,
+          "medianManagedPeakBytes": 1719686,
+          "medianEvidencePeakBytes": 1719686,
+          "medianMaximumRssBytes": 122155008,
+          "medianPeakRssDeltaBytes": 15765504,
+          "medianPeakExternalDeltaBytes": 2074616,
+          "medianPeakArrayBuffersDeltaBytes": 2014070,
+          "medianWallMilliseconds": 132.705
+        }
+      ]
+    },
+    "pipelineWorkflows": [
+      {
+        "workflow": "structure inspection and bounded source decode",
+        "status": "pass"
+      },
+      {
+        "workflow": "lossless Modular encode for the six documented native formats",
+        "status": "pass"
+      },
+      {
+        "workflow": "exact JPEG transcode and reconstruction for eligible files",
+        "status": "pass"
+      },
+      {
+        "workflow": "ordinary transform and JPEG XL output pipeline",
+        "status": "unsupported"
+      },
+      {
+        "workflow": "progressive or reduced-resolution output",
+        "status": "unsupported"
+      }
+    ],
+    "browser": {
+      "chromium": "pass with retries disabled",
+      "firefox": "pass with retries disabled",
+      "webkit": "pass with retries disabled",
+      "scope": "local worker protocol, preview, cancellation, stale response, transfer, and object URL checks"
+    },
+    "unavailableMeasurements": [
+      "CPU time",
+      "time to first output",
+      "source read count and unique source bytes",
+      "temporary storage bytes",
+      "standalone cancellation latency"
+    ]
+  },
+  "knownUnsupported": [
+    "common multi-group VarDCT breadth and Hornuss",
+    "chroma upsampling, patches, and splines",
+    "all codestream orientations",
+    "broad ICC, wide color, and HDR",
+    "ordinary published transform and output workflows",
+    "reduced-resolution and progressive output",
+    "competitive lossless compression and general lossy encoding",
+    "animation and uncommon extra channels",
+    "Level 10 pixel decode"
+  ],
+  "knownBaselineDefects": [
+    "The official delta_palette conformance case reaches INVALID_INPUT. It is a valid case outside the proven subset and should eventually become either a pass or UNSUPPORTED_OPERATION."
+  ],
+  "capabilityPromotion": {
+    "performed": false,
+    "stableGatePassed": false
+  }
+}

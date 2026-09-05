@@ -1,17 +1,25 @@
 name: JPEG XL pinned corpus
 
 on:
+  schedule:
+    - cron: '17 6 * * 1'
   pull_request:
     paths:
       - '.github/workflows/jpegxl-corpus.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'tests/**'
+      - 'browser-tests/**'
+      - 'examples/jpegxl-display.ts'
+      - 'scripts/serve-browser-tests.ts'
       - 'benchmark/jpegxl/**'
       - 'benchmark/fixtures/jpegxl/**'
-      - 'browser-tests/jpegxl-workbench.pw.ts'
-      - 'capabilities/manifest.json'
-      - 'docs/architecture/jpegxl-lossless-first.md'
+      - 'capabilities/**'
+      - 'docs/jpeg-xl.md'
+      - 'docs/architecture/jpegxl*.md'
+      - 'docs-astro/src/pages/jpeg-xl.astro'
       - 'jpegxl-codec-support.md'
-      - 'src/**/jpegxl*.ts'
-      - 'tests/**/jpegxl*.ts'
   workflow_dispatch:
 
 permissions:
@@ -25,7 +33,7 @@ jobs:
   corpus:
     name: Pinned corpus and exact reconstruction
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 90 || 180 }}
 
     steps:
       - name: Checkout repository
@@ -46,6 +54,25 @@ jobs:
 
       - name: Prepare evidence directory
         run: mkdir -p .tmp/jpegxl-evidence
+
+      - name: Verify deterministic production-program baseline
+        run: npm run jpegxl:program:baseline
+
+      - name: Run pinned official conformance classification
+        env:
+          CONFORMANCE_ARCHIVE_SHA256: 1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd
+          CONFORMANCE_REVISION: 4bf053529c7cefd2951be453475bb3dccc7e7be8
+        run: |
+          mkdir -p .tmp/jpegxl-conformance
+          curl --fail --location \
+            "https://github.com/libjxl/conformance/archive/$CONFORMANCE_REVISION.tar.gz" \
+            --output .tmp/jpegxl-conformance.tar.gz
+          echo "$CONFORMANCE_ARCHIVE_SHA256  .tmp/jpegxl-conformance.tar.gz" | sha256sum --check
+          tar --extract --gzip --file .tmp/jpegxl-conformance.tar.gz \
+            --directory .tmp/jpegxl-conformance --strip-components=1
+          npm run jpegxl:program:conformance -- \
+            --corpus-root .tmp/jpegxl-conformance \
+            --output .tmp/jpegxl-evidence/conformance.json
 
       - name: Install libjxl tool build dependencies
         run: sudo apt-get update && sudo apt-get install --yes libjpeg-dev libpng-dev ninja-build
@@ -125,8 +152,8 @@ jobs:
           git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 fetch --depth 1 origin "$IMAZEN_REVISION"
           git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 checkout --detach FETCH_HEAD
           test "$(git -C .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1 rev-parse HEAD)" = "$IMAZEN_REVISION"
-          cargo generate-lockfile \
-            --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml
+          cp benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock \
+            .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.lock
           echo "$IMAZEN_LOCK_SHA256  .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.lock" | sha256sum --check
           cargo build --release --locked \
             --manifest-path .tmp/jpegxl-oracles/imazen-jxl-encoder-d63e9d1/Cargo.toml \
@@ -141,11 +168,20 @@ jobs:
           tundra-4000x3000
           tundra-4000x3000-progressive
 
+      - name: Build package for executable public examples
+        run: npm run build
+
       - name: Run focused JPEG XL and neighboring JPEG tests
         run: >-
           npx vitest run
           tests/jpeg-marker-walk.test.ts
+          tests/jpegxl-production-program.test.ts
           tests/jpegxl.test.ts
+          tests/jpegxl-m4-color.test.ts
+          tests/jpegxl-remediation.test.ts
+          tests/jpegxl-encoder-memory.test.ts
+          tests/jpegxl-evidence.test.ts
+          tests/jpegxl-documentation.test.ts
           tests/jpegxl-corpus.test.ts
           tests/jpegxl-jpeg-reconstruction.test.ts
           tests/jpegxl-workbench-preview.test.ts
@@ -155,6 +191,25 @@ jobs:
 
       - name: Generate the pinned lossless matrix
         run: npm run fixtures:jpegxl:generate
+
+      - name: Verify M4 color, alpha, HDR, and official profile pixels
+        run: |
+          node benchmark/jpegxl/generate-m4-color-corpus.ts
+          node benchmark/jpegxl/generate-m4-alpha-corpus.ts
+          node benchmark/jpegxl/generate-m4-vardct-color-corpus.ts
+          node benchmark/jpegxl/generate-m4-vardct-alpha-corpus.ts
+          node benchmark/jpegxl/generate-m4-multiple-alpha.ts
+          node benchmark/jpegxl/verify-remediation-fixtures.ts --output .tmp/jpegxl-evidence/remediation-fixtures.json
+          node benchmark/jpegxl/production-program/verify-m4-conformance.ts --output .tmp/jpegxl-evidence/m4-conformance.json
+          node benchmark/jpegxl/production-program/verify-m4-memory.ts --output .tmp/jpegxl-evidence/m4-memory.json
+          node benchmark/jpegxl/production-program/verify-m4-jpeg-render.ts --output .tmp/jpegxl-evidence/m4-jpeg-render.json
+          npx vitest run tests/jpegxl-m4-color.test.ts
+
+      - name: Verify M5 static workflows and isolated memory
+        run: |
+          node benchmark/jpegxl/generate-m5-segmented.ts
+          npx vitest run tests/jpegxl-m5-pipeline.test.ts
+          node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --output .tmp/jpegxl-evidence/m5-pipelines.json
 
       - name: Run pinned lossless matrix
         run: npm run fixtures:jpegxl:matrix
@@ -175,10 +230,10 @@ jobs:
           npm run fixtures:jpegxl:encoder-matrix --
           --output .tmp/jpegxl-evidence/encoder.json
 
-      - name: Run lossless compression gate
-        run: >-
-          npm run bench:jpegxl:compression --
-          --output .tmp/jpegxl-evidence/compression.json
+      - name: Run effort-1 and effort-7 lossless compression gates
+        run: |
+          npm run bench:jpegxl:compression -- --effort 1 --output .tmp/jpegxl-evidence/compression-1.json
+          npm run bench:jpegxl:compression -- --effort 7 --output .tmp/jpegxl-evidence/compression-7.json
 
       - name: Run correctness-gated JPEG XL benchmark
         run: >-
@@ -191,20 +246,35 @@ jobs:
         run: |
           node benchmark/jpegxl/run-memory.ts --output .tmp/jpegxl-evidence/memory.json
           node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-evidence/vardct-memory.json
+          node benchmark/jpegxl/run-encoder-memory.ts --output .tmp/jpegxl-evidence/encoder-memory.json
+
+      - name: Verify frozen real-asset and small-JPEG holdouts
+        run: |
+          npm run fixtures:prepare -- old-faithful-6000x4000 tundra-4000x3000 portrait-2400x3000 libultrahdr-minnie-yuv-icc webp-lossless-rose-400x301 webp-lossless-tux-386x395 pngsuite-gray-16 wpt-webcodecs-mozjpeg-rgb wpt-webcodecs-mozjpeg-yuv420
+          node benchmark/jpegxl/run-pr35-holdout.ts --output .tmp/jpegxl-evidence/holdout.json
+          node benchmark/jpegxl/run-pr35-holdout.ts --manifest benchmark/jpegxl/production-program/pr35-small-jpeg-manifest.json --output .tmp/jpegxl-evidence/small-jpeg-holdout.json
+
+      - name: Verify pinned extended corpus and run M1, M3, and M5 promotion evidence
+        if: github.event_name != 'pull_request'
+        run: |
+          node benchmark/jpegxl/prepare-pinned-m1-inputs.ts
+          node benchmark/jpegxl/run-m1-real-jpeg-corpus.ts .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools .tmp/jpegxl-m1-coco .tmp/jpegxl-evidence/m1-real.json
+          npm run jpegxl:m3:corpus -- --output .tmp/jpegxl-evidence/m3-common-static.json
+          node benchmark/jpegxl/production-program/verify-m5-common-static.ts --corpus-report .tmp/jpegxl-evidence/m3-common-static.json --output .tmp/jpegxl-evidence/m5-common-static.json
 
       - name: Build final JPEG XL evidence
         run: >-
           npm run bench:jpegxl:evidence --
           --input-dir .tmp/jpegxl-evidence
+          --scope ${{ github.event_name == 'pull_request' && 'pr' || 'extended' }}
           --output .tmp/jpegxl-evidence/jpegxl-release-hardening.json
 
       - name: Upload final JPEG XL evidence
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: jpegxl-release-hardening-${{ github.event.pull_request.head.sha || github.sha }}
-          path: |
-            .tmp/jpegxl-evidence/jpegxl-release-hardening.json
-            .tmp/jpegxl-evidence/jpegxl-release-hardening.md
+          path: .tmp/jpegxl-evidence/
           if-no-files-found: error
 
   browser:
@@ -241,6 +311,9 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
+      - name: Build package for executable public examples
+        run: npm run build
+
       - name: Prepare pinned JPEG XL workbench input
         run: npm run fixtures:prepare -- tundra-4000x3000
 
@@ -254,6 +327,6 @@ jobs:
 
       - name: Run local-only JPEG XL workbench tests
         run: >-
-          npx playwright test browser-tests/jpegxl-workbench.pw.ts
+          npx playwright test browser-tests/jpegxl-workbench.pw.ts browser-tests/jpegxl-color.pw.ts browser-tests/jpegxl-pipeline.pw.ts
           --project=${{ matrix.browser }}
           --retries=0

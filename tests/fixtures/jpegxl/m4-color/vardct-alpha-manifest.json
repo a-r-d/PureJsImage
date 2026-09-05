@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "libjxlRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "cases": [
+    {
+      "id": "vardct-alpha-0-1",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "176e3247a174f3daf2aa2ac644658479e698099869d86ac01880d1289e61452c",
+      "pixelsSha256": "9a79755dd3ccb7d65849ab1bc3512b54386495f01b3411e1b5fcc990603ec208",
+      "maximumNormalizedError": 0.000017892561174778776,
+      "normalizedRmse": 0.000003890126280335752
+    },
+    {
+      "id": "vardct-alpha-0-2",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "e267d535732869105a556bb3a233b1573fb51aa1a2f5385ed63a1d5a8ced729e",
+      "pixelsSha256": "1d02ba6b6100e2d00aac9318df5626d220d26231ca1a09aa4b3c00ca2905458f",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.00000435257240915381
+    },
+    {
+      "id": "vardct-alpha-0-4",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "dd242c5a1c78b7bcd06181e956fd49f1188e081c46e9715fffc79b2c24479d19",
+      "pixelsSha256": "50924eff2456b01884ab79a6100af6c48ba6c839fc36fee0cab528106b375c93",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.000004518888073647711
+    },
+    {
+      "id": "vardct-alpha-0-8",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "4ca2345098ae122c3367c5c777f4f365adcbd232b4526937e9de21b204b2099b",
+      "pixelsSha256": "1a6e6665bfc71eb51f84261ddec1bd8d988f75c6af6eb1c26058ab1c9b48c29b",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.000004462239464040067
+    },
+    {
+      "id": "vardct-alpha-1-1",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "2ff2c9d9d7bbb90cb212a2557938d3ec9f47cadb608d08c71d628745404d088c",
+      "pixelsSha256": "843c07a204f93ea581d203b44077c92b61272cc24d0e06acc8be0514e1090a03",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.000004016299293192818
+    },
+    {
+      "id": "vardct-alpha-1-2",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "7beaefc341d2f581438b52a064971392cd80c5dfc3eee021e2202a3c9511b1f7",
+      "pixelsSha256": "1d02ba6b6100e2d00aac9318df5626d220d26231ca1a09aa4b3c00ca2905458f",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.00000435257240915381
+    },
+    {
+      "id": "vardct-alpha-1-4",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "0b2c958a664b31671fc00cc483a96627f0a4598389fc455941b1aa349fd59d82",
+      "pixelsSha256": "50924eff2456b01884ab79a6100af6c48ba6c839fc36fee0cab528106b375c93",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.000004518888073647711
+    },
+    {
+      "id": "vardct-alpha-1-8",
+      "depth": 16,
+      "width": 17,
+      "height": 13,
+      "format": "rgba16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "decoder-converted",
+        "renderingIntent": "perceptual"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "2a74cae2ba52cd7484ab3585499f9dca2c37fba082e8e4f43705e252eaab392b",
+      "pixelsSha256": "1a6e6665bfc71eb51f84261ddec1bd8d988f75c6af6eb1c26058ab1c9b48c29b",
+      "maximumNormalizedError": 0.00002403883691932604,
+      "normalizedRmse": 0.000004462239464040067
+    }
+  ]
+}

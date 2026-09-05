@@ -76,6 +76,9 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
+      - name: Build package for executable public examples
+        run: npm run build
+
       - name: Prepare pinned JPEG XL workbench input
         run: npm run fixtures:prepare -- tundra-4000x3000
 

@@ -1,15 +1,21 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
+import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
+import { encodeBrotli } from '../src/codecs/brotli.ts'
 import { inspectJpegXlStructure, jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import type { PixelColorSemantics } from '../src/color.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import type { JpegXlEncodeOptions } from '../src/pipeline.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
+import { Image } from './image-library.ts'
+import { pngCodec } from '../src/codecs/png.ts'
+import { exifOrientation } from '../src/metadata.ts'
 
 const ascii = (value: string): Uint8Array =>
   Uint8Array.from(value, (character) => character.charCodeAt(0))
@@ -146,14 +152,16 @@ const encodeLosslessJpegXl = async (
   height: number,
   pixels: Uint8Array,
   container: boolean,
+  options: Readonly<JpegXlEncodeOptions> = {},
+  colorSemantics: PixelColorSemantics = jpegXlSemanticsFor(format),
 ): Promise<Uint8Array> => {
   const sink = new Uint8ArraySink()
   const encoder = await jpegxlCodec.createEncoder?.(sink, {
     width,
     height,
     pixelFormat: format,
-    colorSemantics: jpegXlSemanticsFor(format),
-    options: { mode: 'lossless', effort: 1, container },
+    colorSemantics,
+    options: { mode: 'lossless', effort: 1, container, ...options },
     limits: defaultImageLimits,
   })
   if (!encoder) throw new Error('JPEG XL encoder is unavailable')
@@ -219,14 +227,33 @@ const jpegXlSemanticsFor = (format: PixelFormat): PixelColorSemantics =>
     family: format.startsWith('gray') ? 'gray' : 'rgb',
   })
 
+const sourceCoordinate = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  orientation: number,
+): readonly [number, number] => {
+  if (orientation === 1) return [x, y]
+  if (orientation === 2) return [width - 1 - x, y]
+  if (orientation === 3) return [width - 1 - x, height - 1 - y]
+  if (orientation === 4) return [x, height - 1 - y]
+  if (orientation === 5) return [y, x]
+  if (orientation === 6) return [y, height - 1 - x]
+  if (orientation === 7) return [width - 1 - y, height - 1 - x]
+  return [width - 1 - y, x]
+}
+
 class RecordingSink implements ImageSink {
   readonly abortReasons: unknown[] = []
+  readonly chunkBytes: number[] = []
   writes = 0
   closes = 0
   failWrite = false
 
-  async write(_chunk: Uint8Array): Promise<void> {
+  async write(chunk: Uint8Array): Promise<void> {
     this.writes += 1
+    this.chunkBytes.push(chunk.byteLength)
     if (this.failWrite) throw new Error('sink write failed')
   }
 
@@ -286,6 +313,91 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       expect(decoded.pixels).toEqual(pixels)
     },
   )
+
+  it.each([1, 3, 5, 7] as const)(
+    'round-trips deterministic RGB8 samples at effort $s',
+    async (effort) => {
+      const width = 41
+      const height = 29
+      const pixels = Uint8Array.from({ length: width * height * 3 }, (_, index) => {
+        const x = Math.floor(index / 3) % width
+        const y = Math.floor(index / 3 / width)
+        return (x * 11 + y * 7 + (index % 3) * 19) & 255
+      })
+      const first = await encodeLosslessJpegXl('rgb8', width, height, pixels, true, { effort })
+      const second = await encodeLosslessJpegXl('rgb8', width, height, pixels, true, { effort })
+      expect(first).toEqual(second)
+      await expect(decodeJpegXlPixels(first)).resolves.toEqual({ format: 'rgb8', pixels })
+    },
+  )
+
+  it.each([9, 10, 11, 12, 13, 14, 15] as const)(
+    'preserves explicitly declared $s-bit RGB samples in rgb16 storage',
+    async (sampleBitDepth) => {
+      const width = 7
+      const height = 5
+      const maximum = 2 ** sampleBitDepth - 1
+      const pixels = new Uint8Array(width * height * 6)
+      for (let offset = 0; offset < pixels.byteLength; offset += 2) {
+        const sample = (offset * 37 + 11) & maximum
+        pixels[offset] = sample >>> 8
+        pixels[offset + 1] = sample
+      }
+      const output = await encodeLosslessJpegXl('rgb16', width, height, pixels, false, {
+        effort: 3,
+        sampleBitDepth,
+      })
+      await expect(inspectJpegXl(output)).resolves.toMatchObject({ bitDepth: sampleBitDepth })
+      await expect(decodeJpegXlPixels(output)).resolves.toEqual({ format: 'rgb16', pixels })
+    },
+  )
+
+  it('preserves independent straight-alpha precision and reports managed peak bytes', async () => {
+    const width = 9
+    const height = 6
+    const pixels = new Uint8Array(width * height * 8)
+    for (let offset = 0; offset < pixels.byteLength; offset += 8) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        const sample = (offset * 13 + channel * 71) & 4_095
+        pixels[offset + channel * 2] = sample >>> 8
+        pixels[offset + channel * 2 + 1] = sample
+      }
+      const alpha = (offset * 17 + 5) & 511
+      pixels[offset + 6] = alpha >>> 8
+      pixels[offset + 7] = alpha
+    }
+    const sink = new RecordingSink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: 'rgba16',
+      colorSemantics: jpegXlSemanticsFor('rgba16'),
+      options: { mode: 'lossless', effort: 7, sampleBitDepth: 12, alphaBitDepth: 9 },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * 8,
+      format: 'rgba16',
+      data: pixels,
+    })
+    await encoder.finish()
+    expect(sink.writes).toBeGreaterThan(1)
+    expect('managedPeakBytes' in encoder ? encoder.managedPeakBytes : 0).toBeGreaterThan(0)
+  })
+
+  it('rejects samples outside an explicitly declared depth', async () => {
+    await expect(
+      encodeLosslessJpegXl('gray16', 1, 1, Uint8Array.of(0x04, 0x00), false, {
+        effort: 3,
+        sampleBitDepth: 10,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
 
   it('encodes multiple Modular groups and decodes a cross-group crop exactly', async () => {
     const width = 1_100
@@ -349,12 +461,12 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     expect(jpegxlCodec.acceptsColorSemantics?.(straight)).toBe(true)
     expect(
       jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'perceptual' }),
-    ).toBe(false)
+    ).toBe(true)
     expect(
       jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'saturation' }),
-    ).toBe(false)
+    ).toBe(true)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'absolute' })).toBe(
-      false,
+      true,
     )
     expect(jpegxlCodec.acceptsColorSemantics?.(withoutRenderingIntent)).toBe(false)
     expect(
@@ -362,10 +474,8 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         ...straight,
         transfer: { kind: 'linear' },
       }),
-    ).toBe(false)
-    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, primaries: 'display-p3' })).toBe(
-      false,
-    )
+    ).toBe(true)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, primaries: 'display-p3' })).toBe(true)
     expect(
       jpegxlCodec.acceptsColorSemantics?.({
         ...straight,
@@ -375,7 +485,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         icc: { relevance: 'emitted-pixels' },
       }),
     ).toBe(false)
-    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, alpha: 'premultiplied' })).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, alpha: 'premultiplied' })).toBe(true)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, family: 'unspecified' })).toBe(false)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, primaries: 'unspecified' })).toBe(
       false,
@@ -396,7 +506,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
           options: { mode: 'lossless' },
           limits: defaultImageLimits,
         }),
-      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+      ).resolves.toBeDefined()
     }
 
     await expect(
@@ -408,7 +518,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         options: { mode: 'lossless' },
         limits: defaultImageLimits,
       }),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    ).resolves.toBeDefined()
 
     await expect(
       jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
@@ -422,6 +532,266 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       code: 'UNSUPPORTED_OPERATION',
       message: expect.stringContaining('explicit'),
     })
+  })
+
+  it('signals and applies every display orientation exactly once', async () => {
+    const width = 3
+    const height = 2
+    const pixels = Uint8Array.of(
+      10,
+      11,
+      12,
+      20,
+      21,
+      22,
+      30,
+      31,
+      32,
+      40,
+      41,
+      42,
+      50,
+      51,
+      52,
+      60,
+      61,
+      62,
+    )
+    for (const orientation of [1, 2, 3, 4, 5, 6, 7, 8] as const) {
+      const encoded = await encodeLosslessJpegXl('rgb8', width, height, pixels, true, {
+        orientation,
+      })
+      const inspection = await inspectJpegXl(encoded)
+      expect(inspection).toMatchObject({
+        width,
+        height,
+        displayWidth: orientation >= 5 ? height : width,
+        displayHeight: orientation >= 5 ? width : height,
+        orientation,
+      })
+      const output = PNG.sync.read(await (await Image.open(encoded)).autoOrient().png().toBuffer())
+      expect([output.width, output.height]).toEqual([
+        orientation >= 5 ? height : width,
+        orientation >= 5 ? width : height,
+      ])
+      for (let y = 0; y < output.height; y += 1) {
+        for (let x = 0; x < output.width; x += 1) {
+          const [sourceX, sourceY] = sourceCoordinate(x, y, width, height, orientation)
+          const source = (sourceY * width + sourceX) * 3
+          const target = (y * output.width + x) * 4
+          expect(Array.from(output.data.subarray(target, target + 3))).toEqual(
+            Array.from(pixels.subarray(source, source + 3)),
+          )
+        }
+      }
+      const cropped = PNG.sync.read(
+        await (await Image.open(encoded))
+          .autoOrient()
+          .crop({ x: 1, y: 1, width: 1, height: 1 })
+          .resize({ width: 2, height: 2, fit: 'fill' })
+          .png()
+          .toBuffer(),
+      )
+      expect([cropped.width, cropped.height]).toEqual([2, 2])
+      const expectedPixel = output.data.subarray((output.width + 1) * 4, (output.width + 1) * 4 + 4)
+      for (let offset = 0; offset < cropped.data.length; offset += 4)
+        expect(cropped.data.subarray(offset, offset + 4)).toEqual(expectedPixel)
+    }
+  })
+
+  it('normalizes copied Exif orientation when applying codestream orientation', async () => {
+    const original = await encodeLosslessJpegXl('rgb8', 3, 2, new Uint8Array(18).fill(80), true, {
+      orientation: 6,
+    })
+    const exif = hexadecimal('4d4d002a00000008000101120003000000010006000000000000')
+    const encoded = concatenate(original, box('Exif', concatenate(new Uint8Array(4), exif)))
+    const png = await (await Image.open(encoded)).autoOrient().keepExif().png().toBuffer()
+    expect(await (await Image.open(png)).metadata()).toMatchObject({
+      width: 2,
+      height: 3,
+    })
+    const preserved = await pngCodec.preservedMetadata?.(
+      new MemorySource(png),
+      defaultImageLimits,
+      { exif: true, icc: false },
+    )
+    if (!preserved?.exif) throw new Error('Preserved Exif is missing')
+    expect(exifOrientation(preserved.exif)).toBe(1)
+    const second = await (await Image.open(png)).autoOrient().png().toBuffer()
+    expect(PNG.sync.read(second).data).toEqual(PNG.sync.read(png).data)
+  })
+
+  it('round-trips structured color, rendering intent, and premultiplied alpha', async () => {
+    const structuredCases = [
+      { primaries: 'srgb', transfer: { kind: 'linear' }, renderingIntent: 'perceptual' },
+      { primaries: 'display-p3', transfer: { kind: 'srgb' }, renderingIntent: 'relative' },
+      { primaries: 'rec2020', transfer: { kind: 'pq' }, renderingIntent: 'saturation' },
+      { primaries: 'rec2020', transfer: { kind: 'hlg' }, renderingIntent: 'absolute' },
+    ] as const
+    for (const color of structuredCases) {
+      const semantics: PixelColorSemantics = Object.freeze({
+        ...srgbSemantics('none'),
+        ...color,
+        transfer: Object.freeze(color.transfer),
+      })
+      const encoded = await encodeLosslessJpegXl(
+        'rgb16',
+        1,
+        1,
+        Uint8Array.of(0, 64, 1, 0, 3, 255),
+        true,
+        { sampleBitDepth: 10 },
+        semantics,
+      )
+      const decoder = await jpegxlCodec.createDecoder?.(
+        new MemorySource(encoded),
+        defaultImageLimits,
+      )
+      expect(decoder?.colorSemantics).toMatchObject({
+        ...semantics,
+        provenance: 'container-signaled',
+      })
+    }
+
+    const premultiplied = Object.freeze({
+      ...srgbSemantics('premultiplied'),
+      alpha: 'premultiplied' as const,
+    })
+    const encoded = await encodeLosslessJpegXl(
+      'rgba8',
+      2,
+      1,
+      Uint8Array.of(50, 25, 10, 128, 9, 8, 7, 0),
+      true,
+      {},
+      premultiplied,
+    )
+    const preserved = await jpegxlCodec.createDecoder?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { alphaOutput: 'preserve' },
+    )
+    expect(preserved?.colorSemantics?.alpha).toBe('premultiplied')
+    const straight = await jpegxlCodec.createDecoder?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { alphaOutput: 'straight' },
+    )
+    if (!straight) throw new Error('JPEG XL straight-alpha decoder is unavailable')
+    const blocks: number[] = []
+    for await (const block of straight.decode()) blocks.push(...block.data)
+    expect(blocks).toEqual([100, 50, 20, 128, 0, 0, 0, 0])
+  })
+
+  it('returns explicit linear float HDR output without clamping highlights', async () => {
+    const semantics: PixelColorSemantics = Object.freeze({
+      ...srgbSemantics('none'),
+      primaries: 'rec2020',
+      transfer: Object.freeze({ kind: 'pq' }),
+    })
+    const encoded = await encodeLosslessJpegXl(
+      'rgb16',
+      1,
+      1,
+      Uint8Array.of(3, 255, 2, 0, 0, 0),
+      true,
+      { sampleBitDepth: 10 },
+      semantics,
+    )
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { hdrOutput: 'linear-float' },
+    )
+    expect(decoder?.pixelFormat).toBe('rgbf32')
+    if (!decoder) throw new Error('JPEG XL HDR decoder is unavailable')
+    const output: number[] = []
+    for await (const block of decoder.decode()) {
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let offset = 0; offset < block.data.byteLength; offset += 4) {
+        output.push(view.getFloat32(offset, false))
+      }
+    }
+    expect(output[0]).toBeGreaterThan(40)
+    expect(output[1]).toBeGreaterThan(0.4)
+    expect(output[2]).toBe(0)
+  })
+
+  it('preserves bounded Exif, XMP, JUMBF, and brob metadata', async () => {
+    const exif = hexadecimal('4d4d002a00000008000000000000')
+    const xmp = ascii('<x:xmpmeta>m4</x:xmpmeta>')
+    const jumbf = hexadecimal('000000086a756d64')
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: 1,
+      height: 1,
+      pixelFormat: 'rgb8',
+      colorSemantics: jpegXlSemanticsFor('rgb8'),
+      options: { mode: 'lossless', container: true },
+      metadata: { exif, xmp, jumbf },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('JPEG XL metadata encoder is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+      stride: 3,
+      format: 'rgb8',
+      data: Uint8Array.of(1, 2, 3),
+    })
+    await encoder.finish()
+    const encoded = sink.toUint8Array()
+    const preserved = await jpegxlCodec.preservedMetadata?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { exif: true, icc: true, xmp: true, jumbf: true },
+    )
+    expect(preserved).toEqual({ exif, xmp, jumbf })
+
+    const brob = box(
+      'brob',
+      concatenate(ascii('Exif'), encodeBrotli(concatenate(Uint8Array.of(0, 0, 0, 0), exif))),
+    )
+    const compressed = concatenate(encoded, brob)
+    await expect(
+      jpegxlCodec.preservedMetadata?.(new MemorySource(compressed), defaultImageLimits, {
+        exif: true,
+        icc: false,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+
+    const withoutMetadata = await encodeLosslessJpegXl('rgb8', 1, 1, Uint8Array.of(1, 2, 3), true)
+    const brobOnly = concatenate(withoutMetadata, brob)
+    const compressedExif = await jpegxlCodec.preservedMetadata?.(
+      new MemorySource(brobOnly),
+      defaultImageLimits,
+      { exif: true, icc: false },
+    )
+    expect(compressedExif?.exif).toEqual(exif)
+  })
+
+  it('decodes and validates the pinned embedded ICC profile exactly', async () => {
+    const input = new Uint8Array(readFileSync('tests/fixtures/jpegxl/m4-color/oriented-icc.jxl'))
+    const reference = new Uint8Array(
+      readFileSync('tests/fixtures/jpegxl/m4-color/oriented-icc.icc'),
+    )
+    const inspection = await inspectJpegXl(input)
+    expect(inspection).toMatchObject({
+      orientation: 5,
+      displayWidth: 606,
+      displayHeight: 500,
+      encodedColor: 'icc',
+      icc: { present: true },
+    })
+    expect(inspection.icc.decodedBytes).toBeGreaterThan(128)
+    const jpegXlMetadata = await jpegxlCodec.preservedMetadata?.(
+      new MemorySource(input),
+      defaultImageLimits,
+      { exif: false, icc: true },
+    )
+    expect(jpegXlMetadata?.icc).toEqual(reference)
   })
 
   it('aborts encoder state and its sink deterministically', async () => {
@@ -501,7 +871,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     })
     await encoder.finish()
     await encoder.abort(new Error('too late'))
-    expect(sink.writes).toBe(1)
+    expect(sink.writes).toBeGreaterThan(1)
     expect(sink.abortReasons).toEqual([])
   })
 

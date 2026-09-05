@@ -1,0 +1,150 @@
+import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
+import { inspectJpegXl } from '../../src/jpegxl.ts'
+import { defaultImageLimits } from '../../src/limits.ts'
+import { Uint8ArraySink } from '../../src/sink.ts'
+import { MemorySource } from '../../src/source.ts'
+
+const tools = process.argv[2] ?? '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
+const directory = 'tests/fixtures/jpegxl/m4-color'
+const temporary = '.tmp/jpegxl-m4-color'
+await mkdir(directory, { recursive: true })
+await mkdir(temporary, { recursive: true })
+const hash = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
+const run = (name: string, args: readonly string[]): void => {
+  const result = spawnSync(join(tools, name), args, { encoding: 'utf8' })
+  if (result.status !== 0) throw new Error(`${name}: ${result.stderr}`)
+}
+const colors = [
+  ['srgb', 'RGB_D65_SRG_Rel_SRG'],
+  ['linear', 'RGB_D65_SRG_Rel_Lin'],
+  ['p3', 'DisplayP3'],
+  ['rec2020', 'RGB_D65_202_Rel_Lin'],
+  ['pq', 'RGB_D65_202_Rel_PeQ'],
+  ['hlg', 'RGB_D65_202_Rel_HLG'],
+  ['gamma', 'RGB_D65_SRG_Rel_g0.454545'],
+  ['gray-srgb', 'Gra_D65_Rel_SRG'],
+  ['gray-linear', 'Gra_D65_Rel_Lin'],
+  ['gray-pq', 'Gra_D65_Rel_PeQ'],
+  ['gray-hlg', 'Gra_D65_Rel_HLG'],
+  ['gray-gamma', 'Gra_D65_Rel_g0.454545'],
+  ['dci', 'RGB_DCI_DCI_Rel_SRG'],
+  ['custom', 'RGB_0.34567;0.35850_0.63;0.34;0.29;0.61;0.15;0.06_Rel_SRG'],
+] as const
+const results = []
+for (const [color, description] of colors) {
+  for (const depth of [8, 10, 12, 16]) {
+    const id = `${color}-${depth}`
+    const channels = color.startsWith('gray-') ? 1 : 3
+    const width = 7
+    const height = 5
+    const maximum = 2 ** depth - 1
+    const bytes = depth === 8 ? 1 : 2
+    const pixels = new Uint8Array(width * height * channels * bytes)
+    for (let i = 0; i < width * height * channels; i += 1) {
+      const sample = Math.round((((i * 47) % 105) / 104) * maximum)
+      if (bytes === 1) pixels[i] = sample
+      else {
+        pixels[i * 2] = sample >>> 8
+        pixels[i * 2 + 1] = sample & 255
+      }
+    }
+    const input = join(temporary, `${id}.${channels === 1 ? 'pgm' : 'ppm'}`)
+    await writeFile(
+      input,
+      Buffer.concat([
+        Buffer.from(`${channels === 1 ? 'P5' : 'P6'}\n${width} ${height}\n${maximum}\n`),
+        pixels,
+      ]),
+    )
+    const output = join(directory, `${id}.jxl`)
+    run('cjxl', [
+      input,
+      output,
+      '-d',
+      '0',
+      '-e',
+      '1',
+      '--num_threads=1',
+      '-x',
+      `color_space=${description}`,
+    ])
+    const encoded = await readFile(output)
+    const inspection = await inspectJpegXl(encoded)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(encoded),
+      defaultImageLimits,
+      { colorOutput: 'preserve' },
+    )
+    if (!decoder?.colorSemantics) throw new Error('JPEG XL decoder is unavailable')
+    const chunks: Uint8Array[] = []
+    for await (const block of decoder.decode()) {
+      try {
+        chunks.push(block.data.slice())
+      } finally {
+        block.release?.()
+      }
+    }
+    const decoded = Buffer.concat(chunks)
+    if (!decoded.equals(pixels)) throw new Error(`${id} samples differ`)
+    await writeFile(join(directory, `${id}.bin`), pixels)
+    // A second independent decode validates the PNM precision and exact source samples.
+    const oraclePath = join(temporary, `${id}-decoded.${channels === 1 ? 'pgm' : 'ppm'}`)
+    run('djxl', [output, oraclePath, '--bits_per_sample=0', '--num_threads=1'])
+    const oracle = await readFile(oraclePath)
+    if (!oracle.subarray(oracle.byteLength - pixels.byteLength).equals(pixels))
+      throw new Error(`${id} djxl samples differ`)
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: decoder.pixelFormat,
+      colorSemantics: decoder.colorSemantics,
+      options: { mode: 'lossless', effort: 1, sampleBitDepth: inspection.bitDepth },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * channels * bytes,
+      format: decoder.pixelFormat,
+      data: pixels,
+    })
+    await encoder.finish()
+    const reencoded = sink.toUint8Array()
+    const reencodedPath = join(temporary, `${id}-purejsimage.jxl`)
+    await writeFile(reencodedPath, reencoded)
+    run('djxl', [reencodedPath, oraclePath, '--bits_per_sample=0', '--num_threads=1'])
+    const reverse = await readFile(oraclePath)
+    if (!reverse.subarray(reverse.byteLength - pixels.byteLength).equals(pixels))
+      throw new Error(`${id} PureJsImage encode differs through djxl`)
+    results.push({
+      id,
+      source: 'Deterministic gradient generated by generate-m4-color-corpus.ts',
+      license: 'MIT',
+      options: ['-d 0', '-e 1', '--num_threads=1', `-x color_space=${description}`],
+      width,
+      height,
+      bitDepth: inspection.bitDepth,
+      color: inspection.encodedColor,
+      format: decoder.pixelFormat,
+      colorSemantics: decoder.colorSemantics,
+      bytes: encoded.byteLength,
+      sha256: hash(encoded),
+      pixelsSha256: hash(pixels),
+      oracle: 'cjxl decode and PureJsImage encode match exact native samples through djxl',
+      encodedSha256: hash(reencoded),
+    })
+  }
+}
+await writeFile(
+  join(directory, 'manifest.json'),
+  `${JSON.stringify({ schemaVersion: 1, libjxlRevision: 'a7a9c787341cf703dede03c2009fa460cae5e5df', cases: results }, null, 2)}\n`,
+)
+console.log(`${results.length} color cases match original samples and djxl`)

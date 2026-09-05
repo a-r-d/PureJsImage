@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-09-05T01:37:30.125Z",
+  "selection": "Supplement added after the original nine-case holdout showed the small photographic JPEG is ICC-ineligible. Both existing WPT small JPEG fixtures selected by eligibility only, before measuring their compression. No original case removed or modified. These procedural assets are supplemental coverage, not new blind real-photo holdouts.",
+  "cases": [
+    {
+      "id": "wpt-webcodecs-mozjpeg-rgb",
+      "file": "wpt-webcodecs-mozjpeg-rgb.jpg",
+      "url": "https://raw.githubusercontent.com/web-platform-tests/wpt/master/webcodecs/four-colors.jpg",
+      "sourcePage": "https://github.com/web-platform-tests/wpt/blob/master/webcodecs/README.md",
+      "author": "web-platform-tests contributors; generated with Squoosh MozJPEG",
+      "license": "BSD 3-Clause",
+      "expected": {
+        "format": "jpeg",
+        "width": 320,
+        "height": 240,
+        "orientation": 1,
+        "sha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65"
+      },
+      "path": "benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg",
+      "bytes": 1242,
+      "sha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65",
+      "sourceWidth": 320,
+      "sourceHeight": 240,
+      "testWidth": 320,
+      "testHeight": 240,
+      "resize": "none",
+      "role": "supplemental synthetic small eligible JPEG"
+    },
+    {
+      "id": "wpt-webcodecs-mozjpeg-yuv420",
+      "file": "wpt-webcodecs-mozjpeg-yuv420.jpg",
+      "url": "https://raw.githubusercontent.com/web-platform-tests/wpt/master/webcodecs/four-colors-limited-range-420-8bpc.jpg",
+      "sourcePage": "https://github.com/web-platform-tests/wpt/blob/master/webcodecs/README.md",
+      "author": "web-platform-tests contributors; generated with Squoosh MozJPEG",
+      "license": "BSD 3-Clause",
+      "expected": {
+        "format": "jpeg",
+        "width": 320,
+        "height": 240,
+        "orientation": 1,
+        "sha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e"
+      },
+      "path": "benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg",
+      "bytes": 1006,
+      "sha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+      "sourceWidth": 320,
+      "sourceHeight": 240,
+      "testWidth": 320,
+      "testHeight": 240,
+      "resize": "none",
+      "role": "supplemental synthetic small eligible JPEG"
+    }
+  ]
+}

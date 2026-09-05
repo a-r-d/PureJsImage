@@ -840,6 +840,67 @@ const jpegXlLossless = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.byteLength,
   }
 }
+const jpegXlLosslessEncode = async (): Promise<BrowserWorkflowResult> => {
+  const width = 13
+  const height = 9
+  const maximum = 1_023
+  const pixels = new Uint8Array(width * height * 3 * 2)
+  for (let offset = 0; offset < pixels.byteLength; offset += 2) {
+    const sample = (offset * 37 + Math.floor(offset / 6) * 19) & maximum
+    pixels[offset] = sample >>> 8
+    pixels[offset + 1] = sample
+  }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgb16',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: {
+      mode: 'lossless',
+      effort: 7,
+      container: true,
+      sampleBitDepth: 10,
+    },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('Browser JPEG XL encoder is unavailable')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 6,
+    format: 'rgb16',
+    data: pixels,
+  })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  const decoded: number[] = []
+  for await (const block of decoder.decode()) decoded.push(...block.data)
+  if (
+    decoder.pixelFormat !== 'rgb16' ||
+    decoded.length !== pixels.byteLength ||
+    decoded.some((value, index) => value !== pixels[index])
+  ) {
+    throw new Error('Browser JPEG XL effort-7 encode did not preserve declared 10-bit samples')
+  }
+  return {
+    detail: 'lossless JPEG XL effort-7 browser encode preserved declared 10-bit RGB samples',
+    outputBytes: encoded.byteLength,
+  }
+}
 const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/jpegxl-alpha-12bit.jxl')
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
@@ -863,10 +924,28 @@ const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
   }
   const output = await (await images.open(bytes))
     .crop({ x: 0, y: 0, width: 2, height: 1 })
+    .convertPixelFormat({ format: 'rgba16' })
     .png()
     .toUint8Array()
+  const png = await pngCodec.createDecoder?.(new MemorySource(output), defaultImageLimits)
+  if (png?.pixelFormat !== 'rgba16') throw new Error('PNG lost explicit 16-bit storage')
+  const converted: number[] = []
+  for await (const block of png.decode()) {
+    try {
+      converted.push(...block.data)
+    } finally {
+      block.release?.()
+    }
+  }
+  const expectedPng = [0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 64, 0, 64, 0, 0]
+  if (
+    converted.length !== expectedPng.length ||
+    converted.some((value, index) => value !== expectedPng[index])
+  )
+    throw new Error('PNG samples do not match explicit 12-to-16-bit range conversion')
   return {
-    detail: 'lossless JPEG XL preserved native 12-bit RGBA samples and normalized through PNG',
+    detail:
+      'lossless JPEG XL preserved native 12-bit RGBA samples and explicitly converted to 16-bit PNG',
     outputBytes: output.byteLength,
   }
 }
@@ -899,6 +978,53 @@ const jpegXlMultiGroup = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'lossless JPEG XL crop crossed four permuted Modular group boundaries',
     outputBytes,
+  }
+}
+const pnmPixels = (data: Uint8Array): Uint8Array => {
+  let offset = 0
+  let tokens = 0
+  while (offset < data.byteLength && tokens < 4) {
+    while (offset < data.byteLength && (data[offset] ?? 0) <= 0x20) offset += 1
+    if (data[offset] === 0x23) {
+      while (offset < data.byteLength && data[offset] !== 0x0a) offset += 1
+      continue
+    }
+    while (offset < data.byteLength && (data[offset] ?? 0) > 0x20) offset += 1
+    tokens += 1
+  }
+  if (tokens !== 4 || offset >= data.byteLength) throw new Error('Browser PNM oracle is invalid')
+  return data.subarray(offset + 1)
+}
+const jpegXlMultiGroupProgressive = async (): Promise<BrowserWorkflowResult> => {
+  const [bytes, oracleFile] = await Promise.all([
+    fetchBytes('/fixtures/jpegxl-multi-group-progressive.jxl'),
+    fetchBytes('/fixtures/jpegxl-multi-group-progressive.oracle.ppm'),
+  ])
+  const oracle = pnmPixels(oracleFile)
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL VarDCT decoder is unavailable')
+  let offset = 0
+  let maximumError = 0
+  let squaredError = 0
+  for await (const block of decoder.decode()) {
+    if (block.format !== 'rgb8') throw new Error('Browser JPEG XL VarDCT output is not rgb8')
+    for (const sample of block.data) {
+      const difference = Math.abs(sample - (oracle[offset] ?? -1))
+      maximumError = Math.max(maximumError, difference)
+      squaredError += difference * difference
+      offset += 1
+    }
+    block.release?.()
+  }
+  const rmse = Math.sqrt(squaredError / offset)
+  if (offset !== oracle.byteLength || maximumError > 1 || rmse >= 0.5) {
+    throw new Error(
+      `Browser JPEG XL VarDCT oracle mismatch: ${offset}/${oracle.byteLength}, ${maximumError}/${rmse}`,
+    )
+  }
+  return {
+    detail: 'lossy JPEG XL decode matched djxl across six groups and three progressive passes',
+    outputBytes: offset,
   }
 }
 const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
@@ -5138,8 +5264,10 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   jpegPipeline,
   jpeg2000Decode,
   jpegXlLossless,
+  jpegXlLosslessEncode,
   jpegXlHighBit,
   jpegXlMultiGroup,
+  jpegXlMultiGroupProgressive,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,

@@ -1,0 +1,388 @@
+{
+  "schemaVersion": 1,
+  "kind": "jpegxl-official-conformance",
+  "repository": "https://github.com/libjxl/conformance",
+  "revision": "4bf053529c7cefd2951be453475bb3dccc7e7be8",
+  "archive": "https://github.com/libjxl/conformance/archive/4bf053529c7cefd2951be453475bb3dccc7e7be8.tar.gz",
+  "archiveSha256": "1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",
+  "licenseSource": "testcases/README.md at the pinned revision",
+  "classificationPolicy": {
+    "pass": "Decoded samples match the pinned expected SHA-256.",
+    "expected-unsupported": "Valid syntax is outside the current public boundary and returns UNSUPPORTED_OPERATION.",
+    "malformed-safely-rejected": "A deliberately malformed input returns INVALID_INPUT or TRUNCATED_INPUT before output.",
+    "incorrect-output": "Decode completes but dimensions, rows, format, or sample SHA-256 differ.",
+    "unexpected-failure": "A valid case fails outside its recorded unsupported boundary or with the wrong error class."
+  },
+  "cases": [
+    {
+      "id": "alpha_nonpremultiplied",
+      "sha256": "15acbe3edbfd5a75c7609726ae60526ffc812642b5dd6be8475f0b990ce9b1db",
+      "bytes": 30,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "pass",
+      "outputSha256": "dcad2498d282253d5a0cc6228a557663f83e5547e196d4da472c2658a89b26b9"
+    },
+    {
+      "id": "alpha_premultiplied",
+      "sha256": "5028e630dc358bf4031cbf06e8a80f2bfbfa21fd0d088af74d83b473d3dd540a",
+      "bytes": 8772,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "Level 10 global Squeeze transform for grouped alpha"
+    },
+    {
+      "id": "alpha_triangles",
+      "sha256": "19ac7752a23ad2b22814064cb6b62a581b48be18ed73b5ccc2340888c114d2c9",
+      "bytes": 61,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "pass",
+      "outputSha256": "f9eee8a5b5f1e9209a1a82e590fcab10518ad4feb4cd550d4394dcc53cb35422"
+    },
+    {
+      "id": "animation_icos4d",
+      "sha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+      "bytes": 352478,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "animation"
+    },
+    {
+      "id": "animation_icos4d_5",
+      "sha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+      "bytes": 352478,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "animation"
+    },
+    {
+      "id": "animation_newtons_cradle",
+      "sha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
+      "bytes": 238305,
+      "license": "CC-BY-SA-3.0",
+      "levels": [5, 10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "animation"
+    },
+    {
+      "id": "animation_spline",
+      "sha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+      "bytes": 9581,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "animation and splines"
+    },
+    {
+      "id": "animation_spline_5",
+      "sha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+      "bytes": 9581,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "animation and splines"
+    },
+    {
+      "id": "bench_oriented_brg",
+      "sha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "bytes": 184341,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "bench_oriented_brg_5",
+      "sha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "bytes": 184341,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "bicycles",
+      "sha256": "8ef03ccccb45bdb5f3d37c9a4c392f745e3e4ad7f4ffc2cbc1e1ba68487a75a6",
+      "bytes": 73501,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "common multi-group VarDCT"
+    },
+    {
+      "id": "bike",
+      "sha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
+      "bytes": 388268,
+      "license": "ITU-T T.24",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "broad color transfer functions"
+    },
+    {
+      "id": "bike_5",
+      "sha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
+      "bytes": 388268,
+      "license": "ITU-T T.24",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "broad color transfer functions"
+    },
+    {
+      "id": "blendmodes",
+      "sha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
+      "bytes": 145,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "multiple frames and blend modes"
+    },
+    {
+      "id": "blendmodes_5",
+      "sha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
+      "bytes": 145,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "multiple frames and blend modes"
+    },
+    {
+      "id": "cafe",
+      "sha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "bytes": 381505,
+      "license": "ITU-T T.24",
+      "levels": [10],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "cafe_5",
+      "sha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "bytes": 381505,
+      "license": "ITU-T T.24",
+      "levels": [5],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "cmyk_layers",
+      "sha256": "d732c8836bf1abeadf310d2e07387a32813ed4690d32650c1c25e541b80eed4a",
+      "bytes": 387140,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "multiple non-alpha extra channels"
+    },
+    {
+      "id": "delta_palette",
+      "sha256": "00e24cc453cdf84897d62b0aafc7a9f7024205bbce1922e99d7ad0003759ae7c",
+      "bytes": 107899,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "unexpected-failure",
+      "boundary": "official delta palette reaches INVALID_INPUT instead of an explicit supported or unsupported result",
+      "expectedErrorCode": "INVALID_INPUT"
+    },
+    {
+      "id": "grayscale",
+      "sha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+      "bytes": 1069,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "grayscale_5",
+      "sha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+      "bytes": 1069,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "grayscale_jpeg",
+      "sha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+      "bytes": 7799,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "grayscale_jpeg_5",
+      "sha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+      "bytes": 7799,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "grayscale_public_university",
+      "sha256": "b1c6fe79167858f86a23e0f32c1c5ee7602dae6f82991c1dd53bcb89a7d78606",
+      "bytes": 63377,
+      "license": "CC-BY-3.0",
+      "levels": [5, 10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "multi-group global Palette and Squeeze transforms"
+    },
+    {
+      "id": "lossless_pfm",
+      "sha256": "61ae52b5851ab2e156aec1d22502e8e1ec0cdf6bc0d6a3956ac6d7d6d2969d5e",
+      "bytes": 774294,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "floating-point samples"
+    },
+    {
+      "id": "lz77_flower",
+      "sha256": "41046f0de4dd36177aefa9b53fe6c3cd35a8e2c215a8d41ca89a6a9bc7f27541",
+      "bytes": 103540,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "pass",
+      "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+      "outputSha256": "653dd385329335314ef80321948463cc9d3db0b779fe716c6266f7646555ed90",
+      "colorOutput": "preserve"
+    },
+    {
+      "id": "noise",
+      "sha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
+      "bytes": 118125,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "common multi-group VarDCT"
+    },
+    {
+      "id": "noise_5",
+      "sha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
+      "bytes": 118125,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "common multi-group VarDCT"
+    },
+    {
+      "id": "opsin_inverse",
+      "sha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
+      "bytes": 118148,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "common multi-group VarDCT"
+    },
+    {
+      "id": "opsin_inverse_5",
+      "sha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
+      "bytes": 118148,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "common multi-group VarDCT"
+    },
+    {
+      "id": "patches",
+      "sha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+      "bytes": 66562,
+      "license": "CC0",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "patches and embedded ICC"
+    },
+    {
+      "id": "patches_5",
+      "sha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+      "bytes": 66562,
+      "license": "CC0",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "patches and embedded ICC"
+    },
+    {
+      "id": "patches_lossless",
+      "sha256": "2a47b6766264ac6243a43bbb85684688717591bb3bd9b4c2db56226192418b4e",
+      "bytes": 34207,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "lossless patches and embedded ICC"
+    },
+    {
+      "id": "progressive",
+      "sha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+      "bytes": 467605,
+      "license": "Microsoft custom license",
+      "levels": [10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "broad progressive VarDCT and embedded ICC"
+    },
+    {
+      "id": "progressive_5",
+      "sha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+      "bytes": 467605,
+      "license": "Microsoft custom license",
+      "levels": [5],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "broad progressive VarDCT and embedded ICC"
+    },
+    {
+      "id": "spot",
+      "sha256": "69d48f7ace25683db9eb908f112cef112bd1583870abab0fbf166018889893fa",
+      "bytes": 392254,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "spot-color extra channels"
+    },
+    {
+      "id": "sunset_logo",
+      "sha256": "6617480923e1fdef555e165a1e7df9ca648068dd0bdbc41a22c0e4213392d834",
+      "bytes": 218,
+      "license": "CC0",
+      "levels": [5, 10],
+      "baselineClassification": "expected-unsupported",
+      "boundary": "non-default image metadata"
+    },
+    {
+      "id": "upsampling",
+      "sha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
+      "bytes": 10567,
+      "license": "CC-BY-SA-3.0",
+      "levels": [10],
+      "baselineClassification": "pass",
+      "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985"
+    },
+    {
+      "id": "upsampling_5",
+      "sha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
+      "bytes": 10567,
+      "license": "CC-BY-SA-3.0",
+      "levels": [5],
+      "baselineClassification": "pass",
+      "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985"
+    }
+  ]
+}

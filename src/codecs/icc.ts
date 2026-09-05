@@ -762,6 +762,7 @@ export interface NclxHdrToneMap {
   readonly sourceToSrgb: Float64Array
   readonly sourcePeak: number
   readonly hlgLumaCoefficients?: readonly [number, number, number]
+  readonly hlgSystemGamma?: number
 }
 
 const cachedNclxHdrToneMaps = new Map<string, NclxHdrToneMap>()
@@ -820,7 +821,10 @@ export const writeNclxHdrLinearToneMappedRgba = (
     )
     // BT.2100's HLG OOTF applies one luminance-derived system-gamma factor to all
     // three scene-linear channels. A per-channel exponent would distort hue.
-    const ootfScale = sceneLuminance ** (1.2 - 1) * toneMap.sourcePeak
+    const ootfScale =
+      sceneLuminance === 0
+        ? 0
+        : sceneLuminance ** ((toneMap.hlgSystemGamma ?? 1.2) - 1) * toneMap.sourcePeak
     sourceRed *= ootfScale
     sourceGreen *= ootfScale
     sourceBlue *= ootfScale
@@ -889,6 +893,46 @@ export const createNclxSrgbTransform = (
 }
 
 export const createDisplayP3Transform = (): RgbIccTransform => createNclxSrgbTransform(12, 13)
+
+export const createStructuredGrayTransform = (
+  transfer: PixelColorSemantics['transfer'],
+): Uint8Array => {
+  const encode = srgbEncodeLut()
+  return Uint8Array.from({ length: 256 }, (_, value) => {
+    const encoded = value / 255
+    const linear =
+      transfer.kind === 'gamma'
+        ? encoded ** transfer.exponent
+        : nclxToLinear(transfer.kind === 'linear' ? 8 : transfer.kind === 'srgb' ? 13 : 1, encoded)
+    return encodeLinear(linear, encode)
+  })
+}
+
+export const createStructuredRgbTransform = (
+  primaries: PixelColorSemantics['primaries'],
+  transfer: PixelColorSemantics['transfer'],
+): RgbIccTransform => {
+  const code =
+    primaries === 'srgb' ? 1 : primaries === 'rec2020' ? 9 : primaries === 'display-p3' ? 12 : 0
+  if (code === 0) throw unsupportedOperation('Structured RGB conversion requires known primaries')
+  if (transfer.kind === 'gamma') {
+    const curve = Float32Array.from(
+      { length: 256 },
+      (_, value) => (value / 255) ** transfer.exponent,
+    )
+    return transformFromMatrixAndCurves(
+      chromaticityMatrix(nclxChromaticities(code)),
+      curve,
+      curve,
+      curve,
+    )
+  }
+  const transferCode = transfer.kind === 'linear' ? 8 : transfer.kind === 'srgb' ? 13 : 0
+  if (transferCode === 0) {
+    throw unsupportedOperation('PQ and HLG require explicit JPEG XL HDR output selection')
+  }
+  return createNclxSrgbTransform(code, transferCode)
+}
 
 const sampledTable = (
   profile: Uint8Array,
@@ -994,6 +1038,18 @@ export const parseRgbIccTransform = (profile: Uint8Array): RgbIccTransform => {
     throw invalidInput('Embedded ICC profile must use the RGB input color space')
   }
   return transform
+}
+
+export const parseGrayIccTransform = (profile: Uint8Array): Uint8Array => {
+  const { allTags } = validatedProfile(profile)
+  if (signature(profile, 16) !== 'GRAY') {
+    throw invalidInput('Embedded ICC profile must use the grayscale input color space')
+  }
+  const curve = requiredTag(allTags, 'kTRC')
+  const encode = srgbEncodeLut()
+  return Uint8Array.from({ length: 256 }, (_, value) =>
+    encodeLinear(curveValue(profile, curve, value / 255), encode),
+  )
 }
 
 export const parseCmykIccTransform = (profile: Uint8Array): CmykIccTransform => {
@@ -1269,7 +1325,7 @@ export class ColorManagedDecoder implements ImageDecoder {
   async *decode(request?: DecodeRequest): AsyncGenerator<PixelBlock> {
     for await (const block of this.#decoder.decode(request)) {
       applyRgbIccBlock(block, this.#transform)
-      yield block
+      yield Object.freeze({ ...block, colorSemantics: this.colorSemantics })
     }
   }
 }
@@ -1312,7 +1368,7 @@ export class GrayColorManagedDecoder implements ImageDecoder {
           block.data[offset] = this.#transform[block.data[offset] ?? 0] ?? 0
         }
       }
-      yield block
+      yield Object.freeze({ ...block, colorSemantics: this.colorSemantics })
     }
   }
 }

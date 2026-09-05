@@ -64,6 +64,7 @@ const beginOpen = (): number => {
   button('jxl-encode').disabled = true
   button('jxl-transcode').disabled = true
   button('jxl-reconstruct').disabled = true
+  button('jxl-transform').disabled = true
   return generation
 }
 
@@ -171,10 +172,20 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     button('jxl-reconstruct').disabled =
       response.sourceKind !== 'jpegxl' ||
       response.inspection?.jpegReconstruction !== 'metadata-valid'
+    button('jxl-transform').disabled = false
     status.textContent = `${response.name} inspected and decoded locally.`
     return
   }
   button('jxl-reopen').disabled = !response.name.endsWith('.jxl')
+  if (response.action === 'transform') {
+    rows([
+      ['Output', response.name],
+      ['Dimensions', `${response.preview.logicalWidth} × ${response.preview.logicalHeight}`],
+      ['Mode', 'sRGB resize and export'],
+    ])
+    status.textContent = 'Image resized and exported locally.'
+    return
+  }
   if (response.action === 'encode') {
     rows([
       ['Output', response.name],
@@ -210,15 +221,22 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
         : `${Math.abs(savings).toLocaleString()} bytes larger (+${Math.abs(transcode?.savingsPercentage ?? 0).toFixed(2)}% versus source)`
     rows([
       ['Output', response.name],
-      ['Status', 'Experimental'],
+      ['Status', 'Stable exact transcode'],
       ['Mode', transcode?.mode ?? 'unknown'],
       ['Source JPEG', `${(transcode?.inputBytes ?? 0).toLocaleString()} bytes`],
       ['JPEG XL output', `${(transcode?.outputBytes ?? 0).toLocaleString()} bytes`],
       ['Signed savings', sizeResult],
+      [
+        'Pinned libjxl reference',
+        transcode?.libjxlReferenceBytes === null || transcode?.libjxlReferenceBytes === undefined
+          ? 'Not available for this local file'
+          : `${transcode.libjxlReferenceBytes.toLocaleString()} bytes`,
+      ],
       ['Output/source ratio', `${ratio.toFixed(3)}×`],
       ['Smaller than source', savings > 0 ? 'Yes' : 'No'],
       ['Exact reconstruction', transcode?.exactReconstruction ? 'Verified byte-for-byte' : 'No'],
       ['Size requirement', onlyIfSmaller.checked ? 'Required' : 'Off'],
+      ['Time', `${(transcode?.elapsedMilliseconds ?? 0).toFixed(1)} ms`],
       ['Dimensions', `${response.preview.logicalWidth} × ${response.preview.logicalHeight}`],
       [
         'Managed peak',
@@ -309,4 +327,43 @@ window.addEventListener('pagehide', () => {
 
 void openSample('jpegxl-progressive-yuv420.jpg').catch((error: unknown) => {
   status.textContent = error instanceof Error ? error.message : 'Could not load JPEG sample'
+})
+
+button('jxl-transform').addEventListener('click', () => {
+  const width = element('jxl-width'),
+    height = element('jxl-height')
+  const fit = element('jxl-fit'),
+    format = element('jxl-format')
+  if (
+    !(width instanceof HTMLInputElement) ||
+    !(height instanceof HTMLInputElement) ||
+    !(fit instanceof HTMLSelectElement) ||
+    !(format instanceof HTMLSelectElement)
+  )
+    return
+  const selectedFit = fit.value
+  const selectedFormat = format.value
+  if (
+    !['contain', 'cover', 'fill'].includes(selectedFit) ||
+    (selectedFormat !== 'png' && selectedFormat !== 'jpeg')
+  )
+    return
+  if (
+    !Number.isInteger(width.valueAsNumber) ||
+    !Number.isInteger(height.valueAsNumber) ||
+    width.valueAsNumber < 1 ||
+    height.valueAsNumber < 1 ||
+    width.valueAsNumber > 4096 ||
+    height.valueAsNumber > 4096
+  ) {
+    status.textContent = 'Choose dimensions from 1 through 4096.'
+    return
+  }
+  request({
+    type: 'transform',
+    width: width.valueAsNumber,
+    height: height.valueAsNumber,
+    fit: selectedFit === 'cover' ? 'cover' : selectedFit === 'fill' ? 'fill' : 'contain',
+    format: selectedFormat,
+  })
 })

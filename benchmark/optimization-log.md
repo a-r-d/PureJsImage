@@ -214,6 +214,33 @@ Measurement artifacts:
 - Neighbor `jpeg-crop-resize`: `.tmp/hillclimb/2026-08-17T20-33-45-188Z/comparison.md`
 - Profiles: `.tmp/cpu-northstar-speed/`
 
+## JPEG XL Modular encoder campaign
+
+The 2026-09-03 campaign used exact native-sample decode as a mandatory correctness guard. Early
+five-class measurements were used to reject or retain individual coding tools. The final decision
+used 156 deterministic legal cases across the 12 M2 classes and pinned libjxl 0.12.0.
+
+| ID | Hypothesis / change | Evidence | Verdict | Disposition |
+| --- | --- | --- | --- | --- |
+| JXLMOD-001 | Replace one fixed prefix model with ANS, per-channel fixed predictor selection, and channel contexts. | The line-art case fell from 13,405 to 523 bytes, but the five-case median was still 4.597 times libjxl effort 7. | promising | Retained as the adaptive foundation. |
+| JXLMOD-002 | Add an ordinary exact palette for low-color RGB and RGBA images. | Line art fell from 523 to 386 bytes. The five-case libjxl median improved to 3.860. | promising | Retained. |
+| JXLMOD-003 | Repeatedly squeeze all channels before entropy coding. | Median PNG ratio regressed to 1.768 and median time ratio rose to 43.76. | rejected | Reworked into bounded candidates chosen against unsqueezed output. |
+| JXLMOD-004 | Use only same-value LZ77 matches. | It did not solve structured residual runs and was superseded by general hash matching. | rejected | Replaced. |
+| JXLMOD-005 | Add exact delta palettes for repeated predictor residual tuples. | Five-case median PNG ratio improved to 0.944 and the gradient case fell to 1,299 bytes. | material | Retained. |
+| JXLMOD-006 | Add bounded hash-based LZ77 match search. | Five-case median PNG ratio improved to 0.764 and the photo-like case fell to about 217 KiB. | material | Retained. |
+| JXLMOD-007 | Compare raw and reversible-color candidates. | Five-case median PNG ratio improved to 0.686; photo-like and noise output fell to about 65 KiB and 138 KiB. | material | Retained despite higher effort-7 analysis time. |
+| JXLMOD-008 | Keep four bounded match histories and encode common row distances with JPEG XL special distance codes. | The five-case effort-7 PNG p90 reached 1.109. | material | Retained for effort 7. |
+| JXLMOD-009 | Serialize long zero-frequency histogram runs with the JPEG XL repeat symbol. | The line-art case fell from 327 to 202 bytes and the fixed five-class size gates passed except its small-sample p90. | material | Retained. |
+| JXLMOD-010 | Reuse one predictor tree when clustered transformed planes share a model. | The line-art case fell from 202 to 199 bytes without changing decoded samples. | promising | Retained. |
+| JXLMOD-011 | Keep the effort-1 residual traversal monomorphic and compare its prefix section with a simple ANS section using a fixed reversible color transform. | On the exact implementation revision across 156 cases, median size was 1.0354 times libjxl effort 1 and median wall time was 2.2434 times libjxl effort 1. | material | Retained. |
+| JXLMOD-012 | Add default weighted prediction and bounded horizontal, vertical, and multi-channel squeeze candidates at higher efforts. | The 163-case four-decoder matrix remained exact after the change. Final extended compression and performance reruns are recorded in the M2 evidence reports. | material | Retained only with unsqueezed and no-LZ candidates available. |
+
+Final effort-7 results on 156 cases were 0.8901 median, 1.2921 p90, and 1.7349 worst
+size ratio to pinned libjxl effort 7 before the final exact-head rerun. Median output was 0.6023 of
+PNG, 89.74% of files were no larger than PNG, every image-class median was at most 1.2581 times PNG,
+and median wall time was 7.3197 times libjxl effort 7. The tracked final reports live under
+`benchmark/results/jpegxl-m2-*`.
+
 ## JPEG speed campaign
 
 | ID | Timestamp (UTC) | Hypothesis / change | Wall median base → candidate (ms) | Speed Δ | Paired speed Δ | Peak RSS Δ | Verdict | Disposition |
@@ -854,6 +881,31 @@ reduces large-transform process RSS, while memory is safer across runtimes and m
 all measured rows. The default policy therefore uses lazy chunked memory without the previous 64
 MiB Node ceiling. Opt-in file setup and later write failures fall back to memory. Local harness:
 `.tmp/temporary-storage-benchmark/{run.ts,worker.ts}`.
+
+## JPEG XL M3 common VarDCT campaign - 2026-09-04
+
+Workload: common static 8-bit sRGB VarDCT decode, with pinned `djxl` output checks after each retained
+change. CPU profiles first identified EPF, AC coefficient allocation, Gaborish, adaptive DC
+smoothing, and inverse transforms as the main costs. The initial 300-file checkpoint had a 576 ms
+median and a 13.312x median ratio to pinned single-threaded `djxl`.
+
+| ID | Hypothesis / change | Representative result | Verdict |
+| --- | --- | --- | --- |
+| JXLM3-001 | Store ANS alias fields in typed arrays and bypass LZ77 bookkeeping for streams that disable LZ77. | The 1 MP DCT8 development case moved from about 380 ms to about 290-326 ms warm. | Retained. |
+| JXLM3-002 | Inline the ANS token body into the no-LZ77 public read method. | One progressive libjxl case produced maximum error 255 and RMSE 74.254. | Reverted before the full matrix. |
+| JXLM3-003 | Cache weighted horizontal and vertical differences for EPF stage 1. | The checked DCT8 development case reached 331 ms warm and all 19 generated fixtures stayed within the oracle gate. | Retained. |
+| JXLM3-004 | Process EPF stage 0 by candidate with one reusable difference map, and skip restoration work on band-edge rows that cannot affect emitted rows. | The slow progressive 1 MP probe moved from about 1.12 seconds to 0.78 seconds warm. | Retained. |
+| JXLM3-005 | Replace per-block coefficient buffers with one bounded typed-array arena per channel and local group offsets. | The checked 1 MP DCT8 probe moved from 335 ms to 274 ms warm. | Retained. |
+| JXLM3-006 | Remove per-pixel temporary arrays from adaptive DC smoothing and use fixed channel locals. | The diverse-strategy 1 MP probe moved from 323 ms to 301 ms warm. | Retained. |
+| JXLM3-007 | Cache the complete DC context plane once instead of deriving it inside each AC-group decode. | Repeated development measurements did not show a stable gain. | Reverted. |
+| JXLM3-008 | Rewrite Gaborish as two separable-looking horizontal terms followed by a vertical combine. | The checked warm probe regressed from about 308 ms to 321 ms. | Reverted. The exact 3x3 kernel remains direct. |
+| JXLM3-009 | Specialize the four-neighbor EPF stage 2 kernel and remove coordinate dispatch from interior pixels. | The slow progressive probe moved from 774 ms to 652 ms warm. | Retained. |
+
+Final evidence: 299 of 300 real-photo files decoded, one failed explicitly as unsupported, and no
+file produced incorrect output. The final median was 351.397 ms and 8.963x pinned `djxl`. Repeated
+DCT8 medians were 2.194 seconds at 12.008 MP and 4.696 seconds at 24.003 MP. Normalized time per
+megapixel changed by 1.071x while group count increased from 195 to 391. The 24 MP corpus case
+reported 193,274,053 managed bytes.
 
 ## TIFF large-resize campaign - 2026-08-25
 

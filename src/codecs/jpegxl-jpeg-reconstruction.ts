@@ -1,5 +1,5 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
-import { decodeUncompressedBrotli, encodeUncompressedBrotli } from './brotli.ts'
+import { decodeBrotli, encodeBrotli } from './brotli.ts'
 import { JpegXlBitReader } from './jpegxl-bitstream.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 
@@ -629,7 +629,7 @@ export const encodeJpegXlJpegReconstruction = (
   if (opaque.byteLength !== blobs.decodedBytes || opaque.byteLength > limits.maxMetadataBytes) {
     throw invalidInput('JPEG XL reconstruction opaque data length is inconsistent')
   }
-  const encoded = concatenate([writer.finish(), encodeUncompressedBrotli(opaque)])
+  const encoded = concatenate([writer.finish(), encodeBrotli(opaque)])
   if (encoded.byteLength > limits.maxMetadataBytes) {
     throw limitExceeded(
       `JPEG XL jbrd has ${encoded.byteLength} bytes; maxMetadataBytes is ${limits.maxMetadataBytes}`,
@@ -693,7 +693,7 @@ export const decodeJpegXlJpegReconstructionBlobs = (
     ],
     limits.maxMetadataBytes,
   )
-  const decoded = decodeUncompressedBrotli(payload.subarray(header.compressedDataOffset), {
+  const decoded = decodeBrotli(payload.subarray(header.compressedDataOffset), {
     maxOutputBytes: expectedBytes,
     maxMetadataBytes: limits.maxMetadataBytes,
   })

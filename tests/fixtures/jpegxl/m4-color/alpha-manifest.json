@@ -1,0 +1,846 @@
+{
+  "schemaVersion": 1,
+  "libjxlRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "cases": [
+    {
+      "id": "srgb-straight-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "67f7746efcfaf9382d284d4fd06f22299952a262eb9d389b3abaeb87cefa44a8",
+      "pixelsSha256": "3e610e5c6e3b07068e90f64ac89b4a12db22938a4900cd2b4fa12e2af48075b8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "srgb-straight-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "10c7f41160aa94101988b27b26b397591ebe14d0539fdc747fe814b24a9f7423",
+      "pixelsSha256": "5e5443100953e3fe7371d164a591b050307b27712e7684c32e966e6f25bb96c8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "srgb-straight-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "6984bcf1d7ec023f4d30b1039a8c44e245f99ff6e180cb5f5ff8fbbaa3edff0f",
+      "pixelsSha256": "b74aa174758320974cdf6441691ab96e2634c72ba70b8360e3f4fd274328b4a2",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "srgb-straight-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "83be541ec7940e93c5a4464087de92a7cd66f681c310287835ed0756a0977cfe",
+      "pixelsSha256": "94818b1b37368250a3117efb71c04b09ddb6d8cadbc6d8ef2201c7530dd86475",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "srgb-straight-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "4074f76385d7d345c59ae5fdb7ecf33377340619635bfa375b27ac90d2734c8a",
+      "pixelsSha256": "af99d1d21642e0fd84ee7052e03bb12693bb00e64ba1a0a2762f58fc9fa2536d",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "srgb-premultiplied-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "74465cd737b24ddc6c17cc05fd83c0c993ae13ea75d6f16c2a9eb685e2b708f1",
+      "pixelsSha256": "86c3e0e92464700d83fae171253059d42ce83a54a5d8f2049f8d4614284f3ce3",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "srgb-premultiplied-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "34b32d7354184f71c85493c5535fbdd9d52821e39c14c07a3a5444f539bd8a53",
+      "pixelsSha256": "c55690baf7e0f3d52ad789530d3d6c730e4fc1df61b746e310557b8f9ba84c06",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "srgb-premultiplied-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "a6461fb74e7a1f2c0a043cb1e8fe08c2d5109866d667d5707804dcb6d2181780",
+      "pixelsSha256": "945d2730cbb210a30cf5f04914b9d79be67f1791a40c883812801cf883ccbf73",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "srgb-premultiplied-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "f107704e1271ff5bc0450a69771825edd32f4b3b44a42c20d52aeebbc7ce2404",
+      "pixelsSha256": "54210a57003cc6dd0f2420ff09699daeeb8150d253b6daee379ad4ec50470c15",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "srgb-premultiplied-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "assumed-default",
+        "renderingIntent": "relative"
+      },
+      "sha256": "462c6cfb041e8302eed9db23e07568db993d3b15b3a448382ec947a031046220",
+      "pixelsSha256": "bff16dc0b02e211a4c38b2f123bcf7626a450df3eb4c472e778c7e099afeef3a",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "linear-straight-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "f0b0f08439da25902aa04674f37e5ed6c802e37ae3ae9df875e8052352e87818",
+      "pixelsSha256": "3e610e5c6e3b07068e90f64ac89b4a12db22938a4900cd2b4fa12e2af48075b8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "linear-straight-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "310b9910444bcba73f7841e6f2c3f5026bfb2419d71ba1ece5c125a3fd351089",
+      "pixelsSha256": "5e5443100953e3fe7371d164a591b050307b27712e7684c32e966e6f25bb96c8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "linear-straight-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "cdb8cf0d56dc2cb5074aa921dbded5fd7f2aab069b3de36156077074e928d05e",
+      "pixelsSha256": "b74aa174758320974cdf6441691ab96e2634c72ba70b8360e3f4fd274328b4a2",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "linear-straight-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "658f3b7bc9e8aff12343f98330e5810ac3f21c8a2d0306c897487d6569bae334",
+      "pixelsSha256": "94818b1b37368250a3117efb71c04b09ddb6d8cadbc6d8ef2201c7530dd86475",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "linear-straight-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "dda02cd5d0e3af3a162ccc95164f128538f0038a1d2250e6406518a1a348e422",
+      "pixelsSha256": "af99d1d21642e0fd84ee7052e03bb12693bb00e64ba1a0a2762f58fc9fa2536d",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "linear-premultiplied-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "0c4b901c3ac65758f1ffb280a7f2cd5a053ccc9cdaf8a935f94481569b27c88e",
+      "pixelsSha256": "86c3e0e92464700d83fae171253059d42ce83a54a5d8f2049f8d4614284f3ce3",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "linear-premultiplied-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "8e840462f9d9f505428f478e4e1ea3b0f8294870ed4f871b25fe6232d8582cb4",
+      "pixelsSha256": "c55690baf7e0f3d52ad789530d3d6c730e4fc1df61b746e310557b8f9ba84c06",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "linear-premultiplied-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "3a51fd8f0792214566f89548e0498c11d7bf378073817a7122bccdd7769aefc2",
+      "pixelsSha256": "945d2730cbb210a30cf5f04914b9d79be67f1791a40c883812801cf883ccbf73",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "linear-premultiplied-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "c1902a5a2bc8e86dac4f8c4752fcfcb67f05cda9c18dc11003654d604552d3fa",
+      "pixelsSha256": "54210a57003cc6dd0f2420ff09699daeeb8150d253b6daee379ad4ec50470c15",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "linear-premultiplied-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "d699c23a0fc93af073a5e42bb1a2a0fccb94b4961de3bce42e1add54ced98991",
+      "pixelsSha256": "bff16dc0b02e211a4c38b2f123bcf7626a450df3eb4c472e778c7e099afeef3a",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "pq-straight-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "00146a774c24670b32576dc5863f953b362d2989df5ec6f347eb07b0414eee2d",
+      "pixelsSha256": "3e610e5c6e3b07068e90f64ac89b4a12db22938a4900cd2b4fa12e2af48075b8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "pq-straight-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "a02591ebab715bc642663ffb7f8b55216d25957c88bb7b4dc0eeb99f09bf84e9",
+      "pixelsSha256": "5e5443100953e3fe7371d164a591b050307b27712e7684c32e966e6f25bb96c8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "pq-straight-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "587da1461a6fc34c679b6dd78c7a1d87940dd2b1a464be09f75bf216e3c264a1",
+      "pixelsSha256": "b74aa174758320974cdf6441691ab96e2634c72ba70b8360e3f4fd274328b4a2",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "pq-straight-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "8b64c7f22822dba2340344e32382227ad63b44af8096400e52d0f30a5b5068c9",
+      "pixelsSha256": "94818b1b37368250a3117efb71c04b09ddb6d8cadbc6d8ef2201c7530dd86475",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "pq-straight-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "d63c893f2bbdb16c7a5f9699866744e617964b1380a20f4673f6868b5fd244f2",
+      "pixelsSha256": "af99d1d21642e0fd84ee7052e03bb12693bb00e64ba1a0a2762f58fc9fa2536d",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "pq-premultiplied-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "f296001b21a526ef0d724c9ee33e21310cab6c097c81dc97c05f19270d2a593f",
+      "pixelsSha256": "86c3e0e92464700d83fae171253059d42ce83a54a5d8f2049f8d4614284f3ce3",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "pq-premultiplied-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "af37bc03e4505af8d66abfd5984cfd2e5f9677615bf0a896c27cd5d07a9aae06",
+      "pixelsSha256": "c55690baf7e0f3d52ad789530d3d6c730e4fc1df61b746e310557b8f9ba84c06",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "pq-premultiplied-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "ca288846408263606508913586f9eb68e6df485c840d2706ef6a1e6744ed508f",
+      "pixelsSha256": "945d2730cbb210a30cf5f04914b9d79be67f1791a40c883812801cf883ccbf73",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "pq-premultiplied-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "f7a658a329848c8665b1653eb2973250678730e1cb23a594b11308a9a37ea870",
+      "pixelsSha256": "54210a57003cc6dd0f2420ff09699daeeb8150d253b6daee379ad4ec50470c15",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "pq-premultiplied-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "pq"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "3a4eaed2069ff6af5dac5a4603e7962da0564c5ffd473141d58ab458c40e0724",
+      "pixelsSha256": "bff16dc0b02e211a4c38b2f123bcf7626a450df3eb4c472e778c7e099afeef3a",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "hlg-straight-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "bee19420a5e83acb06a081b860fdc6c963b91ac8a1e884877886548d044fbf04",
+      "pixelsSha256": "3e610e5c6e3b07068e90f64ac89b4a12db22938a4900cd2b4fa12e2af48075b8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "hlg-straight-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "afeac013399819f23e5be1f1a5fb4352e1c145fd5b6bbfe26b3e8965121046c3",
+      "pixelsSha256": "5e5443100953e3fe7371d164a591b050307b27712e7684c32e966e6f25bb96c8",
+      "maximumNormalizedOracleError": 2.9685450542160652e-8
+    },
+    {
+      "id": "hlg-straight-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "bc3223e36085dc8b58fa123d9a12b1eb92465149c7f1913a3b08526c6ab16224",
+      "pixelsSha256": "b74aa174758320974cdf6441691ab96e2634c72ba70b8360e3f4fd274328b4a2",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "hlg-straight-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "f1fddbb647e4ee7d75fcc0746737e7a0845fb3edaacbd5666fcb895fcba086ed",
+      "pixelsSha256": "94818b1b37368250a3117efb71c04b09ddb6d8cadbc6d8ef2201c7530dd86475",
+      "maximumNormalizedOracleError": 2.979504465372429e-8
+    },
+    {
+      "id": "hlg-straight-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "straight",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "da9e389cf16182e8ab3bbfeeef0525b41553d8a932eaedd064baffa97a8b4ec1",
+      "pixelsSha256": "af99d1d21642e0fd84ee7052e03bb12693bb00e64ba1a0a2762f58fc9fa2536d",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    },
+    {
+      "id": "hlg-premultiplied-8-8",
+      "pixelFormat": "rgba8",
+      "colorDepth": 8,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "216f811a3935e76c14429be0b5b8adc91bcb90b8279e92cc4706817c0dcab17c",
+      "pixelsSha256": "86c3e0e92464700d83fae171253059d42ce83a54a5d8f2049f8d4614284f3ce3",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "hlg-premultiplied-8-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 8,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "2de28f7dfe04863a20bd188b4394b132e435ff0b5777a2d759e903ede788359a",
+      "pixelsSha256": "c55690baf7e0f3d52ad789530d3d6c730e4fc1df61b746e310557b8f9ba84c06",
+      "maximumNormalizedOracleError": 3.7165249100468145e-8
+    },
+    {
+      "id": "hlg-premultiplied-12-8",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 8,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "1e28684a98f48b74c25db339b6a08eaefade40ca8f520fa415be056382be0cc5",
+      "pixelsSha256": "945d2730cbb210a30cf5f04914b9d79be67f1791a40c883812801cf883ccbf73",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "hlg-premultiplied-12-16",
+      "pixelFormat": "rgba16",
+      "colorDepth": 12,
+      "alphaDepth": 16,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "25753589f7d250808594bc174a4a817f67a3ee4327b14a4514b15b1ebf04a01d",
+      "pixelsSha256": "54210a57003cc6dd0f2420ff09699daeeb8150d253b6daee379ad4ec50470c15",
+      "maximumNormalizedOracleError": 3.7247444684140874e-8
+    },
+    {
+      "id": "hlg-premultiplied-16-10",
+      "pixelFormat": "rgba16",
+      "colorDepth": 16,
+      "alphaDepth": 10,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "rec2020",
+        "transfer": {
+          "kind": "hlg"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "premultiplied",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "sha256": "7a7e7440a8a924cb603ae5ff9cfe4e45801c471726f86a5342cc668e74406aa7",
+      "pixelsSha256": "bff16dc0b02e211a4c38b2f123bcf7626a450df3eb4c472e778c7e099afeef3a",
+      "maximumNormalizedOracleError": 4.661164787478356e-10
+    }
+  ]
+}

@@ -118,6 +118,13 @@ export type JpegXlWorkbenchRequest =
       readonly bytes: ArrayBuffer
     })
   | (JpegXlWorkbenchIdentity & { readonly type: 'transcode'; readonly onlyIfSmaller: boolean })
+  | (JpegXlWorkbenchIdentity & {
+      readonly type: 'transform'
+      readonly width: number
+      readonly height: number
+      readonly fit: 'contain' | 'cover' | 'fill'
+      readonly format: 'png' | 'jpeg'
+    })
   | (JpegXlWorkbenchIdentity & { readonly type: 'encode' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'reconstruct' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'cancel' })
@@ -144,6 +151,24 @@ export interface JpegXlWorkbenchEncodeSummary {
   readonly outputToInputRatio: number
 }
 
+export type JpegXlWorkbenchTranscodeSummary = Pick<
+  JpegTranscodeResult,
+  | 'mode'
+  | 'exactReconstruction'
+  | 'inputBytes'
+  | 'outputBytes'
+  | 'savingsBytes'
+  | 'savingsPercentage'
+  | 'sourceProfile'
+  | 'preservedMetadata'
+  | 'warnings'
+  | 'outputStructure'
+  | 'managedPeakBytes'
+  | 'elapsedMilliseconds'
+> & {
+  readonly libjxlReferenceBytes: number | null
+}
+
 export type JpegXlWorkbenchResponse =
   | (JpegXlWorkbenchIdentity & {
       readonly type: 'opened'
@@ -157,25 +182,12 @@ export type JpegXlWorkbenchResponse =
     })
   | (JpegXlWorkbenchIdentity & {
       readonly type: 'output'
-      readonly action: 'transcode' | 'encode' | 'reconstruct'
+      readonly action: 'transcode' | 'encode' | 'reconstruct' | 'transform'
       readonly name: string
       readonly bytes: ArrayBuffer
       readonly preview: JpegXlWorkbenchPreview
       readonly inspection?: JpegXlInspection
-      readonly transcode?: Pick<
-        JpegTranscodeResult,
-        | 'mode'
-        | 'exactReconstruction'
-        | 'inputBytes'
-        | 'outputBytes'
-        | 'savingsBytes'
-        | 'savingsPercentage'
-        | 'sourceProfile'
-        | 'preservedMetadata'
-        | 'warnings'
-        | 'outputStructure'
-        | 'managedPeakBytes'
-      >
+      readonly transcode?: JpegXlWorkbenchTranscodeSummary
       readonly encode?: JpegXlWorkbenchEncodeSummary
       readonly evidence?: ExecutionEvidenceReport
     })
@@ -272,6 +284,10 @@ const inspection = (value: unknown): value is JpegXlInspection => {
       'colorChannels',
       'extraChannels',
       'alpha',
+      'alphaChannels',
+      'toneMapping',
+      'intrinsicWidth',
+      'intrinsicHeight',
       'encodedColor',
       'renderingIntent',
       'icc',
@@ -311,7 +327,43 @@ const inspection = (value: unknown): value is JpegXlInspection => {
       value.containerVersion === 0 ||
       value.containerVersion === 1) &&
     (value.encoding === 'modular' || value.encoding === 'vardct') &&
-    (value.alpha === 'none' || value.alpha === 'straight') &&
+    (value.expectedPixelFormat === undefined ||
+      value.expectedPixelFormat === 'gray8' ||
+      value.expectedPixelFormat === 'gray16' ||
+      value.expectedPixelFormat === 'rgb8' ||
+      value.expectedPixelFormat === 'rgb16' ||
+      value.expectedPixelFormat === 'rgba8' ||
+      value.expectedPixelFormat === 'rgba16' ||
+      value.expectedPixelFormat === 'rgbf32' ||
+      value.expectedPixelFormat === 'rgbaf32') &&
+    (value.alpha === 'none' || value.alpha === 'straight' || value.alpha === 'premultiplied') &&
+    nonnegativeInteger(value.alphaChannels) &&
+    Number(value.alphaChannels) <= 16 &&
+    positiveInteger(value.orientation) &&
+    Number(value.orientation) <= 8 &&
+    nonnegativeInteger(value.exponentBits) &&
+    Number(value.exponentBits) <= 8 &&
+    (value.intrinsicWidth === undefined || positiveInteger(value.intrinsicWidth)) &&
+    (value.intrinsicHeight === undefined || positiveInteger(value.intrinsicHeight)) &&
+    record(value.toneMapping) &&
+    exactKeys(value.toneMapping, [
+      'intensityTarget',
+      'minNits',
+      'relativeToMaxDisplay',
+      'linearBelow',
+    ]) &&
+    typeof value.toneMapping.intensityTarget === 'number' &&
+    Number.isFinite(value.toneMapping.intensityTarget) &&
+    value.toneMapping.intensityTarget > 0 &&
+    typeof value.toneMapping.minNits === 'number' &&
+    Number.isFinite(value.toneMapping.minNits) &&
+    value.toneMapping.minNits >= 0 &&
+    value.toneMapping.minNits <= value.toneMapping.intensityTarget &&
+    typeof value.toneMapping.relativeToMaxDisplay === 'boolean' &&
+    typeof value.toneMapping.linearBelow === 'number' &&
+    Number.isFinite(value.toneMapping.linearBelow) &&
+    value.toneMapping.linearBelow >= 0 &&
+    (!value.toneMapping.relativeToMaxDisplay || value.toneMapping.linearBelow <= 1) &&
     typeof value.encodedColor === 'string' &&
     (value.renderingIntent === 'perceptual' ||
       value.renderingIntent === 'relative' ||
@@ -320,7 +372,8 @@ const inspection = (value: unknown): value is JpegXlInspection => {
     record(value.icc) &&
     exactKeys(value.icc, ['present', 'decodedBytes']) &&
     typeof value.icc.present === 'boolean' &&
-    value.icc.decodedBytes === undefined &&
+    (value.icc.decodedBytes === undefined ||
+      (positiveInteger(value.icc.decodedBytes) && Number(value.icc.decodedBytes) <= 16_777_216)) &&
     record(value.resourceEstimates) &&
     exactKeys(value.resourceEstimates, ['codestreamBytes', 'metadataBytes', 'nativeSampleBytes']) &&
     nonnegativeInteger(value.resourceEstimates.codestreamBytes) &&
@@ -382,6 +435,8 @@ const transcode = (value: unknown): boolean =>
     'warnings',
     'outputStructure',
     'managedPeakBytes',
+    'elapsedMilliseconds',
+    'libjxlReferenceBytes',
   ]) &&
   (value.mode === 'exact-jpeg' || value.mode === 'pixel-lossless') &&
   typeof value.exactReconstruction === 'boolean' &&
@@ -400,7 +455,10 @@ const transcode = (value: unknown): boolean =>
   value.outputStructure.organization === 'jxlc' &&
   (value.outputStructure.reconstruction === 'available' ||
     value.outputStructure.reconstruction === 'unavailable') &&
-  nonnegativeInteger(value.managedPeakBytes)
+  nonnegativeInteger(value.managedPeakBytes) &&
+  Number.isFinite(value.elapsedMilliseconds) &&
+  Number(value.elapsedMilliseconds) >= 0 &&
+  (value.libjxlReferenceBytes === null || nonnegativeInteger(value.libjxlReferenceBytes))
 
 const encoderPixelFormat = (value: unknown): value is JpegXlWorkbenchPixelSource['pixelFormat'] =>
   value === 'gray8' ||
@@ -441,8 +499,24 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
   Number.isFinite(value.outputToInputRatio) &&
   Number(value.outputToInputRatio) > 0
 
+// Dedicated-worker messages use an empty origin and a null source. Window-origin
+// checks do not apply to this private channel; reject synthetic events as well.
+export const isJpegXlWorkbenchWorkerEvent = (
+  event: Pick<MessageEvent<unknown>, 'isTrusted' | 'origin' | 'source'>,
+): boolean => event.isTrusted && event.origin === '' && event.source === null
+
 export const isJpegXlWorkbenchRequest = (value: unknown): value is JpegXlWorkbenchRequest => {
   if (!record(value) || typeof value.type !== 'string' || !identity(value)) return false
+  if (value.type === 'transform')
+    return (
+      exactKeys(value, ['type', 'requestId', 'generation', 'width', 'height', 'fit', 'format']) &&
+      positiveInteger(value.width) &&
+      positiveInteger(value.height) &&
+      Number(value.width) <= 4096 &&
+      Number(value.height) <= 4096 &&
+      (value.fit === 'contain' || value.fit === 'cover' || value.fit === 'fill') &&
+      (value.format === 'png' || value.format === 'jpeg')
+    )
   if (value.type === 'transcode') {
     return (
       exactKeys(value, ['type', 'requestId', 'generation', 'onlyIfSmaller']) &&
@@ -504,7 +578,7 @@ export const isJpegXlWorkbenchResponse = (value: unknown): value is JpegXlWorkbe
     value.bytes.byteLength > 0 &&
     value.bytes.byteLength <= jpegXlWorkbenchMaximumOutputBytes &&
     preview(value.preview)
-  if (value.action === 'reconstruct') {
+  if (value.action === 'reconstruct' || value.action === 'transform') {
     return (
       exactKeys(value, ['type', 'requestId', 'generation', 'action', 'name', 'bytes', 'preview']) &&
       common

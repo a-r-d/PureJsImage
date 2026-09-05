@@ -1,0 +1,58 @@
+{
+  "methodology": "One-megapixel 12-bit RGB / 16-bit alpha ramp, explicit rgba8 conversion. First paired trial is warmup; three following pairs each start with explicit GC. Pixel hash matches independently scaled samples. Timing includes conversion only; process RSS is shared and not attributed to an implementation.",
+  "results": [
+    {
+      "name": "before",
+      "milliseconds": 222.16786999999997,
+      "megapixelsPerSecond": 4.719746379168149,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "after",
+      "milliseconds": 87.51135099999999,
+      "megapixelsPerSecond": 11.982171318552723,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "before",
+      "milliseconds": 204.546271,
+      "megapixelsPerSecond": 5.126351093440369,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "after",
+      "milliseconds": 86.95828499999993,
+      "megapixelsPerSecond": 12.058379486209978,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "before",
+      "milliseconds": 195.51609799999994,
+      "megapixelsPerSecond": 5.363118488586041,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "after",
+      "milliseconds": 89.78954099999999,
+      "megapixelsPerSecond": 11.678153026753975,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "before",
+      "milliseconds": 195.6203680000001,
+      "megapixelsPerSecond": 5.360259827340675,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    },
+    {
+      "name": "after",
+      "milliseconds": 83.74271700000008,
+      "megapixelsPerSecond": 12.521399323597286,
+      "hash": "afec69bafc5e7f623ece7d546df86920ac85eb0c96501723cc1f3cc8f3a7a7d7"
+    }
+  ],
+  "processPeakRss": 237490176,
+  "baselineRevision": "8156cb3594022b620c6316a435c3c241e1c12600",
+  "beforeSourceSha256": "873c90e8544cb841ab78828f0b7e245e74827290cc23f82f924a0b02f316d878",
+  "afterSourceSha256": "8c75d2464b55de65706494a9ed7eb269ff48a57e3a6991ba80bdf49b95684f20",
+  "reproduction": "Run node --expose-gc benchmark/jpegxl/production-program/measure-m5-conversion.ts. For baseline, copy that script into an archive of 8156cb35 and run it against that archive source. Recorded paired measurements use both first-party versions in one process; standalone RSS is not directly comparable to the paired report."
+}

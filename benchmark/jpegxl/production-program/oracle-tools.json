@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "referencePlatform": "Linux 6.17.0-41-generic x86_64",
+  "policy": "These are development oracles only. They are never production dependencies or package contents.",
+  "tools": [
+    {
+      "id": "libjxl",
+      "repository": "https://github.com/libjxl/libjxl",
+      "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+      "version": "0.12.0",
+      "sourceArchive": "https://github.com/libjxl/libjxl/archive/a7a9c787341cf703dede03c2009fa460cae5e5df.tar.gz",
+      "sourceArchiveSha256": "818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29",
+      "buildCommand": "cmake -S <source> -B <source>/build-pinned -G Ninja -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DJPEGXL_ENABLE_BENCHMARK=OFF -DJPEGXL_ENABLE_EXAMPLES=OFF -DJPEGXL_ENABLE_JPEGLI=OFF -DJPEGXL_ENABLE_MANPAGES=OFF -DJPEGXL_ENABLE_PLUGINS=OFF -DJPEGXL_ENABLE_TESTS=OFF -DJPEGXL_ENABLE_TOOLS=ON && cmake --build <source>/build-pinned --target cjxl djxl jxlinfo --parallel 2",
+      "referenceBinaries": [
+        {
+          "name": "cjxl",
+          "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+        },
+        {
+          "name": "djxl",
+          "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "jxlinfo",
+          "sha256": "d02df1a4e28581ee4ed08dda3f8df09e3cd868d7dbc48db23bae8291a61d7ce0"
+        }
+      ]
+    },
+    {
+      "id": "jxl-rs",
+      "repository": "https://github.com/libjxl/jxl-rs",
+      "revision": "07ab48fcccde0a73c384b4011520fec67e5e09cd",
+      "sourceAcquisition": "git fetch --depth 1 origin 07ab48fcccde0a73c384b4011520fec67e5e09cd",
+      "buildCommand": "cargo +1.89.0 build --release --locked --manifest-path <source>/jxl_cli/Cargo.toml",
+      "referenceBinaries": [
+        {
+          "name": "jxl_cli",
+          "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ]
+    },
+    {
+      "id": "jxl-oxide",
+      "repository": "https://github.com/tirr-c/jxl-oxide",
+      "revision": "c0cc4c7ea57c1207f38ff2970d94757470613be4",
+      "sourceAcquisition": "git fetch --depth 1 origin c0cc4c7ea57c1207f38ff2970d94757470613be4",
+      "buildCommand": "cargo +1.89.0 build --release --locked --manifest-path <source>/Cargo.toml -p jxl-oxide-cli --bin jxl-oxide",
+      "referenceBinaries": [
+        {
+          "name": "jxl-oxide",
+          "sha256": "34c23dfc712c42ac56546b41cb6dc89e199315ec7117a82028edc78b18812437"
+        }
+      ]
+    },
+    {
+      "id": "simple-lossless-encoder",
+      "repository": "https://github.com/libjxl/simple-lossless-encoder",
+      "revision": "7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+      "sourceAcquisition": "git fetch --depth 1 origin 7b9f14fd0ef1f4cb7e52e58ba5a222570937ddbf",
+      "buildCommand": "make -C <source>",
+      "referenceBinaries": [
+        {
+          "name": "simple_lossless",
+          "sha256": "85b5a50943fe1f29c87ef250984aa175a144c9e2455965ed4f1322c8876bd647"
+        }
+      ]
+    },
+    {
+      "id": "imazen-jxl-encoder",
+      "repository": "https://github.com/imazen/jxl-encoder",
+      "revision": "d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
+      "sourceAcquisition": "git fetch --depth 1 origin d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b",
+      "resolvedCargoLock": "benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock",
+      "resolvedCargoLockSha256": "69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040",
+      "buildCommand": "cp benchmark/jpegxl/production-program/oracle-locks/imazen-jxl-encoder-d63e9d1-Cargo.lock <source>/Cargo.lock && cargo +1.89.0 build --release --locked --manifest-path <source>/Cargo.toml -p jxl-encoder-cli",
+      "referenceBinaries": [
+        {
+          "name": "cjxl-rs",
+          "sha256": "c01b038daad880ae0457da2f87219c8822836c513d2e6f854ae2276d5c2d8ee2"
+        }
+      ]
+    }
+  ]
+}

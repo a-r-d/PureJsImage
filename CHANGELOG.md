@@ -6,13 +6,26 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added JPEG XL structured color, all eight orientations, independent straight and premultiplied
+  alpha, compressed ICC, high-depth and float HDR output, and bounded metadata preservation.
+  The lossless encoder preserves the supported color and alpha semantics, with explicit intrinsic
+  size and tone-mapping options. Native and float output is checked against pinned libjxl; SDR
+  tone mapping is explicit. Unsupported color conversions fail instead of relabeling pixels.
+
 - Expanded the first-party JPEG XL codec with checked static VarDCT and progressive decode,
-  JPEG-derived pixel decode, a deterministic experimental lossless Modular encoder for six native
-  pixel formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. Eligible
+  JPEG-derived pixel decode, a deterministic stable lossless Modular encoder for six native pixel
+  formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. The Modular
+  encoder supports effort 1, 3, 5, and 7 plus explicit 8 through 16-bit color and independent
+  straight-alpha precision in 16-bit storage. Eligible
   8-bit Huffman baseline and progressive JPEGs are verified by byte-exact reconstruction before
   success. Pixel-lossless fallback is explicit and never silently replaces the exact path. The new
   local `/jpeg-xl/` worker workbench, public guide, capability contract, browser tests, package
-  checks, and correctness-gated benchmark keep the experimental boundary visible.
+  checks, and correctness-gated benchmark keep each capability boundary visible. Both exact JPEG
+  transcode and lossless Modular encoding are stable for their documented subsets. Common static
+  8-bit sRGB photograph decoding now covers the checked VarDCT strategy, progressive, chroma
+  resampling, alpha, patch, spline, restoration, noise, and internal-frame boundary. Its 300-file
+  real-photo gate has no incorrect output, and the ordinary large-photo path uses bounded
+  restoration bands instead of source-sized float color planes.
 
 - Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
   AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,
@@ -94,6 +107,13 @@ All notable changes to PureJsImage are documented in this file.
   still does not reconstruct HEVC sample state.
 
 ### Changed
+
+- JPEG XL exact JPEG transcode now uses deterministic clustered ANS contexts, spatial DC
+  prediction, observed coefficient orders, move-to-front context maps, and bounded Brotli
+  reconstruction payloads. All 250 files in the pinned real JPEG cohort reconstruct byte-for-byte
+  through `djxl`. The size percentiles and 12 MP performance gates pass, so exact transcode is
+  stable for its documented three-component 8-bit Huffman subset. The pixel encoder remains
+  experimental.
 
 - JPEG XL exact transcode now rejects Exif orientation other than 1 and non-sRGB or malformed ICC
   before coefficient work, so byte-exact reconstruction cannot hide incorrect display semantics.

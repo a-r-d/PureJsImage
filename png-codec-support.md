@@ -150,3 +150,8 @@ have focused fixture or benchmark coverage.
   with bounded TypeScript fallback after setup or midstream accelerator failures
 - [ ] Add malformed chunk-order, CRC, Deflate, palette, transparency, and
   decompression-bomb fuzzing with strict allocation limits
+
+## JPEG XL pipeline color signals
+
+- [x] Preserve representable sRGB, linear and structured signals for 8-bit as well as 16-bit encoder input
+- [x] Preserve requested compatible source ICC bytes through orientation and reject unrepresentable color semantics

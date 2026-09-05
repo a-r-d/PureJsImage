@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "libjxlRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "maximumError": 1,
+  "maximumRmse": 0.55,
+  "roundingPolicy": "M3 independently approved eight-bit rounding threshold retained",
+  "results": [
+    {
+      "id": "bench_oriented_brg",
+      "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+      "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+      "outputFormat": "rgb8",
+      "rows": 606,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "source-profile",
+        "transfer": {
+          "kind": "source-profile"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative",
+        "icc": {
+          "relevance": "emitted-pixels"
+        }
+      },
+      "decoderOptions": {
+        "colorOutput": "preserve"
+      },
+      "comparison": "Native source-profile samples; codestream orientation applied to comparison coordinates",
+      "maximumError": 1,
+      "rmse": 0.4969079308575935
+    },
+    {
+      "id": "cafe",
+      "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+      "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+      "outputFormat": "rgb8",
+      "rows": 1600,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "source-profile",
+        "transfer": {
+          "kind": "source-profile"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative",
+        "icc": {
+          "relevance": "emitted-pixels"
+        }
+      },
+      "decoderOptions": {
+        "colorOutput": "preserve"
+      },
+      "comparison": "Native source-profile samples; codestream orientation applied to comparison coordinates",
+      "maximumError": 1,
+      "rmse": 0.4756978152759726
+    },
+    {
+      "id": "grayscale",
+      "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+      "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+      "outputFormat": "gray8",
+      "rows": 200,
+      "colorSemantics": {
+        "family": "gray",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative",
+        "icc": {
+          "relevance": "source"
+        }
+      },
+      "decoderOptions": {
+        "colorOutput": "preserve"
+      },
+      "comparison": "sRGB output from XYB; oracle explicitly converted to sRGB",
+      "maximumError": 1,
+      "rmse": 0.49874843358150006
+    },
+    {
+      "id": "grayscale_jpeg",
+      "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+      "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+      "outputFormat": "gray8",
+      "rows": 200,
+      "colorSemantics": {
+        "family": "gray",
+        "primaries": "source-profile",
+        "transfer": {
+          "kind": "source-profile"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative",
+        "icc": {
+          "relevance": "emitted-pixels"
+        }
+      },
+      "decoderOptions": {
+        "colorOutput": "preserve"
+      },
+      "comparison": "Native source-profile samples; codestream orientation applied to comparison coordinates",
+      "maximumError": 1,
+      "rmse": 0.3134485603731496
+    },
+    {
+      "id": "lz77_flower",
+      "inputSha256": "41046f0de4dd36177aefa9b53fe6c3cd35a8e2c215a8d41ca89a6a9bc7f27541",
+      "outputSha256": "653dd385329335314ef80321948463cc9d3db0b779fe716c6266f7646555ed90",
+      "outputFormat": "rgb8",
+      "rows": 244,
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "gamma",
+          "exponent": 2.199978000219998
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "container-signaled",
+        "renderingIntent": "relative"
+      },
+      "decoderOptions": {
+        "colorOutput": "preserve"
+      },
+      "comparison": "Native source-profile samples; codestream orientation applied to comparison coordinates",
+      "maximumError": 0,
+      "rmse": 0
+    }
+  ]
+}

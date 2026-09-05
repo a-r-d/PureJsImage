@@ -118,6 +118,12 @@ test('decodes lossless JPEG XL local-tree ANS pixels in a real browser', async (
   expect(result.outputBytes).toBeGreaterThan(50)
   expect(result.detail).toContain('matched djxl RGB pixels')
 })
+test('encodes declared high-bit JPEG XL samples in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlLosslessEncode())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('effort-7 browser encode')
+})
 test('preserves native high-bit JPEG XL samples in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlHighBit())
@@ -129,6 +135,14 @@ test('decodes multi-group JPEG XL crops in a real browser', async ({ page }) => 
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlMultiGroup())
   expect(result.outputBytes).toBe(4_096)
   expect(result.detail).toContain('four permuted Modular group boundaries')
+})
+test('decodes progressive multi-group VarDCT in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.jpegXlMultiGroupProgressive(),
+  )
+  expect(result.outputBytes).toBe(592_515)
+  expect(result.detail).toContain('six groups and three progressive passes')
 })
 test('decodes lossless JPEG 2000 pixels in a real browser', async ({ page }) => {
   await harness(page)

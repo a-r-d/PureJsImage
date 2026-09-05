@@ -1,5 +1,5 @@
-import type { PixelColorSemantics } from '../../../src/color.ts'
 import { linearToSrgb } from '../../../src/codecs/icc.ts'
+import type { PixelColorSemantics } from '../../../src/color.ts'
 import type { PixelBlock, PixelFormat } from '../../../src/pixel.ts'
 
 export type JpegXlWorkbenchPreviewMode = 'srgb' | 'linear'
@@ -26,13 +26,15 @@ export const linearJpegXlWorkbenchPreviewByte = (value: number): number =>
 
 export const isJpegXlWorkbenchPreviewPixelFormat = (
   format: PixelFormat,
-): format is 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16' =>
+): format is 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16' | 'rgbf32' | 'rgbaf32' =>
   format === 'gray8' ||
   format === 'gray16' ||
   format === 'rgb8' ||
   format === 'rgb16' ||
   format === 'rgba8' ||
-  format === 'rgba16'
+  format === 'rgba16' ||
+  format === 'rgbf32' ||
+  format === 'rgbaf32'
 
 interface EffectiveDisplayRange {
   readonly black: number
@@ -54,7 +56,7 @@ export const jpegXlWorkbenchPreviewRanges = (block: PixelBlock): JpegXlWorkbench
     throw new Error(`Workbench preview does not support ${block.format}`)
   }
   const channels = channelCount(block.format)
-  const storageWhite = block.format.endsWith('16') ? 65_535 : 255
+  const storageWhite = block.format.endsWith('f32') ? 1 : block.format.endsWith('16') ? 65_535 : 255
   const fallback = Object.freeze({ black: 0, inverseWidth: 1 / storageWhite })
   if (block.displayRanges !== undefined) {
     if (
@@ -78,18 +80,29 @@ export const jpegXlWorkbenchPreviewRanges = (block: PixelBlock): JpegXlWorkbench
   return Object.freeze([range(0), range(1), range(2), range(3)])
 }
 
-const sample = (block: PixelBlock, sourceX: number, sourceY: number, channel: number): number => {
+const sample = (
+  block: PixelBlock,
+  sourceX: number,
+  sourceY: number,
+  channel: number,
+  view?: DataView,
+): number => {
   if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
     throw new Error(`Workbench preview does not support ${block.format}`)
   }
   const channels = block.format.startsWith('gray') ? 1 : block.format.startsWith('rgba') ? 4 : 3
-  const bytesPerSample = block.format.endsWith('16') ? 2 : 1
+  const bytesPerSample = block.format.endsWith('f32') ? 4 : block.format.endsWith('16') ? 2 : 1
   const localX = sourceX - block.x
   const localY = sourceY - block.y
   if (localX < 0 || localY < 0 || localX >= block.width || localY >= block.height) return 0
-  if (channel === 3 && channels !== 4) return bytesPerSample === 1 ? 255 : 65_535
+  if (channel === 3 && channels !== 4)
+    return bytesPerSample === 4 ? 1 : bytesPerSample === 1 ? 255 : 65_535
   const selectedChannel = channels === 1 ? 0 : channel
   const offset = localY * block.stride + (localX * channels + selectedChannel) * bytesPerSample
+  if (bytesPerSample === 4) {
+    if (!view) throw new Error('Float preview requires a block sample view')
+    return view.getFloat32(offset, false)
+  }
   if (bytesPerSample === 1) return block.data[offset] ?? 0
   return (block.data[offset] ?? 0) * 256 + (block.data[offset + 1] ?? 0)
 }
@@ -100,6 +113,7 @@ export const jpegXlWorkbenchPreviewPixel = (
   sourceY: number,
   mode: JpegXlWorkbenchPreviewMode,
   ranges: JpegXlWorkbenchPreviewRanges = jpegXlWorkbenchPreviewRanges(block),
+  view?: DataView,
 ): readonly [number, number, number, number] => {
   if (!isJpegXlWorkbenchPreviewPixelFormat(block.format)) {
     throw new Error(`Workbench preview does not support ${block.format}`)
@@ -107,11 +121,14 @@ export const jpegXlWorkbenchPreviewPixel = (
   const normalize = (value: number, range: EffectiveDisplayRange): number =>
     Math.max(0, Math.min(1, (value - range.black) * range.inverseWidth))
   const display = (channel: number): number => {
-    const value = normalize(sample(block, sourceX, sourceY, channel), ranges[channel] ?? ranges[0])
+    const value = normalize(
+      sample(block, sourceX, sourceY, channel, view),
+      ranges[channel] ?? ranges[0],
+    )
     return mode === 'linear' ? linearJpegXlWorkbenchPreviewByte(value) : Math.round(value * 255)
   }
   const alpha = block.format.startsWith('rgba')
-    ? Math.round(normalize(sample(block, sourceX, sourceY, 3), ranges[3]) * 255)
+    ? Math.round(normalize(sample(block, sourceX, sourceY, 3, view), ranges[3]) * 255)
     : 255
   return Object.freeze([display(0), display(1), display(2), alpha])
 }

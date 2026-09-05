@@ -1,0 +1,918 @@
+{
+  "schemaVersion": 1,
+  "methodology": "105 complete workflows across five encoders and three fits. Separate isolated cold and warm nearest-resize-to-PNG processes; djxl source pixels and libvips output decode. Warmup is followed by three GC cycles. RSS includes process/runtime; decoder VarDCT output is a full-frame fallback. Threshold max 1 and RMSE 0.55 is inherited from M3.",
+  "workflows": [
+    {
+      "id": "srgb-8:contain",
+      "format": "jpeg",
+      "checksum": 1014960721,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:contain",
+      "format": "png",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:contain",
+      "format": "webp",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:contain",
+      "format": "avif",
+      "checksum": 3553472197,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:contain",
+      "format": "tiff",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:cover",
+      "format": "jpeg",
+      "checksum": 1014960721,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:cover",
+      "format": "png",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:cover",
+      "format": "webp",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:cover",
+      "format": "avif",
+      "checksum": 3553472197,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:cover",
+      "format": "tiff",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:fill",
+      "format": "jpeg",
+      "checksum": 1014960721,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:fill",
+      "format": "png",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:fill",
+      "format": "webp",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:fill",
+      "format": "avif",
+      "checksum": 3553472197,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-8:fill",
+      "format": "tiff",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:contain",
+      "format": "jpeg",
+      "checksum": 1014960721,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:contain",
+      "format": "png",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:contain",
+      "format": "webp",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:contain",
+      "format": "avif",
+      "checksum": 3553472197,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:contain",
+      "format": "tiff",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:cover",
+      "format": "jpeg",
+      "checksum": 1014960721,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:cover",
+      "format": "png",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:cover",
+      "format": "webp",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:cover",
+      "format": "avif",
+      "checksum": 3553472197,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:cover",
+      "format": "tiff",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:fill",
+      "format": "jpeg",
+      "checksum": 1014960721,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:fill",
+      "format": "png",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:fill",
+      "format": "webp",
+      "checksum": 183321415,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:fill",
+      "format": "avif",
+      "checksum": 3553472197,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-12:fill",
+      "format": "tiff",
+      "checksum": 3112693495,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:contain",
+      "format": "jpeg",
+      "checksum": 3955770777,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:contain",
+      "format": "png",
+      "checksum": 42225062,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:contain",
+      "format": "webp",
+      "checksum": 42225062,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:contain",
+      "format": "avif",
+      "checksum": 4166665789,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:contain",
+      "format": "tiff",
+      "checksum": 42225062,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:cover",
+      "format": "jpeg",
+      "checksum": 914172777,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:cover",
+      "format": "png",
+      "checksum": 3552720164,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:cover",
+      "format": "webp",
+      "checksum": 3552720164,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:cover",
+      "format": "avif",
+      "checksum": 663056562,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:cover",
+      "format": "tiff",
+      "checksum": 3552720164,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:fill",
+      "format": "jpeg",
+      "checksum": 3898563074,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:fill",
+      "format": "png",
+      "checksum": 2076720794,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:fill",
+      "format": "webp",
+      "checksum": 2076720794,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:fill",
+      "format": "avif",
+      "checksum": 2519839370,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "srgb-straight-12-16:fill",
+      "format": "tiff",
+      "checksum": 2076720794,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:contain",
+      "format": "jpeg",
+      "checksum": 3829712588,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:contain",
+      "format": "png",
+      "checksum": 917049907,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:contain",
+      "format": "webp",
+      "checksum": 917049907,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:contain",
+      "format": "avif",
+      "checksum": 1415594152,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:contain",
+      "format": "tiff",
+      "checksum": 917049907,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:cover",
+      "format": "jpeg",
+      "checksum": 3829712588,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:cover",
+      "format": "png",
+      "checksum": 1424127297,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:cover",
+      "format": "webp",
+      "checksum": 917049907,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:cover",
+      "format": "avif",
+      "checksum": 1415594152,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:cover",
+      "format": "tiff",
+      "checksum": 1424127297,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:fill",
+      "format": "jpeg",
+      "checksum": 3829712588,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:fill",
+      "format": "png",
+      "checksum": 1424127297,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:fill",
+      "format": "webp",
+      "checksum": 917049907,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:fill",
+      "format": "avif",
+      "checksum": 1415594152,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "p3-8:fill",
+      "format": "tiff",
+      "checksum": 1424127297,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:contain",
+      "format": "jpeg",
+      "checksum": 949467859,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:contain",
+      "format": "png",
+      "checksum": 26017817,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:contain",
+      "format": "webp",
+      "checksum": 26017817,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:contain",
+      "format": "avif",
+      "checksum": 3708444594,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:contain",
+      "format": "tiff",
+      "checksum": 26017817,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:cover",
+      "format": "jpeg",
+      "checksum": 949467859,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:cover",
+      "format": "png",
+      "checksum": 3893540659,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:cover",
+      "format": "webp",
+      "checksum": 26017817,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:cover",
+      "format": "avif",
+      "checksum": 3708444594,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:cover",
+      "format": "tiff",
+      "checksum": 3893540659,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:fill",
+      "format": "jpeg",
+      "checksum": 949467859,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:fill",
+      "format": "png",
+      "checksum": 3893540659,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:fill",
+      "format": "webp",
+      "checksum": 26017817,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:fill",
+      "format": "avif",
+      "checksum": 3708444594,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "pq-10:fill",
+      "format": "tiff",
+      "checksum": 3893540659,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:contain",
+      "format": "jpeg",
+      "checksum": 690953196,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:contain",
+      "format": "png",
+      "checksum": 4129249057,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:contain",
+      "format": "webp",
+      "checksum": 4129249057,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:contain",
+      "format": "avif",
+      "checksum": 428079802,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:contain",
+      "format": "tiff",
+      "checksum": 4129249057,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:cover",
+      "format": "jpeg",
+      "checksum": 690953196,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:cover",
+      "format": "png",
+      "checksum": 1184842567,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:cover",
+      "format": "webp",
+      "checksum": 4129249057,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:cover",
+      "format": "avif",
+      "checksum": 428079802,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:cover",
+      "format": "tiff",
+      "checksum": 1184842567,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:fill",
+      "format": "jpeg",
+      "checksum": 690953196,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:fill",
+      "format": "png",
+      "checksum": 1184842567,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:fill",
+      "format": "webp",
+      "checksum": 4129249057,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:fill",
+      "format": "avif",
+      "checksum": 428079802,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "hlg-12:fill",
+      "format": "tiff",
+      "checksum": 1184842567,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:contain",
+      "format": "jpeg",
+      "checksum": 1838211775,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:contain",
+      "format": "png",
+      "checksum": 2931169679,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:contain",
+      "format": "webp",
+      "checksum": 2931169679,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:contain",
+      "format": "avif",
+      "checksum": 43736690,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:contain",
+      "format": "tiff",
+      "checksum": 2931169679,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:cover",
+      "format": "jpeg",
+      "checksum": 1838211775,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:cover",
+      "format": "png",
+      "checksum": 507642931,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:cover",
+      "format": "webp",
+      "checksum": 2931169679,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:cover",
+      "format": "avif",
+      "checksum": 43736690,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:cover",
+      "format": "tiff",
+      "checksum": 507642931,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:fill",
+      "format": "jpeg",
+      "checksum": 1838211775,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:fill",
+      "format": "png",
+      "checksum": 507642931,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:fill",
+      "format": "webp",
+      "checksum": 2931169679,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:fill",
+      "format": "avif",
+      "checksum": 43736690,
+      "width": 4,
+      "height": 3
+    },
+    {
+      "id": "vardct-srgb-12:fill",
+      "format": "tiff",
+      "checksum": 507642931,
+      "width": 4,
+      "height": 3
+    }
+  ],
+  "measurements": [
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-0.jxl",
+      "sha256": "b4a1d94d5fdbbcade90bd0ef2c1e4f6281b9aba4d9abeeae2a1855579de2dba2",
+      "width": 5657,
+      "height": 4243,
+      "mode": "cold",
+      "maximumError": 1,
+      "rmse": 0.4936664837946994,
+      "measurement": {
+        "milliseconds": 5043.444523,
+        "baseline": {
+          "rss": 147574784,
+          "heapTotal": 52219904,
+          "heapUsed": 16538672,
+          "external": 16849105,
+          "arrayBuffers": 3876057
+        },
+        "memory": {
+          "rss": 377864192,
+          "heapTotal": 50855936,
+          "heapUsed": 17372824,
+          "external": 126702970,
+          "arrayBuffers": 113695631
+        },
+        "absolutePeakRss": 429858816,
+        "outputBytes": 8479,
+        "outputHash": "90849e5613702507469bbd97e14c567321b35fbb69222ae16e44fbbaa9e522d9"
+      }
+    },
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-0.jxl",
+      "sha256": "b4a1d94d5fdbbcade90bd0ef2c1e4f6281b9aba4d9abeeae2a1855579de2dba2",
+      "width": 5657,
+      "height": 4243,
+      "mode": "warm",
+      "maximumError": 1,
+      "rmse": 0.4936664837946994,
+      "measurement": {
+        "milliseconds": 4969.828315,
+        "baseline": {
+          "rss": 345292800,
+          "heapTotal": 49807360,
+          "heapUsed": 12997992,
+          "external": 16885156,
+          "arrayBuffers": 3877857
+        },
+        "memory": {
+          "rss": 439947264,
+          "heapTotal": 51642368,
+          "heapUsed": 16216584,
+          "external": 115773646,
+          "arrayBuffers": 102766307
+        },
+        "absolutePeakRss": 439947264,
+        "outputBytes": 8479,
+        "outputHash": "90849e5613702507469bbd97e14c567321b35fbb69222ae16e44fbbaa9e522d9"
+      }
+    },
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-1.jxl",
+      "sha256": "61b3c9959427c99118bcd54e36197d637f643ecf20ba0c36441ab5031c03f48f",
+      "width": 5657,
+      "height": 4243,
+      "mode": "cold",
+      "maximumError": 1,
+      "rmse": 0.49289659018004084,
+      "measurement": {
+        "milliseconds": 7303.477063,
+        "baseline": {
+          "rss": 143572992,
+          "heapTotal": 52219904,
+          "heapUsed": 16538528,
+          "external": 14331929,
+          "arrayBuffers": 1358881
+        },
+        "memory": {
+          "rss": 379297792,
+          "heapTotal": 51118080,
+          "heapUsed": 18665312,
+          "external": 133767136,
+          "arrayBuffers": 120759797
+        },
+        "absolutePeakRss": 433577984,
+        "outputBytes": 8471,
+        "outputHash": "3e6ef4485469ae40b986351faf581a6d02e4d674a140f4adf40e85bdce1a7235"
+      }
+    },
+    {
+      "input": ".tmp/jpegxl-m3-common-static/coco-val2017-000000001000-libjxl-1.jxl",
+      "sha256": "61b3c9959427c99118bcd54e36197d637f643ecf20ba0c36441ab5031c03f48f",
+      "width": 5657,
+      "height": 4243,
+      "mode": "warm",
+      "maximumError": 1,
+      "rmse": 0.49289659018004084,
+      "measurement": {
+        "milliseconds": 8766.565489,
+        "baseline": {
+          "rss": 290455552,
+          "heapTotal": 49807360,
+          "heapUsed": 13147872,
+          "external": 14411628,
+          "arrayBuffers": 1404329
+        },
+        "memory": {
+          "rss": 384720896,
+          "heapTotal": 51118080,
+          "heapUsed": 18755576,
+          "external": 133037383,
+          "arrayBuffers": 120030044
+        },
+        "absolutePeakRss": 445464576,
+        "outputBytes": 8471,
+        "outputHash": "3e6ef4485469ae40b986351faf581a6d02e4d674a140f4adf40e85bdce1a7235"
+      }
+    },
+    {
+      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
+      "sha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
+      "width": 320,
+      "height": 240,
+      "mode": "cold",
+      "maximumError": 1,
+      "rmse": 0.22582795196540417,
+      "measurement": {
+        "milliseconds": 69.325672,
+        "baseline": {
+          "rss": 140963840,
+          "heapTotal": 52482048,
+          "heapUsed": 16538688,
+          "external": 13474810,
+          "arrayBuffers": 501762
+        },
+        "memory": {
+          "rss": 155119616,
+          "heapTotal": 53792768,
+          "heapUsed": 20396424,
+          "external": 13956320,
+          "arrayBuffers": 944315
+        },
+        "absolutePeakRss": 155119616,
+        "outputBytes": 197,
+        "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
+      }
+    },
+    {
+      "input": "benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/baseline-yuv420.jxl",
+      "sha256": "226f0c9e543ed9ec74ccc0d04329b7b03991f5e06d2b3ed48c0c3adc72d5be54",
+      "width": 320,
+      "height": 240,
+      "mode": "warm",
+      "maximumError": 1,
+      "rmse": 0.22582795196540417,
+      "measurement": {
+        "milliseconds": 64.34827100000007,
+        "baseline": {
+          "rss": 157175808,
+          "heapTotal": 53006336,
+          "heapUsed": 17523064,
+          "external": 13515539,
+          "arrayBuffers": 503574
+        },
+        "memory": {
+          "rss": 159404032,
+          "heapTotal": 53530624,
+          "heapUsed": 29317656,
+          "external": 14068000,
+          "arrayBuffers": 1055995
+        },
+        "absolutePeakRss": 159404032,
+        "outputBytes": 197,
+        "outputHash": "9127b39daa36426391f76dc55c593577997313c79e72ea727bd80efab72e35d4"
+      }
+    }
+  ],
+  "passed": true
+}

@@ -2408,7 +2408,11 @@ to own only generic descriptors, definitions, providers, and registries.
       analysis provider selection, graph operations, tile-runtime cache ownership, and block or tile
       dependency IDs.
 - [x] Expose ordinary pipeline explanation from the executor's existing crop, scaled-decode, and
-      native-precision planning functions without decoding pixels.
+      native-precision planning functions. Decoder opening is codec-dependent: JPEG XL VarDCT
+      can decode pixels during open. The M5 JPEG XL plan reports this through `io.pixelDecode`,
+      along with native sample precision, encoder negotiation and full-frame memory reasons.
+      This supersedes the earlier universal no-pixel-decode claim; see
+      `docs/architecture/jpegxl-production-program.md` and `tests/jpegxl-m5-pipeline.test.ts`.
 - [x] Add an explicit bounded adaptive range policy while preserving fixed blocks as the default;
       retain deterministic crossover evidence instead of making a universal performance claim.
 - [x] Add the client-side Raster X-Ray worker and page with local and remote inputs, source coverage,

@@ -21,8 +21,10 @@ import { type JpegCoefficientImage, parseJpegCoefficientImage } from './jpeg-coe
 import { jpegxlCodec } from './jpegxl.ts'
 import { parseJpegReconstructionData } from './jpegxl-jpeg-data.ts'
 import { encodeJpegCoefficientImageAsJpegXl } from './jpegxl-jpeg-encode.ts'
-import { reconstructJpegFromCoefficientImage } from './jpegxl-jpeg-reconstruct.ts'
-import { reconstructJpegFromJpegXl } from './jpegxl-jpeg-reconstruct-source.ts'
+import {
+  reconstructJpegFromCoefficientImage,
+  verifyJpegFromCoefficientImage,
+} from './jpegxl-jpeg-reconstruct.ts'
 import { encodeJpegXlJpegReconstruction } from './jpegxl-jpeg-reconstruction.ts'
 import type { JpegXlLimitOptions } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
@@ -225,19 +227,21 @@ const encodeExact = async (
     reconstruction.blobs.decodedBytes,
   )
   throwIfAborted(options.signal)
-  const canonical = reconstructJpegFromCoefficientImage(
-    reconstruction.header,
-    reconstruction.blobs,
-    image,
-    {},
-    limits.maxReconstructedJpegBytes,
-  )
-  const canonicalLease = retain('jpeg-transcode-canonical-jpeg', canonical.byteLength)
-  if (!exactBytesEqual(canonical, input)) {
-    canonicalLease.release()
-    throw unsupportedOperation('JPEG entropy stream requires unsupported exactness metadata')
+  try {
+    verifyJpegFromCoefficientImage(
+      reconstruction.header,
+      reconstruction.blobs,
+      image,
+      {},
+      limits.maxReconstructedJpegBytes,
+      input,
+    )
+  } catch (error) {
+    if (error instanceof ImageError && error.code === 'INVALID_INPUT') {
+      throw unsupportedOperation('JPEG entropy stream requires unsupported exactness metadata')
+    }
+    throw error
   }
-  canonicalLease.release()
   throwIfAborted(options.signal)
   const payload = encodeJpegXlJpegReconstruction(
     reconstruction.header,
@@ -251,17 +255,6 @@ const encodeExact = async (
     allocate: retain,
   })
   payloadLease.release()
-  throwIfAborted(options.signal)
-  const reconstructed = await reconstructJpegFromJpegXl(data, {
-    ...(options.limits ? { limits: options.limits } : {}),
-    ...(options.signal ? { signal: options.signal } : {}),
-  })
-  const verificationLease = retain('jpeg-transcode-verification-jpeg', reconstructed.byteLength)
-  if (!exactBytesEqual(reconstructed, input)) {
-    verificationLease.release()
-    throw invalidInput('JPEG XL exact reconstruction verification failed')
-  }
-  verificationLease.release()
   throwIfAborted(options.signal)
   return Object.freeze({
     data,

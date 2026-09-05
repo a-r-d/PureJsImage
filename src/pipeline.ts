@@ -60,9 +60,29 @@ export interface JpegEncodeOptions {
 }
 
 export interface JpegXlEncodeOptions {
+  /** Encoder-owned backing-buffer limit; defaults to maxDecodedBytes (1 GiB by default).
+   * Includes input staging and temporary/output buffers, excludes caller/sink storage and JS heap. */
+  maxWorkingBytes?: number
+  /** Maximum encoded bytes, including container and metadata; at most 128 MiB. */
+  maxOutputBytes?: number
   mode?: 'lossless'
-  effort?: 1
+  effort?: 1 | 3 | 5 | 7
   container?: boolean
+  /** Intended native color sample depth. Required for 9 through 15-bit data in 16-bit blocks. */
+  sampleBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
+  /** Intended alpha depth when it differs from the color sample depth. */
+  alphaBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
+  /** EXIF-compatible display orientation stored in the JPEG XL image header. */
+  orientation?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+  /** Source intrinsic dimensions, independent of stored pixel dimensions. */
+  intrinsicSize?: Readonly<{ width: number; height: number }>
+  /** Luminance metadata; numeric fields are encoded with finite half precision. */
+  toneMapping?: Readonly<{
+    intensityTarget: number
+    minNits: number
+    relativeToMaxDisplay: boolean
+    linearBelow: number
+  }>
 }
 
 export interface PngEncodeOptions {
@@ -374,14 +394,40 @@ export const createJpegEncodeOperation = (options: JpegEncodeOptions): PipelineO
 }
 
 export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): PipelineOperation => {
+  if (
+    options.maxWorkingBytes !== undefined &&
+    (!Number.isSafeInteger(options.maxWorkingBytes) || options.maxWorkingBytes < 1)
+  )
+    throw invalidInput('JPEG XL maxWorkingBytes must be a positive safe integer')
+  if (
+    options.maxOutputBytes !== undefined &&
+    (!Number.isSafeInteger(options.maxOutputBytes) ||
+      options.maxOutputBytes < 1 ||
+      options.maxOutputBytes > 134_217_728)
+  )
+    throw invalidInput('JPEG XL maxOutputBytes must be a positive integer at most 134217728')
   if (options.mode !== undefined && options.mode !== 'lossless') {
     throw invalidInput('JPEG XL mode must be lossless')
   }
-  if (options.effort !== undefined && options.effort !== 1) {
-    throw invalidInput('JPEG XL effort must be 1')
+  if (
+    options.effort !== undefined &&
+    options.effort !== 1 &&
+    options.effort !== 3 &&
+    options.effort !== 5 &&
+    options.effort !== 7
+  ) {
+    throw invalidInput('JPEG XL effort must be 1, 3, 5, or 7')
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidInput('JPEG XL container must be a boolean')
+  }
+  for (const [name, depth] of [
+    ['sampleBitDepth', options.sampleBitDepth],
+    ['alphaBitDepth', options.alphaBitDepth],
+  ] as const) {
+    if (depth !== undefined && (!Number.isInteger(depth) || depth < 8 || depth > 16)) {
+      throw invalidInput(`JPEG XL ${name} must be an integer from 8 to 16`)
+    }
   }
   return Object.freeze({ type: 'encode', format: 'jpegxl', options: Object.freeze({ ...options }) })
 }

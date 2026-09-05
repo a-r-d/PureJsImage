@@ -1783,9 +1783,7 @@ const createPngEncoder = async (
     )
   }
   const nativeColorSignal =
-    request.pixelFormat.endsWith('16') && request.metadata?.icc === undefined
-      ? nativePngColorSignal(semantics)
-      : undefined
+    request.metadata?.icc === undefined ? nativePngColorSignal(semantics) : undefined
 
   let acceleratedFilter: PngRowFilter | undefined
   for (const acceleration of accelerations) {

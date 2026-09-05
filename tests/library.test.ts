@@ -17,6 +17,7 @@ import {
   MemorySource,
 } from '../src/index.ts'
 import { jpegFixture } from './fixtures.ts'
+import { defaultImageLimits } from '../src/limits.ts'
 
 const pngFixture = (): Uint8Array => {
   const encoded = PNG.sync.write(new PNG({ width: 4, height: 3 }))
@@ -55,6 +56,26 @@ const ftyp = (
 }
 
 describe('configured image library', () => {
+  it('passes explicit JPEG XL intrinsic size and tone mapping through the public pipeline', async () => {
+    const images = createImageLibrary([pngCodec, jpegxlCodec])
+    const encoded = await (await images.open(pngFixture()))
+      .jpegxl({
+        intrinsicSize: { width: 12, height: 9 },
+        toneMapping: {
+          intensityTarget: 1000,
+          minNits: 0.5,
+          relativeToMaxDisplay: false,
+          linearBelow: 0,
+        },
+      })
+      .toBuffer()
+    expect(await (await images.open(encoded)).metadata()).toMatchObject({
+      width: 4,
+      height: 3,
+      intrinsicWidth: 12,
+      intrinsicHeight: 9,
+    })
+  })
   it('decodes and encodes only through explicitly registered codecs', async () => {
     const images = createImageLibrary([pngCodec, jpegCodec])
     const output = await (await images.open(pngFixture())).jpeg().toBuffer()
@@ -141,9 +162,26 @@ describe('configured image library', () => {
     )
     const images = createImageLibrary(allCodecs)
     const image = await images.open(input)
-    await expect(image.jpegxl().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-    })
+    const reencoded = await image.jpegxl().toBuffer()
+    const reopened = await images.open(reencoded)
+    expect((await reopened.metadata()).colorSemantics).toEqual(
+      (await image.metadata()).colorSemantics,
+    )
+    const decodedSamples: Uint8Array[] = []
+    for (const bytes of [input, reencoded]) {
+      const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+      if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+      const rows: Uint8Array[] = []
+      for await (const block of decoder.decode()) {
+        try {
+          rows.push(block.data.slice())
+        } finally {
+          block.release?.()
+        }
+      }
+      decodedSamples.push(Buffer.concat(rows))
+    }
+    expect(decodedSamples[1]).toEqual(decodedSamples[0])
 
     await expect(
       image.convertPixelFormat({ format: 'rgb16' }).png().toBuffer(),

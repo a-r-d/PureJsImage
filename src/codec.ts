@@ -1,11 +1,11 @@
 import type { AbortOptions } from './abort.ts'
 import type { PixelColorSemantics } from './color.ts'
 import { invalidInput, unsupportedFormat, unsupportedOperation } from './errors.ts'
+import type { EvidenceContext } from './evidence.ts'
 import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageRuntime } from './runtime.ts'
-import type { EvidenceContext } from './evidence.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
@@ -79,6 +79,14 @@ export type ColorProfile =
     }
 
 export interface ImageMetadata {
+  /** Source intrinsic dimensions, before orientation. */
+  intrinsicWidth?: number
+  intrinsicHeight?: number
+  /** Source pixel density. Orientation transforms do not modify preserved metadata bytes. */
+  pixelDensity?: Readonly<{ x: number; y: number; unit: 'inch' | 'centimeter' }>
+  /** Bounded source Exif timestamps, with no inferred timezone. */
+  timestamps?: Readonly<{ modified?: string; original?: string; digitized?: string }>
+
   width: number
   height: number
   format: string
@@ -129,7 +137,27 @@ export interface DecodeRequest extends AbortOptions {
   readonly scaleDenominator?: 1 | 2 | 4 | 8
 }
 
+export interface DecoderExecutionDescription {
+  readonly nativePixelFormat: PixelFormat
+  readonly sourceSampleBitDepths: readonly number[]
+  readonly inputColorSemantics: PixelColorSemantics
+  readonly precisionLoss: boolean
+  readonly orientation: number
+  readonly sampleBitDepths: readonly number[]
+  readonly decodeDuringOpen: boolean
+  readonly fullFrameFallbackReasons: readonly string[]
+  /** Conservative working storage estimate, excluding process and runtime overhead. */
+  readonly estimatedWorkingBytes: number
+  readonly conversions: readonly string[]
+  /** Defaults valid only when re-encoding unchanged sample semantics to this format. */
+  readonly encodingDefaults?: Readonly<{
+    format: string
+    options: Readonly<Record<string, unknown>>
+  }>
+}
+
 export interface ImageDecoder {
+  readonly execution?: DecoderExecutionDescription
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat
@@ -148,11 +176,20 @@ export interface PreservedMetadata {
   readonly exif?: Uint8Array
   readonly icc?: Uint8Array
   readonly xmp?: Uint8Array
+  readonly jumbf?: Uint8Array
 }
 
 export interface DecoderOptions extends AbortOptions {
   readonly frame?: number
   readonly resolutionLevel?: number
+  /** Zero-based alpha extra-channel selection for formats that can carry more than one alpha. */
+  readonly alphaChannel?: number
+  /** Preserve associated alpha or explicitly return straight color samples. */
+  readonly alphaOutput?: 'preserve' | 'straight'
+  /** JPEG XL HDR output is never tone mapped unless this is explicitly requested. */
+  readonly hdrOutput?: 'encoded' | 'linear-float' | 'tone-map-srgb'
+  /** Preserve structured source samples or explicitly render supported color spaces to sRGB. */
+  readonly colorOutput?: 'preserve' | 'srgb'
   readonly preserveIcc?: boolean
   readonly tolerantDecoding?: boolean
   /** Explicit caller-owned evidence context. Omit for the allocation-free default path. */
@@ -163,6 +200,7 @@ export interface MetadataPreservationOptions extends AbortOptions {
   readonly exif: boolean
   readonly icc: boolean
   readonly xmp?: boolean
+  readonly jumbf?: boolean
   readonly frame?: number
   readonly resolutionLevel?: number
 }

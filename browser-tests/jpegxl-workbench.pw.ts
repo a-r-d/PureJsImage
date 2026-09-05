@@ -46,12 +46,15 @@ test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', as
   await expect(page.locator('#jxl-summary')).toContainText('Source JPEG')
   await expect(page.locator('#jxl-summary')).toContainText('JPEG XL output')
   await expect(page.locator('#jxl-summary')).toContainText('Signed savings')
+  await expect(page.locator('#jxl-summary')).toContainText('Pinned libjxl reference')
+  await expect(page.locator('#jxl-summary')).toContainText('1,081 bytes')
+  await expect(page.locator('#jxl-summary')).toContainText('Time')
   await expect(page.locator('#jxl-summary')).toContainText('Output/source ratio')
   await expect(page.locator('#jxl-summary')).toContainText(
-    '890 bytes larger (+88.47% versus source)',
+    '424 bytes larger (+42.15% versus source)',
   )
   await expect(page.locator('#jxl-summary')).toContainText('Smaller than source')
-  await expect(page.locator('#jxl-summary')).toContainText('Experimental')
+  await expect(page.locator('#jxl-summary')).toContainText('Stable exact transcode')
   await expect(page.locator('#jxl-summary')).toContainText('Off')
   await expect(page.locator('#jxl-details')).toContainText('jpegxl-jpeg-transcode')
   const jxlDownload = page.waitForEvent('download')
@@ -177,6 +180,28 @@ test('JPEG XL workbench scales a 12 MP preview without changing logical dimensio
   await expect(page.locator('#jxl-summary')).toContainText('2364 × 1773 scaled locally')
   await expect(page.locator('#jxl-preview')).toHaveAttribute('width', '2364')
   await expect(page.locator('#jxl-preview')).toHaveAttribute('height', '1773')
+})
+
+test('JPEG XL workbench presents a common VarDCT preview directly from decoder output', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+
+  const started = performance.now()
+  await page
+    .locator('#jxl-file')
+    .setInputFiles(
+      'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+    )
+  await expect(page.locator('#jxl-status')).toContainText(
+    'rgb8-distance1-multi-group-progressive.jxl inspected and decoded locally',
+    { timeout: 10_000 },
+  )
+  expect(performance.now() - started).toBeLessThan(10_000)
+  await expect(page.locator('#jxl-summary')).toContainText('513 × 385')
+  await expect(page.locator('#jxl-preview')).toHaveAttribute('width', '513')
+  await expect(page.locator('#jxl-preview')).toHaveAttribute('height', '385')
 })
 
 test('JPEG XL workbench rejects native pixel materialization before allocation and cleans state', async ({

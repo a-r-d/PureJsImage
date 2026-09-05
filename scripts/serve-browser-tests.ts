@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { dirname, extname, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
@@ -38,6 +38,8 @@ const jpegXlSamples = [
 
 const benchmarkEntries = {
   compatibility: 'browser-tests/compatibility-harness.ts',
+  'jpegxl-pipeline': 'browser-tests/jpegxl-pipeline-harness.ts',
+  'jpegxl-color': 'browser-tests/jpegxl-color-harness.ts',
   benchmark: 'browser-tests/benchmark-harness.ts',
   'purejsimage-jpeg': 'browser-tests/benchmark/purejsimage-jpeg.ts',
   'purejsimage-png': 'browser-tests/benchmark/purejsimage-png.ts',
@@ -326,6 +328,16 @@ await build({
   absWorkingDir: process.cwd(),
   bundle: true,
   entryPoints: benchmarkEntries,
+  plugins: [
+    {
+      name: 'browser-package-root',
+      setup(build) {
+        // The repository tsconfig maps this import to Node. Match the public
+        // package's browser condition while exercising examples against source.
+        build.onResolve({ filter: /^purejsimage$/ }, () => ({ path: resolve('src/browser.ts') }))
+      },
+    },
+  ],
   format: 'esm',
   legalComments: 'none',
   logLevel: 'silent',
@@ -416,6 +428,24 @@ const wasmFiles: readonly (readonly [string, string])[] = [
   ['node_modules/@jsquash/webp/codec/enc/webp_enc.wasm', 'webp_enc.wasm'],
   ['node_modules/@jsquash/webp/codec/enc/webp_enc_simd.wasm', 'webp_enc_simd.wasm'],
 ]
+await copyFile(
+  'tests/fixtures/jpegxl/m5-pipeline/segmented.jxl',
+  resolve(fixtureDirectory, 'jpegxl-m5-segmented.jxl'),
+)
+for (const name of await readdir('tests/fixtures/jpegxl/m4-color')) {
+  await copyFile(
+    `tests/fixtures/jpegxl/m4-color/${name}`,
+    resolve(fixtureDirectory, `jpegxl-m4-${name}`),
+  )
+}
+
+for (const name of await readdir('tests/fixtures/jpegxl/remediation')) {
+  await copyFile(
+    `tests/fixtures/jpegxl/remediation/${name}`,
+    resolve(fixtureDirectory, `jpegxl-remediation-${name}`),
+  )
+}
+
 for (const [source, name] of wasmFiles) await copyFile(source, resolve(outputDirectory, name))
 
 const png = benchmarkPng()
@@ -462,6 +492,14 @@ await copyFile(
 await copyFile(
   'tests/fixtures/jpegxl/permuted-large-gray8.jxl',
   resolve(fixtureDirectory, 'jpegxl-permuted-large-gray8.jxl'),
+)
+await copyFile(
+  'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+  resolve(fixtureDirectory, 'jpegxl-multi-group-progressive.jxl'),
+)
+await copyFile(
+  'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.oracle.ppm',
+  resolve(fixtureDirectory, 'jpegxl-multi-group-progressive.oracle.ppm'),
 )
 await copyFile(
   'tests/fixtures/bluemarble_256_256_3_byte.lerc2',
@@ -844,10 +882,12 @@ const server = createServer(async (request, response) => {
     const data = await readFile(path)
     const range = request.headers.range?.match(/^bytes=(\d+)-(\d+)$/)
     if (range) {
-      const requestedRangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
-      if (Number.isFinite(requestedRangeDelay) && requestedRangeDelay > 0) {
-        const rangeDelay = Math.min(requestedRangeDelay, 1_000)
-        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, rangeDelay))
+      const requestedRangeDelay = requestUrl.searchParams.get('rangeDelay')
+      // Only the fixed delays used by the cancellation fixtures are available.
+      if (requestedRangeDelay === '200') {
+        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 200))
+      } else if (requestedRangeDelay === '400') {
+        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 400))
       }
       const start = Number(range[1])
       const requestedEnd = Number(range[2])

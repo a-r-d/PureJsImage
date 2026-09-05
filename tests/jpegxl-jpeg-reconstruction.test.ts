@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import manifest from '../benchmark/jpegxl/jpeg-reconstruction-manifest.json' with { type: 'json' }
-import { encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
+import { encodeBrotli, encodeUncompressedBrotli } from '../src/codecs/brotli.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { inspectJpegExactTranscodeDisplaySemantics } from '../src/codecs/jpeg-display-semantics.ts'
 import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
@@ -11,6 +11,7 @@ import { pipeDecoderToJpegXlEncoder } from '../src/codecs/jpegxl-jpeg-transcode.
 import { inspectJpegXlSource } from '../src/codecs/jpegxl-container.ts'
 import { parseJpegReconstructionData } from '../src/codecs/jpegxl-jpeg-data.ts'
 import { reconstructJpegFromCoefficientImage } from '../src/codecs/jpegxl-jpeg-reconstruct.ts'
+import { verifyJpegReconstructionFromJpegXl } from '../src/codecs/jpegxl-jpeg-reconstruct-source.ts'
 import {
   decodeJpegXlJpegReconstructionBlobs,
   encodeJpegXlJpegReconstruction,
@@ -610,6 +611,29 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     })
   })
 
+  it('decodes compressed first-party opaque reconstruction data', async () => {
+    const original = await readJbrd()
+    const originalHeader = parseJpegXlJpegReconstructionHeader(original, resolveJpegXlLimits())
+    const opaque = Uint8Array.from({ length: 4096 }, (_, index) => index & 3)
+    const compressed = encodeBrotli(opaque)
+    const payload = new Uint8Array(originalHeader.compressedDataOffset + compressed.byteLength)
+    payload.set(original.subarray(0, originalHeader.compressedDataOffset))
+    payload.set(compressed, originalHeader.compressedDataOffset)
+    const header = parseJpegXlJpegReconstructionHeader(payload, resolveJpegXlLimits())
+    const adjusted = Object.freeze({
+      ...header,
+      appMarkers: Object.freeze([{ type: 'unknown' as const, byteLength: opaque.byteLength }]),
+    })
+
+    expect(decodeJpegXlJpegReconstructionBlobs(payload, adjusted, resolveJpegXlLimits())).toEqual({
+      unknownAppMarkers: [opaque],
+      comments: [],
+      interMarkerData: [],
+      tail: new Uint8Array(),
+      decodedBytes: opaque.byteLength,
+    })
+  })
+
   it('decodes the pinned libjxl opaque reconstruction payload exactly', async () => {
     const payload = await readJbrd()
     const header = parseJpegXlJpegReconstructionHeader(payload, resolveJpegXlLimits())
@@ -717,48 +741,49 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     },
   )
 
-  it.each(manifest.fixtures)(
-    'decodes $id pixels against the source JPEG and pinned djxl oracle',
-    async (entry) => {
-      const source = new Uint8Array(readFileSync(entry.source))
-      const encoded = new Uint8Array(readFileSync(entry.jxl))
-      const oracleFile = new Uint8Array(readFileSync(entry.pixelOracle))
-      expect(sha256(oracleFile)).toBe(entry.pixelOracleSha256)
-      const oracle = ppmPixels(oracleFile)
-      const sourcePixels = await decodeRgb(jpegCodec, source)
-      const decoder = await jpegxlCodec.createDecoder?.(
-        new MemorySource(encoded),
-        defaultImageLimits,
-      )
-      if (!decoder) throw new Error('JPEG XL decoder is unavailable')
-      expect(decoder.colorSemantics).toEqual({
-        family: 'rgb',
-        primaries: 'srgb',
-        transfer: { kind: 'srgb' },
-        matrix: 'identity',
-        range: 'full',
-        alpha: 'none',
-        provenance: 'decoder-converted',
-        renderingIntent: 'relative',
-      })
-      const actual = await decodeRgb(jpegxlCodec, encoded)
+  it('verifies exact reconstruction against caller bytes without returning a duplicate JPEG', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    await expect(verifyJpegReconstructionFromJpegXl(fixture, source)).resolves.toBeUndefined()
+    const changed = source.slice()
+    changed[changed.length - 1] = (changed[changed.length - 1] ?? 0) ^ 1
+    await expect(verifyJpegReconstructionFromJpegXl(fixture, changed)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
 
-      expect(actual).toEqual(sourcePixels)
-      expect(actual.byteLength).toBe(oracle.byteLength)
-      let maximumAbsoluteError = 0
-      let squaredError = 0
-      for (let index = 0; index < oracle.byteLength; index += 1) {
-        const difference = Math.abs((actual[index] ?? 0) - (oracle[index] ?? 0))
-        maximumAbsoluteError = Math.max(maximumAbsoluteError, difference)
-        squaredError += difference * difference
-      }
-      const rmse = Math.sqrt(squaredError / oracle.byteLength)
-      expect(maximumAbsoluteError).toBeLessThanOrEqual(
-        entry.pixelOracleTolerance.maximumAbsoluteError,
-      )
-      expect(rmse).toBeLessThanOrEqual(entry.pixelOracleTolerance.maximumRmse)
-    },
-  )
+  it.each(manifest.fixtures)('decodes $id pixels against the pinned djxl oracle', async (entry) => {
+    const encoded = new Uint8Array(readFileSync(entry.jxl))
+    const oracleFile = new Uint8Array(readFileSync(entry.pixelOracle))
+    expect(sha256(oracleFile)).toBe(entry.pixelOracleSha256)
+    const oracle = ppmPixels(oracleFile)
+    const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+    expect(decoder.colorSemantics).toEqual({
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'decoder-converted',
+      renderingIntent: 'relative',
+    })
+    const actual = await decodeRgb(jpegxlCodec, encoded)
+
+    expect(actual.byteLength).toBe(oracle.byteLength)
+    let maximumAbsoluteError = 0
+    let squaredError = 0
+    for (let index = 0; index < oracle.byteLength; index += 1) {
+      const difference = Math.abs((actual[index] ?? 0) - (oracle[index] ?? 0))
+      maximumAbsoluteError = Math.max(maximumAbsoluteError, difference)
+      squaredError += difference * difference
+    }
+    const rmse = Math.sqrt(squaredError / oracle.byteLength)
+    expect(maximumAbsoluteError).toBeLessThanOrEqual(
+      entry.pixelOracleTolerance.maximumAbsoluteError,
+    )
+    expect(rmse).toBeLessThanOrEqual(entry.pixelOracleTolerance.maximumRmse)
+  })
 
   it.each(manifest.fixtures)(
     'transcodes $id without RGB and reconstructs it exactly',
@@ -790,7 +815,9 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
         },
       })
       expect(await reconstructJpegFromJpegXl(result.data)).toEqual(source)
-      expect(await decodeRgb(jpegxlCodec, result.data)).toEqual(await decodeRgb(jpegCodec, source))
+      expect(await decodeRgb(jpegxlCodec, result.data)).toEqual(
+        await decodeRgb(jpegxlCodec, new Uint8Array(readFileSync(entry.jxl))),
+      )
     },
   )
 
@@ -845,6 +872,20 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     const result = await transcodeJpegToJpegXl(source, { sink })
     expect(result.data).toBeUndefined()
     expect(sink.toUint8Array()).toEqual(expected.data)
+  })
+
+  it('does not retain a reconstructed JPEG during sink-mode verification', async () => {
+    const source = new Uint8Array(readFileSync(primaryEntry.source))
+    const session = createEvidenceSession({ mode: 'trace' })
+    const sink = new Uint8ArraySink()
+    await transcodeJpegToJpegXl(source, { sink, evidence: session.context })
+    const report = session.finalize()
+    expect(
+      report.events?.some(
+        (event) =>
+          event.type === 'allocation' && event.category === 'jpeg-transcode-verification-jpeg',
+      ),
+    ).toBe(false)
   })
 
   it('aborts a caller sink and preserves its write failure', async () => {

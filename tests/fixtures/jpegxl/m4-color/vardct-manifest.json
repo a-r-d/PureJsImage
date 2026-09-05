@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "libjxlRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "comparison": "Pinned djxl float output in matching sRGB transfer, HDR scaled to 203 nit reference white; M3 normalized rounding thresholds retained",
+  "cases": [
+    {
+      "id": "vardct-srgb-10",
+      "depth": 10,
+      "width": 7,
+      "height": 5,
+      "format": "rgb16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "df33529e647c528512afae5dda5a15b414a2a76ccb295492d2b5a1f1331c5e25",
+      "pixelsSha256": "924a526d86e27d5dcdc95a479549e9a0caf49b44eadaf35da14e4c55f808e7ad",
+      "maximumNormalizedError": 0.0004768262044658744,
+      "normalizedRmse": 0.0002760399666202274
+    },
+    {
+      "id": "vardct-srgb-12",
+      "depth": 12,
+      "width": 7,
+      "height": 5,
+      "format": "rgb16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "693e895f5c79d404929d7f3f6570222e693580aabce44af13aa39da65e46726d",
+      "pixelsSha256": "bafbbcca0c69c333fa819fcb0eabaa3a00c3cb269c4c29a0a87b50ea0dbef134",
+      "maximumNormalizedError": 0.00012545149514089915,
+      "normalizedRmse": 0.00006631166450125174
+    },
+    {
+      "id": "vardct-srgb-16",
+      "depth": 16,
+      "width": 7,
+      "height": 5,
+      "format": "rgb16",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "srgb"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": true,
+      "sha256": "169d3e788f432632a8b88e9108bbceaba04d488ae91a20e376b56d5d583c157c",
+      "pixelsSha256": "924a526d86e27d5dcdc95a479549e9a0caf49b44eadaf35da14e4c55f808e7ad",
+      "maximumNormalizedError": 0.00003746596923943912,
+      "normalizedRmse": 0.000006074965202703319
+    },
+    {
+      "id": "vardct-linear-10",
+      "depth": 10,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "52aa16c30817b01d35f5012e18a081cb29ee6a6b2a75f4b4b2c5230a3e56aceb",
+      "pixelsSha256": "f6bec979480e4ed10f530bbb6d6ab114390df4e3bddf9136743ab7146c1b430e",
+      "maximumNormalizedError": 0.0000055283308029174805,
+      "normalizedRmse": 0.000001777833761732875
+    },
+    {
+      "id": "vardct-linear-12",
+      "depth": 12,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "f681962f6f8d773fb9c0d52e16941982b0189b69083dfbe45d89cfd8d312d5e4",
+      "pixelsSha256": "dbbc96cbb008a3cdb44cac7e1fbfbb1033a4c3df65258012291bb4b70055b62f",
+      "maximumNormalizedError": 0.000005736947059631348,
+      "normalizedRmse": 0.0000017788567277192376
+    },
+    {
+      "id": "vardct-linear-16",
+      "depth": 16,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "4356138791f19cdd66e8840a2dce14b2ca1103b6e0c41c2eb6804b3f50f5aad5",
+      "pixelsSha256": "dbbc96cbb008a3cdb44cac7e1fbfbb1033a4c3df65258012291bb4b70055b62f",
+      "maximumNormalizedError": 0.000005736947059631348,
+      "normalizedRmse": 0.0000017788567277192376
+    },
+    {
+      "id": "vardct-p3-10",
+      "depth": 10,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "4c735c91d9546761cc868795a54eadaba00dde968c04e0e1b0951d6d066750a0",
+      "pixelsSha256": "a27c25578590c4f6a62d041a6d9efd1fc2777ead59db506790c45d46bb58613c",
+      "maximumNormalizedError": 0.00000667572021484375,
+      "normalizedRmse": 0.0000018903966197129684
+    },
+    {
+      "id": "vardct-p3-12",
+      "depth": 12,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "412a35c61df0e782c172979e54c3aee012181b8266f2cdaef3817c890e198332",
+      "pixelsSha256": "2f44f2c376e925218cce74800c0de30ea7cb8e364f4077ffb7551be1c6aaa6aa",
+      "maximumNormalizedError": 0.000006556510925292969,
+      "normalizedRmse": 0.0000018630757832349243
+    },
+    {
+      "id": "vardct-p3-16",
+      "depth": 16,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "a0ffd3d0d7eb7ed7d7ebf86b7f94ddf7d21f0bee07c51b9347ef1595dba039cd",
+      "pixelsSha256": "2f44f2c376e925218cce74800c0de30ea7cb8e364f4077ffb7551be1c6aaa6aa",
+      "maximumNormalizedError": 0.000006556510925292969,
+      "normalizedRmse": 0.0000018630757832349243
+    },
+    {
+      "id": "vardct-rec2020-10",
+      "depth": 10,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "711753eb510d147c8fa7dc42bb2e6684ded3bb23f0964e0a4dc37f2eb34244d2",
+      "pixelsSha256": "c06e4c68c6be9fda1686c371006a9061ebcefb05bf086142e400a1d3ba9cd8ac",
+      "maximumNormalizedError": 0.000006943941116333008,
+      "normalizedRmse": 0.000002123981167884705
+    },
+    {
+      "id": "vardct-rec2020-12",
+      "depth": 12,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "42bcea1cbf6a1f81e7646b8e8bd90a23be553442512d81a19fae786f8c2a1519",
+      "pixelsSha256": "c06e4c68c6be9fda1686c371006a9061ebcefb05bf086142e400a1d3ba9cd8ac",
+      "maximumNormalizedError": 0.000006943941116333008,
+      "normalizedRmse": 0.000002123981167884705
+    },
+    {
+      "id": "vardct-rec2020-16",
+      "depth": 16,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 1,
+      "clipReference": false,
+      "sha256": "0ce453aa130c1579d04b873cca16369552a639e8cdc085f638f64036a52bd4ea",
+      "pixelsSha256": "c06e4c68c6be9fda1686c371006a9061ebcefb05bf086142e400a1d3ba9cd8ac",
+      "maximumNormalizedError": 0.000006943941116333008,
+      "normalizedRmse": 0.000002123981167884705
+    },
+    {
+      "id": "vardct-pq-10",
+      "depth": 10,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 49.26108374384236,
+      "clipReference": false,
+      "sha256": "e0cdcb70f66ebb41c5af6befa0f66e479d21af634fcf312379a5054935864e4d",
+      "pixelsSha256": "bf478100d3200a397615abaffb4f8c2dfd389cd0b38b452f3a5267f7d210e546",
+      "maximumNormalizedError": 0.000004801177978515625,
+      "normalizedRmse": 8.184631482701559e-7
+    },
+    {
+      "id": "vardct-pq-12",
+      "depth": 12,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 49.26108374384236,
+      "clipReference": false,
+      "sha256": "1b9d6b83beac62cd59fd0b427e9f70e73455baaf3f6295a17e875b16b6f7b87f",
+      "pixelsSha256": "6aa71a8f19c3e53933afbbe181a0de7eec0400785f7f4de9e0dc1ee7e5b0b14f",
+      "maximumNormalizedError": 0.0000044139862060546876,
+      "normalizedRmse": 7.79182303344085e-7
+    },
+    {
+      "id": "vardct-pq-16",
+      "depth": 16,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 49.26108374384236,
+      "clipReference": false,
+      "sha256": "7f32fa65563ee2de97bc389a0cfc4be6a6e22a1023eed6ce84f1552f600f8c76",
+      "pixelsSha256": "b22bab0def6d829d7f2c6e29623ad8bd8acb39227e82ab10ba9cfa2c5c60b971",
+      "maximumNormalizedError": 0.0000044139862060546876,
+      "normalizedRmse": 7.981697276091548e-7
+    },
+    {
+      "id": "vardct-hlg-10",
+      "depth": 10,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 4.926108374384237,
+      "clipReference": false,
+      "sha256": "c47bf26b656aa033be8d68840e1df92d92d67522fb599a9a7b92ccb21fe5c2b7",
+      "pixelsSha256": "3e5531b16ab214c36bafff283ae9e2b0906ed4501942e94be9a1a6a803291504",
+      "maximumNormalizedError": 0.00000464630126953125,
+      "normalizedRmse": 0.0000012480529640941128
+    },
+    {
+      "id": "vardct-hlg-12",
+      "depth": 12,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 4.926108374384237,
+      "clipReference": false,
+      "sha256": "97ecb678e093e7354b161aac68ad7a571b03c46cefdc9f59029aeafa421f2f08",
+      "pixelsSha256": "cc7d89b0b77129d1420edf4a69748e30f634185efb2f64f198fca281d5169c2e",
+      "maximumNormalizedError": 0.000004597902297973633,
+      "normalizedRmse": 0.0000011940188158826245
+    },
+    {
+      "id": "vardct-hlg-16",
+      "depth": 16,
+      "width": 7,
+      "height": 5,
+      "format": "rgbf32",
+      "colorSemantics": {
+        "family": "rgb",
+        "primaries": "srgb",
+        "transfer": {
+          "kind": "linear"
+        },
+        "matrix": "identity",
+        "range": "full",
+        "alpha": "none",
+        "provenance": "decoder-converted",
+        "renderingIntent": "relative"
+      },
+      "sourcePeak": 4.926108374384237,
+      "clipReference": false,
+      "sha256": "c1a2219dc7c33562297adbe48adaae56e7604cf068c0ee42e0487523d56c7df9",
+      "pixelsSha256": "cc7d89b0b77129d1420edf4a69748e30f634185efb2f64f198fca281d5169c2e",
+      "maximumNormalizedError": 0.000004597902297973633,
+      "normalizedRmse": 0.0000011940188158826245
+    }
+  ]
+}

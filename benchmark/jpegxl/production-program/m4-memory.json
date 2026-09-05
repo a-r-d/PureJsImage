@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "libjxlRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "memoryClass": "Explicit full-frame high-depth VarDCT fallback; ordinary M3 sRGB band path is unchanged",
+  "peakPolicy": "Absolute isolated-process peak includes warmup; warm baseline follows three collections across event-loop turns",
+  "results": [
+    {
+      "size": 512,
+      "maximumNormalizedError": 0.0000089878082275618,
+      "rmse": 3.399325278780388e-7,
+      "mode": "cold",
+      "inputHash": "e1162f427bbb0e0b3a2dbf96e48aa26728736686e495bda7c221858cf85026af",
+      "inputBytes": 107722,
+      "baseline": {
+        "rss": 109572096,
+        "heapUsed": 10748472,
+        "external": 11965026,
+        "arrayBuffers": 438926
+      },
+      "outputHash": "ecfcc79a962661610d500a09beae03443f97d3078a339b4ccf5d7437a2f2a153",
+      "outputBytes": 3145728,
+      "peak": {
+        "rss": 138932224,
+        "heapUsed": 17372344,
+        "external": 27328134,
+        "arrayBuffers": 15736974
+      },
+      "milliseconds": 204.09489100000002,
+      "afterCollection": {
+        "rss": 129449984,
+        "heapUsed": 11597608,
+        "external": 12005510,
+        "arrayBuffers": 438926
+      },
+      "absoluteProcessPeakRss": 138932224
+    },
+    {
+      "size": 512,
+      "maximumNormalizedError": 0.0000089878082275618,
+      "rmse": 3.399325278780388e-7,
+      "mode": "warm",
+      "inputHash": "e1162f427bbb0e0b3a2dbf96e48aa26728736686e495bda7c221858cf85026af",
+      "inputBytes": 107722,
+      "baseline": {
+        "rss": 136105984,
+        "heapUsed": 11602312,
+        "external": 12005510,
+        "arrayBuffers": 438926
+      },
+      "outputHash": "ecfcc79a962661610d500a09beae03443f97d3078a339b4ccf5d7437a2f2a153",
+      "outputBytes": 3145728,
+      "peak": {
+        "rss": 153800704,
+        "heapUsed": 14218808,
+        "external": 28372230,
+        "arrayBuffers": 16793358
+      },
+      "milliseconds": 170.430228,
+      "afterCollection": {
+        "rss": 144019456,
+        "heapUsed": 11668128,
+        "external": 12005510,
+        "arrayBuffers": 438926
+      },
+      "absoluteProcessPeakRss": 153931776
+    },
+    {
+      "size": 1024,
+      "maximumNormalizedError": 0.0000089878082275618,
+      "rmse": 3.387235752532422e-7,
+      "mode": "cold",
+      "inputHash": "65c412ea63ad7632042a520c3ea719267a337218fda845c3e171f075bee1c24f",
+      "inputBytes": 428460,
+      "baseline": {
+        "rss": 107495424,
+        "heapUsed": 10748480,
+        "external": 12285764,
+        "arrayBuffers": 759664
+      },
+      "outputHash": "7485e6e14584d0dba83b8c01de2d68a4809c9b36bb814823b2a77e2d2c28f267",
+      "outputBytes": 12582912,
+      "peak": {
+        "rss": 185352192,
+        "heapUsed": 20862736,
+        "external": 64327016,
+        "arrayBuffers": 52748144
+      },
+      "milliseconds": 493.292868,
+      "afterCollection": {
+        "rss": 152186880,
+        "heapUsed": 11637912,
+        "external": 12326248,
+        "arrayBuffers": 759664
+      },
+      "absoluteProcessPeakRss": 185352192
+    },
+    {
+      "size": 1024,
+      "maximumNormalizedError": 0.0000089878082275618,
+      "rmse": 3.387235752532422e-7,
+      "mode": "warm",
+      "inputHash": "65c412ea63ad7632042a520c3ea719267a337218fda845c3e171f075bee1c24f",
+      "inputBytes": 428460,
+      "baseline": {
+        "rss": 177524736,
+        "heapUsed": 11622720,
+        "external": 12326248,
+        "arrayBuffers": 759664
+      },
+      "outputHash": "7485e6e14584d0dba83b8c01de2d68a4809c9b36bb814823b2a77e2d2c28f267",
+      "outputBytes": 12582912,
+      "peak": {
+        "rss": 194301952,
+        "heapUsed": 13550848,
+        "external": 64634216,
+        "arrayBuffers": 53055344
+      },
+      "milliseconds": 450.71738400000004,
+      "afterCollection": {
+        "rss": 193990656,
+        "heapUsed": 11690184,
+        "external": 12326248,
+        "arrayBuffers": 759664
+      },
+      "absoluteProcessPeakRss": 194301952
+    }
+  ]
+}

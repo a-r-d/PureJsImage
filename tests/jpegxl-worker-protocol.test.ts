@@ -1,13 +1,65 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   isJpegXlWorkbenchRequest,
   isJpegXlWorkbenchResponse,
+  isJpegXlWorkbenchWorkerEvent,
   jpegXlWorkbenchMaximumInputBytes,
   planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
 } from '../docs-astro/src/scripts/jpegxl-workbench-types.ts'
+import { inspectJpegXl } from '../src/jpegxl.ts'
 
 describe('JPEG XL workbench worker protocol', () => {
+  it('accepts only browser-delivered dedicated-worker events', () => {
+    const event = { isTrusted: true, origin: '', source: null }
+    expect(isJpegXlWorkbenchWorkerEvent(event)).toBe(true)
+    expect(isJpegXlWorkbenchWorkerEvent({ ...event, isTrusted: false })).toBe(false)
+    expect(isJpegXlWorkbenchWorkerEvent({ ...event, origin: 'https://example.com' })).toBe(false)
+    const channel = new MessageChannel()
+    try {
+      expect(isJpegXlWorkbenchWorkerEvent({ ...event, source: channel.port1 })).toBe(false)
+    } finally {
+      channel.port1.close()
+      channel.port2.close()
+    }
+  })
+
+  it('bounds transform dimensions and accepts only literal fit and output choices', () => {
+    const request = {
+      type: 'transform',
+      requestId: 1,
+      generation: 1,
+      width: 4,
+      height: 3,
+      fit: 'contain',
+      format: 'png',
+    }
+    expect(isJpegXlWorkbenchRequest(request)).toBe(true)
+    expect(
+      isJpegXlWorkbenchRequest({
+        ...request,
+        width: 4096,
+        height: 4096,
+        fit: 'cover',
+        format: 'jpeg',
+      }),
+    ).toBe(true)
+    for (const change of [
+      { width: 0 },
+      { height: 4097 },
+      { width: 1.5 },
+      { height: Number.NaN },
+      { width: '4' },
+      { fit: ['contain'] },
+      { fit: { toString: () => 'cover' } },
+      { fit: 'inside' },
+      { format: 'webp' },
+      { extra: true },
+    ])
+      expect(isJpegXlWorkbenchRequest({ ...request, ...change })).toBe(false)
+  })
+
   it('caps a 12 MP preview without changing logical dimensions', () => {
     expect(planJpegXlWorkbenchPreview(4000, 3000)).toEqual({
       logicalWidth: 4000,
@@ -92,6 +144,37 @@ describe('JPEG XL workbench worker protocol', () => {
         bytes: new ArrayBuffer(jpegXlWorkbenchMaximumInputBytes + 1),
       }),
     ).toBe(false)
+  })
+
+  it('accepts current inspection fields and rejects hostile ICC or HDR fields', async () => {
+    const input = new Uint8Array(readFileSync('tests/fixtures/jpegxl/m4-color/pq-10.jxl'))
+    const inspection = await inspectJpegXl(input)
+    const response = {
+      type: 'opened',
+      requestId: 6,
+      generation: 2,
+      name: 'sample.jxl',
+      sourceKind: 'jpegxl',
+      inputBytes: input.length,
+      inspection,
+      preview: {
+        logicalWidth: 7,
+        logicalHeight: 5,
+        width: 7,
+        height: 5,
+        scaled: false,
+        rgba: new ArrayBuffer(140),
+      },
+    }
+    expect(isJpegXlWorkbenchResponse(response)).toBe(true)
+    for (const changed of [
+      { ...inspection, toneMapping: { ...inspection.toneMapping, intensityTarget: Number.NaN } },
+      { ...inspection, icc: { present: true, decodedBytes: 16_777_217 } },
+      { ...inspection, icc: { present: true, decodedBytes: 1024, payload: new ArrayBuffer(1024) } },
+      { ...inspection, orientation: 9 },
+      { ...inspection, alphaChannels: -1 },
+    ])
+      expect(isJpegXlWorkbenchResponse({ ...response, inspection: changed })).toBe(false)
   })
 
   it('validates worker responses before UI code reads them', () => {

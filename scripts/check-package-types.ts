@@ -406,6 +406,7 @@ export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
 export { createEvidenceSession, explainImage, instrumentImageSource } from 'purejsimage/evidence'
+import { explainImage } from 'purejsimage/evidence'
 export type { EvidenceContext, ExecutionEvidenceReport, ImageExecutionPlanDescription } from 'purejsimage/evidence'
 export { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 }
 export type { AnalysisProjectV1 }
@@ -415,6 +416,12 @@ const nodeImages = createImageLibrary([pngCodec, jpegxlCodec], nodeOptions)
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 export const inspectJpegXlInput = (input: Uint8Array): Promise<JpegXlInspection> =>
   inspectJpegXl(input)
+export const jpegXlNativePipeline = async (input: Uint8Array) =>
+  (await nodeImages.open(input, { colorOutput: 'preserve' })).crop({ x: 0, y: 0, width: 1, height: 1 }).resize({ width: 2, height: 2 }).jpegxl().toBuffer()
+export const jpegXlHdrRgbaDisplayPipeline = async (hdrRgbaJxl: Uint8Array) =>
+  (await browserImages.open(hdrRgbaJxl, { colorOutput: 'srgb', hdrOutput: 'tone-map-srgb', alphaOutput: 'straight' })).autoOrient().resize({ width: 320 }).png().toUint8Array()
+export const jpegXlPrecisionPlan = async (input: Uint8Array) =>
+  explainImage((await nodeImages.open(input)).jpegxl())
 export const webImages = createImageLibrary(allWebCodecs)
 const science = createScientificLibrary({ readers: [gsfReader] })
 export type GeoConsumerContracts = {
@@ -726,6 +733,34 @@ export const transformHdrFile = async (input: string, output: string): Promise<v
     `import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 export const jpegXlCodecFormat = jpegxlCodec.format
 export const jpegXlEncoderFormats = jpegxlCodec.encoderPixelFormats
+`,
+  )
+  await writeFile(
+    join(consumerDirectory, 'jpegxl-display.ts'),
+    await readFile('examples/jpegxl-display.ts', 'utf8'),
+  )
+  await writeFile(
+    join(consumerDirectory, 'jpegxl-m5.ts'),
+    `import { createImageLibrary } from 'purejsimage'
+import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+import { pngCodec } from 'purejsimage/codecs/png'
+const images = createImageLibrary([jpegxlCodec, pngCodec])
+export async function native(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).jpegxl({effort:7,maxWorkingBytes:268435456,maxOutputBytes:134217728}).toUint8Array()
+}
+
+export async function hlgStorage(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).convertPixelFormat({format:'rgb16'}).jpegxl().toUint8Array()
+}
+export async function grayAlpha(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).jpegxl().toUint8Array()
+}
+export async function straighten(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input,{alphaOutput:'straight'})).convertPixelFormat({format:'rgba16'}).png().toUint8Array()
+}
+export async function sourceProfile(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input,{colorOutput:'preserve'})).autoOrient().keepIcc().png().toUint8Array()
+}
 `,
   )
   await writeFile(
