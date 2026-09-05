@@ -1,0 +1,24 @@
+.github/workflows/jpegxl-corpus.yml
+  s_c01e159bb27990::t_d7966be1e1add0 171-173,314-315
+  s_c01e159bb27990::t_f69a9d312415e7 316
+docs/architecture/jpegxl-pr35-remediation.md
+  s_c01e159bb27990::t_65b1ac522b9179 373-380
+.github/workflows/ci.yml
+  s_c01e159bb27990::t_d7966be1e1add0 79-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "57cd29b8c6ac717ce20d90b492b33274040d2f1e",
+  "prompts": {},
+  "sessions": {
+    "s_c01e159bb27990": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dcd-d305-7f70-bd91-3120b07298ef",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
