@@ -1,0 +1,41 @@
+examples/jpegxl-display.ts
+  s_c01e159bb27990::t_2331ad0c0a6303 1-35
+browser-tests/jpegxl-pipeline-harness.ts
+  s_c01e159bb27990::t_dc39aca0132b3d 1,4
+  s_c01e159bb27990::t_e36f223c698932 300-343
+tests/jpegxl-documentation.test.ts
+  s_c01e159bb27990::t_dc39aca0132b3d 3-4,7
+  s_c01e159bb27990::t_ad570bf914eb67 32
+  s_c01e159bb27990::t_73887cf758240e 29-31,33-125,129-138,199-257
+scripts/check-package-types.ts
+  s_c01e159bb27990::t_2331ad0c0a6303 421-422,738-739,741,751
+  s_c01e159bb27990::t_020c87d25a5f14 740
+docs/architecture/jpegxl-pr35-remediation.md
+  s_c01e159bb27990::t_17a0316e9f6972 360-372
+  s_c01e159bb27990::t_3bdb7c190006d6 295-359
+docs/jpeg-xl.md
+  s_c01e159bb27990::t_2331ad0c0a6303 12-14,48-55,58-64,66,71-75,78-79,84,87-90,92,98-105
+  s_c01e159bb27990::t_350daef6f6fe28 56-57,65,67-70,80-83,91,93-97,106
+.github/workflows/jpegxl-corpus.yml
+  s_c01e159bb27990::t_8607d2b7171e37 14
+browser-tests/jpegxl-pipeline.pw.ts
+  s_c01e159bb27990::t_deef406af948ad 123-142
+scripts/serve-browser-tests.ts
+  s_c01e159bb27990::t_479bb17580e2af 331-340
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "e0806ec089ffabc0f21cce412defc1c7974148a4",
+  "prompts": {},
+  "sessions": {
+    "s_c01e159bb27990": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dcd-d305-7f70-bd91-3120b07298ef",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
