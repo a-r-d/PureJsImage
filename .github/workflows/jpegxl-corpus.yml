@@ -168,6 +168,9 @@ jobs:
           tundra-4000x3000
           tundra-4000x3000-progressive
 
+      - name: Build package for executable public examples
+        run: npm run build
+
       - name: Run focused JPEG XL and neighboring JPEG tests
         run: >-
           npx vitest run
@@ -307,6 +310,9 @@ jobs:
         run: npm ci
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Build package for executable public examples
+        run: npm run build
 
       - name: Prepare pinned JPEG XL workbench input
         run: npm run fixtures:prepare -- tundra-4000x3000

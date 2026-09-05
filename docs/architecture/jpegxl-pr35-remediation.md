@@ -370,3 +370,11 @@ matching the published browser condition. This overrides the repository's Node
 TypeScript alias for that build only and tests the copied examples against
 current source. The first browser attempt exposed that alias mismatch before
 any tests ran; the corrected build passed all 54 checks without retries.
+
+The first remote run on `e0806ec089ffabc0f21cce412defc1c7974148a4` also exposed a
+clean-checkout prerequisite: these tests import public package entries, so they
+need `dist` to exist. The browser and focused corpus jobs previously tested only
+source imports and did not build the package. The follow-up adds `npm run build`
+before those jobs execute public examples. Removing local `dist` reproduced the
+missing-entry failure; rebuilding restored the documentation and browser tests.
+The final commit and replacement CI results are recorded in the PR body.
