@@ -76,6 +76,7 @@ console.log(
     maximumRssBytes,
     peakRssDeltaBytes: Math.max(0, maximumRssBytes - baseline.rssBytes),
     inputBytes: input.byteLength,
+    inputSha256,
     outputBytes,
     outputSha256,
     wallMilliseconds: Number((performance.now() - startedAt).toFixed(3)),

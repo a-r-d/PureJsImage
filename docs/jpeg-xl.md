@@ -2,52 +2,115 @@
 
 ## Quick answer
 
-PureJsImage has three separate JPEG XL paths:
+<!-- capabilities:jpegxl-summary:start -->
+Decode common static JPEG XL with native precision, color, alpha and HDR; encode lossless Modular pixels at effort 1, 3, 5 or 7; and reconstruct eligible JPEGs byte for byte.
 
-1. A static decoder for the checked lossless Modular subset and selected 8-bit single-group XYB
-   VarDCT fixtures.
-2. An experimental effort-1 Modular encoder for mathematically lossless pixels.
-3. A stable coefficient-domain JPEG transcoder for the documented eligible subset that verifies
-   byte-exact JPEG reconstruction.
+Decode status: Stable common static. Encode status: Stable lossless and exact transcode.
+<!-- capabilities:jpegxl-summary:end -->
 
-The pixel encoder remains experimental. Unsupported syntax fails with an `ImageError`. Exact JPEG
-transcode never silently becomes a pixel transcode.
+The [capability contract](../jpegxl-codec-support.md) lists the checked syntax and
+unsupported cases. Unsupported operations fail with an `ImageError`. M6, including
+a general lossy encoder, is outside the current implementation.
 
-The exact transcoder uses bounded Brotli reconstruction payloads, deterministic contextual ANS
-coding, move-to-front context maps, spatial DC prediction, and custom coefficient orders for larger
-coefficient sets. The pinned 250-file COCO archive cohort reconstructs every eligible JPEG exactly.
-Every output is smaller, median savings are above 12%, and the output-size percentiles pass the
-pinned libjxl effort-1 limits. Small JPEGs can still grow, so use `onlyIfSmaller: true` when size is a
-hard requirement.
+## Native precision and color
 
-## Decode or encode pixels
+The decoder separates the source description from emitted pixels. For example,
+a gray image with alpha has two source channels. The pixel API expands it to
+RGBA with RGB color semantics and retains the independent alpha depth and
+association. Source metadata still describes gray plus alpha. Gray ICC plus
+alpha currently requires an unavailable profile-aware RGB expansion and fails
+explicitly.
 
-Use the ordinary codec entry for pixel workflows:
+Modular integer samples retain their native precision. Supported crop,
+orientation and resize operations preserve sample meaning. A JPEG XL re-encode
+inherits native color and alpha depths, structured color, rendering intent and
+luminance metadata. All eight orientations are supported. Use `autoOrient()`
+when the output pixels should have display orientation applied.
+
+Use the ordinary pixel API in Node.js or browsers:
 
 ```ts
 import { createImageLibrary } from 'purejsimage'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+import { pngCodec } from 'purejsimage/codecs/png'
 
-const images = createImageLibrary([jpegxlCodec])
-const output = await images
-  .open(input)
-  .jpegxl({ mode: 'lossless', effort: 1, container: true })
+const images = createImageLibrary([jpegxlCodec, pngCodec])
+```
+
+Preserve native high-depth integer samples in a new JXL:
+
+```ts
+const native = await images.open(highDepthJxl)
+const encoded = await native.jpegxl({ effort: 7 }).toUint8Array()
+```
+
+Request display conversion and 8-bit PNG explicitly:
+
+```ts
+const display = await images.open(input, {
+  colorOutput: 'srgb',
+  hdrOutput: 'tone-map-srgb',
+  alphaOutput: 'straight',
+})
+const png = await display.convertPixelFormat({ format: 'rgba8' }).png().toUint8Array()
+```
+
+Convert HLG integer storage to the full 16-bit range while preserving the source
+luminance description:
+
+```ts
+const hlg = await images.open(hlgJxl)
+const encoded = await hlg
+  .convertPixelFormat({ format: 'rgb16' })
+  .jpegxl()
   .toUint8Array()
 ```
 
-The encoder accepts `gray8`, `gray16`, `rgb8`, `rgb16`, `rgba8`, and `rgba16`. Pixels must use
-full-range sRGB gray or RGB semantics, relative rendering intent, and no alpha or straight alpha. Linear RGB, Display P3,
-missing or unknown transfer or primaries, source-profile pixels, arbitrary ICC encoding, and
-premultiplied alpha are rejected. Perceptual, saturation, absolute, missing, and unspecified
-rendering intent are also rejected. Internal and low-level callers must provide explicit semantics.
-The encoder writes either a raw codestream or a container with one `jxlc` box. It currently retains
-bounded full input and output buffers. Encoder benchmark reports use `null` and `unavailable` when
-a managed peak was not measured, and `measured` only for live ledger output. They never report an
-unmeasured zero.
+For HLG with alpha, use `rgba16`. This changes integer storage precision and
+retains the source `toneMapping` fields. Explicit HDR-to-SDR conversion replaces
+incompatible HDR signaling. A display window or LUT cannot inherit JPEG XL source
+color meaning for re-encoding and currently fails explicitly. A caller can set
+validated `toneMapping` values deliberately; they are stored with finite half
+precision.
 
-## Transcode a JPEG without decoding RGB
+Re-encode gray plus alpha through the public RGBA boundary:
 
-Use the specialized entry when the original JPEG bytes matter:
+```ts
+const grayAlpha = await images.open(grayAlphaJxl)
+const encoded = await grayAlpha.jpegxl().toUint8Array()
+```
+
+Straighten associated alpha before writing a PNG:
+
+```ts
+const straight = await images.open(associatedAlphaJxl, { alphaOutput: 'straight' })
+const png = await straight.convertPixelFormat({ format: 'rgba16' }).png().toUint8Array()
+```
+
+Preserve a supported source profile into PNG:
+
+```ts
+const profiled = await images.open(profiledJxl, { colorOutput: 'preserve' })
+const png = await profiled.autoOrient().keepIcc().png().toUint8Array()
+```
+
+The profile must describe the emitted samples. Supported 8-bit profiles can be
+preserved into compatible PNG output. Arbitrary ICC encoding into JPEG XL and
+unavailable high-depth profile conversions remain unsupported. Use `keepExif()`
+for explicit Exif preservation; Exif orientation must be normalized before JXL
+encoding. Exif, XMP and JUMBF preservation is bounded and opt-in.
+
+The encoder accepts `gray8`, `gray16`, `rgb8`, `rgb16`, `rgba8` and `rgba16` with
+matching structured gray or RGB semantics. It supports structured sRGB, linear
+sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma and representable custom
+chromaticities, with straight or associated alpha. Native 8–16-bit color and
+independent alpha precision can be declared in 16-bit storage. Missing or
+incompatible semantics still fail validation. Float rows require a deliberate
+representable integer output conversion before lossless JXL encoding.
+
+## Exact JPEG reconstruction
+
+The separate coefficient API preserves eligible original JPEG bytes:
 
 ```ts
 import {
@@ -58,75 +121,83 @@ import {
 
 const eligibility = await inspectJpegReconstructionEligibility(jpegBytes)
 if (!eligibility.eligible) throw new Error(eligibility.reasons.join('; '))
-
 const result = await transcodeJpegToJpegXl(jpegBytes, {
   reconstruction: 'required',
-  onlyIfSmaller: false,
+  onlyIfSmaller: true,
 })
-if (result.data === undefined) throw new Error('Memory-mode transcode did not return data')
 const originalJpeg = await reconstructJpegFromJpegXl(result.data)
 ```
 
-`reconstruction: 'required'` is the default. It parses quantized JPEG coefficients, writes
-JPEG-derived VarDCT plus `jbrd`, reconstructs the JPEG from the finished JPEG XL file, and compares
-every byte before returning.
+`onlyIfSmaller` rejects an eligible JPEG when its JXL would be larger. Exact
+eligibility covers the checked three-component 8-bit Huffman baseline and
+progressive subset. Exif orientation must be absent or 1. Exif color must be
+absent or explicitly sRGB. ICC must be absent or match the independently checked
+sRGB profile. Grayscale, CMYK/YCCK, incompatible profiles and unsupported JPEG
+syntax fail explicitly.
 
-Exact eligibility also protects the displayed JPEG XL image. It walks APP metadata before, between,
-and after scans through EOI. Exif orientation must be absent or 1. Exif color must be absent or
-explicitly sRGB. ICC must be absent or match the checked deterministic sRGB profile. Exif
-orientation 2 through 8, non-sRGB or malformed Exif color, non-sRGB ICC, malformed ICC, incomplete
-ICC chunks, and conflicting display metadata are rejected.
-The opaque `jbrd` reconstruction payload can preserve original JPEG bytes, but it is not the JPEG
-XL display orientation or color description.
+Exact mode verifies reconstructed bytes before success. Pixel-lossless mode
+preserves decoded sample values. It does not promise original file bytes or
+metadata layout. An explicitly selected `reconstruction: 'prefer'` with
+`fallback: 'pixel-lossless'` reports when pixel fallback runs. A supplied sink
+receives the output and the result has `data: undefined`.
 
-Use `reconstruction: 'prefer'` with `fallback: 'pixel-lossless'` only when preserving decoded pixels
-is acceptable. The result reports `mode: 'pixel-lossless'` and `exactReconstruction: false` when the
-fallback runs. `onlyIfSmaller: true` rejects output that is not smaller than the source JPEG.
+## Compression evidence
 
-## Current boundary
+The promotion corpora have specific selection rules:
 
-The exact boundary is generated in [jpegxl-codec-support.md](../jpegxl-codec-support.md). Important
-limits include:
+- M1 selects 250 eligible COCO 2017 validation JPEGs of at least 224 KiB from
+  357 eligible candidates, evenly spaced by source ID. The pinned report records
+  exact reconstruction, savings and libjxl size comparisons. This excludes small
+  JPEGs and ineligible profiles.
+- M2 uses 156 procedural cases across 12 classes. Labels such as screenshot, text
+  and photo-like describe generated patterns. They are not captured screens or
+  camera images.
+- M3 uses 100 COCO photographs with three encoder variants each. Test rasters are
+  explicitly resized or upscaled, including approximately 12 and 24 MP cases.
+  Those dimensions are not the cameras' original resolutions.
 
-- Static images only.
-- Selected 8-bit single-group XYB VarDCT fixtures, with no alpha or orientation extra fields.
-- Implemented raw VarDCT strategy IDs 0, 2, 5, 6, 7, 12, 13, 14, 15, 16, and 17. The six pinned
-  fixtures validate complete images but do not isolate every strategy branch. Raw strategy 1
-  Hornuss is unsupported.
-- Selected-subset VarDCT materializes the full frame and applies crop afterward. It does not
-  advertise region pushdown.
-- A checked three-component 8-bit Huffman baseline and progressive JPEG reconstruction subset.
-  Exif orientation must be absent or 1. Exif color must be absent or explicitly sRGB. ICC must be
-  absent or the checked sRGB profile. Grayscale, CMYK, YCCK, non-sRGB or malformed Exif color,
-  non-sRGB ICC, and malformed ICC exact transcode are unsupported.
-- No general lossy JPEG XL encoder.
-- Bounded full input and output retention in the experimental pixel encoder and exact transcoder.
+The separate [PR 35 holdout](architecture/jpegxl-pr35-remediation.md) retains all
+nine originally selected assets, including two real UI captures, transparent
+assets, original 24 MP and 12 MP photographs, and a disclosed synthetic 16-bit
+example. Every pixel encode at efforts 1 and 7 decoded exactly through pinned
+libjxl. Large photos and screenshots often produced larger outputs than PNG or
+libjxl. The current multi-group encoder uses the same left predictor at all four
+efforts; advanced effort search applies to single-group images. Effort 7 does
+not guarantee a smaller file than another codec.
 
-Pixel-lossless encoding preserves decoded samples. Exact JPEG transcode preserves the original
-JPEG byte stream. These guarantees are not interchangeable. In memory mode the transcoder returns
-`data`. When a sink is supplied, it writes to that sink and returns `data: undefined` so the caller
-does not retain a second complete output. Exact verification compares reconstructed bytes directly
-with the caller input and does not allocate a second reconstructed JPEG.
+The original small photographic JPEG was ICC-ineligible. Two separately disclosed
+small, eligible WPT JPEGs supplement that coverage. They were selected by
+eligibility after the original holdout run; no original case was removed.
 
-The browser workbench at `/jpeg-xl/` runs the same first-party TypeScript implementation in a Web
-Worker. Local files stay in the browser. It presents pixel-lossless PNG or TIFF encode, exact JPEG
-transcode, and JPEG XL inspect/decode as separate operations. For the checked demo JPEG it also
-shows the pinned libjxl reference size. Other local files report that no reference is available. The
-local pixel check is labeled
-`byte-exact local round trip`; independent verification refers only to the pinned external matrix.
-Before native pixel materialization it checks logical pixels, native bytes, preview bytes, retained
-encoder input, bounded output, and estimated simultaneous browser working bytes. Exact transcode
-shows signed byte and percentage changes, the output/source ratio, whether the result is smaller,
-and whether byte-exact reconstruction was verified.
+The M3 maximum-error limit is one 8-bit sample and RMSE is at most 0.55 for the
+recorded VarDCT/djxl comparisons. The RMSE limit is an independently documented
+rounding exception to the original 0.25 target. It is not a lossless or general
+HDR tolerance. PR evidence and extended promotion reports identify their exact
+revision and scope; a missing extended run is reported as not run.
 
-## Decoded color semantics
+## Memory and browser behavior
 
-The decoder reports the same `PixelColorSemantics` on image metadata and the decoder instance.
-Checked Modular sRGB and linear-sRGB files retain their signaled transfer function and gray or RGB
-family. Default signaling uses `assumed-default`; explicit signaling uses `container-signaled`.
-Selected XYB VarDCT is converted to 8-bit sRGB and reports `decoder-converted`. JPEG-derived output
-also reports the restricted decoder-converted sRGB contract. Inspection, metadata, and decoder
-instances retain the parsed rendering intent. The encoder emits relative intent and accepts only
-matching relative input. The browser workbench converts checked linear sRGB gray and RGB samples to
-sRGB before drawing them to canvas. Linear JPEG XL input cannot enter the fixed-sRGB JPEG XL encoder
-without an explicit supported conversion.
+`maxWorkingBytes` limits actual encoder-owned backing buffers before allocation.
+It defaults to the image's `maxDecodedBytes`, or 1 GiB when no image limit is
+supplied. It covers input staging, transform candidates, predictors, entropy
+state, writer growth overlap, retained sections and metadata staging. It excludes
+caller-owned input, output-sink storage and JavaScript object overhead. These
+counters are separate from process RSS and garbage collection.
+
+`maxOutputBytes` limits encoded bytes including container and metadata, up to
+128 MiB. Candidate encodings also obey this limit. A budget failure throws
+`LIMIT_EXCEEDED`; it does not silently choose a cheaper search. Output sections
+are written in order and all encoder ownership is released after success or
+failure, including cancellation during output.
+
+The encoder retains the full input raster. VarDCT decode retains a full output
+frame; common 8-bit sRGB photographs use bounded restoration bands, while the
+documented high-depth, float and compositing paths retain more full-frame state.
+See the capability contract for each memory class.
+
+The [browser workbench](https://purejsimage.com/jpeg-xl/) uses the same first-party
+TypeScript codec in a worker. Local files stay on the device. The local result
+label distinguishes a local pixel round trip from independent fixture evidence.
+Native processing preserves source meaning; canvas previews use explicit display
+conversion. Node.js and browser regression tests cover the same metadata,
+precision, alpha and encoder-budget boundaries.

@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "libjxlRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "libraryVersion": 12000,
+  "source": "Analytical native integer samples generated before codec fixes",
+  "license": "MIT analytical pixels and generator; the embedded gray ICC profile retains the BSD-3-Clause conformance attribution in README.md and CONFORMANCE-LICENSE.txt",
+  "generation": "Bun FFI calling pinned libjxl 0.12.0 public C API; djxl encoded-sample float reference",
+  "cases": [
+    {
+      "id": "hlg-12",
+      "color": 3,
+      "depth": 12,
+      "alpha": 0,
+      "transfer": 18,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "68bddf800639203f36d502f6a5bfc65cac5d9b703e3e34f4b1b145a1a6e21fb1",
+      "pixelsSha256": "200f7eb1285f866b3cf749457e9159941ec48634a15601add8d9cfa1395281ce",
+      "maximumNormalizedError": 7.236979093772078e-8,
+      "toneMapping": {
+        "intensityTarget": 2000,
+        "minNits": 0.125,
+        "relativeToMaxDisplay": true,
+        "linearBelow": 0.25
+      }
+    },
+    {
+      "id": "hlg-alpha-12-8",
+      "color": 3,
+      "depth": 12,
+      "alpha": 8,
+      "transfer": 18,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "2f987892fc49890fb72e5ae000aa7fdc79581561fce85f2cbef85ff5f662d344",
+      "pixelsSha256": "061fa247c50ca419f2ca1bc5cb3df9fd4c6fcbbace98809a1fed1a955de113c2",
+      "maximumNormalizedError": 7.236979093772078e-8,
+      "toneMapping": {
+        "intensityTarget": 2000,
+        "minNits": 0.125,
+        "relativeToMaxDisplay": true,
+        "linearBelow": 0.25
+      }
+    },
+    {
+      "id": "pq-12",
+      "color": 3,
+      "depth": 12,
+      "alpha": 0,
+      "transfer": 16,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "775325ccdeae967d14fee9a5a5c6d8312bb70b573e36807e8794b02902bed82a",
+      "pixelsSha256": "200f7eb1285f866b3cf749457e9159941ec48634a15601add8d9cfa1395281ce",
+      "maximumNormalizedError": 7.236979093772078e-8,
+      "toneMapping": {
+        "intensityTarget": 2000,
+        "minNits": 0.125,
+        "relativeToMaxDisplay": true,
+        "linearBelow": 0.25
+      }
+    },
+    {
+      "id": "pq-alpha-12-16",
+      "color": 3,
+      "depth": 12,
+      "alpha": 16,
+      "transfer": 16,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "9b4f52667336c1bb77a32721d4f2d7a6c472cb8ff10c6f592b7ff20b4888fe8c",
+      "pixelsSha256": "305900b2ccd4d88cf4711b653c4aa33d6d1e11fe07c39431ce140d6d26ee6460",
+      "maximumNormalizedError": 7.236979093772078e-8,
+      "toneMapping": {
+        "intensityTarget": 2000,
+        "minNits": 0.125,
+        "relativeToMaxDisplay": true,
+        "linearBelow": 0.25
+      }
+    },
+    {
+      "id": "gray-alpha-8-8",
+      "color": 1,
+      "depth": 8,
+      "alpha": 8,
+      "transfer": 13,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "e908af5b24e9098b1a6143887cb2650878c6957d4c8dc1832d5ec7cf3560ed88",
+      "pixelsSha256": "c00fc26fb587b4b2631f9fd4d76803e110fda64b621d9336ee45e0801daf7a8c",
+      "maximumNormalizedError": 6.80194182089977e-8
+    },
+    {
+      "id": "gray-alpha-12-8",
+      "color": 1,
+      "depth": 12,
+      "alpha": 8,
+      "transfer": 13,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "2045168b9316d434d2f6b4f93b19f8b3095664010b3c08c9d39473d598f2d26b",
+      "pixelsSha256": "269db41adbb5c853a6e105efbe589fcf5c0d768983e8938fed5a7cf1e8cebea1",
+      "maximumNormalizedError": 6.811959407659884e-8
+    },
+    {
+      "id": "gray-alpha-16-16",
+      "color": 1,
+      "depth": 16,
+      "alpha": 16,
+      "transfer": 13,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "e53c8bc604e8b5cf18ec886fbdbba4664ed39733d088b704a7cd416d8bcc2b84",
+      "pixelsSha256": "4f452b9905841b495eb80c39795c4315cc7399d894c432ffe99f169eeaeba371",
+      "maximumNormalizedError": 2.5578109741353217e-8
+    },
+    {
+      "id": "gray-associated-12-8",
+      "color": 1,
+      "depth": 12,
+      "alpha": 8,
+      "transfer": 13,
+      "associated": true,
+      "width": 5,
+      "height": 3,
+      "sha256": "c71167288a63dcf7f9531ea629e5efe1ddfc397e1bc5d96afe31ebe2ee35bec4",
+      "pixelsSha256": "ad73575b264e851fc85828bcc66e47f2857a6dfbb63204ce285ded2884748848",
+      "maximumNormalizedError": 6.811959407659884e-8
+    },
+    {
+      "id": "gray-icc-alpha-8-8",
+      "color": 1,
+      "depth": 8,
+      "alpha": 8,
+      "transfer": 13,
+      "associated": false,
+      "width": 5,
+      "height": 3,
+      "sha256": "69cdb21568f4c48fff4eabfff2b4a25032d0698d725fa765f67892380ebf1428",
+      "pixelsSha256": "c00fc26fb587b4b2631f9fd4d76803e110fda64b621d9336ee45e0801daf7a8c",
+      "maximumNormalizedError": 6.80194182089977e-8
+    }
+  ]
+}

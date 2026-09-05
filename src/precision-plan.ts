@@ -283,11 +283,12 @@ export const negotiateEncoderOptions = (
 ): unknown => {
   const execution = decoder.execution
   if (!execution) return requested
-  const converted = operations.some(
-    (op) => op.type === 'convertPixelFormat' || op.type === 'window',
+  const storageChanged = operations.some(
+    (op) => op.type === 'convertPixelFormat' || op.type === 'window' || op.type === 'lut',
   )
+  const luminanceChanged = operations.some((op) => op.type === 'window' || op.type === 'lut')
   if (
-    !converted &&
+    !storageChanged &&
     codec.format !== execution.encodingDefaults?.format &&
     execution.sampleBitDepths.some(
       (depth) => depth !== pixelStorage(decoder.pixelFormat).bytesPerSample * 8,
@@ -315,7 +316,13 @@ export const negotiateEncoderOptions = (
     Array.isArray(requested)
   )
     return requested
-  const { intrinsicSize, ...defaults } = execution.encodingDefaults.options
+  if (luminanceChanged) {
+    throw unsupportedOperation(
+      `${codec.format} cannot inherit source color semantics after a display window or LUT`,
+    )
+  }
+  const { intrinsicSize, sampleBitDepth, alphaBitDepth, toneMapping, ...defaults } =
+    execution.encodingDefaults.options
   const geometryChanged = operations.some(
     (op) =>
       op.type === 'crop' ||
@@ -325,10 +332,14 @@ export const negotiateEncoderOptions = (
   )
   const oriented = operations.some((op) => op.type === 'autoOrient')
   return {
-    ...(!converted ? defaults : { orientation: defaults.orientation }),
+    ...defaults,
+    ...(!storageChanged ? { sampleBitDepth, alphaBitDepth } : {}),
+    ...(!luminanceChanged && toneMapping !== undefined ? { toneMapping } : {}),
     ...(!geometryChanged && intrinsicSize !== undefined ? { intrinsicSize } : {}),
     ...(oriented ? { orientation: 1 } : {}),
-    ...(!converted && outputFormat.startsWith('rgba') && !decoder.pixelFormat.startsWith('rgba')
+    ...(!storageChanged &&
+    outputFormat.startsWith('rgba') &&
+    !decoder.pixelFormat.startsWith('rgba')
       ? { alphaBitDepth: pixelStorage(outputFormat).bytesPerSample * 8 }
       : {}),
     ...requested,

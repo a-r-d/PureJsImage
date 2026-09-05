@@ -5513,10 +5513,10 @@
         "status": "limited",
         "label": "Stable lossless and exact transcode"
       },
-      "boundary": "Common static JPEG XL decoding covers the checked Modular and VarDCT boundary, all eight orientations, structured sRGB, linear sRGB, Display P3, Rec. 2020, grayscale, PQ, HLG, bounded gamma, and representable custom chromaticities. Native Modular integer samples and associated alpha remain exact. VarDCT supports 10, 12, and 16-bit sRGB output and preserves linear wide-gamut and HDR values in RGB or RGBA float rows. Alpha supports independent precision, straight or premultiplied semantics, 2x/4x/8x VarDCT upsampling, and explicit selection between multiple alpha channels. Compressed ICC reconstruction is bounded; supported 8-bit matrix/TRC profiles can convert to sRGB, and unavailable conversions retain source-profile semantics or reject an explicit request. Exif, XMP, JUMBF, common brob metadata, intrinsic size, density, and timestamps are bounded. HDR-to-SDR conversion is explicit. The stable lossless Modular encoder accepts six integer pixel formats, effort 1/3/5/7, structured color, independent alpha precision, orientation, intrinsic size, tone mapping, and metadata. Exact JPEG transcode remains limited to the independently proven three-component 8-bit Huffman subset. Float-encoded input, grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha, general ICC encoding, unavailable high-depth ICC conversion, animation, multiple visible frames, uncommon extra channels, and general lossy encoding remain unsupported. Native crop, orientation, integer and float RGBA resize preserve sample meaning. JPEG XL re-encode inherits native depths and luminance metadata. Outputs that cannot retain native precision require explicit pixel conversion; unsupported color conversions fail explicitly.",
-      "description": "First-party common static JPEG XL decode and processing, with explicit precision, color and HDR handling; lossless Modular encoding and exact JPEG coefficient transcode for documented subsets.",
-      "memory": "VarDCT retains a full output frame. Common 8-bit sRGB photographs use bounded group-row restoration bands. High-depth and float VarDCT, alpha, patches, splines, noise, and reference composition retain full working planes with aggregate memory preflight. JPEG-derived pixels retain compact coefficients and bounded component rows. Single-group Modular retains complete channel planes; grouped Modular retains intersecting group bands. ICC and metadata have separate byte limits.",
-      "recommendation": "Use the stable common-static decoder for the documented Modular, VarDCT, color, alpha and HDR boundary. Choose explicit pixel conversion when an output cannot preserve native precision. Use the stable Modular encoder for exact supported pixels and explicit effort or sample precision. Use the stable coefficient-domain transcoder for eligible JPEG files when original byte reconstruction matters, with reconstruction: required for exact work and onlyIfSmaller when output size is a hard requirement.",
+      "boundary": "The documented static Modular and VarDCT subsets support all eight orientations, structured color, native integer precision, high-depth and float VarDCT output, independent alpha precision, and explicit HDR display conversion. Source metadata and emitted pixel semantics are distinct: gray plus alpha expands to RGBA with RGB semantics. Gray ICC plus alpha expansion, arbitrary ICC encoding, unavailable high-depth profile conversion, float-encoded input, grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha, animation, multiple visible frames, uncommon extra channels, and general lossy encoding remain unsupported. Exact JPEG reconstruction requires the checked three-component 8-bit Huffman subset, orientation absent or 1, and absent or independently checked sRGB profile signaling. Native re-encode inherits depths and luminance metadata; storage conversion retains luminance fields, while explicit HDR-to-SDR conversion replaces incompatible signaling. Display-window and LUT re-encode cannot inherit source color meaning.",
+      "description": "Decode common static JPEG XL with native precision, color, alpha and HDR; encode lossless Modular pixels at effort 1, 3, 5 or 7; and reconstruct eligible JPEGs byte for byte.",
+      "memory": "The Modular encoder retains full input and accounts for owned backing buffers before allocation through maxWorkingBytes, defaulting to maxDecodedBytes (1 GiB by default). It includes candidates, entropy state, writer growth and sections; caller input, sink storage and JavaScript object overhead are separate. maxOutputBytes bounds encoded output including metadata, up to 128 MiB. VarDCT retains full output; common 8-bit sRGB uses bounded restoration bands. High-depth, float and compositing paths retain full working planes. JPEG-derived decode uses compact coefficients and bounded component rows. Grouped Modular retains intersecting bands. ICC and metadata have separate limits.",
+      "recommendation": "Use native pipelines when the target can preserve source precision and color. Request display conversion explicitly for 8-bit output. Pixel-lossless encoding preserves samples; exact JPEG transcode preserves eligible original bytes. Use onlyIfSmaller when JPEG output size is a hard requirement. Compression promotion uses 156 procedural cases. A separate real-asset holdout shows larger PNG and libjxl comparisons on large photos and screenshots; the multi-group encoder uses the same left predictor at every effort.",
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
@@ -5529,12 +5529,16 @@
         "tests/jpegxl-m4-color.test.ts",
         "browser-tests/jpegxl-color.pw.ts",
         "tests/jpegxl-m5-pipeline.test.ts",
-        "browser-tests/jpegxl-pipeline.pw.ts"
+        "browser-tests/jpegxl-pipeline.pw.ts",
+        "tests/jpegxl-remediation.test.ts",
+        "tests/jpegxl-encoder-memory.test.ts",
+        "tests/jpegxl-evidence.test.ts",
+        "tests/jpegxl-documentation.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
-        "tolerance": "Nineteen generated fixtures and the 300-file common-static matrix stay within one 8-bit sample. The real-photo RMSE limit is 0.55. Pinned jxl-oxide independently reaches RMSE 0.517758 against djxl on the threshold probe while agreeing with PureJsImage within one sample. JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "tolerance": "The generated fixtures and 300-file matrix from 100 resized or upscaled COCO photographs stay within one 8-bit sample on supported outputs. RMSE 0.55 is the independently justified VarDCT/djxl rounding exception to the original 0.25 target. Pinned jxl-oxide reaches RMSE 0.517758 on the threshold probe. JPEG-derived fixtures retain their own recorded limits; native lossless samples remain exact.",
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       },
       "claims": [
@@ -5585,6 +5589,26 @@
         {
           "status": "supported",
           "text": "Browser workbench opens, inspects, resizes and exports representative native-depth, P3 and HDR inputs"
+        },
+        {
+          "status": "supported",
+          "text": "Preserve nondefault PQ and HLG luminance fields through storage-only conversion"
+        },
+        {
+          "status": "supported",
+          "text": "Keep gray-alpha source descriptors separate from expanded RGBA pixel semantics"
+        },
+        {
+          "status": "supported",
+          "text": "Reject unavailable gray ICC plus alpha expansion without weakening encoder validation"
+        },
+        {
+          "status": "supported",
+          "text": "Check actual encoder allocations before construction and release all ownership on failure"
+        },
+        {
+          "status": "supported",
+          "text": "Validate maxWorkingBytes and maxOutputBytes; keep caller/sink memory and process RSS separate"
         },
         {
           "status": "supported",
@@ -5944,7 +5968,7 @@
         },
         {
           "status": "supported",
-          "text": "Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent with matching metadata and decoder pixel semantics"
+          "text": "Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent with distinct source metadata and emitted pixel semantics"
         },
         {
           "status": "supported",

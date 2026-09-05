@@ -1,4 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises'
+import { reportRevision } from './report-provenance.ts'
 import { join } from 'node:path'
 
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
@@ -121,6 +122,7 @@ const normalized = measurements.map(({ millisecondsPerMegapixel }) => millisecon
 const groupScalingRatio = Math.max(...normalized) / Math.min(...normalized)
 const report = Object.freeze({
   schemaVersion: 1,
+  revision: reportRevision(),
   generatedAt: new Date().toISOString(),
   node: process.version,
   platform: `${process.platform}/${process.arch}`,

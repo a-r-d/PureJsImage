@@ -1,3 +1,4 @@
+import { reportRevision } from './report-provenance.ts'
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -427,6 +428,7 @@ const nonExplicitFailures = failures.filter(
 )
 const report = Object.freeze({
   schemaVersion: 1,
+  revision: reportRevision(),
   generatedAt: new Date().toISOString(),
   node: process.version,
   platform: `${process.platform}/${process.arch}`,
@@ -434,8 +436,7 @@ const report = Object.freeze({
     dataset: 'COCO 2017 validation images',
     photographs: photos.length,
     files: photos.length * 3,
-    dimensions:
-      '100 resized real photographs from 1 to 24 MP; source identity and license retained',
+    dimensions: `${photos.length} COCO photographs; three generated variants per source. Original source dimensions retained in photos; test dimensions are explicitly resized or upscaled (${targetMegapixels > 0 ? targetMegapixels + ' MP' : 'approximately 1, 12 and 24 MP'}).`,
     encoders: Object.freeze(['libjxl a7a9c787341cf703dede03c2009fa460cae5e5df', 'Imazen d63e9d1']),
     libjxlDistances: Object.freeze(distances),
     libjxlEfforts: Object.freeze(efforts),
@@ -462,6 +463,8 @@ const report = Object.freeze({
       Object.freeze({
         id: photo.id,
         sourcePath: photo.sourcePath,
+        sourceWidth: photo.width,
+        sourceHeight: photo.height,
         cocoUrl: photo.cocoUrl,
         originalUrl: photo.originalUrl,
         license: photo.license,

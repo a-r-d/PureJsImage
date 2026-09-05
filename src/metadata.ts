@@ -41,8 +41,13 @@ export const exifOrientation = (exif: Uint8Array): number | undefined => {
   return undefined
 }
 
-export const normalizeExifOrientation = (exif: Uint8Array): Uint8Array => {
-  const output = Uint8Array.from(exif)
+export const normalizeExifOrientation = (
+  exif: Uint8Array,
+  output: Uint8Array = new Uint8Array(exif.byteLength),
+): Uint8Array => {
+  if (output.byteLength !== exif.byteLength)
+    throw invalidInput('EXIF scratch length must match input')
+  output.set(exif)
   const littleEndian = output[0] === 0x49 && output[1] === 0x49
   const bigEndian = output[0] === 0x4d && output[1] === 0x4d
   if (!littleEndian && !bigEndian) throw invalidInput('Preserved EXIF byte order is invalid')

@@ -1,3 +1,4 @@
+import { reportRevision } from '../report-provenance.ts'
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -229,6 +230,7 @@ const totals = Object.fromEntries(
 const mismatches = results.filter(({ matchesBaseline }) => !matchesBaseline)
 const report = Object.freeze({
   schemaVersion: 1,
+  revision: reportRevision(),
   corpusRevision: manifest.revision,
   archiveSha256: manifest.archiveSha256,
   cases: results.length,

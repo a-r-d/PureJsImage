@@ -736,6 +736,32 @@ export const jpegXlEncoderFormats = jpegxlCodec.encoderPixelFormats
 `,
   )
   await writeFile(
+    join(consumerDirectory, 'jpegxl-m5.ts'),
+    `import { createImageLibrary } from 'purejsimage'
+import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+import { pngCodec } from 'purejsimage/codecs/png'
+const images = createImageLibrary([jpegxlCodec, pngCodec])
+export async function native(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).jpegxl({effort:7,maxWorkingBytes:268435456,maxOutputBytes:134217728}).toUint8Array()
+}
+export async function display(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input,{colorOutput:'srgb',hdrOutput:'tone-map-srgb',alphaOutput:'straight'})).convertPixelFormat({format:'rgba8'}).png().toUint8Array()
+}
+export async function hlgStorage(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).convertPixelFormat({format:'rgb16'}).jpegxl().toUint8Array()
+}
+export async function grayAlpha(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).jpegxl().toUint8Array()
+}
+export async function straighten(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input,{alphaOutput:'straight'})).convertPixelFormat({format:'rgba16'}).png().toUint8Array()
+}
+export async function sourceProfile(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input,{colorOutput:'preserve'})).autoOrient().keepIcc().png().toUint8Array()
+}
+`,
+  )
+  await writeFile(
     join(consumerDirectory, 'jpegxl-specialized.ts'),
     `import { inspectJpegReconstructionEligibility, inspectJpegXl, reconstructJpegFromJpegXl, transcodeJpegToJpegXl } from 'purejsimage/jpegxl'
 import type { JpegReconstructionEligibility, JpegTranscodeResult, JpegXlInspection, TranscodeJpegToJpegXlOptions } from 'purejsimage/jpegxl'

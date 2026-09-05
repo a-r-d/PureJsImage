@@ -60,6 +60,11 @@ export interface JpegEncodeOptions {
 }
 
 export interface JpegXlEncodeOptions {
+  /** Encoder-owned backing-buffer limit; defaults to maxDecodedBytes (1 GiB by default).
+   * Includes input staging and temporary/output buffers, excludes caller/sink storage and JS heap. */
+  maxWorkingBytes?: number
+  /** Maximum encoded bytes, including container and metadata; at most 128 MiB. */
+  maxOutputBytes?: number
   mode?: 'lossless'
   effort?: 1 | 3 | 5 | 7
   container?: boolean
@@ -389,6 +394,18 @@ export const createJpegEncodeOperation = (options: JpegEncodeOptions): PipelineO
 }
 
 export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): PipelineOperation => {
+  if (
+    options.maxWorkingBytes !== undefined &&
+    (!Number.isSafeInteger(options.maxWorkingBytes) || options.maxWorkingBytes < 1)
+  )
+    throw invalidInput('JPEG XL maxWorkingBytes must be a positive safe integer')
+  if (
+    options.maxOutputBytes !== undefined &&
+    (!Number.isSafeInteger(options.maxOutputBytes) ||
+      options.maxOutputBytes < 1 ||
+      options.maxOutputBytes > 134_217_728)
+  )
+    throw invalidInput('JPEG XL maxOutputBytes must be a positive integer at most 134217728')
   if (options.mode !== undefined && options.mode !== 'lossless') {
     throw invalidInput('JPEG XL mode must be lossless')
   }

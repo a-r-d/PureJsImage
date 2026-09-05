@@ -1,12 +1,19 @@
+import { reportRevision, reportArgument } from '../report-provenance.ts'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 import { jpegxlCodec } from '../../../src/codecs/jpegxl.ts'
 import { MemorySource } from '../../../src/source.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
-const root = process.argv[2] ?? '.tmp/jpegxl-conformance'
-const tools = process.argv[3] ?? '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
+const legacyRoot = process.argv[2]?.startsWith('--') ? undefined : process.argv[2]
+const legacyTools = legacyRoot && !process.argv[3]?.startsWith('--') ? process.argv[3] : undefined
+const root = reportArgument('--corpus-root', legacyRoot ?? '.tmp/jpegxl-conformance')
+const tools = reportArgument(
+  '--tools',
+  legacyTools ?? '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools',
+)
+await mkdir('.tmp/jpegxl-m4-color', { recursive: true })
 const definitions = ['bench_oriented_brg', 'cafe', 'grayscale', 'grayscale_jpeg', 'lz77_flower']
 const results = []
 for (const id of definitions) {
@@ -19,7 +26,8 @@ for (const id of definitions) {
     ...(id === 'grayscale' ? ['--color_space=RGB_D65_SRG_Rel_SRG'] : []),
   ]
   const native = spawnSync(`${tools}/djxl`, args, { encoding: 'utf8' })
-  if (native.status !== 0) throw new Error(native.stderr)
+  if (native.status !== 0)
+    throw native.error ?? new Error(native.stderr || `djxl exited with ${native.status}`)
   const expected = PNG.sync.read(await readFile(output))
   const input = await readFile(path)
   const decoder = await jpegxlCodec.createDecoder?.(
@@ -78,7 +86,7 @@ for (const id of definitions) {
   })
 }
 await writeFile(
-  'benchmark/jpegxl/production-program/m4-conformance-validation.json',
-  `${JSON.stringify({ schemaVersion: 1, libjxlRevision: 'a7a9c787341cf703dede03c2009fa460cae5e5df', maximumError: 1, maximumRmse: 0.55, roundingPolicy: 'M3 independently approved eight-bit rounding threshold retained', results }, null, 2)}\n`,
+  reportArgument('--output', 'benchmark/jpegxl/production-program/m4-conformance-validation.json'),
+  `${JSON.stringify({ schemaVersion: 1, revision: reportRevision(), libjxlRevision: 'a7a9c787341cf703dede03c2009fa460cae5e5df', maximumError: 1, maximumRmse: 0.55, roundingPolicy: 'M3 independently approved eight-bit rounding threshold retained', results }, null, 2)}\n`,
 )
 console.log(`${results.length} distinct M4 conformance cases independently validated`)

@@ -349,13 +349,19 @@ try {
   const ratios = results.map(({ ratioToLibjxl }) => ratioToLibjxl)
   const smallerCases = savings.filter((value) => value > 0).length
   const report = Object.freeze({
-    schemaVersion: 2,
+    schemaVersion: 3,
     revision: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(),
     oracle: 'libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)',
     jpegOracle: 'sharp-0.35.3 autoOrient and sRGB output',
     results,
-    milestone1CompressionGate: Object.freeze({
-      passed:
+    validation: Object.freeze({
+      passed: results.every(({ exact }) => exact),
+      scope: 'Ten pinned reverse-transcode fixtures; exact JPEG bytes are the acceptance gate.',
+    }),
+    compressionComparison: Object.freeze({
+      scope:
+        'Diagnostic distribution on small and large fixtures. The 250-case eligible COCO cohort is the separate M1 compression promotion gate.',
+      meetsExtendedThresholds:
         smallerCases / results.length >= 0.9 &&
         percentile(savings, 0.5) >= 12 &&
         percentile(savings, 0.1) >= 0 &&

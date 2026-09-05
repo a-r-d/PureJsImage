@@ -247,6 +247,16 @@ const jpegxl = codecs.find(({ id }) => id === 'jpegxl')
 if (!jpegxl) throw new Error('Capability manifest is missing JPEG XL')
 const outputs = new Map<string, string>()
 
+const jpegxlGuide = await readFile('docs/jpeg-xl.md', 'utf8')
+outputs.set(
+  'docs/jpeg-xl.md',
+  replaceRegion(
+    jpegxlGuide,
+    'jpegxl-summary',
+    `${jpegxl.description}\n\nDecode status: ${jpegxl.read.label}. Encode status: ${jpegxl.write.label}.`,
+  ),
+)
+
 const readme = await readFile('README.md', 'utf8')
 outputs.set(
   'README.md',
@@ -270,8 +280,8 @@ codecPage = codecPage.replace(
   `          <div class="callout"><strong>Detection is separate from support.</strong> Recognizable PDF, SVG, CUR, or unregistered codec input gets a specific error instead of being mistaken for unknown bytes. JPEG XL is registered for limited decode: ${jpegxl.boundary}</div>`,
 )
 codecPage = codecPage.replace(
-  /CUR is not a current codec entry point\. JPEG XL has .*? The linked scope documents define the exact implemented and unsupported boundaries\./,
-  'CUR is not a current codec entry point. JPEG XL has a limited static decoder plus experimental pixel-lossless encoding and exact JPEG transcode subsets. The linked scope documents define the exact implemented and unsupported boundaries.',
+  /CUR is not a current codec entry point\..*? The linked scope documents define the exact implemented and unsupported boundaries\./,
+  `CUR is not a current codec entry point. ${jpegxl.description} The linked scope documents define the exact implemented and unsupported boundaries.`,
 )
 outputs.set('docs-astro/src/pages/codecs.astro', codecPage)
 

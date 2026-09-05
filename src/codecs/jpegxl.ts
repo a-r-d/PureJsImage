@@ -31,7 +31,7 @@ import {
   configureJpegXlDecoderOutput,
   decodeJpegXlSource,
   type JpegXlFrameStructure,
-  jpegXlPixelColorSemantics,
+  jpegXlSourceColorSemantics,
   jpegXlXybOutputIsLinear,
   readJpegXlSourceFrameStructure,
   readJpegXlSourceInspectionMetadata,
@@ -247,7 +247,8 @@ const describeJpegXlDecoder = (
         : nativeHigh
           ? 'rgb16'
           : 'rgb8'
-  const inputColorSemantics = jpegXlPixelColorSemantics(frame)
+  const inputColorSemantics = jpegXlSourceColorSemantics(frame)
+  const expandedGray = frame.colorChannels === 1 && frame.alphaBitDepth !== undefined
   const execution = Object.freeze({
     nativePixelFormat,
     sourceSampleBitDepths: Object.freeze(
@@ -259,7 +260,8 @@ const describeJpegXlDecoder = (
     precisionLoss:
       nativePixelFormat !== decoder.pixelFormat ||
       (decoder.colorSemantics?.provenance === 'decoder-converted' &&
-        inputColorSemantics.provenance !== 'decoder-converted') ||
+        inputColorSemantics.provenance !== 'decoder-converted' &&
+        !expandedGray) ||
       (frame.alphaAssociated && decoder.colorSemantics?.alpha === 'straight'),
     orientation: frame.orientation,
     sampleBitDepths,
@@ -281,6 +283,7 @@ const describeJpegXlDecoder = (
         : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
           frame.sections.reduce((sum, part) => sum + part.length, 0),
     conversions: Object.freeze([
+      ...(expandedGray ? ['gray-to-rgb'] : []),
       ...(decoder.colorSemantics?.alpha === 'straight' && frame.alphaAssociated
         ? ['unpremultiply-alpha']
         : []),

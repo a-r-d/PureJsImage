@@ -1,3 +1,4 @@
+import { reportRevision } from '../report-provenance.ts'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -136,6 +137,6 @@ if (process.argv.includes('--worker')) {
     `benchmark/jpegxl/production-program/m5-${process.argv.includes('--large') ? 'large-' : ''}pipelines.json`
   await writeFile(
     output,
-    `${JSON.stringify({ schemaVersion: 1, methodology: '105 complete workflows across five encoders and three fits. Separate isolated cold and warm nearest-resize-to-PNG processes; djxl source pixels and libvips output decode. Warmup is followed by three GC cycles. RSS includes process/runtime; decoder VarDCT output is a full-frame fallback. Threshold max 1 and RMSE 0.55 is inherited from M3.', workflows, measurements, passed: true }, null, 2)}\n`,
+    `${JSON.stringify({ schemaVersion: 1, revision: reportRevision(), methodology: '105 complete workflows across five encoders and three fits. Separate isolated cold and warm nearest-resize-to-PNG processes; djxl source pixels and libvips output decode. Warmup is followed by three GC cycles. RSS includes process/runtime; decoder VarDCT output is a full-frame fallback. Threshold max 1 and RMSE 0.55 is inherited from M3.', workflows, measurements, passed: true }, null, 2)}\n`,
   )
 }

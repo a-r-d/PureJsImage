@@ -1681,17 +1681,28 @@ const weightedDivision = Uint32Array.from({ length: 64 }, (_, index) =>
 )
 
 export class JpegXlWeightedPredictor {
-  readonly #predictions = new Int32Array(4)
+  readonly #predictions: Int32Array
   readonly #predictionErrors: readonly Uint32Array[]
   readonly #errors: Int32Array
   readonly #parameters: WeightedPredictorParameters
   readonly #rowLength: number
   #prediction = 0
 
-  constructor(width: number, parameters: WeightedPredictorParameters) {
+  constructor(
+    width: number,
+    parameters: WeightedPredictorParameters,
+    storage?: Readonly<{
+      predictions: Int32Array
+      predictionErrors: readonly Uint32Array[]
+      errors: Int32Array
+    }>,
+  ) {
     this.#rowLength = width + 2
-    this.#predictionErrors = Array.from({ length: 4 }, () => new Uint32Array(this.#rowLength * 2))
-    this.#errors = new Int32Array(this.#rowLength * 2)
+    this.#predictions = storage?.predictions ?? new Int32Array(4)
+    this.#predictionErrors =
+      storage?.predictionErrors ??
+      Array.from({ length: 4 }, () => new Uint32Array(this.#rowLength * 2))
+    this.#errors = storage?.errors ?? new Int32Array(this.#rowLength * 2)
     this.#parameters = parameters
   }
 
@@ -2695,6 +2706,7 @@ class JpegXlModularDecoder implements ImageDecoder {
           stride: output.byteLength,
           format: highDepth ? 'gray16' : 'gray8',
           data: output,
+          colorSemantics: this.colorSemantics,
           ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
         }
       }
@@ -2742,6 +2754,7 @@ class JpegXlModularDecoder implements ImageDecoder {
           stride: output.byteLength,
           format: this.pixelFormat,
           data: output,
+          colorSemantics: this.colorSemantics,
           ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
         }
         continue
@@ -2770,6 +2783,7 @@ class JpegXlModularDecoder implements ImageDecoder {
         stride: output.byteLength,
         format: this.pixelFormat,
         data: output,
+        colorSemantics: this.colorSemantics,
         ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
       }
     }
@@ -2961,6 +2975,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
             stride: output.byteLength,
             format: this.pixelFormat,
             data: output,
+            colorSemantics: this.colorSemantics,
             ...(displayRanges === undefined ? {} : { displayRanges }),
           }
         }
@@ -3402,7 +3417,7 @@ export const jpegXlXybOutputIsLinear = (header: Readonly<JpegXlFrameStructure>):
     header.colorSemanticsPrimaries === 'rec2020' ||
     header.chromaticities !== undefined)
 
-export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
+export const jpegXlSourceColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
   const xybConverted = header.colorTransform === 'xyb'
   return Object.freeze({
     family: header.colorChannels === 1 && !jpegXlXybOutputIsLinear(header) ? 'gray' : 'rgb',
@@ -3433,6 +3448,14 @@ export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelCo
   })
 }
 
+export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
+  const semantics = jpegXlSourceColorSemantics(header)
+  if (semantics.family !== 'gray' || header.alphaBitDepth === undefined) return semantics
+  if (header.colorProvenance === 'icc')
+    throw unsupportedOperation('JPEG XL gray ICC plus alpha requires a profile-aware RGB expansion')
+  return Object.freeze({ ...semantics, family: 'rgb', provenance: 'decoder-converted' })
+}
+
 const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
   Object.freeze({
     width: header.width,
@@ -3458,7 +3481,7 @@ const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
             ...inspectIccProfile(header.iccProfile),
           }),
         }),
-    colorSemantics: jpegXlPixelColorSemantics(header),
+    colorSemantics: jpegXlSourceColorSemantics(header),
     bitDepth: header.bitDepth,
     sampleFormat: header.sampleFormat,
     frames: 1,

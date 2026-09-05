@@ -260,12 +260,16 @@
         "tests/jpegxl-m4-color.test.ts",
         "browser-tests/jpegxl-color.pw.ts",
         "tests/jpegxl-m5-pipeline.test.ts",
-        "browser-tests/jpegxl-pipeline.pw.ts"
+        "browser-tests/jpegxl-pipeline.pw.ts",
+        "tests/jpegxl-remediation.test.ts",
+        "tests/jpegxl-encoder-memory.test.ts",
+        "tests/jpegxl-evidence.test.ts",
+        "tests/jpegxl-documentation.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
-        "tolerance": "Nineteen generated fixtures and the 300-file common-static matrix stay within one 8-bit sample. The real-photo RMSE limit is 0.55. Pinned jxl-oxide independently reaches RMSE 0.517758 against djxl on the threshold probe while agreeing with PureJsImage within one sample. JPEG-derived fixtures use the recorded fixture-specific maximum-error and RMSE gates",
+        "tolerance": "The generated fixtures and 300-file matrix from 100 resized or upscaled COCO photographs stay within one 8-bit sample on supported outputs. RMSE 0.55 is the independently justified VarDCT/djxl rounding exception to the original 0.25 target. Pinned jxl-oxide reaches RMSE 0.517758 on the threshold probe. JPEG-derived fixtures retain their own recorded limits; native lossless samples remain exact.",
         "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
       }
     },

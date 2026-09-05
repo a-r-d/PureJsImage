@@ -78,3 +78,45 @@ test('segmented jxlp complete workflow agrees over real HTTP Range in Node and b
   )
   expect(actual.values).toEqual(Array.from({ length: 4 }, () => pixel).flat())
 })
+
+test('HDR storage metadata and gray-alpha regression workflows agree with Node', async ({
+  page,
+}) => {
+  const { verifyJpegXlRemediation } = await import('./jpegxl-pipeline-harness.ts')
+  const expected = await verifyJpegXlRemediation(
+    async (id) => new Uint8Array(await readFile(`tests/fixtures/jpegxl/remediation/${id}.jxl`)),
+  )
+  expect(expected).toHaveLength(8)
+  expect(expected[0]?.toneMapping).toEqual({
+    intensityTarget: 2000,
+    minNits: 0.125,
+    relativeToMaxDisplay: true,
+    linearBelow: 0.25,
+  })
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyJpegXlRemediation()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('encoder budget admission and cleanup match Node in a real browser', async ({ page }) => {
+  const { verifyJpegXlEncoderBudgets } = await import('./jpegxl-pipeline-harness.ts')
+  const expected = await verifyJpegXlEncoderBudgets()
+  expect(expected).toHaveLength(12)
+  for (let index = 2; index < 12; index += 3)
+    expect(expected[index]).toMatchObject({
+      bytes: 0,
+      live: 0,
+      allocations: 0,
+      errorCode: 'LIMIT_EXCEEDED',
+    })
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlEncoderBudgets()
+  })
+  expect(actual).toEqual(expected)
+})

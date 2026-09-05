@@ -1,138 +1,123 @@
-# JPEG XL corpus preparation
+# JPEG XL validation and corpus preparation
 
-This directory defines the first JPEG XL conformance inputs for parser and future decoder work.
-Normal tests do not download files.
+The current support contract is generated from `capabilities/manifest.json`.
+See [the guide](../../docs/jpeg-xl.md) and the
+[remediation ledger](../../docs/architecture/jpegxl-pr35-remediation.md) for
+precision, memory and compression limits. Normal unit tests do not download files.
 
-Run:
+## Pinned fixture and encoder checks
 
 ```sh
 npm run fixtures:jpegxl:prepare
+npm run fixtures:jpegxl:generate
+npm run fixtures:jpegxl:matrix
+npm run fixtures:jpegxl:encoder-matrix -- --output .tmp/jpegxl-evidence/encoder.json
+npm run jpegxl:m1:reverse -- --output .tmp/jpegxl-evidence/reverse.json
 ```
 
-The preparation script downloads three inputs from the official JPEG XL conformance repository at
-commit `4bf053529c7cefd2951be453475bb3dccc7e7be8`. It checks byte length and SHA-256 before writing
-to `benchmark/fixtures/jpegxl/`.
+Build the development oracles at the revisions in `oracles.ts`. The encoder
+matrix covers all six integer formats and efforts 1, 3, 5 and 7. Pinned `djxl` and
+jxl-rs independently check native samples. The jxl-oxide signed 16-bit Modular
+limitation remains a named result instead of being removed from the matrix.
 
-`corpus.ts` records source URLs, licenses, checksums, dimensions, and isolated feature categories.
-The current inputs cover raw codestream probing, grayscale with ICC, 12-bit RGB with unassociated
-alpha, and a 9-bit lossless Modular image with adaptive properties and nonzero residuals. Container,
-`jxlc`, and `jxlp` fixtures will be added before container behavior is used as pixel-decoder evidence.
+The new independent HDR and gray-alpha fixtures have their own generator and
+provenance in `tests/fixtures/jpegxl/remediation/README.md`. The generator uses
+pinned libjxl as a development oracle. No oracle implementation is shipped.
 
-Generate the pinned common static VarDCT development matrix with the locally built libjxl tools:
+## Compression and memory
+
+Run both promotion effort gates explicitly:
 
 ```sh
-npm run fixtures:jpegxl:generate-vardct -- \
-  .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools
+npm run bench:jpegxl:compression -- --effort 1 --output .tmp/jpegxl-evidence/compression-1.json
+npm run bench:jpegxl:compression -- --effort 7 --output .tmp/jpegxl-evidence/compression-7.json
+node benchmark/jpegxl/run-encoder-memory.ts --output .tmp/jpegxl-evidence/encoder-memory.json
+npm run bench:jpegxl -- --output .tmp/jpegxl-evidence/benchmark.json
+node benchmark/jpegxl/run-memory.ts --output .tmp/jpegxl-evidence/memory.json
+node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-evidence/vardct-memory.json
 ```
 
-This writes six raw codestreams and matching `djxl` PNM pixel references. The matrix varies effort,
-distance, grayscale, progressive passes, synthetic noise, and a 255 by 255 near-boundary selected
-single-group image. The selected 8-bit single-group XYB entries decode within the fixed maximum
-error and RMSE limits. The manifest records `implementedStrategyIds`; the six fixtures validate
-complete outputs but do not claim isolated coverage of every strategy branch. Unsupported VarDCT
-syntax remains explicit.
+The compression suite contains 156 procedural cases across 12 classes. Labels
+such as screenshot, text and photo-like describe generated patterns. Comparisons
+record exactness, size and time against pinned libjxl, simple lossless, Imazen,
+PNG and lossless WebP where native samples are representable. These thresholds
+do not establish a universal compression advantage.
 
-Run the PureJsImage encoder interoperability matrix after building the pinned libjxl, jxl-rs, and
-jxl-oxide tools:
+Encoder memory runs all four efforts on procedural 512×512 and 6000×4000 RGB8
+inputs, in separate cold and warm processes. They record actual owned backing
+buffers and verify each measured output hash in a separate pinned djxl decode.
+Timing and absolute process peak are captured before independent verification.
+Warmup is followed by three GC/event-loop turns. Source input and hashing sink
+are outside the managed-buffer count, but included in process RSS. Older
+reports with formula-based peaks remain historical estimates.
+
+The frozen nine-case holdout includes original large photographs, real UI
+captures, transparent assets and a disclosed synthetic high-depth example:
 
 ```sh
-npm run fixtures:jpegxl:encoder-matrix
+node benchmark/jpegxl/run-pr35-holdout.ts --output .tmp/jpegxl-evidence/holdout.json
+node benchmark/jpegxl/run-pr35-holdout.ts \
+  --manifest benchmark/jpegxl/production-program/pr35-small-jpeg-manifest.json \
+  --output .tmp/jpegxl-evidence/small-jpeg-holdout.json
 ```
 
-The matrix covers all six advertised pixel formats, odd dimensions, alpha-heavy graphics, and a
-multi-group image. PureJsImage, `djxl`, and jxl-rs must return exact native samples. The pinned
-jxl-oxide revision is exact for the 8-bit cases. Its known signed 16-bit Modular limitation is kept
-in the report instead of removing those cases.
+The second manifest is a disclosed supplement selected by eligibility after the
+original small photograph proved ICC-ineligible. No original case was removed.
+All selected results, expansions and unsupported cases are retained. Native
+large-image and screenshot results are often larger than PNG or libjxl. The
+current multi-group encoder uses the same left predictor at every effort.
 
-Run the representative compression comparison after building the pinned simple lossless and
-Imazen encoders:
-
-```sh
-npm run bench:jpegxl:compression
-```
-
-This compares per-file size, time, and exactness with libjxl efforts 1 and 7, the standalone simple
-lossless encoder, Imazen, PNG, and lossless WebP where native samples are preserved. The current
-PureJsImage compression results do not meet the stable threshold, so the encoder remains
-Experimental. Managed-memory values stay unavailable for tools that do not expose a compatible
-ledger; the report does not substitute process RSS.
-
-Run the correctness-gated encoder and JPEG transcode benchmark with:
-
-```sh
-npm run bench:jpegxl
-```
-
-The command uses three fresh Node.js processes per workload. It records absolute peak RSS, the
-post-GC baseline, external and ArrayBuffer memory, wall time, output size, and output hashes. The
-encoder output is decoded to exact native pixels by PureJsImage and, when the pinned local tool is
-available, by `djxl` 0.12.0. The transcode output must reconstruct the exact source JPEG bytes.
-Set `PUREJSIMAGE_JPEGXL_ORACLE_DIR` to a directory containing `djxl` when the pinned local path is
-not present.
-
-After writing the encoder, reverse-transcode, compression, benchmark, Modular-memory, and
-VarDCT-memory JSON files to `.tmp/jpegxl-evidence/`, combine them with:
-
-```sh
-npm run bench:jpegxl:evidence
-```
-
-The combined report rejects inputs generated from a different Git revision. It records the exact
-branch SHA, pinned tool revisions, commands, output hashes, unsupported classifications, and the
-reason the encoder remains Experimental. Committed dated reports are historical snapshots. The CI
-artifact for the exact pushed SHA is the current review evidence.
-
-## Production program baseline
-
-The staged production program is tracked in `docs/architecture/jpegxl-production-program.md`.
-Verify its deterministic feature inventory, status, JSON baseline, and Markdown summary with:
+## Official conformance and extended promotion
 
 ```sh
 npm run jpegxl:program:baseline
-```
-
-To classify the complete pinned official conformance checkout, use:
-
-```sh
 npm run jpegxl:program:conformance -- \
-  --corpus-root /path/to/libjxl-conformance \
-  --output /tmp/jpegxl-conformance.json
+  --corpus-root .tmp/jpegxl-conformance --output .tmp/jpegxl-evidence/conformance.json
+node benchmark/jpegxl/production-program/verify-m4-conformance.ts --output .tmp/jpegxl-evidence/m4-conformance.json
+node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --output .tmp/jpegxl-evidence/m5-pipelines.json
 ```
 
-The conformance command verifies every input checksum before decoding. Its five result classes are
-pass, expected unsupported, malformed and safely rejected, incorrect output, and unexpected
-failure. A changed classification fails the command. The weekly JPEG XL corpus workflow runs this
-full matrix; pull requests retain a small feature-focused set for fast local checks.
+Official conformance checks 39 checksum-pinned inputs against the recorded
+classification baseline. The pre-existing `delta_palette` INVALID_INPUT remains
+a named known failure. A matching classification baseline is not a claim that
+every input decoded correctly.
 
-## Milestone 1 exact JPEG recompression
-
-Profile the checked small and 12 MP JPEGs with:
+The extended M1 cohort selects 250 eligible COCO JPEGs of at least 224 KiB from
+357 eligible candidates, evenly spaced by source ID. Fetch and verify those
+already selected bytes, without selecting new cases:
 
 ```sh
-npm run jpegxl:m1:profile -- --output benchmark/results/jpegxl-m1-profile-2026-09-03.json
+node benchmark/jpegxl/prepare-pinned-m1-inputs.ts
+node benchmark/jpegxl/run-m1-real-jpeg-corpus.ts \
+  .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools \
+  .tmp/jpegxl-m1-coco .tmp/jpegxl-evidence/m1-real.json
+npm run jpegxl:m3:corpus -- --output .tmp/jpegxl-evidence/m3-common-static.json
+node benchmark/jpegxl/production-program/verify-m5-common-static.ts \
+  --corpus-report .tmp/jpegxl-evidence/m3-common-static.json \
+  --output .tmp/jpegxl-evidence/m5-common-static.json
 ```
 
-Run the pinned exact reconstruction and libjxl comparison matrix with:
+M3 uses 100 COCO sources with three variants each. Test images are resized or
+upscaled, including approximately 12 and 24 MP cases. Source and test dimensions
+are recorded separately. The documented 8-bit VarDCT/djxl maximum error is one
+sample and RMSE is at most 0.55, an independently justified rounding exception
+to the original 0.25 target. Lossless native samples still require exactness.
+
+Scheduled and manual CI runs execute the extended M1, M3 and M5 corpora. Pull
+requests run the pinned fixture, encoder, both compression, memory and pipeline
+gates. Absolute reference-machine timing thresholds are not CI gates.
+
+## Evidence artifact
 
 ```sh
-npm run jpegxl:m1:reverse -- --output benchmark/results/jpegxl-m1-recompression-2026-09-03.json
+npm run bench:jpegxl:evidence -- --input-dir .tmp/jpegxl-evidence --scope pr
+# After the three extended reports are present:
+npm run bench:jpegxl:evidence -- --input-dir .tmp/jpegxl-evidence --scope extended
 ```
 
-Prepare the pinned local-only COCO cohort, then run its exact compression gate with:
-
-```sh
-npm run jpegxl:m1:corpus:prepare
-npm run jpegxl:m1:corpus
-```
-
-Run the repeated 12 MP performance comparison with:
-
-```sh
-npm run jpegxl:m1:performance
-```
-
-The reports record parse, coefficient, section, reconstruction, verification, output size, and
-pinned libjxl comparisons. The 250-file cohort passes the exact reconstruction and compression
-percentiles. The repeated 12 MP run passes the absolute time, M0 speedup, and equivalent exact
-libjxl workflow ratio gates. Exact transcode is stable for the documented eligible subset. The
-pixel encoder remains Experimental.
+The builder rejects malformed, missing required, failed and wrong-revision
+reports. Capability status derives from actual gates. Missing extended evidence
+is explicitly not run; known conformance failures remain visible. The workflow
+uploads every raw report with commands, SHA-256 provenance and the combined
+summary. Browser jobs and full repository checks are separate. No artifact
+marks M6 or all JPEG XL milestones complete.

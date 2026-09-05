@@ -1,3 +1,4 @@
+import { reportRevision, reportArgument } from '../report-provenance.ts'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
@@ -108,8 +109,8 @@ if (process.argv[2] === '--worker') {
         results.push(value)
       }
   await writeFile(
-    'benchmark/jpegxl/production-program/m4-jpeg-render.json',
-    `${JSON.stringify({ schemaVersion: 1, methodology: 'Isolated processes, one warmup for warm cases followed by three collections. Both renderers receive corrected identical coefficients. Timings include decode, row emission, and oracle comparison. Incorrect old JXL pixels are failed benchmark results, regardless of speed.', results }, null, 2)}\n`,
+    reportArgument('--output', 'benchmark/jpegxl/production-program/m4-jpeg-render.json'),
+    `${JSON.stringify({ schemaVersion: 1, revision: reportRevision(), methodology: 'Isolated processes, one warmup for warm cases followed by three collections. Both renderers receive corrected identical coefficients. Timings include decode, row emission, and oracle comparison. Incorrect old JXL pixels are failed benchmark results, regardless of speed.', results }, null, 2)}\n`,
   )
   console.log('Eight JPEG-derived renderer comparisons completed; all new outputs pass the oracle')
 }

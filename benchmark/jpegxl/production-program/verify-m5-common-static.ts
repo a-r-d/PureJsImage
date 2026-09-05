@@ -3,12 +3,60 @@ import { readFile, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 import { allCodecs } from '../../../src/codec-entries/all.ts'
 import { createImageLibrary } from '../../../src/index.ts'
-import corpus from './m3-common-static-report.json' with { type: 'json' }
+import { reportArgument, reportRevision } from '../report-provenance.ts'
+const parsed: unknown = JSON.parse(
+  await readFile(
+    reportArgument(
+      '--corpus-report',
+      'benchmark/jpegxl/production-program/m3-common-static-report.json',
+    ),
+    'utf8',
+  ),
+)
+const record = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+if (
+  !record(parsed) ||
+  parsed.revision !== reportRevision() ||
+  !Array.isArray(parsed.results) ||
+  !Array.isArray(parsed.failures)
+)
+  throw new Error('M5 requires an exact-revision M3 report')
+const corpus = {
+  results: parsed.results.map((entry: unknown) => {
+    if (
+      !record(entry) ||
+      typeof entry.id !== 'string' ||
+      !/^[a-z0-9-]+$/.test(entry.id) ||
+      typeof entry.encodedSha256 !== 'string' ||
+      typeof entry.width !== 'number' ||
+      typeof entry.height !== 'number'
+    )
+      throw new Error('Invalid M3 result')
+    return {
+      id: entry.id,
+      encodedSha256: entry.encodedSha256,
+      width: entry.width,
+      height: entry.height,
+    }
+  }),
+  failures: parsed.failures.map((entry: unknown) => {
+    if (
+      !record(entry) ||
+      typeof entry.id !== 'string' ||
+      !/^[a-z0-9-]+$/.test(entry.id) ||
+      entry.classification !== 'unsupported'
+    )
+      throw new Error('Invalid M3 failure')
+    return { id: entry.id }
+  }),
+}
+const work = reportArgument('--work', '.tmp/jpegxl-m3-common-static')
 
 const Image = createImageLibrary(allCodecs)
 const results: unknown[] = []
 for (const [index, entry] of corpus.results.entries()) {
-  const path = `.tmp/jpegxl-m3-common-static/${entry.id}`
+  const path = `${work}/${entry.id}`
   const input = await readFile(`${path}.jxl`)
   if (createHash('sha256').update(input).digest('hex') !== entry.encodedSha256)
     throw new Error(`Changed pinned input ${entry.id}`)
@@ -100,7 +148,7 @@ for (const [index, entry] of corpus.results.entries()) {
 let unsupported = 0
 for (const entry of corpus.failures) {
   try {
-    const input = await readFile(`.tmp/jpegxl-m3-common-static/${entry.id}.jxl`)
+    const input = await readFile(`${work}/${entry.id}.jxl`)
     await (await Image.open(input)).png().toBuffer()
     throw new Error('Expected unsupported corpus boundary changed')
   } catch (error) {
@@ -112,6 +160,6 @@ for (const entry of corpus.failures) {
 if (results.length / (results.length + unsupported) < 0.99)
   throw new Error('Common static acceptance below 99 percent')
 await writeFile(
-  'benchmark/jpegxl/production-program/m5-common-static.json',
-  `${JSON.stringify({ schemaVersion: 1, corpus: 'M3 checksum-pinned 300-file common-static corpus; unchanged djxl 0.12.0 reference PPM pixels', methodology: 'Every supported input is independently opened, nearest-resized and encoded to each of five formats. All output files are decoded with libvips. PNG, lossless WebP and TIFF retain the M3 independent source tolerance of max 1/RMSE 0.55 against djxl. JPEG quality 100 4:4:4 and AVIF 4:2:0 must exactly match equivalent transcodes of the already oracle-checked PNG thumbnail, decoded by libvips. Identical target input samples avoid amplifying allowed source rounding through lossy quantization. This composition checks source accuracy and pipeline integration; it does not establish new target-codec quality claims. No performance claims are made from this correctness run.', decoded: results.length, unsupported, incorrectOutputs: 0, workflows: results.length * 5, passed: true, results }, null, 2)}\n`,
+  reportArgument('--output', 'benchmark/jpegxl/production-program/m5-common-static.json'),
+  `${JSON.stringify({ schemaVersion: 1, revision: reportRevision(), corpus: 'M3 checksum-pinned 300-file common-static corpus; unchanged djxl 0.12.0 reference PPM pixels', methodology: 'Every supported input is independently opened, nearest-resized and encoded to each of five formats. All output files are decoded with libvips. PNG, lossless WebP and TIFF retain the M3 independent source tolerance of max 1/RMSE 0.55 against djxl. JPEG quality 100 4:4:4 and AVIF 4:2:0 must exactly match equivalent transcodes of the already oracle-checked PNG thumbnail, decoded by libvips. Identical target input samples avoid amplifying allowed source rounding through lossy quantization. This composition checks source accuracy and pipeline integration; it does not establish new target-codec quality claims. No performance claims are made from this correctness run.', decoded: results.length, unsupported, incorrectOutputs: 0, workflows: results.length * 5, passed: true, results }, null, 2)}\n`,
 )

@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { reportRevision } from './report-provenance.ts'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -167,6 +168,10 @@ try {
   })
   const report = Object.freeze({
     schemaVersion: 1,
+    revision: reportRevision(),
+    generatedAt: new Date().toISOString(),
+    node: process.version,
+    platform: `${process.platform}/${process.arch}`,
     purpose: 'JPEG XL Milestone 1 measured 12 MP exact-transcode performance gate',
     oracle: 'libjxl a7a9c787341cf703dede03c2009fa460cae5e5df (v0.12.0)',
     timingPolicy:

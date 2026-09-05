@@ -159,3 +159,139 @@ export const verifyFloatJpegXl = async (input: Uint8Array) => {
     pixels,
   }
 }
+
+export const verifyJpegXlRemediation = async (
+  load: (name: string) => Promise<Uint8Array> = async (name) => {
+    const response = await fetch(`/fixtures/jpegxl-remediation-${name}.jxl`)
+    if (!response.ok) throw new Error(`Missing ${name}`)
+    return new Uint8Array(await response.arrayBuffer())
+  },
+) => {
+  const { inspectJpegXl } = await import('../src/jpegxl.ts')
+  const { jpegxlCodec } = await import('../src/codecs/jpegxl.ts')
+  const Image = createImageLibrary([jpegxlCodec])
+  const results = []
+  for (const id of [
+    'hlg-12',
+    'hlg-alpha-12-8',
+    'pq-12',
+    'pq-alpha-12-16',
+    'gray-alpha-8-8',
+    'gray-alpha-12-8',
+    'gray-alpha-16-16',
+    'gray-associated-12-8',
+  ]) {
+    const input = await load(id)
+    const alpha = id.includes('alpha') || id.includes('associated')
+    const image = await Image.open(input, { colorOutput: 'preserve', alphaOutput: 'straight' })
+    const pipeline = image
+      .convertPixelFormat({ format: alpha ? 'rgba16' : 'rgb16' })
+      .resize({ width: 4, height: 3, fit: 'fill' })
+      .jpegxl()
+    const output = await pipeline.toUint8Array()
+    const inspection = await inspectJpegXl(output)
+    const plan = await explainImage(pipeline)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(output),
+      defaultImageLimits,
+      { colorOutput: 'preserve' },
+    )
+    if (!decoder) throw new Error('Missing decoder')
+    const samples = []
+    for await (const block of decoder.decode()) {
+      try {
+        samples.push(...block.data)
+      } finally {
+        block.release?.()
+      }
+    }
+    results.push({
+      id,
+      toneMapping: inspection.toneMapping,
+      bitDepth: inspection.bitDepth,
+      semantics: decoder.colorSemantics,
+      samples,
+      encoderNegotiation: plan.encoderNegotiation,
+    })
+  }
+  return results
+}
+
+export const verifyJpegXlEncoderBudgets = async (): Promise<readonly unknown[]> => {
+  const codec = allCodecs.find((codec) => codec.format === 'jpegxl')
+  if (!codec?.createEncoder) throw new Error('JPEG XL encoder missing')
+  const results: unknown[] = []
+  for (const effort of [1, 3, 5, 7] as const) {
+    let peak = 0
+    for (const boundary of ['measure', 'at', 'below'] as const) {
+      let bytes = 0
+      const encoder = await codec.createEncoder(
+        {
+          async write(data) {
+            bytes += data.byteLength
+          },
+          async close() {},
+          async abort() {},
+        },
+        {
+          width: 32,
+          height: 24,
+          pixelFormat: 'rgb8',
+          colorSemantics: {
+            family: 'rgb',
+            primaries: 'srgb',
+            transfer: { kind: 'srgb' },
+            matrix: 'identity',
+            range: 'full',
+            alpha: 'none',
+            provenance: 'assumed-default',
+            renderingIntent: 'relative',
+          },
+          options: {
+            effort,
+            ...(boundary === 'measure'
+              ? {}
+              : { maxWorkingBytes: boundary === 'at' ? peak : peak - 1 }),
+          },
+          limits: defaultImageLimits,
+        },
+      )
+      const data = new Uint8Array(32 * 24 * 3)
+      for (let index = 0; index < data.length; index += 1) data[index] = (index * 17) & 255
+      await encoder.write({
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 24,
+        stride: 32 * 3,
+        format: 'rgb8',
+        data,
+      })
+      let errorCode: unknown
+      try {
+        await encoder.finish()
+      } catch (error) {
+        if (typeof error !== 'object' || error === null || !('code' in error)) throw error
+        errorCode = error.code
+      }
+      if (
+        !('managedPeakBytes' in encoder) ||
+        typeof encoder.managedPeakBytes !== 'number' ||
+        !('managedLiveBytes' in encoder) ||
+        !('managedLiveAllocations' in encoder)
+      )
+        throw new Error('Missing memory counters')
+      if (boundary === 'measure') peak = encoder.managedPeakBytes
+      results.push({
+        effort,
+        boundary,
+        bytes,
+        peak: encoder.managedPeakBytes,
+        live: encoder.managedLiveBytes,
+        allocations: encoder.managedLiveAllocations,
+        errorCode,
+      })
+    }
+  }
+  return results
+}

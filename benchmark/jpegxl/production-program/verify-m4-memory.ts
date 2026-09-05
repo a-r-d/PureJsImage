@@ -1,3 +1,4 @@
+import { reportRevision, reportArgument } from '../report-provenance.ts'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -166,8 +167,8 @@ if (process.argv[2] === '--worker') {
     }
   }
   await writeFile(
-    'benchmark/jpegxl/production-program/m4-memory.json',
-    `${JSON.stringify({ schemaVersion: 1, libjxlRevision: 'a7a9c787341cf703dede03c2009fa460cae5e5df', memoryClass: 'Explicit full-frame high-depth VarDCT fallback; ordinary M3 sRGB band path is unchanged', peakPolicy: 'Absolute isolated-process peak includes warmup; warm baseline follows three collections across event-loop turns', results }, null, 2)}\n`,
+    reportArgument('--output', 'benchmark/jpegxl/production-program/m4-memory.json'),
+    `${JSON.stringify({ schemaVersion: 1, revision: reportRevision(), libjxlRevision: 'a7a9c787341cf703dede03c2009fa460cae5e5df', memoryClass: 'Explicit full-frame high-depth VarDCT fallback; ordinary M3 sRGB band path is unchanged', peakPolicy: 'Absolute isolated-process peak includes warmup; warm baseline follows three collections across event-loop turns', results }, null, 2)}\n`,
   )
   console.log('Four isolated HDR memory cases passed independent pixel validation')
 }

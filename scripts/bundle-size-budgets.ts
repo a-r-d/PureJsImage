@@ -15,7 +15,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Temporary M4 ceilings include bounded ICC, structured color, alpha, and metadata support.
   'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 365_000 },
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 402_000 },
+  // PR35: actual encoder allocation ownership and budget checks add about 6 KiB to M5.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 406_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

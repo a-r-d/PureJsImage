@@ -429,6 +429,13 @@ for (const name of await readdir('tests/fixtures/jpegxl/m4-color')) {
   )
 }
 
+for (const name of await readdir('tests/fixtures/jpegxl/remediation')) {
+  await copyFile(
+    `tests/fixtures/jpegxl/remediation/${name}`,
+    resolve(fixtureDirectory, `jpegxl-remediation-${name}`),
+  )
+}
+
 for (const [source, name] of wasmFiles) await copyFile(source, resolve(outputDirectory, name))
 
 const png = benchmarkPng()

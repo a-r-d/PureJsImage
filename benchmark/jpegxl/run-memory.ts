@@ -12,6 +12,7 @@ interface MemorySnapshot {
 interface WorkerResult {
   readonly baseline: MemorySnapshot
   readonly inputBytes: number
+  readonly inputSha256: string
   readonly maximumRssBytes: number
   readonly mode: 'crop' | 'full'
   readonly outputBytes: number
@@ -47,6 +48,8 @@ const parseResult = (value: unknown): WorkerResult => {
     !isSnapshot(value.peak) ||
     !('inputBytes' in value) ||
     !isNumber(value.inputBytes) ||
+    !('inputSha256' in value) ||
+    typeof value.inputSha256 !== 'string' ||
     !('maximumRssBytes' in value) ||
     !isNumber(value.maximumRssBytes) ||
     !('outputBytes' in value) ||
@@ -63,6 +66,7 @@ const parseResult = (value: unknown): WorkerResult => {
   return {
     baseline: value.baseline,
     inputBytes: value.inputBytes,
+    inputSha256: value.inputSha256,
     maximumRssBytes: value.maximumRssBytes,
     mode: value.mode,
     outputBytes: value.outputBytes,
@@ -99,6 +103,7 @@ const summaries = (['crop', 'full'] as const).map((mode) => {
     mode,
     dimensions: mode === 'crop' ? '64x64 crop from 4096x4096' : '4096x4096 full decode',
     inputBytes: selected[0]?.inputBytes ?? 0,
+    inputSha256: selected[0]?.inputSha256 ?? '',
     outputBytes: selected[0]?.outputBytes ?? 0,
     outputSha256: selected[0]?.outputSha256 ?? '',
     medianMaximumRssBytes: median(selected.map((run) => run.maximumRssBytes)),

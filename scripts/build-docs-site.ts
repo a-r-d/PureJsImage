@@ -2,6 +2,7 @@ import { copyFile, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/pro
 import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
+import capabilityManifest from '../capabilities/manifest.json' with { type: 'json' }
 import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
 import { jpegXlWorkbenchPng } from '../benchmark/jpegxl/workbench-fixture.ts'
 import { assertGeoShowcaseSourceInputs, geoShowcaseSourceAliases } from './geo-showcase-build.ts'
@@ -127,9 +128,16 @@ if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>
   throw new Error('Generated HDR Surgery page omits its required H1')
 }
 const jpegXlPage = await readFile(join(outputDirectory, 'jpeg-xl', 'index.html'), 'utf8')
+const jpegXlCapability = capabilityManifest.codecs.find((codec) => codec.id === 'jpegxl')
+if (!jpegXlCapability) throw new Error('Missing JPEG XL capability summary')
+const jpegXlDescription = jpegXlCapability.description
+  .replaceAll('&', '&amp;')
+  .replaceAll('"', '&quot;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
 for (const required of [
   '<title>JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage</title>',
-  'name="description" content="Inspect and decode JPEG XL, use the stable lossless Modular encoder, and verify exact coefficient-domain JPEG transcoding in a local browser worker."',
+  `name="description" content="${jpegXlDescription}"`,
   'rel="canonical" href="https://purejsimage.com/jpeg-xl/"',
   'property="og:image" content="https://purejsimage.com/assets/jpeg-xl-og.png"',
   'property="og:image:width" content="1200"',

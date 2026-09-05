@@ -521,3 +521,24 @@ dedicated-worker events before reading requests. These changes do not alter code
 The full local gate passes 2706 tests with three existing skips. All 51 focused workbench,
 pipeline and affected cancellation browser tests pass across Chromium, Firefox and WebKit
 with retries disabled. The PR description records the follow-up revision and final remote checks.
+
+
+## PR 35 remediation after review
+
+The [remediation ledger](jpegxl-pr35-remediation.md) records the corrections to
+M0 through M5 against reviewed SHA `5e130e0b8c8be2493f22229a9c0052012584c645`.
+It supersedes the older encoder peak formula and stale guide/workbench support
+text. Allocation limits now apply to actual owned backing buffers before
+construction; storage conversion preserves valid HDR luminance metadata; and
+gray-alpha inspection and emitted RGB semantics are distinct.
+
+The existing milestone reports above remain historical evidence for their named
+revisions. The new capability-specific report validates current raw gates and
+identifies missing extended runs and the known official delta-palette failure.
+Both lossless efforts run in PR CI; manual and scheduled runs also execute the
+250 selected M1 JPEGs, 300 M3 variants and their M5 workflows. The remediation
+ledger discloses procedural and upscaled corpora, the scoped RMSE exception,
+and every frozen holdout result, including compression expansions. Seven
+public examples and three-browser regressions cover the corrected boundary.
+M6 has not started. Final remote revision and artifact links are recorded in
+PR 35 after the corresponding exact-head jobs complete.

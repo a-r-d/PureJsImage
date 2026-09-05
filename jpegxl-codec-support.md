@@ -39,6 +39,18 @@ Calling `explainImage()` can open and decode VarDCT; `io.pixelDecode` reports th
 
 Progressive range-aware processing is M6 and is outside the M5 static boundary.
 
+## PR 35 precision, memory and evidence corrections
+
+- [x] Preserve nondefault PQ and HLG luminance fields through storage-only conversion
+- [x] Keep gray-alpha source descriptors separate from expanded RGBA pixel semantics
+- [x] Reject unavailable gray ICC plus alpha expansion without weakening encoder validation
+- [x] Check actual encoder allocations before construction and release all ownership on failure
+- [x] Validate maxWorkingBytes and maxOutputBytes; keep caller/sink memory and process RSS separate
+
+The nine original holdout assets retain source dimensions and checksums. Every effort-1 and effort-7 pixel result is independently exact, including original 24 MP and 12 MP photographs and two real UI captures. Large photos and screenshots often exceed PNG or libjxl sizes. Advanced effort search is currently single-group; larger inputs use the same left predictor for every requested effort. Two separately selected small eligible WPT JPEGs supplement the original ICC-ineligible small photographic case. No original holdout case was removed.
+
+See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection rules, rounding exception and exact-revision evidence.
+
 ## M4 color and metadata
 
 - [x] Exact Modular RGB and gray samples in sRGB, linear sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma, and custom chromaticities at 8, 10, 12, and 16 bits
@@ -78,8 +90,8 @@ The normal pipeline exposes a stable deterministic Modular encoder for gray8, gr
 rgb8, rgb16, rgba8, and rgba16 at effort 1, 3, 5, or 7. Explicit color and alpha
 precision can be declared from 8 through 16 bits when samples use 16-bit storage.
 The 163-case matrix is exact through PureJsImage, pinned `djxl`, jxl-rs, and jxl-oxide
-where applicable. The 156-case extended corpus passes the fixed effort-1, effort-7,
-PNG, speed, and managed-memory gates. The separate stable
+where applicable. The 156 procedural cases measure the fixed effort-1, effort-7,
+PNG and relative-speed gates. Actual encoder backing-buffer ownership has separate budget and cleanup tests. The separate stable
 `purejsimage/jpegxl` API transcodes eligible baseline
 and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
 reconstructs and compares every source byte before exact-mode success. Its 250-file real JPEG archive, compression, speed, bounded sink-verification, and browser parity gates pass. Exact transcode
@@ -269,7 +281,7 @@ losslessly transcoded JPEG files.
 - [x] Decode the checked common VarDCT straight-alpha form
 - [x] Premultiplied alpha with correct unpremultiplication or preservation behavior
 - [x] Parse and report the checked sRGB and linear-sRGB gray or RGB encoding and rendering intent
-  with matching metadata and decoder pixel semantics
+  with distinct source metadata and emitted pixel semantics
 - [x] Decode compressed embedded ICC profiles with strict decoded-size limits
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
