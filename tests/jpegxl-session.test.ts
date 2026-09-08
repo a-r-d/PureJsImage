@@ -112,7 +112,12 @@ describe('JPEG XL progressive session', () => {
         return bytes.slice(offset, offset + length)
       },
     }
-    const session = await openJpegXlSession(source)
+    const evidence = createEvidenceSession({ mode: 'trace' })
+    let lfDecodes = 0
+    evidence.subscribe((event) => {
+      if (event.type === 'allocation' && event.category === 'jpegxl-vardct-lf-metadata') lfDecodes++
+    })
+    const session = await openJpegXlSession(source, { evidence: evidence.context })
     for await (const event of session.progressive({ until: 'dc', scaleDenominator: 8 }))
       if (event.type === 'block') event.block.release?.()
     const firstReads = reads
@@ -121,6 +126,8 @@ describe('JPEG XL progressive session', () => {
       if (event.type === 'block') event.block.release?.()
     expect(reads).toBe(firstReads)
     expect(session.sourceSectionBytes).toBe(firstBytes)
+    for await (const event of session.decode()) if (event.type === 'block') event.block.release?.()
+    expect(lfDecodes).toBe(1)
     await session.close()
   })
 

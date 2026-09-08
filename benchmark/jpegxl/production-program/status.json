@@ -482,7 +482,7 @@
       "status": "in progress",
       "pr": null,
       "startRevision": "d157a8dc5a704410563026e53e438b79db6161db",
-      "finalRevision": null,
+      "finalRevision": "98b3ba58e881109f962887e9a8a17de50bc43947",
       "localCommands": [
         "npx vitest run tests/jpegxl-header-ranges.test.ts tests/jpegxl-lazy-open.test.ts",
         "npx vitest run tests/jpegxl-corpus.test.ts tests/jpegxl-m4-color.test.ts tests/jpegxl-m5-pipeline.test.ts",
@@ -494,17 +494,28 @@
         "npm run check",
         "npx playwright test browser-tests/jpegxl-color.pw.ts browser-tests/jpegxl-workbench.pw.ts --retries=0 --workers=3",
         "npm run jpegxl:m1:reverse -- --output .tmp/jpegxl-m6-m10/reverse.json",
-        "git diff --check"
+        "git diff --check",
+        "node benchmark/jpegxl/verify-m6-native.ts",
+        "node benchmark/jpegxl/run-m6-native-measurements.ts",
+        "node benchmark/jpegxl/production-program/build-m6-report.ts",
+        "npx vitest run tests/jpegxl-m6-report.test.ts tests/jpegxl-session.test.ts"
       ],
       "remoteWorkflowRuns": [],
       "measuredResults": [
-        "The earlier header/lazy-open checkpoint passed its recorded full and browser gates. Those counts do not cover the subsequent session implementation.",
-        "Current work implements lazy sessions, embedded previews, complete DC/pass stages, selective groups, progressive Modular DC dependencies and a Range explorer. Final validation is running.",
-        "The frozen ten-photo stage and viewport checks retain every byte-budget miss. Generic 256 KiB read-ahead was found to defeat section selection and has been removed from session opening. Transport measurements are being rerun."
+        "Forty pinned cases: thirty known functional fixtures and ten original-resolution photographs. Fifty independent native DC/pass/viewport/final comparisons pass max error 1 and RMSE 0.55; ten repeated DC requests decode LF once and fetch zero additional sections.",
+        "Sixty isolated cold/warm runs at 98b3ba58e881109f962887e9a8a17de50bc43947: median preview payload 14.4645% and viewport payload 29.5729% of compressed input. All photos reduce preview managed peak by at least 79.9287% versus full static decode.",
+        "Individual misses retained: Earthrise preview 26.59% and viewport 37.08%; Horas viewport 35.24%; Chillon viewport 35.83%; Butterfly viewport 45.91%. No case excluded.",
+        "Official conformance: 13 pass, 25 expected unsupported, one known delta_palette failure, zero incorrect outputs. Five independent M4 cases, eight VarDCT memory workloads and 105 static pipeline workflows pass at the same implementation revision.",
+        "Full check previously passed 2891 tests with three existing skips; report validator adds five tests. Final handoff check is being rerun. All 66 JPEG XL browser workflows passed without retries; the nine changed session/explorer browser contracts passed again after the final UI changes."
       ],
-      "corpusVersions": [],
-      "oracleRevisions": [],
-      "benchmarkReportPath": null,
+      "corpusVersions": [
+        "M6 native selection frozen 2026-09-08T13:29:17.495Z; m6-native-sources.json and m6-native-encodings.json",
+        "M6 functional selection frozen 2026-09-08T14:12:33.398Z; m6-functional-cases.json"
+      ],
+      "oracleRevisions": [
+        "libjxl 0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df; C API library SHA-256 29eea9f83a05f1851e18fc5f414916ca6c28e278f68622969bea68d7516ecdc5"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m6-report.json",
       "capabilityChanges": [
         "Explicit progressive sessions and embedded previews; native SDR DC/pass boundaries; selective groups and shared plans; retained LF state, bounded caches and computation cancellation."
       ],
@@ -514,11 +525,7 @@
       ],
       "deferredWork": [],
       "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "Complete independent native cohort validation and post-read-ahead-fix transport measurements",
-        "Final full handoff and browser gates",
-        "Record final report and coherent implementation commits if permitted"
-      ]
+      "remainingBlockers": ["Final handoff checks and review handoff"]
     },
     {
       "id": "M7",

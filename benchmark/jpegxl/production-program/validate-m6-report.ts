@@ -1,3 +1,4 @@
+import functional from './m6-functional-cases.json' with { type: 'json' }
 import sources from './m6-native-sources.json' with { type: 'json' }
 import encodings from './m6-native-encodings.json' with { type: 'json' }
 
@@ -24,6 +25,17 @@ export function validateM6Report(input: unknown) {
   if (typeof report.revision !== 'string' || !/^[0-9a-f]{40}$/.test(report.revision))
     throw new Error('Missing implementation revision')
   if (report.selectionFrozenAt !== sources.frozenAt) throw new Error('Source selection changed')
+  const fixtures = list(report.functionalCases).map(record)
+  if (
+    fixtures.length !== 30 ||
+    functional.cases.some(
+      (expected) =>
+        fixtures.filter(
+          (fixture) => fixture.path === expected.path && fixture.sha256 === expected.sha256,
+        ).length !== 1,
+    )
+  )
+    throw new Error('Functional cohort changed')
   const correctness = record(report.correctness)
   if (correctness.revision !== report.revision) throw new Error('Correctness revision mismatch')
   const comparisons = list(correctness.results).map(record)
@@ -42,6 +54,14 @@ export function validateM6Report(input: unknown) {
         throw new Error(`Missing or failed comparison: ${source.id}/${mode}`)
       if (row.width !== source.width || row.height !== source.height)
         throw new Error('Native dimensions changed')
+      const scale = mode === 'dc' ? 8 : mode === 'pass1' ? 4 : mode === 'pass2' ? 2 : 1
+      const width = mode === 'viewport' ? Math.floor(source.width / 4) : source.width
+      const height = mode === 'viewport' ? Math.floor(source.height / 4) : source.height
+      if (
+        row.scale !== scale ||
+        row.samples !== Math.ceil(width / scale) * Math.ceil(height / scale) * 3
+      )
+        throw new Error('Stage geometry mismatch')
       if (number(row.maximum) > 1 || number(row.rmse) > 0.55 || number(row.samples) === 0)
         throw new Error('Independent stage tolerance failed')
       if (mode === 'dc' && (row.repeatDcSectionBytes !== 0 || row.lfDecodes !== 1))
@@ -63,6 +83,12 @@ export function validateM6Report(input: unknown) {
       const row = rows[0]
       if (rows.length !== 1 || !row || row.error || row.revision !== report.revision)
         throw new Error(`Missing or failed measurement: ${source.id}/${mode}/${temperature}`)
+      if (
+        !encodings.cases.some(
+          (entry) => entry.id === source.id && entry.jxlBytes === row.inputBytes,
+        )
+      )
+        throw new Error('Measured input size mismatch')
       for (const field of [
         'requestedBytes',
         'inputBytes',

@@ -279,5 +279,66 @@ Current local checks pass 2,891 tests with three existing skips, and 66 JPEG XL
 browser workflows pass across Chromium, Firefox and WebKit without retries.
 Official conformance still has 13 passes, 25 expected unsupported cases, the
 known delta_palette failure and zero incorrect outputs. Five independent M4
-conformance cases also pass. Final source-pinned measurements and report validation
-are still being completed; no benchmark promotion or release has been claimed.
+conformance cases also pass. The final source-pinned results are recorded below. No release is authorized.
+
+## M6 acceptance checklist
+
+- [x] M6.1: lazy indexing, shared explanation/execution plans, source ownership,
+  bounded caches, close, one active request, coordinates, sample semantics and
+  explicit fallback policy.
+- [x] M6.2: independent embedded previews, complete DC/pass/final stages,
+  immutable output blocks, backpressure, early return, cancellation during
+  reconstruction and browser generation ownership.
+- [x] M6.3: native 2/4/8 stage selection, omitted later pass reads, compact DC
+  reconstruction, pinned C API progressive flush references and preserved final
+  pipeline resize behavior.
+- [x] M6.4: selected groups and restoration halos, explicit distant/full-frame
+  dependencies, strict rejection, all eight orientations, source-validator
+  identity and retained LF state across DC-to-final requests.
+- [x] M6.5 correctness: thirty pinned functional fixtures and fifty native
+  comparisons across ten original-resolution photos pass. Later malformed
+  sections cannot produce a verified final event. Independent embedded preview
+  and grouped Modular DC fixtures run in normal CI.
+- [x] M6.5 demonstration: local-file and HTTP Range explorer, native/pass controls,
+  source map, logical/physical bytes, first-pixel timing, managed memory, pan/zoom,
+  cached requests and cancellation in Chromium, Firefox and WebKit.
+- [ ] M6.5 measured gates and final handoff: source-pinned sixty-process report,
+  recomputed acceptance validator and final repository checks.
+
+
+## Final M6 measurements
+
+Implementation and correctness harness revision:
+`98b3ba58e881109f962887e9a8a17de50bc43947`.
+The checked-in `benchmark/jpegxl/production-program/m6-report.json` contains the
+individual source-pinned comparisons, all sixty isolated measurements and the
+same-revision static regression reports. Later commits add report validation,
+documentation and stronger LF reuse tests; they do not change codec behavior.
+
+The recomputed median DC-preview payload is **14.46%** of compressed input and
+the median 6.25%-area viewport payload is **29.57%**. All ten photographs reduce
+1/8-preview managed memory by at least **79.93%** versus full static decode in
+both cold and warm runs. These satisfy the 25%, 35% and 50% M6 gates.
+
+| Retained individual miss | Preview bytes | Viewport bytes |
+| --- | ---: | ---: |
+| Earthrise | 26.59% | 37.08% |
+| Horas | 15.28% | 35.24% |
+| Chillon | 22.00% | 35.83% |
+| Butterfly | 23.32% | 45.91% |
+
+Byte ratios include structural source reads and exclude HTTP headers. Using
+compressed input size as the viewport denominator is slightly stricter than using
+the measured full cold decoder reads. The browser independently verifies actual
+local HTTP Range responses and cache reuse with 4 KiB transport blocks.
+
+The source-pinned regression run passes 105 static pipeline workflows, four
+cold/warm pipeline oracle measurements and eight VarDCT memory workloads with
+three accepted runs per workload. Five independent M4 cases pass. The official
+conformance classification remains 13 pass, 25 expected unsupported, one known
+failure and zero incorrect outputs. Earlier M1/M3 extended reports retain their
+historical revisions; this M6 run does not re-date them.
+
+Report tests recompute gates and reject omitted photos, failed stage agreement,
+failed median byte budgets and revision mismatches. No new runtime dependency,
+release, version change, tag, merge or publication is included.

@@ -121,3 +121,69 @@ is explicitly not run; known conformance failures remain visible. The workflow
 uploads every raw report with commands, SHA-256 provenance and the combined
 summary. Browser jobs and full repository checks are separate. No artifact
 marks M6 or all JPEG XL milestones complete.
+
+## M6 progressive and Range acceptance
+
+The frozen M6 cohort contains thirty known functional regression fixtures and ten
+original-resolution photographs. Selection, original URLs, attribution, licenses,
+native dimensions, original hashes, normalization versions, encoder options and
+encoded hashes live in `production-program/m6-*.json`. Do not resize photographs
+or remove cases that miss a byte target. Normal CI verifies the checked-in report
+and functional fixtures without downloading photos or loading a native library.
+
+The native development oracle requires Linux x64, Bun 1.4, and libjxl 0.12.0 at
+revision `a7a9c787341cf703dede03c2009fa460cae5e5df`. Use the existing pinned tools
+under `.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools`. Build the same
+source as a Release shared library with `BUILD_SHARED_LIBS=ON`, tests, tools,
+examples and benchmarks disabled, in `.tmp/jpegxl-remediation-oracle`. The
+preparation and flush scripts verify the exact encoder and shared-library hashes;
+compiler-dependent binaries need a separately recorded provenance update before
+substitution. Neither binary ships with PureJsImage.
+
+Reproduce from the repository root, with no other benchmarks running:
+
+```sh
+node benchmark/jpegxl/fetch-m6-native-sources.ts
+node benchmark/jpegxl/prepare-m6-native-corpus.ts
+```
+
+For each ID in `production-program/m6-native-sources.json`, run:
+
+```sh
+bun benchmark/jpegxl/flush-progressive-oracle.ts \
+  .tmp/jpegxl-m6-native/encoded/ID.jxl .tmp/jpegxl-m6-native/oracle/ID
+```
+
+Then run these sequentially. Commit implementation changes before measuring so
+the reports identify the actual source revision.
+
+```sh
+node benchmark/jpegxl/verify-m6-native.ts
+node benchmark/jpegxl/run-m6-native-measurements.ts
+npm run jpegxl:program:conformance -- --corpus-root .tmp/jpegxl-conformance --output .tmp/jpegxl-m6-m10/m6-final-conformance.json
+node benchmark/jpegxl/production-program/verify-m4-conformance.ts --output .tmp/jpegxl-m6-m10/m6-final-m4-conformance.json
+node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-m6-m10/m6-final-vardct-memory.json
+node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --output .tmp/jpegxl-m6-m10/m6-final-m5-pipelines.json
+node benchmark/jpegxl/production-program/build-m6-report.ts
+npx vitest run tests/jpegxl-m6-cohort.test.ts tests/jpegxl-m6-report.test.ts
+npm run build
+npx playwright test browser-tests/jpegxl-pipeline.pw.ts --retries=0 --workers=3
+```
+
+The fifty native comparisons cover DC, two complete passes, a 6.25% viewport and
+final output. The sixty isolated processes cover cold and warm preview, viewport
+and full static decode. Warm runs close the first decoder and force GC twice
+before measuring; absolute peak RSS still includes warmup. The report retains
+post-GC baselines, external memory, ArrayBuffer memory, elapsed and first-pixel
+time, output hashes and managed peaks.
+
+Byte measurements count exact source payload requests, including structural
+reads, without automatic read-ahead. They exclude HTTP headers. Browser tests
+also exercise real local HTTP Range responses using explicit 4 KiB blocks and
+verify that cached requests add no transfers. The report validator recomputes the
+25% preview and 35% viewport median targets and the per-photo 50% managed-memory
+reduction gate. Every individual miss remains in the report.
+
+Pass and final rendering still retain full output storage. Some internal DC
+frames retain full working planes. Plans expose these costs, and strict selective
+requests reject them. These limits are separate from compressed group selection.
