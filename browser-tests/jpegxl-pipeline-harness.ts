@@ -1,10 +1,55 @@
 import { hdrRgbaToPng, hdrRgbToPng, sdrRgbaToPng, sdrRgbToPng } from '../examples/jpegxl-display.ts'
 import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
+import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
+import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
 import { defaultImageLimits } from '../src/limits.ts'
-import { MemorySource } from '../src/source.ts'
+import { type ImageSource, MemorySource } from '../src/source.ts'
+
+export const verifyLazyJpegXl = async (bytes: Uint8Array) => {
+  let requestedBytes = 0
+  const source: ImageSource = {
+    size: bytes.length,
+    async read(offset, length) {
+      requestedBytes += length
+      return bytes.slice(offset, offset + length)
+    },
+  }
+  const frames = await readJpegXlSourceFrameStructures(source, defaultImageLimits, {}, 83)
+  const headerRequestedBytes = requestedBytes
+  requestedBytes = 0
+  const evidence = createEvidenceSession({ mode: 'summary' })
+  const decoder = await jpegxlCodec.createDecoder?.(source, defaultImageLimits, {
+    evidence: evidence.context,
+  })
+  if (!decoder || !('managedPeakBytes' in decoder)) throw new Error('Missing measured decoder')
+  const openPeakBytes = decoder.managedPeakBytes
+  const openRequestedBytes = requestedBytes
+  let checksum = 0
+  let rows = 0
+  for await (const block of decoder.decode()) {
+    for (const value of block.data) checksum = (Math.imul(checksum, 31) + value) >>> 0
+    rows += block.height
+    block.release?.()
+  }
+  const report = evidence.finalize()
+  const image = await createImageLibrary([jpegxlCodec]).open(bytes)
+  const plan = await explainImage(image.jpegxl())
+  return {
+    frameEnds: frames.map((frame) => frame.codestreamEndOffset),
+    headerRequestedBytes,
+    openPeakBytes,
+    openRequestedBytes,
+    decodeDuringOpen: decoder.execution?.decodeDuringOpen,
+    planPixelDecode: plan.io.pixelDecode,
+    rows,
+    checksum,
+    managedMemory: report.managedMemory,
+  }
+}
 
 export const runJpegXlPipelines = async (
   load: (name: string) => Promise<Uint8Array> = async (name) => {
@@ -340,4 +385,57 @@ export async function verifyJpegXlDisplayRecipes(
     })
   }
   return results
+}
+
+export const verifyProgressiveJpegXl = async (bytes: Uint8Array) => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const evidence = createEvidenceSession({ mode: 'trace' })
+  const session = await openJpegXlSession(bytes, { evidence: evidence.context })
+  const stages: { kind: string; passes: number; checksum: number; groups: readonly number[] }[] = []
+  let checksum = 0
+  for await (const event of session.progressive({
+    region: { x: 10, y: 10, width: 20, height: 20 },
+    scaleDenominator: 2,
+  })) {
+    if (event.type === 'stage-start') checksum = 0
+    else if (event.type === 'block') {
+      for (const value of event.block.data) checksum = (checksum * 31 + value) >>> 0
+      event.block.release?.()
+    } else if (event.type === 'stage-complete')
+      stages.push({
+        kind: event.stage.kind,
+        passes: event.stage.completedPasses,
+        checksum,
+        groups: event.stage.plan.groupIds,
+      })
+  }
+  const bytesBefore = session.sourceSectionBytes
+  for await (const event of session.decode({ until: 'dc', scaleDenominator: 8 }))
+    if (event.type === 'block') event.block.release?.()
+  const reused = session.sourceSectionBytes === bytesBefore
+  await session.close()
+  const controller = new AbortController()
+  const cancellationEvidence = createEvidenceSession({ mode: 'trace' })
+  cancellationEvidence.subscribe((event) => {
+    if (event.type === 'allocation' && event.category === 'jpegxl-vardct-dc-preview-restoration')
+      setTimeout(() => controller.abort(), 0)
+  })
+  const cancelSession = await openJpegXlSession(bytes, { evidence: cancellationEvidence.context })
+  let cancelled = false
+  try {
+    for await (const event of cancelSession.native({
+      scaleDenominator: 8,
+      signal: controller.signal,
+    }))
+      if (event.type === 'block') event.block.release?.()
+  } catch (error) {
+    cancelled = error instanceof Error && error.name === 'AbortError'
+  }
+  await cancelSession.close()
+  return {
+    stages,
+    reused,
+    cancelled,
+    liveBytes: session.managedLiveBytes + cancelSession.managedLiveBytes,
+  }
 }

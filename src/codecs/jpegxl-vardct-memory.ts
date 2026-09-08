@@ -77,6 +77,19 @@ export class JpegXlVarDctMemoryLedger {
   releaseAll(): void {
     for (const lease of [...this.#leases]) lease.release()
   }
+
+  /** Roll back one request without releasing LF or source cache leases that predate it. */
+  checkpoint(): () => void {
+    const retained = new Set(this.#leases)
+    let rolledBack = false
+    return (): void => {
+      if (rolledBack) return
+      rolledBack = true
+      for (const lease of this.#leases) {
+        if (!retained.has(lease)) lease.release()
+      }
+    }
+  }
 }
 
 export const retainedTypedArrayBytes = (value: unknown): number => {
@@ -84,7 +97,11 @@ export const retainedTypedArrayBytes = (value: unknown): number => {
   const visit = (current: unknown): number => {
     if (typeof current !== 'object' || current === null || seen.has(current)) return 0
     seen.add(current)
-    if (ArrayBuffer.isView(current)) return current.byteLength
+    if (ArrayBuffer.isView(current)) {
+      if (seen.has(current.buffer)) return 0
+      seen.add(current.buffer)
+      return current.buffer.byteLength
+    }
     if (current instanceof ArrayBuffer) return current.byteLength
     if (Array.isArray(current)) return current.reduce((total, item) => total + visit(item), 0)
     return Object.values(current).reduce((total, item) => total + visit(item), 0)

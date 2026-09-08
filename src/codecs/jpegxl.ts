@@ -265,7 +265,7 @@ const describeJpegXlDecoder = (
       (frame.alphaAssociated && decoder.colorSemantics?.alpha === 'straight'),
     orientation: frame.orientation,
     sampleBitDepths,
-    decodeDuringOpen: encoding === 'vardct',
+    decodeDuringOpen: encoding === 'vardct' && decoder.capabilities.scaledDecode,
     fullFrameFallbackReasons: Object.freeze(
       encoding === 'vardct'
         ? [
@@ -307,24 +307,22 @@ const describeJpegXlDecoder = (
       }),
     }),
   })
-  return Object.freeze({
+  const described = {
     width: decoder.width,
     height: decoder.height,
     pixelFormat: decoder.pixelFormat,
     ...(decoder.colorSemantics ? { colorSemantics: decoder.colorSemantics } : {}),
     capabilities: decoder.capabilities,
-    ...('managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
-      ? {
-          get managedPeakBytes(): number {
-            return 'managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
-              ? decoder.managedPeakBytes
-              : 0
-          },
-        }
-      : {}),
     execution,
     decode: (request: Parameters<ImageDecoder['decode']>[0]) => decoder.decode(request),
-  })
+  }
+  if ('managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number') {
+    Object.defineProperty(described, 'managedPeakBytes', {
+      enumerable: true,
+      get: () => decoder.managedPeakBytes,
+    })
+  }
+  return Object.freeze(described)
 }
 
 /** Registered first-party JPEG XL codec with a bounded lossless Modular subset. */

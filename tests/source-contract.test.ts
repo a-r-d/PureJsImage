@@ -417,3 +417,22 @@ describe('HttpRangeSource', () => {
     expect(source.stats.bytesFetched).toBeLessThan(encoded.byteLength / 4)
   })
 })
+
+it('can validate planned section reads without adding automatic read-ahead', async () => {
+  const { createImageSource } = await import('../src/source.ts')
+  const { defaultImageLimits } = await import('../src/limits.ts')
+  const reads: number[][] = []
+  const source = await createImageSource(
+    {
+      size: 1_000_000,
+      async read(offset, length) {
+        reads.push([offset, length])
+        return new Uint8Array(length)
+      },
+    },
+    defaultImageLimits,
+    { buffering: 'none' },
+  )
+  expect((await source.read(100, 7)).length).toBe(7)
+  expect(reads).toEqual([[100, 7]])
+})

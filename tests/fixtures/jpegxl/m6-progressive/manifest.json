@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "librarySha256": "29eea9f83a05f1851e18fc5f414916ca6c28e278f68622969bea68d7516ecdc5",
+  "api": [
+    "JxlDecoderSetProgressiveDetail(kPasses)",
+    "JxlDecoderFlushImage",
+    "JxlDecoderGetIntendedDownsamplingRatio"
+  ],
+  "inputPath": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance2-progressive.jxl",
+  "inputSha256": "9fe91c79eb4862c4d4f6c4cd8d3bb565cc0598982c5d89ee94a056b008ac67d1",
+  "inputBytes": 1893,
+  "width": 43,
+  "height": 35,
+  "channels": 3,
+  "bitDepth": 8,
+  "output": "encoded-coordinate integer samples; 16-bit samples use big endian; flush stages retain full dimensions",
+  "stages": [
+    {
+      "stage": 0,
+      "kind": "flush",
+      "intendedDownsampling": 8,
+      "consumedBytes": 220,
+      "file": "stage-0.bin",
+      "sha256": "c305dbf1ac8586cccaba660ae59afad805bdd4ff2ec970b48196ba159908f68f"
+    },
+    {
+      "stage": 1,
+      "kind": "flush",
+      "intendedDownsampling": 4,
+      "consumedBytes": 513,
+      "file": "stage-1.bin",
+      "sha256": "a1d4c73cc83b7ea328136cd8accf05fea1eecf2b96fe6b4cf25bb5704fcaa8c7"
+    },
+    {
+      "stage": 2,
+      "kind": "flush",
+      "intendedDownsampling": 2,
+      "consumedBytes": 744,
+      "file": "stage-2.bin",
+      "sha256": "e5bac6425af4cc440c40af89705377d7921aa9eaa3eceef5146f1a7090c34e49"
+    },
+    {
+      "stage": 3,
+      "kind": "final",
+      "intendedDownsampling": 1,
+      "consumedBytes": 1893,
+      "file": "stage-3.bin",
+      "sha256": "6bf6632db0d380f4acab7a4db23f125f2f0d7969a64d8c67c042ab331bfeb39d"
+    }
+  ]
+}

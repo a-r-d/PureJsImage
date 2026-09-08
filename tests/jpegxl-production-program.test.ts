@@ -44,7 +44,9 @@ describe('JPEG XL production program baseline', () => {
       'M9',
       'M10',
     ])
-    expect(['in progress', 'PR open']).toContain(milestones[0]?.status)
+    expect(milestones.slice(0, 6).map(({ status }) => status)).toEqual(
+      Array.from({ length: 6 }, () => 'merged'),
+    )
     expect(milestones.map(({ stablePromotionGatePassed }) => stablePromotionGatePassed)).toEqual([
       false,
       true,

@@ -1,25 +1,31 @@
+import { throwIfAborted } from '../abort.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { linearToSrgb } from './icc.ts'
 import {
-  jpegXlXybOutputIsLinear,
   decodeJpegXlStandaloneModular,
-  readJpegXlStandaloneModularHeader,
   type JpegXlFrameStructure,
+  jpegXlXybOutputIsLinear,
+  readJpegXlStandaloneModularHeader,
 } from './jpegxl-decode.ts'
+import {
+  type JpegXlProgressiveRequest,
+  jpegXlEncodedPoint,
+  planJpegXlProgressive,
+} from './jpegxl-progressive-plan.ts'
 import {
   decodeJpegXlJpegAcGroup,
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegHfGlobal,
   decodeJpegXlJpegLfGlobal,
-  jpegXlVarDctStrategyBlockHeights,
-  jpegXlVarDctStrategyBlockWidths,
   type JpegXlJpegAcGroup,
   type JpegXlJpegColorCorrelation,
   type JpegXlJpegDcGroup,
   type JpegXlJpegHfGlobal,
   type JpegXlJpegLfGlobal,
   type JpegXlSpline,
+  jpegXlVarDctStrategyBlockHeights,
+  jpegXlVarDctStrategyBlockWidths,
 } from './jpegxl-vardct-jpeg.ts'
 import {
   type JpegXlVarDctMemoryLease,
@@ -2854,6 +2860,362 @@ const decodeJpegXlVarDctDcGroups = (
   return Object.freeze({ group: Object.freeze(assembled), lease: assembledLease })
 }
 
+const prepareRenderDcPlanes = (
+  frame: Readonly<JpegXlFrameStructure>,
+  lfGlobal: Readonly<JpegXlJpegLfGlobal>,
+  dcGroup: Readonly<JpegXlJpegDcGroup>,
+  memory: JpegXlVarDctMemoryLedger,
+  externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
+): Readonly<{
+  planes: readonly [Float64Array, Float64Array, Float64Array]
+  lease: JpegXlVarDctMemoryLease | undefined
+}> => {
+  const blockWidth = Math.ceil(frame.codedWidth / 8)
+  const blockHeight = Math.ceil(frame.codedHeight / 8)
+  const inverseGlobalScale = 65_536 / lfGlobal.globalScale
+  const dcFactors = [
+    (inverseGlobalScale * (lfGlobal.dcQuantization[0] ?? 1)) / lfGlobal.quantDc,
+    (inverseGlobalScale * (lfGlobal.dcQuantization[1] ?? 1)) / lfGlobal.quantDc,
+    (inverseGlobalScale * (lfGlobal.dcQuantization[2] ?? 1)) / lfGlobal.quantDc,
+  ] as const
+  const rawDcPlanes = [
+    dcGroup.dcCoefficients[1],
+    dcGroup.dcCoefficients[0],
+    dcGroup.dcCoefficients[2],
+  ] as const
+  if (((frame.frameFlags & 32) !== 0) !== (externalDcPlanes !== undefined)) {
+    throw invalidInput('JPEG XL VarDCT external DC frame dependency is inconsistent')
+  }
+  const renderDcLease = externalDcPlanes
+    ? undefined
+    : memory.retain('jpegxl-vardct-render-dc-planes', blockWidth * blockHeight * 3 * 8)
+  const dcPlanes: readonly [Float64Array, Float64Array, Float64Array] = externalDcPlanes ?? [
+    new Float64Array(blockWidth * blockHeight),
+    new Float64Array(blockWidth * blockHeight),
+    new Float64Array(blockWidth * blockHeight),
+  ]
+  if (!externalDcPlanes) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const source = rawDcPlanes[channel]
+      const destination = dcPlanes[channel]
+      const factor = dcFactors[channel]
+      if (!source || !destination || factor === undefined) {
+        throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
+      }
+      for (let index = 0; index < destination.length; index += 1) {
+        destination[index] = (source[index] ?? 0) * factor
+      }
+    }
+    const yDcPlane = dcPlanes[1]
+    for (const channel of [0, 2] as const) {
+      const destination = dcPlanes[channel]
+      const ratio = dcCorrelationRatio(lfGlobal.colorCorrelation, channel)
+      for (let index = 0; index < destination.length; index += 1) {
+        destination[index] = (destination[index] ?? 0) + (yDcPlane[index] ?? 0) * ratio
+      }
+    }
+    if ((frame.frameFlags & 128) === 0) {
+      applyAdaptiveDcSmoothing(dcPlanes, blockWidth, blockHeight, dcFactors)
+    }
+  }
+
+  return { planes: dcPlanes, lease: renderDcLease }
+}
+
+/** Session-owned entropy state. It is tied to the parsed frame and its memory ledger. */
+export interface JpegXlVarDctLowFrequencyState {
+  readonly frame: Readonly<JpegXlFrameStructure>
+  readonly memory: JpegXlVarDctMemoryLedger
+  readonly lfGlobal: Readonly<JpegXlJpegLfGlobal>
+  readonly dcGroup: Readonly<JpegXlJpegDcGroup>
+  readonly dcPlanes: readonly [Float64Array, Float64Array, Float64Array]
+  readonly released: boolean
+  release(): void
+}
+
+export const prepareJpegXlVarDctLowFrequency = (
+  sections: readonly Uint8Array[],
+  frame: Readonly<JpegXlFrameStructure>,
+  memory: JpegXlVarDctMemoryLedger,
+  externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
+): JpegXlVarDctLowFrequencyState => {
+  if (
+    frame.encoding !== 'vardct' ||
+    frame.colorTransform !== 'xyb' ||
+    frame.extraChannels.length !== 0
+  )
+    throw unsupportedOperation(
+      'JPEG XL reusable LF state requires XYB VarDCT without extra channels',
+    )
+  const section = sections[0]
+  if (!section) throw invalidInput('JPEG XL LF global section is missing')
+  const rollback = memory.checkpoint()
+  const separated = frame.sections.length > 1
+  const lfGlobal = decodeJpegXlJpegLfGlobal(
+    section,
+    0,
+    separated,
+    frame.frameFlags,
+    frame.codedWidth,
+    frame.codedHeight,
+    0,
+  )
+  const lfLease = memory.retain('jpegxl-vardct-lf-metadata', retainedTypedArrayBytes(lfGlobal))
+  let dcLease: JpegXlVarDctMemoryLease | undefined
+  let planesLease: JpegXlVarDctMemoryLease | undefined
+  try {
+    const decoded = decodeJpegXlVarDctDcGroups(
+      sections,
+      frame,
+      lfGlobal,
+      Math.ceil(frame.codedWidth / 8),
+      Math.ceil(frame.codedHeight / 8),
+      separated,
+      memory,
+      lfGlobal.endingBitPosition,
+      externalDcPlanes,
+    )
+    dcLease = decoded.lease
+    const prepared = prepareRenderDcPlanes(frame, lfGlobal, decoded.group, memory, externalDcPlanes)
+    planesLease = prepared.lease
+    let released = false
+    return Object.freeze({
+      frame,
+      memory,
+      lfGlobal,
+      dcGroup: decoded.group,
+      dcPlanes: prepared.planes,
+      get released(): boolean {
+        return released
+      },
+      release(): void {
+        if (released) return
+        released = true
+        planesLease?.release()
+        dcLease?.release()
+        lfLease.release()
+      },
+    })
+  } catch (error) {
+    planesLease?.release()
+    dcLease?.release()
+    lfLease.release()
+    rollback()
+    throw error
+  }
+}
+
+/** Sample the complete DC preview in restoration bands, without a full-resolution image. */
+const renderJpegXlVarDctLowFrequencySteps = function* (
+  state: JpegXlVarDctLowFrequencyState,
+  scaleDenominator: 1 | 2 | 4 | 8 = 8,
+  request: Readonly<JpegXlProgressiveRequest> = {},
+): Generator<void, JpegXlVarDctPixels | undefined> {
+  const { frame, memory, lfGlobal } = state
+  if (state.released) throw invalidInput('JPEG XL LF state has been released')
+  if (
+    frame.bitDepth !== 8 ||
+    jpegXlXybOutputIsLinear(frame) ||
+    frame.upsampling !== 1 ||
+    lfGlobal.patches.length > 0 ||
+    lfGlobal.splines.length > 0 ||
+    lfGlobal.noiseLut !== undefined
+  )
+    throw unsupportedOperation(
+      'JPEG XL DC preview requires 8-bit SDR without upsampling, patches, splines or noise',
+    )
+  const blockWidth = Math.ceil(frame.codedWidth / 8)
+  const blockHeight = Math.ceil(frame.codedHeight / 8)
+  const stride = blockWidth * 8
+  const plan = planJpegXlProgressive(frame, { ...request, until: 'dc', scaleDenominator }, state)
+  const region = plan.outputRegion
+  const orientation = plan.coordinateSpace === 'display' ? frame.orientation : 1
+  const transpose = orientation >= 5
+  const width = Math.ceil(region.width / scaleDenominator)
+  const height = Math.ceil(region.height / scaleDenominator)
+  const channels = frame.colorChannels
+  const outputLease = memory.retain('jpegxl-vardct-dc-preview-output', width * height * channels)
+  let scratchLease: JpegXlVarDctMemoryLease | undefined
+  try {
+    const bandRows = 32
+    const maximumRows = Math.min(frame.height, bandRows + 16)
+    scratchLease = memory.retain(
+      'jpegxl-vardct-dc-preview-restoration',
+      blockWidth * blockHeight * (3 * 4 + 8) +
+        stride * maximumRows * 8 * 4 +
+        (width + height) * 4 +
+        75 * 4,
+    )
+    const encodedXs = new Int32Array(transpose ? height : width)
+    const encodedYs = new Int32Array(transpose ? width : height)
+    const half = Math.floor(scaleDenominator / 2)
+    for (let index = 0; index < encodedXs.length; index += 1) {
+      const x = transpose
+        ? region.x
+        : region.x + Math.min(region.width - 1, index * scaleDenominator + half)
+      const y = transpose
+        ? region.y + Math.min(region.height - 1, index * scaleDenominator + half)
+        : region.y
+      encodedXs[index] = jpegXlEncodedPoint(x, y, frame.width, frame.height, orientation)[0]
+    }
+    for (let index = 0; index < encodedYs.length; index += 1) {
+      const x = transpose
+        ? region.x + Math.min(region.width - 1, index * scaleDenominator + half)
+        : region.x
+      const y = transpose
+        ? region.y
+        : region.y + Math.min(region.height - 1, index * scaleDenominator + half)
+      encodedYs[index] = jpegXlEncodedPoint(x, y, frame.width, frame.height, orientation)[1]
+    }
+    const lowPlanes = [
+      Float32Array.from(state.dcPlanes[0]),
+      Float32Array.from(state.dcPlanes[1]),
+      Float32Array.from(state.dcPlanes[2]),
+    ] as const
+    const inverseSigmas = makeEpfInverseSigmas(
+      state.dcGroup.quantization,
+      state.dcGroup.sharpness,
+      lfGlobal.globalScale,
+    )
+    const output = new Uint8Array(width * height * channels)
+    const grayScratch = new Uint8Array(3)
+    const planes = [
+      new Float32Array(stride * maximumRows),
+      new Float32Array(stride * maximumRows),
+      new Float32Array(stride * maximumRows),
+    ] as const
+    const gaborishScratch = new Float32Array(stride * maximumRows)
+    const epfScratch = [
+      new Float32Array(stride * maximumRows),
+      new Float32Array(stride * maximumRows),
+      new Float32Array(stride * maximumRows),
+    ] as const
+    const differenceScratch = [gaborishScratch, new Float32Array(stride * maximumRows)] as const
+    const neighborhood = new Float32Array(75)
+    const kernel = upsamplingKernels[8]
+    const endRegionY = plan.encodedRegion.y + plan.encodedRegion.height
+    for (
+      let bandY = Math.floor(plan.encodedRegion.y / bandRows) * bandRows;
+      bandY < endRegionY;
+      bandY += bandRows
+    ) {
+      const firstY = Math.max(0, bandY - 8)
+      const endY = Math.min(frame.height, bandY + bandRows + 8)
+      const rows = endY - firstY
+      // All 64 output phases use the same source neighborhood and anti-ringing bounds.
+      // Gather and bound it once, retaining the original 25-term accumulation order.
+      for (let sourceY = Math.floor(firstY / 8); sourceY * 8 < endY; sourceY++) {
+        for (let sourceX = 0; sourceX < blockWidth; sourceX++) {
+          let minimumX = Infinity,
+            minimumY = Infinity,
+            minimumB = Infinity
+          let maximumX = -Infinity,
+            maximumY = -Infinity,
+            maximumB = -Infinity
+          let tap = 0
+          for (let dy = -2; dy <= 2; dy++) {
+            const row = mirroredIndex(sourceY + dy, blockHeight) * blockWidth
+            for (let dx = -2; dx <= 2; dx++) {
+              const index = row + mirroredIndex(sourceX + dx, blockWidth)
+              const x = lowPlanes[0][index] ?? 0,
+                y = lowPlanes[1][index] ?? 0,
+                b = lowPlanes[2][index] ?? 0
+              neighborhood[tap++] = x
+              neighborhood[tap++] = y
+              neighborhood[tap++] = b
+              minimumX = Math.min(minimumX, x)
+              maximumX = Math.max(maximumX, x)
+              minimumY = Math.min(minimumY, y)
+              maximumY = Math.max(maximumY, y)
+              minimumB = Math.min(minimumB, b)
+              maximumB = Math.max(maximumB, b)
+            }
+          }
+          const firstPhaseY = Math.max(0, firstY - sourceY * 8)
+          const endPhaseY = Math.min(8, endY - sourceY * 8)
+          const endPhaseX = Math.min(8, frame.width - sourceX * 8)
+          for (let phaseY = firstPhaseY; phaseY < endPhaseY; phaseY++) {
+            const row = (sourceY * 8 + phaseY - firstY) * stride + sourceX * 8
+            for (let phaseX = 0; phaseX < endPhaseX; phaseX++) {
+              const weights = (phaseY * 8 + phaseX) * 25
+              let sumX = 0,
+                sumY = 0,
+                sumB = 0
+              for (let sample = 0; sample < 25; sample++) {
+                const weight = kernel[weights + sample] ?? 0
+                sumX += (neighborhood[sample * 3] ?? 0) * weight
+                sumY += (neighborhood[sample * 3 + 1] ?? 0) * weight
+                sumB += (neighborhood[sample * 3 + 2] ?? 0) * weight
+              }
+              planes[0][row + phaseX] = Math.max(minimumX, Math.min(maximumX, sumX))
+              planes[1][row + phaseX] = Math.max(minimumY, Math.min(maximumY, sumY))
+              planes[2][row + phaseX] = Math.max(minimumB, Math.min(maximumB, sumB))
+            }
+          }
+        }
+        yield
+      }
+      if (frame.gaborish) applyDefaultGaborish(planes, stride, frame.width, rows, gaborishScratch)
+      for (const stage of [0, 1, 2] as const) {
+        const enabled =
+          stage === 0
+            ? frame.epfIterations >= 3
+            : stage === 1
+              ? frame.epfIterations >= 1
+              : frame.epfIterations >= 2
+        if (enabled)
+          applyDefaultEpfStage(
+            planes,
+            stride,
+            frame.width,
+            rows,
+            blockWidth,
+            inverseSigmas,
+            stage,
+            firstY / 8,
+            epfScratch,
+            differenceScratch,
+            frame.height,
+          )
+      }
+      for (let y = 0; y < encodedYs.length; y += 1) {
+        const absoluteY = encodedYs[y]
+        if (absoluteY === undefined || absoluteY < bandY || absoluteY >= bandY + bandRows) continue
+        const sampleY = absoluteY - firstY
+        for (let x = 0; x < encodedXs.length; x += 1) {
+          const sampleX = encodedXs[x]
+          if (sampleX === undefined) throw invalidInput('JPEG XL DC sample coordinate is missing')
+          const source = sampleY * stride + sampleX
+          const offset = (transpose ? x * width + y : y * width + x) * channels
+          writeRgb(
+            channels === 3 ? output : grayScratch,
+            channels === 3 ? offset : 0,
+            planes[0][source] ?? 0,
+            planes[1][source] ?? 0,
+            planes[2][source] ?? 0,
+          )
+          if (channels === 1) output[offset] = grayScratch[0] ?? 0
+        }
+      }
+    }
+    return Object.freeze({
+      width,
+      height,
+      format: channels === 1 ? 'gray8' : 'rgb8',
+      data: output,
+      managedPeakBytes: memory.peakBytes,
+      release: outputLease.release,
+    })
+  } catch (error) {
+    outputLease.release()
+    throw error
+  } finally {
+    scratchLease?.release()
+  }
+}
+
+const borrowedLowFrequencyLease: JpegXlVarDctMemoryLease = Object.freeze({ release(): void {} })
+
 interface JpegXlVarDctBand {
   readonly blockY: number
   readonly pixelY: number
@@ -2864,7 +3226,7 @@ interface JpegXlVarDctBand {
   readonly lease: JpegXlVarDctMemoryLease
 }
 
-const decodeJpegXlDct8Striped = (
+const decodeJpegXlDct8Striped = function* (
   allSections: readonly Uint8Array[],
   frame: Readonly<JpegXlFrameStructure>,
   memory: JpegXlVarDctMemoryLedger,
@@ -2874,7 +3236,10 @@ const decodeJpegXlDct8Striped = (
   lfGlobalLease: JpegXlVarDctMemoryLease,
   hfGlobalLease: JpegXlVarDctMemoryLease,
   dcGroupLease: JpegXlVarDctMemoryLease,
-): JpegXlVarDctPixels => {
+  maximumPasses: number,
+  preparedLowFrequency: JpegXlVarDctLowFrequencyState | undefined,
+  selectedGroups: ReadonlySet<number> | undefined,
+): Generator<void, JpegXlVarDctPixels | undefined> {
   const codedWidth = frame.codedWidth
   const codedHeight = frame.codedHeight
   const blockWidth = Math.ceil(codedWidth / 8)
@@ -2927,49 +3292,11 @@ const decodeJpegXlDct8Striped = (
     1,
     (1 / 1.25) ** (frame.bQuantizationScale - 2),
   ] as const
-  const dcFactors = [
-    (inverseGlobalScale * (lfGlobal.dcQuantization[0] ?? 1)) / lfGlobal.quantDc,
-    (inverseGlobalScale * (lfGlobal.dcQuantization[1] ?? 1)) / lfGlobal.quantDc,
-    (inverseGlobalScale * (lfGlobal.dcQuantization[2] ?? 1)) / lfGlobal.quantDc,
-  ] as const
-  const rawDcPlanes = [
-    dcGroup.dcCoefficients[1],
-    dcGroup.dcCoefficients[0],
-    dcGroup.dcCoefficients[2],
-  ] as const
-  const renderDcLease = memory.retain(
-    'jpegxl-vardct-render-dc-planes',
-    blockWidth * blockHeight * 3 * 8,
-  )
-  const dcPlanes: readonly [Float64Array, Float64Array, Float64Array] = [
-    new Float64Array(blockWidth * blockHeight),
-    new Float64Array(blockWidth * blockHeight),
-    new Float64Array(blockWidth * blockHeight),
-  ]
-  for (let channel = 0; channel < 3; channel += 1) {
-    const source = rawDcPlanes[channel]
-    const destination = dcPlanes[channel]
-    const factor = dcFactors[channel]
-    if (!source || !destination || factor === undefined) {
-      throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
-    }
-    for (let index = 0; index < destination.length; index += 1) {
-      destination[index] = (source[index] ?? 0) * factor
-    }
-  }
-  const yDcPlane = dcPlanes[1]
-  for (const channel of [0, 2] as const) {
-    const destination = dcPlanes[channel]
-    const ratio = dcCorrelationRatio(lfGlobal.colorCorrelation, channel)
-    for (let index = 0; index < destination.length; index += 1) {
-      destination[index] = (destination[index] ?? 0) + (yDcPlane[index] ?? 0) * ratio
-    }
-  }
-  if ((frame.frameFlags & 128) === 0) {
-    applyAdaptiveDcSmoothing(dcPlanes, blockWidth, blockHeight, dcFactors)
-  }
+  const { planes: dcPlanes, lease: renderDcLease } = preparedLowFrequency
+    ? { planes: preparedLowFrequency.dcPlanes, lease: undefined }
+    : prepareRenderDcPlanes(frame, lfGlobal, dcGroup, memory)
 
-  const renderBand = (groupY: number): JpegXlVarDctBand => {
+  const renderBand = function* (groupY: number): Generator<void, JpegXlVarDctBand> {
     const restorationHalo = 8
     const bandBlockY = groupY * groupBlockDimension
     const bandBlockHeight = Math.min(groupBlockDimension, blockHeight - bandBlockY)
@@ -2987,11 +3314,12 @@ const decodeJpegXlDct8Striped = (
     try {
       for (let groupX = 0; groupX < frame.groupsAcross; groupX += 1) {
         const groupId = groupY * frame.groupsAcross + groupX
+        if (selectedGroups && !selectedGroups.has(groupId)) continue
         const groupBlockX = groupX * groupBlockDimension
         const groupBlockWidth = Math.min(groupBlockDimension, blockWidth - groupBlockX)
         let acGroup: JpegXlJpegAcGroup | undefined
         let acGroupLease: JpegXlVarDctMemoryLease | undefined
-        for (let passIndex = 0; passIndex < frame.passCount; passIndex += 1) {
+        for (let passIndex = 0; passIndex < maximumPasses; passIndex += 1) {
           const pass = hfGlobal.passes[passIndex]
           const acSection = allSections[2 + frame.dcGroupCount + passIndex * groupCount + groupId]
           if (!pass || !acSection) throw invalidInput('JPEG XL VarDCT pass group is missing')
@@ -3196,6 +3524,7 @@ const decodeJpegXlDct8Striped = (
           }
         }
         acGroupLease?.release()
+        yield
       }
       const topStart = restorationHalo * paddedWidth
       const bottomStart =
@@ -3306,7 +3635,7 @@ const decodeJpegXlDct8Striped = (
   let center: JpegXlVarDctBand | undefined
   try {
     for (let groupY = 0; groupY < frame.groupsDown; groupY += 1) {
-      const next = renderBand(groupY)
+      const next = yield* renderBand(groupY)
       if (!center) {
         center = next
         continue
@@ -3322,7 +3651,7 @@ const decodeJpegXlDct8Striped = (
     center?.lease.release()
     transformScratchLease.release()
     restorationScratchLease.release()
-    renderDcLease.release()
+    renderDcLease?.release()
     hfGlobalLease.release()
     dcGroupLease.release()
     lfGlobalLease.release()
@@ -3338,7 +3667,7 @@ const decodeJpegXlDct8Striped = (
   return result
 }
 
-export const decodeJpegXlDct8Section = (
+const decodeJpegXlDct8Steps = function* (
   section: Uint8Array,
   frame: Readonly<JpegXlFrameStructure>,
   limits: Readonly<ImageLimits>,
@@ -3347,7 +3676,21 @@ export const decodeJpegXlDct8Section = (
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
   returnDcPlanes = false,
   references: ReadonlyMap<number, Readonly<JpegXlVarDctReference>> = new Map(),
-): JpegXlVarDctPixels => {
+  preparedLowFrequency?: JpegXlVarDctLowFrequencyState,
+  maximumPasses = frame.passCount,
+  selectedGroups?: ReadonlySet<number>,
+): Generator<void, JpegXlVarDctPixels | undefined> {
+  if (!Number.isSafeInteger(maximumPasses) || maximumPasses < 1 || maximumPasses > frame.passCount)
+    throw invalidInput('JPEG XL requested pass count is invalid')
+  if (
+    preparedLowFrequency &&
+    (preparedLowFrequency.frame !== frame ||
+      preparedLowFrequency.memory !== memory ||
+      preparedLowFrequency.released)
+  )
+    throw invalidInput('JPEG XL LF state does not belong to this live frame and memory ledger')
+  if (maximumPasses !== frame.passCount && frame.extraChannels.length !== 0)
+    throw unsupportedOperation('JPEG XL partial passes with extra channels are not supported')
   const separatedSections = continuationSections !== undefined
   if (
     frame.encoding !== 'vardct' ||
@@ -3407,19 +3750,31 @@ export const decodeJpegXlDct8Section = (
   )
   const alphaLease = memory.retain('jpegxl-alpha-working-planes', alphaWorkingBytes)
   const allSections = separatedSections ? [section, ...continuationSections] : [section]
-  const lfGlobal = decodeJpegXlJpegLfGlobal(
-    section,
-    0,
-    separatedSections && frame.alphaBitDepth === undefined,
-    frame.frameFlags,
-    frame.codedWidth,
-    frame.codedHeight,
-    frame.extraChannels.length,
+  const lfGlobal =
+    preparedLowFrequency?.lfGlobal ??
+    decodeJpegXlJpegLfGlobal(
+      section,
+      0,
+      separatedSections && frame.alphaBitDepth === undefined,
+      frame.frameFlags,
+      frame.codedWidth,
+      frame.codedHeight,
+      frame.extraChannels.length,
+    )
+  const lfGlobalLease = preparedLowFrequency
+    ? borrowedLowFrequencyLease
+    : memory.retain('jpegxl-vardct-lf-metadata', retainedTypedArrayBytes(lfGlobal))
+  if (
+    selectedGroups &&
+    (frame.extraChannels.length !== 0 ||
+      frame.upsampling !== 1 ||
+      lfGlobal.patches.length !== 0 ||
+      lfGlobal.splines.length !== 0 ||
+      lfGlobal.noiseLut !== undefined)
   )
-  const lfGlobalLease = memory.retain(
-    'jpegxl-vardct-lf-metadata',
-    retainedTypedArrayBytes(lfGlobal),
-  )
+    throw unsupportedOperation(
+      'JPEG XL selected groups require a complete dependency plan without extra channels, upsampling, patches, splines or noise',
+    )
   let globalSectionEnd = lfGlobal.endingBitPosition
   let alphaPlane: Int32Array<ArrayBufferLike> | undefined
   const groupedAlpha =
@@ -3449,17 +3804,19 @@ export const decodeJpegXlDct8Section = (
       globalSectionEnd = decodedAlpha.endingBitPosition
     }
   }
-  const { group: dcGroup, lease: dcGroupLease } = decodeJpegXlVarDctDcGroups(
-    allSections,
-    frame,
-    lfGlobal,
-    blockWidth,
-    blockHeight,
-    separatedSections,
-    memory,
-    globalSectionEnd,
-    externalDcPlanes,
-  )
+  const { group: dcGroup, lease: dcGroupLease } = preparedLowFrequency
+    ? { group: preparedLowFrequency.dcGroup, lease: borrowedLowFrequencyLease }
+    : decodeJpegXlVarDctDcGroups(
+        allSections,
+        frame,
+        lfGlobal,
+        blockWidth,
+        blockHeight,
+        separatedSections,
+        memory,
+        globalSectionEnd,
+        externalDcPlanes,
+      )
   const hfSection = separatedSections ? allSections[1 + frame.dcGroupCount] : section
   if (!hfSection) throw invalidInput('JPEG XL VarDCT HF global section is missing')
   const hfGlobal = decodeJpegXlJpegHfGlobal(
@@ -3491,7 +3848,7 @@ export const decodeJpegXlDct8Section = (
     lfGlobal.noiseLut === undefined
   ) {
     alphaLease.release()
-    return decodeJpegXlDct8Striped(
+    return yield* decodeJpegXlDct8Striped(
       allSections,
       frame,
       memory,
@@ -3501,6 +3858,9 @@ export const decodeJpegXlDct8Section = (
       lfGlobalLease,
       hfGlobalLease,
       dcGroupLease,
+      maximumPasses,
+      preparedLowFrequency,
+      selectedGroups,
     )
   }
   const primaryPlanesLease = memory.retain(
@@ -3531,62 +3891,21 @@ export const decodeJpegXlDct8Section = (
     1,
     (1 / 1.25) ** (frame.bQuantizationScale - 2),
   ] as const
-  const dcFactors = [
-    (inverseGlobalScale * (lfGlobal.dcQuantization[0] ?? 1)) / lfGlobal.quantDc,
-    (inverseGlobalScale * (lfGlobal.dcQuantization[1] ?? 1)) / lfGlobal.quantDc,
-    (inverseGlobalScale * (lfGlobal.dcQuantization[2] ?? 1)) / lfGlobal.quantDc,
-  ] as const
-  const rawDcPlanes = [
-    dcGroup.dcCoefficients[1],
-    dcGroup.dcCoefficients[0],
-    dcGroup.dcCoefficients[2],
-  ] as const
-  if (((frame.frameFlags & 32) !== 0) !== (externalDcPlanes !== undefined)) {
-    throw invalidInput('JPEG XL VarDCT external DC frame dependency is inconsistent')
-  }
-  const renderDcLease = externalDcPlanes
-    ? undefined
-    : memory.retain('jpegxl-vardct-render-dc-planes', blockWidth * blockHeight * 3 * 8)
-  const dcPlanes: readonly [Float64Array, Float64Array, Float64Array] = externalDcPlanes ?? [
-    new Float64Array(blockWidth * blockHeight),
-    new Float64Array(blockWidth * blockHeight),
-    new Float64Array(blockWidth * blockHeight),
-  ]
-  if (!externalDcPlanes) {
-    for (let channel = 0; channel < 3; channel += 1) {
-      const source = rawDcPlanes[channel]
-      const destination = dcPlanes[channel]
-      const factor = dcFactors[channel]
-      if (!source || !destination || factor === undefined) {
-        throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
-      }
-      for (let index = 0; index < destination.length; index += 1) {
-        destination[index] = (source[index] ?? 0) * factor
-      }
-    }
-    const yDcPlane = dcPlanes[1]
-    for (const channel of [0, 2] as const) {
-      const destination = dcPlanes[channel]
-      const ratio = dcCorrelationRatio(lfGlobal.colorCorrelation, channel)
-      for (let index = 0; index < destination.length; index += 1) {
-        destination[index] = (destination[index] ?? 0) + (yDcPlane[index] ?? 0) * ratio
-      }
-    }
-    if ((frame.frameFlags & 128) === 0) {
-      applyAdaptiveDcSmoothing(dcPlanes, blockWidth, blockHeight, dcFactors)
-    }
-  }
+  const { planes: dcPlanes, lease: renderDcLease } = preparedLowFrequency
+    ? { planes: preparedLowFrequency.dcPlanes, lease: undefined }
+    : prepareRenderDcPlanes(frame, lfGlobal, dcGroup, memory, externalDcPlanes)
 
   const groupCount = frame.groupsAcross * frame.groupsDown
   const groupBlockDimension = frame.groupDimension / 8
   for (let groupId = 0; groupId < groupCount; groupId += 1) {
+    if (selectedGroups && !selectedGroups.has(groupId)) continue
     const groupBlockX = (groupId % frame.groupsAcross) * groupBlockDimension
     const groupBlockY = Math.floor(groupId / frame.groupsAcross) * groupBlockDimension
     const groupBlockWidth = Math.min(groupBlockDimension, blockWidth - groupBlockX)
     const groupBlockHeight = Math.min(groupBlockDimension, blockHeight - groupBlockY)
     let acGroup: JpegXlJpegAcGroup | undefined
     let acGroupLease: JpegXlVarDctMemoryLease | undefined
-    for (let passIndex = 0; passIndex < frame.passCount; passIndex += 1) {
+    for (let passIndex = 0; passIndex < maximumPasses; passIndex += 1) {
       const pass = hfGlobal.passes[passIndex]
       const acSection = separatedSections
         ? allSections[2 + frame.dcGroupCount + passIndex * groupCount + groupId]
@@ -3817,6 +4136,7 @@ export const decodeJpegXlDct8Section = (
       }
     }
     acGroupLease?.release()
+    yield
   }
 
   if (frame.gaborish) {
@@ -4180,3 +4500,81 @@ export const decodeJpegXlDct8Section = (
     release: outputLease.release,
   })
 }
+
+const finishJpegXlSteps = (
+  steps: Generator<void, JpegXlVarDctPixels | undefined>,
+  memory: JpegXlVarDctMemoryLedger,
+): JpegXlVarDctPixels => {
+  const rollback = memory.checkpoint()
+  try {
+    let step = steps.next()
+    while (!step.done) step = steps.next()
+    if (!step.value) throw invalidInput('JPEG XL reconstruction ended without pixels')
+    return step.value
+  } catch (error) {
+    rollback()
+    throw error
+  }
+}
+
+const finishJpegXlStepsCancellable = async (
+  signal: AbortSignal | undefined,
+  steps: Generator<void, JpegXlVarDctPixels | undefined>,
+  memory: JpegXlVarDctMemoryLedger,
+): Promise<JpegXlVarDctPixels> => {
+  if (!signal) return finishJpegXlSteps(steps, memory)
+  throwIfAborted(signal)
+  const rollback = memory.checkpoint()
+  let completed = false
+  let deadline = performance.now() + 8
+  try {
+    for (;;) {
+      throwIfAborted(signal)
+      const step = steps.next()
+      if (step.done) {
+        if (!step.value) throw invalidInput('JPEG XL reconstruction ended without pixels')
+        completed = true
+        return step.value
+      }
+      if (performance.now() >= deadline) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0))
+        deadline = performance.now() + 8
+      }
+    }
+  } finally {
+    if (!completed) {
+      try {
+        steps.return(undefined)
+      } finally {
+        rollback()
+      }
+    }
+  }
+}
+
+/** Run the same reconstruction kernel synchronously for callers without cancellation. */
+export const decodeJpegXlDct8Section = (
+  ...parameters: Parameters<typeof decodeJpegXlDct8Steps>
+): JpegXlVarDctPixels => finishJpegXlSteps(decodeJpegXlDct8Steps(...parameters), parameters[3])
+
+/** Let timer and browser message tasks run between coefficient groups. */
+export const decodeJpegXlDct8SectionCancellable = async (
+  signal: AbortSignal | undefined,
+  ...parameters: Parameters<typeof decodeJpegXlDct8Steps>
+): Promise<JpegXlVarDctPixels> =>
+  finishJpegXlStepsCancellable(signal, decodeJpegXlDct8Steps(...parameters), parameters[3])
+
+export const renderJpegXlVarDctLowFrequency = (
+  ...parameters: Parameters<typeof renderJpegXlVarDctLowFrequencySteps>
+): JpegXlVarDctPixels =>
+  finishJpegXlSteps(renderJpegXlVarDctLowFrequencySteps(...parameters), parameters[0].memory)
+
+export const renderJpegXlVarDctLowFrequencyCancellable = async (
+  signal: AbortSignal | undefined,
+  ...parameters: Parameters<typeof renderJpegXlVarDctLowFrequencySteps>
+): Promise<JpegXlVarDctPixels> =>
+  finishJpegXlStepsCancellable(
+    signal,
+    renderJpegXlVarDctLowFrequencySteps(...parameters),
+    parameters[0].memory,
+  )

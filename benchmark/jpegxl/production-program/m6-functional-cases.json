@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-09-08T14:12:33.398Z",
+  "selection": "Thirty existing independent/generated functional regression cases chosen to cover progressive, nonprogressive, Modular, frame references, restoration features, upsampling, alpha, HDR, fragmentation, preview and permuted TOCs. These are known regression fixtures, not an unseen holdout. The separately frozen ten native photos complete the 40-case cohort.",
+  "cases": [
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/gray8-distance1-effort3.jxl",
+      "sha256": "5eff6ea35198b9f022bdd4b678d02a1b84fffa58641a2a09d79aea05d1ac16f0",
+      "bytes": 985
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/gray8-distance1-patches.jxl",
+      "sha256": "74412a268df52ca6eba08abbbd8533e043c600b9827b73fa811d96355b54a688",
+      "bytes": 20814
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort1.jxl",
+      "sha256": "d76fb97d372285dbfd47f1b70d3ab18d13fdf315ff560facfe3b674e1e3f9ef6",
+      "bytes": 2546
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-hornuss.jxl",
+      "sha256": "02dc544ab5541ec0c7a74fdc765708d63028533fe279a0e3231a3845fc439d22",
+      "bytes": 129456
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-large-transform.jxl",
+      "sha256": "e79f7a47b94b7f224c106bf123bf87107b4a97a1bab649884cce5c2e92f2910d",
+      "bytes": 2883
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-odd.jxl",
+      "sha256": "db2b92ab6fffddc72c1c7ed7aa32091b9ed72da67e32aaad3044e3a588cd6412",
+      "bytes": 150382
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl",
+      "sha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "bytes": 148917
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-progressive-dc2.jxl",
+      "sha256": "fa6d406ee4fb21d655e51bc0b6414cedcc0b4ac6f5b87cd3ecaceca051e851f7",
+      "bytes": 152119
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-strategy-mix.jxl",
+      "sha256": "ce0768841241ee87d905e02e74935924744328ceb3651ac5ec166498a3d5caee",
+      "bytes": 2044
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance2-progressive.jxl",
+      "sha256": "9fe91c79eb4862c4d4f6c4cd8d3bb565cc0598982c5d89ee94a056b008ac67d1",
+      "bytes": 1893
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance2-resampling2.jxl",
+      "sha256": "817c48037e4e52f47a147f30beb37007e73e836505bf1e7b3bd2118edece270b",
+      "bytes": 30119
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance4-dct4x4.jxl",
+      "sha256": "d6c71152ba427f906a7700137fc5c2f9a4ef95320c83b1f9dcca775a08fe463c",
+      "bytes": 54554
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance4-noise.jxl",
+      "sha256": "677c1bf76aa642b64b5425afa58653a90e597923f821acd0910a55f31c2d3ba9",
+      "bytes": 817
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance4-resampling4.jxl",
+      "sha256": "8205f39889c35280954d0c9315e33d0b50e30c966774057b2ef5003c29e2850b",
+      "bytes": 2782
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance8-resampling8.jxl",
+      "sha256": "3e2d09d42225ad7715db98599c73fe1597cbf336afe2508cd23ec6b13bad5295",
+      "bytes": 436
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-static-splines.jxl",
+      "sha256": "63d8c776c5f99f161ca0b832c3c5465d6dafff379ad95adc5cfed2d30251d8a0",
+      "bytes": 59
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgba8-distance1-alpha.jxl",
+      "sha256": "d55509eca72af772f830986129c5bccd6164ce12bf0b9c54a6e51b3a4e8c63fc",
+      "bytes": 48833
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-12.jxl",
+      "sha256": "f8ec0ec7fa1a6bbb356e013a2192baa894cc068259aa77a807e848c452a435fd",
+      "bytes": 351
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-8.jxl",
+      "sha256": "edfced5ce35ecd4e7fb24a026d088c33373dcca01d5b11a4e5f9584922d58477",
+      "bytes": 363
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-10.jxl",
+      "sha256": "741a47b291b0a603c459f73dec9c04e4b43e9767fd9db70ec9fc98e4e7ac212b",
+      "bytes": 339
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-12.jxl",
+      "sha256": "79dd2d5477cb33ac2494a40116732cc01f54166acb505a4e3c01feecae64e6d6",
+      "bytes": 361
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-12.jxl",
+      "sha256": "f100b92c0df7e41d2bcfdce86a9c3485461a3a053e7e0ee273001cace51ce9d6",
+      "bytes": 353
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/vardct-srgb-12.jxl",
+      "sha256": "693e895f5c79d404929d7f3f6570222e693580aabce44af13aa39da65e46726d",
+      "bytes": 162
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/vardct-linear-12.jxl",
+      "sha256": "f681962f6f8d773fb9c0d52e16941982b0189b69083dfbe45d89cfd8d312d5e4",
+      "bytes": 158
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/vardct-pq-12.jxl",
+      "sha256": "1b9d6b83beac62cd59fd0b427e9f70e73455baaf3f6295a17e875b16b6f7b87f",
+      "bytes": 225
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-premultiplied-12-8.jxl",
+      "sha256": "a6461fb74e7a1f2c0a043cb1e8fe08c2d5109866d667d5707804dcb6d2181780",
+      "bytes": 141
+    },
+    {
+      "path": "tests/fixtures/jpegxl/remediation/gray-alpha-12-8.jxl",
+      "sha256": "2045168b9316d434d2f6b4f93b19f8b3095664010b3c08c9d39473d598f2d26b",
+      "bytes": 45
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m5-pipeline/segmented.jxl",
+      "sha256": "35e5ae4ddec1c6da79f3f610287b8fe4b5bad95b8abe6c9dcad8f463def5e7d7",
+      "bytes": 431
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m6-preview/embedded-preview.jxl",
+      "sha256": "8eda8545669657efb2c093eacf43628052d92d468f4e75d80bed96fdd09f29f6",
+      "bytes": 2958
+    },
+    {
+      "path": "tests/fixtures/jpegxl/permuted-large-gray8.jxl",
+      "sha256": "23452102d25d7f58ff75e59691966ccfbefb986997289613230fd2a1a64b0b65",
+      "bytes": 254824
+    }
+  ]
+}

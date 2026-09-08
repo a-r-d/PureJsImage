@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+  "librarySha256": "29eea9f83a05f1851e18fc5f414916ca6c28e278f68622969bea68d7516ecdc5",
+  "api": [
+    "JxlDecoderSetProgressiveDetail(kPasses)",
+    "JxlDecoderFlushImage",
+    "JxlDecoderGetIntendedDownsamplingRatio"
+  ],
+  "inputPath": "tests/fixtures/jpegxl/m6-preview-modular/embedded-preview.jxl",
+  "inputSha256": "29acf852183a0119962482b46592711858396c826fee20c1cf6347fea647cf3f",
+  "inputBytes": 4134,
+  "width": 7,
+  "height": 5,
+  "channels": 3,
+  "bitDepth": 8,
+  "alphaBitDepth": 0,
+  "output": "encoded-coordinate integer samples; 16-bit samples use big endian; flush stages retain full dimensions",
+  "preview": {
+    "width": 333,
+    "height": 77,
+    "file": "embedded-preview.bin",
+    "sha256": "792e064d2880ec16c53fce2faefafc097460a3e06980f6561aae45432cf0c73a"
+  },
+  "stages": [
+    {
+      "stage": 0,
+      "kind": "final",
+      "intendedDownsampling": 1,
+      "consumedBytes": 4134,
+      "file": "stage-0.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    }
+  ]
+}

@@ -1,6 +1,35 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
-import { runJpegXlPipelines, verifyFloatJpegXl } from './jpegxl-pipeline-harness.ts'
+import {
+  runJpegXlPipelines,
+  verifyFloatJpegXl,
+  verifyLazyJpegXl,
+} from './jpegxl-pipeline-harness.ts'
+
+test('VarDCT header indexing and opening defer pixels in Node and browser', async ({ page }) => {
+  const input = new Uint8Array(
+    await readFile(
+      'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+    ),
+  )
+  const expected = await verifyLazyJpegXl(input)
+  expect(expected.headerRequestedBytes).toBe(141)
+  expect(expected.frameEnds).toEqual([10_829, 148_917])
+  expect(expected.openPeakBytes).toBe(0)
+  expect(expected.openRequestedBytes).toBeLessThan(input.length / 4)
+  expect(expected.decodeDuringOpen).toBe(false)
+  expect(expected.planPixelDecode).toBe(false)
+  expect(expected.managedMemory.currentLiveBytes).toBe(0)
+  expect(expected.managedMemory.peakLiveBytes).toBeGreaterThan(0)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    const response = await fetch('/fixtures/jpegxl-multi-group-progressive.jxl')
+    return module.verifyLazyJpegXl(new Uint8Array(await response.arrayBuffer()))
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('native float linear-light resize and explicit output conversion agree with Node', async ({
   page,
@@ -139,4 +168,77 @@ test('copied JPEG XL display recipes preserve pixels, alpha and orientation in t
     return (await import(path)).verifyJpegXlDisplayRecipes()
   })
   expect(actual).toEqual(expected)
+})
+
+test('progressive stages, viewport selection, cache reuse and timer cancellation match Node', async ({
+  page,
+}) => {
+  const { verifyProgressiveJpegXl } = await import('./jpegxl-pipeline-harness.ts')
+  const expected = await verifyProgressiveJpegXl(
+    new Uint8Array(
+      await readFile(
+        'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+      ),
+    ),
+  )
+  expect(expected.reused).toBe(true)
+  expect(expected.cancelled).toBe(true)
+  expect(expected.liveBytes).toBe(0)
+  expect(expected.stages.map((stage) => stage.kind)).toEqual(['dc', 'pass', 'pass', 'final'])
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const modulePath = '/jpegxl-pipeline.js'
+    const module = await import(modulePath)
+    const response = await fetch('/fixtures/jpegxl-multi-group-progressive.jxl')
+    return module.verifyProgressiveJpegXl(new Uint8Array(await response.arrayBuffer()))
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('Range explorer shows stages, byte counters and cached viewport reuse', async ({ page }) => {
+  await page.goto('/jpeg-xl/')
+  await page.locator('#jxl-progressive-url').fill('/fixtures/jpegxl-multi-group-progressive.jxl')
+  await page.locator('#jxl-run-native').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('dc complete')
+  const first = await page.locator('#jxl-progressive-metrics').textContent()
+  expect(first).toContain('physicalReadBytes')
+  const firstMetrics: unknown = JSON.parse(first ?? '{}')
+  if (
+    typeof firstMetrics !== 'object' ||
+    firstMetrics === null ||
+    !('physicalReadBytes' in firstMetrics) ||
+    typeof firstMetrics.physicalReadBytes !== 'number'
+  )
+    throw new Error('Missing physical read measurement')
+  expect(firstMetrics.physicalReadBytes).toBeLessThan(148_917 / 4)
+  await page.locator('#jxl-run-native').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('dc complete')
+  const repeated: unknown = JSON.parse(
+    (await page.locator('#jxl-progressive-metrics').textContent()) ?? '{}',
+  )
+  if (typeof repeated !== 'object' || repeated === null || !('physicalReadBytes' in repeated))
+    throw new Error('Missing repeated measurement')
+  expect(repeated.physicalReadBytes).toBe(firstMetrics.physicalReadBytes)
+  await page.locator('#jxl-run-viewport').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete')
+  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '16')
+})
+
+test('an independent embedded preview remains visible when a requested native stage is unavailable', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/')
+  await page
+    .locator('#jxl-progressive-file')
+    .setInputFiles('tests/fixtures/jpegxl/m6-preview-modular/embedded-preview.jxl')
+  await page.locator('#jxl-run-native').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText(
+    'cannot substitute final output',
+  )
+  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '333')
+  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('height', '77')
+  await expect(page.locator('#jxl-progressive-metrics')).toContainText('embedded-preview')
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete')
+  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '1')
 })

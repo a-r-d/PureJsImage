@@ -6,6 +6,25 @@ project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
+## M6 progressive sessions
+
+- [x] Lazy header indexing, aggregate header budgets and no pixel decode at session open
+- [x] Explicit session close, one active iterator, bounded caches and source identity checks
+- [x] Separate embedded preview, complete DC, completed pass and requested final events
+- [x] Native denominators 2 and 4 use signaled pass boundaries; denominator 8 omits main-frame HF data
+- [x] Shared execution/explanation planner with all eight coordinate orientations and restoration halos
+- [x] Selective group reads and declared static dependency fallbacks with strict rejection
+- [x] Task-scheduled rendering cancellation, immutable output snapshots and iteration backpressure
+- [x] Progressive Modular DC dependencies checked against pinned native stage outputs
+
+Use `openJpegXlSession` from `purejsimage/jpegxl`. `preview()` emits the separately encoded embedded image. `native()` rejects unavailable native boundaries. `progressive()` emits complete stages, and `decode()` defaults to final output. A final event validates the requested region and its dependencies, not unread unrelated groups.
+
+DC reconstruction uses compact LF state and restoration bands. Pass and final output still retain a full-resolution output, and internal DC dependencies can require full working planes. Alpha, HDR, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
+
+The session does not add generic read-ahead over a caller-provided source. HTTP transfer bytes still depend on that source's explicit block and cache policy. Its section-byte counter excludes metadata probes and transport overfetch. See `docs/jpeg-xl.md` for ownership, cache budgets, stage availability and memory accounting.
+
+The frozen M6 cohort contains 30 functional fixtures and ten original-resolution photographs. Final benchmark and full handoff gates are recorded in `docs/architecture/jpegxl-m6-m10-completion.md`.
+
 ## M5 static processing
 
 - [x] JPEG XL to JPEG, PNG, WebP, AVIF and TIFF through the public pipeline
@@ -35,7 +54,7 @@ remain errors. Float-encoded input and float JPEG XL encoding remain unsupported
 VarDCT retains a full output frame. Eligible ordinary 8-bit photographs use bounded
 restoration bands, while high-depth, alpha and other documented fallback cases retain
 full working planes. Planner working-byte estimates exclude runtime and process overhead.
-Calling `explainImage()` can open and decode VarDCT; `io.pixelDecode` reports this cost.
+Ordinary VarDCT opening and `explainImage()` index headers without decoding pixels. JPEG-derived coefficient opening remains eager; `io.pixelDecode` reports that cost.
 
 Progressive range-aware processing is M6 and is outside the M5 static boundary.
 

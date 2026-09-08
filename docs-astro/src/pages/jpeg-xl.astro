@@ -99,11 +99,39 @@ const result = await transcodeJpegToJpegXl(jpegBytes, {
 })
 const originalJpeg = await reconstructJpegFromJpegXl(result.data)`}</code></pre><p>The default policy requires exact reconstruction and verifies every byte before returning. Use <code>reconstruction: 'prefer'</code> with <code>fallback: 'pixel-lossless'</code> only when preserving decoded pixels is acceptable and preserving the original JPEG file is not required.</p></section>
 
+    <section class="jxl-card copy" aria-labelledby="jxl-progressive-title">
+      <h2 id="jxl-progressive-title">Progressive and Range explorer</h2>
+      <p>Open a JPEG XL file or a URL that supports HTTP Range. Native preview stops at the encoded resolution boundary. Progressive mode shows complete stages; viewport mode decodes a selected region. Earlier stages stay visible if a later stage fails.</p>
+      <div class="jxl-grid">
+        <div class="controls">
+          <label>JPEG XL file<input id="jxl-progressive-file" type="file" accept=".jxl,image/jxl" /></label>
+          <label>Range URL<input id="jxl-progressive-url" type="url" placeholder="https://example.org/image.jxl" /></label>
+          <label>Scale denominator (1, 2, 4 or 8)<input id="jxl-progressive-scale" type="number" value="8" min="1" max="8" /></label>
+          <label>Viewport zoom<input id="jxl-progressive-zoom" type="range" min="1" max="16" value="4" /></label>
+          <label>Horizontal position<input id="jxl-progressive-x" type="range" min="0" max="100" value="50" /></label>
+          <label>Vertical position<input id="jxl-progressive-y" type="range" min="0" max="100" value="50" /></label>
+          <button id="jxl-run-native" type="button">Native preview</button>
+          <button id="jxl-run-progressive" type="button">Progressive image</button>
+          <button id="jxl-run-viewport" type="button">Render viewport</button>
+          <button id="jxl-progressive-cancel" type="button">Cancel</button>
+        </div>
+        <div class="results preview">
+          <p id="jxl-progressive-status" role="status">Choose an input to begin.</p>
+          <canvas id="jxl-progressive-canvas" width="1" height="1" aria-label="Latest complete or in-progress JPEG XL stage"></canvas>
+          <p>Requested source ranges: teal marks first access; orange marks repeated access. HTTP transfer bytes and cache counts appear below. Local-file reads do not use the network.</p>
+          <canvas id="jxl-range-map" width="768" height="24" aria-label="Requested source ranges"></canvas>
+          <pre id="jxl-progressive-metrics" aria-label="Progressive decoding measurements"></pre>
+          <p class="note">Managed peak bytes cover session working memory. Source cache and canvas memory are separate. Unknown accounting is reported as null. This explorer limits working memory to 256 MiB and the displayed image to 4 megapixels.</p>
+        </div>
+      </div>
+    </section>
+
     <section class="jxl-card copy"><h2>Current limits</h2><p>{jpegxl.boundary}</p><p>{jpegxl.memory}</p><p>The compression promotion suite contains 156 procedural cases across 12 classes. The separate holdout includes real screenshots, transparent assets and native large photographs, with all results retained. M1 uses 250 eligible COCO JPEGs of at least 224 KiB. M3 uses variants of 100 COCO photographs with explicit resizing and upscaling. The documented 8-bit VarDCT comparison allows maximum error 1 and RMSE 0.55 as an independently justified exception to the original RMSE 0.25 target.</p></section>
 
     <section id="faq" class="jxl-card copy"><h2>FAQ</h2><details><summary>What is JPEG XL?</summary><p>JPEG XL is an image format for lossless and lossy images. It also defines a way to carry JPEG coefficients and reconstruction data.</p></details><details><summary>Can JavaScript decode JXL?</summary><p>Yes. PureJsImage decodes its checked static JPEG XL subset in first-party TypeScript in Node.js and modern browsers.</p></details><details><summary>What does pixel-lossless mean?</summary><p>Pixel-lossless output preserves the supported decoded sample values. It does not promise the same source file bytes or metadata layout.</p></details><details><summary>Can PureJsImage reconstruct the original JPEG byte for byte?</summary><p>Yes, for the documented eligible JPEG subset. Exact mode rebuilds the JPEG from parsed coefficients and reconstruction data, then compares every byte before it succeeds. The checked corpus also reconstructs each output through pinned <code>djxl</code>.</p></details><details><summary>Why can an exact JXL be larger than its source JPEG?</summary><p>Container and entropy-model overhead can still make small JPEGs grow. Select the size requirement to reject those results.</p></details><details><summary>Which JPEG files are currently eligible?</summary><p>Eligible files use the checked three-component 8-bit Huffman baseline or progressive subset, supported marker structure, orientation absent or 1, and no ICC or the checked sRGB ICC.</p></details><details><summary>Are Exif orientation and non-sRGB ICC supported by exact transcode?</summary><p>Non-default Exif orientation and non-sRGB or malformed ICC profiles are rejected because the current JPEG XL codestream writer cannot represent those display semantics correctly.</p></details><details><summary>Does PureJsImage have a general lossy JPEG XL encoder?</summary><p>No. The stable pixel-lossless encoder writes Modular images only. The documented VarDCT paths are decode-only.</p></details><details><summary>Does this work in Node.js and browsers?</summary><p>Yes. The shared codec runs in both. This page performs local work in a browser worker, and Node.js uses the same portable implementation through its platform adapters.</p></details></section>
   </main>
   <script type="module" src="/assets/jpegxl-workbench.js"></script>
+  <script type="module" src="/assets/jpegxl-progressive-workbench.js"></script>
 </SiteLayout>
 
 <style>

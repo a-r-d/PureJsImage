@@ -264,7 +264,14 @@
         "tests/jpegxl-remediation.test.ts",
         "tests/jpegxl-encoder-memory.test.ts",
         "tests/jpegxl-evidence.test.ts",
-        "tests/jpegxl-documentation.test.ts"
+        "tests/jpegxl-documentation.test.ts",
+        "tests/jpegxl-header-ranges.test.ts",
+        "tests/jpegxl-lazy-open.test.ts",
+        "tests/jpegxl-session.test.ts",
+        "tests/jpegxl-preview-session.test.ts",
+        "tests/jpegxl-progressive-render.test.ts",
+        "tests/jpegxl-grouped-dc.test.ts",
+        "tests/jpegxl-m6-cohort.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

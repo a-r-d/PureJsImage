@@ -59,7 +59,7 @@ export interface JpegXlInspection {
   readonly icc: Readonly<{ readonly present: boolean; readonly decodedBytes: number | undefined }>
   readonly encoding: 'modular' | 'vardct'
   readonly imageKind: 'static'
-  readonly preview: false
+  readonly preview: boolean
   readonly frameCount: 1
   readonly level: 5 | 10 | undefined
   readonly progressivePasses: number
@@ -171,7 +171,7 @@ export const inspectJpegXl = async (
     }),
     encoding: header.encoding,
     imageKind: 'static',
-    preview: false,
+    preview: frame.previewSize !== undefined,
     frameCount: 1,
     level: structure.level,
     progressivePasses: header.progressivePasses,
@@ -187,7 +187,6 @@ export const inspectJpegXl = async (
     }),
     unsupportedFeatures: Object.freeze([
       'animation',
-      'preview decode',
       'Level 10 pixel decode',
       ...(reconstructionBox ? [] : ['exact JPEG reconstruction']),
     ]),

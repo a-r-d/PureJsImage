@@ -1,6 +1,8 @@
 import type { ImageDecoder } from './codec.ts'
 import { unsupportedOperation } from './errors.ts'
 import {
+  type DirectImageExecutionPlanTarget,
+  directImageExecutionPlan,
   type ExplainImageOptions,
   type ImageExecutionPlanTarget,
   imageExecutionPlanInput,
@@ -235,10 +237,19 @@ const explainImageInSession = async (
   })
 }
 
-export const explainImage = async (
+export function explainImage<Options extends ExplainImageOptions, Plan>(
+  image: DirectImageExecutionPlanTarget<Options, Plan>,
+  options?: Readonly<Options>,
+): Promise<Plan>
+export function explainImage(
   image: ImageExecutionPlanTarget,
+  options?: Readonly<ExplainImageOptions>,
+): Promise<ImageExecutionPlanDescription>
+export async function explainImage(
+  image: ImageExecutionPlanTarget | DirectImageExecutionPlanTarget<ExplainImageOptions, unknown>,
   options: Readonly<ExplainImageOptions> = {},
-): Promise<ImageExecutionPlanDescription> => {
+): Promise<unknown> {
+  if (directImageExecutionPlan in image) return image[directImageExecutionPlan](options)
   const input = image[imageExecutionPlanInput]()
   return withSourceSession(input.context.source, () => explainImageInSession(input, options))
 }

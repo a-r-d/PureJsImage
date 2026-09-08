@@ -1,0 +1,132 @@
+{
+  "frozenAt": "2026-09-08T13:29:17.495Z",
+  "selection": "Ten original-resolution photographs selected before M6 encoding or outcome measurements; no resizing; retain every performance miss and unsupported result.",
+  "entries": [
+    {
+      "id": "old-faithful-6000x4000",
+      "sourcePath": "benchmark/corpus/files/old-faithful-6000x4000.jpg",
+      "sourceUrl": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/media/images/IMG_6299.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Old_Faithful_(121394).jpg",
+      "author": "USGS Communications and Publishing",
+      "license": "Public domain, United States Geological Survey",
+      "width": 6000,
+      "height": 4000,
+      "sha256": "6d1611a3d31daafe507ffd4f35abdf4376fa95bcb8c4a1bc496ad21e67844298",
+      "nativeDimensions": true
+    },
+    {
+      "id": "tundra-4000x3000",
+      "sourcePath": "benchmark/corpus/files/tundra-4000x3000.jpg",
+      "sourceUrl": "https://live.staticflickr.com/4853/31354285547_90629ea22f_o.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Tundra_Landscape_(31354285547).jpg",
+      "author": "Pacific Northwest Research Station, Forest Service, USDA; photograph by Janet Prevey",
+      "license": "Public domain, United States Department of Agriculture",
+      "width": 4000,
+      "height": 3000,
+      "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+      "nativeDimensions": true
+    },
+    {
+      "id": "portrait-2400x3000",
+      "sourcePath": "benchmark/corpus/files/portrait-2400x3000.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Janet_Yellen_official_portrait.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Janet_Yellen_official_portrait.jpg",
+      "author": "United States Federal Reserve",
+      "license": "Public domain, Board of Governors of the Federal Reserve System",
+      "width": 2400,
+      "height": 3000,
+      "sha256": "2fe7a8ff672e9bbf5ffc63acc2f3c55946cf687e7a2db14d686b7494ad0c4679",
+      "nativeDimensions": true
+    },
+    {
+      "id": "earthrise-2400x2400",
+      "sourcePath": "benchmark/corpus/files/earthrise-2400x2400.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a8/NASA-Apollo8-Dec24-Earthrise.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg",
+      "author": "NASA; photograph by Bill Anders",
+      "license": "Public domain, National Aeronautics and Space Administration",
+      "width": 2400,
+      "height": 2400,
+      "sha256": "24fd2a4f833534ca6741ed96d03b028ac1d8fda2cd129ded4d208535f541d4da",
+      "nativeDimensions": true
+    },
+    {
+      "id": "horas",
+      "sourcePath": ".tmp/jpegxl-m6-native/horas.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ee/%22Horas_de_Chumbo%22%2C_by_Rui_Chafes%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2-2.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:%22Horas_de_Chumbo%22,_by_Rui_Chafes,_Parque_das_Na%C3%A7%C3%B5es,_Lisbon,_Portugal_julesvernex2-2.jpg",
+      "author": "Jules Verne Times Two",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "width": 4912,
+      "height": 3264,
+      "sha256": "6bd13ecea829fb66603d2c1e56dc85f7496d65c09c990e10dd4b193437baafad",
+      "nativeDimensions": true,
+      "sourceCorrection": "The pre-existing cache file was empty; download the same selected original before encoding."
+    },
+    {
+      "id": "chillon",
+      "sourcePath": ".tmp/jpegxl-m6-native/chillon.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/001_Chateau_de_Chillon_and_Dents_du_Midi_Photo_by_Giles_Laurent.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:001_Chateau_de_Chillon_and_Dents_du_Midi_Photo_by_Giles_Laurent.jpg",
+      "author": "Giles Laurent",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "width": 7952,
+      "height": 5304,
+      "sha256": "61d69066f3e2085b972d52eaa1cecd67c90ea9322b14168daf885174eecafa5f",
+      "nativeDimensions": true
+    },
+    {
+      "id": "christchurch",
+      "sourcePath": ".tmp/jpegxl-m6-native/christchurch.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/2/21/%22Everything_is_Going_to_be_Alright%22_artwork%2C_Christchurch_Art_Gallery%2C_Christchurch%2C_New_Zealand.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:%22Everything_is_Going_to_be_Alright%22_artwork,_Christchurch_Art_Gallery,_Christchurch,_New_Zealand.jpg",
+      "author": "Michal Klajban",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "width": 4342,
+      "height": 1995,
+      "sha256": "af92dc52404de1c27ae2714a52055cf539ddbe7f2853511e8f8310fd52827ca2",
+      "nativeDimensions": true
+    },
+    {
+      "id": "butterfly",
+      "sourcePath": ".tmp/jpegxl-m6-native/butterfly.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/40/%22Zerynthia_polyxena%22.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:%22Zerynthia_polyxena%22.jpg",
+      "author": "Maurizio Carlini",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "width": 4262,
+      "height": 2841,
+      "sha256": "a36c366e2d20945afccaa18a18c5a4d1816e074ac92cf7d563a8234e3deca749",
+      "nativeDimensions": true
+    },
+    {
+      "id": "grasshopper",
+      "sourcePath": ".tmp/jpegxl-m6-native/grasshopper.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5e/%28MHNT%29_Aiolopus_strepens_female.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:(MHNT)_Aiolopus_strepens_female.jpg",
+      "author": "Didier Descouens",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "width": 6077,
+      "height": 3307,
+      "sha256": "509e1dd20caa9a56ee6d8f8723a111bff627ceb144632bd7092f2e39d3b6936a",
+      "nativeDimensions": true
+    },
+    {
+      "id": "b17",
+      "sourcePath": ".tmp/jpegxl-m6-native/b17.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5d/%22Photograph_made_from_B-17_Flying_Fortress_of_the_8th_AAF_Bomber_Command_on_31_Dec._when_they_attacked_the_vital_CAM_bal_-_NARA_-_535712.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:%22Photograph_made_from_B-17_Flying_Fortress_of_the_8th_AAF_Bomber_Command_on_31_Dec._when_they_attacked_the_vital_CAM_bal_-_NARA_-_535712.jpg",
+      "author": "Unknown authorUnknown author or not provided",
+      "license": "Public domain",
+      "width": 3000,
+      "height": 2416,
+      "sha256": "5a85eef4622529a1162859b0f7a0cb89fde8e2538468b31aeafbf387dfd257a8",
+      "nativeDimensions": true
+    }
+  ]
+}

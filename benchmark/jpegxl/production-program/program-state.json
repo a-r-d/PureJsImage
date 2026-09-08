@@ -1,10 +1,10 @@
 {
-  "currentMainSha": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
+  "currentMainSha": "d157a8dc5a704410563026e53e438b79db6161db",
   "packageVersion": "0.17.0",
   "currentTarget": "A",
   "milestones": {
     "M0": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "1cd965dfeba27865c920c4e27bd44dbb4ea0404b",
@@ -31,7 +31,8 @@
         "Pinned release-hardening evidence: 7 encoder cases, 10 exact reverse-transcode cases, 4 benchmark workloads, 2 Modular memory workloads, 8 VarDCT memory workloads",
         "Focused JPEG XL suite: 120 tests passed across 8 files",
         "Workbench browser matrix: 18 tests passed across Chromium, Firefox, and WebKit with retries disabled",
-        "Full repository gate: 2412 tests passed, 3 skipped; 202 files passed, 1 skipped"
+        "Full repository gate: 2412 tests passed, 3 skipped; 202 files passed, 1 skipped",
+        "Merged in PR 35 at d157a8dc5a704410563026e53e438b79db6161db. Earlier measurement revisions are preserved; this merge status does not rerun their gates."
       ],
       "corpusVersions": [
         "libjxl conformance 4bf053529c7cefd2951be453475bb3dccc7e7be8",
@@ -60,10 +61,10 @@
         "Grow the JPEG archive to at least 250 real files during Milestone 1."
       ],
       "stablePromotionGatePassed": false,
-      "remainingBlockers": ["Review and merge remain external."]
+      "remainingBlockers": []
     },
     "M1": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "16eca4041e572da4f4c69a7fec392da66e5bd9ff",
@@ -92,7 +93,8 @@
         "Equivalent exact-workflow median: PureJsImage is 7.368 times pinned libjxl",
         "Focused milestone suite: 146 tests passed across 9 files",
         "Workbench browser matrix: 18 tests passed across Chromium, Firefox, and WebKit with retries disabled",
-        "Full repository gate passed after capability, package-metric, and documentation regeneration"
+        "Full repository gate passed after capability, package-metric, and documentation regeneration",
+        "Merged in PR 35 at d157a8dc5a704410563026e53e438b79db6161db. Earlier measurement revisions are preserved; this merge status does not rerun their gates."
       ],
       "corpusVersions": [
         "COCO 2017 validation images archive 4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
@@ -120,10 +122,10 @@
         "Broader JPEG syntax eligibility remains future independently gated work."
       ],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": ["Review and merge remain external."]
+      "remainingBlockers": []
     },
     "M2": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "548a30321dbd149c7d71e17c37db0a4933d9c5de",
@@ -157,7 +159,8 @@
         "Representative 24 MP effort-1 encode: 3.819 seconds, 27 sink writes, and 106050518 reported managed peak bytes",
         "Focused browser acceptance: 12 JPEG XL compatibility tests and 18 workbench tests passed across Chromium, Firefox, and WebKit with retries disabled",
         "Package size: core plus JPEG XL is 266448 minified bytes; JPEG XL specialized APIs are 308718 minified bytes",
-        "Full repository gate: 2444 tests passed, 3 skipped; 202 files passed, 1 skipped"
+        "Full repository gate: 2444 tests passed, 3 skipped; 202 files passed, 1 skipped",
+        "Merged in PR 35 at d157a8dc5a704410563026e53e438b79db6161db. Earlier measurement revisions are preserved; this merge status does not rerun their gates."
       ],
       "corpusVersions": [
         "Deterministic M2 encoder matrix: 163 cases across 12 required image classes",
@@ -189,10 +192,10 @@
         "Broader color, orientation, metadata, animation, and extra-channel encoding remain later milestone work."
       ],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": ["Review, remote workflows, and merge remain external."]
+      "remainingBlockers": []
     },
     "M3": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "32d5a438e23486b1a46f8ad7269505b5c93034bc",
@@ -227,7 +230,8 @@
         "The 12 MP to 24 MP normalized group-scaling ratio is 1.071 and the full-matrix median is 8.963 times pinned single-threaded djxl",
         "Core plus JPEG XL is 305739 minified bytes against the temporary 310000-byte M3 ceiling; the specialized entry is 348077 bytes against 355000",
         "Browser acceptance: 12 JPEG XL compatibility tests and 21 workbench tests pass across Chromium, Firefox, and WebKit with retries disabled; the common VarDCT preview appears directly from decoder output within 10 seconds",
-        "Full repository gate: 2445 tests passed, 3 skipped; 202 files passed, 1 skipped"
+        "Full repository gate: 2445 tests passed, 3 skipped; 202 files passed, 1 skipped",
+        "Merged in PR 35 at d157a8dc5a704410563026e53e438b79db6161db. Earlier measurement revisions are preserved; this merge status does not rerun their gates."
       ],
       "corpusVersions": [
         "Generated VarDCT matrix: 19 fixtures with 27 extracted production-program feature records",
@@ -259,10 +263,10 @@
         "A future decoder-native crop path must be separately measured before claiming crop pushdown."
       ],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": ["Review and merge remain external."]
+      "remainingBlockers": []
     },
     "M4": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "eb0d1697132a81a2dcc9eb6822b384e09c781bec",
@@ -301,7 +305,8 @@
         "Full repository gate: 2590 tests passed, 3 skipped; 203 files passed, 1 skipped",
         "Full Chromium, Firefox, and WebKit suite: 752 tests passed, 12 skipped; retries disabled",
         "Core plus JPEG XL: 357995 minified bytes; specialized entry: 394885 bytes",
-        "JPEG-derived renderer comparison: old component clipping fails JXL oracle checks with maximum errors 21 and 43; new output has maximum error 1. Warm measured times are 232 vs 205 ms and 768 vs 617 ms, including decode and comparison."
+        "JPEG-derived renderer comparison: old component clipping fails JXL oracle checks with maximum errors 21 and 43; new output has maximum error 1. Warm measured times are 232 vs 205 ms and 768 vs 617 ms, including decode and comparison.",
+        "Merged in PR 35 at d157a8dc5a704410563026e53e438b79db6161db. Earlier measurement revisions are preserved; this merge status does not rerun their gates."
       ],
       "corpusVersions": [
         "tests/fixtures/jpegxl/m4-color/manifest.json",
@@ -334,10 +339,10 @@
       ],
       "deferredWork": ["M5 began after M4 closure; later milestones remain deferred."],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": ["Review and merge remain external."]
+      "remainingBlockers": []
     },
     "M5": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m00-program-baseline",
       "pr": 35,
       "startRevision": "a57fbd548c1317af457636a2ddad4563e8bad330",
@@ -374,7 +379,8 @@
         "Final npm run check: 2705 tests pass, three existing skips; 204 files pass, one skipped. Includes package types, browser graph, capabilities, docs, lint, format and size gates.",
         "Clean full browser run: 773 pass, 12 existing skips, retries disabled; all three browsers.",
         "One-megapixel explicit range conversion retains an independent exact pixel hash; median warm kernel time improves from 195.6 to 87.0 ms after moving bit-depth maxima outside the pixel loop.",
-        "All four exact-head remote workflows pass for 71ee81cdf3c9c8433daba7968ddc46a2c7191739."
+        "All four exact-head remote workflows pass for 71ee81cdf3c9c8433daba7968ddc46a2c7191739.",
+        "Merged in PR 35 at d157a8dc5a704410563026e53e438b79db6161db. Earlier measurement revisions are preserved; this merge status does not rerun their gates."
       ],
       "corpusVersions": [
         "M3 300-file checksum-pinned common-static corpus",
@@ -400,7 +406,134 @@
       ],
       "deferredWork": ["M6 progressive and range-aware decoding is outside this PR."],
       "stablePromotionGatePassed": true,
-      "remainingBlockers": ["Review and merge remain external."]
+      "remainingBlockers": []
+    },
+    "M6": {
+      "status": "in progress",
+      "branch": "codex/jpegxl-m06-m10-completion",
+      "pr": null,
+      "startRevision": "d157a8dc5a704410563026e53e438b79db6161db",
+      "finalRevision": null,
+      "localCommands": [
+        "npx vitest run tests/jpegxl-header-ranges.test.ts tests/jpegxl-lazy-open.test.ts",
+        "npx vitest run tests/jpegxl-corpus.test.ts tests/jpegxl-m4-color.test.ts tests/jpegxl-m5-pipeline.test.ts",
+        "npx playwright test browser-tests/jpegxl-pipeline.pw.ts --retries=0 --workers=3",
+        "npm run jpegxl:program:conformance -- --corpus-root .tmp/jpegxl-conformance --output .tmp/jpegxl-m6-m10/conformance.json",
+        "node benchmark/jpegxl/run-vardct-memory.ts --output .tmp/jpegxl-m6-m10/vardct-memory.json",
+        "node benchmark/jpegxl/production-program/verify-m4-conformance.ts --output .tmp/jpegxl-m6-m10/m4-conformance.json",
+        "node benchmark/jpegxl/production-program/verify-m5-pipelines.ts --output .tmp/jpegxl-m6-m10/m5-pipelines.json",
+        "npm run check",
+        "npx playwright test browser-tests/jpegxl-color.pw.ts browser-tests/jpegxl-workbench.pw.ts --retries=0 --workers=3",
+        "npm run jpegxl:m1:reverse -- --output .tmp/jpegxl-m6-m10/reverse.json",
+        "git diff --check"
+      ],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [
+        "The earlier header/lazy-open checkpoint passed its recorded full and browser gates. Those counts do not cover the subsequent session implementation.",
+        "Current work implements lazy sessions, embedded previews, complete DC/pass stages, selective groups, progressive Modular DC dependencies and a Range explorer. Final validation is running.",
+        "The frozen ten-photo stage and viewport checks retain every byte-budget miss. Generic 256 KiB read-ahead was found to defeat section selection and has been removed from session opening. Transport measurements are being rerun."
+      ],
+      "corpusVersions": [],
+      "oracleRevisions": [],
+      "benchmarkReportPath": null,
+      "capabilityChanges": [
+        "Explicit progressive sessions and embedded previews; native SDR DC/pass boundaries; selective groups and shared plans; retained LF state, bounded caches and computation cancellation."
+      ],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [
+        "Pass/final output remains full-frame; internal DC dependencies may retain full working planes. Other sample/dependency classes use explicit static fallbacks. JPEG-derived reduced IDCT remains in its existing decoder."
+      ],
+      "deferredWork": [],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": [
+        "Complete independent native cohort validation and post-read-ahead-fix transport measurements",
+        "Final full handoff and browser gates",
+        "Record final report and coherent implementation commits if permitted"
+      ]
+    },
+    "M7": {
+      "status": "not started",
+      "branch": "codex/jpegxl-m06-m10-completion",
+      "pr": null,
+      "startRevision": null,
+      "finalRevision": null,
+      "localCommands": [],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [],
+      "corpusVersions": [],
+      "oracleRevisions": [],
+      "benchmarkReportPath": null,
+      "capabilityChanges": [],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [],
+      "deferredWork": [],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": [
+        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
+      ]
+    },
+    "M8": {
+      "status": "not started",
+      "branch": "codex/jpegxl-m06-m10-completion",
+      "pr": null,
+      "startRevision": null,
+      "finalRevision": null,
+      "localCommands": [],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [],
+      "corpusVersions": [],
+      "oracleRevisions": [],
+      "benchmarkReportPath": null,
+      "capabilityChanges": [],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [],
+      "deferredWork": [],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": [
+        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
+      ]
+    },
+    "M9": {
+      "status": "not started",
+      "branch": "codex/jpegxl-m06-m10-completion",
+      "pr": null,
+      "startRevision": null,
+      "finalRevision": null,
+      "localCommands": [],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [],
+      "corpusVersions": [],
+      "oracleRevisions": [],
+      "benchmarkReportPath": null,
+      "capabilityChanges": [],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [],
+      "deferredWork": [],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": [
+        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
+      ]
+    },
+    "M10": {
+      "status": "not started",
+      "branch": "codex/jpegxl-m06-m10-completion",
+      "pr": null,
+      "startRevision": null,
+      "finalRevision": null,
+      "localCommands": [],
+      "remoteWorkflowRuns": [],
+      "measuredResults": [],
+      "corpusVersions": [],
+      "oracleRevisions": [],
+      "benchmarkReportPath": null,
+      "capabilityChanges": [],
+      "capabilityPromotions": [],
+      "acceptedLimitations": [],
+      "deferredWork": [],
+      "stablePromotionGatePassed": false,
+      "remainingBlockers": [
+        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
+      ]
     }
   }
 }

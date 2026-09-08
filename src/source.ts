@@ -436,10 +436,15 @@ export class BufferedSource implements ImageSource {
   }
 }
 
+export interface CreateImageSourceOptions extends AbortOptions {
+  /** Disable automatic read-ahead when a section planner or source already controls request sizes. */
+  readonly buffering?: 'automatic' | 'none'
+}
+
 export const createImageSource = async (
   input: ImageInput,
   limits: ImageLimits,
-  options: Readonly<AbortOptions> = {},
+  options: Readonly<CreateImageSourceOptions> = {},
 ): Promise<ImageSource> => {
   throwIfAborted(options.signal)
   let source: ImageSource
@@ -459,7 +464,15 @@ export const createImageSource = async (
 
   validateInputSize(source.size, limits)
   throwIfAborted(options.signal)
-  return source instanceof MemorySource || source instanceof BufferedSource
+  if (
+    options.buffering !== undefined &&
+    options.buffering !== 'automatic' &&
+    options.buffering !== 'none'
+  )
+    throw invalidInput('Image source buffering policy is invalid')
+  return options.buffering === 'none' ||
+    source instanceof MemorySource ||
+    source instanceof BufferedSource
     ? source
     : new BufferedSource(source)
 }

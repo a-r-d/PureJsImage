@@ -6,6 +6,12 @@ import type { ImageRuntime } from './runtime.ts'
 import type { ImageSource } from './source.ts'
 
 export const imageExecutionPlanInput = Symbol('purejsimage.imageExecutionPlanInput')
+export const directImageExecutionPlan = Symbol('purejsimage.directImageExecutionPlan')
+
+/** Sessions expose the same request planner that their execution path calls. */
+export interface DirectImageExecutionPlanTarget<Options extends AbortOptions, Plan> {
+  [directImageExecutionPlan](options: Readonly<Options>): Plan
+}
 
 export interface ImageExecutionPlanContext {
   readonly source: ImageSource

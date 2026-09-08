@@ -6,6 +6,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- JPEG XL ordinary VarDCT opening and planning now defer pixel decoding until
+  iteration. Internal-frame indexing seeks directly to each header and applies
+  the header budget to parsed headers. Final decoding retains its existing
+  memory preflight and full-frame output. Explicit sessions add embedded previews,
+  complete DC and pass stages, native resolution boundaries, selective groups,
+  source-bound caches, cancellation and a browser Range explorer. Unsupported
+  selective dependencies use declared static fallbacks or strict rejection.
+
 - Added JPEG XL structured color, all eight orientations, independent straight and premultiplied
   alpha, compressed ICC, high-depth and float HDR output, and bounded metadata preservation.
   The lossless encoder preserves the supported color and alpha semantics, with explicit intrinsic

@@ -22,3 +22,16 @@ export {
   type JpegTranscodeSourceProfile,
   type TranscodeJpegToJpegXlOptions,
 } from './codecs/jpegxl-jpeg-transcode.ts'
+export {
+  openJpegXlSession,
+  type JpegXlSession,
+  type OpenJpegXlSessionOptions,
+  type JpegXlProgressiveEvent,
+  type JpegXlProgressiveStage,
+  type JpegXlStageAvailability,
+} from './codecs/jpegxl-session.ts'
+export {
+  type JpegXlProgressiveRequest,
+  type JpegXlProgressivePlan,
+  type JpegXlRegion,
+} from './codecs/jpegxl-progressive-plan.ts'

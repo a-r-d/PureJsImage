@@ -12,6 +12,8 @@ import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.
 import {
   decodeJpegXlModularDcFrameSection,
   decodeJpegXlMultiGroupModularDcFrameSections,
+  type JpegXlFrameStructure,
+  jpegXlDecodedPixelFormat,
   jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
@@ -24,7 +26,7 @@ import {
   retainedTypedArrayBytes,
 } from './jpegxl-vardct-memory.ts'
 import {
-  decodeJpegXlDct8Section,
+  decodeJpegXlDct8SectionCancellable,
   type JpegXlVarDctPixels,
   type JpegXlVarDctReference,
 } from './jpegxl-vardct-render.ts'
@@ -162,32 +164,42 @@ class VarDctJpegXlDecoder implements ImageDecoder {
     progressive: false,
   })
   readonly #displayRanges: readonly { readonly black: number; readonly white: number }[]
-  #pixels: JpegXlVarDctPixels | undefined
+  #loadPixels: ((signal: AbortSignal | undefined) => Promise<JpegXlVarDctPixels>) | undefined
   readonly #signal: AbortSignal | undefined
   readonly #memory: JpegXlVarDctMemoryLedger
   readonly #evidence: EvidenceContext | undefined
 
   constructor(
-    pixels: JpegXlVarDctPixels,
+    frame: Readonly<JpegXlFrameStructure>,
+    loadPixels: (signal: AbortSignal | undefined) => Promise<JpegXlVarDctPixels>,
     colorSemantics: PixelColorSemantics,
     signal: AbortSignal | undefined,
     memory: JpegXlVarDctMemoryLedger,
     evidence: EvidenceContext | undefined,
-    bitDepth = 8,
-    alphaBitDepth?: number,
-    floatPeak = 1,
   ) {
-    this.width = pixels.width
-    this.height = pixels.height
-    this.pixelFormat = pixels.format
+    this.width = frame.width
+    this.height = frame.height
+    this.pixelFormat = jpegXlDecodedPixelFormat(frame)
+    const bitDepth = frame.bitDepth
+    const alphaBitDepth = frame.alphaBitDepth
+    const floatPeak =
+      frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
+        ? Math.max(1, frame.toneMapping.intensityTarget / 203)
+        : 1
     this.colorSemantics = colorSemantics
     this.#displayRanges = Object.freeze(
       Array.from(
-        { length: pixels.format.startsWith('gray') ? 1 : pixels.format.startsWith('rgba') ? 4 : 3 },
+        {
+          length: this.pixelFormat.startsWith('gray')
+            ? 1
+            : this.pixelFormat.startsWith('rgba')
+              ? 4
+              : 3,
+        },
         (_, index) =>
           Object.freeze({
             black: 0,
-            white: pixels.format.endsWith('f32')
+            white: this.pixelFormat.endsWith('f32')
               ? index === 3
                 ? 1
                 : floatPeak
@@ -195,7 +207,7 @@ class VarDctJpegXlDecoder implements ImageDecoder {
           }),
       ),
     )
-    this.#pixels = pixels
+    this.#loadPixels = loadPixels
     this.#signal = signal
     this.#memory = memory
     this.#evidence = evidence
@@ -210,10 +222,14 @@ class VarDctJpegXlDecoder implements ImageDecoder {
       throw unsupportedOperation('JPEG XL VarDCT scaled decode is not supported yet')
     }
     const region = decodeRegion(this.width, this.height, request)
-    const pixels = this.#pixels
-    if (!pixels) {
+    const loadPixels = this.#loadPixels
+    if (!loadPixels) {
       throw unsupportedOperation('JPEG XL selected VarDCT decoder output was already consumed')
     }
+    throwIfAborted(this.#signal)
+    throwIfAborted(request.signal)
+    this.#loadPixels = undefined
+    const pixels = await loadPixels(combineAbortSignals(this.#signal, request.signal))
     const channels = pixelBytesPerPixel(this.pixelFormat)
     const stride = region.width * channels
     const sourceStride = this.width * channels
@@ -268,7 +284,6 @@ class VarDctJpegXlDecoder implements ImageDecoder {
           phase: 'cancelled',
         })
       }
-      if (this.#pixels === pixels) this.#pixels = undefined
       pixels.release()
     }
   }
@@ -304,178 +319,188 @@ export const createJpegXlVarDctDecoder = async (
   if (frame?.frameType !== 'regular') {
     throw unsupportedOperation('JPEG XL static VarDCT final frame is missing')
   }
+  const dependencyFrames = frames.slice(0, -1).filter((entry) => !entry.isPreview)
+  const dcFrameCount = dependencyFrames.filter(({ frameType }) => frameType === 'dc').length
+  let remainingDcFrames = dcFrameCount
+  for (const dependency of dependencyFrames) {
+    if (dependency.frameType === 'reference') {
+      if (
+        dependency.saveAsReference === 0 ||
+        !dependency.saveBeforeColorTransform ||
+        (dependency.frameFlags & 32) !== 0
+      ) {
+        throw unsupportedOperation('JPEG XL reference frame dependency is not supported')
+      }
+      continue
+    }
+    if (
+      dependency.frameType !== 'dc' ||
+      dependency.dcLevel !== remainingDcFrames ||
+      (remainingDcFrames === dcFrameCount
+        ? dependency.encoding !== 'modular' || (dependency.frameFlags & 32) !== 0
+        : dependency.encoding !== 'vardct' || (dependency.frameFlags & 32) === 0)
+    ) {
+      throw unsupportedOperation('JPEG XL internal DC frame dependency is not supported')
+    }
+    remainingDcFrames -= 1
+  }
+  if (((frame.frameFlags & 32) !== 0) !== dcFrameCount > 0) {
+    throw unsupportedOperation('JPEG XL final frame DC dependency is invalid')
+  }
+  const dependencyBytes = dependencyFrames.reduce(
+    (total, dependency) =>
+      total + dependency.sections.reduce((sum, section) => sum + section.length, 0),
+    0,
+  )
+  preflightJpegXlVarDctWorkingMemory(frame, limits, dependencyBytes)
   const evidence = options.evidence?.child('jpegxl-selected-vardct')
   const memory = new JpegXlVarDctMemoryLedger(limits.maxDecodedBytes, evidence)
-  evidence?.operation({ operationId: 'selected-vardct-materialization', phase: 'start' })
-  try {
-    const dependencyFrames = frames.slice(0, -1)
-    const dcFrameCount = dependencyFrames.filter(({ frameType }) => frameType === 'dc').length
-    let remainingDcFrames = dcFrameCount
-    for (const dependency of dependencyFrames) {
-      if (dependency.frameType === 'reference') {
-        if (
-          dependency.saveAsReference === 0 ||
-          !dependency.saveBeforeColorTransform ||
-          (dependency.frameFlags & 32) !== 0
-        ) {
-          throw unsupportedOperation('JPEG XL reference frame dependency is not supported')
-        }
-        continue
-      }
-      if (
-        dependency.frameType !== 'dc' ||
-        dependency.dcLevel !== remainingDcFrames ||
-        (remainingDcFrames === dcFrameCount
-          ? dependency.encoding !== 'modular' || (dependency.frameFlags & 32) !== 0
-          : dependency.encoding !== 'vardct' || (dependency.frameFlags & 32) === 0)
-      ) {
-        throw unsupportedOperation('JPEG XL internal DC frame dependency is not supported')
-      }
-      remainingDcFrames -= 1
-    }
-    if (((frame.frameFlags & 32) !== 0) !== dcFrameCount > 0) {
-      throw unsupportedOperation('JPEG XL final frame DC dependency is invalid')
-    }
-    const dependencyBytes = dependencyFrames.reduce(
-      (total, dependency) =>
-        total + dependency.sections.reduce((sum, section) => sum + section.length, 0),
-      0,
-    )
-    preflightJpegXlVarDctWorkingMemory(frame, limits, dependencyBytes)
-    let dcPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
-    let dcPlanesLease: ReturnType<JpegXlVarDctMemoryLedger['retain']> | undefined
-    const references = new Map<number, JpegXlVarDctReference>()
-    const referenceLeases: ReturnType<JpegXlVarDctMemoryLedger['retain']>[] = []
-    for (let index = 0; index < dependencyFrames.length; index += 1) {
-      const dependency = dependencyFrames[index]
-      if (!dependency) throw invalidInput('JPEG XL internal DC frame is missing')
-      const sections: Uint8Array[] = []
-      const sectionLeases = []
-      for (const section of dependency.sections) {
-        throwIfAborted(options.signal)
-        sectionLeases.push(
-          memory.retain('jpegxl-vardct-external-dc-compressed-section', section.length),
-        )
-        sections.push(await readExactly(logical, section.offset, section.length, options))
-      }
-      const firstSection = sections[0]
-      if (!firstSection) throw invalidInput('JPEG XL internal DC frame section is missing')
-      if (dependency.frameType === 'reference') {
-        let referencePlanes: readonly [Float64Array, Float64Array, Float64Array]
-        if (dependency.encoding === 'modular') {
-          if (sections.length !== 1 || dependency.colorTransform !== 'xyb') {
-            throw unsupportedOperation('JPEG XL Modular reference frame layout is not supported')
-          }
-          referencePlanes = decodeJpegXlModularDcFrameSection(
-            firstSection,
-            dependency.codedWidth,
-            dependency.codedHeight,
-            options.signal,
+  const loadPixels = async (signal: AbortSignal | undefined): Promise<JpegXlVarDctPixels> => {
+    const readOptions = { ...options, ...(signal ? { signal } : {}) }
+    evidence?.operation({ operationId: 'selected-vardct-materialization', phase: 'start' })
+    try {
+      let dcPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
+      let dcPlanesLease: ReturnType<JpegXlVarDctMemoryLedger['retain']> | undefined
+      const references = new Map<number, JpegXlVarDctReference>()
+      const referenceLeases: ReturnType<JpegXlVarDctMemoryLedger['retain']>[] = []
+      for (let index = 0; index < dependencyFrames.length; index += 1) {
+        const dependency = dependencyFrames[index]
+        if (!dependency) throw invalidInput('JPEG XL internal DC frame is missing')
+        const sections: Uint8Array[] = []
+        const sectionLeases = []
+        for (const section of dependency.sections) {
+          throwIfAborted(readOptions.signal)
+          sectionLeases.push(
+            memory.retain('jpegxl-vardct-external-dc-compressed-section', section.length),
           )
+          sections.push(
+            new Uint8Array(await readExactly(logical, section.offset, section.length, readOptions)),
+          )
+        }
+        const firstSection = sections[0]
+        if (!firstSection) throw invalidInput('JPEG XL internal DC frame section is missing')
+        if (dependency.frameType === 'reference') {
+          let referencePlanes: readonly [Float64Array, Float64Array, Float64Array]
+          if (dependency.encoding === 'modular') {
+            if (sections.length !== 1 || dependency.colorTransform !== 'xyb') {
+              throw unsupportedOperation('JPEG XL Modular reference frame layout is not supported')
+            }
+            referencePlanes = decodeJpegXlModularDcFrameSection(
+              firstSection,
+              dependency.codedWidth,
+              dependency.codedHeight,
+              readOptions.signal,
+            )
+          } else {
+            const decoded = await decodeJpegXlDct8SectionCancellable(
+              readOptions.signal,
+              firstSection,
+              dependency,
+              limits,
+              memory,
+              sections.length === 1 ? undefined : sections.slice(1),
+              undefined,
+              true,
+              references,
+            )
+            if (!decoded.dcPlanes) throw invalidInput('JPEG XL reference frame output is missing')
+            referencePlanes = decoded.dcPlanes
+          }
+          references.set(
+            dependency.saveAsReference,
+            Object.freeze({
+              width: dependency.codedWidth,
+              height: dependency.codedHeight,
+              planes: referencePlanes,
+            }),
+          )
+          referenceLeases.push(
+            memory.retain(
+              'jpegxl-vardct-reference-planes',
+              retainedTypedArrayBytes(referencePlanes),
+            ),
+          )
+        } else if (dependency.encoding === 'modular') {
+          dcPlanes = sections.slice(1).every((section) => section.length === 0)
+            ? decodeJpegXlModularDcFrameSection(
+                firstSection,
+                dependency.codedWidth,
+                dependency.codedHeight,
+                readOptions.signal,
+              )
+            : decodeJpegXlMultiGroupModularDcFrameSections(sections, dependency, readOptions.signal)
         } else {
-          const decoded = decodeJpegXlDct8Section(
+          if (!dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame dependency is missing')
+          const decoded = await decodeJpegXlDct8SectionCancellable(
+            readOptions.signal,
             firstSection,
             dependency,
             limits,
             memory,
-            sections.length === 1 ? undefined : sections.slice(1),
-            undefined,
+            sections.slice(1),
+            dcPlanes,
             true,
-            references,
           )
-          if (!decoded.dcPlanes) throw invalidInput('JPEG XL reference frame output is missing')
-          referencePlanes = decoded.dcPlanes
+          if (!decoded.dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame output is missing')
+          dcPlanes = decoded.dcPlanes
         }
-        references.set(
-          dependency.saveAsReference,
-          Object.freeze({
-            width: dependency.codedWidth,
-            height: dependency.codedHeight,
-            planes: referencePlanes,
-          }),
-        )
-        referenceLeases.push(
-          memory.retain('jpegxl-vardct-reference-planes', retainedTypedArrayBytes(referencePlanes)),
-        )
-      } else if (dependency.encoding === 'modular') {
-        dcPlanes = sections.slice(1).every((section) => section.length === 0)
-          ? decodeJpegXlModularDcFrameSection(
-              firstSection,
-              dependency.codedWidth,
-              dependency.codedHeight,
-              options.signal,
-            )
-          : decodeJpegXlMultiGroupModularDcFrameSections(sections, dependency, options.signal)
-      } else {
-        if (!dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame dependency is missing')
-        const decoded = decodeJpegXlDct8Section(
-          firstSection,
-          dependency,
-          limits,
-          memory,
-          sections.slice(1),
-          dcPlanes,
-          true,
-        )
-        if (!decoded.dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame output is missing')
-        dcPlanes = decoded.dcPlanes
+        for (const lease of sectionLeases) lease.release()
+        if (dependency.frameType === 'dc') {
+          if (!dcPlanes) throw invalidInput('JPEG XL internal DC frame output is missing')
+          dcPlanesLease?.release()
+          dcPlanesLease = memory.retain(
+            'jpegxl-vardct-external-dc-planes',
+            retainedTypedArrayBytes(dcPlanes),
+          )
+        }
       }
+      const sections: Uint8Array[] = []
+      const sectionLeases = []
+      for (const section of frame.sections) {
+        throwIfAborted(readOptions.signal)
+        sectionLeases.push(memory.retain('jpegxl-vardct-compressed-section', section.length))
+        sections.push(
+          new Uint8Array(await readExactly(logical, section.offset, section.length, readOptions)),
+        )
+      }
+      const firstSection = sections[0]
+      if (!firstSection) throw invalidInput('JPEG XL VarDCT global section is missing')
+      const pixels = await decodeJpegXlDct8SectionCancellable(
+        readOptions.signal,
+        firstSection,
+        frame,
+        limits,
+        memory,
+        sections.length === 1 ? undefined : sections.slice(1),
+        dcPlanes,
+        false,
+        references,
+      )
       for (const lease of sectionLeases) lease.release()
-      if (dependency.frameType === 'dc') {
-        if (!dcPlanes) throw invalidInput('JPEG XL internal DC frame output is missing')
-        dcPlanesLease?.release()
-        dcPlanesLease = memory.retain(
-          'jpegxl-vardct-external-dc-planes',
-          retainedTypedArrayBytes(dcPlanes),
-        )
-      }
+      dcPlanesLease?.release()
+      for (const lease of referenceLeases) lease.release()
+      evidence?.operation({
+        operationId: 'selected-vardct-materialization',
+        phase: 'complete',
+        detail: `managed peak ${memory.peakBytes} bytes`,
+      })
+      return pixels
+    } catch (error) {
+      memory.releaseAll()
+      evidence?.operation({
+        operationId: 'selected-vardct-materialization',
+        phase: 'failed',
+        failureCode: evidenceFailureCode(error),
+      })
+      throw error
     }
-    const sections: Uint8Array[] = []
-    const sectionLeases = []
-    for (const section of frame.sections) {
-      throwIfAborted(options.signal)
-      sectionLeases.push(memory.retain('jpegxl-vardct-compressed-section', section.length))
-      sections.push(await readExactly(logical, section.offset, section.length, options))
-    }
-    const firstSection = sections[0]
-    if (!firstSection) throw invalidInput('JPEG XL VarDCT global section is missing')
-    const pixels = decodeJpegXlDct8Section(
-      firstSection,
-      frame,
-      limits,
-      memory,
-      sections.length === 1 ? undefined : sections.slice(1),
-      dcPlanes,
-      false,
-      references,
-    )
-    for (const lease of sectionLeases) lease.release()
-    dcPlanesLease?.release()
-    for (const lease of referenceLeases) lease.release()
-    evidence?.operation({
-      operationId: 'selected-vardct-materialization',
-      phase: 'complete',
-      detail: `managed peak ${memory.peakBytes} bytes`,
-    })
-    return new VarDctJpegXlDecoder(
-      pixels,
-      jpegXlPixelColorSemantics(frame),
-      options.signal,
-      memory,
-      evidence,
-      frame.bitDepth,
-      frame.alphaBitDepth,
-      frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
-        ? Math.max(1, frame.toneMapping.intensityTarget / 203)
-        : 1,
-    )
-  } catch (error) {
-    memory.releaseAll()
-    evidence?.operation({
-      operationId: 'selected-vardct-materialization',
-      phase: 'failed',
-      failureCode: evidenceFailureCode(error),
-    })
-    throw error
   }
+  return new VarDctJpegXlDecoder(
+    frame,
+    loadPixels,
+    jpegXlPixelColorSemantics(frame),
+    options.signal,
+    memory,
+    evidence,
+  )
 }

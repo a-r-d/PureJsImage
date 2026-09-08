@@ -363,6 +363,7 @@ await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+    'jpegxl-progressive-workbench': 'docs-astro/src/scripts/jpegxl-progressive-workbench.ts',
     'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
     'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
