@@ -28,7 +28,10 @@ for (const entry of sources.entries) {
     throw new Error('Native reference belongs to another input')
   for (const mode of ['dc', 'pass1', 'pass2', 'viewport', 'final']) {
     if (selectedMode && selectedMode !== mode) continue
-    const evidence = createEvidenceSession({ mode: 'summary' })
+    const evidence = createEvidenceSession({
+      mode: 'trace',
+      limits: { maxEvents: 100_000, maxSerializedBytes: 32_000_000 },
+    })
     let lfDecodes = 0
     evidence.subscribe((event) => {
       if (event.type === 'allocation' && event.category === 'jpegxl-vardct-lf-metadata') lfDecodes++
