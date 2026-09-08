@@ -7,20 +7,20 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 - Current merged main: `d157a8dc5a704410563026e53e438b79db6161db`
 - Package version: `0.17.0`
 - Current target: A
-- Active milestone: M6
+- Active milestone: M6 complete locally; PR review open
 - Active branch: `codex/jpegxl-m06-m10-completion`
 - Previous merged pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
-- Current pull request: not created
+- Current pull request: [#36](https://github.com/a-r-d/PureJsImage/pull/36)
 - Starting revision: `d157a8dc5a704410563026e53e438b79db6161db`
 - M5 implementation revision: `71ee81cdf3c9c8433daba7968ddc46a2c7191739`
-- Current change: lazy ordinary VarDCT opening and direct internal-frame header reads.
-- M6 promotion gate: not passed. M5's historical local and remote promotion applies only to its documented common-static boundary.
+- Current change: completed M6 lazy sessions, independent preview/DC/pass stages, selective Range reads, cache reuse, cancellation and browser explorer.
+- M6 promotion gate: passed locally. The source-pinned 40-case report and individual misses are in `benchmark/jpegxl/production-program/m6-report.json`. Remote PR checks are separate; no release is authorized.
 
 The program normally uses one milestone branch and pull request at a time. For this run, the
 operator explicitly directed M1, M2, M3, M4, and M5 work to continue on the existing M0 branch and pull request.
 M0 through M5 are now merged in PR 35. Their original implementation revisions and evidence below
 remain historical. The supplied M6 through M10 completion brief requests the remaining milestones
-on one branch and PR. The [completion ledger](jpegxl-m6-m10-completion.md) records that scope
+on one branch and PR. The latest direct request is M6 only; M7 through M10 remain outside this change. The [completion ledger](jpegxl-m6-m10-completion.md) records that scope
 exception, new baseline, implementation status and unmet gates.
 
 ## Production targets
@@ -41,7 +41,7 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M3 | A | merged | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
 | M4 | A | merged | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `d61e238814018b8f234c806e57282d07dda39357` | passed |
 | M5 | A | merged | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `a57fbd548c1317af457636a2ddad4563e8bad330` | `71ee81cdf3c9c8433daba7968ddc46a2c7191739` | passed |
-| M6 | A | in progress | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |
+| M6 | A | PR open | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `d157a8dc5a704410563026e53e438b79db6161db` | `98b3ba58e881109f962887e9a8a17de50bc43947` | passed locally |
 | M7 | B | not started | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |
 | M8 | B | not started | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |
 | M9 | B | not started | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |

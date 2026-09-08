@@ -275,7 +275,7 @@ The new scratch allocation is 300 bytes. These checks do not establish an RSS
 improvement; absolute RSS and post-GC baselines are retained in their JSON logs.
 The pre-optimization source snapshot is `/tmp/purejsimage-m6-dc-before-01a07f48`.
 
-Current local checks pass 2,891 tests with three existing skips, and 66 JPEG XL
+Final local checks pass 2,896 tests with three existing skips, and 66 JPEG XL
 browser workflows pass across Chromium, Firefox and WebKit without retries.
 Official conformance still has 13 passes, 25 expected unsupported cases, the
 known delta_palette failure and zero incorrect outputs. Five independent M4
@@ -302,8 +302,10 @@ conformance cases also pass. The final source-pinned results are recorded below.
 - [x] M6.5 demonstration: local-file and HTTP Range explorer, native/pass controls,
   source map, logical/physical bytes, first-pixel timing, managed memory, pan/zoom,
   cached requests and cancellation in Chromium, Firefox and WebKit.
-- [ ] M6.5 measured gates and final handoff: source-pinned sixty-process report,
-  recomputed acceptance validator and final repository checks.
+- [x] M6.5 measured gates and local handoff: source-pinned sixty-process report,
+  recomputed acceptance validator and full repository check (2,896 passed, three
+  existing skips). Draft [PR 36](https://github.com/a-r-d/PureJsImage/pull/36) is open.
+  Remote checks and review remain separate from these completed local gates.
 
 
 ## Final M6 measurements

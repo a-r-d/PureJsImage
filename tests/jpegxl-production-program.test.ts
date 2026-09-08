@@ -54,7 +54,7 @@ describe('JPEG XL production program baseline', () => {
       true,
       true,
       true,
-      false,
+      true,
       false,
       false,
       false,
