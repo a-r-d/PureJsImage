@@ -1,0 +1,19 @@
+benchmark/jpegxl/verify-m6-native.ts
+  s_d34c43d2bf2f2e::t_cf3f717f0f8899 31-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "98b3ba58e881109f962887e9a8a17de50bc43947",
+  "prompts": {},
+  "sessions": {
+    "s_d34c43d2bf2f2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a07f48-f1b4-7370-bbd3-2fa7dccee382",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
