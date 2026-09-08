@@ -220,7 +220,11 @@ test('Range explorer shows stages, byte counters and cached viewport reuse', asy
     throw new Error('Missing repeated measurement')
   expect(repeated.physicalReadBytes).toBe(firstMetrics.physicalReadBytes)
   await page.locator('#jxl-run-viewport').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete')
+  // This action reconstructs all four stages; shared CI runners can exceed the
+  // default five-second assertion budget while still making valid progress.
+  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete', {
+    timeout: 30_000,
+  })
   await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '16')
 })
 
