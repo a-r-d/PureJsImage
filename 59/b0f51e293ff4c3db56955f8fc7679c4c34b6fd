@@ -1,0 +1,27 @@
+benchmark/jpegxl/production-program/program-state.json
+  s_d34c43d2bf2f2e::t_c6e94b36763e96 412,414,440,458-459
+benchmark/jpegxl/production-program/status.json
+  s_d34c43d2bf2f2e::t_a4bc194be1be26 482-483,509,527-528
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d34c43d2bf2f2e::t_29c4aa5b38abc7 278,305-308
+docs/architecture/jpegxl-production-program.md
+  s_d34c43d2bf2f2e::t_f491dfb5b26829 10,13,16-17,23,44
+tests/jpegxl-production-program.test.ts
+  s_d34c43d2bf2f2e::t_eb5084cf0ddcab 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "59b0f51e293ff4c3db56955f8fc7679c4c34b6fd",
+  "prompts": {},
+  "sessions": {
+    "s_d34c43d2bf2f2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a07f48-f1b4-7370-bbd3-2fa7dccee382",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
