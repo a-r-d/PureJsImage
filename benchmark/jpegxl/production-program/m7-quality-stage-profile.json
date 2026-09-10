@@ -1,0 +1,938 @@
+{
+  "protocol": {
+    "split": "development",
+    "engines": ["purejsimage", "libjxl", "mozjpeg", "webp", "avif"],
+    "cohort": "All 120 frozen Imazen SDR development families; no result-based exclusions",
+    "comparatorPolicy": "All five engines are measured in this run.",
+    "preprocessing": "Native stored dimensions, no resize or auto-orientation. Sharp/libvips embedded-profile conversion to canonical sRGB RGB8; independently audited constant opaque alpha omitted. Metadata stripped identically. Same normalization as the M7 lossless development matrix. Transparent/HDR expansion is a separate required cohort, not covered here.",
+    "evaluation": "PureJsImage effort 7 and libjxl effort 7 at distances 0.25/0.5/1/2/3/5. Mozjpeg/WebP/AVIF quality 40/55/70/80/90/97 are curve coordinates, never equated with JXL distance. Both SSIMULACRA2 and Butteraugli are measured on independently decoded canonical RGB. No timing promotion from these concurrent runs.",
+    "matching": "Frozen SSIMULACRA2 bands 70/80/90 and Butteraugli 1/2. Use non-dominated curves and log-byte interpolation; unbracketed scores are not-run, no extrapolation.",
+    "startedAt": "2026-09-09T19:42:21.242Z",
+    "harnessSha256": "469d6f9e28985d557d1e91ffd97b757bef35979e9aa79a3e2454d96cb9a1249b",
+    "cacheHarnessSha256": "ad3f7e50a57bb5bc50a59bcd63f06e45b9b699a6ebb50e18796318adee29c938",
+    "ownVerification": {
+      "policy": "Fresh first-party points also compare complete ordered repository RGB8 rows with the scored independent raster, tolerance 2. Cached points without this evidence still require separate verification.",
+      "harnessSha256": "2359d4b4f74ebbe226ce349ac53d4cf9760b24014b9e69b818d1cbc34ecf3303",
+      "decoderSha256": "3cc4673ed95586fdf3d71ebe64c7a3a278013228fd066899b61ed73cca105160"
+    },
+    "sourceFingerprint": "babad4216186adb8313cddaca8938b8b8bfc430c8d247ab75743b9e64aade8b0",
+    "scheduling": {
+      "workers": 1,
+      "maximumPairedPixelsPerImage": 12000000,
+      "policy": "At most two sources of at most 12 MP each; larger sources run alone. Every codec retains its original single-thread configuration. Quality-only measurements, never runtime qualification."
+    },
+    "runtime": "v24.16.0",
+    "sharp": {
+      "aom": "3.14.1",
+      "archive": "3.8.8",
+      "cairo": "1.18.4",
+      "cgif": "0.5.3",
+      "exif": "0.6.26",
+      "expat": "2.8.2",
+      "ffi": "3.6.0",
+      "fontconfig": "2.18.1",
+      "freetype": "2.14.3",
+      "fribidi": "1.0.16",
+      "glib": "2.89.1",
+      "harfbuzz": "14.2.1",
+      "heif": "1.23.1",
+      "highway": "1.4.0",
+      "imagequant": "2.4.1",
+      "lcms": "2.19.1",
+      "mozjpeg": "0826579",
+      "pango": "1.58.0",
+      "pixman": "0.46.4",
+      "png": "1.6.58",
+      "proxy-libintl": "0.5",
+      "rsvg": "2.62.90",
+      "tiff": "d01a94b",
+      "uhdr": "1acdbed",
+      "vips": "8.18.3",
+      "webp": "1.6.0",
+      "xml2": "2.15.3",
+      "zlib-ng": "2.3.3",
+      "sharp": "0.35.3"
+    },
+    "tools": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ]
+  },
+  "measurement": {
+    "id": "im26-5012",
+    "sourceSha256": "4f4ec9fafa6efdead0010cb7379739cca5fd3b2e8afe13883beeedbe574c4472",
+    "normalizedSha256": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+    "width": 716,
+    "height": 714,
+    "category": "5000-national-park-service-brochures",
+    "sourceFingerprint": "babad4216186adb8313cddaca8938b8b8bfc430c8d247ab75743b9e64aade8b0",
+    "points": [
+      {
+        "engine": "purejsimage",
+        "setting": 0.25,
+        "status": "measured",
+        "bytes": 221384,
+        "encodedSha256": "6ff6934623f2c120adf525632337dbfdfd5429b8c7f0af333f465b40b88a4044",
+        "ssimulacra2": 93.43835881,
+        "butteraugli": 0.4130793214,
+        "decodedSha256": "b559d848d54b887de43c933045336bd5c1b15bba5e4e3af61e28a0c06943f34b",
+        "rmse": 0.816652686493692,
+        "maximumError": 17,
+        "maximumIndependentDifference": 1,
+        "ownVerification": {
+          "maximum": 1,
+          "rmse": 0.33184926976459317,
+          "samples": 1533672,
+          "rows": 714
+        },
+        "rawMetrics": {
+          "ssimulacra2Text": "93.43835881\n",
+          "butteraugliText": "0.4130793214\n3-norm: 0.134773\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 795.9924659999999,
+          "independentDecoding": 56.72589400000015,
+          "ssimulacra2": 80.30410799999981,
+          "butteraugli": 188.99562000000014,
+          "repositoryDecoding": 181.4805019999999,
+          "numericErrors": 14.966489000000138,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "purejsimage",
+        "setting": 0.5,
+        "status": "measured",
+        "bytes": 177412,
+        "encodedSha256": "da1ed0d5488dbfd14c621d10589db706a47ad5061fc0a4f0bd5bd06a87eead64",
+        "ssimulacra2": 92.31812233,
+        "butteraugli": 0.6818517447,
+        "decodedSha256": "4e512ea4c6ce94b3020631d6fadcf1dbee8347a28795c422c964f84b539afaba",
+        "rmse": 1.2428002860483172,
+        "maximumError": 22,
+        "maximumIndependentDifference": 1,
+        "ownVerification": {
+          "maximum": 1,
+          "rmse": 0.375019451720842,
+          "samples": 1533672,
+          "rows": 714
+        },
+        "rawMetrics": {
+          "ssimulacra2Text": "92.31812233\n",
+          "butteraugliText": "0.6818517447\n3-norm: 0.236117\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 692.3186710000002,
+          "independentDecoding": 62.54603799999995,
+          "ssimulacra2": 86.95629499999995,
+          "butteraugli": 193.74410599999965,
+          "repositoryDecoding": 167.963843,
+          "numericErrors": 16.463732000000164,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "purejsimage",
+        "setting": 1,
+        "status": "measured",
+        "bytes": 139110,
+        "encodedSha256": "95ab7d302f596cfc0c2b83820897b3b1d4180b5e62c16c15cac0f639a5862e19",
+        "ssimulacra2": 89.7956169,
+        "butteraugli": 1.3255437613,
+        "decodedSha256": "b1645d1ada66d50e11a2d7205dfba8f5bf888ce4fa9bf857bd6b7e3d0b32811c",
+        "rmse": 1.975682228156681,
+        "maximumError": 32,
+        "maximumIndependentDifference": 1,
+        "ownVerification": {
+          "maximum": 1,
+          "rmse": 0.3923955308656423,
+          "samples": 1533672,
+          "rows": 714
+        },
+        "rawMetrics": {
+          "ssimulacra2Text": "89.79561690\n",
+          "butteraugliText": "1.3255437613\n3-norm: 0.449088\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 635.4987070000002,
+          "independentDecoding": 60.57509600000003,
+          "ssimulacra2": 78.49652900000001,
+          "butteraugli": 190.92913599999974,
+          "repositoryDecoding": 130.72340200000008,
+          "numericErrors": 20.220442999999705,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "purejsimage",
+        "setting": 2,
+        "status": "measured",
+        "bytes": 103749,
+        "encodedSha256": "ba249783ecac565eaac9d4d6c3b1de4e8a43b9b6ebbdc5c5031af98c9606bbde",
+        "ssimulacra2": 85.38069859,
+        "butteraugli": 2.1439237595,
+        "decodedSha256": "8cff73a256bb9d3f1130e82bbc7a0bbd80c3fd025090102a5433a321b0d9098d",
+        "rmse": 3.009650061942372,
+        "maximumError": 42,
+        "maximumIndependentDifference": 1,
+        "ownVerification": {
+          "maximum": 1,
+          "rmse": 0.44545662783236645,
+          "samples": 1533672,
+          "rows": 714
+        },
+        "rawMetrics": {
+          "ssimulacra2Text": "85.38069859\n",
+          "butteraugliText": "2.1439237595\n3-norm: 0.730323\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 560.0778220000002,
+          "independentDecoding": 64.67120199999954,
+          "ssimulacra2": 80.40884000000005,
+          "butteraugli": 191.61537099999987,
+          "repositoryDecoding": 209.1878110000007,
+          "numericErrors": 19.923281999999745,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "purejsimage",
+        "setting": 3,
+        "status": "measured",
+        "bytes": 87391,
+        "encodedSha256": "b92f505689d7e34bff317e2909bdee0b5144029a78dfdd37a4eb909a348bb3d2",
+        "ssimulacra2": 81.04100657,
+        "butteraugli": 3.5701999664,
+        "decodedSha256": "02f8ce5c1c80fdf624a9804e2ae0aaf8393eb34e3156a70c77d5d695a11f67c8",
+        "rmse": 3.902510082478607,
+        "maximumError": 46,
+        "maximumIndependentDifference": 1,
+        "ownVerification": {
+          "maximum": 1,
+          "rmse": 0.5257041268485515,
+          "samples": 1533672,
+          "rows": 714
+        },
+        "rawMetrics": {
+          "ssimulacra2Text": "81.04100657\n",
+          "butteraugliText": "3.5701999664\n3-norm: 1.014873\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 515.2276410000004,
+          "independentDecoding": 64.36002800000006,
+          "ssimulacra2": 78.87451699999929,
+          "butteraugli": 198.14458400000058,
+          "repositoryDecoding": 165.58693200000016,
+          "numericErrors": 19.609286999999313,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "purejsimage",
+        "setting": 5,
+        "status": "measured",
+        "bytes": 68241,
+        "encodedSha256": "ea9d489fbf49c1edd1878f0b76bf8ee1fc01f5ad5708717e7cac853a0249b5ad",
+        "ssimulacra2": 73.09711779,
+        "butteraugli": 3.9986274242,
+        "decodedSha256": "c4156c146e00966e355d8ce4d3c651098df572b29686bb617ce39dd5d4ed4be5",
+        "rmse": 5.433658027321149,
+        "maximumError": 78,
+        "maximumIndependentDifference": 1,
+        "ownVerification": {
+          "maximum": 1,
+          "rmse": 0.5137868360763237,
+          "samples": 1533672,
+          "rows": 714
+        },
+        "rawMetrics": {
+          "ssimulacra2Text": "73.09711779\n",
+          "butteraugliText": "3.9986274242\n3-norm: 1.432702\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 470.6121830000002,
+          "independentDecoding": 63.79581099999996,
+          "ssimulacra2": 78.70293099999981,
+          "butteraugli": 202.67361100000016,
+          "repositoryDecoding": 139.9145010000002,
+          "numericErrors": 19.4880119999998,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "libjxl",
+        "setting": 0.25,
+        "status": "measured",
+        "bytes": 196829,
+        "encodedSha256": "591b0a668a6393b0d9f97778fe5bd795811f57a6a58f03873f8908fe433583bb",
+        "ssimulacra2": 92.571306,
+        "butteraugli": 0.419131428,
+        "decodedSha256": "e8c69d9388d09fc4685f80875db953b5a199b0f46b7b2838c8148112dba5a736",
+        "rmse": 1.0123977835188203,
+        "maximumError": 22,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "92.57130600\n",
+          "butteraugliText": "0.4191314280\n3-norm: 0.137226\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 175.46395500000017,
+          "independentDecoding": 18.201900000000023,
+          "ssimulacra2": 79.93108399999983,
+          "butteraugli": 194.72544300000027,
+          "repositoryDecoding": 0.8543220000001384,
+          "numericErrors": 20.72965000000022,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "libjxl",
+        "setting": 0.5,
+        "status": "measured",
+        "bytes": 153069,
+        "encodedSha256": "0cc129510879c5364b05477e72502e5f759a0b56e2219f1346b130e4d9585017",
+        "ssimulacra2": 90.32447616,
+        "butteraugli": 0.6495094299,
+        "decodedSha256": "475e345345780bcfb4c950f0667b80f89971fbd16dae3df47e26329ee7df7888",
+        "rmse": 1.537695739373501,
+        "maximumError": 31,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "90.32447616\n",
+          "butteraugliText": "0.6495094299\n3-norm: 0.231208\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 172.50087299999996,
+          "independentDecoding": 16.726285000000644,
+          "ssimulacra2": 87.55793099999937,
+          "butteraugli": 195.06223300000056,
+          "repositoryDecoding": 0.8354529999996885,
+          "numericErrors": 20.985421999999744,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "libjxl",
+        "setting": 1,
+        "status": "measured",
+        "bytes": 117351,
+        "encodedSha256": "2cb4424c2b6ee81d7580a4b5de0aa1513322f77affe283a8124c31adb0b05edd",
+        "ssimulacra2": 86.70646758,
+        "butteraugli": 1.0057048798,
+        "decodedSha256": "2a95d7f52a0a48e1dddea21c84724c5564775cbda29c68c2a76cd4782623a944",
+        "rmse": 2.2766699958544363,
+        "maximumError": 55,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "86.70646758\n",
+          "butteraugliText": "1.0057048798\n3-norm: 0.387056\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 192.20168100000046,
+          "independentDecoding": 18.071436999998696,
+          "ssimulacra2": 81.20021700000143,
+          "butteraugli": 195.59617999999864,
+          "repositoryDecoding": 0.8075399999997899,
+          "numericErrors": 5.602647000001525,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "libjxl",
+        "setting": 2,
+        "status": "measured",
+        "bytes": 83889,
+        "encodedSha256": "fa6ac644ddb90d230e1788b3a0da21893c6f6db9a2fefed26e9840eed49cff4b",
+        "ssimulacra2": 81.83083792,
+        "butteraugli": 1.9798045158,
+        "decodedSha256": "3950612e29b7ce58f50beacc10568eaf72acf2d2e715db188cafa77c78a03041",
+        "rmse": 3.358312506009974,
+        "maximumError": 49,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "81.83083792\n",
+          "butteraugliText": "1.9798045158\n3-norm: 0.699490\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 194.53107100000125,
+          "independentDecoding": 18.391723999999158,
+          "ssimulacra2": 81.31416200000058,
+          "butteraugli": 200.859140999999,
+          "repositoryDecoding": 0.9042690000005678,
+          "numericErrors": 5.6605190000009316,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "libjxl",
+        "setting": 3,
+        "status": "measured",
+        "bytes": 68928,
+        "encodedSha256": "7394626e6c7fcc3aedf823415b844c43c16c889b1f089e0e9842c5d6ffcd647a",
+        "ssimulacra2": 77.46411914,
+        "butteraugli": 2.9055361748,
+        "decodedSha256": "a85870f4b1eb115739f31dd573a34c4fdb0d477b700c6d507ad2ea24ae5399f9",
+        "rmse": 4.256128229783382,
+        "maximumError": 59,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "77.46411914\n",
+          "butteraugliText": "2.9055361748\n3-norm: 1.018540\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 217.94207800000004,
+          "independentDecoding": 18.322109999999157,
+          "ssimulacra2": 89.06148500000018,
+          "butteraugli": 210.37532400000055,
+          "repositoryDecoding": 1.149293000000398,
+          "numericErrors": 5.621430999999575,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "libjxl",
+        "setting": 5,
+        "status": "measured",
+        "bytes": 51141,
+        "encodedSha256": "6d05b9cafe06d71b0b0d6fadce957f1d1f7c9c845f25027444a6a560b524dbe2",
+        "ssimulacra2": 67.59516183,
+        "butteraugli": 4.4343824387,
+        "decodedSha256": "a8509ca709b6250d3a7dcca858462fc4ee6229ef54e5b996e86228f5b26dd530",
+        "rmse": 5.8694355984009,
+        "maximumError": 84,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "67.59516183\n",
+          "butteraugliText": "4.4343824387\n3-norm: 1.705030\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 220.0231019999992,
+          "independentDecoding": 24.781059000000823,
+          "ssimulacra2": 85.2818129999996,
+          "butteraugli": 204.38796999999977,
+          "repositoryDecoding": 0.7612630000003264,
+          "numericErrors": 5.577661999999691,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "mozjpeg",
+        "setting": 40,
+        "status": "measured",
+        "bytes": 43268,
+        "encodedSha256": "834360dff6b99a5b17ef76d17db9b9c4eeb181f6f245360f16fd4765c7c6615f",
+        "ssimulacra2": 53.51797202,
+        "butteraugli": 8.055727005,
+        "decodedSha256": "f01695e366afbac322793ec8b9f6ed712692c16a9a38533af862181e964c238d",
+        "rmse": 11.742481590474549,
+        "maximumError": 136,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "53.51797202\n",
+          "butteraugliText": "8.0557270050\n3-norm: 3.257629\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 35.64427400000022,
+          "independentDecoding": 4.756214999999429,
+          "ssimulacra2": 80.31738399999995,
+          "butteraugli": 193.6583980000014,
+          "repositoryDecoding": 0.8968959999983781,
+          "numericErrors": 20.76306900000054,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "mozjpeg",
+        "setting": 55,
+        "status": "measured",
+        "bytes": 53503,
+        "encodedSha256": "d97281a12db48b8d2b0db760284b83fb62a060774b92083a59f00c1daa7b1699",
+        "ssimulacra2": 60.33629891,
+        "butteraugli": 7.0692791939,
+        "decodedSha256": "2825117cefd6594d5d267f282c3043ee25804c7c77e45d4a8d0e2081093e254c",
+        "rmse": 10.071441621266757,
+        "maximumError": 142,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "60.33629891\n",
+          "butteraugliText": "7.0692791939\n3-norm: 2.655314\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 44.709232000001066,
+          "independentDecoding": 4.028782999999748,
+          "ssimulacra2": 84.83071299999938,
+          "butteraugli": 199.70472400000108,
+          "repositoryDecoding": 0.6890289999992092,
+          "numericErrors": 30.70371300000079,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "mozjpeg",
+        "setting": 70,
+        "status": "measured",
+        "bytes": 67257,
+        "encodedSha256": "2cca26d2b3e19df3414de05ecfe0a73012a25a7285cfb5a5c37329debc31e9ff",
+        "ssimulacra2": 68.22758748,
+        "butteraugli": 5.6178174019,
+        "decodedSha256": "273bd4e8db70b4a97dcc1dcc81e31c6e23df9a7e72b0667137ea458d6aff3f7e",
+        "rmse": 8.27697371146734,
+        "maximumError": 99,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "68.22758748\n",
+          "butteraugliText": "5.6178174019\n3-norm: 2.146151\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 52.887126000001444,
+          "independentDecoding": 4.565975999999864,
+          "ssimulacra2": 89.34190699999999,
+          "butteraugli": 204.13583199999994,
+          "repositoryDecoding": 0.7365790000003472,
+          "numericErrors": 5.528340999999273,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "mozjpeg",
+        "setting": 80,
+        "status": "measured",
+        "bytes": 84668,
+        "encodedSha256": "28c64115bdc6ae0a913849e172775ac4676a8e73d4a61102411756b71050a215",
+        "ssimulacra2": 74.52332777,
+        "butteraugli": 4.1611728668,
+        "decodedSha256": "b64cd80f7c808e375589f16f318aeab01fa6862ddae9112bc7f08e478cb2860e",
+        "rmse": 6.657595927228264,
+        "maximumError": 88,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "74.52332777\n",
+          "butteraugliText": "4.1611728668\n3-norm: 1.593939\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 60.720602999999755,
+          "independentDecoding": 4.202486000000135,
+          "ssimulacra2": 82.19048400000065,
+          "butteraugli": 204.22225099999923,
+          "repositoryDecoding": 0.7070800000001327,
+          "numericErrors": 5.606171000001268,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "mozjpeg",
+        "setting": 90,
+        "status": "measured",
+        "bytes": 118593,
+        "encodedSha256": "bddb6da26eb3a9bcffc1d5770e5125bbd0b7680a3e7eb85220b4fd7c1d9d8ab9",
+        "ssimulacra2": 81.40970746,
+        "butteraugli": 2.8805224895,
+        "decodedSha256": "547c529f4825b0c75cda79ff9ff4b80ec63a95fdb6bcccb8b1e2140e28041f6c",
+        "rmse": 4.604157255741339,
+        "maximumError": 59,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "81.40970746\n",
+          "butteraugliText": "2.8805224895\n3-norm: 1.033313\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 77.16865400000097,
+          "independentDecoding": 8.061690000000453,
+          "ssimulacra2": 81.58564699999988,
+          "butteraugli": 207.21855099999993,
+          "repositoryDecoding": 0.665393999999651,
+          "numericErrors": 28.270868999999948,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "mozjpeg",
+        "setting": 97,
+        "status": "measured",
+        "bytes": 194218,
+        "encodedSha256": "0b09f255930dcf4e7b96ede6d458c5d9fdab1638797f3bb8e129290b1accb09b",
+        "ssimulacra2": 88.10217134,
+        "butteraugli": 1.795463562,
+        "decodedSha256": "49e53d712728f1788cfd1d8effd66f7408cdc3b8098481d8a892fe8d4aaf60a8",
+        "rmse": 2.3940417825785367,
+        "maximumError": 30,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "88.10217134\n",
+          "butteraugliText": "1.7954635620\n3-norm: 0.589896\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 118.61025800000061,
+          "independentDecoding": 9.722694000000047,
+          "ssimulacra2": 81.80609899999945,
+          "butteraugli": 188.48606699999982,
+          "repositoryDecoding": 0.8350800000007439,
+          "numericErrors": 7.150314999998955,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "webp",
+        "setting": 40,
+        "status": "measured",
+        "bytes": 44062,
+        "encodedSha256": "625721cd2ad28ad0883488b0baac6faf865c4cbab0e30c2f785cec31a34a466a",
+        "ssimulacra2": 67.35156554,
+        "butteraugli": 3.8080182076,
+        "decodedSha256": "b345955a6425e8ebc664d61593f95d2b2074862c13c5b6a806ff8c31f77c9f4e",
+        "rmse": 5.708979084830239,
+        "maximumError": 67,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "67.35156554\n",
+          "butteraugliText": "3.8080182076\n3-norm: 1.455465\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 92.98928499999965,
+          "independentDecoding": 11.301493000000846,
+          "ssimulacra2": 94.24770399999943,
+          "butteraugli": 215.16648800000075,
+          "repositoryDecoding": 0.8642889999991894,
+          "numericErrors": 5.5606970000008005,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "webp",
+        "setting": 55,
+        "status": "measured",
+        "bytes": 50432,
+        "encodedSha256": "1034a4f64702106ce8d5bc28f8cc3b14de499ad8993942a3aac2f1c0b0549779",
+        "ssimulacra2": 72.38159378,
+        "butteraugli": 3.2217817307,
+        "decodedSha256": "48ac91f1caf1265282b6572b05ded92ed19985608341035cb992fc42f1cb505c",
+        "rmse": 4.919137382862954,
+        "maximumError": 50,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "72.38159378\n",
+          "butteraugliText": "3.2217817307\n3-norm: 1.215452\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 94.45875900000101,
+          "independentDecoding": 11.227741000000606,
+          "ssimulacra2": 84.99254899999869,
+          "butteraugli": 192.1577180000004,
+          "repositoryDecoding": 2.293115000000398,
+          "numericErrors": 20.650196999999025,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "webp",
+        "setting": 70,
+        "status": "measured",
+        "bytes": 57650,
+        "encodedSha256": "8edf1e62a4104816689b4f6c1f89432c375fd76d53b5a87a1bdee097cdc01bf1",
+        "ssimulacra2": 76.84249544,
+        "butteraugli": 2.9476981163,
+        "decodedSha256": "498e04a74bbd25add8d5d9c6b597390e2e370cda86d90d9fa18c14f715b6caf9",
+        "rmse": 4.250728791876746,
+        "maximumError": 44,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "76.84249544\n",
+          "butteraugliText": "2.9476981163\n3-norm: 1.025175\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 99.82255700000132,
+          "independentDecoding": 12.968919999999343,
+          "ssimulacra2": 123.3219140000001,
+          "butteraugli": 215.87229800000023,
+          "repositoryDecoding": 0.7403589999994438,
+          "numericErrors": 5.546929000000091,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "webp",
+        "setting": 80,
+        "status": "measured",
+        "bytes": 69194,
+        "encodedSha256": "cb6c9560f97c4cbe8cf7eea775317172fa9211b97913e91688b4a49075823126",
+        "ssimulacra2": 80.40467314,
+        "butteraugli": 2.4976053238,
+        "decodedSha256": "9e11b593fdf13515826be3a64e3bc7110d0a3151d6ee5491fed4c20cf891bd23",
+        "rmse": 3.4901999631354377,
+        "maximumError": 37,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "80.40467314\n",
+          "butteraugliText": "2.4976053238\n3-norm: 0.892293\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 106.55888300000152,
+          "independentDecoding": 12.150338999999803,
+          "ssimulacra2": 86.39243699999861,
+          "butteraugli": 205.16797000000042,
+          "repositoryDecoding": 0.6815430000006018,
+          "numericErrors": 5.728718000000299,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "webp",
+        "setting": 90,
+        "status": "measured",
+        "bytes": 99500,
+        "encodedSha256": "ed4ebf8a719f27bac662f44e748856cfc4c00592d0347340de22e86d5bcc0ca7",
+        "ssimulacra2": 86.98142846,
+        "butteraugli": 1.3128089905,
+        "decodedSha256": "e57f4f378091e77d2b082dca3d765b86f761b545c759b0374821862ae298c164",
+        "rmse": 2.3463914180340835,
+        "maximumError": 26,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "86.98142846\n",
+          "butteraugliText": "1.3128089905\n3-norm: 0.592751\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 125.38584699999956,
+          "independentDecoding": 13.407338000000891,
+          "ssimulacra2": 89.00746799999979,
+          "butteraugli": 197.67491800000062,
+          "repositoryDecoding": 0.706449999999677,
+          "numericErrors": 5.595181999999113,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "webp",
+        "setting": 97,
+        "status": "measured",
+        "bytes": 143354,
+        "encodedSha256": "42c21c92d17b73c41dab69fe519f13bd609a139f84cca5fb07310d1fc3551ec5",
+        "ssimulacra2": 89.79369628,
+        "butteraugli": 0.8876512051,
+        "decodedSha256": "7d35d096d7e350af130bc1fb33c1b55bf8ed17f822b78f7e986d48ba2ad09297",
+        "rmse": 1.788491963568153,
+        "maximumError": 28,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "89.79369628\n",
+          "butteraugliText": "0.8876512051\n3-norm: 0.543448\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 139.43302799999947,
+          "independentDecoding": 15.884437000000617,
+          "ssimulacra2": 89.97296800000004,
+          "butteraugli": 220.44804400000066,
+          "repositoryDecoding": 0.6688699999995151,
+          "numericErrors": 5.741433999999572,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "avif",
+        "setting": 40,
+        "status": "measured",
+        "bytes": 31194,
+        "encodedSha256": "5bd72ccec3887f24a1dc20faa45422975e4bb9a58b56d9c332e7c42b43cd682b",
+        "ssimulacra2": 65.59770872,
+        "butteraugli": 5.2433614731,
+        "decodedSha256": "2304da974afa7631eded8ceb1df566c7a00f463bc11e7f040958e4f728fd26c3",
+        "rmse": 5.929332675668404,
+        "maximumError": 80,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "65.59770872\n",
+          "butteraugliText": "5.2433614731\n3-norm: 1.729815\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 4249.521014,
+          "independentDecoding": 25.104985999998462,
+          "ssimulacra2": 81.31915500000105,
+          "butteraugli": 194.29264700000203,
+          "repositoryDecoding": 0.7253309999978228,
+          "numericErrors": 20.661338000001706,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "avif",
+        "setting": 55,
+        "status": "measured",
+        "bytes": 41550,
+        "encodedSha256": "07cb3c743ba1c1a859361625221501da27e6da524c67b6833405c610ede38569",
+        "ssimulacra2": 78.28551382,
+        "butteraugli": 2.9133481979,
+        "decodedSha256": "842f560746f598ca8cfd591421542e54eef22c2bd01d4a9ef5e62a50d4bad15a",
+        "rmse": 3.8942641784679113,
+        "maximumError": 65,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "78.28551382\n",
+          "butteraugliText": "2.9133481979\n3-norm: 0.985730\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 4582.978981,
+          "independentDecoding": 32.26865600000019,
+          "ssimulacra2": 83.72689399999945,
+          "butteraugli": 191.4978059999994,
+          "repositoryDecoding": 0.8567670000011276,
+          "numericErrors": 5.487259000001359,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "avif",
+        "setting": 70,
+        "status": "measured",
+        "bytes": 56181,
+        "encodedSha256": "c1d2de5817393afdede08162cc49a6a782e3ed7215720790f915a41403ad2edf",
+        "ssimulacra2": 84.74000018,
+        "butteraugli": 1.5307313204,
+        "decodedSha256": "51d014f6a1564b94013254e42da7544c6872a8a421713a850b01c8bbc3ecba3a",
+        "rmse": 2.7994998157898436,
+        "maximumError": 42,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "84.74000018\n",
+          "butteraugliText": "1.5307313204\n3-norm: 0.618234\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 4946.749227,
+          "independentDecoding": 32.142659999997704,
+          "ssimulacra2": 83.6968909999996,
+          "butteraugli": 197.6215050000028,
+          "repositoryDecoding": 0.7333239999970829,
+          "numericErrors": 5.582401000003301,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "avif",
+        "setting": 80,
+        "status": "measured",
+        "bytes": 69285,
+        "encodedSha256": "24402a55054ea38998a80424bd228b09c24d5ddf0c311a0a6fcac2bb58c4fae4",
+        "ssimulacra2": 87.61831096,
+        "butteraugli": 1.2254475355,
+        "decodedSha256": "022e0c5aa6f4e08fef3c3e6dc6e3bcac9b0907000b4fda3631ffc7ae326119a4",
+        "rmse": 2.327290272599504,
+        "maximumError": 40,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "87.61831096\n",
+          "butteraugliText": "1.2254475355\n3-norm: 0.554127\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 5091.717905999998,
+          "independentDecoding": 33.584272000000055,
+          "ssimulacra2": 86.05582600000344,
+          "butteraugli": 189.10252599999512,
+          "repositoryDecoding": 0.792661000006774,
+          "numericErrors": 5.592697999993106,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "avif",
+        "setting": 90,
+        "status": "measured",
+        "bytes": 88300,
+        "encodedSha256": "2b7366c6e2f5a43f87cbe68288d13e014b9e173b0550c087162e9e9e07a8d7cd",
+        "ssimulacra2": 89.64474738,
+        "butteraugli": 1.0229963064,
+        "decodedSha256": "7a02cce67200239d2c51fd77f97be40ee016a18dea72e8c917a9000572efa753",
+        "rmse": 1.9648591916366067,
+        "maximumError": 37,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "89.64474738\n",
+          "butteraugliText": "1.0229963064\n3-norm: 0.531416\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 5510.851505999999,
+          "independentDecoding": 35.25589900000341,
+          "ssimulacra2": 86.11267799999769,
+          "butteraugli": 189.34724600000482,
+          "repositoryDecoding": 0.899530999995477,
+          "numericErrors": 21.50893100000394,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      },
+      {
+        "engine": "avif",
+        "setting": 97,
+        "status": "measured",
+        "bytes": 116438,
+        "encodedSha256": "a3ee64690c60ccdbd32760adfa98fedb66a8ce6f74f1e92fad253eb90e45d0de",
+        "ssimulacra2": 91.24461934,
+        "butteraugli": 0.8315868378,
+        "decodedSha256": "d91fad9d2809f3f2674d3d4555addcf40279b7e896d8c03c2807ecab60a5aee8",
+        "rmse": 1.756480263476375,
+        "maximumError": 32,
+        "maximumIndependentDifference": null,
+        "rawMetrics": {
+          "ssimulacra2Text": "91.24461934\n",
+          "butteraugliText": "0.8315868378\n3-norm: 0.524784\n"
+        },
+        "stageMilliseconds": {
+          "encoding": 6026.888485000003,
+          "independentDecoding": 38.7852950000015,
+          "ssimulacra2": 86.4418319999968,
+          "butteraugli": 189.43162300000404,
+          "repositoryDecoding": 0.9385389999952167,
+          "numericErrors": 5.7573950000005425,
+          "scope": "Observed serial wall time including associated file I/O; not an isolated codec speed comparison"
+        }
+      }
+    ]
+  },
+  "guard": {
+    "startedAt": "2026-09-09T19:42:21.006Z",
+    "finishedAt": "2026-09-09T19:43:08.557Z",
+    "policy": {
+      "memoryMaxBytes": 3221225472,
+      "memoryHighBytes": 3019898880,
+      "minimumAvailableBytes": 8589934592,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 200,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 28104032256,
+    "executable": "/usr/bin/env",
+    "args": [
+      "PUREJSIMAGE_M7_LOSSY_RUN=stage-profile",
+      "PUREJSIMAGE_M7_LOSSY_SPLIT=development",
+      "PUREJSIMAGE_M7_LOSSY_WORKERS=1",
+      "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "benchmark/jpegxl/evaluate-m7-lossy-development.ts",
+      "im26-5012"
+    ],
+    "code": 0,
+    "signal": null,
+    "status": "completed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 0ec3bfc83c684229a510ae9639ddeba1\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 47.530s\nCPU time consumed: 50.241s\nMemory peak: 362.3M (swap: 0B)\n"
+  },
+  "finding": "AVIF encoding consumed about 30.4 of the 47.5 seconds on this 0.51 MP source. Keep comparator settings fixed; reduce user-approved raster area and safely increase case concurrency."
+}

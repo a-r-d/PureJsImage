@@ -682,12 +682,24 @@ export const readJpegXlContextMap = (
   })
 }
 
+// Bounded HF allowance: 256 histogram sets, 16 block contexts and 495 AC contexts.
+// Other entropy streams retain the smaller default admission limit.
+export const jpegXlMaxHfEntropyContexts = 256 * 16 * 495
+
 export const readJpegXlEntropyCode = (
   reader: JpegXlBitReader,
   contexts: number,
   recursionDepth = 0,
+  maximumContexts = 65_536,
 ): JpegXlEntropyCode => {
-  if (!Number.isInteger(contexts) || contexts < 1 || contexts > 65_536) {
+  if (
+    !Number.isInteger(maximumContexts) ||
+    maximumContexts < 1 ||
+    maximumContexts > jpegXlMaxHfEntropyContexts ||
+    !Number.isInteger(contexts) ||
+    contexts < 1 ||
+    contexts > maximumContexts
+  ) {
     throw invalidInput('JPEG XL entropy context count is invalid')
   }
   const lz77Fields = readLz77Fields(reader)

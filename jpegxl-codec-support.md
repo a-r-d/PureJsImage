@@ -58,6 +58,18 @@ Ordinary VarDCT opening and `explainImage()` index headers without decoding pixe
 
 Progressive range-aware processing is M6 and is outside the M5 static boundary.
 
+- [x] Encode sparse RGB16 effort-7 groups with sorted per-channel palettes and optional index RCT; verify native samples, partial groups and allocation limits
+- [x] Accept the bounded local three-scalar-palette transform chain with optional index RCT
+
+## M7 experimental forward encoding
+
+Use `.jpegxl({ mode: 'lossy', distance: 1, effort: 3, progressive: true })` for forward pixel encoding. `.jpegxl()` stays lossless. Distance must be from 0.25 to 25; zero and lossless/distance conflicts are errors.
+
+The current writer supports DCT8, effort-5/7 Hornuss and both rectangular half-block orientations, adaptive quantization, local chroma-from-luma, optional two-pass output, and exact straight alpha at native integer depths. Known-primary sRGB, linear, gamma, and PQ inputs retain their declared source metadata. HLG, custom chromaticities, premultiplied alpha, larger DCT/AFV strategies, and Gaborish remain outside this experimental encoding subset. Opaque standard-sRGB gray/RGB at effort 5/7 and distance 2 or above can use residual-scaled edge-preserving restoration when most blocks need filtering.
+Opaque non-progressive effort-1 frames with 2 through 256 AC groups can use group-local entropy models and reusable scratch. DC averages and AC transforms share one pixel conversion per block. Exact section-size comparison retains the smaller prefix representation when appropriate. All scratch remains subject to maxWorkingBytes; process RSS is measured separately.
+
+The frozen extended compression and rate-distortion gates are unfinished. These implementation and procedural conformance results do not establish production quality or speed across the corpus. The workbench exposes lossless and experimental lossy controls separately from exact JPEG recompression, with local comparison, download, reopen, and cancellation.
+
 ## PR 35 precision, memory and evidence corrections
 
 - [x] Preserve nondefault PQ and HLG luminance fields through storage-only conversion
@@ -66,7 +78,7 @@ Progressive range-aware processing is M6 and is outside the M5 static boundary.
 - [x] Check actual encoder allocations before construction and release all ownership on failure
 - [x] Validate maxWorkingBytes and maxOutputBytes; keep caller/sink memory and process RSS separate
 
-The nine original holdout assets retain source dimensions and checksums. Every effort-1 and effort-7 pixel result is independently exact, including original 24 MP and 12 MP photographs and two real UI captures. Large photos and screenshots often exceed PNG or libjxl sizes. Advanced effort search is currently single-group; larger inputs use the same left predictor for every requested effort. Two separately selected small eligible WPT JPEGs supplement the original ICC-ineligible small photographic case. No original holdout case was removed.
+The nine original holdout assets retain source dimensions and checksums. Every effort-1 and effort-7 pixel result is independently exact, including original 24 MP and 12 MP photographs and two real UI captures. Large photos and screenshots often exceed PNG or libjxl sizes. At that checkpoint advanced effort search was single-group. M7 extends bounded search to larger inputs, with new corpus qualification still in progress. Two separately selected small eligible WPT JPEGs supplement the original ICC-ineligible small photographic case. No original holdout case was removed.
 
 See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection rules, rounding exception and exact-revision evidence.
 
@@ -141,12 +153,12 @@ and independently validated.
 - [x] Add explicit coefficient-domain JPEG transcode and exact reconstruction APIs
 - [x] Pass the 250-file exact JPEG compression, 12 MP performance, bounded verification, and browser parity gates for the documented subset
 
-## Planned lossless-first output boundary
+## Output modes
 
-The ordinary encoder is a constrained mathematically lossless Modular
-pixel encoder. It will not claim original-file reconstruction. Exact JPEG
-recompression is a separate coefficient-domain API with byte-equality gates.
-A general-purpose lossy VarDCT encoder is outside this project.
+The default encoder is a constrained mathematically lossless Modular pixel
+encoder. Explicit lossy mode uses the experimental forward VarDCT subset
+described above. Neither pixel mode claims original-file reconstruction.
+Exact JPEG recompression is a separate coefficient-domain API with byte-equality gates.
 
 ## Group 0: detection, container, and metadata — required for v1
 

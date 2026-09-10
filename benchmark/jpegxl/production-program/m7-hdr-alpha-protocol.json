@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "frozenDate": "2026-09-08",
+  "status": "Mapping fixed before evaluating HDR or transparent encoder outputs",
+  "selection": "m7-corpus-expansion.json",
+  "sourceHashes": "m7-expansion-downloads.json",
+  "familyPolicy": "Every derivative keeps its original source identity and split. Derivatives are not additional real assets or native integer-depth captures.",
+  "hdr": {
+    "source": "Provider 2k Radiance RGBE, original dimensions, decoded as relative linear sRGB under the repository HDR contract",
+    "luminanceAssignment": "Relative linear sample 1 is assigned 203 nits, without per-image exposure or normalization. This is a benchmark display assignment, not absolute camera calibration.",
+    "input": "Clamp to 0..10000 nits and quantize ST 2084 PQ to unsigned 16-bit RGB with sRGB primaries, D65, relative rendering intent, intensity target 10000 nits. Record clipped samples and quantization error separately.",
+    "nativeLight": "Compare decoded linear sRGB against the PQ16 input decoded back to relative light in units of 203 nits. Report maximum absolute error, RMSE and reference RMS. Retain original RGBE float samples separately.",
+    "displayHeadrooms": [1, 2, 4],
+    "displayMapping": "For each headroom H, clamp relative linear RGB divided by H to 0..1, apply the sRGB transfer function and round to RGB8. Apply the same fixed mapping to source and decoded samples. These are exposure-and-clipping views, not an adaptive tone mapper. Report SSIMULACRA2 and Butteraugli independently at every headroom.",
+    "qualityCurves": "Use the existing frozen distance grid and measured quality matching policy. Do not aggregate display views as independent images or substitute display scores for native-light checks."
+  },
+  "alpha": {
+    "input": "Original dimensions, straight RGBA8, source profile converted to sRGB identically for every encoder. Preserve all source RGB values including fully transparent samples.",
+    "preservation": "Require exact alpha for every generated JXL in both independent decoders. Retain straight RGB diagnostics separately.",
+    "backgrounds": ["black", "white"],
+    "compositing": "Decode sRGB to linear light, composite straight alpha onto each background, apply sRGB transfer and round to RGB8. Use identical source and candidate treatment, including JPEG comparisons which encode each composited source separately."
+  }
+}

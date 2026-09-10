@@ -76,30 +76,51 @@ export class JpegXlEncoderMemory {
     this.#scope = scope
     try {
       const result = action()
-      const visited = new Set<object>()
-      const promote = (value: unknown): void => {
-        if (typeof value !== 'object' || value === null || visited.has(value)) return
-        visited.add(value)
-        if (ArrayBuffer.isView(value)) {
-          const buffer = value.buffer
-          if (buffer instanceof ArrayBuffer && this.#owners.get(buffer) === scope) {
-            scope.buffers.delete(buffer)
-            parent.buffers.add(buffer)
-            this.#owners.set(buffer, parent)
-          }
-        } else if (Array.isArray(value)) {
-          for (const item of value) promote(item)
-        } else {
-          for (const item of Object.values(value)) promote(item)
-        }
-      }
-      promote(result)
+      this.#promote(result, scope, parent)
       return result
     } finally {
       for (const buffer of scope.buffers) this.#releaseBuffer(buffer)
       scope.closed = true
       this.#scope = parent
     }
+  }
+
+  /** Keeps scratch owned across cooperative yields; callers serialize each encoder. */
+  async runAsync<T>(action: () => Promise<T>): Promise<T> {
+    const parent = this.#scope
+    if (parent.closed) throw invalidInput('JPEG XL encoder memory is closed')
+    const scope: AllocationScope = { buffers: new Set(), parent, closed: false }
+    this.#scope = scope
+    try {
+      const result = await action()
+      this.#promote(result, scope, parent)
+      return result
+    } finally {
+      for (const buffer of scope.buffers) this.#releaseBuffer(buffer)
+      scope.closed = true
+      this.#scope = parent
+    }
+  }
+
+  #promote(result: unknown, scope: AllocationScope, parent: AllocationScope): void {
+    const visited = new Set<object>()
+    const promote = (value: unknown): void => {
+      if (typeof value !== 'object' || value === null || visited.has(value)) return
+      visited.add(value)
+      if (ArrayBuffer.isView(value)) {
+        const buffer = value.buffer
+        if (buffer instanceof ArrayBuffer && this.#owners.get(buffer) === scope) {
+          scope.buffers.delete(buffer)
+          parent.buffers.add(buffer)
+          this.#owners.set(buffer, parent)
+        }
+      } else if (Array.isArray(value)) {
+        for (const item of value) promote(item)
+      } else {
+        for (const item of Object.values(value)) promote(item)
+      }
+    }
+    promote(result)
   }
 
   close(): void {
@@ -142,6 +163,11 @@ export class JpegXlEncoderMemory {
 
 export const withJpegXlMemory = <T>(memory: JpegXlEncoderMemory | undefined, action: () => T): T =>
   memory ? memory.run(action) : action()
+
+export const withJpegXlMemoryAsync = <T>(
+  memory: JpegXlEncoderMemory | undefined,
+  action: () => Promise<T>,
+): Promise<T> => (memory ? memory.runAsync(action) : action())
 
 export const allocateJpegXlArray = <T extends OwnedArray>(
   memory: JpegXlEncoderMemory | undefined,

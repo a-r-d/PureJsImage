@@ -685,6 +685,10 @@ const nclxChromaticities = (primaries: number): RgbChromaticities => {
   throw unsupportedOperation(`NCLX color primaries ${primaries} are not supported`)
 }
 
+/** Converts linear source RGB to linear sRGB, retaining out-of-gamut values. */
+export const nclxToLinearSrgbMatrix = (primaries: number): Float64Array =>
+  chromaticityMatrix(nclxChromaticities(primaries))
+
 const cachedNclxLumaCoefficients = new Map<number, readonly [number, number, number]>()
 
 export const nclxLumaCoefficients = (primaries: number): readonly [number, number, number] => {

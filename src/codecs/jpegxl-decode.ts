@@ -1648,12 +1648,50 @@ const readModularGroup = (
   if (groupData.byteLength !== section.length) {
     throw invalidInput(`JPEG XL Modular group ${groupId} section data is missing`)
   }
+  const groupX = groupId % header.groupsAcross
+  const groupY = Math.floor(groupId / header.groupsAcross)
+  const x = groupX * header.groupDimension
+  const y = groupY * header.groupDimension
+  const width = Math.min(header.groupDimension, header.width - x)
+  const height = Math.min(header.groupDimension, header.height - y)
+  const channelLayouts = [
+    ...foundation.globalProgram.channelLayouts
+      .slice(0, foundation.firstGroupedChannel)
+      .map((layout) => ({ ...layout })),
+    ...foundation.groupedLayouts.map(() => ({ width, height })),
+  ]
   const reader = new JpegXlBitReader(groupData)
   const useGlobalTree = reader.readBits(1) !== 0
   const weightedPredictor = readWeightedPredictor(reader)
-  const transformCount = readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)])
-  if (transformCount !== 0) {
-    throw unsupportedOperation('JPEG XL group-local Modular transforms are not supported')
+  const { transforms, metaChannelCount } = readModularTransforms(
+    reader,
+    channelLayouts,
+    foundation.globalProgram.metaChannelCount,
+  )
+  const [first, second, third, fourth] = transforms
+  const localColorTransform =
+    transforms.length === 2 &&
+    first?.kind === 'rct' &&
+    first.beginChannel === 0 &&
+    (second?.kind === 'palette' || second?.kind === 'squeeze')
+  const scalarPalettes =
+    (transforms.length === 3 || transforms.length === 4) &&
+    [first, second, third].every(
+      (transform, channel) =>
+        transform?.kind === 'palette' &&
+        transform.beginChannel === channel * 2 &&
+        transform.channelCount === 1 &&
+        transform.deltaCount === 0 &&
+        transform.predictor === 0,
+    ) &&
+    (fourth === undefined || (fourth.kind === 'rct' && fourth.beginChannel === 3))
+  if (
+    (transforms.length > 1 && !localColorTransform && !scalarPalettes) ||
+    (transforms.length > 0 && foundation.prefixPlanes.length > 0)
+  ) {
+    throw unsupportedOperation(
+      'JPEG XL grouped Modular transform chains and transformed prefix channels are not supported',
+    )
   }
   const tree = useGlobalTree ? foundation.globalProgram.nodes : readTree(reader).nodes
   const pixelCode = useGlobalTree
@@ -1669,16 +1707,6 @@ const readModularGroup = (
       (node.kind === 'leaf' && node.predictor === 6) ||
       (node.kind === 'branch' && node.property === 15),
   )
-  const groupX = groupId % header.groupsAcross
-  const groupY = Math.floor(groupId / header.groupsAcross)
-  const x = groupX * header.groupDimension
-  const y = groupY * header.groupDimension
-  const width = Math.min(header.groupDimension, header.width - x)
-  const height = Math.min(header.groupDimension, header.height - y)
-  const channelLayouts = Object.freeze([
-    ...foundation.globalProgram.channelLayouts.slice(0, foundation.firstGroupedChannel),
-    ...foundation.groupedLayouts.map(() => Object.freeze({ width, height })),
-  ])
   return Object.freeze({
     x,
     y,
@@ -1691,9 +1719,9 @@ const readModularGroup = (
       pixelCode,
       weightedPredictor,
       usesWeightedPrediction,
-      channelLayouts,
-      transforms: foundation.globalProgram.transforms,
-      metaChannelCount: foundation.globalProgram.metaChannelCount,
+      channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
+      transforms: Object.freeze([...foundation.globalProgram.transforms, ...transforms]),
+      metaChannelCount,
       groupId: 1 + 3 * header.dcGroupCount + JPEG_XL_QUANT_TABLES + groupId,
       prefixPlanes: foundation.prefixPlanes,
     }),
@@ -3113,6 +3141,9 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
         activeGroups.reduce(
           (sum, group) =>
             sum +
+            (group.program.transforms.some((transform) => transform.kind !== 'rct')
+              ? BigInt(group.width) * BigInt(group.height) * BigInt(this.#header.channelCount) * 4n
+              : 0n) +
             group.program.channelLayouts
               .slice(group.program.prefixPlanes.length)
               .reduce(

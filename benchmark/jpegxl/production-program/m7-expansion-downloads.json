@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "polyhaven-qwantani_moon_noon",
+      "split": "development",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/qwantani_moon_noon_2k.hdr",
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "bytes": 6265368,
+      "providerMd5": "25a0fbda0e73c4b238ae2ebee03a91b9",
+      "metadataSha256": "029801970193a0a45981507101be9e9ff76671b97f143f53d1fa2817ffd064c8"
+    },
+    {
+      "id": "polyhaven-pond_bridge_night",
+      "split": "development",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/pond_bridge_night_2k.hdr",
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "bytes": 6479941,
+      "providerMd5": "7122923a4cad260fc8a9a81774fd684d",
+      "metadataSha256": "8e59e7de6b0a38294b323d36615bae11e4afefd444495dd00bcdf90f9b86ecf6"
+    },
+    {
+      "id": "polyhaven-abandoned_tiled_room",
+      "split": "development",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/abandoned_tiled_room_2k.hdr",
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "bytes": 7007130,
+      "providerMd5": "f1d6bea537c704d81d39b88b5552fc73",
+      "metadataSha256": "cd135e5cb88e3df0c38e08a471b04beb732a6008edde06c3f3e748a11a903c65"
+    },
+    {
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "split": "development",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/sepulchral_chapel_rotunda_2k.hdr",
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "bytes": 6597992,
+      "providerMd5": "61113c874f54b820bae2fd7084b17209",
+      "metadataSha256": "764db6efd4221085b79d32515bea2e2c31275c3e08ed8b56afe62b4ab1b6e97f"
+    },
+    {
+      "id": "polyhaven-cobblestone_parish_road",
+      "split": "development",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/cobblestone_parish_road_2k.hdr",
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "bytes": 6807910,
+      "providerMd5": "1d336989b7721d05d07f6c0fd51a1d28",
+      "metadataSha256": "7929d6b6b4fe150556f868f133ecc51cb606ef004517b2c3c007079496cd66a5"
+    },
+    {
+      "id": "polyhaven-emmarentia",
+      "split": "development",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/emmarentia_2k.hdr",
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "bytes": 7286585,
+      "providerMd5": "2e8812d9f35f6cbfeb8065907dca4e3d",
+      "metadataSha256": "adf4e05f917c015ecffdb02fe3a16c0508f371720625ecfdd9bc25e3d6225d7a"
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "split": "holdout",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/metro_noord_2k.hdr",
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "bytes": 6852060,
+      "providerMd5": "31c096f71b1f292e26001fad1c8d2fc1",
+      "metadataSha256": "bfd5b3ce1501f514800d393bad00fa0d62e5267b98af9a8f522f878dc64c2022"
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "split": "holdout",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/modern_buildings_night_2k.hdr",
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "bytes": 6485327,
+      "providerMd5": "c9def453a464ef8a59ccd9ae73c453cc",
+      "metadataSha256": "45fce42baad702af22f521af12309b37594d8d7b9ae96b0411a4741de394f1a5"
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "split": "holdout",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/hikers_cave_2k.hdr",
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "bytes": 7292816,
+      "providerMd5": "97c5900e26c9e691ef1d922a5da231a8",
+      "metadataSha256": "e9f3ef9d67c54b6611672383f34f81fea6a9fcd0a952607c515a68baa0fc1896"
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "split": "holdout",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/glass_passage_2k.hdr",
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "bytes": 7094080,
+      "providerMd5": "021c5dcf1e5b8a77bf4f3f1fb1177eaf",
+      "metadataSha256": "bf549505099d684ff388cccdf5957f61e2a2d543c80027b293275b71da13a42f"
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "split": "holdout",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/pedestrian_overpass_2k.hdr",
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "bytes": 6202455,
+      "providerMd5": "cd1873c606e8a78c5df72101772ca5c8",
+      "metadataSha256": "aae4252e5e5172e5cdb69c17914ce1fae43e8d115305c97aad67a677e89a0b43"
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "split": "holdout",
+      "status": "verified",
+      "format": "hdr",
+      "sourceUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/lakeside_2k.hdr",
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "bytes": 6026852,
+      "providerMd5": "1cbbdf506a1b795d43bcc91319560cd1",
+      "metadataSha256": "29c9bd02a3c4b3f48478167f8778a928ed70efd87651f8875d93e4ba5fa53420"
+    },
+    {
+      "id": "noto-1f600",
+      "split": "development",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f600.png",
+      "sourceSha256": "d6e6be1b18cd8ae3f56556d171cc7d8eecd293bdbbc1aa66ab5493a66ba4dae0",
+      "bytes": 35506
+    },
+    {
+      "id": "noto-1f98a",
+      "split": "holdout",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f98a.png",
+      "sourceSha256": "b69aa86198b8d5b7f3d1ce4ca84ca8f983799fba0c4d01d8ea84804e1e1ce13d",
+      "bytes": 18050
+    },
+    {
+      "id": "noto-1f338",
+      "split": "development",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f338.png",
+      "sourceSha256": "e87dddb11bb9fbe79c2efb549275be5368e47143670455a5f4d639458d22f669",
+      "bytes": 17104
+    },
+    {
+      "id": "noto-1f680",
+      "split": "holdout",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f680.png",
+      "sourceSha256": "a477bf2e112db11a99926a6c300618f9274b6df405b8a67d64f87fb54c833b52",
+      "bytes": 26729
+    },
+    {
+      "id": "noto-1f355",
+      "split": "development",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f355.png",
+      "sourceSha256": "c4d2a0edaea1c0b18ccdbe9d221410869bb0d60c3a746e69f5e7952b9241fd4e",
+      "bytes": 22680
+    },
+    {
+      "id": "noto-1f3a8",
+      "split": "holdout",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f3a8.png",
+      "sourceSha256": "1611b786a08c0682c7e401fa79ddcaf9a7aaa468ec75c1026684a92c611ce3cc",
+      "bytes": 23408
+    },
+    {
+      "id": "noto-1f3b8",
+      "split": "development",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f3b8.png",
+      "sourceSha256": "4506339f16ca114c6aeaf2b96bc6e64e1e127956876e06d5916acc5740403118",
+      "bytes": 27438
+    },
+    {
+      "id": "noto-1f984",
+      "split": "holdout",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f984.png",
+      "sourceSha256": "6168167bea9f58117df26cf003ce391d8c0e9744f6117e477e99d161821da24f",
+      "bytes": 23171
+    },
+    {
+      "id": "noto-1f332",
+      "split": "development",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f332.png",
+      "sourceSha256": "bcb20fcf0ed5d41842adc29d075e2a7eeb304f3f5bdfe082c91752649ad38125",
+      "bytes": 22594
+    },
+    {
+      "id": "noto-1f4f7",
+      "split": "holdout",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f4f7.png",
+      "sourceSha256": "24e0d488150cab4bc8d8750d878cdd7f3cc4e4be32821d1a33616a1453c2578d",
+      "bytes": 16714
+    },
+    {
+      "id": "noto-1f916",
+      "split": "development",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f916.png",
+      "sourceSha256": "98f6f4bdbd98d55100c0c379a25a70f63d347fb869e8e55d6f7b6bb8c1b1bc3b",
+      "bytes": 15379
+    },
+    {
+      "id": "noto-1f308",
+      "split": "holdout",
+      "status": "verified",
+      "format": "png",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/noto-emoji/8998f5dd683424a73e2314a8c1f1e359c19e8742/png/512/emoji_u1f308.png",
+      "sourceSha256": "4245aacfb8d3e18437d6ccd086ae224ed52aa60c640e2b89f624ea4e35e41996",
+      "bytes": 12466
+    }
+  ]
+}

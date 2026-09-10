@@ -24,6 +24,7 @@ export interface JpegXlWorkbenchNativeMemoryPlan {
   readonly nativePixelBytes: number
   readonly previewBytes: number
   readonly encoderRetainedBytes: number
+  readonly encoderWorkingBytes: number
   readonly estimatedOutputBytes: number
   readonly estimatedSimultaneousBytes: number
 }
@@ -101,6 +102,14 @@ export const planJpegXlWorkbenchNativeMemory = (
     nativePixelBytes: Number(nativePixelBytes),
     previewBytes: Number(previewBytes),
     encoderRetainedBytes: Number(nativePixelBytes),
+    // Reserve the source, one preview and the bounded sink output before admitting encoder scratch.
+    // Managed codec storage is bounded separately from JavaScript heap and decoder internals.
+    encoderWorkingBytes: Number(
+      BigInt(jpegXlWorkbenchMaximumSimultaneousBytes) -
+        nativePixelBytes -
+        previewBytes -
+        boundedOutputBytes,
+    ),
     estimatedOutputBytes: Number(boundedOutputBytes),
     estimatedSimultaneousBytes: Number(estimatedSimultaneousBytes),
   })
@@ -125,7 +134,13 @@ export type JpegXlWorkbenchRequest =
       readonly fit: 'contain' | 'cover' | 'fill'
       readonly format: 'png' | 'jpeg'
     })
-  | (JpegXlWorkbenchIdentity & { readonly type: 'encode' })
+  | (JpegXlWorkbenchIdentity & {
+      readonly type: 'encode'
+      readonly mode?: 'lossless' | 'lossy'
+      readonly effort?: 1 | 3 | 5 | 7
+      readonly distance?: number
+      readonly progressive?: boolean
+    })
   | (JpegXlWorkbenchIdentity & { readonly type: 'reconstruct' })
   | (JpegXlWorkbenchIdentity & { readonly type: 'cancel' })
 
@@ -144,7 +159,11 @@ export interface JpegXlWorkbenchEncodeSummary {
   readonly status: 'Experimental'
   readonly sourcePixelFormat: JpegXlWorkbenchPixelSource['pixelFormat']
   readonly decodedPixelFormat: JpegXlWorkbenchPixelSource['pixelFormat']
-  readonly exactDecodedSamples: true
+  readonly exactDecodedSamples: boolean
+  readonly mode: 'lossless' | 'lossy'
+  readonly milliseconds: number
+  readonly managedPeakBytes: number
+  readonly normalizedRmse: number
   readonly inputBytes: number
   readonly outputBytes: number
   readonly sizeDifferenceBytes: number
@@ -484,6 +503,10 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
     'sourcePixelFormat',
     'decodedPixelFormat',
     'exactDecodedSamples',
+    'mode',
+    'milliseconds',
+    'managedPeakBytes',
+    'normalizedRmse',
     'inputBytes',
     'outputBytes',
     'sizeDifferenceBytes',
@@ -492,7 +515,14 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
   value.status === 'Experimental' &&
   encoderPixelFormat(value.sourcePixelFormat) &&
   value.decodedPixelFormat === value.sourcePixelFormat &&
-  value.exactDecodedSamples === true &&
+  typeof value.exactDecodedSamples === 'boolean' &&
+  (value.mode === 'lossless' || value.mode === 'lossy') &&
+  Number.isFinite(value.milliseconds) &&
+  Number(value.milliseconds) >= 0 &&
+  Number.isSafeInteger(value.managedPeakBytes) &&
+  Number(value.managedPeakBytes) >= 0 &&
+  Number.isFinite(value.normalizedRmse) &&
+  Number(value.normalizedRmse) >= 0 &&
   positiveInteger(value.inputBytes) &&
   positiveInteger(value.outputBytes) &&
   Number.isSafeInteger(value.sizeDifferenceBytes) &&
@@ -523,7 +553,29 @@ export const isJpegXlWorkbenchRequest = (value: unknown): value is JpegXlWorkben
       typeof value.onlyIfSmaller === 'boolean'
     )
   }
-  if (value.type === 'encode' || value.type === 'reconstruct' || value.type === 'cancel') {
+  if (value.type === 'encode')
+    return (
+      Object.keys(value).every((key) =>
+        ['type', 'requestId', 'generation', 'mode', 'effort', 'distance', 'progressive'].includes(
+          key,
+        ),
+      ) &&
+      (value.mode === undefined || value.mode === 'lossless' || value.mode === 'lossy') &&
+      (value.effort === undefined ||
+        value.effort === 1 ||
+        value.effort === 3 ||
+        value.effort === 5 ||
+        value.effort === 7) &&
+      (value.distance === undefined ||
+        (value.mode === 'lossy' &&
+          typeof value.distance === 'number' &&
+          Number.isFinite(value.distance) &&
+          value.distance >= 0.25 &&
+          value.distance <= 25)) &&
+      (value.progressive === undefined ||
+        (value.mode === 'lossy' && typeof value.progressive === 'boolean'))
+    )
+  if (value.type === 'reconstruct' || value.type === 'cancel') {
     return exactKeys(value, ['type', 'requestId', 'generation'])
   }
   return (

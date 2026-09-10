@@ -1,0 +1,43 @@
+{
+  "split": "development",
+  "policy": "Original map selection plus the worst native-comparator case in each complete development metric band, the second text outlier above 2, and the worst photo cases not covered by the earlier review. Crop centers follow inspection of the source images. Equal numeric distance is not matched quality; actual scores and sizes remain labeled. This selection does not qualify the heldout or HDR cohorts.",
+  "cases": [
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "centers": [[0.49, 0.64], [0.53, 0.49], [0.76, 0.415], [0.4, 0.25]]
+    },
+    {
+      "id": "im26-5052",
+      "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+      "centers": [[0.45, 0.12], [0.68, 0.32]]
+    },
+    {
+      "id": "im26-5034",
+      "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+      "centers": [[0.4, 0.32], [0.68, 0.7]]
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "centers": [[0.4, 0.17], [0.245, 0.42], [0.8, 0.515]]
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "centers": [[0.52, 0.49], [0.52, 0.8], [0.6, 0.22]]
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "centers": [[0.28, 0.64], [0.81, 0.75], [0.45, 0.27]]
+    },
+    {
+      "id": "im26-1026",
+      "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+      "centers": [[0.42, 0.47], [0.22, 0.15]]
+    }
+  ],
+  "qualitySummaryPath": ".tmp/jpegxl-m7/lossy-development-integrated054-fast/summary.json",
+  "qualitySummarySha256": "48d08145200e45476b5b55d666248e905a16ae9ec14fa21e8b250d34f1d65d1a"
+}

@@ -163,7 +163,13 @@ if (id) {
       executedPath:
         info.width <= 1024 && info.height <= 1024
           ? 'single-group effort search'
-          : 'multi-group left predictor (current large-image path)',
+          : effort === 1
+            ? 'multi-group left predictor'
+            : 'groupSearchEvidence' in encoder &&
+                Array.isArray(encoder.groupSearchEvidence) &&
+                encoder.groupSearchEvidence.length > 0
+              ? 'multi-group RCT and local predictor/ANS search'
+              : 'multi-group fixed-left baseline without adaptive group evidence',
       milliseconds,
       oracleMilliseconds,
       bytes: encoded.length,
@@ -174,6 +180,7 @@ if (id) {
       exactNativeSamples: exact,
       managedPeakBytes: 'managedPeakBytes' in encoder ? encoder.managedPeakBytes : null,
       managedLiveBytes: 'managedLiveBytes' in encoder ? encoder.managedLiveBytes : null,
+      groupSearchEvidence: 'groupSearchEvidence' in encoder ? encoder.groupSearchEvidence : null,
     })
   }
   let exactJpeg: unknown = { status: 'not-applicable' }

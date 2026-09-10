@@ -1,0 +1,2686 @@
+{
+  "schemaVersion": 1,
+  "delivery": "M7 experimental implementation handoff",
+  "fullM7QualificationComplete": false,
+  "stablePromotionGatePassed": false,
+  "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+  "policy": "Speed-prioritized Experimental handoff. Full frozen quality qualification remains open; no missing or failed gate is converted into a pass. Production source is unchanged from integrated054 full test and browser validation. No release or M8 work included.",
+  "singleGroupLossless": {
+    "path": ".tmp/jpegxl-m7/integrated054-single-group-final/report.json",
+    "sha256": "b05855f89a0f834c4600ea11fc3f7ee505b29216c6a8c3ad4341f002a7b8b432",
+    "report": {
+      "expected": 10,
+      "completed": 10,
+      "failures": 0,
+      "results": [
+        {
+          "id": "im26-8444",
+          "split": "development",
+          "path": ".tmp/jpegxl-m7/lossless-development-integrated054-single-group-final/im26-8444.json",
+          "reportSha256": "011a338c770a2f8511d07f2d58de12a49cdcffbf6174209c0bff8855b0e065c6",
+          "result": {
+            "id": "im26-8444",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "b82e42189188adac2ba20c2c28c79f8b6bf255475844d93d8165fd3ac7cd5b56",
+            "normalizedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+            "originalOrientation": 1,
+            "width": 1024,
+            "height": 768,
+            "pureBytes": 352561,
+            "nativeBytes": 257839,
+            "ratio": 1.3673687843964644,
+            "encodedSha256": "57b9e4389587d1a0d7c76bd796d2ffdf8a32011cde2bb9d0afb8489f79af4edc",
+            "nativeEncodedSha256": "b02ec77079b9b4939c7c6a85c3a9200e670d3f3c0c0efdc4171c901440b048fb",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 8652.667161
+          }
+        },
+        {
+          "id": "im26-5012",
+          "split": "development",
+          "path": ".tmp/jpegxl-m7/lossless-development-integrated054-single-group-final/im26-5012.json",
+          "reportSha256": "668ac3a884961b44707ea5ad11790341ecfa91edb3e192560a307e18cbc695ef",
+          "result": {
+            "id": "im26-5012",
+            "status": "verified",
+            "category": "5000-national-park-service-brochures",
+            "sourceSha256": "4f4ec9fafa6efdead0010cb7379739cca5fd3b2e8afe13883beeedbe574c4472",
+            "normalizedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+            "originalOrientation": 1,
+            "width": 716,
+            "height": 714,
+            "pureBytes": 281297,
+            "nativeBytes": 173457,
+            "ratio": 1.6217102797811562,
+            "encodedSha256": "f5f33b608513d576e4eb23836ce343ba33cbcbc3255aac24b7c04e1eb204f698",
+            "nativeEncodedSha256": "1c510b8142633bf30daa5542b1069cb7b274c64d96a74529208093599f8083fc",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 5534.8240909999995
+          }
+        },
+        {
+          "id": "im26-8350",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8350.json",
+          "reportSha256": "4f16f53ca36c115bf4bb64b88d292e480e726807a45c932c48eca2d3ebc47080",
+          "result": {
+            "id": "im26-8350",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "72431db1d022503201c6b2039f495dd7722c438eeefb4c7c95dc60dfd2802d6a",
+            "normalizedHash": "823a2d1cee0067fca9af12c9b449226c64dd0208e604cb9e3567787e472047b3",
+            "originalOrientation": 1,
+            "width": 768,
+            "height": 1024,
+            "pureBytes": 488761,
+            "nativeBytes": 376062,
+            "ratio": 1.2996819673351734,
+            "encodedSha256": "0b83ed063b2230db04b58015a91b25d6a34414f9b0167855f02240f29782c6d3",
+            "nativeEncodedSha256": "479da220c08a88cf4b33adcb62dd273a780775d09d02db2a850dcda342fc346f",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "823a2d1cee0067fca9af12c9b449226c64dd0208e604cb9e3567787e472047b3",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "823a2d1cee0067fca9af12c9b449226c64dd0208e604cb9e3567787e472047b3",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 9120.939995
+          }
+        },
+        {
+          "id": "im26-8445",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8445.json",
+          "reportSha256": "b0955bf40f502dcc9c9c99caeadbbddebf9b47b61812738c529cbf3c84642527",
+          "result": {
+            "id": "im26-8445",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "7db2eb55d2736e290a87436eacbddb2ece9dcf54354940202f3e63ffdad88061",
+            "normalizedHash": "332635b53be4f1b4762c1282488ca42b59117272e95c5b99e062f657ad2d02fe",
+            "originalOrientation": 1,
+            "width": 1024,
+            "height": 768,
+            "pureBytes": 880017,
+            "nativeBytes": 755491,
+            "ratio": 1.1648279066196685,
+            "encodedSha256": "de892bca16f1c0e8e4ad6cfc11bca3c47480e91baaa21e8fb0fa7af0a846f5c9",
+            "nativeEncodedSha256": "e32535c7d8e92b47e2fbf93583d4829d6e90e759da6daf2ac10b171474657501",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "332635b53be4f1b4762c1282488ca42b59117272e95c5b99e062f657ad2d02fe",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "332635b53be4f1b4762c1282488ca42b59117272e95c5b99e062f657ad2d02fe",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 9565.072456
+          }
+        },
+        {
+          "id": "im26-8318",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8318.json",
+          "reportSha256": "52417cbe37291c1ed092790d9adb04fd08203a059779d7f98a5963caa821146c",
+          "result": {
+            "id": "im26-8318",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "696ce1c1ef9030ed3cfed38a43aeee13d1f5d6a8682d6de1dc8a80499955f68c",
+            "normalizedHash": "b04b6c9eaf41784c041515e8b2a6f42abe1dec7aa889e55fe18cf187e322ff50",
+            "originalOrientation": 1,
+            "width": 375,
+            "height": 667,
+            "pureBytes": 191507,
+            "nativeBytes": 158837,
+            "ratio": 1.2056825550721808,
+            "encodedSha256": "08b9b90f2c587067356b4bf8c153e53f7352ee3e4b9a9f4e036ea432e2f2552f",
+            "nativeEncodedSha256": "a4383f61dac026fea390494bf57cb3c365795afded2ff45335fd05c82671f601",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "b04b6c9eaf41784c041515e8b2a6f42abe1dec7aa889e55fe18cf187e322ff50",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "b04b6c9eaf41784c041515e8b2a6f42abe1dec7aa889e55fe18cf187e322ff50",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 2907.9756780000002
+          }
+        },
+        {
+          "id": "im26-8352",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8352.json",
+          "reportSha256": "8a2a2e96c815860d72c67348e256851b81a48dcb7d3965cf70b240e9846f96ea",
+          "result": {
+            "id": "im26-8352",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "f4b0aa4ed8df6c96a7d056c700bd155f76d966d2df6ff23b82b727393340be5d",
+            "normalizedHash": "d658b29cb666c75ae4542f9e7c5f2d1ae868006d075247bcf065b24546bd788f",
+            "originalOrientation": 1,
+            "width": 768,
+            "height": 1024,
+            "pureBytes": 822519,
+            "nativeBytes": 676868,
+            "ratio": 1.215183758133048,
+            "encodedSha256": "860fd43ae081277b06ef582de3c140e0ee0da9fd492600ef9da0307b57621ec6",
+            "nativeEncodedSha256": "90735c3ff38ccc325f4cabaf3b5a5562d139b45aa8c606ef0680637377e0296b",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "d658b29cb666c75ae4542f9e7c5f2d1ae868006d075247bcf065b24546bd788f",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "d658b29cb666c75ae4542f9e7c5f2d1ae868006d075247bcf065b24546bd788f",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 9397.476905
+          }
+        },
+        {
+          "id": "im26-8328",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8328.json",
+          "reportSha256": "b4cac280fd5e3a52eaf4d1c6fc6721deacb9bd19bc059f27c9b1a90f050770b5",
+          "result": {
+            "id": "im26-8328",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "b1ac43d56bb6760c68f1f6c81e8c3f3ad6bab23ee105a7177278e97e2ebf2da0",
+            "normalizedHash": "b557ecf84b9247ba55d885914a45fbbfb61ace404ce0204fde4a27bceea73b32",
+            "originalOrientation": 1,
+            "width": 375,
+            "height": 667,
+            "pureBytes": 64742,
+            "nativeBytes": 38636,
+            "ratio": 1.6756910653276738,
+            "encodedSha256": "ea8a1d3afb4d807155ef649bfc7edcc9dc0e31e1c0d08122f0765114dbec25f0",
+            "nativeEncodedSha256": "c0a6d9f6c28b59ba3a409486b1090a447f96bdd107a531b9f7186c20ac5ef9d8",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "b557ecf84b9247ba55d885914a45fbbfb61ace404ce0204fde4a27bceea73b32",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "b557ecf84b9247ba55d885914a45fbbfb61ace404ce0204fde4a27bceea73b32",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 2425.9449210000002
+          }
+        },
+        {
+          "id": "im26-8468",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8468.json",
+          "reportSha256": "9f111304d3a9a68d62f52c50eb7dda6fd42d09e43c9cfc4cd6f6631e04edd020",
+          "result": {
+            "id": "im26-8468",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "8e160b61ba52ab8948b67afb3a802f06fcb7bf0a76954452257027ef031c91e9",
+            "normalizedHash": "07b2d9f3f63b8e50f6c2f9d4e30bdd30c22015e77e3345e8d79244ae21d3b5f1",
+            "originalOrientation": 1,
+            "width": 414,
+            "height": 896,
+            "pureBytes": 80078,
+            "nativeBytes": 58139,
+            "ratio": 1.3773542716592992,
+            "encodedSha256": "332a8c7c8a3562d73926b5f44a19bb697d4d8e3b110d28ca76643e55ae5556bf",
+            "nativeEncodedSha256": "6eb5725bafb650b437a0432209358793186b94f1d82d0e87c090a7b0b2392b9f",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "07b2d9f3f63b8e50f6c2f9d4e30bdd30c22015e77e3345e8d79244ae21d3b5f1",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "07b2d9f3f63b8e50f6c2f9d4e30bdd30c22015e77e3345e8d79244ae21d3b5f1",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 3740.125602
+          }
+        },
+        {
+          "id": "im26-3313",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-3313.json",
+          "reportSha256": "3129f354b0df232b326c3d1ad62fcd1ef143d68ee1bc0dfa8399af12620c7cb2",
+          "result": {
+            "id": "im26-3313",
+            "status": "verified",
+            "category": "3300-met-museum-photos",
+            "sourceSha256": "70111b07790665acc8e6719f494fba90c19f41cb13a576c2ff266dfe2a850a64",
+            "normalizedHash": "5f0ed777c25405bc2033ee836cb77cbee45ca2dcd075715d11b19266749a7027",
+            "originalOrientation": 1,
+            "width": 900,
+            "height": 239,
+            "pureBytes": 177020,
+            "nativeBytes": 121826,
+            "ratio": 1.4530559978986424,
+            "encodedSha256": "35d9e121f92a046eefa2db41fc4d0bbafb4ea0b6e81eb518b3c315bf40464a73",
+            "nativeEncodedSha256": "27bbc496438c56ec28738403fec52f201383ab92c3b5eae408a2492f8120e894",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "5f0ed777c25405bc2033ee836cb77cbee45ca2dcd075715d11b19266749a7027",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "5f0ed777c25405bc2033ee836cb77cbee45ca2dcd075715d11b19266749a7027",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 1411.062091
+          }
+        },
+        {
+          "id": "im26-8356",
+          "split": "holdout",
+          "path": ".tmp/jpegxl-m7/lossless-holdout-integrated054-single-group-final/im26-8356.json",
+          "reportSha256": "a46d867f074e30d8457dfc502ab1eefd3856c312cfd5a6de10bb7ff8e060d74e",
+          "result": {
+            "id": "im26-8356",
+            "status": "verified",
+            "category": "8100-lilith-web-screenshots",
+            "sourceSha256": "505dbced171c1b55cddb47cdbba3e5404a58d4b321ed6c16e2d69e08a158cf93",
+            "normalizedHash": "ab56551f7fd6eca0e442cc79127bf2a15e82a20178c81a682a20e78f9bdf14b5",
+            "originalOrientation": 1,
+            "width": 768,
+            "height": 1024,
+            "pureBytes": 578908,
+            "nativeBytes": 446491,
+            "ratio": 1.296572607286597,
+            "encodedSha256": "cce8ecba5779f9819d484b254e7f611c0196899587c92bb3bbc6c1234e73cad4",
+            "nativeEncodedSha256": "8fa78001aaf3eaddc6079ecc5122ef64318ab15767d9d775819e7d65b22c6fef",
+            "oracles": [
+              {
+                "oracle": "libjxl",
+                "decodedHash": "ab56551f7fd6eca0e442cc79127bf2a15e82a20178c81a682a20e78f9bdf14b5",
+                "exact": true
+              },
+              {
+                "oracle": "jxl-rs",
+                "decodedHash": "ab56551f7fd6eca0e442cc79127bf2a15e82a20178c81a682a20e78f9bdf14b5",
+                "exact": true
+              }
+            ],
+            "elapsedMilliseconds": 8869.861660999999
+          }
+        }
+      ]
+    }
+  },
+  "singleGroupComparison": [
+    {
+      "id": "im26-8444",
+      "split": "development",
+      "previousBytes": 352561,
+      "finalBytes": 352561,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-5012",
+      "split": "development",
+      "previousBytes": 281297,
+      "finalBytes": 281297,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8350",
+      "split": "holdout",
+      "previousBytes": 488761,
+      "finalBytes": 488761,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "823a2d1cee0067fca9af12c9b449226c64dd0208e604cb9e3567787e472047b3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "823a2d1cee0067fca9af12c9b449226c64dd0208e604cb9e3567787e472047b3",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8445",
+      "split": "holdout",
+      "previousBytes": 880017,
+      "finalBytes": 880017,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "332635b53be4f1b4762c1282488ca42b59117272e95c5b99e062f657ad2d02fe",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "332635b53be4f1b4762c1282488ca42b59117272e95c5b99e062f657ad2d02fe",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8318",
+      "split": "holdout",
+      "previousBytes": 191507,
+      "finalBytes": 191507,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b04b6c9eaf41784c041515e8b2a6f42abe1dec7aa889e55fe18cf187e322ff50",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b04b6c9eaf41784c041515e8b2a6f42abe1dec7aa889e55fe18cf187e322ff50",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8352",
+      "split": "holdout",
+      "previousBytes": 822519,
+      "finalBytes": 822519,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d658b29cb666c75ae4542f9e7c5f2d1ae868006d075247bcf065b24546bd788f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d658b29cb666c75ae4542f9e7c5f2d1ae868006d075247bcf065b24546bd788f",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8328",
+      "split": "holdout",
+      "previousBytes": 64742,
+      "finalBytes": 64742,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b557ecf84b9247ba55d885914a45fbbfb61ace404ce0204fde4a27bceea73b32",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b557ecf84b9247ba55d885914a45fbbfb61ace404ce0204fde4a27bceea73b32",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8468",
+      "split": "holdout",
+      "previousBytes": 80078,
+      "finalBytes": 80078,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "07b2d9f3f63b8e50f6c2f9d4e30bdd30c22015e77e3345e8d79244ae21d3b5f1",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "07b2d9f3f63b8e50f6c2f9d4e30bdd30c22015e77e3345e8d79244ae21d3b5f1",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-3313",
+      "split": "holdout",
+      "previousBytes": 177909,
+      "finalBytes": 177020,
+      "encodedBytesUnchanged": false,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5f0ed777c25405bc2033ee836cb77cbee45ca2dcd075715d11b19266749a7027",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5f0ed777c25405bc2033ee836cb77cbee45ca2dcd075715d11b19266749a7027",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "im26-8356",
+      "split": "holdout",
+      "previousBytes": 578908,
+      "finalBytes": 578908,
+      "encodedBytesUnchanged": true,
+      "exactDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ab56551f7fd6eca0e442cc79127bf2a15e82a20178c81a682a20e78f9bdf14b5",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ab56551f7fd6eca0e442cc79127bf2a15e82a20178c81a682a20e78f9bdf14b5",
+          "exact": true
+        }
+      ]
+    }
+  ],
+  "scalarBoundaries": {
+    "path": ".tmp/jpegxl-m7/scalar-boundaries-integrated054-final/report.json",
+    "sha256": "9b25f9fb628b93020b2bc32b76f27f056e3f222a74c1e261e3d3dd742ae3ad29",
+    "report": {
+      "policy": "Generated boundary and narrow-image conformance, separate from real-image compression qualification.",
+      "sources": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "de1e8c2a845c7f44dcbd1660e4d6febbcbfa0dbb4edc6ef3338476aa9f19b9d3"
+        },
+        {
+          "path": "src/codecs/jpegxl-decode.ts",
+          "sha256": "3cc4673ed95586fdf3d71ebe64c7a3a278013228fd066899b61ed73cca105160"
+        }
+      ],
+      "oracles": [
+        {
+          "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+          "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+          "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "results": [
+        {
+          "width": 1023,
+          "height": 17,
+          "encodedBytes": 7859,
+          "encodedSha256": "bd715553375e75df213074ccf4e366a54bca35a4f5cde6b686f45104632513b9",
+          "sampleSha256": "06791d85cb94a672ec9a07858802bab598cd8c8e37e1c83afdc20883b9c8219b",
+          "oracles": [
+            {
+              "name": "native",
+              "exact": true
+            },
+            {
+              "name": "rust",
+              "exact": true
+            }
+          ],
+          "groupSearchEvidence": []
+        },
+        {
+          "width": 1024,
+          "height": 17,
+          "encodedBytes": 6109,
+          "encodedSha256": "80b49f7be1b853455ae8d7d38ef1a2a827ebcf3dbd98cc744f9a6025c34a6165",
+          "sampleSha256": "8f16d423a8a358d4fef5feb97cf66fb603be3a0f24ed96793f64683f4c023b67",
+          "oracles": [
+            {
+              "name": "native",
+              "exact": true
+            },
+            {
+              "name": "rust",
+              "exact": true
+            }
+          ],
+          "groupSearchEvidence": []
+        },
+        {
+          "width": 1025,
+          "height": 17,
+          "encodedBytes": 4957,
+          "encodedSha256": "5ff478bbd93ba9a99d57b353b897728e77f4c2f49db315790377fc6d83ff1c84",
+          "sampleSha256": "139ac0304e0472d124c1d79d1dc72056a08a3f9368f31fda5c18467f8b116b9f",
+          "oracles": [
+            {
+              "name": "native",
+              "exact": true
+            },
+            {
+              "name": "rust",
+              "exact": true
+            }
+          ],
+          "groupSearchEvidence": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 1024,
+              "height": 17,
+              "effort": 7,
+              "rct": false,
+              "predictors": [1, 1, 1, 6, 5, 5],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": true,
+              "plainBytes": 12522,
+              "lz77Bytes": 4721,
+              "selectedBytes": 4721,
+              "palette": "scalar",
+              "squeeze": false,
+              "squeezeProbe": {
+                "rawBytes": 9794,
+                "squeezeBytes": 7236,
+                "selected": true
+              },
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 11168
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 4721
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 35859
+                }
+              ]
+            },
+            {
+              "x": 1024,
+              "y": 0,
+              "width": 1,
+              "height": 17,
+              "effort": 7,
+              "rct": false,
+              "predictors": [0, 1],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": false,
+              "plainBytes": 168,
+              "lz77Bytes": 179,
+              "selectedBytes": 168,
+              "palette": "ordinary",
+              "squeeze": false,
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 204
+                },
+                {
+                  "tool": "palette",
+                  "bytes": 168
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 277
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 265
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 2051,
+          "height": 17,
+          "encodedBytes": 8445,
+          "encodedSha256": "932e7a5834783827f47d960278bdc5ad32d8e6b16122773bc160d7d0c1f1646d",
+          "sampleSha256": "6be0c3d61e2ee4f005e584acaa98fe160288c6faba9d724504aeb53994d155b6",
+          "oracles": [
+            {
+              "name": "native",
+              "exact": true
+            },
+            {
+              "name": "rust",
+              "exact": true
+            }
+          ],
+          "groupSearchEvidence": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 1024,
+              "height": 17,
+              "effort": 7,
+              "rct": false,
+              "predictors": [1, 1, 1, 5, 5, 5],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": true,
+              "plainBytes": 12697,
+              "lz77Bytes": 3886,
+              "selectedBytes": 3886,
+              "palette": "scalar",
+              "squeeze": false,
+              "squeezeProbe": {
+                "rawBytes": 10145,
+                "squeezeBytes": 7577,
+                "selected": true
+              },
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 14172
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 3886
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 29039
+                }
+              ]
+            },
+            {
+              "x": 1024,
+              "y": 0,
+              "width": 1024,
+              "height": 17,
+              "effort": 7,
+              "rct": false,
+              "predictors": [1, 1, 1, 5, 5, 5],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": true,
+              "plainBytes": 12681,
+              "lz77Bytes": 4120,
+              "selectedBytes": 4120,
+              "palette": "scalar",
+              "squeeze": false,
+              "squeezeProbe": {
+                "rawBytes": 10147,
+                "squeezeBytes": 7579,
+                "selected": true
+              },
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 14293
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 4120
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 28963
+                }
+              ]
+            },
+            {
+              "x": 2048,
+              "y": 0,
+              "width": 3,
+              "height": 17,
+              "effort": 7,
+              "rct": false,
+              "predictors": [5, 6],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": false,
+              "plainBytes": 369,
+              "lz77Bytes": 378,
+              "selectedBytes": 369,
+              "palette": "ordinary",
+              "squeeze": false,
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 388
+                },
+                {
+                  "tool": "palette",
+                  "bytes": 369
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 475
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 511
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 1031,
+          "height": 1,
+          "encodedBytes": 873,
+          "encodedSha256": "46c4411d92c51a2579319a49aeef16b31f7b798eb20f260ac256254f118c8034",
+          "sampleSha256": "83c18764ab16ca806d498401f395db94ba3ca8587b1eaa809a11e9682dbec86d",
+          "oracles": [
+            {
+              "name": "native",
+              "exact": true
+            },
+            {
+              "name": "rust",
+              "exact": true
+            }
+          ],
+          "groupSearchEvidence": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 1024,
+              "height": 1,
+              "effort": 7,
+              "rct": false,
+              "predictors": [1, 1, 1, 1, 1, 1],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": true,
+              "plainBytes": 1575,
+              "lz77Bytes": 721,
+              "selectedBytes": 721,
+              "palette": "scalar",
+              "squeeze": false,
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 1663
+                },
+                {
+                  "tool": "palette",
+                  "bytes": 2835
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 721
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 3635
+                }
+              ]
+            },
+            {
+              "x": 1024,
+              "y": 0,
+              "width": 7,
+              "height": 1,
+              "effort": 7,
+              "rct": false,
+              "predictors": [5, 1],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": false,
+              "plainBytes": 84,
+              "lz77Bytes": 84,
+              "selectedBytes": 84,
+              "palette": "ordinary",
+              "squeeze": false,
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 93
+                },
+                {
+                  "tool": "palette",
+                  "bytes": 84
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 139
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 1,
+          "height": 1031,
+          "encodedBytes": 905,
+          "encodedSha256": "e957a83f8061c8a56019b45c4080850f69782787e31b5102eb59b31c1afcbab3",
+          "sampleSha256": "83c18764ab16ca806d498401f395db94ba3ca8587b1eaa809a11e9682dbec86d",
+          "oracles": [
+            {
+              "name": "native",
+              "exact": true
+            },
+            {
+              "name": "rust",
+              "exact": true
+            }
+          ],
+          "groupSearchEvidence": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1024,
+              "effort": 7,
+              "rct": false,
+              "predictors": [1, 1, 1, 1, 13, 13],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": true,
+              "plainBytes": 1698,
+              "lz77Bytes": 753,
+              "selectedBytes": 753,
+              "palette": "scalar",
+              "squeeze": false,
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 1698
+                },
+                {
+                  "tool": "palette",
+                  "bytes": 2835
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 753
+                },
+                {
+                  "tool": "squeeze",
+                  "bytes": 3637
+                }
+              ]
+            },
+            {
+              "x": 0,
+              "y": 1024,
+              "width": 1,
+              "height": 7,
+              "effort": 7,
+              "rct": false,
+              "predictors": [5, 1],
+              "entropy": "ans",
+              "contextModel": "channel",
+              "lz77": false,
+              "plainBytes": 84,
+              "lz77Bytes": 84,
+              "selectedBytes": 84,
+              "palette": "ordinary",
+              "squeeze": false,
+              "candidates": [
+                {
+                  "tool": "raw",
+                  "bytes": 92
+                },
+                {
+                  "tool": "palette",
+                  "bytes": 84
+                },
+                {
+                  "tool": "scalar-palette",
+                  "bytes": 139
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "conformance": {
+    "path": ".tmp/jpegxl-m7/integrated054-conformance.json",
+    "sha256": "ada34520680a7ce6aa770fb1098fbee81b9ff98a54bc09422f075665612ba2c6",
+    "report": {
+      "schemaVersion": 1,
+      "revision": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
+      "corpusRevision": "4bf053529c7cefd2951be453475bb3dccc7e7be8",
+      "archiveSha256": "1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",
+      "cases": 39,
+      "totals": {
+        "pass": 13,
+        "expected-unsupported": 25,
+        "malformed-safely-rejected": 0,
+        "incorrect-output": 0,
+        "unexpected-failure": 1
+      },
+      "baselineMatched": true,
+      "results": [
+        {
+          "id": "alpha_nonpremultiplied",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 30,
+          "inputSha256": "15acbe3edbfd5a75c7609726ae60526ffc812642b5dd6be8475f0b990ce9b1db",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "dcad2498d282253d5a0cc6228a557663f83e5547e196d4da472c2658a89b26b9",
+          "outputFormat": "rgba16",
+          "rows": 1024
+        },
+        {
+          "id": "alpha_premultiplied",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 8772,
+          "inputSha256": "5028e630dc358bf4031cbf06e8a80f2bfbfa21fd0d088af74d83b473d3dd540a",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "Level 10 global Squeeze transform for grouped alpha",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "Common VarDCT alpha Modular transforms are not supported yet"
+        },
+        {
+          "id": "alpha_triangles",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 61,
+          "inputSha256": "19ac7752a23ad2b22814064cb6b62a581b48be18ed73b5ccc2340888c114d2c9",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "f9eee8a5b5f1e9209a1a82e590fcab10518ad4feb4cd550d4394dcc53cb35422",
+          "outputFormat": "rgba16",
+          "rows": 1024
+        },
+        {
+          "id": "animation_icos4d",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 352478,
+          "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_icos4d_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 352478,
+          "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_newtons_cradle",
+          "levels": [5, 10],
+          "license": "CC-BY-SA-3.0",
+          "inputBytes": 238305,
+          "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_spline",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 9581,
+          "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation and splines",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_spline_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 9581,
+          "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation and splines",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "bench_oriented_brg",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 184341,
+          "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+          "outputFormat": "rgb8",
+          "rows": 606
+        },
+        {
+          "id": "bench_oriented_brg_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 184341,
+          "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+          "outputFormat": "rgb8",
+          "rows": 606
+        },
+        {
+          "id": "bicycles",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 73501,
+          "inputSha256": "8ef03ccccb45bdb5f3d37c9a4c392f745e3e4ad7f4ffc2cbc1e1ba68487a75a6",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "bike",
+          "levels": [10],
+          "license": "ITU-T T.24",
+          "inputBytes": 388268,
+          "inputSha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad color transfer functions",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL transfer function 1 is not supported"
+        },
+        {
+          "id": "bike_5",
+          "levels": [5],
+          "license": "ITU-T T.24",
+          "inputBytes": 388268,
+          "inputSha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad color transfer functions",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL transfer function 1 is not supported"
+        },
+        {
+          "id": "blendmodes",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 145,
+          "inputSha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multiple frames and blend modes",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL frame blending is outside the implemented decode subset"
+        },
+        {
+          "id": "blendmodes_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 145,
+          "inputSha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multiple frames and blend modes",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL frame blending is outside the implemented decode subset"
+        },
+        {
+          "id": "cafe",
+          "levels": [10],
+          "license": "ITU-T T.24",
+          "inputBytes": 381505,
+          "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+          "outputFormat": "rgb8",
+          "rows": 1600
+        },
+        {
+          "id": "cafe_5",
+          "levels": [5],
+          "license": "ITU-T T.24",
+          "inputBytes": 381505,
+          "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+          "outputFormat": "rgb8",
+          "rows": 1600
+        },
+        {
+          "id": "cmyk_layers",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 387140,
+          "inputSha256": "d732c8836bf1abeadf310d2e07387a32813ed4690d32650c1c25e541b80eed4a",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multiple non-alpha extra channels",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL extra-channel type 4 is not supported"
+        },
+        {
+          "id": "delta_palette",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 107899,
+          "inputSha256": "00e24cc453cdf84897d62b0aafc7a9f7024205bbce1922e99d7ad0003759ae7c",
+          "baselineClassification": "unexpected-failure",
+          "actualClassification": "unexpected-failure",
+          "matchesBaseline": true,
+          "boundary": "official delta palette reaches INVALID_INPUT instead of an explicit supported or unsupported result",
+          "errorCode": "INVALID_INPUT",
+          "errorMessage": "JPEG XL Palette transform is invalid"
+        },
+        {
+          "id": "grayscale",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 1069,
+          "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 1069,
+          "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_jpeg",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 7799,
+          "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_jpeg_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 7799,
+          "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_public_university",
+          "levels": [5, 10],
+          "license": "CC-BY-3.0",
+          "inputBytes": 63377,
+          "inputSha256": "b1c6fe79167858f86a23e0f32c1c5ee7602dae6f82991c1dd53bcb89a7d78606",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multi-group global Palette and Squeeze transforms",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL Modular direct pixels require untransformed color, native resolution and no restoration filters"
+        },
+        {
+          "id": "lossless_pfm",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 774294,
+          "inputSha256": "61ae52b5851ab2e156aec1d22502e8e1ec0cdf6bc0d6a3956ac6d7d6d2969d5e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "floating-point samples",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL floating-point encoded samples are not supported yet"
+        },
+        {
+          "id": "lz77_flower",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 103540,
+          "inputSha256": "41046f0de4dd36177aefa9b53fe6c3cd35a8e2c215a8d41ca89a6a9bc7f27541",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "653dd385329335314ef80321948463cc9d3db0b779fe716c6266f7646555ed90",
+          "outputFormat": "rgb8",
+          "rows": 244
+        },
+        {
+          "id": "noise",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 118125,
+          "inputSha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "noise_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 118125,
+          "inputSha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "opsin_inverse",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 118148,
+          "inputSha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "opsin_inverse_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 118148,
+          "inputSha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "patches",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 66562,
+          "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "patches and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "patches_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 66562,
+          "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "patches and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "patches_lossless",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 34207,
+          "inputSha256": "2a47b6766264ac6243a43bbb85684688717591bb3bd9b4c2db56226192418b4e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "lossless patches and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL Modular frame composition is not supported"
+        },
+        {
+          "id": "progressive",
+          "levels": [10],
+          "license": "Microsoft custom license",
+          "inputBytes": 467605,
+          "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad progressive VarDCT and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "progressive_5",
+          "levels": [5],
+          "license": "Microsoft custom license",
+          "inputBytes": 467605,
+          "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad progressive VarDCT and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "spot",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 392254,
+          "inputSha256": "69d48f7ace25683db9eb908f112cef112bd1583870abab0fbf166018889893fa",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "spot-color extra channels",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL extra-channel type 2 is not supported"
+        },
+        {
+          "id": "sunset_logo",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 218,
+          "inputSha256": "6617480923e1fdef555e165a1e7df9ca648068dd0bdbc41a22c0e4213392d834",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "non-default image metadata",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL frame blending is outside the implemented decode subset"
+        },
+        {
+          "id": "upsampling",
+          "levels": [10],
+          "license": "CC-BY-SA-3.0",
+          "inputBytes": 10567,
+          "inputSha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985",
+          "outputFormat": "rgba8",
+          "rows": 600
+        },
+        {
+          "id": "upsampling_5",
+          "levels": [5],
+          "license": "CC-BY-SA-3.0",
+          "inputBytes": 10567,
+          "inputSha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985",
+          "outputFormat": "rgba8",
+          "rows": 600
+        }
+      ]
+    }
+  },
+  "visualReview": {
+    "path": ".tmp/jpegxl-m7/visual-integrated054-final/report.json",
+    "sha256": "3b9e23f405ea6bee3021be394300d4e1983a3c7b277f3b9d78fdec10ccb9dee6",
+    "report": {
+      "policy": "Diagnostic visual crops at 2x nearest-neighbor display. Same numeric distance is not matched quality; labels retain measured scores and sizes. Each decoded bitmap is released before the next variant. Human inspection required.",
+      "qualityDirectory": ".tmp/jpegxl-m7/lossy-development-integrated054-full",
+      "selectionPath": "benchmark/jpegxl/production-program/m7-visual-development-initial.json",
+      "selectionSha256": "34e492a9753dc1d5984869d165ff3fbcc625470d0c4ad4324f7e186a5cfc1da7",
+      "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+      "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "panels": [
+        {
+          "id": "im26-1416",
+          "reason": "Development SSIM70 native-size outlier; sunset edges and smooth sky",
+          "setting": 1,
+          "region": {
+            "left": 1952,
+            "top": 1072,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-1416-d1-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 88.40; 1334906 bytes",
+            "libjxl d=1; SSIM 86.33; 922016 bytes"
+          ],
+          "reportSha256": "fc3a84568856266a102eb31526286ea7aef4f376a5eae592231c748508988d0b",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Sunset: saturated sun shape and smooth sky remain coherent. Distance 3 visibly coarsens the sun edge and fine grain; no abnormal color separation or severe halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-1416-d1-region0.png",
+            "panelSha256": "a42386132884d31b756ad0017cf880a2a422adba92b36880b2827971bfeacd13"
+          }
+        },
+        {
+          "id": "im26-1416",
+          "reason": "Development SSIM70 native-size outlier; sunset edges and smooth sky",
+          "setting": 1,
+          "region": {
+            "left": 1072,
+            "top": 1222,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-1416-d1-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 88.40; 1334906 bytes",
+            "libjxl d=1; SSIM 86.33; 922016 bytes"
+          ],
+          "reportSha256": "fc3a84568856266a102eb31526286ea7aef4f376a5eae592231c748508988d0b",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Sunset: saturated sun shape and smooth sky remain coherent. Distance 3 visibly coarsens the sun edge and fine grain; no abnormal color separation or severe halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-1416-d1-region1.png",
+            "panelSha256": "42fbd99e4324d21336d1919621ee791a40c96c5e821050132d4bcf541a41c559"
+          }
+        },
+        {
+          "id": "im26-1416",
+          "reason": "Development SSIM70 native-size outlier; sunset edges and smooth sky",
+          "setting": 3,
+          "region": {
+            "left": 1952,
+            "top": 1072,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-1416-d3-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 76.32; 578245 bytes",
+            "libjxl d=3; SSIM 69.74; 295835 bytes"
+          ],
+          "reportSha256": "fc3a84568856266a102eb31526286ea7aef4f376a5eae592231c748508988d0b",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Sunset: saturated sun shape and smooth sky remain coherent. Distance 3 visibly coarsens the sun edge and fine grain; no abnormal color separation or severe halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-1416-d3-region0.png",
+            "panelSha256": "3c1ace0c2bbd42c29360d095a8942d954c0aa922228c58eff2a350e735398cb4"
+          }
+        },
+        {
+          "id": "im26-1416",
+          "reason": "Development SSIM70 native-size outlier; sunset edges and smooth sky",
+          "setting": 3,
+          "region": {
+            "left": 1072,
+            "top": 1222,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-1416-d3-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 76.32; 578245 bytes",
+            "libjxl d=3; SSIM 69.74; 295835 bytes"
+          ],
+          "reportSha256": "fc3a84568856266a102eb31526286ea7aef4f376a5eae592231c748508988d0b",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Sunset: saturated sun shape and smooth sky remain coherent. Distance 3 visibly coarsens the sun edge and fine grain; no abnormal color separation or severe halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-1416-d3-region1.png",
+            "panelSha256": "c0fd0d3a5546bafefa71aadadc7459a2e14ebab62b199f107a61cc328fc55461"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 1,
+          "region": {
+            "left": 2691,
+            "top": 1751,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d1-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.38; 3842439 bytes",
+            "libjxl d=1; SSIM 84.57; 2855057 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Skin/clothing and defocused background inspected. Distance 3 softens fine texture, with some block structure in the blurred background. No geometric corruption seen. These first crops do not cover the face; a targeted face crop remains required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2026-d1-region0.png",
+            "panelSha256": "27fc31374a7c94f69576bf4ceb987450528305fca0e9075190e541df2d9f0bfb"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 1,
+          "region": {
+            "left": 1563,
+            "top": 1187,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d1-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.38; 3842439 bytes",
+            "libjxl d=1; SSIM 84.57; 2855057 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Skin/clothing and defocused background inspected. Distance 3 softens fine texture, with some block structure in the blurred background. No geometric corruption seen. These first crops do not cover the face; a targeted face crop remains required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2026-d1-region1.png",
+            "panelSha256": "3dbed43598f00d6caa98b0cb50ddb9eb2a63fdab81d0d4821e35cc0dbb2145f3"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 1,
+          "region": {
+            "left": 2640,
+            "top": 1495,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d1-region2.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.38; 3842439 bytes",
+            "libjxl d=1; SSIM 84.57; 2855057 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Face geometry, hair and leaf boundaries remain coherent. Distance 3 smooths skin texture and fine foliage; no severe ringing or channel shift observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-2026-d1-region0.png",
+            "panelSha256": "324a093f27e22b6c91dccfd158a27300488f93d27974d2b6a2299fc9534779a8"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 1,
+          "region": {
+            "left": 4889,
+            "top": 887,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d1-region3.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.38; 3842439 bytes",
+            "libjxl d=1; SSIM 84.57; 2855057 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Face geometry, hair and leaf boundaries remain coherent. Distance 3 smooths skin texture and fine foliage; no severe ringing or channel shift observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-2026-d1-region1.png",
+            "panelSha256": "dee44f090334d9924c5026e41b8c8b0dedd9af051530ec721b4049324e89fd14"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 3,
+          "region": {
+            "left": 2691,
+            "top": 1751,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d3-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 78.75; 2322411 bytes",
+            "libjxl d=3; SSIM 70.90; 1281116 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Skin/clothing and defocused background inspected. Distance 3 softens fine texture, with some block structure in the blurred background. No geometric corruption seen. These first crops do not cover the face; a targeted face crop remains required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2026-d3-region0.png",
+            "panelSha256": "c216bdaa5c6e0ce3733fc9673b3e4d6f9bbcf121b7420b1efdd45eecab0efeb9"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 3,
+          "region": {
+            "left": 1563,
+            "top": 1187,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d3-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 78.75; 2322411 bytes",
+            "libjxl d=3; SSIM 70.90; 1281116 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Skin/clothing and defocused background inspected. Distance 3 softens fine texture, with some block structure in the blurred background. No geometric corruption seen. These first crops do not cover the face; a targeted face crop remains required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2026-d3-region1.png",
+            "panelSha256": "41e77f80af7de21b913e9ca84a6271f94acda4a80817418b570c300757c5e618"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 3,
+          "region": {
+            "left": 2640,
+            "top": 1495,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d3-region2.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 78.75; 2322411 bytes",
+            "libjxl d=3; SSIM 70.90; 1281116 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Face geometry, hair and leaf boundaries remain coherent. Distance 3 smooths skin texture and fine foliage; no severe ringing or channel shift observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-2026-d3-region0.png",
+            "panelSha256": "1557bd28dbb2745d5ed37733f55c3e8314ada413f904598477650edabe7f1c13"
+          }
+        },
+        {
+          "id": "im26-2026",
+          "reason": "Development portrait outlier; context, face and fine foliage",
+          "setting": 3,
+          "region": {
+            "left": 4889,
+            "top": 887,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2026-d3-region3.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 78.75; 2322411 bytes",
+            "libjxl d=3; SSIM 70.90; 1281116 bytes"
+          ],
+          "reportSha256": "42bf8cb16ae9fa54aba7ba106793117ff640f49ed53dddef2dbcf2505c1663e8",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Face geometry, hair and leaf boundaries remain coherent. Distance 3 smooths skin texture and fine foliage; no severe ringing or channel shift observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-2026-d3-region1.png",
+            "panelSha256": "7447bd1c7119e5e91860bdc500f8544a09c749b59eab65a6e5afac22bd4506cc"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 1,
+          "region": {
+            "left": 2353,
+            "top": 2796,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d1-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.23; 3556222 bytes",
+            "libjxl d=1; SSIM 85.68; 2827814 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Blue/black separators and dune gradients inspected. Original source already has coarse photographic texture. No severe new boundary halo or color discontinuity seen. These first crops miss body text; targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-5026-d1-region0.png",
+            "panelSha256": "bb2b82ef0183a199288573fbff7de1530854eaa73ef853ec759c34e16bdadfcf"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 1,
+          "region": {
+            "left": 1112,
+            "top": 1626,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d1-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.23; 3556222 bytes",
+            "libjxl d=1; SSIM 85.68; 2827814 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Blue/black separators and dune gradients inspected. Original source already has coarse photographic texture. No severe new boundary halo or color discontinuity seen. These first crops miss body text; targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-5026-d1-region1.png",
+            "panelSha256": "d9a0e67a2edf878319b648683c5b8b76c19544ea8f4f2ea69c276bdfcc194123"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 1,
+          "region": {
+            "left": 1410,
+            "top": 1977,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d1-region2.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.23; 3556222 bytes",
+            "libjxl d=1; SSIM 85.68; 2827814 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Black and colored text remains legible with preserved letter shapes. Distance 3 slightly softens edges; no severe halos observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-5026-d1-region0.png",
+            "panelSha256": "d006500257235e7cee23b70a2fa4eae453892a5fb6957ffd7307d33f42faa218"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 1,
+          "region": {
+            "left": 1311,
+            "top": 4854,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d1-region3.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.23; 3556222 bytes",
+            "libjxl d=1; SSIM 85.68; 2827814 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Black and colored text remains legible with preserved letter shapes. Distance 3 slightly softens edges; no severe halos observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-5026-d1-region1.png",
+            "panelSha256": "f213a0ba98193638b546ef663eddedc9957eafb886b75280c4ff1283210c46f3"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 3,
+          "region": {
+            "left": 2353,
+            "top": 2796,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d3-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 80.69; 2198376 bytes",
+            "libjxl d=3; SSIM 78.48; 1142156 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Blue/black separators and dune gradients inspected. Original source already has coarse photographic texture. No severe new boundary halo or color discontinuity seen. These first crops miss body text; targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-5026-d3-region0.png",
+            "panelSha256": "a05ca558cf7a25b063ff20789e2816caa851b4089b90628a9cec6bcad392870a"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 3,
+          "region": {
+            "left": 1112,
+            "top": 1626,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d3-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 80.69; 2198376 bytes",
+            "libjxl d=3; SSIM 78.48; 1142156 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Blue/black separators and dune gradients inspected. Original source already has coarse photographic texture. No severe new boundary halo or color discontinuity seen. These first crops miss body text; targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-5026-d3-region1.png",
+            "panelSha256": "f7af8bc9ff8e674f8d003309dd8c66f57699ccad279782d429d21b3362b089d6"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 3,
+          "region": {
+            "left": 1410,
+            "top": 1977,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d3-region2.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 80.69; 2198376 bytes",
+            "libjxl d=3; SSIM 78.48; 1142156 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Black and colored text remains legible with preserved letter shapes. Distance 3 slightly softens edges; no severe halos observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-5026-d3-region0.png",
+            "panelSha256": "ea51f9cc2ae62ba8fd69e659d67e8f5bbc8f5287a51e70c6bdd2f160c9951705"
+          }
+        },
+        {
+          "id": "im26-5026",
+          "reason": "Large brochure; context and targeted black and colored text",
+          "setting": 3,
+          "region": {
+            "left": 1311,
+            "top": 4854,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-5026-d3-region3.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 80.69; 2198376 bytes",
+            "libjxl d=3; SSIM 78.48; 1142156 bytes"
+          ],
+          "reportSha256": "e2398ab30fad7aaddab2f99754b39b6a0ab7e90bf052954d20fa5e208e85911c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Black and colored text remains legible with preserved letter shapes. Distance 3 slightly softens edges; no severe halos observed.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-5026-d3-region1.png",
+            "panelSha256": "000894e09b9d1bd5d5df8cec39659e6eefa6df4a1f46e5d15a0fa16bf95086f0"
+          }
+        },
+        {
+          "id": "im26-6624",
+          "reason": "Development SSIM70 JPEG-size outlier; manuscript detail",
+          "setting": 1,
+          "region": {
+            "left": 1294,
+            "top": 2077,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-6624-d1-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 86.06; 1732594 bytes",
+            "libjxl d=1; SSIM 84.03; 1204073 bytes"
+          ],
+          "reportSha256": "5395770a7be8fe783ea74812917c1e0a538f349d1c86daca4ba1f7eceb9f39c3",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark manuscript illustration with green/yellow shapes inspected. Small marks and edge geometry survive; distance 3 softens texture. No severe channel displacement or ringing seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-6624-d1-region0.png",
+            "panelSha256": "b0979842b666aed7ee4f39b7dac3da65db9803a43d093346736bb617d1b69d5f"
+          }
+        },
+        {
+          "id": "im26-6624",
+          "reason": "Development SSIM70 JPEG-size outlier; manuscript detail",
+          "setting": 1,
+          "region": {
+            "left": 583,
+            "top": 1195,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-6624-d1-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 86.06; 1732594 bytes",
+            "libjxl d=1; SSIM 84.03; 1204073 bytes"
+          ],
+          "reportSha256": "5395770a7be8fe783ea74812917c1e0a538f349d1c86daca4ba1f7eceb9f39c3",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark manuscript illustration with green/yellow shapes inspected. Small marks and edge geometry survive; distance 3 softens texture. No severe channel displacement or ringing seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-6624-d1-region1.png",
+            "panelSha256": "77ebe2c5f695eb63c907eadf24254f66a724ca4a35e7243559f6266d8864c200"
+          }
+        },
+        {
+          "id": "im26-6624",
+          "reason": "Development SSIM70 JPEG-size outlier; manuscript detail",
+          "setting": 3,
+          "region": {
+            "left": 1294,
+            "top": 2077,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-6624-d3-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 75.85; 915149 bytes",
+            "libjxl d=3; SSIM 68.28; 531732 bytes"
+          ],
+          "reportSha256": "5395770a7be8fe783ea74812917c1e0a538f349d1c86daca4ba1f7eceb9f39c3",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark manuscript illustration with green/yellow shapes inspected. Small marks and edge geometry survive; distance 3 softens texture. No severe channel displacement or ringing seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-6624-d3-region0.png",
+            "panelSha256": "4e6fc20e53d2555d0e2baf09f48fa3f15b4e43513a396d221d94a00309ebdab3"
+          }
+        },
+        {
+          "id": "im26-6624",
+          "reason": "Development SSIM70 JPEG-size outlier; manuscript detail",
+          "setting": 3,
+          "region": {
+            "left": 583,
+            "top": 1195,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-6624-d3-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 75.85; 915149 bytes",
+            "libjxl d=3; SSIM 68.28; 531732 bytes"
+          ],
+          "reportSha256": "5395770a7be8fe783ea74812917c1e0a538f349d1c86daca4ba1f7eceb9f39c3",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark manuscript illustration with green/yellow shapes inspected. Small marks and edge geometry survive; distance 3 softens texture. No severe channel displacement or ringing seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-6624-d3-region1.png",
+            "panelSha256": "1a6f7fa6c79cac19aed5460711c8fa567bf43b1147f3595813d30ed4126eb84c"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 1,
+          "region": {
+            "left": 1312,
+            "top": 772,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d1-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 89.41; 526273 bytes",
+            "libjxl d=1; SSIM 87.89; 419655 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark overlay boundaries and the rainbow photograph inspected. Distance 3 softens cloud/mountain detail. No abnormal UI geometry or boundary halo seen. Targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-8256-d1-region0.png",
+            "panelSha256": "8672d5a52e9d6c0854916d366586bcf90b8c4fdad2521a374f95635505cc2214"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 1,
+          "region": {
+            "left": 592,
+            "top": 412,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d1-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 89.41; 526273 bytes",
+            "libjxl d=1; SSIM 87.89; 419655 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark overlay boundaries and the rainbow photograph inspected. Distance 3 softens cloud/mountain detail. No abnormal UI geometry or boundary halo seen. Targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-8256-d1-region1.png",
+            "panelSha256": "df514f1b6205854f7acbad78f44dbbd41c0e42b4f586b686bfe3a4e8bab3f14b"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 1,
+          "region": {
+            "left": 419,
+            "top": 783,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d1-region2.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 89.41; 526273 bytes",
+            "libjxl d=1; SSIM 87.89; 419655 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Navigation and body text remain legible. Distance 3 shows minor edge coarsening without layout or severe ringing defects.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-8256-d1-region0.png",
+            "panelSha256": "1aa7b79f5ef76046e76823852b12a957448e334291541a1aba8888ec9500f2c2"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 1,
+          "region": {
+            "left": 592,
+            "top": 1276,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d1-region3.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 89.41; 526273 bytes",
+            "libjxl d=1; SSIM 87.89; 419655 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Navigation and body text remain legible. Distance 3 shows minor edge coarsening without layout or severe ringing defects.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-8256-d1-region1.png",
+            "panelSha256": "ea2a466a44b924fe4b0b98fe72e00c40dd1b319a794e117ced54122c3d13dd66"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 3,
+          "region": {
+            "left": 1312,
+            "top": 772,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d3-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 81.31; 313225 bytes",
+            "libjxl d=3; SSIM 78.60; 162180 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark overlay boundaries and the rainbow photograph inspected. Distance 3 softens cloud/mountain detail. No abnormal UI geometry or boundary halo seen. Targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-8256-d3-region0.png",
+            "panelSha256": "00ac974be3e32ef0973f161eadfd1011ee1c5cf664c03422c71afce6c901332b"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 3,
+          "region": {
+            "left": 592,
+            "top": 412,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d3-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 81.31; 313225 bytes",
+            "libjxl d=3; SSIM 78.60; 162180 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Dark overlay boundaries and the rainbow photograph inspected. Distance 3 softens cloud/mountain detail. No abnormal UI geometry or boundary halo seen. Targeted text crops remain required.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-8256-d3-region1.png",
+            "panelSha256": "84ce487e31fd2d06ee4a1fd79cbf3fa737148aba6a53eccd643f39e1b328c6f4"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 3,
+          "region": {
+            "left": 419,
+            "top": 783,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d3-region2.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 81.31; 313225 bytes",
+            "libjxl d=3; SSIM 78.60; 162180 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Navigation and body text remain legible. Distance 3 shows minor edge coarsening without layout or severe ringing defects.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-8256-d3-region0.png",
+            "panelSha256": "8f44270db3f101d42cd61fb1692412a5464432597d7208da82a5d454d9a0d23e"
+          }
+        },
+        {
+          "id": "im26-8256",
+          "reason": "Screenshot Butteraugli-size outlier; context, navigation and body text",
+          "setting": 3,
+          "region": {
+            "left": 592,
+            "top": 1276,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-8256-d3-region3.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 81.31; 313225 bytes",
+            "libjxl d=3; SSIM 78.60; 162180 bytes"
+          ],
+          "reportSha256": "aad38401e53344530eaaa9771436202e7d1fccbc965c1f1ef89052d0940265df",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Navigation and body text remain legible. Distance 3 shows minor edge coarsening without layout or severe ringing defects.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-detail/report.json",
+            "sha256": "6cda0f84737e0f2f53b38c8539a99cb629d421e5182751ac259dec013a2d9e66",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-detail/im26-8256-d3-region1.png",
+            "panelSha256": "9a492bbdb1238965f72bcf4468336e854517c2e2117765cc1fe5988e74ff197e"
+          }
+        },
+        {
+          "id": "im26-2400",
+          "reason": "Natural high-frequency texture regression",
+          "setting": 1,
+          "region": {
+            "left": 1872,
+            "top": 2547,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2400-d1-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.36; 1863954 bytes",
+            "libjxl d=1; SSIM 84.79; 1115137 bytes"
+          ],
+          "reportSha256": "aa6dd2b215f82c3d3fedb82a6aef0144d08f391e0ffdc8e38c3542241517733c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Pink painted texture and blue vertical edge inspected. Fine grain is reduced at distance 3; no severe banding or abnormal halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2400-d1-region0.png",
+            "panelSha256": "00c32df70e046c2eec1dcf41da944573cb8ac3fbbe625c0b3be468bc805550c7"
+          }
+        },
+        {
+          "id": "im26-2400",
+          "reason": "Natural high-frequency texture regression",
+          "setting": 1,
+          "region": {
+            "left": 872,
+            "top": 1477,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2400-d1-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=1; SSIM 87.36; 1863954 bytes",
+            "libjxl d=1; SSIM 84.79; 1115137 bytes"
+          ],
+          "reportSha256": "aa6dd2b215f82c3d3fedb82a6aef0144d08f391e0ffdc8e38c3542241517733c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Pink painted texture and blue vertical edge inspected. Fine grain is reduced at distance 3; no severe banding or abnormal halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2400-d1-region1.png",
+            "panelSha256": "5d1551a637cff6104c58f6479e254b463f35c42bfddf40f35c982db45a59f5ed"
+          }
+        },
+        {
+          "id": "im26-2400",
+          "reason": "Natural high-frequency texture regression",
+          "setting": 3,
+          "region": {
+            "left": 1872,
+            "top": 2547,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2400-d3-region0.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 79.16; 931667 bytes",
+            "libjxl d=3; SSIM 70.46; 360804 bytes"
+          ],
+          "reportSha256": "aa6dd2b215f82c3d3fedb82a6aef0144d08f391e0ffdc8e38c3542241517733c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Pink painted texture and blue vertical edge inspected. Fine grain is reduced at distance 3; no severe banding or abnormal halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2400-d3-region0.png",
+            "panelSha256": "824c65debe99d1e304e1dc008e1d65759d07f7ef2e31f65cfc34a98d4a3adc10"
+          }
+        },
+        {
+          "id": "im26-2400",
+          "reason": "Natural high-frequency texture regression",
+          "setting": 3,
+          "region": {
+            "left": 872,
+            "top": 1477,
+            "width": 256,
+            "height": 256
+          },
+          "path": ".tmp/jpegxl-m7/visual-integrated054-final/im26-2400-d3-region1.png",
+          "labels": [
+            "Original",
+            "purejsimage d=3; SSIM 79.16; 931667 bytes",
+            "libjxl d=3; SSIM 70.46; 360804 bytes"
+          ],
+          "reportSha256": "aa6dd2b215f82c3d3fedb82a6aef0144d08f391e0ffdc8e38c3542241517733c",
+          "reviewStatus": "previously-inspected-identical-panel",
+          "finding": "Pink painted texture and blue vertical edge inspected. Fine grain is reduced at distance 3; no severe banding or abnormal halo seen in these crops.",
+          "severeDefectObserved": false,
+          "previousReview": {
+            "path": ".tmp/jpegxl-m7/visual-integrated050-development2/report.json",
+            "sha256": "2036d6a8a6cc914bd4ee371ead1a353b3ecc0c134dc898f532c8e41de8ec7b20",
+            "panel": ".tmp/jpegxl-m7/visual-integrated050-development2/im26-2400-d3-region1.png",
+            "panelSha256": "0a337f067bbe54c6d6c09112ffa01b47f9194fa9a08620069ea9b93aa417ffc7"
+          }
+        }
+      ],
+      "qualificationComplete": false
+    }
+  },
+  "guards": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/integrated054-final-small-lossless.json",
+      "sha256": "d439105c63b17f67078bcc94e6da6def63fba9dd2b2984d46f6418eec78f986f",
+      "report": {
+        "startedAt": "2026-09-09T13:53:12.720Z",
+        "finishedAt": "2026-09-09T13:54:16.956Z",
+        "policy": {
+          "memoryMaxBytes": 3221225472,
+          "memoryHighBytes": 3019898880,
+          "minimumAvailableBytes": 8589934592,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 200,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 28091969536,
+        "executable": "/usr/bin/env",
+        "args": [
+          "GOMAXPROCS=2",
+          "RAYON_NUM_THREADS=2",
+          "node",
+          ".tmp/jpegxl-m7/verify-lossless-single-group-054.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: ed3ec885f225410f84441803c507abaf\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 1min 4.210s\nCPU time consumed: 1min 8.531s\nMemory peak: 297.6M (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/integrated054-final-conformance.json",
+      "sha256": "087123d50ac923bdc117078107eb8edae9051b3c75e721bbb99d5188a2f54ec8",
+      "report": {
+        "startedAt": "2026-09-09T13:54:42.970Z",
+        "finishedAt": "2026-09-09T13:54:50.535Z",
+        "policy": {
+          "memoryMaxBytes": 3221225472,
+          "memoryHighBytes": 3019898880,
+          "minimumAvailableBytes": 8589934592,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 200,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 28333907968,
+        "executable": "/usr/bin/env",
+        "args": [
+          "GOMAXPROCS=2",
+          "RAYON_NUM_THREADS=2",
+          "/bin/sh",
+          "-c",
+          "node benchmark/jpegxl/verify-m7-scalar-boundaries.ts integrated054-final && node benchmark/jpegxl/production-program/run-conformance.ts --corpus-root /tmp/jpegxl-conformance-4bf0535 --output .tmp/jpegxl-m7/integrated054-conformance.json"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: ddee564a5339424abe6083f0850f7c2c\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 7.537s\nCPU time consumed: 9.681s\nMemory peak: 175.1M (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/integrated054-final-visual.json",
+      "sha256": "ce90cc602f5fba41e6739644165e52c5eb7c54e600a346fa1a2052741cf68f00",
+      "report": {
+        "startedAt": "2026-09-09T13:55:23.909Z",
+        "finishedAt": "2026-09-09T13:55:37.469Z",
+        "policy": {
+          "memoryMaxBytes": 3221225472,
+          "memoryHighBytes": 3019898880,
+          "minimumAvailableBytes": 8589934592,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 200,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 28096860160,
+        "executable": "/usr/bin/env",
+        "args": [
+          "GOMAXPROCS=2",
+          "RAYON_NUM_THREADS=2",
+          "node",
+          "benchmark/jpegxl/prepare-m7-visual-review.ts",
+          ".tmp/jpegxl-m7/lossy-development-integrated054-full",
+          "integrated054-final",
+          "benchmark/jpegxl/production-program/m7-visual-development-initial.json"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 881dee4b3c354134b251867a0efa6f0f\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 13.536s\nCPU time consumed: 14.150s\nMemory peak: 815.3M (swap: 0B)\n"
+      }
+    }
+  ],
+  "priorFullValidation": "m7-integrated054-quality-checkpoint.json",
+  "deferredQualification": [
+    "14 remaining development SDR quality curves and all 120 heldout SDR quality curves",
+    "Full repository-decoder verification for all scored SDR streams",
+    "Fresh integrated054 HDR and alpha quality grids on both original splits",
+    "Final development/heldout/HDR/alpha visual outliers and quality-target assessment",
+    "Updated runtime qualification; existing integrated050 timing remains separately identified"
+  ],
+  "knownLimits": [
+    "Lossy encoding stays Experimental",
+    "Observed lossless alpha median/p90 and SDR heldout p90 exceed frozen compression targets",
+    "Official delta_palette failure and 25 unsupported conformance cases match the prior baseline"
+  ],
+  "finalCheck": {
+    "command": "npm run check",
+    "status": "passed",
+    "testsPassed": 3031,
+    "testsSkipped": 3,
+    "log": ".tmp/jpegxl-m7/integrated054-experimental-handoff-check.log",
+    "logSha256": "cc830d8afcca2f55d933699cac576801abd6e90a4e48e3082231369a58c2d9fc",
+    "guard": {
+      "startedAt": "2026-09-09T13:57:40.498Z",
+      "finishedAt": "2026-09-09T14:04:05.711Z",
+      "policy": {
+        "memoryMaxBytes": 3221225472,
+        "memoryHighBytes": 3019898880,
+        "minimumAvailableBytes": 8589934592,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 200,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 27768152064,
+      "executable": "/usr/bin/env",
+      "args": [
+        "VITEST_MAX_WORKERS=1",
+        "GOMAXPROCS=2",
+        "RAYON_NUM_THREADS=2",
+        "npm",
+        "run",
+        "check"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 9b51ed66ef944a77aff9abac2494cda8\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:137:42 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    135 \u2502   timing: 'Serial quality evaluation, not isolated performance evidence',\n    136 \u2502 }\n  > 137 \u2502 await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\\n', { flag: 'wx' })\n        \u2502                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    138 \u2502 const results: object[] = []\n    139 \u2502 let failures = 0\n  \n  i Unsafe fix: Use a template literal.\n  \n    135 135 \u2502     timing: 'Serial quality evaluation, not isolated performance evidence',\n    136 136 \u2502   }\n    137     \u2502 - await\u00b7writeFile(`${root}/protocol.json`,\u00b7JSON.stringify(protocol,\u00b7null,\u00b72)\u00b7+\u00b7'\\n',\u00b7{\u00b7flag:\u00b7'wx'\u00b7})\n        137 \u2502 + await\u00b7writeFile(`${root}/protocol.json`,\u00b7`${JSON.stringify(protocol,\u00b7null,\u00b72)}\\n`,\u00b7{\u00b7flag:\u00b7'wx'\u00b7})\n    138 138 \u2502   const results: object[] = []\n    139 139 \u2502   let failures = 0\n  \n\nbenchmark/jpegxl/fetch-m7-expansion.ts:111:31 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    109 \u2502   }\n    110 \u2502 }\n  > 111 \u2502 await writeFile(manifestPath, JSON.stringify({ schemaVersion: 1, cases: results }, null, 2) + '\\n')\n        \u2502                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    112 \u2502 if (failures) process.exitCode = 1\n    113 \u2502 \n  \n  i Unsafe fix: Use a template literal.\n  \n    109 109 \u2502     }\n    110 110 \u2502   }\n    111     \u2502 - await\u00b7writeFile(manifestPath,\u00b7JSON.stringify({\u00b7schemaVersion:\u00b71,\u00b7cases:\u00b7results\u00b7},\u00b7null,\u00b72)\u00b7+\u00b7'\\n')\n        111 \u2502 + await\u00b7writeFile(manifestPath,\u00b7`${JSON.stringify({\u00b7schemaVersion:\u00b71,\u00b7cases:\u00b7results\u00b7},\u00b7null,\u00b72)}\\n`)\n    112 112 \u2502   if (failures) process.exitCode = 1\n    113 113 \u2502   \n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:99:3 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n     97 \u2502 await writeFile(\n     98 \u2502   `${directory}/manifest.json`,\n   > 99 \u2502   JSON.stringify(\n        \u2502   ^^^^^^^^^^^^^^^\n  > 100 \u2502     {\n         ...\n  > 112 \u2502     2,\n  > 113 \u2502   ) + '\\n',\n        \u2502   ^^^^^^^^\n    114 \u2502 )\n    115 \u2502 \n  \n  i Unsafe fix: Use a template literal.\n  \n     97  97 \u2502   await writeFile(\n     98  98 \u2502     `${directory}/manifest.json`,\n     99     \u2502 - \u00b7\u00b7JSON.stringify(\n         99 \u2502 + \u00b7\u00b7`${JSON.stringify(\n    100 100 \u2502       {\n    101 101 \u2502         encoderHash,\n    \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7 \u2502 \n    111 111 \u2502       null,\n    112 112 \u2502       2,\n    113     \u2502 - \u00b7\u00b7)\u00b7+\u00b7'\\n',\n        113 \u2502 + \u00b7\u00b7)}\\n`,\n    114 114 \u2502   )\n    115 115 \u2502   \n  \n\nbenchmark/jpegxl/generate-m6-preview.ts:147:3 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    145 \u2502 await writeFile(\n    146 \u2502   `${directory}/provenance.json`,\n  > 147 \u2502   JSON.stringify(\n        \u2502   ^^^^^^^^^^^^^^^\n  > 148 \u2502     {\n         ...\n  > 159 \u2502     2,\n  > 160 \u2502   ) + '\\n',\n        \u2502   ^^^^^^^^\n    161 \u2502 )\n    162 \u2502 console.log(\n  \n  i Unsafe fix: Use a template literal.\n  \n    145 145 \u2502   await writeFile(\n    146 146 \u2502     `${directory}/provenance.json`,\n    147     \u2502 - \u00b7\u00b7JSON.stringify(\n        147 \u2502 + \u00b7\u00b7`${JSON.stringify(\n    148 148 \u2502       {\n    149 149 \u2502         encoderHash,\n    \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7 \u2502 \n    158 158 \u2502       null,\n    159 159 \u2502       2,\n    160     \u2502 - \u00b7\u00b7)\u00b7+\u00b7'\\n',\n        160 \u2502 + \u00b7\u00b7)}\\n`,\n    161 161 \u2502   )\n    162 162 \u2502   console.log(\n  \n\nbenchmark/jpegxl/generate-remediation-fixtures.ts:232:3 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    230 \u2502 await writeFile(\n    231 \u2502   `${directory}/manifest.json`,\n  > 232 \u2502   JSON.stringify(\n        \u2502   ^^^^^^^^^^^^^^^\n  > 233 \u2502     {\n         ...\n  > 245 \u2502     2,\n  > 246 \u2502   ) + '\\n',\n        \u2502   ^^^^^^^^\n    247 \u2502 )\n    248 \u2502 console.log(`Generated and independently verified ${results.length} fixtures`)\n  \n  i Unsafe fix: Use a template literal.\n  \n    230 230 \u2502   await writeFile(\n    231 231 \u2502     `${directory}/manifest.json`,\n    232     \u2502 - \u00b7\u00b7JSON.stringify(\n        232 \u2502 + \u00b7\u00b7`${JSON.stringify(\n    233 233 \u2502       {\n    234 234 \u2502         schemaVersion: 1,\n    \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7 \u2502 \n    244 244 \u2502       null,\n    245 245 \u2502       2,\n    246     \u2502 - \u00b7\u00b7)\u00b7+\u00b7'\\n',\n        246 \u2502 + \u00b7\u00b7)}\\n`,\n    247 247 \u2502   )\n    248 248 \u2502   console.log(`Generated and independently verified ${results.length} fixtures`)\n  \n\nbenchmark/jpegxl/inspect-m7-corpus.ts:47:3 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    45 \u2502 await writeFile(\n    46 \u2502   '.tmp/jpegxl-m7/source-inventory.json',\n  > 47 \u2502   JSON.stringify({ schemaVersion: 1, failures, results }, null, 2) + '\\n',\n       \u2502   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    48 \u2502 )\n    49 \u2502 if (failures > 0) process.exitCode = 1\n  \n  i Unsafe fix: Use a template literal.\n  \n    45 45 \u2502   await writeFile(\n    46 46 \u2502     '.tmp/jpegxl-m7/source-inventory.json',\n    47    \u2502 - \u00b7\u00b7JSON.stringify({\u00b7schemaVersion:\u00b71,\u00b7failures,\u00b7results\u00b7},\u00b7null,\u00b72)\u00b7+\u00b7'\\n',\n       47 \u2502 + \u00b7\u00b7`${JSON.stringify({\u00b7schemaVersion:\u00b71,\u00b7failures,\u00b7results\u00b7},\u00b7null,\u00b72)}\\n`,\n    48 48 \u2502   )\n    49 49 \u2502   if (failures > 0) process.exitCode = 1\n  \n\nbenchmark/jpegxl/inspect-m7-expansion.ts:94:3 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n     92 \u2502 await writeFile(\n     93 \u2502   '.tmp/jpegxl-m7/expansion-inventory.json',\n   > 94 \u2502   JSON.stringify(\n        \u2502   ^^^^^^^^^^^^^^^\n   > 95 \u2502     {\n         ...\n  > 102 \u2502     2,\n  > 103 \u2502   ) + '\\n',\n        \u2502   ^^^^^^^^\n    104 \u2502 )\n    105 \u2502 if (failures) process.exitCode = 1\n  \n  i Unsafe fix: Use a template literal.\n  \n     92  92 \u2502   await writeFile(\n     93  93 \u2502     '.tmp/jpegxl-m7/expansion-inventory.json',\n     94     \u2502 - \u00b7\u00b7JSON.stringify(\n         94 \u2502 + \u00b7\u00b7`${JSON.stringify(\n     95  95 \u2502       {\n     96  96 \u2502         schemaVersion: 1,\n    \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7 \u2502 \n    101 101 \u2502       null,\n    102 102 \u2502       2,\n    103     \u2502 - \u00b7\u00b7)\u00b7+\u00b7'\\n',\n        103 \u2502 + \u00b7\u00b7)}\\n`,\n    104 104 \u2502   )\n    105 105 \u2502   if (failures) process.exitCode = 1\n  \n\nbenchmark/jpegxl/measure-m7-native-curve.ts:55:5 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    53 \u2502   await writeFile(\n    54 \u2502     `${directory}/report.json`,\n  > 55 \u2502     JSON.stringify(\n       \u2502     ^^^^^^^^^^^^^^^\n  > 56 \u2502       {\n        ...\n  > 64 \u2502       2,\n  > 65 \u2502     ) + '\\n',\n       \u2502     ^^^^^^^^\n    66 \u2502   )\n    67 \u2502 }\n  \n  i Unsafe fix: Use a template literal.\n  \n    53 53 \u2502     await writeFile(\n    54 54 \u2502       `${directory}/report.json`,\n    55    \u2502 - \u00b7\u00b7\u00b7\u00b7JSON.stringify(\n       55 \u2502 + \u00b7\u00b7\u00b7\u00b7`${JSON.stringify(\n    56 56 \u2502         {\n    57 57 \u2502           schemaVersion: 1,\n    \u00b7\u00b7\u00b7\u00b7\u00b7 \u2502 \n    63 63 \u2502         null,\n    64 64 \u2502         2,\n    65    \u2502 - \u00b7\u00b7\u00b7\u00b7)\u00b7+\u00b7'\\n',\n       65 \u2502 + \u00b7\u00b7\u00b7\u00b7)}\\n`,\n    66 66 \u2502     )\n    67 67 \u2502   }\n  \n\nbenchmark/jpegxl/measure-m7-native-curve.ts:70:3 lint/style/useTemplate  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  i Template literals are preferred over string concatenation.\n  \n    68 \u2502 await writeFile(\n    69 \u2502   `${directory}/tools.json`,\n  > 70 \u2502   JSON.stringify(\n       \u2502   ^^^^^^^^^^^^^^^\n  > 71 \u2502     {\n        ...\n  > 78 \u2502     2,\n  > 79 \u2502   ) + '\\n',\n       \u2502   ^^^^^^^^\n    80 \u2502 )\n    81 \u2502 if (failures) process.exitCode = 1\n  \n  i Unsafe fix: Use a template literal.\n  \n    68 68 \u2502   await writeFile(\n    69 69 \u2502     `${directory}/tools.json`,\n    70    \u2502 - \u00b7\u00b7JSON.stringify(\n       70 \u2502 + \u00b7\u00b7`${JSON.stringify(\n    71 71 \u2502       {\n    72 72 \u2502         cjxl: await hash(`${tools}/cjxl`),\n    \u00b7\u00b7\u00b7\u00b7\u00b7 \u2502 \n    77 77 \u2502       null,\n    78 78 \u2502       2,\n    79    \u2502 - \u00b7\u00b7)\u00b7+\u00b7'\\n',\n       79 \u2502 + \u00b7\u00b7)}\\n`,\n    80 80 \u2502   )\n    81 81 \u2502   if (failures) process.exitCode = 1\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:19:5 lint/complexity/useOptionalChain  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Change to an optional chain.\n  \n    17 \u2502   throw new Error('Usage: evaluate-m7-hdr-development.ts source-id distance unique-run-id')\n    18 \u2502 const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n  > 19 \u2502 if (!entry || entry.status !== 'verified')\n       \u2502     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    20 \u2502   throw new Error('Source is outside the selected frozen HDR cohort')\n    21 \u2502 const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     17  17 \u2502     throw new Error('Usage: evaluate-m7-hdr-development.ts source-id distance unique-run-id')\n     18  18 \u2502   const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n     19     \u2502 - if\u00b7(!entry\u00b7||\u00b7entry.status\u00b7!==\u00b7'verified')\n         19 \u2502 + if\u00b7(entry?.status\u00b7!==\u00b7'verified')\n     20  20 \u2502     throw new Error('Source is outside the selected frozen HDR cohort')\n     21  21 \u2502   const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:228:11 lint/complexity/useOptionalChain  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Change to an optional chain.\n  \n    226 \u2502         defaultImageLimits,\n    227 \u2502       )\n  > 228 \u2502       if (!decoder || decoder.pixelFormat !== 'rgbf32')\n        \u2502           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    229 \u2502         throw new Error('Missing native-light decoder')\n    230 \u2502       maximumOwnDifference = 0\n  \n  i Unsafe fix: Change to an optional chain.\n  \n    226 226 \u2502           defaultImageLimits,\n    227 227 \u2502         )\n    228     \u2502 - \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7if\u00b7(!decoder\u00b7||\u00b7decoder.pixelFormat\u00b7!==\u00b7'rgbf32')\n        228 \u2502 + \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7if\u00b7(decoder?.pixelFormat\u00b7!==\u00b7'rgbf32')\n    229 229 \u2502           throw new Error('Missing native-light decoder')\n    230 230 \u2502         maximumOwnDifference = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:50:3 lint/complexity/useOptionalChain  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Change to an optional chain.\n  \n    48 \u2502 const dc = frames[0]\n    49 \u2502 if (\n  > 50 \u2502   !dc ||\n       \u2502   ^^^^^^\n  > 51 \u2502   dc.frameType !== 'dc' ||\n       \u2502   ^^^^^^^^^^^^^^^^^^^^^\n    52 \u2502   dc.passCount < 2 ||\n    53 \u2502   dc.sections.slice(1).every((section) => section.length === 0)\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     48  48 \u2502   const dc = frames[0]\n     49  49 \u2502   if (\n     50     \u2502 - \u00b7\u00b7!dc\u00b7||\n     51     \u2502 - \u00b7\u00b7dc.frameType\u00b7!==\u00b7'dc'\u00b7||\n         50 \u2502 + \u00b7\u00b7dc?.frameType\u00b7!==\u00b7'dc'\u00b7||\n     52  51 \u2502     dc.passCount < 2 ||\n     53  52 \u2502     dc.sections.slice(1).every((section) => section.length === 0)\n  \n\nbenchmark/jpegxl/measure-m6-session.ts:9:8 lint/style/useImportType  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! All these imports are only used as types.\n  \n     7 \u2502 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'\n     8 \u2502 import { resolveLimits } from '../../src/limits.ts'\n   > 9 \u2502 import { type ImageSource } from '../../src/source.ts'\n       \u2502        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    10 \u2502 \n    11 \u2502 const path = process.argv[2],\n  \n  i Importing the types with import type ensures that they are removed by the compilers and avoids loading unnecessary modules.\n  \n  i Safe fix: Use import type.\n  \n      7   7 \u2502   import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'\n      8   8 \u2502   import { resolveLimits } from '../../src/limits.ts'\n      9     \u2502 - import\u00b7{\u00b7type\u00b7ImageSource\u00b7}\u00b7from\u00b7'../../src/source.ts'\n          9 \u2502 + import\u00b7type\u00b7{\u00b7ImageSource\u00b7}\u00b7from\u00b7'../../src/source.ts'\n     10  10 \u2502   \n     11  11 \u2502   const path = process.argv[2],\n  \n\nbiome.json:14:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Incorrect usage of ignore a folder found.\n  \n    12 \u2502       \"!!benchmark/corpus/files\",\n    13 \u2502       \"!!benchmark/results\",\n  > 14 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    15 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4.\n  \n    14 \u2502 \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       \u2502                                                                 ---  \n\nbiome.json:15:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Incorrect usage of ignore a folder found.\n  \n    13 \u2502       \"!!benchmark/results\",\n    14 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n  > 15 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    16 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5.\n  \n    15 \u2502 \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       \u2502                                                                 ---  \n\nbiome.json:16:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Incorrect usage of ignore a folder found.\n  \n    14 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n    15 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n  > 16 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    17 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5.\n  \n    16 \u2502 \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       \u2502                                                                       ---  \n\nbiome.json:17:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Incorrect usage of ignore a folder found.\n  \n    15 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  > 17 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    18 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n    19 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5.\n  \n    17 \u2502 \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       \u2502                                                                       ---  \n\nbiome.json:18:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Incorrect usage of ignore a folder found.\n  \n    16 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  > 18 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    19 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n    20 \u2502       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4.\n  \n    18 \u2502 \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       \u2502                                                                   ---  \n\nbiome.json:19:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! Incorrect usage of ignore a folder found.\n  \n    17 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  > 19 \u2502       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       \u2502       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    20 \u2502       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n    21 \u2502       \"!!src/scientific/browser-reader-catalog.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4.\n  \n    19 \u2502 \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       \u2502                                                                  ---  \n\ntests/jpegxl-session.test.ts:175:34 lint/correctness/noUnusedFunctionParameters  FIXABLE  \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n  ! This parameter resolve is unused.\n  \n    173 \u2502       reads++\n    174 \u2502       if (suspend)\n  > 175 \u2502         await new Promise<void>((resolve, reject) => {\n        \u2502                                  ^^^^^^^\n    176 \u2502           if (options?.signal?.aborted) reject(new DOMException('Cancelled', 'AbortError'))\n    177 \u2502           else\n  \n  i Unused parameters might be the result of an incomplete refactoring.\n  \n  i Unsafe fix: If this is intentional, prepend resolve with an underscore.\n  \n    173 173 \u2502         reads++\n    174 174 \u2502         if (suspend)\n    175     \u2502 - \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7await\u00b7new\u00b7Promise<void>((resolve,\u00b7reject)\u00b7=>\u00b7{\n        175 \u2502 + \u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7await\u00b7new\u00b7Promise<void>((_resolve,\u00b7reject)\u00b7=>\u00b7{\n    176 176 \u2502             if (options?.signal?.aborted) reject(new DOMException('Cancelled', 'AbortError'))\n    177 177 \u2502             else\n  \n\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 6min 25.185s\nCPU time consumed: 8min 2.641s\nMemory peak: 1.9G (swap: 0B)\n"
+    }
+  },
+  "corrections": [
+    "The single-group replay proves native and Rust exactness only. Earlier handoff prose also claimed repository exactness, which the replay did not measure. Full 240-source stored-stream repository verification remains required."
+  ]
+}

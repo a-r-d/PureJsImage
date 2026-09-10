@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-09-08T16:46:19.049Z",
+  "status": "pre-tuning protocol; no promotion results",
+  "baselineRevision": "d157a8dc5a704410563026e53e438b79db6161db",
+  "m7StartingRevision": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
+  "sourceSelection": "m7-corpus-selection.json",
+  "sourcePolicy": "Use original dimensions and source-family splits. No upscale. Preserve exact sample, alpha and color contracts for lossless comparisons. Keep procedural and prior PR35 regressions separate from new real assets. Inspect source metadata before declaring HDR or transparency coverage; missing strata remain incomplete and require a recorded expansion.",
+  "lossless": {
+    "efforts": [1, 3, 5, 7],
+    "oracle": "pinned libjxl 0.12.0 effort 7 with keep_invisible=1 and one thread",
+    "medianRatioMaximum": 1.25,
+    "p90RatioMaximum": 1.4,
+    "worstUnexplainedRatioMaximum": 1.75,
+    "largeRegressionMedianReductionMinimum": 0.25,
+    "exactness": "All color and alpha samples and declared semantics; no invisible-RGB canonicalization. Both a native decoder and the repository decoder must agree."
+  },
+  "lossy": {
+    "distanceSamples": [0.25, 0.5, 1, 2, 3, 5],
+    "efforts": [1, 3, 5, 7],
+    "ssimulacra2Bands": [70, 80, 90],
+    "matching": "Interpolate log(encoded bytes) on the nondominated measured SSIMULACRA2 curve within its measured domain; never extrapolate or replace missing bands with passes. Retain every raw size, SSIMULACRA2, Butteraugli and numeric-error sample. Also report Butteraugli-matched curves at distances 1 and 2 where bracketed. Equal numeric codec options do not imply matched quality.",
+    "comparators": ["pinned libjxl effort 7", "pinned mozjpeg", "pinned AVIF", "pinned WebP"],
+    "medianLibjxlRatioMaximum": 1.35,
+    "p90LibjxlRatioMaximum": 1.6,
+    "worstUnexplainedLibjxlRatioMaximum": 2,
+    "jpegMedianRatioMaximumExclusive": 1,
+    "alpha": "Exact by default. Score color with identical declared black and white compositing for alpha-bearing images; retain straight color diagnostics.",
+    "hdr": "Separate native-light numeric checks and display-mapped quality at 1, 2 and 4 times SDR headroom. Do not substitute an SDR-only score for HDR validation.",
+    "independentDecoders": ["libjxl 0.12.0", "pinned jxl-oxide or jxl-rs, where supported"]
+  },
+  "runtime": {
+    "lossy12MegapixelEffort3SecondsMaximum": 20,
+    "effort1MedianNativeTimeRatioMaximum": 8,
+    "method": "Isolated cold/warm single-thread processes; separate startup, open/encode/output and core encode. Record absolute peak RSS, post-GC baseline, external/ArrayBuffer memory, admitted managed peak and output hashes. Reference-machine gates require actual measurements; hosted CI times are observational."
+  }
+}

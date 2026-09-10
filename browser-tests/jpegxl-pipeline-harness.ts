@@ -7,6 +7,7 @@ import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
 
 export const verifyLazyJpegXl = async (bytes: Uint8Array) => {
@@ -438,4 +439,182 @@ export const verifyProgressiveJpegXl = async (bytes: Uint8Array) => {
     cancelled,
     liveBytes: session.managedLiveBytes + cancelSession.managedLiveBytes,
   }
+}
+
+export async function verifyM7ForwardJpegXl(
+  load: (name: string) => Promise<Uint8Array> = async (name) => {
+    const response = await fetch(`/fixtures/jpegxl-m4-${name}`)
+    if (!response.ok) throw new Error(`Missing fixture ${name}`)
+    return new Uint8Array(await response.arrayBuffer())
+  },
+) {
+  const Image = createImageLibrary([jpegxlCodec])
+  const results: { id: string; progressive: boolean; format: string; samples: number[] }[] = []
+  for (const id of [
+    'srgb-8',
+    'srgb-12',
+    'srgb-straight-12-16',
+    'p3-8',
+    'pq-10',
+    'vardct-srgb-12',
+  ]) {
+    const image = await Image.open(await load(`${id}.jxl`))
+    for (const [distance, progressive] of [
+      [1, false],
+      [1, true],
+      [3, false],
+      [3, true],
+    ] as const) {
+      const bytes = await image
+        .jpegxl({ mode: 'lossy', distance, effort: 3, progressive })
+        .toUint8Array()
+      const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+      if (!decoder) throw new Error('Missing forward output decoder')
+      const samples: number[] = []
+      for await (const block of decoder.decode()) {
+        const floating = block.format.endsWith('f32')
+        const sampleBytes = floating ? 4 : block.format.endsWith('16') ? 2 : 1
+        const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+        const channels = block.format.startsWith('gray')
+          ? 1
+          : block.format.startsWith('rgba')
+            ? 4
+            : 3
+        for (let y = 0; y < block.height; y++)
+          for (let x = 0; x < block.width * channels; x++) {
+            const offset = y * block.stride + x * sampleBytes
+            samples.push(
+              floating
+                ? view.getFloat32(offset, false)
+                : sampleBytes === 2
+                  ? view.getUint16(offset, false)
+                  : (block.data[offset] ?? 0),
+            )
+          }
+        block.release?.()
+      }
+      results.push({ id: `${id}-d${distance}`, progressive, format: decoder.pixelFormat, samples })
+    }
+  }
+  return results
+}
+
+export async function verifyM7EffortOneGroups() {
+  const width = 513,
+    height = 257
+  const results: { kind: string; bytes: number; samples: number[] }[] = []
+  for (const kind of ['varied', 'dc-only', 'flat'] as const) {
+    const pixels = new Uint8Array(width * height * 3)
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++)
+        for (let c = 0; c < 3; c++)
+          pixels[(y * width + x) * 3 + c] =
+            kind === 'flat'
+              ? 128
+              : kind === 'dc-only'
+                ? ((x >> 3) * 17 + (y >> 3) * 11 + c * 53) & 255
+                : (x * 17 + y * 11 + c * 53 + ((x * y) >> 4)) & 255
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: 'rgb8',
+      colorSemantics: {
+        family: 'rgb',
+        primaries: 'srgb',
+        transfer: { kind: 'srgb' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'assumed-default',
+        renderingIntent: 'relative',
+      },
+      options: { mode: 'lossy', distance: 1, effort: 1, maxWorkingBytes: 16 * 1024 * 1024 },
+    })
+    if (!encoder) throw new Error('Missing forward encoder')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * 3,
+      format: 'rgb8',
+      data: pixels,
+    })
+    await encoder.finish()
+    const bytes = sink.toUint8Array()
+    const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+    if (!decoder) throw new Error('Missing forward decoder')
+    const samples = new Uint8Array(pixels.length)
+    for await (const block of decoder.decode()) {
+      if (block.format !== 'rgb8') throw new Error('Unexpected forward format')
+      for (let y = 0; y < block.height; y++)
+        samples.set(
+          block.data.subarray(y * block.stride, y * block.stride + block.width * 3),
+          ((block.y + y) * width + block.x) * 3,
+        )
+      block.release?.()
+    }
+    results.push({ kind, bytes: bytes.length, samples: Array.from(samples) })
+  }
+  return results
+}
+
+export async function verifyM7ScalarPalettes(width: number, height: number) {
+  const pixels = new Uint8Array(width * height * 6)
+  for (let position = 0; position < width * height; position++) {
+    for (let channel = 0; channel < 3; channel++) {
+      const index = (position * (channel * 4 + 3) + (position >>> 6) * (channel * 7 + 1)) % 251
+      const value = index * index + channel * 53
+      pixels[position * 6 + channel * 2] = value >>> 8
+      pixels[position * 6 + channel * 2 + 1] = value
+    }
+  }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgb16',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { effort: 7, maxWorkingBytes: 16 * 1024 * 1024 },
+  })
+  if (!encoder) throw new Error('Missing scalar palette encoder')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 6,
+    format: 'rgb16',
+    data: pixels,
+  })
+  await encoder.finish()
+  const bytes = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits, {
+    colorOutput: 'preserve',
+  })
+  if (!decoder || decoder.pixelFormat !== 'rgb16')
+    throw new Error('Missing native scalar palette decoder')
+  let rows = 0
+  for await (const block of decoder.decode()) {
+    for (let y = 0; y < block.height; y++) {
+      for (let x = 0; x < width * 6; x++) {
+        if (block.data[y * block.stride + x] !== pixels[(block.y + y) * width * 6 + x])
+          throw new Error('Scalar palette sample mismatch')
+      }
+      rows++
+    }
+    block.release?.()
+  }
+  if (rows !== height) throw new Error('Incomplete scalar palette output')
+  return Array.from(bytes)
 }

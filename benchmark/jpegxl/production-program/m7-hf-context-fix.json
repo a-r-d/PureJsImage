@@ -1,0 +1,2814 @@
+{
+  "schemaVersion": 1,
+  "issue": "A valid first-party 12 MP effort-1 stream uses 192 local histogram sets and 285120 entropy contexts. Native and Rust decoders accepted it; the repository decoder rejected the generic 65536-context limit.",
+  "fix": "Only HF coefficient entropy opts into a bounded 2027520-context allowance. All other entropy streams retain the default 65536 limit. The allowance and count are checked before context-map allocation. Histogram validation and recursion limits are unchanged.",
+  "qualityEvidencePolicy": "No encoder or scored raster changed. The capped matrices and original checks completed before this decoder admission fix; previously admitted maps execute the same pixel reconstruction. Full-raster replay of both measured runtime streams, a licensed real-image regression, explicit admission-boundary tests, conformance and browser checks cover the repair without repeating perceptual scoring.",
+  "sources": [
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "beforeSha256": "06d0b33e1935ec65851e7daae32ebf90f1940736fbea6378b03b56b1d6469e1f",
+      "afterSha256": "72ad1fd2e95983548337bf66486f2dbaabd3417afbfa6476b0e6b8650c2e4bdd"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "beforeSha256": "e81ccdcac9fa45b40c3db4c45c7dde1fcf69cf2247730d2f2e48bf392a83e237",
+      "afterSha256": "2373b677938b92e18fa2c7a5ffeb8aebf67959a9f0bdde57469c6c1f14b6cd25"
+    }
+  ],
+  "failedVerification": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/integrated054-runtime-output-verification.json",
+    "sha256": "94ab52f5bb9074c145283d7e634e737b8a7cf15000d177cb3c27ddcce2c9690a",
+    "value": {
+      "startedAt": "2026-09-09T21:53:47.841Z",
+      "finishedAt": "2026-09-09T21:53:48.878Z",
+      "policy": {
+        "memoryMaxBytes": 3221225472,
+        "memoryHighBytes": 3019898880,
+        "minimumAvailableBytes": 8589934592,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 200,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 23493124096,
+      "executable": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "args": [".tmp/jpegxl-m7/verify-runtime054.ts"],
+      "code": 1,
+      "signal": null,
+      "status": "failed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service\nfile:///media/ard/samsung-2tb/projects/PureJsImage/src/errors.ts:19\n  new ImageError('INVALID_INPUT', message)\n  ^\n\nImageError: JPEG XL entropy context count is invalid\n    at invalidInput (file:///media/ard/samsung-2tb/projects/PureJsImage/src/errors.ts:19:3)\n    at readJpegXlEntropyCode (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-bitstream.ts:691:11)\n    at decodeJpegXlJpegHfGlobal (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-jpeg.ts:1057:29)\n    at decodeJpegXlDct8Steps (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-render.ts:3730:20)\n    at decodeJpegXlDct8Steps.next (<anonymous>)\n    at finishJpegXlSteps (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-render.ts:4418:22)\n    at finishJpegXlStepsCancellable (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-render.ts:4433:23)\n    at decodeJpegXlDct8SectionCancellable (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-render.ts:4473:3)\n    at loadPixels (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct.ts:468:28)\n    at async VarDctJpegXlDecoder.decode (file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct.ts:232:20) {\n  code: 'INVALID_INPUT'\n}\n\nNode.js v24.16.0\nFinished with result: exit-code\nMain processes terminated with: code=exited, status=1/FAILURE\nService runtime: 1.013s\nCPU time consumed: 1.236s\nMemory peak: 222.3M (swap: 0B)\n"
+    }
+  },
+  "passedVerification": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/integrated054-runtime-output-verification-v2.json",
+    "sha256": "f348869be0d7d0be109a46049b5e613ba92e03cae361ee3109677ea30e913caf",
+    "value": {
+      "startedAt": "2026-09-09T21:59:02.479Z",
+      "finishedAt": "2026-09-09T21:59:08.129Z",
+      "policy": {
+        "memoryMaxBytes": 3221225472,
+        "memoryHighBytes": 3019898880,
+        "minimumAvailableBytes": 8589934592,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 200,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 24129437696,
+      "executable": "node",
+      "args": [".tmp/jpegxl-m7/verify-runtime054-v2.ts"],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 0dfc1f0149f24fc4a260eed135efab37\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 5.623s\nCPU time consumed: 6.469s\nMemory peak: 479.3M (swap: 0B)\n"
+    }
+  },
+  "pixels": {
+    "path": ".tmp/jpegxl-m7/runtime054-verification-v2/report.json",
+    "sha256": "78d08525557c6c84088cd935ce1722a0527f04f199cb4acba992d3062cb8c6b0",
+    "value": {
+      "results": [
+        {
+          "effort": 1,
+          "path": ".tmp/jpegxl-m7/runtime054-cold-0.jxl",
+          "encodedSha256": "76e8c8b48e231e56fdf58badc6d87449bd48082d54a7477313abe0db5b9f1ad5",
+          "bytes": 1911970,
+          "nativePixelsSha256": "c5a36b99083866e62dcbd12825dc6608d370c4a39450ac29ea99e69543000736",
+          "rustPixelsSha256": "5e42e2e6131c75808e2c511b7ca53122d7e43a8361a61fb1e33c66b5912d95bc",
+          "maximumIndependentDifference": 1,
+          "ownVerification": {
+            "maximum": 1,
+            "rmse": 0.4965855358792123,
+            "samples": 36000000,
+            "rows": 3000
+          }
+        },
+        {
+          "effort": 3,
+          "path": ".tmp/jpegxl-m7/runtime-public054-cold.jxl",
+          "encodedSha256": "a7ddf89c74744c21f68a04f733668bb298e1f5365f65cb124f5eee18aba67c77",
+          "bytes": 1512186,
+          "nativePixelsSha256": "2e55cde17fde02b7f43ee3989daa19bb65017b60915c96413c74592b068d77e8",
+          "rustPixelsSha256": "c9caaeaa6f1362657ec3bcc0fc6cf6eabdb762b381b9845b90ef18a57566e55b",
+          "maximumIndependentDifference": 1,
+          "ownVerification": {
+            "maximum": 1,
+            "rmse": 0.49660961641022533,
+            "samples": 36000000,
+            "rows": 3000
+          }
+        }
+      ],
+      "harnessSha256": "771c5f16c47af3053d7bf0a65160eb58d0c01b575dae89292598ac54146c53d8",
+      "tools": [
+        {
+          "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+          "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+          "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ]
+    }
+  },
+  "precheck": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/capped052-hf-precheck.json",
+    "sha256": "cb098eb0364f7e953abecd3d28c7bb5294df61ca2e51a1a2670a2832ccef5560",
+    "value": {
+      "startedAt": "2026-09-09T22:00:43.623Z",
+      "finishedAt": "2026-09-09T22:04:42.670Z",
+      "policy": {
+        "memoryMaxBytes": 3221225472,
+        "memoryHighBytes": 3019898880,
+        "minimumAvailableBytes": 8589934592,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 200,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 24006053888,
+      "executable": "/bin/sh",
+      "args": [".tmp/jpegxl-m7/hf-context-final-precheck.sh"],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 823c9cb394ad43fc8a5eb2b0d04d9fb0\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 3min 59.015s\nCPU time consumed: 5min 50.998s\nMemory peak: 2.8G (swap: 0B)\n"
+    }
+  },
+  "conformance": {
+    "path": ".tmp/jpegxl-m7/capped052-conformance.json",
+    "sha256": "ada34520680a7ce6aa770fb1098fbee81b9ff98a54bc09422f075665612ba2c6",
+    "value": {
+      "schemaVersion": 1,
+      "revision": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
+      "corpusRevision": "4bf053529c7cefd2951be453475bb3dccc7e7be8",
+      "archiveSha256": "1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",
+      "cases": 39,
+      "totals": {
+        "pass": 13,
+        "expected-unsupported": 25,
+        "malformed-safely-rejected": 0,
+        "incorrect-output": 0,
+        "unexpected-failure": 1
+      },
+      "baselineMatched": true,
+      "results": [
+        {
+          "id": "alpha_nonpremultiplied",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 30,
+          "inputSha256": "15acbe3edbfd5a75c7609726ae60526ffc812642b5dd6be8475f0b990ce9b1db",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "dcad2498d282253d5a0cc6228a557663f83e5547e196d4da472c2658a89b26b9",
+          "outputFormat": "rgba16",
+          "rows": 1024
+        },
+        {
+          "id": "alpha_premultiplied",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 8772,
+          "inputSha256": "5028e630dc358bf4031cbf06e8a80f2bfbfa21fd0d088af74d83b473d3dd540a",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "Level 10 global Squeeze transform for grouped alpha",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "Common VarDCT alpha Modular transforms are not supported yet"
+        },
+        {
+          "id": "alpha_triangles",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 61,
+          "inputSha256": "19ac7752a23ad2b22814064cb6b62a581b48be18ed73b5ccc2340888c114d2c9",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "f9eee8a5b5f1e9209a1a82e590fcab10518ad4feb4cd550d4394dcc53cb35422",
+          "outputFormat": "rgba16",
+          "rows": 1024
+        },
+        {
+          "id": "animation_icos4d",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 352478,
+          "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_icos4d_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 352478,
+          "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_newtons_cradle",
+          "levels": [5, 10],
+          "license": "CC-BY-SA-3.0",
+          "inputBytes": 238305,
+          "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_spline",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 9581,
+          "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation and splines",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "animation_spline_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 9581,
+          "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "animation and splines",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL animation is not supported"
+        },
+        {
+          "id": "bench_oriented_brg",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 184341,
+          "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+          "outputFormat": "rgb8",
+          "rows": 606
+        },
+        {
+          "id": "bench_oriented_brg_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 184341,
+          "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "a5476bf3f241ad975fa3c0a7cf8201d1c044843fc9199da3b57b4e0450674539",
+          "outputFormat": "rgb8",
+          "rows": 606
+        },
+        {
+          "id": "bicycles",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 73501,
+          "inputSha256": "8ef03ccccb45bdb5f3d37c9a4c392f745e3e4ad7f4ffc2cbc1e1ba68487a75a6",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "bike",
+          "levels": [10],
+          "license": "ITU-T T.24",
+          "inputBytes": 388268,
+          "inputSha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad color transfer functions",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL transfer function 1 is not supported"
+        },
+        {
+          "id": "bike_5",
+          "levels": [5],
+          "license": "ITU-T T.24",
+          "inputBytes": 388268,
+          "inputSha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad color transfer functions",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL transfer function 1 is not supported"
+        },
+        {
+          "id": "blendmodes",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 145,
+          "inputSha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multiple frames and blend modes",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL frame blending is outside the implemented decode subset"
+        },
+        {
+          "id": "blendmodes_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 145,
+          "inputSha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multiple frames and blend modes",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL frame blending is outside the implemented decode subset"
+        },
+        {
+          "id": "cafe",
+          "levels": [10],
+          "license": "ITU-T T.24",
+          "inputBytes": 381505,
+          "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+          "outputFormat": "rgb8",
+          "rows": 1600
+        },
+        {
+          "id": "cafe_5",
+          "levels": [5],
+          "license": "ITU-T T.24",
+          "inputBytes": 381505,
+          "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "e3681dcd410462f1b60fc94b3230904e302f8b547f2431dc4c64e498bd7a1837",
+          "outputFormat": "rgb8",
+          "rows": 1600
+        },
+        {
+          "id": "cmyk_layers",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 387140,
+          "inputSha256": "d732c8836bf1abeadf310d2e07387a32813ed4690d32650c1c25e541b80eed4a",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multiple non-alpha extra channels",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL extra-channel type 4 is not supported"
+        },
+        {
+          "id": "delta_palette",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 107899,
+          "inputSha256": "00e24cc453cdf84897d62b0aafc7a9f7024205bbce1922e99d7ad0003759ae7c",
+          "baselineClassification": "unexpected-failure",
+          "actualClassification": "unexpected-failure",
+          "matchesBaseline": true,
+          "boundary": "official delta palette reaches INVALID_INPUT instead of an explicit supported or unsupported result",
+          "errorCode": "INVALID_INPUT",
+          "errorMessage": "JPEG XL Palette transform is invalid"
+        },
+        {
+          "id": "grayscale",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 1069,
+          "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 1069,
+          "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "73b8413bcd9a56d546c8aa206d0631eb9653bcf601d15792a3484fb3bcf6dda2",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_jpeg",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 7799,
+          "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_jpeg_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 7799,
+          "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "da5aeb3bf2e1c01726dd8ab9d13255fd75261e63ffa899ad2da83eab9516ba87",
+          "outputFormat": "gray8",
+          "rows": 200
+        },
+        {
+          "id": "grayscale_public_university",
+          "levels": [5, 10],
+          "license": "CC-BY-3.0",
+          "inputBytes": 63377,
+          "inputSha256": "b1c6fe79167858f86a23e0f32c1c5ee7602dae6f82991c1dd53bcb89a7d78606",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "multi-group global Palette and Squeeze transforms",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL Modular direct pixels require untransformed color, native resolution and no restoration filters"
+        },
+        {
+          "id": "lossless_pfm",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 774294,
+          "inputSha256": "61ae52b5851ab2e156aec1d22502e8e1ec0cdf6bc0d6a3956ac6d7d6d2969d5e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "floating-point samples",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL floating-point encoded samples are not supported yet"
+        },
+        {
+          "id": "lz77_flower",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 103540,
+          "inputSha256": "41046f0de4dd36177aefa9b53fe6c3cd35a8e2c215a8d41ca89a6a9bc7f27541",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "boundary": "M4 independent djxl comparison recorded in m4-conformance-validation.json",
+          "outputSha256": "653dd385329335314ef80321948463cc9d3db0b779fe716c6266f7646555ed90",
+          "outputFormat": "rgb8",
+          "rows": 244
+        },
+        {
+          "id": "noise",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 118125,
+          "inputSha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "noise_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 118125,
+          "inputSha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "opsin_inverse",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 118148,
+          "inputSha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "opsin_inverse_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 118148,
+          "inputSha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "common multi-group VarDCT",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL default XYB metadata is outside the implemented decode subset"
+        },
+        {
+          "id": "patches",
+          "levels": [10],
+          "license": "CC0",
+          "inputBytes": 66562,
+          "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "patches and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "patches_5",
+          "levels": [5],
+          "license": "CC0",
+          "inputBytes": 66562,
+          "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "patches and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "patches_lossless",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 34207,
+          "inputSha256": "2a47b6766264ac6243a43bbb85684688717591bb3bd9b4c2db56226192418b4e",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "lossless patches and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL Modular frame composition is not supported"
+        },
+        {
+          "id": "progressive",
+          "levels": [10],
+          "license": "Microsoft custom license",
+          "inputBytes": 467605,
+          "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad progressive VarDCT and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "progressive_5",
+          "levels": [5],
+          "license": "Microsoft custom license",
+          "inputBytes": 467605,
+          "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "broad progressive VarDCT and embedded ICC",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL reference frame dependency is not supported"
+        },
+        {
+          "id": "spot",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 392254,
+          "inputSha256": "69d48f7ace25683db9eb908f112cef112bd1583870abab0fbf166018889893fa",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "spot-color extra channels",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL extra-channel type 2 is not supported"
+        },
+        {
+          "id": "sunset_logo",
+          "levels": [5, 10],
+          "license": "CC0",
+          "inputBytes": 218,
+          "inputSha256": "6617480923e1fdef555e165a1e7df9ca648068dd0bdbc41a22c0e4213392d834",
+          "baselineClassification": "expected-unsupported",
+          "actualClassification": "expected-unsupported",
+          "matchesBaseline": true,
+          "boundary": "non-default image metadata",
+          "errorCode": "UNSUPPORTED_OPERATION",
+          "errorMessage": "JPEG XL frame blending is outside the implemented decode subset"
+        },
+        {
+          "id": "upsampling",
+          "levels": [10],
+          "license": "CC-BY-SA-3.0",
+          "inputBytes": 10567,
+          "inputSha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985",
+          "outputFormat": "rgba8",
+          "rows": 600
+        },
+        {
+          "id": "upsampling_5",
+          "levels": [5],
+          "license": "CC-BY-SA-3.0",
+          "inputBytes": 10567,
+          "inputSha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
+          "baselineClassification": "pass",
+          "actualClassification": "pass",
+          "matchesBaseline": true,
+          "outputSha256": "703f1a6ecfb02fab3489bd00a257e33185a4ea70152ae41b33a3669188880985",
+          "outputFormat": "rgba8",
+          "rows": 600
+        }
+      ]
+    }
+  },
+  "fixture": {
+    "path": "tests/fixtures/jpegxl/m7-effort1-context-map/manifest.json",
+    "sha256": "9fa0fcbca9efc8455bc49a038aff637087194fad86b726ebda32df3e3f50c342",
+    "value": {
+      "source": {
+        "id": "im26-1030",
+        "split": "development",
+        "sourceFamily": "1030",
+        "category": "1000-lilith-photos-general",
+        "description": "wooden-figure-planter",
+        "license": "PD-own",
+        "author": "lilith",
+        "originalFilename": "20230918_105951.jpg",
+        "sourcePath": "1000-lilith-photos-general/1030_general_wooden-figure-planter_hotel-zentik-project-valladolid_s23u_iso200-f2p4_20230918-105951_4000x3000.jpg",
+        "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/1000-lilith-photos-general/1030_general_wooden-figure-planter_hotel-zentik-project-valladolid_s23u_iso200-f2p4_20230918-105951_4000x3000.jpg",
+        "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+        "width": 4000,
+        "height": 3000,
+        "bytes": 2518240,
+        "format": "jpg",
+        "nativeDimensions": true,
+        "hdrCompanionUrl": null
+      },
+      "policy": "First-party effort-1 distance-1 encoding of the original licensed RGB8 source. The 192 group-local histogram sets require 285120 contexts. The complete 36-million-sample raster agrees with pinned libjxl and jxl-rs within one level; CI checks streamed coverage and 512 spatially distributed native-oracle samples.",
+      "width": 4000,
+      "height": 3000,
+      "encodedSha256": "76e8c8b48e231e56fdf58badc6d87449bd48082d54a7477313abe0db5b9f1ad5",
+      "nativePixelsSha256": "c5a36b99083866e62dcbd12825dc6608d370c4a39450ac29ea99e69543000736",
+      "maximumDifference": 2,
+      "verification": {
+        "results": [
+          {
+            "effort": 1,
+            "path": ".tmp/jpegxl-m7/runtime054-cold-0.jxl",
+            "encodedSha256": "76e8c8b48e231e56fdf58badc6d87449bd48082d54a7477313abe0db5b9f1ad5",
+            "bytes": 1911970,
+            "nativePixelsSha256": "c5a36b99083866e62dcbd12825dc6608d370c4a39450ac29ea99e69543000736",
+            "rustPixelsSha256": "5e42e2e6131c75808e2c511b7ca53122d7e43a8361a61fb1e33c66b5912d95bc",
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4965855358792123,
+              "samples": 36000000,
+              "rows": 3000
+            }
+          },
+          {
+            "effort": 3,
+            "path": ".tmp/jpegxl-m7/runtime-public054-cold.jxl",
+            "encodedSha256": "a7ddf89c74744c21f68a04f733668bb298e1f5365f65cb124f5eee18aba67c77",
+            "bytes": 1512186,
+            "nativePixelsSha256": "2e55cde17fde02b7f43ee3989daa19bb65017b60915c96413c74592b068d77e8",
+            "rustPixelsSha256": "c9caaeaa6f1362657ec3bcc0fc6cf6eabdb762b381b9845b90ef18a57566e55b",
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49660961641022533,
+              "samples": 36000000,
+              "rows": 3000
+            }
+          }
+        ],
+        "harnessSha256": "771c5f16c47af3053d7bf0a65160eb58d0c01b575dae89292598ac54146c53d8",
+        "tools": [
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+            "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+            "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+          }
+        ]
+      },
+      "samples": [
+        {
+          "pixel": 0,
+          "rgb": [96, 67, 41]
+        },
+        {
+          "pixel": 23483,
+          "rgb": [215, 213, 213]
+        },
+        {
+          "pixel": 46966,
+          "rgb": [214, 213, 211]
+        },
+        {
+          "pixel": 70450,
+          "rgb": [74, 38, 20]
+        },
+        {
+          "pixel": 93933,
+          "rgb": [80, 42, 30]
+        },
+        {
+          "pixel": 117416,
+          "rgb": [85, 42, 20]
+        },
+        {
+          "pixel": 140900,
+          "rgb": [89, 45, 20]
+        },
+        {
+          "pixel": 164383,
+          "rgb": [103, 51, 29]
+        },
+        {
+          "pixel": 187866,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 211350,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 234833,
+          "rgb": [60, 31, 17]
+        },
+        {
+          "pixel": 258317,
+          "rgb": [77, 39, 20]
+        },
+        {
+          "pixel": 281800,
+          "rgb": [104, 52, 28]
+        },
+        {
+          "pixel": 305283,
+          "rgb": [99, 52, 29]
+        },
+        {
+          "pixel": 328767,
+          "rgb": [84, 44, 25]
+        },
+        {
+          "pixel": 352250,
+          "rgb": [102, 52, 33]
+        },
+        {
+          "pixel": 375733,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 399217,
+          "rgb": [211, 208, 209]
+        },
+        {
+          "pixel": 422700,
+          "rgb": [72, 37, 23]
+        },
+        {
+          "pixel": 446183,
+          "rgb": [67, 28, 10]
+        },
+        {
+          "pixel": 469667,
+          "rgb": [91, 42, 21]
+        },
+        {
+          "pixel": 493150,
+          "rgb": [80, 44, 24]
+        },
+        {
+          "pixel": 516634,
+          "rgb": [85, 42, 15]
+        },
+        {
+          "pixel": 540117,
+          "rgb": [91, 45, 24]
+        },
+        {
+          "pixel": 563600,
+          "rgb": [212, 209, 211]
+        },
+        {
+          "pixel": 587084,
+          "rgb": [216, 214, 215]
+        },
+        {
+          "pixel": 610567,
+          "rgb": [64, 36, 22]
+        },
+        {
+          "pixel": 634050,
+          "rgb": [60, 31, 19]
+        },
+        {
+          "pixel": 657534,
+          "rgb": [97, 53, 31]
+        },
+        {
+          "pixel": 681017,
+          "rgb": [80, 37, 13]
+        },
+        {
+          "pixel": 704500,
+          "rgb": [114, 89, 71]
+        },
+        {
+          "pixel": 727984,
+          "rgb": [217, 215, 217]
+        },
+        {
+          "pixel": 751467,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 774951,
+          "rgb": [220, 218, 219]
+        },
+        {
+          "pixel": 798434,
+          "rgb": [131, 120, 114]
+        },
+        {
+          "pixel": 821917,
+          "rgb": [74, 39, 25]
+        },
+        {
+          "pixel": 845401,
+          "rgb": [85, 45, 24]
+        },
+        {
+          "pixel": 868884,
+          "rgb": [149, 142, 133]
+        },
+        {
+          "pixel": 892367,
+          "rgb": [160, 156, 150]
+        },
+        {
+          "pixel": 915851,
+          "rgb": [214, 211, 213]
+        },
+        {
+          "pixel": 939334,
+          "rgb": [218, 216, 219]
+        },
+        {
+          "pixel": 962817,
+          "rgb": [138, 137, 133]
+        },
+        {
+          "pixel": 986301,
+          "rgb": [155, 154, 149]
+        },
+        {
+          "pixel": 1009784,
+          "rgb": [129, 114, 104]
+        },
+        {
+          "pixel": 1033268,
+          "rgb": [159, 155, 149]
+        },
+        {
+          "pixel": 1056751,
+          "rgb": [160, 155, 152]
+        },
+        {
+          "pixel": 1080234,
+          "rgb": [171, 172, 174]
+        },
+        {
+          "pixel": 1103718,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 1127201,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 1150684,
+          "rgb": [146, 145, 140]
+        },
+        {
+          "pixel": 1174168,
+          "rgb": [157, 156, 151]
+        },
+        {
+          "pixel": 1197651,
+          "rgb": [157, 156, 151]
+        },
+        {
+          "pixel": 1221134,
+          "rgb": [158, 152, 150]
+        },
+        {
+          "pixel": 1244618,
+          "rgb": [156, 152, 145]
+        },
+        {
+          "pixel": 1268101,
+          "rgb": [183, 185, 186]
+        },
+        {
+          "pixel": 1291585,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 1315068,
+          "rgb": [211, 211, 213]
+        },
+        {
+          "pixel": 1338551,
+          "rgb": [147, 142, 135]
+        },
+        {
+          "pixel": 1362035,
+          "rgb": [152, 152, 146]
+        },
+        {
+          "pixel": 1385518,
+          "rgb": [161, 161, 155]
+        },
+        {
+          "pixel": 1409001,
+          "rgb": [157, 157, 152]
+        },
+        {
+          "pixel": 1432485,
+          "rgb": [160, 159, 154]
+        },
+        {
+          "pixel": 1455968,
+          "rgb": [214, 213, 213]
+        },
+        {
+          "pixel": 1479451,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 1502935,
+          "rgb": [213, 210, 212]
+        },
+        {
+          "pixel": 1526418,
+          "rgb": [154, 149, 142]
+        },
+        {
+          "pixel": 1549902,
+          "rgb": [154, 153, 149]
+        },
+        {
+          "pixel": 1573385,
+          "rgb": [154, 152, 148]
+        },
+        {
+          "pixel": 1596868,
+          "rgb": [164, 162, 159]
+        },
+        {
+          "pixel": 1620352,
+          "rgb": [155, 154, 149]
+        },
+        {
+          "pixel": 1643835,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 1667318,
+          "rgb": [214, 211, 213]
+        },
+        {
+          "pixel": 1690802,
+          "rgb": [29, 20, 19]
+        },
+        {
+          "pixel": 1714285,
+          "rgb": [151, 149, 145]
+        },
+        {
+          "pixel": 1737768,
+          "rgb": [159, 158, 153]
+        },
+        {
+          "pixel": 1761252,
+          "rgb": [162, 161, 157]
+        },
+        {
+          "pixel": 1784735,
+          "rgb": [162, 160, 157]
+        },
+        {
+          "pixel": 1808219,
+          "rgb": [169, 169, 171]
+        },
+        {
+          "pixel": 1831702,
+          "rgb": [215, 212, 214]
+        },
+        {
+          "pixel": 1855185,
+          "rgb": [211, 208, 209]
+        },
+        {
+          "pixel": 1878669,
+          "rgb": [135, 109, 94]
+        },
+        {
+          "pixel": 1902152,
+          "rgb": [160, 158, 155]
+        },
+        {
+          "pixel": 1925635,
+          "rgb": [166, 166, 158]
+        },
+        {
+          "pixel": 1949119,
+          "rgb": [163, 161, 158]
+        },
+        {
+          "pixel": 1972602,
+          "rgb": [161, 162, 157]
+        },
+        {
+          "pixel": 1996085,
+          "rgb": [188, 189, 191]
+        },
+        {
+          "pixel": 2019569,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 2043052,
+          "rgb": [216, 213, 214]
+        },
+        {
+          "pixel": 2066536,
+          "rgb": [121, 93, 80]
+        },
+        {
+          "pixel": 2090019,
+          "rgb": [163, 162, 159]
+        },
+        {
+          "pixel": 2113502,
+          "rgb": [162, 163, 157]
+        },
+        {
+          "pixel": 2136986,
+          "rgb": [162, 162, 158]
+        },
+        {
+          "pixel": 2160469,
+          "rgb": [161, 162, 157]
+        },
+        {
+          "pixel": 2183952,
+          "rgb": [217, 214, 215]
+        },
+        {
+          "pixel": 2207436,
+          "rgb": [215, 212, 213]
+        },
+        {
+          "pixel": 2230919,
+          "rgb": [213, 208, 207]
+        },
+        {
+          "pixel": 2254402,
+          "rgb": [178, 151, 134]
+        },
+        {
+          "pixel": 2277886,
+          "rgb": [164, 163, 159]
+        },
+        {
+          "pixel": 2301369,
+          "rgb": [161, 162, 157]
+        },
+        {
+          "pixel": 2324853,
+          "rgb": [162, 163, 159]
+        },
+        {
+          "pixel": 2348336,
+          "rgb": [160, 161, 156]
+        },
+        {
+          "pixel": 2371819,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 2395303,
+          "rgb": [217, 215, 216]
+        },
+        {
+          "pixel": 2418786,
+          "rgb": [57, 39, 32]
+        },
+        {
+          "pixel": 2442269,
+          "rgb": [168, 118, 106]
+        },
+        {
+          "pixel": 2465753,
+          "rgb": [161, 162, 157]
+        },
+        {
+          "pixel": 2489236,
+          "rgb": [160, 162, 157]
+        },
+        {
+          "pixel": 2512719,
+          "rgb": [163, 163, 159]
+        },
+        {
+          "pixel": 2536203,
+          "rgb": [180, 182, 184]
+        },
+        {
+          "pixel": 2559686,
+          "rgb": [214, 213, 214]
+        },
+        {
+          "pixel": 2583170,
+          "rgb": [212, 210, 210]
+        },
+        {
+          "pixel": 2606653,
+          "rgb": [137, 102, 87]
+        },
+        {
+          "pixel": 2630136,
+          "rgb": [32, 18, 14]
+        },
+        {
+          "pixel": 2653620,
+          "rgb": [159, 160, 155]
+        },
+        {
+          "pixel": 2677103,
+          "rgb": [167, 169, 164]
+        },
+        {
+          "pixel": 2700586,
+          "rgb": [165, 166, 161]
+        },
+        {
+          "pixel": 2724070,
+          "rgb": [97, 96, 97]
+        },
+        {
+          "pixel": 2747553,
+          "rgb": [216, 214, 214]
+        },
+        {
+          "pixel": 2771036,
+          "rgb": [207, 205, 205]
+        },
+        {
+          "pixel": 2794520,
+          "rgb": [68, 40, 40]
+        },
+        {
+          "pixel": 2818003,
+          "rgb": [168, 168, 165]
+        },
+        {
+          "pixel": 2841487,
+          "rgb": [166, 166, 161]
+        },
+        {
+          "pixel": 2864970,
+          "rgb": [163, 164, 159]
+        },
+        {
+          "pixel": 2888453,
+          "rgb": [161, 160, 155]
+        },
+        {
+          "pixel": 2911937,
+          "rgb": [217, 215, 215]
+        },
+        {
+          "pixel": 2935420,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 2958903,
+          "rgb": [200, 200, 202]
+        },
+        {
+          "pixel": 2982387,
+          "rgb": [202, 184, 170]
+        },
+        {
+          "pixel": 3005870,
+          "rgb": [92, 68, 54]
+        },
+        {
+          "pixel": 3029353,
+          "rgb": [162, 163, 158]
+        },
+        {
+          "pixel": 3052837,
+          "rgb": [164, 165, 160]
+        },
+        {
+          "pixel": 3076320,
+          "rgb": [167, 168, 163]
+        },
+        {
+          "pixel": 3099804,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 3123287,
+          "rgb": [216, 214, 215]
+        },
+        {
+          "pixel": 3146770,
+          "rgb": [44, 34, 28]
+        },
+        {
+          "pixel": 3170254,
+          "rgb": [98, 82, 72]
+        },
+        {
+          "pixel": 3193737,
+          "rgb": [97, 73, 61]
+        },
+        {
+          "pixel": 3217220,
+          "rgb": [164, 166, 161]
+        },
+        {
+          "pixel": 3240704,
+          "rgb": [167, 166, 161]
+        },
+        {
+          "pixel": 3264187,
+          "rgb": [191, 193, 196]
+        },
+        {
+          "pixel": 3287670,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 3311154,
+          "rgb": [212, 209, 211]
+        },
+        {
+          "pixel": 3334637,
+          "rgb": [43, 37, 36]
+        },
+        {
+          "pixel": 3358121,
+          "rgb": [64, 52, 51]
+        },
+        {
+          "pixel": 3381604,
+          "rgb": [170, 146, 131]
+        },
+        {
+          "pixel": 3405087,
+          "rgb": [129, 135, 122]
+        },
+        {
+          "pixel": 3428571,
+          "rgb": [170, 169, 165]
+        },
+        {
+          "pixel": 3452054,
+          "rgb": [28, 29, 31]
+        },
+        {
+          "pixel": 3475537,
+          "rgb": [211, 208, 212]
+        },
+        {
+          "pixel": 3499021,
+          "rgb": [210, 207, 209]
+        },
+        {
+          "pixel": 3522504,
+          "rgb": [165, 125, 108]
+        },
+        {
+          "pixel": 3545987,
+          "rgb": [150, 110, 92]
+        },
+        {
+          "pixel": 3569471,
+          "rgb": [100, 88, 86]
+        },
+        {
+          "pixel": 3592954,
+          "rgb": [170, 171, 165]
+        },
+        {
+          "pixel": 3616438,
+          "rgb": [166, 168, 163]
+        },
+        {
+          "pixel": 3639921,
+          "rgb": [214, 211, 213]
+        },
+        {
+          "pixel": 3663404,
+          "rgb": [213, 210, 211]
+        },
+        {
+          "pixel": 3686888,
+          "rgb": [168, 167, 169]
+        },
+        {
+          "pixel": 3710371,
+          "rgb": [180, 162, 152]
+        },
+        {
+          "pixel": 3733854,
+          "rgb": [181, 149, 132]
+        },
+        {
+          "pixel": 3757338,
+          "rgb": [163, 164, 159]
+        },
+        {
+          "pixel": 3780821,
+          "rgb": [167, 168, 163]
+        },
+        {
+          "pixel": 3804304,
+          "rgb": [169, 171, 165]
+        },
+        {
+          "pixel": 3827788,
+          "rgb": [216, 215, 215]
+        },
+        {
+          "pixel": 3851271,
+          "rgb": [212, 211, 211]
+        },
+        {
+          "pixel": 3874755,
+          "rgb": [94, 73, 63]
+        },
+        {
+          "pixel": 3898238,
+          "rgb": [40, 34, 33]
+        },
+        {
+          "pixel": 3921721,
+          "rgb": [130, 90, 77]
+        },
+        {
+          "pixel": 3945205,
+          "rgb": [166, 168, 162]
+        },
+        {
+          "pixel": 3968688,
+          "rgb": [168, 169, 162]
+        },
+        {
+          "pixel": 3992171,
+          "rgb": [127, 133, 122]
+        },
+        {
+          "pixel": 4015655,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 4039138,
+          "rgb": [213, 211, 213]
+        },
+        {
+          "pixel": 4062621,
+          "rgb": [155, 137, 127]
+        },
+        {
+          "pixel": 4086105,
+          "rgb": [113, 70, 51]
+        },
+        {
+          "pixel": 4109588,
+          "rgb": [31, 30, 29]
+        },
+        {
+          "pixel": 4133072,
+          "rgb": [173, 174, 169]
+        },
+        {
+          "pixel": 4156555,
+          "rgb": [175, 176, 171]
+        },
+        {
+          "pixel": 4180038,
+          "rgb": [185, 186, 188]
+        },
+        {
+          "pixel": 4203522,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 4227005,
+          "rgb": [216, 215, 212]
+        },
+        {
+          "pixel": 4250488,
+          "rgb": [157, 111, 99]
+        },
+        {
+          "pixel": 4273972,
+          "rgb": [105, 75, 53]
+        },
+        {
+          "pixel": 4297455,
+          "rgb": [66, 66, 74]
+        },
+        {
+          "pixel": 4320938,
+          "rgb": [176, 178, 172]
+        },
+        {
+          "pixel": 4344422,
+          "rgb": [170, 169, 164]
+        },
+        {
+          "pixel": 4367905,
+          "rgb": [216, 214, 214]
+        },
+        {
+          "pixel": 4391389,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 4414872,
+          "rgb": [180, 172, 169]
+        },
+        {
+          "pixel": 4438355,
+          "rgb": [186, 164, 148]
+        },
+        {
+          "pixel": 4461839,
+          "rgb": [165, 140, 123]
+        },
+        {
+          "pixel": 4485322,
+          "rgb": [223, 218, 208]
+        },
+        {
+          "pixel": 4508805,
+          "rgb": [79, 99, 76]
+        },
+        {
+          "pixel": 4532289,
+          "rgb": [73, 102, 77]
+        },
+        {
+          "pixel": 4555772,
+          "rgb": [214, 212, 214]
+        },
+        {
+          "pixel": 4579255,
+          "rgb": [209, 206, 208]
+        },
+        {
+          "pixel": 4602739,
+          "rgb": [186, 157, 137]
+        },
+        {
+          "pixel": 4626222,
+          "rgb": [33, 23, 24]
+        },
+        {
+          "pixel": 4649706,
+          "rgb": [156, 126, 113]
+        },
+        {
+          "pixel": 4673189,
+          "rgb": [105, 105, 110]
+        },
+        {
+          "pixel": 4696672,
+          "rgb": [75, 98, 58]
+        },
+        {
+          "pixel": 4720156,
+          "rgb": [77, 105, 84]
+        },
+        {
+          "pixel": 4743639,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 4767122,
+          "rgb": [216, 213, 214]
+        },
+        {
+          "pixel": 4790606,
+          "rgb": [48, 31, 26]
+        },
+        {
+          "pixel": 4814089,
+          "rgb": [78, 49, 25]
+        },
+        {
+          "pixel": 4837572,
+          "rgb": [57, 45, 42]
+        },
+        {
+          "pixel": 4861056,
+          "rgb": [22, 28, 24]
+        },
+        {
+          "pixel": 4884539,
+          "rgb": [182, 185, 163]
+        },
+        {
+          "pixel": 4908023,
+          "rgb": [110, 132, 97]
+        },
+        {
+          "pixel": 4931506,
+          "rgb": [212, 210, 211]
+        },
+        {
+          "pixel": 4954989,
+          "rgb": [215, 215, 215]
+        },
+        {
+          "pixel": 4978473,
+          "rgb": [146, 110, 90]
+        },
+        {
+          "pixel": 5001956,
+          "rgb": [107, 85, 70]
+        },
+        {
+          "pixel": 5025439,
+          "rgb": [49, 44, 43]
+        },
+        {
+          "pixel": 5048923,
+          "rgb": [19, 31, 13]
+        },
+        {
+          "pixel": 5072406,
+          "rgb": [17, 45, 8]
+        },
+        {
+          "pixel": 5095889,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 5119373,
+          "rgb": [213, 211, 211]
+        },
+        {
+          "pixel": 5142856,
+          "rgb": [160, 135, 118]
+        },
+        {
+          "pixel": 5166340,
+          "rgb": [40, 36, 32]
+        },
+        {
+          "pixel": 5189823,
+          "rgb": [42, 28, 27]
+        },
+        {
+          "pixel": 5213306,
+          "rgb": [164, 137, 120]
+        },
+        {
+          "pixel": 5236790,
+          "rgb": [9, 24, 7]
+        },
+        {
+          "pixel": 5260273,
+          "rgb": [126, 145, 47]
+        },
+        {
+          "pixel": 5283756,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 5307240,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 5330723,
+          "rgb": [145, 120, 108]
+        },
+        {
+          "pixel": 5354206,
+          "rgb": [112, 92, 78]
+        },
+        {
+          "pixel": 5377690,
+          "rgb": [174, 151, 127]
+        },
+        {
+          "pixel": 5401173,
+          "rgb": [188, 160, 141]
+        },
+        {
+          "pixel": 5424657,
+          "rgb": [25, 45, 23]
+        },
+        {
+          "pixel": 5448140,
+          "rgb": [170, 166, 163]
+        },
+        {
+          "pixel": 5471623,
+          "rgb": [211, 209, 209]
+        },
+        {
+          "pixel": 5495107,
+          "rgb": [211, 209, 209]
+        },
+        {
+          "pixel": 5518590,
+          "rgb": [157, 109, 81]
+        },
+        {
+          "pixel": 5542073,
+          "rgb": [87, 47, 16]
+        },
+        {
+          "pixel": 5565557,
+          "rgb": [73, 66, 64]
+        },
+        {
+          "pixel": 5589040,
+          "rgb": [160, 136, 108]
+        },
+        {
+          "pixel": 5612523,
+          "rgb": [187, 188, 184]
+        },
+        {
+          "pixel": 5636007,
+          "rgb": [127, 136, 134]
+        },
+        {
+          "pixel": 5659490,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 5682974,
+          "rgb": [211, 206, 203]
+        },
+        {
+          "pixel": 5706457,
+          "rgb": [177, 137, 115]
+        },
+        {
+          "pixel": 5729940,
+          "rgb": [85, 49, 28]
+        },
+        {
+          "pixel": 5753424,
+          "rgb": [37, 27, 21]
+        },
+        {
+          "pixel": 5776907,
+          "rgb": [34, 49, 25]
+        },
+        {
+          "pixel": 5800390,
+          "rgb": [67, 86, 66]
+        },
+        {
+          "pixel": 5823874,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 5847357,
+          "rgb": [212, 207, 208]
+        },
+        {
+          "pixel": 5870840,
+          "rgb": [213, 207, 204]
+        },
+        {
+          "pixel": 5894324,
+          "rgb": [58, 48, 37]
+        },
+        {
+          "pixel": 5917807,
+          "rgb": [33, 27, 29]
+        },
+        {
+          "pixel": 5941291,
+          "rgb": [72, 56, 44]
+        },
+        {
+          "pixel": 5964774,
+          "rgb": [30, 44, 26]
+        },
+        {
+          "pixel": 5988257,
+          "rgb": [179, 179, 177]
+        },
+        {
+          "pixel": 6011741,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 6035224,
+          "rgb": [207, 204, 206]
+        },
+        {
+          "pixel": 6058707,
+          "rgb": [114, 79, 58]
+        },
+        {
+          "pixel": 6082191,
+          "rgb": [41, 22, 15]
+        },
+        {
+          "pixel": 6105674,
+          "rgb": [51, 45, 41]
+        },
+        {
+          "pixel": 6129158,
+          "rgb": [173, 173, 168]
+        },
+        {
+          "pixel": 6152641,
+          "rgb": [28, 64, 23]
+        },
+        {
+          "pixel": 6176124,
+          "rgb": [132, 107, 101]
+        },
+        {
+          "pixel": 6199608,
+          "rgb": [212, 209, 211]
+        },
+        {
+          "pixel": 6223091,
+          "rgb": [212, 213, 213]
+        },
+        {
+          "pixel": 6246574,
+          "rgb": [176, 130, 105]
+        },
+        {
+          "pixel": 6270058,
+          "rgb": [82, 46, 31]
+        },
+        {
+          "pixel": 6293541,
+          "rgb": [134, 105, 86]
+        },
+        {
+          "pixel": 6317024,
+          "rgb": [167, 169, 163]
+        },
+        {
+          "pixel": 6340508,
+          "rgb": [15, 44, 21]
+        },
+        {
+          "pixel": 6363991,
+          "rgb": [214, 211, 213]
+        },
+        {
+          "pixel": 6387475,
+          "rgb": [215, 213, 213]
+        },
+        {
+          "pixel": 6410958,
+          "rgb": [219, 214, 213]
+        },
+        {
+          "pixel": 6434441,
+          "rgb": [52, 34, 20]
+        },
+        {
+          "pixel": 6457925,
+          "rgb": [145, 113, 95]
+        },
+        {
+          "pixel": 6481408,
+          "rgb": [207, 187, 160]
+        },
+        {
+          "pixel": 6504891,
+          "rgb": [174, 175, 170]
+        },
+        {
+          "pixel": 6528375,
+          "rgb": [68, 90, 60]
+        },
+        {
+          "pixel": 6551858,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 6575341,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 6598825,
+          "rgb": [216, 211, 209]
+        },
+        {
+          "pixel": 6622308,
+          "rgb": [26, 21, 19]
+        },
+        {
+          "pixel": 6645792,
+          "rgb": [8, 5, 6]
+        },
+        {
+          "pixel": 6669275,
+          "rgb": [145, 120, 102]
+        },
+        {
+          "pixel": 6692758,
+          "rgb": [176, 177, 172]
+        },
+        {
+          "pixel": 6716242,
+          "rgb": [187, 187, 188]
+        },
+        {
+          "pixel": 6739725,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 6763208,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 6786692,
+          "rgb": [20, 21, 17]
+        },
+        {
+          "pixel": 6810175,
+          "rgb": [92, 57, 39]
+        },
+        {
+          "pixel": 6833658,
+          "rgb": [65, 44, 37]
+        },
+        {
+          "pixel": 6857142,
+          "rgb": [30, 47, 16]
+        },
+        {
+          "pixel": 6880625,
+          "rgb": [168, 169, 164]
+        },
+        {
+          "pixel": 6904109,
+          "rgb": [76, 56, 57]
+        },
+        {
+          "pixel": 6927592,
+          "rgb": [215, 212, 213]
+        },
+        {
+          "pixel": 6951075,
+          "rgb": [218, 217, 217]
+        },
+        {
+          "pixel": 6974559,
+          "rgb": [40, 33, 32]
+        },
+        {
+          "pixel": 6998042,
+          "rgb": [106, 69, 54]
+        },
+        {
+          "pixel": 7021525,
+          "rgb": [115, 87, 71]
+        },
+        {
+          "pixel": 7045009,
+          "rgb": [168, 169, 163]
+        },
+        {
+          "pixel": 7068492,
+          "rgb": [170, 170, 168]
+        },
+        {
+          "pixel": 7091975,
+          "rgb": [215, 212, 213]
+        },
+        {
+          "pixel": 7115459,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 7138942,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 7162426,
+          "rgb": [21, 16, 12]
+        },
+        {
+          "pixel": 7185909,
+          "rgb": [95, 76, 65]
+        },
+        {
+          "pixel": 7209392,
+          "rgb": [180, 164, 146]
+        },
+        {
+          "pixel": 7232876,
+          "rgb": [167, 168, 163]
+        },
+        {
+          "pixel": 7256359,
+          "rgb": [143, 139, 133]
+        },
+        {
+          "pixel": 7279842,
+          "rgb": [215, 212, 213]
+        },
+        {
+          "pixel": 7303326,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 7326809,
+          "rgb": [218, 212, 210]
+        },
+        {
+          "pixel": 7350292,
+          "rgb": [169, 169, 167]
+        },
+        {
+          "pixel": 7373776,
+          "rgb": [172, 173, 170]
+        },
+        {
+          "pixel": 7397259,
+          "rgb": [109, 119, 112]
+        },
+        {
+          "pixel": 7420743,
+          "rgb": [170, 171, 166]
+        },
+        {
+          "pixel": 7444226,
+          "rgb": [115, 96, 76]
+        },
+        {
+          "pixel": 7467709,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 7491193,
+          "rgb": [207, 206, 206]
+        },
+        {
+          "pixel": 7514676,
+          "rgb": [138, 92, 79]
+        },
+        {
+          "pixel": 7538159,
+          "rgb": [167, 167, 165]
+        },
+        {
+          "pixel": 7561643,
+          "rgb": [166, 166, 162]
+        },
+        {
+          "pixel": 7585126,
+          "rgb": [171, 171, 169]
+        },
+        {
+          "pixel": 7608609,
+          "rgb": [170, 172, 166]
+        },
+        {
+          "pixel": 7632093,
+          "rgb": [104, 81, 66]
+        },
+        {
+          "pixel": 7655576,
+          "rgb": [215, 213, 213]
+        },
+        {
+          "pixel": 7679060,
+          "rgb": [208, 206, 207]
+        },
+        {
+          "pixel": 7702543,
+          "rgb": [191, 149, 134]
+        },
+        {
+          "pixel": 7726026,
+          "rgb": [167, 167, 165]
+        },
+        {
+          "pixel": 7749510,
+          "rgb": [170, 169, 168]
+        },
+        {
+          "pixel": 7772993,
+          "rgb": [169, 171, 165]
+        },
+        {
+          "pixel": 7796476,
+          "rgb": [171, 171, 166]
+        },
+        {
+          "pixel": 7819960,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 7843443,
+          "rgb": [213, 210, 212]
+        },
+        {
+          "pixel": 7866926,
+          "rgb": [219, 219, 216]
+        },
+        {
+          "pixel": 7890410,
+          "rgb": [191, 161, 142]
+        },
+        {
+          "pixel": 7913893,
+          "rgb": [165, 165, 164]
+        },
+        {
+          "pixel": 7937377,
+          "rgb": [165, 166, 161]
+        },
+        {
+          "pixel": 7960860,
+          "rgb": [165, 165, 163]
+        },
+        {
+          "pixel": 7984343,
+          "rgb": [176, 177, 167]
+        },
+        {
+          "pixel": 8007827,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 8031310,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 8054793,
+          "rgb": [174, 159, 154]
+        },
+        {
+          "pixel": 8078277,
+          "rgb": [160, 160, 158]
+        },
+        {
+          "pixel": 8101760,
+          "rgb": [169, 171, 168]
+        },
+        {
+          "pixel": 8125243,
+          "rgb": [170, 170, 168]
+        },
+        {
+          "pixel": 8148727,
+          "rgb": [173, 173, 171]
+        },
+        {
+          "pixel": 8172210,
+          "rgb": [186, 186, 177]
+        },
+        {
+          "pixel": 8195694,
+          "rgb": [215, 212, 213]
+        },
+        {
+          "pixel": 8219177,
+          "rgb": [211, 208, 209]
+        },
+        {
+          "pixel": 8242660,
+          "rgb": [99, 51, 39]
+        },
+        {
+          "pixel": 8266144,
+          "rgb": [163, 164, 164]
+        },
+        {
+          "pixel": 8289627,
+          "rgb": [168, 167, 165]
+        },
+        {
+          "pixel": 8313110,
+          "rgb": [167, 166, 165]
+        },
+        {
+          "pixel": 8336594,
+          "rgb": [167, 168, 163]
+        },
+        {
+          "pixel": 8360077,
+          "rgb": [90, 66, 47]
+        },
+        {
+          "pixel": 8383560,
+          "rgb": [218, 216, 217]
+        },
+        {
+          "pixel": 8407044,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 8430527,
+          "rgb": [195, 168, 158]
+        },
+        {
+          "pixel": 8454011,
+          "rgb": [146, 146, 142]
+        },
+        {
+          "pixel": 8477494,
+          "rgb": [167, 166, 164]
+        },
+        {
+          "pixel": 8500977,
+          "rgb": [170, 169, 168]
+        },
+        {
+          "pixel": 8524461,
+          "rgb": [173, 171, 166]
+        },
+        {
+          "pixel": 8547944,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 8571427,
+          "rgb": [208, 206, 207]
+        },
+        {
+          "pixel": 8594911,
+          "rgb": [194, 194, 198]
+        },
+        {
+          "pixel": 8618394,
+          "rgb": [190, 157, 141]
+        },
+        {
+          "pixel": 8641877,
+          "rgb": [168, 170, 167]
+        },
+        {
+          "pixel": 8665361,
+          "rgb": [166, 166, 163]
+        },
+        {
+          "pixel": 8688844,
+          "rgb": [161, 161, 159]
+        },
+        {
+          "pixel": 8712328,
+          "rgb": [172, 174, 169]
+        },
+        {
+          "pixel": 8735811,
+          "rgb": [213, 211, 213]
+        },
+        {
+          "pixel": 8759294,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 8782778,
+          "rgb": [60, 49, 39]
+        },
+        {
+          "pixel": 8806261,
+          "rgb": [136, 137, 129]
+        },
+        {
+          "pixel": 8829744,
+          "rgb": [164, 167, 165]
+        },
+        {
+          "pixel": 8853228,
+          "rgb": [165, 167, 162]
+        },
+        {
+          "pixel": 8876711,
+          "rgb": [172, 173, 168]
+        },
+        {
+          "pixel": 8900194,
+          "rgb": [172, 174, 172]
+        },
+        {
+          "pixel": 8923678,
+          "rgb": [214, 212, 213]
+        },
+        {
+          "pixel": 8947161,
+          "rgb": [210, 207, 209]
+        },
+        {
+          "pixel": 8970645,
+          "rgb": [185, 158, 139]
+        },
+        {
+          "pixel": 8994128,
+          "rgb": [159, 159, 157]
+        },
+        {
+          "pixel": 9017611,
+          "rgb": [168, 167, 166]
+        },
+        {
+          "pixel": 9041095,
+          "rgb": [163, 164, 159]
+        },
+        {
+          "pixel": 9064578,
+          "rgb": [164, 166, 159]
+        },
+        {
+          "pixel": 9088061,
+          "rgb": [100, 82, 79]
+        },
+        {
+          "pixel": 9111545,
+          "rgb": [213, 210, 212]
+        },
+        {
+          "pixel": 9135028,
+          "rgb": [210, 207, 203]
+        },
+        {
+          "pixel": 9158511,
+          "rgb": [71, 59, 51]
+        },
+        {
+          "pixel": 9181995,
+          "rgb": [168, 169, 166]
+        },
+        {
+          "pixel": 9205478,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 9228962,
+          "rgb": [164, 163, 162]
+        },
+        {
+          "pixel": 9252445,
+          "rgb": [162, 163, 158]
+        },
+        {
+          "pixel": 9275928,
+          "rgb": [215, 213, 214]
+        },
+        {
+          "pixel": 9299412,
+          "rgb": [210, 207, 209]
+        },
+        {
+          "pixel": 9322895,
+          "rgb": [184, 185, 184]
+        },
+        {
+          "pixel": 9346378,
+          "rgb": [117, 105, 97]
+        },
+        {
+          "pixel": 9369862,
+          "rgb": [163, 164, 161]
+        },
+        {
+          "pixel": 9393345,
+          "rgb": [169, 169, 167]
+        },
+        {
+          "pixel": 9416828,
+          "rgb": [165, 166, 162]
+        },
+        {
+          "pixel": 9440312,
+          "rgb": [164, 164, 161]
+        },
+        {
+          "pixel": 9463795,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 9487279,
+          "rgb": [213, 210, 212]
+        },
+        {
+          "pixel": 9510762,
+          "rgb": [35, 40, 34]
+        },
+        {
+          "pixel": 9534245,
+          "rgb": [162, 162, 160]
+        },
+        {
+          "pixel": 9557729,
+          "rgb": [165, 165, 163]
+        },
+        {
+          "pixel": 9581212,
+          "rgb": [166, 165, 163]
+        },
+        {
+          "pixel": 9604695,
+          "rgb": [163, 164, 158]
+        },
+        {
+          "pixel": 9628179,
+          "rgb": [140, 137, 121]
+        },
+        {
+          "pixel": 9651662,
+          "rgb": [215, 212, 215]
+        },
+        {
+          "pixel": 9675145,
+          "rgb": [212, 209, 210]
+        },
+        {
+          "pixel": 9698629,
+          "rgb": [158, 158, 155]
+        },
+        {
+          "pixel": 9722112,
+          "rgb": [159, 160, 158]
+        },
+        {
+          "pixel": 9745596,
+          "rgb": [168, 168, 165]
+        },
+        {
+          "pixel": 9769079,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 9792562,
+          "rgb": [165, 167, 162]
+        },
+        {
+          "pixel": 9816046,
+          "rgb": [107, 77, 56]
+        },
+        {
+          "pixel": 9839529,
+          "rgb": [212, 209, 211]
+        },
+        {
+          "pixel": 9863012,
+          "rgb": [212, 209, 211]
+        },
+        {
+          "pixel": 9886496,
+          "rgb": [161, 161, 160]
+        },
+        {
+          "pixel": 9909979,
+          "rgb": [165, 165, 164]
+        },
+        {
+          "pixel": 9933462,
+          "rgb": [164, 164, 161]
+        },
+        {
+          "pixel": 9956946,
+          "rgb": [168, 168, 165]
+        },
+        {
+          "pixel": 9980429,
+          "rgb": [169, 168, 163]
+        },
+        {
+          "pixel": 10003913,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 10027396,
+          "rgb": [212, 209, 210]
+        },
+        {
+          "pixel": 10050879,
+          "rgb": [210, 205, 202]
+        },
+        {
+          "pixel": 10074363,
+          "rgb": [157, 157, 155]
+        },
+        {
+          "pixel": 10097846,
+          "rgb": [164, 164, 161]
+        },
+        {
+          "pixel": 10121329,
+          "rgb": [164, 163, 162]
+        },
+        {
+          "pixel": 10144813,
+          "rgb": [165, 166, 161]
+        },
+        {
+          "pixel": 10168296,
+          "rgb": [178, 176, 171]
+        },
+        {
+          "pixel": 10191779,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 10215263,
+          "rgb": [210, 208, 209]
+        },
+        {
+          "pixel": 10238746,
+          "rgb": [140, 139, 137]
+        },
+        {
+          "pixel": 10262230,
+          "rgb": [163, 163, 162]
+        },
+        {
+          "pixel": 10285713,
+          "rgb": [164, 165, 162]
+        },
+        {
+          "pixel": 10309196,
+          "rgb": [165, 164, 163]
+        },
+        {
+          "pixel": 10332680,
+          "rgb": [169, 169, 167]
+        },
+        {
+          "pixel": 10356163,
+          "rgb": [90, 68, 46]
+        },
+        {
+          "pixel": 10379646,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 10403130,
+          "rgb": [209, 207, 208]
+        },
+        {
+          "pixel": 10426613,
+          "rgb": [158, 158, 156]
+        },
+        {
+          "pixel": 10450096,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 10473580,
+          "rgb": [169, 168, 166]
+        },
+        {
+          "pixel": 10497063,
+          "rgb": [167, 167, 166]
+        },
+        {
+          "pixel": 10520547,
+          "rgb": [165, 165, 163]
+        },
+        {
+          "pixel": 10544030,
+          "rgb": [126, 103, 81]
+        },
+        {
+          "pixel": 10567513,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 10590997,
+          "rgb": [208, 205, 206]
+        },
+        {
+          "pixel": 10614480,
+          "rgb": [160, 159, 157]
+        },
+        {
+          "pixel": 10637963,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 10661447,
+          "rgb": [163, 163, 160]
+        },
+        {
+          "pixel": 10684930,
+          "rgb": [166, 167, 165]
+        },
+        {
+          "pixel": 10708413,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 10731897,
+          "rgb": [213, 212, 213]
+        },
+        {
+          "pixel": 10755380,
+          "rgb": [213, 211, 212]
+        },
+        {
+          "pixel": 10778864,
+          "rgb": [211, 206, 207]
+        },
+        {
+          "pixel": 10802347,
+          "rgb": [159, 159, 157]
+        },
+        {
+          "pixel": 10825830,
+          "rgb": [166, 166, 164]
+        },
+        {
+          "pixel": 10849314,
+          "rgb": [164, 164, 161]
+        },
+        {
+          "pixel": 10872797,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 10896280,
+          "rgb": [177, 177, 177]
+        },
+        {
+          "pixel": 10919764,
+          "rgb": [212, 209, 210]
+        },
+        {
+          "pixel": 10943247,
+          "rgb": [211, 210, 210]
+        },
+        {
+          "pixel": 10966730,
+          "rgb": [150, 150, 148]
+        },
+        {
+          "pixel": 10990214,
+          "rgb": [166, 165, 166]
+        },
+        {
+          "pixel": 11013697,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 11037181,
+          "rgb": [163, 163, 161]
+        },
+        {
+          "pixel": 11060664,
+          "rgb": [165, 165, 163]
+        },
+        {
+          "pixel": 11084147,
+          "rgb": [62, 60, 36]
+        },
+        {
+          "pixel": 11107631,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 11131114,
+          "rgb": [208, 206, 207]
+        },
+        {
+          "pixel": 11154597,
+          "rgb": [159, 159, 157]
+        },
+        {
+          "pixel": 11178081,
+          "rgb": [160, 160, 158]
+        },
+        {
+          "pixel": 11201564,
+          "rgb": [166, 166, 164]
+        },
+        {
+          "pixel": 11225047,
+          "rgb": [163, 162, 160]
+        },
+        {
+          "pixel": 11248531,
+          "rgb": [168, 168, 165]
+        },
+        {
+          "pixel": 11272014,
+          "rgb": [39, 40, 41]
+        },
+        {
+          "pixel": 11295498,
+          "rgb": [211, 209, 210]
+        },
+        {
+          "pixel": 11318981,
+          "rgb": [205, 202, 204]
+        },
+        {
+          "pixel": 11342464,
+          "rgb": [165, 165, 165]
+        },
+        {
+          "pixel": 11365948,
+          "rgb": [159, 159, 156]
+        },
+        {
+          "pixel": 11389431,
+          "rgb": [167, 167, 165]
+        },
+        {
+          "pixel": 11412914,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 11436398,
+          "rgb": [169, 170, 170]
+        },
+        {
+          "pixel": 11459881,
+          "rgb": [213, 211, 211]
+        },
+        {
+          "pixel": 11483364,
+          "rgb": [214, 211, 212]
+        },
+        {
+          "pixel": 11506848,
+          "rgb": [208, 207, 205]
+        },
+        {
+          "pixel": 11530331,
+          "rgb": [161, 161, 161]
+        },
+        {
+          "pixel": 11553815,
+          "rgb": [158, 158, 157]
+        },
+        {
+          "pixel": 11577298,
+          "rgb": [161, 162, 159]
+        },
+        {
+          "pixel": 11600781,
+          "rgb": [163, 163, 161]
+        },
+        {
+          "pixel": 11624265,
+          "rgb": [183, 184, 186]
+        },
+        {
+          "pixel": 11647748,
+          "rgb": [213, 210, 211]
+        },
+        {
+          "pixel": 11671231,
+          "rgb": [209, 207, 209]
+        },
+        {
+          "pixel": 11694715,
+          "rgb": [154, 155, 152]
+        },
+        {
+          "pixel": 11718198,
+          "rgb": [161, 160, 161]
+        },
+        {
+          "pixel": 11741681,
+          "rgb": [161, 161, 160]
+        },
+        {
+          "pixel": 11765165,
+          "rgb": [167, 167, 166]
+        },
+        {
+          "pixel": 11788648,
+          "rgb": [164, 164, 162]
+        },
+        {
+          "pixel": 11812132,
+          "rgb": [63, 87, 38]
+        },
+        {
+          "pixel": 11835615,
+          "rgb": [209, 207, 208]
+        },
+        {
+          "pixel": 11859098,
+          "rgb": [207, 202, 201]
+        },
+        {
+          "pixel": 11882582,
+          "rgb": [155, 155, 154]
+        },
+        {
+          "pixel": 11906065,
+          "rgb": [160, 160, 161]
+        },
+        {
+          "pixel": 11929548,
+          "rgb": [163, 162, 160]
+        },
+        {
+          "pixel": 11953032,
+          "rgb": [161, 162, 158]
+        },
+        {
+          "pixel": 11976515,
+          "rgb": [166, 166, 166]
+        },
+        {
+          "pixel": 11999999,
+          "rgb": [216, 215, 210]
+        }
+      ]
+    }
+  }
+}

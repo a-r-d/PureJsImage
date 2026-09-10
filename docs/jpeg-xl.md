@@ -3,9 +3,9 @@
 ## Quick answer
 
 <!-- capabilities:jpegxl-summary:start -->
-Decode common static JPEG XL with native precision, color, alpha and HDR; read embedded previews and progressive SDR stages through explicit sessions; encode lossless Modular pixels and reconstruct eligible JPEGs byte for byte.
+Decode common static JPEG XL with native precision, color, alpha and HDR; read embedded previews and progressive SDR stages through explicit sessions; encode lossless Modular pixels, try experimental pixel-to-VarDCT encoding, and reconstruct eligible JPEGs byte for byte.
 
-Decode status: Stable common static. Encode status: Stable lossless and exact transcode.
+Decode status: Stable common static. Encode status: Stable lossless and exact transcode; experimental lossy.
 <!-- capabilities:jpegxl-summary:end -->
 
 The [capability contract](../jpegxl-codec-support.md) lists the checked syntax and

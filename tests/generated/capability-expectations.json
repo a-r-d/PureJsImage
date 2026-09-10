@@ -271,13 +271,24 @@
         "tests/jpegxl-preview-session.test.ts",
         "tests/jpegxl-progressive-render.test.ts",
         "tests/jpegxl-grouped-dc.test.ts",
-        "tests/jpegxl-m6-cohort.test.ts"
+        "tests/jpegxl-m6-cohort.test.ts",
+        "tests/jpegxl-m7-api.test.ts",
+        "tests/jpegxl-m7-lossless.test.ts",
+        "tests/jpegxl-m7-vardct-encode.test.ts",
+        "tests/jpegxl-m7-e1-regression.test.ts",
+        "tests/jpegxl-scalar-palette.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
-        "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels",
-        "tolerance": "The generated fixtures and 300-file matrix from 100 resized or upscaled COCO photographs stay within one 8-bit sample on supported outputs. RMSE 0.55 is the independently justified VarDCT/djxl rounding exception to the original 0.25 target. Pinned jxl-oxide reaches RMSE 0.517758 on the threshold probe. JPEG-derived fixtures retain their own recorded limits; native lossless samples remain exact.",
-        "evidence": ["tests/jpegxl-corpus.test.ts", "tests/jpegxl-jpeg-reconstruction.test.ts"]
+        "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels; first-party forward streams decoded by pinned libjxl 0.12.0 and jxl-rs",
+        "tolerance": "The generated fixtures and 300-file matrix from 100 resized or upscaled COCO photographs stay within one 8-bit sample on supported outputs. RMSE 0.55 is the independently justified VarDCT/djxl rounding exception to the original 0.25 target. Pinned jxl-oxide reaches RMSE 0.517758 on the threshold probe. JPEG-derived fixtures retain their own recorded limits; native lossless samples remain exact. Forward native-depth checks require exact alpha on the native grid (at most one normalized 16-bit level) and independent RGB agreement within 514/65535. Structured-color float checks compare the same declared color domain within 1/255. Generated first-pass checks require maximum error at most two RGB8 levels and RMSE at most 0.55.",
+        "evidence": [
+          "tests/jpegxl-corpus.test.ts",
+          "tests/jpegxl-jpeg-reconstruction.test.ts",
+          "benchmark/jpegxl/verify-m7-forward-depth.ts",
+          "benchmark/jpegxl/verify-m7-forward-color.ts",
+          "benchmark/jpegxl/verify-m7-forward-stages.ts"
+        ]
       }
     },
     {

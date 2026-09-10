@@ -49,15 +49,14 @@ export interface JpegXlVarDctReference {
   readonly planes: readonly [Float64Array, Float64Array, Float64Array]
 }
 
-const defaultDistanceBands = Object.freeze([
-  Object.freeze([3150, 0, -0.4, -0.4, -0.4, -2]),
-  Object.freeze([560, 0, -0.3, -0.3, -0.3, -0.3]),
-  Object.freeze([512, -2, -1, 0, -1, -2]),
-])
-
-const defaultQuantBiases = Object.freeze([
-  0.945349926692846, 0.9299455010825141, 0.9500648966626563,
-])
+import {
+  defaultJpegXlDct4x8Weights as dct4x8Weights,
+  defaultJpegXlDct8Dequantization as defaultDct8Dequantization,
+  defaultJpegXlDct4x8Dequantization,
+  defaultJpegXlHornussDequantization,
+  defaultJpegXlQuantizationBiases as defaultQuantBiases,
+  jpegXlDistanceWeights as distanceWeights,
+} from './jpegxl-vardct-quantization.ts'
 
 const inverseOpsinMatrix = Object.freeze([
   11.031566901960783, -9.866943921568629, -0.16462299647058826, -3.254147380392157,
@@ -68,79 +67,10 @@ const inverseOpsinMatrix = Object.freeze([
 const opsinBias = 0.0037930732552754493
 const opsinBiasCubeRoot = Math.cbrt(opsinBias)
 
-const makeDefaultDct8Dequantization = (): readonly Float64Array[] =>
-  Object.freeze(
-    defaultDistanceBands.map((parameters) => {
-      const bands = [parameters[0] ?? 1]
-      for (let index = 1; index < parameters.length; index += 1) {
-        const value = parameters[index] ?? 0
-        const multiplier = value > 0 ? 1 + value : 1 / (1 - value)
-        bands.push((bands[index - 1] ?? 1) * multiplier)
-      }
-      const output = new Float64Array(64)
-      const scale = 5 / (Math.SQRT2 + 1e-6)
-      for (let y = 0; y < 8; y += 1) {
-        for (let x = 0; x < 8; x += 1) {
-          const distance = Math.hypot((x * scale) / 7, (y * scale) / 7)
-          const low = Math.min(4, Math.floor(distance))
-          const fraction = Math.min(1, distance - low)
-          const first = bands[low] ?? 1
-          const second = bands[low + 1] ?? first
-          output[y * 8 + x] = 1 / (first * (second / first) ** fraction)
-        }
-      }
-      return output
-    }),
-  )
-
-const defaultDct8Dequantization = makeDefaultDct8Dequantization()
-
-const distanceWeights = (
-  rows: number,
-  columns: number,
-  parameters: readonly number[],
-): Float64Array => {
-  const bands = [parameters[0] ?? 1]
-  for (let index = 1; index < parameters.length; index += 1) {
-    const value = parameters[index] ?? 0
-    bands.push((bands[index - 1] ?? 1) * (value > 0 ? 1 + value : 1 / (1 - value)))
-  }
-  const output = new Float64Array(rows * columns)
-  const scale = (parameters.length - 1) / (Math.SQRT2 + 1e-6)
-  for (let y = 0; y < rows; y += 1) {
-    for (let x = 0; x < columns; x += 1) {
-      const distance = Math.hypot(
-        columns === 1 ? 0 : (x * scale) / (columns - 1),
-        rows === 1 ? 0 : (y * scale) / (rows - 1),
-      )
-      const low = Math.min(parameters.length - 2, Math.floor(distance))
-      const fraction = Math.min(1, distance - low)
-      const first = bands[low] ?? 1
-      const second = bands[low + 1] ?? first
-      output[y * columns + x] = first * (second / first) ** fraction
-    }
-  }
-  return output
-}
-
 const dct2Weights = Object.freeze([
   Object.freeze([3840, 2560, 1280, 640, 480, 300]),
   Object.freeze([960, 640, 320, 180, 140, 120]),
   Object.freeze([640, 320, 128, 64, 32, 16]),
-])
-
-const hornussWeights = Object.freeze([
-  Object.freeze([280, 3160, 3160]),
-  Object.freeze([60, 864, 864]),
-  Object.freeze([18, 200, 200]),
-])
-
-const dct4x8Bands = Object.freeze([
-  Object.freeze([
-    2198.0505560163806, -0.9626962302074469, -0.7619425302666678, -0.6551140670773546,
-  ]),
-  Object.freeze([764.3655248643529, -0.9263020088836694, -0.9675229603596517, -0.2784529086916812]),
-  Object.freeze([527.1075735875422, -1.4594385811273853, -1.4500820940978716, -1.5843722511996203]),
 ])
 
 const dct4x4Bands = Object.freeze([
@@ -485,19 +415,7 @@ const interpolateBands = (position: number, maximum: number, bands: readonly num
 const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array[]> => {
   const output = new Map<number, readonly Float64Array[]>()
   output.set(0, defaultDct8Dequantization)
-  output.set(
-    1,
-    Object.freeze(
-      hornussWeights.map((parameters) => {
-        const table = new Float64Array(64)
-        table.fill(1 / (parameters[0] ?? 1))
-        table[0] = 1
-        table[1] = table[8] = 1 / (parameters[1] ?? 1)
-        table[9] = 1 / (parameters[2] ?? 1)
-        return table
-      }),
-    ),
-  )
+  output.set(1, defaultJpegXlHornussDequantization)
   const dct2 = dct2Weights.map((weights) => {
     const table = new Float64Array(64)
     table[0] = 1
@@ -560,18 +478,8 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
   addDct([18], 64, 64, dct64Bands)
   addDct([19, 20], 32, 64, dct32x64Bands)
 
-  const dct4x8Weights = dct4x8Bands.map((bands) => distanceWeights(4, 8, bands))
-  const dct4x8 = dct4x8Weights.map((weights) => {
-    const table = new Float64Array(64)
-    for (let y = 0; y < 8; y += 1) {
-      for (let x = 0; x < 8; x += 1)
-        table[y * 8 + x] = 1 / (weights[Math.floor(y / 2) * 8 + x] ?? 1)
-    }
-    return table
-  })
-  const frozenDct4x8 = Object.freeze(dct4x8)
-  output.set(12, frozenDct4x8)
-  output.set(13, frozenDct4x8)
+  output.set(12, defaultJpegXlDct4x8Dequantization)
+  output.set(13, defaultJpegXlDct4x8Dequantization)
 
   const dct4x4Weights = dct4x4Bands.map((bands) => distanceWeights(4, 4, bands))
   output.set(

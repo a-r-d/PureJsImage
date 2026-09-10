@@ -373,6 +373,8 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
         if (input.kind !== 'png' && input.kind !== 'tiff') {
           throw new Error('Pixel-lossless encode requires a supported PNG or TIFF input')
         }
+        const started = performance.now()
+        const mode = request.mode ?? 'lossless'
         const codec = input.kind === 'png' ? pngCodec : tiffCodec
         const source = await nativePixels(codec, input.bytes, abort.signal)
         const semantics = source.decoder.colorSemantics
@@ -381,13 +383,32 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
             'Pixel-lossless JPEG XL encode does not support the source color semantics',
           )
         }
+        if (
+          mode === 'lossy' &&
+          (semantics.primaries !== 'srgb' || semantics.transfer.kind !== 'srgb')
+        )
+          throw new Error('The lossy workbench comparison currently requires sRGB pixels')
+        const memoryPlan = planJpegXlWorkbenchNativeMemory(
+          source.width,
+          source.height,
+          source.format,
+        )
         const sink = new Uint8ArraySink()
         const encoder = await jpegxlCodec.createEncoder?.(sink, {
           width: source.width,
           height: source.height,
           pixelFormat: source.format,
           colorSemantics: semantics,
-          options: { mode: 'lossless', effort: 1, container: true },
+          options: {
+            mode,
+            maxWorkingBytes: memoryPlan.encoderWorkingBytes,
+            maxOutputBytes: memoryPlan.estimatedOutputBytes,
+            effort: request.effort ?? (mode === 'lossless' ? 1 : 3),
+            container: true,
+            ...(mode === 'lossy'
+              ? { distance: request.distance ?? 1, progressive: request.progressive ?? false }
+              : {}),
+          },
           limits: defaultImageLimits,
           signal: abort.signal,
         })
@@ -408,9 +429,46 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           throw new Error('JPEG XL output exceeds the workbench byte limit')
         }
         const reopened = await nativePixels(jpegxlCodec, encoded, abort.signal)
-        if (reopened.format !== source.format || !sameBytes(reopened.pixels, source.pixels)) {
+        const exactDecodedSamples =
+          reopened.format === source.format && sameBytes(reopened.pixels, source.pixels)
+        if (mode === 'lossless' && !exactDecodedSamples)
           throw new Error('JPEG XL byte-exact local round trip changed decoded samples')
+        if (reopened.format !== source.format)
+          throw new Error('The workbench comparison requires matching native pixel formats')
+        const sampleBytes = source.format.endsWith('16') ? 2 : 1
+        const channels = channelCount(source.format)
+        const sourceView = new DataView(
+          source.pixels.buffer,
+          source.pixels.byteOffset,
+          source.pixels.byteLength,
+        )
+        const outputView = new DataView(
+          reopened.pixels.buffer,
+          reopened.pixels.byteOffset,
+          reopened.pixels.byteLength,
+        )
+        let squares = 0,
+          count = 0
+        for (let offset = 0; offset < source.pixels.length; offset += sampleBytes) {
+          const expected =
+            sampleBytes === 1 ? (source.pixels[offset] ?? 0) : sourceView.getUint16(offset, false)
+          const actual =
+            sampleBytes === 1 ? (reopened.pixels[offset] ?? 0) : outputView.getUint16(offset, false)
+          if (channels === 4 && (offset / sampleBytes) % 4 === 3) {
+            if (actual !== expected) throw new Error('JPEG XL round trip changed alpha')
+          } else {
+            squares += (expected - actual) ** 2
+            count++
+          }
         }
+        const normalizedRmse =
+          Math.sqrt(squares / Math.max(1, count)) / (sampleBytes === 1 ? 255 : 65535)
+        const milliseconds = performance.now() - started
+        const managedPeakBytes =
+          'managedPeakBytes' in encoder && typeof encoder.managedPeakBytes === 'number'
+            ? encoder.managedPeakBytes
+            : 0
+
         const rendered = await preview(jpegxlCodec, encoded, abort.signal)
         const inspection = await inspectJpegXl(encoded, { signal: abort.signal })
         if (!isCurrent(request.generation, request.requestId, abort)) return
@@ -432,7 +490,11 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
             status: 'Experimental',
             sourcePixelFormat: source.format,
             decodedPixelFormat: reopened.format,
-            exactDecodedSamples: true,
+            exactDecodedSamples,
+            mode,
+            milliseconds,
+            managedPeakBytes,
+            normalizedRmse,
             inputBytes: input.bytes.byteLength,
             outputBytes: encoded.byteLength,
             sizeDifferenceBytes: encoded.byteLength - input.bytes.byteLength,

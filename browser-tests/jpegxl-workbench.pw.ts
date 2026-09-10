@@ -225,3 +225,32 @@ test('JPEG XL workbench rejects native pixel materialization before allocation a
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
   await expect(page.locator('#jxl-transcode')).toBeEnabled()
 })
+
+test('JPEG XL workbench writes progressive lossy pixels and reopens them locally', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+  await page.locator('#jxl-open-png').click()
+  await expect(page.locator('#jxl-status')).toContainText('jpegxl-pixel-lossless.png inspected')
+  await page.locator('#jxl-encode-mode').selectOption('lossy')
+  await page.locator('#jxl-effort').selectOption('3')
+  await page.locator('#jxl-distance').fill('1')
+  await page.locator('#jxl-progressive-output').check()
+  await page.locator('#jxl-encode').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'Lossy JPEG XL decoded locally; alpha verified exact',
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('Lossy VarDCT encode')
+  await expect(page.locator('#jxl-summary')).toContainText('Normalized color RMSE')
+  await expect(page.locator('#jxl-details')).toContainText('"progressivePasses": 2')
+  await page.locator('#jxl-zoom').selectOption('2')
+  await expect(page.locator('#jxl-source-preview')).toHaveCSS('max-width', 'none')
+  const download = page.waitForEvent('download')
+  await page.locator('#jxl-download').click()
+  expect((await download).suggestedFilename()).toBe('jpegxl-pixel-lossless.jxl')
+  await page.locator('#jxl-reopen').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'jpegxl-pixel-lossless.jxl inspected and decoded locally',
+  )
+})

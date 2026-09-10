@@ -72,7 +72,7 @@ describe('JPEG XL production program baseline', () => {
     })
     expect(record(jpegXl?.write, 'jpegxl.write')).toEqual({
       status: 'limited',
-      label: 'Stable lossless and exact transcode',
+      label: 'Stable lossless and exact transcode; experimental lossy',
     })
   })
 

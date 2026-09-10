@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { execFileSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import capabilityManifest from '../../capabilities/manifest.json' with { type: 'json' }
 import {
   evidenceFiles,
@@ -12,6 +12,23 @@ import {
   type EvidenceGate,
 } from './evidence-validation.ts'
 import { reportArgument, reportRevision } from './report-provenance.ts'
+
+export const workingTreeDiffHash = async (cwd = process.cwd()): Promise<string> => {
+  const hash = createHash('sha256')
+  const child = spawn('git', ['diff', 'HEAD', '--', 'src', 'benchmark/jpegxl', 'capabilities'], {
+    cwd,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  })
+  child.stdout.on('data', (chunk: Uint8Array) => hash.update(chunk))
+  await new Promise<void>((resolve, reject) => {
+    child.once('error', reject)
+    child.once('close', (code) => {
+      if (code === 0) resolve()
+      else reject(new Error(`Git evidence diff failed with exit code ${code}`))
+    })
+  })
+  return hash.digest('hex')
+}
 
 const commands: Readonly<Record<EvidenceGate, string>> = {
   remediationFixtures: 'node benchmark/jpegxl/verify-remediation-fixtures.ts',
@@ -211,11 +228,7 @@ export const buildFinalEvidence = async (
       runId: process.env.GITHUB_RUN_ID ?? null,
       runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null,
       historical: false,
-      workingTreeDiffSha256: createHash('sha256')
-        .update(
-          execFileSync('git', ['diff', 'HEAD', '--', 'src', 'benchmark/jpegxl', 'capabilities']),
-        )
-        .digest('hex'),
+      workingTreeDiffSha256: await workingTreeDiffHash(),
       policy:
         'Reports are current executions at the recorded checkout revision. Local uncommitted changes are not proof of a committed SHA. Absolute hosted wall times are observational; reference-machine performance reports are recorded separately.',
     },

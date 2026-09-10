@@ -4,6 +4,7 @@ import {
   type JpegXlEntropyCode,
   JpegXlEntropySymbolReader,
   jpegXlCeilLog2,
+  jpegXlMaxHfEntropyContexts,
   readJpegXlContextMap,
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
@@ -1054,7 +1055,12 @@ export const decodeJpegXlJpegHfGlobal = (
     if ((usedOrders & ~0x1fff) !== 0)
       throw invalidInput('JPEG XL coefficient-order mask is invalid')
     const coefficientOrders = readCoefficientOrders(reader, usedOrders)
-    const coefficientCode = readJpegXlEntropyCode(reader, histogramCount * contextsPerHistogram)
+    const coefficientCode = readJpegXlEntropyCode(
+      reader,
+      histogramCount * contextsPerHistogram,
+      0,
+      jpegXlMaxHfEntropyContexts,
+    )
     passes.push(Object.freeze({ coefficientOrders, coefficientCode }))
   }
   if (requireComplete) {

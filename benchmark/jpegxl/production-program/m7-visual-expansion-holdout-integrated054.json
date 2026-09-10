@@ -1,0 +1,859 @@
+{
+  "candidate": "integrated054",
+  "split": "holdout",
+  "reviewedAt": "2026-09-09T18:18:13.901Z",
+  "policy": "Worst matched-size expansion outliers selected from the complete frozen split summary. Original and native/first-party distance 1 and 3 mapped rasters inspected at all declared headrooms or both alpha backgrounds. Lossless PNG previews retain exact scored PPM pixels and hashes. Equal distance is diagnostic rather than matched quality. HDR inspection is of the declared mapped SDR rasters, not a claim of physical HDR display testing.",
+  "summaryPath": ".tmp/jpegxl-m7/expansion-quality-holdout-integrated054-final-summary.json",
+  "summarySha256": "b6b581d99b734bcb758eb46e0ef4517cf33a76c0d403ad32896bedd4d563b82e",
+  "sources": [
+    {
+      "id": "noto-1f3a8",
+      "finding": "All ten palette-icon previews inspected on black and white. The exact alpha silhouette and thumb hole remain clean on both backgrounds. First-party distance 3 shows visible roughness and ringing around the blue, red, yellow and white paint boundaries, stronger than native at the same distance. Flat orange areas remain coherent. No severe shape corruption or matte fringe observed; edge artifacts remain a limitation.",
+      "previews": [
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/black-libjxl-1.png",
+          "sha256": "109c2cce6e199cfbe5cbf9876ffcd275d2ca2cf2277c59b4ea7f06b2ad0ec5d5",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/libjxl-1-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "c6e74f8b26107b918880d52e71d80ad231ecdb4425f7a45ab27450a2f565a135",
+            "pixelsSha256": "a41f17c77dcd2cc97032228d2df5ad44f91bb3556ee4284210f41be42935319c",
+            "outputSha256": "109c2cce6e199cfbe5cbf9876ffcd275d2ca2cf2277c59b4ea7f06b2ad0ec5d5",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/black-libjxl-3.png",
+          "sha256": "8f5c5b75f4b16c7a4c42b1ab678e9376368ef8b301810fb3e40dc947521f5156",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/libjxl-3-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "a3a1386e93fe766966496c90db5f58cd3a8b72cf61d8d640e2fdc129655598e7",
+            "pixelsSha256": "49b43cbb4b16b6a5dd110beaf38f06e9f9d553ccafe37dd87f50a51d7b0e3f84",
+            "outputSha256": "8f5c5b75f4b16c7a4c42b1ab678e9376368ef8b301810fb3e40dc947521f5156",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/black-purejsimage-1.png",
+          "sha256": "c5c84cb0d274a8db3a4d3ef3ab42c18dbdaef661a3b7dfe5d45dfdb59b12a39f",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/purejsimage-1-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "c9edd1be55b49f56d489e8de2ced881b60e1b01f467626d434c9766fe57f488c",
+            "pixelsSha256": "b11de751c7ffa1226726725a12f5d6d62255c448d00c080483cd03ffebc5eb24",
+            "outputSha256": "c5c84cb0d274a8db3a4d3ef3ab42c18dbdaef661a3b7dfe5d45dfdb59b12a39f",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/black-purejsimage-3.png",
+          "sha256": "b7c92d57991c8b276352c4154b67a7c9aa73de37e2f6fdccb2e2fc6062425855",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/purejsimage-3-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "68605d570edc6e4045b38c8302a6e63b998ebc7fdc9bc6065edf082cce5f5dcd",
+            "pixelsSha256": "de864696db7476e66d9787c0c58fb906dcf178e6488ecf015bd294f614e8ecee",
+            "outputSha256": "b7c92d57991c8b276352c4154b67a7c9aa73de37e2f6fdccb2e2fc6062425855",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/black-reference.png",
+          "sha256": "b8d1891ea3835ba4c9d70f40a41c673e9892224f6ecd155b2492c8757da46bdb",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/noto-1f3a8/background-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "d71f58469129112a9cb5ae15f4415e1dcf880cc4a349daed0d7e719890bcf628",
+            "pixelsSha256": "59ae942d2d650491e3cacf4629de495f430546beebca2ca37e7b7dc1b982a7ad",
+            "outputSha256": "b8d1891ea3835ba4c9d70f40a41c673e9892224f6ecd155b2492c8757da46bdb",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/white-libjxl-1.png",
+          "sha256": "6ebe910152714c9ba487f960ca65ce5c4ba32d2da8ad282fea6c7fee0e389b72",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/libjxl-1-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "183ed5b4738f87ceffcf01b474f906f442b23287a16a84f920b707c69701e7b8",
+            "pixelsSha256": "024eca609f6f1726162945ab15ff2c58c5a385b297889bf20f1df0939a6a29e9",
+            "outputSha256": "6ebe910152714c9ba487f960ca65ce5c4ba32d2da8ad282fea6c7fee0e389b72",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/white-libjxl-3.png",
+          "sha256": "d3e853991ee4a36fe437ab449221a33a6e064d3f2db91bb451f218e90876d202",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/libjxl-3-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "3d6931101e19c1c51d0ee8482c27982b3164e9655a615f78a15017f177e144e6",
+            "pixelsSha256": "d3025f5066cd6006a08fa2bcff876fbc739071548fc2943379a5147153dc5cf6",
+            "outputSha256": "d3e853991ee4a36fe437ab449221a33a6e064d3f2db91bb451f218e90876d202",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/white-purejsimage-1.png",
+          "sha256": "8b951e08d5528a58ed597e520dd7f9555825176e903d17f4269ee2bab78e2093",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/purejsimage-1-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "975f48c212fe053d953546995c6a5f4b80246de9228b6174d974717d0d073a79",
+            "pixelsSha256": "1dcf764200695943b88cb46d43ba8b2cf0436af6ef20e730ac23d7c91f2973e0",
+            "outputSha256": "8b951e08d5528a58ed597e520dd7f9555825176e903d17f4269ee2bab78e2093",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/white-purejsimage-3.png",
+          "sha256": "faedf3151ae4f0920f30515f77e4a15c10b641223021589e300a84c468c8f5c9",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-holdout-integrated054-final/noto-1f3a8/purejsimage-3-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "9cec457b5f891bbf8f5584ce50d424648c56f6454834580112a3cd52bc58c8da",
+            "pixelsSha256": "bf906c5c9979f45570076ad3aa28d8e8c6c40d353d3d6244ddc123c144e123c4",
+            "outputSha256": "faedf3151ae4f0920f30515f77e4a15c10b641223021589e300a84c468c8f5c9",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-noto-1f3a8/white-reference.png",
+          "sha256": "a448d29db5db2163e21faad2ea439b45640e5fd80887aada3fa00dbbd1ee0036",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/noto-1f3a8/background-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "f3d5c8efb4c0740fce5d53ae34c7ac768f926f5d7376512e7dc2017dc7fb6267",
+            "pixelsSha256": "fd1f153cddbebed3df5dcf29b371a56cddade012fa4861a0d05616b210958434",
+            "outputSha256": "a448d29db5db2163e21faad2ea439b45640e5fd80887aada3fa00dbbd1ee0036",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "finding": "All 15 mapped lake previews inspected across headrooms 1, 2 and 4. Distance 3 smooths tree foliage, rocks and water detail. First-party output introduces some faint roughness in distant flat hills; native also smooths detail. Sun, water reflection, shoreline and broad sky gradients remain coherent. No severe new banding, halo or block corruption observed in these mapped previews.",
+      "previews": [
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-1-libjxl-1.png",
+          "sha256": "d887750ac6e4f84dcb7ca9c22fa53e651dba6c3efd1190dd62a0c4f28229c52b",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-1/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "e5ea5b21925dce115e168dc560e71fca681b6b8c79669862b95100ded4be6f84",
+            "pixelsSha256": "0c303ea9da1307d855290730684e257962173df91350d9838422237e200d3cf5",
+            "outputSha256": "d887750ac6e4f84dcb7ca9c22fa53e651dba6c3efd1190dd62a0c4f28229c52b",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-1-libjxl-3.png",
+          "sha256": "70e63ee40f04b14aca863d70ddc622503d88884271c92bfca3de468410086290",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-3/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "985e812a64e233731ffc8fb3e0b2e3341242d9d4c53ab7fadb73a0a03e39d35d",
+            "pixelsSha256": "6656e0ee7eaa37f8d19e784cc3b121c84506d765aafd3186c4f8209c126d3661",
+            "outputSha256": "70e63ee40f04b14aca863d70ddc622503d88884271c92bfca3de468410086290",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-1-purejsimage-1.png",
+          "sha256": "69b97b46cce1dde16f24b65659a63bce4e1c230e35e6e4c6c1371f6e653c312b",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-1/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "5588a242130ca1aa2591d865819e7e20b63395d812cfd4ce0200b32b92c8962a",
+            "pixelsSha256": "4c0dcf4aa8afc4dee3fea645353fb0b79c8fd1b1147f03c5d035715128c25c69",
+            "outputSha256": "69b97b46cce1dde16f24b65659a63bce4e1c230e35e6e4c6c1371f6e653c312b",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-1-purejsimage-3.png",
+          "sha256": "b887043ba0cb295df6e789f2a3d417996d7ee6eb3b53e1aa8b35ba8da3514154",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-3/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "82cda2f2887eadb155ccab18adfeb69186373f2623b4b198f47b915405a10ab1",
+            "pixelsSha256": "f42da5f2899bfbe3ea64bdf74f62598aa10430efef72f27f37e358c2daa3d3ca",
+            "outputSha256": "b887043ba0cb295df6e789f2a3d417996d7ee6eb3b53e1aa8b35ba8da3514154",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-1-reference.png",
+          "sha256": "a5235f509c1090aea383ae16ede902e315a73698eff4968673f56a7c561baf9f",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-lakeside/headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "ff17db58101342cee1267e5f86f70025f6f18b0f09555ac0e04caa953b7dcb5f",
+            "pixelsSha256": "348065d68de9e82166820c1741536f2790f4da9c7bcb7a8fe602a40a3fa9f251",
+            "outputSha256": "a5235f509c1090aea383ae16ede902e315a73698eff4968673f56a7c561baf9f",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-2-libjxl-1.png",
+          "sha256": "8202fe80538d69a6ef3bcaf83050a3e4872696d55aa0bfa9b75dd821e11f125b",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-1/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "a3b6bd1a74dd515a32ff9296d99ed35526d9e1247e47a608502c3b2f78eab636",
+            "pixelsSha256": "5f7bb8ece77a8bb49c10212e7fc09c9d24479dbf8cc56f5e72e003a582f4e605",
+            "outputSha256": "8202fe80538d69a6ef3bcaf83050a3e4872696d55aa0bfa9b75dd821e11f125b",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-2-libjxl-3.png",
+          "sha256": "1a6ac44d9d7eeb7ed55c70dfe0e24805b2ba45e936c002741d8789fcb91c7efb",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-3/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "fcc4f8ec51f7be33aa6f8c374af04f434d7c7bb3896ef6371304ed845413696b",
+            "pixelsSha256": "d8c54f95b91854bfffb50670d280b54e35a06fa6d252fb034a311140d1ddf021",
+            "outputSha256": "1a6ac44d9d7eeb7ed55c70dfe0e24805b2ba45e936c002741d8789fcb91c7efb",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-2-purejsimage-1.png",
+          "sha256": "7e2b312acff8e10ec996f232777b18bd9e1b7de9cf15b4f920524aa0797b2bb3",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-1/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "bf8fd59b4ab511fae8d463e02c017b180bd1dce66df932a0cbec1191a5e5f4cf",
+            "pixelsSha256": "4d807caf59b446fd264532a3d2800feccd57a8cb14038b5b68d1ea96a6a15202",
+            "outputSha256": "7e2b312acff8e10ec996f232777b18bd9e1b7de9cf15b4f920524aa0797b2bb3",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-2-purejsimage-3.png",
+          "sha256": "938b6546ad9d84aca87038173ab15563df8f5defc6191e75659d8d21bfc1a367",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-3/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "351083d4a5d8727f4fe47930bf7f23e41f665e9474e87d770ff21ec83fd6819a",
+            "pixelsSha256": "d7b976ffe263df89a33c41ad53fc676c38034994155aede85fd2843a0a450608",
+            "outputSha256": "938b6546ad9d84aca87038173ab15563df8f5defc6191e75659d8d21bfc1a367",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-2-reference.png",
+          "sha256": "87b2457a873b29aca365e90b59cbe2f8cd37023e4cf993e2b9a4c999edf06cb8",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-lakeside/headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "2f228c74fa62f7c8ef90079044017b371a05a41c329d0ed6d12d4a86b3bb9800",
+            "pixelsSha256": "1ab3f1b5b63ad80a606bb7cfc84d564e67ea087d24e58763836d6e1274309e3f",
+            "outputSha256": "87b2457a873b29aca365e90b59cbe2f8cd37023e4cf993e2b9a4c999edf06cb8",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-4-libjxl-1.png",
+          "sha256": "6af36ad57185420ce570c897a0b6df568c15d6f904c73c6a586f66edc66c91f2",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-1/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "187a1e7845f27672b55b3b4f477e9001fb1875528bd6e3b98b93bff39e284b18",
+            "pixelsSha256": "aebd773936a0e896afcbbf21826728e0d87aed7d6a19c08552befeb2fe4fce50",
+            "outputSha256": "6af36ad57185420ce570c897a0b6df568c15d6f904c73c6a586f66edc66c91f2",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-4-libjxl-3.png",
+          "sha256": "a33c11a4001597673bfc6597dd3318fcfb851651b73b2c8413f7da5ed21b1211",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-3/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "64aee4ac127cf1698b1dc017e7bc45d6dccdac7ca15535d71eff6896f26569da",
+            "pixelsSha256": "28336ba86a8bb21cd125ffc579203bf126afbad76d9f10c016513642dd6bd1fa",
+            "outputSha256": "a33c11a4001597673bfc6597dd3318fcfb851651b73b2c8413f7da5ed21b1211",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-4-purejsimage-1.png",
+          "sha256": "56a8967e6c62a7316f26fd5b089d2cf32b5ec2d5a444afe5f88a21342419f3f7",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-1/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "80b37bd4eb063f1f1eaa72aa4c02c9ca466cfe5e7eb93aff85169676c3950863",
+            "pixelsSha256": "56d22e44c91089f8800d069e9a31ac8f1fabe44e855f4eee33a736461d06389d",
+            "outputSha256": "56a8967e6c62a7316f26fd5b089d2cf32b5ec2d5a444afe5f88a21342419f3f7",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-4-purejsimage-3.png",
+          "sha256": "4ba8d6dd15379e8324bed5ee9a2f707705043f2b9dd592842260a2ee55c0b5b9",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-lakeside/distance-3/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "2317c238e10be1def5286bcd5049a6d6343ca05fd5a4fab5e973b2ae24a32043",
+            "pixelsSha256": "46c2359a2c4da63d0b1cbda5629d8b528dff57df670d643637e87f7965f75b86",
+            "outputSha256": "4ba8d6dd15379e8324bed5ee9a2f707705043f2b9dd592842260a2ee55c0b5b9",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-lakeside/headroom-4-reference.png",
+          "sha256": "63d9a35ffaaa86e2848926665afffa263496dae959a219f05d78c71674b125cd",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-lakeside/headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "305c6152c7ad442ed9c1f2e18e10d20983bb38b9037e02e31bd979a82a81d50b",
+            "pixelsSha256": "3e84371885445d84fd87460ebae16df1a72f51acac70ea75c9ba863228b6e26d",
+            "outputSha256": "63d9a35ffaaa86e2848926665afffa263496dae959a219f05d78c71674b125cd",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "finding": "All 15 mapped night-building previews inspected across headrooms 1, 2 and 4. Bright atrium and lamp clipping is already present in the corresponding reference mapping. Distance 3 smooths water, tile and ceiling texture; window frames, bridge and tile lines remain coherent. No severe new banding, halo or block corruption observed in these mapped previews.",
+      "previews": [
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-1-libjxl-1.png",
+          "sha256": "342a6a6c2c5e2a2f1eefda3f8ef97a4f33bc3f813ab460c5c4bc8c2f313b3044",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-1/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "b9e179d4921fa4f73714543506b9198c865a15f38ce09a668047ab66d4b491ec",
+            "pixelsSha256": "afb96ef64b79aac4616c35ca8aef63da4a9ed664db1a326b981079a58232245c",
+            "outputSha256": "342a6a6c2c5e2a2f1eefda3f8ef97a4f33bc3f813ab460c5c4bc8c2f313b3044",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-1-libjxl-3.png",
+          "sha256": "1393e4398f2dc48448a53432b6622842c877456bb28b1b1b07282e041d6b4cfb",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-3/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "1fcfa8c5291ec64448e380b6a5bc3002861d414b1a83ed881c437eeb9c099f37",
+            "pixelsSha256": "662ab1c5b5ba4cc7a51c36b49eba27fd5939aaf64da2be55ddeccf27f3dd978e",
+            "outputSha256": "1393e4398f2dc48448a53432b6622842c877456bb28b1b1b07282e041d6b4cfb",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-1-purejsimage-1.png",
+          "sha256": "5a2673923860091306eb57e34324cfc021f7ca4bbc49ea724f6d3c48cec78bba",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-1/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "7de174337bc23a0c82ceee87c611d7f637818a5bac01508a1740f4ff5d01a7d6",
+            "pixelsSha256": "dfaf2d5ac6fafdd627f13f83f88206cd2d84b6ec38a10b3100bc7eb0097da099",
+            "outputSha256": "5a2673923860091306eb57e34324cfc021f7ca4bbc49ea724f6d3c48cec78bba",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-1-purejsimage-3.png",
+          "sha256": "c6f08c12efc1e13a410acb373e48e509b5015e6660d562e2903d499a5b0ac784",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-3/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "29f9cfd3431931d10f46b596b1b67c605bdfe0657ace9c8ded72b2722886478b",
+            "pixelsSha256": "59a87cec16e53ddcc7e02db25df7aae13afeab1009a04bf163f564cfee3115d5",
+            "outputSha256": "c6f08c12efc1e13a410acb373e48e509b5015e6660d562e2903d499a5b0ac784",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-1-reference.png",
+          "sha256": "daa1961b0b868b7b0fec0d4dc5aea760453ae5ea1fcc6a8da7fd2d6ef75ea02a",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-modern_buildings_night/headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "eecc3cfe6b67e46c39c4c658f31287516faf3727c975b2ea7dffb9e31f1b9f38",
+            "pixelsSha256": "1ae3a6494629be22d86edf7fdf97d8d0d75126773846a5f5c28c12ae8b36d698",
+            "outputSha256": "daa1961b0b868b7b0fec0d4dc5aea760453ae5ea1fcc6a8da7fd2d6ef75ea02a",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-2-libjxl-1.png",
+          "sha256": "e1914484bddd312f8702206d5b0559badbf5a32a6dd1b8d2117afe9cc95dc468",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-1/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "46750802ff7a4120c94179b22b9b564a245f5d157fc972a890e4c2d8a737ee63",
+            "pixelsSha256": "873abc0d351b525999ddf351eea77ed501bfdcca7036b93bde467d87eb026a1c",
+            "outputSha256": "e1914484bddd312f8702206d5b0559badbf5a32a6dd1b8d2117afe9cc95dc468",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-2-libjxl-3.png",
+          "sha256": "9ca164cdfde0f79bce5ea84bee7967675e1576432780b1a857c2977495dae026",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-3/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "e898f9c11341603e1a0aa5e742b1db83a151d43159b273bf2afeab7719f34278",
+            "pixelsSha256": "b1f6783d3896ea2e57fb428a6e9f8a5737cb5d65c83dd1986fcb63aeda8cb196",
+            "outputSha256": "9ca164cdfde0f79bce5ea84bee7967675e1576432780b1a857c2977495dae026",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-2-purejsimage-1.png",
+          "sha256": "2e04c5947bf3d1257f92d0771c3718ddc0e4351c589a528473dd23f98d3ecdea",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-1/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "8c61ee2741d314c98ce6368e6fa04235f6adca5ee013f63768c5f3d9350224b7",
+            "pixelsSha256": "28588de0c9757d6445a054656d907b8c3483e60f6c0a9b52d7fa745b735603ba",
+            "outputSha256": "2e04c5947bf3d1257f92d0771c3718ddc0e4351c589a528473dd23f98d3ecdea",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-2-purejsimage-3.png",
+          "sha256": "bb0306208f1e238619e2fcbb945ece6c002c6b58644734028bd321d40ac07b5f",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-3/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "5cc333dfb53ea1857d72307b737638f37c7ef58e7dec3223de0fd653f40b43f6",
+            "pixelsSha256": "177754aab9b132d14bbf15ac1715974e089dbb5734d0392befa45f7811020f8a",
+            "outputSha256": "bb0306208f1e238619e2fcbb945ece6c002c6b58644734028bd321d40ac07b5f",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-2-reference.png",
+          "sha256": "f063005570beeff2214930518da5e37a4e47d71c0c1ace7314051349cdc40d6c",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-modern_buildings_night/headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "5e263f9aa460f3d4e70c4f2178db055fc58d30cb7f4eb9febc9535744cfb64c1",
+            "pixelsSha256": "6ce3601e1016b149c6eb357cf89d91138955bc13917e2e9e95676c587a39ee55",
+            "outputSha256": "f063005570beeff2214930518da5e37a4e47d71c0c1ace7314051349cdc40d6c",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-4-libjxl-1.png",
+          "sha256": "31cd9c23e8fb0e758efef32846cf37c5e945ec2011b4fb95515c7ad89ef40ce3",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-1/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "a85cca596b0ebd2e0186aa6b1a438d5e851d833d3bdef1a18fcd8ee57d0d261a",
+            "pixelsSha256": "10d9fdcd3ae5da4995c45f7640dfc348b583a1fd49a236e7312ec5a137e367f8",
+            "outputSha256": "31cd9c23e8fb0e758efef32846cf37c5e945ec2011b4fb95515c7ad89ef40ce3",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-4-libjxl-3.png",
+          "sha256": "0a8b327aee8d72501b6d4d0136dbf9d7dd920adb362f4b220fb35daea79838a1",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-3/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "13f19892ca535974a5983753b46673d31b22ba7117a5829a74306ba6b11d9ea8",
+            "pixelsSha256": "4b1062f769b9fb0ae3651ed4188bff927f7e2521660c21cb1771eeabe611250f",
+            "outputSha256": "0a8b327aee8d72501b6d4d0136dbf9d7dd920adb362f4b220fb35daea79838a1",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-4-purejsimage-1.png",
+          "sha256": "77b748f3a52a192b8b080e6a2f555d4c9ee76e157cca3c3759cf697fb98363f3",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-1/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "b31175d74618dd4bec3b28b588f3e913f0cb3a0ccc109cb2b3230cfd2b29905b",
+            "pixelsSha256": "29f3fd485af4ae2af36686f244834fd588edf6b24eb93d96381a3ef253bb9a90",
+            "outputSha256": "77b748f3a52a192b8b080e6a2f555d4c9ee76e157cca3c3759cf697fb98363f3",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-4-purejsimage-3.png",
+          "sha256": "6f88d4830f19d5d360ed37290cefb08e0b73bcbf187ae6c4a31c6693c636a8a6",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-modern_buildings_night/distance-3/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "296d7cb411c561aa6eb59ba9e48f980c97b63e582ebac181dc0ce59b1e07ae59",
+            "pixelsSha256": "7b49e62c50798ae77578d8ed7d71514b355bb521fc9b9a444c014c05a0dbeb0c",
+            "outputSha256": "6f88d4830f19d5d360ed37290cefb08e0b73bcbf187ae6c4a31c6693c636a8a6",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-modern_buildings_night/headroom-4-reference.png",
+          "sha256": "ff173c2020af2de3f3ec417731c6b92085db3f0c6cefd92c965148c8e3d2f476",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-modern_buildings_night/headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "a084fa3f0e5844538e66144b7e13dd5f91c64278bf0630b41ce3e69253f15db2",
+            "pixelsSha256": "b9229df1f7e90bd5fde838cf80c9bd9dd60a424eff79609a8811aff73e78d532",
+            "outputSha256": "ff173c2020af2de3f3ec417731c6b92085db3f0c6cefd92c965148c8e3d2f476",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "finding": "All 15 mapped overpass previews inspected across headrooms 1, 2 and 4. First-party distance 3 produces visible roughness along the sunlit curved suspension cables and smooths foliage and pavement detail. Native distance 3 also smooths texture but keeps the cable edges cleaner. Railings and bridge geometry remain continuous, with coherent sky gradients and sun position. No severe new banding or block corruption observed; cable edge roughness remains a limitation.",
+      "previews": [
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-1-libjxl-1.png",
+          "sha256": "7d9e630e70a3b1b3f73f117e2b832fea99dc59b6d6a32bc9b0ee2d903a5b9f67",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-1/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "fe56483950594cc9261d16cd921dfd153eaae4e7cb8bc010406e542d2269c6ad",
+            "pixelsSha256": "cfe82d8caf3f44132f94da55ce80cace3a45ac4424fc75b4af3509f9531de928",
+            "outputSha256": "7d9e630e70a3b1b3f73f117e2b832fea99dc59b6d6a32bc9b0ee2d903a5b9f67",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-1-libjxl-3.png",
+          "sha256": "15106f2105a895f56ffa598d4bc8fd20c1fee1bfcfa151ab9d2ef439d69d7c50",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-3/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "227b68282be5f9f043b2a445bf950097002e098a64559b2d72b995b89c99dfb1",
+            "pixelsSha256": "674171c00a70992f8bc25fb669435325443621cdb55e127a48b9d6875c23770c",
+            "outputSha256": "15106f2105a895f56ffa598d4bc8fd20c1fee1bfcfa151ab9d2ef439d69d7c50",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-1-purejsimage-1.png",
+          "sha256": "a6bc074e710ef847ed1c1445070c4d97b9a33ef8e82c9542c6f7fb0042aa337e",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-1/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "df3b02ee4fc1b93404e000c940dae12515d6b29cd079daa1c0235a0e5667e095",
+            "pixelsSha256": "38800396c1bbf08184be017a5dbf242652b9441bb1566ae1f6037c3749c8f016",
+            "outputSha256": "a6bc074e710ef847ed1c1445070c4d97b9a33ef8e82c9542c6f7fb0042aa337e",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-1-purejsimage-3.png",
+          "sha256": "9b7bc685efedcb59d16094147eeac4e95c28781190ba62bb86932c82d7800776",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-3/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "87fc26548aad88c9fd29799b500e8bd44d77177ddce47dcc0ddade187dd9607c",
+            "pixelsSha256": "0ab21a9217e4c7f8ec3e9b46a405fdc0b1a7b22e82fa04681608c0a34cb09f89",
+            "outputSha256": "9b7bc685efedcb59d16094147eeac4e95c28781190ba62bb86932c82d7800776",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-1-reference.png",
+          "sha256": "b0462b8a526e157621974451c9f22adc27766946da8ea4d6ae37d775cdeedef4",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-pedestrian_overpass/headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "569167c4001a22ee3fbc41383fd5b89bd2c6b0064a1ae4d237c13e8ef7cc7b65",
+            "pixelsSha256": "0a398b0b10b5a75a3a38f472b4e710c6e1601bd0d2152a0ce1b92e8a7a33fc34",
+            "outputSha256": "b0462b8a526e157621974451c9f22adc27766946da8ea4d6ae37d775cdeedef4",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-2-libjxl-1.png",
+          "sha256": "ed59646549bf17034f7ea87f08c891b40bb050b13e03277a539e6aa0b6c7b9ff",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-1/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "d882f3a9fdb81d275e0a43eff351a58fdf69e300db04b29ae85bf025e42252b8",
+            "pixelsSha256": "634a965de0133371f5ca7d00518538f3636758ba62479c603f72519eccf12f22",
+            "outputSha256": "ed59646549bf17034f7ea87f08c891b40bb050b13e03277a539e6aa0b6c7b9ff",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-2-libjxl-3.png",
+          "sha256": "085bb6777255f006ef69b604d0ce0c8d300af331a18d401dee52edd9c9d6bcd8",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-3/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "4cf6cbe1246319b1fbeef996bce713d50baf013d86c4da3abd42506a15420104",
+            "pixelsSha256": "bda895b0b1b04607b2963ac877c9105c3b3a4947d2be0cf2522d7f7d2c42b12f",
+            "outputSha256": "085bb6777255f006ef69b604d0ce0c8d300af331a18d401dee52edd9c9d6bcd8",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-2-purejsimage-1.png",
+          "sha256": "48a0d52e395e6e9011bb50a0bd1f9d2fdd976e320bc837e4cd6932b7dcb823e0",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-1/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "be28fa6ba79ce4d43500a35aad84e4990cf6daf18b7293957b293ced835502e6",
+            "pixelsSha256": "056c32103e925c4be18b984f7a16348c0d219002dbd15de7443bdbd7b120e5c7",
+            "outputSha256": "48a0d52e395e6e9011bb50a0bd1f9d2fdd976e320bc837e4cd6932b7dcb823e0",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-2-purejsimage-3.png",
+          "sha256": "0c42b8293085031d908b2ee6b766afecb2961a86b2d38120dff893458820b89d",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-3/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "05bca8f9ad82ee398e06f6ed683f1e52572a6243637ae20696004338359db146",
+            "pixelsSha256": "a4033e054ae3d93a3b153bcd638fe81f361a014374e1b9ca231cc66682b89feb",
+            "outputSha256": "0c42b8293085031d908b2ee6b766afecb2961a86b2d38120dff893458820b89d",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-2-reference.png",
+          "sha256": "66a1008ecab94547652285248c251fa610124dabcf0549e22d505e583c53e306",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-pedestrian_overpass/headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "0dcda4f81c00773ca40eb6bbcf2b0222b66a035da9d9e1f23f82b064a00df8c8",
+            "pixelsSha256": "496d54ccbe7aa9c1ef77d06142af00803857e9f1a7d5f7b6e918d0c91e508b66",
+            "outputSha256": "66a1008ecab94547652285248c251fa610124dabcf0549e22d505e583c53e306",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-4-libjxl-1.png",
+          "sha256": "c05e36ed50beb32051b43318a6bf50e9869df292c86c3c0de4b16d31ab422d20",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-1/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "5da9baa80b670c8cbf86e171bc2c282d81ee7a8fadc7f0eac1efc644b58e2b67",
+            "pixelsSha256": "9c383d37c1dffd7b002d1bc4f7ea6010aee74bedeb3b88c5c6e1524e251ae551",
+            "outputSha256": "c05e36ed50beb32051b43318a6bf50e9869df292c86c3c0de4b16d31ab422d20",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-4-libjxl-3.png",
+          "sha256": "76ddea7c10cd85c06094804fbd36410c8f839e3e7c8aeb456ef0256897acfbb5",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-3/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "4278b545c5f5e5561d760f9094b39b6795d617a193f847ff2a1ba62d12ed1782",
+            "pixelsSha256": "d4a1c3140b7378984112db5550361aa2a0059cccb109a616af375cc2c25ae863",
+            "outputSha256": "76ddea7c10cd85c06094804fbd36410c8f839e3e7c8aeb456ef0256897acfbb5",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-4-purejsimage-1.png",
+          "sha256": "297293a03c188b8d1a99b648786e2e8568007711a69f9cc910292e9cca38bdc2",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-1/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "d9f0f08d74db64891efba1a59f7a56156825453a278716bbf665215e4a2d5b32",
+            "pixelsSha256": "9fd1e8410ea3a6031088b4c2a57fee7e0728d854ad0ef8684b609ab6466a177b",
+            "outputSha256": "297293a03c188b8d1a99b648786e2e8568007711a69f9cc910292e9cca38bdc2",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-4-purejsimage-3.png",
+          "sha256": "716a6968f3d10075a61c9a7096038beddc2f40c4394120fe78b28978b7133bf2",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-holdout-integrated054-final/polyhaven-pedestrian_overpass/distance-3/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "62bf4b73744da02c9ab09c12eb8153df7a14bf991c80090a82d7984e45ee5288",
+            "pixelsSha256": "74f6478874c84c9ad696043e42ffee6cf965f86e6e65bafe12b805f6ad5251f5",
+            "outputSha256": "716a6968f3d10075a61c9a7096038beddc2f40c4394120fe78b28978b7133bf2",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-holdout-polyhaven-pedestrian_overpass/headroom-4-reference.png",
+          "sha256": "8ae3909b65e0167efe53c48cd2040d740b0e3ea9094c9afe97fcf026a44edfe6",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-pedestrian_overpass/headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "11996edaa22a4b59b4430508e9b3a563a3447e689b19eaef8968c598a82fc7a8",
+            "pixelsSha256": "9eecdf9f9e9fd566680da20626b10cf0452ed744bbcb1e2a7158244c5c6c43f4",
+            "outputSha256": "8ae3909b65e0167efe53c48cd2040d740b0e3ea9094c9afe97fcf026a44edfe6",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        }
+      ]
+    }
+  ]
+}

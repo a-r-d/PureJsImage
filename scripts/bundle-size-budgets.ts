@@ -13,11 +13,11 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Temporary M4 ceilings include bounded ICC, structured color, alpha, and metadata support.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 365_000 },
-  // M6 adds explicit sessions, native progressive stages, preview parsing and dependency planning.
-  // Keep the historical baseline; allow about 24 KiB beyond the PR35 specialized ceiling.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 430_000 },
+  // M7 adds the first-party forward VarDCT writer and bounded multi-group Modular search.
+  // Forward transforms and bounded palette search are included; retain original baselines.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 405_000 },
+  // Includes M6 sessions and M7 group-local HF models with the exact prefix-size fallback.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 460_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

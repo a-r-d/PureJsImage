@@ -1,3 +1,5 @@
+import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import holdoutManifest from '../benchmark/jpegxl/production-program/pr35-holdout-manifest.json' with {
   type: 'json',
 }
@@ -8,11 +10,14 @@ import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/
   type: 'json',
 }
 import remediationManifest from './fixtures/jpegxl/remediation/manifest.json' with { type: 'json' }
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { buildFinalEvidence } from '../benchmark/jpegxl/build-final-evidence.ts'
+import {
+  buildFinalEvidence,
+  workingTreeDiffHash,
+} from '../benchmark/jpegxl/build-final-evidence.ts'
 import {
   evidenceFiles,
   extendedGates,
@@ -386,4 +391,38 @@ describe('JPEG XL evidence admission', () => {
       await rm(directory, { recursive: true, force: true })
     }
   })
+})
+
+it('hashes evidence diffs larger than the default process output buffer', async () => {
+  const cwd = await mkdtemp(join(tmpdir(), 'jpegxl-evidence-diff-'))
+  try {
+    execFileSync('git', ['init', '--quiet', cwd])
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=Test',
+        '-c',
+        'user.email=test@example.invalid',
+        'commit',
+        '--quiet',
+        '--allow-empty',
+        '-m',
+        'fixture',
+      ],
+      { cwd },
+    )
+    await mkdir(join(cwd, 'src'))
+    await writeFile(join(cwd, 'src', 'large.txt'), 'evidence line\n'.repeat(160_000))
+    execFileSync('git', ['add', 'src'], { cwd })
+    const diff = execFileSync(
+      'git',
+      ['diff', 'HEAD', '--', 'src', 'benchmark/jpegxl', 'capabilities'],
+      { cwd, maxBuffer: 4 * 1024 * 1024 },
+    )
+    expect(diff.length).toBeGreaterThan(1024 * 1024)
+    expect(await workingTreeDiffHash(cwd)).toBe(createHash('sha256').update(diff).digest('hex'))
+  } finally {
+    await rm(cwd, { recursive: true, force: true })
+  }
 })

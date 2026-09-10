@@ -1,0 +1,174 @@
+{
+  "collectedAt": "2026-09-09T07:26:26.480325+00:00",
+  "scope": "Scoped repository decoder checks, not full-corpus qualification. All six frozen quality coordinates on three real sources. Each native reference raster must match the original scoring hash. The default public decoder limits remain active.",
+  "sourceProof": {
+    "path": "benchmark/jpegxl/production-program/m7-real-progressive-recovery.json",
+    "sha256": "824537049311018551da3e665352abff6478a5fc75cd81e1ed41daa73037f54a",
+    "verification": "All source hashes in the earlier progressive protocol still match the working tree; production source was unchanged during these checks."
+  },
+  "harnessSha256": "9eb2c872f972a7dc46fffc66c72cf6ff8721a31e66a8f91e1cedd8a6de2c90c2",
+  "results": [
+    {
+      "id": "im26-1030",
+      "status": "passed",
+      "results": [
+        {
+          "setting": 0.25,
+          "maximum": 1,
+          "rmse": 0.48257794419370453,
+          "samples": 36000000,
+          "encodedSha256": "c777cf5460acc39d413d19924a222eb4f3fe83077c3da9f6925e117d99f17d90",
+          "decodedSha256": "1b4752aae65271cbf092ef3f8653ab297416e81af9a95ae43730da112db6633a"
+        },
+        {
+          "setting": 0.5,
+          "maximum": 1,
+          "rmse": 0.493642555116779,
+          "samples": 36000000,
+          "encodedSha256": "3bfd65906b5dbcc1bccb8f0c4d1ac4e06316554a0d4cb8e74a781454eb8a8952",
+          "decodedSha256": "9a4178a28f28b6c21221ac0f1790fa007692348730c60c831a2555374262fa80"
+        },
+        {
+          "setting": 1,
+          "maximum": 1,
+          "rmse": 0.49662368382240224,
+          "samples": 36000000,
+          "encodedSha256": "9335d4f48e0dac2f09bfeab8495662b9f07cb6356869aff6a47dba36d9a576dc",
+          "decodedSha256": "965c31f083b12284de39770994cfeeb0b6f146fdc2152388f68f9ebf89395f5d"
+        },
+        {
+          "setting": 2,
+          "maximum": 1,
+          "rmse": 0.4967815862574261,
+          "samples": 36000000,
+          "encodedSha256": "ad89e94bbf7a305d604d8baeeb0cc7abdf8f432fd7c16fd1649ea3ea534eb6f7",
+          "decodedSha256": "ebb1ea6af7591b5612e5e5b30f27ecdfb07e2a1bc7decbcf6843ce99daa122b1"
+        },
+        {
+          "setting": 3,
+          "maximum": 1,
+          "rmse": 0.49724669710092373,
+          "samples": 36000000,
+          "encodedSha256": "428af56c37a6cf9cd5d22d53703ec10c30df053b26e4a27ca5061e8df1eef32c",
+          "decodedSha256": "84f10b3da8ccf23173970b4c8c9224a495231b65dfe3bfb3fa12f7fa9744d30f"
+        },
+        {
+          "setting": 5,
+          "maximum": 1,
+          "rmse": 0.49726278543419855,
+          "samples": 36000000,
+          "encodedSha256": "ae68936ad18e983a23c1d60ca42be99396cb8204ccf2cc1934b1d9e5733a2cf2",
+          "decodedSha256": "5234fdc57432bcc963f31f4035e0335c48a6d3cd748b38a6446009995e6480df"
+        }
+      ]
+    },
+    {
+      "id": "im26-6610",
+      "status": "passed",
+      "results": [
+        {
+          "setting": 0.25,
+          "maximum": 1,
+          "rmse": 0.49173215142778703,
+          "samples": 89254440,
+          "encodedSha256": "51f10e959ee8283929f43bc8836c483c397566c187cb22f6f4060f02a6b60a50",
+          "decodedSha256": "d251c7d7d07de8b0bf78f48b2d86fa764da4fecb41a51969c594c553b64d237c"
+        },
+        {
+          "setting": 0.5,
+          "maximum": 1,
+          "rmse": 0.49601483694726367,
+          "samples": 89254440,
+          "encodedSha256": "991c4a33337b14fd887c404013cadd32990e3810b55b0eb26d07adedef23c435",
+          "decodedSha256": "3494b3e7f35c3eaabe3813b410d1a67fa18c01ad34cea35f5db4cf7b2d6d3012"
+        },
+        {
+          "setting": 1,
+          "maximum": 1,
+          "rmse": 0.4965930433506006,
+          "samples": 89254440,
+          "encodedSha256": "492c100e9518341fc8c89bbbb93e4430c962dd0c8a8cb1cbcf819140cb6ff701",
+          "decodedSha256": "cba7703251856b4fb4967acbc7661b75f066c30fd3d93858d5fcc6c1301839e2"
+        },
+        {
+          "setting": 2,
+          "maximum": 1,
+          "rmse": 0.49684865668653444,
+          "samples": 89254440,
+          "encodedSha256": "1d5468b070045df16239145a11efa96744793f2f952342adf6babcae5d31dd89",
+          "decodedSha256": "8ea73d75f3982b03dac4c73601e125d07c2306ecdc9a749cc57cbfedde835d3c"
+        },
+        {
+          "setting": 3,
+          "maximum": 1,
+          "rmse": 0.4969501324830564,
+          "samples": 89254440,
+          "encodedSha256": "0f4dc988bbef19c026ef7fd3b6c076126f00b876dc350b185a1b487a3a0a195e",
+          "decodedSha256": "6a59b8779071a817cdb4b305e9dc354410e107f8fdea46f8c691e577a1d14e87"
+        },
+        {
+          "setting": 5,
+          "maximum": 1,
+          "rmse": 0.49706408626134296,
+          "samples": 89254440,
+          "encodedSha256": "59b82b1e56ecd3239315fe1018ef285cf97526b668bc0b17b20ed391241a8b59",
+          "decodedSha256": "f00f63ee61f6cee8a7fc1ac1c05fea4b21da9445183c2a150fdff3f7d599d0f9"
+        }
+      ]
+    },
+    {
+      "id": "im26-5026",
+      "status": "passed",
+      "results": [
+        {
+          "setting": 0.25,
+          "maximum": 1,
+          "rmse": 0.37874706880698983,
+          "samples": 87020901,
+          "encodedSha256": "ad77b72249c595681b2af3a65ef0f9b35fd5013d60a750a325e2fc495d85797f",
+          "decodedSha256": "0ca874bcfac4d4ac0a3894ecd76b96b9e9900fcca965bc76870af3058a43aa95"
+        },
+        {
+          "setting": 0.5,
+          "maximum": 1,
+          "rmse": 0.4004329065091932,
+          "samples": 87020901,
+          "encodedSha256": "8686e9505fe86f2265927441fef4417a017395a11e193555892115477dc12e2c",
+          "decodedSha256": "3beb4e2cd9c17f8fabb0e2a08fe2022dba06e1e138cf3d003acf2c2c7bdcba35"
+        },
+        {
+          "setting": 1,
+          "maximum": 1,
+          "rmse": 0.4095795256960532,
+          "samples": 87020901,
+          "encodedSha256": "d74838d3ae6818e0396a424ac14eb3e9eaacfce94de812fd419a09ff734078ed",
+          "decodedSha256": "e24680d2bbb27f1961a433a19a06fa33083ef47ef05f650ba22a1d96d8e31ad4"
+        },
+        {
+          "setting": 2,
+          "maximum": 1,
+          "rmse": 0.4167386664229556,
+          "samples": 87020901,
+          "encodedSha256": "7f6cdd04afc51f56d510caf9f8e3b3335a343cbaad5e1d159cb923b6ffac222a",
+          "decodedSha256": "469de9676bf955e42b1672673dad3d8264509196b9be0e9277e1a3552cfba0fa"
+        },
+        {
+          "setting": 3,
+          "maximum": 1,
+          "rmse": 0.4228981019972402,
+          "samples": 87020901,
+          "encodedSha256": "4b94b092631f3b7c868dfefc29a0dfecafbaea5024995fadc02f606bfc1eaa5c",
+          "decodedSha256": "4818eacdc6c84b1f08e3ddb6c27aaf644063e75ee833b5894ca6e790aeef6982"
+        },
+        {
+          "setting": 5,
+          "maximum": 1,
+          "rmse": 0.42265778191975545,
+          "samples": 87020901,
+          "encodedSha256": "eac7339a217aafb64d1f63f245d1a2e93379f638c6239a8f88d26d0ac4a4770a",
+          "decodedSha256": "6b62306c176a9844793d032d3bc60f6ad8d39a685697db718ce94e4b96233bad"
+        }
+      ]
+    }
+  ]
+}

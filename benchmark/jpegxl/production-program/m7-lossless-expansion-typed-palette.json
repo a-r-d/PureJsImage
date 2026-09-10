@@ -1,0 +1,740 @@
+{
+  "protocol": {
+    "selectedCaseIds": [
+      "polyhaven-qwantani_moon_noon",
+      "polyhaven-pond_bridge_night",
+      "polyhaven-abandoned_tiled_room",
+      "polyhaven-sepulchral_chapel_rotunda",
+      "polyhaven-cobblestone_parish_road",
+      "polyhaven-emmarentia",
+      "polyhaven-metro_noord",
+      "polyhaven-modern_buildings_night",
+      "polyhaven-hikers_cave",
+      "polyhaven-glass_passage",
+      "polyhaven-pedestrian_overpass",
+      "polyhaven-lakeside",
+      "noto-1f600",
+      "noto-1f98a",
+      "noto-1f338",
+      "noto-1f680",
+      "noto-1f355",
+      "noto-1f3a8",
+      "noto-1f3b8",
+      "noto-1f984",
+      "noto-1f332",
+      "noto-1f4f7",
+      "noto-1f916",
+      "noto-1f308"
+    ],
+    "diagnosticSubset": false,
+    "snapshotSources": [
+      {
+        "path": "src/codecs/jpegxl-modular-encode.ts",
+        "sha256": "b98aea85d41d779c6b431c3843f45f5ab86aacfd97eaa72c2186ebb925e527a3"
+      },
+      {
+        "path": "src/codecs/jpegxl-decode.ts",
+        "sha256": "c9d402b87b57a5be30be27c1ad8ba3375c47214f6835402401c0345760629724"
+      },
+      {
+        "path": "src/codecs/jpegxl-encoder-memory.ts",
+        "sha256": "6f69b6323fd1164e7fbbadf92f94fa63d43e9eb0293aeb6be929ddd9c9d4a2f6"
+      }
+    ],
+    "oracleFiles": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      }
+    ],
+    "sourceSelection": "benchmark/jpegxl/production-program/m7-corpus-expansion.json",
+    "mappingProtocolSha256": "ace6e30cd1100a139b89ebebf53aa4a645c83c562f65c2d890af7fb3f8bd6b49",
+    "policy": "All 24 frozen expansion families, preserving their development/holdout splits. Native RGBA8 artwork and explicitly derived PQ16 HDR examples remain separate strata. PQ16 variants are not additional families or native integer-depth captures. Compare identical samples and color, exact invisible RGB and alpha, no metadata payload in either encoder. Timings are not measured in this concurrent conformance run."
+  },
+  "completed": 24,
+  "failures": 0,
+  "results": [
+    {
+      "id": "polyhaven-qwantani_moon_noon",
+      "split": "development",
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "fe1faffab8dfdb50758dd9d00fcaf844a8b21c6bcf8cc9e81005f30a1d3fcbe3",
+      "pureBytes": 7298712,
+      "nativeBytes": 3174011,
+      "ratio": 2.2995232215641344,
+      "encodedSha256": "c9ed40477637ddc32716006d23429b8704dafdc6efd69d3428a9e32ed820736b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "fe1faffab8dfdb50758dd9d00fcaf844a8b21c6bcf8cc9e81005f30a1d3fcbe3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "fe1faffab8dfdb50758dd9d00fcaf844a8b21c6bcf8cc9e81005f30a1d3fcbe3",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-pond_bridge_night",
+      "split": "development",
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "c03e54633c66ac8fa659b3e92958a7535690e7b09fc3bc51ca0ac3787b93a37a",
+      "pureBytes": 8113896,
+      "nativeBytes": 4398403,
+      "ratio": 1.8447368283442878,
+      "encodedSha256": "1480d4c7a159e8c5c9c53cc66285c664b7818902d1985a4bcc9da0ee820a2899",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "c03e54633c66ac8fa659b3e92958a7535690e7b09fc3bc51ca0ac3787b93a37a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "c03e54633c66ac8fa659b3e92958a7535690e7b09fc3bc51ca0ac3787b93a37a",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-abandoned_tiled_room",
+      "split": "development",
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "4134bcccfbb6624493e254732821c4dd42b3869cd991ae3099e9871abc39bf4c",
+      "pureBytes": 7903402,
+      "nativeBytes": 4092032,
+      "ratio": 1.9314125598235792,
+      "encodedSha256": "6a90a1b0e0f589362f8940ac0ba2af59c5d3534a2ba76402264663130d36c588",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "4134bcccfbb6624493e254732821c4dd42b3869cd991ae3099e9871abc39bf4c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "4134bcccfbb6624493e254732821c4dd42b3869cd991ae3099e9871abc39bf4c",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "split": "development",
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "56d84b41411114920b33057823d9ced88fa6d47de6ef7bdcb7454a5797a71f6d",
+      "pureBytes": 7220964,
+      "nativeBytes": 3494480,
+      "ratio": 2.066391566127149,
+      "encodedSha256": "c170398e020b4d7d0eb1977a5fb5cb0bdbf7bb25676ede50eb07947792c44e73",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "56d84b41411114920b33057823d9ced88fa6d47de6ef7bdcb7454a5797a71f6d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "56d84b41411114920b33057823d9ced88fa6d47de6ef7bdcb7454a5797a71f6d",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-cobblestone_parish_road",
+      "split": "development",
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "667cecbc87f7eecce72c9f03654706678dfceeaf61f844d620a55a8e52ee3e11",
+      "pureBytes": 8017735,
+      "nativeBytes": 4175819,
+      "ratio": 1.9200389193113974,
+      "encodedSha256": "cab00a8dfb1a32f1304ed2dd8be0da5c40162aa1f916f8b67c6d0201c6191023",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "667cecbc87f7eecce72c9f03654706678dfceeaf61f844d620a55a8e52ee3e11",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "667cecbc87f7eecce72c9f03654706678dfceeaf61f844d620a55a8e52ee3e11",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-emmarentia",
+      "split": "development",
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "b701a0e4d3be24929bf7579ff3392a37ae47aa1a8c10a965a82c3cda7a68c39f",
+      "pureBytes": 8475621,
+      "nativeBytes": 5104113,
+      "ratio": 1.6605472880400571,
+      "encodedSha256": "74dc81176e137e2147e4eb58780f557e1c5f872ac7b041976f10fc673a0bbba2",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b701a0e4d3be24929bf7579ff3392a37ae47aa1a8c10a965a82c3cda7a68c39f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b701a0e4d3be24929bf7579ff3392a37ae47aa1a8c10a965a82c3cda7a68c39f",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "split": "holdout",
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "96bd30143e3162858a8b7b8da7f720abf9b11859938d337fcd6ce137a21fbab3",
+      "pureBytes": 8353346,
+      "nativeBytes": 4700819,
+      "ratio": 1.7769980082194188,
+      "encodedSha256": "eeede4cd70351a593f8d3fa6a70af7eff8373b8dc90e233df7caac9126c4ebc7",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "96bd30143e3162858a8b7b8da7f720abf9b11859938d337fcd6ce137a21fbab3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "96bd30143e3162858a8b7b8da7f720abf9b11859938d337fcd6ce137a21fbab3",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "split": "holdout",
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "fbb76fcb43b98e39017940c846a6efe73d33dbb75a2479024478a79396b21835",
+      "pureBytes": 7402684,
+      "nativeBytes": 3474681,
+      "ratio": 2.1304643505403806,
+      "encodedSha256": "d83df6f122c78e4661c4c1c52ffa7d77d89703cac989f350f754de8823b83b01",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "fbb76fcb43b98e39017940c846a6efe73d33dbb75a2479024478a79396b21835",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "fbb76fcb43b98e39017940c846a6efe73d33dbb75a2479024478a79396b21835",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "split": "holdout",
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "f8f1083d1268a652ec2850c0490b860b32eefe384d8c525d1cd3ff58ae5c6bfc",
+      "pureBytes": 8516806,
+      "nativeBytes": 5032960,
+      "ratio": 1.6922061768819938,
+      "encodedSha256": "0e4fa99ec2d180270a21d8d74949044a11611d8b44c265342737cda7c4849a36",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "f8f1083d1268a652ec2850c0490b860b32eefe384d8c525d1cd3ff58ae5c6bfc",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "f8f1083d1268a652ec2850c0490b860b32eefe384d8c525d1cd3ff58ae5c6bfc",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "split": "holdout",
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "c7a0180c7ee3d33bd90bec2af5de101866afbae69d1950557363d15fbb91cb50",
+      "pureBytes": 8426220,
+      "nativeBytes": 4868638,
+      "ratio": 1.7307140107767305,
+      "encodedSha256": "a1053a704d839536057d942766a511df31d15b2e952d6c4895fccc42e6c03160",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "c7a0180c7ee3d33bd90bec2af5de101866afbae69d1950557363d15fbb91cb50",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "c7a0180c7ee3d33bd90bec2af5de101866afbae69d1950557363d15fbb91cb50",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "split": "holdout",
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "bcb5964c9e09b3e0b67130bb227f7c29acf0962b733a049372e5d24c64f385ba",
+      "pureBytes": 7003186,
+      "nativeBytes": 3101009,
+      "ratio": 2.258357199221286,
+      "encodedSha256": "d346db228e0128a9ac39fe537ace81c03fc39c8b63872ef992f15f3bd177409c",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "bcb5964c9e09b3e0b67130bb227f7c29acf0962b733a049372e5d24c64f385ba",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "bcb5964c9e09b3e0b67130bb227f7c29acf0962b733a049372e5d24c64f385ba",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "split": "holdout",
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "status": "verified",
+      "width": 2048,
+      "height": 1024,
+      "format": "rgb16",
+      "sampleOrigin": "derived PQ16 from original relative HDR",
+      "normalizedHash": "85c4e1d3f9773f8f432d7c3690f720e26a89cad826dc0d1197d7bab26b82891a",
+      "pureBytes": 6949115,
+      "nativeBytes": 3102049,
+      "ratio": 2.2401693203427797,
+      "encodedSha256": "efbd3f068b8ff8539ca2df5fcb7ae24a7f2488a09224108acf05e1c971afd1b8",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "85c4e1d3f9773f8f432d7c3690f720e26a89cad826dc0d1197d7bab26b82891a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "85c4e1d3f9773f8f432d7c3690f720e26a89cad826dc0d1197d7bab26b82891a",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f600",
+      "split": "development",
+      "sourceSha256": "d6e6be1b18cd8ae3f56556d171cc7d8eecd293bdbbc1aa66ab5493a66ba4dae0",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+      "pureBytes": 35487,
+      "nativeBytes": 22345,
+      "ratio": 1.588140523607071,
+      "encodedSha256": "7df886bce6db417fde676be3a9d8aebbd911a44ae7ab9623a147ed8cfea65b42",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f98a",
+      "split": "holdout",
+      "sourceSha256": "b69aa86198b8d5b7f3d1ce4ca84ca8f983799fba0c4d01d8ea84804e1e1ce13d",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+      "pureBytes": 10458,
+      "nativeBytes": 8590,
+      "ratio": 1.2174621653084983,
+      "encodedSha256": "d3553e861c89b201eb08ea2114e913f144a7e3019fb92719944ba17634fcae24",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f338",
+      "split": "development",
+      "sourceSha256": "e87dddb11bb9fbe79c2efb549275be5368e47143670455a5f4d639458d22f669",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+      "pureBytes": 10213,
+      "nativeBytes": 6422,
+      "ratio": 1.5903145437558392,
+      "encodedSha256": "c9040a773befe0fe800863ba222065727af8a57f416aaa3bcfca135d48dec95a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f680",
+      "split": "holdout",
+      "sourceSha256": "a477bf2e112db11a99926a6c300618f9274b6df405b8a67d64f87fb54c833b52",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+      "pureBytes": 16692,
+      "nativeBytes": 12295,
+      "ratio": 1.3576250508336722,
+      "encodedSha256": "ce25f8eadf402b57098d7b19dc6774dd2262df6083aec6cf7c4f5e2622249e93",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f355",
+      "split": "development",
+      "sourceSha256": "c4d2a0edaea1c0b18ccdbe9d221410869bb0d60c3a746e69f5e7952b9241fd4e",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+      "pureBytes": 14698,
+      "nativeBytes": 9129,
+      "ratio": 1.6100339577171652,
+      "encodedSha256": "82ba3a38bbab041a881d9d5db78e763e1842a2d7b325ebd50c6cd64b988acd58",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f3a8",
+      "split": "holdout",
+      "sourceSha256": "1611b786a08c0682c7e401fa79ddcaf9a7aaa468ec75c1026684a92c611ce3cc",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+      "pureBytes": 12198,
+      "nativeBytes": 10725,
+      "ratio": 1.1373426573426573,
+      "encodedSha256": "fc2804c148096c41a6874c2e21ce567fd1cc44dfef5c3a144162b41b52c9807b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f3b8",
+      "split": "development",
+      "sourceSha256": "4506339f16ca114c6aeaf2b96bc6e64e1e127956876e06d5916acc5740403118",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+      "pureBytes": 15724,
+      "nativeBytes": 12084,
+      "ratio": 1.3012247600132407,
+      "encodedSha256": "d890daefcea6202c318e72a45e4f1028f2026b2a45e2d91b6a74c04ed0197ca7",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f984",
+      "split": "holdout",
+      "sourceSha256": "6168167bea9f58117df26cf003ce391d8c0e9744f6117e477e99d161821da24f",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+      "pureBytes": 12664,
+      "nativeBytes": 9628,
+      "ratio": 1.315330286663897,
+      "encodedSha256": "5c5d4ecaf380171a89184a8e56f6188c8a24d3377f0f5d4bb0f215fb43f4b409",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f332",
+      "split": "development",
+      "sourceSha256": "bcb20fcf0ed5d41842adc29d075e2a7eeb304f3f5bdfe082c91752649ad38125",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+      "pureBytes": 13093,
+      "nativeBytes": 8376,
+      "ratio": 1.5631566380133715,
+      "encodedSha256": "93ec11e88b120e0c6b07da5ef1cd380b07b1a14433bb0795a3d9c4300d5389d5",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f4f7",
+      "split": "holdout",
+      "sourceSha256": "24e0d488150cab4bc8d8750d878cdd7f3cc4e4be32821d1a33616a1453c2578d",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+      "pureBytes": 9261,
+      "nativeBytes": 7778,
+      "ratio": 1.1906659809719722,
+      "encodedSha256": "4a151752cb0e5e30dd9fa128305656fb8fd256e7361600e64bf5bd6b294548d2",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f916",
+      "split": "development",
+      "sourceSha256": "98f6f4bdbd98d55100c0c379a25a70f63d347fb869e8e55d6f7b6bb8c1b1bc3b",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+      "pureBytes": 12001,
+      "nativeBytes": 8448,
+      "ratio": 1.4205729166666667,
+      "encodedSha256": "103f5efb0497b9b0ef3566c015e76686565bc5bfff623fe57263c3c1cd44f315",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    },
+    {
+      "id": "noto-1f308",
+      "split": "holdout",
+      "sourceSha256": "4245aacfb8d3e18437d6ccd086ae224ed52aa60c640e2b89f624ea4e35e41996",
+      "status": "verified",
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "sampleOrigin": "native RGBA8 artwork",
+      "normalizedHash": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+      "pureBytes": 8485,
+      "nativeBytes": 4310,
+      "ratio": 1.968677494199536,
+      "encodedSha256": "823e513e37265642b55a237475c77afa6423d7ec6d07c53df421b5aa1afa2d4c",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+          "exact": true
+        }
+      ],
+      "ownExact": true
+    }
+  ],
+  "stablePromotionGatePassed": false,
+  "qualification": "All observed expansion cases retained as regressions. Original splits are not a newly unseen holdout. Compression remains below the complete M7 target."
+}
