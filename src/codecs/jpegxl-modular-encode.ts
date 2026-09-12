@@ -6,7 +6,11 @@ import { defaultImageLimits, validateImageDimensions } from '../limits.ts'
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
-import { defaultJpegXlWeightedPredictor, JpegXlWeightedPredictor } from './jpegxl-decode.ts'
+import {
+  type JpegXlAnimationHeader,
+  defaultJpegXlWeightedPredictor,
+  JpegXlWeightedPredictor,
+} from './jpegxl-decode.ts'
 import {
   allocateJpegXlArray,
   copyJpegXlArray,
@@ -181,7 +185,7 @@ interface ResolvedJpegXlEncodeOptions {
   readonly intrinsicSize?: Readonly<{ width: number; height: number }>
 }
 
-const writePositiveF16 = (writer: JpegXlBitWriter, value: number): void => {
+export const writePositiveF16 = (writer: JpegXlBitWriter, value: number): void => {
   if (value === 0) {
     writer.writeBits(0, 16)
     return
@@ -222,7 +226,10 @@ const writeChromaticity = (
   }
 }
 
-const writeColorEncoding = (writer: JpegXlBitWriter, semantics: PixelColorSemantics): void => {
+export const writeColorEncoding = (
+  writer: JpegXlBitWriter,
+  semantics: PixelColorSemantics,
+): void => {
   const allDefault =
     semantics.family === 'rgb' &&
     semantics.primaries === 'srgb' &&
@@ -264,7 +271,9 @@ const writeColorEncoding = (writer: JpegXlBitWriter, semantics: PixelColorSemant
           ? 16
           : semantics.transfer.kind === 'hlg'
             ? 18
-            : 13,
+            : semantics.transfer.kind === 'bt709'
+              ? 1
+              : 13,
     )
   }
   const intent = semantics.renderingIntent
@@ -3235,6 +3244,7 @@ const writeImageHeader = (
   format: ModularPixelFormat,
   options: Readonly<ResolvedJpegXlEncodeOptions>,
   xybEncoded = false,
+  animation?: Readonly<JpegXlAnimationHeader>,
 ): void => {
   const hasAlpha = format.startsWith('rgba')
   writer.writeBits(0xff, 8)
@@ -3251,7 +3261,10 @@ const writeImageHeader = (
     !tone.relativeToMaxDisplay &&
     tone.linearBelow === 0
   const extraFields =
-    options.orientation !== 1 || options.intrinsicSize !== undefined || !defaultTone
+    options.orientation !== 1 ||
+    options.intrinsicSize !== undefined ||
+    !defaultTone ||
+    animation !== undefined
   writer.writeBits(extraFields ? 1 : 0, 1)
   if (extraFields) {
     writer.writeBits(options.orientation - 1, 3)
@@ -3263,7 +3276,28 @@ const writeImageHeader = (
       writeDimension(writer, options.intrinsicSize.width)
     }
     writer.writeBits(0, 1)
-    writer.writeBits(0, 1)
+    writer.writeBits(animation ? 1 : 0, 1)
+    if (animation) {
+      writeU32(writer, animation.ticksPerSecondNumerator, [
+        { value: 100 },
+        { value: 1000 },
+        { bits: 10, offset: 1 },
+        { bits: 30, offset: 1 },
+      ])
+      writeU32(writer, animation.ticksPerSecondDenominator, [
+        { value: 1 },
+        { value: 1001 },
+        { bits: 8, offset: 1 },
+        { bits: 10, offset: 1 },
+      ])
+      writeU32(writer, animation.loops, [
+        { value: 0 },
+        { bits: 3, offset: 0 },
+        { bits: 16, offset: 0 },
+        { bits: 32, offset: 0 },
+      ])
+      writer.writeBits(animation.haveTimecodes ? 1 : 0, 1)
+    }
   }
   writeBitDepth(writer, options.sampleBitDepth)
   writer.writeBits(1, 1)
@@ -3312,6 +3346,27 @@ const writeImageHeader = (
   writeZeroU64(writer)
   writer.writeBits(1, 1)
   writer.alignToByte()
+}
+
+export const encodeJpegXlAnimationImageHeader = (
+  request: Readonly<EncodeRequest>,
+  animation: Readonly<JpegXlAnimationHeader>,
+): Uint8Array => {
+  if (!supportedFormat(request.pixelFormat) || !request.colorSemantics)
+    throw unsupportedOperation('JPEG XL sequence input requires integer color samples')
+  validateColorSemantics(request)
+  const options = readOptions(request.options, request.pixelFormat, request.colorSemantics)
+  const writer = new JpegXlBitWriter()
+  writeImageHeader(
+    writer,
+    request.width,
+    request.height,
+    request.pixelFormat,
+    options,
+    options.mode === 'lossy',
+    animation,
+  )
+  return writer.finish()
 }
 
 interface EncodedJpegXlCodestream {
@@ -3666,6 +3721,7 @@ export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boo
     semantics.primaries === 'rec2020' ||
     (semantics.primaries === 'unspecified' && semantics.chromaticities?.primaries !== undefined)) &&
   (semantics.transfer.kind === 'srgb' ||
+    semantics.transfer.kind === 'bt709' ||
     semantics.transfer.kind === 'linear' ||
     semantics.transfer.kind === 'pq' ||
     semantics.transfer.kind === 'hlg' ||

@@ -5513,9 +5513,9 @@
         "status": "limited",
         "label": "Stable lossless and exact transcode; experimental lossy"
       },
-      "boundary": "The documented static Modular and VarDCT subsets support all eight orientations, structured color, native integer precision, high-depth and float VarDCT output, independent alpha precision, and explicit HDR display conversion. Source metadata and emitted pixel semantics are distinct: gray plus alpha expands to RGBA with RGB semantics. Gray ICC plus alpha expansion, arbitrary ICC encoding, unavailable high-depth profile conversion, float-encoded input, grouped subsampled or multiple VarDCT alpha, Level 10 global Squeeze alpha, animation, multiple visible frames, and uncommon extra channels remain unsupported. Experimental forward VarDCT encoding supports integer gray/RGB/RGBA, exact straight alpha with lossy replacement of fully transparent color samples, DCT8 with effort-5/7 Hornuss and rectangular half-block choices, local chroma-from-luma, adaptive quantization, and optional two-pass output. Known-primary sRGB, linear, gamma, and PQ inputs use default intensity targets; HLG, custom chromaticities, premultiplied alpha, larger DCT/AFV strategies, and Gaborish remain unsupported by the forward writer. Residual-scaled edge-preserving restoration is available for opaque standard-sRGB gray/RGB at effort 5/7 and distance 2 or above when most blocks need filtering. Exact JPEG reconstruction requires the checked three-component 8-bit Huffman subset, orientation absent or 1, and absent or independently checked sRGB profile signaling. Native re-encode inherits depths and luminance metadata; storage conversion retains luminance fields, while explicit HDR-to-SDR conversion replaces incompatible signaling. Display-window and LUT re-encode cannot inherit source color meaning. Explicit sessions support embedded previews and selective 8-bit SDR XYB DC/pass output. Other dependencies use declared complete static fallbacks or strict rejection; unavailable native stages are errors.",
-      "description": "Decode common static JPEG XL with native precision, color, alpha and HDR; read embedded previews and progressive SDR stages through explicit sessions; encode lossless Modular pixels, try experimental pixel-to-VarDCT encoding, and reconstruct eligible JPEGs byte for byte.",
-      "memory": "The pixel encoder retains full input and accounts for owned backing buffers before allocation through maxWorkingBytes, defaulting to maxDecodedBytes (1 GiB by default). It includes candidates, entropy state, writer growth and sections. Forward VarDCT retains compact DC/control planes and reuses group-local AC storage; progressive output reuses quantized candidates across passes; caller input, sink storage and JavaScript object overhead are separate. maxOutputBytes bounds encoded output including metadata, up to 128 MiB. Explicit session DC preview retains compact LF state and restoration bands without full-resolution output. Pass and final VarDCT stages retain full output; common 8-bit sRGB uses bounded restoration bands. High-depth, float and compositing paths retain full working planes. JPEG-derived decode uses compact coefficients and bounded component rows. Grouped Modular retains intersecting bands. ICC and metadata have separate limits.",
+      "boundary": "The documented static Modular and VarDCT subsets support all eight orientations, structured color, native integer precision, high-depth and float VarDCT output, independent alpha precision, and explicit HDR display conversion. Source metadata and emitted pixel semantics are distinct: gray plus alpha expands to RGBA with RGB semantics. The explicit sequence API adds rational animation timing, frame replay, composition and streamed lossless/lossy writing. Native channel APIs preserve typed integer and binary16 samples, grouped shifted extra channels and matching GRAY/RGB ICC profiles. Ordinary display still rejects unavailable gray ICC plus alpha expansion, high-depth profile conversion, floating encoded input and non-alpha extra channels. Native extraction is separate from rendering; raw layers reconstruct patch and progressive dependencies; uncommon display layouts remain explicit errors. Experimental forward VarDCT encoding supports integer gray/RGB/RGBA, exact straight alpha with lossy replacement of fully transparent color samples, DCT8 with effort-5/7 Hornuss and rectangular half-block choices, local chroma-from-luma, adaptive quantization, and optional two-pass output. Known-primary sRGB, linear, gamma, and PQ inputs use default intensity targets; HLG, custom chromaticities, premultiplied alpha, larger DCT/AFV strategies, and Gaborish remain unsupported by the forward writer. Residual-scaled edge-preserving restoration is available for opaque standard-sRGB gray/RGB at effort 5/7 and distance 2 or above when most blocks need filtering. Exact JPEG reconstruction requires the checked three-component 8-bit Huffman subset, orientation absent or 1, and absent or independently checked sRGB profile signaling. Native re-encode inherits depths and luminance metadata; storage conversion retains luminance fields, while explicit HDR-to-SDR conversion replaces incompatible signaling. Display-window and LUT re-encode cannot inherit source color meaning. Explicit sessions support embedded previews and selective 8-bit SDR XYB DC/pass output. Other dependencies use declared complete static fallbacks or strict rejection; unavailable native stages are errors.",
+      "description": "Decode common static JPEG XL with native precision, color, alpha and HDR; inspect progressive stages, iterate timed animation frames and typed native layers, preserve source-profile samples, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.",
+      "memory": "The pixel encoder retains full input and accounts for owned backing buffers before allocation through maxWorkingBytes, defaulting to maxDecodedBytes (1 GiB by default). It includes candidates, entropy state, writer growth and sections. Forward VarDCT retains compact DC/control planes and reuses group-local AC storage; progressive output reuses quantized candidates across passes; caller input, sink storage and JavaScript object overhead are separate. maxOutputBytes bounds encoded output including metadata, up to 128 MiB. Explicit session DC preview retains compact LF state and restoration bands without full-resolution output. Pass and final VarDCT stages retain full output; common 8-bit sRGB uses bounded restoration bands. High-depth, float and compositing paths retain full working planes. JPEG-derived decode uses compact coefficients and bounded component rows. Grouped Modular retains intersecting bands. ICC and metadata have separate limits. Sequence decoding retains a full canvas, the current layer and up to four references, with cumulative replay-work limits and no decoded sequence cache. Native planar writing is bounded to one group and preserves encoded sample grids.",
       "recommendation": "Use native pipelines when the target can preserve source precision and color. Request display conversion explicitly for 8-bit output. Pixel-lossless encoding preserves samples; exact JPEG transcode preserves eligible original bytes. Use onlyIfSmaller when JPEG output size is a hard requirement. Compression promotion uses 156 procedural cases. The prior real-asset regression set exposed large-photo and screenshot compression limits. Efforts 3/5/7 now search bounded multi-group predictors and entropy coding, with palette and Squeeze candidates at higher effort. Extended frozen-corpus size and quality gates remain unfinished; experimental lossy distance controls quantization without guaranteeing a perceptual score.",
       "evidence": [
         "tests/jpegxl.test.ts",
@@ -5545,7 +5545,14 @@
         "tests/jpegxl-m7-lossless.test.ts",
         "tests/jpegxl-m7-vardct-encode.test.ts",
         "tests/jpegxl-m7-e1-regression.test.ts",
-        "tests/jpegxl-scalar-palette.test.ts"
+        "tests/jpegxl-scalar-palette.test.ts",
+        "tests/jpegxl-m8-palette.test.ts",
+        "browser-tests/jpegxl-m8-palette.pw.ts",
+        "tests/jpegxl-m8-native.test.ts",
+        "tests/jpegxl-m8-sequence.test.ts",
+        "tests/jpegxl-m8-static.test.ts",
+        "browser-tests/jpegxl-m8-sequence.pw.ts",
+        "tests/jpegxl-m8-raw.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -5556,10 +5563,46 @@
           "tests/jpegxl-jpeg-reconstruction.test.ts",
           "benchmark/jpegxl/verify-m7-forward-depth.ts",
           "benchmark/jpegxl/verify-m7-forward-color.ts",
-          "benchmark/jpegxl/verify-m7-forward-stages.ts"
+          "benchmark/jpegxl/verify-m7-forward-stages.ts",
+          "benchmark/jpegxl/verify-m8-sequence.ts",
+          "benchmark/jpegxl/verify-m8-static.ts",
+          "benchmark/jpegxl/verify-m8-raw.ts",
+          "benchmark/jpegxl/verify-m8-animation-encode.ts"
         ]
       },
       "claims": [
+        {
+          "status": "supported",
+          "text": "Independent header discovery, timed composited frame iteration, decimal tick timestamps, exact rational timebase, loop and timecode metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit still-frame selection, index/timestamp replay, separate native layers, four reference slots and caller-owned output"
+        },
+        {
+          "status": "supported",
+          "text": "Streamed lossless and Experimental lossy animation encoding with exact alpha, rectangles, references, orientation and cancellation"
+        },
+        {
+          "status": "supported",
+          "text": "Typed native channel extraction, grouped shifted VarDCT alpha/depth and binary16 sample preservation"
+        },
+        {
+          "status": "supported",
+          "text": "Bounded native planar encoding with matching original GRAY/RGB ICC profiles, including high-depth gray plus alpha"
+        },
+        {
+          "status": "supported",
+          "text": "Global implicit delta palettes, M3 previous-channel MA-tree properties, custom inverse opsin, custom upsampling and custom Gaborish/EPF reconstruction"
+        },
+        {
+          "status": "supported",
+          "text": "Independent comparisons for all 39 official cases: 37 pass and two Level 10 cases remain explicitly unsupported; every applicable Level 5 case passes"
+        },
+        {
+          "status": "supported",
+          "text": "Native patch/progressive dependencies, all eight patch blend modes in Modular and XYB, YCbCr chroma reconstruction, shifted-alpha/color upsampling, and noise/spline interactions"
+        },
         {
           "status": "supported",
           "text": "Lazy header indexing, aggregate header budgets and no pixel decode at session open"
@@ -5985,8 +6028,8 @@
           "text": "Resolve checked internal DC frames, reference slots, partial-canvas frames, and common static blend modes"
         },
         {
-          "status": "planned",
-          "text": "Reject animation, multiple visible frames, and unsupported blend modes until Group 2"
+          "status": "supported",
+          "text": "Require explicit displayed-frame selection for animation in the ordinary still API"
         },
         {
           "status": "supported",
@@ -6149,16 +6192,16 @@
           "text": "Opt-in extraction of depth, thermal, CFA, spot-color, and selection-mask extra channels"
         },
         {
-          "status": "planned",
-          "text": "Non-coalesced frame access for applications that need individual frames"
+          "status": "supported",
+          "text": "Native coding-layer access through the explicit sequence API, with unsupported unresolved dependencies reported"
         },
         {
           "status": "planned",
           "text": "Diagnostics identifying the box, frame, LF group, pass group, entropy stream, transform, or extra channel that caused a failure"
         },
         {
-          "status": "planned",
-          "text": "Animated output, animation timing, looping, and full multi-frame composition"
+          "status": "supported",
+          "text": "Animated output, exact timing, looping metadata and checked frame composition through the explicit sequence API"
         },
         {
           "status": "planned",

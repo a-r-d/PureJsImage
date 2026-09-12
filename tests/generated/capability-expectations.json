@@ -276,7 +276,14 @@
         "tests/jpegxl-m7-lossless.test.ts",
         "tests/jpegxl-m7-vardct-encode.test.ts",
         "tests/jpegxl-m7-e1-regression.test.ts",
-        "tests/jpegxl-scalar-palette.test.ts"
+        "tests/jpegxl-scalar-palette.test.ts",
+        "tests/jpegxl-m8-palette.test.ts",
+        "browser-tests/jpegxl-m8-palette.pw.ts",
+        "tests/jpegxl-m8-native.test.ts",
+        "tests/jpegxl-m8-sequence.test.ts",
+        "tests/jpegxl-m8-static.test.ts",
+        "browser-tests/jpegxl-m8-sequence.pw.ts",
+        "tests/jpegxl-m8-raw.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -287,7 +294,11 @@
           "tests/jpegxl-jpeg-reconstruction.test.ts",
           "benchmark/jpegxl/verify-m7-forward-depth.ts",
           "benchmark/jpegxl/verify-m7-forward-color.ts",
-          "benchmark/jpegxl/verify-m7-forward-stages.ts"
+          "benchmark/jpegxl/verify-m7-forward-stages.ts",
+          "benchmark/jpegxl/verify-m8-sequence.ts",
+          "benchmark/jpegxl/verify-m8-static.ts",
+          "benchmark/jpegxl/verify-m8-raw.ts",
+          "benchmark/jpegxl/verify-m8-animation-encode.ts"
         ]
       }
     },

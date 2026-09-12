@@ -5,9 +5,10 @@ import { linearToSrgb } from './icc.ts'
 import {
   decodeJpegXlStandaloneModular,
   type JpegXlFrameStructure,
+  JpegXlGroupedModularPlanes,
   jpegXlXybOutputIsLinear,
-  readJpegXlStandaloneModularHeader,
 } from './jpegxl-decode.ts'
+import { applyJpegXlPatch } from './jpegxl-patch-blend.ts'
 import {
   type JpegXlProgressiveRequest,
   jpegXlEncodedPoint,
@@ -38,12 +39,16 @@ export interface JpegXlVarDctPixels {
   readonly height: number
   readonly format: 'gray8' | 'rgb8' | 'rgba8' | 'gray16' | 'rgb16' | 'rgba16' | 'rgbf32' | 'rgbaf32'
   readonly data: Uint8Array
+  readonly nativeExtraPlanes?: readonly Int32Array[]
+  readonly referenceAlpha?: Float64Array
   readonly managedPeakBytes: number
   readonly dcPlanes?: readonly [Float64Array, Float64Array, Float64Array]
   release(): void
 }
 
 export interface JpegXlVarDctReference {
+  readonly alpha?: Float64Array
+  readonly associatedAlpha?: boolean
   readonly width: number
   readonly height: number
   readonly planes: readonly [Float64Array, Float64Array, Float64Array]
@@ -66,6 +71,25 @@ const inverseOpsinMatrix = Object.freeze([
 
 const opsinBias = 0.0037930732552754493
 const opsinBiasCubeRoot = Math.cbrt(opsinBias)
+
+interface ResolvedOpsin {
+  readonly matrix: readonly number[]
+  readonly biases: readonly number[]
+  readonly roots: readonly number[]
+}
+const defaultOpsin: ResolvedOpsin = {
+  matrix: inverseOpsinMatrix,
+  biases: [-opsinBias, -opsinBias, -opsinBias],
+  roots: [opsinBiasCubeRoot, opsinBiasCubeRoot, opsinBiasCubeRoot],
+}
+const resolveOpsin = (custom: JpegXlFrameStructure['opsinInverse']): ResolvedOpsin =>
+  custom
+    ? {
+        matrix: custom.matrix,
+        biases: custom.biases,
+        roots: custom.biases.map((bias) => Math.cbrt(-bias)),
+      }
+    : defaultOpsin
 
 const dct2Weights = Object.freeze([
   Object.freeze([3840, 2560, 1280, 640, 480, 300]),
@@ -811,13 +835,17 @@ const rectangularDctBasis = (size: number): Float64Array => {
   return basis
 }
 
-const adjustQuantizationBias = (value: number, channel: number): number => {
+const adjustQuantizationBias = (
+  value: number,
+  channel: number,
+  biases: readonly number[] = defaultQuantBiases,
+): number => {
   const absolute = Math.abs(value)
   if (absolute === 0) return 0
   if (absolute === 1) {
-    return Math.sign(value) * (defaultQuantBiases[channel] ?? 1)
+    return Math.sign(value) * (biases[channel] ?? 1)
   }
-  return value - 0.145 / value
+  return value - (biases[3] ?? 0.145) / value
 }
 
 const correlationRatio = (
@@ -1373,19 +1401,21 @@ const inverseAfv = (
 }
 
 const applyDefaultGaborish = (
+  frame: Readonly<JpegXlFrameStructure>,
   planes: readonly Float32Array[],
   stride: number,
   width: number,
   height: number,
   scratch = new Float32Array(stride * height),
 ): void => {
-  const adjacent = 1.1 * 0.104699568
-  const diagonal = 1.1 * 0.055680538
-  const normalization = 1 / (1 + 4 * (adjacent + diagonal))
-  const centerWeight = normalization
-  const adjacentWeight = adjacent * normalization
-  const diagonalWeight = diagonal * normalization
-  for (const plane of planes) {
+  for (let channel = 0; channel < planes.length; channel++) {
+    const plane = planes[channel]!
+    const adjacent = frame.gaborishWeights?.[channel * 2] ?? 1.1 * 0.104699568
+    const diagonal = frame.gaborishWeights?.[channel * 2 + 1] ?? 1.1 * 0.055680538
+    const normalization = 1 / (1 + 4 * (adjacent + diagonal))
+    const centerWeight = normalization
+    const adjacentWeight = adjacent * normalization
+    const diagonalWeight = diagonal * normalization
     for (let y = 1; y < height - 1; y += 1) {
       const row = y * stride
       const top = row - stride
@@ -1933,6 +1963,75 @@ const applyDefaultEpfStage2 = (
   }
 }
 
+const applyCustomEpfStage = (
+  frame: Readonly<JpegXlFrameStructure>,
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  output: readonly [Float32Array, Float32Array, Float32Array],
+  stride: number,
+  width: number,
+  height: number,
+  blockWidth: number,
+  inverseSigmas: Float64Array<ArrayBufferLike>,
+  stage: 0 | 1 | 2,
+  blockRowOffset: number,
+): void => {
+  const scale0 = frame.epfWeights?.[0] ?? 40
+  const scale1 = frame.epfWeights?.[1] ?? 5
+  const scale2 = frame.epfWeights?.[2] ?? 3.5
+  const stageScale =
+    1.65 *
+    (stage === 0 ? (frame.epfSigma?.[1] ?? 0.9) : stage === 2 ? (frame.epfSigma?.[2] ?? 6.5) : 1)
+  const borderScale = frame.epfSigma?.[3] ?? 2 / 3
+  const patch = stage === 2 ? [[0, 0]] : epfPatchOffsets
+  const coordinates = epfCandidateCoordinates[stage]
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const centerIndex = y * stride + x
+      const inverseSigma = inverseSigmas[(blockRowOffset + (y >>> 3)) * blockWidth + (x >>> 3)] ?? 0
+      if (inverseSigma < -3.9052429175127) {
+        output[0][centerIndex] = planes[0][centerIndex] ?? 0
+        output[1][centerIndex] = planes[1][centerIndex] ?? 0
+        output[2][centerIndex] = planes[2][centerIndex] ?? 0
+        continue
+      }
+      const blockBorder = (x & 7) === 0 || (x & 7) === 7 || (y & 7) === 0 || (y & 7) === 7
+      const scaledInverseSigma = inverseSigma * stageScale * (blockBorder ? borderScale : 1)
+      let sum0 = planes[0][centerIndex] ?? 0
+      let sum1 = planes[1][centerIndex] ?? 0
+      let sum2 = planes[2][centerIndex] ?? 0
+      let totalWeight = 1
+      for (let coordinate = 0; coordinate < coordinates.length; coordinate += 2) {
+        const offsetY = coordinates[coordinate] ?? 0
+        const offsetX = coordinates[coordinate + 1] ?? 0
+        let sad = 0
+        for (let channel = 0; channel < 3; channel += 1) {
+          const plane = planes[channel]!
+          const scale = channel === 0 ? scale0 : channel === 1 ? scale1 : scale2
+          let channelSad = 0
+          for (const patchOffset of patch) {
+            const patchY = patchOffset[0] ?? 0
+            const patchX = patchOffset[1] ?? 0
+            channelSad += Math.abs(
+              epfSample(plane, stride, width, height, x + patchX, y + patchY) -
+                epfSample(plane, stride, width, height, x + offsetX + patchX, y + offsetY + patchY),
+            )
+          }
+          sad += channelSad * scale
+        }
+        const weight = Math.max(0, 1 + sad * scaledInverseSigma)
+        if (weight === 0) continue
+        totalWeight += weight
+        sum0 += weight * epfSample(planes[0], stride, width, height, x + offsetX, y + offsetY)
+        sum1 += weight * epfSample(planes[1], stride, width, height, x + offsetX, y + offsetY)
+        sum2 += weight * epfSample(planes[2], stride, width, height, x + offsetX, y + offsetY)
+      }
+      output[0][centerIndex] = sum0 / totalWeight
+      output[1][centerIndex] = sum1 / totalWeight
+      output[2][centerIndex] = sum2 / totalWeight
+    }
+  }
+}
+
 const applyDefaultEpfStage0EdgePixel = (
   planes: readonly [Float32Array, Float32Array, Float32Array],
   output: readonly [Float32Array, Float32Array, Float32Array],
@@ -2126,6 +2225,7 @@ const applyDefaultEpfStage0 = (
 }
 
 const applyDefaultEpfStage = (
+  frame: Readonly<JpegXlFrameStructure>,
   planes: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
   width: number,
@@ -2145,6 +2245,22 @@ const applyDefaultEpfStage = (
   const requiredOutputLength = stride * height
   if (output.some((plane) => plane.length < requiredOutputLength)) {
     throw invalidInput('JPEG XL EPF output scratch is too small')
+  }
+  if (frame.epfWeights || frame.epfSigma) {
+    applyCustomEpfStage(
+      frame,
+      planes,
+      output,
+      stride,
+      width,
+      height,
+      blockWidth,
+      inverseSigmas,
+      stage,
+      blockRowOffset,
+    )
+    for (let c = 0; c < 3; c++) planes[c]!.set(output[c]!.subarray(0, requiredOutputLength))
+    return
   }
   if (stage === 0) {
     applyDefaultEpfStage0(
@@ -2199,6 +2315,7 @@ const applyDefaultEpfStage = (
 }
 
 const makeEpfInverseSigmas = (
+  frame: Readonly<JpegXlFrameStructure>,
   quantization: Int32Array<ArrayBufferLike>,
   sharpness: Int32Array<ArrayBufferLike>,
   globalScale: number,
@@ -2211,7 +2328,11 @@ const makeEpfInverseSigmas = (
     if (quant === undefined || sharp === undefined || quant < 1 || sharp < 0 || sharp > 7) {
       throw invalidInput('JPEG XL EPF block metadata is invalid')
     }
-    const sigma = Math.min(-1e-4, (0.46 / (quantScale * quant * -1.17157287525381)) * (sharp / 7))
+    const sigma = Math.min(
+      -1e-4,
+      ((frame.epfSigma?.[0] ?? 0.46) / (quantScale * quant * -1.17157287525381)) *
+        (frame.epfSharpness?.[sharp] ?? sharp / 7),
+    )
     inverseSigmas[blockIndex] = 1 / sigma
   }
   return inverseSigmas
@@ -2258,19 +2379,23 @@ class JpegXlNoiseRandom {
   }
 }
 
-const makeNoisePlane = (random: JpegXlNoiseRandom, width: number, height: number): Float32Array => {
-  const output = new Float32Array(width * height)
-  const batch = new Float32Array(16)
-  for (let y = 0; y < height; y += 1) {
-    let x = 0
-    for (; x + 16 < width; x += 16) {
+const fillNoiseRectangle = (
+  random: JpegXlNoiseRandom,
+  output: Float32Array,
+  stride: number,
+  left: number,
+  top: number,
+  width: number,
+  height: number,
+  batch: Float32Array,
+): void => {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x += batch.length) {
       random.fillFloats(batch)
-      output.set(batch, y * width + x)
+      const count = Math.min(batch.length, width - x)
+      output.set(batch.subarray(0, count), (top + y) * stride + left + x)
     }
-    random.fillFloats(batch)
-    output.set(batch.subarray(0, width - x), y * width + x)
   }
-  return output
 }
 
 const convolveNoisePlane = (plane: Float32Array, width: number, height: number): void => {
@@ -2304,6 +2429,7 @@ const noiseStrength = (lut: readonly number[], value: number): number => {
 }
 
 const applyNoise = (
+  frame: Readonly<JpegXlFrameStructure>,
   planes: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
   width: number,
@@ -2312,13 +2438,34 @@ const applyNoise = (
   correlation: Readonly<JpegXlJpegColorCorrelation>,
 ): void => {
   if (lut.length !== 8 || !lut.some((value) => value !== 0)) return
-  // The first visible frame advances the decoder's visible-frame counter from zero to one.
-  const random = new JpegXlNoiseRandom(1, 0, 0, 0)
   const noise = [
-    makeNoisePlane(random, width, height),
-    makeNoisePlane(random, width, height),
-    makeNoisePlane(random, width, height),
+    new Float32Array(width * height),
+    new Float32Array(width * height),
+    new Float32Array(width * height),
   ] as const
+  const batch = new Float32Array(16)
+  // Each 256-pixel noise tile has its own coordinate-derived random stream.
+  for (let top = 0; top < height; top += 256) {
+    for (let left = 0; left < width; left += 256) {
+      const random = new JpegXlNoiseRandom(
+        frame.visibleFrameIndex ?? 1,
+        frame.nonvisibleFrameIndex ?? 0,
+        left,
+        top,
+      )
+      for (const plane of noise)
+        fillNoiseRectangle(
+          random,
+          plane,
+          width,
+          left,
+          top,
+          Math.min(256, width - left),
+          Math.min(256, height - top),
+          batch,
+        )
+    }
+  }
   for (const plane of noise) convolveNoisePlane(plane, width, height)
   const yToX = correlation.baseCorrelationX
   const yToB = correlation.baseCorrelationB
@@ -2448,6 +2595,17 @@ const upsamplingKernels = Object.freeze({
   4: makeUpsamplingKernel(4, defaultUpsampling4Weights),
   8: makeUpsamplingKernel(8, defaultUpsampling8Weights),
 })
+const frameUpsamplingKernels = (
+  frame: Readonly<JpegXlFrameStructure>,
+): typeof upsamplingKernels => {
+  const weights = frame.upsamplingWeights
+  if (!weights) return upsamplingKernels
+  return {
+    2: weights[2] ? makeUpsamplingKernel(2, Float64Array.from(weights[2])) : upsamplingKernels[2],
+    4: weights[4] ? makeUpsamplingKernel(4, Float64Array.from(weights[4])) : upsamplingKernels[4],
+    8: weights[8] ? makeUpsamplingKernel(8, Float64Array.from(weights[8])) : upsamplingKernels[8],
+  }
+}
 
 const upsampleSample = (
   plane: Float32Array,
@@ -2457,12 +2615,13 @@ const upsampleSample = (
   x: number,
   y: number,
   factor: 1 | 2 | 4 | 8,
+  kernels: typeof upsamplingKernels,
 ): number => {
   if (factor === 1) return plane[y * stride + x] ?? 0
   const sourceX = Math.floor(x / factor)
   const sourceY = Math.floor(y / factor)
   const kernelOffset = ((y % factor) * factor + (x % factor)) * 25
-  const kernel = upsamplingKernels[factor]
+  const kernel = kernels[factor]
   let sum = 0
   let minimum = Infinity
   let maximum = -Infinity
@@ -2492,27 +2651,28 @@ const writeRgb = (
   opsinX: number,
   opsinY: number,
   opsinB: number,
+  opsin: ResolvedOpsin = defaultOpsin,
 ): void => {
-  const gammaRed = opsinY + opsinX + opsinBiasCubeRoot
-  const gammaGreen = opsinY - opsinX + opsinBiasCubeRoot
-  const gammaBlue = opsinB + opsinBiasCubeRoot
-  const mixedRed = gammaRed * gammaRed * gammaRed - opsinBias
-  const mixedGreen = gammaGreen * gammaGreen * gammaGreen - opsinBias
-  const mixedBlue = gammaBlue * gammaBlue * gammaBlue - opsinBias
+  const gammaRed = opsinY + opsinX + (opsin.roots[0] ?? 0)
+  const gammaGreen = opsinY - opsinX + (opsin.roots[1] ?? 0)
+  const gammaBlue = opsinB + (opsin.roots[2] ?? 0)
+  const mixedRed = gammaRed * gammaRed * gammaRed + (opsin.biases[0] ?? 0)
+  const mixedGreen = gammaGreen * gammaGreen * gammaGreen + (opsin.biases[1] ?? 0)
+  const mixedBlue = gammaBlue * gammaBlue * gammaBlue + (opsin.biases[2] ?? 0)
   output[offset] = byteFromLinear(
-    (inverseOpsinMatrix[0] ?? 0) * mixedRed +
-      (inverseOpsinMatrix[1] ?? 0) * mixedGreen +
-      (inverseOpsinMatrix[2] ?? 0) * mixedBlue,
+    (opsin.matrix[0] ?? 0) * mixedRed +
+      (opsin.matrix[1] ?? 0) * mixedGreen +
+      (opsin.matrix[2] ?? 0) * mixedBlue,
   )
   output[offset + 1] = byteFromLinear(
-    (inverseOpsinMatrix[3] ?? 0) * mixedRed +
-      (inverseOpsinMatrix[4] ?? 0) * mixedGreen +
-      (inverseOpsinMatrix[5] ?? 0) * mixedBlue,
+    (opsin.matrix[3] ?? 0) * mixedRed +
+      (opsin.matrix[4] ?? 0) * mixedGreen +
+      (opsin.matrix[5] ?? 0) * mixedBlue,
   )
   output[offset + 2] = byteFromLinear(
-    (inverseOpsinMatrix[6] ?? 0) * mixedRed +
-      (inverseOpsinMatrix[7] ?? 0) * mixedGreen +
-      (inverseOpsinMatrix[8] ?? 0) * mixedBlue,
+    (opsin.matrix[6] ?? 0) * mixedRed +
+      (opsin.matrix[7] ?? 0) * mixedGreen +
+      (opsin.matrix[8] ?? 0) * mixedBlue,
   )
 }
 
@@ -2580,6 +2740,7 @@ const decodeJpegXlVarDctDcGroups = (
   memory: JpegXlVarDctMemoryLedger,
   globalSectionEnd: number,
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
+  extraChannels?: JpegXlGroupedModularPlanes,
 ): Readonly<{ group: JpegXlJpegDcGroup; lease: JpegXlVarDctMemoryLease }> => {
   if (!separatedSections) {
     const decoded = decodeJpegXlJpegDcGroup(
@@ -2595,6 +2756,20 @@ const decodeJpegXlVarDctDcGroups = (
       globalSectionEnd,
       false,
       externalDcPlanes,
+      extraChannels
+        ? (position) =>
+            extraChannels.decodeGroup(
+              sections[0] ?? new Uint8Array(),
+              position,
+              1 + frame.dcGroupCount,
+              0,
+              0,
+              frame.groupDimension * 8,
+              3,
+              1024,
+              false,
+            )
+        : undefined,
     )
     return Object.freeze({
       group: decoded,
@@ -2679,6 +2854,20 @@ const decodeJpegXlVarDctDcGroups = (
       0,
       true,
       externalGroupPlanes,
+      extraChannels
+        ? (position) =>
+            extraChannels.decodeGroup(
+              groupSection,
+              position,
+              1 + frame.dcGroupCount + groupId,
+              groupX * 8,
+              groupY * 8,
+              frame.groupDimension * 8,
+              3,
+              1024,
+              false,
+            )
+        : undefined,
     )
     const decodedLease = memory.retain(
       `jpegxl-vardct-lf-group-${groupId}`,
@@ -2920,6 +3109,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
   request: Readonly<JpegXlProgressiveRequest> = {},
 ): Generator<void, JpegXlVarDctPixels | undefined> {
   const { frame, memory, lfGlobal } = state
+  const opsin = resolveOpsin(frame.opsinInverse)
   if (state.released) throw invalidInput('JPEG XL LF state has been released')
   if (
     frame.bitDepth !== 8 ||
@@ -2981,6 +3171,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
       Float32Array.from(state.dcPlanes[2]),
     ] as const
     const inverseSigmas = makeEpfInverseSigmas(
+      frame,
       state.dcGroup.quantization,
       state.dcGroup.sharpness,
       lfGlobal.globalScale,
@@ -3063,7 +3254,8 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
         }
         yield
       }
-      if (frame.gaborish) applyDefaultGaborish(planes, stride, frame.width, rows, gaborishScratch)
+      if (frame.gaborish)
+        applyDefaultGaborish(frame, planes, stride, frame.width, rows, gaborishScratch)
       for (const stage of [0, 1, 2] as const) {
         const enabled =
           stage === 0
@@ -3073,6 +3265,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
               : frame.epfIterations >= 2
         if (enabled)
           applyDefaultEpfStage(
+            frame,
             planes,
             stride,
             frame.width,
@@ -3101,6 +3294,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
             planes[0][source] ?? 0,
             planes[1][source] ?? 0,
             planes[2][source] ?? 0,
+            opsin,
           )
           if (channels === 1) output[offset] = grayScratch[0] ?? 0
         }
@@ -3148,6 +3342,7 @@ const decodeJpegXlDct8Striped = function* (
   preparedLowFrequency: JpegXlVarDctLowFrequencyState | undefined,
   selectedGroups: ReadonlySet<number> | undefined,
 ): Generator<void, JpegXlVarDctPixels | undefined> {
+  const opsin = resolveOpsin(frame.opsinInverse)
   const codedWidth = frame.codedWidth
   const codedHeight = frame.codedHeight
   const blockWidth = Math.ceil(codedWidth / 8)
@@ -3175,6 +3370,7 @@ const decodeJpegXlDct8Striped = function* (
   const dcFrequencyScratch = new Float64Array(64)
   const activeVerticalScratch = new Uint16Array(64)
   const inverseSigmas = makeEpfInverseSigmas(
+    frame,
     dcGroup.quantization,
     dcGroup.sharpness,
     lfGlobal.globalScale,
@@ -3318,7 +3514,11 @@ const decodeJpegXlDct8Striped = function* (
                 const coefficient = coefficients[coefficientOffset + position] ?? 0
                 if (coefficient !== 0) {
                   values[position] =
-                    adjustQuantizationBias(coefficient, channel) *
+                    adjustQuantizationBias(
+                      coefficient,
+                      channel,
+                      frame.opsinInverse?.quantizationBiases,
+                    ) *
                     coefficientScale *
                     (matrix[position] ?? 1)
                 }
@@ -3492,7 +3692,14 @@ const decodeJpegXlDct8Striped = function* (
     const combinedHeight = topRows + center.height + bottomRows
     const combinedStart = center.pixelY - topRows
     if (frame.gaborish) {
-      applyDefaultGaborish(combined, paddedWidth, codedWidth, combinedHeight, gaborishScratch)
+      applyDefaultGaborish(
+        frame,
+        combined,
+        paddedWidth,
+        codedWidth,
+        combinedHeight,
+        gaborishScratch,
+      )
     }
     const blockRowOffset = combinedStart >>> 3
     for (const stage of [0, 1, 2] as const) {
@@ -3504,6 +3711,7 @@ const decodeJpegXlDct8Striped = function* (
             : frame.epfIterations >= 2
       if (!enabled) continue
       applyDefaultEpfStage(
+        frame,
         combined,
         paddedWidth,
         codedWidth,
@@ -3531,6 +3739,7 @@ const decodeJpegXlDct8Striped = function* (
           combined[0][sourceIndex] ?? 0,
           combined[1][sourceIndex] ?? 0,
           combined[2][sourceIndex] ?? 0,
+          opsin,
         )
         if (outputChannels === 1) output[outputIndex] = temporaryRgb[0] ?? 0
         sourceIndex += 1
@@ -3588,6 +3797,9 @@ const decodeJpegXlDct8Steps = function* (
   maximumPasses = frame.passCount,
   selectedGroups?: ReadonlySet<number>,
 ): Generator<void, JpegXlVarDctPixels | undefined> {
+  const kernels = frameUpsamplingKernels(frame)
+  let colorUpsampling = frame.upsampling
+  const opsin = resolveOpsin(frame.opsinInverse)
   if (!Number.isSafeInteger(maximumPasses) || maximumPasses < 1 || maximumPasses > frame.passCount)
     throw invalidInput('JPEG XL requested pass count is invalid')
   if (
@@ -3619,24 +3831,21 @@ const decodeJpegXlDct8Steps = function* (
     if (factor !== 1 && factor !== 2 && factor !== 4 && factor !== 8)
       throw unsupportedOperation('JPEG XL alpha upsampling factor exceeds eight')
     return {
-      width: Math.ceil(frame.width / factor),
-      height: Math.ceil(frame.height / factor),
+      width: Math.ceil(frame.frameWidth / factor),
+      height: Math.ceil(frame.frameHeight / factor),
       factor,
     } as const
   })
   const selectedAlpha =
     frame.selectedAlphaChannel === undefined ? undefined : alphaLayouts[frame.selectedAlphaChannel]
-  const alphaUpsampling = selectedAlpha?.factor ?? 1
-  const alphaWidth = selectedAlpha?.width ?? frame.codedWidth
-  const alphaHeight = selectedAlpha?.height ?? frame.codedHeight
-  if (frame.upsampling !== 1 && (frame.frameFlags & 1) !== 0) {
-    throw unsupportedOperation('Common VarDCT noise with frame upsampling is not supported yet')
-  }
-  const codedWidth = frame.codedWidth
-  const codedHeight = frame.codedHeight
+  let alphaUpsampling = selectedAlpha?.factor ?? 1
+  let alphaWidth = selectedAlpha?.width ?? frame.codedWidth
+  let alphaHeight = selectedAlpha?.height ?? frame.codedHeight
+  let codedWidth = frame.codedWidth
+  let codedHeight = frame.codedHeight
   const blockWidth = Math.ceil(codedWidth / 8)
   const blockHeight = Math.ceil(codedHeight / 8)
-  const paddedWidth = blockWidth * 8
+  let paddedWidth = blockWidth * 8
   const paddedHeight = blockHeight * 8
   const planeBytes = BigInt(paddedWidth) * BigInt(paddedHeight) * 3n * 4n
   const linearOutput = jpegXlXybOutputIsLinear(frame)
@@ -3663,7 +3872,7 @@ const decodeJpegXlDct8Steps = function* (
     decodeJpegXlJpegLfGlobal(
       section,
       0,
-      separatedSections && frame.alphaBitDepth === undefined,
+      separatedSections && frame.extraChannels.length === 0,
       frame.frameFlags,
       frame.codedWidth,
       frame.codedHeight,
@@ -3684,33 +3893,27 @@ const decodeJpegXlDct8Steps = function* (
       'JPEG XL selected groups require a complete dependency plan without extra channels, upsampling, patches, splines or noise',
     )
   let globalSectionEnd = lfGlobal.endingBitPosition
-  let alphaPlane: Int32Array<ArrayBufferLike> | undefined
-  const groupedAlpha =
-    frame.alphaBitDepth !== undefined &&
-    (alphaWidth > frame.groupDimension || alphaHeight > frame.groupDimension)
-  if (frame.alphaBitDepth !== undefined) {
-    if (groupedAlpha) {
-      if (alphaLayouts.length !== 1 || alphaUpsampling !== frame.upsampling)
-        throw unsupportedOperation(
-          'JPEG XL grouped alpha requires one channel with matching upsampling',
-        )
-      globalSectionEnd = readJpegXlStandaloneModularHeader(section, globalSectionEnd, [
-        { width: codedWidth, height: codedHeight },
-      ])
-      alphaPlane = new Int32Array(codedWidth * codedHeight)
-    } else {
-      const decodedAlpha = decodeJpegXlStandaloneModular(
-        section,
-        globalSectionEnd,
-        alphaLayouts,
-        0,
-        lfGlobal.globalModularCode,
-      )
-      const decodedPlane = decodedAlpha.planes[frame.selectedAlphaChannel ?? 0]
-      if (!decodedPlane) throw invalidInput('JPEG XL VarDCT global alpha plane is missing')
-      alphaPlane = decodedPlane
-      globalSectionEnd = decodedAlpha.endingBitPosition
-    }
+  let alphaPlane: Int32Array<ArrayBufferLike> | Float64Array | undefined
+  let groupedAlphaPlanes: JpegXlGroupedModularPlanes | undefined
+  let nativeExtraPlanes: readonly Int32Array[] | undefined
+  let groupedAlpha = false
+  if (frame.extraChannels.length > 0) {
+    groupedAlphaPlanes = new JpegXlGroupedModularPlanes(
+      section,
+      globalSectionEnd,
+      alphaLayouts.map((layout) => ({
+        width: layout.width,
+        height: layout.height,
+        hshift: Math.log2(layout.factor / frame.upsampling),
+        vshift: Math.log2(layout.factor / frame.upsampling),
+      })),
+      frame.groupDimension,
+      limits.maxDecodedBytes - memory.liveBytes + alphaWorkingBytes,
+      Math.max(...frame.extraChannels.map((channel) => channel.bitDepth.bits)),
+      lfGlobal.globalModularCode,
+    )
+    globalSectionEnd = groupedAlphaPlanes.endingBitPosition
+    groupedAlpha = groupedAlphaPlanes.hasGroups
   }
   const { group: dcGroup, lease: dcGroupLease } = preparedLowFrequency
     ? { group: preparedLowFrequency.dcGroup, lease: borrowedLowFrequencyLease }
@@ -3724,6 +3927,7 @@ const decodeJpegXlDct8Steps = function* (
         memory,
         globalSectionEnd,
         externalDcPlanes,
+        groupedAlpha ? groupedAlphaPlanes : undefined,
       )
   const hfSection = separatedSections ? allSections[1 + frame.dcGroupCount] : section
   if (!hfSection) throw invalidInput('JPEG XL VarDCT HF global section is missing')
@@ -3744,6 +3948,8 @@ const decodeJpegXlDct8Steps = function* (
   )
   if (
     separatedSections &&
+    !returnDcPlanes &&
+    frame.extraChannels.length === 0 &&
     !highDepth &&
     !linearOutput &&
     frame.groupsDown > 1 &&
@@ -3775,7 +3981,7 @@ const decodeJpegXlDct8Steps = function* (
     'jpegxl-vardct-primary-float32-planes',
     paddedWidth * paddedHeight * 3 * 4,
   )
-  const planes = [
+  let planes = [
     new Float32Array(paddedWidth * paddedHeight),
     new Float32Array(paddedWidth * paddedHeight),
     new Float32Array(paddedWidth * paddedHeight),
@@ -3803,6 +4009,21 @@ const decodeJpegXlDct8Steps = function* (
     ? { planes: preparedLowFrequency.dcPlanes, lease: undefined }
     : prepareRenderDcPlanes(frame, lfGlobal, dcGroup, memory, externalDcPlanes)
 
+  const alphaPassMinimum = new Int8Array(frame.passCount),
+    alphaPassMaximum = new Int8Array(frame.passCount)
+  let previousAlphaMinimum = 3
+  for (let pass = 0; pass < frame.passCount; pass++) {
+    const boundary = frame.progressiveResolutions.find((entry) => entry.lastPass === pass)
+    const minimum =
+      pass === frame.passCount - 1
+        ? 0
+        : boundary
+          ? Math.log2(boundary.downsampling)
+          : previousAlphaMinimum
+    alphaPassMinimum[pass] = minimum
+    alphaPassMaximum[pass] = previousAlphaMinimum - 1
+    previousAlphaMinimum = minimum
+  }
   const groupCount = frame.groupsAcross * frame.groupsDown
   const groupBlockDimension = frame.groupDimension / 8
   for (let groupId = 0; groupId < groupCount; groupId += 1) {
@@ -3834,34 +4055,21 @@ const decodeJpegXlDct8Steps = function* (
         pass,
         dcGroup,
         separatedSections ? 0 : hfGlobal.endingBitPosition,
-        separatedSections && (!groupedAlpha || passIndex !== frame.passCount - 1),
+        separatedSections && !groupedAlpha,
         false,
         frame.passShifts[passIndex] ?? 0,
       )
-      if (groupedAlpha && passIndex === frame.passCount - 1) {
-        if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha destination is missing')
-        const groupPixelX = groupBlockX * 8
-        const groupPixelY = groupBlockY * 8
-        const groupPixelWidth = Math.min(frame.groupDimension, codedWidth - groupPixelX)
-        const groupPixelHeight = Math.min(frame.groupDimension, codedHeight - groupPixelY)
-        const alpha = decodeJpegXlStandaloneModular(
+      if (groupedAlpha) {
+        if (!groupedAlphaPlanes) throw invalidInput('JPEG XL grouped alpha state is missing')
+        groupedAlphaPlanes.decodeGroup(
           acSection,
           decoded.endingBitPosition,
-          [{ width: groupPixelWidth, height: groupPixelHeight }],
           1 + 3 * frame.dcGroupCount + 17 + passIndex * groupCount + groupId,
-          lfGlobal.globalModularCode,
-        )
-        const sourceAlpha = alpha.planes[0]
-        if (!sourceAlpha) throw invalidInput('JPEG XL VarDCT alpha group is missing')
-        copyPlaneRegion(
-          sourceAlpha,
-          groupPixelWidth,
-          alphaPlane,
-          codedWidth,
-          groupPixelX,
-          groupPixelY,
-          groupPixelWidth,
-          groupPixelHeight,
+          groupBlockX * 8,
+          groupBlockY * 8,
+          frame.groupDimension,
+          alphaPassMinimum[passIndex] ?? 0,
+          alphaPassMaximum[passIndex] ?? 2,
         )
       }
       const decodedLease = memory.retain(
@@ -3939,7 +4147,11 @@ const decodeJpegXlDct8Steps = function* (
             const coefficient = coefficients[coefficientOffset + position] ?? 0
             if (coefficient !== 0) {
               values[position] =
-                adjustQuantizationBias(coefficient, channel) *
+                adjustQuantizationBias(
+                  coefficient,
+                  channel,
+                  frame.opsinInverse?.quantizationBiases,
+                ) *
                 coefficientScale *
                 (dequantization[position] ?? 1)
             }
@@ -4047,12 +4259,20 @@ const decodeJpegXlDct8Steps = function* (
     yield
   }
 
+  if (groupedAlphaPlanes) {
+    nativeExtraPlanes = groupedAlphaPlanes.finish()
+    if (frame.selectedAlphaChannel !== undefined) {
+      alphaPlane = nativeExtraPlanes[frame.selectedAlphaChannel]
+      if (!alphaPlane) throw invalidInput('JPEG XL reconstructed alpha plane is missing')
+    }
+  }
   if (frame.gaborish) {
     const scratch = memory.retain('jpegxl-vardct-gaborish-scratch', paddedWidth * codedHeight * 4)
-    applyDefaultGaborish(planes, paddedWidth, codedWidth, codedHeight)
+    applyDefaultGaborish(frame, planes, paddedWidth, codedWidth, codedHeight)
     scratch.release()
   }
   const inverseSigmas = makeEpfInverseSigmas(
+    frame,
     dcGroup.quantization,
     dcGroup.sharpness,
     lfGlobal.globalScale,
@@ -4062,7 +4282,16 @@ const decodeJpegXlDct8Steps = function* (
       'jpegxl-vardct-epf-stage-0-output',
       paddedWidth * codedHeight * 3 * 4,
     )
-    applyDefaultEpfStage(planes, paddedWidth, codedWidth, codedHeight, blockWidth, inverseSigmas, 0)
+    applyDefaultEpfStage(
+      frame,
+      planes,
+      paddedWidth,
+      codedWidth,
+      codedHeight,
+      blockWidth,
+      inverseSigmas,
+      0,
+    )
     scratch.release()
   }
   if (frame.epfIterations >= 1) {
@@ -4070,7 +4299,16 @@ const decodeJpegXlDct8Steps = function* (
       'jpegxl-vardct-epf-stage-1-output',
       paddedWidth * codedHeight * 3 * 4,
     )
-    applyDefaultEpfStage(planes, paddedWidth, codedWidth, codedHeight, blockWidth, inverseSigmas, 1)
+    applyDefaultEpfStage(
+      frame,
+      planes,
+      paddedWidth,
+      codedWidth,
+      codedHeight,
+      blockWidth,
+      inverseSigmas,
+      1,
+    )
     scratch.release()
   }
   if (frame.epfIterations >= 2) {
@@ -4078,42 +4316,81 @@ const decodeJpegXlDct8Steps = function* (
       'jpegxl-vardct-epf-stage-2-output',
       paddedWidth * codedHeight * 3 * 4,
     )
-    applyDefaultEpfStage(planes, paddedWidth, codedWidth, codedHeight, blockWidth, inverseSigmas, 2)
+    applyDefaultEpfStage(
+      frame,
+      planes,
+      paddedWidth,
+      codedWidth,
+      codedHeight,
+      blockWidth,
+      inverseSigmas,
+      2,
+    )
     scratch.release()
   }
-  for (const patch of lfGlobal.patches) {
-    const reference = references.get(patch.referenceId)
-    if (
-      !reference ||
-      patch.referenceX + patch.width > reference.width ||
-      patch.referenceY + patch.height > reference.height
-    ) {
-      throw invalidInput('JPEG XL patch reference is unavailable or outside its frame')
+  const patchLease = lfGlobal.patches.length
+    ? memory.retain(
+        'jpegxl-patch-alpha-and-row',
+        (alphaPlane ? paddedWidth * codedHeight * 24 : 0) +
+          codedWidth * (3 + frame.extraChannels.length) * 8,
+      )
+    : undefined
+  let referenceAlpha: Float64Array | undefined
+  if (lfGlobal.patches.length > 0) {
+    const alphaScale = 1 / (2 ** (frame.alphaBitDepth ?? 8) - 1)
+    const alpha = alphaPlane ? new Float64Array(paddedWidth * codedHeight) : undefined
+    if (alpha && alphaPlane) {
+      const factor = alphaWidth === codedWidth && alphaHeight === codedHeight ? 1 : alphaUpsampling
+      if (factor !== 1 && frame.upsampling !== 1)
+        throw unsupportedOperation(
+          'JPEG XL patch channels need compatible reconstruction resolutions',
+        )
+      const input = Float32Array.from(alphaPlane)
+      for (let y = 0; y < codedHeight; y++)
+        for (let x = 0; x < codedWidth; x++)
+          alpha[y * paddedWidth + x] =
+            upsampleSample(input, alphaWidth, alphaWidth, alphaHeight, x, y, factor, kernels) *
+            alphaScale
+      alphaWidth = codedWidth
+      alphaHeight = codedHeight
+      alphaUpsampling = frame.upsampling
     }
-    if (patch.blendMode > 3) {
-      throw unsupportedOperation('JPEG XL alpha-weighted patch blending is not supported yet')
+    const target = alpha ? [...planes, alpha] : planes
+    for (const patch of lfGlobal.patches) {
+      const reference = references.get(patch.referenceId)
+      if (!reference) throw invalidInput('JPEG XL patch reference is missing')
+      if (
+        frame.extraChannels.length > 1 &&
+        (patch.blendMode >= 4 || patch.blending?.slice(1).some((blend) => blend.mode !== 0))
+      )
+        throw unsupportedOperation(
+          'JPEG XL multiple patch extra channels require native composition',
+        )
+      applyJpegXlPatch(
+        target,
+        paddedWidth,
+        reference.alpha ? [...reference.planes, reference.alpha] : reference.planes,
+        reference.width,
+        reference.height,
+        3,
+        frame.extraChannels,
+        patch,
+      )
+      yield
     }
-    for (let channel = 0; channel < 3; channel += 1) {
-      const destination = planes[channel]
-      const source = reference.planes[channel]
-      if (!destination || !source) throw invalidInput('JPEG XL patch channel is missing')
-      for (let y = 0; y < patch.height; y += 1) {
-        const destinationBase = (patch.y + y) * paddedWidth + patch.x
-        const sourceBase = (patch.referenceY + y) * reference.width + patch.referenceX
-        for (let x = 0; x < patch.width; x += 1) {
-          const sourceValue = source[sourceBase + x] ?? 0
-          const destinationIndex = destinationBase + x
-          if (patch.blendMode === 0) continue
-          if (patch.blendMode === 1) destination[destinationIndex] = sourceValue
-          else if (patch.blendMode === 2) {
-            destination[destinationIndex] = (destination[destinationIndex] ?? 0) + sourceValue
-          } else {
-            destination[destinationIndex] = (destination[destinationIndex] ?? 0) * sourceValue
-          }
+    if (alpha) {
+      referenceAlpha = new Float64Array(codedWidth * codedHeight)
+      const scaledAlpha = new Float64Array(referenceAlpha.length)
+      for (let y = 0; y < codedHeight; y++)
+        for (let x = 0; x < codedWidth; x++) {
+          const value = alpha[y * paddedWidth + x]!
+          referenceAlpha[y * codedWidth + x] = value
+          scaledAlpha[y * codedWidth + x] = value / alphaScale
         }
-      }
+      alphaPlane = scaledAlpha
     }
   }
+
   if (lfGlobal.splines.length > 0) {
     applySplines(
       planes,
@@ -4125,12 +4402,46 @@ const decodeJpegXlDct8Steps = function* (
       lfGlobal.colorCorrelation,
     )
   }
+  const expandedLease =
+    frame.upsampling !== 1 && (returnDcPlanes || lfGlobal.noiseLut)
+      ? memory.retain('jpegxl-upsampled-native-xyb', frame.width * frame.height * 12)
+      : undefined
+  if (expandedLease) {
+    const expanded = [
+      new Float32Array(frame.width * frame.height),
+      new Float32Array(frame.width * frame.height),
+      new Float32Array(frame.width * frame.height),
+    ] as const
+    for (let c = 0; c < 3; c++) {
+      for (let y = 0; y < frame.height; y++) {
+        if ((y & 63) === 0) yield
+        for (let x = 0; x < frame.width; x++)
+          expanded[c]![y * frame.width + x] = upsampleSample(
+            planes[c]!,
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            frame.upsampling,
+            kernels,
+          )
+      }
+    }
+    planes = expanded
+    codedWidth = frame.width
+    codedHeight = frame.height
+    paddedWidth = frame.width
+    colorUpsampling = 1
+    primaryPlanesLease.release()
+  }
   if (lfGlobal.noiseLut) {
     const scratch = memory.retain(
       'jpegxl-vardct-synthetic-noise-and-convolution',
       codedWidth * codedHeight * 4 * 4,
     )
     applyNoise(
+      frame,
       planes,
       paddedWidth,
       codedWidth,
@@ -4142,6 +4453,38 @@ const decodeJpegXlDct8Steps = function* (
   }
 
   if (returnDcPlanes) {
+    const referenceAlphaLease = alphaPlane
+      ? memory.retain(
+          'jpegxl-reference-alpha-reconstruction',
+          codedWidth * codedHeight * 8 + alphaPlane.byteLength,
+        )
+      : undefined
+    if (alphaPlane) {
+      const input = Float32Array.from(alphaPlane)
+      const scale = 1 / (2 ** (frame.alphaBitDepth ?? 8) - 1)
+      referenceAlpha = new Float64Array(codedWidth * codedHeight)
+      for (let y = 0; y < codedHeight; y++) {
+        if ((y & 63) === 0) yield
+        for (let x = 0; x < codedWidth; x++)
+          referenceAlpha[y * codedWidth + x] =
+            upsampleSample(
+              input,
+              alphaWidth,
+              alphaWidth,
+              alphaHeight,
+              x,
+              y,
+              alphaUpsampling,
+              kernels,
+            ) * scale
+      }
+    }
+    const nativeOutputLease = memory.retain(
+      'jpegxl-native-xyb-output',
+      (referenceAlpha?.byteLength ?? 0) +
+        codedWidth * codedHeight * 24 +
+        (nativeExtraPlanes?.reduce((sum, plane) => sum + plane.byteLength, 0) ?? 0),
+    )
     const copied = planes.map((plane) => {
       const output = new Float64Array(codedWidth * codedHeight)
       for (let y = 0; y < codedHeight; y += 1) {
@@ -4163,14 +4506,21 @@ const decodeJpegXlDct8Steps = function* (
     dcGroupLease.release()
     lfGlobalLease.release()
     alphaLease.release()
+    patchLease?.release()
+    expandedLease?.release()
+    referenceAlphaLease?.release()
     return Object.freeze({
       width: codedWidth,
       height: codedHeight,
       format: 'rgb8',
       data: new Uint8Array(),
       dcPlanes,
+      ...(nativeExtraPlanes ? { nativeExtraPlanes } : {}),
+      ...(referenceAlpha ? { referenceAlpha } : {}),
       managedPeakBytes: memory.peakBytes,
-      release: (): void => {},
+      release: (): void => {
+        nativeOutputLease.release()
+      },
     })
   }
 
@@ -4207,7 +4557,7 @@ const decodeJpegXlDct8Steps = function* (
       for (let x = 0; x < frame.width; x += 1) {
         const index = y * paddedWidth + x
         const opsinX =
-          frame.upsampling === 1
+          colorUpsampling === 1
             ? (planes[0][index] ?? 0)
             : upsampleSample(
                 planes[0],
@@ -4216,10 +4566,11 @@ const decodeJpegXlDct8Steps = function* (
                 codedHeight,
                 x,
                 y,
-                frame.upsampling,
+                colorUpsampling,
+                kernels,
               )
         const opsinY =
-          frame.upsampling === 1
+          colorUpsampling === 1
             ? (planes[1][index] ?? 0)
             : upsampleSample(
                 planes[1],
@@ -4228,10 +4579,11 @@ const decodeJpegXlDct8Steps = function* (
                 codedHeight,
                 x,
                 y,
-                frame.upsampling,
+                colorUpsampling,
+                kernels,
               )
         const opsinB =
-          frame.upsampling === 1
+          colorUpsampling === 1
             ? (planes[2][index] ?? 0)
             : upsampleSample(
                 planes[2],
@@ -4240,20 +4592,21 @@ const decodeJpegXlDct8Steps = function* (
                 codedHeight,
                 x,
                 y,
-                frame.upsampling,
+                colorUpsampling,
+                kernels,
               )
-        const gammaRed = opsinY + opsinX + opsinBiasCubeRoot
-        const gammaGreen = opsinY - opsinX + opsinBiasCubeRoot
-        const gammaBlue = opsinB + opsinBiasCubeRoot
-        const mixedRed = gammaRed ** 3 - opsinBias
-        const mixedGreen = gammaGreen ** 3 - opsinBias
-        const mixedBlue = gammaBlue ** 3 - opsinBias
+        const gammaRed = opsinY + opsinX + (opsin.roots[0] ?? 0)
+        const gammaGreen = opsinY - opsinX + (opsin.roots[1] ?? 0)
+        const gammaBlue = opsinB + (opsin.roots[2] ?? 0)
+        const mixedRed = gammaRed ** 3 + (opsin.biases[0] ?? 0)
+        const mixedGreen = gammaGreen ** 3 + (opsin.biases[1] ?? 0)
+        const mixedBlue = gammaBlue ** 3 + (opsin.biases[2] ?? 0)
         const offset = (y * frame.width + x) * outputChannels * bytesPerSample
         for (let channel = 0; channel < (outputChannels === 1 ? 1 : 3); channel += 1) {
           const linear =
-            (inverseOpsinMatrix[channel * 3] ?? 0) * mixedRed +
-            (inverseOpsinMatrix[channel * 3 + 1] ?? 0) * mixedGreen +
-            (inverseOpsinMatrix[channel * 3 + 2] ?? 0) * mixedBlue
+            (opsin.matrix[channel * 3] ?? 0) * mixedRed +
+            (opsin.matrix[channel * 3 + 1] ?? 0) * mixedGreen +
+            (opsin.matrix[channel * 3 + 2] ?? 0) * mixedBlue
           if (linearOutput) view.setFloat32(offset + channel * 4, linear * linearScale, false)
           else
             view.setUint16(
@@ -4271,9 +4624,9 @@ const decodeJpegXlDct8Steps = function* (
             x,
             y,
             alphaUpsampling,
+            kernels,
           )
-          if (linearOutput)
-            view.setFloat32(offset + 12, Math.max(0, Math.min(1, alpha / alphaMaximum)), false)
+          if (linearOutput) view.setFloat32(offset + 12, alpha / alphaMaximum, false)
           else
             view.setUint16(
               offset + 6,
@@ -4287,7 +4640,7 @@ const decodeJpegXlDct8Steps = function* (
     const rgb = new Uint8Array(3)
     for (let y = 0; y < frame.height; y += 1) {
       for (let x = 0; x < frame.width; x += 1) {
-        if (frame.upsampling === 1) {
+        if (colorUpsampling === 1) {
           const planeIndex = y * paddedWidth + x
           writeRgb(
             rgb,
@@ -4295,20 +4648,49 @@ const decodeJpegXlDct8Steps = function* (
             planes[0][planeIndex] ?? 0,
             planes[1][planeIndex] ?? 0,
             planes[2][planeIndex] ?? 0,
+            opsin,
           )
         } else {
           writeRgb(
             rgb,
             0,
-            upsampleSample(planes[0], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
-            upsampleSample(planes[1], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
-            upsampleSample(planes[2], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+            upsampleSample(
+              planes[0],
+              paddedWidth,
+              codedWidth,
+              codedHeight,
+              x,
+              y,
+              colorUpsampling,
+              kernels,
+            ),
+            upsampleSample(
+              planes[1],
+              paddedWidth,
+              codedWidth,
+              codedHeight,
+              x,
+              y,
+              colorUpsampling,
+              kernels,
+            ),
+            upsampleSample(
+              planes[2],
+              paddedWidth,
+              codedWidth,
+              codedHeight,
+              x,
+              y,
+              colorUpsampling,
+              kernels,
+            ),
+            opsin,
           )
         }
         output[y * frame.width + x] = rgb[0] ?? 0
       }
     }
-  } else if (format === 'rgb8' && frame.upsampling === 1) {
+  } else if (format === 'rgb8' && colorUpsampling === 1) {
     for (let y = 0; y < frame.height; y += 1) {
       let outputIndex = y * frame.width * 3
       let planeIndex = y * paddedWidth
@@ -4319,6 +4701,7 @@ const decodeJpegXlDct8Steps = function* (
           planes[0][planeIndex] ?? 0,
           planes[1][planeIndex] ?? 0,
           planes[2][planeIndex] ?? 0,
+          opsin,
         )
         outputIndex += 3
         planeIndex += 1
@@ -4331,14 +4714,42 @@ const decodeJpegXlDct8Steps = function* (
         writeRgb(
           output,
           outputIndex,
-          upsampleSample(planes[0], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
-          upsampleSample(planes[1], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
-          upsampleSample(planes[2], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          upsampleSample(
+            planes[0],
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            colorUpsampling,
+            kernels,
+          ),
+          upsampleSample(
+            planes[1],
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            colorUpsampling,
+            kernels,
+          ),
+          upsampleSample(
+            planes[2],
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            colorUpsampling,
+            kernels,
+          ),
+          opsin,
         )
         outputIndex += 3
       }
     }
-  } else if (frame.upsampling === 1 && alphaUpsampling === 1) {
+  } else if (colorUpsampling === 1 && alphaUpsampling === 1) {
     if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
     for (let y = 0; y < frame.height; y += 1) {
       let outputIndex = y * frame.width * 4
@@ -4351,6 +4762,7 @@ const decodeJpegXlDct8Steps = function* (
           planes[0][planeIndex] ?? 0,
           planes[1][planeIndex] ?? 0,
           planes[2][planeIndex] ?? 0,
+          opsin,
         )
         output[outputIndex + 3] = Math.max(0, Math.min(255, alphaPlane[alphaIndex] ?? 0))
         outputIndex += 4
@@ -4367,9 +4779,37 @@ const decodeJpegXlDct8Steps = function* (
         writeRgb(
           output,
           outputIndex,
-          upsampleSample(planes[0], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
-          upsampleSample(planes[1], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
-          upsampleSample(planes[2], paddedWidth, codedWidth, codedHeight, x, y, frame.upsampling),
+          upsampleSample(
+            planes[0],
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            colorUpsampling,
+            kernels,
+          ),
+          upsampleSample(
+            planes[1],
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            colorUpsampling,
+            kernels,
+          ),
+          upsampleSample(
+            planes[2],
+            paddedWidth,
+            codedWidth,
+            codedHeight,
+            x,
+            y,
+            colorUpsampling,
+            kernels,
+          ),
+          opsin,
         )
         output[outputIndex + 3] = Math.max(
           0,
@@ -4384,6 +4824,7 @@ const decodeJpegXlDct8Steps = function* (
                 x,
                 y,
                 alphaUpsampling,
+                kernels,
               ),
             ),
           ),
@@ -4399,6 +4840,8 @@ const decodeJpegXlDct8Steps = function* (
   dcGroupLease.release()
   lfGlobalLease.release()
   alphaLease.release()
+  patchLease?.release()
+  expandedLease?.release()
   return Object.freeze({
     width: frame.width,
     height: frame.height,
@@ -4486,3 +4929,223 @@ export const renderJpegXlVarDctLowFrequencyCancellable = async (
     renderJpegXlVarDctLowFrequencySteps(...parameters),
     parameters[0].memory,
   )
+
+/** JPEG XL extends the sRGB transfer curve symmetrically outside its nominal gamut. */
+export const jpegXlLinearToSrgb = (value: number): number =>
+  value < 0 ? -linearToSrgb(-value) : linearToSrgb(value)
+
+export const convertJpegXlNativeXybPlanes = (
+  planes: readonly [Float64Array, Float64Array, Float64Array],
+  custom: JpegXlFrameStructure['opsinInverse'],
+  signal?: AbortSignal,
+): readonly [Float64Array, Float64Array, Float64Array] => {
+  const opsin = resolveOpsin(custom)
+  const output = [
+    new Float64Array(planes[0].length),
+    new Float64Array(planes[0].length),
+    new Float64Array(planes[0].length),
+  ] as const
+  for (let i = 0; i < planes[0].length; i++) {
+    if ((i & 65535) === 0) throwIfAborted(signal)
+    const x = planes[0][i] ?? 0,
+      y = planes[1][i] ?? 0,
+      b = planes[2][i] ?? 0
+    const rGamma = y + x + (opsin.roots[0] ?? 0),
+      gGamma = y - x + (opsin.roots[1] ?? 0),
+      bGamma = b + (opsin.roots[2] ?? 0)
+    const rMix = rGamma ** 3 + (opsin.biases[0] ?? 0),
+      gMix = gGamma ** 3 + (opsin.biases[1] ?? 0),
+      bMix = bGamma ** 3 + (opsin.biases[2] ?? 0)
+    for (let c = 0; c < 3; c++)
+      output[c]![i] = jpegXlLinearToSrgb(
+        (opsin.matrix[c * 3] ?? 0) * rMix +
+          (opsin.matrix[c * 3 + 1] ?? 0) * gMix +
+          (opsin.matrix[c * 3 + 2] ?? 0) * bMix,
+      )
+  }
+  return output
+}
+
+/** Modular RGB and gray filtering uses the same reconstruction filters as VarDCT. */
+export const filterJpegXlModularPlanes = (
+  input: readonly Float64Array[],
+  frame: Readonly<JpegXlFrameStructure>,
+  signal?: AbortSignal,
+): void => {
+  const width = frame.codedWidth,
+    height = frame.codedHeight
+  const first = input[0]
+  if (!first) throw invalidInput('JPEG XL Modular filter input is missing')
+  const green = frame.colorChannels === 1 ? first : input[1]
+  const blue = frame.colorChannels === 1 ? first : input[2]
+  if (!green || !blue) throw invalidInput('JPEG XL Modular filter color planes are missing')
+  const planes = [
+    Float32Array.from(first),
+    Float32Array.from(green),
+    Float32Array.from(blue),
+  ] as const
+  const scratch = new Float32Array(width * height)
+  throwIfAborted(signal)
+  if (frame.gaborish) applyDefaultGaborish(frame, planes, width, width, height, scratch)
+  if (frame.epfIterations > 0) {
+    const blockWidth = Math.ceil(width / 8)
+    const inverseSigmas = new Float64Array(blockWidth * Math.ceil(height / 8))
+    inverseSigmas.fill(-1.17157287525381 / (frame.modularEpfSigma ?? 1))
+    const output = [
+      new Float32Array(width * height),
+      new Float32Array(width * height),
+      new Float32Array(width * height),
+    ] as const
+    const differences = [scratch, new Float32Array(width * height)] as const
+    for (const stage of [0, 1, 2] as const) {
+      if (stage === 0 ? frame.epfIterations < 3 : stage === 2 && frame.epfIterations < 2) continue
+      throwIfAborted(signal)
+      applyDefaultEpfStage(
+        frame,
+        planes,
+        width,
+        width,
+        height,
+        blockWidth,
+        inverseSigmas,
+        stage,
+        0,
+        output,
+        differences,
+      )
+    }
+  }
+  for (let c = 0; c < frame.colorChannels; c++) input[c]?.set(planes[c] ?? first)
+}
+
+/** Native Modular XYB reconstruction shares the VarDCT inverse opsin color constants. */
+export const convertJpegXlModularXybPlanes = (
+  encoded: readonly Int32Array[],
+  quantization: readonly [number, number, number],
+  signal?: AbortSignal,
+  custom?: JpegXlFrameStructure['opsinInverse'],
+): readonly Float64Array[] => {
+  const opsin = resolveOpsin(custom)
+  const yPlane = encoded[0],
+    xPlane = encoded[1],
+    bPlane = encoded[2]
+  if (
+    !yPlane ||
+    !xPlane ||
+    !bPlane ||
+    yPlane.length !== xPlane.length ||
+    yPlane.length !== bPlane.length
+  )
+    throw invalidInput('JPEG XL Modular XYB planes have inconsistent dimensions')
+  const red = new Float64Array(yPlane.length),
+    green = new Float64Array(yPlane.length),
+    blue = new Float64Array(yPlane.length)
+  for (let i = 0; i < yPlane.length; i++) {
+    if ((i & 65535) === 0) throwIfAborted(signal)
+    const y = (yPlane[i] ?? 0) * quantization[1]
+    const x = (xPlane[i] ?? 0) * quantization[0]
+    const b = ((bPlane[i] ?? 0) + (yPlane[i] ?? 0)) * quantization[2]
+    const rGamma = y + x + (opsin.roots[0] ?? 0),
+      gGamma = y - x + (opsin.roots[1] ?? 0),
+      bGamma = b + (opsin.roots[2] ?? 0)
+    const rMix = rGamma * rGamma * rGamma + (opsin.biases[0] ?? 0)
+    const gMix = gGamma * gGamma * gGamma + (opsin.biases[1] ?? 0)
+    const bMix = bGamma * bGamma * bGamma + (opsin.biases[2] ?? 0)
+    red[i] = jpegXlLinearToSrgb(
+      (opsin.matrix[0] ?? 0) * rMix + (opsin.matrix[1] ?? 0) * gMix + (opsin.matrix[2] ?? 0) * bMix,
+    )
+    green[i] = jpegXlLinearToSrgb(
+      (opsin.matrix[3] ?? 0) * rMix + (opsin.matrix[4] ?? 0) * gMix + (opsin.matrix[5] ?? 0) * bMix,
+    )
+    blue[i] = jpegXlLinearToSrgb(
+      (opsin.matrix[6] ?? 0) * rMix + (opsin.matrix[7] ?? 0) * gMix + (opsin.matrix[8] ?? 0) * bMix,
+    )
+  }
+  return [red, green, blue]
+}
+
+/** Reconstruct one normalized native plane with the image's signaled upsampling kernel. */
+export const upsampleJpegXlNativePlane = (
+  plane: Float64Array,
+  width: number,
+  height: number,
+  factor: number,
+  outputWidth: number,
+  outputHeight: number,
+  frame: Readonly<JpegXlFrameStructure>,
+  signal?: AbortSignal,
+): Float64Array => {
+  if (factor !== 1 && factor !== 2 && factor !== 4 && factor !== 8)
+    throw invalidInput('JPEG XL native upsampling factor is invalid')
+  if (factor === 1) return plane
+  const input = Float32Array.from(plane)
+  const output = new Float64Array(outputWidth * outputHeight)
+  const kernels = frameUpsamplingKernels(frame)
+  for (let y = 0; y < outputHeight; y++) {
+    throwIfAborted(signal)
+    for (let x = 0; x < outputWidth; x++)
+      output[y * outputWidth + x] = upsampleSample(
+        input,
+        width,
+        width,
+        height,
+        x,
+        y,
+        factor,
+        kernels,
+      )
+  }
+  return output
+}
+
+/** Modular global data uses the default color correlation. Apply features in reconstruction order. */
+export const applyJpegXlModularFeatures = (
+  planes: readonly Float64Array[],
+  frame: Readonly<JpegXlFrameStructure>,
+  features: Readonly<import('./jpegxl-frame-features.ts').JpegXlFrameFeatures> | undefined,
+  stage: 'splines' | 'noise',
+  signal?: AbortSignal,
+): void => {
+  if (!features || (stage === 'splines' ? features.splines.length === 0 : !features.noiseLut))
+    return
+  const first = planes[0],
+    second = planes[1],
+    third = planes[2]
+  if (!first || !second || !third)
+    throw invalidInput('JPEG XL synthetic features require three color planes')
+  throwIfAborted(signal)
+  const color = [
+    Float32Array.from(first),
+    Float32Array.from(second),
+    Float32Array.from(third),
+  ] as const
+  const correlation = {
+    colorFactor: 84,
+    baseCorrelationX: 0,
+    baseCorrelationB: 1,
+    yToXDc: 0,
+    yToBDc: 0,
+  }
+  if (stage === 'splines')
+    applySplines(
+      color,
+      frame.codedWidth,
+      frame.codedWidth,
+      frame.codedHeight,
+      features.splines,
+      features.splineQuantizationAdjustment,
+      correlation,
+    )
+  else if (features.noiseLut)
+    applyNoise(
+      frame,
+      color,
+      frame.frameWidth,
+      frame.frameWidth,
+      frame.frameHeight,
+      features.noiseLut,
+      correlation,
+    )
+  for (let c = 0; c < 3; c++) planes[c]!.set(color[c]!)
+  throwIfAborted(signal)
+}

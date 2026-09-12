@@ -4,6 +4,25 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-12 UTC
+
+- Add JPEG XL sequence iteration, exact rational timing, explicit frame selection,
+  reference composition and streamed lossless/Experimental lossy animation writing.
+- Add typed native channel extraction and bounded planar encoding, including
+  binary16 bit patterns, grouped shifted alpha/depth and original GRAY/RGB ICC
+  preservation. Extraction and display conversion have separate boundaries.
+- Expand JPEG XL reconstruction with previous-channel MA-tree properties, custom
+  inverse opsin and upsampling, Gaborish/EPF settings, all eight Modular/XYB patch
+  modes, YCbCr chroma, synthetic noise/splines and raw progressive dependencies.
+  All 39 official conformance cases remain individually reported; native extraction
+  remains distinct from display conversion.
+
+### 2026-09-11 UTC
+
+- Decode RGB8 JPEG XL global implicit delta palettes across groups with bounded
+  index bands and prediction rows. The official `delta_palette` fixture now
+  matches the independent reference exactly.
+
 ### Added
 
 - JPEG XL ordinary VarDCT opening and planning now defer pixel decoding until

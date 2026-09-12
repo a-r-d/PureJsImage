@@ -662,24 +662,59 @@
         "bounded sequence memory",
         "extra-channel discovery"
       ],
-      "status": "not started",
+      "status": "locally complete",
       "pr": null,
-      "startRevision": null,
+      "startRevision": "1c6e1433a938bcb3f22a41c3f388c9a22156cbd2",
       "finalRevision": null,
-      "localCommands": [],
+      "localCommands": [
+        "node benchmark/jpegxl/verify-m8-sequence.ts",
+        "node benchmark/jpegxl/verify-m8-static.ts",
+        "node benchmark/jpegxl/verify-m8-native.ts",
+        "node benchmark/jpegxl/verify-m8-raw.ts",
+        "node benchmark/jpegxl/verify-m8-animation-encode.ts",
+        "node benchmark/jpegxl/verify-m8-m3.ts",
+        "node benchmark/jpegxl/verify-m8-timing.ts",
+        "node benchmark/jpegxl/production-program/run-conformance.ts --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m8-static-conformance.json",
+        "npm run check",
+        "node node_modules/@playwright/test/cli.js test browser-tests/jpegxl-m8-palette.pw.ts browser-tests/jpegxl-m8-sequence.pw.ts --workers=1 --retries=0"
+      ],
       "remoteWorkflowRuns": [],
-      "measuredResults": [],
-      "corpusVersions": [],
-      "oracleRevisions": [],
-      "benchmarkReportPath": null,
-      "capabilityChanges": [],
+      "measuredResults": [
+        "All 39 official cases retain dispositions: 37 pass, two expected Level 10 exclusions, zero incorrect output and zero unexpected failures; all applicable Level 5 cases pass.",
+        "18 independent sequence cases reproduce 161 displayed frames; native timebase, loops and official frame durations separately match all 144 frames in three official animations.",
+        "23 static reconstructions and four native raw-layer dependency cases match pinned native output within declared tolerances.",
+        "Native channel qualification checks all spot planes, three writer sample representations, exact ICC preservation and independent CMM conversion.",
+        "All ten streamed animation encoder cases and 50 frames pass exact alpha, timing, native pixel, composited-quality and temporal checks.",
+        "All 300 frozen M3 files pass, including the previously unsupported internal-tree case.",
+        "Final oracle/size/documentation process tree: 1.9 GiB peak, zero swap, 3 GiB cap; infrastructure memory, not codec-only RSS. Receipt .tmp/jpegxl-m7/bounded-runs/m8-final-oracles-b.json.",
+        "Wide-gamut XYB sequence output retains its original source descriptor and labels emitted pixels as sRGB; independent native pixels and all-browser regressions cover the correction.",
+        "Final source SHA-256 for all completion oracle reports: 477920d848bc4a53abbfea720fbaaf067a8187a64d900f47613026fcb11df8ab. Minified bundle sizes: core plus JPEG XL 439092 bytes; specialized JPEG XL 510270 bytes.",
+        "Final npm run check passes 3123 tests with three existing skips (239 passing files, one skipped file). All twelve Chromium/Firefox/WebKit M8 tests pass with retries disabled. Combined peak is 2.6 GiB with zero swap under a 3 GiB cap. Source hashes, log hashes and the bounded receipt are in m8-final-gates.json."
+      ],
+      "corpusVersions": [
+        "official conformance 4bf053529c7cefd2951be453475bb3dccc7e7be8",
+        "Frozen M3 300-file cohort; per-file hashes in m8-m3-revalidation.json"
+      ],
+      "oracleRevisions": ["libjxl 0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df"],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m8-static-conformance.json",
+      "capabilityChanges": [
+        "Exact rational animation discovery/replay/composition and streamed lossless/Experimental lossy writing.",
+        "Typed native extra-channel extraction and bounded integer/binary16/GRAY-RGB ICC preservation.",
+        "Delta palette, MA trees, grouped shifted channels, custom reconstruction filters, YCbCr, patches, splines, noise and raw progressive dependencies."
+      ],
       "capabilityPromotions": [],
-      "acceptedLimitations": [],
-      "deferredWork": [],
+      "acceptedLimitations": [
+        "Native extraction, display conversion and encoding have separate contracts. Original-profile native preservation covers unavailable gray-plus-alpha and high-depth CMM display paths.",
+        "Native writer: one group, axes at most 1024, one or three color planes and up to four extra channels.",
+        "Animation is a declared full-canvas memory class with at most four references and cumulative replay limits.",
+        "Lossy encoding remains Experimental; no unrestricted Level 5 display promotion or release."
+      ],
+      "deferredWork": [
+        "M9 production hardening, security/fuzzing, API freeze and release gates.",
+        "M10 CMYK/BLACK and wider floating profiles."
+      ],
       "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
-      ]
+      "remainingBlockers": []
     },
     {
       "id": "M9",

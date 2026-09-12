@@ -5,6 +5,12 @@ import {
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
 
+export interface JpegXlPatchBlend {
+  readonly mode: number
+  readonly alphaChannel: number
+  readonly clamp: boolean
+}
+
 export interface JpegXlPatch {
   readonly referenceId: 0 | 1 | 2 | 3
   readonly referenceX: number
@@ -14,6 +20,7 @@ export interface JpegXlPatch {
   readonly width: number
   readonly height: number
   readonly blendMode: number
+  readonly blending?: readonly JpegXlPatchBlend[]
 }
 
 export interface JpegXlSpline {
@@ -87,16 +94,18 @@ export const readJpegXlFrameFeatures = (
           throw invalidInput('JPEG XL patch position is outside the frame')
         }
         let colorBlendMode = 0
+        const blending: JpegXlPatchBlend[] = []
         for (let channel = 0; channel < extraChannelCount + 1; channel += 1) {
           const blendMode = symbols.readHybridUint(5, reader)
           if (blendMode > 7) throw invalidInput('JPEG XL patch blend mode is invalid')
           if (channel === 0) colorBlendMode = blendMode
-          if (blendMode >= 4) {
-            if (extraChannelCount > 1) symbols.readHybridUint(8, reader)
-            symbols.readHybridUint(9, reader)
-          } else if (blendMode === 3) {
-            symbols.readHybridUint(9, reader)
-          }
+          const alphaChannel =
+            blendMode >= 4 && extraChannelCount > 1 ? symbols.readHybridUint(8, reader) : 0
+          if (extraChannelCount > 0 && alphaChannel >= extraChannelCount)
+            throw invalidInput('JPEG XL patch alpha channel is invalid')
+          const clamp = blendMode >= 3 ? symbols.readHybridUint(9, reader) : 0
+          if (clamp > 1) throw invalidInput('JPEG XL patch clamp flag is invalid')
+          blending.push(Object.freeze({ mode: blendMode, alphaChannel, clamp: clamp === 1 }))
         }
         patches.push(
           Object.freeze({
@@ -108,6 +117,7 @@ export const readJpegXlFrameFeatures = (
             width,
             height,
             blendMode: colorBlendMode,
+            blending: Object.freeze(blending),
           }),
         )
       }

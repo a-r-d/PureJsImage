@@ -1,12 +1,15 @@
-import { reportRevision } from '../report-provenance.ts'
+import { hashM8Sources } from '../m8-output-digest.ts'
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-
 import { jpegxlCodec } from '../../../src/codecs/jpegxl.ts'
 import { ImageError } from '../../../src/errors.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
 import { MemorySource } from '../../../src/source.ts'
+import { reportRevision } from '../report-provenance.ts'
+import { openJpegXlSequence } from '../../../src/jpegxl.ts'
+import { hashM8Frame, hashM8Layer } from '../m8-output-digest.ts'
 
 type Classification =
   | 'pass'
@@ -23,7 +26,8 @@ interface ConformanceCase {
   readonly levels: readonly (5 | 10)[]
   readonly baselineClassification: Classification
   readonly outputSha256?: string
-  readonly colorOutput?: 'preserve'
+  readonly colorOutput?: 'preserve' | 'srgb'
+  readonly workflow?: 'sequence' | 'native-layers'
   readonly boundary?: string
   readonly expectedErrorCode?: string
 }
@@ -43,6 +47,7 @@ interface ConformanceResult {
   readonly baselineClassification: Classification
   readonly actualClassification: Classification
   readonly matchesBaseline: boolean
+  readonly matchesExpectation: boolean
   readonly boundary?: string
   readonly outputSha256?: string
   readonly outputFormat?: string
@@ -84,13 +89,28 @@ const parseCase = (value: unknown, index: number): ConformanceCase => {
   if (!Number.isSafeInteger(value.bytes) || Number(value.bytes) < 1) {
     throw new Error(`Conformance case ${index} bytes must be a positive integer`)
   }
-  if (value.colorOutput !== undefined && value.colorOutput !== 'preserve')
+  if (
+    value.colorOutput !== undefined &&
+    value.colorOutput !== 'preserve' &&
+    value.colorOutput !== 'srgb'
+  )
     throw new Error(`Conformance case ${index} has invalid colorOutput`)
+  if (
+    value.workflow !== undefined &&
+    value.workflow !== 'sequence' &&
+    value.workflow !== 'native-layers'
+  )
+    throw new Error(`Conformance case ${index} has invalid workflow`)
   return Object.freeze({
     id: requiredString(value.id, `cases[${index}].id`),
     sha256: requiredString(value.sha256, `cases[${index}].sha256`),
     bytes: Number(value.bytes),
-    ...(value.colorOutput === 'preserve' ? { colorOutput: 'preserve' as const } : {}),
+    ...(value.colorOutput === 'preserve' || value.colorOutput === 'srgb'
+      ? { colorOutput: value.colorOutput }
+      : {}),
+    ...(value.workflow === 'sequence' || value.workflow === 'native-layers'
+      ? { workflow: value.workflow }
+      : {}),
     license: requiredString(value.license, `cases[${index}].license`),
     levels: Object.freeze(levels.map((level) => (level === 5 ? 5 : 10))),
     baselineClassification: classification(
@@ -146,6 +166,7 @@ if (!corpusRoot) {
 }
 
 const manifest = await readManifest()
+const initialSourceSha256 = await hashM8Sources()
 const results: ConformanceResult[] = []
 for (const definition of manifest.cases) {
   const path = join(corpusRoot, 'testcases', definition.id, 'input.jxl')
@@ -160,22 +181,45 @@ for (const definition of manifest.cases) {
   let errorCode: string | undefined
   let errorMessage: string | undefined
   try {
-    const decoder = await jpegxlCodec.createDecoder?.(
-      new MemorySource(encoded),
-      Object.freeze({ ...defaultImageLimits, maxDecodedBytes: 256 * 1_024 * 1_024 }),
-      definition.colorOutput === undefined ? {} : { colorOutput: definition.colorOutput },
-    )
-    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
-    const outputDigest = createHash('sha256')
-    let decodedRows = 0
-    for await (const block of decoder.decode()) {
-      outputDigest.update(block.data)
-      decodedRows += block.height
-      block.release?.()
+    if (definition.workflow) {
+      const sequence = await openJpegXlSequence(encoded, { orientation: 'apply' })
+      const hash = createHash('sha256')
+      rows = 0
+      try {
+        if (definition.workflow === 'sequence') {
+          for await (const frame of sequence.frames()) {
+            hashM8Frame(hash, frame)
+            rows += frame.height
+          }
+        } else {
+          for await (const layer of sequence.layers()) {
+            hashM8Layer(hash, layer)
+            rows += layer.header.frameHeight
+          }
+        }
+      } finally {
+        await sequence.close()
+      }
+      outputSha256 = hash.digest('hex')
+      outputFormat = definition.workflow
+    } else {
+      const decoder = await jpegxlCodec.createDecoder?.(
+        new MemorySource(encoded),
+        defaultImageLimits,
+        definition.colorOutput === undefined ? {} : { colorOutput: definition.colorOutput },
+      )
+      if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+      const outputDigest = createHash('sha256')
+      let decodedRows = 0
+      for await (const block of decoder.decode()) {
+        outputDigest.update(block.data)
+        decodedRows += block.height
+        block.release?.()
+      }
+      outputSha256 = outputDigest.digest('hex')
+      outputFormat = decoder.pixelFormat
+      rows = decodedRows
     }
-    outputSha256 = outputDigest.digest('hex')
-    outputFormat = decoder.pixelFormat
-    rows = decodedRows
     actualClassification =
       definition.outputSha256 !== undefined && outputSha256 === definition.outputSha256
         ? 'pass'
@@ -194,6 +238,10 @@ for (const definition of manifest.cases) {
   const matchesBaseline =
     actualClassification === definition.baselineClassification &&
     (definition.expectedErrorCode === undefined || definition.expectedErrorCode === errorCode)
+  // Keep the historical disposition visible while accepting independently
+  // pinned exact output from a newly implemented case.
+  const matchesExpectation =
+    matchesBaseline || (actualClassification === 'pass' && definition.outputSha256 !== undefined)
   results.push(
     Object.freeze({
       id: definition.id,
@@ -204,6 +252,7 @@ for (const definition of manifest.cases) {
       baselineClassification: definition.baselineClassification,
       actualClassification,
       matchesBaseline,
+      matchesExpectation,
       ...(definition.boundary === undefined ? {} : { boundary: definition.boundary }),
       ...(outputSha256 === undefined ? {} : { outputSha256 }),
       ...(outputFormat === undefined ? {} : { outputFormat }),
@@ -228,22 +277,37 @@ const totals = Object.fromEntries(
   ]),
 )
 const mismatches = results.filter(({ matchesBaseline }) => !matchesBaseline)
+const unexpected = results.filter(({ matchesExpectation }) => !matchesExpectation)
 const report = Object.freeze({
   schemaVersion: 1,
   revision: reportRevision(),
+  workingTreeDirty:
+    execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
+  decoderSourceSha256: await hashM8Sources(),
+  harnessSha256: digest(await readFile('benchmark/jpegxl/production-program/run-conformance.ts')),
+  manifestSha256: digest(
+    await readFile('benchmark/jpegxl/production-program/corpora/conformance.json'),
+  ),
   corpusRevision: manifest.revision,
   archiveSha256: manifest.archiveSha256,
   cases: results.length,
+  maxDecodedBytes: defaultImageLimits.maxDecodedBytes,
+  applicableLevel5Passed: results
+    .filter((result) => result.levels.includes(5))
+    .every((result) => result.actualClassification === 'pass'),
   totals,
   baselineMatched: mismatches.length === 0,
+  expectationsMatched: unexpected.length === 0,
   results: Object.freeze(results),
 })
+if (initialSourceSha256 !== report.decoderSourceSha256)
+  throw new Error('JPEG XL source changed during conformance run')
 const serialized = `${JSON.stringify(report, null, 2)}\n`
 const output = argument('--output')
 if (output) await writeFile(output, serialized)
 else process.stdout.write(serialized)
-if (mismatches.length > 0) {
+if (unexpected.length > 0) {
   throw new Error(
-    `JPEG XL conformance classification changed for ${mismatches.map(({ id }) => id).join(', ')}`,
+    `JPEG XL conformance expectation failed for ${unexpected.map(({ id }) => id).join(', ')}`,
   )
 }

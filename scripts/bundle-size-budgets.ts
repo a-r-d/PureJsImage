@@ -13,11 +13,11 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // M7 adds the first-party forward VarDCT writer and bounded multi-group Modular search.
-  // Forward transforms and bounded palette search are included; retain original baselines.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 405_000 },
-  // Includes M6 sessions and M7 group-local HF models with the exact prefix-size fallback.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 460_000 },
+  // M8 adds sequence composition, native grouped channels and reconstruction filters.
+  // Measured 439092 bytes after M8 qualification; retain the original baseline.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 440_000 },
+  // M8 also includes streamed animation and native planar/ICC writers (510270 measured bytes).
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 515_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

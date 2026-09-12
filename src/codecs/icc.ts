@@ -931,7 +931,14 @@ export const createStructuredRgbTransform = (
       curve,
     )
   }
-  const transferCode = transfer.kind === 'linear' ? 8 : transfer.kind === 'srgb' ? 13 : 0
+  const transferCode =
+    transfer.kind === 'linear'
+      ? 8
+      : transfer.kind === 'srgb'
+        ? 13
+        : transfer.kind === 'bt709'
+          ? 1
+          : 0
   if (transferCode === 0) {
     throw unsupportedOperation('PQ and HLG require explicit JPEG XL HDR output selection')
   }

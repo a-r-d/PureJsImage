@@ -618,3 +618,134 @@ export async function verifyM7ScalarPalettes(width: number, height: number) {
   if (rows !== height) throw new Error('Incomplete scalar palette output')
   return Array.from(bytes)
 }
+
+export const verifyJpegXlM8Sequence = async (bytes: Uint8Array) => {
+  const { openJpegXlSequence, encodeJpegXlAnimation } = await import('../src/jpegxl.ts')
+  const sequence = await openJpegXlSequence(bytes)
+  const selected = await sequence.frame(1)
+  let checksum = 0
+  for (let i = 0; i < selected.width * selected.height; i++)
+    for (let c = 0; c < 4; c++)
+      checksum =
+        (checksum * 31 +
+          Math.round(Math.max(0, Math.min(1, selected.planes[c]?.[i] ?? 1)) * 255)) >>>
+        0
+  const controller = new AbortController()
+  const iterator = sequence.frames(controller.signal)[Symbol.asyncIterator]()
+  await iterator.next()
+  controller.abort()
+  let cancelled = false
+  try {
+    await iterator.next()
+  } catch {
+    cancelled = true
+  }
+  await sequence.close()
+  async function* input() {
+    yield { width: 2, height: 2, data: new Uint8Array(16).fill(255), durationTicks: 3 }
+    yield { width: 2, height: 2, data: new Uint8Array(16), durationTicks: 5 }
+  }
+  const parts: Uint8Array[] = []
+  for await (const part of encodeJpegXlAnimation(input(), {
+    width: 2,
+    height: 2,
+    pixelFormat: 'rgba8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'straight',
+      provenance: 'container-signaled',
+      renderingIntent: 'relative',
+    },
+    animation: {
+      ticksPerSecondNumerator: 30000,
+      ticksPerSecondDenominator: 1001,
+      loops: 2,
+      haveTimecodes: false,
+    },
+  }))
+    parts.push(part)
+  const encoded = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0))
+  let offset = 0
+  for (const part of parts) {
+    encoded.set(part, offset)
+    offset += part.length
+  }
+  const roundtrip = await openJpegXlSequence(encoded)
+  const second = await roundtrip.frame(1)
+  await roundtrip.close()
+  return {
+    checksum,
+    cancelled,
+    startTicks: selected.startTicks.toString(),
+    durationTicks: selected.durationTicks,
+    encodedStartTicks: second.startTicks.toString(),
+    encodedDurationTicks: second.durationTicks,
+    animation: second.header.animation,
+    alpha: second.planes[3]?.[0],
+  }
+}
+
+export const verifyJpegXlM8Native = async (bytes: Uint8Array, profile: Uint8Array) => {
+  const { openJpegXlSequence, encodeJpegXlNative } = await import('../src/jpegxl.ts')
+  const sequence = await openJpegXlSequence(bytes)
+  const checksums: number[] = []
+  try {
+    for await (const layer of sequence.layers()) {
+      for (const plane of layer.planes.slice(3)) {
+        let checksum = 0
+        for (let i = 0; i < plane.length; i++) checksum = (checksum * 31 + (plane[i] ?? 0)) >>> 0
+        checksums.push(checksum)
+      }
+    }
+  } finally {
+    await sequence.close()
+  }
+  const plane = { data: Uint16Array.of(0, 100, 32768, 65535), bitDepth: 16 }
+  const encoded = await encodeJpegXlNative({
+    width: 4,
+    height: 1,
+    color: [plane],
+    iccProfile: profile,
+    extraChannels: [{ ...plane, type: 0, name: 'coverage' }],
+  })
+  const roundtrip = await openJpegXlSequence(encoded)
+  let result: { samples: number[][]; profileMatches: boolean; name: string | undefined } | undefined
+  try {
+    for await (const layer of roundtrip.layers()) {
+      const actual = layer.header.iccProfile
+      result = {
+        samples: layer.planes.map((plane) => Array.from(plane)),
+        profileMatches:
+          actual?.length === profile.length &&
+          profile.every((value, index) => actual[index] === value),
+        name: layer.header.extraChannels[0]?.name,
+      }
+    }
+  } finally {
+    await roundtrip.close()
+  }
+  return { checksums, result }
+}
+
+export const verifyJpegXlM8WideGamut = async (bytes: Uint8Array) => {
+  const { openJpegXlSequence } = await import('../src/jpegxl.ts')
+  const sequence = await openJpegXlSequence(bytes)
+  try {
+    const frame = await sequence.frame(0)
+    let checksum = 0
+    for (const plane of frame.planes)
+      for (const value of plane)
+        checksum = (checksum * 31 + Math.round(Math.max(0, Math.min(1, value)) * 255)) >>> 0
+    return {
+      sourcePrimaries: frame.header.colorSemanticsPrimaries,
+      semantics: frame.colorSemantics,
+      checksum,
+    }
+  } finally {
+    await sequence.close()
+  }
+}

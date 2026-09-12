@@ -385,3 +385,37 @@ export const readJpegXlIcc = (
   if (!symbols.hasValidFinalState()) throw invalidInput('JPEG XL ICC entropy state is invalid')
   return decodeJpegXlIccCommands(encoded, maxOutputBytes)
 }
+
+/** A bounded literal representation; entropy coding remains the caller's responsibility. */
+export const encodeJpegXlIccCommands = (profile: Uint8Array, maximumBytes: number): Uint8Array => {
+  if (profile.length < ICC_HEADER_BYTES)
+    throw invalidInput('JPEG XL ICC profile header is truncated')
+  if (profile.length > maximumBytes)
+    throw limitExceeded('JPEG XL ICC profile exceeds its output limit')
+  const commands: number[] = []
+  const variable = (value: number, target: number[]): void => {
+    do {
+      const remainder = value % 128
+      value = Math.floor(value / 128)
+      target.push(remainder + (value > 0 ? 128 : 0))
+    } while (value > 0)
+  }
+  if (profile.length > ICC_HEADER_BYTES) {
+    commands.push(0, 1) // Preserve the tag table and payload as literal bytes.
+    variable(profile.length - ICC_HEADER_BYTES, commands)
+  }
+  const prefix: number[] = []
+  variable(profile.length, prefix)
+  variable(commands.length, prefix)
+  const result = new Uint8Array(prefix.length + commands.length + profile.length)
+  result.set(prefix)
+  result.set(commands, prefix.length)
+  const start = prefix.length + commands.length
+  const prediction = initialHeader(profile.length)
+  for (let i = 0; i < ICC_HEADER_BYTES; i++) {
+    predictHeader(profile, prediction, i)
+    result[start + i] = ((profile[i] ?? 0) - (prediction[i] ?? 0)) & 255
+  }
+  result.set(profile.subarray(ICC_HEADER_BYTES), start + ICC_HEADER_BYTES)
+  return result
+}

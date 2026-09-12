@@ -18,7 +18,7 @@ export type PixelColorProvenance =
   | 'unspecified'
 export type PixelRenderingIntent = 'perceptual' | 'relative' | 'saturation' | 'absolute'
 export type PixelTransferFunction =
-  | { readonly kind: 'srgb' | 'linear' | 'pq' | 'hlg' | 'source-profile' | 'unspecified' }
+  | { readonly kind: 'srgb' | 'bt709' | 'linear' | 'pq' | 'hlg' | 'source-profile' | 'unspecified' }
   | { readonly kind: 'gamma'; readonly exponent: number }
 
 export interface PixelIccSemantics {
@@ -81,6 +81,7 @@ const renderingIntents = new Set<PixelRenderingIntent>([
 ])
 const transferKinds = new Set([
   'srgb',
+  'bt709',
   'linear',
   'pq',
   'hlg',
@@ -125,6 +126,7 @@ const normalizeTransfer = (value: unknown): PixelTransferFunction => {
   }
   if (
     kind !== 'srgb' &&
+    kind !== 'bt709' &&
     kind !== 'linear' &&
     kind !== 'pq' &&
     kind !== 'hlg' &&

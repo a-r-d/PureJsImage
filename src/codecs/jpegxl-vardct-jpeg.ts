@@ -1,3 +1,4 @@
+import { jpegXlChromaShifts as subsamplingShifts } from './jpegxl-chroma.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import {
   JpegXlBitReader,
@@ -248,25 +249,6 @@ const readColorCorrelation = (reader: JpegXlBitReader): JpegXlJpegColorCorrelati
   })
 }
 
-const subsamplingShifts = (
-  modes: readonly [number, number, number],
-): readonly (readonly [number, number])[] => {
-  const raw = modes.map((mode): readonly [number, number] => {
-    if (mode === 0) return Object.freeze([0, 0])
-    if (mode === 1) return Object.freeze([1, 1])
-    if (mode === 2) return Object.freeze([1, 0])
-    if (mode === 3) return Object.freeze([0, 1])
-    throw invalidInput('JPEG-derived JPEG XL chroma subsampling mode is invalid')
-  })
-  const maximumHorizontal = Math.max(...raw.map(([horizontal]) => horizontal))
-  const maximumVertical = Math.max(...raw.map(([, vertical]) => vertical))
-  return Object.freeze(
-    raw.map(([horizontal, vertical]): readonly [number, number] =>
-      Object.freeze([maximumHorizontal - horizontal, maximumVertical - vertical] as const),
-    ),
-  )
-}
-
 const requireZeroPadding = (section: Uint8Array, bitPosition: number, label: string): void => {
   const reader = new JpegXlBitReader(section, bitPosition)
   requireZeroRemainder(reader, label)
@@ -279,6 +261,7 @@ export const decodeJpegXlJpegDcGroup = (
   startBit = 0,
   requireComplete = true,
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
+  decodeExtraChannels?: (position: number) => number,
 ): JpegXlJpegDcGroup => {
   const { blockWidth, blockHeight, chromaSubsampling, groupId, dcGroupCount } = options
   if (
@@ -343,6 +326,7 @@ export const decodeJpegXlJpegDcGroup = (
     metadataBitPosition = decodedDc.endingBitPosition
   }
 
+  if (decodeExtraChannels) metadataBitPosition = decodeExtraChannels(metadataBitPosition)
   const metadataReader = new JpegXlBitReader(section, metadataBitPosition)
   const blockCount = blockWidth * blockHeight
   const count = metadataReader.readBits(jpegXlCeilLog2(blockCount)) + 1

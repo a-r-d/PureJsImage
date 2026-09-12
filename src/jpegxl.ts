@@ -35,3 +35,26 @@ export {
   type JpegXlProgressivePlan,
   type JpegXlRegion,
 } from './codecs/jpegxl-progressive-plan.ts'
+export {
+  openJpegXlSequence,
+  type OpenJpegXlSequenceOptions,
+  type JpegXlSequence,
+  type JpegXlSequenceFrame,
+  type JpegXlNativeLayer,
+} from './codecs/jpegxl-sequence.ts'
+export {
+  encodeJpegXlAnimation,
+  type EncodeJpegXlAnimationOptions,
+  type JpegXlAnimationInputFrame,
+} from './codecs/jpegxl-sequence-encode.ts'
+export type {
+  JpegXlAnimationHeader,
+  JpegXlExtraChannel,
+  JpegXlBlending,
+} from './codecs/jpegxl-decode.ts'
+export {
+  encodeJpegXlNative,
+  type EncodeJpegXlNativeOptions,
+  type JpegXlNativePlaneInput,
+  type JpegXlNativeExtraInput,
+} from './codecs/jpegxl-native-encode.ts'

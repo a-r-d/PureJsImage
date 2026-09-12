@@ -6,6 +6,19 @@ project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
+## M8 sequence and native channel APIs
+
+- [x] Independent header discovery, timed composited frame iteration, decimal tick timestamps, exact rational timebase, loop and timecode metadata
+- [x] Explicit still-frame selection, index/timestamp replay, separate native layers, four reference slots and caller-owned output
+- [x] Streamed lossless and Experimental lossy animation encoding with exact alpha, rectangles, references, orientation and cancellation
+- [x] Typed native channel extraction, grouped shifted VarDCT alpha/depth and binary16 sample preservation
+- [x] Bounded native planar encoding with matching original GRAY/RGB ICC profiles, including high-depth gray plus alpha
+- [x] Global implicit delta palettes, M3 previous-channel MA-tree properties, custom inverse opsin, custom upsampling and custom Gaborish/EPF reconstruction
+- [x] Independent comparisons for all 39 official cases: 37 pass and two Level 10 cases remain explicitly unsupported; every applicable Level 5 case passes
+- [x] Native patch/progressive dependencies, all eight patch blend modes in Modular and XYB, YCbCr chroma reconstruction, shifted-alpha/color upsampling, and noise/spline interactions
+
+Sequence output uses explicit full-canvas buffers and replay without a decoded sequence cache. Native extraction does not imply display conversion. See docs/jpegxl-sequences.md for ownership, budgets, timing, channel representation and level classification. The checked Level 5 corpus passes; unrestricted display of every native channel layout is not claimed.
+
 ## M6 progressive sessions
 
 - [x] Lazy header indexing, aggregate header budgets and no pixel decode at session open
@@ -297,7 +310,7 @@ losslessly transcoded JPEG files.
 - [x] Decode one visible full-canvas frame with the default replace behavior
 - [ ] Skip a declared preview and decode the main image by default
 - [x] Resolve checked internal DC frames, reference slots, partial-canvas frames, and common static blend modes
-- [ ] Reject animation, multiple visible frames, and unsupported blend modes until Group 2
+- [x] Require explicit displayed-frame selection for animation in the ordinary still API
 - [x] Apply all eight orientation values exactly once through explicit autoOrient()
 - [x] Return display dimensions after orientation
 - [x] Emit bounded, ordered `gray8`, big-endian `gray16`, `rgb8`, big-endian `rgb16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset
@@ -362,7 +375,7 @@ decoder can ship before all of them are complete.
 - [ ] Optional floating-point pipeline output
 - [ ] Opt-in extraction of depth, thermal, CFA, spot-color, and selection-mask
   extra channels
-- [ ] Non-coalesced frame access for applications that need individual frames
+- [x] Native coding-layer access through the explicit sequence API, with unsupported unresolved dependencies reported
 - [ ] Diagnostics identifying the box, frame, LF group, pass group, entropy
   stream, transform, or extra channel that caused a failure
 
@@ -371,8 +384,7 @@ decoder can ship before all of them are complete.
 These unchecked items are outside the initial decode-only plan and do not block
 JPEG XL v1.
 
-- [ ] Animated output, animation timing, looping, and full multi-frame
-  composition
+- [x] Animated output, exact timing, looping metadata and checked frame composition through the explicit sequence API
 - [ ] Re-encoding or editing frame references
 - [ ] Producing an original JPEG reconstruction as a default decode result
 - [ ] Unbounded or arbitrary user access to container boxes

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "baseRevision": "1c6e1433a938bcb3f22a41c3f388c9a22156cbd2",
+  "branch": "codex/jpegxl-m06-m10-completion",
+  "workingTreeDirty": true,
+  "sourceSha256": "477920d848bc4a53abbfea720fbaaf067a8187a64d900f47613026fcb11df8ab",
+  "passed": true,
+  "scope": "M8 local implementation and qualification; no release or remote CI claim",
+  "checks": {
+    "npmRunCheck": {
+      "passed": true,
+      "testsPassed": 3123,
+      "testsSkipped": 3,
+      "filesPassed": 239,
+      "filesSkipped": 1,
+      "logSha256": "b4f6cb3609b83455e20a2b5327b69598528ffc4fc417235917138dafa4796700"
+    },
+    "browsers": {
+      "passed": true,
+      "testsPassed": 12,
+      "projects": ["chromium", "firefox", "webkit"],
+      "retries": 0,
+      "logSha256": "89704902c21eb7c6003b552f830909de5ded9f8e6194ec39dc9e113d944048b6"
+    },
+    "focusedM8Tests": 56,
+    "officialConformance": {
+      "pass": 37,
+      "expectedLevel10Exclusions": 2,
+      "incorrectOutput": 0,
+      "unexpectedFailure": 0,
+      "applicableLevel5Passed": true
+    },
+    "m3InputsPassed": 300,
+    "sequenceCases": 18,
+    "sequenceFrames": 161,
+    "officialTimingFrames": 144,
+    "animationEncoderCases": 10,
+    "animationEncoderFrames": 50
+  },
+  "qualificationReports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m8-sequence-native.json",
+      "sha256": "d8670068f5fba5f3c71313cbaf50722325c64aa7a2d478ec698f26483f9114d5"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-static-native.json",
+      "sha256": "6af11bfb9d60e65c52ed498a9bce74bde3f624048e603d211aa7ae074cc076f7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-native-channels.json",
+      "sha256": "bac2adebc4a1612324de5228d7ac2356719e5dd2d2534474bd0bcaeea1607abd"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-native-raw.json",
+      "sha256": "27452af0c2f957ad712b15d10e6a4df5952bc54e92e836b441b15abc6bf3c014"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-animation-encode-native.json",
+      "sha256": "c877638a69bd13ccef5a4679648ccbbc95a082dbb886113c099ec4522377651c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-m3-revalidation.json",
+      "sha256": "eb8eb3983972d1613ff2df55d294e5295d76d1945773e293cd59d92271750ce0"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-timing-native.json",
+      "sha256": "58031600da8cf49a19664b05afd971d79e8694b7c2876ef86d186b68caa24161"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m8-static-conformance.json",
+      "sha256": "f932e1cbc9f7769ba871982d9cec4b6fb3dd7f78c9a3dd10b0ca7c203f4bcd63"
+    }
+  ],
+  "boundedHandoff": {
+    "startedAt": "2026-09-12T00:15:45.256Z",
+    "finishedAt": "2026-09-12T00:24:31.744Z",
+    "policy": {
+      "memoryMaxBytes": 3221225472,
+      "memoryHighBytes": 3019898880,
+      "minimumAvailableBytes": 8589934592,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 200,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 16591089664,
+    "executable": "/bin/sh",
+    "args": [
+      "-c",
+      "npm run check > .tmp/jpegxl-m8/full/final-check-b.log 2>&1 && node node_modules/@playwright/test/cli.js test browser-tests/jpegxl-m8-palette.pw.ts browser-tests/jpegxl-m8-sequence.pw.ts --workers=1 --retries=0 > .tmp/jpegxl-m8/full/final-browsers-b.log 2>&1"
+    ],
+    "code": 0,
+    "signal": null,
+    "status": "completed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 4fb72d71251f4d59a29efa273a245b6b\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 8min 46.452s\nCPU time consumed: 11min 848ms\nMemory peak: 2.6G (swap: 0B)\n"
+  },
+  "memoryInterpretation": "2.6 GiB is the combined test infrastructure peak, not codec-only RSS; 3 GiB cap and zero swap."
+}

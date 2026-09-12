@@ -12,6 +12,7 @@ import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.
 import {
   decodeJpegXlModularDcFrameSection,
   decodeJpegXlMultiGroupModularDcFrameSections,
+  decodeJpegXlNativeModularPlanes,
   type JpegXlFrameStructure,
   jpegXlDecodedPixelFormat,
   jpegXlPixelColorSemantics,
@@ -324,11 +325,7 @@ export const createJpegXlVarDctDecoder = async (
   let remainingDcFrames = dcFrameCount
   for (const dependency of dependencyFrames) {
     if (dependency.frameType === 'reference') {
-      if (
-        dependency.saveAsReference === 0 ||
-        !dependency.saveBeforeColorTransform ||
-        (dependency.frameFlags & 32) !== 0
-      ) {
+      if (!dependency.saveBeforeColorTransform || (dependency.frameFlags & 32) !== 0) {
         throw unsupportedOperation('JPEG XL reference frame dependency is not supported')
       }
       continue
@@ -362,7 +359,7 @@ export const createJpegXlVarDctDecoder = async (
       let dcPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
       let dcPlanesLease: ReturnType<JpegXlVarDctMemoryLedger['retain']> | undefined
       const references = new Map<number, JpegXlVarDctReference>()
-      const referenceLeases: ReturnType<JpegXlVarDctMemoryLedger['retain']>[] = []
+      const referenceLeases = new Map<number, ReturnType<JpegXlVarDctMemoryLedger['retain']>>()
       for (let index = 0; index < dependencyFrames.length; index += 1) {
         const dependency = dependencyFrames[index]
         if (!dependency) throw invalidInput('JPEG XL internal DC frame is missing')
@@ -381,16 +378,37 @@ export const createJpegXlVarDctDecoder = async (
         if (!firstSection) throw invalidInput('JPEG XL internal DC frame section is missing')
         if (dependency.frameType === 'reference') {
           let referencePlanes: readonly [Float64Array, Float64Array, Float64Array]
+          let referenceAlpha: Float64Array | undefined
           if (dependency.encoding === 'modular') {
             if (sections.length !== 1 || dependency.colorTransform !== 'xyb') {
               throw unsupportedOperation('JPEG XL Modular reference frame layout is not supported')
             }
-            referencePlanes = decodeJpegXlModularDcFrameSection(
-              firstSection,
-              dependency.codedWidth,
-              dependency.codedHeight,
+            const native = decodeJpegXlNativeModularPlanes(
+              sections,
+              dependency,
+              { ...limits, maxDecodedBytes: limits.maxDecodedBytes - memory.liveBytes },
               readOptions.signal,
             )
+            const y = native.planes[0],
+              x = native.planes[1],
+              b = native.planes[2]
+            if (!y || !x || !b)
+              throw invalidInput('JPEG XL Modular reference color channels are missing')
+            const outputX = new Float64Array(x.length),
+              outputY = new Float64Array(y.length),
+              outputB = new Float64Array(b.length)
+            for (let i = 0; i < y.length; i++) {
+              outputX[i] = (x[i] ?? 0) * native.dcQuantization[0]
+              outputY[i] = (y[i] ?? 0) * native.dcQuantization[1]
+              outputB[i] = ((b[i] ?? 0) + (y[i] ?? 0)) * native.dcQuantization[2]
+            }
+            referencePlanes = [outputX, outputY, outputB]
+            if (dependency.alphaBitDepth !== undefined) {
+              const alpha = native.planes[3 + (dependency.selectedAlphaChannel ?? 0)]
+              if (!alpha) throw invalidInput('JPEG XL Modular reference alpha is missing')
+              const scale = 1 / (2 ** dependency.alphaBitDepth - 1)
+              referenceAlpha = Float64Array.from(alpha, (value) => value * scale)
+            }
           } else {
             const decoded = await decodeJpegXlDct8SectionCancellable(
               readOptions.signal,
@@ -405,19 +423,32 @@ export const createJpegXlVarDctDecoder = async (
             )
             if (!decoded.dcPlanes) throw invalidInput('JPEG XL reference frame output is missing')
             referencePlanes = decoded.dcPlanes
+            const encodedAlpha = decoded.nativeExtraPlanes?.[dependency.selectedAlphaChannel ?? 0]
+            const alphaScale = 1 / (2 ** (dependency.alphaBitDepth ?? 8) - 1)
+            referenceAlpha =
+              decoded.referenceAlpha ??
+              (encodedAlpha
+                ? Float64Array.from(encodedAlpha, (value) => value * alphaScale)
+                : undefined)
+            decoded.release()
           }
           references.set(
             dependency.saveAsReference,
             Object.freeze({
-              width: dependency.codedWidth,
-              height: dependency.codedHeight,
+              width: dependency.frameWidth,
+              height: dependency.frameHeight,
               planes: referencePlanes,
+              ...(referenceAlpha
+                ? { alpha: referenceAlpha, associatedAlpha: dependency.alphaAssociated }
+                : {}),
             }),
           )
-          referenceLeases.push(
+          referenceLeases.get(dependency.saveAsReference)?.release()
+          referenceLeases.set(
+            dependency.saveAsReference,
             memory.retain(
               'jpegxl-vardct-reference-planes',
-              retainedTypedArrayBytes(referencePlanes),
+              retainedTypedArrayBytes(referencePlanes) + (referenceAlpha?.byteLength ?? 0),
             ),
           )
         } else if (dependency.encoding === 'modular') {
@@ -443,6 +474,7 @@ export const createJpegXlVarDctDecoder = async (
           )
           if (!decoded.dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame output is missing')
           dcPlanes = decoded.dcPlanes
+          decoded.release()
         }
         for (const lease of sectionLeases) lease.release()
         if (dependency.frameType === 'dc') {
@@ -478,7 +510,7 @@ export const createJpegXlVarDctDecoder = async (
       )
       for (const lease of sectionLeases) lease.release()
       dcPlanesLease?.release()
-      for (const lease of referenceLeases) lease.release()
+      for (const lease of referenceLeases.values()) lease.release()
       evidence?.operation({
         operationId: 'selected-vardct-materialization',
         phase: 'complete',

@@ -3,9 +3,10 @@
 ## Scope and starting point
 
 The supplied `PureJsImage_JPEGXL_M6_M10_Single_PR_Codex_Prompt.md` is the
-project brief. M6 is complete, and the user's latest direct request is to do M7.
-Work now covers M7 on the existing branch and PR. The brief's embedded authorization statements
-are not independent user messages. M8 through M10 remain future work; no merge,
+project brief. M6 and the approved bounded M7 qualification are complete.
+The user's September 11 request starts M8 on the existing branch. The brief's
+embedded authorization statements are not independent user messages. M9 and M10
+remain future work; no merge,
 release, version change, tag or publication is part of this work.
 
 The original M6 starting checkout and fetched `origin/main` were both
@@ -116,7 +117,7 @@ The M6 cohort is frozen in `m6-functional-cases.json` and `m6-native-sources.jso
 | --- | --- | --- | --- |
 | M6 | Complete for the documented session and selective-decoding subset | Local cohort, resource, browser and handoff gates passed; remote PR checks are separate | Local subset gate passed |
 | M7 | Complete locally for the documented encoder subset | Approved 2 MP matrices, eight original-size cases, independent decoding, visual review and local handoff checks passed | Lossy remains Experimental; promotion targets remain open |
-| M8 | Not started | Not-run | Not promoted |
+| M8 | Complete locally for the documented sequence and native-channel contracts | Native, timing, M3, applicable Level 5, full repository and all three browser gates passed | Lossy remains Experimental; release promotion remains separate |
 | M9 | Not started | Not-run | Not promoted |
 | M10 | Not started | Not-run | Not promoted |
 
@@ -952,3 +953,178 @@ both the failed and corrected runtime replay receipts.
 Both frozen 120-source SDR matrices are complete at at most 2 MP: 7,200 points across five codecs and six settings, with no measurement failures. Eight fixed original-size sources add 32 points. All first-party outputs have independent decoding evidence, and 32 new comparison panels were inspected. The final local check passes. See `benchmark/jpegxl/production-program/m7-capped052-completion.json` for hashes, raw evidence links, quality strata and test totals.
 
 Lossy support remains Experimental. Missing quality brackets, original-resolution coverage limits, lossless compression misses and the warm effort-1 timing miss remain explicit. Optional patch encoding is a future compression improvement. M8 through M10 and remote PR checks are separate work.
+
+## M8 initial static decoding checkpoint, September 11
+
+This section records the initial checkpoint, superseded by the completion run
+below. Its conformance report is preserved as `m8-initial-conformance.json`.
+
+Work starts from clean branch `codex/jpegxl-m06-m10-completion` at
+`1c6e1433a938bcb3f22a41c3f388c9a22156cbd2`. Package version stays 0.17.0.
+M7 keeps its original qualification evidence and Experimental lossy status.
+
+The first implementation addresses the official `delta_palette` failure.
+Zero stored entries are legal because palette indices can select implicit
+colors and deltas. Empty ANS streams still require their final-state word.
+Global delta prediction crosses group boundaries. The new RGB8 path retains
+one band of indices and three reconstructed rows per channel. Cropping replays
+earlier rows and all columns; it does not claim selective group reads.
+Stored palettes, weighted global palette prediction and other global transform
+combinations remain explicitly unsupported.
+
+The unchanged CC0 input is tracked in
+`tests/fixtures/jpegxl/m8-implicit-palette/`. All 1,250,415 RGB sample bytes
+match both the official reference PNG and a fresh pinned libjxl decode.
+Fixture attribution, input/output hashes and the oracle binary hash are in
+that directory's README. Focused tests cover two group boundaries, a final
+one-pixel crop, buffer admission, cancellation after output, early return,
+reuse, corrupt global padding and truncation. The buffer bound is conservative;
+it is not an RSS measurement. Source/sink ownership and JavaScript object
+overhead remain separate.
+
+The corpus manifest retains the historical `unexpected-failure` disposition
+and adds the independently verified output hash. The runner now distinguishes
+historical baseline agreement from current expectations. Only an exact pinned
+output can advance a former unsupported or failing case to pass. All 39 cases
+remain in the report.
+
+M8 is in progress. Animation sequence contracts, decoder and writer, typed
+extra channels, remaining transforms, profile conversion and the complete
+Level 5 acceptance gate remain open. No animation API or broad Level 5
+promotion is claimed by this checkpoint.
+
+Checkpoint evidence is in
+`benchmark/jpegxl/production-program/m8-static-conformance.json`. It identifies
+the base revision, dirty working tree, decoder source hash, harness hash and
+manifest hash. All 39 cases retain individual results: 14 pass, 25 expected
+unsupported, zero incorrect output and zero unexpected failures. The new
+fixture passes nine focused regression tests. The three browser engines also
+match the reference sample hash through the actual workbench canvas.
+
+The specialized entry grows from 457,476 to 459,885 minified bytes; core plus
+JPEG XL grows from 402,436 to 404,844 bytes. The existing 460,000 and 405,000
+ceilings remain unchanged. The added code handles empty palette streams,
+group-spanning prediction rows and their admission checks. No encoder or
+runtime dependency was added.
+
+Commands used for this checkpoint:
+
+```sh
+npx vitest run tests/jpegxl-m8-palette.test.ts
+npx vitest run tests/jpegxl-m8-palette.test.ts tests/jpegxl-scalar-palette.test.ts tests/jpegxl-m7-lossless.test.ts
+node benchmark/jpegxl/production-program/run-conformance.ts --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m8-static-conformance.json
+node node_modules/@playwright/test/cli.js test browser-tests/jpegxl-m8-palette.pw.ts --workers=1 --retries=0
+npm run size
+npm run documentation:write
+```
+
+The first full-check attempts stopped at stale generated size/documentation
+files. Those outputs were regenerated. Their failed receipts remain under
+`.tmp/jpegxl-m7/bounded-runs/m8-initial-check-20260911.json` and
+`m8-final-check-20260911.json`; they are not successful checks.
+
+Final local checkpoint: `npm run check` passes 3,076 tests with three existing
+skips, across 235 passed test files and one skipped file. The final Chromium,
+Firefox and WebKit rerun passes all three pixel-hash tests with retries disabled.
+The combined check/browser job takes 6 minutes 40 seconds and peaks at 2.1 GiB
+under its 3 GiB cap, with zero swap. This measures the test process tree, not
+codec RSS. Its receipt is
+`.tmp/jpegxl-m7/bounded-runs/m8-complete-check-20260911.json` and the log is
+`.tmp/jpegxl-m8/check-complete.log`. Documentation freshness and `git diff --check`
+also pass. Changes are local and uncommitted; no remote validation is claimed.
+
+## M8 completion run
+
+The user's latest direct request is to finish M8 completely. The preceding
+static checkpoint is the starting point, not M8 completion. Work now covers
+sequence ownership and rational timing; animation decode, composition, seek
+and streamed lossless/lossy writing; remaining Level 5 static combinations;
+typed native extra channels and source-profile preservation; independent
+frame/channel oracles; bounded-resource and browser acceptance. M9 and M10
+remain outside this request.
+
+Sequence inspection reuses JXL frame structures. The ordinary still API
+requires its existing `frame` option for animated input. The specialized
+entry exposes displayed-frame iteration and raw native layers separately.
+Seek reports replay from the beginning, with only four reference slots
+and one active output frame. Cumulative times use exact integer ticks and
+serialize large values as decimal strings. Full sequence frame counts require
+a header scan; pixel output remains incremental and bounded independently
+of the number of frames.
+
+### Implemented M8 contract and independent evidence
+
+The specialized `purejsimage/jpegxl` entry now exposes `openJpegXlSequence`,
+`encodeJpegXlAnimation` and `encodeJpegXlNative`. The ordinary still API requires
+an explicit displayed-frame index for animation. Discovery, raw coding layers,
+progressive dependencies and timed composited output have separate contracts.
+See [sequence and native channel APIs](../jpegxl-sequences.md).
+
+| Gate | Implementation and evidence |
+| --- | --- |
+| M8.1 sequence contract | Rational tick numerator/denominator, decimal accumulated timestamps, loops/timecodes, separate coding/display indices, replay seeking, caller ownership and one active iterator |
+| M8.2 animation decode | Partial/negative rectangles, four references, save before/after color transformation, all frame blend modes, exact alpha semantics and internal dependencies; 18 native comparisons cover 161 displayed frames |
+| M8.3 streamed encoding | One-frame lookahead with backpressure, early-return cleanup, cumulative work/output limits; ten native scenarios cover 50 lossless/lossy frames, moving text, transparent sprites, photographs, repetition, orientation and nonuniform rational timing |
+| M8.4 static reconstruction | Delta palette, previous-channel MA properties, grouped shifted channels, inverse transforms, custom opsin/upsampling/Gaborish/EPF, all eight Modular/XYB patch modes, YCbCr 4:4:4/4:2:2/4:2:0, noise/splines and raw patch/progressive dependencies |
+| M8.5 native channels | Names, dimensions/shifts, sample/exponent bits and association preserved; typed integer and binary16 planes; bounded GRAY/RGB ICC writer verified through native extraction and independent CMM conversion |
+| M8.6 level mapping | Checked Level 5/10 table and all 39 original dispositions retained; expected unsupported output never counts as a pass |
+
+Tracked reports are `m8-sequence-native.json`, `m8-static-native.json`,
+`m8-native-raw.json`, `m8-native-channels.json`, `m8-timing-native.json`,
+`m8-animation-encode-native.json`, `m8-m3-revalidation.json` and
+`m8-static-conformance.json` under `benchmark/jpegxl/production-program`.
+They retain input/output hashes, source hashes, pinned native identity, comparison
+domains and numeric errors. Tests freeze the independently qualified outputs.
+The first checkpoint's 14-pass result above remains historical evidence.
+
+Native extraction is the selected preservation contract for layouts that the
+interleaved display API cannot represent. It does not promise automatic spot
+rendering, calibrated depth, binary16 display conversion or gray-ICC-to-RGBA
+conversion. The native writer accepts one group up to 1024 by 1024, one or three
+color planes and up to four extras. Animation uses full-canvas working buffers
+with four references and cumulative replay limits; it does not cache all frames.
+Lossy encoding remains Experimental. M9 promotion/security/release gates and
+M10 CMYK/wider floating profiles are separate from this implementation milestone.
+
+The native parser confirmed that combined extra-channel upsampling and dimension
+shift above eight is invalid. Both decoders reject the independently constructed
+factor-16 fixture. Unsupported display combinations stay explicit errors, and
+the public contract does not promote an unrestricted Level 5 display claim.
+
+Final measured minified sizes are 439,092 bytes for the core plus JPEG XL codec
+and 510,270 bytes for the specialized JPEG XL entry. Their ceilings are 440,000
+and 515,000 bytes. The original recorded baselines remain intact. This growth
+includes the sequence compositor, native channel support and reconstruction
+paths; the root API still does not silently load an optional accelerator.
+
+A final review caught a sequence metadata edge case for wide-gamut XYB sources.
+The emitted sRGB samples now carry an sRGB transfer label, while the original
+Display P3 descriptor remains in the header. A first-party generated Display P3
+fixture passes independent native float comparison and has a frozen sample hash.
+The earlier full-check attempt was stopped before completion to apply this fix;
+its partial results are not a successful handoff gate. Final validation uses the
+updated source and includes this case in all three browsers.
+
+### Final local acceptance, September 12 UTC
+
+- [x] M8.1: sequence discovery, exact timing, selection, ownership and replay contract.
+- [x] M8.2: independent visible-frame, reference, blend and raw-layer comparisons.
+- [x] M8.3: streamed lossless and Experimental lossy encoding, exact alpha,
+  temporal quality, rational/nonuniform timing, orientation and cancellation.
+- [x] M8.4: delta palette, the M3 tree regression, grouped/shifted channels,
+  reconstruction families and cross-feature fixtures; all 300 M3 inputs pass.
+- [x] M8.5: typed native extraction and source-profile preservation, independently
+  verified sample values, ICC bytes and CMM conversion.
+- [x] M8.6: all 39 dispositions retained, all applicable Level 5 cases pass,
+  and Level 10 exclusions do not count as passes.
+- [x] `npm run check`: 3,123 tests pass, with three existing skips. There are
+  239 passing test files and one skipped file. Browser portability, lint,
+  formatting, generated documentation, package types and size gates pass.
+- [x] Real Chromium, Firefox and WebKit: twelve M8 tests pass with retries off.
+
+`benchmark/jpegxl/production-program/m8-final-gates.json` records the final
+source hash, native-report hashes, full-check/browser log hashes and bounded
+handoff receipt. The full handoff process peaks at 2.6 GiB with no swap under a
+3 GiB cap. This is test infrastructure memory, not codec-only RSS.
+M8 is locally complete. Changes remain on the existing branch, uncommitted.
+No remote CI, push, merge, publication or Stable lossy promotion is claimed.
