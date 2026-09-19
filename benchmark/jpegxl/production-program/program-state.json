@@ -1,7 +1,7 @@
 {
   "currentMainSha": "d157a8dc5a704410563026e53e438b79db6161db",
   "packageVersion": "0.17.0",
-  "currentTarget": "B",
+  "currentTarget": "C",
   "milestones": {
     "M0": {
       "status": "merged",
@@ -634,7 +634,7 @@
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": null,
       "startRevision": "df8a3af907bc7d799f3ddf5753559661c8d3f779",
-      "finalRevision": null,
+      "finalRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
       "localCommands": [
         "npm run jpegxl:m9:integration -- --output .tmp/m9-integration.json",
         "npm run jpegxl:m9:fuzz-resource -- --output .tmp/m9-fuzz-resource.json",
@@ -673,32 +673,68 @@
         "Lossy writing remains Experimental and M9 does not authorize a release."
       ],
       "deferredWork": [
-        "M10 Level 10, CMYK/BLACK and wider floating-profile work must rerun all M9 gates after its last production edit.",
+        "M10 reran all M9 gates after its last production edit at revision a94ba16a42d2bb9bc384f77bd0d65cf1110657b1.",
         "Remote CI and PR checks are not local completion evidence."
       ],
       "stablePromotionGatePassed": false,
       "remainingBlockers": []
     },
     "M10": {
-      "status": "not started",
+      "status": "locally complete",
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": null,
-      "startRevision": null,
-      "finalRevision": null,
-      "localCommands": [],
+      "startRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
+      "finalRevision": "a94ba16a42d2bb9bc384f77bd0d65cf1110657b1",
+      "localCommands": [
+        "npm run jpegxl:program:conformance -- --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m10-static-conformance.json",
+        "npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-m10/level10-clean.json",
+        "npm run jpegxl:m9:integration -- --output .tmp/jpegxl-m9/integration-m10-clean.json",
+        "npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-m9/fuzz-m10-clean.json",
+        "npm run jpegxl:m9:package -- --output .tmp/jpegxl-m9/package-m10-clean.json",
+        "npx playwright test browser-tests/jpegxl-pipeline.pw.ts --grep \"Level 10 binary32\" --project=chromium --project=firefox --project=webkit --workers=1 --retries=0",
+        "npm run check"
+      ],
       "remoteWorkflowRuns": [],
-      "measuredResults": [],
-      "corpusVersions": [],
-      "oracleRevisions": [],
-      "benchmarkReportPath": null,
-      "capabilityChanges": [],
+      "measuredResults": [
+        "All 39 pinned official valid cases pass with exact frozen output hashes; no case remains expected-unsupported, incorrect or unexpectedly failed.",
+        "The official 500 by 500 binary32 fixture preserves all 750000 sample bit patterns with digest b79a3696b462f6dfad2685f9201cb27abb375af3ca4efcdf145a35d361de3093.",
+        "The official CMYK fixture exposes four native layers totaling 775 rows and applies its embedded profile through an explicit display conversion.",
+        "Pinned libjxl djxl v0.12.0 accepts PureJsImage binary32, maximum 31-bit integer and CMYK Level 10 writer outputs.",
+        "Level 10 browser coverage passes in Chromium, Firefox and WebKit with retries disabled.",
+        "The specialized JPEG XL entry measures 514851 minified bytes under the existing 515000-byte ceiling.",
+        "All clean-revision M9 reruns pass: 12 integration cases, 12 mutation plus 12 resource cases, and 8 package/runtime cases.",
+        "Full repository gate: 3138 tests passed, 3 skipped; 240 files passed, 1 skipped."
+      ],
+      "corpusVersions": [
+        "libjxl conformance corpus revision 4bf053529c7cefd2951be453475bb3dccc7e7be8 with archive SHA-256 1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",
+        "lossless_pfm.jxl SHA-256 61ae52b5851ab2e156aec1d22502e8e1ec0cdf6bc0d6a3956ac6d7d6d2969d5e",
+        "cmyk_layers.jxl SHA-256 d732c8836bf1abeadf310d2e07387a32813ed4690d32650c1c25e541b80eed4a"
+      ],
+      "oracleRevisions": [
+        "libjxl v0.12.0 djxl",
+        "ISO/IEC 18181 Level 5 and Level 10 limits represented in benchmark/jpegxl/production-program/m10-level-profile-map.json"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m10-static-conformance.json",
+      "capabilityChanges": [
+        "Native Modular decode and encode preserve unsigned integer samples through the JPEG XL maximum of 31 bits plus exact IEEE binary16 and binary32 bit patterns.",
+        "Level 10 native output uses a JPEG XL container with jxll=10; minimum-level selection and conflicting Level 5 or raw requests are checked.",
+        "CMYK black channels remain native and use explicit embedded-profile conversion for display output.",
+        "The authoritative conformance manifest promotes the official binary32 and CMYK cases to passing native workflows."
+      ],
       "capabilityPromotions": [],
-      "acceptedLimitations": [],
-      "deferredWork": [],
+      "acceptedLimitations": [
+        "Native lossless encoding remains bounded to one 1024-pixel Modular group.",
+        "Floating layouts other than IEEE binary16 and binary32 remain unsupported.",
+        "Integer display conversion rejects NaN and infinity instead of normalizing them.",
+        "Profile display conversion for shifted CMYK or black planes remains unsupported.",
+        "General Level 10 VarDCT encoding remains unsupported."
+      ],
+      "deferredWork": [
+        "Remote CI and PR checks are not local completion evidence.",
+        "Release preparation, version changes, tags, publication and compatibility promises require separate release authorization."
+      ],
       "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
-      ]
+      "remainingBlockers": []
     }
   }
 }
