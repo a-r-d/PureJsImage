@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
-import { hashM8Frame } from '../benchmark/jpegxl/m8-output-digest.ts'
+import { hashM8FramePortable } from '../benchmark/jpegxl/m8-output-digest.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { openJpegXlSequence } from '../src/codecs/jpegxl-sequence.ts'
 import type { JpegXlAnimationInputFrame } from '../src/codecs/jpegxl-sequence-encode.ts'
@@ -297,9 +297,9 @@ it('labels wide-gamut XYB sequence reconstruction with its emitted sRGB transfer
   try {
     const frame = await sequence.frame(0)
     const hash = createHash('sha256')
-    hashM8Frame(hash, frame)
+    hashM8FramePortable(hash, frame)
     expect(hash.digest('hex')).toBe(
-      'a15cc7f3089ba7fd3ee5d06de8683f2ec70211a38ca604a4c0b883e9d21400f8',
+      '436ba26cc5dee3da2a4cd798abbad9f172c4d1c0edab3ea12eea1ae9faf96486',
     )
     expect(frame.header.colorSemanticsPrimaries).toBe('display-p3')
     expect(frame.colorSemantics.primaries).toBe('srgb')

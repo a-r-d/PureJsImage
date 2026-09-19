@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
+import { downloadPinnedFile } from '../lib/pinned-download.ts'
 import selection from './production-program/m7-corpus-selection.json' with { type: 'json' }
 
 const directory = '.tmp/jpegxl-m7/sources'
@@ -17,29 +18,15 @@ async function worker(): Promise<void> {
         bytes = await readFile(path)
       } catch (error) {
         if (!(error instanceof Error) || !('code' in error) || error.code !== 'ENOENT') throw error
-        const response = await fetch(entry.sourceUrl, { signal: AbortSignal.timeout(120_000) })
-        if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`)
-        const chunks: Uint8Array[] = []
-        let length = 0
-        for await (const chunk of response.body) {
-          length += chunk.length
-          if (length > entry.bytes || length > 40_000_000)
-            throw new Error('Source exceeds pinned size')
-          chunks.push(chunk)
-        }
-        bytes = new Uint8Array(length)
-        let offset = 0
-        for (const chunk of chunks) {
-          bytes.set(chunk, offset)
-          offset += chunk.length
-        }
-        if (
-          bytes.length !== entry.bytes ||
-          createHash('sha256').update(bytes).digest('hex') !== entry.sourceSha256
-        )
-          throw new Error('Source checksum or size changed')
-        await writeFile(`${path}.part`, bytes)
-        await rename(`${path}.part`, path)
+        await downloadPinnedFile({
+          allowedDirectory: directory,
+          allowedHosts: new Set(['codec-corpus.r2.imazen.org']),
+          destination: path,
+          expectedSha256: entry.sourceSha256,
+          maximumBytes: Math.min(entry.bytes, 40_000_000),
+          url: entry.sourceUrl,
+        })
+        bytes = await readFile(path)
       }
       if (
         bytes.length !== entry.bytes ||

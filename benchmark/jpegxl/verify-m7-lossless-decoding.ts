@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { mkdir, readdir, readFile, stat } from 'node:fs/promises'
+import { mkdir, readdir, readFile } from 'node:fs/promises'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { MemorySource } from '../../src/source.ts'
@@ -109,8 +109,8 @@ if (caseId === undefined) {
     for (const candidate of candidates) {
       const path = `.tmp/jpegxl-m7/${candidate}/${entry.id}-pure-e7.jxl`
       try {
-        if ((await stat(path)).size !== point.pureBytes) continue
         const bytes = await readFile(path)
+        if (bytes.byteLength !== point.pureBytes) continue
         if (hash(bytes) !== point.encodedSha256) continue
         encoded = bytes
         encodedPath = path

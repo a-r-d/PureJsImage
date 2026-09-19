@@ -114,16 +114,10 @@ const decodeMutation = async (id: string, path: string, divisor: number): Promis
 }
 
 const fuzzPaths: Readonly<Record<string, readonly [string, number]>> = {
-  'boxes-level-segments-metadata': [
-    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-jxlp-ordered.jxl',
-    19,
-  ],
-  'entropy-prefix-ans-lz77': [
-    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-default.jxl',
-    3,
-  ],
+  'boxes-level-segments-metadata': ['tests/fixtures/jpegxl/m5-pipeline/segmented.jxl', 19],
+  'entropy-prefix-ans-lz77': ['tests/fixtures/jpegxl/m7-effort1-context-map/image.jxl', 3],
   'ma-tree-palette-squeeze': [
-    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-palette.jxl',
+    'tests/fixtures/jpegxl/m8-palette-squeeze/grayscale-public-university.jxl',
     5,
   ],
   'coefficients-transforms-filters': [
@@ -196,9 +190,7 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
     'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
   )
   const animation = await fixture('tests/fixtures/jpegxl/m8-sequence/newtons-cradle.jxl')
-  const fragmented = await fixture(
-    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-jxlp-ordered.jxl',
-  )
+  const fragmented = await fixture('tests/fixtures/jpegxl/m9-hardening/rgb8-jxlc.jxl')
   const fragmentedLimit = await splitContainerCodestream(fragmented)
   const jpeg = await fixture('benchmark/corpus/files/jpeg-reference/generated-progressive.jpg')
   const cases: M9SafetyCase[] = []

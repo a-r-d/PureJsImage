@@ -74,7 +74,7 @@ const coldStart = (): Readonly<{
       import('./dist/index.js'),
     ])
     const imported = performance.now()
-    const bytes = new Uint8Array(await readFile('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-default.jxl'))
+    const bytes = new Uint8Array(await readFile('tests/fixtures/jpegxl/m4-color/srgb-8.jxl'))
     const decoder = await jpegxlCodec.createDecoder(new MemorySource(bytes), defaultImageLimits)
     if (!decoder) throw new Error('Packed JPEG XL decoder is unavailable')
     for await (const block of decoder.decode()) block.release?.()

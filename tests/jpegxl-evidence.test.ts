@@ -15,6 +15,7 @@ import {
   extendedGates,
   validateEvidenceReport,
 } from '../benchmark/jpegxl/evidence-validation.ts'
+import { hashM8PortablePlanes } from '../benchmark/jpegxl/m8-output-digest.ts'
 import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/conformance.json' with {
   type: 'json',
 }
@@ -39,6 +40,18 @@ const m9ManifestHash = createHash('sha256')
   .digest('hex')
 const count = (length: number, make: (index: number) => unknown) =>
   Array.from({ length }, (_, index) => make(index))
+
+it('normalizes insignificant cross-runtime float differences in sequence evidence', () => {
+  const scale = 1_048_576
+  const quantized = Math.round((1 / 3) * scale) / scale
+  const digest = (sample: number): string => {
+    const output = createHash('sha256')
+    hashM8PortablePlanes(output, [new Float64Array([sample])])
+    return output.digest('hex')
+  }
+  expect(digest(quantized - 0.25 / scale)).toBe(digest(quantized + 0.25 / scale))
+  expect(digest(quantized)).not.toBe(digest(quantized + 2 / scale))
+})
 const fixture = (gate: EvidenceGate): Record<string, unknown> => {
   const common = {
     schemaVersion: gate === 'reverse' ? 3 : gate === 'encoderMemory' ? 2 : 1,

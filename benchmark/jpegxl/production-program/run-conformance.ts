@@ -1,15 +1,14 @@
-import { hashM8Sources } from '../m8-output-digest.ts'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { jpegxlCodec } from '../../../src/codecs/jpegxl.ts'
 import { ImageError } from '../../../src/errors.ts'
+import { openJpegXlSequence } from '../../../src/jpegxl.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
 import { MemorySource } from '../../../src/source.ts'
+import { hashM8FramePortable, hashM8Layer, hashM8Sources } from '../m8-output-digest.ts'
 import { reportRevision } from '../report-provenance.ts'
-import { openJpegXlSequence } from '../../../src/jpegxl.ts'
-import { hashM8Frame, hashM8Layer } from '../m8-output-digest.ts'
 
 type Classification =
   | 'pass'
@@ -188,7 +187,7 @@ for (const definition of manifest.cases) {
       try {
         if (definition.workflow === 'sequence') {
           for await (const frame of sequence.frames()) {
-            hashM8Frame(hash, frame)
+            hashM8FramePortable(hash, frame)
             rows += frame.height
           }
         } else {
@@ -292,6 +291,7 @@ const report = Object.freeze({
   archiveSha256: manifest.archiveSha256,
   cases: results.length,
   maxDecodedBytes: defaultImageLimits.maxDecodedBytes,
+  sequenceSampleHash: 'signed fixed-point with 20 fractional bits',
   applicableLevel5Passed: results
     .filter((result) => result.levels.includes(5))
     .every((result) => result.actualClassification === 'pass'),

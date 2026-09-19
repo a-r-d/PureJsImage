@@ -122,6 +122,11 @@ jobs:
           npm ci
           npx playwright install --with-deps ${{ matrix.browser }}
 
+      - name: Prepare browser server dependencies
+        run: |
+          npm run fixtures:hdf5:prepare
+          npm ci --prefix benchmark/competitors-js --no-fund --no-audit
+
       - name: Exercise the JPEG XL public browser API
         run: >-
           npx playwright test browser-tests/jpegxl-pipeline.pw.ts

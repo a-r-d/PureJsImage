@@ -565,7 +565,7 @@
         "Missing quality brackets remain missing. The frozen JPEG curve does not bracket many high-quality targets; do not extrapolate or count those cases as passes.",
         "Promotion goals remain open: original-size held-out lossless p90 1.409225 exceeds 1.40, transparent lossless median and p90 miss, and historical final warm effort-1 timing ratio 8.085203 exceeds 8. Runtime is observational on the recorded host. The retained DC change has a separate verified original-size effort-3 regression check.",
         "Patch, spline and noise encoding are optional M7 tools. Patch-heavy text remains a compression gap. Lossy artifacts and worst cases remain visible in the visual receipts.",
-        "M8 through M10 are not implemented by this completion. Existing official conformance limitations remain baseline-matched. No Stable lossy promotion, commit, push, merge or release is claimed."
+        "M8 through M10 were completed later on the same branch. This M7 evidence does not promote lossy encoding to Stable or authorize a release."
       ],
       "deferredWork": [
         "Revisit unmet compression and warm effort-1 speed targets before Stable lossy promotion; preserve the capped/original-resolution evidence distinction and missing quality brackets."
@@ -618,13 +618,13 @@
       "capabilityPromotions": [],
       "acceptedLimitations": [
         "Native extraction, display conversion and encoding have separate contracts. Original-profile native preservation covers unavailable gray-plus-alpha and high-depth CMM display paths.",
-        "Native writer: one group, axes at most 1024, one or three color planes and up to four extra channels.",
+        "The M8 native-writer evidence covers one group, axes at most 1024, one or three color planes and up to four extra channels; M10 later added grouped unshifted native writing and wider Level 10 profiles.",
         "Animation is a declared full-canvas memory class with at most four references and cumulative replay limits.",
         "Lossy encoding remains Experimental; no unrestricted Level 5 display promotion or release."
       ],
       "deferredWork": [
-        "M9 production hardening, security/fuzzing, API freeze and release gates.",
-        "M10 CMYK/BLACK and wider floating profiles."
+        "M9 production hardening and M10 CMYK/BLACK and wider floating profiles were completed later on the same branch.",
+        "API freeze and release gates remain separate release work."
       ],
       "stablePromotionGatePassed": false,
       "remainingBlockers": []

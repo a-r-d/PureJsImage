@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { downloadPinnedFile } from '../lib/pinned-download.ts'
 import selection from './production-program/m7-corpus-expansion.json' with { type: 'json' }
 
 const directory = '.tmp/jpegxl-m7/sources'
@@ -41,6 +42,15 @@ let failures = 0
 for (const entry of [...selection.hdr, ...selection.artwork]) {
   try {
     const prior = previous.find((value: unknown) => object(value) && value.id === entry.id)
+    if (
+      !object(prior) ||
+      prior.status !== 'verified' ||
+      typeof prior.sourceSha256 !== 'string' ||
+      typeof prior.bytes !== 'number' ||
+      !Number.isSafeInteger(prior.bytes) ||
+      prior.bytes < 1
+    )
+      throw new Error('Missing pinned expansion source record')
     let sourceUrl: string
     let providerMd5: string | undefined
     let providerBytes: number | undefined
@@ -49,6 +59,8 @@ for (const entry of [...selection.hdr, ...selection.artwork]) {
     if ('asset' in entry) {
       const metadataBytes = await download(entry.metadataUrl, 2_000_000)
       metadataSha256 = sha256(metadataBytes)
+      if (metadataSha256 !== prior.metadataSha256)
+        throw new Error('Provider metadata checksum changed')
       const metadata: unknown = JSON.parse(new TextDecoder().decode(metadataBytes))
       const hdri = object(metadata) ? metadata.hdri : undefined
       const resolution = object(hdri) ? hdri['2k'] : undefined
@@ -73,40 +85,40 @@ for (const entry of [...selection.hdr, ...selection.artwork]) {
       bytes = await readFile(path)
     } catch (error) {
       if (!(error instanceof Error) || !('code' in error) || error.code !== 'ENOENT') throw error
-      bytes = await download(sourceUrl, 40_000_000)
+      if (prior.sourceUrl !== sourceUrl) throw new Error('Previously pinned source URL changed')
+      await downloadPinnedFile({
+        allowedDirectory: directory,
+        allowedHosts: new Set(['dl.polyhaven.org', 'raw.githubusercontent.com']),
+        destination: path,
+        expectedSha256: prior.sourceSha256,
+        maximumBytes: Math.min(prior.bytes, 40_000_000),
+        url: sourceUrl,
+      })
+      bytes = await readFile(path)
     }
     const sourceSha256 = sha256(bytes)
     if (
-      object(prior) &&
-      prior.status === 'verified' &&
-      (prior.sourceSha256 !== sourceSha256 ||
-        prior.bytes !== bytes.length ||
-        prior.sourceUrl !== sourceUrl)
+      prior.sourceSha256 !== sourceSha256 ||
+      prior.bytes !== bytes.length ||
+      prior.sourceUrl !== sourceUrl
     )
       throw new Error('Previously pinned source changed')
     if (providerBytes !== undefined && bytes.length !== providerBytes)
       throw new Error('Provider size mismatch')
     if (providerMd5 !== undefined && createHash('md5').update(bytes).digest('hex') !== providerMd5)
       throw new Error('Provider MD5 mismatch')
-    await writeFile(`${path}.part`, bytes)
-    await rename(`${path}.part`, path)
-    results.push({
-      id: entry.id,
-      split: entry.split,
-      status: 'verified',
-      format,
-      sourceUrl,
-      sourceSha256,
-      bytes: bytes.length,
-      providerMd5,
-      metadataSha256,
-    })
+    results.push({ ...prior })
     console.log(entry.id, 'verified', bytes.length)
   } catch (error) {
     failures++
-    results.push({ id: entry.id, split: entry.split, status: 'failed', error: String(error) })
+    results.push({
+      id: entry.id,
+      split: entry.split,
+      status: 'failed',
+      error: 'Verification failed; inspect console output',
+    })
     console.error(entry.id, String(error))
   }
 }
-await writeFile(manifestPath, JSON.stringify({ schemaVersion: 1, cases: results }, null, 2) + '\n')
+await writeFile(manifestPath, `${JSON.stringify({ schemaVersion: 1, cases: results }, null, 2)}\n`)
 if (failures) process.exitCode = 1

@@ -175,8 +175,8 @@ const highDepthFeatures = async (): Promise<M9IntegrationCase> => {
     await native.close()
   }
   const paths = [
-    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-squeeze.jxl',
-    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb8-palette.jxl',
+    'tests/fixtures/jpegxl/m8-associated-alpha/alpha-premultiplied.jxl',
+    'tests/fixtures/jpegxl/m8-implicit-palette/delta_palette.jxl',
   ]
   const outputs: Uint8Array[] = [nativeDigest.digest()]
   for (const path of paths) outputs.push(await collectDecoder(await fixture(path)))

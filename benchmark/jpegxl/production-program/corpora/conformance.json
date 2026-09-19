@@ -32,7 +32,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "Level 10 global Squeeze transform for grouped alpha",
       "workflow": "sequence",
-      "outputSha256": "253a2118f345b3c23a840eda07b519b4bcb51a7ebbfd68856711ce890ac32c73"
+      "outputSha256": "339244acf0228959c9f08ee6f63d2f20938aa36e2a3e5314ae64dfce61c9115e"
     },
     {
       "id": "alpha_triangles",
@@ -52,7 +52,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "animation",
       "workflow": "sequence",
-      "outputSha256": "500807b7b4e3fb141bbc97ca482fa6a207ff8bdd5a21fb789a657d07aa1cd490"
+      "outputSha256": "e391ec32fa5fc8c6ab245279b405887da59f498b3d5f6e78bb6e8b63e6f606e4"
     },
     {
       "id": "animation_icos4d_5",
@@ -63,7 +63,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "animation",
       "workflow": "sequence",
-      "outputSha256": "500807b7b4e3fb141bbc97ca482fa6a207ff8bdd5a21fb789a657d07aa1cd490"
+      "outputSha256": "e391ec32fa5fc8c6ab245279b405887da59f498b3d5f6e78bb6e8b63e6f606e4"
     },
     {
       "id": "animation_newtons_cradle",
@@ -74,7 +74,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "animation",
       "workflow": "sequence",
-      "outputSha256": "007cd79294bc878e74b073d5de77b582efabe967d32450d059e4faefc2430ae4"
+      "outputSha256": "b7da8d39ca0794d7469924b4066d5424ca2c81cfb683f9755810f9633941b3bf"
     },
     {
       "id": "animation_spline",
@@ -85,7 +85,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "animation and splines",
       "workflow": "sequence",
-      "outputSha256": "e19a44e81898d141a70b0de3b8f3aad4b0e0bbd2a4ff0f6c5246461e49c63d41"
+      "outputSha256": "c57aa71e0e840d7fd3784193446d318461ed9dc4c7b1ef8eefb319b331a092fd"
     },
     {
       "id": "animation_spline_5",
@@ -96,7 +96,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "animation and splines",
       "workflow": "sequence",
-      "outputSha256": "e19a44e81898d141a70b0de3b8f3aad4b0e0bbd2a4ff0f6c5246461e49c63d41"
+      "outputSha256": "c57aa71e0e840d7fd3784193446d318461ed9dc4c7b1ef8eefb319b331a092fd"
     },
     {
       "id": "bench_oriented_brg",
@@ -162,7 +162,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "multiple frames and blend modes",
       "workflow": "sequence",
-      "outputSha256": "161d6c1bc57251d9a1e9582d54998778b25a1b299232a191323b8754732a15b9"
+      "outputSha256": "c218eff40174139dac2465433e4629f737e15851acd7ddb186c326ea5cd0aa24"
     },
     {
       "id": "blendmodes_5",
@@ -173,7 +173,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "multiple frames and blend modes",
       "workflow": "sequence",
-      "outputSha256": "161d6c1bc57251d9a1e9582d54998778b25a1b299232a191323b8754732a15b9"
+      "outputSha256": "c218eff40174139dac2465433e4629f737e15851acd7ddb186c326ea5cd0aa24"
     },
     {
       "id": "cafe",
@@ -415,7 +415,7 @@
       "baselineClassification": "expected-unsupported",
       "boundary": "non-default image metadata",
       "workflow": "sequence",
-      "outputSha256": "7971523a716b44ab5f9d9dcb45c6125d618a9c9bd7c3ffdc19be8f6ec4a05b9d"
+      "outputSha256": "44daad3c0aa74cdd6aeac3978eb60d729a09cfed9a42547f9ebbff4fa90f0247"
     },
     {
       "id": "upsampling",

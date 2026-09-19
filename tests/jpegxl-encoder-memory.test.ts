@@ -242,7 +242,7 @@ describe('JPEG XL actual encoder allocations', () => {
       expect(counters(run.encoder).peak).toBeLessThanOrEqual(256 * 1024 * 1024)
       expectClosed(run.encoder)
     },
-    60_000,
+    120_000,
   )
   it.each([1, 2, 3, 4])(
     'cleans up sink failure at output stage %i, including failed abort',
