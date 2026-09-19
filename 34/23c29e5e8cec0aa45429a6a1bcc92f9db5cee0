@@ -1,0 +1,19 @@
+.github/workflows/jpegxl-m9.yml
+  s_5d594ee0d8bcfe::t_c14abad44dc2cb 127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3423c29e5e8cec0aa45429a6a1bcc92f9db5cee0",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
