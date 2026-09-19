@@ -284,6 +284,7 @@ jobs:
 
       - name: Run M9 hardening and M10 Level 10 evidence
         run: |
+          npm run fixtures:hdf5:prepare
           npm run jpegxl:m9:integration -- --output .tmp/jpegxl-evidence/m9-integration.json
           npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-evidence/m9-fuzz-resource.json
           npm run jpegxl:m9:package -- --output .tmp/jpegxl-evidence/m9-package.json
