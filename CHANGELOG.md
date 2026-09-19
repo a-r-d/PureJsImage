@@ -6,6 +6,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### 2026-09-19 UTC
 
+- Add bounded JPEG XL Level 10 native decode and lossless writing for unsigned
+  samples through 31 bits, IEEE binary16/binary32 bit patterns and CMYK black
+  channels. Level 10 output uses a container with `jxll=10`.
+- Add explicit binary32-to-RGBA16 and embedded-profile CMYK-to-RGBA8 conversion,
+  while keeping raw channels available. All 39 pinned official valid cases pass,
+  including exact CMYK and binary32 native output.
 - Add JPEG XL M9 production-hardening gates for twelve cross-feature workflows,
   twelve mutation families, twelve resource and cancellation cases, packed Node
   22/24 imports, three browsers and strict evidence admission.

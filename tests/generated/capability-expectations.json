@@ -286,7 +286,8 @@
         "tests/jpegxl-m8-raw.test.ts",
         "benchmark/jpegxl/run-m9-integration.ts",
         "benchmark/jpegxl/run-m9-fuzz-resource.ts",
-        "benchmark/jpegxl/run-m9-package.ts"
+        "benchmark/jpegxl/run-m9-package.ts",
+        "tests/jpegxl-m10-level10.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

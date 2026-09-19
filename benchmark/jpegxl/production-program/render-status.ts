@@ -147,7 +147,7 @@ const milestones: readonly MilestoneDefinition[] = Object.freeze([
   {
     id: 'M10',
     goal: 'Level 10 and uncommon standardized profiles',
-    branch: 'codex/jpegxl-m10-level10-stretch',
+    branch: 'codex/jpegxl-m06-m10-completion',
     target: 'C',
     requiredGates: [
       'applicable Level 5 and Level 10 conformance',

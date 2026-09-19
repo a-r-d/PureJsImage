@@ -371,14 +371,14 @@ const canonicalEncoding = (lengths: Uint8Array, memory?: JpegXlEncoderMemory): P
 }
 
 const validateHybridValue = (value: number): void => {
-  if (!Number.isSafeInteger(value) || value < 0 || value > 1_048_695) {
+  if (!Number.isSafeInteger(value) || value < 0 || value > 0xffff_ffff) {
     throw invalidInput('JPEG XL Modular residual is outside the supported encoder range')
   }
 }
 
 const hybridToken = (value: number): number => {
   validateHybridValue(value)
-  return value < 256 ? value : 279 - Math.clz32(value)
+  return value < 256 ? value : 248 + Math.floor(Math.log2(value))
 }
 
 export const writeHybridUint = (
@@ -1604,7 +1604,7 @@ const visitPlaneResiduals = (
       const weightedPredictor =
         predictor === 6
           ? new JpegXlWeightedPredictor(width, defaultJpegXlWeightedPredictor, {
-              predictions: allocateJpegXlArray(memory, Int32Array, 4),
+              predictions: new Float64Array(4),
               predictionErrors: Array.from({ length: 4 }, () =>
                 allocateJpegXlArray(memory, Uint32Array, (width + 2) * 2),
               ),

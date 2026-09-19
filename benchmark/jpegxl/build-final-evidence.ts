@@ -52,6 +52,8 @@ const commands: Readonly<Record<EvidenceGate, string>> = {
   m9Integration: 'npm run jpegxl:m9:integration',
   m9FuzzResource: 'npm run jpegxl:m9:fuzz-resource',
   m9Package: 'npm run jpegxl:m9:package',
+  m10Level10:
+    'npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl',
 }
 const criteria: Readonly<Record<EvidenceGate, string>> = {
   remediationFixtures: 'Nine pinned libjxl fixtures; independent float samples within 1e-7.',
@@ -76,7 +78,7 @@ const criteria: Readonly<Record<EvidenceGate, string>> = {
   encoderMemory:
     'Sixteen isolated cold/warm workloads: 512x512 and native 24 MP at efforts 1/3/5/7; independent exact pixels, actual owned-buffer peak, zero live bytes and allocations after finish.',
   conformance:
-    'All 39 classifications and input hashes match the pinned official corpus. Known failures are baseline observations, not supported-case passes.',
+    'All 39 pinned official valid cases pass with exact output hashes; Level 10 CMYK and binary32 use explicit native workflows.',
   color:
     'Five distinct official M4 cases; maximum error <= 1 and RMSE <= 0.55 under the documented 8-bit rounding exception.',
   pipelines:
@@ -93,6 +95,8 @@ const criteria: Readonly<Record<EvidenceGate, string>> = {
     'All twelve mutation targets and twelve resource/cancellation cases terminate with normalized outcomes and zero live managed ownership.',
   m9Package:
     'Packed public imports pass on Node 22 and 24; browser conditional exports and public APIs pass in Chromium, Firefox and WebKit; measured entries remain within checked ceilings.',
+  m10Level10:
+    'Normative Level 5/10 map validates; official binary32 is bit exact; official CMYK native/profile workflows pass; minimum-level signaling and three independent djxl writer decodes pass.',
 }
 const capabilities = {
   commonStaticDecode: {
@@ -145,10 +149,13 @@ const capabilities = {
     extended: [],
   },
   extraChannels: {
-    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package', 'm10Level10'],
     extended: [],
   },
-  level10: { pr: [], extended: ['m9Integration', 'm9FuzzResource', 'm9Package'] },
+  level10: {
+    pr: ['conformance', 'm10Level10'],
+    extended: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+  },
 } satisfies Record<string, { pr: EvidenceGate[]; extended: EvidenceGate[] }>
 
 export const buildFinalEvidence = async (
@@ -212,17 +219,6 @@ export const buildFinalEvidence = async (
   }
   const capabilityResults = Object.fromEntries(
     Object.entries(capabilities).map(([id, required]) => {
-      if (id === 'level10')
-        return [
-          id,
-          {
-            status: 'not-run',
-            knownFailures: [],
-            prGateIds: required.pr,
-            extendedGateIds: required.extended,
-            extendedStatus: 'not-run',
-          },
-        ]
       const prPassed = required.pr.every((gate) => gates[gate]?.status === 'passed')
       const extendedPassed = required.extended.every((gate) => gates[gate]?.status === 'passed')
       const knownFailures = required.pr.flatMap((gate) => gates[gate]?.knownFailures ?? [])

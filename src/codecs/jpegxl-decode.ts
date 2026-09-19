@@ -185,8 +185,8 @@ const readBitDepth = (reader: JpegXlBitReader): JpegXlBitDepth => {
     ? readU32(reader, [value(32), value(16), value(24), bits(6, 1)])
     : readU32(reader, [value(8), value(10), value(12), bits(6, 1)])
   if (!floatingPoint) {
-    if (depth < 1 || depth > 16) {
-      throw unsupportedOperation('JPEG XL integer sample depths above 16 bits are not supported')
+    if (depth < 1 || depth > 31) {
+      throw invalidInput('JPEG XL integer depth is invalid')
     }
     return Object.freeze({ bits: depth, exponentBits: 0, sampleFormat: 'unsigned-integer' })
   }
@@ -396,7 +396,8 @@ const readSize = (reader: JpegXlBitReader): { readonly width: number; readonly h
 const readEnum = (reader: JpegXlBitReader): number =>
   readU32(reader, [value(0), value(1), bits(4, 2), bits(6, 18)])
 
-const unpackSignedInteger = (packed: number): number => (packed >>> 1) ^ -(packed & 1)
+const unpackSignedInteger = (packed: number): number =>
+  packed % 2 === 0 ? packed / 2 : -(packed + 1) / 2
 
 const readChromaticity = (reader: JpegXlBitReader): JpegXlChromaticity => {
   const coordinate = (): number =>
@@ -722,7 +723,7 @@ const readHeader = (
       sampleFormat = decodedBitDepth.sampleFormat
       reader.readBits(1) // modular_16_bit_buffer_sufficient
       extraChannels = readU32(reader, [value(0), value(1), bits(4, 2), bits(12, 1)])
-      if (extraChannels > 16) throw limitExceeded('JPEG XL extra-channel count exceeds 16')
+      if (extraChannels > 256) throw limitExceeded('JPEG XL has more than 256 extra channels')
       const extras: JpegXlExtraChannel[] = []
       // Extra-channel metadata precedes the color encoding that determines the color plane count.
       for (let index = 0; index < extraChannels; index += 1) {
@@ -1218,7 +1219,7 @@ export type JpegXlModularNode = JpegXlModularLeaf | JpegXlModularBranch
 type ModularLeaf = JpegXlModularLeaf
 type ModularNode = JpegXlModularNode
 
-const unpackSigned = (packed: number): number => (packed >>> 1) ^ -(packed & 1)
+const unpackSigned = (packed: number): number => (packed % 2 === 0 ? packed / 2 : -(packed + 1) / 2)
 
 const readTree = (
   reader: JpegXlBitReader,
@@ -2147,7 +2148,7 @@ const weightedDivision = Uint32Array.from({ length: 64 }, (_, index) =>
 )
 
 export class JpegXlWeightedPredictor {
-  readonly #predictions: Int32Array
+  readonly #predictions: Float64Array
   readonly #predictionErrors: readonly Uint32Array[]
   readonly #errors: Int32Array
   readonly #parameters: WeightedPredictorParameters
@@ -2158,13 +2159,13 @@ export class JpegXlWeightedPredictor {
     width: number,
     parameters: WeightedPredictorParameters,
     storage?: Readonly<{
-      predictions: Int32Array
+      predictions: Float64Array
       predictionErrors: readonly Uint32Array[]
       errors: Int32Array
     }>,
   ) {
     this.#rowLength = width + 2
-    this.#predictions = storage?.predictions ?? new Int32Array(4)
+    this.#predictions = storage?.predictions ?? new Float64Array(4)
     this.#predictionErrors =
       storage?.predictionErrors ??
       Array.from({ length: 4 }, () => new Uint32Array(this.#rowLength * 2))
@@ -2286,7 +2287,7 @@ export class JpegXlWeightedPredictor {
       const minimum = Math.min(scaledLeft, scaledTopRight, scaledTop)
       this.#prediction = Math.max(minimum, Math.min(maximum, this.#prediction))
     }
-    return (this.#prediction + 3) >> 3
+    return Math.floor((this.#prediction + 3) / 8)
   }
 
   update(sample: number, x: number, y: number): void {
@@ -2298,7 +2299,7 @@ export class JpegXlWeightedPredictor {
     for (let index = 0; index < 4; index += 1) {
       const errors = this.#predictionErrors[index]
       if (!errors) throw invalidInput('JPEG XL weighted predictor state is missing')
-      const error = (Math.abs((this.#predictions[index] ?? 0) - scaledSample) + 3) >> 3
+      const error = Math.floor((Math.abs((this.#predictions[index] ?? 0) - scaledSample) + 3) / 8)
       errors[position] = error
       errors[previousRow + x + 1] = ((errors[previousRow + x + 1] ?? 0) + error) >>> 0
     }
@@ -2387,12 +2388,17 @@ const setModularProperties = (
   return gradient
 }
 
-const requireZeroSectionPadding = (reader: JpegXlBitReader): void => {
-  while (reader.remainingBits > 0) {
-    const count = Math.min(32, reader.remainingBits)
+const requireZeroSectionPadding = (reader: JpegXlBitReader, allowPartialByte = false): void => {
+  // Modular group sections are byte-sized by the container/TOC. libjxl only
+  // validates the entropy final state for floating samples, so their unused
+  // last-byte tail need not be zero. Integer streams retain strict validation.
+  const initialRemainingBits = reader.remainingBits
+  const permittedTail = allowPartialByte ? reader.remainingBits % 8 : 0
+  while (reader.remainingBits > permittedTail) {
+    const count = Math.min(32, reader.remainingBits - permittedTail)
     if (reader.readBits(count) !== 0) {
       throw invalidInput(
-        `JPEG XL Modular section has nonzero trailing data with ${reader.remainingBits} bits unread`,
+        `JPEG XL Modular section has nonzero trailing data after ${initialRemainingBits - reader.remainingBits} of ${initialRemainingBits} trailing bits`,
       )
     }
   }
@@ -2408,6 +2414,7 @@ function* decodeModularPlaneSteps(
   firstChannel: number,
   signal?: AbortSignal,
   requirePadding = true,
+  allowPartialByte = false,
 ): Generator<void, DecodedModularPlanes> {
   const decodedLayouts = program.channelLayouts.slice(firstChannel)
   const symbolCount = decodedLayouts.reduce((sum, layout) => sum + layout.width * layout.height, 0)
@@ -2422,7 +2429,13 @@ function* decodeModularPlaneSteps(
   const reader = new JpegXlBitReader(program.section)
   reader.skipBits(program.residualBitPosition)
   if (program.channelLayouts.length === firstChannel) {
-    if (requirePadding) requireZeroSectionPadding(reader)
+    if (
+      allowPartialByte &&
+      program.pixelCode.aliasTables !== undefined &&
+      reader.readBits(32) !== 0x13_0000
+    )
+      throw invalidInput('JPEG XL empty residual ANS state is invalid')
+    if (requirePadding) requireZeroSectionPadding(reader, allowPartialByte)
     return Object.freeze({ planes, endingBitPosition: reader.bitPosition })
   }
   // An implicit-only palette contributes a legal zero-width metadata plane.
@@ -2527,7 +2540,7 @@ function* decodeModularPlaneSteps(
         }
         const leaf = treeLeaf(program.nodes, properties)
         const residual = unpackSigned(symbols.readHybridUint(leaf.context, reader))
-        const reconstructed =
+        const reconstructedWide =
           modularPrediction(
             leaf.predictor,
             left,
@@ -2541,13 +2554,11 @@ function* decodeModularPlaneSteps(
           ) +
           leaf.offset +
           residual * leaf.multiplier
-        if (
-          !Number.isSafeInteger(reconstructed) ||
-          reconstructed < -2_147_483_648 ||
-          reconstructed > 2_147_483_647
-        ) {
+        if (!Number.isSafeInteger(reconstructedWide)) {
           throw invalidInput('JPEG XL Modular sample is outside the signed 32-bit range')
         }
+        const unsigned = ((reconstructedWide % 2 ** 32) + 2 ** 32) % 2 ** 32
+        const reconstructed = unsigned >= 2 ** 31 ? unsigned - 2 ** 32 : unsigned
         plane[row + x] = reconstructed
         weightedPredictor?.update(reconstructed, x, y)
       }
@@ -2556,7 +2567,7 @@ function* decodeModularPlaneSteps(
   if (!symbols.hasValidFinalState()) {
     throw invalidInput('JPEG XL Modular residual ANS state is invalid')
   }
-  if (requirePadding) requireZeroSectionPadding(reader)
+  if (requirePadding) requireZeroSectionPadding(reader, allowPartialByte)
   return Object.freeze({ planes, endingBitPosition: reader.bitPosition })
 }
 
@@ -2570,8 +2581,11 @@ const decodeModularPlanesWithPosition = (
   firstChannel: number,
   signal?: AbortSignal,
   requirePadding = true,
+  allowPartialByte = false,
 ): DecodedModularPlanes =>
-  finishModularSteps(decodeModularPlaneSteps(program, firstChannel, signal, requirePadding))
+  finishModularSteps(
+    decodeModularPlaneSteps(program, firstChannel, signal, requirePadding, allowPartialByte),
+  )
 
 const decodeModularPlanes = (
   program: ModularProgram,
@@ -3058,6 +3072,8 @@ function* decodeGroupedModularSteps(
     { ...program, channelLayouts: layouts.slice(0, firstGroup) },
     0,
     signal,
+    true,
+    frame.sampleFormat === 'floating-point',
   )).planes
   const planes = layouts.map(
     (layout, channel) => prefix[channel] ?? new Int32Array(layout.width * layout.height),
@@ -3100,7 +3116,10 @@ function* decodeGroupedModularSteps(
       program.globalCode,
       bitDepth,
     )
-    requireZeroSectionPadding(new JpegXlBitReader(data, decoded.endingBitPosition))
+    requireZeroSectionPadding(
+      new JpegXlBitReader(data, decoded.endingBitPosition),
+      frame.sampleFormat === 'floating-point',
+    )
     for (let index = 0; index < selected.length; index++) {
       const target = selected[index],
         source = decoded.planes[index]
@@ -3236,7 +3255,13 @@ function* decodeNativeModularSteps(
   const planes =
     sections.length === 1
       ? inverseModularTransforms(
-          (yield* decodeModularPlaneSteps(program, 0, signal)).planes,
+          (yield* decodeModularPlaneSteps(
+            program,
+            0,
+            signal,
+            true,
+            frame.sampleFormat === 'floating-point',
+          )).planes,
           program,
           frame.bitDepth,
         )

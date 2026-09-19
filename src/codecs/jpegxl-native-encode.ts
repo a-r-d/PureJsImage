@@ -3,11 +3,12 @@ import { normalizePixelColorSemantics, type PixelColorSemantics } from '../color
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '../limits.ts'
 import { inspectIccProfile } from './icc.ts'
+import { jpegXlContainerSignature } from './jpegxl-container.ts'
 import { encodeJpegXlIccCommands } from './jpegxl-icc.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
-  JpegXlBitWriter,
   acceptsJpegXlColorSemantics,
+  JpegXlBitWriter,
   packSigned,
   writeColorEncoding,
   writeHybridUint,
@@ -19,13 +20,13 @@ import {
 } from './jpegxl-modular-encode.ts'
 
 export interface JpegXlNativePlaneInput {
-  readonly data: Uint8Array | Uint16Array
+  readonly data: Uint8Array | Uint16Array | Uint32Array
   readonly bitDepth: number
-  /** IEEE binary16 bit patterns use Uint16Array and bitDepth 16. */
-  readonly sampleFormat?: 'unsigned-integer' | 'binary16'
+  /** IEEE binary16/binary32 bit patterns use matching unsigned storage. */
+  readonly sampleFormat?: 'unsigned-integer' | 'binary16' | 'binary32'
 }
 export interface JpegXlNativeExtraInput extends JpegXlNativePlaneInput {
-  readonly type: 0 | 1 | 2 | 3 | 5 | 6 | 16
+  readonly type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 16
   readonly name?: string
   readonly dimShift?: 0 | 1 | 2 | 3
   readonly associatedAlpha?: boolean
@@ -44,6 +45,10 @@ export interface EncodeJpegXlNativeOptions {
   readonly orientation?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
   readonly limits?: Readonly<ImageLimitOptions & JpegXlLimitOptions>
   readonly maxOutputBytes?: number
+  /** Select the minimum valid level by default. Level 10 always uses a container with jxll. */
+  readonly codestreamLevel?: 'auto' | 5 | 10
+  /** Raw Level 10 output is invalid and rejected. */
+  readonly container?: 'auto' | 'raw'
   readonly signal?: AbortSignal
 }
 const enumValues = [
@@ -53,7 +58,7 @@ const enumValues = [
   { bits: 6, offset: 18 },
 ] as const
 const writeDepth = (writer: JpegXlBitWriter, plane: Readonly<JpegXlNativePlaneInput>): void => {
-  const floating = plane.sampleFormat === 'binary16'
+  const floating = plane.sampleFormat === 'binary16' || plane.sampleFormat === 'binary32'
   writer.writeBits(floating ? 1 : 0, 1)
   writeU32(
     writer,
@@ -62,8 +67,38 @@ const writeDepth = (writer: JpegXlBitWriter, plane: Readonly<JpegXlNativePlaneIn
       ? [{ value: 32 }, { value: 16 }, { value: 24 }, { bits: 6, offset: 1 }]
       : [{ value: 8 }, { value: 10 }, { value: 12 }, { bits: 6, offset: 1 }],
   )
-  if (floating) writer.writeBits(4, 4)
+  if (floating) writer.writeBits(plane.sampleFormat === 'binary16' ? 4 : 7, 4)
 }
+
+const writeBox = (type: string, payload: Uint8Array): Uint8Array => {
+  const output = new Uint8Array(8 + payload.length)
+  const view = new DataView(output.buffer)
+  view.setUint32(0, output.length, false)
+  for (let index = 0; index < 4; index++) output[4 + index] = type.charCodeAt(index)
+  output.set(payload, 8)
+  return output
+}
+
+const levelTenContainer = (codestream: Uint8Array): Uint8Array => {
+  const fileType = writeBox(
+    'ftyp',
+    Uint8Array.of(0x6a, 0x78, 0x6c, 0x20, 0, 0, 0, 0, 0x6a, 0x78, 0x6c, 0x20),
+  )
+  const level = writeBox('jxll', Uint8Array.of(10))
+  const complete = writeBox('jxlc', codestream)
+  const output = new Uint8Array(
+    jpegXlContainerSignature.length + fileType.length + level.length + complete.length,
+  )
+  let offset = 0
+  for (const part of [jpegXlContainerSignature, fileType, level, complete]) {
+    output.set(part, offset)
+    offset += part.length
+  }
+  return output
+}
+
+const encodedSample = (plane: Readonly<JpegXlNativePlaneInput>, sample: number): number =>
+  plane.sampleFormat === 'binary32' && sample >= 2 ** 31 ? sample - 2 ** 32 : sample
 const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
   if (value === 0) writer.writeBits(0, 2)
   else if (value <= 16) {
@@ -103,37 +138,61 @@ export const encodeJpegXlNative = async (
     jpegLimits = resolveJpegXlLimits(options.limits)
   validateImageDimensions(options.width, options.height, 1, limits)
   if (options.width > 1024 || options.height > 1024)
-    throw unsupportedOperation('JPEG XL native planar encoding is limited to one 1024-pixel group')
+    throw unsupportedOperation('Native encode is limited to one 1024-pixel group')
   const maximum = options.maxOutputBytes ?? limits.maxInputBytes
   if (!Number.isSafeInteger(maximum) || maximum < 1)
-    throw invalidInput('JPEG XL maxOutputBytes must be a positive safe integer')
+    throw invalidInput('maxOutputBytes must be a positive safe integer')
   const extra = options.extraChannels ?? []
+  const requiresLevelTen =
+    [...options.color, ...extra].some(
+      (plane) =>
+        plane.bitDepth > 12 ||
+        plane.sampleFormat === 'binary16' ||
+        plane.sampleFormat === 'binary32',
+    ) ||
+    extra.length > 4 ||
+    extra.some((channel) => channel.type === 4)
+  const requestedLevel = options.codestreamLevel ?? 'auto'
+  if (requestedLevel !== 'auto' && requestedLevel !== 5 && requestedLevel !== 10)
+    throw invalidInput('codestreamLevel must be auto, 5, or 10')
+  if (requiresLevelTen && requestedLevel === 5)
+    throw invalidInput('Input requires codestream Level 10')
+  const level = requestedLevel === 10 || requiresLevelTen ? 10 : 5
+  if (
+    options.container !== undefined &&
+    options.container !== 'auto' &&
+    options.container !== 'raw'
+  )
+    throw invalidInput('JPEG XL container is invalid')
+  if (level === 10 && options.container === 'raw')
+    throw invalidInput('Level 10 requires container signaling')
   const colorSemantics =
     options.colorSemantics === undefined
       ? defaultColor(options.color.length === 1)
       : normalizePixelColorSemantics(options.colorSemantics)
+  if (extra.some((channel) => channel.type === 4) && !options.iccProfile)
+    throw invalidInput('JPEG XL CMYK requires an ICC profile')
   if (!options.iccProfile && !acceptsJpegXlColorSemantics(colorSemantics))
-    throw unsupportedOperation('JPEG XL native input color semantics cannot be preserved')
+    throw unsupportedOperation('Input color semantics cannot be preserved')
   if (options.color.length !== 1 && options.color.length !== 3)
-    throw invalidInput('JPEG XL native input requires one or three color planes')
+    throw invalidInput('Native input needs one or three color planes')
   if (
     options.orientation !== undefined &&
     (!Number.isInteger(options.orientation) || options.orientation < 1 || options.orientation > 8)
   )
-    throw invalidInput('JPEG XL orientation must be an integer from 1 through 8')
+    throw invalidInput('Orientation must be an integer from 1 through 8')
   if (
     options.colorSemantics &&
     options.colorSemantics.family !== (options.color.length === 1 ? 'gray' : 'rgb')
   )
-    throw invalidInput('JPEG XL color semantics differ from the native color planes')
-  if (extra.length > 4)
-    throw limitExceeded('JPEG XL Level 5 native encoding permits at most four extra channels')
+    throw invalidInput('Color semantics differ from color planes')
+  if (extra.length > 256) throw limitExceeded('Level 10 permits at most 256 extra channels')
   for (const channel of extra) {
-    if (![0, 1, 2, 3, 5, 6, 16].includes(channel.type))
-      throw invalidInput('JPEG XL native extra-channel type is unsupported')
+    if (![0, 1, 2, 3, 4, 5, 6, 16].includes(channel.type))
+      throw invalidInput('Extra-channel type is unsupported')
     const shift = channel.dimShift ?? 0
     if (!Number.isInteger(shift) || shift < 0 || shift > 3)
-      throw invalidInput('JPEG XL dimension shift must be an integer from 0 through 3')
+      throw invalidInput('Dimension shift must be an integer from 0 through 3')
     if (
       channel.name !== undefined &&
       (typeof channel.name !== 'string' || channel.name.length > 1071)
@@ -149,7 +208,7 @@ export const encodeJpegXlNative = async (
   }
   const planes = [...options.color, ...extra]
   const first = options.color[0]
-  if (!first) throw invalidInput('JPEG XL native color channel is missing')
+  if (!first) throw invalidInput('Native color channel is missing')
   let inputBytes = 0
   let deadline = performance.now() + 12
   const pause = async (): Promise<void> => {
@@ -162,44 +221,52 @@ export const encodeJpegXlNative = async (
   }
   for (let c = 0; c < planes.length; c++) {
     const plane = planes[c]
-    if (!plane) throw invalidInput('JPEG XL native channel is missing')
-    if (!(plane.data instanceof Uint8Array) && !(plane.data instanceof Uint16Array))
-      throw invalidInput('JPEG XL native channel requires unsigned integer storage')
+    if (!plane) throw invalidInput('Native channel is missing')
+    if (
+      !(plane.data instanceof Uint8Array) &&
+      !(plane.data instanceof Uint16Array) &&
+      !(plane.data instanceof Uint32Array)
+    )
+      throw invalidInput('Channel needs unsigned integer storage')
     if (
       plane.sampleFormat !== undefined &&
       plane.sampleFormat !== 'unsigned-integer' &&
-      plane.sampleFormat !== 'binary16'
+      plane.sampleFormat !== 'binary16' &&
+      plane.sampleFormat !== 'binary32'
     )
-      throw invalidInput('JPEG XL native sample format is invalid')
+      throw invalidInput('Sample format is invalid')
     if (
       !Number.isSafeInteger(plane.bitDepth) ||
       plane.bitDepth < 1 ||
-      plane.bitDepth > 16 ||
+      (plane.sampleFormat !== 'binary32' && plane.bitDepth > 31) ||
+      plane.bitDepth > 32 ||
       (plane.sampleFormat === 'binary16' &&
-        (plane.bitDepth !== 16 || !(plane.data instanceof Uint16Array)))
+        (plane.bitDepth !== 16 || !(plane.data instanceof Uint16Array))) ||
+      (plane.sampleFormat === 'binary32' &&
+        (plane.bitDepth !== 32 || !(plane.data instanceof Uint32Array))) ||
+      (plane.bitDepth > 16 && !(plane.data instanceof Uint32Array))
     )
-      throw invalidInput('JPEG XL native sample storage and depth do not agree')
+      throw invalidInput('Sample storage and depth do not agree')
     if (
       c < options.color.length &&
       (plane.bitDepth !== first.bitDepth || plane.sampleFormat !== first.sampleFormat)
     )
-      throw invalidInput('JPEG XL color channels must use the same sample representation')
+      throw invalidInput('Color channels need the same sample representation')
     const shift = c < options.color.length ? 0 : (extra[c - options.color.length]?.dimShift ?? 0)
     const expected = Math.ceil(options.width / 2 ** shift) * Math.ceil(options.height / 2 ** shift)
-    if (plane.data.length !== expected)
-      throw invalidInput('JPEG XL native channel sample count is invalid')
+    if (plane.data.length !== expected) throw invalidInput('Channel sample count is invalid')
     inputBytes += plane.data.byteLength
-    const maximumSample = 2 ** plane.bitDepth - 1
+    const maximumSample = plane.bitDepth === 32 ? 0xffff_ffff : 2 ** plane.bitDepth - 1
     for (let i = 0; i < plane.data.length; i++) {
       if ((i & 65535) === 0) await pause()
-      if (plane.data[i]! > maximumSample)
-        throw invalidInput('JPEG XL native sample exceeds its declared depth')
+      if ((plane.data[i] ?? 0) > maximumSample)
+        throw invalidInput('Sample exceeds its declared depth')
     }
   }
   // Cover worst-case literal entropy output, geometric bit-writer growth, final copies,
   // and literal ICC commands. The caller retains the input planes throughout encoding.
   if (inputBytes * 12 + (options.iccProfile?.length ?? 0) * 10 + 65536 > limits.maxDecodedBytes)
-    throw limitExceeded('JPEG XL native planar encoding exceeds maxDecodedBytes')
+    throw limitExceeded('Native encode exceeds maxDecodedBytes')
   throwIfAborted(options.signal)
   const profile = options.iccProfile
   if (profile) {
@@ -207,8 +274,15 @@ export const encodeJpegXlNative = async (
       throw limitExceeded('JPEG XL native ICC exceeds maxIccBytes')
     inspectIccProfile(profile)
     const space = String.fromCharCode(...profile.subarray(16, 20))
-    if (space !== (options.color.length === 1 ? 'GRAY' : 'RGB '))
+    const hasBlack = extra.some((channel) => channel.type === 4)
+    const expectedSpace = hasBlack ? 'CMYK' : options.color.length === 1 ? 'GRAY' : 'RGB '
+    if (space !== expectedSpace)
       throw invalidInput('JPEG XL native ICC color space differs from its color planes')
+    if (
+      hasBlack &&
+      (options.color.length !== 3 || extra.filter((channel) => channel.type === 4).length !== 1)
+    )
+      throw invalidInput('CMYK requires three color planes and one black channel')
   }
   const section = new JpegXlBitWriter(undefined, maximum)
   section.writeBits(1, 1)
@@ -222,8 +296,8 @@ export const encodeJpegXlNative = async (
   for (const plane of planes)
     for (let i = 0; i < plane.data.length; i++) {
       if ((i & 65535) === 0) await pause()
-      const sample = plane.data[i]!
-      const value = packSigned(sample)
+      const sample = plane.data[i] ?? 0
+      const value = packSigned(encodedSample(plane, sample))
       const symbol = token(value)
       frequencies[symbol] = (frequencies[symbol] ?? 0) + 1
     }
@@ -232,7 +306,7 @@ export const encodeJpegXlNative = async (
     throwIfAborted(options.signal)
     for (let i = 0; i < plane.data.length; i++) {
       if ((i & 65535) === 0) await pause()
-      writeHybridUint(section, packSigned(plane.data[i]!), code)
+      writeHybridUint(section, packSigned(encodedSample(plane, plane.data[i] ?? 0)), code)
     }
   }
   const payload = section.finish()
@@ -257,7 +331,7 @@ export const encodeJpegXlNative = async (
     writer.writeBits(0, 3)
   }
   writeDepth(writer, first)
-  writer.writeBits(1, 1)
+  writer.writeBits(level === 5 ? 1 : 0, 1)
   writeU32(writer, extra.length, [
     { value: 0 },
     { value: 1 },
@@ -346,11 +420,12 @@ export const encodeJpegXlNative = async (
     { bits: 30, offset: 4211712 },
   ])
   const header = writer.finish()
-  if (header.length + payload.length > maximum)
+  const containerOverhead = level === 10 ? 49 : 0
+  if (header.length + payload.length + containerOverhead > maximum)
     throw limitExceeded('JPEG XL native output exceeds maxOutputBytes')
   throwIfAborted(options.signal)
   const result = new Uint8Array(header.length + payload.length)
   result.set(header)
   result.set(payload, header.length)
-  return result
+  return level === 10 ? levelTenContainer(result) : result
 }

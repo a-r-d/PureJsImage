@@ -189,6 +189,7 @@ jobs:
           tests/jpegxl-production-program.test.ts
           tests/jpegxl.test.ts
           tests/jpegxl-m4-color.test.ts
+          tests/jpegxl-m10-level10.test.ts
           tests/jpegxl-remediation.test.ts
           tests/jpegxl-encoder-memory.test.ts
           tests/jpegxl-evidence.test.ts
@@ -272,6 +273,13 @@ jobs:
           node benchmark/jpegxl/run-m1-real-jpeg-corpus.ts .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools .tmp/jpegxl-m1-coco .tmp/jpegxl-evidence/m1-real.json
           npm run jpegxl:m3:corpus -- --output .tmp/jpegxl-evidence/m3-common-static.json
           node benchmark/jpegxl/production-program/verify-m5-common-static.ts --corpus-report .tmp/jpegxl-evidence/m3-common-static.json --output .tmp/jpegxl-evidence/m5-common-static.json
+
+      - name: Run M9 hardening and M10 Level 10 evidence
+        run: |
+          npm run jpegxl:m9:integration -- --output .tmp/jpegxl-evidence/m9-integration.json
+          npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-evidence/m9-fuzz-resource.json
+          npm run jpegxl:m9:package -- --output .tmp/jpegxl-evidence/m9-package.json
+          npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-evidence/m10-level10.json
 
       - name: Build final JPEG XL evidence
         run: >-

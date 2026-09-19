@@ -193,7 +193,7 @@ describe('JPEG XL production program baseline', () => {
       malformed: count('malformed-safely-rejected'),
       incorrect: count('incorrect-output'),
       unexpected: count('unexpected-failure'),
-    }).toEqual({ pass: 13, unsupported: 25, malformed: 0, incorrect: 0, unexpected: 1 })
+    }).toEqual({ pass: 15, unsupported: 23, malformed: 0, incorrect: 0, unexpected: 1 })
     expect(cases.filter(({ id }) => id === 'upsampling' || id === 'upsampling_5')).toEqual([
       expect.objectContaining({ baselineClassification: 'pass' }),
       expect.objectContaining({ baselineClassification: 'pass' }),

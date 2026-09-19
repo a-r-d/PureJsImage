@@ -203,8 +203,10 @@
       "bytes": 387140,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "multiple non-alpha extra channels"
+      "baselineClassification": "pass",
+      "boundary": "M10 exact native CMYK, black and alpha layer extraction",
+      "workflow": "native-layers",
+      "outputSha256": "a4f65f12e146ba373c9e709efb1760f15a595752bbceec243c5889c85446d737"
     },
     {
       "id": "delta_palette",
@@ -278,8 +280,10 @@
       "bytes": 774294,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "floating-point samples"
+      "baselineClassification": "pass",
+      "boundary": "M10 exact IEEE binary32 native layer extraction",
+      "workflow": "native-layers",
+      "outputSha256": "f243d2a7e7c988629c5f7b39c3caad67ef1115ed10bcee924a1d3bda141949ac"
     },
     {
       "id": "lz77_flower",

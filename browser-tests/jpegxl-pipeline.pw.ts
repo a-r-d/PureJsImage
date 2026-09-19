@@ -4,9 +4,24 @@ import {
   runJpegXlPipelines,
   verifyFloatJpegXl,
   verifyLazyJpegXl,
+  verifyLevelTenJpegXl,
   verifyM7EffortOneGroups,
   verifyM7ForwardJpegXl,
 } from './jpegxl-pipeline-harness.ts'
+
+test('Level 10 binary32 native decode and writer signaling agree with Node', async ({ page }) => {
+  const input = new Uint8Array(await readFile('tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl'))
+  const expected = await verifyLevelTenJpegXl(input)
+  expect(expected).toMatchObject({ samples: 750_000, writerKind: 'container', writerLevel: 10 })
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    const response = await fetch('/fixtures/jpegxl-m10-lossless-pfm.jxl')
+    return module.verifyLevelTenJpegXl(new Uint8Array(await response.arrayBuffer()))
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('VarDCT header indexing and opening defer pixels in Node and browser', async ({ page }) => {
   const input = new Uint8Array(

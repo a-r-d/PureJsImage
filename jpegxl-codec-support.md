@@ -6,6 +6,18 @@ project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
+## M10 Level 10 native precision and profiles
+
+- [x] Verify a machine-readable Level 5 and Level 10 map for syntax, metadata, rendered pixels, raw channels, display conversion, encoding, reconstruction and limits
+- [x] Decode the official binary32 fixture bit exactly with 64-bit weighted-predictor working values and intentional 32-bit sample wrap
+- [x] Preserve unsigned integer samples through the JPEG XL maximum of 31 bits and IEEE binary16/binary32 bit patterns through bounded native lossless encoding
+- [x] Select the minimum valid output level, emit jxll=10 for Level 10 and reject conflicting raw or Level 5 requests
+- [x] Extract CMYK, black and independent alpha planes and provide explicit embedded-profile display conversion
+- [x] Run all 39 pinned official valid cases successfully, with no expected-unsupported cases left
+- [x] Accept Level 10 writer output in pinned libjxl djxl and rerun all M9 gates after the last production edit
+
+The native encoder remains bounded to one 1024-pixel Modular group. General Level 10 VarDCT encoding, other floating layouts and profile conversion for shifted CMYK planes remain explicit unsupported boundaries.
+
 ## M9 production hardening
 
 - [x] Twelve cross-feature workflows cover progressive selection, orientation, HDR and alpha fallback, high-depth native channels, animation timing, references, exact JPEG reconstruction, metadata invalidation, fragmented sources and strict fallback policy
@@ -15,7 +27,7 @@ with exact JPEG reconstruction. Only the checked items below are implemented.
 - [x] Evidence admission requires exact case identities, source revision, a clean checkout, raw hashes, measured thresholds and internally consistent summaries
 - [x] Fast integration, Node-package, browser and scheduled extended-fuzz CI jobs retain artifacts on failure
 
-These gates harden the declared capability subsets. They do not promote Experimental lossy encoding, claim unrestricted Level 5 display, add Level 10 support or authorize a release. M10 must rerun the M9 gates after its last production change.
+These gates harden the declared capability subsets. They do not promote Experimental lossy encoding or authorize a release. M10 reruns the M9 gates after its last production change.
 
 ## M8 sequence and native channel APIs
 
@@ -25,7 +37,7 @@ These gates harden the declared capability subsets. They do not promote Experime
 - [x] Typed native channel extraction, grouped shifted VarDCT alpha/depth and binary16 sample preservation
 - [x] Bounded native planar encoding with matching original GRAY/RGB ICC profiles, including high-depth gray plus alpha
 - [x] Global implicit delta palettes, M3 previous-channel MA-tree properties, custom inverse opsin, custom upsampling and custom Gaborish/EPF reconstruction
-- [x] Independent comparisons for all 39 official cases: 37 pass and two Level 10 cases remain explicitly unsupported; every applicable Level 5 case passes
+- [x] Independent comparisons for all 39 official cases; M10 promotes the final CMYK and binary32 native cases and every applicable Level 5 case passes
 - [x] Native patch/progressive dependencies, all eight patch blend modes in Modular and XYB, YCbCr chroma reconstruction, shifted-alpha/color upsampling, and noise/spline interactions
 
 Sequence output uses explicit full-canvas buffers and replay without a decoded sequence cache. Native extraction does not imply display conversion. See docs/jpegxl-sequences.md for ownership, budgets, timing, channel representation and level classification. The checked Level 5 corpus passes; unrestricted display of every native channel layout is not claimed.

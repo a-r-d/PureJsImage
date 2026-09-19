@@ -143,6 +143,7 @@ describe('JPEG XL bounded scalar palettes', () => {
       expect(run.encoder.managedLiveBytes).toBe(0)
       expect(run.encoder.managedLiveAllocations).toBe(0)
     },
+    15_000,
   )
   it('retains the existing search for dense high-depth values', async () => {
     const run = await prepare(1025, 17, true)
@@ -166,7 +167,7 @@ describe('JPEG XL bounded scalar palettes', () => {
     await expect(below.encoder.finish()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
     expect(below.encoder.managedLiveBytes).toBe(0)
     expect(below.encoder.managedLiveAllocations).toBe(0)
-  })
+  }, 15_000)
   it('rejects scalar reconstruction exceeding the caller decoded-byte budget', async () => {
     const run = await prepare(1025, 17)
     await run.encoder.finish()

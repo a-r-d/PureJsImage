@@ -724,6 +724,7 @@
     "jpegxl:m9:integration": "node benchmark/jpegxl/run-m9-integration.ts",
     "jpegxl:m9:fuzz-resource": "node benchmark/jpegxl/run-m9-fuzz-resource.ts",
     "jpegxl:m9:package": "npm run build && node benchmark/jpegxl/run-m9-package.ts",
+    "jpegxl:m10:level10": "node benchmark/jpegxl/verify-m10-level10.ts",
     "jpegxl:m1:corpus:prepare": "node benchmark/jpegxl/prepare-m1-real-jpeg-corpus.ts",
     "jpegxl:m1:corpus": "node benchmark/jpegxl/run-m1-real-jpeg-corpus.ts",
     "jpegxl:program:baseline": "node benchmark/jpegxl/production-program/extract-features.ts --check && node benchmark/jpegxl/production-program/render-status.ts --check && node benchmark/jpegxl/production-program/render-baseline.ts --check",

@@ -90,18 +90,23 @@ requires incompatible color and extra-channel grids is explicitly unsupported.
 The native layer API still exposes those channels without relabeling them.
 
 `encodeJpegXlNative` writes one bounded Modular image from one or three color
-planes and up to four typed extra channels. It accepts unsigned 1–16-bit samples
-in `Uint8Array` or `Uint16Array`, or binary16 bit patterns in `Uint16Array`.
+planes and up to 256 typed extra channels. It accepts unsigned 1–31-bit samples
+in matching unsigned typed arrays, binary16 bit patterns in `Uint16Array`, or
+binary32 bit patterns in `Uint32Array`.
 Extra channels may have dimension shifts from zero through three. Every plane
 must have exactly its declared dimensions and sample count. The current writer
 uses one group and accepts dimensions up to 1024 by 1024.
 
 Pass `iccProfile` to preserve source-profile samples and original ICC bytes.
-The profile must describe GRAY for one color plane or RGB for three color planes.
+The profile must describe GRAY for one color plane, RGB for three color planes,
+or CMYK for three color planes plus exactly one black extra channel.
 The writer checks profile and compressed-output budgets. It does not convert
 samples. This provides explicit gray-plus-alpha and high-depth ICC preservation
 without attaching a gray profile to replicated RGB. Unavailable profile-aware
-rendering remains an error. The qualification writes GRAY/RGB profiles and
+rendering remains an error. `jpegXlNativeFloat32ColorPlanes` preserves IEEE bits
+as numeric float samples. `convertJpegXlFloat32LayerToRgba16` requires an explicit
+finite display range and rejects NaN and infinity. `convertJpegXlCmykLayerToRgba8`
+applies the embedded CMYK profile without replacing the raw planes. The qualification writes GRAY/RGB/CMYK profiles and
 checks both exact native samples and an explicit native CMM conversion to a
 linear target profile, including unchanged alpha.
 
@@ -137,7 +142,7 @@ constraints; they are not a complete bitstream conformance validator:
 | Feature | Level 5 | Level 10 or additional constraint |
 | --- | --- | --- |
 | Image dimensions | Each axis at most 2^18; at most 2^28 pixels | Larger images require Level 10 |
-| Sample depth | Up to 16 bits, including binary16 floating samples | Wider floating samples require Level 10 |
+| Sample depth | Up to 16 bits when the emitted Modular stream is 16-bit-buffer sufficient | The native writer uses Level 10 above 12 integer bits and for binary16/binary32 |
 | Extra channels | At most four; BLACK excluded | CMYK/BLACK requires Level 10 |
 | ICC profile | At most 4 MiB | Larger profiles require Level 10 |
 | Animation rate | At most 120 frames per second | Higher rates require Level 10 |
@@ -145,8 +150,9 @@ constraints; they are not a complete bitstream conformance validator:
 
 See the [official encoder level API](https://libjxl.github.io/libjxl/api_encoder.html)
 and the pinned source's `VerifyLevelSettings` in `lib/jxl/encode.cc`. Application
-resource limits may be tighter. Float input is not automatically Level 10.
-The checked corpus retains all 39 original cases, including CMYK and 32-bit
-floating cases outside the selected Level 5 acceptance cohort. Expected
-unsupported cases never count as passing output comparisons. Passing that cohort
-does not advertise every possible Level 5 feature combination.
+resource limits may be tighter. The machine-readable map is
+`benchmark/jpegxl/production-program/m10-level-profile-map.json`. The checked
+corpus retains all 39 original valid cases and all now pass. CMYK and binary32
+use explicit native workflows because the ordinary interleaved display API
+cannot preserve those layouts. This does not advertise every possible Level 10
+feature combination.

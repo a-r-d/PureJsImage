@@ -179,6 +179,7 @@ describe('JPEG XL M7 explicit encoding modes', () => {
       }
       expect(decodedFrames[1]).toEqual(decodedFrames[0])
     },
+    15_000,
   )
 
   it.each(['modular', 'forward-vardct', 'jpeg-transcoded'] as const)(

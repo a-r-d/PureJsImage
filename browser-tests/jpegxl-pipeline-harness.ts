@@ -6,9 +6,43 @@ import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
+import {
+  encodeJpegXlNative,
+  inspectJpegXl,
+  jpegXlNativeUnsignedPlanes,
+  openJpegXlSequence,
+} from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
+
+export const verifyLevelTenJpegXl = async (bytes: Uint8Array) => {
+  const sequence = await openJpegXlSequence(bytes)
+  let samples = 0
+  let checksum = 0
+  let first: number[] = []
+  try {
+    for await (const layer of sequence.layers()) {
+      const planes = jpegXlNativeUnsignedPlanes(layer)
+      first = Array.from(planes[0]?.subarray(0, 4) ?? [])
+      for (const plane of planes)
+        for (const value of plane) {
+          samples++
+          checksum = (Math.imul(checksum, 31) + value) >>> 0
+        }
+    }
+  } finally {
+    await sequence.close()
+  }
+  const values = Uint32Array.of(0, 0x8000_0000, 1, 0x3f80_0000, 0xbf80_0000)
+  const encoded = await encodeJpegXlNative({
+    width: values.length,
+    height: 1,
+    color: [{ data: values, bitDepth: 32, sampleFormat: 'binary32' }],
+  })
+  const inspection = await inspectJpegXl(encoded)
+  return { samples, checksum, first, writerKind: inspection.kind, writerLevel: inspection.level }
+}
 
 export const verifyLazyJpegXl = async (bytes: Uint8Array) => {
   let requestedBytes = 0

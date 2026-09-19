@@ -342,6 +342,33 @@ const fixture = (gate: EvidenceGate): Record<string, unknown> => {
           runtimeFailures: 0,
         },
       }
+    case 'm10Level10':
+      return {
+        ...common,
+        decoderSourceSha256: hash,
+        profileMapSha256: hash,
+        officialFixtures: {
+          binary32: { inputSha256: hash, samples: 750_000, floatDigest: hash },
+          cmyk: { inputSha256: hash, layers: 4, rows: 775, displaySha256: hash },
+        },
+        writerCases: [
+          { id: 'binary32', kind: 'container', level: 10 },
+          { id: 'integer31', kind: 'container', level: 10 },
+          { id: 'cmyk', kind: 'container', level: 10 },
+          { id: 'integer12', kind: 'raw-codestream', level: 5 },
+          { id: 'integer13', kind: 'container', level: 10 },
+        ],
+        independentDecoder: { name: 'libjxl-djxl-v0.12.0', accepted: 3 },
+        remainingUnsupported: ['general Level 10 VarDCT encoding'],
+        gates: {
+          normativeMap: true,
+          officialBinary32Exact: true,
+          officialCmykNativeAndDisplay: true,
+          minimumLevelSelection: true,
+          level10ContainerSignaling: true,
+          independentDecoderAcceptance: true,
+        },
+      }
   }
 }
 const gates = Object.keys(evidenceFiles) as EvidenceGate[]

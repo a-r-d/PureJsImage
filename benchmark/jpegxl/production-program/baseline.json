@@ -220,7 +220,7 @@
   "corpora": {
     "conformance": {
       "path": "benchmark/jpegxl/production-program/corpora/conformance.json",
-      "sha256": "2a6d91341f4a82c33d6ad3e95e41461dd05873042ba3e04e6b72f61329734353",
+      "sha256": "ae24d560ede3531e486922a74e5a03c54faef65be3abded1102ce8285127728e",
       "entries": 39,
       "revision": "4bf053529c7cefd2951be453475bb3dccc7e7be8"
     },
@@ -251,8 +251,8 @@
   "conformance": {
     "total": 39,
     "classifications": {
-      "pass": 13,
-      "expected-unsupported": 25,
+      "pass": 15,
+      "expected-unsupported": 23,
       "malformed-safely-rejected": 0,
       "incorrect-output": 0,
       "unexpected-failure": 1

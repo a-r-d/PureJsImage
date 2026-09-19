@@ -127,16 +127,18 @@ export const readJpegXlHybridUint = (
   const tokenPayload = token - config.splitToken
   const tokenBits = config.msbInToken + config.lsbInToken
   const extraBits = config.splitExponent - tokenBits + Math.floor(tokenPayload / 2 ** tokenBits)
-  if (extraBits < 0 || extraBits > 29) {
-    throw invalidInput('JPEG XL hybrid integer exceeds the supported range')
+  if (extraBits < 0 || extraBits > 32) {
+    throw invalidInput('JPEG XL hybrid integer is out of range')
   }
   const lowMask = 2 ** config.lsbInToken - 1
   const low = token & lowMask
   const shiftedToken = Math.floor(token / 2 ** config.lsbInToken)
   const tokenMask = 2 ** config.msbInToken - 1
   const high = 2 ** config.msbInToken + (shiftedToken & tokenMask)
-  const value =
-    ((high * 2 ** extraBits + reader.readBits(extraBits)) * 2 ** config.lsbInToken + low) >>> 0
+  const value = (high * 2 ** extraBits + reader.readBits(extraBits)) * 2 ** config.lsbInToken + low
+  if (!Number.isSafeInteger(value) || value > 0xffff_ffff) {
+    throw invalidInput('JPEG XL hybrid integer exceeds the supported range')
+  }
   return value
 }
 

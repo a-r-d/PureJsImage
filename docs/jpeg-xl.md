@@ -3,17 +3,16 @@
 ## Quick answer
 
 <!-- capabilities:jpegxl-summary:start -->
-Decode common static JPEG XL with native precision, color, alpha and HDR; inspect progressive stages, iterate timed animation frames and typed native layers, preserve source-profile samples, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.
+Decode common static JPEG XL with native precision, color, alpha and HDR; inspect progressive stages, iterate timed animation frames and exact Level 10 native layers, preserve source-profile samples, write bounded lossless Level 10 planes, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.
 
 Decode status: Stable common static. Encode status: Stable lossless and exact transcode; experimental lossy.
 <!-- capabilities:jpegxl-summary:end -->
 
 The [capability contract](../jpegxl-codec-support.md) lists the checked syntax and
 unsupported cases. Unsupported operations fail with an `ImageError`. M6 covers
-progressive and range-aware work; general lossy encoding belongs to M7. The
-M6 work adds lazy sessions, embedded previews, native DC and pass boundaries,
-selective group reads and declared static fallbacks. General lossy encoding
-remains future work.
+progressive and range-aware work; general lossy encoding belongs to M7. M10 adds
+bounded native Level 10 samples, CMYK profile conversion and exact 31-bit integer
+and floating workflows.
 
 ## Native precision and color
 
@@ -46,6 +45,35 @@ Preserve native high-depth integer samples in a new JXL:
 const native = await images.open(highDepthJxl)
 const encoded = await native.jpegxl({ effort: 7 }).toUint8Array()
 ```
+
+Use the specialized entry for Level 10 native samples:
+
+```ts
+import {
+  encodeJpegXlNative,
+  jpegXlNativeFloat32ColorPlanes,
+  openJpegXlSequence,
+} from 'purejsimage/jpegxl'
+
+const encoded = await encodeJpegXlNative({
+  width,
+  height,
+  color: [{ data: floatBits, bitDepth: 32, sampleFormat: 'binary32' }],
+})
+
+const sequence = await openJpegXlSequence(encoded)
+for await (const layer of sequence.layers()) {
+  const floats = jpegXlNativeFloat32ColorPlanes(layer)
+  // floats preserve negative values, highlights, signed zero and subnormals.
+}
+await sequence.close()
+```
+
+Level 10 output uses a JPEG XL container with `jxll=10`. Explicit Level 5 or raw
+output requests fail when the input needs Level 10. Float-to-integer display
+conversion requires a finite black/white range and rejects NaN and infinity.
+CMYK extraction keeps C, M, Y, black and alpha planes separate; use
+`convertJpegXlCmykLayerToRgba8` to apply the embedded profile explicitly.
 
 Choose a display recipe with a matching input contract. These examples are
 [executable public API functions](../examples/jpegxl-display.ts).

@@ -433,6 +433,10 @@ await copyFile(
   'tests/fixtures/jpegxl/m5-pipeline/segmented.jxl',
   resolve(fixtureDirectory, 'jpegxl-m5-segmented.jxl'),
 )
+await copyFile(
+  'tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl',
+  resolve(fixtureDirectory, 'jpegxl-m10-lossless-pfm.jxl'),
+)
 for (const name of await readdir('tests/fixtures/jpegxl/m4-color')) {
   await copyFile(
     `tests/fixtures/jpegxl/m4-color/${name}`,

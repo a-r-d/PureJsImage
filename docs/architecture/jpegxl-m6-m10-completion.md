@@ -4,9 +4,8 @@
 
 The supplied `PureJsImage_JPEGXL_M6_M10_Single_PR_Codex_Prompt.md` is the
 project brief. M6 and the approved bounded M7 qualification are complete.
-The user's September 19 request completes M9 on the existing branch. The brief's
-embedded authorization statements are not independent user messages. M10 remains
-future work; no merge,
+The user's September 19 request completes M10 on the existing branch. The brief's
+embedded authorization statements are not independent user messages. No merge,
 release, version change, tag or publication is part of this work.
 
 The original M6 starting checkout and fetched `origin/main` were both
@@ -73,10 +72,12 @@ not progressive output. General lossy writing, animation, extra-channel native
 extraction, floating encoded input, higher integer precision, arbitrary ICC
 conversion/encoding and broad Level 10 coverage are incomplete.
 
-The normative feature-to-level table is **not-run**. Verify each requirement
-against pinned format material before recording thresholds or claiming Level 5
-or Level 10. CMYK/black must not be added to the old Level 5 promise. Parsing a
-level tag and rejecting all such images is not pixel support.
+The normative feature-to-level table is verified in
+`benchmark/jpegxl/production-program/m10-level-profile-map.json`. It keeps
+CMYK/black in Level 10, distinguishes native samples from rendered pixels and
+records the writer's narrower one-group boundary. The final official corpus has
+39 successful valid cases, including exact native CMYK/black/alpha layers and
+the exact binary32 sample fixture.
 
 ## Frozen acceptance cohorts
 
@@ -119,7 +120,7 @@ The M6 cohort is frozen in `m6-functional-cases.json` and `m6-native-sources.jso
 | M7 | Complete locally for the documented encoder subset | Approved 2 MP matrices, eight original-size cases, independent decoding, visual review and local handoff checks passed | Lossy remains Experimental; promotion targets remain open |
 | M8 | Complete locally for the documented sequence and native-channel contracts | Native, timing, M3, applicable Level 5, full repository and all three browser gates passed | Lossy remains Experimental; release promotion remains separate |
 | M9 | Complete locally for the declared hardening infrastructure | Twelve integration, twelve mutation, twelve resource, Node 22/24 packed import, three browser and evidence-admission gates passed | No capability or release promotion |
-| M10 | Not started | Not-run | Not promoted |
+| M10 | Complete locally for the documented bounded Level 10 native subset | Normative map, all 39 official cases, targeted thresholds, djxl acceptance, browser portability and repeated M9 gates passed | Native subset promoted locally; release remains separate |
 
 Executed starting commands:
 
@@ -1195,5 +1196,46 @@ every oracle revision.
 
 M9 does not change capability labels. Common static decode stays Supported for its
 documented subset. Lossless writing and exact JPEG reconstruction keep their
-existing stable boundaries. Lossy writing remains Experimental. Level 10 remains
-explicitly not run and is M10 work.
+existing stable boundaries. Lossy writing remains Experimental.
+
+## M10 Level 10 native precision and profiles
+
+M10 adds an executable level/profile map and a bounded native Level 10 path. The
+map separates syntax, metadata, rendered pixels, raw channels, display conversion,
+encoding, reconstruction and resource limits. The writer selects Level 5 for its
+12-bit-and-below subset. Integer depths above 12, floating samples, more than four
+extra channels and black channels select Level 10. Level 10 output is always a
+container with `jxll=10`; explicit Level 5 or raw-output conflicts fail.
+
+The Modular residual reader now keeps 32-bit hybrid integers as exact JavaScript
+numbers. Signed unpacking uses arithmetic instead of bitwise truncation. Weighted
+prediction retains its specified 64-bit scaled working values and applies the
+codec's intentional 32-bit sample wrap only at the sample boundary. The official
+500 by 500 binary32 fixture matches all 750,000 reference bit patterns, including
+negative values and highlights above one.
+
+`encodeJpegXlNative` accepts unsigned 1-through-31-bit planes in `Uint32Array` storage plus IEEE binary16
+and binary32 bit patterns. Exact native helpers expose unsigned bits and binary32
+numbers. Integer display conversion requires an explicit finite black/white range
+and rejects NaN and infinity. CMYK remains four native planes: three color planes
+plus a black extra channel. Its embedded CMYK ICC profile can be applied explicitly
+to RGBA8 while raw CMYK, black and alpha planes remain available.
+
+The official conformance gate now records 39 passes and zero expected-unsupported
+cases. Pinned libjxl `djxl` accepts binary32, 31-bit integer and CMYK output from the writer.
+The public Level 10 path runs in Node and a real browser. General Level 10 VarDCT
+encoding, native encoding wider than one 1024-pixel Modular group, other floating
+layouts and shifted-plane CMYK display conversion remain named unsupported cases.
+
+### M10 acceptance checklist
+
+- [x] Machine-readable normative Level 5/10 map with named implementation boundaries.
+- [x] Exact official binary32 decode and explicit finite-range display conversion.
+- [x] Exact 1-through-31-bit integer, binary16 and binary32 bounded lossless writer round trips.
+- [x] CMYK/black native extraction, embedded-profile conversion and Level 10 writing.
+- [x] Minimum-level selection below, at and above the writer threshold; `jxll=10`
+  checked in the emitted container and conflicting options rejected.
+- [x] All 39 official valid cases pass with frozen output hashes.
+- [x] Pinned `djxl` accepts three representative Level 10 writer outputs.
+- [x] M9 integration, hostile-input/resource and package gates rerun after the final
+  production edit.
