@@ -673,7 +673,7 @@
         "Lossy writing remains Experimental and M9 does not authorize a release."
       ],
       "deferredWork": [
-        "M10 and the grouped-native follow-up reran all M9 gates after the last production edit at revision 6a837b8e146ecbd6ced6931253af4b7cd7016cab.",
+        "M10 and the general Level 10 VarDCT follow-up reran all M9 gates after the last production edit at revision d60abe402488321e8c56ff5ed45d87d64130f186.",
         "Remote CI and PR checks are not local completion evidence."
       ],
       "stablePromotionGatePassed": false,
@@ -684,14 +684,14 @@
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": null,
       "startRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
-      "finalRevision": "6a837b8e146ecbd6ced6931253af4b7cd7016cab",
+      "finalRevision": "d60abe402488321e8c56ff5ed45d87d64130f186",
       "localCommands": [
         "npm run jpegxl:program:conformance -- --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m10-static-conformance.json",
-        "npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-m10/level10-expanded-clean.json",
-        "npm run jpegxl:m9:integration -- --output .tmp/jpegxl-m9/integration-expanded-clean.json",
-        "npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-m9/fuzz-expanded-clean.json",
-        "npm run jpegxl:m9:package -- --output .tmp/jpegxl-m9/package-expanded-clean.json",
-        "npx playwright test browser-tests/jpegxl-pipeline.pw.ts --grep \"Level 10 binary32\" --project=chromium --project=firefox --project=webkit --workers=1 --retries=0",
+        "npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-m10/level10-vardct-clean.json",
+        "npm run jpegxl:m9:integration -- --output .tmp/jpegxl-m9/integration-vardct-clean.json",
+        "npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-m9/fuzz-vardct-clean.json",
+        "npm run jpegxl:m9:package -- --output .tmp/jpegxl-m9/package-vardct-clean.json",
+        "npx playwright test browser-tests/jpegxl-pipeline.pw.ts --grep \"Level 10 binary32 native decode and writer signaling agree with Node\"",
         "npm run check"
       ],
       "remoteWorkflowRuns": [],
@@ -699,12 +699,12 @@
         "All 39 pinned official valid cases pass with exact frozen output hashes; no case remains expected-unsupported, incorrect or unexpectedly failed.",
         "The official 500 by 500 binary32 fixture preserves all 750000 sample bit patterns with digest b79a3696b462f6dfad2685f9201cb27abb375af3ca4efcdf145a35d361de3093.",
         "The official CMYK fixture exposes four native layers totaling 775 rows and applies its embedded profile through an explicit display conversion.",
-        "Pinned libjxl djxl v0.12.0 accepts PureJsImage single-group and multi-group binary32, maximum 31-bit integer, and single-group and multi-group CMYK Level 10 writer outputs.",
-        "Level 10 multi-group binary32 browser coverage passes in Chromium, Firefox and WebKit with retries disabled.",
+        "Pinned libjxl djxl v0.12.0 accepts eight PureJsImage Level 10 outputs: single-group and multi-group binary32, maximum 31-bit integer, single-group and multi-group CMYK, progressive multi-group VarDCT, exact 16-bit-alpha VarDCT, and streamed VarDCT animation.",
+        "Level 10 native decode, multi-group progressive VarDCT encode, and high-depth-alpha VarDCT animation coverage passes in Chromium, Firefox and WebKit with retries disabled.",
         "Shifted CMYK black-plane display conversion uses the signaled upsampling kernel and matches an equivalent full-size constant plane.",
-        "The specialized JPEG XL entry measures 516153 minified bytes under the 517000-byte feature ceiling after grouped native encoding and shifted CMYK conversion, while retaining the 255489-byte historical baseline.",
+        "The core plus JPEG XL entry measures 440528 minified bytes under the 441000-byte feature ceiling, and the specialized JPEG XL entry measures 517414 bytes under the 518000-byte feature ceiling while retaining their historical baselines.",
         "All clean-revision M9 reruns pass: 12 integration cases, 12 mutation plus 12 resource cases, and 8 package/runtime cases.",
-        "Expanded full repository gate: 3140 tests passed, 3 skipped; 240 files passed, 1 skipped."
+        "Expanded full repository gate: 3146 tests passed, 3 skipped; 241 files passed, 1 skipped."
       ],
       "corpusVersions": [
         "libjxl conformance corpus revision 4bf053529c7cefd2951be453475bb3dccc7e7be8 with archive SHA-256 1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",
@@ -721,14 +721,15 @@
         "Level 10 native output uses a JPEG XL container with jxll=10; minimum-level selection and conflicting Level 5 or raw requests are checked.",
         "CMYK black channels remain native and use explicit embedded-profile conversion for display output.",
         "Unshifted native planes encode across multiple 1024-pixel Modular groups, while shifted CMYK black and alpha planes convert through the signaled upsampling kernel.",
+        "General forward-subset VarDCT encoding supports explicit Level 10 output and automatically selects Level 10 for oversized geometry or exact Modular alpha above 12 bits.",
+        "Streamed VarDCT animation emits an unbounded Level 10 jxlc container without buffering the complete animation.",
         "The authoritative conformance manifest promotes the official binary32 and CMYK cases to passing native workflows."
       ],
       "capabilityPromotions": [],
       "acceptedLimitations": [
         "Shifted native channels across multiple 1024-pixel Modular groups remain unsupported.",
         "Floating layouts other than IEEE binary16 and binary32 remain unsupported.",
-        "Integer display conversion rejects NaN and infinity instead of normalizing them.",
-        "General Level 10 VarDCT encoding remains unsupported."
+        "Integer display conversion rejects NaN and infinity instead of normalizing them."
       ],
       "deferredWork": [
         "Remote CI and PR checks are not local completion evidence.",
