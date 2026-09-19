@@ -1,6 +1,7 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { parseCmykIccTransform, writeCmykIcc } from './icc.ts'
 import type { JpegXlNativeLayer } from './jpegxl-sequence.ts'
+import { upsampleJpegXlNativePlane } from './jpegxl-vardct-render.ts'
 
 export interface JpegXlRgba8Image {
   readonly width: number
@@ -108,21 +109,50 @@ export const convertJpegXlCmykLayerToRgba8 = (
   const width = layer.layouts[0]?.width ?? 0
   const height = layer.layouts[0]?.height ?? 0
   const pixels = width * height
-  if (
-    pixels < 1 ||
-    planes.some((plane) => plane.length !== pixels) ||
-    [0, 1, 2, blackPlaneIndex].some(
-      (index) => layer.layouts[index]?.width !== width || layer.layouts[index]?.height !== height,
+  if (pixels < 1 || planes.slice(0, 3).some((plane) => plane.length !== pixels))
+    throw unsupportedOperation('CMYK color planes must be full-size')
+  const displayExtra = (
+    descriptorIndex: number,
+    planeIndex: number,
+    maximum: number,
+  ): Readonly<{ values: Int32Array | Float64Array; maximum: number }> => {
+    const descriptor = layer.header.extraChannels[descriptorIndex]
+    const layout = layer.layouts[planeIndex]
+    const source = integerPlane(layer, planeIndex)
+    if (!descriptor || !layout) throw invalidInput('CMYK extra-channel layout is missing')
+    const factor =
+      (layer.header.extraChannelUpsampling[descriptorIndex] ?? 1) * 2 ** descriptor.dimShift
+    if (
+      layout.width !== Math.ceil(width / factor) ||
+      layout.height !== Math.ceil(height / factor) ||
+      source.length !== layout.width * layout.height
     )
-  )
-    throw unsupportedOperation('CMYK planes must be full-size')
+      throw invalidInput('CMYK extra-channel plane size disagrees with its layout')
+    if (factor === 1) return { values: source, maximum }
+    const normalized = Float64Array.from(source, (value) => value / maximum)
+    return {
+      values: upsampleJpegXlNativePlane(
+        normalized,
+        layout.width,
+        layout.height,
+        factor,
+        width,
+        height,
+        layer.header,
+      ),
+      maximum: 1,
+    }
+  }
+  const black = displayExtra(blackIndex, blackPlaneIndex, blackMaximum)
   const transform = parseCmykIccTransform(profile)
   const output = new Uint8Array(pixels * 4)
   const alphaIndex = layer.header.extraChannels.findIndex((channel) => channel.type === 0)
   const alphaDescriptor = alphaIndex < 0 ? undefined : layer.header.extraChannels[alphaIndex]
-  const alpha =
-    alphaIndex < 0 ? undefined : integerPlane(layer, layer.header.colorChannels + alphaIndex)
   const alphaMaximum = 2 ** (alphaDescriptor?.bitDepth.bits ?? 8) - 1
+  const alpha =
+    alphaIndex < 0
+      ? undefined
+      : displayExtra(alphaIndex, layer.header.colorChannels + alphaIndex, alphaMaximum)
   for (let index = 0; index < pixels; index++) {
     const target = index * 4
     writeCmykIcc(
@@ -130,11 +160,13 @@ export const convertJpegXlCmykLayerToRgba8 = (
       255 - Math.round(((planes[0]?.[index] ?? 0) * 255) / colorMaximum),
       255 - Math.round(((planes[1]?.[index] ?? 0) * 255) / colorMaximum),
       255 - Math.round(((planes[2]?.[index] ?? 0) * 255) / colorMaximum),
-      255 - Math.round(((planes[3]?.[index] ?? 0) * 255) / blackMaximum),
+      255 - Math.round(((black.values[index] ?? 0) * 255) / black.maximum),
       output,
       target,
     )
-    output[target + 3] = alpha ? Math.round(((alpha[index] ?? 0) * 255) / alphaMaximum) : 255
+    output[target + 3] = alpha
+      ? Math.round(((alpha.values[index] ?? 0) * 255) / alpha.maximum)
+      : 255
   }
   return Object.freeze({ width, height, format: 'rgba8' as const, data: output })
 }

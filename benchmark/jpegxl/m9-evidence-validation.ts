@@ -147,7 +147,7 @@ export const validateM9PackageReport = (value: unknown, revision: string): numbe
       finite(entry.firstDecodeMilliseconds)
       if (finite(entry.codecMinifiedBytes, 1) > 440_000)
         throw new Error('M9 codec entry exceeds its checked size ceiling')
-      if (finite(entry.specializedMinifiedBytes, 1) > 515_000)
+      if (finite(entry.specializedMinifiedBytes, 1) > 517_000)
         throw new Error('M9 specialized entry exceeds its checked size ceiling')
     }
   }

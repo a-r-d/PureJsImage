@@ -130,15 +130,13 @@ const defaultColor = (gray: boolean): PixelColorSemantics => ({
   renderingIntent: 'relative',
 })
 
-/** One bounded Modular group, preserving native integer or binary16 channels and an optional ICC profile. */
+/** Bounded Modular groups preserving native integer or binary16 channels and an optional ICC profile. */
 export const encodeJpegXlNative = async (
   options: Readonly<EncodeJpegXlNativeOptions>,
 ): Promise<Uint8Array> => {
   const limits = resolveLimits(options.limits),
     jpegLimits = resolveJpegXlLimits(options.limits)
   validateImageDimensions(options.width, options.height, 1, limits)
-  if (options.width > 1024 || options.height > 1024)
-    throw unsupportedOperation('Native encode is limited to one 1024-pixel group')
   const maximum = options.maxOutputBytes ?? limits.maxInputBytes
   if (!Number.isSafeInteger(maximum) || maximum < 1)
     throw invalidInput('maxOutputBytes must be a positive safe integer')
@@ -207,6 +205,12 @@ export const encodeJpegXlNative = async (
       throw invalidInput('JPEG XL spot color requires four finite unit-range components')
   }
   const planes = [...options.color, ...extra]
+  const groupDimension = 1_024
+  const groupsAcross = Math.ceil(options.width / groupDimension)
+  const groupsDown = Math.ceil(options.height / groupDimension)
+  const groupCount = groupsAcross * groupsDown
+  if (groupCount > 1 && extra.some((channel) => (channel.dimShift ?? 0) !== 0))
+    throw unsupportedOperation('Shifted native channels across multiple groups are not supported')
   const first = options.color[0]
   if (!first) throw invalidInput('Native color channel is missing')
   let inputBytes = 0
@@ -284,11 +288,6 @@ export const encodeJpegXlNative = async (
     )
       throw invalidInput('CMYK requires three color planes and one black channel')
   }
-  const section = new JpegXlBitWriter(undefined, maximum)
-  section.writeBits(1, 1)
-  section.writeBits(0, 1)
-  writeModularHeader(section, false)
-  writeModularTree(section, 0)
   const frequencies = new Uint32Array(280)
   // Predictor zero makes every native sample independent, including IEEE bit patterns.
   const token = (value: number): number =>
@@ -301,15 +300,61 @@ export const encodeJpegXlNative = async (
       const symbol = token(value)
       frequencies[symbol] = (frequencies[symbol] ?? 0) + 1
     }
-  const code = writePrefixCode(section, 1, frequencies)
-  for (const plane of planes) {
-    throwIfAborted(options.signal)
-    for (let i = 0; i < plane.data.length; i++) {
-      if ((i & 65535) === 0) await pause()
-      writeHybridUint(section, packSigned(encodedSample(plane, plane.data[i] ?? 0)), code)
+  const sections: Uint8Array[] = []
+  if (groupCount === 1) {
+    const section = new JpegXlBitWriter(undefined, maximum)
+    section.writeBits(1, 1)
+    section.writeBits(0, 1)
+    writeModularHeader(section, false)
+    writeModularTree(section, 0)
+    const code = writePrefixCode(section, 1, frequencies)
+    for (const plane of planes) {
+      throwIfAborted(options.signal)
+      for (let i = 0; i < plane.data.length; i++) {
+        if ((i & 65535) === 0) await pause()
+        writeHybridUint(section, packSigned(encodedSample(plane, plane.data[i] ?? 0)), code)
+      }
+    }
+    sections.push(section.finish())
+  } else {
+    const global = new JpegXlBitWriter(undefined, maximum)
+    global.writeBits(1, 1)
+    global.writeBits(1, 1)
+    writeModularTree(global, 0)
+    const code = writePrefixCode(global, 1, frequencies)
+    writeModularHeader(global, true)
+    sections.push(global.finish(), new Uint8Array(0))
+    const dcGroupCount = Math.ceil(options.width / 8_192) * Math.ceil(options.height / 8_192)
+    for (let index = 0; index < dcGroupCount; index++) sections.push(new Uint8Array(0))
+    let sectionBytes = sections[0]?.length ?? 0
+    for (let groupY = 0; groupY < groupsDown; groupY++) {
+      for (let groupX = 0; groupX < groupsAcross; groupX++) {
+        throwIfAborted(options.signal)
+        if (sectionBytes >= maximum)
+          throw limitExceeded('JPEG XL native output exceeds maxOutputBytes')
+        const section = new JpegXlBitWriter(undefined, maximum - sectionBytes)
+        writeModularHeader(section, true)
+        const originX = groupX * groupDimension
+        const originY = groupY * groupDimension
+        const groupWidth = Math.min(groupDimension, options.width - originX)
+        const groupHeight = Math.min(groupDimension, options.height - originY)
+        for (const plane of planes) {
+          for (let y = 0; y < groupHeight; y++) {
+            const row = (originY + y) * options.width + originX
+            for (let x = 0; x < groupWidth; x++) {
+              if (((y * groupWidth + x) & 65535) === 0) await pause()
+              const sample = plane.data[row + x] ?? 0
+              writeHybridUint(section, packSigned(encodedSample(plane, sample)), code)
+            }
+          }
+        }
+        const bytes = section.finish()
+        sections.push(bytes)
+        sectionBytes += bytes.length
+      }
     }
   }
-  const payload = section.finish()
+  const payloadBytes = sections.reduce((sum, section) => sum + section.length, 0)
   const writer = new JpegXlBitWriter(undefined, maximum)
   writer.writeBits(0xff, 8)
   writer.writeBits(0x0a, 8)
@@ -413,19 +458,24 @@ export const encodeJpegXlNative = async (
   writeU64(writer, 0)
   writer.writeBits(0, 1)
   writer.alignToByte()
-  writeU32(writer, payload.length, [
-    { bits: 10, offset: 0 },
-    { bits: 14, offset: 1024 },
-    { bits: 22, offset: 17408 },
-    { bits: 30, offset: 4211712 },
-  ])
+  for (const section of sections)
+    writeU32(writer, section.length, [
+      { bits: 10, offset: 0 },
+      { bits: 14, offset: 1024 },
+      { bits: 22, offset: 17408 },
+      { bits: 30, offset: 4211712 },
+    ])
   const header = writer.finish()
   const containerOverhead = level === 10 ? 49 : 0
-  if (header.length + payload.length + containerOverhead > maximum)
+  if (header.length + payloadBytes + containerOverhead > maximum)
     throw limitExceeded('JPEG XL native output exceeds maxOutputBytes')
   throwIfAborted(options.signal)
-  const result = new Uint8Array(header.length + payload.length)
+  const result = new Uint8Array(header.length + payloadBytes)
   result.set(header)
-  result.set(payload, header.length)
+  let offset = header.length
+  for (const section of sections) {
+    result.set(section, offset)
+    offset += section.length
+  }
   return level === 10 ? levelTenContainer(result) : result
 }

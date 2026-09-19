@@ -58,7 +58,7 @@
     },
     "displayConversion": {
       "binary32": "explicit-finite-range-to-rgba16",
-      "cmyk": "embedded-icc-to-rgba8",
+      "cmyk": "embedded-icc-to-rgba8-including-shifted-black-and-alpha",
       "nanAndInfinity": "rejected-for-integer-display-conversion"
     },
     "encoding": {
@@ -70,7 +70,8 @@
       "level10Container": "automatic-jxll-10"
     },
     "limits": {
-      "nativeEncodeMaximumDimension": 1024,
+      "nativeEncodeDimensions": "caller-configurable-image-limits",
+      "nativeEncodeGrouping": "multiple-1024-pixel-groups-for-unshifted-channels",
       "nativeEncodeMaximumExtraChannels": 256,
       "decodeImageLimits": "caller-configurable-and-preflighted"
     }
@@ -86,10 +87,9 @@
     }
   ],
   "remainingUnsupported": [
-    "Native lossless encoding wider than one 1024-pixel Modular group",
+    "Shifted native channels across multiple 1024-pixel Modular groups",
     "Floating layouts other than IEEE binary16 and IEEE binary32",
     "Automatic NaN or infinity normalization during integer display conversion",
-    "Profile display conversion for shifted CMYK or black planes",
     "General Level 10 VarDCT encoding"
   ]
 }

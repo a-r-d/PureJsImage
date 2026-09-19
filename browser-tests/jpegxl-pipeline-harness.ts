@@ -41,7 +41,36 @@ export const verifyLevelTenJpegXl = async (bytes: Uint8Array) => {
     color: [{ data: values, bitDepth: 32, sampleFormat: 'binary32' }],
   })
   const inspection = await inspectJpegXl(encoded)
-  return { samples, checksum, first, writerKind: inspection.kind, writerLevel: inspection.level }
+  const groupedValues = new Uint32Array(1_025)
+  for (let index = 0; index < groupedValues.length; index++)
+    groupedValues[index] = index % 5 === 0 ? 0x8000_0000 : (index * 2_654_435_761) >>> 0
+  const grouped = await encodeJpegXlNative({
+    width: groupedValues.length,
+    height: 1,
+    color: [{ data: groupedValues, bitDepth: 32, sampleFormat: 'binary32' }],
+  })
+  const groupedSequence = await openJpegXlSequence(grouped)
+  let groupedChecksum = 0
+  let groupedSamples = 0
+  try {
+    for await (const layer of groupedSequence.layers())
+      for (const plane of jpegXlNativeUnsignedPlanes(layer))
+        for (const value of plane) {
+          groupedSamples++
+          groupedChecksum = (Math.imul(groupedChecksum, 31) + value) >>> 0
+        }
+  } finally {
+    await groupedSequence.close()
+  }
+  return {
+    samples,
+    checksum,
+    first,
+    writerKind: inspection.kind,
+    writerLevel: inspection.level,
+    groupedSamples,
+    groupedChecksum,
+  }
 }
 
 export const verifyLazyJpegXl = async (bytes: Uint8Array) => {

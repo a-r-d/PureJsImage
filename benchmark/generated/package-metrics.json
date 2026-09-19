@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.17.0",
-    "unpackedPackageBytes": 8280023,
+    "unpackedPackageBytes": 8283904,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -563,18 +563,18 @@
     },
     {
       "category": "purejsimage-entry",
-      "configuredCeilingMinifiedBytes": 515000,
+      "configuredCeilingMinifiedBytes": 517000,
       "entry": {
         "packageExports": ["purejsimage/jpegxl"],
         "sourceEntries": ["./src/jpegxl.ts"]
       },
-      "gzipBytes": 166362,
+      "gzipBytes": 166843,
       "id": "jpegxl-specialized",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 514851,
+      "minifiedJsBytes": 516153,
       "name": "JPEG XL specialized APIs",
       "recordedBaselineMinifiedBytes": 255489,
-      "brotliBytes": 132771
+      "brotliBytes": 133378
     },
     {
       "category": "purejsimage-entry",

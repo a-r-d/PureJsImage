@@ -89,13 +89,14 @@ upsampling and dimension shift cannot exceed eight. Patch composition that
 requires incompatible color and extra-channel grids is explicitly unsupported.
 The native layer API still exposes those channels without relabeling them.
 
-`encodeJpegXlNative` writes one bounded Modular image from one or three color
+`encodeJpegXlNative` writes a bounded Modular image from one or three color
 planes and up to 256 typed extra channels. It accepts unsigned 1–31-bit samples
 in matching unsigned typed arrays, binary16 bit patterns in `Uint16Array`, or
 binary32 bit patterns in `Uint32Array`.
 Extra channels may have dimension shifts from zero through three. Every plane
-must have exactly its declared dimensions and sample count. The current writer
-uses one group and accepts dimensions up to 1024 by 1024.
+must have exactly its declared dimensions and sample count. Unshifted planes use
+as many 1024-pixel Modular groups as the image needs. Shifted native planes are
+currently limited to a single group.
 
 Pass `iccProfile` to preserve source-profile samples and original ICC bytes.
 The profile must describe GRAY for one color plane, RGB for three color planes,
@@ -106,7 +107,8 @@ without attaching a gray profile to replicated RGB. Unavailable profile-aware
 rendering remains an error. `jpegXlNativeFloat32ColorPlanes` preserves IEEE bits
 as numeric float samples. `convertJpegXlFloat32LayerToRgba16` requires an explicit
 finite display range and rejects NaN and infinity. `convertJpegXlCmykLayerToRgba8`
-applies the embedded CMYK profile without replacing the raw planes. The qualification writes GRAY/RGB/CMYK profiles and
+applies the embedded CMYK profile without replacing the raw planes. Shifted black
+and alpha planes use the image's signaled upsampling kernel. The qualification writes GRAY/RGB/CMYK profiles and
 checks both exact native samples and an explicit native CMM conversion to a
 linear target profile, including unchanged alpha.
 

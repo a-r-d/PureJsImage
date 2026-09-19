@@ -12,7 +12,12 @@ import {
 test('Level 10 binary32 native decode and writer signaling agree with Node', async ({ page }) => {
   const input = new Uint8Array(await readFile('tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl'))
   const expected = await verifyLevelTenJpegXl(input)
-  expect(expected).toMatchObject({ samples: 750_000, writerKind: 'container', writerLevel: 10 })
+  expect(expected).toMatchObject({
+    samples: 750_000,
+    writerKind: 'container',
+    writerLevel: 10,
+    groupedSamples: 1_025,
+  })
   await page.goto('/compatibility.html')
   const actual = await page.evaluate(async () => {
     const path = '/jpegxl-pipeline.js'

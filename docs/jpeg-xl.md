@@ -3,7 +3,7 @@
 ## Quick answer
 
 <!-- capabilities:jpegxl-summary:start -->
-Decode common static JPEG XL with native precision, color, alpha and HDR; inspect progressive stages, iterate timed animation frames and exact Level 10 native layers, preserve source-profile samples, write bounded lossless Level 10 planes, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.
+Decode common static JPEG XL with native precision, color, alpha and HDR; inspect progressive stages, iterate timed animation frames and exact Level 10 native layers, preserve source-profile samples, write bounded grouped lossless Level 10 planes, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.
 
 Decode status: Stable common static. Encode status: Stable lossless and exact transcode; experimental lossy.
 <!-- capabilities:jpegxl-summary:end -->

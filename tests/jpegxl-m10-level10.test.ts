@@ -96,6 +96,56 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
     )
   })
 
+  it('preserves Level 10 native samples across multiple Modular groups', async () => {
+    const width = 1_025
+    const bits = new Uint32Array(width * 2)
+    for (let index = 0; index < bits.length; index++)
+      bits[index] = index % 5 === 0 ? 0x8000_0000 : (index * 2_654_435_761) >>> 0
+    const encoded = await encodeJpegXlNative({
+      width,
+      height: 2,
+      color: [{ data: bits, bitDepth: 32, sampleFormat: 'binary32' }],
+    })
+    await expect(inspectJpegXl(encoded)).resolves.toMatchObject({
+      kind: 'container',
+      level: 10,
+      width,
+      height: 2,
+    })
+    const layer = await firstLayer(encoded)
+    expect(Array.from(jpegXlNativeUnsignedPlanes(layer)[0] ?? [])).toEqual(Array.from(bits))
+
+    const integers = Uint16Array.from({ length: width }, (_, index) => index & 4095)
+    const levelFive = await encodeJpegXlNative({
+      width,
+      height: 1,
+      color: [{ data: integers, bitDepth: 12 }],
+    })
+    await expect(inspectJpegXl(levelFive)).resolves.toMatchObject({ kind: 'raw-codestream' })
+    const integerLayer = await firstLayer(levelFive)
+    expect(Array.from(jpegXlNativeUnsignedPlanes(integerLayer)[0] ?? [])).toEqual(
+      Array.from(integers),
+    )
+    await expect(
+      encodeJpegXlNative({
+        width,
+        height: 1,
+        color: [{ data: integers, bitDepth: 12 }],
+        extraChannels: [
+          { type: 1, dimShift: 1, data: new Uint8Array(Math.ceil(width / 2)), bitDepth: 8 },
+        ],
+      }),
+    ).rejects.toThrow('Shifted native channels across multiple groups are not supported')
+    await expect(
+      encodeJpegXlNative({
+        width,
+        height: 2,
+        color: [{ data: bits, bitDepth: 32, sampleFormat: 'binary32' }],
+        maxOutputBytes: 64,
+      }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+  })
+
   it('selects the minimum level at the 12/13-bit boundary and rejects conflicts', async () => {
     const levelFive = await encodeJpegXlNative({
       width: 1,
@@ -191,6 +241,65 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
     const roundTrip = await firstLayer(encoded)
     expect(roundTrip.header.extraChannels[0]?.type).toBe(4)
     expect(Array.from(roundTrip.planes[3] ?? [])).toEqual([255, 0])
+
+    const grouped = Uint8Array.from({ length: 1_025 }, (_, index) => index & 255)
+    const groupedLayer = await firstLayer(
+      await encodeJpegXlNative({
+        width: grouped.length,
+        height: 1,
+        color: [
+          { data: grouped, bitDepth: 8 },
+          { data: grouped.slice().reverse(), bitDepth: 8 },
+          { data: grouped.slice(), bitDepth: 8 },
+        ],
+        extraChannels: [{ type: 4, data: grouped.slice().reverse(), bitDepth: 8 }],
+        iccProfile: profile,
+      }),
+    )
+    expect(groupedLayer.planes.map((plane) => plane.length)).toEqual([
+      grouped.length,
+      grouped.length,
+      grouped.length,
+      grouped.length,
+    ])
+  })
+
+  it('applies the embedded CMYK profile to a shifted black plane', async () => {
+    const fixture = await firstLayer(
+      new Uint8Array(await readFile(new URL('cmyk-layers.jxl', base))),
+    )
+    const profile = fixture.header.iccProfile
+    if (!profile) throw new Error('Missing CMYK fixture profile')
+    const color = Array.from({ length: 16 }, (_, index) => (index * 13) & 255)
+    const full = await firstLayer(
+      await encodeJpegXlNative({
+        width: 4,
+        height: 4,
+        color: [
+          { data: Uint8Array.from(color), bitDepth: 8 },
+          { data: Uint8Array.from(color), bitDepth: 8 },
+          { data: Uint8Array.from(color), bitDepth: 8 },
+        ],
+        extraChannels: [{ type: 4, data: new Uint8Array(16).fill(97), bitDepth: 8 }],
+        iccProfile: profile,
+      }),
+    )
+    const shifted = await firstLayer(
+      await encodeJpegXlNative({
+        width: 4,
+        height: 4,
+        color: [
+          { data: Uint8Array.from(color), bitDepth: 8 },
+          { data: Uint8Array.from(color), bitDepth: 8 },
+          { data: Uint8Array.from(color), bitDepth: 8 },
+        ],
+        extraChannels: [{ type: 4, dimShift: 1, data: new Uint8Array(4).fill(97), bitDepth: 8 }],
+        iccProfile: profile,
+      }),
+    )
+    expect(convertJpegXlCmykLayerToRgba8(shifted).data).toEqual(
+      convertJpegXlCmykLayerToRgba8(full).data,
+    )
   })
 
   it('rejects NaN and infinity in explicit integer display conversion', async () => {

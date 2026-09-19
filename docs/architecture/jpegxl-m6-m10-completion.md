@@ -1223,9 +1223,11 @@ to RGBA8 while raw CMYK, black and alpha planes remain available.
 
 The official conformance gate now records 39 passes and zero expected-unsupported
 cases. Pinned libjxl `djxl` accepts binary32, 31-bit integer and CMYK output from the writer.
-The public Level 10 path runs in Node and a real browser. General Level 10 VarDCT
-encoding, native encoding wider than one 1024-pixel Modular group, other floating
-layouts and shifted-plane CMYK display conversion remain named unsupported cases.
+The public Level 10 path runs in Node and a real browser. Unshifted native planes
+now encode across multiple 1024-pixel Modular groups, and shifted black and alpha
+planes use the signaled kernel during CMYK profile conversion. General Level 10
+VarDCT encoding, other floating layouts and shifted multi-group native writing
+remain named unsupported cases.
 
 ### M10 acceptance checklist
 
@@ -1236,6 +1238,9 @@ layouts and shifted-plane CMYK display conversion remain named unsupported cases
 - [x] Minimum-level selection below, at and above the writer threshold; `jxll=10`
   checked in the emitted container and conflicting options rejected.
 - [x] All 39 official valid cases pass with frozen output hashes.
-- [x] Pinned `djxl` accepts three representative Level 10 writer outputs.
+- [x] Pinned `djxl` accepts five representative Level 10 writer outputs, including
+  exact multi-group binary32 and CMYK output.
 - [x] M9 integration, hostile-input/resource and package gates rerun after the final
   production edit.
+- [x] Chromium, Firefox and WebKit preserve the multi-group binary32 output; shifted
+  CMYK profile conversion matches the equivalent full-size constant plane.

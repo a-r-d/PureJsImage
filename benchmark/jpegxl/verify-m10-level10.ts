@@ -88,6 +88,14 @@ const encodedBinary32 = await encodeJpegXlNative({
   height: 1,
   color: [{ data: binary32, bitDepth: 32, sampleFormat: 'binary32' }],
 })
+const groupedBinary32 = new Uint32Array(1_025)
+for (let index = 0; index < groupedBinary32.length; index++)
+  groupedBinary32[index] = index % 5 === 0 ? 0x8000_0000 : (index * 2_654_435_761) >>> 0
+const encodedGroupedBinary32 = await encodeJpegXlNative({
+  width: groupedBinary32.length,
+  height: 1,
+  color: [{ data: groupedBinary32, bitDepth: 32, sampleFormat: 'binary32' }],
+})
 const encodedInteger31 = await encodeJpegXlNative({
   width: 4,
   height: 1,
@@ -104,6 +112,18 @@ const encodedCmyk = await encodeJpegXlNative({
   extraChannels: [{ type: 4, data: Uint8Array.of(255, 0), bitDepth: 8 }],
   iccProfile: cmykProfile,
 })
+const groupedCmyk = Uint8Array.from({ length: 1_025 }, (_, index) => index & 255)
+const encodedGroupedCmyk = await encodeJpegXlNative({
+  width: groupedCmyk.length,
+  height: 1,
+  color: [
+    { data: groupedCmyk, bitDepth: 8 },
+    { data: groupedCmyk.slice().reverse(), bitDepth: 8 },
+    { data: groupedCmyk.slice(), bitDepth: 8 },
+  ],
+  extraChannels: [{ type: 4, data: groupedCmyk.slice().reverse(), bitDepth: 8 }],
+  iccProfile: cmykProfile,
+})
 const levelFive = await encodeJpegXlNative({
   width: 1,
   height: 1,
@@ -115,16 +135,24 @@ const levelTen = await encodeJpegXlNative({
   color: [{ data: Uint16Array.of(8191), bitDepth: 13 }],
 })
 const inspections = await Promise.all(
-  [encodedBinary32, encodedInteger31, encodedCmyk, levelFive, levelTen].map((bytes) =>
-    inspectJpegXl(bytes),
-  ),
+  [
+    encodedBinary32,
+    encodedGroupedBinary32,
+    encodedInteger31,
+    encodedCmyk,
+    encodedGroupedCmyk,
+    levelFive,
+    levelTen,
+  ].map((bytes) => inspectJpegXl(bytes)),
 )
 if (
   inspections[0]?.level !== 10 ||
   inspections[1]?.level !== 10 ||
   inspections[2]?.level !== 10 ||
-  inspections[3]?.kind !== 'raw-codestream' ||
-  inspections[4]?.level !== 10
+  inspections[3]?.level !== 10 ||
+  inspections[4]?.level !== 10 ||
+  inspections[5]?.kind !== 'raw-codestream' ||
+  inspections[6]?.level !== 10
 )
   throw new Error('JPEG XL minimum-level selection or signaling failed')
 
@@ -134,8 +162,10 @@ const work = await mkdtemp(join(tmpdir(), 'purejsimage-m10-'))
 try {
   for (const [name, bytes, extension] of [
     ['binary32', encodedBinary32, 'pfm'],
+    ['binary32-grouped', encodedGroupedBinary32, 'pfm'],
     ['integer31', encodedInteger31, 'pfm'],
     ['cmyk', encodedCmyk, 'png'],
+    ['cmyk-grouped', encodedGroupedCmyk, 'png'],
   ] as const) {
     const input = join(work, `${name}.jxl`)
     const output = join(work, `${name}.${extension}`)
@@ -175,13 +205,21 @@ const report = Object.freeze({
   writerCases: Object.freeze(
     inspections.map((inspection, index) =>
       Object.freeze({
-        id: ['binary32', 'integer31', 'cmyk', 'integer12', 'integer13'][index],
+        id: [
+          'binary32',
+          'binary32-grouped',
+          'integer31',
+          'cmyk',
+          'cmyk-grouped',
+          'integer12',
+          'integer13',
+        ][index],
         kind: inspection.kind,
         level: inspection.level ?? 5,
       }),
     ),
   ),
-  independentDecoder: Object.freeze({ name: 'libjxl-djxl-v0.12.0', accepted: 3 }),
+  independentDecoder: Object.freeze({ name: 'libjxl-djxl-v0.12.0', accepted: 5 }),
   remainingUnsupported: profileMap.remainingUnsupported,
   gates: Object.freeze({
     normativeMap: true,
