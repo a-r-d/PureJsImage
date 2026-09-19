@@ -124,6 +124,7 @@ jobs:
 
       - name: Prepare browser server dependencies
         run: |
+          npm run build
           npm run fixtures:hdf5:prepare
           npm ci --prefix benchmark/competitors-js --no-fund --no-audit
 
