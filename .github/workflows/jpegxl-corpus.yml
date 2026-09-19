@@ -43,7 +43,15 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Set up Node.js
+      - name: Set up Node.js 24 for M9 package verification
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Record Node.js 24 binary
+        run: echo "PUREJSIMAGE_M9_NODE24_BIN=$(command -v node)" >> "$GITHUB_ENV"
+
+      - name: Set up Node.js 22
         uses: actions/setup-node@v7
         with:
           node-version: 22
