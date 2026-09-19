@@ -3,14 +3,20 @@ import { createHash } from 'node:crypto'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
+import type { PixelColorSemantics } from '../../src/color.ts'
 import {
   convertJpegXlCmykLayerToRgba8,
+  encodeJpegXlAnimation,
   encodeJpegXlNative,
   inspectJpegXl,
   jpegXlNativeFloat32ColorPlanes,
   jpegXlNativeUnsignedPlanes,
   openJpegXlSequence,
 } from '../../src/jpegxl.ts'
+import { defaultImageLimits } from '../../src/limits.ts'
+import type { PixelFormat } from '../../src/pixel.ts'
+import { Uint8ArraySink } from '../../src/sink.ts'
 import { hashM8Sources } from './m8-output-digest.ts'
 import profileMap from './production-program/m10-level-profile-map.json' with { type: 'json' }
 import { reportRevision } from './report-provenance.ts'
@@ -22,6 +28,41 @@ const argument = (name: string): string | undefined => {
 const sha256 = (value: Uint8Array): string => createHash('sha256').update(value).digest('hex')
 const fixtures = 'tests/fixtures/jpegxl/m10-level10'
 const initialSourceSha256 = await hashM8Sources()
+const rgbSemantics: PixelColorSemantics = {
+  family: 'rgb',
+  primaries: 'srgb',
+  transfer: { kind: 'srgb' },
+  matrix: 'identity',
+  range: 'full',
+  alpha: 'none',
+  provenance: 'assumed-default',
+  renderingIntent: 'relative',
+}
+const encodeVarDct = async (
+  width: number,
+  height: number,
+  pixelFormat: PixelFormat,
+  data: Uint8Array,
+  options: Readonly<Record<string, unknown>>,
+): Promise<Uint8Array> => {
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat,
+    colorSemantics: pixelFormat.startsWith('rgba')
+      ? { ...rgbSemantics, alpha: 'straight' }
+      : rgbSemantics,
+    options,
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('JPEG XL VarDCT encoder is unavailable')
+  const channels = pixelFormat.startsWith('rgba') ? 4 : 3
+  const stride = width * channels * (pixelFormat.endsWith('16') ? 2 : 1)
+  await encoder.write({ x: 0, y: 0, width, height, stride, format: pixelFormat, data })
+  await encoder.finish()
+  return sink.toUint8Array()
+}
 
 if (
   profileMap.schemaVersion !== 1 ||
@@ -134,6 +175,57 @@ const levelTen = await encodeJpegXlNative({
   height: 1,
   color: [{ data: Uint16Array.of(8191), bitDepth: 13 }],
 })
+const varDctWidth = 1_025,
+  varDctHeight = 9
+const encodedVarDct = await encodeVarDct(
+  varDctWidth,
+  varDctHeight,
+  'rgb8',
+  Uint8Array.from({ length: varDctWidth * varDctHeight * 3 }, (_, index) => (index * 29) & 255),
+  { mode: 'lossy', distance: 1, effort: 7, progressive: true, codestreamLevel: 10 },
+)
+const alphaWidth = 17,
+  alphaHeight = 13,
+  alphaPixels = new Uint8Array(alphaWidth * alphaHeight * 8),
+  alphaView = new DataView(alphaPixels.buffer)
+for (let pixel = 0; pixel < alphaWidth * alphaHeight; pixel++) {
+  for (let channel = 0; channel < 3; channel++)
+    alphaView.setUint16(pixel * 8 + channel * 2, 128, false)
+  alphaView.setUint16(pixel * 8 + 6, pixel * 297, false)
+}
+const encodedVarDctAlpha = await encodeVarDct(alphaWidth, alphaHeight, 'rgba16', alphaPixels, {
+  mode: 'lossy',
+  distance: 0.25,
+  sampleBitDepth: 8,
+  alphaBitDepth: 16,
+})
+async function* animationFrames() {
+  yield { width: alphaWidth, height: alphaHeight, data: alphaPixels, durationTicks: 1 }
+}
+const animationChunks: Uint8Array[] = []
+let animationBytes = 0
+for await (const chunk of encodeJpegXlAnimation(animationFrames(), {
+  width: alphaWidth,
+  height: alphaHeight,
+  pixelFormat: 'rgba16',
+  colorSemantics: { ...rgbSemantics, alpha: 'straight' },
+  animation: {
+    ticksPerSecondNumerator: 24,
+    ticksPerSecondDenominator: 1,
+    loops: 0,
+    haveTimecodes: false,
+  },
+  encoding: { mode: 'lossy', distance: 0.25, sampleBitDepth: 8, alphaBitDepth: 16 },
+})) {
+  animationChunks.push(chunk)
+  animationBytes += chunk.length
+}
+const encodedVarDctAnimation = new Uint8Array(animationBytes)
+let animationOffset = 0
+for (const chunk of animationChunks) {
+  encodedVarDctAnimation.set(chunk, animationOffset)
+  animationOffset += chunk.length
+}
 const inspections = await Promise.all(
   [
     encodedBinary32,
@@ -143,6 +235,9 @@ const inspections = await Promise.all(
     encodedGroupedCmyk,
     levelFive,
     levelTen,
+    encodedVarDct,
+    encodedVarDctAlpha,
+    encodedVarDctAnimation,
   ].map((bytes) => inspectJpegXl(bytes)),
 )
 if (
@@ -152,7 +247,10 @@ if (
   inspections[3]?.level !== 10 ||
   inspections[4]?.level !== 10 ||
   inspections[5]?.kind !== 'raw-codestream' ||
-  inspections[6]?.level !== 10
+  inspections[6]?.level !== 10 ||
+  inspections[7]?.level !== 10 ||
+  inspections[8]?.level !== 10 ||
+  inspections[9]?.level !== 10
 )
   throw new Error('JPEG XL minimum-level selection or signaling failed')
 
@@ -166,6 +264,9 @@ try {
     ['integer31', encodedInteger31, 'pfm'],
     ['cmyk', encodedCmyk, 'png'],
     ['cmyk-grouped', encodedGroupedCmyk, 'png'],
+    ['vardct-progressive', encodedVarDct, 'ppm'],
+    ['vardct-alpha16', encodedVarDctAlpha, 'png'],
+    ['vardct-animation', encodedVarDctAnimation, 'png'],
   ] as const) {
     const input = join(work, `${name}.jxl`)
     const output = join(work, `${name}.${extension}`)
@@ -213,13 +314,16 @@ const report = Object.freeze({
           'cmyk-grouped',
           'integer12',
           'integer13',
+          'vardct-progressive',
+          'vardct-alpha16',
+          'vardct-animation',
         ][index],
         kind: inspection.kind,
         level: inspection.level ?? 5,
       }),
     ),
   ),
-  independentDecoder: Object.freeze({ name: 'libjxl-djxl-v0.12.0', accepted: 5 }),
+  independentDecoder: Object.freeze({ name: 'libjxl-djxl-v0.12.0', accepted: 8 }),
   remainingUnsupported: profileMap.remainingUnsupported,
   gates: Object.freeze({
     normativeMap: true,

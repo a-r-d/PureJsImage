@@ -5,15 +5,18 @@ import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '
 import { pixelBytesPerPixel } from '../pixel.ts'
 import { Uint8ArraySink } from '../sink.ts'
 import { MemorySource } from '../source.ts'
+import { inspectJpegXlSource } from './jpegxl-container.ts'
 import {
   type JpegXlAnimationHeader,
   type JpegXlFrameStructure,
   readJpegXlSourceFrameStructure,
 } from './jpegxl-decode.ts'
+import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   createJpegXlModularEncoder,
   encodeJpegXlAnimationImageHeader,
   JpegXlBitWriter,
+  jpegXlStreamingContainerPrefix,
   writeU32,
 } from './jpegxl-modular-encode.ts'
 
@@ -168,9 +171,12 @@ export async function* encodeJpegXlAnimation(
   positive(options.animation.loops, 'loop count', true)
   if (options.encoding?.progressive === true)
     throw unsupportedOperation('JPEG XL animation encoding does not yet accept progressive passes')
-  const encoding = { ...options.encoding, container: false }
+  const headerRequest = { ...options, options: options.encoding ?? {}, limits }
+  const image = encodeJpegXlAnimationImageHeader(headerRequest, options.animation)
+  const encoding = { ...options.encoding, container: image.codestreamLevel === 10 }
   const request = { ...options, options: encoding, limits }
-  const imageHeader = encodeJpegXlAnimationImageHeader(request, options.animation)
+  const containerPrefix =
+    image.codestreamLevel === 10 ? jpegXlStreamingContainerPrefix(10) : undefined
   const iterator = frames[Symbol.asyncIterator]()
   let emitted = 0,
     count = 0,
@@ -221,7 +227,8 @@ export async function* encodeJpegXlAnimation(
         limits.maxDecodedBytes -
         frameOutputLimit * 4 -
         frame.data.byteLength * 2 -
-        imageHeader.length
+        image.header.length -
+        (containerPrefix?.length ?? 0)
       if (availableWorkingBytes < 1)
         throw limitExceeded('JPEG XL animation buffers exceed maxDecodedBytes')
       const requestedWorkingBytes = options.encoding?.maxWorkingBytes
@@ -263,15 +270,27 @@ export async function* encodeJpegXlAnimation(
         throw error
       }
       const encoded = sink.toUint8Array()
-      const parsed = await readJpegXlSourceFrameStructure(new MemorySource(encoded), limits)
+      const encodedSource = new MemorySource(encoded)
+      let frameCodestream = encoded
+      if (image.codestreamLevel === 10) {
+        const structure = await inspectJpegXlSource(encodedSource, resolveJpegXlLimits(), {})
+        const segment = structure.codestreamSegments[0]
+        if (!segment || structure.codestreamSegments.length !== 1)
+          throw invalidInput('JPEG XL animation frame container is fragmented')
+        frameCodestream = encoded.subarray(segment.offset, segment.offset + segment.length)
+      }
+      const frameSource = new MemorySource(frameCodestream)
+      const parsed = await readJpegXlSourceFrameStructure(frameSource, limits)
       const next = await iterator.next()
       throwIfAborted(options.signal)
       const header = frameHeader(parsed, frame, options, next.done === true)
       const parts = [
-        ...(count === 1 ? [imageHeader] : []),
+        ...(count === 1
+          ? [...(containerPrefix === undefined ? [] : [containerPrefix]), image.header]
+          : []),
         header,
         ...parsed.sections.map((section) =>
-          encoded.subarray(section.offset, section.offset + section.length),
+          frameCodestream.subarray(section.offset, section.offset + section.length),
         ),
       ]
       for (const part of parts) {

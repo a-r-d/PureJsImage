@@ -1222,12 +1222,18 @@ plus a black extra channel. Its embedded CMYK ICC profile can be applied explici
 to RGBA8 while raw CMYK, black and alpha planes remain available.
 
 The official conformance gate now records 39 passes and zero expected-unsupported
-cases. Pinned libjxl `djxl` accepts binary32, 31-bit integer and CMYK output from the writer.
-The public Level 10 path runs in Node and a real browser. Unshifted native planes
-now encode across multiple 1024-pixel Modular groups, and shifted black and alpha
-planes use the signaled kernel during CMYK profile conversion. General Level 10
-VarDCT encoding, other floating layouts and shifted multi-group native writing
-remain named unsupported cases.
+cases. Pinned libjxl `djxl` accepts binary32, 31-bit integer, CMYK and general
+forward VarDCT output from the writer. The public Level 10 paths run in Node and
+a real browser. General forward VarDCT accepts an explicit Level 10 request for
+the existing integer gray, RGB and RGBA subset. It also selects Level 10
+automatically when exact Modular alpha uses more than 12 bits. Level 10 always
+uses a container with `jxll=10`; an explicit Level 5 or raw-output conflict fails.
+Streamed animation uses an unbounded `jxlc` box so Level 10 signaling remains at
+the front of the stream without buffering the completed animation.
+Unshifted native planes encode across multiple 1024-pixel Modular groups, and
+shifted black and alpha planes use the signaled kernel during CMYK profile
+conversion. Other floating layouts and shifted multi-group native writing remain
+named unsupported cases.
 
 ### M10 acceptance checklist
 
@@ -1238,8 +1244,11 @@ remain named unsupported cases.
 - [x] Minimum-level selection below, at and above the writer threshold; `jxll=10`
   checked in the emitted container and conflicting options rejected.
 - [x] All 39 official valid cases pass with frozen output hashes.
-- [x] Pinned `djxl` accepts five representative Level 10 writer outputs, including
-  exact multi-group binary32 and CMYK output.
+- [x] Pinned `djxl` accepts eight representative Level 10 writer outputs, including
+  exact multi-group binary32, CMYK and general VarDCT output.
+- [x] General forward VarDCT writes explicit Level 10 progressive multi-group output,
+  automatically selects Level 10 for high-depth Modular alpha, streams Level 10
+  animation, and passes pinned `djxl` plus three-browser checks.
 - [x] M9 integration, hostile-input/resource and package gates rerun after the final
   production edit.
 - [x] Chromium, Firefox and WebKit preserve the multi-group binary32 output; shifted

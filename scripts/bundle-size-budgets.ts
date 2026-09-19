@@ -13,11 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // M8 adds sequence composition, native grouped channels and reconstruction filters.
-  // Measured 439092 bytes after M8 qualification; retain the original baseline.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 440_000 },
-  // Grouped native Level 10 writing and shifted CMYK conversion measure 516153 bytes.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 517_000 },
+  // General Level 10 VarDCT selection and streamed animation measure 440528 bytes.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 441_000 },
+  // The matching specialized entry measures 517414 bytes; retain the original baseline.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 518_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

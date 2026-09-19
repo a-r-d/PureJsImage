@@ -12,12 +12,14 @@ with exact JPEG reconstruction. Only the checked items below are implemented.
 - [x] Decode the official binary32 fixture bit exactly with 64-bit weighted-predictor working values and intentional 32-bit sample wrap
 - [x] Preserve unsigned integer samples through the JPEG XL maximum of 31 bits and IEEE binary16/binary32 bit patterns through bounded native lossless encoding
 - [x] Select the minimum valid output level, emit jxll=10 for Level 10 and reject conflicting raw or Level 5 requests
+- [x] Write general forward VarDCT at explicit Level 10 and select it automatically for exact Modular alpha above 12 bits
+- [x] Stream Level 10 VarDCT animation in an unbounded jxlc container without whole-output buffering
 - [x] Extract CMYK, black and independent alpha planes and provide explicit embedded-profile display conversion
 - [x] Write unshifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
 - [x] Run all 39 pinned official valid cases successfully, with no expected-unsupported cases left
 - [x] Accept Level 10 writer output in pinned libjxl djxl and rerun all M9 gates after the last production edit
 
-Shifted native channels remain bounded to one 1024-pixel Modular group. General Level 10 VarDCT encoding and other floating layouts remain explicit unsupported boundaries.
+Shifted native channels remain bounded to one 1024-pixel Modular group. Other floating layouts remain explicit unsupported boundaries.
 
 ## M9 production hardening
 

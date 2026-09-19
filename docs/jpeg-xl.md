@@ -69,8 +69,13 @@ for await (const layer of sequence.layers()) {
 await sequence.close()
 ```
 
-Level 10 output uses a JPEG XL container with `jxll=10`. Explicit Level 5 or raw
-output requests fail when the input needs Level 10. Float-to-integer display
+Level 10 output uses a JPEG XL container with `jxll=10`. The ordinary encoder and
+native planar writer both support explicit Level 5, Level 10, or automatic level
+selection. The ordinary encoder uses `codestreamLevel: 'auto' | 5 | 10`, with
+`auto` as the default. Forward VarDCT selects Level 10 when exact Modular alpha
+uses more than 12 bits. Explicit Level 5 or raw output requests fail when the
+input needs Level 10. Streamed Level 10 animation uses an unbounded `jxlc` box,
+so it does not buffer the complete output. Float-to-integer display
 conversion requires a finite black/white range and rejects NaN and infinity.
 CMYK extraction keeps C, M, Y, black and alpha planes separate; use
 `convertJpegXlCmykLayerToRgba8` to apply the embedded profile explicitly.

@@ -17,6 +17,11 @@ test('Level 10 binary32 native decode and writer signaling agree with Node', asy
     writerKind: 'container',
     writerLevel: 10,
     groupedSamples: 1_025,
+    vardctKind: 'container',
+    vardctLevel: 10,
+    animationKind: 'container',
+    animationLevel: 10,
+    animationAlpha: [0, 1],
   })
   await page.goto('/compatibility.html')
   const actual = await page.evaluate(async () => {

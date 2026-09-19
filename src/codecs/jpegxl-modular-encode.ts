@@ -2,7 +2,7 @@ import { throwIfAborted } from '../abort.ts'
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
-import { defaultImageLimits, validateImageDimensions } from '../limits.ts'
+import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
@@ -172,6 +172,7 @@ interface ResolvedJpegXlEncodeOptions {
   readonly progressive: boolean
   readonly effort: JpegXlLosslessEffort
   readonly container: boolean
+  readonly codestreamLevel: 5 | 10
   readonly sampleBitDepth: JpegXlSampleBitDepth
   readonly alphaBitDepth?: JpegXlSampleBitDepth
   readonly orientation: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
@@ -3149,7 +3150,11 @@ const boxHeader = (
   })
 }
 
-const containerPrefix = (codestreamBytes: number, memory?: JpegXlEncoderMemory): Uint8Array =>
+const containerPrefix = (
+  codestreamBytes: number | undefined,
+  level: 5 | 10,
+  memory?: JpegXlEncoderMemory,
+): Uint8Array =>
   withJpegXlMemory(memory, () =>
     concatenate(
       [
@@ -3162,7 +3167,12 @@ const containerPrefix = (codestreamBytes: number, memory?: JpegXlEncoderMemory):
         ascii('jxl ', memory),
         uint32(0, memory),
         ascii('jxl ', memory),
-        boxHeader('jxlc', codestreamBytes, memory),
+        ...(level === 10
+          ? [boxHeader('jxll', 1, memory), copyJpegXlArray(memory, Uint8Array, [10])]
+          : []),
+        codestreamBytes === undefined
+          ? concatenate([uint32(0, memory), ascii('jxlc', memory)], memory)
+          : boxHeader('jxlc', codestreamBytes, memory),
       ],
       memory,
     ),
@@ -3351,11 +3361,17 @@ const writeImageHeader = (
 export const encodeJpegXlAnimationImageHeader = (
   request: Readonly<EncodeRequest>,
   animation: Readonly<JpegXlAnimationHeader>,
-): Uint8Array => {
+): Readonly<{ header: Uint8Array; codestreamLevel: 5 | 10 }> => {
   if (!supportedFormat(request.pixelFormat) || !request.colorSemantics)
     throw unsupportedOperation('JPEG XL sequence input requires integer color samples')
   validateColorSemantics(request)
-  const options = readOptions(request.options, request.pixelFormat, request.colorSemantics)
+  const options = readOptions(
+    request.options,
+    request.pixelFormat,
+    request.colorSemantics,
+    request.width,
+    request.height,
+  )
   const writer = new JpegXlBitWriter()
   writeImageHeader(
     writer,
@@ -3366,8 +3382,11 @@ export const encodeJpegXlAnimationImageHeader = (
     options.mode === 'lossy',
     animation,
   )
-  return writer.finish()
+  return Object.freeze({ header: writer.finish(), codestreamLevel: options.codestreamLevel })
 }
+
+export const jpegXlStreamingContainerPrefix = (level: 10): Uint8Array =>
+  containerPrefix(undefined, level)
 
 interface EncodedJpegXlCodestream {
   readonly header: Uint8Array
@@ -3383,6 +3402,7 @@ const encodeLossyCodestream = (
   options: Readonly<ResolvedJpegXlEncodeOptions>,
   memory: JpegXlEncoderMemory,
   checkpoint: () => Promise<void>,
+  limits: Readonly<ImageLimits>,
 ): Promise<EncodedJpegXlCodestream> =>
   withJpegXlMemoryAsync(memory, async () => {
     const writer = new JpegXlBitWriter(memory)
@@ -3403,6 +3423,7 @@ const encodeLossyCodestream = (
         ...options.colorSemantics,
         storageBytes: format.endsWith('16') ? 2 : 1,
       },
+      limits,
     )
     const header = parts[0]
     if (!header) throw invalidInput('JPEG XL forward header is missing')
@@ -3505,6 +3526,8 @@ const readOptions = (
   value: unknown,
   format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
   colorSemantics: PixelColorSemantics,
+  width: number,
+  height: number,
 ): Readonly<ResolvedJpegXlEncodeOptions> => {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw invalidInput('JPEG XL encoder options must be an object')
@@ -3519,6 +3542,7 @@ const readOptions = (
       key !== 'progressive' &&
       key !== 'effort' &&
       key !== 'container' &&
+      key !== 'codestreamLevel' &&
       key !== 'sampleBitDepth' &&
       key !== 'alphaBitDepth' &&
       key !== 'orientation' &&
@@ -3572,6 +3596,14 @@ const readOptions = (
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidInput('JPEG XL encoder container must be a boolean')
+  }
+  if (
+    options.codestreamLevel !== undefined &&
+    options.codestreamLevel !== 'auto' &&
+    options.codestreamLevel !== 5 &&
+    options.codestreamLevel !== 10
+  ) {
+    throw invalidInput('JPEG XL codestreamLevel must be auto, 5, or 10')
   }
   if (
     options.orientation !== undefined &&
@@ -3665,14 +3697,29 @@ const readOptions = (
   if (resolvedAlphaDepth !== undefined && (highStorage ? false : resolvedAlphaDepth !== 8)) {
     throw invalidInput('JPEG XL 8-bit RGBA storage alphaBitDepth must be 8')
   }
+  const mode = options.mode ?? 'lossless'
+  if (width > 1_073_741_824 || height > 1_073_741_824 || width * height > 1_099_511_627_776)
+    throw limitExceeded('JPEG XL dimensions exceed codestream Level 10')
+  const requiresLevelTen =
+    width > 262_144 ||
+    height > 262_144 ||
+    width * height > 268_435_456 ||
+    (mode === 'lossy' && resolvedAlphaDepth !== undefined && resolvedAlphaDepth > 12)
+  if (requiresLevelTen && options.codestreamLevel === 5)
+    throw invalidInput('JPEG XL input requires codestream Level 10')
+  const codestreamLevel = options.codestreamLevel === 10 || requiresLevelTen ? 10 : 5
+  const container = options.container ?? true
+  if (codestreamLevel === 10 && !container)
+    throw invalidInput('JPEG XL Level 10 requires container output')
   return Object.freeze({
     ...(options.maxWorkingBytes === undefined ? {} : { maxWorkingBytes: options.maxWorkingBytes }),
     ...(options.maxOutputBytes === undefined ? {} : { maxOutputBytes: options.maxOutputBytes }),
     progressive: options.progressive === true,
-    mode: options.mode ?? 'lossless',
+    mode,
     distance: options.distance ?? 1,
     effort: (options.effort ?? (options.mode === 'lossy' ? 3 : 1)) as JpegXlLosslessEffort,
-    container: options.container ?? true,
+    container,
+    codestreamLevel,
     sampleBitDepth: resolvedColorDepth,
     ...(resolvedAlphaDepth === undefined ? {} : { alphaBitDepth: resolvedAlphaDepth }),
     orientation: (options.orientation ?? 1) as ResolvedJpegXlEncodeOptions['orientation'],
@@ -3808,7 +3855,8 @@ class JpegXlModularEncoder implements ImageEncoder {
       (request.metadata?.xmp ? request.metadata.xmp.byteLength + 8 : 0) +
       (request.metadata?.jumbf ? request.metadata.jumbf.byteLength + 8 : 0)
     const outputLimit = options.maxOutputBytes ?? resolveJpegXlLimits().maxCodestreamBytes
-    const codestreamLimit = outputLimit - (options.container ? 40 : 0) - metadataBytes
+    const containerBytes = options.container ? (options.codestreamLevel === 10 ? 49 : 40) : 0
+    const codestreamLimit = outputLimit - containerBytes - metadataBytes
     if (codestreamLimit < 1)
       throw limitExceeded('JPEG XL output headers and metadata exceed maxOutputBytes')
     this.#memory = new JpegXlEncoderMemory(
@@ -3890,6 +3938,7 @@ class JpegXlModularEncoder implements ImageEncoder {
               this.#options,
               this.#memory,
               checkpoint,
+              this.#request.limits ?? defaultImageLimits,
             )
           : await encodeCodestream(
               pixels,
@@ -3902,7 +3951,7 @@ class JpegXlModularEncoder implements ImageEncoder {
               this.#groupSearchEvidence,
             )
       const prefix = this.#options.container
-        ? containerPrefix(codestream.byteLength, this.#memory)
+        ? containerPrefix(codestream.byteLength, this.#options.codestreamLevel, this.#memory)
         : undefined
       const metadataBoxes = encodedMetadataBoxes(
         this.#request,
@@ -3986,7 +4035,13 @@ export const createJpegXlModularEncoder = async (
   }
   const semantics = request.colorSemantics
   if (!semantics) throw unsupportedOperation('JPEG XL encoding requires color semantics')
-  const options = readOptions(request.options, request.pixelFormat, semantics)
+  const options = readOptions(
+    request.options,
+    request.pixelFormat,
+    semantics,
+    request.width,
+    request.height,
+  )
   if (options.mode === 'lossy') {
     if (
       (semantics.family !== 'gray' &&

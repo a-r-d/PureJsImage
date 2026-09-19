@@ -1,6 +1,6 @@
 import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
-import { defaultImageLimits, validateImageDimensions } from '../limits.ts'
+import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { nclxToLinear, nclxToLinearSrgbMatrix } from './icc.ts'
 import {
   allocateJpegXlArray,
@@ -201,6 +201,7 @@ export const encodeJpegXlVarDct8Async = (
   sampleDepth = 8,
   progressive = false,
   color?: JpegXlForwardColor,
+  limits: Readonly<ImageLimits> = defaultImageLimits,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
     const steps = prepare8(
@@ -215,6 +216,7 @@ export const encodeJpegXlVarDct8Async = (
       sampleDepth,
       progressive,
       color,
+      limits,
     )
     await checkpoint()
     let next = steps.next()
@@ -240,6 +242,7 @@ function* prepare8(
   sampleDepth: number,
   progressive: boolean,
   color: JpegXlForwardColor | undefined,
+  limits: Readonly<ImageLimits> = defaultImageLimits,
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidInput('JPEG XL dimensions must be positive safe integers')
@@ -248,7 +251,7 @@ function* prepare8(
   const sampleBytes = color?.storageBytes ?? (sampleDepth === 8 ? 1 : 2)
   if ((sampleDepth !== 8 || sampleBytes === 2 || channels === 1) && !imageHeader)
     throw invalidInput('JPEG XL high-depth and grayscale encoding require an explicit image header')
-  validateImageDimensions(width, height, channels * sampleBytes, defaultImageLimits)
+  validateImageDimensions(width, height, channels * sampleBytes, limits)
   if (pixels.length !== width * height * channels * sampleBytes)
     throw invalidInput('JPEG XL RGB8 extent is inconsistent')
   if (!Number.isFinite(distance) || distance < 0.25 || distance > 25)

@@ -130,13 +130,13 @@ export const validateEvidenceReport = (
       requireCondition(cmyk.layers === 4 && cmyk.rows === 775, 'M10 CMYK scope changed')
       sha(cmyk.inputSha256)
       sha(cmyk.displaySha256)
-      const writers = rows(report.writerCases, 5)
+      const writers = rows(report.writerCases, 10)
       requireCondition(
-        writers.length === 5 && writers.filter((row) => row.level === 10).length === 4,
+        writers.length === 10 && writers.filter((row) => row.level === 10).length === 9,
         'M10 writer level matrix changed',
       )
       requireCondition(
-        record(report.independentDecoder).accepted === 3,
+        record(report.independentDecoder).accepted === 8,
         'M10 independent decoder acceptance failed',
       )
       requireCondition(

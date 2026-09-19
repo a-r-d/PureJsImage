@@ -7,6 +7,7 @@ import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
 import {
+  encodeJpegXlAnimation,
   encodeJpegXlNative,
   inspectJpegXl,
   jpegXlNativeUnsignedPlanes,
@@ -62,6 +63,100 @@ export const verifyLevelTenJpegXl = async (bytes: Uint8Array) => {
   } finally {
     await groupedSequence.close()
   }
+  const vardctWidth = 1_025,
+    vardctHeight = 9,
+    vardctPixels = Uint8Array.from(
+      { length: vardctWidth * vardctHeight * 3 },
+      (_, index) => (index * 29) & 255,
+    ),
+    vardctSink = new Uint8ArraySink()
+  const vardctEncoder = await jpegxlCodec.createEncoder?.(vardctSink, {
+    width: vardctWidth,
+    height: vardctHeight,
+    pixelFormat: 'rgb8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: {
+      mode: 'lossy',
+      distance: 1,
+      effort: 7,
+      progressive: true,
+      codestreamLevel: 10,
+    },
+    limits: defaultImageLimits,
+  })
+  if (!vardctEncoder) throw new Error('Missing Level 10 VarDCT encoder')
+  await vardctEncoder.write({
+    x: 0,
+    y: 0,
+    width: vardctWidth,
+    height: vardctHeight,
+    stride: vardctWidth * 3,
+    format: 'rgb8',
+    data: vardctPixels,
+  })
+  await vardctEncoder.finish()
+  const vardct = vardctSink.toUint8Array()
+  const vardctInspection = await inspectJpegXl(vardct)
+  const animationPixels = new Uint8Array(16),
+    animationView = new DataView(animationPixels.buffer)
+  for (let pixel = 0; pixel < 2; pixel++) {
+    for (let channel = 0; channel < 3; channel++)
+      animationView.setUint16(pixel * 8 + channel * 2, pixel ? 255 : 0, false)
+    animationView.setUint16(pixel * 8 + 6, pixel ? 65_535 : 0, false)
+  }
+  async function* frames() {
+    yield { width: 2, height: 1, data: animationPixels, durationTicks: 1 }
+  }
+  const animationChunks: Uint8Array[] = []
+  let animationBytes = 0
+  for await (const chunk of encodeJpegXlAnimation(frames(), {
+    width: 2,
+    height: 1,
+    pixelFormat: 'rgba16',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'straight',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    animation: {
+      ticksPerSecondNumerator: 24,
+      ticksPerSecondDenominator: 1,
+      loops: 0,
+      haveTimecodes: false,
+    },
+    encoding: { mode: 'lossy', sampleBitDepth: 8, alphaBitDepth: 16 },
+  })) {
+    animationChunks.push(chunk)
+    animationBytes += chunk.length
+  }
+  const animation = new Uint8Array(animationBytes)
+  let animationOffset = 0
+  for (const chunk of animationChunks) {
+    animation.set(chunk, animationOffset)
+    animationOffset += chunk.length
+  }
+  const animationInspection = await inspectJpegXl(animation)
+  const animationSequence = await openJpegXlSequence(animation)
+  let animationAlpha: number[]
+  try {
+    animationAlpha = Array.from((await animationSequence.frame(0)).planes[3] ?? [])
+  } finally {
+    await animationSequence.close()
+  }
   return {
     samples,
     checksum,
@@ -70,6 +165,12 @@ export const verifyLevelTenJpegXl = async (bytes: Uint8Array) => {
     writerLevel: inspection.level,
     groupedSamples,
     groupedChecksum,
+    vardctBytes: vardct.length,
+    vardctKind: vardctInspection.kind,
+    vardctLevel: vardctInspection.level,
+    animationKind: animationInspection.kind,
+    animationLevel: animationInspection.level,
+    animationAlpha,
   }
 }
 

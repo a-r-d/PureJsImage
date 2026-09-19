@@ -67,6 +67,8 @@ interface JpegXlEncodeBaseOptions {
   maxOutputBytes?: number
   effort?: 1 | 3 | 5 | 7
   container?: boolean
+  /** Select the minimum valid codestream level by default. Level 10 requires container output. */
+  codestreamLevel?: 'auto' | 5 | 10
   /** Intended native color sample depth. Required for 9 through 15-bit data in 16-bit blocks. */
   sampleBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
   /** Intended alpha depth when it differs from the color sample depth. */
@@ -437,6 +439,14 @@ export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): Pipel
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidInput('JPEG XL container must be a boolean')
+  }
+  if (
+    options.codestreamLevel !== undefined &&
+    options.codestreamLevel !== 'auto' &&
+    options.codestreamLevel !== 5 &&
+    options.codestreamLevel !== 10
+  ) {
+    throw invalidInput('JPEG XL codestreamLevel must be auto, 5, or 10')
   }
   for (const [name, depth] of [
     ['sampleBitDepth', options.sampleBitDepth],

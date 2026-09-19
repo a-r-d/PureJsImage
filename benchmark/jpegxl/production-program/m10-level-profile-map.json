@@ -66,6 +66,7 @@
       "losslessBinary16": "exact-bit-patterns",
       "losslessBinary32": "exact-bit-patterns",
       "cmykBlack": "embedded-icc-required",
+      "vardct": "general-forward-subset-at-level-5-or-level-10",
       "levelSelection": "minimum-valid-for-emitted-modular-stream",
       "level10Container": "automatic-jxll-10"
     },
@@ -84,12 +85,20 @@
     {
       "condition": "integer depth above 12, floating point, more than four extras, or black channel",
       "minimumLevel": 10
+    },
+    {
+      "condition": "forward VarDCT with Modular alpha above 12 bits",
+      "minimumLevel": 10
+    },
+    {
+      "condition": "forward VarDCT without high-depth Modular alpha",
+      "minimumLevel": 5,
+      "explicitLevel10": true
     }
   ],
   "remainingUnsupported": [
     "Shifted native channels across multiple 1024-pixel Modular groups",
     "Floating layouts other than IEEE binary16 and IEEE binary32",
-    "Automatic NaN or infinity normalization during integer display conversion",
-    "General Level 10 VarDCT encoding"
+    "Automatic NaN or infinity normalization during integer display conversion"
   ]
 }
