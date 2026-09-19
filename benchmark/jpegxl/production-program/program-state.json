@@ -673,7 +673,7 @@
         "Lossy writing remains Experimental and M9 does not authorize a release."
       ],
       "deferredWork": [
-        "M10 reran all M9 gates after its last production edit at revision a94ba16a42d2bb9bc384f77bd0d65cf1110657b1.",
+        "M10 and the grouped-native follow-up reran all M9 gates after the last production edit at revision 6a837b8e146ecbd6ced6931253af4b7cd7016cab.",
         "Remote CI and PR checks are not local completion evidence."
       ],
       "stablePromotionGatePassed": false,
@@ -684,13 +684,13 @@
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": null,
       "startRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
-      "finalRevision": "a94ba16a42d2bb9bc384f77bd0d65cf1110657b1",
+      "finalRevision": "6a837b8e146ecbd6ced6931253af4b7cd7016cab",
       "localCommands": [
         "npm run jpegxl:program:conformance -- --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m10-static-conformance.json",
-        "npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-m10/level10-clean.json",
-        "npm run jpegxl:m9:integration -- --output .tmp/jpegxl-m9/integration-m10-clean.json",
-        "npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-m9/fuzz-m10-clean.json",
-        "npm run jpegxl:m9:package -- --output .tmp/jpegxl-m9/package-m10-clean.json",
+        "npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-m10/level10-expanded-clean.json",
+        "npm run jpegxl:m9:integration -- --output .tmp/jpegxl-m9/integration-expanded-clean.json",
+        "npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-m9/fuzz-expanded-clean.json",
+        "npm run jpegxl:m9:package -- --output .tmp/jpegxl-m9/package-expanded-clean.json",
         "npx playwright test browser-tests/jpegxl-pipeline.pw.ts --grep \"Level 10 binary32\" --project=chromium --project=firefox --project=webkit --workers=1 --retries=0",
         "npm run check"
       ],
