@@ -289,6 +289,9 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
+      - name: Install M9 browser engines
+        run: npx playwright install --with-deps chromium firefox webkit
+
       - name: Run M9 hardening and M10 Level 10 evidence
         run: |
           npm run jpegxl:m9:integration -- --output .tmp/jpegxl-evidence/m9-integration.json
