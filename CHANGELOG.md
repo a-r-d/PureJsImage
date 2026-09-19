@@ -4,6 +4,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-19 UTC
+
+- Add JPEG XL M9 production-hardening gates for twelve cross-feature workflows,
+  twelve mutation families, twelve resource and cancellation cases, packed Node
+  22/24 imports, three browsers and strict evidence admission.
+- Accept known structured color produced by decoder conversion when a source-only
+  ICC descriptor remains attached or the optional rendering intent is absent.
+  Emitted-pixel ICC profiles still require their existing preservation path.
+- Split M9 CI into integration/security, Node package, browser and scheduled fuzz
+  jobs, with failure artifacts and checksum-keyed caches for pinned oracle builds.
+
 ### 2026-09-12 UTC
 
 - Add JPEG XL sequence iteration, exact rational timing, explicit frame selection,

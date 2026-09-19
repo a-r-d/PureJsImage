@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "currentMainSha": "d157a8dc5a704410563026e53e438b79db6161db",
   "packageVersion": "0.17.0",
-  "currentTarget": "A",
+  "currentTarget": "B",
   "milestones": [
     {
       "id": "M0",
@@ -728,24 +728,53 @@
         "API and package-size freeze",
         "release target B gates"
       ],
-      "status": "not started",
+      "status": "locally complete",
       "pr": null,
-      "startRevision": null,
+      "startRevision": "df8a3af907bc7d799f3ddf5753559661c8d3f779",
       "finalRevision": null,
-      "localCommands": [],
+      "localCommands": [
+        "npm run jpegxl:m9:integration -- --output .tmp/m9-integration.json",
+        "npm run jpegxl:m9:fuzz-resource -- --output .tmp/m9-fuzz-resource.json",
+        "npm run jpegxl:m9:package -- --output .tmp/m9-package.json",
+        "npx vitest run tests/jpegxl-evidence.test.ts tests/jpegxl.test.ts",
+        "npm run browser:check",
+        "npm run check"
+      ],
       "remoteWorkflowRuns": [],
-      "measuredResults": [],
-      "corpusVersions": [],
-      "oracleRevisions": [],
-      "benchmarkReportPath": null,
-      "capabilityChanges": [],
+      "measuredResults": [
+        "All 12 cross-feature cases pass with case-specific output hashes, including the decoder-converted Display P3 to sRGB lossy-writer regression.",
+        "All 12 mutation targets and 12 resource/cancellation cases terminate with normalized results, zero raw exceptions and zero managed ownership leaks.",
+        "Packed public imports pass under Node 22 and 24; the focused public session workflow passes in Chromium, Firefox and WebKit with retries disabled.",
+        "Core plus JPEG XL measures 439130 minified bytes under 440000; the specialized entry measures 510308 under 515000.",
+        "Local cold import is 67.21 milliseconds and first small decode is 14.76 milliseconds; these are observational measurements, not portable thresholds.",
+        "Evidence admission rejects stale revisions, dirty checkouts, manifest drift, omitted or duplicate cases, non-specific hashes, false summaries, raw exceptions, ownership leaks, wrong required outcomes and size-ceiling violations.",
+        "Full repository gate: 3130 tests passed, 3 skipped; 239 files passed, 1 skipped. The bounded process peaked at 1.8 GiB with zero swap."
+      ],
+      "corpusVersions": [
+        "M9 gate manifest schema 1 with 12 integration, 12 mutation, 12 resource and 8 package/runtime cases"
+      ],
+      "oracleRevisions": [
+        "libjxl security release review v0.13.0",
+        "jxl-oxide advisory GHSA-5pmv-rx8r-wmv5",
+        "libjxl current security policy reviewed 2026-09-19"
+      ],
+      "benchmarkReportPath": "benchmark/jpegxl/production-program/m9-gate-manifest.json",
+      "capabilityChanges": [
+        "Known structured decoder-converted pixels can be encoded when a source-only ICC descriptor remains attached or rendering intent is omitted.",
+        "Per-capability M9 evidence now has strict revision, cleanliness, manifest, raw-case and measured-threshold admission."
+      ],
       "capabilityPromotions": [],
-      "acceptedLimitations": [],
-      "deferredWork": [],
+      "acceptedLimitations": [
+        "M9 hardens only the already declared capability subsets and does not imply unrestricted Level 5 display support.",
+        "Cold import and first-decode timings are local observations; only the checked entry-size ceilings are admission thresholds.",
+        "Lossy writing remains Experimental and M9 does not authorize a release."
+      ],
+      "deferredWork": [
+        "M10 Level 10, CMYK/BLACK and wider floating-profile work must rerun all M9 gates after its last production edit.",
+        "Remote CI and PR checks are not local completion evidence."
+      ],
       "stablePromotionGatePassed": false,
-      "remainingBlockers": [
-        "Implementation and all milestone acceptance gates remain incomplete; see docs/architecture/jpegxl-m6-m10-completion.md."
-      ]
+      "remainingBlockers": []
     },
     {
       "id": "M10",

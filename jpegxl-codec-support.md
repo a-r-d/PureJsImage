@@ -6,6 +6,17 @@ project. It has separate targets for static pixel
 decode, pixel-lossless Modular encoding, and coefficient-domain JPEG transcoding
 with exact JPEG reconstruction. Only the checked items below are implemented.
 
+## M9 production hardening
+
+- [x] Twelve cross-feature workflows cover progressive selection, orientation, HDR and alpha fallback, high-depth native channels, animation timing, references, exact JPEG reconstruction, metadata invalidation, fragmented sources and strict fallback policy
+- [x] Twelve mutation families cover containers, entropy, Modular transforms, VarDCT reconstruction, progressive dependencies, animation, ICC and extra channels, exact JPEG data, writers, display conversion and worker/API limits
+- [x] Twelve resource cases cover stalled reads, section/frame/pixel/metadata limits, computation and fetch cancellation, sink failures, pending writes, early return, reuse and malformed late sections with zero managed ownership after cleanup
+- [x] Packed public imports and browser-safe conditional exports are checked on Node 22 and 24; the public API runs in Chromium, Firefox and WebKit
+- [x] Evidence admission requires exact case identities, source revision, a clean checkout, raw hashes, measured thresholds and internally consistent summaries
+- [x] Fast integration, Node-package, browser and scheduled extended-fuzz CI jobs retain artifacts on failure
+
+These gates harden the declared capability subsets. They do not promote Experimental lossy encoding, claim unrestricted Level 5 display, add Level 10 support or authorize a release. M10 must rerun the M9 gates after its last production change.
+
 ## M8 sequence and native channel APIs
 
 - [x] Independent header discovery, timed composited frame iteration, decimal tick timestamps, exact rational timebase, loop and timecode metadata

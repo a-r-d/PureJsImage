@@ -1,11 +1,16 @@
-import holdoutManifest from './production-program/pr35-holdout-manifest.json' with { type: 'json' }
-import smallJpegManifest from './production-program/pr35-small-jpeg-manifest.json' with {
+import remediationManifest from '../../tests/fixtures/jpegxl/remediation/manifest.json' with {
   type: 'json',
 }
+import {
+  validateM9FuzzResourceReport,
+  validateM9IntegrationReport,
+  validateM9PackageReport,
+} from './m9-evidence-validation.ts'
 import conformanceManifest from './production-program/corpora/conformance.json' with {
   type: 'json',
 }
-import remediationManifest from '../../tests/fixtures/jpegxl/remediation/manifest.json' with {
+import holdoutManifest from './production-program/pr35-holdout-manifest.json' with { type: 'json' }
+import smallJpegManifest from './production-program/pr35-small-jpeg-manifest.json' with {
   type: 'json',
 }
 export const evidenceFiles = {
@@ -26,6 +31,9 @@ export const evidenceFiles = {
   realJpeg: 'm1-real.json',
   commonStatic: 'm3-common-static.json',
   commonPipelines: 'm5-common-static.json',
+  m9Integration: 'm9-integration.json',
+  m9FuzzResource: 'm9-fuzz-resource.json',
+  m9Package: 'm9-package.json',
 } as const
 export type EvidenceGate = keyof typeof evidenceFiles
 export const extendedGates: readonly EvidenceGate[] = [
@@ -93,6 +101,12 @@ export const validateEvidenceReport = (
     `${gate}: unknown schema version`,
   )
   switch (gate) {
+    case 'm9Integration':
+      return validateM9IntegrationReport(value, revision)
+    case 'm9FuzzResource':
+      return validateM9FuzzResourceReport(value, revision)
+    case 'm9Package':
+      return validateM9PackageReport(value, revision)
     case 'remediationFixtures': {
       requireCondition(report.passed === true, 'Remediation fixture oracle failed')
       const results = rows(report.results, 9)

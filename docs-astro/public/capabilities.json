@@ -5552,7 +5552,10 @@
         "tests/jpegxl-m8-sequence.test.ts",
         "tests/jpegxl-m8-static.test.ts",
         "browser-tests/jpegxl-m8-sequence.pw.ts",
-        "tests/jpegxl-m8-raw.test.ts"
+        "tests/jpegxl-m8-raw.test.ts",
+        "benchmark/jpegxl/run-m9-integration.ts",
+        "benchmark/jpegxl/run-m9-fuzz-resource.ts",
+        "benchmark/jpegxl/run-m9-package.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -5571,6 +5574,30 @@
         ]
       },
       "claims": [
+        {
+          "status": "supported",
+          "text": "Twelve cross-feature workflows cover progressive selection, orientation, HDR and alpha fallback, high-depth native channels, animation timing, references, exact JPEG reconstruction, metadata invalidation, fragmented sources and strict fallback policy"
+        },
+        {
+          "status": "supported",
+          "text": "Twelve mutation families cover containers, entropy, Modular transforms, VarDCT reconstruction, progressive dependencies, animation, ICC and extra channels, exact JPEG data, writers, display conversion and worker/API limits"
+        },
+        {
+          "status": "supported",
+          "text": "Twelve resource cases cover stalled reads, section/frame/pixel/metadata limits, computation and fetch cancellation, sink failures, pending writes, early return, reuse and malformed late sections with zero managed ownership after cleanup"
+        },
+        {
+          "status": "supported",
+          "text": "Packed public imports and browser-safe conditional exports are checked on Node 22 and 24; the public API runs in Chromium, Firefox and WebKit"
+        },
+        {
+          "status": "supported",
+          "text": "Evidence admission requires exact case identities, source revision, a clean checkout, raw hashes, measured thresholds and internally consistent summaries"
+        },
+        {
+          "status": "supported",
+          "text": "Fast integration, Node-package, browser and scheduled extended-fuzz CI jobs retain artifacts on failure"
+        },
         {
           "status": "supported",
           "text": "Independent header discovery, timed composited frame iteration, decimal tick timestamps, exact rational timebase, loop and timecode metadata"

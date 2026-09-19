@@ -7,8 +7,8 @@ import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import {
-  type JpegXlAnimationHeader,
   defaultJpegXlWeightedPredictor,
+  type JpegXlAnimationHeader,
   JpegXlWeightedPredictor,
 } from './jpegxl-decode.ts'
 import {
@@ -3736,8 +3736,8 @@ export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boo
   (semantics.provenance === 'assumed-default' ||
     semantics.provenance === 'container-signaled' ||
     semantics.provenance === 'decoder-converted') &&
-  semantics.renderingIntent !== undefined &&
-  semantics.icc === undefined
+  (semantics.icc === undefined ||
+    (semantics.provenance === 'decoder-converted' && semantics.icc.relevance === 'source'))
 
 const validateColorSemantics = (request: EncodeRequest): void => {
   const semantics = request.colorSemantics

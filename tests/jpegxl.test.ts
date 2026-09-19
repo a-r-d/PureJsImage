@@ -468,7 +468,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, renderingIntent: 'absolute' })).toBe(
       true,
     )
-    expect(jpegxlCodec.acceptsColorSemantics?.(withoutRenderingIntent)).toBe(false)
+    expect(jpegxlCodec.acceptsColorSemantics?.(withoutRenderingIntent)).toBe(true)
     expect(
       jpegxlCodec.acceptsColorSemantics?.({
         ...straight,
@@ -482,6 +482,20 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         primaries: 'source-profile',
         transfer: { kind: 'source-profile' },
         provenance: 'icc',
+        icc: { relevance: 'emitted-pixels' },
+      }),
+    ).toBe(false)
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({
+        ...withoutRenderingIntent,
+        provenance: 'decoder-converted',
+        icc: { relevance: 'source' },
+      }),
+    ).toBe(true)
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({
+        ...withoutRenderingIntent,
+        provenance: 'decoder-converted',
         icc: { relevance: 'emitted-pixels' },
       }),
     ).toBe(false)

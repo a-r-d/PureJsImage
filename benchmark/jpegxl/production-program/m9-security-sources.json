@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-19",
+  "sources": [
+    {
+      "id": "libjxl-v0.13.0-security",
+      "url": "https://github.com/libjxl/libjxl/releases/tag/v0.13.0",
+      "kind": "upstream-release",
+      "classes": [
+        "integer-overflow",
+        "integer-underflow",
+        "out-of-bounds-read",
+        "out-of-bounds-write",
+        "buffer-overflow",
+        "null-pointer"
+      ],
+      "localRegressions": [
+        "declared-pixel-limit",
+        "section-count-limit",
+        "metadata-limit",
+        "boxes-level-segments-metadata"
+      ]
+    },
+    {
+      "id": "jxl-oxide-ghsa-5pmv-rx8r-wmv5",
+      "url": "https://github.com/tirr-c/jxl-oxide/security/advisories/GHSA-5pmv-rx8r-wmv5",
+      "kind": "upstream-advisory",
+      "classes": ["integer-overflow", "undersized-allocation", "out-of-bounds-write"],
+      "localRegressions": ["declared-pixel-limit", "animation-reference-timing-blend"]
+    },
+    {
+      "id": "libjxl-security-policy",
+      "url": "https://github.com/libjxl/libjxl/blob/main/SECURITY.md",
+      "kind": "upstream-security-policy",
+      "classes": ["untrusted-input", "release-build-bounds"],
+      "localRegressions": ["computation-cancellation", "malformed-after-preview"]
+    }
+  ]
+}

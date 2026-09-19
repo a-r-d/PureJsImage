@@ -49,6 +49,13 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Restore checksum-pinned JPEG XL oracle builds
+        id: oracle-cache
+        uses: actions/cache@v5
+        with:
+          path: .tmp/jpegxl-oracles
+          key: jpegxl-oracles-${{ runner.os }}-libjxl-a7a9c787-jxl-rs-07ab48f-jxl-oxide-c0cc4c7-simple-7b9f14f-imazen-d63e9d1
+
       - name: Install dependencies
         run: npm ci
 
@@ -75,9 +82,11 @@ jobs:
             --output .tmp/jpegxl-evidence/conformance.json
 
       - name: Install libjxl tool build dependencies
+        if: steps.oracle-cache.outputs.cache-hit != 'true'
         run: sudo apt-get update && sudo apt-get install --yes libjpeg-dev libpng-dev ninja-build
 
       - name: Build pinned libjxl tools
+        if: steps.oracle-cache.outputs.cache-hit != 'true'
         env:
           LIBJXL_ARCHIVE_SHA256: 818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29
           LIBJXL_ORACLE_ROOT: .tmp/jpegxl-oracles/libjxl-v0.12.0
@@ -109,6 +118,7 @@ jobs:
           cmake --build "$LIBJXL_ROOT/build-pinned" --target cjxl djxl jxlinfo --parallel 2
 
       - name: Build pinned independent Rust decoders
+        if: steps.oracle-cache.outputs.cache-hit != 'true'
         env:
           JXL_OXIDE_REVISION: c0cc4c7ea57c1207f38ff2970d94757470613be4
           JXL_RS_REVISION: 07ab48fcccde0a73c384b4011520fec67e5e09cd
@@ -134,6 +144,7 @@ jobs:
             -p jxl-oxide-cli --bin jxl-oxide
 
       - name: Build pinned comparison encoders
+        if: steps.oracle-cache.outputs.cache-hit != 'true'
         env:
           IMAZEN_LOCK_SHA256: 69b6e3c2229f9b6410da8f45fdea6bb8fd8a3a54ad83451219ca670b6790b040
           IMAZEN_REVISION: d63e9d1a1aa84b2dbdfc90eeddccc33fef5eb48b

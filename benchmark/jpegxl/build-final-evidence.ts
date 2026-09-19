@@ -1,15 +1,15 @@
+import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { spawn } from 'node:child_process'
 import capabilityManifest from '../../capabilities/manifest.json' with { type: 'json' }
 import {
+  type EvidenceGate,
   evidenceFiles,
   extendedGates,
-  validateEvidenceReport,
   knownEvidenceFailures,
-  type EvidenceGate,
+  validateEvidenceReport,
 } from './evidence-validation.ts'
 import { reportArgument, reportRevision } from './report-provenance.ts'
 
@@ -49,6 +49,9 @@ const commands: Readonly<Record<EvidenceGate, string>> = {
   realJpeg: 'npm run jpegxl:m1:corpus (250 eligible COCO inputs)',
   commonStatic: 'npm run jpegxl:m3:corpus (100 COCO sources and 300 variants)',
   commonPipelines: 'node benchmark/jpegxl/production-program/verify-m5-common-static.ts',
+  m9Integration: 'npm run jpegxl:m9:integration',
+  m9FuzzResource: 'npm run jpegxl:m9:fuzz-resource',
+  m9Package: 'npm run jpegxl:m9:package',
 }
 const criteria: Readonly<Record<EvidenceGate, string>> = {
   remediationFixtures: 'Nine pinned libjxl fixtures; independent float samples within 1e-7.',
@@ -84,6 +87,12 @@ const criteria: Readonly<Record<EvidenceGate, string>> = {
     '100 COCO sources and 300 resized/upscaled variants; >= 99% decode, zero incorrect outputs, explicit unsupported failures only; maximum error <= 1 and RMSE <= 0.55.',
   commonPipelines:
     'All supported outputs from the 300-variant corpus complete five workflows; exact comparisons or the explicitly scoped maximum-1/RMSE-0.55 rounding exception.',
+  m9Integration:
+    'All twelve pinned cross-feature cases pass with raw output hashes and no incorrect case.',
+  m9FuzzResource:
+    'All twelve mutation targets and twelve resource/cancellation cases terminate with normalized outcomes and zero live managed ownership.',
+  m9Package:
+    'Packed public imports pass on Node 22 and 24; browser conditional exports and public APIs pass in Chromium, Firefox and WebKit; measured entries remain within checked ceilings.',
 }
 const capabilities = {
   commonStaticDecode: {
@@ -95,7 +104,7 @@ const capabilities = {
       'modularMemory',
       'varDctMemory',
     ],
-    extended: ['commonStatic'],
+    extended: ['commonStatic', 'm9Integration', 'm9FuzzResource', 'm9Package'],
   },
   losslessPixelEncode: {
     pr: [
@@ -121,8 +130,25 @@ const capabilities = {
   exactJpegTranscode: { pr: ['reverse', 'benchmark'], extended: ['realJpeg'] },
   nativePrecisionPipelines: {
     pr: ['color', 'remediationFixtures', 'pipelines'],
-    extended: ['commonStatic', 'commonPipelines'],
+    extended: ['commonStatic', 'commonPipelines', 'm9Integration', 'm9FuzzResource', 'm9Package'],
   },
+  selectiveProgressiveDecode: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  lossyEncode: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  animation: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  extraChannels: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  level10: { pr: [], extended: ['m9Integration', 'm9FuzzResource', 'm9Package'] },
 } satisfies Record<string, { pr: EvidenceGate[]; extended: EvidenceGate[] }>
 
 export const buildFinalEvidence = async (
@@ -186,6 +212,17 @@ export const buildFinalEvidence = async (
   }
   const capabilityResults = Object.fromEntries(
     Object.entries(capabilities).map(([id, required]) => {
+      if (id === 'level10')
+        return [
+          id,
+          {
+            status: 'not-run',
+            knownFailures: [],
+            prGateIds: required.pr,
+            extendedGateIds: required.extended,
+            extendedStatus: 'not-run',
+          },
+        ]
       const prPassed = required.pr.every((gate) => gates[gate]?.status === 'passed')
       const extendedPassed = required.extended.every((gate) => gates[gate]?.status === 'passed')
       const knownFailures = required.pr.flatMap((gate) => gates[gate]?.knownFailures ?? [])

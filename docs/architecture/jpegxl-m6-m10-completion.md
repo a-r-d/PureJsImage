@@ -4,9 +4,9 @@
 
 The supplied `PureJsImage_JPEGXL_M6_M10_Single_PR_Codex_Prompt.md` is the
 project brief. M6 and the approved bounded M7 qualification are complete.
-The user's September 11 request starts M8 on the existing branch. The brief's
-embedded authorization statements are not independent user messages. M9 and M10
-remain future work; no merge,
+The user's September 19 request completes M9 on the existing branch. The brief's
+embedded authorization statements are not independent user messages. M10 remains
+future work; no merge,
 release, version change, tag or publication is part of this work.
 
 The original M6 starting checkout and fetched `origin/main` were both
@@ -118,7 +118,7 @@ The M6 cohort is frozen in `m6-functional-cases.json` and `m6-native-sources.jso
 | M6 | Complete for the documented session and selective-decoding subset | Local cohort, resource, browser and handoff gates passed; remote PR checks are separate | Local subset gate passed |
 | M7 | Complete locally for the documented encoder subset | Approved 2 MP matrices, eight original-size cases, independent decoding, visual review and local handoff checks passed | Lossy remains Experimental; promotion targets remain open |
 | M8 | Complete locally for the documented sequence and native-channel contracts | Native, timing, M3, applicable Level 5, full repository and all three browser gates passed | Lossy remains Experimental; release promotion remains separate |
-| M9 | Not started | Not-run | Not promoted |
+| M9 | Complete locally for the declared hardening infrastructure | Twelve integration, twelve mutation, twelve resource, Node 22/24 packed import, three browser and evidence-admission gates passed | No capability or release promotion |
 | M10 | Not started | Not-run | Not promoted |
 
 Executed starting commands:
@@ -1126,5 +1126,74 @@ updated source and includes this case in all three browsers.
 source hash, native-report hashes, full-check/browser log hashes and bounded
 handoff receipt. The full handoff process peaks at 2.6 GiB with no swap under a
 3 GiB cap. This is test infrastructure memory, not codec-only RSS.
-M8 is locally complete. Changes remain on the existing branch, uncommitted.
-No remote CI, push, merge, publication or Stable lossy promotion is claimed.
+M8 is locally complete and committed on the existing branch.
+No merge, publication or Stable lossy promotion is claimed.
+
+## M9 production hardening
+
+M9 adds one admission boundary for the capability subsets completed in M6 through
+M8. The gate manifest fixes twelve cross-feature workflows, twelve mutation
+families, twelve resource and cancellation cases, and eight package/runtime cases.
+Each report carries its source revision, clean-checkout state, manifest hash, raw
+case identities and input or output hashes. The final evidence builder rejects
+missing cases, stale revisions, dirty evidence, false summaries, raw exceptions,
+managed ownership leaks and package size overages.
+
+The integration matrix combines progressive region selection with orientation,
+HDR with alpha fallback, high-depth native channels, partial animation timing,
+reference replay and cancellation, storage-only HDR conversion, Display P3 to
+sRGB lossy encoding, float resize to integer encoding, exact JPEG marker
+reconstruction, reconstruction invalidation after display metadata changes,
+fragmented reads under a tiny cache, and strict versus allowed fallback policy.
+This matrix found and corrected an encoder admission bug: pixels converted by the
+decoder to a known structured color space can retain a source-only ICC descriptor
+and may omit a rendering intent that defaults to relative intent in the writer.
+
+The hostile-input gate mutates container, entropy, Modular, VarDCT, progressive,
+animation, ICC, exact JPEG, writer, display conversion and worker/API surfaces.
+Separate resource cases cover stalled reads; segment, internal-frame, pixel and
+metadata limits; fetch and computation cancellation; sink and pending-write
+failure; early iterator return; reuse; and malformed input after partial preview.
+Every case terminates through a normalized result and reports zero live managed
+ownership after cleanup.
+
+The security review records the libjxl 0.13.0 security release notes, the libjxl
+security policy and the jxl-oxide GHSA-5pmv-rx8r-wmv5 advisory. Local regressions
+exercise the accepted syntax independently. No upstream implementation or fix is
+copied into the codec.
+
+Package acceptance runs the packed public imports under Node 22 and Node 24,
+checks both JPEG XL browser-safe exports, and exercises the public API in Chromium,
+Firefox and WebKit with retries disabled. The measured core plus JPEG XL entry is
+439,130 minified bytes under its 440,000-byte ceiling. The specialized entry is
+510,308 bytes under its 515,000-byte ceiling. The local cold import took 67.21 ms
+and the first small decode took 14.76 ms. These timings are observations from one
+machine, not portable performance thresholds.
+
+CI now separates the fast integration/security job, the Node package matrix, the
+three-browser matrix and scheduled extended fuzzing. Each job uses read-only
+repository permissions and uploads reports, crash inputs or traces even after a
+failure. The existing pinned oracle workflow caches builds under a key containing
+every oracle revision.
+
+### M9 acceptance checklist
+
+- [x] Twelve cross-feature cases pass with unique raw output hashes.
+- [x] Twelve mutation targets and twelve resource cases terminate with normalized
+  outcomes, no raw exceptions and zero live managed ownership.
+- [x] Computation cancellation, source-fetch cancellation, pending sink writes,
+  early return, session reuse and late malformed input release their ownership.
+- [x] Packed public imports pass under Node 22 and 24. Chromium, Firefox and WebKit
+  pass the focused public progressive/session workflow with retries disabled.
+- [x] Evidence validation rejects omitted rows, stale or dirty reports, false
+  summaries, leaks, raw exceptions and size-limit violations.
+- [x] Generated capability and package-size artifacts match the authoritative
+  manifests and measured bundles.
+- [x] Final `npm run check`: 3,130 tests pass, with three existing skips. The
+  bounded process peaks at 1.8 GiB with zero swap. Clean-revision evidence is
+  generated and admitted after the implementation commit, before the branch push.
+
+M9 does not change capability labels. Common static decode stays Supported for its
+documented subset. Lossless writing and exact JPEG reconstruction keep their
+existing stable boundaries. Lossy writing remains Experimental. Level 10 remains
+explicitly not run and is M10 work.

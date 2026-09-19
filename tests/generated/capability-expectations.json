@@ -283,7 +283,10 @@
         "tests/jpegxl-m8-sequence.test.ts",
         "tests/jpegxl-m8-static.test.ts",
         "browser-tests/jpegxl-m8-sequence.pw.ts",
-        "tests/jpegxl-m8-raw.test.ts"
+        "tests/jpegxl-m8-raw.test.ts",
+        "benchmark/jpegxl/run-m9-integration.ts",
+        "benchmark/jpegxl/run-m9-fuzz-resource.ts",
+        "benchmark/jpegxl/run-m9-package.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

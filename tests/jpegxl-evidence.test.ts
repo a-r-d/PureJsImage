@@ -1,15 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import holdoutManifest from '../benchmark/jpegxl/production-program/pr35-holdout-manifest.json' with {
-  type: 'json',
-}
-import smallJpegManifest from '../benchmark/jpegxl/production-program/pr35-small-jpeg-manifest.json' with {
-  type: 'json',
-}
-import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/conformance.json' with {
-  type: 'json',
-}
-import remediationManifest from './fixtures/jpegxl/remediation/manifest.json' with { type: 'json' }
+import { readFileSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -19,14 +10,33 @@ import {
   workingTreeDiffHash,
 } from '../benchmark/jpegxl/build-final-evidence.ts'
 import {
+  type EvidenceGate,
   evidenceFiles,
   extendedGates,
   validateEvidenceReport,
-  type EvidenceGate,
 } from '../benchmark/jpegxl/evidence-validation.ts'
+import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/conformance.json' with {
+  type: 'json',
+}
+import gateManifest from '../benchmark/jpegxl/production-program/m9-gate-manifest.json' with {
+  type: 'json',
+}
+import securitySources from '../benchmark/jpegxl/production-program/m9-security-sources.json' with {
+  type: 'json',
+}
+import holdoutManifest from '../benchmark/jpegxl/production-program/pr35-holdout-manifest.json' with {
+  type: 'json',
+}
+import smallJpegManifest from '../benchmark/jpegxl/production-program/pr35-small-jpeg-manifest.json' with {
+  type: 'json',
+}
+import remediationManifest from './fixtures/jpegxl/remediation/manifest.json' with { type: 'json' }
 
 const revision = 'a'.repeat(40),
   hash = 'b'.repeat(64)
+const m9ManifestHash = createHash('sha256')
+  .update(readFileSync('benchmark/jpegxl/production-program/m9-gate-manifest.json'))
+  .digest('hex')
 const count = (length: number, make: (index: number) => unknown) =>
   Array.from({ length }, (_, index) => make(index))
 const fixture = (gate: EvidenceGate): Record<string, unknown> => {
@@ -245,6 +255,93 @@ const fixture = (gate: EvidenceGate): Record<string, unknown> => {
           outputs: count(5, () => ({ maximumError: 1, rmse: 0.5, maxLimit: 1, rmseLimit: 0.55 })),
         })),
       }
+    case 'm9Integration':
+      return {
+        ...common,
+        clean: true,
+        manifestSha256: m9ManifestHash,
+        cases: gateManifest.integrationCases.map((id) => ({
+          id,
+          status: 'passed',
+          assertions: 1,
+          outputSha256: createHash('sha256').update(id).digest('hex'),
+        })),
+        summary: {
+          passed: true,
+          total: gateManifest.integrationCases.length,
+          passedCases: gateManifest.integrationCases.length,
+          incorrectCases: 0,
+        },
+      }
+    case 'm9FuzzResource': {
+      const expectedResourceOutcomes: Readonly<Record<string, string>> = {
+        'zero-progress-source': 'malformed',
+        'section-count-limit': 'limit-exceeded',
+        'internal-frame-limit': 'limit-exceeded',
+        'declared-pixel-limit': 'limit-exceeded',
+        'metadata-limit': 'limit-exceeded',
+        'computation-cancellation': 'cancelled',
+        'fetch-cancellation': 'cancelled',
+        'sink-failure': 'passed',
+        'pending-write-abort': 'cancelled',
+        'early-consumer-return': 'passed',
+        'resource-reuse': 'passed',
+        'malformed-after-preview': 'malformed',
+      }
+      const safetyCase = (id: string, outcome = 'limit-exceeded') => ({
+        id,
+        outcome,
+        rawException: false,
+        managedLiveBytes: 0,
+        elapsedMilliseconds: 1,
+        inputSha256: hash,
+      })
+      return {
+        ...common,
+        clean: true,
+        manifestSha256: m9ManifestHash,
+        securitySources: securitySources.sources.map(({ id, url }) => ({
+          id,
+          url,
+          reviewed: true,
+        })),
+        fuzzCases: gateManifest.fuzzTargets.map((id) => safetyCase(id)),
+        resourceCases: gateManifest.resourceCases.map((id) =>
+          safetyCase(id, expectedResourceOutcomes[id]),
+        ),
+        summary: {
+          passed: true,
+          total: gateManifest.fuzzTargets.length + gateManifest.resourceCases.length,
+          rawExceptions: 0,
+          leakedOwnership: 0,
+        },
+      }
+    }
+    case 'm9Package':
+      return {
+        ...common,
+        clean: true,
+        manifestSha256: m9ManifestHash,
+        cases: gateManifest.packageCases.map((id) => ({
+          id,
+          status: 'passed',
+          milliseconds: 1,
+          ...(id === 'entry-size-and-cold-start'
+            ? {
+                codecMinifiedBytes: 439_000,
+                specializedMinifiedBytes: 510_000,
+                coldImportMilliseconds: 1,
+                firstDecodeMilliseconds: 1,
+              }
+            : {}),
+        })),
+        summary: {
+          passed: true,
+          total: gateManifest.packageCases.length,
+          passedCases: gateManifest.packageCases.length,
+          runtimeFailures: 0,
+        },
+      }
   }
 }
 const gates = Object.keys(evidenceFiles) as EvidenceGate[]
@@ -352,6 +449,62 @@ describe('JPEG XL evidence admission', () => {
         revision,
       ),
     ).toThrow(/measurements exceed/)
+  })
+  it('rejects incomplete, dirty, leaking, or oversized M9 evidence', () => {
+    const integration = fixture('m9Integration')
+    expect(() =>
+      validateEvidenceReport(
+        'm9Integration',
+        { ...integration, cases: gateManifest.integrationCases.slice(1) },
+        revision,
+      ),
+    ).toThrow(/missing/)
+    expect(() =>
+      validateEvidenceReport('m9Integration', { ...integration, clean: false }, revision),
+    ).toThrow(/clean checkout/)
+
+    const fuzz = fixture('m9FuzzResource')
+    expect(() =>
+      validateEvidenceReport(
+        'm9FuzzResource',
+        {
+          ...fuzz,
+          resourceCases: gateManifest.resourceCases.map((id, index) => ({
+            id,
+            outcome: 'malformed',
+            rawException: index === 0,
+            managedLiveBytes: index === 1 ? 1 : 0,
+            elapsedMilliseconds: 1,
+            inputSha256: hash,
+          })),
+        },
+        revision,
+      ),
+    ).toThrow()
+
+    const packageReport = fixture('m9Package')
+    expect(() =>
+      validateEvidenceReport(
+        'm9Package',
+        {
+          ...packageReport,
+          cases: gateManifest.packageCases.map((id) => ({
+            id,
+            status: 'passed',
+            milliseconds: 1,
+            ...(id === 'entry-size-and-cold-start'
+              ? {
+                  codecMinifiedBytes: 440_001,
+                  specializedMinifiedBytes: 515_001,
+                  coldImportMilliseconds: 1,
+                  firstDecodeMilliseconds: 1,
+                }
+              : {}),
+          })),
+        },
+        revision,
+      ),
+    ).toThrow(/size ceiling/)
   })
   it('derives PR statuses while leaving missing extended evidence explicitly not run', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'jpegxl-evidence-'))

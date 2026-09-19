@@ -87,7 +87,7 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 | --- | ---: | ---: | ---: |
 | Core API | 19.5 KiB | 6.6 KiB | 6.0 KiB |
 | Common web codecs | 651.3 KiB | 238.7 KiB | 198.2 KiB |
-| All stable codecs | 1196.3 KiB | 413.9 KiB | 333.8 KiB |
+| All stable codecs | 1196.4 KiB | 413.9 KiB | 334.3 KiB |
 | Scientific platform | 197.3 KiB | 56.2 KiB | 47.3 KiB |
 | All scientific readers | 1242.8 KiB | 359.4 KiB | 286.7 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
@@ -400,7 +400,7 @@ Generated for purejsimage 0.17.0. The README keeps only the major entry points; 
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 19.5 KiB | 6.6 KiB | 6.0 KiB |
 | Core + common web codecs | `purejsimage/codecs/web` | 651.3 KiB | 238.7 KiB | 198.2 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1196.3 KiB | 413.9 KiB | 333.8 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1196.4 KiB | 413.9 KiB | 334.3 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 197.3 KiB | 56.2 KiB | 47.3 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1242.8 KiB | 359.4 KiB | 286.7 KiB |
 

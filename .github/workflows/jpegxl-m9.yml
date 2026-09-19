@@ -1,0 +1,170 @@
+name: JPEG XL M9 hardening
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/jpegxl-m9.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/**'
+      - 'tests/jpegxl*'
+      - 'browser-tests/jpegxl*'
+      - 'benchmark/jpegxl/**'
+      - 'capabilities/**'
+      - 'docs/jpeg-xl.md'
+      - 'docs/architecture/jpegxl*.md'
+  schedule:
+    - cron: '41 7 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-security:
+    name: Integration, mutation, and resource gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run M9 integration and hostile-input gates
+        run: |
+          mkdir -p .tmp/jpegxl-m9
+          npm run jpegxl:m9:integration -- --output .tmp/jpegxl-m9/m9-integration.json
+          npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-m9/m9-fuzz-resource.json
+          npx vitest run tests/jpegxl-evidence.test.ts tests/jpegxl.test.ts
+
+      - name: Upload M9 integration evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jpegxl-m9-integration-security
+          path: |
+            .tmp/jpegxl-m9
+            test-results
+          if-no-files-found: warn
+
+  package-node:
+    name: Packed imports on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and verify packed public imports
+        run: |
+          npm run build
+          npm run package:types
+
+      - name: Upload packed-import failures
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jpegxl-m9-node-${{ matrix.node }}
+          path: test-results
+          if-no-files-found: ignore
+
+  package-browser:
+    name: Public API in ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies and browser
+        run: |
+          npm ci
+          npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Exercise the JPEG XL public browser API
+        run: >-
+          npx playwright test browser-tests/jpegxl-pipeline.pw.ts
+          --grep "progressive stages, viewport selection, cache reuse and timer cancellation match Node"
+          --project=${{ matrix.browser }}
+          --workers=1
+          --retries=0
+
+      - name: Upload browser traces
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jpegxl-m9-${{ matrix.browser }}
+          path: test-results
+          if-no-files-found: ignore
+
+  extended-fuzz:
+    name: Extended corruption fuzz
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run the seeded release fuzz profile
+        run: npm run fuzz:release
+
+      - name: Upload fuzz crash inputs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jpegxl-m9-fuzz-crashes
+          path: artifacts/fuzz-crashes
+          if-no-files-found: ignore
