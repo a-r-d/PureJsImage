@@ -282,9 +282,15 @@ jobs:
           npm run jpegxl:m3:corpus -- --output .tmp/jpegxl-evidence/m3-common-static.json
           node benchmark/jpegxl/production-program/verify-m5-common-static.ts --corpus-report .tmp/jpegxl-evidence/m3-common-static.json --output .tmp/jpegxl-evidence/m5-common-static.json
 
-      - name: Run M9 hardening and M10 Level 10 evidence
+      - name: Prepare M9 browser server dependencies
         run: |
           npm run fixtures:hdf5:prepare
+          npm ci --prefix benchmark/competitors-js --no-fund --no-audit
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Run M9 hardening and M10 Level 10 evidence
+        run: |
           npm run jpegxl:m9:integration -- --output .tmp/jpegxl-evidence/m9-integration.json
           npm run jpegxl:m9:fuzz-resource -- --output .tmp/jpegxl-evidence/m9-fuzz-resource.json
           npm run jpegxl:m9:package -- --output .tmp/jpegxl-evidence/m9-package.json
