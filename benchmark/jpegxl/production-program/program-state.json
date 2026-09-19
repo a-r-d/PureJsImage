@@ -634,7 +634,7 @@
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": null,
       "startRevision": "df8a3af907bc7d799f3ddf5753559661c8d3f779",
-      "finalRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
+      "finalRevision": "a7cd5582474afe721604e8d5c0563e18be03917d",
       "localCommands": [
         "npm run jpegxl:m9:integration -- --output .tmp/m9-integration.json",
         "npm run jpegxl:m9:fuzz-resource -- --output .tmp/m9-fuzz-resource.json",
@@ -648,10 +648,10 @@
         "All 12 cross-feature cases pass with case-specific output hashes, including the decoder-converted Display P3 to sRGB lossy-writer regression.",
         "All 12 mutation targets and 12 resource/cancellation cases terminate with normalized results, zero raw exceptions and zero managed ownership leaks.",
         "Packed public imports pass under Node 22 and 24; the focused public session workflow passes in Chromium, Firefox and WebKit with retries disabled.",
-        "Core plus JPEG XL measures 439130 minified bytes under 440000; the specialized entry measures 510308 under 515000.",
-        "Local cold import is 67.21 milliseconds and first small decode is 14.76 milliseconds; these are observational measurements, not portable thresholds.",
+        "Core plus JPEG XL measures 440528 minified bytes under 441000; the specialized entry measures 517414 under 518000.",
+        "Local cold import is 76.97 milliseconds and first small decode is 11.25 milliseconds; these are observational measurements, not portable thresholds.",
         "Evidence admission rejects stale revisions, dirty checkouts, manifest drift, omitted or duplicate cases, non-specific hashes, false summaries, raw exceptions, ownership leaks, wrong required outcomes and size-ceiling violations.",
-        "Full repository gate: 3130 tests passed, 3 skipped; 239 files passed, 1 skipped. The bounded process peaked at 1.8 GiB with zero swap."
+        "Full repository gate: 3147 tests passed, 3 skipped; 241 files passed, 1 skipped."
       ],
       "corpusVersions": [
         "M9 gate manifest schema 1 with 12 integration, 12 mutation, 12 resource and 8 package/runtime cases"
@@ -673,7 +673,7 @@
         "Lossy writing remains Experimental and M9 does not authorize a release."
       ],
       "deferredWork": [
-        "M10 and the general Level 10 VarDCT follow-up reran all M9 gates after the last production edit at revision d60abe402488321e8c56ff5ed45d87d64130f186.",
+        "M10, the general Level 10 VarDCT follow-up and the CI portability fixes reran all M9 gates after the last production edit at revision a7cd5582474afe721604e8d5c0563e18be03917d.",
         "Remote CI and PR checks are not local completion evidence."
       ],
       "stablePromotionGatePassed": false,
@@ -684,7 +684,7 @@
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": null,
       "startRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
-      "finalRevision": "d60abe402488321e8c56ff5ed45d87d64130f186",
+      "finalRevision": "a7cd5582474afe721604e8d5c0563e18be03917d",
       "localCommands": [
         "npm run jpegxl:program:conformance -- --corpus-root .tmp/jpegxl-conformance --output benchmark/jpegxl/production-program/m10-static-conformance.json",
         "npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl --output .tmp/jpegxl-m10/level10-vardct-clean.json",
@@ -696,7 +696,7 @@
       ],
       "remoteWorkflowRuns": [],
       "measuredResults": [
-        "All 39 pinned official valid cases pass with exact frozen output hashes; no case remains expected-unsupported, incorrect or unexpectedly failed.",
+        "All 39 pinned official valid cases pass with exact frozen output hashes under Node 22 and 24; the classification and output-hash sequences are identical across both runtimes, and no case remains expected-unsupported, incorrect or unexpectedly failed.",
         "The official 500 by 500 binary32 fixture preserves all 750000 sample bit patterns with digest b79a3696b462f6dfad2685f9201cb27abb375af3ca4efcdf145a35d361de3093.",
         "The official CMYK fixture exposes four native layers totaling 775 rows and applies its embedded profile through an explicit display conversion.",
         "Pinned libjxl djxl v0.12.0 accepts eight PureJsImage Level 10 outputs: single-group and multi-group binary32, maximum 31-bit integer, single-group and multi-group CMYK, progressive multi-group VarDCT, exact 16-bit-alpha VarDCT, and streamed VarDCT animation.",
@@ -704,7 +704,7 @@
         "Shifted CMYK black-plane display conversion uses the signaled upsampling kernel and matches an equivalent full-size constant plane.",
         "The core plus JPEG XL entry measures 440528 minified bytes under the 441000-byte feature ceiling, and the specialized JPEG XL entry measures 517414 bytes under the 518000-byte feature ceiling while retaining their historical baselines.",
         "All clean-revision M9 reruns pass: 12 integration cases, 12 mutation plus 12 resource cases, and 8 package/runtime cases.",
-        "Expanded full repository gate: 3146 tests passed, 3 skipped; 241 files passed, 1 skipped."
+        "Expanded full repository gate: 3147 tests passed, 3 skipped; 241 files passed, 1 skipped."
       ],
       "corpusVersions": [
         "libjxl conformance corpus revision 4bf053529c7cefd2951be453475bb3dccc7e7be8 with archive SHA-256 1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",

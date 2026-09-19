@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
-  "revision": "d60abe402488321e8c56ff5ed45d87d64130f186",
+  "revision": "a7cd5582474afe721604e8d5c0563e18be03917d",
   "workingTreeDirty": false,
   "decoderSourceSha256": "9f0e7a1d76b0de4c9acb5b6e539a46ed86896930c87f51d1db9ca469b9689f30",
-  "harnessSha256": "d3aa6db3a72688b00fb4350a79ccc0f1048606457c7145a3173d1acd6879619c",
-  "manifestSha256": "ae24d560ede3531e486922a74e5a03c54faef65be3abded1102ce8285127728e",
+  "harnessSha256": "7679dd392e9bdab11dabc658d2b75936b272b9255a21bfe7f6edcc208410293b",
+  "manifestSha256": "e3a8aedbab6267f27fb03c881528307b6ef6e8865daa7c6fdc85a24833f4e210",
   "corpusRevision": "4bf053529c7cefd2951be453475bb3dccc7e7be8",
   "archiveSha256": "1e7954076edfe8c6f66354db5a7aa0ba76c99095d81564e8dbc76043caed37bd",
   "cases": 39,
   "maxDecodedBytes": 1073741824,
+  "sequenceSampleHash": "signed fixed-point with 20 fractional bits",
   "applicableLevel5Passed": true,
   "totals": {
     "pass": 39,
@@ -45,7 +46,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "Level 10 global Squeeze transform for grouped alpha",
-      "outputSha256": "253a2118f345b3c23a840eda07b519b4bcb51a7ebbfd68856711ce890ac32c73",
+      "outputSha256": "339244acf0228959c9f08ee6f63d2f20938aa36e2a3e5314ae64dfce61c9115e",
       "outputFormat": "sequence",
       "rows": 1024
     },
@@ -74,7 +75,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "animation",
-      "outputSha256": "500807b7b4e3fb141bbc97ca482fa6a207ff8bdd5a21fb789a657d07aa1cd490",
+      "outputSha256": "e391ec32fa5fc8c6ab245279b405887da59f498b3d5f6e78bb6e8b63e6f606e4",
       "outputFormat": "sequence",
       "rows": 6144
     },
@@ -89,7 +90,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "animation",
-      "outputSha256": "500807b7b4e3fb141bbc97ca482fa6a207ff8bdd5a21fb789a657d07aa1cd490",
+      "outputSha256": "e391ec32fa5fc8c6ab245279b405887da59f498b3d5f6e78bb6e8b63e6f606e4",
       "outputFormat": "sequence",
       "rows": 6144
     },
@@ -104,7 +105,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "animation",
-      "outputSha256": "007cd79294bc878e74b073d5de77b582efabe967d32450d059e4faefc2430ae4",
+      "outputSha256": "b7da8d39ca0794d7469924b4066d5424ca2c81cfb683f9755810f9633941b3bf",
       "outputFormat": "sequence",
       "rows": 12960
     },
@@ -119,7 +120,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "animation and splines",
-      "outputSha256": "e19a44e81898d141a70b0de3b8f3aad4b0e0bbd2a4ff0f6c5246461e49c63d41",
+      "outputSha256": "c57aa71e0e840d7fd3784193446d318461ed9dc4c7b1ef8eefb319b331a092fd",
       "outputFormat": "sequence",
       "rows": 19200
     },
@@ -134,7 +135,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "animation and splines",
-      "outputSha256": "e19a44e81898d141a70b0de3b8f3aad4b0e0bbd2a4ff0f6c5246461e49c63d41",
+      "outputSha256": "c57aa71e0e840d7fd3784193446d318461ed9dc4c7b1ef8eefb319b331a092fd",
       "outputFormat": "sequence",
       "rows": 19200
     },
@@ -224,7 +225,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "multiple frames and blend modes",
-      "outputSha256": "161d6c1bc57251d9a1e9582d54998778b25a1b299232a191323b8754732a15b9",
+      "outputSha256": "c218eff40174139dac2465433e4629f737e15851acd7ddb186c326ea5cd0aa24",
       "outputFormat": "sequence",
       "rows": 1024
     },
@@ -239,7 +240,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "multiple frames and blend modes",
-      "outputSha256": "161d6c1bc57251d9a1e9582d54998778b25a1b299232a191323b8754732a15b9",
+      "outputSha256": "c218eff40174139dac2465433e4629f737e15851acd7ddb186c326ea5cd0aa24",
       "outputFormat": "sequence",
       "rows": 1024
     },
@@ -569,7 +570,7 @@
       "matchesBaseline": false,
       "matchesExpectation": true,
       "boundary": "non-default image metadata",
-      "outputSha256": "7971523a716b44ab5f9d9dcb45c6125d618a9c9bd7c3ffdc19be8f6ec4a05b9d",
+      "outputSha256": "44daad3c0aa74cdd6aeac3978eb60d729a09cfed9a42547f9ebbff4fa90f0247",
       "outputFormat": "sequence",
       "rows": 1386
     },
