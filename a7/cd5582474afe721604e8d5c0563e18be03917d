@@ -1,0 +1,67 @@
+benchmark/jpegxl/production-program/run-conformance.ts
+  s_5d594ee0d8bcfe::t_cc23e4ea42e2b4 10
+  s_5d594ee0d8bcfe::t_b540aa5f7002bd 7
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 190,294
+tests/fixtures/jpegxl/m8-palette-squeeze/README.md
+  s_5d594ee0d8bcfe::t_44f97d28b423d7 1-4,7-8,11-14
+  s_5d594ee0d8bcfe::t_148ae481acfc39 5-6,9-10
+benchmark/jpegxl/run-m9-package.ts
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 77
+benchmark/jpegxl/run-m9-integration.ts
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 178-179
+tests/fixtures/jpegxl/m9-hardening/README.md
+  s_5d594ee0d8bcfe::t_0544c2f1414f81 1-9
+tests/jpegxl-evidence.test.ts
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 18,43-54
+benchmark/jpegxl/verify-m7-lossless-decoding.ts
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 3,113
+tests/jpegxl-m8-sequence.test.ts
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 4,300,302
+benchmark/jpegxl/fetch-m7-expansion.ts
+  s_5d594ee0d8bcfe::t_cc23e4ea42e2b4 110,118,123
+  s_5d594ee0d8bcfe::t_2298d71bd2fef0 2-3,47-49,53,63,88,91,96-97,111-113,117
+  s_5d594ee0d8bcfe::t_7b1d5c4e50881d 45-46,50-52,62,89-90,92-95,101-103
+.github/workflows/jpegxl-m9.yml
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 125-129
+benchmark/jpegxl/production-program/program-state.json
+  s_5d594ee0d8bcfe::t_4fa197bd8203ad 568,621,626-627
+capabilities/manifest.json
+  s_5d594ee0d8bcfe::t_4fa197bd8203ad 3860-3863
+tests/jpegxl-encoder-memory.test.ts
+  s_5d594ee0d8bcfe::t_07d62d65566ceb 245
+benchmark/jpegxl/run-m9-fuzz-resource.ts
+  s_5d594ee0d8bcfe::t_54c359b69fdf26 117-118,193
+  s_5d594ee0d8bcfe::t_0544c2f1414f81 120
+benchmark/jpegxl/fetch-m7-corpus.ts
+  s_5d594ee0d8bcfe::t_2298d71bd2fef0 2-3,23,28-29
+  s_5d594ee0d8bcfe::t_7b1d5c4e50881d 21-22,24-27
+benchmark/jpegxl/production-program/corpora/conformance.json
+  s_5d594ee0d8bcfe::t_8160aa459840c8 35,55,66,77,88,99,165,176,418
+benchmark/jpegxl/production-program/status.json
+  s_5d594ee0d8bcfe::t_def52886800e24 646,708,713-714
+tests/fixtures/jpegxl/m8-associated-alpha/README.md
+  s_5d594ee0d8bcfe::t_8d8539030e777f 1-10
+jpegxl-codec-support.md
+  s_5d594ee0d8bcfe::t_def52886800e24 170-173
+benchmark/jpegxl/m8-output-digest.ts
+  s_5d594ee0d8bcfe::t_4fa197bd8203ad 23,25,27,29,32,34-35,37-50,52,58
+  s_5d594ee0d8bcfe::t_2298d71bd2fef0 21-22,24,26,28,30-31,33,36,51,54,59-62
+  s_5d594ee0d8bcfe::t_dc02fae015d484 17-20
+  s_5d594ee0d8bcfe::t_f060f588c5dcbb 63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a7cd5582474afe721604e8d5c0563e18be03917d",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
