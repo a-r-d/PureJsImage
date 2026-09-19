@@ -220,7 +220,7 @@
   "corpora": {
     "conformance": {
       "path": "benchmark/jpegxl/production-program/corpora/conformance.json",
-      "sha256": "ae24d560ede3531e486922a74e5a03c54faef65be3abded1102ce8285127728e",
+      "sha256": "e3a8aedbab6267f27fb03c881528307b6ef6e8865daa7c6fdc85a24833f4e210",
       "entries": 39,
       "revision": "4bf053529c7cefd2951be453475bb3dccc7e7be8"
     },
