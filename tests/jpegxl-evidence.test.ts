@@ -226,7 +226,7 @@ const fixture = (gate: EvidenceGate): Record<string, unknown> => {
           inputSha256: entry.sha256,
           matchesBaseline: true,
           actualClassification: entry.baselineClassification,
-          errorCode: entry.expectedErrorCode,
+          errorCode: 'expectedErrorCode' in entry ? entry.expectedErrorCode : undefined,
         })),
       }
     case 'color':
@@ -557,10 +557,8 @@ describe('JPEG XL evidence admission', () => {
       for (const gate of gates.filter((gate) => !extendedGates.includes(gate)))
         await writeFile(join(directory, evidenceFiles[gate]), JSON.stringify(fixture(gate)))
       const report = await buildFinalEvidence(directory, revision, 'pr')
-      expect(report.status).toBe('required-gates-passed-with-known-failures')
-      expect(report.capabilities.commonStaticDecode?.knownFailures).toEqual([
-        'delta_palette: INVALID_INPUT',
-      ])
+      expect(report.status).toBe('required-gates-passed')
+      expect(report.capabilities.commonStaticDecode?.knownFailures).toEqual([])
       expect(report.capabilities.exactJpegTranscode?.extendedStatus).toBe('not-run')
       expect(report.capabilities.losslessPixelEncode?.status).toBe('validated-for-declared-gates')
       expect(report.gates.compression7).toMatchObject({ status: 'passed', revision, cases: 156 })

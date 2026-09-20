@@ -29,8 +29,7 @@
       "bytes": 8772,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "Level 10 global Squeeze transform for grouped alpha",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "339244acf0228959c9f08ee6f63d2f20938aa36e2a3e5314ae64dfce61c9115e"
     },
@@ -49,8 +48,7 @@
       "bytes": 352478,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "animation",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "e391ec32fa5fc8c6ab245279b405887da59f498b3d5f6e78bb6e8b63e6f606e4"
     },
@@ -60,8 +58,7 @@
       "bytes": 352478,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "animation",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "e391ec32fa5fc8c6ab245279b405887da59f498b3d5f6e78bb6e8b63e6f606e4"
     },
@@ -71,8 +68,7 @@
       "bytes": 238305,
       "license": "CC-BY-SA-3.0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "animation",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "b7da8d39ca0794d7469924b4066d5424ca2c81cfb683f9755810f9633941b3bf"
     },
@@ -82,8 +78,7 @@
       "bytes": 9581,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "animation and splines",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "c57aa71e0e840d7fd3784193446d318461ed9dc4c7b1ef8eefb319b331a092fd"
     },
@@ -93,8 +88,7 @@
       "bytes": 9581,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "animation and splines",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "c57aa71e0e840d7fd3784193446d318461ed9dc4c7b1ef8eefb319b331a092fd"
     },
@@ -126,8 +120,7 @@
       "bytes": 73501,
       "license": "CC0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "common multi-group VarDCT",
+      "baselineClassification": "pass",
       "outputSha256": "65c864cd564a0c19d99ec5a2ef7e123621efe3b30cfbf87d3b883c36b31e5679",
       "colorOutput": "srgb"
     },
@@ -137,8 +130,7 @@
       "bytes": 388268,
       "license": "ITU-T T.24",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "broad color transfer functions",
+      "baselineClassification": "pass",
       "outputSha256": "fa56c29343361ea916eb462859df222c9bb57b3c56a1639e0721eb2a4dbda7d3",
       "colorOutput": "srgb"
     },
@@ -148,8 +140,7 @@
       "bytes": 388268,
       "license": "ITU-T T.24",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "broad color transfer functions",
+      "baselineClassification": "pass",
       "outputSha256": "fa56c29343361ea916eb462859df222c9bb57b3c56a1639e0721eb2a4dbda7d3",
       "colorOutput": "srgb"
     },
@@ -159,8 +150,7 @@
       "bytes": 145,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "multiple frames and blend modes",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "c218eff40174139dac2465433e4629f737e15851acd7ddb186c326ea5cd0aa24"
     },
@@ -170,8 +160,7 @@
       "bytes": 145,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "multiple frames and blend modes",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "c218eff40174139dac2465433e4629f737e15851acd7ddb186c326ea5cd0aa24"
     },
@@ -214,9 +203,7 @@
       "bytes": 107899,
       "license": "CC0",
       "levels": [5, 10],
-      "baselineClassification": "unexpected-failure",
-      "boundary": "official delta palette reaches INVALID_INPUT instead of an explicit supported or unsupported result",
-      "expectedErrorCode": "INVALID_INPUT",
+      "baselineClassification": "pass",
       "outputSha256": "684e1111d59451df0a887228bf710a58b5eea37ff9c4c35ad6ad447e6c696137"
     },
     {
@@ -269,8 +256,7 @@
       "bytes": 63377,
       "license": "CC-BY-3.0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "multi-group global Palette and Squeeze transforms",
+      "baselineClassification": "pass",
       "outputSha256": "0ded4e7c7cecb31acde2e9795aad584bd58620086f8dd167c0f1264d974385a7",
       "colorOutput": "srgb"
     },
@@ -302,8 +288,7 @@
       "bytes": 118125,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "common multi-group VarDCT",
+      "baselineClassification": "pass",
       "outputSha256": "50b76ffd2232cfa321d5c64bdee5d8a19dd7b8f8aaa26498825c00fa23ef69a1",
       "colorOutput": "srgb"
     },
@@ -313,8 +298,7 @@
       "bytes": 118125,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "common multi-group VarDCT",
+      "baselineClassification": "pass",
       "outputSha256": "50b76ffd2232cfa321d5c64bdee5d8a19dd7b8f8aaa26498825c00fa23ef69a1",
       "colorOutput": "srgb"
     },
@@ -324,8 +308,7 @@
       "bytes": 118148,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "common multi-group VarDCT",
+      "baselineClassification": "pass",
       "outputSha256": "b4b892161840e247ab148a3f84e4c0324838dc3c11af47c03bbde8a5eec28bef",
       "colorOutput": "srgb"
     },
@@ -335,8 +318,7 @@
       "bytes": 118148,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "common multi-group VarDCT",
+      "baselineClassification": "pass",
       "outputSha256": "b4b892161840e247ab148a3f84e4c0324838dc3c11af47c03bbde8a5eec28bef",
       "colorOutput": "srgb"
     },
@@ -346,8 +328,7 @@
       "bytes": 66562,
       "license": "CC0",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "patches and embedded ICC",
+      "baselineClassification": "pass",
       "outputSha256": "a5d384c2558661b5e50f8990430458e2e63960850596da67d0eb46355f59818f",
       "colorOutput": "srgb"
     },
@@ -357,8 +338,7 @@
       "bytes": 66562,
       "license": "CC0",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "patches and embedded ICC",
+      "baselineClassification": "pass",
       "outputSha256": "a5d384c2558661b5e50f8990430458e2e63960850596da67d0eb46355f59818f",
       "colorOutput": "srgb"
     },
@@ -368,8 +348,7 @@
       "bytes": 34207,
       "license": "CC0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "lossless patches and embedded ICC",
+      "baselineClassification": "pass",
       "outputSha256": "463df822b28b8a4b381d105bc80e9649941cd4dc6134df970c06eae061753576",
       "colorOutput": "srgb"
     },
@@ -379,8 +358,7 @@
       "bytes": 467605,
       "license": "Microsoft custom license",
       "levels": [10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "broad progressive VarDCT and embedded ICC",
+      "baselineClassification": "pass",
       "outputSha256": "30d56bf388fc852fd19eedc5e8f607dc2cd2a3027443e742ff5423b246144f9c",
       "colorOutput": "srgb"
     },
@@ -390,8 +368,7 @@
       "bytes": 467605,
       "license": "Microsoft custom license",
       "levels": [5],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "broad progressive VarDCT and embedded ICC",
+      "baselineClassification": "pass",
       "outputSha256": "30d56bf388fc852fd19eedc5e8f607dc2cd2a3027443e742ff5423b246144f9c",
       "colorOutput": "srgb"
     },
@@ -401,8 +378,7 @@
       "bytes": 392254,
       "license": "CC0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "spot-color extra channels",
+      "baselineClassification": "pass",
       "workflow": "native-layers",
       "outputSha256": "9002b9abcc1872024aa8ec2db4254eb3170d3984ddb6d506587708b0be88b40f"
     },
@@ -412,8 +388,7 @@
       "bytes": 218,
       "license": "CC0",
       "levels": [5, 10],
-      "baselineClassification": "expected-unsupported",
-      "boundary": "non-default image metadata",
+      "baselineClassification": "pass",
       "workflow": "sequence",
       "outputSha256": "44daad3c0aa74cdd6aeac3978eb60d729a09cfed9a42547f9ebbff4fa90f0247"
     },

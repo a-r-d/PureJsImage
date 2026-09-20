@@ -442,11 +442,10 @@ export const validateEvidenceReport = (
             row.actualClassification === expected.baselineClassification,
           'Unexpected conformance result',
         )
+        const expectedErrorCode =
+          'expectedErrorCode' in expected ? expected.expectedErrorCode : undefined
         if (expected.baselineClassification === 'unexpected-failure')
-          requireCondition(
-            row.errorCode === expected.expectedErrorCode,
-            'Known conformance failure changed',
-          )
+          requireCondition(row.errorCode === expectedErrorCode, 'Known conformance failure changed')
       }
       return results.length
     }

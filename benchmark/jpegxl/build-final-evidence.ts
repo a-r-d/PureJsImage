@@ -277,7 +277,7 @@ export const buildFinalEvidence = async (
     gates,
     reports,
     interpretation:
-      'Official conformance is a baseline-classification gate, with known failing cases exposed separately. Status derives from the listed raw gate outcomes for this exact revision. PR evidence does not substitute for missing extended promotion runs. These results establish only the tested subsets; they do not mark M6 or all JPEG XL features complete. Browser and repository checks are separate CI jobs and are not asserted by this artifact.',
+      'Official conformance is an exact-output classification gate, with any future unsupported or failing cases exposed separately. Status derives from the listed raw gate outcomes for this exact revision. PR evidence does not substitute for missing extended promotion runs. These results establish only the tested subsets and do not establish full JPEG XL specification support. Browser and repository checks are separate CI jobs and are not asserted by this artifact.',
     corpusScope: {
       exactJpeg:
         '250 eligible COCO 2017 validation JPEGs at least 224 KiB, selected from 357 eligible candidates. Selection and exclusions are published.',
