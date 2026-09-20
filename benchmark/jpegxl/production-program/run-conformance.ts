@@ -9,13 +9,12 @@ import { defaultImageLimits } from '../../../src/limits.ts'
 import { MemorySource } from '../../../src/source.ts'
 import { hashM8FramePortable, hashM8Layer, hashM8Sources } from '../m8-output-digest.ts'
 import { reportRevision } from '../report-provenance.ts'
+import {
+  type JpegXlConformanceClassification,
+  matchesCurrentConformanceExpectation,
+} from './conformance-expectation.ts'
 
-type Classification =
-  | 'pass'
-  | 'expected-unsupported'
-  | 'malformed-safely-rejected'
-  | 'incorrect-output'
-  | 'unexpected-failure'
+type Classification = JpegXlConformanceClassification
 
 interface ConformanceCase {
   readonly id: string
@@ -156,6 +155,15 @@ const argument = (name: string): string | undefined => {
 }
 
 const digest = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
+const harnessDigest = async (): Promise<string> => {
+  const hash = createHash('sha256')
+  for (const path of [
+    'benchmark/jpegxl/production-program/run-conformance.ts',
+    'benchmark/jpegxl/production-program/conformance-expectation.ts',
+  ])
+    hash.update(await readFile(path))
+  return hash.digest('hex')
+}
 
 const corpusRoot = argument('--corpus-root')
 if (!corpusRoot) {
@@ -237,10 +245,12 @@ for (const definition of manifest.cases) {
   const matchesBaseline =
     actualClassification === definition.baselineClassification &&
     (definition.expectedErrorCode === undefined || definition.expectedErrorCode === errorCode)
-  // Keep the historical disposition visible while accepting independently
-  // pinned exact output from a newly implemented case.
-  const matchesExpectation =
-    matchesBaseline || (actualClassification === 'pass' && definition.outputSha256 !== undefined)
+  const matchesExpectation = matchesCurrentConformanceExpectation(
+    actualClassification,
+    outputSha256,
+    definition.outputSha256,
+    matchesBaseline,
+  )
   results.push(
     Object.freeze({
       id: definition.id,
@@ -283,7 +293,7 @@ const report = Object.freeze({
   workingTreeDirty:
     execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
   decoderSourceSha256: await hashM8Sources(),
-  harnessSha256: digest(await readFile('benchmark/jpegxl/production-program/run-conformance.ts')),
+  harnessSha256: await harnessDigest(),
   manifestSha256: digest(
     await readFile('benchmark/jpegxl/production-program/corpora/conformance.json'),
   ),

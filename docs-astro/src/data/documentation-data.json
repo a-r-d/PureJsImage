@@ -106,9 +106,9 @@
       "minifiedBytes": 1272586
     },
     "allStableCodecs": {
-      "brotliBytes": 342204,
-      "gzipBytes": 424200,
-      "minifiedBytes": 1226503
+      "brotliBytes": 341976,
+      "gzipBytes": 424315,
+      "minifiedBytes": 1226906
     },
     "commonWebCodecs": {
       "brotliBytes": 202952,
@@ -126,7 +126,7 @@
       "minifiedBytes": 141415
     },
     "installedPackage": {
-      "bytes": 8287573,
+      "bytes": 8289429,
       "productionPackageCount": 1
     },
     "packageVersion": "0.17.0",

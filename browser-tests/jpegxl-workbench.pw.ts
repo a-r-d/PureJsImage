@@ -24,6 +24,34 @@ const oversizedPng = (): Buffer => {
   ])
 }
 
+test('JPEG XL progressive explorer cancels a stalled header fetch and can run again', async ({
+  page,
+}) => {
+  let releaseRoute: (() => void) | undefined
+  const stalled = new Promise<void>((resolve) => {
+    releaseRoute = resolve
+  })
+  await page.route('**/stalled-header.jxl', async (route) => {
+    await stalled
+    await route.abort().catch(() => undefined)
+  })
+  await page.goto('/jpeg-xl/')
+  await page
+    .locator('#jxl-progressive-url')
+    .fill(`${new URL(page.url()).origin}/stalled-header.jxl`)
+  await page.locator('#jxl-run-native').click()
+  await expect(page.locator('#jxl-progressive-status')).toHaveText('Opening headers…')
+  await page.locator('#jxl-progressive-cancel').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('Cancelled')
+  releaseRoute?.()
+
+  await page
+    .locator('#jxl-progressive-file')
+    .setInputFiles('benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort1.jxl')
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
+})
+
 test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', async ({ page }) => {
   await page.goto('/jpeg-xl/')
 

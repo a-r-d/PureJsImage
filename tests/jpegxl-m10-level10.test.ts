@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
+import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import {
   convertJpegXlCmykLayerToRgba8,
   convertJpegXlFloat32LayerToRgba16,
@@ -11,6 +12,8 @@ import {
   jpegXlNativeUnsignedPlanes,
   openJpegXlSequence,
 } from '../src/jpegxl.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { MemorySource } from '../src/source.ts'
 
 const base = new URL('./fixtures/jpegxl/m10-level10/', import.meta.url)
 
@@ -84,16 +87,63 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
     expect(floats?.[4]).toBe(-1)
 
     const integers = Uint32Array.of(0, 1, 0x4000_0000, 0x7fff_ffff)
-    const integerLayer = await firstLayer(
-      await encodeJpegXlNative({
-        width: integers.length,
-        height: 1,
-        color: [{ data: integers, bitDepth: 31 }],
-      }),
-    )
+    const integerEncoded = await encodeJpegXlNative({
+      width: integers.length,
+      height: 1,
+      color: [{ data: integers, bitDepth: 31 }],
+    })
+    const integerLayer = await firstLayer(integerEncoded)
     expect(Array.from(jpegXlNativeUnsignedPlanes(integerLayer)[0] ?? [])).toEqual(
       Array.from(integers),
     )
+    await expect(
+      jpegxlCodec.createDecoder?.(new MemorySource(integerEncoded), defaultImageLimits),
+    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+  })
+
+  it('preserves integer alpha and rejects floating alpha during display conversion', async () => {
+    const colors = new Float32Array([0.25, 0.5, 0.75])
+    const floatLayer = await firstLayer(
+      await encodeJpegXlNative({
+        width: 3,
+        height: 1,
+        color: [{ data: new Uint32Array(colors.buffer), bitDepth: 32, sampleFormat: 'binary32' }],
+        extraChannels: [{ type: 0, data: Uint8Array.of(0, 128, 255), bitDepth: 8 }],
+      }),
+    )
+    const floatDisplay = convertJpegXlFloat32LayerToRgba16(floatLayer, { black: 0, white: 1 })
+    expect([floatDisplay.data[3], floatDisplay.data[7], floatDisplay.data[11]]).toEqual([
+      0, 32_896, 65_535,
+    ])
+
+    const fixture = await firstLayer(
+      new Uint8Array(await readFile(new URL('cmyk-layers.jxl', base))),
+    )
+    const profile = fixture.header.iccProfile
+    if (!profile) throw new Error('Missing CMYK fixture profile')
+    const alpha = new Float32Array([0, 0.5, 1])
+    const cmykLayer = await firstLayer(
+      await encodeJpegXlNative({
+        width: 3,
+        height: 1,
+        color: [
+          { data: Uint8Array.of(255, 255, 255), bitDepth: 8 },
+          { data: Uint8Array.of(255, 255, 255), bitDepth: 8 },
+          { data: Uint8Array.of(255, 255, 255), bitDepth: 8 },
+        ],
+        extraChannels: [
+          { type: 4, data: Uint8Array.of(255, 255, 255), bitDepth: 8 },
+          {
+            type: 0,
+            data: new Uint32Array(alpha.buffer),
+            bitDepth: 32,
+            sampleFormat: 'binary32',
+          },
+        ],
+        iccProfile: profile,
+      }),
+    )
+    expect(() => convertJpegXlCmykLayerToRgba8(cmykLayer)).toThrow('requires integer alpha')
   })
 
   it('preserves Level 10 native samples across multiple Modular groups', async () => {
@@ -185,6 +235,53 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
         color: [{ data: Uint32Array.of(0), bitDepth: 32 }],
       }),
     ).rejects.toThrow('storage and depth do not agree')
+  })
+
+  it('selects Level 10 when dimensions exceed Level 5', async () => {
+    const width = 262_145
+    const encoded = await encodeJpegXlNative({
+      width,
+      height: 1,
+      color: [{ data: new Uint8Array(width), bitDepth: 8 }],
+      limits: { maxWidth: width, maxPixels: width, maxDecodedBytes: 64 * 1024 * 1024 },
+    })
+    await expect(
+      inspectJpegXl(encoded, { limits: { maxWidth: width, maxPixels: width } }),
+    ).resolves.toMatchObject({
+      kind: 'container',
+      level: 10,
+      width,
+    })
+  })
+
+  it('selects Level 10 when the ICC profile exceeds the Level 5 limit', async () => {
+    const sourceProfile = new Uint8Array(
+      await readFile(new URL('./fixtures/jpegxl/m4-color/oriented-icc.icc', import.meta.url)),
+    )
+    const profile = new Uint8Array(4_194_305)
+    profile.set(sourceProfile)
+    new DataView(profile.buffer).setUint32(0, profile.length, false)
+    const limits = {
+      maxDecodedBytes: 64 * 1024 * 1024,
+      maxHeaderBytes: 16 * 1024 * 1024,
+      maxIccBytes: 8 * 1024 * 1024,
+      maxIccCompressedBytes: 8 * 1024 * 1024,
+    }
+    const encoded = await encodeJpegXlNative({
+      width: 1,
+      height: 1,
+      color: [
+        { data: Uint8Array.of(0), bitDepth: 8 },
+        { data: Uint8Array.of(0), bitDepth: 8 },
+        { data: Uint8Array.of(0), bitDepth: 8 },
+      ],
+      iccProfile: profile,
+      limits,
+    })
+    await expect(inspectJpegXl(encoded, { limits })).resolves.toMatchObject({
+      kind: 'container',
+      level: 10,
+    })
   })
 
   it('selects Level 10 for five independently described extra channels', async () => {

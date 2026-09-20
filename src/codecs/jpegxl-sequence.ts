@@ -978,9 +978,8 @@ export const createJpegXlSequenceFrameDecoder = async (
                     : channel
               const normalized =
                 frame.planes[nativeChannel]?.[(y + row) * header.width + x + column] ?? 0
-              const value = Math.round(
-                Math.max(0, Math.min(1, normalized)) * (ranges[channel]?.white ?? 255),
-              )
+              const storageMaximum = bytes === 1 ? 255 : (ranges[channel]?.white ?? 65_535)
+              const value = Math.round(Math.max(0, Math.min(1, normalized)) * storageMaximum)
               const offset = (column * channels + channel) * bytes
               if (bytes === 2) view.setUint16(offset, value, false)
               else data[offset] = value

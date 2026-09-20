@@ -2543,6 +2543,7 @@ const encodeSingleGroupSection = (
   maximumPaletteColors = 1024,
 ): Promise<Uint8Array> => {
   return withJpegXlMemoryAsync(memory, async () => {
+    const candidateLimit = resolveJpegXlLimits().maxCodestreamBytes
     const encodePrepared = (
       prepared: Readonly<PreparedModularPlanes>,
       allowLz77: boolean,
@@ -2550,7 +2551,7 @@ const encodeSingleGroupSection = (
     ): Uint8Array => {
       return withJpegXlMemory(memory, () => {
         const plan = buildEntropyPlan(prepared.planes, effort, allowLz77, memory, gradientContexts)
-        const writer = new JpegXlBitWriter(memory)
+        const writer = new JpegXlBitWriter(memory, candidateLimit)
         writer.writeBits(1, 1)
         writer.writeBits(0, 1)
         writeModularHeader(writer, false, prepared.transforms)
@@ -2862,7 +2863,7 @@ const encodeAdaptiveFrameSections = (
             useRct,
             memory,
           )
-          const limit = (memory?.outputLimit ?? 134_217_728) - sectionBytes
+          const limit = resolveJpegXlLimits().maxCodestreamBytes - sectionBytes
           let selected = await encodeGroupCandidate(
             { planes, transforms: { useRct: useRct && scalarSearch } },
             effort,
@@ -3456,7 +3457,10 @@ const encodeCodestream = (
       evidence,
     )
     const sectionBytes = sections.reduce((sum, section) => sum + section.byteLength, 0)
-    const writer = new JpegXlBitWriter(memory, (memory?.outputLimit ?? 134_217_728) - sectionBytes)
+    const remainingOutputBytes = (memory?.outputLimit ?? 134_217_728) - sectionBytes
+    if (remainingOutputBytes < 1)
+      throw limitExceeded('JPEG XL encoded output exceeds maxOutputBytes')
+    const writer = new JpegXlBitWriter(memory, remainingOutputBytes)
     const hasAlpha = format.startsWith('rgba')
 
     writeImageHeader(writer, width, height, format, options)

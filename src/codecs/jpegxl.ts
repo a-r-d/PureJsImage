@@ -403,6 +403,17 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       logical.limits.maxHeaderBytes,
       logical.limits,
     )
+    if (
+      (inspection.frame.sampleFormat === 'unsigned-integer' && inspection.frame.bitDepth > 16) ||
+      inspection.frame.extraChannels.some(
+        (channel) =>
+          channel.bitDepth.sampleFormat === 'unsigned-integer' && channel.bitDepth.bits > 16,
+      )
+    ) {
+      throw unsupportedOperation(
+        'JPEG XL ordinary decoding supports integer samples through 16 bits; use native channel extraction for wider samples',
+      )
+    }
     if (inspection.frame.animation) {
       if (options.frame === undefined)
         throw unsupportedOperation('JPEG XL animation requires explicit displayed-frame selection')

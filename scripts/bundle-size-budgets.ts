@@ -15,8 +15,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // General Level 10 VarDCT selection and streamed animation measure 440528 bytes.
   'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 441_000 },
-  // The matching specialized entry measures 517414 bytes; retain the original baseline.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 518_000 },
+  // The reviewed M6-M10 fixes measure 518450 bytes; retain the original baseline.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 519_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

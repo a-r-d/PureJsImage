@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 import { hashM8FramePortable } from '../benchmark/jpegxl/m8-output-digest.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { encodeJpegXlNative } from '../src/codecs/jpegxl-native-encode.ts'
 import { openJpegXlSequence } from '../src/codecs/jpegxl-sequence.ts'
 import type { JpegXlAnimationInputFrame } from '../src/codecs/jpegxl-sequence-encode.ts'
 import { encodeJpegXlAnimation } from '../src/codecs/jpegxl-sequence-encode.ts'
@@ -287,6 +288,26 @@ it('requires explicit displayed-frame selection through the ordinary still API',
     }
   }
   expect(hash.digest('hex')).toBe(newtons[1]?.sha256)
+})
+
+it('scales shifted low-bit color and alpha to the returned byte range', async () => {
+  const bytes = await encodeJpegXlNative({
+    width: 2,
+    height: 1,
+    color: [{ data: Uint8Array.of(1, 1), bitDepth: 1 }],
+    extraChannels: [{ type: 0, dimShift: 1, data: Uint8Array.of(1), bitDepth: 1 }],
+  })
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits, {
+    frame: 0,
+  })
+  if (!decoder) throw new Error('Missing decoder')
+  expect(decoder.pixelFormat).toBe('rgba8')
+  const output: number[] = []
+  for await (const block of decoder.decode()) {
+    output.push(...block.data)
+    block.release?.()
+  }
+  expect(output).toEqual([255, 255, 255, 255, 255, 255, 255, 255])
 })
 
 it('labels wide-gamut XYB sequence reconstruction with its emitted sRGB transfer', async () => {

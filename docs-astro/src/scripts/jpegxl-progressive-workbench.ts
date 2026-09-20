@@ -1,7 +1,7 @@
 import {
-  openJpegXlSession,
-  type JpegXlSession,
   type JpegXlProgressiveRequest,
+  type JpegXlSession,
+  openJpegXlSession,
 } from '../../../src/jpegxl.ts'
 import { resolveLimits } from '../../../src/limits.ts'
 import { createImageSource, type ImageSource } from '../../../src/source.ts'
@@ -115,7 +115,11 @@ const open = async (signal: AbortSignal): Promise<void> => {
       return bytes
     },
   }
-  session = await openJpegXlSession(observed, { limits, maxCachedBytes: 16_777_216 })
+  session = await openJpegXlSession(observed, {
+    limits,
+    maxCachedBytes: 16_777_216,
+    signal,
+  })
   lastKey = key
   lastFile = file
 }
@@ -224,7 +228,11 @@ const run = async (mode: 'native' | 'progressive' | 'viewport'): Promise<void> =
   } catch (error) {
     if (requestGeneration === generation) {
       if (lastComplete) paint(lastComplete)
-      status.textContent = error instanceof Error ? error.message : String(error)
+      status.textContent = operation.signal.aborted
+        ? 'Cancelled.'
+        : error instanceof Error
+          ? error.message
+          : String(error)
     }
   } finally {
     controller = undefined

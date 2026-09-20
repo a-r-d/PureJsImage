@@ -58,6 +58,7 @@
     },
     "displayConversion": {
       "binary32": "explicit-finite-range-to-rgba16",
+      "alpha": "integer-preserved-floating-rejected-in-explicit-display-conversion",
       "cmyk": "embedded-icc-to-rgba8-including-shifted-black-and-alpha",
       "nanAndInfinity": "rejected-for-integer-display-conversion"
     },
@@ -67,7 +68,7 @@
       "losslessBinary32": "exact-bit-patterns",
       "cmykBlack": "embedded-icc-required",
       "vardct": "general-forward-subset-at-level-5-or-level-10",
-      "levelSelection": "minimum-valid-for-emitted-modular-stream",
+      "levelSelection": "minimum-valid-for-depth-dimensions-pixels-icc-and-extra-channels",
       "level10Container": "automatic-jxll-10"
     },
     "limits": {
@@ -79,11 +80,11 @@
   },
   "levelSelection": [
     {
-      "condition": "integer depth at most 12, at most four extras, no black channel",
+      "condition": "integer depth at most 12, dimensions at most 262144, at most 268435456 pixels, ICC at most 4194304 bytes, at most four extras, no black channel",
       "minimumLevel": 5
     },
     {
-      "condition": "integer depth above 12, floating point, more than four extras, or black channel",
+      "condition": "integer depth above 12, floating point, larger dimensions, pixel count or ICC profile, more than four extras, or black channel",
       "minimumLevel": 10
     },
     {

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
+import { bundleSizeBudgets } from '../../scripts/bundle-size-budgets.ts'
 import gateManifest from './production-program/m9-gate-manifest.json' with { type: 'json' }
 import securitySources from './production-program/m9-security-sources.json' with { type: 'json' }
 
@@ -79,6 +80,28 @@ export const validateM9IntegrationReport = (value: unknown, revision: string): n
   return cases.length
 }
 
+export const m9ExpectedResourceOutcomes: Readonly<Record<string, string>> = Object.freeze({
+  'zero-progress-source': 'malformed',
+  'section-count-limit': 'limit-exceeded',
+  'internal-frame-limit': 'limit-exceeded',
+  'declared-pixel-limit': 'limit-exceeded',
+  'metadata-limit': 'limit-exceeded',
+  'computation-cancellation': 'cancelled',
+  'fetch-cancellation': 'cancelled',
+  'sink-failure': 'passed',
+  'pending-write-abort': 'cancelled',
+  'early-consumer-return': 'passed',
+  'resource-reuse': 'passed',
+  'malformed-after-preview': 'malformed',
+})
+
+export const m9OwnershipMeasuredResourceCases: ReadonlySet<string> = new Set([
+  'computation-cancellation',
+  'fetch-cancellation',
+  'resource-reuse',
+  'malformed-after-preview',
+])
+
 export const validateM9FuzzResourceReport = (value: unknown, revision: string): number => {
   const report = common(value, revision)
   const fuzz = rows(report.fuzzCases, 'M9 fuzz cases are missing')
@@ -89,7 +112,11 @@ export const validateM9FuzzResourceReport = (value: unknown, revision: string): 
   for (const entry of [...fuzz, ...resources]) {
     if (!allowed.has(String(entry.outcome))) throw new Error('M9 case has an invalid outcome')
     if (entry.rawException !== false) throw new Error('M9 case escaped normalized error handling')
-    if (entry.managedLiveBytes !== 0) throw new Error('M9 case leaked managed ownership')
+    const measured = entry.managedLiveBytes
+    if (measured !== null && (typeof measured !== 'number' || !Number.isFinite(measured)))
+      throw new Error('M9 case has an invalid managed ownership measurement')
+    if (typeof measured === 'number' && measured !== 0)
+      throw new Error('M9 case leaked managed ownership')
     finite(entry.elapsedMilliseconds)
     sha256(entry.inputSha256, 'M9 fuzz/resource input checksum is missing')
   }
@@ -104,23 +131,12 @@ export const validateM9FuzzResourceReport = (value: unknown, revision: string): 
     if (source.reviewed !== true || source.url !== expected?.url)
       throw new Error('M9 security source was not reviewed')
   }
-  const expectedResourceOutcomes: Readonly<Record<string, string>> = {
-    'zero-progress-source': 'malformed',
-    'section-count-limit': 'limit-exceeded',
-    'internal-frame-limit': 'limit-exceeded',
-    'declared-pixel-limit': 'limit-exceeded',
-    'metadata-limit': 'limit-exceeded',
-    'computation-cancellation': 'cancelled',
-    'fetch-cancellation': 'cancelled',
-    'sink-failure': 'passed',
-    'pending-write-abort': 'cancelled',
-    'early-consumer-return': 'passed',
-    'resource-reuse': 'passed',
-    'malformed-after-preview': 'malformed',
-  }
   for (const entry of resources) {
-    if (entry.outcome !== expectedResourceOutcomes[String(entry.id)])
+    const id = String(entry.id)
+    if (entry.outcome !== m9ExpectedResourceOutcomes[id])
       throw new Error(`M9 resource case ${String(entry.id)} did not reach its required outcome`)
+    if (m9OwnershipMeasuredResourceCases.has(id) && entry.managedLiveBytes !== 0)
+      throw new Error(`M9 resource case ${id} did not measure released ownership`)
   }
   const summary = record(report.summary)
   if (
@@ -145,9 +161,13 @@ export const validateM9PackageReport = (value: unknown, revision: string): numbe
       finite(entry.specializedMinifiedBytes, 1)
       finite(entry.coldImportMilliseconds)
       finite(entry.firstDecodeMilliseconds)
-      if (finite(entry.codecMinifiedBytes, 1) > 440_000)
+      const codecCeiling = bundleSizeBudgets['codec-jpegxl']?.maxMinifiedBytes
+      const specializedCeiling = bundleSizeBudgets['jpegxl-specialized']?.maxMinifiedBytes
+      if (!codecCeiling || !specializedCeiling)
+        throw new Error('M9 JPEG XL package size ceilings are missing')
+      if (finite(entry.codecMinifiedBytes, 1) > codecCeiling)
         throw new Error('M9 codec entry exceeds its checked size ceiling')
-      if (finite(entry.specializedMinifiedBytes, 1) > 517_000)
+      if (finite(entry.specializedMinifiedBytes, 1) > specializedCeiling)
         throw new Error('M9 specialized entry exceeds its checked size ceiling')
     }
   }

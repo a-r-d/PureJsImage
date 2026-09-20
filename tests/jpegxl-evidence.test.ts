@@ -512,6 +512,22 @@ describe('JPEG XL evidence admission', () => {
     ).toThrow(/clean checkout/)
 
     const fuzz = fixture('m9FuzzResource')
+    const unmeasuredCancellation = {
+      ...fuzz,
+      resourceCases: Array.isArray(fuzz.resourceCases)
+        ? fuzz.resourceCases.map((entry) =>
+            typeof entry === 'object' &&
+            entry !== null &&
+            'id' in entry &&
+            entry.id === 'computation-cancellation'
+              ? { ...entry, managedLiveBytes: null }
+              : entry,
+          )
+        : [],
+    }
+    expect(() =>
+      validateEvidenceReport('m9FuzzResource', unmeasuredCancellation, revision),
+    ).toThrow(/measure released ownership/)
     expect(() =>
       validateEvidenceReport(
         'm9FuzzResource',
@@ -542,8 +558,8 @@ describe('JPEG XL evidence admission', () => {
             milliseconds: 1,
             ...(id === 'entry-size-and-cold-start'
               ? {
-                  codecMinifiedBytes: 440_001,
-                  specializedMinifiedBytes: 515_001,
+                  codecMinifiedBytes: 441_001,
+                  specializedMinifiedBytes: 519_001,
                   coldImportMilliseconds: 1,
                   firstDecodeMilliseconds: 1,
                 }

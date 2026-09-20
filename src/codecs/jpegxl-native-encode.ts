@@ -137,6 +137,13 @@ export const encodeJpegXlNative = async (
   const limits = resolveLimits(options.limits),
     jpegLimits = resolveJpegXlLimits(options.limits)
   validateImageDimensions(options.width, options.height, 1, limits)
+  const totalPixels = BigInt(options.width) * BigInt(options.height)
+  if (
+    options.width > 1_073_741_824 ||
+    options.height > 1_073_741_824 ||
+    totalPixels > 1_099_511_627_776n
+  )
+    throw limitExceeded('JPEG XL dimensions exceed codestream Level 10')
   const maximum = options.maxOutputBytes ?? limits.maxInputBytes
   if (!Number.isSafeInteger(maximum) || maximum < 1)
     throw invalidInput('maxOutputBytes must be a positive safe integer')
@@ -149,7 +156,11 @@ export const encodeJpegXlNative = async (
         plane.sampleFormat === 'binary32',
     ) ||
     extra.length > 4 ||
-    extra.some((channel) => channel.type === 4)
+    extra.some((channel) => channel.type === 4) ||
+    options.width > 262_144 ||
+    options.height > 262_144 ||
+    totalPixels > 268_435_456n ||
+    (options.iccProfile?.length ?? 0) > 4_194_304
   const requestedLevel = options.codestreamLevel ?? 'auto'
   if (requestedLevel !== 'auto' && requestedLevel !== 5 && requestedLevel !== 10)
     throw invalidInput('codestreamLevel must be auto, 5, or 10')

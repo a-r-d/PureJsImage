@@ -23,6 +23,56 @@ const integerPlane = (layer: Readonly<JpegXlNativeLayer>, index: number): Int32A
   return plane
 }
 
+const normalizedExtraPlane = (
+  layer: Readonly<JpegXlNativeLayer>,
+  descriptorIndex: number,
+): Float64Array => {
+  const descriptor = layer.header.extraChannels[descriptorIndex]
+  const planeIndex = layer.header.colorChannels + descriptorIndex
+  const layout = layer.layouts[planeIndex]
+  const source = integerPlane(layer, planeIndex)
+  const width = layer.layouts[0]?.width ?? 0
+  const height = layer.layouts[0]?.height ?? 0
+  if (!descriptor || !layout || width < 1 || height < 1)
+    throw invalidInput('JPEG XL extra-channel layout is missing')
+  const factor =
+    (layer.header.extraChannelUpsampling[descriptorIndex] ?? 1) * 2 ** descriptor.dimShift
+  if (
+    layout.width !== Math.ceil(width / factor) ||
+    layout.height !== Math.ceil(height / factor) ||
+    source.length !== layout.width * layout.height
+  )
+    throw invalidInput('JPEG XL extra-channel plane size disagrees with its layout')
+  const normalized = new Float64Array(source.length)
+  if (descriptor.bitDepth.sampleFormat === 'unsigned-integer') {
+    const maximum = 2 ** descriptor.bitDepth.bits - 1
+    for (let index = 0; index < source.length; index++)
+      normalized[index] = (source[index] ?? 0) / maximum
+  } else {
+    throw unsupportedOperation('JPEG XL display conversion requires integer alpha')
+  }
+  return factor === 1
+    ? normalized
+    : upsampleJpegXlNativePlane(
+        normalized,
+        layout.width,
+        layout.height,
+        factor,
+        width,
+        height,
+        layer.header,
+      )
+}
+
+const displayAlpha = (layer: Readonly<JpegXlNativeLayer>): Float64Array | undefined => {
+  const selected = layer.header.selectedAlphaChannel
+  const index =
+    selected !== undefined && layer.header.extraChannels[selected]?.type === 0
+      ? selected
+      : layer.header.extraChannels.findIndex((channel) => channel.type === 0)
+  return index < 0 ? undefined : normalizedExtraPlane(layer, index)
+}
+
 /** Returns caller-owned unsigned samples without losing integer or floating-point bit patterns. */
 export const jpegXlNativeUnsignedPlanes = (
   layer: Readonly<JpegXlNativeLayer>,
@@ -73,6 +123,8 @@ export const convertJpegXlFloat32LayerToRgba16 = (
   if (pixels < 1 || planes.some((plane) => plane.length !== pixels))
     throw invalidInput('Float plane sizes disagree')
   const output = new Uint16Array(pixels * 4)
+  const alpha = displayAlpha(layer)
+  if (alpha && alpha.length !== pixels) throw invalidInput('Float alpha plane size disagrees')
   const scale = 65_535 / (range.white - range.black)
   for (let index = 0; index < pixels; index++) {
     const target = index * 4
@@ -84,7 +136,9 @@ export const convertJpegXlFloat32LayerToRgba16 = (
         Math.max(0, Math.min(65_535, (value - range.black) * scale)),
       )
     }
-    output[target + 3] = 65_535
+    output[target + 3] = alpha
+      ? Math.round(Math.max(0, Math.min(1, alpha[index] ?? 0)) * 65_535)
+      : 65_535
   }
   return Object.freeze({ width, height, format: 'rgba16' as const, data: output })
 }
@@ -103,7 +157,6 @@ export const convertJpegXlCmykLayerToRgba8 = (
   const blackDescriptor = layer.header.extraChannels[blackIndex]
   if (blackDescriptor?.bitDepth.sampleFormat !== 'unsigned-integer')
     throw unsupportedOperation('CMYK black is not integer')
-  const blackMaximum = 2 ** blackDescriptor.bitDepth.bits - 1
   const blackPlaneIndex = layer.header.colorChannels + blackIndex
   const planes = [0, 1, 2, blackPlaneIndex].map((index) => integerPlane(layer, index))
   const width = layer.layouts[0]?.width ?? 0
@@ -111,48 +164,11 @@ export const convertJpegXlCmykLayerToRgba8 = (
   const pixels = width * height
   if (pixels < 1 || planes.slice(0, 3).some((plane) => plane.length !== pixels))
     throw unsupportedOperation('CMYK color planes must be full-size')
-  const displayExtra = (
-    descriptorIndex: number,
-    planeIndex: number,
-    maximum: number,
-  ): Readonly<{ values: Int32Array | Float64Array; maximum: number }> => {
-    const descriptor = layer.header.extraChannels[descriptorIndex]
-    const layout = layer.layouts[planeIndex]
-    const source = integerPlane(layer, planeIndex)
-    if (!descriptor || !layout) throw invalidInput('CMYK extra-channel layout is missing')
-    const factor =
-      (layer.header.extraChannelUpsampling[descriptorIndex] ?? 1) * 2 ** descriptor.dimShift
-    if (
-      layout.width !== Math.ceil(width / factor) ||
-      layout.height !== Math.ceil(height / factor) ||
-      source.length !== layout.width * layout.height
-    )
-      throw invalidInput('CMYK extra-channel plane size disagrees with its layout')
-    if (factor === 1) return { values: source, maximum }
-    const normalized = Float64Array.from(source, (value) => value / maximum)
-    return {
-      values: upsampleJpegXlNativePlane(
-        normalized,
-        layout.width,
-        layout.height,
-        factor,
-        width,
-        height,
-        layer.header,
-      ),
-      maximum: 1,
-    }
-  }
-  const black = displayExtra(blackIndex, blackPlaneIndex, blackMaximum)
+  const black = normalizedExtraPlane(layer, blackIndex)
   const transform = parseCmykIccTransform(profile)
   const output = new Uint8Array(pixels * 4)
   const alphaIndex = layer.header.extraChannels.findIndex((channel) => channel.type === 0)
-  const alphaDescriptor = alphaIndex < 0 ? undefined : layer.header.extraChannels[alphaIndex]
-  const alphaMaximum = 2 ** (alphaDescriptor?.bitDepth.bits ?? 8) - 1
-  const alpha =
-    alphaIndex < 0
-      ? undefined
-      : displayExtra(alphaIndex, layer.header.colorChannels + alphaIndex, alphaMaximum)
+  const alpha = alphaIndex < 0 ? undefined : normalizedExtraPlane(layer, alphaIndex)
   for (let index = 0; index < pixels; index++) {
     const target = index * 4
     writeCmykIcc(
@@ -160,13 +176,11 @@ export const convertJpegXlCmykLayerToRgba8 = (
       255 - Math.round(((planes[0]?.[index] ?? 0) * 255) / colorMaximum),
       255 - Math.round(((planes[1]?.[index] ?? 0) * 255) / colorMaximum),
       255 - Math.round(((planes[2]?.[index] ?? 0) * 255) / colorMaximum),
-      255 - Math.round(((black.values[index] ?? 0) * 255) / black.maximum),
+      255 - Math.round((black[index] ?? 0) * 255),
       output,
       target,
     )
-    output[target + 3] = alpha
-      ? Math.round(((alpha.values[index] ?? 0) * 255) / alpha.maximum)
-      : 255
+    output[target + 3] = alpha ? Math.round(Math.max(0, Math.min(1, alpha[index] ?? 0)) * 255) : 255
   }
   return Object.freeze({ width, height, format: 'rgba8' as const, data: output })
 }

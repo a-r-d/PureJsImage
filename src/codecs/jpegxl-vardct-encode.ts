@@ -251,7 +251,7 @@ function* prepare8(
   const sampleBytes = color?.storageBytes ?? (sampleDepth === 8 ? 1 : 2)
   if ((sampleDepth !== 8 || sampleBytes === 2 || channels === 1) && !imageHeader)
     throw invalidInput('JPEG XL high-depth and grayscale encoding require an explicit image header')
-  validateImageDimensions(width, height, channels * sampleBytes, limits)
+  validateImageDimensions(width, height, 1, limits, channels * sampleBytes)
   if (pixels.length !== width * height * channels * sampleBytes)
     throw invalidInput('JPEG XL RGB8 extent is inconsistent')
   if (!Number.isFinite(distance) || distance < 0.25 || distance > 25)

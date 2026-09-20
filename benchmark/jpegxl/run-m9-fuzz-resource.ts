@@ -19,6 +19,11 @@ import { defaultImageLimits } from '../../src/limits.ts'
 import type { ImageSink } from '../../src/sink.ts'
 import type { ImageSource } from '../../src/source.ts'
 import { MemorySource } from '../../src/source.ts'
+import {
+  m9ExpectedResourceOutcomes,
+  m9OwnershipMeasuredResourceCases,
+  validateM9FuzzResourceReport,
+} from './m9-evidence-validation.ts'
 import gateManifest from './production-program/m9-gate-manifest.json' with { type: 'json' }
 import securitySources from './production-program/m9-security-sources.json' with { type: 'json' }
 
@@ -27,7 +32,7 @@ interface M9SafetyCase {
   readonly id: string
   readonly outcome: Outcome
   readonly rawException: false
-  readonly managedLiveBytes: 0
+  readonly managedLiveBytes: number | null
   readonly elapsedMilliseconds: number
   readonly inputSha256: string
   readonly code?: string
@@ -68,27 +73,34 @@ const splitContainerCodestream = async (input: Uint8Array): Promise<Uint8Array> 
     fragmentBox(1, true, codestream.subarray(split)),
   )
 }
-const classify = (error: unknown): Readonly<{ outcome: Outcome; code?: string }> => {
+interface M9SafetyResult {
+  readonly outcome: Outcome
+  readonly managedLiveBytes: number | null
+  readonly code?: string
+}
+const classify = (error: unknown): M9SafetyResult => {
   if (error instanceof ImageError) {
-    if (error.code === 'LIMIT_EXCEEDED') return { outcome: 'limit-exceeded', code: error.code }
-    if (error.code === 'UNSUPPORTED_OPERATION') return { outcome: 'unsupported', code: error.code }
-    return { outcome: 'malformed', code: error.code }
+    if (error.code === 'LIMIT_EXCEEDED')
+      return { outcome: 'limit-exceeded', code: error.code, managedLiveBytes: null }
+    if (error.code === 'UNSUPPORTED_OPERATION')
+      return { outcome: 'unsupported', code: error.code, managedLiveBytes: null }
+    return { outcome: 'malformed', code: error.code, managedLiveBytes: null }
   }
   if (error instanceof Error && error.name === 'AbortError')
-    return { outcome: 'cancelled', code: 'ABORT_ERR' }
+    return { outcome: 'cancelled', code: 'ABORT_ERR', managedLiveBytes: null }
   throw error
 }
 const row = (
   id: string,
   input: Uint8Array,
   started: number,
-  result: Readonly<{ outcome: Outcome; code?: string }>,
+  result: Readonly<M9SafetyResult>,
 ): M9SafetyCase =>
   Object.freeze({
     id,
     outcome: result.outcome,
     rawException: false,
-    managedLiveBytes: 0,
+    managedLiveBytes: result.managedLiveBytes,
     elapsedMilliseconds: Math.max(0, performance.now() - started),
     inputSha256: hash(input),
     ...(result.code ? { code: result.code } : {}),
@@ -107,7 +119,7 @@ const decodeMutation = async (id: string, path: string, divisor: number): Promis
     })
     if (!decoder) throw new Error('JPEG XL decoder unavailable')
     for await (const block of decoder.decode()) block.release?.()
-    return row(id, input, started, { outcome: 'passed' })
+    return row(id, input, started, { outcome: 'passed', managedLiveBytes: null })
   } catch (error) {
     return row(id, input, started, classify(error))
   }
@@ -162,7 +174,13 @@ const runFuzzCases = async (): Promise<readonly M9SafetyCase[]> => {
         bounded = error instanceof Error && error.message.includes('before pixel allocation')
       }
       if (accepted || !bounded) throw new Error('M9 worker or API limit validation failed')
-      cases.push(row(id, input, started, { outcome: 'limit-exceeded', code: 'LIMIT_EXCEEDED' }))
+      cases.push(
+        row(id, input, started, {
+          outcome: 'limit-exceeded',
+          code: 'LIMIT_EXCEEDED',
+          managedLiveBytes: null,
+        }),
+      )
       continue
     }
     const configured = fuzzPaths[id]
@@ -175,7 +193,7 @@ const runFuzzCases = async (): Promise<readonly M9SafetyCase[]> => {
 const resourceCase = async (
   id: string,
   input: Uint8Array,
-  operation: () => Promise<Readonly<{ outcome: Outcome; code?: string }>>,
+  operation: () => Promise<Readonly<M9SafetyResult>>,
 ): Promise<M9SafetyCase> => {
   const started = now()
   try {
@@ -204,13 +222,13 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
         },
       }
       await inspectJpegXl(source)
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: null }
     }),
   )
   cases.push(
     await resourceCase('section-count-limit', fragmentedLimit, async () => {
       await inspectJpegXl(fragmentedLimit, { limits: { maxSegments: 1 } })
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: null }
     }),
   )
   cases.push(
@@ -223,7 +241,7 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
       } finally {
         await sequence.close()
       }
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: null }
     }),
   )
   cases.push(
@@ -232,13 +250,13 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
         ...defaultImageLimits,
         maxPixels: 1,
       })
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: null }
     }),
   )
   cases.push(
     await resourceCase('metadata-limit', animation, async () => {
       await inspectJpegXl(animation, { limits: { maxHeaderBytes: 16 } })
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: null }
     }),
   )
   cases.push(
@@ -251,20 +269,31 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
           timer ??= setTimeout(() => controller.abort(), 0)
       })
       const session = await openJpegXlSession(progressive, { evidence: evidence.context })
+      let cancelled = false
       try {
-        for await (const event of session.native({
-          scaleDenominator: 8,
-          signal: controller.signal,
-        }))
-          if (event.type === 'block') event.block.release?.()
+        try {
+          for await (const event of session.native({
+            scaleDenominator: 8,
+            signal: controller.signal,
+          }))
+            if (event.type === 'block') event.block.release?.()
+        } catch (error) {
+          if (!(error instanceof Error) || error.name !== 'AbortError') throw error
+          cancelled = true
+        }
       } finally {
         if (timer) clearTimeout(timer)
         await session.close()
       }
-      if (!controller.signal.aborted) throw new Error('M9 computation did not observe cancellation')
+      if (!controller.signal.aborted || !cancelled)
+        throw new Error('M9 computation did not observe cancellation')
       if (session.managedLiveBytes !== 0)
         throw new Error('M9 computation cancellation leaked memory')
-      return { outcome: 'cancelled', code: 'ABORT_ERR' }
+      return {
+        outcome: 'cancelled',
+        code: 'ABORT_ERR',
+        managedLiveBytes: session.managedLiveBytes,
+      }
     }),
   )
   cases.push(
@@ -299,7 +328,11 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
         await session.close()
       }
       if (session.managedLiveBytes !== 0) throw new Error('M9 fetch cancellation leaked memory')
-      return { outcome: 'cancelled', code: 'ABORT_ERR' }
+      return {
+        outcome: 'cancelled',
+        code: 'ABORT_ERR',
+        managedLiveBytes: session.managedLiveBytes,
+      }
     }),
   )
   cases.push(
@@ -321,7 +354,7 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
       } catch (error) {
         if (!aborted || !(error instanceof Error) || !error.message.includes('injected sink'))
           throw error
-        return { outcome: 'passed' }
+        return { outcome: 'passed', managedLiveBytes: null }
       }
       throw new Error('M9 sink failure was ignored')
     }),
@@ -345,7 +378,7 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
         await transcodeJpegToJpegXl(jpeg, { sink, signal: controller.signal })
       } catch (error) {
         if (!aborted || !(error instanceof Error) || error.name !== 'AbortError') throw error
-        return { outcome: 'cancelled', code: 'ABORT_ERR' }
+        return { outcome: 'cancelled', code: 'ABORT_ERR', managedLiveBytes: null }
       }
       throw new Error('M9 pending write abort was ignored')
     }),
@@ -385,7 +418,7 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
       await iterator.next()
       await iterator.return(undefined)
       if (!returned) throw new Error('M9 animation input was not returned')
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: null }
     }),
   )
   cases.push(
@@ -400,7 +433,7 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
       } finally {
         await session.close()
       }
-      return { outcome: 'passed' }
+      return { outcome: 'passed', managedLiveBytes: session.managedLiveBytes }
     }),
   )
   cases.push(
@@ -436,7 +469,11 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
       }
       if (completed < 1) throw new Error('M9 late failure occurred before a partial preview')
       if (session.managedLiveBytes !== 0) throw new Error('M9 late failure leaked memory')
-      return { outcome: 'malformed', code: 'TRUNCATED_INPUT' }
+      return {
+        outcome: 'malformed',
+        code: 'TRUNCATED_INPUT',
+        managedLiveBytes: session.managedLiveBytes,
+      }
     }),
   )
   return Object.freeze(cases)
@@ -452,6 +489,18 @@ export const runM9FuzzResource = async () => {
     throw new Error('Cannot resolve M9 fuzz/resource revision')
   if (statusResult.status !== 0) throw new Error('Cannot inspect M9 fuzz/resource worktree')
   const securityReview = securitySources.sources.map(({ id, url }) => ({ id, url, reviewed: true }))
+  const allCases = [...fuzzCases, ...resourceCases]
+  const rawExceptions = allCases.filter(({ rawException }) => rawException).length
+  const leakedOwnership = allCases.filter(
+    ({ managedLiveBytes }) => typeof managedLiveBytes === 'number' && managedLiveBytes !== 0,
+  ).length
+  const expectedOutcomes = resourceCases.every(
+    ({ id, outcome }) => m9ExpectedResourceOutcomes[id] === outcome,
+  )
+  const ownershipMeasured = resourceCases.every(
+    ({ id, managedLiveBytes }) =>
+      !m9OwnershipMeasuredResourceCases.has(id) || typeof managedLiveBytes === 'number',
+  )
   return {
     schemaVersion: 1,
     revision,
@@ -463,10 +512,10 @@ export const runM9FuzzResource = async () => {
     fuzzCases,
     resourceCases,
     summary: {
-      passed: true,
-      total: fuzzCases.length + resourceCases.length,
-      rawExceptions: 0,
-      leakedOwnership: 0,
+      passed: rawExceptions === 0 && leakedOwnership === 0 && expectedOutcomes && ownershipMeasured,
+      total: allCases.length,
+      rawExceptions,
+      leakedOwnership,
     },
   }
 }
@@ -474,6 +523,7 @@ export const runM9FuzzResource = async () => {
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   const outputIndex = process.argv.indexOf('--output')
   const report = await runM9FuzzResource()
+  validateM9FuzzResourceReport(report, report.revision)
   const json = `${JSON.stringify(report, null, 2)}\n`
   const outputPath = outputIndex >= 0 ? process.argv[outputIndex + 1] : undefined
   if (outputPath) await writeFile(outputPath, json)

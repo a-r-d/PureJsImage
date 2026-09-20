@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { access, readFile } from 'node:fs/promises'
 import { describe, expect, test } from 'vitest'
+import { matchesCurrentConformanceExpectation } from '../benchmark/jpegxl/production-program/conformance-expectation.ts'
 
 const root = 'benchmark/jpegxl/production-program'
 
@@ -26,6 +27,15 @@ const digest = async (path: string): Promise<string> =>
     .digest('hex')
 
 describe('JPEG XL production program baseline', () => {
+  test('requires pinned current success after a historical failure is fixed', () => {
+    const pinned = 'a'.repeat(64)
+    expect(
+      matchesCurrentConformanceExpectation('expected-unsupported', undefined, pinned, true),
+    ).toBe(false)
+    expect(matchesCurrentConformanceExpectation('pass', pinned, pinned, false)).toBe(true)
+    expect(matchesCurrentConformanceExpectation('pass', 'b'.repeat(64), pinned, false)).toBe(false)
+  })
+
   test('tracks every milestone deterministically with the approved M1 through M5 promotions', async () => {
     const status = await json(`${root}/status.json`)
     const milestones = array(status.milestones, 'status.milestones').map((value) =>

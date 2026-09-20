@@ -50,6 +50,39 @@ async function encode(options: Readonly<Record<string, unknown>>) {
 }
 
 describe('JPEG XL M7 explicit encoding modes', () => {
+  it('counts images rather than color channels against maxFrames', async () => {
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: 1,
+      height: 1,
+      pixelFormat: 'rgb8',
+      colorSemantics: { ...semantics, alpha: 'none' },
+      options: { mode: 'lossy', effort: 1 },
+      limits: { ...defaultImageLimits, maxFrames: 1 },
+    })
+    if (!encoder) throw new Error('Missing encoder')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+      stride: 3,
+      format: 'rgb8',
+      data: Uint8Array.of(12, 34, 56),
+    })
+    await expect(encoder.finish()).resolves.toBeUndefined()
+  })
+
+  it('selects a valid effort-7 candidate at the exact final output budget', async () => {
+    const baseline = await encode({ mode: 'lossless', effort: 7 })
+    const bounded = await encode({
+      mode: 'lossless',
+      effort: 7,
+      maxOutputBytes: baseline.byteLength,
+    })
+    expect(bounded).toEqual(baseline)
+  })
+
   it.each([3, 7])(
     'ignores invisible RGB during lossy effort %i while preserving alpha',
     async (effort) => {
