@@ -3718,7 +3718,7 @@
         "- [x] Twelve resource cases cover stalled reads, section/frame/pixel/metadata limits, computation and fetch cancellation, sink failures, pending writes, early return, reuse and malformed late sections with zero managed ownership after cleanup",
         "- [x] Packed public imports and browser-safe conditional exports are checked on Node 22 and 24; the public API runs in Chromium, Firefox and WebKit",
         "- [x] Evidence admission requires exact case identities, source revision, a clean checkout, raw hashes, measured thresholds and internally consistent summaries",
-        "- [x] Fast integration, Node-package, browser and scheduled extended-fuzz CI jobs retain artifacts on failure",
+        "- [x] One bounded pull-request smoke gate runs pinned conformance plus M9 integration and hostile-input checks; full package, browser, fuzz, oracle, benchmark, memory and evidence matrices run locally",
         "",
         "These gates harden the declared capability subsets. They do not promote Experimental lossy encoding or authorize a release. M10 reruns the M9 gates after its last production change.",
         "",

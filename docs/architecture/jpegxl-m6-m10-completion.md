@@ -1171,11 +1171,14 @@ Firefox and WebKit with retries disabled. The measured core plus JPEG XL entry i
 and the first small decode took 14.76 ms. These timings are observations from one
 machine, not portable performance thresholds.
 
-CI now separates the fast integration/security job, the Node package matrix, the
-three-browser matrix and scheduled extended fuzzing. Each job uses read-only
-repository permissions and uploads reports, crash inputs or traces even after a
-failure. The existing pinned oracle workflow caches builds under a key containing
-every oracle revision.
+Pull-request CI now uses one bounded JPEG XL smoke job. It verifies the generated
+baseline, all 39 checksum-pinned official conformance cases, the twelve M9
+integration workflows, and the mutation/resource gate. The repository-wide CI
+continues to cover Node 22, Node 24, package types, and Chromium, Firefox, and
+WebKit. Oracle builds, packed-import matrices, extended fuzzing, codec benchmarks,
+isolated memory measurements, holdouts, independent-decoder matrices, M10 `djxl`
+acceptance, and final evidence assembly run locally. This avoids duplicating the
+repository-wide checks and keeps pull-request validation bounded to twelve minutes.
 
 ### M9 acceptance checklist
 

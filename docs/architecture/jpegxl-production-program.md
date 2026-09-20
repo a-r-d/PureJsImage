@@ -539,10 +539,11 @@ gray-alpha inspection and emitted RGB semantics are distinct.
 The existing milestone reports above remain historical evidence for their named
 revisions. The new capability-specific report validates current raw gates and
 identifies missing extended runs and the known official delta-palette failure.
-Both lossless efforts run in PR CI; manual and scheduled runs also execute the
-250 selected M1 JPEGs, 300 M3 variants and their M5 workflows. The remediation
-ledger discloses procedural and upscaled corpora, the scoped RMSE exception,
-and every frozen holdout result, including compression expansions. Seven
-public examples and three-browser regressions cover the corrected boundary.
-M6 has not started. Final remote revision and artifact links are recorded in
-PR 35 after the corresponding exact-head jobs complete.
+At this historical checkpoint both lossless efforts ran in PR CI, while manual
+and scheduled runs executed the 250 selected M1 JPEGs, 300 M3 variants and their
+M5 workflows. After M10, automatic JPEG XL CI was reduced to the pinned official
+conformance and M9 hardening smoke gates. The expensive compression, oracle,
+holdout, package, browser, memory and evidence matrices now run locally. The
+remediation ledger discloses procedural and upscaled corpora, the scoped RMSE
+exception, and every frozen holdout result, including compression expansions.
+Seven public examples and three-browser regressions cover the corrected boundary.

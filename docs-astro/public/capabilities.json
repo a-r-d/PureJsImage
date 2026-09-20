@@ -5637,7 +5637,7 @@
         },
         {
           "status": "supported",
-          "text": "Fast integration, Node-package, browser and scheduled extended-fuzz CI jobs retain artifacts on failure"
+          "text": "One bounded pull-request smoke gate runs pinned conformance plus M9 integration and hostile-input checks; full package, browser, fuzz, oracle, benchmark, memory and evidence matrices run locally"
         },
         {
           "status": "supported",
