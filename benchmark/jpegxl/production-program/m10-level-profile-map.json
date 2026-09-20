@@ -58,7 +58,7 @@
     },
     "displayConversion": {
       "binary32": "explicit-finite-range-to-rgba16",
-      "alpha": "integer-preserved-floating-rejected-in-explicit-display-conversion",
+      "alpha": "straight-integer-preserved-floating-and-associated-rejected-in-explicit-display-conversion",
       "cmyk": "embedded-icc-to-rgba8-including-shifted-black-and-alpha",
       "nanAndInfinity": "rejected-for-integer-display-conversion"
     },

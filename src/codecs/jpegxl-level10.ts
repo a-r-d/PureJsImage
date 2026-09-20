@@ -70,7 +70,10 @@ const displayAlpha = (layer: Readonly<JpegXlNativeLayer>): Float64Array | undefi
     selected !== undefined && layer.header.extraChannels[selected]?.type === 0
       ? selected
       : layer.header.extraChannels.findIndex((channel) => channel.type === 0)
-  return index < 0 ? undefined : normalizedExtraPlane(layer, index)
+  if (index < 0) return undefined
+  if (layer.header.extraChannels[index]?.associatedAlpha)
+    throw unsupportedOperation('JPEG XL display conversion does not support associated alpha')
+  return normalizedExtraPlane(layer, index)
 }
 
 /** Returns caller-owned unsigned samples without losing integer or floating-point bit patterns. */
@@ -167,8 +170,7 @@ export const convertJpegXlCmykLayerToRgba8 = (
   const black = normalizedExtraPlane(layer, blackIndex)
   const transform = parseCmykIccTransform(profile)
   const output = new Uint8Array(pixels * 4)
-  const alphaIndex = layer.header.extraChannels.findIndex((channel) => channel.type === 0)
-  const alpha = alphaIndex < 0 ? undefined : normalizedExtraPlane(layer, alphaIndex)
+  const alpha = displayAlpha(layer)
   for (let index = 0; index < pixels; index++) {
     const target = index * 4
     writeCmykIcc(

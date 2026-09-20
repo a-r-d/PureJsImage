@@ -116,6 +116,24 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
       0, 32_896, 65_535,
     ])
 
+    const associatedLayer = await firstLayer(
+      await encodeJpegXlNative({
+        width: 1,
+        height: 1,
+        color: [
+          {
+            data: new Uint32Array(Float32Array.of(0.25).buffer),
+            bitDepth: 32,
+            sampleFormat: 'binary32',
+          },
+        ],
+        extraChannels: [{ type: 0, data: Uint8Array.of(128), bitDepth: 8, associatedAlpha: true }],
+      }),
+    )
+    expect(() =>
+      convertJpegXlFloat32LayerToRgba16(associatedLayer, { black: 0.1, white: 0.6 }),
+    ).toThrow('does not support associated alpha')
+
     const fixture = await firstLayer(
       new Uint8Array(await readFile(new URL('cmyk-layers.jxl', base))),
     )

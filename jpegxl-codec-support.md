@@ -15,7 +15,7 @@ with exact JPEG reconstruction. Only the checked items below are implemented.
 - [x] Include dimensions, total pixels and ICC profile size in automatic Level 5 or Level 10 selection
 - [x] Write general forward VarDCT at explicit Level 10 and select it automatically for exact Modular alpha above 12 bits
 - [x] Stream Level 10 VarDCT animation in an unbounded jxlc container without whole-output buffering
-- [x] Extract CMYK, black and independent alpha planes, preserve integer alpha during explicit display conversion and reject floating alpha
+- [x] Extract CMYK, black and independent alpha planes, preserve straight integer alpha during explicit display conversion and reject floating or associated alpha
 - [x] Write unshifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
 - [x] Run all 39 pinned official valid cases successfully, with no expected-unsupported cases left
 - [x] Accept Level 10 writer output in pinned libjxl djxl and rerun all M9 gates after the last production edit

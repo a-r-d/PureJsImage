@@ -608,9 +608,9 @@ export async function transcodeJpegToJpegXl(
     }
     if (options.sink) {
       throwIfAborted(options.signal)
-      await options.sink.write(data)
+      await waitForPromise(options.sink.write(data), options.signal)
       throwIfAborted(options.signal)
-      await options.sink.close()
+      await waitForPromise(options.sink.close(), options.signal)
       throwIfAborted(options.signal)
     }
     const savingsBytes = bytes.byteLength - data.byteLength
@@ -658,4 +658,4 @@ export async function transcodeJpegToJpegXl(
     for (let index = leases.length - 1; index >= 0; index -= 1) leases[index]?.release()
   }
 }
-import { throwIfAborted } from '../abort.ts'
+import { throwIfAborted, waitForPromise } from '../abort.ts'

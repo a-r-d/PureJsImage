@@ -985,31 +985,50 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     },
   )
 
-  it('cancels after sink write, skips close, aborts the sink, and releases managed bytes', async () => {
+  it('cancels a pending sink write, skips close, aborts the sink, and releases managed bytes', async () => {
     const source = new Uint8Array(readFileSync(primaryEntry.source))
     const controller = new AbortController()
     const reason = new Error('cancel during sink write')
     const abortReasons: unknown[] = []
-    let closes = 0
+    let closes = 0,
+      writeStarted: (() => void) | undefined,
+      releaseWrite: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      writeStarted = resolve
+    })
+    const pendingWrite = new Promise<void>((resolve) => {
+      releaseWrite = resolve
+    })
     const session = createEvidenceSession({ mode: 'trace' })
     const sink = {
-      async write(): Promise<void> {
-        controller.abort(reason)
+      write(): Promise<void> {
+        writeStarted?.()
+        return pendingWrite
       },
       async close(): Promise<void> {
         closes += 1
       },
       async abort(error: unknown): Promise<void> {
         abortReasons.push(error)
+        releaseWrite?.()
       },
     }
-    await expect(
-      transcodeJpegToJpegXl(source, {
-        sink,
-        signal: controller.signal,
-        evidence: session.context,
+    const transcode = transcodeJpegToJpegXl(source, {
+      sink,
+      signal: controller.signal,
+      evidence: session.context,
+    })
+    await started
+    controller.abort(reason)
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    const bounded = Promise.race([
+      transcode,
+      new Promise<never>((_resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error('pending sink write did not cancel')), 500)
       }),
-    ).rejects.toBe(reason)
+    ])
+    await expect(bounded).rejects.toBe(reason)
+    if (timeout) clearTimeout(timeout)
     const report = session.finalize('cancelled')
     expect(closes).toBe(0)
     expect(abortReasons).toEqual([reason])

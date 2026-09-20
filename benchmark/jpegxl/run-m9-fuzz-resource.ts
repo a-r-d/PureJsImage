@@ -7,6 +7,7 @@ import {
   isJpegXlWorkbenchRequest,
   planJpegXlWorkbenchNativeMemory,
 } from '../../docs-astro/src/scripts/jpegxl-workbench-types.ts'
+import type { PixelColorSemantics } from '../../src/color.ts'
 import { inspectJpegXlStructure, jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../../src/codecs/jpegxl-decode.ts'
 import { openJpegXlSequence } from '../../src/codecs/jpegxl-sequence.ts'
@@ -14,9 +15,13 @@ import { encodeJpegXlAnimation } from '../../src/codecs/jpegxl-sequence-encode.t
 import { openJpegXlSession } from '../../src/codecs/jpegxl-session.ts'
 import { ImageError } from '../../src/errors.ts'
 import { createEvidenceSession } from '../../src/evidence.ts'
-import { inspectJpegXl, transcodeJpegToJpegXl } from '../../src/jpegxl.ts'
+import {
+  inspectJpegXl,
+  reconstructJpegFromJpegXl,
+  transcodeJpegToJpegXl,
+} from '../../src/jpegxl.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
-import type { ImageSink } from '../../src/sink.ts'
+import { type ImageSink, Uint8ArraySink } from '../../src/sink.ts'
 import type { ImageSource } from '../../src/source.ts'
 import { MemorySource } from '../../src/source.ts'
 import {
@@ -125,6 +130,96 @@ const decodeMutation = async (id: string, path: string, divisor: number): Promis
   }
 }
 
+const targetedMutation = async (
+  id: string,
+  seed: Uint8Array,
+  divisor: number,
+  operation: (input: Uint8Array) => Promise<void>,
+): Promise<M9SafetyCase> => {
+  try {
+    await operation(seed)
+  } catch (cause) {
+    throw new Error(`M9 ${id} unmutated seed did not reach its target subsystem`, { cause })
+  }
+  const input = seed.slice()
+  const offset = Math.max(2, Math.min(input.length - 1, Math.floor(input.length / divisor)))
+  input[offset] = (input[offset] ?? 0) ^ (1 << (divisor % 8))
+  const started = now()
+  try {
+    await operation(input)
+    return row(id, input, started, { outcome: 'passed', managedLiveBytes: null })
+  } catch (error) {
+    return row(id, input, started, classify(error))
+  }
+}
+
+const exerciseAnimation = async (input: Uint8Array): Promise<void> => {
+  const sequence = await openJpegXlSequence(input)
+  let frames = 0,
+    sawTiming = false,
+    sawBlend = false
+  try {
+    for await (const frame of sequence.frames()) {
+      frames++
+      sawTiming ||= frame.durationTicks > 0 && BigInt(frame.startTicks) >= 0n
+      sawBlend ||= frame.header.blending?.mode === 2
+    }
+  } finally {
+    await sequence.close()
+  }
+  if (frames < 2 || !sawTiming || !sawBlend)
+    throw new Error('M9 animation seed did not exercise timing and reference blending')
+}
+
+const exerciseReconstruction = async (input: Uint8Array): Promise<void> => {
+  const jpeg = await reconstructJpegFromJpegXl(input)
+  if (jpeg[0] !== 0xff || jpeg[1] !== 0xd8 || jpeg.at(-2) !== 0xff || jpeg.at(-1) !== 0xd9)
+    throw new Error('M9 exact reconstruction did not emit a JPEG')
+}
+
+const writerWidth = 17,
+  writerHeight = 9
+const writerSeed = new Uint8Array(writerWidth * writerHeight * 3)
+for (let index = 0; index < writerSeed.length; index++) writerSeed[index] = (index * 29 + 17) & 255
+const writerSemantics: PixelColorSemantics = {
+  family: 'rgb',
+  primaries: 'srgb',
+  transfer: { kind: 'srgb' },
+  matrix: 'identity',
+  range: 'full',
+  alpha: 'none',
+  provenance: 'assumed-default',
+  renderingIntent: 'relative',
+}
+const exerciseWriters = async (input: Uint8Array): Promise<void> => {
+  if (input.length !== writerSeed.length) throw new Error('M9 writer seed extent changed')
+  for (const mode of ['lossless', 'lossy'] as const) {
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: writerWidth,
+      height: writerHeight,
+      pixelFormat: 'rgb8',
+      colorSemantics: writerSemantics,
+      options: mode === 'lossless' ? { mode, effort: 1 } : { mode, effort: 1, distance: 1 },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error(`M9 ${mode} writer is unavailable`)
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: writerWidth,
+      height: writerHeight,
+      stride: writerWidth * 3,
+      format: 'rgb8',
+      data: input,
+    })
+    await encoder.finish()
+    const inspection = await inspectJpegXl(sink.toUint8Array())
+    if (inspection.width !== writerWidth || inspection.height !== writerHeight)
+      throw new Error(`M9 ${mode} writer output extent changed`)
+  }
+}
+
 const fuzzPaths: Readonly<Record<string, readonly [string, number]>> = {
   'boxes-level-segments-metadata': ['tests/fixtures/jpegxl/m5-pipeline/segmented.jxl', 19],
   'entropy-prefix-ans-lz77': ['tests/fixtures/jpegxl/m7-effort1-context-map/image.jxl', 3],
@@ -141,16 +236,7 @@ const fuzzPaths: Readonly<Record<string, readonly [string, number]>> = {
     'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
     11,
   ],
-  'animation-reference-timing-blend': ['tests/fixtures/jpegxl/m8-sequence/newtons-cradle.jxl', 13],
   'icc-extra-channels': ['tests/fixtures/jpegxl/m4-color/vardct-alpha-0-2.jxl', 17],
-  'exact-jpeg-reconstruction': [
-    'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-rgb-exif.jxl',
-    23,
-  ],
-  'lossless-lossy-writers': [
-    'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort1.jxl',
-    29,
-  ],
   'native-display-conversion': ['tests/fixtures/jpegxl/m4-color/vardct-pq-16.jxl', 31],
 }
 
@@ -181,6 +267,34 @@ const runFuzzCases = async (): Promise<readonly M9SafetyCase[]> => {
           managedLiveBytes: null,
         }),
       )
+      continue
+    }
+    if (id === 'animation-reference-timing-blend') {
+      cases.push(
+        await targetedMutation(
+          id,
+          await fixture('tests/fixtures/jpegxl/m8-sequence/newtons-cradle.jxl'),
+          13,
+          exerciseAnimation,
+        ),
+      )
+      continue
+    }
+    if (id === 'exact-jpeg-reconstruction') {
+      cases.push(
+        await targetedMutation(
+          id,
+          await fixture(
+            'benchmark/fixtures/jpegxl/jpeg-reconstruction-v0.12.0/progressive-rgb-exif.jxl',
+          ),
+          23,
+          exerciseReconstruction,
+        ),
+      )
+      continue
+    }
+    if (id === 'lossless-lossy-writers') {
+      cases.push(await targetedMutation(id, writerSeed, 29, exerciseWriters))
       continue
     }
     const configured = fuzzPaths[id]
@@ -362,23 +476,55 @@ const runResourceCases = async (): Promise<readonly M9SafetyCase[]> => {
   cases.push(
     await resourceCase('pending-write-abort', jpeg, async () => {
       const controller = new AbortController()
-      let aborted = false
+      let aborted = false,
+        closeCalls = 0,
+        markWriteStarted: (() => void) | undefined,
+        releaseWrite: (() => void) | undefined
+      const writeStarted = new Promise<void>((resolve) => {
+        markWriteStarted = resolve
+      })
+      const pendingWrite = new Promise<void>((resolve) => {
+        releaseWrite = resolve
+      })
       const sink: ImageSink = {
-        async write() {
-          controller.abort()
+        write() {
+          markWriteStarted?.()
+          return pendingWrite
         },
         async close() {
-          throw new Error('M9 cancelled sink unexpectedly closed')
+          closeCalls++
         },
         async abort() {
           aborted = true
+          releaseWrite?.()
         },
       }
+      const transcode = transcodeJpegToJpegXl(jpeg, { sink, signal: controller.signal })
+      await writeStarted
+      controller.abort()
+      let timeout: ReturnType<typeof setTimeout> | undefined
       try {
-        await transcodeJpegToJpegXl(jpeg, { sink, signal: controller.signal })
+        await Promise.race([
+          transcode,
+          new Promise<never>((_resolve, reject) => {
+            timeout = setTimeout(
+              () => reject(new Error('M9 pending write did not cancel within 500ms')),
+              500,
+            )
+          }),
+        ])
       } catch (error) {
-        if (!aborted || !(error instanceof Error) || error.name !== 'AbortError') throw error
+        if (timeout) clearTimeout(timeout)
+        if (
+          !aborted ||
+          closeCalls !== 0 ||
+          !(error instanceof Error) ||
+          error.name !== 'AbortError'
+        )
+          throw error
         return { outcome: 'cancelled', code: 'ABORT_ERR', managedLiveBytes: null }
+      } finally {
+        releaseWrite?.()
       }
       throw new Error('M9 pending write abort was ignored')
     }),

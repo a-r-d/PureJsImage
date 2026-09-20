@@ -226,6 +226,18 @@ const run = async (mode: 'native' | 'progressive' | 'viewport'): Promise<void> =
       }
     }
   } catch (error) {
+    if (operation.signal.aborted) {
+      const cancelledSession = session
+      session = undefined
+      remote = undefined
+      lastKey = ''
+      lastFile = undefined
+      try {
+        await cancelledSession?.close()
+      } catch {
+        // A cancelled session is discarded even if cleanup reports the same cancellation.
+      }
+    }
     if (requestGeneration === generation) {
       if (lastComplete) paint(lastComplete)
       status.textContent = operation.signal.aborted

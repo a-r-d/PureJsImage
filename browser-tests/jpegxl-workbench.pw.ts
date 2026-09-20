@@ -52,6 +52,28 @@ test('JPEG XL progressive explorer cancels a stalled header fetch and can run ag
   await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
 })
 
+test('JPEG XL progressive explorer reopens the same input after decode cancellation', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.requestAnimationFrame = (callback) =>
+      window.setTimeout(() => callback(performance.now()), 250)
+  })
+  await page.goto('/jpeg-xl/')
+  await page
+    .locator('#jxl-progressive-file')
+    .setInputFiles(
+      'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+    )
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-canvas')).not.toHaveAttribute('width', '1')
+  await page.locator('#jxl-progressive-cancel').click()
+  await expect(page.locator('#jxl-progressive-status')).toHaveText('Cancelled.')
+
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
+})
+
 test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', async ({ page }) => {
   await page.goto('/jpeg-xl/')
 
