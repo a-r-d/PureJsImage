@@ -1,0 +1,397 @@
+{
+  "candidate": "integrated054",
+  "split": "development",
+  "reviewedAt": "2026-09-09T17:57:36.369Z",
+  "policy": "Worst matched-size expansion outliers selected from the complete frozen split summary. Original and native/first-party distance 1 and 3 mapped rasters inspected at all declared headrooms or both alpha backgrounds. Lossless PNG previews retain exact scored PPM pixels and hashes. Equal distance is diagnostic rather than matched quality. HDR inspection is of the declared mapped SDR rasters, not a claim of physical HDR display testing.",
+  "summaryPath": ".tmp/jpegxl-m7/expansion-quality-integrated054-final-summary.json",
+  "summarySha256": "ff4ad95686eb1daffb2da7edea801356df96b1bdf669fb7073812072c2ac2707",
+  "sources": [
+    {
+      "id": "polyhaven-qwantani_moon_noon",
+      "finding": "All 15 mapped panorama previews inspected across headrooms 1, 2 and 4. Both encoders smooth fine grass and remove faint stars at distance 3; the bright moon, shoreline and sky gradients remain coherent. No severe new banding, ringing or block corruption observed. Overall brightness changes across headrooms are already present in the mapped reference. This visual finding is limited to the declared display mapping.",
+      "previews": [
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-1-libjxl-1.png",
+          "sha256": "2af722f308401c33d415196305d645f523c47d50ddc44d9e1513eb2626713aa3",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-1/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "c72bc858182431badaac54c140ecf53a9c4fcd50c40d9a9fffcde43ba5c717ec",
+            "pixelsSha256": "286e013af32d3f7544bb5c202d4363bac18a67c459553945f906a9ced1887063",
+            "outputSha256": "2af722f308401c33d415196305d645f523c47d50ddc44d9e1513eb2626713aa3",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-1-libjxl-3.png",
+          "sha256": "c91eb9627079de441fcbbfaeb31dbc0194fb38c221bf947e95c7cf70c029f2d7",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-3/libjxl-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "6bd56f8ee9f256d10155a9bf905ec99ef1245c79dca0975f4fa1fc09aee26d9f",
+            "pixelsSha256": "bacde7044db4d7fc9bc409b205afa364c86b14d27befae1533a8a83702cd74fe",
+            "outputSha256": "c91eb9627079de441fcbbfaeb31dbc0194fb38c221bf947e95c7cf70c029f2d7",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-1-purejsimage-1.png",
+          "sha256": "1e89cc420d1f3980b547736b05898be8ec262304c6a0a096682a064f30d19bb0",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-1/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "68b9aa302c38a54ce5dd77e0b30f64b51606caecfcf85baac2b31fee4993baf7",
+            "pixelsSha256": "50956763bc48f65e4fc5c707cf0e73d191547096f22d5df80bcb2e9af71326ef",
+            "outputSha256": "1e89cc420d1f3980b547736b05898be8ec262304c6a0a096682a064f30d19bb0",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-1-purejsimage-3.png",
+          "sha256": "311c70245da8835089277f87a38572b2f2501dc948069c0b910a1e617e18823e",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-3/purejsimage-headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "c960248e72f701899fa25bc6db70bd91c2b050804ed4d1ebe7e2434efda338a5",
+            "pixelsSha256": "9ff061a7ce0c9cf744c26db12aaf996ed1bf4230f455d1fbe9ee49de96c14615",
+            "outputSha256": "311c70245da8835089277f87a38572b2f2501dc948069c0b910a1e617e18823e",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-1-reference.png",
+          "sha256": "6a924103814f2d3804d5416b3fecebae822a3a6b1777824c13ba76ddddbfb801",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-qwantani_moon_noon/headroom-1.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "cc74b3ffe9e9b28b8c4a15843184d93dc01ee617a64ad63a5a1dbdf09ce852c4",
+            "pixelsSha256": "321565883a2a7a559792de5fc20bd343185798df982442774f3b26afc4a89d84",
+            "outputSha256": "6a924103814f2d3804d5416b3fecebae822a3a6b1777824c13ba76ddddbfb801",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-2-libjxl-1.png",
+          "sha256": "d7ffb327c6f8d8642333b06fad1496e580b83f59fe05d2416fea1ce7ebd79fbf",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-1/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "3e1b35d3d1e190fee491ad37038105b82d0dd31ed7972fc2740bfaa19d29e166",
+            "pixelsSha256": "7d9a59667236611def3bb6ae5bfa4bbc33d16cea594075bc65c36a12e0e1f242",
+            "outputSha256": "d7ffb327c6f8d8642333b06fad1496e580b83f59fe05d2416fea1ce7ebd79fbf",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-2-libjxl-3.png",
+          "sha256": "e4d686a091357e59faa7cacb7cb4ef246e4bf2c4b8b8c10970492bf1ac7184df",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-3/libjxl-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "288531c185c89a87c78c9361a915ad99bcb493e1094638af0fb04be5b6e4f992",
+            "pixelsSha256": "9ae04d23e0e10c308e9a4939517a0a8c6638c5a2e8d99b10889a6546747cd0f6",
+            "outputSha256": "e4d686a091357e59faa7cacb7cb4ef246e4bf2c4b8b8c10970492bf1ac7184df",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-2-purejsimage-1.png",
+          "sha256": "eea5e247492773734caafd341a494bcf393b19626fcdc1aa23c71c17ced8a613",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-1/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "2b95782d39cff42f16197100f80703c12b3575a285ddce41d1d71be825ff20eb",
+            "pixelsSha256": "4283ba0f71fa924b245d08df34bec783505fdf172fa734408e3673d04e61253a",
+            "outputSha256": "eea5e247492773734caafd341a494bcf393b19626fcdc1aa23c71c17ced8a613",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-2-purejsimage-3.png",
+          "sha256": "1142b57779b9a7f60a3b066a17e69ee3ada1448598a3f88940eb9ea814323d7e",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-3/purejsimage-headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "69da704cb6acbcd2f0b5b93761aff5a0170e32485cce400c8318b0c192f9a008",
+            "pixelsSha256": "656bb5cad1bb89112104fb773e410a91e905128388f99eb2ef84ea7a631a9aff",
+            "outputSha256": "1142b57779b9a7f60a3b066a17e69ee3ada1448598a3f88940eb9ea814323d7e",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-2-reference.png",
+          "sha256": "305416787d2d191e88bef9abfd572b465234dfb8be1e86aed15f82e95b75a35b",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-qwantani_moon_noon/headroom-2.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "ab2e9e800ea56046e2acd943c8ab85b4ba43246a3a1083a68dd21baea92b5a36",
+            "pixelsSha256": "255cac7dc248d4a3ebaeea6d13e25696c5cddad20881d39e2587da34ff95a346",
+            "outputSha256": "305416787d2d191e88bef9abfd572b465234dfb8be1e86aed15f82e95b75a35b",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-4-libjxl-1.png",
+          "sha256": "910d38b06650122c64fb2d4b964bbdcc1267ecc49f794385d4b67000292c7a2f",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-1/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "30bb9f6d4e6de0683d885a270e4301f94ea20b2ce28b4405c6c6d245fd9f932f",
+            "pixelsSha256": "7ec9e668ef11841edfdfe06df73ec54a9d377de6047c4ec39a72c2f7491379c2",
+            "outputSha256": "910d38b06650122c64fb2d4b964bbdcc1267ecc49f794385d4b67000292c7a2f",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-4-libjxl-3.png",
+          "sha256": "06c30df400d6bcc083e4397a4b1cc067074a1f32c8910c6121a0ed1ee81ea672",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-3/libjxl-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "77ad812a77d769e5942b8316f2f48f01a23220d8eaa7667a7dce749b1a337f4e",
+            "pixelsSha256": "ff7c05e9674cae8f1ccf6b98ef36e1b0f423985dd843ed4f4f0f82b347ebe915",
+            "outputSha256": "06c30df400d6bcc083e4397a4b1cc067074a1f32c8910c6121a0ed1ee81ea672",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-4-purejsimage-1.png",
+          "sha256": "5a5a5f7ddc55de2f4820ef00b76697ef3f314229e6624704fe971fb46e834550",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-1/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "a92e0659f53f01460a1526393f2b350cc9c8dfaebe25f70fe9abd2ba12389eb9",
+            "pixelsSha256": "60be3491a4037f6bb5577ac031ea89d65328f6ea9cf5092700c7ba54a9f91522",
+            "outputSha256": "5a5a5f7ddc55de2f4820ef00b76697ef3f314229e6624704fe971fb46e834550",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-4-purejsimage-3.png",
+          "sha256": "6d5567799ede59db7ce5cb7ba71f4eef77b4f6230762034e4c39c1e410b16d9b",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/hdr-development-integrated054-final/polyhaven-qwantani_moon_noon/distance-3/purejsimage-headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "fb83c4eb7750223c6546803e1cb542b27b81efbfd3549c7e87d9bdc0aaa1ec66",
+            "pixelsSha256": "adf3b163fa804e0da045f43fb2edae6a15d2c38ad54fcd20c6328825d3c399c4",
+            "outputSha256": "6d5567799ede59db7ce5cb7ba71f4eef77b4f6230762034e4c39c1e410b16d9b",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-polyhaven-qwantani_moon_noon/headroom-4-reference.png",
+          "sha256": "b75ed8117a53fda65f707506920e463968236710a0e7809740c7eae946f8f6ff",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-qwantani_moon_noon/headroom-4.ppm",
+            "width": 2048,
+            "height": 1024,
+            "inputSha256": "edde5af5400c8a4d98e8f6d9da0324014f32c8f7af007c6c46b5a7986214dcb5",
+            "pixelsSha256": "1f40d043722fca04fbf0c766a851dc5bc77bddb3f3902fdfe674ef5a1d802b98",
+            "outputSha256": "b75ed8117a53fda65f707506920e463968236710a0e7809740c7eae946f8f6ff",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        }
+      ]
+    },
+    {
+      "id": "noto-1f600",
+      "finding": "All ten smiley previews inspected on black and white. Alpha silhouette remains clean on both backgrounds; exact alpha is separately proven numerically. Distance 3 shows visible roughness and light ringing around the orange mouth border, tongue and lower edge, and coarser gradient transitions. Native also changes these edges and gradients. No severe shape corruption or matte fringe observed; mild artifacts and the matched-size deficit remain limitations.",
+      "previews": [
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/black-libjxl-1.png",
+          "sha256": "64e777cfdbc5e29f20b9a81b46abeb0938a68303944968fb2f72c770d1e762fd",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/libjxl-1-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "023851409283b1c9cc26bd92fc445e96f4119013ef16d3a3702b033dba430c4b",
+            "pixelsSha256": "81d4cc49fd8d4ecaaebcc4e252b1920038b0c6184b0c2a6daf90b6b783b57821",
+            "outputSha256": "64e777cfdbc5e29f20b9a81b46abeb0938a68303944968fb2f72c770d1e762fd",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/black-libjxl-3.png",
+          "sha256": "efbbade648836b08317b35d99ab72fcc601699874c04c256b0add400b3b7beb0",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/libjxl-3-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "5401212d0dceee61922411793cf65c36215b6e250e2a925ae9282394eb243a04",
+            "pixelsSha256": "3337a5a95b308fa842cc17b9f62dcfe173cc71ff8d718dc0442f25f91e15a897",
+            "outputSha256": "efbbade648836b08317b35d99ab72fcc601699874c04c256b0add400b3b7beb0",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/black-purejsimage-1.png",
+          "sha256": "9cce9d4aecd053d3be506d9a5f2838245d64d32a2719df1dfec7af1deac851b0",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/purejsimage-1-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "bf6f435f2431d220e2a98545704347ea1c5c3e0e0f016ea995346d5d3eb1e842",
+            "pixelsSha256": "14d3415caea6a689980bada86de7e1c088cc3b8d1ad1924bfc2275d75838a694",
+            "outputSha256": "9cce9d4aecd053d3be506d9a5f2838245d64d32a2719df1dfec7af1deac851b0",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/black-purejsimage-3.png",
+          "sha256": "e3cb70457b4601b8134bd395bd461eb5f4205075d0cf74a8e4fa082e7e511ce4",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/purejsimage-3-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "807a0fb6d3e6e05103557ccbc9c654dfab4f0562aa48f3ccd979c6fd20dd7396",
+            "pixelsSha256": "e032907ff96378059544c4f27cf2eafc62970cacfc67ff99245b1cc968643ecb",
+            "outputSha256": "e3cb70457b4601b8134bd395bd461eb5f4205075d0cf74a8e4fa082e7e511ce4",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/black-reference.png",
+          "sha256": "a7c897bd3dd17ddf3c9d918c4ff27a5e62946bc854469cefe2f82121c0e2eccb",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/noto-1f600/background-black.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "876348ed533a4f1e7aafd64f164c09529a783425eeea34ffe56aa29873bc4337",
+            "pixelsSha256": "9bad7f1bd5195805d2e0dfcd77552c424a44b90d88ef165888e004d5b3d8a092",
+            "outputSha256": "a7c897bd3dd17ddf3c9d918c4ff27a5e62946bc854469cefe2f82121c0e2eccb",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/white-libjxl-1.png",
+          "sha256": "10f66452018d203d677d952ae57b056a8c6e32d46d4d726d2075125ec1893ed3",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/libjxl-1-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "69b88ca23c7ba91998fa28c33d7ee55bfa55fb3019343b4ac94e827f2655b76c",
+            "pixelsSha256": "5c08134491368e2ffc62889060165e2be8c9bf7b2152c837b6bb8e2a53edfb13",
+            "outputSha256": "10f66452018d203d677d952ae57b056a8c6e32d46d4d726d2075125ec1893ed3",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/white-libjxl-3.png",
+          "sha256": "58a5d99db5467c8d67730b7f9808cea3f69981f8049125dd24803bdd77a03c78",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/libjxl-3-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "df95a82152cb5b158ff9ecc1cc87c860184d7da937ac04e549e507ecd3b2b75f",
+            "pixelsSha256": "1c8c8193b4654991308f5c9fc1ade76da04151640db19b7972efb5c918221884",
+            "outputSha256": "58a5d99db5467c8d67730b7f9808cea3f69981f8049125dd24803bdd77a03c78",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/white-purejsimage-1.png",
+          "sha256": "98261a2c29db143c0d8f6fbef105e7144825a7b312e6c6ed732e307ea82207af",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/purejsimage-1-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "4887e06e93484630344ef67db938c31d5c634e51802dbf9e0c086190b482b81b",
+            "pixelsSha256": "6c10d68ce2a7eaa03a99f61ae704cd4c95ca0ef9a489752ce4918e890b8913e9",
+            "outputSha256": "98261a2c29db143c0d8f6fbef105e7144825a7b312e6c6ed732e307ea82207af",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/white-purejsimage-3.png",
+          "sha256": "b8a51f844db8cf7924c5d01351b7f7a8bbd317ccd63d3680c5b6152b18f89425",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/alpha-development-integrated054-final/noto-1f600/purejsimage-3-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "a8638a09414ba68bf9b876481038858ac7abfe935657cdbb2ed27f8715276e5c",
+            "pixelsSha256": "ea491b71e1005405ac569921a13ca77b85d81540bde1e6ee8d2c2b92c59f2761",
+            "outputSha256": "b8a51f844db8cf7924c5d01351b7f7a8bbd317ccd63d3680c5b6152b18f89425",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/expansion-visual-development-noto-1f600/white-reference.png",
+          "sha256": "cc23f9c77513a3a6d50e7fe44030ff9752ff1f3b64cec1833f5da33d6aaa31f7",
+          "provenance": {
+            "input": ".tmp/jpegxl-m7/expansion-inputs/noto-1f600/background-white.ppm",
+            "width": 512,
+            "height": 512,
+            "inputSha256": "624f8a195aaf91ac31f45404dd73e9bde82dbb7ffb2b936d2a88f04eb1ce48d5",
+            "pixelsSha256": "7be0da990700b4eba44fd942a65b10727aff51bdc2415c5ad7f229e530c8dee2",
+            "outputSha256": "cc23f9c77513a3a6d50e7fe44030ff9752ff1f3b64cec1833f5da33d6aaa31f7",
+            "harnessSha256": "4fb1e0ca4e8027da77cde65e41bd3b6a3045f4a0e95fed387d8c45920cbc859c",
+            "policy": "Lossless PNG preview of saved RGB8 display pixels, no color conversion or rescaling. At most 2 MP; one process and one Sharp thread."
+          },
+          "reviewStatus": "inspected"
+        }
+      ]
+    }
+  ]
+}

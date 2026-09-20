@@ -1,0 +1,80 @@
+{
+  "encoderHash": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762",
+  "flags": [
+    "--modular=0",
+    "--distance=1",
+    "--effort=3",
+    "--num_threads=1",
+    "--progressive_ac",
+    "--progressive_dc=1",
+    "--patches=0",
+    "--dots=0"
+  ],
+  "width": 4097,
+  "height": 513,
+  "inputSha256": "105e6f2bf150ec0e2991bfa26578adfc1b68b61ded87a99ab45d3d0b7918f12a",
+  "sourceSha256": "2b009c7d461677bad17dd71188c7ea0ef9497f55684bba72f35b05da68deb157",
+  "source": "First-party analytical RGB pattern; native libjxl encoder and C API flush oracle, followed by integer sample selection.",
+  "stages": [
+    {
+      "stage": 0,
+      "scale": 8,
+      "region": {
+        "x": 100,
+        "y": 120,
+        "width": 31,
+        "height": 27
+      },
+      "width": 4,
+      "height": 4,
+      "file": "stage-0.bin",
+      "sha256": "f5aa5cab747f2769982490e5b1636fa7b8deceea813f193197c20eb6f52e73d6",
+      "fullOracleSha256": "fca36c591af6c91fcb30f57cb2757782998a6b213631c8aeb265238acf509c15"
+    },
+    {
+      "stage": 1,
+      "scale": 4,
+      "region": {
+        "x": 100,
+        "y": 120,
+        "width": 31,
+        "height": 27
+      },
+      "width": 8,
+      "height": 7,
+      "file": "stage-1.bin",
+      "sha256": "6bba884caa4932695a97b6d4ac420d20927b60b4c854b84018a99ac62faca018",
+      "fullOracleSha256": "d6e017c96198b2bcb4956fcb03f7f9e952b93df7d1cc0c0695c704f44b6c01bf"
+    },
+    {
+      "stage": 2,
+      "scale": 2,
+      "region": {
+        "x": 100,
+        "y": 120,
+        "width": 31,
+        "height": 27
+      },
+      "width": 16,
+      "height": 14,
+      "file": "stage-2.bin",
+      "sha256": "4b8480936d4f93a570334d0a56f8f34603d9fecd027c05e188ffef86d5ec3629",
+      "fullOracleSha256": "08aedf1ab87e32af8b05f87ebb5895ff7d92669c78cc6d20ff8ae615c44b90ed"
+    },
+    {
+      "stage": 3,
+      "scale": 1,
+      "region": {
+        "x": 100,
+        "y": 120,
+        "width": 31,
+        "height": 27
+      },
+      "width": 31,
+      "height": 27,
+      "file": "stage-3.bin",
+      "sha256": "f1c7461ad5812c891db2132e7b73b22a4a93b4f4ff8462173c81cf9d58279446",
+      "fullOracleSha256": "e5a63c1bbd43b43d57c149d570d2eca87ffbf2cd305b8e73960859d816a14ee5"
+    }
+  ]
+}

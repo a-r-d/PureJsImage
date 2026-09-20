@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { access, readFile } from 'node:fs/promises'
 import { describe, expect, test } from 'vitest'
+import { matchesCurrentConformanceExpectation } from '../benchmark/jpegxl/production-program/conformance-expectation.ts'
 
 const root = 'benchmark/jpegxl/production-program'
 
@@ -26,6 +27,15 @@ const digest = async (path: string): Promise<string> =>
     .digest('hex')
 
 describe('JPEG XL production program baseline', () => {
+  test('requires pinned current success after a historical failure is fixed', () => {
+    const pinned = 'a'.repeat(64)
+    expect(
+      matchesCurrentConformanceExpectation('expected-unsupported', undefined, pinned, true),
+    ).toBe(false)
+    expect(matchesCurrentConformanceExpectation('pass', pinned, pinned, false)).toBe(true)
+    expect(matchesCurrentConformanceExpectation('pass', 'b'.repeat(64), pinned, false)).toBe(false)
+  })
+
   test('tracks every milestone deterministically with the approved M1 through M5 promotions', async () => {
     const status = await json(`${root}/status.json`)
     const milestones = array(status.milestones, 'status.milestones').map((value) =>
@@ -44,7 +54,9 @@ describe('JPEG XL production program baseline', () => {
       'M9',
       'M10',
     ])
-    expect(['in progress', 'PR open']).toContain(milestones[0]?.status)
+    expect(milestones.slice(0, 6).map(({ status }) => status)).toEqual(
+      Array.from({ length: 6 }, () => 'merged'),
+    )
     expect(milestones.map(({ stablePromotionGatePassed }) => stablePromotionGatePassed)).toEqual([
       false,
       true,
@@ -52,7 +64,7 @@ describe('JPEG XL production program baseline', () => {
       true,
       true,
       true,
-      false,
+      true,
       false,
       false,
       false,
@@ -70,7 +82,7 @@ describe('JPEG XL production program baseline', () => {
     })
     expect(record(jpegXl?.write, 'jpegxl.write')).toEqual({
       status: 'limited',
-      label: 'Stable lossless and exact transcode',
+      label: 'Stable lossless and exact transcode; experimental lossy',
     })
   })
 
@@ -191,7 +203,7 @@ describe('JPEG XL production program baseline', () => {
       malformed: count('malformed-safely-rejected'),
       incorrect: count('incorrect-output'),
       unexpected: count('unexpected-failure'),
-    }).toEqual({ pass: 13, unsupported: 25, malformed: 0, incorrect: 0, unexpected: 1 })
+    }).toEqual({ pass: 15, unsupported: 23, malformed: 0, incorrect: 0, unexpected: 1 })
     expect(cases.filter(({ id }) => id === 'upsampling' || id === 'upsampling_5')).toEqual([
       expect.objectContaining({ baselineClassification: 'pass' }),
       expect.objectContaining({ baselineClassification: 'pass' }),

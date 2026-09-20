@@ -363,6 +363,7 @@ await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+    'jpegxl-progressive-workbench': 'docs-astro/src/scripts/jpegxl-progressive-workbench.ts',
     'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
     'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
@@ -431,6 +432,10 @@ const wasmFiles: readonly (readonly [string, string])[] = [
 await copyFile(
   'tests/fixtures/jpegxl/m5-pipeline/segmented.jxl',
   resolve(fixtureDirectory, 'jpegxl-m5-segmented.jxl'),
+)
+await copyFile(
+  'tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl',
+  resolve(fixtureDirectory, 'jpegxl-m10-lossless-pfm.jxl'),
 )
 for (const name of await readdir('tests/fixtures/jpegxl/m4-color')) {
   await copyFile(

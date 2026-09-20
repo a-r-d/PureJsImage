@@ -1,0 +1,254 @@
+{
+  "sourceSha256": "477920d848bc4a53abbfea720fbaaf067a8187a64d900f47613026fcb11df8ab",
+  "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+  "spot": {
+    "inputSha256": "69d48f7ace25683db9eb908f112cef112bd1583870abab0fbf166018889893fa",
+    "outputSha256": "9002b9abcc1872024aa8ec2db4254eb3170d3984ddb6d506587708b0be88b40f",
+    "layers": [
+      {
+        "index": 0,
+        "extraChannels": [
+          {
+            "index": 0,
+            "type": 0,
+            "bitDepth": {
+              "bits": 16,
+              "exponentBits": 0,
+              "sampleFormat": "unsigned-integer"
+            },
+            "name": "",
+            "dimShift": 0,
+            "associatedAlpha": false
+          },
+          {
+            "index": 1,
+            "type": 2,
+            "bitDepth": {
+              "bits": 16,
+              "exponentBits": 0,
+              "sampleFormat": "unsigned-integer"
+            },
+            "name": "",
+            "spotColor": [0.196044921875, 0.39208984375, 0.587890625, 1],
+            "dimShift": 0,
+            "associatedAlpha": false
+          },
+          {
+            "index": 2,
+            "type": 2,
+            "bitDepth": {
+              "bits": 16,
+              "exponentBits": 0,
+              "sampleFormat": "unsigned-integer"
+            },
+            "name": "",
+            "spotColor": [0.90185546875, 0, 0.94091796875, 1],
+            "dimShift": 0,
+            "associatedAlpha": false
+          }
+        ],
+        "channels": [
+          {
+            "channel": 0,
+            "width": 600,
+            "height": 400,
+            "nativeSha256": "d5a4a4da3ce0b9f2d4ee647f13ca8f5b6cc43108dead6dd31c3ca94c10c13a58",
+            "differences": 0,
+            "maximumFloatError": 0.0019530653953552246,
+            "passed": true
+          },
+          {
+            "channel": 1,
+            "width": 600,
+            "height": 400,
+            "nativeSha256": "d5a4a4da3ce0b9f2d4ee647f13ca8f5b6cc43108dead6dd31c3ca94c10c13a58",
+            "differences": 0,
+            "maximumFloatError": 0.0019521117210388184,
+            "passed": true
+          },
+          {
+            "channel": 2,
+            "width": 600,
+            "height": 400,
+            "nativeSha256": "d5a4a4da3ce0b9f2d4ee647f13ca8f5b6cc43108dead6dd31c3ca94c10c13a58",
+            "differences": 0,
+            "maximumFloatError": 0.0019521117210388184,
+            "passed": true
+          },
+          {
+            "channel": 3,
+            "width": 600,
+            "height": 400,
+            "nativeSha256": "af1fb3518ac82c84e78bf4bd7cc3647c59463aa8626385fb1cd5dbc0b783b628",
+            "differences": 0,
+            "maximumFloatError": 0,
+            "passed": true
+          },
+          {
+            "channel": 4,
+            "width": 600,
+            "height": 400,
+            "nativeSha256": "ac080149056d3704c1dfcf555bdc31d2cdee2a0f3aa54585ae1e722c824a5b2e",
+            "differences": 0,
+            "maximumFloatError": 0.0019521117210388184,
+            "passed": true
+          },
+          {
+            "channel": 5,
+            "width": 600,
+            "height": 400,
+            "nativeSha256": "9e4f83f3a1c739ee5976b74c4f7576245c9279692cdb038e6a6de30fce0ece09",
+            "differences": 0,
+            "maximumFloatError": 0.0019530653953552246,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "index": 1,
+        "extraChannels": [
+          {
+            "index": 0,
+            "type": 0,
+            "bitDepth": {
+              "bits": 16,
+              "exponentBits": 0,
+              "sampleFormat": "unsigned-integer"
+            },
+            "name": "",
+            "dimShift": 0,
+            "associatedAlpha": false
+          },
+          {
+            "index": 1,
+            "type": 2,
+            "bitDepth": {
+              "bits": 16,
+              "exponentBits": 0,
+              "sampleFormat": "unsigned-integer"
+            },
+            "name": "",
+            "spotColor": [0.196044921875, 0.39208984375, 0.587890625, 1],
+            "dimShift": 0,
+            "associatedAlpha": false
+          },
+          {
+            "index": 2,
+            "type": 2,
+            "bitDepth": {
+              "bits": 16,
+              "exponentBits": 0,
+              "sampleFormat": "unsigned-integer"
+            },
+            "name": "",
+            "spotColor": [0.90185546875, 0, 0.94091796875, 1],
+            "dimShift": 0,
+            "associatedAlpha": false
+          }
+        ],
+        "channels": [
+          {
+            "channel": 0,
+            "width": 381,
+            "height": 145,
+            "nativeSha256": "ab4abc4387a42d45e987a64292ab5879a56044a67380e27f6dabb64a251f09aa",
+            "differences": 0,
+            "maximumFloatError": 0,
+            "passed": true
+          },
+          {
+            "channel": 1,
+            "width": 381,
+            "height": 145,
+            "nativeSha256": "ab4abc4387a42d45e987a64292ab5879a56044a67380e27f6dabb64a251f09aa",
+            "differences": 0,
+            "maximumFloatError": 0,
+            "passed": true
+          },
+          {
+            "channel": 2,
+            "width": 381,
+            "height": 145,
+            "nativeSha256": "ab4abc4387a42d45e987a64292ab5879a56044a67380e27f6dabb64a251f09aa",
+            "differences": 0,
+            "maximumFloatError": 0.0012254714965820312,
+            "passed": true
+          },
+          {
+            "channel": 3,
+            "width": 381,
+            "height": 145,
+            "nativeSha256": "0101687e1ac2419fe97cbcd85ec5c6d222afd5a9cfd9c469c6bc5c7cd8f8aa1c",
+            "differences": 0,
+            "maximumFloatError": 0.00194549560546875,
+            "passed": true
+          },
+          {
+            "channel": 4,
+            "width": 381,
+            "height": 145,
+            "nativeSha256": "2c999617f19fbfb4071e33f3528442d0b492c4effccc88f89b16fade4bec9e08",
+            "differences": 0,
+            "maximumFloatError": 0,
+            "passed": true
+          },
+          {
+            "channel": 5,
+            "width": 381,
+            "height": 145,
+            "nativeSha256": "2c999617f19fbfb4071e33f3528442d0b492c4effccc88f89b16fade4bec9e08",
+            "differences": 0,
+            "maximumFloatError": 0,
+            "passed": true
+          }
+        ]
+      }
+    ]
+  },
+  "written": [
+    {
+      "id": "gray16-alpha-icc",
+      "outputSha256": "ae0b76756203eb42e80255eb55f3041a99d3be0f4f54aa090bbb1edf6ec1115c",
+      "nativeNpySha256": "37aa4dfc48f1d006f7df9ea6d462a9393be45f4654dd99583ef4cebffa0f8bca",
+      "nativeProfileSha256": "3f62598dfd40d6642ca5fd962559bb6615af15448a57a3972a4089c109e62fbd",
+      "profileMatches": true,
+      "cmm": {
+        "target": "Gra_D65_Rel_Lin",
+        "outputSha256": "26fccba0f0d1bdd7136b4c0ec1716836d7015642a50ca58ac740fc211d427fa7",
+        "values": [
+          0, 0, 0.00025530660059303045, 0.0015259021893143654, 0.40000808238983154,
+          0.5000076293945312, 1, 1
+        ]
+      },
+      "differences": 0,
+      "passed": true
+    },
+    {
+      "id": "rgb16-icc",
+      "outputSha256": "a72ea51765e2a4e778eddd359a416df057a16a47e83bf75d0d462880fa12fda8",
+      "nativeNpySha256": "bec6ab6180533233039e8422ecc2dd009dcbe4093ba58fd9b6e4cef35f79f8da",
+      "nativeProfileSha256": "6603ae12a4ac1ac742cacd887e9b35552a12c354ff25a00cae069ad4b932e6cc",
+      "profileMatches": true,
+      "cmm": {
+        "target": "RGB_D65_SRG_Rel_Lin",
+        "outputSha256": "77c344ee34c710edb8330bce067b35c3bf35494af33e6987faeabfb691dd4e77",
+        "values": [
+          0, 0, 0, 0.00011911246838280931, 0.0001190935363410972, 0.00011904316488653421,
+          0.21408165991306305, 0.2140476107597351, 0.21395710110664368, 1.000133991241455,
+          0.9999749660491943, 0.9995520710945129
+        ]
+      },
+      "differences": 0,
+      "passed": true
+    },
+    {
+      "id": "binary16",
+      "outputSha256": "a09cb797e078a3b8fff4be0cd3c76b81b5986c56e6e0a4d08826da00e5816561",
+      "nativeNpySha256": "bef2a60d4699f51c4984e7975c881ce71dba69c587b879244778596cb9e59564",
+      "profileMatches": true,
+      "differences": 0,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

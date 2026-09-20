@@ -1,0 +1,17 @@
+{
+  "encoderHash": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762",
+  "orientationBitOffset": 33,
+  "flags": [
+    "--modular=0",
+    "--distance=2",
+    "--effort=3",
+    "--num_threads=1",
+    "--progressive_dc=0",
+    "--patches=0",
+    "--dots=0"
+  ],
+  "mainSha256": "9fe91c79eb4862c4d4f6c4cd8d3bb565cc0598982c5d89ee94a056b008ac67d1",
+  "previewSha256": "4ae0a65e0e1d38e011d510f94e8c22d44b484ac3ec7a53125fe67e3eb5e4dc04",
+  "inputSha256": "8eda8545669657efb2c093eacf43628052d92d468f4e75d80bed96fdd09f29f6",
+  "assembly": "Native independent frames, first-party image-header composition. Expected pixels must come from the pinned C decoder."
+}

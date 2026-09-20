@@ -1,0 +1,527 @@
+{
+  "scope": "Six observed real-photo families: 18 positive re-encode workflows across Modular, native VarDCT and explicitly normalized JPEG derivatives, plus six original JPEG eligibility exclusions. Source and output pixels verified independently; normalized JPEGs reconstruct byte-exactly through native djxl. Derivatives are not additional families or held-out quality evidence.",
+  "protocol": {
+    "policy": "Six previously observed development photo families, all three input representations, native dimensions. Public pipeline re-encodes at distance 3, effort 7, progressive. No exclusion after results; failures retained. Input and output pixels are compared independently, with maximum RGB8 difference 2. This is interoperability regression evidence, not matched-quality or unseen-holdout evidence.",
+    "ids": ["im26-1030", "im26-1214", "im26-1466", "im26-1612", "im26-2026", "im26-2400"],
+    "origins": ["modular", "native-vardct", "jpeg-transcoded"],
+    "startedAt": "2026-09-09T01:03:47.604Z",
+    "harnessSha256": "dbfc3ff86428e5cb262f26e6b106bdf2f4e8003878158f60a97b4062c5b7efd8",
+    "source": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "bd76ee2ec211ae0a5a45fcb8a1f96235b3de8dec77ac0ffa52d5210122c7b194"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "b45866a4139c49764b07729793cc5e68f19c0f3166dd08cd03138a8bcf6cfe5f"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "a7277b37b0e8a6e4899647f762f9c1023621d04fdd6f2b0f2f0fc7f3898dae89"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "c9d402b87b57a5be30be27c1ad8ba3375c47214f6835402401c0345760629724"
+      }
+    ],
+    "tools": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/jxlinfo",
+        "sha256": "d02df1a4e28581ee4ed08dda3f8df09e3cd868d7dbc48db23bae8291a61d7ce0"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      }
+    ]
+  },
+  "result": {
+    "expected": 18,
+    "completed": 18,
+    "expectedUnsupported": 6,
+    "failed": 0,
+    "results": [
+      {
+        "outputMaximum": 1,
+        "id": "im26-1030",
+        "origin": "modular",
+        "status": "verified",
+        "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+        "inputSha256": "59cf8425dd3a011def08fbac2cb0d8f49ae0df8b353dcb9dbad0f2e494ec7ad0",
+        "inputMaximum": 0,
+        "inputPixelSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "bytes": 715578,
+        "outputSha256": "aa5bf933c9c428130e257fd35dfdd17e1c144f0dabaebafc90fa98de215d5fd2",
+        "nativePixelSha256": "84f10b3da8ccf23173970b4c8c9224a495231b65dfe3bfb3fa12f7fa9744d30f",
+        "rustPixelSha256": "8b72e8340f0846aede5ac7484ef15a1bfdd3feb645304ea9a2f63c8cfa22052b",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1030",
+        "origin": "native-vardct",
+        "status": "verified",
+        "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+        "inputSha256": "1d2475b5e83ff81c99c55a97083940d5effa844713f502b80c82c747f897715c",
+        "inputMaximum": 1,
+        "inputPixelSha256": "04d16480fd465cac16218c02f76be59857abf6c75d71ed28ef86cd43b3cdf811",
+        "bytes": 744810,
+        "outputSha256": "b8d9fe77c2ca8dda15b19f9e42847ba98d6e6de1b312f5b3f0b90eda1d7a21cc",
+        "nativePixelSha256": "1bb98d5fb2712d168f6e5f2ba489e54596dd01b2fd808c3fd9c056d84889c874",
+        "rustPixelSha256": "fdac81aeece04994d7959fd90c27cd4edb059b35af85b68a44d00c2092b63adb",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "id": "im26-1030",
+        "origin": "jpeg-transcoded",
+        "status": "expected-unsupported",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-display-orientation"],
+          "reasons": ["JPEG display orientation 6 is not supported for exact transcode"]
+        },
+        "error": "JPEG display orientation 6 is not supported for exact transcode"
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1214",
+        "origin": "modular",
+        "status": "verified",
+        "sourceSha256": "e31bdea2aba64b5b75f513786fca37de61dec8ce91a579de1479effbe3eb5a3e",
+        "inputSha256": "5553b3f83681bfabc9bfa4547b7184ef9b96e47fb4d37a8f96435ce7cf33e8c0",
+        "inputMaximum": 0,
+        "inputPixelSha256": "e5373b890cc8f39f1b4a14734043a51587c365ba632f34dd0d35fb47e32e6f8c",
+        "bytes": 2412144,
+        "outputSha256": "d7c7762304f88338a408f2c3eca0126982de77a4f6790e12174a90d31a73cb50",
+        "nativePixelSha256": "165cedd3ddbb83116ca850eccaa47a927e23f8f16f8d833320ba8dd185874350",
+        "rustPixelSha256": "ed2ad79b5a6859176b95adea5bbe9d210a3579af8c56201b5d44307cd4a926c3",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1214",
+        "origin": "native-vardct",
+        "status": "verified",
+        "sourceSha256": "e31bdea2aba64b5b75f513786fca37de61dec8ce91a579de1479effbe3eb5a3e",
+        "inputSha256": "bb1f574d8c46e8bc97807cd71a80ca80ffad609d7dc5791fcf150adfea0abd76",
+        "inputMaximum": 1,
+        "inputPixelSha256": "abb840307f72d9e4c6d5ef73ae658dca041a149ab2892a1d9cd566754331fc90",
+        "bytes": 2335354,
+        "outputSha256": "afbd69b3bdebee7076002ee711b0799418bd2efd8a09bdb76b132e16ca2f0ad3",
+        "nativePixelSha256": "f3cbb445251119202061cb0df8aea02ecc095dcf584340da94b33f71a770a1ec",
+        "rustPixelSha256": "1dc47f676470171ebcc139e46fe181a5e6f57bb9c4e09d4aad82910fbb99ad00",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "id": "im26-1214",
+        "origin": "jpeg-transcoded",
+        "status": "expected-unsupported",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-exif-color-space"],
+          "reasons": ["JPEG Exif color space uncalibrated is unsupported"]
+        },
+        "error": "JPEG Exif color space uncalibrated is unsupported"
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1466",
+        "origin": "modular",
+        "status": "verified",
+        "sourceSha256": "9ab14263031a0c5ac2768e29b3ec41d03ffc7432a6e54d72fef6d67e0756b0b1",
+        "inputSha256": "ad9f2c8a3d19bf9b24f9e624bf4843c1f9f470fe47fd20860e8925101929e7d9",
+        "inputMaximum": 0,
+        "inputPixelSha256": "5684e3f1fb0d9745e022c4020a759c6012b9f01e0a21c844c292a2fe2eab4ca4",
+        "bytes": 572354,
+        "outputSha256": "ccbbb7456ca70a1a5eec6112a88304f26439b6899cb51d67d92758c2e7f72c14",
+        "nativePixelSha256": "a6d9dc22477fc6c3351911f6b70a687aa29924908d07a24fe469c54bcdc5b8cf",
+        "rustPixelSha256": "13526afd8cf9cc884572f4bcfe72ec7766434eadedc510c10d48ae2c7880307a",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1466",
+        "origin": "native-vardct",
+        "status": "verified",
+        "sourceSha256": "9ab14263031a0c5ac2768e29b3ec41d03ffc7432a6e54d72fef6d67e0756b0b1",
+        "inputSha256": "7f63dfede4a1137e793d3b1138cb7fed179e37628955cb71270f0e6d499c6994",
+        "inputMaximum": 1,
+        "inputPixelSha256": "b61261c12a5994b7dde39460a88b4b9dfcac0189bfaa21a74ce1997531f4d801",
+        "bytes": 613831,
+        "outputSha256": "9cdfac7bd4065773f5b7f408f9d52f56214e68af94b8e9e3586a54fe86927f17",
+        "nativePixelSha256": "23ce5a012dbc48bc3e0d5a802acf798274e037ebf48064a5e6f6c751a0ed41fb",
+        "rustPixelSha256": "144d7683f39ce71803d77917833d7553031513604bb78e0d4b695ea33117184d",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "id": "im26-1466",
+        "origin": "jpeg-transcoded",
+        "status": "expected-unsupported",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-display-orientation"],
+          "reasons": ["JPEG display orientation 3 is not supported for exact transcode"]
+        },
+        "error": "JPEG display orientation 3 is not supported for exact transcode"
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1612",
+        "origin": "modular",
+        "status": "verified",
+        "sourceSha256": "e2308dce92230b6336c7de92f0d5f5f7646c581fc340f28a38ee55e720b4e08f",
+        "inputSha256": "3fa2c63299b4c64e42d848832953e121ad0e3b4cf10791410b7319fc81621c2b",
+        "inputMaximum": 0,
+        "inputPixelSha256": "d61596e2351ac6000af8fc64433449aa192dec2f6b1b5c6d68f4bfe804809680",
+        "bytes": 871988,
+        "outputSha256": "e61a7052ad485e994307a47b6c0f78bf9088e68cfadb877577540bb9659c3f9b",
+        "nativePixelSha256": "e6eace78353360248f1133217c7dbeb6d67a8cfbeee281f9995119d4b3d13191",
+        "rustPixelSha256": "913a4aa88f9212187bfd840eccfd6f3844f11d9d815386aba614affd5f9efd9f",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-1612",
+        "origin": "native-vardct",
+        "status": "verified",
+        "sourceSha256": "e2308dce92230b6336c7de92f0d5f5f7646c581fc340f28a38ee55e720b4e08f",
+        "inputSha256": "a35cf0b4c32dd7c6ea5fa0c60c0bd8570298a013e43f5e982d10135d7802b927",
+        "inputMaximum": 1,
+        "inputPixelSha256": "4e87457d9bf3d0c3bf58c02a904c66c4b97a2e90ad638ad7a1c09fdf116b20bb",
+        "bytes": 871659,
+        "outputSha256": "6afdcf982af8c40f732d915c0dfafed8c97932d112fa473e1c8a2e5b3c70cb85",
+        "nativePixelSha256": "851153d6e4d3e0b073cff4623be04492ebbf7838e3e6e956f8d0db4695aece80",
+        "rustPixelSha256": "b4ca779966f1c7bb1d122d09b1df62b6f324a9c5d506b2ddbc0a5b40806db4b3",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "id": "im26-1612",
+        "origin": "jpeg-transcoded",
+        "status": "expected-unsupported",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-color-profile"],
+          "reasons": ["JPEG color profile is not the independently validated sRGB profile"]
+        },
+        "error": "JPEG color profile is not the independently validated sRGB profile"
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-2026",
+        "origin": "modular",
+        "status": "verified",
+        "sourceSha256": "59b0ec097ff28fb0e0d46890c52ce2531ebd135459735b3576ce264a042a0c66",
+        "inputSha256": "d2245e6ed71ac6c9a8ae2e7d109e82e11a1923585a4182e9336797508ad453a0",
+        "inputMaximum": 0,
+        "inputPixelSha256": "c09ab5fc1ab894f464fb624bae295ab25309f202c2129722564c922efdc90bdc",
+        "bytes": 2502268,
+        "outputSha256": "b74a4169379557f837277503e07e6afdf93b082626b427a216eff60d2a7e5eb9",
+        "nativePixelSha256": "cdfa27ba8d306d738a96b8963ddcf273406ae9da7505bd16fd03d1bdf6f1cd72",
+        "rustPixelSha256": "eabe733fe29ac83681e64d679985545b797a3b3b60695a0b07ce904b8a2a1c61",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-2026",
+        "origin": "native-vardct",
+        "status": "verified",
+        "sourceSha256": "59b0ec097ff28fb0e0d46890c52ce2531ebd135459735b3576ce264a042a0c66",
+        "inputSha256": "37f007eac5c4f3b18add9ed45dab6fdec0c112d3a1926d0f6daff3f631adb412",
+        "inputMaximum": 1,
+        "inputPixelSha256": "e557d1a62e2dbe0ac606afa6a7f075d13a1e10b67e4751766fd55a2ce2645cd6",
+        "bytes": 2450262,
+        "outputSha256": "3d0f741a9933bee41643a88477d8a74b4c84f5f1f8135c30031e282b7b612429",
+        "nativePixelSha256": "75802d4dbc194ea556c4f8c1fe4a9a8eb1b2d5a7cf112d60bc6511d731238839",
+        "rustPixelSha256": "a6026565e53a2e9e9a873e370e5c06f6c809b0a6eca3409efb4f78ca7db3a245",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "id": "im26-2026",
+        "origin": "jpeg-transcoded",
+        "status": "expected-unsupported",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-color-profile"],
+          "reasons": ["JPEG color profile is not the independently validated sRGB profile"]
+        },
+        "error": "JPEG color profile is not the independently validated sRGB profile"
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-2400",
+        "origin": "modular",
+        "status": "verified",
+        "sourceSha256": "3d6362125a25436b40bcfc9b30e2339ee3d0e24f5428cb7a9a1a92d0c10a0531",
+        "inputSha256": "1fb08f5d705ea13db604801de86ad5abaa12b3a8fc852a78d2a0e0e9684cad5b",
+        "inputMaximum": 0,
+        "inputPixelSha256": "5734217f7ec26762f4afdce0ef583d3c1af7dc12c7285ae665df80eefb0674b5",
+        "bytes": 975538,
+        "outputSha256": "fa735579ea55b600adde1cd4a1d3ee74648da1108264eaa32ae21eacd995958f",
+        "nativePixelSha256": "e736aac7aab69b64cb6ec2f1225a5edfb5351e0bf6a31a47c11b8854caf08651",
+        "rustPixelSha256": "7835c4c100f39b42b5d82a598f09d7ad1ec5926aa507e24a589ac4ad61e24e89",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "outputMaximum": 1,
+        "id": "im26-2400",
+        "origin": "native-vardct",
+        "status": "verified",
+        "sourceSha256": "3d6362125a25436b40bcfc9b30e2339ee3d0e24f5428cb7a9a1a92d0c10a0531",
+        "inputSha256": "c635e0c0bc8d39f025c542f51ad30c7548a5a30e4a2cad30068c1dd122ad46b6",
+        "inputMaximum": 1,
+        "inputPixelSha256": "5106a2816dd1c2dc73bad0abb9685de9990ed289b58c25542a66c5bd16930d16",
+        "bytes": 937130,
+        "outputSha256": "0e431958b02a2ff7f6f7028786b9190b4a85fae9be8d5ff8a2a80480475ccffa",
+        "nativePixelSha256": "0961f9cc3896595ae96c63442e3f8e6b458908f3c888190f6f292647f8a84b8e",
+        "rustPixelSha256": "8d631e52175e0192e834a4e16fa0573ffc35466c6e2d8115ad6df5ae397c4a6a",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "id": "im26-2400",
+        "origin": "jpeg-transcoded",
+        "status": "expected-unsupported",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-color-profile"],
+          "reasons": ["JPEG color profile is not the independently validated sRGB profile"]
+        },
+        "error": "JPEG color profile is not the independently validated sRGB profile"
+      }
+    ]
+  },
+  "resourceEnvelope": {
+    "startedAt": "2026-09-09T01:03:47.324Z",
+    "finishedAt": "2026-09-09T01:11:08.046Z",
+    "policy": {
+      "memoryMaxBytes": 3221225472,
+      "memoryHighBytes": 2621440000,
+      "swapMaxBytes": 0,
+      "maximumTasks": 64,
+      "cpuQuotaPercent": 200,
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 26418331648,
+    "executable": "node",
+    "args": ["benchmark/jpegxl/verify-m7-reencode.ts", "bounded-recovery"],
+    "code": 0,
+    "signal": null,
+    "status": "completed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 6458292cd8284be6b4cf3067849f3280\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 7min 20.694s\nCPU time consumed: 7min 37.801s\nMemory peak: 1.2G (swap: 0B)\n"
+  },
+  "normalizedJpeg": {
+    "protocol": {
+      "policy": "Six previously observed development photo families, all selected input representations, native dimensions. Public pipeline re-encodes at distance 3, effort 7, progressive. No exclusion after results; failures retained. Input and output pixels are compared independently, with maximum RGB8 difference 2. This is interoperability regression evidence, not matched-quality or unseen-holdout evidence.",
+      "ids": ["im26-1030", "im26-1214", "im26-1466", "im26-1612", "im26-2026", "im26-2400"],
+      "origins": ["normalized-jpeg-transcoded"],
+      "normalizedJpegPolicy": "Separate derived JPEG: canonical stored-raster sRGB RGB8 via pinned Sharp, then mozjpeg quality 95, 4:4:4, stripped metadata. Original unsupported JPEG inputs remain expected-unsupported. Derivatives are not additional source families.",
+      "sharp": {
+        "aom": "3.14.1",
+        "archive": "3.8.8",
+        "cairo": "1.18.4",
+        "cgif": "0.5.3",
+        "exif": "0.6.26",
+        "expat": "2.8.2",
+        "ffi": "3.6.0",
+        "fontconfig": "2.18.1",
+        "freetype": "2.14.3",
+        "fribidi": "1.0.16",
+        "glib": "2.89.1",
+        "harfbuzz": "14.2.1",
+        "heif": "1.23.1",
+        "highway": "1.4.0",
+        "imagequant": "2.4.1",
+        "lcms": "2.19.1",
+        "mozjpeg": "0826579",
+        "pango": "1.58.0",
+        "pixman": "0.46.4",
+        "png": "1.6.58",
+        "proxy-libintl": "0.5",
+        "rsvg": "2.62.90",
+        "tiff": "d01a94b",
+        "uhdr": "1acdbed",
+        "vips": "8.18.3",
+        "webp": "1.6.0",
+        "xml2": "2.15.3",
+        "zlib-ng": "2.3.3",
+        "sharp": "0.35.3"
+      },
+      "startedAt": "2026-09-09T01:14:49.688Z",
+      "harnessSha256": "148c282954de8a79ca425810af392edd64102adb43f441dfbc4a9230ba55e13f",
+      "source": [
+        {
+          "name": "jpegxl-vardct-encode.ts",
+          "sha256": "bd76ee2ec211ae0a5a45fcb8a1f96235b3de8dec77ac0ffa52d5210122c7b194"
+        },
+        {
+          "name": "jpegxl-vardct-forward-transforms.ts",
+          "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+        },
+        {
+          "name": "jpegxl-jpeg-encode.ts",
+          "sha256": "b45866a4139c49764b07729793cc5e68f19c0f3166dd08cd03138a8bcf6cfe5f"
+        },
+        {
+          "name": "jpegxl-modular-encode.ts",
+          "sha256": "a7277b37b0e8a6e4899647f762f9c1023621d04fdd6f2b0f2f0fc7f3898dae89"
+        },
+        {
+          "name": "jpegxl-decode.ts",
+          "sha256": "c9d402b87b57a5be30be27c1ad8ba3375c47214f6835402401c0345760629724"
+        }
+      ],
+      "tools": [
+        {
+          "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+          "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/jxlinfo",
+          "sha256": "d02df1a4e28581ee4ed08dda3f8df09e3cd868d7dbc48db23bae8291a61d7ce0"
+        },
+        {
+          "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+          "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ]
+    },
+    "result": {
+      "expected": 6,
+      "completed": 6,
+      "expectedUnsupported": 0,
+      "failed": 0,
+      "results": [
+        {
+          "outputMaximum": 1,
+          "id": "im26-1030",
+          "origin": "normalized-jpeg-transcoded",
+          "status": "verified",
+          "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+          "generatedJpegSha256": "4cad4cbb211a619647f411c6afdee176188bf89a6b58e6ad1f5d7b55df1f83de",
+          "inputSha256": "443354c2846476489f7f90e672794e07ff27ee9c744256cece55641b331d9f62",
+          "inputMaximum": 1,
+          "inputPixelSha256": "283219b66287f22cd15077bad672cbac4b15c0cd36049e0b9c88037d7480e31a",
+          "bytes": 773085,
+          "outputSha256": "271bc329c8df066c7004da2a7b8d4c65762db08f6d949687ce22b38f89f571ba",
+          "nativePixelSha256": "6432644209cc7bfabd95ddfee17b2635a7557cf27d6d7830ba585d12db8f3045",
+          "rustPixelSha256": "203d1d55bf2d41c50322b2e688c6ea568e51d797a8b45de3bae306c35f7dc6c9",
+          "maximumIndependentDifference": 1
+        },
+        {
+          "outputMaximum": 1,
+          "id": "im26-1214",
+          "origin": "normalized-jpeg-transcoded",
+          "status": "verified",
+          "sourceSha256": "e31bdea2aba64b5b75f513786fca37de61dec8ce91a579de1479effbe3eb5a3e",
+          "generatedJpegSha256": "cb5026bdf2dc082e9b235aed23fd1b75550691fc79ad9a5150a18cdff5cc74cb",
+          "inputSha256": "77fef22af305d71af717a4219be21be3ac71ecc255ebbf233469b4895febff84",
+          "inputMaximum": 1,
+          "inputPixelSha256": "3e061300dffc55f7a3ac7b93a5bbea4b2aa6776ebdf7027760afbf3db59b8fb2",
+          "bytes": 2391697,
+          "outputSha256": "3f3f007284b0d745bf2f95c099b194759a59b03301c3d45d8a43a10882f0c6cf",
+          "nativePixelSha256": "89b98a427b63693bf3e1044bc53b7b4d99070a335fa5bfdf0c77b568cb02c916",
+          "rustPixelSha256": "ea1dc8cc69ca5d45352f01b67b937b15b33bb1ab59456b8aad7b9bf8c066c7c8",
+          "maximumIndependentDifference": 1
+        },
+        {
+          "outputMaximum": 1,
+          "id": "im26-1466",
+          "origin": "normalized-jpeg-transcoded",
+          "status": "verified",
+          "sourceSha256": "9ab14263031a0c5ac2768e29b3ec41d03ffc7432a6e54d72fef6d67e0756b0b1",
+          "generatedJpegSha256": "dd923d342a579f5209d3f008b5e00835b3749654b47c46890e1d46db2f3a61f5",
+          "inputSha256": "e816de6fb9d2a0fa97187293bf87a83acb58676aa9f37e3f419c0bf01e0f61e7",
+          "inputMaximum": 1,
+          "inputPixelSha256": "647fa813c7672917341cf4f0043dd4d2b254f16f074f6df35bbd07635289590d",
+          "bytes": 592873,
+          "outputSha256": "b8389bf0ca863702bd53f453a7837309af21405eb0467795fec7c51a049ce62c",
+          "nativePixelSha256": "25ba06389a14663cd8e283253cea9b3c1089d0da355a4d1e16b6b2dbca81b39e",
+          "rustPixelSha256": "e8016f77f63be99ce39576188abe40a54a9701c1fcd87483fd4930b183c499a9",
+          "maximumIndependentDifference": 1
+        },
+        {
+          "outputMaximum": 1,
+          "id": "im26-1612",
+          "origin": "normalized-jpeg-transcoded",
+          "status": "verified",
+          "sourceSha256": "e2308dce92230b6336c7de92f0d5f5f7646c581fc340f28a38ee55e720b4e08f",
+          "generatedJpegSha256": "adf97ea35afebcbaf3b23cee63b687e6103da17f8ad123a4dbc9e87a7186d3b6",
+          "inputSha256": "ddcc6ce81033515ac7e303918145348941d04c3feac3a6f50992a5051d8a2b00",
+          "inputMaximum": 1,
+          "inputPixelSha256": "364ffb155be816ae66431b7a541f73c88b0e44263406af97554e1db48491e460",
+          "bytes": 886895,
+          "outputSha256": "b89ef31e9cc0663109ddcb0434d5b574e075335a410d149dc2230b3158566e76",
+          "nativePixelSha256": "636317673ea292165269bfc828bb3e93b191a52a14fb2f2a20f5148f2df59133",
+          "rustPixelSha256": "1c4d0345015aaf94dee727c0aac256dc7e496aa5140b8a75bbe5a330dc9c0bc2",
+          "maximumIndependentDifference": 1
+        },
+        {
+          "outputMaximum": 1,
+          "id": "im26-2026",
+          "origin": "normalized-jpeg-transcoded",
+          "status": "verified",
+          "sourceSha256": "59b0ec097ff28fb0e0d46890c52ce2531ebd135459735b3576ce264a042a0c66",
+          "generatedJpegSha256": "009d1483bda3e9c1bbf5ca6d196c2a7742abc1580606514de6007a0f25579bc3",
+          "inputSha256": "2178aa96f4557feb7e92d782563434b040da8e51c165de32afac4f7ba7f25ed5",
+          "inputMaximum": 1,
+          "inputPixelSha256": "b450d3d2b517ade0291c0698f0f2ac2038437dea9e31a38e3ce054207f2d56b7",
+          "bytes": 2476671,
+          "outputSha256": "13e91a30bb1e9cc6640193860c418e693bce869dcaee4b6f658672d69fa3cf24",
+          "nativePixelSha256": "9fc3fa561daa4424ae3476858b450196568b28b49d93dde8691d784ed2bb3c16",
+          "rustPixelSha256": "814e33e49ea220b14cd3f18228bedd830c47c2148e957060e9713eb372c1772b",
+          "maximumIndependentDifference": 1
+        },
+        {
+          "outputMaximum": 1,
+          "id": "im26-2400",
+          "origin": "normalized-jpeg-transcoded",
+          "status": "verified",
+          "sourceSha256": "3d6362125a25436b40bcfc9b30e2339ee3d0e24f5428cb7a9a1a92d0c10a0531",
+          "generatedJpegSha256": "865d6a18214631499c38ab362ed6c5b3b7ca7e83f31e7efe5295793efb2e3fb7",
+          "inputSha256": "903270347006279cec8c16d71172c0e927f357fa4f6eaf0994b67cf6b119c0ba",
+          "inputMaximum": 1,
+          "inputPixelSha256": "0ae50ba3bbff4384615a0559bdadf7cfbcae981dea2adbea42e043849be153ce",
+          "bytes": 986637,
+          "outputSha256": "89511699f58e3d79d30be6cfaf167ed5143e8b540c38caf03074570009ca0760",
+          "nativePixelSha256": "a0ab5d5e1f0fab70764ab1ff027199d5bca45ec2c7514b3a5573551800f392d8",
+          "rustPixelSha256": "43c6fa0a2eff36a0fdc75f0b73e8c7b641747ec50dafa5e55acd0e4fc7cef414",
+          "maximumIndependentDifference": 1
+        }
+      ]
+    },
+    "resourceEnvelope": {
+      "startedAt": "2026-09-09T01:14:49.418Z",
+      "finishedAt": "2026-09-09T01:18:05.549Z",
+      "policy": {
+        "memoryMaxBytes": 3221225472,
+        "memoryHighBytes": 2621440000,
+        "swapMaxBytes": 0,
+        "maximumTasks": 64,
+        "cpuQuotaPercent": 200,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 26915971072,
+      "executable": "node",
+      "args": [
+        "benchmark/jpegxl/verify-m7-reencode.ts",
+        "bounded-normalized-jpeg",
+        "normalized-jpeg-transcoded"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 3min 16.108s\nCPU time consumed: 3min 30.216s\nMemory peak: 1.5G (swap: 0B)\n"
+    }
+  }
+}

@@ -89,6 +89,19 @@ describe('JPEG XL workbench worker protocol', () => {
     )
   })
 
+  it('reserves native pixels, preview and output before admitting encoder scratch', () => {
+    for (const format of ['gray8', 'rgb8', 'rgba16'] as const) {
+      const plan = planJpegXlWorkbenchNativeMemory(1025, 257, format)
+      expect(plan.encoderWorkingBytes).toBeGreaterThanOrEqual(plan.encoderRetainedBytes)
+      expect(
+        plan.encoderWorkingBytes +
+          plan.nativePixelBytes +
+          plan.previewBytes +
+          plan.estimatedOutputBytes,
+      ).toBe(192 * 1024 * 1024)
+    }
+  })
+
   it('accepts closed requests and rejects malformed identities, extra keys, and oversized input', () => {
     expect(
       isJpegXlWorkbenchRequest({

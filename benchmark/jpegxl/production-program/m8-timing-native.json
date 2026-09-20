@@ -1,0 +1,1762 @@
+{
+  "sourceSha256": "477920d848bc4a53abbfea720fbaaf067a8187a64d900f47613026fcb11df8ab",
+  "nativeSha256": "d02df1a4e28581ee4ed08dda3f8df09e3cd868d7dbc48db23bae8291a61d7ce0",
+  "passed": true,
+  "results": [
+    {
+      "id": "animation_newtons_cradle",
+      "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
+      "nativeDescriptionSha256": "f3604fff29fc18887111b01a299298cfc850197187654fa93dbcf3e0b62b0f4e",
+      "frames": [
+        {
+          "index": 0,
+          "startTicks": "0",
+          "durationTicks": 5,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 1,
+          "startTicks": "5",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 2,
+          "startTicks": "7",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 3,
+          "startTicks": "9",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 4,
+          "startTicks": "11",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 5,
+          "startTicks": "13",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 6,
+          "startTicks": "15",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 7,
+          "startTicks": "17",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 8,
+          "startTicks": "19",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 9,
+          "startTicks": "21",
+          "durationTicks": 4,
+          "nativeSeconds": 0.04,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 10,
+          "startTicks": "25",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 11,
+          "startTicks": "27",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 12,
+          "startTicks": "29",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 13,
+          "startTicks": "31",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 14,
+          "startTicks": "33",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 15,
+          "startTicks": "35",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 16,
+          "startTicks": "37",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 17,
+          "startTicks": "39",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 18,
+          "startTicks": "41",
+          "durationTicks": 5,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 19,
+          "startTicks": "46",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 20,
+          "startTicks": "48",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 21,
+          "startTicks": "50",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 22,
+          "startTicks": "52",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 23,
+          "startTicks": "54",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 24,
+          "startTicks": "56",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 25,
+          "startTicks": "58",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 26,
+          "startTicks": "60",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 27,
+          "startTicks": "62",
+          "durationTicks": 4,
+          "nativeSeconds": 0.04,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 28,
+          "startTicks": "66",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 29,
+          "startTicks": "68",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 30,
+          "startTicks": "70",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 31,
+          "startTicks": "72",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 32,
+          "startTicks": "74",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 33,
+          "startTicks": "76",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 34,
+          "startTicks": "78",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 35,
+          "startTicks": "80",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        }
+      ],
+      "traversalTicks": "82",
+      "passed": true
+    },
+    {
+      "id": "animation_icos4d",
+      "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
+      "nativeDescriptionSha256": "a542f0bc488fcbdfebb8440e93a833124b9d06f641a1321810f860adf169f04a",
+      "frames": [
+        {
+          "index": 0,
+          "startTicks": "0",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 1,
+          "startTicks": "50",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 2,
+          "startTicks": "100",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 3,
+          "startTicks": "150",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 4,
+          "startTicks": "200",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 5,
+          "startTicks": "250",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 6,
+          "startTicks": "300",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 7,
+          "startTicks": "350",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 8,
+          "startTicks": "400",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 9,
+          "startTicks": "450",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 10,
+          "startTicks": "500",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 11,
+          "startTicks": "550",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 12,
+          "startTicks": "600",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 13,
+          "startTicks": "650",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 14,
+          "startTicks": "700",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 15,
+          "startTicks": "750",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 16,
+          "startTicks": "800",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 17,
+          "startTicks": "850",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 18,
+          "startTicks": "900",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 19,
+          "startTicks": "950",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 20,
+          "startTicks": "1000",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 21,
+          "startTicks": "1050",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 22,
+          "startTicks": "1100",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 23,
+          "startTicks": "1150",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 24,
+          "startTicks": "1200",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 25,
+          "startTicks": "1250",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 26,
+          "startTicks": "1300",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 27,
+          "startTicks": "1350",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 28,
+          "startTicks": "1400",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 29,
+          "startTicks": "1450",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 30,
+          "startTicks": "1500",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 31,
+          "startTicks": "1550",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 32,
+          "startTicks": "1600",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 33,
+          "startTicks": "1650",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 34,
+          "startTicks": "1700",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 35,
+          "startTicks": "1750",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 36,
+          "startTicks": "1800",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 37,
+          "startTicks": "1850",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 38,
+          "startTicks": "1900",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 39,
+          "startTicks": "1950",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 40,
+          "startTicks": "2000",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 41,
+          "startTicks": "2050",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 42,
+          "startTicks": "2100",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 43,
+          "startTicks": "2150",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 44,
+          "startTicks": "2200",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 45,
+          "startTicks": "2250",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 46,
+          "startTicks": "2300",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 47,
+          "startTicks": "2350",
+          "durationTicks": 50,
+          "nativeSeconds": 0.05,
+          "animation": {
+            "ticksPerSecondNumerator": 1000,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        }
+      ],
+      "traversalTicks": "2400",
+      "passed": true
+    },
+    {
+      "id": "animation_spline",
+      "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
+      "nativeDescriptionSha256": "3bea4848282181abab98cf98617ba77ac0602930a3f42bb82e50f960bcaf16ad",
+      "frames": [
+        {
+          "index": 0,
+          "startTicks": "0",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 1,
+          "startTicks": "2",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 2,
+          "startTicks": "4",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 3,
+          "startTicks": "6",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 4,
+          "startTicks": "8",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 5,
+          "startTicks": "10",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 6,
+          "startTicks": "12",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 7,
+          "startTicks": "14",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 8,
+          "startTicks": "16",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 9,
+          "startTicks": "18",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 10,
+          "startTicks": "20",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 11,
+          "startTicks": "22",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 12,
+          "startTicks": "24",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 13,
+          "startTicks": "26",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 14,
+          "startTicks": "28",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 15,
+          "startTicks": "30",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 16,
+          "startTicks": "32",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 17,
+          "startTicks": "34",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 18,
+          "startTicks": "36",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 19,
+          "startTicks": "38",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 20,
+          "startTicks": "40",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 21,
+          "startTicks": "42",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 22,
+          "startTicks": "44",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 23,
+          "startTicks": "46",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 24,
+          "startTicks": "48",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 25,
+          "startTicks": "50",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 26,
+          "startTicks": "52",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 27,
+          "startTicks": "54",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 28,
+          "startTicks": "56",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 29,
+          "startTicks": "58",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 30,
+          "startTicks": "60",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 31,
+          "startTicks": "62",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 32,
+          "startTicks": "64",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 33,
+          "startTicks": "66",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 34,
+          "startTicks": "68",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 35,
+          "startTicks": "70",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 36,
+          "startTicks": "72",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 37,
+          "startTicks": "74",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 38,
+          "startTicks": "76",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 39,
+          "startTicks": "78",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 40,
+          "startTicks": "80",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 41,
+          "startTicks": "82",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 42,
+          "startTicks": "84",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 43,
+          "startTicks": "86",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 44,
+          "startTicks": "88",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 45,
+          "startTicks": "90",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 46,
+          "startTicks": "92",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 47,
+          "startTicks": "94",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 48,
+          "startTicks": "96",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 49,
+          "startTicks": "98",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 50,
+          "startTicks": "100",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 51,
+          "startTicks": "102",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 52,
+          "startTicks": "104",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 53,
+          "startTicks": "106",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 54,
+          "startTicks": "108",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 55,
+          "startTicks": "110",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 56,
+          "startTicks": "112",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 57,
+          "startTicks": "114",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 58,
+          "startTicks": "116",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        },
+        {
+          "index": 59,
+          "startTicks": "118",
+          "durationTicks": 2,
+          "nativeSeconds": 0.02,
+          "animation": {
+            "ticksPerSecondNumerator": 100,
+            "ticksPerSecondDenominator": 1,
+            "loops": 0,
+            "haveTimecodes": false
+          }
+        }
+      ],
+      "traversalTicks": "120",
+      "passed": true
+    }
+  ]
+}

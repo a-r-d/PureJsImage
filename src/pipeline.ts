@@ -59,15 +59,16 @@ export interface JpegEncodeOptions {
   restartInterval?: number
 }
 
-export interface JpegXlEncodeOptions {
+interface JpegXlEncodeBaseOptions {
   /** Encoder-owned backing-buffer limit; defaults to maxDecodedBytes (1 GiB by default).
    * Includes input staging and temporary/output buffers, excludes caller/sink storage and JS heap. */
   maxWorkingBytes?: number
   /** Maximum encoded bytes, including container and metadata; at most 128 MiB. */
   maxOutputBytes?: number
-  mode?: 'lossless'
   effort?: 1 | 3 | 5 | 7
   container?: boolean
+  /** Select the minimum valid codestream level by default. Level 10 requires container output. */
+  codestreamLevel?: 'auto' | 5 | 10
   /** Intended native color sample depth. Required for 9 through 15-bit data in 16-bit blocks. */
   sampleBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
   /** Intended alpha depth when it differs from the color sample depth. */
@@ -84,6 +85,12 @@ export interface JpegXlEncodeOptions {
     linearBelow: number
   }>
 }
+
+export type JpegXlEncodeOptions = JpegXlEncodeBaseOptions &
+  (
+    | { mode?: 'lossless'; distance?: never; progressive?: never }
+    | { mode: 'lossy'; distance?: number; progressive?: boolean }
+  )
 
 export interface PngEncodeOptions {
   compressionLevel?: number
@@ -406,9 +413,21 @@ export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): Pipel
       options.maxOutputBytes > 134_217_728)
   )
     throw invalidInput('JPEG XL maxOutputBytes must be a positive integer at most 134217728')
-  if (options.mode !== undefined && options.mode !== 'lossless') {
-    throw invalidInput('JPEG XL mode must be lossless')
+  if (options.mode !== undefined && options.mode !== 'lossless' && options.mode !== 'lossy') {
+    throw invalidInput('JPEG XL mode must be lossless or lossy')
   }
+  if (
+    options.progressive !== undefined &&
+    (typeof options.progressive !== 'boolean' || options.mode !== 'lossy')
+  )
+    throw invalidInput('JPEG XL progressive requires a boolean and mode: lossy')
+  if (options.distance !== undefined && options.mode !== 'lossy')
+    throw invalidInput('JPEG XL distance requires mode: lossy')
+  if (
+    options.distance !== undefined &&
+    (!Number.isFinite(options.distance) || options.distance < 0.25 || options.distance > 25)
+  )
+    throw invalidInput('JPEG XL lossy distance must be between 0.25 and 25')
   if (
     options.effort !== undefined &&
     options.effort !== 1 &&
@@ -420,6 +439,14 @@ export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): Pipel
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidInput('JPEG XL container must be a boolean')
+  }
+  if (
+    options.codestreamLevel !== undefined &&
+    options.codestreamLevel !== 'auto' &&
+    options.codestreamLevel !== 5 &&
+    options.codestreamLevel !== 10
+  ) {
+    throw invalidInput('JPEG XL codestreamLevel must be auto, 5, or 10')
   }
   for (const [name, depth] of [
     ['sampleBitDepth', options.sampleBitDepth],

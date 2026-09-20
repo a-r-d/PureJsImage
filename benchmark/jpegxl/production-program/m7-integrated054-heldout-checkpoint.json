@@ -1,0 +1,3394 @@
+{
+  "candidate": "integrated054",
+  "stoppedAt": "2026-09-09T19:05:25.368Z",
+  "status": "intentionally-stopped",
+  "reason": "User redirected work to a small development diagnostic and fix loop before exhaustive qualification. Both dispatchers and the active service were stopped; preserve complete and partial curves without reporting unmeasured points as passes.",
+  "completedCurves": 5,
+  "measuredPoints": 179,
+  "failures": 0,
+  "expectedCurves": 120,
+  "expectedPoints": 3600,
+  "guard": {
+    "startedAt": "2026-09-09T18:06:13.511Z",
+    "finishedAt": "2026-09-09T19:00:02.607Z",
+    "policy": {
+      "memoryMaxBytes": 10737418240,
+      "memoryHighBytes": 10066329600,
+      "minimumAvailableBytes": 23622320128,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 400,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 25103237120,
+    "executable": "/usr/bin/env",
+    "args": [
+      "GOMAXPROCS=2",
+      "RAYON_NUM_THREADS=2",
+      "PUREJSIMAGE_M7_LOSSY_WORKERS=2",
+      "PUREJSIMAGE_M7_LOSSY_RUN=integrated054-final",
+      "PUREJSIMAGE_M7_LOSSY_SPLIT=holdout",
+      "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "/tmp/purejsimage-m7-integrated054-fast-qualification/benchmark/jpegxl/evaluate-m7-lossy-development.ts"
+    ],
+    "code": 0,
+    "signal": null,
+    "status": "terminated",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 1d1c574106da4716aac93d9214368ab8\nFinished with result: success\nMain processes terminated with: code=killed, status=15/TERM\nService runtime: 53min 49.064s\nCPU time consumed: 1h 7min 41.006s\nMemory peak: 7.4G (swap: 0B)\n"
+  },
+  "cases": [
+    {
+      "path": ".tmp/jpegxl-m7/lossy-holdout-integrated054-final/im26-1009/report.json",
+      "sha256": "cf7369c54b7dd3b97f19b2c36246b57c7a2ac2de226ccf4f798847cf87237ff3",
+      "value": {
+        "id": "im26-1009",
+        "sourceSha256": "072ae0f785316dbf261c4a7d6fdf715fe3822161017c8dbbcf5f3b680e23bd2d",
+        "normalizedSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+        "width": 4000,
+        "height": 3000,
+        "category": "1000-lilith-photos-general",
+        "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+        "points": [
+          {
+            "engine": "purejsimage",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 5764888,
+            "encodedSha256": "57a6b17f83eb133a8d88dc5363ef8d7468dc401557decab22d5ea98a9dfa82f5",
+            "ssimulacra2": 91.28215968,
+            "butteraugli": 0.4312390983,
+            "decodedSha256": "d141f99dee0ae35b998df1fc44ea5765ad57a98a7deb5df2a76b90e2969c7048",
+            "rmse": 0.9383846936802269,
+            "maximumError": 24,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.48067868685848764,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "91.28215968\n",
+              "butteraugliText": "0.4312390983\n3-norm: 0.164985\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 4655751,
+            "encodedSha256": "fda32cdc5cb8f95de8a7603eeba88d9949bd057577ec7dced332006c5fee5441",
+            "ssimulacra2": 90.41044572,
+            "butteraugli": 0.5473294854,
+            "decodedSha256": "bdfd05bb55a1c0aa223937c9faa000f581b82db1e8302886392ba8574dc3ec3d",
+            "rmse": 1.2152975401567763,
+            "maximumError": 27,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4847791879929574,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "90.41044572\n",
+              "butteraugliText": "0.5473294854\n3-norm: 0.211404\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 3617256,
+            "encodedSha256": "2b0f2bc7dc82036b0daf331ed7c69a3adf82d9cb3d4e7ad116a9486373fefa24",
+            "ssimulacra2": 88.32719525,
+            "butteraugli": 1.291744113,
+            "decodedSha256": "dcc4a27b001d6712009775c7e2d9af35863c8c2485fe261502acd01100931ff3",
+            "rmse": 1.914280768620714,
+            "maximumError": 35,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.48889095012191736,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "88.32719525\n",
+              "butteraugliText": "1.2917441130\n3-norm: 0.468190\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 2432905,
+            "encodedSha256": "6ba7da4f0f0d5c0f04db891a021adcdb1f7ac8bd8ecc158a63bcef44e7d1a838",
+            "ssimulacra2": 83.76327133,
+            "butteraugli": 1.8351662159,
+            "decodedSha256": "013bcedbff374cfdc5a4964b3df29033352c3ff21840520bd008dae41b5d6f9f",
+            "rmse": 3.0024117019119445,
+            "maximumError": 38,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49197826284411295,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "83.76327133\n",
+              "butteraugliText": "1.8351662159\n3-norm: 0.759833\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 1917976,
+            "encodedSha256": "65c904a1bb4d7fd252699de0c93e50c2ffc9394822e72cc31974fea2ca53d6b6",
+            "ssimulacra2": 79.63980146,
+            "butteraugli": 2.3789522648,
+            "decodedSha256": "84732fb8ef35909b2d829eecc88f233cf4682486bbf4760cb91b3a2caa9f5698",
+            "rmse": 3.831141449431952,
+            "maximumError": 48,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49222976229489507,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "79.63980146\n",
+              "butteraugliText": "2.3789522648\n3-norm: 0.994020\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 1432599,
+            "encodedSha256": "c33dd0f995b42fd73fe8ad36c1b7b19d8f5e896d6cfe26d3dade7c6a2055eed1",
+            "ssimulacra2": 72.72582141,
+            "butteraugli": 3.2779421806,
+            "decodedSha256": "181039df5fbc5d28e52a38297d6e331ed0fa3bfbf43c7a83a9ecdd581edff560",
+            "rmse": 5.058488149745052,
+            "maximumError": 79,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49294728701736235,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "72.72582141\n",
+              "butteraugliText": "3.2779421806\n3-norm: 1.359204\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 5208322,
+            "encodedSha256": "8f139d6269a873c097bbb4b1b33542f07540d89f0d07a68cad1d14717c3c38eb",
+            "ssimulacra2": 90.89241117,
+            "butteraugli": 0.693956852,
+            "decodedSha256": "3dd4bffbeb758111d3a780dc4c8823c20649119b379cf73a474c2669a28e4bb4",
+            "rmse": 0.9917478118061175,
+            "maximumError": 22,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.89241117\n",
+              "butteraugliText": "0.6939568520\n3-norm: 0.176787\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 4110582,
+            "encodedSha256": "0783072d97592bb9598c2210c86d75dc2554977e3c89527e9a050baeb31b730e",
+            "ssimulacra2": 89.49741773,
+            "butteraugli": 0.896912396,
+            "decodedSha256": "218d127e3e8a534d85c7d1109f9bf703f5ef069800e13b177611a29a9b1fff85",
+            "rmse": 1.4060725937478793,
+            "maximumError": 28,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.49741773\n",
+              "butteraugliText": "0.8969123960\n3-norm: 0.297168\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 2700864,
+            "encodedSha256": "64cac8ad6f6bcb30c514a73152b722b4c5c46e20accc2cc099e978b01b7590ad",
+            "ssimulacra2": 85.50287883,
+            "butteraugli": 1.5281612873,
+            "decodedSha256": "f8296ff4973568cc4228274fabce7365ae21700dacdff8f7ec90f7fbc66caa77",
+            "rmse": 2.396830795260924,
+            "maximumError": 41,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "85.50287883\n",
+              "butteraugliText": "1.5281612873\n3-norm: 0.549144\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 1632860,
+            "encodedSha256": "f886c0719e1b0f5d1026f89487655c9b3b4129d316950e9cc4af794d57a2f00a",
+            "ssimulacra2": 78.35635039,
+            "butteraugli": 2.4852893353,
+            "decodedSha256": "0fb1fe104d2eedc686d32e06b01d04a30302afbac5a56e58c2ac347d1dc81659",
+            "rmse": 3.847481629441379,
+            "maximumError": 50,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.35635039\n",
+              "butteraugliText": "2.4852893353\n3-norm: 0.935367\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 1177434,
+            "encodedSha256": "4a125c03df9784167385f7c657638ac018e97c488fa6e5ac71d9b76d182c6fd6",
+            "ssimulacra2": 72.57317654,
+            "butteraugli": 2.9876651764,
+            "decodedSha256": "6ea180d7767acadad2af1c2d24239fc120edd7ddfbd15a14df0d4146767d3d73",
+            "rmse": 4.913213945858431,
+            "maximumError": 57,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "72.57317654\n",
+              "butteraugliText": "2.9876651764\n3-norm: 1.248835\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 793758,
+            "encodedSha256": "285cc110d641048a683c65265939603b51b57d5c900f568e9d4cfce54d569acb",
+            "ssimulacra2": 62.17123061,
+            "butteraugli": 4.4693202972,
+            "decodedSha256": "a6c3832a7362099e3f6a36ad041c5ca0e627cbc3e2914247651e27586c77ddcd",
+            "rmse": 6.541643781276317,
+            "maximumError": 78,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "62.17123061\n",
+              "butteraugliText": "4.4693202972\n3-norm: 1.768743\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 954491,
+            "encodedSha256": "6a0fb3807426e852d81cf115098d78a11ca1ebfd4a026b296208cf6cd4ac83d5",
+            "ssimulacra2": 57.09252524,
+            "butteraugli": 4.4033417702,
+            "decodedSha256": "21bf8c1c5748b3eca2a8d4473cacb1db02dcb2bb2a2b0fc1d34157f9a414984c",
+            "rmse": 6.961570171304746,
+            "maximumError": 83,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "57.09252524\n",
+              "butteraugliText": "4.4033417702\n3-norm: 1.747340\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 1199915,
+            "encodedSha256": "9689793eddac9909726004ee76c8c949582c08a2325030c02b54444007a27a92",
+            "ssimulacra2": 65.7690072,
+            "butteraugli": 4.1405696869,
+            "decodedSha256": "fd345001723ea1e100f0a138a24532561ee75f0f727cb19a95d7281a25e81e0d",
+            "rmse": 5.880378809604399,
+            "maximumError": 62,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "65.76900720\n",
+              "butteraugliText": "4.1405696869\n3-norm: 1.462550\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1533159,
+            "encodedSha256": "967f83ecd59c7cd31af9b869da20bdfe0064efa55c6de3d11e57f0f82528adf0",
+            "ssimulacra2": 72.6037929,
+            "butteraugli": 2.8790261745,
+            "decodedSha256": "17020fff21fda7cc27d0b94b6f7910a9c60aab35bfa52a9beb980859b473375e",
+            "rmse": 4.799316050809277,
+            "maximumError": 51,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "72.60379290\n",
+              "butteraugliText": "2.8790261745\n3-norm: 1.166711\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1991640,
+            "encodedSha256": "4c0c368177b845536718f31f357189cf88c195c2ee48caf2fe379459f6da9364",
+            "ssimulacra2": 78.64539687,
+            "butteraugli": 2.5841026306,
+            "decodedSha256": "c521079c87e395880f2787af30f8add705b9e8e08b1194443f4397b93ba19f54",
+            "rmse": 3.8244448943604876,
+            "maximumError": 41,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.64539687\n",
+              "butteraugliText": "2.5841026306\n3-norm: 0.942229\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 2910299,
+            "encodedSha256": "c7190829916b38daa181767bd7e0197b11fd2fa4b8be493a23e88a6a8e7dc18d",
+            "ssimulacra2": 84.05961598,
+            "butteraugli": 1.8247094154,
+            "decodedSha256": "1c12eaa903d037190dc0f687c3bd15dcf02ab073eaf661b13a61870f4d3041bd",
+            "rmse": 2.564643997387032,
+            "maximumError": 30,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "84.05961598\n",
+              "butteraugliText": "1.8247094154\n3-norm: 0.679833\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 4953449,
+            "encodedSha256": "28fe9f00ee9134dba00f7fc917f2537e0fe03d3e563d2337ff2d491baefc9df7",
+            "ssimulacra2": 88.08852904,
+            "butteraugli": 1.6198396683,
+            "decodedSha256": "0869a72265b3c46f44a4f6f65dbb42b3b2ffbff3af2138820e9f2867ad8704a5",
+            "rmse": 1.274011948313062,
+            "maximumError": 25,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.08852904\n",
+              "butteraugliText": "1.6198396683\n3-norm: 0.504957\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 965196,
+            "encodedSha256": "084f35eef2dc51373373156e692bdfb20a5519cd315d1dde9fbf90dfce25db46",
+            "ssimulacra2": 56.79497103,
+            "butteraugli": 5.2304201126,
+            "decodedSha256": "8d057bdda223f79fae2e304ac53e0fc809a03e82c31b2981ccded419fa6bd257",
+            "rmse": 6.002142448511383,
+            "maximumError": 54,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "56.79497103\n",
+              "butteraugliText": "5.2304201126\n3-norm: 1.736831\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 1156562,
+            "encodedSha256": "09019841fcbbfb04182eeb129c738f7f6c05b51038f8298cffff36b1eb0eb14b",
+            "ssimulacra2": 63.28946318,
+            "butteraugli": 4.3298077583,
+            "decodedSha256": "59957735d5568ec5b18259a27bdbee588bf45b854c1503c911367b7c9c4f190d",
+            "rmse": 5.229704338891657,
+            "maximumError": 41,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "63.28946318\n",
+              "butteraugliText": "4.3298077583\n3-norm: 1.482974\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1384808,
+            "encodedSha256": "7a7cadea98bf1935dd313982ac2946f3660e0ec8d02601d1dc21198f0a75646c",
+            "ssimulacra2": 69.6265771,
+            "butteraugli": 3.3365187645,
+            "decodedSha256": "9528d122ec830debafc1da2179a050f3285207115f8ba3b6e006584df66291a3",
+            "rmse": 4.609029112634364,
+            "maximumError": 42,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "69.62657710\n",
+              "butteraugliText": "3.3365187645\n3-norm: 1.266043\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1795874,
+            "encodedSha256": "c80144f96eca41a6eef8eae4f21af9811e64745c3e0faa7a8674a4327021b1b2",
+            "ssimulacra2": 74.87455168,
+            "butteraugli": 2.8088781834,
+            "decodedSha256": "c84e598a3ec68099f1e4b6476e87ef1ae122a2183bae95369ea4ab9408ad0bdc",
+            "rmse": 3.7158055467302256,
+            "maximumError": 29,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "74.87455168\n",
+              "butteraugliText": "2.8088781834\n3-norm: 1.045136\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 2895382,
+            "encodedSha256": "043525fce8bd855a4eab99b9cf75438b48959c66eb57c4d737b2a2c080ad850e",
+            "ssimulacra2": 82.94251476,
+            "butteraugli": 2.003149271,
+            "decodedSha256": "c95dd6f51c0892f8739e84a896ceedea5e2b779a1824f36da33e1ebd8cc9cea7",
+            "rmse": 2.3868822761083126,
+            "maximumError": 19,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "82.94251476\n",
+              "butteraugliText": "2.0031492710\n3-norm: 0.846672\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 4707576,
+            "encodedSha256": "8b8ec0c5b715a9d4d24c9382084baf87ec1bebbbab283cb7261d30f05b68a9cc",
+            "ssimulacra2": 87.46674056,
+            "butteraugli": 2.0050928593,
+            "decodedSha256": "0938f7e78d40ef027ae8c40b4bdd574517bc9356a402a90d296157cd0963206b",
+            "rmse": 1.4473155802688262,
+            "maximumError": 20,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "87.46674056\n",
+              "butteraugliText": "2.0050928593\n3-norm: 0.778859\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 583343,
+            "encodedSha256": "24a40aa415a0fdbec1e82e99c8749263d98b15277af2d1a7f4909a053383291c",
+            "ssimulacra2": 53.73805636,
+            "butteraugli": 6.2907094955,
+            "decodedSha256": "9e0cdffe9ef0c667d7a9155f49aec928aaaa16baca9c5966f58da48c9bcf3515",
+            "rmse": 6.883377943761817,
+            "maximumError": 75,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "53.73805636\n",
+              "butteraugliText": "6.2907094955\n3-norm: 2.108843\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 1010260,
+            "encodedSha256": "f18671b7de7d7b21e43dd4bbe5f291e9d8098862ee8d6de8a9a504b12672aec6",
+            "ssimulacra2": 68.97760976,
+            "butteraugli": 3.8835368156,
+            "decodedSha256": "efad7cfeeb6795873f64980360db426604315da26f71ce02f2475479af83b34f",
+            "rmse": 4.863060838836198,
+            "maximumError": 50,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "68.97760976\n",
+              "butteraugliText": "3.8835368156\n3-norm: 1.349477\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1733228,
+            "encodedSha256": "049c5136c6a52b1d1668e3c8a5517bca2c8c38075bee2695f84c8ce1a7cbb10c",
+            "ssimulacra2": 79.38222625,
+            "butteraugli": 2.1598644257,
+            "decodedSha256": "8fc62cd7c2784c4bc0226e2d71efaaeff1d0f7998eb314bf182156fe3ce0aee1",
+            "rmse": 3.143931067239795,
+            "maximumError": 30,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "79.38222625\n",
+              "butteraugliText": "2.1598644257\n3-norm: 0.838456\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 2311698,
+            "encodedSha256": "4e2ae0a9c4697a730da692a2788b2bb771072a70713d0a21ae4b1137f9c62ffd",
+            "ssimulacra2": 83.35357419,
+            "butteraugli": 1.7904474735,
+            "decodedSha256": "cefb0e9a7a446fce69f1fb87aa36248c8530c7ae80d64f0bd2d1fac03f77727b",
+            "rmse": 2.4474613548191795,
+            "maximumError": 27,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "83.35357419\n",
+              "butteraugliText": "1.7904474735\n3-norm: 0.680271\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 3403565,
+            "encodedSha256": "339c712a9d245f59c98517540b47bca36742e856099f39d5b169105fc7791f77",
+            "ssimulacra2": 86.84243148,
+            "butteraugli": 1.5972151756,
+            "decodedSha256": "2cb793852719330c31b4c75d2b9a3e2a9331a436b5323872358e08a40dcc9aed",
+            "rmse": 1.6269811683674222,
+            "maximumError": 23,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "86.84243148\n",
+              "butteraugliText": "1.5972151756\n3-norm: 0.528353\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 4656706,
+            "encodedSha256": "da0b360d8871f1a5c487c511445a565f03f5a449fe3b80ea584a9d9f0e3ac007",
+            "ssimulacra2": 88.37075019,
+            "butteraugli": 1.5744302273,
+            "decodedSha256": "750a611cb264151e3c8112fbf813e3044e7f8233b4857d21ec0117983f5d6273",
+            "rmse": 1.2706799907486106,
+            "maximumError": 19,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.37075019\n",
+              "butteraugliText": "1.5744302273\n3-norm: 0.501869\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/lossy-holdout-integrated054-final/im26-1221/report.json",
+      "sha256": "e4554282ebc06f61f73008bc970dce78bdd2d8196fd5c6e3e96cea089b2e2630",
+      "value": {
+        "id": "im26-1221",
+        "sourceSha256": "756761b0a0d1a9022d55a650e730e65ec1e5cc62e20b8c9b05db326290271cb2",
+        "normalizedSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+        "width": 4000,
+        "height": 3000,
+        "category": "1200-lilith-interiors",
+        "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+        "points": [
+          {
+            "engine": "purejsimage",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 5243925,
+            "encodedSha256": "f3d672fb8c5802c50115cd1aae54d03e5485c9dbf682706a5e18f20a0f4272aa",
+            "ssimulacra2": 92.46974734,
+            "butteraugli": 0.4249840975,
+            "decodedSha256": "7e46cc24b4c7730bcbc3a5afa53262157fe52ce1e0d5b52193d1bb06b1524992",
+            "rmse": 0.8140055964863577,
+            "maximumError": 42,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4867688534270313,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "92.46974734\n",
+              "butteraugliText": "0.4249840975\n3-norm: 0.173943\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 4387194,
+            "encodedSha256": "c8c5bb7d87a8c812ea0659ab25e432d6cd63ffe741f8f801cbf4eb82298db4c8",
+            "ssimulacra2": 91.58561446,
+            "butteraugli": 0.6507989764,
+            "decodedSha256": "4725a4851461f32c850e2c190934fcc4e885ecaf7e167b4f477e8737e756baae",
+            "rmse": 1.0574314661270279,
+            "maximumError": 52,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4949911615372541,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "91.58561446\n",
+              "butteraugliText": "0.6507989764\n3-norm: 0.233462\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 3456877,
+            "encodedSha256": "bdddd4b7d132088fe96ad25b5d385512827a4f711fdbcbfd9666c47cd0dd93bf",
+            "ssimulacra2": 88.74487968,
+            "butteraugli": 1.262799263,
+            "decodedSha256": "67c828bc44e508f9a924eda6f97078df66938cf87e8d290e6421d23b29f5e8a6",
+            "rmse": 1.7106061628687195,
+            "maximumError": 71,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4958018197268385,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "88.74487968\n",
+              "butteraugliText": "1.2627992630\n3-norm: 0.519744\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 2217458,
+            "encodedSha256": "ce4f9ed0402a088f2a6d1fbe52902b14669b2aee7321f51589418668c2a67473",
+            "ssimulacra2": 82.23568475,
+            "butteraugli": 2.1059980392,
+            "decodedSha256": "2e34c7eaae0cd1220175dfa5752204957f7f0f754b5d05ece714a13e045f8e05",
+            "rmse": 2.8629314619032633,
+            "maximumError": 70,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4958115681497469,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "82.23568475\n",
+              "butteraugliText": "2.1059980392\n3-norm: 0.855987\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 1687543,
+            "encodedSha256": "e0a2df3d9f00a31505cd265c6f041f42f6a0bc916adda1fff54f026cc1e6a025",
+            "ssimulacra2": 76.15988988,
+            "butteraugli": 2.5973980427,
+            "decodedSha256": "b82f74b3ac77ae5dbd21e8ad1f71a3292fbe99a50e254cfff2255e3606ebe8b5",
+            "rmse": 3.6802469610672115,
+            "maximumError": 83,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4957796049321378,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "76.15988988\n",
+              "butteraugliText": "2.5973980427\n3-norm: 1.111433\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 1234755,
+            "encodedSha256": "064e04924bba0f8d29cece2926fad0c41cc12699fc677702e80697494d274558",
+            "ssimulacra2": 67.43938961,
+            "butteraugli": 3.398462534,
+            "decodedSha256": "89dc1f6ad28373a0529c8633d28f7a0a847ae6c7a6341f478f339f93743f2534",
+            "rmse": 4.8895704139866245,
+            "maximumError": 77,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4956121075106127,
+              "samples": 36000000,
+              "rows": 3000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "67.43938961\n",
+              "butteraugliText": "3.3984625340\n3-norm: 1.432727\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 4808429,
+            "encodedSha256": "777eb5ef761b18c8c2fbf7c32e71b00fed86633291101c77738bb6b9e6ef1aa4",
+            "ssimulacra2": 91.89163353,
+            "butteraugli": 0.4348872304,
+            "decodedSha256": "40da7b2afccbcd448bebfa4cf911bbd6d269fe80b5fdd02b9f2b30d371e8e12b",
+            "rmse": 0.9053418476526484,
+            "maximumError": 48,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "91.89163353\n",
+              "butteraugliText": "0.4348872304\n3-norm: 0.175523\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 3887458,
+            "encodedSha256": "5994d36f5dfd0081c2d89badd876b3f135198ca8cb4f05de020d41f9ec5d8932",
+            "ssimulacra2": 90.23588306,
+            "butteraugli": 0.8485514522,
+            "decodedSha256": "2325fc77759b20e3abcebdfeecbe9705d06e3554a07cea3f137c020a6579742f",
+            "rmse": 1.321502396264696,
+            "maximumError": 72,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.23588306\n",
+              "butteraugliText": "0.8485514522\n3-norm: 0.274957\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 2524578,
+            "encodedSha256": "f4b956054fc6fd9f40fe22d9d49107f9e01e9372ae41ba960a385ea5f2523abf",
+            "ssimulacra2": 85.11233059,
+            "butteraugli": 1.5219659805,
+            "decodedSha256": "b02c36ffc8a86a10bc6f3b93d967e4c737a556a7e33f9c1e94a0ebe1b0b8fb72",
+            "rmse": 2.2599774826803523,
+            "maximumError": 58,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "85.11233059\n",
+              "butteraugliText": "1.5219659805\n3-norm: 0.592724\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 1423165,
+            "encodedSha256": "342f070c50b8aaa0d15d86d6ed104d7ab96c552148453371752dabdf211136ca",
+            "ssimulacra2": 76.19609085,
+            "butteraugli": 2.423252821,
+            "decodedSha256": "72c26531f71d031f50b7f787bf40e2da4e651539311986b173d75187c3e9516a",
+            "rmse": 3.7493991666813913,
+            "maximumError": 83,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "76.19609085\n",
+              "butteraugliText": "2.4232528210\n3-norm: 0.984315\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 964499,
+            "encodedSha256": "b7865438512ac8bf2bada5b7b996ad1a6db0ee42dc3c36ce7ecd9e9c858d63d1",
+            "ssimulacra2": 67.38682938,
+            "butteraugli": 3.2740468979,
+            "decodedSha256": "925041fc4c809505e5e1600cd4a306a56ae49b201ad195aa636c9e740ac92c7f",
+            "rmse": 4.899110145957347,
+            "maximumError": 74,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "67.38682938\n",
+              "butteraugliText": "3.2740468979\n3-norm: 1.318089\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 620344,
+            "encodedSha256": "aa59836150dfa698439f3400e59fce8484895adc68622a61038053ba82b47e62",
+            "ssimulacra2": 52.35437047,
+            "butteraugli": 5.2220158577,
+            "decodedSha256": "07f9118a30a32c56f06e95ae601937efda1fb562997395efed79c24d07fd26ab",
+            "rmse": 6.5813065382186835,
+            "maximumError": 88,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "52.35437047\n",
+              "butteraugliText": "5.2220158577\n3-norm: 1.839861\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 816793,
+            "encodedSha256": "33c71e27ba912e34d30443b653e677ea53d8e55a1c9d22e1fed4a7ed548fcbcc",
+            "ssimulacra2": 50.71977361,
+            "butteraugli": 5.8580989838,
+            "decodedSha256": "7ded14a8eb36118d26d700c44eb8335a85b12d3f4e3d3f579a15a81861738ac3",
+            "rmse": 7.1526115529768415,
+            "maximumError": 99,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "50.71977361\n",
+              "butteraugliText": "5.8580989838\n3-norm: 1.891943\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 1032507,
+            "encodedSha256": "0b8c8e81f9bbe433a94f44b40f0110c3f262308ed5b9ac53fa5f15157f6365ad",
+            "ssimulacra2": 60.92511094,
+            "butteraugli": 4.4282608032,
+            "decodedSha256": "08d7c5b91b19ab73974e250da6e4984d979e95d9679eac1f8e5f8c5e81e8d356",
+            "rmse": 6.079498444224929,
+            "maximumError": 86,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "60.92511094\n",
+              "butteraugliText": "4.4282608032\n3-norm: 1.591834\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1333779,
+            "encodedSha256": "277dd2f287059d7138d6106441af45ae590c044f14b5f930762a1ea02e3bfc39",
+            "ssimulacra2": 69.63002067,
+            "butteraugli": 4.5089688301,
+            "decodedSha256": "36b62fb59e5ff04d67796bce575ff422b01a6324f1997991b0df255c53707bc1",
+            "rmse": 4.982870940086202,
+            "maximumError": 75,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "69.63002067\n",
+              "butteraugliText": "4.5089688301\n3-norm: 1.298088\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1739051,
+            "encodedSha256": "49eb6fc4d0491efd9aa8bdf7fcace93516805a372c183b891e928b549ca81837",
+            "ssimulacra2": 76.52885742,
+            "butteraugli": 3.0524482727,
+            "decodedSha256": "f0b11a1c43a6950dccbde9e1c6b80f99c71eb5fe4736e210cd9361ce13bfa1ee",
+            "rmse": 4.052535159899568,
+            "maximumError": 66,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "76.52885742\n",
+              "butteraugliText": "3.0524482727\n3-norm: 1.042217\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 2607241,
+            "encodedSha256": "bd809c78c83acfa883add615ea255d9d0fe130e8ec57e64013e6948747fe2aad",
+            "ssimulacra2": 83.59626526,
+            "butteraugli": 2.2960720062,
+            "decodedSha256": "2792c5907273a1091baaf9c44fd1e01e279759cff08e35e9f197a40c785ded04",
+            "rmse": 2.8344235598559835,
+            "maximumError": 49,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "83.59626526\n",
+              "butteraugliText": "2.2960720062\n3-norm: 0.746079\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 4672297,
+            "encodedSha256": "1361e2a6fbe8382822e3a23b3267b41d0f45a6e2e17fd5d4f11b4b9ac59cce3d",
+            "ssimulacra2": 88.59158559,
+            "butteraugli": 1.296235919,
+            "decodedSha256": "ee7f6f4b330d7ab9768fa139bc47641ee7a8caefba55842a38a376f4e0be790e",
+            "rmse": 1.2971607777501344,
+            "maximumError": 28,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.59158559\n",
+              "butteraugliText": "1.2962359190\n3-norm: 0.423660\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 848818,
+            "encodedSha256": "3a2ba669a416ce888907835473dd2125ffd678c6922aee93bd6d30c15cf18d89",
+            "ssimulacra2": 51.97755617,
+            "butteraugli": 4.6143116951,
+            "decodedSha256": "5069ef63f8a5ed0c973ed85cf2480df6594b8e75bf4e7eb68600fcc6ef5a2592",
+            "rmse": 5.692639572777777,
+            "maximumError": 58,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "51.97755617\n",
+              "butteraugliText": "4.6143116951\n3-norm: 1.726657\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 1034756,
+            "encodedSha256": "af1bca6b6860d432a8bfd5a43e374724b9889eb138e2f2d0f78e37606d65755f",
+            "ssimulacra2": 59.65123272,
+            "butteraugli": 3.5726852417,
+            "decodedSha256": "2eab9f2c84df574d1af31ccd770dc27981d61c3bdaeba0f296c2686fa08c8721",
+            "rmse": 4.89404913872166,
+            "maximumError": 55,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "59.65123272\n",
+              "butteraugliText": "3.5726852417\n3-norm: 1.508386\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1242200,
+            "encodedSha256": "3c08b78fbd7a03c9b7b2bb3f9384fc603858c0b6d7ab6d3cde066ec2a41a9d95",
+            "ssimulacra2": 65.59966662,
+            "butteraugli": 3.3338782787,
+            "decodedSha256": "2ed895a21b4adcf8f3f91b078c8d12f93212f97dbfa48abf385c1f8044869d26",
+            "rmse": 4.273841717679514,
+            "maximumError": 44,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "65.59966662\n",
+              "butteraugliText": "3.3338782787\n3-norm: 1.334770\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1638142,
+            "encodedSha256": "b84b49f4b64acbbf8f859e7e878ab5d318b6d13614bbf9b19f5236de35894fc1",
+            "ssimulacra2": 73.65695131,
+            "butteraugli": 2.6110723019,
+            "decodedSha256": "42132712ad6dc516f20bb2cf2f0d36e61eee878615c97bd37e5e8e632a47b8ab",
+            "rmse": 3.457806156606623,
+            "maximumError": 48,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "73.65695131\n",
+              "butteraugliText": "2.6110723019\n3-norm: 1.094451\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 2778572,
+            "encodedSha256": "0d37103c5ab6f314e8a91e21d1d9f4d96dcffa19d623fdf20b4e448c2269b409",
+            "ssimulacra2": 83.5853827,
+            "butteraugli": 1.842643261,
+            "decodedSha256": "f04c49409e945a88494d493d47d61a6bc0e8cabea201e5d2b6563b14760d75cf",
+            "rmse": 2.1413063510130654,
+            "maximumError": 28,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "83.58538270\n",
+              "butteraugliText": "1.8426432610\n3-norm: 0.724270\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 4447850,
+            "encodedSha256": "9522a015307f974121696784f220b5531a3a0eb1efe32d79c6a6baf6bc54bd95",
+            "ssimulacra2": 88.58574051,
+            "butteraugli": 1.5615954399,
+            "decodedSha256": "56a507db0dd2602a88b76b9fff66689dd8d0ddd770fb13f79fb2ea4ec66dff60",
+            "rmse": 1.2654779729414496,
+            "maximumError": 27,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.58574051\n",
+              "butteraugliText": "1.5615954399\n3-norm: 0.488441\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 440646,
+            "encodedSha256": "2d9ad36fcc00ad01b33b37cc06297675801a22e6ce1124d0ae394a94f9da6413",
+            "ssimulacra2": 47.44887886,
+            "butteraugli": 5.9934606552,
+            "decodedSha256": "3e4b1510f8dae39f6f0f83cf127ac9b2e32be9234906401a9d93b870a280368b",
+            "rmse": 6.682450074635799,
+            "maximumError": 89,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "47.44887886\n",
+              "butteraugliText": "5.9934606552\n3-norm: 2.071410\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 844080,
+            "encodedSha256": "cfe6b2bea6facfc3da263f2c0f0e8d6d4a4f2eed9cf036e1ad2b043d637b94e4",
+            "ssimulacra2": 67.34316606,
+            "butteraugli": 3.7109782696,
+            "decodedSha256": "f1d4a223cc93e6e846f09c98d94b0ac4d813be53f8a6cf7e0003c98d25332ff3",
+            "rmse": 4.56942211274516,
+            "maximumError": 55,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "67.34316606\n",
+              "butteraugliText": "3.7109782696\n3-norm: 1.314044\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1521693,
+            "encodedSha256": "9f3de4381f57195e5acfcbade0d310ee68050df30958fc73e650e4bd7d2fde37",
+            "ssimulacra2": 78.99435527,
+            "butteraugli": 2.1642875671,
+            "decodedSha256": "4a0484d1f46b73fd5d20eccb081a2e6fdd4b3e09b974be291fe87bf598884e22",
+            "rmse": 2.959341907887255,
+            "maximumError": 38,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.99435527\n",
+              "butteraugliText": "2.1642875671\n3-norm: 0.863136\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 2106522,
+            "encodedSha256": "905035ce2416b3ec7df656f4fac948678e95e084bd3846258dee36e01a645ba7",
+            "ssimulacra2": 83.54242704,
+            "butteraugli": 1.9112325907,
+            "decodedSha256": "60b8745bb17a30394199af545d58deb58199f425ac74adcece625ef6cd760702",
+            "rmse": 2.2877392042509275,
+            "maximumError": 35,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "83.54242704\n",
+              "butteraugliText": "1.9112325907\n3-norm: 0.673857\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 3191619,
+            "encodedSha256": "460a335fd9b30823e38f17cb62af9ca54820a7f241becef0a907f8682585f586",
+            "ssimulacra2": 87.73728855,
+            "butteraugli": 1.3000895977,
+            "decodedSha256": "3c2d6fe2bee452c2aca3f3414b88fdabb0f129312b679f97e457c405f13a24f3",
+            "rmse": 1.4021000915293695,
+            "maximumError": 33,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "87.73728855\n",
+              "butteraugliText": "1.3000895977\n3-norm: 0.436740\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 4302478,
+            "encodedSha256": "e791c3bc92dc7470924f72ed916a0994cd94695dbc72353eda8dde392c22dd71",
+            "ssimulacra2": 89.16153952,
+            "butteraugli": 1.196644783,
+            "decodedSha256": "6bea441991c83d97837ae62d40a3f7e6d94dfa2f92e5af9a27357f03752b43d1",
+            "rmse": 1.0399825185496576,
+            "maximumError": 32,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.16153952\n",
+              "butteraugliText": "1.1966447830\n3-norm: 0.405782\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/lossy-holdout-integrated054-final/im26-1549/report.json",
+      "sha256": "f87dbb82da7ceb39ff10dc46ea46a9d86d5e16e89efbfdd5aa95e2732a77c6df",
+      "value": {
+        "id": "im26-1549",
+        "sourceSha256": "6054c578766e880df2a4f065634a5f550fa824771e5d8a916a91a56ae1104266",
+        "normalizedSha256": "8ad184b76b05f5d0e2fec25958ea9f1e39dea2a8cd399a3bf5cbdb99607517df",
+        "width": 1079,
+        "height": 1440,
+        "category": "1400-lilith-nature",
+        "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+        "points": [
+          {
+            "engine": "purejsimage",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 798417,
+            "encodedSha256": "64eaa99ec719b61fe743188afda04609f9e5d000e11f257d290a3017a8df72a2",
+            "ssimulacra2": 93.90072404,
+            "butteraugli": 0.531886816,
+            "decodedSha256": "7d4d43a3a9a245e86adbd7996d15957339019b66c1d8be480fb95fa6afde92c3",
+            "rmse": 1.2896868058243283,
+            "maximumError": 47,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49285845670557926,
+              "samples": 4661280,
+              "rows": 1440
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "93.90072404\n",
+              "butteraugliText": "0.5318868160\n3-norm: 0.235225\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 555316,
+            "encodedSha256": "8afd54767bdf9ba1a11e86ef4f8986e8ed458d192e7f8e625d2d44dabb863c73",
+            "ssimulacra2": 91.95675998,
+            "butteraugli": 0.8341547251,
+            "decodedSha256": "c2a3b5438d718f535a7740772ed0824960bbce67189f720686a56cb136d63194",
+            "rmse": 1.6963084033347966,
+            "maximumError": 53,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49301818001261366,
+              "samples": 4661280,
+              "rows": 1440
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "91.95675998\n",
+              "butteraugliText": "0.8341547251\n3-norm: 0.376793\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 363943,
+            "encodedSha256": "525ca569fb679db05eedb55d53239d5a93722c9b8173e6b32df29c27f85f725f",
+            "ssimulacra2": 87.86053615,
+            "butteraugli": 1.3408966064,
+            "decodedSha256": "2dbee9500f0453180d44d4a7e38db56bd446f19261aeeee1b040b52a94508644",
+            "rmse": 2.3458003951838173,
+            "maximumError": 64,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4933500823052214,
+              "samples": 4661280,
+              "rows": 1440
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "87.86053615\n",
+              "butteraugliText": "1.3408966064\n3-norm: 0.624291\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 224470,
+            "encodedSha256": "47e2d4e6ae0ac8dbe7102a146f052c493fea21162ec1af9b7a706b6fcb1c3609",
+            "ssimulacra2": 81.39132969,
+            "butteraugli": 2.0329973698,
+            "decodedSha256": "c36d1d1b80361671aa5e1691b32ab914bc246b2993cd3672bd7d5c974eb25aa3",
+            "rmse": 3.191768353853287,
+            "maximumError": 74,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49375584803578404,
+              "samples": 4661280,
+              "rows": 1440
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "81.39132969\n",
+              "butteraugliText": "2.0329973698\n3-norm: 0.922928\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 171451,
+            "encodedSha256": "00d50ff1d4aea62383226ec85169a5628ad4cbaeea6a1cacdb6f7014a74fab32",
+            "ssimulacra2": 76.66151634,
+            "butteraugli": 2.3677520752,
+            "decodedSha256": "9cc1402700be3d808dc43a4a2c39b19bf64de408a6b208c3b1df7a18373b6fac",
+            "rmse": 3.7862531811478624,
+            "maximumError": 78,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49416952910483275,
+              "samples": 4661280,
+              "rows": 1440
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "76.66151634\n",
+              "butteraugliText": "2.3677520752\n3-norm: 1.111796\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 126843,
+            "encodedSha256": "59bc3335dda7a5b0acdc32d7eb88482e0e630d46b9e47293f10788d578814c23",
+            "ssimulacra2": 69.95245123,
+            "butteraugli": 3.8380167484,
+            "decodedSha256": "76517b4c872d1d5d7599e213d0b429980fa64717105ad3e06786ef0e15222b43",
+            "rmse": 4.706043736196918,
+            "maximumError": 91,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49407227462812336,
+              "samples": 4661280,
+              "rows": 1440
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "69.95245123\n",
+              "butteraugliText": "3.8380167484\n3-norm: 1.378815\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 703174,
+            "encodedSha256": "e6cf225c0ee821681a1986a38da9c6b514db7c22c368623b9b439e6e96ff7036",
+            "ssimulacra2": 93.12823434,
+            "butteraugli": 0.5230150819,
+            "decodedSha256": "a8969cde976d0374f67e347052aa7ab63a1500a81b096b8dc467d8cea8526990",
+            "rmse": 1.3588434347046083,
+            "maximumError": 55,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "93.12823434\n",
+              "butteraugliText": "0.5230150819\n3-norm: 0.225097\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 446384,
+            "encodedSha256": "5d7ac2a039d09c1bcb008fc643301eefa13c89b96a06a3253b4608a5177726e2",
+            "ssimulacra2": 90.63028349,
+            "butteraugli": 0.9990984201,
+            "decodedSha256": "fe9e46f0f1fb9c7fa33d943656e7e979e3dec8e74963804881fe9e1cf793112a",
+            "rmse": 1.8965904447924984,
+            "maximumError": 68,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.63028349\n",
+              "butteraugliText": "0.9990984201\n3-norm: 0.380941\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 250566,
+            "encodedSha256": "8547160f31c1a3b3476e07bf892f4399fa51fb0a1936972607bcbca0240928cd",
+            "ssimulacra2": 85.18956191,
+            "butteraugli": 1.4691964388,
+            "decodedSha256": "979603f032f72acb27140395820d1acf9f948d9d29556f14b61f21fe823e8e75",
+            "rmse": 2.671110080065788,
+            "maximumError": 78,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "85.18956191\n",
+              "butteraugliText": "1.4691964388\n3-norm: 0.655088\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 135420,
+            "encodedSha256": "b2b758e239be5e8db13c7d1ec06b68488888f66ed6dc20c6953dbf77b8a09c74",
+            "ssimulacra2": 76.65867581,
+            "butteraugli": 2.3329651356,
+            "decodedSha256": "29f0f8d2c260913567958adc6ee425b40838015deb38a2e3ec5eb7a0d1bffc59",
+            "rmse": 3.810741542927317,
+            "maximumError": 76,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "76.65867581\n",
+              "butteraugliText": "2.3329651356\n3-norm: 0.996172\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 89768,
+            "encodedSha256": "185327dff5ebb389dfbc7692e83b5f59c1459af9480aa8a6613ea9e861309c14",
+            "ssimulacra2": 69.1502364,
+            "butteraugli": 3.1968646049,
+            "decodedSha256": "0c8d41eff8c22da4c070f5dd20b6430ea8896344f7fed8f0fdaec725dce36bef",
+            "rmse": 4.716288287439888,
+            "maximumError": 78,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "69.15023640\n",
+              "butteraugliText": "3.1968646049\n3-norm: 1.304516\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 60522,
+            "encodedSha256": "7d063c1e2a48286466bc91f7f9f5ce69481e10b0b44b2ae08303e2a2c4c9d6d5",
+            "ssimulacra2": 57.5214292,
+            "butteraugli": 4.7861809731,
+            "decodedSha256": "e635ce0fc5473e2e25961f0822a38348496259e0c2ad6595a9abf0bd83c9b565",
+            "rmse": 6.0923984126922495,
+            "maximumError": 78,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "57.52142920\n",
+              "butteraugliText": "4.7861809731\n3-norm: 1.772647\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 79364,
+            "encodedSha256": "5f5b475206f32fcb482c64d76bd9e37aae8a55d835fb5d249aa7a931390b6062",
+            "ssimulacra2": 50.3492327,
+            "butteraugli": 5.0991706848,
+            "decodedSha256": "71280007a46d60e534870e548364737cb0ee0dd2923498454d6cdf60d4473ffe",
+            "rmse": 6.843701665662145,
+            "maximumError": 110,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "50.34923270\n",
+              "butteraugliText": "5.0991706848\n3-norm: 1.859790\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 102323,
+            "encodedSha256": "5475ae5f4753a42db508c6d8d3ec30ed94b10c590a81db9b19b8b402b32fbca3",
+            "ssimulacra2": 60.3253438,
+            "butteraugli": 3.8693985939,
+            "decodedSha256": "61583a4156ee6989892f8171148ce054dc100e5247dddc63ae345a2251f1e718",
+            "rmse": 5.731166577387304,
+            "maximumError": 86,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "60.32534380\n",
+              "butteraugliText": "3.8693985939\n3-norm: 1.567017\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 133942,
+            "encodedSha256": "1c88e3c700cb5108666c86754c3ce4944c90bc9d9bbc98e35057f87dda7ddab5",
+            "ssimulacra2": 68.13566734,
+            "butteraugli": 3.7538878918,
+            "decodedSha256": "8a38c2b807e6dc1a255e92e167ea7b48e424d88617e49e5520a6e96e7c272cca",
+            "rmse": 4.611065291213056,
+            "maximumError": 74,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "68.13566734\n",
+              "butteraugliText": "3.7538878918\n3-norm: 1.381634\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 180852,
+            "encodedSha256": "5a63d3b06187f0b8a9bd8b0fb17c367ee4c3b55bc7548bef97610fd475d345b2",
+            "ssimulacra2": 75.67338161,
+            "butteraugli": 3.0495774746,
+            "decodedSha256": "1636e8ebeb9a05709462ed058eff8f6bb00de9c2b8f52276a1b296b34337f218",
+            "rmse": 3.7453220287209805,
+            "maximumError": 53,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "75.67338161\n",
+              "butteraugliText": "3.0495774746\n3-norm: 1.112041\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 283869,
+            "encodedSha256": "b6dcf2dab3044577dd13a26e603495c2e6b4250f4cd2f577a14890dd9b4f7923",
+            "ssimulacra2": 82.40163354,
+            "butteraugli": 1.8817768097,
+            "decodedSha256": "c612b484ee88247746c933e8c4369288f327afa32c30828f0cdc00de22d9118f",
+            "rmse": 2.793840016886201,
+            "maximumError": 37,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "82.40163354\n",
+              "butteraugliText": "1.8817768097\n3-norm: 0.810727\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 563828,
+            "encodedSha256": "a5d9c77058e9a67776fb95b55a6dd1b8ded02b64e77178b620fc625564d11b28",
+            "ssimulacra2": 87.66258615,
+            "butteraugli": 1.2498751879,
+            "decodedSha256": "3d4cc51585d38c994cad468f073bb571801bb1d12fee28b84a981d49aaa3701a",
+            "rmse": 1.805010710471291,
+            "maximumError": 27,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "87.66258615\n",
+              "butteraugliText": "1.2498751879\n3-norm: 0.539675\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 74780,
+            "encodedSha256": "8bd3cb46437da0929334b0d1e2a6935a787f188c6e16aefa92063e88090fd7d8",
+            "ssimulacra2": 54.56162794,
+            "butteraugli": 4.3388485909,
+            "decodedSha256": "a7f18238daa1cab540ca96327f159ec24e9d4291bd392b6a46f0bb1ad49a4d16",
+            "rmse": 5.332277221887182,
+            "maximumError": 54,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "54.56162794\n",
+              "butteraugliText": "4.3388485909\n3-norm: 1.736109\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 92078,
+            "encodedSha256": "24b2887e2229a5a7fd6fca22015b2445a8108d4e084c9bc27c7a84df2f109aa0",
+            "ssimulacra2": 59.6894736,
+            "butteraugli": 4.4319806099,
+            "decodedSha256": "69f1c137222ba1c2fd1a42cb8e738c9bd5ccc11b421fb1abcd69534672d3dc9a",
+            "rmse": 4.905460863072259,
+            "maximumError": 46,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "59.68947360\n",
+              "butteraugliText": "4.4319806099\n3-norm: 1.553291\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 108954,
+            "encodedSha256": "2523c451c9c749bf6c7db37d106c9802c763b5ce4c94f6a43a0d5ec0ec503bd1",
+            "ssimulacra2": 66.60214603,
+            "butteraugli": 3.4791140556,
+            "decodedSha256": "65e0dc146c47d272f978b72e0838fb7d052eac116860f06d25dd69eb9d73effb",
+            "rmse": 4.1492536463292895,
+            "maximumError": 46,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "66.60214603\n",
+              "butteraugliText": "3.4791140556\n3-norm: 1.348721\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 144604,
+            "encodedSha256": "7a4912dc07e3dd8af89336d71db7bb80cbc1528792953a4f674e5a605b5ec65e",
+            "ssimulacra2": 71.78593952,
+            "butteraugli": 2.4931130409,
+            "decodedSha256": "eb94f8843da2d18106489983e165d7f92096ca502df6712a52d765b57e3b5f47",
+            "rmse": 3.5252035025889152,
+            "maximumError": 35,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "71.78593952\n",
+              "butteraugliText": "2.4931130409\n3-norm: 1.177992\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 273958,
+            "encodedSha256": "6beebadbdafb24951e2e80709b53efbff6401401f0a04fcfad3b666a2fa67a34",
+            "ssimulacra2": 81.38628195,
+            "butteraugli": 1.7357971668,
+            "decodedSha256": "f4ee4b97e113d172aa8d1eb66ab60b0f3154dfbe05ca5f2e5123db3910119a8f",
+            "rmse": 2.4843813250152045,
+            "maximumError": 28,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "81.38628195\n",
+              "butteraugliText": "1.7357971668\n3-norm: 0.818787\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 490874,
+            "encodedSha256": "920f74c44c2715c72547c1d66b6f0f70669bf49e474b2a0f2d357066f0d6fa05",
+            "ssimulacra2": 88.42452178,
+            "butteraugli": 1.3863284588,
+            "decodedSha256": "d9511d926d729753e32160289851f253896e9b240198d875875eff4ca1aea760",
+            "rmse": 1.6562187324814732,
+            "maximumError": 25,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.42452178\n",
+              "butteraugliText": "1.3863284588\n3-norm: 0.541286\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 41356,
+            "encodedSha256": "5a5ad0e369f84d4c15c01e562fbb83ec457b25ad78392862a0348caa8ca6afd3",
+            "ssimulacra2": 53.95386098,
+            "butteraugli": 5.9682531357,
+            "decodedSha256": "02600312fb99e833f88e03bce25f6174bcd2cc29a2b33839c59612bb5f178ea8",
+            "rmse": 5.948022842255044,
+            "maximumError": 81,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "53.95386098\n",
+              "butteraugliText": "5.9682531357\n3-norm: 1.899799\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 76279,
+            "encodedSha256": "fdbe493031490d87f09f8cab9ee2e1c98ce3c120c7f82b34078be63e07a8b728",
+            "ssimulacra2": 68.37855997,
+            "butteraugli": 3.1017007828,
+            "decodedSha256": "4095144812ba010a97baee4d2e3199d205535e6aed2dfb566fed648bbaab2ad8",
+            "rmse": 4.289176586798872,
+            "maximumError": 47,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "68.37855997\n",
+              "butteraugliText": "3.1017007828\n3-norm: 1.270518\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 148416,
+            "encodedSha256": "6a2dc17be7641b718e6f837116af23c33a8c931ee4b608cc2efbf9f4faa4a2d2",
+            "ssimulacra2": 78.33923469,
+            "butteraugli": 2.2648122311,
+            "decodedSha256": "f9626981bf435a6ecf8fa1450c5f2fcf4954d1dcb419e938126050e3a4d95f6c",
+            "rmse": 3.0879188961481634,
+            "maximumError": 41,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.33923469\n",
+              "butteraugliText": "2.2648122311\n3-norm: 0.902747\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 222444,
+            "encodedSha256": "a225cdf901938cab2a77b954142e14b10a443f3dc75cd0321211cb4ce91a449b",
+            "ssimulacra2": 83.07465413,
+            "butteraugli": 1.570633173,
+            "decodedSha256": "9d853747048408b4b1bfe826545bc1afb4318dcc9da3a89d776591c51cfb496a",
+            "rmse": 2.558290385772703,
+            "maximumError": 38,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "83.07465413\n",
+              "butteraugliText": "1.5706331730\n3-norm: 0.718944\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 371043,
+            "encodedSha256": "e02f117bf0a45044d9f1c09924e9864e5a1c54292ef508d2c67a9b202203a985",
+            "ssimulacra2": 87.35198527,
+            "butteraugli": 1.3431003094,
+            "decodedSha256": "e110109e47bcc5d40b2a0264d032ea7d5a492d9dc4113b241c13bd48070bacbb",
+            "rmse": 1.9669290961641646,
+            "maximumError": 34,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "87.35198527\n",
+              "butteraugliText": "1.3431003094\n3-norm: 0.534273\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 586515,
+            "encodedSha256": "91ac97a437560015cc927d02392d993db33cb573c2ad404faf23624761059cdd",
+            "ssimulacra2": 89.62146001,
+            "butteraugli": 1.3350455761,
+            "decodedSha256": "9a511f80c3ffaad1889caaf6d38c018dbd08554abc972b57f1ce29e2dfd1c05e",
+            "rmse": 1.6104575247597706,
+            "maximumError": 36,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.62146001\n",
+              "butteraugliText": "1.3350455761\n3-norm: 0.455236\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/lossy-holdout-integrated054-final/im26-1601/report.json",
+      "sha256": "eadc774bb5c36224c91128a9d3ddcdc92710591d7e9575caf98fa637e247c6c3",
+      "value": {
+        "id": "im26-1601",
+        "sourceSha256": "0f24540d65c4033c0f683c314b359ccbbbf40c1ccd8476a28ed8f9015c93f8fc",
+        "normalizedSha256": "fa57c3f1b41be8790a6e5a5e4ed2d84e8a6f3d8e37663dc9d9f0bc65ed7d1a33",
+        "width": 4032,
+        "height": 3024,
+        "category": "1600-lilith-food",
+        "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+        "points": [
+          {
+            "engine": "purejsimage",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 2390123,
+            "encodedSha256": "7a11b2621ea348722ebad08d322ff40236771db653c67c7cba57e694b4f8d74c",
+            "ssimulacra2": 91.70691598,
+            "butteraugli": 0.4258557558,
+            "decodedSha256": "5304438cfa7201d879dca4cc1ce78d5b506e1e1f74fa06682f47487199c36ad1",
+            "rmse": 1.1585913846897768,
+            "maximumError": 41,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.44486477160675114,
+              "samples": 36578304,
+              "rows": 3024
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "91.70691598\n",
+              "butteraugliText": "0.4258557558\n3-norm: 0.178495\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 1762002,
+            "encodedSha256": "d4e39ce6bae14e83de2b92daa97403fa9792d26a0b12a1cbab6bbf6cbdbe448c",
+            "ssimulacra2": 91.07418842,
+            "butteraugli": 0.6158105135,
+            "decodedSha256": "9d718a7e375556c81cd943e33026640e2c6cb9a3c78a592a32dc8d9864c092d7",
+            "rmse": 1.4135615117233258,
+            "maximumError": 59,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.45779857639264143,
+              "samples": 36578304,
+              "rows": 3024
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "91.07418842\n",
+              "butteraugliText": "0.6158105135\n3-norm: 0.221431\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 1446880,
+            "encodedSha256": "c5a3702a49cb27d146b6f0f284b5ff949eaa970a703c87330334c09668474784",
+            "ssimulacra2": 89.99456444,
+            "butteraugli": 0.8850185871,
+            "decodedSha256": "98953bb6b32117ec1c94eb6f8e8ffbbdd7fc7ca2ae1a6f357cbfc1d047e08aaa",
+            "rmse": 1.77968474566768,
+            "maximumError": 68,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4654788909916686,
+              "samples": 36578304,
+              "rows": 3024
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "89.99456444\n",
+              "butteraugliText": "0.8850185871\n3-norm: 0.340236\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 1225521,
+            "encodedSha256": "4ee28d203f6106ef5d67cfc63a6e9c18a3f0afbbd6b18789cf3753a6d759c616",
+            "ssimulacra2": 88.07457535,
+            "butteraugli": 1.4456722736,
+            "decodedSha256": "339f224f37e8cb062fa39ce735f9ddf98dac5d35ddb8fd964d1cc8cdb9f4e3b0",
+            "rmse": 2.231964854258619,
+            "maximumError": 88,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4810416315557911,
+              "samples": 36578304,
+              "rows": 3024
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "88.07457535\n",
+              "butteraugliText": "1.4456722736\n3-norm: 0.503319\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 1055498,
+            "encodedSha256": "4a6e3460e5c0f875341b861332df031abf5017acc8e61bc7e7c50f12cf39610e",
+            "ssimulacra2": 82.12839161,
+            "butteraugli": 2.4535548687,
+            "decodedSha256": "1c54a92dbbc2f3a6247f36714c58c026ac354966a79f26429114369342a56de4",
+            "rmse": 2.807913424497575,
+            "maximumError": 84,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4869416484610624,
+              "samples": 36578304,
+              "rows": 3024
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "82.12839161\n",
+              "butteraugliText": "2.4535548687\n3-norm: 0.951838\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 686862,
+            "encodedSha256": "83d10bd9efd1703fc7d2e816d47690e8857648e77826215cc4d242b3f257c64b",
+            "ssimulacra2": 72.4905337,
+            "butteraugli": 3.5875401497,
+            "decodedSha256": "b091b44c699de75c74f98605f7c0408c9549c704dc71d33fc28df280f14487b5",
+            "rmse": 3.434987874630799,
+            "maximumError": 100,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4895481804351418,
+              "samples": 36578304,
+              "rows": 3024
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "72.49053370\n",
+              "butteraugliText": "3.5875401497\n3-norm: 1.404032\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 2072097,
+            "encodedSha256": "5332f839fdea0a9563e5520d4f8a7adc96f9883459e0702f0974bc4eb8dd4668",
+            "ssimulacra2": 91.16617992,
+            "butteraugli": 0.4340236783,
+            "decodedSha256": "adbc209b4ddc42a39022df4f5de0716b301430605fc39bf98e0cb048d3cf74db",
+            "rmse": 1.1897264297406598,
+            "maximumError": 50,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "91.16617992\n",
+              "butteraugliText": "0.4340236783\n3-norm: 0.179954\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 1525509,
+            "encodedSha256": "3233ecc1ffe8d8860af2e3602510313035b0f7825d535c38017c924148e1036f",
+            "ssimulacra2": 90.33175407,
+            "butteraugli": 0.7713235617,
+            "decodedSha256": "87363d91fb1f72495d1e7cec4e4a7fd5884500c18fa8aed28f44d5654bf584ea",
+            "rmse": 1.4381221586979156,
+            "maximumError": 51,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.33175407\n",
+              "butteraugliText": "0.7713235617\n3-norm: 0.247070\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 1217723,
+            "encodedSha256": "8da642b5d685e684b2dd46fa8fc5859cf54147176f8ed8462cd0a66ffe0c43aa",
+            "ssimulacra2": 87.13276945,
+            "butteraugli": 1.3192613125,
+            "decodedSha256": "4de4099ec52fe4a0b4e2570da56ff72608d48e1c0c3bc0e14cf4aa6ebb073c4d",
+            "rmse": 1.940145298325842,
+            "maximumError": 66,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "87.13276945\n",
+              "butteraugliText": "1.3192613125\n3-norm: 0.499149\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 813407,
+            "encodedSha256": "f65ad22fb4163386e301e19c226f898d7567b0035e26ae3b85a36b60925e33a3",
+            "ssimulacra2": 79.85906119,
+            "butteraugli": 2.1707620621,
+            "decodedSha256": "99ed4779b00051af2e6a90a486f74676ce4ec0335cba85720be92f3a13a70c3d",
+            "rmse": 2.668136820641258,
+            "maximumError": 74,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "79.85906119\n",
+              "butteraugliText": "2.1707620621\n3-norm: 0.872346\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 569876,
+            "encodedSha256": "aa40d0fccddcd6c5aaa6f9e239ae4b4639f63c782a65dd9902f6764e1b11d4e0",
+            "ssimulacra2": 73.23961381,
+            "butteraugli": 3.026859045,
+            "decodedSha256": "4b7ef4808bda783d985bec4fa53fe6a0fa4e9e1d1b1fb37d076c1aee7b5aba1c",
+            "rmse": 3.1644436890509047,
+            "maximumError": 79,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "73.23961381\n",
+              "butteraugliText": "3.0268590450\n3-norm: 1.175014\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 375823,
+            "encodedSha256": "f7c46b68d89b10d07359684bc56197ec512f58201af1272b2cb028777207c3d9",
+            "ssimulacra2": 64.19261804,
+            "butteraugli": 4.4180278778,
+            "decodedSha256": "4252bec012cabe0e14495a06eaea86628d050d700edf374c82e4e4479e468450",
+            "rmse": 3.93453338092095,
+            "maximumError": 79,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "64.19261804\n",
+              "butteraugliText": "4.4180278778\n3-norm: 1.598499\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 428981,
+            "encodedSha256": "3c6bd83712cd43d30c615acfd70734cf089216d7c98a592e68bccdc2d533e704",
+            "ssimulacra2": 59.47085405,
+            "butteraugli": 4.4471950531,
+            "decodedSha256": "91bc810c71c025f8ef2251370c779af2334987e87033f3b73258829e3e4b7627",
+            "rmse": 3.436093796007235,
+            "maximumError": 86,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "59.47085405\n",
+              "butteraugliText": "4.4471950531\n3-norm: 1.735667\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 533409,
+            "encodedSha256": "682cbf6703fdd6e7dfa5919f58442bdbc3e8773797c57ee90cf25fdfd64a01e2",
+            "ssimulacra2": 67.28885779,
+            "butteraugli": 3.8355765343,
+            "decodedSha256": "b288235f637bc1c24ee3c3a714bb2243bf3dd71f4d424c67b1f0a1f994c56a54",
+            "rmse": 2.8427063508155603,
+            "maximumError": 64,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "67.28885779\n",
+              "butteraugliText": "3.8355765343\n3-norm: 1.500140\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 773507,
+            "encodedSha256": "1c2b67454978c87c998fd0e81b76d75f1cf4248691d85ca078c342fcad74e643",
+            "ssimulacra2": 78.98352286,
+            "butteraugli": 3.4155688286,
+            "decodedSha256": "7e0fdbdf1f9e1566ad10ebd3a9527b22498a31d7ebabc3c7693b23fc7112b606",
+            "rmse": 2.090532709941265,
+            "maximumError": 57,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.98352286\n",
+              "butteraugliText": "3.4155688286\n3-norm: 1.047915\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 990695,
+            "encodedSha256": "bcf249a82925778ad2fc4fc886ec53e42638b1eefac01136b9354ca10acce11c",
+            "ssimulacra2": 86.03323847,
+            "butteraugli": 2.4215373993,
+            "decodedSha256": "a2bd90c3c1d3de81575bfbe2c72f458629c0d16ff1655f3fa9d9c5c3c0c75d82",
+            "rmse": 1.3050174068317093,
+            "maximumError": 55,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "86.03323847\n",
+              "butteraugliText": "2.4215373993\n3-norm: 0.614361\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 1315766,
+            "encodedSha256": "eb0be3b0c3a73e150db0762f1c6abadd008ef0b5de59b8b470469969856da47a",
+            "ssimulacra2": 89.32637439,
+            "butteraugli": 1.8489208221,
+            "decodedSha256": "8199bc125287eb6e4de346bfa5983f339b951301b727efe6f9dcf33e1d2abc0b",
+            "rmse": 0.8326123647518765,
+            "maximumError": 34,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.32637439\n",
+              "butteraugliText": "1.8489208221\n3-norm: 0.368988\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 1844673,
+            "encodedSha256": "4163986aaa394e2ac091740d571612b7e0d69f1eb33ae4b9d635947f73049c8a",
+            "ssimulacra2": 90.79398535,
+            "butteraugli": 0.8241775632,
+            "decodedSha256": "fd50e27fd45c785673745dd1d6244baaf6912093b3c5955cdff08bf21ce4fd75",
+            "rmse": 0.6138190377096263,
+            "maximumError": 23,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.79398535\n",
+              "butteraugliText": "0.8241775632\n3-norm: 0.199622\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 326546,
+            "encodedSha256": "6c5c2922032fd3b87620edcbbba3f107fe223b6f8bf14cbf3de75b9f3c337dc7",
+            "ssimulacra2": 57.22823607,
+            "butteraugli": 5.9700117111,
+            "decodedSha256": "905ebe5333fc14392e7e03ec36b99e38f108c5b1374fa02b1e3f09279c810d21",
+            "rmse": 3.7672175527030816,
+            "maximumError": 63,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "57.22823607\n",
+              "butteraugliText": "5.9700117111\n3-norm: 1.951425\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 401358,
+            "encodedSha256": "274ff1b1e085fcc0e34faeba5d81eb6f1fc3c81f1e2ade44396bcf222d382584",
+            "ssimulacra2": 62.9420663,
+            "butteraugli": 5.3659315109,
+            "decodedSha256": "7334df26f1c8a5864e206045c8d4a9a055ffdcddbe2375a47d564e25e3a0e6d8",
+            "rmse": 3.360186508268198,
+            "maximumError": 54,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "62.94206630\n",
+              "butteraugliText": "5.3659315109\n3-norm: 1.694166\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 494272,
+            "encodedSha256": "2e3532e1d7c3191f6fc3f6664b839bad06d2a4c3904857aec21d7b6eaf7ad0df",
+            "ssimulacra2": 67.21215879,
+            "butteraugli": 4.2607660294,
+            "decodedSha256": "1e80c43d59a84c3c98fc88d6a68e097cdd2f1180bca888dd49e79acb18734e6d",
+            "rmse": 3.027817109004147,
+            "maximumError": 48,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "67.21215879\n",
+              "butteraugliText": "4.2607660294\n3-norm: 1.482689\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 667106,
+            "encodedSha256": "11178281fa43b328c29b2599905fb9a6ac4121f5c48fcf3ae9d2523cafa5369a",
+            "ssimulacra2": 72.54287863,
+            "butteraugli": 3.3190245628,
+            "decodedSha256": "dd05a930f7c62f39da8424f032e7d5c2de6962f7c9e42e7565f2c6dbfa6ba381",
+            "rmse": 2.5692367985697233,
+            "maximumError": 37,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "72.54287863\n",
+              "butteraugliText": "3.3190245628\n3-norm: 1.234218\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 1242682,
+            "encodedSha256": "af2b7845adfc54346f64eb817aae54fe5d468846ae2c8c8aefdffb14ccf792ce",
+            "ssimulacra2": 81.8383784,
+            "butteraugli": 2.1613278389,
+            "decodedSha256": "11d4576f44cf6b5fdc4390481902162c489f0a7d272da3ffee206a6f3dd3c63d",
+            "rmse": 1.779170353264848,
+            "maximumError": 25,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "81.83837840\n",
+              "butteraugliText": "2.1613278389\n3-norm: 0.869920\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 2113750,
+            "encodedSha256": "c5849aef3f225e5669b53dbc8237811528f41a2b2e1e33ac73ba7eec31a3a4f3",
+            "ssimulacra2": 84.48058693,
+            "butteraugli": 1.9563200474,
+            "decodedSha256": "9a52e6df3144fa84d5ca01780df1da28925ac97e3fe4b5aae0746c6b53c49709",
+            "rmse": 1.3286314203569334,
+            "maximumError": 23,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "84.48058693\n",
+              "butteraugliText": "1.9563200474\n3-norm: 0.788951\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 261620,
+            "encodedSha256": "c6b751886ae42c5b29a66ef2176e8996c13a17feeaf479da7e80975c958c5efc",
+            "ssimulacra2": 62.22460171,
+            "butteraugli": 6.5275163651,
+            "decodedSha256": "1b7580708f40b6338c58b9f1333b5bd26b673d681592c8848c62ec5e4cf17894",
+            "rmse": 3.4760751369867497,
+            "maximumError": 87,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "62.22460171\n",
+              "butteraugliText": "6.5275163651\n3-norm: 1.832046\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 527024,
+            "encodedSha256": "0fe1b1a5c9c51609bba45c0fef9b2eb5dc70d9164c46bc743a6125880ad13ca1",
+            "ssimulacra2": 75.33336702,
+            "butteraugli": 3.3415198326,
+            "decodedSha256": "1445056b985813ae0631e4321d0d3a26359e05c139d75debf2dd97cd4ed9d20b",
+            "rmse": 2.3871158592738304,
+            "maximumError": 51,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "75.33336702\n",
+              "butteraugliText": "3.3415198326\n3-norm: 1.154959\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 888697,
+            "encodedSha256": "e71696d57f82a6506a5cdb3120500c809aa474978490456d2e71208aa395217f",
+            "ssimulacra2": 86.30389972,
+            "butteraugli": 2.3179881573,
+            "decodedSha256": "4b5e5ec17609b9da844c11d2391d379a2bf4bb1af809a4d81a483e554523db36",
+            "rmse": 1.3391291693570835,
+            "maximumError": 37,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "86.30389972\n",
+              "butteraugliText": "2.3179881573\n3-norm: 0.610148\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1033326,
+            "encodedSha256": "7349065c7d3bcb4d1600cf012f9018c6c5f6711a2716fbe77f8dbb14e53f22d2",
+            "ssimulacra2": 87.77914685,
+            "butteraugli": 1.3590025902,
+            "decodedSha256": "e89f8a29915276d74bf62746dac1d0bfd114057c773846ce4f36943ad18dc853",
+            "rmse": 1.2279996640652473,
+            "maximumError": 31,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "87.77914685\n",
+              "butteraugliText": "1.3590025902\n3-norm: 0.470229\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 1175851,
+            "encodedSha256": "02ec45c582a728ad50a17de986ba74f296bdfac80ef6c6ac471a0d0de364de8a",
+            "ssimulacra2": 89.40602354,
+            "butteraugli": 1.0603947639,
+            "decodedSha256": "90525163d0a3ad473e0fa6eaf3200696fccfec9b0af8989fc9e6862b97d4f007",
+            "rmse": 1.080609785339261,
+            "maximumError": 37,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.40602354\n",
+              "butteraugliText": "1.0603947639\n3-norm: 0.344830\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 1640044,
+            "encodedSha256": "15a13195afd4fbf9a9486cd3c9edae6a8bf81a51d6aba40aa6f18c31c1b040cd",
+            "ssimulacra2": 90.15004652,
+            "butteraugli": 0.9558584094,
+            "decodedSha256": "12379f5a67309c0689a7666776665447e8f265dda27c68b879f4d575dd20aa08",
+            "rmse": 0.994755043132847,
+            "maximumError": 33,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.15004652\n",
+              "butteraugliText": "0.9558584094\n3-norm: 0.299023\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/lossy-holdout-integrated054-final/im26-2023/report.json",
+      "sha256": "9970f05710c2d0acc0accee148371c26939004a3437ef010da256bfe452db0d2",
+      "value": {
+        "id": "im26-2023",
+        "sourceSha256": "4e0e48ad04fb4527924f87f5899ff87fd288db7e3bc320fb218195e0b7977ff6",
+        "normalizedSha256": "df3bd3815aee6b78c7373b98fbc79ab6d133e3bcf4e20401f10d6e5a83227f78",
+        "width": 2207,
+        "height": 3130,
+        "category": "2000-unsplash-people",
+        "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+        "points": [
+          {
+            "engine": "purejsimage",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 2190721,
+            "encodedSha256": "a14d93d61cc23f0a8b1da11e22d76dfaeedcdb7ed4b7d6f5c277b27e580a8e1e",
+            "ssimulacra2": 93.18265686,
+            "butteraugli": 0.3677449822,
+            "decodedSha256": "639ffc2aa8ba7d75e9fc59e2da716cded892d0d831fdfcffe4a294e4f5e20eef",
+            "rmse": 1.0755554608556863,
+            "maximumError": 32,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4992006873083542,
+              "samples": 20723730,
+              "rows": 3130
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "93.18265686\n",
+              "butteraugliText": "0.3677449822\n3-norm: 0.159918\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 1670040,
+            "encodedSha256": "1d6c46262b4197703a368703a54a2e9ea5f5ccad3cf9bf96290d9518c35ca98c",
+            "ssimulacra2": 92.4598867,
+            "butteraugli": 0.5586385727,
+            "decodedSha256": "9bffc2923c51696fc0dfaf9a06c2ee5f620ee184cbfb364f91591a22a877dec2",
+            "rmse": 1.3549602323006433,
+            "maximumError": 43,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.5007076487796425,
+              "samples": 20723730,
+              "rows": 3130
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "92.45988670\n",
+              "butteraugliText": "0.5586385727\n3-norm: 0.216540\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 1318642,
+            "encodedSha256": "169f49160eef25674107e897d8a440c05af9f2e9ec04ffd6a7fd80e7e61ffc7f",
+            "ssimulacra2": 90.54340942,
+            "butteraugli": 0.8444112539,
+            "decodedSha256": "049bd34ad4f7a3bd351beb2ecba9d51ebaf0b6cb6b6999a0aee5e849a61ed278",
+            "rmse": 1.8200264963207093,
+            "maximumError": 52,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49939358788913557,
+              "samples": 20723730,
+              "rows": 3130
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "90.54340942\n",
+              "butteraugliText": "0.8444112539\n3-norm: 0.340935\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 924115,
+            "encodedSha256": "85798737fda17c59ac64f631801a7e16d9cb96154b82c4ef537d7e85ea1b8c9c",
+            "ssimulacra2": 83.48119186,
+            "butteraugli": 1.7633900642,
+            "decodedSha256": "9a1a7f13f6592057807b6f4d6a984f2223409a90c6b910d4010975eb7efab17d",
+            "rmse": 2.664474440092739,
+            "maximumError": 72,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.5016936648935546,
+              "samples": 20723730,
+              "rows": 3130
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "83.48119186\n",
+              "butteraugliText": "1.7633900642\n3-norm: 0.723332\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 722988,
+            "encodedSha256": "0af950c419d097217529c3d156f5aa9c885484995822bdcd9e5392646387f949",
+            "ssimulacra2": 76.61816688,
+            "butteraugli": 2.3430075645,
+            "decodedSha256": "9601cc2ef8b384834e8ab9b30107255a61e7dce891aa65cde7e53525bb0bff5a",
+            "rmse": 3.2724931948653704,
+            "maximumError": 73,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.5000278658285904,
+              "samples": 20723730,
+              "rows": 3130
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "76.61816688\n",
+              "butteraugliText": "2.3430075645\n3-norm: 1.035367\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 481048,
+            "encodedSha256": "63d77b03e45866bf3800ef1a88516f5d0572436547b58e3176eab6486821616f",
+            "ssimulacra2": 64.2483804,
+            "butteraugli": 3.3113820553,
+            "decodedSha256": "77c443dd9934fb3df9318ea91201a97bc9d8cfa168522d86aef2b5feb8b819f3",
+            "rmse": 4.070723612726027,
+            "maximumError": 61,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4975934098187974,
+              "samples": 20723730,
+              "rows": 3130
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "64.24838040\n",
+              "butteraugliText": "3.3113820553\n3-norm: 1.504002\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 1962310,
+            "encodedSha256": "61355233d777d294244f32f3eb6ec14c18e0050e812e5529d360a4ee57871530",
+            "ssimulacra2": 92.681193,
+            "butteraugli": 0.3847095966,
+            "decodedSha256": "e363e8a29a2d1c829829abf6d8dc7ca631a1af545ff8ceb84188cce1a95b1ad2",
+            "rmse": 1.0896462592140461,
+            "maximumError": 30,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "92.68119300\n",
+              "butteraugliText": "0.3847095966\n3-norm: 0.160801\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 1525708,
+            "encodedSha256": "6e6739ba8907af4fd982fa8bd5c05a16ee6b2d764deb55d26869e51673a664bc",
+            "ssimulacra2": 91.46727694,
+            "butteraugli": 0.5200847983,
+            "decodedSha256": "314d93e19d8caeb72abf161be8c9e37930c8395f52c7af10a79292e34df81578",
+            "rmse": 1.375801025886305,
+            "maximumError": 36,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "91.46727694\n",
+              "butteraugliText": "0.5200847983\n3-norm: 0.219711\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 1010795,
+            "encodedSha256": "5a5432d64ba89f95926ed4910164f2b50247332b31ffbe9ec06d288e14a230a4",
+            "ssimulacra2": 86.66491887,
+            "butteraugli": 1.4224729538,
+            "decodedSha256": "a5b72d28dc063b113e137d6c2a6edffef1421fd73e6e93f6557eaa8e27b7bcae",
+            "rmse": 2.1177303857291268,
+            "maximumError": 47,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "86.66491887\n",
+              "butteraugliText": "1.4224729538\n3-norm: 0.463828\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 571901,
+            "encodedSha256": "9ae2089b50866fdc1be6a648cbf806f3e93c0d15dcc7ddfc76b07db9c8066e27",
+            "ssimulacra2": 77.48707352,
+            "butteraugli": 2.0559127331,
+            "decodedSha256": "7ec3bac52c28e42f80e7e7eba409bd5685fb59286e8878640556c97d288d3bd1",
+            "rmse": 3.035149115322962,
+            "maximumError": 52,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "77.48707352\n",
+              "butteraugliText": "2.0559127331\n3-norm: 0.856978\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 395527,
+            "encodedSha256": "03010c34e11ea1f84fd5e7a32ff8de9d0d97ad3360d656edf64cb50d18223f91",
+            "ssimulacra2": 68.85603397,
+            "butteraugli": 2.6190042496,
+            "decodedSha256": "cbd253a5bf30511a1860dcb3954b95f009e66ad4ae792fdec7022b9448f3e2c9",
+            "rmse": 3.5953563118544842,
+            "maximumError": 56,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "68.85603397\n",
+              "butteraugliText": "2.6190042496\n3-norm: 1.154397\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 242379,
+            "encodedSha256": "bcaf6301594bcf64334635807bcca23b32f85ad3598344ad8c90d964900ba85f",
+            "ssimulacra2": 52.29070063,
+            "butteraugli": 4.5182614326,
+            "decodedSha256": "c9bcab155f2c9783595d0ca2b21bdab54cc0d44f38ff08f620948e81a51fb909",
+            "rmse": 4.457745776623977,
+            "maximumError": 58,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "52.29070063\n",
+              "butteraugliText": "4.5182614326\n3-norm: 1.720959\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 281260,
+            "encodedSha256": "7019bc4b1477e090967cbee431a0799f92e634ca3a0baa2f20a0797b36696604",
+            "ssimulacra2": 46.62427434,
+            "butteraugli": 4.0199251175,
+            "decodedSha256": "fa02dc7c000b8fa87c43b9f40e05a02a2427a36e49750b4222ebe9224f97ab6b",
+            "rmse": 4.672258188371145,
+            "maximumError": 40,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "46.62427434\n",
+              "butteraugliText": "4.0199251175\n3-norm: 1.802296\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 393495,
+            "encodedSha256": "326080a71d02c047f66e1d03ab7a217fc16c281a140aee097d23c617861fd0f4",
+            "ssimulacra2": 59.51318221,
+            "butteraugli": 3.1205847263,
+            "decodedSha256": "b16d4d1aaa3bad9041a936e41d13bc96140849be52e869ed7cf736c38a0661df",
+            "rmse": 4.007531092405264,
+            "maximumError": 33,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "59.51318221\n",
+              "butteraugliText": "3.1205847263\n3-norm: 1.447009\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 556448,
+            "encodedSha256": "94e837673cbb377a26ae3b71800ffe552960b99ddd444331520efda0719cdd9e",
+            "ssimulacra2": 70.13968312,
+            "butteraugli": 2.5765867233,
+            "decodedSha256": "707da2ae3ccc682967871cf7292ab6775f91d4eb82e09235edd7477cd652c438",
+            "rmse": 3.1911933349053325,
+            "maximumError": 24,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "70.13968312\n",
+              "butteraugliText": "2.5765867233\n3-norm: 1.141280\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 801578,
+            "encodedSha256": "23093f5959390cbd97434afa464259cb581bc2903e2c33c8485081cb8c200ecf",
+            "ssimulacra2": 79.58499033,
+            "butteraugli": 2.0182044506,
+            "decodedSha256": "bbff4d4c31b8cbba0af2697ab59c7f0f467e81002c2fec64bc84ed76294f05fe",
+            "rmse": 2.40813002591071,
+            "maximumError": 21,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "79.58499033\n",
+              "butteraugliText": "2.0182044506\n3-norm: 0.860430\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 1304246,
+            "encodedSha256": "78d265c8c67768d6105664c81da54fcbd10d8e38d911fa6cee121202cfe4efec",
+            "ssimulacra2": 89.68290604,
+            "butteraugli": 1.1633014679,
+            "decodedSha256": "ad2fc197acddab0983295ea403d632820ccb5bfd3020df2b25607fe3647bdb66",
+            "rmse": 1.1338211415973536,
+            "maximumError": 14,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.68290604\n",
+              "butteraugliText": "1.1633014679\n3-norm: 0.350086\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 1843290,
+            "encodedSha256": "6be0650887a35e80d58a0441a0a30f4af189310c7f96821262847d42e302a601",
+            "ssimulacra2": 92.18893311,
+            "butteraugli": 0.5939019322,
+            "decodedSha256": "e17afef241c393d90466cbe1113e6c532eebd3788868afcf99041f7ad7d9550a",
+            "rmse": 0.7557249875625082,
+            "maximumError": 10,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "92.18893311\n",
+              "butteraugliText": "0.5939019322\n3-norm: 0.175106\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 234182,
+            "encodedSha256": "a2ba4d8c59b6a4d4f75e01d2a74fda50b349a10c6ef70ccea567b4779f86e7a2",
+            "ssimulacra2": 39.20774769,
+            "butteraugli": 5.6023197174,
+            "decodedSha256": "4322afbb1ff2290d8a880ebc7f0191b8ffacb3c21721c5f2162d76e882711dfb",
+            "rmse": 4.952970433731367,
+            "maximumError": 41,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "39.20774769\n",
+              "butteraugliText": "5.6023197174\n3-norm: 2.120760\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 311096,
+            "encodedSha256": "c4472f81e2ed641ff3ab5c964c2356ef8e158f6b4c35cda1872ed336ec04c3c8",
+            "ssimulacra2": 49.65396356,
+            "butteraugli": 4.679792881,
+            "decodedSha256": "5051cab345fcb024aa1f94b85cd9da105acf6fd3a0e326feb90aad71dc79213f",
+            "rmse": 4.407171841326149,
+            "maximumError": 38,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "49.65396356\n",
+              "butteraugliText": "4.6797928810\n3-norm: 1.759997\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 398266,
+            "encodedSha256": "03540be9afa59019a67824f33d36ecd4f261c4890af80b74a5b761578d178e33",
+            "ssimulacra2": 58.59137175,
+            "butteraugli": 3.5365469456,
+            "decodedSha256": "11f9b593a0dcec8bcb648e8bcb18e6a99cfa0e141d830328dba16696d2932718",
+            "rmse": 4.016871967035,
+            "maximumError": 34,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "58.59137175\n",
+              "butteraugliText": "3.5365469456\n3-norm: 1.482403\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 591672,
+            "encodedSha256": "9af2833823f01771a21a18dc2060af4faed7bee4dac6653f4c11f81daa098008",
+            "ssimulacra2": 69.4560021,
+            "butteraugli": 2.864882946,
+            "decodedSha256": "c47cfc18fad0b2f6124d9477f5515df27eee2e6b5c29ef6c4d8e78f275752993",
+            "rmse": 3.3587420821419927,
+            "maximumError": 28,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "69.45600210\n",
+              "butteraugliText": "2.8648829460\n3-norm: 1.159167\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 1075052,
+            "encodedSha256": "5dd45cc569baf8908c16159dd870b2718ab9c40d05ef9052c45b6849651791ca",
+            "ssimulacra2": 81.81973957,
+            "butteraugli": 1.6106311083,
+            "decodedSha256": "86ac8cd4cd14abb3e03eca01a59424de8c6a916646cc48fc2b638ec391299686",
+            "rmse": 2.2146502656610414,
+            "maximumError": 18,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "81.81973957\n",
+              "butteraugliText": "1.6106311083\n3-norm: 0.692953\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 1904170,
+            "encodedSha256": "d0cae3949535eba72dc98f23d53d111c7abc2acd7a0c20f5dd437cdb0ae1abf9",
+            "ssimulacra2": 88.35484247,
+            "butteraugli": 0.8318212628,
+            "decodedSha256": "3360e6a361f375bbb81eaded3313d25b528366e1487a77d913e76f60721386e2",
+            "rmse": 1.3600982958085397,
+            "maximumError": 11,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.35484247\n",
+              "butteraugliText": "0.8318212628\n3-norm: 0.376502\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 184518,
+            "encodedSha256": "c92d0259cf416c6081835d21cc25e4a177dce052379b812db8dfccc437d541ea",
+            "ssimulacra2": 47.24809378,
+            "butteraugli": 5.6528244019,
+            "decodedSha256": "3ff1c568f49263cce195bd88bc9d66e44aa96084c9520d57d425f940c0f9fc1d",
+            "rmse": 4.560668075891452,
+            "maximumError": 42,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "47.24809378\n",
+              "butteraugliText": "5.6528244019\n3-norm: 1.992066\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 414927,
+            "encodedSha256": "3effe8a4c0f990a97b195601fcc59a0adf99bd81c3756e5add026d940819dcc6",
+            "ssimulacra2": 69.00084975,
+            "butteraugli": 3.2549095154,
+            "decodedSha256": "ff4dd1b8addc9fb7ccaedcb37ce01c72d252ea32d486f4ebae9f1abaa8178861",
+            "rmse": 3.268759791698957,
+            "maximumError": 38,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "69.00084975\n",
+              "butteraugliText": "3.2549095154\n3-norm: 1.197908\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 742369,
+            "encodedSha256": "b22a0204a99e9069f6279bf68149ac7a41ec0676f0b6666e3d7f605b992aa469",
+            "ssimulacra2": 80.51428571,
+            "butteraugli": 2.4729001522,
+            "decodedSha256": "f4f3f8d8917a3bbfaecb04724dfbf7f7b9d05b3511b63a054fd211b6c2958527",
+            "rmse": 2.1719198301465616,
+            "maximumError": 25,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "80.51428571\n",
+              "butteraugliText": "2.4729001522\n3-norm: 0.732423\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1007404,
+            "encodedSha256": "7ea3c9f13c0a06f92cb62bece44927863d41e7004bc9745a979860571b342f04",
+            "ssimulacra2": 86.19167871,
+            "butteraugli": 1.7197204828,
+            "decodedSha256": "20a8a4215ed5aa0216938a3770d2a36cb6452658e8c31194c40ce5f96c27ff5a",
+            "rmse": 1.5326007612229788,
+            "maximumError": 21,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "86.19167871\n",
+              "butteraugliText": "1.7197204828\n3-norm: 0.516695\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 1269225,
+            "encodedSha256": "5c29a03a0bdf4acf0c0c0f7a8a7a74d357a5bef697ec8b321d69c855787ca3f4",
+            "ssimulacra2": 89.48860642,
+            "butteraugli": 0.7559190392,
+            "decodedSha256": "e1fe228ce0dca41e03e7a781905027c9e37351d28b442aefb403f637718288cf",
+            "rmse": 1.2310019752996404,
+            "maximumError": 15,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.48860642\n",
+              "butteraugliText": "0.7559190392\n3-norm: 0.310992\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 1581642,
+            "encodedSha256": "d8874c459224ec22651695446db9c11bddb594f31de90fb736278772680fcee0",
+            "ssimulacra2": 91.16944531,
+            "butteraugli": 0.6853467226,
+            "decodedSha256": "5b96f80d73856bad9a5adf3fde2000781b95d69d8baedade8fedce6fa25fe397",
+            "rmse": 1.0752392792790137,
+            "maximumError": 13,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "91.16944531\n",
+              "butteraugliText": "0.6853467226\n3-norm: 0.230721\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/lossy-holdout-integrated054-final/im26-2407/report.json",
+      "sha256": "b2c4eeeb901f283263d6df49672555450d93182c2b2b87cdad28b263dd14a6e9",
+      "value": {
+        "id": "im26-2407",
+        "sourceSha256": "718598b0d8cdcd2ca98af9d1d7fd9b704955fd04a771f05936462c080e4e114b",
+        "normalizedSha256": "a8e434c146851a2c67be07f47ff3cc58cb7a9afd50b2bd437a2e139e3abbcb86",
+        "width": 4000,
+        "height": 6000,
+        "category": "2400-unsplash-textures",
+        "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+        "points": [
+          {
+            "engine": "purejsimage",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 7082796,
+            "encodedSha256": "1bed0b7aaa730211a4044f3fe7a280a97fea8527d6b9a734f3de34f3b3a99146",
+            "ssimulacra2": 94.46062383,
+            "butteraugli": 0.3937832117,
+            "decodedSha256": "ac2f336fd0c78877c5eedcb32a773857364e51e973927e6b67eef712f45f53e5",
+            "rmse": 1.285478742423313,
+            "maximumError": 39,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49422259379982036,
+              "samples": 72000000,
+              "rows": 6000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "94.46062383\n",
+              "butteraugliText": "0.3937832117\n3-norm: 0.155795\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 5403135,
+            "encodedSha256": "854587826c593bb66fe1017405cb054696baf24e28373145c587d24f0014b1fa",
+            "ssimulacra2": 93.45841582,
+            "butteraugli": 0.5519074202,
+            "decodedSha256": "61c46c61bc0068825120789fa110f179415240576ac8efad188912a3a540d144",
+            "rmse": 1.6194632812893426,
+            "maximumError": 54,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4995157655169654,
+              "samples": 72000000,
+              "rows": 6000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "93.45841582\n",
+              "butteraugliText": "0.5519074202\n3-norm: 0.212760\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 4312127,
+            "encodedSha256": "05cfe12c635291896619e237bf11f1420df694bb727ac61cf597fd016c966980",
+            "ssimulacra2": 91.06465973,
+            "butteraugli": 0.8711726069,
+            "decodedSha256": "3c159d3678854a868408368f509d223bf1205a5250c5af76eec8c0fc99d53b50",
+            "rmse": 2.0753142867741476,
+            "maximumError": 63,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.4966292211835036,
+              "samples": 72000000,
+              "rows": 6000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "91.06465973\n",
+              "butteraugliText": "0.8711726069\n3-norm: 0.332982\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 2916889,
+            "encodedSha256": "bec750700ac2780aa9cdea58973c13a14c4cb18184b488f77f97ad1e9d8b4039",
+            "ssimulacra2": 84.47473701,
+            "butteraugli": 1.8564341068,
+            "decodedSha256": "435270f5c41e606fa408111fa68916d6ca2a6639c8bc71ac35f9b99c4e4014c2",
+            "rmse": 2.8485358080950993,
+            "maximumError": 84,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.507241354452362,
+              "samples": 72000000,
+              "rows": 6000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "84.47473701\n",
+              "butteraugliText": "1.8564341068\n3-norm: 0.667575\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 2238932,
+            "encodedSha256": "cd7de71bcd8a634656e9e9aa53127eff6dbc87f4b57054cae7f98175882d227c",
+            "ssimulacra2": 78.16434104,
+            "butteraugli": 2.6369063854,
+            "decodedSha256": "ed287c49f3d78b9673b58bc3dbf66d5e17728086eae5c33fcdaa5de228486ec6",
+            "rmse": 3.59659908030412,
+            "maximumError": 101,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.5071826594038877,
+              "samples": 72000000,
+              "rows": 6000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "78.16434104\n",
+              "butteraugliText": "2.6369063854\n3-norm: 1.012963\n"
+            }
+          },
+          {
+            "engine": "purejsimage",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 1377349,
+            "encodedSha256": "0597efaa97f481c90cc1352a032ad598be465c73e940104de05d0ee2bfa0e88c",
+            "ssimulacra2": 69.18669671,
+            "butteraugli": 3.7518050671,
+            "decodedSha256": "3fdb799818915aae2131b607addfe89196f4f0f19c6db42c3191c673fcd1b7b1",
+            "rmse": 4.387344804156103,
+            "maximumError": 103,
+            "maximumIndependentDifference": 1,
+            "ownVerification": {
+              "maximum": 1,
+              "rmse": 0.49542792950471953,
+              "samples": 72000000,
+              "rows": 6000
+            },
+            "rawMetrics": {
+              "ssimulacra2Text": "69.18669671\n",
+              "butteraugliText": "3.7518050671\n3-norm: 1.391967\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.25,
+            "status": "measured",
+            "bytes": 6295613,
+            "encodedSha256": "919d1cbca9c4d3b2bff6135b268ae0eaddecfe0583d799a9e8da865ed3ef6679",
+            "ssimulacra2": 93.73212053,
+            "butteraugli": 0.4555863738,
+            "decodedSha256": "040c371153c07107ab61813876045b52b03d9a8a86bc9c91c8a425426a25e448",
+            "rmse": 1.5648356720613048,
+            "maximumError": 36,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "93.73212053\n",
+              "butteraugliText": "0.4555863738\n3-norm: 0.177666\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 0.5,
+            "status": "measured",
+            "bytes": 4818103,
+            "encodedSha256": "43ec3a4df2b5625f143b017ad545b4eba86946d0f7a35183cca4ce89d86c9cc5",
+            "ssimulacra2": 89.85134572,
+            "butteraugli": 1.1566445827,
+            "decodedSha256": "76ace3c010c27525ac4f53d8fc7cdd5547fb05bbe702fe7adc31e715329b93ec",
+            "rmse": 2.001061419735925,
+            "maximumError": 55,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "89.85134572\n",
+              "butteraugliText": "1.1566445827\n3-norm: 0.325289\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 1,
+            "status": "measured",
+            "bytes": 3047080,
+            "encodedSha256": "a25b0ab22b6f4aee8c9d7fe0aa63c2dfc57abad74c79f479da20ea02ebde23fd",
+            "ssimulacra2": 82.28090158,
+            "butteraugli": 2.4232437611,
+            "decodedSha256": "4d72c2cd321aaf881041b19a73bc508541e755e33b4863ff881bc145830b7aad",
+            "rmse": 2.8517601460423623,
+            "maximumError": 56,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "82.28090158\n",
+              "butteraugliText": "2.4232437611\n3-norm: 0.615323\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 2,
+            "status": "measured",
+            "bytes": 1489176,
+            "encodedSha256": "05d3b4f63879e22a48506043a116e3a058dd5ada68b6aea3144762b51d025ab3",
+            "ssimulacra2": 73.20000887,
+            "butteraugli": 3.0077562332,
+            "decodedSha256": "16db5a6bacc0795a811943b01f05a178bde430584416f8255fd105eabcddb7a8",
+            "rmse": 4.052582641901883,
+            "maximumError": 75,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "73.20000887\n",
+              "butteraugliText": "3.0077562332\n3-norm: 1.051489\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 3,
+            "status": "measured",
+            "bytes": 860852,
+            "encodedSha256": "1d6c1e3632cf532b77c92310d38fedd2195b07f2b0a15712a388e918ba524bc1",
+            "ssimulacra2": 67.75475095,
+            "butteraugli": 3.7534422874,
+            "decodedSha256": "4d69c66dd947c49a9a42ceed971923290ebb7f9c5cdc67d6c3f6a0e08ff62d5b",
+            "rmse": 4.5538620742910805,
+            "maximumError": 80,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "67.75475095\n",
+              "butteraugliText": "3.7534422874\n3-norm: 1.286619\n"
+            }
+          },
+          {
+            "engine": "libjxl",
+            "setting": 5,
+            "status": "measured",
+            "bytes": 573811,
+            "encodedSha256": "5ad4910350749ddf6891aa26ce80f2cd2d48b5c232ee02eafa57fb88a0ae38c5",
+            "ssimulacra2": 61.46118881,
+            "butteraugli": 5.7117986679,
+            "decodedSha256": "a7497e500cfe1d0f02a0b63bb4378c0d9f05863cd97fabd5bfbdcfd6966219d5",
+            "rmse": 5.09402816213914,
+            "maximumError": 87,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "61.46118881\n",
+              "butteraugliText": "5.7117986679\n3-norm: 1.536948\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 868194,
+            "encodedSha256": "6fc00b1caf88cda7c9456da724366540eac566713ac4fd92386da4fea91cc981",
+            "ssimulacra2": 48.71318276,
+            "butteraugli": 5.0106310844,
+            "decodedSha256": "3174531e8df5731285ca793e66804c86e0ff6753ae4580418c27d7f6cd0c240b",
+            "rmse": 4.721877697072544,
+            "maximumError": 69,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "48.71318276\n",
+              "butteraugliText": "5.0106310844\n3-norm: 1.711438\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 1118216,
+            "encodedSha256": "17082a1d0b7d68cfe17204f4ee22b4891e2168dea84ae0131a9602e8f3f76364",
+            "ssimulacra2": 59.33563326,
+            "butteraugli": 4.9328579903,
+            "decodedSha256": "156909a6fb1a38fd0c16fe258569fb05c5f638f7d1acb914365c177d61254126",
+            "rmse": 4.2394834492738225,
+            "maximumError": 65,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "59.33563326\n",
+              "butteraugliText": "4.9328579903\n3-norm: 1.493092\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 1487339,
+            "encodedSha256": "0496777f5cd8f7015391c002be32a314db9e628090ff96393058cec208f45e30",
+            "ssimulacra2": 66.57992392,
+            "butteraugli": 3.8184461594,
+            "decodedSha256": "40a24f6939d0301f4fefc96502c91c25d4c5843a0663bd971bd632e5e60e77c6",
+            "rmse": 3.6721272577652075,
+            "maximumError": 49,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "66.57992392\n",
+              "butteraugliText": "3.8184461594\n3-norm: 1.286686\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 2119922,
+            "encodedSha256": "7c81a23650a97d88796fafa9cdf999691be415c5361ee6ae8c2aa156a13a74da",
+            "ssimulacra2": 73.7032158,
+            "butteraugli": 3.1894412041,
+            "decodedSha256": "a4c5096a07b8849d23d5078b19f8aefc7329d9bbe3a3473d476bc9c6ec7f3c17",
+            "rmse": 3.210918218447109,
+            "maximumError": 39,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "73.70321580\n",
+              "butteraugliText": "3.1894412041\n3-norm: 1.107775\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 4108349,
+            "encodedSha256": "37006e345f8848cacf1daa49a583869780b6f5e63b16456218eb6bbb87ddc4ef",
+            "ssimulacra2": 85.82431915,
+            "butteraugli": 2.1008069515,
+            "decodedSha256": "9205521c5cb2f3b7fc96c9063eb398ecacc8b17a0831af9add83df3d834e6684",
+            "rmse": 1.7265743942526453,
+            "maximumError": 30,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "85.82431915\n",
+              "butteraugliText": "2.1008069515\n3-norm: 0.605571\n"
+            }
+          },
+          {
+            "engine": "mozjpeg",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 6422358,
+            "encodedSha256": "efba1b16e897089a54d5743e2402ef366648d781e10f591b6a2c2d0bc5482dd1",
+            "ssimulacra2": 90.72417097,
+            "butteraugli": 1.2560032606,
+            "decodedSha256": "9be5d2f63898c50446db40b8b1930b2fc9b420d44162ac77650374f2b283ea80",
+            "rmse": 1.117563396163477,
+            "maximumError": 19,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "90.72417097\n",
+              "butteraugliText": "1.2560032606\n3-norm: 0.324672\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 552384,
+            "encodedSha256": "3d45869f3b664115e2862ea766f4cf1f85da971f9fb4ab6b89f12907267299e8",
+            "ssimulacra2": 43.35868601,
+            "butteraugli": 7.5339956284,
+            "decodedSha256": "3136be248f39e9b6e14a89e73034d586a0f8dd38f8dcc7612e32617bb07c5454",
+            "rmse": 4.927982555716329,
+            "maximumError": 70,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "43.35868601\n",
+              "butteraugliText": "7.5339956284\n3-norm: 2.000295\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 703292,
+            "encodedSha256": "d2a2d737deb094c094a501866fd7dc673c63561c14d91e7f95ddf8ddb1e1b2f8",
+            "ssimulacra2": 50.94725107,
+            "butteraugli": 5.216635704,
+            "decodedSha256": "8609a3e31fbf60d95c7c2ae610f19346c9b8d54e34886939a77a78078a72a353",
+            "rmse": 4.477328371609818,
+            "maximumError": 53,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "50.94725107\n",
+              "butteraugliText": "5.2166357040\n3-norm: 1.722830\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 945988,
+            "encodedSha256": "9b6f6e07e6ec4ebf4a18fdf98e2722f07a8d16a02feac3a1223e84d0d42a51ba",
+            "ssimulacra2": 57.1812714,
+            "butteraugli": 4.5577669144,
+            "decodedSha256": "3c921177ee61c1ef4147c50f025b221a7a240eff71227b67216b577e81b5ba8b",
+            "rmse": 4.114922275491158,
+            "maximumError": 49,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "57.18127140\n",
+              "butteraugliText": "4.5577669144\n3-norm: 1.531199\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 1506426,
+            "encodedSha256": "a57c77a918ff7d7789c29cf34d6330b1aa8b7d6c11ac9568c2787fff49cef477",
+            "ssimulacra2": 65.67368324,
+            "butteraugli": 3.3876538277,
+            "decodedSha256": "e1f75d3dcdff1e7c64c2b81af42ed9f6ffc62e432a6f12a31c55a7fd0ac7bede",
+            "rmse": 3.518412702404942,
+            "maximumError": 37,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "65.67368324\n",
+              "butteraugliText": "3.3876538277\n3-norm: 1.267959\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 3491282,
+            "encodedSha256": "ffba6439fa29799223a465f534cf5d6ea3b45e4455da3b356f403bed9daa7721",
+            "ssimulacra2": 78.79767237,
+            "butteraugli": 2.1131155491,
+            "decodedSha256": "e24915f372f64cb2bc9cbf86cdfa7ca6c595daa3040ef1b586eac7816046edd9",
+            "rmse": 2.3201033741337187,
+            "maximumError": 24,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.79767237\n",
+              "butteraugliText": "2.1131155491\n3-norm: 0.776895\n"
+            }
+          },
+          {
+            "engine": "webp",
+            "setting": 97,
+            "status": "measured",
+            "bytes": 6570618,
+            "encodedSha256": "ee358a20fac4f0b6a3c9a7b8b242a424ffd364e9afec1bc5afd488e2154982ac",
+            "ssimulacra2": 86.83272472,
+            "butteraugli": 1.1304097176,
+            "decodedSha256": "ca9e317cee487514bf7fac5ef0661585384aeacdb8f3d26ffa2e60bf3d1e63fd",
+            "rmse": 1.4946865427610938,
+            "maximumError": 18,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "86.83272472\n",
+              "butteraugliText": "1.1304097176\n3-norm: 0.414373\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 40,
+            "status": "measured",
+            "bytes": 217826,
+            "encodedSha256": "0f9c52f956b88fbb72fc0d3d5b51acf40c836c3574b4093d473c3e32524ade42",
+            "ssimulacra2": 58.12624734,
+            "butteraugli": 6.127808094,
+            "decodedSha256": "200f9167d8bc6a939fe6e4cdb7c582438c0a16f4d0e35e75a823d121496a8b17",
+            "rmse": 4.149087397984177,
+            "maximumError": 71,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "58.12624734\n",
+              "butteraugliText": "6.1278080940\n3-norm: 1.684621\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 55,
+            "status": "measured",
+            "bytes": 677973,
+            "encodedSha256": "bc417e42c296a17c50b5f7fa2ec435fed34152dbc97bff6b8fbed3231207979e",
+            "ssimulacra2": 68.10161685,
+            "butteraugli": 3.7888967991,
+            "decodedSha256": "0f728ebe40b40c67a780d1daee9d560d0e1c552b2a5cb6109bd15622f5156959",
+            "rmse": 3.503138681953656,
+            "maximumError": 49,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "68.10161685\n",
+              "butteraugliText": "3.7888967991\n3-norm: 1.255110\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 70,
+            "status": "measured",
+            "bytes": 2011432,
+            "encodedSha256": "f346994b638152324d1f1150efedd53e658c1bd4a7dd79a166a98fcd3285f75d",
+            "ssimulacra2": 78.74576571,
+            "butteraugli": 2.7812819481,
+            "decodedSha256": "e58985057f7de053395904c1e83f440c5daee3b66840b045d4d1b96a94af02e0",
+            "rmse": 2.445592975128936,
+            "maximumError": 40,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "78.74576571\n",
+              "butteraugliText": "2.7812819481\n3-norm: 0.822451\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 80,
+            "status": "measured",
+            "bytes": 3086183,
+            "encodedSha256": "526d7a542ebe57aa338bc6264e54ae2cb1e55b924fd11835c21373c311f8e148",
+            "ssimulacra2": 85.12301098,
+            "butteraugli": 1.767386198,
+            "decodedSha256": "7ad927d6f7849907be8aa63d64c31d7cf4b77852836d00c061a629ee22a8ffc1",
+            "rmse": 1.939112092771672,
+            "maximumError": 34,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "85.12301098\n",
+              "butteraugliText": "1.7673861980\n3-norm: 0.577682\n"
+            }
+          },
+          {
+            "engine": "avif",
+            "setting": 90,
+            "status": "measured",
+            "bytes": 4162963,
+            "encodedSha256": "55c9b98972dc8af02079241ad3dad7a5c43f4f772d337da32319e3b6cd81b359",
+            "ssimulacra2": 88.86329879,
+            "butteraugli": 1.2929341793,
+            "decodedSha256": "c1f3d6a9cf28edbb69adf2aacfecd608a686b39f2344d112f289755793419996",
+            "rmse": 1.5996768293418935,
+            "maximumError": 30,
+            "maximumIndependentDifference": null,
+            "rawMetrics": {
+              "ssimulacra2Text": "88.86329879\n",
+              "butteraugliText": "1.2929341793\n3-norm: 0.402735\n"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,3574 @@
+{
+  "schemaVersion": 1,
+  "protocol": {
+    "cohort": "All 120 frozen Imazen development source families, no replacements or exclusions after encoding",
+    "split": "development",
+    "preprocessing": "Sharp/libvips dev oracle converts embedded-profile source samples to sRGB RGB8, retaining the stored raster dimensions without resize or auto-orientation. All source alpha is independently audited fully opaque; RGB comparison omits that constant channel. Metadata is stripped identically for every compressor. Original display orientation remains recorded, not applied. This normalized 8-bit SDR subset does not qualify native high-depth or transparent-source gates.",
+    "performance": "Concurrent size and exactness evaluation; elapsed times and process memory are observational, not isolated performance evidence.",
+    "baseline": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
+    "startedAt": "2026-09-08T23:18:54.498Z",
+    "runtime": "v24.16.0",
+    "sharp": {
+      "aom": "3.14.1",
+      "archive": "3.8.8",
+      "cairo": "1.18.4",
+      "cgif": "0.5.3",
+      "exif": "0.6.26",
+      "expat": "2.8.2",
+      "ffi": "3.6.0",
+      "fontconfig": "2.18.1",
+      "freetype": "2.14.3",
+      "fribidi": "1.0.16",
+      "glib": "2.89.1",
+      "harfbuzz": "14.2.1",
+      "heif": "1.23.1",
+      "highway": "1.4.0",
+      "imagequant": "2.4.1",
+      "lcms": "2.19.1",
+      "mozjpeg": "0826579",
+      "pango": "1.58.0",
+      "pixman": "0.46.4",
+      "png": "1.6.58",
+      "proxy-libintl": "0.5",
+      "rsvg": "2.62.90",
+      "tiff": "d01a94b",
+      "uhdr": "1acdbed",
+      "vips": "8.18.3",
+      "webp": "1.6.0",
+      "xml2": "2.15.3",
+      "zlib-ng": "2.3.3",
+      "sharp": "0.35.3"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/codecs/jpegxl-modular-encode.ts",
+        "sha256": "b98aea85d41d779c6b431c3843f45f5ab86aacfd97eaa72c2186ebb925e527a3"
+      },
+      {
+        "path": "src/codecs/jpegxl-encoder-memory.ts",
+        "sha256": "6f69b6323fd1164e7fbbadf92f94fa63d43e9eb0293aeb6be929ddd9c9d4a2f6"
+      },
+      {
+        "path": "src/codecs/jpegxl-decode.ts",
+        "sha256": "c9d402b87b57a5be30be27c1ad8ba3375c47214f6835402401c0345760629724"
+      },
+      {
+        "path": "src/codecs/jpegxl-jpeg-encode.ts",
+        "sha256": "5d214d173ca0c5516bbacfe3c214f2a437dede6abf127365711bd6629beffce1"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "21a9e5ab0e2f55e77dca6bf64f4f926c264b514c160da2f396ece8c0e95fe917"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-quantization.ts",
+        "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+      },
+      {
+        "path": "src/codecs/icc.ts",
+        "sha256": "7580f73eb33efe7bda1984ccc730c40a26a4522ef3316c2c84f3ae4cf021c072"
+      }
+    ],
+    "oracleFiles": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      }
+    ]
+  },
+  "completed": 120,
+  "expected": 120,
+  "verified": 120,
+  "failed": 0,
+  "ratios": {
+    "count": 120,
+    "median": 1.1536358139056535,
+    "p90": 1.3673687843964644,
+    "worst": 1.6735114058742073
+  },
+  "sizeTargetsPassed": true,
+  "aggregation": "One image per vote; arithmetic midpoint median for even counts; nearest-rank p90; every failed case retained. Class summaries do not replace the complete-cohort result.",
+  "classes": [
+    {
+      "category": "1000-lilith-photos-general",
+      "count": 9,
+      "median": 1.1421827009415693,
+      "p90": 1.2255911711081235,
+      "worst": 1.2255911711081235
+    },
+    {
+      "category": "1200-lilith-interiors",
+      "count": 9,
+      "median": 1.147771897661267,
+      "p90": 1.175292396317148,
+      "worst": 1.175292396317148
+    },
+    {
+      "category": "1400-lilith-nature",
+      "count": 9,
+      "median": 1.038623393576283,
+      "p90": 1.1624002328355596,
+      "worst": 1.1624002328355596
+    },
+    {
+      "category": "1600-lilith-food",
+      "count": 9,
+      "median": 1.1220521098284746,
+      "p90": 1.2008268249569987,
+      "worst": 1.2008268249569987
+    },
+    {
+      "category": "2000-unsplash-people",
+      "count": 9,
+      "median": 1.0414974112917446,
+      "p90": 1.211276697652968,
+      "worst": 1.211276697652968
+    },
+    {
+      "category": "2400-unsplash-textures",
+      "count": 3,
+      "median": 1.5687482908876398,
+      "p90": 1.6367373353566803,
+      "worst": 1.6367373353566803
+    },
+    {
+      "category": "3000-art-institute-of-chicago-photos",
+      "count": 8,
+      "median": 1.1118713541816008,
+      "p90": 1.1629332975196416,
+      "worst": 1.1629332975196416
+    },
+    {
+      "category": "3300-met-museum-photos",
+      "count": 8,
+      "median": 1.028592722988749,
+      "p90": 1.1991512342036565,
+      "worst": 1.1991512342036565
+    },
+    {
+      "category": "5000-national-park-service-brochures",
+      "count": 8,
+      "median": 1.342567629098624,
+      "p90": 1.6217102797811562,
+      "worst": 1.6217102797811562
+    },
+    {
+      "category": "5200-epa-climate-impact-2021-report",
+      "count": 8,
+      "median": 1.192673152979125,
+      "p90": 1.3975033901806,
+      "worst": 1.3975033901806
+    },
+    {
+      "category": "5300-noaa-hurricane-documents",
+      "count": 8,
+      "median": 1.0764816883384953,
+      "p90": 1.3465587834967148,
+      "worst": 1.3465587834967148
+    },
+    {
+      "category": "6000-lilith-scans-public-patents",
+      "count": 8,
+      "median": 1.4450077871961602,
+      "p90": 1.6735114058742073,
+      "worst": 1.6735114058742073
+    },
+    {
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "count": 8,
+      "median": 1.2109995811841474,
+      "p90": 1.248475079585001,
+      "worst": 1.248475079585001
+    },
+    {
+      "category": "6800-ia-scans-manuscript-text",
+      "count": 8,
+      "median": 1.178471259113563,
+      "p90": 1.613086429055836,
+      "worst": 1.613086429055836
+    },
+    {
+      "category": "8100-lilith-web-screenshots",
+      "count": 8,
+      "median": 1.2922007592880576,
+      "p90": 1.3673687843964644,
+      "worst": 1.3673687843964644
+    }
+  ],
+  "promotionGatePassed": false,
+  "qualification": "This report checks only its declared cohort size and independent exactness. Separate held-out, high-depth/alpha, baseline-reduction, resource and performance evidence is required for full milestone qualification.",
+  "results": [
+    {
+      "id": "im26-1030",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+      "normalizedHash": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 6180523,
+      "nativeBytes": 5802858,
+      "ratio": 1.0650825851675156,
+      "encodedSha256": "59cf8425dd3a011def08fbac2cb0d8f49ae0df8b353dcb9dbad0f2e494ec7ad0",
+      "nativeEncodedSha256": "82e6c711f7acc4d2f4815f2bbc8d2e455c3a351c9057b8a59765f8ae936f51ce",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 48701.143274999995
+    },
+    {
+      "id": "im26-1214",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "e31bdea2aba64b5b75f513786fca37de61dec8ce91a579de1479effbe3eb5a3e",
+      "normalizedHash": "e5373b890cc8f39f1b4a14734043a51587c365ba632f34dd0d35fb47e32e6f8c",
+      "originalOrientation": 1,
+      "width": 3000,
+      "height": 3556,
+      "pureBytes": 11778784,
+      "nativeBytes": 10205863,
+      "ratio": 1.15411935276811,
+      "encodedSha256": "5553b3f83681bfabc9bfa4547b7184ef9b96e47fb4d37a8f96435ce7cf33e8c0",
+      "nativeEncodedSha256": "6675c89df7330e5da56167cebe921bb74294e8087be1b23004909448326f1483",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e5373b890cc8f39f1b4a14734043a51587c365ba632f34dd0d35fb47e32e6f8c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e5373b890cc8f39f1b4a14734043a51587c365ba632f34dd0d35fb47e32e6f8c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 55554.424337
+    },
+    {
+      "id": "im26-1466",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "9ab14263031a0c5ac2768e29b3ec41d03ffc7432a6e54d72fef6d67e0756b0b1",
+      "normalizedHash": "5684e3f1fb0d9745e022c4020a759c6012b9f01e0a21c844c292a2fe2eab4ca4",
+      "originalOrientation": 3,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 5382318,
+      "nativeBytes": 6857808,
+      "ratio": 0.7848452450112339,
+      "encodedSha256": "ad9f2c8a3d19bf9b24f9e624bf4843c1f9f470fe47fd20860e8925101929e7d9",
+      "nativeEncodedSha256": "3f5377c823e9885dfe17571fbfd5c7ce4a04c8dd50c326d9a57f4a641f34604a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5684e3f1fb0d9745e022c4020a759c6012b9f01e0a21c844c292a2fe2eab4ca4",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5684e3f1fb0d9745e022c4020a759c6012b9f01e0a21c844c292a2fe2eab4ca4",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 42089.168197
+    },
+    {
+      "id": "im26-1612",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "e2308dce92230b6336c7de92f0d5f5f7646c581fc340f28a38ee55e720b4e08f",
+      "normalizedHash": "d61596e2351ac6000af8fc64433449aa192dec2f6b1b5c6d68f4bfe804809680",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 8946301,
+      "nativeBytes": 7973160,
+      "ratio": 1.1220521098284746,
+      "encodedSha256": "3fa2c63299b4c64e42d848832953e121ad0e3b4cf10791410b7319fc81621c2b",
+      "nativeEncodedSha256": "d9c7ccfa5c1f121cc08f00142d51d5afdee7bc63cd7dc1f364a555369a6bb6d1",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d61596e2351ac6000af8fc64433449aa192dec2f6b1b5c6d68f4bfe804809680",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d61596e2351ac6000af8fc64433449aa192dec2f6b1b5c6d68f4bfe804809680",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 54630.64505499999
+    },
+    {
+      "id": "im26-2026",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "59b0ec097ff28fb0e0d46890c52ce2531ebd135459735b3576ce264a042a0c66",
+      "normalizedHash": "c09ab5fc1ab894f464fb624bae295ab25309f202c2129722564c922efdc90bdc",
+      "originalOrientation": 1,
+      "width": 5637,
+      "height": 3758,
+      "pureBytes": 17300378,
+      "nativeBytes": 14282763,
+      "ratio": 1.211276697652968,
+      "encodedSha256": "d2245e6ed71ac6c9a8ae2e7d109e82e11a1923585a4182e9336797508ad453a0",
+      "nativeEncodedSha256": "0d2395912bc7d4137d67bd5177bad0c7688c4ed00a261614a2e5cc7c6b2fafab",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "c09ab5fc1ab894f464fb624bae295ab25309f202c2129722564c922efdc90bdc",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "c09ab5fc1ab894f464fb624bae295ab25309f202c2129722564c922efdc90bdc",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 95639.641483
+    },
+    {
+      "id": "im26-2400",
+      "status": "verified",
+      "category": "2400-unsplash-textures",
+      "sourceSha256": "3d6362125a25436b40bcfc9b30e2339ee3d0e24f5428cb7a9a1a92d0c10a0531",
+      "normalizedHash": "5734217f7ec26762f4afdce0ef583d3c1af7dc12c7285ae665df80eefb0674b5",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 5350,
+      "pureBytes": 13137059,
+      "nativeBytes": 8374230,
+      "ratio": 1.5687482908876398,
+      "encodedSha256": "1fb08f5d705ea13db604801de86ad5abaa12b3a8fc852a78d2a0e0e9684cad5b",
+      "nativeEncodedSha256": "418b8b1369beb2b0cb3afea2c204fac562ad8d166dbb6244f7446f096fb92e89",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5734217f7ec26762f4afdce0ef583d3c1af7dc12c7285ae665df80eefb0674b5",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5734217f7ec26762f4afdce0ef583d3c1af7dc12c7285ae665df80eefb0674b5",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 83778.480519
+    },
+    {
+      "id": "im26-3008",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "bcf2593c11fb41d5472c53d629ba8eb55b2e92a0bbb704dc3a736585c829cbcf",
+      "normalizedHash": "03ae95aaab02c314c663664050ef0a7d2d8f810d4bcbfb75b7f2b3d3da3f1a10",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 2883,
+      "pureBytes": 8698081,
+      "nativeBytes": 7648741,
+      "ratio": 1.137191205716078,
+      "encodedSha256": "8cc86a7eff1af4e119da801851bfed9a8eb340eb806b35d5e96625116cc9d6a6",
+      "nativeEncodedSha256": "3852dbeb9fa2dc2e8f6ec6054b489d6267488f7ac378ab2411b6835448e8f6ad",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "03ae95aaab02c314c663664050ef0a7d2d8f810d4bcbfb75b7f2b3d3da3f1a10",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "03ae95aaab02c314c663664050ef0a7d2d8f810d4bcbfb75b7f2b3d3da3f1a10",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 50499.979852
+    },
+    {
+      "id": "im26-3306",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "245bfc1c3da1f3f95c731c554c104154bb3f549ce640f10c13faf718e35756a4",
+      "normalizedHash": "989601d9fa4bd6a08eebad64717eb3f2707866cd3fd9f725dc90420b9c3277a1",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 4000,
+      "pureBytes": 17310859,
+      "nativeBytes": 16838900,
+      "ratio": 1.0280278996846588,
+      "encodedSha256": "6153e0f1134c9fd3b2e68a49b33f9c43c3fa15cdbd2d9ed6991a724dc7514697",
+      "nativeEncodedSha256": "c698a7e3a461670d3aa09494f0bee8be84ad2747bb636da349072ddb7aea8025",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "989601d9fa4bd6a08eebad64717eb3f2707866cd3fd9f725dc90420b9c3277a1",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "989601d9fa4bd6a08eebad64717eb3f2707866cd3fd9f725dc90420b9c3277a1",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 80106.46033599999
+    },
+    {
+      "id": "im26-5026",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "be063c5f8f2c899088c56ffd8a267b4930f5b55292b0bdc105a1235ff0ab9f4d",
+      "normalizedHash": "5d8ebce08c7a892b7abf279a332aa9b21fc110436f2ee184065876f06c543648",
+      "originalOrientation": 1,
+      "width": 4961,
+      "height": 5847,
+      "pureBytes": 2905360,
+      "nativeBytes": 2246487,
+      "ratio": 1.293290368473087,
+      "encodedSha256": "346f3366be0f530e20371f9920a3a2e032dac7683729463d06dd47cb8cf36358",
+      "nativeEncodedSha256": "a53ce892e509f30220f09ea21bee487f9e2a264e707327805098b0f54351646b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5d8ebce08c7a892b7abf279a332aa9b21fc110436f2ee184065876f06c543648",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5d8ebce08c7a892b7abf279a332aa9b21fc110436f2ee184065876f06c543648",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 67701.188288
+    },
+    {
+      "id": "im26-5216",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "025c89546990b28c69949c59d6ba99e7076322fa860711fce96ffc3da812bcbb",
+      "normalizedHash": "823deeff10b02902123b6b1824965dc1e3fc6290d71e8ca9d0c5ed77fa2f9bf6",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 1582311,
+      "nativeBytes": 1196844,
+      "ratio": 1.3220695428978213,
+      "encodedSha256": "55e2002814ad4ecd2399d98a409d487e34af8454e4df83bc8893af35ac45d331",
+      "nativeEncodedSha256": "c0798addebbe4bbced5dd9f36cc583fcf86af73320de1342e9bc7b8f4290e5da",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "823deeff10b02902123b6b1824965dc1e3fc6290d71e8ca9d0c5ed77fa2f9bf6",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "823deeff10b02902123b6b1824965dc1e3fc6290d71e8ca9d0c5ed77fa2f9bf6",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 30735.852714
+    },
+    {
+      "id": "im26-5310",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "348e4805c25ee1408e8fe8f08e046722be52ce55d689c0412a918ee35fe4d465",
+      "normalizedHash": "c8e40da981b7d8c9264010e46a11069c231dd5e222cd81933fd9f460cd8a6e40",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 144610,
+      "nativeBytes": 138486,
+      "ratio": 1.0442210764987074,
+      "encodedSha256": "a6f40da025ae7119f13cfaf4d5db5b2d01d98056a6cf711e7e3e39170ce6fb1a",
+      "nativeEncodedSha256": "023d47a518fadff7995b4961c7efa40a56a5adc300a79f05bad3b8a35c722db3",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "c8e40da981b7d8c9264010e46a11069c231dd5e222cd81933fd9f460cd8a6e40",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "c8e40da981b7d8c9264010e46a11069c231dd5e222cd81933fd9f460cd8a6e40",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 20408.929433999998
+    },
+    {
+      "id": "im26-6036",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "786f69d615c33c4d7a5900494524c1cc7cc05a69351ebc3c9fec217ecccbdac9",
+      "normalizedHash": "124e97f4699f26b7583cf16e7acfc91d1e7b834c440815f65dc24034cdcd6baf",
+      "originalOrientation": 1,
+      "width": 2479,
+      "height": 3230,
+      "pureBytes": 3213425,
+      "nativeBytes": 2619177,
+      "ratio": 1.2268834828650375,
+      "encodedSha256": "962f11485f10c6e0248c50a6606eba5d95124f5ee8696c46e56a77e6b4191fda",
+      "nativeEncodedSha256": "d8a4967c14932509a980db768d183be9f90d7b670b04913c9339b2c0c47dea69",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "124e97f4699f26b7583cf16e7acfc91d1e7b834c440815f65dc24034cdcd6baf",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "124e97f4699f26b7583cf16e7acfc91d1e7b834c440815f65dc24034cdcd6baf",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 26855.780721
+    },
+    {
+      "id": "im26-6610",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "3f8693036742afd75a74fa2dec05ec5d26ecd6d651ff596a7dd19460a2f87fc8",
+      "normalizedHash": "f76839bb30ab704e12bac4b020487dfa03bbcc20a8090ff769908ae1da2fc830",
+      "originalOrientation": 1,
+      "width": 6147,
+      "height": 4840,
+      "pureBytes": 17858833,
+      "nativeBytes": 14304517,
+      "ratio": 1.248475079585001,
+      "encodedSha256": "e99e0b3c486ba1387525130e9c9b2499cc95ec9ef08f69689ebb97c55e9c4cea",
+      "nativeEncodedSha256": "e9815616bd314fc38f64d5fa3c6ad848f45cbe8f108d2edddfa1397036b302b8",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "f76839bb30ab704e12bac4b020487dfa03bbcc20a8090ff769908ae1da2fc830",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "f76839bb30ab704e12bac4b020487dfa03bbcc20a8090ff769908ae1da2fc830",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 113816.500254
+    },
+    {
+      "id": "im26-6828",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "a5555261c8cc6722e51043ab9ddd0ae70094917fa54f329b3c51dbab3b2a05e7",
+      "normalizedHash": "75750d7cb53bf79e786daa66770a5207a14e91f5b7757d38f743d52004aea849",
+      "originalOrientation": 1,
+      "width": 2445,
+      "height": 3519,
+      "pureBytes": 5333298,
+      "nativeBytes": 4528177,
+      "ratio": 1.1778024578102844,
+      "encodedSha256": "88ca999253ebe148db92eb2f17af8f167cb4c832696459c3a8acd9fe9c1fbb88",
+      "nativeEncodedSha256": "af2c346952c82e67639e706e9fe5d7e476b7effea500553628a5d983e65c5e66",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "75750d7cb53bf79e786daa66770a5207a14e91f5b7757d38f743d52004aea849",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "75750d7cb53bf79e786daa66770a5207a14e91f5b7757d38f743d52004aea849",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 36553.968445
+    },
+    {
+      "id": "im26-8188",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "24eb10c9d16dc16ac68f41ea4d556984be45716b93ef52fd7342abcfe1dfcbe1",
+      "normalizedHash": "b6a4d42cb7e0eec6f4e02026ce2ee117482ee0cf3f4f0b21ac189a835af37155",
+      "originalOrientation": 1,
+      "width": 1920,
+      "height": 1080,
+      "pureBytes": 1360237,
+      "nativeBytes": 1119560,
+      "ratio": 1.214974632891493,
+      "encodedSha256": "4d3eebb9f6995fc6c3f5b63b49e55de50132a8fa5abdeff0877bdc38792dd331",
+      "nativeEncodedSha256": "8c2e7658dd59a5405ba8f7e9fa0952920c27158605366a0af90e579039bdbf51",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b6a4d42cb7e0eec6f4e02026ce2ee117482ee0cf3f4f0b21ac189a835af37155",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b6a4d42cb7e0eec6f4e02026ce2ee117482ee0cf3f4f0b21ac189a835af37155",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 9374.871526
+    },
+    {
+      "id": "im26-1020",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "dd3c0186266bc3b22c40ea80dc784c8eda707eed8071bb44dcf0a1358b84ed0d",
+      "normalizedHash": "8395a316d0bc6734bac5d834c3bde7cf4ad53e6bba2c9cc13f4d5566ebb89cfc",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 12777288,
+      "nativeBytes": 10425408,
+      "ratio": 1.2255911711081235,
+      "encodedSha256": "4e8c7b4024128aa5afca2ee88b997e58aedf24061cb9bac19d72cbb0c165d7f8",
+      "nativeEncodedSha256": "a0065c9286651645a78866dc3ddce607245458101771b412a33d2cccc5db67ce",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "8395a316d0bc6734bac5d834c3bde7cf4ad53e6bba2c9cc13f4d5566ebb89cfc",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "8395a316d0bc6734bac5d834c3bde7cf4ad53e6bba2c9cc13f4d5566ebb89cfc",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 56970.175242000005
+    },
+    {
+      "id": "im26-1204",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "66ffca3a8cd20306711ba8b833ca943447e925c61f0fcbef34694d5047328a97",
+      "normalizedHash": "03a6eb0b4266058cfd824c0c43fd467d638532b9e4d94bdee01addc5843a31c0",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 12294778,
+      "nativeBytes": 10865963,
+      "ratio": 1.1314945578224407,
+      "encodedSha256": "e5667e50e089ccfc5ea0380cb701e561cfa7947139c96de9fa34ef998a3951bf",
+      "nativeEncodedSha256": "8805600f0d1639e8bf05a8528d855c9bf1b88cbac950fd5c2b10f3a2c0075253",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "03a6eb0b4266058cfd824c0c43fd467d638532b9e4d94bdee01addc5843a31c0",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "03a6eb0b4266058cfd824c0c43fd467d638532b9e4d94bdee01addc5843a31c0",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 55124.146831
+    },
+    {
+      "id": "im26-1472",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "fa6628b1897f901a491f75e3bb2a75f2e17a7189343b2d0e955035c4eac22683",
+      "normalizedHash": "3254ee277ae102b7e770115e2ff2d2c63c1d3659a94ff6c4c90aac6b67d4f18a",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 6709285,
+      "nativeBytes": 6771781,
+      "ratio": 0.9907711132418487,
+      "encodedSha256": "2f53eec8e0f6121bbca17cfeb32d4553b733407dd1775fa4e9152ce61d7a5143",
+      "nativeEncodedSha256": "e10966cf17959575c73286a695952624b4155582ea100002340d14f5981a892b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "3254ee277ae102b7e770115e2ff2d2c63c1d3659a94ff6c4c90aac6b67d4f18a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "3254ee277ae102b7e770115e2ff2d2c63c1d3659a94ff6c4c90aac6b67d4f18a",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 42986.950414
+    },
+    {
+      "id": "im26-1638",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "8f0644231ac06cfe5262718093122965746411c6b72aa2fccf8d660654469ecd",
+      "normalizedHash": "7d9765cd7900a0111049b6a802a6640a2fae468fc41072c3410df93863180a04",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 8452909,
+      "nativeBytes": 7761345,
+      "ratio": 1.0891036283015378,
+      "encodedSha256": "3a26edb234b710b0a8d37bc27c01bcfab51b5dcf9385b596a085433d1a6e5c42",
+      "nativeEncodedSha256": "e70040aee9cd8d5d8e4ef3ae1c3b40c6a1abadf28bbf5cb84efe84b28cced7ff",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "7d9765cd7900a0111049b6a802a6640a2fae468fc41072c3410df93863180a04",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "7d9765cd7900a0111049b6a802a6640a2fae468fc41072c3410df93863180a04",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 52957.496017
+    },
+    {
+      "id": "im26-2008",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "e87694d01f08b6ee8c9eac0a7ec22560a41b4752e6c282b223bec95ce0d88661",
+      "normalizedHash": "e778cf234d398c8bf3469aa0de80380a42280556a9f9c6d802b3f9a537ca27a4",
+      "originalOrientation": 1,
+      "width": 3304,
+      "height": 4129,
+      "pureBytes": 7280074,
+      "nativeBytes": 7201053,
+      "ratio": 1.01097353400954,
+      "encodedSha256": "b40470c4a68f5dbdd191edde9bf0a8a71f23e64f7e1461799fa01e04369bc03b",
+      "nativeEncodedSha256": "cb2771b51d36ddbb6984b6d0d3ca8e847eedcfe59bf4440e7917b630a7208c41",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e778cf234d398c8bf3469aa0de80380a42280556a9f9c6d802b3f9a537ca27a4",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e778cf234d398c8bf3469aa0de80380a42280556a9f9c6d802b3f9a537ca27a4",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 56233.188567
+    },
+    {
+      "id": "im26-2404",
+      "status": "verified",
+      "category": "2400-unsplash-textures",
+      "sourceSha256": "c856ff74e57e8915330a8bbe82fdbacf6ece01aae24b4fceab7307c0f50a1cee",
+      "normalizedHash": "332d0c4b8905ff9333dc371128e06b74052ba99af64b1193d177b8528e11f496",
+      "originalOrientation": 1,
+      "width": 3024,
+      "height": 3024,
+      "pureBytes": 19514523,
+      "nativeBytes": 11922819,
+      "ratio": 1.6367373353566803,
+      "encodedSha256": "49aeb938252b946394928e77f0b94b924f7a469abf2da21d676677e8d0d06f4d",
+      "nativeEncodedSha256": "ea0560150f5d52cd1f6f6db274c1ab9bef79adbf2d9bb1e86cda362419ecdda1",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "332d0c4b8905ff9333dc371128e06b74052ba99af64b1193d177b8528e11f496",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "332d0c4b8905ff9333dc371128e06b74052ba99af64b1193d177b8528e11f496",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 58727.755643000004
+    },
+    {
+      "id": "im26-3002",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "33b1af4f24bd1e66e081119ab6a4821666934afbdeaa13d6e7872ac5a1c7ebc7",
+      "normalizedHash": "dea2e0248b8c5402db0f38e5889167960c3160c9d0276f6fc687a2c9e27e2bc2",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 4860,
+      "pureBytes": 19485727,
+      "nativeBytes": 17709424,
+      "ratio": 1.1003026975919714,
+      "encodedSha256": "b1e6decc04d4ac56ecbbb4b2696e4837275cd01c62ebf65004a93a5cb378c87f",
+      "nativeEncodedSha256": "680ad14d0fdd47b448c89ee236b7eb5931d2a1b650f509be12544e5c7e0f4ed0",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "dea2e0248b8c5402db0f38e5889167960c3160c9d0276f6fc687a2c9e27e2bc2",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "dea2e0248b8c5402db0f38e5889167960c3160c9d0276f6fc687a2c9e27e2bc2",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 102632.56692900001
+    },
+    {
+      "id": "im26-3320",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "8770fcc3e6d28ee90817967e930eb1787006b0989b3c2f4673e0f7532a6fa77c",
+      "normalizedHash": "f7cfede96b5954702b392c109134792275ed6a4f6aa834add06fb9623c39f3e8",
+      "originalOrientation": 1,
+      "width": 3841,
+      "height": 2149,
+      "pureBytes": 12307727,
+      "nativeBytes": 11959031,
+      "ratio": 1.0291575462928393,
+      "encodedSha256": "8e7b4c50b849fb85b14f49d6b4dc31a64a3fcf289218044d089cb8d63a775d1b",
+      "nativeEncodedSha256": "b6d145098c9dc44c3e4f20012aadc2151df9baa50c615926f6f291bf32c4e3a5",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "f7cfede96b5954702b392c109134792275ed6a4f6aa834add06fb9623c39f3e8",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "f7cfede96b5954702b392c109134792275ed6a4f6aa834add06fb9623c39f3e8",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 55509.340606000005
+    },
+    {
+      "id": "im26-5042",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "9b180b8dbf98dd6596024906183a89e3bbd7e6212ef5e929d83ba359b7ac41b8",
+      "normalizedHash": "fe527811170dc018fcc4cb4c38e8b85024e4180cb9dc62cbdbffc5720fe68d53",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 3398203,
+      "nativeBytes": 2905230,
+      "ratio": 1.169684672125787,
+      "encodedSha256": "fc091429931f72ac6374da0e4ff831457c167e2e584221a6576f90f3c99e10a6",
+      "nativeEncodedSha256": "cda524ff238a7c72d7286dc26161a27f4637121f229b69aa06e715a9ce199edd",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "fe527811170dc018fcc4cb4c38e8b85024e4180cb9dc62cbdbffc5720fe68d53",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "fe527811170dc018fcc4cb4c38e8b85024e4180cb9dc62cbdbffc5720fe68d53",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 33944.208233000005
+    },
+    {
+      "id": "im26-5208",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "1c7fced788f24ae2caff4595d8479d1dcf5aee4f652ca2349550ea825aa4da44",
+      "normalizedHash": "002c8d27ba71795d084611c7a72c57434dc75ea9f02d0546deb63d5a1646c9b0",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 1024327,
+      "nativeBytes": 828017,
+      "ratio": 1.2370845043036556,
+      "encodedSha256": "6d4cdef6fb3ecd277a6745d7631b27e16c108fcc760a6d30504c7f9317457543",
+      "nativeEncodedSha256": "171de9ce4211e275d58ea75c5e2303bac1aa655e0868c8a5f99a67f94bdd2f8f",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "002c8d27ba71795d084611c7a72c57434dc75ea9f02d0546deb63d5a1646c9b0",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "002c8d27ba71795d084611c7a72c57434dc75ea9f02d0546deb63d5a1646c9b0",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 28353.35972
+    },
+    {
+      "id": "im26-5312",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "e19c5b5b1595f7df79fc8fcd254c1d5355b6c68f4c349e3030c2ff70062ffcd6",
+      "normalizedHash": "5cefa57c73c42ef25a64946dae519b5fc925b802d11848ede43de4ec10312fbf",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 259266,
+      "nativeBytes": 368296,
+      "ratio": 0.7039609444577188,
+      "encodedSha256": "250d2e1596ec87a0511c84c2b1222171a7dd731387a6189c87a2d94f6c3afe2d",
+      "nativeEncodedSha256": "919a7399b152a15341216bd1e1bab7a20a9ef71e4e75e83d08363ea176cc0d73",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5cefa57c73c42ef25a64946dae519b5fc925b802d11848ede43de4ec10312fbf",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5cefa57c73c42ef25a64946dae519b5fc925b802d11848ede43de4ec10312fbf",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 22376.293353
+    },
+    {
+      "id": "im26-6104",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "faa2569c92f588405933a685cd36e0cb258c1e10afc4ea8ad22234e21595fa72",
+      "normalizedHash": "d1491ba16040f19b1cae45c749c7661ad511b5bf7135ff74e51fb1496a3c7674",
+      "originalOrientation": 1,
+      "width": 2320,
+      "height": 3408,
+      "pureBytes": 118103,
+      "nativeBytes": 75942,
+      "ratio": 1.5551736851807958,
+      "encodedSha256": "69f724a5d9c2731a6b589f85f902008a00f209b8650a8f9b4ba1f78914dd7b14",
+      "nativeEncodedSha256": "03e07ebf517b781e5af590e460c0551ba05a6d0d35caf88135625e10d4dcc9ed",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d1491ba16040f19b1cae45c749c7661ad511b5bf7135ff74e51fb1496a3c7674",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d1491ba16040f19b1cae45c749c7661ad511b5bf7135ff74e51fb1496a3c7674",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 18907.740816999998
+    },
+    {
+      "id": "im26-6622",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "2b60485f79083d6645744d090ad92aab499ee1661205ee62162b4f092411c531",
+      "normalizedHash": "7cd3f333527adf5f6504ce93eb4808200c7ef656ac8441e0381bed18217d2c92",
+      "originalOrientation": 1,
+      "width": 2912,
+      "height": 4368,
+      "pureBytes": 8286667,
+      "nativeBytes": 6695159,
+      "ratio": 1.237710261996765,
+      "encodedSha256": "5442a43014f8e1e6252f2326aefddac6a611608c4a8cf35fdbd84c7fc8c67fe1",
+      "nativeEncodedSha256": "79a5e9012d73ebe9b86b5d34781fc8e082b4b5858b9724d966959508772b61c4",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "7cd3f333527adf5f6504ce93eb4808200c7ef656ac8441e0381bed18217d2c92",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "7cd3f333527adf5f6504ce93eb4808200c7ef656ac8441e0381bed18217d2c92",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 54505.285885
+    },
+    {
+      "id": "im26-6834",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "b8622d968b8404f6d243649977a04f94e7f42ac8a6cfef8fbec079984a020f7d",
+      "normalizedHash": "40fd37226a8b78e98db246bbf24e33c6932d4a3ac0cd376a749283902a088969",
+      "originalOrientation": 1,
+      "width": 2415,
+      "height": 3528,
+      "pureBytes": 5587524,
+      "nativeBytes": 4598877,
+      "ratio": 1.2149757429911694,
+      "encodedSha256": "21adfb5c4996472067f6bc26f4d1407d4c5a66bc781737668e0f71a679827677",
+      "nativeEncodedSha256": "098cfca13210cebf2d97838001ffd19326cac6c905fa7752e7eb7e64ffd7707d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "40fd37226a8b78e98db246bbf24e33c6932d4a3ac0cd376a749283902a088969",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "40fd37226a8b78e98db246bbf24e33c6932d4a3ac0cd376a749283902a088969",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 34192.027603999995
+    },
+    {
+      "id": "im26-8140",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "9ab389a8eeeb45ab80197aadbfc22f73a4d016c08d9e61a8f6f84c9f094807a0",
+      "normalizedHash": "1817a748377658ff97f39b549608c0d92fd7af207abe45cfbac181847ddec892",
+      "originalOrientation": 1,
+      "width": 1440,
+      "height": 900,
+      "pureBytes": 766132,
+      "nativeBytes": 591431,
+      "ratio": 1.2953869513096201,
+      "encodedSha256": "1b8d1dfeeb08bba4beb0ca6361378d3164a0bce98a4698b2bdcc72308383d934",
+      "nativeEncodedSha256": "806fb3bd8d07fe9e455a62451e9a87af1b8267d3950c9c824e9bed32768af167",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "1817a748377658ff97f39b549608c0d92fd7af207abe45cfbac181847ddec892",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "1817a748377658ff97f39b549608c0d92fd7af207abe45cfbac181847ddec892",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 4702.881892
+    },
+    {
+      "id": "im26-1052",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "b00ab38f712d2057d85ebd792cb7adfff13326b13ce21c318bdb662544dc2201",
+      "normalizedHash": "861f5184d0f6522ee713188fe51282605ebf8b2634d947a0ef218c5324064aa7",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 11348059,
+      "nativeBytes": 9911823,
+      "ratio": 1.1449012961591425,
+      "encodedSha256": "59919bccd249b541de43ac1d218f7c2a290b5d893455d8992da8f21e7d62aca0",
+      "nativeEncodedSha256": "ea8bbd3fe7dfbd078aae4858cff485117e51c2b0a97381682507c3514d77bccd",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "861f5184d0f6522ee713188fe51282605ebf8b2634d947a0ef218c5324064aa7",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "861f5184d0f6522ee713188fe51282605ebf8b2634d947a0ef218c5324064aa7",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 52594.267284
+    },
+    {
+      "id": "im26-1242",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "b77c1be02ddcfe1af283330342016682e82c4ea162922f60382dc5ad2749aea7",
+      "normalizedHash": "51ce6b827a9d02cb25b60a995711e0c6795f64eb5dc9d6f1b5592a27e887162a",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 8104810,
+      "nativeBytes": 7449820,
+      "ratio": 1.0879202450529006,
+      "encodedSha256": "6f3f7d7f4aa2cc73fab798d038681320941b76d69bb71e856cbecc9343c2babe",
+      "nativeEncodedSha256": "f448df4aafadc278dd96f88eb99b92e3b23721c8e4d0a8e2d020d94149a6ac18",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "51ce6b827a9d02cb25b60a995711e0c6795f64eb5dc9d6f1b5592a27e887162a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "51ce6b827a9d02cb25b60a995711e0c6795f64eb5dc9d6f1b5592a27e887162a",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 45206.49499
+    },
+    {
+      "id": "im26-1408",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "e1ddce78d5900f08c05d7e8a7c30e6a4a5cbb148f0767e473ac4d856214cec07",
+      "normalizedHash": "44b59ec58e5737ccda631cf4f4c148a8ab267e2b90824cca2183ac8fcaf951b2",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 9841212,
+      "nativeBytes": 8661783,
+      "ratio": 1.136164690341469,
+      "encodedSha256": "b10456b04677f3154c18f70670e9c25afab72be9b96a2faecc858650424303bb",
+      "nativeEncodedSha256": "c2470dcfdd57350ce9d62398ece94fac3f7cb05d4289460daa473829fccc4d58",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "44b59ec58e5737ccda631cf4f4c148a8ab267e2b90824cca2183ac8fcaf951b2",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "44b59ec58e5737ccda631cf4f4c148a8ab267e2b90824cca2183ac8fcaf951b2",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 50652.220256
+    },
+    {
+      "id": "im26-1608",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "b66a0161a948c4fcf739f354bd0b1659f2da238826eabcbcbf46e75e643581ea",
+      "normalizedHash": "7279b96bd018aade5fd79b382afaa9b9ab4df322b0289f8a26fab6d3745bd190",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 10334601,
+      "nativeBytes": 8701982,
+      "ratio": 1.1876146146935262,
+      "encodedSha256": "c184c9abc80f6dea043ead7969ea1df85de7c85db9e365b907ef2d46b223e379",
+      "nativeEncodedSha256": "fadb28688fa113510fb144e562b537740fdccaf05bf3bdcb4df1dbe2b9c962b0",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "7279b96bd018aade5fd79b382afaa9b9ab4df322b0289f8a26fab6d3745bd190",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "7279b96bd018aade5fd79b382afaa9b9ab4df322b0289f8a26fab6d3745bd190",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 50367.987912000004
+    },
+    {
+      "id": "im26-2012",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "88e888e37375bf9f1cd355f1ae3f567e3cf6628d3fd7fc1ce5369a647604989e",
+      "normalizedHash": "673d7e402ba180ec760f8be582e16766ca59ffde68bd4b2e25093837802ed5b8",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 4175121,
+      "nativeBytes": 3766600,
+      "ratio": 1.1084588222800404,
+      "encodedSha256": "c73fa61bf6eed9c45669faa6f9e11c935918e8c774f81dd4f2c974e823c02335",
+      "nativeEncodedSha256": "b2f778f188531ede5bd648fa3293344267dc093a47a0237b29030170c94231bb",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "673d7e402ba180ec760f8be582e16766ca59ffde68bd4b2e25093837802ed5b8",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "673d7e402ba180ec760f8be582e16766ca59ffde68bd4b2e25093837802ed5b8",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 41374.065031
+    },
+    {
+      "id": "im26-2408",
+      "status": "verified",
+      "category": "2400-unsplash-textures",
+      "sourceSha256": "4f1be934eb7429e2f856d358dd1cf0cfac517d57a4c0f2ff73de643c94b7afda",
+      "normalizedHash": "2e455997953b1c86639b2c3aa04c3713419c3c0884a36ddb72ff121af22ffcc7",
+      "originalOrientation": 1,
+      "width": 2048,
+      "height": 2732,
+      "pureBytes": 5720803,
+      "nativeBytes": 4767872,
+      "ratio": 1.1998650551021504,
+      "encodedSha256": "7eca3746af7f29cf31542c1293705eac24c860f3940395f5d4e9adfc85c92771",
+      "nativeEncodedSha256": "ac554cdf07f842d4978e584f0f3aeacce8c504f2b86dbfa259b503a7a8e7704d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "2e455997953b1c86639b2c3aa04c3713419c3c0884a36ddb72ff121af22ffcc7",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "2e455997953b1c86639b2c3aa04c3713419c3c0884a36ddb72ff121af22ffcc7",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 26967.994047999997
+    },
+    {
+      "id": "im26-3004",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "b698bbd87da0af4c9aed2daafb13208ad118e1b51ed5f203da85ef69af428761",
+      "normalizedHash": "e7ce89a0baf4e7efa37f40ef2207c9990d57ee9ad2f2ad457ae5abe687dd9d0e",
+      "originalOrientation": 1,
+      "width": 1169,
+      "height": 1559,
+      "pureBytes": 1489371,
+      "nativeBytes": 1280702,
+      "ratio": 1.1629332975196416,
+      "encodedSha256": "4cdd4372e6627dca49ea09a987f9e3793833acd6c5ce3a43bca922ca79898d99",
+      "nativeEncodedSha256": "f519df55a9a7cfc6e29d91925745bdd14dc1bb25b02b2ae4c4d2502bf8979c20",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e7ce89a0baf4e7efa37f40ef2207c9990d57ee9ad2f2ad457ae5abe687dd9d0e",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e7ce89a0baf4e7efa37f40ef2207c9990d57ee9ad2f2ad457ae5abe687dd9d0e",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 8891.210994000001
+    },
+    {
+      "id": "im26-3304",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "2909b3281b0783dd697c769d2d54979d1295ea4de0b57c73afd0ce4aee871d3f",
+      "normalizedHash": "bb01e18ad75a204a170636d8ed9b30873e2ef9e6022dffcfce797b52282060a8",
+      "originalOrientation": 1,
+      "width": 2978,
+      "height": 3722,
+      "pureBytes": 5080492,
+      "nativeBytes": 4236740,
+      "ratio": 1.1991512342036565,
+      "encodedSha256": "f777abfc3c5f389ab778e21dab436750ebb305187f7d89b16cb6eff01a095edb",
+      "nativeEncodedSha256": "733d868a9d07bd89af8455388b3fb08992b97b4e180968151200677e40f88ecf",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "bb01e18ad75a204a170636d8ed9b30873e2ef9e6022dffcfce797b52282060a8",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "bb01e18ad75a204a170636d8ed9b30873e2ef9e6022dffcfce797b52282060a8",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 36816.09491
+    },
+    {
+      "id": "im26-5036",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "c7aef0952af5e88a9fb6c29be3088021dab83c830e64685cdf734a37d63d35d9",
+      "normalizedHash": "ba718b38c8d55a558d32dd0565580b9762c4fdb35af10d0154f90907757b6f0f",
+      "originalOrientation": 1,
+      "width": 3300,
+      "height": 5100,
+      "pureBytes": 3729680,
+      "nativeBytes": 2594228,
+      "ratio": 1.437683966097043,
+      "encodedSha256": "390c0546eba7251fc7d208848c93a7a0ca5b072d50e4a1ac41ffc390cd7e4bc3",
+      "nativeEncodedSha256": "5075170576a781a5b85c7fc196e19fe05195df9533740aa67de9038ac02bfe77",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ba718b38c8d55a558d32dd0565580b9762c4fdb35af10d0154f90907757b6f0f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ba718b38c8d55a558d32dd0565580b9762c4fdb35af10d0154f90907757b6f0f",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 46191.875407
+    },
+    {
+      "id": "im26-5210",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "883ad9d94b49a2d00b24d92c4b2a41e82b44190932ff5c79ffe83f20d7786eee",
+      "normalizedHash": "152bab1d823bac1cb77f253e392262f20d8324002163662d371bc599b5cf24df",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 813414,
+      "nativeBytes": 670994,
+      "ratio": 1.212252270512106,
+      "encodedSha256": "1758b23b2c9b4bd2c056b55c59e75927d35d80ed33475471ad77a8a873cb926a",
+      "nativeEncodedSha256": "9f2f70b00c02018e1e9ad3c7774e1f20622f1059985dd9d160aa85fc6b837d4e",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "152bab1d823bac1cb77f253e392262f20d8324002163662d371bc599b5cf24df",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "152bab1d823bac1cb77f253e392262f20d8324002163662d371bc599b5cf24df",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 24785.880892999998
+    },
+    {
+      "id": "im26-5306",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "11a34f05ea0a3cdf491f4c5ea03e8a6ebc00c0a49e6f7464dea1f224d605ab24",
+      "normalizedHash": "b5fc72c30a507c6b5f51da6cd82061018a4bcbd9383c882d09fb7abad3403025",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 461903,
+      "nativeBytes": 645516,
+      "ratio": 0.715556237180798,
+      "encodedSha256": "dfc7ca96882ba3589d3bbe144b2c8c564f74ff71ebb91d7397f346f5c76e96a7",
+      "nativeEncodedSha256": "67876c6428e21d3b114d5954b8f90d2e32e971814e18648de688da37d979d318",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b5fc72c30a507c6b5f51da6cd82061018a4bcbd9383c882d09fb7abad3403025",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b5fc72c30a507c6b5f51da6cd82061018a4bcbd9383c882d09fb7abad3403025",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 18890.268141
+    },
+    {
+      "id": "im26-6026",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "f068a37558c42be7b0350685b6410ea437f148f7f7495a97a936ceda9acdd6db",
+      "normalizedHash": "475994b5d32a655a5bf9b32040139c2d6e6b3208648bd6fe1b80d387cc19b343",
+      "originalOrientation": 1,
+      "width": 2320,
+      "height": 3408,
+      "pureBytes": 91849,
+      "nativeBytes": 54884,
+      "ratio": 1.6735114058742073,
+      "encodedSha256": "bd52e7a4917c2fae3c49f0849946f6663118c0a11ecd5f68425ba1720bf44ae4",
+      "nativeEncodedSha256": "0b762cf3d24391d9b540497671636f7b35bfbb64a92119836f6f1d76f0cbb69b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "475994b5d32a655a5bf9b32040139c2d6e6b3208648bd6fe1b80d387cc19b343",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "475994b5d32a655a5bf9b32040139c2d6e6b3208648bd6fe1b80d387cc19b343",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 16577.437600999998
+    },
+    {
+      "id": "im26-6612",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "ade5f673f68e31d707f0ebac6740460518bc1ded5973f812fa95477a38953f87",
+      "normalizedHash": "d8213a293621d9bf3662d3dd929f495168b6355b90ccd40dd5dbaace8d4c4f3c",
+      "originalOrientation": 1,
+      "width": 2071,
+      "height": 3000,
+      "pureBytes": 5133598,
+      "nativeBytes": 4165163,
+      "ratio": 1.232508307598046,
+      "encodedSha256": "71d3beafb6a7f24f2f670bdd8f46707974c98bbb829609b428248379de68a84e",
+      "nativeEncodedSha256": "d0ff8e3fdc72be0db64bfd7615391eab64406c134e216bcb47e505be4f845883",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d8213a293621d9bf3662d3dd929f495168b6355b90ccd40dd5dbaace8d4c4f3c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d8213a293621d9bf3662d3dd929f495168b6355b90ccd40dd5dbaace8d4c4f3c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 31586.727615000003
+    },
+    {
+      "id": "im26-6800",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "25b787cb09a3264eee4321b812c50504bdbd4c412ea668d3c54edee3b6011cfd",
+      "normalizedHash": "4414ed3ff9c0af1c24ebc4c78fa9d6592ec144f7d41adf05616ddb4ca053bc08",
+      "originalOrientation": 1,
+      "width": 2548,
+      "height": 3909,
+      "pureBytes": 2140727,
+      "nativeBytes": 1327100,
+      "ratio": 1.613086429055836,
+      "encodedSha256": "723e08352e56c787a124c22d65b18b74fb3d9cea2447367d57257f40857fd280",
+      "nativeEncodedSha256": "484d8e84b03f43d4a27e3475b2d715189d7395821dbcf02c1c3a8f0659adbced",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "4414ed3ff9c0af1c24ebc4c78fa9d6592ec144f7d41adf05616ddb4ca053bc08",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "4414ed3ff9c0af1c24ebc4c78fa9d6592ec144f7d41adf05616ddb4ca053bc08",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 24941.914848
+    },
+    {
+      "id": "im26-8444",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "b82e42189188adac2ba20c2c28c79f8b6bf255475844d93d8165fd3ac7cd5b56",
+      "normalizedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+      "originalOrientation": 1,
+      "width": 1024,
+      "height": 768,
+      "pureBytes": 352561,
+      "nativeBytes": 257839,
+      "ratio": 1.3673687843964644,
+      "encodedSha256": "57b9e4389587d1a0d7c76bd796d2ffdf8a32011cde2bb9d0afb8489f79af4edc",
+      "nativeEncodedSha256": "b02ec77079b9b4939c7c6a85c3a9200e670d3f3c0c0efdc4171c901440b048fb",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 12421.708814
+    },
+    {
+      "id": "im26-1050",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "9388c58a4a8dfdc7320bf5bd440776d6aedf86d8da36d877bd3b600feb4775af",
+      "normalizedHash": "16cfb55e32df7796afb064814ab083f759082e10f0b8563f0761922802e41fc5",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 9182764,
+      "nativeBytes": 8039663,
+      "ratio": 1.1421827009415693,
+      "encodedSha256": "60170d6471e370aa8e0589895edffc0c48c35030fa7dd7772db2d5b4df0121d8",
+      "nativeEncodedSha256": "5070fa5decffa6e17aa62d5233a75f458237d21e9cd91ba84f760f6eef1644d2",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "16cfb55e32df7796afb064814ab083f759082e10f0b8563f0761922802e41fc5",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "16cfb55e32df7796afb064814ab083f759082e10f0b8563f0761922802e41fc5",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 43349.324246
+    },
+    {
+      "id": "im26-1236",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "73d9c688bf0cf3b11ab5b6d027aac077f10dd72647a9016f801b6ac0fa958ad5",
+      "normalizedHash": "d8a47e3042d541abadb249d8e5000c356be53a5415a357847b3c2384efcc8926",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 11081053,
+      "nativeBytes": 9641148,
+      "ratio": 1.1493499529309166,
+      "encodedSha256": "72e81e41cbe69b9826ebfd673ebe9f752516f063a1f6f99305bde9ecdd617f8b",
+      "nativeEncodedSha256": "950dfc2db4f6eb55577fdf8903ea4e2b718080b2038b2ceeb2ac1e0c95b45bab",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d8a47e3042d541abadb249d8e5000c356be53a5415a357847b3c2384efcc8926",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d8a47e3042d541abadb249d8e5000c356be53a5415a357847b3c2384efcc8926",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 49708.520185
+    },
+    {
+      "id": "im26-1400",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "5af75665ff7da12a691402eb3f20d6624cfb39736fed4e32680a589517b4a472",
+      "normalizedHash": "21b5db987f6e1212446c830375f86b194763e97a92dbace619dda9b588739f7b",
+      "originalOrientation": 1,
+      "width": 4608,
+      "height": 3456,
+      "pureBytes": 7939644,
+      "nativeBytes": 8811957,
+      "ratio": 0.9010080280691338,
+      "encodedSha256": "c612d9edbfb4ae7dd5224b4dadc186198b6777d6096b7b5427396b93115b6c62",
+      "nativeEncodedSha256": "b50ca2cf68c4105426bdbea7c9568d580868dedfd9b5ca08d449e414399bfad9",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "21b5db987f6e1212446c830375f86b194763e97a92dbace619dda9b588739f7b",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "21b5db987f6e1212446c830375f86b194763e97a92dbace619dda9b588739f7b",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 57031.040011000005
+    },
+    {
+      "id": "im26-1636",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "f98f23437f97cb3e03b5c37827bc0f478121d97c3dd9f49f1f8af74fa59b3625",
+      "normalizedHash": "38c22ef206aa613a454936b9e5c4c4fe48a4def5237493491de95981efa6764c",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 11066546,
+      "nativeBytes": 9447778,
+      "ratio": 1.171338488266765,
+      "encodedSha256": "90b741590ed938ffbdff243bd45586e9732f665e7656c978828ea22ecec8cf82",
+      "nativeEncodedSha256": "70de1c40372de6de3f93ae5002d5f9dd076b6aad73716e6bf318d935b25f8035",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "38c22ef206aa613a454936b9e5c4c4fe48a4def5237493491de95981efa6764c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "38c22ef206aa613a454936b9e5c4c4fe48a4def5237493491de95981efa6764c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 53562.430964
+    },
+    {
+      "id": "im26-2002",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "ca019dacfb7dae88c670071bc53bc3e832efde93bdc181faf2b162348f57e52c",
+      "normalizedHash": "4f9bd87c58b923f8a0ef4f51e8ee5cd412cf574bee07ccff7c656dc48f91c779",
+      "originalOrientation": 1,
+      "width": 3915,
+      "height": 5872,
+      "pureBytes": 16060139,
+      "nativeBytes": 15420239,
+      "ratio": 1.0414974112917446,
+      "encodedSha256": "5e8bf5b7ceff408de113b92bdf472015144d3dde4752659da37c3623d7ce9c84",
+      "nativeEncodedSha256": "8e046908efce1a2655b59988de29bc7c74101249d48b5b3cb8c260457270e7f9",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "4f9bd87c58b923f8a0ef4f51e8ee5cd412cf574bee07ccff7c656dc48f91c779",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "4f9bd87c58b923f8a0ef4f51e8ee5cd412cf574bee07ccff7c656dc48f91c779",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 94109.535512
+    },
+    {
+      "id": "im26-3010",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "6ca6c2fa120625b091e5a711b6368d83b46de207d4e4dec678863222956effcb",
+      "normalizedHash": "a8ef2964fbb1b16ce35bcc89848d014f341135a6155e25e361bd15dc7e40c0fc",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 5097,
+      "pureBytes": 23714302,
+      "nativeBytes": 22165016,
+      "ratio": 1.0698978065253821,
+      "encodedSha256": "0c38712c83efbb2329f7d29c38da93108effd6ac1a9c2e5957241cb179711eef",
+      "nativeEncodedSha256": "4a13c8c6685803e16ce0827888b3bc10fb78614ae28bd0bf922cd78f865c479e",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "a8ef2964fbb1b16ce35bcc89848d014f341135a6155e25e361bd15dc7e40c0fc",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "a8ef2964fbb1b16ce35bcc89848d014f341135a6155e25e361bd15dc7e40c0fc",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 118366.114222
+    },
+    {
+      "id": "im26-3312",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "2f6c7f5c8bfb2abf414d16602aa9e489cd9564406facaa48579d1bbaab6e5bd7",
+      "normalizedHash": "2eeddcce75d7f35ffe627e2eec717cf033594725b7683c40d0f4bfeb1bf894da",
+      "originalOrientation": 1,
+      "width": 3150,
+      "height": 4000,
+      "pureBytes": 6643166,
+      "nativeBytes": 6673120,
+      "ratio": 0.995511245114729,
+      "encodedSha256": "5e04a92c8249b56aab17bf9cf5af56668cee8c2d6ea5cb4f7e8aaf003a74b98c",
+      "nativeEncodedSha256": "6d381250d5efb7787458cd34c72b3662d41a8b35dd4ec4304771e1d58648334e",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "2eeddcce75d7f35ffe627e2eec717cf033594725b7683c40d0f4bfeb1bf894da",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "2eeddcce75d7f35ffe627e2eec717cf033594725b7683c40d0f4bfeb1bf894da",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 49467.788587
+    },
+    {
+      "id": "im26-5012",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "4f4ec9fafa6efdead0010cb7379739cca5fd3b2e8afe13883beeedbe574c4472",
+      "normalizedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+      "originalOrientation": 1,
+      "width": 716,
+      "height": 714,
+      "pureBytes": 281297,
+      "nativeBytes": 173457,
+      "ratio": 1.6217102797811562,
+      "encodedSha256": "f5f33b608513d576e4eb23836ce343ba33cbcbc3255aac24b7c04e1eb204f698",
+      "nativeEncodedSha256": "1c510b8142633bf30daa5542b1069cb7b274c64d96a74529208093599f8083fc",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 8095.334153
+    },
+    {
+      "id": "im26-5204",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "5e425f599a8b0500d8eac29d9af97ca1654bbed1466955130e4bd72eea173ef0",
+      "normalizedHash": "61af7e92f54db5b8bb28163dd38b97cd899e4ad408c68a2bce0b0a375b497e05",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 1556134,
+      "nativeBytes": 1113510,
+      "ratio": 1.3975033901806,
+      "encodedSha256": "1f99d38ee554500aff0db5ce029e5f7c0c89cbb887f1845d6c3795808efa2957",
+      "nativeEncodedSha256": "a490bb0aa85aae79b559ab92b63ee0af23721a48eda811b6a52065bad7ee256f",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "61af7e92f54db5b8bb28163dd38b97cd899e4ad408c68a2bce0b0a375b497e05",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "61af7e92f54db5b8bb28163dd38b97cd899e4ad408c68a2bce0b0a375b497e05",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 30365.136609
+    },
+    {
+      "id": "im26-5308",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "ff4cd87728467925a9ec9013d9b71b6fc5458acee2692ce3087fc7d3b20b1373",
+      "normalizedHash": "ebccec363f65859bab6bdd90c4871ad9adf4c9c43fb2112862ffa8c751356e72",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 1370180,
+      "nativeBytes": 1075489,
+      "ratio": 1.2740065216845546,
+      "encodedSha256": "26763ecf8f8df1faff16cadcfdfba7b31481ec4552d48228f3563ffdf05eae56",
+      "nativeEncodedSha256": "f5b2f0f53150c509db053569e327474f14bb32a0bee9c5baaee28e8469a3120a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ebccec363f65859bab6bdd90c4871ad9adf4c9c43fb2112862ffa8c751356e72",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ebccec363f65859bab6bdd90c4871ad9adf4c9c43fb2112862ffa8c751356e72",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 23387.988233
+    },
+    {
+      "id": "im26-6020",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "d64228f173058080d2bd400d1c24e0a66c888e9d561b773f3303bb84371b6768",
+      "normalizedHash": "e6caa263fa191b55dce0b128bf4730d173d0301c7b262b188f421825d7906d43",
+      "originalOrientation": 1,
+      "width": 2320,
+      "height": 3408,
+      "pureBytes": 211415,
+      "nativeBytes": 127517,
+      "ratio": 1.657935804637813,
+      "encodedSha256": "ce63f865f71f49254e8bcea1f2117bac6fc9357092d48e21555a429bef181c0c",
+      "nativeEncodedSha256": "3f5e5bb731bb6bdc99c3c89af6b44866312a6b6a74344211d417dcd3f75801a7",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e6caa263fa191b55dce0b128bf4730d173d0301c7b262b188f421825d7906d43",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e6caa263fa191b55dce0b128bf4730d173d0301c7b262b188f421825d7906d43",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 19525.448912
+    },
+    {
+      "id": "im26-6628",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "d2a0292b1ec9444444fac275c6fc0952d2c5204a92c6643e8cae932ba1a90320",
+      "normalizedHash": "5b29c430ae7b3d7c779fcac8af0f598b14c1557ae7326f44032fd5038c3b8441",
+      "originalOrientation": 1,
+      "width": 5133,
+      "height": 4944,
+      "pureBytes": 34465119,
+      "nativeBytes": 33904202,
+      "ratio": 1.0165441734921234,
+      "encodedSha256": "1099a814c449df8d36ce0e858f3b58e0e2232ab8006763e0d8f423874c1fca06",
+      "nativeEncodedSha256": "6b11f44646338d931fca3d842fea1321ee6fb940f3b7ebd9a366a3d44951f9ee",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "5b29c430ae7b3d7c779fcac8af0f598b14c1557ae7326f44032fd5038c3b8441",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "5b29c430ae7b3d7c779fcac8af0f598b14c1557ae7326f44032fd5038c3b8441",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 121644.027525
+    },
+    {
+      "id": "im26-6832",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "cc78565e293ff0ab65eb407d5bf9c557be0e013b489d4c027010cd93015f104d",
+      "normalizedHash": "44d40dff21a1fce9274f1d3e8fec0382f6765f74220525c590c465a8dcf62231",
+      "originalOrientation": 1,
+      "width": 2445,
+      "height": 3519,
+      "pureBytes": 5482497,
+      "nativeBytes": 4740477,
+      "ratio": 1.1565285518735773,
+      "encodedSha256": "ccfdc43344196c54522e43580d72c2eea2a4923f738f86e1bd6e103db33cc746",
+      "nativeEncodedSha256": "9ae42077a6408d7dbb12868dd0a8f5a87d4db5657197d5d74084b5ee766db553",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "44d40dff21a1fce9274f1d3e8fec0382f6765f74220525c590c465a8dcf62231",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "44d40dff21a1fce9274f1d3e8fec0382f6765f74220525c590c465a8dcf62231",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 39589.722892
+    },
+    {
+      "id": "im26-8398",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "d0de30900b6b77fc9cc749524865f52392b70329370fa1889d6483e2d09a96ed",
+      "normalizedHash": "d71294b4a25861ee21668b5a1690904d9f21839673c9c653d484ad96108bbee3",
+      "originalOrientation": 1,
+      "width": 1280,
+      "height": 800,
+      "pureBytes": 790615,
+      "nativeBytes": 582854,
+      "ratio": 1.356454618137647,
+      "encodedSha256": "4b7b807d1a00665b60b8e6fb5cd3958be9f6f8444b96ae43355f1d5a13e5ba79",
+      "nativeEncodedSha256": "e2af8171386fe7252be06eff1d5fb612ef7711ae889b751ba5e53e15657cbd0d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d71294b4a25861ee21668b5a1690904d9f21839673c9c653d484ad96108bbee3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d71294b4a25861ee21668b5a1690904d9f21839673c9c653d484ad96108bbee3",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 7456.7602640000005
+    },
+    {
+      "id": "im26-1002",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "937a789e05dc059d1337fae9294db8a4ecf4067c73c0b3b626f61ecc59137f30",
+      "normalizedHash": "2f87b4b3fb761f068661221817d896b869e31efe869d94acd4dba5d48f91b106",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 7586813,
+      "nativeBytes": 6699634,
+      "ratio": 1.1324220099187507,
+      "encodedSha256": "8328f7c4ceea804703f7cafca7180a5b39b6aa57ca0db2f02bf8294960bcee39",
+      "nativeEncodedSha256": "2f8eb4d9151f7e730c4c004aa2029505ddc50e27ab078e49b2b1b1c40c8c8353",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "2f87b4b3fb761f068661221817d896b869e31efe869d94acd4dba5d48f91b106",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "2f87b4b3fb761f068661221817d896b869e31efe869d94acd4dba5d48f91b106",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 41394.276525
+    },
+    {
+      "id": "im26-1220",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "6d7ae7accfbbff8bebf0ab3e78ff7d918825bf26f1f1493955d04f9faa2d9373",
+      "normalizedHash": "26cd98aa4c1f60dcf001d6eb67495c58c87c7dc34eee8e0ef52375ac202d9873",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 14914225,
+      "nativeBytes": 13019412,
+      "ratio": 1.1455375250433737,
+      "encodedSha256": "3df1a6dea0824cef953a09b9de5a604eb324ede0a38e38dfc3fe6819f08784c5",
+      "nativeEncodedSha256": "718f7c51935193fc56003df994750347d1b06c4cb7c8ff8af5f7f32b6ddbc1d1",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "26cd98aa4c1f60dcf001d6eb67495c58c87c7dc34eee8e0ef52375ac202d9873",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "26cd98aa4c1f60dcf001d6eb67495c58c87c7dc34eee8e0ef52375ac202d9873",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 60555.965675
+    },
+    {
+      "id": "im26-1416",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "a33954bdd20e176ab16eeee424daaeb95e84035fda7d407eeb456c50818cc310",
+      "normalizedHash": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 7035430,
+      "nativeBytes": 6643349,
+      "ratio": 1.0590185763234778,
+      "encodedSha256": "9e6b68dfa2b6837a096239d5fbd398a2b6971d5637110717bfa8e0c4e9e0dd70",
+      "nativeEncodedSha256": "689849fd1252d8d068c2e6a84a0316369740645c56f2bb79a9260d9db8a211a5",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 45137.273599
+    },
+    {
+      "id": "im26-1634",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "1fd8e87252a7458d7a44b69ccd070c46a3f4e4785bfdfb083e320662cfbc95a7",
+      "normalizedHash": "e1af60f807d6dd13de8fd098679434879d472217e08941ed2c36997f4814b75f",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 7888480,
+      "nativeBytes": 7059014,
+      "ratio": 1.1175045126698997,
+      "encodedSha256": "10693c44b3cc2a0e5fc2075f58650c7d6347dcd0b57745f9e9127ff880e4425b",
+      "nativeEncodedSha256": "0fe9267164aa938126b22ad98b5e6e95251eefee2c6fe9ba8222d8a2e28714c6",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e1af60f807d6dd13de8fd098679434879d472217e08941ed2c36997f4814b75f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e1af60f807d6dd13de8fd098679434879d472217e08941ed2c36997f4814b75f",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 43322.516504
+    },
+    {
+      "id": "im26-2016",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "bd7296976a3fd7007f5f2cc9c4b34581d1b70899d1c3408f3314665ee665d5ea",
+      "normalizedHash": "395c0040106fe0fb6591a94622c18ab8103d6cdecd62cc6bbafb8501cfa37c2b",
+      "originalOrientation": 1,
+      "width": 2208,
+      "height": 3314,
+      "pureBytes": 6343318,
+      "nativeBytes": 5463922,
+      "ratio": 1.1609459285838999,
+      "encodedSha256": "994686b62b500e521038d307e71b10837b54358a48bec130b02e06c35b80385e",
+      "nativeEncodedSha256": "730a354581bb4293ea69efc8bae236d9c4bf2efebe51e71af81a3fccefd6f62e",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "395c0040106fe0fb6591a94622c18ab8103d6cdecd62cc6bbafb8501cfa37c2b",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "395c0040106fe0fb6591a94622c18ab8103d6cdecd62cc6bbafb8501cfa37c2b",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 31262.688729
+    },
+    {
+      "id": "im26-3014",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "b2e1aedcc77a59b96c90f9b552ec9fcf55bd6963a9c5bc5de3294f17e5dbe117",
+      "normalizedHash": "834b4f36fd0a0c2a7d5b1cb26ee8f7e995f240a006c3dc986e2ab1556ffa6b7d",
+      "originalOrientation": 1,
+      "width": 2719,
+      "height": 2250,
+      "pureBytes": 2619533,
+      "nativeBytes": 2613004,
+      "ratio": 1.0024986567184742,
+      "encodedSha256": "cbf000438e5526fdc2b0358f4c77bbb2fda7d64a32f37c49a58ab42719d5edc1",
+      "nativeEncodedSha256": "2961e07dac3e87b7c50095610bf060d5f91d48f7bf39f5b7b4e4d256c0023ec1",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "834b4f36fd0a0c2a7d5b1cb26ee8f7e995f240a006c3dc986e2ab1556ffa6b7d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "834b4f36fd0a0c2a7d5b1cb26ee8f7e995f240a006c3dc986e2ab1556ffa6b7d",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 21795.731938
+    },
+    {
+      "id": "im26-3302",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "946977af60a9ff1f090fe32494cfdbcc220050ada9688bc382cc883442ff8dbd",
+      "normalizedHash": "baf238eb88dcfdf03e713e6dfbe8a84fa2408f7c611b83d4e1022cbff01b2d0c",
+      "originalOrientation": 1,
+      "width": 2362,
+      "height": 1585,
+      "pureBytes": 2775542,
+      "nativeBytes": 2712216,
+      "ratio": 1.0233484353753537,
+      "encodedSha256": "c5e80f721acce53958dad9ebc66680ee55caf4f6d197eb9be5e90d45f4f6da94",
+      "nativeEncodedSha256": "ad5bcbd14790f949954161baef7903fa4f48a8158ec0bdeb01b00525a3240673",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "baf238eb88dcfdf03e713e6dfbe8a84fa2408f7c611b83d4e1022cbff01b2d0c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "baf238eb88dcfdf03e713e6dfbe8a84fa2408f7c611b83d4e1022cbff01b2d0c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 16189.031714
+    },
+    {
+      "id": "im26-5052",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+      "normalizedHash": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 4200,
+      "pureBytes": 429274,
+      "nativeBytes": 737792,
+      "ratio": 0.5818360730395559,
+      "encodedSha256": "7be8bfb386ff04ed33af3e6912820d751a5eb5d75d86c4b66cd3957368a6639b",
+      "nativeEncodedSha256": "0fe4a32401f7b3a4cbd39b9c9bd3c4a76c65e3a416585aed2e6a18d7b3215971",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 30951.842371
+    },
+    {
+      "id": "im26-5212",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "603f3f9750ad4a4ac8d241e914a1ad0f293dd2ae10ec702f62074373eb9f78c4",
+      "normalizedHash": "075adfffc4a14973fb62237bb13f3cded2205640e637113710d790a157d3ffd8",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 529694,
+      "nativeBytes": 467674,
+      "ratio": 1.1326137437616801,
+      "encodedSha256": "70b5dfa4b3f820f52d78cd5168d17299d80bba0b30c5f7286a385b23f3fdc9af",
+      "nativeEncodedSha256": "27619a2c0f7af81431f5fb8334e81082ce3b6a535015da575b0907f0ddd88165",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "075adfffc4a14973fb62237bb13f3cded2205640e637113710d790a157d3ffd8",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "075adfffc4a14973fb62237bb13f3cded2205640e637113710d790a157d3ffd8",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 27438.928785
+    },
+    {
+      "id": "im26-5338",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "e0c211b227d12be56b05e44e9a522717307b815949470ddcd261b826cf4e7756",
+      "normalizedHash": "9b46b56815990a56e3c7aa232b9a24c2b43a3bf8f1d207c3e567f2202678b58d",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 1213881,
+      "nativeBytes": 901469,
+      "ratio": 1.3465587834967148,
+      "encodedSha256": "2d7b6db8ffa7931d1e9fa84f082557ef3296dd564567b63d8e4134002a3dd7c4",
+      "nativeEncodedSha256": "38ac94d259b33927c29a3094bec47beda3e9a293e5b3ba72e862048a6a0fc8db",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "9b46b56815990a56e3c7aa232b9a24c2b43a3bf8f1d207c3e567f2202678b58d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "9b46b56815990a56e3c7aa232b9a24c2b43a3bf8f1d207c3e567f2202678b58d",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 28756.247198999998
+    },
+    {
+      "id": "im26-6094",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "575840671ab3a4f4a491dd8aaddf9a0a014b4ee9d843dec2de4238029e77b884",
+      "normalizedHash": "8faed810dcadb49dfbc9fd74b510c1532c79d7eae1edaee0b0c536905fb47062",
+      "originalOrientation": 1,
+      "width": 2479,
+      "height": 3230,
+      "pureBytes": 1624580,
+      "nativeBytes": 1217058,
+      "ratio": 1.3348418892115248,
+      "encodedSha256": "5b8f6dc50a2f49e8a34e40450a41e1edc618f470f756c954caa2858e0fa6ff29",
+      "nativeEncodedSha256": "1255885e93b4b135f51118e9c3f4f3406032bb3b5efc17fbbfd6818294e1b6c6",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "8faed810dcadb49dfbc9fd74b510c1532c79d7eae1edaee0b0c536905fb47062",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "8faed810dcadb49dfbc9fd74b510c1532c79d7eae1edaee0b0c536905fb47062",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 24532.387397000002
+    },
+    {
+      "id": "im26-6624",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "0ec66d5919760a2abae6a4811e0c40411defc14c41510b510548331773a83987",
+      "normalizedHash": "ed0320e4ac94043b8526a78c22be23b79768947085f6344149d50cd7d62eecef",
+      "originalOrientation": 1,
+      "width": 2844,
+      "height": 4410,
+      "pureBytes": 8536870,
+      "nativeBytes": 7176911,
+      "ratio": 1.1894908547702487,
+      "encodedSha256": "923cf9ee5a97bd38b5905cf35d5fb89734e5c4dfe8fd59e088bb4416f9e58392",
+      "nativeEncodedSha256": "896fbdc77a4815289cdd59931339b1960744ca4c8bd0d6c6cb155d93c3ed816e",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ed0320e4ac94043b8526a78c22be23b79768947085f6344149d50cd7d62eecef",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ed0320e4ac94043b8526a78c22be23b79768947085f6344149d50cd7d62eecef",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 65448.199966
+    },
+    {
+      "id": "im26-6822",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "a5cf9a40c64530dc76d6cfc11d7f013b3f6160d895772a7f8920a4a04034ac7e",
+      "normalizedHash": "811dc2372d026bec2040416dc367b980d9cd55dd8ead0af838e66e29766d7808",
+      "originalOrientation": 1,
+      "width": 2415,
+      "height": 3528,
+      "pureBytes": 5775395,
+      "nativeBytes": 4897972,
+      "ratio": 1.1791400604168418,
+      "encodedSha256": "5071652653997a8d9a89a0c6c97b160e5ec733556c22326c300609f3857144c2",
+      "nativeEncodedSha256": "d3905d1b185fb57f2208ae38e875a61246aebe8ce6920e934270a624fe806eef",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "811dc2372d026bec2040416dc367b980d9cd55dd8ead0af838e66e29766d7808",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "811dc2372d026bec2040416dc367b980d9cd55dd8ead0af838e66e29766d7808",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 40970.905204
+    },
+    {
+      "id": "im26-8128",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "256f6e025275682008810c3a05b94433192874e9ad760d7be13a13c29bf7e8c2",
+      "normalizedHash": "a57d22f7199fb7874fd3dd8f5a0d297598c8a0afd678f1024814ff3a912b14e3",
+      "originalOrientation": 1,
+      "width": 1440,
+      "height": 900,
+      "pureBytes": 848214,
+      "nativeBytes": 699854,
+      "ratio": 1.2119870715892171,
+      "encodedSha256": "dab9534c6f8a850fd264fa62b08256a9bdc84af969a7a53db06d3dcf224ba5b1",
+      "nativeEncodedSha256": "e37f3135f95edcbb8487623a1fd473ca75c42b9dfd54ad948c27f6b38267d997",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "a57d22f7199fb7874fd3dd8f5a0d297598c8a0afd678f1024814ff3a912b14e3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "a57d22f7199fb7874fd3dd8f5a0d297598c8a0afd678f1024814ff3a912b14e3",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 7278.714698
+    },
+    {
+      "id": "im26-1006",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "78a1c6a80bab29ab5be1c1e756b00e7fad1d70dcd5ecbbcfdd293da6a91fef01",
+      "normalizedHash": "2ee9e609fa27d54b86637dd0e60075143e048495b6ccd34525f04588080e740c",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 8457136,
+      "nativeBytes": 8495359,
+      "ratio": 0.9955007198636338,
+      "encodedSha256": "458d3a14b86b511e6cab288b6a8be8864a2d21b95c9d4ae21bd0a464703ae503",
+      "nativeEncodedSha256": "d6f7c7dab49cd7ee3697f03081b924018375574e94a186e2515734fa1e1281c6",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "2ee9e609fa27d54b86637dd0e60075143e048495b6ccd34525f04588080e740c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "2ee9e609fa27d54b86637dd0e60075143e048495b6ccd34525f04588080e740c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 47810.136277
+    },
+    {
+      "id": "im26-1238",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "c4494ea30d6542cfbbf26887328ee50cdec3a0543cbc624bbaf8c80e85c8625a",
+      "normalizedHash": "91ef2b5b9e53d70c450fc8df75b2c9bc758ab5f5c621cd53756ed579b6ce3a33",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 9477389,
+      "nativeBytes": 8257206,
+      "ratio": 1.147771897661267,
+      "encodedSha256": "bfb899682a69bcee175bf190134de831937da30c0b1ce5b03141acf0bea1f4ae",
+      "nativeEncodedSha256": "936d305400c17e32f22fd59062179444a03ee91a16f1181009a8e2d491fd433a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "91ef2b5b9e53d70c450fc8df75b2c9bc758ab5f5c621cd53756ed579b6ce3a33",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "91ef2b5b9e53d70c450fc8df75b2c9bc758ab5f5c621cd53756ed579b6ce3a33",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 52054.564414
+    },
+    {
+      "id": "im26-1550",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "49a0fb042478adaa8230cd34ab1462c99d6e4c459a1ce1f2b212274489f22816",
+      "normalizedHash": "81140f9d72bff7f4c9c9f9ff6601f61e205d65067aaa9ae273101139d7063022",
+      "originalOrientation": 1,
+      "width": 1079,
+      "height": 1439,
+      "pureBytes": 1365339,
+      "nativeBytes": 1314566,
+      "ratio": 1.038623393576283,
+      "encodedSha256": "029b44e1c0c9f0096a92912de9e503945827bb9d10b4bb49a2a1cd7fdd3f5b52",
+      "nativeEncodedSha256": "b48ce21903a4e332f4d37837cdf04b5c1030219221b811921269a03c8ca67091",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "81140f9d72bff7f4c9c9f9ff6601f61e205d65067aaa9ae273101139d7063022",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "81140f9d72bff7f4c9c9f9ff6601f61e205d65067aaa9ae273101139d7063022",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 7663.755306
+    },
+    {
+      "id": "im26-1606",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "b7eb0d83753748f60489305fb86c05e81ab9727a401dbb1a2d62cb8205299060",
+      "normalizedHash": "ccb3f5e7fc7ca679b18c0a9cb0a2e393d44ae789afae4b88820735bd77a1aa5d",
+      "originalOrientation": 1,
+      "width": 3462,
+      "height": 2150,
+      "pureBytes": 5804983,
+      "nativeBytes": 4834155,
+      "ratio": 1.2008268249569987,
+      "encodedSha256": "91257adcc0324e898c8a007e7d27f4a0b83ebbd5a73a1f2473a8fb3454a9b65c",
+      "nativeEncodedSha256": "3f0aa5087369464b19b6657ffe1413614991ff52cdd7d3bef3554d193d9e78a5",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ccb3f5e7fc7ca679b18c0a9cb0a2e393d44ae789afae4b88820735bd77a1aa5d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ccb3f5e7fc7ca679b18c0a9cb0a2e393d44ae789afae4b88820735bd77a1aa5d",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 31881.050637
+    },
+    {
+      "id": "im26-2004",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "d4a783a3e1fd3b091c09a5fde08e5114402ec08e40510e8e0c4037c0979c2948",
+      "normalizedHash": "a78a2ed59f61c2d15429572846a527201cdcda0c116b5c409c3658e115fb3be6",
+      "originalOrientation": 1,
+      "width": 2945,
+      "height": 4417,
+      "pureBytes": 16136262,
+      "nativeBytes": 14109233,
+      "ratio": 1.1436668456747436,
+      "encodedSha256": "6a1228ebe4c18cb8eaeb85201249eca4a0b2694a6bb970e1014d2279fd5e5aa0",
+      "nativeEncodedSha256": "6aece970ebcc2e9d6ce72d172ef2c56c1f67959200539c8aea12b5f9ac34eadb",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "a78a2ed59f61c2d15429572846a527201cdcda0c116b5c409c3658e115fb3be6",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "a78a2ed59f61c2d15429572846a527201cdcda0c116b5c409c3658e115fb3be6",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 62770.554802
+    },
+    {
+      "id": "im26-3000",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "14794242e0c06df546e07a695b53435be32db167209be4f85699558320ef32ec",
+      "normalizedHash": "38744b11ac21b103b3a5d05cdd91ed0d42068967a58cbd39f313e87c8e91a0ad",
+      "originalOrientation": 1,
+      "width": 1269,
+      "height": 2250,
+      "pureBytes": 1252885,
+      "nativeBytes": 1165808,
+      "ratio": 1.0746924021794326,
+      "encodedSha256": "95244d1a93f509625a4ccfbb8d9c40df326414bd5ab81e0f188d7efdf82ba25f",
+      "nativeEncodedSha256": "0ca7282d326676f93cb9ddb00f754d91ec60cb8d282dcf616bcebd15dc2a23db",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "38744b11ac21b103b3a5d05cdd91ed0d42068967a58cbd39f313e87c8e91a0ad",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "38744b11ac21b103b3a5d05cdd91ed0d42068967a58cbd39f313e87c8e91a0ad",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 10508.035109
+    },
+    {
+      "id": "im26-3318",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "b26c0a9da33c392fc481fea508313630a73c124e56af3407c906e846dcf67a80",
+      "normalizedHash": "ddc7385d93ad503259317be64363db1b30cb51079d489747e0a24e8cd2f1dd2c",
+      "originalOrientation": 1,
+      "width": 2505,
+      "height": 2596,
+      "pureBytes": 3972260,
+      "nativeBytes": 4091289,
+      "ratio": 0.9709067240177851,
+      "encodedSha256": "0d54f25bdf126348db2a8fec9794cd35a68d30905f9022dda2669dc94dc56335",
+      "nativeEncodedSha256": "4e9983777bdf3fffc0c9a309a02a4cbd9f01832833d64932eec4775b947d04d9",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ddc7385d93ad503259317be64363db1b30cb51079d489747e0a24e8cd2f1dd2c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ddc7385d93ad503259317be64363db1b30cb51079d489747e0a24e8cd2f1dd2c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 28349.608711
+    },
+    {
+      "id": "im26-5034",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+      "normalizedHash": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 4200,
+      "pureBytes": 518602,
+      "nativeBytes": 700564,
+      "ratio": 0.7402635590752593,
+      "encodedSha256": "795026fac5495ee1151b18c48a81be8990989773936b8bd34e643e7962e070a7",
+      "nativeEncodedSha256": "ac7c10d58e569d0b7a2ac4fbec8f3201b0a74060ea111f5c7d29fc30b4ee2e6d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 34288.526361
+    },
+    {
+      "id": "im26-5222",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "75818cb9c5705754900a73bb4a9ad287958ff00a8377a478092a124157b47317",
+      "normalizedHash": "55b30b272cdd62125d7c6cfdeacdb7a615e7ec292f092dd088d024f9f03bed18",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 248188,
+      "nativeBytes": 223727,
+      "ratio": 1.109334143844954,
+      "encodedSha256": "1d1d3235fc7ff40816d094f54b5b6d0f87d8d890bf84e5fffa0db4bd9ee9adf7",
+      "nativeEncodedSha256": "4592e3c1a9c4689a348e3a572278b8438c6f04a80c1f51b21c1ada4fbf605051",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "55b30b272cdd62125d7c6cfdeacdb7a615e7ec292f092dd088d024f9f03bed18",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "55b30b272cdd62125d7c6cfdeacdb7a615e7ec292f092dd088d024f9f03bed18",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 29160.262769
+    },
+    {
+      "id": "im26-5334",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "65b3abf7839bc7f8f881305f4401647d207cf5b9771f7936e3b7b487b191e12c",
+      "normalizedHash": "b633e3fe24f4a1004d7572538ceb2d192581c0c7c4ad9a0b3cda7601a79893d3",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 208488,
+      "nativeBytes": 303723,
+      "ratio": 0.6864412639148171,
+      "encodedSha256": "933e41c69e328ffe3047fbf0ca1841c16a4d24bb120950da46f257880d65620c",
+      "nativeEncodedSha256": "3bf6401dc22b34b0e99d44e856cddb2ecbe54c8344a08a98301adb89ded47edb",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b633e3fe24f4a1004d7572538ceb2d192581c0c7c4ad9a0b3cda7601a79893d3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b633e3fe24f4a1004d7572538ceb2d192581c0c7c4ad9a0b3cda7601a79893d3",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 22621.080513
+    },
+    {
+      "id": "im26-6030",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "d458ea5040f75ca6eef36251f063d56ac587c8b612659ea1db243f631e202e64",
+      "normalizedHash": "6cbcf1b0bf9a4246dfcb9b7411f63cc0054ee9bb20594818be08331c305655b3",
+      "originalOrientation": 1,
+      "width": 2479,
+      "height": 3230,
+      "pureBytes": 2849523,
+      "nativeBytes": 2295601,
+      "ratio": 1.2412971592188713,
+      "encodedSha256": "6c169556f010e01fb2174c0ec92d724405e7f8c36d366a4d4601de7866f1df61",
+      "nativeEncodedSha256": "eddc4d83b6beae4e8d98ab12278eba85c71bbf1c27633664ab5622430bae2a66",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "6cbcf1b0bf9a4246dfcb9b7411f63cc0054ee9bb20594818be08331c305655b3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "6cbcf1b0bf9a4246dfcb9b7411f63cc0054ee9bb20594818be08331c305655b3",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 25579.166391
+    },
+    {
+      "id": "im26-6634",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "26ece2c267161c6737cb466fd43af39bb70234470cc1a2d925379ac1c318f365",
+      "normalizedHash": "eb20805d75855f156d806cd6de94ad53a946a0e8a2d21995813ed44d01397ef8",
+      "originalOrientation": 1,
+      "width": 4427,
+      "height": 5133,
+      "pureBytes": 32240965,
+      "nativeBytes": 31418684,
+      "ratio": 1.0261717199867442,
+      "encodedSha256": "6310878c13d6d89734e902599b0a29b7cb209c3d53d85cc09715ee06919c1f3c",
+      "nativeEncodedSha256": "3328e934c9b640a6f6d17795758db337a6e465095b3cc6786dfac39917a8fa8a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "eb20805d75855f156d806cd6de94ad53a946a0e8a2d21995813ed44d01397ef8",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "eb20805d75855f156d806cd6de94ad53a946a0e8a2d21995813ed44d01397ef8",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 114593.272577
+    },
+    {
+      "id": "im26-6810",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "3f6f929f63826d64d55117a7a5c20e745aa4db852035fdaf4c8048d85ab849f7",
+      "normalizedHash": "eaf8fe28c88db48e3478c6d75ca9bc0984d5e8bc0876740f95216002a455fb94",
+      "originalOrientation": 1,
+      "width": 2002,
+      "height": 3000,
+      "pureBytes": 3378651,
+      "nativeBytes": 3004384,
+      "ratio": 1.1245736230788075,
+      "encodedSha256": "627133aeefb125628871820f056380b4624547f46fa6854f323a6ca0d1232037",
+      "nativeEncodedSha256": "055a0e108176b5a03087dff3207815849e583191c4f7c2fd3ab86b565a8bfa97",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "eaf8fe28c88db48e3478c6d75ca9bc0984d5e8bc0876740f95216002a455fb94",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "eaf8fe28c88db48e3478c6d75ca9bc0984d5e8bc0876740f95216002a455fb94",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 28100.162089
+    },
+    {
+      "id": "im26-8256",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "10153b9e62360402ae0cef1a09df99761b3c1fc40ccca1cfdc0875e570fd1f7f",
+      "normalizedHash": "f9c9e243e1d4957f4dbd9543907c66021234f1c77362d3c419a98e7422d2ab06",
+      "originalOrientation": 1,
+      "width": 2880,
+      "height": 1800,
+      "pureBytes": 2059787,
+      "nativeBytes": 1555829,
+      "ratio": 1.3239160601839919,
+      "encodedSha256": "1316bc2e1ec7cdd300b6612bcbac72d1ced1ef20d972d88ce805e9b3f89144fa",
+      "nativeEncodedSha256": "907b3f5d0e5a611399437eb4f2c8104901eeb6d078e4868e2e4eae05275bbafd",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "f9c9e243e1d4957f4dbd9543907c66021234f1c77362d3c419a98e7422d2ab06",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "f9c9e243e1d4957f4dbd9543907c66021234f1c77362d3c419a98e7422d2ab06",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 20921.475266
+    },
+    {
+      "id": "im26-1026",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "3e977ada8dcaa75d7c6e64b7a5325730e0cbc49089c192508e93c0db928783b4",
+      "normalizedHash": "03be54db410b970aedab647e669822d01d980f10d190caeb5d61bdd5c6dc63a7",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 13210925,
+      "nativeBytes": 11680711,
+      "ratio": 1.1310034979891206,
+      "encodedSha256": "cbfe75b6a82c488d735396951e23edf1fb176d1ef0fbbbf50fc4a8873b34ee17",
+      "nativeEncodedSha256": "8d9a21681ddb145bc0352adc0f7ab3ed8abbbf45bbcf4c61169fbb2f2b02066a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "03be54db410b970aedab647e669822d01d980f10d190caeb5d61bdd5c6dc63a7",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "03be54db410b970aedab647e669822d01d980f10d190caeb5d61bdd5c6dc63a7",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 59527.63231
+    },
+    {
+      "id": "im26-1234",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "a7c4f7db1ccf91663a587c97a4b2f238f293bec58505bd07fc53ef3ea3af604d",
+      "normalizedHash": "a8ea42622713dd092293fe71e0466ae09295cec3c37d8a562a55a2908664b27e",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 7803031,
+      "nativeBytes": 6826774,
+      "ratio": 1.1430041480793125,
+      "encodedSha256": "ba01143828c5050a157a2df456316279c996de5017f93d86ba8854a44c863634",
+      "nativeEncodedSha256": "0f99b34c2eb25890f25502159b5bdaadaeacbc5179be5b8c25a2e13109c70d1b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "a8ea42622713dd092293fe71e0466ae09295cec3c37d8a562a55a2908664b27e",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "a8ea42622713dd092293fe71e0466ae09295cec3c37d8a562a55a2908664b27e",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 48830.172583
+    },
+    {
+      "id": "im26-1410",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "68d6a4c7db07920eeb050ce9b37dab5b12c26f1db168309aa6cec5e07a6168fa",
+      "normalizedHash": "43ca2f31e94786a094dfbaf256b97284bc867cab69c4565524b202136285683c",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 8472639,
+      "nativeBytes": 8111449,
+      "ratio": 1.044528419028462,
+      "encodedSha256": "d7a8bccba8ce06f029510b99ae03addd7853c42e365122684b57de2710636c13",
+      "nativeEncodedSha256": "a57b0e3cab2a24f1f6fd9b97b5ccd4ec9b9c03e1a3dd8c4fe2ca79566d5fba2a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "43ca2f31e94786a094dfbaf256b97284bc867cab69c4565524b202136285683c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "43ca2f31e94786a094dfbaf256b97284bc867cab69c4565524b202136285683c",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 54844.473844
+    },
+    {
+      "id": "im26-1610",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "b93d76ecb1d6400d9175fc2d97f5fcf8b8fa7c2c236e52c6e9932e8155310aa9",
+      "normalizedHash": "f7a44d264088e05e354e4faf87554a7441969c908c33abaad5a385be478de4ee",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 9593527,
+      "nativeBytes": 8132392,
+      "ratio": 1.1796685403261427,
+      "encodedSha256": "df40668d1c8ce8c77bfc30df037e198527f8577f0a0d3eb7012fd26afdb7d6a6",
+      "nativeEncodedSha256": "2fbdc8a4bc060aeaa4333cfb850ed4c8208e988b9939c01405d0f0b485ca9f67",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "f7a44d264088e05e354e4faf87554a7441969c908c33abaad5a385be478de4ee",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "f7a44d264088e05e354e4faf87554a7441969c908c33abaad5a385be478de4ee",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 56730.390723
+    },
+    {
+      "id": "im26-2014",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "9cbe9d498f725c1aad70625a028cffc055fa59830206c45fb4ebeff28185ff58",
+      "normalizedHash": "62f0dd3ad4620478ff6924e41b51614232bc3650030b6d9b9d318747a7595d0f",
+      "originalOrientation": 1,
+      "width": 6240,
+      "height": 4160,
+      "pureBytes": 17293984,
+      "nativeBytes": 20764941,
+      "ratio": 0.8328453232783084,
+      "encodedSha256": "1832a85e95b7ad8ab535156f98ccd5e12f8f6c16b27ccfcb754f7ae8c4c49a3b",
+      "nativeEncodedSha256": "f8298745b5533ca07a54397911ad368491c07ad38ea868505b2ab75102b73423",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "62f0dd3ad4620478ff6924e41b51614232bc3650030b6d9b9d318747a7595d0f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "62f0dd3ad4620478ff6924e41b51614232bc3650030b6d9b9d318747a7595d0f",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 96659.991973
+    },
+    {
+      "id": "im26-3006",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "ce6e1eb35fa5a767ce080c75454cfc21a006728336c3c544399988c0546f2ac0",
+      "normalizedHash": "65ce8c8871b820afde94e167b5255c7dbcf0f163a2689a6bbdddf4f4df415124",
+      "originalOrientation": 1,
+      "width": 3000,
+      "height": 2235,
+      "pureBytes": 6788649,
+      "nativeBytes": 5986705,
+      "ratio": 1.133954153411601,
+      "encodedSha256": "a8269f3281358c4bbcf1ed5486838a64db54aa698eac7f016d26d9df424d86e6",
+      "nativeEncodedSha256": "c4138db350adc668587aa38f4db2519ae0a3109e8468a672c3a0fa866cc4b9c9",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "65ce8c8871b820afde94e167b5255c7dbcf0f163a2689a6bbdddf4f4df415124",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "65ce8c8871b820afde94e167b5255c7dbcf0f163a2689a6bbdddf4f4df415124",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 34625.322262
+    },
+    {
+      "id": "im26-3316",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "adc1229d6c7f9212e4174dafe026877e9e75b5c6817a64c4b44ece2dce75200e",
+      "normalizedHash": "907380120fc03463831921f65ee3db424dc41e3d3607aaea7f0349f0f53a867b",
+      "originalOrientation": 1,
+      "width": 3811,
+      "height": 2513,
+      "pureBytes": 6465583,
+      "nativeBytes": 5825765,
+      "ratio": 1.109825576555182,
+      "encodedSha256": "d209d0f927ed51df2d5e429155b431ad877b841c93a7bbf7fdd181dae103bccf",
+      "nativeEncodedSha256": "c6a8fde272ce79955db6656aef60c6764265d83f16547daa759722739a735ca4",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "907380120fc03463831921f65ee3db424dc41e3d3607aaea7f0349f0f53a867b",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "907380120fc03463831921f65ee3db424dc41e3d3607aaea7f0349f0f53a867b",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 42338.478897
+    },
+    {
+      "id": "im26-5038",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "b1e8bf34f0afb31e78b49dd96f528bbdc64ebe58377147baca22efa63db03185",
+      "normalizedHash": "e14b1aa44c77e9942ecab8490aec8c9e0ec9c763432cd090a41e2c363a95c3af",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 4200,
+      "pureBytes": 2698726,
+      "nativeBytes": 1938956,
+      "ratio": 1.3918448897241609,
+      "encodedSha256": "87912eb5404fcca94bd0fd4aad637f042ca1bd987a6ef9d33e2f8add48fcff9f",
+      "nativeEncodedSha256": "a669a1645de33f8a2d4e8f795a4687410f7e6194a2903b8ea291f73c228283db",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e14b1aa44c77e9942ecab8490aec8c9e0ec9c763432cd090a41e2c363a95c3af",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e14b1aa44c77e9942ecab8490aec8c9e0ec9c763432cd090a41e2c363a95c3af",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 33805.88771
+    },
+    {
+      "id": "im26-5206",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "fb16359cde5e1b2a0202a899364d52a000db500dc7ff2423adb02c25a4f421f4",
+      "normalizedHash": "d9fac7a6ea4b9dc2de55207e261369409d98fd7377aca8066ac656662f5305f1",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 810764,
+      "nativeBytes": 691133,
+      "ratio": 1.1730940354461443,
+      "encodedSha256": "5e683368821691c72653e955b90c860ff6e2ab9c2cde7bd9c5f67998b8715991",
+      "nativeEncodedSha256": "fe0eb32593b452bbc917c2e38f45ff576e09eebb122d5d80277650ecc5ea2d59",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d9fac7a6ea4b9dc2de55207e261369409d98fd7377aca8066ac656662f5305f1",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d9fac7a6ea4b9dc2de55207e261369409d98fd7377aca8066ac656662f5305f1",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 29649.086184
+    },
+    {
+      "id": "im26-5320",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "954b1264a3c5d35ef96c0636da2fa6689f18f8f801d9851132e4122c3a743d2a",
+      "normalizedHash": "83f0543faed0e88de3ab324d55c7f218417241877ef1ef10f65079ef73f8281e",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 1508003,
+      "nativeBytes": 1169211,
+      "ratio": 1.2897612150415965,
+      "encodedSha256": "c4d8cc2d21f00508bf056baa1369b877dbbd5bc8bb528556b12c4f28fa3ffa3e",
+      "nativeEncodedSha256": "7fe8daa3d855c187cad64a766411c627243eed6b6d357fa67c349fb0e97eb47c",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "83f0543faed0e88de3ab324d55c7f218417241877ef1ef10f65079ef73f8281e",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "83f0543faed0e88de3ab324d55c7f218417241877ef1ef10f65079ef73f8281e",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 29272.488708
+    },
+    {
+      "id": "im26-6016",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "1016b043dd7e4bc6799401ee11b963c9e2d056a6520a8e3c5e69d3986dfc0a64",
+      "normalizedHash": "aaa4086798e1b5817fe9f29590590429848bc5db14a8fe6ba6bf60e65bd93330",
+      "originalOrientation": 1,
+      "width": 2320,
+      "height": 3408,
+      "pureBytes": 196319,
+      "nativeBytes": 123948,
+      "ratio": 1.583881950495369,
+      "encodedSha256": "b3f3ba3032c1f8df5cd5650513449ac7b453659185b3bbb651b94d9ba4901ad7",
+      "nativeEncodedSha256": "b37e8e55917c897170d45d2446a6cccc9f443ff54567ba293d71c126ce335c24",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "aaa4086798e1b5817fe9f29590590429848bc5db14a8fe6ba6bf60e65bd93330",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "aaa4086798e1b5817fe9f29590590429848bc5db14a8fe6ba6bf60e65bd93330",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 20799.698694000002
+    },
+    {
+      "id": "im26-6626",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "705a3eda5ea94d413b2e119ac9e4bf7d2e3eed9706c8437b9e5d60dbb81db3ef",
+      "normalizedHash": "6b643f4851a6625fa4b11b81e485f00b2aed6b2216c5a793840288135311ddc6",
+      "originalOrientation": 1,
+      "width": 2844,
+      "height": 4410,
+      "pureBytes": 9764325,
+      "nativeBytes": 8232190,
+      "ratio": 1.1861151163906567,
+      "encodedSha256": "553c40b644d597da143c8eadb1e062fca595c4d34cc054c7dd10d1760b3332f8",
+      "nativeEncodedSha256": "330cdc95f80b049ff7ed6a154cbb38547f5aeeb512b932d49c3e5707c3f3e53c",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "6b643f4851a6625fa4b11b81e485f00b2aed6b2216c5a793840288135311ddc6",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "6b643f4851a6625fa4b11b81e485f00b2aed6b2216c5a793840288135311ddc6",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 66036.265189
+    },
+    {
+      "id": "im26-6812",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "e00dcea2fe183794f3d68c19569144b91f8e3e921cf2cfab94fe3a0586dfecaa",
+      "normalizedHash": "b0914cf77efa4b92fcb69278458d6eb8129a55d7307d58e03a6167331391e892",
+      "originalOrientation": 1,
+      "width": 2003,
+      "height": 3000,
+      "pureBytes": 3541016,
+      "nativeBytes": 2980059,
+      "ratio": 1.1882368771893443,
+      "encodedSha256": "1cbb9e7944a8a913cc65596dba9b8a1d0706c1de7f13efb227508611feb9b986",
+      "nativeEncodedSha256": "e607bbda514471160e2fb4481f29a64e2b9241a5bf33f5916401f36088926c51",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b0914cf77efa4b92fcb69278458d6eb8129a55d7307d58e03a6167331391e892",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b0914cf77efa4b92fcb69278458d6eb8129a55d7307d58e03a6167331391e892",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 29938.850286
+    },
+    {
+      "id": "im26-8110",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "c41c3530288e87f6d63ec48ef10a57ab51be8c61750c875bf62f54b990674a37",
+      "normalizedHash": "b205428927987df47a12f07569396758f049fc72d53de8620ee4c0bd0ebbf7ac",
+      "originalOrientation": 1,
+      "width": 1440,
+      "height": 900,
+      "pureBytes": 263249,
+      "nativeBytes": 204225,
+      "ratio": 1.2890145672664952,
+      "encodedSha256": "42b8f08ec077eb116cf581591e8508cf1e6d3182d9c8e0eb73ca8860db0da00d",
+      "nativeEncodedSha256": "8641c745d209b727de4432eee8b779f6e4a92d3be2c8ef8dfd8c5e3d8e43c501",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b205428927987df47a12f07569396758f049fc72d53de8620ee4c0bd0ebbf7ac",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b205428927987df47a12f07569396758f049fc72d53de8620ee4c0bd0ebbf7ac",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 3695.2330970000003
+    },
+    {
+      "id": "im26-1058",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "e6376ee8e8fdafc2379b8c6e8c6326aea475c52b11c8264b5abd867b47a0aa9f",
+      "normalizedHash": "efa12d27ef0afd6a621098407928a28404562c18f6bc25fd33891ec708cb342f",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 8588108,
+      "nativeBytes": 7279800,
+      "ratio": 1.1797175746586446,
+      "encodedSha256": "ed4cdef0ec682018f75c308b61c0126738e0bc26b34092b05dfaf821a46dfc96",
+      "nativeEncodedSha256": "e19d92774b8095f33bdedf836d3b412f79a2f2b1eceb94a8ac22057919057a04",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "efa12d27ef0afd6a621098407928a28404562c18f6bc25fd33891ec708cb342f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "efa12d27ef0afd6a621098407928a28404562c18f6bc25fd33891ec708cb342f",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 52009.564507999996
+    },
+    {
+      "id": "im26-1210",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "89463796b89e17a8b99c1c7450f0111aef1d4be31b390ace84769e79a2bb8c8c",
+      "normalizedHash": "e9bfcdb6defdd613b79f967e14c18eebf5f6113f24d33db00ce5ef249bc9cc01",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 10411120,
+      "nativeBytes": 9028400,
+      "ratio": 1.153152275043197,
+      "encodedSha256": "61838183152332ec8cc5fdb30a5a1470b41e92f198c9ee16a0180204c4286248",
+      "nativeEncodedSha256": "0c6ad9d9e9eda57cbe42f7322dcbaa26ca02b476e4ecce45c3ed96bcfa31f18d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e9bfcdb6defdd613b79f967e14c18eebf5f6113f24d33db00ce5ef249bc9cc01",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e9bfcdb6defdd613b79f967e14c18eebf5f6113f24d33db00ce5ef249bc9cc01",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 53713.786108
+    },
+    {
+      "id": "im26-1414",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "6fb13e901c531b8abab25bfc0b85cf341bc0b521c810536bf35eadf7b3db57fe",
+      "normalizedHash": "79c67454f65eec9253db39c5ca32b893fcacad17f7ed33976c6397cc0665a066",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 12664633,
+      "nativeBytes": 10895243,
+      "ratio": 1.1624002328355596,
+      "encodedSha256": "a62ca3c4773f9cb2332d436ef17753a62f9bf1786e2297f79d89b96f2f91e70c",
+      "nativeEncodedSha256": "8246d3fdb6ea0126a181bb6a39f8fc29fed326f9ff3ec7898f552fed0e5f320f",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "79c67454f65eec9253db39c5ca32b893fcacad17f7ed33976c6397cc0665a066",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "79c67454f65eec9253db39c5ca32b893fcacad17f7ed33976c6397cc0665a066",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 63997.672151
+    },
+    {
+      "id": "im26-1626",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "233a8b6d3684d74e56b6acf961221f9213a3509c1a42ddc1b8ea79925f8a807c",
+      "normalizedHash": "ea7309ea11e57debc77016117e19f0af9824e85e8a77918d14681cc86a02b3af",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 7528829,
+      "nativeBytes": 7128823,
+      "ratio": 1.056111085939432,
+      "encodedSha256": "dcc1639737ffd78e6d9cd74ec36f23cfaf05c370cefa9efd206d9a61d392bed9",
+      "nativeEncodedSha256": "fd3dc98fe4c03d2794a55a540c73613330823daf7ad41d44a1606be418948ea3",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ea7309ea11e57debc77016117e19f0af9824e85e8a77918d14681cc86a02b3af",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ea7309ea11e57debc77016117e19f0af9824e85e8a77918d14681cc86a02b3af",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 48546.24926
+    },
+    {
+      "id": "im26-2018",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "4f49e73a630a1d8886e3be742f49b253d77e3a0af51b69b9f17be48de606c07e",
+      "normalizedHash": "4a30d4c7e07f5b2fc4f5df8fba7802c4aab0014418bf029b05f59cd152a788c6",
+      "originalOrientation": 1,
+      "width": 4774,
+      "height": 4774,
+      "pureBytes": 6682438,
+      "nativeBytes": 7066997,
+      "ratio": 0.9455838172847675,
+      "encodedSha256": "52aefd9af764f3c124ce5b1af6a3c92735325214ce644ebfde526c4d967b4c6e",
+      "nativeEncodedSha256": "8a3d310c84ea1a22c085e47e92df0ad1d77a07dcea66c1f206b880f69283f0da",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "4a30d4c7e07f5b2fc4f5df8fba7802c4aab0014418bf029b05f59cd152a788c6",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "4a30d4c7e07f5b2fc4f5df8fba7802c4aab0014418bf029b05f59cd152a788c6",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 87213.376513
+    },
+    {
+      "id": "im26-3012",
+      "status": "verified",
+      "category": "3000-art-institute-of-chicago-photos",
+      "sourceSha256": "7b3d52d43fbfa3b713f46a80a3eea6f503749210f032ad4e31c94fa99a493d4f",
+      "normalizedHash": "7d939eb99e1647184bbec4fa0457700b8e1adb6bed816cd4b2a79db41b5df315",
+      "originalOrientation": 1,
+      "width": 2829,
+      "height": 2250,
+      "pureBytes": 4856211,
+      "nativeBytes": 4322626,
+      "ratio": 1.1234400107712303,
+      "encodedSha256": "2b07f84bfd6b81b6c3fec481cba28647108055b93c67591e8f68cea83fc5337b",
+      "nativeEncodedSha256": "86066732cab6f4df1e164f444c53a1c572a12bee787514f1b2b9e079d7ffc97e",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "7d939eb99e1647184bbec4fa0457700b8e1adb6bed816cd4b2a79db41b5df315",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "7d939eb99e1647184bbec4fa0457700b8e1adb6bed816cd4b2a79db41b5df315",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 27638.759445
+    },
+    {
+      "id": "im26-3300",
+      "status": "verified",
+      "category": "3300-met-museum-photos",
+      "sourceSha256": "9f3931f56099ee74a4100a3398add01d0d210d1bad857624c7c58023e0f34b6f",
+      "normalizedHash": "ecc883e87475e92f380f404c73f56564d8bfc7f7fb285eb8e379ddda2dd12294",
+      "originalOrientation": 1,
+      "width": 2832,
+      "height": 3722,
+      "pureBytes": 7383447,
+      "nativeBytes": 6355885,
+      "ratio": 1.1616709553429616,
+      "encodedSha256": "529c6e9becee9cc20a8045eaaef98befdb76f554531021eb17095e7da6ca7206",
+      "nativeEncodedSha256": "4fd623d747e8bfbd1f190bacf016d32e10ac501c21d405132cd8472f0f2dc3a1",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "ecc883e87475e92f380f404c73f56564d8bfc7f7fb285eb8e379ddda2dd12294",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "ecc883e87475e92f380f404c73f56564d8bfc7f7fb285eb8e379ddda2dd12294",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 47490.017068
+    },
+    {
+      "id": "im26-5032",
+      "status": "verified",
+      "category": "5000-national-park-service-brochures",
+      "sourceSha256": "671e8b1f848abe4ea03d47b7e08b344382f6a1484eef28ba1a3ffb0b3765ad8b",
+      "normalizedHash": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "originalOrientation": 1,
+      "width": 2590,
+      "height": 3209,
+      "pureBytes": 827815,
+      "nativeBytes": 514518,
+      "ratio": 1.6089135851418221,
+      "encodedSha256": "afa8a89e21bdd7704eb49b5c37340b10bbc01a87438f362a8c06b88e14532f0f",
+      "nativeEncodedSha256": "94371e24ce6a41272dc51b356604f5257d9a825ede23c5daf3ced794a660807d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 23409.950407
+    },
+    {
+      "id": "im26-5220",
+      "status": "verified",
+      "category": "5200-epa-climate-impact-2021-report",
+      "sourceSha256": "ca2b0ffa5039e66d3a3618e05ca635c08c01319304af7db263123c38e1651e0e",
+      "normalizedHash": "94c93252750a295f98efb593cb971d85571d0e6c18eccbeea8a18e633a1807b5",
+      "originalOrientation": 1,
+      "width": 2968,
+      "height": 3841,
+      "pureBytes": 369257,
+      "nativeBytes": 330516,
+      "ratio": 1.1172136901087997,
+      "encodedSha256": "989706c0ef1126e453cb9f3cb0994b471f2e9d2156f4ba280ceecb2ceba97dd2",
+      "nativeEncodedSha256": "f01bb2799073369602388e297ba5ddf549de174f810d9750904747570578c6fe",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "94c93252750a295f98efb593cb971d85571d0e6c18eccbeea8a18e633a1807b5",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "94c93252750a295f98efb593cb971d85571d0e6c18eccbeea8a18e633a1807b5",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 32367.214126
+    },
+    {
+      "id": "im26-5340",
+      "status": "verified",
+      "category": "5300-noaa-hurricane-documents",
+      "sourceSha256": "80cd6ad301f9d7f70cdf170e6db71975750abdb070b42d1d3512f3a673b450e5",
+      "normalizedHash": "41c11721e1c7e774dc63a9d54aae659db82ddaaf7795461e02a59b55647d1a1d",
+      "originalOrientation": 1,
+      "width": 2550,
+      "height": 3300,
+      "pureBytes": 103857,
+      "nativeBytes": 93671,
+      "ratio": 1.1087423001782835,
+      "encodedSha256": "8ec630599760bb7f1a8589094d36a391f19be4ea12a6a43eb9103299dffdd6e3",
+      "nativeEncodedSha256": "a4b7bd453d94bb6ab4d9035ccb02ea4c8c29e6114b9eabbc7c1e3ba8db6480b4",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "41c11721e1c7e774dc63a9d54aae659db82ddaaf7795461e02a59b55647d1a1d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "41c11721e1c7e774dc63a9d54aae659db82ddaaf7795461e02a59b55647d1a1d",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 28757.488275
+    },
+    {
+      "id": "im26-6050",
+      "status": "verified",
+      "category": "6000-lilith-scans-public-patents",
+      "sourceSha256": "68ae08c0c902f6ce9aa6842dba8ab373c4ba7319dc50c5d18387d224adf4e8d2",
+      "normalizedHash": "d20795ee5d3ec1d84fb22ef2d0ba634156a8a7c6cf21dac5cd953bbbdbac74ce",
+      "originalOrientation": 1,
+      "width": 2479,
+      "height": 3230,
+      "pureBytes": 5550682,
+      "nativeBytes": 4553639,
+      "ratio": 1.2189552136214574,
+      "encodedSha256": "050d4f517d65f94c779957cc3bc86a235ff7bb4e435dce7658906b7c107e4a5b",
+      "nativeEncodedSha256": "658a4605022fe22065a6b1d924898ebeb690fdeb8ada619a956324fdbe263e68",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "d20795ee5d3ec1d84fb22ef2d0ba634156a8a7c6cf21dac5cd953bbbdbac74ce",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "d20795ee5d3ec1d84fb22ef2d0ba634156a8a7c6cf21dac5cd953bbbdbac74ce",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 38549.980803
+    },
+    {
+      "id": "im26-6608",
+      "status": "verified",
+      "category": "6600-ia-scans-manuscript-illustrations",
+      "sourceSha256": "e1e8078ca19835b65a6cd2c167cde8b498e903df5449a63e41641f51a1f5447b",
+      "normalizedHash": "e0c955518c8fee90a3b9e4076d89bf494c27c656d6c41e489f9c69df1720c5cc",
+      "originalOrientation": 1,
+      "width": 6030,
+      "height": 4806,
+      "pureBytes": 16560142,
+      "nativeBytes": 13274024,
+      "ratio": 1.2475600465992829,
+      "encodedSha256": "0e1a8732fb870bb7f0f261ecb2c5ffac116c47c7fd33523351bc312f17b028c4",
+      "nativeEncodedSha256": "7c8ef04c5b5ee9bc3113d181b4105b85bd0d97e90d4fae6f729d823f9c0477a9",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "e0c955518c8fee90a3b9e4076d89bf494c27c656d6c41e489f9c69df1720c5cc",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "e0c955518c8fee90a3b9e4076d89bf494c27c656d6c41e489f9c69df1720c5cc",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 119514.155638
+    },
+    {
+      "id": "im26-6830",
+      "status": "verified",
+      "category": "6800-ia-scans-manuscript-text",
+      "sourceSha256": "8e6c3ada0cc53d7bde951ca8556286e9d25c9f0852545b417efb34c22ae978d0",
+      "normalizedHash": "743f0d379004191248de166a8d0feccbcff556cbf81c31dbc748b7a2af81b591",
+      "originalOrientation": 1,
+      "width": 2415,
+      "height": 3528,
+      "pureBytes": 5401325,
+      "nativeBytes": 4710716,
+      "ratio": 1.1466038283776818,
+      "encodedSha256": "66f791fd630edf43201cafbf40e1d7d8ce87c9ab1f4c7aaa5e3f590023b14eca",
+      "nativeEncodedSha256": "8574c3e27d5356d5ec06e7493a54c42348444db6cdfbd9ddf433e9205d4e056d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "743f0d379004191248de166a8d0feccbcff556cbf81c31dbc748b7a2af81b591",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "743f0d379004191248de166a8d0feccbcff556cbf81c31dbc748b7a2af81b591",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 47854.258860999995
+    },
+    {
+      "id": "im26-8150",
+      "status": "verified",
+      "category": "8100-lilith-web-screenshots",
+      "sourceSha256": "c88b1d0425fc526cdf4368bfd227c4bd2eac6341f0f49238cfaa1e8ede626c53",
+      "normalizedHash": "946a1145eefe1e41fb73850fc1bcc97a1076e6db0b752022c2eacf321cb5d249",
+      "originalOrientation": 1,
+      "width": 1440,
+      "height": 900,
+      "pureBytes": 897885,
+      "nativeBytes": 723410,
+      "ratio": 1.2411841141261526,
+      "encodedSha256": "9fe692c0abcfaf82d037a10e7d93a8edaa2eb17b4da857c5286cc1e31088a11d",
+      "nativeEncodedSha256": "425b95a8f99042e69bf125e39a23c8e2b9e780f4738fb5afd5d447da84c0f17d",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "946a1145eefe1e41fb73850fc1bcc97a1076e6db0b752022c2eacf321cb5d249",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "946a1145eefe1e41fb73850fc1bcc97a1076e6db0b752022c2eacf321cb5d249",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 7407.0868550000005
+    },
+    {
+      "id": "im26-1032",
+      "status": "verified",
+      "category": "1000-lilith-photos-general",
+      "sourceSha256": "2faf23ae7bd838b88b4b7048e4f81ce45fea032e7c315ec8d44e35e69c144359",
+      "normalizedHash": "63cce4b2c3f2b3cceacc96297a47aadeaa1d5d37163182cf30a3a10b02f254cd",
+      "originalOrientation": 1,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 13582105,
+      "nativeBytes": 11272561,
+      "ratio": 1.2048819252342036,
+      "encodedSha256": "880fa09afdfc3396a256cc0b2d82b7bbe11fb9a2fee2b9a0c6c9313ac404d8c2",
+      "nativeEncodedSha256": "b5c02b9cbfe57901c3d66835aae73edced6bdd40f96c0ddc8a3f6cb95bd9cf54",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "63cce4b2c3f2b3cceacc96297a47aadeaa1d5d37163182cf30a3a10b02f254cd",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "63cce4b2c3f2b3cceacc96297a47aadeaa1d5d37163182cf30a3a10b02f254cd",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 67163.664472
+    },
+    {
+      "id": "im26-1212",
+      "status": "verified",
+      "category": "1200-lilith-interiors",
+      "sourceSha256": "ae7d8ef799040763fef373533c8c52fd8d21a4fe4548d808a72132278f53d940",
+      "normalizedHash": "82a54abcdaa257e978bc19b02af2963c0deedf21ba424edad177ecb0964594a0",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 15601158,
+      "nativeBytes": 13274278,
+      "ratio": 1.175292396317148,
+      "encodedSha256": "9eee577b5058dc3f4f65699b8ffea5bc2c99e19d0389c9e8778548ed1c28cec0",
+      "nativeEncodedSha256": "2240976c547acd26c3b094e554c335f6b403187bcbd13f588f4da1afa2d44cac",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "82a54abcdaa257e978bc19b02af2963c0deedf21ba424edad177ecb0964594a0",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "82a54abcdaa257e978bc19b02af2963c0deedf21ba424edad177ecb0964594a0",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 70218.26398999999
+    },
+    {
+      "id": "im26-1468",
+      "status": "verified",
+      "category": "1400-lilith-nature",
+      "sourceSha256": "1efd9d42878c40e003704b80f332fb12cf6b013d8b1b7b105885573503adc787",
+      "normalizedHash": "b87e172b33fe0fdee098a61bab8279519eb7b6d8777daded91c2ca4f40ec0761",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 7167077,
+      "nativeBytes": 7312337,
+      "ratio": 0.9801349418113525,
+      "encodedSha256": "0111541cf8ac5efe4992fc8799402f6592b7bf288ab461fc6e6e15b131896029",
+      "nativeEncodedSha256": "d0430d97234c50029043cfe34b9e55116c32df9da2ce5c1b61a5537b23c516df",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b87e172b33fe0fdee098a61bab8279519eb7b6d8777daded91c2ca4f40ec0761",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b87e172b33fe0fdee098a61bab8279519eb7b6d8777daded91c2ca4f40ec0761",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 47146.791957
+    },
+    {
+      "id": "im26-1622",
+      "status": "verified",
+      "category": "1600-lilith-food",
+      "sourceSha256": "a6e5e3d9c319db47e87f2ceae68676d3054b14444e7e9a9c39fabe353dcc638c",
+      "normalizedHash": "77b5b676c74ab1e2e37f34c7b1ce32c4f525d88c8feb8f24f7535fe1982135b2",
+      "originalOrientation": 6,
+      "width": 4000,
+      "height": 3000,
+      "pureBytes": 11705569,
+      "nativeBytes": 11104595,
+      "ratio": 1.0541193983211454,
+      "encodedSha256": "294494524eb77a52702370e5176db7df24c7f73d07875935ccb7dbbce4d8b57c",
+      "nativeEncodedSha256": "5d893fe3dd5129dc7e3bbc4a860bcf5ca269012d77f011a17479d0ea095701e5",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "77b5b676c74ab1e2e37f34c7b1ce32c4f525d88c8feb8f24f7535fe1982135b2",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "77b5b676c74ab1e2e37f34c7b1ce32c4f525d88c8feb8f24f7535fe1982135b2",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 51318.031048
+    },
+    {
+      "id": "im26-2000",
+      "status": "verified",
+      "category": "2000-unsplash-people",
+      "sourceSha256": "d42d2e0b76b363041dcc3073da80dc43b0a17d9c9059439b9e58fd2c91309f56",
+      "normalizedHash": "b681ac52dcfb5222b52a37ed7eb2aa11f58b2724f19a64820dc51e664ec90377",
+      "originalOrientation": 1,
+      "width": 4400,
+      "height": 6600,
+      "pureBytes": 14186579,
+      "nativeBytes": 14669120,
+      "ratio": 0.9671049797124844,
+      "encodedSha256": "58c1102aacbef98541409ec4b4d84fb3ad388d8ab0d5ae7094b2b425009cc75e",
+      "nativeEncodedSha256": "232e9283b7994db06768b1cdce8b5d0d94db93c7c3c3ae15073158dbbe8852d7",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "decodedHash": "b681ac52dcfb5222b52a37ed7eb2aa11f58b2724f19a64820dc51e664ec90377",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedHash": "b681ac52dcfb5222b52a37ed7eb2aa11f58b2724f19a64820dc51e664ec90377",
+          "exact": true
+        }
+      ],
+      "elapsedMilliseconds": 93983.11331300001
+    }
+  ]
+}

@@ -685,6 +685,10 @@ const nclxChromaticities = (primaries: number): RgbChromaticities => {
   throw unsupportedOperation(`NCLX color primaries ${primaries} are not supported`)
 }
 
+/** Converts linear source RGB to linear sRGB, retaining out-of-gamut values. */
+export const nclxToLinearSrgbMatrix = (primaries: number): Float64Array =>
+  chromaticityMatrix(nclxChromaticities(primaries))
+
 const cachedNclxLumaCoefficients = new Map<number, readonly [number, number, number]>()
 
 export const nclxLumaCoefficients = (primaries: number): readonly [number, number, number] => {
@@ -927,7 +931,14 @@ export const createStructuredRgbTransform = (
       curve,
     )
   }
-  const transferCode = transfer.kind === 'linear' ? 8 : transfer.kind === 'srgb' ? 13 : 0
+  const transferCode =
+    transfer.kind === 'linear'
+      ? 8
+      : transfer.kind === 'srgb'
+        ? 13
+        : transfer.kind === 'bt709'
+          ? 1
+          : 0
   if (transferCode === 0) {
     throw unsupportedOperation('PQ and HLG require explicit JPEG XL HDR output selection')
   }

@@ -1,0 +1,65 @@
+{
+  "policy": "Same four targeted esbuild configurations as repository size checks, including node22 minification. No ceiling or historical baseline changed. These measurements do not replace the full size gate.",
+  "results": [
+    {
+      "revision": "integrated050",
+      "target": "jpegxl-specialized",
+      "bytes": 454966,
+      "contributions": [
+        {
+          "path": "../../../../../tmp/purejsimage-m7-integrated-050-qualified-evaluation/src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 57451
+        },
+        {
+          "path": "../../../../../tmp/purejsimage-m7-integrated-050-qualified-evaluation/src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 50227
+        }
+      ]
+    },
+    {
+      "revision": "integrated050",
+      "target": "codec-jpegxl",
+      "bytes": 399939,
+      "contributions": [
+        {
+          "path": "../../../../../tmp/purejsimage-m7-integrated-050-qualified-evaluation/src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 57403
+        },
+        {
+          "path": "../../../../../tmp/purejsimage-m7-integrated-050-qualified-evaluation/src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 50252
+        }
+      ]
+    },
+    {
+      "revision": "integrated054",
+      "target": "jpegxl-specialized",
+      "bytes": 457254,
+      "contributions": [
+        {
+          "path": "src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 57768
+        },
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 52198
+        }
+      ]
+    },
+    {
+      "revision": "integrated054",
+      "target": "codec-jpegxl",
+      "bytes": 402230,
+      "contributions": [
+        {
+          "path": "src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 57720
+        },
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 52226
+        }
+      ]
+    }
+  ]
+}

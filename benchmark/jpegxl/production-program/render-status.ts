@@ -1,7 +1,13 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-type MilestoneStatus = 'not started' | 'in progress' | 'PR open' | 'merged' | 'blocked'
+type MilestoneStatus =
+  | 'not started'
+  | 'in progress'
+  | 'locally complete'
+  | 'PR open'
+  | 'merged'
+  | 'blocked'
 
 interface MilestoneDefinition {
   readonly id: string
@@ -141,7 +147,7 @@ const milestones: readonly MilestoneDefinition[] = Object.freeze([
   {
     id: 'M10',
     goal: 'Level 10 and uncommon standardized profiles',
-    branch: 'codex/jpegxl-m10-level10-stretch',
+    branch: 'codex/jpegxl-m06-m10-completion',
     target: 'C',
     requiredGates: [
       'applicable Level 5 and Level 10 conformance',
@@ -164,6 +170,7 @@ const milestoneStatus = (value: unknown, label: string): MilestoneStatus => {
   if (
     value !== 'not started' &&
     value !== 'in progress' &&
+    value !== 'locally complete' &&
     value !== 'PR open' &&
     value !== 'merged' &&
     value !== 'blocked'

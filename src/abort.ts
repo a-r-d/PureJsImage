@@ -12,7 +12,6 @@ export const waitForPromise = <T>(
   signal: AbortSignal | undefined,
 ): Promise<T> => {
   if (signal === undefined) return promise
-  signal.throwIfAborted()
   return new Promise<T>((resolve, reject) => {
     const cleanup = (): void => signal.removeEventListener('abort', aborted)
     const aborted = (): void => {
@@ -30,6 +29,7 @@ export const waitForPromise = <T>(
         reject(error)
       },
     )
+    if (signal.aborted) aborted()
   })
 }
 

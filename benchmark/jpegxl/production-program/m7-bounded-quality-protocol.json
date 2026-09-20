@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "status": "User-approved qualification amendment before measuring the capped corpus",
+  "approval": "Use 2 MP matrix plus original-size checks",
+  "supersedes": "Only the original-resolution SDR quality-matrix requirement in m7-evaluation-protocol.json; retain all earlier results as historical evidence",
+  "sources": "All 240 sources and original development/holdout assignments in m7-corpus-selection.json; no result-based exclusions or further encoder tuning during qualification",
+  "preprocessing": "Embedded-profile conversion to sRGB, stored orientation, Lanczos3 reduction to at most 2000000 pixels with floored dimensions, no enlargement, audited opaque alpha omitted, identical RGB8 pixels for all engines",
+  "engines": [
+    "purejsimage effort 7",
+    "libjxl effort 7",
+    "mozjpeg",
+    "WebP effort 6",
+    "AVIF effort 6"
+  ],
+  "jxlDistances": [0.25, 0.5, 1, 2, 3, 5],
+  "comparatorQualities": [40, 55, 70, 80, 90, 97],
+  "metrics": ["SSIMULACRA2", "Butteraugli", "RMSE", "maximum RGB8 error"],
+  "matching": "Keep frozen bands and nondominated log-byte interpolation. Missing brackets remain missing. Retain every raw point and failure. Do not compare equal option values as equal quality.",
+  "concurrency": "At most eight capped source workers, original codec thread settings, one 8 GiB hard-capped zero-swap process tree and at most eight CPU cores. Originals run separately.",
+  "originalSizeChecks": {
+    "ids": [
+      "im26-1030",
+      "im26-1416",
+      "im26-5034",
+      "im26-5052",
+      "im26-1009",
+      "im26-1221",
+      "im26-5337",
+      "im26-8160"
+    ],
+    "selection": "Four development diagnostic families and four held-out general-photo, interior, table and screenshot families; fixed before capped qualification outcomes. Supplement existing 24 MP memory tests, complete original-size lossless matrices and original HDR/alpha quality matrices.",
+    "engines": ["purejsimage effort 7", "libjxl effort 7"],
+    "distances": [1, 3],
+    "verification": "Both quality metrics, native/Rust/repository agreement for first-party outputs, native-scale visual review. No full-corpus original-resolution lossy claim."
+  },
+  "completion": "M7 may complete with accurately documented Experimental lossy support and unmet promotion goals. Optional patch/spline/noise encoding is not an M7 implementation prerequisite. Stable promotion still requires appropriate correctness, quality, memory and runtime evidence."
+}

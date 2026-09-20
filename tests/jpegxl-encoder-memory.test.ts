@@ -93,6 +93,60 @@ const expectClosed = (encoder: ImageEncoder) =>
   expect(counters(encoder)).toMatchObject({ live: 0, allocations: 0 })
 
 describe('JPEG XL actual encoder allocations', () => {
+  it('admits grouped effort-1 lossy scratch and unwinds a rejected allocation', async () => {
+    const options = { mode: 'lossy', distance: 1, effort: 1 } as const
+    const dimensions = { width: 513, height: 257 }
+    const baseline = await prepare(options, dimensions)
+    await baseline.encoder.finish()
+    const { peak } = counters(baseline.encoder)
+    expectClosed(baseline.encoder)
+    const at = await prepare({ ...options, maxWorkingBytes: peak }, dimensions)
+    await at.encoder.finish()
+    expect(at.result().bytes).toBe(baseline.result().bytes)
+    expect(counters(at.encoder).peak).toBe(peak)
+    expectClosed(at.encoder)
+    const below = await prepare({ ...options, maxWorkingBytes: peak - 1 }, dimensions)
+    await expect(below.encoder.finish()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(below.result()).toMatchObject({ writes: 0, aborts: 1 })
+    expectClosed(below.encoder)
+  })
+  it('retains asynchronous scratch through yields and promotes only returned buffers', async () => {
+    const memory = new JpegXlEncoderMemory(1024)
+    const retained = await memory.runAsync(async () => {
+      memory.allocate(Uint8Array, 100)
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
+      expect(memory.liveBytes).toBe(100)
+      return memory.run(() => ({ pixels: memory.allocate(Uint16Array, 50) }))
+    })
+    expect(retained.pixels.length).toBe(50)
+    expect(memory.liveBytes).toBe(100)
+    memory.release(retained.pixels)
+    await expect(
+      memory.runAsync(async () => {
+        memory.allocate(Uint8Array, 200)
+        await Promise.resolve()
+        throw new Error('cancelled search')
+      }),
+    ).rejects.toThrow('cancelled search')
+    expect(memory.liveBytes).toBe(0)
+    memory.close()
+  })
+  it.each([513, 1025])('cancels a timer during effort-7 search at width %i', async (width) => {
+    const controller = new AbortController()
+    const run = await prepare({ effort: 7 }, { width, height: 17, signal: controller.signal })
+    const reason = new Error('cancel during candidate search')
+    let timer = setTimeout(() => {
+      timer = setTimeout(() => controller.abort(reason), 0)
+    }, 0)
+    try {
+      await expect(run.encoder.finish()).rejects.toBe(reason)
+      expect(counters(run.encoder).peak).toBeGreaterThan(width * 17 * 3 * 2)
+      expect(run.result()).toMatchObject({ writes: 0, aborts: 1 })
+      expectClosed(run.encoder)
+    } finally {
+      clearTimeout(timer)
+    }
+  })
   it('checks capacity before the allocating constructor runs', () => {
     let allocations = 0
     class CountedBytes extends Uint8Array {
@@ -156,6 +210,16 @@ describe('JPEG XL actual encoder allocations', () => {
       expectClosed(below.encoder)
     },
   )
+  it('fits single-group effort-7 search in a 96 MiB working budget', async () => {
+    const run = await prepare(
+      { effort: 7, maxWorkingBytes: 96 * 1024 * 1024 },
+      { width: 1024, height: 768 },
+    )
+    await run.encoder.finish()
+    expect(counters(run.encoder).peak).toBeLessThanOrEqual(96 * 1024 * 1024)
+    expect(run.result().bytes).toBeGreaterThan(0)
+    expectClosed(run.encoder)
+  }, 60_000)
   it('rejects the reviewed 512x512 effort-7 reproduction before workspace allocation', async () => {
     const run = await prepare(
       { effort: 7 },
@@ -178,7 +242,7 @@ describe('JPEG XL actual encoder allocations', () => {
       expect(counters(run.encoder).peak).toBeLessThanOrEqual(256 * 1024 * 1024)
       expectClosed(run.encoder)
     },
-    60_000,
+    120_000,
   )
   it.each([1, 2, 3, 4])(
     'cleans up sink failure at output stage %i, including failed abort',

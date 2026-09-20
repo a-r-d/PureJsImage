@@ -1,11 +1,16 @@
-import holdoutManifest from './production-program/pr35-holdout-manifest.json' with { type: 'json' }
-import smallJpegManifest from './production-program/pr35-small-jpeg-manifest.json' with {
+import remediationManifest from '../../tests/fixtures/jpegxl/remediation/manifest.json' with {
   type: 'json',
 }
+import {
+  validateM9FuzzResourceReport,
+  validateM9IntegrationReport,
+  validateM9PackageReport,
+} from './m9-evidence-validation.ts'
 import conformanceManifest from './production-program/corpora/conformance.json' with {
   type: 'json',
 }
-import remediationManifest from '../../tests/fixtures/jpegxl/remediation/manifest.json' with {
+import holdoutManifest from './production-program/pr35-holdout-manifest.json' with { type: 'json' }
+import smallJpegManifest from './production-program/pr35-small-jpeg-manifest.json' with {
   type: 'json',
 }
 export const evidenceFiles = {
@@ -26,6 +31,10 @@ export const evidenceFiles = {
   realJpeg: 'm1-real.json',
   commonStatic: 'm3-common-static.json',
   commonPipelines: 'm5-common-static.json',
+  m9Integration: 'm9-integration.json',
+  m9FuzzResource: 'm9-fuzz-resource.json',
+  m9Package: 'm9-package.json',
+  m10Level10: 'm10-level10.json',
 } as const
 export type EvidenceGate = keyof typeof evidenceFiles
 export const extendedGates: readonly EvidenceGate[] = [
@@ -93,6 +102,49 @@ export const validateEvidenceReport = (
     `${gate}: unknown schema version`,
   )
   switch (gate) {
+    case 'm9Integration':
+      return validateM9IntegrationReport(value, revision)
+    case 'm9FuzzResource':
+      return validateM9FuzzResourceReport(value, revision)
+    case 'm9Package':
+      return validateM9PackageReport(value, revision)
+    case 'm10Level10': {
+      const gates = record(report.gates)
+      for (const key of [
+        'normativeMap',
+        'officialBinary32Exact',
+        'officialCmykNativeAndDisplay',
+        'minimumLevelSelection',
+        'level10ContainerSignaling',
+        'independentDecoderAcceptance',
+      ])
+        requireCondition(gates[key] === true, `M10 gate ${key} failed`)
+      sha(report.decoderSourceSha256)
+      sha(report.profileMapSha256)
+      const fixtures = record(report.officialFixtures)
+      const binary32 = record(fixtures.binary32)
+      const cmyk = record(fixtures.cmyk)
+      requireCondition(binary32.samples === 750_000, 'M10 binary32 sample count changed')
+      sha(binary32.inputSha256)
+      sha(binary32.floatDigest)
+      requireCondition(cmyk.layers === 4 && cmyk.rows === 775, 'M10 CMYK scope changed')
+      sha(cmyk.inputSha256)
+      sha(cmyk.displaySha256)
+      const writers = rows(report.writerCases, 10)
+      requireCondition(
+        writers.length === 10 && writers.filter((row) => row.level === 10).length === 9,
+        'M10 writer level matrix changed',
+      )
+      requireCondition(
+        record(report.independentDecoder).accepted === 8,
+        'M10 independent decoder acceptance failed',
+      )
+      requireCondition(
+        Array.isArray(report.remainingUnsupported) && report.remainingUnsupported.length > 0,
+        'M10 unsupported boundary list is missing',
+      )
+      return 7
+    }
     case 'remediationFixtures': {
       requireCondition(report.passed === true, 'Remediation fixture oracle failed')
       const results = rows(report.results, 9)
@@ -369,7 +421,8 @@ export const validateEvidenceReport = (
     case 'conformance': {
       const results = rows(report.results, conformanceManifest.cases.length)
       requireCondition(
-        report.baselineMatched === true &&
+        report.expectationsMatched === true &&
+          report.applicableLevel5Passed === true &&
           report.cases === results.length &&
           results.length === conformanceManifest.cases.length &&
           report.corpusRevision === conformanceManifest.revision &&
@@ -385,16 +438,12 @@ export const validateEvidenceReport = (
         )
         if (!row) throw new Error('Missing conformance row')
         requireCondition(
-          row.matchesBaseline === true &&
+          row.matchesExpectation === true &&
             row.inputSha256 === expected.sha256 &&
-            row.actualClassification === expected.baselineClassification,
+            row.actualClassification === 'pass' &&
+            row.outputSha256 === expected.outputSha256,
           'Unexpected conformance result',
         )
-        if (expected.baselineClassification === 'unexpected-failure')
-          requireCondition(
-            row.errorCode === expected.expectedErrorCode,
-            'Known conformance failure changed',
-          )
       }
       return results.length
     }

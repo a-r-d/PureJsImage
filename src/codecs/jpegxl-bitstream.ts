@@ -127,16 +127,18 @@ export const readJpegXlHybridUint = (
   const tokenPayload = token - config.splitToken
   const tokenBits = config.msbInToken + config.lsbInToken
   const extraBits = config.splitExponent - tokenBits + Math.floor(tokenPayload / 2 ** tokenBits)
-  if (extraBits < 0 || extraBits > 29) {
-    throw invalidInput('JPEG XL hybrid integer exceeds the supported range')
+  if (extraBits < 0 || extraBits > 32) {
+    throw invalidInput('JPEG XL hybrid integer is out of range')
   }
   const lowMask = 2 ** config.lsbInToken - 1
   const low = token & lowMask
   const shiftedToken = Math.floor(token / 2 ** config.lsbInToken)
   const tokenMask = 2 ** config.msbInToken - 1
   const high = 2 ** config.msbInToken + (shiftedToken & tokenMask)
-  const value =
-    ((high * 2 ** extraBits + reader.readBits(extraBits)) * 2 ** config.lsbInToken + low) >>> 0
+  const value = (high * 2 ** extraBits + reader.readBits(extraBits)) * 2 ** config.lsbInToken + low
+  if (!Number.isSafeInteger(value) || value > 0xffff_ffff) {
+    throw invalidInput('JPEG XL hybrid integer exceeds the supported range')
+  }
   return value
 }
 
@@ -682,12 +684,24 @@ export const readJpegXlContextMap = (
   })
 }
 
+// Bounded HF allowance: 256 histogram sets, 16 block contexts and 495 AC contexts.
+// Other entropy streams retain the smaller default admission limit.
+export const jpegXlMaxHfEntropyContexts = 256 * 16 * 495
+
 export const readJpegXlEntropyCode = (
   reader: JpegXlBitReader,
   contexts: number,
   recursionDepth = 0,
+  maximumContexts = 65_536,
 ): JpegXlEntropyCode => {
-  if (!Number.isInteger(contexts) || contexts < 1 || contexts > 65_536) {
+  if (
+    !Number.isInteger(maximumContexts) ||
+    maximumContexts < 1 ||
+    maximumContexts > jpegXlMaxHfEntropyContexts ||
+    !Number.isInteger(contexts) ||
+    contexts < 1 ||
+    contexts > maximumContexts
+  ) {
     throw invalidInput('JPEG XL entropy context count is invalid')
   }
   const lz77Fields = readLz77Fields(reader)

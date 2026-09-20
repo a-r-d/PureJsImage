@@ -1,0 +1,66 @@
+{
+  "candidate": "integrated054 plus JXLENC-052 moderate SDR DC quantization",
+  "sources": [
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "1ee473b990dada7cf9090ac4d394eea9ba31870106f9743f2ce8c6c1b34f12be"
+    },
+    {
+      "path": "tests/jpegxl-m7-vardct-encode.test.ts",
+      "sha256": "df36eb8be06c4f3885a8af32d5dd6efd556d61a15d1dee7e1a289c6cbf0f08f6"
+    },
+    {
+      "path": "benchmark/jpegxl/m7-diagnostic-cases.ts",
+      "sha256": "b98413abba7737f7a73109f9d61ebbeab7b8846faa428a4fdb04a33e5077cd69"
+    },
+    {
+      "path": "benchmark/jpegxl/run-m7-diagnostic.ts",
+      "sha256": "a82f1d500924c3afd2dfbd7b3fb426b3ea055639d3a881cf150fb4cd2d35e840"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "35ea2841629a3d0b42c0437690bca92dd43287c20010e18cb0f30fc7094843f4"
+    }
+  ],
+  "fullCheck": {
+    "passedTests": 3058,
+    "existingSkippedTests": 3,
+    "passedFiles": 233,
+    "existingSkippedFiles": 1,
+    "logSha256": "c194c72704fb051db322acc314528df42d1fe58a832ba1f60d70f5d4f49b45a6"
+  },
+  "realBrowser": {
+    "passed": 3,
+    "engines": ["Chromium", "Firefox", "WebKit"],
+    "fixtureWorkflowsPerEngine": 24,
+    "distances": [1, 3],
+    "progressive": [false, true],
+    "workers": 1,
+    "logSha256": "5d851533d103400eb15c358e340c90356f3f4dcc73d7cd5f82dc004c97197ac2"
+  },
+  "guard": {
+    "startedAt": "2026-09-09T19:29:31.568Z",
+    "finishedAt": "2026-09-09T19:35:53.718Z",
+    "policy": {
+      "memoryMaxBytes": 3221225472,
+      "memoryHighBytes": 3019898880,
+      "minimumAvailableBytes": 8589934592,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 200,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 27318923264,
+    "executable": "/bin/sh",
+    "args": [".tmp/jpegxl-m7/check-dc052-complete.sh"],
+    "code": 0,
+    "signal": null,
+    "status": "completed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: a86b1237e58e4d1ba9c47ca285d755bf\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 6min 22.118s\nCPU time consumed: 7min 58.608s\nMemory peak: 1.8G (swap: 0B)\n"
+  },
+  "qualification": "Functional and portability checks pass. Small development diagnostics and original-size runtime/output verification support the retained change. Earlier integrated054 quality matrices do not qualify changed output. Full M7 qualification remains incomplete; lossy stays Experimental."
+}

@@ -1,0 +1,1184 @@
+{
+  "schemaVersion": 1,
+  "policy": "All 32 saved panels inspected through view_image. Capped sources use 256-pixel crops displayed at 2x nearest-neighbor; original-size sources use native-scale 384-pixel crops. Source, first-party and native controls appear in that order. Equal distance is not matched quality. This is crop inspection, not exhaustive whole-image review.",
+  "result": "No gross corruption observed in the inspected crops. Mild ringing, texture smoothing, tonal patches and flat-color block patterns remain visible at distance 3 and are retained as Experimental quality limitations. No holdout tuning followed this review.",
+  "inputs": [
+    {
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/report.json",
+      "sha256": "48aead27038f1955983aae6ce783d3568edcb14f3ae89cd27ae077f48edd5365",
+      "report": {
+        "policy": "Diagnostic visual crops at 2x nearest-neighbor display. Same numeric distance is not matched quality; labels retain measured scores and sizes. Each decoded bitmap is released before the next variant. Human inspection required.",
+        "qualityDirectory": ".tmp/jpegxl-m7/lossy-development-capped052-resume1",
+        "selectionPath": ".tmp/jpegxl-m7/capped052-development-visual-selection.json",
+        "selectionSha256": "0e7de3a73049470884e157cec0fad39781b23fd3a8c5797df003b71df3ab946b",
+        "sourceFingerprint": "babad4216186adb8313cddaca8938b8b8bfc430c8d247ab75743b9e64aade8b0",
+        "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+        "panels": [
+          {
+            "id": "im26-8110",
+            "reason": "Worst bracketed own/native ratio 1.648039285887797; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 592,
+              "top": 322,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-8110-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 89.12; 174642 bytes",
+              "libjxl d=1; SSIM 88.88; 159077 bytes"
+            ],
+            "reportSha256": "d5468eb7dde5939d7f98411a7492c58d65ce89618b5c1db7db1d8cd28796158c",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-8110",
+            "reason": "Worst bracketed own/native ratio 1.648039285887797; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 592,
+              "top": 322,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-8110-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 80.08; 114532 bytes",
+              "libjxl d=3; SSIM 82.98; 81788 bytes"
+            ],
+            "reportSha256": "d5468eb7dde5939d7f98411a7492c58d65ce89618b5c1db7db1d8cd28796158c",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-6030",
+            "reason": "Worst bracketed own/native ratio 1.5370361378823707; 6000-lilith-scans-public-patents. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 491,
+              "top": 679,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-6030-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 86.91; 234266 bytes",
+              "libjxl d=1; SSIM 84.97; 169925 bytes"
+            ],
+            "reportSha256": "1256a003ad9bb5fc3313474cebc7d64e7a47d836fc9d39a52c51340f2a2ac059",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-6030",
+            "reason": "Worst bracketed own/native ratio 1.5370361378823707; 6000-lilith-scans-public-patents. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 491,
+              "top": 679,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-6030-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 81.65; 132696 bytes",
+              "libjxl d=3; SSIM 79.37; 88954 bytes"
+            ],
+            "reportSha256": "1256a003ad9bb5fc3313474cebc7d64e7a47d836fc9d39a52c51340f2a2ac059",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-2400",
+            "reason": "Worst bracketed own/native ratio 1.515739434639256; 2400-unsplash-textures. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 483,
+              "top": 690,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-2400-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 88.87; 176614 bytes",
+              "libjxl d=1; SSIM 87.16; 121044 bytes"
+            ],
+            "reportSha256": "c19205a637754775fb3bd5ccf2ce876ff671a77b50472d49843ef0ca11be0268",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-2400",
+            "reason": "Worst bracketed own/native ratio 1.515739434639256; 2400-unsplash-textures. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 483,
+              "top": 690,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-2400-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 82.39; 75646 bytes",
+              "libjxl d=3; SSIM 79.07; 47214 bytes"
+            ],
+            "reportSha256": "c19205a637754775fb3bd5ccf2ce876ff671a77b50472d49843ef0ca11be0268",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1006",
+            "reason": "Worst bracketed own/native ratio 1.3970566582293154; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 688,
+              "top": 484,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-1006-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 88.67; 519475 bytes",
+              "libjxl d=1; SSIM 84.86; 376787 bytes"
+            ],
+            "reportSha256": "711a07f0257f6b66a8571865b511cf228c78ea40f7224fb216aa916ed86a8447",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1006",
+            "reason": "Worst bracketed own/native ratio 1.3970566582293154; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 688,
+              "top": 484,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-1006-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 78.35; 273001 bytes",
+              "libjxl d=3; SSIM 65.00; 157237 bytes"
+            ],
+            "reportSha256": "711a07f0257f6b66a8571865b511cf228c78ea40f7224fb216aa916ed86a8447",
+            "reviewStatus": "not-reviewed"
+          }
+        ],
+        "qualificationComplete": false
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/report.json",
+      "sha256": "81331689d06c7603cf5226f20b279af906b6a0937a3215d861d1fc77936edd1d",
+      "report": {
+        "policy": "Diagnostic visual crops at 2x nearest-neighbor display. Same numeric distance is not matched quality; labels retain measured scores and sizes. Each decoded bitmap is released before the next variant. Human inspection required.",
+        "qualityDirectory": ".tmp/jpegxl-m7/lossy-holdout-capped052",
+        "selectionPath": ".tmp/jpegxl-m7/capped052-holdout-visual-selection.json",
+        "selectionSha256": "42818d6bce118b695124ed12580f6968dbbed7a3a704e06c154e2166e33bdef5",
+        "sourceFingerprint": "babad4216186adb8313cddaca8938b8b8bfc430c8d247ab75743b9e64aade8b0",
+        "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+        "panels": [
+          {
+            "id": "im26-8328",
+            "reason": "Worst bracketed own/native ratio 1.6686660012970844; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 60,
+              "top": 206,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8328-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 89.67; 39800 bytes",
+              "libjxl d=1; SSIM 90.73; 32183 bytes"
+            ],
+            "reportSha256": "b03a8a828f0d73897b03a5940f1708eed24bc9f487e48f6bcd539ad0a35db739",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-8328",
+            "reason": "Worst bracketed own/native ratio 1.6686660012970844; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 60,
+              "top": 206,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8328-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 80.44; 26054 bytes",
+              "libjxl d=3; SSIM 83.88; 20913 bytes"
+            ],
+            "reportSha256": "b03a8a828f0d73897b03a5940f1708eed24bc9f487e48f6bcd539ad0a35db739",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1017",
+            "reason": "Worst bracketed own/native ratio 1.636935151418904; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 814,
+              "top": 403,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1017-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 87.60; 396640 bytes",
+              "libjxl d=1; SSIM 82.01; 239055 bytes"
+            ],
+            "reportSha256": "60bf39e5c7cc74c3892ad66c8a183a7b4bc81d7ca6cf0861f0c47978d72bc8b8",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1017",
+            "reason": "Worst bracketed own/native ratio 1.636935151418904; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 814,
+              "top": 403,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1017-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 73.50; 141905 bytes",
+              "libjxl d=3; SSIM 62.06; 81908 bytes"
+            ],
+            "reportSha256": "60bf39e5c7cc74c3892ad66c8a183a7b4bc81d7ca6cf0861f0c47978d72bc8b8",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-8468",
+            "reason": "Worst bracketed own/native ratio 1.49279153767176; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 79,
+              "top": 320,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8468-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 89.06; 61023 bytes",
+              "libjxl d=1; SSIM 89.29; 43932 bytes"
+            ],
+            "reportSha256": "bba21547866674aeee8f1cef62ded06235c2a2cbf44b4ef2f860ecf1fe92270b",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-8468",
+            "reason": "Worst bracketed own/native ratio 1.49279153767176; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 79,
+              "top": 320,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8468-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 80.19; 39778 bytes",
+              "libjxl d=3; SSIM 81.31; 28745 bytes"
+            ],
+            "reportSha256": "bba21547866674aeee8f1cef62ded06235c2a2cbf44b4ef2f860ecf1fe92270b",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1609",
+            "reason": "Worst bracketed own/native ratio 1.4573477172175406; 1600-lilith-food. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 1,
+            "region": {
+              "left": 688,
+              "top": 484,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1609-d1-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=1; SSIM 88.93; 498084 bytes",
+              "libjxl d=1; SSIM 86.25; 383550 bytes"
+            ],
+            "reportSha256": "e1f1aea50cfd045b542bc77abf75218314ce7e518133695fb9a2a76c5ac52c9f",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1609",
+            "reason": "Worst bracketed own/native ratio 1.4573477172175406; 1600-lilith-food. Diagnostic equal-distance crops, no holdout tuning.",
+            "setting": 3,
+            "region": {
+              "left": 688,
+              "top": 484,
+              "width": 256,
+              "height": 256
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1609-d3-region0.png",
+            "labels": [
+              "Original",
+              "purejsimage d=3; SSIM 77.56; 237218 bytes",
+              "libjxl d=3; SSIM 71.00; 157726 bytes"
+            ],
+            "reportSha256": "e1f1aea50cfd045b542bc77abf75218314ce7e518133695fb9a2a76c5ac52c9f",
+            "reviewStatus": "not-reviewed"
+          }
+        ],
+        "qualificationComplete": false
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/report.json",
+      "sha256": "d00ab690e5363e76d7cf28f54190cd2febe1f77cd9afd0e2761e073a47531af7",
+      "report": {
+        "policy": "Native-scale original-resolution crops, source then own then native. Equal distance is not matched quality.",
+        "panels": [
+          {
+            "id": "im26-1030",
+            "distance": 1,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1030-d1.png",
+            "sha256": "59b50dcc61e088ecbe7142f773542ddded0bae080b9bfbf43c7b734a81c30774",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1030",
+            "distance": 3,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1030-d3.png",
+            "sha256": "041bef3d06ed5e18f1bf4779603b20a21d5a0fc2038cfb5a73604b26e678c7c1",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1416",
+            "distance": 1,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1416-d1.png",
+            "sha256": "b61476ab0f9e39c694c455096ba51f7d667f42f287e972a12a3394f8c1e468f6",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1416",
+            "distance": 3,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1416-d3.png",
+            "sha256": "6a3a2af220be786a94df82e7ad3525ccba9c1a9758db345ab87cf2a6fe50f5fd",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-5034",
+            "distance": 1,
+            "region": {
+              "left": 1542,
+              "top": 2748,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5034-d1.png",
+            "sha256": "518a5921266a3cf8a8417cda2294f03226c965c89c64a67be235d4aeea443173",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-5034",
+            "distance": 3,
+            "region": {
+              "left": 1542,
+              "top": 2748,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5034-d3.png",
+            "sha256": "7100999df5baec71408cd8e0c7d0c3f3515f225558a4c0c7be119859459bbf49",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-5052",
+            "distance": 1,
+            "region": {
+              "left": 1542,
+              "top": 1152,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5052-d1.png",
+            "sha256": "2efd5d884db55765c2c7b4bec0bbf0460f0d048d4fd2f99e5480055bd142708f",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-5052",
+            "distance": 3,
+            "region": {
+              "left": 1542,
+              "top": 1152,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5052-d3.png",
+            "sha256": "bc1e2890bb013e30a3ec5c898ea60717cc3f9200647e194b3241f4db48b60777",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1009",
+            "distance": 1,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1009-d1.png",
+            "sha256": "f1606270d00d8c4e326719c8b263678133c4cf0761ad0dbe00a24b31e24aa34c",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1009",
+            "distance": 3,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1009-d3.png",
+            "sha256": "82288660939ea2d62cbb8db5d8d43cf779b2a0bc6b6c3a2c19615a5a15f70e75",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1221",
+            "distance": 1,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1221-d1.png",
+            "sha256": "eff56cad200736162caf94f6e1f1dd0086038272e6944f5f431c990effb7b74c",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-1221",
+            "distance": 3,
+            "region": {
+              "left": 1808,
+              "top": 1308,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1221-d3.png",
+            "sha256": "5cb5ef8acfffdc4397f8f554f01e35a3b962b6a469cc1e42cd0ea873bca02e8c",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-5337",
+            "distance": 1,
+            "region": {
+              "left": 1083,
+              "top": 1458,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5337-d1.png",
+            "sha256": "3a517790866fd907c4154a43c15295a2d6200226a203e08a3836e42bad7979c0",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-5337",
+            "distance": 3,
+            "region": {
+              "left": 1083,
+              "top": 1458,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5337-d3.png",
+            "sha256": "3befeb36a052c8cb1f4a45c1a26edd93add5477cf1d3a52a2228d64ecec73b08",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-8160",
+            "distance": 1,
+            "region": {
+              "left": 768,
+              "top": 348,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-8160-d1.png",
+            "sha256": "a503084d0c45c4036605c7100d3c8a93f5021820535bca6b565354f657f29822",
+            "reviewStatus": "not-reviewed"
+          },
+          {
+            "id": "im26-8160",
+            "distance": 3,
+            "region": {
+              "left": 768,
+              "top": 348,
+              "width": 384,
+              "height": 384
+            },
+            "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-8160-d3.png",
+            "sha256": "3c4a8e0761f97072d9e82ae0952c88feb44342cafb00391e6405981c237bdaa6",
+            "reviewStatus": "not-reviewed"
+          }
+        ]
+      }
+    }
+  ],
+  "panels": [
+    {
+      "id": "im26-8110",
+      "reason": "Worst bracketed own/native ratio 1.648039285887797; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 592,
+        "top": 322,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-8110-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 89.12; 174642 bytes",
+        "libjxl d=1; SSIM 88.88; 159077 bytes"
+      ],
+      "reportSha256": "d5468eb7dde5939d7f98411a7492c58d65ce89618b5c1db7db1d8cd28796158c",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "65a65192a6d2dc226f55d5a20d857db9430c757a5f423764c02b0fa8ed8dd756",
+      "reviewer": "Codex visual inspection",
+      "findings": "Text and rules remain legible. Distance 3 adds mild ringing and colored speckles around dark letters; distance 1 is closer to the source."
+    },
+    {
+      "id": "im26-8110",
+      "reason": "Worst bracketed own/native ratio 1.648039285887797; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 592,
+        "top": 322,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-8110-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.08; 114532 bytes",
+        "libjxl d=3; SSIM 82.98; 81788 bytes"
+      ],
+      "reportSha256": "d5468eb7dde5939d7f98411a7492c58d65ce89618b5c1db7db1d8cd28796158c",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "fdb9520f76894f80822cdfd29c95acb8030d0cbc71901547c4f68539b874288a",
+      "reviewer": "Codex visual inspection",
+      "findings": "Text and rules remain legible. Distance 3 adds mild ringing and colored speckles around dark letters; distance 1 is closer to the source."
+    },
+    {
+      "id": "im26-6030",
+      "reason": "Worst bracketed own/native ratio 1.5370361378823707; 6000-lilith-scans-public-patents. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 491,
+        "top": 679,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-6030-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 86.91; 234266 bytes",
+        "libjxl d=1; SSIM 84.97; 169925 bytes"
+      ],
+      "reportSha256": "1256a003ad9bb5fc3313474cebc7d64e7a47d836fc9d39a52c51340f2a2ac059",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "1cc027a765c4ada45f75b9cfed9dcdf026cc62eab7983c7dca77df11e3759dba",
+      "reviewer": "Codex visual inspection",
+      "findings": "Diagram labels and line connectivity are preserved. Distance 3 smooths paper grain and adds slight edge ringing; no broken diagram geometry observed."
+    },
+    {
+      "id": "im26-6030",
+      "reason": "Worst bracketed own/native ratio 1.5370361378823707; 6000-lilith-scans-public-patents. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 491,
+        "top": 679,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-6030-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.65; 132696 bytes",
+        "libjxl d=3; SSIM 79.37; 88954 bytes"
+      ],
+      "reportSha256": "1256a003ad9bb5fc3313474cebc7d64e7a47d836fc9d39a52c51340f2a2ac059",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "a8c8b4e6774e818200adcc58b60a3c139b30fb1ee584d16c20cb0d075b24ab46",
+      "reviewer": "Codex visual inspection",
+      "findings": "Diagram labels and line connectivity are preserved. Distance 3 smooths paper grain and adds slight edge ringing; no broken diagram geometry observed."
+    },
+    {
+      "id": "im26-2400",
+      "reason": "Worst bracketed own/native ratio 1.515739434639256; 2400-unsplash-textures. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 483,
+        "top": 690,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-2400-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.87; 176614 bytes",
+        "libjxl d=1; SSIM 87.16; 121044 bytes"
+      ],
+      "reportSha256": "c19205a637754775fb3bd5ccf2ce876ff671a77b50472d49843ef0ca11be0268",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "7c3ab55ed9099d22966a857721607a369b7b8f02d301ed4ba7b1bbc504422367",
+      "reviewer": "Codex visual inspection",
+      "findings": "Blue silhouette and pink color are preserved. Distance 3 loses fine texture and shows mild rectangular patterns in flat color, especially around edges. Distance 1 retains more grain."
+    },
+    {
+      "id": "im26-2400",
+      "reason": "Worst bracketed own/native ratio 1.515739434639256; 2400-unsplash-textures. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 483,
+        "top": 690,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-2400-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 82.39; 75646 bytes",
+        "libjxl d=3; SSIM 79.07; 47214 bytes"
+      ],
+      "reportSha256": "c19205a637754775fb3bd5ccf2ce876ff671a77b50472d49843ef0ca11be0268",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "b24965710e6a110d69deba442c27cba47e9a8f0b2314bbf12a65bb46f059f426",
+      "reviewer": "Codex visual inspection",
+      "findings": "Blue silhouette and pink color are preserved. Distance 3 loses fine texture and shows mild rectangular patterns in flat color, especially around edges. Distance 1 retains more grain."
+    },
+    {
+      "id": "im26-1006",
+      "reason": "Worst bracketed own/native ratio 1.3970566582293154; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 688,
+        "top": 484,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-1006-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.67; 519475 bytes",
+        "libjxl d=1; SSIM 84.86; 376787 bytes"
+      ],
+      "reportSha256": "711a07f0257f6b66a8571865b511cf228c78ea40f7224fb216aa916ed86a8447",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "cd8c8985d12643f937a9e80b2cfc5a62a072b18daf07120c9313da816529a5de",
+      "reviewer": "Codex visual inspection",
+      "findings": "Stored sideways orientation is consistent in all variants. Architecture and foliage remain recognizable; distance 3 smooths fine detail and introduces subtle banding in the blue background."
+    },
+    {
+      "id": "im26-1006",
+      "reason": "Worst bracketed own/native ratio 1.3970566582293154; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 688,
+        "top": 484,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-development/im26-1006-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 78.35; 273001 bytes",
+        "libjxl d=3; SSIM 65.00; 157237 bytes"
+      ],
+      "reportSha256": "711a07f0257f6b66a8571865b511cf228c78ea40f7224fb216aa916ed86a8447",
+      "reviewStatus": "reviewed",
+      "split": "development",
+      "sha256": "0cc25c05800e17f29f16a1ec362db32eb2f0b16372d79b1c17da033c0d816410",
+      "reviewer": "Codex visual inspection",
+      "findings": "Stored sideways orientation is consistent in all variants. Architecture and foliage remain recognizable; distance 3 smooths fine detail and introduces subtle banding in the blue background."
+    },
+    {
+      "id": "im26-8328",
+      "reason": "Worst bracketed own/native ratio 1.6686660012970844; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 60,
+        "top": 206,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8328-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 89.67; 39800 bytes",
+        "libjxl d=1; SSIM 90.73; 32183 bytes"
+      ],
+      "reportSha256": "b03a8a828f0d73897b03a5940f1708eed24bc9f487e48f6bcd539ad0a35db739",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "858e57c3aba0d3af51923d62d2c77000d9e23ed59cb103f1d7649a1a9166330a",
+      "reviewer": "Codex visual inspection",
+      "findings": "Large and small lettering remain legible. Distance 3 adds mild edge ringing and softness; no missing text or displaced layout observed."
+    },
+    {
+      "id": "im26-8328",
+      "reason": "Worst bracketed own/native ratio 1.6686660012970844; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 60,
+        "top": 206,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8328-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.44; 26054 bytes",
+        "libjxl d=3; SSIM 83.88; 20913 bytes"
+      ],
+      "reportSha256": "b03a8a828f0d73897b03a5940f1708eed24bc9f487e48f6bcd539ad0a35db739",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "664212fb31e0211519f803640933c15bb50424b5ef0da6db6c64ca1ace742d9c",
+      "reviewer": "Codex visual inspection",
+      "findings": "Large and small lettering remain legible. Distance 3 adds mild edge ringing and softness; no missing text or displaced layout observed."
+    },
+    {
+      "id": "im26-1017",
+      "reason": "Worst bracketed own/native ratio 1.636935151418904; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 814,
+        "top": 403,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1017-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 87.60; 396640 bytes",
+        "libjxl d=1; SSIM 82.01; 239055 bytes"
+      ],
+      "reportSha256": "60bf39e5c7cc74c3892ad66c8a183a7b4bc81d7ca6cf0861f0c47978d72bc8b8",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "282c3fbb6b16cc90e9f225ad25b28cd6e1f467d7eba5ebbdd94da49499def6dc",
+      "reviewer": "Codex visual inspection",
+      "findings": "Saturated yellow and blue shapes are preserved. Distance 3 smooths vase detail and produces mild block patterns in the yellow region; the native control also has visible smoothing."
+    },
+    {
+      "id": "im26-1017",
+      "reason": "Worst bracketed own/native ratio 1.636935151418904; 1000-lilith-photos-general. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 814,
+        "top": 403,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1017-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 73.50; 141905 bytes",
+        "libjxl d=3; SSIM 62.06; 81908 bytes"
+      ],
+      "reportSha256": "60bf39e5c7cc74c3892ad66c8a183a7b4bc81d7ca6cf0861f0c47978d72bc8b8",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "e2c00ce71d6401e46df08510763a2b0152a3cb0aadecf2213044cd4889509e62",
+      "reviewer": "Codex visual inspection",
+      "findings": "Saturated yellow and blue shapes are preserved. Distance 3 smooths vase detail and produces mild block patterns in the yellow region; the native control also has visible smoothing."
+    },
+    {
+      "id": "im26-8468",
+      "reason": "Worst bracketed own/native ratio 1.49279153767176; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 79,
+        "top": 320,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8468-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 89.06; 61023 bytes",
+        "libjxl d=1; SSIM 89.29; 43932 bytes"
+      ],
+      "reportSha256": "bba21547866674aeee8f1cef62ded06235c2a2cbf44b4ef2f860ecf1fe92270b",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "3944d6bd68fedcb31221518f7fce221dcb2c533230aebe163f5f737021f76917",
+      "reviewer": "Codex visual inspection",
+      "findings": "Fine colored text and horizontal rules remain legible at both distances. Distance 3 has slight color-edge softness; no broken rules observed."
+    },
+    {
+      "id": "im26-8468",
+      "reason": "Worst bracketed own/native ratio 1.49279153767176; 8100-lilith-web-screenshots. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 79,
+        "top": 320,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-8468-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.19; 39778 bytes",
+        "libjxl d=3; SSIM 81.31; 28745 bytes"
+      ],
+      "reportSha256": "bba21547866674aeee8f1cef62ded06235c2a2cbf44b4ef2f860ecf1fe92270b",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "5ca3a78119d56e0a28c85a0b88ad255a412296a8d6e011209d0ba2b98acd334b",
+      "reviewer": "Codex visual inspection",
+      "findings": "Fine colored text and horizontal rules remain legible at both distances. Distance 3 has slight color-edge softness; no broken rules observed."
+    },
+    {
+      "id": "im26-1609",
+      "reason": "Worst bracketed own/native ratio 1.4573477172175406; 1600-lilith-food. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 1,
+      "region": {
+        "left": 688,
+        "top": 484,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1609-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.93; 498084 bytes",
+        "libjxl d=1; SSIM 86.25; 383550 bytes"
+      ],
+      "reportSha256": "e1f1aea50cfd045b542bc77abf75218314ce7e518133695fb9a2a76c5ac52c9f",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "f0634dd824642877ac0ac08d0cbea2c065bfe89b9f5ab4a6121def09ddc5e87e",
+      "reviewer": "Codex visual inspection",
+      "findings": "Food, leaf and plate contours are preserved. Distance 3 smooths grain and fine leaf detail and adds mild roughness near bright plate edges."
+    },
+    {
+      "id": "im26-1609",
+      "reason": "Worst bracketed own/native ratio 1.4573477172175406; 1600-lilith-food. Diagnostic equal-distance crops, no holdout tuning.",
+      "setting": 3,
+      "region": {
+        "left": 688,
+        "top": 484,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-holdout/im26-1609-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 77.56; 237218 bytes",
+        "libjxl d=3; SSIM 71.00; 157726 bytes"
+      ],
+      "reportSha256": "e1f1aea50cfd045b542bc77abf75218314ce7e518133695fb9a2a76c5ac52c9f",
+      "reviewStatus": "reviewed",
+      "split": "holdout",
+      "sha256": "6fdd9b02af5252fb2bd62193b8b792e5faa476f50a91168c4e092375d6e830aa",
+      "reviewer": "Codex visual inspection",
+      "findings": "Food, leaf and plate contours are preserved. Distance 3 smooths grain and fine leaf detail and adds mild roughness near bright plate edges."
+    },
+    {
+      "id": "im26-1030",
+      "distance": 1,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1030-d1.png",
+      "sha256": "59b50dcc61e088ecbe7142f773542ddded0bae080b9bfbf43c7b734a81c30774",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Native-scale bark grooves remain distinct. Distance 3 loses some fine grain while retaining the larger carved structure; distance 1 closely follows the source."
+    },
+    {
+      "id": "im26-1030",
+      "distance": 3,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1030-d3.png",
+      "sha256": "041bef3d06ed5e18f1bf4779603b20a21d5a0fc2038cfb5a73604b26e678c7c1",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Native-scale bark grooves remain distinct. Distance 3 loses some fine grain while retaining the larger carved structure; distance 1 closely follows the source."
+    },
+    {
+      "id": "im26-1416",
+      "distance": 1,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1416-d1.png",
+      "sha256": "b61476ab0f9e39c694c455096ba51f7d667f42f287e972a12a3394f8c1e468f6",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Sun and cloud shapes are preserved. Distance 3 smooths grain and creates mild tonal patches and roughness around the bright sun boundary; no large color discontinuity observed."
+    },
+    {
+      "id": "im26-1416",
+      "distance": 3,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1416-d3.png",
+      "sha256": "6a3a2af220be786a94df82e7ad3525ccba9c1a9758db345ab87cf2a6fe50f5fd",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Sun and cloud shapes are preserved. Distance 3 smooths grain and creates mild tonal patches and roughness around the bright sun boundary; no large color discontinuity observed."
+    },
+    {
+      "id": "im26-5034",
+      "distance": 1,
+      "region": {
+        "left": 1542,
+        "top": 2748,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5034-d1.png",
+      "sha256": "518a5921266a3cf8a8417cda2294f03226c965c89c64a67be235d4aeea443173",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Native-scale serif and bold text remain sharp and legible at both distances. Minor edge differences are visible without missing strokes or displaced bullets."
+    },
+    {
+      "id": "im26-5034",
+      "distance": 3,
+      "region": {
+        "left": 1542,
+        "top": 2748,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5034-d3.png",
+      "sha256": "7100999df5baec71408cd8e0c7d0c3f3515f225558a4c0c7be119859459bbf49",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Native-scale serif and bold text remain sharp and legible at both distances. Minor edge differences are visible without missing strokes or displaced bullets."
+    },
+    {
+      "id": "im26-5052",
+      "distance": 1,
+      "region": {
+        "left": 1542,
+        "top": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5052-d1.png",
+      "sha256": "2efd5d884db55765c2c7b4bec0bbf0460f0d048d4fd2f99e5480055bd142708f",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Accented text and the thick horizontal rule remain intact. Distance 3 shows minor edge changes; no obvious surrounding color blotches observed."
+    },
+    {
+      "id": "im26-5052",
+      "distance": 3,
+      "region": {
+        "left": 1542,
+        "top": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5052-d3.png",
+      "sha256": "bc1e2890bb013e30a3ec5c898ea60717cc3f9200647e194b3241f4db48b60777",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Accented text and the thick horizontal rule remain intact. Distance 3 shows minor edge changes; no obvious surrounding color blotches observed."
+    },
+    {
+      "id": "im26-1009",
+      "distance": 1,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1009-d1.png",
+      "sha256": "f1606270d00d8c4e326719c8b263678133c4cf0761ad0dbe00a24b31e24aa34c",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Building edges and windows remain recognizable. Distance 3 smooths distant detail and adds mild edge roughness; the equal-distance native control loses more fine detail in this crop."
+    },
+    {
+      "id": "im26-1009",
+      "distance": 3,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1009-d3.png",
+      "sha256": "82288660939ea2d62cbb8db5d8d43cf779b2a0bc6b6c3a2c19615a5a15f70e75",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Building edges and windows remain recognizable. Distance 3 smooths distant detail and adds mild edge roughness; the equal-distance native control loses more fine detail in this crop."
+    },
+    {
+      "id": "im26-1221",
+      "distance": 1,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1221-d1.png",
+      "sha256": "eff56cad200736162caf94f6e1f1dd0086038272e6944f5f431c990effb7b74c",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Textured wall and fabric boundaries remain coherent. Distance 3 smooths fine relief and shadow grain; no displaced edges or gross blocks observed."
+    },
+    {
+      "id": "im26-1221",
+      "distance": 3,
+      "region": {
+        "left": 1808,
+        "top": 1308,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-1221-d3.png",
+      "sha256": "5cb5ef8acfffdc4397f8f554f01e35a3b962b6a469cc1e42cd0ea873bca02e8c",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Textured wall and fabric boundaries remain coherent. Distance 3 smooths fine relief and shadow grain; no displaced edges or gross blocks observed."
+    },
+    {
+      "id": "im26-5337",
+      "distance": 1,
+      "region": {
+        "left": 1083,
+        "top": 1458,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5337-d1.png",
+      "sha256": "3a517790866fd907c4154a43c15295a2d6200226a203e08a3836e42bad7979c0",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Table digits and thin rules remain intact and legible at both distances. No broken table lines observed in the inspected region."
+    },
+    {
+      "id": "im26-5337",
+      "distance": 3,
+      "region": {
+        "left": 1083,
+        "top": 1458,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-5337-d3.png",
+      "sha256": "3befeb36a052c8cb1f4a45c1a26edd93add5477cf1d3a52a2228d64ecec73b08",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Table digits and thin rules remain intact and legible at both distances. No broken table lines observed in the inspected region."
+    },
+    {
+      "id": "im26-8160",
+      "distance": 1,
+      "region": {
+        "left": 768,
+        "top": 348,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-8160-d1.png",
+      "sha256": "a503084d0c45c4036605c7100d3c8a93f5021820535bca6b565354f657f29822",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Body text and layout remain legible. Distance 3 softens fine manuscript detail and adds slight text-edge ringing; no missing UI elements observed."
+    },
+    {
+      "id": "im26-8160",
+      "distance": 3,
+      "region": {
+        "left": 768,
+        "top": 348,
+        "width": 384,
+        "height": 384
+      },
+      "path": ".tmp/jpegxl-m7/visual-capped052-originals/im26-8160-d3.png",
+      "sha256": "3c4a8e0761f97072d9e82ae0952c88feb44342cafb00391e6405981c237bdaa6",
+      "reviewStatus": "reviewed",
+      "split": "originals",
+      "reviewer": "Codex visual inspection",
+      "findings": "Body text and layout remain legible. Distance 3 softens fine manuscript detail and adds slight text-edge ringing; no missing UI elements observed."
+    }
+  ]
+}

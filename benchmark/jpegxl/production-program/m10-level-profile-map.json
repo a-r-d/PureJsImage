@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "standard": "ISO/IEC 18181 JPEG XL",
+  "implementationReference": "libjxl v0.12.0",
+  "sources": [
+    "https://github.com/libjxl/libjxl/blob/v0.12.0/lib/include/jxl/encode.h",
+    "https://github.com/libjxl/libjxl/blob/v0.12.0/lib/jxl/encode.cc",
+    "https://github.com/libjxl/libjxl/blob/v0.12.0/doc/format_overview.md"
+  ],
+  "levels": {
+    "5": {
+      "maximumDimension": 262144,
+      "maximumPixels": 268435456,
+      "maximumIccBytes": 4194304,
+      "maximumExtraChannels": 4,
+      "maximumColorBitDepth": 16,
+      "maximumIntegerBitDepth": 31,
+      "blackExtraChannel": false,
+      "containerLevelBoxRequired": false
+    },
+    "10": {
+      "maximumDimension": 1073741824,
+      "maximumPixels": 1099511627776,
+      "maximumIccBytes": 268435456,
+      "maximumExtraChannels": 256,
+      "maximumColorBitDepth": 32,
+      "maximumIntegerBitDepth": 31,
+      "blackExtraChannel": true,
+      "containerLevelBoxRequired": true
+    }
+  },
+  "implementation": {
+    "syntax": {
+      "level5Codestream": "supported",
+      "level10Codestream": "supported",
+      "level10JxllValidation": "supported",
+      "brotliMetadataBoxes": "supported"
+    },
+    "metadata": {
+      "icc": "supported-bounded",
+      "orientation": "supported",
+      "extraChannelDescriptors": "supported",
+      "jpegReconstruction": "supported-on-eligible-jpeg-codestreams"
+    },
+    "pixels": {
+      "unsignedIntegerRendered": "1-through-16-bit",
+      "binary16Rendered": "explicit-native-workflow",
+      "binary32Rendered": "explicit-native-workflow",
+      "cmykRendered": "explicit-profile-conversion"
+    },
+    "rawChannels": {
+      "unsignedInteger": "1-through-31-bit-exact-in-uint32-storage",
+      "binary16": "exact-bit-patterns",
+      "binary32": "exact-bit-patterns",
+      "black": "exact-native-plane",
+      "alpha": "independent-native-plane",
+      "shiftedChannels": "exact-native-plane"
+    },
+    "displayConversion": {
+      "binary32": "explicit-finite-range-to-rgba16",
+      "alpha": "straight-integer-preserved-floating-and-associated-rejected-in-explicit-display-conversion",
+      "cmyk": "embedded-icc-to-rgba8-including-shifted-black-and-alpha",
+      "nanAndInfinity": "rejected-for-integer-display-conversion"
+    },
+    "encoding": {
+      "losslessUnsignedInteger": "1-through-31-bit",
+      "losslessBinary16": "exact-bit-patterns",
+      "losslessBinary32": "exact-bit-patterns",
+      "cmykBlack": "embedded-icc-required",
+      "vardct": "general-forward-subset-at-level-5-or-level-10",
+      "levelSelection": "minimum-valid-for-depth-dimensions-pixels-icc-and-extra-channels",
+      "level10Container": "automatic-jxll-10"
+    },
+    "limits": {
+      "nativeEncodeDimensions": "caller-configurable-image-limits",
+      "nativeEncodeGrouping": "multiple-1024-pixel-groups-for-unshifted-channels",
+      "nativeEncodeMaximumExtraChannels": 256,
+      "decodeImageLimits": "caller-configurable-and-preflighted"
+    }
+  },
+  "levelSelection": [
+    {
+      "condition": "integer depth at most 12, dimensions at most 262144, at most 268435456 pixels, ICC at most 4194304 bytes, at most four extras, no black channel",
+      "minimumLevel": 5
+    },
+    {
+      "condition": "integer depth above 12, floating point, larger dimensions, pixel count or ICC profile, more than four extras, or black channel",
+      "minimumLevel": 10
+    },
+    {
+      "condition": "forward VarDCT with Modular alpha above 12 bits",
+      "minimumLevel": 10
+    },
+    {
+      "condition": "forward VarDCT without high-depth Modular alpha",
+      "minimumLevel": 5,
+      "explicitLevel10": true
+    }
+  ],
+  "remainingUnsupported": [
+    "Shifted native channels across multiple 1024-pixel Modular groups",
+    "Floating layouts other than IEEE binary16 and IEEE binary32",
+    "Automatic NaN or infinity normalization during integer display conversion"
+  ]
+}

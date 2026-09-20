@@ -1,0 +1,55 @@
+{
+  "sourceSha256": "477920d848bc4a53abbfea720fbaaf067a8187a64d900f47613026fcb11df8ab",
+  "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+  "passed": true,
+  "results": [
+    {
+      "id": "patches",
+      "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
+      "nativeNpySha256": "25ddb9bc9074a38bdb89a2a0342724dcef02d54885c67e3d095cfbdb3cd13b1f",
+      "rawLayerSha256": "e023624ad02f4287476e6c2b5495d55927a5ff69f7efe76dd0891029dfb5ce7a",
+      "codingLayers": 2,
+      "width": 1600,
+      "height": 1096,
+      "maximumError": 0.000005762745155575566,
+      "rmsError": 1.862908690580394e-7,
+      "passed": true
+    },
+    {
+      "id": "progressive",
+      "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
+      "nativeNpySha256": "ef66e01484311bfdc960ba10b220ac8127bf7484a1c0f260d780c863f65a4952",
+      "rawLayerSha256": "a16c840b787824426ee3197ead2d690834ed85ab6f05ddaa902fd1bdca9d3631",
+      "codingLayers": 3,
+      "width": 4064,
+      "height": 2704,
+      "maximumError": 0.00007370210787116527,
+      "rmsError": 6.242552438510716e-7,
+      "passed": true
+    },
+    {
+      "id": "noise-upsampling",
+      "inputSha256": "c6350e96d5519d0fae444fb0c98e8b56b7a303524494b1f5c3a17884dabf00c6",
+      "nativeNpySha256": "11fe5b888a16d7e490a8949f1651cb5758e51a26ec95247fa4c2cc034288bf20",
+      "rawLayerSha256": "1e2ba59ae2fc78e0468318332ecbd01f58925b306c6ed2ccbd575b854e751c41",
+      "codingLayers": 1,
+      "width": 32,
+      "height": 24,
+      "maximumError": 0.00004769305343029981,
+      "rmsError": 0.000002456558802195361,
+      "passed": true
+    },
+    {
+      "id": "weighted-patches-lossy",
+      "inputSha256": "f31792d8fea08301d95ea95572688b4a6d7e708dfb35fe3f81364d8a01c126ac",
+      "nativeNpySha256": "ea48d2c1452b51a277f5bc0346d2df5678edb1037c9b3d075620798c300d1955",
+      "rawLayerSha256": "4b3a6a76e58fd919d148aaaf328abbdd0e1540d751e922528cc5cc4c52bf7269",
+      "codingLayers": 2,
+      "width": 16,
+      "height": 8,
+      "maximumError": 0.000004776661335581522,
+      "rmsError": 5.568223874971058e-7,
+      "passed": true
+    }
+  ]
+}

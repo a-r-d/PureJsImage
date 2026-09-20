@@ -1,0 +1,1542 @@
+{
+  "candidate": "integrated054",
+  "reviewedAt": "2026-09-09T17:48:25.679Z",
+  "policy": "All 38 selected diagnostic panels visually inspected at their rendered two-times nearest-neighbor scale. Original, first-party and native columns are retained with actual scores and bytes. Equal distance is not matched quality. Findings apply to inspected crops; no blanket visual-perfect claim. These supplement the 36 earlier byte-identical reviewed panels. Held-out and HDR/alpha reviews qualify separately.",
+  "reportPath": ".tmp/jpegxl-m7/visual-integrated054-development-map/report.json",
+  "reportSha256": "e6ebee8d546470268c18d7169207d4793e15158ea735a6c030cea43d6a7fded1",
+  "generation": {
+    "policy": "Diagnostic visual crops at 2x nearest-neighbor display. Same numeric distance is not matched quality; labels retain measured scores and sizes. Each decoded bitmap is released before the next variant. Human inspection required.",
+    "qualityDirectory": ".tmp/jpegxl-m7/lossy-development-integrated054-fast",
+    "selectionPath": "benchmark/jpegxl/production-program/m7-visual-development-map.json",
+    "selectionSha256": "2e75e504f32a1371b09042b433d3786667082d1d14e7ca7bf19df7be2b1301aa",
+    "sourceFingerprint": "ce25c6dcaf522d343e634a86b6b712aa5894d9c89615e4dcebb712d2899c7158",
+    "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+    "panels": [
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 1,
+        "region": {
+          "left": 1141,
+          "top": 1926,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 85.65; 532212 bytes",
+          "libjxl d=1; SSIM 84.50; 473862 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 1,
+        "region": {
+          "left": 1245,
+          "top": 1444,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 85.65; 532212 bytes",
+          "libjxl d=1; SSIM 84.50; 473862 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 1,
+        "region": {
+          "left": 1840,
+          "top": 1204,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 85.65; 532212 bytes",
+          "libjxl d=1; SSIM 84.50; 473862 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 1,
+        "region": {
+          "left": 908,
+          "top": 674,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region3.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 85.65; 532212 bytes",
+          "libjxl d=1; SSIM 84.50; 473862 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 3,
+        "region": {
+          "left": 1141,
+          "top": 1926,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.87; 346917 bytes",
+          "libjxl d=3; SSIM 80.54; 246782 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 3,
+        "region": {
+          "left": 1245,
+          "top": 1444,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.87; 346917 bytes",
+          "libjxl d=3; SSIM 80.54; 246782 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 3,
+        "region": {
+          "left": 1840,
+          "top": 1204,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.87; 346917 bytes",
+          "libjxl d=3; SSIM 80.54; 246782 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5032",
+        "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+        "setting": 3,
+        "region": {
+          "left": 908,
+          "top": 674,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region3.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.87; 346917 bytes",
+          "libjxl d=3; SSIM 80.54; 246782 bytes"
+        ],
+        "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5052",
+        "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+        "setting": 1,
+        "region": {
+          "left": 1020,
+          "top": 376,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 88.90; 1201247 bytes",
+          "libjxl d=1; SSIM 88.09; 1156561 bytes"
+        ],
+        "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5052",
+        "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+        "setting": 1,
+        "region": {
+          "left": 1606,
+          "top": 1216,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 88.90; 1201247 bytes",
+          "libjxl d=1; SSIM 88.09; 1156561 bytes"
+        ],
+        "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5052",
+        "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+        "setting": 3,
+        "region": {
+          "left": 1020,
+          "top": 376,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 84.93; 907011 bytes",
+          "libjxl d=3; SSIM 85.26; 149228 bytes"
+        ],
+        "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5052",
+        "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+        "setting": 3,
+        "region": {
+          "left": 1606,
+          "top": 1216,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 84.93; 907011 bytes",
+          "libjxl d=3; SSIM 85.26; 149228 bytes"
+        ],
+        "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5034",
+        "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+        "setting": 1,
+        "region": {
+          "left": 892,
+          "top": 1216,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 88.03; 1087790 bytes",
+          "libjxl d=1; SSIM 87.00; 1048038 bytes"
+        ],
+        "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5034",
+        "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+        "setting": 1,
+        "region": {
+          "left": 1606,
+          "top": 2812,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 88.03; 1087790 bytes",
+          "libjxl d=1; SSIM 87.00; 1048038 bytes"
+        ],
+        "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5034",
+        "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+        "setting": 3,
+        "region": {
+          "left": 892,
+          "top": 1216,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 84.77; 818975 bytes",
+          "libjxl d=3; SSIM 84.14; 243762 bytes"
+        ],
+        "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5034",
+        "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+        "setting": 3,
+        "region": {
+          "left": 1606,
+          "top": 2812,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 84.77; 818975 bytes",
+          "libjxl d=3; SSIM 84.14; 243762 bytes"
+        ],
+        "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5334",
+        "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+        "setting": 1,
+        "region": {
+          "left": 892,
+          "top": 433,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 86.96; 510823 bytes",
+          "libjxl d=1; SSIM 85.87; 446309 bytes"
+        ],
+        "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5334",
+        "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+        "setting": 1,
+        "region": {
+          "left": 497,
+          "top": 1258,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 86.96; 510823 bytes",
+          "libjxl d=1; SSIM 85.87; 446309 bytes"
+        ],
+        "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5334",
+        "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+        "setting": 1,
+        "region": {
+          "left": 1912,
+          "top": 1572,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d1-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 86.96; 510823 bytes",
+          "libjxl d=1; SSIM 85.87; 446309 bytes"
+        ],
+        "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5334",
+        "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+        "setting": 3,
+        "region": {
+          "left": 892,
+          "top": 433,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.21; 364539 bytes",
+          "libjxl d=3; SSIM 81.88; 190225 bytes"
+        ],
+        "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5334",
+        "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+        "setting": 3,
+        "region": {
+          "left": 497,
+          "top": 1258,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.21; 364539 bytes",
+          "libjxl d=3; SSIM 81.88; 190225 bytes"
+        ],
+        "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-5334",
+        "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+        "setting": 3,
+        "region": {
+          "left": 1912,
+          "top": 1572,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d3-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.21; 364539 bytes",
+          "libjxl d=3; SSIM 81.88; 190225 bytes"
+        ],
+        "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-2018",
+        "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+        "setting": 1,
+        "region": {
+          "left": 2354,
+          "top": 2211,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 89.40; 2280030 bytes",
+          "libjxl d=1; SSIM 87.24; 1501803 bytes"
+        ],
+        "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-2018",
+        "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+        "setting": 1,
+        "region": {
+          "left": 2354,
+          "top": 3691,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 89.40; 2280030 bytes",
+          "libjxl d=1; SSIM 87.24; 1501803 bytes"
+        ],
+        "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-2018",
+        "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+        "setting": 1,
+        "region": {
+          "left": 2736,
+          "top": 922,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d1-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 89.40; 2280030 bytes",
+          "libjxl d=1; SSIM 87.24; 1501803 bytes"
+        ],
+        "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-2018",
+        "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+        "setting": 3,
+        "region": {
+          "left": 2354,
+          "top": 2211,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.86; 1191784 bytes",
+          "libjxl d=3; SSIM 77.02; 586231 bytes"
+        ],
+        "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-2018",
+        "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+        "setting": 3,
+        "region": {
+          "left": 2354,
+          "top": 3691,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.86; 1191784 bytes",
+          "libjxl d=3; SSIM 77.02; 586231 bytes"
+        ],
+        "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-2018",
+        "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+        "setting": 3,
+        "region": {
+          "left": 2736,
+          "top": 922,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d3-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 80.86; 1191784 bytes",
+          "libjxl d=3; SSIM 77.02; 586231 bytes"
+        ],
+        "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-8188",
+        "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+        "setting": 1,
+        "region": {
+          "left": 410,
+          "top": 563,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 90.28; 328130 bytes",
+          "libjxl d=1; SSIM 88.75; 256954 bytes"
+        ],
+        "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-8188",
+        "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+        "setting": 1,
+        "region": {
+          "left": 1427,
+          "top": 682,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 90.28; 328130 bytes",
+          "libjxl d=1; SSIM 88.75; 256954 bytes"
+        ],
+        "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-8188",
+        "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+        "setting": 1,
+        "region": {
+          "left": 736,
+          "top": 164,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d1-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 90.28; 328130 bytes",
+          "libjxl d=1; SSIM 88.75; 256954 bytes"
+        ],
+        "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-8188",
+        "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+        "setting": 3,
+        "region": {
+          "left": 410,
+          "top": 563,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.14; 193433 bytes",
+          "libjxl d=3; SSIM 76.98; 125052 bytes"
+        ],
+        "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-8188",
+        "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+        "setting": 3,
+        "region": {
+          "left": 1427,
+          "top": 682,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.14; 193433 bytes",
+          "libjxl d=3; SSIM 76.98; 125052 bytes"
+        ],
+        "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-8188",
+        "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+        "setting": 3,
+        "region": {
+          "left": 736,
+          "top": 164,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d3-region2.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.14; 193433 bytes",
+          "libjxl d=3; SSIM 76.98; 125052 bytes"
+        ],
+        "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-1026",
+        "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+        "setting": 1,
+        "region": {
+          "left": 1552,
+          "top": 1282,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d1-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 90.45; 3402983 bytes",
+          "libjxl d=1; SSIM 87.93; 2574050 bytes"
+        ],
+        "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-1026",
+        "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+        "setting": 1,
+        "region": {
+          "left": 752,
+          "top": 322,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d1-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=1; SSIM 90.45; 3402983 bytes",
+          "libjxl d=1; SSIM 87.93; 2574050 bytes"
+        ],
+        "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-1026",
+        "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+        "setting": 3,
+        "region": {
+          "left": 1552,
+          "top": 1282,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d3-region0.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.12; 1791757 bytes",
+          "libjxl d=3; SSIM 75.91; 1103632 bytes"
+        ],
+        "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+        "reviewStatus": "not-reviewed"
+      },
+      {
+        "id": "im26-1026",
+        "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+        "setting": 3,
+        "region": {
+          "left": 752,
+          "top": 322,
+          "width": 256,
+          "height": 256
+        },
+        "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d3-region1.png",
+        "labels": [
+          "Original",
+          "purejsimage d=3; SSIM 81.12; 1791757 bytes",
+          "libjxl d=3; SSIM 75.91; 1103632 bytes"
+        ],
+        "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+        "reviewStatus": "not-reviewed"
+      }
+    ],
+    "qualificationComplete": false
+  },
+  "panels": [
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 1,
+      "region": {
+        "left": 1141,
+        "top": 1926,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 85.65; 532212 bytes",
+        "libjxl d=1; SSIM 84.50; 473862 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "c635c8ebd12b0f12a0ea8c160af7a48dcfa0b8aa3030c3a6e88e607395323129",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 1,
+      "region": {
+        "left": 1245,
+        "top": 1444,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 85.65; 532212 bytes",
+        "libjxl d=1; SSIM 84.50; 473862 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "3a96fda4759fa3de0a9f1dd1c2f51d90dca8e3060725dcc9055eb7aebb021a5e",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 1,
+      "region": {
+        "left": 1840,
+        "top": 1204,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 85.65; 532212 bytes",
+        "libjxl d=1; SSIM 84.50; 473862 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "f9a237aa8bbfe18cacfc6ef87f49394ba66bf8b8cf1683f97dafa64b95f95033",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 1,
+      "region": {
+        "left": 908,
+        "top": 674,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d1-region3.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 85.65; 532212 bytes",
+        "libjxl d=1; SSIM 84.50; 473862 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "e4b7d595736a3a209bb204c31e67ea114ebe44574c8005f609794076177d3974",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 3,
+      "region": {
+        "left": 1141,
+        "top": 1926,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.87; 346917 bytes",
+        "libjxl d=3; SSIM 80.54; 246782 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "fba28c31402898533183e4f586e20aa5786d432ca10bffdeba1b7816576f3309",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 3,
+      "region": {
+        "left": 1245,
+        "top": 1444,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.87; 346917 bytes",
+        "libjxl d=3; SSIM 80.54; 246782 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "c16420c2d525147965c210e3d17f213887e9db10c69fd78b26a3cf837ecd1bb0",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 3,
+      "region": {
+        "left": 1840,
+        "top": 1204,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.87; 346917 bytes",
+        "libjxl d=3; SSIM 80.54; 246782 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "ee6d6b4e67984815b3adfb1d145c3607b7b5109330f5d83eac9731f6f395bcd8",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5032",
+      "reason": "Map brochure: road and river labels, small black and colored text, and flat background",
+      "setting": 3,
+      "region": {
+        "left": 908,
+        "top": 674,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5032-d3-region3.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.87; 346917 bytes",
+        "libjxl d=3; SSIM 80.54; 246782 bytes"
+      ],
+      "reportSha256": "63e40c416e0153cc6b54af00196bfbbe338d8db4001a697a1091ae6513dd258d",
+      "reviewStatus": "inspected",
+      "pngSha256": "d11e9d8194903d920c5f0cfbc0b619096dcbc55e1f408b65615c2d13ba071e61",
+      "findings": "All eight map crops inspected. Text, roads and rivers remain legible. Distance 3 produces visible light edge halos and ringing around colored lines and pale lettering, stronger in the first-party crops than native. No broken glyphs or severe block corruption observed. Distance 1 has much smaller visible edge differences."
+    },
+    {
+      "id": "im26-5052",
+      "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+      "setting": 1,
+      "region": {
+        "left": 1020,
+        "top": 376,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.90; 1201247 bytes",
+        "libjxl d=1; SSIM 88.09; 1156561 bytes"
+      ],
+      "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+      "reviewStatus": "inspected",
+      "pngSha256": "acfbbfecb2761d0347cc040d7ae454d3352ab0f3ad2e62411121d60353ca48d5",
+      "findings": "All four French brochure crops inspected. Accents, text and horizontal rule remain legible at both settings. Mild edge roughness appears at distance 3. Native uses far fewer bytes at similar measured scores; the large compression outlier is real and remains a limitation, rather than a visual quality win."
+    },
+    {
+      "id": "im26-5052",
+      "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+      "setting": 1,
+      "region": {
+        "left": 1606,
+        "top": 1216,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.90; 1201247 bytes",
+        "libjxl d=1; SSIM 88.09; 1156561 bytes"
+      ],
+      "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+      "reviewStatus": "inspected",
+      "pngSha256": "38b29b37c5da584e9baba68bbf07773faf98778523944c1e4904dbe403ee9baf",
+      "findings": "All four French brochure crops inspected. Accents, text and horizontal rule remain legible at both settings. Mild edge roughness appears at distance 3. Native uses far fewer bytes at similar measured scores; the large compression outlier is real and remains a limitation, rather than a visual quality win."
+    },
+    {
+      "id": "im26-5052",
+      "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+      "setting": 3,
+      "region": {
+        "left": 1020,
+        "top": 376,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 84.93; 907011 bytes",
+        "libjxl d=3; SSIM 85.26; 149228 bytes"
+      ],
+      "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+      "reviewStatus": "inspected",
+      "pngSha256": "579bb2aadde07f725c9ad431d0f25873f6b56aaca08b771618d9ff38bb8b6417",
+      "findings": "All four French brochure crops inspected. Accents, text and horizontal rule remain legible at both settings. Mild edge roughness appears at distance 3. Native uses far fewer bytes at similar measured scores; the large compression outlier is real and remains a limitation, rather than a visual quality win."
+    },
+    {
+      "id": "im26-5052",
+      "reason": "Worst development Butteraugli 1 and 2 size ratio; French brochure text and horizontal rules. Native d3 is much smaller and scores better than native d2; the dominated d2 point is correctly omitted from interpolation. Inspect both d1 and d3 without claiming equal distance is matched quality.",
+      "setting": 3,
+      "region": {
+        "left": 1606,
+        "top": 1216,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5052-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 84.93; 907011 bytes",
+        "libjxl d=3; SSIM 85.26; 149228 bytes"
+      ],
+      "reportSha256": "d211c78841b49910385a24d43e19bae77961b6acd1db3ac72d7f38490395017c",
+      "reviewStatus": "inspected",
+      "pngSha256": "8de57e69e3643939be3a6032f911373c5b72f4aa5017dd7dc0ee6ee43c337223",
+      "findings": "All four French brochure crops inspected. Accents, text and horizontal rule remain legible at both settings. Mild edge roughness appears at distance 3. Native uses far fewer bytes at similar measured scores; the large compression outlier is real and remains a limitation, rather than a visual quality win."
+    },
+    {
+      "id": "im26-5034",
+      "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+      "setting": 1,
+      "region": {
+        "left": 892,
+        "top": 1216,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.03; 1087790 bytes",
+        "libjxl d=1; SSIM 87.00; 1048038 bytes"
+      ],
+      "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+      "reviewStatus": "inspected",
+      "pngSha256": "bcdd8b22e3be731409eb8341527a3ca242a93b427173ba0357c78766e0156369",
+      "findings": "All four English brochure crops inspected. Numbers, serif text and bold headings remain legible. Slight edge smoothing at distance 3. The large native byte advantage is retained; no severe visual defect observed in these crops."
+    },
+    {
+      "id": "im26-5034",
+      "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+      "setting": 1,
+      "region": {
+        "left": 1606,
+        "top": 2812,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 88.03; 1087790 bytes",
+        "libjxl d=1; SSIM 87.00; 1048038 bytes"
+      ],
+      "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+      "reviewStatus": "inspected",
+      "pngSha256": "d187d55684ba6ce0dc5ab7b57d9576e6972256ae82778855d3fcb1a5ceb8a3e8",
+      "findings": "All four English brochure crops inspected. Numbers, serif text and bold headings remain legible. Slight edge smoothing at distance 3. The large native byte advantage is retained; no severe visual defect observed in these crops."
+    },
+    {
+      "id": "im26-5034",
+      "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+      "setting": 3,
+      "region": {
+        "left": 892,
+        "top": 1216,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 84.77; 818975 bytes",
+        "libjxl d=3; SSIM 84.14; 243762 bytes"
+      ],
+      "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+      "reviewStatus": "inspected",
+      "pngSha256": "cfdb3e78b7e89e5354ced328ddf4cd916a0e67237ae9ac371c3ff9ad91b2ac73",
+      "findings": "All four English brochure crops inspected. Numbers, serif text and bold headings remain legible. Slight edge smoothing at distance 3. The large native byte advantage is retained; no severe visual defect observed in these crops."
+    },
+    {
+      "id": "im26-5034",
+      "reason": "Second development size outlier above 2 at Butteraugli 2; brochure tables, small sans-serif text and serif paragraphs.",
+      "setting": 3,
+      "region": {
+        "left": 1606,
+        "top": 2812,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5034-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 84.77; 818975 bytes",
+        "libjxl d=3; SSIM 84.14; 243762 bytes"
+      ],
+      "reportSha256": "1b8b8a653f1f918f23a8ec8dbc07f8cb0da7038dd3915ddc0a374509882b38cf",
+      "reviewStatus": "inspected",
+      "pngSha256": "b80e4a39705108b85b243aa5f4b3f20b3f7ea9e614f3ba4b2adfc3361e3b90d6",
+      "findings": "All four English brochure crops inspected. Numbers, serif text and bold headings remain legible. Slight edge smoothing at distance 3. The large native byte advantage is retained; no severe visual defect observed in these crops."
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "setting": 1,
+      "region": {
+        "left": 892,
+        "top": 433,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 86.96; 510823 bytes",
+        "libjxl d=1; SSIM 85.87; 446309 bytes"
+      ],
+      "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+      "reviewStatus": "inspected",
+      "pngSha256": "c466209b48b335b3445903ebd65990f95401774021533318e17d18f6e15351f7",
+      "findings": "All six NOAA table crops inspected. Thin rules remain continuous and text readable. Distance 3 shows visible pale yellow ringing beside blue rules and faint edge noise around letters in first-party output. Native has smaller artifacts on these rules. Flat blue cells remain coherent; no severe corruption observed. The greater-than-two size ratio remains a compression limitation."
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "setting": 1,
+      "region": {
+        "left": 497,
+        "top": 1258,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 86.96; 510823 bytes",
+        "libjxl d=1; SSIM 85.87; 446309 bytes"
+      ],
+      "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+      "reviewStatus": "inspected",
+      "pngSha256": "d6d33cbef7e9c446496070e1434534dba3cbc1c2178c6d8c694651fb12d93c94",
+      "findings": "All six NOAA table crops inspected. Thin rules remain continuous and text readable. Distance 3 shows visible pale yellow ringing beside blue rules and faint edge noise around letters in first-party output. Native has smaller artifacts on these rules. Flat blue cells remain coherent; no severe corruption observed. The greater-than-two size ratio remains a compression limitation."
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "setting": 1,
+      "region": {
+        "left": 1912,
+        "top": 1572,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d1-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 86.96; 510823 bytes",
+        "libjxl d=1; SSIM 85.87; 446309 bytes"
+      ],
+      "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+      "reviewStatus": "inspected",
+      "pngSha256": "c11a24ca60b58b045bac388bf7fa46a3807ae9f71251364f937b6ebb96fda3cc",
+      "findings": "All six NOAA table crops inspected. Thin rules remain continuous and text readable. Distance 3 shows visible pale yellow ringing beside blue rules and faint edge noise around letters in first-party output. Native has smaller artifacts on these rules. Flat blue cells remain coherent; no severe corruption observed. The greater-than-two size ratio remains a compression limitation."
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "setting": 3,
+      "region": {
+        "left": 892,
+        "top": 433,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.21; 364539 bytes",
+        "libjxl d=3; SSIM 81.88; 190225 bytes"
+      ],
+      "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+      "reviewStatus": "inspected",
+      "pngSha256": "d67c1de5598f5f3778bd1a5c157ddac3be5699f3e3bc1eae11e72899846448e6",
+      "findings": "All six NOAA table crops inspected. Thin rules remain continuous and text readable. Distance 3 shows visible pale yellow ringing beside blue rules and faint edge noise around letters in first-party output. Native has smaller artifacts on these rules. Flat blue cells remain coherent; no severe corruption observed. The greater-than-two size ratio remains a compression limitation."
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "setting": 3,
+      "region": {
+        "left": 497,
+        "top": 1258,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.21; 364539 bytes",
+        "libjxl d=3; SSIM 81.88; 190225 bytes"
+      ],
+      "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+      "reviewStatus": "inspected",
+      "pngSha256": "7efffce63c73806f9ed63f63ace1589119538158f353a5545f9d7df4b3075e2a",
+      "findings": "All six NOAA table crops inspected. Thin rules remain continuous and text readable. Distance 3 shows visible pale yellow ringing beside blue rules and faint edge noise around letters in first-party output. Native has smaller artifacts on these rules. Flat blue cells remain coherent; no severe corruption observed. The greater-than-two size ratio remains a compression limitation."
+    },
+    {
+      "id": "im26-5334",
+      "reason": "Worst development native size ratio at SSIMULACRA2 80; NOAA table with black text, pale blue cells and thin rules.",
+      "setting": 3,
+      "region": {
+        "left": 1912,
+        "top": 1572,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-5334-d3-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.21; 364539 bytes",
+        "libjxl d=3; SSIM 81.88; 190225 bytes"
+      ],
+      "reportSha256": "2068425c7f9a558f7312c902b3c80e89e9608992091ba077845b6b00ea1711cd",
+      "reviewStatus": "inspected",
+      "pngSha256": "1adc3b2448e68c294a74410b2fda9dbae2bc43af85ecc659eb7e82b8e59068f7",
+      "findings": "All six NOAA table crops inspected. Thin rules remain continuous and text readable. Distance 3 shows visible pale yellow ringing beside blue rules and faint edge noise around letters in first-party output. Native has smaller artifacts on these rules. Flat blue cells remain coherent; no severe corruption observed. The greater-than-two size ratio remains a compression limitation."
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "setting": 1,
+      "region": {
+        "left": 2354,
+        "top": 2211,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 89.40; 2280030 bytes",
+        "libjxl d=1; SSIM 87.24; 1501803 bytes"
+      ],
+      "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+      "reviewStatus": "inspected",
+      "pngSha256": "37269e684257637d206dca112ca11859147b923802fb90020581148d23846793",
+      "findings": "All six monochrome photo crops inspected: skin, pale cloth and dark background. Distance 3 smooths fine skin and cloth texture; native is also smoother at its lower measured score. Dark gradient shows no obvious severe banding or new halo in the inspected crops. Equal distances are not a matched-quality comparison."
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "setting": 1,
+      "region": {
+        "left": 2354,
+        "top": 3691,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 89.40; 2280030 bytes",
+        "libjxl d=1; SSIM 87.24; 1501803 bytes"
+      ],
+      "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+      "reviewStatus": "inspected",
+      "pngSha256": "35280b010635fbc34d2aa585aa885365674fe0ffd57d62db9d34f449b97829fc",
+      "findings": "All six monochrome photo crops inspected: skin, pale cloth and dark background. Distance 3 smooths fine skin and cloth texture; native is also smoother at its lower measured score. Dark gradient shows no obvious severe banding or new halo in the inspected crops. Equal distances are not a matched-quality comparison."
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "setting": 1,
+      "region": {
+        "left": 2736,
+        "top": 922,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d1-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 89.40; 2280030 bytes",
+        "libjxl d=1; SSIM 87.24; 1501803 bytes"
+      ],
+      "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+      "reviewStatus": "inspected",
+      "pngSha256": "4651cbd4764a513b09ad044b631ba418b3c2053ac1deca30955a3df62a283cb8",
+      "findings": "All six monochrome photo crops inspected: skin, pale cloth and dark background. Distance 3 smooths fine skin and cloth texture; native is also smoother at its lower measured score. Dark gradient shows no obvious severe banding or new halo in the inspected crops. Equal distances are not a matched-quality comparison."
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "setting": 3,
+      "region": {
+        "left": 2354,
+        "top": 2211,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.86; 1191784 bytes",
+        "libjxl d=3; SSIM 77.02; 586231 bytes"
+      ],
+      "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+      "reviewStatus": "inspected",
+      "pngSha256": "dff1049682a41c0b571de3c0d1f04be209d3ec1fafbf6136295dcdf1dc1ab771",
+      "findings": "All six monochrome photo crops inspected: skin, pale cloth and dark background. Distance 3 smooths fine skin and cloth texture; native is also smoother at its lower measured score. Dark gradient shows no obvious severe banding or new halo in the inspected crops. Equal distances are not a matched-quality comparison."
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "setting": 3,
+      "region": {
+        "left": 2354,
+        "top": 3691,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.86; 1191784 bytes",
+        "libjxl d=3; SSIM 77.02; 586231 bytes"
+      ],
+      "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+      "reviewStatus": "inspected",
+      "pngSha256": "907682a396b1a08189cd5417d011e04ea6d2335fd24c5be461de3ab59c08b904",
+      "findings": "All six monochrome photo crops inspected: skin, pale cloth and dark background. Distance 3 smooths fine skin and cloth texture; native is also smoother at its lower measured score. Dark gradient shows no obvious severe banding or new halo in the inspected crops. Equal distances are not a matched-quality comparison."
+    },
+    {
+      "id": "im26-2018",
+      "reason": "Worst development photo ratio at SSIMULACRA2 80 and Butteraugli 2; monochrome hands with fine skin texture, cloth weave and smooth dark regions.",
+      "setting": 3,
+      "region": {
+        "left": 2736,
+        "top": 922,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-2018-d3-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 80.86; 1191784 bytes",
+        "libjxl d=3; SSIM 77.02; 586231 bytes"
+      ],
+      "reportSha256": "18f54e78065ff3589f18bb05728f00cc2347b7667e3a7a46d83796e7d3de1055",
+      "reviewStatus": "inspected",
+      "pngSha256": "1f15661adfb3ce206b455a45f08c2b0a2fc6fecbeac7eecda5969d7fedf29eab",
+      "findings": "All six monochrome photo crops inspected: skin, pale cloth and dark background. Distance 3 smooths fine skin and cloth texture; native is also smoother at its lower measured score. Dark gradient shows no obvious severe banding or new halo in the inspected crops. Equal distances are not a matched-quality comparison."
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "setting": 1,
+      "region": {
+        "left": 410,
+        "top": 563,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 90.28; 328130 bytes",
+        "libjxl d=1; SSIM 88.75; 256954 bytes"
+      ],
+      "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+      "reviewStatus": "inspected",
+      "pngSha256": "b4d12307000a98cda7b6a791bd7620771919184ac8329b50d7484856467d3b76",
+      "findings": "All six NASA screenshot crops inspected. Small white text stays legible, rover detail is progressively smoothed, and the dark sky gradient has no obvious severe banding in these crops. No severe edge halo or block corruption observed."
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "setting": 1,
+      "region": {
+        "left": 1427,
+        "top": 682,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 90.28; 328130 bytes",
+        "libjxl d=1; SSIM 88.75; 256954 bytes"
+      ],
+      "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+      "reviewStatus": "inspected",
+      "pngSha256": "336f593ebf3a2036cc185d1ebba69223a41981dfd0a4bb70febea3e16d908393",
+      "findings": "All six NASA screenshot crops inspected. Small white text stays legible, rover detail is progressively smoothed, and the dark sky gradient has no obvious severe banding in these crops. No severe edge halo or block corruption observed."
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "setting": 1,
+      "region": {
+        "left": 736,
+        "top": 164,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d1-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 90.28; 328130 bytes",
+        "libjxl d=1; SSIM 88.75; 256954 bytes"
+      ],
+      "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+      "reviewStatus": "inspected",
+      "pngSha256": "1d20c6554ea3aa3f72d7bd9cd49c8acf15c790bf91fcf4def9ecece9f6381578",
+      "findings": "All six NASA screenshot crops inspected. Small white text stays legible, rover detail is progressively smoothed, and the dark sky gradient has no obvious severe banding in these crops. No severe edge halo or block corruption observed."
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "setting": 3,
+      "region": {
+        "left": 410,
+        "top": 563,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.14; 193433 bytes",
+        "libjxl d=3; SSIM 76.98; 125052 bytes"
+      ],
+      "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+      "reviewStatus": "inspected",
+      "pngSha256": "85ae92dd8e1ea99d4f0957403f1edff1a5cffcf2f49ba9a68d496297719afeb1",
+      "findings": "All six NASA screenshot crops inspected. Small white text stays legible, rover detail is progressively smoothed, and the dark sky gradient has no obvious severe banding in these crops. No severe edge halo or block corruption observed."
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "setting": 3,
+      "region": {
+        "left": 1427,
+        "top": 682,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.14; 193433 bytes",
+        "libjxl d=3; SSIM 76.98; 125052 bytes"
+      ],
+      "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+      "reviewStatus": "inspected",
+      "pngSha256": "086ad78d7c5c50d146452d69e4cbdfb9dfbc54adbebc1f1046b4dda719e0f1ee",
+      "findings": "All six NASA screenshot crops inspected. Small white text stays legible, rover detail is progressively smoothed, and the dark sky gradient has no obvious severe banding in these crops. No severe edge halo or block corruption observed."
+    },
+    {
+      "id": "im26-8188",
+      "reason": "Worst development native size ratio at SSIMULACRA2 90; NASA screenshot with small white text, rover detail and a dark sky gradient.",
+      "setting": 3,
+      "region": {
+        "left": 736,
+        "top": 164,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-8188-d3-region2.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.14; 193433 bytes",
+        "libjxl d=3; SSIM 76.98; 125052 bytes"
+      ],
+      "reportSha256": "ab932fe2927bb42bfd5e94e8e4323698f4b5fddc9164fbdbdcad682638ebddd8",
+      "reviewStatus": "inspected",
+      "pngSha256": "dd7fe726c6116aec83e97cf578ab67f438a47b76aa96979a9f4879e90305515b",
+      "findings": "All six NASA screenshot crops inspected. Small white text stays legible, rover detail is progressively smoothed, and the dark sky gradient has no obvious severe banding in these crops. No severe edge halo or block corruption observed."
+    },
+    {
+      "id": "im26-1026",
+      "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+      "setting": 1,
+      "region": {
+        "left": 1552,
+        "top": 1282,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d1-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 90.45; 3402983 bytes",
+        "libjxl d=1; SSIM 87.93; 2574050 bytes"
+      ],
+      "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+      "reviewStatus": "inspected",
+      "pngSha256": "ae05b3a6c65d6944a3d383c5c0755dbb32872b9e277b0e0f91ba02fe2a130ae7",
+      "findings": "All four turtle and wet-rock crops inspected in raw raster orientation. Distance 3 loses fine texture and highlight detail; principal shell/skin boundaries remain coherent. No severe halo, block corruption or unexpected color shift observed in these crops."
+    },
+    {
+      "id": "im26-1026",
+      "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+      "setting": 1,
+      "region": {
+        "left": 752,
+        "top": 322,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d1-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=1; SSIM 90.45; 3402983 bytes",
+        "libjxl d=1; SSIM 87.93; 2574050 bytes"
+      ],
+      "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+      "reviewStatus": "inspected",
+      "pngSha256": "10623ce2890883f9efb5b0cc971dd67500a2e052ce4c41ac2f69537cb5493192",
+      "findings": "All four turtle and wet-rock crops inspected in raw raster orientation. Distance 3 loses fine texture and highlight detail; principal shell/skin boundaries remain coherent. No severe halo, block corruption or unexpected color shift observed in these crops."
+    },
+    {
+      "id": "im26-1026",
+      "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+      "setting": 3,
+      "region": {
+        "left": 1552,
+        "top": 1282,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d3-region0.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.12; 1791757 bytes",
+        "libjxl d=3; SSIM 75.91; 1103632 bytes"
+      ],
+      "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+      "reviewStatus": "inspected",
+      "pngSha256": "6af8289421db1b2a4dc2eaa94e42db535040ff0d6ec03b979627045e65d882d4",
+      "findings": "All four turtle and wet-rock crops inspected in raw raster orientation. Distance 3 loses fine texture and highlight detail; principal shell/skin boundaries remain coherent. No severe halo, block corruption or unexpected color shift observed in these crops."
+    },
+    {
+      "id": "im26-1026",
+      "reason": "Worst development photo ratio at Butteraugli 1; turtle pattern and wet rock highlights. Centers use the raw 4000x3000 quality raster, correcting the orientation-6 display coordinates seen in the source viewer.",
+      "setting": 3,
+      "region": {
+        "left": 752,
+        "top": 322,
+        "width": 256,
+        "height": 256
+      },
+      "path": ".tmp/jpegxl-m7/visual-integrated054-development-map/im26-1026-d3-region1.png",
+      "labels": [
+        "Original",
+        "purejsimage d=3; SSIM 81.12; 1791757 bytes",
+        "libjxl d=3; SSIM 75.91; 1103632 bytes"
+      ],
+      "reportSha256": "5b15e49b38e279272cd5adcfbe2e77af69b4a7601b8ea64b5906f7036b5b6e49",
+      "reviewStatus": "inspected",
+      "pngSha256": "c0393449a9a3222ce8050c8df24d322147ac14cec4c849e45407a2bf0a33eb96",
+      "findings": "All four turtle and wet-rock crops inspected in raw raster orientation. Distance 3 loses fine texture and highlight detail; principal shell/skin boundaries remain coherent. No severe halo, block corruption or unexpected color shift observed in these crops."
+    }
+  ],
+  "reviewedPanels": 38,
+  "severeDefectObservedInReviewedCrops": false
+}

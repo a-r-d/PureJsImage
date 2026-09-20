@@ -1,17 +1,34 @@
+import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { execFileSync } from 'node:child_process'
 import capabilityManifest from '../../capabilities/manifest.json' with { type: 'json' }
 import {
+  type EvidenceGate,
   evidenceFiles,
   extendedGates,
-  validateEvidenceReport,
   knownEvidenceFailures,
-  type EvidenceGate,
+  validateEvidenceReport,
 } from './evidence-validation.ts'
 import { reportArgument, reportRevision } from './report-provenance.ts'
+
+export const workingTreeDiffHash = async (cwd = process.cwd()): Promise<string> => {
+  const hash = createHash('sha256')
+  const child = spawn('git', ['diff', 'HEAD', '--', 'src', 'benchmark/jpegxl', 'capabilities'], {
+    cwd,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  })
+  child.stdout.on('data', (chunk: Uint8Array) => hash.update(chunk))
+  await new Promise<void>((resolve, reject) => {
+    child.once('error', reject)
+    child.once('close', (code) => {
+      if (code === 0) resolve()
+      else reject(new Error(`Git evidence diff failed with exit code ${code}`))
+    })
+  })
+  return hash.digest('hex')
+}
 
 const commands: Readonly<Record<EvidenceGate, string>> = {
   remediationFixtures: 'node benchmark/jpegxl/verify-remediation-fixtures.ts',
@@ -32,6 +49,11 @@ const commands: Readonly<Record<EvidenceGate, string>> = {
   realJpeg: 'npm run jpegxl:m1:corpus (250 eligible COCO inputs)',
   commonStatic: 'npm run jpegxl:m3:corpus (100 COCO sources and 300 variants)',
   commonPipelines: 'node benchmark/jpegxl/production-program/verify-m5-common-static.ts',
+  m9Integration: 'npm run jpegxl:m9:integration',
+  m9FuzzResource: 'npm run jpegxl:m9:fuzz-resource',
+  m9Package: 'npm run jpegxl:m9:package',
+  m10Level10:
+    'npm run jpegxl:m10:level10 -- --djxl .tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl',
 }
 const criteria: Readonly<Record<EvidenceGate, string>> = {
   remediationFixtures: 'Nine pinned libjxl fixtures; independent float samples within 1e-7.',
@@ -56,7 +78,7 @@ const criteria: Readonly<Record<EvidenceGate, string>> = {
   encoderMemory:
     'Sixteen isolated cold/warm workloads: 512x512 and native 24 MP at efforts 1/3/5/7; independent exact pixels, actual owned-buffer peak, zero live bytes and allocations after finish.',
   conformance:
-    'All 39 classifications and input hashes match the pinned official corpus. Known failures are baseline observations, not supported-case passes.',
+    'All 39 pinned official valid cases pass with exact output hashes; Level 10 CMYK and binary32 use explicit native workflows.',
   color:
     'Five distinct official M4 cases; maximum error <= 1 and RMSE <= 0.55 under the documented 8-bit rounding exception.',
   pipelines:
@@ -67,6 +89,14 @@ const criteria: Readonly<Record<EvidenceGate, string>> = {
     '100 COCO sources and 300 resized/upscaled variants; >= 99% decode, zero incorrect outputs, explicit unsupported failures only; maximum error <= 1 and RMSE <= 0.55.',
   commonPipelines:
     'All supported outputs from the 300-variant corpus complete five workflows; exact comparisons or the explicitly scoped maximum-1/RMSE-0.55 rounding exception.',
+  m9Integration:
+    'All twelve pinned cross-feature cases pass with raw output hashes and no incorrect case.',
+  m9FuzzResource:
+    'All twelve mutation targets and twelve resource/cancellation cases terminate with normalized outcomes and zero live managed ownership.',
+  m9Package:
+    'Packed public imports pass on Node 22 and 24; browser conditional exports and public APIs pass in Chromium, Firefox and WebKit; measured entries remain within checked ceilings.',
+  m10Level10:
+    'Normative Level 5/10 map validates; official binary32 is bit exact; official CMYK native/profile workflows pass; minimum-level signaling and three independent djxl writer decodes pass.',
 }
 const capabilities = {
   commonStaticDecode: {
@@ -78,7 +108,7 @@ const capabilities = {
       'modularMemory',
       'varDctMemory',
     ],
-    extended: ['commonStatic'],
+    extended: ['commonStatic', 'm9Integration', 'm9FuzzResource', 'm9Package'],
   },
   losslessPixelEncode: {
     pr: [
@@ -104,7 +134,27 @@ const capabilities = {
   exactJpegTranscode: { pr: ['reverse', 'benchmark'], extended: ['realJpeg'] },
   nativePrecisionPipelines: {
     pr: ['color', 'remediationFixtures', 'pipelines'],
-    extended: ['commonStatic', 'commonPipelines'],
+    extended: ['commonStatic', 'commonPipelines', 'm9Integration', 'm9FuzzResource', 'm9Package'],
+  },
+  selectiveProgressiveDecode: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  lossyEncode: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  animation: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package'],
+    extended: [],
+  },
+  extraChannels: {
+    pr: ['m9Integration', 'm9FuzzResource', 'm9Package', 'm10Level10'],
+    extended: [],
+  },
+  level10: {
+    pr: ['conformance', 'm10Level10'],
+    extended: ['m9Integration', 'm9FuzzResource', 'm9Package'],
   },
 } satisfies Record<string, { pr: EvidenceGate[]; extended: EvidenceGate[] }>
 
@@ -211,11 +261,7 @@ export const buildFinalEvidence = async (
       runId: process.env.GITHUB_RUN_ID ?? null,
       runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null,
       historical: false,
-      workingTreeDiffSha256: createHash('sha256')
-        .update(
-          execFileSync('git', ['diff', 'HEAD', '--', 'src', 'benchmark/jpegxl', 'capabilities']),
-        )
-        .digest('hex'),
+      workingTreeDiffSha256: await workingTreeDiffHash(),
       policy:
         'Reports are current executions at the recorded checkout revision. Local uncommitted changes are not proof of a committed SHA. Absolute hosted wall times are observational; reference-machine performance reports are recorded separately.',
     },
@@ -231,7 +277,7 @@ export const buildFinalEvidence = async (
     gates,
     reports,
     interpretation:
-      'Official conformance is a baseline-classification gate, with known failing cases exposed separately. Status derives from the listed raw gate outcomes for this exact revision. PR evidence does not substitute for missing extended promotion runs. These results establish only the tested subsets; they do not mark M6 or all JPEG XL features complete. Browser and repository checks are separate CI jobs and are not asserted by this artifact.',
+      'Official conformance is an exact-output classification gate, with any future unsupported or failing cases exposed separately. Status derives from the listed raw gate outcomes for this exact revision. PR evidence does not substitute for missing extended promotion runs. These results establish only the tested subsets and do not establish full JPEG XL specification support. Browser and repository checks are separate CI jobs and are not asserted by this artifact.',
     corpusScope: {
       exactJpeg:
         '250 eligible COCO 2017 validation JPEGs at least 224 KiB, selected from 357 eligible candidates. Selection and exclusions are published.',

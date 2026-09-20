@@ -21,6 +21,8 @@ const scriptEntries: Readonly<Record<string, string>> = {
   '/assets/geo-showcase-worker.js': 'docs-astro/src/scripts/geo-showcase-worker.ts',
   '/assets/hdr-surgery.js': 'docs-astro/src/scripts/hdr-surgery.ts',
   '/assets/hdr-surgery-worker.js': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
+  '/assets/jpegxl-progressive-workbench.js':
+    'docs-astro/src/scripts/jpegxl-progressive-workbench.ts',
   '/assets/jpegxl-workbench.js': 'docs-astro/src/scripts/jpegxl-workbench.ts',
   '/assets/jpegxl-workbench-worker.js': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
 }

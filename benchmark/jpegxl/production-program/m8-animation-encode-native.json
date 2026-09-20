@@ -1,0 +1,776 @@
+{
+  "sourceSha256": "477920d848bc4a53abbfea720fbaaf067a8187a64d900f47613026fcb11df8ab",
+  "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+  "photoPath": "benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg",
+  "photoSha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e",
+  "animation": {
+    "ticksPerSecondNumerator": 30000,
+    "ticksPerSecondDenominator": 1001,
+    "loops": 3,
+    "haveTimecodes": true
+  },
+  "qualityDomain": "8-bit sRGB composited over black and white with exact alpha; raw RGB errors retained separately",
+  "passed": true,
+  "reports": [
+    {
+      "id": "moving-text-lossless",
+      "inputFrameHashes": [
+        "6b3805b89b50a092b3833f4102ea123f80e07d28414c73191ccd02f4f1043974",
+        "2018d32ce209ce1f8011c1f9664a878549a0c988314e95b2df442088de0ba1a7",
+        "bd04e20a6c5bf08ec8c7aa5204bfd2c36540098117a92a832b16fca9e8d6c9d6",
+        "f843842e6a9529962517ce7b099e0d319f8b99ae0c676774e6197898c9b3738e",
+        "3c8ec6f8ed7b6155ef2384c5b0c47ba3aabd7434394ae82f50f5da432f146168"
+      ],
+      "outputSha256": "912f2542dcaa96e9c21518be02a552a8d68c2e736d76dc0b62fe91580c4898fb",
+      "encodedBytes": 1131,
+      "encodeMilliseconds": 67.19746699999996,
+      "nativeNpySha256": "9db0ba866e7ead2d03fbd52c5874f5ddccbd5e07e7d34a34bcd8f0fb1a8baa67",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "moving-text-lossy",
+      "inputFrameHashes": [
+        "6b3805b89b50a092b3833f4102ea123f80e07d28414c73191ccd02f4f1043974",
+        "2018d32ce209ce1f8011c1f9664a878549a0c988314e95b2df442088de0ba1a7",
+        "bd04e20a6c5bf08ec8c7aa5204bfd2c36540098117a92a832b16fca9e8d6c9d6",
+        "f843842e6a9529962517ce7b099e0d319f8b99ae0c676774e6197898c9b3738e",
+        "3c8ec6f8ed7b6155ef2384c5b0c47ba3aabd7434394ae82f50f5da432f146168"
+      ],
+      "outputSha256": "262acb097b7d84f0d183c73e25736a46bcad62abd265e2654a71f7eb133df45f",
+      "encodedBytes": 5093,
+      "encodeMilliseconds": 43.60144300000002,
+      "nativeNpySha256": "4e4156d9f9e0beecc2cc33b97a82651f90588edd97563b07bb151d006ae1e959",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 0.000020446716894875414,
+          "maximumAlphaError": 0,
+          "maximumColorError": 59,
+          "rmsColorError": 4.614459883600801,
+          "rmsCompositeError": 4.614459883600801,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 0.000015777638182043474,
+          "maximumAlphaError": 0,
+          "maximumColorError": 59,
+          "rmsColorError": 5.938166994700001,
+          "rmsCompositeError": 5.938166994700001,
+          "rmsTemporalError": 7.670844225277438,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 0.000020446687703952297,
+          "maximumAlphaError": 0,
+          "maximumColorError": 59,
+          "rmsColorError": 5.370556949185479,
+          "rmsCompositeError": 5.370556949185479,
+          "rmsTemporalError": 8.085735789888814,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 0.000015777638182043474,
+          "maximumAlphaError": 0,
+          "maximumColorError": 59,
+          "rmsColorError": 5.684088758751144,
+          "rmsCompositeError": 5.684088758751144,
+          "rmsTemporalError": 7.971503473092625,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 0.000020446687703952297,
+          "maximumAlphaError": 0,
+          "maximumColorError": 59,
+          "rmsColorError": 4.614459883600801,
+          "rmsCompositeError": 4.614459883600801,
+          "rmsTemporalError": 7.691070196265854,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "transparent-sprite-lossless",
+      "inputFrameHashes": [
+        "18764a31f43dec3d45280bdf88972cd225fffc3dcdd6d8b581374fd2000542e3",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc"
+      ],
+      "outputSha256": "2786be7d61eba22eb5c9d4eb96446c16e5db8058b9b3c1a075d66ec8e54906bc",
+      "encodedBytes": 504,
+      "encodeMilliseconds": 44.35435899999993,
+      "nativeNpySha256": "2eedbd7645e5f672add64ea02050300bd52ad28d32b36d1e0385047a2689b60d",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 6.077336334175953e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "transparent-sprite-lossy",
+      "inputFrameHashes": [
+        "18764a31f43dec3d45280bdf88972cd225fffc3dcdd6d8b581374fd2000542e3",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc",
+        "8935429c4a90e956449df1d5ab793b33630b5d886b5b6849966420d1352f25cc"
+      ],
+      "outputSha256": "0af6fc0bfefb7de938f20c018c8fcb84d6c9ba5920a4a42c8e7d4f91495dcb5f",
+      "encodedBytes": 616,
+      "encodeMilliseconds": 15.781464999999912,
+      "nativeNpySha256": "38c842017837e44717dceee5646a4d2cc193f8f6a11de9fc911f215bccce8cfb",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 5.697552114755644e-7,
+          "maximumAlphaError": 0,
+          "maximumColorError": 230,
+          "rmsColorError": 62.49114520607433,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 5.697552114755644e-7,
+          "maximumAlphaError": 0,
+          "maximumColorError": 230,
+          "rmsColorError": 67.56073656348042,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 5.697552114755644e-7,
+          "maximumAlphaError": 0,
+          "maximumColorError": 230,
+          "rmsColorError": 70.67913669947683,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 5.697552114755644e-7,
+          "maximumAlphaError": 0,
+          "maximumColorError": 230,
+          "rmsColorError": 73.66564738171157,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 5.697552114755644e-7,
+          "maximumAlphaError": 0,
+          "maximumColorError": 230,
+          "rmsColorError": 76.53570959852662,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "photographic-motion-lossless",
+      "inputFrameHashes": [
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "44f1c3b01751dbc90215be542d071bd27bdb5e8e140a36bb01e38b157cee1a27",
+        "d3727016815b4e1faf7cb88419d056f498f56b3ff926095dfba368b08d2eee9f",
+        "0fe18da6f414f0bbcc853453c2ee8ca36b601f6f476b3bfc373907012d6b29bf",
+        "10ca0c94c85305a35e01a539b01f2cf4331e89513016b892386881a83b19c06c"
+      ],
+      "outputSha256": "7dda13d76a4133e808b8edfe5d3699c021c4cd6b2a626bc244f0a1ebac689cb3",
+      "encodedBytes": 1231,
+      "encodeMilliseconds": 52.38706599999989,
+      "nativeNpySha256": "971f565ebe0641f4173719e3e122629793017fb2cabf224a92c222c0ca071af1",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "photographic-motion-lossy",
+      "inputFrameHashes": [
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "44f1c3b01751dbc90215be542d071bd27bdb5e8e140a36bb01e38b157cee1a27",
+        "d3727016815b4e1faf7cb88419d056f498f56b3ff926095dfba368b08d2eee9f",
+        "0fe18da6f414f0bbcc853453c2ee8ca36b601f6f476b3bfc373907012d6b29bf",
+        "10ca0c94c85305a35e01a539b01f2cf4331e89513016b892386881a83b19c06c"
+      ],
+      "outputSha256": "55c30a23b59e8f057628fa86efbc9285fe15578fa4011d2f89724fe5a26f4af4",
+      "encodedBytes": 3952,
+      "encodeMilliseconds": 52.03168500000004,
+      "nativeNpySha256": "3f503d6c42c8ffc51872b9a17f0ee8847c31b89ce0bd3039fe4f5f83c8a8a6f8",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 0.00001539797496802331,
+          "maximumAlphaError": 0,
+          "maximumColorError": 71,
+          "rmsColorError": 6.670128495711725,
+          "rmsCompositeError": 6.670128495711725,
+          "rmsTemporalError": 5.7391012350464,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 0.00002684026956558533,
+          "maximumAlphaError": 0,
+          "maximumColorError": 27,
+          "rmsColorError": 3.265114094803325,
+          "rmsCompositeError": 3.265114094803325,
+          "rmsTemporalError": 6.283054950729691,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 0.000023554805666209377,
+          "maximumAlphaError": 0,
+          "maximumColorError": 90,
+          "rmsColorError": 6.696490905794533,
+          "rmsCompositeError": 6.696490905794533,
+          "rmsTemporalError": 5.925284400405979,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.489629313641283,
+          "rmsCompositeError": 6.489629313641283,
+          "rmsTemporalError": 4.250759480750992,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "repeated-frame-lossless",
+      "inputFrameHashes": [
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76"
+      ],
+      "outputSha256": "d9e495d89f0b6a3c29d08dda854c9c06755295f06359f3640394b463c1dbf8a9",
+      "encodedBytes": 1231,
+      "encodeMilliseconds": 35.80583699999988,
+      "nativeNpySha256": "6110fa424f29a8e797264a66bcd924f1019866591dff92a581537c952d637c30",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "repeated-frame-lossy",
+      "inputFrameHashes": [
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76"
+      ],
+      "outputSha256": "dd9aee68e851120e7edaf9bcbd5e4a9f05e8be11c1658db554b158608475bc7d",
+      "encodedBytes": 4256,
+      "encodeMilliseconds": 21.994670000000042,
+      "nativeNpySha256": "aca4cd1430f09f4e07790580c035be7225fcc3357c1ea774c6281ff2d14c2d92",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "oriented-frame-lossless",
+      "inputFrameHashes": [
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "44f1c3b01751dbc90215be542d071bd27bdb5e8e140a36bb01e38b157cee1a27",
+        "d3727016815b4e1faf7cb88419d056f498f56b3ff926095dfba368b08d2eee9f",
+        "0fe18da6f414f0bbcc853453c2ee8ca36b601f6f476b3bfc373907012d6b29bf",
+        "10ca0c94c85305a35e01a539b01f2cf4331e89513016b892386881a83b19c06c"
+      ],
+      "outputSha256": "b2a7337b9c70b1f4e42cfc0789b41cd34279151c1c32d11df84df2e495c15fa8",
+      "encodedBytes": 1231,
+      "encodeMilliseconds": 35.89889199999993,
+      "nativeNpySha256": "9231c48f5b66c001f6df30b240ff8aab8d653fc9281cbe2597eeeeda8070a5ee",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 6.521449369412124e-8,
+          "maximumAlphaError": 0,
+          "maximumColorError": 0,
+          "rmsColorError": 0,
+          "rmsCompositeError": 0,
+          "rmsTemporalError": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "oriented-frame-lossy",
+      "inputFrameHashes": [
+        "6797f21b7b8a28b9d5574fcb4f269a79c2872a4621df5e8ca2c4ffeec5205f76",
+        "44f1c3b01751dbc90215be542d071bd27bdb5e8e140a36bb01e38b157cee1a27",
+        "d3727016815b4e1faf7cb88419d056f498f56b3ff926095dfba368b08d2eee9f",
+        "0fe18da6f414f0bbcc853453c2ee8ca36b601f6f476b3bfc373907012d6b29bf",
+        "10ca0c94c85305a35e01a539b01f2cf4331e89513016b892386881a83b19c06c"
+      ],
+      "outputSha256": "4f7730c4d7dafafd4e0b2841e1e9e086fe8db87365793f22c6734a128b0e450e",
+      "encodedBytes": 3952,
+      "encodeMilliseconds": 18.925931999999875,
+      "nativeNpySha256": "2145b1760e3c47b89fe1bfb5f2a1946896a36aae72a15c06ef599cf5e031ad67",
+      "frames": [
+        {
+          "index": 0,
+          "durationTicks": 1,
+          "startTicks": "0",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.390830868050553,
+          "rmsCompositeError": 6.390830868050553,
+          "rmsTemporalError": 0,
+          "passed": true
+        },
+        {
+          "index": 1,
+          "durationTicks": 3,
+          "startTicks": "1",
+          "maximumDecoderError": 0.00001539797496802331,
+          "maximumAlphaError": 0,
+          "maximumColorError": 71,
+          "rmsColorError": 6.670128495711725,
+          "rmsCompositeError": 6.670128495711725,
+          "rmsTemporalError": 5.7391012350464,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "durationTicks": 2,
+          "startTicks": "4",
+          "maximumDecoderError": 0.00002684026956558533,
+          "maximumAlphaError": 0,
+          "maximumColorError": 27,
+          "rmsColorError": 3.265114094803325,
+          "rmsCompositeError": 3.265114094803325,
+          "rmsTemporalError": 6.283054950729691,
+          "passed": true
+        },
+        {
+          "index": 3,
+          "durationTicks": 1,
+          "startTicks": "6",
+          "maximumDecoderError": 0.000023554805666209377,
+          "maximumAlphaError": 0,
+          "maximumColorError": 90,
+          "rmsColorError": 6.696490905794533,
+          "rmsCompositeError": 6.696490905794533,
+          "rmsTemporalError": 5.925284400405979,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "durationTicks": 4,
+          "startTicks": "7",
+          "maximumDecoderError": 0.000017076190561057802,
+          "maximumAlphaError": 0,
+          "maximumColorError": 69,
+          "rmsColorError": 6.489629313641283,
+          "rmsCompositeError": 6.489629313641283,
+          "rmsTemporalError": 4.250759480750992,
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

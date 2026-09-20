@@ -1,29 +1,57 @@
+import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { describe, expect, it } from 'vitest'
+import {
+  buildFinalEvidence,
+  workingTreeDiffHash,
+} from '../benchmark/jpegxl/build-final-evidence.ts'
+import {
+  type EvidenceGate,
+  evidenceFiles,
+  extendedGates,
+  validateEvidenceReport,
+} from '../benchmark/jpegxl/evidence-validation.ts'
+import { hashM8PortablePlanes } from '../benchmark/jpegxl/m8-output-digest.ts'
+import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/conformance.json' with {
+  type: 'json',
+}
+import gateManifest from '../benchmark/jpegxl/production-program/m9-gate-manifest.json' with {
+  type: 'json',
+}
+import securitySources from '../benchmark/jpegxl/production-program/m9-security-sources.json' with {
+  type: 'json',
+}
 import holdoutManifest from '../benchmark/jpegxl/production-program/pr35-holdout-manifest.json' with {
   type: 'json',
 }
 import smallJpegManifest from '../benchmark/jpegxl/production-program/pr35-small-jpeg-manifest.json' with {
   type: 'json',
 }
-import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/conformance.json' with {
-  type: 'json',
-}
 import remediationManifest from './fixtures/jpegxl/remediation/manifest.json' with { type: 'json' }
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { describe, expect, it } from 'vitest'
-import { buildFinalEvidence } from '../benchmark/jpegxl/build-final-evidence.ts'
-import {
-  evidenceFiles,
-  extendedGates,
-  validateEvidenceReport,
-  type EvidenceGate,
-} from '../benchmark/jpegxl/evidence-validation.ts'
 
 const revision = 'a'.repeat(40),
   hash = 'b'.repeat(64)
+const m9ManifestHash = createHash('sha256')
+  .update(readFileSync('benchmark/jpegxl/production-program/m9-gate-manifest.json'))
+  .digest('hex')
 const count = (length: number, make: (index: number) => unknown) =>
   Array.from({ length }, (_, index) => make(index))
+
+it('normalizes insignificant cross-runtime float differences in sequence evidence', () => {
+  const scale = 1_048_576
+  const quantized = Math.round((1 / 3) * scale) / scale
+  const digest = (sample: number): string => {
+    const output = createHash('sha256')
+    hashM8PortablePlanes(output, [new Float64Array([sample])])
+    return output.digest('hex')
+  }
+  expect(digest(quantized - 0.25 / scale)).toBe(digest(quantized + 0.25 / scale))
+  expect(digest(quantized)).not.toBe(digest(quantized + 2 / scale))
+})
 const fixture = (gate: EvidenceGate): Record<string, unknown> => {
   const common = {
     schemaVersion: gate === 'reverse' ? 3 : gate === 'encoderMemory' ? 2 : 1,
@@ -189,16 +217,19 @@ const fixture = (gate: EvidenceGate): Record<string, unknown> => {
     case 'conformance':
       return {
         ...common,
-        baselineMatched: true,
+        baselineMatched: false,
+        expectationsMatched: true,
+        applicableLevel5Passed: true,
         cases: conformanceManifest.cases.length,
         corpusRevision: conformanceManifest.revision,
         archiveSha256: conformanceManifest.archiveSha256,
         results: conformanceManifest.cases.map((entry) => ({
           id: entry.id,
           inputSha256: entry.sha256,
-          matchesBaseline: true,
-          actualClassification: entry.baselineClassification,
-          errorCode: entry.expectedErrorCode,
+          matchesBaseline: entry.baselineClassification === 'pass',
+          matchesExpectation: true,
+          actualClassification: 'pass',
+          outputSha256: entry.outputSha256,
         })),
       }
     case 'color':
@@ -239,6 +270,125 @@ const fixture = (gate: EvidenceGate): Record<string, unknown> => {
           oraclePixelsSha256: hash,
           outputs: count(5, () => ({ maximumError: 1, rmse: 0.5, maxLimit: 1, rmseLimit: 0.55 })),
         })),
+      }
+    case 'm9Integration':
+      return {
+        ...common,
+        clean: true,
+        manifestSha256: m9ManifestHash,
+        cases: gateManifest.integrationCases.map((id) => ({
+          id,
+          status: 'passed',
+          assertions: 1,
+          outputSha256: createHash('sha256').update(id).digest('hex'),
+        })),
+        summary: {
+          passed: true,
+          total: gateManifest.integrationCases.length,
+          passedCases: gateManifest.integrationCases.length,
+          incorrectCases: 0,
+        },
+      }
+    case 'm9FuzzResource': {
+      const expectedResourceOutcomes: Readonly<Record<string, string>> = {
+        'zero-progress-source': 'malformed',
+        'section-count-limit': 'limit-exceeded',
+        'internal-frame-limit': 'limit-exceeded',
+        'declared-pixel-limit': 'limit-exceeded',
+        'metadata-limit': 'limit-exceeded',
+        'computation-cancellation': 'cancelled',
+        'fetch-cancellation': 'cancelled',
+        'sink-failure': 'passed',
+        'pending-write-abort': 'cancelled',
+        'early-consumer-return': 'passed',
+        'resource-reuse': 'passed',
+        'malformed-after-preview': 'malformed',
+      }
+      const safetyCase = (id: string, outcome = 'limit-exceeded') => ({
+        id,
+        outcome,
+        rawException: false,
+        managedLiveBytes: 0,
+        elapsedMilliseconds: 1,
+        inputSha256: hash,
+      })
+      return {
+        ...common,
+        clean: true,
+        manifestSha256: m9ManifestHash,
+        securitySources: securitySources.sources.map(({ id, url }) => ({
+          id,
+          url,
+          reviewed: true,
+        })),
+        fuzzCases: gateManifest.fuzzTargets.map((id) => safetyCase(id)),
+        resourceCases: gateManifest.resourceCases.map((id) =>
+          safetyCase(id, expectedResourceOutcomes[id]),
+        ),
+        summary: {
+          passed: true,
+          total: gateManifest.fuzzTargets.length + gateManifest.resourceCases.length,
+          rawExceptions: 0,
+          leakedOwnership: 0,
+        },
+      }
+    }
+    case 'm9Package':
+      return {
+        ...common,
+        clean: true,
+        manifestSha256: m9ManifestHash,
+        cases: gateManifest.packageCases.map((id) => ({
+          id,
+          status: 'passed',
+          milliseconds: 1,
+          ...(id === 'entry-size-and-cold-start'
+            ? {
+                codecMinifiedBytes: 439_000,
+                specializedMinifiedBytes: 510_000,
+                coldImportMilliseconds: 1,
+                firstDecodeMilliseconds: 1,
+              }
+            : {}),
+        })),
+        summary: {
+          passed: true,
+          total: gateManifest.packageCases.length,
+          passedCases: gateManifest.packageCases.length,
+          runtimeFailures: 0,
+        },
+      }
+    case 'm10Level10':
+      return {
+        ...common,
+        decoderSourceSha256: hash,
+        profileMapSha256: hash,
+        officialFixtures: {
+          binary32: { inputSha256: hash, samples: 750_000, floatDigest: hash },
+          cmyk: { inputSha256: hash, layers: 4, rows: 775, displaySha256: hash },
+        },
+        writerCases: [
+          { id: 'binary32', kind: 'container', level: 10 },
+          { id: 'binary32-grouped', kind: 'container', level: 10 },
+          { id: 'integer31', kind: 'container', level: 10 },
+          { id: 'cmyk', kind: 'container', level: 10 },
+          { id: 'cmyk-grouped', kind: 'container', level: 10 },
+          { id: 'integer12', kind: 'raw-codestream', level: 5 },
+          { id: 'integer13', kind: 'container', level: 10 },
+          { id: 'vardct-progressive', kind: 'container', level: 10 },
+          { id: 'vardct-alpha16', kind: 'container', level: 10 },
+          { id: 'vardct-animation', kind: 'container', level: 10 },
+        ],
+        independentDecoder: { name: 'libjxl-djxl-v0.12.0', accepted: 8 },
+        remainingUnsupported: ['shifted native channels across multiple groups'],
+        gates: {
+          normativeMap: true,
+          officialBinary32Exact: true,
+          officialCmykNativeAndDisplay: true,
+          minimumLevelSelection: true,
+          level10ContainerSignaling: true,
+          independentDecoderAcceptance: true,
+        },
       }
   }
 }
@@ -348,16 +498,86 @@ describe('JPEG XL evidence admission', () => {
       ),
     ).toThrow(/measurements exceed/)
   })
+  it('rejects incomplete, dirty, leaking, or oversized M9 evidence', () => {
+    const integration = fixture('m9Integration')
+    expect(() =>
+      validateEvidenceReport(
+        'm9Integration',
+        { ...integration, cases: gateManifest.integrationCases.slice(1) },
+        revision,
+      ),
+    ).toThrow(/missing/)
+    expect(() =>
+      validateEvidenceReport('m9Integration', { ...integration, clean: false }, revision),
+    ).toThrow(/clean checkout/)
+
+    const fuzz = fixture('m9FuzzResource')
+    const unmeasuredCancellation = {
+      ...fuzz,
+      resourceCases: Array.isArray(fuzz.resourceCases)
+        ? fuzz.resourceCases.map((entry) =>
+            typeof entry === 'object' &&
+            entry !== null &&
+            'id' in entry &&
+            entry.id === 'computation-cancellation'
+              ? { ...entry, managedLiveBytes: null }
+              : entry,
+          )
+        : [],
+    }
+    expect(() =>
+      validateEvidenceReport('m9FuzzResource', unmeasuredCancellation, revision),
+    ).toThrow(/measure released ownership/)
+    expect(() =>
+      validateEvidenceReport(
+        'm9FuzzResource',
+        {
+          ...fuzz,
+          resourceCases: gateManifest.resourceCases.map((id, index) => ({
+            id,
+            outcome: 'malformed',
+            rawException: index === 0,
+            managedLiveBytes: index === 1 ? 1 : 0,
+            elapsedMilliseconds: 1,
+            inputSha256: hash,
+          })),
+        },
+        revision,
+      ),
+    ).toThrow()
+
+    const packageReport = fixture('m9Package')
+    expect(() =>
+      validateEvidenceReport(
+        'm9Package',
+        {
+          ...packageReport,
+          cases: gateManifest.packageCases.map((id) => ({
+            id,
+            status: 'passed',
+            milliseconds: 1,
+            ...(id === 'entry-size-and-cold-start'
+              ? {
+                  codecMinifiedBytes: 441_001,
+                  specializedMinifiedBytes: 519_001,
+                  coldImportMilliseconds: 1,
+                  firstDecodeMilliseconds: 1,
+                }
+              : {}),
+          })),
+        },
+        revision,
+      ),
+    ).toThrow(/size ceiling/)
+  })
   it('derives PR statuses while leaving missing extended evidence explicitly not run', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'jpegxl-evidence-'))
     try {
       for (const gate of gates.filter((gate) => !extendedGates.includes(gate)))
         await writeFile(join(directory, evidenceFiles[gate]), JSON.stringify(fixture(gate)))
       const report = await buildFinalEvidence(directory, revision, 'pr')
-      expect(report.status).toBe('required-gates-passed-with-known-failures')
-      expect(report.capabilities.commonStaticDecode?.knownFailures).toEqual([
-        'delta_palette: INVALID_INPUT',
-      ])
+      expect(report.status).toBe('required-gates-passed')
+      expect(report.capabilities.commonStaticDecode?.knownFailures).toEqual([])
       expect(report.capabilities.exactJpegTranscode?.extendedStatus).toBe('not-run')
       expect(report.capabilities.losslessPixelEncode?.status).toBe('validated-for-declared-gates')
       expect(report.gates.compression7).toMatchObject({ status: 'passed', revision, cases: 156 })
@@ -386,4 +606,38 @@ describe('JPEG XL evidence admission', () => {
       await rm(directory, { recursive: true, force: true })
     }
   })
+})
+
+it('hashes evidence diffs larger than the default process output buffer', async () => {
+  const cwd = await mkdtemp(join(tmpdir(), 'jpegxl-evidence-diff-'))
+  try {
+    execFileSync('git', ['init', '--quiet', cwd])
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=Test',
+        '-c',
+        'user.email=test@example.invalid',
+        'commit',
+        '--quiet',
+        '--allow-empty',
+        '-m',
+        'fixture',
+      ],
+      { cwd },
+    )
+    await mkdir(join(cwd, 'src'))
+    await writeFile(join(cwd, 'src', 'large.txt'), 'evidence line\n'.repeat(160_000))
+    execFileSync('git', ['add', 'src'], { cwd })
+    const diff = execFileSync(
+      'git',
+      ['diff', 'HEAD', '--', 'src', 'benchmark/jpegxl', 'capabilities'],
+      { cwd, maxBuffer: 4 * 1024 * 1024 },
+    )
+    expect(diff.length).toBeGreaterThan(1024 * 1024)
+    expect(await workingTreeDiffHash(cwd)).toBe(createHash('sha256').update(diff).digest('hex'))
+  } finally {
+    await rm(cwd, { recursive: true, force: true })
+  }
 })

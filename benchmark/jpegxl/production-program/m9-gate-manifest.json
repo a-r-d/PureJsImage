@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "integrationCases": [
+    "progressive-orientation-viewport",
+    "progressive-hdr-alpha-fallback",
+    "high-depth-palette-squeeze-grouped-alpha",
+    "animation-partial-nonuniform-timing",
+    "reference-crop-seek-cancellation",
+    "lossless-storage-conversion-hdr-metadata",
+    "lossy-profile-conversion",
+    "float-resize-integer-encode",
+    "exact-jpeg-marker-placement",
+    "reconstruction-invalidated-by-display-metadata",
+    "tiny-budget-fragmented-source",
+    "strict-and-allow-fallback"
+  ],
+  "fuzzTargets": [
+    "boxes-level-segments-metadata",
+    "entropy-prefix-ans-lz77",
+    "ma-tree-palette-squeeze",
+    "coefficients-transforms-filters",
+    "patches-splines-noise",
+    "progressive-dependencies",
+    "animation-reference-timing-blend",
+    "icc-extra-channels",
+    "exact-jpeg-reconstruction",
+    "lossless-lossy-writers",
+    "native-display-conversion",
+    "api-limits-worker-messages"
+  ],
+  "resourceCases": [
+    "zero-progress-source",
+    "section-count-limit",
+    "internal-frame-limit",
+    "declared-pixel-limit",
+    "metadata-limit",
+    "computation-cancellation",
+    "fetch-cancellation",
+    "sink-failure",
+    "pending-write-abort",
+    "early-consumer-return",
+    "resource-reuse",
+    "malformed-after-preview"
+  ],
+  "packageCases": [
+    "node-22-packed-imports",
+    "node-24-packed-imports",
+    "browser-conditional-codec-export",
+    "browser-conditional-specialized-export",
+    "chromium-public-api",
+    "firefox-public-api",
+    "webkit-public-api",
+    "entry-size-and-cold-start"
+  ]
+}

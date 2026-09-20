@@ -4,7 +4,51 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### 2026-09-19 UTC
+
+- Add bounded JPEG XL Level 10 native decode and lossless writing for unsigned
+  samples through 31 bits, IEEE binary16/binary32 bit patterns and CMYK black
+  channels. Level 10 output uses a container with `jxll=10`.
+- Add explicit binary32-to-RGBA16 and embedded-profile CMYK-to-RGBA8 conversion,
+  while keeping raw channels available. All 39 pinned official valid cases pass,
+  including exact CMYK and binary32 native output.
+- Add JPEG XL M9 production-hardening gates for twelve cross-feature workflows,
+  twelve mutation families, twelve resource and cancellation cases, packed Node
+  22/24 imports, three browsers and strict evidence admission.
+- Accept known structured color produced by decoder conversion when a source-only
+  ICC descriptor remains attached or the optional rendering intent is absent.
+  Emitted-pixel ICC profiles still require their existing preservation path.
+- Split M9 CI into integration/security, Node package, browser and scheduled fuzz
+  jobs, with failure artifacts and checksum-keyed caches for pinned oracle builds.
+
+### 2026-09-12 UTC
+
+- Add JPEG XL sequence iteration, exact rational timing, explicit frame selection,
+  reference composition and streamed lossless/Experimental lossy animation writing.
+- Add typed native channel extraction and bounded planar encoding, including
+  binary16 bit patterns, grouped shifted alpha/depth and original GRAY/RGB ICC
+  preservation. Extraction and display conversion have separate boundaries.
+- Expand JPEG XL reconstruction with previous-channel MA-tree properties, custom
+  inverse opsin and upsampling, Gaborish/EPF settings, all eight Modular/XYB patch
+  modes, YCbCr chroma, synthetic noise/splines and raw progressive dependencies.
+  All 39 official conformance cases remain individually reported; native extraction
+  remains distinct from display conversion.
+
+### 2026-09-11 UTC
+
+- Decode RGB8 JPEG XL global implicit delta palettes across groups with bounded
+  index bands and prediction rows. The official `delta_palette` fixture now
+  matches the independent reference exactly.
+
 ### Added
+
+- JPEG XL ordinary VarDCT opening and planning now defer pixel decoding until
+  iteration. Internal-frame indexing seeks directly to each header and applies
+  the header budget to parsed headers. Final decoding retains its existing
+  memory preflight and full-frame output. Explicit sessions add embedded previews,
+  complete DC and pass stages, native resolution boundaries, selective groups,
+  source-bound caches, cancellation and a browser Range explorer. Unsupported
+  selective dependencies use declared static fallbacks or strict rejection.
 
 - Added JPEG XL structured color, all eight orientations, independent straight and premultiplied
   alpha, compressed ICC, high-depth and float HDR output, and bounded metadata preservation.

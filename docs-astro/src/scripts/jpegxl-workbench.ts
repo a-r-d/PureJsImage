@@ -15,6 +15,22 @@ const button = (id: string): HTMLButtonElement => {
 
 const canvas = element('jxl-preview')
 if (!(canvas instanceof HTMLCanvasElement)) throw new Error('#jxl-preview is not a canvas')
+const sourceCanvas = element('jxl-source-preview')
+if (!(sourceCanvas instanceof HTMLCanvasElement))
+  throw new Error('Missing source comparison canvas')
+const encodeMode = element('jxl-encode-mode'),
+  effortInput = element('jxl-effort'),
+  distanceInput = element('jxl-distance'),
+  progressiveInput = element('jxl-progressive-output'),
+  zoomInput = element('jxl-zoom')
+if (
+  !(encodeMode instanceof HTMLSelectElement) ||
+  !(effortInput instanceof HTMLSelectElement) ||
+  !(distanceInput instanceof HTMLInputElement) ||
+  !(progressiveInput instanceof HTMLInputElement) ||
+  !(zoomInput instanceof HTMLSelectElement)
+)
+  throw new Error('Missing JPEG XL encoding controls')
 const file = element('jxl-file')
 if (!(file instanceof HTMLInputElement)) throw new Error('#jxl-file is not an input')
 const onlyIfSmaller = element('jxl-only-if-smaller')
@@ -116,6 +132,11 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     return
   }
   draw(response.preview)
+  if (response.type === 'opened') {
+    sourceCanvas.width = canvas.width
+    sourceCanvas.height = canvas.height
+    sourceCanvas.getContext('2d')?.drawImage(canvas, 0, 0)
+  }
   output = response.type === 'output' ? { name: response.name, bytes: response.bytes } : undefined
   button('jxl-download').disabled = output === undefined
   if (response.type === 'opened') {
@@ -189,12 +210,23 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
   if (response.action === 'encode') {
     rows([
       ['Output', response.name],
-      ['Mode', 'Pixel-lossless encode'],
+      ['Mode', response.encode?.mode === 'lossy' ? 'Lossy VarDCT encode' : 'Pixel-lossless encode'],
+      [
+        'Time (encode and local verification)',
+        `${response.encode?.milliseconds.toFixed(1) ?? '0'} ms`,
+      ],
+      [
+        'Encoder-owned peak storage',
+        `${response.encode?.managedPeakBytes.toLocaleString() ?? '0'} bytes`,
+      ],
+      ['Normalized color RMSE', response.encode?.normalizedRmse.toFixed(6) ?? 'unknown'],
       ['Encoder status', response.encode?.status ?? 'Experimental'],
       ['Pixel format', response.encode?.sourcePixelFormat ?? 'unknown'],
       [
         'Decoded samples',
-        response.encode?.exactDecodedSamples ? 'byte-exact local round trip' : 'Changed',
+        response.encode?.exactDecodedSamples
+          ? 'byte-exact local round trip'
+          : 'Lossy color; alpha verified exact',
       ],
       ['JXL bytes', response.bytes.byteLength.toLocaleString()],
       [
@@ -209,7 +241,10 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
       2,
     )
     button('jxl-reconstruct').disabled = true
-    status.textContent = 'Pixel-lossless JPEG XL byte-exact local round trip verified.'
+    status.textContent =
+      response.encode?.mode === 'lossy'
+        ? 'Lossy JPEG XL decoded locally; alpha verified exact.'
+        : 'Pixel-lossless JPEG XL byte-exact local round trip verified.'
   } else if (response.action === 'transcode') {
     const transcode = response.transcode
     const savings = transcode?.savingsBytes ?? 0
@@ -299,7 +334,38 @@ file.addEventListener('change', () => {
 button('jxl-transcode').addEventListener('click', () =>
   request({ type: 'transcode', onlyIfSmaller: onlyIfSmaller.checked }),
 )
-button('jxl-encode').addEventListener('click', () => request({ type: 'encode' }))
+button('jxl-encode').addEventListener('click', () => {
+  const effort = Number(effortInput.value)
+  if (effort !== 1 && effort !== 3 && effort !== 5 && effort !== 7)
+    throw new Error('Invalid effort')
+  request({
+    type: 'encode',
+    effort,
+    ...(encodeMode.value === 'lossy'
+      ? {
+          mode: 'lossy',
+          distance: Number(distanceInput.value),
+          progressive: progressiveInput.checked,
+        }
+      : { mode: 'lossless' }),
+  })
+})
+button('jxl-cancel').addEventListener('click', () => request({ type: 'cancel' }))
+zoomInput.addEventListener('change', () => {
+  for (const target of [canvas, sourceCanvas]) {
+    target.style.maxWidth = zoomInput.value === 'fit' ? '100%' : 'none'
+    target.style.width =
+      zoomInput.value === 'fit' ? '' : `${target.width * Number(zoomInput.value)}px`
+    target.style.height = 'auto'
+  }
+})
+const updateEncodeControls = () => {
+  const lossy = encodeMode.value === 'lossy'
+  distanceInput.disabled = !lossy
+  progressiveInput.disabled = !lossy
+}
+encodeMode.addEventListener('change', updateEncodeControls)
+updateEncodeControls()
 button('jxl-reconstruct').addEventListener('click', () => request({ type: 'reconstruct' }))
 button('jxl-reopen').addEventListener('click', () => {
   if (!output?.name.endsWith('.jxl')) return

@@ -41,6 +41,7 @@ import { summarizeJpegXlExif } from './jpegxl-exif.ts'
 import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import { acceptsJpegXlColorSemantics, createJpegXlModularEncoder } from './jpegxl-modular-encode.ts'
+import { createJpegXlSequenceFrameDecoder } from './jpegxl-sequence.ts'
 import { createJpegXlVarDctDecoder } from './jpegxl-vardct.ts'
 import { estimateJpegXlVarDctWorkingMemory } from './jpegxl-vardct-memory.ts'
 
@@ -213,7 +214,7 @@ const describeJpegXlDecoder = (
   decoder: ImageDecoder,
   frame: Readonly<JpegXlFrameStructure>,
   options: Readonly<DecoderOptions>,
-  encoding: 'modular' | 'vardct',
+  encoding: 'modular' | 'vardct' | 'sequence',
 ): ImageDecoder => {
   const converted = options.hdrOutput === 'tone-map-srgb' || options.colorOutput === 'srgb'
   const depth = decoder.pixelFormat.endsWith('f32')
@@ -265,23 +266,30 @@ const describeJpegXlDecoder = (
       (frame.alphaAssociated && decoder.colorSemantics?.alpha === 'straight'),
     orientation: frame.orientation,
     sampleBitDepths,
-    decodeDuringOpen: encoding === 'vardct',
+    decodeDuringOpen: encoding === 'vardct' && decoder.capabilities.scaledDecode,
     fullFrameFallbackReasons: Object.freeze(
-      encoding === 'vardct'
+      encoding === 'sequence'
         ? [
-            decoder.capabilities.scaledDecode
-              ? 'JPEG-derived coefficients retained for the whole image; pixels use bounded rows'
-              : 'VarDCT retains a full output frame; eligible 8-bit images use bounded restoration bands',
+            'Sequence replay retains native frame planes, a full composition canvas and up to four reference slots; it does not cache the decoded sequence',
           ]
-        : frame.sections.length === 1
-          ? ['Single-group Modular retains its complete channel planes']
-          : [],
+        : encoding === 'vardct'
+          ? [
+              decoder.capabilities.scaledDecode
+                ? 'JPEG-derived coefficients retained for the whole image; pixels use bounded rows'
+                : 'VarDCT retains a full output frame; eligible 8-bit images use bounded restoration bands',
+            ]
+          : frame.sections.length === 1
+            ? ['Single-group Modular retains its complete channel planes']
+            : [],
     ),
     estimatedWorkingBytes:
-      encoding === 'vardct'
-        ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
-        : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
-          frame.sections.reduce((sum, part) => sum + part.length, 0),
+      encoding === 'sequence'
+        ? frame.width * frame.height * frame.channelCount * 96 +
+          frame.sections.reduce((sum, part) => sum + part.length, 0)
+        : encoding === 'vardct'
+          ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
+          : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
+            frame.sections.reduce((sum, part) => sum + part.length, 0),
     conversions: Object.freeze([
       ...(expandedGray ? ['gray-to-rgb'] : []),
       ...(decoder.colorSemantics?.alpha === 'straight' && frame.alphaAssociated
@@ -307,24 +315,22 @@ const describeJpegXlDecoder = (
       }),
     }),
   })
-  return Object.freeze({
+  const described = {
     width: decoder.width,
     height: decoder.height,
     pixelFormat: decoder.pixelFormat,
     ...(decoder.colorSemantics ? { colorSemantics: decoder.colorSemantics } : {}),
     capabilities: decoder.capabilities,
-    ...('managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
-      ? {
-          get managedPeakBytes(): number {
-            return 'managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number'
-              ? decoder.managedPeakBytes
-              : 0
-          },
-        }
-      : {}),
     execution,
     decode: (request: Parameters<ImageDecoder['decode']>[0]) => decoder.decode(request),
-  })
+  }
+  if ('managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number') {
+    Object.defineProperty(described, 'managedPeakBytes', {
+      enumerable: true,
+      get: () => decoder.managedPeakBytes,
+    })
+  }
+  return Object.freeze(described)
 }
 
 /** Registered first-party JPEG XL codec with a bounded lossless Modular subset. */
@@ -397,6 +403,63 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       logical.limits.maxHeaderBytes,
       logical.limits,
     )
+    if (
+      (inspection.frame.sampleFormat === 'unsigned-integer' && inspection.frame.bitDepth > 16) ||
+      inspection.frame.extraChannels.some(
+        (channel) =>
+          channel.bitDepth.sampleFormat === 'unsigned-integer' && channel.bitDepth.bits > 16,
+      )
+    ) {
+      throw unsupportedOperation(
+        'JPEG XL ordinary decoding supports integer samples through 16 bits; use native channel extraction for wider samples',
+      )
+    }
+    if (inspection.frame.animation) {
+      if (options.frame === undefined)
+        throw unsupportedOperation('JPEG XL animation requires explicit displayed-frame selection')
+      return describeJpegXlDecoder(
+        colorManagedJpegXlDecoder(
+          await createJpegXlSequenceFrameDecoder(source, limits, options, inspection.frame),
+          inspection.frame,
+          options,
+        ),
+        inspection.frame,
+        options,
+        'sequence',
+      )
+    }
+    if (inspection.frame.extraChannels.some((channel) => channel.type !== 0)) {
+      throw unsupportedOperation(
+        'JPEG XL non-alpha extra channels require explicit native channel extraction',
+      )
+    }
+    if (
+      inspection.needsFrameComposition ||
+      (inspection.encoding === 'modular' &&
+        ((inspection.frame.frameFlags & 17) !== 0 ||
+          inspection.frame.colorTransform !== 'none' ||
+          inspection.frame.upsampling !== 1 ||
+          inspection.frame.extraChannels.some((channel) => channel.dimShift !== 0) ||
+          inspection.frame.extraChannelUpsampling.some((factor) => factor !== 1) ||
+          inspection.frame.gaborish ||
+          inspection.frame.epfIterations > 0))
+    ) {
+      return describeJpegXlDecoder(
+        colorManagedJpegXlDecoder(
+          await createJpegXlSequenceFrameDecoder(
+            source,
+            limits,
+            { ...options, frame: options.frame ?? 0 },
+            inspection.frame,
+          ),
+          inspection.frame,
+          options,
+        ),
+        inspection.frame,
+        options,
+        'sequence',
+      )
+    }
     if (inspection.frame.sampleFormat === 'floating-point') {
       throw unsupportedOperation('JPEG XL floating-point encoded samples are not supported yet')
     }

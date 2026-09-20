@@ -1,0 +1,53 @@
+{
+  "native": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+  "nativeSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+  "generatedAt": "2026-09-11T22:59:05.895Z",
+  "sequenceSourceSha256": "914d73b8d3b22f46a3bcfaaca087565a0248390aefeff5691269ef615775f0da",
+  "results": [
+    {
+      "id": "alpha_premultiplied",
+      "inputSha256": "5028e630dc358bf4031cbf06e8a80f2bfbfa21fd0d088af74d83b473d3dd540a",
+      "outputSha256": "253a2118f345b3c23a840eda07b519b4bcb51a7ebbfd68856711ce890ac32c73",
+      "frames": [
+        {
+          "index": 0,
+          "width": 1024,
+          "height": 1024,
+          "startTicks": "0",
+          "durationTicks": 0,
+          "channels": [
+            {
+              "channel": 0,
+              "peak": 0.000002197324560415659,
+              "rms": 2.622375717271839e-7,
+              "nativeSha256": "16340945bbfe45879f5ccb0e347aeac16521ef57c6d93e33fe463ac3da2c9266",
+              "passed": true
+            },
+            {
+              "channel": 1,
+              "peak": 0.0000010634529064024179,
+              "rms": 1.4755800400837487e-7,
+              "nativeSha256": "16340945bbfe45879f5ccb0e347aeac16521ef57c6d93e33fe463ac3da2c9266",
+              "passed": true
+            },
+            {
+              "channel": 2,
+              "peak": 0.000002535139140891207,
+              "rms": 1.8637465634225753e-7,
+              "nativeSha256": "16340945bbfe45879f5ccb0e347aeac16521ef57c6d93e33fe463ac3da2c9266",
+              "passed": true
+            },
+            {
+              "channel": 3,
+              "peak": 0,
+              "rms": 0,
+              "nativeSha256": "39f93915ad1a78aec6ea8bb1bed2bfa128c9f29b663319bbdd1bb7b3fe8c13c9",
+              "passed": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "passed": true
+}

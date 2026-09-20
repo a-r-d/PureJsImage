@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "baselineRevision": "d157a8dc5a704410563026e53e438b79db6161db",
+  "candidateStartingRevision": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
+  "candidateSnapshot": "JXLMOD-031",
+  "sourceHashes": [
+    {
+      "label": "baseline",
+      "root": "/tmp/purejsimage-m7-merged-baseline",
+      "modularEncoderSha256": "9d940377edf86bcd60c1b99b2e55518ac143b6686cef8dcf4bf6c009acda1685"
+    },
+    {
+      "label": "candidate",
+      "root": "/tmp/purejsimage-m7-lossless-031-evaluation",
+      "modularEncoderSha256": "c47a2992c76b86449b7f42cab1ca0e02419fca25d8c9e583466cf97204e3a9d6"
+    }
+  ],
+  "manifestSha256": "f2da5cd51a5dcaac768514a581e3e3db44ed6c307b7dc456f4dd6f8b8a1e970a",
+  "policy": "Original five large-photo/screenshot regression inputs at original dimensions and identical normalized samples. All nine PR35 cases retained and independently exact. Separate eligible/ineligible exact-JPEG outcomes preserved. Source implementations loaded from immutable directories; raw runner revision fields describe the invoking checkout, not those source revisions. Baseline executedPath labels came from a newer harness and are superseded by the source hashes; baseline large-image effort 7 used fixed-left coding. Concurrent timing/RSS values do not establish a speed or memory gate.",
+  "medianLargePhotoScreenshotByteReduction": 0.6579705866016601,
+  "requiredMinimum": 0.25,
+  "baselineReductionGatePassed": true,
+  "allNineIndependentExact": true,
+  "results": [
+    {
+      "id": "old-faithful-6000x4000",
+      "sourceSha256": "6d1611a3d31daafe507ffd4f35abdf4376fa95bcb8c4a1bc496ad21e67844298",
+      "inputPixelSha256": "cc7a3f57ed3207011339fd290e0b9ea6fc98cddf77fdfc163602baeb54811cc3",
+      "width": 6000,
+      "height": 4000,
+      "largePhotoScreenshotCohort": true,
+      "baselineBytes": 81000337,
+      "candidateBytes": 24582017,
+      "reduction": 0.6965195712704257,
+      "baselineEncodedSha256": "98f5672001f1e76690de3b3200f717766ea23ab2c2e175ff1fa2adacda10c80a",
+      "candidateEncodedSha256": "b3f347f6f55d58007e6535501e8a6d4741b6f167d3892eef73d79203a68d9286",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "rejected",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-color-profile"],
+          "reasons": ["JPEG color profile is not the independently validated sRGB profile"]
+        },
+        "error": "JPEG color profile is not the independently validated sRGB profile"
+      }
+    },
+    {
+      "id": "tundra-4000x3000",
+      "sourceSha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+      "inputPixelSha256": "e9e4152be2dc61388496d4f5da4d6a292691ff16c17f643b38e9632001fde82e",
+      "width": 4000,
+      "height": 3000,
+      "largePhotoScreenshotCohort": true,
+      "baselineBytes": 40508750,
+      "candidateBytes": 13855184,
+      "reduction": 0.6579705866016601,
+      "baselineEncodedSha256": "1c7e2bbff81a1ceddc6530fb0fb6e24664d65a51c0e766c9631ca24c96c30df9",
+      "candidateEncodedSha256": "383ab4592ae1c328e1b91ffc9fb0e0ef65eca7a3fb7b466d37da3f3dafd22cc2",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "onlyIfSmaller": {
+          "status": "encoded",
+          "bytes": 4151719,
+          "smaller": true
+        },
+        "status": "encoded",
+        "eligibility": {
+          "eligible": true,
+          "reasonCodes": [],
+          "reasons": [],
+          "sourceProfile": {
+            "width": 4000,
+            "height": 3000,
+            "progressive": false,
+            "colorTransform": "ycbcr",
+            "components": 3,
+            "sampling": ["2x1", "1x1", "1x1"],
+            "scans": 1,
+            "orientation": 1,
+            "colorProfile": "none"
+          }
+        },
+        "bytes": 4151719,
+        "ratioToSource": 0.8707069897840198,
+        "milliseconds": 3674.314170999998,
+        "byteExact": true
+      }
+    },
+    {
+      "id": "portrait-2400x3000",
+      "sourceSha256": "2fe7a8ff672e9bbf5ffc63acc2f3c55946cf687e7a2db14d686b7494ad0c4679",
+      "inputPixelSha256": "20e4d04c4510a09b5a2c44965f899aac577ebc629da8d9c31435d39655dc64b9",
+      "width": 2400,
+      "height": 3000,
+      "largePhotoScreenshotCohort": true,
+      "baselineBytes": 24300170,
+      "candidateBytes": 8210836,
+      "reduction": 0.6621078782576418,
+      "baselineEncodedSha256": "a7d7eceb9db81ad4a7c14badb9ca48704d646a6137168985d886a42843ddb2fb",
+      "candidateEncodedSha256": "d8ea8d0d855ae557c2b5cc3ee8917de6d082d3ae032d320335487bbfbf30423a",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "rejected",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-color-profile"],
+          "reasons": ["JPEG color profile is not the independently validated sRGB profile"]
+        },
+        "error": "JPEG color profile is not the independently validated sRGB profile"
+      }
+    },
+    {
+      "id": "libultrahdr-minnie-yuv-icc",
+      "sourceSha256": "171bc422d337d8ba3bd3935cc489c0f755f83687ea7bb39337a7d407b657b08f",
+      "inputPixelSha256": "07b5541ec6e66888e3115750e58ef4aa7b58680f7d5c86df4e60f44a777cc71f",
+      "width": 320,
+      "height": 240,
+      "largePhotoScreenshotCohort": false,
+      "baselineBytes": 67281,
+      "candidateBytes": 65160,
+      "reduction": 0.03152450171668075,
+      "baselineEncodedSha256": "991988637c53496a191401858acc606f8c700498b8e28889ae8c0388eb282e62",
+      "candidateEncodedSha256": "ade5bbda71f34c4542b3d656d84355ba314ed39f5448add69887f52c7b4ca5e8",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "rejected",
+        "eligibility": {
+          "eligible": false,
+          "reasonCodes": ["unsupported-color-profile"],
+          "reasons": ["JPEG color profile is not the independently validated sRGB profile"]
+        },
+        "error": "JPEG color profile is not the independently validated sRGB profile"
+      }
+    },
+    {
+      "id": "webp-lossless-rose-400x301",
+      "sourceSha256": "49a902b9c35bd2031bf26234c59ff369dd3ae18a3b58247285104a23346ba2d4",
+      "inputPixelSha256": "d06797de8b764c392270ae7eee6eca0b16aa745bd9ae0124776602641e82a998",
+      "width": 400,
+      "height": 301,
+      "largePhotoScreenshotCohort": false,
+      "baselineBytes": 120618,
+      "candidateBytes": 107988,
+      "reduction": 0.10471073969059341,
+      "baselineEncodedSha256": "bcef366fd8f69852561955d18bc87279ec2071a21eb4c56389bcd733cf17e953",
+      "candidateEncodedSha256": "a2864036a29e5971d31ff4ee3b2ab6c4c3ba2c170bba8f459897a910fab5bae5",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "not-applicable"
+      }
+    },
+    {
+      "id": "webp-lossless-tux-386x395",
+      "sourceSha256": "67d332b637d19997ca95359099067205ce28226d15320ae8f17da51e4f814c95",
+      "inputPixelSha256": "1d85e1ae043937b7d4a6b0eb9e3042400fbe13d4239e89e0f52a6f533b779e9a",
+      "width": 386,
+      "height": 395,
+      "largePhotoScreenshotCohort": false,
+      "baselineBytes": 47525,
+      "candidateBytes": 41073,
+      "reduction": 0.13576012624934242,
+      "baselineEncodedSha256": "2a304cf92ccce664d56d331fe8df3478232fcdd1aa8de711a58abb9607b80ae6",
+      "candidateEncodedSha256": "e8d7ed5c9df5eea93b184c33637d29ab21dd46de5583223d9eb7463316c74c43",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "not-applicable"
+      }
+    },
+    {
+      "id": "pngsuite-gray-16",
+      "sourceSha256": "f26eb27e99300829c42c0832acd26fa499e0f317cb4d6f165e6663024b16bf6c",
+      "inputPixelSha256": "079b531d4c1fee0ef4975bf2b9b826e56993e84f584c1fa9b5a150bbd5314fb0",
+      "width": 32,
+      "height": 32,
+      "largePhotoScreenshotCohort": false,
+      "baselineBytes": 180,
+      "candidateBytes": 180,
+      "reduction": 0,
+      "baselineEncodedSha256": "d073b095fa6d4fd62abb3825264761e52a6dcaf507acdb34c692fabd55d63b24",
+      "candidateEncodedSha256": "d073b095fa6d4fd62abb3825264761e52a6dcaf507acdb34c692fabd55d63b24",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "not-applicable"
+      }
+    },
+    {
+      "id": "scientific-screen",
+      "sourceSha256": "691c0608ce782206aff1d68646bdb673adf0f917e3041867c90ea455af33f008",
+      "inputPixelSha256": "ee1a4688b939954cbb0fce7e41deb1f04db3c9e0a94a3ec51451a4c7c271f3f8",
+      "width": 1280,
+      "height": 720,
+      "largePhotoScreenshotCohort": true,
+      "baselineBytes": 802510,
+      "candidateBytes": 282831,
+      "reduction": 0.6475670085107974,
+      "baselineEncodedSha256": "1c62d7c85b8cce5c75fa482cd20b43e680b10071a862e34d932091c341da6017",
+      "candidateEncodedSha256": "84e85bae53244d3daff00c1e3030b841fc8998b2fef51be9a956c900911b3c2d",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "not-applicable"
+      }
+    },
+    {
+      "id": "workbench-screen",
+      "sourceSha256": "f1ebc3d9a8ef300ad2008a157d6c5c42e7e020690cc009bada64a873088088ab",
+      "inputPixelSha256": "1660b391c4af53e727118fd5d8f77bafd14f01e6c0f4ed624a3bd8b16db6ab08",
+      "width": 1280,
+      "height": 960,
+      "largePhotoScreenshotCohort": true,
+      "baselineBytes": 923314,
+      "candidateBytes": 496537,
+      "reduction": 0.4622230357169933,
+      "baselineEncodedSha256": "6ba1951a575f4235711ea084eaee469e4e8727bae4149e2f5ce8063ce9cca2bf",
+      "candidateEncodedSha256": "2c6d90730c83857bebe9e270fc02c3dea61a21d005abbe939e89cd9d1eb63716",
+      "exactNativeSamples": true,
+      "exactJpeg": {
+        "status": "not-applicable"
+      }
+    }
+  ]
+}

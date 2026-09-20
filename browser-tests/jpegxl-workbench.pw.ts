@@ -24,6 +24,56 @@ const oversizedPng = (): Buffer => {
   ])
 }
 
+test('JPEG XL progressive explorer cancels a stalled header fetch and can run again', async ({
+  page,
+}) => {
+  let releaseRoute: (() => void) | undefined
+  const stalled = new Promise<void>((resolve) => {
+    releaseRoute = resolve
+  })
+  await page.route('**/stalled-header.jxl', async (route) => {
+    await stalled
+    await route.abort().catch(() => undefined)
+  })
+  await page.goto('/jpeg-xl/')
+  await page
+    .locator('#jxl-progressive-url')
+    .fill(`${new URL(page.url()).origin}/stalled-header.jxl`)
+  await page.locator('#jxl-run-native').click()
+  await expect(page.locator('#jxl-progressive-status')).toHaveText('Opening headers…')
+  await page.locator('#jxl-progressive-cancel').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('Cancelled')
+  releaseRoute?.()
+
+  await page
+    .locator('#jxl-progressive-file')
+    .setInputFiles('benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort1.jxl')
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
+})
+
+test('JPEG XL progressive explorer reopens the same input after decode cancellation', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.requestAnimationFrame = (callback) =>
+      window.setTimeout(() => callback(performance.now()), 250)
+  })
+  await page.goto('/jpeg-xl/')
+  await page
+    .locator('#jxl-progressive-file')
+    .setInputFiles(
+      'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
+    )
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-canvas')).not.toHaveAttribute('width', '1')
+  await page.locator('#jxl-progressive-cancel').click()
+  await expect(page.locator('#jxl-progressive-status')).toHaveText('Cancelled.')
+
+  await page.locator('#jxl-run-progressive').click()
+  await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
+})
+
 test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', async ({ page }) => {
   await page.goto('/jpeg-xl/')
 
@@ -224,4 +274,33 @@ test('JPEG XL workbench rejects native pixel materialization before allocation a
   await page.locator('#jxl-open-jpeg').click()
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
   await expect(page.locator('#jxl-transcode')).toBeEnabled()
+})
+
+test('JPEG XL workbench writes progressive lossy pixels and reopens them locally', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/')
+  await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
+  await page.locator('#jxl-open-png').click()
+  await expect(page.locator('#jxl-status')).toContainText('jpegxl-pixel-lossless.png inspected')
+  await page.locator('#jxl-encode-mode').selectOption('lossy')
+  await page.locator('#jxl-effort').selectOption('3')
+  await page.locator('#jxl-distance').fill('1')
+  await page.locator('#jxl-progressive-output').check()
+  await page.locator('#jxl-encode').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'Lossy JPEG XL decoded locally; alpha verified exact',
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('Lossy VarDCT encode')
+  await expect(page.locator('#jxl-summary')).toContainText('Normalized color RMSE')
+  await expect(page.locator('#jxl-details')).toContainText('"progressivePasses": 2')
+  await page.locator('#jxl-zoom').selectOption('2')
+  await expect(page.locator('#jxl-source-preview')).toHaveCSS('max-width', 'none')
+  const download = page.waitForEvent('download')
+  await page.locator('#jxl-download').click()
+  expect((await download).suggestedFilename()).toBe('jpegxl-pixel-lossless.jxl')
+  await page.locator('#jxl-reopen').click()
+  await expect(page.locator('#jxl-status')).toContainText(
+    'jpegxl-pixel-lossless.jxl inspected and decoded locally',
+  )
 })
