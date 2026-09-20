@@ -928,6 +928,44 @@ describe('JPEG XL JPEG reconstruction metadata', () => {
     expect(abortReasons).toEqual([failure])
   })
 
+  it.each(['write', 'close'] as const)(
+    'handles a sink %s promise that aborts and immediately rejects',
+    async (stage) => {
+      const source = new Uint8Array(readFileSync(primaryEntry.source))
+      const controller = new AbortController()
+      const reason = new Error(`cancelled by sink ${stage}`)
+      const abortReasons: unknown[] = []
+      let writes = 0,
+        closes = 0
+      const sink = {
+        async write(): Promise<void> {
+          writes++
+          if (stage === 'write') {
+            controller.abort(reason)
+            throw reason
+          }
+        },
+        async close(): Promise<void> {
+          closes++
+          if (stage === 'close') {
+            controller.abort(reason)
+            throw reason
+          }
+        },
+        async abort(error: unknown): Promise<void> {
+          abortReasons.push(error)
+        },
+      }
+      await expect(transcodeJpegToJpegXl(source, { sink, signal: controller.signal })).rejects.toBe(
+        reason,
+      )
+      await new Promise<void>((resolve) => setImmediate(resolve))
+      expect(writes).toBe(1)
+      expect(closes).toBe(stage === 'close' ? 1 : 0)
+      expect(abortReasons).toEqual([reason])
+    },
+  )
+
   it('determines only-if-smaller before writing caller output', async () => {
     const source = new Uint8Array(readFileSync(primaryEntry.source))
     const abortReasons: unknown[] = []

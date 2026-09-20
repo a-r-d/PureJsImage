@@ -91,7 +91,7 @@ PureJsImage 0.17.0 is a zero-runtime-dependency strict TypeScript image-processi
 | Scientific platform | 197.5 KiB | 56.3 KiB | 47.4 KiB |
 | All scientific readers | 1242.8 KiB | 359.4 KiB | 286.7 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 624.9 KiB | 189.1 KiB | 153.2 KiB |
+| All Geo readers | 624.9 KiB | 189.1 KiB | 153.0 KiB |
 
 The extracted npm package is 7.9 MiB with 1 production package. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->

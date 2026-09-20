@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.17.0",
-    "unpackedPackageBytes": 8289547,
+    "unpackedPackageBytes": 8289569,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -568,13 +568,13 @@
         "packageExports": ["purejsimage/jpegxl"],
         "sourceEntries": ["./src/jpegxl.ts"]
       },
-      "gzipBytes": 167623,
+      "gzipBytes": 167628,
       "id": "jpegxl-specialized",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 518741,
+      "minifiedJsBytes": 518735,
       "name": "JPEG XL specialized APIs",
       "recordedBaselineMinifiedBytes": 255489,
-      "brotliBytes": 133929
+      "brotliBytes": 133897
     },
     {
       "category": "purejsimage-entry",
@@ -613,13 +613,13 @@
         "packageExports": ["purejsimage/geo/readers/all"],
         "sourceEntries": ["./src/geo/readers/all.ts"]
       },
-      "gzipBytes": 193643,
+      "gzipBytes": 193647,
       "id": "geo-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 639946,
+      "minifiedJsBytes": 639940,
       "name": "Geo readers: all",
       "recordedBaselineMinifiedBytes": 626956,
-      "brotliBytes": 156836
+      "brotliBytes": 156697
     },
     {
       "category": "purejsimage-entry",
@@ -673,13 +673,13 @@
         "packageExports": ["purejsimage/analysis/roi"],
         "sourceEntries": ["./src/analysis/roi-entry.ts"]
       },
-      "gzipBytes": 9869,
+      "gzipBytes": 9868,
       "id": "analysis-roi",
       "implementation": "package-core",
       "minifiedJsBytes": 32622,
       "name": "Analysis ROI utilities",
       "recordedBaselineMinifiedBytes": 32622,
-      "brotliBytes": 8901
+      "brotliBytes": 8896
     },
     {
       "category": "purejsimage-entry",
@@ -823,13 +823,13 @@
         "packageExports": ["purejsimage/scientific/readers/fits"],
         "sourceEntries": ["./src/scientific/readers/fits.ts"]
       },
-      "gzipBytes": 16311,
+      "gzipBytes": 16310,
       "id": "scientific-reader-fits",
       "implementation": "package-core",
       "minifiedJsBytes": 50881,
       "name": "Scientific reader: FITS",
       "recordedBaselineMinifiedBytes": 44278,
-      "brotliBytes": 14350
+      "brotliBytes": 14325
     },
     {
       "category": "purejsimage-entry",
@@ -1048,13 +1048,13 @@
         "packageExports": ["purejsimage/scientific/readers/ncem-emd"],
         "sourceEntries": ["./src/scientific/readers/ncem-emd.ts"]
       },
-      "gzipBytes": 48790,
+      "gzipBytes": 48796,
       "id": "scientific-reader-ncem-emd",
       "implementation": "package-core",
-      "minifiedJsBytes": 182718,
+      "minifiedJsBytes": 182712,
       "name": "Scientific reader: NCEM EMD 0.2",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 41577
+      "brotliBytes": 41586
     },
     {
       "category": "purejsimage-entry",
@@ -1063,13 +1063,13 @@
         "packageExports": ["purejsimage/scientific/readers/velox-emd"],
         "sourceEntries": ["./src/scientific/readers/velox-emd.ts"]
       },
-      "gzipBytes": 47377,
+      "gzipBytes": 47382,
       "id": "scientific-reader-velox-emd",
       "implementation": "package-core",
-      "minifiedJsBytes": 177066,
+      "minifiedJsBytes": 177060,
       "name": "Scientific reader: FEI/Thermo Velox EMD",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 40520
+      "brotliBytes": 40542
     },
     {
       "category": "purejsimage-entry",
@@ -1228,13 +1228,13 @@
         "packageExports": ["purejsimage/scientific/readers/all"],
         "sourceEntries": ["./src/scientific/readers/all.ts"]
       },
-      "gzipBytes": 368066,
+      "gzipBytes": 368070,
       "id": "scientific-readers-all",
       "implementation": "package-core",
-      "minifiedJsBytes": 1272586,
+      "minifiedJsBytes": 1272580,
       "name": "Scientific readers: all",
       "recordedBaselineMinifiedBytes": 844813,
-      "brotliBytes": 293623
+      "brotliBytes": 293609
     },
     {
       "category": "purejsimage-entry",
@@ -1453,13 +1453,13 @@
         "packageExports": ["purejsimage/codecs/tga"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/tga.ts"]
       },
-      "gzipBytes": 32462,
+      "gzipBytes": 32459,
       "id": "codec-tga",
       "implementation": "pure-javascript",
       "minifiedJsBytes": 104999,
       "name": "Core + TGA / TARGA",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 27985
+      "brotliBytes": 27973
     },
     {
       "category": "purejsimage-entry",

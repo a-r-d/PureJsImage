@@ -96,14 +96,14 @@
   },
   "sizes": {
     "allGeoReaders": {
-      "brotliBytes": 156836,
-      "gzipBytes": 193643,
-      "minifiedBytes": 639946
+      "brotliBytes": 156697,
+      "gzipBytes": 193647,
+      "minifiedBytes": 639940
     },
     "allReaders": {
-      "brotliBytes": 293623,
-      "gzipBytes": 368066,
-      "minifiedBytes": 1272586
+      "brotliBytes": 293609,
+      "gzipBytes": 368070,
+      "minifiedBytes": 1272580
     },
     "allStableCodecs": {
       "brotliBytes": 341976,
@@ -126,7 +126,7 @@
       "minifiedBytes": 141415
     },
     "installedPackage": {
-      "bytes": 8289547,
+      "bytes": 8289569,
       "productionPackageCount": 1
     },
     "packageVersion": "0.17.0",
