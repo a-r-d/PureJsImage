@@ -217,16 +217,19 @@ const fixture = (gate: EvidenceGate): Record<string, unknown> => {
     case 'conformance':
       return {
         ...common,
-        baselineMatched: true,
+        baselineMatched: false,
+        expectationsMatched: true,
+        applicableLevel5Passed: true,
         cases: conformanceManifest.cases.length,
         corpusRevision: conformanceManifest.revision,
         archiveSha256: conformanceManifest.archiveSha256,
         results: conformanceManifest.cases.map((entry) => ({
           id: entry.id,
           inputSha256: entry.sha256,
-          matchesBaseline: true,
-          actualClassification: entry.baselineClassification,
-          errorCode: 'expectedErrorCode' in entry ? entry.expectedErrorCode : undefined,
+          matchesBaseline: entry.baselineClassification === 'pass',
+          matchesExpectation: true,
+          actualClassification: 'pass',
+          outputSha256: entry.outputSha256,
         })),
       }
     case 'color':

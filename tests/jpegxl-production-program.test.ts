@@ -193,13 +193,14 @@ describe('JPEG XL production program baseline', () => {
       malformed: count('malformed-safely-rejected'),
       incorrect: count('incorrect-output'),
       unexpected: count('unexpected-failure'),
-    }).toEqual({ pass: 39, unsupported: 0, malformed: 0, incorrect: 0, unexpected: 0 })
+    }).toEqual({ pass: 15, unsupported: 23, malformed: 0, incorrect: 0, unexpected: 1 })
     expect(cases.filter(({ id }) => id === 'upsampling' || id === 'upsampling_5')).toEqual([
       expect.objectContaining({ baselineClassification: 'pass' }),
       expect.objectContaining({ baselineClassification: 'pass' }),
     ])
     expect(cases.find(({ id }) => id === 'delta_palette')).toMatchObject({
-      baselineClassification: 'pass',
+      baselineClassification: 'unexpected-failure',
+      expectedErrorCode: 'INVALID_INPUT',
     })
     for (const fixture of cases.filter(
       ({ baselineClassification }) => baselineClassification !== 'pass',

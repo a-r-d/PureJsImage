@@ -421,7 +421,8 @@ export const validateEvidenceReport = (
     case 'conformance': {
       const results = rows(report.results, conformanceManifest.cases.length)
       requireCondition(
-        report.baselineMatched === true &&
+        report.expectationsMatched === true &&
+          report.applicableLevel5Passed === true &&
           report.cases === results.length &&
           results.length === conformanceManifest.cases.length &&
           report.corpusRevision === conformanceManifest.revision &&
@@ -437,15 +438,12 @@ export const validateEvidenceReport = (
         )
         if (!row) throw new Error('Missing conformance row')
         requireCondition(
-          row.matchesBaseline === true &&
+          row.matchesExpectation === true &&
             row.inputSha256 === expected.sha256 &&
-            row.actualClassification === expected.baselineClassification,
+            row.actualClassification === 'pass' &&
+            row.outputSha256 === expected.outputSha256,
           'Unexpected conformance result',
         )
-        const expectedErrorCode =
-          'expectedErrorCode' in expected ? expected.expectedErrorCode : undefined
-        if (expected.baselineClassification === 'unexpected-failure')
-          requireCondition(row.errorCode === expectedErrorCode, 'Known conformance failure changed')
       }
       return results.length
     }
