@@ -101,7 +101,7 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
     ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
   })
 
-  it('preserves integer alpha and rejects floating alpha during display conversion', async () => {
+  it('preserves integer and floating alpha during display conversion', async () => {
     const colors = new Float32Array([0.25, 0.5, 0.75])
     const floatLayer = await firstLayer(
       await encodeJpegXlNative({
@@ -130,9 +130,13 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
         extraChannels: [{ type: 0, data: Uint8Array.of(128), bitDepth: 8, associatedAlpha: true }],
       }),
     )
-    expect(() =>
-      convertJpegXlFloat32LayerToRgba16(associatedLayer, { black: 0.1, white: 0.6 }),
-    ).toThrow('does not support associated alpha')
+    const associatedDisplay = convertJpegXlFloat32LayerToRgba16(associatedLayer, {
+      black: 0.1,
+      white: 0.6,
+    })
+    expect(associatedDisplay.colorSemantics.alpha).toBe('straight')
+    expect(associatedDisplay.sourceColorSemantics.alpha).toBe('premultiplied')
+    expect(associatedDisplay.data[0]).toBeGreaterThan(50_000)
 
     const fixture = await firstLayer(
       new Uint8Array(await readFile(new URL('cmyk-layers.jxl', base))),
@@ -161,7 +165,8 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
         iccProfile: profile,
       }),
     )
-    expect(() => convertJpegXlCmykLayerToRgba8(cmykLayer)).toThrow('requires integer alpha')
+    const cmykDisplay = convertJpegXlCmykLayerToRgba8(cmykLayer)
+    expect([cmykDisplay.data[3], cmykDisplay.data[7], cmykDisplay.data[11]]).toEqual([0, 128, 255])
   })
 
   it('preserves Level 10 native samples across multiple Modular groups', async () => {
@@ -194,16 +199,22 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
     expect(Array.from(jpegXlNativeUnsignedPlanes(integerLayer)[0] ?? [])).toEqual(
       Array.from(integers),
     )
-    await expect(
-      encodeJpegXlNative({
-        width,
-        height: 1,
-        color: [{ data: integers, bitDepth: 12 }],
-        extraChannels: [
-          { type: 1, dimShift: 1, data: new Uint8Array(Math.ceil(width / 2)), bitDepth: 8 },
-        ],
-      }),
-    ).rejects.toThrow('Shifted native channels across multiple groups are not supported')
+    const shifted = Uint8Array.from({ length: Math.ceil(width / 2) }, (_, index) => index & 255)
+    const shiftedEncoded = await encodeJpegXlNative({
+      width,
+      height: 1,
+      color: [{ data: integers, bitDepth: 12 }],
+      extraChannels: [{ type: 1, dimShift: 1, name: 'coverage', data: shifted, bitDepth: 8 }],
+    })
+    const shiftedLayer = await firstLayer(shiftedEncoded)
+    expect(shiftedLayer.header.extraChannels[0]).toMatchObject({
+      type: 1,
+      dimShift: 1,
+      name: 'coverage',
+    })
+    expect(Array.from(jpegXlNativeUnsignedPlanes(shiftedLayer)[1] ?? [])).toEqual(
+      Array.from(shifted),
+    )
     await expect(
       encodeJpegXlNative({
         width,
@@ -213,6 +224,87 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
       }),
     ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
   })
+
+  it('writes differently shifted native grids across both odd group boundaries', async () => {
+    const width = 1_025
+    const height = 1_027
+    const pixels = width * height
+    const gray = Uint8Array.from({ length: pixels }, (_, index) => index & 255)
+    const grid = (shift: number): number =>
+      Math.ceil(width / 2 ** shift) * Math.ceil(height / 2 ** shift)
+    const alpha = Uint16Array.from({ length: grid(1) }, (_, index) => (index * 37) & 1023)
+    const black = Uint8Array.from({ length: grid(2) }, (_, index) => (index * 19) & 255)
+    const depth = Uint16Array.from({ length: grid(3) }, (_, index) =>
+      index % 3 === 0 ? 0x8000 : index % 3 === 1 ? 0x0001 : 0x3c00,
+    )
+    const source = await firstLayer(
+      new Uint8Array(await readFile(new URL('cmyk-layers.jxl', base))),
+    )
+    const profile = source.header.iccProfile
+    if (!profile) throw new Error('Missing CMYK profile')
+    const encoded = await encodeJpegXlNative({
+      width,
+      height,
+      color: [
+        { data: gray, bitDepth: 8 },
+        { data: gray, bitDepth: 8 },
+        { data: gray, bitDepth: 8 },
+      ],
+      iccProfile: profile,
+      extraChannels: [
+        {
+          type: 0,
+          name: 'coverage',
+          data: alpha,
+          bitDepth: 10,
+          dimShift: 1,
+          associatedAlpha: true,
+        },
+        { type: 4, name: 'black', data: black, bitDepth: 8, dimShift: 2 },
+        {
+          type: 1,
+          name: 'depth',
+          data: depth,
+          bitDepth: 16,
+          sampleFormat: 'binary16',
+          dimShift: 3,
+        },
+      ],
+    })
+    await expect(inspectJpegXl(encoded)).resolves.toMatchObject({ level: 10, width, height })
+    await expect(
+      encodeJpegXlNative({
+        width,
+        height,
+        color: [
+          { data: gray, bitDepth: 8 },
+          { data: gray, bitDepth: 8 },
+          { data: gray, bitDepth: 8 },
+        ],
+        iccProfile: profile,
+        extraChannels: [
+          { type: 0, data: alpha, bitDepth: 10, dimShift: 1 },
+          { type: 4, data: black, bitDepth: 8, dimShift: 2 },
+          { type: 1, data: depth, bitDepth: 16, sampleFormat: 'binary16', dimShift: 3 },
+        ],
+        maxOutputBytes: 1024,
+      }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    const layer = await firstLayer(encoded)
+    expect(layer.header.extraChannels).toMatchObject([
+      { name: 'coverage', dimShift: 1, associatedAlpha: true, bitDepth: { bits: 10 } },
+      { name: 'black', dimShift: 2, bitDepth: { bits: 8 } },
+      { name: 'depth', dimShift: 3, bitDepth: { bits: 16, sampleFormat: 'floating-point' } },
+    ])
+    const planes = jpegXlNativeUnsignedPlanes(layer)
+    for (const [index, expected] of [gray, gray, gray, alpha, black, depth].entries()) {
+      const actual = planes[index]
+      expect(actual?.length).toBe(expected.length)
+      for (let sample = 0; sample < expected.length; sample++)
+        if (actual?.[sample] !== expected[sample])
+          throw new Error(`Native plane ${index} differs at sample ${sample}`)
+    }
+  }, 15_000)
 
   it('selects the minimum level at the 12/13-bit boundary and rejects conflicts', async () => {
     const levelFive = await encodeJpegXlNative({

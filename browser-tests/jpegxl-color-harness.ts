@@ -9,6 +9,11 @@ import vardctAlphaManifest from '../tests/fixtures/jpegxl/m4-color/vardct-alpha-
   type: 'json',
 }
 import { createImageLibrary } from '../src/browser.ts'
+import {
+  convertJpegXlFloatLayerToRgba16,
+  encodeJpegXlNative,
+  openJpegXlSequence,
+} from '../src/jpegxl.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -245,4 +250,29 @@ export const verifyOrientations = async (): Promise<number> => {
     }
   }
   return 8
+}
+
+export const verifyFloatDisplay = async (): Promise<boolean> => {
+  const sequence = await openJpegXlSequence(
+    await encodeJpegXlNative({
+      width: 2,
+      height: 1,
+      color: [{ data: Uint16Array.of(0x3600, 0x8000), bitDepth: 16, sampleFormat: 'binary16' }],
+      extraChannels: [{ type: 0, data: Uint8Array.of(128, 0), bitDepth: 8, associatedAlpha: true }],
+    }),
+  )
+  try {
+    for await (const layer of sequence.layers()) {
+      const display = convertJpegXlFloatLayerToRgba16(layer, { black: 0.25, white: 1.25 })
+      if (
+        display.colorSemantics.alpha !== 'straight' ||
+        display.sourceColorSemantics.alpha !== 'premultiplied'
+      )
+        return false
+      return (display.data[0] ?? 0) > 31_000 && display.data[4] === 0 && display.data[7] === 0
+    }
+  } finally {
+    await sequence.close()
+  }
+  return false
 }

@@ -15,12 +15,14 @@ with exact JPEG reconstruction. Only the checked items below are implemented.
 - [x] Include dimensions, total pixels and ICC profile size in automatic Level 5 or Level 10 selection
 - [x] Write general forward VarDCT at explicit Level 10 and select it automatically for exact Modular alpha above 12 bits
 - [x] Stream Level 10 VarDCT animation in an unbounded jxlc container without whole-output buffering
-- [x] Extract CMYK, black and independent alpha planes, preserve straight integer alpha during explicit display conversion and reject floating or associated alpha
-- [x] Write unshifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
+- [x] Extract CMYK, black and independent alpha planes; convert profile-defined CMYK to RGBA8 with straight integer or IEEE alpha
+- [x] Convert IEEE binary16/binary32 gray and RGB native layers to straight RGBA16 with mixed integer or IEEE alpha, shifted alpha, zero-alpha handling and nonfinite rejection
+- [ ] Compare the new float display mapping with pinned independent rendered references for every mixed precision and association case
+- [x] Write shifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
 - [x] Run all 39 pinned official valid cases successfully, with no expected-unsupported cases left
 - [x] Accept Level 10 writer output in pinned libjxl djxl and rerun all M9 gates after the last production edit
 
-Shifted native channels remain bounded to one 1024-pixel Modular group. Other floating layouts remain explicit unsupported boundaries.
+Other floating layouts and associated CMYK display alpha remain explicit unsupported boundaries. Independent native-grid comparisons for newly written shifted groups remain pending.
 
 ## M9 production hardening
 

@@ -4,6 +4,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Add explicit JPEG XL binary16/binary32 gray and RGB display conversion with
+  mixed integer or IEEE alpha, straightening before range mapping. Preserve
+  native samples and source color meaning. Write shifted native planes across
+  multiple Modular groups, including shift-3 DC sections.
+
 ### 2026-09-19 UTC
 
 - Add bounded JPEG XL Level 10 native decode and lossless writing for unsigned

@@ -287,7 +287,9 @@
         "benchmark/jpegxl/run-m9-integration.ts",
         "benchmark/jpegxl/run-m9-fuzz-resource.ts",
         "benchmark/jpegxl/run-m9-package.ts",
-        "tests/jpegxl-m10-level10.test.ts"
+        "tests/jpegxl-m10-level10.test.ts",
+        "tests/jpegxl-float-display.test.ts",
+        "browser-tests/jpegxl-color.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
