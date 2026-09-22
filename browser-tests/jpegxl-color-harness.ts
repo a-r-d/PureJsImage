@@ -11,6 +11,7 @@ import vardctAlphaManifest from '../tests/fixtures/jpegxl/m4-color/vardct-alpha-
 import { createImageLibrary } from '../src/browser.ts'
 import {
   convertJpegXlFloatLayerToRgba16,
+  convertJpegXlIccLayerToRgba16,
   encodeJpegXlNative,
   openJpegXlSequence,
 } from '../src/jpegxl.ts'
@@ -270,6 +271,38 @@ export const verifyFloatDisplay = async (): Promise<boolean> => {
       )
         return false
       return (display.data[0] ?? 0) > 31_000 && display.data[4] === 0 && display.data[7] === 0
+    }
+  } finally {
+    await sequence.close()
+  }
+  return false
+}
+
+export const verifyIcc16Display = async (): Promise<boolean> => {
+  const profile = await bytes('oriented-icc.icc')
+  const sequence = await openJpegXlSequence(
+    await encodeJpegXlNative({
+      width: 2,
+      height: 1,
+      color: [
+        { data: Uint16Array.of(16_384, 32_768), bitDepth: 16 },
+        { data: Uint16Array.of(32_768, 16_384), bitDepth: 16 },
+        { data: Uint16Array.of(8_192, 32_768), bitDepth: 16 },
+      ],
+      extraChannels: [{ type: 0, data: Uint8Array.of(128, 0), bitDepth: 8 }],
+      iccProfile: profile,
+    }),
+  )
+  try {
+    for await (const layer of sequence.layers()) {
+      const display = convertJpegXlIccLayerToRgba16(layer)
+      return (
+        display.colorSemantics.primaries === 'srgb' &&
+        display.colorSemantics.alpha === 'straight' &&
+        Math.abs((display.data[0] ?? 0) - 32_768) <= 5 &&
+        display.data[3] === 32_896 &&
+        display.data[7] === 0
+      )
     }
   } finally {
     await sequence.close()

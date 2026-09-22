@@ -18,11 +18,12 @@ with exact JPEG reconstruction. Only the checked items below are implemented.
 - [x] Extract CMYK, black and independent alpha planes; convert profile-defined CMYK to RGBA8 with straight integer or IEEE alpha
 - [x] Convert IEEE binary16/binary32 gray and RGB native layers to straight RGBA16 with mixed integer or IEEE alpha, shifted alpha, zero-alpha handling and nonfinite rejection
 - [ ] Compare the new float display mapping with pinned independent rendered references for every mixed precision and association case
+- [x] Convert high-depth GRAY/RGB/CMYK ICC native layers directly to straight sRGB16, including gray alpha and mixed or associated alpha, with pinned LittleCMS 2.16 perceptual references
 - [x] Write shifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
 - [x] Run all 39 pinned official valid cases successfully, with no expected-unsupported cases left
 - [x] Accept Level 10 writer output in pinned libjxl djxl and rerun all M9 gates after the last production edit
 
-Other floating layouts and associated CMYK display alpha remain explicit unsupported boundaries. Independent native-grid comparisons for newly written shifted groups remain pending.
+Other floating layouts and associated CMYK alpha in the older RGBA8 API remain explicit unsupported boundaries. Independent native-grid comparisons for newly written shifted groups remain pending.
 
 ## M9 production hardening
 
@@ -90,7 +91,7 @@ and range; it does not change transfer functions or primaries.
 
 Open supported P3 input with `colorOutput: "srgb"` for explicit sRGB conversion.
 Open PQ or HLG with `hdrOutput: "tone-map-srgb"` for explicit SDR rendering.
-Unavailable high-depth ICC, custom-chromaticity and structured integer color transforms
+Ordinary high-depth ICC, custom-chromaticity and structured integer color transforms
 remain errors. Float-encoded input and float JPEG XL encoding remain unsupported.
 
 VarDCT retains a full output frame. Eligible ordinary 8-bit photographs use bounded
@@ -135,7 +136,7 @@ See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection 
 
 The checked matrix contains 56 structured color cases, 40 independent-alpha cases, 18 high-depth VarDCT color cases, eight VarDCT alpha-upsample cases, and a two-alpha fixture. Pinned libjxl provides independent native or float references. At the M4 checkpoint, official conformance had 13 passes, 25 explicit unsupported cases, no incorrect outputs, and the separately recorded delta_palette failure. M10 later advances all 39 official cases to exact passes. ICC validation records source-profile warnings, including the cafe profile checksum mismatch; extracted profile bytes match djxl exactly.
 
-Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported 8-bit conversions can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. Explicit unavailable high-depth or custom-chromaticity conversions throw `UNSUPPORTED_OPERATION`.
+Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported 8-bit conversions can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. The explicit native-layer ICC API converts supported high-depth GRAY/RGB/CMYK profiles to sRGB16. Ordinary high-depth ICC display conversion and custom-chromaticity conversion still throw `UNSUPPORTED_OPERATION`.
 
 `alphaOutput: "preserve"` retains associated samples. `alphaOutput: "straight"` unpremultiplies and sets zero-alpha color to zero. HDR conversions produce straight alpha. `alphaChannel` is a zero-based index and is required when more than one alpha channel is present. Alpha display range is independent of color.
 

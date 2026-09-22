@@ -7,7 +7,9 @@ All notable changes to PureJsImage are documented in this file.
 - Add explicit JPEG XL binary16/binary32 gray and RGB display conversion with
   mixed integer or IEEE alpha, straightening before range mapping. Preserve
   native samples and source color meaning. Write shifted native planes across
-  multiple Modular groups, including shift-3 DC sections.
+  multiple Modular groups, including shift-3 DC sections. Add explicit direct
+  16-bit ICC conversion for supported GRAY, RGB, and CMYK native layers with
+  gray-alpha expansion and straight RGBA16 output.
 
 ### 2026-09-19 UTC
 

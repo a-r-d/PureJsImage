@@ -1,7 +1,15 @@
-import { invalidInput, unsupportedOperation } from '../errors.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { PixelColorSemantics } from '../color.ts'
 import { jpegXlSourceColorSemantics } from './jpegxl-decode.ts'
-import { parseCmykIccTransform, writeCmykIcc } from './icc.ts'
+import {
+  parseCmykIccTransform,
+  parseCmykIccTransform16,
+  parseGrayIccTransform16,
+  parseRgbIccTransform16,
+  writeCmykIcc,
+  writeCmykIcc16,
+  writeRgbIcc16,
+} from './icc.ts'
 import type { JpegXlNativeLayer } from './jpegxl-sequence.ts'
 import { upsampleJpegXlNativePlane } from './jpegxl-vardct-render.ts'
 
@@ -20,7 +28,7 @@ export interface JpegXlRgba16Image {
   /** The mapped RGB samples have straight alpha, even when source samples were associated. */
   readonly colorSemantics: PixelColorSemantics
   readonly sourceColorSemantics: PixelColorSemantics
-  readonly displayRange: Readonly<{ black: number; white: number }>
+  readonly displayRange?: Readonly<{ black: number; white: number }>
 }
 
 const integerPlane = (layer: Readonly<JpegXlNativeLayer>, index: number): Int32Array => {
@@ -233,6 +241,107 @@ export const convertJpegXlFloat32LayerToRgba16 = (
   if (layer.header.bitDepth !== 32 || layer.header.exponentBits !== 8)
     throw invalidInput('Not IEEE binary32 color')
   return convertJpegXlFloatLayerToRgba16(layer, range)
+}
+
+/** Converts supported high-depth source-profile samples directly to straight sRGB16. */
+export const convertJpegXlIccLayerToRgba16 = (
+  layer: Readonly<JpegXlNativeLayer>,
+): JpegXlRgba16Image => {
+  const header = layer.header
+  const profile = header.iccProfile
+  if (layer.domain !== 'modular' || !profile)
+    throw invalidInput('JPEG XL native layer has no ICC profile')
+  if (header.sampleFormat !== 'unsigned-integer' || header.bitDepth < 8 || header.bitDepth > 16)
+    throw unsupportedOperation('High-depth ICC conversion requires 8- through 16-bit integer color')
+  const width = layer.layouts[0]?.width ?? 0
+  const height = layer.layouts[0]?.height ?? 0
+  const pixels = width * height
+  if (!Number.isSafeInteger(pixels) || pixels < 1 || pixels > 134_217_728)
+    throw limitExceeded('High-depth ICC output exceeds 1 GiB')
+  const color = Array.from({ length: header.colorChannels }, (_, index) =>
+    integerPlane(layer, index),
+  )
+  if (color.some((plane) => plane.length !== pixels))
+    throw invalidInput('JPEG XL ICC color planes must be full-size')
+  const blackIndex = header.extraChannels.findIndex((channel) => channel.type === 4)
+  if (
+    blackIndex >= 0 &&
+    header.extraChannels[blackIndex]?.bitDepth.sampleFormat !== 'unsigned-integer'
+  )
+    throw unsupportedOperation('CMYK black must be integer')
+  const black = blackIndex < 0 ? undefined : normalizedExtraPlane(layer, blackIndex)
+  const grayTransform =
+    blackIndex < 0 && header.colorChannels === 1 ? parseGrayIccTransform16(profile) : undefined
+  const rgbTransform =
+    blackIndex < 0 && header.colorChannels === 3 ? parseRgbIccTransform16(profile) : undefined
+  const cmykTransform =
+    blackIndex >= 0 && header.colorChannels === 3 ? parseCmykIccTransform16(profile) : undefined
+  if (!grayTransform && !rgbTransform && !cmykTransform)
+    throw unsupportedOperation('ICC native display needs GRAY, RGB, or CMYK')
+  const alpha = displayAlpha(layer)
+  if (alpha && alpha.samples.length !== pixels)
+    throw invalidInput('JPEG XL ICC alpha plane size disagrees')
+  const output = new Uint16Array(pixels * 4)
+  const colorMaximum = 2 ** header.bitDepth - 1
+  const toIndex = (value: number, alphaValue: number): number =>
+    Math.round(Math.max(0, Math.min(1, value / colorMaximum / alphaValue)) * 65_535)
+  for (let index = 0; index < pixels; index++) {
+    const offset = index * 4
+    const alphaValue = alpha?.samples[index] ?? 1
+    const denominator = alpha?.associated ? alphaValue : 1
+    if (denominator <= 0) {
+      output[offset] = 0
+      output[offset + 1] = 0
+      output[offset + 2] = 0
+    } else if (grayTransform) {
+      const sample = toIndex(color[0]?.[index] ?? 0, denominator)
+      const value = grayTransform[sample] ?? 0
+      output[offset] = value
+      output[offset + 1] = value
+      output[offset + 2] = value
+    } else if (rgbTransform) {
+      writeRgbIcc16(
+        rgbTransform,
+        toIndex(color[0]?.[index] ?? 0, denominator),
+        toIndex(color[1]?.[index] ?? 0, denominator),
+        toIndex(color[2]?.[index] ?? 0, denominator),
+        output,
+        offset,
+      )
+    } else if (cmykTransform && black) {
+      const blackSample = Math.round(
+        Math.max(0, Math.min(1, (black[index] ?? 0) / denominator)) * 65_535,
+      )
+      writeCmykIcc16(
+        cmykTransform,
+        65_535 - toIndex(color[0]?.[index] ?? 0, denominator),
+        65_535 - toIndex(color[1]?.[index] ?? 0, denominator),
+        65_535 - toIndex(color[2]?.[index] ?? 0, denominator),
+        65_535 - blackSample,
+        output,
+        offset,
+      )
+    }
+    output[offset + 3] = Math.round(Math.max(0, Math.min(1, alphaValue)) * 65_535)
+  }
+  const sourceColorSemantics = jpegXlSourceColorSemantics(header)
+  const colorSemantics: PixelColorSemantics = Object.freeze({
+    family: 'rgb',
+    primaries: 'srgb',
+    transfer: Object.freeze({ kind: 'srgb' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: 'straight',
+    provenance: 'decoder-converted',
+  })
+  return Object.freeze({
+    width,
+    height,
+    format: 'rgba16' as const,
+    data: output,
+    colorSemantics,
+    sourceColorSemantics,
+  })
 }
 
 /** Applies the embedded CMYK ICC profile while leaving native CMYK planes available separately. */

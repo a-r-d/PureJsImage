@@ -16,8 +16,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // General Level 10 VarDCT selection and streamed animation measure 440528 bytes.
   'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 441_000 },
   // The M6-M10 specialized entry measured 518735 bytes. Float display and shifted
-  // native-plane APIs add about 2.1 KiB; retain a narrow 521000-byte ceiling.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 521_000 },
+  // Native plane and 16-bit ICC APIs add about 7.6 KiB; retain a narrow 528000-byte ceiling.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 528_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

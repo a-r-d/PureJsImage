@@ -19,3 +19,12 @@ test('JPEG XL explicit float display conversion works in Chromium', async ({ pag
   })
   expect(result).toBe(true)
 })
+
+test('JPEG XL high-depth ICC display conversion works in Chromium', async ({ page }) => {
+  await page.goto('/compatibility.html')
+  const result = await page.evaluate(async () => {
+    const path = '/jpegxl-color.js'
+    return (await import(path)).verifyIcc16Display()
+  })
+  expect(result).toBe(true)
+})
