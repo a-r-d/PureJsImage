@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 import {
   convertJpegXlFloatLayerToRgba16,
@@ -17,7 +19,97 @@ const firstLayer = async (bytes: Uint8Array): Promise<JpegXlNativeLayer> => {
   throw new Error('Missing native layer')
 }
 
+const oracleRoot = new URL('./fixtures/jpegxl/practical-float/', import.meta.url)
+const hash = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
+const record = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+const oracleRows = async (): Promise<
+  readonly Readonly<{
+    name: string
+    jxlSha256: string
+    colorPfmSha256: string
+    alphaPfmSha256: string
+    color: readonly number[]
+    alpha: readonly number[]
+    rgba16: readonly number[]
+  }>[]
+> => {
+  const value: unknown = JSON.parse(await readFile(new URL('manifest.json', oracleRoot), 'utf8'))
+  if (!record(value) || value.libjxl !== '0.12.0' || !Array.isArray(value.manifest))
+    throw new Error('Invalid pinned libjxl float reference manifest')
+  return value.manifest.map((row: unknown) => {
+    if (
+      !record(row) ||
+      typeof row.name !== 'string' ||
+      typeof row.jxlSha256 !== 'string' ||
+      typeof row.colorPfmSha256 !== 'string' ||
+      typeof row.alphaPfmSha256 !== 'string' ||
+      !Array.isArray(row.color) ||
+      !Array.isArray(row.alpha) ||
+      !Array.isArray(row.rgba16) ||
+      row.color.some((sample: unknown) => typeof sample !== 'number') ||
+      row.alpha.some((sample: unknown) => typeof sample !== 'number') ||
+      row.rgba16.some((sample: unknown) => typeof sample !== 'number')
+    )
+      throw new Error('Invalid pinned libjxl float reference row')
+    return {
+      name: row.name,
+      jxlSha256: row.jxlSha256,
+      colorPfmSha256: row.colorPfmSha256,
+      alphaPfmSha256: row.alphaPfmSha256,
+      color: row.color,
+      alpha: row.alpha,
+      rgba16: row.rgba16,
+    }
+  })
+}
+const pfmSamples = (bytes: Uint8Array, channels: 1 | 3): readonly number[] => {
+  let offset = 0
+  const line = (): string => {
+    const end = bytes.indexOf(10, offset)
+    if (end < 0) throw new Error('Truncated PFM reference')
+    const value = new TextDecoder().decode(bytes.subarray(offset, end))
+    offset = end + 1
+    return value
+  }
+  expect(line()).toBe(channels === 1 ? 'Pf' : 'PF')
+  expect(line()).toBe('4 1')
+  expect(line()).toBe('1.0')
+  expect(bytes.byteLength - offset).toBe(4 * channels * 4)
+  const view = new DataView(bytes.buffer, bytes.byteOffset + offset, bytes.byteLength - offset)
+  return Array.from({ length: 4 * channels }, (_, index) => view.getFloat32(index * 4, false))
+}
+
 describe('JPEG XL explicit float display conversion', () => {
+  it('matches pinned libjxl native float planes and independent RGBA16 mapping for mixed precision', async () => {
+    const rows = await oracleRows()
+    expect(rows).toHaveLength(17)
+    for (const row of rows) {
+      const bytes = new Uint8Array(await readFile(new URL(`${row.name}.jxl`, oracleRoot)))
+      expect(hash(bytes)).toBe(row.jxlSha256)
+      const colorPfm = new Uint8Array(await readFile(new URL(`${row.name}.pfm`, oracleRoot)))
+      const alphaPfm = new Uint8Array(
+        await readFile(new URL(`${row.name}.pfm-ec1.pfm`, oracleRoot)),
+      )
+      expect(hash(colorPfm)).toBe(row.colorPfmSha256)
+      expect(hash(alphaPfm)).toBe(row.alphaPfmSha256)
+      expect(pfmSamples(colorPfm, row.name.startsWith('gray') ? 1 : 3)).toEqual(row.color)
+      expect(pfmSamples(alphaPfm, 1)).toEqual(row.alpha)
+      const layer = await firstLayer(bytes)
+      const display = convertJpegXlFloatLayerToRgba16(layer, { black: 0.25, white: 1.25 })
+      expect(display.colorSemantics.alpha).toBe('straight')
+      expect(display.sourceColorSemantics.alpha).toBe(
+        row.name.endsWith('associated') ? 'premultiplied' : 'straight',
+      )
+      expect(display.data.length).toBe(row.rgba16.length)
+      const tolerance = row.name.includes('-alpha8-') ? 1 : 0
+      for (let index = 0; index < display.data.length; index++)
+        expect(Math.abs((display.data[index] ?? 0) - (row.rgba16[index] ?? 0))).toBeLessThanOrEqual(
+          tolerance,
+        )
+    }
+  })
+
   it('straightens binary16 gray and binary16 alpha before a nonzero-black display map', async () => {
     const color = Uint16Array.of(0x3600, 0x0001, 0x8000, 0x3c00)
     const alpha = Uint16Array.of(0x3800, 0x3c00, 0x0000, 0x3c00)

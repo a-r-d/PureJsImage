@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
+import { gunzipSync } from 'node:zlib'
 import { encodeJpegXlNative, openJpegXlSequence } from '../../src/jpegxl.ts'
 const sha256 = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 const binary = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl'
@@ -58,6 +59,41 @@ const encoded = await encodeJpegXlNative({
 })
 await mkdir('.tmp/jpegxl-practical', { recursive: true })
 await writeFile('.tmp/jpegxl-practical/shifted-native.jxl', encoded)
+if (sha256(encoded) !== '79f54be4d42fe153428bfc95645ea5f787c07daf637f4268320f77f285cbf6b6')
+  throw new Error('Shifted native encoded bytes changed from the independent oracle input')
+const nativeReferences = [
+  {
+    name: 'alpha',
+    source: alpha,
+    bits: 10,
+    hash: '8134cbd6db6711c8424f9eea87babca13e64714ef565b6621db140cd1fbcfeff',
+  },
+  {
+    name: 'black',
+    source: black,
+    bits: 8,
+    hash: '02e4037e9ab2f17bb6dccd269b5ca175146e58c6e75f8dc1132907f16913dfda',
+  },
+  {
+    name: 'depth',
+    source: depth,
+    bits: 16,
+    hash: '2f0810a233839bb41217a3843f099d27507db7faa89ccc37a378bd719126c608',
+  },
+] as const
+for (const reference of nativeReferences) {
+  const raw = gunzipSync(
+    await readFile(`tests/fixtures/jpegxl/practical-shifted-native/${reference.name}.i32le.gz`),
+  )
+  if (sha256(raw) !== reference.hash || raw.byteLength !== reference.source.length * 4)
+    throw new Error(`Pinned independent ${reference.name} grid changed`)
+  const view = new DataView(raw.buffer, raw.byteOffset, raw.byteLength)
+  const mask = 2 ** reference.bits - 1
+  for (let index = 0; index < reference.source.length; index++) {
+    if ((view.getInt32(index * 4, true) & mask) !== reference.source[index])
+      throw new Error(`Independent ${reference.name} grid differs at native sample ${index}`)
+  }
+}
 const encodePeakRssKb = process.resourceUsage().maxRSS
 execFileSync(
   binary,
@@ -108,6 +144,7 @@ process.stdout.write(
     encodedBytes: encoded.byteLength,
     encodedSha256: sha256(encoded),
     libjxlDecodedSha256: expected,
+    nativeGridSha256: nativeReferences.map(({ hash }) => hash),
     encodePeakRssKb,
     jxlOxideLayout: '1025x1027; alpha x2, black x4, binary16 depth x8',
   })}\n`,

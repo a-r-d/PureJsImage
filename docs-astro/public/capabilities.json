@@ -5620,8 +5620,12 @@
           "text": "Convert IEEE binary16/binary32 gray and RGB native layers to straight RGBA16 with mixed integer or IEEE alpha, shifted alpha, zero-alpha handling and nonfinite rejection"
         },
         {
+          "status": "supported",
+          "text": "Compare binary16/32 gray and RGB color with opposite-width IEEE or 8-bit integer alpha, straight or associated, against 17 pinned libjxl 0.12.0 float-plane and RGBA16 references, including shifted alpha"
+        },
+        {
           "status": "planned",
-          "text": "Compare the new float display mapping with pinned independent rendered references for every mixed precision and association case"
+          "text": "Compare wider integer-alpha depths and other shifted float/alpha precision pairs with pinned independent rendered references"
         },
         {
           "status": "supported",
@@ -5630,6 +5634,10 @@
         {
           "status": "supported",
           "text": "Write shifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel"
+        },
+        {
+          "status": "supported",
+          "text": "Match the shifted alpha, black and binary16 depth native grids against pinned jxl-oxide pre-upsampling decoded samples on odd multi-group images"
         },
         {
           "status": "supported",
@@ -5730,6 +5738,10 @@
         {
           "status": "supported",
           "text": "Selective XYB VarDCT SDR alpha, SDR16, linear16 and PQ16 DC and pass stages with pinned libjxl color oracles and early section reads"
+        },
+        {
+          "status": "supported",
+          "text": "Selective linear16 plus alpha stages with early LF reads and pinned libjxl 0.12.0 final RGBA float pixels"
         },
         {
           "status": "supported",

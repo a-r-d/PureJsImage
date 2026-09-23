@@ -23,6 +23,18 @@ test('JPEG XL selective PQ16 alpha DC preview runs in Chromium', async ({ page }
   expect(result).toBe(true)
 })
 
+test('JPEG XL selective linear16 alpha DC preview runs in Chromium', async ({ page }) => {
+  const bytes = await readFile(
+    'tests/fixtures/jpegxl/practical-progressive/linear-rgba16-small.jxl',
+  )
+  await page.goto('/compatibility.html')
+  const result = await page.evaluate(async (input) => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlSelectiveHdrAlpha(new Uint8Array(input))
+  }, Array.from(bytes))
+  expect(result).toBe(true)
+})
+
 test('JPEG XL exact grayscale JPEG reconstruction runs in Chromium', async ({ page }) => {
   const bytes = await readFile('tests/fixtures/jpegxl/gray-exact/gray-progressive.jpg')
   await page.goto('/compatibility.html')

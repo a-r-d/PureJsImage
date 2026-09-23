@@ -22,6 +22,27 @@ const npySamples = (bytes: Uint8Array): DataView => {
   return new DataView(bytes.buffer, bytes.byteOffset + offset, bytes.byteLength - offset)
 }
 
+const pfmSamples = (
+  bytes: Uint8Array,
+  channels: 1 | 3,
+  width: number,
+  height: number,
+): DataView => {
+  let offset = 0
+  const line = (): string => {
+    const end = bytes.indexOf(10, offset)
+    if (end < 0) throw new Error('Truncated independent PFM reference')
+    const value = new TextDecoder().decode(bytes.subarray(offset, end))
+    offset = end + 1
+    return value
+  }
+  expect(line()).toBe(channels === 1 ? 'Pf' : 'PF')
+  expect(line()).toBe(`${width} ${height}`)
+  expect(line()).toBe('1.0')
+  expect(bytes.byteLength - offset).toBe(width * height * channels * 4)
+  return new DataView(bytes.buffer, bytes.byteOffset + offset, bytes.byteLength - offset)
+}
+
 const readStage = async (
   bytes: Uint8Array,
   options: Readonly<{
@@ -218,6 +239,75 @@ describe('JPEG XL selective high-depth color sessions', () => {
     expect(maximum).toBeLessThanOrEqual(1)
     const early = await readStage(bytes, { until: 'dc' })
     expect(early.sectionBytes).toBeLessThan(bytes.length)
+    expect(early.sectionBytes).toBeLessThan(result.sectionBytes)
+  })
+
+  it('selects linear RGBA16 stages before final payload and matches pinned libjxl pixels', async () => {
+    const bytes = await encoded(
+      'linear-rgba16-small',
+      '1b69f4b7535b826672b973bad21cad23ff7ad92daac529fe1f5bc626f5d431b2',
+    )
+    const width = 200
+    const height = 180
+    const colorBytes = await reference('linear-rgba16-small-color.pfm.gz')
+    const alphaBytes = await reference('linear-rgba16-small-alpha.pfm.gz')
+    expect(sha256(colorBytes)).toBe(
+      'aceb6ffdde614423bd64875a36f5fd0b0cf516d30957f66c3f1d616c46c101e1',
+    )
+    expect(sha256(alphaBytes)).toBe(
+      'cf333753390492f359f9f9534e43278a0a3225aa9f9dee5cdb045cc7e8a93413',
+    )
+    const color = pfmSamples(colorBytes, 3, width, height)
+    const alpha = pfmSamples(alphaBytes, 1, width, height)
+    const result = await readStage(bytes)
+    expect(result.stages.map(({ kind, format }) => [kind, format])).toEqual([
+      ['dc', 'rgbaf32'],
+      ['pass', 'rgbaf32'],
+      ['pass', 'rgbaf32'],
+      ['final', 'rgbaf32'],
+    ])
+    const final = result.stages[3]
+    if (!final) throw new Error('Missing linear alpha final stage')
+    const actual = new DataView(final.data.buffer, final.data.byteOffset, final.data.byteLength)
+    let maximumColorError = 0
+    let maximumAlphaError = 0
+    for (let y = 0; y < height; y++) {
+      const sourceY = height - 1 - y // PFM stores the bottom row first.
+      for (let x = 0; x < width; x++) {
+        const actualPixel = (y * width + x) * 4
+        const referencePixel = sourceY * width + x
+        for (let channel = 0; channel < 3; channel++)
+          maximumColorError = Math.max(
+            maximumColorError,
+            Math.abs(
+              actual.getFloat32((actualPixel + channel) * 4, false) -
+                color.getFloat32((referencePixel * 3 + channel) * 4, false),
+            ),
+          )
+        maximumAlphaError = Math.max(
+          maximumAlphaError,
+          Math.abs(
+            actual.getFloat32((actualPixel + 3) * 4, false) -
+              alpha.getFloat32(referencePixel * 4, false),
+          ),
+        )
+      }
+    }
+    expect(maximumColorError).toBeLessThan(0.000005)
+    expect(maximumAlphaError).toBeLessThan(0.000003)
+    for (const stage of result.stages) {
+      const values = new DataView(stage.data.buffer, stage.data.byteOffset, stage.data.byteLength)
+      let stageAlphaError = 0
+      for (let pixel = 0; pixel < width * height; pixel++)
+        stageAlphaError = Math.max(
+          stageAlphaError,
+          Math.abs(values.getFloat32((pixel * 4 + 3) * 4, false) - 0.5000076),
+        )
+      expect(stageAlphaError).toBeLessThan(0.00001)
+    }
+    const early = await readStage(bytes, { until: 'dc' })
+    expect(early.stages).toHaveLength(1)
+    expect(early.sectionBytes).toBeLessThan(bytes.byteLength)
     expect(early.sectionBytes).toBeLessThan(result.sectionBytes)
   })
 
