@@ -104,6 +104,43 @@ const fillXybBlock = (
   }
 }
 
+const fillXybBlockAligned = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  transfer: Float32Array,
+  matrix: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
+    for (let x = 0; x < 8; x++, offset += 3) {
+      const red = transfer[pixels[offset] ?? 0] ?? 0
+      const green = transfer[pixels[offset + 1] ?? 0] ?? 0
+      const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
+      const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
+      const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
+      const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+      const index = y * 8 + x
+      xPlane[index] = (mixedRed - mixedGreen) / 2
+      yPlane[index] = (mixedRed + mixedGreen) / 2
+      bPlane[index] = mixedBlue - (mixedRed + mixedGreen) / 2
+    }
+  }
+}
+
 const fillXybBlock16 = (
   pixels: Uint8Array,
   width: number,
@@ -373,20 +410,33 @@ function* prepare8(
           }
         }
       : sampleBytes === 1
-        ? (blockX: number, blockY: number) =>
-            fillXybBlock(
-              pixels,
-              width,
-              height,
-              blockX,
-              blockY,
-              xPlane,
-              yPlane,
-              bPlane,
-              channels,
-              transfer,
-              matrix,
-            )
+        ? channels === 3 && (width & 7) === 0 && (height & 7) === 0
+          ? (blockX: number, blockY: number) =>
+              fillXybBlockAligned(
+                pixels,
+                width,
+                blockX,
+                blockY,
+                xPlane,
+                yPlane,
+                bPlane,
+                transfer,
+                matrix,
+              )
+          : (blockX: number, blockY: number) =>
+              fillXybBlock(
+                pixels,
+                width,
+                height,
+                blockX,
+                blockY,
+                xPlane,
+                yPlane,
+                bPlane,
+                channels,
+                transfer,
+                matrix,
+              )
         : (blockX: number, blockY: number) =>
             fillXybBlock16(
               pixels,
@@ -632,6 +682,15 @@ function* prepare8(
   const acStorage = Array.from({ length: 3 }, () =>
     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
   )
+  const fastAcInverse =
+    effort === 1
+      ? defaultJpegXlDct8Dequantization.map((table) => {
+          const inverse = allocateJpegXlArray(memory, Float32Array, 64)
+          for (let position = 1; position < 64; position++)
+            inverse[position] = 1 / (effectiveDistance * (table[position] ?? 0))
+          return inverse
+        })
+      : undefined
   const fillAcGroup = (group: number): readonly VarDctCoefficientPlane[] => {
     const originX = (group % groupsAcross) * 32
     const originY = Math.floor(group / groupsAcross) * 32
@@ -662,14 +721,15 @@ function* prepare8(
             )
           }
           transform(strategy, plane)
+          const inverse = fastAcInverse?.[channel]
           for (let position = 1; position < 64; position++) {
             const value = Math.round(
-              (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+              inverse
+                ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
+                : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
             )
             if (value < -4095 || value > 4095)
-              throw unsupportedOperation(
-                'JPEG XL forward AC coefficient exceeds the entropy subset',
-              )
+              throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
             destination[offset + (position & 7) * 8 + (position >>> 3)] = value
           }
         }

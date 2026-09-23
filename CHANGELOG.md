@@ -4,6 +4,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Reduce JPEG XL effort-1 RGB8 encoding work with fixed AC quantization scales
+  and an aligned-block color path. Independently decoded output stays unchanged
+  on the 12 MP runtime case and the approved 2 MP quality matrix.
+- Record the completed M7 qualification with lossless compression and missing
+  lossy quality brackets still open. Lossy encoding remains Experimental.
+
 - Add explicit JPEG XL binary16/binary32 gray and RGB display conversion with
   mixed integer or IEEE alpha, straightening before range mapping. Preserve
   native samples and source color meaning. Write shifted native planes across
