@@ -997,3 +997,67 @@ export const verifyJpegXlGrayscaleExact = async (source: Uint8Array): Promise<bo
   }
   return decoded === eligible.sourceProfile.width * eligible.sourceProfile.height
 }
+
+export const verifyLosslessPaletteRgba = async () => {
+  const width = 64,
+    height = 64,
+    pixels = new Uint8Array(width * height * 4)
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const color = (x * 5 + y * 11) % 73
+      const offset = (y * width + x) * 4
+      pixels[offset] = (color * 17) & 255
+      pixels[offset + 1] = (color * 29) & 255
+      pixels[offset + 2] = (color * 43) & 255
+      pixels[offset + 3] = (x + y) % 5 === 0 ? 0 : 255
+    }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgba8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'straight',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossless', effort: 7 },
+  })
+  if (!encoder) throw new Error('Missing JPEG XL palette encoder')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 4,
+    format: 'rgba8',
+    data: pixels,
+  })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits, {
+    colorOutput: 'preserve',
+  })
+  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('RGBA decode unavailable')
+  let rows = 0
+  for await (const block of decoder.decode()) {
+    try {
+      for (let y = 0; y < block.height; y++) {
+        const actual = block.data.subarray(y * block.stride, y * block.stride + width * 4)
+        const expected = pixels.subarray((block.y + y) * width * 4, (block.y + y + 1) * width * 4)
+        for (let sample = 0; sample < expected.length; sample++)
+          if (actual[sample] !== expected[sample]) throw new Error('RGBA sample changed')
+        rows++
+      }
+    } finally {
+      block.release?.()
+    }
+  }
+  if (rows !== height) throw new Error('RGBA row count changed')
+  return { bytes: encoded.length, rows }
+}

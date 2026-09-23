@@ -1314,6 +1314,79 @@ const palettePlanes = (
   })
 }
 
+type PaletteOrder = 'luma' | 'morton' | 'hue'
+
+/** Reorder an existing palette without changing any source color or alpha sample. */
+const reorderPalettePlanes = (
+  prepared: Readonly<PreparedModularPlanes>,
+  orderMode: PaletteOrder,
+  memory?: JpegXlEncoderMemory,
+): PreparedModularPlanes =>
+  withJpegXlMemory(memory, () => {
+    const sourcePalette = prepared.planes.values[0]
+    const sourceIndices = prepared.planes.values[1]
+    const transform = prepared.transforms.palette
+    if (!sourcePalette || !sourceIndices || !transform || transform.deltaCount !== 0)
+      throw invalidInput('JPEG XL regular palette is unavailable')
+    const { colorCount, channelCount } = transform
+    const order = allocateJpegXlArray(memory, Uint16Array, colorCount)
+    const keys = new Array<number>(colorCount)
+    for (let color = 0; color < colorCount; color++) {
+      order[color] = color
+      const red = sourcePalette[color] ?? 0
+      const green = sourcePalette[colorCount + color] ?? 0
+      const blue = sourcePalette[colorCount * 2 + color] ?? 0
+      const alpha = sourcePalette[colorCount * 3 + color] ?? 0
+      if (orderMode === 'luma') {
+        keys[color] =
+          ((red * 3 + green * 6 + blue) * 256 + alpha) * 16_777_216 +
+          ((red * 256 + green) * 256 + blue)
+      } else if (orderMode === 'morton') {
+        let key = 0
+        for (let bit = 7; bit >= 0; bit--)
+          key =
+            key * 8 +
+            (((red >>> bit) & 1) << 2) +
+            (((green >>> bit) & 1) << 1) +
+            ((blue >>> bit) & 1)
+        keys[color] = key * 256 + alpha
+      } else {
+        const maximum = Math.max(red, green, blue)
+        const minimum = Math.min(red, green, blue)
+        const delta = maximum - minimum
+        const hue =
+          delta === 0
+            ? -1
+            : maximum === red
+              ? ((green - blue) / delta + 6) % 6
+              : maximum === green
+                ? (blue - red) / delta + 2
+                : (red - green) / delta + 4
+        const saturation = maximum === 0 ? 0 : delta / maximum
+        keys[color] = ((hue + 1) * 1_000_000 + saturation * 1_000 + maximum) * 256 + alpha
+      }
+    }
+    order.sort((left, right) => (keys[left] ?? 0) - (keys[right] ?? 0) || left - right)
+    const inverse = allocateJpegXlArray(memory, Uint16Array, colorCount)
+    for (let color = 0; color < colorCount; color++) inverse[order[color] ?? 0] = color
+    const indices = allocateJpegXlArray(memory, Int32Array, sourceIndices.length)
+    for (let position = 0; position < sourceIndices.length; position++)
+      indices[position] = inverse[sourceIndices[position] ?? 0] ?? 0
+    const palette = allocateJpegXlArray(memory, Int32Array, sourcePalette.length)
+    for (let channel = 0; channel < channelCount; channel++)
+      for (let color = 0; color < colorCount; color++)
+        palette[channel * colorCount + color] =
+          sourcePalette[channel * colorCount + (order[color] ?? 0)] ?? 0
+    return Object.freeze({
+      planes: Object.freeze({
+        values: Object.freeze([palette, indices]),
+        widths: prepared.planes.widths,
+        heights: prepared.planes.heights,
+      }),
+      transforms: prepared.transforms,
+    })
+  })
+
 const smoothSqueezeTendency = (previous: number, average: number, next: number): number => {
   let difference = 0
   if (previous >= average && average >= next) {
@@ -2614,6 +2687,29 @@ const encodeSingleGroupSection = (
         candidates.push(encodePrepared(rctBase, false))
         await checkpoint?.()
         candidates.push(encodePrepared(rctBase, true))
+      }
+    }
+    if (
+      effort === 7 &&
+      format === 'rgba8' &&
+      width * height <= 262_144 &&
+      prepared.transforms.palette?.deltaCount === 0
+    ) {
+      // Actual encoded bytes choose the order; the original palette remains a size floor.
+      for (const order of ['luma', 'morton', 'hue'] as const) {
+        await checkpoint?.()
+        const candidate = await withJpegXlMemoryAsync(memory, async () => {
+          const ordered = reorderPalettePlanes(prepared, order, memory)
+          const variants = [encodePrepared(ordered, false), encodePrepared(ordered, true)]
+          await checkpoint?.()
+          variants.push(encodePrepared(ordered, false, true))
+          await checkpoint?.()
+          variants.push(encodePrepared(ordered, true, true))
+          return variants.reduce((smallest, variant) =>
+            variant.byteLength < smallest.byteLength ? variant : smallest,
+          )
+        })
+        candidates.push(candidate)
       }
     }
     if ((prepared.transforms.palette?.colorCount ?? 0) > 256) {

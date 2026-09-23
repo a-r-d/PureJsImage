@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import {
   runJpegXlPipelines,
+  verifyLosslessPaletteRgba,
   verifyFloatJpegXl,
   verifyLazyJpegXl,
   verifyLevelTenJpegXl,
@@ -9,6 +10,18 @@ import {
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+test('lossless palette RGBA samples match in Node and browser', async ({ page }) => {
+  const expected = await verifyLosslessPaletteRgba()
+  expect(expected.rows).toBe(64)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyLosslessPaletteRgba()
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('Level 10 binary32 native decode and writer signaling agree with Node', async ({ page }) => {
   const input = new Uint8Array(await readFile('tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl'))
