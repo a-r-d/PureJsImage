@@ -1985,6 +1985,17 @@ export const writeChannelTree = (
   })
 }
 
+const defaultModularHybridConfiguration: HybridUintEncoding = {
+  splitExponent: 4,
+  msbInToken: 2,
+  lsbInToken: 0,
+}
+const modularHybridConfigurations: readonly HybridUintEncoding[] = [
+  defaultModularHybridConfiguration,
+  { splitExponent: 2, msbInToken: 1, lsbInToken: 0 },
+  { splitExponent: 3, msbInToken: 1, lsbInToken: 0 },
+]
+
 interface ModularEntropyPlan {
   readonly predictors: readonly number[]
   readonly treePredictors: readonly number[]
@@ -2121,6 +2132,7 @@ const buildTokenPlan = (
   effort: JpegXlLosslessEffort,
   allowLz77: boolean,
   memory?: JpegXlEncoderMemory,
+  config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
 ): ModularEntropyPlan => {
   return withJpegXlMemory(memory, () => {
     const {
@@ -2135,11 +2147,6 @@ const buildTokenPlan = (
       distanceMultiplier,
     } = residualPlan
     const originalCount = residuals.length
-    const config = Object.freeze({
-      splitExponent: 4,
-      msbInToken: 2,
-      lsbInToken: 0,
-    })
     const useLz77 = allowLz77 && effort >= 5 && originalCount >= 64
     const packedValues = allocateJpegXlArray(memory, Uint32Array, originalCount)
     const contexts = allocateJpegXlArray(memory, Uint16Array, packedValues.length)
@@ -2665,9 +2672,10 @@ const encodeAdaptiveGroup = (
   outputLimit: number,
   memory?: JpegXlEncoderMemory,
   transforms: Readonly<ModularTransforms> = { useRct: false },
+  config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
 ): Uint8Array =>
   withJpegXlMemory(memory, () => {
-    const plan = buildTokenPlan(residualPlan, effort, allowLz77, memory)
+    const plan = buildTokenPlan(residualPlan, effort, allowLz77, memory, config)
     const writer = new JpegXlBitWriter(memory, outputLimit)
     writeModularHeader(writer, false, transforms)
     writeChannelTree(writer, plan.treePredictors, plan.gradientContexts)
@@ -2675,7 +2683,7 @@ const encodeAdaptiveGroup = (
       writer,
       plan.entropyContextMap,
       plan.frequencies,
-      { splitExponent: 4, msbInToken: 2, lsbInToken: 0 },
+      config,
       plan.lz77,
     )
     writeAnsPixels(writer, plan, encoding)
@@ -2709,6 +2717,7 @@ const encodeGroupCandidate = (
       await checkpoint?.()
       lz77 = encodeAdaptiveGroup(residualPlan, effort, true, limit, memory, transforms)
     }
+    let selectedPlan = residualPlan
     let selected: EncodedModularCandidate = {
       bytes: lz77 && lz77.length < plain.length ? lz77 : plain,
       contextModel: 'channel',
@@ -2730,6 +2739,7 @@ const encodeGroupCandidate = (
         await checkpoint?.()
         const lz77 = encodeAdaptiveGroup(plan, effort, true, limit, memory, transforms)
         return Object.freeze({
+          plan,
           bytes: lz77.length < plain.length ? lz77 : plain,
           contextModel: 'gradient',
           predictors,
@@ -2739,7 +2749,30 @@ const encodeGroupCandidate = (
           lz77Bytes: lz77.length,
         })
       })
-      if (contextual.bytes.length < selected.bytes.length) selected = contextual
+      if (contextual.bytes.length < selected.bytes.length) {
+        selected = contextual
+        selectedPlan = contextual.plan
+      }
+    }
+    if (effort === 7) {
+      for (let index = 1; index < modularHybridConfigurations.length; index++) {
+        const config = modularHybridConfigurations[index]
+        if (!config) throw invalidInput('JPEG XL Modular hybrid configuration is missing')
+        await checkpoint?.()
+        const candidate = encodeAdaptiveGroup(
+          selectedPlan,
+          effort,
+          selected.lz77,
+          limit,
+          memory,
+          transforms,
+          config,
+        )
+        if (candidate.length < selected.bytes.length) {
+          memory?.release(selected.bytes)
+          selected = { ...selected, bytes: candidate }
+        } else memory?.release(candidate)
+      }
     }
     return Object.freeze(selected)
   })

@@ -13,10 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Grayscale exact reconstruction and progressive HDR measure 441323 bytes.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 442_000 },
-  // Native precision, ICC, grayscale reconstruction, and selective HDR measure 529396 bytes.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 530_000 },
+  // The JPEG XL effort-1 lookup and lossless entropy search add under 1 KB.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 443_000 },
+  // The JPEG XL effort-1 lookup and lossless entropy search add under 1 KB.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 531_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

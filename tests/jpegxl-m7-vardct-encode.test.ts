@@ -12,6 +12,43 @@ import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
 
 describe('JPEG XL pixel-to-VarDCT conformance path', () => {
+  it('decodes aligned effort-1 sRGB including black and white endpoints', async () => {
+    const width = 16
+    const height = 16
+    const pixels = Uint8Array.from({ length: width * height * 3 }, (_, index) => {
+      const x = Math.floor(index / 3) % width
+      const y = Math.floor(index / (width * 3))
+      return y < 8 ? (x < 8 ? 0 : 255) : Math.round(((x + y) * 255) / 30)
+    })
+    const sink = new Uint8ArraySink()
+    for (const part of encodeJpegXlVarDct8(pixels, width, height, 1, undefined, 3, 1))
+      await sink.write(part)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(sink.toUint8Array()),
+      defaultImageLimits,
+    )
+    if (!decoder) throw new Error('Missing JPEG XL decoder')
+    let samples = 0
+    let maximum = 0
+    for await (const block of decoder.decode()) {
+      for (let y = 0; y < block.height; y++) {
+        for (let x = 0; x < width * 3; x++) {
+          maximum = Math.max(
+            maximum,
+            Math.abs(
+              (block.data[y * block.stride + x] ?? -1000) -
+                (pixels[(block.y + y) * width * 3 + x] ?? 1000),
+            ),
+          )
+          samples++
+        }
+      }
+      block.release?.()
+    }
+    expect(samples).toBe(pixels.length)
+    expect(maximum).toBeLessThan(40)
+  })
+
   for (const distance of [0.999, 1, 1.001, 2, 3]) {
     it(`preserves smooth colored gradients at distance ${distance}`, async () => {
       const width = 129,

@@ -52,6 +52,14 @@ const linearSrgb = Float32Array.from({ length: 256 }, (_, value) => {
 })
 const bias = 0.0037930732552754493
 const biasRoot = Math.cbrt(bias)
+// The default sRGB matrix maps 8-bit RGB into [0, 1]. The extra endpoint
+// covers its final floating-point rounding at white without a hot-loop clamp.
+const lookupCubeRoot = (linear: number, table: Float32Array): number => {
+  const scaled = linear * 16_384
+  const index = scaled | 0
+  const left = table[index] ?? 0
+  return left + ((table[index + 1] ?? left) - left) * (scaled - index)
+}
 
 import {
   forwardJpegXlDct8,
@@ -133,6 +141,44 @@ const fillXybBlockAligned = (
       const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
       const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
       const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+      const index = y * 8 + x
+      xPlane[index] = (mixedRed - mixedGreen) / 2
+      yPlane[index] = (mixedRed + mixedGreen) / 2
+      bPlane[index] = mixedBlue - (mixedRed + mixedGreen) / 2
+    }
+  }
+}
+
+const fillXybBlockAlignedFast = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  transfer: Float32Array,
+  matrix: Float32Array,
+  cubeRootTable: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
+    for (let x = 0; x < 8; x++, offset += 3) {
+      const red = transfer[pixels[offset] ?? 0] ?? 0
+      const green = transfer[pixels[offset + 1] ?? 0] ?? 0
+      const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
+      const mixedRed = lookupCubeRoot(m0 * red + m1 * green + m2 * blue, cubeRootTable)
+      const mixedGreen = lookupCubeRoot(m3 * red + m4 * green + m5 * blue, cubeRootTable)
+      const mixedBlue = lookupCubeRoot(m6 * red + m7 * green + m8 * blue, cubeRootTable)
       const index = y * 8 + x
       xPlane[index] = (mixedRed - mixedGreen) / 2
       yPlane[index] = (mixedRed + mixedGreen) / 2
@@ -391,6 +437,20 @@ function* prepare8(
       }
     }
   }
+  const cubeRootTable =
+    effort === 1 &&
+    channels === 3 &&
+    sampleBytes === 1 &&
+    (width & 7) === 0 &&
+    (height & 7) === 0 &&
+    primaryCode === 1 &&
+    colorTransfer.kind === 'srgb'
+      ? allocateJpegXlArray(memory, Float32Array, 16_386)
+      : undefined
+  if (cubeRootTable) {
+    for (let index = 0; index < cubeRootTable.length; index++)
+      cubeRootTable[index] = Math.cbrt(index / 16_384 + bias) - biasRoot
+  }
   // Select the storage kernel once. Grayscale never expands to an RGB bitmap.
   const fillColor =
     channels === 1
@@ -411,18 +471,32 @@ function* prepare8(
         }
       : sampleBytes === 1
         ? channels === 3 && (width & 7) === 0 && (height & 7) === 0
-          ? (blockX: number, blockY: number) =>
-              fillXybBlockAligned(
-                pixels,
-                width,
-                blockX,
-                blockY,
-                xPlane,
-                yPlane,
-                bPlane,
-                transfer,
-                matrix,
-              )
+          ? cubeRootTable
+            ? (blockX: number, blockY: number) =>
+                fillXybBlockAlignedFast(
+                  pixels,
+                  width,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  transfer,
+                  matrix,
+                  cubeRootTable,
+                )
+            : (blockX: number, blockY: number) =>
+                fillXybBlockAligned(
+                  pixels,
+                  width,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  transfer,
+                  matrix,
+                )
           : (blockX: number, blockY: number) =>
               fillXybBlock(
                 pixels,

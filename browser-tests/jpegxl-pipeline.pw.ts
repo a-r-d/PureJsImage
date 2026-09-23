@@ -7,6 +7,7 @@ import {
   verifyLevelTenJpegXl,
   verifyM7EffortOneGroups,
   verifyM7ForwardJpegXl,
+  verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
 
 test('Level 10 binary32 native decode and writer signaling agree with Node', async ({ page }) => {
@@ -339,9 +340,7 @@ for (const [width, height] of [
   test(`M7 scalar palettes preserve independently verified RGB16 ${width}x${height}`, async ({
     page,
   }) => {
-    const expected = await readFile(
-      `tests/fixtures/jpegxl/m7-scalar-palettes/${width}x${height}.jxl`,
-    )
+    const expected = await verifyM7ScalarPalettes(width, height)
     await page.goto('/compatibility.html')
     const actual = await page.evaluate(
       async ({ width, height }) => {
@@ -351,6 +350,6 @@ for (const [width, height] of [
       },
       { width, height },
     )
-    expect(actual).toEqual(Array.from(expected))
+    expect(actual).toEqual(expected)
   })
 }
