@@ -986,6 +986,12 @@ The exact-commit original 12 MP effort-1 paired median is 5.646 times native col
 
 The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt3-report.md), [evidence index](../../benchmark/jpegxl/production-program/m7-prompt3-evidence-index.json), raw case reports, and clean-checkout conformance/resource results give the target-by-target decision. The final local check has 3,192 passed tests and three skipped; real Chromium JPEG XL tests pass 29/29. No new unseen-generalization claim, Stable promotion, version change or release follows from this result.
 
+## M7 transparent lossless artwork repair, September 23
+
+The implementation at `49f3c25611210c4f04dd3f8907e5be8e28781317` measures three additional palette orders for small single-group RGBA8 lossless effort-7 images and keeps the smallest encoded stream. The same 12 native artwork families improve from 1.290606/1.482599 to 1.233412/1.317121 median/p90 against the 1.25/1.40 bounds. The worst ratio is 1.548490, below 1.75. Every color and alpha sample, including RGB under zero alpha, matches through pinned native, pinned Rust, and the repository decoder. The six development and six observed holdout sources retain their original split. The observed holdout was inspected during tuning and remains regression evidence.
+
+The 12 derived PQ16 streams are byte-identical and decode exactly. The 240-case SDR, large-image, lossy, effort-1 and public effort-3 paths are unchanged; their previous qualification evidence remains linked in the [target report](../../benchmark/jpegxl/production-program/m7-prompt4-report.md). Effort-7 artwork encoding takes longer in the two measured diagnostics. The [raw expansion](../../benchmark/jpegxl/production-program/m7-prompt4-lossless-expansion.json) and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt4-evidence-index.json) record source, stream and decoder hashes. The clean implementation commit passed 39/39 conformance and 24/24 resource cases. The full repository check passed 3,193 tests with three skipped, and the focused Chromium check passed. Lossy stays Experimental because its remaining quality and original-size gaps are unchanged.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run

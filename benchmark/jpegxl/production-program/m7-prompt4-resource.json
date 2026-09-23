@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "revision": "49f3c25611210c4f04dd3f8907e5be8e28781317",
+  "clean": true,
+  "manifestSha256": "dd43f1e0710d379cb00c79519f82bdfa6ec3134cda3ddccf281d32085acf6539",
+  "securitySources": [
+    {
+      "id": "libjxl-v0.13.0-security",
+      "url": "https://github.com/libjxl/libjxl/releases/tag/v0.13.0",
+      "reviewed": true
+    },
+    {
+      "id": "jxl-oxide-ghsa-5pmv-rx8r-wmv5",
+      "url": "https://github.com/tirr-c/jxl-oxide/security/advisories/GHSA-5pmv-rx8r-wmv5",
+      "reviewed": true
+    },
+    {
+      "id": "libjxl-security-policy",
+      "url": "https://github.com/libjxl/libjxl/blob/main/SECURITY.md",
+      "reviewed": true
+    }
+  ],
+  "fuzzCases": [
+    {
+      "id": "boxes-level-segments-metadata",
+      "outcome": "passed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 8.61791599999998,
+      "inputSha256": "350cf3532d035948c5728ee8dbc2056e09000fe130f302c55090568cf4203e7e"
+    },
+    {
+      "id": "entropy-prefix-ans-lz77",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 1.591617000000042,
+      "inputSha256": "e9e4803501296a96360a2e14d63638ddaed9da41b855208200d297f2c2986513",
+      "code": "LIMIT_EXCEEDED"
+    },
+    {
+      "id": "ma-tree-palette-squeeze",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 3.7856629999999996,
+      "inputSha256": "c6963bcd337b2430f28355407a7c1024317556f723b1b15b82190e7f4298f127",
+      "code": "LIMIT_EXCEEDED"
+    },
+    {
+      "id": "coefficients-transforms-filters",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 14.860087000000021,
+      "inputSha256": "33d12b1fa1a4f888842c5aa8e54cb2c0b3909f5115a18233e58b0c4a9788a955",
+      "code": "TRUNCATED_INPUT"
+    },
+    {
+      "id": "patches-splines-noise",
+      "outcome": "unsupported",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.48169300000000703,
+      "inputSha256": "3b7cbfc5a483de19c67af70331c835e2436c1ec8d84a431cae17b4d032c12315",
+      "code": "UNSUPPORTED_OPERATION"
+    },
+    {
+      "id": "progressive-dependencies",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 51.61087799999996,
+      "inputSha256": "3835f7f630115a8b2044f460c9aeb17699f40b7c164aec409bfdffc1fb07796c",
+      "code": "INVALID_INPUT"
+    },
+    {
+      "id": "animation-reference-timing-blend",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 108.16953699999999,
+      "inputSha256": "6f43603ea0937c28127667763e971cf495c45c57b31cfbbbeb1bde985f10b294",
+      "code": "TRUNCATED_INPUT"
+    },
+    {
+      "id": "icc-extra-channels",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.2918250000000171,
+      "inputSha256": "fb38d9c91ea9db04af63d89730780f82eb32cd7d00d3b5af4238b76e8e655c04",
+      "code": "INVALID_INPUT"
+    },
+    {
+      "id": "exact-jpeg-reconstruction",
+      "outcome": "passed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 22.17801899999995,
+      "inputSha256": "522552eca928535f3fa8f4679b8c45cfcb9c4eb4e2faca119d8830fd14f1f173"
+    },
+    {
+      "id": "lossless-lossy-writers",
+      "outcome": "passed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 6.375794000000042,
+      "inputSha256": "fd558e3959f3a3c138b3b30bdd332481c6c1d013ae9d09631ca5b68e2625727a"
+    },
+    {
+      "id": "native-display-conversion",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.1116420000000744,
+      "inputSha256": "5e00b39522d9a7185bda5bc73fba98c4975f5f77d23f0b78892eaea6ff9a2b5b",
+      "code": "INVALID_INPUT"
+    },
+    {
+      "id": "api-limits-worker-messages",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.26523400000019137,
+      "inputSha256": "a2884f33793c0948236f21938c9cba7c83d352620af04804dcb751b9a243193b",
+      "code": "LIMIT_EXCEEDED"
+    }
+  ],
+  "resourceCases": [
+    {
+      "id": "zero-progress-source",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.2541780000001381,
+      "inputSha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "code": "TRUNCATED_INPUT"
+    },
+    {
+      "id": "section-count-limit",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.11507699999992838,
+      "inputSha256": "8b9918cc87002536d1a1b080abb2f0e8a3dbb578a366a51b262446319034139b",
+      "code": "LIMIT_EXCEEDED"
+    },
+    {
+      "id": "internal-frame-limit",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.40968100000009144,
+      "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
+      "code": "LIMIT_EXCEEDED"
+    },
+    {
+      "id": "declared-pixel-limit",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.0993710000000192,
+      "inputSha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "code": "LIMIT_EXCEEDED"
+    },
+    {
+      "id": "metadata-limit",
+      "outcome": "limit-exceeded",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 0.1806210000002011,
+      "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
+      "code": "LIMIT_EXCEEDED"
+    },
+    {
+      "id": "computation-cancellation",
+      "outcome": "cancelled",
+      "rawException": false,
+      "managedLiveBytes": 0,
+      "elapsedMilliseconds": 27.877058000000034,
+      "inputSha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "code": "ABORT_ERR"
+    },
+    {
+      "id": "fetch-cancellation",
+      "outcome": "cancelled",
+      "rawException": false,
+      "managedLiveBytes": 0,
+      "elapsedMilliseconds": 1.3226300000001174,
+      "inputSha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "code": "ABORT_ERR"
+    },
+    {
+      "id": "sink-failure",
+      "outcome": "passed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 9.647465999999895,
+      "inputSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee"
+    },
+    {
+      "id": "pending-write-abort",
+      "outcome": "cancelled",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 3.726810000000114,
+      "inputSha256": "ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee",
+      "code": "ABORT_ERR"
+    },
+    {
+      "id": "early-consumer-return",
+      "outcome": "passed",
+      "rawException": false,
+      "managedLiveBytes": null,
+      "elapsedMilliseconds": 1.656150000000025,
+      "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4"
+    },
+    {
+      "id": "resource-reuse",
+      "outcome": "passed",
+      "rawException": false,
+      "managedLiveBytes": 0,
+      "elapsedMilliseconds": 142.87895200000003,
+      "inputSha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef"
+    },
+    {
+      "id": "malformed-after-preview",
+      "outcome": "malformed",
+      "rawException": false,
+      "managedLiveBytes": 0,
+      "elapsedMilliseconds": 597.7775200000003,
+      "inputSha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "code": "TRUNCATED_INPUT"
+    }
+  ],
+  "summary": {
+    "passed": true,
+    "total": 24,
+    "rawExceptions": 0,
+    "leakedOwnership": 0
+  }
+}
