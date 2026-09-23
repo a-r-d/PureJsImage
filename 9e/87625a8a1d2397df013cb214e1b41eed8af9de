@@ -1,0 +1,71 @@
+tests/fixtures/jpegxl/practical-float/README.md
+  s_d4180e5cac980c::t_c24736327bc9ab 1-16
+benchmark/jpegxl/verify-practical-shifted.ts
+  s_d4180e5cac980c::t_3daffd3a0448cb 65-82
+  s_d4180e5cac980c::t_16d4d973e54e58 4,62-64,83-96,147
+tests/jpegxl-float-display.test.ts
+  s_d4180e5cac980c::t_d5ad7bf4349426 1-2,22-52,55-82,84-85,87-90,94-103,110-112
+  s_d4180e5cac980c::t_4b1c20cad7d35a 86
+  s_d4180e5cac980c::t_ce357ff1d69f6a 53-54,91-93
+  s_d4180e5cac980c::t_01e0b7bf92fe0e 104-109
+tests/fixtures/jpegxl/practical-shifted-native/README.md
+  s_d4180e5cac980c::t_3daffd3a0448cb 1-24
+tests/jpegxl-practical-progressive.test.ts
+  s_d4180e5cac980c::t_14e10ebcdd0090 25-45,245-295,297-299,301,307-310
+  s_d4180e5cac980c::t_2628775b1efa43 296,300,302-306
+  s_d4180e5cac980c::t_9b8dacd0e11120 311-313
+docs-astro/public/capabilities.json
+  s_d4180e5cac980c::t_ce357ff1d69f6a 5623,5625,5639,5743
+  s_d4180e5cac980c::t_23c96b7d456209 5624,5628
+  s_d4180e5cac980c::t_3daffd3a0448cb 5640-5641
+  s_d4180e5cac980c::t_4348d14db620cf 5744-5745
+  s_d4180e5cac980c::t_71ec77821eacff 5622,5638,5742
+benchmark/jpegxl/generate-practical-float-references.ts
+  s_d4180e5cac980c::t_4b1c20cad7d35a 159-207
+  s_d4180e5cac980c::t_ff99723a99a8a3 1-4,10-23,30-74,155-158
+  s_d4180e5cac980c::t_8c407afe4031c0 5-9,24-29,75-154
+  s_d4180e5cac980c::t_ce357ff1d69f6a 208-211
+browser-tests/jpegxl-practical-progressive.pw.ts
+  s_d4180e5cac980c::t_8fdc5e20474d5a 26-37
+jpegxl-codec-support.md
+  s_d4180e5cac980c::t_23c96b7d456209 20-21
+  s_d4180e5cac980c::t_4348d14db620cf 65
+  s_d4180e5cac980c::t_3daffd3a0448cb 24,28
+CHANGELOG.md
+  s_d4180e5cac980c::t_23c96b7d456209 13-14
+  s_d4180e5cac980c::t_3daffd3a0448cb 15-16
+  s_d4180e5cac980c::t_4348d14db620cf 21-22
+capabilities/manifest.json
+  s_d4180e5cac980c::t_23c96b7d456209 3718-3719
+  s_d4180e5cac980c::t_3daffd3a0448cb 3722,3726
+  s_d4180e5cac980c::t_4348d14db620cf 3763
+docs/jpegxl-practical-coverage.md
+  s_d4180e5cac980c::t_3daffd3a0448cb 17,21-26
+  s_d4180e5cac980c::t_4348d14db620cf 71,96-99
+  s_d4180e5cac980c::t_ce357ff1d69f6a 40-41
+  s_d4180e5cac980c::t_c24736327bc9ab 90-95
+  s_d4180e5cac980c::t_23c96b7d456209 15,37-39,42-43
+  s_d4180e5cac980c::t_a44c63ca36c6b6 27,100
+tests/fixtures/jpegxl/practical-float/manifest.json
+  s_d4180e5cac980c::t_8c407afe4031c0 23,25-32,35,38-44,71,73-80,83,86-92,121-127,130,133-140,143,145,168,170-176,179,182-189,192
+  s_d4180e5cac980c::t_23c96b7d456209 9-10,12-13,21-22,24,33-34,36-37,45-46,48,57-58,60-61,69-70,72,81-82,84-85,93-94,96,105-106,108-109,117-118,120,128-129,131-132,141-142,144,146,154-155,157-158,166-167,169,177-178,180-181,190-191,193,195,203-207
+  s_d4180e5cac980c::t_ce357ff1d69f6a 11,59,107,156
+  s_d4180e5cac980c::t_4b1c20cad7d35a 197-202,208
+  s_d4180e5cac980c::t_b71e1125434f74 1-8,14-20,47,49-56,62-68,95,97-104,110-116,119,147-153,159-165,194,196,209-211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9e87625a8a1d2397df013cb214e1b41eed8af9de",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
