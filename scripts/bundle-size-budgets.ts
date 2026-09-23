@@ -13,9 +13,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // The measured RGBA8 lossless palette search adds about 1.4 KB to each entry.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 444_500 },
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 532_500 },
+  // The RGBA8 lossless palette search and large-document lossy choice are measured below.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 445_000 },
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 533_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

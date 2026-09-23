@@ -6,10 +6,23 @@ import {
   verifyFloatJpegXl,
   verifyLazyJpegXl,
   verifyLevelTenJpegXl,
+  verifyJpegXlLargeDocumentSelection,
   verifyM7EffortOneGroups,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+test('large-document JPEG XL lossy selector agrees in Node and browser', async ({ page }) => {
+  const expected = verifyJpegXlLargeDocumentSelection()
+  expect(expected).toEqual({ eligible: true, darkExcluded: true })
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyJpegXlLargeDocumentSelection()
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('lossless palette RGBA samples match in Node and browser', async ({ page }) => {
   const expected = await verifyLosslessPaletteRgba()

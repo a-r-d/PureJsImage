@@ -3,6 +3,7 @@ import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
+import { useLargeDocumentModularCandidate } from '../src/codecs/jpegxl-modular-encode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
@@ -16,6 +17,33 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
+
+export const verifyJpegXlLargeDocumentSelection = () => {
+  const width = 2800,
+    height = 3000,
+    pixels = new Uint8Array(width * height * 3)
+  pixels.fill(255)
+  const options = {
+    effort: 7,
+    distance: 3,
+    progressive: false,
+    sampleBitDepth: 8,
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+  } as const
+  const eligible = useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
+  pixels.fill(0)
+  const darkExcluded = !useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
+  return { eligible, darkExcluded }
+}
 
 export const verifyLevelTenJpegXl = async (bytes: Uint8Array) => {
   const sequence = await openJpegXlSequence(bytes)

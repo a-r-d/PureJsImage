@@ -1,7 +1,13 @@
 import { throwIfAborted } from '../abort.ts'
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
+import {
+  ImageError,
+  invalidInput,
+  limitExceeded,
+  truncatedInput,
+  unsupportedOperation,
+} from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
@@ -3524,6 +3530,44 @@ interface EncodedJpegXlCodestream {
   readonly byteLength: number
 }
 
+// Limit the extra effort-7 search to large white-background documents.
+export const useLargeDocumentModularCandidate = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  format: ModularPixelFormat,
+  options: Readonly<
+    Pick<
+      ResolvedJpegXlEncodeOptions,
+      'effort' | 'distance' | 'progressive' | 'sampleBitDepth' | 'colorSemantics'
+    >
+  >,
+): boolean => {
+  if (
+    format !== 'rgb8' ||
+    width * height < 8_000_000 ||
+    options.effort !== 7 ||
+    options.distance < 2 ||
+    options.progressive ||
+    options.sampleBitDepth !== 8 ||
+    options.colorSemantics.primaries !== 'srgb' ||
+    options.colorSemantics.transfer.kind !== 'srgb'
+  )
+    return false
+  let white = 0
+  let sampled = 0
+  for (let offset = 0; offset < pixels.length; offset += 192) {
+    sampled++
+    if (
+      (pixels[offset] ?? 0) >= 248 &&
+      (pixels[offset + 1] ?? 0) >= 248 &&
+      (pixels[offset + 2] ?? 0) >= 248
+    )
+      white++
+  }
+  return white * 5 >= sampled * 4
+}
+
 const encodeLossyCodestream = (
   pixels: Uint8Array,
   width: number,
@@ -3557,10 +3601,30 @@ const encodeLossyCodestream = (
     )
     const header = parts[0]
     if (!header) throw invalidInput('JPEG XL forward header is missing')
-    return {
+    const primary = {
       header,
       sections: parts.slice(1),
       byteLength: parts.reduce((sum, part) => sum + part.byteLength, 0),
+    }
+    if (!useLargeDocumentModularCandidate(pixels, width, height, format, options)) return primary
+    try {
+      const quantized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
+      for (let index = 0; index < pixels.length; index++)
+        quantized[index] = Math.min(255, ((pixels[index] ?? 0) + 2) & ~3)
+      const modular = await encodeCodestream(
+        quantized,
+        width,
+        height,
+        'rgb8',
+        options,
+        memory,
+        checkpoint,
+      )
+      // The enclosing memory scope retains only the selected codestream.
+      return modular.byteLength * 5 <= primary.byteLength * 4 ? modular : primary
+    } catch (error) {
+      if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return primary
+      throw error
     }
   })
 
