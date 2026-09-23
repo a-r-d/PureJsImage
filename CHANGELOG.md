@@ -20,6 +20,8 @@ All notable changes to PureJsImage are documented in this file.
   baseline and progressive scans.
 - Verify early linear 16-bit JPEG XL RGBA stages against a pinned partial
   jxl-oxide pass image and final pixels against pinned libjxl color and alpha.
+- Pin partial jxl-oxide first-pass alpha references for SDR8 and PQ16 JPEG XL,
+  before the complete encoded payload is available.
 
 ### 2026-09-19 UTC
 

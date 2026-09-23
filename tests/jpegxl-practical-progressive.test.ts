@@ -223,6 +223,29 @@ describe('JPEG XL selective high-depth color sessions', () => {
       ['pass', 'rgba8'],
       ['final', 'rgba8'],
     ])
+    const sdrPrefixBytes = 314
+    expect(sha256(bytes.subarray(0, sdrPrefixBytes))).toBe(
+      '73452429bffc610031775c9d9f36691360ad9581b3a2316aec5bfce61249b4ff',
+    )
+    expect(sdrPrefixBytes).toBeLessThan(bytes.byteLength)
+    const passBytes = await reference('sdr-rgba8-pass1.npy.gz')
+    expect(sha256(passBytes)).toBe(
+      '1b39bafa8fd21623e5f1a0bfb83a3509cde055bf49a5dea247289d8466cdcbb7',
+    )
+    const passSamples = npySamples(passBytes)
+    const firstPass = result.stages[1]
+    if (!firstPass) throw new Error('Missing SDR alpha first pass')
+    expect(passSamples.byteLength).toBe(firstPass.data.byteLength * 4)
+    let maximumPassError = 0
+    for (let sample = 0; sample < firstPass.data.byteLength; sample++) {
+      const source = passSamples.getFloat32(sample * 4, true)
+      const expected = Math.round(Math.max(0, Math.min(1, source)) * 255)
+      maximumPassError = Math.max(
+        maximumPassError,
+        Math.abs((firstPass.data[sample] ?? 0) - expected),
+      )
+    }
+    expect(maximumPassError).toBeLessThanOrEqual(1)
     for (const stage of result.stages) {
       let mismatchedAlpha = 0
       for (let index = 3; index < stage.data.length; index += 4)
@@ -350,6 +373,34 @@ describe('JPEG XL selective high-depth color sessions', () => {
       ['pass', 'rgbaf32'],
       ['final', 'rgbaf32'],
     ])
+    const pqPrefixBytes = 450
+    expect(sha256(bytes.subarray(0, pqPrefixBytes))).toBe(
+      '21127f76608b9a5c6cb643e7f45f2c2a2b5f0ea096641ee7f35f979f16a433f6',
+    )
+    expect(pqPrefixBytes).toBeLessThan(bytes.byteLength)
+    const passBytes = await reference('pq-rgba16-small-pass1.npy.gz')
+    expect(sha256(passBytes)).toBe(
+      'ab47e24c8f3af822ea4bfa3d3bce1c7fcaf0db8826dbdb302b946c98a738f57d',
+    )
+    const passSamples = npySamples(passBytes)
+    const firstPass = result.stages[1]
+    if (!firstPass) throw new Error('Missing PQ alpha first pass')
+    expect(passSamples.byteLength).toBe(firstPass.data.byteLength)
+    const passActual = new DataView(
+      firstPass.data.buffer,
+      firstPass.data.byteOffset,
+      firstPass.data.byteLength,
+    )
+    let maximumAlphaPassError = 0
+    for (let pixel = 0; pixel < firstPass.width * firstPass.height; pixel++)
+      maximumAlphaPassError = Math.max(
+        maximumAlphaPassError,
+        Math.abs(
+          passActual.getFloat32((pixel * 4 + 3) * 4, false) -
+            passSamples.getFloat32((pixel * 4 + 3) * 4, true),
+        ),
+      )
+    expect(maximumAlphaPassError).toBeLessThan(0.000001)
     const final = result.stages[3]
     if (!final) throw new Error('Missing HDR alpha final stage')
     const oracle = npySamples(await reference('pq-rgba16-small-final.npy.gz'))

@@ -64,7 +64,8 @@ Sequence output uses explicit full-canvas buffers and replay without a decoded s
 - [x] Selective XYB VarDCT SDR alpha, SDR16, linear16 and PQ16 DC and pass stages with pinned libjxl color oracles and early section reads
 - [x] Selective linear16 plus alpha stages with early LF reads, a pinned jxl-oxide partial first-pass RGBA image, and pinned libjxl 0.12.0 final pixels
 - [x] Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning
-- [ ] Selective alpha whose native grid needs group-local AC payloads, and independent libjxl flush images for alpha intermediate passes
+- [x] Compare SDR8 and linear16 first-pass RGBA plus PQ16 first-pass alpha with pinned independent jxl-oxide partial renders before final payload
+- [ ] Selective alpha whose native grid needs group-local AC payloads
 
 Use `openJpegXlSession` from `purejsimage/jpegxl`. `preview()` emits the separately encoded embedded image. `native()` rejects unavailable native boundaries. `progressive()` emits complete stages, and `decode()` defaults to final output. A final event validates the requested region and its dependencies, not unread unrelated groups.
 

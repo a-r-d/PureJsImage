@@ -5748,8 +5748,12 @@
           "text": "Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning"
         },
         {
+          "status": "supported",
+          "text": "Compare SDR8 and linear16 first-pass RGBA plus PQ16 first-pass alpha with pinned independent jxl-oxide partial renders before final payload"
+        },
+        {
           "status": "planned",
-          "text": "Selective alpha whose native grid needs group-local AC payloads, and independent libjxl flush images for alpha intermediate passes"
+          "text": "Selective alpha whose native grid needs group-local AC payloads"
         },
         {
           "status": "supported",
