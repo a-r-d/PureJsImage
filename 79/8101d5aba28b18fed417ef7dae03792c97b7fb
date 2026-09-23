@@ -1,0 +1,19 @@
+benchmark/jpegxl/production-program/m7-prompt5-conformance.json
+  s_d4180e5cac980c::t_0475b0e24edeb7 1-694
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "798101d5aba28b18fed417ef7dae03792c97b7fb",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
