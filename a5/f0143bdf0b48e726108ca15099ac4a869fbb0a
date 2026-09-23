@@ -1,0 +1,32 @@
+docs-astro/public/capabilities.json
+  s_d4180e5cac980c::t_17e1d0f84277d3 5751-5753,5756
+  s_d4180e5cac980c::t_bc76bc09abf74c 5750
+capabilities/manifest.json
+  s_d4180e5cac980c::t_17e1d0f84277d3 3765-3766
+tests/jpegxl-practical-progressive.test.ts
+  s_d4180e5cac980c::t_05099c2c002d19 376-403
+  s_d4180e5cac980c::t_c5c1190b56532e 226-248
+CHANGELOG.md
+  s_d4180e5cac980c::t_17e1d0f84277d3 23-24
+jpegxl-codec-support.md
+  s_d4180e5cac980c::t_17e1d0f84277d3 67-68
+docs/jpegxl-practical-coverage.md
+  s_d4180e5cac980c::t_17e1d0f84277d3 18,104-107
+  s_d4180e5cac980c::t_c5ab4fabb57d85 108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a5f0143bdf0b48e726108ca15099ac4a869fbb0a",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
