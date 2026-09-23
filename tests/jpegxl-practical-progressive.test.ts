@@ -266,6 +266,33 @@ describe('JPEG XL selective high-depth color sessions', () => {
       ['pass', 'rgbaf32'],
       ['final', 'rgbaf32'],
     ])
+    const passPrefixBytes = 1_086
+    expect(sha256(bytes.subarray(0, passPrefixBytes))).toBe(
+      '99ad4691069bd647b6fb3b45ffd8c1a1e06eb46a803d8d2f42bc3a1d85e80736',
+    )
+    expect(passPrefixBytes).toBeLessThan(bytes.byteLength)
+    const passReferenceBytes = await reference('linear-rgba16-small-pass1.npy.gz')
+    expect(sha256(passReferenceBytes)).toBe(
+      '062d860d748a8e7037988280ea95d688d5ac9f32abface8ecdb14e60fd01bf86',
+    )
+    const passReference = npySamples(passReferenceBytes)
+    const firstPass = result.stages[1]
+    if (!firstPass) throw new Error('Missing linear alpha first pass')
+    expect(passReference.byteLength).toBe(firstPass.data.byteLength)
+    const passActual = new DataView(
+      firstPass.data.buffer,
+      firstPass.data.byteOffset,
+      firstPass.data.byteLength,
+    )
+    let maximumPassError = 0
+    for (let sample = 0; sample < firstPass.data.byteLength / 4; sample++)
+      maximumPassError = Math.max(
+        maximumPassError,
+        Math.abs(
+          passActual.getFloat32(sample * 4, false) - passReference.getFloat32(sample * 4, true),
+        ),
+      )
+    expect(maximumPassError).toBeLessThan(0.000005)
     const final = result.stages[3]
     if (!final) throw new Error('Missing linear alpha final stage')
     const actual = new DataView(final.data.buffer, final.data.byteOffset, final.data.byteLength)

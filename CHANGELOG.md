@@ -18,8 +18,8 @@ All notable changes to PureJsImage are documented in this file.
   SDR16, linear16, and PQ16 cases, including associated shifted alpha. Add
   exact one-component 8-bit Huffman JPEG transcode and reconstruction for
   baseline and progressive scans.
-- Verify early linear 16-bit JPEG XL RGBA stages and final color and alpha
-  pixels against a pinned libjxl reference.
+- Verify early linear 16-bit JPEG XL RGBA stages against a pinned partial
+  jxl-oxide pass image and final pixels against pinned libjxl color and alpha.
 
 ### 2026-09-19 UTC
 

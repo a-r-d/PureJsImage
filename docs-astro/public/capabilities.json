@@ -5741,7 +5741,7 @@
         },
         {
           "status": "supported",
-          "text": "Selective linear16 plus alpha stages with early LF reads and pinned libjxl 0.12.0 final RGBA float pixels"
+          "text": "Selective linear16 plus alpha stages with early LF reads, a pinned jxl-oxide partial first-pass RGBA image, and pinned libjxl 0.12.0 final pixels"
         },
         {
           "status": "supported",

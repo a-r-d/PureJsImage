@@ -3760,7 +3760,7 @@
         "- [x] Task-scheduled rendering cancellation, immutable output snapshots and iteration backpressure",
         "- [x] Progressive Modular DC dependencies checked against pinned native stage outputs",
         "- [x] Selective XYB VarDCT SDR alpha, SDR16, linear16 and PQ16 DC and pass stages with pinned libjxl color oracles and early section reads",
-        "- [x] Selective linear16 plus alpha stages with early LF reads and pinned libjxl 0.12.0 final RGBA float pixels",
+        "- [x] Selective linear16 plus alpha stages with early LF reads, a pinned jxl-oxide partial first-pass RGBA image, and pinned libjxl 0.12.0 final pixels",
         "- [x] Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning",
         "- [ ] Selective alpha whose native grid needs group-local AC payloads, and independent libjxl flush images for alpha intermediate passes",
         "",
