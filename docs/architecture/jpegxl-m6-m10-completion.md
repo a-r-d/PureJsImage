@@ -955,6 +955,29 @@ Both frozen 120-source SDR matrices are complete at at most 2 MP: 7,200 points a
 
 Lossy support remains Experimental. Missing quality brackets, original-resolution coverage limits, lossless compression misses and the warm effort-1 timing miss remain explicit. Optional patch encoding is a future compression improvement. M8 through M10 and remote PR checks are separate work.
 
+## M7 encoder target qualification after local completion, September 23
+
+Prompt 2 keeps the M7 local completion above intact. The encoder candidate at
+2643604888dc8ad58322a3756d5aade68af066b4 reduces isolated warm effort-1
+core time by about 2% in a seven-run development diagnostic. It reproduces all
+1,440 approved capped first-party streams and all 32 fixed original-size points
+byte for byte. The clean-checkout conformance and resource gates pass.
+
+Two new 21-pair measurements on that exact commit give warm effort-1 median
+ratios of 8.067 and 8.142 against pinned native libjxl. Both miss the 8-times
+target. Cold ratios are 6.661 and 6.613, and the original 12 MP public
+effort-3 workflow takes 4.504 seconds cold and 4.523 seconds warm. The observed
+lossless holdout p90 remains 1.409, and transparent RGBA8 lossless median/p90
+remain 1.291/1.483. Missing lossy quality brackets and original-size text
+outliers remain in the evidence. Lossy stays Experimental.
+
+The before/after table, target-by-target decisions, source and artifact hashes,
+raw report links, and independent decoder receipts are in
+benchmark/jpegxl/production-program/m7-prompt2-report.md and
+benchmark/jpegxl/production-program/m7-prompt2-evidence-index.json. The observed
+holdout is regression evidence after prior inspection; no new unseen
+generalization claim or Stable promotion is made.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
