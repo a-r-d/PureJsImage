@@ -1,0 +1,29 @@
+tests/jpegxl-practical-progressive.test.ts
+  s_d4180e5cac980c::t_ae84e831657e3e 269-295
+docs-astro/public/capabilities.json
+  s_d4180e5cac980c::t_ae84e831657e3e 5744
+CHANGELOG.md
+  s_d4180e5cac980c::t_ae84e831657e3e 21-22
+capabilities/manifest.json
+  s_d4180e5cac980c::t_ae84e831657e3e 3763
+docs/jpegxl-practical-coverage.md
+  s_d4180e5cac980c::t_ae84e831657e3e 18,96-100
+jpegxl-codec-support.md
+  s_d4180e5cac980c::t_ae84e831657e3e 65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d6d6b69d7bafe39df792475e1ba05ea5317361c3",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
