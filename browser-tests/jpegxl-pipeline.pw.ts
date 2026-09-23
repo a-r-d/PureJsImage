@@ -337,7 +337,7 @@ for (const [width, height] of [
   [1025, 17],
   [1, 1031],
 ] as const) {
-  test(`M7 scalar palettes preserve independently verified RGB16 ${width}x${height}`, async ({
+  test(`M7 scalar palettes preserve exact RGB16 in Node and browser ${width}x${height}`, async ({
     page,
   }) => {
     const expected = await verifyM7ScalarPalettes(width, height)

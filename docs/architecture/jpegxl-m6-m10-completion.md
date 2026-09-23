@@ -978,6 +978,14 @@ benchmark/jpegxl/production-program/m7-prompt2-evidence-index.json. The observed
 holdout is regression evidence after prior inspection; no new unseen
 generalization claim or Stable promotion is made.
 
+## M7 encoder target requalification, September 23
+
+The implementation at `8925ce52fa06b2112310f60ccbe7f639eba0fdd1` improves the effort-7 multi-group Modular entropy choice and the aligned effort-1 RGB8 XYB path. Fresh exact native and Rust decoding passed for all 240 lossless SDR sources and all 24 HDR/alpha expansion cases. The observed holdout lossless p90 improves from 1.409225 to 1.399516 and now passes the 1.40 size bound. This holdout was inspected during tuning and is regression evidence. The separate transparent RGBA8 artwork median/p90 remain 1.291/1.483 and fail their size bounds. The old large-image reduction is preserved.
+
+The exact-commit original 12 MP effort-1 paired median is 5.646 times native cold and 7.067 times native warm, both within the eight-times target. The public effort-3 run is 4.504 seconds cold and 4.572 seconds warm, within 20 seconds. The unchanged effort-7 lossy path reproduces all 16 first-party streams in the fixed eight-source original-size check, with independent decoding and the same quality scores. Native patch coding still has large text and screenshot size advantages, missing SSIMULACRA2 brackets remain, and HDR/alpha quality gaps remain. Lossy therefore stays Experimental.
+
+The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt3-report.md), [evidence index](../../benchmark/jpegxl/production-program/m7-prompt3-evidence-index.json), raw case reports, and clean-checkout conformance/resource results give the target-by-target decision. The final local check has 3,192 passed tests and three skipped; real Chromium JPEG XL tests pass 29/29. No new unseen-generalization claim, Stable promotion, version change or release follows from this result.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
