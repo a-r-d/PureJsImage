@@ -24,6 +24,7 @@ import {
   writeModularTree,
   writePrefixCode,
   writeU32,
+  writeColorEncoding,
 } from './jpegxl-modular-encode.ts'
 
 interface Plane {
@@ -41,6 +42,7 @@ export interface VarDctCoefficientPlane {
 
 export interface VarDctCoefficientGeometry {
   readonly colorTransform: 'none' | 'ycbcr' | 'xyb'
+  readonly grayscale?: boolean
   readonly chromaSubsampling: readonly [number, number, number]
   readonly shifts: readonly (readonly [number, number])[]
   readonly fullBlockWidth: number
@@ -212,16 +214,26 @@ const subsamplingMode = (horizontal: number, vertical: number): number => {
 }
 
 const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
+  const grayscale = image.components.length === 1 && image.colorTransform === 'gray'
   if (
-    image.components.length !== 3 ||
-    (image.colorTransform !== 'ycbcr' && image.colorTransform !== 'rgb')
+    !grayscale &&
+    (image.components.length !== 3 ||
+      (image.colorTransform !== 'ycbcr' && image.colorTransform !== 'rgb'))
   ) {
-    throw unsupportedOperation(
-      'Exact JPEG transcode initially requires RGB or YCbCr three-component JPEG',
-    )
+    throw unsupportedOperation('Exact JPEG transcode requires grayscale, RGB, or YCbCr 8-bit JPEG')
   }
-  const colorTransform = image.colorTransform === 'ycbcr' ? 'ycbcr' : 'none'
-  const componentShifts = image.components.map((component) =>
+  const colorTransform = image.colorTransform === 'rgb' ? 'none' : 'ycbcr'
+  const source = image.components[0]
+  if (!source) throw invalidInput('JPEG coefficient image has no component')
+  let components: readonly JpegCoefficientComponent[] = image.components
+  if (grayscale) {
+    const zeroComponent: JpegCoefficientComponent = Object.freeze({
+      ...source,
+      coefficients: new Int16Array(source.coefficients.length),
+    })
+    components = [source, zeroComponent, zeroComponent]
+  }
+  const componentShifts = components.map((component) =>
     Object.freeze([
       samplingExponent(image.maximumHorizontalSampling, component.horizontalSampling),
       samplingExponent(image.maximumVerticalSampling, component.verticalSampling),
@@ -233,12 +245,13 @@ const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
     Object.freeze([maximumShiftX - horizontal, maximumShiftY - vertical] as const),
   )
   const componentForInternal = colorTransform === 'ycbcr' ? [1, 0, 2] : [0, 1, 2]
-  const internalComponents = componentForInternal.map((index) => image.components[index])
-  if (internalComponents.some((component) => component === undefined)) {
-    throw invalidInput('JPEG component mapping is incomplete')
-  }
+  const internalComponents = componentForInternal.map((index) => {
+    const component = components[index]
+    if (!component) throw invalidInput('JPEG component mapping is incomplete')
+    return component
+  })
   const chromaSubsampling = internalComponents.map((component) => {
-    const sourceIndex = image.components.indexOf(component as JpegCoefficientComponent)
+    const sourceIndex = components.indexOf(component)
     const raw = rawForComponent[sourceIndex]
     if (!raw) throw invalidInput('JPEG sampling descriptor is missing')
     return subsamplingMode(raw[0], raw[1])
@@ -258,15 +271,15 @@ const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
   const fullBlockHeight =
     Math.ceil(Math.ceil(image.height / 8) / 2 ** maximumRawY) * 2 ** maximumRawY
   const dcPlaneIndexes = colorTransform === 'ycbcr' ? [0, 1, 2] : [1, 0, 2]
-  const dcPlaneComponents = dcPlaneIndexes.map((index) => image.components[index])
-  if (dcPlaneComponents.some((component) => component === undefined)) {
-    throw invalidInput('JPEG DC component mapping is incomplete')
-  }
-  const quantization = internalComponents.map((component) =>
-    transpose((component as JpegCoefficientComponent).quantization),
-  )
+  const dcPlaneComponents = dcPlaneIndexes.map((index) => {
+    const component = components[index]
+    if (!component) throw invalidInput('JPEG DC component mapping is incomplete')
+    return component
+  })
+  const quantization = internalComponents.map((component) => transpose(component.quantization))
   return Object.freeze({
     colorTransform,
+    grayscale,
     chromaSubsampling: Object.freeze(chromaSubsampling),
     shifts: Object.freeze(shifts),
     fullBlockWidth,
@@ -275,8 +288,8 @@ const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
     groupsDown: Math.ceil(fullBlockHeight / 32),
     dcGroupsAcross: Math.ceil(fullBlockWidth / 256),
     dcGroupsDown: Math.ceil(fullBlockHeight / 256),
-    internalComponents: Object.freeze(internalComponents as JpegCoefficientComponent[]),
-    dcPlaneComponents: Object.freeze(dcPlaneComponents as JpegCoefficientComponent[]),
+    internalComponents: Object.freeze(internalComponents),
+    dcPlaneComponents: Object.freeze(dcPlaneComponents),
     quantization: Object.freeze(quantization),
   })
 }
@@ -1334,7 +1347,18 @@ export const varDctCodestreamParts = (
     ])
     if (geometry.alpha) writer.writeBits(1, 1)
     writer.writeBits(geometry.colorTransform === 'xyb' ? 1 : 0, 1)
-    writer.writeBits(1, 1)
+    if (geometry.grayscale)
+      writeColorEncoding(writer, {
+        family: 'gray',
+        primaries: 'srgb',
+        transfer: { kind: 'srgb' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'container-signaled',
+        renderingIntent: 'relative',
+      })
+    else writer.writeBits(1, 1)
     writeU64(writer, 0)
     writer.writeBits(1, 1)
     writer.alignToByte()
@@ -1456,40 +1480,50 @@ export const encodeJpegCoefficientImageAsJpegXl = (
 ): Uint8Array => {
   let started = performance.now()
   const geometry = geometryFor(image)
-  profiler?.record('geometry', performance.now() - started, 0)
-  const sections = encodeVarDctCoefficientSections(geometry, profiler)
-  const sectionLease = memory?.allocate(
-    'jpeg-transcode-jxl-sections',
-    sections.reduce((total, section) => total + section.byteLength, 0),
-  )
-  let codestreamLease: JpegXlJpegEncodeMemoryLease | undefined
-  let outputLease: JpegXlJpegEncodeMemoryLease | undefined
-  try {
-    started = performance.now()
-    const codestream = assembleVarDctCodestream(image, geometry, sections)
-    profiler?.record('codestream-assembly', performance.now() - started, codestream.byteLength)
-    codestreamLease = memory?.allocate('jpeg-transcode-jxl-codestream', codestream.byteLength)
-    sectionLease?.release()
-    if (codestream.byteLength > limits.maxCodestreamBytes) {
-      throw limitExceeded(
-        `JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`,
+  const virtualPlaneLease = geometry.grayscale
+    ? memory?.allocate(
+        'jpeg-transcode-grayscale-virtual-plane',
+        geometry.internalComponents[0]?.coefficients.byteLength ?? 0,
       )
+    : undefined
+  try {
+    profiler?.record('geometry', performance.now() - started, 0)
+    const sections = encodeVarDctCoefficientSections(geometry, profiler)
+    const sectionLease = memory?.allocate(
+      'jpeg-transcode-jxl-sections',
+      sections.reduce((total, section) => total + section.byteLength, 0),
+    )
+    let codestreamLease: JpegXlJpegEncodeMemoryLease | undefined
+    let outputLease: JpegXlJpegEncodeMemoryLease | undefined
+    try {
+      started = performance.now()
+      const codestream = assembleVarDctCodestream(image, geometry, sections)
+      profiler?.record('codestream-assembly', performance.now() - started, codestream.byteLength)
+      codestreamLease = memory?.allocate('jpeg-transcode-jxl-codestream', codestream.byteLength)
+      sectionLease?.release()
+      if (codestream.byteLength > limits.maxCodestreamBytes) {
+        throw limitExceeded(
+          `JPEG XL codestream has ${codestream.byteLength} bytes; maxCodestreamBytes is ${limits.maxCodestreamBytes}`,
+        )
+      }
+      started = performance.now()
+      const output = concatenate([
+        Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
+        box('ftyp', concatenate([ascii('jxl '), uint32(0), ascii('jxl ')])),
+        box('jbrd', reconstructionPayload),
+        box('jxlc', codestream),
+      ])
+      profiler?.record('container-assembly', performance.now() - started, output.byteLength)
+      outputLease = memory?.allocate('jpeg-transcode-output', output.byteLength)
+      codestreamLease?.release()
+      return output
+    } catch (error) {
+      sectionLease?.release()
+      codestreamLease?.release()
+      outputLease?.release()
+      throw error
     }
-    started = performance.now()
-    const output = concatenate([
-      Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
-      box('ftyp', concatenate([ascii('jxl '), uint32(0), ascii('jxl ')])),
-      box('jbrd', reconstructionPayload),
-      box('jxlc', codestream),
-    ])
-    profiler?.record('container-assembly', performance.now() - started, output.byteLength)
-    outputLease = memory?.allocate('jpeg-transcode-output', output.byteLength)
-    codestreamLease?.release()
-    return output
-  } catch (error) {
-    sectionLease?.release()
-    codestreamLease?.release()
-    outputLease?.release()
-    throw error
+  } finally {
+    virtualPlaneLease?.release()
   }
 }

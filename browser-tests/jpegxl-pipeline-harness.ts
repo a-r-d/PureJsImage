@@ -913,3 +913,87 @@ export const verifyJpegXlM8WideGamut = async (bytes: Uint8Array) => {
     await sequence.close()
   }
 }
+
+export const verifyJpegXlSelectiveHdr = async (bytes: Uint8Array): Promise<boolean> => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })
+  let valid = session.stages.find((stage) => stage.kind === 'dc')?.status !== 'unavailable'
+  let seen = false
+  try {
+    if (valid)
+      for await (const event of session.progressive({ until: 'dc' })) {
+        if (event.type !== 'block') continue
+        if (event.block.format !== 'rgbf32') {
+          valid = false
+          break
+        }
+        const pixel = new DataView(
+          event.block.data.buffer,
+          event.block.data.byteOffset,
+          event.block.data.byteLength,
+        ).getFloat32(0, false)
+        valid = Number.isFinite(pixel) && pixel > 0
+        seen = true
+        break
+      }
+    valid = valid && seen && session.sourceSectionBytes < bytes.byteLength
+  } finally {
+    await session.close()
+  }
+  if (session.managedLiveBytes !== 0)
+    throw new Error('JPEG XL selective HDR session retained managed bytes')
+  return valid
+}
+
+export const verifyJpegXlSelectiveHdrAlpha = async (bytes: Uint8Array): Promise<boolean> => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })
+  let seen = false
+  let valid = true
+  try {
+    for await (const event of session.progressive({ until: 'dc' })) {
+      if (event.type !== 'block') continue
+      if (event.block.format !== 'rgbaf32') {
+        valid = false
+        break
+      }
+      const alpha = new DataView(
+        event.block.data.buffer,
+        event.block.data.byteOffset,
+        event.block.data.byteLength,
+      ).getFloat32(12, false)
+      valid = Math.abs(alpha - 0.5) <= 0.001
+      seen = true
+      break
+    }
+    valid = valid && seen && session.sourceSectionBytes < bytes.byteLength
+  } finally {
+    await session.close()
+  }
+  if (session.managedLiveBytes !== 0)
+    throw new Error('JPEG XL selective HDR alpha session retained managed bytes')
+  return valid
+}
+
+export const verifyJpegXlGrayscaleExact = async (source: Uint8Array): Promise<boolean> => {
+  const { inspectJpegReconstructionEligibility, reconstructJpegFromJpegXl, transcodeJpegToJpegXl } =
+    await import('../src/jpegxl.ts')
+  const eligible = await inspectJpegReconstructionEligibility(source)
+  if (!eligible.eligible || eligible.sourceProfile?.components !== 1) return false
+  const encoded = await transcodeJpegToJpegXl(source, { reconstruction: 'required' })
+  const restored = await reconstructJpegFromJpegXl(encoded.data)
+  if (restored.length !== source.length || restored.some((value, index) => value !== source[index]))
+    return false
+  const decoder = await jpegxlCodec.createDecoder?.(
+    new MemorySource(encoded.data),
+    defaultImageLimits,
+  )
+  if (!decoder || decoder.colorSemantics?.family !== 'gray') return false
+  let decoded = 0
+  for await (const block of decoder.decode()) {
+    if (block.format !== 'gray8') return false
+    decoded += block.width * block.height
+    block.release?.()
+  }
+  return decoded === eligible.sourceProfile.width * eligible.sourceProfile.height
+}

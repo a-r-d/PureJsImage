@@ -10,6 +10,10 @@ All notable changes to PureJsImage are documented in this file.
   multiple Modular groups, including shift-3 DC sections. Add explicit direct
   16-bit ICC conversion for supported GRAY, RGB, and CMYK native layers with
   gray-alpha expansion and straight RGBA16 output.
+- Extend selective JPEG XL VarDCT DC and pass sessions to supported SDR alpha,
+  SDR16, linear16, and PQ16 cases, including associated shifted alpha. Add
+  exact one-component 8-bit Huffman JPEG transcode and reconstruction for
+  baseline and progressive scans.
 
 ### 2026-09-19 UTC
 

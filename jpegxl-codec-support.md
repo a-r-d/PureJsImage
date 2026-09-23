@@ -59,10 +59,13 @@ Sequence output uses explicit full-canvas buffers and replay without a decoded s
 - [x] Selective group reads and declared static dependency fallbacks with strict rejection
 - [x] Task-scheduled rendering cancellation, immutable output snapshots and iteration backpressure
 - [x] Progressive Modular DC dependencies checked against pinned native stage outputs
+- [x] Selective XYB VarDCT SDR alpha, SDR16, linear16 and PQ16 DC and pass stages with pinned libjxl color oracles and early section reads
+- [x] Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning
+- [ ] Selective alpha whose native grid needs group-local AC payloads, and independent libjxl flush images for alpha intermediate passes
 
 Use `openJpegXlSession` from `purejsimage/jpegxl`. `preview()` emits the separately encoded embedded image. `native()` rejects unavailable native boundaries. `progressive()` emits complete stages, and `decode()` defaults to final output. A final event validates the requested region and its dependencies, not unread unrelated groups.
 
-DC reconstruction uses compact LF state and restoration bands. Pass and final output still retain a full-resolution output, and internal DC dependencies can require full working planes. Alpha, HDR, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
+DC reconstruction uses compact LF state and restoration bands. The supported global alpha plane is retained with LF state. Pass and final output retain a full-resolution output; high-depth and HDR passes retain full working planes. Group-local alpha, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
 
 The session does not add generic read-ahead over a caller-provided source. HTTP transfer bytes still depend on that source's explicit block and cache policy. Its section-byte counter excludes metadata probes and transport overfetch. See `docs/jpeg-xl.md` for ownership, cache budgets, stage availability and memory accounting.
 
@@ -167,9 +170,10 @@ The 163-case matrix is exact through PureJsImage, pinned `djxl`, jxl-rs, and jxl
 where applicable. The 156 procedural cases measure the fixed effort-1, effort-7,
 PNG and relative-speed gates. Actual encoder backing-buffer ownership has separate budget and cleanup tests. The separate stable
 `purejsimage/jpegxl` API transcodes eligible baseline
-and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
+and progressive one- or three-component 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
 reconstructs and compares every source byte before exact-mode success. Its 250-file real JPEG archive, compression, speed, bounded sink-verification, and browser parity gates pass. Exact transcode
 walks APP metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC.
+Pinned libjxl 0.12.0 reconstructs first-party grayscale output byte for byte. Four baseline and progressive grayscale files with odd dimensions, optimized Huffman tables, and restart markers also match pinned `djxl` grayscale pixels within one code.
 
 The checklist below preserves the initial decode roadmap and its original groupings.
 Its boxes are historical planning state, not the current capability inventory.

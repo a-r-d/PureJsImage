@@ -13,11 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // General Level 10 VarDCT selection and streamed animation measure 440528 bytes.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 441_000 },
-  // The M6-M10 specialized entry measured 518735 bytes. Float display and shifted
-  // Native plane and 16-bit ICC APIs add about 7.6 KiB; retain a narrow 528000-byte ceiling.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 528_000 },
+  // Grayscale exact reconstruction and progressive HDR measure 441323 bytes.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 442_000 },
+  // Native precision, ICC, grayscale reconstruction, and selective HDR measure 529396 bytes.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 530_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
