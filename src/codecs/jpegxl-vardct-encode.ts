@@ -619,7 +619,7 @@ function* prepare8(
         covarianceX[tile] = (covarianceX[tile] ?? 0) + xy
         covarianceB[tile] = (covarianceB[tile] ?? 0) + by
         const activity = gradient / Math.max(yy, 1e-12)
-        blockQuantizationMap[offset] = yy < 0.000064 || activity < 0.15 ? 6 : 4
+        blockQuantizationMap[offset] = moderateAlphaDc || yy < 0.000064 || activity < 0.15 ? 6 : 4
       }
     }
     yield

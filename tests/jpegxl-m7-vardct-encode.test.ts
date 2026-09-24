@@ -286,6 +286,49 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     })
   }
 
+  it('keeps effort-7 lossy RGBA color boundaries accurate with exact alpha', async () => {
+    const width = 64
+    const height = 64
+    const pixels = new Uint8Array(width * height * 4)
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const offset = (y * width + x) * 4
+        const color = y >= 26 && y < 34 ? [244, 218, 32] : x < 32 ? [223, 36, 40] : [30, 67, 235]
+        for (let channel = 0; channel < 3; channel++) pixels[offset + channel] = color[channel] ?? 0
+        pixels[offset + 3] = y < 8 ? 0 : y < 16 ? 128 : 255
+      }
+    }
+    const sink = new Uint8ArraySink()
+    for (const part of encodeJpegXlVarDct8(pixels, width, height, 3, undefined, 4, 7))
+      await sink.write(part)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(sink.toUint8Array()),
+      defaultImageLimits,
+    )
+    if (!decoder) throw new Error('Missing alpha decoder')
+    let error = 0
+    let count = 0
+    for await (const block of decoder.decode()) {
+      for (let y = 0; y < block.height; y++) {
+        for (let x = 0; x < width; x++) {
+          const source = ((block.y + y) * width + x) * 4
+          const decoded = y * block.stride + x * 4
+          expect(block.data[decoded + 3]).toBe(pixels[source + 3])
+          if (x < 28 || x > 35 || block.y + y < 16) continue
+          for (let channel = 0; channel < 3; channel++) {
+            error += Math.abs(
+              (block.data[decoded + channel] ?? 0) - (pixels[source + channel] ?? 0),
+            )
+            count++
+          }
+        }
+      }
+      block.release?.()
+    }
+    expect(count).toBe(8 * 48 * 3)
+    expect(error / count).toBeLessThan(4.5)
+  })
+
   it('admits scratch before allocation, returns only owned sections, and unwinds failure', () => {
     const pixels = new Uint8Array(257 * 33 * 3).fill(96)
     const memory = new JpegXlEncoderMemory(16_777_216)
