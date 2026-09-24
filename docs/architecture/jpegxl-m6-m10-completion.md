@@ -1028,6 +1028,27 @@ The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt9-r
 
 The [complete 22-source audit](../../benchmark/jpegxl/production-program/m7-prompt10-native-ceiling.json) measures every pinned-native SSIMULACRA2-90 miss at libjxl's minimum positive lossy distance of 0.05. All streams pass independent native/Rust decoding within one RGB8 level. Ten sources, eight development and two previously observed holdout, still score below 90. Two requested 0.02 controls produce the same bytes as 0.05. The [investigation report](../../benchmark/jpegxl/production-program/m7-prompt10-report.md) retains the source splits, input and stream hashes, zero-swap bounded receipt and rejected first-party high-precision probe. A [supplementary low-band report](../../benchmark/jpegxl/production-program/m7-prompt11-low-endpoints.json) covers all 173 previously missing SSIMULACRA2-70 engine/source curves with independently decoded below-70 endpoints. Many intervals are too wide for a reliable matched-size claim. No codec change is retained. The approved matrix and target remain unchanged. Complete lossy matched-quality brackets cannot be claimed with this pinned native lossy reference under its current distance limit; original-size HDR, transparency, gradient and visual outliers also remain open. Lossy stays Experimental.
 
+
+### September 24 lossy evaluation recovery amendment
+
+The [Stage A decision and defect register](../../benchmark/jpegxl/production-program/m7-recovery-stage-a.md)
+reconcile the two frozen protocols with the later complete-bracket promotion
+interpretation. The protocols require missing brackets to remain visible and
+forbid extrapolated passes; neither explicitly requires every reference/source
+pair to cross all three bands. The original RGB8 matrix, source splits and
+historical reports remain unchanged. The new [classification](../../benchmark/jpegxl/production-program/m7-recovery-classification.json)
+accounts for all 240 sources and 720 target comparisons. A three-score-point
+interval is a diagnostic for small rate changes, not a new promotion threshold.
+
+The [native ceiling controls](../../benchmark/jpegxl/production-program/m7-recovery-ceiling-controls.json)
+confirm the original ten RGB8 below-90 results. A separately tested PNG16
+rendering path fails its pixel-lossless metric control, so it cannot establish
+an alternative high-band pass. The native finding is limited to the pinned
+settings and RGB8 scoring pipeline. A bounded cached endpoint command now
+refines one source at a time with independent decoder checks. No production
+encoder code, capability status or Stable promotion changed. The visual
+register and unresolved sampling remain open.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
