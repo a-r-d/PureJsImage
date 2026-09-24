@@ -1018,6 +1018,12 @@ remain unmet. The [per-case bracket audit](../../benchmark/jpegxl/production-pro
 
 The [screenshot and gradient investigation](../../benchmark/jpegxl/production-program/m7-prompt9-investigation.md) tested two encoder changes and reverted both after independent decoding and quality checks. Pinned libjxl patch controls show a 9.80% saving on a development screenshot and a 14.39% saving on the previously observed original screenshot. Its screenshot display uses VarDCT with a small Modular patch reference. The current first-party Modular display is too large for that screenshot class, so no patch expansion was retained. Gradient patches cover only about 0.0035% of the original gradient. The same bracket, HDR/alpha and visual gates remain open; this pass changes no qualification result.
 
+### September 24 screenshot patch qualification
+
+The frozen implementation at `30d72d1a88a33e156fc6ed053c308d7268f4188d` now pairs a small first-party Modular patch reference with a VarDCT screenshot display. The effort-7 opaque RGB8 selector improves all 12 changed 2 MP distance-2/3 streams and the previously observed 1920×1080 original screenshot. All changed streams pass native, Rust and repository decoding within one RGB8 level. The fixed eight-source original-size replay retains 15 byte-identical streams and one improved screenshot. The original source-family splits and difficult cases stay in the results. The observed holdout was inspected during tuning and is regression evidence.
+
+The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt9-report.md), [development](../../benchmark/jpegxl/production-program/m7-prompt9-quality-development.json) and [observed holdout](../../benchmark/jpegxl/production-program/m7-prompt9-quality-holdout.json) matrices, [fixed original-size replay](../../benchmark/jpegxl/production-program/m7-prompt9-original-size-replay.json) and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt9-evidence-index.json) record scores, unchanged-artifact reuse, hashes and independent decoding. Frozen-commit conformance passes 39/39 and resource checks pass 24/24. The full repository check, browser check and focused real Chromium test pass. Complete SSIMULACRA2 brackets and original-size HDR, transparency and visual quality gates remain open. Lossy stays Experimental.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
