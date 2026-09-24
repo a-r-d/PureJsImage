@@ -3568,6 +3568,354 @@ export const useLargeDocumentModularCandidate = (
   return white * 5 >= sampled * 4
 }
 
+interface DocumentPatch {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+interface DocumentPatchGroup {
+  readonly source: DocumentPatch
+  readonly placements: readonly DocumentPatch[]
+  atlasX: number
+  atlasY: number
+}
+
+/** Only repeated, byte-identical small components on a pale page can enter the atlas. */
+const findDocumentPatches = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  memory: JpegXlEncoderMemory,
+): DocumentPatchGroup[] => {
+  const count = width * height
+  const visited = allocateJpegXlArray(memory, Uint8Array, count)
+  const stack = allocateJpegXlArray(memory, Int32Array, count)
+  const byShape = new Map<string, DocumentPatch[]>()
+  const foreground = (index: number): boolean => {
+    const offset = index * 3
+    return (
+      (pixels[offset] ?? 255) < 245 ||
+      (pixels[offset + 1] ?? 255) < 245 ||
+      (pixels[offset + 2] ?? 255) < 245
+    )
+  }
+  let componentCount = 0
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const start = y * width + x
+      if (visited[start] || !foreground(start)) continue
+      if (++componentCount > 20_000) return []
+      visited[start] = 1
+      stack[0] = start
+      let stackSize = 1
+      let minX = x,
+        maxX = x,
+        minY = y,
+        maxY = y,
+        darkPixels = 0
+      while (stackSize > 0) {
+        const position = stack[--stackSize]!
+        const atX = position % width,
+          atY = (position / width) | 0
+        darkPixels++
+        if (atX < minX) minX = atX
+        if (atX > maxX) maxX = atX
+        if (atY < minY) minY = atY
+        if (atY > maxY) maxY = atY
+        for (let dy = -1; dy <= 1; dy++) {
+          const nextY = atY + dy
+          if (nextY < 0 || nextY >= height) continue
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue
+            const nextX = atX + dx
+            if (nextX < 0 || nextX >= width) continue
+            const next = nextY * width + nextX
+            if (visited[next] || !foreground(next)) continue
+            visited[next] = 1
+            stack[stackSize++] = next
+          }
+        }
+      }
+      const patchWidth = maxX - minX + 1,
+        patchHeight = maxY - minY + 1
+      if (patchWidth > 64 || patchHeight > 64 || patchWidth * patchHeight < 20 || darkPixels < 8)
+        continue
+      const key = `${patchWidth}:${patchHeight}`
+      const patches = byShape.get(key) ?? []
+      patches.push({ x: minX, y: minY, width: patchWidth, height: patchHeight })
+      byShape.set(key, patches)
+    }
+  }
+  memory.release(stack)
+  memory.release(visited)
+  const same = (left: DocumentPatch, right: DocumentPatch): boolean => {
+    for (let y = 0; y < left.height; y++) {
+      for (let x = 0; x < left.width; x++) {
+        const a = ((left.y + y) * width + left.x + x) * 3
+        const b = ((right.y + y) * width + right.x + x) * 3
+        if (
+          pixels[a] !== pixels[b] ||
+          pixels[a + 1] !== pixels[b + 1] ||
+          pixels[a + 2] !== pixels[b + 2]
+        )
+          return false
+      }
+    }
+    return true
+  }
+  const groups: DocumentPatchGroup[] = []
+  for (const patches of byShape.values()) {
+    const byHash = new Map<number, DocumentPatch[]>()
+    for (const patch of patches) {
+      let hash = 2_166_136_261
+      for (let y = 0; y < patch.height; y++) {
+        for (let x = 0; x < patch.width; x++) {
+          const offset = ((patch.y + y) * width + patch.x + x) * 3
+          hash = Math.imul(hash ^ (pixels[offset] ?? 0), 16_777_619)
+          hash = Math.imul(hash ^ (pixels[offset + 1] ?? 0), 16_777_619)
+          hash = Math.imul(hash ^ (pixels[offset + 2] ?? 0), 16_777_619)
+        }
+      }
+      const bucket = byHash.get(hash) ?? []
+      bucket.push(patch)
+      byHash.set(hash, bucket)
+    }
+    for (const bucket of byHash.values()) {
+      if (bucket.length < 2) continue
+      const distinct: DocumentPatch[][] = []
+      for (const patch of bucket) {
+        let group = distinct.find((candidate) => same(candidate[0]!, patch))
+        if (!group) {
+          group = []
+          distinct.push(group)
+        }
+        group.push(patch)
+      }
+      for (const placements of distinct) {
+        if (placements.length < 2) continue
+        groups.push({ source: placements[0]!, placements, atlasX: 0, atlasY: 0 })
+      }
+    }
+  }
+  return groups
+}
+
+const writeDocumentPatchFeatures = (
+  section: Uint8Array,
+  groups: readonly DocumentPatchGroup[],
+  memory: JpegXlEncoderMemory,
+): Uint8Array => {
+  const placements = groups.reduce((sum, group) => sum + group.placements.length, 0)
+  const values = allocateJpegXlArray(memory, Uint32Array, 1 + groups.length * 6 + placements * 3)
+  let count = 0
+  values[count++] = groups.length
+  const signed = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
+  for (const group of groups) {
+    values[count++] = 3
+    values[count++] = group.atlasX
+    values[count++] = group.atlasY
+    values[count++] = group.source.width - 1
+    values[count++] = group.source.height - 1
+    values[count++] = group.placements.length - 1
+    let previousX = 0,
+      previousY = 0
+    for (let index = 0; index < group.placements.length; index++) {
+      const patch = group.placements[index]!
+      values[count++] = index === 0 ? patch.x : signed(patch.x - previousX)
+      values[count++] = index === 0 ? patch.y : signed(patch.y - previousY)
+      values[count++] = 1 // Replace all three color channels from the reference.
+      previousX = patch.x
+      previousY = patch.y
+    }
+  }
+  if (count !== values.length) throw invalidInput('JPEG XL document patch token count is invalid')
+  const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
+  for (let index = 0; index < count; index++) {
+    const token = hybridToken(values[index] ?? 0)
+    frequencies[token] = (frequencies[token] ?? 0) + 1
+  }
+  const writer = new JpegXlBitWriter(memory)
+  const encoding = writePrefixCode(writer, 10, frequencies)
+  for (let index = 0; index < count; index++) writeHybridUint(writer, values[index] ?? 0, encoding)
+  for (const byte of section) writer.writeBits(byte, 8)
+  memory.release(frequencies)
+  memory.release(values)
+  return writer.finish()
+}
+
+const writeDocumentFrameHeader = (
+  reference: boolean,
+  width: number,
+  height: number,
+  sections: readonly Uint8Array[],
+  memory: JpegXlEncoderMemory,
+): Uint8Array => {
+  const writer = new JpegXlBitWriter(memory)
+  writer.writeBits(0, 1)
+  writeU32(writer, reference ? 2 : 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+  writer.writeBits(1, 1) // Modular.
+  if (reference) writeZeroU64(writer)
+  else {
+    writer.writeBits(1, 2)
+    writer.writeBits(1, 4) // Patch dictionary frame flag, value 2.
+  }
+  writer.writeBits(0, 1) // RGB, without an XYB color transform.
+  writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
+  writer.writeBits(3, 2) // 1,024 pixel Modular groups.
+  if (!reference)
+    writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 3 }, { bits: 3, offset: 4 }])
+  writer.writeBits(reference ? 1 : 0, 1)
+  if (reference) {
+    writeU32(writer, width, [
+      { bits: 8, offset: 0 },
+      { bits: 11, offset: 256 },
+      { bits: 14, offset: 2_304 },
+      { bits: 30, offset: 18_688 },
+    ])
+    writeU32(writer, height, [
+      { bits: 8, offset: 0 },
+      { bits: 11, offset: 256 },
+      { bits: 14, offset: 2_304 },
+      { bits: 30, offset: 18_688 },
+    ])
+    writeU32(writer, 3, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+    writer.writeBits(1, 1) // Patch reference is stored before color transform.
+  } else {
+    writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    writer.writeBits(1, 1) // Final displayed frame.
+  }
+  writeName(writer)
+  writer.writeBits(0, 1) // Custom loop filter.
+  writer.writeBits(0, 1) // No Gaborish.
+  writer.writeBits(0, 2) // No EPF.
+  writeZeroU64(writer)
+  writeZeroU64(writer)
+  writer.writeBits(0, 1) // Default section order.
+  writer.alignToByte()
+  for (const section of sections)
+    writeU32(writer, section.length, [
+      { bits: 10, offset: 0 },
+      { bits: 14, offset: 1_024 },
+      { bits: 22, offset: 17_408 },
+      { bits: 30, offset: 4_211_712 },
+    ])
+  return writer.finish()
+}
+
+export const encodeJpegXlDocumentPatchCandidate = async (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  options: Readonly<ResolvedJpegXlEncodeOptions>,
+  memory: JpegXlEncoderMemory,
+  checkpoint: () => Promise<void>,
+): Promise<EncodedJpegXlCodestream | undefined> => {
+  const groups = findDocumentPatches(pixels, width, height, memory)
+  let placements = 0,
+    covered = 0,
+    atlasPixels = 0
+  for (const group of groups) {
+    placements += group.placements.length
+    covered += group.source.width * group.source.height * group.placements.length
+    atlasPixels += group.source.width * group.source.height
+  }
+  if (
+    groups.length === 0 ||
+    groups.length > 1_024 ||
+    placements < 500 ||
+    covered < width * height * 0.05 ||
+    atlasPixels > 1_000_000
+  )
+    return undefined
+  groups.sort(
+    (left, right) =>
+      right.source.height - left.source.height || right.source.width - left.source.width,
+  )
+  const atlasWidth = Math.min(1_024, Math.max(64, Math.ceil(Math.sqrt(atlasPixels * 1.4))))
+  let shelfX = 0,
+    shelfY = 0,
+    shelfHeight = 0
+  for (const group of groups) {
+    const patch = group.source
+    if (shelfX + patch.width > atlasWidth) {
+      shelfY += shelfHeight
+      shelfX = 0
+      shelfHeight = 0
+    }
+    group.atlasX = shelfX
+    group.atlasY = shelfY
+    shelfX += patch.width
+    shelfHeight = Math.max(shelfHeight, patch.height)
+  }
+  const atlasHeight = shelfY + shelfHeight
+  if (atlasHeight > 1_024) return undefined
+  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * 3)
+  const display = copyJpegXlArray(memory, Uint8Array, pixels)
+  atlas.fill(255)
+  for (const group of groups) {
+    const source = group.source
+    for (let y = 0; y < source.height; y++) {
+      const from = ((source.y + y) * width + source.x) * 3
+      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * 3
+      atlas.set(pixels.subarray(from, from + source.width * 3), to)
+    }
+    for (const patch of group.placements) {
+      for (let y = 0; y < patch.height; y++) {
+        const start = ((patch.y + y) * width + patch.x) * 3
+        display.fill(255, start, start + patch.width * 3)
+      }
+    }
+  }
+  for (let index = 0; index < display.length; index++)
+    display[index] = Math.min(255, ((display[index] ?? 0) + 2) & ~3)
+  await checkpoint()
+  const referenceSections = await encodeFrameSections(
+    atlas,
+    atlasWidth,
+    atlasHeight,
+    'rgb8',
+    3,
+    memory,
+    checkpoint,
+  )
+  const displaySections = await encodeFrameSections(
+    display,
+    width,
+    height,
+    'rgb8',
+    options.effort,
+    memory,
+    checkpoint,
+  )
+  const firstDisplaySection = displaySections[0]
+  if (!firstDisplaySection) throw invalidInput('JPEG XL document display section is missing')
+  const patchedSection = writeDocumentPatchFeatures(firstDisplaySection, groups, memory)
+  const patchedDisplaySections = [patchedSection, ...displaySections.slice(1)]
+  const imageWriter = new JpegXlBitWriter(memory)
+  writeImageHeader(imageWriter, width, height, 'rgb8', options, false)
+  const imageHeader = imageWriter.finish()
+  const referenceHeader = writeDocumentFrameHeader(
+    true,
+    atlasWidth,
+    atlasHeight,
+    referenceSections,
+    memory,
+  )
+  const displayHeader = writeDocumentFrameHeader(
+    false,
+    width,
+    height,
+    patchedDisplaySections,
+    memory,
+  )
+  const header = concatenate([imageHeader, referenceHeader], memory)
+  const sections = [...referenceSections, displayHeader, ...patchedDisplaySections]
+  const byteLength = header.length + sections.reduce((sum, part) => sum + part.length, 0)
+  return { header, sections, byteLength }
+}
+
 const encodeLossyCodestream = (
   pixels: Uint8Array,
   width: number,
@@ -3621,7 +3969,21 @@ const encodeLossyCodestream = (
         checkpoint,
       )
       // The enclosing memory scope retains only the selected codestream.
-      return modular.byteLength * 5 <= primary.byteLength * 4 ? modular : primary
+      const selected = modular.byteLength * 5 <= primary.byteLength * 4 ? modular : primary
+      try {
+        const patched = await encodeJpegXlDocumentPatchCandidate(
+          pixels,
+          width,
+          height,
+          options,
+          memory,
+          checkpoint,
+        )
+        return patched && patched.byteLength * 20 <= selected.byteLength * 19 ? patched : selected
+      } catch (error) {
+        if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return selected
+        throw error
+      }
     } catch (error) {
       if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return primary
       throw error

@@ -3,8 +3,12 @@ import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
+import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
 import { encodeJpegXlVarDct8 } from '../src/codecs/jpegxl-vardct-encode.ts'
-import { useLargeDocumentModularCandidate } from '../src/codecs/jpegxl-modular-encode.ts'
+import {
+  encodeJpegXlDocumentPatchCandidate,
+  useLargeDocumentModularCandidate,
+} from '../src/codecs/jpegxl-modular-encode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
@@ -18,6 +22,99 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
+
+export const verifyJpegXlDocumentPatch = async () => {
+  const width = 256,
+    height = 256,
+    pixels = new Uint8Array(width * height * 3)
+  pixels.fill(255)
+  for (let cellY = 0; cellY < 25; cellY++)
+    for (let cellX = 0; cellX < 25; cellX++)
+      for (let y = 0; y < 6; y++)
+        for (let x = 0; x < 6; x++) {
+          const offset = ((cellY * 10 + y) * width + cellX * 10 + x) * 3
+          pixels[offset] = 18
+          pixels[offset + 1] = 24
+          pixels[offset + 2] = 30
+        }
+  const memory = new JpegXlEncoderMemory(268_435_456)
+  let candidate: Awaited<ReturnType<typeof encodeJpegXlDocumentPatchCandidate>>
+  try {
+    candidate = await encodeJpegXlDocumentPatchCandidate(
+      pixels,
+      width,
+      height,
+      {
+        mode: 'lossy',
+        effort: 7,
+        distance: 3,
+        progressive: false,
+        container: false,
+        codestreamLevel: 5,
+        sampleBitDepth: 8,
+        orientation: 1,
+        colorSemantics: {
+          family: 'rgb',
+          primaries: 'srgb',
+          transfer: { kind: 'srgb' },
+          matrix: 'identity',
+          range: 'full',
+          alpha: 'none',
+          provenance: 'assumed-default',
+          renderingIntent: 'relative',
+        },
+        toneMapping: {
+          intensityTarget: 255,
+          minNits: 0,
+          relativeToMaxDisplay: false,
+          linearBelow: 0,
+        },
+      },
+      memory,
+      async () => {},
+    )
+  } finally {
+    memory.close()
+  }
+  if (!candidate) throw new Error('Document patch candidate was not selected')
+  const encoded = new Uint8Array(candidate.byteLength)
+  encoded.set(candidate.header)
+  let offset = candidate.header.length
+  for (const part of candidate.sections) {
+    encoded.set(part, offset)
+    offset += part.length
+  }
+  const frames = await readJpegXlSourceFrameStructures(
+    new MemorySource(encoded),
+    defaultImageLimits,
+  )
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), {
+    ...defaultImageLimits,
+    maxDecodedBytes: 6_000_000,
+  })
+  if (!decoder) throw new Error('Document patch decoder is unavailable')
+  let samples = 0,
+    maximum = 0
+  for await (const block of decoder.decode()) {
+    try {
+      for (let y = 0; y < block.height; y++)
+        for (let x = 0; x < width * 3; x++) {
+          const expected = pixels[(block.y + y) * width * 3 + x] ?? 0
+          const actual = block.data[y * block.stride + x] ?? 0
+          maximum = Math.max(maximum, Math.abs(expected - actual))
+          samples++
+        }
+    } finally {
+      block.release?.()
+    }
+  }
+  return {
+    bytes: encoded.length,
+    frames: frames.map((frame) => [frame.frameType, frame.encoding, frame.frameFlags]),
+    samples,
+    maximum,
+  }
+}
 
 export const verifyJpegXlLargeDocumentSelection = () => {
   const width = 2800,

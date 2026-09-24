@@ -293,7 +293,9 @@
         "browser-tests/jpegxl-color.pw.ts",
         "tests/jpegxl-practical-progressive.test.ts",
         "tests/jpegxl-grayscale-exact.test.ts",
-        "browser-tests/jpegxl-practical-progressive.pw.ts"
+        "browser-tests/jpegxl-practical-progressive.pw.ts",
+        "tests/jpegxl-document-patches.test.ts",
+        "browser-tests/jpegxl-document-patches.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -310,7 +312,8 @@
           "benchmark/jpegxl/verify-m8-raw.ts",
           "benchmark/jpegxl/verify-m8-animation-encode.ts",
           "tests/jpegxl-practical-progressive.test.ts",
-          "tests/jpegxl-grayscale-exact.test.ts"
+          "tests/jpegxl-grayscale-exact.test.ts",
+          "tests/jpegxl-document-patches.test.ts"
         ]
       }
     },
