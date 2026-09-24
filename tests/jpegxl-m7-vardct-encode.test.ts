@@ -249,19 +249,20 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     expect(() => encodeJpegXlVarDct8(new Uint8Array(2), 1, 1, 1)).toThrow(/extent/)
   })
 
-  for (const [width, height] of [
-    [17, 13],
-    [257, 33],
-    [33, 257],
-    [513, 257],
-  ]) {
-    if (!width || !height) throw new Error('Missing alpha fixture dimensions')
-    it(`preserves every alpha level across ${width}x${height} forward groups`, async () => {
+  for (const [width, height, distance, effort] of [
+    [17, 13, 1, 3],
+    [257, 33, 1, 3],
+    [33, 257, 1, 3],
+    [513, 257, 1, 3],
+    [257, 33, 3, 5],
+    [257, 33, 3, 7],
+  ] as const) {
+    it(`preserves every alpha level across ${width}x${height}, distance ${distance}, effort ${effort}`, async () => {
       const pixels = Uint8Array.from({ length: width * height * 4 }, (_, index) =>
         index % 4 === 3 ? Math.floor(index / 4) % 256 : (index * 13) % 256,
       )
       const sink = new Uint8ArraySink()
-      for (const part of encodeJpegXlVarDct8(pixels, width, height, 1, undefined, 4))
+      for (const part of encodeJpegXlVarDct8(pixels, width, height, distance, undefined, 4, effort))
         await sink.write(part)
       const decoder = await jpegxlCodec.createDecoder?.(
         new MemorySource(sink.toUint8Array()),

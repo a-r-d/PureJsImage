@@ -55,6 +55,7 @@ export interface VarDctCoefficientGeometry {
   readonly dcPlaneComponents: readonly VarDctCoefficientPlane[]
   readonly quantization: readonly Int32Array[]
   readonly dcQuantization?: readonly number[]
+  readonly adaptiveLfSmoothing?: boolean
   readonly acQuantizationScale?: number
   readonly baseCorrelationB?: number
   readonly defaultQuantization?: boolean
@@ -1367,7 +1368,7 @@ export const varDctCodestreamParts = (
   writer.writeBits(0, 1)
   writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
   writer.writeBits(0, 1)
-  writeU64(writer, 128)
+  writeU64(writer, geometry.adaptiveLfSmoothing ? 0 : 128)
   if (geometry.colorTransform !== 'xyb')
     writer.writeBits(geometry.colorTransform === 'ycbcr' ? 1 : 0, 1)
   if (geometry.colorTransform === 'ycbcr') {

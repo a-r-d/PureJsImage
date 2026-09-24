@@ -8,6 +8,7 @@ import {
   verifyLevelTenJpegXl,
   verifyJpegXlLargeDocumentSelection,
   verifyM7EffortOneGroups,
+  verifyM7EffortSevenAlpha,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
@@ -299,6 +300,18 @@ test('an independent embedded preview remains visible when a requested native st
   await page.locator('#jxl-run-progressive').click()
   await expect(page.locator('#jxl-progressive-status')).toContainText('final complete')
   await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '1')
+})
+
+test('M7 effort-7 lossy RGBA8 preserves alpha and agrees in Node and browser', async ({ page }) => {
+  const expected = await verifyM7EffortSevenAlpha()
+  expect(expected.alphaMaximumError).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7EffortSevenAlpha()
+  })
+  expect(actual).toEqual(expected)
 })
 
 test('M7 lossy and progressive re-encode preserve Node/browser color and precision behavior', async ({

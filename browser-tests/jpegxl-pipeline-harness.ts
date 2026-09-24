@@ -3,6 +3,7 @@ import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
+import { encodeJpegXlVarDct8 } from '../src/codecs/jpegxl-vardct-encode.ts'
 import { useLargeDocumentModularCandidate } from '../src/codecs/jpegxl-modular-encode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
@@ -689,6 +690,42 @@ export async function verifyM7ForwardJpegXl(
     }
   }
   return results
+}
+
+export async function verifyM7EffortSevenAlpha() {
+  const width = 65,
+    height = 33,
+    pixels = new Uint8Array(width * height * 4),
+    sink = new Uint8ArraySink()
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const offset = (y * width + x) * 4
+      pixels[offset] = x < 32 ? 228 : 25
+      pixels[offset + 1] = (x * 11 + y * 3) & 255
+      pixels[offset + 2] = (y * 7) & 255
+      pixels[offset + 3] = (x * 17 + y * 29) & 255
+    }
+  for (const part of encodeJpegXlVarDct8(pixels, width, height, 3, undefined, 4, 7))
+    await sink.write(part)
+  const bytes = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('Missing RGBA8 decoder')
+  const decoded = new Uint8Array(pixels.length)
+  for await (const block of decoder.decode()) {
+    for (let y = 0; y < block.height; y++)
+      decoded.set(
+        block.data.subarray(y * block.stride, y * block.stride + block.width * 4),
+        (block.y + y) * width * 4,
+      )
+    block.release?.()
+  }
+  let alphaMaximumError = 0
+  for (let offset = 3; offset < pixels.length; offset += 4)
+    alphaMaximumError = Math.max(
+      alphaMaximumError,
+      Math.abs((decoded[offset] ?? 0) - (pixels[offset] ?? 0)),
+    )
+  return { encoded: Array.from(bytes), decoded: Array.from(decoded), alphaMaximumError }
 }
 
 export async function verifyM7EffortOneGroups() {

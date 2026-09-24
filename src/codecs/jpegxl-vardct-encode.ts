@@ -342,7 +342,7 @@ function* prepare8(
   const blockQuantization = 4
   const globalScale = Math.round(65536 / (distance * blockQuantization))
   const effectiveDistance = 65536 / globalScale / blockQuantization
-  // Keep fine DC precision for high-quality, alpha and native-depth output.
+  // Keep fine DC precision outside the measured SDR experiments.
   // Modest channel-specific steps reduce SDR DC payload without coarse color blocks.
   const moderateSdrDc =
     distance > 1 &&
@@ -352,9 +352,18 @@ function* prepare8(
     sampleBytes === 1 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const moderateAlphaDc =
+    effort === 7 &&
+    channels === 4 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    (color?.primaries ?? 'srgb') === 'srgb' &&
+    (color?.transfer.kind ?? 'srgb') === 'srgb'
   const dcQuantization = moderateSdrDc
     ? [1 / 16384, 1 / 4096, 1 / 2048]
-    : [1 / 16384, 1 / 16384, 1 / 16384]
+    : moderateAlphaDc
+      ? [1 / 8192, 1 / 1024, 1 / 512]
+      : [1 / 16384, 1 / 16384, 1 / 16384]
   const fullBlockWidth = Math.ceil(width / 8)
   const fullBlockHeight = Math.ceil(height / 8)
   const deferredDcGroups =
@@ -900,6 +909,7 @@ function* prepare8(
     dcPlaneComponents: [second, first, third],
     quantization,
     dcQuantization,
+    ...(moderateAlphaDc ? { adaptiveLfSmoothing: true } : {}),
     defaultQuantization: true,
     globalScale,
     blockQuantization,
