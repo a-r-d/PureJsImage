@@ -1,0 +1,55 @@
+docs-astro/src/data/package-metrics.json
+  s_d4180e5cac980c::t_2136dc4f0cbee9 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/generated/package-metrics.json
+  s_d4180e5cac980c::t_2136dc4f0cbee9 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+scripts/bundle-size-budgets.ts
+  s_d4180e5cac980c::t_2136dc4f0cbee9 16-18
+browser-tests/jpegxl-pipeline-harness.ts
+  s_d4180e5cac980c::t_1d7850e1457a51 26-102
+browser-tests/jpegxl-pipeline.pw.ts
+  s_d4180e5cac980c::t_1d7850e1457a51 10,17-31
+  s_d4180e5cac980c::t_a99d0e1a5b48c0 32
+README.md
+  s_d4180e5cac980c::t_2136dc4f0cbee9 403
+src/codecs/jpegxl-modular-encode.ts
+  s_d4180e5cac980c::t_f9fbc422db00fb 27,3920-3940,3946,3952-3998,4013-4014,4028-4032,4038-4039,4053,4063,4080,4088-4093,4102-4109
+  s_d4180e5cac980c::t_f412de16644b17 4079
+  s_d4180e5cac980c::t_09a261800828e9 3941-3945,3947-3951,3999-4012,4015-4027,4033-4037,4081-4087,4094-4101
+  s_d4180e5cac980c::t_bf400a53331101 3706
+benchmark/optimization-log.md
+  s_d4180e5cac980c::t_e928fcdd670bf3 1296
+  s_d4180e5cac980c::t_e19072be3ac5b9 1295
+src/codecs/jpegxl-flat-patches.ts
+  s_d4180e5cac980c::t_f9fbc422db00fb 1-39,42-116,118-163,170-219,222-233
+  s_d4180e5cac980c::t_09a261800828e9 117,164-169,220-221
+  s_d4180e5cac980c::t_c031e665d81103 40-41
+src/codecs/jpegxl-vardct-encode.ts
+  s_d4180e5cac980c::t_d6e1bfe4e4921c 274-278,293,319-324,326-327
+  s_d4180e5cac980c::t_fee6e40c2e1ce7 325
+src/codecs/jpegxl-jpeg-encode.ts
+  s_d4180e5cac980c::t_594520e71aef10 1389-1396
+  s_d4180e5cac980c::t_09a261800828e9 1370-1375,1405-1408,1411-1414
+  s_d4180e5cac980c::t_6660b6d6cd0417 1329,1377,1402-1404,1409-1410,1415-1418,1424-1425
+  s_d4180e5cac980c::t_fafb8927d02b63 1419-1420,1422-1423
+tests/jpegxl-document-patches.test.ts
+  s_d4180e5cac980c::t_09a261800828e9 155-163,167-170,183
+  s_d4180e5cac980c::t_cd1847f109f8cb 4,9,119-142,144-154,164,166,171-182,184-207
+  s_d4180e5cac980c::t_1d7850e1457a51 143,165
+  s_d4180e5cac980c::t_50a7b62501b947 208
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "30d72d1a88a33e156fc6ed053c308d7268f4188d",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
