@@ -1,0 +1,27 @@
+benchmark/jpegxl/production-program/m7-prompt10-report.md
+  s_d4180e5cac980c::t_ae0d832c573c3c 32-34,41
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d4180e5cac980c::t_ae0d832c573c3c 1029
+benchmark/jpegxl/production-program/m7-prompt11-low-endpoints.json
+  s_d4180e5cac980c::t_d4e2c45e747856 1-2810,2846
+  s_d4180e5cac980c::t_c2067cf563e76e 2811-2816,2824-2831,2835-2845
+  s_d4180e5cac980c::t_7a104d3576f305 2817-2823,2832-2834
+benchmark/jpegxl/production-program/m7-prompt10-native-ceiling.json
+  s_d4180e5cac980c::t_3a8d08b421147d 496-497,499-502,504-506
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c7e97daeea424e762d59dfd3e099f98437e582dd",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
