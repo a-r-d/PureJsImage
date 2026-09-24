@@ -24,6 +24,7 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
+import { findFlatScreenshotPatches, hasFlatScreenshotBackground } from './jpegxl-flat-patches.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import { encodeJpegXlVarDct8Async } from './jpegxl-vardct-encode.ts'
 
@@ -3702,7 +3703,7 @@ const findDocumentPatches = (
   return groups
 }
 
-const writeDocumentPatchFeatures = (
+export const writeDocumentPatchFeatures = (
   section: Uint8Array,
   groups: readonly DocumentPatchGroup[],
   memory: JpegXlEncoderMemory,
@@ -3916,6 +3917,126 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   return { header, sections, byteLength }
 }
 
+const encodeJpegXlScreenshotPatchCandidate = async (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  options: Readonly<ResolvedJpegXlEncodeOptions>,
+  imageHeader: Uint8Array,
+  memory: JpegXlEncoderMemory,
+  checkpoint: () => Promise<void>,
+  limits: Readonly<ImageLimits>,
+): Promise<EncodedJpegXlCodestream | undefined> => {
+  if (!hasFlatScreenshotBackground(pixels, width, height)) return undefined
+  const groups = findFlatScreenshotPatches(pixels, width, height, memory)
+  let placements = 0,
+    covered = 0,
+    atlasPixels = 0
+  for (const group of groups) {
+    placements += group.placements.length
+    covered += group.source.width * group.source.height * group.placements.length
+    atlasPixels += group.source.width * group.source.height
+  }
+  if (
+    groups.length === 0 ||
+    groups.length > 1_024 ||
+    placements < 40 ||
+    covered * 200 < width * height ||
+    atlasPixels > 262_144
+  )
+    return undefined
+  groups.sort(
+    (left, right) =>
+      right.source.height - left.source.height || right.source.width - left.source.width,
+  )
+  const atlasWidth = Math.min(1_024, Math.max(64, Math.ceil(Math.sqrt(atlasPixels * 1.4))))
+  let shelfX = 0,
+    shelfY = 0,
+    shelfHeight = 0
+  for (const group of groups) {
+    const patch = group.source
+    if (shelfX + patch.width > atlasWidth) {
+      shelfY += shelfHeight
+      shelfX = 0
+      shelfHeight = 0
+    }
+    group.atlasX = shelfX
+    group.atlasY = shelfY
+    shelfX += patch.width
+    shelfHeight = Math.max(shelfHeight, patch.height)
+  }
+  const atlasHeight = shelfY + shelfHeight
+  if (atlasHeight > 1_024) return undefined
+  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * 3)
+  const display = copyJpegXlArray(memory, Uint8Array, pixels)
+  atlas.fill(255)
+  for (const group of groups) {
+    const source = group.source
+    for (let y = 0; y < source.height; y++) {
+      const from = ((source.y + y) * width + source.x) * 3
+      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * 3
+      atlas.set(pixels.subarray(from, from + source.width * 3), to)
+    }
+    for (const patch of group.placements) {
+      const backgroundX = Math.max(0, patch.x - 1),
+        backgroundY = Math.max(0, patch.y - 1),
+        background = (backgroundY * width + backgroundX) * 3
+      const red = pixels[background] ?? 0,
+        green = pixels[background + 1] ?? 0,
+        blue = pixels[background + 2] ?? 0
+      for (let y = 0; y < patch.height; y++) {
+        for (let x = 0; x < patch.width; x++) {
+          const at = ((patch.y + y) * width + patch.x + x) * 3
+          display[at] = red
+          display[at + 1] = green
+          display[at + 2] = blue
+        }
+      }
+    }
+  }
+  await checkpoint()
+  const reference = await encodeJpegXlVarDct8Async(
+    atlas,
+    atlasWidth,
+    atlasHeight,
+    1,
+    memory,
+    checkpoint,
+    3,
+    3,
+    imageHeader,
+    8,
+    false,
+    undefined,
+    limits,
+    { reference: true },
+  )
+  const displayed = await encodeJpegXlVarDct8Async(
+    display,
+    width,
+    height,
+    options.distance,
+    memory,
+    checkpoint,
+    3,
+    options.effort,
+    new Uint8Array(0),
+    8,
+    false,
+    undefined,
+    limits,
+    { patchGlobalSection: (section) => writeDocumentPatchFeatures(section, groups, memory) },
+  )
+  const header = reference[0]
+  if (!header) throw invalidInput('JPEG XL screenshot reference header is missing')
+  const sections = [...reference.slice(1), ...displayed]
+  return {
+    header,
+    sections,
+    byteLength: header.length + sections.reduce((sum, part) => sum + part.length, 0),
+  }
+}
+
 const encodeLossyCodestream = (
   pixels: Uint8Array,
   width: number,
@@ -3929,6 +4050,7 @@ const encodeLossyCodestream = (
   withJpegXlMemoryAsync(memory, async () => {
     const writer = new JpegXlBitWriter(memory)
     writeImageHeader(writer, width, height, format, options, true)
+    const imageHeader = writer.finish()
     const parts = await encodeJpegXlVarDct8Async(
       pixels,
       width,
@@ -3938,7 +4060,7 @@ const encodeLossyCodestream = (
       checkpoint,
       format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3,
       options.effort,
-      writer.finish(),
+      imageHeader,
       options.sampleBitDepth,
       options.progressive,
       {
@@ -3954,7 +4076,37 @@ const encodeLossyCodestream = (
       sections: parts.slice(1),
       byteLength: parts.reduce((sum, part) => sum + part.byteLength, 0),
     }
-    if (!useLargeDocumentModularCandidate(pixels, width, height, format, options)) return primary
+    let selected: EncodedJpegXlCodestream = primary
+    if (
+      format === 'rgb8' &&
+      options.effort === 7 &&
+      !options.progressive &&
+      options.distance >= 2 &&
+      options.distance <= 4 &&
+      width * height >= 262_144 &&
+      width * height <= 4_194_304 &&
+      options.sampleBitDepth === 8 &&
+      options.colorSemantics.primaries === 'srgb' &&
+      options.colorSemantics.transfer.kind === 'srgb'
+    ) {
+      try {
+        const screenshot = await encodeJpegXlScreenshotPatchCandidate(
+          pixels,
+          width,
+          height,
+          options,
+          imageHeader,
+          memory,
+          checkpoint,
+          limits,
+        )
+        if (screenshot && screenshot.byteLength * 200 <= primary.byteLength * 199)
+          selected = screenshot
+      } catch (error) {
+        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      }
+    }
+    if (!useLargeDocumentModularCandidate(pixels, width, height, format, options)) return selected
     try {
       const quantized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
       for (let index = 0; index < pixels.length; index++)

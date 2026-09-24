@@ -7,11 +7,28 @@ import {
   verifyLazyJpegXl,
   verifyLevelTenJpegXl,
   verifyJpegXlLargeDocumentSelection,
+  verifyJpegXlScreenshotPatch,
   verifyM7EffortOneGroups,
   verifyM7EffortSevenAlpha,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+test('repeated screenshot JPEG XL patches agree in Node and Chromium', async ({ page }) => {
+  const expected = await verifyJpegXlScreenshotPatch()
+  expect(expected.frames).toEqual([
+    ['reference', 'vardct', 128],
+    ['regular', 'vardct', 130],
+  ])
+  expect(expected.samples).toBe(512 * 512 * 3)
+  expect(expected.rmse).toBeLessThan(3)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlScreenshotPatch()
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('large-document JPEG XL lossy selector agrees in Node and browser', async ({ page }) => {
   const expected = verifyJpegXlLargeDocumentSelection()

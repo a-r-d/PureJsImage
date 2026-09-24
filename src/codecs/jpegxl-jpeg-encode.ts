@@ -1326,6 +1326,7 @@ export const varDctCodestreamParts = (
   image: Readonly<{ width: number; height: number }>,
   geometry: Readonly<JpegDerivedGeometry>,
   sections: readonly Uint8Array[],
+  frame: Readonly<{ reference?: boolean; patches?: boolean }> = {},
 ): readonly Uint8Array[] => {
   const writer = new JpegXlBitWriter(geometry.memory)
   if (!geometry.imageHeader) {
@@ -1366,9 +1367,14 @@ export const varDctCodestreamParts = (
   }
 
   writer.writeBits(0, 1)
-  writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+  writeU32(writer, frame.reference ? 2 : 0, [
+    { value: 0 },
+    { value: 1 },
+    { value: 2 },
+    { value: 3 },
+  ])
   writer.writeBits(0, 1)
-  writeU64(writer, geometry.adaptiveLfSmoothing ? 0 : 128)
+  writeU64(writer, (geometry.adaptiveLfSmoothing ? 0 : 128) | (frame.patches ? 2 : 0))
   if (geometry.colorTransform !== 'xyb')
     writer.writeBits(geometry.colorTransform === 'ycbcr' ? 1 : 0, 1)
   if (geometry.colorTransform === 'ycbcr') {
@@ -1380,23 +1386,43 @@ export const varDctCodestreamParts = (
     writer.writeBits(2, 3)
     writer.writeBits(2, 3)
   }
-  writeU32(writer, geometry.progressive ? 2 : 1, [
-    { value: 1 },
-    { value: 2 },
-    { value: 3 },
-    { bits: 3, offset: 4 },
-  ])
-  if (geometry.progressive) {
+  if (!frame.reference)
+    writeU32(writer, geometry.progressive ? 2 : 1, [
+      { value: 1 },
+      { value: 2 },
+      { value: 3 },
+      { bits: 3, offset: 4 },
+    ])
+  if (geometry.progressive && !frame.reference) {
     writeU32(writer, 1, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 1, offset: 3 }])
     writer.writeBits(0, 2)
     writeU32(writer, 2, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
     writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 3, offset: 0 }])
   }
-  writer.writeBits(0, 1)
-  writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
-  if (geometry.alpha)
+  writer.writeBits(frame.reference ? 1 : 0, 1)
+  if (frame.reference) {
+    writeU32(writer, image.width, [
+      { bits: 8, offset: 0 },
+      { bits: 11, offset: 256 },
+      { bits: 14, offset: 2_304 },
+      { bits: 30, offset: 18_688 },
+    ])
+    writeU32(writer, image.height, [
+      { bits: 8, offset: 0 },
+      { bits: 11, offset: 256 },
+      { bits: 14, offset: 2_304 },
+      { bits: 30, offset: 18_688 },
+    ])
+  }
+  if (frame.reference) {
+    writeU32(writer, 3, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+    writer.writeBits(1, 1)
+  } else {
     writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
-  writer.writeBits(1, 1)
+    if (geometry.alpha)
+      writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    writer.writeBits(1, 1)
+  }
   writeU32(writer, 0, [
     { value: 0 },
     { bits: 4, offset: 0 },

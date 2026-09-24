@@ -271,6 +271,11 @@ export const encodeJpegXlVarDct8 = (
   }
 }
 
+export interface JpegXlForwardFrameOptions {
+  readonly reference?: boolean
+  readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
+}
+
 export const encodeJpegXlVarDct8Async = (
   pixels: Uint8Array,
   width: number,
@@ -285,6 +290,7 @@ export const encodeJpegXlVarDct8Async = (
   progressive = false,
   color?: JpegXlForwardColor,
   limits: Readonly<ImageLimits> = defaultImageLimits,
+  frame: Readonly<JpegXlForwardFrameOptions> = {},
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
     const steps = prepare8(
@@ -310,7 +316,15 @@ export const encodeJpegXlVarDct8Async = (
     const geometry = next.value
     const sections = await encodeVarDctCoefficientSectionsAsync(geometry, checkpoint)
     await checkpoint()
-    return varDctCodestreamParts({ width, height }, geometry, sections)
+    const global = sections[0]
+    if (!global) throw invalidInput('JPEG XL VarDCT global section is missing')
+    const selectedSections = frame.patchGlobalSection
+      ? [frame.patchGlobalSection(global), ...sections.slice(1)]
+      : sections
+    return varDctCodestreamParts({ width, height }, geometry, selectedSections, {
+      reference: frame.reference === true,
+      patches: frame.patchGlobalSection !== undefined,
+    })
   })
 
 function* prepare8(

@@ -23,6 +23,83 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
 
+export const verifyJpegXlScreenshotPatch = async () => {
+  const width = 512,
+    pixels = new Uint8Array(width * width * 3)
+  pixels.fill(240)
+  for (let cellY = 2; cellY < 30; cellY++) {
+    for (let cellX = 2; cellX < 30; cellX++) {
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          if (x !== 2 && x !== 5 && y !== 2 && y !== 5) continue
+          const at = ((cellY * 16 + y) * width + cellX * 16 + x) * 3
+          pixels[at] = 20
+          pixels[at + 1] = 30
+          pixels[at + 2] = 40
+        }
+      }
+    }
+  }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height: width,
+    pixelFormat: 'rgb8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossy', effort: 7, distance: 3, container: false },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('JPEG XL screenshot encoder is unavailable')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height: width,
+    stride: width * 3,
+    format: 'rgb8',
+    data: pixels,
+  })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const frames = await readJpegXlSourceFrameStructures(
+    new MemorySource(encoded),
+    defaultImageLimits,
+  )
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+  if (!decoder) throw new Error('JPEG XL screenshot decoder is unavailable')
+  let squared = 0,
+    samples = 0
+  for await (const block of decoder.decode()) {
+    try {
+      for (let y = 0; y < block.height; y++) {
+        for (let x = 0; x < block.width * 3; x++) {
+          const source = pixels[(block.y + y) * width * 3 + x] ?? 0
+          const decoded = block.data[y * block.stride + x] ?? 0
+          squared += (source - decoded) ** 2
+          samples++
+        }
+      }
+    } finally {
+      block.release?.()
+    }
+  }
+  return {
+    bytes: encoded.length,
+    frames: frames.map((frame) => [frame.frameType, frame.encoding, frame.frameFlags]),
+    samples,
+    rmse: Math.sqrt(squared / samples),
+  }
+}
+
 export const verifyJpegXlDocumentPatch = async () => {
   const width = 256,
     height = 256,
