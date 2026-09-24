@@ -1,0 +1,3138 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "65c8a7ffb3c3308a41d09d9bba21890249555f12",
+  "previousEncoderRevision": "7845fd1ff37352a6d8cfa8edbdb1def38373c945",
+  "policy": "Transparent development and previously observed holdout are separate. Raw full reports retain every point, black/white score, missing bracket, input and artifact hash. Approved opaque 2 MP/original-size and unaffected HDR/runtime evidence is reused with stated path restrictions. No unseen generalization or Stable promotion claim.",
+  "sourceFiles": [
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "acc6787cb75c5f7c0820a5e46ca0fa31bac3d15d39299d7130b14c3a63754dee"
+    },
+    {
+      "path": "tests/jpegxl-m7-vardct-encode.test.ts",
+      "sha256": "88405b779569951057252be21b26d6d1eb144ec0a3baa0bb3db1b1aa380a535c"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "c2c639ce2a3105c36838f014b93211897f87ee85f36cbe58a7d4447cadbdf8bb"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "cdd4889af105e3767c6110d1a5d06f331e7fc378ede1f5c889c90b479ee1d11a"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "80601427baf4ff6a6ccfb25510d7ff551a7bf47fa88050634332c495abb13cdb"
+    }
+  ],
+  "protocolFiles": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-evaluation-protocol.json",
+      "sha256": "df63e8d7d5e2799652922d9a4f842e5dd3832a0b7ab205494fba1d654b4c79ff"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-bounded-quality-protocol.json",
+      "sha256": "293b6b63e6e1caebda5b1e14171fe76c71cf2f709b3ede0540810546a66f9255"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-hdr-alpha-protocol.json",
+      "sha256": "ace6e30cd1100a139b89ebebf53aa4a645c83c562f65c2d890af7fb3f8bd6b49"
+    }
+  ],
+  "oracleFiles": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+      "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "reports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt6-alpha-development.json",
+      "sha256": "b6ffc2a32b285b77b9b236f867ddd9d52a39b54cba9c2d7343b3cd61ef2b989c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt6-alpha-observed-holdout.json",
+      "sha256": "eda6d87fb007e72a0e4749e89dbcbc11833b71c67702ef1454e07e989f2698a8"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt6-conformance.json",
+      "sha256": "1b7de57511e3bb2224a6a4930f91f0874c4d3fd6af9126babbf4a4f1cf25842a"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt6-resource.json",
+      "sha256": "d970eb74de954bf6dfffab754589349365e7c81d63ee52a5d29e404fddb90a5c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt6-report.md",
+      "sha256": "a2f2c6620cd912837128a2e1fbc392e60fdd1b2e1191fab51bf783c971ff7d1a"
+    }
+  ],
+  "reusedReports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-report.md",
+      "sha256": "d4068b548d4580056d5ca797993d536ed7c4c240e38a521d134319df99565e41"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-report.md",
+      "sha256": "1af8d2d8c83f98c8419ad82e26e8ee7de353e3da42fb9b051538b93b7fa8789d"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "sha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "sha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-artifacts.json",
+      "sha256": "90f2966ba72a976673ac83eaabf07c045b0ec12db2ed35fb57b1336e0167b2a1"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-original-size.json",
+      "sha256": "1f99d06dc5b3613f1ab0d6653678197835fd0348cffb9d562a478e8926c5e80d"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-runtime-paired.json",
+      "sha256": "1123c72089ecdf498b3cc389deb68d22914706f5d9a43861b375647bcced1004"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-public-effort3.json",
+      "sha256": "44497500922621589c6e53fe84c5be4543c915bf43f76fc006f1ddf2058239e5"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-quality-development-integrated054.json",
+      "sha256": "9d6727da3e19dcab5ff2f8e18d1cfa00fce90f1beb5e78645d74fcc9a8f9f6d7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-quality-holdout-integrated054.json",
+      "sha256": "b3122fa0ad6b0e51033ba2447578859c7aa6967283207f022d58e0d932b7fe56"
+    }
+  ],
+  "transparentCases": [
+    {
+      "split": "development",
+      "id": "noto-1f600",
+      "sourceSha256": "d6e6be1b18cd8ae3f56556d171cc7d8eecd293bdbbc1aa66ab5493a66ba4dae0",
+      "inputPixelsSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-development-prompt6-alpha-smooth-development/noto-1f600/report.json",
+      "rawReportSha256": "0767915a4f41935f1c5e23e2bfa62f4c2ba967c9cbfcd3d9108465fabe6f60fc",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "c20c98734fc216ed789d4023a1cbcacbb0cdbb446da41ea346f734b7ded4a603",
+          "decodedSha256": "cb82b71fe71fefb8e2725da75fe848851aa6ec029d3e9b1c365913427709e958",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "8684f23561bf145ecb209a0b1a1710073343bf8bae7b5f2e0aa4238603d43625",
+          "decodedSha256": "875989437e497e419e87ab4f035b9bc0fc21e87d5c1660e14d96412abf3e4ab7",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "589a2627c28cdbae25f0c451a90d38dd787063540954913a000373fb439e0bc1",
+          "decodedSha256": "5f024392e7df2f93a6c3d7ff821251e6d35f6b55faf9033cdad5d047bfc17bbb",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "fc41403361b58c181061765a1d472c9bc90b19243783132ef1e89edfadb17a23",
+          "decodedSha256": "5e283676011dd8fedf49ef9c5a77b5492be58a7e94d7ada9069fa8d7843a1834",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "12e1c1c48d30279ec6d5d855d18ec7e447cf7bb00efeb96031023ef6918b18cd",
+          "decodedSha256": "6bcdfe9e5ee282e25468239218d7a02b0545149f6e4177b6d7f0e9cbbe83bb48",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "69ae48ebe7b497e1677cd25fd24187e123991843ba2d7dec47a3770dc9193493",
+          "decodedSha256": "2f4fa647b25f38822d6d8f21111557a5a1de2045c9d167d11e9af59340e5cb52",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "cae559c4e3c26086da7891f8e026276b0d91022b097538274e3fa5eb73e5fb3d",
+          "decodedSha256": "096857484a8c4c368676f5556641a336753a85d1bc6db4500f2f6df6f7464da1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "65e67c06a0ab3a6a5ee902d0e9dcc227121bd11f3be8001a46e3b816e79f1c3c",
+          "decodedSha256": "6d6761f4d51b8ee89057d466f9645960633f27fe2717f6a57ef36fe719d50f31",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "ccfcebbaeb5440117d4479f94827b6c76ad675ed3ddead5fa499d759cb7c5fe3",
+          "decodedSha256": "98de616074664dd5d5156f51a7ac61555fbf3c3e50e2270d55410be18d1db310",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "9359515371bb3d38220ed94b5a4dde9e9ca68918b041ca7d989f5f98ce5d6284",
+          "decodedSha256": "0657d86801390f2bb2bb04977176937c318c78345e349c8b5d86fce7e5ad6f8c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "0e9fec0edf345ea3ddd5a5c2c739566c68e540fad44664a1295817f46388a5a3",
+          "decodedSha256": "34bb7fd3a4ac7887af77925aa7f2e33722f9a6ee1ccd4771fd751b6ba50c57a8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "aa5227ef581a1280be2f7933a98257b5e2065a74968b8d222fe231c18ec28757",
+          "decodedSha256": "b18c9212b6104d57923c0677ef21ae980f4857c475730326c35d90e8191be689",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "b0f9c608f7656ca17bb45dc29028fa9868dd24762479dd181a6b0d23015378e3",
+          "decodedSha256": "6f0ab0e671ead27c407e161446abcde01362d554e79378a5f5655789b4f528b3",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "666034080c0e351d41f407ff14e85a0125cf786157c721fd9762edda4fdd6326",
+          "decodedSha256": "17a3226f38a1ccd29e4d86c8b355586eb1412fea4c882339cefdccdeaf8b4cb4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "bbf351c4f3cc10a87b0dddb1863bd94d278ff31218382ffe5564605b711fd10e",
+          "decodedSha256": "2265a90a133e21c41238a5b677a1b3509b15616b3ce96df3f11a16eb9c60d4eb",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "56a926b7e5851256c6d322ea8deb45fe45e1272e9cc80b31d7005836409529f0",
+          "decodedSha256": "5f7c861d92cb3709512fa1043bdfa38d680c19e6ba14005be198356713b03c57",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "59ba0d7389d831a69c14dda61efa9293bdb5396c3c29eff6af96494a22c5499c",
+          "decodedSha256": "81befc48c20daa44ac24ad4da30a0ccc33337e94b4b5c0f62b2f9ea58d2d7fc6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "e418ca04a74aca8551a13a8fce426cfaa2692681ff76546df7dfaf879aa0f6ec",
+          "decodedSha256": "f8a0efe4d772c02c275b89063de63a4755e859629385fccc0ae1512ff9a1d402",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "3ff183439a8150574f1b46817c807f78554b1949ede709a83c8b81b064d63ab5",
+          "decodedSha256": "b02d228ec4a13cec21d221f31af038a93c2b1a42d381dbd9e0e3e7f19513cf4d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 42
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "1ebf6993f240ac9d8a3b29a3d8f92eb821e7f29f95287b923c2986369bc9220d",
+          "decodedSha256": "842d5f19e97d140be33b9b3b9a1d36d6061f0a2a72215604f09cc7c1545b6b77",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 23
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "b149a770b59ea811c7b84e2259a62914910b62fe4f2053ea7081683b2dc28c03",
+          "decodedSha256": "653357a698ce90d977403763370fa66816d9e9c8218589420aaf94d4ae64aeeb",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 11
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "f8a9e1d7bc15cf1a3f61b281927e54be0a97c06705d4f5555bff39dfa8c9813f",
+          "decodedSha256": "8e39bdda721fc200b03bb0155c65bd3bb12db1d93cd81bcc55af8964881feec4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 8
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "02ba57b87d8b421b6e3659f33d1063cefa68d96e6bbe8fbdd67c2a23a06e4c2a",
+          "decodedSha256": "cffb2a228ec43ad56261a79e76e7348bbfd251a3807a6204cb017c113ce8e07a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 4
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "731723349d8b73a91affdfc71efb59473f03eed968dcc8ac3d50f0f8c3fbfcb3",
+          "decodedSha256": "7c39501568abd2a2b61c9d94265653a92b3e0ef35aa57889b4eb6a96e74af096",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 2
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "id": "noto-1f338",
+      "sourceSha256": "e87dddb11bb9fbe79c2efb549275be5368e47143670455a5f4d639458d22f669",
+      "inputPixelsSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-development-prompt6-alpha-smooth-development/noto-1f338/report.json",
+      "rawReportSha256": "746020d71bdaac59e024234cc4813aac3b1f40852354f2598dfcdaaf6abae73e",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "fb01b1b12bd5e5512acb59dff52cc6538d506cb36e53da19de6f85d900e03937",
+          "decodedSha256": "c27f8a4051907f4c1f2fddd2d17d28a77822dc5f1bba0c89a41331e077261950",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "4da7ba68b34c5da42aa553a44f99f33a667078cb58431a53308bf1c700ebbe88",
+          "decodedSha256": "ecc2d5d083dd20437bfeaefa01a6e703b3c5eda427316912ee0cb544b8d64d0a",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "e588fecf2c15e090862e9b9c19de75d3ae39a05360a810a1c03ce7e9047eb05d",
+          "decodedSha256": "5aaaf192607f065d920807a4b5dd5b7be462ed5bbed4bfe79fe9d30779db6291",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "08db116676e856b121d19febf9b9727340ce7b5dff0bd51965415e5c1f2e9464",
+          "decodedSha256": "269c17dd7d74f5d35d2680b07553f4ea004da8aa01813fb2d1ef46a6ff862fef",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "e37df5e51a51981af93fd6f308a77dcc7237a0c55c9bed462edefa2b58eefbf7",
+          "decodedSha256": "a724029d43d635771f8a0618d22de8643a2f6ddda9e35696d21ca35d11fab0b3",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "c7bd31cda47222493e74b1ed94998fdaa89cb9e320c9710d4ec8f9ed32f9043d",
+          "decodedSha256": "9b24b29118dd7a54f2b72d16404d4d62e1c82fb3716c33e7f1119b7d62f14c21",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "45483ed551a8e930d1e5b33c785c554e7b03b017668102256bcd599c405cd22b",
+          "decodedSha256": "8bd98c6c092bcca1584e42b8b26f63356917438ef9eb22f97e36ce5779cb5992",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "e996d8956a667bb9fb6b72aebe39e41c070e9ddb2b95d9c86444d4c3d80c8a88",
+          "decodedSha256": "aae9fa66125240e11729532d272fe8f1be6be66d5696b453624d900e58af4dc0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "c832b6eec52e0fb70a4293775f44f52157cf6d4cd90a7f27f5dcfed3fd3e87aa",
+          "decodedSha256": "3b94d8ac885770f2943c4bc3aaaaeba103f0ed8eaeb9c2e6992580558e21704c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "c4a8edf8f4950b9aadb6a76d889cb42c8fbef75e5a1703777e85e27060501ea9",
+          "decodedSha256": "d819e7259e61a9524bbbfed8af7c39b8d8dba065b66d7665aa4275628b3a7f60",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "cef4a99f548b8a9df23faa6808c67b7a0260761edf89e3d09b311b00022852f3",
+          "decodedSha256": "1dea669bac0763b5e160bcf5d2f5e15381758ffd38ceceb889530f94a6f8bca6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "8fc3c71129ef682cd61b3cb4a6608734424efa4034d81353d82d492138b197d4",
+          "decodedSha256": "207bbd512370add2665d494b7d51ed093118a3a51a4622f68352f99eee5c4139",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "56d8e92a6c369f1c8413d26278aca04ada86dcb671804e41bd4ace71469f30fd",
+          "decodedSha256": "1f7ad13fffc536f8fa5f2e4e92a9837c09671079fd394f4f1f7c102fa728149a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "a11b8be74892c242515281147edc38095108130453066c010c21fa240f04ce2c",
+          "decodedSha256": "d81181b2aaf53da71963a7d82ef7e6fa8a53f4bd9fa1d74f8fda38ada4989a1f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "971762738f152d8ff955971255bed39b24cab8252ef9a230b4b3689f9b0d6022",
+          "decodedSha256": "2b38c6a2ed9774223e33d165c2e2a488c8d044f3ebc4f31d1d394966c4d5ca6d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "670bfaf3a088a9568f1c9cf49004f99834768f70e74042c86efc2df67943f7fb",
+          "decodedSha256": "de3606035e50500840eaeff79fce969443c849b27cfc064873d829b787d7f52b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "57f2a0655949d0952750c1259ed4ecd40c531021b6d5901bbb56373b67fc7675",
+          "decodedSha256": "25619a086ec5aca3e5bc7d45919dc387730313a8ce1a5ee4c127611c9de40169",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "0812d9bb2f0da5016fb35a981289596cac2714b450f5cf864fe72acf8b461c4c",
+          "decodedSha256": "f02f1c3ba7270e0b75cbe96139ee311150be40bf718c98b54264b22c8ee95de5",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "ac1b222bba536dfd7ad42a045cf4864b4d1f51f201911e6981c3c3f2df768689",
+          "decodedSha256": "b9375c200f746ba1a4beab58004cc174eaf200a35f759a063d139698a2111757",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 35
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "8f671c9db1777503041101355bd29d9308411272d9cc5808f56e7b97c6ccbe83",
+          "decodedSha256": "45fc66a708c9405809268dbee17fad044bcc99699f8adc9e021f6e96a799706b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 17
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "ba893bde1e71038d36ce0bc4b3cc4b31f33a41a2dfd136e231150855ff840758",
+          "decodedSha256": "adf352cd8474cbdbb855978782f51242dc9548017d5e50e91bbecf54169231f8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "baef5ac60ff7e54f4e2935aee67be2c014b3c66ba6703fc1eeac3c7c213854b6",
+          "decodedSha256": "d1dc385ddaf61967839572cb8586ae0b65c753b5dbd97f71c299d2f4577112a8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 6
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "7a32555d76062ca609cf5824c6c289e1a5058014ee866508069753bba747b211",
+          "decodedSha256": "7d762e4f04e7e97bce3233172b1837c3540f003689415ca645909f425c6f8285",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "cc8860c577f8c4796cc6e38907217c14ca5aaf2be6aff17d8d8a5fb30e41cdbe",
+          "decodedSha256": "74d1e495906183d98f6d2a51bede846815d1c9eaab7763a213806b63401f50e0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 2
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "id": "noto-1f355",
+      "sourceSha256": "c4d2a0edaea1c0b18ccdbe9d221410869bb0d60c3a746e69f5e7952b9241fd4e",
+      "inputPixelsSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-development-prompt6-alpha-smooth-development/noto-1f355/report.json",
+      "rawReportSha256": "440901bdf3167bc98e92ef63f8b80d0ef0a71385517643c43efc69db282648ac",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "43c8114a3a67ee4fcf2967c30c38c0e5b2f464cd90bc2fc55c044bc8bbe1189d",
+          "decodedSha256": "cace8a32b37380a24fb6daac99136a31ced0fac30701dec04e7d3f3e8e75deaf",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "f8ac9dbabcfa8f58a70df306375ad3a9c2b194c52646e5be50441caf48c0d6f4",
+          "decodedSha256": "fac87852e57061a914a20ac25e61d23f799d0d50b61930f87908a0d8be15dfc7",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "651ede6c8a0c7664bf8c7c43a7979ea604248b36a65f1ba229b0567dbbaa3ce2",
+          "decodedSha256": "2befa39ff21dbc1efe32641ab3ae21add6927c7ab962fdf8f9acbfd0344b33e6",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "021bd1a1828782878d40bb9e230df8dc8ce30449f90667a7188a9984af744be8",
+          "decodedSha256": "37f16849874f25356e2d39317df312e588032a176eeb0839656dec6249f16ac8",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "aa9c22f80f09f49e4aa23e8f788377659aab91989dc5377e655be8002d31879f",
+          "decodedSha256": "4cccf39c3921068630749cca516c8626e0da5c40da99dac40b7de40df239cb6f",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "c5069aed0bd81e61e4f0495fcdd8a8657b139cad38359a5656d6e0a33c00dc4f",
+          "decodedSha256": "cf89500c8bc9b9e2650fd60f759e2058a4566149119e3d5af24e4d2e4f1b382b",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "8b5ce54f3e6e81fdeb7bbe3bae1c112d83da9e066ad168727a66aaf6e40e5bc2",
+          "decodedSha256": "05a536a5ef512bf8ff4940b1b64acc407d6c01ca894d326aea60a20f0c1bcdd3",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "e35cca383b0a4defa85c0a7a5e1274d4aa74c52c706cfb548fff03f031460e44",
+          "decodedSha256": "6ad01bd58e3aee240cbfe774676f406ede41f42f8190bc32a80539153f434608",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "fd0906609a4f97bd3d3887b3873712e7dba0339bbecacbf56955ca0a78d1cdfd",
+          "decodedSha256": "29320ab19870f00d8e3f62c628bb91d366036df9520f870e391966bafeeaa820",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "66c8154205091aae2fd2a854362eea88d8b49d5b41238292bde49067d5553645",
+          "decodedSha256": "d7552081c4ffd7b610207692e5db5bb2f9c61bf7e77e4535316c44f974ea6084",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "c4b33041e299a7e58cf223d8097b0e1448e36b96b3afdfb9f024df0d070f0e47",
+          "decodedSha256": "3e209c8868c72d11cdbee4ab1ef3efaadca1b7a811b34bc815a5e7f7dcb00849",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "c548f656d2710c55425a33d65bfa95ad7a52cd12aca040cf78af56493b68f88d",
+          "decodedSha256": "b1d6091eb186c05981a8e91e2049bb8c6d9bb34fa56772e825354f16c48ccabe",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "8bf03ba3006c2740e06a4c1f2667f34c485fb0b3a3d16f2ef77d24e4d48b4327",
+          "decodedSha256": "a6634f320519ffa4c5b56faadc78376cf6e0a0c0c8617a1abe4f603238c268c8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "f773eec77fc7e7bdbbfa5ac2f3a026f6604fdfb6d1f4136cfe96d658d208d699",
+          "decodedSha256": "13ad69ee6517e3292f5fffb1c83dd29b98449af38266056753708e5f5f516c27",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "868a038bb7aadda5146be25fdd3468165d1d60990a0516e4a50f4b6579f73de5",
+          "decodedSha256": "f2a632008998d873a3bafdd70e7c5911632fe3573f24b77c5bb9afabafb8b1f0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "49f5906ea834e1f0cf71004c6ad5c581a16d7eac8e989bd1de2db006bcc6227d",
+          "decodedSha256": "1baa93ff614c7856b94a158f70cf673200e79931b113ccbba3e5a9e3163a1514",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "370b949b9cc9a0da2c12310c536bbe60d0a4b9ff3c4f6c61adfe3871320d45c6",
+          "decodedSha256": "b4c481d36d3f1e8a6b81877dcdfabbb01a2ee0c04d01e3d658da53aec6edbeb1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "5ef9d68266dfa6cfee787f68dcadcd365777aa2cb6a32d940c2a645e0c7a2da4",
+          "decodedSha256": "7bf82103434e15f697a12a339fab784fefaf6a79ced476d1dfd97ec3ef63227f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "1b245b3d2e1302cd0c6bcd5849acfc0ac3fba2e7dbca3735b4ca07b4e7ca76ca",
+          "decodedSha256": "518a4c0351770d708c7944ca15812c37d0ea747f93c06ae2c093c3788a1d5687",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 48
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "6df4a1271ca057fc844e6d433c55ea594cb7d11c5e8299257a02fe9d3b8820bc",
+          "decodedSha256": "e5f3afe7e8ae7755087538e9bfc4ef719efbec8040a646332bd5205145f8b018",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 17
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "579642d296eaff6ddfa62e92e307424fa5e334eb3f63dfed1410b5d86c4bdd29",
+          "decodedSha256": "69f0895eb00fecf09b10633f0e447f38918c857a492f6ec18c8408b2067851d2",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 10
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "aaa6d2a81a0e536acd51dadc309fa066694d81e0c1fe9b705e38d1ec09ad648f",
+          "decodedSha256": "493e780d6872d848e3d927fe83c6f9e5f1d9b192416c8a92a16299b87fa9c6eb",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 6
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "fc160e585eed969ac42cb53c74e2046cc9c32bdcad6dea36b74668527e4599ea",
+          "decodedSha256": "f174e0459b0fb7f2bcc7372db2eb7379c4e009ce03e972004ce85431d0d860fc",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "de4aec01838e2210145fb6bb309d19b0107131c1fc3d7547e6610cca1da2d404",
+          "decodedSha256": "932209f0cbb702245858a7284b6cc6f7385fb27af2cba737fdfba0a2f8eeb30d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 1
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "id": "noto-1f3b8",
+      "sourceSha256": "4506339f16ca114c6aeaf2b96bc6e64e1e127956876e06d5916acc5740403118",
+      "inputPixelsSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-development-prompt6-alpha-smooth-development/noto-1f3b8/report.json",
+      "rawReportSha256": "c14667ce30e9a5663a46d142844922bba70203e20b2966dbc10c789b314440ef",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "f3698519aa9e1246ac46afe2bde16335e2e9b122669b4c935d21daf4020c540c",
+          "decodedSha256": "078cff624b403c3b984a97a17fdc63cf5e68b0635d9420f7ce4e9ddb80dc732a",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "3fbe4451e7e3a767154e99659ee0708211cf765b07aeec93961239d032e7815f",
+          "decodedSha256": "9a07b92ecd74a5175b80507f78b77144fbc365be64c60093ae77f349f32a8666",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "dbf9f61f1b3718ae77d79d2dc5e360277a67512bd42b46fff3c6ae61addeb018",
+          "decodedSha256": "6ebafac83149875e737c098753c399f6ae962cc76c31a140fffd3115cc5453fd",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "47d9ff6e94ed3107dc758c48041d6312b1f3ffa620ff785dd2ce80d34bdf5f2f",
+          "decodedSha256": "64c1cabbe99565db7d3b5aa5a7c8faeb43345af9a6727a56eafdda88d7d7d9ea",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "75d11e327a4632bc3e326121dc3d4473f1f47dfb287839e7ceecced5fa65fda5",
+          "decodedSha256": "fd8d2842f6f7eea461d232d45956b253eb308dd49cc7086adc6d82b5749a360a",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "d6119fea8c8c283a7bd3cfc886775532bcd5916c392560bcc5e3eef44ade2226",
+          "decodedSha256": "8af3e797abe6884782d8dc050dbf1956ab72a1c8447b8e5a939339d2d3f39b04",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "297fce9054ca6e4b6b920a8e159a428d4469f4e188fa725d09d21f4ee556b068",
+          "decodedSha256": "d13d09706dab9a03b4fd2e9756d07e5110fa78c31582bd281de9a3ff055498b8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "ba3c02d8a2167f4ad65fd83205b29955cba047f59ca66edfb58f00604cf02a99",
+          "decodedSha256": "65fc669d6352568d9161d10563866acd9d77b50523baabf3ec1e7c0dc9946189",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "11332b37122340e4b70f61d693ed9da97527a1ec2edb1cd016bb0735babce18d",
+          "decodedSha256": "f5549e2619142b3b51d69356e3a4300db9f257b31ff91b77c1f2c9c6d22033c8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "dd362e86305d5acc39400a15735cbb32892a11186380f7833cef84e35ff55af9",
+          "decodedSha256": "8824412c19b1d166a1dcd8424b53ad8dd41a6da0de793b607c383bf693ea557d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "5b26f31f946bb49ca7268f19f111d14997d394e12b9368b2bfbf6ec53502ebb3",
+          "decodedSha256": "b9f430e8e277ead209285688e2215f4eb91c84e03fde26674ed05ff51f0802ea",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "37e02fdcc38b90bbebb188fe6da5547d0733a70524eabb5c95eeda29a91f1a91",
+          "decodedSha256": "c488aaf44ae2b08f81be7b5f46da506c62456da5e6d906453d28ec72e73c5975",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "80eabf1a557800d1a7a4b598fc4d225c4d146362ec766c248695ff3fb31b2738",
+          "decodedSha256": "a872cf3bef2ca4ebef92d8981e23971c273bb98711e8df4550cc3ba5d8445ce8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "021803b32f6866066c3e316cf44a35ce2249ba4580e2e2be07541dacce2571ce",
+          "decodedSha256": "6f0a71bd3353ce54f5f6b243f4f029d72dde9bf593b75c90dad666e86752c356",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "c1c44920fb615cf18e0626969b04e026f94a1bfff3d21742240c110f71f30d17",
+          "decodedSha256": "9061adfb953d3bfac0c070d8193a94d160f80a1e7c88b61e365ea4697e8af356",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "10d798236cb4d4aff466b1964d9ffa58f6dc67aebe3e4bc10ed0a0224c13d27c",
+          "decodedSha256": "623d3a6f4a9e45432d85022fa1dd6a489df82e76e55490c5b5fe96b4470d878f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "201fde75a0ef3247d271ebb2424d5f8f6c08c105cdc7a2fcf07df35388ac3589",
+          "decodedSha256": "ef97f3329bf757e3e99f2a9e8c2768a105cef5ce4911f364a8974c9d45944241",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "7133740b9e572db21193694900155995459679fc7a7642ec78eec111dc7ae23a",
+          "decodedSha256": "bcf1057d49cf3b9c53dd1ac1256c4b1873c673d4e98da1bac297e284d64f4d5c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "ea2f98ddf7982db6013ae3b05acafc5e4432833b27649180781a359ebd48bfc1",
+          "decodedSha256": "e6861729a384373ba986aefa1398b245b772da6e90dd947b734c6cff79517148",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 35
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "879ae6681ec5dc070bb77a8f4c3a8ac6bd8e72d6b421186f3f42deb5f95d807d",
+          "decodedSha256": "66a1d6bc3f87bb82d4c4d0dd3f0d03769b5ff2d669ac4f0d024445357d77648e",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 17
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "7189390b1a31e22db124f434a26592628b456d90ed626496e3a9aac4f1c721be",
+          "decodedSha256": "dc26bcfcbe6626c657268268c490af9b11432c8a51fa88989d3430e31b0ff2b1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "edc4ef7fcdc6282b6263be08a15c91afbbc6fa9916312cdf43816a902edf7cab",
+          "decodedSha256": "8f44d323741077334abb014146221f32aeac20c5d40ffd23e1823b388aefd14b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 7
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "3838b59303703e2ba335497c6dbdc239b42e7643eaf51b23dc43feeb2f502533",
+          "decodedSha256": "e92fb46ced72247a15a79c7b8a8571871bec6a662a4bd27c3deaa91957b33102",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "cb78652b0677dddaafa1f353a213c21c64bf4a9fa1b6a0329a07247b9a56f7aa",
+          "decodedSha256": "d1eafb317515922c3a6a7e8f521a0a052feea196be0974e57538f1735f80d5e9",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 2
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "id": "noto-1f332",
+      "sourceSha256": "bcb20fcf0ed5d41842adc29d075e2a7eeb304f3f5bdfe082c91752649ad38125",
+      "inputPixelsSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-development-prompt6-alpha-smooth-development/noto-1f332/report.json",
+      "rawReportSha256": "b23a89cc1eb951b1d35231e0c69f09300945728d2b8ec4fb41d4c779402a2277",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "fc8c8c64d98e6899aa9a35da7fa5ad8025c13be9ce63222095803916925e8443",
+          "decodedSha256": "d05f4e5f45375aab6655be068caacfc6a86dfda40a1a3d69ba901142bff5b4ee",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "6359e1869fe2e19212ee3d8b6b2a0725129c3b154696c368e99cc6abafb2e42d",
+          "decodedSha256": "aa2427566cb1cb409b951ff720962222e6f35c1de2c4e999e7c86b4c07911484",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "da909f86661b97defb333d8b93b92cd9c27e5318bb0f38140a09e952ec5b7394",
+          "decodedSha256": "b71f5298e67940aaacad17d884cbdf22cfa1263f0179f03ad369e9d499296bf5",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "a2c9ebedbe64e6d145d139e809343fd46ab8f67272c62bcf9f9ca0da856f9d6c",
+          "decodedSha256": "00fe713c7031cdcecc1e5fc05137e88b4b717a172dfe319848bbf6f41c24a848",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "158e6acbc98f5fb5f2ef868b7e9d19193e94cb0a3ce706627575ffc6d6187e36",
+          "decodedSha256": "970f00bb31fa834ea6e5703a4dc21634b91f6f620c447ca99beed4ba3b0966e1",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "ef79a586ec486571d8f0173085ef995d1c2e5a2b4b722a78ea94744771c6cdf0",
+          "decodedSha256": "513c60d6793bef08d2606a52bdd2d6bf5d0ff3ef9a783cc438b7368b85ed59c3",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "a8d50be561b15d71d9d702f180134e57079d270d36e4b401c9d897c7f3645f18",
+          "decodedSha256": "b21008251720cbef958a7de6d80a72c89f6d364dbc020b9f9dc5594dbcda350a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "9cc3a4fec3e5b64888bfef18ab2a006051c15c53a28fa96a930d6483c489ba05",
+          "decodedSha256": "057e36fb401de7692c93120d2469875e37db6f911af297f2e2aefa5eb3cdbb8f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "9b3d9e9cc2b0ebd3de52e3e5b9c6dec4ed50cae686c76bce1659f7eab1cbc929",
+          "decodedSha256": "cca5257b9232e66bba88d23e91bb35d2bed59cc0aff43312c23fe59292bd78e2",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "bcd6f028402f7eeb64ad4597d244617c304d8b594c7e3bc710256caf31b86d2e",
+          "decodedSha256": "6c4f16be55977a6a96d67b39131acba563d9b2740afc0ac49f43fabf6ba5a82f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "4c988c8bd4df6ca5f584696c8543bae5756204cf2196f13b87252356d1a732e2",
+          "decodedSha256": "4031ac83f637943ca30874b7741ebe1097313de913c087ec528de7e8d3217086",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "f614beaf3093fe770b9524815eef201fa07395b148ac25d35dd49f87e4036f48",
+          "decodedSha256": "74972aa1e722b99da30466282bd9cabe9cb644c86b9f053bd745e8f615f5d32f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "10254d7475f82f436999777e4837ac618bb0367210f8784723a9d197b6a0478f",
+          "decodedSha256": "14edf687d6b1a3dd5a288e75d03191e31c752dcbaf9bfe38e1c3dfdd30790b43",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "c223e5bf82ccd346f3eb2ee4f86d685750b4e3081206ec73064e49246e5c08eb",
+          "decodedSha256": "f2bb66740edec1f7b00f152894001a4153c40b8038db5608065d427865d4c912",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "6ad9262a9a31386b54506844ff3666e0863ad5e5065e9f1d5ee7bba106e10fed",
+          "decodedSha256": "5596195fba935496581c2e98941561865c954d651fe4afa34e62fd6b6b73dd41",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "e01238c1a6c5666035b69a6fb31101fcdb0d0a201c376ecbec6b0800e3d4ee36",
+          "decodedSha256": "b68af1a32ca5a6dfb3f779182e956e53c24ee062446e73bb64ba4b1302e293ce",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "94c32a97503388a990680d98b6e2322aa8f18c6d3dc5fe4ecb1cec79eaaa4aa9",
+          "decodedSha256": "6fce306f77ddcadddfb64254a890949a50e29646d8ff2b92aafeac13dc65b2bf",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "a48b4561eec484a4585949a731c127d41952cecac0c752184ef5e36d54a6bdb1",
+          "decodedSha256": "29bd1f9770470a0a77df813548f450005c9b8efadf8533a41e1659d51ff031b1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "542879dde94fcaa4312360331c6d4474e5b880dfc52bcefe4ce1e2c13ae15f5b",
+          "decodedSha256": "796d1b2e40d196223050ed90ef96fa914d369a4620224a72e4b244e8e3da1274",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 34
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "9536f98dc4c4e5bc345289bfb591938a75ff4e25bd7b5e825cc3ef91361b0af8",
+          "decodedSha256": "9a037df6c2909481c03a3f071a8a5c62beeae6640d9bf69a021fedc059718b9a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 21
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "1bec622bae512521f678f45a04642472962038a4b0028bec5b3e30fc202e5171",
+          "decodedSha256": "5282574f35807c95150611ead9773b3f25c7c365a2d4dc88d7adf699ff86bcf5",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "88d90c511377844655937fdc62d9a2a98801548362df7addbf6301073709ef7e",
+          "decodedSha256": "ebf12a162569e90b376c5c752a4218ec1f8bd8ba03046b2b711d657783d44ab4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 8
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "eff61fc24498dc60edfaf57a839211fabb94ae526238f10dca57a8400ba19923",
+          "decodedSha256": "612e08c62eaa0afbc1a99f802f440b030533d5237ba7f6373b4ce15b126e94d4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "1e77dee2cf4a968d60886e24cb6aaca495d6368e99a4e61089eaa06d782d938e",
+          "decodedSha256": "e9e2f9ffdf5e44cf9a342601a6497c12ea6ff249c817ba0e91d60b83f9b377fd",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 1
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "id": "noto-1f916",
+      "sourceSha256": "98f6f4bdbd98d55100c0c379a25a70f63d347fb869e8e55d6f7b6bb8c1b1bc3b",
+      "inputPixelsSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-development-prompt6-alpha-smooth-development/noto-1f916/report.json",
+      "rawReportSha256": "1c7643fe32febdd768e2d34a59a8204c9ad24296c609f46753ad664c20f31ce3",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "54812f26bceb931d14bd85d804f81d512f515caf9e5de965fb71cb67a2ac45d0",
+          "decodedSha256": "77373c55cc1fead530b0bd551a43e9319876c774d2360a699e0b86cff27e970c",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "757f27e2b8b6f886a146ead01b997c9b32ede2a83755f029a6b647808af3558e",
+          "decodedSha256": "2967107ac8a79c2a65fde6c3a10e5fde4befd98cde8fb118d1a7443b5cf1adde",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "f833dc8dc98034ce323de5b828840e81d6068e1d95c8424630797569d841e217",
+          "decodedSha256": "e5c14bd888e3cc8bf68eb5cc6a6b916bc1a1b2116e04c744a02eb02b7725b2bf",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "f67182d2c4d01da9ce701ecd06d7abcadf673fc3f5ae5892c85b578870b7a448",
+          "decodedSha256": "aaa73c6f5a5fe6febaa684fba6482aab93bd89cdc09944682b0f01788bdcf91b",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "1f9fee68bc8923d72956bb5a2d9459c77ef6aee65d0f44d4abe8edbb469bdc36",
+          "decodedSha256": "1ab1517fd05e00d2e3f4569b10cb99e7dbdf0b8db2fdc05c5afdb736d5527f08",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "8e3dddefef970db4b7a12fc82d6760eaf7ea6af3238c7d9ba3aaa078e74df78a",
+          "decodedSha256": "92e9c318019627a9ef928cacd17c7893a34348584dc99d5dc7880cfc115df9bf",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "8d4176e7e15d971031982cfe8ffdb518f935c1aa641f59991a7b45fe861a8b7b",
+          "decodedSha256": "8022acac00ef59c232c5fb24719fa0d8571d4754c55f9d37ae2f12930ab3ac40",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "37ebe9fa6396705ce10c574e21e4c3440b06a0d4c42078ccec292db468547566",
+          "decodedSha256": "10f81e10320704257f7c550a51c48dd3d5bbab43e1e4cacea680099e15c699e6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "5faf631ea4c60b89a72cc7ecfe1805ca6e6f5b60d35b41ee08318717c9c9f9d1",
+          "decodedSha256": "b85a5fca0f892f5bdb8604401e98fd9282a076ada3cc3de10703bce4ecb1fe5a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "47a47c417cbfedc9e1f0dc5e48a0c4a85345ea0d569d8d67837fdf841c89b859",
+          "decodedSha256": "f023d4a55d0de0e641faa38d221241bb1aa1595e47ce141e29109a28332f43e8",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "bd616e5ea4aa5ecf2aa44c5a25224e6d228976bbff86fee41503a4c43ea57d68",
+          "decodedSha256": "db81a3b40ceb6a45a842e228cbb9468549ed69e1512255e8752dcd8c78958393",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "c8a5aaf9ea30b866ad3b95212dde237dfc8076c207d12b34f9721a1c95bdefca",
+          "decodedSha256": "d4480d1c269c74fe4e9955d97da6978e909797f21f6ae595328d97155566af00",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "93b8af60ce6f6635c9dd236b1ceb4198834bba666c2766a1ada6926b9a984e1f",
+          "decodedSha256": "2f187e58a37127cd5a341e65fc59330e1509cdcd5ac13f59499dcbcd3a7238ab",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "d4fc385e4ae0ca4e459681a2b51e85ac7e48007b48af94b4fde6d4d84c84373e",
+          "decodedSha256": "64969f102b9aed7b5580a2bc1f5095420dcdffe629b2d5467f412622773b172e",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "978c26f904b72ad7d8a944a611177896ffef84ed68b6765f201a5c900ba7502d",
+          "decodedSha256": "3a5e78e71dbaba6e8d966471fc30da5384fc40c617c780110b9c2605a27e0184",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "cdb75e476c592ff1c772d2ad46af6467fc63230f357317f5974eed87490307cc",
+          "decodedSha256": "dd5830c69bcda7a59538c881bf6932f6507ae2805950211d8a66ca18bf0ef11f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "48ac65cb1519aa4f5fc519ef9345a6a5e59bbb17e7fea367331470d6334d4e2d",
+          "decodedSha256": "4179904bddbf2c69fde1b211698949c6cc4daf5941a1527890f3ff296dc81b60",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "349b0e8740163c6351aece841d6515636c9698beaec9df31c2901497916f13d5",
+          "decodedSha256": "23e2b2e616d47ca3bd5d63dfafc9210e54b8306b3880af3e2cb47e26a1c6626f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "7536e28a30732a73e3b5f14d27e37d5955d64b66a7266f212ff85b636f47e318",
+          "decodedSha256": "5eb4c3ed5450e936f4d0bf1bef37fd93679b4d7dba34d1a05c042e8c54c08da3",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 43
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "32aee925d8350f1c3f51f004ca04f4625ceee850a0333063f82393e41d4a433a",
+          "decodedSha256": "59d18a4a1883e4bc2f2f835f84421fe733da39e92f1af68f7390b8be7edfbae3",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "2836b33deda1ef480b76846a23b5b940ddde828a0456aa0664b9ee9087bba05b",
+          "decodedSha256": "53e0a677d395f2fb0441072549fbd47f9c275b84ea80ee842814449f66adb514",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "65d91b50219a484932a459eb2ef5f0f18a8348425dc8d33c6a2e5926991d98b3",
+          "decodedSha256": "b6e1e6396c3a926e8294b2edde6c585ac6edd60957de7034f58dd49a12bf2623",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 8
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "73f3fb2fdba68cb5b62e719d662cab7472585e8acf96fcaee703caa9b4232432",
+          "decodedSha256": "ab5e3652d9710ded645296bee13bdcfba68159234f83b465ec6683b35533672f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 5
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "1b75eb2cadcecd62563d0f9f9532aa09569b661ce3afd811376ee8bbc7fbad60",
+          "decodedSha256": "adc4b1e920670efddbd4d4b69a7e0b29dfb9eacb5491a72ea45dd2bbc7a4ad67",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 2
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "id": "noto-1f98a",
+      "sourceSha256": "b69aa86198b8d5b7f3d1ce4ca84ca8f983799fba0c4d01d8ea84804e1e1ce13d",
+      "inputPixelsSha256": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-holdout-prompt6-alpha-smooth-holdout/noto-1f98a/report.json",
+      "rawReportSha256": "24844593475711897b7cfdb9f5c2e227633092079991f1be998d43a0aaae6db4",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "f03dee44e171792bb5d6271bf4e8c30c7a260469e0a337966b50dc384b4fef99",
+          "decodedSha256": "af4f9d6993c10ce021042989b706d2c156f6e6e1cca16052a7e99cf96c02be9a",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "1aa503fb437dff7dd3f603bf9fe480ffd44d7fcd6123ad87acc906c431616c54",
+          "decodedSha256": "de2b9f0bca920db096d9457b2938dfd8ad148ffc3982451cbe5c5bea542e12c5",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "5971b65c983811c567d50a87c1af6354dea5b631929f64ea24539749fc962360",
+          "decodedSha256": "5a02d8b053d6a38d8e0383f9b8bc507b1a5d7398cc524df9cab4ada06f9be55a",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "934c643016c84641c4a48e7a4f5310aefca59907fa22649fea2b45921d429576",
+          "decodedSha256": "c5669794b2e29b3a9f4ed68248debb8f120a02b584e3ed9d233705e2efac6b97",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "438be2923c85594142889a356323e2500e55ead4e97a00199d13093b7f1732fe",
+          "decodedSha256": "5a6caac6d19ded9311c5e545dbb573e2312b2ce6c2edb58db4b98a3898475b55",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "4398dd48363035cbb2d35faa52f57558ebc991253742ea1746dee82f529aaafe",
+          "decodedSha256": "877ef3a02843092f1fef1693b3d77624825a9b1ebabdbbcd962590090e663482",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "6994e0d719522c3f5789d98654dc5994246fc8774847558041017abb92f04a97",
+          "decodedSha256": "5b4df52ee279a1c696e5d32355a017a026e36daad7dc72e055e975c6e81744c2",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "f4ee52720d52c3e2baa7c17f9b58eed956cf1903dfa6a7ba2f5b31aaf75c96ca",
+          "decodedSha256": "70b273f279b944c817b05a851e6000249abeb489ec950f1dc9c7ecaaf924b95c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "0c821f721cba3c0d5e23d59a6514501e3af29f76e146b5c48ccc5ec8b253b9f8",
+          "decodedSha256": "f9fe991f9df3d3c5fcbbeec81494e7363254331d5c459b8be0af2bdfabee9579",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "789c7379ab1c3bf60802993cebc85461efdc991570395f6be83fbdbbbf747566",
+          "decodedSha256": "c78e4898d63706134a882e7d10e8f28a4fe4fd28df4097b88f74d8744a90d5e1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "ab8a96e3106d443305dac104add9b8868a5d833347b7c003d3d7fa031d800fa6",
+          "decodedSha256": "a311888472441b879bb2cae71bae417024786391c310a369986ca26b66057afa",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "433c11434d33bb8070ac7fbd500aee1e4c6af528641ab3242d065a2bf304a10f",
+          "decodedSha256": "3e61affe59882ca8c34326d1d38747c52c0f0db25b3b5f13badf392c38686ccb",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "353cf7bc61205570b45b60b6e70d80ac810d1756257c60a64c93d3a0e1bc923b",
+          "decodedSha256": "79fe915a0e4cfbb273106796580207adbe81b607ed56be0d412d45d832feb0d7",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "9527247f6c37fcbde8e6c7ef62c880d8ffb9ab79a86725ceeb6f531f23e7bad3",
+          "decodedSha256": "f7403d1a324d544f149a7cda1a97c1c4cda063cf4a8e475fc2e6d426ccb3b55f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "97f94678b0c4347b34bb4c02304ed77ee936d087131a91f9b7a6bf04c0411018",
+          "decodedSha256": "da190bf5ff754617e39923d2110abc9d7d123097a6dc0fedb6340f98e29c7767",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "b6f064184aa747e52b7fc16cf8af72e1cc8cb996e980130c8854fedac4e789c5",
+          "decodedSha256": "a5324e161cbc929e293bcd709b1c13e664b42eeded665a6296160902691f5f0c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "4d1839598541acc8e73aa7e928f55fde7be7b1a91a8577fe1096fd147f664af2",
+          "decodedSha256": "b41127af585378c02046e1d75bf271d83cfb9f9dc0bac366f594b7edfcabffb1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "ec7760b7f93d9cc2e7eb1782369d3aae9e72f78382cdb44caa646ce24c3cca91",
+          "decodedSha256": "383fc1209d34b3e1ddeaee14d9008d510c0653b4545d38ac05faa706da7add9b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "8af67b06bc36afdfe0c9a38a4b0c93f5c6c736baa385bb2bef3c570ec4fe0cba",
+          "decodedSha256": "5a741f801012d734dbcd5437c8f56b4ec84d36f5333a6cadda11a268c5a00bc7",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 36
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "b206d4c0f21a8a0ebb28fb18021390787c35660b935de8e259363756a8fb0061",
+          "decodedSha256": "4602243c7d042ac8f7e905f6ee430ce94a544ec557f8d2e790bd2baa19033eef",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 17
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "8da870931e5757c0c5d1468e043d8bc99bff48d67ad4177bda9e4f9c581b45e8",
+          "decodedSha256": "992ce1cd8feafe55cded655292bc038e714e1e836a2ceae087cea148412a39ec",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "badfad5dacafe346437ce843606ae47cef6edd598b7c2d803c292b4755a48000",
+          "decodedSha256": "9535eeade4f9472bd724662822913447d4141af5a2b4e45aa2e093fcd07e7063",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 9
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "6ea9eb0a682cedc4f2dbdeb9a611f4714da3e134e7b2e5c2ac8404d754edb722",
+          "decodedSha256": "6f956d4db9e184944895df748ca01044c02458ce2bd073bc0bc4a302f6d66a05",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "6b2ca837d942ca5a5360816aba87d378296dd6e7dadd920c032ab759c0539cf4",
+          "decodedSha256": "69d37f985c0b3c2ff82e44d864242bd81e3b753262459a55cb78cf0d5a2af2ff",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 1
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "id": "noto-1f680",
+      "sourceSha256": "a477bf2e112db11a99926a6c300618f9274b6df405b8a67d64f87fb54c833b52",
+      "inputPixelsSha256": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-holdout-prompt6-alpha-smooth-holdout/noto-1f680/report.json",
+      "rawReportSha256": "eeeaf7118f86dd03ed0a8aabd3f9c4cb9cab9d5fa1c60a330ff9f0081c87305d",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "54e1c6fd0e1e5363d4c1b05015d0ccbe4f49c1930d2e981893f2ad123cd9a711",
+          "decodedSha256": "72d03b1be42339e71c4243ba42681494c8acf7376b61152239ee28daccd06da9",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "65a4abcf0894de9d0c9cf17a6e58d2bb2a13876b3548dcaa3b08e69653c37b58",
+          "decodedSha256": "401ee7af6432af9f8229832f03226964184d2283f14a58e826ec85749fd219b7",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "4bd2e019304647d81f0187ac2ba4125e72d4d65c0e3f6e8c233923d0524c009b",
+          "decodedSha256": "9d44cef88a7356f075881911864f5e25c9bbdb0a56a92c70d2b12c22eb4dcdc8",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "ef8b5b9320ea6f68c782f95aabbba8eda166af66ba33a96ae356b39b43836e25",
+          "decodedSha256": "6c94762f4f7dd30ab0dff263c5827fff0e6d0fe9dc83905b8a57ddb9e7b26c87",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "1da68d64d922e6c95203b08e7f6424e32c09c53c86b368b737893ee3b8c00505",
+          "decodedSha256": "1c3de88ab9cdffd007fd381ec41608a775ed29892417c910decccd08040cddfd",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "41821d4ed35e335b08a51d38506114788a5509216335b007da495a74196d8d55",
+          "decodedSha256": "c03a409014ed5aea5ccb1395564dc6368e2446e5ff3935e0e7e958651831cfe1",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "a5701190d4ee11032746456742dc177d471b392bcda69f03582f21df6b6607d1",
+          "decodedSha256": "f3e5abf0af93f048562fc0d00c5b6c4050e0ea0b4e53be4aa4881287550c4315",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "2ba17ca1a5955b219ee87139701faecb923c671dd86dbb8ebccb4497fae4e95e",
+          "decodedSha256": "334f86e3bfcabe482075c8de8d6ad8bc449fbf382547f964c2415d3461a2b3e6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "c02118d4584c5bda591b56269648ca07c623d1486c05783c3376926fd9bae9a7",
+          "decodedSha256": "4100ad5e7866f745e80d517b924132c83c13966802a60ce55493aab5723857b1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "83e73f4634de927391a211e7d42d14aedfe5570ca6ae226f6d0fedd659df63dd",
+          "decodedSha256": "432ce6fd1a644d683b39e3e14c779d80ff10411b4a70b9b72def3000d90ac7b1",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "8201ea5f74057c0ccea1365b56ecc8d836a71752e347d3c31ea0ef100be42d6a",
+          "decodedSha256": "c4f1bd4838961f789debc63b40d3d9839d0be919829ee7b2248a8b056d1118df",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "1b696e2ef1e9b0ba1d4dd7c0175345e33da86797d369e0a2b05dc17f70fde4f3",
+          "decodedSha256": "7600712a062f8b5042ec57c972f6a60d1192aded975e852062bbfc3e8166086c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "702ffc5ea81e99a78d29f60e9eff60e55f172d15bfe737d18aa708318b97cc29",
+          "decodedSha256": "395e8c2ce234780ff485f0bf742474794f06b02e33fae2ac463605d40f455fe9",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "05f1fffc55579042cacb51587c61644d62405572a24c5f5466e6963df30123bf",
+          "decodedSha256": "c7d066632cfccc1bae3619ec986d430bac5717033f69a4387aaff716b99f7ae2",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "dc50a4f9e26eda14ea8debf2a5d93bffa52a9812873652b8f3928c59eca8dc4b",
+          "decodedSha256": "9019559381ff82c77dc6143888d3926799033413f2375fde6fcc759993d4e54f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "252eb62fb37f4fd3d450c5bd1018168cb2ab894477b0f6c1d614ef647b1d0cb7",
+          "decodedSha256": "9f3227ba6d6b264f3c17d05295bd70d6a333d6bd628004d455a2d24de353d429",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "728a85f0d471893cefead7d503ac96e449bbafb80a833dd58bf4b64898761bde",
+          "decodedSha256": "52fbf640b4fe2105d105746f114d556dd612a6b4bcacbf039db5ee3f3dc4a325",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "28e7509d02a51c1f69da9c7595ae456fb98e58587e674b86fedf06b999d49c98",
+          "decodedSha256": "4eb9e43c46d8ddbaaf86eb3a7a550e8ca8d82f2cc4dd80aad5ea66d9fe2e3d2d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "93d843150c02c36312daf3c0ef33df103eb8d105ed5e6af6bd587a7707625b79",
+          "decodedSha256": "8aae8226b580dcb45f7cbfe1b0d3b21dbd82996ff0d2457a993cfd1c2f1bd807",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 40
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "cb7914dd9152996545d2eddfabffa4717ee09a98c945166696fe3b23909c4ce2",
+          "decodedSha256": "cef649f6b5babbe3a301fca3cea8e8eddd221d6a25911c215e17369fa8e7982f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 19
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "d61058f1c4a407c466080de3510532a79f99c3ade8e042e6d999655d9981c7ec",
+          "decodedSha256": "9c2917cdbc1add552bda61e659f14bb4f6a2cd7448468096458eb0a3d38490ed",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "bf7bd656639b03daee3e2a334e59dcefdc85ee98fb854cc80a7f1a93108c7d4c",
+          "decodedSha256": "b642dcd62580fa9c46963b7073e1f7c94d31d4acec70e56e854deb9d727c740c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 9
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "0f6193d111b01abd6cf2a2d1c06f01bbfd0242fb93fe07dd0af1e1e22c5025ab",
+          "decodedSha256": "ca5eb9a0435be646484e2860217642726a9efade45d1005ed5e30bbbac0d916f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "5a5d385f045f7a572444d83878582e9a4489219459e3ff94382582015e0e9bf7",
+          "decodedSha256": "8dd1ad53a331d713202508153ee078add47aa4017d29eec8df84e0b086446562",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 1
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "id": "noto-1f3a8",
+      "sourceSha256": "1611b786a08c0682c7e401fa79ddcaf9a7aaa468ec75c1026684a92c611ce3cc",
+      "inputPixelsSha256": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-holdout-prompt6-alpha-smooth-holdout/noto-1f3a8/report.json",
+      "rawReportSha256": "16b99c8c20c814921007963197cef99c793264a3fe04808c8353af2144a8714e",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "04c63f036ef186c519a11acd9b7f9f9ac018c99f11d30e01a49429b183c6b0ce",
+          "decodedSha256": "6b8d31d39230d89e1d9dd22deacd5fcde062daf6a111799f580bffc268495a4a",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "c589bc25b9f943e81a145cf815c61bd5d5f02f1bae9cc680bd43fe30eca11535",
+          "decodedSha256": "70ca0be62bcd1aaf69993970cba6bdb36943a96bda9a50f461acab4e45ed8541",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "119e5241d60d22fc582668b0fb3abc38c2d25ddb5bf6e9c1b2d9e89f477a1e41",
+          "decodedSha256": "c74e8cde94c0dbd2ea3b7a50a017e9e1b402223b57551f1bef2ca37356d5a502",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "cc977f0dee73cbf18fde91dd54e5c4d1f1b8a5abe71b6f7c92ede1b93896e527",
+          "decodedSha256": "ec4587f4d927ac27305334b9e996c22e29d1a15471c1a3b8cd42a3af3aaa50fb",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "f3ec6d66e259b97c9ee89c64ebd1deea2d132211993590abc10eb30ec22894dd",
+          "decodedSha256": "2f06014b92b5c577f528e96b2b84def6c3b0bcbb08141efd8c9d4357993b4d05",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "8b578030622fd157848ff9e0f3622a10bb96d58e78d7f66b02c1eebdcfe0b903",
+          "decodedSha256": "95910f9f19ce09f101a10612cae3598a52cb724c3f4eef13cc5b27355caeb6b0",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "2be9119b82d2ede0cd89f5e2e8710a97a8d9fd2a7a1d7b77a63ffad9045970fa",
+          "decodedSha256": "571e0690b16b57a6ac1d094cc951c9fe3dd4075d40cc6aef7eb7d1f8c3906d3f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "0e4ab722d12a1e120428b9f15e6a0ad072cd309030f0273ee465bc5fb156f3ac",
+          "decodedSha256": "c9f2e6a5ad95909a97203ae0bc9ad0c5316dfb705bd69eace4b5a7aaf98b67f5",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "918bf7d6f2162ad21d410cbaee970b73581bd74e1339961ef373476c445c29b2",
+          "decodedSha256": "36a7cc3632cf95f6b199e81620fe5ebeed338747bcf4914b5c630470346fccec",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "0294540016384bcecb2a516701b5f56a593eabb95b697f3ca14158a0e9a2af92",
+          "decodedSha256": "aaf84a961403864d21b7f565295f267de483aa373b342f9f82b8c907d8693b85",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "81ebcdbf3e0cbace98ae25220b27d333cb59a80e07af24fdc85341486b147a45",
+          "decodedSha256": "e69193714bce8fa8bdea8c79b1853702eb0b0383d4629fa2bedc1433ed0c83bb",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "169cdcb29cc98f35ad6b9cca97a38a4432c76542d167233d7750ca5732db8efb",
+          "decodedSha256": "71eadd7294e8c3129d44bd06ca90cd748e7d3cb8ce26a8782d35353448ee0a0c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "bcf139fddfd5683b7fba1aaf6545a6e183f96c5fd07e50cf2e02824ee6bade44",
+          "decodedSha256": "0b8ae28f08f1b7fd6d0d1e30a8b3f1bbfd06e9eaf6481a773bdd7990eb29b682",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "51bb5f775c9958cd7980777e56c8fb4a00ec99f76825118ef269e89357e1e861",
+          "decodedSha256": "07918dfbf521245572aba694329267b6c989837ba726ed19b3b8fb196e3e634a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "835a6a10db2008a68d57b82180554e2cbff24d16624879f34dae04282a22d0d8",
+          "decodedSha256": "6ebf6971f315c064f2daea65ae5ec8c094d0b77c2bd310424a5f68ac8b7eda5a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "e9ca3988367fcdc24d544dcaf6bdfd51bb0806472fbd993cd3dea429a5649c81",
+          "decodedSha256": "6825d955f7044060512b4f3d30755afab04b52345c67ca06b39108d573ec6667",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "afb0bc0778c8dec74248be947a1229d519a7c14a724e860ea93d39734cacceab",
+          "decodedSha256": "0f642d05988e68ccb869da8aaa8abd8b4fdb23cf78337e58746deffcbeaea063",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "c434d5d25fce5d0391e0d948a4a2ab895a3b3d413921e7cb66191754cac8ea53",
+          "decodedSha256": "f1b63a1bd812761e93b4927d6f9ecbd21336e6b3b27a94ff5d0a33a8d5b5a5db",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "c297119424290ac694a4e6d0dd66fb40eaa724ca74f44c79c037187eb732e5f1",
+          "decodedSha256": "fa7c8516631f633ed743336d1dcfdd983881c25159b125017acb88dbed0342e9",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 36
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "9fb2c483d6a29bef430b75466c2285f2a3f5391165264a66a7acfd241d940ca3",
+          "decodedSha256": "2c188c8a013f8c9db533791228fc33d7490528cfb82454b4e540a3c2b9ef5b72",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 18
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "761e56270235c6a47599433739560a91c2bf0f813c5d7d4d7dfffc4ddf444a97",
+          "decodedSha256": "e0b2ce8f5f8c24ca1c5d73ec77400f65f6eedecb1c4a0c1278a92da76738dfab",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "4f4cca0076ed4c945dbd4a915b21f09b2e7b0219e39f37c3d2e3e4212035baec",
+          "decodedSha256": "6abee35c62202eeb7cffe664d5880e60af4083f0f51b4de38340fb8698c4b2c0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 8
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "cb832fdbf0ae7b56eb7e6e0dc1d41f0a22589fa95c2987e5bcd440eb488df9b3",
+          "decodedSha256": "0b3dd48b6f4f214429dc348b4f29d722c6472efb3db798c41fdbdbb0d0dba06f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "2afef3a87152c8a38bc8c0171e795d880b22420bf99a496abeca47530c5ab859",
+          "decodedSha256": "878bc529e15a7282aea8183c179859b3ef9a1d6616e7fa7709cb907596cc8591",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 2
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "id": "noto-1f984",
+      "sourceSha256": "6168167bea9f58117df26cf003ce391d8c0e9744f6117e477e99d161821da24f",
+      "inputPixelsSha256": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-holdout-prompt6-alpha-smooth-holdout/noto-1f984/report.json",
+      "rawReportSha256": "d996b31de454a97f48b0a1f2a123be6bd97f73bd6536a9195b0f4bfb11e3bb4f",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "6e724ef1260606f5165ea277138215d919cfa09089eee20dac6ea9c54a6e2d6f",
+          "decodedSha256": "7abcc0d2d9ace15210dd8301f55541603490b625884826f89ee5a01d69589295",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "8f25e7b8b964bd8c93833eecfdd89ff75182cfb4368341f1c316e17a3686ffc2",
+          "decodedSha256": "e8698c82f82ea0c07be4e2349391d496e28b61180aa64426fbbebeb6f3dfc828",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "669c2cb39844fad2f388b1c9a4acff1ea5a54a5b04a111317cf3162119937f35",
+          "decodedSha256": "deea3f80e78c4412c5041f8e83840ec9c355d560d13b9b177e41ec6839d75da3",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "c05e5a259e49b406e7a698fe20745d28b67c3432a0d7cee234eb5fe26dd74640",
+          "decodedSha256": "62b987388922198b50fb20a333d7d1e93cad63eae4897bad1bb5a1b9656ddb17",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "97ad3282a4f7a3af88cfab7bbcb0a1bd5ef1d1fa2eacbf30975d013dc3e11198",
+          "decodedSha256": "bbfac6a3e77802a96460fad61767d907466767d58ebd8d3adef0e02c15713578",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "ccdeb1b90968813cd128d3c1a4eb9fd634aadae72df5a82582e8a98d9e4619b3",
+          "decodedSha256": "28a5f2035e341f83e52debf43da1c92c0ddaa147a35f3516249fb271ce548f8c",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "9f216b4b088cf48b1d68cc35b351de5ad166d235755b5387f47637a0088224bf",
+          "decodedSha256": "70280bcb78bb1f120fdb23c8f3f772a13a5ed35231bb0e88a9bd459ef69c4671",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "dcf2f96ae4eb7c81331def3994c10ade01b192be44443bd4486b66364e063e53",
+          "decodedSha256": "150ece7d4002fd8822ff3b9cbf4bb446313b1b5249d5a63823f75e32c996c9e0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "f29a731c17c146f7923545434a3682365d6ac2a9007e811fce80c3f5c65d90cd",
+          "decodedSha256": "0e5cccb8e2c4138cf16c27eecaf7f0034324db00fd11e132955b65a24e6103ea",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "a22d08ce1df1062dc2f15bfdc7e5b63967f877ca08b4893a9e5aecf0dc2db847",
+          "decodedSha256": "0f7ead06ed1ff16012b2d817540be25c149e7484dcb6509d6b9f4453f577af4d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "6cf280492c666faba20a94ef044f87a42c4ec042b4f9524a187b9b705f509c6b",
+          "decodedSha256": "079a85020973e334c66bbb5a877b622bbcde710e360852f6b5889cd69690c060",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "967462728c149c99cf9a77dbbe97f1996e094e39fe1c55d73fce7ebc9bb0fa40",
+          "decodedSha256": "4601118f13ea374477ab0b31b13eb77cf077750dcde7c7edaca1891f3568ba2b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "5201ea96262889be59c990508470d3d431b4ebe8ae869aee2121c77c96566c0d",
+          "decodedSha256": "7d03f84f37854ad96d22f3db428a0dd41057fd49b0d4014b49121aad30df4c9c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "ec7e6b426658b151e2c10b8e2bde4e402687bda2e901320aa84cdd7f460b2304",
+          "decodedSha256": "5a3c3be408d07718d766b7426c67b8c0b983963fdec6119bce22318de1dba73d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "9bb1d902823aa9089a37cefe8dd47f4fd5a562d808755f82d3ebd89740a58cef",
+          "decodedSha256": "f5fea2b11369bd7020bdd8dfa97f9e13cf60b0f4525c105d9593c1eecc9125d4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "bf8f37bad3eaddcce0db07767ec02fbbac6db1600eff57b42ccc5b1c1536a185",
+          "decodedSha256": "cf1871d194e10d252ccea78a266929af4ba1b2f42c61ff00063078ce983df083",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "7ab3fa5ac9818df65aba9a9dfd32fc89d2da909bc93b5159c23a059e5adef17f",
+          "decodedSha256": "b68ba158bcae96c45af713665a962d11956222700be26b6b247a53a70ec041a3",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "6209b5eafc2dc665d66a614e30a1c5492924ea2d224d42c3940a31a11220890b",
+          "decodedSha256": "67fa92562f06bcffcb107b6438e1788e4b2e080bbf63026d866ff1ef8eaef0f9",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "0b73766f443c586fd1bf4a6b381a7493f97db053687f4b9e62129552a9a36be3",
+          "decodedSha256": "77cb75845e625dab571f7f11aa972b28d066cdf72073616801bd25980576f757",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 34
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "37ac1729f829448078da151b145b1f09e0c637cd4125e190609cfe1f4b6340da",
+          "decodedSha256": "12bc3fc349763072499d81fc604f9537a1a9384edb543b50e7d716f8aeaa437d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 17
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "fcff50bf583419cfa6fa234e6063ad3920ad141a3a3f3bc0af007c67f4c63e17",
+          "decodedSha256": "2589e28963e4b0ffb86d8e9bf212e55e64c4b10c2386af8206e0ae1371598813",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "20bf6bda86a0d10a58b0194159fd3f515cfd9ff09ef4f0f41b391edd04a61eb9",
+          "decodedSha256": "92aad74ee22d55cfd1eef13d46b4538f8b11dd93a41e4c9bd85408a54baf7c0d",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 8
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "aefb3156fa10167c865344cddd0b48d41c15cef9c6215342527dfd664c8b4bfe",
+          "decodedSha256": "31f9218059b08da452a396f4479c5dce30c10ba0e9c019a0213c4e4c46c898d4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "a94bf2dc674c005f8e262687a22fcbc3bff66cb8bab4ad12ae344203805988e1",
+          "decodedSha256": "d0c7dd4a06e9cf70e5047856006a7c9555d0e1371f1b9a56da668b558fc1f2f0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 1
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "id": "noto-1f4f7",
+      "sourceSha256": "24e0d488150cab4bc8d8750d878cdd7f3cc4e4be32821d1a33616a1453c2578d",
+      "inputPixelsSha256": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-holdout-prompt6-alpha-smooth-holdout/noto-1f4f7/report.json",
+      "rawReportSha256": "c87bf25046657c3fab96591321368f283515dbd987020586b0bd5aea751e66bb",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "68b67b56b5c591a003bdae51098eadcb56397f835d06298c0a64a496f8363f03",
+          "decodedSha256": "95a3ecdedd7719e25ba38056c63403c16556115d805e6414661843dce10092af",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "78a4451b9e77e0eb25616fb0e8204fc4faf4eb07a5ed3a98dc6d677260ff92fd",
+          "decodedSha256": "30901c7796c6a15eace6552a1931ec3fb014e855b714bfe7fdc22d61842f946d",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "56162dc0ebb6ec0e46c4dd563765ec9200672881320e059649c08fb64e44454a",
+          "decodedSha256": "473d14f2c07df795935f7a365fb1ace3352e443a6f9dd36db2017eead8063796",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "120851a783cb6900333b06fae72fec7a6aef389774ed0ed059b1c665e9f6f2f5",
+          "decodedSha256": "debf80c05b84f15a1a4d953115e8a628e12e26ab9d42386af401877064899b44",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "cc2827df327b7b6609514298eb1852f7dc824f232b9d359518b9460c8ba1d993",
+          "decodedSha256": "87140e9c5731e280e6a57c5d305c333a95aca438392e69ca3961e41b59a8743b",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "cede8bef64a6c870badc9c08b78aff9ed28cc8b838be7cc5231ce979100d5378",
+          "decodedSha256": "f2111be115824f35a6a926f73c64734f3cc506b406d0f9ef69cfaace33646aad",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "3b441ca98a6133b1ebf305ed5979408bbbdae144fa3aa1442858ce0912851ae6",
+          "decodedSha256": "6c9c0729d61c8eef1edf7febe553a6bc4ea552fa9a8318c6213cb3bafa4f4927",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "03a49848918f87989822f20e1a2d5fe7ad2bd17ca21b463af064c6fdb9fe2016",
+          "decodedSha256": "1a3cc06b40e0cf1b4e91bf54802d0c001884bf103b6a90abf0080f8eb1c80092",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "d26cc7a0e12f93a15b927fe5f83388545543e2afb2a286b3c56f5042d84a0a7a",
+          "decodedSha256": "7641a0e37d252112d20f9a919c2bd73ab339300735c8fd0334efa4c46c78d1f6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "9438abb61dc5e7100fc825ee3113257dad71c9a2fcfd6b587854cf8ab0a1ce14",
+          "decodedSha256": "54aa526144f672e16a6b86f7898bae453e131692b88e8689be8b7768628733c7",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "ebea7c1e386a2e0b9c2f6a88a22993ccfbc346585a4bfe628f8520dd55429464",
+          "decodedSha256": "c2c37b8d416925edd7fc57e48a30910700298cf30a3a293a652a1cc737baa80b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "9083b2c5b4507331ff93790f00cd126a7017e6e55ecedb9ac12ef08baa18b965",
+          "decodedSha256": "e51561926361c8f5f9982c5989bd97ae90536056e6343bc9ec574a59a52aa2ce",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "8f3d5d6ecaa69e60ac5090e778b784c21528b1f8117016776f509fbdf4598eef",
+          "decodedSha256": "2287980313057107b05532a1dfc56ef6d9a980ae6c35339721c2032d20d98282",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "9c3435fde942b6c8702517a9d2794e28327c3ae2d6cbec91ffc48cbdfbbd874e",
+          "decodedSha256": "23afbb59b408515b8bd3c29bdc4cc58f22bd164cb098d404df632e8f0d566ae6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "b7c2b1b7c2288946cee025edf8ad84da0584722616863550c3dd1eeccf0edfc5",
+          "decodedSha256": "cfe058d6d7b543d14f3befd99d724b0ffe55228cfc2b6b897e25aef918378a13",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "e1d7d9b8bc00230bd7cf5b76b9803259b8f3b758be2d896f5d7ae204346dea11",
+          "decodedSha256": "26f4c98f5b641a4cf1288475f0f4f5029404ec6c441e73e67dc7ec4696d86de4",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "343c972eb3dccc099a1c81cfc7b4221f8beb780efead283dc3bce4c3f32bd953",
+          "decodedSha256": "2ca8c4f51adcb23089121dfd51969121f612adde4e5d778a463b4b87a5915540",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "413765ecb44cb62431c20b2ca98f85d64aeafaa072c36f87b6ddfc39f96884e2",
+          "decodedSha256": "618b3e10e279aabbde40a50f227d2dfcd0f0a1cd5458a1bdfd5823030c2701af",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "4101b672bfe3eb4ede8ede120ed85fce62048782a72a2f808345cc1bb7cbfe9c",
+          "decodedSha256": "07af05c755e14ae9fba22b97b558e7db4e720f61f3d55509ac38d7682f93fb94",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 48
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "ad41dcfa7c5cb3c16da2a38100a24791f08bcc9541e4c86f4d0db72190c76311",
+          "decodedSha256": "b252b9f440c85c851df04795c1408a92ee8a544d4de1301cc049cd7a0bba131b",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "18c85bf4daf71c660a41faa800eba3e77dc9d94e815968ba7904276213b4f90e",
+          "decodedSha256": "31b2a20477f48aa6025ed023fc2938369fe0aa41d8de27b52490100c47ad5dcc",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 9
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "7e328f6af109bd341817fc0bf0906393f73ad238ee936c66ec468baed9279deb",
+          "decodedSha256": "2779e005a41d35999430bcc29059ed3dcdec75844f80b0f835eefb11048ce002",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 8
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "0ab4b36c0ba542bf82888b5201270cf54e44e0058196d668f3eea854e8b1d083",
+          "decodedSha256": "7b0c9e9fcf618b8408c01406d9f17dad25236fae9fe7147b2256b32877dad7ff",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "8c3dbe99288097227fbc618c632b843d1e9252885a7af7700df43cbc0f5ceec2",
+          "decodedSha256": "93d8206e6f0326e306fa935724e80f7a3ff6cad93aae120226c222de05123461",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 1
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "id": "noto-1f308",
+      "sourceSha256": "4245aacfb8d3e18437d6ccd086ae224ed52aa60c640e2b89f624ea4e35e41996",
+      "inputPixelsSha256": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+      "rawReportPath": ".tmp/jpegxl-m7/alpha-holdout-prompt6-alpha-smooth-holdout/noto-1f308/report.json",
+      "rawReportSha256": "800642c64c31f0053e1e9e19619712ea0f5bc472f6686780aae247ac8bbadc39",
+      "points": [
+        {
+          "engine": "purejsimage",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "d709ea5474fd6f664859de555d8df6211f6a2b41a9dc761cb1ed2176966f24cf",
+          "decodedSha256": "b9b955072868435803b2526b43fcd8fe2e3632606136d4020ec89c749dc302ef",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "f329237172cf484f5d170e8aa32e95bf14176d9ba1e8429267e3af558fa4f62e",
+          "decodedSha256": "bc125aeb3370186900b0a418e805179c0dc02f076db4355369ac3da45af6235d",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "e5eea3489a8a617fe9fe22029d396ea9f3893666bc278935ef02c42e4cae54be",
+          "decodedSha256": "22651b44b5bf537f1c1fc55dd44ebcc78dda574ccfdb449b2e19f0f1f0f4a6b0",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "6029bb0824afb82043f0d9f983f48ffd0a2d0e25e84f06af8b27322c71f6d3b3",
+          "decodedSha256": "0bbc4c140aca155be88ffd36c7a3e10d92ccde27798e066745fa71287c3822de",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "cdb2e87bd2b5f3b8fb3affc3771c44e9c1f32fac0e3a5f4e8f3a53e393460ebd",
+          "decodedSha256": "30dd2c7301110c2121a1f352873198960ae403db40e089e875f1c1a76a593ed2",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "purejsimage",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "f48d437d8fa36499b41bcbc9bd76ffcb781fe173d0d8ab03b1970d250f5317f3",
+          "decodedSha256": "a7030d4e8f50dd71d06d3346e2b4b8bbc5b4cbc52b46fc6633ae477601e578fd",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.25,
+          "status": "measured",
+          "encodedSha256": "19e8f47b66036c19631f80692e82fec7d3b08b1c0e8709828aded04f5511f9de",
+          "decodedSha256": "bdb19e36e4c4cce8d754ae15323deca2de0bc1b761a60625d935b2982eb46226",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 0.5,
+          "status": "measured",
+          "encodedSha256": "8c2c5119e061930f92911387bb3117f442b2ca12e07a93087e3b591c313d1d27",
+          "decodedSha256": "4b9864fb517d3ea236721fa6fa3a7d020ce585fd3abe8fd9b85c5f29af7a6562",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 1,
+          "status": "measured",
+          "encodedSha256": "1c548ad1bce4fb59c903671ebd50d41277af67575948bd31f18623c7050219a4",
+          "decodedSha256": "cd196df6343fc30345169afe2211e5d61d0f04a5fd92b4a0f513de4a33a1554f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 2,
+          "status": "measured",
+          "encodedSha256": "4a4a90a1d4a2c1f47ba9289d1ed42bb07c4279071e69ce08c54599848759444d",
+          "decodedSha256": "f49253a5faa4488621ecb22c568b62694594d944945710f1c9f90f53dc931333",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 3,
+          "status": "measured",
+          "encodedSha256": "08587c62c69d8d631fa3437f63da78de35aed6fe4bd680dc773a5fda7127bf23",
+          "decodedSha256": "7d79b5db111880c4826cb9d96b96eef85010f1b7b0dd1d7d93c159e708380ff7",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "libjxl",
+          "setting": 5,
+          "status": "measured",
+          "encodedSha256": "5606d3275f0d4f354566b99b729d22b3b7bc6fa63db849d5da1eb189abad2777",
+          "decodedSha256": "81618dafb999bf32a7f8070b002980c4a2143d337d894de2bf382fa3c68c9cc5",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "fd7bd959535bdaef0e1fd5a57e4d69626ffedb8fe23d0650299fcb3ffba937f6",
+          "decodedSha256": "9aa65ed7b676630833f6c7e7048fd9ec87255d5f60204132455c2dcfe31e3d5c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "87d7b99e45824d9239d75399ee4395aaa5d40d4c0d60ef48d0b4d3fd0161bd1d",
+          "decodedSha256": "51bbab8c5e59b0023dda687537f8ca048a9d5e9dda44345e893c85a4f6704be6",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "d65d934fba4348f9d0562a3604364b5d373a6c277997ac6aaf7477d168c6ff6a",
+          "decodedSha256": "5762a44506f215c65a8e8d75c1eb6de35e958bc28a80a55a7c5a9ff37423fddb",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "cc1f2f2bcbe72f624891bb8e69f2737fb2966cd0c03bc0274f25f6c14452e2eb",
+          "decodedSha256": "aa775dbf45a5c1edae1284ef72350895241559c0db383024200432bd8f98878f",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "9db7182fa7da705cbb0c5e6d71a3266a9bc519e80a9b3cf57acace621fb94852",
+          "decodedSha256": "e3184d94fe6ef61626c60bce66da61780d7cba896dae0fc80fe228dac2438a4c",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "webp",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "8afb696a08885df69e1538ae2853e3535ada16ce46c4b7202161090a0c32d428",
+          "decodedSha256": "89de86b25d1f99a3aa0b430b56e66da68a371422f99415b5919baddd69f28e64",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 0
+        },
+        {
+          "engine": "avif",
+          "setting": 40,
+          "status": "measured",
+          "encodedSha256": "57379dbf029cfc6359666b48bed0f32437e5419b5bdf99352a72a5199dc978b6",
+          "decodedSha256": "cbe11012f980041e27c8539f0baa27f9381cd8804b39aaa9257c98b1e3d740ac",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 38
+        },
+        {
+          "engine": "avif",
+          "setting": 55,
+          "status": "measured",
+          "encodedSha256": "e4a73e52b3e18859882f68b0d8ec5e9fc42631e9eb782bb9acb89af57b692196",
+          "decodedSha256": "fcf8781bf3a7d67503773512bf5b24213b64d820335ad393498580962c036a93",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 27
+        },
+        {
+          "engine": "avif",
+          "setting": 70,
+          "status": "measured",
+          "encodedSha256": "4d3bfb128b401eb9f7b6381fcc04f5dcd651091c76be7289632a53fe9755d810",
+          "decodedSha256": "6f20b3fe52fcb709e481f1653a557f6aee52dd513f2aa22afb5f02f99c2088e0",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 16
+        },
+        {
+          "engine": "avif",
+          "setting": 80,
+          "status": "measured",
+          "encodedSha256": "01ce1ce9f7b8546961b96c7aa88e0da0af18707c99e5cfd4ac8cbbc6e5a8760e",
+          "decodedSha256": "85a148be5d7a441b2706ffa1682215ea0da2e1ad4084325ad533b1825440e65a",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 6
+        },
+        {
+          "engine": "avif",
+          "setting": 90,
+          "status": "measured",
+          "encodedSha256": "f7d61bc105708589f283654901985eec86577b02610e310913316307784c8fac",
+          "decodedSha256": "37f8804ad15a3f2d3f49fb34c51d7adaf1337ceaeaa8a3bd239ccbaa3099b735",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 3
+        },
+        {
+          "engine": "avif",
+          "setting": 97,
+          "status": "measured",
+          "encodedSha256": "cc71374c7c296aee571678af67e8655336f1612ba64dd8b7667faafad0a8dd79",
+          "decodedSha256": "308df88742a14149feec1fdc511526f1bf37e7f0b18718f43d0ec4a7903ad2fe",
+          "independentMaximum": null,
+          "ownMaximum": null,
+          "alphaMaximumError": 2
+        }
+      ]
+    }
+  ]
+}
