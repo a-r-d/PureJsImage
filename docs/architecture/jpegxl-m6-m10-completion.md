@@ -1049,6 +1049,25 @@ refines one source at a time with independent decoder checks. No production
 encoder code, capability status or Stable promotion changed. The visual
 register and unresolved sampling remain open.
 
+### September 24 lossy transform backend and selector probe
+
+The recovered DCT16 backend is validated and preserved on isolated development
+branch `codex/jpegxl-transform-backend` at `7842de8`. Its public default remains
+unchanged. The branch report records independent native/Rust decoding on 24
+small development streams, source-error tests, the exact distance and AC
+representation limits, and a JPEG XL-only bundle ceiling amendment. Original
+DCT16 and edge-aware DCT64 patches are retained there as experimental evidence.
+No larger-transform selector has been selected for the public encoder.
+
+The [Stage C selector report](../../benchmark/jpegxl/production-program/m7-recovery-stage-c.md)
+retains five bounded development probes and the rejected cost-model patch.
+Weighted squared error and approximate coefficient bits improved some document
+rates but failed to predict photo/gradient entropy cost consistently; its
+coarse SSIMULACRA2-80 interpolations remain unresolved. The candidate was
+reverted on the development branch. Public quality, original-size, HDR/alpha,
+resource and runtime qualifications retain their prior evidence boundaries.
+Lossy remains Experimental and no Stable scope is claimed.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
