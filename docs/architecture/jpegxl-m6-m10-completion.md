@@ -992,6 +992,28 @@ The implementation at `49f3c25611210c4f04dd3f8907e5be8e28781317` measures three 
 
 The 12 derived PQ16 streams are byte-identical and decode exactly. The 240-case SDR, large-image, lossy, effort-1 and public effort-3 paths are unchanged; their previous qualification evidence remains linked in the [target report](../../benchmark/jpegxl/production-program/m7-prompt4-report.md). Effort-7 artwork encoding takes longer in the two measured diagnostics. The [raw expansion](../../benchmark/jpegxl/production-program/m7-prompt4-lossless-expansion.json) and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt4-evidence-index.json) record source, stream and decoder hashes. The clean implementation commit passed 39/39 conformance and 24/24 resource cases. The full repository check passed 3,193 tests with three skipped, and the focused Chromium check passed. Lossy stays Experimental because its remaining quality and original-size gaps are unchanged.
 
+## M7 repeated-document lossy follow-up, September 23
+
+The first-party encoder now uses a bounded two-frame patch dictionary for
+large pale sRGB RGB8 documents at effort 7. It stores exact repeated glyphs
+in a Modular reference atlas and patches them over a quantized display frame.
+On the two original development brochures at distance 3, byte counts fall
+from 481,225 to 235,497 and from 409,211 to 79,273, while SSIMULACRA2 and
+Butteraugli both improve. Native libjxl, pinned Rust and the repository decode
+all 16 fixed original-size streams; the other 14 are byte-identical to the
+prior revision. The observed table and screenshot remain in the replay as
+regression evidence. The approved 2 MP matrices are unchanged because their
+inputs are below the 8 MP selector. The complete original-size replay used
+the approved 8 GiB profile, peaked at 3.9 GiB and used zero swap.
+
+The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt8-report.md),
+[full original-size result](../../benchmark/jpegxl/production-program/m7-prompt8-original-size.json)
+and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt8-evidence-index.json)
+record the target decision, hashes and independent decoding. Lossless keeps
+its qualified status. Lossy stays Experimental because complete SSIMULACRA2
+brackets and the original-size HDR, transparency and visual quality gates
+remain unmet. No version change, release or Stable promotion follows.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run

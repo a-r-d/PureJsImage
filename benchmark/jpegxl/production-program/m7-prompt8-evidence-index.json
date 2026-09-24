@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "baselineImplementationCommit": "41bfe3a066602e1cac9a5e0d6b66dc717fe89882",
+  "implementationCommit": "051fa0c525788d1539ba6054a70b23339bc419b5",
+  "status": "Lossless qualified; lossy Experimental because promotion quality brackets and original-size visual gates remain unmet",
+  "approvedAndReusedEvidence": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-evaluation-protocol.json",
+      "sha256": "df63e8d7d5e2799652922d9a4f842e5dd3832a0b7ab205494fba1d654b4c79ff"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-bounded-quality-protocol.json",
+      "sha256": "293b6b63e6e1caebda5b1e14171fe76c71cf2f709b3ede0540810546a66f9255"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-corpus-selection.json",
+      "sha256": "ff3670acd195143c3ac1f5344aa3cef5844aa30fdf678e56ec5305ea4a991a57"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "sha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "sha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-report.md",
+      "sha256": "d4068b548d4580056d5ca797993d536ed7c4c240e38a521d134319df99565e41"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-report.md",
+      "sha256": "1af8d2d8c83f98c8419ad82e26e8ee7de353e3da42fb9b051538b93b7fa8789d"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-runtime-paired.json",
+      "sha256": "1123c72089ecdf498b3cc389deb68d22914706f5d9a43861b375647bcced1004"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-public-effort3.json",
+      "sha256": "44497500922621589c6e53fe84c5be4543c915bf43f76fc006f1ddf2058239e5"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt6-report.md",
+      "sha256": "a2f2c6620cd912837128a2e1fbc392e60fdd1b2e1191fab51bf783c971ff7d1a"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-quality-development-integrated054.json",
+      "sha256": "9d6727da3e19dcab5ff2f8e18d1cfa00fce90f1beb5e78645d74fcc9a8f9f6d7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-quality-holdout-integrated054.json",
+      "sha256": "b3122fa0ad6b0e51033ba2447578859c7aa6967283207f022d58e0d932b7fe56"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-diagnostics.json",
+      "sha256": "9b255065950ed475f8ea16b8a40d914402faa2f2dee442215544541dc138c176"
+    }
+  ],
+  "frozenInputs": {
+    "path": ".tmp/jpegxl-m7/prompt8-fixtures/manifest.json",
+    "sha256": "f27b85b8155407b954dcb1a2bd287a87227a2a2f8fa69cefaa279b2f2169439d"
+  },
+  "frozenHarness": {
+    "path": ".tmp/jpegxl-m7/prompt8-snapshot/benchmark/jpegxl/run-m7-diagnostic.ts",
+    "sha256": "1aed18536345df8efa458229c86a52861ae091d19838c9c363da7ee916591fcb"
+  },
+  "originalSizeReport": {
+    "path": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json",
+    "sha256": "077593ed9e98252cadcf097bd61dee643925c4d2fa41a2e1f1126c0baa5efed4"
+  },
+  "previousOriginalSizeReport": {
+    "path": "benchmark/jpegxl/production-program/m7-prompt5-original-size.json",
+    "sha256": "1f99d06dc5b3613f1ab0d6653678197835fd0348cffb9d562a478e8926c5e80d"
+  },
+  "finalQualificationReport": {
+    "path": "benchmark/jpegxl/production-program/m7-prompt8-report.md",
+    "sha256": "f4448c9e9efa32bb735056293cf45a749caaf8b6b9ef9bba045d6452d7eff2c6"
+  },
+  "conformance": {
+    "path": "benchmark/jpegxl/production-program/m7-prompt8-conformance.json",
+    "sha256": "2f5316c3e4dd87dd820976cf558803b611e8fb34e66e2e5adb0b5f8a92dca01c"
+  },
+  "resource": {
+    "path": "benchmark/jpegxl/production-program/m7-prompt8-resource.json",
+    "sha256": "f5595034f47d554c856f8297bddaab30dba2ce4de92a77296fa8f5e03948e2fa"
+  },
+  "boundedRuns": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt8-5034.json",
+      "sha256": "0d10ed239e3de5627aa8506bf9d065be711a833c34c4da0987451c6435d17333"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt8-patch-all-8g.json",
+      "sha256": "e4c6c88f4e29aaf60ce4acb88d8723cb581a2f85f048eed5ab57ff9207bb452a"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt8-resource.json",
+      "sha256": "298fceb70f4b5f40f98e1fe774287809f72ab12dab2466e5884b9b99d6544679"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt8-resource-clean.json",
+      "sha256": "7e215d384c5ef8e55dd899d19400467c272a7c2615bbff528dda3fe73e66ce74"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt8-conformance-clean.json",
+      "sha256": "3e00e5da2a98e57f615b0ac6f4e4cd635b27d7c4a9bc4c3771d5b575cb4976e5"
+    }
+  ],
+  "finalChecks": [
+    {
+      "path": ".tmp/jpegxl-m7/prompt8-npm-check-two-workers.log",
+      "sha256": "17aef009c0bc4b4df096b05e963ad5c822d7a54813b581a599d63148adcfb89a"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt8-browser.log",
+      "sha256": "b01906cc8784fe60a9245f821aa6be7e525a5c1733b385116e7a271b16c3d268"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt8-final-handoff-check.log",
+      "sha256": "323103d21102385c10cfbb6f30423457dd9f5c163d4e179abac190b72bc4f95d"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "name": "jpegxl-vardct-encode.ts",
+      "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+    },
+    {
+      "name": "jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "name": "jpegxl-jpeg-encode.ts",
+      "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+    },
+    {
+      "name": "jpegxl-modular-encode.ts",
+      "sha256": "06ffeb0973a53c122c7a25c3757b547527cf10a7b1d0c4197242fc8a73160d8f"
+    },
+    {
+      "name": "jpegxl-decode.ts",
+      "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+    },
+    {
+      "name": "jpegxl-sequence.ts",
+      "sha256": "d5cb404a928e4b31950e91c370cf8f9c60666370176b7bbd586fd22df08470d5"
+    },
+    {
+      "name": "jpegxl-frame-features.ts",
+      "sha256": "5c033a40e7520a1478eb3b7a51e981debfff7c5962c70b118e746cfa2dfd3b67"
+    },
+    {
+      "name": "jpegxl-patch-blend.ts",
+      "sha256": "72ed255fc24131acd09219648524a588f5cc67dbcdf2092c22515b0a0de5ff6f"
+    }
+  ],
+  "oracleHashes": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+      "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "originalSizeCases": [
+    {
+      "id": "im26-1030",
+      "split": "development",
+      "distance": 1,
+      "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "beforeBytes": 1539064,
+      "beforeEncodedSha256": "9335d4f48e0dac2f09bfeab8495662b9f07cb6356869aff6a47dba36d9a576dc",
+      "bytes": 1539064,
+      "encodedSha256": "9335d4f48e0dac2f09bfeab8495662b9f07cb6356869aff6a47dba36d9a576dc",
+      "nativeDecodedPixelsSha256": "965c31f083b12284de39770994cfeeb0b6f146fdc2152388f68f9ebf89395f5d",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 86.98179332,
+      "butteraugli": 1.2182297707,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1030-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "bedfae67c435a61057f606fc3eb3c6c9c5bf8b0f4c47bf8aa10cbe9b21927eb7",
+      "rustDecodedFileSha256": "2fa699b5c75b48444eaf0103cd7ab2b42d9745cb98e4ea47da98dcbc7da5d0b0",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-1030",
+      "split": "development",
+      "distance": 3,
+      "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "beforeBytes": 582061,
+      "beforeEncodedSha256": "22428a0cb275d2ad25d4db56006ba42d0388c43c387094b643f7d53b32bf7dcf",
+      "bytes": 582061,
+      "encodedSha256": "22428a0cb275d2ad25d4db56006ba42d0388c43c387094b643f7d53b32bf7dcf",
+      "nativeDecodedPixelsSha256": "bd46636b50698186c47549262287ccb312a8da98ad856a1acae23f751ae7774b",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 79.87693797,
+      "butteraugli": 2.5366976261,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1030-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "a7e75e6f1db3f87ca4979cc0282ba579a48948b928efac97a8b8a12bba04c0c4",
+      "rustDecodedFileSha256": "543ae45b72bf971a58ff4c3456400f2c9a083498825528110e1a92f620f5049b",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-1416",
+      "split": "development",
+      "distance": 1,
+      "sourceSha256": "a33954bdd20e176ab16eeee424daaeb95e84035fda7d407eeb456c50818cc310",
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "beforeBytes": 1334906,
+      "beforeEncodedSha256": "1c9896b378d5ad2168e153d372631af8f8b4f5174b9edeae63365c94e0678194",
+      "bytes": 1334906,
+      "encodedSha256": "1c9896b378d5ad2168e153d372631af8f8b4f5174b9edeae63365c94e0678194",
+      "nativeDecodedPixelsSha256": "8e9d4150eff6b7e789646749b0051e7313dc1f0a194ba71d5b98c0bac68fe075",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 88.40450037,
+      "butteraugli": 1.2452893257,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1416-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "93e9f96f471b03222443996a04f398bae88604bdca50e0a514ca74551618ca79",
+      "rustDecodedFileSha256": "951ad0a1c0567dba1d50c455a2ac9000625338136fbebb7b88fe88119f8cae36",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-1416",
+      "split": "development",
+      "distance": 3,
+      "sourceSha256": "a33954bdd20e176ab16eeee424daaeb95e84035fda7d407eeb456c50818cc310",
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "beforeBytes": 469910,
+      "beforeEncodedSha256": "cbfc0434dfc840c89892f32ac15e06370d5cc23913e3ceb034a1ce4731791fde",
+      "bytes": 469910,
+      "encodedSha256": "cbfc0434dfc840c89892f32ac15e06370d5cc23913e3ceb034a1ce4731791fde",
+      "nativeDecodedPixelsSha256": "065b3096dbb7ac53cadef50dca3526edc0031928596f2104c4236908b1b63d40",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 76.20049126,
+      "butteraugli": 2.4158854485,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1416-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "f858b56cacefba4183f488c2b4439f4d5ca69f3f04d3de7b6171b032b7405be4",
+      "rustDecodedFileSha256": "5506cbb49b6f41a471e3342a2ab282046d636a1b9864ff13e540569a66a1a055",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-5034",
+      "split": "development",
+      "distance": 1,
+      "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+      "inputPixelsSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "beforeBytes": 1087790,
+      "beforeEncodedSha256": "5d51c66c2e895a1158f3abb052c28ce5056a9f5526450ace90b948faada11ba6",
+      "bytes": 1087790,
+      "encodedSha256": "5d51c66c2e895a1158f3abb052c28ce5056a9f5526450ace90b948faada11ba6",
+      "nativeDecodedPixelsSha256": "9d858499f47d41712e50fe71227f4eda444dfad6c07712f7d9bfbde461c21f47",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 88.03086434,
+      "butteraugli": 0.8627445102,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-5034-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "4ba8b9ff6358250b354327de6692553d33cc0f70c9c17f3a9e84384e4145964d",
+      "rustDecodedFileSha256": "12cc1ff7dc01f62e0752cbfedcf26220d1a2b81e4f605731a79e709bd97338fe",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-5034",
+      "split": "development",
+      "distance": 3,
+      "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+      "inputPixelsSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "beforeBytes": 481225,
+      "beforeEncodedSha256": "bd8af4e364c3913f19957adb1f11264a2dc537f163d878523e54d70f1a259386",
+      "bytes": 235497,
+      "encodedSha256": "ad83e3a6774023a8dc93f3aea2a3e3a0f5e5598c70d8c943320c24cc1daccb74",
+      "nativeDecodedPixelsSha256": "6d0657db0470ac358ec177690596327beb7e86028ffe267a0eca6cf9bd6d7fc3",
+      "independentMaximumRgb8Difference": 0,
+      "repositoryMaximumRgb8Difference": 0,
+      "ssimulacra2": 88.98455039,
+      "butteraugli": 0.9190802574,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-5034-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "a25c9f34b61cb2d7f7b9b22d4847e3b99bd6d5c22ad3b5601a79e60204130e57",
+      "rustDecodedFileSha256": "a25c9f34b61cb2d7f7b9b22d4847e3b99bd6d5c22ad3b5601a79e60204130e57",
+      "byteIdenticalToPrior": false
+    },
+    {
+      "id": "im26-5052",
+      "split": "development",
+      "distance": 1,
+      "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+      "inputPixelsSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "beforeBytes": 1201247,
+      "beforeEncodedSha256": "823587b1f43cf93c26a6a615f1fa13e925a5e1cac66f601975bafc89fe16199d",
+      "bytes": 1201247,
+      "encodedSha256": "823587b1f43cf93c26a6a615f1fa13e925a5e1cac66f601975bafc89fe16199d",
+      "nativeDecodedPixelsSha256": "3840dbd3b5c1088ae97a7a0dde3cb9ba0b0bca26a34c20c7fa0b0d3f0b6bbf31",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 88.90457803,
+      "butteraugli": 0.7592948079,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-5052-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "ef468c831287ed0e66632b8a962ea168e4559ab8911e4e9b3d4c6febf612250c",
+      "rustDecodedFileSha256": "634854cfcd896680d22ff600bf95bf219e794a3d054b1515c54eb3d1c5b101fc",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-5052",
+      "split": "development",
+      "distance": 3,
+      "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+      "inputPixelsSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "beforeBytes": 409211,
+      "beforeEncodedSha256": "cd3bef15626f9cd617de0c2187fc3dee3d0db4ff948bcb2d6fca675e41758c5b",
+      "bytes": 79273,
+      "encodedSha256": "0bd7f156fbd827ae23bf5039839c73047cf7d5936749024f3e93afdf5b1bc4c6",
+      "nativeDecodedPixelsSha256": "970ea7fef6d6add76f2f79e87f2617db32d84b7fea13437bc0546a747101df9b",
+      "independentMaximumRgb8Difference": 0,
+      "repositoryMaximumRgb8Difference": 0,
+      "ssimulacra2": 90.63848339,
+      "butteraugli": 0.39645046,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-5052-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "eecbc5f58ec6533a20e0e891466a69afee3ec38a2aa55edbf64978ee833c70b8",
+      "rustDecodedFileSha256": "eecbc5f58ec6533a20e0e891466a69afee3ec38a2aa55edbf64978ee833c70b8",
+      "byteIdenticalToPrior": false
+    },
+    {
+      "id": "im26-1009",
+      "split": "holdout",
+      "distance": 1,
+      "sourceSha256": "072ae0f785316dbf261c4a7d6fdf715fe3822161017c8dbbcf5f3b680e23bd2d",
+      "inputPixelsSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+      "beforeBytes": 3617256,
+      "beforeEncodedSha256": "2b0f2bc7dc82036b0daf331ed7c69a3adf82d9cb3d4e7ad116a9486373fefa24",
+      "bytes": 3617256,
+      "encodedSha256": "2b0f2bc7dc82036b0daf331ed7c69a3adf82d9cb3d4e7ad116a9486373fefa24",
+      "nativeDecodedPixelsSha256": "dcc4a27b001d6712009775c7e2d9af35863c8c2485fe261502acd01100931ff3",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 88.32719525,
+      "butteraugli": 1.291744113,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1009-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "63d52415371a2b242ba397b771dbd43bb9b62157397121f742ba274c7711637e",
+      "rustDecodedFileSha256": "30c4ef0e2a8c6cad57ec02918ad3e7280ad6ab5c1670ab0943f04d54897516cc",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-1009",
+      "split": "holdout",
+      "distance": 3,
+      "sourceSha256": "072ae0f785316dbf261c4a7d6fdf715fe3822161017c8dbbcf5f3b680e23bd2d",
+      "inputPixelsSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+      "beforeBytes": 1807601,
+      "beforeEncodedSha256": "d1789ce061ea796680fbe93fe257a6a553d83239c3442b706a7d5fc13128c7b9",
+      "bytes": 1807601,
+      "encodedSha256": "d1789ce061ea796680fbe93fe257a6a553d83239c3442b706a7d5fc13128c7b9",
+      "nativeDecodedPixelsSha256": "7ce505d5b390480547b7f5e752c134112d2e9ed0b610baa85120e2418b849734",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 79.4292155,
+      "butteraugli": 2.3741044998,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1009-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "2bc21ee71cf1fbad90acca1155d351f324e5c35bd58ec4ce7aa8656432304b1f",
+      "rustDecodedFileSha256": "3548a96980fa205d93ba6c074d967a500ae9e1917b83a6e3519d0d6de0bc391c",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-1221",
+      "split": "holdout",
+      "distance": 1,
+      "sourceSha256": "756761b0a0d1a9022d55a650e730e65ec1e5cc62e20b8c9b05db326290271cb2",
+      "inputPixelsSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+      "beforeBytes": 3456877,
+      "beforeEncodedSha256": "bdddd4b7d132088fe96ad25b5d385512827a4f711fdbcbfd9666c47cd0dd93bf",
+      "bytes": 3456877,
+      "encodedSha256": "bdddd4b7d132088fe96ad25b5d385512827a4f711fdbcbfd9666c47cd0dd93bf",
+      "nativeDecodedPixelsSha256": "67c828bc44e508f9a924eda6f97078df66938cf87e8d290e6421d23b29f5e8a6",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 88.74487968,
+      "butteraugli": 1.262799263,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1221-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "a17336fd0f270eb488642f65cbae6331d692e247aae9221f11c4a6601c3fc54a",
+      "rustDecodedFileSha256": "b562d7048a87e64e6a02ffd12c5403b70739f6535c0d306344a2a249f3abca64",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-1221",
+      "split": "holdout",
+      "distance": 3,
+      "sourceSha256": "756761b0a0d1a9022d55a650e730e65ec1e5cc62e20b8c9b05db326290271cb2",
+      "inputPixelsSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+      "beforeBytes": 1594062,
+      "beforeEncodedSha256": "781a69dcc1691bfd6a438381349a9e8de44ae07497270f6c037f710a94d4d3b9",
+      "bytes": 1594062,
+      "encodedSha256": "781a69dcc1691bfd6a438381349a9e8de44ae07497270f6c037f710a94d4d3b9",
+      "nativeDecodedPixelsSha256": "b159d44508cd45866c34e5d77f46d173f032351ac41cb4a58284390acc27642f",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 76.01065089,
+      "butteraugli": 2.5754442215,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-1221-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "9154fc7013de9c3af82b09bb9c57e1f210f799377be71a80a63867cc1bd6ae27",
+      "rustDecodedFileSha256": "b6dbb69dce193d35d235256173325b878232538c336d9489190780108926b6c7",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-5337",
+      "split": "holdout",
+      "distance": 1,
+      "sourceSha256": "8abb23dcf34844be7e0d102e8e7534307d9ceeeabd85ee6c2844f9b37f830550",
+      "inputPixelsSha256": "eb3a9a4dcedf0f6873d7a3b5b7df72dd94e93bd822a557083b4441c4bb47a781",
+      "beforeBytes": 393588,
+      "beforeEncodedSha256": "16a78cee2e51dee3f9e900f125c61a85498fbbc7f395260b03a544fafa96fac2",
+      "bytes": 393588,
+      "encodedSha256": "16a78cee2e51dee3f9e900f125c61a85498fbbc7f395260b03a544fafa96fac2",
+      "nativeDecodedPixelsSha256": "39391bf464a1a7e029532dd099168e21ae097d5e1d9e21f853127bdd9c83bfa0",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 88.406709,
+      "butteraugli": 1.2187377214,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-5337-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "7253a9787ba1e011bc6ff5df730e3eba0f7dd12e3eaa534ef23cc90f166ce15c",
+      "rustDecodedFileSha256": "9ab428311d1fd1adae62ce385b46bf5d63ab6fcad14571f1461b41e03b20de61",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-5337",
+      "split": "holdout",
+      "distance": 3,
+      "sourceSha256": "8abb23dcf34844be7e0d102e8e7534307d9ceeeabd85ee6c2844f9b37f830550",
+      "inputPixelsSha256": "eb3a9a4dcedf0f6873d7a3b5b7df72dd94e93bd822a557083b4441c4bb47a781",
+      "beforeBytes": 180010,
+      "beforeEncodedSha256": "a9e77e2df35ea4e6b93f12af7ae257f78c12abcb3b01fa73b958eba09e82d83a",
+      "bytes": 180010,
+      "encodedSha256": "a9e77e2df35ea4e6b93f12af7ae257f78c12abcb3b01fa73b958eba09e82d83a",
+      "nativeDecodedPixelsSha256": "7815d1fe06ad3b679a42019dbd877e2b120cdac84f02125cea6280fb87a3ab03",
+      "independentMaximumRgb8Difference": 0,
+      "repositoryMaximumRgb8Difference": 0,
+      "ssimulacra2": 89.4287873,
+      "butteraugli": 1.8296705484,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-5337-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "7dad0e6dce77026fa0e867417b72ebce223ade33e13bb1f55d251e524b505e47",
+      "rustDecodedFileSha256": "7dad0e6dce77026fa0e867417b72ebce223ade33e13bb1f55d251e524b505e47",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-8160",
+      "split": "holdout",
+      "distance": 1,
+      "sourceSha256": "fd46f504251c81de380a8f2193cf811671087d9db9b50bd4757ade9fe088e2aa",
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "beforeBytes": 272113,
+      "beforeEncodedSha256": "e596f9b9551e5fe0f918f3e028e40cee3df3ef0c90710c3931e1e3dd3c435448",
+      "bytes": 272113,
+      "encodedSha256": "e596f9b9551e5fe0f918f3e028e40cee3df3ef0c90710c3931e1e3dd3c435448",
+      "nativeDecodedPixelsSha256": "aaff73f9631992fe33221d65d8a89ee8893d70eff934dd85d2dd28b49c285f8a",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 87.71584756,
+      "butteraugli": 1.4976791143,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-8160-purejsimage-1.jxl",
+      "nativeDecodedFileSha256": "7407f505eb70eaecb4df95fc356c969916a321dadf5d9913c1007929bff3bbf7",
+      "rustDecodedFileSha256": "765d7022a98dcd905795d5eb5391f1f7af6d340ee417945e1accde3b14a18175",
+      "byteIdenticalToPrior": true
+    },
+    {
+      "id": "im26-8160",
+      "split": "holdout",
+      "distance": 3,
+      "sourceSha256": "fd46f504251c81de380a8f2193cf811671087d9db9b50bd4757ade9fe088e2aa",
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "beforeBytes": 167981,
+      "beforeEncodedSha256": "c05d23b44d59d5e4203c743068720a25ccfc46b8f8f87c87c22a7b138db679aa",
+      "bytes": 167981,
+      "encodedSha256": "c05d23b44d59d5e4203c743068720a25ccfc46b8f8f87c87c22a7b138db679aa",
+      "nativeDecodedPixelsSha256": "1167f8ac8710e34b68f5ace6b26e95c1ed6ec3eab2fc3fbb837587eb71040676",
+      "independentMaximumRgb8Difference": 1,
+      "repositoryMaximumRgb8Difference": 1,
+      "ssimulacra2": 79.52473171,
+      "butteraugli": 3.1001286507,
+      "artifactPath": ".tmp/jpegxl-m7/prompt8-patch-all-8g/im26-8160-purejsimage-3.jxl",
+      "nativeDecodedFileSha256": "7d5797ecd2b1ea42648935561a659598f12964250354c432953bb04c47b9a29f",
+      "rustDecodedFileSha256": "42715dcef4182b8b593ecb318154227cde23c538af19ff6cdb2ba459514887ad",
+      "byteIdenticalToPrior": true
+    }
+  ],
+  "all16Measured": true,
+  "byteIdenticalCases": 14,
+  "independentDecoderFailures": 0,
+  "conformancePassed": 39,
+  "resourcePassed": 24,
+  "developmentDiagnostics": [
+    {
+      "path": ".tmp/jpegxl-m7/patch-coverage-071.ts",
+      "sha256": "0f40eeee56b36046c3c9047fea37c87893cc64a2f0d6cc0a89daa90f783003b3"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/patch-071-reference.log",
+      "sha256": "b74e208ecaaab4a41e7ff5513449db3bb0745c88b3d99d6567a7f30fd456e80d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/patch-071-second.log",
+      "sha256": "332864a071c2b1bc7eccdb8e99c9e7054a4a4f375bd823fa48db3ed79671efc7"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/patch-071-table.log",
+      "sha256": "2187839e670940a6e361773e3798a910a29dd4329d835fcd6040d1c3bfaafa2e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/patch-071-default-decode-fixed.log",
+      "sha256": "ab4b8ad1117cd320802fd6dd05797370516270bf34e793977f2a590a1b645e77"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/patch-071-reference.json",
+      "sha256": "38fb81574728a3899759f9333c891f6ab87d500510c43f339e9f4499fe44d1ee"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/patch-071-second.json",
+      "sha256": "da25b59a263eb1c1e41abd017ef2a70a3513b972d9c48c88e122809c4103a084"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/patch-071-table.json",
+      "sha256": "dcd83fc22640c5c69bc1543bcd613a62d1947ff7b0b18eaa9f84f5812e85a80e"
+    }
+  ],
+  "bundleMetrics": {
+    "path": "benchmark/generated/package-metrics.json",
+    "sha256": "f8d7d4850e8c1de9637fd7548e3a7d375af2473840eb1e960301f0025aecf3ef"
+  },
+  "bundleCeilings": {
+    "path": "scripts/bundle-size-budgets.ts",
+    "sha256": "dd5c3e62a3bd2eb65d591aec2991efd236ee54be39dc4b6023e323b8134ea736"
+  }
+}
