@@ -1024,6 +1024,10 @@ The frozen implementation at `30d72d1a88a33e156fc6ed053c308d7268f4188d` now pair
 
 The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt9-report.md), [development](../../benchmark/jpegxl/production-program/m7-prompt9-quality-development.json) and [observed holdout](../../benchmark/jpegxl/production-program/m7-prompt9-quality-holdout.json) matrices, [fixed original-size replay](../../benchmark/jpegxl/production-program/m7-prompt9-original-size-replay.json) and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt9-evidence-index.json) record scores, unchanged-artifact reuse, hashes and independent decoding. Frozen-commit conformance passes 39/39 and resource checks pass 24/24. The full repository check, browser check and focused real Chromium test pass. Complete SSIMULACRA2 brackets and original-size HDR, transparency and visual quality gates remain open. Lossy stays Experimental.
 
+### September 24 native lossy high-band ceiling
+
+The [complete 22-source audit](../../benchmark/jpegxl/production-program/m7-prompt10-native-ceiling.json) measures every pinned-native SSIMULACRA2-90 miss at libjxl's minimum positive lossy distance of 0.05. All streams pass independent native/Rust decoding within one RGB8 level. Ten sources, eight development and two previously observed holdout, still score below 90. Two requested 0.02 controls produce the same bytes as 0.05. The [investigation report](../../benchmark/jpegxl/production-program/m7-prompt10-report.md) retains the source splits, input and stream hashes, zero-swap bounded receipt, rejected first-party high-precision probe and incomplete low-band diagnostic. No codec change is retained. The approved matrix and target remain unchanged. Complete lossy matched-quality brackets cannot be claimed with this pinned native lossy reference under its current distance limit; original-size HDR, transparency, gradient and visual outliers also remain open. Lossy stays Experimental.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
