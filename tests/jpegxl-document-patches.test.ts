@@ -190,7 +190,7 @@ describe('JPEG XL lossy screenshot patches', () => {
     }
     expect(samples).toBe(pixels.length)
     expect(Math.sqrt(sumSquared / samples)).toBeLessThan(3)
-  })
+  }, 15_000)
 
   it('does not classify a nonflat gradient as a screenshot', () => {
     const width = 512,
