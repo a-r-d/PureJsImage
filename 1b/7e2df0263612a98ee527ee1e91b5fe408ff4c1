@@ -1,0 +1,33 @@
+benchmark/jpegxl/production-program/m7-prompt6-alpha-development.json
+  s_d4180e5cac980c::t_3bb48752cd9bf3 1-6843
+benchmark/jpegxl/production-program/m7-prompt6-alpha-observed-holdout.json
+  s_d4180e5cac980c::t_3bb48752cd9bf3 1-6938
+benchmark/jpegxl/production-program/m7-prompt6-conformance.json
+  s_d4180e5cac980c::t_3bb48752cd9bf3 1-25,27-39,41-54,56-68,70-83,85-98,100-113,115-128,130-143,145-158,160-173,175-188,190-203,205-218,220-233,235-248,250-263,265-278,280-293,295-308,310-323,325-338,340-353,355-368,370-383,385-398,400-413,415-428,430-443,445-458,460-473,475-488,490-503,505-518,520-533,535-548,550-563,565-578,580-592,594-606
+  s_d4180e5cac980c::t_1ee0afde049036 26,40,55,69,84,99,114,129,144,159,174,189,204,219,234,249,264,279,294,309,324,339,354,369,384,399,414,429,444,459,474,489,504,519,534,549,564,579,593
+benchmark/jpegxl/production-program/m7-prompt6-report.md
+  s_d4180e5cac980c::t_fa176bbfb7a1d4 37
+  s_d4180e5cac980c::t_fc433e87dfa533 1-36,38-44
+benchmark/jpegxl/production-program/m7-prompt6-resource.json
+  s_d4180e5cac980c::t_3bb48752cd9bf3 1-243
+benchmark/jpegxl/production-program/m7-prompt6-evidence-index.json
+  s_d4180e5cac980c::t_6fd349a1fbd176 91
+  s_d4180e5cac980c::t_d113b4a431de41 1-82,84-90,92-3138
+  s_d4180e5cac980c::t_31ae3c94ea5ded 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1b7e2df0263612a98ee527ee1e91b5fe408ff4c1",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
