@@ -1012,7 +1012,7 @@ and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt8-eviden
 record the target decision, hashes and independent decoding. Lossless keeps
 its qualified status. Lossy stays Experimental because complete SSIMULACRA2
 brackets and the original-size HDR, transparency and visual quality gates
-remain unmet. No version change, release or Stable promotion follows.
+remain unmet. The [per-case bracket audit](../../benchmark/jpegxl/production-program/m7-prompt8-bracket-audit.json) shows that pinned native libjxl itself lacks 70/80/90 brackets on some sources within the approved six distances. Those reference gaps need supplementary endpoints before a complete matched-quality claim can be measured. The original matrix and missing cases stay intact. No version change, release or Stable promotion follows.
 
 ## M8 initial static decoding checkpoint, September 11
 

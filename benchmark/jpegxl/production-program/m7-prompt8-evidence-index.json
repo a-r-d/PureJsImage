@@ -75,7 +75,7 @@
   },
   "finalQualificationReport": {
     "path": "benchmark/jpegxl/production-program/m7-prompt8-report.md",
-    "sha256": "f4448c9e9efa32bb735056293cf45a749caaf8b6b9ef9bba045d6452d7eff2c6"
+    "sha256": "cf09b2e32a8b933a5a57c3031fe64c2c20dd54ceb6965926e12db94b6cca388a"
   },
   "conformance": {
     "path": "benchmark/jpegxl/production-program/m7-prompt8-conformance.json",
@@ -545,5 +545,9 @@
   "bundleCeilings": {
     "path": "scripts/bundle-size-budgets.ts",
     "sha256": "dd5c3e62a3bd2eb65d591aec2991efd236ee54be39dc4b6023e323b8134ea736"
+  },
+  "bracketAudit": {
+    "path": "benchmark/jpegxl/production-program/m7-prompt8-bracket-audit.json",
+    "sha256": "21ddd2e828ec782bc1b1eff1eb02b0c25edec29b85d892764778d9179fe060d1"
   }
 }

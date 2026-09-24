@@ -1,0 +1,2502 @@
+{
+  "schemaVersion": 1,
+  "implementationCommit": "051fa0c525788d1539ba6054a70b23339bc419b5",
+  "artifactManifestPath": "benchmark/jpegxl/production-program/m7-prompt2-artifacts.json",
+  "artifactManifestSha256": "90f2966ba72a976673ac83eaabf07c045b0ec12db2ed35fb57b1336e0167b2a1",
+  "approvedDistanceGrid": [0.25, 0.5, 1, 2, 3, 5],
+  "interpretation": "All missing low-band curves remain above 70 or 80 at distance 5. All missing high-band curves remain below 90 at distance 0.25. Native-missing cases cannot be matched by a first-party encoder change against these same six pinned native artifacts. Keep the approved matrix and missing brackets visible; any added endpoints are supplementary measurements, not a retroactive matrix change.",
+  "rows": [
+    {
+      "split": "development",
+      "score": 70,
+      "sourceCount": 120,
+      "qualityReportPath": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "qualityReportSha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7",
+      "firstPartyMissing": 63,
+      "nativeMissing": 26,
+      "bothMissing": 26,
+      "firstPartyOnlyMissing": 37,
+      "nativeOnlyMissing": 0,
+      "matched": 57,
+      "cases": [
+        {
+          "id": "im26-1030",
+          "category": "1000-lilith-photos-general",
+          "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+          "inputPixelsSha256": "5bda5da82ee708cadcb079033cd44c31a5699d991b35eee8574ef836d738d5b2",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.44753246,
+              "maximum": 91.51808593,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1612",
+          "category": "1600-lilith-food",
+          "sourceSha256": "e2308dce92230b6336c7de92f0d5f5f7646c581fc340f28a38ee55e720b4e08f",
+          "inputPixelsSha256": "3b58890e041ecf5c2d2906fca2d1b45ecff471f2802ae92ee11a1340a393d1a7",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.02673524,
+              "maximum": 93.42378487,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2400",
+          "category": "2400-unsplash-textures",
+          "sourceSha256": "3d6362125a25436b40bcfc9b30e2339ee3d0e24f5428cb7a9a1a92d0c10a0531",
+          "inputPixelsSha256": "bb999b30c13db2b65ebd3558e2bb9c4ba05584ca90c8a1c22e1e17fae9d6a478",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.9448631,
+              "maximum": 92.09558101,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 73.36913215,
+              "maximum": 91.76125204,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5026",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "be063c5f8f2c899088c56ffd8a267b4930f5b55292b0bdc105a1235ff0ab9f4d",
+          "inputPixelsSha256": "b868dcd0820debff63e55382eb7817522a8bdcc02f89d54f57306e14e2152700",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.49965536,
+              "maximum": 93.38189961,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5216",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "025c89546990b28c69949c59d6ba99e7076322fa860711fce96ffc3da812bcbb",
+          "inputPixelsSha256": "41db48f0bb8440a0d4d4d6fa02b0fb05c7edafcd0c3c8dc5558d18eec2b5abd6",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.9835223,
+              "maximum": 92.80000499,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5310",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "348e4805c25ee1408e8fe8f08e046722be52ce55d689c0412a918ee35fe4d465",
+          "inputPixelsSha256": "02552ee8adf25b6c2637e331d56f8057a2f53f0a3f1e218cab519b6304987948",
+          "missing": {
+            "purejsimage": {
+              "minimum": 82.21401573,
+              "maximum": 91.00485939,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.00785929,
+              "maximum": 90.18987091,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6036",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "786f69d615c33c4d7a5900494524c1cc7cc05a69351ebc3c9fec217ecccbdac9",
+          "inputPixelsSha256": "6b634b79352a1db5658be80468738bce8ca5714d611e298ff0e6c57a59d4682d",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.68614338,
+              "maximum": 89.4705619,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 73.80850723,
+              "maximum": 89.11363702,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6828",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "a5555261c8cc6722e51043ab9ddd0ae70094917fa54f329b3c51dbab3b2a05e7",
+          "inputPixelsSha256": "d8d0dacde61afb854bf7ae6ad13c88ee3ca7c6d9ae214b6f6010a3d7d21bc90b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.9031208,
+              "maximum": 89.33637837,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8188",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "24eb10c9d16dc16ac68f41ea4d556984be45716b93ef52fd7342abcfe1dfcbe1",
+          "inputPixelsSha256": "fe8a56408812673f9205e6a2dd4bd50d1c65c98a7fa978a593f3c4008385e071",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.35150242,
+              "maximum": 94.72016556,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1020",
+          "category": "1000-lilith-photos-general",
+          "sourceSha256": "dd3c0186266bc3b22c40ea80dc784c8eda707eed8071bb44dcf0a1358b84ed0d",
+          "inputPixelsSha256": "eb169582e77b61600e0271a12339a950c78f4e7400b5ef33086aa882e79449b4",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.3659892,
+              "maximum": 93.59095626,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5042",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "9b180b8dbf98dd6596024906183a89e3bbd7e6212ef5e929d83ba359b7ac41b8",
+          "inputPixelsSha256": "8a40c27c2f2630f6538645c464702a574c617928fc5788f9b978c7dd895ef930",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.35212277,
+              "maximum": 92.60134058,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5208",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "1c7fced788f24ae2caff4595d8479d1dcf5aee4f652ca2349550ea825aa4da44",
+          "inputPixelsSha256": "882b256a2a4e49f0aca2b1d2630d6d235747a9c343f64a2b70800570ab705fc5",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.89351589,
+              "maximum": 91.53414434,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 71.86191343,
+              "maximum": 91.19694764,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5312",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "e19c5b5b1595f7df79fc8fcd254c1d5355b6c68f4c349e3030c2ff70062ffcd6",
+          "inputPixelsSha256": "b367adb495d79798ad2761f7e1e497d1240f87536b3cdb7355e570c3656c13ef",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.31539629,
+              "maximum": 91.33944042,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 76.81046592,
+              "maximum": 90.66771079,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6104",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "faa2569c92f588405933a685cd36e0cb258c1e10afc4ea8ad22234e21595fa72",
+          "inputPixelsSha256": "155229b06f21beb765730654bd3cd52c6306e38e687e412dc8f9b5ad1e8ec86e",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.07054703,
+              "maximum": 90.79443882,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 76.79224409,
+              "maximum": 90.25189048,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8140",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "9ab389a8eeeb45ab80197aadbfc22f73a4d016c08d9e61a8f6f84c9f094807a0",
+          "inputPixelsSha256": "1817a748377658ff97f39b549608c0d92fd7af207abe45cfbac181847ddec892",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.19426682,
+              "maximum": 93.40866779,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2012",
+          "category": "2000-unsplash-people",
+          "sourceSha256": "88e888e37375bf9f1cd355f1ae3f567e3cf6628d3fd7fc1ce5369a647604989e",
+          "inputPixelsSha256": "10bea9169b92adf15daf5b5fcf9ff6001f4144b47ed41b32ea63d3f96f18c265",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.96397549,
+              "maximum": 94.12881578,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-3004",
+          "category": "3000-art-institute-of-chicago-photos",
+          "sourceSha256": "b698bbd87da0af4c9aed2daafb13208ad118e1b51ed5f203da85ef69af428761",
+          "inputPixelsSha256": "e7ce89a0baf4e7efa37f40ef2207c9990d57ee9ad2f2ad457ae5abe687dd9d0e",
+          "missing": {
+            "purejsimage": {
+              "minimum": 74.35856318,
+              "maximum": 91.002136,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-3304",
+          "category": "3300-met-museum-photos",
+          "sourceSha256": "2909b3281b0783dd697c769d2d54979d1295ea4de0b57c73afd0ce4aee871d3f",
+          "inputPixelsSha256": "8fb1c8b2bbd6c975fb612fdeb6934b458c668c65e06cc6f9c2df52465a57fb3e",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.61738998,
+              "maximum": 94.47594284,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5036",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "c7aef0952af5e88a9fb6c29be3088021dab83c830e64685cdf734a37d63d35d9",
+          "inputPixelsSha256": "49a7b6d371853fb2d7bf150885340c3674d3fd4b1f71580c1a6db39ab2282b86",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.85317365,
+              "maximum": 92.57830052,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5210",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "883ad9d94b49a2d00b24d92c4b2a41e82b44190932ff5c79ffe83f20d7786eee",
+          "inputPixelsSha256": "b0ce3e191cae9d0514eb998333b603fbd46e3d2e586a931aed9d50b1ed50cf47",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.77447768,
+              "maximum": 91.66519056,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 74.30771208,
+              "maximum": 91.53771334,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5306",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "11a34f05ea0a3cdf491f4c5ea03e8a6ebc00c0a49e6f7464dea1f224d605ab24",
+          "inputPixelsSha256": "0250d092b6aeff1e954c708f087ffbd365a700a971bafb75d9fa717d3de2250b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.63229228,
+              "maximum": 92.03375793,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.09154088,
+              "maximum": 92.0436573,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6026",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "f068a37558c42be7b0350685b6410ea437f148f7f7495a97a936ceda9acdd6db",
+          "inputPixelsSha256": "60b385706950ff92b3dc2808a60769a04fab16b84e0b042bee140dee4d427027",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.27005497,
+              "maximum": 90.37560726,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.32230646,
+              "maximum": 90.13153725,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6800",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "25b787cb09a3264eee4321b812c50504bdbd4c412ea668d3c54edee3b6011cfd",
+          "inputPixelsSha256": "499752eb231f48ca0d5ec6be05479ee3cb2665fa08c1b510db5cfa2497378667",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.52282213,
+              "maximum": 89.59449397,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.90904766,
+              "maximum": 89.05467678,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8444",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "b82e42189188adac2ba20c2c28c79f8b6bf255475844d93d8165fd3ac7cd5b56",
+          "inputPixelsSha256": "b90fd25755f30b72d6879f25bdac989c8fe30921c0f090a76225eb12fc0abffb",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.51412888,
+              "maximum": 94.20165474,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2002",
+          "category": "2000-unsplash-people",
+          "sourceSha256": "ca019dacfb7dae88c670071bc53bc3e832efde93bdc181faf2b162348f57e52c",
+          "inputPixelsSha256": "dbf5d34b3f8aa8625342047f58b36c086b6cde31e1838fb8d4978ef33bde3022",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.02795314,
+              "maximum": 93.69634033,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-3312",
+          "category": "3300-met-museum-photos",
+          "sourceSha256": "2f6c7f5c8bfb2abf414d16602aa9e489cd9564406facaa48579d1bbaab6e5bd7",
+          "inputPixelsSha256": "c1c95d8b78ecd11e1026583fcf39a8f51c616540998bb8b80b4f0ee949efe68f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.18242599,
+              "maximum": 88.90501643,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5012",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "4f4ec9fafa6efdead0010cb7379739cca5fd3b2e8afe13883beeedbe574c4472",
+          "inputPixelsSha256": "df9bf151f7ac7e44b34cbc252d0715ec565c9d4135c29239ba039153df0d6128",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.09711779,
+              "maximum": 93.43835881,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5204",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "5e425f599a8b0500d8eac29d9af97ca1654bbed1466955130e4bd72eea173ef0",
+          "inputPixelsSha256": "65dd786918117a739639686eb78520cb335908fa4e9c9de4aac50427886722e0",
+          "missing": {
+            "purejsimage": {
+              "minimum": 74.92083647,
+              "maximum": 92.79772766,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5308",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "ff4cd87728467925a9ec9013d9b71b6fc5458acee2692ce3087fc7d3b20b1373",
+          "inputPixelsSha256": "6562069ac8f0aef0c684d1b07e99b43224c0603ffb1a1d14da4007849637091f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.83888513,
+              "maximum": 92.09791701,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 71.16192011,
+              "maximum": 91.35591698,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6020",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "d64228f173058080d2bd400d1c24e0a66c888e9d561b773f3303bb84371b6768",
+          "inputPixelsSha256": "5f0423c8722457716e54b1e59cf90cdabb5fb0dc55493e0ec617c31b6d69c404",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.70875117,
+              "maximum": 92.57872132,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.76825439,
+              "maximum": 92.18726897,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8398",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "d0de30900b6b77fc9cc749524865f52392b70329370fa1889d6483e2d09a96ed",
+          "inputPixelsSha256": "d71294b4a25861ee21668b5a1690904d9f21839673c9c653d484ad96108bbee3",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.38395637,
+              "maximum": 93.88569539,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1002",
+          "category": "1000-lilith-photos-general",
+          "sourceSha256": "937a789e05dc059d1337fae9294db8a4ecf4067c73c0b3b626f61ecc59137f30",
+          "inputPixelsSha256": "a75a5a0fa6ac216553592fe9f3d046e91025775383ca6d604a6a7c7363ddb815",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.13725491,
+              "maximum": 93.32550693,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1416",
+          "category": "1400-lilith-nature",
+          "sourceSha256": "a33954bdd20e176ab16eeee424daaeb95e84035fda7d407eeb456c50818cc310",
+          "inputPixelsSha256": "bfff8458924f04156d5013e1fc522c9ff96f8fe6014910cfaab2abcd883e0443",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.44992878,
+              "maximum": 93.76385247,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1634",
+          "category": "1600-lilith-food",
+          "sourceSha256": "1fd8e87252a7458d7a44b69ccd070c46a3f4e4785bfdfb083e320662cfbc95a7",
+          "inputPixelsSha256": "a3a861408e526e02b5bc69aa1e02f4c85ad786112d481294733d4062d92dbffe",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.69052773,
+              "maximum": 93.2618864,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5052",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+          "inputPixelsSha256": "0adc5214ddca099b7b7f5ed710c8183a3446b6780bd3c57c7cd73858b459dad0",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.07719426,
+              "maximum": 92.32996501,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 79.54704793,
+              "maximum": 92.08262619,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5212",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "603f3f9750ad4a4ac8d241e914a1ad0f293dd2ae10ec702f62074373eb9f78c4",
+          "inputPixelsSha256": "83b2b4d3ad35650f05fb6b2c92fd123e121216531bb0cc581cb1d745455b176d",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.50810726,
+              "maximum": 91.60680032,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.79995109,
+              "maximum": 91.21392389,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5338",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "e0c211b227d12be56b05e44e9a522717307b815949470ddcd261b826cf4e7756",
+          "inputPixelsSha256": "dd1bf92a91d9418bd65647a2b45d6a3fabf42543917cf673022ad907be270635",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.53406067,
+              "maximum": 92.05843265,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6094",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "575840671ab3a4f4a491dd8aaddf9a0a014b4ee9d843dec2de4238029e77b884",
+          "inputPixelsSha256": "da769c65887b75497fdd1b8422a987b91a3abf3c2991b423b38a8f1f0c4bb650",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.44873531,
+              "maximum": 88.77142635,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.97453934,
+              "maximum": 88.44062399,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1606",
+          "category": "1600-lilith-food",
+          "sourceSha256": "b7eb0d83753748f60489305fb86c05e81ab9727a401dbb1a2d62cb8205299060",
+          "inputPixelsSha256": "65d6929c125c203af1059bc15a8a65e33539d988a4c5df25102f18eba991df48",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.6312339,
+              "maximum": 94.12969911,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-3318",
+          "category": "3300-met-museum-photos",
+          "sourceSha256": "b26c0a9da33c392fc481fea508313630a73c124e56af3407c906e846dcf67a80",
+          "inputPixelsSha256": "1a968379443781225cce6816d3234cd88b984ce70d9fb3a2052b5b4989c769e8",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.32404539,
+              "maximum": 93.61882785,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5034",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+          "inputPixelsSha256": "45616dfd64c6f944d9e4f024fc39384bfaf9a4fb547e9793f9719e69b6dadaa9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.02740039,
+              "maximum": 91.85057408,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 79.69929079,
+              "maximum": 91.77323445,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5222",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "75818cb9c5705754900a73bb4a9ad287958ff00a8377a478092a124157b47317",
+          "inputPixelsSha256": "14a989720ddd03695f8046b248ca37fd8f6f5ba1f5716314fb1fc28c2a0c59e9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 82.63643735,
+              "maximum": 90.66870351,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 81.77960515,
+              "maximum": 90.28955598,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5334",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "65b3abf7839bc7f8f881305f4401647d207cf5b9771f7936e3b7b487b191e12c",
+          "inputPixelsSha256": "9ec23f9216baf18d34ebd26953db77c5045d29fbb9b407dba015c4a880a38e04",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.22661595,
+              "maximum": 90.84171442,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.47251453,
+              "maximum": 90.27660108,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6030",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "d458ea5040f75ca6eef36251f063d56ac587c8b612659ea1db243f631e202e64",
+          "inputPixelsSha256": "39eed21c0e5210703523255720502809ed07742e451f21c41e19a6a22090d101",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.7657826,
+              "maximum": 89.38450544,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 74.77504871,
+              "maximum": 89.062117,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6810",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "3f6f929f63826d64d55117a7a5c20e745aa4db852035fdaf4c8048d85ab849f7",
+          "inputPixelsSha256": "df5a80f37d8e827647c0fa9e37df344f01dc0bb0a8da3d271f261e31401cd6a8",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.34716962,
+              "maximum": 90.12860376,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8256",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "10153b9e62360402ae0cef1a09df99761b3c1fc40ccca1cfdc0875e570fd1f7f",
+          "inputPixelsSha256": "cc91f887c182f8875820bfba8f330fc6f26bf04e2281a7513d22e3be4976c9c1",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.41327053,
+              "maximum": 93.16590048,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1234",
+          "category": "1200-lilith-interiors",
+          "sourceSha256": "a7c4f7db1ccf91663a587c97a4b2f238f293bec58505bd07fc53ef3ea3af604d",
+          "inputPixelsSha256": "72397b1ab88dd15c91c0a804a469b3ae7cc3a8b9e8fd558d8f24513737a90b00",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.02689939,
+              "maximum": 94.39194357,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2014",
+          "category": "2000-unsplash-people",
+          "sourceSha256": "9cbe9d498f725c1aad70625a028cffc055fa59830206c45fb4ebeff28185ff58",
+          "inputPixelsSha256": "9034e876301a6b1d167b79cf66828810fdacc7ae458552175423eef945fdb3ad",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.96998848,
+              "maximum": 93.20838494,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5038",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "b1e8bf34f0afb31e78b49dd96f528bbdc64ebe58377147baca22efa63db03185",
+          "inputPixelsSha256": "0a68dc086fa81bbfb44054b98607d5b26f0fd17c877b0d7a25fd7f90f6d4f00b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.45156834,
+              "maximum": 91.78244083,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5206",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "fb16359cde5e1b2a0202a899364d52a000db500dc7ff2423adb02c25a4f421f4",
+          "inputPixelsSha256": "52d874b52d6a227deaa249120388153f39e37f03f5304835b410b55b5cae6d92",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.23847726,
+              "maximum": 92.20753456,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.67213192,
+              "maximum": 91.91519795,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5320",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "954b1264a3c5d35ef96c0636da2fa6689f18f8f801d9851132e4122c3a743d2a",
+          "inputPixelsSha256": "2cc660216dd316fb84b37e818bdf8cb26db5c95a1a5bd99a27c35635a09e45e6",
+          "missing": {
+            "purejsimage": {
+              "minimum": 76.76922621,
+              "maximum": 91.45522572,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6016",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "1016b043dd7e4bc6799401ee11b963c9e2d056a6520a8e3c5e69d3986dfc0a64",
+          "inputPixelsSha256": "d153d7808a7e7c4dc9c2cbbe8bcf17659f8e19ee7a659c03c02eddec44799a73",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.71868804,
+              "maximum": 92.6168317,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.47957628,
+              "maximum": 92.263565,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6812",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "e00dcea2fe183794f3d68c19569144b91f8e3e921cf2cfab94fe3a0586dfecaa",
+          "inputPixelsSha256": "5181c49152b93c409d85c76f3694256d7c8ad226ead2c9dd09a6ff38002e3b0b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.84881697,
+              "maximum": 90.27613667,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8110",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "c41c3530288e87f6d63ec48ef10a57ab51be8c61750c875bf62f54b990674a37",
+          "inputPixelsSha256": "b205428927987df47a12f07569396758f049fc72d53de8620ee4c0bd0ebbf7ac",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.40635927,
+              "maximum": 92.52543637,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.89993581,
+              "maximum": 92.37472377,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1058",
+          "category": "1000-lilith-photos-general",
+          "sourceSha256": "e6376ee8e8fdafc2379b8c6e8c6326aea475c52b11c8264b5abd867b47a0aa9f",
+          "inputPixelsSha256": "dc2cbb25b418d14e306993bbf28e49d83eda5d6a548718ae6966cbc741e7741a",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.22161019,
+              "maximum": 93.60569592,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2018",
+          "category": "2000-unsplash-people",
+          "sourceSha256": "4f49e73a630a1d8886e3be742f49b253d77e3a0af51b69b9f17be48de606c07e",
+          "inputPixelsSha256": "77ecc9a162dcb71f71669f717de88818581ec0038302d827d41bb504b3f995fb",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.85334922,
+              "maximum": 93.58947769,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5032",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "671e8b1f848abe4ea03d47b7e08b344382f6a1484eef28ba1a3ffb0b3765ad8b",
+          "inputPixelsSha256": "532b7aad24616e02a6a24ccc81c43cc1395d4f1bde3107f4fa9965020ebf69c5",
+          "missing": {
+            "purejsimage": {
+              "minimum": 74.54726384,
+              "maximum": 89.81976108,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 70.87632207,
+              "maximum": 89.03307857,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5220",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "ca2b0ffa5039e66d3a3618e05ca635c08c01319304af7db263123c38e1651e0e",
+          "inputPixelsSha256": "f2886b53e300da2d3dd3c85de36198fbe6a65a6b4609ea14ec1358e41fc8f696",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.25748163,
+              "maximum": 90.75434851,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 81.0321029,
+              "maximum": 90.48211673,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5340",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "80cd6ad301f9d7f70cdf170e6db71975750abdb070b42d1d3512f3a673b450e5",
+          "inputPixelsSha256": "50deb29edcc995536011983fa012269591fb90c693b8610788c69111ef10d4b9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 83.43592667,
+              "maximum": 91.08660966,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.63903182,
+              "maximum": 90.43449094,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6050",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "68ae08c0c902f6ce9aa6842dba8ab373c4ba7319dc50c5d18387d224adf4e8d2",
+          "inputPixelsSha256": "0c24f91cf3b4c1be0072bc58f2b969eb573357a1ca667a7a27affb8f9d49d8ca",
+          "missing": {
+            "purejsimage": {
+              "minimum": 76.21857082,
+              "maximum": 90.76432512,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 74.09550125,
+              "maximum": 90.68310123,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6830",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "8e6c3ada0cc53d7bde951ca8556286e9d25c9f0852545b417efb34c22ae978d0",
+          "inputPixelsSha256": "d61d56076ac27d7ecb6337bb2af05c27cc2f7e8bfc8a97d684708f94dea4aa7f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.90583063,
+              "maximum": 89.36010736,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8150",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "c88b1d0425fc526cdf4368bfd227c4bd2eac6341f0f49238cfaa1e8ede626c53",
+          "inputPixelsSha256": "946a1145eefe1e41fb73850fc1bcc97a1076e6db0b752022c2eacf321cb5d249",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.2489158,
+              "maximum": 92.47133376,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1212",
+          "category": "1200-lilith-interiors",
+          "sourceSha256": "ae7d8ef799040763fef373533c8c52fd8d21a4fe4548d808a72132278f53d940",
+          "inputPixelsSha256": "c430c9650b6651bffe15d3b7a0a81876905f7734fbde53e97b691f5157e90b4f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.05051001,
+              "maximum": 94.63372209,
+              "direction": "all-above"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "score": 80,
+      "sourceCount": 120,
+      "qualityReportPath": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "qualityReportSha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7",
+      "firstPartyMissing": 8,
+      "nativeMissing": 5,
+      "bothMissing": 5,
+      "firstPartyOnlyMissing": 3,
+      "nativeOnlyMissing": 0,
+      "matched": 112,
+      "cases": [
+        {
+          "id": "im26-5310",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "348e4805c25ee1408e8fe8f08e046722be52ce55d689c0412a918ee35fe4d465",
+          "inputPixelsSha256": "02552ee8adf25b6c2637e331d56f8057a2f53f0a3f1e218cab519b6304987948",
+          "missing": {
+            "purejsimage": {
+              "minimum": 82.21401573,
+              "maximum": 91.00485939,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.00785929,
+              "maximum": 90.18987091,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6026",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "f068a37558c42be7b0350685b6410ea437f148f7f7495a97a936ceda9acdd6db",
+          "inputPixelsSha256": "60b385706950ff92b3dc2808a60769a04fab16b84e0b042bee140dee4d427027",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.27005497,
+              "maximum": 90.37560726,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.32230646,
+              "maximum": 90.13153725,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6800",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "25b787cb09a3264eee4321b812c50504bdbd4c412ea668d3c54edee3b6011cfd",
+          "inputPixelsSha256": "499752eb231f48ca0d5ec6be05479ee3cb2665fa08c1b510db5cfa2497378667",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.52282213,
+              "maximum": 89.59449397,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5052",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+          "inputPixelsSha256": "0adc5214ddca099b7b7f5ed710c8183a3446b6780bd3c57c7cd73858b459dad0",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.07719426,
+              "maximum": 92.32996501,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5034",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+          "inputPixelsSha256": "45616dfd64c6f944d9e4f024fc39384bfaf9a4fb547e9793f9719e69b6dadaa9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.02740039,
+              "maximum": 91.85057408,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5222",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "75818cb9c5705754900a73bb4a9ad287958ff00a8377a478092a124157b47317",
+          "inputPixelsSha256": "14a989720ddd03695f8046b248ca37fd8f6f5ba1f5716314fb1fc28c2a0c59e9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 82.63643735,
+              "maximum": 90.66870351,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 81.77960515,
+              "maximum": 90.28955598,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5220",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "ca2b0ffa5039e66d3a3618e05ca635c08c01319304af7db263123c38e1651e0e",
+          "inputPixelsSha256": "f2886b53e300da2d3dd3c85de36198fbe6a65a6b4609ea14ec1358e41fc8f696",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.25748163,
+              "maximum": 90.75434851,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 81.0321029,
+              "maximum": 90.48211673,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5340",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "80cd6ad301f9d7f70cdf170e6db71975750abdb070b42d1d3512f3a673b450e5",
+          "inputPixelsSha256": "50deb29edcc995536011983fa012269591fb90c693b8610788c69111ef10d4b9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 83.43592667,
+              "maximum": 91.08660966,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.63903182,
+              "maximum": 90.43449094,
+              "direction": "all-above"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "split": "development",
+      "score": 90,
+      "sourceCount": 120,
+      "qualityReportPath": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "qualityReportSha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7",
+      "firstPartyMissing": 11,
+      "nativeMissing": 14,
+      "bothMissing": 11,
+      "firstPartyOnlyMissing": 0,
+      "nativeOnlyMissing": 3,
+      "matched": 106,
+      "cases": [
+        {
+          "id": "im26-6036",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "786f69d615c33c4d7a5900494524c1cc7cc05a69351ebc3c9fec217ecccbdac9",
+          "inputPixelsSha256": "6b634b79352a1db5658be80468738bce8ca5714d611e298ff0e6c57a59d4682d",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.68614338,
+              "maximum": 89.4705619,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 73.80850723,
+              "maximum": 89.11363702,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6828",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "a5555261c8cc6722e51043ab9ddd0ae70094917fa54f329b3c51dbab3b2a05e7",
+          "inputPixelsSha256": "d8d0dacde61afb854bf7ae6ad13c88ee3ca7c6d9ae214b6f6010a3d7d21bc90b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.9031208,
+              "maximum": 89.33637837,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 64.55661691,
+              "maximum": 88.94403355,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6622",
+          "category": "6600-ia-scans-manuscript-illustrations",
+          "sourceSha256": "2b60485f79083d6645744d090ad92aab499ee1661205ee62162b4f092411c531",
+          "inputPixelsSha256": "780b69d8030d60e261d397347a170dba51197d47d6f79a57d1e6d7d7f548847e",
+          "missing": {
+            "libjxl": {
+              "minimum": 44.40649524,
+              "maximum": 89.28047394,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6834",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "b8622d968b8404f6d243649977a04f94e7f42ac8a6cfef8fbec079984a020f7d",
+          "inputPixelsSha256": "9599a8ff2b670d66e6b3c8183894e331d7411f7c290f306a5ac8b3e984f0ddc1",
+          "missing": {
+            "purejsimage": {
+              "minimum": 69.56791338,
+              "maximum": 89.35030269,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 61.72020198,
+              "maximum": 88.83867337,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6800",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "25b787cb09a3264eee4321b812c50504bdbd4c412ea668d3c54edee3b6011cfd",
+          "inputPixelsSha256": "499752eb231f48ca0d5ec6be05479ee3cb2665fa08c1b510db5cfa2497378667",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.52282213,
+              "maximum": 89.59449397,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 77.90904766,
+              "maximum": 89.05467678,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-3312",
+          "category": "3300-met-museum-photos",
+          "sourceSha256": "2f6c7f5c8bfb2abf414d16602aa9e489cd9564406facaa48579d1bbaab6e5bd7",
+          "inputPixelsSha256": "c1c95d8b78ecd11e1026583fcf39a8f51c616540998bb8b80b4f0ee949efe68f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.18242599,
+              "maximum": 88.90501643,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 65.93973918,
+              "maximum": 88.93249116,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6832",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "cc78565e293ff0ab65eb407d5bf9c557be0e013b489d4c027010cd93015f104d",
+          "inputPixelsSha256": "cd6fba9c06dae620788a21a7c4241bfbdc32a68b7a4748498322b13b5c3e04ad",
+          "missing": {
+            "purejsimage": {
+              "minimum": 69.94384283,
+              "maximum": 89.21320429,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 62.81991575,
+              "maximum": 88.62335246,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6094",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "575840671ab3a4f4a491dd8aaddf9a0a014b4ee9d843dec2de4238029e77b884",
+          "inputPixelsSha256": "da769c65887b75497fdd1b8422a987b91a3abf3c2991b423b38a8f1f0c4bb650",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.44873531,
+              "maximum": 88.77142635,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 77.97453934,
+              "maximum": 88.44062399,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6822",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "a5cf9a40c64530dc76d6cfc11d7f013b3f6160d895772a7f8920a4a04034ac7e",
+          "inputPixelsSha256": "9f158669d9aeac2ddc704b76c34ee0cb8fd6a76b91780b2fdad2d98bb4954a02",
+          "missing": {
+            "purejsimage": {
+              "minimum": 69.95339204,
+              "maximum": 89.2606218,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 63.04634733,
+              "maximum": 88.88248073,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6030",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "d458ea5040f75ca6eef36251f063d56ac587c8b612659ea1db243f631e202e64",
+          "inputPixelsSha256": "39eed21c0e5210703523255720502809ed07742e451f21c41e19a6a22090d101",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.7657826,
+              "maximum": 89.38450544,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 74.77504871,
+              "maximum": 89.062117,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6810",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "3f6f929f63826d64d55117a7a5c20e745aa4db852035fdaf4c8048d85ab849f7",
+          "inputPixelsSha256": "df5a80f37d8e827647c0fa9e37df344f01dc0bb0a8da3d271f261e31401cd6a8",
+          "missing": {
+            "libjxl": {
+              "minimum": 63.09937336,
+              "maximum": 89.73727272,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6812",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "e00dcea2fe183794f3d68c19569144b91f8e3e921cf2cfab94fe3a0586dfecaa",
+          "inputPixelsSha256": "5181c49152b93c409d85c76f3694256d7c8ad226ead2c9dd09a6ff38002e3b0b",
+          "missing": {
+            "libjxl": {
+              "minimum": 64.65071869,
+              "maximum": 89.80903726,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-5032",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "671e8b1f848abe4ea03d47b7e08b344382f6a1484eef28ba1a3ffb0b3765ad8b",
+          "inputPixelsSha256": "532b7aad24616e02a6a24ccc81c43cc1395d4f1bde3107f4fa9965020ebf69c5",
+          "missing": {
+            "purejsimage": {
+              "minimum": 74.54726384,
+              "maximum": 89.81976108,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 70.87632207,
+              "maximum": 89.03307857,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6830",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "8e6c3ada0cc53d7bde951ca8556286e9d25c9f0852545b417efb34c22ae978d0",
+          "inputPixelsSha256": "d61d56076ac27d7ecb6337bb2af05c27cc2f7e8bfc8a97d684708f94dea4aa7f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.90583063,
+              "maximum": 89.36010736,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 64.15005605,
+              "maximum": 88.9897147,
+              "direction": "all-below"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "score": 70,
+      "sourceCount": 120,
+      "qualityReportPath": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "qualityReportSha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17",
+      "firstPartyMissing": 55,
+      "nativeMissing": 29,
+      "bothMissing": 29,
+      "firstPartyOnlyMissing": 26,
+      "nativeOnlyMissing": 0,
+      "matched": 65,
+      "cases": [
+        {
+          "id": "im26-1601",
+          "category": "1600-lilith-food",
+          "sourceSha256": "0f24540d65c4033c0f683c314b359ccbbbf40c1ccd8476a28ed8f9015c93f8fc",
+          "inputPixelsSha256": "c6a440fc24342fa3bb85619cb06e27c72f372639f98a3b8a62c5f1f88d45bad7",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.56325504,
+              "maximum": 93.45812752,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2407",
+          "category": "2400-unsplash-textures",
+          "sourceSha256": "718598b0d8cdcd2ca98af9d1d7fd9b704955fd04a771f05936462c080e4e114b",
+          "inputPixelsSha256": "550a0002e2bb058700b9598dc6df9313b59cde8012b3bc5e2961bedcdf97599b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.10766078,
+              "maximum": 94.8512867,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5045",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "245b66ccf44cd25df92f5d0f817b8062970aa4464eb6e61a8ac9f81b7df6e93e",
+          "inputPixelsSha256": "a8cf7382c4859610ca02226762ed9fdd96c8c6c9cdd16fb12d5f07e8a8597ffa",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.84521842,
+              "maximum": 92.36360871,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.54159585,
+              "maximum": 92.09588753,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5203",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "744587d058d78eca966fbfdc3a1a468da5458d1120d5e3782ad8231db5a6d248",
+          "inputPixelsSha256": "930375572feb24f5a53ac11e004cd58a3e75a99d4ef488308dad22df7abf8379",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.73747736,
+              "maximum": 92.95629445,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 70.94716964,
+              "maximum": 92.38583521,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5337",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "8abb23dcf34844be7e0d102e8e7534307d9ceeeabd85ee6c2844f9b37f830550",
+          "inputPixelsSha256": "c61251fa4ebda818fb7f14eefbf0f4fdd2986717770f92784f2f82c43991ac77",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.86034408,
+              "maximum": 91.53846658,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.47481534,
+              "maximum": 90.82223109,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6025",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "225a580f6564b4cc0d5ff1991ac3cda4ab48a3a8ef126002b788fc22fa982d22",
+          "inputPixelsSha256": "454c5e258da48b7b25504a8b6f16325ca6229994fd8b2583dfa596582c751ddf",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.38198811,
+              "maximum": 92.21586289,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.27949522,
+              "maximum": 92.09769785,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6823",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "4b007e8ee71b1388cf3a02af0eb62a54198c5a944ca37e47fa50fb2cc7404377",
+          "inputPixelsSha256": "34422193599c7d79d0c8076bb852b525d55456a45f2e6e28f577048eb9ae4140",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.72803381,
+              "maximum": 89.43467598,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8350",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "72431db1d022503201c6b2039f495dd7722c438eeefb4c7c95dc60dfd2802d6a",
+          "inputPixelsSha256": "823a2d1cee0067fca9af12c9b449226c64dd0208e604cb9e3567787e472047b3",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.20599949,
+              "maximum": 94.47189006,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2403",
+          "category": "2400-unsplash-textures",
+          "sourceSha256": "52fd3785148d2411f481591b876a9a9f12c07ba1f1c7a8a9f8c4231eadb48d56",
+          "inputPixelsSha256": "a51950b4d9215a5b5f9cf18e108f1dc772c3878ea183d56fcc628b37f87e1551",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.03401563,
+              "maximum": 94.60850103,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 73.41700081,
+              "maximum": 94.256227,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5043",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "f06a2e509656dd678390d99fd5175afff22cbc92e57f9dee6c0e4d81e66d8f49",
+          "inputPixelsSha256": "18d1acf8b918fce7ee0d1eb742eebf88c1574d7cfacdb8a0060bf01ebb2d4251",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.80404181,
+              "maximum": 91.91862576,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5213",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "c24058b1e094661ef46cb9742f6d374da00d29124eb2dcdb7af202d0e5909d6b",
+          "inputPixelsSha256": "2df35111a820ba4518850eba5eadefec0f78b2b2ce23caa380351d0e0c87bd17",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.66619792,
+              "maximum": 92.63237469,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5313",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "e05f1fe04506ae9f84190c9a5e3bdb6b715d8b3a5e0714a74f83f2ea9762a9ab",
+          "inputPixelsSha256": "166767dca7880e26818b1d1bf20c2eadbcb57064abd958e61833e0c86a798ae9",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.15518224,
+              "maximum": 90.97181808,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 76.49358691,
+              "maximum": 90.5972446,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6001",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "6822f7e9169574c8e4d29e1620484cea4d3b951cdb55f9df2532f75ea50063b7",
+          "inputPixelsSha256": "e6d2ee3e105f7d7d9815f2a44324e97ca962b4785f978db7bd49867f9acae106",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.52501754,
+              "maximum": 91.08129425,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.79165467,
+              "maximum": 90.53271733,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6829",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "8f1201eec9c2f8bdad08c999a11fa4c93e15248727d9fc3069c23e0e7c7a4312",
+          "inputPixelsSha256": "5a4723f01f393bd2e3eb0b19eb853b6e0446591b3c0cd61477d441f027f6e8e0",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.40378956,
+              "maximum": 89.50400979,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5057",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "60bc8b1ae9d2934f9b34b5e3e024bb2b26121809047c89da0c012e37c2bd64f2",
+          "inputPixelsSha256": "3bcc4ba2e75b7ceb5c186b2a307b9051499c1abf1c9fa0d3ff89865436a52d06",
+          "missing": {
+            "purejsimage": {
+              "minimum": 82.45547371,
+              "maximum": 91.61848764,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 79.44273679,
+              "maximum": 91.40497293,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5205",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "3cccc0acf01a9926339c4878f22e6d8b45db356452750c6651201d4d859e4f12",
+          "inputPixelsSha256": "0b33886b10d129d45146240fb593192d5d2afd22ed3071b4ada764fb6a032d23",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.48996048,
+              "maximum": 91.24062186,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.87603545,
+              "maximum": 90.94818858,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5341",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "65f8a3c79b10750ea63a84d28ac2be99da4ba841d4b518b2786c13eab05362bc",
+          "inputPixelsSha256": "60de450bcafb527a308c19b0c58e2acc614154dd32e804dc7e633ab7d5c32268",
+          "missing": {
+            "purejsimage": {
+              "minimum": 76.24282951,
+              "maximum": 91.72779547,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6043",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "93410581c2f2dbcfc469656db9b714b2333aa1428d89adab7bb564149d3af702",
+          "inputPixelsSha256": "3dd3a583d3bb36de580d313c12343edf39c09fbe75dac389d0bf179820d84423",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.39251555,
+              "maximum": 91.71486929,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 75.9720309,
+              "maximum": 91.30021812,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6613",
+          "category": "6600-ia-scans-manuscript-illustrations",
+          "sourceSha256": "4c89106c16df770cc603fcda393b9aa4231d885d8dd540e47c13224cc3aeb271",
+          "inputPixelsSha256": "d13331ec8ecabd291871e720e6732c966eed011fb6f2bc1ccd89dcabb2a2543d",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.53620408,
+              "maximum": 93.43980691,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6831",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "995c1de0b52e6b8646f9f665fe86360e802bd0c5c606a02ac3ea1fa545ab3d9e",
+          "inputPixelsSha256": "070745639f091eec777d4d07f6bdae9c64fcbb820b6c76639b941ff8d12ec84f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.18343237,
+              "maximum": 89.63026784,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8318",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "696ce1c1ef9030ed3cfed38a43aeee13d1f5d6a8682d6de1dc8a80499955f68c",
+          "inputPixelsSha256": "b04b6c9eaf41784c041515e8b2a6f42abe1dec7aa889e55fe18cf187e322ff50",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.26229333,
+              "maximum": 94.8191961,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1065",
+          "category": "1000-lilith-photos-general",
+          "sourceSha256": "845ff45a38e8af75eb099a5ce5685ae27253f9e764d34fef6aace9abb81d1028",
+          "inputPixelsSha256": "085daa9c3ed8b8f0cf32fe35c111cb61d76708ca2632fd07087ed28bd41af0df",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.0209175,
+              "maximum": 93.8646884,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1401",
+          "category": "1400-lilith-nature",
+          "sourceSha256": "bc7c08b144ecf8b913dbec27fe909d41681c29ab0978f9791a54a1a31e8c7584",
+          "inputPixelsSha256": "dbb7c7f01d8b0426c064e0a14b5719c9cc69471242cbb6a2f5aad7123dad91eb",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.30671495,
+              "maximum": 94.34793897,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5055",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "43c80577761dbbd072ab6d6a1ed87c83c2c118a0eb095e1cc6dbc59b715ea60f",
+          "inputPixelsSha256": "ddd336addcf2f1a14c50a7a452a977980b11e9a972eedb8d5409ee6558d0ffeb",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.78931129,
+              "maximum": 90.63020968,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.18014721,
+              "maximum": 90.36881548,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5215",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "cd50e482d908d5834d4848c4d78dfdfeb3dca10254bd9a1c71ea7a6deb94a873",
+          "inputPixelsSha256": "69013101cabc7dbb528f481fc65b2db567134c590baa8e5de209c20ef5e8c518",
+          "missing": {
+            "purejsimage": {
+              "minimum": 76.15313769,
+              "maximum": 92.37189379,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 71.6807441,
+              "maximum": 91.90661655,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5317",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "bf0b0bbb6f8dd3fe208b01050f9b305a7e55645cef7cb20732881d5c430b49bb",
+          "inputPixelsSha256": "1edcc23035ca776169f699be5a5ab6a513a8ac52ef270c91e1dd1c93b5f16bdf",
+          "missing": {
+            "purejsimage": {
+              "minimum": 76.07684406,
+              "maximum": 91.86844715,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6027",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "e3cabe79ab76ca730f351f7f19d0a67a02a50cac0eb551b65c89272fe1ce7a2e",
+          "inputPixelsSha256": "6f559e236bc7e7cea26f70022f6dfa414f16d0a9247c7dc002a099b0f5d75790",
+          "missing": {
+            "purejsimage": {
+              "minimum": 74.71379692,
+              "maximum": 90.2560657,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.69130767,
+              "maximum": 90.21363577,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6803",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "dd92e2349039922cc8371ed4626096c0a8dd246e87d3cd56bcd8104a7b3b2b26",
+          "inputPixelsSha256": "c2c8dad88a04bb5f73a3e4aa8d606044cdcd610d09a3d0bfa9346d44447aeed2",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.15699292,
+              "maximum": 90.66184831,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 72.42018184,
+              "maximum": 90.21851672,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1425",
+          "category": "1400-lilith-nature",
+          "sourceSha256": "e04d2824b75e66cac75d440cb04af794270bd8c97fd98511e0e5ce0c684faf2b",
+          "inputPixelsSha256": "5da77348ddc6be49683976ec6973d8ebbf8a3f75c6a2ac8b01800fb73927efb1",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.13887241,
+              "maximum": 91.45025777,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5013",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "f677e47abc4aca6ac906cb695fab685615104e2a832ae6c7ee3459176d5f23dc",
+          "inputPixelsSha256": "fd6e39e361e22e0dea3961e560caa630da7d8b778ab71c942282f58c08606030",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.32413575,
+              "maximum": 91.89405268,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5217",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "fb57e92950cc6301d47287d8da1063bb1cb54e59be4fbddb950de996ed59a522",
+          "inputPixelsSha256": "f27cb762cbc641384fd24613ac0c87d9b263e00413a9e496e3eba231c32d960b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.6612256,
+              "maximum": 92.22214137,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 70.58315937,
+              "maximum": 91.98680272,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5305",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "41bbb2d6b59b451f50bf2ed870e8e2e42535e09201d8f33ff1be56b0a7f8ad71",
+          "inputPixelsSha256": "e0dfdacfa7219347ae1dcf81651b1df8a76b8ca79b1158d1ab189dd44d784a2c",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.54116649,
+              "maximum": 91.91135708,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6037",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "c49d1b89c7f83d0886c0527624a3a132ff13f78fba9fbe7085870269d0ceca02",
+          "inputPixelsSha256": "a514b7209a52d3e505e95d429f6e85f3b92c22cd3fe1b8a4e4b1dfcfcb5ccea5",
+          "missing": {
+            "purejsimage": {
+              "minimum": 78.34099992,
+              "maximum": 91.80133679,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 76.04780936,
+              "maximum": 91.40211464,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6633",
+          "category": "6600-ia-scans-manuscript-illustrations",
+          "sourceSha256": "506dc7b680a2c3078ddff30c7734218c43c2b2b74cea443308977156327326c4",
+          "inputPixelsSha256": "9f884808754bcab611130a5c3f872970ebf13f377dbba6a0c07c9c084d63dca4",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.42399647,
+              "maximum": 92.00261422,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 70.45171733,
+              "maximum": 91.36020434,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6805",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "b6400f2b08bbc0db09cb06aef182d89cb523b31cf3f0bf08151c19456c898cfd",
+          "inputPixelsSha256": "fdaa055b5c65a3d7194d11fc93222071fb94f038a55cb6b60dddfb8cc62c8304",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.80820015,
+              "maximum": 90.23006582,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 72.554945,
+              "maximum": 89.95390664,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8328",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "b1ac43d56bb6760c68f1f6c81e8c3f3ad6bab23ee105a7177278e97e2ebf2da0",
+          "inputPixelsSha256": "b557ecf84b9247ba55d885914a45fbbfb61ace404ce0204fde4a27bceea73b32",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.24190382,
+              "maximum": 93.75327135,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.01458974,
+              "maximum": 93.40250348,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-3307",
+          "category": "3300-met-museum-photos",
+          "sourceSha256": "8553b2e541e3b224d908095033354e6af686db3ba3370b41b0bd36ef774bc309",
+          "inputPixelsSha256": "34f8147fbfe796539aee90c557a6eabec467e7dfa9fbc07a426b2810090f06ef",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.06332997,
+              "maximum": 94.18842575,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5039",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "ec80a9abda14a7b35b02e08a50ef0da91a30b9f8c8f765d6c0c77fa2379f98f7",
+          "inputPixelsSha256": "5c969faf7b07392739f6eb484dda4d46a3b6b0ecb19eb7e24445f84ca9ced7e8",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.69846907,
+              "maximum": 92.70432935,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5201",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "54a3431215e49c2f2fd3adf6b0815cb3401dcaed8b1087794593a3319001714a",
+          "inputPixelsSha256": "7b5cae8f140f20c1795450c45b5302fc759e487526029bd30050d15795649a26",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.38562162,
+              "maximum": 92.61099821,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5315",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "fdbbff67251f020cec5c2e461aa14b883a8d0af0465f867888dd4c62539c6581",
+          "inputPixelsSha256": "f50fa7f828a55dcb0b6b702d71ff5e2c289523ef6f2a28a73d390d243860594a",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.56158168,
+              "maximum": 90.92689796,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.0380683,
+              "maximum": 90.14756116,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6015",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "89da523820b93fcaa81842b38cb5b50af531cff1238ba509f44e81599d699117",
+          "inputPixelsSha256": "b548c57887cae822f8161a08de89ba52665fd74712cd34480f0fb5d18b350e59",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.12614088,
+              "maximum": 92.59692566,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.07491478,
+              "maximum": 92.43573035,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6833",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "c93fb26da4d6cd4830239a8cd8466e15ee535b9b750c4b517bccf2897b4c1807",
+          "inputPixelsSha256": "d18ba9feada06cfbf4a86d6b9f1f00a03e28c3c9d505ac7ea59a06b66b6bf60a",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.85509436,
+              "maximum": 88.42531405,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8468",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "8e160b61ba52ab8948b67afb3a802f06fcb7bf0a76954452257027ef031c91e9",
+          "inputPixelsSha256": "07b2d9f3f63b8e50f6c2f9d4e30bdd30c22015e77e3345e8d79244ae21d3b5f1",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.79243847,
+              "maximum": 92.02040367,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 72.34305121,
+              "maximum": 91.98706661,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-3313",
+          "category": "3300-met-museum-photos",
+          "sourceSha256": "70111b07790665acc8e6719f494fba90c19f41cb13a576c2ff266dfe2a850a64",
+          "inputPixelsSha256": "5f0ed777c25405bc2033ee836cb77cbee45ca2dcd075715d11b19266749a7027",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.27112708,
+              "maximum": 95.6586529,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5007",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "22ce7099a4ad61127a46597967d1706e7bc3fc375d4ac8abdde07c316ff97c4b",
+          "inputPixelsSha256": "a17810f2f77b0e1a5c67a4326885d09b3394466c80091801ec8625eb25467dee",
+          "missing": {
+            "purejsimage": {
+              "minimum": 75.05074401,
+              "maximum": 91.59025575,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 74.44353917,
+              "maximum": 91.14692687,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5221",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "1e0aa70ef23c9970b9f0d6b3f900c2174552ba3d5240d48c09f88e3772fc13f2",
+          "inputPixelsSha256": "1980660725d00e829f732c20a2c6c795862445610cde1a9c4fc38f575725073d",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.95135649,
+              "maximum": 90.41916264,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 81.93673213,
+              "maximum": 90.39718533,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5301",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "35cd19b2cd2ad451d66f8cbee756acb90b482e0a8615050c7970c69fdc9ef11c",
+          "inputPixelsSha256": "e0e1d3a4b980703609e0c449f9c2e9ea30cc21e1c9fd9f9bbf449ba5eb27679b",
+          "missing": {
+            "purejsimage": {
+              "minimum": 77.18565979,
+              "maximum": 91.22661993,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.50492604,
+              "maximum": 91.17215022,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6013",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "66232830efcf09386b8d31c18ae0996d223813081b927ccdefe9a10581f927b6",
+          "inputPixelsSha256": "2cb5227844dfa9d45044369ed0001994c58270048745297d2a145d766a410495",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.70275086,
+              "maximum": 92.54207329,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 77.74601608,
+              "maximum": 92.20343657,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8160",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "fd46f504251c81de380a8f2193cf811671087d9db9b50bd4757ade9fe088e2aa",
+          "inputPixelsSha256": "ca658ab4e87fbdafdfbf0a98b91e1611cb9e725e2f176d19bf70b65d4746ad33",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.32766665,
+              "maximum": 91.66699107,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-1607",
+          "category": "1600-lilith-food",
+          "sourceSha256": "fff99600fbc1c6228d2a9689583d0d4ac796610233dfcb12e8741ccecdf64f2a",
+          "inputPixelsSha256": "f08ef702fc3322ad5e1ded81dd0d09b3395fd5c5c818182c9ee72f0d904cdd97",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.34697067,
+              "maximum": 93.91965848,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5211",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "91281f7055c7a6ff00a08c6cd6d4f0cadefde72cf286c2c41b17e66a0b07924d",
+          "inputPixelsSha256": "5a8f2849792edbb35f5fd4ccf59ca9bf11e0e5f7c83265ad6144cb625ff9c34c",
+          "missing": {
+            "purejsimage": {
+              "minimum": 76.57691542,
+              "maximum": 91.39141502,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 71.79473962,
+              "maximum": 90.78731687,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5309",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "11f88fa292d6531d89e8617af194db5743cdb71290c3f365a1d07a160e34c7dd",
+          "inputPixelsSha256": "581496f44a2d40d03b6c33dcad36627c524f4b0037efcb521bdb407ad769c7fc",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.77683709,
+              "maximum": 91.54885345,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 74.56145195,
+              "maximum": 90.69458306,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6009",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "b6a50ea91f126af0c4f6e6b4da91b47b1f3980a4268632606c8183f62026bdf1",
+          "inputPixelsSha256": "ffabc95b5b3ca960419c250a35be94e405ca8822bfdfd123281fb09cfcbd77ab",
+          "missing": {
+            "purejsimage": {
+              "minimum": 79.13639937,
+              "maximum": 92.60105141,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 78.34116721,
+              "maximum": 92.30556453,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-8356",
+          "category": "8100-lilith-web-screenshots",
+          "sourceSha256": "505dbced171c1b55cddb47cdbba3e5404a58d4b321ed6c16e2d69e08a158cf93",
+          "inputPixelsSha256": "ab56551f7fd6eca0e442cc79127bf2a15e82a20178c81a682a20e78f9bdf14b5",
+          "missing": {
+            "purejsimage": {
+              "minimum": 73.23176033,
+              "maximum": 93.84965406,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-2007",
+          "category": "2000-unsplash-people",
+          "sourceSha256": "0855e3e9dbad866c4e25e822f7426146b1f9bb828bb41ec25c9742587a4a6e3d",
+          "inputPixelsSha256": "f0b25433ef4a047b8426c0410f5d7da2cf86de9178acb995fed0690d3877c296",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.31617854,
+              "maximum": 90.10575011,
+              "direction": "all-above"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "score": 80,
+      "sourceCount": 120,
+      "qualityReportPath": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "qualityReportSha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17",
+      "firstPartyMissing": 6,
+      "nativeMissing": 4,
+      "bothMissing": 4,
+      "firstPartyOnlyMissing": 2,
+      "nativeOnlyMissing": 0,
+      "matched": 114,
+      "cases": [
+        {
+          "id": "im26-5045",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "245b66ccf44cd25df92f5d0f817b8062970aa4464eb6e61a8ac9f81b7df6e93e",
+          "inputPixelsSha256": "a8cf7382c4859610ca02226762ed9fdd96c8c6c9cdd16fb12d5f07e8a8597ffa",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.84521842,
+              "maximum": 92.36360871,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.54159585,
+              "maximum": 92.09588753,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5337",
+          "category": "5300-noaa-hurricane-documents",
+          "sourceSha256": "8abb23dcf34844be7e0d102e8e7534307d9ceeeabd85ee6c2844f9b37f830550",
+          "inputPixelsSha256": "c61251fa4ebda818fb7f14eefbf0f4fdd2986717770f92784f2f82c43991ac77",
+          "missing": {
+            "purejsimage": {
+              "minimum": 81.86034408,
+              "maximum": 91.53846658,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.47481534,
+              "maximum": 90.82223109,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-6001",
+          "category": "6000-lilith-scans-public-patents",
+          "sourceSha256": "6822f7e9169574c8e4d29e1620484cea4d3b951cdb55f9df2532f75ea50063b7",
+          "inputPixelsSha256": "e6d2ee3e105f7d7d9815f2a44324e97ca962b4785f978db7bd49867f9acae106",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.52501754,
+              "maximum": 91.08129425,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 80.79165467,
+              "maximum": 90.53271733,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5057",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "60bc8b1ae9d2934f9b34b5e3e024bb2b26121809047c89da0c012e37c2bd64f2",
+          "inputPixelsSha256": "3bcc4ba2e75b7ceb5c186b2a307b9051499c1abf1c9fa0d3ff89865436a52d06",
+          "missing": {
+            "purejsimage": {
+              "minimum": 82.45547371,
+              "maximum": 91.61848764,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5055",
+          "category": "5000-national-park-service-brochures",
+          "sourceSha256": "43c80577761dbbd072ab6d6a1ed87c83c2c118a0eb095e1cc6dbc59b715ea60f",
+          "inputPixelsSha256": "ddd336addcf2f1a14c50a7a452a977980b11e9a972eedb8d5409ee6558d0ffeb",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.78931129,
+              "maximum": 90.63020968,
+              "direction": "all-above"
+            }
+          }
+        },
+        {
+          "id": "im26-5221",
+          "category": "5200-epa-climate-impact-2021-report",
+          "sourceSha256": "1e0aa70ef23c9970b9f0d6b3f900c2174552ba3d5240d48c09f88e3772fc13f2",
+          "inputPixelsSha256": "1980660725d00e829f732c20a2c6c795862445610cde1a9c4fc38f575725073d",
+          "missing": {
+            "purejsimage": {
+              "minimum": 80.95135649,
+              "maximum": 90.41916264,
+              "direction": "all-above"
+            },
+            "libjxl": {
+              "minimum": 81.93673213,
+              "maximum": 90.39718533,
+              "direction": "all-above"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "split": "holdout",
+      "score": 90,
+      "sourceCount": 120,
+      "qualityReportPath": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "qualityReportSha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17",
+      "firstPartyMissing": 5,
+      "nativeMissing": 8,
+      "bothMissing": 5,
+      "firstPartyOnlyMissing": 0,
+      "nativeOnlyMissing": 3,
+      "matched": 112,
+      "cases": [
+        {
+          "id": "im26-6823",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "4b007e8ee71b1388cf3a02af0eb62a54198c5a944ca37e47fa50fb2cc7404377",
+          "inputPixelsSha256": "34422193599c7d79d0c8076bb852b525d55456a45f2e6e28f577048eb9ae4140",
+          "missing": {
+            "purejsimage": {
+              "minimum": 70.72803381,
+              "maximum": 89.43467598,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 63.81803502,
+              "maximum": 88.85588506,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6829",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "8f1201eec9c2f8bdad08c999a11fa4c93e15248727d9fc3069c23e0e7c7a4312",
+          "inputPixelsSha256": "5a4723f01f393bd2e3eb0b19eb853b6e0446591b3c0cd61477d441f027f6e8e0",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.40378956,
+              "maximum": 89.50400979,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 65.77317677,
+              "maximum": 88.93390145,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6831",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "995c1de0b52e6b8646f9f665fe86360e802bd0c5c606a02ac3ea1fa545ab3d9e",
+          "inputPixelsSha256": "070745639f091eec777d4d07f6bdae9c64fcbb820b6c76639b941ff8d12ec84f",
+          "missing": {
+            "purejsimage": {
+              "minimum": 72.18343237,
+              "maximum": 89.63026784,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 64.1718418,
+              "maximum": 89.16794055,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6805",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "b6400f2b08bbc0db09cb06aef182d89cb523b31cf3f0bf08151c19456c898cfd",
+          "inputPixelsSha256": "fdaa055b5c65a3d7194d11fc93222071fb94f038a55cb6b60dddfb8cc62c8304",
+          "missing": {
+            "libjxl": {
+              "minimum": 72.554945,
+              "maximum": 89.95390664,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6621",
+          "category": "6600-ia-scans-manuscript-illustrations",
+          "sourceSha256": "e5c9762b67102fc030fb068d11a6a7bde2e58dc194bef445303f9032d3524fae",
+          "inputPixelsSha256": "af518fcbbb90d86192456da985780f06c6baf696be98311efe40b2bf5ef331c7",
+          "missing": {
+            "libjxl": {
+              "minimum": 42.74922311,
+              "maximum": 89.4176675,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6833",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "c93fb26da4d6cd4830239a8cd8466e15ee535b9b750c4b517bccf2897b4c1807",
+          "inputPixelsSha256": "d18ba9feada06cfbf4a86d6b9f1f00a03e28c3c9d505ac7ea59a06b66b6bf60a",
+          "missing": {
+            "purejsimage": {
+              "minimum": 71.85509436,
+              "maximum": 88.42531405,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 65.19603776,
+              "maximum": 88.25872214,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-6825",
+          "category": "6800-ia-scans-manuscript-text",
+          "sourceSha256": "bb745fe73d83961ede95c54ecf9fa835be7f0bf3882ee96ed687907730e77a05",
+          "inputPixelsSha256": "3330a0ee42a1173f350384007e935418b7a7aaf85b3d5a8b828dcaaaf0e38422",
+          "missing": {
+            "purejsimage": {
+              "minimum": 67.0282747,
+              "maximum": 88.13729308,
+              "direction": "all-below"
+            },
+            "libjxl": {
+              "minimum": 58.74827708,
+              "maximum": 87.62265153,
+              "direction": "all-below"
+            }
+          }
+        },
+        {
+          "id": "im26-2007",
+          "category": "2000-unsplash-people",
+          "sourceSha256": "0855e3e9dbad866c4e25e822f7426146b1f9bb828bb41ec25c9742587a4a6e3d",
+          "inputPixelsSha256": "f0b25433ef4a047b8426c0410f5d7da2cf86de9178acb995fed0690d3877c296",
+          "missing": {
+            "libjxl": {
+              "minimum": 61.11960024,
+              "maximum": 89.07077207,
+              "direction": "all-below"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
