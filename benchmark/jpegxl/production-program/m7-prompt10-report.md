@@ -29,14 +29,16 @@ A development-only first-party probe scaled the global quantizer to test distanc
 
 The retained development gradient derivative has 12,124 of 12,288 blocks on the finer current quantizer setting; a neighboring photograph has 12,143 of 12,288. The proposed smooth-block threshold does not explain the gradient miss. A local planarity profile also failed to separate the gradient from the photograph strongly enough for an image-independent selector. No quantizer edit was retained. The original-size gradient and HDR/alpha visual outliers in the [prior report](m7-prompt9-report.md) remain open.
 
-A supplementary SSIMULACRA2-70 probe measured 49 points from 45 of the 173 previously missing engine/source curves before it was deliberately stopped. The distance-10 endpoint overshot far below 70 on some scans. Its bounded receipt is marked terminated, and its raw scores are linked in the [ceiling report](m7-prompt10-native-ceiling.json). Those partial low-band points are diagnostics only. Closer measured endpoints are needed before any matched-size interpolation or completed low-band claim.
+The [completed supplementary SSIMULACRA2-70 report](m7-prompt11-low-endpoints.json) has 187 new points across all 173 previously missing engine/source curves. Every curve now has a measured endpoint below 70; every new stream agrees across pinned native and Rust decoders within one RGB8 level, and the first-party streams agree with the repository decoder within one level. The resumed isolated 3 GiB run completed with zero swap and a 2.5 GiB process-tree peak. Its first phase was stopped after 49 points; the completed report and receipt supersede that partial diagnostic.
+
+These are bracket-coverage measurements, not a completed size qualification. The distance-10 endpoint overshoots badly on some scans: 144 of 173 lower endpoints score below 65, and 23 score below zero. The median quality span between the old distance-5 upper endpoint and the new lower endpoint is 15.62 SSIMULACRA2 points. Closer measured endpoints are needed before drawing a reliable matched-size conclusion at 70. The approved six-distance matrix and original source splits remain unchanged.
 
 ## Target decision
 
 | Reviewed target | Result |
 | --- | --- |
 | Pinned-native SSIMULACRA2-90 bracket on every approved source | **Fail.** Ten sources remain below 90 at the native minimum positive lossy distance. |
-| Complete lossy matched-quality 70/80/90 bands | **Fail.** The original grid still has missing bands; the low-band supplement is incomplete. |
+| Complete lossy matched-quality 70/80/90 bands | **Fail.** All previously missing 70 curves have supplementary wide brackets, but no 70 size ratio is claimed from them. Higher bands still have missing cases, including the ten native-reference 90 limits. |
 | Measured 2 MP lossy size ratios, lossless qualification, and reference-host runtime targets | **Prior results unchanged.** No production codec code or timing path changed. |
 | Original-size gradient, screenshot, HDR and transparency visual quality | **Fail overall, unchanged.** The prior outliers remain. |
 | Stable lossy promotion | **Fail.** The reference ceiling and other retained quality gaps prevent an honest pass under the reviewed requirements. |

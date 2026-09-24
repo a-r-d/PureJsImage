@@ -493,16 +493,16 @@
       "approvedMaximum": 89.07077207
     }
   ],
-  "partialLowBandDiagnostic": {
+  "lowBandSupplement": {
+    "trackedReportPath": "benchmark/jpegxl/production-program/m7-prompt11-low-endpoints.json",
     "rawReportPath": ".tmp/jpegxl-m7/prompt10-low-endpoints/report.json",
-    "rawReportSha256": "3ee446f5d1f47d08a9cebef076605673b6154188697eee9480320ff10e5271b9",
-    "boundedReceiptPath": ".tmp/jpegxl-m7/bounded-runs/prompt10-low-endpoints.json",
-    "boundedReceiptSha256": "90f5e393ca66c019ca94d7189d020ebd766c671dff1632ad0d9420ccc5965992",
-    "status": "terminated-after-overshoot",
+    "rawReportSha256": "78041ec67a799db887756c98eb8a3d523b65c847fbeddf11be61e3db5c155c22",
+    "boundedReceiptPath": ".tmp/jpegxl-m7/bounded-runs/prompt11-low-endpoints.json",
+    "boundedReceiptSha256": "9c6a9b46936eb28224d888e7374012367dfec6ff29101d4412121656c470bec4",
+    "status": "completed",
     "requestedMissingCurves": 173,
-    "measuredPoints": 49,
-    "measuredCurves": 45,
-    "curvesBelow70": 45,
-    "qualificationUse": "None. Distance 10 sometimes overshoots far below 70; closer supplementary endpoints would be required before matched-size interpolation."
+    "measuredPoints": 187,
+    "curvesBelow70": 173,
+    "qualificationUse": "Additional wide brackets only. Matched-size ratios and complete promotion remain unqualified."
   }
 }
