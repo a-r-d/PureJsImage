@@ -18,6 +18,7 @@ import {
 import {
   defaultJpegXlDct4x8Dequantization,
   defaultJpegXlDct8Dequantization,
+  defaultJpegXlDct16Dequantization,
   defaultJpegXlHornussDequantization,
   defaultJpegXlQuantizationBiases,
 } from './jpegxl-vardct-quantization.ts'
@@ -63,6 +64,7 @@ const lookupCubeRoot = (linear: number, table: Float32Array): number => {
 
 import {
   forwardJpegXlDct8,
+  forwardJpegXlDct16,
   forwardJpegXlDctHalves,
   forwardJpegXlHornuss,
 } from './jpegxl-vardct-forward-transforms.ts'
@@ -240,6 +242,7 @@ export const encodeJpegXlVarDct8 = (
   sampleDepth = 8,
   progressive = false,
   color?: JpegXlForwardColor,
+  experimentalDct16 = false,
 ): readonly Uint8Array[] => {
   const owned = memory ?? new JpegXlEncoderMemory(268_435_456)
   try {
@@ -256,6 +259,8 @@ export const encodeJpegXlVarDct8 = (
         sampleDepth,
         progressive,
         color,
+        defaultImageLimits,
+        experimentalDct16,
       )
       let next = steps.next()
       while (!next.done) next = steps.next()
@@ -291,6 +296,7 @@ export const encodeJpegXlVarDct8Async = (
   color?: JpegXlForwardColor,
   limits: Readonly<ImageLimits> = defaultImageLimits,
   frame: Readonly<JpegXlForwardFrameOptions> = {},
+  experimentalDct16 = false,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
     const steps = prepare8(
@@ -306,6 +312,7 @@ export const encodeJpegXlVarDct8Async = (
       progressive,
       color,
       limits,
+      experimentalDct16,
     )
     await checkpoint()
     let next = steps.next()
@@ -340,6 +347,7 @@ function* prepare8(
   progressive: boolean,
   color: JpegXlForwardColor | undefined,
   limits: Readonly<ImageLimits> = defaultImageLimits,
+  experimentalDct16 = false,
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidInput('JPEG XL dimensions must be positive safe integers')
@@ -767,6 +775,44 @@ function* prepare8(
     memory.release(baselineErrors)
     memory.release(coefficientErrors)
   }
+  if (
+    experimentalDct16 &&
+    effort === 7 &&
+    channels === 3 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    !progressive &&
+    primaryCode === 1 &&
+    colorTransfer.kind === 'srgb' &&
+    blockStrategyMap
+  ) {
+    for (let y = 0; y + 1 < fullBlockHeight; y += 2) {
+      for (let x = 0; x + 1 < fullBlockWidth; x += 2) {
+        const top = y * fullBlockWidth + x
+        const bottom = top + fullBlockWidth
+        if (
+          blockStrategyMap[top] !== 0 ||
+          blockStrategyMap[top + 1] !== 0 ||
+          blockStrategyMap[bottom] !== 0 ||
+          blockStrategyMap[bottom + 1] !== 0 ||
+          blockQuantizationMap[top] !== 4 ||
+          blockQuantizationMap[top + 1] !== 4 ||
+          blockQuantizationMap[bottom] !== 4 ||
+          blockQuantizationMap[bottom + 1] !== 4
+        )
+          continue
+        blockStrategyMap[top] = 4
+        blockStrategyMap[top + 1] = 4
+        blockStrategyMap[bottom] = 4
+        blockStrategyMap[bottom + 1] = 4
+        blockQuantizationMap[top] = 6
+        blockQuantizationMap[top + 1] = 6
+        blockQuantizationMap[bottom] = 6
+        blockQuantizationMap[bottom + 1] = 6
+      }
+      yield
+    }
+  }
   if (epfSharpnessMap) {
     let active = 0
     for (const sharpness of epfSharpnessMap) active += sharpness > 0 ? 1 : 0
@@ -779,6 +825,64 @@ function* prepare8(
   const acStorage = Array.from({ length: 3 }, () =>
     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
   )
+  const hasDct16 = blockStrategyMap?.includes(4) ?? false
+  const groupCoefficientOffsets = hasDct16
+    ? allocateJpegXlArray(memory, Int32Array, 32 * 32)
+    : undefined
+  const dct16Planes = hasDct16
+    ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
+    : undefined
+  const dct16Intermediate = hasDct16 ? allocateJpegXlArray(memory, Float32Array, 256) : undefined
+  const dct16Transformed = hasDct16 ? allocateJpegXlArray(memory, Float32Array, 256) : undefined
+  const fillDct16 = (blockX: number, blockY: number, correlated: boolean): void => {
+    if (!dct16Planes) throw invalidInput('JPEG XL DCT16 planes are missing')
+    for (let localY = 0; localY < 2; localY++)
+      for (let localX = 0; localX < 2; localX++) {
+        if (correlated) fillCorrelated(blockX + localX, blockY + localY)
+        else fill(blockX + localX, blockY + localY)
+        for (let channel = 0; channel < 3; channel++) {
+          const source = planes[channel]
+          const destination = dct16Planes[channel]
+          if (!source || !destination) throw invalidInput('JPEG XL DCT16 channel is missing')
+          for (let y = 0; y < 8; y++)
+            for (let x = 0; x < 8; x++)
+              destination[(localY * 8 + y) * 16 + localX * 8 + x] = source[y * 8 + x] ?? 0
+        }
+      }
+  }
+  if (hasDct16) {
+    if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
+      throw invalidInput('JPEG XL DCT16 scratch is missing')
+    const resampleScale =
+      1 / (Math.cos(Math.PI / 32) * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 8))
+    for (let blockY = 0; blockY + 1 < fullBlockHeight; blockY += 2) {
+      for (let blockX = 0; blockX + 1 < fullBlockWidth; blockX += 2) {
+        if (blockStrategyMap?.[blockY * fullBlockWidth + blockX] !== 4) continue
+        fillDct16(blockX, blockY, false)
+        for (let channel = 0; channel < 3; channel++) {
+          const plane = dct16Planes[channel]
+          const component = components[channel]
+          if (!plane || !component) throw invalidInput('JPEG XL DCT16 DC channel is missing')
+          forwardJpegXlDct16(plane, dct16Intermediate, dct16Transformed)
+          const c00 = dct16Transformed[0] ?? 0
+          const c10 = (dct16Transformed[16] ?? 0) / resampleScale
+          const c01 = (dct16Transformed[1] ?? 0) / resampleScale
+          const c11 = (dct16Transformed[17] ?? 0) / (resampleScale * resampleScale)
+          const dcStep = effectiveDistance * (dcQuantization[channel] ?? 0)
+          const offset = blockY * fullBlockWidth + blockX
+          component.coefficients[offset] = Math.round((c00 + c10 + c01 + c11) / dcStep)
+          component.coefficients[offset + 1] = Math.round((c00 - c10 + c01 - c11) / dcStep)
+          component.coefficients[offset + fullBlockWidth] = Math.round(
+            (c00 + c10 - c01 - c11) / dcStep,
+          )
+          component.coefficients[offset + fullBlockWidth + 1] = Math.round(
+            (c00 - c10 - c01 + c11) / dcStep,
+          )
+        }
+      }
+      yield
+    }
+  }
   const fastAcInverse =
     effort === 1
       ? defaultJpegXlDct8Dequantization.map((table) => {
@@ -793,15 +897,47 @@ function* prepare8(
     const originY = Math.floor(group / groupsAcross) * 32
     const blocksAcross = Math.min(32, fullBlockWidth - originX)
     const blocksDown = Math.min(32, fullBlockHeight - originY)
+    groupCoefficientOffsets?.fill(-1, 0, blocksAcross * blocksDown)
+    let cursor = 0
     for (let y = 0; y < blocksDown; y++) {
       for (let x = 0; x < blocksAcross; x++) {
-        fillCorrelated(originX + x, originY + y)
-        const strategy = blockStrategyMap?.[(originY + y) * fullBlockWidth + originX + x] ?? 0
+        const globalIndex = (originY + y) * fullBlockWidth + originX + x
+        const strategy = blockStrategyMap?.[globalIndex] ?? 0
+        if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
+        const localIndex = y * blocksAcross + x
+        const offset = groupCoefficientOffsets ? cursor : localIndex * 64
+        const coefficientCount = strategy === 4 ? 256 : 64
+        if (groupCoefficientOffsets) {
+          groupCoefficientOffsets[localIndex] = offset
+          cursor += coefficientCount
+        }
         const localScale =
-          65536 /
-          globalScale /
-          (blockQuantizationMap[(originY + y) * fullBlockWidth + originX + x] ?? blockQuantization)
-        const offset = (y * blocksAcross + x) * 64
+          65536 / globalScale / (blockQuantizationMap[globalIndex] ?? blockQuantization)
+        if (strategy === 4) {
+          if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
+            throw invalidInput('JPEG XL DCT16 scratch is missing')
+          fillDct16(originX + x, originY + y, true)
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = dct16Planes[channel]
+            const destination = acStorage[channel]
+            const table = defaultJpegXlDct16Dequantization[channel]
+            if (!plane || !destination || !table)
+              throw invalidInput('JPEG XL DCT16 channel is missing')
+            forwardJpegXlDct16(plane, dct16Intermediate, dct16Transformed)
+            destination.fill(0, offset, offset + 256)
+            for (let position = 0; position < 256; position++) {
+              if (position >>> 4 < 2 && (position & 15) < 2) continue
+              const value = Math.round(
+                (dct16Transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+              )
+              if (value < -4095 || value > 4095)
+                throw unsupportedOperation('JPEG XL DCT16 AC coefficient exceeds range')
+              destination[offset + position] = value
+            }
+          }
+          continue
+        }
+        fillCorrelated(originX + x, originY + y)
         for (let channel = 0; channel < 3; channel++) {
           const plane = planes[channel]
           const destination = acStorage[channel]
@@ -813,11 +949,12 @@ function* prepare8(
             if (!component) throw invalidInput('JPEG XL forward DC channel is missing')
             let sum = 0
             for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
-            component.coefficients[(originY + y) * fullBlockWidth + originX + x] = Math.round(
+            component.coefficients[globalIndex] = Math.round(
               sum / (64 * effectiveDistance * (dcQuantization[channel] ?? 0)),
             )
           }
           transform(strategy, plane)
+          destination[offset] = 0
           const inverse = fastAcInverse?.[channel]
           for (let position = 1; position < 64; position++) {
             const value = Math.round(
@@ -836,6 +973,9 @@ function* prepare8(
       blocksPerLineForMcu: blocksAcross,
       blocksPerColumnForMcu: blocksDown,
       coefficients,
+      ...(groupCoefficientOffsets
+        ? { coefficientOffsets: groupCoefficientOffsets.subarray(0, blocksAcross * blocksDown) }
+        : {}),
     }))
   }
   const passStorage = progressive

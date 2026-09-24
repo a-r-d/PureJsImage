@@ -1,0 +1,603 @@
+diff --git a/src/codecs/jpegxl-jpeg-encode.ts b/src/codecs/jpegxl-jpeg-encode.ts
+index 2e1b5e0..42b47af 100644
+--- a/src/codecs/jpegxl-jpeg-encode.ts
++++ b/src/codecs/jpegxl-jpeg-encode.ts
+@@ -38,6 +38,7 @@ export interface VarDctCoefficientPlane {
+   readonly blocksPerColumnForMcu: number
+   readonly coefficients: Int16Array | Int32Array
+   readonly coefficientStride?: 1 | 64
++  readonly coefficientOffsets?: Int32Array
+ }
+ 
+ export interface VarDctCoefficientGeometry {
+@@ -385,17 +386,39 @@ const dcGroupPlanes = (
+           geometry.epfSharpnessMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+   const strategyMap = geometry.blockStrategyMap
+   const strategyValues = metadata[2]?.values
+-  if (strategyMap && strategyValues)
+-    for (let y = 0; y < blockHeight; y++)
+-      for (let x = 0; x < blockWidth; x++)
+-        strategyValues[y * blockWidth + x] =
+-          strategyMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+   const quantizationMap = geometry.blockQuantizationMap
+-  const codedQuantization = metadata[2]?.values
+-  if (quantizationMap && codedQuantization) {
++  if (strategyMap && strategyValues) {
++    const covered = new Uint8Array(blockWidth * blockHeight)
++    let count = 0
++    for (let y = 0; y < blockHeight; y++) {
++      for (let x = 0; x < blockWidth; x++) {
++        if (covered[y * blockWidth + x] !== 0) continue
++        const source = (blockY + y) * geometry.fullBlockWidth + blockX + x
++        const strategy = strategyMap[source] ?? 0
++        const extent = strategy === 18 ? 8 : strategy === 4 ? 2 : 1
++        if (x + extent > blockWidth || y + extent > blockHeight)
++          throw invalidInput('JPEG XL AC strategy crosses a DC group')
++        strategyValues[count] = strategy
++        strategyValues[blockWidth * blockHeight + count] =
++          (quantizationMap?.[source] ?? geometry.blockQuantization ?? 1) - 1
++        for (let localY = 0; localY < extent; localY++)
++          for (let localX = 0; localX < extent; localX++)
++            covered[(y + localY) * blockWidth + x + localX] = 1
++        count++
++      }
++    }
++    if (count < blockWidth * blockHeight) {
++      strategyValues.copyWithin(count, blockWidth * blockHeight, blockWidth * blockHeight + count)
++      metadata[2] = Object.freeze({
++        width: count,
++        height: 2,
++        values: strategyValues.subarray(0, count * 2),
++      })
++    }
++  } else if (quantizationMap && strategyValues) {
+     for (let y = 0; y < blockHeight; y++)
+       for (let x = 0; x < blockWidth; x++)
+-        codedQuantization[blockWidth * blockHeight + y * blockWidth + x] =
++        strategyValues[blockWidth * blockHeight + y * blockWidth + x] =
+           (quantizationMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 1) - 1
+   }
+   const colorTileWidth = Math.ceil(geometry.fullBlockWidth / 8)
+@@ -420,8 +443,10 @@ const writeDcGroup = (
+   writer.writeBits(0, 2)
+   writePlanes(writer, planes.slice(0, 3), encoding, localTree)
+   const blockCount = planes[6]?.values.length ?? 0
+-  if (blockCount < 1) throw invalidInput('JPEG XL DC group metadata is empty')
+-  writer.writeBits(blockCount - 1, Math.ceil(Math.log2(blockCount)))
++  const strategyCount = planes[5]?.width ?? 0
++  if (blockCount < 1 || strategyCount < 1 || strategyCount > blockCount)
++    throw invalidInput('JPEG XL DC group metadata is empty')
++  writer.writeBits(strategyCount - 1, Math.ceil(Math.log2(blockCount)))
+   writePlanes(writer, planes.slice(3), encoding, localTree)
+ }
+ 
+@@ -547,6 +572,34 @@ const naturalOrder = (): Uint32Array => {
+   return order
+ }
+ 
++const naturalLargeSquareOrder = (blocks: number): Uint32Array => {
++  const side = blocks * 8
++  const order = new Uint32Array(side * side)
++  let next = blocks * blocks
++  for (let diagonal = 0; diagonal < side; diagonal++) {
++    for (let step = 0; step <= diagonal; step++) {
++      let x = step
++      let y = diagonal - step
++      if ((diagonal & 1) !== 0) [x, y] = [y, x]
++      const scan = x < blocks && y < blocks ? y * blocks + x : next++
++      order[scan] = y * side + x
++    }
++  }
++  for (let reverse = side - 1; reverse > 0; reverse--) {
++    const diagonal = reverse - 1
++    for (let step = 0; step <= diagonal; step++) {
++      let x = side - 1 - (diagonal - step)
++      let y = side - 1 - step
++      if ((diagonal & 1) !== 0) [x, y] = [y, x]
++      order[next++] = y * side + x
++    }
++  }
++  if (next !== side * side) throw invalidInput('JPEG XL large DCT coefficient order is incomplete')
++  return order
++}
++
++const dct16Order = naturalLargeSquareOrder(2)
++const dct64Order = naturalLargeSquareOrder(8)
+ const order = naturalOrder()
+ const transposed = (position: number): number => (position & 7) * 8 + (position >>> 3)
+ const naturalJpegXlOrder = Uint32Array.from(order, transposed)
+@@ -729,43 +782,45 @@ const visitAcGroup = (
+           )
+         })
+       : undefined
+-    for (let y = 0; y < blockHeight; y += 1) {
+-      for (let x = 0; x < blockWidth; x += 1) {
++    for (let y = 0; y < blockHeight; y++) {
++      for (let x = 0; x < blockWidth; x++) {
++        const strategy = geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
++        if ((strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) ||
++            (strategy === 18 && ((x & 7) !== 0 || (y & 7) !== 0))) continue
++        const coveredBlocks = strategy === 18 ? 64 : strategy === 4 ? 4 : 1
++        const coefficientCount = coveredBlocks * 64
+         for (const channel of [1, 0, 2]) {
+           const shift = geometry.shifts[channel]
+           const component = components[channel]
+           if (
+-            !shift ||
+-            !component ||
++            !shift || !component ||
+             (x & (2 ** shift[0] - 1)) !== 0 ||
+             (y & (2 ** shift[1] - 1)) !== 0
+-          )
+-            continue
++          ) continue
+           const componentX = ((geometry.loadAcGroup ? 0 : blockX) + x) >> shift[0]
+           const componentY = ((geometry.loadAcGroup ? 0 : blockY) + y) >> shift[1]
+-          const base = (componentY * component.blocksPerLineForMcu + componentX) * 64
+           const localX = x >> shift[0]
+           const localY = y >> shift[1]
+           const localWidth = blockWidth >> shift[0]
+-          const coefficientOrder = coefficientOrders[channel]
+-          if (!coefficientOrder) throw invalidInput('JPEG XL AC coefficient order is missing')
+-          let lastNonzero = 0
++          const offsetIndex = componentY * component.blocksPerLineForMcu + componentX
++          const base = component.coefficientOffsets?.[offsetIndex] ?? offsetIndex * 64
++          const coefficientOrder = strategy === 18 ? dct64Order : strategy === 4 ? dct16Order : coefficientOrders[channel]
++          if (!coefficientOrder || base < 0) throw invalidInput('JPEG XL AC coefficient block is missing')
++          let lastNonzero = coveredBlocks - 1
+           let nonzero = 0
+-          for (let scan = 1; scan < 64; scan += 1) {
++          for (let scan = coveredBlocks; scan < coefficientCount; scan++) {
+             const position = coefficientOrder[scan] ?? 0
+             if ((component.coefficients[base + position] ?? 0) !== 0) {
+               lastNonzero = scan
+-              nonzero += 1
++              nonzero++
+             }
+           }
+           if (!contextsNeeded) {
+             visit(nonzero, 0)
+-            for (let scan = 1; scan <= lastNonzero; scan++) {
++            for (let scan = coveredBlocks; scan <= lastNonzero; scan++) {
+               const coefficient = component.coefficients[base + (coefficientOrder[scan] ?? 0)] ?? 0
+               if (coefficient < -4095 || coefficient > 4095)
+-                throw unsupportedOperation(
+-                  'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
+-                )
++                throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
+               visit(packSigned(coefficient), 0)
+             }
+             continue
+@@ -774,25 +829,23 @@ const visitAcGroup = (
+           if (!nonzeroPlane) throw invalidInput('JPEG XL AC channel model is missing')
+           const blockContext = channel === 1 ? 0 : channel === 0 ? 1 : 2
+           const predicted = predictNonzeroCount(nonzeroPlane, localWidth, localX, localY)
+-          const nonzeroBucket =
+-            predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
++          const nonzeroBucket = predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
+           visit(nonzero, nonzeroBucket * 3 + blockContext)
+-          nonzeroPlane[localY * localWidth + localX] = nonzero
++          const distributed = Math.ceil(nonzero / coveredBlocks)
++          for (let coveredY = 0; coveredY < (strategy === 18 ? 8 : strategy === 4 ? 2 : 1); coveredY++)
++            for (let coveredX = 0; coveredX < (strategy === 18 ? 8 : strategy === 4 ? 2 : 1); coveredX++)
++              nonzeroPlane[(localY + coveredY) * localWidth + localX + coveredX] = distributed
+           let remainingNonzero = nonzero
+-          let previous = nonzero > 4 ? 0 : 1
+-          for (let scan = 1; scan <= lastNonzero; scan += 1) {
++          let previous = nonzero > coefficientCount / 16 ? 0 : 1
++          for (let scan = coveredBlocks; scan <= lastNonzero; scan++) {
+             const position = coefficientOrder[scan] ?? 0
+             const coefficient = component.coefficients[base + position] ?? 0
+-            if (coefficient < -4_095 || coefficient > 4_095) {
+-              throw unsupportedOperation(
+-                'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
+-              )
+-            }
+-            const remainingContext = coefficientNonzeroContext[remainingNonzero]
+-            const frequencyContext = coefficientFrequencyContext[scan]
+-            if (remainingContext === undefined || frequencyContext === undefined) {
++            if (coefficient < -4095 || coefficient > 4095)
++              throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
++            const remainingContext = coefficientNonzeroContext[Math.ceil(remainingNonzero / coveredBlocks)]
++            const frequencyContext = coefficientFrequencyContext[Math.floor(scan / coveredBlocks)]
++            if (remainingContext === undefined || frequencyContext === undefined)
+               throw invalidInput('JPEG XL AC coefficient context is invalid')
+-            }
+             const coefficientContext =
+               3 * 37 + 458 * blockContext + (remainingContext + frequencyContext) * 2 + previous
+             visit(packSigned(coefficient), coefficientContext)
+diff --git a/src/codecs/jpegxl-vardct-encode.ts b/src/codecs/jpegxl-vardct-encode.ts
+index 814355f..b246528 100644
+--- a/src/codecs/jpegxl-vardct-encode.ts
++++ b/src/codecs/jpegxl-vardct-encode.ts
+@@ -18,6 +18,8 @@ import {
+ import {
+   defaultJpegXlDct4x8Dequantization,
+   defaultJpegXlDct8Dequantization,
++  defaultJpegXlDct16Dequantization,
++  defaultJpegXlDct64Dequantization,
+   defaultJpegXlHornussDequantization,
+   defaultJpegXlQuantizationBiases,
+ } from './jpegxl-vardct-quantization.ts'
+@@ -63,6 +65,8 @@ const lookupCubeRoot = (linear: number, table: Float32Array): number => {
+ 
+ import {
+   forwardJpegXlDct8,
++  forwardJpegXlDct16,
++  forwardJpegXlDct64,
+   forwardJpegXlDctHalves,
+   forwardJpegXlHornuss,
+ } from './jpegxl-vardct-forward-transforms.ts'
+@@ -767,6 +771,33 @@ function* prepare8(
+     memory.release(baselineErrors)
+     memory.release(coefficientErrors)
+   }
++  if (
++    effort === 7 && channels === 3 && sampleDepth === 8 && sampleBytes === 1 &&
++    !progressive && primaryCode === 1 && colorTransfer.kind === 'srgb' && blockStrategyMap
++  ) {
++    for (let y = 0; y + 7 < fullBlockHeight; y += 8) {
++      for (let x = 0; x + 7 < fullBlockWidth; x += 8) {
++        let eligible = true
++        for (let localY = 0; localY < 8 && eligible; localY++)
++          for (let localX = 0; localX < 8; localX++) {
++            const index = (y + localY) * fullBlockWidth + x + localX
++            if (blockStrategyMap[index] !== 0 || blockQuantizationMap[index] !== 4) {
++              eligible = false
++              break
++            }
++          }
++        if (!eligible) continue
++        for (let localY = 0; localY < 8; localY++)
++          for (let localX = 0; localX < 8; localX++)
++            {
++              const index = (y + localY) * fullBlockWidth + x + localX
++              blockStrategyMap[index] = 18
++              blockQuantizationMap[index] = 6
++            }
++      }
++      yield
++    }
++  }
+   if (epfSharpnessMap) {
+     let active = 0
+     for (const sharpness of epfSharpnessMap) active += sharpness > 0 ? 1 : 0
+@@ -779,6 +810,132 @@ function* prepare8(
+   const acStorage = Array.from({ length: 3 }, () =>
+     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
+   )
++  const hasDct16 = blockStrategyMap?.includes(4) ?? false
++  const hasDct64 = blockStrategyMap?.includes(18) ?? false
++  const groupCoefficientOffsets = hasDct16 || hasDct64
++    ? allocateJpegXlArray(memory, Int32Array, 32 * 32)
++    : undefined
++  const dct16Planes = hasDct16
++    ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
++    : undefined
++  const dct16Intermediate = hasDct16 ? allocateJpegXlArray(memory, Float32Array, 256) : undefined
++  const dct16Transformed = hasDct16 ? allocateJpegXlArray(memory, Float32Array, 256) : undefined
++  const dct64Planes = hasDct64
++    ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 4096))
++    : undefined
++  const dct64Intermediate = hasDct64 ? allocateJpegXlArray(memory, Float32Array, 4096) : undefined
++  const dct64Transformed = hasDct64 ? allocateJpegXlArray(memory, Float32Array, 4096) : undefined
++  const fillDct64 = (blockX: number, blockY: number, correlated: boolean): void => {
++    if (!dct64Planes) throw invalidInput('JPEG XL DCT64 planes are missing')
++    for (let localY = 0; localY < 8; localY++)
++      for (let localX = 0; localX < 8; localX++) {
++        if (correlated) fillCorrelated(blockX + localX, blockY + localY)
++        else fill(blockX + localX, blockY + localY)
++        for (let channel = 0; channel < 3; channel++) {
++          const source = planes[channel]
++          const destination = dct64Planes[channel]
++          if (!source || !destination) throw invalidInput('JPEG XL DCT64 channel is missing')
++          for (let y = 0; y < 8; y++)
++            for (let x = 0; x < 8; x++)
++              destination[(localY * 8 + y) * 64 + localX * 8 + x] = source[y * 8 + x] ?? 0
++        }
++      }
++  }
++  const fillDct16 = (blockX: number, blockY: number, correlated: boolean): void => {
++    if (!dct16Planes) throw invalidInput('JPEG XL DCT16 planes are missing')
++    for (let localY = 0; localY < 2; localY++)
++      for (let localX = 0; localX < 2; localX++) {
++        if (correlated) fillCorrelated(blockX + localX, blockY + localY)
++        else fill(blockX + localX, blockY + localY)
++        for (let channel = 0; channel < 3; channel++) {
++          const source = planes[channel]
++          const destination = dct16Planes[channel]
++          if (!source || !destination) throw invalidInput('JPEG XL DCT16 channel is missing')
++          for (let y = 0; y < 8; y++)
++            for (let x = 0; x < 8; x++)
++              destination[(localY * 8 + y) * 16 + localX * 8 + x] = source[y * 8 + x] ?? 0
++        }
++      }
++  }
++  if (hasDct16) {
++    if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
++      throw invalidInput('JPEG XL DCT16 scratch is missing')
++    const resampleScale = 1 / (
++      Math.cos(Math.PI / 32) * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 8)
++    )
++    for (let blockY = 0; blockY + 1 < fullBlockHeight; blockY += 2) {
++      for (let blockX = 0; blockX + 1 < fullBlockWidth; blockX += 2) {
++        if (blockStrategyMap?.[blockY * fullBlockWidth + blockX] !== 4) continue
++        fillDct16(blockX, blockY, false)
++        for (let channel = 0; channel < 3; channel++) {
++          const plane = dct16Planes[channel]
++          const component = components[channel]
++          if (!plane || !component) throw invalidInput('JPEG XL DCT16 DC channel is missing')
++          forwardJpegXlDct16(plane, dct16Intermediate, dct16Transformed)
++          const c00 = dct16Transformed[0] ?? 0
++          const c10 = (dct16Transformed[16] ?? 0) / resampleScale
++          const c01 = (dct16Transformed[1] ?? 0) / resampleScale
++          const c11 = (dct16Transformed[17] ?? 0) / (resampleScale * resampleScale)
++          const dcStep = effectiveDistance * (dcQuantization[channel] ?? 0)
++          const offset = blockY * fullBlockWidth + blockX
++          component.coefficients[offset] = Math.round((c00 + c10 + c01 + c11) / dcStep)
++          component.coefficients[offset + 1] = Math.round((c00 - c10 + c01 - c11) / dcStep)
++          component.coefficients[offset + fullBlockWidth] = Math.round((c00 + c10 - c01 - c11) / dcStep)
++          component.coefficients[offset + fullBlockWidth + 1] =
++            Math.round((c00 - c10 - c01 + c11) / dcStep)
++        }
++      }
++      yield
++    }
++  }
++  if (hasDct64) {
++    if (!dct64Planes || !dct64Intermediate || !dct64Transformed)
++      throw invalidInput('JPEG XL DCT64 scratch is missing')
++    const basis8 = Float64Array.from({ length: 64 }, (_, index) => {
++      const frequency = index >>> 3
++      const position = index & 7
++      return Math.sqrt(2 / 8) * (frequency === 0 ? Math.SQRT1_2 : 1) *
++        Math.cos(((2 * position + 1) * frequency * Math.PI) / 16)
++    })
++    const resampleScales = Float64Array.from({ length: 8 }, (_, frequency) =>
++      1 / (
++        Math.cos((frequency * Math.PI) / 128) *
++        Math.cos((frequency * Math.PI) / 64) *
++        Math.cos((frequency * Math.PI) / 32)
++      ),
++    )
++    const low = new Float64Array(64)
++    for (let blockY = 0; blockY + 7 < fullBlockHeight; blockY += 8) {
++      for (let blockX = 0; blockX + 7 < fullBlockWidth; blockX += 8) {
++        if (blockStrategyMap?.[blockY * fullBlockWidth + blockX] !== 18) continue
++        fillDct64(blockX, blockY, false)
++        for (let channel = 0; channel < 3; channel++) {
++          const plane = dct64Planes[channel]
++          const component = components[channel]
++          if (!plane || !component) throw invalidInput('JPEG XL DCT64 DC channel is missing')
++          forwardJpegXlDct64(plane, dct64Intermediate, dct64Transformed)
++          for (let vertical = 0; vertical < 8; vertical++)
++            for (let horizontal = 0; horizontal < 8; horizontal++)
++              low[vertical * 8 + horizontal] =
++                (dct64Transformed[horizontal * 64 + vertical] ?? 0) /
++                ((resampleScales[horizontal] ?? 1) * (resampleScales[vertical] ?? 1))
++          const dcStep = effectiveDistance * (dcQuantization[channel] ?? 0)
++          for (let localY = 0; localY < 8; localY++)
++            for (let localX = 0; localX < 8; localX++) {
++              let sum = 0
++              for (let vertical = 0; vertical < 8; vertical++)
++                for (let horizontal = 0; horizontal < 8; horizontal++)
++                  sum += (low[vertical * 8 + horizontal] ?? 0) *
++                    (basis8[vertical * 8 + localY] ?? 0) *
++                    (basis8[horizontal * 8 + localX] ?? 0)
++              component.coefficients[(blockY + localY) * fullBlockWidth + blockX + localX] =
++                Math.round((sum * 8) / dcStep)
++            }
++        }
++      }
++      yield
++    }
++  }
+   const fastAcInverse =
+     effort === 1
+       ? defaultJpegXlDct8Dequantization.map((table) => {
+@@ -793,15 +950,65 @@ function* prepare8(
+     const originY = Math.floor(group / groupsAcross) * 32
+     const blocksAcross = Math.min(32, fullBlockWidth - originX)
+     const blocksDown = Math.min(32, fullBlockHeight - originY)
++    groupCoefficientOffsets?.fill(-1, 0, blocksAcross * blocksDown)
++    let cursor = 0
+     for (let y = 0; y < blocksDown; y++) {
+       for (let x = 0; x < blocksAcross; x++) {
++        const globalIndex = (originY + y) * fullBlockWidth + originX + x
++        const strategy = blockStrategyMap?.[globalIndex] ?? 0
++        if ((strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) ||
++          (strategy === 18 && ((x & 7) !== 0 || (y & 7) !== 0))) continue
++        const localIndex = y * blocksAcross + x
++        const offset = groupCoefficientOffsets ? cursor : localIndex * 64
++        const coefficientCount = strategy === 18 ? 4096 : strategy === 4 ? 256 : 64
++        if (groupCoefficientOffsets) {
++          groupCoefficientOffsets[localIndex] = offset
++          cursor += coefficientCount
++        }
++        const localScale = 65536 / globalScale / (blockQuantizationMap[globalIndex] ?? blockQuantization)
++        if (strategy === 18) {
++          if (!dct64Planes || !dct64Intermediate || !dct64Transformed)
++            throw invalidInput('JPEG XL DCT64 scratch is missing')
++          fillDct64(originX + x, originY + y, true)
++          for (let channel = 0; channel < 3; channel++) {
++            const plane = dct64Planes[channel]
++            const destination = acStorage[channel]
++            const table = defaultJpegXlDct64Dequantization[channel]
++            if (!plane || !destination || !table) throw invalidInput('JPEG XL DCT64 channel is missing')
++            forwardJpegXlDct64(plane, dct64Intermediate, dct64Transformed)
++            destination.fill(0, offset, offset + 4096)
++            for (let position = 0; position < 4096; position++) {
++              if ((position >>> 6) < 8 && (position & 63) < 8) continue
++              const value = Math.round((dct64Transformed[position] ?? 0) / (localScale * (table[position] ?? 0)))
++              if (value < -4095 || value > 4095)
++                throw unsupportedOperation('JPEG XL DCT64 AC coefficient exceeds range')
++              destination[offset + position] = value
++            }
++          }
++          continue
++        }
++        if (strategy === 4) {
++          if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
++            throw invalidInput('JPEG XL DCT16 scratch is missing')
++          fillDct16(originX + x, originY + y, true)
++          for (let channel = 0; channel < 3; channel++) {
++            const plane = dct16Planes[channel]
++            const destination = acStorage[channel]
++            const table = defaultJpegXlDct16Dequantization[channel]
++            if (!plane || !destination || !table) throw invalidInput('JPEG XL DCT16 channel is missing')
++            forwardJpegXlDct16(plane, dct16Intermediate, dct16Transformed)
++            destination.fill(0, offset, offset + 256)
++            for (let position = 0; position < 256; position++) {
++              if ((position >>> 4) < 2 && (position & 15) < 2) continue
++              const value = Math.round((dct16Transformed[position] ?? 0) / (localScale * (table[position] ?? 0)))
++              if (value < -4095 || value > 4095)
++                throw unsupportedOperation('JPEG XL DCT16 AC coefficient exceeds range')
++              destination[offset + position] = value
++            }
++          }
++          continue
++        }
+         fillCorrelated(originX + x, originY + y)
+-        const strategy = blockStrategyMap?.[(originY + y) * fullBlockWidth + originX + x] ?? 0
+-        const localScale =
+-          65536 /
+-          globalScale /
+-          (blockQuantizationMap[(originY + y) * fullBlockWidth + originX + x] ?? blockQuantization)
+-        const offset = (y * blocksAcross + x) * 64
+         for (let channel = 0; channel < 3; channel++) {
+           const plane = planes[channel]
+           const destination = acStorage[channel]
+@@ -813,11 +1020,12 @@ function* prepare8(
+             if (!component) throw invalidInput('JPEG XL forward DC channel is missing')
+             let sum = 0
+             for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
+-            component.coefficients[(originY + y) * fullBlockWidth + originX + x] = Math.round(
++            component.coefficients[globalIndex] = Math.round(
+               sum / (64 * effectiveDistance * (dcQuantization[channel] ?? 0)),
+             )
+           }
+           transform(strategy, plane)
++          destination[offset] = 0
+           const inverse = fastAcInverse?.[channel]
+           for (let position = 1; position < 64; position++) {
+             const value = Math.round(
+@@ -836,6 +1044,9 @@ function* prepare8(
+       blocksPerLineForMcu: blocksAcross,
+       blocksPerColumnForMcu: blocksDown,
+       coefficients,
++      ...(groupCoefficientOffsets
++        ? { coefficientOffsets: groupCoefficientOffsets.subarray(0, blocksAcross * blocksDown) }
++        : {}),
+     }))
+   }
+   const passStorage = progressive
+diff --git a/src/codecs/jpegxl-vardct-forward-transforms.ts b/src/codecs/jpegxl-vardct-forward-transforms.ts
+index 9e1a2ff..fc43a4a 100644
+--- a/src/codecs/jpegxl-vardct-forward-transforms.ts
++++ b/src/codecs/jpegxl-vardct-forward-transforms.ts
+@@ -129,3 +129,74 @@ export const forwardJpegXlDctHalves = (
+   coefficients[0] = (first + second) / 2
+   coefficients[8] = (first - second) / 2
+ }
++
++const basis16 = Float64Array.from({ length: 256 }, (_, index) => {
++  const frequency = index >>> 4
++  const position = index & 15
++  return (
++    Math.sqrt(2 / 16) *
++    (frequency === 0 ? Math.SQRT1_2 : 1) *
++    Math.cos(((2 * position + 1) * frequency * Math.PI) / 32)
++  )
++})
++
++/** Forward DCT16 in the decoder's transposed, mean-normalized coefficient order. */
++export const forwardJpegXlDct16 = (
++  samples: Float32Array,
++  intermediate: Float32Array,
++  coefficients: Float32Array,
++): void => {
++  if (samples.length !== 256 || intermediate.length !== 256 || coefficients.length !== 256)
++    throw invalidInput('JPEG XL DCT16 requires three 256-value buffers')
++  for (let y = 0; y < 16; y++) {
++    for (let horizontal = 0; horizontal < 16; horizontal++) {
++      let sum = 0
++      for (let x = 0; x < 16; x++)
++        sum += (samples[y * 16 + x] ?? 0) * (basis16[horizontal * 16 + x] ?? 0)
++      intermediate[y * 16 + horizontal] = sum
++    }
++  }
++  for (let horizontal = 0; horizontal < 16; horizontal++) {
++    for (let vertical = 0; vertical < 16; vertical++) {
++      let sum = 0
++      for (let y = 0; y < 16; y++)
++        sum += (intermediate[y * 16 + horizontal] ?? 0) * (basis16[vertical * 16 + y] ?? 0)
++      coefficients[horizontal * 16 + vertical] = sum / 16
++    }
++  }
++}
++
++const basis64 = Float32Array.from({ length: 4096 }, (_, index) => {
++  const frequency = index >>> 6
++  const position = index & 63
++  return (
++    Math.sqrt(2 / 64) *
++    (frequency === 0 ? Math.SQRT1_2 : 1) *
++    Math.cos(((2 * position + 1) * frequency * Math.PI) / 128)
++  )
++})
++
++export const forwardJpegXlDct64 = (
++  samples: Float32Array,
++  intermediate: Float32Array,
++  coefficients: Float32Array,
++): void => {
++  if (samples.length !== 4096 || intermediate.length !== 4096 || coefficients.length !== 4096)
++    throw invalidInput('JPEG XL DCT64 requires three 4096-value buffers')
++  for (let y = 0; y < 64; y++) {
++    for (let horizontal = 0; horizontal < 64; horizontal++) {
++      let sum = 0
++      for (let x = 0; x < 64; x++)
++        sum += (samples[y * 64 + x] ?? 0) * (basis64[horizontal * 64 + x] ?? 0)
++      intermediate[y * 64 + horizontal] = sum
++    }
++  }
++  for (let horizontal = 0; horizontal < 64; horizontal++) {
++    for (let vertical = 0; vertical < 64; vertical++) {
++      let sum = 0
++      for (let y = 0; y < 64; y++)
++        sum += (intermediate[y * 64 + horizontal] ?? 0) * (basis64[vertical * 64 + y] ?? 0)
++      coefficients[horizontal * 64 + vertical] = sum / 64
++    }
++  }
++}
+diff --git a/src/codecs/jpegxl-vardct-quantization.ts b/src/codecs/jpegxl-vardct-quantization.ts
+index fdecc6b..db6c307 100644
+--- a/src/codecs/jpegxl-vardct-quantization.ts
++++ b/src/codecs/jpegxl-vardct-quantization.ts
+@@ -84,6 +84,26 @@ export const defaultJpegXlHornussDequantization = Object.freeze(
+     return table
+   }),
+ )
++export const defaultJpegXlDct64Dequantization: readonly Float64Array[] = Object.freeze(
++  [
++    [23966.166, -1.025, -0.78, -0.65012, -0.19041574, -0.20819396, -0.421064, -0.32733846],
++    [8380.191, -0.30419582, -0.36330363, -0.3566038, -0.34430745, -0.33699593, -0.30180866, -0.27321684],
++    [4493.024, -1.2, -1.2, -0.8, -0.7, -0.7, -0.4, -0.5],
++  ].map((bands) =>
++    Float64Array.from(jpegXlDistanceWeights(64, 64, bands), (weight) => 1 / weight),
++  ),
++)
++
++export const defaultJpegXlDct16Dequantization: readonly Float64Array[] = Object.freeze(
++  [
++    [8996.873, -1.3000778, -0.4942453, -0.43909377, -0.6350102, -0.9017726, -1.6162099],
++    [3191.4836, -0.67424583, -0.80745816, -0.4492584, -0.3586544, -0.3132239, -0.37615025],
++    [1157.504, -2.0531423, -1.4, -0.5068713, -0.4270873, -1.4856834, -4.920914],
++  ].map((bands) =>
++    Float64Array.from(jpegXlDistanceWeights(16, 16, bands), (weight) => 1 / weight),
++  ),
++)
++
+ export const defaultJpegXlDct4x8Weights = Object.freeze(
+   dct4x8Bands.map((bands) => jpegXlDistanceWeights(4, 8, bands)),
+ )

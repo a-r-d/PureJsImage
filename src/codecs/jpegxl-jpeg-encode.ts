@@ -38,6 +38,7 @@ export interface VarDctCoefficientPlane {
   readonly blocksPerColumnForMcu: number
   readonly coefficients: Int16Array | Int32Array
   readonly coefficientStride?: 1 | 64
+  readonly coefficientOffsets?: Int32Array
 }
 
 export interface VarDctCoefficientGeometry {
@@ -385,17 +386,39 @@ const dcGroupPlanes = (
           geometry.epfSharpnessMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
   const strategyMap = geometry.blockStrategyMap
   const strategyValues = metadata[2]?.values
-  if (strategyMap && strategyValues)
-    for (let y = 0; y < blockHeight; y++)
-      for (let x = 0; x < blockWidth; x++)
-        strategyValues[y * blockWidth + x] =
-          strategyMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
   const quantizationMap = geometry.blockQuantizationMap
-  const codedQuantization = metadata[2]?.values
-  if (quantizationMap && codedQuantization) {
+  if (strategyMap && strategyValues) {
+    const covered = new Uint8Array(blockWidth * blockHeight)
+    let count = 0
+    for (let y = 0; y < blockHeight; y++) {
+      for (let x = 0; x < blockWidth; x++) {
+        if (covered[y * blockWidth + x] !== 0) continue
+        const source = (blockY + y) * geometry.fullBlockWidth + blockX + x
+        const strategy = strategyMap[source] ?? 0
+        const extent = strategy === 4 ? 2 : 1
+        if (x + extent > blockWidth || y + extent > blockHeight)
+          throw invalidInput('JPEG XL AC strategy crosses a DC group')
+        strategyValues[count] = strategy
+        strategyValues[blockWidth * blockHeight + count] =
+          (quantizationMap?.[source] ?? geometry.blockQuantization ?? 1) - 1
+        for (let localY = 0; localY < extent; localY++)
+          for (let localX = 0; localX < extent; localX++)
+            covered[(y + localY) * blockWidth + x + localX] = 1
+        count++
+      }
+    }
+    if (count < blockWidth * blockHeight) {
+      strategyValues.copyWithin(count, blockWidth * blockHeight, blockWidth * blockHeight + count)
+      metadata[2] = Object.freeze({
+        width: count,
+        height: 2,
+        values: strategyValues.subarray(0, count * 2),
+      })
+    }
+  } else if (quantizationMap && strategyValues) {
     for (let y = 0; y < blockHeight; y++)
       for (let x = 0; x < blockWidth; x++)
-        codedQuantization[blockWidth * blockHeight + y * blockWidth + x] =
+        strategyValues[blockWidth * blockHeight + y * blockWidth + x] =
           (quantizationMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 1) - 1
   }
   const colorTileWidth = Math.ceil(geometry.fullBlockWidth / 8)
@@ -420,8 +443,10 @@ const writeDcGroup = (
   writer.writeBits(0, 2)
   writePlanes(writer, planes.slice(0, 3), encoding, localTree)
   const blockCount = planes[6]?.values.length ?? 0
-  if (blockCount < 1) throw invalidInput('JPEG XL DC group metadata is empty')
-  writer.writeBits(blockCount - 1, Math.ceil(Math.log2(blockCount)))
+  const strategyCount = planes[5]?.width ?? 0
+  if (blockCount < 1 || strategyCount < 1 || strategyCount > blockCount)
+    throw invalidInput('JPEG XL DC group metadata is empty')
+  writer.writeBits(strategyCount - 1, Math.ceil(Math.log2(blockCount)))
   writePlanes(writer, planes.slice(3), encoding, localTree)
 }
 
@@ -547,6 +572,32 @@ const naturalOrder = (): Uint32Array => {
   return order
 }
 
+const naturalDct16Order = (): Uint32Array => {
+  const order = new Uint32Array(256)
+  let next = 4
+  for (let diagonal = 0; diagonal < 16; diagonal++) {
+    for (let step = 0; step <= diagonal; step++) {
+      let x = step
+      let y = diagonal - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      const scan = x < 2 && y < 2 ? y * 2 + x : next++
+      order[scan] = y * 16 + x
+    }
+  }
+  for (let reverse = 15; reverse > 0; reverse--) {
+    const diagonal = reverse - 1
+    for (let step = 0; step <= diagonal; step++) {
+      let x = 15 - (diagonal - step)
+      let y = 15 - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      order[next++] = y * 16 + x
+    }
+  }
+  if (next !== 256) throw invalidInput('JPEG XL DCT16 coefficient order is incomplete')
+  return order
+}
+
+const dct16Order = naturalDct16Order()
 const order = naturalOrder()
 const transposed = (position: number): number => (position & 7) * 8 + (position >>> 3)
 const naturalJpegXlOrder = Uint32Array.from(order, transposed)
@@ -729,8 +780,13 @@ const visitAcGroup = (
           )
         })
       : undefined
-    for (let y = 0; y < blockHeight; y += 1) {
-      for (let x = 0; x < blockWidth; x += 1) {
+    for (let y = 0; y < blockHeight; y++) {
+      for (let x = 0; x < blockWidth; x++) {
+        const strategy =
+          geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+        if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
+        const coveredBlocks = strategy === 4 ? 4 : 1
+        const coefficientCount = coveredBlocks * 64
         for (const channel of [1, 0, 2]) {
           const shift = geometry.shifts[channel]
           const component = components[channel]
@@ -743,29 +799,29 @@ const visitAcGroup = (
             continue
           const componentX = ((geometry.loadAcGroup ? 0 : blockX) + x) >> shift[0]
           const componentY = ((geometry.loadAcGroup ? 0 : blockY) + y) >> shift[1]
-          const base = (componentY * component.blocksPerLineForMcu + componentX) * 64
           const localX = x >> shift[0]
           const localY = y >> shift[1]
           const localWidth = blockWidth >> shift[0]
-          const coefficientOrder = coefficientOrders[channel]
-          if (!coefficientOrder) throw invalidInput('JPEG XL AC coefficient order is missing')
-          let lastNonzero = 0
+          const offsetIndex = componentY * component.blocksPerLineForMcu + componentX
+          const base = component.coefficientOffsets?.[offsetIndex] ?? offsetIndex * 64
+          const coefficientOrder = strategy === 4 ? dct16Order : coefficientOrders[channel]
+          if (!coefficientOrder || base < 0)
+            throw invalidInput('JPEG XL AC coefficient block is missing')
+          let lastNonzero = coveredBlocks - 1
           let nonzero = 0
-          for (let scan = 1; scan < 64; scan += 1) {
+          for (let scan = coveredBlocks; scan < coefficientCount; scan++) {
             const position = coefficientOrder[scan] ?? 0
             if ((component.coefficients[base + position] ?? 0) !== 0) {
               lastNonzero = scan
-              nonzero += 1
+              nonzero++
             }
           }
           if (!contextsNeeded) {
             visit(nonzero, 0)
-            for (let scan = 1; scan <= lastNonzero; scan++) {
+            for (let scan = coveredBlocks; scan <= lastNonzero; scan++) {
               const coefficient = component.coefficients[base + (coefficientOrder[scan] ?? 0)] ?? 0
               if (coefficient < -4095 || coefficient > 4095)
-                throw unsupportedOperation(
-                  'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
-                )
+                throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
               visit(packSigned(coefficient), 0)
             }
             continue
@@ -777,22 +833,22 @@ const visitAcGroup = (
           const nonzeroBucket =
             predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
           visit(nonzero, nonzeroBucket * 3 + blockContext)
-          nonzeroPlane[localY * localWidth + localX] = nonzero
+          const distributed = Math.ceil(nonzero / coveredBlocks)
+          for (let coveredY = 0; coveredY < (strategy === 4 ? 2 : 1); coveredY++)
+            for (let coveredX = 0; coveredX < (strategy === 4 ? 2 : 1); coveredX++)
+              nonzeroPlane[(localY + coveredY) * localWidth + localX + coveredX] = distributed
           let remainingNonzero = nonzero
-          let previous = nonzero > 4 ? 0 : 1
-          for (let scan = 1; scan <= lastNonzero; scan += 1) {
+          let previous = nonzero > coefficientCount / 16 ? 0 : 1
+          for (let scan = coveredBlocks; scan <= lastNonzero; scan++) {
             const position = coefficientOrder[scan] ?? 0
             const coefficient = component.coefficients[base + position] ?? 0
-            if (coefficient < -4_095 || coefficient > 4_095) {
-              throw unsupportedOperation(
-                'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
-              )
-            }
-            const remainingContext = coefficientNonzeroContext[remainingNonzero]
-            const frequencyContext = coefficientFrequencyContext[scan]
-            if (remainingContext === undefined || frequencyContext === undefined) {
+            if (coefficient < -4095 || coefficient > 4095)
+              throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
+            const remainingContext =
+              coefficientNonzeroContext[Math.ceil(remainingNonzero / coveredBlocks)]
+            const frequencyContext = coefficientFrequencyContext[Math.floor(scan / coveredBlocks)]
+            if (remainingContext === undefined || frequencyContext === undefined)
               throw invalidInput('JPEG XL AC coefficient context is invalid')
-            }
             const coefficientContext =
               3 * 37 + 458 * blockContext + (remainingContext + frequencyContext) * 2 + previous
             visit(packSigned(coefficient), coefficientContext)

@@ -84,6 +84,14 @@ export const defaultJpegXlHornussDequantization = Object.freeze(
     return table
   }),
 )
+export const defaultJpegXlDct16Dequantization: readonly Float64Array[] = Object.freeze(
+  [
+    [8996.873, -1.3000778, -0.4942453, -0.43909377, -0.6350102, -0.9017726, -1.6162099],
+    [3191.4836, -0.67424583, -0.80745816, -0.4492584, -0.3586544, -0.3132239, -0.37615025],
+    [1157.504, -2.0531423, -1.4, -0.5068713, -0.4270873, -1.4856834, -4.920914],
+  ].map((bands) => Float64Array.from(jpegXlDistanceWeights(16, 16, bands), (weight) => 1 / weight)),
+)
+
 export const defaultJpegXlDct4x8Weights = Object.freeze(
   dct4x8Bands.map((bands) => jpegXlDistanceWeights(4, 8, bands)),
 )

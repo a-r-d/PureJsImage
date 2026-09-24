@@ -13,9 +13,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // JPEG XL budgets include the measured opaque screenshot patch search and two-frame writer.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 455_000 },
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 543_000 },
+  // JPEG XL budgets include the screenshot patch search, two-frame writer, and larger-transform backend.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 475_000 },
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 563_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

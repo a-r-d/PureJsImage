@@ -129,3 +129,39 @@ export const forwardJpegXlDctHalves = (
   coefficients[0] = (first + second) / 2
   coefficients[8] = (first - second) / 2
 }
+
+const basis16 = Float64Array.from({ length: 256 }, (_, index) => {
+  const frequency = index >>> 4
+  const position = index & 15
+  return (
+    Math.sqrt(2 / 16) *
+    (frequency === 0 ? Math.SQRT1_2 : 1) *
+    Math.cos(((2 * position + 1) * frequency * Math.PI) / 32)
+  )
+})
+
+/** Forward DCT16 in the decoder's transposed, mean-normalized coefficient order. */
+export const forwardJpegXlDct16 = (
+  samples: Float32Array,
+  intermediate: Float32Array,
+  coefficients: Float32Array,
+): void => {
+  if (samples.length !== 256 || intermediate.length !== 256 || coefficients.length !== 256)
+    throw invalidInput('JPEG XL DCT16 requires three 256-value buffers')
+  for (let y = 0; y < 16; y++) {
+    for (let horizontal = 0; horizontal < 16; horizontal++) {
+      let sum = 0
+      for (let x = 0; x < 16; x++)
+        sum += (samples[y * 16 + x] ?? 0) * (basis16[horizontal * 16 + x] ?? 0)
+      intermediate[y * 16 + horizontal] = sum
+    }
+  }
+  for (let horizontal = 0; horizontal < 16; horizontal++) {
+    for (let vertical = 0; vertical < 16; vertical++) {
+      let sum = 0
+      for (let y = 0; y < 16; y++)
+        sum += (intermediate[y * 16 + horizontal] ?? 0) * (basis16[vertical * 16 + y] ?? 0)
+      coefficients[horizontal * 16 + vertical] = sum / 16
+    }
+  }
+}

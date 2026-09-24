@@ -15,10 +15,12 @@ sharp.concurrency(1)
 sharp.cache(false)
 const [mode, runId] = process.argv.slice(2)
 if (
-  (mode !== 'prepare' && mode !== 'own' && mode !== 'baseline') ||
+  (mode !== 'prepare' && mode !== 'own' && mode !== 'baseline' && mode !== 'experimental-dct16') ||
   (mode !== 'prepare' && (!runId || !/^[a-z0-9-]+$/u.test(runId)))
 )
-  throw new Error('Usage: run-m7-diagnostic.ts prepare | baseline|own unique-run-id')
+  throw new Error(
+    'Usage: run-m7-diagnostic.ts prepare | baseline|own|experimental-dct16 unique-run-id',
+  )
 const fixtures = '.tmp/jpegxl-m7/diagnostic-fixtures-v1'
 const native = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
 const metrics = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools'
@@ -150,6 +152,11 @@ if (mode === 'prepare') {
               undefined,
               3,
               7,
+              undefined,
+              8,
+              false,
+              undefined,
+              mode === 'experimental-dct16',
             ))
               await sink.write(part)
             await writeFile(`${path}.jxl`, sink.toUint8Array(), { flag: 'wx' })
