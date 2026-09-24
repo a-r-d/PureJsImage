@@ -1,7 +1,13 @@
 import { throwIfAborted } from '../abort.ts'
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
+import {
+  ImageError,
+  invalidInput,
+  limitExceeded,
+  truncatedInput,
+  unsupportedOperation,
+} from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
@@ -18,6 +24,7 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
+import { findFlatScreenshotPatches, hasFlatScreenshotBackground } from './jpegxl-flat-patches.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import { encodeJpegXlVarDct8Async } from './jpegxl-vardct-encode.ts'
 
@@ -1314,6 +1321,79 @@ const palettePlanes = (
   })
 }
 
+type PaletteOrder = 'luma' | 'morton' | 'hue'
+
+/** Reorder an existing palette without changing any source color or alpha sample. */
+const reorderPalettePlanes = (
+  prepared: Readonly<PreparedModularPlanes>,
+  orderMode: PaletteOrder,
+  memory?: JpegXlEncoderMemory,
+): PreparedModularPlanes =>
+  withJpegXlMemory(memory, () => {
+    const sourcePalette = prepared.planes.values[0]
+    const sourceIndices = prepared.planes.values[1]
+    const transform = prepared.transforms.palette
+    if (!sourcePalette || !sourceIndices || !transform || transform.deltaCount !== 0)
+      throw invalidInput('JPEG XL regular palette is unavailable')
+    const { colorCount, channelCount } = transform
+    const order = allocateJpegXlArray(memory, Uint16Array, colorCount)
+    const keys = new Array<number>(colorCount)
+    for (let color = 0; color < colorCount; color++) {
+      order[color] = color
+      const red = sourcePalette[color] ?? 0
+      const green = sourcePalette[colorCount + color] ?? 0
+      const blue = sourcePalette[colorCount * 2 + color] ?? 0
+      const alpha = sourcePalette[colorCount * 3 + color] ?? 0
+      if (orderMode === 'luma') {
+        keys[color] =
+          ((red * 3 + green * 6 + blue) * 256 + alpha) * 16_777_216 +
+          ((red * 256 + green) * 256 + blue)
+      } else if (orderMode === 'morton') {
+        let key = 0
+        for (let bit = 7; bit >= 0; bit--)
+          key =
+            key * 8 +
+            (((red >>> bit) & 1) << 2) +
+            (((green >>> bit) & 1) << 1) +
+            ((blue >>> bit) & 1)
+        keys[color] = key * 256 + alpha
+      } else {
+        const maximum = Math.max(red, green, blue)
+        const minimum = Math.min(red, green, blue)
+        const delta = maximum - minimum
+        const hue =
+          delta === 0
+            ? -1
+            : maximum === red
+              ? ((green - blue) / delta + 6) % 6
+              : maximum === green
+                ? (blue - red) / delta + 2
+                : (red - green) / delta + 4
+        const saturation = maximum === 0 ? 0 : delta / maximum
+        keys[color] = ((hue + 1) * 1_000_000 + saturation * 1_000 + maximum) * 256 + alpha
+      }
+    }
+    order.sort((left, right) => (keys[left] ?? 0) - (keys[right] ?? 0) || left - right)
+    const inverse = allocateJpegXlArray(memory, Uint16Array, colorCount)
+    for (let color = 0; color < colorCount; color++) inverse[order[color] ?? 0] = color
+    const indices = allocateJpegXlArray(memory, Int32Array, sourceIndices.length)
+    for (let position = 0; position < sourceIndices.length; position++)
+      indices[position] = inverse[sourceIndices[position] ?? 0] ?? 0
+    const palette = allocateJpegXlArray(memory, Int32Array, sourcePalette.length)
+    for (let channel = 0; channel < channelCount; channel++)
+      for (let color = 0; color < colorCount; color++)
+        palette[channel * colorCount + color] =
+          sourcePalette[channel * colorCount + (order[color] ?? 0)] ?? 0
+    return Object.freeze({
+      planes: Object.freeze({
+        values: Object.freeze([palette, indices]),
+        widths: prepared.planes.widths,
+        heights: prepared.planes.heights,
+      }),
+      transforms: prepared.transforms,
+    })
+  })
+
 const smoothSqueezeTendency = (previous: number, average: number, next: number): number => {
   let difference = 0
   if (previous >= average && average >= next) {
@@ -1985,6 +2065,17 @@ export const writeChannelTree = (
   })
 }
 
+const defaultModularHybridConfiguration: HybridUintEncoding = {
+  splitExponent: 4,
+  msbInToken: 2,
+  lsbInToken: 0,
+}
+const modularHybridConfigurations: readonly HybridUintEncoding[] = [
+  defaultModularHybridConfiguration,
+  { splitExponent: 2, msbInToken: 1, lsbInToken: 0 },
+  { splitExponent: 3, msbInToken: 1, lsbInToken: 0 },
+]
+
 interface ModularEntropyPlan {
   readonly predictors: readonly number[]
   readonly treePredictors: readonly number[]
@@ -2121,6 +2212,7 @@ const buildTokenPlan = (
   effort: JpegXlLosslessEffort,
   allowLz77: boolean,
   memory?: JpegXlEncoderMemory,
+  config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
 ): ModularEntropyPlan => {
   return withJpegXlMemory(memory, () => {
     const {
@@ -2135,11 +2227,6 @@ const buildTokenPlan = (
       distanceMultiplier,
     } = residualPlan
     const originalCount = residuals.length
-    const config = Object.freeze({
-      splitExponent: 4,
-      msbInToken: 2,
-      lsbInToken: 0,
-    })
     const useLz77 = allowLz77 && effort >= 5 && originalCount >= 64
     const packedValues = allocateJpegXlArray(memory, Uint32Array, originalCount)
     const contexts = allocateJpegXlArray(memory, Uint16Array, packedValues.length)
@@ -2609,6 +2696,29 @@ const encodeSingleGroupSection = (
         candidates.push(encodePrepared(rctBase, true))
       }
     }
+    if (
+      effort === 7 &&
+      format === 'rgba8' &&
+      width * height <= 262_144 &&
+      prepared.transforms.palette?.deltaCount === 0
+    ) {
+      // Actual encoded bytes choose the order; the original palette remains a size floor.
+      for (const order of ['luma', 'morton', 'hue'] as const) {
+        await checkpoint?.()
+        const candidate = await withJpegXlMemoryAsync(memory, async () => {
+          const ordered = reorderPalettePlanes(prepared, order, memory)
+          const variants = [encodePrepared(ordered, false), encodePrepared(ordered, true)]
+          await checkpoint?.()
+          variants.push(encodePrepared(ordered, false, true))
+          await checkpoint?.()
+          variants.push(encodePrepared(ordered, true, true))
+          return variants.reduce((smallest, variant) =>
+            variant.byteLength < smallest.byteLength ? variant : smallest,
+          )
+        })
+        candidates.push(candidate)
+      }
+    }
     if ((prepared.transforms.palette?.colorCount ?? 0) > 256) {
       await checkpoint?.()
       // Keep the former 256-color decision as a size floor for the expanded candidate.
@@ -2665,9 +2775,10 @@ const encodeAdaptiveGroup = (
   outputLimit: number,
   memory?: JpegXlEncoderMemory,
   transforms: Readonly<ModularTransforms> = { useRct: false },
+  config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
 ): Uint8Array =>
   withJpegXlMemory(memory, () => {
-    const plan = buildTokenPlan(residualPlan, effort, allowLz77, memory)
+    const plan = buildTokenPlan(residualPlan, effort, allowLz77, memory, config)
     const writer = new JpegXlBitWriter(memory, outputLimit)
     writeModularHeader(writer, false, transforms)
     writeChannelTree(writer, plan.treePredictors, plan.gradientContexts)
@@ -2675,7 +2786,7 @@ const encodeAdaptiveGroup = (
       writer,
       plan.entropyContextMap,
       plan.frequencies,
-      { splitExponent: 4, msbInToken: 2, lsbInToken: 0 },
+      config,
       plan.lz77,
     )
     writeAnsPixels(writer, plan, encoding)
@@ -2709,6 +2820,7 @@ const encodeGroupCandidate = (
       await checkpoint?.()
       lz77 = encodeAdaptiveGroup(residualPlan, effort, true, limit, memory, transforms)
     }
+    let selectedPlan = residualPlan
     let selected: EncodedModularCandidate = {
       bytes: lz77 && lz77.length < plain.length ? lz77 : plain,
       contextModel: 'channel',
@@ -2730,6 +2842,7 @@ const encodeGroupCandidate = (
         await checkpoint?.()
         const lz77 = encodeAdaptiveGroup(plan, effort, true, limit, memory, transforms)
         return Object.freeze({
+          plan,
           bytes: lz77.length < plain.length ? lz77 : plain,
           contextModel: 'gradient',
           predictors,
@@ -2739,7 +2852,30 @@ const encodeGroupCandidate = (
           lz77Bytes: lz77.length,
         })
       })
-      if (contextual.bytes.length < selected.bytes.length) selected = contextual
+      if (contextual.bytes.length < selected.bytes.length) {
+        selected = contextual
+        selectedPlan = contextual.plan
+      }
+    }
+    if (effort === 7) {
+      for (let index = 1; index < modularHybridConfigurations.length; index++) {
+        const config = modularHybridConfigurations[index]
+        if (!config) throw invalidInput('JPEG XL Modular hybrid configuration is missing')
+        await checkpoint?.()
+        const candidate = encodeAdaptiveGroup(
+          selectedPlan,
+          effort,
+          selected.lz77,
+          limit,
+          memory,
+          transforms,
+          config,
+        )
+        if (candidate.length < selected.bytes.length) {
+          memory?.release(selected.bytes)
+          selected = { ...selected, bytes: candidate }
+        } else memory?.release(candidate)
+      }
     }
     return Object.freeze(selected)
   })
@@ -3395,6 +3531,512 @@ interface EncodedJpegXlCodestream {
   readonly byteLength: number
 }
 
+// Limit the extra effort-7 search to large white-background documents.
+export const useLargeDocumentModularCandidate = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  format: ModularPixelFormat,
+  options: Readonly<
+    Pick<
+      ResolvedJpegXlEncodeOptions,
+      'effort' | 'distance' | 'progressive' | 'sampleBitDepth' | 'colorSemantics'
+    >
+  >,
+): boolean => {
+  if (
+    format !== 'rgb8' ||
+    width * height < 8_000_000 ||
+    options.effort !== 7 ||
+    options.distance < 2 ||
+    options.progressive ||
+    options.sampleBitDepth !== 8 ||
+    options.colorSemantics.primaries !== 'srgb' ||
+    options.colorSemantics.transfer.kind !== 'srgb'
+  )
+    return false
+  let white = 0
+  let sampled = 0
+  for (let offset = 0; offset < pixels.length; offset += 192) {
+    sampled++
+    if (
+      (pixels[offset] ?? 0) >= 248 &&
+      (pixels[offset + 1] ?? 0) >= 248 &&
+      (pixels[offset + 2] ?? 0) >= 248
+    )
+      white++
+  }
+  return white * 5 >= sampled * 4
+}
+
+interface DocumentPatch {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+interface DocumentPatchGroup {
+  readonly source: DocumentPatch
+  readonly placements: readonly DocumentPatch[]
+  atlasX: number
+  atlasY: number
+}
+
+/** Only repeated, byte-identical small components on a pale page can enter the atlas. */
+const findDocumentPatches = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  memory: JpegXlEncoderMemory,
+): DocumentPatchGroup[] => {
+  const count = width * height
+  const visited = allocateJpegXlArray(memory, Uint8Array, count)
+  const stack = allocateJpegXlArray(memory, Int32Array, count)
+  const byShape = new Map<string, DocumentPatch[]>()
+  const foreground = (index: number): boolean => {
+    const offset = index * 3
+    return (
+      (pixels[offset] ?? 255) < 245 ||
+      (pixels[offset + 1] ?? 255) < 245 ||
+      (pixels[offset + 2] ?? 255) < 245
+    )
+  }
+  let componentCount = 0
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const start = y * width + x
+      if (visited[start] || !foreground(start)) continue
+      if (++componentCount > 20_000) return []
+      visited[start] = 1
+      stack[0] = start
+      let stackSize = 1
+      let minX = x,
+        maxX = x,
+        minY = y,
+        maxY = y,
+        darkPixels = 0
+      while (stackSize > 0) {
+        const position = stack[--stackSize]!
+        const atX = position % width,
+          atY = (position / width) | 0
+        darkPixels++
+        if (atX < minX) minX = atX
+        if (atX > maxX) maxX = atX
+        if (atY < minY) minY = atY
+        if (atY > maxY) maxY = atY
+        for (let dy = -1; dy <= 1; dy++) {
+          const nextY = atY + dy
+          if (nextY < 0 || nextY >= height) continue
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue
+            const nextX = atX + dx
+            if (nextX < 0 || nextX >= width) continue
+            const next = nextY * width + nextX
+            if (visited[next] || !foreground(next)) continue
+            visited[next] = 1
+            stack[stackSize++] = next
+          }
+        }
+      }
+      const patchWidth = maxX - minX + 1,
+        patchHeight = maxY - minY + 1
+      if (patchWidth > 64 || patchHeight > 64 || patchWidth * patchHeight < 20 || darkPixels < 8)
+        continue
+      const key = `${patchWidth}:${patchHeight}`
+      const patches = byShape.get(key) ?? []
+      patches.push({ x: minX, y: minY, width: patchWidth, height: patchHeight })
+      byShape.set(key, patches)
+    }
+  }
+  memory.release(stack)
+  memory.release(visited)
+  const same = (left: DocumentPatch, right: DocumentPatch): boolean => {
+    for (let y = 0; y < left.height; y++) {
+      for (let x = 0; x < left.width; x++) {
+        const a = ((left.y + y) * width + left.x + x) * 3
+        const b = ((right.y + y) * width + right.x + x) * 3
+        if (
+          pixels[a] !== pixels[b] ||
+          pixels[a + 1] !== pixels[b + 1] ||
+          pixels[a + 2] !== pixels[b + 2]
+        )
+          return false
+      }
+    }
+    return true
+  }
+  const groups: DocumentPatchGroup[] = []
+  for (const patches of byShape.values()) {
+    const byHash = new Map<number, DocumentPatch[]>()
+    for (const patch of patches) {
+      let hash = 2_166_136_261
+      for (let y = 0; y < patch.height; y++) {
+        for (let x = 0; x < patch.width; x++) {
+          const offset = ((patch.y + y) * width + patch.x + x) * 3
+          hash = Math.imul(hash ^ (pixels[offset] ?? 0), 16_777_619)
+          hash = Math.imul(hash ^ (pixels[offset + 1] ?? 0), 16_777_619)
+          hash = Math.imul(hash ^ (pixels[offset + 2] ?? 0), 16_777_619)
+        }
+      }
+      const bucket = byHash.get(hash) ?? []
+      bucket.push(patch)
+      byHash.set(hash, bucket)
+    }
+    for (const bucket of byHash.values()) {
+      if (bucket.length < 2) continue
+      const distinct: DocumentPatch[][] = []
+      for (const patch of bucket) {
+        let group = distinct.find((candidate) => same(candidate[0]!, patch))
+        if (!group) {
+          group = []
+          distinct.push(group)
+        }
+        group.push(patch)
+      }
+      for (const placements of distinct) {
+        if (placements.length < 2) continue
+        groups.push({ source: placements[0]!, placements, atlasX: 0, atlasY: 0 })
+      }
+    }
+  }
+  return groups
+}
+
+export const writeDocumentPatchFeatures = (
+  section: Uint8Array,
+  groups: readonly DocumentPatchGroup[],
+  memory: JpegXlEncoderMemory,
+): Uint8Array => {
+  const placements = groups.reduce((sum, group) => sum + group.placements.length, 0)
+  const values = allocateJpegXlArray(memory, Uint32Array, 1 + groups.length * 6 + placements * 3)
+  let count = 0
+  values[count++] = groups.length
+  const signed = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
+  for (const group of groups) {
+    values[count++] = 3
+    values[count++] = group.atlasX
+    values[count++] = group.atlasY
+    values[count++] = group.source.width - 1
+    values[count++] = group.source.height - 1
+    values[count++] = group.placements.length - 1
+    let previousX = 0,
+      previousY = 0
+    for (let index = 0; index < group.placements.length; index++) {
+      const patch = group.placements[index]!
+      values[count++] = index === 0 ? patch.x : signed(patch.x - previousX)
+      values[count++] = index === 0 ? patch.y : signed(patch.y - previousY)
+      values[count++] = 1 // Replace all three color channels from the reference.
+      previousX = patch.x
+      previousY = patch.y
+    }
+  }
+  if (count !== values.length) throw invalidInput('JPEG XL document patch token count is invalid')
+  const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
+  for (let index = 0; index < count; index++) {
+    const token = hybridToken(values[index] ?? 0)
+    frequencies[token] = (frequencies[token] ?? 0) + 1
+  }
+  const writer = new JpegXlBitWriter(memory)
+  const encoding = writePrefixCode(writer, 10, frequencies)
+  for (let index = 0; index < count; index++) writeHybridUint(writer, values[index] ?? 0, encoding)
+  for (const byte of section) writer.writeBits(byte, 8)
+  memory.release(frequencies)
+  memory.release(values)
+  return writer.finish()
+}
+
+const writeDocumentFrameHeader = (
+  reference: boolean,
+  width: number,
+  height: number,
+  sections: readonly Uint8Array[],
+  memory: JpegXlEncoderMemory,
+): Uint8Array => {
+  const writer = new JpegXlBitWriter(memory)
+  writer.writeBits(0, 1)
+  writeU32(writer, reference ? 2 : 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+  writer.writeBits(1, 1) // Modular.
+  if (reference) writeZeroU64(writer)
+  else {
+    writer.writeBits(1, 2)
+    writer.writeBits(1, 4) // Patch dictionary frame flag, value 2.
+  }
+  writer.writeBits(0, 1) // RGB, without an XYB color transform.
+  writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
+  writer.writeBits(3, 2) // 1,024 pixel Modular groups.
+  if (!reference)
+    writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 3 }, { bits: 3, offset: 4 }])
+  writer.writeBits(reference ? 1 : 0, 1)
+  if (reference) {
+    writeU32(writer, width, [
+      { bits: 8, offset: 0 },
+      { bits: 11, offset: 256 },
+      { bits: 14, offset: 2_304 },
+      { bits: 30, offset: 18_688 },
+    ])
+    writeU32(writer, height, [
+      { bits: 8, offset: 0 },
+      { bits: 11, offset: 256 },
+      { bits: 14, offset: 2_304 },
+      { bits: 30, offset: 18_688 },
+    ])
+    writeU32(writer, 3, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+    writer.writeBits(1, 1) // Patch reference is stored before color transform.
+  } else {
+    writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    writer.writeBits(1, 1) // Final displayed frame.
+  }
+  writeName(writer)
+  writer.writeBits(0, 1) // Custom loop filter.
+  writer.writeBits(0, 1) // No Gaborish.
+  writer.writeBits(0, 2) // No EPF.
+  writeZeroU64(writer)
+  writeZeroU64(writer)
+  writer.writeBits(0, 1) // Default section order.
+  writer.alignToByte()
+  for (const section of sections)
+    writeU32(writer, section.length, [
+      { bits: 10, offset: 0 },
+      { bits: 14, offset: 1_024 },
+      { bits: 22, offset: 17_408 },
+      { bits: 30, offset: 4_211_712 },
+    ])
+  return writer.finish()
+}
+
+export const encodeJpegXlDocumentPatchCandidate = async (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  options: Readonly<ResolvedJpegXlEncodeOptions>,
+  memory: JpegXlEncoderMemory,
+  checkpoint: () => Promise<void>,
+): Promise<EncodedJpegXlCodestream | undefined> => {
+  const groups = findDocumentPatches(pixels, width, height, memory)
+  let placements = 0,
+    covered = 0,
+    atlasPixels = 0
+  for (const group of groups) {
+    placements += group.placements.length
+    covered += group.source.width * group.source.height * group.placements.length
+    atlasPixels += group.source.width * group.source.height
+  }
+  if (
+    groups.length === 0 ||
+    groups.length > 1_024 ||
+    placements < 500 ||
+    covered < width * height * 0.05 ||
+    atlasPixels > 1_000_000
+  )
+    return undefined
+  groups.sort(
+    (left, right) =>
+      right.source.height - left.source.height || right.source.width - left.source.width,
+  )
+  const atlasWidth = Math.min(1_024, Math.max(64, Math.ceil(Math.sqrt(atlasPixels * 1.4))))
+  let shelfX = 0,
+    shelfY = 0,
+    shelfHeight = 0
+  for (const group of groups) {
+    const patch = group.source
+    if (shelfX + patch.width > atlasWidth) {
+      shelfY += shelfHeight
+      shelfX = 0
+      shelfHeight = 0
+    }
+    group.atlasX = shelfX
+    group.atlasY = shelfY
+    shelfX += patch.width
+    shelfHeight = Math.max(shelfHeight, patch.height)
+  }
+  const atlasHeight = shelfY + shelfHeight
+  if (atlasHeight > 1_024) return undefined
+  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * 3)
+  const display = copyJpegXlArray(memory, Uint8Array, pixels)
+  atlas.fill(255)
+  for (const group of groups) {
+    const source = group.source
+    for (let y = 0; y < source.height; y++) {
+      const from = ((source.y + y) * width + source.x) * 3
+      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * 3
+      atlas.set(pixels.subarray(from, from + source.width * 3), to)
+    }
+    for (const patch of group.placements) {
+      for (let y = 0; y < patch.height; y++) {
+        const start = ((patch.y + y) * width + patch.x) * 3
+        display.fill(255, start, start + patch.width * 3)
+      }
+    }
+  }
+  for (let index = 0; index < display.length; index++)
+    display[index] = Math.min(255, ((display[index] ?? 0) + 2) & ~3)
+  await checkpoint()
+  const referenceSections = await encodeFrameSections(
+    atlas,
+    atlasWidth,
+    atlasHeight,
+    'rgb8',
+    3,
+    memory,
+    checkpoint,
+  )
+  const displaySections = await encodeFrameSections(
+    display,
+    width,
+    height,
+    'rgb8',
+    options.effort,
+    memory,
+    checkpoint,
+  )
+  const firstDisplaySection = displaySections[0]
+  if (!firstDisplaySection) throw invalidInput('JPEG XL document display section is missing')
+  const patchedSection = writeDocumentPatchFeatures(firstDisplaySection, groups, memory)
+  const patchedDisplaySections = [patchedSection, ...displaySections.slice(1)]
+  const imageWriter = new JpegXlBitWriter(memory)
+  writeImageHeader(imageWriter, width, height, 'rgb8', options, false)
+  const imageHeader = imageWriter.finish()
+  const referenceHeader = writeDocumentFrameHeader(
+    true,
+    atlasWidth,
+    atlasHeight,
+    referenceSections,
+    memory,
+  )
+  const displayHeader = writeDocumentFrameHeader(
+    false,
+    width,
+    height,
+    patchedDisplaySections,
+    memory,
+  )
+  const header = concatenate([imageHeader, referenceHeader], memory)
+  const sections = [...referenceSections, displayHeader, ...patchedDisplaySections]
+  const byteLength = header.length + sections.reduce((sum, part) => sum + part.length, 0)
+  return { header, sections, byteLength }
+}
+
+const encodeJpegXlScreenshotPatchCandidate = async (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  options: Readonly<ResolvedJpegXlEncodeOptions>,
+  imageHeader: Uint8Array,
+  memory: JpegXlEncoderMemory,
+  checkpoint: () => Promise<void>,
+  limits: Readonly<ImageLimits>,
+): Promise<EncodedJpegXlCodestream | undefined> => {
+  if (!hasFlatScreenshotBackground(pixels, width, height)) return undefined
+  const groups = findFlatScreenshotPatches(pixels, width, height, memory)
+  let placements = 0,
+    covered = 0,
+    atlasPixels = 0
+  for (const group of groups) {
+    placements += group.placements.length
+    covered += group.source.width * group.source.height * group.placements.length
+    atlasPixels += group.source.width * group.source.height
+  }
+  if (
+    groups.length === 0 ||
+    groups.length > 1_024 ||
+    placements < 40 ||
+    covered * 200 < width * height ||
+    atlasPixels > 262_144
+  )
+    return undefined
+  groups.sort(
+    (left, right) =>
+      right.source.height - left.source.height || right.source.width - left.source.width,
+  )
+  const atlasWidth = Math.min(1_024, Math.max(64, Math.ceil(Math.sqrt(atlasPixels * 1.4))))
+  let shelfX = 0,
+    shelfY = 0,
+    shelfHeight = 0
+  for (const group of groups) {
+    const patch = group.source
+    if (shelfX + patch.width > atlasWidth) {
+      shelfY += shelfHeight
+      shelfX = 0
+      shelfHeight = 0
+    }
+    group.atlasX = shelfX
+    group.atlasY = shelfY
+    shelfX += patch.width
+    shelfHeight = Math.max(shelfHeight, patch.height)
+  }
+  const atlasHeight = shelfY + shelfHeight
+  if (atlasHeight > 1_024) return undefined
+  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * 3)
+  const display = copyJpegXlArray(memory, Uint8Array, pixels)
+  atlas.fill(255)
+  for (const group of groups) {
+    const source = group.source
+    for (let y = 0; y < source.height; y++) {
+      const from = ((source.y + y) * width + source.x) * 3
+      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * 3
+      atlas.set(pixels.subarray(from, from + source.width * 3), to)
+    }
+    for (const patch of group.placements) {
+      const backgroundX = Math.max(0, patch.x - 1),
+        backgroundY = Math.max(0, patch.y - 1),
+        background = (backgroundY * width + backgroundX) * 3
+      const red = pixels[background] ?? 0,
+        green = pixels[background + 1] ?? 0,
+        blue = pixels[background + 2] ?? 0
+      for (let y = 0; y < patch.height; y++) {
+        for (let x = 0; x < patch.width; x++) {
+          const at = ((patch.y + y) * width + patch.x + x) * 3
+          display[at] = red
+          display[at + 1] = green
+          display[at + 2] = blue
+        }
+      }
+    }
+  }
+  await checkpoint()
+  const reference = await encodeJpegXlVarDct8Async(
+    atlas,
+    atlasWidth,
+    atlasHeight,
+    1,
+    memory,
+    checkpoint,
+    3,
+    3,
+    imageHeader,
+    8,
+    false,
+    undefined,
+    limits,
+    { reference: true },
+  )
+  const displayed = await encodeJpegXlVarDct8Async(
+    display,
+    width,
+    height,
+    options.distance,
+    memory,
+    checkpoint,
+    3,
+    options.effort,
+    new Uint8Array(0),
+    8,
+    false,
+    undefined,
+    limits,
+    { patchGlobalSection: (section) => writeDocumentPatchFeatures(section, groups, memory) },
+  )
+  const header = reference[0]
+  if (!header) throw invalidInput('JPEG XL screenshot reference header is missing')
+  const sections = [...reference.slice(1), ...displayed]
+  return {
+    header,
+    sections,
+    byteLength: header.length + sections.reduce((sum, part) => sum + part.length, 0),
+  }
+}
+
 const encodeLossyCodestream = (
   pixels: Uint8Array,
   width: number,
@@ -3408,6 +4050,7 @@ const encodeLossyCodestream = (
   withJpegXlMemoryAsync(memory, async () => {
     const writer = new JpegXlBitWriter(memory)
     writeImageHeader(writer, width, height, format, options, true)
+    const imageHeader = writer.finish()
     const parts = await encodeJpegXlVarDct8Async(
       pixels,
       width,
@@ -3417,7 +4060,7 @@ const encodeLossyCodestream = (
       checkpoint,
       format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3,
       options.effort,
-      writer.finish(),
+      imageHeader,
       options.sampleBitDepth,
       options.progressive,
       {
@@ -3428,10 +4071,74 @@ const encodeLossyCodestream = (
     )
     const header = parts[0]
     if (!header) throw invalidInput('JPEG XL forward header is missing')
-    return {
+    const primary = {
       header,
       sections: parts.slice(1),
       byteLength: parts.reduce((sum, part) => sum + part.byteLength, 0),
+    }
+    let selected: EncodedJpegXlCodestream = primary
+    if (
+      format === 'rgb8' &&
+      options.effort === 7 &&
+      !options.progressive &&
+      options.distance >= 2 &&
+      options.distance <= 4 &&
+      width * height >= 262_144 &&
+      width * height <= 4_194_304 &&
+      options.sampleBitDepth === 8 &&
+      options.colorSemantics.primaries === 'srgb' &&
+      options.colorSemantics.transfer.kind === 'srgb'
+    ) {
+      try {
+        const screenshot = await encodeJpegXlScreenshotPatchCandidate(
+          pixels,
+          width,
+          height,
+          options,
+          imageHeader,
+          memory,
+          checkpoint,
+          limits,
+        )
+        if (screenshot && screenshot.byteLength * 200 <= primary.byteLength * 199)
+          selected = screenshot
+      } catch (error) {
+        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      }
+    }
+    if (!useLargeDocumentModularCandidate(pixels, width, height, format, options)) return selected
+    try {
+      const quantized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
+      for (let index = 0; index < pixels.length; index++)
+        quantized[index] = Math.min(255, ((pixels[index] ?? 0) + 2) & ~3)
+      const modular = await encodeCodestream(
+        quantized,
+        width,
+        height,
+        'rgb8',
+        options,
+        memory,
+        checkpoint,
+      )
+      // The enclosing memory scope retains only the selected codestream.
+      const selected = modular.byteLength * 5 <= primary.byteLength * 4 ? modular : primary
+      try {
+        const patched = await encodeJpegXlDocumentPatchCandidate(
+          pixels,
+          width,
+          height,
+          options,
+          memory,
+          checkpoint,
+        )
+        return patched && patched.byteLength * 20 <= selected.byteLength * 19 ? patched : selected
+      } catch (error) {
+        if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return selected
+        throw error
+      }
+    } catch (error) {
+      if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return primary
+      throw error
     }
   })
 

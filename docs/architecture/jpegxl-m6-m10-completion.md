@@ -955,6 +955,119 @@ Both frozen 120-source SDR matrices are complete at at most 2 MP: 7,200 points a
 
 Lossy support remains Experimental. Missing quality brackets, original-resolution coverage limits, lossless compression misses and the warm effort-1 timing miss remain explicit. Optional patch encoding is a future compression improvement. M8 through M10 and remote PR checks are separate work.
 
+## M7 encoder target qualification after local completion, September 23
+
+Prompt 2 keeps the M7 local completion above intact. The encoder candidate at
+2643604888dc8ad58322a3756d5aade68af066b4 reduces isolated warm effort-1
+core time by about 2% in a seven-run development diagnostic. It reproduces all
+1,440 approved capped first-party streams and all 32 fixed original-size points
+byte for byte. The clean-checkout conformance and resource gates pass.
+
+Two new 21-pair measurements on that exact commit give warm effort-1 median
+ratios of 8.067 and 8.142 against pinned native libjxl. Both miss the 8-times
+target. Cold ratios are 6.661 and 6.613, and the original 12 MP public
+effort-3 workflow takes 4.504 seconds cold and 4.523 seconds warm. The observed
+lossless holdout p90 remains 1.409, and transparent RGBA8 lossless median/p90
+remain 1.291/1.483. Missing lossy quality brackets and original-size text
+outliers remain in the evidence. Lossy stays Experimental.
+
+The before/after table, target-by-target decisions, source and artifact hashes,
+raw report links, and independent decoder receipts are in
+benchmark/jpegxl/production-program/m7-prompt2-report.md and
+benchmark/jpegxl/production-program/m7-prompt2-evidence-index.json. The observed
+holdout is regression evidence after prior inspection; no new unseen
+generalization claim or Stable promotion is made.
+
+## M7 encoder target requalification, September 23
+
+The implementation at `8925ce52fa06b2112310f60ccbe7f639eba0fdd1` improves the effort-7 multi-group Modular entropy choice and the aligned effort-1 RGB8 XYB path. Fresh exact native and Rust decoding passed for all 240 lossless SDR sources and all 24 HDR/alpha expansion cases. The observed holdout lossless p90 improves from 1.409225 to 1.399516 and now passes the 1.40 size bound. This holdout was inspected during tuning and is regression evidence. The separate transparent RGBA8 artwork median/p90 remain 1.291/1.483 and fail their size bounds. The old large-image reduction is preserved.
+
+The exact-commit original 12 MP effort-1 paired median is 5.646 times native cold and 7.067 times native warm, both within the eight-times target. The public effort-3 run is 4.504 seconds cold and 4.572 seconds warm, within 20 seconds. The unchanged effort-7 lossy path reproduces all 16 first-party streams in the fixed eight-source original-size check, with independent decoding and the same quality scores. Native patch coding still has large text and screenshot size advantages, missing SSIMULACRA2 brackets remain, and HDR/alpha quality gaps remain. Lossy therefore stays Experimental.
+
+The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt3-report.md), [evidence index](../../benchmark/jpegxl/production-program/m7-prompt3-evidence-index.json), raw case reports, and clean-checkout conformance/resource results give the target-by-target decision. The final local check has 3,192 passed tests and three skipped; real Chromium JPEG XL tests pass 29/29. No new unseen-generalization claim, Stable promotion, version change or release follows from this result.
+
+## M7 transparent lossless artwork repair, September 23
+
+The implementation at `49f3c25611210c4f04dd3f8907e5be8e28781317` measures three additional palette orders for small single-group RGBA8 lossless effort-7 images and keeps the smallest encoded stream. The same 12 native artwork families improve from 1.290606/1.482599 to 1.233412/1.317121 median/p90 against the 1.25/1.40 bounds. The worst ratio is 1.548490, below 1.75. Every color and alpha sample, including RGB under zero alpha, matches through pinned native, pinned Rust, and the repository decoder. The six development and six observed holdout sources retain their original split. The observed holdout was inspected during tuning and remains regression evidence.
+
+The 12 derived PQ16 streams are byte-identical and decode exactly. The 240-case SDR, large-image, lossy, effort-1 and public effort-3 paths are unchanged; their previous qualification evidence remains linked in the [target report](../../benchmark/jpegxl/production-program/m7-prompt4-report.md). Effort-7 artwork encoding takes longer in the two measured diagnostics. The [raw expansion](../../benchmark/jpegxl/production-program/m7-prompt4-lossless-expansion.json) and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt4-evidence-index.json) record source, stream and decoder hashes. The clean implementation commit passed 39/39 conformance and 24/24 resource cases. The full repository check passed 3,193 tests with three skipped, and the focused Chromium check passed. Lossy stays Experimental because its remaining quality and original-size gaps are unchanged.
+
+## M7 repeated-document lossy follow-up, September 23
+
+The first-party encoder now uses a bounded two-frame patch dictionary for
+large pale sRGB RGB8 documents at effort 7. It stores exact repeated glyphs
+in a Modular reference atlas and patches them over a quantized display frame.
+On the two original development brochures at distance 3, byte counts fall
+from 481,225 to 235,497 and from 409,211 to 79,273, while SSIMULACRA2 and
+Butteraugli both improve. Native libjxl, pinned Rust and the repository decode
+all 16 fixed original-size streams; the other 14 are byte-identical to the
+prior revision. The observed table and screenshot remain in the replay as
+regression evidence. The approved 2 MP matrices are unchanged because their
+inputs are below the 8 MP selector. The complete original-size replay used
+the approved 8 GiB profile, peaked at 3.9 GiB and used zero swap.
+
+The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt8-report.md),
+[full original-size result](../../benchmark/jpegxl/production-program/m7-prompt8-original-size.json)
+and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt8-evidence-index.json)
+record the target decision, hashes and independent decoding. Lossless keeps
+its qualified status. Lossy stays Experimental because complete SSIMULACRA2
+brackets and the original-size HDR, transparency and visual quality gates
+remain unmet. The [per-case bracket audit](../../benchmark/jpegxl/production-program/m7-prompt8-bracket-audit.json) shows that pinned native libjxl itself lacks 70/80/90 brackets on some sources within the approved six distances. Those reference gaps need supplementary endpoints before a complete matched-quality claim can be measured. The original matrix and missing cases stay intact. No version change, release or Stable promotion follows.
+
+### September 24 lossy investigation
+
+The [screenshot and gradient investigation](../../benchmark/jpegxl/production-program/m7-prompt9-investigation.md) tested two encoder changes and reverted both after independent decoding and quality checks. Pinned libjxl patch controls show a 9.80% saving on a development screenshot and a 14.39% saving on the previously observed original screenshot. Its screenshot display uses VarDCT with a small Modular patch reference. The current first-party Modular display is too large for that screenshot class, so no patch expansion was retained. Gradient patches cover only about 0.0035% of the original gradient. The same bracket, HDR/alpha and visual gates remain open; this pass changes no qualification result.
+
+### September 24 screenshot patch qualification
+
+The frozen implementation at `30d72d1a88a33e156fc6ed053c308d7268f4188d` now pairs a small first-party Modular patch reference with a VarDCT screenshot display. The effort-7 opaque RGB8 selector improves all 12 changed 2 MP distance-2/3 streams and the previously observed 1920×1080 original screenshot. All changed streams pass native, Rust and repository decoding within one RGB8 level. The fixed eight-source original-size replay retains 15 byte-identical streams and one improved screenshot. The original source-family splits and difficult cases stay in the results. The observed holdout was inspected during tuning and is regression evidence.
+
+The [before/after report](../../benchmark/jpegxl/production-program/m7-prompt9-report.md), [development](../../benchmark/jpegxl/production-program/m7-prompt9-quality-development.json) and [observed holdout](../../benchmark/jpegxl/production-program/m7-prompt9-quality-holdout.json) matrices, [fixed original-size replay](../../benchmark/jpegxl/production-program/m7-prompt9-original-size-replay.json) and [evidence index](../../benchmark/jpegxl/production-program/m7-prompt9-evidence-index.json) record scores, unchanged-artifact reuse, hashes and independent decoding. Frozen-commit conformance passes 39/39 and resource checks pass 24/24. The full repository check, browser check and focused real Chromium test pass. Complete SSIMULACRA2 brackets and original-size HDR, transparency and visual quality gates remain open. Lossy stays Experimental.
+
+### September 24 native lossy high-band ceiling
+
+The [complete 22-source audit](../../benchmark/jpegxl/production-program/m7-prompt10-native-ceiling.json) measures every pinned-native SSIMULACRA2-90 miss at libjxl's minimum positive lossy distance of 0.05. All streams pass independent native/Rust decoding within one RGB8 level. Ten sources, eight development and two previously observed holdout, still score below 90. Two requested 0.02 controls produce the same bytes as 0.05. The [investigation report](../../benchmark/jpegxl/production-program/m7-prompt10-report.md) retains the source splits, input and stream hashes, zero-swap bounded receipt and rejected first-party high-precision probe. A [supplementary low-band report](../../benchmark/jpegxl/production-program/m7-prompt11-low-endpoints.json) covers all 173 previously missing SSIMULACRA2-70 engine/source curves with independently decoded below-70 endpoints. Many intervals are too wide for a reliable matched-size claim. No codec change is retained. The approved matrix and target remain unchanged. Complete lossy matched-quality brackets cannot be claimed with this pinned native lossy reference under its current distance limit; original-size HDR, transparency, gradient and visual outliers also remain open. Lossy stays Experimental.
+
+
+### September 24 lossy evaluation recovery amendment
+
+The [Stage A decision and defect register](../../benchmark/jpegxl/production-program/m7-recovery-stage-a.md)
+reconcile the two frozen protocols with the later complete-bracket promotion
+interpretation. The protocols require missing brackets to remain visible and
+forbid extrapolated passes; neither explicitly requires every reference/source
+pair to cross all three bands. The original RGB8 matrix, source splits and
+historical reports remain unchanged. The new [classification](../../benchmark/jpegxl/production-program/m7-recovery-classification.json)
+accounts for all 240 sources and 720 target comparisons. A three-score-point
+interval is a diagnostic for small rate changes, not a new promotion threshold.
+
+The [native ceiling controls](../../benchmark/jpegxl/production-program/m7-recovery-ceiling-controls.json)
+confirm the original ten RGB8 below-90 results. A separately tested PNG16
+rendering path fails its pixel-lossless metric control, so it cannot establish
+an alternative high-band pass. The native finding is limited to the pinned
+settings and RGB8 scoring pipeline. A bounded cached endpoint command now
+refines one source at a time with independent decoder checks. No production
+encoder code, capability status or Stable promotion changed. The visual
+register and unresolved sampling remain open.
+
+### September 24 lossy transform backend and selector probe
+
+The recovered DCT16 backend is validated and preserved on isolated development
+branch `codex/jpegxl-transform-backend` at `7842de8`. Its public default remains
+unchanged. The branch report records independent native/Rust decoding on 24
+small development streams, source-error tests, the exact distance and AC
+representation limits, and a JPEG XL-only bundle ceiling amendment. Original
+DCT16 and edge-aware DCT64 patches are retained there as experimental evidence.
+No larger-transform selector has been selected for the public encoder.
+
+The [Stage C selector report](../../benchmark/jpegxl/production-program/m7-recovery-stage-c.md)
+retains five bounded development probes and the rejected cost-model patch.
+Weighted squared error and approximate coefficient bits improved some document
+rates but failed to predict photo/gradient entropy cost consistently; its
+coarse SSIMULACRA2-80 interpolations remain unresolved. The candidate was
+reverted on the development branch. Public quality, original-size, HDR/alpha,
+resource and runtime qualifications retain their prior evidence boundaries.
+Lossy remains Experimental and no Stable scope is claimed.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run

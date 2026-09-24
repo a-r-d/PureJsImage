@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "49f3c25611210c4f04dd3f8907e5be8e28781317",
+  "baselineRevision": "8925ce52fa06b2112310f60ccbe7f639eba0fdd1",
+  "method": "Isolated systemd scopes with 3 GiB and 600 second caps. Same Node process encodes baseline first, then current; one warmup and three measured full write/finish runs. Baseline is a diagnostic copy of the prior encoder with inactive probes; its encoded byte counts match the prior report. Directional effort-7 artwork cost, not a runtime promotion gate.",
+  "sourceHashes": {
+    "current": "b6d7a4be9e517bfa05cf630370eaa0b5bf3939c040f3878002dddc2950fe6edd",
+    "baselineDiagnostic": "a2fe327fc01076319f0d6c9bd00050b54ee1f53f8cda95456006e28f9cc57c6b"
+  },
+  "cases": [
+    {
+      "id": "noto-1f308",
+      "inputSha256": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+      "baseline": {
+        "id": "noto-1f308",
+        "name": "baseline",
+        "timings": [1085.5805520000001, 1114.932029, 1055.0774740000002],
+        "medianMs": 1085.5805520000001,
+        "peakManagedBytes": 11088738,
+        "bytes": 6390
+      },
+      "current": {
+        "id": "noto-1f308",
+        "name": "current",
+        "timings": [4490.278789, 4356.334170000002, 4217.576322000001],
+        "medianMs": 4356.334170000002,
+        "peakManagedBytes": 12174868,
+        "bytes": 5494
+      }
+    },
+    {
+      "id": "noto-1f916",
+      "inputSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+      "baseline": {
+        "id": "noto-1f916",
+        "name": "baseline",
+        "timings": [4595.566173, 4862.1068080000005, 4596.931808000001],
+        "medianMs": 4596.931808000001,
+        "peakManagedBytes": 26427278,
+        "bytes": 12001
+      },
+      "current": {
+        "id": "noto-1f916",
+        "name": "current",
+        "timings": [7246.7582779999975, 7814.494266999998, 7282.8281540000025],
+        "medianMs": 7282.8281540000025,
+        "peakManagedBytes": 26458705,
+        "bytes": 10252
+      }
+    }
+  ]
+}

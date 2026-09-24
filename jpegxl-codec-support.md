@@ -15,12 +15,17 @@ with exact JPEG reconstruction. Only the checked items below are implemented.
 - [x] Include dimensions, total pixels and ICC profile size in automatic Level 5 or Level 10 selection
 - [x] Write general forward VarDCT at explicit Level 10 and select it automatically for exact Modular alpha above 12 bits
 - [x] Stream Level 10 VarDCT animation in an unbounded jxlc container without whole-output buffering
-- [x] Extract CMYK, black and independent alpha planes, preserve straight integer alpha during explicit display conversion and reject floating or associated alpha
-- [x] Write unshifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
+- [x] Extract CMYK, black and independent alpha planes; convert profile-defined CMYK to RGBA8 with straight integer or IEEE alpha
+- [x] Convert IEEE binary16/binary32 gray and RGB native layers to straight RGBA16 with mixed integer or IEEE alpha, shifted alpha, zero-alpha handling and nonfinite rejection
+- [x] Compare binary16/32 gray and RGB color with opposite-width IEEE or 8-bit integer alpha, straight or associated, against 17 pinned libjxl 0.12.0 float-plane and RGBA16 references, including shifted alpha
+- [ ] Compare wider integer-alpha depths and other shifted float/alpha precision pairs with pinned independent rendered references
+- [x] Convert high-depth GRAY/RGB/CMYK ICC native layers directly to straight sRGB16, including gray alpha and mixed or associated alpha, with pinned LittleCMS 2.16 perceptual references
+- [x] Write shifted native samples across multiple 1024-pixel Modular groups and convert shifted CMYK black and alpha planes with the signaled kernel
+- [x] Match the shifted alpha, black and binary16 depth native grids against pinned jxl-oxide pre-upsampling decoded samples on odd multi-group images
 - [x] Run all 39 pinned official valid cases successfully, with no expected-unsupported cases left
 - [x] Accept Level 10 writer output in pinned libjxl djxl and rerun all M9 gates after the last production edit
 
-Shifted native channels remain bounded to one 1024-pixel Modular group. Other floating layouts remain explicit unsupported boundaries.
+Other floating layouts and associated CMYK alpha in the older RGBA8 API remain explicit unsupported boundaries. The shifted native-grid oracle uses a pinned jxl-oxide decoder build instrumented before extra-channel upsampling.
 
 ## M9 production hardening
 
@@ -56,10 +61,15 @@ Sequence output uses explicit full-canvas buffers and replay without a decoded s
 - [x] Selective group reads and declared static dependency fallbacks with strict rejection
 - [x] Task-scheduled rendering cancellation, immutable output snapshots and iteration backpressure
 - [x] Progressive Modular DC dependencies checked against pinned native stage outputs
+- [x] Selective XYB VarDCT SDR alpha, SDR16, linear16 and PQ16 DC and pass stages with pinned libjxl color oracles and early section reads
+- [x] Selective linear16 plus alpha stages with early LF reads, a pinned jxl-oxide partial first-pass RGBA image, and pinned libjxl 0.12.0 final pixels
+- [x] Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning
+- [x] Compare SDR8 and linear16 first-pass RGBA plus PQ16 first-pass alpha with pinned independent jxl-oxide partial renders before final payload
+- [ ] Selective alpha whose native grid needs group-local AC payloads
 
 Use `openJpegXlSession` from `purejsimage/jpegxl`. `preview()` emits the separately encoded embedded image. `native()` rejects unavailable native boundaries. `progressive()` emits complete stages, and `decode()` defaults to final output. A final event validates the requested region and its dependencies, not unread unrelated groups.
 
-DC reconstruction uses compact LF state and restoration bands. Pass and final output still retain a full-resolution output, and internal DC dependencies can require full working planes. Alpha, HDR, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
+DC reconstruction uses compact LF state and restoration bands. The supported global alpha plane is retained with LF state. Pass and final output retain a full-resolution output; high-depth and HDR passes retain full working planes. Group-local alpha, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
 
 The session does not add generic read-ahead over a caller-provided source. HTTP transfer bytes still depend on that source's explicit block and cache policy. Its section-byte counter excludes metadata probes and transport overfetch. See `docs/jpeg-xl.md` for ownership, cache budgets, stage availability and memory accounting.
 
@@ -88,7 +98,7 @@ and range; it does not change transfer functions or primaries.
 
 Open supported P3 input with `colorOutput: "srgb"` for explicit sRGB conversion.
 Open PQ or HLG with `hdrOutput: "tone-map-srgb"` for explicit SDR rendering.
-Unavailable high-depth ICC, custom-chromaticity and structured integer color transforms
+Ordinary high-depth ICC, custom-chromaticity and structured integer color transforms
 remain errors. Float-encoded input and float JPEG XL encoding remain unsupported.
 
 VarDCT retains a full output frame. Eligible ordinary 8-bit photographs use bounded
@@ -107,6 +117,7 @@ Use `.jpegxl({ mode: 'lossy', distance: 1, effort: 3, progressive: true })` for 
 
 The current writer supports DCT8, effort-5/7 Hornuss and both rectangular half-block orientations, adaptive quantization, local chroma-from-luma, optional two-pass output, and exact straight alpha at native integer depths. Known-primary sRGB, linear, gamma, and PQ inputs retain their declared source metadata. HLG, custom chromaticities, premultiplied alpha, larger DCT/AFV strategies, and Gaborish remain outside this experimental encoding subset. Opaque standard-sRGB gray/RGB at effort 5/7 and distance 2 or above can use residual-scaled edge-preserving restoration when most blocks need filtering.
 Opaque non-progressive effort-1 frames with 2 through 256 AC groups can use group-local entropy models and reusable scratch. DC averages and AC transforms share one pixel conversion per block. Exact section-size comparison retains the smaller prefix representation when appropriate. All scratch remains subject to maxWorkingBytes; process RSS is measured separately.
+Large pale sRGB RGB8 documents at effort 7 and distance 2 or above can use a first-party repeated-component patch dictionary. The writer keeps that two-frame stream only when it saves at least 5% against the selected output. Native and Rust decoders verify the displayed pixels. Other image classes keep their existing encoder paths.
 
 The frozen extended compression and rate-distortion gates are unfinished. These implementation and procedural conformance results do not establish production quality or speed across the corpus. The workbench exposes lossless and experimental lossy controls separately from exact JPEG recompression, with local comparison, download, reopen, and cancellation.
 
@@ -133,7 +144,7 @@ See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection 
 
 The checked matrix contains 56 structured color cases, 40 independent-alpha cases, 18 high-depth VarDCT color cases, eight VarDCT alpha-upsample cases, and a two-alpha fixture. Pinned libjxl provides independent native or float references. At the M4 checkpoint, official conformance had 13 passes, 25 explicit unsupported cases, no incorrect outputs, and the separately recorded delta_palette failure. M10 later advances all 39 official cases to exact passes. ICC validation records source-profile warnings, including the cafe profile checksum mismatch; extracted profile bytes match djxl exactly.
 
-Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported 8-bit conversions can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. Explicit unavailable high-depth or custom-chromaticity conversions throw `UNSUPPORTED_OPERATION`.
+Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported 8-bit conversions can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. The explicit native-layer ICC API converts supported high-depth GRAY/RGB/CMYK profiles to sRGB16. Ordinary high-depth ICC display conversion and custom-chromaticity conversion still throw `UNSUPPORTED_OPERATION`.
 
 `alphaOutput: "preserve"` retains associated samples. `alphaOutput: "straight"` unpremultiplies and sets zero-alpha color to zero. HDR conversions produce straight alpha. `alphaChannel` is a zero-based index and is required when more than one alpha channel is present. Alpha display range is independent of color.
 
@@ -164,9 +175,10 @@ The 163-case matrix is exact through PureJsImage, pinned `djxl`, jxl-rs, and jxl
 where applicable. The 156 procedural cases measure the fixed effort-1, effort-7,
 PNG and relative-speed gates. Actual encoder backing-buffer ownership has separate budget and cleanup tests. The separate stable
 `purejsimage/jpegxl` API transcodes eligible baseline
-and progressive 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
+and progressive one- or three-component 8-bit Huffman JPEGs in the coefficient domain, writes `jbrd`, and
 reconstructs and compares every source byte before exact-mode success. Its 250-file real JPEG archive, compression, speed, bounded sink-verification, and browser parity gates pass. Exact transcode
 walks APP metadata through EOI and requires Exif orientation absent or 1, Exif color absent or explicitly sRGB, and no ICC or the checked deterministic sRGB ICC.
+Pinned libjxl 0.12.0 reconstructs first-party grayscale output byte for byte. Four baseline and progressive grayscale files with odd dimensions, optimized Huffman tables, and restart markers also match pinned `djxl` grayscale pixels within one code.
 
 The checklist below preserves the initial decode roadmap and its original groupings.
 Its boxes are historical planning state, not the current capability inventory.

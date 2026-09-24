@@ -1,0 +1,1059 @@
+{
+  "schemaVersion": 1,
+  "implementationCommit": "30d72d1a88a33e156fc6ed053c308d7268f4188d",
+  "qualificationPolicy": "Frozen first-party candidate. Six changed 2 MP sources and one original screenshot are regression/qualification evidence, not unseen generalization. Four development and two observed-holdout capped sources retain their original splits. Unaffected data reuse is limited to the gated-out path and byte-identical fixed original streams. Scores are not timings.",
+  "sourceFiles": [
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "a7b125aaab4640aef6491141dd201f778f9a6da1dfd17e50688c1c5b04b221a4"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a62dceef853b065a04e1e9ae17e1db14ad8c37cb4e3eb2d3f77c9ea0aa2782bb"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "f7300eb7cd73188f15adea2532cf51ea32403f66aa411b2f99e8e459e6e96054"
+    },
+    {
+      "path": "tests/jpegxl-document-patches.test.ts",
+      "sha256": "dfa74437719d4d502795c7276657ed36f4ef8d9d6fb33cd4c18388e39446ba5d"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "cdd4e1486dd1d0132cf81a3f51a1903be95ec9cf8ba149df1204620aceb1cfc2"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "afffcc3bfb13c9786cc4524f7610a4ab12ede018c17bca7767ee7bdacaa83fd4"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "7fc41167bc6c9521601ee23bbf0c079d123fac434ef417fba71cd680a8484995"
+    }
+  ],
+  "tools": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+      "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "reports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-investigation.md",
+      "sha256": "c77d5b30ac62c478770e2270d715d6c21e8c4aebbb3280588f9bf01dd7ed1db4"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-probes.json",
+      "sha256": "c5961c3b9c0814fb29c02d61007c922cb3675d138cc9e8f6b887617a7e9b64dd"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-quality-development.json",
+      "sha256": "de253880765d1337c418574b935971b2d8658f8ebc793ca6a1a375c15e3c4535"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-quality-holdout.json",
+      "sha256": "25102223a2f58dabcb35ff41ec0d47509eb4abc263991f31650df3c67d8aeacb"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-original-size-replay.json",
+      "sha256": "6e316f4991c692d40d10a9f8e47fa146ba3ce415ebcb62eeb340c586786b22ec"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-resource.json",
+      "sha256": "cd35a2fe63589254690077803896cc9f6b8a4a355a1b5907d30ddf268e9c93f9"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt9-conformance.json",
+      "sha256": "cb00b922a7296d24e7c24a5cd060eefde600412c8925daa429e10f3803f0b9a4"
+    }
+  ],
+  "baselineSummaries": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "sha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7",
+      "reconstructedPath": ".tmp/jpegxl-m7/prompt9-baseline-merged-development/summary.json",
+      "reconstructedSha256": "42524d85592985c26fc0cf555d95c84f1e7e5fc46ea895ecbd1c8214806f8655",
+      "allResultsAndSummariesEqual": true
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "sha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17",
+      "reconstructedPath": ".tmp/jpegxl-m7/prompt9-baseline-merged-holdout/summary.json",
+      "reconstructedSha256": "5d94c772f3cb23f7b257cd539644b5a29894f241a0d0328185395318bdac5dbc",
+      "allResultsAndSummariesEqual": true
+    }
+  ],
+  "rawScans": [
+    {
+      "path": ".tmp/jpegxl-m7/prompt9-capped-scan-development.json",
+      "sha256": "a2a7f0e5be004e11d4f0044f08acb55d8f6b621ce3adf2691cf3c117f2d34968"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt9-capped-scan-holdout.json",
+      "sha256": "7bf84452821990ff9d1c4ef0c39d07197bc0d42de1571e94000a8abde6472702"
+    }
+  ],
+  "changedCappedPoints": [
+    {
+      "split": "development",
+      "id": "im26-8140",
+      "distance": 2,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8140/input.ppm",
+      "inputSha256": "1e0896b402dd9c29413f65d453372b344469bcb241d7f7cf49396cb42f9d7e44",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8140/purejsimage-2.jxl",
+      "beforeSha256": "5eb61d3324177b7768ff419ce25c7ef4509f8271c33c4ec7434aab051acc5fbe",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8140-d2.jxl",
+      "afterSha256": "ae9759493918587815db0a00f97cd272f85ca452c2570acf3fe3078ba3f833b5",
+      "decodedSha256": "a7c50f6315ab0955ed73c42f187d1679a437ed04442f0ba42700684eb0250c16",
+      "rustDecodedSha256": "9aa4aa6ea68a95d9a57ca4165ecdd42cee7c4624ee7624c4cbff837c9996d713",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8140",
+      "distance": 3,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8140/input.ppm",
+      "inputSha256": "1e0896b402dd9c29413f65d453372b344469bcb241d7f7cf49396cb42f9d7e44",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8140/purejsimage-3.jxl",
+      "beforeSha256": "c3d3e041bcb73da6dad6648e7b02425834fdde096c1a7803c7d4faf22487e46e",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8140-d3.jxl",
+      "afterSha256": "839c53a076f1273f6822155d97aca32401c505af6e9f94c5746b6ed6dda45fcb",
+      "decodedSha256": "f29d38481612b621c70c13d79f2487bc52008543e452b41e133b38070dac647b",
+      "rustDecodedSha256": "31d1bb4933a20904c7e84e9518b4be44d60a070dc4a599721affd345c7e80632",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8444",
+      "distance": 2,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8444/input.ppm",
+      "inputSha256": "b58e6c7c39f25895f7219b9f1cde88907edb20029bc2c883ac30d55df3a699f8",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8444/purejsimage-2.jxl",
+      "beforeSha256": "e51a2cccc4f0d1389091980cd499a0f8d87c07d8a4c87813138a0804764f60dd",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8444-d2.jxl",
+      "afterSha256": "b3f2bd0388f15357d30a4dc2e6229c81f63605e4c395d1b9888ce31976fac2f3",
+      "decodedSha256": "34584f9873ab881738377e77941340ad4ba8bac44e0bb3527b1913facc957096",
+      "rustDecodedSha256": "128b17970803c73ea1918b5dd21a55cee320a92c7068d2020f4ddf63f2fa1df1",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8444",
+      "distance": 3,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8444/input.ppm",
+      "inputSha256": "b58e6c7c39f25895f7219b9f1cde88907edb20029bc2c883ac30d55df3a699f8",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8444/purejsimage-3.jxl",
+      "beforeSha256": "df94c50ed5f68507fe7bd67b9d666fef9da68d8324649db5083e98044af73d67",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8444-d3.jxl",
+      "afterSha256": "4179a63f71a9103357b51505a07d1e9998adb8e46f325cf8991aad1d641b767f",
+      "decodedSha256": "154d48dcbd1671274d381c3cbc98b41366879919765fc2b5c7d98963006906c6",
+      "rustDecodedSha256": "db306785c1abf05d611dcdad85e43d7c9aabf0143f1ae3f2b5b196b4155f45e8",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8110",
+      "distance": 2,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8110/input.ppm",
+      "inputSha256": "a9383c61a17cc3ee7a0defd4e8a460f4ba17bfe1e47878362c0987d03cf3c8ea",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8110/purejsimage-2.jxl",
+      "beforeSha256": "d82dab969e5b1351cb655787cb112de3772a559a9ab928fc1212b6c5fba89bf2",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8110-d2.jxl",
+      "afterSha256": "dc5b85d4bd9203234525cc88eba1d7a5dd37f0df8aca2cd6c1f272d40d1d8988",
+      "decodedSha256": "29130948449dab43b120b3e6f3a1c1fb1dc23ec5c1f577b7e38d159397d2a6b1",
+      "rustDecodedSha256": "0806fb90bc3d2acca258c3cb40ed7eb8fbd7832c84b0d3f05d0d2c4b035ddfb6",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8110",
+      "distance": 3,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8110/input.ppm",
+      "inputSha256": "a9383c61a17cc3ee7a0defd4e8a460f4ba17bfe1e47878362c0987d03cf3c8ea",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8110/purejsimage-3.jxl",
+      "beforeSha256": "a4522dfb9c374b9bfe169e92a28a01aa40c28e8dc7ba481fe6d14ab032b8a060",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8110-d3.jxl",
+      "afterSha256": "a19b0c18e192cc4719c8f5b7cdf0f7ae5149483890f15baed45311c3555eb790",
+      "decodedSha256": "d4c5829b993a6a511d6ef8ab1c9955f9bdd9138621e37459b47e5145cf4c7ae8",
+      "rustDecodedSha256": "9f379af85559359c9998370ae8c3fe5246fd01fc145b379ba3496cff4dbf807f",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8150",
+      "distance": 2,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8150/input.ppm",
+      "inputSha256": "ced3008c1620649337eaef24fc98c2614a2070f95dfd7e2ac594b440864ff864",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8150/purejsimage-2.jxl",
+      "beforeSha256": "905f545c6f1378a1b7503fe6e3055bae33946d236a1716785f8950df31c016f1",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8150-d2.jxl",
+      "afterSha256": "cf95bf0bb08bf708dfecdc9e916127b230f9850e87f0f9e9bbeb32f85590c434",
+      "decodedSha256": "d59d1c912abf6c9892d796986419be67541e627415d136570c1e00ec8e87537a",
+      "rustDecodedSha256": "b1a6ff4885e600d981ad0510d05aa5c90b7a0d44e3a4e557b934d060b1ae3e36",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "development",
+      "id": "im26-8150",
+      "distance": 3,
+      "inputPath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8150/input.ppm",
+      "inputSha256": "ced3008c1620649337eaef24fc98c2614a2070f95dfd7e2ac594b440864ff864",
+      "beforePath": ".tmp/jpegxl-m7/lossy-development-capped052-resume1/im26-8150/purejsimage-3.jxl",
+      "beforeSha256": "38f2678d90a0f18c681dac30819e6441fad8288e82c97f2c2b5d0d1b9095fecd",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-dev-im26-8150-d3.jxl",
+      "afterSha256": "1676219575a6ea112fb0d70266e0d55ae566a1519750fc2d93fef418fb2086d2",
+      "decodedSha256": "79b650ca645ba5b18999544f6504f6ce0fb0b310cef5ecb2f70c3d821d8399aa",
+      "rustDecodedSha256": "0da8bbcf24570c85577f72db40160f6ee782fb09da6c03b50a8c69a7c6a3423b",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-development.json",
+      "rawScoreSha256": "a877ff2ed64a29a2d73949c38ca2a1461919fcf404f1728c10d909774f19167b"
+    },
+    {
+      "split": "holdout",
+      "id": "im26-8350",
+      "distance": 2,
+      "inputPath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8350/input.ppm",
+      "inputSha256": "213e5a06263d384f2b1d59fd28b96a3f313e8613bfc56531b21b877eef604e6c",
+      "beforePath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8350/purejsimage-2.jxl",
+      "beforeSha256": "47cd44b7d0958f30949c62582e62357ffce564a7a8b49b6d1f813321aeff9642",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-hold-im26-8350-d2.jxl",
+      "afterSha256": "15cdacd7808d789e6611b78a4d284fde3f05d903237a3ff80f37343f824bae0e",
+      "decodedSha256": "4f69e877b85fc7cac6ff42a3f8d95ba1260260d741e3f115ce5a927d99ae89b4",
+      "rustDecodedSha256": "879f493a570587f8858044418536e35034b492aa286c2e3c8ae65ac9c41ffecf",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-holdout.json",
+      "rawScoreSha256": "8e7e60a14a87289bec32cbeb8ee7fb401f43ce2487827ce4aea1096f039a9772"
+    },
+    {
+      "split": "holdout",
+      "id": "im26-8350",
+      "distance": 3,
+      "inputPath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8350/input.ppm",
+      "inputSha256": "213e5a06263d384f2b1d59fd28b96a3f313e8613bfc56531b21b877eef604e6c",
+      "beforePath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8350/purejsimage-3.jxl",
+      "beforeSha256": "5d85281bebc4ecad7074914ae005e4651200479a92129718e551597c571525ad",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-hold-im26-8350-d3.jxl",
+      "afterSha256": "734810b8a1ac5dbfc61e728ce8fde76571482374305970e46c313b76a40369d9",
+      "decodedSha256": "976af3a90c3b7f07745ad22d58980c3ab793a50b83ba9840064daf7cf726b54e",
+      "rustDecodedSha256": "affa22d9951a54f4ab7850cdf55c02e98086a65efdd864088597c93faf26623f",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-holdout.json",
+      "rawScoreSha256": "8e7e60a14a87289bec32cbeb8ee7fb401f43ce2487827ce4aea1096f039a9772"
+    },
+    {
+      "split": "holdout",
+      "id": "im26-8468",
+      "distance": 2,
+      "inputPath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8468/input.ppm",
+      "inputSha256": "f754839620d3d152dd17ddf35c5b4c56428dc0a59e2a0a6509b7af350446d4bb",
+      "beforePath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8468/purejsimage-2.jxl",
+      "beforeSha256": "3967c9f257610eebcab520eddbb531346294156efae0875f37bbf75d45a2d11f",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-hold-im26-8468-d2.jxl",
+      "afterSha256": "50fb747766948ed1865a855c239c7fab84bba8f3040d82bdfa2b143d657a1900",
+      "decodedSha256": "4c1defa3e6bf4650f78127142b65f9244b8617a65dc51f5186770018115ec3e9",
+      "rustDecodedSha256": "2f1988e3ca089ebdc867f9e790f4ca7deeb16282619ce044d371e45be2d8de0d",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-holdout.json",
+      "rawScoreSha256": "8e7e60a14a87289bec32cbeb8ee7fb401f43ce2487827ce4aea1096f039a9772"
+    },
+    {
+      "split": "holdout",
+      "id": "im26-8468",
+      "distance": 3,
+      "inputPath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8468/input.ppm",
+      "inputSha256": "f754839620d3d152dd17ddf35c5b4c56428dc0a59e2a0a6509b7af350446d4bb",
+      "beforePath": ".tmp/jpegxl-m7/lossy-holdout-capped052/im26-8468/purejsimage-3.jxl",
+      "beforeSha256": "fe59ab3f07eddd00ddc96382c2eb685e391efd099ba385100f9da1b5d94808a9",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-cap-hold-im26-8468-d3.jxl",
+      "afterSha256": "c5236ea4d7e745a2bd7bf25920a12928205b66b00528146f0e2729241959f83a",
+      "decodedSha256": "0363b0778354ddaa84bffce7fa7333d0aa260f4679b6fe1c7f2f07e947af786e",
+      "rustDecodedSha256": "562aca2be10066494e4ad21341e126b2ca913ef4e6af9598fc49f7e89a1a9b5c",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1,
+      "rawScorePath": ".tmp/jpegxl-m7/prompt9-capped-scored-holdout.json",
+      "rawScoreSha256": "8e7e60a14a87289bec32cbeb8ee7fb401f43ce2487827ce4aea1096f039a9772"
+    }
+  ],
+  "originalInputs": [
+    {
+      "id": "im26-1030",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-1030.ppm",
+      "sha256": "2ac5372c83d016eb8af34ff1a6f8d1b28046e623df01be10787405c4c74e4c37"
+    },
+    {
+      "id": "im26-1416",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-1416.ppm",
+      "sha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c"
+    },
+    {
+      "id": "im26-5034",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-5034.ppm",
+      "sha256": "3face503990c922ef9623a0964c30ea0dd300c4e3f8ac0d0b09d1cd38a5574c8"
+    },
+    {
+      "id": "im26-5052",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-5052.ppm",
+      "sha256": "aa35018be93349b75f9f679f06753ba119cc105748738724ddcdce3458b25f7b"
+    },
+    {
+      "id": "im26-1009",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-1009.ppm",
+      "sha256": "f8c3b98ef9f34f9a6fe584dd841257082f92e6a26e65041c60941605ba913ef0"
+    },
+    {
+      "id": "im26-1221",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-1221.ppm",
+      "sha256": "522e5d0f33665e219834daf7c1c599f1e9d7d673d4f53317e90926ca503aa1bc"
+    },
+    {
+      "id": "im26-5337",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-5337.ppm",
+      "sha256": "a2b159e7e6d1b447526418bae0be0816166f8591b8365d8257a454640a9b5d50"
+    },
+    {
+      "id": "im26-8160",
+      "path": ".tmp/jpegxl-m7/prompt8-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    }
+  ],
+  "fixedOriginalStreams": [
+    {
+      "id": "im26-1030",
+      "split": "development",
+      "width": 4000,
+      "height": 3000,
+      "distance": 1,
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1030-d1.jxl",
+      "beforeBytes": 1539064,
+      "afterBytes": 1539064,
+      "beforeSha256": "9335d4f48e0dac2f09bfeab8495662b9f07cb6356869aff6a47dba36d9a576dc",
+      "afterSha256": "9335d4f48e0dac2f09bfeab8495662b9f07cb6356869aff6a47dba36d9a576dc",
+      "changed": false,
+      "beforeSsimulacra2": 86.98179332,
+      "afterSsimulacra2": 86.98179332,
+      "beforeButteraugli": 1.2182297707,
+      "afterButteraugli": 1.2182297707,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1030",
+      "split": "development",
+      "width": 4000,
+      "height": 3000,
+      "distance": 3,
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1030-d3.jxl",
+      "beforeBytes": 582061,
+      "afterBytes": 582061,
+      "beforeSha256": "22428a0cb275d2ad25d4db56006ba42d0388c43c387094b643f7d53b32bf7dcf",
+      "afterSha256": "22428a0cb275d2ad25d4db56006ba42d0388c43c387094b643f7d53b32bf7dcf",
+      "changed": false,
+      "beforeSsimulacra2": 79.87693797,
+      "afterSsimulacra2": 79.87693797,
+      "beforeButteraugli": 2.5366976261,
+      "afterButteraugli": 2.5366976261,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1416",
+      "split": "development",
+      "width": 4000,
+      "height": 3000,
+      "distance": 1,
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1416-d1.jxl",
+      "beforeBytes": 1334906,
+      "afterBytes": 1334906,
+      "beforeSha256": "1c9896b378d5ad2168e153d372631af8f8b4f5174b9edeae63365c94e0678194",
+      "afterSha256": "1c9896b378d5ad2168e153d372631af8f8b4f5174b9edeae63365c94e0678194",
+      "changed": false,
+      "beforeSsimulacra2": 88.40450037,
+      "afterSsimulacra2": 88.40450037,
+      "beforeButteraugli": 1.2452893257,
+      "afterButteraugli": 1.2452893257,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1416",
+      "split": "development",
+      "width": 4000,
+      "height": 3000,
+      "distance": 3,
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1416-d3.jxl",
+      "beforeBytes": 469910,
+      "afterBytes": 469910,
+      "beforeSha256": "cbfc0434dfc840c89892f32ac15e06370d5cc23913e3ceb034a1ce4731791fde",
+      "afterSha256": "cbfc0434dfc840c89892f32ac15e06370d5cc23913e3ceb034a1ce4731791fde",
+      "changed": false,
+      "beforeSsimulacra2": 76.20049126,
+      "afterSsimulacra2": 76.20049126,
+      "beforeButteraugli": 2.4158854485,
+      "afterButteraugli": 2.4158854485,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-5034",
+      "split": "development",
+      "width": 2550,
+      "height": 4200,
+      "distance": 1,
+      "inputPixelsSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-5034-d1.jxl",
+      "beforeBytes": 1087790,
+      "afterBytes": 1087790,
+      "beforeSha256": "5d51c66c2e895a1158f3abb052c28ce5056a9f5526450ace90b948faada11ba6",
+      "afterSha256": "5d51c66c2e895a1158f3abb052c28ce5056a9f5526450ace90b948faada11ba6",
+      "changed": false,
+      "beforeSsimulacra2": 88.03086434,
+      "afterSsimulacra2": 88.03086434,
+      "beforeButteraugli": 0.8627445102,
+      "afterButteraugli": 0.8627445102,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-5034",
+      "split": "development",
+      "width": 2550,
+      "height": 4200,
+      "distance": 3,
+      "inputPixelsSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-5034-d3.jxl",
+      "beforeBytes": 235497,
+      "afterBytes": 235497,
+      "beforeSha256": "ad83e3a6774023a8dc93f3aea2a3e3a0f5e5598c70d8c943320c24cc1daccb74",
+      "afterSha256": "ad83e3a6774023a8dc93f3aea2a3e3a0f5e5598c70d8c943320c24cc1daccb74",
+      "changed": false,
+      "beforeSsimulacra2": 88.98455039,
+      "afterSsimulacra2": 88.98455039,
+      "beforeButteraugli": 0.9190802574,
+      "afterButteraugli": 0.9190802574,
+      "independentMaximum": 0,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-5052",
+      "split": "development",
+      "width": 2550,
+      "height": 4200,
+      "distance": 1,
+      "inputPixelsSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-5052-d1.jxl",
+      "beforeBytes": 1201247,
+      "afterBytes": 1201247,
+      "beforeSha256": "823587b1f43cf93c26a6a615f1fa13e925a5e1cac66f601975bafc89fe16199d",
+      "afterSha256": "823587b1f43cf93c26a6a615f1fa13e925a5e1cac66f601975bafc89fe16199d",
+      "changed": false,
+      "beforeSsimulacra2": 88.90457803,
+      "afterSsimulacra2": 88.90457803,
+      "beforeButteraugli": 0.7592948079,
+      "afterButteraugli": 0.7592948079,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-5052",
+      "split": "development",
+      "width": 2550,
+      "height": 4200,
+      "distance": 3,
+      "inputPixelsSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-5052-d3.jxl",
+      "beforeBytes": 79273,
+      "afterBytes": 79273,
+      "beforeSha256": "0bd7f156fbd827ae23bf5039839c73047cf7d5936749024f3e93afdf5b1bc4c6",
+      "afterSha256": "0bd7f156fbd827ae23bf5039839c73047cf7d5936749024f3e93afdf5b1bc4c6",
+      "changed": false,
+      "beforeSsimulacra2": 90.63848339,
+      "afterSsimulacra2": 90.63848339,
+      "beforeButteraugli": 0.39645046,
+      "afterButteraugli": 0.39645046,
+      "independentMaximum": 0,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1009",
+      "split": "observed-holdout",
+      "width": 4000,
+      "height": 3000,
+      "distance": 1,
+      "inputPixelsSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1009-d1.jxl",
+      "beforeBytes": 3617256,
+      "afterBytes": 3617256,
+      "beforeSha256": "2b0f2bc7dc82036b0daf331ed7c69a3adf82d9cb3d4e7ad116a9486373fefa24",
+      "afterSha256": "2b0f2bc7dc82036b0daf331ed7c69a3adf82d9cb3d4e7ad116a9486373fefa24",
+      "changed": false,
+      "beforeSsimulacra2": 88.32719525,
+      "afterSsimulacra2": 88.32719525,
+      "beforeButteraugli": 1.291744113,
+      "afterButteraugli": 1.291744113,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1009",
+      "split": "observed-holdout",
+      "width": 4000,
+      "height": 3000,
+      "distance": 3,
+      "inputPixelsSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1009-d3.jxl",
+      "beforeBytes": 1807601,
+      "afterBytes": 1807601,
+      "beforeSha256": "d1789ce061ea796680fbe93fe257a6a553d83239c3442b706a7d5fc13128c7b9",
+      "afterSha256": "d1789ce061ea796680fbe93fe257a6a553d83239c3442b706a7d5fc13128c7b9",
+      "changed": false,
+      "beforeSsimulacra2": 79.4292155,
+      "afterSsimulacra2": 79.4292155,
+      "beforeButteraugli": 2.3741044998,
+      "afterButteraugli": 2.3741044998,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1221",
+      "split": "observed-holdout",
+      "width": 4000,
+      "height": 3000,
+      "distance": 1,
+      "inputPixelsSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1221-d1.jxl",
+      "beforeBytes": 3456877,
+      "afterBytes": 3456877,
+      "beforeSha256": "bdddd4b7d132088fe96ad25b5d385512827a4f711fdbcbfd9666c47cd0dd93bf",
+      "afterSha256": "bdddd4b7d132088fe96ad25b5d385512827a4f711fdbcbfd9666c47cd0dd93bf",
+      "changed": false,
+      "beforeSsimulacra2": 88.74487968,
+      "afterSsimulacra2": 88.74487968,
+      "beforeButteraugli": 1.262799263,
+      "afterButteraugli": 1.262799263,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-1221",
+      "split": "observed-holdout",
+      "width": 4000,
+      "height": 3000,
+      "distance": 3,
+      "inputPixelsSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-1221-d3.jxl",
+      "beforeBytes": 1594062,
+      "afterBytes": 1594062,
+      "beforeSha256": "781a69dcc1691bfd6a438381349a9e8de44ae07497270f6c037f710a94d4d3b9",
+      "afterSha256": "781a69dcc1691bfd6a438381349a9e8de44ae07497270f6c037f710a94d4d3b9",
+      "changed": false,
+      "beforeSsimulacra2": 76.01065089,
+      "afterSsimulacra2": 76.01065089,
+      "beforeButteraugli": 2.5754442215,
+      "afterButteraugli": 2.5754442215,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-5337",
+      "split": "observed-holdout",
+      "width": 2550,
+      "height": 3300,
+      "distance": 1,
+      "inputPixelsSha256": "eb3a9a4dcedf0f6873d7a3b5b7df72dd94e93bd822a557083b4441c4bb47a781",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-5337-d1.jxl",
+      "beforeBytes": 393588,
+      "afterBytes": 393588,
+      "beforeSha256": "16a78cee2e51dee3f9e900f125c61a85498fbbc7f395260b03a544fafa96fac2",
+      "afterSha256": "16a78cee2e51dee3f9e900f125c61a85498fbbc7f395260b03a544fafa96fac2",
+      "changed": false,
+      "beforeSsimulacra2": 88.406709,
+      "afterSsimulacra2": 88.406709,
+      "beforeButteraugli": 1.2187377214,
+      "afterButteraugli": 1.2187377214,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-5337",
+      "split": "observed-holdout",
+      "width": 2550,
+      "height": 3300,
+      "distance": 3,
+      "inputPixelsSha256": "eb3a9a4dcedf0f6873d7a3b5b7df72dd94e93bd822a557083b4441c4bb47a781",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-5337-d3.jxl",
+      "beforeBytes": 180010,
+      "afterBytes": 180010,
+      "beforeSha256": "a9e77e2df35ea4e6b93f12af7ae257f78c12abcb3b01fa73b958eba09e82d83a",
+      "afterSha256": "a9e77e2df35ea4e6b93f12af7ae257f78c12abcb3b01fa73b958eba09e82d83a",
+      "changed": false,
+      "beforeSsimulacra2": 89.4287873,
+      "afterSsimulacra2": 89.4287873,
+      "beforeButteraugli": 1.8296705484,
+      "afterButteraugli": 1.8296705484,
+      "independentMaximum": 0,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-8160",
+      "split": "observed-holdout",
+      "width": 1920,
+      "height": 1080,
+      "distance": 1,
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-8160-d1.jxl",
+      "beforeBytes": 272113,
+      "afterBytes": 272113,
+      "beforeSha256": "e596f9b9551e5fe0f918f3e028e40cee3df3ef0c90710c3931e1e3dd3c435448",
+      "afterSha256": "e596f9b9551e5fe0f918f3e028e40cee3df3ef0c90710c3931e1e3dd3c435448",
+      "changed": false,
+      "beforeSsimulacra2": 87.71584756,
+      "afterSsimulacra2": 87.71584756,
+      "beforeButteraugli": 1.4976791143,
+      "afterButteraugli": 1.4976791143,
+      "independentMaximum": 1,
+      "referenceScoreReused": true,
+      "independentDecodeReceiptPath": "benchmark/jpegxl/production-program/m7-prompt8-original-size.json"
+    },
+    {
+      "id": "im26-8160",
+      "split": "observed-holdout",
+      "width": 1920,
+      "height": 1080,
+      "distance": 3,
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "afterPath": ".tmp/jpegxl-m7/prompt9-original-im26-8160-d3.jxl",
+      "beforeBytes": 167981,
+      "afterBytes": 154440,
+      "beforeSha256": "c05d23b44d59d5e4203c743068720a25ccfc46b8f8f87c87c22a7b138db679aa",
+      "afterSha256": "a654132b1bb373f1a83f0602deca17f5d4dad4d80edda720f7242aa1fcf4ef33",
+      "changed": true,
+      "beforeSsimulacra2": 79.52473171,
+      "afterSsimulacra2": 79.96695829,
+      "beforeButteraugli": 3.1001286507,
+      "afterButteraugli": 3.0999028683,
+      "independentMaximum": 1,
+      "referenceScoreReused": false,
+      "independentDecodeReceiptPath": ".tmp/jpegxl-m7/prompt9-original-screenshot-final-quality.json"
+    }
+  ],
+  "boundedReceipts": [
+    {
+      "id": "prompt9-scan-capped-development",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-scan-capped-development.json",
+      "sha256": "939b977f7452c9955f85ad8f59d6bcb2af0a0caf7c83487888cd67958ca50c71",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-scan-capped-holdout",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-scan-capped-holdout.json",
+      "sha256": "4ff04800c62090318be70b1facf0ac93edea404aef91824dfb985bb1b5140897",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-scored-development",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-scored-development.json",
+      "sha256": "09100a6e34e768f78738ff291b08d5564989a0ac2602ad073fa4ebdade14842a",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-scored-holdout",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-scored-holdout.json",
+      "sha256": "64389d417b4b15d50249bcaa5273259c3bd2e7cd4dc5361a8222cd547d613800",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-screenshot-final-quality",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-screenshot-final-quality.json",
+      "sha256": "a1960237fcd59ec462e12137c2e85a1579616abcffbb62d383f594a562729724",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-final-resource",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-final-resource.json",
+      "sha256": "457acbac4f21ae435f264af1f5d1c737cd40300e3b7d951ddb0b65898dff6db4",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-final-conformance",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-final-conformance.json",
+      "sha256": "0beb57687d9606c446340392e4478e71d063409f8215ce62bc66d84bb174d722",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8140-d2",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8140-d2.json",
+      "sha256": "4179b52d300729c0c12ac655d0a952110c802d593945dbfb0a21d867b6756874",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8140-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8140-d3.json",
+      "sha256": "9bf3af0b3909cc6c51971be93eec19595113973288928dc1482a9c741eb80672",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8140-d4",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8140-d4.json",
+      "sha256": "19fc3b010a06877df1d79dcada925bb8c7dc7e7ae58464ae03ce65522938430d",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8444-d2",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8444-d2.json",
+      "sha256": "6e233748f20c6af4d63894acb78bd943910fa7fbec11f9ae8607d21b9a8370d1",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8444-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8444-d3.json",
+      "sha256": "0c0d006086d481df25898f0cb3e7e966134d17535cd6a28611592286019b4d07",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8444-d4",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8444-d4.json",
+      "sha256": "fce7cfba5f53affb65341f3a70ceb143767c7ce86546f03111cf2445054238e0",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8110-d2",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8110-d2.json",
+      "sha256": "92aa7b7bea8334a6934d94be249e7415ad75b62f514e5d814b5369731c29f57a",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8110-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8110-d3.json",
+      "sha256": "729ba765815238772c646185dc52b8ad83f2a03b22cf7fce86694dd565ceaf56",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8110-d4",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8110-d4.json",
+      "sha256": "303bb1c14a03dac977c049d245d4572f33db498ce131d39f4fb93195b921feab",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8150-d2",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8150-d2.json",
+      "sha256": "82dba8efb4aa8fc6622f25be797a11c7aab217233858dc6b00d623eec76ffca4",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8150-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8150-d3.json",
+      "sha256": "d681c8187d8fc29c0d3d064b38e48bcfa43048884e323306af9c0cb019185798",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-dev-im26-8150-d4",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-dev-im26-8150-d4.json",
+      "sha256": "dd2e2c9b88fa946bf5a23fa976f75418419937daebfaf4d234e8b99baa2a2e91",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-hold-im26-8350-d2",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-hold-im26-8350-d2.json",
+      "sha256": "1aed739c44f1d4a55bd8f5d0259009879d3945187bf326b8190772587e5040f8",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-hold-im26-8350-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-hold-im26-8350-d3.json",
+      "sha256": "fcd277ebb4720b653113cedb2176bba09e1edb9137fc3648e180c813a48eae8d",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-hold-im26-8350-d4",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-hold-im26-8350-d4.json",
+      "sha256": "7d664a0c4b4fe914e2c9df2c36720f1028522609696f85fc2ba8baf658324f8f",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-hold-im26-8468-d2",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-hold-im26-8468-d2.json",
+      "sha256": "e69800aeca63cc7e6155ec0407d15769453837233a33bfd25e8efc3680b55dd1",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-hold-im26-8468-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-hold-im26-8468-d3.json",
+      "sha256": "7b6f319ad65e7dcb417c531df9905cfc16874c1a33acf708aedc7fb80c160142",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-cap-hold-im26-8468-d4",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-cap-hold-im26-8468-d4.json",
+      "sha256": "0c871740f043bdaa18813e967da1a54f2c5d5ea7c24f6442b82039300be3ab74",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1030-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1030-d1.json",
+      "sha256": "dc5edd68f090e290a5779f07498a91f4ad926eed2b6dc712a6d65a17a86cdf57",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1030-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1030-d3.json",
+      "sha256": "16e7fd884cac70ff320b7405cf065620ce727e3272ac9530b73ed913efd39bea",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1416-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1416-d1.json",
+      "sha256": "228b07d3a2d09533de9676b20ec95563c44059181eae177d2d8ef1c84372af07",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1416-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1416-d3.json",
+      "sha256": "6db912d13ab2533d84a36242bf89097eb293eaf32f1a110072809cae1a39ec96",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-5034-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-5034-d1.json",
+      "sha256": "a43495cb67c036b7c03480202b63d41bb514f52d22e2fe3c3d97d4318cfc2f84",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-5034-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-5034-d3.json",
+      "sha256": "7cfb5b78aa49c66c3eb1bf519bf3d184b4334d2fa0ae4573b3db52e2532d4369",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-5052-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-5052-d1.json",
+      "sha256": "d2225d0802c84557016867e6753a6287697151a3ccd7f68755f6679721ad7af6",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-5052-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-5052-d3.json",
+      "sha256": "5aca1bdd40d888b515fb1f1fe1d672ecb0cc4c252beb34baa03ff33e35e57d5f",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1009-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1009-d1.json",
+      "sha256": "9ebba9a842976a981449983ac77e37586fa641f5a831bd4e5add6d48a4c53a6b",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1009-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1009-d3.json",
+      "sha256": "5b9f83d7d412ed718d29f18f6efc270ea02ea1b5e85002d7764d39bcc4d06b98",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1221-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1221-d1.json",
+      "sha256": "d7949ad8c344d7cf94562e832a57cdf12aa6fb85bb1cdee10c7b28a1ac63dc18",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-1221-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-1221-d3.json",
+      "sha256": "c951b23c6b8ce956dba6c6fc7adcbef5af574046e1750cb8a0f8458b3f1aa56e",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-5337-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-5337-d1.json",
+      "sha256": "fc42cd8e97256715973cb68fa69680448a6e4b30111ce3282113807838ec6382",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-5337-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-5337-d3.json",
+      "sha256": "94e3cdc2845584b4cdacfb7d7339e78a38cec47228fda87d02923e1f7adb6fe2",
+      "status": "completed",
+      "memoryMaxBytes": 8589934592,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-8160-d1",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-8160-d1.json",
+      "sha256": "5ce40e1890722b2b01a9953eb5dd453ca13fceba0e20b4e9eceb396ebaa7719b",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    },
+    {
+      "id": "prompt9-original-im26-8160-d3",
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt9-original-im26-8160-d3.json",
+      "sha256": "a771b8dcab400a71fb424c5ade44149da965082d3e76c70c9d349c71f4c669dc",
+      "status": "completed",
+      "memoryMaxBytes": 3221225472,
+      "swapMaxBytes": 0
+    }
+  ],
+  "checks": [
+    {
+      "name": "npm run check",
+      "path": ".tmp/jpegxl-m7/prompt9-final-npm-check-v3.log",
+      "sha256": "defffc8c5043d7b42d90fecfa0352251548ec05795c586a634fb71c73c74ab62",
+      "passed": true
+    },
+    {
+      "name": "real Chromium screenshot test",
+      "status": "passed in Playwright 1/1"
+    }
+  ],
+  "visualCrops": [
+    {
+      "path": ".tmp/jpegxl-m7/prompt9-visual-source-crop.png",
+      "sha256": "6ca7892d5a926b5f9fc4b8619ada0aba6082594f13047a2136c51fdccd55478f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt9-visual-before-crop.png",
+      "sha256": "178f91a1bf87c80d197c6abf05812956acdcddf3cecd033b440ca6d5e963a2ff"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt9-visual-after-crop.png",
+      "sha256": "1ad5e9aac1c2fc439f418639f19f5c551e081a8e59a03c5ff22781287d0031f7"
+    }
+  ]
+}

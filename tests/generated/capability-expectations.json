@@ -287,7 +287,15 @@
         "benchmark/jpegxl/run-m9-integration.ts",
         "benchmark/jpegxl/run-m9-fuzz-resource.ts",
         "benchmark/jpegxl/run-m9-package.ts",
-        "tests/jpegxl-m10-level10.test.ts"
+        "tests/jpegxl-m10-level10.test.ts",
+        "tests/jpegxl-float-display.test.ts",
+        "tests/jpegxl-icc16.test.ts",
+        "browser-tests/jpegxl-color.pw.ts",
+        "tests/jpegxl-practical-progressive.test.ts",
+        "tests/jpegxl-grayscale-exact.test.ts",
+        "browser-tests/jpegxl-practical-progressive.pw.ts",
+        "tests/jpegxl-document-patches.test.ts",
+        "browser-tests/jpegxl-document-patches.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -302,7 +310,10 @@
           "benchmark/jpegxl/verify-m8-sequence.ts",
           "benchmark/jpegxl/verify-m8-static.ts",
           "benchmark/jpegxl/verify-m8-raw.ts",
-          "benchmark/jpegxl/verify-m8-animation-encode.ts"
+          "benchmark/jpegxl/verify-m8-animation-encode.ts",
+          "tests/jpegxl-practical-progressive.test.ts",
+          "tests/jpegxl-grayscale-exact.test.ts",
+          "tests/jpegxl-document-patches.test.ts"
         ]
       }
     },

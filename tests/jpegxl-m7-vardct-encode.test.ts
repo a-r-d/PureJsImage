@@ -12,6 +12,43 @@ import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
 
 describe('JPEG XL pixel-to-VarDCT conformance path', () => {
+  it('decodes aligned effort-1 sRGB including black and white endpoints', async () => {
+    const width = 16
+    const height = 16
+    const pixels = Uint8Array.from({ length: width * height * 3 }, (_, index) => {
+      const x = Math.floor(index / 3) % width
+      const y = Math.floor(index / (width * 3))
+      return y < 8 ? (x < 8 ? 0 : 255) : Math.round(((x + y) * 255) / 30)
+    })
+    const sink = new Uint8ArraySink()
+    for (const part of encodeJpegXlVarDct8(pixels, width, height, 1, undefined, 3, 1))
+      await sink.write(part)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(sink.toUint8Array()),
+      defaultImageLimits,
+    )
+    if (!decoder) throw new Error('Missing JPEG XL decoder')
+    let samples = 0
+    let maximum = 0
+    for await (const block of decoder.decode()) {
+      for (let y = 0; y < block.height; y++) {
+        for (let x = 0; x < width * 3; x++) {
+          maximum = Math.max(
+            maximum,
+            Math.abs(
+              (block.data[y * block.stride + x] ?? -1000) -
+                (pixels[(block.y + y) * width * 3 + x] ?? 1000),
+            ),
+          )
+          samples++
+        }
+      }
+      block.release?.()
+    }
+    expect(samples).toBe(pixels.length)
+    expect(maximum).toBeLessThan(40)
+  })
+
   for (const distance of [0.999, 1, 1.001, 2, 3]) {
     it(`preserves smooth colored gradients at distance ${distance}`, async () => {
       const width = 129,
@@ -212,19 +249,20 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     expect(() => encodeJpegXlVarDct8(new Uint8Array(2), 1, 1, 1)).toThrow(/extent/)
   })
 
-  for (const [width, height] of [
-    [17, 13],
-    [257, 33],
-    [33, 257],
-    [513, 257],
-  ]) {
-    if (!width || !height) throw new Error('Missing alpha fixture dimensions')
-    it(`preserves every alpha level across ${width}x${height} forward groups`, async () => {
+  for (const [width, height, distance, effort] of [
+    [17, 13, 1, 3],
+    [257, 33, 1, 3],
+    [33, 257, 1, 3],
+    [513, 257, 1, 3],
+    [257, 33, 3, 5],
+    [257, 33, 3, 7],
+  ] as const) {
+    it(`preserves every alpha level across ${width}x${height}, distance ${distance}, effort ${effort}`, async () => {
       const pixels = Uint8Array.from({ length: width * height * 4 }, (_, index) =>
         index % 4 === 3 ? Math.floor(index / 4) % 256 : (index * 13) % 256,
       )
       const sink = new Uint8ArraySink()
-      for (const part of encodeJpegXlVarDct8(pixels, width, height, 1, undefined, 4))
+      for (const part of encodeJpegXlVarDct8(pixels, width, height, distance, undefined, 4, effort))
         await sink.write(part)
       const decoder = await jpegxlCodec.createDecoder?.(
         new MemorySource(sink.toUint8Array()),
@@ -247,6 +285,49 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
       expect(count).toBe(width * height)
     })
   }
+
+  it('keeps effort-7 lossy RGBA color boundaries accurate with exact alpha', async () => {
+    const width = 64
+    const height = 64
+    const pixels = new Uint8Array(width * height * 4)
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const offset = (y * width + x) * 4
+        const color = y >= 26 && y < 34 ? [244, 218, 32] : x < 32 ? [223, 36, 40] : [30, 67, 235]
+        for (let channel = 0; channel < 3; channel++) pixels[offset + channel] = color[channel] ?? 0
+        pixels[offset + 3] = y < 8 ? 0 : y < 16 ? 128 : 255
+      }
+    }
+    const sink = new Uint8ArraySink()
+    for (const part of encodeJpegXlVarDct8(pixels, width, height, 3, undefined, 4, 7))
+      await sink.write(part)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(sink.toUint8Array()),
+      defaultImageLimits,
+    )
+    if (!decoder) throw new Error('Missing alpha decoder')
+    let error = 0
+    let count = 0
+    for await (const block of decoder.decode()) {
+      for (let y = 0; y < block.height; y++) {
+        for (let x = 0; x < width; x++) {
+          const source = ((block.y + y) * width + x) * 4
+          const decoded = y * block.stride + x * 4
+          expect(block.data[decoded + 3]).toBe(pixels[source + 3])
+          if (x < 28 || x > 35 || block.y + y < 16) continue
+          for (let channel = 0; channel < 3; channel++) {
+            error += Math.abs(
+              (block.data[decoded + channel] ?? 0) - (pixels[source + channel] ?? 0),
+            )
+            count++
+          }
+        }
+      }
+      block.release?.()
+    }
+    expect(count).toBe(8 * 48 * 3)
+    expect(error / count).toBeLessThan(4.5)
+  })
 
   it('admits scratch before allocation, returns only owned sections, and unwinds failure', () => {
     const pixels = new Uint8Array(257 * 33 * 3).fill(96)

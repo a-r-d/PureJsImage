@@ -30,6 +30,8 @@ export {
 export {
   convertJpegXlCmykLayerToRgba8,
   convertJpegXlFloat32LayerToRgba16,
+  convertJpegXlFloatLayerToRgba16,
+  convertJpegXlIccLayerToRgba16,
   type JpegXlRgba8Image,
   type JpegXlRgba16Image,
   jpegXlNativeFloat32ColorPlanes,

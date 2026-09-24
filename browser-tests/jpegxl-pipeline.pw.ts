@@ -2,12 +2,57 @@ import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import {
   runJpegXlPipelines,
+  verifyLosslessPaletteRgba,
   verifyFloatJpegXl,
   verifyLazyJpegXl,
   verifyLevelTenJpegXl,
+  verifyJpegXlLargeDocumentSelection,
+  verifyJpegXlScreenshotPatch,
   verifyM7EffortOneGroups,
+  verifyM7EffortSevenAlpha,
   verifyM7ForwardJpegXl,
+  verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+test('repeated screenshot JPEG XL patches agree in Node and Chromium', async ({ page }) => {
+  const expected = await verifyJpegXlScreenshotPatch()
+  expect(expected.frames).toEqual([
+    ['reference', 'vardct', 128],
+    ['regular', 'vardct', 130],
+  ])
+  expect(expected.samples).toBe(512 * 512 * 3)
+  expect(expected.rmse).toBeLessThan(3)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlScreenshotPatch()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('large-document JPEG XL lossy selector agrees in Node and browser', async ({ page }) => {
+  const expected = verifyJpegXlLargeDocumentSelection()
+  expect(expected).toEqual({ eligible: true, darkExcluded: true })
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyJpegXlLargeDocumentSelection()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('lossless palette RGBA samples match in Node and browser', async ({ page }) => {
+  const expected = await verifyLosslessPaletteRgba()
+  expect(expected.rows).toBe(64)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyLosslessPaletteRgba()
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('Level 10 binary32 native decode and writer signaling agree with Node', async ({ page }) => {
   const input = new Uint8Array(await readFile('tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl'))
@@ -274,6 +319,18 @@ test('an independent embedded preview remains visible when a requested native st
   await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '1')
 })
 
+test('M7 effort-7 lossy RGBA8 preserves alpha and agrees in Node and browser', async ({ page }) => {
+  const expected = await verifyM7EffortSevenAlpha()
+  expect(expected.alphaMaximumError).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7EffortSevenAlpha()
+  })
+  expect(actual).toEqual(expected)
+})
+
 test('M7 lossy and progressive re-encode preserve Node/browser color and precision behavior', async ({
   page,
 }) => {
@@ -336,12 +393,10 @@ for (const [width, height] of [
   [1025, 17],
   [1, 1031],
 ] as const) {
-  test(`M7 scalar palettes preserve independently verified RGB16 ${width}x${height}`, async ({
+  test(`M7 scalar palettes preserve exact RGB16 in Node and browser ${width}x${height}`, async ({
     page,
   }) => {
-    const expected = await readFile(
-      `tests/fixtures/jpegxl/m7-scalar-palettes/${width}x${height}.jxl`,
-    )
+    const expected = await verifyM7ScalarPalettes(width, height)
     await page.goto('/compatibility.html')
     const actual = await page.evaluate(
       async ({ width, height }) => {
@@ -351,6 +406,6 @@ for (const [width, height] of [
       },
       { width, height },
     )
-    expect(actual).toEqual(Array.from(expected))
+    expect(actual).toEqual(expected)
   })
 }

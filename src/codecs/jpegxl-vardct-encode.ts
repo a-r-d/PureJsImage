@@ -52,6 +52,14 @@ const linearSrgb = Float32Array.from({ length: 256 }, (_, value) => {
 })
 const bias = 0.0037930732552754493
 const biasRoot = Math.cbrt(bias)
+// The default sRGB matrix maps 8-bit RGB into [0, 1]. The extra endpoint
+// covers its final floating-point rounding at white without a hot-loop clamp.
+const lookupCubeRoot = (linear: number, table: Float32Array): number => {
+  const scaled = linear * 16_384
+  const index = scaled | 0
+  const left = table[index] ?? 0
+  return left + ((table[index + 1] ?? left) - left) * (scaled - index)
+}
 
 import {
   forwardJpegXlDct8,
@@ -96,6 +104,81 @@ const fillXybBlock = (
       const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
       const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
       const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+      const index = y * 8 + x
+      xPlane[index] = (mixedRed - mixedGreen) / 2
+      yPlane[index] = (mixedRed + mixedGreen) / 2
+      bPlane[index] = mixedBlue - (mixedRed + mixedGreen) / 2
+    }
+  }
+}
+
+const fillXybBlockAligned = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  transfer: Float32Array,
+  matrix: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
+    for (let x = 0; x < 8; x++, offset += 3) {
+      const red = transfer[pixels[offset] ?? 0] ?? 0
+      const green = transfer[pixels[offset + 1] ?? 0] ?? 0
+      const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
+      const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
+      const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
+      const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+      const index = y * 8 + x
+      xPlane[index] = (mixedRed - mixedGreen) / 2
+      yPlane[index] = (mixedRed + mixedGreen) / 2
+      bPlane[index] = mixedBlue - (mixedRed + mixedGreen) / 2
+    }
+  }
+}
+
+const fillXybBlockAlignedFast = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  transfer: Float32Array,
+  matrix: Float32Array,
+  cubeRootTable: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
+    for (let x = 0; x < 8; x++, offset += 3) {
+      const red = transfer[pixels[offset] ?? 0] ?? 0
+      const green = transfer[pixels[offset + 1] ?? 0] ?? 0
+      const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
+      const mixedRed = lookupCubeRoot(m0 * red + m1 * green + m2 * blue, cubeRootTable)
+      const mixedGreen = lookupCubeRoot(m3 * red + m4 * green + m5 * blue, cubeRootTable)
+      const mixedBlue = lookupCubeRoot(m6 * red + m7 * green + m8 * blue, cubeRootTable)
       const index = y * 8 + x
       xPlane[index] = (mixedRed - mixedGreen) / 2
       yPlane[index] = (mixedRed + mixedGreen) / 2
@@ -188,6 +271,11 @@ export const encodeJpegXlVarDct8 = (
   }
 }
 
+export interface JpegXlForwardFrameOptions {
+  readonly reference?: boolean
+  readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
+}
+
 export const encodeJpegXlVarDct8Async = (
   pixels: Uint8Array,
   width: number,
@@ -202,6 +290,7 @@ export const encodeJpegXlVarDct8Async = (
   progressive = false,
   color?: JpegXlForwardColor,
   limits: Readonly<ImageLimits> = defaultImageLimits,
+  frame: Readonly<JpegXlForwardFrameOptions> = {},
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
     const steps = prepare8(
@@ -227,7 +316,15 @@ export const encodeJpegXlVarDct8Async = (
     const geometry = next.value
     const sections = await encodeVarDctCoefficientSectionsAsync(geometry, checkpoint)
     await checkpoint()
-    return varDctCodestreamParts({ width, height }, geometry, sections)
+    const global = sections[0]
+    if (!global) throw invalidInput('JPEG XL VarDCT global section is missing')
+    const selectedSections = frame.patchGlobalSection
+      ? [frame.patchGlobalSection(global), ...sections.slice(1)]
+      : sections
+    return varDctCodestreamParts({ width, height }, geometry, selectedSections, {
+      reference: frame.reference === true,
+      patches: frame.patchGlobalSection !== undefined,
+    })
   })
 
 function* prepare8(
@@ -259,7 +356,7 @@ function* prepare8(
   const blockQuantization = 4
   const globalScale = Math.round(65536 / (distance * blockQuantization))
   const effectiveDistance = 65536 / globalScale / blockQuantization
-  // Keep fine DC precision for high-quality, alpha and native-depth output.
+  // Keep fine DC precision outside the measured SDR experiments.
   // Modest channel-specific steps reduce SDR DC payload without coarse color blocks.
   const moderateSdrDc =
     distance > 1 &&
@@ -269,9 +366,18 @@ function* prepare8(
     sampleBytes === 1 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const moderateAlphaDc =
+    effort === 7 &&
+    channels === 4 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    (color?.primaries ?? 'srgb') === 'srgb' &&
+    (color?.transfer.kind ?? 'srgb') === 'srgb'
   const dcQuantization = moderateSdrDc
     ? [1 / 16384, 1 / 4096, 1 / 2048]
-    : [1 / 16384, 1 / 16384, 1 / 16384]
+    : moderateAlphaDc
+      ? [1 / 8192, 1 / 1024, 1 / 512]
+      : [1 / 16384, 1 / 16384, 1 / 16384]
   const fullBlockWidth = Math.ceil(width / 8)
   const fullBlockHeight = Math.ceil(height / 8)
   const deferredDcGroups =
@@ -354,6 +460,20 @@ function* prepare8(
       }
     }
   }
+  const cubeRootTable =
+    effort === 1 &&
+    channels === 3 &&
+    sampleBytes === 1 &&
+    (width & 7) === 0 &&
+    (height & 7) === 0 &&
+    primaryCode === 1 &&
+    colorTransfer.kind === 'srgb'
+      ? allocateJpegXlArray(memory, Float32Array, 16_386)
+      : undefined
+  if (cubeRootTable) {
+    for (let index = 0; index < cubeRootTable.length; index++)
+      cubeRootTable[index] = Math.cbrt(index / 16_384 + bias) - biasRoot
+  }
   // Select the storage kernel once. Grayscale never expands to an RGB bitmap.
   const fillColor =
     channels === 1
@@ -373,20 +493,47 @@ function* prepare8(
           }
         }
       : sampleBytes === 1
-        ? (blockX: number, blockY: number) =>
-            fillXybBlock(
-              pixels,
-              width,
-              height,
-              blockX,
-              blockY,
-              xPlane,
-              yPlane,
-              bPlane,
-              channels,
-              transfer,
-              matrix,
-            )
+        ? channels === 3 && (width & 7) === 0 && (height & 7) === 0
+          ? cubeRootTable
+            ? (blockX: number, blockY: number) =>
+                fillXybBlockAlignedFast(
+                  pixels,
+                  width,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  transfer,
+                  matrix,
+                  cubeRootTable,
+                )
+            : (blockX: number, blockY: number) =>
+                fillXybBlockAligned(
+                  pixels,
+                  width,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  transfer,
+                  matrix,
+                )
+          : (blockX: number, blockY: number) =>
+              fillXybBlock(
+                pixels,
+                width,
+                height,
+                blockX,
+                blockY,
+                xPlane,
+                yPlane,
+                bPlane,
+                channels,
+                transfer,
+                matrix,
+              )
         : (blockX: number, blockY: number) =>
             fillXybBlock16(
               pixels,
@@ -472,7 +619,7 @@ function* prepare8(
         covarianceX[tile] = (covarianceX[tile] ?? 0) + xy
         covarianceB[tile] = (covarianceB[tile] ?? 0) + by
         const activity = gradient / Math.max(yy, 1e-12)
-        blockQuantizationMap[offset] = yy < 0.000064 || activity < 0.15 ? 6 : 4
+        blockQuantizationMap[offset] = moderateAlphaDc || yy < 0.000064 || activity < 0.15 ? 6 : 4
       }
     }
     yield
@@ -632,6 +779,15 @@ function* prepare8(
   const acStorage = Array.from({ length: 3 }, () =>
     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
   )
+  const fastAcInverse =
+    effort === 1
+      ? defaultJpegXlDct8Dequantization.map((table) => {
+          const inverse = allocateJpegXlArray(memory, Float32Array, 64)
+          for (let position = 1; position < 64; position++)
+            inverse[position] = 1 / (effectiveDistance * (table[position] ?? 0))
+          return inverse
+        })
+      : undefined
   const fillAcGroup = (group: number): readonly VarDctCoefficientPlane[] => {
     const originX = (group % groupsAcross) * 32
     const originY = Math.floor(group / groupsAcross) * 32
@@ -662,14 +818,15 @@ function* prepare8(
             )
           }
           transform(strategy, plane)
+          const inverse = fastAcInverse?.[channel]
           for (let position = 1; position < 64; position++) {
             const value = Math.round(
-              (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+              inverse
+                ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
+                : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
             )
             if (value < -4095 || value > 4095)
-              throw unsupportedOperation(
-                'JPEG XL forward AC coefficient exceeds the entropy subset',
-              )
+              throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
             destination[offset + (position & 7) * 8 + (position >>> 3)] = value
           }
         }
@@ -766,6 +923,7 @@ function* prepare8(
     dcPlaneComponents: [second, first, third],
     quantization,
     dcQuantization,
+    ...(moderateAlphaDc ? { adaptiveLfSmoothing: true } : {}),
     defaultQuantization: true,
     globalScale,
     blockQuantization,

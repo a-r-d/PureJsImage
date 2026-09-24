@@ -172,8 +172,11 @@ const buildCoefficientImage = (
   progressive: boolean,
   colorTransform: 'none' | 'ycbcr',
 ): JpegCoefficientImage => {
-  if (componentIds.length !== 3 || componentQuantizationTables.length !== 3) {
-    throw unsupportedOperation('Exact JPEG reconstruction currently requires three components')
+  if (
+    (componentIds.length !== 1 && componentIds.length !== 3) ||
+    componentQuantizationTables.length !== componentIds.length
+  ) {
+    throw unsupportedOperation('Exact JPEG reconstruction requires one or three components')
   }
   const raw = chromaSubsampling.map(rawSampling)
   const maximumHorizontalSampling = 2 ** Math.max(...raw.map(([horizontal]) => horizontal))
@@ -183,7 +186,7 @@ const buildCoefficientImage = (
   const mcusPerColumn = Math.ceil(height / (maximumVerticalSampling * 8))
   const components: JpegCoefficientComponent[] = []
   const channelOrder = jpegChannelOrder(colorTransform)
-  for (let component = 0; component < 3; component += 1) {
+  for (let component = 0; component < componentIds.length; component += 1) {
     const internalChannel = channelOrder[component]
     if (internalChannel === undefined) {
       throw invalidInput('JPEG XL reconstruction channel order is incomplete')
@@ -231,7 +234,8 @@ const buildCoefficientImage = (
     width,
     height,
     progressive,
-    colorTransform: colorTransform === 'ycbcr' ? 'ycbcr' : 'rgb',
+    colorTransform:
+      componentIds.length === 1 ? 'gray' : colorTransform === 'ycbcr' ? 'ycbcr' : 'rgb',
     maximumHorizontalSampling,
     maximumVerticalSampling,
     mcusPerLine,
@@ -275,6 +279,8 @@ const decodeJpegXlJpegCoefficientData = async (
     options,
     jpegXlLimits.maxHeaderBytes,
   )
+  if (reconstruction && reconstruction.componentIds.length !== frame.colorChannels)
+    throw invalidInput('JPEG XL reconstruction component count differs from its image header')
   if (
     frame.encoding !== 'vardct' ||
     (frame.colorTransform !== 'ycbcr' && frame.colorTransform !== 'none') ||
@@ -508,8 +514,9 @@ const decodeJpegXlJpegCoefficientData = async (
     frame.width,
     frame.height,
     frame.chromaSubsampling,
-    reconstruction?.componentIds ?? Object.freeze([1, 2, 3]),
-    reconstruction?.componentQuantizationTables ?? Object.freeze([0, 1, 2]),
+    reconstruction?.componentIds ?? Object.freeze(frame.colorChannels === 1 ? [1] : [1, 2, 3]),
+    reconstruction?.componentQuantizationTables ??
+      Object.freeze(frame.colorChannels === 1 ? [0] : [0, 1, 2]),
     hfGlobal.dct8Quantization,
     coefficients,
     reconstruction?.restartInterval ?? 0,

@@ -1,4 +1,4 @@
-import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
+import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageDecoder, ImageEncoder } from '../codec.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageLimitOptions } from '../limits.ts'
@@ -220,6 +220,13 @@ const encodeExact = async (
   }>
 > => {
   const limits = resolveJpegXlLimits(options.limits)
+  const gray = image.components.length === 1 ? image.components[0] : undefined
+  if (
+    gray &&
+    retainedCoefficientBytes(image) + gray.coefficients.byteLength >
+      resolveLimits(options.limits).maxDecodedBytes
+  )
+    throw limitExceeded('Grayscale JPEG XL virtual coefficient plane exceeds maxDecodedBytes')
   throwIfAborted(options.signal)
   const reconstruction = parseJpegReconstructionData(input, image, limits, options.signal)
   const metadataLease = retain(
@@ -431,15 +438,7 @@ export const inspectJpegReconstructionEligibility = async (
       },
     )
     const image = await parseCoefficients(bytes, options)
-    if (image.components.length === 1) {
-      return Object.freeze({
-        eligible: false,
-        reasonCodes: Object.freeze(['grayscale'] as const),
-        reasons: Object.freeze(['Grayscale exact JPEG transcode is not implemented']),
-        sourceProfile: sourceProfile(image, display),
-      })
-    }
-    if (image.components.length !== 3) {
+    if (image.components.length !== 1 && image.components.length !== 3) {
       return Object.freeze({
         eligible: false,
         reasonCodes: Object.freeze(['cmyk-or-ycck'] as const),

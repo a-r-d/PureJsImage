@@ -1,0 +1,125 @@
+{
+  "protocol": {
+    "policy": "Development-only original-size probe on the preselected gradient and photo. Effort 7 distance 3. This is not the fixed eight-source qualification. Keep every failure and independent decoder result.",
+    "mode": "own",
+    "runtime": "v24.16.0",
+    "fixtureManifestSha256": "f27b85b8155407b954dcb1a2bd287a87227a2a2f8fa69cefaa279b2f2169439d",
+    "sources": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "e42edd64d299eddc676e8e5cc808681e1dae610564ee992de771c8a8cbb2337f"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "caccfd9868793790ffe229d743695e7aea5494817401e48f0f7e4f082201bdd2"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "215c089a96db515aa3392fe2c348f5312199251aaf591fbd8695932ced4bf0ab"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "a62dceef853b065a04e1e9ae17e1db14ad8c37cb4e3eb2d3f77c9ea0aa2782bb"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+      }
+    ],
+    "toolHashes": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "harnessSha256": "18073d5378b239ffc21fda9b53dfd9eeca9c72cc65eba14a7095f439de48e764"
+  },
+  "results": [
+    {
+      "id": "im26-1030",
+      "width": 4000,
+      "height": 3000,
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 594595,
+      "encodedSha256": "9abe83834f22e066770a358218800f3762d3c21a8f235f06f792ed09637bf9e2",
+      "decodedSha256": "79cfef6ca7e3a675ab37270aa35676347d78d8cd98bb4ffb2b3250f54dc042a6",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4969251284985831,
+        "samples": 36000000,
+        "rows": 3000
+      },
+      "ssimulacra2": 79.85980994,
+      "butteraugli": 2.4622817039,
+      "rawMetrics": {
+        "ssimText": "79.85980994\n",
+        "baText": "2.4622817039\n3-norm: 0.985889\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 4000,
+          "height": 3000,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1416",
+      "width": 4000,
+      "height": 3000,
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 491908,
+      "encodedSha256": "7bb0bb3e08a96e37f13652d2322a39519a945ec737462b42ebab2d5aacc19704",
+      "decodedSha256": "232df1220c7a0504baa3e8272813374d0737ef92b0ba0ca8892f29717cebaecc",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.5064016028147357,
+        "samples": 36000000,
+        "rows": 3000
+      },
+      "ssimulacra2": 77.14136462,
+      "butteraugli": 2.4158856869,
+      "rawMetrics": {
+        "ssimText": "77.14136462\n",
+        "baText": "2.4158856869\n3-norm: 1.032561\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 4000,
+          "height": 3000,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    }
+  ]
+}

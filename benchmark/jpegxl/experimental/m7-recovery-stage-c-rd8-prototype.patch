@@ -1,0 +1,186 @@
+diff --git a/benchmark/jpegxl/run-m7-diagnostic.ts b/benchmark/jpegxl/run-m7-diagnostic.ts
+index 4b6e53b..f583128 100644
+--- a/benchmark/jpegxl/run-m7-diagnostic.ts
++++ b/benchmark/jpegxl/run-m7-diagnostic.ts
+@@ -15,11 +15,15 @@ sharp.concurrency(1)
+ sharp.cache(false)
+ const [mode, runId] = process.argv.slice(2)
+ if (
+-  (mode !== 'prepare' && mode !== 'own' && mode !== 'baseline' && mode !== 'experimental-dct16') ||
++  (mode !== 'prepare' &&
++    mode !== 'own' &&
++    mode !== 'baseline' &&
++    mode !== 'experimental-dct16' &&
++    mode !== 'experimental-rd8') ||
+   (mode !== 'prepare' && (!runId || !/^[a-z0-9-]+$/u.test(runId)))
+ )
+   throw new Error(
+-    'Usage: run-m7-diagnostic.ts prepare | baseline|own|experimental-dct16 unique-run-id',
++    'Usage: run-m7-diagnostic.ts prepare | baseline|own|experimental-dct16|experimental-rd8 unique-run-id',
+   )
+ const fixtures = '.tmp/jpegxl-m7/diagnostic-fixtures-v1'
+ const native = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
+@@ -157,6 +161,7 @@ if (mode === 'prepare') {
+               false,
+               undefined,
+               mode === 'experimental-dct16',
++              mode === 'experimental-rd8',
+             ))
+               await sink.write(part)
+             await writeFile(`${path}.jxl`, sink.toUint8Array(), { flag: 'wx' })
+diff --git a/src/codecs/jpegxl-jpeg-encode.ts b/src/codecs/jpegxl-jpeg-encode.ts
+index ebae3f4..bca8e5a 100644
+--- a/src/codecs/jpegxl-jpeg-encode.ts
++++ b/src/codecs/jpegxl-jpeg-encode.ts
+@@ -600,7 +600,8 @@ const naturalDct16Order = (): Uint32Array => {
+ const dct16Order = naturalDct16Order()
+ const order = naturalOrder()
+ const transposed = (position: number): number => (position & 7) * 8 + (position >>> 3)
+-const naturalJpegXlOrder = Uint32Array.from(order, transposed)
++export const jpegXlNaturalAcOrder = Uint32Array.from(order, transposed)
++const naturalJpegXlOrder = jpegXlNaturalAcOrder
+ 
+ const optimizedCoefficientOrders = (
+   geometry: Readonly<JpegDerivedGeometry>,
+diff --git a/src/codecs/jpegxl-vardct-encode.ts b/src/codecs/jpegxl-vardct-encode.ts
+index acbc42c..d41085e 100644
+--- a/src/codecs/jpegxl-vardct-encode.ts
++++ b/src/codecs/jpegxl-vardct-encode.ts
+@@ -11,6 +11,7 @@ import {
+ import {
+   encodeVarDctCoefficientSections,
+   encodeVarDctCoefficientSectionsAsync,
++  jpegXlNaturalAcOrder,
+   type VarDctCoefficientGeometry,
+   type VarDctCoefficientPlane,
+   varDctCodestreamParts,
+@@ -243,6 +244,7 @@ export const encodeJpegXlVarDct8 = (
+   progressive = false,
+   color?: JpegXlForwardColor,
+   experimentalDct16 = false,
++  experimentalRateDistortion = false,
+ ): readonly Uint8Array[] => {
+   const owned = memory ?? new JpegXlEncoderMemory(268_435_456)
+   try {
+@@ -261,6 +263,7 @@ export const encodeJpegXlVarDct8 = (
+         color,
+         defaultImageLimits,
+         experimentalDct16,
++        experimentalRateDistortion,
+       )
+       let next = steps.next()
+       while (!next.done) next = steps.next()
+@@ -297,6 +300,7 @@ export const encodeJpegXlVarDct8Async = (
+   limits: Readonly<ImageLimits> = defaultImageLimits,
+   frame: Readonly<JpegXlForwardFrameOptions> = {},
+   experimentalDct16 = false,
++  experimentalRateDistortion = false,
+ ): Promise<readonly Uint8Array[]> =>
+   withJpegXlMemoryAsync(memory, async () => {
+     const steps = prepare8(
+@@ -313,6 +317,7 @@ export const encodeJpegXlVarDct8Async = (
+       color,
+       limits,
+       experimentalDct16,
++      experimentalRateDistortion,
+     )
+     await checkpoint()
+     let next = steps.next()
+@@ -348,6 +353,7 @@ function* prepare8(
+   color: JpegXlForwardColor | undefined,
+   limits: Readonly<ImageLimits> = defaultImageLimits,
+   experimentalDct16 = false,
++  experimentalRateDistortion = false,
+ ): Generator<void, VarDctCoefficientGeometry, undefined> {
+   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
+     throw invalidInput('JPEG XL dimensions must be positive safe integers')
+@@ -677,6 +683,9 @@ function* prepare8(
+     const errors = allocateJpegXlArray(memory, Float32Array, 3)
+     const baselineErrors = allocateJpegXlArray(memory, Float32Array, 3)
+     const coefficientErrors = allocateJpegXlArray(memory, Float32Array, 64)
++    const trialCoefficients = experimentalRateDistortion
++      ? allocateJpegXlArray(memory, Int16Array, 64)
++      : undefined
+     // Compare estimated token cost only when every coding channel's reconstructed
+     // error is no worse than DCT8. Hornuss is not orthogonal, so its error is
+     // reconstructed algebraically; rectangular halves have half-block weights.
+@@ -689,6 +698,7 @@ function* prepare8(
+         transform(strategy, plane)
+         let squared = 0
+         coefficientErrors[0] = 0
++        if (trialCoefficients) trialCoefficients[0] = 0
+         for (let position = 1; position < 64; position++) {
+           const step = localScale * (table[position] ?? 0)
+           const value = Math.round((transformed[position] ?? 0) / step)
+@@ -701,6 +711,7 @@ function* prepare8(
+                 : value - 0.145 / value
+           const error = (transformed[position] ?? 0) - decoded * step
+           coefficientErrors[position] = error
++          if (trialCoefficients) trialCoefficients[position] = value
+           squared +=
+             error * error * ((strategy === 12 || strategy === 13) && position !== 8 ? 0.5 : 1)
+           if (value !== 0) bits += 1 + 2 * Math.log2(1 + Math.abs(value))
+@@ -730,6 +741,19 @@ function* prepare8(
+             }
+         }
+         errors[channel] = squared
++        if (trialCoefficients) {
++          let last = 0
++          let nonzero = 0
++          for (let scan = 1; scan < 64; scan++) {
++            if (trialCoefficients[jpegXlNaturalAcOrder[scan] ?? 0] !== 0) {
++              last = scan
++              nonzero++
++            }
++          }
++          bits += Math.log2(1 + nonzero)
++          for (let scan = 1; scan <= last; scan++)
++            if (trialCoefficients[jpegXlNaturalAcOrder[scan] ?? 0] === 0) bits += 0.5
++        }
+       }
+       return bits
+     }
+@@ -743,16 +767,29 @@ function* prepare8(
+           best = 0,
+           selectedError = errors[1] ?? 0
+         baselineErrors.set(errors)
++        const lambda = localScale * localScale * 1e-6
++        let bestCost =
++          (errors[0] ?? Infinity) * 0.75 +
++          (errors[1] ?? Infinity) +
++          (errors[2] ?? Infinity) * 0.5 +
++          lambda * bestBits
+         for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
+           const strategy = strategyCandidates[candidate] ?? 0
+           const bits = measureStrategy(strategy, localScale)
+-          if (
+-            bits + 2 < bestBits &&
+-            (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
+-            (errors[1] ?? Infinity) <= (baselineErrors[1] ?? 0) + 1e-12 &&
+-            (errors[2] ?? Infinity) <= (baselineErrors[2] ?? 0) + 1e-12
+-          ) {
++          const cost =
++            (errors[0] ?? Infinity) * 0.75 +
++            (errors[1] ?? Infinity) +
++            (errors[2] ?? Infinity) * 0.5 +
++            lambda * (bits + 2)
++          const choose = experimentalRateDistortion
++            ? cost < bestCost
++            : bits + 2 < bestBits &&
++              (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
++              (errors[1] ?? Infinity) <= (baselineErrors[1] ?? 0) + 1e-12 &&
++              (errors[2] ?? Infinity) <= (baselineErrors[2] ?? 0) + 1e-12
++          if (choose) {
+             bestBits = bits
++            bestCost = cost
+             best = strategy
+             selectedError = errors[1] ?? 0
+           }
+@@ -774,6 +811,7 @@ function* prepare8(
+     memory.release(errors)
+     memory.release(baselineErrors)
+     memory.release(coefficientErrors)
++    if (trialCoefficients) memory.release(trialCoefficients)
+   }
+   if (
+     experimentalDct16 &&

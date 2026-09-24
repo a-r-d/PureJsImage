@@ -3,6 +3,12 @@ import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
+import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
+import { encodeJpegXlVarDct8 } from '../src/codecs/jpegxl-vardct-encode.ts'
+import {
+  encodeJpegXlDocumentPatchCandidate,
+  useLargeDocumentModularCandidate,
+} from '../src/codecs/jpegxl-modular-encode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'
@@ -16,6 +22,203 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
+
+export const verifyJpegXlScreenshotPatch = async () => {
+  const width = 512,
+    pixels = new Uint8Array(width * width * 3)
+  pixels.fill(240)
+  for (let cellY = 2; cellY < 30; cellY++) {
+    for (let cellX = 2; cellX < 30; cellX++) {
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          if (x !== 2 && x !== 5 && y !== 2 && y !== 5) continue
+          const at = ((cellY * 16 + y) * width + cellX * 16 + x) * 3
+          pixels[at] = 20
+          pixels[at + 1] = 30
+          pixels[at + 2] = 40
+        }
+      }
+    }
+  }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height: width,
+    pixelFormat: 'rgb8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossy', effort: 7, distance: 3, container: false },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('JPEG XL screenshot encoder is unavailable')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height: width,
+    stride: width * 3,
+    format: 'rgb8',
+    data: pixels,
+  })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const frames = await readJpegXlSourceFrameStructures(
+    new MemorySource(encoded),
+    defaultImageLimits,
+  )
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+  if (!decoder) throw new Error('JPEG XL screenshot decoder is unavailable')
+  let squared = 0,
+    samples = 0
+  for await (const block of decoder.decode()) {
+    try {
+      for (let y = 0; y < block.height; y++) {
+        for (let x = 0; x < block.width * 3; x++) {
+          const source = pixels[(block.y + y) * width * 3 + x] ?? 0
+          const decoded = block.data[y * block.stride + x] ?? 0
+          squared += (source - decoded) ** 2
+          samples++
+        }
+      }
+    } finally {
+      block.release?.()
+    }
+  }
+  return {
+    bytes: encoded.length,
+    frames: frames.map((frame) => [frame.frameType, frame.encoding, frame.frameFlags]),
+    samples,
+    rmse: Math.sqrt(squared / samples),
+  }
+}
+
+export const verifyJpegXlDocumentPatch = async () => {
+  const width = 256,
+    height = 256,
+    pixels = new Uint8Array(width * height * 3)
+  pixels.fill(255)
+  for (let cellY = 0; cellY < 25; cellY++)
+    for (let cellX = 0; cellX < 25; cellX++)
+      for (let y = 0; y < 6; y++)
+        for (let x = 0; x < 6; x++) {
+          const offset = ((cellY * 10 + y) * width + cellX * 10 + x) * 3
+          pixels[offset] = 18
+          pixels[offset + 1] = 24
+          pixels[offset + 2] = 30
+        }
+  const memory = new JpegXlEncoderMemory(268_435_456)
+  let candidate: Awaited<ReturnType<typeof encodeJpegXlDocumentPatchCandidate>>
+  try {
+    candidate = await encodeJpegXlDocumentPatchCandidate(
+      pixels,
+      width,
+      height,
+      {
+        mode: 'lossy',
+        effort: 7,
+        distance: 3,
+        progressive: false,
+        container: false,
+        codestreamLevel: 5,
+        sampleBitDepth: 8,
+        orientation: 1,
+        colorSemantics: {
+          family: 'rgb',
+          primaries: 'srgb',
+          transfer: { kind: 'srgb' },
+          matrix: 'identity',
+          range: 'full',
+          alpha: 'none',
+          provenance: 'assumed-default',
+          renderingIntent: 'relative',
+        },
+        toneMapping: {
+          intensityTarget: 255,
+          minNits: 0,
+          relativeToMaxDisplay: false,
+          linearBelow: 0,
+        },
+      },
+      memory,
+      async () => {},
+    )
+  } finally {
+    memory.close()
+  }
+  if (!candidate) throw new Error('Document patch candidate was not selected')
+  const encoded = new Uint8Array(candidate.byteLength)
+  encoded.set(candidate.header)
+  let offset = candidate.header.length
+  for (const part of candidate.sections) {
+    encoded.set(part, offset)
+    offset += part.length
+  }
+  const frames = await readJpegXlSourceFrameStructures(
+    new MemorySource(encoded),
+    defaultImageLimits,
+  )
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), {
+    ...defaultImageLimits,
+    maxDecodedBytes: 6_000_000,
+  })
+  if (!decoder) throw new Error('Document patch decoder is unavailable')
+  let samples = 0,
+    maximum = 0
+  for await (const block of decoder.decode()) {
+    try {
+      for (let y = 0; y < block.height; y++)
+        for (let x = 0; x < width * 3; x++) {
+          const expected = pixels[(block.y + y) * width * 3 + x] ?? 0
+          const actual = block.data[y * block.stride + x] ?? 0
+          maximum = Math.max(maximum, Math.abs(expected - actual))
+          samples++
+        }
+    } finally {
+      block.release?.()
+    }
+  }
+  return {
+    bytes: encoded.length,
+    frames: frames.map((frame) => [frame.frameType, frame.encoding, frame.frameFlags]),
+    samples,
+    maximum,
+  }
+}
+
+export const verifyJpegXlLargeDocumentSelection = () => {
+  const width = 2800,
+    height = 3000,
+    pixels = new Uint8Array(width * height * 3)
+  pixels.fill(255)
+  const options = {
+    effort: 7,
+    distance: 3,
+    progressive: false,
+    sampleBitDepth: 8,
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+  } as const
+  const eligible = useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
+  pixels.fill(0)
+  const darkExcluded = !useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
+  return { eligible, darkExcluded }
+}
 
 export const verifyLevelTenJpegXl = async (bytes: Uint8Array) => {
   const sequence = await openJpegXlSequence(bytes)
@@ -663,6 +866,42 @@ export async function verifyM7ForwardJpegXl(
   return results
 }
 
+export async function verifyM7EffortSevenAlpha() {
+  const width = 65,
+    height = 33,
+    pixels = new Uint8Array(width * height * 4),
+    sink = new Uint8ArraySink()
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const offset = (y * width + x) * 4
+      pixels[offset] = x < 32 ? 228 : 25
+      pixels[offset + 1] = (x * 11 + y * 3) & 255
+      pixels[offset + 2] = (y * 7) & 255
+      pixels[offset + 3] = (x * 17 + y * 29) & 255
+    }
+  for (const part of encodeJpegXlVarDct8(pixels, width, height, 3, undefined, 4, 7))
+    await sink.write(part)
+  const bytes = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('Missing RGBA8 decoder')
+  const decoded = new Uint8Array(pixels.length)
+  for await (const block of decoder.decode()) {
+    for (let y = 0; y < block.height; y++)
+      decoded.set(
+        block.data.subarray(y * block.stride, y * block.stride + block.width * 4),
+        (block.y + y) * width * 4,
+      )
+    block.release?.()
+  }
+  let alphaMaximumError = 0
+  for (let offset = 3; offset < pixels.length; offset += 4)
+    alphaMaximumError = Math.max(
+      alphaMaximumError,
+      Math.abs((decoded[offset] ?? 0) - (pixels[offset] ?? 0)),
+    )
+  return { encoded: Array.from(bytes), decoded: Array.from(decoded), alphaMaximumError }
+}
+
 export async function verifyM7EffortOneGroups() {
   const width = 513,
     height = 257
@@ -912,4 +1151,152 @@ export const verifyJpegXlM8WideGamut = async (bytes: Uint8Array) => {
   } finally {
     await sequence.close()
   }
+}
+
+export const verifyJpegXlSelectiveHdr = async (bytes: Uint8Array): Promise<boolean> => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })
+  let valid = session.stages.find((stage) => stage.kind === 'dc')?.status !== 'unavailable'
+  let seen = false
+  try {
+    if (valid)
+      for await (const event of session.progressive({ until: 'dc' })) {
+        if (event.type !== 'block') continue
+        if (event.block.format !== 'rgbf32') {
+          valid = false
+          break
+        }
+        const pixel = new DataView(
+          event.block.data.buffer,
+          event.block.data.byteOffset,
+          event.block.data.byteLength,
+        ).getFloat32(0, false)
+        valid = Number.isFinite(pixel) && pixel > 0
+        seen = true
+        break
+      }
+    valid = valid && seen && session.sourceSectionBytes < bytes.byteLength
+  } finally {
+    await session.close()
+  }
+  if (session.managedLiveBytes !== 0)
+    throw new Error('JPEG XL selective HDR session retained managed bytes')
+  return valid
+}
+
+export const verifyJpegXlSelectiveHdrAlpha = async (bytes: Uint8Array): Promise<boolean> => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })
+  let seen = false
+  let valid = true
+  try {
+    for await (const event of session.progressive({ until: 'dc' })) {
+      if (event.type !== 'block') continue
+      if (event.block.format !== 'rgbaf32') {
+        valid = false
+        break
+      }
+      const alpha = new DataView(
+        event.block.data.buffer,
+        event.block.data.byteOffset,
+        event.block.data.byteLength,
+      ).getFloat32(12, false)
+      valid = Math.abs(alpha - 0.5) <= 0.001
+      seen = true
+      break
+    }
+    valid = valid && seen && session.sourceSectionBytes < bytes.byteLength
+  } finally {
+    await session.close()
+  }
+  if (session.managedLiveBytes !== 0)
+    throw new Error('JPEG XL selective HDR alpha session retained managed bytes')
+  return valid
+}
+
+export const verifyJpegXlGrayscaleExact = async (source: Uint8Array): Promise<boolean> => {
+  const { inspectJpegReconstructionEligibility, reconstructJpegFromJpegXl, transcodeJpegToJpegXl } =
+    await import('../src/jpegxl.ts')
+  const eligible = await inspectJpegReconstructionEligibility(source)
+  if (!eligible.eligible || eligible.sourceProfile?.components !== 1) return false
+  const encoded = await transcodeJpegToJpegXl(source, { reconstruction: 'required' })
+  const restored = await reconstructJpegFromJpegXl(encoded.data)
+  if (restored.length !== source.length || restored.some((value, index) => value !== source[index]))
+    return false
+  const decoder = await jpegxlCodec.createDecoder?.(
+    new MemorySource(encoded.data),
+    defaultImageLimits,
+  )
+  if (!decoder || decoder.colorSemantics?.family !== 'gray') return false
+  let decoded = 0
+  for await (const block of decoder.decode()) {
+    if (block.format !== 'gray8') return false
+    decoded += block.width * block.height
+    block.release?.()
+  }
+  return decoded === eligible.sourceProfile.width * eligible.sourceProfile.height
+}
+
+export const verifyLosslessPaletteRgba = async () => {
+  const width = 64,
+    height = 64,
+    pixels = new Uint8Array(width * height * 4)
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const color = (x * 5 + y * 11) % 73
+      const offset = (y * width + x) * 4
+      pixels[offset] = (color * 17) & 255
+      pixels[offset + 1] = (color * 29) & 255
+      pixels[offset + 2] = (color * 43) & 255
+      pixels[offset + 3] = (x + y) % 5 === 0 ? 0 : 255
+    }
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgba8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'straight',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossless', effort: 7 },
+  })
+  if (!encoder) throw new Error('Missing JPEG XL palette encoder')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 4,
+    format: 'rgba8',
+    data: pixels,
+  })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits, {
+    colorOutput: 'preserve',
+  })
+  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('RGBA decode unavailable')
+  let rows = 0
+  for await (const block of decoder.decode()) {
+    try {
+      for (let y = 0; y < block.height; y++) {
+        const actual = block.data.subarray(y * block.stride, y * block.stride + width * 4)
+        const expected = pixels.subarray((block.y + y) * width * 4, (block.y + y + 1) * width * 4)
+        for (let sample = 0; sample < expected.length; sample++)
+          if (actual[sample] !== expected[sample]) throw new Error('RGBA sample changed')
+        rows++
+      }
+    } finally {
+      block.release?.()
+    }
+  }
+  if (rows !== height) throw new Error('RGBA row count changed')
+  return { bytes: encoded.length, rows }
 }
