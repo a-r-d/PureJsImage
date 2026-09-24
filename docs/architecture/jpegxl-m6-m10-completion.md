@@ -1014,6 +1014,10 @@ its qualified status. Lossy stays Experimental because complete SSIMULACRA2
 brackets and the original-size HDR, transparency and visual quality gates
 remain unmet. The [per-case bracket audit](../../benchmark/jpegxl/production-program/m7-prompt8-bracket-audit.json) shows that pinned native libjxl itself lacks 70/80/90 brackets on some sources within the approved six distances. Those reference gaps need supplementary endpoints before a complete matched-quality claim can be measured. The original matrix and missing cases stay intact. No version change, release or Stable promotion follows.
 
+### September 24 lossy investigation
+
+The [screenshot and gradient investigation](../../benchmark/jpegxl/production-program/m7-prompt9-investigation.md) tested two encoder changes and reverted both after independent decoding and quality checks. Pinned libjxl patch controls show a 9.80% saving on a development screenshot and a 14.39% saving on the previously observed original screenshot. Its screenshot display uses VarDCT with a small Modular patch reference. The current first-party Modular display is too large for that screenshot class, so no patch expansion was retained. Gradient patches cover only about 0.0035% of the original gradient. The same bracket, HDR/alpha and visual gates remain open; this pass changes no qualification result.
+
 ## M8 initial static decoding checkpoint, September 11
 
 This section records the initial checkpoint, superseded by the completion run
