@@ -1,0 +1,44 @@
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda1e-7-receipt.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-24
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-span-receipt.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-24
+benchmark/jpegxl/experimental/m7-recovery-stage-c-rd8-prototype.patch
+  s_d4180e5cac980c::t_b1b52456072daf 1-186
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda1e-6.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-895
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda1e-6-receipt.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-24
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-span.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-895
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda1e-7.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-895
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda2e-6.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-895
+benchmark/jpegxl/production-program/m7-recovery-stage-c.md
+  s_d4180e5cac980c::t_d88de727da3391 1-32,34-39
+  s_d4180e5cac980c::t_69f1cdedbbc499 33
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d4180e5cac980c::t_69f1cdedbbc499 1052-1070
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda1e-5.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-895
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda2e-6-receipt.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-24
+benchmark/jpegxl/production-program/m7-recovery-stage-c-rd8-lambda1e-5-receipt.json
+  s_d4180e5cac980c::t_b1b52456072daf 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3a2a73475cfbe6bf9db9c0b43f80a0d4f214c65e",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
