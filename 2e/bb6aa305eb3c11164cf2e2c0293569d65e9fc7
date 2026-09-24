@@ -1,0 +1,21 @@
+benchmark/jpegxl/production-program/m7-prompt13-transform-investigation.md
+  s_d4180e5cac980c::t_b2e5bfeeed278f 1-35
+benchmark/optimization-log.md
+  s_d4180e5cac980c::t_b2e5bfeeed278f 1303-1304
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2ebb6aa305eb3c11164cf2e2c0293569d65e9fc7",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
