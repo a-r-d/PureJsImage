@@ -37,12 +37,14 @@ if (!runId || !/^[a-z0-9-]+$/u.test(runId))
   throw new Error('Specify the shared HDR/alpha run identifier')
 const mode = process.argv[3] ?? 'both'
 if (mode !== 'both' && mode !== 'alpha') throw new Error('Expected both or alpha report mode')
+const alphaRunId = process.argv[4] ?? runId
+if (!/^[a-z0-9-]+$/u.test(alphaRunId)) throw new Error('Invalid alpha evidence run identifier')
 const kinds: readonly ('hdr' | 'alpha')[] = mode === 'alpha' ? ['alpha'] : ['hdr', 'alpha']
 const domains =
   mode === 'alpha'
     ? ['background-black', 'background-white']
     : ['headroom-1', 'headroom-2', 'headroom-4', 'background-black', 'background-white']
-const alphaProtocol = await load(`.tmp/jpegxl-m7/alpha-${split}-${runId}/protocol.json`)
+const alphaProtocol = await load(`.tmp/jpegxl-m7/alpha-${split}-${alphaRunId}/protocol.json`)
 if (
   (alphaProtocol.split ?? 'development') !== split ||
   !Array.isArray(alphaProtocol.sourceFiles) ||
@@ -115,7 +117,7 @@ for (const kind of kinds) {
         }
       }
     } else {
-      const path = `.tmp/jpegxl-m7/alpha-${split}-${runId}/${entry.id}/report.json`
+      const path = `.tmp/jpegxl-m7/alpha-${split}-${alphaRunId}/${entry.id}/report.json`
       try {
         const report = await load(path)
         if (
@@ -242,6 +244,6 @@ for (const domain of domains)
     }
 await writeFile(
   `.tmp/jpegxl-m7/expansion-quality-${split === 'development' ? '' : 'holdout-'}${runId}-summary.json`,
-  `${JSON.stringify({ split, policy: `Frozen ${split} diagnostic only. One vote per family, comparator, metric and domain. Never extrapolate; incomplete or unbracketed curves stay missing. Full raw source/tool protocols retained. No stable promotion.`, runId, alphaProtocol, errors, summaries, matches, unmatched, results, stablePromotionGatePassed: false }, null, 2)}\n`,
+  `${JSON.stringify({ split, policy: `Frozen ${split} diagnostic only. One vote per family, comparator, metric and domain. Never extrapolate; incomplete or unbracketed curves stay missing. Full raw source/tool protocols retained. An explicit alphaRunId may reuse previously measured direct VarDCT alpha evidence when that encoding path and measurement protocol are unchanged. No stable promotion.`, runId, alphaRunId, alphaProtocol, errors, summaries, matches, unmatched, results, stablePromotionGatePassed: false }, null, 2)}\n`,
 )
 console.log(JSON.stringify({ reports: results.length, errors: errors.length, summaries }))

@@ -3531,6 +3531,37 @@ interface EncodedJpegXlCodestream {
   readonly byteLength: number
 }
 
+// Keep the exact lossy candidate for artwork with a bounded visible-color palette.
+const hasSmallVisiblePalette = (pixels: Uint8Array, memory?: JpegXlEncoderMemory): boolean => {
+  const colors = allocateJpegXlArray(memory, Uint32Array, 4_096)
+  let occupied: Uint8Array | undefined
+  try {
+    occupied = allocateJpegXlArray(memory, Uint8Array, 4_096)
+    let count = 0
+    for (let offset = 0; offset < pixels.length; offset += 4) {
+      const alpha = pixels[offset + 3] ?? 0
+      if (alpha === 0) continue
+      const color =
+        (((pixels[offset] ?? 0) << 24) |
+          ((pixels[offset + 1] ?? 0) << 16) |
+          ((pixels[offset + 2] ?? 0) << 8) |
+          alpha) >>>
+        0
+      let slot = (Math.imul(color ^ (color >>> 16), 0x9e3779b1) >>> 0) & 4_095
+      while (occupied[slot] !== 0 && colors[slot] !== color) slot = (slot + 1) & 4_095
+      if (occupied[slot] === 0) {
+        occupied[slot] = 1
+        colors[slot] = color
+        if (++count > 2_048) return false
+      }
+    }
+    return true
+  } finally {
+    if (occupied) memory?.release(occupied)
+    memory?.release(colors)
+  }
+}
+
 // Limit the extra effort-7 search to large white-background documents.
 export const useLargeDocumentModularCandidate = (
   pixels: Uint8Array,
@@ -4085,7 +4116,8 @@ const encodeLossyCodestream = (
       options.sampleBitDepth === 8 &&
       options.alphaBitDepth === 8 &&
       options.colorSemantics.primaries === 'srgb' &&
-      options.colorSemantics.transfer.kind === 'srgb'
+      options.colorSemantics.transfer.kind === 'srgb' &&
+      hasSmallVisiblePalette(pixels, memory)
     ) {
       let normalized: Uint8Array | undefined
       try {
@@ -4112,7 +4144,7 @@ const encodeLossyCodestream = (
           checkpoint,
         )
         // Preserve visible color and exact alpha when Modular also saves bytes.
-        if (exact.byteLength * 20 <= primary.byteLength * 19) return exact
+        if (exact.byteLength * 20 <= primary.byteLength * 19) selected = exact
       } catch (error) {
         if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
       } finally {

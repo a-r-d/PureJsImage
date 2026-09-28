@@ -4,10 +4,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
-- Improve Experimental JPEG XL effort-7 lossy detail in sRGB images, transparent
-  artwork and bright PQ regions. Keep exact alpha and native HDR precision.
-  Lossy encoding remains Experimental while full matched-quality coverage and
-  the remaining visual limits are reviewed.
+- Improve Experimental JPEG XL effort-7 lossy detail in sRGB images and
+  bright PQ regions. Small sRGB RGBA artwork can use a smaller Modular stream
+  that preserves visible RGB and every alpha sample. Lossy mode may normalize
+  RGB under zero alpha. Native HDR precision is preserved. Lossy encoding
+  remains Experimental while quality brackets and visual limits are reviewed.
 - Reduce JPEG XL effort-1 RGB8 encoding work with fixed AC quantization scales
   and an aligned-block color path. Independently decoded output stays unchanged
   on the 12 MP runtime case and the approved 2 MP quality matrix.
